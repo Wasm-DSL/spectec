@@ -1393,9 +1393,9 @@ relation Step_read: `%~>%*`(config, admininstr*)
     `%~>%*`(`%;%*`(z, [TABLE.SIZE_admininstr(x)]), [CONST_admininstr(I32_numtype, n)])
     -- if (|$table(z, x)| = n)
 
-  ;; 6-reduction.watsup:205.1-206.57
-  rule table.grow-fail {n : n, x : idx, z : state}:
-    `%~>%*`(`%;%*`(z, [CONST_admininstr(I32_numtype, n) TABLE.GROW_admininstr(x)]), [CONST_admininstr(I32_numtype, - 1)])
+  ;; 6-reduction.watsup:205.1-206.61
+  rule table.grow-fail {n : n, ref : ref, x : idx, z : state}:
+    `%~>%*`(`%;%*`(z, [(ref <: admininstr) CONST_admininstr(I32_numtype, n) TABLE.GROW_admininstr(x)]), [CONST_admininstr(I32_numtype, - 1)])
 
   ;; 6-reduction.watsup:209.1-211.34
   rule table.fill-trap {i : nat, n : n, val : val, x : idx, z : state}:
@@ -3394,7 +3394,7 @@ $$
 
 $$
 \begin{array}{@{}l@{}lcl@{}l@{}}
-{[\textsc{\scriptsize E{-}table.grow{-}fail}]} \quad & \mathit{z} ; (\mathsf{i{\scriptstyle32}}.\mathsf{const}~\mathit{n})~(\mathsf{table.grow}~\mathit{x}) &\hookrightarrow& (\mathsf{i{\scriptstyle32}}.\mathsf{const}~-1) &  \\
+{[\textsc{\scriptsize E{-}table.grow{-}fail}]} \quad & \mathit{z} ; \mathit{ref}~(\mathsf{i{\scriptstyle32}}.\mathsf{const}~\mathit{n})~(\mathsf{table.grow}~\mathit{x}) &\hookrightarrow& (\mathsf{i{\scriptstyle32}}.\mathsf{const}~-1) &  \\
 \end{array}
 $$
 
@@ -3645,9 +3645,11 @@ table.size
 table.grow
 1. Assert: Due to validation, a value of value type i32 is on the top of the stack.
 2. Pop YetE (CONST_admininstr(I32_numtype, n)) from the stack.
-3. If YetC (), then:
+3. Assert: Due to validation, a value is on the top of the stack.
+4. Pop YetE ((ref <: admininstr)) from the stack.
+5. If YetC (), then:
   a. Push YetE (CONST_admininstr(I32_numtype, - 1)) to the stack.
-4. If YetC (), then:
+6. If YetC (), then:
   a. YetI: Perform $with_tableext(z, x, ref^n{}).
   b. Push YetE (CONST_admininstr(I32_numtype, |$table(z, x)|)) to the stack.
 
