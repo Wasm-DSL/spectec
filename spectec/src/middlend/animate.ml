@@ -12,7 +12,7 @@ open Il.Ast
 open Il.Free
 
 (* for debugging *)
-let debug = 1 (* 1 : print msg, 2 : fail *)
+let debug = 0 (* 1 : print msg, 2 : fail *)
 let fail prem =
   let msg = "Animation failed:" ^ Il.Print.string_of_prem prem in
   match debug with
