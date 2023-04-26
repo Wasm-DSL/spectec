@@ -205,9 +205,8 @@ let rec string_of_prem prem =
     "(" ^ string_of_prem prem' ^ ")" ^ string_of_iterexp iter
 
 let region_comment indent at =
-  if at = no_region
-  then ""
-  else indent ^ ";; " ^ string_of_region at ^ "\n"
+  if at = no_region then "" else
+  indent ^ ";; " ^ string_of_region at ^ "\n"
 
 let string_of_rule rule =
   match rule.it with
