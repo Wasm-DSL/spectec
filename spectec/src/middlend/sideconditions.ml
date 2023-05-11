@@ -16,7 +16,7 @@ open Il.Ast
 
 (* Errors *)
 
-let _error at msg = Source.error at "sideconditions" msg
+let error at msg = Source.error at "sideconditions" msg
 
 module Env = Map.Make(String)
 
@@ -99,6 +99,10 @@ let rec t_prem env prem = match prem.it with
   | IterPr (prem, iterexp)
   -> iter_side_conditions env iterexp @
      List.map (fun pr -> IterPr (pr, iterexp) $ no_region) (t_prem env prem) @ t_iterexp env iterexp
+  | NegPr prem'
+  -> match t_prem env prem' with
+    | [] -> []
+    | _ -> error prem.at "side condition in negated premise"
 
 let t_prems env = List.concat_map (t_prem env)
 

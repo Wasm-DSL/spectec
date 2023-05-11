@@ -127,6 +127,7 @@ let rec free_prem prem =
   | IfPr e -> free_exp e
   | ElsePr -> empty
   | IterPr (prem', iter) -> union (free_prem prem') (free_iterexp iter)
+  | NegPr prem' -> free_prem prem'
 
 let free_rule rule =
   match rule.it with

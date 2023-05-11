@@ -503,6 +503,8 @@ let rec valid_prem env prem =
   | IterPr (prem', iter) ->
     let env' = valid_iterexp env iter in
     valid_prem env' prem'
+  | NegPr prem' ->
+    valid_prem env prem'
 
 
 let valid_rule env mixop t rule =

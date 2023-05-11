@@ -302,6 +302,9 @@ and annot_prem env prem : Il.Ast.premise * occur =
       let prem1', occur1 = annot_prem env prem1 in
       let iter', occur' = annot_iterexp env occur1 iter prem.at in
       IterPr (prem1', iter'), occur'
+    | NegPr prem1 ->
+      let prem1', occur = annot_prem env prem1 in
+      NegPr prem1', occur
   in {prem with it}, occur
 
 let annot_exp env e =

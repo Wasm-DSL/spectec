@@ -158,6 +158,7 @@ and premise' =
   | IfPr of exp                                       (* side condition *)
   | ElsePr                                            (* otherwise *)
   | IterPr of premise * iterexp                       (* iteration *)
+  | NegPr of premise                                  (* negation of a premise *)
 
 and hintdef = hintdef' phrase
 and hintdef' =

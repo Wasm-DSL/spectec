@@ -181,6 +181,7 @@ and t_prem' n prem : eqns * premise' =
     let eqns2, iterexp'' = t_iterexp n iterexp' in
     let iterexp''' = update_iterexp_vars (Il.Free.free_prem prem') iterexp'' in
     eqns1' @ eqns2, IterPr (prem', iterexp''')
+  | NegPr p -> error p.at "Cannot extract side-conditions from negated premises"
 
 let t_prems n k  = t_list t_prem n k (fun x -> x)
 

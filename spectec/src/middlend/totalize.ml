@@ -96,6 +96,7 @@ let rec t_prem' env = function
   | IfPr e -> IfPr (t_exp env e)
   | ElsePr -> ElsePr
   | IterPr (prem, iterexp) -> IterPr (t_prem env prem, t_iterexp env iterexp)
+  | NegPr prem -> NegPr (t_prem env prem)
 
 and t_prem env x = { x with it = t_prem' env x.it }
 

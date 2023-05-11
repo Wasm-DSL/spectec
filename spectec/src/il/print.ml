@@ -203,6 +203,7 @@ let rec string_of_prem prem =
     string_of_prem prem' ^ string_of_iterexp iter
   | IterPr (prem', iter) ->
     "(" ^ string_of_prem prem' ^ ")" ^ string_of_iterexp iter
+  | NegPr prem' -> "unless " ^ string_of_prem prem'
 
 let region_comment indent at =
   if at = no_region then "" else
