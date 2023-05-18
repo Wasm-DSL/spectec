@@ -159,7 +159,7 @@ loop bt instr
 6. If the length of t_1^k is k, then:
   a. If the length of t_2^n is n, then:
     1) If the length of val^k is k, then:
-      a) Let L be the label_n{[loop bt instr*]}.
+      a) Let L be the label_n{[loop(bt, instr*)]}.
       b) Push L to the stack.
       c) Push val^k to the stack.
       d) Jump to instr*.
@@ -169,9 +169,9 @@ if bt instr_1 instr_2
 1. Assert: Due to validation, a value of value type i32 is on the top of the stack.
 2. Pop the value i32.CONST c from the stack.
 3. If c is not 0, then:
-  a. Execute (block bt instr_1*).
+  a. Execute (block(bt, instr_1*)).
 4. Else:
-  a. Execute (block bt instr_2*).
+  a. Execute (block(bt, instr_2*)).
 
 label n instr val
 1. Pop val* from the stack.
@@ -187,21 +187,21 @@ br
   a. Push val^n to the stack.
   b. Push instr'* to the stack.
 5. Push val* to the stack.
-6. Execute (br l).
+6. Execute (br(l)).
 
 br_if l
 1. Assert: Due to validation, a value of value type i32 is on the top of the stack.
 2. Pop the value i32.CONST c from the stack.
 3. If c is not 0, then:
-  a. Execute (br l).
+  a. Execute (br(l)).
 
 br_table l l'
 1. Assert: Due to validation, a value of value type i32 is on the top of the stack.
 2. Pop the value i32.CONST i from the stack.
 3. If i < the length of l*, then:
-  a. Execute (br l*[i]).
+  a. Execute (br(l*[i])).
 4. Else:
-  a. Execute (br l').
+  a. Execute (br(l')).
 
 frame n f val
 1. Let f be the current frame.
@@ -290,11 +290,11 @@ local.tee x
 2. Pop val from the stack.
 3. Push val to the stack.
 4. Push val to the stack.
-5. Execute (local.set x).
+5. Execute (local.set(x)).
 
 call x
 1. If x < the length of $funcaddr(), then:
-  a. Execute (call_addr $funcaddr()[x]).
+  a. Execute (call_addr($funcaddr()[x])).
 
 call_indirect x ft
 1. Assert: Due to validation, a value of value type i32 is on the top of the stack.
@@ -310,7 +310,7 @@ call_indirect x ft
       a) Trap.
     3) Else:
       a) Let (m, func) be $funcinst()[a].
-      b) Execute (call_addr a).
+      b) Execute (call_addr(a)).
 
 call_addr a
 1. If a < the length of $funcinst(), then:
@@ -367,11 +367,11 @@ table.fill x
   a. If n is not 0, then:
     1) Push the value i32.CONST i to the stack.
     2) Push val to the stack.
-    3) Execute (table.set x).
+    3) Execute (table.set(x)).
     4) Push the value i32.CONST (i + 1) to the stack.
     5) Push val to the stack.
     6) Push the value i32.CONST (n - 1) to the stack.
-    7) Execute (table.fill x).
+    7) Execute (table.fill(x)).
 
 table.copy x y
 1. Assert: Due to validation, a value of value type i32 is on the top of the stack.
@@ -390,12 +390,12 @@ table.copy x y
     2) Else:
       a) Push the value i32.CONST ((j + n) - 1) to the stack.
       b) Push the value i32.CONST ((i + n) - 1) to the stack.
-    3) Execute (table.get y).
-    4) Execute (table.set x).
+    3) Execute (table.get(y)).
+    4) Execute (table.set(x)).
     5) Push the value i32.CONST (j + 1) to the stack.
     6) Push the value i32.CONST (i + 1) to the stack.
     7) Push the value i32.CONST (n - 1) to the stack.
-    8) Execute (table.copy x y).
+    8) Execute (table.copy(x, y)).
 
 table.init x y
 1. Assert: Due to validation, a value of value type i32 is on the top of the stack.
@@ -411,11 +411,11 @@ table.init x y
     1) If i < the length of $elem(y), then:
       a) Push the value i32.CONST j to the stack.
       b) Push $elem(y)[i] to the stack.
-      c) Execute (table.set x).
+      c) Execute (table.set(x)).
       d) Push the value i32.CONST (j + 1) to the stack.
       e) Push the value i32.CONST (i + 1) to the stack.
       f) Push the value i32.CONST (n - 1) to the stack.
-      g) Execute (table.init x y).
+      g) Execute (table.init(x, y)).
 
 load nt ?() n_A n_O
 1. Assert: Due to validation, a value of value type i32 is on the top of the stack.
@@ -442,7 +442,7 @@ memory.fill
   a. If n is not 0, then:
     1) Push the value i32.CONST i to the stack.
     2) Push val to the stack.
-    3) Execute (store i32 ?(8) 0 0).
+    3) Execute (store(i32, ?(8), 0, 0)).
     4) Push the value i32.CONST (i + 1) to the stack.
     5) Push val to the stack.
     6) Push the value i32.CONST (n - 1) to the stack.
@@ -465,8 +465,8 @@ memory.copy
     2) Else:
       a) Push the value i32.CONST ((j + n) - 1) to the stack.
       b) Push the value i32.CONST ((i + n) - 1) to the stack.
-    3) Execute (load i32 ?((8, YetE (U_sx))) 0 0).
-    4) Execute (store i32 ?(8) 0 0).
+    3) Execute (load(i32, ?((8, YetE (U_sx))), 0, 0)).
+    4) Execute (store(i32, ?(8), 0, 0)).
     5) Push the value i32.CONST (j + 1) to the stack.
     6) Push the value i32.CONST (i + 1) to the stack.
     7) Push the value i32.CONST (n - 1) to the stack.
@@ -486,11 +486,11 @@ memory.init x
     1) If i < the length of $data(x), then:
       a) Push the value i32.CONST j to the stack.
       b) Push the value i32.CONST $data(x)[i] to the stack.
-      c) Execute (store i32 ?(8) 0 0).
+      c) Execute (store(i32, ?(8), 0, 0)).
       d) Push the value i32.CONST (j + 1) to the stack.
       e) Push the value i32.CONST (i + 1) to the stack.
       f) Push the value i32.CONST (n - 1) to the stack.
-      g) Execute (memory.init x).
+      g) Execute (memory.init(x)).
 
 local.set x
 1. Assert: Due to validation, a value is on the top of the stack.
@@ -572,7 +572,7 @@ br l
   b. Assert: Due to validation, the label L is now on the top of the stack.
   c. Pop the label from the stack.
   d. Push val* to the stack.
-  e. Execute (br (l - 1)).
+  e. Execute (br((l - 1))).
 
 return
 1. Let F be the current frame.
@@ -616,7 +616,7 @@ invocation funcaddr
 1. Let funcinst be s.FUNC[funcaddr].
 2. Let f be the activation of { LOCAL: []; MODULE: { FUNC: []; }; } with arity 0.
 3. Push f to the stack.
-4. Execute (call_addr funcaddr).
+4. Execute (call_addr(funcaddr)).
 
 ** Test instrs **
 
@@ -676,18 +676,18 @@ Fail!
 Expected: 3
 Actual: 2
 [Stack]
-(const i32 2)
-(const i32 1)
-FrameV ({ LOCAL: [(const i32 3), (const i32 0), (const i32 7)]; MODULE: ModuleInstV (TODO); })
+const(i32, 2)
+const(i32, 1)
+FrameV ({ LOCAL: [const(i32, 3), const(i32, 0), const(i32, 7)]; MODULE: ModuleInstV (TODO); })
 
 call_add_return_label
 Fail!
 Expected: 3
 Actual: 2
 [Stack]
-(const i32 2)
-(const i32 1)
-FrameV ({ LOCAL: [(const i32 3), (const i32 0), (const i32 7)]; MODULE: ModuleInstV (TODO); })
+const(i32, 2)
+const(i32, 1)
+FrameV ({ LOCAL: [const(i32, 3), const(i32, 0), const(i32, 7)]; MODULE: ModuleInstV (TODO); })
 
 block
 Ok
@@ -784,8 +784,8 @@ Fail!
 Expected: 3
 Actual: 2
 [Stack]
-(const i32 2)
-(const i32 1)
+const(i32, 2)
+const(i32, 1)
 FrameV ({ LOCAL: []; MODULE: { FUNC: []; }; })
 
 call_sum
@@ -793,7 +793,7 @@ Fail!
 Expected: 55
 Actual: 10
 [Stack]
-(const i32 10)
+const(i32, 10)
 FrameV ({ LOCAL: []; MODULE: { FUNC: []; }; })
 
 call_add_return_frame
@@ -801,8 +801,8 @@ Fail!
 Expected: 3
 Actual: 2
 [Stack]
-(const i32 2)
-(const i32 1)
+const(i32, 2)
+const(i32, 1)
 FrameV ({ LOCAL: []; MODULE: { FUNC: []; }; })
 
 call_add_return_label
@@ -810,8 +810,8 @@ Fail!
 Expected: 3
 Actual: 2
 [Stack]
-(const i32 2)
-(const i32 1)
+const(i32, 2)
+const(i32, 1)
 FrameV ({ LOCAL: []; MODULE: { FUNC: []; }; })
 
 == Complete.
