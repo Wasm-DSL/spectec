@@ -183,12 +183,12 @@ and eval_expr env expr =
       | _ ->
           (* Due to AL validation unreachable *)
           "Invalid Label: " ^ string_of_expr expr |> failwith)
-  | WasmInstrE (s, el) -> WasmInstrV (s, List.map (eval_expr env) el)
+  | ConstructE (cons, el) -> ConstructV (cons, List.map (eval_expr env) el)
   | NameE name | IterE (name, _) -> Env.find name env
   | ConstE (ty, inner_e) ->
       let v = eval_expr env inner_e in
       let wasm_ty = eval_expr env ty in
-      WasmInstrV ("const", [ wasm_ty; v ])
+      ConstructV ("const", [ wasm_ty; v ])
   | RecordE r -> RecordV (Record.map (eval_expr env) r)
   | ContE e -> (
       let v = eval_expr env e in
@@ -214,7 +214,7 @@ and eval_cond env cond =
   | TopC "value" -> (
       match !stack with
       | [] -> false
-      | h :: _ -> ( match h with WasmInstrV _ -> true | _ -> false))
+      | h :: _ -> ( match h with ConstructV _ -> true | _ -> false))
   | c -> structured_string_of_cond c |> failwith
 
 and interp_instr env i =
@@ -255,10 +255,10 @@ and interp_instr env i =
           let h = pop () in
 
           match (h, e) with
-          | WasmInstrV ("const", [ ty; v ]), ConstE (ValueE ty', NameE name) ->
+          | ConstructV ("const", [ ty; v ]), ConstE (ValueE ty', NameE name) ->
               assert (ty = ty');
               Env.add name v env
-          | WasmInstrV ("const", [ ty; v ]), ConstE (NameE nt, NameE name) ->
+          | ConstructV ("const", [ ty; v ]), ConstE (NameE nt, NameE name) ->
               env |> Env.add nt ty |> Env.add name v
           | h, NameE name -> Env.add name h env
           | _ -> failwith "Invalid pop"))
@@ -267,7 +267,7 @@ and interp_instr env i =
     | IterE (name, List) -> 
       let rec pop_value vs = (match !stack with
       | h :: _  -> (match h with
-        | WasmInstrV ("const", _) -> pop_value (pop () :: vs)
+        | ConstructV ("const", _) -> pop_value (pop () :: vs)
         | _ -> vs)
       | _ -> vs) 
       in
@@ -338,7 +338,7 @@ and interp_instr env i =
         let top = pop () in
         if pred top then top :: pop_while pred else []
       in
-      let vals = pop_while (function WasmInstrV _ -> true | _ -> false) in
+      let vals = pop_while (function ConstructV _ -> true | _ -> false) in
       vals |> List.rev |> List.iter push;
       env
   | AppendI (e1, e2, s) ->
@@ -377,8 +377,8 @@ and call_algo name args =
 
 and execute_wasm_instr winstr =
   match winstr with
-  | WasmInstrV ("const", _) | WasmInstrV ("ref.null", _) -> push winstr
-  | WasmInstrV (name, args) -> call_algo name args |> ignore
+  | ConstructV ("const", _) | ConstructV ("ref.null", _) -> push winstr
+  | ConstructV (name, args) -> call_algo name args |> ignore
   | _ -> failwith (string_of_value winstr ^ "is not a wasm instruction")
 
 and execute_wasm_instrs winstrs =

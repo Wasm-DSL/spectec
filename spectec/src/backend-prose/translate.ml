@@ -152,7 +152,7 @@ let rec exp2expr exp =
       Al.ValueE (Al.WasmTypeV (string2type typ))
   (* Wasm Instruction *)
   | Ast.CaseE (Ast.Atom "LOOP", { it = Ast.TupE exps; _ }, _) ->
-      Al.WasmInstrE ("loop", List.map exp2expr exps)
+      Al.ConstructE ("loop", List.map exp2expr exps)
   (* Tuple *)
   | Ast.TupE exps -> Al.TupE (List.map exp2expr exps)
   (* Call *)
@@ -361,7 +361,7 @@ let rec rhs2instrs exp =
         | Ast.TupE exps -> List.map exp2expr exps
         | _ -> [ exp2expr argexp ]
       in
-      [ Al.ExecuteI (Al.WasmInstrE (lower_id, args)) ]
+      [ Al.ExecuteI (Al.ConstructE (lower_id, args)) ]
   | Ast.MixE
       ( [ []; [ Ast.Semicolon ]; [ Ast.Star ] ],
         (* z' ; instr'* *)

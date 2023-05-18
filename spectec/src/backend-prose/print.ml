@@ -67,10 +67,6 @@ let rec structured_string_of_value = function
   | ModuleInstV _ -> "ModuleInstV (TODO)"
   | ListV _ -> "ListV"
   | WasmTypeV t -> Reference_interpreter.Types.string_of_value_type t
-  | WasmInstrV (s, vl) ->
-      "WasmInstrV(" ^ s ^ ", "
-      ^ string_of_list structured_string_of_value "[" ", " "]" vl
-      ^ ")"
   | IntV i -> string_of_int i
   | FloatV i -> string_of_float i
   | StringV s -> s
@@ -179,10 +175,6 @@ let rec structured_string_of_expr = function
       ^ structured_string_of_expr e1
       ^ ", "
       ^ structured_string_of_expr e2
-      ^ ")"
-  | WasmInstrE (s, el) ->
-      "WasmInstrE (" ^ s ^ ", "
-      ^ string_of_list structured_string_of_expr "[" ", " "]" el
       ^ ")"
   | NameE n -> "NameE (" ^ structured_string_of_name n ^ ")"
   | ArrowE (e1, e2) ->
@@ -425,8 +417,6 @@ and string_of_value = function
   | ModuleInstV _ -> "ModuleInstV (TODO)"
   | ListV lv -> string_of_array string_of_value "[" ", " "]" lv
   | WasmTypeV t -> Reference_interpreter.Types.string_of_value_type t
-  | WasmInstrV (s, vl) ->
-      "(" ^ s ^ string_of_list string_of_value " " " " ")" vl
   | IntV i -> string_of_int i
   | FloatV i -> string_of_float i
   | StringV s -> s
@@ -480,8 +470,6 @@ and string_of_expr = function
   | LabelNthE e -> sprintf "the %s-th label in the stack" (string_of_expr e)
   | LabelE (e1, e2) ->
       sprintf "the label_%s{%s}" (string_of_expr e1) (string_of_expr e2)
-  | WasmInstrE (s, []) -> s
-  | WasmInstrE (s, el) -> s ^ string_of_list string_of_expr " " " " "" el
   | NameE n -> string_of_name n
   | ArrowE (e1, e2) -> string_of_expr e1 ^ "->" ^ string_of_expr e2
   | ConstructE (s, el) -> s ^ string_of_list string_of_expr "(" ", " ")" el

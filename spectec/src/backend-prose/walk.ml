@@ -26,8 +26,8 @@ let rec walk_expr f e =
   | RefFuncAddrE inner_e -> f_expr (RefFuncAddrE (walk_expr f inner_e))
   | RefNullE n -> f_expr (RefNullE n)
   | LabelE (e1, e2) -> f_expr (LabelE (f_expr e1, f_expr e2))
-  | WasmInstrE (s, el) -> f_expr (WasmInstrE (s, walk_exprs f el))
   | NameE n -> f_expr (NameE n)
+  | ConstructE (cons, el) -> f_expr (ConstructE (cons, walk_exprs f el))
   | YetE s -> f_expr (YetE s)
   | _ ->
       "Walker is not implemented for " ^ Print.structured_string_of_expr e
@@ -36,7 +36,8 @@ let rec walk_expr f e =
 and walk_exprs f = walk_expr f |> List.map
 
 and walk_path f p =
-  let f_path = (fun p -> p) in (* TODO *)
+  let f_path p = p in
+  (* TODO *)
   match p with
   | IndexP e -> f_path (IndexP (walk_expr f e))
   | SliceP (e1, e2) -> f_path (SliceP (walk_expr f e1, walk_expr f e2))
@@ -76,7 +77,8 @@ let rec walk_instr f instr =
   | InvokeI e -> f_instr (InvokeI (walk_expr f e))
   | EnterI (e1, e2) -> f_instr (EnterI (walk_expr f e1, walk_expr f e2))
   | ExecuteI e -> f_instr (ExecuteI (walk_expr f e))
-  | ReplaceI (e1, p, e2) -> f_instr (ReplaceI (walk_expr f e1, walk_path f p, walk_expr f e2))
+  | ReplaceI (e1, p, e2) ->
+      f_instr (ReplaceI (walk_expr f e1, walk_path f p, walk_expr f e2))
   | JumpI e -> f_instr (JumpI (walk_expr f e))
   | PerformI e -> f_instr (PerformI (walk_expr f e))
   | ExitI n -> f_instr (ExitI n)

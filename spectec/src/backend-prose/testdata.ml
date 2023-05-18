@@ -126,9 +126,9 @@ let get_func_insts_data () =
 let get_global_insts_data () =
   ListV
     [|
-      WasmInstrV ("const", [ WasmTypeV (NumType F32Type); FloatV 1.4 ]);
-      WasmInstrV ("const", [ WasmTypeV (NumType F32Type); FloatV 5.2 ]);
-      WasmInstrV ("const", [ WasmTypeV (NumType I32Type); IntV 42 ]);
+      ConstructV ("const", [ WasmTypeV (NumType F32Type); FloatV 1.4 ]);
+      ConstructV ("const", [ WasmTypeV (NumType F32Type); FloatV 5.2 ]);
+      ConstructV ("const", [ WasmTypeV (NumType I32Type); IntV 42 ]);
     |]
 
 let get_table_insts_data () =
@@ -136,21 +136,21 @@ let get_table_insts_data () =
     [|
       ListV
         [|
-          WasmInstrV ("ref.null", [ WasmTypeV (RefType ExternRefType) ]);
-          WasmInstrV ("ref.null", [ WasmTypeV (RefType FuncRefType) ]);
-          WasmInstrV ("ref.null", [ WasmTypeV (RefType FuncRefType) ]);
+          ConstructV ("ref.null", [ WasmTypeV (RefType ExternRefType) ]);
+          ConstructV ("ref.null", [ WasmTypeV (RefType FuncRefType) ]);
+          ConstructV ("ref.null", [ WasmTypeV (RefType FuncRefType) ]);
         |];
       ListV
         [|
-          WasmInstrV ("ref.null", [ WasmTypeV (RefType FuncRefType) ]);
-          WasmInstrV ("ref.null", [ WasmTypeV (RefType ExternRefType) ]);
-          WasmInstrV ("ref.null", [ WasmTypeV (RefType FuncRefType) ]);
+          ConstructV ("ref.null", [ WasmTypeV (RefType FuncRefType) ]);
+          ConstructV ("ref.null", [ WasmTypeV (RefType ExternRefType) ]);
+          ConstructV ("ref.null", [ WasmTypeV (RefType FuncRefType) ]);
         |];
       ListV
         [|
-          WasmInstrV ("ref.null", [ WasmTypeV (RefType FuncRefType) ]);
-          WasmInstrV ("ref.null", [ WasmTypeV (RefType FuncRefType) ]);
-          WasmInstrV ("ref.null", [ WasmTypeV (RefType ExternRefType) ]);
+          ConstructV ("ref.null", [ WasmTypeV (RefType FuncRefType) ]);
+          ConstructV ("ref.null", [ WasmTypeV (RefType FuncRefType) ]);
+          ConstructV ("ref.null", [ WasmTypeV (RefType ExternRefType) ]);
         |];
     |]
 
@@ -169,9 +169,9 @@ let store : store ref = ref Record.empty
 
 let get_locals_data () =
   [|
-    WasmInstrV ("const", [ WasmTypeV (NumType I32Type); IntV 3 ]);
-    WasmInstrV ("const", [ WasmTypeV (NumType I32Type); IntV 0 ]);
-    WasmInstrV ("const", [ WasmTypeV (NumType I32Type); IntV 7 ]);
+    ConstructV ("const", [ WasmTypeV (NumType I32Type); IntV 3 ]);
+    ConstructV ("const", [ WasmTypeV (NumType I32Type); IntV 0 ]);
+    ConstructV ("const", [ WasmTypeV (NumType I32Type); IntV 7 ]);
   |]
 
 let get_frame_data () =
@@ -379,13 +379,13 @@ let testcases_reference =
 let block =
   ( "block",
     [
-      WasmInstrV ("const", [ i32TV; IntV 1 ]);
-      WasmInstrV ("const", [ i32TV; IntV 2 ]);
-      WasmInstrV
+      ConstructV ("const", [ i32TV; IntV 1 ]);
+      ConstructV ("const", [ i32TV; IntV 2 ]);
+      ConstructV
         ( "block",
           [
             ArrowV (ListV [| i32TV; i32TV |], ListV [| i32TV |]);
-            ListV [| WasmInstrV ("binop", [ i32TV; StringV "Sub" ]) |];
+            ListV [| ConstructV ("binop", [ i32TV; StringV "Sub" ]) |];
           ] );
     ],
     "-1" )
@@ -393,71 +393,71 @@ let block =
 let br_zero =
   ( "br_zero",
     [
-      WasmInstrV ("const", [ i32TV; IntV 1 ]);
-      WasmInstrV
+      ConstructV ("const", [ i32TV; IntV 1 ]);
+      ConstructV
         ( "block",
           [
             ArrowV (ListV [| i32TV |], ListV [| i32TV |]);
             ListV
               [|
-                WasmInstrV ("const", [ i32TV; IntV 32 ]);
-                WasmInstrV ("const", [ i32TV; IntV 42 ]);
-                WasmInstrV ("br", [ IntV 0 ]);
-                WasmInstrV ("const", [ i32TV; IntV 52 ]);
+                ConstructV ("const", [ i32TV; IntV 32 ]);
+                ConstructV ("const", [ i32TV; IntV 42 ]);
+                ConstructV ("br", [ IntV 0 ]);
+                ConstructV ("const", [ i32TV; IntV 52 ]);
               |];
           ] );
-      WasmInstrV ("const", [ i32TV; IntV 1 ]);
-      WasmInstrV ("binop", [ i32TV; StringV "Add" ]);
+      ConstructV ("const", [ i32TV; IntV 1 ]);
+      ConstructV ("binop", [ i32TV; StringV "Add" ]);
     ],
     "43" )
 
 let br_succ =
   ( "br_succ",
     [
-      WasmInstrV ("const", [ i32TV; IntV 1 ]);
-      WasmInstrV
+      ConstructV ("const", [ i32TV; IntV 1 ]);
+      ConstructV
         ( "block",
           [
             ArrowV (ListV [| i32TV |], ListV [| i32TV |]);
             ListV
               [|
-                WasmInstrV ("const", [ i32TV; IntV 32 ]);
-                WasmInstrV
+                ConstructV ("const", [ i32TV; IntV 32 ]);
+                ConstructV
                   ( "block",
                     [
                       ArrowV (ListV [| i32TV; i32TV |], ListV [| i32TV |]);
                       ListV
                         [|
-                          WasmInstrV ("const", [ i32TV; IntV 42 ]);
-                          WasmInstrV ("br", [ IntV 1 ]);
-                          WasmInstrV ("const", [ i32TV; IntV 52 ]);
+                          ConstructV ("const", [ i32TV; IntV 42 ]);
+                          ConstructV ("br", [ IntV 1 ]);
+                          ConstructV ("const", [ i32TV; IntV 52 ]);
                         |];
                     ] );
               |];
           ] );
-      WasmInstrV ("const", [ i32TV; IntV 1 ]);
-      WasmInstrV ("binop", [ i32TV; StringV "Add" ]);
+      ConstructV ("const", [ i32TV; IntV 1 ]);
+      ConstructV ("binop", [ i32TV; StringV "Add" ]);
     ],
     "43" )
 
 let if_true =
   ( "if_true",
     [
-      WasmInstrV ("const", [ i32TV; IntV 42 ]);
-      WasmInstrV ("const", [ i32TV; IntV 1 ]);
-      WasmInstrV
+      ConstructV ("const", [ i32TV; IntV 42 ]);
+      ConstructV ("const", [ i32TV; IntV 1 ]);
+      ConstructV
         ( "if",
           [
             ArrowV (ListV [| i32TV |], ListV [| i32TV |]);
             ListV
               [|
-                WasmInstrV ("const", [ i32TV; IntV 2 ]);
-                WasmInstrV ("binop", [ i32TV; StringV "Add" ]);
+                ConstructV ("const", [ i32TV; IntV 2 ]);
+                ConstructV ("binop", [ i32TV; StringV "Add" ]);
               |];
             ListV
               [|
-                WasmInstrV ("const", [ i32TV; IntV 3 ]);
-                WasmInstrV ("binop", [ i32TV; StringV "Add" ]);
+                ConstructV ("const", [ i32TV; IntV 3 ]);
+                ConstructV ("binop", [ i32TV; StringV "Add" ]);
               |];
           ] );
     ],
@@ -466,21 +466,21 @@ let if_true =
 let if_false =
   ( "if_false",
     [
-      WasmInstrV ("const", [ i32TV; IntV 42 ]);
-      WasmInstrV ("const", [ i32TV; IntV 0 ]);
-      WasmInstrV
+      ConstructV ("const", [ i32TV; IntV 42 ]);
+      ConstructV ("const", [ i32TV; IntV 0 ]);
+      ConstructV
         ( "if",
           [
             ArrowV (ListV [| i32TV |], ListV [| i32TV |]);
             ListV
               [|
-                WasmInstrV ("const", [ i32TV; IntV 2 ]);
-                WasmInstrV ("binop", [ i32TV; StringV "Add" ]);
+                ConstructV ("const", [ i32TV; IntV 2 ]);
+                ConstructV ("binop", [ i32TV; StringV "Add" ]);
               |];
             ListV
               [|
-                WasmInstrV ("const", [ i32TV; IntV 3 ]);
-                WasmInstrV ("binop", [ i32TV; StringV "Add" ]);
+                ConstructV ("const", [ i32TV; IntV 3 ]);
+                ConstructV ("binop", [ i32TV; StringV "Add" ]);
               |];
           ] );
     ],
@@ -491,8 +491,8 @@ let testcases_wasm_value = [ block; br_zero; br_succ; if_true; if_false; ]
 (* Printer of final result *)
 let string_of_result v =
   match v with
-  | WasmInstrV ("const", [ _; n ]) -> Print.string_of_value n
-  | WasmInstrV ("ref.null", _) -> "null"
+  | ConstructV ("const", [ _; n ]) -> Print.string_of_value n
+  | ConstructV ("ref.null", _) -> "null"
   | _ -> Print.string_of_value v ^ "is not a wasm value."
 
 (* Module tests *)

@@ -51,7 +51,6 @@ and value =
   | ModuleInstV of module_inst
   | ListV of value array
   | WasmTypeV of Types.value_type
-  | WasmInstrV of string * value list
   | IntV of int
   | FloatV of float
   | StringV of string
@@ -97,7 +96,6 @@ type expr =
   | ContE of expr
   | LabelNthE of expr
   | LabelE of (expr * expr)
-  | WasmInstrE of (string * expr list)
   | NameE of name
   | ArrowE of expr * expr
   | ConstructE of string * expr list (* CaseE? StructE? TaggedE? NamedTupleE? *)

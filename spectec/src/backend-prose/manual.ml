@@ -64,7 +64,7 @@ let br =
               PopI (NameE (N "the label"));
               PushI (IterE (N "val", List));
               ExecuteI
-                (WasmInstrE ("br", [ SubE (NameE (N "l"), ValueE (IntV 1)) ]));
+                (ConstructE ("br", [ SubE (NameE (N "l"), ValueE (IntV 1)) ]));
             ] );
       ] )
 
@@ -236,7 +236,7 @@ let invocation =
       (* TODO *)
       LetI (NameE frame_name, FrameE (ValueE (IntV 0), RecordE frame_rec));
       PushI (NameE frame_name);
-      ExecuteI (WasmInstrE ("call_addr", [NameE funcaddr_name]))
+      ExecuteI (ConstructE ("call_addr", [NameE funcaddr_name]))
     ]
   )
 
