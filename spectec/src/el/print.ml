@@ -1,17 +1,14 @@
 open Util.Source
 open Ast
 
-
 (* Helpers *)
 
 let concat = String.concat
 let prefix s f x = s ^ f x
 let suffix f s x = f x ^ s
 let space f x = " " ^ f x ^ " "
-
 let filter_nl xs = List.filter_map (function Nl -> None | Elem x -> Some x) xs
 let map_nl_list f xs = List.map f (filter_nl xs)
-
 
 (* Operators *)
 
@@ -30,14 +27,11 @@ let string_of_atom = function
   | Turnstile -> "|-"
 
 let string_of_brack = function
-  | Paren -> "(", ")"
-  | Brack -> "[", "]"
-  | Brace -> "{", "}"
+  | Paren -> ("(", ")")
+  | Brack -> ("[", "]")
+  | Brace -> ("{", "}")
 
-let string_of_unop = function
-  | NotOp -> "~"
-  | PlusOp -> "+"
-  | MinusOp -> "-"
+let string_of_unop = function NotOp -> "~" | PlusOp -> "+" | MinusOp -> "-"
 
 let string_of_binop = function
   | AndOp -> "/\\"
@@ -58,10 +52,7 @@ let string_of_cmpop = function
   | LeOp -> "<="
   | GeOp -> ">="
 
-let strings_of_dots = function
-  | Dots -> ["..."]
-  | NoDots -> []
-
+let strings_of_dots = function Dots -> ["..."] | NoDots -> []
 
 (* Iteration *)
 
@@ -71,7 +62,6 @@ let rec string_of_iter iter =
   | List -> "*"
   | List1 -> "+"
   | ListN e -> "^" ^ string_of_exp e
-
 
 (* Types *)
 
@@ -84,12 +74,15 @@ and string_of_typ t =
   | ParenT t -> "(" ^ string_of_typ t ^ ")"
   | TupT ts -> "(" ^ string_of_typs ", " ts ^ ")"
   | IterT (t1, iter) -> string_of_typ t1 ^ string_of_iter iter
-  | StrT tfs ->
-    "{" ^ concat ", " (map_nl_list string_of_typfield tfs) ^ "}"
+  | StrT tfs -> "{" ^ concat ", " (map_nl_list string_of_typfield tfs) ^ "}"
   | CaseT (dots1, ids, tcases, dots2) ->
-    "\n  | " ^ concat "\n  | "
-      (strings_of_dots dots1 @ map_nl_list it ids @
-        map_nl_list string_of_typcase tcases @ strings_of_dots dots2)
+    "\n  | "
+    ^ concat "\n  | "
+        (strings_of_dots dots1
+        @ map_nl_list it ids
+        @ map_nl_list string_of_typcase tcases
+        @ strings_of_dots dots2
+        )
   | AtomT atom -> string_of_atom atom
   | SeqT ts -> "{" ^ string_of_typs " " ts ^ "}"
   | InfixT (t1, atom, t2) ->
@@ -98,8 +91,7 @@ and string_of_typ t =
     let l, r = string_of_brack brack in
     "`" ^ l ^ string_of_typ t1 ^ r
 
-and string_of_typs sep ts =
-  concat sep (List.map string_of_typ ts)
+and string_of_typs sep ts = concat sep (List.map string_of_typ ts)
 
 and string_of_typfield (atom, t, _hints) =
   string_of_atom atom ^ " " ^ string_of_typ t
@@ -109,7 +101,6 @@ and string_of_typcase (atom, ts, _hints) =
     string_of_atom atom
   else
     string_of_atom atom ^ " " ^ string_of_typs " " ts
-
 
 (* Expressions *)
 
@@ -129,14 +120,11 @@ and string_of_exp e =
   | SeqE es -> "{" ^ string_of_exps " " es ^ "}"
   | IdxE (e1, e2) -> string_of_exp e1 ^ "[" ^ string_of_exp e2 ^ "]"
   | SliceE (e1, e2, e3) ->
-    string_of_exp e1 ^
-      "[" ^ string_of_exp e2 ^ " : " ^ string_of_exp e3 ^ "]"
+    string_of_exp e1 ^ "[" ^ string_of_exp e2 ^ " : " ^ string_of_exp e3 ^ "]"
   | UpdE (e1, p, e2) ->
-    string_of_exp e1 ^
-      "[" ^ string_of_path p ^ " = " ^ string_of_exp e2 ^ "]"
+    string_of_exp e1 ^ "[" ^ string_of_path p ^ " = " ^ string_of_exp e2 ^ "]"
   | ExtE (e1, p, e2) ->
-    string_of_exp e1 ^
-      "[" ^ string_of_path p ^ " =.. " ^ string_of_exp e2 ^ "]"
+    string_of_exp e1 ^ "[" ^ string_of_path p ^ " =.. " ^ string_of_exp e2 ^ "]"
   | StrE efs -> "{" ^ concat ", " (map_nl_list string_of_expfield efs) ^ "}"
   | DotE (e1, atom) -> string_of_exp e1 ^ "." ^ string_of_atom atom
   | CommaE (e1, e2) -> string_of_exp e1 ^ ", " ^ string_of_exp e2
@@ -156,11 +144,8 @@ and string_of_exp e =
   | HoleE true -> "%%"
   | FuseE (e1, e2) -> string_of_exp e1 ^ "#" ^ string_of_exp e2
 
-and string_of_exps sep es =
-  concat sep (List.map string_of_exp es)
-
-and string_of_expfield (atom, e) =
-  string_of_atom atom ^ " " ^ string_of_exp e
+and string_of_exps sep es = concat sep (List.map string_of_exp es)
+and string_of_expfield (atom, e) = string_of_atom atom ^ " " ^ string_of_exp e
 
 and string_of_path p =
   match p.it with
@@ -171,7 +156,6 @@ and string_of_path p =
   | DotP ({it = RootP; _}, atom) -> string_of_atom atom
   | DotP (p1, atom) -> string_of_path p1 ^ "." ^ string_of_atom atom
 
-
 (* Definitions *)
 
 let rec string_of_prem prem =
@@ -179,38 +163,40 @@ let rec string_of_prem prem =
   | RulePr (id, e) -> id.it ^ ": " ^ string_of_exp e
   | IfPr e -> "if " ^ string_of_exp e
   | ElsePr -> "otherwise"
-  | IterPr ({it = IterPr _; _} as prem', iter) ->
+  | IterPr (({it = IterPr _; _} as prem'), iter) ->
     string_of_prem prem' ^ string_of_iter iter
   | IterPr (prem', iter) ->
     "(" ^ string_of_prem prem' ^ ")" ^ string_of_iter iter
-
 
 let string_of_def d =
   match d.it with
   | SynD (id1, id2, t, _hints) ->
     let id2' = if id2.it = "" then "" else "/" ^ id2.it in
     "syntax " ^ id1.it ^ id2' ^ " = " ^ string_of_typ t
-  | RelD (id, t, _hints) ->
-    "relation " ^ id.it ^ ": " ^ string_of_typ t
+  | RelD (id, t, _hints) -> "relation " ^ id.it ^ ": " ^ string_of_typ t
   | RuleD (id1, id2, e, prems) ->
     let id2' = if id2.it = "" then "" else "/" ^ id2.it in
-    "rule " ^ id1.it ^ id2' ^ ":\n  " ^ string_of_exp e ^
-      concat "" (map_nl_list (prefix "\n  -- " string_of_prem) prems)
-  | VarD (id, t, _hints) ->
-    "var " ^ id.it ^ " : " ^ string_of_typ t
+    "rule "
+    ^ id1.it
+    ^ id2'
+    ^ ":\n  "
+    ^ string_of_exp e
+    ^ concat "" (map_nl_list (prefix "\n  -- " string_of_prem) prems)
+  | VarD (id, t, _hints) -> "var " ^ id.it ^ " : " ^ string_of_typ t
   | DecD (id, e1, t2, _hints) ->
     let s1 = match e1.it with SeqE [] -> "" | _ -> " " ^ string_of_exp e1 in
     "def " ^ id.it ^ s1 ^ " : " ^ string_of_typ t2
   | DefD (id, e1, e2, prems) ->
     let s1 = match e1.it with SeqE [] -> "" | _ -> " " ^ string_of_exp e1 in
-    "def " ^ id.it ^ s1 ^ " = " ^ string_of_exp e2 ^
-      concat "" (map_nl_list (prefix "\n  -- " string_of_prem) prems)
-  | SepD ->
-    "\n\n"
+    "def "
+    ^ id.it
+    ^ s1
+    ^ " = "
+    ^ string_of_exp e2
+    ^ concat "" (map_nl_list (prefix "\n  -- " string_of_prem) prems)
+  | SepD -> "\n\n"
   | HintD _ -> ""
-
 
 (* Scripts *)
 
-let string_of_script ds =
-  concat "" (List.map (suffix string_of_def "\n") ds)
+let string_of_script ds = concat "" (List.map (suffix string_of_def "\n") ds)

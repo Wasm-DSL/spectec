@@ -1,10 +1,9 @@
 open Util.Source
 open Ast
 
-
 (* Data Structure *)
 
-module Set = Set.Make(String)
+module Set = Set.Make (String)
 
 type sets = {synid : Set.t; relid : Set.t; varid : Set.t; defid : Set.t}
 
@@ -15,14 +14,14 @@ let union sets1 sets2 =
   { synid = Set.union sets1.synid sets2.synid;
     relid = Set.union sets1.relid sets2.relid;
     varid = Set.union sets1.varid sets2.varid;
-    defid = Set.union sets1.defid sets2.defid;
+    defid = Set.union sets1.defid sets2.defid
   }
 
 let free_list free_x xs = List.(fold_left union empty (map free_x xs))
-
 let free_nl_elem free_x = function Nl -> empty | Elem x -> free_x x
-let free_nl_list free_x xs = List.(fold_left union empty (map (free_nl_elem free_x) xs))
 
+let free_nl_list free_x xs =
+  List.(fold_left union empty (map (free_nl_elem free_x) xs))
 
 (* Identifiers *)
 
@@ -31,14 +30,10 @@ let free_relid id = {empty with relid = Set.singleton id.it}
 let free_varid id = {empty with varid = Set.singleton id.it}
 let free_defid id = {empty with defid = Set.singleton id.it}
 
-
 (* Iterations *)
 
 let rec free_iter iter =
-  match iter with
-  | Opt | List | List1 -> empty
-  | ListN e -> free_exp e
-
+  match iter with Opt | List | List1 -> empty | ListN e -> free_exp e
 
 (* Types *)
 
@@ -60,18 +55,21 @@ and free_typ t =
 and free_typfield (_, t, _) = free_typ t
 and free_typcase (_, ts, _) = free_list free_typ ts
 
-
 (* Expressions *)
 
 and free_exp e =
   match e.it with
   | VarE id -> free_varid id
   | AtomE _ | BoolE _ | NatE _ | TextE _ | EpsE | HoleE _ -> empty
-  | UnE (_, e1) | DotE (e1, _) | LenE e1
-  | ParenE (e1, _) | BrackE (_, e1) -> free_exp e1
-  | BinE (e1, _, e2) | CmpE (e1, _, e2)
-  | IdxE (e1, e2) | CommaE (e1, e2) | CompE (e1, e2)
-  | InfixE (e1, _, e2) | FuseE (e1, e2) ->
+  | UnE (_, e1) | DotE (e1, _) | LenE e1 | ParenE (e1, _) | BrackE (_, e1) ->
+    free_exp e1
+  | BinE (e1, _, e2)
+  | CmpE (e1, _, e2)
+  | IdxE (e1, e2)
+  | CommaE (e1, e2)
+  | CompE (e1, e2)
+  | InfixE (e1, _, e2)
+  | FuseE (e1, e2) ->
     free_list free_exp [e1; e2]
   | SliceE (e1, e2, e3) -> free_list free_exp [e1; e2; e3]
   | SeqE es | TupE es -> free_list free_exp es
@@ -90,7 +88,6 @@ and free_path p =
   | SliceP (p1, e1, e2) ->
     union (free_path p1) (union (free_exp e1) (free_exp e2))
   | DotP (p1, _) -> free_path p1
-
 
 (* Definitions *)
 

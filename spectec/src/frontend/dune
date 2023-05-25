@@ -1,13 +1,10 @@
 (library
-  (name frontend)
-  (libraries util el il)
-  (modules lexer parser parse multiplicity elab)
-)
+ (name frontend)
+ (libraries util el il)
+ (modules lexer parser parse multiplicity elab))
 
 (ocamllex
-  (modules lexer)
-)
+ (modules lexer))
 
 (menhir
-  (modules parser)
-)
+ (modules parser))

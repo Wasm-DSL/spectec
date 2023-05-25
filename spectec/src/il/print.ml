@@ -2,13 +2,11 @@ open Util
 open Source
 open Ast
 
-
 (* Helpers *)
 
 let concat = String.concat
 let prefix s f x = s ^ f x
 let space f x = " " ^ f x ^ " "
-
 
 (* Operators *)
 
@@ -34,10 +32,7 @@ let string_of_atom = function
   | Quest -> "?"
   | Star -> "*"
 
-let string_of_unop = function
-  | NotOp -> "~"
-  | PlusOp -> "+"
-  | MinusOp -> "-"
+let string_of_unop = function NotOp -> "~" | PlusOp -> "+" | MinusOp -> "-"
 
 let string_of_binop = function
   | AndOp -> "/\\"
@@ -59,15 +54,16 @@ let string_of_cmpop = function
   | GeOp -> ">="
 
 let string_of_mixop = function
-  | [Atom a]::tail when List.for_all ((=) []) tail -> a
+  | [Atom a] :: tail when List.for_all (( = ) []) tail -> a
   | mixop ->
     let s =
-      String.concat "%" (List.map (
-        fun atoms -> String.concat "" (List.map string_of_atom atoms)) mixop
-      )
+      String.concat "%"
+        (List.map
+           (fun atoms -> String.concat "" (List.map string_of_atom atoms))
+           mixop
+        )
     in
     "`" ^ s ^ "`"
-
 
 (* Types *)
 
@@ -93,8 +89,7 @@ and string_of_typ_args t =
   | TupT _ -> string_of_typ t
   | _ -> "(" ^ string_of_typ t ^ ")"
 
-and string_of_typs sep ts =
-  concat sep (List.map string_of_typ ts)
+and string_of_typs sep ts = concat sep (List.map string_of_typ ts)
 
 and string_of_deftyp dt =
   match dt.it with
@@ -104,15 +99,16 @@ and string_of_deftyp dt =
   | VariantT tcs -> "\n  | " ^ concat "\n  | " (List.map string_of_typcase tcs)
 
 and string_of_typ_mix mixop t =
-  if mixop = [[]; []] then string_of_typ t else
-  string_of_mixop mixop ^ string_of_typ_args t
+  if mixop = [[]; []] then
+    string_of_typ t
+  else
+    string_of_mixop mixop ^ string_of_typ_args t
 
 and string_of_typfield (atom, t, _hints) =
   string_of_atom atom ^ " " ^ string_of_typ t
 
 and string_of_typcase (atom, t, _hints) =
   string_of_atom atom ^ string_of_typ_args t
-
 
 (* Expressions *)
 
@@ -129,14 +125,11 @@ and string_of_exp e =
     "(" ^ string_of_exp e1 ^ space string_of_cmpop op ^ string_of_exp e2 ^ ")"
   | IdxE (e1, e2) -> string_of_exp e1 ^ "[" ^ string_of_exp e2 ^ "]"
   | SliceE (e1, e2, e3) ->
-    string_of_exp e1 ^
-      "[" ^ string_of_exp e2 ^ " : " ^ string_of_exp e3 ^ "]"
+    string_of_exp e1 ^ "[" ^ string_of_exp e2 ^ " : " ^ string_of_exp e3 ^ "]"
   | UpdE (e1, p, e2) ->
-    string_of_exp e1 ^
-      "[" ^ string_of_path p ^ " = " ^ string_of_exp e2 ^ "]"
+    string_of_exp e1 ^ "[" ^ string_of_path p ^ " = " ^ string_of_exp e2 ^ "]"
   | ExtE (e1, p, e2) ->
-    string_of_exp e1 ^
-      "[" ^ string_of_path p ^ " =.. " ^ string_of_exp e2 ^ "]"
+    string_of_exp e1 ^ "[" ^ string_of_path p ^ " =.. " ^ string_of_exp e2 ^ "]"
   | StrE efs -> "{" ^ concat ", " (List.map string_of_expfield efs) ^ "}"
   | DotE (e1, atom) ->
     string_of_exp e1 ^ "." ^ string_of_atom atom ^ "_" ^ string_of_typ e1.note
@@ -161,17 +154,13 @@ and string_of_exp_args e =
   | TupE _ | SubE _ | BinE _ | CmpE _ -> string_of_exp e
   | _ -> "(" ^ string_of_exp e ^ ")"
 
-and string_of_exps sep es =
-  concat sep (List.map string_of_exp es)
-
-and string_of_expfield (atom, e) =
-  string_of_atom atom ^ " " ^ string_of_exp e
+and string_of_exps sep es = concat sep (List.map string_of_exp es)
+and string_of_expfield (atom, e) = string_of_atom atom ^ " " ^ string_of_exp e
 
 and string_of_path p =
   match p.it with
   | RootP -> ""
-  | IdxP (p1, e) ->
-    string_of_path p1 ^ "[" ^ string_of_exp e ^ "]"
+  | IdxP (p1, e) -> string_of_path p1 ^ "[" ^ string_of_exp e ^ "]"
   | SliceP (p1, e1, e2) ->
     string_of_path p1 ^ "[" ^ string_of_exp e1 ^ " : " ^ string_of_exp e2 ^ "]"
   | DotP ({it = RootP; note; _}, atom) ->
@@ -181,7 +170,6 @@ and string_of_path p =
 
 and string_of_iterexp (iter, ids) =
   string_of_iter iter ^ "{" ^ String.concat " " (List.map Source.it ids) ^ "}"
-
 
 (* Definitions *)
 
@@ -193,37 +181,45 @@ let string_of_binds = function
   | [] -> ""
   | binds -> " {" ^ concat ", " (List.map string_of_bind binds) ^ "}"
 
-
 let rec string_of_prem prem =
   match prem.it with
   | RulePr (id, op, e) -> id.it ^ ": " ^ string_of_exp {e with it = MixE (op, e)}
   | IfPr e -> "if " ^ string_of_exp e
   | ElsePr -> "otherwise"
-  | IterPr ({it = IterPr _; _} as prem', iter) ->
+  | IterPr (({it = IterPr _; _} as prem'), iter) ->
     string_of_prem prem' ^ string_of_iterexp iter
   | IterPr (prem', iter) ->
     "(" ^ string_of_prem prem' ^ ")" ^ string_of_iterexp iter
 
 let region_comment indent at =
-  if at = no_region then "" else
-  indent ^ ";; " ^ string_of_region at ^ "\n"
+  if at = no_region then "" else indent ^ ";; " ^ string_of_region at ^ "\n"
 
 let string_of_rule rule =
   match rule.it with
   | RuleD (id, binds, mixop, e, prems) ->
     let id' = if id.it = "" then "_" else id.it in
-    "\n" ^ region_comment "  " rule.at ^
-    "  rule " ^ id' ^ string_of_binds binds ^ ":\n    " ^
-      string_of_exp {e with it = MixE (mixop, e)} ^
-      concat "" (List.map (prefix "\n    -- " string_of_prem) prems)
+    "\n"
+    ^ region_comment "  " rule.at
+    ^ "  rule "
+    ^ id'
+    ^ string_of_binds binds
+    ^ ":\n    "
+    ^ string_of_exp {e with it = MixE (mixop, e)}
+    ^ concat "" (List.map (prefix "\n    -- " string_of_prem) prems)
 
 let string_of_clause id clause =
   match clause.it with
   | DefD (binds, e1, e2, prems) ->
-    "\n" ^ region_comment "  " clause.at ^
-    "  def" ^ string_of_binds binds ^ " " ^ id.it ^ string_of_exp_args e1 ^ " = " ^
-      string_of_exp e2 ^
-      concat "" (List.map (prefix "\n    -- " string_of_prem) prems)
+    "\n"
+    ^ region_comment "  " clause.at
+    ^ "  def"
+    ^ string_of_binds binds
+    ^ " "
+    ^ id.it
+    ^ string_of_exp_args e1
+    ^ " = "
+    ^ string_of_exp e2
+    ^ concat "" (List.map (prefix "\n    -- " string_of_prem) prems)
 
 let rec string_of_def d =
   let pre = "\n" ^ region_comment "" d.at in
@@ -231,23 +227,29 @@ let rec string_of_def d =
   | SynD (id, dt) ->
     pre ^ "syntax " ^ id.it ^ " = " ^ string_of_deftyp dt ^ "\n"
   | RelD (id, mixop, t, rules) ->
-    pre ^ "relation " ^ id.it ^ ": " ^ string_of_typ_mix mixop t ^
-      concat "\n" (List.map string_of_rule rules) ^ "\n"
+    pre
+    ^ "relation "
+    ^ id.it
+    ^ ": "
+    ^ string_of_typ_mix mixop t
+    ^ concat "\n" (List.map string_of_rule rules)
+    ^ "\n"
   | DecD (id, t1, t2, clauses) ->
     let s1 =
-      match t1.it with
-      | TupT [] -> ""
-      | _ -> string_of_typ t1 ^ " -> "
+      match t1.it with TupT [] -> "" | _ -> string_of_typ t1 ^ " -> "
     in
-    pre ^ "def " ^ id.it ^ " : " ^ s1 ^ string_of_typ t2 ^
-      concat "" (List.map (string_of_clause id) clauses) ^ "\n"
+    pre
+    ^ "def "
+    ^ id.it
+    ^ " : "
+    ^ s1
+    ^ string_of_typ t2
+    ^ concat "" (List.map (string_of_clause id) clauses)
+    ^ "\n"
   | RecD ds ->
     pre ^ "rec {\n" ^ concat "" (List.map string_of_def ds) ^ "}" ^ "\n"
-  | HintD _ ->
-    ""
-
+  | HintD _ -> ""
 
 (* Scripts *)
 
-let string_of_script ds =
-  concat "" (List.map string_of_def ds)
+let string_of_script ds = concat "" (List.map string_of_def ds)

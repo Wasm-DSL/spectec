@@ -1,23 +1,21 @@
-module List =
-struct
+module List = struct
   include List
 
-  let split_hd = function
-    | x::xs -> x, xs
-    | _ -> failwith "split_hd"
+  let split_hd = function x :: xs -> (x, xs) | _ -> failwith "split_hd"
 
   let rec split_last = function
-    | x::[] -> [], x
-    | x::xs -> let ys, y = split_last xs in x::ys, y
+    | x :: [] -> ([], x)
+    | x :: xs ->
+      let ys, y = split_last xs in
+      (x :: ys, y)
     | [] -> failwith "split_last"
 
   let rec nub pred = function
     | [] -> []
-    | x::xs -> x :: nub pred (List.filter (fun y -> not (pred x y)) xs)
+    | x :: xs -> x :: nub pred (List.filter (fun y -> not (pred x y)) xs)
 end
 
-module String =
-struct
+module String = struct
   include String
 
   let implode cs =
@@ -27,6 +25,8 @@ struct
 
   let explode s =
     let cs = ref [] in
-    for i = String.length s - 1 downto 0 do cs := s.[i] :: !cs done;
+    for i = String.length s - 1 downto 0 do
+      cs := s.[i] :: !cs
+    done;
     !cs
 end

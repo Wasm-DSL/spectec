@@ -1,10 +1,9 @@
 open Util.Source
 open Ast
 
-
 (* Data Structure *)
 
-module Set = Set.Make(String)
+module Set = Set.Make (String)
 
 type sets = {synid : Set.t; relid : Set.t; varid : Set.t; defid : Set.t}
 
@@ -15,32 +14,30 @@ let union sets1 sets2 =
   { synid = Set.union sets1.synid sets2.synid;
     relid = Set.union sets1.relid sets2.relid;
     varid = Set.union sets1.varid sets2.varid;
-    defid = Set.union sets1.defid sets2.defid;
+    defid = Set.union sets1.defid sets2.defid
   }
 
 let diff sets1 sets2 =
   { synid = Set.diff sets1.synid sets2.synid;
     relid = Set.diff sets1.relid sets2.relid;
     varid = Set.diff sets1.varid sets2.varid;
-    defid = Set.diff sets1.defid sets2.defid;
+    defid = Set.diff sets1.defid sets2.defid
   }
 
 let subset sets1 sets2 =
-  Set.subset sets1.synid sets2.synid &&
-  Set.subset sets1.relid sets2.relid &&
-  Set.subset sets1.varid sets2.varid &&
-  Set.subset sets1.defid sets2.defid
+  Set.subset sets1.synid sets2.synid
+  && Set.subset sets1.relid sets2.relid
+  && Set.subset sets1.varid sets2.varid
+  && Set.subset sets1.defid sets2.defid
 
 let disjoint sets1 sets2 =
-  Set.disjoint sets1.synid sets2.synid &&
-  Set.disjoint sets1.relid sets2.relid &&
-  Set.disjoint sets1.varid sets2.varid &&
-  Set.disjoint sets1.defid sets2.defid
-
+  Set.disjoint sets1.synid sets2.synid
+  && Set.disjoint sets1.relid sets2.relid
+  && Set.disjoint sets1.varid sets2.varid
+  && Set.disjoint sets1.defid sets2.defid
 
 let free_opt free_x xo = Option.(value (map free_x xo) ~default:empty)
 let free_list free_x xs = List.(fold_left union empty (map free_x xs))
-
 
 (* Identifiers *)
 
@@ -49,14 +46,10 @@ let free_relid id = {empty with relid = Set.singleton id.it}
 let free_varid id = {empty with varid = Set.singleton id.it}
 let free_defid id = {empty with defid = Set.singleton id.it}
 
-
 (* Iterations *)
 
 let rec free_iter iter =
-  match iter with
-  | Opt | List | List1 -> empty
-  | ListN e -> free_exp e
-
+  match iter with Opt | List | List1 -> empty | ListN e -> free_exp e
 
 (* Types *)
 
@@ -76,18 +69,20 @@ and free_deftyp dt =
 and free_typfield (_, t, _) = free_typ t
 and free_typcase (_, t, _) = free_typ t
 
-
 (* Expressions *)
 
 and free_exp e =
   match e.it with
   | VarE id -> free_varid id
   | BoolE _ | NatE _ | TextE _ -> empty
-  | UnE (_, e1) | LenE e1 | TheE e1 | MixE (_, e1)
-  | DotE (e1, _) | CaseE (_, e1) ->
+  | UnE (_, e1) | LenE e1 | TheE e1 | MixE (_, e1) | DotE (e1, _) | CaseE (_, e1)
+    ->
     free_exp e1
-  | BinE (_, e1, e2) | CmpE (_, e1, e2)
-  | IdxE (e1, e2) | CompE (e1, e2) | CatE (e1, e2) ->
+  | BinE (_, e1, e2)
+  | CmpE (_, e1, e2)
+  | IdxE (e1, e2)
+  | CompE (e1, e2)
+  | CatE (e1, e2) ->
     free_list free_exp [e1; e2]
   | SliceE (e1, e2, e3) -> free_list free_exp [e1; e2; e3]
   | OptE eo -> free_opt free_exp eo
@@ -109,15 +104,12 @@ and free_path p =
     union (free_path p1) (union (free_exp e1) (free_exp e2))
   | DotP (p1, _atom) -> free_path p1
 
-and free_iterexp (iter, ids) =
-    union (free_iter iter) (free_list free_varid ids)
-
+and free_iterexp (iter, ids) = union (free_iter iter) (free_list free_varid ids)
 
 (* Definitions *)
 
 let bound_bind (id, _typ, _dim) = free_varid id
 let bound_binds binds = free_list bound_bind binds
-
 let free_bind (_id, t, _dim) = free_typ t
 let free_binds binds = free_list free_bind binds
 
@@ -132,18 +124,15 @@ let free_rule rule =
   match rule.it with
   | RuleD (_id, binds, _op, e, prems) ->
     union (free_binds binds)
-      (diff
-        (union (free_exp e) (free_list free_prem prems))
-        (bound_binds binds)
-      )
+      (diff (union (free_exp e) (free_list free_prem prems)) (bound_binds binds))
 
 let free_clause clause =
   match clause.it with
   | DefD (binds, e1, e2, prems) ->
     union (free_binds binds)
       (diff
-        (union (free_list free_exp [e1; e2]) (free_list free_prem prems))
-        (bound_binds binds)
+         (union (free_list free_exp [e1; e2]) (free_list free_prem prems))
+         (bound_binds binds)
       )
 
 let free_hintdef hd =
@@ -161,7 +150,6 @@ let rec free_def d =
     union (union (free_typ t1) (free_typ t2)) (free_list free_clause clauses)
   | RecD ds -> free_list free_def ds
   | HintD hd -> free_hintdef hd
-
 
 let rec bound_def d =
   match d.it with

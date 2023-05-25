@@ -1,4 +1,3 @@
 (executable
-  (name main)
-  (libraries spectec)
-)
+ (name main)
+ (libraries spectec))

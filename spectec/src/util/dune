@@ -1,4 +1,3 @@
 (library
-  (name util)
-  (modules lib utf8 scc source)
-)
+ (name util)
+ (modules lib utf8 scc source))
