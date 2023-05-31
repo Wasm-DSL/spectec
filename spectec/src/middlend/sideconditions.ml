@@ -102,8 +102,23 @@ let rec t_prem env prem = match prem.it with
 
 let t_prems env = List.concat_map (t_prem env)
 
+let rec equiv_exp e1 e2 = Il.Eq.eq_exp e1 e2 ||
+  match e1.it, e2.it with
+  | LenE { it = IterE (_, (ListN ne, _)); _ }, _ -> equiv_exp ne e2
+  | _, LenE { it = IterE (_, (ListN ne, _)); _ } -> equiv_exp e1 ne
+  | _ -> false
+
+let is_identity e = match e.it with
+  | CmpE (EqOp, e1, e2) -> equiv_exp e1 e2
+  | _ -> false
+
+(* Is prem always true? *)
+let is_true prem = match prem.it with
+  | IfPr e -> is_identity e
+  | _ -> false
+
 (* Does prem1 obviously imply prem2? *)
-let rec implies prem1 prem2 = Il.Eq.eq_prem prem1 prem2 ||
+let rec implies prem1 prem2 = Il.Eq.eq_prem prem1 prem2 || is_true prem2 ||
   match prem2.it with
   | IterPr (prem2', _) -> implies prem1 prem2'
   | _ -> false

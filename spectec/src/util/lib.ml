@@ -11,9 +11,16 @@ struct
     | x::xs -> let ys, y = split_last xs in x::ys, y
     | [] -> failwith "split_last"
 
-  let rec nub pred = function
+  let rec nub' pred = function
     | [] -> []
-    | x::xs -> x :: nub pred (List.filter (fun y -> not (pred x y)) xs)
+    | x::xs -> x :: nub' pred (List.filter (fun y -> not (pred x y)) xs)
+
+  let nub pred xs = xs
+    |> nub' pred
+    |> List.rev
+    |> nub' pred
+    |> List.rev
+
 end
 
 module String =
