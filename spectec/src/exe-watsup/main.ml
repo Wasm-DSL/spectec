@@ -29,6 +29,7 @@ let print_elab_il = ref false
 let print_final_il = ref false
 let print_all_il = ref false
 
+let pass_sub = ref false
 let pass_totalize = ref false
 let pass_unthe = ref false
 let pass_sideconditions = ref false
@@ -52,7 +53,7 @@ let argspec = Arg.align
   "-p", Arg.Set dst, " Patch files";
   "-d", Arg.Set dry, " Dry run (when -p) ";
   "-l", Arg.Set log, " Log execution steps";
-  "-w", Arg.Set warn, " Warn about unsed or multiply used splices";
+  "-w", Arg.Set warn, " Warn about unused or multiply used splices";
 
   "--check", Arg.Unit (fun () -> target := Check), " Check only";
   "--latex", Arg.Unit (fun () -> target := Latex Backend_latex.Config.latex),
@@ -65,9 +66,10 @@ let argspec = Arg.align
   "--print-final-il", Arg.Set print_final_il, " Print final il";
   "--print-all-il", Arg.Set print_all_il, " Print il after each step";
 
+  "--sub", Arg.Set pass_sub, " Synthesize explicit subtype coercions";
   "--totalize", Arg.Set pass_totalize, " Run function totalization";
   "--the-elimination", Arg.Set pass_unthe, " Eliminate the ! operator in relations";
-  "--sideconditions", Arg.Set pass_sideconditions, " Infer side conditoins";
+  "--sideconditions", Arg.Set pass_sideconditions, " Infer side conditions";
   "--animate", Arg.Set pass_animate, " Animate equality conditions";
 
   "-help", Arg.Unit ignore, "";
@@ -91,6 +93,16 @@ let () =
       Printf.printf "%s\n%!" (Il.Print.string_of_script il);
     log "IL Validation...";
     Il.Validation.valid il;
+
+    let il = if not !pass_sub then il else
+      ( log "Subtype injection...";
+        let il = Middlend.Sub.transform il in
+        if !print_all_il then Printf.printf "%s\n%!" (Il.Print.string_of_script il);
+        log "IL Validation...";
+        Il.Validation.valid il;
+        il
+      )
+    in
 
     let il = if not !pass_totalize then il else
       ( log "Function totalization...";
