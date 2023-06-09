@@ -29,7 +29,7 @@ Because passes have dependencies, and because some flags enable multiple
 passers (--all-passes, some targets), we do _not_ want to use the order of
 flags on the command line.
 *)
-let all_passes = [ Sub; Totalize; Unthe; Sideconditions; Animate ] (* In intended order *)
+let all_passes = [ Sub; Totalize; Unthe; Sideconditions; Animate ]
 
 let log = ref false  (* log execution steps *)
 let dst = ref false  (* patch files *)
