@@ -23,6 +23,12 @@ type pass =
   | Sideconditions
   | Animate
 
+(* This list declares the intended order of passes.
+
+Because passes have dependencies, and because some flags enable multiple
+passers (--all-passes, some targets), we do _not_ want to use the order of
+flags on the command line.
+*)
 let all_passes = [ Sub; Totalize; Unthe; Sideconditions; Animate ] (* In intended order *)
 
 let log = ref false  (* log execution steps *)
@@ -38,8 +44,9 @@ let print_elab_il = ref false
 let print_final_il = ref false
 let print_all_il = ref false
 
-let selected_passes = ref []
-let run_all_passes = ref false
+module PS = Set.Make(struct type t = pass let compare = compare; end)
+let selected_passes = ref (PS.empty)
+let enable_pass pass = selected_passes := PS.add pass !selected_passes
 
 (* Il pass metadata *)
 
@@ -75,9 +82,7 @@ let add_arg source =
   let args = if !dst then dsts else srcs in args := !args @ [source]
 
 let pass_argspec pass : Arg.key * Arg.spec * Arg.doc =
-  "--" ^ pass_flag pass,
-  Arg.Unit (fun () -> selected_passes := pass :: !selected_passes),
-  " " ^ pass_desc pass
+  "--" ^ pass_flag pass, Arg.Unit (fun () -> enable_pass pass), " " ^ pass_desc pass
 
 let argspec = Arg.align
 [
@@ -99,7 +104,7 @@ let argspec = Arg.align
   "--print-final-il", Arg.Set print_final_il, " Print final il";
   "--print-all-il", Arg.Set print_all_il, " Print il after each step";
 ] @ List.map pass_argspec all_passes @ [
-  "--all-passes", Arg.Set run_all_passes, " Run all passes";
+  "--all-passes", Arg.Unit (fun () -> List.iter enable_pass all_passes)," Run all passes";
 
   "-help", Arg.Unit ignore, "";
   "--help", Arg.Unit ignore, "";
@@ -124,7 +129,7 @@ let () =
     Il.Validation.valid il;
 
     let il = List.fold_left (fun il pass ->
-      if !run_all_passes || List.mem pass !selected_passes
+      if PS.mem pass !selected_passes
       then (
         log ("Running pass " ^ pass_flag pass);
         let il = run_pass pass il in
