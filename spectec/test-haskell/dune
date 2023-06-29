@@ -1,0 +1,22 @@
+(rule
+  (targets stderr.current SpecTec.hs.current)
+  (deps
+    (file ../src/exe-watsup/main.exe)
+    (glob_files ../spec/*.watsup)
+  )
+  (action
+    (progn
+      (write-file SpecTec.hs.current "not generated")
+      (with-stderr-to stderr.current (run %{deps} --haskell -o SpecTec.hs.current))
+    )
+  )
+)
+
+(rule
+ (alias   runtest)
+ (action (diff stderr.expected stderr.current))
+)
+(rule
+ (alias   runtest)
+ (action (diff SpecTec.hs SpecTec.hs.current))
+)

@@ -1,1 +1,9 @@
 watsup
+watsup-haskell
+watsup-lean4
+
+# lean stuff
+build
+lake-packages
+
+.direnv

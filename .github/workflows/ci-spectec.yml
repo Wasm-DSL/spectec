@@ -17,11 +17,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Setup OCaml
         uses: ocaml/setup-ocaml@v2
         with:
           ocaml-compiler: 4.14.x
+      - name: Setup Haskell
+        uses: haskell/actions/setup@v2
+        with:
+          ghc-version: 9.2
+      - name: Setup Lean
+        run: |
+          cd /tmp
+          curl -LO https://github.com/leanprover/lean4-nightly/releases/download/nightly-2023-02-10/lean-4.0.0-nightly-2023-02-10-linux.tar.zst
+          tar xaf lean-4.0.0-nightly-2023-02-10-linux.tar.zst
+          echo "/tmp/lean-4.0.0-nightly-2023-02-10-linux/bin" >> $GITHUB_PATH
       - name: Setup Dune
         run: opam install --yes dune menhir mdx
       - name: Setup Latex

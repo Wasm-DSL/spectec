@@ -13,6 +13,8 @@ type target =
  | Check
  | Latex of Backend_latex.Config.config
  | Prose
+ | Haskell
+ | Lean4
 
 let target = ref (Latex Backend_latex.Config.latex)
 
@@ -22,6 +24,7 @@ type pass =
   | Unthe
   | Wild
   | Sideconditions
+  | Else
   | Animate
 
 (* This list declares the intended order of passes.
@@ -30,7 +33,10 @@ Because passes have dependencies, and because some flags enable multiple
 passers (--all-passes, some targets), we do _not_ want to use the order of
 flags on the command line.
 *)
-let all_passes = [ Sub; Totalize; Unthe; Wild; Sideconditions; Animate ]
+let all_passes = [ Sub; Totalize; Unthe; Wild; Sideconditions; Else; Animate ]
+(* Some backeneds require certain passes *)
+let haskell_passes = [ Sub ]
+let lean4_passes = [ Sub; Totalize; Unthe; Wild; Sideconditions; Else]
 
 let log = ref false  (* log execution steps *)
 let dst = ref false  (* patch files *)
@@ -48,6 +54,7 @@ let print_all_il = ref false
 module PS = Set.Make(struct type t = pass let compare = compare; end)
 let selected_passes = ref (PS.empty)
 let enable_pass pass = selected_passes := PS.add pass !selected_passes
+let enable_passes = List.iter enable_pass
 
 (* Il pass metadata *)
 
@@ -57,6 +64,7 @@ let pass_flag = function
   | Unthe -> "the-elimination"
   | Wild -> "wildcards"
   | Sideconditions -> "sideconditions"
+  | Else -> "else-elimination"
   | Animate -> "animate"
 
 let pass_desc = function
@@ -65,6 +73,7 @@ let pass_desc = function
   | Unthe -> "Eliminate the ! operator in relations"
   | Wild -> "Eliminate wildcards and equivalent expressions"
   | Sideconditions -> "Infer side conditions"
+  | Else -> "Eliminate otherwise/else"
   | Animate -> "Animate equality conditions"
 
 let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
@@ -73,6 +82,7 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | Unthe -> Middlend.Unthe.transform
   | Wild -> Middlend.Wild.transform
   | Sideconditions -> Middlend.Sideconditions.transform
+  | Else -> Middlend.Else.transform
   | Animate -> Middlend.Animate.transform
 
 (* Argument parsing *)
@@ -103,12 +113,15 @@ let argspec = Arg.align
   "--sphinx", Arg.Unit (fun () -> target := Latex Backend_latex.Config.sphinx),
     " Generate Latex for Sphinx";
   "--prose", Arg.Unit (fun () -> target := Prose), " Generate prose";
+  "--haskell", Arg.Unit (fun () -> target := Haskell; enable_passes haskell_passes ), " Produce Haskell code";
+  "--lean4", Arg.Unit (fun () -> target := Lean4; enable_passes lean4_passes), " Produce Lean4 code";
+
 
   "--print-il", Arg.Set print_elab_il, " Print il (after elaboration)";
   "--print-final-il", Arg.Set print_final_il, " Print final il";
   "--print-all-il", Arg.Set print_all_il, " Print il after each step";
 ] @ List.map pass_argspec all_passes @ [
-  "--all-passes", Arg.Unit (fun () -> List.iter enable_pass all_passes)," Run all passes";
+  "--all-passes", Arg.Unit (fun () -> enable_passes all_passes)," Run all passes";
 
   "-help", Arg.Unit ignore, "";
   "--help", Arg.Unit ignore, "";
@@ -171,6 +184,16 @@ let () =
         let prose = Backend_prose.Translate.translate el in
         print_endline prose
       )
+    | Haskell ->
+      if !odst = "" && !dsts = [] then
+        print_endline (Backend_haskell.Gen.gen_string il);
+      if !odst <> "" then
+        Backend_haskell.Gen.gen_file !odst il;
+    | Lean4 ->
+      if !odst = "" && !dsts = [] then
+        print_endline (Backend_haskell.Gen.gen_string il);
+      if !odst <> "" then
+        Backend_lean4.Gen.gen_file !odst il;
     );
     log "Complete."
   with

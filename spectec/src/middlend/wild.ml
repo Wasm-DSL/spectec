@@ -205,6 +205,9 @@ and t_prem' env prem : binds * premise' =
     let iterexp', binds1' = under_iterexp iterexp binds1 in
     let binds2, iterexp'' = t_iterexp env iterexp' in
     binds1' @ binds2, IterPr (prem', iterexp'')
+  | NegPr prem ->
+    let binds1, prem' = t_prem env prem in
+    binds1, NegPr prem'
 
 let t_prems env k  = t_list t_prem env k (fun x -> x)
 

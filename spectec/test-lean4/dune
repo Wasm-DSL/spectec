@@ -1,0 +1,27 @@
+(rule
+  (targets watsup.stderr.current SpecTec.lean.current lean.stdout.current)
+  (deps
+    (file ../src/exe-watsup/main.exe)
+    (glob_files ../spec/*.watsup)
+  )
+  (action
+    (progn
+      (write-file SpecTec.lean.current "not generated")
+      (with-stderr-to watsup.stderr.current (run %{deps} --lean4 -o SpecTec.lean.current))
+      (with-stdout-to lean.stdout.current (run ./run-lean.sh SpecTec.lean.current))
+    )
+  )
+)
+
+(rule
+ (alias runtest)
+ (action (diff watsup.stderr watsup.stderr.current))
+)
+(rule
+ (alias runtest)
+ (action (diff SpecTec.lean SpecTec.lean.current))
+)
+(rule
+ (alias runtest)
+ (action (progn (diff lean.stdout lean.stdout.current)))
+)

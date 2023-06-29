@@ -3,16 +3,18 @@
 NAME = watsup
 EXT = $(NAME)
 
-TESTDIRS = test-frontend test-latex
+TESTDIRS = test-frontend test-middlend test-latex
 
+
+DUNE_OPTS ?=
 
 # Main targets
 
 .PHONY: default all ci
 
-default: exe
+default: exe exe-haskell
 all: exe latex test
-ci: all test-frontend test-latex
+ci: all test-frontend test-middlend test-latex
 
 
 # Executable
@@ -24,9 +26,8 @@ OUTDIR = _build/default/src
 .PHONY: exe
 
 exe:
-	dune build $(SRCDIR)/$(EXE)
-	ln -f $(OUTDIR)/$(EXE) ./$(NAME)
-
+	dune build $(DUNE_OPTS) $(SRCDIR)/$(EXE)
+	ln -sf $(OUTDIR)/$(EXE) ./$(NAME)
 
 # Latex
 
