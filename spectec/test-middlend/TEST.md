@@ -550,7 +550,7 @@ relation Instr_ok: `%|-%:%`(context, instr, functype)
 
   ;; 3-typing.watsup:188.1-192.59
   rule if {C : context, bt : blocktype, instr_1* : instr*, instr_2* : instr*, t_1* : valtype*, t_2* : valtype*}:
-    `%|-%:%`(C, IF_instr(bt, instr_1*{instr_1}, instr_2*{instr_2}), `%->%`(t_1*{t_1}, t_2*{t_2}))
+    `%|-%:%`(C, IF_instr(bt, instr_1*{instr_1}, instr_2*{instr_2}), `%->%`(t_1*{t_1} :: [I32_valtype], t_2*{t_2}))
     -- Blocktype_ok: `%|-%:%`(C, bt, `%->%`(t_1*{t_1}, t_2*{t_2}))
     -- InstrSeq_ok: `%|-%*:%`(C ++ {FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], LOCAL [], LABEL [t_2]*{t_2}, RETURN ?()}, instr_1*{instr_1}, `%->%`(t_1*{t_1}, t_2*{t_2}))
     -- InstrSeq_ok: `%|-%*:%`(C ++ {FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], LOCAL [], LABEL [t_2]*{t_2}, RETURN ?()}, instr_2*{instr_2}, `%->%`(t_1*{t_1}, t_2*{t_2}))
@@ -721,17 +721,17 @@ relation Instr_ok: `%|-%:%`(context, instr, functype)
 
   ;; 3-typing.watsup:333.1-335.22
   rule memory.fill {C : context, mt : memtype}:
-    `%|-%:%`(C, MEMORY.FILL_instr, `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.FILL_instr, `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (C.MEM_context[0] = mt)
 
   ;; 3-typing.watsup:337.1-339.22
   rule memory.copy {C : context, mt : memtype}:
-    `%|-%:%`(C, MEMORY.COPY_instr, `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.COPY_instr, `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (C.MEM_context[0] = mt)
 
   ;; 3-typing.watsup:341.1-344.23
   rule memory.init {C : context, mt : memtype, x : idx}:
-    `%|-%:%`(C, MEMORY.INIT_instr(x), `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.INIT_instr(x), `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (C.MEM_context[0] = mt)
     -- if (C.DATA_context[x] = OK)
 
@@ -1626,12 +1626,12 @@ relation Step: `%~>%`(config, config)
 
   ;; 6-reduction.watsup:190.1-192.33
   rule table.set-trap {i : nat, ref : ref, x : idx, z : state}:
-    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) (ref <: admininstr) TABLE.GET_admininstr(x)]), `%;%*`(z, [TRAP_admininstr]))
+    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) (ref <: admininstr) TABLE.SET_admininstr(x)]), `%;%*`(z, [TRAP_admininstr]))
     -- if (i >= |$table(z, x).ELEM_tableinst|)
 
   ;; 6-reduction.watsup:194.1-196.32
   rule table.set-val {i : nat, ref : ref, x : idx, z : state}:
-    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) (ref <: admininstr) TABLE.GET_admininstr(x)]), `%;%*`($with_table(z, x, i, ref), []))
+    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) (ref <: admininstr) TABLE.SET_admininstr(x)]), `%;%*`($with_table(z, x, i, ref), []))
     -- if (i < |$table(z, x).ELEM_tableinst|)
 
   ;; 6-reduction.watsup:204.1-206.47
@@ -2519,7 +2519,7 @@ relation Instr_ok: `%|-%:%`(context, instr, functype)
 
   ;; 3-typing.watsup:188.1-192.59
   rule if {C : context, bt : blocktype, instr_1* : instr*, instr_2* : instr*, t_1* : valtype*, t_2* : valtype*}:
-    `%|-%:%`(C, IF_instr(bt, instr_1*{instr_1}, instr_2*{instr_2}), `%->%`(t_1*{t_1}, t_2*{t_2}))
+    `%|-%:%`(C, IF_instr(bt, instr_1*{instr_1}, instr_2*{instr_2}), `%->%`(t_1*{t_1} :: [I32_valtype], t_2*{t_2}))
     -- Blocktype_ok: `%|-%:%`(C, bt, `%->%`(t_1*{t_1}, t_2*{t_2}))
     -- InstrSeq_ok: `%|-%*:%`(C ++ {FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], LOCAL [], LABEL [t_2]*{t_2}, RETURN ?()}, instr_1*{instr_1}, `%->%`(t_1*{t_1}, t_2*{t_2}))
     -- InstrSeq_ok: `%|-%*:%`(C ++ {FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], LOCAL [], LABEL [t_2]*{t_2}, RETURN ?()}, instr_2*{instr_2}, `%->%`(t_1*{t_1}, t_2*{t_2}))
@@ -2690,17 +2690,17 @@ relation Instr_ok: `%|-%:%`(context, instr, functype)
 
   ;; 3-typing.watsup:333.1-335.22
   rule memory.fill {C : context, mt : memtype}:
-    `%|-%:%`(C, MEMORY.FILL_instr, `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.FILL_instr, `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (C.MEM_context[0] = mt)
 
   ;; 3-typing.watsup:337.1-339.22
   rule memory.copy {C : context, mt : memtype}:
-    `%|-%:%`(C, MEMORY.COPY_instr, `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.COPY_instr, `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (C.MEM_context[0] = mt)
 
   ;; 3-typing.watsup:341.1-344.23
   rule memory.init {C : context, mt : memtype, x : idx}:
-    `%|-%:%`(C, MEMORY.INIT_instr(x), `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.INIT_instr(x), `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (C.MEM_context[0] = mt)
     -- if (C.DATA_context[x] = OK)
 
@@ -3652,12 +3652,12 @@ relation Step: `%~>%`(config, config)
 
   ;; 6-reduction.watsup:190.1-192.33
   rule table.set-trap {i : nat, ref : ref, x : idx, z : state}:
-    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.GET_admininstr(x)]), `%;%*`(z, [TRAP_admininstr]))
+    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.SET_admininstr(x)]), `%;%*`(z, [TRAP_admininstr]))
     -- if (i >= |$table(z, x).ELEM_tableinst|)
 
   ;; 6-reduction.watsup:194.1-196.32
   rule table.set-val {i : nat, ref : ref, x : idx, z : state}:
-    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.GET_admininstr(x)]), `%;%*`($with_table(z, x, i, ref), []))
+    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.SET_admininstr(x)]), `%;%*`($with_table(z, x, i, ref), []))
     -- if (i < |$table(z, x).ELEM_tableinst|)
 
   ;; 6-reduction.watsup:204.1-206.47
@@ -4546,7 +4546,7 @@ relation Instr_ok: `%|-%:%`(context, instr, functype)
 
   ;; 3-typing.watsup:188.1-192.59
   rule if {C : context, bt : blocktype, instr_1* : instr*, instr_2* : instr*, t_1* : valtype*, t_2* : valtype*}:
-    `%|-%:%`(C, IF_instr(bt, instr_1*{instr_1}, instr_2*{instr_2}), `%->%`(t_1*{t_1}, t_2*{t_2}))
+    `%|-%:%`(C, IF_instr(bt, instr_1*{instr_1}, instr_2*{instr_2}), `%->%`(t_1*{t_1} :: [I32_valtype], t_2*{t_2}))
     -- Blocktype_ok: `%|-%:%`(C, bt, `%->%`(t_1*{t_1}, t_2*{t_2}))
     -- InstrSeq_ok: `%|-%*:%`(C ++ {FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], LOCAL [], LABEL [t_2]*{t_2}, RETURN ?()}, instr_1*{instr_1}, `%->%`(t_1*{t_1}, t_2*{t_2}))
     -- InstrSeq_ok: `%|-%*:%`(C ++ {FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], LOCAL [], LABEL [t_2]*{t_2}, RETURN ?()}, instr_2*{instr_2}, `%->%`(t_1*{t_1}, t_2*{t_2}))
@@ -4717,17 +4717,17 @@ relation Instr_ok: `%|-%:%`(context, instr, functype)
 
   ;; 3-typing.watsup:333.1-335.22
   rule memory.fill {C : context, mt : memtype}:
-    `%|-%:%`(C, MEMORY.FILL_instr, `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.FILL_instr, `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (C.MEM_context[0] = mt)
 
   ;; 3-typing.watsup:337.1-339.22
   rule memory.copy {C : context, mt : memtype}:
-    `%|-%:%`(C, MEMORY.COPY_instr, `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.COPY_instr, `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (C.MEM_context[0] = mt)
 
   ;; 3-typing.watsup:341.1-344.23
   rule memory.init {C : context, mt : memtype, x : idx}:
-    `%|-%:%`(C, MEMORY.INIT_instr(x), `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.INIT_instr(x), `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (C.MEM_context[0] = mt)
     -- if (C.DATA_context[x] = OK)
 
@@ -5682,12 +5682,12 @@ relation Step: `%~>%`(config, config)
 
   ;; 6-reduction.watsup:190.1-192.33
   rule table.set-trap {i : nat, ref : ref, x : idx, z : state}:
-    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.GET_admininstr(x)]), `%;%*`(z, [TRAP_admininstr]))
+    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.SET_admininstr(x)]), `%;%*`(z, [TRAP_admininstr]))
     -- if (i >= |$table(z, x).ELEM_tableinst|)
 
   ;; 6-reduction.watsup:194.1-196.32
   rule table.set-val {i : nat, ref : ref, x : idx, z : state}:
-    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.GET_admininstr(x)]), `%;%*`($with_table(z, x, i, ref), []))
+    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.SET_admininstr(x)]), `%;%*`($with_table(z, x, i, ref), []))
     -- if (i < |$table(z, x).ELEM_tableinst|)
 
   ;; 6-reduction.watsup:204.1-206.47
@@ -6576,7 +6576,7 @@ relation Instr_ok: `%|-%:%`(context, instr, functype)
 
   ;; 3-typing.watsup:188.1-192.59
   rule if {C : context, bt : blocktype, instr_1* : instr*, instr_2* : instr*, t_1* : valtype*, t_2* : valtype*}:
-    `%|-%:%`(C, IF_instr(bt, instr_1*{instr_1}, instr_2*{instr_2}), `%->%`(t_1*{t_1}, t_2*{t_2}))
+    `%|-%:%`(C, IF_instr(bt, instr_1*{instr_1}, instr_2*{instr_2}), `%->%`(t_1*{t_1} :: [I32_valtype], t_2*{t_2}))
     -- Blocktype_ok: `%|-%:%`(C, bt, `%->%`(t_1*{t_1}, t_2*{t_2}))
     -- InstrSeq_ok: `%|-%*:%`(C ++ {FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], LOCAL [], LABEL [t_2]*{t_2}, RETURN ?()}, instr_1*{instr_1}, `%->%`(t_1*{t_1}, t_2*{t_2}))
     -- InstrSeq_ok: `%|-%*:%`(C ++ {FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], LOCAL [], LABEL [t_2]*{t_2}, RETURN ?()}, instr_2*{instr_2}, `%->%`(t_1*{t_1}, t_2*{t_2}))
@@ -6752,17 +6752,17 @@ relation Instr_ok: `%|-%:%`(context, instr, functype)
 
   ;; 3-typing.watsup:333.1-335.22
   rule memory.fill {C : context, mt : memtype}:
-    `%|-%:%`(C, MEMORY.FILL_instr, `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.FILL_instr, `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (C.MEM_context[0] = mt)
 
   ;; 3-typing.watsup:337.1-339.22
   rule memory.copy {C : context, mt : memtype}:
-    `%|-%:%`(C, MEMORY.COPY_instr, `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.COPY_instr, `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (C.MEM_context[0] = mt)
 
   ;; 3-typing.watsup:341.1-344.23
   rule memory.init {C : context, mt : memtype, x : idx}:
-    `%|-%:%`(C, MEMORY.INIT_instr(x), `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.INIT_instr(x), `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (C.MEM_context[0] = mt)
     -- if (C.DATA_context[x] = OK)
 
@@ -7727,12 +7727,12 @@ relation Step: `%~>%`(config, config)
 
   ;; 6-reduction.watsup:190.1-192.33
   rule table.set-trap {i : nat, ref : ref, x : idx, z : state}:
-    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.GET_admininstr(x)]), `%;%*`(z, [TRAP_admininstr]))
+    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.SET_admininstr(x)]), `%;%*`(z, [TRAP_admininstr]))
     -- if (i >= |$table(z, x).ELEM_tableinst|)
 
   ;; 6-reduction.watsup:194.1-196.32
   rule table.set-val {i : nat, ref : ref, x : idx, z : state}:
-    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.GET_admininstr(x)]), `%;%*`($with_table(z, x, i, ref), []))
+    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.SET_admininstr(x)]), `%;%*`($with_table(z, x, i, ref), []))
     -- if (i < |$table(z, x).ELEM_tableinst|)
 
   ;; 6-reduction.watsup:204.1-206.47
@@ -8627,7 +8627,7 @@ relation Instr_ok: `%|-%:%`(context, instr, functype)
 
   ;; 3-typing.watsup:188.1-192.59
   rule if {C : context, bt : blocktype, instr_1* : instr*, instr_2* : instr*, t_1* : valtype*, t_2* : valtype*}:
-    `%|-%:%`(C, IF_instr(bt, instr_1*{instr_1}, instr_2*{instr_2}), `%->%`(t_1*{t_1}, t_2*{t_2}))
+    `%|-%:%`(C, IF_instr(bt, instr_1*{instr_1}, instr_2*{instr_2}), `%->%`(t_1*{t_1} :: [I32_valtype], t_2*{t_2}))
     -- Blocktype_ok: `%|-%:%`(C, bt, `%->%`(t_1*{t_1}, t_2*{t_2}))
     -- InstrSeq_ok: `%|-%*:%`(C ++ {FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], LOCAL [], LABEL [t_2]*{t_2}, RETURN ?()}, instr_1*{instr_1}, `%->%`(t_1*{t_1}, t_2*{t_2}))
     -- InstrSeq_ok: `%|-%*:%`(C ++ {FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], LOCAL [], LABEL [t_2]*{t_2}, RETURN ?()}, instr_2*{instr_2}, `%->%`(t_1*{t_1}, t_2*{t_2}))
@@ -8803,17 +8803,17 @@ relation Instr_ok: `%|-%:%`(context, instr, functype)
 
   ;; 3-typing.watsup:333.1-335.22
   rule memory.fill {C : context, mt : memtype}:
-    `%|-%:%`(C, MEMORY.FILL_instr, `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.FILL_instr, `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (C.MEM_context[0] = mt)
 
   ;; 3-typing.watsup:337.1-339.22
   rule memory.copy {C : context, mt : memtype}:
-    `%|-%:%`(C, MEMORY.COPY_instr, `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.COPY_instr, `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (C.MEM_context[0] = mt)
 
   ;; 3-typing.watsup:341.1-344.23
   rule memory.init {C : context, mt : memtype, x : idx}:
-    `%|-%:%`(C, MEMORY.INIT_instr(x), `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.INIT_instr(x), `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (C.MEM_context[0] = mt)
     -- if (C.DATA_context[x] = OK)
 
@@ -9778,12 +9778,12 @@ relation Step: `%~>%`(config, config)
 
   ;; 6-reduction.watsup:190.1-192.33
   rule table.set-trap {i : nat, ref : ref, x : idx, z : state}:
-    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.GET_admininstr(x)]), `%;%*`(z, [TRAP_admininstr]))
+    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.SET_admininstr(x)]), `%;%*`(z, [TRAP_admininstr]))
     -- if (i >= |$table(z, x).ELEM_tableinst|)
 
   ;; 6-reduction.watsup:194.1-196.32
   rule table.set-val {i : nat, ref : ref, x : idx, z : state}:
-    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.GET_admininstr(x)]), `%;%*`($with_table(z, x, i, ref), []))
+    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.SET_admininstr(x)]), `%;%*`($with_table(z, x, i, ref), []))
     -- if (i < |$table(z, x).ELEM_tableinst|)
 
   ;; 6-reduction.watsup:204.1-206.47
@@ -10679,7 +10679,7 @@ relation Instr_ok: `%|-%:%`(context, instr, functype)
 
   ;; 3-typing.watsup:188.1-192.59
   rule if {C : context, bt : blocktype, instr_1* : instr*, instr_2* : instr*, t_1* : valtype*, t_2* : valtype*}:
-    `%|-%:%`(C, IF_instr(bt, instr_1*{instr_1}, instr_2*{instr_2}), `%->%`(t_1*{t_1}, t_2*{t_2}))
+    `%|-%:%`(C, IF_instr(bt, instr_1*{instr_1}, instr_2*{instr_2}), `%->%`(t_1*{t_1} :: [I32_valtype], t_2*{t_2}))
     -- Blocktype_ok: `%|-%:%`(C, bt, `%->%`(t_1*{t_1}, t_2*{t_2}))
     -- InstrSeq_ok: `%|-%*:%`(C ++ {FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], LOCAL [], LABEL [t_2]*{t_2}, RETURN ?()}, instr_1*{instr_1}, `%->%`(t_1*{t_1}, t_2*{t_2}))
     -- InstrSeq_ok: `%|-%*:%`(C ++ {FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], LOCAL [], LABEL [t_2]*{t_2}, RETURN ?()}, instr_2*{instr_2}, `%->%`(t_1*{t_1}, t_2*{t_2}))
@@ -10879,19 +10879,19 @@ relation Instr_ok: `%|-%:%`(context, instr, functype)
 
   ;; 3-typing.watsup:333.1-335.22
   rule memory.fill {C : context, mt : memtype}:
-    `%|-%:%`(C, MEMORY.FILL_instr, `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.FILL_instr, `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (0 < |C.MEM_context|)
     -- if (C.MEM_context[0] = mt)
 
   ;; 3-typing.watsup:337.1-339.22
   rule memory.copy {C : context, mt : memtype}:
-    `%|-%:%`(C, MEMORY.COPY_instr, `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.COPY_instr, `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (0 < |C.MEM_context|)
     -- if (C.MEM_context[0] = mt)
 
   ;; 3-typing.watsup:341.1-344.23
   rule memory.init {C : context, mt : memtype, x : idx}:
-    `%|-%:%`(C, MEMORY.INIT_instr(x), `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.INIT_instr(x), `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (0 < |C.MEM_context|)
     -- if (x < |C.DATA_context|)
     -- if (C.MEM_context[0] = mt)
@@ -11885,12 +11885,12 @@ relation Step: `%~>%`(config, config)
 
   ;; 6-reduction.watsup:190.1-192.33
   rule table.set-trap {i : nat, ref : ref, x : idx, z : state}:
-    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.GET_admininstr(x)]), `%;%*`(z, [TRAP_admininstr]))
+    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.SET_admininstr(x)]), `%;%*`(z, [TRAP_admininstr]))
     -- if (i >= |$table(z, x).ELEM_tableinst|)
 
   ;; 6-reduction.watsup:194.1-196.32
   rule table.set-val {i : nat, ref : ref, x : idx, z : state}:
-    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.GET_admininstr(x)]), `%;%*`($with_table(z, x, i, ref), []))
+    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.SET_admininstr(x)]), `%;%*`($with_table(z, x, i, ref), []))
     -- if (i < |$table(z, x).ELEM_tableinst|)
 
   ;; 6-reduction.watsup:204.1-206.47
@@ -12789,7 +12789,7 @@ relation Instr_ok: `%|-%:%`(context, instr, functype)
 
   ;; 3-typing.watsup:188.1-192.59
   rule if {C : context, bt : blocktype, instr_1* : instr*, instr_2* : instr*, t_1* : valtype*, t_2* : valtype*}:
-    `%|-%:%`(C, IF_instr(bt, instr_1*{instr_1}, instr_2*{instr_2}), `%->%`(t_1*{t_1}, t_2*{t_2}))
+    `%|-%:%`(C, IF_instr(bt, instr_1*{instr_1}, instr_2*{instr_2}), `%->%`(t_1*{t_1} :: [I32_valtype], t_2*{t_2}))
     -- Blocktype_ok: `%|-%:%`(C, bt, `%->%`(t_1*{t_1}, t_2*{t_2}))
     -- InstrSeq_ok: `%|-%*:%`(C ++ {FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], LOCAL [], LABEL [t_2]*{t_2}, RETURN ?()}, instr_1*{instr_1}, `%->%`(t_1*{t_1}, t_2*{t_2}))
     -- InstrSeq_ok: `%|-%*:%`(C ++ {FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], LOCAL [], LABEL [t_2]*{t_2}, RETURN ?()}, instr_2*{instr_2}, `%->%`(t_1*{t_1}, t_2*{t_2}))
@@ -12989,19 +12989,19 @@ relation Instr_ok: `%|-%:%`(context, instr, functype)
 
   ;; 3-typing.watsup:333.1-335.22
   rule memory.fill {C : context, mt : memtype}:
-    `%|-%:%`(C, MEMORY.FILL_instr, `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.FILL_instr, `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (0 < |C.MEM_context|)
     -- if (C.MEM_context[0] = mt)
 
   ;; 3-typing.watsup:337.1-339.22
   rule memory.copy {C : context, mt : memtype}:
-    `%|-%:%`(C, MEMORY.COPY_instr, `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.COPY_instr, `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (0 < |C.MEM_context|)
     -- if (C.MEM_context[0] = mt)
 
   ;; 3-typing.watsup:341.1-344.23
   rule memory.init {C : context, mt : memtype, x : idx}:
-    `%|-%:%`(C, MEMORY.INIT_instr(x), `%->%`([I32_valtype I32_valtype I32_valtype], [I32_valtype]))
+    `%|-%:%`(C, MEMORY.INIT_instr(x), `%->%`([I32_valtype I32_valtype I32_valtype], []))
     -- if (0 < |C.MEM_context|)
     -- if (x < |C.DATA_context|)
     -- if (C.MEM_context[0] = mt)
@@ -13995,12 +13995,12 @@ relation Step: `%~>%`(config, config)
 
   ;; 6-reduction.watsup:190.1-192.33
   rule table.set-trap {i : nat, ref : ref, x : idx, z : state}:
-    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.GET_admininstr(x)]), `%;%*`(z, [TRAP_admininstr]))
+    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.SET_admininstr(x)]), `%;%*`(z, [TRAP_admininstr]))
     -- if (i >= |$table(z, x).ELEM_tableinst|)
 
   ;; 6-reduction.watsup:194.1-196.32
   rule table.set-val {i : nat, ref : ref, x : idx, z : state}:
-    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.GET_admininstr(x)]), `%;%*`($with_table(z, x, i, ref), []))
+    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, i) $admininstr_ref(ref) TABLE.SET_admininstr(x)]), `%;%*`($with_table(z, x, i, ref), []))
     -- if (i < |$table(z, x).ELEM_tableinst|)
 
   ;; 6-reduction.watsup:204.1-206.47
