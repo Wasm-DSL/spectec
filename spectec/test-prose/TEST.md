@@ -9,7 +9,6 @@ watsup 0.4 generator
 == Running pass sideconditions...
 == IL Validation after pass sideconditions...
 == Running pass animate...
-Animation failed:if ((ref_1 = REF.NULL_ref(ht_1)) /\ (ref_2 = REF.NULL_ref(ht_2)))
 Animation failed:Ref_ok: `%|-%:%`(s, ref, rt)
 Animation failed:Reftype_sub: `%|-%<:%`({TYPE [], REC [], FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], LOCAL [], LABEL [], RETURN ?()}, rt, $inst_reftype(f.MODULE_frame, rt_2))
 Animation failed:Ref_ok: `%|-%:%`(s, ref, rt)
@@ -43,8 +42,6 @@ Animation failed:if ($bytes($storagesize(zt), c)^n{c} = [$data(z, y).DATA_datain
 Animation failed:Expand: `%~~%`(ai.TYPE_arrayinst, ARRAY_comptype(`%%`(mut, zt)))
 Animation failed:Expand: `%~~%`($type(z, x_2), ARRAY_comptype(`%%`(mut, zt_2)))
 Animation failed:if (sx?{sx} = $sxfield(zt_2))
-Animation failed:Expand: `%~~%`($type(z, x_2), ARRAY_comptype(`%%`(mut, zt_2)))
-Animation failed:if (sx?{sx} = $sxfield(zt_2))
 Animation failed:Expand: `%~~%`($type(z, x), ARRAY_comptype(`%%`(mut, zt)))
 Animation failed:if ((j + ((n * $storagesize(zt)) / 8)) > |$data(z, y).DATA_datainst|)
 Animation failed:Expand: `%~~%`($type(z, x), ARRAY_comptype(`%%`(mut, zt)))
@@ -64,7 +61,7 @@ Animation failed:Expand: `%~~%`($arrayinst(z)[a].TYPE_arrayinst, ARRAY_comptype(
 Animation failed:if (fv = $packval(zt, val))
 == IL Validation after pass animate...
 == Prose Generation...
-/Users/me/Desktop/Work/Software/wasm/spec.tec/spectec/_build/default/spec/../src/exe-watsup/main.exe: uncaught exception Failure("Unreachable")
+/Users/yundongjun/PLRG/spectec/spectec/_build/default/spec/../src/exe-watsup/main.exe: uncaught exception Failure("Unreachable")
 Raised at Stdlib.failwith in file "stdlib.ml", line 29, characters 17-33
 Called from Stdlib__List.map in file "list.ml", line 92, characters 20-23
 Called from Backend_prose__Il2ir.rhs2instrs in file "src/backend-prose/il2ir.ml", line 72, characters 26-54
