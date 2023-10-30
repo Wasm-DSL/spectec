@@ -332,9 +332,9 @@ warning: rule `Step_pure/br_if-false` was never spliced
 warning: rule `Step_pure/br_table-lt` was never spliced
 warning: rule `Step_pure/br_table-ge` was never spliced
 warning: rule `Step_pure/br_on_null-null` was never spliced
-warning: rule `Step_pure/br_on_null-non-null` was never spliced
+warning: rule `Step_pure/br_on_null-addr` was never spliced
 warning: rule `Step_pure/br_on_non_null-null` was never spliced
-warning: rule `Step_pure/br_on_non_null-non-null` was never spliced
+warning: rule `Step_pure/br_on_non_null-addr` was never spliced
 warning: rule `Step_pure/call_indirect-call` was never spliced
 warning: rule `Step_pure/return_call_indirect` was never spliced
 warning: rule `Step_pure/frame-vals` was never spliced
@@ -353,7 +353,7 @@ warning: rule `Step_pure/ref.i31` was never spliced
 warning: rule `Step_pure/ref.is_null-true` was never spliced
 warning: rule `Step_pure/ref.is_null-false` was never spliced
 warning: rule `Step_pure/ref.as_non_null-null` was never spliced
-warning: rule `Step_pure/ref.as_non_null-non_null` was never spliced
+warning: rule `Step_pure/ref.as_non_null-addr` was never spliced
 warning: rule `Step_pure/ref.eq-null` was never spliced
 warning: rule `Step_pure/ref.eq-true` was never spliced
 warning: rule `Step_pure/ref.eq-false` was never spliced
@@ -496,6 +496,7 @@ warning: definition `expanddt` was never spliced
 warning: definition `ext` was never spliced
 warning: definition `ext_arrayinst` was never spliced
 warning: definition `ext_structinst` was never spliced
+warning: definition `frame` was never spliced
 warning: definition `funcsxt` was never spliced
 warning: definition `funcsxv` was never spliced
 warning: definition `global` was never spliced
@@ -517,6 +518,7 @@ warning: definition `meminst` was never spliced
 warning: definition `memsxt` was never spliced
 warning: definition `memsxv` was never spliced
 warning: definition `min` was never spliced
+warning: definition `moduleinst` was never spliced
 warning: definition `packedsize` was never spliced
 warning: definition `packval` was never spliced
 warning: definition `relop` was never spliced
@@ -527,6 +529,7 @@ warning: definition `runelem` was never spliced
 warning: definition `setminus` was never spliced
 warning: definition `setminus1` was never spliced
 warning: definition `storagesize` was never spliced
+warning: definition `store` was never spliced
 warning: definition `structinst` was never spliced
 warning: definition `subst_all_deftype` was never spliced
 warning: definition `subst_all_reftype` was never spliced
