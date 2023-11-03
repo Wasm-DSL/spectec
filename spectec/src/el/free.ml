@@ -186,8 +186,8 @@ and free_prem prem =
   | ElsePr -> empty
   | IterPr (prem', iter) -> union (free_prem prem') (free_iter iter)
 
-(* We consider all variables "bound" that occur in judgement
- * or are bound in a condition *)
+(* We consider all variables "bound" that occur in a judgement
+ * or are bound in a condition. *)
 and bound_prem prem =
   match prem.it with
   | RulePr (_id, e) -> free_exp e
