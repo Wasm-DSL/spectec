@@ -645,7 +645,7 @@ rule Instr_ok/call:
   -- Expand: C.FUNC[x] ~~ FUNC (t_1* -> t_2*)
 
 rule Instr_ok/call_ref:
-  C |- CALL_REF x? : t_1* (REF NULL $idx(x)) -> t_2*
+  C |- CALL_REF x : t_1* (REF NULL $idx(x)) -> t_2*
   -- Expand: C.TYPE[x] ~~ FUNC (t_1* -> t_2*)
 
 rule Instr_ok/call_indirect:
@@ -661,7 +661,7 @@ rule Instr_ok/return_call:
   -- Resulttype_sub: C |- t_2* <: t'_2*
 
 rule Instr_ok/return_call_ref:
-  C |- RETURN_CALL_REF x? : t_3* t_1* (REF NULL $idx(x)) -> t_4*
+  C |- RETURN_CALL_REF x : t_3* t_1* (REF NULL $idx(x)) -> t_4*
   -- Expand: C.TYPE[x] ~~ FUNC (t_1* -> t_2*)
   -- if C.RETURN = (t'_2*)
   -- Resulttype_sub: C |- t_2* <: t'_2*
