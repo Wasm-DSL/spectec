@@ -3187,11 +3187,11 @@ relation Step_read: `%~>%*`(config, admininstr*)
     `%~>%*`(`%;%*`(z, [REF.NULL_admininstr(ht) CALL_REF_admininstr(x?{x})]), [TRAP_admininstr])
 
   ;; 8-reduction.watsup:163.1-168.59
-  rule call_ref-func {a : addr, f : frame, fi : funcinst, instr* : instr*, m : m, n : n, t* : valtype*, t_1^n : valtype^n, t_2^m : valtype^m, val^n : val^n, x? : idx?, x' : idx, z : state}:
+  rule call_ref-func {a : addr, f : frame, fi : funcinst, instr* : instr*, m : m, n : n, t* : valtype*, t_1^n : valtype^n, t_2^m : valtype^m, val^n : val^n, x? : idx?, y : idx, z : state}:
     `%~>%*`(`%;%*`(z, (val <: admininstr)^n{val} :: [REF.FUNC_ADDR_admininstr(a) CALL_REF_admininstr(x?{x})]), [FRAME__admininstr(m, f, [LABEL__admininstr(m, [], (instr <: admininstr)*{instr})])])
     -- if ($funcinst(z)[a] = fi)
     -- Expand: `%~~%`(fi.TYPE_funcinst, FUNC_comptype(`%->%`(t_1^n{t_1}, t_2^m{t_2})))
-    -- if (fi.CODE_funcinst = `FUNC%%*%`(x', LOCAL(t)*{t}, instr*{instr}))
+    -- if (fi.CODE_funcinst = `FUNC%%*%`(y, LOCAL(t)*{t}, instr*{instr}))
     -- if (f = {LOCAL ?(val)^n{val} :: $default(t)*{t}, MODULE fi.MODULE_funcinst})
 
   ;; 8-reduction.watsup:171.1-172.76
@@ -3717,151 +3717,152 @@ relation Eval_expr: `%;%~>*%;%*`(state, expr, state, val*)
     `%;%~>*%;%*`(z, instr*{instr}, z', val*{val})
     -- Eval: `%~>*%;%*`(`%;%*`(z, (instr <: admininstr)*{instr}), z, val*{val})
 
-;; 9-module.watsup:7.1-7.37
+;; 9-module.watsup:7.1-7.34
 rec {
 
-;; 9-module.watsup:7.1-7.37
-def alloctypes : rectype* -> deftype*
+;; 9-module.watsup:7.1-7.34
+def alloctypes : type* -> deftype*
   ;; 9-module.watsup:8.1-8.35
   def alloctypes([]) = []
-  ;; 9-module.watsup:9.1-12.24
-  def {deftype* : deftype*, deftype'* : deftype*, rectype : rectype, rectype'* : rectype*, x : idx} alloctypes(rectype'*{rectype'} :: [rectype]) = deftype'*{deftype'} :: deftype*{deftype}
-    -- if (deftype'*{deftype'} = $alloctypes(rectype'*{rectype'}))
+  ;; 9-module.watsup:9.1-13.24
+  def {deftype* : deftype*, deftype'* : deftype*, rectype : rectype, type : type, type'* : type*, x : idx} alloctypes(type'*{type'} :: [type]) = deftype'*{deftype'} :: deftype*{deftype}
+    -- if (deftype'*{deftype'} = $alloctypes(type'*{type'}))
+    -- if (type = TYPE(rectype))
     -- if (deftype*{deftype} = $subst_all_deftypes($rolldt(x, rectype), (deftype' <: heaptype)*{deftype'}))
     -- if (x = |deftype'*{deftype'}|)
 }
 
-;; 9-module.watsup:14.1-14.60
+;; 9-module.watsup:15.1-15.60
 def allocfunc : (store, moduleinst, func) -> (store, funcaddr)
-  ;; 9-module.watsup:15.1-17.55
+  ;; 9-module.watsup:16.1-18.55
   def {expr : expr, fi : funcinst, func : func, local* : local*, mm : moduleinst, s : store, x : idx} allocfunc(s, mm, func) = (s[FUNC_store =.. [fi]], |s.FUNC_store|)
     -- if (func = `FUNC%%*%`(x, local*{local}, expr))
     -- if (fi = {TYPE mm.TYPE_moduleinst[x], MODULE mm, CODE func})
 
-;; 9-module.watsup:19.1-19.63
+;; 9-module.watsup:20.1-20.63
 rec {
 
-;; 9-module.watsup:19.1-19.63
+;; 9-module.watsup:20.1-20.63
 def allocfuncs : (store, moduleinst, func*) -> (store, funcaddr*)
-  ;; 9-module.watsup:20.1-20.47
+  ;; 9-module.watsup:21.1-21.47
   def {mm : moduleinst, s : store} allocfuncs(s, mm, []) = (s, [])
-  ;; 9-module.watsup:21.1-23.51
+  ;; 9-module.watsup:22.1-24.51
   def {fa : funcaddr, fa'* : funcaddr*, func : func, func'* : func*, mm : moduleinst, s : store, s_1 : store, s_2 : store} allocfuncs(s, mm, [func] :: func'*{func'}) = (s_2, [fa] :: fa'*{fa'})
     -- if ((s_1, fa) = $allocfunc(s, mm, func))
     -- if ((s_2, fa'*{fa'}) = $allocfuncs(s_1, mm, func'*{func'}))
 }
 
-;; 9-module.watsup:25.1-25.63
+;; 9-module.watsup:26.1-26.63
 def allocglobal : (store, globaltype, val) -> (store, globaladdr)
-  ;; 9-module.watsup:26.1-27.44
+  ;; 9-module.watsup:27.1-28.44
   def {gi : globalinst, globaltype : globaltype, s : store, val : val} allocglobal(s, globaltype, val) = (s[GLOBAL_store =.. [gi]], |s.GLOBAL_store|)
     -- if (gi = {TYPE globaltype, VALUE val})
 
-;; 9-module.watsup:29.1-29.67
+;; 9-module.watsup:30.1-30.67
 rec {
 
-;; 9-module.watsup:29.1-29.67
+;; 9-module.watsup:30.1-30.67
 def allocglobals : (store, globaltype*, val*) -> (store, globaladdr*)
-  ;; 9-module.watsup:30.1-30.54
+  ;; 9-module.watsup:31.1-31.54
   def {s : store} allocglobals(s, [], []) = (s, [])
-  ;; 9-module.watsup:31.1-33.62
+  ;; 9-module.watsup:32.1-34.62
   def {ga : globaladdr, ga'* : globaladdr*, globaltype : globaltype, globaltype'* : globaltype*, s : store, s_1 : store, s_2 : store, val : val, val'* : val*} allocglobals(s, [globaltype] :: globaltype'*{globaltype'}, [val] :: val'*{val'}) = (s_2, [ga] :: ga'*{ga'})
     -- if ((s_1, ga) = $allocglobal(s, globaltype, val))
     -- if ((s_2, ga'*{ga'}) = $allocglobals(s_1, globaltype'*{globaltype'}, val'*{val'}))
 }
 
-;; 9-module.watsup:35.1-35.60
+;; 9-module.watsup:36.1-36.60
 def alloctable : (store, tabletype, ref) -> (store, tableaddr)
-  ;; 9-module.watsup:36.1-37.49
+  ;; 9-module.watsup:37.1-38.49
   def {i : nat, j : nat, ref : ref, rt : reftype, s : store, ti : tableinst} alloctable(s, `%%`(`[%..%]`(i, j), rt), ref) = (s[TABLE_store =.. [ti]], |s.TABLE_store|)
     -- if (ti = {TYPE `%%`(`[%..%]`(i, j), rt), ELEM ref^i{}})
 
-;; 9-module.watsup:39.1-39.64
+;; 9-module.watsup:40.1-40.64
 rec {
 
-;; 9-module.watsup:39.1-39.64
+;; 9-module.watsup:40.1-40.64
 def alloctables : (store, tabletype*, ref*) -> (store, tableaddr*)
-  ;; 9-module.watsup:40.1-40.53
+  ;; 9-module.watsup:41.1-41.53
   def {s : store} alloctables(s, [], []) = (s, [])
-  ;; 9-module.watsup:41.1-43.60
+  ;; 9-module.watsup:42.1-44.60
   def {ref : ref, ref'* : ref*, s : store, s_1 : store, s_2 : store, ta : tableaddr, ta'* : tableaddr*, tabletype : tabletype, tabletype'* : tabletype*} alloctables(s, [tabletype] :: tabletype'*{tabletype'}, [ref] :: ref'*{ref'}) = (s_2, [ta] :: ta'*{ta'})
     -- if ((s_1, ta) = $alloctable(s, tabletype, ref))
     -- if ((s_2, ta'*{ta'}) = $alloctables(s_1, tabletype'*{tabletype'}, ref'*{ref'}))
 }
 
-;; 9-module.watsup:45.1-45.49
+;; 9-module.watsup:46.1-46.49
 def allocmem : (store, memtype) -> (store, memaddr)
-  ;; 9-module.watsup:46.1-47.62
+  ;; 9-module.watsup:47.1-48.62
   def {i : nat, j : nat, mi : meminst, s : store} allocmem(s, `%I8`(`[%..%]`(i, j))) = (s[MEM_store =.. [mi]], |s.MEM_store|)
     -- if (mi = {TYPE `%I8`(`[%..%]`(i, j)), DATA 0^((i * 64) * $Ki){}})
 
-;; 9-module.watsup:49.1-49.52
+;; 9-module.watsup:50.1-50.52
 rec {
 
-;; 9-module.watsup:49.1-49.52
+;; 9-module.watsup:50.1-50.52
 def allocmems : (store, memtype*) -> (store, memaddr*)
-  ;; 9-module.watsup:50.1-50.42
+  ;; 9-module.watsup:51.1-51.42
   def {s : store} allocmems(s, []) = (s, [])
-  ;; 9-module.watsup:51.1-53.49
+  ;; 9-module.watsup:52.1-54.49
   def {ma : memaddr, ma'* : memaddr*, memtype : memtype, memtype'* : memtype*, s : store, s_1 : store, s_2 : store} allocmems(s, [memtype] :: memtype'*{memtype'}) = (s_2, [ma] :: ma'*{ma'})
     -- if ((s_1, ma) = $allocmem(s, memtype))
     -- if ((s_2, ma'*{ma'}) = $allocmems(s_1, memtype'*{memtype'}))
 }
 
-;; 9-module.watsup:55.1-55.57
+;; 9-module.watsup:56.1-56.57
 def allocelem : (store, reftype, ref*) -> (store, elemaddr)
-  ;; 9-module.watsup:56.1-57.36
+  ;; 9-module.watsup:57.1-58.36
   def {ei : eleminst, ref* : ref*, rt : reftype, s : store} allocelem(s, rt, ref*{ref}) = (s[ELEM_store =.. [ei]], |s.ELEM_store|)
     -- if (ei = {TYPE rt, ELEM ref*{ref}})
 
-;; 9-module.watsup:59.1-59.63
+;; 9-module.watsup:60.1-60.63
 rec {
 
-;; 9-module.watsup:59.1-59.63
+;; 9-module.watsup:60.1-60.63
 def allocelems : (store, reftype*, ref**) -> (store, elemaddr*)
-  ;; 9-module.watsup:60.1-60.52
+  ;; 9-module.watsup:61.1-61.52
   def {s : store} allocelems(s, [], []) = (s, [])
-  ;; 9-module.watsup:61.1-63.55
+  ;; 9-module.watsup:62.1-64.55
   def {ea : elemaddr, ea'* : elemaddr*, ref* : ref*, ref'** : ref**, rt : reftype, rt'* : reftype*, s : store, s_1 : store, s_2 : store} allocelems(s, [rt] :: rt'*{rt'}, [ref*{ref}] :: ref'*{ref'}*{ref'}) = (s_2, [ea] :: ea'*{ea'})
     -- if ((s_1, ea) = $allocelem(s, rt, ref*{ref}))
     -- if ((s_2, ea'*{ea'}) = $allocelems(s_2, rt'*{rt'}, ref'*{ref'}*{ref'}))
 }
 
-;; 9-module.watsup:65.1-65.49
+;; 9-module.watsup:66.1-66.49
 def allocdata : (store, byte*) -> (store, dataaddr)
-  ;; 9-module.watsup:66.1-67.28
+  ;; 9-module.watsup:67.1-68.28
   def {byte* : byte*, di : datainst, s : store} allocdata(s, byte*{byte}) = (s[DATA_store =.. [di]], |s.DATA_store|)
     -- if (di = {DATA byte*{byte}})
 
-;; 9-module.watsup:69.1-69.54
+;; 9-module.watsup:70.1-70.54
 rec {
 
-;; 9-module.watsup:69.1-69.54
+;; 9-module.watsup:70.1-70.54
 def allocdatas : (store, byte**) -> (store, dataaddr*)
-  ;; 9-module.watsup:70.1-70.43
+  ;; 9-module.watsup:71.1-71.43
   def {s : store} allocdatas(s, []) = (s, [])
-  ;; 9-module.watsup:71.1-73.50
+  ;; 9-module.watsup:72.1-74.50
   def {byte* : byte*, byte'** : byte**, da : dataaddr, da'* : dataaddr*, s : store, s_1 : store, s_2 : store} allocdatas(s, [byte*{byte}] :: byte'*{byte'}*{byte'}) = (s_2, [da] :: da'*{da'})
     -- if ((s_1, da) = $allocdata(s, byte*{byte}))
     -- if ((s_2, da'*{da'}) = $allocdatas(s_1, byte'*{byte'}*{byte'}))
 }
 
-;; 9-module.watsup:78.1-78.83
+;; 9-module.watsup:79.1-79.83
 def instexport : (funcaddr*, globaladdr*, tableaddr*, memaddr*, export) -> exportinst
-  ;; 9-module.watsup:79.1-79.95
+  ;; 9-module.watsup:80.1-80.95
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, FUNC_externidx(x))) = {NAME name, VALUE FUNC_externval(fa*{fa}[x])}
-  ;; 9-module.watsup:80.1-80.99
+  ;; 9-module.watsup:81.1-81.99
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, GLOBAL_externidx(x))) = {NAME name, VALUE GLOBAL_externval(ga*{ga}[x])}
-  ;; 9-module.watsup:81.1-81.97
+  ;; 9-module.watsup:82.1-82.97
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, TABLE_externidx(x))) = {NAME name, VALUE TABLE_externval(ta*{ta}[x])}
-  ;; 9-module.watsup:82.1-82.93
+  ;; 9-module.watsup:83.1-83.93
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, MEM_externidx(x))) = {NAME name, VALUE MEM_externval(ma*{ma}[x])}
 
-;; 9-module.watsup:85.1-85.87
+;; 9-module.watsup:86.1-86.87
 def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, moduleinst)
-  ;; 9-module.watsup:86.1-126.51
-  def {byte*^n_d : byte*^n_d, da* : dataaddr*, datamode^n_d : datamode^n_d, dt* : deftype*, ea* : elemaddr*, elemmode^n_e : elemmode^n_e, export* : export*, expr_e*^n_e : expr*^n_e, expr_g^n_g : expr^n_g, expr_t^n_t : expr^n_t, externval* : externval*, fa* : funcaddr*, fa_ex* : funcaddr*, func^n_f : func^n_f, ga* : globaladdr*, ga_ex* : globaladdr*, globaltype^n_g : globaltype^n_g, i_d^n_d : nat^n_d, i_e^n_e : nat^n_e, i_f^n_f : nat^n_f, i_g^n_g : nat^n_g, i_m^n_m : nat^n_m, i_t^n_t : nat^n_t, import* : import*, ma* : memaddr*, ma_ex* : memaddr*, memtype^n_m : memtype^n_m, mm : moduleinst, module : module, n_d : n, n_e : n, n_f : n, n_g : n, n_m : n, n_t : n, rectype* : rectype*, ref_e** : ref**, ref_t* : ref*, reftype^n_e : reftype^n_e, s : store, s_1 : store, s_2 : store, s_3 : store, s_4 : store, s_5 : store, s_6 : store, start? : start?, ta* : tableaddr*, ta_ex* : tableaddr*, tabletype^n_t : tabletype^n_t, val_g* : val*, xi* : exportinst*} allocmodule(s, module, externval*{externval}, val_g*{val_g}, ref_t*{ref_t}, ref_e*{ref_e}*{ref_e}) = (s_6, mm)
-    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(TYPE(rectype)*{rectype}, import*{import}, func^n_f{func}, GLOBAL(globaltype, expr_g)^n_g{expr_g globaltype}, TABLE(tabletype, expr_t)^n_t{expr_t tabletype}, MEMORY(memtype)^n_m{memtype}, `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)^n_e{elemmode expr_e reftype}, `DATA%*%`(byte*{byte}, datamode)^n_d{byte datamode}, start?{start}, export*{export}))
+  ;; 9-module.watsup:87.1-127.51
+  def {byte*^n_d : byte*^n_d, da* : dataaddr*, datamode^n_d : datamode^n_d, dt* : deftype*, ea* : elemaddr*, elemmode^n_e : elemmode^n_e, export* : export*, expr_e*^n_e : expr*^n_e, expr_g^n_g : expr^n_g, expr_t^n_t : expr^n_t, externval* : externval*, fa* : funcaddr*, fa_ex* : funcaddr*, func^n_f : func^n_f, ga* : globaladdr*, ga_ex* : globaladdr*, globaltype^n_g : globaltype^n_g, i_d^n_d : nat^n_d, i_e^n_e : nat^n_e, i_f^n_f : nat^n_f, i_g^n_g : nat^n_g, i_m^n_m : nat^n_m, i_t^n_t : nat^n_t, import* : import*, ma* : memaddr*, ma_ex* : memaddr*, memtype^n_m : memtype^n_m, mm : moduleinst, module : module, n_d : n, n_e : n, n_f : n, n_g : n, n_m : n, n_t : n, ref_e** : ref**, ref_t* : ref*, reftype^n_e : reftype^n_e, s : store, s_1 : store, s_2 : store, s_3 : store, s_4 : store, s_5 : store, s_6 : store, start? : start?, ta* : tableaddr*, ta_ex* : tableaddr*, tabletype^n_t : tabletype^n_t, type* : type*, val_g* : val*, xi* : exportinst*} allocmodule(s, module, externval*{externval}, val_g*{val_g}, ref_t*{ref_t}, ref_e*{ref_e}*{ref_e}) = (s_6, mm)
+    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(type*{type}, import*{import}, func^n_f{func}, GLOBAL(globaltype, expr_g)^n_g{expr_g globaltype}, TABLE(tabletype, expr_t)^n_t{expr_t tabletype}, MEMORY(memtype)^n_m{memtype}, `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)^n_e{elemmode expr_e reftype}, `DATA%*%`(byte*{byte}, datamode)^n_d{byte datamode}, start?{start}, export*{export}))
     -- if (fa_ex*{fa_ex} = $funcsxv(externval*{externval}))
     -- if (ga_ex*{ga_ex} = $globalsxv(externval*{externval}))
     -- if (ta_ex*{ta_ex} = $tablesxv(externval*{externval}))
@@ -3874,7 +3875,7 @@ def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, modu
     -- if (da*{da} = (|s.DATA_store| + i_d)^(i_d<n_d){i_d})
     -- if (xi*{xi} = $instexport(fa_ex*{fa_ex} :: fa*{fa}, ga_ex*{ga_ex} :: ga*{ga}, ta_ex*{ta_ex} :: ta*{ta}, ma_ex*{ma_ex} :: ma*{ma}, export)*{export})
     -- if (mm = {TYPE dt*{dt}, FUNC fa_ex*{fa_ex} :: fa*{fa}, GLOBAL ga_ex*{ga_ex} :: ga*{ga}, TABLE ta_ex*{ta_ex} :: ta*{ta}, MEM ma_ex*{ma_ex} :: ma*{ma}, ELEM ea*{ea}, DATA da*{da}, EXPORT xi*{xi}})
-    -- if (dt*{dt} = $alloctypes(rectype*{rectype}))
+    -- if (dt*{dt} = $alloctypes(type*{type}))
     -- if ((s_1, fa*{fa}) = $allocfuncs(s, mm, func^n_f{func}))
     -- if ((s_2, ga*{ga}) = $allocglobals(s_1, globaltype^n_g{globaltype}, val_g*{val_g}))
     -- if ((s_3, ta*{ta}) = $alloctables(s_2, tabletype^n_t{tabletype}, ref_t*{ref_t}))
@@ -3882,45 +3883,45 @@ def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, modu
     -- if ((s_5, ea*{ea}) = $allocelems(s_4, reftype^n_e{reftype}, ref_e*{ref_e}*{ref_e}))
     -- if ((s_6, da*{da}) = $allocdatas(s_5, byte*{byte}^n_d{byte}))
 
-;; 9-module.watsup:133.1-133.38
+;; 9-module.watsup:134.1-134.38
 rec {
 
-;; 9-module.watsup:133.1-133.38
+;; 9-module.watsup:134.1-134.38
 def concat_instr : instr** -> instr*
-  ;; 9-module.watsup:134.1-134.37
+  ;; 9-module.watsup:135.1-135.37
   def concat_instr([]) = []
-  ;; 9-module.watsup:135.1-135.74
+  ;; 9-module.watsup:136.1-136.74
   def {instr* : instr*, instr'** : instr**} concat_instr([instr*{instr}] :: instr'*{instr'}*{instr'}) = instr*{instr} :: $concat_instr(instr'*{instr'}*{instr'})
 }
 
-;; 9-module.watsup:137.1-137.33
+;; 9-module.watsup:138.1-138.33
 def runelem : (elem, idx) -> instr*
-  ;; 9-module.watsup:138.1-138.56
+  ;; 9-module.watsup:139.1-139.56
   def {expr* : expr*, reftype : reftype, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, PASSIVE_elemmode), y) = []
-  ;; 9-module.watsup:139.1-139.62
+  ;; 9-module.watsup:140.1-140.62
   def {expr* : expr*, reftype : reftype, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, DECLARE_elemmode), y) = [ELEM.DROP_instr(y)]
-  ;; 9-module.watsup:140.1-141.77
+  ;; 9-module.watsup:141.1-142.77
   def {expr* : expr*, instr* : instr*, reftype : reftype, x : idx, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, ACTIVE_elemmode(x, instr*{instr})), y) = instr*{instr} :: [CONST_instr(I32_numtype, 0) CONST_instr(I32_numtype, |expr*{expr}|) TABLE.INIT_instr(x, y) ELEM.DROP_instr(y)]
 
-;; 9-module.watsup:143.1-143.33
+;; 9-module.watsup:144.1-144.33
 def rundata : (data, idx) -> instr*
-  ;; 9-module.watsup:144.1-144.48
+  ;; 9-module.watsup:145.1-145.48
   def {byte* : byte*, y : idx} rundata(`DATA%*%`(byte*{byte}, PASSIVE_datamode), y) = []
-  ;; 9-module.watsup:145.1-146.78
+  ;; 9-module.watsup:146.1-147.78
   def {byte* : byte*, instr* : instr*, x : idx, y : idx} rundata(`DATA%*%`(byte*{byte}, ACTIVE_datamode(x, instr*{instr})), y) = instr*{instr} :: [CONST_instr(I32_numtype, 0) CONST_instr(I32_numtype, |byte*{byte}|) MEMORY.INIT_instr(x, y) DATA.DROP_instr(y)]
 
-;; 9-module.watsup:148.1-148.53
+;; 9-module.watsup:149.1-149.53
 def instantiate : (store, module, externval*) -> config
-  ;; 9-module.watsup:149.1-174.64
-  def {data* : data*, elem* : elem*, elemmode* : elemmode*, export* : export*, expr_e** : expr**, expr_g* : expr*, expr_t* : expr*, externval* : externval*, f : frame, func^n_func : func^n_func, global* : global*, globaltype* : globaltype*, i^n_e : nat^n_e, i_func^n_func : nat^n_func, import* : import*, instr_d* : instr*, instr_e* : instr*, j^n_d : nat^n_d, mem* : mem*, mm : moduleinst, mm_init : moduleinst, module : module, n_d : n, n_e : n, n_func : n, rectype* : rectype*, ref_e** : ref**, ref_t* : ref*, reftype* : reftype*, s : store, s' : store, start? : start?, table* : table*, tabletype* : tabletype*, val_g* : val*, x? : idx?, z : state} instantiate(s, module, externval*{externval}) = `%;%*`(`%;%`(s', f), (instr_e <: admininstr)*{instr_e} :: (instr_d <: admininstr)*{instr_d} :: CALL_admininstr(x)?{x})
-    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(TYPE(rectype)*{rectype}, import*{import}, func^n_func{func}, global*{global}, table*{table}, mem*{mem}, elem*{elem}, data*{data}, start?{start}, export*{export}))
+  ;; 9-module.watsup:150.1-175.64
+  def {data* : data*, elem* : elem*, elemmode* : elemmode*, export* : export*, expr_e** : expr**, expr_g* : expr*, expr_t* : expr*, externval* : externval*, f : frame, func^n_func : func^n_func, global* : global*, globaltype* : globaltype*, i^n_e : nat^n_e, i_func^n_func : nat^n_func, import* : import*, instr_d* : instr*, instr_e* : instr*, j^n_d : nat^n_d, mem* : mem*, mm : moduleinst, mm_init : moduleinst, module : module, n_d : n, n_e : n, n_func : n, ref_e** : ref**, ref_t* : ref*, reftype* : reftype*, s : store, s' : store, start? : start?, table* : table*, tabletype* : tabletype*, type* : type*, val_g* : val*, x? : idx?, z : state} instantiate(s, module, externval*{externval}) = `%;%*`(`%;%`(s', f), (instr_e <: admininstr)*{instr_e} :: (instr_d <: admininstr)*{instr_d} :: CALL_admininstr(x)?{x})
+    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(type*{type}, import*{import}, func^n_func{func}, global*{global}, table*{table}, mem*{mem}, elem*{elem}, data*{data}, start?{start}, export*{export}))
     -- if (global*{global} = GLOBAL(globaltype, expr_g)*{expr_g globaltype})
     -- if (table*{table} = TABLE(tabletype, expr_t)*{expr_t tabletype})
     -- if (elem*{elem} = `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)*{elemmode expr_e reftype})
     -- if (start?{start} = START(x)?{x})
     -- if (n_e = |elem*{elem}|)
     -- if (n_d = |data*{data}|)
-    -- if (mm_init = {TYPE $alloctypes(rectype*{rectype}), FUNC $funcsxv(externval*{externval}) :: (|s.FUNC_store| + i_func)^(i_func<n_func){i_func}, GLOBAL $globalsxv(externval*{externval}), TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
+    -- if (mm_init = {TYPE $alloctypes(type*{type}), FUNC $funcsxv(externval*{externval}) :: (|s.FUNC_store| + i_func)^(i_func<n_func){i_func}, GLOBAL $globalsxv(externval*{externval}), TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
     -- if (z = `%;%`(s, {LOCAL [], MODULE mm_init}))
     -- (Eval_expr: `%;%~>*%;%*`(z, expr_g, z, [val_g]))*{expr_g val_g}
     -- (Eval_expr: `%;%~>*%;%*`(z, expr_t, z, [(ref_t <: val)]))*{expr_t ref_t}
@@ -3930,9 +3931,9 @@ def instantiate : (store, module, externval*) -> config
     -- if (instr_e*{instr_e} = $concat_instr($runelem(elem*{elem}[i], i)^(i<n_e){i}))
     -- if (instr_d*{instr_d} = $concat_instr($rundata(data*{data}[j], j)^(j<n_d){j}))
 
-;; 9-module.watsup:181.1-181.44
+;; 9-module.watsup:182.1-182.44
 def invoke : (store, funcaddr, val*) -> config
-  ;; 9-module.watsup:182.1-195.53
+  ;; 9-module.watsup:183.1-196.53
   def {expr : expr, f : frame, fa : funcaddr, local* : local*, mm : moduleinst, n : n, s : store, t_1^n : valtype^n, t_2* : valtype*, val^n : val^n, x : idx} invoke(s, fa, val^n{val}) = `%;%*`(`%;%`(s, f), (val <: admininstr)^n{val} :: [REF.FUNC_ADDR_admininstr(fa) CALL_REF_admininstr(?(0))])
     -- if (mm = {TYPE [s.FUNC_store[fa].TYPE_funcinst], FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
     -- if (f = {LOCAL [], MODULE mm})
@@ -7362,11 +7363,11 @@ relation Step_read: `%~>%*`(config, admininstr*)
     `%~>%*`(`%;%*`(z, [REF.NULL_admininstr(ht) CALL_REF_admininstr(x?{x})]), [TRAP_admininstr])
 
   ;; 8-reduction.watsup:163.1-168.59
-  rule call_ref-func {a : addr, f : frame, fi : funcinst, instr* : instr*, m : m, n : n, t* : valtype*, t_1^n : valtype^n, t_2^m : valtype^m, val^n : val^n, x? : idx?, x' : idx, z : state}:
+  rule call_ref-func {a : addr, f : frame, fi : funcinst, instr* : instr*, m : m, n : n, t* : valtype*, t_1^n : valtype^n, t_2^m : valtype^m, val^n : val^n, x? : idx?, y : idx, z : state}:
     `%~>%*`(`%;%*`(z, $admininstr_val(val)^n{val} :: [REF.FUNC_ADDR_admininstr(a) CALL_REF_admininstr(x?{x})]), [FRAME__admininstr(m, f, [LABEL__admininstr(m, [], $admininstr_instr(instr)*{instr})])])
     -- if ($funcinst(z)[a] = fi)
     -- Expand: `%~~%`(fi.TYPE_funcinst, FUNC_comptype(`%->%`(t_1^n{t_1}, t_2^m{t_2})))
-    -- if (fi.CODE_funcinst = `FUNC%%*%`(x', LOCAL(t)*{t}, instr*{instr}))
+    -- if (fi.CODE_funcinst = `FUNC%%*%`(y, LOCAL(t)*{t}, instr*{instr}))
     -- if (f = {LOCAL ?(val)^n{val} :: $default(t)*{t}, MODULE fi.MODULE_funcinst})
 
   ;; 8-reduction.watsup:171.1-172.76
@@ -7892,151 +7893,152 @@ relation Eval_expr: `%;%~>*%;%*`(state, expr, state, val*)
     `%;%~>*%;%*`(z, instr*{instr}, z', val*{val})
     -- Eval: `%~>*%;%*`(`%;%*`(z, $admininstr_instr(instr)*{instr}), z, val*{val})
 
-;; 9-module.watsup:7.1-7.37
+;; 9-module.watsup:7.1-7.34
 rec {
 
-;; 9-module.watsup:7.1-7.37
-def alloctypes : rectype* -> deftype*
+;; 9-module.watsup:7.1-7.34
+def alloctypes : type* -> deftype*
   ;; 9-module.watsup:8.1-8.35
   def alloctypes([]) = []
-  ;; 9-module.watsup:9.1-12.24
-  def {deftype* : deftype*, deftype'* : deftype*, rectype : rectype, rectype'* : rectype*, x : idx} alloctypes(rectype'*{rectype'} :: [rectype]) = deftype'*{deftype'} :: deftype*{deftype}
-    -- if (deftype'*{deftype'} = $alloctypes(rectype'*{rectype'}))
+  ;; 9-module.watsup:9.1-13.24
+  def {deftype* : deftype*, deftype'* : deftype*, rectype : rectype, type : type, type'* : type*, x : idx} alloctypes(type'*{type'} :: [type]) = deftype'*{deftype'} :: deftype*{deftype}
+    -- if (deftype'*{deftype'} = $alloctypes(type'*{type'}))
+    -- if (type = TYPE(rectype))
     -- if (deftype*{deftype} = $subst_all_deftypes($rolldt(x, rectype), $heaptype_deftype(deftype')*{deftype'}))
     -- if (x = |deftype'*{deftype'}|)
 }
 
-;; 9-module.watsup:14.1-14.60
+;; 9-module.watsup:15.1-15.60
 def allocfunc : (store, moduleinst, func) -> (store, funcaddr)
-  ;; 9-module.watsup:15.1-17.55
+  ;; 9-module.watsup:16.1-18.55
   def {expr : expr, fi : funcinst, func : func, local* : local*, mm : moduleinst, s : store, x : idx} allocfunc(s, mm, func) = (s[FUNC_store =.. [fi]], |s.FUNC_store|)
     -- if (func = `FUNC%%*%`(x, local*{local}, expr))
     -- if (fi = {TYPE mm.TYPE_moduleinst[x], MODULE mm, CODE func})
 
-;; 9-module.watsup:19.1-19.63
+;; 9-module.watsup:20.1-20.63
 rec {
 
-;; 9-module.watsup:19.1-19.63
+;; 9-module.watsup:20.1-20.63
 def allocfuncs : (store, moduleinst, func*) -> (store, funcaddr*)
-  ;; 9-module.watsup:20.1-20.47
+  ;; 9-module.watsup:21.1-21.47
   def {mm : moduleinst, s : store} allocfuncs(s, mm, []) = (s, [])
-  ;; 9-module.watsup:21.1-23.51
+  ;; 9-module.watsup:22.1-24.51
   def {fa : funcaddr, fa'* : funcaddr*, func : func, func'* : func*, mm : moduleinst, s : store, s_1 : store, s_2 : store} allocfuncs(s, mm, [func] :: func'*{func'}) = (s_2, [fa] :: fa'*{fa'})
     -- if ((s_1, fa) = $allocfunc(s, mm, func))
     -- if ((s_2, fa'*{fa'}) = $allocfuncs(s_1, mm, func'*{func'}))
 }
 
-;; 9-module.watsup:25.1-25.63
+;; 9-module.watsup:26.1-26.63
 def allocglobal : (store, globaltype, val) -> (store, globaladdr)
-  ;; 9-module.watsup:26.1-27.44
+  ;; 9-module.watsup:27.1-28.44
   def {gi : globalinst, globaltype : globaltype, s : store, val : val} allocglobal(s, globaltype, val) = (s[GLOBAL_store =.. [gi]], |s.GLOBAL_store|)
     -- if (gi = {TYPE globaltype, VALUE val})
 
-;; 9-module.watsup:29.1-29.67
+;; 9-module.watsup:30.1-30.67
 rec {
 
-;; 9-module.watsup:29.1-29.67
+;; 9-module.watsup:30.1-30.67
 def allocglobals : (store, globaltype*, val*) -> (store, globaladdr*)
-  ;; 9-module.watsup:30.1-30.54
+  ;; 9-module.watsup:31.1-31.54
   def {s : store} allocglobals(s, [], []) = (s, [])
-  ;; 9-module.watsup:31.1-33.62
+  ;; 9-module.watsup:32.1-34.62
   def {ga : globaladdr, ga'* : globaladdr*, globaltype : globaltype, globaltype'* : globaltype*, s : store, s_1 : store, s_2 : store, val : val, val'* : val*} allocglobals(s, [globaltype] :: globaltype'*{globaltype'}, [val] :: val'*{val'}) = (s_2, [ga] :: ga'*{ga'})
     -- if ((s_1, ga) = $allocglobal(s, globaltype, val))
     -- if ((s_2, ga'*{ga'}) = $allocglobals(s_1, globaltype'*{globaltype'}, val'*{val'}))
 }
 
-;; 9-module.watsup:35.1-35.60
+;; 9-module.watsup:36.1-36.60
 def alloctable : (store, tabletype, ref) -> (store, tableaddr)
-  ;; 9-module.watsup:36.1-37.49
+  ;; 9-module.watsup:37.1-38.49
   def {i : nat, j : nat, ref : ref, rt : reftype, s : store, ti : tableinst} alloctable(s, `%%`(`[%..%]`(i, j), rt), ref) = (s[TABLE_store =.. [ti]], |s.TABLE_store|)
     -- if (ti = {TYPE `%%`(`[%..%]`(i, j), rt), ELEM ref^i{}})
 
-;; 9-module.watsup:39.1-39.64
+;; 9-module.watsup:40.1-40.64
 rec {
 
-;; 9-module.watsup:39.1-39.64
+;; 9-module.watsup:40.1-40.64
 def alloctables : (store, tabletype*, ref*) -> (store, tableaddr*)
-  ;; 9-module.watsup:40.1-40.53
+  ;; 9-module.watsup:41.1-41.53
   def {s : store} alloctables(s, [], []) = (s, [])
-  ;; 9-module.watsup:41.1-43.60
+  ;; 9-module.watsup:42.1-44.60
   def {ref : ref, ref'* : ref*, s : store, s_1 : store, s_2 : store, ta : tableaddr, ta'* : tableaddr*, tabletype : tabletype, tabletype'* : tabletype*} alloctables(s, [tabletype] :: tabletype'*{tabletype'}, [ref] :: ref'*{ref'}) = (s_2, [ta] :: ta'*{ta'})
     -- if ((s_1, ta) = $alloctable(s, tabletype, ref))
     -- if ((s_2, ta'*{ta'}) = $alloctables(s_1, tabletype'*{tabletype'}, ref'*{ref'}))
 }
 
-;; 9-module.watsup:45.1-45.49
+;; 9-module.watsup:46.1-46.49
 def allocmem : (store, memtype) -> (store, memaddr)
-  ;; 9-module.watsup:46.1-47.62
+  ;; 9-module.watsup:47.1-48.62
   def {i : nat, j : nat, mi : meminst, s : store} allocmem(s, `%I8`(`[%..%]`(i, j))) = (s[MEM_store =.. [mi]], |s.MEM_store|)
     -- if (mi = {TYPE `%I8`(`[%..%]`(i, j)), DATA 0^((i * 64) * $Ki){}})
 
-;; 9-module.watsup:49.1-49.52
+;; 9-module.watsup:50.1-50.52
 rec {
 
-;; 9-module.watsup:49.1-49.52
+;; 9-module.watsup:50.1-50.52
 def allocmems : (store, memtype*) -> (store, memaddr*)
-  ;; 9-module.watsup:50.1-50.42
+  ;; 9-module.watsup:51.1-51.42
   def {s : store} allocmems(s, []) = (s, [])
-  ;; 9-module.watsup:51.1-53.49
+  ;; 9-module.watsup:52.1-54.49
   def {ma : memaddr, ma'* : memaddr*, memtype : memtype, memtype'* : memtype*, s : store, s_1 : store, s_2 : store} allocmems(s, [memtype] :: memtype'*{memtype'}) = (s_2, [ma] :: ma'*{ma'})
     -- if ((s_1, ma) = $allocmem(s, memtype))
     -- if ((s_2, ma'*{ma'}) = $allocmems(s_1, memtype'*{memtype'}))
 }
 
-;; 9-module.watsup:55.1-55.57
+;; 9-module.watsup:56.1-56.57
 def allocelem : (store, reftype, ref*) -> (store, elemaddr)
-  ;; 9-module.watsup:56.1-57.36
+  ;; 9-module.watsup:57.1-58.36
   def {ei : eleminst, ref* : ref*, rt : reftype, s : store} allocelem(s, rt, ref*{ref}) = (s[ELEM_store =.. [ei]], |s.ELEM_store|)
     -- if (ei = {TYPE rt, ELEM ref*{ref}})
 
-;; 9-module.watsup:59.1-59.63
+;; 9-module.watsup:60.1-60.63
 rec {
 
-;; 9-module.watsup:59.1-59.63
+;; 9-module.watsup:60.1-60.63
 def allocelems : (store, reftype*, ref**) -> (store, elemaddr*)
-  ;; 9-module.watsup:60.1-60.52
+  ;; 9-module.watsup:61.1-61.52
   def {s : store} allocelems(s, [], []) = (s, [])
-  ;; 9-module.watsup:61.1-63.55
+  ;; 9-module.watsup:62.1-64.55
   def {ea : elemaddr, ea'* : elemaddr*, ref* : ref*, ref'** : ref**, rt : reftype, rt'* : reftype*, s : store, s_1 : store, s_2 : store} allocelems(s, [rt] :: rt'*{rt'}, [ref*{ref}] :: ref'*{ref'}*{ref'}) = (s_2, [ea] :: ea'*{ea'})
     -- if ((s_1, ea) = $allocelem(s, rt, ref*{ref}))
     -- if ((s_2, ea'*{ea'}) = $allocelems(s_2, rt'*{rt'}, ref'*{ref'}*{ref'}))
 }
 
-;; 9-module.watsup:65.1-65.49
+;; 9-module.watsup:66.1-66.49
 def allocdata : (store, byte*) -> (store, dataaddr)
-  ;; 9-module.watsup:66.1-67.28
+  ;; 9-module.watsup:67.1-68.28
   def {byte* : byte*, di : datainst, s : store} allocdata(s, byte*{byte}) = (s[DATA_store =.. [di]], |s.DATA_store|)
     -- if (di = {DATA byte*{byte}})
 
-;; 9-module.watsup:69.1-69.54
+;; 9-module.watsup:70.1-70.54
 rec {
 
-;; 9-module.watsup:69.1-69.54
+;; 9-module.watsup:70.1-70.54
 def allocdatas : (store, byte**) -> (store, dataaddr*)
-  ;; 9-module.watsup:70.1-70.43
+  ;; 9-module.watsup:71.1-71.43
   def {s : store} allocdatas(s, []) = (s, [])
-  ;; 9-module.watsup:71.1-73.50
+  ;; 9-module.watsup:72.1-74.50
   def {byte* : byte*, byte'** : byte**, da : dataaddr, da'* : dataaddr*, s : store, s_1 : store, s_2 : store} allocdatas(s, [byte*{byte}] :: byte'*{byte'}*{byte'}) = (s_2, [da] :: da'*{da'})
     -- if ((s_1, da) = $allocdata(s, byte*{byte}))
     -- if ((s_2, da'*{da'}) = $allocdatas(s_1, byte'*{byte'}*{byte'}))
 }
 
-;; 9-module.watsup:78.1-78.83
+;; 9-module.watsup:79.1-79.83
 def instexport : (funcaddr*, globaladdr*, tableaddr*, memaddr*, export) -> exportinst
-  ;; 9-module.watsup:79.1-79.95
+  ;; 9-module.watsup:80.1-80.95
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, FUNC_externidx(x))) = {NAME name, VALUE FUNC_externval(fa*{fa}[x])}
-  ;; 9-module.watsup:80.1-80.99
+  ;; 9-module.watsup:81.1-81.99
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, GLOBAL_externidx(x))) = {NAME name, VALUE GLOBAL_externval(ga*{ga}[x])}
-  ;; 9-module.watsup:81.1-81.97
+  ;; 9-module.watsup:82.1-82.97
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, TABLE_externidx(x))) = {NAME name, VALUE TABLE_externval(ta*{ta}[x])}
-  ;; 9-module.watsup:82.1-82.93
+  ;; 9-module.watsup:83.1-83.93
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, MEM_externidx(x))) = {NAME name, VALUE MEM_externval(ma*{ma}[x])}
 
-;; 9-module.watsup:85.1-85.87
+;; 9-module.watsup:86.1-86.87
 def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, moduleinst)
-  ;; 9-module.watsup:86.1-126.51
-  def {byte*^n_d : byte*^n_d, da* : dataaddr*, datamode^n_d : datamode^n_d, dt* : deftype*, ea* : elemaddr*, elemmode^n_e : elemmode^n_e, export* : export*, expr_e*^n_e : expr*^n_e, expr_g^n_g : expr^n_g, expr_t^n_t : expr^n_t, externval* : externval*, fa* : funcaddr*, fa_ex* : funcaddr*, func^n_f : func^n_f, ga* : globaladdr*, ga_ex* : globaladdr*, globaltype^n_g : globaltype^n_g, i_d^n_d : nat^n_d, i_e^n_e : nat^n_e, i_f^n_f : nat^n_f, i_g^n_g : nat^n_g, i_m^n_m : nat^n_m, i_t^n_t : nat^n_t, import* : import*, ma* : memaddr*, ma_ex* : memaddr*, memtype^n_m : memtype^n_m, mm : moduleinst, module : module, n_d : n, n_e : n, n_f : n, n_g : n, n_m : n, n_t : n, rectype* : rectype*, ref_e** : ref**, ref_t* : ref*, reftype^n_e : reftype^n_e, s : store, s_1 : store, s_2 : store, s_3 : store, s_4 : store, s_5 : store, s_6 : store, start? : start?, ta* : tableaddr*, ta_ex* : tableaddr*, tabletype^n_t : tabletype^n_t, val_g* : val*, xi* : exportinst*} allocmodule(s, module, externval*{externval}, val_g*{val_g}, ref_t*{ref_t}, ref_e*{ref_e}*{ref_e}) = (s_6, mm)
-    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(TYPE(rectype)*{rectype}, import*{import}, func^n_f{func}, GLOBAL(globaltype, expr_g)^n_g{expr_g globaltype}, TABLE(tabletype, expr_t)^n_t{expr_t tabletype}, MEMORY(memtype)^n_m{memtype}, `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)^n_e{elemmode expr_e reftype}, `DATA%*%`(byte*{byte}, datamode)^n_d{byte datamode}, start?{start}, export*{export}))
+  ;; 9-module.watsup:87.1-127.51
+  def {byte*^n_d : byte*^n_d, da* : dataaddr*, datamode^n_d : datamode^n_d, dt* : deftype*, ea* : elemaddr*, elemmode^n_e : elemmode^n_e, export* : export*, expr_e*^n_e : expr*^n_e, expr_g^n_g : expr^n_g, expr_t^n_t : expr^n_t, externval* : externval*, fa* : funcaddr*, fa_ex* : funcaddr*, func^n_f : func^n_f, ga* : globaladdr*, ga_ex* : globaladdr*, globaltype^n_g : globaltype^n_g, i_d^n_d : nat^n_d, i_e^n_e : nat^n_e, i_f^n_f : nat^n_f, i_g^n_g : nat^n_g, i_m^n_m : nat^n_m, i_t^n_t : nat^n_t, import* : import*, ma* : memaddr*, ma_ex* : memaddr*, memtype^n_m : memtype^n_m, mm : moduleinst, module : module, n_d : n, n_e : n, n_f : n, n_g : n, n_m : n, n_t : n, ref_e** : ref**, ref_t* : ref*, reftype^n_e : reftype^n_e, s : store, s_1 : store, s_2 : store, s_3 : store, s_4 : store, s_5 : store, s_6 : store, start? : start?, ta* : tableaddr*, ta_ex* : tableaddr*, tabletype^n_t : tabletype^n_t, type* : type*, val_g* : val*, xi* : exportinst*} allocmodule(s, module, externval*{externval}, val_g*{val_g}, ref_t*{ref_t}, ref_e*{ref_e}*{ref_e}) = (s_6, mm)
+    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(type*{type}, import*{import}, func^n_f{func}, GLOBAL(globaltype, expr_g)^n_g{expr_g globaltype}, TABLE(tabletype, expr_t)^n_t{expr_t tabletype}, MEMORY(memtype)^n_m{memtype}, `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)^n_e{elemmode expr_e reftype}, `DATA%*%`(byte*{byte}, datamode)^n_d{byte datamode}, start?{start}, export*{export}))
     -- if (fa_ex*{fa_ex} = $funcsxv(externval*{externval}))
     -- if (ga_ex*{ga_ex} = $globalsxv(externval*{externval}))
     -- if (ta_ex*{ta_ex} = $tablesxv(externval*{externval}))
@@ -8049,7 +8051,7 @@ def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, modu
     -- if (da*{da} = (|s.DATA_store| + i_d)^(i_d<n_d){i_d})
     -- if (xi*{xi} = $instexport(fa_ex*{fa_ex} :: fa*{fa}, ga_ex*{ga_ex} :: ga*{ga}, ta_ex*{ta_ex} :: ta*{ta}, ma_ex*{ma_ex} :: ma*{ma}, export)*{export})
     -- if (mm = {TYPE dt*{dt}, FUNC fa_ex*{fa_ex} :: fa*{fa}, GLOBAL ga_ex*{ga_ex} :: ga*{ga}, TABLE ta_ex*{ta_ex} :: ta*{ta}, MEM ma_ex*{ma_ex} :: ma*{ma}, ELEM ea*{ea}, DATA da*{da}, EXPORT xi*{xi}})
-    -- if (dt*{dt} = $alloctypes(rectype*{rectype}))
+    -- if (dt*{dt} = $alloctypes(type*{type}))
     -- if ((s_1, fa*{fa}) = $allocfuncs(s, mm, func^n_f{func}))
     -- if ((s_2, ga*{ga}) = $allocglobals(s_1, globaltype^n_g{globaltype}, val_g*{val_g}))
     -- if ((s_3, ta*{ta}) = $alloctables(s_2, tabletype^n_t{tabletype}, ref_t*{ref_t}))
@@ -8057,45 +8059,45 @@ def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, modu
     -- if ((s_5, ea*{ea}) = $allocelems(s_4, reftype^n_e{reftype}, ref_e*{ref_e}*{ref_e}))
     -- if ((s_6, da*{da}) = $allocdatas(s_5, byte*{byte}^n_d{byte}))
 
-;; 9-module.watsup:133.1-133.38
+;; 9-module.watsup:134.1-134.38
 rec {
 
-;; 9-module.watsup:133.1-133.38
+;; 9-module.watsup:134.1-134.38
 def concat_instr : instr** -> instr*
-  ;; 9-module.watsup:134.1-134.37
+  ;; 9-module.watsup:135.1-135.37
   def concat_instr([]) = []
-  ;; 9-module.watsup:135.1-135.74
+  ;; 9-module.watsup:136.1-136.74
   def {instr* : instr*, instr'** : instr**} concat_instr([instr*{instr}] :: instr'*{instr'}*{instr'}) = instr*{instr} :: $concat_instr(instr'*{instr'}*{instr'})
 }
 
-;; 9-module.watsup:137.1-137.33
+;; 9-module.watsup:138.1-138.33
 def runelem : (elem, idx) -> instr*
-  ;; 9-module.watsup:138.1-138.56
+  ;; 9-module.watsup:139.1-139.56
   def {expr* : expr*, reftype : reftype, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, PASSIVE_elemmode), y) = []
-  ;; 9-module.watsup:139.1-139.62
+  ;; 9-module.watsup:140.1-140.62
   def {expr* : expr*, reftype : reftype, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, DECLARE_elemmode), y) = [ELEM.DROP_instr(y)]
-  ;; 9-module.watsup:140.1-141.77
+  ;; 9-module.watsup:141.1-142.77
   def {expr* : expr*, instr* : instr*, reftype : reftype, x : idx, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, ACTIVE_elemmode(x, instr*{instr})), y) = instr*{instr} :: [CONST_instr(I32_numtype, 0) CONST_instr(I32_numtype, |expr*{expr}|) TABLE.INIT_instr(x, y) ELEM.DROP_instr(y)]
 
-;; 9-module.watsup:143.1-143.33
+;; 9-module.watsup:144.1-144.33
 def rundata : (data, idx) -> instr*
-  ;; 9-module.watsup:144.1-144.48
+  ;; 9-module.watsup:145.1-145.48
   def {byte* : byte*, y : idx} rundata(`DATA%*%`(byte*{byte}, PASSIVE_datamode), y) = []
-  ;; 9-module.watsup:145.1-146.78
+  ;; 9-module.watsup:146.1-147.78
   def {byte* : byte*, instr* : instr*, x : idx, y : idx} rundata(`DATA%*%`(byte*{byte}, ACTIVE_datamode(x, instr*{instr})), y) = instr*{instr} :: [CONST_instr(I32_numtype, 0) CONST_instr(I32_numtype, |byte*{byte}|) MEMORY.INIT_instr(x, y) DATA.DROP_instr(y)]
 
-;; 9-module.watsup:148.1-148.53
+;; 9-module.watsup:149.1-149.53
 def instantiate : (store, module, externval*) -> config
-  ;; 9-module.watsup:149.1-174.64
-  def {data* : data*, elem* : elem*, elemmode* : elemmode*, export* : export*, expr_e** : expr**, expr_g* : expr*, expr_t* : expr*, externval* : externval*, f : frame, func^n_func : func^n_func, global* : global*, globaltype* : globaltype*, i^n_e : nat^n_e, i_func^n_func : nat^n_func, import* : import*, instr_d* : instr*, instr_e* : instr*, j^n_d : nat^n_d, mem* : mem*, mm : moduleinst, mm_init : moduleinst, module : module, n_d : n, n_e : n, n_func : n, rectype* : rectype*, ref_e** : ref**, ref_t* : ref*, reftype* : reftype*, s : store, s' : store, start? : start?, table* : table*, tabletype* : tabletype*, val_g* : val*, x? : idx?, z : state} instantiate(s, module, externval*{externval}) = `%;%*`(`%;%`(s', f), $admininstr_instr(instr_e)*{instr_e} :: $admininstr_instr(instr_d)*{instr_d} :: CALL_admininstr(x)?{x})
-    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(TYPE(rectype)*{rectype}, import*{import}, func^n_func{func}, global*{global}, table*{table}, mem*{mem}, elem*{elem}, data*{data}, start?{start}, export*{export}))
+  ;; 9-module.watsup:150.1-175.64
+  def {data* : data*, elem* : elem*, elemmode* : elemmode*, export* : export*, expr_e** : expr**, expr_g* : expr*, expr_t* : expr*, externval* : externval*, f : frame, func^n_func : func^n_func, global* : global*, globaltype* : globaltype*, i^n_e : nat^n_e, i_func^n_func : nat^n_func, import* : import*, instr_d* : instr*, instr_e* : instr*, j^n_d : nat^n_d, mem* : mem*, mm : moduleinst, mm_init : moduleinst, module : module, n_d : n, n_e : n, n_func : n, ref_e** : ref**, ref_t* : ref*, reftype* : reftype*, s : store, s' : store, start? : start?, table* : table*, tabletype* : tabletype*, type* : type*, val_g* : val*, x? : idx?, z : state} instantiate(s, module, externval*{externval}) = `%;%*`(`%;%`(s', f), $admininstr_instr(instr_e)*{instr_e} :: $admininstr_instr(instr_d)*{instr_d} :: CALL_admininstr(x)?{x})
+    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(type*{type}, import*{import}, func^n_func{func}, global*{global}, table*{table}, mem*{mem}, elem*{elem}, data*{data}, start?{start}, export*{export}))
     -- if (global*{global} = GLOBAL(globaltype, expr_g)*{expr_g globaltype})
     -- if (table*{table} = TABLE(tabletype, expr_t)*{expr_t tabletype})
     -- if (elem*{elem} = `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)*{elemmode expr_e reftype})
     -- if (start?{start} = START(x)?{x})
     -- if (n_e = |elem*{elem}|)
     -- if (n_d = |data*{data}|)
-    -- if (mm_init = {TYPE $alloctypes(rectype*{rectype}), FUNC $funcsxv(externval*{externval}) :: (|s.FUNC_store| + i_func)^(i_func<n_func){i_func}, GLOBAL $globalsxv(externval*{externval}), TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
+    -- if (mm_init = {TYPE $alloctypes(type*{type}), FUNC $funcsxv(externval*{externval}) :: (|s.FUNC_store| + i_func)^(i_func<n_func){i_func}, GLOBAL $globalsxv(externval*{externval}), TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
     -- if (z = `%;%`(s, {LOCAL [], MODULE mm_init}))
     -- (Eval_expr: `%;%~>*%;%*`(z, expr_g, z, [val_g]))*{expr_g val_g}
     -- (Eval_expr: `%;%~>*%;%*`(z, expr_t, z, [$val_ref(ref_t)]))*{expr_t ref_t}
@@ -8105,9 +8107,9 @@ def instantiate : (store, module, externval*) -> config
     -- if (instr_e*{instr_e} = $concat_instr($runelem(elem*{elem}[i], i)^(i<n_e){i}))
     -- if (instr_d*{instr_d} = $concat_instr($rundata(data*{data}[j], j)^(j<n_d){j}))
 
-;; 9-module.watsup:181.1-181.44
+;; 9-module.watsup:182.1-182.44
 def invoke : (store, funcaddr, val*) -> config
-  ;; 9-module.watsup:182.1-195.53
+  ;; 9-module.watsup:183.1-196.53
   def {expr : expr, f : frame, fa : funcaddr, local* : local*, mm : moduleinst, n : n, s : store, t_1^n : valtype^n, t_2* : valtype*, val^n : val^n, x : idx} invoke(s, fa, val^n{val}) = `%;%*`(`%;%`(s, f), $admininstr_val(val)^n{val} :: [REF.FUNC_ADDR_admininstr(fa) CALL_REF_admininstr(?(0))])
     -- if (mm = {TYPE [s.FUNC_store[fa].TYPE_funcinst], FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
     -- if (f = {LOCAL [], MODULE mm})
@@ -11540,11 +11542,11 @@ relation Step_read: `%~>%*`(config, admininstr*)
     `%~>%*`(`%;%*`(z, [REF.NULL_admininstr(ht) CALL_REF_admininstr(x?{x})]), [TRAP_admininstr])
 
   ;; 8-reduction.watsup:163.1-168.59
-  rule call_ref-func {a : addr, f : frame, fi : funcinst, instr* : instr*, m : m, n : n, t* : valtype*, t_1^n : valtype^n, t_2^m : valtype^m, val^n : val^n, x? : idx?, x' : idx, z : state}:
+  rule call_ref-func {a : addr, f : frame, fi : funcinst, instr* : instr*, m : m, n : n, t* : valtype*, t_1^n : valtype^n, t_2^m : valtype^m, val^n : val^n, x? : idx?, y : idx, z : state}:
     `%~>%*`(`%;%*`(z, $admininstr_val(val)^n{val} :: [REF.FUNC_ADDR_admininstr(a) CALL_REF_admininstr(x?{x})]), [FRAME__admininstr(m, f, [LABEL__admininstr(m, [], $admininstr_instr(instr)*{instr})])])
     -- if ($funcinst(z)[a] = fi)
     -- Expand: `%~~%`(fi.TYPE_funcinst, FUNC_comptype(`%->%`(t_1^n{t_1}, t_2^m{t_2})))
-    -- if (fi.CODE_funcinst = `FUNC%%*%`(x', LOCAL(t)*{t}, instr*{instr}))
+    -- if (fi.CODE_funcinst = `FUNC%%*%`(y, LOCAL(t)*{t}, instr*{instr}))
     -- if (f = {LOCAL ?(val)^n{val} :: $default(t)*{t}, MODULE fi.MODULE_funcinst})
 
   ;; 8-reduction.watsup:171.1-172.76
@@ -12070,151 +12072,152 @@ relation Eval_expr: `%;%~>*%;%*`(state, expr, state, val*)
     `%;%~>*%;%*`(z, instr*{instr}, z', val*{val})
     -- Eval: `%~>*%;%*`(`%;%*`(z, $admininstr_instr(instr)*{instr}), z, val*{val})
 
-;; 9-module.watsup:7.1-7.37
+;; 9-module.watsup:7.1-7.34
 rec {
 
-;; 9-module.watsup:7.1-7.37
-def alloctypes : rectype* -> deftype*
+;; 9-module.watsup:7.1-7.34
+def alloctypes : type* -> deftype*
   ;; 9-module.watsup:8.1-8.35
   def alloctypes([]) = []
-  ;; 9-module.watsup:9.1-12.24
-  def {deftype* : deftype*, deftype'* : deftype*, rectype : rectype, rectype'* : rectype*, x : idx} alloctypes(rectype'*{rectype'} :: [rectype]) = deftype'*{deftype'} :: deftype*{deftype}
-    -- if (deftype'*{deftype'} = $alloctypes(rectype'*{rectype'}))
+  ;; 9-module.watsup:9.1-13.24
+  def {deftype* : deftype*, deftype'* : deftype*, rectype : rectype, type : type, type'* : type*, x : idx} alloctypes(type'*{type'} :: [type]) = deftype'*{deftype'} :: deftype*{deftype}
+    -- if (deftype'*{deftype'} = $alloctypes(type'*{type'}))
+    -- if (type = TYPE(rectype))
     -- if (deftype*{deftype} = $subst_all_deftypes($rolldt(x, rectype), $heaptype_deftype(deftype')*{deftype'}))
     -- if (x = |deftype'*{deftype'}|)
 }
 
-;; 9-module.watsup:14.1-14.60
+;; 9-module.watsup:15.1-15.60
 def allocfunc : (store, moduleinst, func) -> (store, funcaddr)
-  ;; 9-module.watsup:15.1-17.55
+  ;; 9-module.watsup:16.1-18.55
   def {expr : expr, fi : funcinst, func : func, local* : local*, mm : moduleinst, s : store, x : idx} allocfunc(s, mm, func) = (s[FUNC_store =.. [fi]], |s.FUNC_store|)
     -- if (func = `FUNC%%*%`(x, local*{local}, expr))
     -- if (fi = {TYPE mm.TYPE_moduleinst[x], MODULE mm, CODE func})
 
-;; 9-module.watsup:19.1-19.63
+;; 9-module.watsup:20.1-20.63
 rec {
 
-;; 9-module.watsup:19.1-19.63
+;; 9-module.watsup:20.1-20.63
 def allocfuncs : (store, moduleinst, func*) -> (store, funcaddr*)
-  ;; 9-module.watsup:20.1-20.47
+  ;; 9-module.watsup:21.1-21.47
   def {mm : moduleinst, s : store} allocfuncs(s, mm, []) = (s, [])
-  ;; 9-module.watsup:21.1-23.51
+  ;; 9-module.watsup:22.1-24.51
   def {fa : funcaddr, fa'* : funcaddr*, func : func, func'* : func*, mm : moduleinst, s : store, s_1 : store, s_2 : store} allocfuncs(s, mm, [func] :: func'*{func'}) = (s_2, [fa] :: fa'*{fa'})
     -- if ((s_1, fa) = $allocfunc(s, mm, func))
     -- if ((s_2, fa'*{fa'}) = $allocfuncs(s_1, mm, func'*{func'}))
 }
 
-;; 9-module.watsup:25.1-25.63
+;; 9-module.watsup:26.1-26.63
 def allocglobal : (store, globaltype, val) -> (store, globaladdr)
-  ;; 9-module.watsup:26.1-27.44
+  ;; 9-module.watsup:27.1-28.44
   def {gi : globalinst, globaltype : globaltype, s : store, val : val} allocglobal(s, globaltype, val) = (s[GLOBAL_store =.. [gi]], |s.GLOBAL_store|)
     -- if (gi = {TYPE globaltype, VALUE val})
 
-;; 9-module.watsup:29.1-29.67
+;; 9-module.watsup:30.1-30.67
 rec {
 
-;; 9-module.watsup:29.1-29.67
+;; 9-module.watsup:30.1-30.67
 def allocglobals : (store, globaltype*, val*) -> (store, globaladdr*)
-  ;; 9-module.watsup:30.1-30.54
+  ;; 9-module.watsup:31.1-31.54
   def {s : store} allocglobals(s, [], []) = (s, [])
-  ;; 9-module.watsup:31.1-33.62
+  ;; 9-module.watsup:32.1-34.62
   def {ga : globaladdr, ga'* : globaladdr*, globaltype : globaltype, globaltype'* : globaltype*, s : store, s_1 : store, s_2 : store, val : val, val'* : val*} allocglobals(s, [globaltype] :: globaltype'*{globaltype'}, [val] :: val'*{val'}) = (s_2, [ga] :: ga'*{ga'})
     -- if ((s_1, ga) = $allocglobal(s, globaltype, val))
     -- if ((s_2, ga'*{ga'}) = $allocglobals(s_1, globaltype'*{globaltype'}, val'*{val'}))
 }
 
-;; 9-module.watsup:35.1-35.60
+;; 9-module.watsup:36.1-36.60
 def alloctable : (store, tabletype, ref) -> (store, tableaddr)
-  ;; 9-module.watsup:36.1-37.49
+  ;; 9-module.watsup:37.1-38.49
   def {i : nat, j : nat, ref : ref, rt : reftype, s : store, ti : tableinst} alloctable(s, `%%`(`[%..%]`(i, j), rt), ref) = (s[TABLE_store =.. [ti]], |s.TABLE_store|)
     -- if (ti = {TYPE `%%`(`[%..%]`(i, j), rt), ELEM ref^i{}})
 
-;; 9-module.watsup:39.1-39.64
+;; 9-module.watsup:40.1-40.64
 rec {
 
-;; 9-module.watsup:39.1-39.64
+;; 9-module.watsup:40.1-40.64
 def alloctables : (store, tabletype*, ref*) -> (store, tableaddr*)
-  ;; 9-module.watsup:40.1-40.53
+  ;; 9-module.watsup:41.1-41.53
   def {s : store} alloctables(s, [], []) = (s, [])
-  ;; 9-module.watsup:41.1-43.60
+  ;; 9-module.watsup:42.1-44.60
   def {ref : ref, ref'* : ref*, s : store, s_1 : store, s_2 : store, ta : tableaddr, ta'* : tableaddr*, tabletype : tabletype, tabletype'* : tabletype*} alloctables(s, [tabletype] :: tabletype'*{tabletype'}, [ref] :: ref'*{ref'}) = (s_2, [ta] :: ta'*{ta'})
     -- if ((s_1, ta) = $alloctable(s, tabletype, ref))
     -- if ((s_2, ta'*{ta'}) = $alloctables(s_1, tabletype'*{tabletype'}, ref'*{ref'}))
 }
 
-;; 9-module.watsup:45.1-45.49
+;; 9-module.watsup:46.1-46.49
 def allocmem : (store, memtype) -> (store, memaddr)
-  ;; 9-module.watsup:46.1-47.62
+  ;; 9-module.watsup:47.1-48.62
   def {i : nat, j : nat, mi : meminst, s : store} allocmem(s, `%I8`(`[%..%]`(i, j))) = (s[MEM_store =.. [mi]], |s.MEM_store|)
     -- if (mi = {TYPE `%I8`(`[%..%]`(i, j)), DATA 0^((i * 64) * $Ki){}})
 
-;; 9-module.watsup:49.1-49.52
+;; 9-module.watsup:50.1-50.52
 rec {
 
-;; 9-module.watsup:49.1-49.52
+;; 9-module.watsup:50.1-50.52
 def allocmems : (store, memtype*) -> (store, memaddr*)
-  ;; 9-module.watsup:50.1-50.42
+  ;; 9-module.watsup:51.1-51.42
   def {s : store} allocmems(s, []) = (s, [])
-  ;; 9-module.watsup:51.1-53.49
+  ;; 9-module.watsup:52.1-54.49
   def {ma : memaddr, ma'* : memaddr*, memtype : memtype, memtype'* : memtype*, s : store, s_1 : store, s_2 : store} allocmems(s, [memtype] :: memtype'*{memtype'}) = (s_2, [ma] :: ma'*{ma'})
     -- if ((s_1, ma) = $allocmem(s, memtype))
     -- if ((s_2, ma'*{ma'}) = $allocmems(s_1, memtype'*{memtype'}))
 }
 
-;; 9-module.watsup:55.1-55.57
+;; 9-module.watsup:56.1-56.57
 def allocelem : (store, reftype, ref*) -> (store, elemaddr)
-  ;; 9-module.watsup:56.1-57.36
+  ;; 9-module.watsup:57.1-58.36
   def {ei : eleminst, ref* : ref*, rt : reftype, s : store} allocelem(s, rt, ref*{ref}) = (s[ELEM_store =.. [ei]], |s.ELEM_store|)
     -- if (ei = {TYPE rt, ELEM ref*{ref}})
 
-;; 9-module.watsup:59.1-59.63
+;; 9-module.watsup:60.1-60.63
 rec {
 
-;; 9-module.watsup:59.1-59.63
+;; 9-module.watsup:60.1-60.63
 def allocelems : (store, reftype*, ref**) -> (store, elemaddr*)
-  ;; 9-module.watsup:60.1-60.52
+  ;; 9-module.watsup:61.1-61.52
   def {s : store} allocelems(s, [], []) = (s, [])
-  ;; 9-module.watsup:61.1-63.55
+  ;; 9-module.watsup:62.1-64.55
   def {ea : elemaddr, ea'* : elemaddr*, ref* : ref*, ref'** : ref**, rt : reftype, rt'* : reftype*, s : store, s_1 : store, s_2 : store} allocelems(s, [rt] :: rt'*{rt'}, [ref*{ref}] :: ref'*{ref'}*{ref'}) = (s_2, [ea] :: ea'*{ea'})
     -- if ((s_1, ea) = $allocelem(s, rt, ref*{ref}))
     -- if ((s_2, ea'*{ea'}) = $allocelems(s_2, rt'*{rt'}, ref'*{ref'}*{ref'}))
 }
 
-;; 9-module.watsup:65.1-65.49
+;; 9-module.watsup:66.1-66.49
 def allocdata : (store, byte*) -> (store, dataaddr)
-  ;; 9-module.watsup:66.1-67.28
+  ;; 9-module.watsup:67.1-68.28
   def {byte* : byte*, di : datainst, s : store} allocdata(s, byte*{byte}) = (s[DATA_store =.. [di]], |s.DATA_store|)
     -- if (di = {DATA byte*{byte}})
 
-;; 9-module.watsup:69.1-69.54
+;; 9-module.watsup:70.1-70.54
 rec {
 
-;; 9-module.watsup:69.1-69.54
+;; 9-module.watsup:70.1-70.54
 def allocdatas : (store, byte**) -> (store, dataaddr*)
-  ;; 9-module.watsup:70.1-70.43
+  ;; 9-module.watsup:71.1-71.43
   def {s : store} allocdatas(s, []) = (s, [])
-  ;; 9-module.watsup:71.1-73.50
+  ;; 9-module.watsup:72.1-74.50
   def {byte* : byte*, byte'** : byte**, da : dataaddr, da'* : dataaddr*, s : store, s_1 : store, s_2 : store} allocdatas(s, [byte*{byte}] :: byte'*{byte'}*{byte'}) = (s_2, [da] :: da'*{da'})
     -- if ((s_1, da) = $allocdata(s, byte*{byte}))
     -- if ((s_2, da'*{da'}) = $allocdatas(s_1, byte'*{byte'}*{byte'}))
 }
 
-;; 9-module.watsup:78.1-78.83
+;; 9-module.watsup:79.1-79.83
 def instexport : (funcaddr*, globaladdr*, tableaddr*, memaddr*, export) -> exportinst
-  ;; 9-module.watsup:79.1-79.95
+  ;; 9-module.watsup:80.1-80.95
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, FUNC_externidx(x))) = {NAME name, VALUE FUNC_externval(fa*{fa}[x])}
-  ;; 9-module.watsup:80.1-80.99
+  ;; 9-module.watsup:81.1-81.99
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, GLOBAL_externidx(x))) = {NAME name, VALUE GLOBAL_externval(ga*{ga}[x])}
-  ;; 9-module.watsup:81.1-81.97
+  ;; 9-module.watsup:82.1-82.97
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, TABLE_externidx(x))) = {NAME name, VALUE TABLE_externval(ta*{ta}[x])}
-  ;; 9-module.watsup:82.1-82.93
+  ;; 9-module.watsup:83.1-83.93
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, MEM_externidx(x))) = {NAME name, VALUE MEM_externval(ma*{ma}[x])}
 
-;; 9-module.watsup:85.1-85.87
+;; 9-module.watsup:86.1-86.87
 def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, moduleinst)
-  ;; 9-module.watsup:86.1-126.51
-  def {byte*^n_d : byte*^n_d, da* : dataaddr*, datamode^n_d : datamode^n_d, dt* : deftype*, ea* : elemaddr*, elemmode^n_e : elemmode^n_e, export* : export*, expr_e*^n_e : expr*^n_e, expr_g^n_g : expr^n_g, expr_t^n_t : expr^n_t, externval* : externval*, fa* : funcaddr*, fa_ex* : funcaddr*, func^n_f : func^n_f, ga* : globaladdr*, ga_ex* : globaladdr*, globaltype^n_g : globaltype^n_g, i_d^n_d : nat^n_d, i_e^n_e : nat^n_e, i_f^n_f : nat^n_f, i_g^n_g : nat^n_g, i_m^n_m : nat^n_m, i_t^n_t : nat^n_t, import* : import*, ma* : memaddr*, ma_ex* : memaddr*, memtype^n_m : memtype^n_m, mm : moduleinst, module : module, n_d : n, n_e : n, n_f : n, n_g : n, n_m : n, n_t : n, rectype* : rectype*, ref_e** : ref**, ref_t* : ref*, reftype^n_e : reftype^n_e, s : store, s_1 : store, s_2 : store, s_3 : store, s_4 : store, s_5 : store, s_6 : store, start? : start?, ta* : tableaddr*, ta_ex* : tableaddr*, tabletype^n_t : tabletype^n_t, val_g* : val*, xi* : exportinst*} allocmodule(s, module, externval*{externval}, val_g*{val_g}, ref_t*{ref_t}, ref_e*{ref_e}*{ref_e}) = (s_6, mm)
-    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(TYPE(rectype)*{rectype}, import*{import}, func^n_f{func}, GLOBAL(globaltype, expr_g)^n_g{expr_g globaltype}, TABLE(tabletype, expr_t)^n_t{expr_t tabletype}, MEMORY(memtype)^n_m{memtype}, `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)^n_e{elemmode expr_e reftype}, `DATA%*%`(byte*{byte}, datamode)^n_d{byte datamode}, start?{start}, export*{export}))
+  ;; 9-module.watsup:87.1-127.51
+  def {byte*^n_d : byte*^n_d, da* : dataaddr*, datamode^n_d : datamode^n_d, dt* : deftype*, ea* : elemaddr*, elemmode^n_e : elemmode^n_e, export* : export*, expr_e*^n_e : expr*^n_e, expr_g^n_g : expr^n_g, expr_t^n_t : expr^n_t, externval* : externval*, fa* : funcaddr*, fa_ex* : funcaddr*, func^n_f : func^n_f, ga* : globaladdr*, ga_ex* : globaladdr*, globaltype^n_g : globaltype^n_g, i_d^n_d : nat^n_d, i_e^n_e : nat^n_e, i_f^n_f : nat^n_f, i_g^n_g : nat^n_g, i_m^n_m : nat^n_m, i_t^n_t : nat^n_t, import* : import*, ma* : memaddr*, ma_ex* : memaddr*, memtype^n_m : memtype^n_m, mm : moduleinst, module : module, n_d : n, n_e : n, n_f : n, n_g : n, n_m : n, n_t : n, ref_e** : ref**, ref_t* : ref*, reftype^n_e : reftype^n_e, s : store, s_1 : store, s_2 : store, s_3 : store, s_4 : store, s_5 : store, s_6 : store, start? : start?, ta* : tableaddr*, ta_ex* : tableaddr*, tabletype^n_t : tabletype^n_t, type* : type*, val_g* : val*, xi* : exportinst*} allocmodule(s, module, externval*{externval}, val_g*{val_g}, ref_t*{ref_t}, ref_e*{ref_e}*{ref_e}) = (s_6, mm)
+    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(type*{type}, import*{import}, func^n_f{func}, GLOBAL(globaltype, expr_g)^n_g{expr_g globaltype}, TABLE(tabletype, expr_t)^n_t{expr_t tabletype}, MEMORY(memtype)^n_m{memtype}, `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)^n_e{elemmode expr_e reftype}, `DATA%*%`(byte*{byte}, datamode)^n_d{byte datamode}, start?{start}, export*{export}))
     -- if (fa_ex*{fa_ex} = $funcsxv(externval*{externval}))
     -- if (ga_ex*{ga_ex} = $globalsxv(externval*{externval}))
     -- if (ta_ex*{ta_ex} = $tablesxv(externval*{externval}))
@@ -12227,7 +12230,7 @@ def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, modu
     -- if (da*{da} = (|s.DATA_store| + i_d)^(i_d<n_d){i_d})
     -- if (xi*{xi} = $instexport(fa_ex*{fa_ex} :: fa*{fa}, ga_ex*{ga_ex} :: ga*{ga}, ta_ex*{ta_ex} :: ta*{ta}, ma_ex*{ma_ex} :: ma*{ma}, export)*{export})
     -- if (mm = {TYPE dt*{dt}, FUNC fa_ex*{fa_ex} :: fa*{fa}, GLOBAL ga_ex*{ga_ex} :: ga*{ga}, TABLE ta_ex*{ta_ex} :: ta*{ta}, MEM ma_ex*{ma_ex} :: ma*{ma}, ELEM ea*{ea}, DATA da*{da}, EXPORT xi*{xi}})
-    -- if (dt*{dt} = $alloctypes(rectype*{rectype}))
+    -- if (dt*{dt} = $alloctypes(type*{type}))
     -- if ((s_1, fa*{fa}) = $allocfuncs(s, mm, func^n_f{func}))
     -- if ((s_2, ga*{ga}) = $allocglobals(s_1, globaltype^n_g{globaltype}, val_g*{val_g}))
     -- if ((s_3, ta*{ta}) = $alloctables(s_2, tabletype^n_t{tabletype}, ref_t*{ref_t}))
@@ -12235,45 +12238,45 @@ def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, modu
     -- if ((s_5, ea*{ea}) = $allocelems(s_4, reftype^n_e{reftype}, ref_e*{ref_e}*{ref_e}))
     -- if ((s_6, da*{da}) = $allocdatas(s_5, byte*{byte}^n_d{byte}))
 
-;; 9-module.watsup:133.1-133.38
+;; 9-module.watsup:134.1-134.38
 rec {
 
-;; 9-module.watsup:133.1-133.38
+;; 9-module.watsup:134.1-134.38
 def concat_instr : instr** -> instr*
-  ;; 9-module.watsup:134.1-134.37
+  ;; 9-module.watsup:135.1-135.37
   def concat_instr([]) = []
-  ;; 9-module.watsup:135.1-135.74
+  ;; 9-module.watsup:136.1-136.74
   def {instr* : instr*, instr'** : instr**} concat_instr([instr*{instr}] :: instr'*{instr'}*{instr'}) = instr*{instr} :: $concat_instr(instr'*{instr'}*{instr'})
 }
 
-;; 9-module.watsup:137.1-137.33
+;; 9-module.watsup:138.1-138.33
 def runelem : (elem, idx) -> instr*
-  ;; 9-module.watsup:138.1-138.56
+  ;; 9-module.watsup:139.1-139.56
   def {expr* : expr*, reftype : reftype, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, PASSIVE_elemmode), y) = []
-  ;; 9-module.watsup:139.1-139.62
+  ;; 9-module.watsup:140.1-140.62
   def {expr* : expr*, reftype : reftype, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, DECLARE_elemmode), y) = [ELEM.DROP_instr(y)]
-  ;; 9-module.watsup:140.1-141.77
+  ;; 9-module.watsup:141.1-142.77
   def {expr* : expr*, instr* : instr*, reftype : reftype, x : idx, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, ACTIVE_elemmode(x, instr*{instr})), y) = instr*{instr} :: [CONST_instr(I32_numtype, 0) CONST_instr(I32_numtype, |expr*{expr}|) TABLE.INIT_instr(x, y) ELEM.DROP_instr(y)]
 
-;; 9-module.watsup:143.1-143.33
+;; 9-module.watsup:144.1-144.33
 def rundata : (data, idx) -> instr*
-  ;; 9-module.watsup:144.1-144.48
+  ;; 9-module.watsup:145.1-145.48
   def {byte* : byte*, y : idx} rundata(`DATA%*%`(byte*{byte}, PASSIVE_datamode), y) = []
-  ;; 9-module.watsup:145.1-146.78
+  ;; 9-module.watsup:146.1-147.78
   def {byte* : byte*, instr* : instr*, x : idx, y : idx} rundata(`DATA%*%`(byte*{byte}, ACTIVE_datamode(x, instr*{instr})), y) = instr*{instr} :: [CONST_instr(I32_numtype, 0) CONST_instr(I32_numtype, |byte*{byte}|) MEMORY.INIT_instr(x, y) DATA.DROP_instr(y)]
 
-;; 9-module.watsup:148.1-148.53
+;; 9-module.watsup:149.1-149.53
 def instantiate : (store, module, externval*) -> config
-  ;; 9-module.watsup:149.1-174.64
-  def {data* : data*, elem* : elem*, elemmode* : elemmode*, export* : export*, expr_e** : expr**, expr_g* : expr*, expr_t* : expr*, externval* : externval*, f : frame, func^n_func : func^n_func, global* : global*, globaltype* : globaltype*, i^n_e : nat^n_e, i_func^n_func : nat^n_func, import* : import*, instr_d* : instr*, instr_e* : instr*, j^n_d : nat^n_d, mem* : mem*, mm : moduleinst, mm_init : moduleinst, module : module, n_d : n, n_e : n, n_func : n, rectype* : rectype*, ref_e** : ref**, ref_t* : ref*, reftype* : reftype*, s : store, s' : store, start? : start?, table* : table*, tabletype* : tabletype*, val_g* : val*, x? : idx?, z : state} instantiate(s, module, externval*{externval}) = `%;%*`(`%;%`(s', f), $admininstr_instr(instr_e)*{instr_e} :: $admininstr_instr(instr_d)*{instr_d} :: CALL_admininstr(x)?{x})
-    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(TYPE(rectype)*{rectype}, import*{import}, func^n_func{func}, global*{global}, table*{table}, mem*{mem}, elem*{elem}, data*{data}, start?{start}, export*{export}))
+  ;; 9-module.watsup:150.1-175.64
+  def {data* : data*, elem* : elem*, elemmode* : elemmode*, export* : export*, expr_e** : expr**, expr_g* : expr*, expr_t* : expr*, externval* : externval*, f : frame, func^n_func : func^n_func, global* : global*, globaltype* : globaltype*, i^n_e : nat^n_e, i_func^n_func : nat^n_func, import* : import*, instr_d* : instr*, instr_e* : instr*, j^n_d : nat^n_d, mem* : mem*, mm : moduleinst, mm_init : moduleinst, module : module, n_d : n, n_e : n, n_func : n, ref_e** : ref**, ref_t* : ref*, reftype* : reftype*, s : store, s' : store, start? : start?, table* : table*, tabletype* : tabletype*, type* : type*, val_g* : val*, x? : idx?, z : state} instantiate(s, module, externval*{externval}) = `%;%*`(`%;%`(s', f), $admininstr_instr(instr_e)*{instr_e} :: $admininstr_instr(instr_d)*{instr_d} :: CALL_admininstr(x)?{x})
+    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(type*{type}, import*{import}, func^n_func{func}, global*{global}, table*{table}, mem*{mem}, elem*{elem}, data*{data}, start?{start}, export*{export}))
     -- if (global*{global} = GLOBAL(globaltype, expr_g)*{expr_g globaltype})
     -- if (table*{table} = TABLE(tabletype, expr_t)*{expr_t tabletype})
     -- if (elem*{elem} = `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)*{elemmode expr_e reftype})
     -- if (start?{start} = START(x)?{x})
     -- if (n_e = |elem*{elem}|)
     -- if (n_d = |data*{data}|)
-    -- if (mm_init = {TYPE $alloctypes(rectype*{rectype}), FUNC $funcsxv(externval*{externval}) :: (|s.FUNC_store| + i_func)^(i_func<n_func){i_func}, GLOBAL $globalsxv(externval*{externval}), TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
+    -- if (mm_init = {TYPE $alloctypes(type*{type}), FUNC $funcsxv(externval*{externval}) :: (|s.FUNC_store| + i_func)^(i_func<n_func){i_func}, GLOBAL $globalsxv(externval*{externval}), TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
     -- if (z = `%;%`(s, {LOCAL [], MODULE mm_init}))
     -- (Eval_expr: `%;%~>*%;%*`(z, expr_g, z, [val_g]))*{expr_g val_g}
     -- (Eval_expr: `%;%~>*%;%*`(z, expr_t, z, [$val_ref(ref_t)]))*{expr_t ref_t}
@@ -12283,9 +12286,9 @@ def instantiate : (store, module, externval*) -> config
     -- if (instr_e*{instr_e} = $concat_instr($runelem(elem*{elem}[i], i)^(i<n_e){i}))
     -- if (instr_d*{instr_d} = $concat_instr($rundata(data*{data}[j], j)^(j<n_d){j}))
 
-;; 9-module.watsup:181.1-181.44
+;; 9-module.watsup:182.1-182.44
 def invoke : (store, funcaddr, val*) -> config
-  ;; 9-module.watsup:182.1-195.53
+  ;; 9-module.watsup:183.1-196.53
   def {expr : expr, f : frame, fa : funcaddr, local* : local*, mm : moduleinst, n : n, s : store, t_1^n : valtype^n, t_2* : valtype*, val^n : val^n, x : idx} invoke(s, fa, val^n{val}) = `%;%*`(`%;%`(s, f), $admininstr_val(val)^n{val} :: [REF.FUNC_ADDR_admininstr(fa) CALL_REF_admininstr(?(0))])
     -- if (mm = {TYPE [s.FUNC_store[fa].TYPE_funcinst], FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
     -- if (f = {LOCAL [], MODULE mm})
@@ -15728,11 +15731,11 @@ relation Step_read: `%~>%*`(config, admininstr*)
     `%~>%*`(`%;%*`(z, [REF.NULL_admininstr(ht) CALL_REF_admininstr(x?{x})]), [TRAP_admininstr])
 
   ;; 8-reduction.watsup:163.1-168.59
-  rule call_ref-func {a : addr, f : frame, fi : funcinst, instr* : instr*, m : m, n : n, t* : valtype*, t_1^n : valtype^n, t_2^m : valtype^m, val^n : val^n, x? : idx?, x' : idx, z : state}:
+  rule call_ref-func {a : addr, f : frame, fi : funcinst, instr* : instr*, m : m, n : n, t* : valtype*, t_1^n : valtype^n, t_2^m : valtype^m, val^n : val^n, x? : idx?, y : idx, z : state}:
     `%~>%*`(`%;%*`(z, $admininstr_val(val)^n{val} :: [REF.FUNC_ADDR_admininstr(a) CALL_REF_admininstr(x?{x})]), [FRAME__admininstr(m, f, [LABEL__admininstr(m, [], $admininstr_instr(instr)*{instr})])])
     -- if ($funcinst(z)[a] = fi)
     -- Expand: `%~~%`(fi.TYPE_funcinst, FUNC_comptype(`%->%`(t_1^n{t_1}, t_2^m{t_2})))
-    -- if (fi.CODE_funcinst = `FUNC%%*%`(x', LOCAL(t)*{t}, instr*{instr}))
+    -- if (fi.CODE_funcinst = `FUNC%%*%`(y, LOCAL(t)*{t}, instr*{instr}))
     -- if (f = {LOCAL ?(val)^n{val} :: $default(t)*{t}, MODULE fi.MODULE_funcinst})
 
   ;; 8-reduction.watsup:171.1-172.76
@@ -16266,151 +16269,152 @@ relation Eval_expr: `%;%~>*%;%*`(state, expr, state, val*)
     `%;%~>*%;%*`(z, instr*{instr}, z', val*{val})
     -- Eval: `%~>*%;%*`(`%;%*`(z, $admininstr_instr(instr)*{instr}), z, val*{val})
 
-;; 9-module.watsup:7.1-7.37
+;; 9-module.watsup:7.1-7.34
 rec {
 
-;; 9-module.watsup:7.1-7.37
-def alloctypes : rectype* -> deftype*
+;; 9-module.watsup:7.1-7.34
+def alloctypes : type* -> deftype*
   ;; 9-module.watsup:8.1-8.35
   def alloctypes([]) = []
-  ;; 9-module.watsup:9.1-12.24
-  def {deftype* : deftype*, deftype'* : deftype*, rectype : rectype, rectype'* : rectype*, x : idx} alloctypes(rectype'*{rectype'} :: [rectype]) = deftype'*{deftype'} :: deftype*{deftype}
-    -- if (deftype'*{deftype'} = $alloctypes(rectype'*{rectype'}))
+  ;; 9-module.watsup:9.1-13.24
+  def {deftype* : deftype*, deftype'* : deftype*, rectype : rectype, type : type, type'* : type*, x : idx} alloctypes(type'*{type'} :: [type]) = deftype'*{deftype'} :: deftype*{deftype}
+    -- if (deftype'*{deftype'} = $alloctypes(type'*{type'}))
+    -- if (type = TYPE(rectype))
     -- if (deftype*{deftype} = $subst_all_deftypes($rolldt(x, rectype), $heaptype_deftype(deftype')*{deftype'}))
     -- if (x = |deftype'*{deftype'}|)
 }
 
-;; 9-module.watsup:14.1-14.60
+;; 9-module.watsup:15.1-15.60
 def allocfunc : (store, moduleinst, func) -> (store, funcaddr)
-  ;; 9-module.watsup:15.1-17.55
+  ;; 9-module.watsup:16.1-18.55
   def {expr : expr, fi : funcinst, func : func, local* : local*, mm : moduleinst, s : store, x : idx} allocfunc(s, mm, func) = (s[FUNC_store =.. [fi]], |s.FUNC_store|)
     -- if (func = `FUNC%%*%`(x, local*{local}, expr))
     -- if (fi = {TYPE mm.TYPE_moduleinst[x], MODULE mm, CODE func})
 
-;; 9-module.watsup:19.1-19.63
+;; 9-module.watsup:20.1-20.63
 rec {
 
-;; 9-module.watsup:19.1-19.63
+;; 9-module.watsup:20.1-20.63
 def allocfuncs : (store, moduleinst, func*) -> (store, funcaddr*)
-  ;; 9-module.watsup:20.1-20.47
+  ;; 9-module.watsup:21.1-21.47
   def {mm : moduleinst, s : store} allocfuncs(s, mm, []) = (s, [])
-  ;; 9-module.watsup:21.1-23.51
+  ;; 9-module.watsup:22.1-24.51
   def {fa : funcaddr, fa'* : funcaddr*, func : func, func'* : func*, mm : moduleinst, s : store, s_1 : store, s_2 : store} allocfuncs(s, mm, [func] :: func'*{func'}) = (s_2, [fa] :: fa'*{fa'})
     -- if ((s_1, fa) = $allocfunc(s, mm, func))
     -- if ((s_2, fa'*{fa'}) = $allocfuncs(s_1, mm, func'*{func'}))
 }
 
-;; 9-module.watsup:25.1-25.63
+;; 9-module.watsup:26.1-26.63
 def allocglobal : (store, globaltype, val) -> (store, globaladdr)
-  ;; 9-module.watsup:26.1-27.44
+  ;; 9-module.watsup:27.1-28.44
   def {gi : globalinst, globaltype : globaltype, s : store, val : val} allocglobal(s, globaltype, val) = (s[GLOBAL_store =.. [gi]], |s.GLOBAL_store|)
     -- if (gi = {TYPE globaltype, VALUE val})
 
-;; 9-module.watsup:29.1-29.67
+;; 9-module.watsup:30.1-30.67
 rec {
 
-;; 9-module.watsup:29.1-29.67
+;; 9-module.watsup:30.1-30.67
 def allocglobals : (store, globaltype*, val*) -> (store, globaladdr*)
-  ;; 9-module.watsup:30.1-30.54
+  ;; 9-module.watsup:31.1-31.54
   def {s : store} allocglobals(s, [], []) = (s, [])
-  ;; 9-module.watsup:31.1-33.62
+  ;; 9-module.watsup:32.1-34.62
   def {ga : globaladdr, ga'* : globaladdr*, globaltype : globaltype, globaltype'* : globaltype*, s : store, s_1 : store, s_2 : store, val : val, val'* : val*} allocglobals(s, [globaltype] :: globaltype'*{globaltype'}, [val] :: val'*{val'}) = (s_2, [ga] :: ga'*{ga'})
     -- if ((s_1, ga) = $allocglobal(s, globaltype, val))
     -- if ((s_2, ga'*{ga'}) = $allocglobals(s_1, globaltype'*{globaltype'}, val'*{val'}))
 }
 
-;; 9-module.watsup:35.1-35.60
+;; 9-module.watsup:36.1-36.60
 def alloctable : (store, tabletype, ref) -> (store, tableaddr)
-  ;; 9-module.watsup:36.1-37.49
+  ;; 9-module.watsup:37.1-38.49
   def {i : nat, j : nat, ref : ref, rt : reftype, s : store, ti : tableinst} alloctable(s, `%%`(`[%..%]`(i, j), rt), ref) = (s[TABLE_store =.. [ti]], |s.TABLE_store|)
     -- if (ti = {TYPE `%%`(`[%..%]`(i, j), rt), ELEM ref^i{}})
 
-;; 9-module.watsup:39.1-39.64
+;; 9-module.watsup:40.1-40.64
 rec {
 
-;; 9-module.watsup:39.1-39.64
+;; 9-module.watsup:40.1-40.64
 def alloctables : (store, tabletype*, ref*) -> (store, tableaddr*)
-  ;; 9-module.watsup:40.1-40.53
+  ;; 9-module.watsup:41.1-41.53
   def {s : store} alloctables(s, [], []) = (s, [])
-  ;; 9-module.watsup:41.1-43.60
+  ;; 9-module.watsup:42.1-44.60
   def {ref : ref, ref'* : ref*, s : store, s_1 : store, s_2 : store, ta : tableaddr, ta'* : tableaddr*, tabletype : tabletype, tabletype'* : tabletype*} alloctables(s, [tabletype] :: tabletype'*{tabletype'}, [ref] :: ref'*{ref'}) = (s_2, [ta] :: ta'*{ta'})
     -- if ((s_1, ta) = $alloctable(s, tabletype, ref))
     -- if ((s_2, ta'*{ta'}) = $alloctables(s_1, tabletype'*{tabletype'}, ref'*{ref'}))
 }
 
-;; 9-module.watsup:45.1-45.49
+;; 9-module.watsup:46.1-46.49
 def allocmem : (store, memtype) -> (store, memaddr)
-  ;; 9-module.watsup:46.1-47.62
+  ;; 9-module.watsup:47.1-48.62
   def {i : nat, j : nat, mi : meminst, s : store} allocmem(s, `%I8`(`[%..%]`(i, j))) = (s[MEM_store =.. [mi]], |s.MEM_store|)
     -- if (mi = {TYPE `%I8`(`[%..%]`(i, j)), DATA 0^((i * 64) * $Ki){}})
 
-;; 9-module.watsup:49.1-49.52
+;; 9-module.watsup:50.1-50.52
 rec {
 
-;; 9-module.watsup:49.1-49.52
+;; 9-module.watsup:50.1-50.52
 def allocmems : (store, memtype*) -> (store, memaddr*)
-  ;; 9-module.watsup:50.1-50.42
+  ;; 9-module.watsup:51.1-51.42
   def {s : store} allocmems(s, []) = (s, [])
-  ;; 9-module.watsup:51.1-53.49
+  ;; 9-module.watsup:52.1-54.49
   def {ma : memaddr, ma'* : memaddr*, memtype : memtype, memtype'* : memtype*, s : store, s_1 : store, s_2 : store} allocmems(s, [memtype] :: memtype'*{memtype'}) = (s_2, [ma] :: ma'*{ma'})
     -- if ((s_1, ma) = $allocmem(s, memtype))
     -- if ((s_2, ma'*{ma'}) = $allocmems(s_1, memtype'*{memtype'}))
 }
 
-;; 9-module.watsup:55.1-55.57
+;; 9-module.watsup:56.1-56.57
 def allocelem : (store, reftype, ref*) -> (store, elemaddr)
-  ;; 9-module.watsup:56.1-57.36
+  ;; 9-module.watsup:57.1-58.36
   def {ei : eleminst, ref* : ref*, rt : reftype, s : store} allocelem(s, rt, ref*{ref}) = (s[ELEM_store =.. [ei]], |s.ELEM_store|)
     -- if (ei = {TYPE rt, ELEM ref*{ref}})
 
-;; 9-module.watsup:59.1-59.63
+;; 9-module.watsup:60.1-60.63
 rec {
 
-;; 9-module.watsup:59.1-59.63
+;; 9-module.watsup:60.1-60.63
 def allocelems : (store, reftype*, ref**) -> (store, elemaddr*)
-  ;; 9-module.watsup:60.1-60.52
+  ;; 9-module.watsup:61.1-61.52
   def {s : store} allocelems(s, [], []) = (s, [])
-  ;; 9-module.watsup:61.1-63.55
+  ;; 9-module.watsup:62.1-64.55
   def {ea : elemaddr, ea'* : elemaddr*, ref* : ref*, ref'** : ref**, rt : reftype, rt'* : reftype*, s : store, s_1 : store, s_2 : store} allocelems(s, [rt] :: rt'*{rt'}, [ref*{ref}] :: ref'*{ref'}*{ref'}) = (s_2, [ea] :: ea'*{ea'})
     -- if ((s_1, ea) = $allocelem(s, rt, ref*{ref}))
     -- if ((s_2, ea'*{ea'}) = $allocelems(s_2, rt'*{rt'}, ref'*{ref'}*{ref'}))
 }
 
-;; 9-module.watsup:65.1-65.49
+;; 9-module.watsup:66.1-66.49
 def allocdata : (store, byte*) -> (store, dataaddr)
-  ;; 9-module.watsup:66.1-67.28
+  ;; 9-module.watsup:67.1-68.28
   def {byte* : byte*, di : datainst, s : store} allocdata(s, byte*{byte}) = (s[DATA_store =.. [di]], |s.DATA_store|)
     -- if (di = {DATA byte*{byte}})
 
-;; 9-module.watsup:69.1-69.54
+;; 9-module.watsup:70.1-70.54
 rec {
 
-;; 9-module.watsup:69.1-69.54
+;; 9-module.watsup:70.1-70.54
 def allocdatas : (store, byte**) -> (store, dataaddr*)
-  ;; 9-module.watsup:70.1-70.43
+  ;; 9-module.watsup:71.1-71.43
   def {s : store} allocdatas(s, []) = (s, [])
-  ;; 9-module.watsup:71.1-73.50
+  ;; 9-module.watsup:72.1-74.50
   def {byte* : byte*, byte'** : byte**, da : dataaddr, da'* : dataaddr*, s : store, s_1 : store, s_2 : store} allocdatas(s, [byte*{byte}] :: byte'*{byte'}*{byte'}) = (s_2, [da] :: da'*{da'})
     -- if ((s_1, da) = $allocdata(s, byte*{byte}))
     -- if ((s_2, da'*{da'}) = $allocdatas(s_1, byte'*{byte'}*{byte'}))
 }
 
-;; 9-module.watsup:78.1-78.83
+;; 9-module.watsup:79.1-79.83
 def instexport : (funcaddr*, globaladdr*, tableaddr*, memaddr*, export) -> exportinst
-  ;; 9-module.watsup:79.1-79.95
+  ;; 9-module.watsup:80.1-80.95
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, FUNC_externidx(x))) = {NAME name, VALUE FUNC_externval(fa*{fa}[x])}
-  ;; 9-module.watsup:80.1-80.99
+  ;; 9-module.watsup:81.1-81.99
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, GLOBAL_externidx(x))) = {NAME name, VALUE GLOBAL_externval(ga*{ga}[x])}
-  ;; 9-module.watsup:81.1-81.97
+  ;; 9-module.watsup:82.1-82.97
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, TABLE_externidx(x))) = {NAME name, VALUE TABLE_externval(ta*{ta}[x])}
-  ;; 9-module.watsup:82.1-82.93
+  ;; 9-module.watsup:83.1-83.93
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, MEM_externidx(x))) = {NAME name, VALUE MEM_externval(ma*{ma}[x])}
 
-;; 9-module.watsup:85.1-85.87
+;; 9-module.watsup:86.1-86.87
 def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, moduleinst)
-  ;; 9-module.watsup:86.1-126.51
-  def {byte*^n_d : byte*^n_d, da* : dataaddr*, datamode^n_d : datamode^n_d, dt* : deftype*, ea* : elemaddr*, elemmode^n_e : elemmode^n_e, export* : export*, expr_e*^n_e : expr*^n_e, expr_g^n_g : expr^n_g, expr_t^n_t : expr^n_t, externval* : externval*, fa* : funcaddr*, fa_ex* : funcaddr*, func^n_f : func^n_f, ga* : globaladdr*, ga_ex* : globaladdr*, globaltype^n_g : globaltype^n_g, i_d^n_d : nat^n_d, i_e^n_e : nat^n_e, i_f^n_f : nat^n_f, i_g^n_g : nat^n_g, i_m^n_m : nat^n_m, i_t^n_t : nat^n_t, import* : import*, ma* : memaddr*, ma_ex* : memaddr*, memtype^n_m : memtype^n_m, mm : moduleinst, module : module, n_d : n, n_e : n, n_f : n, n_g : n, n_m : n, n_t : n, rectype* : rectype*, ref_e** : ref**, ref_t* : ref*, reftype^n_e : reftype^n_e, s : store, s_1 : store, s_2 : store, s_3 : store, s_4 : store, s_5 : store, s_6 : store, start? : start?, ta* : tableaddr*, ta_ex* : tableaddr*, tabletype^n_t : tabletype^n_t, val_g* : val*, xi* : exportinst*} allocmodule(s, module, externval*{externval}, val_g*{val_g}, ref_t*{ref_t}, ref_e*{ref_e}*{ref_e}) = (s_6, mm)
-    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(TYPE(rectype)*{rectype}, import*{import}, func^n_f{func}, GLOBAL(globaltype, expr_g)^n_g{expr_g globaltype}, TABLE(tabletype, expr_t)^n_t{expr_t tabletype}, MEMORY(memtype)^n_m{memtype}, `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)^n_e{elemmode expr_e reftype}, `DATA%*%`(byte*{byte}, datamode)^n_d{byte datamode}, start?{start}, export*{export}))
+  ;; 9-module.watsup:87.1-127.51
+  def {byte*^n_d : byte*^n_d, da* : dataaddr*, datamode^n_d : datamode^n_d, dt* : deftype*, ea* : elemaddr*, elemmode^n_e : elemmode^n_e, export* : export*, expr_e*^n_e : expr*^n_e, expr_g^n_g : expr^n_g, expr_t^n_t : expr^n_t, externval* : externval*, fa* : funcaddr*, fa_ex* : funcaddr*, func^n_f : func^n_f, ga* : globaladdr*, ga_ex* : globaladdr*, globaltype^n_g : globaltype^n_g, i_d^n_d : nat^n_d, i_e^n_e : nat^n_e, i_f^n_f : nat^n_f, i_g^n_g : nat^n_g, i_m^n_m : nat^n_m, i_t^n_t : nat^n_t, import* : import*, ma* : memaddr*, ma_ex* : memaddr*, memtype^n_m : memtype^n_m, mm : moduleinst, module : module, n_d : n, n_e : n, n_f : n, n_g : n, n_m : n, n_t : n, ref_e** : ref**, ref_t* : ref*, reftype^n_e : reftype^n_e, s : store, s_1 : store, s_2 : store, s_3 : store, s_4 : store, s_5 : store, s_6 : store, start? : start?, ta* : tableaddr*, ta_ex* : tableaddr*, tabletype^n_t : tabletype^n_t, type* : type*, val_g* : val*, xi* : exportinst*} allocmodule(s, module, externval*{externval}, val_g*{val_g}, ref_t*{ref_t}, ref_e*{ref_e}*{ref_e}) = (s_6, mm)
+    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(type*{type}, import*{import}, func^n_f{func}, GLOBAL(globaltype, expr_g)^n_g{expr_g globaltype}, TABLE(tabletype, expr_t)^n_t{expr_t tabletype}, MEMORY(memtype)^n_m{memtype}, `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)^n_e{elemmode expr_e reftype}, `DATA%*%`(byte*{byte}, datamode)^n_d{byte datamode}, start?{start}, export*{export}))
     -- if (fa_ex*{fa_ex} = $funcsxv(externval*{externval}))
     -- if (ga_ex*{ga_ex} = $globalsxv(externval*{externval}))
     -- if (ta_ex*{ta_ex} = $tablesxv(externval*{externval}))
@@ -16423,7 +16427,7 @@ def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, modu
     -- if (da*{da} = (|s.DATA_store| + i_d)^(i_d<n_d){i_d})
     -- if (xi*{xi} = $instexport(fa_ex*{fa_ex} :: fa*{fa}, ga_ex*{ga_ex} :: ga*{ga}, ta_ex*{ta_ex} :: ta*{ta}, ma_ex*{ma_ex} :: ma*{ma}, export)*{export})
     -- if (mm = {TYPE dt*{dt}, FUNC fa_ex*{fa_ex} :: fa*{fa}, GLOBAL ga_ex*{ga_ex} :: ga*{ga}, TABLE ta_ex*{ta_ex} :: ta*{ta}, MEM ma_ex*{ma_ex} :: ma*{ma}, ELEM ea*{ea}, DATA da*{da}, EXPORT xi*{xi}})
-    -- if (dt*{dt} = $alloctypes(rectype*{rectype}))
+    -- if (dt*{dt} = $alloctypes(type*{type}))
     -- if ((s_1, fa*{fa}) = $allocfuncs(s, mm, func^n_f{func}))
     -- if ((s_2, ga*{ga}) = $allocglobals(s_1, globaltype^n_g{globaltype}, val_g*{val_g}))
     -- if ((s_3, ta*{ta}) = $alloctables(s_2, tabletype^n_t{tabletype}, ref_t*{ref_t}))
@@ -16431,45 +16435,45 @@ def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, modu
     -- if ((s_5, ea*{ea}) = $allocelems(s_4, reftype^n_e{reftype}, ref_e*{ref_e}*{ref_e}))
     -- if ((s_6, da*{da}) = $allocdatas(s_5, byte*{byte}^n_d{byte}))
 
-;; 9-module.watsup:133.1-133.38
+;; 9-module.watsup:134.1-134.38
 rec {
 
-;; 9-module.watsup:133.1-133.38
+;; 9-module.watsup:134.1-134.38
 def concat_instr : instr** -> instr*
-  ;; 9-module.watsup:134.1-134.37
+  ;; 9-module.watsup:135.1-135.37
   def concat_instr([]) = []
-  ;; 9-module.watsup:135.1-135.74
+  ;; 9-module.watsup:136.1-136.74
   def {instr* : instr*, instr'** : instr**} concat_instr([instr*{instr}] :: instr'*{instr'}*{instr'}) = instr*{instr} :: $concat_instr(instr'*{instr'}*{instr'})
 }
 
-;; 9-module.watsup:137.1-137.33
+;; 9-module.watsup:138.1-138.33
 def runelem : (elem, idx) -> instr*
-  ;; 9-module.watsup:138.1-138.56
+  ;; 9-module.watsup:139.1-139.56
   def {expr* : expr*, reftype : reftype, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, PASSIVE_elemmode), y) = []
-  ;; 9-module.watsup:139.1-139.62
+  ;; 9-module.watsup:140.1-140.62
   def {expr* : expr*, reftype : reftype, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, DECLARE_elemmode), y) = [ELEM.DROP_instr(y)]
-  ;; 9-module.watsup:140.1-141.77
+  ;; 9-module.watsup:141.1-142.77
   def {expr* : expr*, instr* : instr*, reftype : reftype, x : idx, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, ACTIVE_elemmode(x, instr*{instr})), y) = instr*{instr} :: [CONST_instr(I32_numtype, 0) CONST_instr(I32_numtype, |expr*{expr}|) TABLE.INIT_instr(x, y) ELEM.DROP_instr(y)]
 
-;; 9-module.watsup:143.1-143.33
+;; 9-module.watsup:144.1-144.33
 def rundata : (data, idx) -> instr*
-  ;; 9-module.watsup:144.1-144.48
+  ;; 9-module.watsup:145.1-145.48
   def {byte* : byte*, y : idx} rundata(`DATA%*%`(byte*{byte}, PASSIVE_datamode), y) = []
-  ;; 9-module.watsup:145.1-146.78
+  ;; 9-module.watsup:146.1-147.78
   def {byte* : byte*, instr* : instr*, x : idx, y : idx} rundata(`DATA%*%`(byte*{byte}, ACTIVE_datamode(x, instr*{instr})), y) = instr*{instr} :: [CONST_instr(I32_numtype, 0) CONST_instr(I32_numtype, |byte*{byte}|) MEMORY.INIT_instr(x, y) DATA.DROP_instr(y)]
 
-;; 9-module.watsup:148.1-148.53
+;; 9-module.watsup:149.1-149.53
 def instantiate : (store, module, externval*) -> config
-  ;; 9-module.watsup:149.1-174.64
-  def {data* : data*, elem* : elem*, elemmode* : elemmode*, export* : export*, expr_e** : expr**, expr_g* : expr*, expr_t* : expr*, externval* : externval*, f : frame, func^n_func : func^n_func, global* : global*, globaltype* : globaltype*, i^n_e : nat^n_e, i_func^n_func : nat^n_func, import* : import*, instr_d* : instr*, instr_e* : instr*, j^n_d : nat^n_d, mem* : mem*, mm : moduleinst, mm_init : moduleinst, module : module, n_d : n, n_e : n, n_func : n, rectype* : rectype*, ref_e** : ref**, ref_t* : ref*, reftype* : reftype*, s : store, s' : store, start? : start?, table* : table*, tabletype* : tabletype*, val_g* : val*, x? : idx?, z : state} instantiate(s, module, externval*{externval}) = `%;%*`(`%;%`(s', f), $admininstr_instr(instr_e)*{instr_e} :: $admininstr_instr(instr_d)*{instr_d} :: CALL_admininstr(x)?{x})
-    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(TYPE(rectype)*{rectype}, import*{import}, func^n_func{func}, global*{global}, table*{table}, mem*{mem}, elem*{elem}, data*{data}, start?{start}, export*{export}))
+  ;; 9-module.watsup:150.1-175.64
+  def {data* : data*, elem* : elem*, elemmode* : elemmode*, export* : export*, expr_e** : expr**, expr_g* : expr*, expr_t* : expr*, externval* : externval*, f : frame, func^n_func : func^n_func, global* : global*, globaltype* : globaltype*, i^n_e : nat^n_e, i_func^n_func : nat^n_func, import* : import*, instr_d* : instr*, instr_e* : instr*, j^n_d : nat^n_d, mem* : mem*, mm : moduleinst, mm_init : moduleinst, module : module, n_d : n, n_e : n, n_func : n, ref_e** : ref**, ref_t* : ref*, reftype* : reftype*, s : store, s' : store, start? : start?, table* : table*, tabletype* : tabletype*, type* : type*, val_g* : val*, x? : idx?, z : state} instantiate(s, module, externval*{externval}) = `%;%*`(`%;%`(s', f), $admininstr_instr(instr_e)*{instr_e} :: $admininstr_instr(instr_d)*{instr_d} :: CALL_admininstr(x)?{x})
+    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(type*{type}, import*{import}, func^n_func{func}, global*{global}, table*{table}, mem*{mem}, elem*{elem}, data*{data}, start?{start}, export*{export}))
     -- if (global*{global} = GLOBAL(globaltype, expr_g)*{expr_g globaltype})
     -- if (table*{table} = TABLE(tabletype, expr_t)*{expr_t tabletype})
     -- if (elem*{elem} = `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)*{elemmode expr_e reftype})
     -- if (start?{start} = START(x)?{x})
     -- if (n_e = |elem*{elem}|)
     -- if (n_d = |data*{data}|)
-    -- if (mm_init = {TYPE $alloctypes(rectype*{rectype}), FUNC $funcsxv(externval*{externval}) :: (|s.FUNC_store| + i_func)^(i_func<n_func){i_func}, GLOBAL $globalsxv(externval*{externval}), TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
+    -- if (mm_init = {TYPE $alloctypes(type*{type}), FUNC $funcsxv(externval*{externval}) :: (|s.FUNC_store| + i_func)^(i_func<n_func){i_func}, GLOBAL $globalsxv(externval*{externval}), TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
     -- if (z = `%;%`(s, {LOCAL [], MODULE mm_init}))
     -- (Eval_expr: `%;%~>*%;%*`(z, expr_g, z, [val_g]))*{expr_g val_g}
     -- (Eval_expr: `%;%~>*%;%*`(z, expr_t, z, [$val_ref(ref_t)]))*{expr_t ref_t}
@@ -16479,9 +16483,9 @@ def instantiate : (store, module, externval*) -> config
     -- if (instr_e*{instr_e} = $concat_instr($runelem(elem*{elem}[i], i)^(i<n_e){i}))
     -- if (instr_d*{instr_d} = $concat_instr($rundata(data*{data}[j], j)^(j<n_d){j}))
 
-;; 9-module.watsup:181.1-181.44
+;; 9-module.watsup:182.1-182.44
 def invoke : (store, funcaddr, val*) -> config
-  ;; 9-module.watsup:182.1-195.53
+  ;; 9-module.watsup:183.1-196.53
   def {expr : expr, f : frame, fa : funcaddr, local* : local*, mm : moduleinst, n : n, s : store, t_1^n : valtype^n, t_2* : valtype*, val^n : val^n, x : idx} invoke(s, fa, val^n{val}) = `%;%*`(`%;%`(s, f), $admininstr_val(val)^n{val} :: [REF.FUNC_ADDR_admininstr(fa) CALL_REF_admininstr(?(0))])
     -- if (mm = {TYPE [s.FUNC_store[fa].TYPE_funcinst], FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
     -- if (f = {LOCAL [], MODULE mm})
@@ -19924,11 +19928,11 @@ relation Step_read: `%~>%*`(config, admininstr*)
     `%~>%*`(`%;%*`(z, [REF.NULL_admininstr(ht) CALL_REF_admininstr(x?{x})]), [TRAP_admininstr])
 
   ;; 8-reduction.watsup:163.1-168.59
-  rule call_ref-func {a : addr, f : frame, fi : funcinst, instr* : instr*, m : m, n : n, t* : valtype*, t_1^n : valtype^n, t_2^m : valtype^m, val^n : val^n, x? : idx?, x' : idx, z : state}:
+  rule call_ref-func {a : addr, f : frame, fi : funcinst, instr* : instr*, m : m, n : n, t* : valtype*, t_1^n : valtype^n, t_2^m : valtype^m, val^n : val^n, x? : idx?, y : idx, z : state}:
     `%~>%*`(`%;%*`(z, $admininstr_val(val)^n{val} :: [REF.FUNC_ADDR_admininstr(a) CALL_REF_admininstr(x?{x})]), [FRAME__admininstr(m, f, [LABEL__admininstr(m, [], $admininstr_instr(instr)*{instr})])])
     -- if ($funcinst(z)[a] = fi)
     -- Expand: `%~~%`(fi.TYPE_funcinst, FUNC_comptype(`%->%`(t_1^n{t_1}, t_2^m{t_2})))
-    -- if (fi.CODE_funcinst = `FUNC%%*%`(x', LOCAL(t)*{t}, instr*{instr}))
+    -- if (fi.CODE_funcinst = `FUNC%%*%`(y, LOCAL(t)*{t}, instr*{instr}))
     -- if (f = {LOCAL ?(val)^n{val} :: $default(t)*{t}, MODULE fi.MODULE_funcinst})
 
   ;; 8-reduction.watsup:171.1-172.76
@@ -20462,151 +20466,152 @@ relation Eval_expr: `%;%~>*%;%*`(state, expr, state, val*)
     `%;%~>*%;%*`(z, instr*{instr}, z', val*{val})
     -- Eval: `%~>*%;%*`(`%;%*`(z, $admininstr_instr(instr)*{instr}), z, val*{val})
 
-;; 9-module.watsup:7.1-7.37
+;; 9-module.watsup:7.1-7.34
 rec {
 
-;; 9-module.watsup:7.1-7.37
-def alloctypes : rectype* -> deftype*
+;; 9-module.watsup:7.1-7.34
+def alloctypes : type* -> deftype*
   ;; 9-module.watsup:8.1-8.35
   def alloctypes([]) = []
-  ;; 9-module.watsup:9.1-12.24
-  def {deftype* : deftype*, deftype'* : deftype*, rectype : rectype, rectype'* : rectype*, x : idx} alloctypes(rectype'*{rectype'} :: [rectype]) = deftype'*{deftype'} :: deftype*{deftype}
-    -- if (deftype'*{deftype'} = $alloctypes(rectype'*{rectype'}))
+  ;; 9-module.watsup:9.1-13.24
+  def {deftype* : deftype*, deftype'* : deftype*, rectype : rectype, type : type, type'* : type*, x : idx} alloctypes(type'*{type'} :: [type]) = deftype'*{deftype'} :: deftype*{deftype}
+    -- if (deftype'*{deftype'} = $alloctypes(type'*{type'}))
+    -- if (type = TYPE(rectype))
     -- if (deftype*{deftype} = $subst_all_deftypes($rolldt(x, rectype), $heaptype_deftype(deftype')*{deftype'}))
     -- if (x = |deftype'*{deftype'}|)
 }
 
-;; 9-module.watsup:14.1-14.60
+;; 9-module.watsup:15.1-15.60
 def allocfunc : (store, moduleinst, func) -> (store, funcaddr)
-  ;; 9-module.watsup:15.1-17.55
+  ;; 9-module.watsup:16.1-18.55
   def {expr : expr, fi : funcinst, func : func, local* : local*, mm : moduleinst, s : store, x : idx} allocfunc(s, mm, func) = (s[FUNC_store =.. [fi]], |s.FUNC_store|)
     -- if (func = `FUNC%%*%`(x, local*{local}, expr))
     -- if (fi = {TYPE mm.TYPE_moduleinst[x], MODULE mm, CODE func})
 
-;; 9-module.watsup:19.1-19.63
+;; 9-module.watsup:20.1-20.63
 rec {
 
-;; 9-module.watsup:19.1-19.63
+;; 9-module.watsup:20.1-20.63
 def allocfuncs : (store, moduleinst, func*) -> (store, funcaddr*)
-  ;; 9-module.watsup:20.1-20.47
+  ;; 9-module.watsup:21.1-21.47
   def {mm : moduleinst, s : store} allocfuncs(s, mm, []) = (s, [])
-  ;; 9-module.watsup:21.1-23.51
+  ;; 9-module.watsup:22.1-24.51
   def {fa : funcaddr, fa'* : funcaddr*, func : func, func'* : func*, mm : moduleinst, s : store, s_1 : store, s_2 : store} allocfuncs(s, mm, [func] :: func'*{func'}) = (s_2, [fa] :: fa'*{fa'})
     -- if ((s_1, fa) = $allocfunc(s, mm, func))
     -- if ((s_2, fa'*{fa'}) = $allocfuncs(s_1, mm, func'*{func'}))
 }
 
-;; 9-module.watsup:25.1-25.63
+;; 9-module.watsup:26.1-26.63
 def allocglobal : (store, globaltype, val) -> (store, globaladdr)
-  ;; 9-module.watsup:26.1-27.44
+  ;; 9-module.watsup:27.1-28.44
   def {gi : globalinst, globaltype : globaltype, s : store, val : val} allocglobal(s, globaltype, val) = (s[GLOBAL_store =.. [gi]], |s.GLOBAL_store|)
     -- if (gi = {TYPE globaltype, VALUE val})
 
-;; 9-module.watsup:29.1-29.67
+;; 9-module.watsup:30.1-30.67
 rec {
 
-;; 9-module.watsup:29.1-29.67
+;; 9-module.watsup:30.1-30.67
 def allocglobals : (store, globaltype*, val*) -> (store, globaladdr*)
-  ;; 9-module.watsup:30.1-30.54
+  ;; 9-module.watsup:31.1-31.54
   def {s : store} allocglobals(s, [], []) = (s, [])
-  ;; 9-module.watsup:31.1-33.62
+  ;; 9-module.watsup:32.1-34.62
   def {ga : globaladdr, ga'* : globaladdr*, globaltype : globaltype, globaltype'* : globaltype*, s : store, s_1 : store, s_2 : store, val : val, val'* : val*} allocglobals(s, [globaltype] :: globaltype'*{globaltype'}, [val] :: val'*{val'}) = (s_2, [ga] :: ga'*{ga'})
     -- if ((s_1, ga) = $allocglobal(s, globaltype, val))
     -- if ((s_2, ga'*{ga'}) = $allocglobals(s_1, globaltype'*{globaltype'}, val'*{val'}))
 }
 
-;; 9-module.watsup:35.1-35.60
+;; 9-module.watsup:36.1-36.60
 def alloctable : (store, tabletype, ref) -> (store, tableaddr)
-  ;; 9-module.watsup:36.1-37.49
+  ;; 9-module.watsup:37.1-38.49
   def {i : nat, j : nat, ref : ref, rt : reftype, s : store, ti : tableinst} alloctable(s, `%%`(`[%..%]`(i, j), rt), ref) = (s[TABLE_store =.. [ti]], |s.TABLE_store|)
     -- if (ti = {TYPE `%%`(`[%..%]`(i, j), rt), ELEM ref^i{}})
 
-;; 9-module.watsup:39.1-39.64
+;; 9-module.watsup:40.1-40.64
 rec {
 
-;; 9-module.watsup:39.1-39.64
+;; 9-module.watsup:40.1-40.64
 def alloctables : (store, tabletype*, ref*) -> (store, tableaddr*)
-  ;; 9-module.watsup:40.1-40.53
+  ;; 9-module.watsup:41.1-41.53
   def {s : store} alloctables(s, [], []) = (s, [])
-  ;; 9-module.watsup:41.1-43.60
+  ;; 9-module.watsup:42.1-44.60
   def {ref : ref, ref'* : ref*, s : store, s_1 : store, s_2 : store, ta : tableaddr, ta'* : tableaddr*, tabletype : tabletype, tabletype'* : tabletype*} alloctables(s, [tabletype] :: tabletype'*{tabletype'}, [ref] :: ref'*{ref'}) = (s_2, [ta] :: ta'*{ta'})
     -- if ((s_1, ta) = $alloctable(s, tabletype, ref))
     -- if ((s_2, ta'*{ta'}) = $alloctables(s_1, tabletype'*{tabletype'}, ref'*{ref'}))
 }
 
-;; 9-module.watsup:45.1-45.49
+;; 9-module.watsup:46.1-46.49
 def allocmem : (store, memtype) -> (store, memaddr)
-  ;; 9-module.watsup:46.1-47.62
+  ;; 9-module.watsup:47.1-48.62
   def {i : nat, j : nat, mi : meminst, s : store} allocmem(s, `%I8`(`[%..%]`(i, j))) = (s[MEM_store =.. [mi]], |s.MEM_store|)
     -- if (mi = {TYPE `%I8`(`[%..%]`(i, j)), DATA 0^((i * 64) * $Ki){}})
 
-;; 9-module.watsup:49.1-49.52
+;; 9-module.watsup:50.1-50.52
 rec {
 
-;; 9-module.watsup:49.1-49.52
+;; 9-module.watsup:50.1-50.52
 def allocmems : (store, memtype*) -> (store, memaddr*)
-  ;; 9-module.watsup:50.1-50.42
+  ;; 9-module.watsup:51.1-51.42
   def {s : store} allocmems(s, []) = (s, [])
-  ;; 9-module.watsup:51.1-53.49
+  ;; 9-module.watsup:52.1-54.49
   def {ma : memaddr, ma'* : memaddr*, memtype : memtype, memtype'* : memtype*, s : store, s_1 : store, s_2 : store} allocmems(s, [memtype] :: memtype'*{memtype'}) = (s_2, [ma] :: ma'*{ma'})
     -- if ((s_1, ma) = $allocmem(s, memtype))
     -- if ((s_2, ma'*{ma'}) = $allocmems(s_1, memtype'*{memtype'}))
 }
 
-;; 9-module.watsup:55.1-55.57
+;; 9-module.watsup:56.1-56.57
 def allocelem : (store, reftype, ref*) -> (store, elemaddr)
-  ;; 9-module.watsup:56.1-57.36
+  ;; 9-module.watsup:57.1-58.36
   def {ei : eleminst, ref* : ref*, rt : reftype, s : store} allocelem(s, rt, ref*{ref}) = (s[ELEM_store =.. [ei]], |s.ELEM_store|)
     -- if (ei = {TYPE rt, ELEM ref*{ref}})
 
-;; 9-module.watsup:59.1-59.63
+;; 9-module.watsup:60.1-60.63
 rec {
 
-;; 9-module.watsup:59.1-59.63
+;; 9-module.watsup:60.1-60.63
 def allocelems : (store, reftype*, ref**) -> (store, elemaddr*)
-  ;; 9-module.watsup:60.1-60.52
+  ;; 9-module.watsup:61.1-61.52
   def {s : store} allocelems(s, [], []) = (s, [])
-  ;; 9-module.watsup:61.1-63.55
+  ;; 9-module.watsup:62.1-64.55
   def {ea : elemaddr, ea'* : elemaddr*, ref* : ref*, ref'** : ref**, rt : reftype, rt'* : reftype*, s : store, s_1 : store, s_2 : store} allocelems(s, [rt] :: rt'*{rt'}, [ref*{ref}] :: ref'*{ref'}*{ref'}) = (s_2, [ea] :: ea'*{ea'})
     -- if ((s_1, ea) = $allocelem(s, rt, ref*{ref}))
     -- if ((s_2, ea'*{ea'}) = $allocelems(s_2, rt'*{rt'}, ref'*{ref'}*{ref'}))
 }
 
-;; 9-module.watsup:65.1-65.49
+;; 9-module.watsup:66.1-66.49
 def allocdata : (store, byte*) -> (store, dataaddr)
-  ;; 9-module.watsup:66.1-67.28
+  ;; 9-module.watsup:67.1-68.28
   def {byte* : byte*, di : datainst, s : store} allocdata(s, byte*{byte}) = (s[DATA_store =.. [di]], |s.DATA_store|)
     -- if (di = {DATA byte*{byte}})
 
-;; 9-module.watsup:69.1-69.54
+;; 9-module.watsup:70.1-70.54
 rec {
 
-;; 9-module.watsup:69.1-69.54
+;; 9-module.watsup:70.1-70.54
 def allocdatas : (store, byte**) -> (store, dataaddr*)
-  ;; 9-module.watsup:70.1-70.43
+  ;; 9-module.watsup:71.1-71.43
   def {s : store} allocdatas(s, []) = (s, [])
-  ;; 9-module.watsup:71.1-73.50
+  ;; 9-module.watsup:72.1-74.50
   def {byte* : byte*, byte'** : byte**, da : dataaddr, da'* : dataaddr*, s : store, s_1 : store, s_2 : store} allocdatas(s, [byte*{byte}] :: byte'*{byte'}*{byte'}) = (s_2, [da] :: da'*{da'})
     -- if ((s_1, da) = $allocdata(s, byte*{byte}))
     -- if ((s_2, da'*{da'}) = $allocdatas(s_1, byte'*{byte'}*{byte'}))
 }
 
-;; 9-module.watsup:78.1-78.83
+;; 9-module.watsup:79.1-79.83
 def instexport : (funcaddr*, globaladdr*, tableaddr*, memaddr*, export) -> exportinst
-  ;; 9-module.watsup:79.1-79.95
+  ;; 9-module.watsup:80.1-80.95
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, FUNC_externidx(x))) = {NAME name, VALUE FUNC_externval(fa*{fa}[x])}
-  ;; 9-module.watsup:80.1-80.99
+  ;; 9-module.watsup:81.1-81.99
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, GLOBAL_externidx(x))) = {NAME name, VALUE GLOBAL_externval(ga*{ga}[x])}
-  ;; 9-module.watsup:81.1-81.97
+  ;; 9-module.watsup:82.1-82.97
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, TABLE_externidx(x))) = {NAME name, VALUE TABLE_externval(ta*{ta}[x])}
-  ;; 9-module.watsup:82.1-82.93
+  ;; 9-module.watsup:83.1-83.93
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, MEM_externidx(x))) = {NAME name, VALUE MEM_externval(ma*{ma}[x])}
 
-;; 9-module.watsup:85.1-85.87
+;; 9-module.watsup:86.1-86.87
 def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, moduleinst)
-  ;; 9-module.watsup:86.1-126.51
-  def {byte*^n_d : byte*^n_d, da* : dataaddr*, datamode^n_d : datamode^n_d, dt* : deftype*, ea* : elemaddr*, elemmode^n_e : elemmode^n_e, export* : export*, expr_e*^n_e : expr*^n_e, expr_g^n_g : expr^n_g, expr_t^n_t : expr^n_t, externval* : externval*, fa* : funcaddr*, fa_ex* : funcaddr*, func^n_f : func^n_f, ga* : globaladdr*, ga_ex* : globaladdr*, globaltype^n_g : globaltype^n_g, i_d^n_d : nat^n_d, i_e^n_e : nat^n_e, i_f^n_f : nat^n_f, i_g^n_g : nat^n_g, i_m^n_m : nat^n_m, i_t^n_t : nat^n_t, import* : import*, ma* : memaddr*, ma_ex* : memaddr*, memtype^n_m : memtype^n_m, mm : moduleinst, module : module, n_d : n, n_e : n, n_f : n, n_g : n, n_m : n, n_t : n, rectype* : rectype*, ref_e** : ref**, ref_t* : ref*, reftype^n_e : reftype^n_e, s : store, s_1 : store, s_2 : store, s_3 : store, s_4 : store, s_5 : store, s_6 : store, start? : start?, ta* : tableaddr*, ta_ex* : tableaddr*, tabletype^n_t : tabletype^n_t, val_g* : val*, xi* : exportinst*} allocmodule(s, module, externval*{externval}, val_g*{val_g}, ref_t*{ref_t}, ref_e*{ref_e}*{ref_e}) = (s_6, mm)
-    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(TYPE(rectype)*{rectype}, import*{import}, func^n_f{func}, GLOBAL(globaltype, expr_g)^n_g{expr_g globaltype}, TABLE(tabletype, expr_t)^n_t{expr_t tabletype}, MEMORY(memtype)^n_m{memtype}, `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)^n_e{elemmode expr_e reftype}, `DATA%*%`(byte*{byte}, datamode)^n_d{byte datamode}, start?{start}, export*{export}))
+  ;; 9-module.watsup:87.1-127.51
+  def {byte*^n_d : byte*^n_d, da* : dataaddr*, datamode^n_d : datamode^n_d, dt* : deftype*, ea* : elemaddr*, elemmode^n_e : elemmode^n_e, export* : export*, expr_e*^n_e : expr*^n_e, expr_g^n_g : expr^n_g, expr_t^n_t : expr^n_t, externval* : externval*, fa* : funcaddr*, fa_ex* : funcaddr*, func^n_f : func^n_f, ga* : globaladdr*, ga_ex* : globaladdr*, globaltype^n_g : globaltype^n_g, i_d^n_d : nat^n_d, i_e^n_e : nat^n_e, i_f^n_f : nat^n_f, i_g^n_g : nat^n_g, i_m^n_m : nat^n_m, i_t^n_t : nat^n_t, import* : import*, ma* : memaddr*, ma_ex* : memaddr*, memtype^n_m : memtype^n_m, mm : moduleinst, module : module, n_d : n, n_e : n, n_f : n, n_g : n, n_m : n, n_t : n, ref_e** : ref**, ref_t* : ref*, reftype^n_e : reftype^n_e, s : store, s_1 : store, s_2 : store, s_3 : store, s_4 : store, s_5 : store, s_6 : store, start? : start?, ta* : tableaddr*, ta_ex* : tableaddr*, tabletype^n_t : tabletype^n_t, type* : type*, val_g* : val*, xi* : exportinst*} allocmodule(s, module, externval*{externval}, val_g*{val_g}, ref_t*{ref_t}, ref_e*{ref_e}*{ref_e}) = (s_6, mm)
+    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(type*{type}, import*{import}, func^n_f{func}, GLOBAL(globaltype, expr_g)^n_g{expr_g globaltype}, TABLE(tabletype, expr_t)^n_t{expr_t tabletype}, MEMORY(memtype)^n_m{memtype}, `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)^n_e{elemmode expr_e reftype}, `DATA%*%`(byte*{byte}, datamode)^n_d{byte datamode}, start?{start}, export*{export}))
     -- if (fa_ex*{fa_ex} = $funcsxv(externval*{externval}))
     -- if (ga_ex*{ga_ex} = $globalsxv(externval*{externval}))
     -- if (ta_ex*{ta_ex} = $tablesxv(externval*{externval}))
@@ -20619,7 +20624,7 @@ def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, modu
     -- if (da*{da} = (|s.DATA_store| + i_d)^(i_d<n_d){i_d})
     -- if (xi*{xi} = $instexport(fa_ex*{fa_ex} :: fa*{fa}, ga_ex*{ga_ex} :: ga*{ga}, ta_ex*{ta_ex} :: ta*{ta}, ma_ex*{ma_ex} :: ma*{ma}, export)*{export})
     -- if (mm = {TYPE dt*{dt}, FUNC fa_ex*{fa_ex} :: fa*{fa}, GLOBAL ga_ex*{ga_ex} :: ga*{ga}, TABLE ta_ex*{ta_ex} :: ta*{ta}, MEM ma_ex*{ma_ex} :: ma*{ma}, ELEM ea*{ea}, DATA da*{da}, EXPORT xi*{xi}})
-    -- if (dt*{dt} = $alloctypes(rectype*{rectype}))
+    -- if (dt*{dt} = $alloctypes(type*{type}))
     -- if ((s_1, fa*{fa}) = $allocfuncs(s, mm, func^n_f{func}))
     -- if ((s_2, ga*{ga}) = $allocglobals(s_1, globaltype^n_g{globaltype}, val_g*{val_g}))
     -- if ((s_3, ta*{ta}) = $alloctables(s_2, tabletype^n_t{tabletype}, ref_t*{ref_t}))
@@ -20627,45 +20632,45 @@ def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, modu
     -- if ((s_5, ea*{ea}) = $allocelems(s_4, reftype^n_e{reftype}, ref_e*{ref_e}*{ref_e}))
     -- if ((s_6, da*{da}) = $allocdatas(s_5, byte*{byte}^n_d{byte}))
 
-;; 9-module.watsup:133.1-133.38
+;; 9-module.watsup:134.1-134.38
 rec {
 
-;; 9-module.watsup:133.1-133.38
+;; 9-module.watsup:134.1-134.38
 def concat_instr : instr** -> instr*
-  ;; 9-module.watsup:134.1-134.37
+  ;; 9-module.watsup:135.1-135.37
   def concat_instr([]) = []
-  ;; 9-module.watsup:135.1-135.74
+  ;; 9-module.watsup:136.1-136.74
   def {instr* : instr*, instr'** : instr**} concat_instr([instr*{instr}] :: instr'*{instr'}*{instr'}) = instr*{instr} :: $concat_instr(instr'*{instr'}*{instr'})
 }
 
-;; 9-module.watsup:137.1-137.33
+;; 9-module.watsup:138.1-138.33
 def runelem : (elem, idx) -> instr*
-  ;; 9-module.watsup:138.1-138.56
+  ;; 9-module.watsup:139.1-139.56
   def {expr* : expr*, reftype : reftype, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, PASSIVE_elemmode), y) = []
-  ;; 9-module.watsup:139.1-139.62
+  ;; 9-module.watsup:140.1-140.62
   def {expr* : expr*, reftype : reftype, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, DECLARE_elemmode), y) = [ELEM.DROP_instr(y)]
-  ;; 9-module.watsup:140.1-141.77
+  ;; 9-module.watsup:141.1-142.77
   def {expr* : expr*, instr* : instr*, reftype : reftype, x : idx, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, ACTIVE_elemmode(x, instr*{instr})), y) = instr*{instr} :: [CONST_instr(I32_numtype, 0) CONST_instr(I32_numtype, |expr*{expr}|) TABLE.INIT_instr(x, y) ELEM.DROP_instr(y)]
 
-;; 9-module.watsup:143.1-143.33
+;; 9-module.watsup:144.1-144.33
 def rundata : (data, idx) -> instr*
-  ;; 9-module.watsup:144.1-144.48
+  ;; 9-module.watsup:145.1-145.48
   def {byte* : byte*, y : idx} rundata(`DATA%*%`(byte*{byte}, PASSIVE_datamode), y) = []
-  ;; 9-module.watsup:145.1-146.78
+  ;; 9-module.watsup:146.1-147.78
   def {byte* : byte*, instr* : instr*, x : idx, y : idx} rundata(`DATA%*%`(byte*{byte}, ACTIVE_datamode(x, instr*{instr})), y) = instr*{instr} :: [CONST_instr(I32_numtype, 0) CONST_instr(I32_numtype, |byte*{byte}|) MEMORY.INIT_instr(x, y) DATA.DROP_instr(y)]
 
-;; 9-module.watsup:148.1-148.53
+;; 9-module.watsup:149.1-149.53
 def instantiate : (store, module, externval*) -> config
-  ;; 9-module.watsup:149.1-174.64
-  def {data* : data*, elem* : elem*, elemmode* : elemmode*, export* : export*, expr_e** : expr**, expr_g* : expr*, expr_t* : expr*, externval* : externval*, f : frame, func^n_func : func^n_func, global* : global*, globaltype* : globaltype*, i^n_e : nat^n_e, i_func^n_func : nat^n_func, import* : import*, instr_d* : instr*, instr_e* : instr*, j^n_d : nat^n_d, mem* : mem*, mm : moduleinst, mm_init : moduleinst, module : module, n_d : n, n_e : n, n_func : n, rectype* : rectype*, ref_e** : ref**, ref_t* : ref*, reftype* : reftype*, s : store, s' : store, start? : start?, table* : table*, tabletype* : tabletype*, val_g* : val*, x? : idx?, z : state} instantiate(s, module, externval*{externval}) = `%;%*`(`%;%`(s', f), $admininstr_instr(instr_e)*{instr_e} :: $admininstr_instr(instr_d)*{instr_d} :: CALL_admininstr(x)?{x})
-    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(TYPE(rectype)*{rectype}, import*{import}, func^n_func{func}, global*{global}, table*{table}, mem*{mem}, elem*{elem}, data*{data}, start?{start}, export*{export}))
+  ;; 9-module.watsup:150.1-175.64
+  def {data* : data*, elem* : elem*, elemmode* : elemmode*, export* : export*, expr_e** : expr**, expr_g* : expr*, expr_t* : expr*, externval* : externval*, f : frame, func^n_func : func^n_func, global* : global*, globaltype* : globaltype*, i^n_e : nat^n_e, i_func^n_func : nat^n_func, import* : import*, instr_d* : instr*, instr_e* : instr*, j^n_d : nat^n_d, mem* : mem*, mm : moduleinst, mm_init : moduleinst, module : module, n_d : n, n_e : n, n_func : n, ref_e** : ref**, ref_t* : ref*, reftype* : reftype*, s : store, s' : store, start? : start?, table* : table*, tabletype* : tabletype*, type* : type*, val_g* : val*, x? : idx?, z : state} instantiate(s, module, externval*{externval}) = `%;%*`(`%;%`(s', f), $admininstr_instr(instr_e)*{instr_e} :: $admininstr_instr(instr_d)*{instr_d} :: CALL_admininstr(x)?{x})
+    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(type*{type}, import*{import}, func^n_func{func}, global*{global}, table*{table}, mem*{mem}, elem*{elem}, data*{data}, start?{start}, export*{export}))
     -- if (global*{global} = GLOBAL(globaltype, expr_g)*{expr_g globaltype})
     -- if (table*{table} = TABLE(tabletype, expr_t)*{expr_t tabletype})
     -- if (elem*{elem} = `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)*{elemmode expr_e reftype})
     -- if (start?{start} = START(x)?{x})
     -- if (n_e = |elem*{elem}|)
     -- if (n_d = |data*{data}|)
-    -- if (mm_init = {TYPE $alloctypes(rectype*{rectype}), FUNC $funcsxv(externval*{externval}) :: (|s.FUNC_store| + i_func)^(i_func<n_func){i_func}, GLOBAL $globalsxv(externval*{externval}), TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
+    -- if (mm_init = {TYPE $alloctypes(type*{type}), FUNC $funcsxv(externval*{externval}) :: (|s.FUNC_store| + i_func)^(i_func<n_func){i_func}, GLOBAL $globalsxv(externval*{externval}), TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
     -- if (z = `%;%`(s, {LOCAL [], MODULE mm_init}))
     -- (Eval_expr: `%;%~>*%;%*`(z, expr_g, z, [val_g]))*{expr_g val_g}
     -- (Eval_expr: `%;%~>*%;%*`(z, expr_t, z, [$val_ref(ref_t)]))*{expr_t ref_t}
@@ -20675,9 +20680,9 @@ def instantiate : (store, module, externval*) -> config
     -- if (instr_e*{instr_e} = $concat_instr($runelem(elem*{elem}[i], i)^(i<n_e){i}))
     -- if (instr_d*{instr_d} = $concat_instr($rundata(data*{data}[j], j)^(j<n_d){j}))
 
-;; 9-module.watsup:181.1-181.44
+;; 9-module.watsup:182.1-182.44
 def invoke : (store, funcaddr, val*) -> config
-  ;; 9-module.watsup:182.1-195.53
+  ;; 9-module.watsup:183.1-196.53
   def {expr : expr, f : frame, fa : funcaddr, local* : local*, mm : moduleinst, n : n, s : store, t_1^n : valtype^n, t_2* : valtype*, val^n : val^n, x : idx} invoke(s, fa, val^n{val}) = `%;%*`(`%;%`(s, f), $admininstr_val(val)^n{val} :: [REF.FUNC_ADDR_admininstr(fa) CALL_REF_admininstr(?(0))])
     -- if (mm = {TYPE [s.FUNC_store[fa].TYPE_funcinst], FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
     -- if (f = {LOCAL [], MODULE mm})
@@ -24231,12 +24236,12 @@ relation Step_read: `%~>%*`(config, admininstr*)
     `%~>%*`(`%;%*`(z, [REF.NULL_admininstr(ht) CALL_REF_admininstr(x?{x})]), [TRAP_admininstr])
 
   ;; 8-reduction.watsup:163.1-168.59
-  rule call_ref-func {a : addr, f : frame, fi : funcinst, instr* : instr*, m : m, n : n, t* : valtype*, t_1^n : valtype^n, t_2^m : valtype^m, val^n : val^n, x? : idx?, x' : idx, z : state}:
+  rule call_ref-func {a : addr, f : frame, fi : funcinst, instr* : instr*, m : m, n : n, t* : valtype*, t_1^n : valtype^n, t_2^m : valtype^m, val^n : val^n, x? : idx?, y : idx, z : state}:
     `%~>%*`(`%;%*`(z, $admininstr_val(val)^n{val} :: [REF.FUNC_ADDR_admininstr(a) CALL_REF_admininstr(x?{x})]), [FRAME__admininstr(m, f, [LABEL__admininstr(m, [], $admininstr_instr(instr)*{instr})])])
     -- if (a < |$funcinst(z)|)
     -- if ($funcinst(z)[a] = fi)
     -- Expand: `%~~%`(fi.TYPE_funcinst, FUNC_comptype(`%->%`(t_1^n{t_1}, t_2^m{t_2})))
-    -- if (fi.CODE_funcinst = `FUNC%%*%`(x', LOCAL(t)*{t}, instr*{instr}))
+    -- if (fi.CODE_funcinst = `FUNC%%*%`(y, LOCAL(t)*{t}, instr*{instr}))
     -- if (f = {LOCAL ?(val)^n{val} :: $default(t)*{t}, MODULE fi.MODULE_funcinst})
 
   ;; 8-reduction.watsup:171.1-172.76
@@ -24796,151 +24801,152 @@ relation Eval_expr: `%;%~>*%;%*`(state, expr, state, val*)
     `%;%~>*%;%*`(z, instr*{instr}, z', val*{val})
     -- Eval: `%~>*%;%*`(`%;%*`(z, $admininstr_instr(instr)*{instr}), z, val*{val})
 
-;; 9-module.watsup:7.1-7.37
+;; 9-module.watsup:7.1-7.34
 rec {
 
-;; 9-module.watsup:7.1-7.37
-def alloctypes : rectype* -> deftype*
+;; 9-module.watsup:7.1-7.34
+def alloctypes : type* -> deftype*
   ;; 9-module.watsup:8.1-8.35
   def alloctypes([]) = []
-  ;; 9-module.watsup:9.1-12.24
-  def {deftype* : deftype*, deftype'* : deftype*, rectype : rectype, rectype'* : rectype*, x : idx} alloctypes(rectype'*{rectype'} :: [rectype]) = deftype'*{deftype'} :: deftype*{deftype}
-    -- if (deftype'*{deftype'} = $alloctypes(rectype'*{rectype'}))
+  ;; 9-module.watsup:9.1-13.24
+  def {deftype* : deftype*, deftype'* : deftype*, rectype : rectype, type : type, type'* : type*, x : idx} alloctypes(type'*{type'} :: [type]) = deftype'*{deftype'} :: deftype*{deftype}
+    -- if (deftype'*{deftype'} = $alloctypes(type'*{type'}))
+    -- if (type = TYPE(rectype))
     -- if (deftype*{deftype} = $subst_all_deftypes($rolldt(x, rectype), $heaptype_deftype(deftype')*{deftype'}))
     -- if (x = |deftype'*{deftype'}|)
 }
 
-;; 9-module.watsup:14.1-14.60
+;; 9-module.watsup:15.1-15.60
 def allocfunc : (store, moduleinst, func) -> (store, funcaddr)
-  ;; 9-module.watsup:15.1-17.55
+  ;; 9-module.watsup:16.1-18.55
   def {expr : expr, fi : funcinst, func : func, local* : local*, mm : moduleinst, s : store, x : idx} allocfunc(s, mm, func) = (s[FUNC_store =.. [fi]], |s.FUNC_store|)
     -- if (func = `FUNC%%*%`(x, local*{local}, expr))
     -- if (fi = {TYPE mm.TYPE_moduleinst[x], MODULE mm, CODE func})
 
-;; 9-module.watsup:19.1-19.63
+;; 9-module.watsup:20.1-20.63
 rec {
 
-;; 9-module.watsup:19.1-19.63
+;; 9-module.watsup:20.1-20.63
 def allocfuncs : (store, moduleinst, func*) -> (store, funcaddr*)
-  ;; 9-module.watsup:20.1-20.47
+  ;; 9-module.watsup:21.1-21.47
   def {mm : moduleinst, s : store} allocfuncs(s, mm, []) = (s, [])
-  ;; 9-module.watsup:21.1-23.51
+  ;; 9-module.watsup:22.1-24.51
   def {fa : funcaddr, fa'* : funcaddr*, func : func, func'* : func*, mm : moduleinst, s : store, s_1 : store, s_2 : store} allocfuncs(s, mm, [func] :: func'*{func'}) = (s_2, [fa] :: fa'*{fa'})
     -- if ((s_1, fa) = $allocfunc(s, mm, func))
     -- if ((s_2, fa'*{fa'}) = $allocfuncs(s_1, mm, func'*{func'}))
 }
 
-;; 9-module.watsup:25.1-25.63
+;; 9-module.watsup:26.1-26.63
 def allocglobal : (store, globaltype, val) -> (store, globaladdr)
-  ;; 9-module.watsup:26.1-27.44
+  ;; 9-module.watsup:27.1-28.44
   def {gi : globalinst, globaltype : globaltype, s : store, val : val} allocglobal(s, globaltype, val) = (s[GLOBAL_store =.. [gi]], |s.GLOBAL_store|)
     -- if (gi = {TYPE globaltype, VALUE val})
 
-;; 9-module.watsup:29.1-29.67
+;; 9-module.watsup:30.1-30.67
 rec {
 
-;; 9-module.watsup:29.1-29.67
+;; 9-module.watsup:30.1-30.67
 def allocglobals : (store, globaltype*, val*) -> (store, globaladdr*)
-  ;; 9-module.watsup:30.1-30.54
+  ;; 9-module.watsup:31.1-31.54
   def {s : store} allocglobals(s, [], []) = (s, [])
-  ;; 9-module.watsup:31.1-33.62
+  ;; 9-module.watsup:32.1-34.62
   def {ga : globaladdr, ga'* : globaladdr*, globaltype : globaltype, globaltype'* : globaltype*, s : store, s_1 : store, s_2 : store, val : val, val'* : val*} allocglobals(s, [globaltype] :: globaltype'*{globaltype'}, [val] :: val'*{val'}) = (s_2, [ga] :: ga'*{ga'})
     -- if ((s_1, ga) = $allocglobal(s, globaltype, val))
     -- if ((s_2, ga'*{ga'}) = $allocglobals(s_1, globaltype'*{globaltype'}, val'*{val'}))
 }
 
-;; 9-module.watsup:35.1-35.60
+;; 9-module.watsup:36.1-36.60
 def alloctable : (store, tabletype, ref) -> (store, tableaddr)
-  ;; 9-module.watsup:36.1-37.49
+  ;; 9-module.watsup:37.1-38.49
   def {i : nat, j : nat, ref : ref, rt : reftype, s : store, ti : tableinst} alloctable(s, `%%`(`[%..%]`(i, j), rt), ref) = (s[TABLE_store =.. [ti]], |s.TABLE_store|)
     -- if (ti = {TYPE `%%`(`[%..%]`(i, j), rt), ELEM ref^i{}})
 
-;; 9-module.watsup:39.1-39.64
+;; 9-module.watsup:40.1-40.64
 rec {
 
-;; 9-module.watsup:39.1-39.64
+;; 9-module.watsup:40.1-40.64
 def alloctables : (store, tabletype*, ref*) -> (store, tableaddr*)
-  ;; 9-module.watsup:40.1-40.53
+  ;; 9-module.watsup:41.1-41.53
   def {s : store} alloctables(s, [], []) = (s, [])
-  ;; 9-module.watsup:41.1-43.60
+  ;; 9-module.watsup:42.1-44.60
   def {ref : ref, ref'* : ref*, s : store, s_1 : store, s_2 : store, ta : tableaddr, ta'* : tableaddr*, tabletype : tabletype, tabletype'* : tabletype*} alloctables(s, [tabletype] :: tabletype'*{tabletype'}, [ref] :: ref'*{ref'}) = (s_2, [ta] :: ta'*{ta'})
     -- if ((s_1, ta) = $alloctable(s, tabletype, ref))
     -- if ((s_2, ta'*{ta'}) = $alloctables(s_1, tabletype'*{tabletype'}, ref'*{ref'}))
 }
 
-;; 9-module.watsup:45.1-45.49
+;; 9-module.watsup:46.1-46.49
 def allocmem : (store, memtype) -> (store, memaddr)
-  ;; 9-module.watsup:46.1-47.62
+  ;; 9-module.watsup:47.1-48.62
   def {i : nat, j : nat, mi : meminst, s : store} allocmem(s, `%I8`(`[%..%]`(i, j))) = (s[MEM_store =.. [mi]], |s.MEM_store|)
     -- if (mi = {TYPE `%I8`(`[%..%]`(i, j)), DATA 0^((i * 64) * $Ki){}})
 
-;; 9-module.watsup:49.1-49.52
+;; 9-module.watsup:50.1-50.52
 rec {
 
-;; 9-module.watsup:49.1-49.52
+;; 9-module.watsup:50.1-50.52
 def allocmems : (store, memtype*) -> (store, memaddr*)
-  ;; 9-module.watsup:50.1-50.42
+  ;; 9-module.watsup:51.1-51.42
   def {s : store} allocmems(s, []) = (s, [])
-  ;; 9-module.watsup:51.1-53.49
+  ;; 9-module.watsup:52.1-54.49
   def {ma : memaddr, ma'* : memaddr*, memtype : memtype, memtype'* : memtype*, s : store, s_1 : store, s_2 : store} allocmems(s, [memtype] :: memtype'*{memtype'}) = (s_2, [ma] :: ma'*{ma'})
     -- if ((s_1, ma) = $allocmem(s, memtype))
     -- if ((s_2, ma'*{ma'}) = $allocmems(s_1, memtype'*{memtype'}))
 }
 
-;; 9-module.watsup:55.1-55.57
+;; 9-module.watsup:56.1-56.57
 def allocelem : (store, reftype, ref*) -> (store, elemaddr)
-  ;; 9-module.watsup:56.1-57.36
+  ;; 9-module.watsup:57.1-58.36
   def {ei : eleminst, ref* : ref*, rt : reftype, s : store} allocelem(s, rt, ref*{ref}) = (s[ELEM_store =.. [ei]], |s.ELEM_store|)
     -- if (ei = {TYPE rt, ELEM ref*{ref}})
 
-;; 9-module.watsup:59.1-59.63
+;; 9-module.watsup:60.1-60.63
 rec {
 
-;; 9-module.watsup:59.1-59.63
+;; 9-module.watsup:60.1-60.63
 def allocelems : (store, reftype*, ref**) -> (store, elemaddr*)
-  ;; 9-module.watsup:60.1-60.52
+  ;; 9-module.watsup:61.1-61.52
   def {s : store} allocelems(s, [], []) = (s, [])
-  ;; 9-module.watsup:61.1-63.55
+  ;; 9-module.watsup:62.1-64.55
   def {ea : elemaddr, ea'* : elemaddr*, ref* : ref*, ref'** : ref**, rt : reftype, rt'* : reftype*, s : store, s_1 : store, s_2 : store} allocelems(s, [rt] :: rt'*{rt'}, [ref*{ref}] :: ref'*{ref'}*{ref'}) = (s_2, [ea] :: ea'*{ea'})
     -- if ((s_1, ea) = $allocelem(s, rt, ref*{ref}))
     -- if ((s_2, ea'*{ea'}) = $allocelems(s_2, rt'*{rt'}, ref'*{ref'}*{ref'}))
 }
 
-;; 9-module.watsup:65.1-65.49
+;; 9-module.watsup:66.1-66.49
 def allocdata : (store, byte*) -> (store, dataaddr)
-  ;; 9-module.watsup:66.1-67.28
+  ;; 9-module.watsup:67.1-68.28
   def {byte* : byte*, di : datainst, s : store} allocdata(s, byte*{byte}) = (s[DATA_store =.. [di]], |s.DATA_store|)
     -- if (di = {DATA byte*{byte}})
 
-;; 9-module.watsup:69.1-69.54
+;; 9-module.watsup:70.1-70.54
 rec {
 
-;; 9-module.watsup:69.1-69.54
+;; 9-module.watsup:70.1-70.54
 def allocdatas : (store, byte**) -> (store, dataaddr*)
-  ;; 9-module.watsup:70.1-70.43
+  ;; 9-module.watsup:71.1-71.43
   def {s : store} allocdatas(s, []) = (s, [])
-  ;; 9-module.watsup:71.1-73.50
+  ;; 9-module.watsup:72.1-74.50
   def {byte* : byte*, byte'** : byte**, da : dataaddr, da'* : dataaddr*, s : store, s_1 : store, s_2 : store} allocdatas(s, [byte*{byte}] :: byte'*{byte'}*{byte'}) = (s_2, [da] :: da'*{da'})
     -- if ((s_1, da) = $allocdata(s, byte*{byte}))
     -- if ((s_2, da'*{da'}) = $allocdatas(s_1, byte'*{byte'}*{byte'}))
 }
 
-;; 9-module.watsup:78.1-78.83
+;; 9-module.watsup:79.1-79.83
 def instexport : (funcaddr*, globaladdr*, tableaddr*, memaddr*, export) -> exportinst
-  ;; 9-module.watsup:79.1-79.95
+  ;; 9-module.watsup:80.1-80.95
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, FUNC_externidx(x))) = {NAME name, VALUE FUNC_externval(fa*{fa}[x])}
-  ;; 9-module.watsup:80.1-80.99
+  ;; 9-module.watsup:81.1-81.99
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, GLOBAL_externidx(x))) = {NAME name, VALUE GLOBAL_externval(ga*{ga}[x])}
-  ;; 9-module.watsup:81.1-81.97
+  ;; 9-module.watsup:82.1-82.97
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, TABLE_externidx(x))) = {NAME name, VALUE TABLE_externval(ta*{ta}[x])}
-  ;; 9-module.watsup:82.1-82.93
+  ;; 9-module.watsup:83.1-83.93
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, MEM_externidx(x))) = {NAME name, VALUE MEM_externval(ma*{ma}[x])}
 
-;; 9-module.watsup:85.1-85.87
+;; 9-module.watsup:86.1-86.87
 def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, moduleinst)
-  ;; 9-module.watsup:86.1-126.51
-  def {byte*^n_d : byte*^n_d, da* : dataaddr*, datamode^n_d : datamode^n_d, dt* : deftype*, ea* : elemaddr*, elemmode^n_e : elemmode^n_e, export* : export*, expr_e*^n_e : expr*^n_e, expr_g^n_g : expr^n_g, expr_t^n_t : expr^n_t, externval* : externval*, fa* : funcaddr*, fa_ex* : funcaddr*, func^n_f : func^n_f, ga* : globaladdr*, ga_ex* : globaladdr*, globaltype^n_g : globaltype^n_g, i_d^n_d : nat^n_d, i_e^n_e : nat^n_e, i_f^n_f : nat^n_f, i_g^n_g : nat^n_g, i_m^n_m : nat^n_m, i_t^n_t : nat^n_t, import* : import*, ma* : memaddr*, ma_ex* : memaddr*, memtype^n_m : memtype^n_m, mm : moduleinst, module : module, n_d : n, n_e : n, n_f : n, n_g : n, n_m : n, n_t : n, rectype* : rectype*, ref_e** : ref**, ref_t* : ref*, reftype^n_e : reftype^n_e, s : store, s_1 : store, s_2 : store, s_3 : store, s_4 : store, s_5 : store, s_6 : store, start? : start?, ta* : tableaddr*, ta_ex* : tableaddr*, tabletype^n_t : tabletype^n_t, val_g* : val*, xi* : exportinst*} allocmodule(s, module, externval*{externval}, val_g*{val_g}, ref_t*{ref_t}, ref_e*{ref_e}*{ref_e}) = (s_6, mm)
-    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(TYPE(rectype)*{rectype}, import*{import}, func^n_f{func}, GLOBAL(globaltype, expr_g)^n_g{expr_g globaltype}, TABLE(tabletype, expr_t)^n_t{expr_t tabletype}, MEMORY(memtype)^n_m{memtype}, `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)^n_e{elemmode expr_e reftype}, `DATA%*%`(byte*{byte}, datamode)^n_d{byte datamode}, start?{start}, export*{export}))
+  ;; 9-module.watsup:87.1-127.51
+  def {byte*^n_d : byte*^n_d, da* : dataaddr*, datamode^n_d : datamode^n_d, dt* : deftype*, ea* : elemaddr*, elemmode^n_e : elemmode^n_e, export* : export*, expr_e*^n_e : expr*^n_e, expr_g^n_g : expr^n_g, expr_t^n_t : expr^n_t, externval* : externval*, fa* : funcaddr*, fa_ex* : funcaddr*, func^n_f : func^n_f, ga* : globaladdr*, ga_ex* : globaladdr*, globaltype^n_g : globaltype^n_g, i_d^n_d : nat^n_d, i_e^n_e : nat^n_e, i_f^n_f : nat^n_f, i_g^n_g : nat^n_g, i_m^n_m : nat^n_m, i_t^n_t : nat^n_t, import* : import*, ma* : memaddr*, ma_ex* : memaddr*, memtype^n_m : memtype^n_m, mm : moduleinst, module : module, n_d : n, n_e : n, n_f : n, n_g : n, n_m : n, n_t : n, ref_e** : ref**, ref_t* : ref*, reftype^n_e : reftype^n_e, s : store, s_1 : store, s_2 : store, s_3 : store, s_4 : store, s_5 : store, s_6 : store, start? : start?, ta* : tableaddr*, ta_ex* : tableaddr*, tabletype^n_t : tabletype^n_t, type* : type*, val_g* : val*, xi* : exportinst*} allocmodule(s, module, externval*{externval}, val_g*{val_g}, ref_t*{ref_t}, ref_e*{ref_e}*{ref_e}) = (s_6, mm)
+    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(type*{type}, import*{import}, func^n_f{func}, GLOBAL(globaltype, expr_g)^n_g{expr_g globaltype}, TABLE(tabletype, expr_t)^n_t{expr_t tabletype}, MEMORY(memtype)^n_m{memtype}, `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)^n_e{elemmode expr_e reftype}, `DATA%*%`(byte*{byte}, datamode)^n_d{byte datamode}, start?{start}, export*{export}))
     -- if (fa_ex*{fa_ex} = $funcsxv(externval*{externval}))
     -- if (ga_ex*{ga_ex} = $globalsxv(externval*{externval}))
     -- if (ta_ex*{ta_ex} = $tablesxv(externval*{externval}))
@@ -24953,7 +24959,7 @@ def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, modu
     -- if (da*{da} = (|s.DATA_store| + i_d)^(i_d<n_d){i_d})
     -- if (xi*{xi} = $instexport(fa_ex*{fa_ex} :: fa*{fa}, ga_ex*{ga_ex} :: ga*{ga}, ta_ex*{ta_ex} :: ta*{ta}, ma_ex*{ma_ex} :: ma*{ma}, export)*{export})
     -- if (mm = {TYPE dt*{dt}, FUNC fa_ex*{fa_ex} :: fa*{fa}, GLOBAL ga_ex*{ga_ex} :: ga*{ga}, TABLE ta_ex*{ta_ex} :: ta*{ta}, MEM ma_ex*{ma_ex} :: ma*{ma}, ELEM ea*{ea}, DATA da*{da}, EXPORT xi*{xi}})
-    -- if (dt*{dt} = $alloctypes(rectype*{rectype}))
+    -- if (dt*{dt} = $alloctypes(type*{type}))
     -- if ((s_1, fa*{fa}) = $allocfuncs(s, mm, func^n_f{func}))
     -- if ((s_2, ga*{ga}) = $allocglobals(s_1, globaltype^n_g{globaltype}, val_g*{val_g}))
     -- if ((s_3, ta*{ta}) = $alloctables(s_2, tabletype^n_t{tabletype}, ref_t*{ref_t}))
@@ -24961,45 +24967,45 @@ def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, modu
     -- if ((s_5, ea*{ea}) = $allocelems(s_4, reftype^n_e{reftype}, ref_e*{ref_e}*{ref_e}))
     -- if ((s_6, da*{da}) = $allocdatas(s_5, byte*{byte}^n_d{byte}))
 
-;; 9-module.watsup:133.1-133.38
+;; 9-module.watsup:134.1-134.38
 rec {
 
-;; 9-module.watsup:133.1-133.38
+;; 9-module.watsup:134.1-134.38
 def concat_instr : instr** -> instr*
-  ;; 9-module.watsup:134.1-134.37
+  ;; 9-module.watsup:135.1-135.37
   def concat_instr([]) = []
-  ;; 9-module.watsup:135.1-135.74
+  ;; 9-module.watsup:136.1-136.74
   def {instr* : instr*, instr'** : instr**} concat_instr([instr*{instr}] :: instr'*{instr'}*{instr'}) = instr*{instr} :: $concat_instr(instr'*{instr'}*{instr'})
 }
 
-;; 9-module.watsup:137.1-137.33
+;; 9-module.watsup:138.1-138.33
 def runelem : (elem, idx) -> instr*
-  ;; 9-module.watsup:138.1-138.56
+  ;; 9-module.watsup:139.1-139.56
   def {expr* : expr*, reftype : reftype, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, PASSIVE_elemmode), y) = []
-  ;; 9-module.watsup:139.1-139.62
+  ;; 9-module.watsup:140.1-140.62
   def {expr* : expr*, reftype : reftype, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, DECLARE_elemmode), y) = [ELEM.DROP_instr(y)]
-  ;; 9-module.watsup:140.1-141.77
+  ;; 9-module.watsup:141.1-142.77
   def {expr* : expr*, instr* : instr*, reftype : reftype, x : idx, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, ACTIVE_elemmode(x, instr*{instr})), y) = instr*{instr} :: [CONST_instr(I32_numtype, 0) CONST_instr(I32_numtype, |expr*{expr}|) TABLE.INIT_instr(x, y) ELEM.DROP_instr(y)]
 
-;; 9-module.watsup:143.1-143.33
+;; 9-module.watsup:144.1-144.33
 def rundata : (data, idx) -> instr*
-  ;; 9-module.watsup:144.1-144.48
+  ;; 9-module.watsup:145.1-145.48
   def {byte* : byte*, y : idx} rundata(`DATA%*%`(byte*{byte}, PASSIVE_datamode), y) = []
-  ;; 9-module.watsup:145.1-146.78
+  ;; 9-module.watsup:146.1-147.78
   def {byte* : byte*, instr* : instr*, x : idx, y : idx} rundata(`DATA%*%`(byte*{byte}, ACTIVE_datamode(x, instr*{instr})), y) = instr*{instr} :: [CONST_instr(I32_numtype, 0) CONST_instr(I32_numtype, |byte*{byte}|) MEMORY.INIT_instr(x, y) DATA.DROP_instr(y)]
 
-;; 9-module.watsup:148.1-148.53
+;; 9-module.watsup:149.1-149.53
 def instantiate : (store, module, externval*) -> config
-  ;; 9-module.watsup:149.1-174.64
-  def {data* : data*, elem* : elem*, elemmode* : elemmode*, export* : export*, expr_e** : expr**, expr_g* : expr*, expr_t* : expr*, externval* : externval*, f : frame, func^n_func : func^n_func, global* : global*, globaltype* : globaltype*, i^n_e : nat^n_e, i_func^n_func : nat^n_func, import* : import*, instr_d* : instr*, instr_e* : instr*, j^n_d : nat^n_d, mem* : mem*, mm : moduleinst, mm_init : moduleinst, module : module, n_d : n, n_e : n, n_func : n, rectype* : rectype*, ref_e** : ref**, ref_t* : ref*, reftype* : reftype*, s : store, s' : store, start? : start?, table* : table*, tabletype* : tabletype*, val_g* : val*, x? : idx?, z : state} instantiate(s, module, externval*{externval}) = `%;%*`(`%;%`(s', f), $admininstr_instr(instr_e)*{instr_e} :: $admininstr_instr(instr_d)*{instr_d} :: CALL_admininstr(x)?{x})
-    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(TYPE(rectype)*{rectype}, import*{import}, func^n_func{func}, global*{global}, table*{table}, mem*{mem}, elem*{elem}, data*{data}, start?{start}, export*{export}))
+  ;; 9-module.watsup:150.1-175.64
+  def {data* : data*, elem* : elem*, elemmode* : elemmode*, export* : export*, expr_e** : expr**, expr_g* : expr*, expr_t* : expr*, externval* : externval*, f : frame, func^n_func : func^n_func, global* : global*, globaltype* : globaltype*, i^n_e : nat^n_e, i_func^n_func : nat^n_func, import* : import*, instr_d* : instr*, instr_e* : instr*, j^n_d : nat^n_d, mem* : mem*, mm : moduleinst, mm_init : moduleinst, module : module, n_d : n, n_e : n, n_func : n, ref_e** : ref**, ref_t* : ref*, reftype* : reftype*, s : store, s' : store, start? : start?, table* : table*, tabletype* : tabletype*, type* : type*, val_g* : val*, x? : idx?, z : state} instantiate(s, module, externval*{externval}) = `%;%*`(`%;%`(s', f), $admininstr_instr(instr_e)*{instr_e} :: $admininstr_instr(instr_d)*{instr_d} :: CALL_admininstr(x)?{x})
+    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(type*{type}, import*{import}, func^n_func{func}, global*{global}, table*{table}, mem*{mem}, elem*{elem}, data*{data}, start?{start}, export*{export}))
     -- if (global*{global} = GLOBAL(globaltype, expr_g)*{expr_g globaltype})
     -- if (table*{table} = TABLE(tabletype, expr_t)*{expr_t tabletype})
     -- if (elem*{elem} = `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)*{elemmode expr_e reftype})
     -- if (start?{start} = START(x)?{x})
     -- if (n_e = |elem*{elem}|)
     -- if (n_d = |data*{data}|)
-    -- if (mm_init = {TYPE $alloctypes(rectype*{rectype}), FUNC $funcsxv(externval*{externval}) :: (|s.FUNC_store| + i_func)^(i_func<n_func){i_func}, GLOBAL $globalsxv(externval*{externval}), TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
+    -- if (mm_init = {TYPE $alloctypes(type*{type}), FUNC $funcsxv(externval*{externval}) :: (|s.FUNC_store| + i_func)^(i_func<n_func){i_func}, GLOBAL $globalsxv(externval*{externval}), TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
     -- if (z = `%;%`(s, {LOCAL [], MODULE mm_init}))
     -- (Eval_expr: `%;%~>*%;%*`(z, expr_g, z, [val_g]))*{expr_g val_g}
     -- (Eval_expr: `%;%~>*%;%*`(z, expr_t, z, [$val_ref(ref_t)]))*{expr_t ref_t}
@@ -25009,9 +25015,9 @@ def instantiate : (store, module, externval*) -> config
     -- if (instr_e*{instr_e} = $concat_instr($runelem(elem*{elem}[i], i)^(i<n_e){i}))
     -- if (instr_d*{instr_d} = $concat_instr($rundata(data*{data}[j], j)^(j<n_d){j}))
 
-;; 9-module.watsup:181.1-181.44
+;; 9-module.watsup:182.1-182.44
 def invoke : (store, funcaddr, val*) -> config
-  ;; 9-module.watsup:182.1-195.53
+  ;; 9-module.watsup:183.1-196.53
   def {expr : expr, f : frame, fa : funcaddr, local* : local*, mm : moduleinst, n : n, s : store, t_1^n : valtype^n, t_2* : valtype*, val^n : val^n, x : idx} invoke(s, fa, val^n{val}) = `%;%*`(`%;%`(s, f), $admininstr_val(val)^n{val} :: [REF.FUNC_ADDR_admininstr(fa) CALL_REF_admininstr(?(0))])
     -- if (mm = {TYPE [s.FUNC_store[fa].TYPE_funcinst], FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
     -- if (f = {LOCAL [], MODULE mm})
@@ -28614,11 +28620,11 @@ relation Step_read: `%~>%*`(config, admininstr*)
     `%~>%*`(`%;%*`(z, [REF.NULL_admininstr(ht) CALL_REF_admininstr(x?{x})]), [TRAP_admininstr])
 
   ;; 8-reduction.watsup:163.1-168.59
-  rule call_ref-func {a : addr, f : frame, fi : funcinst, instr* : instr*, m : m, n : n, t* : valtype*, t_1^n : valtype^n, t_2^m : valtype^m, val^n : val^n, x? : idx?, x' : idx, z : state}:
+  rule call_ref-func {a : addr, f : frame, fi : funcinst, instr* : instr*, m : m, n : n, t* : valtype*, t_1^n : valtype^n, t_2^m : valtype^m, val^n : val^n, x? : idx?, y : idx, z : state}:
     `%~>%*`(`%;%*`(z, $admininstr_val(val)^n{val} :: [REF.FUNC_ADDR_admininstr(a) CALL_REF_admininstr(x?{x})]), [FRAME__admininstr(m, f, [LABEL__admininstr(m, [], $admininstr_instr(instr)*{instr})])])
     -- if (a < |$funcinst(z)|)
     -- where fi = $funcinst(z)[a]
-    -- where `FUNC%%*%`(x', LOCAL(t)*{t}, instr*{instr}) = fi.CODE_funcinst
+    -- where `FUNC%%*%`(y, LOCAL(t)*{t}, instr*{instr}) = fi.CODE_funcinst
     -- Expand: `%~~%`(fi.TYPE_funcinst, FUNC_comptype(`%->%`(t_1^n{t_1}, t_2^m{t_2})))
     -- if (f = {LOCAL ?(val)^n{val} :: $default(t)*{t}, MODULE fi.MODULE_funcinst})
 
@@ -29179,151 +29185,152 @@ relation Eval_expr: `%;%~>*%;%*`(state, expr, state, val*)
     `%;%~>*%;%*`(z, instr*{instr}, z', val*{val})
     -- Eval: `%~>*%;%*`(`%;%*`(z, $admininstr_instr(instr)*{instr}), z, val*{val})
 
-;; 9-module.watsup:7.1-7.37
+;; 9-module.watsup:7.1-7.34
 rec {
 
-;; 9-module.watsup:7.1-7.37
-def alloctypes : rectype* -> deftype*
+;; 9-module.watsup:7.1-7.34
+def alloctypes : type* -> deftype*
   ;; 9-module.watsup:8.1-8.35
   def alloctypes([]) = []
-  ;; 9-module.watsup:9.1-12.24
-  def {deftype* : deftype*, deftype'* : deftype*, rectype : rectype, rectype'* : rectype*, x : idx} alloctypes(rectype'*{rectype'} :: [rectype]) = deftype'*{deftype'} :: deftype*{deftype}
-    -- if (deftype'*{deftype'} = $alloctypes(rectype'*{rectype'}))
+  ;; 9-module.watsup:9.1-13.24
+  def {deftype* : deftype*, deftype'* : deftype*, rectype : rectype, type : type, type'* : type*, x : idx} alloctypes(type'*{type'} :: [type]) = deftype'*{deftype'} :: deftype*{deftype}
+    -- if (deftype'*{deftype'} = $alloctypes(type'*{type'}))
+    -- if (type = TYPE(rectype))
     -- if (deftype*{deftype} = $subst_all_deftypes($rolldt(x, rectype), $heaptype_deftype(deftype')*{deftype'}))
     -- if (x = |deftype'*{deftype'}|)
 }
 
-;; 9-module.watsup:14.1-14.60
+;; 9-module.watsup:15.1-15.60
 def allocfunc : (store, moduleinst, func) -> (store, funcaddr)
-  ;; 9-module.watsup:15.1-17.55
+  ;; 9-module.watsup:16.1-18.55
   def {expr : expr, fi : funcinst, func : func, local* : local*, mm : moduleinst, s : store, x : idx} allocfunc(s, mm, func) = (s[FUNC_store =.. [fi]], |s.FUNC_store|)
     -- if (func = `FUNC%%*%`(x, local*{local}, expr))
     -- if (fi = {TYPE mm.TYPE_moduleinst[x], MODULE mm, CODE func})
 
-;; 9-module.watsup:19.1-19.63
+;; 9-module.watsup:20.1-20.63
 rec {
 
-;; 9-module.watsup:19.1-19.63
+;; 9-module.watsup:20.1-20.63
 def allocfuncs : (store, moduleinst, func*) -> (store, funcaddr*)
-  ;; 9-module.watsup:20.1-20.47
+  ;; 9-module.watsup:21.1-21.47
   def {mm : moduleinst, s : store} allocfuncs(s, mm, []) = (s, [])
-  ;; 9-module.watsup:21.1-23.51
+  ;; 9-module.watsup:22.1-24.51
   def {fa : funcaddr, fa'* : funcaddr*, func : func, func'* : func*, mm : moduleinst, s : store, s_1 : store, s_2 : store} allocfuncs(s, mm, [func] :: func'*{func'}) = (s_2, [fa] :: fa'*{fa'})
     -- if ((s_1, fa) = $allocfunc(s, mm, func))
     -- if ((s_2, fa'*{fa'}) = $allocfuncs(s_1, mm, func'*{func'}))
 }
 
-;; 9-module.watsup:25.1-25.63
+;; 9-module.watsup:26.1-26.63
 def allocglobal : (store, globaltype, val) -> (store, globaladdr)
-  ;; 9-module.watsup:26.1-27.44
+  ;; 9-module.watsup:27.1-28.44
   def {gi : globalinst, globaltype : globaltype, s : store, val : val} allocglobal(s, globaltype, val) = (s[GLOBAL_store =.. [gi]], |s.GLOBAL_store|)
     -- if (gi = {TYPE globaltype, VALUE val})
 
-;; 9-module.watsup:29.1-29.67
+;; 9-module.watsup:30.1-30.67
 rec {
 
-;; 9-module.watsup:29.1-29.67
+;; 9-module.watsup:30.1-30.67
 def allocglobals : (store, globaltype*, val*) -> (store, globaladdr*)
-  ;; 9-module.watsup:30.1-30.54
+  ;; 9-module.watsup:31.1-31.54
   def {s : store} allocglobals(s, [], []) = (s, [])
-  ;; 9-module.watsup:31.1-33.62
+  ;; 9-module.watsup:32.1-34.62
   def {ga : globaladdr, ga'* : globaladdr*, globaltype : globaltype, globaltype'* : globaltype*, s : store, s_1 : store, s_2 : store, val : val, val'* : val*} allocglobals(s, [globaltype] :: globaltype'*{globaltype'}, [val] :: val'*{val'}) = (s_2, [ga] :: ga'*{ga'})
     -- if ((s_1, ga) = $allocglobal(s, globaltype, val))
     -- if ((s_2, ga'*{ga'}) = $allocglobals(s_1, globaltype'*{globaltype'}, val'*{val'}))
 }
 
-;; 9-module.watsup:35.1-35.60
+;; 9-module.watsup:36.1-36.60
 def alloctable : (store, tabletype, ref) -> (store, tableaddr)
-  ;; 9-module.watsup:36.1-37.49
+  ;; 9-module.watsup:37.1-38.49
   def {i : nat, j : nat, ref : ref, rt : reftype, s : store, ti : tableinst} alloctable(s, `%%`(`[%..%]`(i, j), rt), ref) = (s[TABLE_store =.. [ti]], |s.TABLE_store|)
     -- if (ti = {TYPE `%%`(`[%..%]`(i, j), rt), ELEM ref^i{}})
 
-;; 9-module.watsup:39.1-39.64
+;; 9-module.watsup:40.1-40.64
 rec {
 
-;; 9-module.watsup:39.1-39.64
+;; 9-module.watsup:40.1-40.64
 def alloctables : (store, tabletype*, ref*) -> (store, tableaddr*)
-  ;; 9-module.watsup:40.1-40.53
+  ;; 9-module.watsup:41.1-41.53
   def {s : store} alloctables(s, [], []) = (s, [])
-  ;; 9-module.watsup:41.1-43.60
+  ;; 9-module.watsup:42.1-44.60
   def {ref : ref, ref'* : ref*, s : store, s_1 : store, s_2 : store, ta : tableaddr, ta'* : tableaddr*, tabletype : tabletype, tabletype'* : tabletype*} alloctables(s, [tabletype] :: tabletype'*{tabletype'}, [ref] :: ref'*{ref'}) = (s_2, [ta] :: ta'*{ta'})
     -- if ((s_1, ta) = $alloctable(s, tabletype, ref))
     -- if ((s_2, ta'*{ta'}) = $alloctables(s_1, tabletype'*{tabletype'}, ref'*{ref'}))
 }
 
-;; 9-module.watsup:45.1-45.49
+;; 9-module.watsup:46.1-46.49
 def allocmem : (store, memtype) -> (store, memaddr)
-  ;; 9-module.watsup:46.1-47.62
+  ;; 9-module.watsup:47.1-48.62
   def {i : nat, j : nat, mi : meminst, s : store} allocmem(s, `%I8`(`[%..%]`(i, j))) = (s[MEM_store =.. [mi]], |s.MEM_store|)
     -- if (mi = {TYPE `%I8`(`[%..%]`(i, j)), DATA 0^((i * 64) * $Ki){}})
 
-;; 9-module.watsup:49.1-49.52
+;; 9-module.watsup:50.1-50.52
 rec {
 
-;; 9-module.watsup:49.1-49.52
+;; 9-module.watsup:50.1-50.52
 def allocmems : (store, memtype*) -> (store, memaddr*)
-  ;; 9-module.watsup:50.1-50.42
+  ;; 9-module.watsup:51.1-51.42
   def {s : store} allocmems(s, []) = (s, [])
-  ;; 9-module.watsup:51.1-53.49
+  ;; 9-module.watsup:52.1-54.49
   def {ma : memaddr, ma'* : memaddr*, memtype : memtype, memtype'* : memtype*, s : store, s_1 : store, s_2 : store} allocmems(s, [memtype] :: memtype'*{memtype'}) = (s_2, [ma] :: ma'*{ma'})
     -- if ((s_1, ma) = $allocmem(s, memtype))
     -- if ((s_2, ma'*{ma'}) = $allocmems(s_1, memtype'*{memtype'}))
 }
 
-;; 9-module.watsup:55.1-55.57
+;; 9-module.watsup:56.1-56.57
 def allocelem : (store, reftype, ref*) -> (store, elemaddr)
-  ;; 9-module.watsup:56.1-57.36
+  ;; 9-module.watsup:57.1-58.36
   def {ei : eleminst, ref* : ref*, rt : reftype, s : store} allocelem(s, rt, ref*{ref}) = (s[ELEM_store =.. [ei]], |s.ELEM_store|)
     -- if (ei = {TYPE rt, ELEM ref*{ref}})
 
-;; 9-module.watsup:59.1-59.63
+;; 9-module.watsup:60.1-60.63
 rec {
 
-;; 9-module.watsup:59.1-59.63
+;; 9-module.watsup:60.1-60.63
 def allocelems : (store, reftype*, ref**) -> (store, elemaddr*)
-  ;; 9-module.watsup:60.1-60.52
+  ;; 9-module.watsup:61.1-61.52
   def {s : store} allocelems(s, [], []) = (s, [])
-  ;; 9-module.watsup:61.1-63.55
+  ;; 9-module.watsup:62.1-64.55
   def {ea : elemaddr, ea'* : elemaddr*, ref* : ref*, ref'** : ref**, rt : reftype, rt'* : reftype*, s : store, s_1 : store, s_2 : store} allocelems(s, [rt] :: rt'*{rt'}, [ref*{ref}] :: ref'*{ref'}*{ref'}) = (s_2, [ea] :: ea'*{ea'})
     -- if ((s_1, ea) = $allocelem(s, rt, ref*{ref}))
     -- if ((s_2, ea'*{ea'}) = $allocelems(s_2, rt'*{rt'}, ref'*{ref'}*{ref'}))
 }
 
-;; 9-module.watsup:65.1-65.49
+;; 9-module.watsup:66.1-66.49
 def allocdata : (store, byte*) -> (store, dataaddr)
-  ;; 9-module.watsup:66.1-67.28
+  ;; 9-module.watsup:67.1-68.28
   def {byte* : byte*, di : datainst, s : store} allocdata(s, byte*{byte}) = (s[DATA_store =.. [di]], |s.DATA_store|)
     -- if (di = {DATA byte*{byte}})
 
-;; 9-module.watsup:69.1-69.54
+;; 9-module.watsup:70.1-70.54
 rec {
 
-;; 9-module.watsup:69.1-69.54
+;; 9-module.watsup:70.1-70.54
 def allocdatas : (store, byte**) -> (store, dataaddr*)
-  ;; 9-module.watsup:70.1-70.43
+  ;; 9-module.watsup:71.1-71.43
   def {s : store} allocdatas(s, []) = (s, [])
-  ;; 9-module.watsup:71.1-73.50
+  ;; 9-module.watsup:72.1-74.50
   def {byte* : byte*, byte'** : byte**, da : dataaddr, da'* : dataaddr*, s : store, s_1 : store, s_2 : store} allocdatas(s, [byte*{byte}] :: byte'*{byte'}*{byte'}) = (s_2, [da] :: da'*{da'})
     -- if ((s_1, da) = $allocdata(s, byte*{byte}))
     -- if ((s_2, da'*{da'}) = $allocdatas(s_1, byte'*{byte'}*{byte'}))
 }
 
-;; 9-module.watsup:78.1-78.83
+;; 9-module.watsup:79.1-79.83
 def instexport : (funcaddr*, globaladdr*, tableaddr*, memaddr*, export) -> exportinst
-  ;; 9-module.watsup:79.1-79.95
+  ;; 9-module.watsup:80.1-80.95
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, FUNC_externidx(x))) = {NAME name, VALUE FUNC_externval(fa*{fa}[x])}
-  ;; 9-module.watsup:80.1-80.99
+  ;; 9-module.watsup:81.1-81.99
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, GLOBAL_externidx(x))) = {NAME name, VALUE GLOBAL_externval(ga*{ga}[x])}
-  ;; 9-module.watsup:81.1-81.97
+  ;; 9-module.watsup:82.1-82.97
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, TABLE_externidx(x))) = {NAME name, VALUE TABLE_externval(ta*{ta}[x])}
-  ;; 9-module.watsup:82.1-82.93
+  ;; 9-module.watsup:83.1-83.93
   def {fa* : funcaddr*, ga* : globaladdr*, ma* : memaddr*, name : name, ta* : tableaddr*, x : idx} instexport(fa*{fa}, ga*{ga}, ta*{ta}, ma*{ma}, EXPORT(name, MEM_externidx(x))) = {NAME name, VALUE MEM_externval(ma*{ma}[x])}
 
-;; 9-module.watsup:85.1-85.87
+;; 9-module.watsup:86.1-86.87
 def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, moduleinst)
-  ;; 9-module.watsup:86.1-126.51
-  def {byte*^n_d : byte*^n_d, da* : dataaddr*, datamode^n_d : datamode^n_d, dt* : deftype*, ea* : elemaddr*, elemmode^n_e : elemmode^n_e, export* : export*, expr_e*^n_e : expr*^n_e, expr_g^n_g : expr^n_g, expr_t^n_t : expr^n_t, externval* : externval*, fa* : funcaddr*, fa_ex* : funcaddr*, func^n_f : func^n_f, ga* : globaladdr*, ga_ex* : globaladdr*, globaltype^n_g : globaltype^n_g, i_d^n_d : nat^n_d, i_e^n_e : nat^n_e, i_f^n_f : nat^n_f, i_g^n_g : nat^n_g, i_m^n_m : nat^n_m, i_t^n_t : nat^n_t, import* : import*, ma* : memaddr*, ma_ex* : memaddr*, memtype^n_m : memtype^n_m, mm : moduleinst, module : module, n_d : n, n_e : n, n_f : n, n_g : n, n_m : n, n_t : n, rectype* : rectype*, ref_e** : ref**, ref_t* : ref*, reftype^n_e : reftype^n_e, s : store, s_1 : store, s_2 : store, s_3 : store, s_4 : store, s_5 : store, s_6 : store, start? : start?, ta* : tableaddr*, ta_ex* : tableaddr*, tabletype^n_t : tabletype^n_t, val_g* : val*, xi* : exportinst*} allocmodule(s, module, externval*{externval}, val_g*{val_g}, ref_t*{ref_t}, ref_e*{ref_e}*{ref_e}) = (s_6, mm)
-    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(TYPE(rectype)*{rectype}, import*{import}, func^n_f{func}, GLOBAL(globaltype, expr_g)^n_g{expr_g globaltype}, TABLE(tabletype, expr_t)^n_t{expr_t tabletype}, MEMORY(memtype)^n_m{memtype}, `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)^n_e{elemmode expr_e reftype}, `DATA%*%`(byte*{byte}, datamode)^n_d{byte datamode}, start?{start}, export*{export}))
+  ;; 9-module.watsup:87.1-127.51
+  def {byte*^n_d : byte*^n_d, da* : dataaddr*, datamode^n_d : datamode^n_d, dt* : deftype*, ea* : elemaddr*, elemmode^n_e : elemmode^n_e, export* : export*, expr_e*^n_e : expr*^n_e, expr_g^n_g : expr^n_g, expr_t^n_t : expr^n_t, externval* : externval*, fa* : funcaddr*, fa_ex* : funcaddr*, func^n_f : func^n_f, ga* : globaladdr*, ga_ex* : globaladdr*, globaltype^n_g : globaltype^n_g, i_d^n_d : nat^n_d, i_e^n_e : nat^n_e, i_f^n_f : nat^n_f, i_g^n_g : nat^n_g, i_m^n_m : nat^n_m, i_t^n_t : nat^n_t, import* : import*, ma* : memaddr*, ma_ex* : memaddr*, memtype^n_m : memtype^n_m, mm : moduleinst, module : module, n_d : n, n_e : n, n_f : n, n_g : n, n_m : n, n_t : n, ref_e** : ref**, ref_t* : ref*, reftype^n_e : reftype^n_e, s : store, s_1 : store, s_2 : store, s_3 : store, s_4 : store, s_5 : store, s_6 : store, start? : start?, ta* : tableaddr*, ta_ex* : tableaddr*, tabletype^n_t : tabletype^n_t, type* : type*, val_g* : val*, xi* : exportinst*} allocmodule(s, module, externval*{externval}, val_g*{val_g}, ref_t*{ref_t}, ref_e*{ref_e}*{ref_e}) = (s_6, mm)
+    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(type*{type}, import*{import}, func^n_f{func}, GLOBAL(globaltype, expr_g)^n_g{expr_g globaltype}, TABLE(tabletype, expr_t)^n_t{expr_t tabletype}, MEMORY(memtype)^n_m{memtype}, `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)^n_e{elemmode expr_e reftype}, `DATA%*%`(byte*{byte}, datamode)^n_d{byte datamode}, start?{start}, export*{export}))
     -- if (fa_ex*{fa_ex} = $funcsxv(externval*{externval}))
     -- if (ga_ex*{ga_ex} = $globalsxv(externval*{externval}))
     -- if (ta_ex*{ta_ex} = $tablesxv(externval*{externval}))
@@ -29336,7 +29343,7 @@ def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, modu
     -- if (da*{da} = (|s.DATA_store| + i_d)^(i_d<n_d){i_d})
     -- if (xi*{xi} = $instexport(fa_ex*{fa_ex} :: fa*{fa}, ga_ex*{ga_ex} :: ga*{ga}, ta_ex*{ta_ex} :: ta*{ta}, ma_ex*{ma_ex} :: ma*{ma}, export)*{export})
     -- if (mm = {TYPE dt*{dt}, FUNC fa_ex*{fa_ex} :: fa*{fa}, GLOBAL ga_ex*{ga_ex} :: ga*{ga}, TABLE ta_ex*{ta_ex} :: ta*{ta}, MEM ma_ex*{ma_ex} :: ma*{ma}, ELEM ea*{ea}, DATA da*{da}, EXPORT xi*{xi}})
-    -- if (dt*{dt} = $alloctypes(rectype*{rectype}))
+    -- if (dt*{dt} = $alloctypes(type*{type}))
     -- if ((s_1, fa*{fa}) = $allocfuncs(s, mm, func^n_f{func}))
     -- if ((s_2, ga*{ga}) = $allocglobals(s_1, globaltype^n_g{globaltype}, val_g*{val_g}))
     -- if ((s_3, ta*{ta}) = $alloctables(s_2, tabletype^n_t{tabletype}, ref_t*{ref_t}))
@@ -29344,45 +29351,45 @@ def allocmodule : (store, module, externval*, val*, ref*, ref**) -> (store, modu
     -- if ((s_5, ea*{ea}) = $allocelems(s_4, reftype^n_e{reftype}, ref_e*{ref_e}*{ref_e}))
     -- if ((s_6, da*{da}) = $allocdatas(s_5, byte*{byte}^n_d{byte}))
 
-;; 9-module.watsup:133.1-133.38
+;; 9-module.watsup:134.1-134.38
 rec {
 
-;; 9-module.watsup:133.1-133.38
+;; 9-module.watsup:134.1-134.38
 def concat_instr : instr** -> instr*
-  ;; 9-module.watsup:134.1-134.37
+  ;; 9-module.watsup:135.1-135.37
   def concat_instr([]) = []
-  ;; 9-module.watsup:135.1-135.74
+  ;; 9-module.watsup:136.1-136.74
   def {instr* : instr*, instr'** : instr**} concat_instr([instr*{instr}] :: instr'*{instr'}*{instr'}) = instr*{instr} :: $concat_instr(instr'*{instr'}*{instr'})
 }
 
-;; 9-module.watsup:137.1-137.33
+;; 9-module.watsup:138.1-138.33
 def runelem : (elem, idx) -> instr*
-  ;; 9-module.watsup:138.1-138.56
+  ;; 9-module.watsup:139.1-139.56
   def {expr* : expr*, reftype : reftype, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, PASSIVE_elemmode), y) = []
-  ;; 9-module.watsup:139.1-139.62
+  ;; 9-module.watsup:140.1-140.62
   def {expr* : expr*, reftype : reftype, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, DECLARE_elemmode), y) = [ELEM.DROP_instr(y)]
-  ;; 9-module.watsup:140.1-141.77
+  ;; 9-module.watsup:141.1-142.77
   def {expr* : expr*, instr* : instr*, reftype : reftype, x : idx, y : idx} runelem(`ELEM%%*%`(reftype, expr*{expr}, ACTIVE_elemmode(x, instr*{instr})), y) = instr*{instr} :: [CONST_instr(I32_numtype, 0) CONST_instr(I32_numtype, |expr*{expr}|) TABLE.INIT_instr(x, y) ELEM.DROP_instr(y)]
 
-;; 9-module.watsup:143.1-143.33
+;; 9-module.watsup:144.1-144.33
 def rundata : (data, idx) -> instr*
-  ;; 9-module.watsup:144.1-144.48
+  ;; 9-module.watsup:145.1-145.48
   def {byte* : byte*, y : idx} rundata(`DATA%*%`(byte*{byte}, PASSIVE_datamode), y) = []
-  ;; 9-module.watsup:145.1-146.78
+  ;; 9-module.watsup:146.1-147.78
   def {byte* : byte*, instr* : instr*, x : idx, y : idx} rundata(`DATA%*%`(byte*{byte}, ACTIVE_datamode(x, instr*{instr})), y) = instr*{instr} :: [CONST_instr(I32_numtype, 0) CONST_instr(I32_numtype, |byte*{byte}|) MEMORY.INIT_instr(x, y) DATA.DROP_instr(y)]
 
-;; 9-module.watsup:148.1-148.53
+;; 9-module.watsup:149.1-149.53
 def instantiate : (store, module, externval*) -> config
-  ;; 9-module.watsup:149.1-174.64
-  def {data* : data*, elem* : elem*, elemmode* : elemmode*, export* : export*, expr_e** : expr**, expr_g* : expr*, expr_t* : expr*, externval* : externval*, f : frame, func^n_func : func^n_func, global* : global*, globaltype* : globaltype*, i^n_e : nat^n_e, i_func^n_func : nat^n_func, import* : import*, instr_d* : instr*, instr_e* : instr*, j^n_d : nat^n_d, mem* : mem*, mm : moduleinst, mm_init : moduleinst, module : module, n_d : n, n_e : n, n_func : n, rectype* : rectype*, ref_e** : ref**, ref_t* : ref*, reftype* : reftype*, s : store, s' : store, start? : start?, table* : table*, tabletype* : tabletype*, val_g* : val*, x? : idx?, z : state} instantiate(s, module, externval*{externval}) = `%;%*`(`%;%`(s', f), $admininstr_instr(instr_e)*{instr_e} :: $admininstr_instr(instr_d)*{instr_d} :: CALL_admininstr(x)?{x})
-    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(TYPE(rectype)*{rectype}, import*{import}, func^n_func{func}, global*{global}, table*{table}, mem*{mem}, elem*{elem}, data*{data}, start?{start}, export*{export}))
+  ;; 9-module.watsup:150.1-175.64
+  def {data* : data*, elem* : elem*, elemmode* : elemmode*, export* : export*, expr_e** : expr**, expr_g* : expr*, expr_t* : expr*, externval* : externval*, f : frame, func^n_func : func^n_func, global* : global*, globaltype* : globaltype*, i^n_e : nat^n_e, i_func^n_func : nat^n_func, import* : import*, instr_d* : instr*, instr_e* : instr*, j^n_d : nat^n_d, mem* : mem*, mm : moduleinst, mm_init : moduleinst, module : module, n_d : n, n_e : n, n_func : n, ref_e** : ref**, ref_t* : ref*, reftype* : reftype*, s : store, s' : store, start? : start?, table* : table*, tabletype* : tabletype*, type* : type*, val_g* : val*, x? : idx?, z : state} instantiate(s, module, externval*{externval}) = `%;%*`(`%;%`(s', f), $admininstr_instr(instr_e)*{instr_e} :: $admininstr_instr(instr_d)*{instr_d} :: CALL_admininstr(x)?{x})
+    -- if (module = `MODULE%*%*%*%*%*%*%*%*%*%*`(type*{type}, import*{import}, func^n_func{func}, global*{global}, table*{table}, mem*{mem}, elem*{elem}, data*{data}, start?{start}, export*{export}))
     -- if (global*{global} = GLOBAL(globaltype, expr_g)*{expr_g globaltype})
     -- if (table*{table} = TABLE(tabletype, expr_t)*{expr_t tabletype})
     -- if (elem*{elem} = `ELEM%%*%`(reftype, expr_e*{expr_e}, elemmode)*{elemmode expr_e reftype})
     -- if (start?{start} = START(x)?{x})
     -- if (n_e = |elem*{elem}|)
     -- if (n_d = |data*{data}|)
-    -- if (mm_init = {TYPE $alloctypes(rectype*{rectype}), FUNC $funcsxv(externval*{externval}) :: (|s.FUNC_store| + i_func)^(i_func<n_func){i_func}, GLOBAL $globalsxv(externval*{externval}), TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
+    -- if (mm_init = {TYPE $alloctypes(type*{type}), FUNC $funcsxv(externval*{externval}) :: (|s.FUNC_store| + i_func)^(i_func<n_func){i_func}, GLOBAL $globalsxv(externval*{externval}), TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
     -- if (z = `%;%`(s, {LOCAL [], MODULE mm_init}))
     -- (Eval_expr: `%;%~>*%;%*`(z, expr_g, z, [val_g]))*{expr_g val_g}
     -- (Eval_expr: `%;%~>*%;%*`(z, expr_t, z, [$val_ref(ref_t)]))*{expr_t ref_t}
@@ -29392,9 +29399,9 @@ def instantiate : (store, module, externval*) -> config
     -- if (instr_e*{instr_e} = $concat_instr($runelem(elem*{elem}[i], i)^(i<n_e){i}))
     -- if (instr_d*{instr_d} = $concat_instr($rundata(data*{data}[j], j)^(j<n_d){j}))
 
-;; 9-module.watsup:181.1-181.44
+;; 9-module.watsup:182.1-182.44
 def invoke : (store, funcaddr, val*) -> config
-  ;; 9-module.watsup:182.1-195.53
+  ;; 9-module.watsup:183.1-196.53
   def {expr : expr, f : frame, fa : funcaddr, local* : local*, mm : moduleinst, n : n, s : store, t_1^n : valtype^n, t_2* : valtype*, val^n : val^n, x : idx} invoke(s, fa, val^n{val}) = `%;%*`(`%;%`(s, f), $admininstr_val(val)^n{val} :: [REF.FUNC_ADDR_admininstr(fa) CALL_REF_admininstr(?(0))])
     -- if (mm = {TYPE [s.FUNC_store[fa].TYPE_funcinst], FUNC [], GLOBAL [], TABLE [], MEM [], ELEM [], DATA [], EXPORT []})
     -- if (f = {LOCAL [], MODULE mm})
