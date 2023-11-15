@@ -2,9 +2,11 @@ open Al.Ast
 open Reference_interpreter
 open Source
 
+(* Helper *)
+let fv f v = ConstructV (f, [v])
 
 (* Construct types *)
-
+(*
 let al_of_null = function
   | Types.NoNull -> ConstructV ("NULL", [ OptV None ])
   | Types.Null -> ConstructV ("NULL", [ OptV (Some (listV [])) ])
@@ -20,7 +22,7 @@ let al_of_mut = function
 let rec al_of_storage_type = function
   | Types.ValStorageT vt -> al_of_val_type vt
   | Types.PackStorageT ps ->
-    (Pack.packed_size ps * 8)
+    (Types.packed_size ps * 8)
     |> string_of_int
     |> Printf.sprintf "I%s"
     |> singleton
@@ -72,31 +74,48 @@ and al_of_heap_type = function
     |> String.uppercase_ascii
     |> singleton
 
-and al_of_ref_type (null, ht) =
-  ConstructV ("REF", [ al_of_null null; al_of_heap_type ht ])
+*)
 
-and al_of_val_type = function
-  | Types.RefT rt -> al_of_ref_type rt
-  | vt ->
-    Types.string_of_val_type vt
-    |> String.uppercase_ascii
-    |> singleton
+let al_of_ref_type = function
+| Types.FuncRefType -> ConstructV ("REF", [ ConstructV ("NULL", [ OptV None ]); singleton "FUNC" ])
+| Types.ExternRefType -> ConstructV ("REF", [ ConstructV ("NULL", [ OptV None ]); singleton "EXTERN" ])
+let al_of_val_type = function
+| Types.RefType rt -> al_of_ref_type rt
+| vt ->
+  Types.string_of_value_type vt
+  |> String.uppercase_ascii
+  |> singleton
+let al_of_result_type rt = List.map al_of_val_type rt |> listV
+let al_of_func_type func_type = match func_type.it with
+| Types.FuncType (rt1, rt2) ->
+  let ft = ConstructV ("FUNC", [ ArrowV (
+    al_of_result_type rt1,
+    al_of_result_type rt2
+  )]) in
+  ConstructV ("TYPE", [
+    ConstructV ("REC", [ listV [
+      ConstructV ("SUBD", [
+        OptV (Some (singleton "FINAL"));
+        listV [];
+        ft
+    ])]])
+  ])
 
 (* Construct value *)
 
 let int64_of_int32_u x = x |> Int64.of_int32 |> Int64.logand 0x0000_0000_ffff_ffffL
 let al_of_num n =
   let t, v = match n with
-    | Value.I32 i -> "I32", i |> I32.to_bits |> int64_of_int32_u
-    | Value.I64 i -> "I64", i |> I64.to_bits
-    | Value.F32 f -> "F32", f |> F32.to_bits |> int64_of_int32_u
-    | Value.F64 f -> "F64", f |> F64.to_bits in
+    | Values.I32 i -> "I32", i |> I32.to_bits |> int64_of_int32_u
+    | Values.I64 i -> "I64", i |> I64.to_bits
+    | Values.F32 f -> "F32", f |> F32.to_bits |> int64_of_int32_u
+    | Values.F64 f -> "F64", f |> F64.to_bits in
   let t, v = ConstructV(t, []), NumV v in
   ConstructV ("CONST", [ t; v ])
 
-let rec al_of_ref = function
-  | Value.NullRef ht ->
-    ConstructV ("REF.NULL", [ al_of_heap_type ht ])
+let al_of_ref = function
+  | Values.NullRef rt ->
+    ConstructV ("REF.NULL", [ al_of_ref_type rt ])
   (*
   | I31.I31Ref i ->
     ConstructV ("REF.I31_NUM", [ NumV (Int64.of_int i) ])
@@ -106,17 +125,17 @@ let rec al_of_ref = function
     ConstructV ("REF.ARRAY_ADDR", [ NumV (int64_of_int32_u a) ])
   | Instance.FuncRef a ->
     ConstructV ("REF.FUNC_ADDR", [ NumV (int64_of_int32_u a) ])
-  *)
   | Script.HostRef a ->
     ConstructV ("REF.HOST_ADDR", [ NumV (int64_of_int32_u a) ])
   | Extern.ExternRef r ->
     ConstructV ("REF.EXTERN", [ al_of_ref r ])
-  | r -> Value.string_of_ref r |> failwith
+    *)
+  | r -> Values.string_of_ref r |> failwith
 
 let al_of_value = function
-  | Value.Num n -> al_of_num n
-  | Value.Vec _v -> failwith "TODO"
-  | Value.Ref r -> al_of_ref r
+  | Values.Num n -> al_of_num n
+  | Values.Vec _v -> failwith "TODO"
+  | Values.Ref r -> al_of_ref r
 
 (* Construct type *)
 
@@ -132,10 +151,10 @@ let al_of_unop_int = function
   | Ast.IntOp.Clz -> StringV "Clz"
   | Ast.IntOp.Ctz -> StringV "Ctz"
   | Ast.IntOp.Popcnt -> StringV "Popcnt"
-  | Ast.IntOp.ExtendS Pack.Pack8 -> StringV "Extend8S"
-  | Ast.IntOp.ExtendS Pack.Pack16 -> StringV "Extend16S"
-  | Ast.IntOp.ExtendS Pack.Pack32 -> StringV "Extend32S"
-  | Ast.IntOp.ExtendS Pack.Pack64 -> StringV "Extend64S"
+  | Ast.IntOp.ExtendS Types.Pack8 -> StringV "Extend8S"
+  | Ast.IntOp.ExtendS Types.Pack16 -> StringV "Extend16S"
+  | Ast.IntOp.ExtendS Types.Pack32 -> StringV "Extend32S"
+  | Ast.IntOp.ExtendS Types.Pack64 -> StringV "Extend64S"
 let al_of_unop_float = function
   | Ast.FloatOp.Neg -> StringV "Neg"
   | Ast.FloatOp.Abs -> StringV "Abs"
@@ -216,16 +235,16 @@ let al_of_cvtop_float bit_num = function
 
 let al_of_packsize p =
   let s = match p with
-    | Pack.Pack8 -> 8
-    | Pack.Pack16 -> 16
-    | Pack.Pack32 -> 32
-    | Pack.Pack64 -> 64
+    | Types.Pack8 -> 8
+    | Types.Pack16 -> 16
+    | Types.Pack32 -> 32
+    | Types.Pack64 -> 64
   in
   NumV (Int64.of_int s)
 
 let al_of_extension = function
-| Pack.SX -> singleton "S"
-| Pack.ZX -> singleton "U"
+| Types.SX -> singleton "S"
+| Types.ZX -> singleton "U"
 
 let al_of_packsize_with_extension (p, s) =
   listV [ al_of_packsize p; al_of_extension s ]
@@ -234,14 +253,14 @@ let al_of_packsize_with_extension (p, s) =
 let rec al_of_instr winstr =
   let to_int i32 = NumV (int64_of_int32_u i32.it) in
   let f name  = ConstructV (name, []) in
-  let f_v name v = ConstructV (name, [v]) in
+  (* let f_v name v = ConstructV (name, [v]) in *)
   let f_i32 name i32 = ConstructV (name, [to_int i32]) in
   let f_i32_i32 name i32 i32' = ConstructV (name, [to_int i32; to_int i32']) in
 
   match winstr.it with
   (* wasm values *)
   | Ast.Const num -> al_of_num num.it
-  | Ast.RefNull t -> al_of_value (Value.Ref (Value.NullRef t))
+  | Ast.RefNull t -> al_of_value (Values.Ref (Values.NullRef t))
   (* wasm instructions *)
   | Ast.Unreachable -> f "UNREACHABLE"
   | Ast.Nop -> f "NOP"
@@ -249,45 +268,45 @@ let rec al_of_instr winstr =
   | Ast.Unary op ->
     let (ty, op) = (
       match op with
-      | Value.I32 op -> ("I32", al_of_unop_int op)
-      | Value.I64 op -> ("I64", al_of_unop_int op)
-      | Value.F32 op -> ("F32", al_of_unop_float op)
-      | Value.F64 op -> ("F64", al_of_unop_float op))
+      | Values.I32 op -> ("I32", al_of_unop_int op)
+      | Values.I64 op -> ("I64", al_of_unop_int op)
+      | Values.F32 op -> ("F32", al_of_unop_float op)
+      | Values.F64 op -> ("F64", al_of_unop_float op))
     in
     ConstructV ("UNOP", [ singleton ty; op ])
   | Ast.Binary op ->
     let (ty, op) = (
       match op with
-      | Value.I32 op -> ("I32", al_of_binop_int op)
-      | Value.I64 op -> ("I64", al_of_binop_int op)
-      | Value.F32 op -> ("F32", al_of_binop_float op)
-      | Value.F64 op -> ("F64", al_of_binop_float op))
+      | Values.I32 op -> ("I32", al_of_binop_int op)
+      | Values.I64 op -> ("I64", al_of_binop_int op)
+      | Values.F32 op -> ("F32", al_of_binop_float op)
+      | Values.F64 op -> ("F64", al_of_binop_float op))
     in
     ConstructV ("BINOP", [ singleton ty; op ])
   | Ast.Test op ->
     let (ty, op) = (
       match op with
-      | Value.I32 op -> ("I32", al_of_testop_int op)
-      | Value.I64 op -> ("I64", al_of_testop_int op)
+      | Values.I32 op -> ("I32", al_of_testop_int op)
+      | Values.I64 op -> ("I64", al_of_testop_int op)
       | _ -> .)
     in
     ConstructV ("TESTOP", [ singleton ty; op ])
   | Ast.Compare op ->
     let (ty, op) = (
       match op with
-      | Value.I32 op -> ("I32", al_of_relop_int op)
-      | Value.I64 op -> ("I64", al_of_relop_int op)
-      | Value.F32 op -> ("F32", al_of_relop_float op)
-      | Value.F64 op -> ("F64", al_of_relop_float op))
+      | Values.I32 op -> ("I32", al_of_relop_int op)
+      | Values.I64 op -> ("I64", al_of_relop_int op)
+      | Values.F32 op -> ("F32", al_of_relop_float op)
+      | Values.F64 op -> ("F64", al_of_relop_float op))
     in
     ConstructV ("RELOP", [ singleton ty; op ])
   | Ast.Convert op ->
     let (ty_to, (op, ty_from, sx_opt)) = (
       match op with
-      | Value.I32 op -> ("I32", al_of_cvtop_int "32" op)
-      | Value.I64 op -> ("I64", al_of_cvtop_int "64" op)
-      | Value.F32 op -> ("F32", al_of_cvtop_float "32" op)
-      | Value.F64 op -> ("F64", al_of_cvtop_float "64" op))
+      | Values.I32 op -> ("I32", al_of_cvtop_int "32" op)
+      | Values.I64 op -> ("I64", al_of_cvtop_int "64" op)
+      | Values.F32 op -> ("F32", al_of_cvtop_float "32" op)
+      | Values.F64 op -> ("F64", al_of_cvtop_float "64" op))
     in
     ConstructV ("CVTOP", [ singleton ty_to; StringV op; singleton ty_from; OptV sx_opt ])
   | Ast.RefIsNull -> f "REF.IS_NULL"
@@ -329,6 +348,7 @@ let rec al_of_instr winstr =
   | Ast.BrTable (i32s, i32) ->
       ConstructV
         ("BR_TABLE", [ listV (i32s |> List.map to_int); to_int i32 ])
+  (*
   | Ast.BrOnNull i32 -> f_i32 "BR_ON_NULL" i32
   | Ast.BrOnNonNull i32 -> f_i32 "BR_ON_NON_NULL" i32
   | Ast.BrOnCast (i32, rt1, rt2) ->
@@ -345,42 +365,45 @@ let rec al_of_instr winstr =
             al_of_ref_type rt1;
             al_of_ref_type rt2;
             ])
+  *)
   | Ast.Return -> f "RETURN"
   | Ast.Call i32 -> f_i32 "CALL" i32
-  | Ast.CallRef i32 -> f_v "CALL_REF" (OptV (Some (to_int i32)))
+  (* | Ast.CallRef i32 -> f_v "CALL_REF" (OptV (Some (to_int i32))) *)
   | Ast.CallIndirect (i32, i32') -> f_i32_i32 "CALL_INDIRECT" i32 i32'
+  (*
   | Ast.ReturnCall i32 -> f_i32 "RETURN_CALL"i32
   | Ast.ReturnCallRef i32 -> f_v "RETURN_CALL_REF" (OptV (Some (to_int i32)))
   | Ast.ReturnCallIndirect (i32, i32') -> f_i32_i32 "RETURN_CALL_INDIRECT" i32 i32'
-  | Ast.Load {ty = ty; align = align; offset = offset; pack = pack} ->
+  *)
+  | Ast.Load (i32, {ty = ty; align = align; offset = offset; pack = pack}) ->
       ConstructV
         ("LOAD", [
-            al_of_val_type (Types.NumT ty);
+            al_of_val_type (Types.NumType ty);
             OptV (Option.map al_of_packsize_with_extension pack);
-            NumV 0L;
+            to_int i32;
             RecordV (Record.empty
               |> Record.add "ALIGN" (NumV (Int64.of_int align))
               |> Record.add "OFFSET" (NumV (int64_of_int32_u offset))
             )
         ])
-  | Ast.Store {ty = ty; align = align; offset = offset; pack = pack} ->
+  | Ast.Store (i32, {ty = ty; align = align; offset = offset; pack = pack}) ->
       ConstructV
         ("STORE", [
-            al_of_val_type (Types.NumT ty);
+            al_of_val_type (Types.NumType ty);
             OptV (Option.map al_of_packsize pack);
-            NumV 0L;
+            to_int i32;
             RecordV (Record.empty
               |> Record.add "ALIGN" (NumV (Int64.of_int align))
               |> Record.add "OFFSET" (NumV (int64_of_int32_u offset))
             )
         ])
-  | Ast.MemorySize -> ConstructV ("MEMORY.SIZE", [ NumV 0L ])
-  | Ast.MemoryGrow -> ConstructV ("MEMORY.GROW", [ NumV 0L ])
-  | Ast.MemoryFill -> ConstructV ("MEMORY.FILL", [ NumV 0L ])
-  | Ast.MemoryCopy -> ConstructV ("MEMORY.COPY", [ NumV 0L; NumV 0L ])
-  | Ast.MemoryInit i32 ->
-    ConstructV ("MEMORY.INIT", [ NumV 0L; to_int i32 ])
+  | Ast.MemorySize i32 -> ConstructV ("MEMORY.SIZE", [ to_int i32 ])
+  | Ast.MemoryGrow i32 -> ConstructV ("MEMORY.GROW", [ to_int i32 ])
+  | Ast.MemoryFill i32 -> ConstructV ("MEMORY.FILL", [ to_int i32 ])
+  | Ast.MemoryCopy (i32, i32') -> ConstructV ("MEMORY.COPY", [ to_int i32; to_int i32' ])
+  | Ast.MemoryInit (i32, i32') -> ConstructV ("MEMORY.INIT", [ to_int i32; to_int i32' ])
   | Ast.DataDrop i32 -> f_i32 "DATA.DROP" i32
+  (*
   | Ast.RefAsNonNull -> f "REF.AS_NON_NULL"
   | Ast.RefTest rt -> ConstructV ("REF.TEST", [ al_of_ref_type rt ])
   | Ast.RefCast rt -> ConstructV ("REF.CAST", [ al_of_ref_type rt ])
@@ -415,6 +438,7 @@ let rec al_of_instr winstr =
   | Ast.ArrayInitElem (i32, i32') -> f_i32_i32 "ARRAY.INIT_ELEM" i32 i32'
   | Ast.ExternConvert Ast.Internalize -> f "ANY.CONVERT_EXTERN"
   | Ast.ExternConvert Ast.Externalize -> f "EXTERN.CONVERT_ANY"
+  *)
   | _ -> ConstructV ("TODO: Unconstructed Wasm instruction (al_of_instr)", [])
 
 and al_of_instrs winstrs = List.map al_of_instr winstrs
@@ -434,8 +458,8 @@ let al_of_func wasm_func =
   (* Construct locals *)
   let locals =
     List.map
-      (fun l ->
-        ConstructV ("LOCAL", [ al_of_val_type l.it.Ast.ltype ]))
+      (fun t ->
+        ConstructV ("LOCAL", [ al_of_val_type t ]))
       wasm_func.it.Ast.locals
   in
 
@@ -461,15 +485,15 @@ let al_of_limits limits max =
 
 let al_of_table wasm_table =
 
-  let Types.TableT (limits, ref_ty) = wasm_table.it.Ast.ttype in
+  let Types.TableType (limits, ref_ty) = wasm_table.it.Ast.ttype in
   let pair = al_of_limits limits 4294967295L in
 
-  let expr = al_of_instrs wasm_table.it.Ast.tinit.it in
+  let expr = [ fv "REF.NULL" (singleton "FUNC") ] in
 
-  ConstructV ("TABLE", [ PairV(pair, al_of_val_type (RefT ref_ty)); listV expr ])
+  ConstructV ("TABLE", [ PairV(pair, al_of_val_type (Types.RefType ref_ty)); listV expr ])
 
 let al_of_memory wasm_memory =
-  let Types.MemoryT (limits) = wasm_memory.it.Ast.mtype in
+  let Types.MemoryType (limits) = wasm_memory.it.Ast.mtype in
   let pair = al_of_limits limits 65536L in
 
   ConstructV ("MEMORY", [ ConstructV ("I8", [ pair]) ])
@@ -487,7 +511,7 @@ let al_of_segment wasm_segment = match wasm_segment.it with
   | Ast.Declarative -> singleton "DECLARE"
 
 let al_of_elem wasm_elem =
-  let reftype = al_of_val_type (Types.RefT wasm_elem.it.Ast.etype) in
+  let reftype = al_of_val_type (Types.RefType wasm_elem.it.Ast.etype) in
 
   let al_of_const const = listV (al_of_instrs const.it) in
   let instrs = wasm_elem.it.Ast.einit |> List.map al_of_const in
@@ -507,17 +531,20 @@ let al_of_data wasm_data =
 
   ConstructV ("DATA", [ listV byte_list; mode ])
 
-let al_of_import_desc wasm_module idesc = match idesc.it with
-  | Ast.FuncImport x ->
+let al_of_import_desc _wasm_module idesc = match idesc.it with
+  | Ast.FuncImport _x ->
+      (*
       let dts = Ast.def_types_of wasm_module in
       let dt = Lib.List32.nth dts x.it |> al_of_def_type in
       ConstructV ("FUNC", [ dt ])
+      *)
+      ConstructV ("FUNC",  [ StringV "Yet: FuncImport" ])
   | Ast.TableImport ty ->
-    let Types.TableT (limits, ref_ty) = ty in
+    let Types.TableType (limits, ref_ty) = ty in
     let pair = al_of_limits limits 4294967295L in
-    ConstructV ("TABLE", [ pair; al_of_val_type (RefT ref_ty) ])
+    ConstructV ("TABLE", [ pair; al_of_val_type (Types.RefType ref_ty) ])
   | Ast.MemoryImport ty ->
-    let Types.MemoryT (limits) = ty in
+    let Types.MemoryType (limits) = ty in
     let pair = al_of_limits limits 65536L in
     ConstructV ("MEM", [ pair ])
   | Ast.GlobalImport _ -> ConstructV ("GLOBAL", [ StringV "Yet: global type" ])
@@ -551,9 +578,7 @@ let al_of_module wasm_module =
 
   (* Construct types *)
   let type_list =
-    List.map (fun ty ->
-      ConstructV ("TYPE", [ al_of_rec_type ty.it ])
-    ) wasm_module.it.Ast.types
+    List.map al_of_func_type wasm_module.it.Ast.types
   in
 
   (* Construct imports *)
@@ -632,6 +657,7 @@ let fail ty v =
   |> Printf.sprintf "Invalid %s: %s" ty
   |> failwith
 
+(*
 open Types
 
 let al_to_null: value -> null = function
@@ -650,13 +676,13 @@ let al_to_mut: value -> mut = function
   | v -> fail "mut" v
 
 let rec al_to_storage_type: value -> storage_type = function
-  | ConstructV ("I8", []) -> PackStorageT Pack8
-  | ConstructV ("I16", []) -> PackStorageT Pack16
-  | v -> ValStorageT (al_to_val_type v)
+  | ConstructV ("I8", []) -> PackStorageType Pack8
+  | ConstructV ("I16", []) -> PackStorageType Pack16
+  | v -> ValStorageType (al_to_val_type v)
 
 and al_to_field_type: value -> field_type = function
   | PairV (mut, st) ->
-    FieldT (al_to_mut mut, al_to_storage_type st)
+    FieldType (al_to_mut mut, al_to_storage_type st)
   | v -> fail "field type" v
 
 and al_to_result_type: value -> result_type = function
@@ -668,17 +694,17 @@ and al_to_result_type: value -> result_type = function
 and al_to_str_type: value -> str_type = function
   | ConstructV ("STRUCT", [ ListV ftl ]) ->
     let ftl' = Array.to_list !ftl in
-    DefStructT (StructT (List.map al_to_field_type ftl'))
+    DefStructType (StructType (List.map al_to_field_type ftl'))
   | ConstructV ("ARRAY", [ ft ]) ->
-    DefArrayT (ArrayT (al_to_field_type ft))
+    DefArrayType (ArrayType (al_to_field_type ft))
   | ConstructV ("FUNC", [ ArrowV (rt1, rt2) ]) ->
-    DefFuncT (FuncT (al_to_result_type rt1, (al_to_result_type rt2)))
+    DefFuncType (FuncType (al_to_result_type rt1, (al_to_result_type rt2)))
   | v -> fail "str type" v
 
 and al_to_sub_type: value -> sub_type = function
   | ConstructV ("SUBD", [ fin; ListV htl; st ]) ->
     let htl' = Array.to_list !htl in
-    SubT (
+    SubType (
       al_to_final fin,
       List.map al_to_heap_type htl',
       al_to_str_type st
@@ -688,21 +714,21 @@ and al_to_sub_type: value -> sub_type = function
 and al_to_rec_type: value -> rec_type = function
   | ConstructV ("REC", [ ListV stl ]) ->
     let stl' = Array.to_list !stl in
-    RecT (List.map al_to_sub_type stl')
+    RecType (List.map al_to_sub_type stl')
   | v -> fail "rec type" v
 
 and al_to_def_type: value -> def_type = function
   | ConstructV ("DEF", [ rt; NumV i ]) ->
-    DefT (al_to_rec_type rt, Int64.to_int32 i)
+    DefType (al_to_rec_type rt, Int64.to_int32 i)
   | v -> fail "def type" v
 
 and al_to_heap_type: value -> heap_type = function
   | ConstructV ("_IDX", [ NumV i ]) ->
-    VarHT (StatX (Int64.to_int32 i))
+    VarHType (StatX (Int64.to_int32 i))
   | ConstructV ("REC", [ NumV i ]) ->
-    VarHT (RecX (Int64.to_int32 i))
+    VarHType (RecX (Int64.to_int32 i))
   | ConstructV ("DEF", _) as v ->
-    DefHT (al_to_def_type v)
+    DefHType (al_to_def_type v)
   | ConstructV (tag, []) as v ->
     begin match tag with
     | "BOT" -> BotHT
@@ -726,12 +752,13 @@ and al_to_ref_type: value -> ref_type = function
   | v -> fail "ref type" v
 
 and al_to_val_type: value -> val_type = function
-  | ConstructV ("I32", []) -> NumT I32T
-  | ConstructV ("I64", []) -> NumT I64T
-  | ConstructV ("F32", []) -> NumT F32T
-  | ConstructV ("F64", []) -> NumT F64T
-  | ConstructV ("V128", []) -> VecT V128T
+  | ConstructV ("I32", []) -> NumType I32T
+  | ConstructV ("I64", []) -> NumType I64T
+  | ConstructV ("F32", []) -> NumType F32T
+  | ConstructV ("F64", []) -> NumType F64T
+  | ConstructV ("V128", []) -> VecType V128T
   | ConstructV ("REF", _) as v ->
-    RefT (al_to_ref_type v)
+    RefType (al_to_ref_type v)
   | ConstructV ("BOT", []) -> BotT
   | v -> fail "val type" v
+*)

@@ -3684,7 +3684,7 @@ relation Step: `%~>%`(config, config)
 
   ;; 8-reduction.watsup:697.1-699.40
   rule memory.grow-succeed {mi : meminst, n : n, x : idx, z : state}:
-    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, n) MEMORY.GROW_admininstr(x)]), `%;%*`($with_meminst(z, x, mi), [CONST_admininstr(I32_numtype, (|$mem(z, 0).DATA_meminst| / (64 * $Ki)))]))
+    `%~>%`(`%;%*`(z, [CONST_admininstr(I32_numtype, n) MEMORY.GROW_admininstr(x)]), `%;%*`($with_meminst(z, x, mi), [CONST_admininstr(I32_numtype, (|$mem(z, x).DATA_meminst| / (64 * $Ki)))]))
     -- if (mi = $growmemory($mem(z, x), n))
 
   ;; 8-reduction.watsup:701.1-702.77
