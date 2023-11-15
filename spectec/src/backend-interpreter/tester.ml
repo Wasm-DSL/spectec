@@ -251,13 +251,13 @@ let check_nanop no actual =
   match actual with
   | ConstructV ("CONST", [ConstructV (t, []); NumV bits]) ->
     begin match no.it with
-    | Reference_interpreter.Value.F32 CanonicalNan ->
+    | Reference_interpreter.Values.F32 CanonicalNan ->
       t = "F32" && (bits = f32_pos_nan || bits = f32_neg_nan)
-    | Reference_interpreter.Value.F64 CanonicalNan ->
+    | Reference_interpreter.Values.F64 CanonicalNan ->
       t = "F64" && (bits = f64_pos_nan || bits = f64_neg_nan)
-    | Reference_interpreter.Value.F32 ArithmeticNan ->
+    | Reference_interpreter.Values.F32 ArithmeticNan ->
       t = "F32" && Int64.logand bits f32_pos_nan = f32_pos_nan
-    | Reference_interpreter.Value.F64 ArithmeticNan ->
+    | Reference_interpreter.Values.F64 ArithmeticNan ->
       t = "F64" && Int64.logand bits f64_pos_nan = f64_pos_nan
     | _ -> failwith "NaN of int is not defined"
     end
@@ -266,6 +266,7 @@ let check_nanop no actual =
 let check_reftype expected = function
   | ConstructV (tag, _) ->
     begin match expected, tag with
+    (*
     | Types.AnyHT, "REF.FUNC_ADDR" -> false
     | Types.ExternHT, ref
     | Types.AnyHT, ref when String.starts_with ~prefix:"REF" ref -> true
@@ -273,7 +274,7 @@ let check_reftype expected = function
     | Types.I31HT, "REF.I31_NUM"
     | Types.StructHT, "REF.STRUCT_ADDR"
     | Types.ArrayHT, "REF.ARRAY_ADDR"
-    | Types.FuncHT, "REF.FUNC_ADDR" -> true
+    | Types.FuncHT, "REF.FUNC_ADDR" -> true *)
     | _ -> false
     end
   | _ -> false
@@ -287,9 +288,11 @@ let check expected actual =
   | NumResult (NumPat n) -> Construct.al_of_num n.it = actual
   | NumResult (NanPat no) -> check_nanop no actual
   | RefResult (RefPat r) -> Construct.al_of_ref r.it = actual
+  (*
   | RefResult (RefTypePat ht) -> check_reftype ht actual
-  | RefResult NullPat -> check_null actual
+  | RefResult NullPat -> check_null actual *)
   | VecResult _ -> failwith "VecResult not implemented"
+  | _ -> failwith "TODO: check"
 
 let get_externval = function
   | ConstructV ("IMPORT", [ StringV import_module_name; StringV extern_name; _ty ]) ->
@@ -318,8 +321,9 @@ let extract_module def = match def.it with
   | Textual m -> m
   | Encoded (name, bs) ->
     Decode.decode name bs
-  | Quoted (_, s) ->
-    Parse.string_to_module s
+  | Quoted (_, _s) ->
+    (* Parse.string_to_module s *)
+    failwith "TODO: extract_module"
 
 let test_assertion assertion =
   match assertion.it with
@@ -429,6 +433,7 @@ let test file_name =
   let start_idx = String.rindex file_name '/' + 1 in
   let length = String.length file_name - start_idx in
   let name = String.sub file_name start_idx length in
+  if not (contains file_name !test_name) then None else
 
   let script = file_to_script file_name in
   let total = script |> List.filter (fun x -> match x.it with
@@ -438,30 +443,28 @@ let test file_name =
     | Action _ -> true
     | _ -> false
   ) |> List.length in
+  if total = 0 then None else
 
-  if (contains file_name !test_name) && (total > 0) then
-    let success = ref 0 in
-    Printf.printf "===== %s =====\n%!" name;
-    Printf.eprintf "===========================\n\n%s\n\n" file_name;
+  let success = ref 0 in
+  Printf.printf "===== %s =====\n%!" name;
+  Printf.eprintf "===========================\n\n%s\n\n" file_name;
 
-    let took = time (fun () ->
-      try
-        List.iter (test_cmd success) script;
-      with
-      | e ->
-        let msg = msg_of e in
-        Printf.eprintf "[Uncaught exception] %s, " msg;
-        Printf.printf
-          "- Uncaught exception: %s\n"
-          msg
-    ) in
+  let took = time (fun () ->
+    try
+      List.iter (test_cmd success) script;
+    with
+    | e ->
+      let msg = msg_of e in
+      Printf.eprintf "[Uncaught exception] %s, " msg;
+      Printf.printf
+        "- Uncaught exception: %s\n"
+        msg
+  ) in
 
-    Printf.eprintf "%s took %f ms.\n" name (took *. 1000.);
-    let percentage = (float_of_int !success /. float_of_int total) *. 100. in
-    Printf.printf "- %d/%d (%.2f%%)\n\n" !success total percentage;
-    Some (!success, total, percentage, took)
-  else
-    None
+  Printf.eprintf "%s took %f ms.\n" name (took *. 1000.);
+  let percentage = (float_of_int !success /. float_of_int total) *. 100. in
+  Printf.printf "- %d/%d (%.2f%%)\n\n" !success total percentage;
+  Some (!success, total, percentage, took)
 
 let test_all () =
   let sample = "test-interpreter/sample.wast" in
@@ -470,6 +473,7 @@ let test_all () =
     @ (readdir_with_path "test-interpreter/spec-test/gc")
     @ (readdir_with_path "test-interpreter/spec-test/tail-call")
     @ (readdir_with_path "test-interpreter/spec-test/function-references")
+    @ (readdir_with_path "test-interpreter/spec-test/extended-const")
   in
 
   let results = List.filter_map test tests in

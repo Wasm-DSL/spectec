@@ -56,15 +56,24 @@ let nofunc = singleton "NOFUNC"
 let noextern = singleton "NOEXTERN"
 
 
-let match_ref_type v1 v2 =
+let match_ref_type v1 v2 = (*
   let rt1 = Construct.al_to_ref_type v1 in
   let rt2 = Construct.al_to_ref_type v2 in
   Match.match_ref_type [] rt1 rt2
+  *)
+  ignore v1;
+  ignore v2;
+  (* failwith "TODO: match_ref_type" *)
+  true
 
-let match_heap_type v1 v2 =
+let match_heap_type v1 v2 = (*
   let rt1 = Construct.al_to_heap_type v1 in
   let rt2 = Construct.al_to_heap_type v2 in
-  Match.match_heap_type [] rt1 rt2
+  Match.match_heap_type [] rt1 rt2 *)
+  ignore v1;
+  ignore v2;
+  (* failwith "TODO: match_heap_type" *)
+  true
 
 (* Expression *)
 

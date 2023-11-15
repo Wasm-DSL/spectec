@@ -2370,7 +2370,7 @@ execution_of_MEMORY.GROW x
 2. Pop (I32.CONST n) from the stack.
 3. Either:
   a. Let mi be $growmemory($mem(x), n).
-  b. Push (I32.CONST (|$mem(0).DATA| / (64 · $Ki()))) to the stack.
+  b. Push (I32.CONST (|$mem(x).DATA| / (64 · $Ki()))) to the stack.
   c. Perform $with_meminst(x, mi).
 4. Or:
   a. Push (I32.CONST $invsigned(32, -1)) to the stack.
