@@ -5,6 +5,7 @@
 relation Step: config ~> config                 hint(show "E")
 relation Step_pure: admininstr* ~> admininstr*  hint(show "E")
 relation Step_read: config ~> admininstr*       hint(show "E")
+relation Steps: config ~>* config               hint(show "E")
 
 rule Step/pure:
   z; instr*  ~>  z; instr'*
@@ -13,9 +14,6 @@ rule Step/pure:
 rule Step/read:
   z; instr*  ~>  z; instr'*
   -- Step_read: z; instr* ~> instr'*
-
-
-relation Steps: config ~>* config  hint(show "E")
 
 rule Steps/refl:
   z; admininstr* ~>* z; admininstr*
