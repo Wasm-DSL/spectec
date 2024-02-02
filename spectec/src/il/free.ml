@@ -124,6 +124,7 @@ and free_prem prem =
   | LetPr (e1, e2, _ids) -> union (free_exp e1) (free_exp e2)
   | ElsePr -> empty
   | IterPr (prem', iter) -> union (free_prem prem') (free_iterexp iter)
+  | NegPr prem' -> free_prem prem'
 
 
 (* Definitions *)
