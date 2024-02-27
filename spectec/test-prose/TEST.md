@@ -3908,11 +3908,27 @@ nunpack stora_u0
 vunpack vectype
 1. Return vectype.
 
+ounpack stora_u0
+1. If the type of stora_u0 is vectype, then:
+  a. Let vt be stora_u0.
+  b. Return vt.
+2. If the type of stora_u0 is numtype, then:
+  a. Let nt be stora_u0.
+  b. Return nt.
+
 sxfield stora_u0
 1. If the type of stora_u0 is valtype, then:
   a. Return ?().
 2. Assert: Due to validation, the type of stora_u0 is packtype.
 3. Return ?(S).
+
+const const_u0 c
+1. If the type of const_u0 is vectype, then:
+  a. Let vt be const_u0.
+  b. Return (VCONST vt c).
+2. Assert: Due to validation, the type of const_u0 is numtype.
+3. Let nt be const_u0.
+4. Return (nt.CONST c).
 
 diffrt (REF nul_1 ht_1) (REF (NULL _u0?) ht_2)
 1. If (_u0? is ?(())), then:
@@ -5903,12 +5919,9 @@ execution_of_ARRAY.NEW_DATA x y
 7. Let (mut, zt) be y_0.
 8. If ((i + ((n · $zsize(zt)) / 8)) > |$data(y).DATA|), then:
   a. Trap.
-9. Let $nbytes(nt, c)^n be $inverse_of_concat_($data(y).DATA[i : ((n · $zsize(zt)) / 8)]).
-10. Push (nt.CONST c)^n to the stack.
+9. Let $obytes(ot, c)^n be $inverse_of_concat_($data(y).DATA[i : ((n · $zsize(zt)) / 8)]).
+10. Push $const(ot, c)^n to the stack.
 11. Execute (ARRAY.NEW_FIXED x n).
-12. Let $vbytes(vt, c)^n be $inverse_of_concat_($data(y).DATA[i : ((n · $zsize(zt)) / 8)]).
-13. Push (VCONST vt c)^n to the stack.
-14. Execute (ARRAY.NEW_FIXED x n).
 
 execution_of_ARRAY.GET sx? x
 1. Assert: Due to validation, a value of value type I32 is on the top of the stack.
@@ -6114,11 +6127,11 @@ execution_of_ARRAY.INIT_DATA x y
       a) Let (ARRAY y_0) be $expanddt($type(x)).
       b) Let (mut, zt) be y_0.
       c) Let (REF.ARRAY_ADDR a) be admin_u0.
-      d) Let nt be $nunpack(zt).
-      e) Let c be $inverse_of_nbytes(nt, $data(y).DATA[j : ($zsize(zt) / 8)]).
+      d) Let ot be $ounpack(zt).
+      e) Let c be $inverse_of_obytes(ot, $data(y).DATA[j : ($zsize(zt) / 8)]).
       f) Push (REF.ARRAY_ADDR a) to the stack.
       g) Push (I32.CONST i) to the stack.
-      h) Push (nt.CONST c) to the stack.
+      h) Push $const(ot, c) to the stack.
       i) Execute (ARRAY.SET x).
       j) Push (REF.ARRAY_ADDR a) to the stack.
       k) Push (I32.CONST (i + 1)) to the stack.

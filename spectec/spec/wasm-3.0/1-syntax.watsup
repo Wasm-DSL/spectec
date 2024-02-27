@@ -150,6 +150,7 @@ syntax inn hint(show I#n) = | I32 | I64
 syntax fnn hint(show F#n) = | F32 | F64
 syntax vnn hint(show V#n) = | V128
 
+syntax consttype = | numtype | vectype
 
 syntax resulttype hint(desc "result type") =
   list(valtype)
@@ -244,6 +245,7 @@ var vt : vectype
 var xt : externtype
 var yt : fieldtype     ;; TODO: better choice?
 var zt : storagetype
+var ot : consttype
 
 
 ;;
