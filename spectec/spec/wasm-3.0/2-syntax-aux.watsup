@@ -86,6 +86,7 @@ def $vunpack(vectype) = vectype
 def $ounpack(storagetype) : consttype  hint(show $unpack(%)) hint(partial)
 def $ounpack(vt) = vt
 def $ounpack(nt) = nt
+def $ounpack(pt) = I32
 
 def $sxfield(storagetype) : sx?  hint(show $sx(%))
 def $sxfield(valtype) = eps
