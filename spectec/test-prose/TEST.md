@@ -3915,6 +3915,8 @@ ounpack stora_u0
 2. If the type of stora_u0 is numtype, then:
   a. Let nt be stora_u0.
   b. Return nt.
+3. If the type of stora_u0 is packtype, then:
+  a. Return I32.
 
 sxfield stora_u0
 1. If the type of stora_u0 is valtype, then:
