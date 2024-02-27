@@ -1193,12 +1193,12 @@ execution_of_ARRAY.NEW_DATA x y
 5. If $expanddt($type(x)) is of the case ARRAY, then:
   a. Let (ARRAY y_0) be $expanddt($type(x)).
   b. Let (mut, zt) be y_0.
-  c. If ((i + ((n · $storagesize(zt)) / 8)) > |$data(y).DATA|), then:
+  c. If ((i + ((n · $zsize(zt)) / 8)) > |$data(y).DATA|), then:
     1) Trap.
-  d. Let nt be $unpacknumtype(zt).
-  e. Let b* be $data(y).DATA[i : ((n · $storagesize(zt)) / 8)].
-  f. Let gb* be $group_bytes_by(($storagesize(zt) / 8), b*).
-  g. Let c^n be $inverse_of_ibytes($storagesize(zt), gb)*.
+  d. Let nt be $ounpack(zt).
+  e. Let b* be $data(y).DATA[i : ((n · $zsize(zt)) / 8)].
+  f. Let gb* be $group_bytes_by(($zsize(zt) / 8), b*).
+  g. Let c^n be $inverse_of_ibytes($zsize(zt), gb)*.
   h. Push (nt.CONST c)^n to the stack.
   i. Execute (ARRAY.NEW_FIXED x n).
 == Complete.
@@ -3200,12 +3200,12 @@ execution_of_ARRAY.NEW_DATA x y
 5. If $expanddt($type(x)) is of the case ARRAY, then:
   a. Let (ARRAY y_0) be $expanddt($type(x)).
   b. Let (mut, zt) be y_0.
-  c. If ((i + ((n · $storagesize(zt)) / 8)) > |$data(y).DATA|), then:
+  c. If ((i + ((n · $zsize(zt)) / 8)) > |$data(y).DATA|), then:
     1) Trap.
-  d. Let nt be $unpacknumtype(zt).
-  e. Let b* be $data(y).DATA[i : ((n · $storagesize(zt)) / 8)].
-  f. Let gb* be $group_bytes_by(($storagesize(zt) / 8), b*).
-  g. Let c^n be $inverse_of_ibytes($storagesize(zt), gb)*.
+  d. Let nt be $ounpack(zt).
+  e. Let b* be $data(y).DATA[i : ((n · $zsize(zt)) / 8)].
+  f. Let gb* be $group_bytes_by(($zsize(zt) / 8), b*).
+  g. Let c^n be $inverse_of_ibytes($zsize(zt), gb)*.
   h. Push (nt.CONST c)^n to the stack.
   i. Execute (ARRAY.NEW_FIXED x n).
 == Complete.
@@ -6575,12 +6575,12 @@ execution_of_ARRAY.NEW_DATA x y
 5. If $expanddt($type(x)) is of the case ARRAY, then:
   a. Let (ARRAY y_0) be $expanddt($type(x)).
   b. Let (mut, zt) be y_0.
-  c. If ((i + ((n · $storagesize(zt)) / 8)) > |$data(y).DATA|), then:
+  c. If ((i + ((n · $zsize(zt)) / 8)) > |$data(y).DATA|), then:
     1) Trap.
-  d. Let nt be $unpacknumtype(zt).
-  e. Let b* be $data(y).DATA[i : ((n · $storagesize(zt)) / 8)].
-  f. Let gb* be $group_bytes_by(($storagesize(zt) / 8), b*).
-  g. Let c^n be $inverse_of_ibytes($storagesize(zt), gb)*.
+  d. Let nt be $ounpack(zt).
+  e. Let b* be $data(y).DATA[i : ((n · $zsize(zt)) / 8)].
+  f. Let gb* be $group_bytes_by(($zsize(zt) / 8), b*).
+  g. Let c^n be $inverse_of_ibytes($zsize(zt), gb)*.
   h. Push (nt.CONST c)^n to the stack.
   i. Execute (ARRAY.NEW_FIXED x n).
 == Complete.

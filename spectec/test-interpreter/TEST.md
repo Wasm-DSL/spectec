@@ -23978,55 +23978,10 @@ watsup 0.4 generator
 - 0/0 (100.00%)
 
 ===== ../../test-interpreter/spec-test-3/gc/array.wast =====
-- Test failed at ../../test-interpreter/spec-test-3/gc/array.wast:187.1-187.43 (Failure("Invalid DSL function call: storagesize"))
-- Test failed at ../../test-interpreter/spec-test-3/gc/array.wast:188.1-188.40 (Failure("Invalid DSL function call: storagesize"))
-- Test failed at ../../test-interpreter/spec-test-3/gc/array.wast:189.1-189.59 (Failure("Invalid DSL function call: storagesize"))
-- Test failed at ../../test-interpreter/spec-test-3/gc/array.wast:190.1-190.77 (Failure("Invalid DSL function call: storagesize"))
-- Test failed at ../../test-interpreter/spec-test-3/gc/array.wast:191.1-191.45 (Failure("Invalid DSL function call: storagesize"))
-- Test failed at ../../test-interpreter/spec-test-3/gc/array.wast:193.1-193.60 (Failure("Invalid DSL function call: storagesize"))
-- Test failed at ../../test-interpreter/spec-test-3/gc/array.wast:194.1-194.78 (Failure("Invalid DSL function call: storagesize"))
-- 31/38 (81.58%)
+- 38/38 (100.00%)
 
 ===== ../../test-interpreter/spec-test-3/gc/array_copy.wast =====
-- Test failed at ../../test-interpreter/spec-test-3/gc/array_copy.wast:125.1-125.53 (Failure("Invalid DSL function call: storagesize"))
-Result: 10 : [i32]
-Expect: 97 : [i32]
-- Test failed at ../../test-interpreter/spec-test-3/gc/array_copy.wast:126.1-126.70 (Error(_, "wrong return values"))
-Result: 10 : [i32]
-Expect: 97 : [i32]
-- Test failed at ../../test-interpreter/spec-test-3/gc/array_copy.wast:127.1-127.70 (Error(_, "wrong return values"))
-Result: 0 : [i32]
-Expect: 98 : [i32]
-- Test failed at ../../test-interpreter/spec-test-3/gc/array_copy.wast:128.1-128.70 (Error(_, "wrong return values"))
-Result: 0 : [i32]
-Expect: 101 : [i32]
-- Test failed at ../../test-interpreter/spec-test-3/gc/array_copy.wast:129.1-129.71 (Error(_, "wrong return values"))
-Result: 0 : [i32]
-Expect: 106 : [i32]
-- Test failed at ../../test-interpreter/spec-test-3/gc/array_copy.wast:130.1-130.72 (Error(_, "wrong return values"))
-Result: 0 : [i32]
-Expect: 107 : [i32]
-- Test failed at ../../test-interpreter/spec-test-3/gc/array_copy.wast:131.1-131.72 (Error(_, "wrong return values"))
-- Test failed at ../../test-interpreter/spec-test-3/gc/array_copy.wast:133.1-133.53 (Failure("Invalid DSL function call: storagesize"))
-Result: 10 : [i32]
-Expect: 98 : [i32]
-- Test failed at ../../test-interpreter/spec-test-3/gc/array_copy.wast:134.1-134.70 (Error(_, "wrong return values"))
-Result: 10 : [i32]
-Expect: 99 : [i32]
-- Test failed at ../../test-interpreter/spec-test-3/gc/array_copy.wast:135.1-135.70 (Error(_, "wrong return values"))
-Result: 0 : [i32]
-Expect: 103 : [i32]
-- Test failed at ../../test-interpreter/spec-test-3/gc/array_copy.wast:136.1-136.71 (Error(_, "wrong return values"))
-Result: 0 : [i32]
-Expect: 107 : [i32]
-- Test failed at ../../test-interpreter/spec-test-3/gc/array_copy.wast:137.1-137.71 (Error(_, "wrong return values"))
-Result: 0 : [i32]
-Expect: 108 : [i32]
-- Test failed at ../../test-interpreter/spec-test-3/gc/array_copy.wast:138.1-138.72 (Error(_, "wrong return values"))
-Result: 0 : [i32]
-Expect: 108 : [i32]
-- Test failed at ../../test-interpreter/spec-test-3/gc/array_copy.wast:139.1-139.72 (Error(_, "wrong return values"))
-- 17/31 (54.84%)
+- 31/31 (100.00%)
 
 ===== ../../test-interpreter/spec-test-3/gc/array_fill.wast =====
 - 14/14 (100.00%)
@@ -25424,7 +25379,7 @@ Expect: 0 0 0 0 0 0 0 0 : [v128]
 ===== ../../test-interpreter/spec-test-3/utf8-invalid-encoding.wast =====
 - 0/0 (100.00%)
 
-Total [44793/45764] (97.88%)
+Total [44814/45764] (97.92%)
 
 == Complete.
 ```
