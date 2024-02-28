@@ -32,9 +32,6 @@ let fail expected actual =
   Printf.eprintf " Fail!\n";
   Printf.eprintf " Expected: %s\n" expected;
   Printf.eprintf " Actual  : %s\n\n" actual;
-  let print_stack = false in
-  if print_stack then
-    Printf.eprintf " Stack: %s\n\n" (Ds.WasmContext.string_of_context_stack ());
   Fail
 
 let not_supported_msg = "We only support the test script with modules and assertions."
@@ -222,13 +219,13 @@ let do_action act = match act.it with
     ) in
     Printf.eprintf "[Invoking %s %s...]\n" (Utf8.encode name) (Al.Print.string_of_value args);
 
-    Interpreter.invocation [funcaddr; args]
+    Interpreter.invoke [funcaddr; args]
   | Get (module_name_opt, name) ->
     let module_name = get_module_name module_name_opt in
     let exports = find_export module_name in
 
     let addr = Array.find_map (extract_addr_of "GLOBAL" name) exports |> Option.get in
-    let globals = (Record.find "GLOBAL" !Ds.store) in
+    let globals = Ds.Store.access "GLOBAL" in
 
     Printf.eprintf "[Getting %s...]\n" (Utf8.encode name);
     let got =
@@ -362,7 +359,7 @@ let test_assertion assertion =
       let al_module = Construct.al_of_module (extract_module def) in
       let externvals = get_externvals al_module in
       Printf.eprintf "[Trying instantiating module...]\n";
-      Interpreter.instantiation [ al_module ; externvals ] |> ignore;
+      Interpreter.instantiate [ al_module ; externvals ] |> ignore;
 
       fail expected"Module instantiation success"
     with
@@ -383,7 +380,7 @@ let test_module module_name m =
 
     (* Instantiate and store exports *)
     Printf.eprintf "[Instantiating module...]\n";
-    let module_inst = Interpreter.instantiation [ al_module ; externvals ] in
+    let module_inst = Interpreter.instantiate [ al_module ; externvals ] in
 
     (* Store module instance in the register *)
     (match module_name with
@@ -420,7 +417,7 @@ let test_cmd success cmd =
 (* Intialize store and registered modules *)
 let init_tester () =
   let builtin_inst = builtin() in
-  Ds.store := fst builtin_inst;
+  Ds.Store.assign (fst builtin_inst);
   register := Register.add "spectest" (snd builtin_inst) Register.empty
 
 (** Entry **)

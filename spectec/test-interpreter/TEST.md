@@ -431,10 +431,13 @@ where FRAME__admininstr(k, f, (val' <: admininstr)*{val'} :: (val <: admininstr)
 - 69/69 (100.00%)
 
 ===== return_call_indirect.wast =====
-- 43/43 (100.00%)
+- 47/47 (100.00%)
 
 ===== return_call.wast =====
-- 26/26 (100.00%)
+- 31/31 (100.00%)
+
+===== return_call_ref.wast =====
+- 35/35 (100.00%)
 
 ===== call_ref.wast =====
 - 27/27 (100.00%)
@@ -451,6 +454,6 @@ where FRAME__admininstr(k, f, (val' <: admininstr)*{val'} :: (val <: admininstr)
 ===== return_call_ref.wast =====
 - 30/30 (100.00%)
 
-Total [24525/24525] (100.00%; Normalized 100.00%)
+Total [24569/24569] (100.00%; Normalized 100.00%)
 == Complete.
 ```

@@ -1410,23 +1410,26 @@ instantiate module externval*
 12. Let instr_e* be $concat_instr($runelem(elem*[i], i)^(i<n_e)).
 13. Let z be (s, { LOCAL: []; MODULE: mm_init; }).
 14. Let (_, f) be z.
-15. Enter the activation of f with label [FRAME_]:
-  a. Let [val_g]* be $eval_expr(expr_g)*.
-16. Let (_, f) be z.
-17. Enter the activation of f with label [FRAME_]:
-  a. Let [ref_t]* be $eval_expr(expr_t)*.
+15. Push the activation of f to the stack.
+16. Let [val_g]* be $eval_expr(expr_g)*.
+17. Pop the activation of f from the stack.
 18. Let (_, f) be z.
-19. Enter the activation of f with label [FRAME_]:
-  a. Let [ref_e]** be $eval_expr(expr_e)**.
-20. Let mm be $allocmodule(module, externval*, val_g*, ref_t*, ref_e**).
-21. Let f be { LOCAL: []; MODULE: mm; }.
-22. Enter the activation of f with arity 0 with label [FRAME_]:
+19. Push the activation of f to the stack.
+20. Let [ref_t]* be $eval_expr(expr_t)*.
+21. Pop the activation of f from the stack.
+22. Let (_, f) be z.
+23. Push the activation of f to the stack.
+24. Let [ref_e]** be $eval_expr(expr_e)**.
+25. Pop the activation of f from the stack.
+26. Let mm be $allocmodule(module, externval*, val_g*, ref_t*, ref_e**).
+27. Let f be { LOCAL: []; MODULE: mm; }.
+28. Enter the activation of f with arity 0 with label [FRAME_]:
   a. Execute the sequence (instr_e*).
   b. Execute the sequence (instr_d*).
   c. If x is defined, then:
     1) Let ?(x_0) be x.
     2) Execute (CALL x_0).
-23. Return mm.
+29. Return mm.
 
 invoke fa val^n
 1. Let mm be { TYPE: [s.FUNC[fa].TYPE]; FUNC: []; GLOBAL: []; TABLE: []; MEM: []; ELEM: []; DATA: []; EXPORT: []; }.

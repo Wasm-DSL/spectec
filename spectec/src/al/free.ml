@@ -76,8 +76,7 @@ let rec free_instr = function
   | TrapI
   | NopI
   | ReturnI None
-  | ExitNormalI _
-  | ExitAbruptI _
+  | ExitI
   | YetI _ -> []
   (* One e *)
   | PushI e
@@ -85,8 +84,7 @@ let rec free_instr = function
   | PopAllI e
   | ReturnI (Some e)
   | ExecuteI e
-  | ExecuteSeqI e
-  | JumpI e -> free_expr e
+  | ExecuteSeqI e -> free_expr e
   (* Two e *)
   | LetI (e1, e2)
   | AppendI (e1, e2)

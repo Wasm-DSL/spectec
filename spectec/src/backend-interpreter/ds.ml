@@ -1,146 +1,162 @@
 open Al
 open Ast
+open Al_util
 open Print
 
-module RuleMap = Map.Make (String)
-type rule_map = algorithm RuleMap.t ref
+(* Map *)
 
-module FuncMap = Map.Make (String)
-type func_map = algorithm FuncMap.t ref
+module InfoMap = Map.Make (Int)
+module Env = Map.Make (String)
+module Map = Map.Make (String)
 
-let rule_map: rule_map = ref RuleMap.empty
 
-let func_map: func_map = ref FuncMap.empty
+(* Program *)
+
+type rule_map = algorithm Map.t
+type func_map = algorithm Map.t
+
+let rule_map: rule_map ref = ref Map.empty
+let func_map: func_map ref = ref Map.empty
 
 let to_map algos =
   let f acc algo =
     let rmap, fmap = acc in
     match algo with
-    | RuleA ((name, _), _, _) -> (RuleMap.add name algo rmap, fmap)
-    | FuncA (name, _, _) -> (rmap, FuncMap.add name algo fmap)
+    | RuleA ((name, _), _, _) -> Map.add name algo rmap, fmap
+    | FuncA (name, _, _) -> rmap, Map.add name algo fmap
   in
-  List.fold_left f (RuleMap.empty, FuncMap.empty) algos
+  List.fold_left f (Map.empty, Map.empty) algos
 
-let init algos = 
-  let rmap, fmap = to_map algos in
+let bound_rule name = Map.mem name !rule_map
+let bound_func name = Map.mem name !func_map
+
+let lookup_algo name =
+  if bound_rule name then
+    Map.find name !rule_map
+  else if bound_func name then
+    Map.find name !func_map
+  else failwith ("Algorithm not found: " ^ name)
+
+module Store = struct
+  let store = ref Record.empty
+
+  let init () =
+    store :=
+      Record.empty
+      |> Record.add "FUNC" (listV_of_list [])
+      |> Record.add "GLOBAL" (listV_of_list [])
+      |> Record.add "TABLE" (listV_of_list [])
+      |> Record.add "MEM" (listV_of_list [])
+      |> Record.add "ELEM" (listV_of_list [])
+      |> Record.add "DATA" (listV_of_list [])
+      |> Record.add "STRUCT" (listV_of_list [])
+      |> Record.add "ARRAY" (listV_of_list [])
+
+  let assign r = store := r
+
+  let get () = RecordV !store
+
+  let access field = Record.find field !store
+end
+
+let init algos = let rmap, fmap = to_map algos in
+  Store.init ();
   rule_map := rmap;
   func_map := fmap
 
-let lookup name =
-  if RuleMap.mem name !rule_map then
-    RuleMap.find name !rule_map
-  else if FuncMap.mem name !func_map then
-    FuncMap.find name !func_map
-  else failwith ("Algorithm not found: " ^ name)
-
-
-let store : store ref = ref Record.empty
 
 (* Environmet *)
 
-module Env = struct include Map.Make (String)
-
-  (* Printer *)
-  let string_of_env env =
-    Print.string_of_list
-      (fun (k, v) ->
-        k ^ ": " ^ Print.string_of_value v)
-      "\n{" ",\n  " "\n}"
-      (bindings env)
-
-  (* Environment API *)
-  let find key env =
-    try find key env
-    with Not_found ->
-      Printf.sprintf "The key '%s' is not in the map: %s."
-        key (string_of_env env)
-      |> prerr_endline;
-      raise Not_found
-
-  let add_store = add "s" (Ast.StoreV store)
-end
-
 type env = value Env.t
 
+let string_of_env env =
+  "\n{" ^
+  Print.string_of_list
+    (fun (k, v) ->
+      k ^ ": " ^ Print.string_of_value v)
+    "" ",\n  " ""
+    (Env.bindings env) ^
+  "\n}"
+
+let lookup_env key env =
+  try Env.find key env
+  with Not_found ->
+    Printf.sprintf "The key '%s' is not in the map: %s."
+      key (string_of_env env)
+    |> prerr_endline;
+    raise Not_found
+
 (* AL Context *)
-module AL_Context = struct
-  (* TODO: Change name *)
-  type return_value =
-    | Bot
-    | None
-    | Some of value
+module AlContext = struct
+  type mode =
+    (* Al context *)
+    | Al of string * instr list * env
+    (* Wasm context *)
+    | Wasm of int
+    (* Special context for enter/execute *)
+    | Enter of instr list * env
+    | Execute of value
+    (* Return register *)
+    | Return of value
 
-  type t = string * return_value * int
+  let al (name, il, env) = Al (name, il, env)
+  let wasm n = Wasm n
+  let enter (il, env) = Enter (il, env)
+  let execute v = Execute v
+  let return v = Return v
 
-  let context_stack: t list ref = ref []
+  type t = mode list
 
-  let create_context name = (name, Bot, 0)
+  let tl = List.tl
 
-  let push_context ctx = context_stack := ctx :: !context_stack
+  let is_reducible = function
+    | [] | [ Return _ ] -> false
+    | _ -> true
 
-  let pop_context () =
-    match !context_stack with
-    | h :: t -> context_stack := t; h
-    | _ -> failwith "AL context stack underflow"
+  let can_tail_call = function
+    | IfI _ | EitherI _ | PopI _ | LetI _ | ReturnI _ -> false
+    | _ -> true
 
-  let get_context () =
-    match !context_stack with
-    | h :: _ -> h
-    | _ -> failwith "AL context stack underflow"
+  let get_name ctx =
+    match List.hd ctx with
+    | Al (name, _, _) -> name
+    | Wasm _ -> "Wasm"
+    | Execute _ -> "Execute"
+    | Enter _ -> "Enter"
+    | Return _ -> "Return"
 
-  let get_name () =
-    let name, _, _ = get_context () in
-    name
+  let add_instrs il = function
+    | Al (name, il', env) :: t -> Al (name, il @ il', env) :: t
+    | Enter (il', env) :: t -> Enter (il @ il', env) :: t
+    | _ -> failwith "Not in AL context"
 
-  (* Print *)
+  let get_env = function
+    | Al (_, _, env) :: _ -> env
+    | Enter (_, env) :: _ -> env
+    | _ -> failwith "Not in AL context"
 
-  let string_of_return_value = function
-    | Bot -> "⊥"
-    | None -> "None"
-    | Some v -> string_of_value v
+  let set_env env = function
+    | Al (name, instrs, _) :: t -> Al (name, instrs, env) :: t
+    | Enter (instrs, _) :: t -> Enter (instrs, env) :: t
+    | _ -> failwith "Not in AL context"
 
-  let string_of_context ctx =
-    let name, return_value, depth = ctx in
-    Printf.sprintf "(%s, %s, %s)"
-      name
-      (string_of_return_value return_value)
-      (string_of_int depth)
+  let update_env k v = function
+    | Al (name, il, env) :: t -> Al (name, il, Env.add k v env) :: t
+    | Enter (instrs, env) :: t -> Enter (instrs, Env.add k v env) :: t
+    | _ -> failwith "Not in AL context"
 
-  let string_of_context_stack () =
-    List.fold_left
-      (fun acc ctx -> (string_of_context ctx) ^ " :: " ^ acc)
-      "[]" !context_stack
+  let get_return_value = function
+    | [ Return v ] -> Some v
+    | [] -> None
+    | _ -> failwith "Unreachable"
 
-  (* Return value *)
-  let set_return_value v =
-    let name, return_value, depth = pop_context () in
-    assert (return_value = Bot);
-    push_context (name, Some v, depth)
-
-  let get_return_value () =
-    let _, return_value, _ = get_context () in
-    return_value
-
-  (* Depth *)
-
-  let get_depth () =
-    let _, _, depth = get_context () in
-    depth
-
-  let increase_depth () =
-    let name, return_value, depth = pop_context () in
-    push_context (name, return_value, depth + 1)
-
-  let rec decrease_depth () =
-    let name, return_value, depth = pop_context () in
-    if depth > 0 then
-      push_context (name, return_value, depth - 1)
-    else (
-      decrease_depth ();
-      push_context (name, return_value, depth)
-    )
-
+  let rec decrease_depth = function
+    | Wasm 1 :: t -> t
+    | Wasm n :: t -> Wasm (n - 1) :: t
+    | Al _ as mode :: t -> mode :: decrease_depth t
+    | _ -> failwith "Not in AL or Wasm context"
 end
+
 
 (* Wasm Context *)
 module WasmContext = struct
@@ -154,10 +170,7 @@ module WasmContext = struct
     | h :: _ -> h
     | _ -> failwith "Wasm context stack underflow"
 
-  let get_nth_context n =
-    match List.nth_opt !context_stack n with
-    | Some ctx -> ctx
-    | None -> failwith "Wasm context stack underflow"
+  let init_context () = context_stack := [top_level_context]
 
   let push_context ctx = context_stack := ctx :: !context_stack
 
@@ -166,32 +179,23 @@ module WasmContext = struct
     | h :: t -> context_stack := t; h
     | _ -> failwith "Wasm context stack underflow"
 
-  (* Print *)
-
-  let string_of_context ctx =
-    let v, vs, vs_instr = ctx in
-    Printf.sprintf "(%s, %s, %s)"
-      (string_of_value v)
-      (string_of_value (listV vs))
-      (string_of_value (listV vs_instr))
-
-  let string_of_context_stack () =
-    List.fold_left
-      (fun acc ctx -> (string_of_context ctx) ^ " :: " ^ acc)
-      "[]" !context_stack
 
   (* Context *)
+
+  let get_value_with_condition f =
+    match List.find_opt (fun (v, _, _) -> f v) !context_stack with
+    | Some (v, _, _) -> v
+    | None -> failwith "Wasm context stack underflow"
+
   let get_current_context () =
     let ctx, _, _ = get_context () in
     ctx
 
   let get_current_frame () =
-    let rec get_current_frame' n =
-      match get_nth_context n with
-      | (FrameV _ as f, _, _) -> f
-      | _ -> get_current_frame' (n+1)
-    in
-    get_current_frame' 0
+    let match_frame = function
+      | FrameV _ -> true
+      | _ -> false
+    in get_value_with_condition match_frame
 
   let get_module_instance () =
     match get_current_frame () with
@@ -199,23 +203,27 @@ module WasmContext = struct
     | _ -> failwith "Invalid frame"
 
   let get_current_label () =
-    let rec get_current_label' n =
-      match get_nth_context n with
-      | (LabelV _ as l, _, _) -> l
-      | _ -> get_current_label' (n+1)
-    in
-    get_current_label' 0
+    let match_label = function
+      | LabelV _ -> true
+      | _ -> false
+    in get_value_with_condition match_label
 
   (* Value stack *)
 
   let is_value = function
     | ConstructV ("CONST", _) -> true
+    | ConstructV ("VCONST", _) -> true
     | ConstructV (ref, _)
       when String.starts_with ~prefix:"REF." ref -> true
     | _ -> false
 
   let get_value_stack () =
     let _, vs, _ = get_context () in
+    vs
+
+  let pop_value_stack () =
+    let v, vs, ws = pop_context () in
+    push_context (v, [], ws);
     vs
 
   let push_value v =

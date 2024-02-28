@@ -304,11 +304,9 @@ let rec string_of_instr index depth = function
       sprintf "%s Execute %s." (make_index index depth) (string_of_expr e)
   | ExecuteSeqI e ->
       sprintf "%s Execute the sequence (%s)." (make_index index depth) (string_of_expr e)
-  | JumpI e ->
-      sprintf "%s Jump to %s." (make_index index depth) (string_of_expr e)
   | PerformI (n, el) ->
       sprintf "%s Perform %s." (make_index index depth) (string_of_expr (AppE (n, el)))
-  | ExitNormalI _ | ExitAbruptI _ -> make_index index depth ^ " Exit current context."
+  | ExitI -> make_index index depth ^ " Exit current context."
   | ReplaceI (e1, p, e2) ->
       sprintf "%s Replace %s%s with %s." (make_index index depth)
         (string_of_expr e1) (string_of_path p) (string_of_expr e2)
@@ -618,15 +616,13 @@ let rec structured_string_of_instr depth = function
       ^ ")"
   | ExecuteI e -> "ExecuteI (" ^ structured_string_of_expr e ^ ")"
   | ExecuteSeqI e -> "ExecuteSeqI (" ^ structured_string_of_expr e ^ ")"
-  | JumpI e -> "JumpI (" ^ structured_string_of_expr e ^ ")"
   | PerformI (n, el) ->
       "PerformI ("
       ^ n
       ^ ","
       ^ string_of_list structured_string_of_expr "[ " ", " " ]" el
       ^ ")"
-  | ExitNormalI n -> "ExitNormalI (" ^ n ^ ")"
-  | ExitAbruptI n -> "ExitAbruptI (" ^ n ^ ")"
+  | ExitI -> "Exit"
   | ReplaceI (e1, p, e2) ->
       "ReplaceI ("
       ^ structured_string_of_expr e1

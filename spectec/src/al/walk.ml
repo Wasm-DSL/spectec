@@ -130,10 +130,8 @@ let rec walk_instr f (instr:instr) : instr list =
   | EnterI (e1, e2, il) -> EnterI (new_e e1, new_e e2, new_ il)
   | ExecuteI e -> ExecuteI (new_e e)
   | ExecuteSeqI e -> ExecuteSeqI (new_e e)
-  | JumpI e -> JumpI (new_e e)
   | PerformI (n, el) -> PerformI (n, List.map new_e el)
-  | ExitNormalI n -> ExitNormalI n
-  | ExitAbruptI n -> ExitAbruptI n
+  | ExitI -> ExitI
   | ReplaceI (e1, p, e2) -> ReplaceI (new_e e1, walk_path f p, new_e e2)
   | AppendI (e1, e2) -> AppendI (new_e e1, new_e e2)
   | AppendListI (e1, e2) -> AppendListI (new_e e1, new_e e2)

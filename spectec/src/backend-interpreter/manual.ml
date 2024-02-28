@@ -210,3 +210,48 @@ let array_new_data =
   )
 
 let manual_algos = [eval_expr; call_ref; group_bytes_by; array_new_data;]
+
+let ref_type_of =
+  let open Al.Al_util in
+  let null = ConstructV ("NULL", [ OptV (Some (listV_of_list [])) ]) in
+  let nonull = ConstructV ("NULL", [ OptV None ]) in
+  let none = nullary "NONE" in
+  let nofunc = nullary "NOFUNC" in
+  let noextern = nullary "NOEXTERN" in
+
+  let match_heap_type v1 v2 =
+    let open Reference_interpreter in
+    let ht1 = Construct.al_to_heap_type v1 in
+    let ht2 = Construct.al_to_heap_type v2 in
+    Match.match_ref_type [] (Types.Null, ht1) (Types.Null, ht2)
+  in
+
+  function
+  (* null *)
+  | [ConstructV ("REF.NULL", [ ht ]) as v] ->
+    if match_heap_type none ht then
+      ConstructV ("REF", [ null; none])
+    else if match_heap_type nofunc ht then
+      ConstructV ("REF", [ null; nofunc])
+    else if match_heap_type noextern ht then
+      ConstructV ("REF", [ null; noextern])
+    else
+      v
+      |> Al.Print.string_of_value
+      |> Printf.sprintf "Invalid null reference: %s"
+      |> failwith
+  (* i31 *)
+  | [ConstructV ("REF.I31_NUM", [ _ ])] -> ConstructV ("REF", [ nonull; nullary "I31"])
+  (* host *)
+  | [ConstructV ("REF.HOST_ADDR", [ _ ])] -> ConstructV ("REF", [ nonull; nullary "ANY"])
+  (* array/func/struct addr *)
+  | [ConstructV (name, [ NumV i ])]
+  when String.starts_with ~prefix:"REF." name && String.ends_with ~suffix:"_ADDR" name ->
+    let field_name = String.sub name 4 (String.length name - 9) in
+    let object_ = listv_nth (Ds.Store.access field_name) (Int64.to_int i) in
+    let dt = strv_access "TYPE" object_ in
+    ConstructV ("REF", [ nonull; dt])
+  (* extern *)
+  (* TODO: check null *)
+  | [ConstructV ("REF.EXTERN", [ _ ])] -> ConstructV ("REF", [ nonull; nullary "EXTERN"])
+  | _ -> failwith "Invalid arguments for $ref_type_of"

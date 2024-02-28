@@ -3,6 +3,7 @@ open Al
 open Ast
 open Print
 open Ds
+open Al_util
 
 let value_to_option = function OptV opt -> opt | v -> failwith (string_of_value v ^ " is not a option")
 let value_to_growable_array = function ListV a -> a | v -> failwith (string_of_value v ^ " is not a list")
@@ -48,12 +49,12 @@ let transpose matrix =
 (* helper functions for recursive type *)
 
 (* null *)
-let null = ConstructV ("NULL", [ OptV (Some (listV [])) ])
+let null = ConstructV ("NULL", [ OptV (Some (listV_of_list [])) ])
 let nonull = ConstructV ("NULL", [ OptV None ])
 (* abstract heap types for null *)
-let none = singleton "NONE"
-let nofunc = singleton "NOFUNC"
-let noextern = singleton "NOEXTERN"
+let none = nullary "NONE"
+let nofunc = nullary "NOFUNC"
+let noextern = nullary "NOEXTERN"
 
 
 let match_ref_type v1 v2 =
@@ -183,7 +184,7 @@ and eval_expr env expr =
   (* Function Call *)
   | AppE (fname, el) ->
     let args = List.map (eval_expr env) el in
-    begin match dsl_function_call fname args with
+    begin match call_func fname args with
     | Some v -> v
     | _ -> raise Exception.MissingReturnValue
     (*
@@ -194,14 +195,12 @@ and eval_expr env expr =
     *)
     end
   (* Data Structure *)
-  | ListE el -> listV (List.map (eval_expr env) el)
+  | ListE el -> listV_of_list (List.map (eval_expr env) el)
   | ListFillE (e1, e2) ->
       let v = eval_expr env e1 in
       let i = eval_expr env e2 |> value_to_int in
-      if i > 1024 * 64 * 1024 then (* 1024 pages *) (
-        AL_Context.pop_context () |> ignore;
+      if i > 1024 * 64 * 1024 then (* 1024 pages *)
         raise Exception.OutOfMemory
-      )
       else
         ListV (ref (Array.make i v))
   | ConcatE (e1, e2) ->
@@ -278,6 +277,7 @@ and eval_expr env expr =
       match v with
       | LabelV (_, vs) -> vs
       | _ -> failwith "Not a label")
+  | NameE "s" -> Store.get ()
   | NameE name -> Env.find name env
   | IterE (NameE name, _, List) -> (* Optimized getter for simple IterE(NameE, ...) *)
       Env.find name env
@@ -291,7 +291,7 @@ and eval_expr env expr =
         | [] -> OptV None
         | [v] -> OptV (Some v)
         | _ -> failwith "Unreachable")
-    else listV
+    else listV_of_list
   | ArrowE (e1, e2) -> ArrowV (eval_expr env e1, eval_expr env e2)
   | e -> structured_string_of_expr e |> failwith
 
@@ -418,7 +418,7 @@ and merge_envs_with_grouping default_env envs =
   let merge env acc =
     let f _ v1 = function
       | ListV arr ->
-          v1 :: Array.to_list !arr |> listV |> Option.some
+          v1 :: Array.to_list !arr |> listV_of_list |> Option.some
       | OptV None -> v1 |> Value.opt |> Option.some
       | _ -> failwith "Unreachable merge"
     in
@@ -434,10 +434,10 @@ and assign lhs rhs env =
   | IterE (e, _, iter), _ ->
       let new_env, default_rhs, rhs_list =
         match iter, rhs with
-        | (List | List1), ListV arr -> env, listV [], Array.to_list !arr
+        | (List | List1), ListV arr -> env, listV_of_list [], Array.to_list !arr
         | ListN (expr, None), ListV arr ->
             let length = Array.length !arr |> Int64.of_int |> Value.num in
-            assign expr length env, listV [], Array.to_list !arr
+            assign expr length env, listV_of_list [], Array.to_list !arr
         | Opt, OptV opt -> env, OptV None, Option.to_list opt
         | ListN (_, Some _), ListV _ ->
             Printf.sprintf "Invalid iter %s with rhs %s"
@@ -511,105 +511,13 @@ and assign_opt lhs_opt rhs env = match lhs_opt with
   | Some lhs -> assign lhs rhs env
 
 
-(* Instruction *)
-
-and dsl_function_call (fname: string) (args: value list): AL_Context.return_value =
-  (* Numerics *)
-  if Numerics.mem fname then
-    AL_Context.Some (Numerics.call_numerics fname args)
-  (* Module & Runtime *)
-  else if FuncMap.mem fname !func_map then
-    call_algo fname args
-  else if fname = "ref_type_of" then (
-    assert (List.length args = 1);
-
-    let rt =
-      match List.hd args with
-      (* null *)
-      | ConstructV ("REF.NULL", [ ht ]) ->
-        if match_heap_type none ht then
-          ConstructV ("REF", [ null; none])
-        else if match_heap_type nofunc ht then
-          ConstructV ("REF", [ null; nofunc])
-        else if match_heap_type noextern ht then
-          ConstructV ("REF", [ null; noextern])
-        else
-          List.hd args
-          |> string_of_value
-          |> Printf.sprintf "Invalid null reference: %s"
-          |> failwith
-      (* i31 *)
-      | ConstructV ("REF.I31_NUM", [ _ ]) ->
-        ConstructV ("REF", [ nonull; singleton "I31"])
-      (* struct *)
-      | ConstructV ("REF.STRUCT_ADDR", [ NumV i ]) ->
-        let e =
-          AccessE (
-            AccessE (
-              AccessE (
-                NameE "s",
-                DotP ("STRUCT", "struct")
-              ),
-              IndexP (NumE i)
-            ),
-            DotP ("TYPE", "type")
-          )
-        in
-        let dt = eval_expr (Env.add_store Env.empty) e in
-        ConstructV ("REF", [ nonull; dt])
-      (* array *)
-      | ConstructV ("REF.ARRAY_ADDR", [ NumV i ]) ->
-        let e =
-          AccessE (
-            AccessE (
-              AccessE (
-                NameE "s",
-                DotP ("ARRAY", "array")
-              ),
-              IndexP (NumE i)
-            ),
-            DotP ("TYPE", "type")
-          )
-        in
-        let dt = eval_expr (Env.add_store Env.empty) e in
-        ConstructV ("REF", [ nonull; dt])
-      (* func *)
-      | ConstructV ("REF.FUNC_ADDR", [ NumV i ]) ->
-        let e =
-          AccessE (
-            AccessE (
-              AccessE (
-                NameE "s",
-                DotP ("FUNC", "func")
-              ),
-              IndexP (NumE i)
-            ),
-            DotP ("TYPE", "type")
-          )
-        in
-        let dt = eval_expr (Env.add_store Env.empty) e in
-        ConstructV ("REF", [ nonull; dt])
-      (* host *)
-      | ConstructV ("REF.HOST_ADDR", [ _ ]) ->
-        ConstructV ("REF", [ nonull; singleton "ANY"])
-      (* extern *)
-      (* TODO: check null *)
-      | ConstructV ("REF.EXTERN", [ _ ]) ->
-        ConstructV ("REF", [ nonull; singleton "EXTERN"])
-      | _ -> failwith "Invalid arguments for $ref_type_of"
-    in
-
-    AL_Context.Some rt
-  ) else
-    Printf.sprintf "Invalid DSL function call: %s" fname |> failwith
-
 and is_builtin = function
   | "PRINT" | "PRINT_I32" | "PRINT_I64" | "PRINT_F32" | "PRINT_F64" | "PRINT_I32_F32" | "PRINT_F64_F64" -> true
   | _ -> false
 
 and call_builtin name =
   let local x =
-    match call_algo "local" [ NumV (Int64.of_int x) ] with
+    match call_func "local" [ NumV (Int64.of_int x) ] with
     | Some v -> v
     | _ -> failwith "builtin doesn't return value"
   in
@@ -640,255 +548,215 @@ and call_builtin name =
     print_endline ("- print_f64_f64: " ^ Numerics.num_to_f64_string f64 ^ " " ^ Numerics.num_to_f64_string f64' )
   | _ -> failwith "Impossible"
 
-and execute (wasm_instr: value): unit =
-  match wasm_instr with
-  | ConstructV ("REF.NULL", [ ht ]) ->
-    (* substitute heap type*)
-    let dummy_rt = ConstructV ("REF", [ null; ht ]) in
-    let mm =
-      AppE ("moduleinst", [])
-      |> eval_expr (Env.add_store Env.empty)
+
+(* Step *)
+
+and step_instr (ctx: AlContext.t) (env: value Env.t) : instr -> AlContext.t = function
+  (* Block instruction *)
+  | IfI (e, il1, il2) ->
+    if eval_cond env e then
+      AlContext.add_instrs il1 ctx
+    else
+      AlContext.add_instrs il2 ctx
+  | EitherI (il1, il2) ->
+    (try
+      ctx |> AlContext.add_instrs il1 |> run
+    with
+    | Exception.MissingReturnValue
+    | Exception.OutOfMemory ->
+      AlContext.add_instrs il2 ctx
+    )
+  | AssertI _ -> ctx (*assert (eval_cond env c);*)
+  | PushI e ->
+    (match eval_expr env e with
+    | FrameV _ as v -> WasmContext.push_context (v, [], [])
+    | ListV vs -> Array.iter WasmContext.push_value !vs
+    | v -> WasmContext.push_value v
+    );
+    ctx
+  | PopI e ->
+    (match e with
+    | FrameE _ ->
+      (match WasmContext.pop_context () with
+      | FrameV _, _, _ -> ()
+      | _ -> failwith "Invalid context");
+      ctx
+    | IterE (NameE name, [name'], ListN (e', None)) when name = name' ->
+      let i = eval_expr env e' |> value_to_int in
+      let v =
+        List.init i (fun _ -> WasmContext.pop_value ())
+        |> List.rev
+        |> listV_of_list
+      in
+      AlContext.update_env name v ctx
+    | _ ->
+      let new_env = assign e (WasmContext.pop_value ()) env in
+      AlContext.set_env new_env ctx
+      )
+  | PopAllI e ->
+    let v = WasmContext.pop_value_stack () |> List.rev |> listV_of_list in
+    let new_env = assign e v env in
+    AlContext.set_env new_env ctx
+  | LetI (e1, e2) ->
+    let new_env = ctx |> AlContext.get_env |> assign e1 (eval_expr env e2) in
+    AlContext.set_env new_env ctx
+  | PerformI (f, el) ->
+    let args = List.map (eval_expr env) el in
+    call_func f args |> ignore;
+    ctx
+  | TrapI -> raise Exception.Trap
+  | NopI -> ctx
+  | ReturnI None -> AlContext.tl ctx
+  | ReturnI (Some e) ->
+    AlContext.return (eval_expr env e) :: AlContext.tl ctx
+  | ExecuteI e -> AlContext.execute (eval_expr env e) :: ctx
+  | ExecuteSeqI e ->
+    let ctx' =
+      e
+      |> eval_expr env
+      |> unwrap_listv_to_list
+      |> List.map AlContext.execute
     in
-    begin match call_algo "inst_reftype" [ mm; dummy_rt ] with
-    | AL_Context.Some (ConstructV ("REF", [ n; ht' ])) when n = null ->
+    ctx' @ ctx
+  | EnterI (e1, e2, il) ->
+    let v1 = eval_expr env e1 in
+    let v2 = eval_expr env e2 in
+    WasmContext.push_context (v1, [], unwrap_listv_to_list v2);
+    AlContext.enter (il, env) :: ctx
+  | ExitI ->
+    WasmContext.pop_context () |> ignore;
+    AlContext.decrease_depth ctx
+  | ReplaceI (e1, IndexP e2, e3) ->
+    let a = eval_expr env e1 |> unwrap_listv_to_array in
+    let i = eval_expr env e2 |> value_to_int in
+    let v = eval_expr env e3 in
+    Array.set a i v;
+    ctx
+  | ReplaceI (e1, SliceP (e2, e3), e4) ->
+    let a1 = eval_expr env e1 |> unwrap_listv_to_array in (* dest *)
+    let i1 = eval_expr env e2 |> value_to_int in   (* start index *)
+    let i2 = eval_expr env e3 |> value_to_int in   (* length *)
+    let a2 = eval_expr env e4 |> unwrap_listv_to_array in (* src *)
+    assert (Array.length a2 = i2);
+    Array.blit a2 0 a1 i1 i2;
+    ctx
+  | ReplaceI (r, DotP (s, _), e) ->
+    r
+    |> eval_expr env
+    |> unwrap_strv
+    |> Record.replace s (eval_expr env e);
+    ctx
+  | AppendI (e1, e2) ->
+    let a = eval_expr env e1 |> unwrap_listv in
+    let v = eval_expr env e2 in
+    a := Array.append !a [|v|];
+    ctx
+  | _ -> failwith "Unreachable"
+
+and step_wasm (ctx: AlContext.t) : value -> AlContext.t = function
+  (* TODO: Change ref.null semantics *)
+  | ConstructV ("REF.NULL", [ ht ]) ->
+    let mm =
+      WasmContext.get_current_frame ()
+      |> unwrap_frame
+      |> strv_access "MODULE"
+    in
+    (* TODO: some *)
+    let null = caseV ("NULL", [ optV (Some (listV [||])) ]) in
+    let dummy_rt = ConstructV ("REF", [ null; ht ]) in
+
+    (* substitute heap type *)
+    (match call_func "inst_reftype" [ mm; dummy_rt ] with
+    | Some (ConstructV ("REF", [ n; ht' ])) when n = null ->
       ConstructV ("REF.NULL", [ ht' ]) |> WasmContext.push_value
-    | _ -> raise Exception.MissingReturnValue
-    end
-  | ConstructV ("CONST", _) ->
-    WasmContext.push_value wasm_instr
-  | ConstructV (name, []) when is_builtin name ->
-    call_builtin name;
-  | ConstructV (fname, args) ->
-    call_algo fname args |> ignore
+    | _ -> raise Exception.MissingReturnValue);
+    ctx
+  | ConstructV ("CONST", _)
+  | ConstructV ("VCONST", _) as v -> WasmContext.push_value v; ctx
+  | ConstructV (name, []) when is_builtin name -> call_builtin name; ctx
+  | ConstructV (fname, args) -> create_context fname args :: ctx
   | v ->
     string_of_value v
     |> Printf.sprintf "Executing invalid value: %s"
     |> failwith
 
-and interp_instr (env: env) (instr: instr): env =
-  (*
-  AL_Context.get_name () |> print_endline;
-  string_of_instr (ref 0) 0 instr |> Printf.sprintf "[INSTR]: %s" |> print_endline;
-  WasmContext.string_of_context_stack () |> print_endline;
-  AL_Context.string_of_context_stack () |> print_endline;
-  print_endline "";
-  *)
-
-  let res =
-  match instr with
-  (* Block instruction *)
-  | IfI (c, il1, il2) ->
-    if eval_cond env c then
-      interp_instrs env il1
+and step : AlContext.t -> AlContext.t = AlContext.(function
+  | Al (name, il, env) :: ctx ->
+    (match il with
+    | [] -> ctx
+    | [instr] when AlContext.can_tail_call instr -> step_instr ctx env instr
+    | h :: t ->
+      let new_ctx = Al (name, t, env) :: ctx in
+      step_instr new_ctx env h
+    )
+  | Wasm n :: ctx->
+    if n = 0 then
+      ctx
     else
-      interp_instrs env il2
-  | EitherI (il1, il2) ->
-    begin try interp_instrs env il1 with
-    | Exception.MissingReturnValue
-    | Exception.OutOfMemory -> interp_instrs env il2
-    end
-  | AssertI _ -> (*assert (eval_cond env c);*) env
-  | PushI e ->
-    begin match eval_expr env e with
-    | ListV vs -> Array.iter WasmContext.push_value !vs
-    | v -> WasmContext.push_value v
-    end;
-    env
-  | PopI (IterE (NameE name, [name'], ListN (e', None))) when name = name' ->
-    let i = eval_expr env e' |> value_to_int in
-    let vs = List.rev (List.init i (fun _ -> WasmContext.pop_value ())) in
-    Env.add name (listV vs) env
-  | PopI e ->
-    begin match (e, WasmContext.pop_value ()) with
-    | ConstructE (("CONST", _), [NameE nt; NameE name]), ConstructV ("CONST", [ ty; v ]) ->
-      env
-      |> Env.add nt ty
-      |> Env.add name v
-    | ConstructE (("CONST", _), [tyE; NameE name]), ConstructV ("CONST", [ ty; v ]) ->
-      assert (eval_expr env tyE = ty);
-      Env.add name v env
-    | NameE name, v -> Env.add name v env
-    (* TODO remove this *)
-    | FrameE _, FrameV _ -> env
-    | (e, h) ->
-      Printf.sprintf "Invalid pop: %s := %s"
-        (structured_string_of_expr e)
-        (structured_string_of_value h)
-      |> failwith
-    end
-  | PopAllI (IterE (NameE name, [name'], List)) when name = name' ->
-    let rec pop_all acc =
-      if WasmContext.get_value_stack () |> List.length > 0 then
-        WasmContext.pop_value () :: acc |> pop_all
-      else 
-        acc
-    in
-    let vs = pop_all [] |> listV in
-    Env.add name vs env
-  | PopAllI e ->
-    string_of_expr e
-    |> Printf.sprintf "Invalid pop: Popall %s"
-    |> failwith
-  | LetI (pattern, e) ->
-    assign pattern (eval_expr env e) env
-  | CallI _ -> failwith "No CallI"
-  | PerformI (f, el) ->
-    let args = List.map (eval_expr env) el in
-    dsl_function_call f args |> ignore;
-    env
-  | TrapI -> raise Exception.Trap
-  | NopI -> env
-  | ReturnI None -> env
-  | ReturnI (Some e) ->
-    eval_expr env e |> AL_Context.set_return_value;
-    env
-  | ExecuteI e ->
-    eval_expr env e |> execute;
-    env
-  | ExecuteSeqI e ->
-    eval_expr env e
-    |> value_to_list
-    |> List.iter execute;
-    env
-  | EnterI (e1, e2, il) ->
-    let v1 = eval_expr env e1 in
-    let v2 = eval_expr env e2 in
-
-    WasmContext.push_context (v1, [], value_to_list v2);
-    AL_Context.increase_depth ();
-
-    (* TODO: refactor cleanup *)
-    let previous_depth = AL_Context.get_depth () in
-    let rec cleanup () =
-      let current_depth = AL_Context.get_depth () in
-      if current_depth = previous_depth then (
-        WasmContext.pop_instr () |> execute;
-        cleanup ()
+      step_wasm (Wasm n :: ctx) (WasmContext.pop_instr ())
+  | Enter (il, env) :: ctx ->
+    (match il with
+    | [] ->
+      (match ctx with
+      | Wasm n :: t -> Wasm (n + 1) :: t
+      | Enter ([], _) :: t -> Wasm 2 :: t
+      | ctx -> Wasm 1 :: ctx
       )
-    in
-
-    (* NOTE: doesn't have variable scope *)
-    let new_env = interp_instrs env il in
-    cleanup ();
-    new_env
-  | ExitAbruptI _ ->
-    WasmContext.pop_context () |> ignore;
-    AL_Context.decrease_depth ();
-    env
-  | ReplaceI (e1, IndexP e2, e3) ->
-    let a = eval_expr env e1 |> value_to_array in
-    let i = eval_expr env e2 |> value_to_int in
-    let v = eval_expr env e3 in
-    Array.set a i v;
-    env
-  | ReplaceI (e1, SliceP (e2, e3), e4) ->
-    let a1 = eval_expr env e1 |> value_to_array in (* dest *)
-    let i1 = eval_expr env e2 |> value_to_int in   (* start index *)
-    let i2 = eval_expr env e3 |> value_to_int in   (* length *)
-    let a2 = eval_expr env e4 |> value_to_array in (* src *)
-    assert (Array.length a2 = i2);
-    Array.iteri (fun i v -> Array.set a1 (i1 + i) v) a2;
-    env
-  | ReplaceI (e1, DotP (s, _), e2) ->
-    begin match eval_expr env e1 with
-    | RecordV r ->
-        let v = eval_expr env e2 in
-        Record.replace s v r
-    | _ -> failwith "Not a Record"
-    end;
-    env
-  | AppendI (e1, e2) ->
-    let a = eval_expr env e1 |> value_to_growable_array in
-    let v = eval_expr env e2 in
-    a := Array.append (!a) [|v|];
-    env
-  | AppendListI (e1, e2) ->
-    let a1 = eval_expr env e1 |> value_to_growable_array in
-    let a2 = eval_expr env e2 |> value_to_array in
-    a1 := Array.append (!a1) a2;
-    env
-  | i ->
-    structured_string_of_instr 0 i
-    |> Printf.sprintf "Interpreter is not implemented for the instruction: %s"
-    |> failwith
-  in
-
-  (*
-  string_of_instr (ref 0) 0 instr |> Printf.sprintf "[END INSTR]: %s" |> print_endline;
-  WasmContext.string_of_context_stack () |> print_endline;
-  AL_Context.string_of_context_stack () |> print_endline;
-  print_endline "";
-  *)
-
-  res
-
-and interp_instrs (env: env) (il: instr list): env =
-  match il with
-  | [] -> env
-  | h :: t ->
-    let new_env = interp_instr env h in
-    if AL_Context.get_return_value () = Bot then
-      interp_instrs new_env t
-    else
-      new_env
-      
+    | h :: t ->
+      let new_ctx = Enter (t, env) :: ctx in
+      step_instr new_ctx env h
+    )
+  | Execute v :: ctx -> step_wasm ctx v
+  | _ -> failwith "Unreachable"
+)
 
 
-(* Algorithm *)
+(* AL interpreter Entry *)
 
-(* TODO: move to ds.ml *)
+and run (ctx: AlContext.t) : AlContext.t =
+  if AlContext.is_reducible ctx then run (step ctx) else ctx
 
-and interp_algo (algo: algorithm) (args: value list): unit =
+and create_context (name: string) (args: value list) : AlContext.mode =
+
+  let algo = lookup_algo name in
   let params = get_param algo in
+  let body = get_body algo in
+
+  if List.length args <> List.length params then
+    failwith ("Argument number mismatch for algorithm " ^ name);
 
   let env =
     Env.empty
-    |> Env.add_store
     |> List.fold_right2 assign params args
   in
 
-  get_body algo |> interp_instrs env |> ignore
+  AlContext.al (name, body, env)
 
-and call_algo (name: string) (args: value list): AL_Context.return_value =
-  (*
-  print_endline "**************************************";
-  Printf.sprintf "[ALGO]: %s" name |> print_endline;
-  Print.string_of_list Print.string_of_value "[" ", " "]"args |> print_endline;
-  WasmContext.string_of_context_stack () |> print_endline;
-  AL_Context.string_of_context_stack () |> print_endline;
-  print_endline "";
-  *)
+and call_func (fname: string) (args: value list) : value option =
+  (* Module & Runtime *)
+  if bound_func fname then
+    [create_context fname args]
+    |> run
+    |> AlContext.get_return_value
+  (* Numerics *)
+  else if Numerics.mem fname then
+    Some (Numerics.call_numerics fname args)
+  else if fname = "ref_type_of" then 
+    Some (Manual.ref_type_of args)
+  else
+    failwith ("Invalid DSL function call: " ^ fname)
 
-  (* Push AL context *)
-  let al_context = AL_Context.create_context name in
-  AL_Context.push_context al_context;
 
-  (* Interp algorithm *)
-  let algo = lookup name in
-  if (List.length args) <> (List.length (get_param algo)) then
-    failwith ("Argument number mismatch for algorithm " ^ name);
-  interp_algo algo args;
+(* Wasm interpreter entry *)
 
-  (* Pop AL context *)
-  let (_, return_value, depth) = AL_Context.pop_context () in
+let instantiate (args: value list) : value =
+  WasmContext.init_context ();
+  match call_func "instantiate" args with
+  | Some module_inst -> module_inst
+  | None -> failwith "Instantiation doesn't return module instance"
 
-  (*
-  Printf.sprintf "[END ALGO]: %s" name |> print_endline;
-  WasmContext.string_of_context_stack () |> print_endline;
-  AL_Context.string_of_context_stack () |> print_endline;
-  print_endline "";
-  *)
-
-  assert (depth = 0);
-  return_value
-
-(* Entry *)
-
-let instantiation (args: value list): value =
-  match call_algo "instantiate" args with
-  | AL_Context.Some module_inst -> module_inst
-  | _ -> failwith "Instantiation doesn't return module instance"
-let invocation (args: value list): value =
-  match call_algo "invoke" args with
-  | AL_Context.Some v -> v
-  | _ -> failwith "Invocation doesn't return value"
+let invoke (args: value list) : value =
+  WasmContext.init_context ();
+  match call_func "invoke" args with
+  | Some v -> v
+  | None -> failwith "Invocation doesn't return any values"

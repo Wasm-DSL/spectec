@@ -448,11 +448,9 @@ let rec render_al_instr env algoname index depth = function
       sprintf "%s Execute %s." (render_order index depth) (render_expr env false e)
   | Al.Ast.ExecuteSeqI e ->
       sprintf "%s Execute the sequence %s." (render_order index depth) (render_expr env false e)
-  | Al.Ast.JumpI e ->
-      sprintf "%s Jump to %s." (render_order index depth) (render_expr env false e)
   | Al.Ast.PerformI (n, es) ->
       sprintf "%s Perform %s." (render_order index depth) (render_expr env false (Al.Ast.AppE (n, es)))
-  | Al.Ast.ExitNormalI _ | Al.Ast.ExitAbruptI _ -> render_order index depth ^ " Exit current context."
+  | Al.Ast.ExitI -> render_order index depth ^ " Exit current context."
   | Al.Ast.ReplaceI (e1, p, e2) ->
       sprintf "%s Replace %s with %s." (render_order index depth)
         (render_expr env false (Al.Ast.AccessE (e1, p))) (render_expr env false e2)
