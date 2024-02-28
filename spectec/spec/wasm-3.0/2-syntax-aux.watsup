@@ -95,7 +95,7 @@ def $sxfield(packtype) = S
 
 ;; Const
 
-def $const(consttype, zval_(consttype)): instr
+def $const(cnn, zval_(cnn)): instr  hint(show %.CONST %)
 def $const(vt, c) = (VCONST vt c)
 def $const(nt, c) = (CONST nt c)
 
