@@ -147,7 +147,7 @@ let array_new_data =
   let mut = varE "mut" in
   let zt = varE "zt" in
 
-  let nt = varE "nt" in
+  let cnn = varE "cnn" in
 
   let c = varE "c" in
 
@@ -158,7 +158,7 @@ let array_new_data =
 
   let expanddt_with_type = callE ("expanddt", [callE ("type", [x])]) in
   let zsize = callE ("zsize", [zt]) in
-  let ounpack = callE ("ounpack", [zt]) in
+  let cunpack = callE ("cunpack", [zt]) in
   (* include z or not ??? *)
   let data = callE ("data", [y]) in
   let group_bytes_by = callE ("group_bytes_by", [binE (DivOp, zsize, numE (Z.of_int 8)); bstar]) in
@@ -186,7 +186,7 @@ let array_new_data =
             [ trapI () ],
             []
           );
-          letI (nt, ounpack);
+          letI (cnn, cunpack);
           letI (
             bstar,
             accE (
@@ -196,7 +196,7 @@ let array_new_data =
           );
           letI (gbstar, group_bytes_by);
           letI (cn, inverse_of_bytes_);
-          pushI (iterE (caseE (("CONST", "admininstr"), [nt; c]), ["c"], ListN (n, None)));
+          pushI (iterE (caseE (("CONST", "admininstr"), [cnn; c]), ["c"], ListN (n, None)));
           executeI (caseE (("ARRAY.NEW_FIXED", "admininstr"), [x; n]));
         ],
         []

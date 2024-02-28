@@ -340,10 +340,10 @@ warning: syntax `blocktype` was never spliced
 warning: syntax `byte` was never spliced
 warning: syntax `castop` was never spliced
 warning: syntax `char` was never spliced
+warning: syntax `cnn` was never spliced
 warning: syntax `code` was never spliced
 warning: syntax `comptype` was never spliced
 warning: syntax `config` was never spliced
-warning: syntax `consttype` was never spliced
 warning: syntax `context` was never spliced
 warning: syntax `cvtop` was never spliced
 warning: syntax `data` was never spliced
@@ -1068,11 +1068,13 @@ warning: definition `before` was never spliced
 warning: definition `binop` was never spliced
 warning: definition `blocktype` was never spliced
 warning: definition `canon_` was never spliced
+warning: definition `cbytes` was never spliced
 warning: definition `clostype` was never spliced
 warning: definition `clostypes` was never spliced
 warning: definition `concat_` was never spliced
 warning: definition `const` was never spliced
 warning: definition `convert` was never spliced
+warning: definition `cunpack` was never spliced
 warning: definition `cvtop` was never spliced
 warning: definition `data` was never spliced
 warning: definition `datainst` was never spliced
@@ -1188,8 +1190,6 @@ warning: definition `moduleinst` was never spliced
 warning: definition `narrow` was never spliced
 warning: definition `nbytes` was never spliced
 warning: definition `nunpack` was never spliced
-warning: definition `obytes` was never spliced
-warning: definition `ounpack` was never spliced
 warning: definition `packnum` was never spliced
 warning: definition `packval` was never spliced
 warning: definition `promote` was never spliced
@@ -1497,6 +1497,7 @@ warning: definition prose `clostype` was never spliced
 warning: definition prose `clostypes` was never spliced
 warning: definition prose `concat_` was never spliced
 warning: definition prose `const` was never spliced
+warning: definition prose `cunpack` was never spliced
 warning: definition prose `cvtop` was never spliced
 warning: definition prose `data` was never spliced
 warning: definition prose `datainst` was never spliced
@@ -1554,7 +1555,6 @@ warning: definition prose `memsxv` was never spliced
 warning: definition prose `min` was never spliced
 warning: definition prose `moduleinst` was never spliced
 warning: definition prose `nunpack` was never spliced
-warning: definition prose `ounpack` was never spliced
 warning: definition prose `packnum` was never spliced
 warning: definition prose `packval` was never spliced
 warning: definition prose `psize` was never spliced

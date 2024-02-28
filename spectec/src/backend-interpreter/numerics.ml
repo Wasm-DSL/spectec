@@ -951,9 +951,9 @@ let inverse_of_zbytes : numerics =
       );
   }
 
-let inverse_of_obytes : numerics =
+let inverse_of_cbytes : numerics =
   {
-    name = "inverse_of_obytes";
+    name = "inverse_of_cbytes";
     f = function
       | [ CaseV ("V128", []); _ ] as args -> inverse_of_vbytes.f args
       | args -> inverse_of_nbytes.f args
@@ -1067,7 +1067,7 @@ let numerics_list : numerics list = [
   inverse_of_nbytes;
   inverse_of_vbytes;
   inverse_of_zbytes;
-  inverse_of_obytes;
+  inverse_of_cbytes;
   bytes_;
   inverse_of_bytes_;
   inverse_of_concat;
