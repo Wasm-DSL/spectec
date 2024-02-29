@@ -8,19 +8,33 @@ make
 
 # Injecting errors
 
+inject() {
+  printf "\n[Injecting error to $3 ...]\n"
+  rm -rf $1
+  cp -r ${SPECDIR} $1
+  patch $3 < $2
+}
+
 test_type() {
   local DIR=${BUGDIR}/$1
   local PATCH=${DIR}.patch
   local FILE=${DIR}/$2
 
-  printf "\n[Injecting error to ${FILE} ...]\n"
-
-  rm -rf ${DIR}
-  cp -r ${SPECDIR} ${DIR}
-  patch ${FILE} < ${PATCH}
-  
+  inject ${DIR} ${PATCH} ${FILE}
+ 
   printf "\n[Running watsup on ${DIR} ...]\n"
   ./watsup ${DIR}/*.watsup
+}
+
+test_semantics() {
+  local DIR=${BUGDIR}/$1
+  local PATCH=${DIR}.patch
+  local FILE=${DIR}/$2
+
+  inject ${DIR} ${PATCH} ${FILE}
+ 
+  printf "\n[Running watsup on ${DIR} ...]\n"
+  ./watsup ${DIR}/*.watsup --animate --sideconditions --interpreter
 }
 
 # Type bug 1
@@ -37,8 +51,23 @@ TYPE2FILE=7-module.watsup
 
 test_type ${TYPE2DIR} ${TYPE2FILE}
 
-# Semantic bug 1
+# Semantics bug 1
 
-# Semantic bug 2
+SEM1DIR=semantics-1
+SEM1FILE=6-reduction.watsup
 
-# Semantic bug 3
+test_semantics ${SEM1DIR} ${SEM1FILE}
+
+# Semantics bug 2
+
+SEM2DIR=semantics-2
+SEM2FILE=6-reduction.watsup
+
+test_semantics ${SEM2DIR} ${SEM2FILE}
+
+# Semantics bug 3
+
+SEM3DIR=semantics-3
+SEM3FILE=6-reduction.watsup
+
+test_semantics ${SEM3DIR} ${SEM3FILE}
