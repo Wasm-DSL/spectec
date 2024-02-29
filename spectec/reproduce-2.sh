@@ -34,7 +34,7 @@ test_semantics() {
   inject ${DIR} ${PATCH} ${FILE}
  
   printf "\n[Running watsup on ${DIR} ...]\n"
-  ./watsup ${DIR}/*.watsup --animate --sideconditions --interpreter
+  ./watsup ${DIR}/*.watsup --animate --sideconditions --interpreter --test-interpreter test-semantics.wast > /dev/null
 }
 
 # Type bug 1
