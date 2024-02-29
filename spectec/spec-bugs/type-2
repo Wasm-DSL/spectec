@@ -1,0 +1,15 @@
+diff --git a/spectec/spec/7-module.watsup b/spectec/spec/7-module.watsup
+index 2821aca7..88a3a2f7 100644
+--- a/spectec/spec/7-module.watsup
++++ b/spectec/spec/7-module.watsup
+@@ -138,8 +138,8 @@ def $allocmodule(s, module, externval*, val*, (ref*)*) = (s_6, m)
+ def $runelem(elem, idx) : instr*
+ def $runelem(ELEM reftype expr*, i) = epsilon
+ def $runelem(ELEM reftype expr* (DECLARE), i) = (ELEM.DROP i)
+-def $runelem(ELEM reftype expr* (TABLE x instr*), i) =
+-  instr* (CONST I32 0) (CONST I32 n) (TABLE.INIT x i) (ELEM.DROP i)
++def $runelem(ELEM reftype expr* (TABLE 0 instr*), i) =
++  instr* (CONST I32 0) (CONST I32 n) (TABLE.INIT i) (ELEM.DROP i)
+   -- if n = |expr*|
+ 
+ def $rundata(data, idx) : instr*

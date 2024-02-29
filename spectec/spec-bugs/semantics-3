@@ -1,0 +1,13 @@
+diff --git a/spectec/spec/6-reduction.watsup b/spectec/spec/6-reduction.watsup
+index 3bfd50d2..409b9f7e 100644
+--- a/spectec/spec/6-reduction.watsup
++++ b/spectec/spec/6-reduction.watsup
+@@ -53,7 +53,7 @@ rule Step_pure/if-false:
+ 
+ 
+ rule Step_pure/label-vals:
+-  (LABEL_ n `{instr*} val*)  ~>  val*
++  (LABEL_ n `{instr*} val^n)  ~>  val^n
+ 
+ 
+ ;; TODO: may want a label context instead of bubbling up

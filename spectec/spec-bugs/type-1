@@ -1,0 +1,13 @@
+diff --git a/spectec/spec/4-runtime.watsup b/spectec/spec/4-runtime.watsup
+index 8d6d7af4..252e108d 100644
+--- a/spectec/spec/4-runtime.watsup
++++ b/spectec/spec/4-runtime.watsup
+@@ -161,7 +161,7 @@ def $with_table((s; f), x, i, r) = s[.TABLE[f.MODULE.TABLE[x]].ELEM[i] = r]; f
+ def $with_tableinst((s; f), x, ti) = s[.TABLE[f.MODULE.TABLE[x]] = ti]; f
+ def $with_mem((s; f), x, i, j, b*) = s[.MEM[f.MODULE.MEM[x]].DATA[i : j] = b*]; f
+ def $with_meminst((s; f), x, mi) = s[.MEM[f.MODULE.MEM[x]] = mi]; f
+-def $with_elem((s; f), x, r*) = s[.ELEM[f.MODULE.ELEM[x]].ELEM = r*]; f
++def $with_elem((s; f), x, r*) = s[.ELEM[f.MODULE.ELEM[x]] = r*]; f
+ def $with_data((s; f), x, b*) = s[.DATA[f.MODULE.DATA[x]].DATA = b*]; f
+ 
+ def $grow_table(tableinst, nat, ref) : tableinst hint(partial)
