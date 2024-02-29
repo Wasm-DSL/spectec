@@ -1,0 +1,213 @@
+;; Meta
+
+syntax n = nat
+
+var i : nat
+var j : nat
+var k : nat
+
+syntax name hint(desc "name") = text
+
+
+;; Values
+
+syntax byte hint(desc "byte") = nat  ;; TODO
+syntax u32 hint(desc "32-bit integer") = nat  ;; TODO
+
+var b : byte
+
+
+;; Indices
+
+syntax idx hint(desc "index") = nat
+syntax funcidx hint(desc "function index") = idx
+syntax globalidx hint(desc "global index") = idx
+syntax tableidx hint(desc "table index") = idx
+syntax memidx hint(desc "memory index") = idx
+syntax elemidx hint(desc "elem index") = idx
+syntax dataidx hint(desc "data index") = idx
+syntax labelidx hint(desc "label index") = idx
+syntax localidx hint(desc "local index") = idx
+
+var x : idx
+var y : idx
+var l : labelidx
+
+
+;; Types
+
+syntax numtype hint(desc "number type") =
+  | I32 | I64 | F32 | F64
+syntax vectype hint(desc "vector type") =
+  | V128
+syntax reftype hint(desc "reference type") =
+  | FUNCREF | EXTERNREF
+syntax valtype hint(desc "value type") =
+  | numtype | vectype | reftype | BOT
+
+syntax in hint(show I#n) = | I32 | I64
+syntax fn hint(show F#n) = | F32 | F64
+
+var t : valtype
+var nt : numtype
+var vt : vectype
+var rt : reftype
+
+syntax resulttype hint(desc "result type") =
+  valtype*
+
+syntax limits hint(desc "limits") =
+  `[u32 .. u32]
+syntax globaltype hint(desc "global type") =
+  MUT? valtype
+syntax functype hint(desc "function type") =
+  resulttype -> resulttype
+syntax tabletype hint(desc "table type") =
+  limits reftype
+syntax memtype hint(desc "memory type") =
+  limits I8
+syntax elemtype hint(desc "element type") =
+  reftype
+syntax datatype hint(desc "data type") =
+  OK
+syntax externtype hint(desc "external type") =
+  | GLOBAL globaltype | FUNC functype | TABLE tabletype | MEM memtype
+
+var lim : limits
+var ft : functype
+var gt : globaltype
+var tt : tabletype
+var mt : memtype
+var xt : externtype
+
+
+;; Operators
+
+syntax sx hint(desc "signedness") = | U | S
+
+syntax unop_IXX = | CLZ | CTZ | POPCNT
+syntax unop_FXX = | ABS | NEG | SQRT | CEIL | FLOOR | TRUNC | NEAREST
+
+syntax binop_IXX =
+  | ADD | SUB | MUL | DIV sx hint(show DIV_#%) | REM sx hint(show REM_#%)
+  | AND | OR | XOR | SHL | SHR sx hint(show SHR_#%) | ROTL | ROTR
+syntax binop_FXX = | ADD | SUB | MUL | DIV | MIN | MAX | COPYSIGN
+
+syntax testop_IXX = | EQZ
+syntax testop_FXX = |      ;; uninhabited
+
+syntax relop_IXX =
+  | EQ | NE | LT sx hint(show LT_#%) | GT sx hint(show GT_#%) | LE sx hint(show LE_#%) | GE sx hint(show GE_#%)
+syntax relop_FXX = | EQ | NE | LT | GT | LE | GE
+
+syntax unop_numtype = | _I unop_IXX | _F unop_FXX
+syntax binop_numtype = | _I binop_IXX | _F binop_FXX
+syntax testop_numtype = | _I testop_IXX | _F testop_FXX
+syntax relop_numtype = | _I relop_IXX | _F relop_FXX
+syntax cvtop = | CONVERT | REINTERPRET
+
+var unop : unop_numtype
+var binop : binop_numtype
+var testop : testop_numtype
+var relop : relop_numtype
+
+
+;; Instructions
+
+syntax c_numtype = nat  ;; TODO
+syntax c_vectype = nat  ;; TODO
+var c : c_numtype
+
+syntax blocktype hint(desc "block type") = functype  ;; TODO
+var bt : blocktype
+
+syntax instr/control hint(desc "control instruction") =
+  | UNREACHABLE
+  | NOP
+  | DROP
+  | SELECT valtype?
+  | BLOCK blocktype instr*
+  | LOOP blocktype instr*
+  | IF blocktype instr* ELSE instr*
+  | BR labelidx
+  | BR_IF labelidx
+  | BR_TABLE labelidx* labelidx
+  | CALL funcidx
+  | CALL_INDIRECT tableidx functype
+  | RETURN
+  | ...
+
+syntax instr/numeric hint(desc "numeric instruction") = ...
+  | CONST numtype c_numtype          hint(show %.CONST %)
+  | UNOP numtype unop_numtype        hint(show %.%)
+  | BINOP numtype binop_numtype      hint(show %.%)
+  | TESTOP numtype testop_numtype    hint(show %.%)
+  | RELOP numtype relop_numtype      hint(show %.%)
+  | EXTEND numtype n                 hint(show %.EXTEND#%)
+  | CVTOP numtype cvtop numtype sx?  hint(show %.%#_#%#_#%)
+  | ...
+
+syntax instr/reference hint(desc "reference instruction") = ...
+  | REF.NULL reftype
+  | REF.FUNC funcidx
+  | REF.IS_NULL
+  | ...
+
+syntax instr/state hint(desc "state instruction") = ...
+  | LOCAL.GET localidx
+  | LOCAL.SET localidx
+  | LOCAL.TEE localidx
+  | GLOBAL.GET globalidx
+  | GLOBAL.SET globalidx
+  | TABLE.GET tableidx
+  | TABLE.SET tableidx
+  | TABLE.SIZE tableidx
+  | TABLE.GROW tableidx
+  | TABLE.FILL tableidx
+  | TABLE.COPY tableidx tableidx
+  | TABLE.INIT tableidx elemidx
+  | ELEM.DROP elemidx
+  | MEMORY.SIZE
+  | MEMORY.GROW
+  | MEMORY.FILL
+  | MEMORY.COPY
+  | MEMORY.INIT dataidx
+  | DATA.DROP dataidx
+  | LOAD numtype (n _ sx)? u32 u32  hint(show %.LOAD % %)  hint(show %.LOAD#% % %)
+  | STORE numtype n? u32 u32        hint(show %.STORE % %) hint(show %.STORE#% % %)
+
+syntax expr hint(desc "expression") =
+  instr*
+
+syntax instr hint(desc "instruction")
+
+
+;; Modules
+
+syntax elemmode = | TABLE tableidx expr | DECLARE
+syntax datamode = | MEMORY memidx expr
+
+syntax func hint(desc "function") =
+  FUNC functype valtype* expr
+syntax global hint(desc "global") =
+  GLOBAL globaltype expr
+syntax table hint(desc "table") =
+  TABLE tabletype
+syntax mem hint(desc "memory") =
+  MEMORY memtype
+syntax elem hint(desc "table segment") =
+  ELEM reftype expr* elemmode?
+syntax data hint(desc "memory segment") =
+  DATA byte* datamode?
+syntax start hint(desc "start function") =
+  START funcidx
+
+syntax externuse hint(desc "external use") =
+  | FUNC funcidx | GLOBAL globalidx | TABLE tableidx | MEM memidx
+syntax export hint(desc "export") =
+  EXPORT name externuse
+syntax import hint(desc "import") =
+  IMPORT name name externtype
+
+syntax module hint(desc "module") =
+  MODULE import* func* global* table* mem* elem* data* start? export*

@@ -1,0 +1,44 @@
+;; General constants
+
+def $Ki : nat
+def $Ki = 1024
+
+
+;; General functions
+
+def $min(nat, nat) : nat
+def $min(0, j) = 0
+def $min(i, 0) = 0
+def $min($(i+1), $(j+1)) = $min(i, j)
+
+
+;; Auxiliary Definitions on Types
+
+;; def |I n| = |F n| = |V n| = n        ;; ????
+
+def $size(valtype) : nat  hint(partial) hint(show |%|)
+def $size(I32) = 32
+def $size(I64) = 64
+def $size(F32) = 32
+def $size(F64) = 64
+def $size(V128) = 128
+
+
+;; Some notation tests
+
+def $test_sub_ATOM_22(n_3_ATOM_y) : nat
+def $test_sub_ATOM_22(n_3_ATOM_y) = 0
+
+def $curried_(n, n) : nat
+def $curried_(n_1, n_2) = $(n_1 + n_2)
+
+syntax testfuse =
+  | AB_ nat nat nat
+  | CD nat nat nat  hint(show CD_% % %)
+  | EF nat nat nat  hint(show EF_#% % %)
+  | GH nat nat nat  hint(show GH_%#% %)
+  | IJ nat nat nat  hint(show IJ_%#% %)
+  | KL nat nat nat  hint(show KL_AB#% % %)
+  | MN nat nat nat  hint(show MN_#AB % % %)
+  | OP nat nat nat  hint(show OP_#AB#% % %)
+  | QR nat nat nat  hint(show QR_%#AB % %)
