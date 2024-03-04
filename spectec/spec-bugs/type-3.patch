@@ -1,0 +1,13 @@
+diff --git a/spectec/spec/3-typing.watsup b/spectec/spec/3-typing.watsup
+index f4a79988..e962c8e7 100644
+--- a/spectec/spec/3-typing.watsup
++++ b/spectec/spec/3-typing.watsup
+@@ -293,7 +293,7 @@ rule Instr_ok/table.get:
+ 
+ rule Instr_ok/table.set:
+   C |- TABLE.SET x : I32 rt -> epsilon
+-  -- if C.TABLE[x] = lim rt
++  -- if C.TABLE[x] = rt
+ 
+ rule Instr_ok/table.size:
+   C |- TABLE.SIZE x : epsilon -> I32

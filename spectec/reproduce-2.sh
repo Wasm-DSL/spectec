@@ -51,6 +51,13 @@ TYPE2FILE=7-module.watsup
 
 test_type ${TYPE2DIR} ${TYPE2FILE}
 
+# Type bug 3
+
+TYPE3DIR=type-3
+TYPE3FILE=3-typing.watsup
+
+test_type ${TYPE3DIR} ${TYPE3FILE}
+
 # Semantics bug 1
 
 SEM1DIR=semantics-1
