@@ -1,3 +1,9 @@
+*~
+*.tmproj
+*.pyc
+_build
+_output
+swp
 watsup
 spec-bugs/type-1
 spec-bugs/type-2
