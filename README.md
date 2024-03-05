@@ -72,7 +72,7 @@ See the [documentation](doc/Latex.md) for more details.
 
 ## Running Sphinx Backend
 
-The full pdf/html document generation via Sphinx currently resides in the [`al`](https://github.com/Wasm-DSL/spectec/tree/al) branch.
+The full pdf/html document generation via Sphinx.
 
 To build both pdf and html specification document,
 ```
