@@ -58,6 +58,10 @@ TYPE3FILE=3-typing.watsup
 
 test_type ${TYPE3DIR} ${TYPE3FILE}
 
+# Add test file
+
+mv test-interpreter/test-semantics.wast test-interpreter/spec-test/test-semantics.wast
+
 # Semantics bug 1
 
 SEM1DIR=semantics-1
@@ -78,3 +82,7 @@ SEM3DIR=semantics-3
 SEM3FILE=6-reduction.watsup
 
 test_semantics ${SEM3DIR} ${SEM3FILE}
+
+# Remove test file
+
+mv test-interpreter/spec-test/test-semantics.wast test-interpreter/test-semantics.wast 
