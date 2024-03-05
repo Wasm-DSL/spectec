@@ -87,7 +87,7 @@ Then, Sphinx builds the `rst` files into desired formats such as pdf or html.
 
 ## Step-by-Step Instructions
 
-We provide instructions to reproduce the results mentioned in Evaluation section.
+We provide instructions to reproduce the results mentioned in Evaluation section of the paper.
 
 ### 1) Correctness
 To run all the official test,
@@ -95,13 +95,17 @@ To run all the official test,
 ```
 $ ./correctness.sh
 ```
-
+You can see all the test are passed.
 
 ### 2) Bug prevention
-To inject bugs in the spec and run the spectec,
+Among the four categories that we classified, prose errors and editorial fixes are not reproducible fixes. However, if you see the generated document, our tool doesn't generate such fixes.
+
+For other two categories, which are reproducible, we inject bugs in the DSL and run the spectec.
 ```
 $ ./bug-prevention.sh
 ```
+For type bugs, you can see SpecTec raises type error.
+For semantics bugs, you can see SpecTec raises error during the execution.
 
 ### 3) Forward competibility
 
@@ -112,6 +116,7 @@ To run all the test in the proposal,
 $ git checkout artifact-gc
 $ ./correctness.sh
 ```
+You can see all the test are passed.
 
 #### b. multiple memories proposal
 To run all the test in the proposal,
@@ -120,6 +125,7 @@ To run all the test in the proposal,
 $ git checkout artifact-mm
 $ ./correctness.sh
 ```
+You can see all the test are passed.
 
 #### c. extended constant expressions proposal
 To run all the test in the proposal,
@@ -128,3 +134,4 @@ To run all the test in the proposal,
 $ git checkout artifact-const
 $ ./correctness.sh
 ```
+You can see all the test are passed.
