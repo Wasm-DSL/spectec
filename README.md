@@ -35,17 +35,20 @@ $ ./reproduce-2.sh
 #### a. function references, garbage collection, and extended constant expressions proposal
 ```
 $ git checkout artifact-gc
+$ make
 $ ./watsup spec/*.watsup --animate --sideconditions --interpreter
 ```
 
 #### a. tail calls proposal
 ```
 $ git checkout artifact-tc
+$ make
 $ ./watsup spec/*.watsup --animate --sideconditions --interpreter
 ```
 
 #### a. multiple memories proposal
 ```
 $ git checkout artifact-mm
+$ make
 $ ./watsup spec/*.watsup --animate --sideconditions --interpreter
 ```
