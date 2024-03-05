@@ -105,7 +105,7 @@ $ ./bug-prevention.sh
 
 ### 3) Forward competibility
 
-#### a. function references, garbage collection, and extended constant expressions proposal
+#### a. function references, tail calls proposal, and garbage collection
 To run all the test in the proposal,
 > WARNING: Note that it may take 10 minutes.
 ```
@@ -113,18 +113,18 @@ $ git checkout artifact-gc
 $ ./correctness.sh
 ```
 
-#### b. tail calls proposal
-To run all the test in the proposal,
-> WARNING: Note that it may take 10 minutes.
-```
-$ git checkout artifact-tc
-$ ./correctness.sh
-```
-
-#### c. multiple memories proposal
+#### b. multiple memories proposal
 To run all the test in the proposal,
 > WARNING: Note that it may take 10 minutes.
 ```
 $ git checkout artifact-mm
+$ ./correctness.sh
+```
+
+#### c. extended constant expressions proposal
+To run all the test in the proposal,
+> WARNING: Note that it may take 10 minutes.
+```
+$ git checkout artifact-const
 $ ./correctness.sh
 ```
