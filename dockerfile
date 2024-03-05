@@ -14,7 +14,7 @@ RUN eval $(opam env)
 
 WORKDIR /home
 RUN git clone https://github.com/Wasm-DSL/spectec.git
-WORKDIR /home/spectec/spectec
+WORKDIR /home/spectec
 RUN git checkout artifact
 
 
