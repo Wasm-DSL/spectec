@@ -87,36 +87,44 @@ Then, Sphinx builds the `rst` files into desired formats such as pdf or html.
 
 ## Step-by-Step Instructions
 
+We provide instructions to reproduce the results mentioned in Evaluation section.
+
 ### 1) Correctness
+To run all the official test,
+> WARNING: Note that it may take 10 minutes.
 ```
-$ make
-$ ./watsup spec/*.watsup --animate --sideconditions --interpreter
+$ ./correctness.sh
 ```
 
+
 ### 2) Bug prevention
+To inject bugs in the spec and run the spectec,
 ```
-$ ./reproduce-2.sh
+$ ./bug-prevention.sh
 ```
 
 ### 3) Forward competibility
 
 #### a. function references, garbage collection, and extended constant expressions proposal
+To run all the test in the proposal,
+> WARNING: Note that it may take 10 minutes.
 ```
 $ git checkout artifact-gc
-$ make
-$ ./watsup spec/*.watsup --animate --sideconditions --interpreter
+$ ./correctness.sh
 ```
 
-#### a. tail calls proposal
+#### b. tail calls proposal
+To run all the test in the proposal,
+> WARNING: Note that it may take 10 minutes.
 ```
 $ git checkout artifact-tc
-$ make
-$ ./watsup spec/*.watsup --animate --sideconditions --interpreter
+$ ./correctness.sh
 ```
 
-#### a. multiple memories proposal
+#### c. multiple memories proposal
+To run all the test in the proposal,
+> WARNING: Note that it may take 10 minutes.
 ```
 $ git checkout artifact-mm
-$ make
-$ ./watsup spec/*.watsup --animate --sideconditions --interpreter
+$ ./correctness.sh
 ```
