@@ -273,15 +273,15 @@ let animate_prems known_vars prems =
   best := (List.length cols + 1, []);
   let candidates = match knuth rows cols [] with
     | [] ->
-      print_endline "Animation failed (binding inference).";
-      prems |> List.map Il.Print.string_of_prem |> List.iter print_endline;
+      (* print_endline "Animation failed (binding inference)."; *)
+      (* prems |> List.map Il.Print.string_of_prem |> List.iter print_endline; *)
       [ snd !best ]
     | xs -> List.map List.rev xs in
   best' := (-1, []);
   match List.find_map (fun cand -> select_tight cand other known_vars) candidates with
   | None ->
-    print_endline "...Animation failed (reorder)";
-    (List.hd candidates) |> List.map unwrap |> List.map Il.Print.string_of_prem |> List.iter print_endline;
+    (* print_endline "...Animation failed (reorder)"; *)
+    (* (List.hd candidates) |> List.map unwrap |> List.map Il.Print.string_of_prem |> List.iter print_endline; *)
     snd !best'
   | Some x -> x
 
