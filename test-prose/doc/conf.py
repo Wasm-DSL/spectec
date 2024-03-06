@@ -23,10 +23,20 @@ latex_elements = {
 
    # Additional stuff for the LaTeX preamble.
    # Don't type-set cross references with emphasis.
-   'preamble': '\\renewcommand\\sphinxcrossref[1]{#1}\n',
+   'preamble': r'''
+      \usepackage{enumitem}
+      \setlistdepth{9}
+      \renewlist{enumerate}{enumerate}{9}
+      \setlist[enumerate,1]{label=\arabic*.}
+      \setlist[enumerate,2]{label=\alph*.}
+      \setlist[enumerate,3]{label=\roman*.}
+      \setlist[enumerate,4]{label=\Alph*.}
+      \setlist[enumerate,5]{label=\Roman*.}
+      \renewcommand\sphinxcrossref[1]{#1}
+   ''',
 
    # Latex figure (float) alignment
-  'figure_align': 'htbp',
+   'figure_align': 'htbp',
 
    # Fancy chapters [Bjarne, Sonny, Lenny, Glenn, Conny, Rejne]
    'fncychap': '\\usepackage[Sonny]{fncychap}',

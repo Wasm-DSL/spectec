@@ -143,10 +143,7 @@ $${rule+: Step_read/struct.new_default}
 
 .. _exec-STRUCT.GET:
 
-STRUCT.GET
-^^^^^^^^^^
-
-TODO (too deeply nested)
+%{prose-algo: STRUCT.GET}
 
 \
 
@@ -250,10 +247,7 @@ $${rule+: Step_read/array.fill-*}
 
 .. _exec-ARRAY.COPY:
 
-ARRAY.COPY
-^^^^^^^^^^
-
-TODO (too deeply nested)
+%{prose-algo: ARRAY.COPY}
 
 \
 
@@ -620,10 +614,10 @@ $${rule+: Step_pure/return-*}
 
 $${rule+: Step_read/call}
 
-CALL_REF
-^^^^^^^^
 
-TODO (too deeply nested)
+.. _exec-CALL_REF:
+
+%{prose-algo: CALL_REF}
 
 \
 
@@ -645,10 +639,9 @@ $${rule+: Step_pure/call_indirect-*}
 
 $${rule+: Step_read/return_call}
 
-RETURN_CALL_REF
-^^^^^^^^^^^^^^^
+.. _exec-RETURN_CALL_REF:
 
-TODO (too deeply nested)
+%{prose-algo: RETURN_CALL_REF}
 
 \
 
