@@ -232,14 +232,14 @@ let animate_prems known_vars prems =
   best := (List.length cols + 1, []);
   let candidates = match knuth rows cols [] with
     | [] ->
-      print_endline "Animation failed.";
-      prems |> List.map Il.Print.string_of_prem |> String.concat "\n" |> print_endline;
+      (* print_endline "Animation failed."; *)
+      (* prems |> List.map Il.Print.string_of_prem |> String.concat "\n" |> print_endline; *)
       [ snd !best ]
     | xs -> List.map List.rev xs in
   best' := (0, []);
   match List.find_map (fun cand -> select_tight cand other known_vars) candidates with
   | None ->
-    print_endline "...Animation failed";
+    (* print_endline "...Animation failed"; *)
     snd !best'
   | Some x -> x
 

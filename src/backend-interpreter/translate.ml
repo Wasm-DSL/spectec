@@ -564,7 +564,6 @@ let rec letI lhs rhs targets cont =
           [] );
     ]
   | NameE s when s = "f" || String.starts_with ~prefix:"f_" s ->
-      Al.Print.string_of_expr rhs |> print_endline;
       LetI (lhs, rhs) :: cont
   | _ -> LetI (lhs, rhs) :: cont
 

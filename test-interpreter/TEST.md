@@ -9,43 +9,10 @@ watsup 0.3 generator
 == Running pass sideconditions
 == IL Validation...
 == Running pass animate
-Animation failed.
-Valtype_sub: `|-%<:%`(t, t')
-if ((t' = (numtype <: valtype)) \/ (t' = (vectype <: valtype)))
-...Animation failed
-Animation failed.
-(if (l < |C.LABEL_context|))*{l}
-if (l' < |C.LABEL_context|)
-(Resulttype_sub: `|-%*<:%*`(t*{t}, C.LABEL_context[l]))*{l}
-Resulttype_sub: `|-%*<:%*`(t*{t}, C.LABEL_context[l'])
-...Animation failed
-Animation failed.
-if (0 < |C.MEM_context|)
-if ((n?{n} = ?()) <=> (sx?{sx} = ?()))
-if (C.MEM_context[0] = mt)
-if ((2 ^ n_A) <= ($size(nt <: valtype) / 8))
-(if (((2 ^ n_A) <= (n / 8)) /\ ((n / 8) < ($size(nt <: valtype) / 8))))?{n}
-if ((n?{n} = ?()) \/ (nt = (in <: numtype)))
-...Animation failed
-Animation failed.
-if (0 < |C.MEM_context|)
-if (C.MEM_context[0] = mt)
-if ((2 ^ n_A) <= ($size(nt <: valtype) / 8))
-(if (((2 ^ n_A) <= (n / 8)) /\ ((n / 8) < ($size(nt <: valtype) / 8))))?{n}
-if ((n?{n} = ?()) \/ (nt = (in <: numtype)))
-...Animation failed
 == IL Validation...
 == Translating to AL...
-{ LOCAL: val^k ++ $default_(t)*; MODULE: m; }
-{ LOCAL: []; MODULE: m; }
-{ LOCAL: []; MODULE: m_init; }
-{ LOCAL: []; MODULE: m; }
 == Initializing AL interprter with generated AL...
 == Interpreting AL...
-===== sample.wast =====
-- print_i32: 10
-- 28/28 (100.00%)
-
 ===== forward.wast =====
 - 4/4 (100.00%)
 
@@ -287,6 +254,6 @@ if ((n?{n} = ?()) \/ (nt = (in <: numtype)))
 ===== nop.wast =====
 - 83/83 (100.00%)
 
-Total [23779/23779] (100.00%; Normalized 100.00%)
+Total [23751/23751] (100.00%; Normalized 100.00%)
 == Complete.
 ```
