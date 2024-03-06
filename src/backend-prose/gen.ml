@@ -25,7 +25,7 @@ let exp_to_args es = exp2args es |> List.map transpile_expr
 let rec if_expr_to_instrs e =
   let fail _ =
     let s = Il.Print.string_of_exp e in
-    print_endline ("if_expr_to_instrs: Invalid if_prem (" ^ s ^ ")");
+    (* print_endline ("if_expr_to_instrs: Invalid if_prem (" ^ s ^ ")"); *)
     YetI s in
   match e.it with
   | Ast.CmpE (op, e1, e2) ->
@@ -60,7 +60,7 @@ let rec prem_to_instrs prem = match prem.it with
   | Ast.RulePr (id, _, exp) when String.ends_with ~suffix:"_sub" id.it ->
     ( match exp_to_args exp with
     | [t1; t2] -> [ MustMatchI (t1, t2) ]
-    | _ -> print_endline "prem_to_instr: Invalid prem 2"; [ YetI "TODO: prem_to_instrs 2" ]
+    | _ -> (* print_endline "prem_to_instr: Invalid prem 2"; *) [ YetI "TODO: prem_to_instrs 2" ]
     )
   | Ast.IterPr (prem, iter) ->
     ( match iter with
@@ -68,10 +68,10 @@ let rec prem_to_instrs prem = match prem.it with
     | Ast.List, [id] ->
         let name = Al.Ast.NameE id.it in
         [ ForallI (name, Al.Ast.IterE (name, [id.it], Al.Ast.List), prem_to_instrs prem) ]
-    | _ -> print_endline "prem_to_instr: Invalid prem 3"; [ YetI "TODO: prem_to_intrs 3" ])
+    | _ -> (* print_endline "prem_to_instr: Invalid prem 3"; *) [ YetI "TODO: prem_to_intrs 3" ])
   | _ ->
     let s = Il.Print.string_of_prem prem in
-    print_endline ("prem_to_instrs: Invalid prem (" ^ s ^ ")");
+    (* print_endline ("prem_to_instrs: Invalid prem (" ^ s ^ ")"); *)
     [ YetI s ]
 
 type vrule_group =
