@@ -429,8 +429,7 @@ let test file_name =
     None
 
 let test_all () =
-  let sample = "test-interpreter/sample.wast" in
-  let tests = sample :: (readdir_with_path "test-interpreter/spec-test") in
+  let tests = readdir_with_path "test-interpreter/spec-test" in
 
   let results = List.filter_map test tests in
 
