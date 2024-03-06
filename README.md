@@ -33,105 +33,210 @@ $ docker run --name spectec -it --rm spectec/spectec
   $ apt-get install texlive-full
   ```
 
-## Running Latex Backend
+## Step-by-Step Instructions
 
-The tool can splice Latex formulas generated from, or expressed in terms of, the DSL into files. For example, invoking
-```
-watsup <source-files ...> -p <patch-files ...>
-```
-where `source-files` are the DSL files, and `patch-files` is a set of files to process (Latex, Sphinx, or other text formats), will splice Latex formulas or displaystyle definitions into the latter files.
+We provide instructions to reproduce the results mentioned in Evaluation section of the paper.
 
-Consider a Latex file like the following:
-```
-[...]
-\subsection*{Syntax}
+### 1) Correctness
 
-@@@{syntax: numtype vectype reftype valtype resulttype}
-
-@@@{syntax: instr expr}
-
-
-\subsection*{Typing @@{relation: Instr_ok}}
-
-An instruction sequence @@{:instr*} is well-typed with an instruction type @@{:t_1* -> t_2*} according to the following rules:
-
-@@@{rule: InstrSeq_ok/empty InstrSeq_ok/seq}
-
-@@@{rule: InstrSeq_ok/weak InstrSeq_ok/frame}
-[...]
-```
-The places to splice in formulas are indicated by _anchors_. For Latex, the two possible anchors are currently `@@` or `@@@`, which expand to `$...$` and `$$...$$`, respectively (for Sphinx, replace the anchor tokens with `$` and `$$`).
-
-There are two forms of splices:
-
-1. _expression splice_ (`@@{: exp }`): simply renders a DSL expression,
-2. _definition splice_ (`@@{sort: id id ...}`): inserts the named definitions or rules of the indicated sort `sort` as defined in the DSL sources.
-
-See the [documentation](doc/Latex.md) for more details.
-
-
-## Running Sphinx Backend
-
-The full pdf/html document generation via Sphinx.
-
-To build both pdf and html specification document,
+#### Formal and Prose Specification
+The specification document is generated using the command below.
 ```
 $ make
 $ cd test-prose
 $ make all
 ```
 
-It splices Latex formulas and typesetted prose into the template `rst` document at `test-prose/doc`.
-Then, Sphinx builds the `rst` files into desired formats such as pdf or html.
-
-
-## Step-by-Step Instructions
-
-We provide instructions to reproduce the results mentioned in Evaluation section of the paper.
-
-### 1) Correctness
-To run all the official test,
-> WARNING: Note that it may take 10 minutes.
+#### Interpreter
+By running the interpreter.sh, you can see total 24,751 tests are passed in a few minutes.
 ```
-$ ./correctness.sh
+$ ./interpreter.sh
+dune build src/exe-watsup/main.exe
+ln -f _build/default/src/exe-watsup/main.exe ./watsup
+
+...
+
+===== nop.wast =====
+- 83/83 (100.00%)
+
+Total [23751/23751] (100.00%; Normalized 100.00%)
 ```
-You can see all the test are passed.
 
 ### 2) Bug prevention
-Among the four categories that we classified, prose errors and editorial fixes are not reproducible fixes. However, if you see the generated document, our tool doesn't generate such fixes.
+Among the four categories that we classified, prose errors and editorial fixes are ???. However, if you see the generated document, our tool doesn't generate such fixes.
 
-For other two categories, which are reproducible, we inject bugs in the DSL and run the spectec.
+For type bugs and semantics bugs, we inject DSL bug and run spectec
 ```
 $ ./bug-prevention.sh
+[Building watsup binary ...]
+dune build src/exe-watsup/main.exe
+ln -f _build/default/src/exe-watsup/main.exe ./watsup
 ```
+
 For type bugs, you can see SpecTec raises type error.
+
+```
+[Injecting error to spec-bugs/type-1/4-runtime.watsup ...]
+patching file spec-bugs/type-1/4-runtime.watsup
+
+[Running watsup on spec-bugs/type-1 ...]
+spec-bugs/type-1/4-runtime.watsup:164.61-164.63: type error: iteration does not match expected type `eleminst`
+
+[Injecting error to spec-bugs/type-2/7-module.watsup ...]
+patching file spec-bugs/type-2/7-module.watsup
+
+[Running watsup on spec-bugs/type-2 ...]
+spec-bugs/type-2/7-module.watsup:142.39-142.51: type error: omitted sequence tail does not match expected type `elemidx`
+
+[Injecting error to spec-bugs/type-3/3-typing.watsup ...]
+patching file spec-bugs/type-3/3-typing.watsup
+
+[Running watsup on spec-bugs/type-3 ...]
+spec-bugs/type-3/3-typing.watsup:296.22-296.24: type error: variable's type `reftype` does not match expected type `tabletype`
+```
+
 For semantics bugs, you can see SpecTec raises error during the execution.
+
+```
+[Injecting error to spec-bugs/semantics-1/6-reduction.watsup ...]
+patching file spec-bugs/semantics-1/6-reduction.watsup
+
+[Running watsup on spec-bugs/semantics-1 ...]
+./watsup: uncaught exception Failure("Could not get kind_of_context[CONST_admininstr(I32_numtype, n) TABLE.GROW_admininstr(x)]")
+Raised at Stdlib.failwith in file "stdlib.ml", line 29, characters 17-33
+Called from Backend_interpreter__Translate.reduction_group2algo.(fun) in file "src/backend-interpreter/translate.ml", line 738, characters 21-40
+Called from Stdlib__List.fold_right2 in file "list.ml", line 167, characters 32-58
+Called from Backend_interpreter__Translate.reduction_group2algo in file "src/backend-interpreter/translate.ml", line 736, characters 6-298
+Called from Stdlib__List.map in file "list.ml", line 86, characters 15-19
+Called from Stdlib__List.map in file "list.ml", line 88, characters 14-21
+Called from Backend_interpreter__Translate.translate in file "src/backend-interpreter/translate.ml", line 892, characters 37-55
+Called from Dune__exe__Main in file "src/exe-watsup/main.ml", line 205, characters 8-30
+
+[Injecting error to spec-bugs/semantics-2/6-reduction.watsup ...]
+patching file spec-bugs/semantics-2/6-reduction.watsup
+
+[Running watsup on spec-bugs/semantics-2 ...]
+===========================
+
+test-interpreter/spec-test/test-semantics.wast
+
+[Instantiating module...]
+[Uncaught exception] Module Instantiation failed due to Failed Array.get during ReplaceE, test-semantics.wast took 2.182000 ms.
+Took 2.182000 ms.
+
+[Injecting error to spec-bugs/semantics-3/6-reduction.watsup ...]
+patching file spec-bugs/semantics-3/6-reduction.watsup
+
+[Running watsup on spec-bugs/semantics-3 ...]
+===========================
+
+test-interpreter/spec-test/test-semantics.wast
+
+[Instantiating module...]
+[Invoking foo []...]
+ Fail!
+ Expected: [(I32.CONST 0x2A)]
+ Actual  : Invalid pop: Popall val^n
+
+test-semantics.wast took 2.244000 ms.
+Took 2.244000 ms.
+```
 
 ### 3) Forward competibility
 
-#### a. function references, tail calls proposal, and garbage collection
-To run all the test in the proposal,
-> WARNING: Note that it may take 10 minutes.
+#### Formal and Prose Specification
+Also for the proposals, the specification document is generated using the command below.
+```
+$ git checkout artifact-forward
+$ cd test-prose
+$ make all
+```
+
+#### Interpreter
+As we said in the paper, we use reference interpreter for parsing.
+Different proposal needs different parser, so we need to change the reference interpreter for each proposal accordingly.
+##### a. function references, tail calls proposal, and garbage collection
+There is a reference interpreter that includes gc, function references, and tail calls, so we can run it together in artifact-gc branch
 ```
 $ git checkout artifact-gc
-$ ./correctness.sh
 ```
-You can see all the test are passed.
 
-#### b. multiple memories proposal
-To run all the test in the proposal,
-> WARNING: Note that it may take 10 minutes.
+For function references, total 78 tests are passed in a few minutes.
+```
+$ ./interpreter.sh function-references
+dune build src/exe-watsup/main.exe
+ln -f _build/default/src/exe-watsup/main.exe ./watsup
+
+...
+
+===== return_call_ref.wast =====
+- 35/35 (100.00%)
+
+Total [78/78] (100.00%; Normalized 100.00%)
+```
+
+For tail call, total 78 tests are passed in a few minutes.
+```
+$ ./interpreter.sh tail-call
+dune build src/exe-watsup/main.exe
+ln -f _build/default/src/exe-watsup/main.exe ./watsup
+
+...
+
+===== return_call.wast =====
+- 31/31 (100.00%)
+
+Total [78/78] (100.00%; Normalized 100.00%)
+```
+
+For gc, total 449 tests are passed in a few minutes.
+```
+$ ./interpreter.sh gc
+dune build src/exe-watsup/main.exe
+ln -f _build/default/src/exe-watsup/main.exe ./watsup
+
+...
+
+===== ref_test.wast =====
+- 69/69 (100.00%)
+
+Total [449/449] (100.00%; Normalized 100.00%)
+```
+
+##### b. multiple memories proposal
+For multiple memories, total 718 tests are passed in a few minutes.
 ```
 $ git checkout artifact-mm
-$ ./correctness.sh
+$ ./interpreter.sh multi-memory
+dune build src/exe-watsup/main.exe
+ln -f _build/default/src/exe-watsup/main.exe ./watsup
+
+...
+
+===== store1.wast =====
+- 8/8 (100.00%)
+
+Total [718/718] (100.00%; Normalized 100.00%)
 ```
 You can see all the test are passed.
 
-#### c. extended constant expressions proposal
+##### c. extended constant expressions proposal
 To run all the test in the proposal,
-> WARNING: Note that it may take 10 minutes.
 ```
 $ git checkout artifact-const
-$ ./correctness.sh
+$ ./interpreter.sh extended-const
+dune build src/exe-watsup/main.exe
+ln -f _build/default/src/exe-watsup/main.exe ./watsup
+
+...
+
+===== data.wast =====
+- 4/4 (100.00%)
+
+===== global.wast =====
+- 4/4 (100.00%)
+
+Total [8/8] (100.00%; Normalized 100.00%)
 ```
-You can see all the test are passed.
+
+Total 1,331 tests in the five proposals are passed.
