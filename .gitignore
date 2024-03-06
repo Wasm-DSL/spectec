@@ -5,9 +5,9 @@ _build
 _output
 swp
 watsup
-spec-bugs/type-1
-spec-bugs/type-2
-spec-bugs/type-3
-spec-bugs/semantics-1
-spec-bugs/semantics-2
-spec-bugs/semantics-3
+spectec/spec-bugs/type-1
+spectec/spec-bugs/type-2
+spectec/spec-bugs/type-3
+spectec/spec-bugs/semantics-1
+spectec/spec-bugs/semantics-2
+spectec/spec-bugs/semantics-3
