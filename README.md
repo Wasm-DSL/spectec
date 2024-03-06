@@ -1,5 +1,5 @@
 # Artifact For "Bringing the WebAssembly Standard up to Speed with SpecTec"
-This artifact is for PLDI 2024 paper: "Bringing the WebAssembly Standard up to Speed with SpecTec" and includes SpecTec, a domain-specific language (DSL) and toolchain that facilitates both the Wasm specification and the generation of artifacts necessary to standardize new features.
+This artifact is for PLDI 2024 paper: "Bringing the WebAssembly Standard up to Speed with SpecTec" and includes SpecTec, a domain-specific language (DSL) and toolchain that facilitates both developing the Wasm specification and the generation of artifacts necessary to standardize new features.
 
 
 ## Getting Started
@@ -33,22 +33,71 @@ $ docker run --name spectec -it --rm spectec/spectec
   $ apt-get install texlive-full
   ```
 
+* Then, you should be able to build the binary using the `make` command.
+  ```
+  $ make
+  ```
+  
+* Check if the build was successful.
+  ```
+  $ ./watsup --help
+  Usage: watsup [option] [file ...] [-p file ...] [-o file ...]
+  -v                Show version
+  -p                Patch files
+  -o                Output files
+  -l                Log execution steps
+  -w                Warn about unused or multiply used splices
+  --check           Check only
+  --latex           Generate Latex (default)
+  --splice-latex    Splice Sphinx
+  --splice-sphinx   Splice Sphinx
+  --prose           Generate prose
+  --interpreter     Generate interpreter
+  --print-il        Print il (after elaboration)
+  --print-final-il  Print final il
+  --print-all-il    Print il after each step
+  --print-al        Print al
+  -help             Display this list of options
+  --help            Display this list of options
+  --sub  Synthesize explicit subtype coercions
+  --totalize  Run function totalization
+  --the-elimination  Eliminate the ! operator in relations
+  --wildcards  Eliminate wildcards and equivalent expressions
+  --sideconditions  Infer side conditions
+  --animate  Animate equality conditions
+  --all-passes  Run all passes
+  --root  Set the root of watsup. Defaults to current directory
+  --test-interpreter  The name of .wast test file for interpreter
+  ```
+
 ## Step-by-Step Instructions
 
-We provide instructions to reproduce the results mentioned in Evaluation section of the paper.
+We provide instructions to reproduce the results in the Evaluation section of the paper.
 
 ### 1) Correctness
 
+In this section, we demonstrate the SpecTec's ability to correctly generate formal and prose specification, and execute the official test suite using the meta-level interpreter.
+
 #### Formal and Prose Specification
+SpecTec can generate the specification document in both formal and prose notation from the spec files given by the user.
+
+We have made a script for generating the pdf document from the input files located in the `spec` dicrectory.
+
 The specification document is generated using the command below.
 ```
-$ make
-$ cd test-prose
-$ make all
+$ (cd test-prose; make pdf)
 ```
+The generated pdf document is located at `test-prose/WebAssembly.pdf`.
+
+You can check that the document with formal and prose notations is very close to the respective parts of the [hand-written specification](https://webassembly.github.io/spec/core/).
+
 
 #### Interpreter
-By running the interpreter.sh, you can see total 24,751 tests are passed in a few minutes.
+SpecTec can can generate the meta-level interpreter for Wasm, which can run any wasm file.
+
+We have made a script for executing the [official test-suite](https://github.com/WebAssembly/spec/tree/main/test/core), located in the `test-interpreter/spec-test` directory.
+
+By running the `interpreter.sh`, you can see total 23,751 tests are passed.
 ```
 $ ./interpreter.sh
 dune build src/exe-watsup/main.exe
@@ -63,17 +112,29 @@ Total [23751/23751] (100.00%; Normalized 100.00%)
 ```
 
 ### 2) Bug prevention
-Among the four categories that we classified, prose errors and editorial fixes are ???. However, if you see the generated document, our tool doesn't generate such fixes.
 
-For type bugs and semantics bugs, we inject DSL bug and run spectec
+In this section, we demonstrate the SpecTec's ability to prevent the real-world spec bugs.
+
+In the paper, we have identified the bugs that could have been prevented using SpecTec, and classified the bugs into four categories:
+1. Type Erros
+2. Prose Errors
+3. Semantics Errors
+4. Editorial Fixes
+
+Among the four categories, prose errors and editorial fixes were confirmed by looking at the generated document, and checking the absence of such errors.
+
+For rest of the two categories, we show that SpecTec can detect these errors during its type-checking phase and interpreter phase.
+
+The patch files that injects each bugs into the spec files are located in the directory `spec-bugs`.
+
+We made a script that injects each bugs into spec files by applying those patch files, and executes SpecTec with the injected spec:
 ```
 $ ./bug-prevention.sh
-[Building watsup binary ...]
-dune build src/exe-watsup/main.exe
-ln -f _build/default/src/exe-watsup/main.exe ./watsup
 ```
 
-For type bugs, you can see SpecTec raises type error.
+Below are the expected results.
+
+For type errors, you can see that SpecTec raises type error, with the error message indicating the location of the bug and the explanation for the bug.
 
 ```
 [Injecting error to spec-bugs/type-1/4-runtime.watsup ...]
@@ -95,7 +156,7 @@ patching file spec-bugs/type-3/3-typing.watsup
 spec-bugs/type-3/3-typing.watsup:296.22-296.24: type error: variable's type `reftype` does not match expected type `tabletype`
 ```
 
-For semantics bugs, you can see SpecTec raises error during the execution.
+For semantics errors, you can see that SpecTec raises error during the execution of official test suite.
 
 ```
 [Injecting error to spec-bugs/semantics-1/6-reduction.watsup ...]
@@ -142,26 +203,41 @@ test-semantics.wast took 2.244000 ms.
 Took 2.244000 ms.
 ```
 
-### 3) Forward competibility
+### 3) Forward compatibility
+
+In this section, we demonstrate the SpecTec's ability to handle Wasm's five proposals:
+1. Typed Function References
+2. Garbage Collection
+3. Tail Calls
+4. Multiple Memories
+5. Extended Constant Expression
 
 #### Formal and Prose Specification
-Also for the proposals, the specification document is generated using the command below.
+We have extended the spec files with the proposals, and the extended spec files are available at the `forward` branch:
+
 ```
-$ git checkout artifact-forward
-$ cd test-prose
-$ make all
+$ git checkout forward
+$ make
 ```
+
+Same as before, the specification document is generated using the command below.
+```
+$ (cd test-prose; make pdf)
+```
+
+The generated pdf document is located at `test-prose/WebAssembly.pdf`.
 
 #### Interpreter
-As we said in the paper, we use reference interpreter for parsing.
-Different proposal needs different parser, so we need to change the reference interpreter for each proposal accordingly.
+As we explained in the paper, we borrowed reference interpreter for parsing the Wasm test suite.
+We need different parser to parse the test suite corresponding to each proposal, so we need to change the reference interpreter for each proposal accordingly.
+
 ##### a. function references, tail calls proposal, and garbage collection
-There is a reference interpreter that includes gc, function references, and tail calls, so we can run it together in artifact-gc branch
+There is a reference interpreter that can parse the test for gc, function references, and tail calls proposals, so we can run tests for all three of these proposals at once in the `gc` branch.
 ```
-$ git checkout artifact-gc
+$ git checkout gc
 ```
 
-For function references, total 78 tests are passed in a few minutes.
+For function references, total 78 tests are passed.
 ```
 $ ./interpreter.sh function-references
 dune build src/exe-watsup/main.exe
@@ -175,7 +251,7 @@ ln -f _build/default/src/exe-watsup/main.exe ./watsup
 Total [78/78] (100.00%; Normalized 100.00%)
 ```
 
-For tail call, total 78 tests are passed in a few minutes.
+For tail call, total 78 tests are passed.
 ```
 $ ./interpreter.sh tail-call
 dune build src/exe-watsup/main.exe
@@ -189,7 +265,7 @@ ln -f _build/default/src/exe-watsup/main.exe ./watsup
 Total [78/78] (100.00%; Normalized 100.00%)
 ```
 
-For gc, total 449 tests are passed in a few minutes.
+For gc, total 449 tests are passed.
 ```
 $ ./interpreter.sh gc
 dune build src/exe-watsup/main.exe
@@ -204,9 +280,9 @@ Total [449/449] (100.00%; Normalized 100.00%)
 ```
 
 ##### b. multiple memories proposal
-For multiple memories, total 718 tests are passed in a few minutes.
+For multiple memories, total 718 tests are passed.
 ```
-$ git checkout artifact-mm
+$ git checkout mm
 $ ./interpreter.sh multi-memory
 dune build src/exe-watsup/main.exe
 ln -f _build/default/src/exe-watsup/main.exe ./watsup
@@ -221,9 +297,9 @@ Total [718/718] (100.00%; Normalized 100.00%)
 You can see all the test are passed.
 
 ##### c. extended constant expressions proposal
-To run all the test in the proposal,
+For extended constant expressions, total 8 tests are passed.
 ```
-$ git checkout artifact-const
+$ git checkout const
 $ ./interpreter.sh extended-const
 dune build src/exe-watsup/main.exe
 ln -f _build/default/src/exe-watsup/main.exe ./watsup
@@ -239,4 +315,4 @@ ln -f _build/default/src/exe-watsup/main.exe ./watsup
 Total [8/8] (100.00%; Normalized 100.00%)
 ```
 
-Total 1,331 tests in the five proposals are passed.
+In total, 1,331 tests in the five proposals are passed.
