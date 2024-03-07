@@ -35,12 +35,12 @@ $ docker run --name spectec -it --rm spectec/spectec
 
 * Then, you should be able to build the binary using the `make` command.
   ```
-  $ make
+  $ (cd spectec; make)
   ```
   
 * Check if the build was successful.
   ```
-  $ ./watsup --help
+  $ ./spectec/watsup --help
   Usage: watsup [option] [file ...] [-p file ...] [-o file ...]
   -v                Show version
   -p                Patch files
@@ -81,25 +81,25 @@ In this section, we demonstrate the SpecTec's ability to correctly generate form
 #### Formal and Prose Specification
 SpecTec can generate the specification document in both formal and prose notation from the spec files given by the user.
 
-We have made a script for generating the pdf document from the input files located in the `spec` dicrectory.
+We have made a script for generating the pdf document from the input files located in the `spectec/spec` directory.
 
 The specification document is generated using the command below.
 ```
-$ (cd test-prose; make pdf)
+$ (cd spectec/test-prose; make pdf)
 ```
-The generated pdf document is located at `test-prose/WebAssembly.pdf`.
+The generated pdf document is located at `spectec/test-prose/WebAssembly.pdf`.
 
-You can check that the document with formal and prose notations is very close to the respective parts of the [hand-written specification](https://webassembly.github.io/spec/core/).
+You can check that this document with formal and prose notations is very close to the respective parts of the [hand-written specification](https://webassembly.github.io/spec/core/).
 
 
 #### Interpreter
 SpecTec can can generate the meta-level interpreter for Wasm, which can run any wasm file.
 
-We have made a script for executing the [official test-suite](https://github.com/WebAssembly/spec/tree/main/test/core), located in the `test-interpreter/spec-test` directory.
+We have made a script for executing the [official test-suite](https://github.com/WebAssembly/spec/tree/main/test/core), located in the `spectec/test-interpreter/spec-test` directory.
 
-By running the `interpreter.sh`, you can see total 23,751 tests are passed.
+By running the `interpreter.sh`, you can see total 23,751 tests are passed. (This make take a few minutes)
 ```
-$ ./interpreter.sh
+$ (cd spectec; ./interpreter.sh)
 dune build src/exe-watsup/main.exe
 ln -f _build/default/src/exe-watsup/main.exe ./watsup
 
@@ -125,11 +125,11 @@ Among the four categories, prose errors and editorial fixes were confirmed by lo
 
 For rest of the two categories, we show that SpecTec can detect these errors during its type-checking phase and interpreter phase.
 
-The patch files that injects each bugs into the spec files are located in the directory `spec-bugs`.
+The patch files that injects each bugs into the spec files are located in the directory `spectec/spec-bugs`.
 
 We made a script that injects each bugs into spec files by applying those patch files, and executes SpecTec with the injected spec:
 ```
-$ ./bug-prevention.sh
+$ (cd spectec; ./bug-prevention.sh)
 ```
 
 Below are the expected results.
@@ -213,33 +213,32 @@ In this section, we demonstrate the SpecTec's ability to handle Wasm's five prop
 5. Extended Constant Expression
 
 #### Formal and Prose Specification
-We have extended the spec files with the proposals, and the extended spec files are available at the `forward` branch:
+We have extended the spec files with the proposals, and the extended spec files are available at the `spectec-forward` directory:
 
 ```
-$ git checkout forward
-$ make
+$ (cd spectec-forward; make)
 ```
 
 Same as before, the specification document is generated using the command below.
 ```
-$ (cd test-prose; make pdf)
+$ (cd spectec-forward/test-prose; make pdf)
 ```
 
-The generated pdf document is located at `test-prose/WebAssembly.pdf`.
+The generated pdf document is located at `spectec-forward/test-prose/WebAssembly.pdf`.
 
 #### Interpreter
 As we explained in the paper, we borrowed reference interpreter for parsing the Wasm test suite.
-We need different parser to parse the test suite corresponding to each proposal, so we need to change the reference interpreter for each proposal accordingly.
+We need different parser to parse the test suite corresponding to each proposal,
+so we need to change the reference interpreter for each proposal accordingly.
+Each implementation of SpecTec with different version of reference interpreter is located in the `spectec-gc`, `spectec-mm`, and `spectec-const` directroy.
+Same as before, we have made a script for executing the official test-suite corresponding to each proposals.
 
 ##### a. function references, tail calls proposal, and garbage collection
-There is a reference interpreter that can parse the test for gc, function references, and tail calls proposals, so we can run tests for all three of these proposals at once in the `gc` branch.
-```
-$ git checkout gc
-```
+The reference interpreter for gc proposal can also parse the test for function references and tail calls proposals, so we can run tests for all three of these proposals at once under `spectec-gc` directory.
 
-For function references, total 78 tests are passed.
+For function references, total 78 tests are passed. (This make take a few minutes)
 ```
-$ ./interpreter.sh function-references
+$ (cd spectec-gc; ./interpreter.sh function-references)
 dune build src/exe-watsup/main.exe
 ln -f _build/default/src/exe-watsup/main.exe ./watsup
 
@@ -251,9 +250,9 @@ ln -f _build/default/src/exe-watsup/main.exe ./watsup
 Total [78/78] (100.00%; Normalized 100.00%)
 ```
 
-For tail call, total 78 tests are passed.
+For tail call, total 78 tests are passed. (This make take a few minutes)
 ```
-$ ./interpreter.sh tail-call
+$ (cd spectec-gc; ./interpreter.sh tail-call)
 dune build src/exe-watsup/main.exe
 ln -f _build/default/src/exe-watsup/main.exe ./watsup
 
@@ -267,7 +266,7 @@ Total [78/78] (100.00%; Normalized 100.00%)
 
 For gc, total 449 tests are passed.
 ```
-$ ./interpreter.sh gc
+$ (cd spectec-gc; ./interpreter.sh gc)
 dune build src/exe-watsup/main.exe
 ln -f _build/default/src/exe-watsup/main.exe ./watsup
 
@@ -282,8 +281,7 @@ Total [449/449] (100.00%; Normalized 100.00%)
 ##### b. multiple memories proposal
 For multiple memories, total 718 tests are passed.
 ```
-$ git checkout mm
-$ ./interpreter.sh multi-memory
+$ (cd spectec-mm; ./interpreter.sh multi-memory)
 dune build src/exe-watsup/main.exe
 ln -f _build/default/src/exe-watsup/main.exe ./watsup
 
@@ -294,13 +292,12 @@ ln -f _build/default/src/exe-watsup/main.exe ./watsup
 
 Total [718/718] (100.00%; Normalized 100.00%)
 ```
-You can see all the test are passed.
 
 ##### c. extended constant expressions proposal
 For extended constant expressions, total 8 tests are passed.
 ```
 $ git checkout const
-$ ./interpreter.sh extended-const
+$ (cd spectec-const; ./interpreter.sh extended-const)
 dune build src/exe-watsup/main.exe
 ln -f _build/default/src/exe-watsup/main.exe ./watsup
 
