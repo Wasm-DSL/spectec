@@ -9,10 +9,10 @@ make
 # Injecting errors
 
 inject() {
-  printf "\n[Injecting error to $3 ...]\n"
+  printf "\nInjecting error to $3 ...\n"
   rm -rf $1
   cp -r ${SPECDIR} $1
-  patch $3 < $2
+  patch $3 < $2 &> /dev/null
 }
 
 test_type() {
@@ -20,9 +20,10 @@ test_type() {
   local PATCH=${DIR}.patch
   local FILE=${DIR}/$2
 
+  printf "\n\n===== ${FILE} ====="
   inject ${DIR} ${PATCH} ${FILE}
  
-  printf "\n[Running watsup on ${DIR} ...]\n"
+  printf "Running watsup on ${DIR} ...\n"
   ./watsup ${DIR}/*.watsup
 }
 
@@ -31,9 +32,10 @@ test_semantics() {
   local PATCH=${DIR}.patch
   local FILE=${DIR}/$2
 
+  printf "\n\n===== ${FILE} ====="
   inject ${DIR} ${PATCH} ${FILE}
  
-  printf "\n[Running watsup on ${DIR} ...]\n"
+  printf "Running watsup on ${DIR} ...\n"
   ./watsup ${DIR}/*.watsup --animate --sideconditions --interpreter --test-interpreter test-semantics.wast > /dev/null
 }
 

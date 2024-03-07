@@ -137,70 +137,68 @@ Below are the expected results.
 For type errors, you can see that SpecTec raises type error, with the error message indicating the location of the bug and the explanation for the bug.
 
 ```
-[Injecting error to spec-bugs/type-1/4-runtime.watsup ...]
-patching file spec-bugs/type-1/4-runtime.watsup
-
-[Running watsup on spec-bugs/type-1 ...]
+===== spec-bugs/type-1/4-runtime.watsup =====
+Injecting error to spec-bugs/type-1/4-runtime.watsup ...
+Running watsup on spec-bugs/type-1 ...
 spec-bugs/type-1/4-runtime.watsup:164.61-164.63: type error: iteration does not match expected type `eleminst`
 
-[Injecting error to spec-bugs/type-2/7-module.watsup ...]
-patching file spec-bugs/type-2/7-module.watsup
 
-[Running watsup on spec-bugs/type-2 ...]
+===== spec-bugs/type-2/7-module.watsup =====
+Injecting error to spec-bugs/type-2/7-module.watsup ...
+Running watsup on spec-bugs/type-2 ...
 spec-bugs/type-2/7-module.watsup:142.39-142.51: type error: omitted sequence tail does not match expected type `elemidx`
 
-[Injecting error to spec-bugs/type-3/3-typing.watsup ...]
-patching file spec-bugs/type-3/3-typing.watsup
 
-[Running watsup on spec-bugs/type-3 ...]
+===== spec-bugs/type-3/3-typing.watsup =====
+Injecting error to spec-bugs/type-3/3-typing.watsup ...
+Running watsup on spec-bugs/type-3 ...
 spec-bugs/type-3/3-typing.watsup:296.22-296.24: type error: variable's type `reftype` does not match expected type `tabletype`
 ```
 
 For semantics errors, you can see that SpecTec raises error during the execution of official test suite.
 
 ```
-[Injecting error to spec-bugs/semantics-1/6-reduction.watsup ...]
-patching file spec-bugs/semantics-1/6-reduction.watsup
-
-[Running watsup on spec-bugs/semantics-1 ...]
+===== spec-bugs/semantics-1/6-reduction.watsup =====
+Injecting error to spec-bugs/semantics-1/6-reduction.watsup ...
+Running watsup on spec-bugs/semantics-1 ...
 ./watsup: uncaught exception Failure("Could not get kind_of_context[CONST_admininstr(I32_numtype, n) TABLE.GROW_admininstr(x)]")
 Raised at Stdlib.failwith in file "stdlib.ml", line 29, characters 17-33
-Called from Backend_interpreter__Translate.reduction_group2algo.(fun) in file "src/backend-interpreter/translate.ml", line 738, characters 21-40
+Called from Backend_interpreter__Translate.reduction_group2algo.(fun) in file "src/backend-interpreter/translate.ml", line 737, characters 21-40
 Called from Stdlib__List.fold_right2 in file "list.ml", line 167, characters 32-58
-Called from Backend_interpreter__Translate.reduction_group2algo in file "src/backend-interpreter/translate.ml", line 736, characters 6-298
+Called from Backend_interpreter__Translate.reduction_group2algo in file "src/backend-interpreter/translate.ml", line 735, characters 6-298
 Called from Stdlib__List.map in file "list.ml", line 86, characters 15-19
 Called from Stdlib__List.map in file "list.ml", line 88, characters 14-21
-Called from Backend_interpreter__Translate.translate in file "src/backend-interpreter/translate.ml", line 892, characters 37-55
+Called from Backend_interpreter__Translate.translate in file "src/backend-interpreter/translate.ml", line 891, characters 37-55
 Called from Dune__exe__Main in file "src/exe-watsup/main.ml", line 205, characters 8-30
 
-[Injecting error to spec-bugs/semantics-2/6-reduction.watsup ...]
-patching file spec-bugs/semantics-2/6-reduction.watsup
 
-[Running watsup on spec-bugs/semantics-2 ...]
+===== spec-bugs/semantics-2/6-reduction.watsup =====
+Injecting error to spec-bugs/semantics-2/6-reduction.watsup ...
+Running watsup on spec-bugs/semantics-2 ...
 ===========================
 
 test-interpreter/spec-test/test-semantics.wast
 
 [Instantiating module...]
-[Uncaught exception] Module Instantiation failed due to Failed Array.get during ReplaceE, test-semantics.wast took 2.182000 ms.
-Took 2.182000 ms.
+[Uncaught exception] Module Instantiation failed due to Failed Array.get during ReplaceE, test-semantics.wast took 1.878000 ms.
+Took 1.878000 ms.
 
-[Injecting error to spec-bugs/semantics-3/6-reduction.watsup ...]
-patching file spec-bugs/semantics-3/6-reduction.watsup
 
-[Running watsup on spec-bugs/semantics-3 ...]
+===== spec-bugs/semantics-3/6-reduction.watsup =====
+Injecting error to spec-bugs/semantics-3/6-reduction.watsup ...
+Running watsup on spec-bugs/semantics-3 ...
 ===========================
 
 test-interpreter/spec-test/test-semantics.wast
 
 [Instantiating module...]
-[Invoking foo []...]
+[Invoking data []...]
  Fail!
- Expected: [(I32.CONST 0x2A)]
+ Expected: [(I32.CONST 0x1)]
  Actual  : Invalid pop: Popall val^n
 
-test-semantics.wast took 2.244000 ms.
-Took 2.244000 ms.
+test-semantics.wast took 1.835000 ms.
+Took 1.835000 ms.
 ```
 
 ### 3) Forward compatibility
