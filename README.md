@@ -13,8 +13,8 @@ We support two ways to use SpecTec:
 We provide a Docker container with SpecTec and its dependencies. You can install the docker by following the instruction in https://docs.docker.com/get-started/ and download our docker image with the following command:
 > WARNING: The docker image is 6GB large. Thus, be patient when you download it, and please assign more than 6GB of memory for the docker engine.
 ```
-$ docker pull spectec/spectec
-$ docker run --name spectec -it --rm spectec/spectec
+$ docker pull pldi24spectec/artifact
+$ docker run --name artifact -it --rm pldi24spectec/artifact
 ```
 
 ### Building from source
