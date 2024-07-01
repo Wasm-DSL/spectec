@@ -20,7 +20,7 @@ open Il.Ast
 
 (* Errors *)
 
-let _error at msg = Source.error at "totalize" msg
+let _error at msg = Error.error at "totality" msg
 
 (* Environment *)
 
@@ -49,9 +49,34 @@ let rec t_exp env exp =
     {exp' with it = TheE {exp' with note = IterT (exp'.note, Opt) $ exp'.at}}
   | _ -> exp'
 
-and t_exp2 env x = { x with it = t_exp' env x.it }
+
+(* Type traversal *)
+
+and t_typ env x = { x with it = t_typ' env x.it }
+
+and t_typ' env = function
+  | VarT (id, args) -> VarT (id, t_args env args)
+  | (BoolT | NumT _ | TextT) as t -> t
+  | TupT xts -> TupT (List.map (fun (id, t) -> (id, t_typ env t)) xts)
+  | IterT (t, iter) -> IterT (t_typ env t, t_iter env iter)
+
+and t_deftyp env x = { x with it = t_deftyp' env x.it }
+
+and t_deftyp' env = function
+  | AliasT t -> AliasT (t_typ env t)
+  | StructT typfields -> StructT (List.map (t_typfield env) typfields)
+  | VariantT typcases -> VariantT (List.map (t_typcase env) typcases)
+
+and t_typfield env (atom, (binds, t, prems), hints) =
+  (atom, (t_binds env binds, t_typ env t, t_prems env prems), hints)
+and t_typcase env (atom, (binds, t, prems), hints) =
+  (atom, (t_binds env binds, t_typ env t, t_prems env prems), hints)
+
 
 (* Expr traversal *)
+
+and t_exp2 env x = { x with it = t_exp' env x.it; note = t_typ env x.note }
+
 and t_exp' env = function
   | (VarE _ | BoolE _ | NatE _ | TextE _) as e -> e
   | UnE (unop, exp) -> UnE (unop, t_exp env exp)
@@ -64,24 +89,25 @@ and t_exp' env = function
   | StrE fields -> StrE (List.map (fun (a, e) -> a, t_exp env e) fields)
   | DotE (e, a) -> DotE (t_exp env e, a)
   | CompE (exp1, exp2) -> CompE (t_exp env exp1, t_exp env exp2)
-  | LenE exp -> LenE exp
+  | LenE exp -> LenE (t_exp env exp)
   | TupE es -> TupE (List.map (t_exp env) es)
-  | MixE (mixop, exp) -> MixE (mixop, t_exp env exp)
-  | CallE (a, exp) -> CallE (a, t_exp env exp)
+  | CallE (a, args) -> CallE (a, List.map (t_arg env) args)
   | IterE (e, iterexp) -> IterE (t_exp env e, t_iterexp env iterexp)
+  | ProjE (e, i) -> ProjE (t_exp env e, i)
+  | UncaseE (e, mixop) -> UncaseE (t_exp env e, mixop)
   | OptE None -> OptE None
-  | OptE (Some exp) -> OptE (Some exp)
+  | OptE (Some exp) -> OptE (Some (t_exp env exp))
   | TheE exp -> TheE exp
   | ListE es -> ListE (List.map (t_exp env) es)
   | CatE (exp1, exp2) -> CatE (t_exp env exp1, t_exp env exp2)
-  | CaseE (a, e) -> CaseE (a, t_exp env e)
-  | SubE (e, t1, t2) -> SubE (e, t1, t2)
+  | CaseE (mixop, e) -> CaseE (mixop, t_exp env e)
+  | SubE (exp, t1, t2) -> SubE (t_exp env exp, t_typ env t1, t_typ env t2)
 
 and t_iter env = function
   | ListN (e, id_opt) -> ListN (t_exp env e, id_opt)
   | i -> i
 
-and t_iterexp env (iter, vs) = (t_iter env iter, vs)
+and t_iterexp env (iter, xts) = (t_iter env iter, List.map (fun (x, t) -> x, t_typ env t) xts)
 
 and t_path' env = function
   | RootP -> RootP
@@ -89,9 +115,34 @@ and t_path' env = function
   | SliceP (path, e1, e2) -> SliceP (t_path env path, t_exp env e1, t_exp env e2)
   | DotP (path, a) -> DotP (t_path env path, a)
 
-and t_path env x = { x with it = t_path' env x.it }
+and t_path env x = { x with it = t_path' env x.it; note = t_typ env x.note }
 
-let rec t_prem' env = function
+and t_arg' env = function
+  | ExpA exp -> ExpA (t_exp env exp)
+  | TypA t -> TypA (t_typ env t)
+  | DefA id -> DefA id
+
+and t_arg env x = { x with it = t_arg' env x.it }
+
+and t_bind' env = function
+  | ExpB (id, t, dim) -> ExpB (id, t_typ env t, List.map (t_iter env) dim)
+  | TypB id -> TypB id
+  | DefB (id, ps, t) -> DefB (id, t_params env ps, t_typ env t)
+
+and t_bind env x = { x with it = t_bind' env x.it }
+
+and t_param' env = function
+  | ExpP (id, t) -> ExpP (id, t_typ env t)
+  | TypP id -> TypP id
+  | DefP (id, ps, t) -> DefP (id, t_params env ps, t_typ env t)
+
+and t_param env x = { x with it = t_param' env x.it }
+
+and t_args env = List.map (t_arg env)
+and t_binds env = List.map (t_bind env)
+and t_params env = List.map (t_param env)
+
+and t_prem' env = function
   | RulePr (id, mixop, exp) -> RulePr (id, mixop, t_exp env exp)
   | IfPr e -> IfPr (t_exp env e)
   | LetPr (e1, e2, ids) -> LetPr (t_exp env e1, t_exp env e2, ids)
@@ -100,41 +151,58 @@ let rec t_prem' env = function
 
 and t_prem env x = { x with it = t_prem' env x.it }
 
-let t_prems env = List.map (t_prem env)
+and t_prems env = List.map (t_prem env)
 
 let t_clause' env = function
  | DefD (binds, lhs, rhs, prems) ->
-  DefD (binds, t_exp env lhs, t_exp env rhs, t_prems env prems)
+   DefD (t_binds env binds, t_args env lhs, t_exp env rhs, t_prems env prems)
 
 let t_clause env (clause : clause) = { clause with it = t_clause' env clause.it }
 
+let t_inst' env = function
+ | InstD (binds, args, deftyp) ->
+   InstD (t_binds env binds, t_args env args, t_deftyp env deftyp)
+
+let t_inst env (inst : inst) = { inst with it = t_inst' env inst.it }
+
+let t_insts env = List.map (t_inst env)
+
 let t_rule' env = function
   | RuleD (id, binds, mixop, exp, prems) ->
-    RuleD (id, binds, mixop, t_exp env exp, t_prems env prems)
+    RuleD (id, t_binds env binds, mixop, t_exp env exp, t_prems env prems)
 
 let t_rule env x = { x with it = t_rule' env x.it }
 
 let rec t_def' env = function
   | RecD defs -> RecD (List.map (t_def env) defs)
-  | DecD (id, typ1, typ2, clauses) ->
+  | DecD (id, params, typ, clauses) ->
+    let params' = t_params env params in
+    let typ' = t_typ env typ in
     let clauses' = List.map (t_clause env) clauses in
-    if is_partial env id
-    then
-      let typ2' = IterT (typ2, Opt) $ no_region in
+    if is_partial env id then
+      let typ'' = IterT (typ', Opt) $ no_region in
       let clauses'' = List.map (fun clause -> match clause.it with
         DefD (binds, lhs, rhs, prems) ->
           { clause with
-            it = DefD (binds, lhs, OptE (Some rhs) $$ no_region % typ2', prems) }
+            it = DefD (t_binds env binds, lhs, OptE (Some rhs) $$ no_region % typ'', prems) }
         ) clauses' in
-      let x = "x" $ no_region in
-      let catch_all = DefD ([(x, typ1, [])], VarE x $$ no_region % typ1,
-        OptE None $$ no_region % typ2', []) $ no_region in
-      DecD (id, typ1, typ2', clauses'' @ [ catch_all ])
+      let binds, args = List.mapi (fun i param -> match param.it with
+        | ExpP (_, typI) ->
+          let x = ("x" ^ string_of_int i) $ no_region in
+          [ExpB (x, typI, []) $ x.at], ExpA (VarE x $$ no_region % typI) $ no_region
+        | TypP id -> [], TypA (VarT (id, []) $ no_region) $ no_region
+        | DefP (id, _, _) -> [], DefA id $ no_region
+        ) params' |> List.split in
+      let catch_all = DefD (List.concat binds, args,
+        OptE None $$ no_region % typ'', []) $ no_region in
+      DecD (id, params', typ'', clauses'' @ [ catch_all ])
     else
-      DecD (id, typ1, typ2, clauses')
+      DecD (id, params', typ', clauses')
+  | TypD (id, params, insts) ->
+    TypD (id, t_params env params, t_insts env insts)
   | RelD (id, mixop, typ, rules) ->
-    RelD (id, mixop, typ, List.map (t_rule env) rules)
-  | (SynD _ | HintD _) as def -> def
+    RelD (id, mixop, t_typ env typ, List.map (t_rule env) rules)
+  | HintD _ as def -> def
 
 and t_def env x = { x with it = t_def' env x.it }
 

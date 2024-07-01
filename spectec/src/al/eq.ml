@@ -32,8 +32,8 @@ let rec eq_expr e1 e2 =
       eq_expr e12 e22
   | LenE e1, LenE e2 -> eq_expr e1 e2
   | TupE el1, TupE el2 -> eq_exprs el1 el2
-  | CaseE (k1, el1), CaseE (k2, el2) ->
-      k1 = k2 &&
+  | CaseE (a1, el1), CaseE (a2, el2) ->
+      a1 = a2 &&
       eq_exprs el1 el2
   | CallE (i1, el1), CallE (i2, el2) ->
       i1 = i2 &&
@@ -44,9 +44,9 @@ let rec eq_expr e1 e2 =
       it1 = it2
   | OptE eo1, OptE eo2 -> eq_expr_opt eo1 eo2
   | ListE el1, ListE el2 -> eq_exprs el1 el2
-  | InfixE (e11, infix1, e12), InfixE (e21, infix2, e22) ->
+  | InfixE (e11, a1, e12), InfixE (e21, a2, e22) ->
       eq_expr e11 e21 &&
-      infix1 = infix2 &&
+      a1 = a2 &&
       eq_expr e12 e22
   | ArityE e1, ArityE e2 -> eq_expr e1 e2
   | FrameE (eo1, e1), FrameE (eo2, e2) ->
@@ -55,16 +55,17 @@ let rec eq_expr e1 e2 =
   | LabelE (e11, e12), LabelE (e21, e22) ->
       eq_expr e11 e21 &&
       eq_expr e12 e22
+  | GetCurStateE, GetCurStateE
   | GetCurFrameE, GetCurFrameE
   | GetCurLabelE, GetCurLabelE
   | GetCurContextE, GetCurContextE -> true
   | ContE e1, ContE e2 -> eq_expr e1 e2
-  | IsCaseOfE (e1, k1), IsCaseOfE (e2, k2) ->
+  | IsCaseOfE (e1, a1), IsCaseOfE (e2, a2) ->
       eq_expr e1 e2 &&
-      k1 = k2
+      a1 = a2
   | IsValidE e1, IsValidE e2 -> eq_expr e1 e2
-  | ContextKindE (k1, e1), ContextKindE (k2, e2) ->
-      k1 = k2 &&
+  | ContextKindE (a1, e1), ContextKindE (a2, e2) ->
+      a1 = a2 &&
       eq_expr e1 e2
   | IsDefinedE e1, IsDefinedE e2 -> eq_expr e1 e2
   | MatchE (e11, e12), MatchE (e21, e22) ->
@@ -92,8 +93,8 @@ and eq_expr_record r1 r2 =
   let l2 = Record.to_list r2 in
   List.length l1 = List.length l2 &&
   List.for_all2
-    (fun (k1, e1) (k2, e2) ->
-      k1 = k2 &&
+    (fun (a1, e1) (a2, e2) ->
+      a1 = a2 &&
       eq_expr !e1 !e2)
     l1 l2
 
@@ -107,7 +108,7 @@ and eq_path p1 p2 =
   | SliceP (e11, e12), SliceP (e21, e22) ->
       eq_expr e11 e21 &&
       eq_expr e12 e22
-  | DotP k1, DotP k2 -> k1 = k2
+  | DotP a1, DotP a2 -> a1 = a2
   | _ -> false
 
 and eq_paths pl1 pl2 =
@@ -142,7 +143,7 @@ and eq_instr i1 i2 =
   | PerformI (id1, el1), PerformI (id2, el2) ->
     id1 = id2 &&
     eq_exprs el1 el2
-  | ExitI, ExitI -> true
+  | ExitI a1, ExitI a2 -> a1 = a2
   | ReplaceI (e11, p1, e12), ReplaceI (e21, p2, e22) ->
     eq_expr e11 e21 &&
     eq_path p1 p2 &&
@@ -156,3 +157,16 @@ and eq_instr i1 i2 =
 
 and eq_instrs il1 il2 =
   List.length il1 = List.length il2 && List.for_all2 eq_instr il1 il2
+
+
+let eq_algos al1 al2 =
+  match al1, al2 with
+  | RuleA (a1, el1, il1), RuleA (a2, el2, il2) ->
+    a1 = a2 &&
+    eq_exprs el1 el2 &&
+    eq_instrs il1 il2
+  | FuncA (i1, el1, il1), FuncA (i2, el2, il2) ->
+    i1 = i2 &&
+    eq_exprs el1 el2 &&
+    eq_instrs il1 il2
+  | _ -> false

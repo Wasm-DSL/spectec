@@ -22,7 +22,7 @@ var ma : memaddr
 ;; Basic values
 
 syntax val hint(desc "value") =
-  | CONST valtype c_valtype
+  | CONST valtype val_(valtype)   hint(show %.CONST %)
 
 syntax result hint(desc "result") =
   | _VALS val* | TRAP
@@ -54,21 +54,21 @@ syntax globalinst hint(desc "global instance") =
     VALUE val }
 syntax tableinst hint(desc "table instance") =
   { TYPE tabletype,
-    ELEM (funcaddr?)* }
+    REFS (funcaddr?)* }
 syntax meminst hint(desc "memory instance") =
   { TYPE memtype,
-    DATA byte* }
+    BYTES byte* }
 syntax exportinst hint(desc "export instance") =
   { NAME name,
     VALUE externval }
 
 syntax moduleinst hint(desc "module instance") =
-  { TYPE functype*,
-    FUNC funcaddr*,
-    GLOBAL globaladdr*,
-    TABLE tableaddr*,
-    MEM memaddr*,
-    EXPORT exportinst* }
+  { TYPES functype*,
+    FUNCS funcaddr*,
+    GLOBALS globaladdr*,
+    TABLES tableaddr*,
+    MEMS memaddr*,
+    EXPORTS exportinst* }
 
 var mm : moduleinst
 var fi : funcinst
@@ -81,13 +81,13 @@ var xi : exportinst
 ;; Configurations proper
 
 syntax store hint(desc "store") =
-  { FUNC funcinst*,
-    GLOBAL globalinst*,
-    TABLE tableinst*,
-    MEM meminst* }
+  { FUNCS funcinst*,
+    GLOBALS globalinst*,
+    TABLES tableinst*,
+    MEMS meminst* }
 
 syntax frame hint(desc "frame") =
-  { LOCAL val*,
+  { LOCALS val*,
     MODULE moduleinst }
 
 syntax state hint(desc "state") = store; frame
@@ -108,8 +108,3 @@ syntax admininstr hint(show instr) hint(desc "administrative instruction") =
   | LABEL_ n `{instr*} admininstr* hint(show LABEL_%#% %%)
   | FRAME_ n `{frame} admininstr*  hint(show FRAME_%#% %%)
   | TRAP
-
-syntax E hint(desc "evaluation context") =
-  | _HOLE `[ _ ]
-  | _SEQ val* E instr*
-  | LABEL_ n `{instr*} E

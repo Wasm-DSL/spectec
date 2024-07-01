@@ -52,7 +52,7 @@ let subset x y = Set.subset x.varid y.varid
 type tag =
   | Condition
   | Assign of string list
-(* type row = tag * premise * int list *)
+(* type row = tag * prem * int list *)
 let unwrap (_, p, _) = p
 
 (* are all free variables in the premise known? *)
@@ -125,6 +125,7 @@ let rec index_of acc xs x = match xs with
   | h :: t -> if h = x then Some acc else index_of (acc + 1) t x
 
 let free_exp_list e = (free_exp false e).varid |> Set.elements
+let free_arg_list e = (free_arg false e).varid |> Set.elements
 
 let rec powset = function
 | [] -> [ [] ]
@@ -136,9 +137,8 @@ let singletons = List.map wrap
 
 let group_arg e _ =
   match e.it with
-  | CallE (_, { it = TupE args; _ }) -> List.map (fun arg -> free_exp_list arg) args
-  | CallE (_, arg) -> [ free_exp_list arg ]
-  | _ -> failwith "Unreachable"
+  | CallE (_, args) -> List.map free_arg_list args
+  | _ -> assert false
 
 let large_enough_subsets xs =
   let yss = powset xs in
@@ -156,7 +156,7 @@ let is_not_lhs e = match e.it with
 
 (* Hack to handle RETURN_CALL_ADDR, eventually should be removed *)
 let is_atomic_lhs e = match e.it with
-| CaseE (Atom "FUNC", { it = MixE ([ []; [Arrow]; [] ], { it = TupE [ { it = IterE (_, (ListN _, _)); _} ; { it = IterE (_, (ListN _, _)); _} ] ; _} ); _ }) -> true
+| CaseE ([{it = Atom "FUNC"; _}]::_, { it = CaseE ([[]; [{it = Arrow; _}]; []], { it = TupE [ { it = IterE (_, (ListN _, _)); _} ; { it = IterE (_, (ListN _, _)); _} ] ; _} ); _ }) -> true
 | _ -> false
 
 (* Hack to handle ARRAY.INIT_DATA, eventually should be removed *)
@@ -223,10 +223,10 @@ let rec pre_process prem = match prem.it with
   (* HARDCODE: translation of `Expand: dt ~~ ct` into `$expanddt(dt) = ct` *)
   | RulePr (
       { it = "Expand"; _ },
-      [[]; [Approx]; []],
+      [[]; [{it = Approx; _}]; []],
       { it = TupE [dt; ct]; _ }
     ) ->
-      let expanded_dt = { dt with it = CallE ("expanddt" $ no_region, dt); note = ct.note } in
+      let expanded_dt = { dt with it = CallE ("expanddt" $ no_region, [ExpA dt $ no_region]); note = ct.note } in
       [ { prem with it = IfPr (CmpE (EqOp, expanded_dt, ct) $$ no_region % (BoolT $ no_region)) } ]
   (* Split -- if e1 /\ e2 *)
   | IfPr ( { it = BinE (AndOp, e1, e2); _ } ) ->
@@ -259,15 +259,11 @@ let animate_rule r = match r.it with
   | RuleD(id, binds, mixop, args, prems) -> (
     match (mixop, args.it) with
     (* c |- e : t *)
-    | ([ [] ; [Turnstile] ; [Colon] ; []] , TupE ([c; e; _t])) ->
+    | ([ [] ; [{it = Turnstile; _}] ; [{it = Colon; _}] ; []] , TupE ([c; e; _t])) ->
       let new_prems = animate_prems (union (free_exp false c) (free_exp false e)) prems in
       RuleD(id, binds, mixop, args, new_prems) $ r.at
-    (* lhs* ~> rhs* *)
-    | ([ [] ; [Star ; SqArrow] ; [Star]] , TupE ([lhs; _rhs]))
-    (* lhs ~> rhs* *)
-    | ([ [] ; [SqArrow] ; [Star]] , TupE ([lhs; _rhs]))
     (* lhs ~> rhs *)
-    | ([ [] ; [SqArrow] ; []] , TupE ([lhs; _rhs])) ->
+    | ([ [] ; [{it = SqArrow; _}] ; []] , TupE ([lhs; _rhs])) ->
       let new_prems = animate_prems (free_exp true lhs) prems in
       RuleD(id, binds, mixop, args, new_prems) $ r.at
     | _ -> r
@@ -275,9 +271,9 @@ let animate_rule r = match r.it with
 
 (* Animate clause *)
 let animate_clause c = match c.it with
-  | DefD (binds, e1, e2, prems) ->
-    let new_prems = animate_prems (free_exp false e1) prems in
-    DefD (binds, e1, e2, new_prems) $ c.at
+  | DefD (binds, args, e, prems) ->
+    let new_prems = animate_prems (free_list (free_arg false) args) prems in
+    DefD (binds, args, e, new_prems) $ c.at
 
 (* Animate defs *)
 let rec animate_def d = match d.it with
@@ -289,7 +285,7 @@ let rec animate_def d = match d.it with
     let new_clauses = List.map animate_clause clauses in
     DecD (id, t1, t2, new_clauses) $ d.at
   | RecD ds -> RecD (List.map animate_def ds) $ d.at
-  | _ -> d
+  | TypD _ | HintD _ -> d
 
 (* Main entry *)
 let transform (defs : script) =

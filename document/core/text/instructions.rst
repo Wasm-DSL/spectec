@@ -48,7 +48,7 @@ The following grammar handles the corresponding update to the :ref:`identifier c
    then it is shadowed and the earlier label becomes inaccessible.
 
 
-.. index:: control instructions, structured control, label, block, branch, result type, label index, function index, type index, vector, polymorphism
+.. index:: control instructions, structured control, label, block, branch, result type, label index, function index, type index, list, polymorphism, reference
    pair: text format; instruction
 .. _text-blockinstr:
 .. _text-plaininstr:
@@ -102,6 +102,8 @@ However, the special case of a type use that is syntactically empty or consists 
 .. _text-br_table:
 .. _text-br_on_null:
 .. _text-br_on_non_null:
+.. _text-br_on_cast:
+.. _text-br_on_cast_fail:
 .. _text-return:
 .. _text-call:
 .. _text-call_ref:
@@ -118,10 +120,12 @@ All other control instruction are represented verbatim.
      \text{nop} &\Rightarrow& \NOP \\ &&|&
      \text{br}~~l{:}\Tlabelidx_I &\Rightarrow& \BR~l \\ &&|&
      \text{br\_if}~~l{:}\Tlabelidx_I &\Rightarrow& \BRIF~l \\ &&|&
-     \text{br\_table}~~l^\ast{:}\Tvec(\Tlabelidx_I)~~l_N{:}\Tlabelidx_I
+     \text{br\_table}~~l^\ast{:}\Tlist(\Tlabelidx_I)~~l_N{:}\Tlabelidx_I
        &\Rightarrow& \BRTABLE~l^\ast~l_N \\ &&|&
      \text{br\_on\_null}~~l{:}\Tlabelidx_I &\Rightarrow& \BRONNULL~l \\ &&|&
      \text{br\_on\_non\_null}~~l{:}\Tlabelidx_I &\Rightarrow& \BRONNONNULL~l \\ &&|&
+     \text{br\_on\_cast}~~l{:}\Tlabelidx_I~~t_1{:}\Treftype~~t_2{:}\Treftype &\Rightarrow& \BRONCAST~l~t_1~t_2 \\ &&|&
+     \text{br\_on\_cast\_fail}~~l{:}\Tlabelidx_I~~t_1{:}\Treftype~~t_2{:}\Treftype &\Rightarrow& \BRONCASTFAIL~l~t_1~t_2 \\ &&|&
      \text{return} &\Rightarrow& \RETURN \\ &&|&
      \text{call}~~x{:}\Tfuncidx_I &\Rightarrow& \CALL~x \\ &&|&
      \text{call\_ref}~~x{:}\Ttypeidx &\Rightarrow& \CALLREF~x \\ &&|&
@@ -175,6 +179,33 @@ Reference Instructions
 .. _text-ref.func:
 .. _text-ref.is_null:
 .. _text-ref.as_non_null:
+.. _text-struct.new:
+.. _text-struct.new_default:
+.. _text-struct.get:
+.. _text-struct.get_s:
+.. _text-struct.get_u:
+.. _text-struct.set:
+.. _text-array.new:
+.. _text-array.new_default:
+.. _text-array.new_fixed:
+.. _text-array.new_elem:
+.. _text-array.new_data:
+.. _text-array.get:
+.. _text-array.get_s:
+.. _text-array.get_u:
+.. _text-array.set:
+.. _text-array.len:
+.. _text-array.fill:
+.. _text-array.copy:
+.. _text-array.init_data:
+.. _text-array.init_elem:
+.. _text-ref.i31:
+.. _text-i31.get_s:
+.. _text-i31.get_u:
+.. _text-ref.test:
+.. _text-ref.cast:
+.. _text-any.convert_extern:
+.. _text-extern.convert_any:
 
 .. math::
    \begin{array}{llclll}
@@ -182,7 +213,35 @@ Reference Instructions
      \text{ref.null}~~t{:}\Theaptype &\Rightarrow& \REFNULL~t \\ &&|&
      \text{ref.func}~~x{:}\Tfuncidx &\Rightarrow& \REFFUNC~x \\ &&|&
      \text{ref.is\_null} &\Rightarrow& \REFISNULL \\ &&|&
-     \text{ref.as\_non\_null} &\Rightarrow& \REFASNONNULL \\
+     \text{ref.as\_non\_null} &\Rightarrow& \REFASNONNULL \\ &&|&
+     \text{ref.eq} &\Rightarrow& \REFEQ \\ &&|&
+     \text{ref.test}~~t{:}\Treftype &\Rightarrow& \REFTEST~t \\ &&|&
+     \text{ref.cast}~~t{:}\Treftype &\Rightarrow& \REFCAST~t \\ &&|&
+     \text{struct.new}~~x{:}\Ttypeidx_I &\Rightarrow& \STRUCTNEW~x \\ &&|&
+     \text{struct.new\_default}~~x{:}\Ttypeidx_I &\Rightarrow& \STRUCTNEWDEFAULT~x \\ &&|&
+     \text{struct.get}~~x{:}\Ttypeidx_I~~y{:}\Tfieldidx_{I,x} &\Rightarrow& \STRUCTGET~x~y \\ &&|&
+     \text{struct.get\_u}~~x{:}\Ttypeidx_I~~y{:}\Tfieldidx_{I,x} &\Rightarrow& \STRUCTGETU~x~y \\ &&|&
+     \text{struct.get\_s}~~x{:}\Ttypeidx_I~~y{:}\Tfieldidx_{I,x} &\Rightarrow& \STRUCTGETS~x~y \\ &&|&
+     \text{struct.set}~~x{:}\Ttypeidx_I~~y{:}\Tfieldidx_{I,x} &\Rightarrow& \STRUCTSET~x~y \\ &&|&
+     \text{array.new}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYNEW~x \\ &&|&
+     \text{array.new\_default}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYNEWDEFAULT~x \\ &&|&
+     \text{array.new\_fixed}~~x{:}\Ttypeidx_I~~n{:}\Tu32 &\Rightarrow& \ARRAYNEWFIXED~x~n \\ &&|&
+     \text{array.new\_data}~~x{:}\Ttypeidx_I~~y{:}\Tdataidx_I &\Rightarrow& \ARRAYNEWDATA~x~y \\ &&|&
+     \text{array.new\_elem}~~x{:}\Ttypeidx_I~~y{:}\Telemidx_I &\Rightarrow& \ARRAYNEWELEM~x~y \\ &&|&
+     \text{array.get}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYGET~x \\ &&|&
+     \text{array.get\_u}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYGETU~x \\ &&|&
+     \text{array.get\_s}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYGETS~x \\ &&|&
+     \text{array.set}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYSET~x \\ &&|&
+     \text{array.len} &\Rightarrow& \ARRAYLEN \\ &&|&
+     \text{array.fill}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYFILL~x \\ &&|&
+     \text{array.copy}~~x{:}\Ttypeidx_I~~y{:}\Ttypeidx_I &\Rightarrow& \ARRAYCOPY~x~y \\ &&|&
+     \text{array.init\_data}~~x{:}\Ttypeidx_I~~y{:}\Tdataidx_I &\Rightarrow& \ARRAYINITDATA~x~y \\ &&|&
+     \text{array.init\_elem}~~x{:}\Ttypeidx_I~~y{:}\Telemidx_I &\Rightarrow& \ARRAYINITELEM~x~y \\ &&|&
+     \text{ref.i31} &\Rightarrow& \REFI31 \\ &&|&
+     \text{i31.get\_u} &\Rightarrow& \I31GETU \\ &&|&
+     \text{i31.get\_s} &\Rightarrow& \I31GETS \\ &&|&
+     \text{any.convert\_extern} &\Rightarrow& \ANYCONVERTEXTERN \\ &&|&
+     \text{extern.convert\_any} &\Rightarrow& \EXTERNCONVERTANY \\
    \end{array}
 
 
@@ -309,36 +368,117 @@ Lexically, an |Toffset| or |Talign| phrase is considered a single :ref:`keyword 
    \production{memory alignment} & \Talign_N &::=&
      \text{align{=}}a{:}\Tu32 &\Rightarrow& a \\ &&|&
      \epsilon &\Rightarrow& N \\
-   \production{instruction} & \Tplaininstr_I &::=& \dots \\ &&|&
-     \text{i32.load}~~m{:}\Tmemarg_4 &\Rightarrow& \I32.\LOAD~m \\ &&|&
-     \text{i64.load}~~m{:}\Tmemarg_8 &\Rightarrow& \I64.\LOAD~m \\ &&|&
-     \text{f32.load}~~m{:}\Tmemarg_4 &\Rightarrow& \F32.\LOAD~m \\ &&|&
-     \text{f64.load}~~m{:}\Tmemarg_8 &\Rightarrow& \F64.\LOAD~m \\ &&|&
-     \text{i32.load8\_s}~~m{:}\Tmemarg_1 &\Rightarrow& \I32.\LOAD\K{8\_s}~m \\ &&|&
-     \text{i32.load8\_u}~~m{:}\Tmemarg_1 &\Rightarrow& \I32.\LOAD\K{8\_u}~m \\ &&|&
-     \text{i32.load16\_s}~~m{:}\Tmemarg_2 &\Rightarrow& \I32.\LOAD\K{16\_s}~m \\ &&|&
-     \text{i32.load16\_u}~~m{:}\Tmemarg_2 &\Rightarrow& \I32.\LOAD\K{16\_u}~m \\ &&|&
-     \text{i64.load8\_s}~~m{:}\Tmemarg_1 &\Rightarrow& \I64.\LOAD\K{8\_s}~m \\ &&|&
-     \text{i64.load8\_u}~~m{:}\Tmemarg_1 &\Rightarrow& \I64.\LOAD\K{8\_u}~m \\ &&|&
-     \text{i64.load16\_s}~~m{:}\Tmemarg_2 &\Rightarrow& \I64.\LOAD\K{16\_s}~m \\ &&|&
-     \text{i64.load16\_u}~~m{:}\Tmemarg_2 &\Rightarrow& \I64.\LOAD\K{16\_u}~m \\ &&|&
-     \text{i64.load32\_s}~~m{:}\Tmemarg_4 &\Rightarrow& \I64.\LOAD\K{32\_s}~m \\ &&|&
-     \text{i64.load32\_u}~~m{:}\Tmemarg_4 &\Rightarrow& \I64.\LOAD\K{32\_u}~m \\ &&|&
-     \text{i32.store}~~m{:}\Tmemarg_4 &\Rightarrow& \I32.\STORE~m \\ &&|&
-     \text{i64.store}~~m{:}\Tmemarg_8 &\Rightarrow& \I64.\STORE~m \\ &&|&
-     \text{f32.store}~~m{:}\Tmemarg_4 &\Rightarrow& \F32.\STORE~m \\ &&|&
-     \text{f64.store}~~m{:}\Tmemarg_8 &\Rightarrow& \F64.\STORE~m \\ &&|&
-     \text{i32.store8}~~m{:}\Tmemarg_1 &\Rightarrow& \I32.\STORE\K{8}~m \\ &&|&
-     \text{i32.store16}~~m{:}\Tmemarg_2 &\Rightarrow& \I32.\STORE\K{16}~m \\ &&|&
-     \text{i64.store8}~~m{:}\Tmemarg_1 &\Rightarrow& \I64.\STORE\K{8}~m \\ &&|&
-     \text{i64.store16}~~m{:}\Tmemarg_2 &\Rightarrow& \I64.\STORE\K{16}~m \\ &&|&
-     \text{i64.store32}~~m{:}\Tmemarg_4 &\Rightarrow& \I64.\STORE\K{32}~m \\ &&|&
-     \text{memory.size} &\Rightarrow& \MEMORYSIZE \\ &&|&
-     \text{memory.grow} &\Rightarrow& \MEMORYGROW \\ &&|&
-     \text{memory.fill} &\Rightarrow& \MEMORYFILL \\ &&|&
-     \text{memory.copy} &\Rightarrow& \MEMORYCOPY \\ &&|&
-     \text{memory.init}~~x{:}\Tdataidx_I &\Rightarrow& \MEMORYINIT~x \\ &&|&
+   \production{instruction} & \Tplaininstr_I &::=& \dots \phantom{averylonginstructionnameforvectext} && \phantom{vechasreallylonginstructionnames} \\ &&|&
+     \text{i32.load}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \I32.\LOAD~x~m \\ &&|&
+     \text{i64.load}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \I64.\LOAD~x~m \\ &&|&
+     \text{f32.load}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \F32.\LOAD~x~m \\ &&|&
+     \text{f64.load}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \F64.\LOAD~x~m \\ &&|&
+     \text{v128.load}~~x{:}\Tmemidx~~m{:}\Tmemarg_{16} &\Rightarrow& \V128.\LOAD~x~m \\ &&|&
+     \text{i32.load8\_s}~~x{:}\Tmemidx~~m{:}\Tmemarg_1 &\Rightarrow& \I32.\LOAD\K{8\_s}~x~m \\ &&|&
+     \text{i32.load8\_u}~~x{:}\Tmemidx~~m{:}\Tmemarg_1 &\Rightarrow& \I32.\LOAD\K{8\_u}~x~m \\ &&|&
+     \text{i32.load16\_s}~~x{:}\Tmemidx~~m{:}\Tmemarg_2 &\Rightarrow& \I32.\LOAD\K{16\_s}~x~m \\ &&|&
+     \text{i32.load16\_u}~~x{:}\Tmemidx~~m{:}\Tmemarg_2 &\Rightarrow& \I32.\LOAD\K{16\_u}~x~m \\ &&|&
+     \text{i64.load8\_s}~~x{:}\Tmemidx~~m{:}\Tmemarg_1 &\Rightarrow& \I64.\LOAD\K{8\_s}~x~m \\ &&|&
+     \text{i64.load8\_u}~~x{:}\Tmemidx~~m{:}\Tmemarg_1 &\Rightarrow& \I64.\LOAD\K{8\_u}~x~m \\ &&|&
+     \text{i64.load16\_s}~~x{:}\Tmemidx~~m{:}\Tmemarg_2 &\Rightarrow& \I64.\LOAD\K{16\_s}~x~m \\ &&|&
+     \text{i64.load16\_u}~~x{:}\Tmemidx~~m{:}\Tmemarg_2 &\Rightarrow& \I64.\LOAD\K{16\_u}~x~m \\ &&|&
+     \text{i64.load32\_s}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \I64.\LOAD\K{32\_s}~x~m \\ &&|&
+     \text{i64.load32\_u}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \I64.\LOAD\K{32\_u}~x~m \\ &&|&
+     \text{v128.load8x8\_s}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{8x8\_s}~x~m \\ &&|&
+     \text{v128.load8x8\_u}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{8x8\_u}~x~m \\ &&|&
+     \text{v128.load16x4\_s}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{16x4\_s}~x~m \\ &&|&
+     \text{v128.load16x4\_u}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{16x4\_u}~x~m \\ &&|&
+     \text{v128.load32x2\_s}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{32x2\_s}~x~m \\ &&|&
+     \text{v128.load32x2\_u}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{32x2\_u}~x~m \\ &&|&
+     \text{v128.load8\_splat}~~x{:}\Tmemidx~~m{:}\Tmemarg_1 &\Rightarrow& \V128.\LOAD\K{8\_splat}~x~m \\ &&|&
+     \text{v128.load16\_splat}~~x{:}\Tmemidx~~m{:}\Tmemarg_2 &\Rightarrow& \V128.\LOAD\K{16\_splat}~x~m \\ &&|&
+     \text{v128.load32\_splat}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \V128.\LOAD\K{32\_splat}~x~m \\ &&|&
+     \text{v128.load64\_splat}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{64\_splat}~x~m \\ &&|&
+     \text{v128.load32\_zero}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \V128.\LOAD\K{32\_zero}~x~m \\ &&|&
+     \text{v128.load64\_zero}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{64\_zero}~x~m \\ &&|&
+     \text{v128.load8\_lane}~~x{:}\Tmemidx~~m{:}\Tmemarg_1~~y{:}\Tu8 &\Rightarrow& \V128.\LOAD\K{8\_lane}~x~m~y \\ &&|&
+     \text{v128.load16\_lane}~~x{:}\Tmemidx~~m{:}\Tmemarg_2~~y{:}\Tu8 &\Rightarrow& \V128.\LOAD\K{16\_lane}~x~m~y \\ &&|&
+     \text{v128.load32\_lane}~~x{:}\Tmemidx~~m{:}\Tmemarg_4~~y{:}\Tu8 &\Rightarrow& \V128.\LOAD\K{32\_lane}~x~m~y \\ &&|&
+     \text{v128.load64\_lane}~~x{:}\Tmemidx~~m{:}\Tmemarg_8~~y{:}\Tu8 &\Rightarrow& \V128.\LOAD\K{64\_lane}~x~m~y \\ &&|&
+     \text{i32.store}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \I32.\STORE~x~m \\ &&|&
+     \text{i64.store}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \I64.\STORE~x~m \\ &&|&
+     \text{f32.store}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \F32.\STORE~x~m \\ &&|&
+     \text{f64.store}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \F64.\STORE~x~m \\ &&|&
+     \text{v128.store}~~x{:}\Tmemidx~~m{:}\Tmemarg_{16} &\Rightarrow& \V128.\STORE~x~m \\ &&|&
+     \text{i32.store8}~~x{:}\Tmemidx~~m{:}\Tmemarg_1 &\Rightarrow& \I32.\STORE\K{8}~x~m \\ &&|&
+     \text{i32.store16}~~x{:}\Tmemidx~~m{:}\Tmemarg_2 &\Rightarrow& \I32.\STORE\K{16}~x~m \\ &&|&
+     \text{i64.store8}~~x{:}\Tmemidx~~m{:}\Tmemarg_1 &\Rightarrow& \I64.\STORE\K{8}~x~m \\ &&|&
+     \text{i64.store16}~~x{:}\Tmemidx~~m{:}\Tmemarg_2 &\Rightarrow& \I64.\STORE\K{16}~x~m \\ &&|&
+     \text{i64.store32}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \I64.\STORE\K{32}~x~m \\ &&|&
+     \text{v128.store8\_lane}~~x{:}\Tmemidx~~m{:}\Tmemarg_1~~y{:}\Tu8 &\Rightarrow& \V128.\STORE\K{8\_lane}~x~m~y \\ &&|&
+     \text{v128.store16\_lane}~~x{:}\Tmemidx~~m{:}\Tmemarg_2~~y{:}\Tu8 &\Rightarrow& \V128.\STORE\K{16\_lane}~x~m~y \\ &&|&
+     \text{v128.store32\_lane}~~x{:}\Tmemidx~~m{:}\Tmemarg_4~~y{:}\Tu8 &\Rightarrow& \V128.\STORE\K{32\_lane}~x~m~y \\ &&|&
+     \text{v128.store64\_lane}~~x{:}\Tmemidx~~m{:}\Tmemarg_8~~y{:}\Tu8 &\Rightarrow& \V128.\STORE\K{64\_lane}~x~m~y \\
+     \text{memory.size}~~x{:}\Tmemidx &\Rightarrow& \MEMORYSIZE~x \\ &&|&
+     \text{memory.grow}~~x{:}\Tmemidx &\Rightarrow& \MEMORYGROW~x \\ &&|&
+     \text{memory.fill}~~x{:}\Tmemidx &\Rightarrow& \MEMORYFILL~x \\ &&|&
+     \text{memory.copy}~~x{:}\Tmemidx~~y{:}\Tmemidx &\Rightarrow& \MEMORYCOPY~x~y \\ &&|&
+     \text{memory.init}~~x{:}\Tmemidx~~y{:}\Tdataidx_I &\Rightarrow& \MEMORYINIT~x~y \\ &&|&
      \text{data.drop}~~x{:}\Tdataidx_I &\Rightarrow& \DATADROP~x \\
+   \end{array}
+
+
+Abbreviations
+.............
+
+As an abbreviation, the memory index can be omitted in all memory instructions, defaulting to :math:`\T{0}`.
+
+.. math::
+   \begin{array}{llclll}
+   \production{instruction} &
+    \Tnumtype\text{.load}~~\Tmemarg
+       &\equiv&
+     \Tnumtype\text{.load}~~\text{0}~~\Tmemarg \\&
+    \Tvectype\text{.load}~~\Tmemarg
+       &\equiv&
+     \Tvectype\text{.load}~~\text{0}~~\Tmemarg \\&
+    \Tnumtype\text{.load}N\text{\_}\sx~~\Tmemarg
+       &\equiv&
+     \Tnumtype\text{.load}N\text{\_}\sx~~\text{0}~~\Tmemarg \\&
+    \Tvectype\text{.load}{N}\K{x}M\text{\_}\sx~~\Tmemarg
+       &\equiv&
+     \Tvectype\text{.load}{N}\K{x}M\text{\_}\sx~~\text{0}~~\Tmemarg \\&
+    \Tvectype\text{.load}N\text{\_splat}~~\Tmemarg
+       &\equiv&
+     \Tvectype\text{.load}N\text{\_splat}~~\text{0}~~\Tmemarg \\&
+    \Tvectype\text{.load}N\text{\_zero}~~\Tmemarg
+       &\equiv&
+     \Tvectype\text{.load}N\text{\_zero}~~\text{0}~~\Tmemarg \\&
+    \Tvectype\text{.load}N\text{\_lane}~~\Tmemarg~~\Tu8
+       &\equiv&
+     \Tvectype\text{.load}N\text{\_lane}~~\text{0}~~\Tmemarg~~\Tu8 \\&
+    \Tnumtype\text{.store}~~\Tmemarg
+       &\equiv&
+     \Tnumtype\text{.store}~~\text{0}~~\Tmemarg \\&
+    \Tvectype\text{.store}~~\Tmemarg
+       &\equiv&
+     \Tvectype\text{.store}~~\text{0}~~\Tmemarg \\&
+    \Tnumtype\text{.store}N~~\Tmemarg
+       &\equiv&
+     \Tnumtype\text{.store}N~~\text{0}~~\Tmemarg \\&
+    \Tvectype\text{.store}N\text{\_lane}~~\Tmemarg~~\Tu8
+       &\equiv&
+     \Tvectype\text{.store}N\text{\_lane}~~\text{0}~~\Tmemarg~~\Tu8 \\&
+    \text{memory.size}
+       &\equiv&
+     \text{memory.size}~~\text{0} \\&
+    \text{memory.grow}
+       &\equiv&
+     \text{memory.grow}~~\text{0} \\&
+    \text{memory.fill}
+       &\equiv&
+     \text{memory.fill}~~\text{0} \\&
+    \text{memory.copy}
+       &\equiv&
+     \text{memory.copy}~~\text{0}~~\text{0} \\&
+    \text{memory.init}~~x{:}\Telemidx_I
+       &\equiv&
+     \text{memory.init}~~\text{0}~~x{:}\Telemidx_I
    \end{array}
 
 
@@ -562,35 +702,6 @@ Numeric Instructions
 Vector Instructions
 ~~~~~~~~~~~~~~~~~~~
 
-Vector memory instructions have optional offset and alignment immediates, like the :ref:`memory instructions <text-memarg>`.
-
-.. math::
-   \begin{array}{llclll}
-   \production{instruction} & \Tplaininstr_I &::=& \dots \phantom{averylonginstructionnameforvectext} && \phantom{vechasreallylonginstructionnames} \\ &&|&
-     \text{v128.load}~~m{:}\Tmemarg_{16} &\Rightarrow& \V128.\LOAD~m \\ &&|&
-     \text{v128.load8x8\_s}~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{8x8\_s}~m \\ &&|&
-     \text{v128.load8x8\_u}~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{8x8\_u}~m \\ &&|&
-     \text{v128.load16x4\_s}~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{16x4\_s}~m \\ &&|&
-     \text{v128.load16x4\_u}~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{16x4\_u}~m \\ &&|&
-     \text{v128.load32x2\_s}~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{32x2\_s}~m \\ &&|&
-     \text{v128.load32x2\_u}~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{32x2\_u}~m \\ &&|&
-     \text{v128.load8\_splat}~~m{:}\Tmemarg_1 &\Rightarrow& \V128.\LOAD\K{8\_splat}~m \\ &&|&
-     \text{v128.load16\_splat}~~m{:}\Tmemarg_2 &\Rightarrow& \V128.\LOAD\K{16\_splat}~m \\ &&|&
-     \text{v128.load32\_splat}~~m{:}\Tmemarg_4 &\Rightarrow& \V128.\LOAD\K{32\_splat}~m \\ &&|&
-     \text{v128.load64\_splat}~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{64\_splat}~m \\ &&|&
-     \text{v128.load32\_zero}~~m{:}\Tmemarg_4 &\Rightarrow& \V128.\LOAD\K{32\_zero}~m \\ &&|&
-     \text{v128.load64\_zero}~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{64\_zero}~m \\ &&|&
-     \text{v128.store}~~m{:}\Tmemarg_{16} &\Rightarrow& \V128.\STORE~m \\ &&|&
-     \text{v128.load8\_lane}~~m{:}\Tmemarg_1~~laneidx{:}\Tu8 &\Rightarrow& \V128.\LOAD\K{8\_lane}~m~laneidx \\ &&|&
-     \text{v128.load16\_lane}~~m{:}\Tmemarg_2~~laneidx{:}\Tu8 &\Rightarrow& \V128.\LOAD\K{16\_lane}~m~laneidx \\ &&|&
-     \text{v128.load32\_lane}~~m{:}\Tmemarg_4~~laneidx{:}\Tu8 &\Rightarrow& \V128.\LOAD\K{32\_lane}~m~laneidx \\ &&|&
-     \text{v128.load64\_lane}~~m{:}\Tmemarg_8~~laneidx{:}\Tu8 &\Rightarrow& \V128.\LOAD\K{64\_lane}~m~laneidx \\ &&|&
-     \text{v128.store8\_lane}~~m{:}\Tmemarg_1~~laneidx{:}\Tu8 &\Rightarrow& \V128.\STORE\K{8\_lane}~m~laneidx \\ &&|&
-     \text{v128.store16\_lane}~~m{:}\Tmemarg_2~~laneidx{:}\Tu8 &\Rightarrow& \V128.\STORE\K{16\_lane}~m~laneidx \\ &&|&
-     \text{v128.store32\_lane}~~m{:}\Tmemarg_4~~laneidx{:}\Tu8 &\Rightarrow& \V128.\STORE\K{32\_lane}~m~laneidx \\ &&|&
-     \text{v128.store64\_lane}~~m{:}\Tmemarg_8~~laneidx{:}\Tu8 &\Rightarrow& \V128.\STORE\K{64\_lane}~m~laneidx \\
-   \end{array}
-
 Vector constant instructions have a mandatory :ref:`shape <syntax-vec-shape>` descriptor, which determines how the following values are parsed.
 
 .. math::
@@ -607,38 +718,38 @@ Vector constant instructions have a mandatory :ref:`shape <syntax-vec-shape>` de
 .. math::
    \begin{array}{llclll}
    \phantom{\production{instruction}} & \phantom{\Tplaininstr_I} &\phantom{::=}& \phantom{averylonginstructionnameforvectext} && \phantom{vechasreallylonginstructionnames} \\[-2ex] &&|&
-     \text{i8x16.shuffle}~~(laneidx{:}\Tu8)^{16} &\Rightarrow& \I8X16.\SHUFFLE~laneidx^{16} \\ &&|&
-     \text{i8x16.swizzle} &\Rightarrow& \I8X16.\SWIZZLE
+     \text{i8x16.shuffle}~~(laneidx{:}\Tu8)^{16} &\Rightarrow& \I8X16.\VSHUFFLE~laneidx^{16} \\ &&|&
+     \text{i8x16.swizzle} &\Rightarrow& \I8X16.\VSWIZZLE
    \end{array}
 
 .. math::
    \begin{array}{llclll}
    \phantom{\production{instruction}} & \phantom{\Tplaininstr_I} &\phantom{::=}& \phantom{averylonginstructionnameforvectext} && \phantom{vechasreallylonginstructionnames} \\[-2ex] &&|&
-     \text{i8x16.splat} &\Rightarrow& \I8X16.\SPLAT\\ &&|&
-     \text{i16x8.splat} &\Rightarrow& \I16X8.\SPLAT\\ &&|&
-     \text{i32x4.splat} &\Rightarrow& \I32X4.\SPLAT\\ &&|&
-     \text{i64x2.splat} &\Rightarrow& \I64X2.\SPLAT\\ &&|&
-     \text{f32x4.splat} &\Rightarrow& \F32X4.\SPLAT\\ &&|&
-     \text{f64x2.splat} &\Rightarrow& \F64X2.\SPLAT\\
+     \text{i8x16.splat} &\Rightarrow& \I8X16.\VSPLAT\\ &&|&
+     \text{i16x8.splat} &\Rightarrow& \I16X8.\VSPLAT\\ &&|&
+     \text{i32x4.splat} &\Rightarrow& \I32X4.\VSPLAT\\ &&|&
+     \text{i64x2.splat} &\Rightarrow& \I64X2.\VSPLAT\\ &&|&
+     \text{f32x4.splat} &\Rightarrow& \F32X4.\VSPLAT\\ &&|&
+     \text{f64x2.splat} &\Rightarrow& \F64X2.\VSPLAT\\
    \end{array}
 
 .. math::
    \begin{array}{llclll}
    \phantom{\production{instruction}} & \phantom{\Tplaininstr_I} &\phantom{::=}& \phantom{averylonginstructionnameforvectext} && \phantom{vechasreallylonginstructionnames} \\[-2ex] &&|&
-     \text{i8x16.extract\_lane\_s}~~laneidx{:}\Tu8 &\Rightarrow& \I8X16.\EXTRACTLANE\K{\_s}~laneidx \\ &&|&
-     \text{i8x16.extract\_lane\_u}~~laneidx{:}\Tu8 &\Rightarrow& \I8X16.\EXTRACTLANE\K{\_u}~laneidx \\ &&|&
-     \text{i8x16.replace\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \I8X16.\REPLACELANE~laneidx \\ &&|&
-     \text{i16x8.extract\_lane\_s}~~laneidx{:}\Tu8 &\Rightarrow& \I16X8.\EXTRACTLANE\K{\_s}~laneidx \\ &&|&
-     \text{i16x8.extract\_lane\_u}~~laneidx{:}\Tu8 &\Rightarrow& \I16X8.\EXTRACTLANE\K{\_u}~laneidx \\ &&|&
-     \text{i16x8.replace\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \I16X8.\REPLACELANE~laneidx \\ &&|&
-     \text{i32x4.extract\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \I32X4.\EXTRACTLANE~laneidx \\ &&|&
-     \text{i32x4.replace\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \I32X4.\REPLACELANE~laneidx \\ &&|&
-     \text{i64x2.extract\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \I64X2.\EXTRACTLANE~laneidx \\ &&|&
-     \text{i64x2.replace\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \I64X2.\REPLACELANE~laneidx \\ &&|&
-     \text{f32x4.extract\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \F32X4.\EXTRACTLANE~laneidx \\ &&|&
-     \text{f32x4.replace\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \F32X4.\REPLACELANE~laneidx \\ &&|&
-     \text{f64x2.extract\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \F64X2.\EXTRACTLANE~laneidx \\ &&|&
-     \text{f64x2.replace\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \F64X2.\REPLACELANE~laneidx \\
+     \text{i8x16.extract\_lane\_s}~~laneidx{:}\Tu8 &\Rightarrow& \I8X16.\VEXTRACTLANE\K{\_s}~laneidx \\ &&|&
+     \text{i8x16.extract\_lane\_u}~~laneidx{:}\Tu8 &\Rightarrow& \I8X16.\VEXTRACTLANE\K{\_u}~laneidx \\ &&|&
+     \text{i8x16.replace\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \I8X16.\VREPLACELANE~laneidx \\ &&|&
+     \text{i16x8.extract\_lane\_s}~~laneidx{:}\Tu8 &\Rightarrow& \I16X8.\VEXTRACTLANE\K{\_s}~laneidx \\ &&|&
+     \text{i16x8.extract\_lane\_u}~~laneidx{:}\Tu8 &\Rightarrow& \I16X8.\VEXTRACTLANE\K{\_u}~laneidx \\ &&|&
+     \text{i16x8.replace\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \I16X8.\VREPLACELANE~laneidx \\ &&|&
+     \text{i32x4.extract\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \I32X4.\VEXTRACTLANE~laneidx \\ &&|&
+     \text{i32x4.replace\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \I32X4.\VREPLACELANE~laneidx \\ &&|&
+     \text{i64x2.extract\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \I64X2.\VEXTRACTLANE~laneidx \\ &&|&
+     \text{i64x2.replace\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \I64X2.\VREPLACELANE~laneidx \\ &&|&
+     \text{f32x4.extract\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \F32X4.\VEXTRACTLANE~laneidx \\ &&|&
+     \text{f32x4.replace\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \F32X4.\VREPLACELANE~laneidx \\ &&|&
+     \text{f64x2.extract\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \F64X2.\VEXTRACTLANE~laneidx \\ &&|&
+     \text{f64x2.replace\_lane}~~laneidx{:}\Tu8 &\Rightarrow& \F64X2.\VREPLACELANE~laneidx \\
    \end{array}
 
 .. _text-virelop:
@@ -735,8 +846,8 @@ Vector constant instructions have a mandatory :ref:`shape <syntax-vec-shape>` de
      \text{v128.andnot} &\Rightarrow& \V128.\VANDNOT\\ &&|&
      \text{v128.or} &\Rightarrow& \V128.\VOR\\ &&|&
      \text{v128.xor} &\Rightarrow& \V128.\VXOR\\ &&|&
-     \text{v128.bitselect} &\Rightarrow& \V128.\BITSELECT\\ &&|&
-     \text{v128.any\_true} &\Rightarrow& \V128.\ANYTRUE
+     \text{v128.bitselect} &\Rightarrow& \V128.\VBITSELECT\\ &&|&
+     \text{v128.any\_true} &\Rightarrow& \V128.\VANYTRUE
    \end{array}
 
 .. _text-vitestop:
@@ -751,24 +862,24 @@ Vector constant instructions have a mandatory :ref:`shape <syntax-vec-shape>` de
    \phantom{\production{instruction}} & \phantom{\Tplaininstr_I} &\phantom{::=}& \phantom{averylonginstructionnameforvectext} && \phantom{vechasreallylonginstructionnames} \\[-2ex] &&|&
      \text{i8x16.abs} &\Rightarrow& \I8X16.\VABS\\ &&|&
      \text{i8x16.neg} &\Rightarrow& \I8X16.\VNEG\\ &&|&
-     \text{i8x16.all\_true} &\Rightarrow& \I8X16.\ALLTRUE\\ &&|&
-     \text{i8x16.bitmask} &\Rightarrow& \I8X16.\BITMASK\\ &&|&
-     \text{i8x16.narrow\_i16x8\_s} &\Rightarrow& \I8X16.\NARROW\K{\_i16x8\_s}\\ &&|&
-     \text{i8x16.narrow\_i16x8\_u} &\Rightarrow& \I8X16.\NARROW\K{\_i16x8\_u}\\ &&|&
+     \text{i8x16.all\_true} &\Rightarrow& \I8X16.\VALLTRUE\\ &&|&
+     \text{i8x16.bitmask} &\Rightarrow& \I8X16.\VBITMASK\\ &&|&
+     \text{i8x16.narrow\_i16x8\_s} &\Rightarrow& \I8X16.\VNARROW\K{\_i16x8\_s}\\ &&|&
+     \text{i8x16.narrow\_i16x8\_u} &\Rightarrow& \I8X16.\VNARROW\K{\_i16x8\_u}\\ &&|&
      \text{i8x16.shl} &\Rightarrow& \I8X16.\VSHL\\ &&|&
      \text{i8x16.shr\_s} &\Rightarrow& \I8X16.\VSHR\K{\_s}\\ &&|&
      \text{i8x16.shr\_u} &\Rightarrow& \I8X16.\VSHR\K{\_u}\\ &&|&
      \text{i8x16.add} &\Rightarrow& \I8X16.\VADD\\ &&|&
-     \text{i8x16.add\_sat\_s} &\Rightarrow& \I8X16.\VADD\K{\_sat\_s}\\ &&|&
-     \text{i8x16.add\_sat\_u} &\Rightarrow& \I8X16.\VADD\K{\_sat\_u}\\ &&|&
+     \text{i8x16.add\_sat\_s} &\Rightarrow& \I8X16.\VADDSAT\K{\_s}\\ &&|&
+     \text{i8x16.add\_sat\_u} &\Rightarrow& \I8X16.\VADDSAT\K{\_u}\\ &&|&
      \text{i8x16.sub} &\Rightarrow& \I8X16.\VSUB\\ &&|&
-     \text{i8x16.sub\_sat\_s} &\Rightarrow& \I8X16.\VSUB\K{\_sat\_s}\\ &&|&
-     \text{i8x16.sub\_sat\_u} &\Rightarrow& \I8X16.\VSUB\K{\_sat\_u}\\ &&|&
+     \text{i8x16.sub\_sat\_s} &\Rightarrow& \I8X16.\VSUBSAT\K{\_s}\\ &&|&
+     \text{i8x16.sub\_sat\_u} &\Rightarrow& \I8X16.\VSUBSAT\K{\_u}\\ &&|&
      \text{i8x16.min\_s} &\Rightarrow& \I8X16.\VMIN\K{\_s}\\ &&|&
      \text{i8x16.min\_u} &\Rightarrow& \I8X16.\VMIN\K{\_u}\\ &&|&
      \text{i8x16.max\_s} &\Rightarrow& \I8X16.\VMAX\K{\_s}\\ &&|&
      \text{i8x16.max\_u} &\Rightarrow& \I8X16.\VMAX\K{\_u}\\ &&|&
-     \text{i8x16.avgr\_u} &\Rightarrow& \I8X16.\AVGR\K{\_u}\\ &&|&
+     \text{i8x16.avgr\_u} &\Rightarrow& \I8X16.\VAVGRU\\ &&|&
      \text{i8x16.popcnt} &\Rightarrow& \I8X16.\VPOPCNT\\
    \end{array}
 
@@ -777,10 +888,10 @@ Vector constant instructions have a mandatory :ref:`shape <syntax-vec-shape>` de
    \phantom{\production{instruction}} & \phantom{\Tplaininstr_I} &\phantom{::=}& \phantom{averylonginstructionnameforvectext} && \phantom{vechasreallylonginstructionnames} \\[-2ex] &&|&
      \text{i16x8.abs} &\Rightarrow& \I16X8.\VABS\\ &&|&
      \text{i16x8.neg} &\Rightarrow& \I16X8.\VNEG\\ &&|&
-     \text{i16x8.all\_true} &\Rightarrow& \I16X8.\ALLTRUE\\ &&|&
-     \text{i16x8.bitmask} &\Rightarrow& \I16X8.\BITMASK\\ &&|&
-     \text{i16x8.narrow\_i32x4\_s} &\Rightarrow& \I16X8.\NARROW\K{\_i32x4\_s}\\ &&|&
-     \text{i16x8.narrow\_i32x4\_u} &\Rightarrow& \I16X8.\NARROW\K{\_i32x4\_u}\\ &&|&
+     \text{i16x8.all\_true} &\Rightarrow& \I16X8.\VALLTRUE\\ &&|&
+     \text{i16x8.bitmask} &\Rightarrow& \I16X8.\VBITMASK\\ &&|&
+     \text{i16x8.narrow\_i32x4\_s} &\Rightarrow& \I16X8.\VNARROW\K{\_i32x4\_s}\\ &&|&
+     \text{i16x8.narrow\_i32x4\_u} &\Rightarrow& \I16X8.\VNARROW\K{\_i32x4\_u}\\ &&|&
      \text{i16x8.extend\_low\_i8x16\_s} &\Rightarrow& \I16X8.\VEXTEND\K{\_low\_i8x16\_s}\\ &&|&
      \text{i16x8.extend\_high\_i8x16\_s} &\Rightarrow& \I16X8.\VEXTEND\K{\_high\_i8x16\_s}\\ &&|&
      \text{i16x8.extend\_low\_i8x16\_u} &\Rightarrow& \I16X8.\VEXTEND\K{\_low\_i8x16\_u}\\ &&|&
@@ -789,24 +900,24 @@ Vector constant instructions have a mandatory :ref:`shape <syntax-vec-shape>` de
      \text{i16x8.shr\_s} &\Rightarrow& \I16X8.\VSHR\K{\_s}\\ &&|&
      \text{i16x8.shr\_u} &\Rightarrow& \I16X8.\VSHR\K{\_u}\\ &&|&
      \text{i16x8.add} &\Rightarrow& \I16X8.\VADD\\ &&|&
-     \text{i16x8.add\_sat\_s} &\Rightarrow& \I16X8.\VADD\K{\_sat\_s}\\ &&|&
-     \text{i16x8.add\_sat\_u} &\Rightarrow& \I16X8.\VADD\K{\_sat\_u}\\ &&|&
+     \text{i16x8.add\_sat\_s} &\Rightarrow& \I16X8.\VADDSAT\K{\_s}\\ &&|&
+     \text{i16x8.add\_sat\_u} &\Rightarrow& \I16X8.\VADDSAT\K{\_u}\\ &&|&
      \text{i16x8.sub} &\Rightarrow& \I16X8.\VSUB\\ &&|&
-     \text{i16x8.sub\_sat\_s} &\Rightarrow& \I16X8.\VSUB\K{\_sat\_s}\\ &&|&
-     \text{i16x8.sub\_sat\_u} &\Rightarrow& \I16X8.\VSUB\K{\_sat\_u}\\ &&|&
+     \text{i16x8.sub\_sat\_s} &\Rightarrow& \I16X8.\VSUBSAT\K{\_s}\\ &&|&
+     \text{i16x8.sub\_sat\_u} &\Rightarrow& \I16X8.\VSUBSAT\K{\_u}\\ &&|&
      \text{i16x8.mul} &\Rightarrow& \I16X8.\VMUL\\ &&|&
      \text{i16x8.min\_s} &\Rightarrow& \I16X8.\VMIN\K{\_s}\\ &&|&
      \text{i16x8.min\_u} &\Rightarrow& \I16X8.\VMIN\K{\_u}\\ &&|&
      \text{i16x8.max\_s} &\Rightarrow& \I16X8.\VMAX\K{\_s}\\ &&|&
      \text{i16x8.max\_u} &\Rightarrow& \I16X8.\VMAX\K{\_u}\\ &&|&
-     \text{i16x8.avgr\_u} &\Rightarrow& \I16X8.\AVGR\K{\_u}\\ &&|&
-     \text{i16x8.q15mulr\_sat\_s} &\Rightarrow& \I16X8.\Q15MULRSAT\K{\_s}\\ &&|&
-     \text{i16x8.extmul\_low\_i8x16\_s} &\Rightarrow& \I16X8.\EXTMUL\K{\_low\_i8x16\_s}\\ &&|&
-     \text{i16x8.extmul\_high\_i8x16\_s} &\Rightarrow& \I16X8.\EXTMUL\K{\_high\_i8x16\_s}\\ &&|&
-     \text{i16x8.extmul\_low\_i8x16\_u} &\Rightarrow& \I16X8.\EXTMUL\K{\_low\_i8x16\_u}\\ &&|&
-     \text{i16x8.extmul\_high\_i8x16\_u} &\Rightarrow& \I16X8.\EXTMUL\K{\_high\_i8x16\_u}\\ &&|&
-     \text{i16x8.extadd\_pairwise\_i8x16\_s} &\Rightarrow& \I16X8.\EXTADDPAIRWISE\K{\_i8x16\_s}\\ &&|&
-     \text{i16x8.extadd\_pairwise\_i8x16\_u} &\Rightarrow& \I16X8.\EXTADDPAIRWISE\K{\_i8x16\_u}\\
+     \text{i16x8.avgr\_u} &\Rightarrow& \I16X8.\VAVGRU\\ &&|&
+     \text{i16x8.q15mulr\_sat\_s} &\Rightarrow& \I16X8.\VQ15MULRSATS\\ &&|&
+     \text{i16x8.extmul\_low\_i8x16\_s} &\Rightarrow& \I16X8.\VEXTMUL\K{\_low\_i8x16\_s}\\ &&|&
+     \text{i16x8.extmul\_high\_i8x16\_s} &\Rightarrow& \I16X8.\VEXTMUL\K{\_high\_i8x16\_s}\\ &&|&
+     \text{i16x8.extmul\_low\_i8x16\_u} &\Rightarrow& \I16X8.\VEXTMUL\K{\_low\_i8x16\_u}\\ &&|&
+     \text{i16x8.extmul\_high\_i8x16\_u} &\Rightarrow& \I16X8.\VEXTMUL\K{\_high\_i8x16\_u}\\ &&|&
+     \text{i16x8.extadd\_pairwise\_i8x16\_s} &\Rightarrow& \I16X8.\VEXTADDPAIRWISE\K{\_i8x16\_s}\\ &&|&
+     \text{i16x8.extadd\_pairwise\_i8x16\_u} &\Rightarrow& \I16X8.\VEXTADDPAIRWISE\K{\_i8x16\_u}\\
    \end{array}
 
 .. math::
@@ -814,9 +925,9 @@ Vector constant instructions have a mandatory :ref:`shape <syntax-vec-shape>` de
    \phantom{\production{instruction}} & \phantom{\Tplaininstr_I} &\phantom{::=}& \phantom{averylonginstructionnameforvectext} && \phantom{vechasreallylonginstructionnames} \\[-2ex] &&|&
      \text{i32x4.abs} &\Rightarrow& \I32X4.\VABS\\ &&|&
      \text{i32x4.neg} &\Rightarrow& \I32X4.\VNEG\\ &&|&
-     \text{i32x4.all\_true} &\Rightarrow& \I32X4.\ALLTRUE\\ &&|&
-     \text{i32x4.bitmask} &\Rightarrow& \I32X4.\BITMASK\\ &&|&
-     \text{i32x4.extadd\_pairwise\_i16x8\_s} &\Rightarrow& \I32X4.\EXTADDPAIRWISE\K{\_i16x8\_s}\\ &&|&
+     \text{i32x4.all\_true} &\Rightarrow& \I32X4.\VALLTRUE\\ &&|&
+     \text{i32x4.bitmask} &\Rightarrow& \I32X4.\VBITMASK\\ &&|&
+     \text{i32x4.extadd\_pairwise\_i16x8\_s} &\Rightarrow& \I32X4.\VEXTADDPAIRWISE\K{\_i16x8\_s}\\ &&|&
      \text{i32x4.extend\_low\_i16x8\_s} &\Rightarrow& \I32X4.\VEXTEND\K{\_low\_i16x8\_s}\\ &&|&
      \text{i32x4.extend\_high\_i16x8\_s} &\Rightarrow& \I32X4.\VEXTEND\K{\_high\_i16x8\_s}\\ &&|&
      \text{i32x4.extend\_low\_i16x8\_u} &\Rightarrow& \I32X4.\VEXTEND\K{\_low\_i16x8\_u}\\ &&|&
@@ -831,11 +942,11 @@ Vector constant instructions have a mandatory :ref:`shape <syntax-vec-shape>` de
      \text{i32x4.min\_u} &\Rightarrow& \I32X4.\VMIN\K{\_u}\\ &&|&
      \text{i32x4.max\_s} &\Rightarrow& \I32X4.\VMAX\K{\_s}\\ &&|&
      \text{i32x4.max\_u} &\Rightarrow& \I32X4.\VMAX\K{\_u}\\ &&|&
-     \text{i32x4.dot\_i16x8\_s} &\Rightarrow& \I32X4.\DOT\K{\_i16x8\_s}\\ &&|&
-     \text{i32x4.extmul\_low\_i16x8\_s} &\Rightarrow& \I32X4.\EXTMUL\K{\_low\_i16x8\_s}\\ &&|&
-     \text{i32x4.extmul\_high\_i16x8\_s} &\Rightarrow& \I32X4.\EXTMUL\K{\_high\_i16x8\_s}\\ &&|&
-     \text{i32x4.extmul\_low\_i16x8\_u} &\Rightarrow& \I32X4.\EXTMUL\K{\_low\_i16x8\_u}\\ &&|&
-     \text{i32x4.extmul\_high\_i16x8\_u} &\Rightarrow& \I32X4.\EXTMUL\K{\_high\_i16x8\_u}\\
+     \text{i32x4.dot\_i16x8\_s} &\Rightarrow& \I32X4.\VDOT\K{\_i16x8\_s}\\ &&|&
+     \text{i32x4.extmul\_low\_i16x8\_s} &\Rightarrow& \I32X4.\VEXTMUL\K{\_low\_i16x8\_s}\\ &&|&
+     \text{i32x4.extmul\_high\_i16x8\_s} &\Rightarrow& \I32X4.\VEXTMUL\K{\_high\_i16x8\_s}\\ &&|&
+     \text{i32x4.extmul\_low\_i16x8\_u} &\Rightarrow& \I32X4.\VEXTMUL\K{\_low\_i16x8\_u}\\ &&|&
+     \text{i32x4.extmul\_high\_i16x8\_u} &\Rightarrow& \I32X4.\VEXTMUL\K{\_high\_i16x8\_u}\\
   \end{array}
 
 .. math::
@@ -843,8 +954,8 @@ Vector constant instructions have a mandatory :ref:`shape <syntax-vec-shape>` de
    \phantom{\production{instruction}} & \phantom{\Tplaininstr_I} &\phantom{::=}& \phantom{averylonginstructionnameforvectext} && \phantom{vechasreallylonginstructionnames} \\[-2ex] &&|&
      \text{i64x2.abs} &\Rightarrow& \I64X2.\VABS\\ &&|&
      \text{i64x2.neg} &\Rightarrow& \I64X2.\VNEG\\ &&|&
-     \text{i64x2.all\_true} &\Rightarrow& \I64X2.\ALLTRUE\\ &&|&
-     \text{i64x2.bitmask} &\Rightarrow& \I64X2.\BITMASK\\ &&|&
+     \text{i64x2.all\_true} &\Rightarrow& \I64X2.\VALLTRUE\\ &&|&
+     \text{i64x2.bitmask} &\Rightarrow& \I64X2.\VBITMASK\\ &&|&
      \text{i64x2.extend\_low\_i32x4\_s} &\Rightarrow& \I64X2.\VEXTEND\K{\_low\_i32x4\_s} \\ &&|&
      \text{i64x2.extend\_high\_i32x4\_s} &\Rightarrow& \I64X2.\VEXTEND\K{\_high\_i32x4\_s} \\ &&|&
      \text{i64x2.extend\_low\_i32x4\_u} &\Rightarrow& \I64X2.\VEXTEND\K{\_low\_i32x4\_u} \\ &&|&
@@ -855,10 +966,10 @@ Vector constant instructions have a mandatory :ref:`shape <syntax-vec-shape>` de
      \text{i64x2.add} &\Rightarrow& \I64X2.\VADD\\ &&|&
      \text{i64x2.sub} &\Rightarrow& \I64X2.\VSUB\\ &&|&
      \text{i64x2.mul} &\Rightarrow& \I64X2.\VMUL\\ &&|&
-     \text{i64x2.extmul\_low\_i32x4\_s} &\Rightarrow& \I64X2.\EXTMUL\K{\_low\_i32x4\_s}\\ &&|&
-     \text{i64x2.extmul\_high\_i32x4\_s} &\Rightarrow& \I64X2.\EXTMUL\K{\_high\_i32x4\_s}\\ &&|&
-     \text{i64x2.extmul\_low\_i32x4\_u} &\Rightarrow& \I64X2.\EXTMUL\K{\_low\_i32x4\_u}\\ &&|&
-     \text{i64x2.extmul\_high\_i32x4\_u} &\Rightarrow& \I64X2.\EXTMUL\K{\_high\_i32x4\_u}\\
+     \text{i64x2.extmul\_low\_i32x4\_s} &\Rightarrow& \I64X2.\VEXTMUL\K{\_low\_i32x4\_s}\\ &&|&
+     \text{i64x2.extmul\_high\_i32x4\_s} &\Rightarrow& \I64X2.\VEXTMUL\K{\_high\_i32x4\_s}\\ &&|&
+     \text{i64x2.extmul\_low\_i32x4\_u} &\Rightarrow& \I64X2.\VEXTMUL\K{\_low\_i32x4\_u}\\ &&|&
+     \text{i64x2.extmul\_high\_i32x4\_u} &\Rightarrow& \I64X2.\VEXTMUL\K{\_high\_i32x4\_u}\\
   \end{array}
 
 .. _text-vfunop:
@@ -870,6 +981,10 @@ Vector constant instructions have a mandatory :ref:`shape <syntax-vec-shape>` de
      \text{f32x4.abs} &\Rightarrow& \F32X4.\VABS\\ &&|&
      \text{f32x4.neg} &\Rightarrow& \F32X4.\VNEG\\ &&|&
      \text{f32x4.sqrt} &\Rightarrow& \F32X4.\VSQRT\\ &&|&
+     \text{f32x4.ceil} &\Rightarrow& \F32X4.\VCEIL\\ &&|&
+     \text{f32x4.floor} &\Rightarrow& \F32X4.\VFLOOR\\ &&|&
+     \text{f32x4.trunc} &\Rightarrow& \F32X4.\VTRUNC\\ &&|&
+     \text{f32x4.nearest} &\Rightarrow& \F32X4.\VNEAREST\\ &&|&
      \text{f32x4.add} &\Rightarrow& \F32X4.\VADD\\ &&|&
      \text{f32x4.sub} &\Rightarrow& \F32X4.\VSUB\\ &&|&
      \text{f32x4.mul} &\Rightarrow& \F32X4.\VMUL\\ &&|&
@@ -886,6 +1001,10 @@ Vector constant instructions have a mandatory :ref:`shape <syntax-vec-shape>` de
      \text{f64x2.abs} &\Rightarrow& \F64X2.\VABS\\ &&|&
      \text{f64x2.neg} &\Rightarrow& \F64X2.\VNEG\\ &&|&
      \text{f64x2.sqrt} &\Rightarrow& \F64X2.\VSQRT\\ &&|&
+     \text{f64x2.ceil} &\Rightarrow& \F64X2.\VCEIL\\ &&|&
+     \text{f64x2.floor} &\Rightarrow& \F64X2.\VFLOOR\\ &&|&
+     \text{f64x2.trunc} &\Rightarrow& \F64X2.\VTRUNC\\ &&|&
+     \text{f64x2.nearest} &\Rightarrow& \F64X2.\VNEAREST\\ &&|&
      \text{f64x2.add} &\Rightarrow& \F64X2.\VADD\\ &&|&
      \text{f64x2.sub} &\Rightarrow& \F64X2.\VSUB\\ &&|&
      \text{f64x2.mul} &\Rightarrow& \F64X2.\VMUL\\ &&|&
@@ -899,12 +1018,12 @@ Vector constant instructions have a mandatory :ref:`shape <syntax-vec-shape>` de
 .. math::
    \begin{array}{llclll}
    \phantom{\production{instruction}} & \phantom{\Tplaininstr_I} &\phantom{::=}& \phantom{averylonginstructionnameforvectext} && \phantom{vechasreallylonginstructionnames} \\[-2ex] &&|&
-     \text{i32x4.trunc\_sat\_f32x4\_s} &\Rightarrow& \I32X4.\VTRUNC\K{\_sat\_f32x4\_s}\\ &&|&
-     \text{i32x4.trunc\_sat\_f32x4\_u} &\Rightarrow& \I32X4.\VTRUNC\K{\_sat\_f32x4\_u}\\ &&|&
-     \text{i32x4.trunc\_sat\_f64x2\_s\_zero} &\Rightarrow& \I32X4.\VTRUNC\K{\_sat\_f64x2\_s\_zero}\\ &&|&
-     \text{i32x4.trunc\_sat\_f64x2\_u\_zero} &\Rightarrow& \I32X4.\VTRUNC\K{\_sat\_f64x2\_u\_zero}\\ &&|&
-     \text{f32x4.convert\_i32x4\_s} &\Rightarrow& \F32X4.\CONVERT\K{\_i32x4\_s}\\ &&|&
-     \text{f32x4.convert\_i32x4\_u} &\Rightarrow& \F32X4.\CONVERT\K{\_i32x4\_u}\\ &&|&
+     \text{i32x4.trunc\_sat\_f32x4\_s} &\Rightarrow& \I32X4.\VTRUNCSAT\K{\_f32x4\_s}\\ &&|&
+     \text{i32x4.trunc\_sat\_f32x4\_u} &\Rightarrow& \I32X4.\VTRUNCSAT\K{\_f32x4\_u}\\ &&|&
+     \text{i32x4.trunc\_sat\_f64x2\_s\_zero} &\Rightarrow& \I32X4.\VTRUNCSAT\K{\_f64x2\_s\_zero}\\ &&|&
+     \text{i32x4.trunc\_sat\_f64x2\_u\_zero} &\Rightarrow& \I32X4.\VTRUNCSAT\K{\_f64x2\_u\_zero}\\ &&|&
+     \text{f32x4.convert\_i32x4\_s} &\Rightarrow& \F32X4.\VCONVERT\K{\_i32x4\_s}\\ &&|&
+     \text{f32x4.convert\_i32x4\_u} &\Rightarrow& \F32X4.\VCONVERT\K{\_i32x4\_u}\\ &&|&
      \text{f64x2.convert\_low\_i32x4\_s} &\Rightarrow& \F64X2.\VCONVERT\K{\_low\_i32x4\_s}\\  &&|&
      \text{f64x2.convert\_low\_i32x4\_u} &\Rightarrow& \F64X2.\VCONVERT\K{\_low\_i32x4\_u}\\ &&|&
      \text{f32x4.demote\_f64x2\_zero} &\Rightarrow& \F32X4.\VDEMOTE\K{\_f64x2\_zero}\\ &&|&
@@ -930,7 +1049,7 @@ Such a folded instruction can appear anywhere a regular instruction can.
 
 .. math::
    \begin{array}{lllll}
-   \production{instruction} & 
+   \production{instruction} &
      \text{(}~\Tplaininstr~~\Tfoldedinstr^\ast~\text{)}
        &\equiv\quad \Tfoldedinstr^\ast~~\Tplaininstr \\ &
      \text{(}~\text{block}~~\Tlabel~~\Tblocktype~~\Tinstr^\ast~\text{)}

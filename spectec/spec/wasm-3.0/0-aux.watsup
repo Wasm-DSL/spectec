@@ -8,17 +8,18 @@ var i : nat
 var j : nat
 var k : nat
 
-syntax N = nat  ;; hack
-syntax M = nat  ;; hack
-syntax n = nat  ;; hack
-syntax m = nat  ;; hack
+syntax N hint(macro none) = nat  ;; hack
+syntax M hint(macro none) = nat  ;; hack
+syntax K hint(macro none) = nat  ;; hack
+syntax n hint(macro none) = nat  ;; hack
+syntax m hint(macro none) = nat  ;; hack
 
 var ii : int hint(show i)  ;; hack
 
 
 ;; General constants
 
-def $Ki : nat
+def $Ki : nat hint(macro none)
 def $Ki = 1024
 
 
@@ -29,6 +30,14 @@ def $min(0, j) = 0
 def $min(i, 0) = 0
 def $min($(i+1), $(j+1)) = $min(i, j)
 
-def $sum(nat*) : nat  ;; TODO: hint
+def $sum(nat*) : nat  hint(show %latex("\\Sigma\\,")#%)
 def $sum(eps) = 0
 def $sum(n n'*) = $(n + $sum(n'*))
+
+
+;; General sequence functions
+
+;; TODO(3, rossberg): replace with big (++)
+def $concat_(syntax X, (X*)*) : X*  hint(show $concat(%2))
+def $concat_(syntax X, eps) = eps
+def $concat_(syntax X, (w*) (w'*)*) = w* $concat_(X, (w'*)*)

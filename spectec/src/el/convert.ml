@@ -2,29 +2,38 @@ open Util
 open Source
 open Ast
 
+let error at msg = Error.error at "syntax" msg
+
 
 let filter_nl xs = List.filter_map (function Nl -> None | Elem x -> Some x) xs
+let forall_nl_list f xs = List.for_all f (filter_nl xs)
+let exists_nl_list f xs = List.exists f (filter_nl xs)
 let find_nl_list f xs = List.find_opt f (filter_nl xs)
 let iter_nl_list f xs = List.iter f (filter_nl xs)
 let map_filter_nl_list f xs = List.map f (filter_nl xs)
 let map_nl_list f xs = List.map (function Nl -> Nl | Elem x -> Elem (f x)) xs
+let filter_nl_list f xs = List.filter (function Nl -> true | Elem x -> f x) xs
 let concat_map_nl_list f xs = List.concat_map (function Nl -> [Nl] | Elem x -> f x) xs
+let concat_map_filter_nl_list f xs = List.concat_map (function Nl -> [] | Elem x -> f x) xs
 
 
 let strip_var_suffix id =
   match String.index_opt id.it '_', String.index_opt id.it '\'' with
   | None, None -> id
+  | Some n, None when n = String.length id.it - 1 -> id  (* keep trailing underscores *)
   | None, Some n | Some n, None -> String.sub id.it 0 n $ id.at
   | Some n1, Some n2 -> String.sub id.it 0 (min n1 n2) $ id.at
+
+let strip_var_sub id =
+  if id.it = "" || id.it.[String.length id.it - 1] <> '_' then id else
+  String.sub id.it 0 (String.length id.it - 1) $ id.at
 
 
 let arg_of_exp e =
   ref (ExpA e) $ e.at
 
 
-let rec typ_of_exp e =
-  (match e.it with
-  | VarE (id, []) ->
+let typ_of_varid id =
     (match id.it with
     | "bool" -> BoolT
     | "nat" -> NumT NatT
@@ -33,7 +42,25 @@ let rec typ_of_exp e =
     | "real" -> NumT RealT
     | "text" -> TextT
     | _ -> VarT (id, [])
-    )
+    ) $ id.at
+
+let rec varid_of_typ t =
+  (match t.it with
+  | VarT (id, _) -> id.it
+  | BoolT -> "bool"
+  | NumT NatT -> "nat"
+  | NumT IntT -> "int"
+  | NumT RatT -> "rat"
+  | NumT RealT -> "real"
+  | TextT -> "text"
+  | ParenT t1 -> (varid_of_typ t1).it
+  | _ -> "_"
+  ) $ t.at
+
+
+let rec typ_of_exp e =
+  (match e.it with
+  | VarE (id, []) -> (typ_of_varid id).it
   | VarE (id, args) -> VarT (id, args)
   | ParenE (e1, _) -> ParenT (typ_of_exp e1)
   | TupE es -> TupT (List.map typ_of_exp es)
@@ -43,7 +70,7 @@ let rec typ_of_exp e =
   | SeqE es -> SeqT (List.map typ_of_exp es)
   | InfixE (e1, atom, e2) -> InfixT (typ_of_exp e1, atom, typ_of_exp e2)
   | BrackE (l, e1, r) -> BrackT (l, typ_of_exp e1, r)
-  | _ -> Source.error e.at "syntax" "malformed type"
+  | _ -> error e.at "malformed type"
   ) $ e.at
 
 and typfield_of_expfield (atom, e) =
@@ -53,13 +80,8 @@ and typfield_of_expfield (atom, e) =
 let rec exp_of_typ t =
   (match t.it with
   | VarT (id, args) -> VarE (id, args)
-  | BoolT -> VarE ("bool" $ t.at, [])
-  | NumT NatT -> VarE ("nat" $ t.at, [])
-  | NumT IntT -> VarE ("int" $ t.at, [])
-  | NumT RatT -> VarE ("rat" $ t.at, [])
-  | NumT RealT -> VarE ("real" $ t.at, [])
-  | TextT -> VarE ("text" $ t.at, [])
-  | ParenT t1 -> ParenE (exp_of_typ t1, false)
+  | BoolT | NumT _ | TextT -> VarE (varid_of_typ t, [])
+  | ParenT t1 -> ParenE (exp_of_typ t1, `Insig)
   | TupT ts -> TupE (List.map exp_of_typ ts)
   | IterT (t1, iter) -> IterE (exp_of_typ t1, iter)
   | StrT tfs -> StrE (map_nl_list expfield_of_typfield tfs)
@@ -67,11 +89,47 @@ let rec exp_of_typ t =
   | SeqT ts -> SeqE (List.map exp_of_typ ts)
   | InfixT (t1, atom, t2) -> InfixE (exp_of_typ t1, atom, exp_of_typ t2)
   | BrackT (l, t1, r) -> BrackE (l, exp_of_typ t1, r)
-  | CaseT _ | RangeT _ -> Source.error t.at "syntax" "malformed expression"
+  | CaseT _ | ConT _ | RangeT _ -> error t.at "malformed expression"
   ) $ t.at
 
 and expfield_of_typfield (atom, (t, _prems), _) =
   (atom, exp_of_typ t)
+
+
+let expify t = function
+  | Some e -> e
+  | None -> VarE ("_" $ t.at, []) $ t.at
+
+module Set = Set.Make(String)
+
+let rec pat_of_typ' s t : exp option =
+  let (let*) = Option.bind in
+  match t.it with
+  | VarT (id, _args) when not (Set.mem id.it !s) ->
+    (* Suppress duplicates. *)
+    s := Set.add id.it !s;
+    Some (VarE (id, []) $ t.at)
+  | ParenT t1 ->
+    let* e1 = pat_of_typ' s t1 in
+    Some (ParenE (e1, `Insig) $ t.at)
+  | TupT ts ->
+    let* es = pats_of_typs' s ts in
+    Some (TupE es $ t.at)
+  | SeqT ts ->
+    let* es = pats_of_typs' s ts in
+    Some (SeqE es $ t.at)
+  | IterT (t1, iter) ->
+    let* e1 = pat_of_typ' s t1 in
+    Some (IterE (e1, iter) $ t.at)
+  | _ -> None
+
+and pats_of_typs' s ts : exp list option =
+  let eos = List.map (pat_of_typ' s) ts in
+  if List.for_all ((=) None) eos then None else
+  Some (List.map2 expify ts eos)
+
+let pat_of_typ t = expify t (pat_of_typ' (ref Set.empty) t)
+let pats_of_typs ts = List.map2 expify ts (List.map (pat_of_typ' (ref Set.empty)) ts)
 
 
 let rec sym_of_exp e =
@@ -87,6 +145,8 @@ let rec sym_of_exp e =
   | IterE (e1, iter) -> IterG (sym_of_exp e1, iter)
   | TypE (e1, t) -> AttrG (e1, sym_of_exp (exp_of_typ t))
   | FuseE (e1, e2) -> FuseG (sym_of_exp e1, sym_of_exp e2)
+  | UnparenE e1 -> UnparenG (sym_of_exp e1)
+  | ArithE e -> ArithG e
   | _ -> ArithG e
   ) $ e.at
 
@@ -97,33 +157,46 @@ let rec exp_of_sym g =
   | TextG t -> TextE t
   | EpsG -> EpsE
   | SeqG gs -> SeqE (map_filter_nl_list exp_of_sym gs)
-  | ParenG g1 -> ParenE (exp_of_sym g1, false)
+  | ParenG g1 -> ParenE (exp_of_sym g1, `Insig)
   | TupG gs -> TupE (List.map exp_of_sym gs)
   | IterG (g1, iter) -> IterE (exp_of_sym g1, iter)
-  | ArithG e -> e.it
+  | ArithG e -> ArithE e
   | AttrG (e, g2) -> TypE (e, typ_of_exp (exp_of_sym g2))
   | FuseG (g1, g2) -> FuseE (exp_of_sym g1, exp_of_sym g2)
-  | _ -> Source.error g.at "syntax" "malformed expression"
+  | UnparenG g1 -> UnparenE (exp_of_sym g1)
+  | _ -> error g.at "malformed expression"
   ) $ g.at
 
 
 let exp_of_arg a =
   match !(a.it) with
   | ExpA e -> e
-  | _ -> Source.error a.at "syntax" "malformed expression"
+  | _ -> error a.at "malformed expression"
 
-let param_of_arg a =
+let rec param_of_arg a =
   (match !(a.it) with
-  | ExpA e -> ExpP ("" $ e.at, typ_of_exp e)
-  | SynA {it = VarT (id, []); _} -> SynP id
+  | ExpA e ->
+    (match e.it with
+    | TypE ({it = VarE (id, []); _}, t) -> ExpP (id, t)
+    | VarE (id, args) ->
+      ExpP (id, typ_of_exp (VarE (strip_var_suffix id, args) $ e.at))
+    | TypE ({it = CallE (id, as_); _}, t) ->
+      DefP (id, List.map param_of_arg as_, t)
+    | _ -> ExpP ("_" $ e.at, typ_of_exp e)
+    )
+  | TypA {it = VarT (id, []); _} ->
+    if id.it <> (strip_var_suffix id).it then
+      error id.at "invalid identifer suffix in binding position";
+    TypP id
   | GramA {it = AttrG ({it = VarE (id, []); _}, g); _} ->
     GramP (id, typ_of_exp (exp_of_sym g))
-  | _ -> Source.error a.at "syntax" "malformed grammar"
+  | _ -> error a.at "malformed parameter"
   ) $ a.at
 
 let arg_of_param p =
   (match p.it with
-  | ExpP (id, t) -> ExpA (TypE(VarE (id, []) $ id.at, t) $ p.at)
-  | SynP id -> SynA (VarT (id, []) $ id.at)
+  | ExpP (id, _t) -> ExpA ((*TypE ( *)VarE (id, []) $ id.at(*, t) $ p.at*))
+  | TypP id -> TypA (VarT (id, []) $ id.at)
   | GramP (id, _t) -> GramA (VarG (id, []) $ id.at)
+  | DefP (id, _params, _t) -> DefA id
   ) |> ref $ p.at

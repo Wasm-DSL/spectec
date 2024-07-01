@@ -1,39 +1,37 @@
 open Util.Source
 
+(* Terminals *)
+
+type atom = atom' * string
+and atom' = El.Atom.atom'
+
 (* Types *)
 
 type ty = string (* TODO *)
-type vec128 = string
 
 (* Identifiers *)
 
 type id = string
 
-(* Identifiers derived from the syntax terminals defined in the DSL.
-   The second in the tuple denotes its IL-type (for disambiguation).*)
-type kwd = kwd' * string
-and kwd' = string
-
 (* Values *)
+
 type 'a growable_array = 'a array ref
 
 type ('a, 'b) record = ('a * 'b ref) list
 
-and store = (kwd', value) record
+and store = (atom, value) record
 
 and value =
-  | NumV of int64                      (* number *)
+  | NumV of Z.t                        (* number *)
   | BoolV of bool                      (* boolean *)
-  | VecV of vec128                     (* vector *)
   | TextV of string                    (* string *)
   | ListV of value growable_array      (* list of values *)
-  | StrV of (kwd', value) record       (* key-value mapping *)
-  | CaseV of kwd' * value list         (* constructor *)
+  | StrV of (id, value) record         (* key-value mapping *)
+  | CaseV of id * value list           (* constructor *)
   | OptV of value option               (* optional value *)
   | TupV of value list                 (* tuple of values *)
   | FrameV of value option * value     (* TODO: desugar using CaseV? *)
   | LabelV of value * value            (* TODO: desugar using CaseV? *)
-  | StoreV of store ref                (* TODO: check Wasm specificity? *)
 
 type extend_dir =                      (* direction of extension *)
   | Front                              (* extend from the front *)
@@ -46,14 +44,16 @@ type unop =
   | MinusOp  (* `-` *)
 
 type binop =
-  | ImplOp   (* `=>` *)
-  | EquivOp  (* `<=>` *)
+  (* arithmetic operation *)
   | AddOp    (* `+` *)
   | SubOp    (* `-` *)
   | MulOp    (* `*` *)
   | DivOp    (* `/` *)
+  | ModOp    (* `\` *)
   | ExpOp    (* `^` *)
-  (* compare operation *)
+  (* logical operation *)
+  | ImplOp   (* `=>` *)
+  | EquivOp  (* `<=>` *)
   | AndOp    (* `/\` *)
   | OrOp     (* `\/` *)
   | EqOp     (* `=` *)
@@ -76,40 +76,41 @@ type iter =
 and expr = expr' phrase
 and expr' =
   | VarE of id                          (* varid *)
-  | NumE of int64                       (* number *)
+  | NumE of Z.t                         (* number *)
   | BoolE of bool                       (* boolean *)
   | UnE of unop * expr                  (* unop expr *)
   | BinE of binop * expr * expr         (* expr binop expr *)
   | AccE of expr * path                 (* expr `[` path `]` *)
   | UpdE of expr * path list * expr     (* expr `[` path* `]` `:=` expr *)
   | ExtE of expr * path list * expr * extend_dir (* expr `[` path* `]` `:+` expr *)
-  | StrE of (kwd, expr) record          (* `{` (kwd `->` expr)* `}` *)
+  | StrE of (atom, expr) record         (* `{` (atom `->` expr)* `}` *)
   | CatE of expr * expr                 (* expr `++` expr *)
   | LenE of expr                        (* `|` expr `|` *)
   | TupE of expr list                   (* `(` (expr `,`)* `)` *)
-  | CaseE of kwd * expr list            (* kwd `(` expr* `)` -- MixE/CaseE *)
+  | CaseE of atom * expr list           (* atom `(` expr* `)` -- MixE/CaseE *)
   | CallE of id * expr list             (* id `(` expr* `)` *)
   | IterE of expr * id list * iter      (* expr (`{` id* `}`)* *)
   | OptE of expr option                 (* expr?  *)
   | ListE of expr list                  (* `[` expr* `]` *)
-  | InfixE of expr * string * expr      (* "expr infix expr" *) (* TODO: Remove InfixE using hint *)
+  | InfixE of expr * atom * expr        (* "expr infix expr" *) (* TODO: Remove InfixE using hint *)
   | ArityE of expr                      (* "the arity of expr" *)
   | FrameE of expr option * expr        (* "the activation of expr (with arity expr)?" *)
   | LabelE of expr * expr               (* "the label whose arity is expr and whose continuation is expr" *)
+  | GetCurStateE                        (* "the current state" *)
   | GetCurFrameE                        (* "the current frame" *)
   | GetCurLabelE                        (* "the current lbael" *)
   | GetCurContextE                      (* "the current context" *)
   | ContE of expr                       (* "the continuation of expr" *)
   (* Conditions *)
-  | IsCaseOfE of expr * kwd             (* expr is of the case kwd *)
+  | IsCaseOfE of expr * atom            (* expr is of the case kwd *)
   | IsValidE of expr                    (* expr is valid *)
-  | ContextKindE of kwd * expr          (* TODO: desugar using IsCaseOf? *)
+  | ContextKindE of atom * expr         (* TODO: desugar using IsCaseOf? *)
   | IsDefinedE of expr                  (* expr is defined *)
   | MatchE of expr * expr               (* expr matches expr *)
   | HasTypeE of expr * ty               (* the type of expr is ty *)
-  (* Conditions used in assertions *)
-  | TopLabelE                           (* "a label is now on the top of the stack" *)
   | TopFrameE                           (* "a frame is now on the top of the stack" *)
+  | TopLabelE                           (* "a label is now on the top of the stack" *)
+  (* Conditions used in assertions *)
   | TopValueE of expr option            (* "a value (of type expr)? is now on the top of the stack" *)
   | TopValuesE of expr                  (* "at least expr number of values on the top of the stack" *)
   (* Administrative Instructions *)
@@ -120,8 +121,7 @@ and path = path' phrase
 and path' =
   | IdxP of expr                    (* `[` expr `]` *)
   | SliceP of expr * expr           (* `[` expr `:` expr `]` *)
-  | DotP of kwd                     (* `.` atom *)
-
+  | DotP of atom                    (* `.` atom *)
 
 (* Instructions *)
 
@@ -141,7 +141,7 @@ and instr' =
   | ExecuteI of expr                      (* `execute` expr *)
   | ExecuteSeqI of expr                   (* `executeseq` expr *)
   | PerformI of id * expr list            (* `perform` id expr* *)
-  | ExitI                                 (* `exit` *)
+  | ExitI of atom                         (* `exit` *)
   | ReplaceI of expr * path * expr        (* `replace` expr `->` path `with` expr *)
   | AppendI of expr * expr                (* `append` expr expr *)
   (* Administrative instructions *)
@@ -150,6 +150,6 @@ and instr' =
 
 (* Algorithms *)
 
-type algorithm =                          (* `algorithm` x`(`expr*`)` `{`instr*`}` *)
-  | RuleA of kwd * expr list * instr list (* reduction rule *)
-  | FuncA of id * expr list * instr list  (* helper function *)
+type algorithm =                           (* `algorithm` x`(`expr*`)` `{`instr*`}` *)
+  | RuleA of atom * expr list * instr list (* reduction rule *)
+  | FuncA of id * expr list * instr list   (* helper function *)

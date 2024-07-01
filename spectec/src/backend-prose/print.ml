@@ -63,7 +63,7 @@ let rec string_of_instr = function
         (string_of_expr e2)
         (string_of_list indented_string_of_instr "" "\n" "" is)
   | EquivI (e1, e2) ->
-      sprintf "%s (%s) and (%s) are equivalent." (indent ())
+      sprintf "%s (%s) if and only if (%s)." (indent ())
         (string_of_expr e2)
         (string_of_expr e1)
   | YetI s -> indent () ^ " Yet: " ^ s
@@ -75,8 +75,8 @@ and indented_string_of_instr i =
   result
 
 let string_of_def = function
-| Pred (name, params, instrs) ->
-    "validation_of_" ^ string_of_kwd name
+| Pred (a, params, instrs) ->
+    "validation_of_" ^ string_of_atom a
     ^ string_of_list string_of_expr " " " " "\n" params
     ^ string_of_list string_of_instr "" "\n" "\n" instrs
 | Algo algo -> string_of_algorithm algo

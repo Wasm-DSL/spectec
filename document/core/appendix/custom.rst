@@ -60,6 +60,8 @@ Id  Subsection
  0  :ref:`module name <binary-modulenamesec>`
  1  :ref:`function names <binary-funcnamesec>`    
  2  :ref:`local names <binary-localnamesec>`
+ 4  :ref:`type names <binary-typenamesec>`
+10  :ref:`field names <binary-fieldnamesec>`
 ==  ===========================================
 
 Each subsection may occur at most once, and in order of increasing id.
@@ -73,25 +75,25 @@ Name Maps
 .........
 
 A *name map* assigns :ref:`names <syntax-name>` to :ref:`indices <syntax-index>` in a given :ref:`index space <syntax-index>`.
-It consists of a :ref:`vector <binary-vec>` of index/name pairs in order of increasing index value.
+It consists of a :ref:`list <binary-list>` of index/name pairs in order of increasing index value.
 Each index must be unique, but the assigned names need not be.
 
 .. math::
    \begin{array}{llclll}
    \production{name map} & \Bnamemap &::=&
-     \Bvec(\Bnameassoc) \\
+     \Blist(\Bnameassoc) \\
    \production{name association} & \Bnameassoc &::=&
      \Bidx~\Bname \\
    \end{array}
 
 An *indirect name map* assigns :ref:`names <syntax-name>` to a two-dimensional :ref:`index space <syntax-index>`, where secondary indices are *grouped* by primary indices.
-It consists of a vector of primary index/name map pairs in order of increasing index value, where each name map in turn maps secondary indices to names.
+It consists of a list of primary index/name map pairs in order of increasing index value, where each name map in turn maps secondary indices to names.
 Each primary index must be unique, and likewise each secondary index per individual name map.
 
 .. math::
    \begin{array}{llclll}
    \production{indirect name map} & \Bindirectnamemap &::=&
-     \Bvec(\Bindirectnameassoc) \\
+     \Blist(\Bindirectnameassoc) \\
    \production{indirect name association} & \Bindirectnameassoc &::=&
      \Bidx~\Bnamemap \\
    \end{array}
@@ -141,5 +143,37 @@ It consists of an :ref:`indirect name map <binary-indirectnamemap>` assigning lo
 .. math::
    \begin{array}{llclll}
    \production{local name subsection} & \Blocalnamesubsec &::=&
+     \Bnamesubsection_2(\Bindirectnamemap) \\
+   \end{array}
+
+
+.. index:: type, type index
+.. _binary-typenamesec:
+
+Type Names
+..............
+
+The *type name subsection* has the id 4.
+It consists of a :ref:`name map <binary-namemap>` assigning type names to :ref:`type indices <syntax-typeidx>`.
+
+.. math::
+   \begin{array}{llclll}
+   \production{type name subsection} & \Btypenamesubsec &::=&
+     \Bnamesubsection_1(\Bnamemap) \\
+   \end{array}
+
+
+.. index:: type, field, type index, field index
+.. _binary-fieldnamesec:
+
+Field Names
+...........
+
+The *field name subsection* has the id 10.
+It consists of an :ref:`indirect name map <binary-indirectnamemap>` assigning field names to :ref:`field indices <syntax-fieldidx>` grouped by :ref:`type indices <syntax-typeidx>`.
+
+.. math::
+   \begin{array}{llclll}
+   \production{field name subsection} & \Bfieldnamesubsec &::=&
      \Bnamesubsection_2(\Bindirectnamemap) \\
    \end{array}

@@ -4,6 +4,21 @@ open Il
 open Al.Al_util
 open Il2al.Translate
 open Util.Source
+open Util.Error
+
+
+(* Errors *)
+
+let error at msg = error at "prose generation" msg
+
+let print_yet_prem prem fname =
+  let s = Il.Print.string_of_prem prem in
+  print_yet prem.at fname ("`" ^ s ^ "`")
+
+let print_yet_exp exp fname =
+  let s = Il.Print.string_of_exp exp in
+  print_yet exp.at fname ("`" ^ s ^ "`")
+
 
 let cmpop_to_cmpop = function
 | Ast.EqOp -> Eq
@@ -20,14 +35,10 @@ let transpile_expr =
     post_expr = Il2al.Transpile.simplify_record_concat
   }
 
-let exp_to_expr e = exp2expr e |> transpile_expr
-let exp_to_args es = exp2args es |> List.map transpile_expr
+let exp_to_expr e = translate_exp e |> transpile_expr
+let exp_to_argexpr es = translate_argexp es |> List.map transpile_expr
 
 let rec if_expr_to_instrs e =
-  let fail _ =
-    let s = Il.Print.string_of_exp e in
-    print_endline ("if_expr_to_instrs: Invalid if_prem (" ^ s ^ ")");
-    YetI s in
   match e.it with
   | Ast.CmpE (op, e1, e2) ->
     let op = cmpop_to_cmpop op in
@@ -41,53 +52,52 @@ let rec if_expr_to_instrs e =
     let body = if_expr_to_instrs e2 in
     [ match neg_cond with
       | [ CmpI ({ it = IterE ({ it = VarE name; _ }, _, Opt); _ }, Eq, { it = OptE None; _ }) ] ->
-          IfI (isDefinedE (varE name), body)
-      | _ -> fail() ]
+        IfI (isDefinedE (varE name), body)
+      | _ -> print_yet_exp e "if_expr_to_instrs"; YetI (Il.Print.string_of_exp e) ]
   | Ast.BinE (Ast.EquivOp, e1, e2) ->
-      [ EquivI (exp2expr e1, exp2expr e2) ]
-  | _ -> [ fail() ]
+      [ EquivI (exp_to_expr e1, exp_to_expr e2) ]
+  | _ -> print_yet_exp e "if_expr_to_instrs"; [ YetI (Il.Print.string_of_exp e) ]
 
 let rec prem_to_instrs prem = match prem.it with
   | Ast.LetPr (e1, e2, _) ->
     [ LetI (exp_to_expr e1, exp_to_expr e2) ]
   | Ast.IfPr e ->
     if_expr_to_instrs e
-  | Ast.RulePr (id, _, exp) when String.ends_with ~suffix:"_ok" id.it ->
-    ( match exp_to_args exp with
-    | [c; e; t] -> [ MustValidI (c, e, Some t) ]
-    | [c; e] -> [ MustValidI (c, e, None) ]
-    | _ -> failwith "prem_to_instr: Invalid prem 1"
+  | Ast.RulePr (id, _, e) when String.ends_with ~suffix:"_ok" id.it ->
+    (match exp_to_argexpr e with
+    | [c; e'; t] -> [ MustValidI (c, e', Some t) ]
+    | [c; e'] -> [ MustValidI (c, e', None) ]
+    | _ -> error e.at "unrecognized form of argument in rule_ok"
     )
-  | Ast.RulePr (id, _, exp) when String.ends_with ~suffix:"_sub" id.it ->
-    ( match exp_to_args exp with
+  | Ast.RulePr (id, _, e) when String.ends_with ~suffix:"_sub" id.it ->
+    (match exp_to_argexpr e with
     | [t1; t2] -> [ MustMatchI (t1, t2) ]
-    | _ -> print_endline "prem_to_instr: Invalid prem 2"; [ YetI "TODO: prem_to_instrs 2" ]
+    | _ -> print_yet_prem prem "prem_to_instrs"; [ YetI "TODO: prem_to_instrs rule_sub" ]
     )
   | Ast.IterPr (prem, iter) ->
-    ( match iter with
-    | Ast.Opt, [id] -> [ IfI (isDefinedE (varE id.it), prem_to_instrs prem) ]
-    | Ast.(List | ListN _), [id] ->
+    (match iter with
+    | Ast.Opt, [(id, _)] -> [ IfI (isDefinedE (varE id.it), prem_to_instrs prem) ]
+    | Ast.(List | ListN _), [(id, _)] ->
         let name = varE id.it in
         [ ForallI (name, iterE (name, [id.it], Al.Ast.List), prem_to_instrs prem) ]
-    | _ -> print_endline "prem_to_instr: Invalid prem 3"; [ YetI "TODO: prem_to_intrs 3" ])
+    | _ -> print_yet_prem prem "prem_to_instrs"; [ YetI "TODO: prem_to_intrs iter" ]
+    )
   | _ ->
     let s = Il.Print.string_of_prem prem in
-    print_endline ("prem_to_instrs: Invalid prem (" ^ s ^ ")");
-    [ YetI s ]
+    print_yet_prem prem "prem_to_instrs"; [ YetI s ]
 
 type vrule_group =
-  string * (Ast.exp * Ast.exp * Ast.premise list * Ast.binds) list
+  string * (Ast.exp * Ast.exp * Ast.prem list * Ast.bind list) list
 
 (** Main translation for typing rules **)
 let vrule_group_to_prose ((_name, vrules): vrule_group) =
   let (winstr, t, prems, _tenv) = vrules |> List.hd in
 
   (* name *)
-  let winstr_name = match winstr.it with
-  | Ast.CaseE (Ast.Atom winstr_name, _) -> winstr_name
-  | _ -> failwith "unreachable"
+  let name = match winstr.it with
+  | Ast.CaseE (({it = (El.Atom.Atom _) as atom'; note; _}::_)::_, _) -> atom', note.def
+  | _ -> assert false
   in
-  let name = name2kwd winstr_name winstr.note in
   (* params *)
   let params = get_params winstr |> List.map exp_to_expr in
   (* body *)
@@ -103,14 +113,14 @@ let rec extract_vrules def =
   | _ -> []
 
 let pack_vrule vrule =
-  let (Ast.RuleD (_, tenv, _, exp, prems)) = vrule.it in
-  match exp.it with
-  (* c |- e : t *)
-  | Ast.TupE [ _c; e; t ] -> (e, t, prems, tenv)
-  | _ ->
-      Print.string_of_exp exp
-      |> Printf.sprintf "Invalid expression `%s` to be typing rule."
-      |> failwith
+  match vrule.it with
+  | Ast.RuleD (_, tenv, _, exp, prems) ->
+    match exp.it with
+    (* c |- e : t *)
+    | Ast.TupE [ _c; e; t ] -> (e, t, prems, tenv)
+    | _ -> error exp.at
+      (Print.string_of_exp exp
+      |> Printf.sprintf "exp `%s` cannot be typing rule")
 
 (* group typing rules that have same name *)
 (* Il.rule list -> vrule_group list *)
@@ -131,7 +141,19 @@ let gen_validation_prose il =
   |> List.map vrule_group_to_prose
 
 (** Entry for generating execution prose **)
-let gen_execution_prose = List.map (fun algo -> Prose.Algo algo)
+let gen_execution_prose =
+  List.map
+    (fun algo ->
+      let handle_state = match algo with
+      | Al.Ast.RuleA _ -> Il2al.Transpile.insert_state_binding
+      | Al.Ast.FuncA _ -> Il2al.Transpile.remove_state
+      in
+      let algo =
+        handle_state algo
+        |> Il2al.Transpile.remove_exit
+        |> Il2al.Transpile.remove_enter
+      in
+      Prose.Algo algo)
 
 (** Main entry for generating prose **)
 let gen_prose il al =

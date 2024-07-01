@@ -38,14 +38,6 @@ $${rule-prose: exec/relop}
 
 $${rule: Step_pure/relop}
 
-.. _exec-extend:
-
-$${rule-prose: exec/extend}
-
-\
-
-$${rule: Step_pure/extend}
-
 .. _exec-cvtop:
 
 $${rule-prose: exec/cvtop}
@@ -145,21 +137,21 @@ $${rule-prose: exec/vrelop}
 
 $${rule+: Step_pure/vrelop}
 
-.. _exec-vishiftop:
+.. _exec-vshiftop:
 
-$${rule-prose: exec/vishiftop}
-
-\
-
-$${rule+: Step_pure/vishiftop}
-
-.. _exec-vall_true:
-
-$${rule-prose: exec/vall_true}
+$${rule-prose: exec/vshiftop}
 
 \
 
-$${rule+: Step_pure/vall_true-*}
+$${rule+: Step_pure/vshiftop}
+
+.. _exec-vtestop:
+
+$${rule-prose: exec/vtestop}
+
+\
+
+$${rule+: Step_pure/vtestop-*}
 
 .. _exec-vbitmask:
 
@@ -185,29 +177,21 @@ $${rule-prose: exec/vcvtop}
 
 $${rule+: Step_pure/vcvtop-*}
 
-.. _exec-vdot:
+.. _exec-vextunop:
 
-$${rule-prose: exec/vdot}
-
-\
-
-$${rule+: Step_pure/vdot}
-
-.. _exec-vextmul:
-
-$${rule-prose: exec/vextmul}
+$${rule-prose: exec/vextunop}
 
 \
 
-$${rule+: Step_pure/vextmul}
+$${rule+: Step_pure/vextunop}
 
-.. _exec-vextadd_pairwise:
+.. _exec-vextbinop:
 
-$${rule-prose: exec/vextadd_pairwise}
+$${rule-prose: exec/vextbinop}
 
 \
 
-$${rule+: Step_pure/vextadd_pairwise}
+$${rule+: Step_pure/vextbinop}
 
 Reference Instructions
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -302,10 +286,7 @@ $${rule+: Step_read/struct.new_default}
 
 .. _exec-struct.get:
 
-STRUCT.GET
-^^^^^^^^^^
-
-TODO (too deeply nested)
+$${rule-prose: exec/struct.get}
 
 \
 
@@ -325,7 +306,7 @@ $${rule-prose: exec/array.new}
 
 \
 
-$${rule+: Step_read/array.new}
+$${rule+: Step_pure/array.new}
 
 .. _exec-array.new_default:
 
@@ -358,14 +339,6 @@ $${rule-prose: exec/array.new_elem}
 \
 
 $${rule+: Step_read/array.new_elem-*}
-
-.. _def-concat_bytes:
-
-$${definition-prose: concat_bytes}
-
-\
-
-$${definition: concat_bytes}
 
 .. _exec-array.new_data:
 
@@ -699,11 +672,11 @@ $${rule: Step_pure/unreachable}
 
 .. _def-blocktype:
 
-$${definition-prose: blocktype}
+$${definition-prose: blocktype_}
 
 \
 
-$${definition: blocktype}
+$${definition: blocktype_}
 
 .. _exec-block:
 
@@ -801,8 +774,7 @@ $${rule-prose: exec/call}
 
 $${rule: Step_read/call}
 
-CALL_REF
-^^^^^^^^
+.. _exec-call_ref:
 
 $${rule-prose: exec/call_ref}
 
@@ -816,7 +788,7 @@ $${rule-prose: exec/call_indirect}
 
 \
 
-$${rule+: Step_pure/call_indirect-*}
+$${rule+: Step_pure/call_indirect}
 
 .. _exec-return_call:
 
@@ -826,10 +798,9 @@ $${rule-prose: exec/return_call}
 
 $${rule+: Step_read/return_call}
 
-RETURN_CALL_REF
-^^^^^^^^^^^^^^^
+.. _exec-return_call_ref:
 
-TODO (too deeply nested)
+$${rule-prose: exec/return_call_ref}
 
 \
 

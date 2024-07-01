@@ -2,6 +2,7 @@
 
 NAME = watsup
 EXT = $(NAME)
+LOG = _log
 
 
 # Main targets
@@ -19,6 +20,8 @@ EXE = exe-$(NAME)/main.exe
 SRCDIR = src
 OUTDIR = _build/default/src
 CLONEDIR = src/backend-interpreter/reference-interpreter
+CLONERM = dune-project jslib
+ROOTDIR = ..
 
 .PHONY: exe
 
@@ -28,9 +31,9 @@ exe: $(CLONEDIR)
 	ln -f $(OUTDIR)/$(EXE) ./$(NAME)
 
 $(CLONEDIR):
-	@rm -rf $(CLONEDIR)
-	git clone --single-branch https://github.com/WebAssembly/gc.git $(CLONEDIR)
-	@(cd $(CLONEDIR)/interpreter; git checkout 3fa0537 -q; rm dune-project jslib/wast.ml script/run.mli valid/match.mli; cp ../../dune-ref-interp dune)
+	cp -R $(ROOTDIR)/interpreter $(CLONEDIR)
+	rm -r $(CLONERM:%=$@/%)
+	cp $@/../dune-ref-interp $@/dune
 
 
 # Latex
@@ -47,14 +50,18 @@ TESTDIRS = $(shell ls -d test-*)
 
 .PHONY: test testpromote $(TESTDIRS)
 
-test: exe $(TESTDIRS)
-	@dune runtest && echo OK || (echo Failure. Run \`make testpromote\` to accept changes in test expectations. && false)
+test: exe $(TESTDIRS) dunetest
+
+dunetest:
+	@echo "#### Running (dune runtest)"
+	@dune runtest && echo OK || (echo "####>" Failure running dune test. && echo "####>" Run \`make testpromote\` to accept changes in test expectations. && false)
 
 testpromote:
 	dune promote
 
 $(TESTDIRS): test-%: exe
-	(cd $@ && make test >/dev/null)
+	@echo "#### Running (cd $@; make test)"
+	@(cd $@ && ((make test >$(LOG) 2>&1 && (grep warning $(LOG) || true)) || (cat $(LOG) && echo "####>" Failure running $@. See log above. && false)))
 
 
 # Cleanup

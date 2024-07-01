@@ -21,6 +21,7 @@ Modules
 .. _text-globalidx:
 .. _text-localidx:
 .. _text-labelidx:
+.. _text-fieldidx:
 .. _text-index:
 
 Indices
@@ -58,23 +59,9 @@ Such identifiers are looked up in the suitable space of the :ref:`identifier con
    \production{label index} & \Tlabelidx_I &::=&
      l{:}\Tu32 &\Rightarrow& l \\&&|&
      v{:}\Tid &\Rightarrow& l & (\iff I.\ILABELS[l] = v) \\
-   \end{array}
-
-
-.. index:: type definition, identifier
-   pair: text format; type definition
-.. _text-typedef:
-
-Types
-~~~~~
-
-Type definitions can bind a symbolic :ref:`type identifier <text-id>`.
-
-.. math::
-   \begin{array}{llclll}
-   \production{type definition} & \Ttype_I &::=&
-     \text{(}~\text{type}~~\Tid^?~~\X{ft}{:}\Tfunctype_I~\text{)}
-       &\Rightarrow& \X{ft} \\
+   \production{field index} & \Tfieldidx_{I,x} &::=&
+     i{:}\Tu32 &\Rightarrow& i \\&&|&
+     v{:}\Tid &\Rightarrow& i & (\iff I.\IFIELDS[x][i] = v) \\
    \end{array}
 
 
@@ -85,7 +72,7 @@ Type definitions can bind a symbolic :ref:`type identifier <text-id>`.
 Type Uses
 ~~~~~~~~~
 
-A *type use* is a reference to a :ref:`type definition <text-type>`.
+A *type use* is a reference to a function :ref:`type definition <text-type>`.
 It may optionally be augmented by explicit inlined :ref:`parameter <text-param>` and :ref:`result <text-result>` declarations.
 That allows binding symbolic :ref:`identifiers <text-id>` to name the :ref:`local indices <text-localidx>` of parameters.
 If inline declarations are given, then their types must match the referenced :ref:`function type <text-type>`.
@@ -96,17 +83,22 @@ If inline declarations are given, then their types must match the referenced :re
      \text{(}~\text{type}~~x{:}\Ttypeidx_I~\text{)}
        \quad\Rightarrow\quad x, I' \\ &&& \qquad
        (\iff \begin{array}[t]{@{}l@{}}
-        I.\ITYPEDEFS[x] = [t_1^n] \toF [t_2^\ast] \wedge
+        I.\ITYPEDEFS[x] = \TSUB~\TFINAL~(\TFUNC~[t_1^n] \toF [t_2^\ast]) \wedge
         I' = \{\ILOCALS~(\epsilon)^n\}) \\
         \end{array} \\[1ex] &&|&
      \text{(}~\text{type}~~x{:}\Ttypeidx_I~\text{)}
      ~~(t_1{:}\Tparam)^\ast~~(t_2{:}\Tresult)^\ast
        \quad\Rightarrow\quad x, I' \\ &&& \qquad
        (\iff \begin{array}[t]{@{}l@{}}
-        I.\ITYPEDEFS[x] = [t_1^\ast] \toF [t_2^\ast] \wedge
+        I.\ITYPEDEFS[x] = \TSUB~\TFINAL~(\TFUNC~[t_1^\ast] \toF [t_2^\ast]) \wedge
         I' = \{\ILOCALS~\F{id}(\Tparam)^\ast\} \idcwellformed) \\
         \end{array} \\
    \end{array}
+
+.. note::
+   If inline declarations are given, their types must be *syntactically* equal to the types from the indexed definition;
+   possible type :ref:`substitutions <notation-subst>` from other definitions that might make them equal are not taken into account.
+   This is to simplify syntactic pre-processing.
 
 The synthesized attribute of a |Ttypeuse| is a pair consisting of both the used :ref:`type index <syntax-typeidx>` and the local :ref:`identifier context <text-context>` containing possible parameter identifiers.
 The following auxiliary function extracts optional identifiers from parameters:
@@ -138,13 +130,12 @@ In that case, a :ref:`type index <syntax-typeidx>` is automatically inserted:
      \text{(}~\text{type}~~x~\text{)}~~\Tparam^\ast~~\Tresult^\ast \\
    \end{array}
 
-where :math:`x` is the smallest existing :ref:`type index <syntax-typeidx>` whose definition in the current module is the :ref:`function type <syntax-functype>` :math:`[t_1^\ast] \toF [t_2^\ast]`.
-If no such index exists, then a new :ref:`type definition <text-type>` of the form
+where :math:`x` is the smallest existing :ref:`type index <syntax-typeidx>` whose :ref:`recursive type <syntax-rectype>` definition in the current module is of the form
 
 .. math::
-   \text{(}~\text{type}~~\text{(}~\text{func}~~\Tparam^\ast~~\Tresult^\ast~\text{)}~\text{)}
+   \text{(}~\text{rec}~\text{(}~\text{type}~\text{(}~\text{sub}~\text{final}~~\text{(}~\text{func}~~\Tparam^\ast~~\Tresult^\ast~\text{)}~\text{)}~\text{)}~\text{)}
 
-is inserted at the end of the module.
+If no such index exists, then a new :ref:`recursive type <text-rectype>` of the same form is inserted at the end of the module.
 
 Abbreviations are expanded in the order they appear, such that previously inserted type definitions are reused by consecutive expansions.
 
@@ -255,7 +246,7 @@ Functions can be defined as :ref:`imports <text-import>` or :ref:`exports <text-
    Consequently, a function declaration can contain any number of exports, possibly followed by an import.
 
 
-.. index:: table, table type, identifier
+.. index:: table, table type, identifier, expression
    pair: text format; table
 .. _text-table:
 
@@ -267,11 +258,12 @@ Table definitions can bind a symbolic :ref:`table identifier <text-id>`.
 .. math::
    \begin{array}{llclll}
    \production{table} & \Ttable_I &::=&
-     \text{(}~\text{table}~~\Tid^?~~\X{tt}{:}\Ttabletype_I~\text{)}
-       &\Rightarrow& \{ \TTYPE~\X{tt} \} \\
+     \text{(}~\text{table}~~\Tid^?~~\X{tt}{:}\Ttabletype_I~~e{:}\Texpr_I~\text{)}
+       &\Rightarrow& \{ \TTYPE~\X{tt}, \TINIT~e \} \\
    \end{array}
 
 
+.. index:: reference type, heap type
 .. index:: import, name
    pair: text format; import
 .. index:: export, name, index, table index
@@ -285,14 +277,26 @@ Table definitions can bind a symbolic :ref:`table identifier <text-id>`.
 Abbreviations
 .............
 
+A table's initialization :ref:`expression <text-expr>` can be omitted, in which case it defaults to :math:`\REFNULL`:
+
+.. math::
+   \begin{array}{llclll}
+   \production{module field} &
+     \text{(}~\text{table}~~\Tid^?~~\Ttabletype~\text{)}
+       &\equiv&
+       \text{(}~\text{table}~~\Tid^?~~\Ttabletype~~\text{(}~\REFNULL~\X{ht}~\text{)}~\text{)}
+       \\ &&& \qquad\qquad
+       (\iff \Ttabletype = \Tlimits~\text{(}~\text{ref}~\text{null}^?~\X{ht}~\text{)}) \\
+   \end{array}
+
 An :ref:`element segment <text-elem>` can be given inline with a table definition, in which case its offset is :math:`0` and the :ref:`limits <text-limits>` of the :ref:`table type <text-tabletype>` are inferred from the length of the given segment:
 
 .. math::
    \begin{array}{llclll}
    \production{module field} &
-     \text{(}~\text{table}~~\Tid^?~~\Treftype~~\text{(}~\text{elem}~~\expr^n{:}\Tvec(\Telemexpr)~\text{)}~\text{)} \quad\equiv \\ & \qquad
+     \text{(}~\text{table}~~\Tid^?~~\Treftype~~\text{(}~\text{elem}~~\expr^n{:}\Tlist(\Telemexpr)~\text{)}~\text{)} \quad\equiv \\ & \qquad
        \text{(}~\text{table}~~\Tid'~~n~~n~~\Treftype~\text{)} \\ & \qquad
-       \text{(}~\text{elem}~~\text{(}~\text{table}~~\Tid'~\text{)}~~\text{(}~\text{i32.const}~~\text{0}~\text{)}~~\Treftype~~\Tvec(\Telemexpr)~\text{)}
+       \text{(}~\text{elem}~~\text{(}~\text{table}~~\Tid'~\text{)}~~\text{(}~\text{i32.const}~~\text{0}~\text{)}~~\Treftype~~\Tlist(\Telemexpr)~\text{)}
        \\ & \qquad\qquad
        (\iff \Tid^? \neq \epsilon \wedge \Tid' = \Tid^? \vee \Tid^? = \epsilon \wedge \Tid' \idfresh) \\
    \end{array}
@@ -300,9 +304,9 @@ An :ref:`element segment <text-elem>` can be given inline with a table definitio
 .. math::
    \begin{array}{llclll}
    \production{module field} &
-     \text{(}~\text{table}~~\Tid^?~~\Treftype~~\text{(}~\text{elem}~~x^n{:}\Tvec(\Tfuncidx)~\text{)}~\text{)} \quad\equiv \\ & \qquad
+     \text{(}~\text{table}~~\Tid^?~~\Treftype~~\text{(}~\text{elem}~~x^n{:}\Tlist(\Tfuncidx)~\text{)}~\text{)} \quad\equiv \\ & \qquad
        \text{(}~\text{table}~~\Tid'~~n~~n~~\Treftype~\text{)} \\ & \qquad
-       \text{(}~\text{elem}~~\text{(}~\text{table}~~\Tid'~\text{)}~~\text{(}~\text{i32.const}~~\text{0}~\text{)}~~\Treftype~~\Tvec(\text{(}~\text{ref.func}~~\Tfuncidx~\text{)})~\text{)}
+       \text{(}~\text{elem}~~\text{(}~\text{table}~~\Tid'~\text{)}~~\text{(}~\text{i32.const}~~\text{0}~\text{)}~~\Treftype~~\Tlist(\text{(}~\text{ref.func}~~\Tfuncidx~\text{)})~\text{)}
        \\ & \qquad\qquad
        (\iff \Tid^? \neq \epsilon \wedge \Tid' = \Tid^? \vee \Tid^? = \epsilon \wedge \Tid' \idfresh) \\
    \end{array}
@@ -511,9 +515,9 @@ Element segments allow for an optional :ref:`table index <text-tableidx>` to ide
      \text{(}~\text{elem}~~\Tid^?~~x{:}\Ttableuse_I~~\text{(}~\text{offset}~~e{:}\Texpr_I~\text{)}~~(et, y^\ast){:}\Telemlist_I~\text{)} \\ &&& \qquad
        \Rightarrow\quad \{ \ETYPE~et, \EINIT~y^\ast, \EMODE~\EACTIVE~\{ \ETABLE~x, \EOFFSET~e \} \} \\ &&&
      \text{(}~\text{elem}~~\Tid^?~~\text{declare}~~(et, y^\ast){:}\Telemlist_I~\text{)} \\ &&& \qquad
-       \Rightarrow\quad \{ \ETYPE~et, \EINIT~y^\ast, \EMODE~\EDECLARATIVE \} \\
+       \Rightarrow\quad \{ \ETYPE~et, \EINIT~y^\ast, \EMODE~\EDECLARE \} \\
    \production{element list} & \Telemlist_I &::=&
-     t{:}\Treftype_I~~y^\ast{:}\Tvec(\Telemexpr_I) \qquad\Rightarrow\quad ( \ETYPE~t, \EINIT~y^\ast ) \\
+     t{:}\Treftype_I~~y^\ast{:}\Tlist(\Telemexpr_I) \qquad\Rightarrow\quad ( \ETYPE~t, \EINIT~y^\ast ) \\
    \production{element expression} & \Telemexpr_I &::=&
      \text{(}~\text{item}~~e{:}\Texpr_I~\text{)}
        \quad\Rightarrow\quad e \\
@@ -543,8 +547,8 @@ Also, the element list may be written as just a sequence of :ref:`function indic
 .. math::
    \begin{array}{llcll}
    \production{element list} &
-     \text{func}~~\Tvec(\Tfuncidx_I) &\equiv&
-     \text{(ref}~\text{func)}~~\Tvec(\text{(}~\text{ref.func}~~\Tfuncidx_I~\text{)})
+     \text{func}~~\Tlist(\Tfuncidx_I) &\equiv&
+     \text{(ref}~\text{func)}~~\Tlist(\text{(}~\text{ref.func}~~\Tfuncidx_I~\text{)})
    \end{array}
 
 A table use can be omitted, defaulting to :math:`\T{0}`.
@@ -555,9 +559,9 @@ Furthermore, for backwards compatibility with earlier versions of WebAssembly, i
    \production{table use} &
      \epsilon &\equiv& \text{(}~\text{table}~~\text{0}~\text{)} \\
    \production{element segment} &
-     \text{(}~\text{elem}~~\Tid^?~~\text{(}~\text{offset}~~\Texpr_I~\text{)}~~\Tvec(\Tfuncidx_I)~\text{)}
+     \text{(}~\text{elem}~~\Tid^?~~\text{(}~\text{offset}~~\Texpr_I~\text{)}~~\Tlist(\Tfuncidx_I)~\text{)}
        &\equiv&
-     \text{(}~\text{elem}~~\Tid^?~~\text{(}~\text{table}~~\text{0}~\text{)}~~\text{(}~\text{offset}~~\Texpr_I~\text{)}~~\text{func}~~\Tvec(\Tfuncidx_I)~\text{)}
+     \text{(}~\text{elem}~~\Tid^?~~\text{(}~\text{table}~~\text{0}~\text{)}~~\text{(}~\text{offset}~~\Texpr_I~\text{)}~~\text{func}~~\Tlist(\Tfuncidx_I)~\text{)}
    \end{array}
 
 As another abbreviation, element segments may also be specified inline with :ref:`table <text-table>` definitions; see the respective section.
@@ -569,7 +573,7 @@ As another abbreviation, element segments may also be specified inline with :ref
    single: data; segment
 .. _text-datastring:
 .. _text-data:
-.. _test-memuse:
+.. _text-memuse:
 
 Data Segments
 ~~~~~~~~~~~~~
@@ -649,7 +653,7 @@ The name serves a documentary role only.
    \production{module field} & \Tmodulefield_I &
    \begin{array}[t]{@{}clll}
    ::=&
-     \X{ty}{:}\Ttype_I &\Rightarrow& \{\MTYPES~\X{ty}\} \\ |&
+     \X{ty}^\ast{:}\Trectype_I &\Rightarrow& \{\MTYPES~\X{ty}^\ast\} \\ |&
      \X{im}{:}\Timport_I &\Rightarrow& \{\MIMPORTS~\X{im}\} \\ |&
      \X{fn}{:}\Tfunc_I &\Rightarrow& \{\MFUNCS~\X{fn}\} \\ |&
      \X{ta}{:}\Ttable_I &\Rightarrow& \{\MTABLES~\X{ta}\} \\ |&
@@ -679,8 +683,10 @@ The definition of the initial :ref:`identifier context <text-context>` :math:`I`
 
 .. math::
    \begin{array}{@{}lcl@{\qquad\qquad}l}
-   \F{idc}(\text{(}~\text{type}~\Tid^?~\X{ft}{:}\Tfunctype~\text{)}) &=&
-     \{\ITYPES~(\Tid^?), \ITYPEDEFS~\X{ft}\} \\
+   \F{idc}(\text{(}~\text{rec}~~\Ttypedef^\ast~\text{)}) &=&
+     \bigcompose \F{idc}(\Ttypedef)^\ast \\
+   \F{idc}(\text{(}~\text{type}~\Tid^?~\Tsubtype~\text{)}) &=&
+     \{\ITYPES~(\Tid^?), \IFIELDS~\F{idf}(\Tsubtype), \ITYPEDEFS~\X{st}\} \\
    \F{idc}(\text{(}~\text{func}~\Tid^?~\dots~\text{)}) &=&
      \{\IFUNCS~(\Tid^?)\} \\
    \F{idc}(\text{(}~\text{table}~\Tid^?~\dots~\text{)}) &=&
@@ -702,7 +708,17 @@ The definition of the initial :ref:`identifier context <text-context>` :math:`I`
    \F{idc}(\text{(}~\text{import}~\dots~\text{(}~\text{global}~\Tid^?~\dots~\text{)}~\text{)}) &=&
      \{\IGLOBALS~(\Tid^?)\} \\
    \F{idc}(\text{(}~\dots~\text{)}) &=&
-     \{\} \\
+     \{\} \\[2ex]
+   \F{idf}(\text{(}~\text{sub}~\dots~\Tcomptype~\text{)}) &=&
+     \F{idf}(\Tcomptype) \\
+   \F{idf}(\text{(}~\text{struct}~\X{Tfield}^\ast~\text{)}) &=&
+     \bigcompose \F{idf}(\Tfield)^\ast \\
+   \F{idf}(\text{(}~\text{array}~\dots~\text{)}) &=&
+     \epsilon \\
+   \F{idf}(\text{(}~\text{func}~\dots~\text{)}) &=&
+     \epsilon \\
+   \F{idf}(\text{(}~\text{field}~\Tid^?~\dots~\text{)}) &=&
+     \Tid^? \\
    \end{array}
 
 
