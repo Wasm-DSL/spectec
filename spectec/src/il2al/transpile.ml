@@ -512,14 +512,17 @@ let remove_state algo =
       }
   in
 
-  match Walk.walk walk_config algo with
-  | FuncA (name, params, body) -> (match params with
-    | { it = TupE [ _; { it = VarE "f"; _ } ]; _ } :: tail ->
-        FuncA (name, tail, letI (varE "f", getCurFrameE ()) :: body |> remove_dead_assignment)
-    | { it = VarE ("s" | "z"); _ } :: tail ->
-        FuncA (name, tail, body)
-    | _ -> FuncA(name, params, body))
-  | RuleA _ as a -> a
+  let algo' = Walk.walk walk_config algo in
+  { algo' with it =
+    match algo'.it with
+    | FuncA (name, params, body) -> (match params with
+      | { it = TupE [ _; { it = VarE "f"; _ } ]; _ } :: tail ->
+          FuncA (name, tail, letI (varE "f", getCurFrameE ()) :: body |> remove_dead_assignment)
+      | { it = VarE ("s" | "z"); _ } :: tail ->
+          FuncA (name, tail, body)
+      | _ -> FuncA(name, params, body))
+    | RuleA _ as a -> a
+  }
 
 let insert_state_binding algo =
   let state_count = ref 0 in
@@ -538,14 +541,17 @@ let insert_state_binding algo =
     }
   in
 
-  match Walk.walk walk_config algo with
-  | FuncA (name, params, body) when !state_count > 0 ->
-    let body = (letI (varE "z", getCurStateE ())) :: body in
-    FuncA (name, params, body)
-  | RuleA (name, params, body) when !state_count > 0 ->
-    let body = (letI (varE "z", getCurStateE ())) :: body in
-    RuleA (name, params, body)
-  | _ -> algo
+  let algo' = Walk.walk walk_config algo in
+  { algo' with it =
+    match algo'.it with
+    | FuncA (name, params, body) when !state_count > 0 ->
+      let body = (letI (varE "z", getCurStateE ())) :: body in
+      FuncA (name, params, body)
+    | RuleA (name, params, body) when !state_count > 0 ->
+      let body = (letI (varE "z", getCurStateE ())) :: body in
+      RuleA (name, params, body)
+    | a -> a
+  }
 
 
 (* Applied for reduction rules: infer assert from if *)
@@ -669,8 +675,7 @@ let remove_enter algo =
     | _ -> instr
   in
 
-  let remove_enter' algo =
-    match algo with
+  let remove_enter' = Source.map (function
     | FuncA (name, params, body) ->
         let walk_config =
           {
@@ -689,7 +694,7 @@ let remove_enter algo =
         in
         let body = Walk.walk_instrs walk_config body in
         RuleA (name, params, body)
-  in
+  ) in
 
   let algo' = remove_enter' algo in
   if Eq.eq_algos algo algo' then algo else remove_enter' algo'
