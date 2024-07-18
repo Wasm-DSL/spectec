@@ -73,7 +73,7 @@ type iter =
 
 (* Expressions *)
 
-and expr = expr' phrase
+and expr = (expr', Il.Ast.typ) note_phrase
 and expr' =
   | VarE of id                          (* varid *)
   | NumE of Z.t                         (* number *)
@@ -90,6 +90,7 @@ and expr' =
   | TupE of expr list                   (* `(` (expr `,`)* `)` *)
   | CaseE of atom * expr list           (* atom `(` expr* `)` -- MixE/CaseE *)
   | CallE of id * expr list             (* id `(` expr* `)` *)
+  | InvCallE of id * int list * expr list (* id`_`int*`^-1(` expr* `)` *)
   | IterE of expr * id list * iter      (* expr (`{` id* `}`)* *)
   | OptE of expr option                 (* expr?  *)
   | ListE of expr list                  (* `[` expr* `]` *)
