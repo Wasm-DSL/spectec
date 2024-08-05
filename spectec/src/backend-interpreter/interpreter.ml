@@ -142,7 +142,7 @@ and check_type ty v expr =
   let vnn_types = [ "V128"; ] in
   let abs_heap_types = [
     "ANY"; "EQ"; "I31"; "STRUCT"; "ARRAY"; "NONE"; "FUNC";
-    "NOFUNC"; "EXTERN"; "NOEXTERN"
+    "NOFUNC"; "EXN"; "NOEXN"; "EXTERN"; "NOEXTERN"
   ] in
   match v with
   (* addrref *)

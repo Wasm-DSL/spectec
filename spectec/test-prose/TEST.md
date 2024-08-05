@@ -779,45 +779,45 @@ default_ valtype_u0
 4. Assert: Due to validation, (valtype_u0 is F64).
 5. Return (F64.CONST $fzero(64)).
 
-funcsxv externval_u0*
-1. If (externval_u0* is []), then:
+funcsxa externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ xv* be externval_u0*.
-3. If externval_0 is of the case FUNC, then:
-  a. Let (FUNC fa) be externval_0.
-  b. Return [fa] ++ $funcsxv(xv*).
-4. Let [externval] ++ xv* be externval_u0*.
-5. Return $funcsxv(xv*).
+2. Let [externaddr_0] ++ xv* be externaddr_u0*.
+3. If externaddr_0 is of the case FUNC, then:
+  a. Let (FUNC fa) be externaddr_0.
+  b. Return [fa] ++ $funcsxa(xv*).
+4. Let [externaddr] ++ xv* be externaddr_u0*.
+5. Return $funcsxa(xv*).
 
-globalsxv externval_u0*
-1. If (externval_u0* is []), then:
+globalsxa externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ xv* be externval_u0*.
-3. If externval_0 is of the case GLOBAL, then:
-  a. Let (GLOBAL ga) be externval_0.
-  b. Return [ga] ++ $globalsxv(xv*).
-4. Let [externval] ++ xv* be externval_u0*.
-5. Return $globalsxv(xv*).
+2. Let [externaddr_0] ++ xv* be externaddr_u0*.
+3. If externaddr_0 is of the case GLOBAL, then:
+  a. Let (GLOBAL ga) be externaddr_0.
+  b. Return [ga] ++ $globalsxa(xv*).
+4. Let [externaddr] ++ xv* be externaddr_u0*.
+5. Return $globalsxa(xv*).
 
-tablesxv externval_u0*
-1. If (externval_u0* is []), then:
+tablesxa externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ xv* be externval_u0*.
-3. If externval_0 is of the case TABLE, then:
-  a. Let (TABLE ta) be externval_0.
-  b. Return [ta] ++ $tablesxv(xv*).
-4. Let [externval] ++ xv* be externval_u0*.
-5. Return $tablesxv(xv*).
+2. Let [externaddr_0] ++ xv* be externaddr_u0*.
+3. If externaddr_0 is of the case TABLE, then:
+  a. Let (TABLE ta) be externaddr_0.
+  b. Return [ta] ++ $tablesxa(xv*).
+4. Let [externaddr] ++ xv* be externaddr_u0*.
+5. Return $tablesxa(xv*).
 
-memsxv externval_u0*
-1. If (externval_u0* is []), then:
+memsxa externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ xv* be externval_u0*.
-3. If externval_0 is of the case MEM, then:
-  a. Let (MEM ma) be externval_0.
-  b. Return [ma] ++ $memsxv(xv*).
-4. Let [externval] ++ xv* be externval_u0*.
-5. Return $memsxv(xv*).
+2. Let [externaddr_0] ++ xv* be externaddr_u0*.
+3. If externaddr_0 is of the case MEM, then:
+  a. Let (MEM ma) be externaddr_0.
+  b. Return [ma] ++ $memsxa(xv*).
+4. Let [externaddr] ++ xv* be externaddr_u0*.
+5. Return $memsxa(xv*).
 
 store
 1. Return.
@@ -908,45 +908,45 @@ growmemory mi n
   a. Let mi' be { TYPE: (i', j); BYTES: b* ++ 0^(n · (64 · $Ki())); }.
   b. Return mi'.
 
-funcs externval_u0*
-1. If (externval_u0* is []), then:
+funcs externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ externval'* be externval_u0*.
-3. If externval_0 is of the case FUNC, then:
-  a. Let (FUNC fa) be externval_0.
-  b. Return [fa] ++ $funcs(externval'*).
-4. Let [externval] ++ externval'* be externval_u0*.
-5. Return $funcs(externval'*).
+2. Let [externaddr_0] ++ externaddr'* be externaddr_u0*.
+3. If externaddr_0 is of the case FUNC, then:
+  a. Let (FUNC fa) be externaddr_0.
+  b. Return [fa] ++ $funcs(externaddr'*).
+4. Let [externaddr] ++ externaddr'* be externaddr_u0*.
+5. Return $funcs(externaddr'*).
 
-globals externval_u0*
-1. If (externval_u0* is []), then:
+globals externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ externval'* be externval_u0*.
-3. If externval_0 is of the case GLOBAL, then:
-  a. Let (GLOBAL ga) be externval_0.
-  b. Return [ga] ++ $globals(externval'*).
-4. Let [externval] ++ externval'* be externval_u0*.
-5. Return $globals(externval'*).
+2. Let [externaddr_0] ++ externaddr'* be externaddr_u0*.
+3. If externaddr_0 is of the case GLOBAL, then:
+  a. Let (GLOBAL ga) be externaddr_0.
+  b. Return [ga] ++ $globals(externaddr'*).
+4. Let [externaddr] ++ externaddr'* be externaddr_u0*.
+5. Return $globals(externaddr'*).
 
-tables externval_u0*
-1. If (externval_u0* is []), then:
+tables externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ externval'* be externval_u0*.
-3. If externval_0 is of the case TABLE, then:
-  a. Let (TABLE ta) be externval_0.
-  b. Return [ta] ++ $tables(externval'*).
-4. Let [externval] ++ externval'* be externval_u0*.
-5. Return $tables(externval'*).
+2. Let [externaddr_0] ++ externaddr'* be externaddr_u0*.
+3. If externaddr_0 is of the case TABLE, then:
+  a. Let (TABLE ta) be externaddr_0.
+  b. Return [ta] ++ $tables(externaddr'*).
+4. Let [externaddr] ++ externaddr'* be externaddr_u0*.
+5. Return $tables(externaddr'*).
 
-mems externval_u0*
-1. If (externval_u0* is []), then:
+mems externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ externval'* be externval_u0*.
-3. If externval_0 is of the case MEM, then:
-  a. Let (MEM ma) be externval_0.
-  b. Return [ma] ++ $mems(externval'*).
-4. Let [externval] ++ externval'* be externval_u0*.
-5. Return $mems(externval'*).
+2. Let [externaddr_0] ++ externaddr'* be externaddr_u0*.
+3. If externaddr_0 is of the case MEM, then:
+  a. Let (MEM ma) be externaddr_0.
+  b. Return [ma] ++ $mems(externaddr'*).
+4. Let [externaddr] ++ externaddr'* be externaddr_u0*.
+5. Return $mems(externaddr'*).
 
 allocfunc moduleinst func
 1. Assert: Due to validation, func is of the case FUNC.
@@ -1013,22 +1013,22 @@ allocmems memtype_u0*
 instexport fa* ga* ta* ma* (EXPORT name externidx_u0)
 1. If externidx_u0 is of the case FUNC, then:
   a. Let (FUNC x) be externidx_u0.
-  b. Return { NAME: name; VALUE: (FUNC fa*[x]); }.
+  b. Return { NAME: name; ADDR: (FUNC fa*[x]); }.
 2. If externidx_u0 is of the case GLOBAL, then:
   a. Let (GLOBAL x) be externidx_u0.
-  b. Return { NAME: name; VALUE: (GLOBAL ga*[x]); }.
+  b. Return { NAME: name; ADDR: (GLOBAL ga*[x]); }.
 3. If externidx_u0 is of the case TABLE, then:
   a. Let (TABLE x) be externidx_u0.
-  b. Return { NAME: name; VALUE: (TABLE ta*[x]); }.
+  b. Return { NAME: name; ADDR: (TABLE ta*[x]); }.
 4. Assert: Due to validation, externidx_u0 is of the case MEM.
 5. Let (MEM x) be externidx_u0.
-6. Return { NAME: name; VALUE: (MEM ma*[x]); }.
+6. Return { NAME: name; ADDR: (MEM ma*[x]); }.
 
-allocmodule module externval* val*
-1. Let fa_ex* be $funcs(externval*).
-2. Let ga_ex* be $globals(externval*).
-3. Let ma_ex* be $mems(externval*).
-4. Let ta_ex* be $tables(externval*).
+allocmodule module externaddr* val*
+1. Let fa_ex* be $funcs(externaddr*).
+2. Let ga_ex* be $globals(externaddr*).
+3. Let ma_ex* be $mems(externaddr*).
+4. Let ta_ex* be $tables(externaddr*).
 5. Assert: Due to validation, module is of the case MODULE.
 6. Let (MODULE type_0 import* func^n_func global_1 table_2 mem_3 elem* data* start? export*) be module.
 7. Assert: Due to validation, mem_3 is of the case MEMORY.
@@ -1077,7 +1077,7 @@ initdata moduleinst u32_u0* byte_u1*
 7. Perform $initdata(moduleinst, i'*, b'**).
 8. Return.
 
-instantiate module externval*
+instantiate module externaddr*
 1. Assert: Due to validation, module is of the case MODULE.
 2. Let (MODULE type* import* func* global* table* mem* elem* data* start? export*) be module.
 3. Assert: Due to validation, type is of the case TYPE*.
@@ -1091,7 +1091,7 @@ instantiate module externval*
 11. Let (ELEM expr_E x*)* be elem*.
 12. Assert: Due to validation, global is of the case GLOBAL*.
 13. Let (GLOBAL globaltype expr_G)* be global*.
-14. Let moduleinst_init be { TYPES: functype*; FUNCS: $funcs(externval*) ++ (|s.FUNCS| + i_F)^(i_F<n_F); GLOBALS: $globals(externval*); TABLES: []; MEMS: []; EXPORTS: []; }.
+14. Let moduleinst_init be { TYPES: functype*; FUNCS: $funcs(externaddr*) ++ (|s.FUNCS| + i_F)^(i_F<n_F); GLOBALS: $globals(externaddr*); TABLES: []; MEMS: []; EXPORTS: []; }.
 15. Let f_init be { LOCALS: []; MODULE: moduleinst_init; }.
 16. Let z be f_init.
 17. Push the activation of z to the stack.
@@ -1103,7 +1103,7 @@ instantiate module externval*
 23. Push the activation of z to the stack.
 24. Let [val]* be $eval_expr(expr_G)*.
 25. Pop the activation of _f from the stack.
-26. Let moduleinst be $allocmodule(module, externval*, val*).
+26. Let moduleinst be $allocmodule(module, externaddr*, val*).
 27. Let f be { LOCALS: []; MODULE: moduleinst; }.
 28. Perform $initelem(moduleinst, i_E*, moduleinst.FUNCS[x]**).
 29. Perform $initdata(moduleinst, i_D*, b**).
@@ -1222,9 +1222,6 @@ Step_pure/return
   a. Pop the current label from the stack.
   b. Push the values val* to the stack.
   c. Execute the instruction RETURN.
-
-Step_pure/trap
-1. YetI: TODO: It is likely that the value stack of two rules are different.
 
 Step_pure/unop t unop
 1. Assert: Due to validation, a value of value type t is on the top of the stack.
@@ -1356,9 +1353,6 @@ Step_read/memory.size
 1. Let z be the current state.
 2. Let ((n · 64) · $Ki()) be |$mem(z, 0).BYTES|.
 3. Push the value (I32.CONST n) to the stack.
-
-Step/ctxt
-1. YetI: TODO: It is likely that the value stack of two rules are different.
 
 Step/local.set x
 1. Let z be the current state.
@@ -2933,45 +2927,45 @@ default_ valtype_u0
 7. Assert: Due to validation, (valtype_u0 is EXTERNREF).
 8. Return (REF.NULL EXTERNREF).
 
-funcsxv externval_u0*
-1. If (externval_u0* is []), then:
+funcsxa externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ xv* be externval_u0*.
-3. If externval_0 is of the case FUNC, then:
-  a. Let (FUNC fa) be externval_0.
-  b. Return [fa] ++ $funcsxv(xv*).
-4. Let [externval] ++ xv* be externval_u0*.
-5. Return $funcsxv(xv*).
+2. Let [externaddr_0] ++ xv* be externaddr_u0*.
+3. If externaddr_0 is of the case FUNC, then:
+  a. Let (FUNC fa) be externaddr_0.
+  b. Return [fa] ++ $funcsxa(xv*).
+4. Let [externaddr] ++ xv* be externaddr_u0*.
+5. Return $funcsxa(xv*).
 
-globalsxv externval_u0*
-1. If (externval_u0* is []), then:
+globalsxa externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ xv* be externval_u0*.
-3. If externval_0 is of the case GLOBAL, then:
-  a. Let (GLOBAL ga) be externval_0.
-  b. Return [ga] ++ $globalsxv(xv*).
-4. Let [externval] ++ xv* be externval_u0*.
-5. Return $globalsxv(xv*).
+2. Let [externaddr_0] ++ xv* be externaddr_u0*.
+3. If externaddr_0 is of the case GLOBAL, then:
+  a. Let (GLOBAL ga) be externaddr_0.
+  b. Return [ga] ++ $globalsxa(xv*).
+4. Let [externaddr] ++ xv* be externaddr_u0*.
+5. Return $globalsxa(xv*).
 
-tablesxv externval_u0*
-1. If (externval_u0* is []), then:
+tablesxa externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ xv* be externval_u0*.
-3. If externval_0 is of the case TABLE, then:
-  a. Let (TABLE ta) be externval_0.
-  b. Return [ta] ++ $tablesxv(xv*).
-4. Let [externval] ++ xv* be externval_u0*.
-5. Return $tablesxv(xv*).
+2. Let [externaddr_0] ++ xv* be externaddr_u0*.
+3. If externaddr_0 is of the case TABLE, then:
+  a. Let (TABLE ta) be externaddr_0.
+  b. Return [ta] ++ $tablesxa(xv*).
+4. Let [externaddr] ++ xv* be externaddr_u0*.
+5. Return $tablesxa(xv*).
 
-memsxv externval_u0*
-1. If (externval_u0* is []), then:
+memsxa externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ xv* be externval_u0*.
-3. If externval_0 is of the case MEM, then:
-  a. Let (MEM ma) be externval_0.
-  b. Return [ma] ++ $memsxv(xv*).
-4. Let [externval] ++ xv* be externval_u0*.
-5. Return $memsxv(xv*).
+2. Let [externaddr_0] ++ xv* be externaddr_u0*.
+3. If externaddr_0 is of the case MEM, then:
+  a. Let (MEM ma) be externaddr_0.
+  b. Return [ma] ++ $memsxa(xv*).
+4. Let [externaddr] ++ xv* be externaddr_u0*.
+5. Return $memsxa(xv*).
 
 store
 1. Return.
@@ -3096,45 +3090,45 @@ blocktype blocktype_u1
 4. Let (_IDX x) be blocktype_u1.
 5. Return $type(x).
 
-funcs externval_u0*
-1. If (externval_u0* is []), then:
+funcs externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ externval'* be externval_u0*.
-3. If externval_0 is of the case FUNC, then:
-  a. Let (FUNC fa) be externval_0.
-  b. Return [fa] ++ $funcs(externval'*).
-4. Let [externval] ++ externval'* be externval_u0*.
-5. Return $funcs(externval'*).
+2. Let [externaddr_0] ++ externaddr'* be externaddr_u0*.
+3. If externaddr_0 is of the case FUNC, then:
+  a. Let (FUNC fa) be externaddr_0.
+  b. Return [fa] ++ $funcs(externaddr'*).
+4. Let [externaddr] ++ externaddr'* be externaddr_u0*.
+5. Return $funcs(externaddr'*).
 
-globals externval_u0*
-1. If (externval_u0* is []), then:
+globals externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ externval'* be externval_u0*.
-3. If externval_0 is of the case GLOBAL, then:
-  a. Let (GLOBAL ga) be externval_0.
-  b. Return [ga] ++ $globals(externval'*).
-4. Let [externval] ++ externval'* be externval_u0*.
-5. Return $globals(externval'*).
+2. Let [externaddr_0] ++ externaddr'* be externaddr_u0*.
+3. If externaddr_0 is of the case GLOBAL, then:
+  a. Let (GLOBAL ga) be externaddr_0.
+  b. Return [ga] ++ $globals(externaddr'*).
+4. Let [externaddr] ++ externaddr'* be externaddr_u0*.
+5. Return $globals(externaddr'*).
 
-tables externval_u0*
-1. If (externval_u0* is []), then:
+tables externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ externval'* be externval_u0*.
-3. If externval_0 is of the case TABLE, then:
-  a. Let (TABLE ta) be externval_0.
-  b. Return [ta] ++ $tables(externval'*).
-4. Let [externval] ++ externval'* be externval_u0*.
-5. Return $tables(externval'*).
+2. Let [externaddr_0] ++ externaddr'* be externaddr_u0*.
+3. If externaddr_0 is of the case TABLE, then:
+  a. Let (TABLE ta) be externaddr_0.
+  b. Return [ta] ++ $tables(externaddr'*).
+4. Let [externaddr] ++ externaddr'* be externaddr_u0*.
+5. Return $tables(externaddr'*).
 
-mems externval_u0*
-1. If (externval_u0* is []), then:
+mems externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ externval'* be externval_u0*.
-3. If externval_0 is of the case MEM, then:
-  a. Let (MEM ma) be externval_0.
-  b. Return [ma] ++ $mems(externval'*).
-4. Let [externval] ++ externval'* be externval_u0*.
-5. Return $mems(externval'*).
+2. Let [externaddr_0] ++ externaddr'* be externaddr_u0*.
+3. If externaddr_0 is of the case MEM, then:
+  a. Let (MEM ma) be externaddr_0.
+  b. Return [ma] ++ $mems(externaddr'*).
+4. Let [externaddr] ++ externaddr'* be externaddr_u0*.
+5. Return $mems(externaddr'*).
 
 allocfunc moduleinst func
 1. Assert: Due to validation, func is of the case FUNC.
@@ -3232,22 +3226,22 @@ allocdatas byte_u0*
 instexport fa* ga* ta* ma* (EXPORT name externidx_u0)
 1. If externidx_u0 is of the case FUNC, then:
   a. Let (FUNC x) be externidx_u0.
-  b. Return { NAME: name; VALUE: (FUNC fa*[x]); }.
+  b. Return { NAME: name; ADDR: (FUNC fa*[x]); }.
 2. If externidx_u0 is of the case GLOBAL, then:
   a. Let (GLOBAL x) be externidx_u0.
-  b. Return { NAME: name; VALUE: (GLOBAL ga*[x]); }.
+  b. Return { NAME: name; ADDR: (GLOBAL ga*[x]); }.
 3. If externidx_u0 is of the case TABLE, then:
   a. Let (TABLE x) be externidx_u0.
-  b. Return { NAME: name; VALUE: (TABLE ta*[x]); }.
+  b. Return { NAME: name; ADDR: (TABLE ta*[x]); }.
 4. Assert: Due to validation, externidx_u0 is of the case MEM.
 5. Let (MEM x) be externidx_u0.
-6. Return { NAME: name; VALUE: (MEM ma*[x]); }.
+6. Return { NAME: name; ADDR: (MEM ma*[x]); }.
 
-allocmodule module externval* val* ref**
-1. Let fa_ex* be $funcs(externval*).
-2. Let ga_ex* be $globals(externval*).
-3. Let ma_ex* be $mems(externval*).
-4. Let ta_ex* be $tables(externval*).
+allocmodule module externaddr* val* ref**
+1. Let fa_ex* be $funcs(externaddr*).
+2. Let ga_ex* be $globals(externaddr*).
+3. Let ma_ex* be $mems(externaddr*).
+4. Let ta_ex* be $tables(externaddr*).
 5. Assert: Due to validation, module is of the case MODULE.
 6. Let (MODULE type_0 import* func^n_func global_1 table_2 mem_3 elem_4 data_5 start? export*) be module.
 7. Assert: Due to validation, data_5 is of the case DATA.
@@ -3303,7 +3297,7 @@ rundata (DATA byte* datamode_u0) i
 5. Let n be |byte*|.
 6. Return instr* ++ [(I32.CONST 0), (I32.CONST n), (MEMORY.INIT i), (DATA.DROP i)].
 
-instantiate module externval*
+instantiate module externaddr*
 1. Assert: Due to validation, module is of the case MODULE.
 2. Let (MODULE type* import* func* global* table* mem* elem* data* start? export*) be module.
 3. Assert: Due to validation, type is of the case TYPE*.
@@ -3319,7 +3313,7 @@ instantiate module externval*
 13. Let (ELEM reftype expr_E* elemmode)* be elem*.
 14. Let instr_D* be $concat_(instr, $rundata(data*[j], j)^(j<n_D)).
 15. Let instr_E* be $concat_(instr, $runelem(elem*[i], i)^(i<n_E)).
-16. Let moduleinst_init be { TYPES: functype*; FUNCS: $funcs(externval*) ++ (|s.FUNCS| + i_F)^(i_F<n_F); GLOBALS: $globals(externval*); TABLES: []; MEMS: []; ELEMS: []; DATAS: []; EXPORTS: []; }.
+16. Let moduleinst_init be { TYPES: functype*; FUNCS: $funcs(externaddr*) ++ (|s.FUNCS| + i_F)^(i_F<n_F); GLOBALS: $globals(externaddr*); TABLES: []; MEMS: []; ELEMS: []; DATAS: []; EXPORTS: []; }.
 17. Let f_init be { LOCALS: []; MODULE: moduleinst_init; }.
 18. Let z be f_init.
 19. Push the activation of z to the stack.
@@ -3328,7 +3322,7 @@ instantiate module externval*
 22. Push the activation of z to the stack.
 23. Let [ref]** be $eval_expr(expr_E)**.
 24. Pop the activation of _f from the stack.
-25. Let moduleinst be $allocmodule(module, externval*, val*, ref**).
+25. Let moduleinst be $allocmodule(module, externaddr*, val*, ref**).
 26. Let f be { LOCALS: []; MODULE: moduleinst; }.
 27. Push the activation of f with arity 0 to the stack.
 28. Execute the instruction instr_E*.
@@ -3447,9 +3441,6 @@ Step_pure/return
   a. Pop the current label from the stack.
   b. Push the values val* to the stack.
   c. Execute the instruction RETURN.
-
-Step_pure/trap
-1. YetI: TODO: It is likely that the value stack of two rules are different.
 
 Step_pure/unop nt unop
 1. Assert: Due to validation, a value of value type nt is on the top of the stack.
@@ -4018,9 +4009,6 @@ Step_read/memory.init x
   f. Push the value (I32.CONST (n - 1)) to the stack.
   g. Execute the instruction (MEMORY.INIT x).
 
-Step/ctxt
-1. YetI: TODO: It is likely that the value stack of two rules are different.
-
 Step/local.set x
 1. Let z be the current state.
 2. Assert: Due to validation, a value is on the top of the stack.
@@ -4138,10 +4126,10 @@ watsup 0.4 generator
 == IL Validation after pass sideconditions...
 == Translating to AL...
 == Prose Generation...
-6-typing.watsup:194.10-194.32: if_expr_to_instrs: Yet `$before(typeuse, x, i)`
-6-typing.watsup:817.9-817.55: if_expr_to_instrs: Yet `(($unpack(zt) = (numtype : numtype <: valtype)) \/ ($unpack(zt) = (vectype : vectype <: valtype)))`
-6-typing.watsup:851.9-851.55: if_expr_to_instrs: Yet `(($unpack(zt) = (numtype : numtype <: valtype)) \/ ($unpack(zt) = (vectype : vectype <: valtype)))`
-6-typing.watsup:1309.9-1309.30: if_expr_to_instrs: Yet `$disjoint_(syntax name, nm*{nm : name})`
+6-typing.watsup:195.10-195.32: if_expr_to_instrs: Yet `$before(typeuse, x, i)`
+6-typing.watsup:876.9-876.55: if_expr_to_instrs: Yet `(($unpack(zt) = (numtype : numtype <: valtype)) \/ ($unpack(zt) = (vectype : vectype <: valtype)))`
+6-typing.watsup:910.9-910.55: if_expr_to_instrs: Yet `(($unpack(zt) = (numtype : numtype <: valtype)) \/ ($unpack(zt) = (vectype : vectype <: valtype)))`
+6-typing.watsup:1378.9-1378.30: if_expr_to_instrs: Yet `$disjoint_(syntax name, nm*{nm : name})`
 =================
  Generated prose
 =================
@@ -4473,6 +4461,11 @@ Memtype_ok
 - the memory type (PAGE limits) is valid if and only if:
   - the limits limits is valid with the nat (2 ^ 16).
 
+Tagtype_ok
+- the memory type deftype is valid if and only if:
+  - the defined type deftype is valid.
+  - $expanddt(deftype) is (FUNC functype).
+
 Externtype_ok
 - the external type externtype_u0 is valid if and only if:
   - Either:
@@ -4488,6 +4481,9 @@ Externtype_ok
   - Or:
     - externtype_u0 is (MEM memtype).
     - the memory type memtype is valid.
+  - Or:
+    - externtype_u0 is (TAG tagtype).
+    - the memory type tagtype is valid.
 
 Instrtype_sub
 - the instruction type (t_11* ->_ x_1* ++ t_12*) matches the instruction type (t_21* ->_ x_2* ++ t_22*) if and only if:
@@ -4527,6 +4523,11 @@ Memtype_sub
 - the memory type (PAGE limits_1) matches the memory type (PAGE limits_2) if and only if:
   - the limits limits_1 matches the limits limits_2.
 
+Tagtype_sub
+- the memory type deftype_1 matches the memory type deftype_2 if and only if:
+  - the defined type deftype_1 matches the defined type deftype_2.
+  - the defined type deftype_2 matches the defined type deftype_1.
+
 Externtype_sub
 - the external type externtype_u0 matches the external type externtype_u1 if and only if:
   - Either:
@@ -4545,6 +4546,10 @@ Externtype_sub
     - externtype_u0 is (MEM memtype_1).
     - externtype_u1 is (MEM memtype_2).
     - the memory type memtype_1 matches the memory type memtype_2.
+  - Or:
+    - externtype_u0 is (TAG tagtype_1).
+    - externtype_u1 is (TAG tagtype_2).
+    - the memory type tagtype_1 matches the memory type tagtype_2.
 
 Blocktype_ok
 - the block type blocktype_u0 is valid with the instruction type (valtype_u1* ->_ [] ++ valtype_u2*) if and only if:
@@ -4560,6 +4565,29 @@ Blocktype_ok
     - valtype_u2* is t_2*.
     - |C.TYPES| is greater than typeidx.
     - $expanddt(C.TYPES[typeidx]) is (FUNC (t_1* -> t_2*)).
+
+Catch_ok
+- the catch clause catch_u0 is valid if and only if:
+  - Either:
+    - catch_u0 is (CATCH x l).
+    - |C.TAGS| is greater than x.
+    - |C.LABELS| is greater than l.
+    - $expanddt(C.TAGS[x]) is (FUNC (t* -> [])).
+    - the value type sequence t* matches the result type C.LABELS[l].
+  - Or:
+    - catch_u0 is (CATCH_REF x l).
+    - |C.TAGS| is greater than x.
+    - |C.LABELS| is greater than l.
+    - $expanddt(C.TAGS[x]) is (FUNC (t* -> [])).
+    - the value type sequence t* ++ [(REF (NULL ?()) EXN)] matches the result type C.LABELS[l].
+  - Or:
+    - catch_u0 is (CATCH_ALL l).
+    - |C.LABELS| is greater than l.
+    - the value type sequence [] matches the result type C.LABELS[l].
+  - Or:
+    - catch_u0 is (CATCH_ALL_REF l).
+    - |C.LABELS| is greater than l.
+    - the value type sequence [(REF (NULL ?()) EXN)] matches the result type C.LABELS[l].
 
 Instr_ok/nop
 - the instr NOP is valid with the instruction type ([] ->_ [] ++ []).
@@ -4691,6 +4719,23 @@ Instr_ok/return_call_indirect
   - C.RETURN is ?(t'_2*).
   - the value type sequence t_2* matches the value type sequence t'_2*.
   - the instruction type (t_3* ->_ [] ++ t_4*) is valid.
+
+Instr_ok/throw
+- the instr (THROW x) is valid with the instruction type (t_1* ++ t* ->_ [] ++ t_2*) if and only if:
+  - |C.TAGS| is greater than x.
+  - $expanddt(C.TAGS[x]) is (FUNC (t* -> [])).
+  - the instruction type (t_1* ->_ [] ++ t_2*) is valid.
+
+Instr_ok/throw_ref
+- the instr THROW_REF is valid with the instruction type (t_1* ++ [(REF (NULL ?(())) EXN)] ->_ [] ++ t_2*) if and only if:
+  - the instruction type (t_1* ->_ [] ++ t_2*) is valid.
+
+Instr_ok/try_table
+- the instr (TRY_TABLE bt catch* instr*) is valid with the instruction type (t_1* ->_ [] ++ t_2*) if and only if:
+  - the block type bt is valid with the instruction type (t_1* ->_ [] ++ t_2*).
+  - Under the context C with .LABELS prepended by [t_2*], the instr sequence instr* is valid with the instruction type (t_1* ->_ x* ++ t_2*).
+  - For all catch in catch*,
+    - the catch clause catch is valid.
 
 Instr_ok/const
 - the instr (nt.CONST c_nt) is valid with the instruction type ([] ->_ [] ++ [nt]).
@@ -5184,6 +5229,11 @@ Mem_ok
 - the memory (MEMORY memtype) is valid with the memory type memtype if and only if:
   - the memory type memtype is valid.
 
+Tag_ok
+- the tag (TAG x) is valid with the memory type C.TYPES[x] if and only if:
+  - |C.TYPES| is greater than x.
+  - $expanddt(C.TYPES[x]) is (FUNC functype).
+
 Elemmode_ok
 - the elemmode elemmode_u0 is valid with the element type rt if and only if:
   - Either:
@@ -5252,6 +5302,11 @@ Externidx_ok
     - externtype_u1 is (MEM mt).
     - |C.MEMS| is greater than x.
     - C.MEMS[x] is mt.
+  - Or:
+    - externidx_u0 is (TAG x).
+    - externtype_u1 is (TAG at).
+    - |C.TAGS| is greater than x.
+    - C.TAGS[x] is at.
 
 Export_ok
 - the export (EXPORT name externidx) is valid with the name name and the external type xt if and only if:
@@ -5280,23 +5335,26 @@ Types_ok
     - Under the context C with .TYPES appended by dt_1*, the type definition sequence type* is valid with the defined type sequence dt*.
 
 Module_ok
-- the module (MODULE type* import* func* global* table* mem* elem* data* start? export*) is valid with the module type $clos_moduletype(C, (xt_I* -> xt_E*)) if and only if:
+- the module (MODULE type* import* func* global* table* mem* tag* elem* data* start? export*) is valid with the module type $clos_moduletype(C, (xt_I* -> xt_E*)) if and only if:
   - |xt_I*| is |import*|.
   - |tt*| is |table*|.
   - |mt*| is |mem*|.
+  - |tag*| is |at*|.
   - |func*| is |dt*|.
   - |rt*| is |elem*|.
   - |ok*| is |data*|.
   - |nm*| is |export*|.
   - |xt_E*| is |export*|.
-  - Under the context { TYPES: []; RECS: []; FUNCS: []; GLOBALS: []; TABLES: []; MEMS: []; ELEMS: []; DATAS: []; LOCALS: []; LABELS: []; RETURN: ?(); REFS: []; }, the type definition sequence type* is valid with the defined type sequence dt'*.
+  - Under the context { TYPES: []; RECS: []; FUNCS: []; GLOBALS: []; TABLES: []; MEMS: []; TAGS: []; ELEMS: []; DATAS: []; LOCALS: []; LABELS: []; RETURN: ?(); REFS: []; }, the type definition sequence type* is valid with the defined type sequence dt'*.
   - For all import in import* and xt_I in xt_I*,
-    - Under the context { TYPES: dt'*; RECS: []; FUNCS: []; GLOBALS: []; TABLES: []; MEMS: []; ELEMS: []; DATAS: []; LOCALS: []; LABELS: []; RETURN: ?(); REFS: []; }, the import import is valid with the external type xt_I.
+    - Under the context { TYPES: dt'*; RECS: []; FUNCS: []; GLOBALS: []; TABLES: []; MEMS: []; TAGS: []; ELEMS: []; DATAS: []; LOCALS: []; LABELS: []; RETURN: ?(); REFS: []; }, the import import is valid with the external type xt_I.
   - Under the context C', the global sequence global* is valid with the global type sequence gt*.
   - For all table in table* and tt in tt*,
     - Under the context C', the table table is valid with the table type tt.
   - For all mem in mem* and mt in mt*,
     - Under the context C', the memory mem is valid with the memory type mt.
+  - For all at in at* and tag in tag*,
+    - Under the context C', the tag tag is valid with the memory type at.
   - For all dt in dt* and func in func*,
     - the function func is valid with the defined type dt.
   - For all elem in elem* and rt in rt*,
@@ -5308,13 +5366,14 @@ Module_ok
   - For all export in export* and nm in nm* and xt_E in xt_E*,
     - the export export is valid with the name nm and the external type xt_E.
   - Yet: $disjoint_(syntax name, nm*{nm : name})
-  - C is { TYPES: dt'*; RECS: []; FUNCS: dt_I* ++ dt*; GLOBALS: gt_I* ++ gt*; TABLES: tt_I* ++ tt*; MEMS: mt_I* ++ mt*; ELEMS: rt*; DATAS: ok*; LOCALS: []; LABELS: []; RETURN: ?(); REFS: x*; }.
-  - C' is { TYPES: dt'*; RECS: []; FUNCS: dt_I* ++ dt*; GLOBALS: gt_I*; TABLES: []; MEMS: []; ELEMS: []; DATAS: []; LOCALS: []; LABELS: []; RETURN: ?(); REFS: x*; }.
+  - C is { TYPES: dt'*; RECS: []; FUNCS: dt_I* ++ dt*; GLOBALS: gt_I* ++ gt*; TABLES: tt_I* ++ tt*; MEMS: mt_I* ++ mt*; TAGS: at_I* ++ at*; ELEMS: rt*; DATAS: ok*; LOCALS: []; LABELS: []; RETURN: ?(); REFS: x*; }.
+  - C' is { TYPES: dt'*; RECS: []; FUNCS: dt_I* ++ dt*; GLOBALS: gt_I*; TABLES: []; MEMS: []; TAGS: []; ELEMS: []; DATAS: []; LOCALS: []; LABELS: []; RETURN: ?(); REFS: x*; }.
   - x* is $funcidx_nonfuncs(YetE (`%%%%%`_nonfuncs(global*{global : global}, table*{table : table}, mem*{mem : mem}, elem*{elem : elem}, data*{data : data}))).
   - dt_I* is $funcsxt(xt_I*).
   - gt_I* is $globalsxt(xt_I*).
   - tt_I* is $tablesxt(xt_I*).
   - mt_I* is $memsxt(xt_I*).
+  - at_I* is $tagsxt(xt_I*).
 
 NotationTypingInstrScheme
 - the instr sequence [instr_u0] is valid with the function type (valtype_u1* -> valtype_u3*) if and only if:
@@ -6132,6 +6191,9 @@ free_table (TABLE tabletype expr)
 free_mem (MEMORY memtype)
 1. Return $free_memtype(memtype).
 
+free_tag (TAG typeidx)
+1. Return $free_typeidx(typeidx).
+
 free_elemmode elemmode_u0
 1. If elemmode_u0 is of the case ACTIVE, then:
   a. Return YetE ($free_tableidx(tableidx) ++ $free_expr(expr)).
@@ -6161,8 +6223,8 @@ free_export (EXPORT name externidx)
 free_import (IMPORT name_1 name_2 externtype)
 1. Return $free_externtype(externtype).
 
-free_module (MODULE type* import* func* global* table* mem* elem* data* start? export*)
-1. Return YetE ($free_list($free_type(type)*{type : type}) ++ $free_list($free_import(import)*{import : import}) ++ $free_list($free_func(func)*{func : func}) ++ $free_list($free_global(global)*{global : global}) ++ $free_list($free_table(table)*{table : table}) ++ $free_list($free_mem(mem)*{mem : mem}) ++ $free_list($free_elem(elem)*{elem : elem}) ++ $free_list($free_data(data)*{data : data}) ++ $free_opt($free_start(start)?{start : start}) ++ $free_list($free_export(export)*{export : export})).
+free_module (MODULE type* import* func* global* table* mem* tag* elem* data* start? export*)
+1. Return YetE ($free_list($free_type(type)*{type : type}) ++ $free_list($free_import(import)*{import : import}) ++ $free_list($free_func(func)*{func : func}) ++ $free_list($free_global(global)*{global : global}) ++ $free_list($free_table(table)*{table : table}) ++ $free_list($free_mem(mem)*{mem : mem}) ++ $free_list($free_tag(tag)*{tag : tag}) ++ $free_list($free_elem(elem)*{elem : elem}) ++ $free_list($free_data(data)*{data : data}) ++ $free_opt($free_start(start)?{start : start}) ++ $free_list($free_export(export)*{export : export})).
 
 funcidx_module module
 1. Return $free_module(module).FUNCS.
@@ -6370,6 +6432,16 @@ memsxx externidx_u0*
 4. Let [externidx] ++ xx* be externidx_u0*.
 5. Return $memsxx(xx*).
 
+tagsxx externidx_u0*
+1. If (externidx_u0* is []), then:
+  a. Return [].
+2. Let [externidx_0] ++ xx* be externidx_u0*.
+3. If externidx_0 is of the case TAG, then:
+  a. Let (TAG x) be externidx_0.
+  b. Return [x] ++ $tagsxx(xx*).
+4. Let [externidx] ++ xx* be externidx_u0*.
+5. Return $tagsxx(xx*).
+
 funcsxt externtype_u0*
 1. If (externtype_u0* is []), then:
   a. Return [].
@@ -6409,6 +6481,16 @@ memsxt externtype_u0*
   b. Return [mt] ++ $memsxt(xt*).
 4. Let [externtype] ++ xt* be externtype_u0*.
 5. Return $memsxt(xt*).
+
+tagsxt externtype_u0*
+1. If (externtype_u0* is []), then:
+  a. Return [].
+2. Let [externtype_0] ++ xt* be externtype_u0*.
+3. If externtype_0 is of the case TAG, then:
+  a. Let (TAG at) be externtype_0.
+  b. Return [at] ++ $tagsxt(xt*).
+4. Let [externtype] ++ xt* be externtype_u0*.
+5. Return $tagsxt(xt*).
 
 memarg0
 1. Return { ALIGN: 0; OFFSET: 0; }.
@@ -7153,45 +7235,55 @@ unpackfield_ storagetype_u0 sx_u1? fieldval_u2
   d. Assert: Due to validation, (storagetype_u0 is packtype).
   e. Return (I32.CONST $extend__($psize(packtype), 32, sx, i)).
 
-funcsxv externval_u0*
-1. If (externval_u0* is []), then:
+funcsxa externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ xv* be externval_u0*.
-3. If externval_0 is of the case FUNC, then:
-  a. Let (FUNC fa) be externval_0.
-  b. Return [fa] ++ $funcsxv(xv*).
-4. Let [externval] ++ xv* be externval_u0*.
-5. Return $funcsxv(xv*).
+2. Let [externaddr_0] ++ xa* be externaddr_u0*.
+3. If externaddr_0 is of the case FUNC, then:
+  a. Let (FUNC fa) be externaddr_0.
+  b. Return [fa] ++ $funcsxa(xa*).
+4. Let [externaddr] ++ xa* be externaddr_u0*.
+5. Return $funcsxa(xa*).
 
-globalsxv externval_u0*
-1. If (externval_u0* is []), then:
+globalsxa externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ xv* be externval_u0*.
-3. If externval_0 is of the case GLOBAL, then:
-  a. Let (GLOBAL ga) be externval_0.
-  b. Return [ga] ++ $globalsxv(xv*).
-4. Let [externval] ++ xv* be externval_u0*.
-5. Return $globalsxv(xv*).
+2. Let [externaddr_0] ++ xa* be externaddr_u0*.
+3. If externaddr_0 is of the case GLOBAL, then:
+  a. Let (GLOBAL ga) be externaddr_0.
+  b. Return [ga] ++ $globalsxa(xa*).
+4. Let [externaddr] ++ xa* be externaddr_u0*.
+5. Return $globalsxa(xa*).
 
-tablesxv externval_u0*
-1. If (externval_u0* is []), then:
+tablesxa externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ xv* be externval_u0*.
-3. If externval_0 is of the case TABLE, then:
-  a. Let (TABLE ta) be externval_0.
-  b. Return [ta] ++ $tablesxv(xv*).
-4. Let [externval] ++ xv* be externval_u0*.
-5. Return $tablesxv(xv*).
+2. Let [externaddr_0] ++ xa* be externaddr_u0*.
+3. If externaddr_0 is of the case TABLE, then:
+  a. Let (TABLE ta) be externaddr_0.
+  b. Return [ta] ++ $tablesxa(xa*).
+4. Let [externaddr] ++ xa* be externaddr_u0*.
+5. Return $tablesxa(xa*).
 
-memsxv externval_u0*
-1. If (externval_u0* is []), then:
+memsxa externaddr_u0*
+1. If (externaddr_u0* is []), then:
   a. Return [].
-2. Let [externval_0] ++ xv* be externval_u0*.
-3. If externval_0 is of the case MEM, then:
-  a. Let (MEM ma) be externval_0.
-  b. Return [ma] ++ $memsxv(xv*).
-4. Let [externval] ++ xv* be externval_u0*.
-5. Return $memsxv(xv*).
+2. Let [externaddr_0] ++ xa* be externaddr_u0*.
+3. If externaddr_0 is of the case MEM, then:
+  a. Let (MEM ma) be externaddr_0.
+  b. Return [ma] ++ $memsxa(xa*).
+4. Let [externaddr] ++ xa* be externaddr_u0*.
+5. Return $memsxa(xa*).
+
+tagsxa externaddr_u0*
+1. If (externaddr_u0* is []), then:
+  a. Return [].
+2. Let [externaddr_0] ++ xa* be externaddr_u0*.
+3. If externaddr_0 is of the case TAG, then:
+  a. Let (TAG ha) be externaddr_0.
+  b. Return [ha] ++ $tagsxa(xa*).
+4. Let [externaddr] ++ xa* be externaddr_u0*.
+5. Return $tagsxa(xa*).
 
 store
 1. Return.
@@ -7199,6 +7291,10 @@ store
 frame
 1. Let f be the current frame.
 2. Return f.
+
+tagaddr
+1. Let f be the current frame.
+2. Return f.MODULE.TAGS.
 
 moduleinst
 1. Let f be the current frame.
@@ -7216,6 +7312,9 @@ tableinst
 meminst
 1. Return s.MEMS.
 
+taginst
+1. Return s.TAGS.
+
 eleminst
 1. Return s.ELEMS.
 
@@ -7227,6 +7326,9 @@ structinst
 
 arrayinst
 1. Return s.ARRAYS.
+
+exninst
+1. Return s.EXNS.
 
 type x
 1. Let f be the current frame.
@@ -7247,6 +7349,10 @@ table x
 mem x
 1. Let f be the current frame.
 2. Return s.MEMS[f.MODULE.MEMS[x]].
+
+tag x
+1. Let f be the current frame.
+2. Return s.TAGS[f.MODULE.TAGS[x]].
 
 elem x
 1. Let f be the current frame.
@@ -7305,6 +7411,10 @@ add_structinst si*
 add_arrayinst ai*
 1. Let f be the current frame.
 2. Return (s with .ARRAYS appended by ai*, f).
+
+add_exninst exn*
+1. Let f be the current frame.
+2. Return (s with .EXNS appended by exn*, f).
 
 growtable tableinst n r
 1. Let { TYPE: ((i, j), rt); REFS: r'*; } be tableinst.
@@ -7411,6 +7521,20 @@ allocmems memtype_u0*
 4. Let ma'* be $allocmems(memtype'*).
 5. Return [ma] ++ ma'*.
 
+alloctag at
+1. Let taginst be { TYPE: at; }.
+2. Let a be |s.TAGS|.
+3. Append taginst to the s.TAGS.
+4. Return a.
+
+alloctags tagtype_u0*
+1. If (tagtype_u0* is []), then:
+  a. Return [].
+2. Let [at] ++ at'* be tagtype_u0*.
+3. Let aa be $alloctag(at).
+4. Let aa'* be $alloctags(at'*).
+5. Return [aa] ++ aa'*.
+
 allocelem elemtype ref*
 1. Let eleminst be { TYPE: elemtype; REFS: ref*; }.
 2. Let a be |s.ELEMS|.
@@ -7448,61 +7572,70 @@ allocdatas datatype_u0* byte_u1*
 allocexport moduleinst (EXPORT name externidx_u0)
 1. If externidx_u0 is of the case FUNC, then:
   a. Let (FUNC x) be externidx_u0.
-  b. Return { NAME: name; VALUE: (FUNC moduleinst.FUNCS[x]); }.
+  b. Return { NAME: name; ADDR: (FUNC moduleinst.FUNCS[x]); }.
 2. If externidx_u0 is of the case GLOBAL, then:
   a. Let (GLOBAL x) be externidx_u0.
-  b. Return { NAME: name; VALUE: (GLOBAL moduleinst.GLOBALS[x]); }.
+  b. Return { NAME: name; ADDR: (GLOBAL moduleinst.GLOBALS[x]); }.
 3. If externidx_u0 is of the case TABLE, then:
   a. Let (TABLE x) be externidx_u0.
-  b. Return { NAME: name; VALUE: (TABLE moduleinst.TABLES[x]); }.
-4. Assert: Due to validation, externidx_u0 is of the case MEM.
-5. Let (MEM x) be externidx_u0.
-6. Return { NAME: name; VALUE: (MEM moduleinst.MEMS[x]); }.
+  b. Return { NAME: name; ADDR: (TABLE moduleinst.TABLES[x]); }.
+4. If externidx_u0 is of the case MEM, then:
+  a. Let (MEM x) be externidx_u0.
+  b. Return { NAME: name; ADDR: (MEM moduleinst.MEMS[x]); }.
+5. Assert: Due to validation, externidx_u0 is of the case TAG.
+6. Let (TAG x) be externidx_u0.
+7. Return { NAME: name; ADDR: (TAG moduleinst.TAGS[x]); }.
 
 allocexports moduleinst export*
 1. Return $allocexport(moduleinst, export)*.
 
-allocmodule module externval* val_G* ref_T* ref_E**
-1. Let fa_I* be $funcsxv(externval*).
-2. Let ga_I* be $globalsxv(externval*).
-3. Let ma_I* be $memsxv(externval*).
-4. Let ta_I* be $tablesxv(externval*).
-5. Assert: Due to validation, module is of the case MODULE.
-6. Let (MODULE type* import* func* global* table* mem* elem* data* start? export*) be module.
-7. Let fa* be (|s.FUNCS| + i_F)^(i_F<|func*|).
-8. Let ga* be (|s.GLOBALS| + i_G)^(i_G<|global*|).
-9. Let ta* be (|s.TABLES| + i_T)^(i_T<|table*|).
-10. Let ma* be (|s.MEMS| + i_M)^(i_M<|mem*|).
-11. Let ea* be (|s.ELEMS| + i_E)^(i_E<|elem*|).
-12. Let da* be (|s.DATAS| + i_D)^(i_D<|data*|).
-13. Assert: Due to validation, mem is of the case MEMORY*.
-14. Let (MEMORY memtype)* be mem*.
-15. Let dt* be $alloctypes(type*).
-16. Assert: Due to validation, data is of the case DATA*.
-17. Let (DATA byte* datamode)* be data*.
-18. Assert: Due to validation, global is of the case GLOBAL*.
-19. Let (GLOBAL globaltype expr_G)* be global*.
-20. Assert: Due to validation, table is of the case TABLE*.
-21. Let (TABLE tabletype expr_T)* be table*.
-22. Assert: Due to validation, elem is of the case ELEM*.
-23. Let (ELEM elemtype expr_E* elemmode)* be elem*.
-24. Assert: Due to validation, func is of the case FUNC*.
-25. Let (FUNC x local* expr_F)* be func*.
-26. Let xi* be $allocexports({ TYPES: []; FUNCS: fa_I* ++ fa*; GLOBALS: ga_I* ++ ga*; TABLES: ta_I* ++ ta*; MEMS: ma_I* ++ ma*; ELEMS: []; DATAS: []; EXPORTS: []; }, export*).
-27. Let moduleinst be { TYPES: dt*; FUNCS: fa_I* ++ fa*; GLOBALS: ga_I* ++ ga*; TABLES: ta_I* ++ ta*; MEMS: ma_I* ++ ma*; ELEMS: ea*; DATAS: da*; EXPORTS: xi*; }.
-28. Let funcaddr_0 be $allocfuncs(dt*[x]*, (FUNC x local* expr_F)*, moduleinst^|func*|).
-29. Assert: Due to validation, (funcaddr_0 is fa*).
-30. Let globaladdr_0 be $allocglobals(globaltype*, val_G*).
-31. Assert: Due to validation, (globaladdr_0 is ga*).
-32. Let tableaddr_0 be $alloctables(tabletype*, ref_T*).
-33. Assert: Due to validation, (tableaddr_0 is ta*).
-34. Let memaddr_0 be $allocmems(memtype*).
-35. Assert: Due to validation, (memaddr_0 is ma*).
-36. Let elemaddr_0 be $allocelems(elemtype*, ref_E**).
-37. Assert: Due to validation, (elemaddr_0 is ea*).
-38. Let dataaddr_0 be $allocdatas(OK^|data*|, byte**).
-39. Assert: Due to validation, (dataaddr_0 is da*).
-40. Return moduleinst.
+allocmodule module externaddr* val_G* ref_T* ref_E**
+1. Let fa_I* be $funcsxa(externaddr*).
+2. Let ga_I* be $globalsxa(externaddr*).
+3. Let aa_I* be $tagsxa(externaddr*).
+4. Let ma_I* be $memsxa(externaddr*).
+5. Let ta_I* be $tablesxa(externaddr*).
+6. Assert: Due to validation, module is of the case MODULE.
+7. Let (MODULE type* import* func* global* table* mem* tag* elem* data* start? export*) be module.
+8. Let fa* be (|s.FUNCS| + i_F)^(i_F<|func*|).
+9. Let ga* be (|s.GLOBALS| + i_G)^(i_G<|global*|).
+10. Let ta* be (|s.TABLES| + i_T)^(i_T<|table*|).
+11. Let aa* be (|s.TAGS| + i_A)^(i_A<|tag*|).
+12. Let ma* be (|s.MEMS| + i_M)^(i_M<|mem*|).
+13. Let ea* be (|s.ELEMS| + i_E)^(i_E<|elem*|).
+14. Let da* be (|s.DATAS| + i_D)^(i_D<|data*|).
+15. Assert: Due to validation, mem is of the case MEMORY*.
+16. Let (MEMORY memtype)* be mem*.
+17. Let dt* be $alloctypes(type*).
+18. Assert: Due to validation, tag is of the case TAG*.
+19. Let (TAG y)* be tag*.
+20. Assert: Due to validation, data is of the case DATA*.
+21. Let (DATA byte* datamode)* be data*.
+22. Assert: Due to validation, global is of the case GLOBAL*.
+23. Let (GLOBAL globaltype expr_G)* be global*.
+24. Assert: Due to validation, table is of the case TABLE*.
+25. Let (TABLE tabletype expr_T)* be table*.
+26. Assert: Due to validation, elem is of the case ELEM*.
+27. Let (ELEM elemtype expr_E* elemmode)* be elem*.
+28. Assert: Due to validation, func is of the case FUNC*.
+29. Let (FUNC x local* expr_F)* be func*.
+30. Let xi* be $allocexports({ TYPES: []; FUNCS: fa_I* ++ fa*; GLOBALS: ga_I* ++ ga*; TABLES: ta_I* ++ ta*; MEMS: ma_I* ++ ma*; TAGS: aa_I* ++ aa*; ELEMS: []; DATAS: []; EXPORTS: []; }, export*).
+31. Let moduleinst be { TYPES: dt*; FUNCS: fa_I* ++ fa*; GLOBALS: ga_I* ++ ga*; TABLES: ta_I* ++ ta*; MEMS: ma_I* ++ ma*; TAGS: aa_I* ++ aa*; ELEMS: ea*; DATAS: da*; EXPORTS: xi*; }.
+32. Let n_0 be $allocfuncs(dt*[x]*, (FUNC x local* expr_F)*, moduleinst^|func*|).
+33. Assert: Due to validation, (n_0 is fa*).
+34. Let n_0 be $allocglobals(globaltype*, val_G*).
+35. Assert: Due to validation, (n_0 is ga*).
+36. Let n_0 be $alloctables(tabletype*, ref_T*).
+37. Assert: Due to validation, (n_0 is ta*).
+38. Let n_0 be $allocmems(memtype*).
+39. Assert: Due to validation, (n_0 is ma*).
+40. Let n_0 be $alloctags(dt*[y]*).
+41. Assert: Due to validation, (n_0 is aa*).
+42. Let n_0 be $allocelems(elemtype*, ref_E**).
+43. Assert: Due to validation, (n_0 is ea*).
+44. Let n_0 be $allocdatas(OK^|data*|, byte**).
+45. Assert: Due to validation, (n_0 is da*).
+46. Return moduleinst.
 
 runelem_ x (ELEM rt e^n elemmode_u0)
 1. If (elemmode_u0 is PASSIVE), then:
@@ -7535,16 +7668,16 @@ evalglobals globaltype_u0* expr_u1*
 11. Let val'* be $evalglobals(gt'*, expr'*).
 12. Return [val] ++ val'*.
 
-instantiate module externval*
+instantiate module externaddr*
 1. Let (xt_I* -> xt_E*) be $Module_ok(module).
 2. Assert: Due to validation, module is of the case MODULE.
-3. Let (MODULE type* import* func* global* table* mem* elem* data* start? export*) be module.
-4. Assert: Due to validation, ($Externval_type(externval) is xt_I)*.
+3. Let (MODULE type* import* func* global* table* mem* tag* elem* data* start? export*) be module.
+4. Assert: Due to validation, ($Externaddr_type(externaddr) is xt_I)*.
 5. Let instr_D* be $concat_(instr, $rundata_(i_D, data*[i_D])^(i_D<|data*|)).
 6. Let instr_E* be $concat_(instr, $runelem_(i_E, elem*[i_E])^(i_E<|elem*|)).
 7. Assert: Due to validation, start is of the case START?.
 8. Let (START x)? be start?.
-9. Let moduleinst_0 be { TYPES: $alloctypes(type*); FUNCS: $funcsxv(externval*) ++ (|s.FUNCS| + i_F)^(i_F<|func*|); GLOBALS: $globalsxv(externval*); TABLES: []; MEMS: []; ELEMS: []; DATAS: []; EXPORTS: []; }.
+9. Let moduleinst_0 be { TYPES: $alloctypes(type*); FUNCS: $funcsxa(externaddr*) ++ (|s.FUNCS| + i_F)^(i_F<|func*|); GLOBALS: $globalsxa(externaddr*); TABLES: []; MEMS: []; TAGS: []; ELEMS: []; DATAS: []; EXPORTS: []; }.
 10. Assert: Due to validation, data is of the case DATA*.
 11. Assert: Due to validation, table is of the case TABLE*.
 12. Let (TABLE tabletype expr_T)* be table*.
@@ -7563,7 +7696,7 @@ instantiate module externval*
 25. Push the activation of z' to the stack.
 26. Let [ref_E]** be $eval_expr(expr_E)**.
 27. Pop the activation of _f from the stack.
-28. Let moduleinst be $allocmodule(module, externval*, val_G*, ref_T*, ref_E**).
+28. Let moduleinst be $allocmodule(module, externaddr*, val_G*, ref_T*, ref_E**).
 29. Let f be { LOCALS: []; MODULE: moduleinst; }.
 30. Push the activation of f with arity 0 to the stack.
 31. Execute the instruction instr_E*.
@@ -7575,7 +7708,7 @@ instantiate module externval*
 35. Return f.MODULE.
 
 invoke funcaddr val*
-1. Let f be { LOCALS: []; MODULE: { TYPES: []; FUNCS: []; GLOBALS: []; TABLES: []; MEMS: []; ELEMS: []; DATAS: []; EXPORTS: []; }; }.
+1. Let f be { LOCALS: []; MODULE: { TYPES: []; FUNCS: []; GLOBALS: []; TABLES: []; MEMS: []; TAGS: []; ELEMS: []; DATAS: []; EXPORTS: []; }; }.
 2. Assert: Due to validation, $expanddt(s.FUNCS[funcaddr].TYPE) is of the case FUNC.
 3. Let (FUNC functype_0) be $expanddt(s.FUNCS[funcaddr].TYPE).
 4. Let (t_1* -> t_2*) be functype_0.
@@ -7645,21 +7778,27 @@ Step_pure/label
 
 Step_pure/br l
 1. Pop all values val* from the top of the stack.
-2. Let L be the current label.
-3. Let n be the arity of L.
-4. Let instr'* be the continuation of L.
-5. Pop the current label from the stack.
-6. Let instr_u0* be val*.
-7. If (|instr_u0*| ≥ n), then:
-  a. Let val'* ++ val^n be instr_u0*.
-  b. If (l is 0), then:
-    1) Push the values val^n to the stack.
-    2) Execute the instruction instr'*.
-8. If the type of instr_u0 is val*, then:
-  a. Let val* be instr_u0*.
-  b. If (l > 0), then:
-    1) Push the values val* to the stack.
-    2) Execute the instruction (BR (l - 1)).
+2. If not a label is now on the top of the stack, then:
+  a. If YetE (top context is HANDLER_), then:
+    1) YetI: TODO: translate_context.
+    2) Push the values val* to the stack.
+    3) Execute the instruction (BR l).
+3. Else:
+  a. Let L be the current label.
+  b. Let n be the arity of L.
+  c. Let instr'* be the continuation of L.
+  d. Pop the current label from the stack.
+  e. Let instr_u0* be val*.
+  f. If the type of instr_u0 is val*, then:
+    1) Let val* be instr_u0*.
+    2) If (l > 0), then:
+      a) Push the values val* to the stack.
+      b) Execute the instruction (BR (l - 1)).
+  g. If (|instr_u0*| ≥ n), then:
+    1) Let val'* ++ val^n be instr_u0*.
+    2) If (l is 0), then:
+      a) Push the values val^n to the stack.
+      b) Execute the instruction instr'*.
 
 Step_pure/br_if l
 1. Assert: Due to validation, a value of value type I32 is on the top of the stack.
@@ -7726,9 +7865,14 @@ Step_pure/return
   a. Pop the current label from the stack.
   b. Push the values val* to the stack.
   c. Execute the instruction RETURN.
+4. Else:
+  a. If YetE (top context is HANDLER_), then:
+    1) YetI: TODO: translate_context.
+    2) Push the values val* to the stack.
+    3) Execute the instruction RETURN.
 
-Step_pure/trap
-1. YetI: TODO: It is likely that the value stack of two rules are different.
+Step_pure/handler n catch* val*
+1. Push the values val* to the stack.
 
 Step_pure/unop nt unop
 1. Assert: Due to validation, a value of value type nt is on the top of the stack.
@@ -8150,6 +8294,16 @@ Step_read/return_call_ref yy
         6. Execute the instruction (CALL_REF yy).
   d. If (instr_u0 is of the case REF.NULL and the type of instr_u1 is val*), then:
     1) Trap.
+
+Step_read/throw_ref
+1. YetI: TODO: translate_rgroup with differnet contexts.
+
+Step_read/try_table bt catch* instr*
+1. Let z be the current state.
+2. Let (t_1^m -> t_2^n) be $blocktype_(z, bt).
+3. Assert: Due to validation, there are at least m values on the top of the stack.
+4. Pop the values val^m from the stack.
+5. Execute the instruction (HANDLER_ n catch* [(LABEL_ n [] val^m ++ instr*)]).
 
 Step_read/ref.null $idx(x)
 1. Let z be the current state.
@@ -8703,8 +8857,18 @@ Step_read/memory.init x y
   f. Push the value (I32.CONST (n - 1)) to the stack.
   g. Execute the instruction (MEMORY.INIT x y).
 
-Step/ctxt
-1. YetI: TODO: It is likely that the value stack of two rules are different.
+Step/throw x
+1. Let z be the current state.
+2. Let a be |$exninst(z)|.
+3. Assert: Due to validation, $expanddt($tag(z, x).TYPE) is of the case FUNC.
+4. Let (FUNC functype_0) be $expanddt($tag(z, x).TYPE).
+5. Let (t^n -> []) be functype_0.
+6. Assert: Due to validation, there are at least n values on the top of the stack.
+7. Pop the values val^n from the stack.
+8. Let exn be { TAG: a; FIELDS: val^n; }.
+9. Push the value (REF.EXN_ADDR a) to the stack.
+10. Execute the instruction THROW_REF.
+11. Perform $add_exninst(z, [exn]).
 
 Step/struct.new x
 1. Let z be the current state.

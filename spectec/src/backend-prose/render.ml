@@ -448,6 +448,8 @@ and render_expr' env expr =
     let se1 = render_expr env e1 in
     let se2 = render_expr env e2 in
     sprintf "%s matches %s" se1 se2
+  | Al.Ast.YetE s ->
+    sprintf "YetE: %s" s
   | _ ->
     let se = "`" ^ (Al.Print.string_of_expr expr) ^ "`" in
     let msg = sprintf "expr cannot be rendered %s" se in

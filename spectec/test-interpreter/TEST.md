@@ -1158,7 +1158,7 @@ watsup 0.4 generator
 - 20/20 (100.00%)
 
 ===== ../../test-interpreter/spec-test-3/ref_null.wast =====
-- 26/26 (100.00%)
+- 34/34 (100.00%)
 
 ===== ../../test-interpreter/spec-test-3/return.wast =====
 - 64/64 (100.00%)
@@ -1394,49 +1394,11 @@ watsup 0.4 generator
 ===== ../../test-interpreter/spec-test-3/table_size.wast =====
 - 37/37 (100.00%)
 
-===== ../../test-interpreter/spec-test-3/token.wast =====
-- 35/35 (100.00%)
+===== ../../test-interpreter/spec-test-3/tag.wast =====
+- 4/4 (100.00%)
 
-===== ../../test-interpreter/spec-test-3/traps.wast =====
-- 36/36 (100.00%)
-
-===== ../../test-interpreter/spec-test-3/type-canon.wast =====
-- 2/2 (100.00%)
-
-===== ../../test-interpreter/spec-test-3/type-equivalence.wast =====
-- 25/25 (100.00%)
-
-===== ../../test-interpreter/spec-test-3/type-rec.wast =====
-- 11/11 (100.00%)
-
-===== ../../test-interpreter/spec-test-3/type.wast =====
-- 1/1 (100.00%)
-
-===== ../../test-interpreter/spec-test-3/unreachable.wast =====
-- 64/64 (100.00%)
-
-===== ../../test-interpreter/spec-test-3/unreached-invalid.wast =====
-- 0/0 (100.00%)
-
-===== ../../test-interpreter/spec-test-3/unreached-valid.wast =====
-- 13/13 (100.00%)
-
-===== ../../test-interpreter/spec-test-3/unwind.wast =====
-- 50/50 (100.00%)
-
-===== ../../test-interpreter/spec-test-3/utf8-custom-section-id.wast =====
-- 0/0 (100.00%)
-
-===== ../../test-interpreter/spec-test-3/utf8-import-field.wast =====
-- 0/0 (100.00%)
-
-===== ../../test-interpreter/spec-test-3/utf8-import-module.wast =====
-- 0/0 (100.00%)
-
-===== ../../test-interpreter/spec-test-3/utf8-invalid-encoding.wast =====
-- 0/0 (100.00%)
-
-Total [46897/46897] (100.00%)
-
-== Complete.
+===== ../../test-interpreter/spec-test-3/throw.wast =====
+../../test-interpreter/spec-test-3/throw.wast:49.1-49.42
+: interpreter error: $HANDLER_: (LABEL_ 0x0 [] [(CALL 0x6)]) is not a Wasm value (interpreting  Push val*)
+[1]
 ```
