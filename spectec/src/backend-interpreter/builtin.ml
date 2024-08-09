@@ -1,6 +1,8 @@
 open Al
 open Ast
 open Al_util
+open Print
+open Construct
 open Util
 open Reference_interpreter
 open Ds
@@ -12,8 +14,8 @@ let f32_to_const f = CaseV ("CONST", [ nullary "F32"; Construct.al_of_float32 f 
 let f64_to_const f = CaseV ("CONST", [ nullary "F64"; Construct.al_of_float64 f ])
 
 
+(* TODO: Refactor builtin call logic *)
 let builtin () =
-
   (* TODO : Change this into host fnuction instance, instead of current normal function instance *)
   let create_funcinst (name, type_tags) =
     let winstr_tag = String.uppercase_ascii name in
@@ -24,8 +26,8 @@ let builtin () =
     let dt =
       CaseV ("DEF", [
         CaseV ("REC", [
-          [| CaseV ("SUBD", [OptV (Some (nullary "FINAL")); listV [||]; ftype]) |] |> listV
-        ]); numV 0L
+          [| CaseV ("SUB", [none "FINAL"; listV [||]; ftype]) |] |> listV
+        ]); numV Z.zero
       ]) in
     name, StrV [
       "TYPE", ref (if !Construct.version = 3 then dt else arrow);
@@ -40,12 +42,12 @@ let builtin () =
 
   let create_tableinst t elems = StrV [
     "TYPE", t |> ref;
-    "ELEM", elems |> ref
+    "REFS", elems |> ref
   ] in
 
   let create_meminst t bytes_ = StrV [
     "TYPE", t |> ref;
-    "DATA", bytes_ |> ref
+    "BYTES", bytes_ |> ref
   ] in
 
   (* Builtin functions *)
@@ -70,24 +72,26 @@ let builtin () =
   let tables = [
     "table",
     listV nulls
-    |> create_tableinst (TupV [ TupV [ numV 10L; numV 20L ]; nullary "FUNCREF" ]);
+    |> create_tableinst (TupV [ TupV [ numV (Z.of_int 10); numV (Z.of_int 20) ]; nullary "FUNCREF" ]);
   ] in
   (* Builtin memories *)
-  let zeros = numV 0L |> Array.make 0x10000 in
+  let zeros = numV Z.zero |> Array.make 0x10000 in
   let memories = [
     "memory",
     listV zeros
-    |> create_meminst (CaseV ("I8", [ TupV [ numV 1L; numV 2L ] ]));
+    |> create_meminst (CaseV ("PAGE", [ TupV [ numV Z.one; numV (Z.of_int 2) ] ]));
   ] in
 
   let append kind (name, inst) extern =
 
+    let kinds = kind ^ "S" in
+
     (* Generate ExternFunc *)
 
     let addr =
-      match Record.find kind (get_store ()) with
-      | ListV a -> Array.length !a |> Int64.of_int
-      | _ -> failwith "Unreachable"
+      match Store.access kinds with
+      | ListV a -> Array.length !a |> Z.of_int
+      | _ -> assert false
     in
     let new_extern =
       StrV [ "NAME", ref (TextV name); "VALUE", ref (CaseV (kind, [ numV addr ])) ]
@@ -95,9 +99,9 @@ let builtin () =
 
     (* Update Store *)
 
-    (match Record.find kind (get_store ()) with
+    (match Store.access kinds with
     | ListV a -> a := Array.append !a [|inst|]
-    | _ -> failwith "Invalid store field");
+    | _ -> assert false);
 
     new_extern :: extern in
 
@@ -117,12 +121,64 @@ let builtin () =
 
   let moduleinst =
     Record.empty
-    |> Record.add "FUNC" (listV [||])
-    |> Record.add "GLOBAL" (listV [||])
-    |> Record.add "TABLE" (listV [||])
-    |> Record.add "MEM" (listV [||])
-    |> Record.add "ELEM" (listV [||])
-    |> Record.add "DATA" (listV [||])
-    |> Record.add "EXPORT" (listV extern) in
+    |> Record.add "FUNCS" (listV [||])
+    |> Record.add "GLOBALS" (listV [||])
+    |> Record.add "TABLES" (listV [||])
+    |> Record.add "MEMS" (listV [||])
+    |> Record.add "ELEMS" (listV [||])
+    |> Record.add "DATAS" (listV [||])
+    |> Record.add "EXPORTS" (listV extern) in
 
   StrV moduleinst
+
+let is_builtin = function
+  | "PRINT" | "PRINT_I32" | "PRINT_I64" | "PRINT_F32" | "PRINT_F64" | "PRINT_I32_F32" | "PRINT_F64_F64" -> true
+  | _ -> false
+
+let call name =
+  let local =
+    WasmContext.get_current_frame ()
+    |> unwrap_framev
+    |> strv_access "LOCALS"
+    |> listv_nth
+  in
+  let as_const ty = function
+  | CaseV ("CONST", [ CaseV (ty', []) ; n ])
+  | OptV (Some (CaseV ("CONST", [ CaseV (ty', []) ; n ]))) when ty = ty' -> n
+  | v -> raise (Exception.InvalidArg ("Not " ^ ty ^ ".CONST: " ^ string_of_value v)) in
+
+  match name with
+  | "PRINT" -> print_endline "- print: ()"
+  | "PRINT_I32" ->
+    local 0
+    |> as_const "I32"
+    |> al_to_int32
+    |> I32.to_string_s
+    |> Printf.printf "- print_i32: %s\n"
+  | "PRINT_I64" ->
+    local 0
+    |> as_const "I64"
+    |> al_to_int64
+    |> I64.to_string_s
+    |> Printf.printf "- print_i64: %s\n"
+  | "PRINT_F32" ->
+    local 0
+    |> as_const "F32"
+    |> al_to_float32
+    |> F32.to_string
+    |> Printf.printf "- print_f32: %s\n"
+  | "PRINT_F64" ->
+    local 0
+    |> as_const "F64"
+    |> al_to_float64
+    |> F64.to_string
+    |> Printf.printf "- print_f64: %s\n"
+  | "PRINT_I32_F32" ->
+    let i32 = local 0 |> as_const "I32" |> al_to_int32 |> I32.to_string_s in
+    let f32 = local 1 |> as_const "F32" |> al_to_float32 |> F32.to_string in
+    Printf.printf "- print_i32_f32: %s %s\n" i32 f32
+  | "PRINT_F64_F64" ->
+    let f64 = local 0 |> as_const "F64" |> al_to_float64 |> F64.to_string in
+    let f64' = local 1 |> as_const "F64" |> al_to_float64 |> F64.to_string in
+    Printf.printf "- print_f64_f64: %s %s\n" f64 f64'
+  | name -> raise (Exception.InvalidFunc ("Invalid builtin function: " ^ name))

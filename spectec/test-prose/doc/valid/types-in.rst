@@ -87,7 +87,7 @@ Field Types
 ~~~~~~~~~~~
 
 $${rule+: 
-  Packedtype_ok
+  Packtype_ok
   Storagetype_ok/*
   Fieldtype_ok
 }
@@ -98,10 +98,6 @@ Recursive Types
 ~~~~~~~~~~~~~~~
 
 .. _def-before:
-
-$${definition-prose: before}
-
-\
 
 $${definition: before}
 

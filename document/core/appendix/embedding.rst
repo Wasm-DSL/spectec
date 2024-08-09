@@ -24,6 +24,19 @@ Hence, these syntactic classes can also be interpreted as types.
 For numeric parameters, notation like :math:`n:\u32` is used to specify a symbolic name in addition to the respective value range.
 
 
+.. _embed-bool:
+
+Booleans
+~~~~~~~~
+
+Interface operation that are predicates return Boolean values:
+
+.. math::
+   \begin{array}{llll}
+   \production{Boolean} & \bool &::=& \FALSE ~|~ \TRUE \\
+   \end{array}
+
+
 .. _embed-error:
 
 Errors
@@ -265,7 +278,7 @@ Functions
 
 .. math::
    \begin{array}{lclll}
-   \F{func\_alloc}(S, \X{ta}, \X{code}) &=& (S', \X{a}) && (\iff \allochostfunc(S, \X{ta}, \X{code}) = S', \X{a}) \\
+   \F{func\_alloc}(S, \X{ta}, \X{code}) &=& (S', \X{a}) && (\iff \allocfunc(S, \{\}, \X{ta}, \X{code}) = S', \X{a}) \\
    \end{array}
 
 .. note::
@@ -361,13 +374,13 @@ Tables
 
 1. Let :math:`\X{ti}` be the :ref:`table instance <syntax-tableinst>` :math:`\store.\STABLES[\tableaddr]`.
 
-2. If :math:`i` is larger than or equal to the length of :math:`\X{ti}.\TIELEM`, then return :math:`\ERROR`.
+2. If :math:`i` is larger than or equal to the length of :math:`\X{ti}.\TIREFS`, then return :math:`\ERROR`.
 
-3. Else, return the :ref:`reference value <syntax-ref>` :math:`\X{ti}.\TIELEM[i]`.
+3. Else, return the :ref:`reference value <syntax-ref>` :math:`\X{ti}.\TIREFS[i]`.
 
 .. math::
    \begin{array}{lclll}
-   \F{table\_read}(S, a, i) &=& r && (\iff S.\STABLES[a].\TIELEM[i] = r) \\
+   \F{table\_read}(S, a, i) &=& r && (\iff S.\STABLES[a].\TIREFS[i] = r) \\
    \F{table\_read}(S, a, i) &=& \ERROR && (\otherwise) \\
    \end{array}
 
@@ -379,15 +392,15 @@ Tables
 
 1. Let :math:`\X{ti}` be the :ref:`table instance <syntax-tableinst>` :math:`\store.\STABLES[\tableaddr]`.
 
-2. If :math:`i` is larger than or equal to the length of :math:`\X{ti}.\TIELEM`, then return :math:`\ERROR`.
+2. If :math:`i` is larger than or equal to the length of :math:`\X{ti}.\TIREFS`, then return :math:`\ERROR`.
 
-3. Replace :math:`\X{ti}.\TIELEM[i]` with the :ref:`reference value <syntax-ref>` :math:`\reff`.
+3. Replace :math:`\X{ti}.\TIREFS[i]` with the :ref:`reference value <syntax-ref>` :math:`\reff`.
 
 4. Return the updated store.
 
 .. math::
    \begin{array}{lclll}
-   \F{table\_write}(S, a, i, r) &=& S' && (\iff S' = S \with \STABLES[a].\TIELEM[i] = r) \\
+   \F{table\_write}(S, a, i, r) &=& S' && (\iff S' = S \with \STABLES[a].\TIREFS[i] = r) \\
    \F{table\_write}(S, a, i, r) &=& \ERROR && (\otherwise) \\
    \end{array}
 
@@ -397,13 +410,13 @@ Tables
 :math:`\F{table\_size}(\store, \tableaddr) : \u32`
 ..................................................
 
-1. Return the length of :math:`\store.\STABLES[\tableaddr].\TIELEM`.
+1. Return the length of :math:`\store.\STABLES[\tableaddr].\TIREFS`.
 
 .. math::
    ~ \\
    \begin{array}{lclll}
    \F{table\_size}(S, a) &=& n &&
-     (\iff |S.\STABLES[a].\TIELEM| = n) \\
+     (\iff |S.\STABLES[a].\TIREFS| = n) \\
    \end{array}
 
 
@@ -473,13 +486,13 @@ Memories
 
 1. Let :math:`\X{mi}` be the :ref:`memory instance <syntax-meminst>` :math:`\store.\SMEMS[\memaddr]`.
 
-2. If :math:`i` is larger than or equal to the length of :math:`\X{mi}.\MIDATA`, then return :math:`\ERROR`.
+2. If :math:`i` is larger than or equal to the length of :math:`\X{mi}.\MIBYTES`, then return :math:`\ERROR`.
 
-3. Else, return the  :ref:`byte <syntax-byte>` :math:`\X{mi}.\MIDATA[i]`.
+3. Else, return the  :ref:`byte <syntax-byte>` :math:`\X{mi}.\MIBYTES[i]`.
 
 .. math::
    \begin{array}{lclll}
-   \F{mem\_read}(S, a, i) &=& b && (\iff S.\SMEMS[a].\MIDATA[i] = b) \\
+   \F{mem\_read}(S, a, i) &=& b && (\iff S.\SMEMS[a].\MIBYTES[i] = b) \\
    \F{mem\_read}(S, a, i) &=& \ERROR && (\otherwise) \\
    \end{array}
 
@@ -491,15 +504,15 @@ Memories
 
 1. Let :math:`\X{mi}` be the :ref:`memory instance <syntax-meminst>` :math:`\store.\SMEMS[\memaddr]`.
 
-2. If :math:`\u32` is larger than or equal to the length of :math:`\X{mi}.\MIDATA`, then return :math:`\ERROR`.
+2. If :math:`\u32` is larger than or equal to the length of :math:`\X{mi}.\MIBYTES`, then return :math:`\ERROR`.
 
-3. Replace :math:`\X{mi}.\MIDATA[i]` with :math:`\byte`.
+3. Replace :math:`\X{mi}.\MIBYTES[i]` with :math:`\byte`.
 
 4. Return the updated store.
 
 .. math::
    \begin{array}{lclll}
-   \F{mem\_write}(S, a, i, b) &=& S' && (\iff S' = S \with \SMEMS[a].\MIDATA[i] = b) \\
+   \F{mem\_write}(S, a, i, b) &=& S' && (\iff S' = S \with \SMEMS[a].\MIBYTES[i] = b) \\
    \F{mem\_write}(S, a, i, b) &=& \ERROR && (\otherwise) \\
    \end{array}
 
@@ -509,13 +522,13 @@ Memories
 :math:`\F{mem\_size}(\store, \memaddr) : \u32`
 ..............................................
 
-1. Return the length of :math:`\store.\SMEMS[\memaddr].\MIDATA` divided by the :ref:`page size <page-size>`.
+1. Return the length of :math:`\store.\SMEMS[\memaddr].\MIBYTES` divided by the :ref:`page size <page-size>`.
 
 .. math::
    ~ \\
    \begin{array}{lclll}
    \F{mem\_size}(S, a) &=& n &&
-     (\iff |S.\SMEMS[a].\MIDATA| = n \cdot 64\,\F{Ki}) \\
+     (\iff |S.\SMEMS[a].\MIBYTES| = n \cdot 64\,\F{Ki}) \\
    \end{array}
 
 
@@ -617,11 +630,12 @@ Globals
    \end{array}
 
 
-.. index:: reference, reference type
-.. _embed-ref:
+.. index:: reference, reference type, value type, value
+.. _embed-ref-type:
+.. _embed-val-default:
 
-References
-~~~~~~~~~~
+Values
+~~~~~~
 
 :math:`\F{ref\_type}(\store, \reff) : \reftype`
 ...............................................
@@ -641,3 +655,56 @@ References
    In future versions of WebAssembly,
    not all references may carry precise type information at run time.
    In such cases, this function may return a less precise supertype.
+
+
+:math:`\F{val\_default}(\valtype) : \val`
+...............................................
+
+1. If :math:`\default_{valtype}` is not defined, then return :math:`\ERROR`.
+
+1. Else, return the :ref:`value <syntax-val>` :math:`\default_{valtype}`.
+
+.. math::
+   \begin{array}{lclll}
+   \F{val\_default}(t) &=& v && (\iff \default_t = v) \\
+   \F{val\_default}(t) &=& \ERROR && (\iff \default_t = \epsilon) \\
+   \end{array}
+
+
+.. index:: value type, external type, subtyping
+.. _embed-match-valtype:
+.. _embed-match-externtype:
+
+Matching
+~~~~~~~~
+
+:math:`\F{match\_valtype}(\valtype_1, \valtype_2) : \bool`
+..........................................................
+
+1. Pre-condition: the :ref:`value types <syntax-valtype>` :math:`\valtype_1` and :math:`\valtype_2` are :ref:`valid <valid-valtype>` under the empty :ref:`context <context>`.
+
+2. If :math:`\valtype_1` :ref:`matches <match-valtype>` :math:`\valtype_2`, then return :math:`\TRUE`.
+
+3. Else, return :math:`\FALSE`.
+
+.. math::
+   \begin{array}{lclll}
+   \F{match\_reftype}(t_1, t_2) &=& \TRUE && (\iff {} \vdashvaltypematch t_1 \subvaltypematch t_2) \\
+   \F{match\_reftype}(t_1, t_2) &=& \FALSE && (\otherwise) \\
+   \end{array}
+
+
+:math:`\F{match\_externtype}(\externtype_1, \externtype_2) : \bool`
+...................................................................
+
+1. Pre-condition: the :ref:`extern types <syntax-externtype>` :math:`\externtype_1` and :math:`\externtype_2` are :ref:`valid <valid-externtype>` under the empty :ref:`context <context>`.
+
+2. If :math:`\externtype_1` :ref:`matches <match-externtype>` :math:`\externtype_2`, then return :math:`\TRUE`.
+
+3. Else, return :math:`\FALSE`.
+
+.. math::
+   \begin{array}{lclll}
+   \F{match\_externtype}(\X{et}_1, \X{et}_2) &=& \TRUE && (\iff {} \vdashexterntypematch \X{et}_1 \subexterntypematch \X{et}_2) \\
+   \F{match\_externtype}(\X{et}_1, \X{et}_2) &=& \FALSE && (\otherwise) \\
+   \end{array}

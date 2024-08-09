@@ -44,12 +44,5 @@ let it {it; _} = it
 let at {at; _} = at
 let note {note; _} = note
 
-
-(* Errors *)
-
-exception Error of region * string
-
-let error at category msg = raise (Error (at, category ^ " error: " ^ msg))
-
-let print_error at msg = prerr_endline (string_of_region at ^ ": " ^ msg)
-let print_warn at msg = prerr_endline (string_of_region at ^ ": warning: " ^ msg)
+(* Utils *)
+let map f {it; at; note} = {it = f it; at; note}

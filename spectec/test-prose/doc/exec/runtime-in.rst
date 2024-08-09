@@ -20,11 +20,11 @@ $${syntax+:
 
 .. _def-default:
 
-$${definition-prose: default}
+$${definition-prose: default_}
 
 \
 
-$${definition: default}
+$${definition: default_}
 
 Results
 ~~~~~~~
@@ -221,7 +221,7 @@ $${definition: globalsxv}
 .. _syntax-structinst:
 .. _syntax-arrayinst:
 .. _syntax-fieldval:
-.. _syntax-packedval:
+.. _syntax-packval:
 .. _exec-runtime-aggregate-instances:
 
 Aggregate Instances
@@ -231,7 +231,7 @@ $${syntax+:
   structinst
   arrayinst
   fieldval
-  packedval
+  packval
 }
 
 .. _def-arrayinst:
@@ -267,7 +267,7 @@ $${syntax: frame}
 Administrative Instructions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-$${syntax: admininstr}
+$${syntax: instr/admin}
 
 .. _syntax-state:
 .. _syntax-config:
@@ -280,14 +280,6 @@ $${syntax+:
   state
   config
 }
-
-.. _syntax-E:
-.. _exec-runtime-evaluation-contexts:
-
-Evaluation Contexts
-~~~~~~~~~~~~~~~~~~~
-
-$${syntax: E}
 
 .. _exec-runtime-typing:
 
@@ -311,5 +303,5 @@ $${definition-prose: frame}
 $${definition: frame}
 
 $${rule+:
-  Ref_ok/*
+  Ref_type/*
 }

@@ -11,50 +11,26 @@ let suffix f s x = f x ^ s
 let space f x = " " ^ f x ^ " "
 
 
+(* Identifiers *)
+
+let string_of_varid id = id.it
+let string_of_typid id = id.it
+let string_of_relid id = id.it
+let string_of_ruleid id = if id.it = "" then "" else "/" ^ id.it
+let string_of_defid id = "$" ^ id.it
+let string_of_gramid id = id.it
+
+
 (* Operators *)
 
-let string_of_atom atom =
-  match atom.it with
-  | Atom atomid -> atomid
-  | Infinity -> "infinity"
-  | Bot -> "_|_"
-  | Top -> "^|^"
-  | Dot -> "."
-  | Dot2 -> ".."
-  | Dot3 -> "..."
-  | Semicolon -> ";"
-  | Backslash -> "\\"
-  | In -> "<-"
-  | Arrow -> "->"
-  | Arrow2 -> "`=>"
-  | Colon -> ":"
-  | Sub -> "<:"
-  | Sup -> ":>"
-  | Assign -> ":="
-  | Equiv -> "=="
-  | Approx -> "~~"
-  | SqArrow -> "~>"
-  | SqArrowStar -> "~>*"
-  | Prec -> "<<"
-  | Succ -> ">>"
-  | Tilesturn -> "-|"
-  | Turnstile -> "|-"
-  | Quest -> "`?"
-  | Plus -> "`+"
-  | Star -> "`*"
-  | Comma -> "`,"
-  | Bar -> "`|"
-  | LParen -> "`("
-  | RParen -> "`)"
-  | LBrack -> "`["
-  | RBrack -> "`]"
-  | LBrace -> "`{"
-  | RBrace -> "`}"
+let string_of_atom = Atom.to_string
 
 let string_of_unop = function
   | NotOp -> "~"
   | PlusOp -> "+"
   | MinusOp -> "-"
+  | PlusMinusOp -> "+-"
+  | MinusPlusOp -> "-+"
 
 let string_of_binop = function
   | AndOp -> "/\\"
@@ -65,6 +41,7 @@ let string_of_binop = function
   | SubOp -> "-"
   | MulOp -> "*"
   | DivOp -> "/"
+  | ModOp -> "\\"
   | ExpOp -> "^"
 
 let string_of_cmpop = function
@@ -88,7 +65,7 @@ let rec string_of_iter iter =
   | List -> "*"
   | List1 -> "+"
   | ListN (e, None) -> "^" ^ string_of_exp e
-  | ListN (e, Some id) -> "^(" ^ id.it ^ "<" ^ string_of_exp e ^ ")"
+  | ListN (e, Some id) -> "^(" ^ string_of_varid id ^ "<" ^ string_of_exp e ^ ")"
 
 
 (* Types *)
@@ -101,7 +78,7 @@ and string_of_numtyp = function
 
 and string_of_typ t =
   match t.it with
-  | VarT (id, args) -> id.it ^ string_of_args args
+  | VarT (id, args) -> string_of_typid id ^ string_of_args args
   | BoolT -> "bool"
   | NumT t -> string_of_numtyp t
   | TextT -> "text"
@@ -111,9 +88,10 @@ and string_of_typ t =
   | StrT tfs ->
     "{" ^ concat ", " (map_filter_nl_list string_of_typfield tfs) ^ "}"
   | CaseT (dots1, ts, tcases, dots2) ->
-    "\n  | " ^ concat "\n  | "
+    "| " ^ concat " | "
       (strings_of_dots dots1 @ map_filter_nl_list string_of_typ ts @
         map_filter_nl_list string_of_typcase tcases @ strings_of_dots dots2)
+  | ConT tc -> string_of_typcon tc
   | RangeT tes -> concat " | " (map_filter_nl_list string_of_typenum tes)
   | AtomT atom -> string_of_atom atom
   | SeqT ts -> "{" ^ string_of_typs " " ts ^ "}"
@@ -133,6 +111,10 @@ and string_of_typcase (_atom, (t, prems), _hints) =
   string_of_typ t ^
     concat "" (map_filter_nl_list (prefix "\n  -- " string_of_prem) prems)
 
+and string_of_typcon ((t, prems), _hints) =
+  string_of_typ t ^
+    concat "" (map_filter_nl_list (prefix "\n  -- " string_of_prem) prems)
+
 and string_of_typenum (e, eo) =
   string_of_exp e ^
   match eo with
@@ -144,12 +126,13 @@ and string_of_typenum (e, eo) =
 
 and string_of_exp e =
   match e.it with
-  | VarE (id, args) -> id.it ^ string_of_args args
+  | VarE (id, args) -> string_of_varid id ^ string_of_args args
   | AtomE atom -> string_of_atom atom
   | BoolE b -> string_of_bool b
-  | NatE (DecOp, n) -> string_of_int n
-  | NatE (HexOp, n) -> Printf.sprintf "0x%X" n
-  | NatE (CharOp, n) -> Printf.sprintf "U+%X" n
+  | NatE (DecOp, n) -> Z.to_string n
+  | NatE (HexOp, n) -> "0x" ^ Z.format "%X" n
+  | NatE (CharOp, n) -> "U+" ^ Z.format "%X" n
+  | NatE (AtomOp, n) -> "`" ^ Z.to_string n
   | TextE t -> "\"" ^ String.escaped t ^ "\""
   | UnE (op, e2) -> string_of_unop op ^ " " ^ string_of_exp e2
   | BinE (e1, op, e2) ->
@@ -167,29 +150,32 @@ and string_of_exp e =
       "[" ^ string_of_path p ^ " = " ^ string_of_exp e2 ^ "]"
   | ExtE (e1, p, e2) ->
     string_of_exp e1 ^
-      "[" ^ string_of_path p ^ " =.. " ^ string_of_exp e2 ^ "]"
+      "[" ^ string_of_path p ^ " =++ " ^ string_of_exp e2 ^ "]"
   | StrE efs -> "{" ^ concat ", " (map_filter_nl_list string_of_expfield efs) ^ "}"
   | DotE (e1, atom) -> string_of_exp e1 ^ "." ^ string_of_atom atom
   | CommaE (e1, e2) -> string_of_exp e1 ^ ", " ^ string_of_exp e2
-  | CompE (e1, e2) -> string_of_exp e1 ^ " ++ " ^ string_of_exp e2
+  | CatE (e1, e2) -> string_of_exp e1 ^ " ++ " ^ string_of_exp e2
+  | MemE (e1, e2) -> string_of_exp e1 ^ " <- " ^ string_of_exp e2
   | LenE e1 -> "|" ^ string_of_exp e1 ^ "|"
-  | SizeE id -> "||" ^ id.it ^ "||"
-  | ParenE (e, signif) -> "(" ^ string_of_exp e ^ ")" ^ (if signif then "!" else "")
+  | SizeE id -> "||" ^ string_of_gramid id ^ "||"
+  | ParenE (e, signif) ->
+    "(" ^ string_of_exp e ^ ")" ^ (match signif with `Sig -> "!" | `Insig -> "")
   | TupE es -> "(" ^ string_of_exps ", " es ^ ")"
   | InfixE (e1, atom, e2) ->
     string_of_exp e1 ^ space string_of_atom atom ^ string_of_exp e2
   | BrackE (l, e1, r) ->
     "`" ^ string_of_atom l ^ string_of_exp e1 ^ string_of_atom r
-  | CallE (id, args) -> "$" ^ id.it ^ string_of_args args
+  | CallE (id, args) -> string_of_defid id ^ string_of_args args
   | IterE (e1, iter) -> string_of_exp e1 ^ string_of_iter iter
   | TypE (e1, t) -> string_of_exp e1 ^ " : " ^ string_of_typ t
-  | HoleE (`Use, `Num i) -> "%" ^ string_of_int i
-  | HoleE (`Use, `Next) -> "%"
-  | HoleE (`Use, `Rest) -> "%%"
-  | HoleE (`Skip, `Num i) -> "!%" ^ string_of_int i
-  | HoleE (`Skip, `Next) -> "!%"
-  | HoleE (`Skip, `Rest) -> "!%%"
+  | ArithE e1 -> "$(" ^ string_of_exp e1 ^ ")"
+  | HoleE (`Num i) -> "%" ^ string_of_int i
+  | HoleE `Next -> "%"
+  | HoleE `Rest -> "%%"
+  | HoleE `None -> "!%"
   | FuseE (e1, e2) -> string_of_exp e1 ^ "#" ^ string_of_exp e2
+  | UnparenE e1 -> "##" ^ string_of_exp e1
+  | LatexE s -> "latex(" ^ String.escaped s ^ ")"
 
 and string_of_exps sep es =
   concat sep (List.map string_of_exp es)
@@ -207,27 +193,15 @@ and string_of_path p =
   | DotP (p1, atom) -> string_of_path p1 ^ "." ^ string_of_atom atom
 
 
-(* Premises *)
-
-and string_of_prem prem =
-  match prem.it with
-  | RulePr (id, e) -> id.it ^ ": " ^ string_of_exp e
-  | IfPr e -> "if " ^ string_of_exp e
-  | ElsePr -> "otherwise"
-  | IterPr ({it = IterPr _; _} as prem', iter) ->
-    string_of_prem prem' ^ string_of_iter iter
-  | IterPr (prem', iter) ->
-    "(" ^ string_of_prem prem' ^ ")" ^ string_of_iter iter
-
-
 (* Grammars *)
 
 and string_of_sym g =
   match g.it with
-  | VarG (id, args) -> id.it ^ string_of_args args
-  | NatG (DecOp, n) -> string_of_int n
-  | NatG (HexOp, n) -> Printf.sprintf "0x%X" n
-  | NatG (CharOp, n) -> Printf.sprintf "U+%X" n
+  | VarG (id, args) -> string_of_gramid id ^ string_of_args args
+  | NatG (DecOp, n) -> Z.to_string n
+  | NatG (HexOp, n) -> "0x" ^ Z.format "%X" n
+  | NatG (CharOp, n) -> "U+" ^ Z.format "%X" n
+  | NatG (AtomOp, n) -> "`" ^ Z.to_string n
   | TextG t -> "\"" ^ String.escaped t ^ "\""
   | EpsG -> "eps"
   | SeqG gs -> "{" ^ concat " " (map_filter_nl_list string_of_sym gs) ^ "}"
@@ -239,6 +213,7 @@ and string_of_sym g =
   | ArithG e -> string_of_exp e
   | AttrG (e, g1) -> string_of_exp e ^ ":" ^ string_of_sym g1
   | FuseG (g1, g2) -> string_of_sym g1 ^ "#" ^ string_of_sym g2
+  | UnparenG g1 -> "##" ^ string_of_sym g1
 
 and string_of_prod prod =
   let (g, e, prems) = prod.it in
@@ -252,49 +227,68 @@ and string_of_gram gram =
       strings_of_dots dots2)
 
 
+(* Premises *)
+
+and string_of_prem prem =
+  match prem.it with
+  | VarPr (id, t) -> "var " ^ string_of_varid id ^ ": " ^ string_of_typ t
+  | RulePr (id, e) -> string_of_relid id ^ ": " ^ string_of_exp e
+  | IfPr e -> "if " ^ string_of_exp e
+  | ElsePr -> "otherwise"
+  | IterPr ({it = IterPr _; _} as prem', iter) ->
+    string_of_prem prem' ^ string_of_iter iter
+  | IterPr (prem', iter) ->
+    "(" ^ string_of_prem prem' ^ ")" ^ string_of_iter iter
+
+
 (* Definitions *)
 
 and string_of_arg a =
   match !(a.it) with
   | ExpA e -> string_of_exp e
-  | SynA t -> "syntax " ^ string_of_typ t
+  | TypA t -> "syntax " ^ string_of_typ t
   | GramA g -> "grammar " ^ string_of_sym g
+  | DefA id -> "def " ^ string_of_defid id
 
 and string_of_args = function
   | [] -> ""
   | args -> "(" ^ concat ", " (List.map string_of_arg args) ^ ")"
 
-let string_of_param p =
+let rec string_of_param p =
   match p.it with
-  | ExpP (id, t) -> (if id.it = "" then "" else id.it ^ " : ") ^ string_of_typ t
-  | SynP id -> "syntax " ^ id.it
-  | GramP (id, t) -> "grammar " ^ id.it ^ " : " ^ string_of_typ t
+  | ExpP (id, t) -> (if id.it = "_" then "" else string_of_varid id ^ " : ") ^ string_of_typ t
+  | TypP id -> "syntax " ^ string_of_typid id
+  | GramP (id, t) -> "grammar " ^ string_of_gramid id ^ " : " ^ string_of_typ t
+  | DefP (id, ps, t) -> "def " ^ string_of_defid id ^ string_of_params ps ^ " : " ^ string_of_typ t
 
-let string_of_params = function
+and string_of_params = function
   | [] -> ""
   | ps -> "(" ^ concat ", " (List.map string_of_param ps) ^ ")"
 
 let string_of_def d =
   match d.it with
-  | SynD (id1, id2, ps, t, _hints) ->
-    let id2' = if id2.it = "" then "" else "/" ^ id2.it in
-    "syntax " ^ id1.it ^ id2' ^ string_of_params ps ^ " = " ^ string_of_typ t
+  | FamD (id, ps, _hints) ->
+    "syntax " ^ string_of_typid id ^ string_of_params ps
+  | TypD (id1, id2, args, t, _hints) ->
+    "syntax " ^ string_of_typid id1 ^ string_of_ruleid id2 ^
+      string_of_args args ^ " = " ^ string_of_typ t
   | GramD (id1, id2, ps, t, gram, _hints) ->
-    let id2' = if id2.it = "" then "" else "/" ^ id2.it in
-    "grammar " ^ id1.it ^ id2' ^ string_of_params ps ^
-      " : " ^ string_of_typ t ^ " = " ^ string_of_gram gram
+    "grammar " ^ string_of_gramid id1 ^ string_of_ruleid id2 ^
+      string_of_params ps ^ " : " ^
+      string_of_typ t ^ " = " ^ string_of_gram gram
   | RelD (id, t, _hints) ->
-    "relation " ^ id.it ^ ": " ^ string_of_typ t
+    "relation " ^ string_of_relid id ^ ": " ^ string_of_typ t
   | RuleD (id1, id2, e, prems) ->
-    let id2' = if id2.it = "" then "" else "/" ^ id2.it in
-    "rule " ^ id1.it ^ id2' ^ ":\n  " ^ string_of_exp e ^
+    "rule " ^ string_of_relid id1 ^ string_of_ruleid id2 ^ ":\n  " ^
+      string_of_exp e ^
       concat "" (map_filter_nl_list (prefix "\n  -- " string_of_prem) prems)
   | VarD (id, t, _hints) ->
-    "var " ^ id.it ^ " : " ^ string_of_typ t
+    "var " ^ string_of_varid id ^ " : " ^ string_of_typ t
   | DecD (id, ps, t, _hints) ->
-    "def " ^ id.it ^ string_of_params ps ^ " : " ^ string_of_typ t
+    "def " ^ string_of_defid id ^ string_of_params ps ^ " : " ^ string_of_typ t
   | DefD (id, args, e, prems) ->
-    "def " ^ id.it ^ string_of_args args ^ " = " ^ string_of_exp e ^
+    "def " ^ string_of_defid id ^ string_of_args args ^ " = " ^
+      string_of_exp e ^
       concat "" (map_filter_nl_list (prefix "\n  -- " string_of_prem) prems)
   | SepD ->
     "\n\n"

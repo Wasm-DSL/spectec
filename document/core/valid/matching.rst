@@ -5,7 +5,7 @@
 Matching
 --------
 
-On most types, a simple notion of *subtyping* is defined that is applicable in validation rules or during :ref:`module instantiation <exec-instantiation>` when checking the types of imports.
+On most types, a notion of *subtyping* is defined that is applicable in :ref:`validation <valid>` rules, during :ref:`module instantiation <exec-instantiation>` when checking the types of imports, or during :ref:`execution <exec>`, when performing casts.
 
 
 .. index:: number type
@@ -14,16 +14,11 @@ On most types, a simple notion of *subtyping* is defined that is applicable in v
 Number Types
 ~~~~~~~~~~~~
 
-A :ref:`number type <syntax-numtype>` :math:`\numtype_1` matches a :ref:`number type <syntax-numtype>` :math:`\numtype_2` if and only if:
+A :ref:`number type <syntax-numtype>` ${:numtype_1} matches a :ref:`number type <syntax-numtype>` ${:numtype_2} if and only if:
 
 * Both :math:`\numtype_1` and :math:`\numtype_2` are the same.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-   }{
-     C \vdashnumtypematch \numtype \matchesvaltype \numtype
-   }
+$${rule: Numtype_sub}
 
 
 .. index:: vector type
@@ -32,70 +27,59 @@ A :ref:`number type <syntax-numtype>` :math:`\numtype_1` matches a :ref:`number 
 Vector Types
 ~~~~~~~~~~~~
 
-A :ref:`vector type <syntax-vectype>` :math:`\vectype_1` matches a :ref:`vector type <syntax-vectype>` :math:`\vectype_2` if and only if:
+A :ref:`vector type <syntax-vectype>` ${:vectype_1} matches a :ref:`vector type <syntax-vectype>` ${:vectype_2} if and only if:
 
 * Both :math:`\vectype_1` and :math:`\vectype_2` are the same.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-   }{
-     C \vdashvectypematch \vectype \matchesvaltype \vectype
-   }
+$${rule: Vectype_sub}
 
 
-.. index:: heap type
+.. index:: heap type, defined type, structure type, array type, function type, unboxed scalar type
 .. _match-heaptype:
 
 Heap Types
 ~~~~~~~~~~
 
-A :ref:`heap type <syntax-heaptype>` :math:`\heaptype_1` matches a :ref:`heap type <syntax-heaptype>` :math:`\heaptype_2` if and only if:
+A :ref:`heap type <syntax-heaptype>` ${:heaptype_1} matches a :ref:`heap type <syntax-heaptype>` ${:heaptype_2} if and only if:
 
 * Either both :math:`\heaptype_1` and :math:`\heaptype_2` are the same.
 
-* Or :math:`\heaptype_1` is a :ref:`function type <syntax-functype>` and :math:`\heaptype_2` is :math:`FUNC`.
+* Or there exists a :ref:`valid <valid-heaptype>` :ref:`heap type <syntax-heaptype>` :math:`\heaptype'`, such that :math:`\heaptype_1` :ref:`matches <match-heaptype>` :math:`\heaptype'` and :math:`\heaptype'` :ref:`matches <match-heaptype>` :math:`\heaptype_2`.
 
-* Or :math:`\heaptype_1` is a :ref:`function type <syntax-functype>` :math:`\functype_1` and :math:`\heaptype_2` is a :ref:`function type <syntax-functype>` :math:`\functype_2`, and :math:`\functype_1` :ref:`matches <match-functype>` :math:`\functype_2`.
+* Or :math:`heaptype_1` is :math:`\EQT` and :math:`\heaptype_2` is :math:`\ANY`.
 
-* Or :math:`\heaptype_1` is a :ref:`type index <syntax-typeidx>` :math:`x_1`, and :math:`C.\CTYPES[x_1]` :ref:`matches <match-heaptype>` :math:`\heaptype_2`.
+* Or :math:`\heaptype_1` is one of :math:`\I31`, :math:`\STRUCT`, or :math:`\ARRAY` and :math:`heaptype_2` is :math:`\EQT`.
 
-* Or :math:`\heaptype_2` is a :ref:`type index <syntax-typeidx>` :math:`x_2`, and :math:`\heaptype_1` :ref:`matches <match-heaptype>` :math:`C.\CTYPES[x_2]`.
+* Or :math:`\heaptype_1` is a :ref:`defined type <syntax-deftype>` which :ref:`expands <aux-expand-deftype>` to a :ref:`structure type <syntax-structtype>` and :math:`\heaptype_2` is :math:`\STRUCT`.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-   }{
-     C \vdashheaptypematch \heaptype \matchesheaptype \heaptype
-   }
-   \qquad
-   \frac{
-   }{
-     C \vdashheaptypematch \functype \matchesheaptype \FUNC
-   }
+* Or :math:`\heaptype_1` is a :ref:`defined type <syntax-deftype>` which :ref:`expands <aux-expand-deftype>` to an :ref:`array type <syntax-arraytype>` and :math:`\heaptype_2` is :math:`\ARRAY`.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-     C \vdashfunctypematch \functype_1 \matchesfunctype \functype_2
-   }{
-     C \vdashheaptypematch \functype_1 \matchesheaptype \functype_2
-   }
+* Or :math:`\heaptype_1` is a :ref:`defined type <syntax-deftype>` which :ref:`expands <aux-expand-deftype>` to a :ref:`function type <syntax-functype>` and :math:`\heaptype_2` is :math:`\FUNC`.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-     C \vdashheaptypematch C.\CTYPES[\typeidx_1] \matchesheaptype \heaptype_2
-   }{
-     C \vdashheaptypematch \typeidx_1 \matchesheaptype \heaptype_2
-   }
-   \qquad
-   \frac{
-     C \vdashheaptypematch \heaptype_1 \matchesheaptype C.\CTYPES[\typeidx_2]
-   }{
-     C \vdashheaptypematch \heaptype_1 \matchesheaptype \typeidx_2
-   }
+* Or :math:`\heaptype_1` is a :ref:`defined type <syntax-deftype>` :math:`\deftype_1` and :math:`\heaptype_2` is a :ref:`defined type <syntax-deftype>` :math:`\deftype_2`, and :math:`\deftype_1` :ref:`matches <match-deftype>` :math:`\deftype_2`.
 
+* Or :math:`\heaptype_1` is a :ref:`type index <syntax-typeidx>` :math:`x_1`, and the :ref:`defined type <syntax-deftype>` :math:`C.\CTYPES[x_1]` :ref:`matches <match-heaptype>` :math:`\heaptype_2`.
+
+* Or :math:`\heaptype_2` is a :ref:`type index <syntax-typeidx>` :math:`x_2`, and :math:`\heaptype_1` :ref:`matches <match-heaptype>` the :ref:`defined type <syntax-deftype>` :math:`C.\CTYPES[x_2]`.
+
+* Or :math:`\heaptype_1` is :math:`\NONE` and :math:`\heaptype_2` :ref:`matches <match-heaptype>` :math:`\ANY`.
+
+* Or :math:`\heaptype_1` is :math:`\NOFUNC` and :math:`\heaptype_2` :ref:`matches <match-heaptype>` :math:`\FUNC`.
+
+* Or :math:`\heaptype_1` is :math:`\NOEXTERN` and :math:`\heaptype_2` :ref:`matches <match-heaptype>` :math:`\EXTERN`.
+
+* Or :math:`\heaptype_1` is :math:`\BOTH`.
+
+$${rule:
+  {Heaptype_sub/refl Heaptype_sub/trans}
+  {Heaptype_sub/eq-any Heaptype_sub/i31-eq Heaptype_sub/struct-eq Heaptype_sub/array-eq}
+  {Heaptype_sub/struct Heaptype_sub/array Heaptype_sub/func}
+  {Heaptype_sub/typeidx-l Heaptype_sub/typeidx-r}
+  {Heaptype_sub/rec}
+  {Heaptype_sub/none Heaptype_sub/nofunc Heaptype_sub/noextern}
+  {Heaptype_sub/bot}
+}
+$${rule-ignore: Heaptype_sub/def}
 
 
 .. index:: reference type
@@ -104,25 +88,13 @@ A :ref:`heap type <syntax-heaptype>` :math:`\heaptype_1` matches a :ref:`heap ty
 Reference Types
 ~~~~~~~~~~~~~~~
 
-A :ref:`reference type <syntax-reftype>` :math:`\REF~\NULL_1^?~heaptype_1` matches a :ref:`reference type <syntax-reftype>` :math:`\REF~\NULL_2^?~heaptype_2` if and only if:
+A :ref:`reference type <syntax-reftype>` ${reftype: REF nul1 heaptype_1} matches a :ref:`reference type <syntax-reftype>` ${reftype: REF nul2 heaptype_2} if and only if:
 
 * The :ref:`heap type <syntax-heaptype>` :math:`\heaptype_1` :ref:`matches <match-heaptype>` :math:`\heaptype_2`.
 
 * :math:`\NULL_1` is absent or :math:`\NULL_2` is present.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-     C \vdashheaptypematch \heaptype_1 \matchesheaptype \heaptype_2
-   }{
-     C \vdashreftypematch \REF~\heaptype_1 \matchesreftype \REF~\heaptype_2
-   }
-   \qquad
-   \frac{
-     C \vdashheaptypematch \heaptype_1 \matchesheaptype \heaptype_2
-   }{
-     C \vdashreftypematch \REF~\NULL^?~\heaptype_1 \matchesreftype \REF~\NULL~\heaptype_2
-   }
+$${rule: {Reftype_sub/*}}
 
 
 .. index:: value type, number type, reference type
@@ -131,7 +103,7 @@ A :ref:`reference type <syntax-reftype>` :math:`\REF~\NULL_1^?~heaptype_1` match
 Value Types
 ~~~~~~~~~~~
 
-A :ref:`value type <syntax-valtype>` :math:`\valtype_1` matches a :ref:`value type <syntax-valtype>` :math:`\valtype_2` if and only if:
+A :ref:`value type <syntax-valtype>` ${:valtype_1} matches a :ref:`value type <syntax-valtype>` ${:valtype_2} if and only if:
 
 * Either both :math:`\valtype_1` and :math:`\valtype_2` are :ref:`number types <syntax-numtype>` and :math:`\valtype_1` :ref:`matches <match-numtype>` :math:`\valtype_2`.
 
@@ -139,12 +111,8 @@ A :ref:`value type <syntax-valtype>` :math:`\valtype_1` matches a :ref:`value ty
 
 * Or :math:`\valtype_1` is :math:`\BOT`.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-   }{
-     C \vdashvaltypematch \BOT \matchesvaltype \valtype
-   }
+$${rule: Valtype_sub/bot}
+$${rule-ignore: Valtype_sub/num Valtype_sub/vec Valtype_sub/ref}
 
 
 .. index:: result type, value type
@@ -154,17 +122,11 @@ Result Types
 ~~~~~~~~~~~~
 
 Subtyping is lifted to :ref:`result types <syntax-resulttype>` in a pointwise manner.
-That is, a :ref:`result type <syntax-resulttype>` :math:`[t_1^\ast]` matches a :ref:`result type <syntax-resulttype>` :math:`[t_2^\ast]` if and only if:
+That is, a :ref:`result type <syntax-resulttype>` ${:t_1*} matches a :ref:`result type <syntax-resulttype>` ${:t_2*} if and only if:
 
 * Every :ref:`value type <syntax-valtype>` :math:`t_1` in :math:`[t_1^\ast]` :ref:`matches <match-valtype>` the corresponding :ref:`value type <syntax-valtype>` :math:`t_2` in :math:`[t_2^\ast]`.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-     (C \vdashvaltypematch t_1 \matchesvaltype t_2)^\ast
-   }{
-     C \vdashresulttypematch [t_1^\ast] \matchesresulttype [t_2^\ast]
-   }
+$${rule: Resulttype_sub}
 
 
 .. index:: instruction type, result type
@@ -174,7 +136,7 @@ Instruction Types
 ~~~~~~~~~~~~~~~~~
 
 Subtyping is further lifted to :ref:`instruction types <syntax-instrtype>`.
-An :ref:`instruction type <syntax-instrtype>` :math:`[t_{11}^\ast] \toX{x_1^\ast} [t_{12}^\ast]` matches a type :math:`[t_{21}^ast] \toX{x_2^\ast} [t_{22}^\ast]` if and only if:
+An :ref:`instruction type <syntax-instrtype>` ${instrtype: t_11* ->_(x_1*) t_12*} matches a type ${instrtype: t_21* ->_(x_2*) t_22*} if and only if:
 
 * There is a common sequence of :ref:`value types <syntax-valtype>` :math:`t^\ast` such that :math:`t_{21}^\ast` equals :math:`t^\ast~{t'_{21}}^\ast` and :math:`t_{22}^\ast` equals :math:`t^\ast~{t'_{22}}^\ast`.
 
@@ -184,27 +146,13 @@ An :ref:`instruction type <syntax-instrtype>` :math:`[t_{11}^\ast] \toX{x_1^\ast
 
 * For every :ref:`local index <syntax-localidx>` :math:`x` that is in :math:`x_2^\ast` but not in :math:`x_1^\ast`, the :ref:`local type <syntax-localtype>` :math:`C.\CLOCALS[x]` is :math:`\SET~t_x` for some :ref:`value type <syntax-valtype>` :math:`t_x`.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-     \begin{array}{@{}c@{\qquad}l@{}}
-     C \vdashresulttypematch [t_{21}^\ast] \matchesresulttype [t_{11}^\ast]
-     &
-     \{ x^\ast \} = \{ x_2^\ast \} \setminus \{ x_1^\ast \}
-     \\
-     C \vdashresulttypematch [t_{12}^\ast] \matchesresulttype [t_{22}^\ast]
-     &
-     (C.\CLOCALS[x] = \SET~t_x)^\ast
-     \end{array}
-   }{
-     C \vdashinstrtypematch [t_{11}^\ast] \toX{x_1^\ast} [t_{12}^\ast] \matchesinstrtype [t^\ast~t_{21}^\ast] \toX{x_2^\ast} [t^\ast~t_{22}^\ast]
-   }
+$${rule: Instrtype_sub}
 
 .. note::
    Instruction types are contravariant in their input and covariant in their output.
    Subtyping also incorporates a sort of "frame" condition, which allows adding arbitrary invariant stack elements on both sides in the super type.
 
-   Finally, the supertype may ignore variables from the init set :math:`x_1^\ast`.
+   Finally, the supertype may ignore variables from the init set ${:x_1*}.
    It may also *add* variables to the init set, provided these are already set in the context, i.e., are vacuously initialized.
 
 
@@ -214,32 +162,100 @@ An :ref:`instruction type <syntax-instrtype>` :math:`[t_{11}^\ast] \toX{x_1^\ast
 Function Types
 ~~~~~~~~~~~~~~
 
-Subtyping is also defined for :ref:`function types <syntax-functype>`.
-However, it is required that they match in both directions, effectively demanding type equivalence.
-That is, a :ref:`function type <syntax-functype>` :math:`[t_{11}^\ast] \toF [t_{12}^\ast]` matches a type :math:`[t_{21}^ast] \toF [t_{22}^\ast]` if and only if:
+A :ref:`function type <syntax-functype>` ${functype: t_11* -> t_12*} matches a type ${functype: t_21* -> t_22*} if and only if:
 
-* The :ref:`result type <syntax-resulttype>` :math:`[t_{11}^\ast]` :ref:`matches <match-resulttype>` :math:`[t_{21}^\ast]`, and vice versa.
+* The :ref:`result type <syntax-resulttype>` :math:`[t_{21}^\ast]` :ref:`matches <match-resulttype>` :math:`[t_{11}^\ast]`.
 
-* The :ref:`result type <syntax-resulttype>` :math:`[t_{12}^\ast]` :ref:`matches <match-resulttype>` :math:`[t_{22}^\ast]`, and vice versa.
+* The :ref:`result type <syntax-resulttype>` :math:`[t_{12}^\ast]` :ref:`matches <match-resulttype>` :math:`[t_{22}^\ast]`.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-     \begin{array}{@{}c@{}}
-     C \vdashresulttypematch [t_{11}^\ast] \matchesresulttype [t_{21}^\ast]
-     \qquad
-     C \vdashresulttypematch [t_{12}^\ast] \matchesresulttype [t_{22}^\ast]
-     \\
-     C \vdashresulttypematch [t_{21}^\ast] \matchesresulttype [t_{11}^\ast]
-     \qquad
-     C \vdashresulttypematch [t_{22}^\ast] \matchesresulttype [t_{12}^\ast]
-     \end{array}
-   }{
-     C \vdashfunctypematch [t_{11}^\ast] \toF [t_{12}^\ast] \matchesfunctype [t_{21}^\ast] \toF [t_{22}^\ast]
-   }
+$${rule: Functype_sub}
+
+
+.. index:: composite types, aggregate type, structure type, array type, field type
+.. _match-comptype:
+.. _match-structtype:
+.. _match-arraytype:
+
+Composite Types
+~~~~~~~~~~~~~~~
+
+A :ref:`composite type <syntax-comptype>` ${:comptype_1} matches a type ${:comptype_2} if and only if:
+
+* Either the composite type :math:`\comptype_1` is :math:`\TFUNC~\functype_1` and :math:`\comptype_2` is :math:`\TFUNC~\functype_2` and:
+
+  * The :ref:`function type <syntax-functype>` :math:`\functype_1` :ref:`matches <match-functype>` :math:`\functype_2`.
+
+* Or the composite type :math:`\comptype_1` is :math:`\TSTRUCT~\fieldtype_1^{n_1}` and :math:`\comptype_2` is :math:`\TSTRUCT~\fieldtype_2` and:
+
+  * The arity :math:`n_1` is greater than or equal to :math:`n_2`.
+
+  * For every :ref:`field type <syntax-fieldtype>` :math:`\fieldtype_{2i}` in :math:`\fieldtype_2^{n_2}` and corresponding :math:`\fieldtype_{1i}` in :math:`\fieldtype_1^{n_1}`
+
+    * The :ref:`field type <syntax-fieldtype>` :math:`\fieldtype_{1i}` :ref:`matches <match-fieldtype>` :math:`\fieldtype_{2i}`.
+
+* Or the composite type :math:`\comptype_1` is :math:`\TARRAY~\fieldtype_1` and :math:`\comptype_2` is :math:`\TARRAY~\fieldtype_2` and:
+
+  * The :ref:`field type <syntax-fieldtype>` :math:`\fieldtype_1` :ref:`matches <match-fieldtype>` :math:`\fieldtype_2`.
+
+$${rule: {Comptype_sub/*}}
+
+
+.. index:: field type, storage type, value type, packed type, mutability
+.. _match-fieldtype:
+.. _match-storagetype:
+.. _match-packtype:
+
+Field Types
+~~~~~~~~~~~
+
+A :ref:`field type <syntax-fieldtype>` ${fieldtype: (mut1 storagetype_1)} matches a type ${fieldtype: (mut2 storagetype_2)} if and only if:
+
+* :ref:`Storage type <syntax-storagetype>` :math:`\storagetype_1` :ref:`matches <match-storagetype>` :math:`\storagetype_2`.
+
+* Either both :math:`\mut_1` and :math:`\mut_2` are :math:`\MCONST`.
+
+* Or both :math:`\mut_1` and :math:`\mut_2` are :math:`\MVAR` and :math:`\storagetype_2` :ref:`matches <match-storagetype>` :math:`\storagetype_1` as well.
+
+$${rule: {Fieldtype_sub/*}}
+
+
+A :ref:`storage type <syntax-storagetype>` :math:`\storagetype_1` matches a type :math:`\storagetype_2` if and only if:
+
+* Either :math:`\storagetype_1` is a :ref:`value type <syntax-valtype>` :math:`\valtype_1` and :math:`\storagetype_2` is a :ref:`value type <syntax-valtype>` :math:`\valtype_2` and :math:`\valtype_1` :ref:`matches <match-valtype>` :math:`\valtype_2`.
+
+* Or :math:`\storagetype_1` is a :ref:`packed type <syntax-packtype>` :math:`\packtype_1` and :math:`\storagetype_2` is a :ref:`packed type <syntax-packtype>` :math:`\packtype_2` and :math:`\packtype_1` :ref:`matches <match-packtype>` :math:`\packtype_2`.
+
+
+A :ref:`packed type <syntax-packtype>` ${:packtype_1} matches a type ${:packtype_2} if and only if:
+
+* The :ref:`packed type <syntax-packtype>` :math:`\packtype_1` is the same as :math:`\packtype_2`.
+
+$${rule: Packtype_sub}
+
+
+.. index:: defined type, recursive type, unroll, type equivalence
+   pair: abstract syntax; defined type
+.. _match-deftype:
+
+Defined Types
+~~~~~~~~~~~~~
+
+A :ref:`defined type <syntax-deftype>` ${:deftype_1} matches a type ${:deftype_2} if and only if:
+
+* Either :math:`\deftype_1` and :math:`\deftype_2` are equal when :ref:`closed <type-closure>` under context :math:`C`.
+
+* Or:
+
+  * Let the :ref:`sub type <syntax-subtype>` :math:`\TSUB~\TFINAL^?~\heaptype^\ast~\comptype` be the result of :ref:`unrolling <aux-unroll-deftype>` :math:`\deftype_1`.
+
+  * Then there must exist a :ref:`heap type <syntax-heaptype>` :math:`\heaptype_i` in :math:`\heaptype^\ast` that :ref:`matches <match-heaptype>` :math:`\deftype_2`.
+
+$${rule: Deftype_sub/refl Deftype_sub/super}
 
 .. note::
-   In future versions of WebAssembly, subtyping on function types may be relaxed to support co- and contra-variance.
+   Note that there is no explicit definition of type *equivalence*,
+   since it coincides with syntactic equality,
+   as used in the premise of the fomer rule above.
 
 
 .. index:: limits
@@ -248,7 +264,7 @@ That is, a :ref:`function type <syntax-functype>` :math:`[t_{11}^\ast] \toF [t_{
 Limits
 ~~~~~~
 
-:ref:`Limits <syntax-limits>` :math:`\{ \LMIN~n_1, \LMAX~m_1^? \}` match limits :math:`\{ \LMIN~n_2, \LMAX~m_2^? \}` if and only if:
+:ref:`Limits <syntax-limits>` ${limits: `[n_1 .. m_1]} match limits ${limits: `[n_2 .. m_2]} if and only if:
 
 * :math:`n_1` is larger than or equal to :math:`n_2`.
 
@@ -262,21 +278,7 @@ Limits
 
   * :math:`m_1` is smaller than or equal to :math:`m_2`.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-     n_1 \geq n_2
-   }{
-     C \vdashlimitsmatch \{ \LMIN~n_1, \LMAX~m_1^? \} \matcheslimits \{ \LMIN~n_2, \LMAX~\epsilon \}
-   }
-   \quad
-   \frac{
-     n_1 \geq n_2
-     \qquad
-     m_1 \leq m_2
-   }{
-     C \vdashlimitsmatch \{ \LMIN~n_1, \LMAX~m_1 \} \matcheslimits \{ \LMIN~n_2, \LMAX~m_2 \}
-   }
+$${rule: Limits_sub}
 
 
 .. index:: table type, limits, element type
@@ -285,23 +287,13 @@ Limits
 Table Types
 ~~~~~~~~~~~
 
-A :ref:`table type <syntax-tabletype>` :math:`(\limits_1~\reftype_1)` matches :math:`(\limits_2~\reftype_2)` if and only if:
+A :ref:`table type <syntax-tabletype>` ${tabletype: (limits_1 reftype_1)} matches ${tabletype: (limits_1 reftype_1)} if and only if:
 
 * Limits :math:`\limits_1` :ref:`match <match-limits>` :math:`\limits_2`.
 
 * The :ref:`reference type <syntax-reftype>` :math:`\reftype_1` :ref:`matches <match-reftype>` :math:`\reftype_2`, and vice versa.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-     C \vdashlimitsmatch \limits_1 \matcheslimits \limits_2
-     \qquad
-     C \vdashreftypematch \reftype_1 \matchesreftype \reftype_2
-     \qquad
-     C \vdashreftypematch \reftype_2 \matchesreftype \reftype_1
-   }{
-     C \vdashtabletypematch \limits_1~\reftype_1 \matchestabletype \limits_2~\reftype_2
-   }
+$${rule: Tabletype_sub}
 
 
 .. index:: memory type, limits
@@ -310,18 +302,11 @@ A :ref:`table type <syntax-tabletype>` :math:`(\limits_1~\reftype_1)` matches :m
 Memory Types
 ~~~~~~~~~~~~
 
-A :ref:`memory type <syntax-memtype>` :math:`\limits_1` matches :math:`\limits_2` if and only if:
+A :ref:`memory type <syntax-memtype>` ${memtype: (limits_1 PAGE)} matches ${memtype: (limits_2 PAGE)} if and only if:
 
 * Limits :math:`\limits_1` :ref:`match <match-limits>` :math:`\limits_2`.
 
-
-.. math::
-   ~\\[-1ex]
-   \frac{
-     C \vdashlimitsmatch \limits_1 \matcheslimits \limits_2
-   }{
-     C \vdashmemtypematch \limits_1 \matchesmemtype \limits_2
-   }
+$${rule: Memtype_sub}
 
 
 .. index:: global type, value type, mutability
@@ -330,27 +315,13 @@ A :ref:`memory type <syntax-memtype>` :math:`\limits_1` matches :math:`\limits_2
 Global Types
 ~~~~~~~~~~~~
 
-A :ref:`global type <syntax-globaltype>` :math:`(\mut_1~t_1)` matches :math:`(\mut_2~t_2)` if and only if:
+A :ref:`global type <syntax-globaltype>` ${globaltype: (mut1 valtype_1)} matches ${globaltype: (mut2 valtype_2)} if and only if:
 
 * Either both :math:`\mut_1` and :math:`\mut_2` are |MVAR| and :math:`t_1` :ref:`matches <match-valtype>` :math:`t_2` and vice versa.
 
 * Or both :math:`\mut_1` and :math:`\mut_2` are |MCONST| and :math:`t_1` :ref:`matches <match-valtype>` :math:`t_2`.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-     C \vdashvaltypematch t_1 \matchesvaltype t_2
-     \qquad
-     C \vdashvaltypematch t_2 \matchesvaltype t_1
-   }{
-     C \vdashglobaltypematch \MVAR~t_1 \matchesglobaltype \MVAR~t_2
-   }
-   \qquad
-   \frac{
-     C \vdashvaltypematch t_1 \matchesvaltype t_2
-   }{
-     C \vdashglobaltypematch \MCONST~t_1 \matchesglobaltype \MCONST~t_2
-   }
+$${rule: {Globaltype_sub/*}}
 
 
 .. index:: external type, function type, table type, memory type, global type
@@ -362,62 +333,38 @@ External Types
 Functions
 .........
 
-An :ref:`external type <syntax-externtype>` :math:`\ETFUNC~\functype_1` matches :math:`\ETFUNC~\functype_2` if and only if:
+An :ref:`external type <syntax-externtype>` ${externtype: FUNC deftype_1} matches ${externtype: FUNC deftype_2} if and only if:
 
-* The :ref:`function type <syntax-functype>` :math:`\functype_1` :ref:`matches <match-functype>` :math:`\functype_2`.
+* The :ref:`defined type <syntax-deftype>` :math:`\deftype_1` :ref:`matches <match-deftype>` :math:`\deftype_2`.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-     C \vdashfunctypematch \functype_1 \matchesfunctype \functype_2
-   }{
-     C \vdashexterntypematch \ETFUNC~\functype_1 \matchesexterntype \ETFUNC~\functype_2
-   }
+$${rule: Externtype_sub/func}
 
 
 Tables
 ......
 
-An :ref:`external type <syntax-externtype>` :math:`\ETTABLE~\tabletype_1` matches :math:`\ETTABLE~\tabletype_2` if and only if:
+An :ref:`external type <syntax-externtype>` ${externtype: TABLE tabletype_1} matches ${externtype: TABLE tabletype_2} if and only if:
 
 * Table type :math:`\tabletype_1` :ref:`matches <match-tabletype>` :math:`\tabletype_2`.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-     C \vdashtabletypematch \tabletype_1 \matchestabletype \tabletype_2
-   }{
-     C \vdashexterntypematch \ETTABLE~\tabletype_1 \matchesexterntype \ETTABLE~\tabletype_2
-   }
+$${rule: Externtype_sub/table}
 
 
 Memories
 ........
 
-An :ref:`external type <syntax-externtype>` :math:`\ETMEM~\memtype_1` matches :math:`\ETMEM~\memtype_2` if and only if:
+An :ref:`external type <syntax-externtype>` ${externtype: MEM memtype_1} matches ${externtype: MEM memtype_2} if and only if:
 
 * Memory type :math:`\memtype_1` :ref:`matches <match-memtype>` :math:`\memtype_2`.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-     C \vdashmemtypematch \memtype_1 \matchesmemtype \memtype_2
-   }{
-     C \vdashexterntypematch \ETMEM~\memtype_1 \matchesexterntype \ETMEM~\memtype_2
-   }
+$${rule: Externtype_sub/mem}
 
 
 Globals
 .......
 
-An :ref:`external type <syntax-externtype>` :math:`\ETGLOBAL~\globaltype_1` matches :math:`\ETGLOBAL~\globaltype_2` if and only if:
+An :ref:`external type <syntax-externtype>` ${externtype: GLOBAL globaltype_1} matches ${externtype: GLOBAL globaltype_2} if and only if:
 
 * Global type :math:`\globaltype_1` :ref:`matches <match-globaltype>` :math:`\globaltype_2`.
 
-.. math::
-   ~\\[-1ex]
-   \frac{
-     C \vdashglobaltypematch \globaltype_1 \matchesglobaltype \globaltype_2
-   }{
-     C \vdashexterntypematch \ETGLOBAL~\globaltype_1 \matchesexterntype \ETGLOBAL~\globaltype_2
-   }
+$${rule: Externtype_sub/global}
