@@ -5,7 +5,7 @@
 ;; Lists
 
 grammar Blist(grammar BX : el) : el* =
-  | n:Bu32 (el:BX)^n => el^n
+  | n:Bu32 el*:BX^n => el*
 
 
 
@@ -46,26 +46,47 @@ grammar Bf64 : f64 = p:BfN(64) => p
 
 var ch : char
 
+;; def $utf8(char*) : byte*
+def $utf8c(char) : byte* hint(show $utf8(%))
+
 def $cont(byte) : nat hint(macro none)
 def $cont(b) = $(b - 0x80) -- if (0x80 < b < 0xC0)
 
-;; def $utf8(char*) : byte*
-def $utf8(ch*) = $concat_(byte, $utf8(ch)*)
-def $utf8(ch) = b
+def $utf8(ch*) = $concat_(byte, $utf8c(ch)*)
+
+def $utf8c(ch) = b
   -- if ch < U+0080
   -- if ch = b
-def $utf8(ch) = b_1 b_2
+def $utf8c(ch) = b_1 b_2
   -- if U+0080 <= ch < U+0800
   -- if ch = $(2^6*(b_1 - 0xC0) + $cont(b_2))
-def $utf8(ch) = b_1 b_2 b_3
+def $utf8c(ch) = b_1 b_2 b_3
   -- if U+0800 <= ch < U+D800 \/ U+E000 <= ch < U+10000
   -- if ch = $(2^12*(b_1 - 0xE0) + 2^6*$cont(b_2) + $cont(b_3))
-def $utf8(ch) = b_1 b_2 b_3 b_4
+def $utf8c(ch) = b_1 b_2 b_3 b_4
   -- if U+10000 <= ch < U+11000
   -- if ch = $(2^18*(b_1 - 0xF0) + 2^12*$cont(b_2) + 2^6*$cont(b_3) + $cont(b_4))
 
+
+def $code(nat, nat) : char
+def $code(min, n) = n
+  -- if min <= n < 0x11000 /\ ~(0xD800 <= n < 0xE000)
+
+def $invutf8(byte*) : name hint(show $utf8^(-1)#((%)))
+
+def $invutf8(eps) = eps
+def $invutf8(b_1 b*) = $code(0x0, b_1) $invutf8(b*)
+  -- if b_1 < 0x80
+def $invutf8(b_1 b_2 b*) = $code(0x80, $(2^6*(b_1 - 0xC0) + $cont(b_2))) $invutf8(b*)
+  -- if 0xC0 <= b_1 < 0xE0
+def $invutf8(b_1 b_2 b_3 b*) = $code(0x800, $(2^12*(b_1 - 0xE0) + 2^6*$cont(b_2) + $cont(b_3))) $invutf8(b*)
+  -- if 0xE0 <= b_1 < 0xF0
+def $invutf8(b_1 b_2 b_3 b_4 b*) = $code(0x10000, $(2^18*(b_1 - 0xF0) + 2^12*$cont(b_2) + 2^6*$cont(b_3) + $cont(b_4))) $invutf8(b*)
+  -- if 0xF0 <= b_1 < 0xF8
+
+
 grammar Bname : name =
-  | b*:Blist(Bbyte) => name  -- if $utf8(name) = b*
+  | b*:Blist(Bbyte) => $invutf8(b*)
 
 
 ;; Indices
@@ -205,14 +226,14 @@ grammar Bblocktype : blocktype =
 grammar Binstr/control : instr =
   | 0x00 => UNREACHABLE
   | 0x01 => NOP
-  | 0x02 bt:Bblocktype (in:Binstr)* 0x0B => BLOCK bt in*
-  | 0x03 bt:Bblocktype (in:Binstr)* 0x0B => LOOP bt in*
-  | 0x04 bt:Bblocktype (in:Binstr)* 0x0B => IF bt in* ELSE eps
-  | 0x04 bt:Bblocktype (in_1:Binstr)*
+  | 0x02 bt:Bblocktype in*:Binstr* 0x0B => BLOCK bt in*
+  | 0x03 bt:Bblocktype in*:Binstr* 0x0B => LOOP bt in*
+  | 0x04 bt:Bblocktype in*:Binstr* 0x0B => IF bt in* ELSE eps
+  | 0x04 bt:Bblocktype in_1*:Binstr*
     ;; TODO(2, rossberg): do not require 2 empty lines
 
 
-    0x05 (in_2:Binstr)* 0x0B => IF bt in_1* ELSE in_2*
+    0x05 in_2*:Binstr* 0x0B => IF bt in_1* ELSE in_2*
   | 0x0C l:Blabelidx => BR l
   | 0x0D l:Blabelidx => BR_IF l
   | 0x0E l*:Blist(Blabelidx) l_n:Blabelidx => BR_TABLE l* l_n
@@ -610,11 +631,11 @@ grammar Binstr/vec-memory : instr = ...
   | ...
 
 grammar Binstr/vec-const : instr = ...
-  | 0xFD 12:Bu32 (b:Bbyte)^16 => VCONST V128 $invibytes_(`128, (b)^16)
+  | 0xFD 12:Bu32 b*:Bbyte^16 => VCONST V128 $invibytes_(`128, (b)*)
   | ...
 
 grammar Binstr/vec-shuffle : instr = ...
-  | 0xFD 13:Bu32 (l:Blaneidx)^16 => VSHUFFLE (I8 X `16) l
+  | 0xFD 13:Bu32 l*:Blaneidx^16 => VSHUFFLE (I8 X `16) l*
   | 0xFD 14:Bu32 => VSWIZZLE (I8 X `16)
   | ...
 
@@ -976,7 +997,7 @@ grammar Binstr/vec-cvt : instr = ...
 ;; Expressions
 
 grammar Bexpr : expr =
-  | (in:Binstr)* 0x0B => in*
+  | in*:Binstr* 0x0B => in*
 
 
 
@@ -988,14 +1009,17 @@ grammar Bexpr : expr =
 
 var len : nat
 
-grammar Bsection_(N, grammar BX : en*) : en*  hint(desc "section") =
-  | N:Bbyte len:Bu32 en*:BX => en*  -- if len = ||BX||
+grammar Bsection_(N, grammar BX : sec) : sec  hint(desc "section") =
+  | N:Bbyte len:Bu32 sec:BX => sec  -- if len = ||BX||
+
+grammar Boptlist(grammar BX : en*) : en* hint(show %?) =
   | eps => eps
+  | en*:BX => en*
 
 
 ;; Custom sections
 
-grammar Bcustom : ()* hint(desc "custom data") =
+grammar Bcustom : () hint(desc "custom data") =
   | Bname Bbyte* => ()
 
 grammar Bcustomsec : () hint(desc "custom section") =
@@ -1065,13 +1089,11 @@ grammar Bexportsec : export* hint(desc "export section") =
 
 ;; Start section
 
-grammar Bstart : start* =
+grammar Bstart : start =
   | x:Bfuncidx => (START x)
 
-syntax startopt hint(show start?) = start*  ;; HACK
-
-grammar Bstartsec : start? hint(desc "start section") =
-  | startopt:Bsection_(8, Bstart) => $opt_(start, startopt)
+grammar Bstartsec : start hint(desc "start section") =
+  | start:Bsection_(8, Bstart) => start
 
 
 ;; Element section
@@ -1132,13 +1154,11 @@ grammar Bdatasec : data* hint(desc "data section") =
 
 ;; Data count section
 
-grammar Bdatacnt : u32* hint(desc "data count") =
+grammar Bdatacnt : u32 hint(desc "data count") =
   | n:Bu32 => n
 
-syntax nopt hint(show n?) = u32*  ;; HACK
-
-grammar Bdatacntsec : u32? hint(desc "data count section") =
-  | nopt:Bsection_(12, Bdatacnt) => $opt_(u32, nopt)
+grammar Bdatacntsec : u32 hint(desc "data count section") =
+  | n:Bsection_(12, Bdatacnt) => n
 
 
 ;; Modules
@@ -1152,56 +1172,61 @@ grammar Bmodule : module =
 
 
     Bcustomsec*
-    type*:Btypesec
+    type*:Boptlist(Btypesec)
 
 
     Bcustomsec*
-    import*:Bimportsec
+    import*:Boptlist(Bimportsec)
 
 
     Bcustomsec*
-    typeidx*:Bfuncsec
+    typeidx*:Boptlist(Bfuncsec)
 
 
     Bcustomsec*
-    table*:Btablesec
+    table*:Boptlist(Btablesec)
 
 
     Bcustomsec*
-    mem*:Bmemsec
+    mem*:Boptlist(Bmemsec)
 
 
     Bcustomsec*
-    global*:Bglobalsec
+    global*:Boptlist(Bglobalsec)
 
 
     Bcustomsec*
-    export*:Bexportsec
+    export*:Boptlist(Bexportsec)
 
 
     Bcustomsec*
-    start?:Bstartsec
+    start?:Bstartsec?
 
 
     Bcustomsec*
-    elem*:Belemsec
+    elem*:Boptlist(Belemsec)
 
 
     Bcustomsec*
-    n?:Bdatacntsec
+    n?:Bdatacntsec?
 
 
     Bcustomsec*
-    (local*, expr)*:Bcodesec
+    (local*, expr)*:Boptlist(Bcodesec)
 
 
     Bcustomsec*
-    data*:Bdatasec
+    data*:Boptlist(Bdatasec)
 
 
     Bcustomsec* =>
-      MODULE type* import* func* global* table* mem* elem* data* start? export*
+;; TODO(2, rossberg): enable binding for func
+;;      MODULE type* import* func* global* table* mem* elem* data* start? export*
+;;    ----
+;;    -- (if n = |data*|)?
+;;    -- if n? =/= eps \/ $dataidx_funcs(func*) = eps
+;;    -- (if func = FUNC typeidx local* expr)*
+      MODULE type* import* (FUNC typeidx local* expr)* global* table* mem* elem* data* start? export*
     ----
     -- (if n = |data*|)?
-    -- if n? =/= eps \/ $dataidx_funcs(func*) = eps
-    -- (if func = FUNC typeidx local* expr)*
+    -- if n? =/= eps \/ $dataidx_funcs((FUNC typeidx local* expr)*) = eps

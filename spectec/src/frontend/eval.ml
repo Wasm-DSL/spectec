@@ -57,9 +57,17 @@ let disj_list disj_x env xs1 xs2 =
   List.length xs1 <> List.length xs2 || List.exists2 (disj_x env) xs1 xs2
 
 
+(* Iteration *)
+
+let rec reduce_iter env iter : iter =
+  match iter with
+  | Opt | List | List1 -> iter
+  | ListN (e, ido) -> ListN (reduce_exp env e, ido)
+
+
 (* Type Reduction (weak-head) *)
 
-let rec reduce_typ env t : typ =
+and reduce_typ env t : typ =
   Debug.(log_if "el.reduce_typ" (t.it <> NumT NatT)
     (fun _ -> fmt "%s" (el_typ t))
     (fun r -> fmt "%s" (el_typ r))
@@ -327,7 +335,8 @@ and reduce_exp env e : exp =
     )
   | IterE (e1, iter) ->
     let e1' = reduce_exp env e1 in
-    IterE (e1', iter) $ e.at  (* TODO(2, rossberg): simplify? *)
+    let iter' = reduce_iter env iter in
+    IterE (e1', iter') $ e.at  (* TODO(2, rossberg): simplify? *)
   | HoleE _ | FuseE _ | UnparenE _ | LatexE _ -> assert false
 
 and reduce_expfield env (atom, e) : expfield = (atom, reduce_exp env e)
@@ -809,6 +818,11 @@ and snd3 (_, x, _) = x
 
 (* Type Disjointness *)
 
+and disj_iter env iter1 iter2 =
+  match iter1, iter2 with
+  | ListN (e1, _), ListN (e2, _) -> disj_exp env e1 e2
+  | _, _ -> not (Eq.eq_iter iter1 iter2)
+
 and disj_typ env t1 t2 =
   Debug.(log "el.disj_typ"
     (fun _ -> fmt "%s ## %s" (el_typ t1) (el_typ t2)) Bool.to_string
@@ -832,7 +846,7 @@ and disj_typ env t1 t2 =
   | _, ParenT t21 -> disj_typ env t1 t21
   | TupT ts1, TupT ts2 | SeqT ts1, SeqT ts2 -> disj_list disj_typ env ts1 ts2
   | IterT (t11, iter1), IterT (t21, iter2) ->
-    disj_typ env t11 t21 || not (Eq.eq_iter iter1 iter2)
+    disj_typ env t11 t21 || disj_iter env iter1 iter2
   | AtomT atom1, AtomT atom2 -> atom1.it <> atom2.it
   | InfixT (t11, atom1, t12), InfixT (t21, atom2, t22) ->
     disj_typ env t11 t21 || atom1.it <> atom2.it || disj_typ env t12 t22

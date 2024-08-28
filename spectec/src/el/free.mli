@@ -25,6 +25,7 @@ val free_typcase : typcase -> sets
 val free_typcon : typcon -> sets
 val free_exp : exp -> sets
 val free_path : path -> sets
+val free_sym : sym -> sets
 val free_arg : arg -> sets
 val free_args : arg list -> sets
 val free_prem : prem -> sets

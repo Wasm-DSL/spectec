@@ -136,6 +136,7 @@ and free_exp e =
   | CaseE (_, e1) | UncaseE (e1, _) -> free_exp e1
   | CallE (id, as1) -> free_defid id + free_args as1
   | IterE (e1, iter) -> (free_exp e1 - bound_iterexp iter) + free_iterexp iter
+  | SizeE id -> free_gramid id
   | SubE (e1, t1, t2) -> free_exp e1 + free_typ t1 + free_typ t2
 
 and free_expfield (_, e) = free_exp e
@@ -159,9 +160,8 @@ and bound_iterexp (iter, xes) =
 and free_sym g =
   match g.it with
   | VarG (id, as_) -> free_gramid id + free_args as_
-  | NatG _ | TextG _ | EpsG -> empty
+  | NatG _ | TextG _ | EpsG | RangeG _ -> empty
   | SeqG gs | AltG gs -> free_list free_sym gs
-  | RangeG (g1, g2) -> free_sym g1 + free_sym g2
   | IterG (g1, iter) -> (free_sym g1 - bound_iterexp iter) + free_iterexp iter
   | AttrG (e, g1) -> free_exp e + free_sym g1
 
@@ -240,8 +240,8 @@ let free_clause clause =
 
 let free_prod prod =
   match prod.it with
-  | ProdD (bs, g, e, prems) ->
-    free_binds bs + (free_sym g + free_exp e + free_prems prems - bound_binds bs)
+  | ProdD (bs, as_, g, e, prems) ->
+    free_binds bs + (free_args as_ + free_sym g + free_exp e + free_prems prems - bound_binds bs)
 
 let free_hintdef hd =
   match hd.it with

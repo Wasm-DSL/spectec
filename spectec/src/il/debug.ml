@@ -3,7 +3,8 @@ include Util.Debug_log
 open Print
 
 let il_side = function `Lhs -> "L" | `Rhs -> ""
-let il_id = Util.Source.it
+let il_text = string_of_text
+let il_id = string_of_id
 let il_atom = string_of_atom
 let il_mixop = string_of_mixop
 let il_iter = string_of_iter
@@ -19,6 +20,7 @@ let il_args = list il_arg
 let il_binds = string_of_binds
 let il_params = list il_param
 let il_def = string_of_def
+
 let il_free s = String.concat " "
   Free.[
     set s.typid;
@@ -26,6 +28,7 @@ let il_free s = String.concat " "
     set s.gramid;
     set s.defid;
   ]
+
 let il_subst s = String.concat " "
   Subst.[
     mapping il_typ s.typid;

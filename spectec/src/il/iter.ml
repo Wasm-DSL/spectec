@@ -136,6 +136,7 @@ and exp e =
   | UpdE (e1, p, e2) | ExtE (e1, p, e2) -> exp e1; path p; exp e2
   | CallE (x, as_) -> defid x; args as_
   | IterE (e1, it) -> exp e1; iterexp it
+  | SizeE id -> gramid id
   | SubE (e1, t1, t2) -> exp e1; typ t1; typ t2
 
 and expfield (at, e) = atom at; exp e
@@ -161,7 +162,7 @@ and sym g =
   | TextG s -> text s
   | EpsG -> ()
   | SeqG gs | AltG gs -> list sym gs
-  | RangeG (g1, g2) -> sym g1; sym g2
+  | RangeG (n1, n2) -> nat n1; nat n2
   | IterG (g1, it) -> sym g1; iterexp it
   | AttrG (e, g1) -> exp e; sym g1
 
@@ -228,7 +229,7 @@ let clause c =
 
 let prod p =
   match p.it with
-  | ProdD (bs, g, e, prs) -> binds bs; sym g; exp e; prems prs
+  | ProdD (bs, as_, g, e, prs) -> binds bs; args as_; sym g; exp e; prems prs
 
 let rec def d =
   visit_def d;

@@ -94,6 +94,7 @@ and eq_exp e1 e2 =
   | ProjE (e1, i1), ProjE (e2, i2) -> eq_exp e1 e2 && i1 = i2
   | TheE e1, TheE e2 -> eq_exp e1 e2
   | CaseE (op1, e1), CaseE (op2, e2) -> eq_mixop op1 op2 && eq_exp e1 e2
+  | SizeE id1, SizeE id2 -> eq_id id1 id2
   | SubE (e1, t11, t12), SubE (e2, t21, t22) ->
     eq_exp e1 e2 && eq_typ t11 t21 && eq_typ t12 t22
   | _, _ -> e1.it = e2.it
@@ -122,7 +123,6 @@ and eq_sym g1 g2 =
     eq_id id1 id2 && eq_list eq_arg args1 args2
   | SeqG gs1, SeqG gs2
   | AltG gs1, AltG gs2 -> eq_list eq_sym gs1 gs2
-  | RangeG (g11, g12), RangeG (g21, g22) -> eq_sym g11 g21 && eq_sym g12 g22
   | IterG (g11, iter1), IterG (g21, iter2) ->
     eq_sym g11 g21 && eq_iterexp iter1 iter2
   | AttrG (e1, g11), AttrG (e2, g21) -> eq_exp e1 e2 && eq_sym g11 g21

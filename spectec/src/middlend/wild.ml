@@ -139,7 +139,7 @@ and t_epe env x k = ternary t_exp t_path t_exp env x k
 
 and t_exp' env e : bind list * exp' =
   match e with
-  | VarE _ | BoolE _ | NatE _ | TextE _ | OptE None -> [], e
+  | VarE _ | BoolE _ | NatE _ | TextE _ | OptE None | SizeE _ -> [], e
 
   | UnE (uo, exp) -> t_e env exp (fun exp' -> UnE (uo, exp'))
   | DotE (exp, a) -> t_e env exp (fun exp' -> DotE (exp', a))

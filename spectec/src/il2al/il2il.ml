@@ -50,6 +50,7 @@ let rec transform_expr f e =
     | CatE (e1, e2) -> CatE (new_ e1, new_ e2)
     | MemE (e1, e2) -> MemE (new_ e1, new_ e2)
     | CaseE (mixop, e1) -> CaseE (mixop, new_ e1)
+    | SizeE g -> SizeE g
     | SubE (e1, _t1, t2) -> SubE (new_ e1, _t1, t2)
   in { e with it }
 

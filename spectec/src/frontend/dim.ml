@@ -428,6 +428,8 @@ and annot_exp env e : Il.Ast.exp * occur =
     | CaseE (atom, e1) ->
       let e1', occur1 = annot_exp env e1 in
       CaseE (atom, e1'), occur1
+    | SizeE id ->
+      SizeE id, Env.empty
     | SubE (e1, t1, t2) ->
       let e1', occur1 = annot_exp env e1 in
       SubE (e1', t1, t2), occur1
@@ -482,7 +484,7 @@ and annot_sym env g : Il.Ast.sym * occur =
     | VarG (id, as1) ->
       let as1', occurs = List.split (List.map (annot_arg env) as1) in
       VarG (id, as1'), List.fold_left union Env.empty occurs
-    | NatG _ | TextG _ | EpsG ->
+    | NatG _ | TextG _ | EpsG | RangeG _ ->
       g.it, Env.empty
     | SeqG gs ->
       let gs', occurs = List.split (List.map (annot_sym env) gs) in
@@ -490,10 +492,6 @@ and annot_sym env g : Il.Ast.sym * occur =
     | AltG gs ->
       let gs', occurs = List.split (List.map (annot_sym env) gs) in
       AltG gs', List.fold_left union Env.empty occurs
-    | RangeG (g1, g2) ->
-      let g1', occur1 = annot_sym env g1 in
-      let g2', occur2 = annot_sym env g2 in
-      RangeG (g1', g2'), union occur1 occur2
     | IterG (g1, iter) ->
       let g1', occur1 = annot_sym env g1 in
       let iter', occur' = annot_iterexp env occur1 iter g.at in

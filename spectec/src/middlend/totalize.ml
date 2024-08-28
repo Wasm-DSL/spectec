@@ -78,7 +78,7 @@ and t_typcase env (atom, (binds, t, prems), hints) =
 and t_exp2 env x = { x with it = t_exp' env x.it; note = t_typ env x.note }
 
 and t_exp' env = function
-  | (VarE _ | BoolE _ | NatE _ | TextE _) as e -> e
+  | (VarE _ | BoolE _ | NatE _ | TextE _ | SizeE _) as e -> e
   | UnE (unop, exp) -> UnE (unop, t_exp env exp)
   | BinE (binop, exp1, exp2) -> BinE (binop, t_exp env exp1, t_exp env exp2)
   | CmpE (cmpop, exp1, exp2) -> CmpE (cmpop, t_exp env exp1, t_exp env exp2)
@@ -121,14 +121,13 @@ and t_path env x = { x with it = t_path' env x.it; note = t_typ env x.note }
 
 and t_sym' env = function
   | VarG (id, args) -> VarG (id, t_args env args)
-  | (NatG _ | TextG _ | EpsG) as g -> g
+  | (NatG _ | TextG _ | EpsG | RangeG _) as g -> g
   | SeqG syms -> SeqG (List.map (t_sym env) syms)
   | AltG syms -> AltG (List.map (t_sym env) syms)
-  | RangeG (sym1, sym2) -> RangeG (t_sym env sym1, t_sym env sym2)
   | IterG (sym, iter) -> IterG (t_sym env sym, t_iterexp env iter)
   | AttrG (e, sym) -> AttrG (t_exp env e, t_sym env sym)
 
-and t_sym env x = { x with it = t_sym' env x.it }
+and t_sym env x = { x with it = t_sym' env x.it; note = t_typ env x.note }
 
 and t_arg' env = function
   | ExpA exp -> ExpA (t_exp env exp)
@@ -184,8 +183,8 @@ let t_inst env (inst : inst) = { inst with it = t_inst' env inst.it }
 let t_insts env = List.map (t_inst env)
 
 let t_prod' env = function
- | ProdD (binds, lhs, rhs, prems) ->
-   ProdD (t_binds env binds, t_sym env lhs, t_exp env rhs, t_prems env prems)
+ | ProdD (binds, args, lhs, rhs, prems) ->
+   ProdD (t_binds env binds, t_args env args, t_sym env lhs, t_exp env rhs, t_prems env prems)
 
 let t_prod env (prod : prod) = { prod with it = t_prod' env prod.it }
 
@@ -214,7 +213,7 @@ let rec t_def' env = function
           [ExpB (x, typI) $ x.at], ExpA (VarE x $$ no_region % typI) $ no_region
         | TypP id -> [], TypA (VarT (id, []) $ no_region) $ no_region
         | DefP (id, _, _) -> [], DefA id $ no_region
-        | GramP (id, _) -> [], GramA (VarG (id, []) $ no_region) $ no_region
+        | GramP (id, typI) -> [], GramA (VarG (id, []) $$ no_region % typI) $ no_region
         ) params' |> List.split in
       let catch_all = DefD (List.concat binds, args,
         OptE None $$ no_region % typ'', []) $ no_region in

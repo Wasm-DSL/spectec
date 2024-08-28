@@ -30,6 +30,11 @@ let snd3 (_, x, _) = x
 let unordered s1 s2 = not Set.(subset s1 s2 || subset s2 s1)
 
 
+let as_iter_typ t =
+  match t.it with
+  | IterT (t1, _) -> t1
+  | _ -> failwith "as_iter_typ"
+
 let as_opt_exp e =
   match e.it with
   | OptE eo -> eo
@@ -89,7 +94,7 @@ and reduce_typdef env t : deftyp =
 
 and reduce_typ_app env id args at : deftyp option =
   Debug.(log "il.reduce_typ_app"
-    (fun _ -> fmt "%s(%s)" id.it (il_args args))
+    (fun _ -> fmt "%s(%s)" (il_id id) (il_args args))
     (fun r -> fmt "%s" (opt il_deftyp r))
   ) @@ fun _ ->
   reduce_typ_app' env id (List.map (reduce_arg env) args) at (Env.find_opt_typ env id)
@@ -102,7 +107,7 @@ and reduce_typ_app' env id args at = function
       ("undefined instance of partial type `" ^ id.it ^ "`")
   | Some (ps, {it = InstD (_binds, args', dt); _}::insts') ->
     Debug.(log "il.reduce_typ_app'"
-      (fun _ -> fmt "%s(%s) =: %s(%s)" id.it (il_args args) id.it (il_args args'))
+      (fun _ -> fmt "%s(%s) =: %s(%s)" (il_id id) (il_args args) (il_id id) (il_args args'))
       (fun r -> fmt "%s" (opt (Fun.const "!") r))
     ) @@ fun _ ->
     match match_list match_arg env Subst.empty args args' with
@@ -312,7 +317,7 @@ and reduce_exp env e : exp =
         else if List.for_all Option.is_some eos' then
           let es1' = List.map Option.get eos' in
           let s = List.fold_left2 Subst.add_varid Subst.empty ids es1' in
-          reduce_exp env (Subst.subst_exp s e1')
+          OptE (Some (reduce_exp env (Subst.subst_exp s e1'))) $> e
         else
           IterE (e1', iterexp') $> e
       | List | List1 ->
@@ -327,7 +332,7 @@ and reduce_exp env e : exp =
         let ns = List.map List.length ess' in
         let n = Z.to_int n' in
         if List.for_all ((=) n) ns then
-          (TupE (List.init n (fun i ->
+          (ListE (List.init n (fun i ->
             let esI' = List.map (fun es -> List.nth es i) ess' in
             let s = List.fold_left2 Subst.add_varid Subst.empty ids esI' in
             let s' =
@@ -372,6 +377,7 @@ and reduce_exp env e : exp =
     | _ -> CatE (e1', e2')
     ) $> e
   | CaseE (op, e1) -> CaseE (op, reduce_exp env e1) $> e
+  | SizeE _ -> e
   | SubE (e1, t1, t2) when equiv_typ env t1 t2 ->
     reduce_exp env e1
   | SubE (e1, t1, t2) ->
@@ -472,7 +478,7 @@ and reduce_exp_call env id args at = function
       ("undefined call to partial function `$" ^ id.it ^ "`")
   | {it = DefD (_binds, args', e, prems); _}::clauses' ->
     Debug.(log "il.reduce_exp_call"
-      (fun _ -> fmt "$%s(%s) =: $%s(%s)" id.it (il_args args) id.it (il_args args'))
+      (fun _ -> fmt "$%s(%s) =: $%s(%s)" (il_id id) (il_args args) (il_id id) (il_args args'))
       (function None -> "-" | Some e' -> fmt "%s" (il_exp e'))
     ) @@ fun _ ->
     assert (List.for_all (fun a -> Eq.eq_arg a (reduce_arg env a)) args);
@@ -495,6 +501,10 @@ and reduce_prems env = function
     | other -> other
 
 and reduce_prem env prem : bool option =
+  Debug.(log "il.reduce_prem"
+    (fun _ -> fmt "%s" (il_prem prem))
+    (fun r -> fmt "%s" (match r with None -> "-" | Some b -> string_of_bool b))
+  ) @@ fun _ ->
   match prem.it with
   | RulePr _ -> None
   | IfPr e ->
@@ -509,7 +519,49 @@ and reduce_prem env prem : bool option =
     | None -> None
     | exception Irred -> None
     )
-  | IterPr (_prem, _iter) -> None  (* TODO(3, rossberg): reduce? *)
+  | IterPr (prem1, iterexp) ->
+    let iter', xes' = reduce_iterexp env iterexp in
+    let ids, es' = List.split xes' in
+    match iter' with
+    | Opt ->
+      let eos' = List.map as_opt_exp es' in
+      if List.for_all Option.is_none eos' then
+        Some true
+      else if List.for_all Option.is_some eos' then
+        let es1' = List.map Option.get eos' in
+        let s = List.fold_left2 Subst.add_varid Subst.empty ids es1' in
+        reduce_prem env (Subst.subst_prem s prem1)
+      else
+        None
+    | List | List1 ->
+      let n = List.length (as_list_exp (List.hd es')) in
+      if iter' = List || n >= 1 then
+        let en = NatE (Z.of_int n) $$ prem.at % (NumT NatT $ prem.at) in
+        reduce_prem env (IterPr (prem1, (ListN (en, None), xes')) $ prem.at)
+      else
+        None
+    | ListN ({it = NatE n'; _}, ido) ->
+      let ess' = List.map as_list_exp es' in
+      let ns = List.map List.length ess' in
+      let n = Z.to_int n' in
+      if List.for_all ((=) n) ns then
+        List.fold_left (fun b_opt i ->
+          match b_opt with
+          | None | Some false -> b_opt
+          | Some true ->
+            let esI' = List.map (fun es -> List.nth es i) ess' in
+            let s = List.fold_left2 Subst.add_varid Subst.empty ids esI' in
+            let s' =
+              Option.fold ido ~none:s ~some:(fun id ->
+                let en = NatE (Z.of_int i) $$ id.at % (NumT NatT $ id.at) in
+                Subst.add_varid s id en
+              )
+            in reduce_prem env (Subst.subst_prem s' prem1)
+        ) (Some true) (List.init n Fun.id)
+      else
+        None
+    | ListN _ ->
+      None
 
 
 (* Matching *)
@@ -695,7 +747,8 @@ and match_exp' env s e1 e2 : subst option =
     let xs, exs = List.split xes in
     let* s''' =
       match_list (fun env s xI exI ->
-        let eI = ListE (List.map (fun sJ -> Subst.subst_exp sJ (VarE xI $> exI)) ss) $> e2 in
+        let varI = VarE xI $$ xI.at % as_iter_typ exI.note in
+        let eI = ListE (List.map (fun sJ -> Subst.subst_exp sJ varI) ss) $> e2 in
         match_exp' env s eI exI
       ) env s' xs exs
     in Some (Subst.union s''' s)  (* re-add possibly locally shadowed bindings *)
@@ -790,7 +843,10 @@ and match_sym env s g1 g2 : subst option =
 (* Parameters *)
 
 and match_arg env s a1 a2 : subst option =
-  Debug.(log_in "il.match_arg" (fun _ -> fmt "%s =: %s" (il_arg a1) (il_arg a2)));
+  Debug.(log "il.match_arg"
+    (fun _ -> fmt "%s =: %s" (il_arg a1) (il_arg a2))
+    (fun r -> fmt "%s" (opt il_subst r))
+  ) @@ fun _ ->
   match a1.it, a2.it with
   | ExpA e1, ExpA e2 -> match_exp env s e1 e2
   | TypA t1, TypA t2 -> match_typ env s t1 t2
@@ -896,7 +952,7 @@ and equiv_params env ps1 ps2 =
       Some (Subst.add_defid s id2 id1)
     | GramP (id1, t1), GramP (id2, t2) ->
       if not (equiv_typ env t1 t2) then None else
-      Some (Subst.add_gramid s id2 (VarG (id1, []) $ p1.at))
+      Some (Subst.add_gramid s id2 (VarG (id1, []) $$ p1.at % t1))
     | _, _ -> assert false
   ) (Some Subst.empty) ps1 ps2
 

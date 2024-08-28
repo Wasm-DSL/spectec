@@ -21,6 +21,7 @@ sig
   val is_uppercase_ascii : char -> bool
   val is_lowercase_ascii : char -> bool
   val is_letter_ascii : char -> bool
+  val is_alphanum_ascii : char -> bool
 end
 
 module String :

@@ -19,7 +19,7 @@ let rec free_exp ignore_listN e =
   let fa = free_arg ignore_listN in
   match e.it with
   | VarE id -> free_varid id
-  | BoolE _ | NatE _ | TextE _ -> empty
+  | BoolE _ | NatE _ | TextE _ | SizeE _ -> empty
   | UnE (_, e1) | LenE e1 | TheE e1 | SubE (e1, _, _)
   | DotE (e1, _) | CaseE (_, e1) | ProjE (e1, _) | UncaseE (e1, _) ->
     f e1

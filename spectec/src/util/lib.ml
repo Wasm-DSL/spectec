@@ -56,6 +56,7 @@ struct
   let is_uppercase_ascii c = 'A' <= c && c <= 'Z'
   let is_lowercase_ascii c = 'a' <= c && c <= 'z'
   let is_letter_ascii c = is_uppercase_ascii c || is_lowercase_ascii c
+  let is_alphanum_ascii c = is_letter_ascii c || is_digit_ascii c || c = '_'
 end
 
 module String =

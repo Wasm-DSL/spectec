@@ -3,12 +3,16 @@ open Ast
 type env = Env.t
 type subst = Subst.t
 
+val is_normal_exp : exp -> bool
+val is_head_normal_exp : exp -> bool
+
 val (let*) : subst option -> (subst -> subst option) -> subst option
 
 val reduce_exp : env -> exp -> exp
 val reduce_typ : env -> typ -> typ
 val reduce_typdef : env -> typ -> deftyp
 val reduce_arg : env -> arg -> arg
+val reduce_prems : env -> prem list -> bool option
 
 val equiv_functyp : env -> param list * typ -> param list * typ -> bool
 val equiv_typ : env -> typ -> typ -> bool

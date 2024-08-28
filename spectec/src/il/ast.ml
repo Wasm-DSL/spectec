@@ -103,6 +103,7 @@ and exp' =
   | ExtE of exp * path * exp     (* exp[path =.. exp] *)
   | CallE of id * arg list       (* defid( arg* ) *)
   | IterE of exp * iterexp       (* exp iter *)
+  | SizeE of id                  (* ||gramid|| *)
   | SubE of exp * typ * typ      (* exp : typ1 <: typ2 *)
 
 and expfield = atom * exp        (* atom exp *)
@@ -119,15 +120,15 @@ and iterexp = iter * (id * exp) list
 
 (* Grammars *)
 
-and sym = sym' phrase
+and sym = (sym', typ) note_phrase
 and sym' =
   | VarG of id * arg list                    (* gramid (`(` arg,* `)`)? *)
-  | NatG of int                              (* nat *)
+  | NatG of char                             (* nat *)
   | TextG of string                          (* `"`text`"` *)
   | EpsG                                     (* `eps` *)
   | SeqG of sym list                         (* sym sym *)
   | AltG of sym list                         (* sym `|` sym *)
-  | RangeG of sym * sym                      (* sym `|` `...` `|` sym *)
+  | RangeG of char * char                    (* nat `|` `...` `|` nat *)
   | IterG of sym * iterexp                   (* sym iter *)
   | AttrG of exp * sym                       (* exp `:` sym *)
 
@@ -178,7 +179,7 @@ and clause' =
 
 and prod = prod' phrase
 and prod' =
-  | ProdD of bind list * sym * exp * prem list        (* grammar production *)
+  | ProdD of bind list * arg list * sym * exp * prem list  (* grammar production *)
 
 and prem = prem' phrase
 and prem' =

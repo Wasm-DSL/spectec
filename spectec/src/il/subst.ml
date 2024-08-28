@@ -7,7 +7,13 @@ open Ast
 module Map = Map.Make(String)
 
 type subst =
-  {varid : exp Map.t; typid : typ Map.t; defid : id Map.t; gramid : sym Map.t}
+  { varid : exp Map.t;
+    typid : typ Map.t;
+    defid : id Map.t;
+    gramid : sym Map.t;
+    sizeid : int Map.t;
+  }
+
 type t = subst
 
 let empty =
@@ -15,33 +21,39 @@ let empty =
     typid = Map.empty;
     defid = Map.empty;
     gramid = Map.empty;
+    sizeid = Map.empty;
   }
 
 let mem_varid s id = Map.mem id.it s.varid
 let mem_typid s id = Map.mem id.it s.typid
 let mem_defid s id = Map.mem id.it s.defid
 let mem_gramid s id = Map.mem id.it s.gramid
+let mem_sizeid s id = Map.mem id.it s.sizeid
 
 let find_varid s id = Map.find id.it s.varid
 let find_typid s id = Map.find id.it s.typid
 let find_defid s id = Map.find id.it s.defid
 let find_gramid s id = Map.find id.it s.gramid
+let find_sizeid s id = Map.find id.it s.sizeid
 
 let add_varid s id e = if id.it = "_" then s else {s with varid = Map.add id.it e s.varid}
 let add_typid s id t = if id.it = "_" then s else {s with typid = Map.add id.it t s.typid}
 let add_defid s id x = if id.it = "_" then s else {s with defid = Map.add id.it x s.defid}
 let add_gramid s id g = if id.it = "_" then s else {s with gramid = Map.add id.it g s.gramid}
+let add_sizeid s id g = if id.it = "_" then s else {s with sizeid = Map.add id.it g s.sizeid}
 
 let remove_varid s id = if id.it = "_" then s else {s with varid = Map.remove id.it s.varid}
 let remove_typid s id = if id.it = "_" then s else {s with typid = Map.remove id.it s.typid}
 let remove_defid s id = if id.it = "_" then s else {s with defid = Map.remove id.it s.defid}
 let remove_gramid s id = if id.it = "_" then s else {s with gramid = Map.remove id.it s.gramid}
+let remove_sizeid s id = if id.it = "_" then s else {s with sizeid = Map.remove id.it s.sizeid}
 
 let union s1 s2 =
   { varid = Map.union (fun _ _e1 e2 -> Some e2) s1.varid s2.varid;
     typid = Map.union (fun _ _t1 t2 -> Some t2) s1.typid s2.typid;
     defid = Map.union (fun _ _x1 x2 -> Some x2) s1.defid s2.defid;
     gramid = Map.union (fun _ _x1 x2 -> Some x2) s1.gramid s2.gramid;
+    sizeid = Map.union (fun _ _x1 x2 -> Some x2) s1.sizeid s2.sizeid;
   }
 
 let remove_varid' s id' = {s with varid = Map.remove id' s.varid}
@@ -68,7 +80,7 @@ let subst_varid s id =
   match Map.find_opt id.it s.varid with
   | None -> id
   | Some {it = VarE id'; _} -> id'
-  | Some _ -> raise (Invalid_argument "subst_varid")
+  | Some _ -> assert false
 
 let subst_defid s id =
   match Map.find_opt id.it s.defid with
@@ -79,7 +91,11 @@ let subst_gramid s id =
   match Map.find_opt id.it s.gramid with
   | None -> id
   | Some {it = VarG (id', []); _} -> id'
-  | Some _ -> raise (Invalid_argument "subst_varid")
+  | Some g ->
+Printf.printf "[subst] %s=%s\n%!" (Print.string_of_id id) (Print.string_of_sym g); assert false
+(*
+  | Some _ -> assert false
+*)
 
 
 (* Iterations *)
@@ -120,11 +136,11 @@ and subst_deftyp s dt =
 
 and subst_typfield s (atom, (bs, t, prems), hints) =
   let bs', s' = subst_binds s bs in
-  (atom, (bs', subst_typ s' t, subst_list subst_prem s' prems), hints)
+  (atom, (bs', subst_typ s' t, subst_prems s' prems), hints)
 
 and subst_typcase s (op, (bs, t, prems), hints) =
   let bs', s' = subst_binds s bs in
-  (op, (bs', subst_typ s' t, subst_list subst_prem s' prems), hints)
+  (op, (bs', subst_typ s' t, subst_prems s' prems), hints)
 
 
 (* Expressions *)
@@ -133,9 +149,9 @@ and subst_exp s e =
   (match e.it with
   | VarE id ->
     (match Map.find_opt id.it s.varid with
-    | None -> VarE id
-    | Some e' -> e'.it
-    )
+    | None -> e
+    | Some e' -> e'
+    ).it
   | BoolE _ | NatE _ | TextE _ -> e.it
   | UnE (op, e1) -> UnE (op, subst_exp s e1)
   | BinE (op, e1, e2) -> BinE (op, subst_exp s e1, subst_exp s e2)
@@ -161,6 +177,15 @@ and subst_exp s e =
   | ListE es -> ListE (subst_list subst_exp s es)
   | CatE (e1, e2) -> CatE (subst_exp s e1, subst_exp s e2)
   | CaseE (op, e1) -> CaseE (op, subst_exp s e1)
+  | SizeE id ->
+    (match Map.find_opt id.it s.sizeid with
+    | Some n -> NatE (Z.of_int n)
+    | None ->
+      match Map.find_opt id.it s.gramid with
+      | None -> SizeE id
+      | Some {it = VarG (id', _); _} -> SizeE id'
+      | Some _ -> assert false
+    )
   | SubE (e1, t1, t2) -> SubE (subst_exp s e1, subst_typ s t1, subst_typ s t2)
   ) $$ e.at % subst_typ s e.note
 
@@ -186,22 +211,36 @@ and subst_iterexp s (iter, xes) =
 
 and subst_sym s g =
   (match g.it with
+  | VarG (id, []) ->
+    (match Map.find_opt id.it s.gramid with
+    | Some g' -> g'
+    | None -> g
+    ).it
   | VarG (id, args) -> VarG (subst_gramid s id, List.map (subst_arg s) args)
-  | NatG _ | TextG _ -> g.it
-  | EpsG -> EpsG
+  | NatG _ | TextG _ | EpsG | RangeG _ -> g.it
   | SeqG gs -> SeqG (subst_list subst_sym s gs)
   | AltG gs -> AltG (subst_list subst_sym s gs)
-  | RangeG (g1, g2) -> RangeG (subst_sym s g1, subst_sym s g2)
   | IterG (g1, iterexp) ->
     let it', s' = subst_iterexp s iterexp in
     IterG (subst_sym s' g1, it')
   | AttrG (e, g1) -> AttrG (subst_exp s e, subst_sym s g1)
-  ) $ g.at
+  ) $$ g.at % subst_typ s g.note
+
+and subst_prod s prod =
+  (match prod.it with
+  | ProdD (bs, as_, g, e, prems) ->
+    let bs', s' = subst_binds s bs in
+    ProdD (
+      bs', subst_args s' as_,
+      subst_sym s' g, subst_exp s' e, subst_prems s' prems
+    )
+  ) $ prod.at
 
 
 (* Premises *)
 
 and subst_prem s prem =
+  Util.Debug_log.(log "il.subst_prem" (fun _ -> Print.string_of_prem prem) Print.string_of_prem) @@ fun _ ->
   (match prem.it with
   | RulePr (id, op, e) -> RulePr (id, op, subst_exp s e)
   | IfPr e -> IfPr (subst_exp s e)
@@ -211,6 +250,8 @@ and subst_prem s prem =
     IterPr (subst_prem s' prem1, it')
   | LetPr (e1, e2, ids) -> LetPr (subst_exp s e1, subst_exp s e2, ids)
   ) $ prem.at
+
+and subst_prems s prems = subst_list subst_prem s prems
 
 
 (* Definitions *)
@@ -256,4 +297,5 @@ let subst_typ s t = if s = empty then t else subst_typ s t
 let subst_deftyp s dt = if s = empty then dt else subst_deftyp s dt
 let subst_exp s e = if s = empty then e else subst_exp s e
 let subst_sym s g = if s = empty then g else subst_sym s g
+let subst_prod s pr = if s = empty then pr else subst_prod s pr
 let subst_prem s pr = if s = empty then pr else subst_prem s pr

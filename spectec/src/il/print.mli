@@ -1,5 +1,12 @@
 open Ast
 
+val string_of_list : ('a -> string) -> string -> 'a list -> string
+val string_of_opt : ('a -> string) -> 'a option -> string
+val string_of_byte : char -> string
+val string_of_text : string -> string
+val string_of_binary : string -> string
+val string_of_string : string -> string
+val string_of_id : id -> string
 val string_of_atom : atom -> string
 val string_of_unop : unop -> string
 val string_of_binop : binop -> string
@@ -9,9 +16,9 @@ val string_of_iter : iter -> string
 val string_of_typ : typ -> string
 val string_of_exp : exp -> string
 val string_of_path : path -> string
-val string_of_sym : sym -> string
+val string_of_sym : ?short:bool -> sym -> string
 val string_of_prem : prem -> string
-val string_of_arg : arg -> string
+val string_of_arg : ?short:bool -> arg -> string
 val string_of_bind : bind -> string
 val string_of_binds : bind list -> string
 val string_of_param : param -> string

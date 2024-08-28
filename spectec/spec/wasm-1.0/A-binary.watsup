@@ -5,7 +5,7 @@
 ;; Vectors
 
 grammar Bvec(grammar BX : el) : el* =
-  | n:Bu32 (el:BX)^n => el^n
+  | n:Bu32 el*:BX^n => el*
 
 
 
@@ -139,10 +139,10 @@ grammar Bblocktype : blocktype =
 grammar Binstr/control : instr =
   | 0x00 => UNREACHABLE
   | 0x01 => NOP
-  | 0x02 bt:Bblocktype (in:Binstr)* 0x0B => BLOCK bt in*
-  | 0x03 bt:Bblocktype (in:Binstr)* 0x0B => LOOP bt in*
-  | 0x04 bt:Bblocktype (in:Binstr)* 0x0B => IF bt in* ELSE eps
-  | 0x04 bt:Bblocktype (in_1:Binstr)* 0x05 (in_2:Binstr)* 0x0B => IF bt in_1* ELSE in_2*
+  | 0x02 bt:Bblocktype in*:Binstr* 0x0B => BLOCK bt in*
+  | 0x03 bt:Bblocktype in*:Binstr* 0x0B => LOOP bt in*
+  | 0x04 bt:Bblocktype in*:Binstr* 0x0B => IF bt in* ELSE eps
+  | 0x04 bt:Bblocktype in_1*:Binstr* 0x05 in_2*:Binstr* 0x0B => IF bt in_1* ELSE in_2*
   | 0x0C l:Blabelidx => BR l
   | 0x0D l:Blabelidx => BR_IF l
   | 0x0E l*:Bvec(Blabelidx) l_N:Blabelidx => BR_TABLE l* l_N
@@ -386,7 +386,7 @@ grammar Binstr/numeric-cvt : instr = ...
 ;; Expressions
 
 grammar Bexpr : expr =
-  | (in:Binstr)* 0x0B => in*
+  | in*:Binstr* 0x0B => in*
 
 
 

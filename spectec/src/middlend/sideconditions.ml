@@ -68,7 +68,7 @@ let rec t_exp env e : prem list =
   end @
   (* And now descend *)
   match e.it with
-  | VarE _ | BoolE _ | NatE _ | TextE _ | OptE None
+  | VarE _ | BoolE _ | NatE _ | TextE _ | OptE None | SizeE _
   -> []
   | UnE (_, exp)
   | DotE (exp, _)

@@ -237,7 +237,7 @@ and infer_exp (env : Env.t) e : typ =
   match e.it with
   | VarE id -> Env.find_var env id
   | BoolE _ -> BoolT $ e.at
-  | NatE _ | LenE _ -> NumT NatT $ e.at
+  | NatE _ | LenE _ | SizeE _ -> NumT NatT $ e.at
   | TextE _ -> TextT $ e.at
   | UnE (op, _) -> let _t1, t' = infer_unop op in t' $ e.at
   | BinE (op, _, _) -> let _t1, _t2, t' = infer_binop op in t' $ e.at
@@ -428,6 +428,10 @@ try
     let cases = as_variant_typ "case" env Check t e.at in
     let _binds, t1, _prems = find_case cases op e1.at in
     valid_exp ~side env e1 t1
+  | SizeE id ->
+    let ps, _t', _prods = Env.find_gram env id in
+    if ps <> [] then
+      error e.at "parameterized grammar in size expression"
   | SubE (e1, t1, t2) ->
     valid_typ env t1;
     valid_typ env t2;
@@ -511,10 +515,7 @@ and valid_sym env g : typ =
     let ps, t, _ = Env.find_gram env id in
     let s = valid_args env as_ ps Subst.empty g.at in
     Subst.subst_typ s t
-  | NatG n ->
-    if n < 0x00 || n > 0xff then
-      error g.at "byte value out of range";
-    NumT NatT $ g.at
+  | NatG _ -> NumT NatT $ g.at
   | TextG _ -> TextT $ g.at
   | EpsG -> TupT [] $ g.at
   | SeqG gs ->
@@ -522,16 +523,18 @@ and valid_sym env g : typ =
     TupT [] $ g.at
   | AltG gs ->
     let _ts = List.map (valid_sym env) gs in
+    if Free.(free_list free_sym gs).varid <> Free.Set.empty then
+      error g.at "variable occurrences in alternative grammar";
     TupT [] $ g.at
-  | RangeG (g1, g2) ->
-    let t1 = valid_sym env g1 in
-    let t2 = valid_sym env g2 in
-    equiv_typ env t1 (NumT NatT $ g1.at) g.at;
-    equiv_typ env t2 (NumT NatT $ g2.at) g.at;
-    TupT [] $ g.at
+  | RangeG (b1, b2) ->
+    if b1 > b2 then
+      error g.at "inconsistent range bounds";
+    NumT NatT $ g.at
   | IterG (g1, iterexp) ->
     let iter, env' = valid_iterexp ~side:`Lhs env iterexp g.at in
     let t1 = valid_sym env' g1 in
+    if (Free.free_sym g1).varid <> Free.Set.empty then
+      error g.at "variable occurrences in iteration grammar";
     IterT (t1, iter) $ g.at
   | AttrG (e, g1) ->
     let t1 = valid_sym env g1 in
@@ -681,11 +684,12 @@ let valid_prod envr ps t prod =
     (fun _ -> fmt ": (%s) -> %s" (il_params ps) (il_typ t))
   );
   match prod.it with
-  | ProdD (bs, g, e, prems) ->
+  | ProdD (bs, as_, g, e, prems) ->
     let envr' = local_env envr in
     List.iter (valid_bind envr') bs;
+    let s = valid_args !envr' as_ ps Subst.empty prod.at in
     let _t' = valid_sym !envr' g in
-    valid_exp !envr' e t;
+    valid_exp !envr' e (Subst.subst_typ s t);
     List.iter (valid_prem !envr') prems
 
 let infer_def envr d =

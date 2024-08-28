@@ -8,6 +8,7 @@ let version = "0.4"
 
 type target =
  | Check
+ | Parse of [`File | `String] * string
  | Latex
  | Prose of bool
  | Splice of Backend_splice.Config.t
@@ -31,6 +32,7 @@ let all_passes = [ Totalize; Wild; Sideconditions ]
 
 type file_kind =
   | Spec
+  | Input
   | Patch
   | Output
 
@@ -43,6 +45,7 @@ let warn_prose = ref false (* warn about unused or reused prose splices *)
 
 let file_kind = ref Spec
 let srcs = ref []    (* spec src file arguments *)
+let inps = ref []    (* input src for parsing *)
 let pdsts = ref []   (* patch file arguments *)
 let odsts = ref []   (* output file arguments *)
 
@@ -100,6 +103,7 @@ let add_arg source =
   let args =
     match !file_kind with
     | Spec -> srcs
+    | Input -> inps
     | Patch -> pdsts
     | Output -> odsts
   in args := !args @ [source]
@@ -114,8 +118,6 @@ let argspec = Arg.align
   "-i", Arg.Set in_place, " Splice patch files in-place";
   "-d", Arg.Set dry, " Dry run (when -p) ";
   "-o", Arg.Unit (fun () -> file_kind := Output), " Output files";
-  "-l", Arg.Set logging, " Log execution steps";
-  "-ll", Arg.Set Backend_interpreter.Runner.logging, " Log interpreter execution";
   "-w", Arg.Unit (fun () -> warn_math := true; warn_prose := true),
     " Warn about unused or multiply used splices";
   "--warn-math", Arg.Set warn_math,
@@ -124,6 +126,8 @@ let argspec = Arg.align
     " Warn about unused or multiply used prose splices";
 
   "--check", Arg.Unit (fun () -> target := Check), " Check only (default)";
+  "--parse", Arg.String (fun id -> target := Parse (`File, id); file_kind := Input), " Parse with grammar";
+  "--parse-string", Arg.String (fun id -> target := Parse (`String, id); file_kind := Input), " Parse with grammar";
   "--latex", Arg.Unit (fun () -> target := Latex), " Generate Latex";
   "--splice-latex", Arg.Unit (fun () -> target := Splice Backend_splice.Config.latex),
     " Splice Sphinx";
@@ -135,6 +139,12 @@ let argspec = Arg.align
     " Generate interpreter";
 
   "--latex-macros", Arg.Set latex_macros, " Splice Latex with macro invocations";
+
+  "-l", Arg.Set logging, " Log execution steps";
+  "-ll", Arg.Set Backend_interpreter.Runner.logging, " Log interpreter execution";
+  "--trace-parse", Arg.Set Il.Parse.trace, " Trace parsing execution";
+  "--debug", Arg.String (fun s -> Util.Debug_log.active := s :: !Util.Debug_log.active),
+    " Turn on debugging log for named function";
 
   "--print-el", Arg.Set print_el, " Print EL";
   "--print-il", Arg.Set print_elab_il, " Print IL (after elaboration)";
@@ -151,6 +161,35 @@ let argspec = Arg.align
   "-help", Arg.Unit ignore, "";
   "--help", Arg.Unit ignore, "";
 ]
+
+
+let unescape s =
+  let b = Buffer.create (String.length s) in
+  let i = ref 0 in
+  while !i < String.length s do
+    let c = if s.[!i] <> '\\' then s.[!i] else
+      match (incr i; s.[!i]) with
+      | 'n' -> '\n'
+      | 'r' -> '\r'
+      | 't' -> '\t'
+      | '\\' -> '\\'
+      | '\'' -> '\''
+      | '\"' -> '\"'
+      | 'u' ->
+        let j = !i + 2 in
+        i := String.index_from s j '}';
+        let n = int_of_string ("0x" ^ String.sub s j (!i - j)) in
+        let bs = Util.Utf8.encode [n] in
+        Buffer.add_substring b bs 0 (String.length bs - 1);
+        bs.[String.length bs - 1]
+      | '0'..'9' | 'A'..'F' | 'a'..'f' as h ->
+        incr i;
+        Char.chr (int_of_string ("0x" ^ String.make 1 h ^ String.make 1 s.[!i]))
+      | c -> c  (* TODO: error *)
+    in Buffer.add_char b c;
+    incr i
+  done;
+  Buffer.contents b
 
 
 (* Main *)
@@ -172,13 +211,12 @@ let () =
     log "IL Validation...";
     Il.Valid.valid il;
 
-    (match !target with
-    | Prose _ | Splice _ | Interpreter _ ->
-      enable_pass Sideconditions;
-    | _ when !print_al || !print_al_o <> "" ->
-      enable_pass Sideconditions;
-    | _ -> ()
-    );
+    let need_al =
+      match !target with
+      | Prose _ | Splice _ | Interpreter _ -> true
+      | _ -> !print_al || !print_al_o <> ""
+    in
+    if need_al then enable_pass Sideconditions;
 
     let il =
       List.fold_left (fun il pass ->
@@ -199,8 +237,8 @@ let () =
     if !print_final_il && not !print_all_il then print_il il;
 
     let al =
-      if not (!print_al || !print_al_o <> "") && (!target = Check || !target = Latex) then []
-      else (
+      if not need_al then [] else
+      (
         log "Translating to AL...";
         (Il2al.Translate.translate il @ Il2al.Manual.manual_algos)
       )
@@ -229,6 +267,20 @@ let () =
 
     (match !target with
     | Check -> ()
+
+    | Parse (mode, id) ->
+      log "Parser Execution...";
+      List.iter (fun s ->
+        let src =
+          match mode with
+          | `String -> unescape s
+          | `File -> In_channel.with_open_bin s In_channel.input_all
+        in
+        match Il.Parse.parse il id src with
+        | Ok e -> print_endline (Il.Print.string_of_exp e)
+        | Error (i, msg) -> prerr_endline (string_of_int i ^ ": " ^ msg)
+        | exception Il.Parse.Grammar_unknown -> prerr_endline ("unknown grammar `" ^ id ^ "`")
+      ) !inps
 
     | Latex ->
       log "Latex Generation...";

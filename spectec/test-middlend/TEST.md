@@ -6407,10 +6407,10 @@ rec {
 ;; A-binary.watsup:20.1-22.82
 grammar BuN(N : N) : uN(N)
   ;; A-binary.watsup:21.5-21.83
-  prod{n : n} `%`_byte(n):Bbyte => `%`_uN(n)
+  prod{n : n}(N) `%`_byte(n):Bbyte => `%`_uN(n)
     -- if ((n < (2 ^ 7)) /\ (n < (2 ^ N)))
   ;; A-binary.watsup:22.5-22.82
-  prod{n : n, m : m} {`%`_byte(n):Bbyte `%`_uN(m):BuN((N - 7))} => `%`_uN((((2 ^ 7) * m) + (n - (2 ^ 7))))
+  prod{n : n, m : m}(N) {`%`_byte(n):Bbyte `%`_uN(m):BuN((N - 7))} => `%`_uN((((2 ^ 7) * m) + (n - (2 ^ 7))))
     -- if ((n >= (2 ^ 7)) /\ (N > 7))
 }
 
@@ -6422,29 +6422,29 @@ grammar Bu32 : u32
 ;; A-binary.watsup
 grammar Blist(syntax el, grammar BX : el) : el*
   ;; A-binary.watsup
-  prod{n : n, el^n : el^n} {`%`_u32(n):Bu32 el:BX^n{el : el}} => el^n{el : el}
+  prod{n : n, el^n : el^n}(syntax el, grammar BX) {`%`_u32(n):Bu32 el:BX^n{el : el}} => el^n{el : el}
 
 ;; A-binary.watsup
 grammar BsN(N : N) : sN(N)
   ;; A-binary.watsup
-  prod{n : n} `%`_byte(n):Bbyte => `%`_sN((n : n <: int))
+  prod{n : n}(N) `%`_byte(n):Bbyte => `%`_sN((n : n <: int))
     -- if ((n < (2 ^ 6)) /\ (n < (2 ^ (N - 1))))
   ;; A-binary.watsup
-  prod{n : n} `%`_byte(n):Bbyte => `%`_sN(((n - (2 ^ 7)) : nat <: int))
+  prod{n : n}(N) `%`_byte(n):Bbyte => `%`_sN(((n - (2 ^ 7)) : nat <: int))
     -- if ((((2 ^ 6) <= n) /\ (n < (2 ^ 7))) /\ (n >= ((2 ^ 7) - (2 ^ (N - 1)))))
   ;; A-binary.watsup
-  prod{n : n, i : nat} {`%`_byte(n):Bbyte `%`_uN(i):BuN((N - 7))} => `%`_sN(((((2 ^ 7) * i) + (n - (2 ^ 7))) : nat <: int))
+  prod{n : n, i : nat}(N) {`%`_byte(n):Bbyte `%`_uN(i):BuN((N - 7))} => `%`_sN(((((2 ^ 7) * i) + (n - (2 ^ 7))) : nat <: int))
     -- if ((n >= (2 ^ 7)) /\ (N > 7))
 
 ;; A-binary.watsup
 grammar BiN(N : N) : iN(N)
   ;; A-binary.watsup
-  prod{i : nat} `%`_sN((i : nat <: int)):BsN(N) => `%`_iN($invsigned_(N, (i : nat <: int)))
+  prod{i : nat}(N) `%`_sN((i : nat <: int)):BsN(N) => `%`_iN($invsigned_(N, (i : nat <: int)))
 
 ;; A-binary.watsup
 grammar BfN(N : N) : fN(N)
   ;; A-binary.watsup
-  prod{b* : byte*} b*{b : byte}:Bbyte^(N / 8){} => $invfbytes_(N, b*{b : byte})
+  prod{b* : byte*}(N) b*{b : byte}:Bbyte^(N / 8){} => $invfbytes_(N, b*{b : byte})
 
 ;; A-binary.watsup
 grammar Bu64 : u64
@@ -7684,10 +7684,10 @@ grammar Bexpr : expr
 ;; A-binary.watsup
 grammar Bsection_(N : N, syntax en, grammar BX : en*) : en*
   ;; A-binary.watsup
-  prod{len : nat, en* : en*} {`%`_byte(N):Bbyte `%`_u32(len):Bu32 en*{en : en}:BX} => en*{en : en}
+  prod{len : nat, en* : en*}(N, syntax en, grammar BX) {`%`_byte(N):Bbyte `%`_u32(len):Bu32 en*{en : en}:BX} => en*{en : en}
     -- if (len = 0)
   ;; A-binary.watsup
-  prod eps => []
+  prod(N, syntax en, grammar BX) eps => []
 
 ;; A-binary.watsup
 grammar Bcustom : ()*
@@ -8011,7 +8011,7 @@ def $var(syntax X) : nat
 ;; C-conventions.watsup
 grammar Bvar(syntax X) : ()
   ;; C-conventions.watsup
-  prod 0x00 => ()
+  prod(syntax X) 0x00 => ()
 
 ;; C-conventions.watsup
 grammar Bsym : A
@@ -14430,10 +14430,10 @@ rec {
 ;; A-binary.watsup:20.1-22.82
 grammar BuN(N : N) : uN(N)
   ;; A-binary.watsup:21.5-21.83
-  prod{n : n} `%`_byte(n):Bbyte => `%`_uN(n)
+  prod{n : n}(N) `%`_byte(n):Bbyte => `%`_uN(n)
     -- if ((n < (2 ^ 7)) /\ (n < (2 ^ N)))
   ;; A-binary.watsup:22.5-22.82
-  prod{n : n, m : m} {`%`_byte(n):Bbyte `%`_uN(m):BuN((N - 7))} => `%`_uN((((2 ^ 7) * m) + (n - (2 ^ 7))))
+  prod{n : n, m : m}(N) {`%`_byte(n):Bbyte `%`_uN(m):BuN((N - 7))} => `%`_uN((((2 ^ 7) * m) + (n - (2 ^ 7))))
     -- if ((n >= (2 ^ 7)) /\ (N > 7))
 }
 
@@ -14445,29 +14445,29 @@ grammar Bu32 : u32
 ;; A-binary.watsup
 grammar Blist(syntax el, grammar BX : el) : el*
   ;; A-binary.watsup
-  prod{n : n, el^n : el^n} {`%`_u32(n):Bu32 el:BX^n{el : el}} => el^n{el : el}
+  prod{n : n, el^n : el^n}(syntax el, grammar BX) {`%`_u32(n):Bu32 el:BX^n{el : el}} => el^n{el : el}
 
 ;; A-binary.watsup
 grammar BsN(N : N) : sN(N)
   ;; A-binary.watsup
-  prod{n : n} `%`_byte(n):Bbyte => `%`_sN((n : n <: int))
+  prod{n : n}(N) `%`_byte(n):Bbyte => `%`_sN((n : n <: int))
     -- if ((n < (2 ^ 6)) /\ (n < (2 ^ (N - 1))))
   ;; A-binary.watsup
-  prod{n : n} `%`_byte(n):Bbyte => `%`_sN(((n - (2 ^ 7)) : nat <: int))
+  prod{n : n}(N) `%`_byte(n):Bbyte => `%`_sN(((n - (2 ^ 7)) : nat <: int))
     -- if ((((2 ^ 6) <= n) /\ (n < (2 ^ 7))) /\ (n >= ((2 ^ 7) - (2 ^ (N - 1)))))
   ;; A-binary.watsup
-  prod{n : n, i : nat} {`%`_byte(n):Bbyte `%`_uN(i):BuN((N - 7))} => `%`_sN(((((2 ^ 7) * i) + (n - (2 ^ 7))) : nat <: int))
+  prod{n : n, i : nat}(N) {`%`_byte(n):Bbyte `%`_uN(i):BuN((N - 7))} => `%`_sN(((((2 ^ 7) * i) + (n - (2 ^ 7))) : nat <: int))
     -- if ((n >= (2 ^ 7)) /\ (N > 7))
 
 ;; A-binary.watsup
 grammar BiN(N : N) : iN(N)
   ;; A-binary.watsup
-  prod{i : nat} `%`_sN((i : nat <: int)):BsN(N) => `%`_iN($invsigned_(N, (i : nat <: int)))
+  prod{i : nat}(N) `%`_sN((i : nat <: int)):BsN(N) => `%`_iN($invsigned_(N, (i : nat <: int)))
 
 ;; A-binary.watsup
 grammar BfN(N : N) : fN(N)
   ;; A-binary.watsup
-  prod{b* : byte*} b*{b : byte}:Bbyte^(N / 8){} => $invfbytes_(N, b*{b : byte})
+  prod{b* : byte*}(N) b*{b : byte}:Bbyte^(N / 8){} => $invfbytes_(N, b*{b : byte})
 
 ;; A-binary.watsup
 grammar Bu64 : u64
@@ -15707,10 +15707,10 @@ grammar Bexpr : expr
 ;; A-binary.watsup
 grammar Bsection_(N : N, syntax en, grammar BX : en*) : en*
   ;; A-binary.watsup
-  prod{len : nat, en* : en*} {`%`_byte(N):Bbyte `%`_u32(len):Bu32 en*{en : en}:BX} => en*{en : en}
+  prod{len : nat, en* : en*}(N, syntax en, grammar BX) {`%`_byte(N):Bbyte `%`_u32(len):Bu32 en*{en : en}:BX} => en*{en : en}
     -- if (len = 0)
   ;; A-binary.watsup
-  prod eps => []
+  prod(N, syntax en, grammar BX) eps => []
 
 ;; A-binary.watsup
 grammar Bcustom : ()*
@@ -16034,7 +16034,7 @@ def $var(syntax X) : nat
 ;; C-conventions.watsup
 grammar Bvar(syntax X) : ()
   ;; C-conventions.watsup
-  prod 0x00 => ()
+  prod(syntax X) 0x00 => ()
 
 ;; C-conventions.watsup
 grammar Bsym : A
@@ -22453,10 +22453,10 @@ rec {
 ;; A-binary.watsup:20.1-22.82
 grammar BuN(N : N) : uN(N)
   ;; A-binary.watsup:21.5-21.83
-  prod{n : n} `%`_byte(n):Bbyte => `%`_uN(n)
+  prod{n : n}(N) `%`_byte(n):Bbyte => `%`_uN(n)
     -- if ((n < (2 ^ 7)) /\ (n < (2 ^ N)))
   ;; A-binary.watsup:22.5-22.82
-  prod{n : n, m : m} {`%`_byte(n):Bbyte `%`_uN(m):BuN((N - 7))} => `%`_uN((((2 ^ 7) * m) + (n - (2 ^ 7))))
+  prod{n : n, m : m}(N) {`%`_byte(n):Bbyte `%`_uN(m):BuN((N - 7))} => `%`_uN((((2 ^ 7) * m) + (n - (2 ^ 7))))
     -- if ((n >= (2 ^ 7)) /\ (N > 7))
 }
 
@@ -22468,29 +22468,29 @@ grammar Bu32 : u32
 ;; A-binary.watsup
 grammar Blist(syntax el, grammar BX : el) : el*
   ;; A-binary.watsup
-  prod{n : n, el^n : el^n} {`%`_u32(n):Bu32 el:BX^n{el : el}} => el^n{el : el}
+  prod{n : n, el^n : el^n}(syntax el, grammar BX) {`%`_u32(n):Bu32 el:BX^n{el : el}} => el^n{el : el}
 
 ;; A-binary.watsup
 grammar BsN(N : N) : sN(N)
   ;; A-binary.watsup
-  prod{n : n} `%`_byte(n):Bbyte => `%`_sN((n : n <: int))
+  prod{n : n}(N) `%`_byte(n):Bbyte => `%`_sN((n : n <: int))
     -- if ((n < (2 ^ 6)) /\ (n < (2 ^ (N - 1))))
   ;; A-binary.watsup
-  prod{n : n} `%`_byte(n):Bbyte => `%`_sN(((n - (2 ^ 7)) : nat <: int))
+  prod{n : n}(N) `%`_byte(n):Bbyte => `%`_sN(((n - (2 ^ 7)) : nat <: int))
     -- if ((((2 ^ 6) <= n) /\ (n < (2 ^ 7))) /\ (n >= ((2 ^ 7) - (2 ^ (N - 1)))))
   ;; A-binary.watsup
-  prod{n : n, i : nat} {`%`_byte(n):Bbyte `%`_uN(i):BuN((N - 7))} => `%`_sN(((((2 ^ 7) * i) + (n - (2 ^ 7))) : nat <: int))
+  prod{n : n, i : nat}(N) {`%`_byte(n):Bbyte `%`_uN(i):BuN((N - 7))} => `%`_sN(((((2 ^ 7) * i) + (n - (2 ^ 7))) : nat <: int))
     -- if ((n >= (2 ^ 7)) /\ (N > 7))
 
 ;; A-binary.watsup
 grammar BiN(N : N) : iN(N)
   ;; A-binary.watsup
-  prod{i : nat} `%`_sN((i : nat <: int)):BsN(N) => `%`_iN($invsigned_(N, (i : nat <: int)))
+  prod{i : nat}(N) `%`_sN((i : nat <: int)):BsN(N) => `%`_iN($invsigned_(N, (i : nat <: int)))
 
 ;; A-binary.watsup
 grammar BfN(N : N) : fN(N)
   ;; A-binary.watsup
-  prod{b* : byte*} b*{b : byte}:Bbyte^(N / 8){} => $invfbytes_(N, b*{b : byte})
+  prod{b* : byte*}(N) b*{b : byte}:Bbyte^(N / 8){} => $invfbytes_(N, b*{b : byte})
 
 ;; A-binary.watsup
 grammar Bu64 : u64
@@ -23730,10 +23730,10 @@ grammar Bexpr : expr
 ;; A-binary.watsup
 grammar Bsection_(N : N, syntax en, grammar BX : en*) : en*
   ;; A-binary.watsup
-  prod{len : nat, en* : en*} {`%`_byte(N):Bbyte `%`_u32(len):Bu32 en*{en : en}:BX} => en*{en : en}
+  prod{len : nat, en* : en*}(N, syntax en, grammar BX) {`%`_byte(N):Bbyte `%`_u32(len):Bu32 en*{en : en}:BX} => en*{en : en}
     -- if (len = 0)
   ;; A-binary.watsup
-  prod eps => []
+  prod(N, syntax en, grammar BX) eps => []
 
 ;; A-binary.watsup
 grammar Bcustom : ()*
@@ -24057,7 +24057,7 @@ def $var(syntax X) : nat
 ;; C-conventions.watsup
 grammar Bvar(syntax X) : ()
   ;; C-conventions.watsup
-  prod 0x00 => ()
+  prod(syntax X) 0x00 => ()
 
 ;; C-conventions.watsup
 grammar Bsym : A
@@ -30653,10 +30653,10 @@ rec {
 ;; A-binary.watsup:20.1-22.82
 grammar BuN(N : N) : uN(N)
   ;; A-binary.watsup:21.5-21.83
-  prod{n : n} `%`_byte(n):Bbyte => `%`_uN(n)
+  prod{n : n}(N) `%`_byte(n):Bbyte => `%`_uN(n)
     -- if ((n < (2 ^ 7)) /\ (n < (2 ^ N)))
   ;; A-binary.watsup:22.5-22.82
-  prod{n : n, m : m} {`%`_byte(n):Bbyte `%`_uN(m):BuN((N - 7))} => `%`_uN((((2 ^ 7) * m) + (n - (2 ^ 7))))
+  prod{n : n, m : m}(N) {`%`_byte(n):Bbyte `%`_uN(m):BuN((N - 7))} => `%`_uN((((2 ^ 7) * m) + (n - (2 ^ 7))))
     -- if ((n >= (2 ^ 7)) /\ (N > 7))
 }
 
@@ -30668,29 +30668,29 @@ grammar Bu32 : u32
 ;; A-binary.watsup
 grammar Blist(syntax el, grammar BX : el) : el*
   ;; A-binary.watsup
-  prod{n : n, el^n : el^n} {`%`_u32(n):Bu32 el:BX^n{el : el}} => el^n{el : el}
+  prod{n : n, el^n : el^n}(syntax el, grammar BX) {`%`_u32(n):Bu32 el:BX^n{el : el}} => el^n{el : el}
 
 ;; A-binary.watsup
 grammar BsN(N : N) : sN(N)
   ;; A-binary.watsup
-  prod{n : n} `%`_byte(n):Bbyte => `%`_sN((n : n <: int))
+  prod{n : n}(N) `%`_byte(n):Bbyte => `%`_sN((n : n <: int))
     -- if ((n < (2 ^ 6)) /\ (n < (2 ^ (N - 1))))
   ;; A-binary.watsup
-  prod{n : n} `%`_byte(n):Bbyte => `%`_sN(((n - (2 ^ 7)) : nat <: int))
+  prod{n : n}(N) `%`_byte(n):Bbyte => `%`_sN(((n - (2 ^ 7)) : nat <: int))
     -- if ((((2 ^ 6) <= n) /\ (n < (2 ^ 7))) /\ (n >= ((2 ^ 7) - (2 ^ (N - 1)))))
   ;; A-binary.watsup
-  prod{n : n, i : nat} {`%`_byte(n):Bbyte `%`_uN(i):BuN((N - 7))} => `%`_sN(((((2 ^ 7) * i) + (n - (2 ^ 7))) : nat <: int))
+  prod{n : n, i : nat}(N) {`%`_byte(n):Bbyte `%`_uN(i):BuN((N - 7))} => `%`_sN(((((2 ^ 7) * i) + (n - (2 ^ 7))) : nat <: int))
     -- if ((n >= (2 ^ 7)) /\ (N > 7))
 
 ;; A-binary.watsup
 grammar BiN(N : N) : iN(N)
   ;; A-binary.watsup
-  prod{i : nat} `%`_sN((i : nat <: int)):BsN(N) => `%`_iN($invsigned_(N, (i : nat <: int)))
+  prod{i : nat}(N) `%`_sN((i : nat <: int)):BsN(N) => `%`_iN($invsigned_(N, (i : nat <: int)))
 
 ;; A-binary.watsup
 grammar BfN(N : N) : fN(N)
   ;; A-binary.watsup
-  prod{b* : byte*} b*{b : byte}:Bbyte^(N / 8){} => $invfbytes_(N, b*{b : byte})
+  prod{b* : byte*}(N) b*{b : byte}:Bbyte^(N / 8){} => $invfbytes_(N, b*{b : byte})
 
 ;; A-binary.watsup
 grammar Bu64 : u64
@@ -31930,10 +31930,10 @@ grammar Bexpr : expr
 ;; A-binary.watsup
 grammar Bsection_(N : N, syntax en, grammar BX : en*) : en*
   ;; A-binary.watsup
-  prod{len : nat, en* : en*} {`%`_byte(N):Bbyte `%`_u32(len):Bu32 en*{en : en}:BX} => en*{en : en}
+  prod{len : nat, en* : en*}(N, syntax en, grammar BX) {`%`_byte(N):Bbyte `%`_u32(len):Bu32 en*{en : en}:BX} => en*{en : en}
     -- if (len = 0)
   ;; A-binary.watsup
-  prod eps => []
+  prod(N, syntax en, grammar BX) eps => []
 
 ;; A-binary.watsup
 grammar Bcustom : ()*
@@ -32258,7 +32258,7 @@ def $var(syntax X) : nat
 ;; C-conventions.watsup
 grammar Bvar(syntax X) : ()
   ;; C-conventions.watsup
-  prod 0x00 => ()
+  prod(syntax X) 0x00 => ()
 
 ;; C-conventions.watsup
 grammar Bsym : A
