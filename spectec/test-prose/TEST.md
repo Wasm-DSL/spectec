@@ -24299,7 +24299,7 @@ Step_read/try_table bt catch* instr*
 7. Let L be the label_n{[]}.
 8. Enter val^m :: instr* with label L.
 
-Step_read/ref.null $idx(x)
+Step_read/ref.null (_IDX x)
 1. Let z be the current state.
 2. Push the value (REF.NULL $type(z, x)) to the stack.
 

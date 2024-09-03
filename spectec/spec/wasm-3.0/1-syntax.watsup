@@ -151,7 +151,7 @@ syntax deftype hint(desc "defined type") =
   | DEF rectype n hint(show %.%)
 
 syntax typeuse/syn hint(desc "type use") =
-  | _IDX typeidx | ...
+  | _IDX typeidx hint(show %) | ...
 syntax typeuse/sem =
   | ... | deftype | REC n
 
