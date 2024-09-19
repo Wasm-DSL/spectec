@@ -246,7 +246,7 @@ syntax tabletype hint(desc "table type") =
   limits reftype
 syntax memtype hint(desc "memory type") =
   limits PAGE
-syntax tagtype hint(desc "memory type") =
+syntax tagtype hint(desc "tag type") =
   deftype
 syntax elemtype hint(desc "element type") =
   reftype
@@ -501,7 +501,7 @@ syntax instr/parametric hint(desc "parametric instruction") =
   | NOP
   | UNREACHABLE
   | DROP
-  | SELECT (valtype*)?
+  | SELECT valtype*?
   | ...
 
 syntax instr/block hint(desc "block instruction") = ...
@@ -688,8 +688,8 @@ var e : expr
 ;; Modules
 ;;
 
-syntax elemmode hint(macro "%" "E%") = ACTIVE tableidx expr | PASSIVE | DECLARE
-syntax datamode hint(macro "%" "D%") = ACTIVE memidx expr | PASSIVE
+syntax elemmode hint(desc "elem mode") hint(macro "%" "E%") = ACTIVE tableidx expr | PASSIVE | DECLARE
+syntax datamode hint(desc "data mode") hint(macro "%" "D%") = ACTIVE memidx expr | PASSIVE
 
 syntax type hint(desc "type definition") =
   TYPE rectype

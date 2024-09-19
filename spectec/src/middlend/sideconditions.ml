@@ -59,12 +59,12 @@ let rec t_exp env e : prem list =
   (* First the conditions to be generated here *)
   begin match e.it with
   | IdxE (exp1, exp2) ->
-    [IfPr (CmpE (LtOp NatT, exp2, LenE exp1 $$ e.at % exp2.note) $$ e.at % (BoolT $ e.at)) $ e.at]
+    [IfPr (CmpE (LtOp NatT, exp2, lenE exp1) $$ e.at % (BoolT $ e.at)) $ e.at]
   | TheE exp ->
     [IfPr (CmpE (NeOp, exp, OptE None $$ e.at % exp.note) $$ e.at % (BoolT $ e.at)) $ e.at]
-  | IterE (_exp, iterexp) -> iter_side_conditions env iterexp
+  | IterE ({it = CmpE (EqOp, _, _); _}, iterexp) -> iter_side_conditions env iterexp
   | MemE (_exp, exp) ->
-    [IfPr (CmpE (GtOp NatT, LenE exp $$ exp.at % (NumT NatT $ exp.at), NatE Z.zero $$ no_region % (NumT NatT $ no_region)) $$ e.at % (BoolT $ e.at)) $ e.at]
+    [IfPr (CmpE (GtOp NatT, lenE exp, NatE Z.zero $$ no_region % (NumT NatT $ no_region)) $$ e.at % (BoolT $ e.at)) $ e.at]
   | _ -> []
   end @
   (* And now descend *)
@@ -124,7 +124,8 @@ and t_arg env arg = match arg.it with
   | GramA _ -> []
 
 
-let rec t_prem env prem = match prem.it with
+let rec t_prem env prem =
+  (match prem.it with
   | RulePr (_, _, exp) -> t_exp env exp
   | IfPr e -> t_exp env e
   | LetPr (e1, e2, _) -> t_exp env e1 @ t_exp env e2
@@ -134,12 +135,17 @@ let rec t_prem env prem = match prem.it with
      t_iterexp env iterexp @
      let env' = env_under_iter env iterexp in
      List.map (fun pr -> iterPr (pr, iterexp) $ prem.at) (t_prem env' prem)
+  ) @ [prem]
 
 let t_prems env = List.concat_map (t_prem env)
 
-let is_identity e = match e.it with
-  | CmpE (EqOp, e1, e2) -> Il.Eq.eq_exp e1 e2
-  | _ -> false
+let is_identity e =
+  try
+    let e' = (Il.Eval.reduce_exp Il.Env.empty e) in
+    match e'.it with
+    | BoolE b -> b
+    | _ -> false
+  with _ -> false
 
 (* Is prem always true? *)
 let is_true prem = match prem.it with
@@ -163,9 +169,10 @@ let t_rule' = function
       | ExpB (v, t) -> Env.add v.it t env
       | TypB _ | DefB _ | GramB _ -> error bind.at "unexpected type argument in rule") Env.empty binds
     in
-    let extra_prems = t_prems env prems @ t_exp env exp in
-    let prems' = reduce_prems (extra_prems @ prems) in
-    RuleD (id, binds, mixop, exp, prems')
+    let prems' = t_prems env prems in
+    let extra_prems = t_exp env exp in
+    let reduced_prems = reduce_prems (extra_prems @ prems') in
+    RuleD (id, binds, mixop, exp, reduced_prems)
 
 let t_rule x = { x with it = t_rule' x.it }
 
