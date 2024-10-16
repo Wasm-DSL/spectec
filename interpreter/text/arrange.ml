@@ -11,11 +11,14 @@ open Sexpr
 
 let nat n = I32.to_string_u (I32.of_int_u n)
 let nat32 = I32.to_string_u
+let nat64 = I64.to_string_u
 
 let add_hex_char buf c = Printf.bprintf buf "\\%02x" (Char.code c)
 let add_char buf = function
   | '\n' -> Buffer.add_string buf "\\n"
+  | '\r' -> Buffer.add_string buf "\\r"
   | '\t' -> Buffer.add_string buf "\\t"
+  | '\'' -> Buffer.add_string buf "\\'"
   | '\"' -> Buffer.add_string buf "\\\""
   | '\\' -> Buffer.add_string buf "\\\\"
   | c when '\x20' <= c && c < '\x7f' -> Buffer.add_char buf c
@@ -41,6 +44,7 @@ let list_of_opt = function None -> [] | Some x -> [x]
 let list f xs = List.map f xs
 let listi f xs = List.mapi f xs
 let opt f xo = list f (list_of_opt xo)
+let opt_s f xo = Lib.Option.get (Lib.Option.map f xo) ""
 
 let tab head f xs = if xs = [] then [] else [Node (head, list f xs)]
 let atom f x = Atom (f x)
@@ -56,27 +60,65 @@ let break_string s =
 
 (* Types *)
 
+let mutability node = function
+  | Cons -> node
+  | Var -> Node ("mut", [node])
+
 let num_type t = string_of_num_type t
 let vec_type t = string_of_vec_type t
-let ref_type t = string_of_ref_type t
+let ref_type t =
+  match t with
+  | (Null, AnyHT) -> "anyref"
+  | (Null, EqHT) -> "eqref"
+  | (Null, I31HT) -> "i31ref"
+  | (Null, StructHT) -> "structref"
+  | (Null, ArrayHT) -> "arrayref"
+  | (Null, FuncHT) -> "funcref"
+  | (Null, ExnHT) -> "exnref"
+  | t -> string_of_ref_type t
+
 let heap_type t = string_of_heap_type t
 let val_type t = string_of_val_type t
+let storage_type t = string_of_storage_type t
+
+let final = function
+  | NoFinal -> ""
+  | Final -> " final"
 
 let decls kind ts = tab kind (atom val_type) ts
+
+let field_type (FieldT (mut, t)) =
+  mutability (atom storage_type t) mut
+
+let struct_type (StructT fts) =
+  Node ("struct", list (fun ft -> Node ("field", [field_type ft])) fts)
+
+let array_type (ArrayT ft) =
+  Node ("array", [field_type ft])
 
 let func_type (FuncT (ts1, ts2)) =
   Node ("func", decls "param" ts1 @ decls "result" ts2)
 
-let def_type dt =
-  match dt with
+let str_type st =
+  match st with
+  | DefStructT st -> struct_type st
+  | DefArrayT at -> array_type at
   | DefFuncT ft -> func_type ft
+
+let sub_type = function
+  | SubT (Final, [], st) -> str_type st
+  | SubT (fin, xs, st) ->
+    Node (String.concat " "
+      (("sub" ^ final fin ):: List.map heap_type xs), [str_type st])
+
+let rec_type i j st =
+  Node ("type $" ^ nat (i + j), [sub_type st])
 
 let limits nat {min; max} =
   String.concat " " (nat min :: opt nat max)
 
-let global_type = function
-  | GlobalT (Cons, t) -> atom string_of_val_type t
-  | GlobalT (Var, t) -> Node ("mut", [atom string_of_val_type t])
+let global_type (GlobalT (mut, t)) =
+  mutability (atom string_of_val_type t) mut
 
 let pack_size = function
   | Pack8 -> "8"
@@ -216,6 +258,10 @@ struct
     | "32x4" -> "64x2"
     | _ -> assert false
 
+  let without_high_bit = function
+    | "8x16" -> "7x16"
+    | _ -> assert false
+
   let voidop xxxx = function (_ : void) -> .
 
   let itestop xxxx (op : itestop) = match op with
@@ -258,6 +304,13 @@ struct
     | NarrowU -> "narrow_i" ^ double xxxx ^ "_u"
     | Shuffle is -> "shuffle " ^ String.concat " " (List.map nat is)
     | Swizzle -> "swizzle"
+    | RelaxedSwizzle -> "relaxed_swizzle"
+    | RelaxedQ15MulRS -> "relaxed_q15mulr_s"
+    | RelaxedDot -> "relaxed_dot_i" ^ half xxxx ^ "_i" ^ without_high_bit (half xxxx) ^ "_s"
+
+  let iternop xxxx (op : iternop) = match op with
+    | RelaxedLaneselect -> "relaxed_laneselect"
+    | RelaxedDotAdd -> "relaxed_dot_i" ^ half (half xxxx) ^ "_i" ^ without_high_bit (half (half xxxx)) ^ "_add_s"
 
   let fbinop xxxx (op : fbinop) = match op with
     | Add -> "add"
@@ -268,6 +321,12 @@ struct
     | Max -> "max"
     | Pmin -> "pmin"
     | Pmax -> "pmax"
+    | RelaxedMin -> "relaxed_min"
+    | RelaxedMax -> "relaxed_max"
+
+  let fternop xxxx (op : fternop) = match op with
+    | RelaxedMadd -> "relaxed_madd"
+    | RelaxedNmadd-> "relaxed_nmadd"
 
   let irelop xxxx (op : irelop) = match op with
     | Eq -> "eq"
@@ -300,6 +359,10 @@ struct
     | TruncSatUF32x4 -> "trunc_sat_f32x4_u"
     | TruncSatSZeroF64x2 -> "trunc_sat_f64x2_s_zero"
     | TruncSatUZeroF64x2 -> "trunc_sat_f64x2_u_zero"
+    | RelaxedTruncSF32x4 -> "relaxed_trunc_f32x4_s"
+    | RelaxedTruncUF32x4 -> "relaxed_trunc_f32x4_u"
+    | RelaxedTruncSZeroF64x2 -> "relaxed_trunc_f64x2_s_zero"
+    | RelaxedTruncUZeroF64x2 -> "relaxed_trunc_f64x2_u_zero"
 
   let fcvtop xxxx (op : fcvtop) = match op with
     | DemoteZeroF64x2  -> "demote_f64x2_zero"
@@ -379,6 +442,7 @@ let cvtop = oper (IntOp.cvtop, FloatOp.cvtop)
 
 let vec_unop = vec_shape_oper (V128Op.iunop, V128Op.iunop, V128Op.funop)
 let vec_binop = vec_shape_oper (V128Op.ibinop, V128Op.ibinop, V128Op.fbinop)
+let vec_ternop = vec_shape_oper (V128Op.iternop, V128Op.iternop, V128Op.fternop)
 let vec_testop = vec_shape_oper (V128Op.itestop, V128Op.itestop, V128Op.voidop)
 let vec_relop = vec_shape_oper (V128Op.irelop, V128Op.irelop, V128Op.frelop)
 let vec_cvtop = vec_shape_oper (V128Op.icvtop, V128Op.icvtop, V128Op.fcvtop)
@@ -392,43 +456,53 @@ let vec_splatop = vec_shape_oper (V128Op.splatop, V128Op.splatop, V128Op.splatop
 let vec_extractop = vec_shape_oper (V128Op.pextractop, V128Op.extractop, V128Op.extractop)
 let vec_replaceop = vec_shape_oper (V128Op.replaceop, V128Op.replaceop, V128Op.replaceop)
 
-let memop name typ {ty; align; offset; _} sz =
-  typ ty ^ "." ^ name ^
-  (if offset = 0l then "" else " offset=" ^ nat32 offset) ^
-  (if 1 lsl align = sz then "" else " align=" ^ nat (1 lsl align))
-
-let loadop op =
-  match op.pack with
-  | None -> memop "load" num_type op (num_size op.ty)
-  | Some (sz, ext) ->
-    memop ("load" ^ pack_size sz ^ extension ext) num_type op (packed_size sz)
-
-let storeop op =
-  match op.pack with
-  | None -> memop "store" num_type op (num_size op.ty)
-  | Some sz -> memop ("store" ^ pack_size sz) num_type op (packed_size sz)
-
-let vec_loadop (op : vec_loadop) =
-  match op.pack with
-  | None -> memop "load" vec_type op (vec_size op.ty)
-  | Some (sz, ext) ->
-    memop ("load" ^ vec_extension sz ext) vec_type op (packed_size sz)
-
-let vec_storeop op =
-  memop "store" vec_type op (vec_size op.ty)
-
-let vec_laneop instr (op, i) =
-  memop (instr ^ pack_size op.pack ^ "_lane") vec_type op
-    (packed_size op.pack) ^ " " ^ nat i
-
-
-(* Expressions *)
 
 let var x = nat32 x.it
 let num v = string_of_num v.it
 let vec v = string_of_vec v.it
+
+let memop name x typ {ty; align; offset; _} sz =
+  typ ty ^ "." ^ name ^ " " ^ var x ^
+  (if offset = 0l then "" else " offset=" ^ nat32 offset) ^
+  (if 1 lsl align = sz then "" else " align=" ^ nat64 (Int64.shift_left 1L align))
+
+let loadop x op =
+  match op.pack with
+  | None -> memop "load" x num_type op (num_size op.ty)
+  | Some (sz, ext) ->
+    memop ("load" ^ pack_size sz ^ extension ext) x num_type op (packed_size sz)
+
+let storeop x op =
+  match op.pack with
+  | None -> memop "store" x num_type op (num_size op.ty)
+  | Some sz -> memop ("store" ^ pack_size sz) x num_type op (packed_size sz)
+
+let vec_loadop x (op : vec_loadop) =
+  match op.pack with
+  | None -> memop "load" x vec_type op (vec_size op.ty)
+  | Some (sz, ext) ->
+    memop ("load" ^ vec_extension sz ext) x vec_type op (packed_size sz)
+
+let vec_storeop x op =
+  memop "store" x vec_type op (vec_size op.ty)
+
+let vec_laneop instr x op i =
+  memop (instr ^ pack_size op.pack ^ "_lane") x vec_type op
+    (packed_size op.pack) ^ " " ^ nat i
+
+let initop = function
+  | Explicit -> ""
+  | Implicit -> "_default"
+
 let constop v = string_of_num_type (type_of_num v) ^ ".const"
 let vec_constop v = string_of_vec_type (type_of_vec v) ^ ".const i32x4"
+
+let externop = function
+  | Internalize -> "any.convert_extern"
+  | Externalize -> "extern.convert_any"
+
+
+(* Expressions *)
 
 let block_type = function
   | VarBlockType x -> [Node ("type " ^ var x, [])]
@@ -454,6 +528,10 @@ let rec instr e =
       "br_table " ^ String.concat " " (list var (xs @ [x])), []
     | BrOnNull x -> "br_on_null " ^ var x, []
     | BrOnNonNull x -> "br_on_non_null " ^ var x, []
+    | BrOnCast (x, t1, t2) ->
+      "br_on_cast " ^ var x, [Atom (ref_type t1); Atom (ref_type t2)]
+    | BrOnCastFail (x, t1, t2) ->
+      "br_on_cast_fail " ^ var x, [Atom (ref_type t1); Atom (ref_type t2)]
     | Return -> "return", []
     | Call x -> "call " ^ var x, []
     | CallRef x -> "call_ref " ^ var x, []
@@ -463,6 +541,10 @@ let rec instr e =
     | ReturnCallRef x -> "return_call_ref " ^ var x, []
     | ReturnCallIndirect (x, y) ->
       "return_call_indirect " ^ var x, [Node ("type " ^ var y, [])]
+    | Throw x -> "throw " ^ var x, []
+    | ThrowRef -> "throw_ref", []
+    | TryTable (bt, cs, es) ->
+      "try_table", block_type bt @ list catch cs @ list instr es
     | LocalGet x -> "local.get " ^ var x, []
     | LocalSet x -> "local.set " ^ var x, []
     | LocalTee x -> "local.tee " ^ var x, []
@@ -476,22 +558,43 @@ let rec instr e =
     | TableCopy (x, y) -> "table.copy " ^ var x ^ " " ^ var y, []
     | TableInit (x, y) -> "table.init " ^ var x ^ " " ^ var y, []
     | ElemDrop x -> "elem.drop " ^ var x, []
-    | Load op -> loadop op, []
-    | Store op -> storeop op, []
-    | VecLoad op -> vec_loadop op, []
-    | VecStore op -> vec_storeop op, []
-    | VecLoadLane op -> vec_laneop "load" op, []
-    | VecStoreLane op -> vec_laneop "store" op, []
-    | MemorySize -> "memory.size", []
-    | MemoryGrow -> "memory.grow", []
-    | MemoryFill -> "memory.fill", []
-    | MemoryCopy -> "memory.copy", []
-    | MemoryInit x -> "memory.init " ^ var x, []
+    | Load (x, op) -> loadop x op, []
+    | Store (x, op) -> storeop x op, []
+    | VecLoad (x, op) -> vec_loadop x op, []
+    | VecStore (x, op) -> vec_storeop x op, []
+    | VecLoadLane (x, op, i) -> vec_laneop "load" x op i, []
+    | VecStoreLane (x, op, i) -> vec_laneop "store" x op i, []
+    | MemorySize x -> "memory.size " ^ var x, []
+    | MemoryGrow x -> "memory.grow " ^ var x, []
+    | MemoryFill x -> "memory.fill " ^ var x, []
+    | MemoryCopy (x, y) -> "memory.copy " ^ var x ^ " " ^ var y, []
+    | MemoryInit (x, y) -> "memory.init " ^ var x ^ " " ^ var y, []
     | DataDrop x -> "data.drop " ^ var x, []
     | RefNull t -> "ref.null", [Atom (heap_type t)]
+    | RefFunc x -> "ref.func " ^ var x, []
     | RefIsNull -> "ref.is_null", []
     | RefAsNonNull -> "ref.as_non_null", []
-    | RefFunc x -> "ref.func " ^ var x, []
+    | RefTest t -> "ref.test", [Atom (ref_type t)]
+    | RefCast t -> "ref.cast", [Atom (ref_type t)]
+    | RefEq -> "ref.eq", []
+    | RefI31 -> "ref.i31", []
+    | I31Get ext -> "i31.get" ^ extension ext, []
+    | StructNew (x, op) -> "struct.new" ^ initop op ^ " " ^ var x, []
+    | StructGet (x, y, exto) ->
+      "struct.get" ^ opt_s extension exto ^ " " ^ var x ^ " " ^ var y, []
+    | StructSet (x, y) -> "struct.set " ^ var x ^ " " ^ var y, []
+    | ArrayNew (x, op) -> "array.new" ^ initop op ^ " " ^ var x, []
+    | ArrayNewFixed (x, n) -> "array.new_fixed " ^ var x ^ " " ^ nat32 n, []
+    | ArrayNewElem (x, y) -> "array.new_elem " ^ var x ^ " " ^ var y, []
+    | ArrayNewData (x, y) -> "array.new_data " ^ var x ^ " " ^ var y, []
+    | ArrayGet (x, exto) -> "array.get" ^ opt_s extension exto ^ " " ^ var x, []
+    | ArraySet x -> "array.set " ^ var x, []
+    | ArrayLen -> "array.len", []
+    | ArrayCopy (x, y) -> "array.copy " ^ var x ^ " " ^ var y, []
+    | ArrayFill x -> "array.fill " ^ var x, []
+    | ArrayInitData (x, y) -> "array.init_data " ^ var x ^ " " ^ var y, []
+    | ArrayInitElem (x, y) -> "array.init_elem " ^ var x ^ " " ^ var y, []
+    | ExternConvert op -> externop op, []
     | Const n -> constop n.it ^ " " ^ num n, []
     | Test op -> testop op, []
     | Compare op -> relop op, []
@@ -502,6 +605,7 @@ let rec instr e =
     | VecTest op -> vec_testop op, []
     | VecUnary op -> vec_unop op, []
     | VecBinary op -> vec_binop op, []
+    | VecTernary op -> vec_ternop op, []
     | VecCompare op -> vec_relop op, []
     | VecConvert op -> vec_cvtop op, []
     | VecShift op -> vec_shiftop op, []
@@ -514,6 +618,13 @@ let rec instr e =
     | VecExtract op -> vec_extractop op, []
     | VecReplace op -> vec_replaceop op, []
   in Node (head, inner)
+
+and catch c =
+  match c.it with
+  | Catch (x1, x2) -> Node ("catch " ^ var x1 ^ " " ^ var x2, [])
+  | CatchRef (x1, x2) -> Node ("catch_ref " ^ var x1 ^ " " ^ var x2, [])
+  | CatchAll x -> Node ("catch_all " ^ var x, [])
+  | CatchAllRef x -> Node ("catch_all_ref " ^ var x, [])
 
 let const head c =
   match c.it with
@@ -538,7 +649,12 @@ let func f =
   func_with_name "" f
 
 
-(* Tables & memories *)
+(* Tags, tables, memories *)
+
+let tag off i tag =
+  Node ("tag $" ^ nat (off + i),
+    [Node ("type " ^ var (tag.it.tgtype), [])]
+  )
 
 let table off i tab =
   let {ttype = TableT (lim, t); tinit} = tab.it in
@@ -593,10 +709,14 @@ let data i seg =
 
 (* Modules *)
 
-let type_ i ty =
-  Node ("type $" ^ nat i, [def_type ty.it])
+let type_ (ns, i) ty =
+  match ty.it with
+  | RecT [st] when not Free.(Set.mem (Int32.of_int i) (type_ ty).types) ->
+    rec_type i 0 st :: ns, i + 1
+  | RecT sts ->
+    Node ("rec", List.mapi (rec_type i) sts) :: ns, i + List.length sts
 
-let import_desc fx tx mx gx d =
+let import_desc fx tx mx tgx gx d =
   match d.it with
   | FuncImport x ->
     incr fx; Node ("func $" ^ nat (!fx - 1), [Node ("type", [atom var x])])
@@ -606,11 +726,13 @@ let import_desc fx tx mx gx d =
     incr mx; memory 0 (!mx - 1) ({mtype = t} @@ d.at)
   | GlobalImport t ->
     incr gx; Node ("global $" ^ nat (!gx - 1), [global_type t])
+  | TagImport x ->
+    incr tgx; Node ("tag $" ^ nat (!tgx - 1), [Node ("type", [atom var x])])
 
-let import fx tx mx gx im =
+let import fx tx mx ex gx im =
   let {module_name; item_name; idesc} = im.it in
   Node ("import",
-    [atom name module_name; atom name item_name; import_desc fx tx mx gx idesc]
+    [atom name module_name; atom name item_name; import_desc fx tx mx ex gx idesc]
   )
 
 let export_desc d =
@@ -618,6 +740,7 @@ let export_desc d =
   | FuncExport x -> Node ("func", [atom var x])
   | TableExport x -> Node ("table", [atom var x])
   | MemoryExport x -> Node ("memory", [atom var x])
+  | TagExport x -> Node ("tag", [atom var x])
   | GlobalExport x -> Node ("global", [atom var x])
 
 let export ex =
@@ -631,39 +754,54 @@ let global off i g =
 let start s =
   Node ("start " ^ var s.it.sfunc, [])
 
+let custom m mnode (module S : Custom.Section) =
+  S.Handler.arrange m mnode S.it
 
-(* Modules *)
+
+let var x =
+  if String.for_all (fun c -> Lib.Char.is_alphanum_ascii c || c = '_') x.it then
+    "$" ^ x.it
+  else
+    "$" ^ name (Utf8.decode x.it)
 
 let var_opt = function
   | None -> ""
-  | Some x -> " " ^ x.it
+  | Some x -> " " ^ var x
 
-let module_with_var_opt x_opt m =
+let module_with_var_opt isdef x_opt (m, cs) =
   let fx = ref 0 in
   let tx = ref 0 in
   let mx = ref 0 in
+  let tgx = ref 0 in
   let gx = ref 0 in
-  let imports = list (import fx tx mx gx) m.it.imports in
-  Node ("module" ^ var_opt x_opt,
-    listi type_ m.it.types @
+  let imports = list (import fx tx mx tgx gx) m.it.imports in
+  let head = if isdef then "module definition" else "module" in
+  let ret = Node (head ^ var_opt x_opt,
+    List.rev (fst (List.fold_left type_ ([], 0) m.it.types)) @
     imports @
     listi (table !tx) m.it.tables @
     listi (memory !mx) m.it.memories @
+    listi (tag !tgx) m.it.tags @
     listi (global !gx) m.it.globals @
-    listi (func_with_index !fx) m.it.funcs @
     list export m.it.exports @
     opt start m.it.start @
     listi elem m.it.elems @
+    listi (func_with_index !fx) m.it.funcs @
     listi data m.it.datas
-  )
+  ) in
+  List.fold_left (custom m) ret cs
 
-let binary_module_with_var_opt x_opt bs =
-  Node ("module" ^ var_opt x_opt ^ " binary", break_bytes bs)
 
-let quoted_module_with_var_opt x_opt s =
-  Node ("module" ^ var_opt x_opt ^ " quote", break_string s)
+let binary_module_with_var_opt isdef x_opt bs =
+  let head = if isdef then "module definition" else "module" in
+  Node (head ^ var_opt x_opt ^ " binary", break_bytes bs)
 
-let module_ = module_with_var_opt None
+let quoted_module_with_var_opt isdef x_opt s =
+  let head = if isdef then "module definition" else "module" in
+  Node (head ^ var_opt x_opt ^ " quote", break_string s)
+
+let module_with_custom = module_with_var_opt false None
+let module_ m = module_with_custom (m, [])
 
 
 (* Scripts *)
@@ -672,8 +810,9 @@ let num mode = if mode = `Binary then hex_string_of_num else string_of_num
 let vec mode = if mode = `Binary then hex_string_of_vec else string_of_vec
 
 let ref_ = function
-  | NullRef t -> Node ("ref.null " ^ Types.string_of_heap_type t, [])
-  | Script.ExternRef n -> Node ("ref.extern " ^ nat32 n, [])
+  | NullRef t -> Node ("ref.null " ^ heap_type t, [])
+  | Script.HostRef n -> Node ("ref.host " ^ nat32 n, [])
+  | Extern.ExternRef (Script.HostRef n) -> Node ("ref.extern " ^ nat32 n, [])
   | _ -> assert false
 
 let literal mode lit =
@@ -682,30 +821,33 @@ let literal mode lit =
   | Vec v -> Node (vec_constop v ^ " " ^ vec mode v, [])
   | Ref r -> ref_ r
 
-let definition mode x_opt def =
+let definition mode isdef x_opt def =
   try
     match mode with
     | `Textual ->
       let rec unquote def =
         match def.it with
-        | Textual m -> m
-        | Encoded (_, bs) -> Decode.decode "" bs
-        | Quoted (_, s) -> unquote (Parse.string_to_module s)
-      in module_with_var_opt x_opt (unquote def)
+        | Textual (m, cs) -> m, cs
+        | Encoded (name, bs) -> Decode.decode_with_custom name bs.it
+        | Quoted (_, s) ->
+          unquote (snd (Parse.Module.parse_string ~offset:s.at s.it))
+      in module_with_var_opt isdef x_opt (unquote def)
     | `Binary ->
       let rec unquote def =
         match def.it with
-        | Textual m -> Encode.encode m
-        | Encoded (_, bs) -> Encode.encode (Decode.decode "" bs)
-        | Quoted (_, s) -> unquote (Parse.string_to_module s)
-      in binary_module_with_var_opt x_opt (unquote def)
+        | Textual (m, cs) -> Encode.encode_with_custom (m, cs)
+        | Encoded (name, bs) ->
+          Encode.encode_with_custom (Decode.decode_with_custom name bs.it)
+        | Quoted (_, s) ->
+          unquote (snd (Parse.Module.parse_string ~offset:s.at s.it))
+      in binary_module_with_var_opt isdef x_opt (unquote def)
     | `Original ->
       match def.it with
-      | Textual m -> module_with_var_opt x_opt m
-      | Encoded (_, bs) -> binary_module_with_var_opt x_opt bs
-      | Quoted (_, s) -> quoted_module_with_var_opt x_opt s
+      | Textual (m, cs) -> module_with_var_opt isdef x_opt (m, cs)
+      | Encoded (_, bs) -> binary_module_with_var_opt isdef x_opt bs.it
+      | Quoted (_, s) -> quoted_module_with_var_opt isdef x_opt s.it
   with Parse.Syntax _ ->
-    quoted_module_with_var_opt x_opt "<invalid module>"
+    quoted_module_with_var_opt isdef x_opt "<invalid module>"
 
 let access x_opt n =
   String.concat " " [var_opt x_opt; name n]
@@ -750,11 +892,15 @@ let ref_pat = function
   | RefTypePat t -> Node ("ref." ^ heap_type t, [])
   | NullPat -> Node ("ref.null", [])
 
-let result mode res =
+let rec result mode res =
   match res.it with
   | NumResult np -> num_pat mode np
   | VecResult vp -> vec_pat mode vp
   | RefResult rp -> ref_pat rp
+  | EitherResult ress -> Node ("either", List.map (result mode) ress)
+
+let instance (x1_opt, x2_opt) =
+  Node ("module instance" ^ var_opt x1_opt ^ var_opt x2_opt, [])
 
 let assertion mode ass =
   match ass.it with
@@ -762,27 +908,38 @@ let assertion mode ass =
     (match mode, def.it with
     | `Binary, Quoted _ -> []
     | _ ->
-      [Node ("assert_malformed", [definition `Original None def; Atom (string re)])]
+      [Node ("assert_malformed", [definition `Original false None def; Atom (string re)])]
+    )
+  | AssertMalformedCustom (def, re) ->
+    (match mode, def.it with
+    | `Binary, Quoted _ -> []
+    | _ ->
+      [Node ("assert_malformed_custom", [definition `Original false None def; Atom (string re)])]
     )
   | AssertInvalid (def, re) ->
-    [Node ("assert_invalid", [definition mode None def; Atom (string re)])]
-  | AssertUnlinkable (def, re) ->
-    [Node ("assert_unlinkable", [definition mode None def; Atom (string re)])]
-  | AssertUninstantiable (def, re) ->
-    [Node ("assert_trap", [definition mode None def; Atom (string re)])]
+    [Node ("assert_invalid", [definition mode false None def; Atom (string re)])]
+  | AssertInvalidCustom (def, re) ->
+    [Node ("assert_invalid_custom", [definition mode false None def; Atom (string re)])]
+  | AssertUnlinkable (x_opt, re) ->
+    [Node ("assert_unlinkable", [instance (None, x_opt); Atom (string re)])]
+  | AssertUninstantiable (x_opt, re) ->
+    [Node ("assert_trap", [instance (None, x_opt); Atom (string re)])]
   | AssertReturn (act, results) ->
     [Node ("assert_return", action mode act :: List.map (result mode) results)]
   | AssertTrap (act, re) ->
     [Node ("assert_trap", [action mode act; Atom (string re)])]
+  | AssertException act ->
+    [Node ("assert_exception", [action mode act])]
   | AssertExhaustion (act, re) ->
     [Node ("assert_exhaustion", [action mode act; Atom (string re)])]
 
 let command mode cmd =
   match cmd.it with
-  | Module (x_opt, def) -> [definition mode x_opt def]
+  | Module (x_opt, def) -> [definition mode true x_opt def]
+  | Instance (x1_opt, x2_opt) -> [instance (x1_opt, x2_opt)]
   | Register (n, x_opt) -> [Node ("register " ^ name n ^ var_opt x_opt, [])]
   | Action act -> [action mode act]
   | Assertion ass -> assertion mode ass
   | Meta _ -> assert false
 
-let script mode scr = Lib.List.concat_map (command mode) scr
+let script mode scr = List.concat_map (command mode) scr

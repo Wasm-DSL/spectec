@@ -8,22 +8,22 @@ open Source
 open Il.Ast
 include Il.Free
 
-let empty =
-  {synid = Set.empty; relid = Set.empty; varid = Set.empty; defid = Set.empty}
 let free_varid id = {empty with varid = Set.singleton id.it}
+let free_defid id = {empty with defid = Set.singleton id.it}
 
 let rec free_exp ignore_listN e =
   let f = free_exp ignore_listN in
   let fp = free_path ignore_listN in
   let fef = free_expfield ignore_listN in
   let fi = free_iterexp ignore_listN in
+  let fa = free_arg ignore_listN in
   match e.it with
   | VarE id -> free_varid id
   | BoolE _ | NatE _ | TextE _ -> empty
-  | UnE (_, e1) | LenE e1 | TheE e1 | MixE (_, e1) | SubE (e1, _, _)
-  | CallE (_, e1) | DotE (e1, _) | CaseE (_, e1) ->
+  | UnE (_, e1) | LenE e1 | TheE e1 | SubE (e1, _, _)
+  | DotE (e1, _) | CaseE (_, e1) | ProjE (e1, _) | UncaseE (e1, _) ->
     f e1
-  | BinE (_, e1, e2) | CmpE (_, e1, e2) | IdxE (e1, e2) | CompE (e1, e2) | CatE (e1, e2) ->
+  | BinE (_, e1, e2) | CmpE (_, e1, e2) | IdxE (e1, e2) | CompE (e1, e2) | MemE (e1, e2) | CatE (e1, e2) ->
     free_list f [e1; e2]
   | SliceE (e1, e2, e3) -> free_list f [e1; e2; e3]
   | OptE eo -> free_opt f eo
@@ -31,12 +31,21 @@ let rec free_exp ignore_listN e =
   | UpdE (e1, p, e2) | ExtE (e1, p, e2) ->
     union (free_list f [e1; e2]) (fp p)
   | StrE efs -> free_list fef efs
+  | CallE (_, args) -> free_list fa args
   | IterE (e1, iter) ->
     let free1 = f e1 in
     let bound, free2 = fi iter in
-    diff (union free1 free2) bound
+    union (diff free1 bound) free2
 
 and free_expfield ignore_listN (_, e) = free_exp ignore_listN e
+
+and free_arg ignore_listN arg =
+  let f = free_exp ignore_listN in
+  match arg.it with
+  | ExpA e -> f e
+  | TypA _ -> empty
+  | DefA id -> free_defid id
+  | GramA _ -> empty
 
 and free_path ignore_listN p =
   let f = free_exp ignore_listN in
@@ -48,12 +57,19 @@ and free_path ignore_listN p =
     union (fp p1) (union (f e1) (f e2))
   | DotP (p1, _) -> fp p1
 
-and free_iterexp ignore_listN (iter, _) =
+and free_iterexp ignore_listN (iter, xes) =
   let f = free_exp ignore_listN in
+  let bound = free_list free_varid (List.map fst xes) in
+  let free = free_list f (List.map snd xes) in
   match iter with
-  | ListN (e, None) -> empty, if ignore_listN then empty else f e
-  | ListN (e, Some id) -> free_varid id, if ignore_listN then empty else f e
-  | _ -> empty, empty
+  | ListN (e, None) ->
+    bound, if ignore_listN then free else union free (f e)
+  | ListN (e, Some id) ->
+    (* Do not regard i* as free *)
+    let snd' = (fun (x, e) -> if Il.Eq.eq_id id x then None else Some e) in
+    let free = free_list f (List.filter_map snd' xes) in
+    union bound (free_varid id), if ignore_listN then empty else union free (f e)
+  | _ -> bound, free
 
 let rec free_prem ignore_listN prem =
   let f = free_exp ignore_listN in

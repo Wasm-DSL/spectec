@@ -15,12 +15,11 @@ open Il.Ast
 
 (* Errors *)
 
-let error at msg = Source.error at "unthe" msg
+let error at msg = Error.error at "option projection" msg
 
 (* We pull out fresh variables and equating side conditions. *)
 
-type bind = (id * typ * iter list)
-type eqn = (bind * premise)
+type eqn = bind * prem
 type eqns = eqn list
 
 (* Fresh name generation *)
@@ -36,19 +35,28 @@ let fresh_id (n : int ref) : id =
 drop some variables from the iterexp *)
 
 let update_iterexp_vars (sets : Il.Free.sets) ((iter, vs) : iterexp) : iterexp =
-  (iter, List.filter (fun v -> Il.Free.Set.mem v.it sets.varid) vs)
+  let vs' = List.filter (fun (v, _) -> Il.Free.Set.mem v.it sets.varid) vs in
+  let vs'' = if vs' <> [] then vs' else
+    match iter with
+    | ListN _ -> vs'
+    | _ -> [List.hd vs]  (* prevent empty iterator list *)
+  in (iter, vs'')
 
 (* If a bind and premise is generated under an iteration, wrap them accordingly *)
 
 let under_iterexp (iter, vs) eqns : iterexp * eqns =
-   let new_vs = List.map (fun ((v, _, _), _) -> v) eqns in
-   let iterexp' = (iter, vs @ new_vs) in
-   let eqns' = List.map (fun ((v, t, is), pr) ->
-     let pr_iterexp = update_iterexp_vars (Il.Free.free_prem pr) (iter, vs @ new_vs) in
-     let pr' = IterPr (pr, pr_iterexp) $ no_region in
-     ((v, t, is@[iter]), pr')
+   let new_vs = List.map (fun (bind, _) ->
+     match bind.it with
+     | ExpB (v, t) ->
+       (v, VarE v $$ v.at % (IterT (t, match iter with Opt -> Opt | _ -> List) $ v.at))
+     | TypB _ | DefB _ | GramB _ -> error bind.at "unexpected type binding"
    ) eqns in
-   iterexp', eqns'
+   let eqns' = List.map2 (fun (bind, pr) (v, e) ->
+     let iterexp' = update_iterexp_vars (Il.Free.free_prem pr) (iter, vs @ [(v, e)]) in
+     let pr' = IterPr (pr, iterexp') $ no_region in
+     (ExpB (v, e.note) $ bind.at, pr')
+   ) eqns new_vs in
+   (iter, vs @ new_vs), eqns'
 
 
 (* Generic traversal helpers *)
@@ -88,7 +96,7 @@ let rec t_exp n e : eqns * exp =
   (* Descend first using t_exp2, and then see if we have to pull out the current expression *)
   let eqns, e' = t_exp2 n e in
   match e.it with
-  |  TheE exp ->
+  | TheE exp ->
     let ot = exp.note in
     let t = match ot.it with
       | IterT (t, Opt) -> t
@@ -96,7 +104,7 @@ let rec t_exp n e : eqns * exp =
     in
     let x = fresh_id n in
     let xe = VarE x $$ no_region % t in
-    let bind = (x, t, []) in
+    let bind = ExpB (x, t) $ no_region in
     let prem = IfPr (
       CmpE (EqOp, exp, OptE (Some xe) $$ no_region % ot) $$ no_region % (BoolT $ no_region)
     ) $ no_region in
@@ -119,11 +127,12 @@ and t_exp' n e : eqns * exp' =
   | UnE (uo, exp) -> t_e n exp (fun exp' -> UnE (uo, exp'))
   | DotE (exp, a) -> t_e n exp (fun exp' -> DotE (exp', a))
   | LenE exp -> t_e n exp (fun exp' -> LenE exp')
-  | MixE (mo, exp) -> t_e n exp (fun exp' -> MixE (mo, exp'))
-  | CallE (f, exp) ->t_e n exp (fun exp' -> CallE (f, exp'))
-  | OptE (Some exp) ->t_e n exp (fun exp' -> OptE (Some exp'))
-  | TheE exp ->t_e n exp (fun exp' -> TheE exp')
-  | CaseE (a, exp) ->t_e n exp (fun exp' -> CaseE (a, exp'))
+  | CallE (f, args) -> t_list t_arg n args (fun args' -> CallE (f, args'))
+  | ProjE (exp, i) -> t_e n exp (fun exp' -> ProjE (exp', i))
+  | UncaseE (exp, mo) -> t_e n exp (fun exp' -> UncaseE (exp', mo))
+  | OptE (Some exp) -> t_e n exp (fun exp' -> OptE (Some exp'))
+  | TheE exp -> t_e n exp (fun exp' -> TheE exp')
+  | CaseE (mixop, exp) -> t_e n exp (fun exp' -> CaseE (mixop, exp'))
   | SubE (exp, a, b) -> t_e n exp (fun exp' -> SubE (exp', a, b))
 
   | BinE (bo, exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> BinE (bo, e1', e2'))
@@ -131,6 +140,7 @@ and t_exp' n e : eqns * exp' =
   | IdxE (exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> IdxE (e1', e2'))
   | CompE (exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> CompE (e1', e2'))
   | CatE (exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> CatE (e1', e2'))
+  | MemE (exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> MemE (e1', e2'))
 
   | SliceE (exp1, exp2, exp3) -> t_eee n (exp1, exp2, exp3) (fun (e1', e2', e3') -> SliceE (e1', e2', e3'))
 
@@ -151,8 +161,14 @@ and t_exp' n e : eqns * exp' =
 and t_field n ((a, e) : expfield) =
   unary t_exp n e (fun e' -> (a, e'))
 
-and t_iterexp n (iter, vs) =
-  unary t_iter n iter (fun iter' -> (iter', vs))
+and t_iterexp n iterexp =
+  binary t_iter t_iterbinds n iterexp Fun.id
+
+and t_iterbinds n binds =
+  t_list t_iterbind n binds Fun.id
+
+and t_iterbind n (id, e) =
+  unary t_exp n e (fun e' -> (id, e'))
 
 and t_iter n iter = match iter with
   | ListN (e, id_opt) -> unary t_exp n e (fun e' -> ListN (e', id_opt))
@@ -166,9 +182,17 @@ and t_path' n path = match path with
   | SliceP (path, e1, e2) -> ternary t_path t_exp t_exp n (path, e1, e2) (fun (path', e1', e2') -> SliceP (path', e1', e2'))
   | DotP (path, a) -> unary t_path n path (fun path' -> DotP (path', a))
 
-let rec t_prem n : premise -> eqns * premise = phrase t_prem' n
+and t_arg n = phrase t_arg' n
 
-and t_prem' n prem : eqns * premise' =
+and t_arg' n arg = match arg with
+  | ExpA exp -> unary t_exp n exp (fun exp' -> ExpA exp')
+  | TypA _ -> [], arg
+  | DefA _ -> [], arg
+  | GramA _ -> [], arg
+
+let rec t_prem n : prem -> eqns * prem = phrase t_prem' n
+
+and t_prem' n prem : eqns * prem' =
   match prem with
   | RulePr (a, b, exp) ->
     unary t_exp n exp (fun exp' -> RulePr (a, b, exp'))
@@ -194,16 +218,12 @@ let t_rule' = function
 
 let t_rule x = { x with it = t_rule' x.it }
 
-let t_rules = List.map t_rule
-
 let rec t_def' = function
   | RecD defs -> RecD (List.map t_def defs)
-  | RelD (id, mixop, typ, rules) ->
-    RelD (id, mixop, typ, t_rules rules)
+  | RelD (id, mixop, typ, rules) -> RelD (id, mixop, typ, List.map t_rule rules)
   | def -> def
 
 and t_def x = { x with it = t_def' x.it }
 
 let transform (defs : script) =
   List.map t_def defs
-

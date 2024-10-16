@@ -11,16 +11,13 @@ struct
     if n = 0 then x else repeat (n - 1) f (f x)
 end
 
-module Int =
+module Char =
 struct
-  let log2 n =
-    if n <= 0 then failwith "log2";
-    let rec loop acc n = if n = 1 then acc else loop (acc + 1) (n lsr 1) in
-    loop 0 n
-
-  let is_power_of_two n =
-    if n < 0 then failwith "is_power_of_two";
-    n <> 0 && n land (n - 1) = 0
+  let is_digit_ascii c = '0' <= c && c <= '9'
+  let is_uppercase_ascii c = 'A' <= c && c <= 'Z'
+  let is_lowercase_ascii c = 'a' <= c && c <= 'z'
+  let is_letter_ascii c = is_uppercase_ascii c || is_lowercase_ascii c
+  let is_alphanum_ascii c = is_digit_ascii c || is_letter_ascii c
 end
 
 module String =
@@ -83,6 +80,11 @@ struct
     | n, y::ys' when n > 0 -> split' (n - 1) (y::xs) ys'
     | _ -> failwith "split"
 
+  let rec lead = function
+    | x::[] -> []
+    | x::xs -> x :: lead xs
+    | [] -> failwith "last"
+
   let rec last = function
     | x::[] -> x
     | _::xs -> last xs
@@ -102,25 +104,24 @@ struct
 
   let index_of x = index_where ((=) x)
 
-  let rec map_filter f = function
-    | [] -> []
-    | x::xs ->
-      match f x with
-      | None -> map_filter f xs
-      | Some y -> y :: map_filter f xs
+  let rec map3 f xs ys zs =
+    match xs, ys, zs with
+    | [], [], [] -> []
+    | x::xs', y::ys', z::zs' -> f x y z :: map3 f xs' ys' zs'
+    | _ -> raise (Invalid_argument "Lib.List.map3")
 
-  let rec concat_map f = function
+  let rec map_pairwise f = function
     | [] -> []
-    | x::xs -> f x @ concat_map f xs
-
-  let rec pairwise f = function
-    | [] -> []
-    | x1::x2::xs -> f x1 x2 :: pairwise f xs
+    | x1::x2::xs -> f x1 x2 :: map_pairwise f xs
     | _ -> failwith "pairwise"
 end
 
 module List32 =
 struct
+  let rec init n f = init' n f []
+  and init' n f xs =
+    if n = 0l then xs else init' (Int32.sub n 1l) f (f (Int32.sub n 1l) :: xs)
+
   let rec make n x = make' n x []
   and make' n x xs =
     if n = 0l then xs else make' (Int32.sub n 1l) x (x::xs)
@@ -155,6 +156,11 @@ struct
     | 0l, _ -> xs
     | n, _::xs' when n > 0l -> drop (Int32.sub n 1l) xs'
     | _ -> failwith "drop"
+
+  let rec iteri f xs = iteri' f 0l xs
+  and iteri' f i = function
+    | [] -> ()
+    | x::xs -> f i x; iteri' f (Int32.add i 1l) xs
 
   let rec mapi f xs = mapi' f 0l xs
   and mapi' f i = function
@@ -244,4 +250,46 @@ struct
   let fulfill p x = if !p = None then p := Some x else raise Promise
   let value_opt p = !p
   let value p = match !p with Some x -> x | None -> raise Promise
+end
+
+module Int =
+struct
+  let log2 n =
+    if n <= 0 then failwith "log2";
+    let rec loop acc n = if n = 1 then acc else loop (acc + 1) (n lsr 1) in
+    loop 0 n
+
+  let is_power_of_two n =
+    if n < 0 then failwith "is_power_of_two";
+    n <> 0 && n land (n - 1) = 0
+end
+
+module Int32 =
+struct
+  let log2 n =
+    if n <= 0l then failwith "log2";
+    let rec loop acc n =
+      if n = 1l then acc else loop (Int32.add acc 1l) (Int32.shift_right_logical n 1) in
+    loop 0l n
+
+  let is_power_of_two n =
+    if n < 0l then failwith "is_power_of_two";
+    n <> 0l && Int32.(logand n (sub n 1l)) = 0l
+end
+
+module Int64 =
+struct
+  let log2_unsigned n =
+    let rec loop acc n =
+      if n = 1L then acc else loop (Int64.add acc 1L) (Int64.shift_right_logical n 1) in
+    loop 0L n
+
+  let log2 n =
+    if n <= 0L then failwith "log2" else log2_unsigned n
+
+  let is_power_of_two_unsigned n =
+    n <> 0L && Int64.(logand n (sub n 1L)) = 0L
+
+  let is_power_of_two n =
+    if n < 0L then failwith "is_power_of_two" else is_power_of_two_unsigned n
 end

@@ -24,23 +24,47 @@ Hence, these syntactic classes can also be interpreted as types.
 For numeric parameters, notation like :math:`n:\u32` is used to specify a symbolic name in addition to the respective value range.
 
 
+.. _embed-bool:
+
+Booleans
+~~~~~~~~
+
+Interface operation that are predicates return Boolean values:
+
+.. math::
+   \begin{array}{llll}
+   \production{Boolean} & \bool &::=& \FALSE ~|~ \TRUE \\
+   \end{array}
+
+
 .. _embed-error:
 
-Errors
-~~~~~~
+Exceptions and Errors
+~~~~~~~~~~~~~~~~~~~~~
 
-Failure of an interface operation is indicated by an auxiliary syntactic class:
+Invoking an exported function may throw or propagate exceptions, expressed by an auxiliary syntactic class:
+
+.. math::
+   \begin{array}{llll}
+   \production{exception} & \exception &::=& \EXCEPTION~\exnaddr \\
+   \end{array}
+
+The exception address :math:`exnaddr` identifies the exception thrown.
+
+Failure of an interface operation is also indicated by an auxiliary syntactic class:
 
 .. math::
    \begin{array}{llll}
    \production{error} & \error &::=& \ERROR \\
    \end{array}
 
-In addition to the error conditions specified explicitly in this section, implementations may also return errors when specific :ref:`implementation limitations <impl>` are reached.
+In addition to the error conditions specified explicitly in this section, such as invalid arguments or :ref:`exceptions <exception>` and :ref:`traps <trap>` resulting from :ref:`execution <exec>`, implementations may also return errors when specific :ref:`implementation limitations <impl>` are reached.
 
 .. note::
    Errors are abstract and unspecific with this definition.
    Implementations can refine it to carry suitable classifications and diagnostic messages.
+
+
 
 
 Pre- and Post-Conditions
@@ -50,7 +74,7 @@ Some operations state *pre-conditions* about their arguments or *post-conditions
 It is the embedder's responsibility to meet the pre-conditions.
 If it does, the post conditions are guaranteed by the semantics.
 
-In addition to pre- and post-conditions explicitly stated with each operation, the specification adopts the following conventions for :ref:`runtime objects <syntax-runtime>` (:math:`\store`, :math:`\moduleinst`, :math:`\externval`, :ref:`addresses <syntax-addr>`):
+In addition to pre- and post-conditions explicitly stated with each operation, the specification adopts the following conventions for :ref:`runtime objects <syntax-runtime>` (:math:`\store`, :math:`\moduleinst`, :ref:`addresses <syntax-addr>`):
 
 * Every runtime object passed as a parameter must be :ref:`valid <valid-store>` per an implicit pre-condition.
 
@@ -76,7 +100,7 @@ Store
 
 .. math::
    \begin{array}{lclll}
-   \F{store\_init}() &=& \{ \SFUNCS~\epsilon,~ \SMEMS~\epsilon,~ \STABLES~\epsilon,~ \SGLOBALS~\epsilon \} \\
+   \F{store\_init}() &=& \{ \} \\
    \end{array}
 
 
@@ -140,10 +164,10 @@ Modules
 .. index:: instantiation, module instance
 .. _embed-module-instantiate:
 
-:math:`\F{module\_instantiate}(\store, \module, \externval^\ast) : (\store, \moduleinst ~|~ \error)`
-....................................................................................................
+:math:`\F{module\_instantiate}(\store, \module, \externaddr^\ast) : (\store, \moduleinst ~|~ \error)`
+.....................................................................................................
 
-1. Try :ref:`instantiating <exec-instantiation>` :math:`\module` in :math:`\store` with :ref:`external values <syntax-externval>` :math:`\externval^\ast` as imports:
+1. Try :ref:`instantiating <exec-instantiation>` :math:`\module` in :math:`\store` with :ref:`external addresses <syntax-externaddr>` :math:`\externaddr^\ast` as imports:
 
   a. If it succeeds with a :ref:`module instance <syntax-moduleinst>` :math:`\moduleinst`, then let :math:`\X{result}` be :math:`\moduleinst`.
 
@@ -154,7 +178,7 @@ Modules
 .. math::
    \begin{array}{lclll}
    \F{module\_instantiate}(S, m, \X{ev}^\ast) &=& (S', F.\AMODULE) && (\iff \instantiate(S, m, \X{ev}^\ast) \stepto^\ast S'; F; \epsilon) \\
-   \F{module\_instantiate}(S, m, \X{ev}^\ast) &=& (S', \ERROR) && (\iff \instantiate(S, m, \X{ev}^\ast) \stepto^\ast S'; F; \TRAP) \\
+   \F{module\_instantiate}(S, m, \X{ev}^\ast) &=& (S', \ERROR) && (\otherwise, \iff \instantiate(S, m, \X{ev}^\ast) \stepto^\ast S'; F; \result) \\
    \end{array}
 
 .. note::
@@ -203,7 +227,7 @@ Modules
 
 4. For each :math:`\export_i` in :math:`\export^\ast` and corresponding :math:`\externtype'_i` in :math:`{\externtype'}^\ast`, do:
 
-  a. Let :math:`\X{result}_i` be the pair :math:`(\export_i.\ENAME, \externtype'_i)`.
+  a. Let :math:`\X{result}_i` be the pair :math:`(\export_i.\XNAME, \externtype'_i)`.
 
 5. Return the concatenation of all :math:`\X{result}_i`, in index order.
 
@@ -212,7 +236,7 @@ Modules
 .. math::
    ~ \\
    \begin{array}{lclll}
-   \F{module\_exports}(m) &=& (\X{ex}.\ENAME, \externtype')^\ast \\
+   \F{module\_exports}(m) &=& (\X{ex}.\XNAME, \externtype')^\ast \\
      && \qquad (\iff \X{ex}^\ast = m.\MEXPORTS \wedge {} \vdashmodule m : \externtype^\ast \rightarrow {\externtype'}^\ast) \\
    \end{array}
 
@@ -227,21 +251,21 @@ Module Instances
 
 .. _embed-instance-export:
 
-:math:`\F{instance\_export}(\moduleinst, \name) : \externval ~|~ \error`
-........................................................................
+:math:`\F{instance\_export}(\moduleinst, \name) : \externaddr ~|~ \error`
+.........................................................................
 
 1. Assert: due to :ref:`validity <valid-moduleinst>` of the :ref:`module instance <syntax-moduleinst>` :math:`\moduleinst`, all its :ref:`export names <syntax-exportinst>` are different.
 
-2. If there exists an :math:`\exportinst_i` in :math:`\moduleinst.\MIEXPORTS` such that :ref:`name <syntax-name>` :math:`\exportinst_i.\EINAME` equals :math:`\name`, then:
+2. If there exists an :math:`\exportinst_i` in :math:`\moduleinst.\MIEXPORTS` such that :ref:`name <syntax-name>` :math:`\exportinst_i.\XINAME` equals :math:`\name`, then:
 
-   a. Return the :ref:`external value <syntax-externval>` :math:`\exportinst_i.\EIVALUE`.
+   a. Return the :ref:`external address <syntax-externaddr>` :math:`\exportinst_i.\XIADDR`.
 
 3. Else, return :math:`\ERROR`.
 
 .. math::
    ~ \\
    \begin{array}{lclll}
-   \F{instance\_export}(m, \name) &=& m.\MIEXPORTS[i].\EIVALUE && (\iff m.\MEXPORTS[i].\EINAME = \name) \\
+   \F{instance\_export}(m, \name) &=& m.\MIEXPORTS[i].\XIADDR && (\iff m.\MEXPORTS[i].\XINAME = \name) \\
    \F{instance\_export}(m, \name) &=& \ERROR && (\otherwise) \\
    \end{array}
 
@@ -265,7 +289,7 @@ Functions
 
 .. math::
    \begin{array}{lclll}
-   \F{func\_alloc}(S, \X{ta}, \X{code}) &=& (S', \X{a}) && (\iff \allochostfunc(S, \X{ta}, \X{code}) = S', \X{a}) \\
+   \F{func\_alloc}(S, \X{ta}, \X{code}) &=& (S', \X{a}) && (\iff \allocfunc(S, \{\}, \X{ta}, \X{code}) = S', \X{a}) \\
    \end{array}
 
 .. note::
@@ -294,14 +318,16 @@ Functions
 .. index:: invocation, value, result
 .. _embed-func-invoke:
 
-:math:`\F{func\_invoke}(\store, \funcaddr, \val^\ast) : (\store, \val^\ast ~|~ \error)`
-........................................................................................
+:math:`\F{func\_invoke}(\store, \funcaddr, \val^\ast) : (\store, \val^\ast ~|~ \exception ~|~ \error)`
+......................................................................................................
 
 1. Try :ref:`invoking <exec-invocation>` the function :math:`\funcaddr` in :math:`\store` with :ref:`values <syntax-val>` :math:`\val^\ast` as arguments:
 
   a. If it succeeds with :ref:`values <syntax-val>` :math:`{\val'}^\ast` as results, then let :math:`\X{result}` be :math:`{\val'}^\ast`.
 
-  b. Else it has trapped, hence let :math:`\X{result}` be :math:`\ERROR`.
+  b. Else if the outcome is an exception with a thrown :ref:`exception <exec-throw_ref>` :math:`\REFEXNADDR~\exnaddr` as the result, then let :math:`\X{result}` be :math:`\EXCEPTION~\exnaddr`
+
+  c. Else it has trapped, hence let :math:`\X{result}` be :math:`\ERROR`.
 
 2. Return the new store paired with :math:`\X{result}`.
 
@@ -309,6 +335,7 @@ Functions
    ~ \\
    \begin{array}{lclll}
    \F{func\_invoke}(S, a, v^\ast) &=& (S', {v'}^\ast) && (\iff \invoke(S, a, v^\ast) \stepto^\ast S'; F; {v'}^\ast) \\
+   \F{func\_invoke}(S, a, v^\ast) &=& (S', \EXCEPTION~a') && (\iff \invoke(S, a, v^\ast) \stepto^\ast S'; F; (\REFEXNADDR~a')~\THROWREF \\
    \F{func\_invoke}(S, a, v^\ast) &=& (S', \ERROR) && (\iff \invoke(S, a, v^\ast) \stepto^\ast S'; F; \TRAP) \\
    \end{array}
 
@@ -361,13 +388,13 @@ Tables
 
 1. Let :math:`\X{ti}` be the :ref:`table instance <syntax-tableinst>` :math:`\store.\STABLES[\tableaddr]`.
 
-2. If :math:`i` is larger than or equal to the length of :math:`\X{ti}.\TIELEM`, then return :math:`\ERROR`.
+2. If :math:`i` is larger than or equal to the length of :math:`\X{ti}.\TIREFS`, then return :math:`\ERROR`.
 
-3. Else, return the :ref:`reference value <syntax-ref>` :math:`\X{ti}.\TIELEM[i]`.
+3. Else, return the :ref:`reference value <syntax-ref>` :math:`\X{ti}.\TIREFS[i]`.
 
 .. math::
    \begin{array}{lclll}
-   \F{table\_read}(S, a, i) &=& r && (\iff S.\STABLES[a].\TIELEM[i] = r) \\
+   \F{table\_read}(S, a, i) &=& r && (\iff S.\STABLES[a].\TIREFS[i] = r) \\
    \F{table\_read}(S, a, i) &=& \ERROR && (\otherwise) \\
    \end{array}
 
@@ -379,15 +406,15 @@ Tables
 
 1. Let :math:`\X{ti}` be the :ref:`table instance <syntax-tableinst>` :math:`\store.\STABLES[\tableaddr]`.
 
-2. If :math:`i` is larger than or equal to the length of :math:`\X{ti}.\TIELEM`, then return :math:`\ERROR`.
+2. If :math:`i` is larger than or equal to the length of :math:`\X{ti}.\TIREFS`, then return :math:`\ERROR`.
 
-3. Replace :math:`\X{ti}.\TIELEM[i]` with the :ref:`reference value <syntax-ref>` :math:`\reff`.
+3. Replace :math:`\X{ti}.\TIREFS[i]` with the :ref:`reference value <syntax-ref>` :math:`\reff`.
 
 4. Return the updated store.
 
 .. math::
    \begin{array}{lclll}
-   \F{table\_write}(S, a, i, r) &=& S' && (\iff S' = S \with \STABLES[a].\TIELEM[i] = r) \\
+   \F{table\_write}(S, a, i, r) &=& S' && (\iff S' = S \with \STABLES[a].\TIREFS[i] = r) \\
    \F{table\_write}(S, a, i, r) &=& \ERROR && (\otherwise) \\
    \end{array}
 
@@ -397,13 +424,13 @@ Tables
 :math:`\F{table\_size}(\store, \tableaddr) : \u32`
 ..................................................
 
-1. Return the length of :math:`\store.\STABLES[\tableaddr].\TIELEM`.
+1. Return the length of :math:`\store.\STABLES[\tableaddr].\TIREFS`.
 
 .. math::
    ~ \\
    \begin{array}{lclll}
    \F{table\_size}(S, a) &=& n &&
-     (\iff |S.\STABLES[a].\TIELEM| = n) \\
+     (\iff |S.\STABLES[a].\TIREFS| = n) \\
    \end{array}
 
 
@@ -473,13 +500,13 @@ Memories
 
 1. Let :math:`\X{mi}` be the :ref:`memory instance <syntax-meminst>` :math:`\store.\SMEMS[\memaddr]`.
 
-2. If :math:`i` is larger than or equal to the length of :math:`\X{mi}.\MIDATA`, then return :math:`\ERROR`.
+2. If :math:`i` is larger than or equal to the length of :math:`\X{mi}.\MIBYTES`, then return :math:`\ERROR`.
 
-3. Else, return the  :ref:`byte <syntax-byte>` :math:`\X{mi}.\MIDATA[i]`.
+3. Else, return the  :ref:`byte <syntax-byte>` :math:`\X{mi}.\MIBYTES[i]`.
 
 .. math::
    \begin{array}{lclll}
-   \F{mem\_read}(S, a, i) &=& b && (\iff S.\SMEMS[a].\MIDATA[i] = b) \\
+   \F{mem\_read}(S, a, i) &=& b && (\iff S.\SMEMS[a].\MIBYTES[i] = b) \\
    \F{mem\_read}(S, a, i) &=& \ERROR && (\otherwise) \\
    \end{array}
 
@@ -491,15 +518,15 @@ Memories
 
 1. Let :math:`\X{mi}` be the :ref:`memory instance <syntax-meminst>` :math:`\store.\SMEMS[\memaddr]`.
 
-2. If :math:`\u32` is larger than or equal to the length of :math:`\X{mi}.\MIDATA`, then return :math:`\ERROR`.
+2. If :math:`\u32` is larger than or equal to the length of :math:`\X{mi}.\MIBYTES`, then return :math:`\ERROR`.
 
-3. Replace :math:`\X{mi}.\MIDATA[i]` with :math:`\byte`.
+3. Replace :math:`\X{mi}.\MIBYTES[i]` with :math:`\byte`.
 
 4. Return the updated store.
 
 .. math::
    \begin{array}{lclll}
-   \F{mem\_write}(S, a, i, b) &=& S' && (\iff S' = S \with \SMEMS[a].\MIDATA[i] = b) \\
+   \F{mem\_write}(S, a, i, b) &=& S' && (\iff S' = S \with \SMEMS[a].\MIBYTES[i] = b) \\
    \F{mem\_write}(S, a, i, b) &=& \ERROR && (\otherwise) \\
    \end{array}
 
@@ -509,13 +536,13 @@ Memories
 :math:`\F{mem\_size}(\store, \memaddr) : \u32`
 ..............................................
 
-1. Return the length of :math:`\store.\SMEMS[\memaddr].\MIDATA` divided by the :ref:`page size <page-size>`.
+1. Return the length of :math:`\store.\SMEMS[\memaddr].\MIBYTES` divided by the :ref:`page size <page-size>`.
 
 .. math::
    ~ \\
    \begin{array}{lclll}
    \F{mem\_size}(S, a) &=& n &&
-     (\iff |S.\SMEMS[a].\MIDATA| = n \cdot 64\,\F{Ki}) \\
+     (\iff |S.\SMEMS[a].\MIBYTES| = n \cdot 64\,\F{Ki}) \\
    \end{array}
 
 
@@ -539,6 +566,99 @@ Memories
    \F{mem\_grow}(S, a, n) &=& \ERROR && (\otherwise) \\
    \end{array}
 
+
+.. index:: tag, tag address, store, tag instance, tag type, function type
+.. _embed-tag:
+
+Tags
+~~~~
+
+.. _embedd-tag-alloc:
+
+:math:`\F{tag\_alloc}(\store, \tagtype) : (\store, \tagaddr)`
+.............................................................
+
+1. Pre-condition: :math:`tagtype` is :ref:`valid <valid-tagtype>`.
+
+2. Let :math:`\tagaddr` be the result of :ref:`allocating a tag <alloc-tag>` in :math:`\store` with :ref:`tag type <syntax-tagtype>` :math:`\tagtype`.
+
+3. Return the new store paired with :math:`\tagaddr`.
+
+.. math::
+   \begin{array}{lclll}
+   \F{tag\_alloc}(S, \X{tt}) &=& (S', \X{a}) && (\iff \alloctag(S, \X{tt}) = S', \X{a}) \\
+   \end{array}
+
+
+.. _embed-tag-type:
+
+:math:`\F{tag\_type}(\store, \tagaddr) : \tagtype`
+..................................................
+
+1. Return :math:`S.\STAGS[a].\HITYPE`.
+
+2. Post-condition: the returned :ref:`tag type <syntax-tagtype>` is :ref:`valid  <valid-tagtype>`.
+
+.. math::
+   \begin{array}{lclll}
+   \F{tag\_type}(S, a) &=& S.\STAGS[a].\HITYPE \\
+   \end{array}
+
+
+.. index:: exception, exception address, store, exception instance, exception type
+.. _embed-exception:
+
+Exceptions
+~~~~~~~~~~
+
+.. _embed-exn-alloc:
+
+:math:`\F{exn\_alloc}(\store, \tagaddr, \val^\ast) : (\store, \exnaddr)`
+........................................................................
+
+1. Pre-condition: :math:`\tagaddr` is an allocated :ref:`tag address <syntax-tagaddr>`.
+
+2. Let :math:`\exnaddr` be the result of :ref:`allocating an exception instance <syntax-exninst>` in :math:`\store` with :ref:`tag address <syntax-tagaddr>` :math:`\tagaddr` and initialization values :math:`\val^\ast`.
+
+3. Return the new store paired with :math:`\exnaddr`.
+
+.. math::
+   \begin{array}{lcll}
+   \F{exn\_alloc}(S, \tagaddr, \val^\ast) &=& (S \compose \{\SEXNS~\exninst\}, |S.\SEXNS|) &
+     (\iff \exninst = \{\EITAG~\tagaddr, \EIFIELDS~\val^\ast\} \\
+   \end{array}
+
+
+.. _embed-exn-tag:
+
+:math:`\F{exn\_tag}(\store, \exnaddr) : \tagaddr`
+.................................................
+
+1. Let :math:`\exninst` be the :ref:`exception instance <syntax-exninst>` :math:`\store.\SEXNS[\exnaddr]`.
+
+2. Return the :ref:`tag address <syntax-tagaddr>` :math:`\exninst.\EITAG`.
+
+.. math::
+   \begin{array}{lcll}
+   \F{exn\_tag}(S, a) &=& \exninst.\EITAG &
+     (\iff \exninst = S.\SEXNS[a]) \\
+   \end{array}
+
+
+.. _embed-exn-read:
+
+:math:`\F{exn\_read}(\store, \exnaddr) : \val^\ast`
+...................................................
+
+1. Let :math:`\exninst` be the :ref:`exception instance <syntax-exninst>` :math:`\store.\SEXNS[\exnaddr]`.
+
+2. Return the :ref:`values <syntax-val>` :math:`\exninst.\EIFIELDS`.
+
+.. math::
+   \begin{array}{lcll}
+   \F{exn\_read}(S, a) &=& \exninst.\EIFIELDS &
+     (\iff \exninst = S.\SEXNS[a]) \\
+   \end{array}
 
 
 .. index:: global, global address, store, global instance, global type, value
@@ -617,11 +737,12 @@ Globals
    \end{array}
 
 
-.. index:: reference, reference type
-.. _embed-ref:
+.. index:: reference, reference type, value type, value
+.. _embed-ref-type:
+.. _embed-val-default:
 
-References
-~~~~~~~~~~
+Values
+~~~~~~
 
 :math:`\F{ref\_type}(\store, \reff) : \reftype`
 ...............................................
@@ -641,3 +762,56 @@ References
    In future versions of WebAssembly,
    not all references may carry precise type information at run time.
    In such cases, this function may return a less precise supertype.
+
+
+:math:`\F{val\_default}(\valtype) : \val`
+...............................................
+
+1. If :math:`\default_{valtype}` is not defined, then return :math:`\ERROR`.
+
+1. Else, return the :ref:`value <syntax-val>` :math:`\default_{valtype}`.
+
+.. math::
+   \begin{array}{lclll}
+   \F{val\_default}(t) &=& v && (\iff \default_t = v) \\
+   \F{val\_default}(t) &=& \ERROR && (\iff \default_t = \epsilon) \\
+   \end{array}
+
+
+.. index:: value type, external type, subtyping
+.. _embed-match-valtype:
+.. _embed-match-externtype:
+
+Matching
+~~~~~~~~
+
+:math:`\F{match\_valtype}(\valtype_1, \valtype_2) : \bool`
+..........................................................
+
+1. Pre-condition: the :ref:`value types <syntax-valtype>` :math:`\valtype_1` and :math:`\valtype_2` are :ref:`valid <valid-valtype>` under the empty :ref:`context <context>`.
+
+2. If :math:`\valtype_1` :ref:`matches <match-valtype>` :math:`\valtype_2`, then return :math:`\TRUE`.
+
+3. Else, return :math:`\FALSE`.
+
+.. math::
+   \begin{array}{lclll}
+   \F{match\_reftype}(t_1, t_2) &=& \TRUE && (\iff {} \vdashvaltypematch t_1 \subvaltypematch t_2) \\
+   \F{match\_reftype}(t_1, t_2) &=& \FALSE && (\otherwise) \\
+   \end{array}
+
+
+:math:`\F{match\_externtype}(\externtype_1, \externtype_2) : \bool`
+...................................................................
+
+1. Pre-condition: the :ref:`extern types <syntax-externtype>` :math:`\externtype_1` and :math:`\externtype_2` are :ref:`valid <valid-externtype>` under the empty :ref:`context <context>`.
+
+2. If :math:`\externtype_1` :ref:`matches <match-externtype>` :math:`\externtype_2`, then return :math:`\TRUE`.
+
+3. Else, return :math:`\FALSE`.
+
+.. math::
+   \begin{array}{lclll}
+   \F{match\_externtype}(\X{et}_1, \X{et}_2) &=& \TRUE && (\iff {} \vdashexterntypematch \X{et}_1 \subexterntypematch \X{et}_2) \\
+   \F{match\_externtype}(\X{et}_1, \X{et}_2) &=& \FALSE && (\otherwise) \\
+   \end{array}
