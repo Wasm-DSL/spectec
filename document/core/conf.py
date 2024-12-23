@@ -60,7 +60,7 @@ master_doc = 'index'
 name = 'WebAssembly'
 project = u'WebAssembly'
 title = u'WebAssembly Specification'
-copyright = u'2023, WebAssembly Community Group'
+copyright = u'2017-2024, WebAssembly Community Group'
 author = u'WebAssembly Community Group'
 editor = u'Andreas Rossberg (editor)'
 logo = 'static/webassembly.png'
@@ -497,5 +497,10 @@ rst_prolog = """
 # https://docs.mathjax.org/en/latest/web/configuration.html#configuration
 # https://docs.mathjax.org/en/latest/options/input/tex.html#tex-maxbuffer
 mathjax3_config = {
-    'tex': { 'maxBuffer': 30*1024 },
+    'tex': {
+      'maxBuffer': 30*1024,
+      'macros': {
+        'multicolumn': ['', 2]   # Bummer, MathJax can't handle multicolumn, ignore it
+      }
+    }
 }

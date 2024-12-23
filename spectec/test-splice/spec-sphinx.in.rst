@@ -15,9 +15,9 @@ $${syntax+:
   externtype
 }
 
-$${syntax: {instr/control}}
+$${syntax: {instr/block}}
 
-$${syntax: {instr/numeric instr/local instr/global instr/memory} expr}
+$${syntax: {instr/num instr/local instr/global instr/memory} expr}
 
 
 
@@ -40,14 +40,14 @@ $${rule+: Instr_ok/loop}
 $${rule+: Instr_ok/if}
 
 
-$${rule-ignore: Instr_ok/convert-*}
+$${rule-ignore: Instr_ok/memory.grow}
 
 
 **Runtime**
 
-$${definition: default}
+$${definition: default_}
 
-$${definition: {funcaddr funcinst} {func table}}
+$${definition: {funcinst} {func table}}
 
 
 **Reduction** ${relation: Step_pure}
