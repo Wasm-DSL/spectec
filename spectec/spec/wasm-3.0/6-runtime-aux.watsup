@@ -1,0 +1,199 @@
+;;
+;; Auxiliary definitions on Types
+;;
+
+;; Instantiation
+
+def $inst_valtype(moduleinst, valtype) : valtype  hint(show $inst_(%,%)) hint(macro "insttype")
+def $inst_reftype(moduleinst, reftype) : reftype  hint(show $inst_(%,%)) hint(macro "insttype")
+def $inst_globaltype(moduleinst, globaltype) : globaltype  hint(show $inst_(%,%)) hint(macro "insttype")
+def $inst_tabletype(moduleinst, tabletype) : tabletype  hint(show $inst_(%,%)) hint(macro "insttype")
+def $inst_memtype(moduleinst, memtype) : memtype  hint(show $inst_(%,%)) hint(macro "insttype")
+
+;; TODO(3, rossberg): make inlining moduleinst.TYPES work
+def $inst_valtype(moduleinst, t) = $subst_all_valtype(t, dt*)
+  -- if dt* = moduleinst.TYPES
+def $inst_reftype(moduleinst, rt) = $subst_all_reftype(rt, dt*)
+  -- if dt* = moduleinst.TYPES
+def $inst_globaltype(moduleinst, gt) = $subst_all_globaltype(gt, dt*)
+  -- if dt* = moduleinst.TYPES
+def $inst_tabletype(moduleinst, tt) = $subst_all_tabletype(tt, dt*)
+  -- if dt* = moduleinst.TYPES
+def $inst_memtype(moduleinst, mt) = $subst_all_memtype(mt, dt*)
+  -- if dt* = moduleinst.TYPES
+
+
+;;
+;; Auxiliary definitions on Values
+;;
+
+;; Constants
+
+def $Ki : nat hint(macro none)
+def $Ki = 1024
+
+
+;; Default values
+
+def $default_(valtype) : val?
+def $default_(Inn) = (CONST Inn 0)
+def $default_(Fnn) = (CONST Fnn $fzero($size(Fnn)))
+def $default_(Vnn) = (VCONST Vnn 0)
+def $default_(REF NULL ht) = (REF.NULL ht)
+def $default_(REF ht) = eps
+
+;;relation Defaultable: |- valtype DEFAULTABLE ;; forward-declared in typing
+rule Defaultable: |- t DEFAULTABLE -- if $default_(t) =/= eps
+
+;;relation Nondefaultable: |- valtype NONDEFAULTABLE ;; forward-declared in typing
+rule Nondefaultable: |- t NONDEFAULTABLE -- if $default_(t) = eps
+
+
+;; Packed fields
+
+def $packfield_(storagetype, val) : fieldval         hint(show $pack_(%,%)) hint(macro "packfield")
+def $unpackfield_(storagetype, sx?, fieldval) : val  hint(show $unpack_(%)^(%)#((%))) hint(macro "unpackfield")
+
+def $packfield_(valtype, val) = val
+def $packfield_(packtype, CONST I32 i) = PACK packtype $wrap__(32, $psize(packtype), i)
+
+def $unpackfield_(valtype, eps, val) = val
+def $unpackfield_(packtype, sx, PACK packtype i) = CONST I32 $extend__($psize(packtype), 32, sx, i)
+
+
+;; Address filtering
+
+def $funcsxa(externaddr*) : funcaddr*     hint(show $funcs(%))   hint(macro "funcsxa")
+def $globalsxa(externaddr*) : globaladdr* hint(show $globals(%)) hint(macro "globalsxa")
+def $tablesxa(externaddr*) : tableaddr*   hint(show $tables(%))  hint(macro "tablesxa")
+def $memsxa(externaddr*) : memaddr*       hint(show $mems(%))    hint(macro "memsxa")
+def $tagsxa(externaddr*) : tagaddr*       hint(show $tags(%))    hint(macro "tagsxa")
+
+def $funcsxa(eps) = eps
+def $funcsxa((FUNC a) xa*) = a $funcsxa(xa*)
+def $funcsxa(externaddr xa*) = $funcsxa(xa*)  -- otherwise
+
+def $globalsxa(eps) = eps
+def $globalsxa((GLOBAL a) xa*) = a $globalsxa(xa*)
+def $globalsxa(externaddr xa*) = $globalsxa(xa*)  -- otherwise
+
+def $tablesxa(eps) = eps
+def $tablesxa((TABLE a) xa*) = a $tablesxa(xa*)
+def $tablesxa(externaddr xa*) = $tablesxa(xa*)  -- otherwise
+
+def $memsxa(eps) = eps
+def $memsxa((MEM a) xa*) = a $memsxa(xa*)
+def $memsxa(externaddr xa*) = $memsxa(xa*)  -- otherwise
+
+def $tagsxa(eps) = eps
+def $tagsxa((TAG a) xa*) = a $tagsxa(xa*)
+def $tagsxa(externaddr xa*) = $tagsxa(xa*)  -- otherwise
+
+
+;;
+;; Auxiliary definitions on State
+;;
+
+;; Access
+
+def $store(state) : store             hint(show %.STORE) hint(macro "Z%")
+def $frame(state) : frame             hint(show %.FRAME) hint(macro "Z%")
+
+def $store((s; f)) = s
+def $frame((s; f)) = f
+
+def $tagaddr(state) : tagaddr*        hint(show %.TAGS)    hint(macro "Z%")
+def $tagaddr((s; f)) = f.MODULE.TAGS
+
+def $moduleinst(state) : moduleinst   hint(show %.MODULE)  hint(macro "Z%")
+def $funcinst(state) : funcinst*      hint(show %.FUNCS)   hint(macro "Z%")
+def $globalinst(state) : globalinst*  hint(show %.GLOBALS) hint(macro "Z%")
+def $tableinst(state) : tableinst*    hint(show %.TABLES)  hint(macro "Z%")
+def $meminst(state) : meminst*        hint(show %.MEMS)    hint(macro "Z%")
+def $taginst(state) : taginst*        hint(show %.TAGS)    hint(macro "Z%")
+def $eleminst(state) : eleminst*      hint(show %.ELEMS)   hint(macro "Z%")
+def $datainst(state) : datainst*      hint(show %.DATAS)   hint(macro "Z%")
+def $structinst(state) : structinst*  hint(show %.STRUCTS) hint(macro "Z%")
+def $arrayinst(state) : arrayinst*    hint(show %.ARRAYS)  hint(macro "Z%")
+def $exninst(state) : exninst*        hint(show %.EXNS)    hint(macro "Z%")
+
+def $moduleinst((s; f)) = f.MODULE
+def $funcinst((s; f)) = s.FUNCS
+def $globalinst((s; f)) = s.GLOBALS
+def $tableinst((s; f)) = s.TABLES
+def $meminst((s; f)) = s.MEMS
+def $taginst((s; f)) = s.TAGS
+def $eleminst((s; f)) = s.ELEMS
+def $datainst((s; f)) = s.DATAS
+def $structinst((s; f)) = s.STRUCTS
+def $arrayinst((s; f)) = s.ARRAYS
+def $exninst((s; f)) = s.EXNS
+
+def $type(state, typeidx) : deftype         hint(show %.TYPES[%])   hint(macro "Z%")
+def $func(state, funcidx) : funcinst        hint(show %.FUNCS[%])   hint(macro "Z%")
+def $global(state, globalidx) : globalinst  hint(show %.GLOBALS[%]) hint(macro "Z%")
+def $table(state, tableidx) : tableinst     hint(show %.TABLES[%])  hint(macro "Z%")
+def $mem(state, memidx) : meminst           hint(show %.MEMS[%])    hint(macro "Z%")
+def $tag(state, tagidx) : taginst           hint(show %.TAGS[%])    hint(macro "Z%")
+def $elem(state, tableidx) : eleminst       hint(show %.ELEMS[%])   hint(macro "Z%")
+def $data(state, dataidx) : datainst        hint(show %.DATAS[%])   hint(macro "Z%")
+def $local(state, localidx) : val?          hint(show %.LOCALS[%])  hint(macro "Z%")
+
+def $type((s; f), x) = f.MODULE.TYPES[x]
+def $func((s; f), x) = s.FUNCS[f.MODULE.FUNCS[x]]
+def $global((s; f), x) = s.GLOBALS[f.MODULE.GLOBALS[x]]
+def $table((s; f), x) = s.TABLES[f.MODULE.TABLES[x]]
+def $mem((s; f), x) = s.MEMS[f.MODULE.MEMS[x]]
+def $tag((s; f), x) = s.TAGS[f.MODULE.TAGS[x]]
+def $elem((s; f), x) = s.ELEMS[f.MODULE.ELEMS[x]]
+def $data((s; f), x) = s.DATAS[f.MODULE.DATAS[x]]
+def $local((s; f), x) = f.LOCALS[x]
+
+
+;; Update
+
+def $with_local(state, localidx, val) : state               hint(show %[.LOCALS[%] = %])            hint(macro "Z%")
+def $with_global(state, globalidx, val) : state             hint(show %[.GLOBALS[%].VALUE = %])     hint(macro "ZG%")
+def $with_table(state, tableidx, nat, ref) : state          hint(show %[.TABLES[%].REFS[%] = %])    hint(macro "ZT%")
+def $with_tableinst(state, tableidx, tableinst) : state     hint(show %[.TABLES[%] = %])            hint(macro "Z%")
+def $with_mem(state, memidx, nat, nat, byte*) : state       hint(show %[.MEMS[%].BYTES[% : %] = %]) hint(macro "ZM%")
+def $with_meminst(state, memidx, meminst) : state           hint(show %[.MEMS[%] = %])              hint(macro "Z%")
+def $with_elem(state, elemidx, ref*) : state                hint(show %[.ELEMS[%].REFS = %])        hint(macro "ZE%")
+def $with_data(state, dataidx, byte*) : state               hint(show %[.DATAS[%].BYTES = %])       hint(macro "ZD%")
+def $with_struct(state, structaddr, nat, fieldval) : state  hint(show %[.STRUCTS[%].FIELDS[%] = %]) hint(macro "ZS%")
+def $with_array(state, arrayaddr, nat, fieldval) : state    hint(show %[.ARRAYS[%].FIELDS[%] = %])  hint(macro "ZA%")
+
+def $with_local((s; f), x, v) = s; f[.LOCALS[x] = v]
+def $with_global((s; f), x, v) = s[.GLOBALS[f.MODULE.GLOBALS[x]].VALUE = v]; f
+def $with_table((s; f), x, i, r) = s[.TABLES[f.MODULE.TABLES[x]].REFS[i] = r]; f
+def $with_tableinst((s; f), x, ti) = s[.TABLES[f.MODULE.TABLES[x]] = ti]; f
+def $with_mem((s; f), x, i, j, b*) = s[.MEMS[f.MODULE.MEMS[x]].BYTES[i : j] = b*]; f
+def $with_meminst((s; f), x, mi) = s[.MEMS[f.MODULE.MEMS[x]] = mi]; f
+def $with_elem((s; f), x, r*) = s[.ELEMS[f.MODULE.ELEMS[x]].REFS = r*]; f
+def $with_data((s; f), x, b*) = s[.DATAS[f.MODULE.DATAS[x]].BYTES = b*]; f
+def $with_struct((s; f), a, i, fv) = s[.STRUCTS[a].FIELDS[i] = fv]; f
+def $with_array((s; f), a, i, fv) = s[.ARRAYS[a].FIELDS[i] = fv]; f
+
+def $add_structinst(state, structinst*) : state  hint(show %[.STRUCTS =++ %]) hint(macro "Z%")
+def $add_arrayinst(state, arrayinst*) : state    hint(show %[.ARRAYS =++ %])  hint(macro "Z%")
+def $add_exninst(state, exninst*) : state        hint(show %[.EXNS =++ %])    hint(macro "Z%")
+
+def $add_structinst((s; f), si*) = s[.STRUCTS =++ si*]; f
+def $add_arrayinst((s; f), ai*) = s[.ARRAYS =++ ai*]; f
+def $add_exninst((s; f), exn*) = s[.EXNS =++ exn*]; f
+
+
+;; Growing
+
+def $growtable(tableinst, nat, ref) : tableinst hint(partial)
+def $growmem(meminst, nat) : meminst            hint(partial)
+
+def $growtable(tableinst, n, r) = tableinst'
+  -- if tableinst = { TYPE (at `[i .. j] rt), REFS r'* }
+  -- if tableinst' = { TYPE (at `[i' .. j] rt), REFS r'* r^n }
+  -- if $(i' = |r'*| + n <= j)
+
+def $growmem(meminst, n) = meminst'
+  -- if meminst = { TYPE (at `[i .. j] PAGE), BYTES b* }
+  -- if meminst' = { TYPE (at `[i' .. j] PAGE), BYTES b* (0x00)^(n * $($(64 * $Ki))) }
+  -- if $(i' = |b*| / (64 * $Ki) + n <= j)

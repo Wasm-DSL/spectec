@@ -26,7 +26,7 @@ list(x, sep) ::=
 digit ::= "0" | ... | "9"
 hex ::= digit | "A" | ... | "F"
 
-num ::= digit+ | "0x" hex+ | "U+" hex+
+num ::= digit+ | "0x" hex+ | "U+" hex+ | "`" digit+
 text ::= """ utf8* """
 ```
 
@@ -68,14 +68,17 @@ atomop ::=
 ### Types
 
 ```
-typ ::=
-  varid args                           type name
-  "bool"                               booleans
+numtyp ::=
   "nat"                                natural numbers
   "int"                                integer numbers
   "rat"                                rational numbers
   "real"                               real numbers
+
+typ ::=
+  varid args                           type name
+  "bool"                               booleans
   "text"                               text strings
+  numtyp                               numbers
   typ iter                             iteration
   "(" list(typ, ",") ")"               parentheses or tupling
 
@@ -122,7 +125,7 @@ logop ::= "/\" | "\/" | "=>"
 cmpop ::= "=" | "=/=" | "<" | ">" | "<=" | ">="
 exp ::=
   varid                                meta variable
-  nat                                  natural number literal
+  num                                  natural number literal
   text                                 text literal
   notop exp                            logical negation
   exp logop exp                        logical connective
@@ -130,14 +133,16 @@ exp ::=
   "eps"                                empty sequence
   exp exp                              sequencing
   exp iter                             iteration
+  "[" exp* "]"                         list
   exp "[" arith "]"                    list indexing
   exp "[" arith ":" arith "]"          list slicing
   exp "[" path "=" exp "]"             list update
-  exp "[" path "=.." exp "]"           list extension
+  exp "[" path "=++" exp "]"           list extension
   "{" list(atom exp, ",") "}"          record
   exp "." atom                         record access
   exp "," exp                          record extension
-  exp "++" exp                         record composition
+  exp "++" exp                         list and record composition
+  exp "<-" exp                         list membership
   "|" exp "|"                          list length
   "||" gramid "||"                     expansion length
   "(" list(exp, ",") ")"               parentheses or tupling
@@ -149,15 +154,17 @@ exp ::=
   "`" "[" list(exp, ",") "]"
   "`" "{" list(exp, ",") "}"
   "$" "(" arith ")"                    escape to arithmetic syntax
+  "$" numtyp "$" "(" arith ")"         numeric conversion
   hole                                 hole (for syntax rewrites in hints)
   exp "#" exp                          token concatenation (for syntax rewrites in hints)
+  "##" exp                             remove possible parentheses (for syntax rewrites in hints)
 
 unop  ::= notop | "+" | "-"
-binop ::= logop | "+" | "-" | "*" | "/" | "^"
+binop ::= logop | "+" | "-" | "*" | "/" | "\" | "^"
 arith ::=
   varid                                meta variable
   atom                                 token
-  nat                                  natural number literal
+  num                                  natural number literal
   unop arith                           unary operator
   arith binop arith                    binary operator
   arith cmpop arith                    comparison
@@ -167,6 +174,7 @@ arith ::=
   "|" exp "|"                          list length
   "$" defid exp?                       function invocation
   "$" "(" exp ")"                      escape back to general expression syntax
+  "$" numtyp "$" "(" arith ")"         numeric conversion
 
 path ::=
   path? "[" arith "]"                  list element
@@ -178,9 +186,8 @@ hole ::=
   "%"                                  use next operand
   "%"digit*                            use numbered operand
   "%%"                                 use all operands
-  "!%"                                 skip next operand
-  "!%"digit*                           skip numbered operand
-  "!%%"                                skip all operands
+  "!%"                                 empty expression
+  "%latex" "(" text* ")"               literal latex
 ```
 
 The various meta notations for lists, records, and tuples mirror the syntactic conventions defined in the Wasm spec.
@@ -228,14 +235,17 @@ arg ::=
   exp
   "syntax" typ
   "grammar" sym
+  "def" defid
 
 params ::= ("(" list(param ",") ")")?
 param ::=
   (varid ":") typ
   "syntax" synid
   "grammar" gramid ":" typ
+  "def" "$" defid params ":" typ
 
 def ::=
+  "syntax" varid params hint*                               syntax declaration
   "syntax" varid params subid* hint* "=" deftyp             syntax definition
   "grammar" gramid params subid* ":" typ hint* "=" gram     grammar definition
   "relation" relid hint* ":" typ                            relation declaration
@@ -251,10 +261,12 @@ def ::=
   "def" "$" defid hint+
 
 premise ::=
+  "var" id ":" typ                                          local variable declaration
   relid ":" exp                                             relational premise
   "if" exp                                                  side condition
   "otherwise"                                               fallback side condition
   "(" premise ")" iter*                                     iterated relational premise
+  "--"                                                      separator
 
 hint ::=
   "hint" "(" hintid exp ")"                                 hint
