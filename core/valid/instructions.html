@@ -1353,7 +1353,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 </section>
 <section id="xref-syntax-instructions-syntax-instr-table-mathsf-table-grow-x">
 <span id="valid-table-grow"></span><h3><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-table}{\mathsf{table{.}grow}}~x\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-table-mathsf-table-grow-x" title="Link to this heading">¶</a></h3>
-<p>The <a class="reference internal" href="../syntax/instructions.html#syntax-instr"><span class="std std-ref">instruction</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-table}{\mathsf{table{.}grow}}~x)\)</span> is <a class="reference internal" href="#valid-instr"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a> <span class="math notranslate nohighlight">\({\mathit{rt}}~{\mathit{at}}~\rightarrow~{\mathit{at}}\)</span> if:</p>
+<p>The <a class="reference internal" href="../syntax/instructions.html#syntax-instr"><span class="std std-ref">instruction</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-table}{\mathsf{table{.}grow}}~x)\)</span> is <a class="reference internal" href="#valid-instr"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a> <span class="math notranslate nohighlight">\({\mathit{rt}}~{\mathit{at}}~\rightarrow~\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}\)</span> if:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{tables}}{}[x]\)</span> exists.</p></li>
@@ -1365,7 +1365,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 \frac{
 C{.}\href{../valid/conventions.html#context}{\mathsf{tables}}{}[x] = {\mathit{at}}~{\mathit{lim}}~{\mathit{rt}}
 }{
-C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-table}{\mathsf{table{.}grow}}~x : {\mathit{rt}}~{\mathit{at}} \rightarrow {\mathit{at}}
+C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-table}{\mathsf{table{.}grow}}~x : {\mathit{rt}}~{\mathit{at}} \rightarrow \href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}
 }
 \qquad
 \end{array}\]</div>

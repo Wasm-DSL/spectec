@@ -194,7 +194,7 @@ To avoid any loss in the range of allowed indices, it is treated as a 33 bit sig
 &amp; {\href{../binary/instructions.html#binary-instr}{\mathtt{instr}}} &amp; ::= &amp; \dots \\
 &amp; &amp; | &amp; \mathtt{0x1A} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/instructions.html#syntax-instr-parametric}{\mathsf{drop}} \\
 &amp; &amp; | &amp; \mathtt{0x1B} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/instructions.html#syntax-instr-parametric}{\mathsf{select}} \\
-&amp; &amp; | &amp; \mathtt{0x1C}~~{\mathit{ts}}{:}{\href{../binary/conventions.html#binary-list}{\mathtt{list}}}({\href{../binary/types.html#binary-valtype}{\mathtt{valtype}}}) &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/instructions.html#syntax-instr-parametric}{\mathsf{select}}~{\mathit{ts}} \\
+&amp; &amp; | &amp; \mathtt{0x1C}~~{t^\ast}{:}{\href{../binary/conventions.html#binary-list}{\mathtt{list}}}({\href{../binary/types.html#binary-valtype}{\mathtt{valtype}}}) &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/instructions.html#syntax-instr-parametric}{\mathsf{select}}~{t^\ast} \\
 &amp; &amp; | &amp; \dots \\
 \end{array}\end{split}\]</div>
 </section>
