@@ -126,8 +126,8 @@ C \href{../valid/types.html#valid-heaptype}{\vdash} {\href{../syntax/types.html#
 <p>The <a class="reference internal" href="../syntax/types.html#syntax-typeuse"><span class="std std-ref">type use</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}}\)</span> is <a class="reference internal" href="#valid-typeuse"><span class="std std-ref">valid</span></a> if:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[{\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}}]\)</span> exists.</p></li>
-<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[{\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}}]\)</span> is of the form <span class="math notranslate nohighlight">\({\mathit{dt}}\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[{\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}}]\)</span> exists.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[{\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}}]\)</span> is of the form <span class="math notranslate nohighlight">\({\mathit{dt}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
@@ -203,8 +203,8 @@ C \href{../valid/types.html#valid-reftype}{\vdash} \href{../syntax/types.html#sy
 <p>The <a class="reference internal" href="../syntax/instructions.html#syntax-blocktype"><span class="std std-ref">block type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}}\)</span> is <a class="reference internal" href="#valid-blocktype"><span class="std std-ref">valid</span></a> as the <a class="reference internal" href="conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a> <span class="math notranslate nohighlight">\({t_1^\ast}~\rightarrow~{t_2^\ast}\)</span> if:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[{\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}}]\)</span> exists.</p></li>
-<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype"><span class="std std-ref">expansion</span></a> of the <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[{\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}}]\)</span> is the <a class="reference internal" href="../syntax/types.html#syntax-comptype"><span class="std std-ref">composite type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast}~\href{../syntax/types.html#syntax-functype}{\rightarrow}~{t_2^\ast})\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[{\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}}]\)</span> exists.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype"><span class="std std-ref">expansion</span></a> of the <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[{\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}}]\)</span> is the <a class="reference internal" href="../syntax/types.html#syntax-comptype"><span class="std std-ref">composite type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast}~\href{../syntax/types.html#syntax-functype}{\rightarrow}~{t_2^\ast})\)</span>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
@@ -273,14 +273,14 @@ C \href{../valid/types.html#valid-resulttype}{\vdash} {t^\ast} : \href{../valid/
 <li><p>For all <span class="math notranslate nohighlight">\(x\)</span> in <span class="math notranslate nohighlight">\({x^\ast}\)</span>:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="conventions.html#syntax-localtype"><span class="std std-ref">local type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{locals}}{}[x]\)</span> exists.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#syntax-localtype"><span class="std std-ref">local</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{locals}}{}[x]\)</span> exists.</p></li>
 </ul>
 </div></blockquote>
 </li>
 <li><p>For all <span class="math notranslate nohighlight">\({{\mathit{lt}}}\)</span> in <span class="math notranslate nohighlight">\({{{\mathit{lt}}}^\ast}\)</span>, and corresponding <span class="math notranslate nohighlight">\(x\)</span> in <span class="math notranslate nohighlight">\({x^\ast}\)</span>:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="conventions.html#syntax-localtype"><span class="std std-ref">local type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{locals}}{}[x]\)</span> is of the form <span class="math notranslate nohighlight">\({{\mathit{lt}}}\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#syntax-localtype"><span class="std std-ref">local</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{locals}}{}[x]\)</span> is of the form <span class="math notranslate nohighlight">\({{\mathit{lt}}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -490,7 +490,7 @@ C \href{../valid/types.html#valid-rectype}{\vdash} \href{../syntax/types.html#sy
 <li><p>For all <span class="math notranslate nohighlight">\(x\)</span> in <span class="math notranslate nohighlight">\({x^\ast}\)</span>:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> exists.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> exists.</p></li>
 </ul>
 </div></blockquote>
 </li>
