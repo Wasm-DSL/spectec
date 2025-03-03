@@ -420,7 +420,7 @@ C \href{../valid/types.html#valid-packtype}{\vdash} {\href{../syntax/types.html#
 <p><a class="reference internal" href="../syntax/types.html#syntax-rectype"><span class="std std-ref">Recursive types</span></a> are validated with respect to the first <a class="reference internal" href="../syntax/modules.html#syntax-typeidx"><span class="std std-ref">type index</span></a> defined by the recursive group.</p>
 <section id="xref-syntax-types-syntax-rectype-mathsf-rec-xref-syntax-types-syntax-subtype-mathit-subtype-ast">
 <h3><span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}^\ast\)</span><a class="headerlink" href="#xref-syntax-types-syntax-rectype-mathsf-rec-xref-syntax-types-syntax-subtype-mathit-subtype-ast" title="Link to this heading">¶</a></h3>
-<p>The <a class="reference internal" href="../syntax/types.html#syntax-rectype"><span class="std std-ref">recursive type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~{{\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}'}^\ast})\)</span> is <a class="reference internal" href="#valid-rectype"><span class="std std-ref">valid</span></a> for the <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x)})\)</span> <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x)})\)</span> if:</p>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-rectype"><span class="std std-ref">recursive type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~{{\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}'}^\ast})\)</span> is <a class="reference internal" href="#valid-rectype"><span class="std std-ref">valid</span></a> for the <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{x})\)</span> <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{x})\)</span> if:</p>
 <blockquote>
 <div><ul>
 <li><p>Either:</p>
@@ -434,8 +434,8 @@ C \href{../valid/types.html#valid-packtype}{\vdash} {\href{../syntax/types.html#
 <blockquote>
 <div><ul class="simple">
 <li><p>The sub type sequence <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}'}^\ast}\)</span> is of the form <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}_1~{{\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}^\ast}\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-subtype"><span class="std std-ref">sub type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}_1\)</span> is <a class="reference internal" href="#valid-subtype"><span class="std std-ref">valid</span></a> with the <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x)})\)</span> <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x)})\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-rectype"><span class="std std-ref">recursive type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~{{\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}^\ast})\)</span> is <a class="reference internal" href="#valid-rectype"><span class="std std-ref">valid</span></a> for the <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x + 1)})\)</span> <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x + 1)})\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-subtype"><span class="std std-ref">sub type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}_1\)</span> is <a class="reference internal" href="#valid-subtype"><span class="std std-ref">valid</span></a> for the <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{x})\)</span> <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{x})\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-rectype"><span class="std std-ref">recursive type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~{{\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}^\ast})\)</span> is <a class="reference internal" href="#valid-rectype"><span class="std std-ref">valid</span></a> for the <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{x + 1})\)</span> <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{x + 1})\)</span>.</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -459,22 +459,22 @@ C \href{../valid/types.html#valid-packtype}{\vdash} {\href{../syntax/types.html#
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
 }{
-C \href{../valid/types.html#valid-rectype}{\vdash} \href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~\epsilon : {\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{((x))}
+C \href{../valid/types.html#valid-rectype}{\vdash} \href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~\epsilon : {\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x)}
 }
 \qquad
 \frac{
-C \href{../valid/types.html#valid-subtype}{\vdash} {\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}_1 : {\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{((x))}
+C \href{../valid/types.html#valid-subtype}{\vdash} {\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}_1 : {\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x)}
  \qquad
-C \href{../valid/types.html#valid-rectype}{\vdash} \href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~{{\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}^\ast} : {\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{((x + 1))}
+C \href{../valid/types.html#valid-rectype}{\vdash} \href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~{{\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}^\ast} : {\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x + 1)}
 }{
-C \href{../valid/types.html#valid-rectype}{\vdash} \href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~({\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}_1~{{\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}^\ast}) : {\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{((x))}
+C \href{../valid/types.html#valid-rectype}{\vdash} \href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~({\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}_1~{{\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}^\ast}) : {\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x)}
 }
 \qquad
 \end{array}\]</div>
 </section>
 <section id="xref-syntax-types-syntax-subtype-mathsf-sub-xref-syntax-types-syntax-subtype-mathsf-final-y-ast-xref-syntax-types-syntax-comptype-mathit-comptype">
 <h3><span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}^?~y^\ast~\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}\)</span><a class="headerlink" href="#xref-syntax-types-syntax-subtype-mathsf-sub-xref-syntax-types-syntax-subtype-mathsf-final-y-ast-xref-syntax-types-syntax-comptype-mathit-comptype" title="Link to this heading">¶</a></h3>
-<p>The <a class="reference internal" href="../syntax/types.html#syntax-subtype"><span class="std std-ref">sub type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~{\mathsf{final}^?}~{x^\ast}~{\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}})\)</span> is <a class="reference internal" href="#valid-subtype"><span class="std std-ref">valid</span></a> with the <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x_0)})\)</span> <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x_0)})\)</span> if:</p>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-subtype"><span class="std std-ref">sub type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~{\mathsf{final}^?}~{x^\ast}~{\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}})\)</span> is <a class="reference internal" href="#valid-subtype"><span class="std std-ref">valid</span></a> for the <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{x_0})\)</span> <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{x_0})\)</span> if:</p>
 <blockquote>
 <div><ul>
 <li><p>The length of <span class="math notranslate nohighlight">\({x^\ast}\)</span> is less than or equal to <span class="math notranslate nohighlight">\(1\)</span>.</p></li>
@@ -545,7 +545,7 @@ C \href{../valid/types.html#valid-comptype}{\vdash} {\href{../syntax/types.html#
 (C \href{../valid/matching.html#match-comptype}{\vdash} {\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}} \href{../valid/matching.html#match-comptype}{\leq} {\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}'})^\ast
 \end{array}
 }{
-C \href{../valid/types.html#valid-subtype}{\vdash} \href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~{\mathsf{final}^?}~{x^\ast}~{\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}} : {\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{((x_0))}
+C \href{../valid/types.html#valid-subtype}{\vdash} \href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~{\mathsf{final}^?}~{x^\ast}~{\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}} : {\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x_0)}
 }
 \qquad
 \end{array}\end{split}\]</div>
@@ -562,7 +562,7 @@ preventing cyclic subtype hierarchies.</p>
 <p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\(({\href{../syntax/types.html#syntax-rectype}{\mathit{rectype}}} {.} i)\)</span> is <a class="reference internal" href="#valid-deftype"><span class="std std-ref">valid</span></a> if:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-rectype"><span class="std std-ref">recursive type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-rectype}{\mathit{rectype}}}\)</span> is <a class="reference internal" href="#valid-rectype"><span class="std std-ref">valid</span></a> for the <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x)})\)</span> <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x)})\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-rectype"><span class="std std-ref">recursive type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-rectype}{\mathit{rectype}}}\)</span> is <a class="reference internal" href="#valid-rectype"><span class="std std-ref">valid</span></a> for the <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{x})\)</span> <span class="math notranslate nohighlight">\(({\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{x})\)</span>.</p></li>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-rectype"><span class="std std-ref">recursive type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-rectype}{\mathit{rectype}}}\)</span> is of the form <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~{{\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}^{n}})\)</span>.</p></li>
 <li><p>The <span class="math notranslate nohighlight">\(i\)</span> <span class="math notranslate nohighlight">\(i\)</span> is less than <span class="math notranslate nohighlight">\(n\)</span>.</p></li>
 </ul>
@@ -570,7 +570,7 @@ preventing cyclic subtype hierarchies.</p>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C \href{../valid/types.html#valid-rectype}{\vdash} {\href{../syntax/types.html#syntax-rectype}{\mathit{rectype}}} : {\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{((x))}
+C \href{../valid/types.html#valid-rectype}{\vdash} {\href{../syntax/types.html#syntax-rectype}{\mathit{rectype}}} : {\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x)}
  \qquad
 {\href{../syntax/types.html#syntax-rectype}{\mathit{rectype}}} = \href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~{{\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}^{n}}
  \qquad
