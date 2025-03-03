@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Numerics &#8212; WebAssembly 3.0 (Draft 2025-02-28)</title>
+    <title>Numerics &#8212; WebAssembly 3.0 (Draft 2025-03-03)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=dac8d700"></script>
+    <script src="../_static/documentation_options.js?v=ca31bb0f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -220,10 +220,14 @@ provided that <span class="math notranslate nohighlight">\(N = |t|\cdot M\)</spa
   \end{array}
 \end{array}\end{split}\]</div>
 <p>This function is a bijection on <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-numtype}{\mathsf{i}\scriptstyle\kern-0.1emN}\)</span>, hence it is invertible.</p>
-<div class="admonition-todo admonition" id="id1">
-<p class="admonition-title">Todo</p>
-<p>pack/unpacknum</p>
-</div>
+<p>Numeric values can be <em>packed</em> into lanes of a specific <a class="reference internal" href="../syntax/instructions.html#syntax-lanetype"><span class="std std-ref">lane type</span></a> and vice versa:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}[t]{&#64;{}lcl&#64;{}l&#64;{}}
+{{\href{../exec/numerics.html#aux-packnum}{\mathrm{pack}}}}_{{\href{../syntax/types.html#syntax-numtype}{\mathit{numtype}}}}(c) &amp; = &amp; c \\
+{{\href{../exec/numerics.html#aux-packnum}{\mathrm{pack}}}}_{{\href{../syntax/types.html#syntax-packtype}{\mathit{packtype}}}}(c) &amp; = &amp; {{\href{../exec/numerics.html#op-wrap}{\mathrm{wrap}}}}_{{|{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\href{../syntax/types.html#syntax-packtype}{\mathit{packtype}}})|}, {|{\href{../syntax/types.html#syntax-packtype}{\mathit{packtype}}}|}}(c) \\[0.8ex]
+{{\href{../exec/numerics.html#aux-unpacknum}{\mathrm{unpack}}}}_{{\href{../syntax/types.html#syntax-numtype}{\mathit{numtype}}}}(c) &amp; = &amp; c \\
+{{\href{../exec/numerics.html#aux-unpacknum}{\mathrm{unpack}}}}_{{\href{../syntax/types.html#syntax-packtype}{\mathit{packtype}}}}(c) &amp; = &amp; {{{{\href{../exec/numerics.html#op-extend}{\mathrm{extend}}}}_{{|{\href{../syntax/types.html#syntax-packtype}{\mathit{packtype}}}|}, {|{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\href{../syntax/types.html#syntax-packtype}{\mathit{packtype}}})|}}^{\href{../syntax/instructions.html#syntax-sx}{\mathsf{u}}}}}{(c)} \\
+\end{array}\end{split}\]</div>
 </section>
 <section id="storage">
 <span id="aux-bytes"></span><span id="aux-littleendian"></span><span id="index-5"></span><h3>Storage<a class="headerlink" href="#storage" title="Link to this heading">¶</a></h3>
@@ -648,11 +652,11 @@ it holds that <span class="math notranslate nohighlight">\(i_1 = i_2\cdot\href{.
 <span id="op-iextendn"></span><h3><span class="math notranslate nohighlight">\(\href{../exec/numerics.html#op-iextendn}{\mathrm{iextend}M\mathrm{\_s}}_N(i)\)</span><a class="headerlink" href="#xref-exec-numerics-op-iextendn-mathrm-iextend-m-mathrm-s-n-i" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Let <span class="math notranslate nohighlight">\(j\)</span> be the result of computing <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#op-wrap}{\mathrm{wrap}}_{N,M}(i)\)</span>.</p></li>
-<li><p>Return <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#op-ext}{\mathrm{extend}^{\mathsf{s}}}_{M,N}(j)\)</span>.</p></li>
+<li><p>Return <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#op-extend}{\mathrm{extend}^{\mathsf{s}}}_{M,N}(j)\)</span>.</p></li>
 </ul>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{lll&#64;{\qquad}l}
-\href{../exec/numerics.html#op-iextendn}{\mathrm{iextend}M\mathrm{\_s}}_{N}(i) &amp;=&amp; \href{../exec/numerics.html#op-ext}{\mathrm{extend}^{\mathsf{s}}}_{M,N}(\href{../exec/numerics.html#op-wrap}{\mathrm{wrap}}_{N,M}(i)) \\
+\href{../exec/numerics.html#op-iextendn}{\mathrm{iextend}M\mathrm{\_s}}_{N}(i) &amp;=&amp; \href{../exec/numerics.html#op-extend}{\mathrm{extend}^{\mathsf{s}}}_{M,N}(\href{../exec/numerics.html#op-wrap}{\mathrm{wrap}}_{N,M}(i)) \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="xref-exec-numerics-op-ibitselect-mathrm-ibitselect-n-i-1-i-2-i-3">
@@ -1418,33 +1422,29 @@ It computes <span class="math notranslate nohighlight">\((z_1 \cdot z_2) + z_3\)
 </section>
 <section id="conversions">
 <span id="convert-ops"></span><h2>Conversions<a class="headerlink" href="#conversions" title="Link to this heading">¶</a></h2>
-<div class="admonition-todo admonition" id="id2">
-<span id="op-extend"></span><span id="op-ext"></span><p class="admonition-title">Todo</p>
-<p>ext or extend?</p>
-</div>
-<section id="xref-exec-numerics-op-ext-mathrm-extend-mathsf-u-m-n-i">
-<h3><span class="math notranslate nohighlight">\(\href{../exec/numerics.html#op-ext}{\mathrm{extend}^{\mathsf{u}}}_{M,N}(i)\)</span><a class="headerlink" href="#xref-exec-numerics-op-ext-mathrm-extend-mathsf-u-m-n-i" title="Link to this heading">¶</a></h3>
+<section id="xref-exec-numerics-op-extend-mathrm-extend-mathsf-u-m-n-i">
+<span id="op-extend"></span><h3><span class="math notranslate nohighlight">\(\href{../exec/numerics.html#op-extend}{\mathrm{extend}^{\mathsf{u}}}_{M,N}(i)\)</span><a class="headerlink" href="#xref-exec-numerics-op-extend-mathrm-extend-mathsf-u-m-n-i" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Return <span class="math notranslate nohighlight">\(i\)</span>.</p></li>
 </ul>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{lll&#64;{\qquad}l}
-\href{../exec/numerics.html#op-ext}{\mathrm{extend}^{\mathsf{u}}}_{M,N}(i) &amp;=&amp; i \\
+\href{../exec/numerics.html#op-extend}{\mathrm{extend}^{\mathsf{u}}}_{M,N}(i) &amp;=&amp; i \\
 \end{array}\end{split}\]</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>In the abstract syntax, unsigned extension just reinterprets the same value.</p>
 </div>
 </section>
-<section id="xref-exec-numerics-op-ext-mathrm-extend-mathsf-s-m-n-i">
-<h3><span class="math notranslate nohighlight">\(\href{../exec/numerics.html#op-ext}{\mathrm{extend}^{\mathsf{s}}}_{M,N}(i)\)</span><a class="headerlink" href="#xref-exec-numerics-op-ext-mathrm-extend-mathsf-s-m-n-i" title="Link to this heading">¶</a></h3>
+<section id="xref-exec-numerics-op-extend-mathrm-extend-mathsf-s-m-n-i">
+<h3><span class="math notranslate nohighlight">\(\href{../exec/numerics.html#op-extend}{\mathrm{extend}^{\mathsf{s}}}_{M,N}(i)\)</span><a class="headerlink" href="#xref-exec-numerics-op-extend-mathrm-extend-mathsf-s-m-n-i" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Let <span class="math notranslate nohighlight">\(j\)</span> be the <a class="reference internal" href="#aux-signed"><span class="std std-ref">signed interpretation</span></a> of <span class="math notranslate nohighlight">\(i\)</span> of size <span class="math notranslate nohighlight">\(M\)</span>.</p></li>
 <li><p>Return the two’s complement of <span class="math notranslate nohighlight">\(j\)</span> relative to size <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
 </ul>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{lll&#64;{\qquad}l}
-\href{../exec/numerics.html#op-ext}{\mathrm{extend}^{\mathsf{s}}}_{M,N}(i) &amp;=&amp; \href{../exec/numerics.html#aux-signed}{\mathrm{signed}}_N^{-1}(\href{../exec/numerics.html#aux-signed}{\mathrm{signed}}_M(i)) \\
+\href{../exec/numerics.html#op-extend}{\mathrm{extend}^{\mathsf{s}}}_{M,N}(i) &amp;=&amp; \href{../exec/numerics.html#aux-signed}{\mathrm{signed}}_N^{-1}(\href{../exec/numerics.html#aux-signed}{\mathrm{signed}}_M(i)) \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="xref-exec-numerics-op-wrap-mathrm-wrap-m-n-i">
@@ -1733,7 +1733,7 @@ However, some operators consider multiple lanes at once.</p>
   &amp; (
     \begin{array}[t]{&#64;{}l}
     \mathrel{\mbox{if}} i^\ast = \href{../exec/numerics.html#aux-lanes}{\mathrm{lanes}}_{\mathsf{i}N_1\mathsf{x}M_1}(c) \\
-    \land~{i'}^\ast = \href{../exec/numerics.html#op-ext}{\mathrm{extend}}^{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}_{N_1, N_2}(i)^\ast \\
+    \land~{i'}^\ast = \href{../exec/numerics.html#op-extend}{\mathrm{extend}}^{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}_{N_1, N_2}(i)^\ast \\
     \land~j^\ast = \href{../exec/numerics.html#op-ivadd-pairwise}{\mathrm{ivadd\_pairwise}}_{N_2}({i'}^\ast) \\
     \end{array}
 \end{array}\end{split}\]</div>
@@ -1747,8 +1747,8 @@ However, some operators consider multiple lanes at once.</p>
     \begin{array}[t]{&#64;{}l}
     \mathrel{\mbox{if}} i_1^\ast = \href{../exec/numerics.html#aux-lanes}{\mathrm{lanes}}_{\mathsf{i}N_1\mathsf{x}M_1}(c_1)[h \href{../syntax/conventions.html#notation-slice}{\mathrel{\mathbf{:}}} k] \\
     \land~i_2^\ast = \href{../exec/numerics.html#aux-lanes}{\mathrm{lanes}}_{\mathsf{i}N_1\mathsf{x}M_1}(c_2)[h \href{../syntax/conventions.html#notation-slice}{\mathrel{\mathbf{:}}} k] \\
-    \land~{i'_1}^\ast = \href{../exec/numerics.html#op-ext}{\mathrm{extend}}^{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}_{N_1, N_2}(i_1)^\ast \\
-    \land~{i'_2}^\ast = \href{../exec/numerics.html#op-ext}{\mathrm{extend}}^{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}_{N_1, N_2}(i_2)^\ast \\
+    \land~{i'_1}^\ast = \href{../exec/numerics.html#op-extend}{\mathrm{extend}}^{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}_{N_1, N_2}(i_1)^\ast \\
+    \land~{i'_2}^\ast = \href{../exec/numerics.html#op-extend}{\mathrm{extend}}^{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}_{N_1, N_2}(i_2)^\ast \\
     \land~j^\ast = f_{N_2}({i'_1}^\ast, {i'_1}^\ast) \\
     \end{array}
 \end{array}\end{split}\]</div>
@@ -2033,7 +2033,7 @@ it behaves like signed dot product.</p>
 </ul>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{&#64;{}lcll}
-\href{../exec/numerics.html#op-irelaxed-laneselect}{\mathrm{irelaxed\_laneselect}}_N(i_1, i_2, i_3) &amp;=&amp; \href{../exec/numerics.html#op-ibitselect}{\mathrm{ibitselect}}_N(i_1, i_2, \href{../exec/numerics.html#aux-relaxed}{\mathrm{relaxed}}(R_{\mathrm{laneselect}})[ i_3, \href{../exec/numerics.html#op-ext}{\mathrm{extend}^{\mathsf{s}}}_{1,N}(\href{../exec/numerics.html#op-ishr}{\mathrm{ishr\_u}}_N(i_3, N-1)) ]) \\
+\href{../exec/numerics.html#op-irelaxed-laneselect}{\mathrm{irelaxed\_laneselect}}_N(i_1, i_2, i_3) &amp;=&amp; \href{../exec/numerics.html#op-ibitselect}{\mathrm{ibitselect}}_N(i_1, i_2, \href{../exec/numerics.html#aux-relaxed}{\mathrm{relaxed}}(R_{\mathrm{laneselect}})[ i_3, \href{../exec/numerics.html#op-extend}{\mathrm{extend}^{\mathsf{s}}}_{1,N}(\href{../exec/numerics.html#op-ishr}{\mathrm{ishr\_u}}_N(i_3, N-1)) ]) \\
 \end{array}\end{split}\]</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
