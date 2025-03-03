@@ -477,7 +477,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}
 }{
 C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new}}~x : {{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})^\ast} \rightarrow (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~x)
 }
@@ -503,7 +503,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}
  \qquad
 ({{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})} \neq \epsilon)^\ast
 }{
@@ -528,7 +528,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{{\mathit{yt}}^\ast}
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{{\mathit{yt}}^\ast}
  \qquad
 {{\mathit{yt}}^\ast}{}[i] = {\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}
  \qquad
@@ -554,7 +554,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} {\href{../syntax/instruc
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{{\mathit{yt}}^\ast}
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{{\mathit{yt}}^\ast}
  \qquad
 {{\mathit{yt}}^\ast}{}[i] = \mathsf{mut}~{\mathit{zt}}
 }{
@@ -576,7 +576,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})
 }{
 C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-array}{\mathsf{array{.}new}}~x : {\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})~\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}} \rightarrow (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~x)
 }
@@ -596,7 +596,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})
  \qquad
 {{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})} \neq \epsilon
 }{
@@ -618,7 +618,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})
 }{
 C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-array}{\mathsf{array{.}new\_fixed}}~x~n : {{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})^{n}} \rightarrow (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~x)
 }
@@ -639,7 +639,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{rt}})
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{rt}})
  \qquad
 C \href{../valid/matching.html#match-reftype}{\vdash} C{.}\href{../valid/conventions.html#context}{\mathsf{elems}}{}[y] \href{../valid/matching.html#match-reftype}{\leq} {\mathit{rt}}
 }{
@@ -663,7 +663,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})
  \qquad
 {\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}}) = {\href{../syntax/types.html#syntax-numtype}{\mathit{numtype}}} \lor {\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}}) = {\href{../syntax/types.html#syntax-vectype}{\mathit{vectype}}}
  \qquad
@@ -688,7 +688,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})
  \qquad
 {{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}^?} = \epsilon \Leftrightarrow {\mathit{zt}} = {\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})
 }{
@@ -710,7 +710,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} {\href{../syntax/instruc
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~(\mathsf{mut}~{\mathit{zt}})
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~(\mathsf{mut}~{\mathit{zt}})
 }{
 C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-array}{\mathsf{array{.}set}}~x : (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~x)~\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}~{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}}) \rightarrow \epsilon
 }
@@ -742,7 +742,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~(\mathsf{mut}~{\mathit{zt}})
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~(\mathsf{mut}~{\mathit{zt}})
 }{
 C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-array}{\mathsf{array{.}fill}}~x : (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~x)~\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}~{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})~\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}} \rightarrow \epsilon
 }
@@ -764,9 +764,9 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x_1] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~(\mathsf{mut}~{\mathit{zt}}_1)
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x_1] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~(\mathsf{mut}~{\mathit{zt}}_1)
  \qquad
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x_2] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}_2)
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x_2] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}_2)
  \qquad
 C \href{../valid/matching.html#match-storagetype}{\vdash} {\mathit{zt}}_2 \href{../valid/matching.html#match-storagetype}{\leq} {\mathit{zt}}_1
 }{
@@ -789,7 +789,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~(\mathsf{mut}~{\mathit{zt}})
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~(\mathsf{mut}~{\mathit{zt}})
  \qquad
 C \href{../valid/matching.html#match-storagetype}{\vdash} C{.}\href{../valid/conventions.html#context}{\mathsf{elems}}{}[y] \href{../valid/matching.html#match-storagetype}{\leq} {\mathit{zt}}
 }{
@@ -813,7 +813,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~(\mathsf{mut}~{\mathit{zt}})
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~(\mathsf{mut}~{\mathit{zt}})
  \qquad
 {\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}}) = {\href{../syntax/types.html#syntax-numtype}{\mathit{numtype}}} \lor {\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}}) = {\href{../syntax/types.html#syntax-vectype}{\mathit{vectype}}}
  \qquad
@@ -1962,7 +1962,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{tags}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} \epsilon)
+C{.}\href{../valid/conventions.html#context}{\mathsf{tags}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} \epsilon)
  \qquad
 C \href{../valid/matching.html#match-resulttype}{\vdash} {t^\ast} \href{../valid/matching.html#match-resulttype}{\leq} C{.}\href{../valid/conventions.html#context}{\mathsf{labels}}{}[l]
 }{
@@ -1985,7 +1985,7 @@ C \href{../valid/instructions.html#valid-catch}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{tags}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} \epsilon)
+C{.}\href{../valid/conventions.html#context}{\mathsf{tags}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} \epsilon)
  \qquad
 C \href{../valid/matching.html#match-resulttype}{\vdash} {t^\ast}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-heaptype}{\mathsf{exn}}) \href{../valid/matching.html#match-resulttype}{\leq} C{.}\href{../valid/conventions.html#context}{\mathsf{labels}}{}[l]
 }{
@@ -2240,7 +2240,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{funcs}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^\ast})
+C{.}\href{../valid/conventions.html#context}{\mathsf{funcs}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^\ast})
 }{
 C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-control}{\mathsf{call}}~x : {t_1^\ast} \rightarrow {t_2^\ast}
 }
@@ -2259,7 +2259,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^\ast})
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^\ast})
 }{
 C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-control}{\mathsf{call\_ref}}~x : {t_1^\ast}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~x) \rightarrow {t_2^\ast}
 }
@@ -2285,7 +2285,7 @@ C{.}\href{../valid/conventions.html#context}{\mathsf{tables}}{}[x] = {\mathit{at
  \qquad
 C \href{../valid/matching.html#match-reftype}{\vdash} {\mathit{rt}} \href{../valid/matching.html#match-reftype}{\leq} (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~\href{../syntax/types.html#syntax-heaptype}{\mathsf{func}})
  \qquad
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[y] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^\ast})
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[y] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^\ast})
 }{
 C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-control}{\mathsf{call\_indirect}}~x~y : {t_1^\ast}~{\mathit{at}} \rightarrow {t_2^\ast}
 }
@@ -2335,7 +2335,7 @@ which is the case for functions not returning anything.</p>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{funcs}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^\ast})
+C{.}\href{../valid/conventions.html#context}{\mathsf{funcs}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^\ast})
  \qquad
 C{.}\href{../valid/conventions.html#context}{\mathsf{return}} = ({{t'}_2^\ast})
  \qquad
@@ -2367,7 +2367,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^\ast})
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^\ast})
  \qquad
 C{.}\href{../valid/conventions.html#context}{\mathsf{return}} = ({{t'}_2^\ast})
  \qquad
@@ -2407,7 +2407,7 @@ C{.}\href{../valid/conventions.html#context}{\mathsf{tables}}{}[x] = {\mathit{at
  \qquad
 C \href{../valid/matching.html#match-reftype}{\vdash} {\mathit{rt}} \href{../valid/matching.html#match-reftype}{\leq} (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~\href{../syntax/types.html#syntax-heaptype}{\mathsf{func}})
  \\
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[y] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^\ast})
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[y] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^\ast})
  \qquad
 C{.}\href{../valid/conventions.html#context}{\mathsf{return}} = ({{t'}_2^\ast})
  \qquad
@@ -2438,7 +2438,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{tags}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} \epsilon)
+C{.}\href{../valid/conventions.html#context}{\mathsf{tags}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} \epsilon)
  \qquad
 C \href{../valid/types.html#valid-instrtype}{\vdash} {t_1^\ast} \rightarrow {t_2^\ast} : \href{../valid/types.html#valid-instrtype}{\mathsf{ok}}
 }{

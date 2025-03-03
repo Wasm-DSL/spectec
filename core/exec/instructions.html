@@ -564,7 +564,7 @@ below is the official specification</p>
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
 &amp; z ; {{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}}~(\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new}}~x) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; z{}[{.}\href{../exec/runtime.html#syntax-store}{\mathsf{structs}} \mathrel{{=}{\oplus}} {\mathit{si}}] ; (\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a) &amp; \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^{n}} \\
+\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^{n}} \\
 {\land}~ a = {|z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{structs}}|} \\
 {\land}~ {\mathit{si}} = \{ \begin{array}[t]{&#64;{}l&#64;{}}
 \href{../exec/runtime.html#syntax-structinst}{\mathsf{type}}~z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x],\; \href{../exec/runtime.html#syntax-structinst}{\mathsf{fields}}~{({{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}))^{n}} \}\end{array} \\
@@ -588,7 +588,7 @@ below is the official specification</p>
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
 &amp; z ; (\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_default}}~x) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast}~(\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new}}~x) &amp; \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast} \\
+\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast} \\
 {\land}~ ({{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})} = {\href{../exec/runtime.html#syntax-val}{\mathit{val}}})^\ast \\
 \end{array} \\
 \end{array}\end{split}\]</div>
@@ -625,7 +625,7 @@ below is the official specification</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
 &amp; z ; (\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}null}}~{\mathit{ht}})~({\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}get}}}{\mathsf{\_}}{{{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}^?}}~x~i) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; \href{../exec/runtime.html#syntax-trap}{\mathsf{trap}} \\
-&amp; z ; (\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a)~({\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}get}}}{\mathsf{\_}}{{{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}^?}}~x~i) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {{{{\href{../exec/runtime.html#aux-unpackfield}{\mathrm{unpack}}}}_{{{\mathit{zt}}^\ast}{}[i]}^{{{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}^?}}}}{(z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{fields}}{}[i])} &amp; \quad \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast} \\
+&amp; z ; (\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a)~({\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}get}}}{\mathsf{\_}}{{{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}^?}}~x~i) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {{{{\href{../exec/runtime.html#aux-unpackfield}{\mathrm{unpack}}}}_{{{\mathit{zt}}^\ast}{}[i]}^{{{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}^?}}}}{(z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{fields}}{}[i])} &amp; \quad \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast} \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="xref-syntax-instructions-syntax-instr-struct-mathsf-struct-set-x-i">
@@ -658,7 +658,7 @@ below is the official specification</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
 &amp; z ; (\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}null}}~{\mathit{ht}})~{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}~(\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}set}}~x~i) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; z ; \href{../exec/runtime.html#syntax-trap}{\mathsf{trap}} \\
-&amp; z ; (\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a)~{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}~(\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}set}}~x~i) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; z{}[{.}\href{../exec/runtime.html#syntax-store}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{fields}}{}[i] = {{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{{\mathit{zt}}^\ast}{}[i]}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}})] ; \epsilon &amp; \quad \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast} \\
+&amp; z ; (\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a)~{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}~(\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}set}}~x~i) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; z{}[{.}\href{../exec/runtime.html#syntax-store}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{fields}}{}[i] = {{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{{\mathit{zt}}^\ast}{}[i]}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}})] ; \epsilon &amp; \quad \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast} \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="xref-syntax-instructions-syntax-instr-array-mathsf-array-new-x">
@@ -694,7 +694,7 @@ below is the official specification</p>
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
 &amp; z ; (\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~n)~(\href{../syntax/instructions.html#syntax-instr-array}{\mathsf{array{.}new\_default}}~x) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}}~(\href{../syntax/instructions.html#syntax-instr-array}{\mathsf{array{.}new\_fixed}}~x~n) &amp; \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}) \\
+\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}) \\
 {\land}~ {{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})} = {\href{../exec/runtime.html#syntax-val}{\mathit{val}}} \\
 \end{array} \\
 \end{array}\end{split}\]</div>
@@ -719,7 +719,7 @@ below is the official specification</p>
 &amp;&amp;&amp; \multicolumn{2}{&#64;{}l&#64;{}}{\quad
 \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}) \\
+\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}) \\
 {\land}~ a = {|z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{arrays}}|} \land {\mathit{ai}} = \{ \begin{array}[t]{&#64;{}l&#64;{}}
 \href{../exec/runtime.html#syntax-arrayinst}{\mathsf{type}}~z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x],\; \href{../exec/runtime.html#syntax-arrayinst}{\mathsf{fields}}~{({{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}))^{n}} \}\end{array} \\
 \end{array}
@@ -753,7 +753,7 @@ below is the official specification</p>
 &amp;&amp;&amp; \multicolumn{2}{&#64;{}l&#64;{}}{\quad
 \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}) \\
+\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}) \\
 {\land}~ i + n \cdot {|{\mathit{zt}}|} / 8 &gt; {|z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{datas}}{}[y]{.}\href{../exec/runtime.html#syntax-datainst}{\mathsf{bytes}}|} \\
 \end{array}
 } \\
@@ -761,7 +761,7 @@ below is the official specification</p>
 &amp;&amp;&amp; \multicolumn{2}{&#64;{}l&#64;{}}{\quad
 \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}) \\
+\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}) \\
 {\land}~ {\href{../syntax/conventions.html#notation-concat}{\bigoplus}}\, {{{\href{../exec/numerics.html#aux-bytes}{\mathrm{bytes}}}}_{{\mathit{zt}}}(c)^{n}} = z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{datas}}{}[y]{.}\href{../exec/runtime.html#syntax-datainst}{\mathsf{bytes}}{}[i : n \cdot {|{\mathit{zt}}|} / 8] \\
 \end{array}
 } \\
@@ -831,7 +831,7 @@ below is the official specification</p>
 &amp; z ; (\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}array}}~a)~(\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~i)~({\href{../syntax/instructions.html#syntax-instr-array}{\mathsf{array{.}get}}}{\mathsf{\_}}{{{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}^?}}~x) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; \href{../exec/runtime.html#syntax-trap}{\mathsf{trap}} &amp; \quad \mbox{if}~ i \geq {|z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{arrays}}{}[a]{.}\href{../exec/runtime.html#syntax-arrayinst}{\mathsf{fields}}|} \\
 &amp; z ; (\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}array}}~a)~(\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~i)~({\href{../syntax/instructions.html#syntax-instr-array}{\mathsf{array{.}get}}}{\mathsf{\_}}{{{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}^?}}~x) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {{{{\href{../exec/runtime.html#aux-unpackfield}{\mathrm{unpack}}}}_{{\mathit{zt}}}^{{{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}^?}}}}{(z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{arrays}}{}[a]{.}\href{../exec/runtime.html#syntax-arrayinst}{\mathsf{fields}}{}[i])} &amp;  \\
 &amp;&amp;&amp; \multicolumn{2}{&#64;{}l&#64;{}}{\quad
-\quad \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})
+\quad \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})
 } \\
 \end{array}\end{split}\]</div>
 </section>
@@ -871,7 +871,7 @@ below is the official specification</p>
 &amp; z ; (\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}array}}~a)~(\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~i)~{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}~(\href{../syntax/instructions.html#syntax-instr-array}{\mathsf{array{.}set}}~x) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; z ; \href{../exec/runtime.html#syntax-trap}{\mathsf{trap}} &amp; \quad \mbox{if}~ i \geq {|z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{arrays}}{}[a]{.}\href{../exec/runtime.html#syntax-arrayinst}{\mathsf{fields}}|} \\
 &amp; z ; (\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}array}}~a)~(\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~i)~{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}~(\href{../syntax/instructions.html#syntax-instr-array}{\mathsf{array{.}set}}~x) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; z{}[{.}\href{../exec/runtime.html#syntax-store}{\mathsf{arrays}}{}[a]{.}\href{../exec/runtime.html#syntax-arrayinst}{\mathsf{fields}}{}[i] = {{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}})] ; \epsilon &amp;  \\
 &amp;&amp;&amp; \multicolumn{2}{&#64;{}l&#64;{}}{\quad
-\quad \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})
+\quad \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})
 } \\
 \end{array}\end{split}\]</div>
 </section>
@@ -1087,7 +1087,7 @@ below is the official specification</p>
 \begin{array}[t]{&#64;{}l&#64;{}}
 \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\mbox{otherwise, if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x_2] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}_2) \\
+\mbox{otherwise, if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x_2] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}_2) \\
 {\land}~ i_1 \leq i_2 \land {{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}^?} = {\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}({\mathit{zt}}_2) \\
 \end{array} \\
 \end{array}
@@ -1105,7 +1105,7 @@ below is the official specification</p>
 \begin{array}[t]{&#64;{}l&#64;{}}
 \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\mbox{otherwise, if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x_2] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}_2) \\
+\mbox{otherwise, if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x_2] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}_2) \\
 {\land}~ {{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}^?} = {\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}({\mathit{zt}}_2) \\
 \end{array} \\
 \end{array}
@@ -1194,7 +1194,7 @@ below is the official specification</p>
 &amp; \multicolumn{4}{&#64;{}l&#64;{}}{\quad
 \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}) \\
+\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}) \\
 {\land}~ j + n \cdot {|{\mathit{zt}}|} / 8 &gt; {|z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{datas}}{}[y]{.}\href{../exec/runtime.html#syntax-datainst}{\mathsf{bytes}}|} \\
 \end{array}
 } \\
@@ -1211,7 +1211,7 @@ below is the official specification</p>
 \begin{array}[t]{&#64;{}l&#64;{}}
 \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\mbox{otherwise, if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}) \\
+\mbox{otherwise, if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}) \\
 {\land}~ {{\href{../exec/numerics.html#aux-bytes}{\mathrm{bytes}}}}_{{\mathit{zt}}}(c) = z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{datas}}{}[y]{.}\href{../exec/runtime.html#syntax-datainst}{\mathsf{bytes}}{}[j : {|{\mathit{zt}}|} / 8] \\
 \end{array} \\
 \end{array}
@@ -3276,7 +3276,7 @@ below is the official specification</p>
 &amp; z ; ({{\href{../exec/runtime.html#syntax-frame}{\mathsf{frame}}}_{k}}{\{ f \}}~{{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast}~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}null}}~{\mathit{ht}})~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{return\_call\_ref}}~y)~{{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast}) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; \href{../exec/runtime.html#syntax-trap}{\mathsf{trap}} \\
 &amp; z ; ({{\href{../exec/runtime.html#syntax-frame}{\mathsf{frame}}}_{k}}{\{ f \}}~{{\href{../exec/runtime.html#syntax-val}{\mathit{val}}'}^\ast}~{{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}}~(\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}func}}~a)~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{return\_call\_ref}}~y)~{{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast}) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}}~(\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}func}}~a)~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{call\_ref}}~y) &amp;  \\
 &amp;&amp;&amp; \multicolumn{2}{&#64;{}l&#64;{}}{\quad
-\quad \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{funcs}}{}[a]{.}\href{../exec/runtime.html#syntax-funcinst}{\mathsf{type}} \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^{n}} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^{m}})
+\quad \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{funcs}}{}[a]{.}\href{../exec/runtime.html#syntax-funcinst}{\mathsf{type}} \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^{n}} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^{m}})
 } \\
 \end{array}\end{split}\]</div>
 </section>
@@ -3313,7 +3313,7 @@ below is the official specification</p>
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
 &amp; z ; {{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}}~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{throw}}~x) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; z{}[{.}\href{../exec/runtime.html#syntax-store}{\mathsf{exns}} \mathrel{{=}{\oplus}} {\mathit{exn}}] ; (\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}exn}}~a)~\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{throw\_ref}} &amp; \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{tags}}{}[x]{.}\href{../exec/runtime.html#syntax-taginst}{\mathsf{type}} \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t^{n}} \href{../syntax/types.html#syntax-functype}{\rightarrow} \epsilon) \\
+\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{tags}}{}[x]{.}\href{../exec/runtime.html#syntax-taginst}{\mathsf{type}} \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t^{n}} \href{../syntax/types.html#syntax-functype}{\rightarrow} \epsilon) \\
 {\land}~ a = {|z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{exns}}|} \\
 {\land}~ {\mathit{exn}} = \{ \begin{array}[t]{&#64;{}l&#64;{}}
 \href{../exec/runtime.html#syntax-exninst}{\mathsf{tag}}~z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{tags}}{}[x],\; \href{../exec/runtime.html#syntax-exninst}{\mathsf{fields}}~{{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}} \}\end{array} \\
@@ -3645,7 +3645,7 @@ and returning from it.</p>
 \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
 \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{funcs}}{}[a] = {\mathit{fi}} \\
-{\land}~ {\mathit{fi}}{.}\href{../exec/runtime.html#syntax-funcinst}{\mathsf{type}} \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^{n}} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^{m}}) \\
+{\land}~ {\mathit{fi}}{.}\href{../exec/runtime.html#syntax-funcinst}{\mathsf{type}} \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^{n}} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^{m}}) \\
 {\land}~ {\mathit{fi}}{.}\href{../exec/runtime.html#syntax-funcinst}{\mathsf{code}} = \href{../syntax/modules.html#syntax-func}{\mathsf{func}}~x~{(\href{../syntax/modules.html#syntax-local}{\mathsf{local}}~t)^\ast}~({{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast}) \\
 {\land}~ f = \{ \begin{array}[t]{&#64;{}l&#64;{}}
 \href{../exec/runtime.html#syntax-frame}{\mathsf{locals}}~{{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}}~{({{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{t})^\ast},\; \href{../exec/runtime.html#syntax-frame}{\mathsf{module}}~{\mathit{fi}}{.}\href{../exec/runtime.html#syntax-funcinst}{\mathsf{module}} \}\end{array} \\

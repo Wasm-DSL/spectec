@@ -210,7 +210,7 @@ C \href{../valid/types.html#valid-reftype}{\vdash} \href{../syntax/types.html#sy
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[{\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}}] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^\ast})
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[{\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}}] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^\ast})
 }{
 C \href{../valid/types.html#valid-blocktype}{\vdash} {\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}} : {t_1^\ast} \rightarrow {t_2^\ast}
 }
@@ -654,7 +654,7 @@ C \href{../valid/types.html#valid-memtype}{\vdash} {\href{../syntax/types.html#s
 \frac{
 C \href{../valid/types.html#valid-deftype}{\vdash} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} : \href{../valid/types.html#valid-deftype}{\mathsf{ok}}
  \qquad
-{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{\href{../syntax/types.html#syntax-functype}{\mathit{functype}}}
+{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{\href{../syntax/types.html#syntax-functype}{\mathit{functype}}}
 }{
 C \href{../valid/types.html#valid-tagtype}{\vdash} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} : \href{../valid/types.html#valid-tagtype}{\mathsf{ok}}
 }
@@ -699,7 +699,7 @@ C \href{../valid/types.html#valid-globaltype}{\vdash} {\mathsf{mut}^?}~t : \href
 \frac{
 C \href{../valid/types.html#valid-typeuse}{\vdash} {\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} : \href{../valid/types.html#valid-typeuse}{\mathsf{ok}}
  \qquad
-{\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} \href{../valid/conventions.html#aux-expand-typeuse}{\approx}_{C} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{\href{../syntax/types.html#syntax-functype}{\mathit{functype}}}
+{\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} \mathrel{\href{../valid/conventions.html#aux-expand-typeuse}{\approx}}_{C} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{\href{../syntax/types.html#syntax-functype}{\mathit{functype}}}
 }{
 C \href{../valid/types.html#valid-externtype}{\vdash} \href{../syntax/types.html#syntax-externtype}{\mathsf{func}}~{\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} : \href{../valid/types.html#valid-externtype}{\mathsf{ok}}
 }
@@ -747,7 +747,7 @@ C \href{../valid/types.html#valid-externtype}{\vdash} \href{../syntax/types.html
 \frac{
 C \href{../valid/types.html#valid-typeuse}{\vdash} {\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} : \href{../valid/types.html#valid-typeuse}{\mathsf{ok}}
  \qquad
-{\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} \href{../valid/conventions.html#aux-expand-typeuse}{\approx}_{C} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{\href{../syntax/types.html#syntax-functype}{\mathit{functype}}}
+{\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} \mathrel{\href{../valid/conventions.html#aux-expand-typeuse}{\approx}}_{C} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{\href{../syntax/types.html#syntax-functype}{\mathit{functype}}}
 }{
 C \href{../valid/types.html#valid-externtype}{\vdash} \href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} : \href{../valid/types.html#valid-externtype}{\mathsf{ok}}
 }

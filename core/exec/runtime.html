@@ -545,7 +545,7 @@ Locals are mutated by respective <a class="reference internal" href="../syntax/i
 <li><p>The following auxiliary definition takes a <a class="reference internal" href="../syntax/instructions.html#syntax-blocktype"><span class="std std-ref">block type</span></a> and looks up the <a class="reference internal" href="../valid/conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a> that it denotes in the current frame:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}lcl&#64;{}l&#64;{}}
-{{\href{../exec/runtime.html#aux-blocktype}{\mathrm{instrtype}}}}_{z}(x) &amp; = &amp; {\mathit{ft}} &amp; \quad \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{\mathit{ft}} \\
+{{\href{../exec/runtime.html#aux-blocktype}{\mathrm{instrtype}}}}_{z}(x) &amp; = &amp; {\mathit{ft}} &amp; \quad \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{\mathit{ft}} \\
 {{\href{../exec/runtime.html#aux-blocktype}{\mathrm{instrtype}}}}_{z}({t^?}) &amp; = &amp; \epsilon \href{../syntax/types.html#syntax-functype}{\rightarrow} {t^?} \\
 \end{array}\end{split}\]</div>
 </li>

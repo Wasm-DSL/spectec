@@ -329,19 +329,19 @@ C \href{../valid/matching.html#match-heaptype}{\vdash} \href{../syntax/types.htm
 }
 \\[3ex]\displaystyle
 \frac{
-{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{{\href{../syntax/types.html#syntax-fieldtype}{\mathit{fieldtype}}}^\ast}
+{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{{\href{../syntax/types.html#syntax-fieldtype}{\mathit{fieldtype}}}^\ast}
 }{
 C \href{../valid/matching.html#match-heaptype}{\vdash} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} \href{../valid/matching.html#match-heaptype}{\leq} \href{../syntax/types.html#syntax-heaptype}{\mathsf{struct}}
 }
 \qquad
 \frac{
-{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~{\href{../syntax/types.html#syntax-fieldtype}{\mathit{fieldtype}}}
+{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~{\href{../syntax/types.html#syntax-fieldtype}{\mathit{fieldtype}}}
 }{
 C \href{../valid/matching.html#match-heaptype}{\vdash} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} \href{../valid/matching.html#match-heaptype}{\leq} \href{../syntax/types.html#syntax-heaptype}{\mathsf{array}}
 }
 \qquad
 \frac{
-{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} \href{../valid/conventions.html#aux-expand-deftype}{\approx} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{\href{../syntax/types.html#syntax-functype}{\mathit{functype}}}
+{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{\href{../syntax/types.html#syntax-functype}{\mathit{functype}}}
 }{
 C \href{../valid/matching.html#match-heaptype}{\vdash} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} \href{../valid/matching.html#match-heaptype}{\leq} \href{../syntax/types.html#syntax-heaptype}{\mathsf{func}}
 }
