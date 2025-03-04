@@ -120,23 +120,29 @@ It is convenient to define identifier contexts as :ref:`records <notation-record
    \begin{array}{llll}
    \production{identifier context} & I &::=&
      \begin{array}[t]{l@{~}ll}
-     \{ & \ITYPES & (\Tid^?)^\ast, \\
-        & \IFUNCS & (\Tid^?)^\ast, \\
-        & \ITABLES & (\Tid^?)^\ast, \\
-        & \IMEMS & (\Tid^?)^\ast, \\
-        & \IGLOBALS & (\Tid^?)^\ast, \\
-        & \IELEM & (\Tid^?)^\ast, \\
-        & \IDATA & (\Tid^?)^\ast, \\
-        & \ILOCALS & (\Tid^?)^\ast, \\
-        & \ILABELS & (\Tid^?)^\ast, \\
-        & \ITYPEDEFS & \functype^\ast ~\} \\
+     \{ & \ITYPES & (\name^?)^\ast, \\
+        & \IFUNCS & (\name^?)^\ast, \\
+        & \ITABLES & (\name^?)^\ast, \\
+        & \IMEMS & (\name^?)^\ast, \\
+        & \IGLOBALS & (\name^?)^\ast, \\
+        & \ITAGS & (\Tname^?)^\ast, \\
+        & \IELEM & (\name^?)^\ast, \\
+        & \IDATA & (\name^?)^\ast, \\
+        & \ILOCALS & (\name^?)^\ast, \\
+        & \ILABELS & (\name^?)^\ast, \\
+        & \IFIELDS & ((\name^?)^\ast)^\ast ~\} \\
+        & \ITYPEDEFS & \subtype^\ast ~\} \\
      \end{array}
    \end{array}
 
-For each index space, such a context contains the list of :ref:`identifiers <text-id>` assigned to the defined indices.
+For each index space, such a context contains the list of :ref:`names <syntax-name>` assigned to the defined indices,
+which were denoted by the corresponding :ref:`identifiers <text-id>`.
 Unnamed indices are associated with empty (:math:`\epsilon`) entries in these lists.
+Fields have *dependent* name spaces, and hence a separate list of field identifiers per type.
 
 An identifier context is *well-formed* if no index space contains duplicate identifiers.
+For fields, names need only be unique within a single type.
+
 
 
 Conventions
@@ -146,17 +152,17 @@ To avoid unnecessary clutter, empty components are omitted when writing out iden
 For example, the record :math:`\{\}` is shorthand for an :ref:`identifier context <text-context>` whose components are all empty.
 
 
-.. index:: vector
-   pair: text format; vector
-.. _text-vec:
+.. index:: list
+   pair: text format; list
+.. _text-list:
 
-Vectors
-~~~~~~~
+Lists
+~~~~~
 
-:ref:`Vectors <syntax-vec>` are written as plain sequences, but with a restriction on the length of these sequence.
+:ref:`Lists <syntax-list>` are written as plain sequences, but with a restriction on the length of these sequence.
 
 .. math::
    \begin{array}{llclll@{\qquad\qquad}l}
-   \production{vector} & \Tvec(\T{A}) &::=&
+   \production{list} & \Tlist(\T{A}) &::=&
      (x{:}\T{A})^n &\Rightarrow& x^n & (\iff n < 2^{32}) \\
    \end{array}
