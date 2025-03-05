@@ -286,18 +286,6 @@ C \href{../valid/types.html#valid-resulttype}{\vdash} {t^\ast} : \href{../valid/
 </li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition" id="id1">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<section id="t-1-ast-rightarrow-x-ast-t-2-ast">
-<h3><span class="math notranslate nohighlight">\(t_1^\ast \rightarrow_{x^\ast} t_2^\ast\)</span><a class="headerlink" href="#t-1-ast-rightarrow-x-ast-t-2-ast" title="Link to this heading">¶</a></h3>
-<ul class="simple">
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-resulttype"><span class="std std-ref">result type</span></a> <span class="math notranslate nohighlight">\(t_1^\ast\)</span> must be <a class="reference internal" href="#valid-resulttype"><span class="std std-ref">valid</span></a>.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-resulttype"><span class="std std-ref">result type</span></a> <span class="math notranslate nohighlight">\(t_2^\ast\)</span> must be <a class="reference internal" href="#valid-resulttype"><span class="std std-ref">valid</span></a>.</p></li>
-<li><p>Each <a class="reference internal" href="../syntax/modules.html#syntax-localidx"><span class="std std-ref">local index</span></a> <span class="math notranslate nohighlight">\(x_i\)</span> in <span class="math notranslate nohighlight">\(x^\ast\)</span> must be defined in the context.</p></li>
-<li><p>Then the instruction type is valid.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -311,7 +299,6 @@ C \href{../valid/types.html#valid-instrtype}{\vdash} {t_1^\ast} \mathrel{\href{.
 }
 \qquad
 \end{array}\]</div>
-</section>
 </section>
 <section id="function-types">
 <span id="valid-functype"></span><span id="index-8"></span><h2>Function Types<a class="headerlink" href="#function-types" title="Link to this heading">¶</a></h2>
@@ -441,20 +428,6 @@ C \href{../valid/types.html#valid-packtype}{\vdash} {\href{../syntax/types.html#
 </li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition" id="id2">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>Either the sequence <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}^\ast\)</span> is empty.</p></li>
-<li><p>Or:</p>
-<ul>
-<li><p>The first <a class="reference internal" href="../syntax/types.html#syntax-subtype"><span class="std std-ref">sub type</span></a> of the sequence <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}^\ast\)</span> must be <a class="reference internal" href="#valid-subtype"><span class="std std-ref">valid</span></a> for the <a class="reference internal" href="../syntax/modules.html#syntax-typeidx"><span class="std std-ref">type index</span></a> <span class="math notranslate nohighlight">\(x\)</span>.</p></li>
-<li><p>The remaining sequence <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}^\ast\)</span> must be <a class="reference internal" href="#valid-rectype"><span class="std std-ref">valid</span></a> for the <a class="reference internal" href="../syntax/modules.html#syntax-typeidx"><span class="std std-ref">type index</span></a> <span class="math notranslate nohighlight">\(x + 1\)</span>.</p></li>
-</ul>
-</li>
-<li><p>Then the recursive type is valid for the <a class="reference internal" href="../syntax/modules.html#syntax-typeidx"><span class="std std-ref">type index</span></a> <span class="math notranslate nohighlight">\(x\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -511,25 +484,6 @@ C \href{../valid/types.html#valid-rectype}{\vdash} \href{../syntax/types.html#sy
 </li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition" id="id3">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-comptype"><span class="std std-ref">composite type</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}\)</span> must be <a class="reference internal" href="#valid-comptype"><span class="std std-ref">valid</span></a>.</p></li>
-<li><p>The sequence <span class="math notranslate nohighlight">\(y^\ast\)</span> may be no longer than <span class="math notranslate nohighlight">\(1\)</span>.</p></li>
-<li><p>For every <a class="reference internal" href="../syntax/modules.html#syntax-typeidx"><span class="std std-ref">type index</span></a> <span class="math notranslate nohighlight">\(y_i\)</span> in <span class="math notranslate nohighlight">\(y^\ast\)</span>:</p>
-<ul>
-<li><p>The <a class="reference internal" href="../syntax/modules.html#syntax-typeidx"><span class="std std-ref">type index</span></a> <span class="math notranslate nohighlight">\(y_i\)</span> must be smaller than <span class="math notranslate nohighlight">\(x\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/modules.html#syntax-typeidx"><span class="std std-ref">type index</span></a> <span class="math notranslate nohighlight">\(y_i\)</span> must exist in the context <span class="math notranslate nohighlight">\(C\)</span>.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}_i\)</span> be the <a class="reference internal" href="conventions.html#aux-unroll-deftype"><span class="std std-ref">unrolling</span></a> of the <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\(C.\href{../valid/conventions.html#context}{\mathsf{types}}[y_i]\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-subtype"><span class="std std-ref">sub type</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}_i\)</span> must not contain <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}\)</span>.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}'_i\)</span> be the <a class="reference internal" href="../syntax/types.html#syntax-comptype"><span class="std std-ref">composite type</span></a> in <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}_i\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-comptype"><span class="std std-ref">composite type</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}\)</span> must <a class="reference internal" href="matching.html#match-comptype"><span class="std std-ref">match</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}'_i\)</span>.</p></li>
-</ul>
-</li>
-<li><p>Then the sub type is valid for the <a class="reference internal" href="../syntax/modules.html#syntax-typeidx"><span class="std std-ref">type index</span></a> <span class="math notranslate nohighlight">\(x\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{

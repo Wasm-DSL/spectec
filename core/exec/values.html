@@ -94,16 +94,7 @@ values are classified by <a class="reference internal" href="../syntax/types.htm
 The following auxiliary typing rules specify this typing relation relative to a <a class="reference internal" href="runtime.html#syntax-store"><span class="std std-ref">store</span></a> <span class="math notranslate nohighlight">\(S\)</span> in which possibly referenced <a class="reference internal" href="runtime.html#syntax-addr"><span class="std std-ref">addresses</span></a> live.</p>
 <section id="numeric-values">
 <span id="valid-num"></span><h3>Numeric Values<a class="headerlink" href="#numeric-values" title="Link to this heading">¶</a></h3>
-<blockquote>
-<div><p>The <a class="reference internal" href="runtime.html#syntax-num"><span class="std std-ref">number value</span></a> <span class="math notranslate nohighlight">\(({\mathit{nt}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~c)\)</span> is <a class="reference internal" href="#valid-num"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-numtype"><span class="std std-ref">number type</span></a> <span class="math notranslate nohighlight">\({\mathit{nt}}\)</span>.</p>
-</div></blockquote>
-<div class="admonition-todo admonition" id="id1">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The value is valid with <a class="reference internal" href="../syntax/types.html#syntax-numtype"><span class="std std-ref">number type</span></a> <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
-</ul>
+<p>The <a class="reference internal" href="runtime.html#syntax-num"><span class="std std-ref">number value</span></a> <span class="math notranslate nohighlight">\(({\mathit{nt}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~c)\)</span> is <a class="reference internal" href="#valid-num"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-numtype"><span class="std std-ref">number type</span></a> <span class="math notranslate nohighlight">\({\mathit{nt}}\)</span>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -116,13 +107,6 @@ s \href{../exec/values.html#valid-num}{\vdash} {\mathit{nt}}{.}\href{../syntax/i
 <section id="vector-values">
 <span id="valid-vec"></span><h3>Vector Values<a class="headerlink" href="#vector-values" title="Link to this heading">¶</a></h3>
 <p>The <a class="reference internal" href="runtime.html#syntax-vec"><span class="std std-ref">vector value</span></a> <span class="math notranslate nohighlight">\(({\mathit{vt}}{.}\href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{const}}~c)\)</span> is <a class="reference internal" href="#valid-vec"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-vectype"><span class="std std-ref">vector type</span></a> <span class="math notranslate nohighlight">\({\mathit{vt}}\)</span>.</p>
-<div class="admonition-todo admonition" id="id2">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The value is valid with <a class="reference internal" href="../syntax/types.html#syntax-vectype"><span class="std std-ref">vector type</span></a> <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -140,14 +124,6 @@ s \href{../exec/values.html#valid-vec}{\vdash} {\mathit{vt}}{.}\href{../syntax/i
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap type</span></a> <span class="math notranslate nohighlight">\({\mathit{ht}'}\)</span> <a class="reference internal" href="../valid/matching.html#match-heaptype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap type</span></a> <span class="math notranslate nohighlight">\({\mathit{ht}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition" id="id3">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap type</span></a> must be <a class="reference internal" href="../valid/types.html#valid-heaptype"><span class="std std-ref">valid</span></a> under the empty <a class="reference internal" href="../valid/conventions.html#context"><span class="std std-ref">context</span></a>.</p></li>
-<li><p>Then the value is valid with <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~t')\)</span>, where the <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap type</span></a> <span class="math notranslate nohighlight">\(t'\)</span> is the least type that <a class="reference internal" href="../valid/matching.html#match-heaptype"><span class="std std-ref">matches</span></a> <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -168,13 +144,6 @@ That ensures that the value is compatible with any nullable type in that hierarc
 <section id="scalar-references">
 <span id="valid-ref-i31num"></span><h3>Scalar References<a class="headerlink" href="#scalar-references" title="Link to this heading">¶</a></h3>
 <p>The <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}i\scriptstyle31}}~i)\)</span> is <a class="reference internal" href="#valid-ref"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-heaptype}{\mathsf{i\scriptstyle31}})\)</span>.</p>
-<div class="admonition-todo admonition" id="id4">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The value is valid with <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-heaptype}{\mathsf{i\scriptstyle31}})\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -193,17 +162,6 @@ s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax
 <li><p>The <a class="reference internal" href="../valid/conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\(s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{type}}\)</span> is of the form <span class="math notranslate nohighlight">\({\mathit{dt}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition" id="id5">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The <a class="reference internal" href="runtime.html#syntax-structaddr"><span class="std std-ref">structure address</span></a> <span class="math notranslate nohighlight">\(a\)</span> must exist in the store.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-structinst}{\mathit{structinst}}\)</span> be the <a class="reference internal" href="runtime.html#syntax-structinst"><span class="std std-ref">structure instance</span></a> <span class="math notranslate nohighlight">\(S.\href{../exec/runtime.html#syntax-store}{\mathsf{structs}}[a]\)</span>.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}\)</span> be the <a class="reference internal" href="../valid/conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-structinst}{\mathit{structinst}}.\href{../exec/runtime.html#syntax-structinst}{\mathsf{type}}\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../valid/conventions.html#aux-expand-deftype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}\)</span> must be a <a class="reference internal" href="../syntax/types.html#syntax-structtype"><span class="std std-ref">struct type</span></a>.</p></li>
-<li><p>Then the value is valid with <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}})\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -223,17 +181,6 @@ s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax
 <li><p>The <a class="reference internal" href="../valid/conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\(s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{arrays}}{}[a]{.}\href{../exec/runtime.html#syntax-arrayinst}{\mathsf{type}}\)</span> is of the form <span class="math notranslate nohighlight">\({\mathit{dt}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition" id="id6">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The <a class="reference internal" href="runtime.html#syntax-arrayaddr"><span class="std std-ref">array address</span></a> <span class="math notranslate nohighlight">\(a\)</span> must exist in the store.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-arrayinst}{\mathit{arrayinst}}\)</span> be the <a class="reference internal" href="runtime.html#syntax-arrayinst"><span class="std std-ref">array instance</span></a> <span class="math notranslate nohighlight">\(S.\href{../exec/runtime.html#syntax-store}{\mathsf{arrays}}[a]\)</span>.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}\)</span> be the <a class="reference internal" href="../valid/conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-arrayinst}{\mathit{arrayinst}}.\href{../exec/runtime.html#syntax-arrayinst}{\mathsf{type}}\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../valid/conventions.html#aux-expand-deftype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}\)</span> must be an <a class="reference internal" href="../syntax/types.html#syntax-arraytype"><span class="std std-ref">array type</span></a>.</p></li>
-<li><p>Then the value is valid with <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-arraytype}{\mathit{arraytype}})\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -253,14 +200,6 @@ s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax
 <li><p>The <a class="reference internal" href="runtime.html#syntax-exninst"><span class="std std-ref">exception instance</span></a> <span class="math notranslate nohighlight">\(s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{exns}}{}[a]\)</span> is of the form <span class="math notranslate nohighlight">\({\mathit{exn}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition" id="id7">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The store entry <span class="math notranslate nohighlight">\(S.\href{../exec/runtime.html#syntax-store}{\mathsf{exns}}[a]\)</span> must exist.</p></li>
-<li><p>Then the value is valid with <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-reftype}{\mathsf{exnref}}\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -280,17 +219,6 @@ s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax
 <li><p>The <a class="reference internal" href="../valid/conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\(s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{funcs}}{}[a]{.}\href{../exec/runtime.html#syntax-funcinst}{\mathsf{type}}\)</span> is of the form <span class="math notranslate nohighlight">\({\mathit{dt}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition" id="id8">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The <a class="reference internal" href="runtime.html#syntax-funcaddr"><span class="std std-ref">function address</span></a> <span class="math notranslate nohighlight">\(a\)</span> must exist in the store.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-funcinst}{\mathit{funcinst}}\)</span> be the <a class="reference internal" href="runtime.html#syntax-funcinst"><span class="std std-ref">function instance</span></a> <span class="math notranslate nohighlight">\(S.\href{../exec/runtime.html#syntax-store}{\mathsf{funcs}}[a]\)</span>.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}\)</span> be the <a class="reference internal" href="../valid/conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-funcinst}{\mathit{funcinst}}.\href{../exec/runtime.html#syntax-funcinst}{\mathsf{type}}\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../valid/conventions.html#aux-expand-deftype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}\)</span> must be a <a class="reference internal" href="../syntax/types.html#syntax-functype"><span class="std std-ref">function type</span></a>.</p></li>
-<li><p>Then the value is valid with <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-functype}{\mathit{functype}})\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -304,13 +232,6 @@ s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax
 <section id="host-references">
 <h3>Host References<a class="headerlink" href="#host-references" title="Link to this heading">¶</a></h3>
 <p>The <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}host}}~a)\)</span> is <a class="reference internal" href="#valid-ref"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-heaptype}{\mathsf{any}})\)</span>.</p>
-<div class="admonition-todo admonition" id="id9">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The value is valid with <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-heaptype}{\mathsf{any}})\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -332,15 +253,6 @@ s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax
 <li><p>Under the context <span class="math notranslate nohighlight">\(s\)</span>, the <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-addrref}{\mathit{addrref}}}\)</span> is <a class="reference internal" href="#valid-ref"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-heaptype}{\mathsf{any}})\)</span>.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition" id="id10">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The reference value <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}\)</span> must be valid with some <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?~t)\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap type</span></a> <span class="math notranslate nohighlight">\(t\)</span> must <a class="reference internal" href="../valid/matching.html#match-heaptype"><span class="std std-ref">match</span></a> the heap type <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-heaptype}{\mathsf{any}}\)</span>.</p></li>
-<li><p>Then the value is valid with <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?~\href{../syntax/types.html#syntax-heaptype}{\mathsf{extern}})\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -360,15 +272,6 @@ s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\mathit{rt}'}\)</span> <a class="reference internal" href="../valid/matching.html#match-reftype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\mathit{rt}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition" id="id11">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The value must be valid with some value type <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
-<li><p>The value type <span class="math notranslate nohighlight">\(t\)</span> <a class="reference internal" href="../valid/matching.html#match-valtype"><span class="std std-ref">matches</span></a> another <a class="reference internal" href="../valid/types.html#valid-valtype"><span class="std std-ref">valid</span></a> type <span class="math notranslate nohighlight">\(t'\)</span>.</p></li>
-<li><p>Then the value is valid with type <span class="math notranslate nohighlight">\(t'\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -397,14 +300,6 @@ The following auxiliary typing rules specify this typing relation relative to a 
 <li><p>The <a class="reference internal" href="runtime.html#syntax-funcinst"><span class="std std-ref">function instance</span></a> <span class="math notranslate nohighlight">\(s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{funcs}}{}[a]\)</span> is of the form <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-funcinst}{\mathit{funcinst}}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition" id="id12">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The store entry <span class="math notranslate nohighlight">\(S.\href{../exec/runtime.html#syntax-store}{\mathsf{funcs}}[a]\)</span> must exist.</p></li>
-<li><p>Then <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-externaddr}{\mathsf{func}}~a\)</span> is valid with <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathsf{func}}~S.\href{../exec/runtime.html#syntax-store}{\mathsf{funcs}}[a].\href{../exec/runtime.html#syntax-funcinst}{\mathsf{type}}\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -424,14 +319,6 @@ s \href{../exec/values.html#valid-externaddr}{\vdash} \href{../exec/runtime.html
 <li><p>The <a class="reference internal" href="runtime.html#syntax-tableinst"><span class="std std-ref">table instance</span></a> <span class="math notranslate nohighlight">\(s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{tables}}{}[a]\)</span> is of the form <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-tableinst}{\mathit{tableinst}}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition" id="id13">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The store entry <span class="math notranslate nohighlight">\(S.\href{../exec/runtime.html#syntax-store}{\mathsf{tables}}[a]\)</span> must exist.</p></li>
-<li><p>Then <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-externaddr}{\mathsf{table}}~a\)</span> is valid with <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathsf{table}}~S.\href{../exec/runtime.html#syntax-store}{\mathsf{tables}}[a].\href{../exec/runtime.html#syntax-tableinst}{\mathsf{type}}\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -451,14 +338,6 @@ s \href{../exec/values.html#valid-externaddr}{\vdash} \href{../exec/runtime.html
 <li><p>The <a class="reference internal" href="runtime.html#syntax-meminst"><span class="std std-ref">memory instance</span></a> <span class="math notranslate nohighlight">\(s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{mems}}{}[a]\)</span> is of the form <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-meminst}{\mathit{meminst}}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition" id="id14">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The store entry <span class="math notranslate nohighlight">\(S.\href{../exec/runtime.html#syntax-store}{\mathsf{mems}}[a]\)</span> must exist.</p></li>
-<li><p>Then <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-externaddr}{\mathsf{mem}}~a\)</span> is valid with <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathsf{mem}}~S.\href{../exec/runtime.html#syntax-store}{\mathsf{mems}}[a].\href{../exec/runtime.html#syntax-meminst}{\mathsf{type}}\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -478,14 +357,6 @@ s \href{../exec/values.html#valid-externaddr}{\vdash} \href{../exec/runtime.html
 <li><p>The <a class="reference internal" href="runtime.html#syntax-globalinst"><span class="std std-ref">global instance</span></a> <span class="math notranslate nohighlight">\(s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{globals}}{}[a]\)</span> is of the form <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-globalinst}{\mathit{globalinst}}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition" id="id15">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The store entry <span class="math notranslate nohighlight">\(S.\href{../exec/runtime.html#syntax-store}{\mathsf{globals}}[a]\)</span> must exist.</p></li>
-<li><p>Then <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-externaddr}{\mathsf{global}}~a\)</span> is valid with <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathsf{global}}~S.\href{../exec/runtime.html#syntax-store}{\mathsf{globals}}[a].\href{../exec/runtime.html#syntax-globalinst}{\mathsf{type}}\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -505,15 +376,6 @@ s \href{../exec/values.html#valid-externaddr}{\vdash} \href{../exec/runtime.html
 <li><p>The <a class="reference internal" href="runtime.html#syntax-taginst"><span class="std std-ref">tag instance</span></a> <span class="math notranslate nohighlight">\(s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{tags}}{}[a]\)</span> is of the form <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-taginst}{\mathit{taginst}}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition" id="id16">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The store entry <span class="math notranslate nohighlight">\(S.\href{../exec/runtime.html#syntax-store}{\mathsf{tags}}[a]\)</span> must exist.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}\)</span> be the function type <span class="math notranslate nohighlight">\(S.\href{../exec/runtime.html#syntax-store}{\mathsf{tags}}[a].\href{../exec/runtime.html#syntax-taginst}{\mathsf{type}}\)</span>.</p></li>
-<li><p>Then <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-externaddr}{\mathsf{tag}}~a\)</span> is valid with <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
@@ -524,8 +386,8 @@ s \href{../exec/values.html#valid-externaddr}{\vdash} \href{../exec/runtime.html
 \qquad
 \end{array}\]</div>
 </section>
-<section id="id17">
-<h3>Subsumption<a class="headerlink" href="#id17" title="Link to this heading">¶</a></h3>
+<section id="id1">
+<h3>Subsumption<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
 <p>The <a class="reference internal" href="runtime.html#syntax-externaddr"><span class="std std-ref">external address</span></a> <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-externaddr}{\mathit{externaddr}}}\)</span> is <a class="reference internal" href="#valid-externaddr"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\({\mathit{xt}}\)</span> if:</p>
 <blockquote>
 <div><ul class="simple">
@@ -533,15 +395,6 @@ s \href{../exec/values.html#valid-externaddr}{\vdash} \href{../exec/runtime.html
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\({\mathit{xt}'}\)</span> <a class="reference internal" href="../valid/matching.html#match-externtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\({\mathit{xt}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition" id="id18">
-<p class="admonition-title">Todo</p>
-<p>below is the official specification</p>
-</div>
-<ul class="simple">
-<li><p>The external address must be valid with some external type <span class="math notranslate nohighlight">\(\mathit{et}\)</span>.</p></li>
-<li><p>The external type <span class="math notranslate nohighlight">\(\mathit{et}\)</span> <a class="reference internal" href="../valid/matching.html#match-externtype"><span class="std std-ref">matches</span></a> another <a class="reference internal" href="../valid/types.html#valid-externtype"><span class="std std-ref">valid</span></a> type <span class="math notranslate nohighlight">\(\mathit{et'}\)</span>.</p></li>
-<li><p>Then the external address is valid with type <span class="math notranslate nohighlight">\(\mathit{et'}\)</span>.</p></li>
-</ul>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
