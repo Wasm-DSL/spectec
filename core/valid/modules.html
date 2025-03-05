@@ -433,7 +433,7 @@ C \href{../valid/modules.html#valid-elem}{\vdash} \href{../syntax/modules.html#s
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{tables}}{}[x]\)</span> exists.</p></li>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{tables}}{}[x]\)</span> is of the form <span class="math notranslate nohighlight">\(({\mathit{at}}~{\mathit{lim}}~{\mathit{rt}'})\)</span>.</p></li>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\mathit{rt}}\)</span> <a class="reference internal" href="matching.html#match-reftype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\mathit{rt}'}\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/instructions.html#syntax-expr"><span class="std std-ref">expression</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}}\)</span> is <a class="reference internal" href="instructions.html#valid-expr"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-valtype"><span class="std std-ref">value type</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/instructions.html#syntax-expr"><span class="std std-ref">expression</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}}\)</span> is <a class="reference internal" href="instructions.html#valid-expr"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-valtype"><span class="std std-ref">value type</span></a> <span class="math notranslate nohighlight">\({\mathit{at}}\)</span>.</p></li>
 <li><p><span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}}\)</span> is constant.</p></li>
 </ul>
 </div></blockquote>
@@ -461,7 +461,7 @@ C{.}\href{../valid/conventions.html#context}{\mathsf{tables}}{}[x] = {\mathit{at
  \qquad
 C \href{../valid/matching.html#match-reftype}{\vdash} {\mathit{rt}} \href{../valid/matching.html#match-reftype}{\leq} {\mathit{rt}'}
  \qquad
-C \href{../valid/instructions.html#valid-const}{\vdash} {\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}} : \href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}~\href{../valid/instructions.html#valid-const}{\mathsf{const}}
+C \href{../valid/instructions.html#valid-const}{\vdash} {\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}} : {\mathit{at}}~\href{../valid/instructions.html#valid-const}{\mathsf{const}}
 }{
 C \href{../valid/modules.html#valid-elemmode}{\vdash} \href{../syntax/modules.html#syntax-elemmode}{\mathsf{active}}~x~{\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}} : {\mathit{rt}}
 }
@@ -504,8 +504,8 @@ C \href{../valid/modules.html#valid-data}{\vdash} \href{../syntax/modules.html#s
 <div><ul class="simple">
 <li><p>The <a class="reference internal" href="../syntax/modules.html#syntax-datamode"><span class="std std-ref">data mode</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-datamode}{\mathit{datamode}}}\)</span> is of the form <span class="math notranslate nohighlight">\((\href{../syntax/modules.html#syntax-datamode}{\mathsf{active}}~x~{\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}})\)</span>.</p></li>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">memory</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{mems}}{}[x]\)</span> exists.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">memory</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{mems}}{}[x]\)</span> is of the form <span class="math notranslate nohighlight">\({\mathit{mt}}\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/instructions.html#syntax-expr"><span class="std std-ref">expression</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}}\)</span> is <a class="reference internal" href="instructions.html#valid-expr"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-valtype"><span class="std std-ref">value type</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">memory</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{mems}}{}[x]\)</span> is of the form <span class="math notranslate nohighlight">\(({\mathit{at}}~{\mathit{lim}}~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}})\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/instructions.html#syntax-expr"><span class="std std-ref">expression</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}}\)</span> is <a class="reference internal" href="instructions.html#valid-expr"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-valtype"><span class="std std-ref">value type</span></a> <span class="math notranslate nohighlight">\({\mathit{at}}\)</span>.</p></li>
 <li><p><span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}}\)</span> is constant.</p></li>
 </ul>
 </div></blockquote>
@@ -522,9 +522,9 @@ C \href{../valid/modules.html#valid-data}{\vdash} \href{../syntax/modules.html#s
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{mems}}{}[x] = {\mathit{mt}}
+C{.}\href{../valid/conventions.html#context}{\mathsf{mems}}{}[x] = {\mathit{at}}~{\mathit{lim}}~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}}
  \qquad
-C \href{../valid/instructions.html#valid-const}{\vdash} {\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}} : \href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}~\href{../valid/instructions.html#valid-const}{\mathsf{const}}
+C \href{../valid/instructions.html#valid-const}{\vdash} {\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}} : {\mathit{at}}~\href{../valid/instructions.html#valid-const}{\mathsf{const}}
 }{
 C \href{../valid/modules.html#valid-datamode}{\vdash} \href{../syntax/modules.html#syntax-datamode}{\mathsf{active}}~x~{\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}} : \href{../valid/modules.html#valid-data}{\mathsf{ok}}
 }
