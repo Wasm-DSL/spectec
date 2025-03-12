@@ -13,9 +13,16 @@
   (global (export "global-mut-i64") (mut i64) (i64.const 66))
   (table (export "table-10-inf") 10 funcref)
   (table (export "table-10-20") 10 20 funcref)
+  (table (export "table64-10-inf") i64 10 funcref)
+  (table (export "table64-10-20") i64 10 20 funcref)
   (memory (export "memory-2-inf") 2)
-  ;; Multiple memories are not yet supported
-  ;; (memory (export "memory-2-4") 2 4)
+  (memory (export "memory-2-4") 2 4)
+  (memory (export "memory64-2-inf") i64 2)
+  (memory (export "memory64-2-4") i64 2 4)
+  (tag (export "tag"))
+  (tag $tag-i32 (param i32))
+  (export "tag-i32" (tag $tag-i32))
+  (tag (export "tag-f32") (param f32))
 )
 
 (register "test")
@@ -40,6 +47,9 @@
   (func $print_i32-2 (import "spectest" "print_i32") (param i32))
   (func $print_f64-2 (import "spectest" "print_f64") (param f64))
   (import "test" "func-i64->i64" (func $i64->i64 (param i64) (result i64)))
+
+  (tag (import "test" "tag-i32") (param i32))
+  (import "test" "tag-f32" (tag (param f32)))
 
   (func (export "p1") (import "spectest" "print_i32") (param i32))
   (func $p (export "p2") (import "spectest" "print_i32") (param i32))
@@ -208,6 +218,10 @@
   "incompatible import type"
 )
 (assert_unlinkable
+  (module (import "test" "tag" (func)))
+  "incompatible import type"
+)
+(assert_unlinkable
   (module (import "spectest" "global_i32" (func)))
   "incompatible import type"
 )
@@ -217,6 +231,27 @@
 )
 (assert_unlinkable
   (module (import "spectest" "memory" (func)))
+  "incompatible import type"
+)
+
+(assert_unlinkable
+  (module (tag (import "test" "unknown")))
+  "unknown import"
+)
+(assert_unlinkable
+  (module (tag (import "test" "tag") (param f32)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (tag (import "test" "tag-i32")))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (tag (import "test" "tag-i32") (param f32)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (tag (import "test" "func-i32") (param f32)))
   "incompatible import type"
 )
 
@@ -238,12 +273,18 @@
   (func (export "get-1") (result i32) (global.get 1))
   (func (export "get-x") (result i32) (global.get $x))
   (func (export "get-y") (result i32) (global.get $y))
+  (func (export "get-4") (result i64) (global.get 4))
+  (func (export "get-5") (result f32) (global.get 5))
+  (func (export "get-6") (result f64) (global.get 6))
 )
 
 (assert_return (invoke "get-0") (i32.const 666))
 (assert_return (invoke "get-1") (i32.const 666))
 (assert_return (invoke "get-x") (i32.const 666))
 (assert_return (invoke "get-y") (i32.const 666))
+(assert_return (invoke "get-4") (i64.const 666))
+(assert_return (invoke "get-5") (f32.const 666.6))
+(assert_return (invoke "get-6") (f64.const 666.6))
 
 (module (import "test" "global-i32" (global i32)))
 (module (import "test" "global-f32" (global f32)))
@@ -338,6 +379,7 @@
 (module
   (type (func (result i32)))
   (import "spectest" "table" (table $tab 10 20 funcref))
+  (import "test" "table64-10-inf" (table $tab64 i64 10 funcref))
   (elem (table $tab) (i32.const 1) func $f $g)
 
   (func (export "call") (param i32) (result i32)
@@ -357,6 +399,7 @@
 (module
   (type (func (result i32)))
   (table $tab (import "spectest" "table") 10 20 funcref)
+  (table $tab64 (import "test" "table64-10-inf") i64 10 funcref)
   (elem (table $tab) (i32.const 1) func $f $g)
 
   (func (export "call") (param i32) (result i32)
@@ -372,12 +415,15 @@
 (assert_trap (invoke "call" (i32.const 3)) "uninitialized element")
 (assert_trap (invoke "call" (i32.const 100)) "undefined element")
 
-
 (module
   (import "spectest" "table" (table 0 funcref))
   (import "spectest" "table" (table 0 funcref))
+  (import "test" "table64-10-inf" (table i64 10 funcref))
+  (import "test" "table64-10-inf" (table i64 10 funcref))
   (table 10 funcref)
   (table 10 funcref)
+  (table i64 10 funcref)
+  (table i64 10 funcref)
 )
 
 (module (import "test" "table-10-inf" (table 10 funcref)))
@@ -392,6 +438,18 @@
 (module (import "test" "table-10-20" (table 10 25 funcref)))
 (module (import "test" "table-10-20" (table 5 25 funcref)))
 (module (import "test" "table-10-20" (table 0 25 funcref)))
+(module (import "test" "table64-10-inf" (table i64 10 funcref)))
+(module (import "test" "table64-10-inf" (table i64 5 funcref)))
+(module (import "test" "table64-10-inf" (table i64 0 funcref)))
+(module (import "test" "table64-10-20" (table i64 10 funcref)))
+(module (import "test" "table64-10-20" (table i64 5 funcref)))
+(module (import "test" "table64-10-20" (table i64 0 funcref)))
+(module (import "test" "table64-10-20" (table i64 10 20 funcref)))
+(module (import "test" "table64-10-20" (table i64 5 20 funcref)))
+(module (import "test" "table64-10-20" (table i64 0 20 funcref)))
+(module (import "test" "table64-10-20" (table i64 10 25 funcref)))
+(module (import "test" "table64-10-20" (table i64 5 25 funcref)))
+(module (import "test" "table64-10-20" (table i64 0 25 funcref)))
 (module (import "spectest" "table" (table 10 funcref)))
 (module (import "spectest" "table" (table 5 funcref)))
 (module (import "spectest" "table" (table 0 funcref)))
@@ -419,11 +477,27 @@
   "incompatible import type"
 )
 (assert_unlinkable
+  (module (import "test" "table64-10-inf" (table i64 12 funcref)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "table64-10-inf" (table i64 10 20 funcref)))
+  "incompatible import type"
+)
+(assert_unlinkable
   (module (import "test" "table-10-20" (table 12 20 funcref)))
   "incompatible import type"
 )
 (assert_unlinkable
   (module (import "test" "table-10-20" (table 10 18 funcref)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "table64-10-20" (table i64 12 20 funcref)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "table64-10-20" (table i64 10 18 funcref)))
   "incompatible import type"
 )
 (assert_unlinkable
@@ -452,12 +526,30 @@
   "incompatible import type"
 )
 
+(assert_unlinkable
+  (module (import "test" "table-10-inf" (table i64 10 funcref)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "table64-10-inf" (table 10 funcref)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "table-10-20" (table i64 10 20 funcref)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "table64-10-20" (table 10 20 funcref)))
+  "incompatible import type"
+)
 
 
 ;; Memories
 
 (module
   (import "spectest" "memory" (memory 1 2))
+  (import "test" "memory-2-inf" (memory 2))
+  (import "test" "memory64-2-inf" (memory i64 2))
   (data (memory 0) (i32.const 10) "\10")
 
   (func (export "load") (param i32) (result i32) (i32.load (local.get 0)))
@@ -470,6 +562,8 @@
 
 (module
   (memory (import "spectest" "memory") 1 2)
+  (memory (import "test" "memory-2-inf") 2)
+  (memory (import "test" "memory64-2-inf") i64 2)
   (data (memory 0) (i32.const 10) "\10")
 
   (func (export "load") (param i32) (result i32) (i32.load (local.get 0)))
@@ -479,22 +573,29 @@
 (assert_return (invoke "load" (i32.const 8)) (i32.const 0x100000))
 (assert_trap (invoke "load" (i32.const 1000000)) "out of bounds memory access")
 
-(assert_invalid
-  (module (import "" "" (memory 1)) (import "" "" (memory 1)))
-  "multiple memories"
-)
-(assert_invalid
-  (module (import "" "" (memory 1)) (memory 0))
-  "multiple memories"
-)
-(assert_invalid
-  (module (memory 0) (memory 0))
-  "multiple memories"
-)
-
 (module (import "test" "memory-2-inf" (memory 2)))
 (module (import "test" "memory-2-inf" (memory 1)))
 (module (import "test" "memory-2-inf" (memory 0)))
+(module (import "test" "memory-2-4" (memory 2)))
+(module (import "test" "memory-2-4" (memory 1)))
+(module (import "test" "memory-2-4" (memory 0)))
+(module (import "test" "memory-2-4" (memory 2 4)))
+(module (import "test" "memory-2-4" (memory 1 4)))
+(module (import "test" "memory-2-4" (memory 0 4)))
+(module (import "test" "memory-2-4" (memory 2 5)))
+(module (import "test" "memory-2-4" (memory 2 6)))
+(module (import "test" "memory64-2-inf" (memory i64 2)))
+(module (import "test" "memory64-2-inf" (memory i64 1)))
+(module (import "test" "memory64-2-inf" (memory i64 0)))
+(module (import "test" "memory64-2-4" (memory i64 2)))
+(module (import "test" "memory64-2-4" (memory i64 1)))
+(module (import "test" "memory64-2-4" (memory i64 0)))
+(module (import "test" "memory64-2-4" (memory i64 2 4)))
+(module (import "test" "memory64-2-4" (memory i64 1 4)))
+(module (import "test" "memory64-2-4" (memory i64 0 4)))
+(module (import "test" "memory64-2-4" (memory i64 2 5)))
+(module (import "test" "memory64-2-4" (memory i64 1 5)))
+(module (import "test" "memory64-2-4" (memory i64 0 5)))
 (module (import "spectest" "memory" (memory 1)))
 (module (import "spectest" "memory" (memory 0)))
 (module (import "spectest" "memory" (memory 1 2)))
@@ -512,11 +613,147 @@
 )
 
 (assert_unlinkable
-  (module (import "test" "memory-2-inf" (memory 3)))
+  (module (import "test" "memory-2-inf" (memory 0 1)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-inf" (memory 0 2)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-inf" (memory 0 3)))
   "incompatible import type"
 )
 (assert_unlinkable
   (module (import "test" "memory-2-inf" (memory 2 3)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-inf" (memory 3)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-4" (memory 0 1)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-4" (memory 0 2)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-4" (memory 0 3)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-4" (memory 2 2)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-4" (memory 2 3)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-4" (memory 3 3)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-4" (memory 3 4)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-4" (memory 3 5)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-4" (memory 4 4)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-4" (memory 4 5)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-4" (memory 3)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-4" (memory 4)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-4" (memory 5)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-inf" (memory i64 0 1)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-inf" (memory i64 0 2)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-inf" (memory i64 0 3)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-inf" (memory i64 2 3)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-inf" (memory i64 3)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-4" (memory i64 0 1)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-4" (memory i64 0 2)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-4" (memory i64 0 3)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-4" (memory i64 2 2)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-4" (memory i64 2 3)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-4" (memory i64 3 3)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-4" (memory i64 3 4)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-4" (memory i64 3 5)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-4" (memory i64 4 4)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-4" (memory i64 4 5)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-4" (memory i64 3)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-4" (memory i64 4)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-4" (memory i64 5)))
   "incompatible import type"
 )
 (assert_unlinkable
@@ -525,6 +762,23 @@
 )
 (assert_unlinkable
   (module (import "spectest" "memory" (memory 1 1)))
+  "incompatible import type"
+)
+
+(assert_unlinkable
+  (module (import "test" "memory-2-inf" (memory i64 2)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-inf" (memory 2)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory-2-4" (memory i64 2 4)))
+  "incompatible import type"
+)
+(assert_unlinkable
+  (module (import "test" "memory64-2-4" (memory 2 4)))
   "incompatible import type"
 )
 
@@ -571,26 +825,6 @@
 (assert_return (invoke "grow" (i32.const 0)) (i32.const 2))
 (assert_return (invoke "grow" (i32.const 1)) (i32.const -1))
 (assert_return (invoke "grow" (i32.const 0)) (i32.const 2))
-
-(module $Mgm
-  (memory (export "memory") 1) ;; initial size is 1
-  (func (export "grow") (result i32) (memory.grow (i32.const 1)))
-)
-(register "grown-memory" $Mgm)
-(assert_return (invoke $Mgm "grow") (i32.const 1)) ;; now size is 2
-(module $Mgim1
-  ;; imported memory limits should match, because external memory size is 2 now
-  (memory (export "memory") (import "grown-memory" "memory") 2) 
-  (func (export "grow") (result i32) (memory.grow (i32.const 1)))
-)
-(register "grown-imported-memory" $Mgim1)
-(assert_return (invoke $Mgim1 "grow") (i32.const 2)) ;; now size is 3
-(module $Mgim2
-  ;; imported memory limits should match, because external memory size is 3 now
-  (import "grown-imported-memory" "memory" (memory 3))
-  (func (export "size") (result i32) (memory.size))
-)
-(assert_return (invoke $Mgim2 "size") (i32.const 3))
 
 
 ;; Syntax errors
