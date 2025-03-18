@@ -22,7 +22,7 @@ $${rule: Vectype_ok}
 Heap Types
 ~~~~~~~~~~
 
-$${rule+: 
+$${rule+:
   Heaptype_ok/*
 }
 
@@ -47,7 +47,7 @@ $${rule+:
 Block Types
 ~~~~~~~~~~~
 
-$${rule+: 
+$${rule+:
   Blocktype_ok/*
 }
 
@@ -86,8 +86,8 @@ $${rule+:
 Field Types
 ~~~~~~~~~~~
 
-$${rule+: 
-  Packedtype_ok
+$${rule+:
+  Packtype_ok
   Storagetype_ok/*
   Fieldtype_ok
 }
@@ -98,10 +98,6 @@ Recursive Types
 ~~~~~~~~~~~~~~~
 
 .. _def-before:
-
-$${definition-prose: before}
-
-\
 
 $${definition: before}
 
@@ -163,3 +159,8 @@ External Types
 $${rule+:
   Externtype_ok/*
 }
+
+Defaultable Types
+~~~~~~~~~~~~~~~~~
+
+$${rule: Defaultable}
