@@ -63,7 +63,7 @@ SpecTec interprets underscores as subscripting in a few places:
 
 * In a function identifier,
   trailing underscores cause the leading arguments to be set as a subscript,
-  specifcally, as many arguments as trailing underscores
+  specifically, as many arguments as trailing underscores
   (e.g., `$f_(i, x, y)` becomes `f_i(x, y)` in Latex,
   while `$f__(i, j, x)` becomes `f_{i, j}(x)`).
 
@@ -227,6 +227,11 @@ Hints of the form `hint(show <exp>)` are recognised on a number of constructs an
   while, the operator `#` represents textual concatenation;
   see below for details.
 
+* When a function identifier shall be displayed with both a subscript and a superscript,
+  as SpecTec has built-in support for subscripts as described above, the underscore(s) (`_`)
+  for subscripts should come first, followed by the superscript (e.g. `^(-1)` for the inverse
+  function). E.g. `$signed_(%)^(-1)#((%))`.
+
 * For a variant case or a function declaration,
   show hints control how the case is rendered;
   the expression will typically contain holes `%`,
@@ -296,7 +301,7 @@ Show hints for variant cases or function definition are expressions with two add
 
 * *Literal Latex* `%latex("text")` inserts the text as Latex source code unmodified.
   **Use with care!**
-  This is considered a last resort that shoul dbe avoided if possible,
+  This is considered a last resort that should be avoided if possible,
   since it may not work with future rendering backends.
 
 **Example:**
@@ -381,8 +386,8 @@ The default macro names can be overridden by macro hints.
 * `hint(macro none)` selectively suppresses macro generation for an individual identifier,
   and is likewise recognised for all definitions that bind identifiers.
 
-* `hint(macro "text1" "text2")` is avaliable for type definitions,
-  and choses alternative macro names for both the type identifier (`text1`)
+* `hint(macro "text1" "text2")` is available for type definitions,
+  and chooses alternative macro names for both the type identifier (`text1`)
   and for all atoms in its definition (`text2`).
   The latter typically uses `%` to adapt to each case.
 
@@ -405,7 +410,7 @@ syntax comptype =
 ```
 
 Macro hints also apply to symbolic operator atoms.
-This way, such operators can alo be customised,
+This way, such operators can also be customised,
 for example, to produce cross-references.
 
 **Example:**

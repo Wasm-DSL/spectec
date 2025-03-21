@@ -2,38 +2,95 @@
 ;; Numeric Primitives
 ;;
 
+;; Binary operators
+
+def $xor(bool, bool) : bool         hint(show %1 $xor %2)
+def $xor(bl_1, bl_2) = $(bl_1 =/= bl_2)
+
+
 ;; Conversions
 
 def $s33_to_u32(s33) : u32  hint(show %)
 
+;; This is the `trunc` function as documented in the spec.
+def $int(rat) : int                 hint(builtin "rat_to_int") hint(show $trunc(%))
+;; def $int(q) = n                     -- if n <- nat /\ $(q - 1) < n <= q
+
 
 ;; Representation
 
-def $ibits_(N, iN(N)) : bit*                         hint(show $bits_($IN(%),%))
-def $fbits_(N, fN(N)) : bit*                         hint(show $bits_($FN(%),%))
-def $ibytes_(N, iN(N)) : byte*                       hint(show $bytes_($IN(%),%))
-def $fbytes_(N, fN(N)) : byte*                       hint(show $bytes_($FN(%),%))
-def $nbytes_(numtype, num_(numtype)) : byte*         hint(show $bytes_(%,%))
-def $vbytes_(vectype, vec_(vectype)) : byte*         hint(show $bytes_(%,%))
-def $zbytes_(storagetype, lit_(storagetype)) : byte* hint(show $bytes_(%,%))
-def $cbytes_(Cnn, lit_(Cnn)) : byte*                 hint(show $bytes_(%,%))
+
+;; no padding
+def $ibits_np(nat) : bit*                            hint(show $ibits__np(%))
+def $ibits_np(n) = 0                                 -- if n = 0
+def $ibits_np(n) = 1                                 -- if n = 1
+def $ibits_np(n) = 0 $ibits_np($(n / 2))             -- if n =/= 0 /\ $(n \ 2) = 0
+def $ibits_np(n) = 1 $ibits_np($((n-1) / 2))         -- if n =/= 1 /\ $(n \ 2) = 1
 
 
-def $invibytes_(N, byte*) : iN(N) hint(show $bytes_($IN(%))^(-1)#((%)))
-def $invfbytes_(N, byte*) : fN(N) hint(show $bytes_($FN(%))^(-1)#((%)))
 
-def $invibytes_(N, b*) = n  -- if $ibytes_(N, n) = b*
-def $invfbytes_(N, b*) = p  -- if $fbytes_(N, p) = b*
+def $ibits_(N, iN(N)) : bit*                         hint(partial) hint(show $bits_($IN(%),%))  hint(inverse $invibits_)
+def $fbits_(N, fN(N)) : bit*                         hint(builtin) hint(show $bits_($FN(%),%))
+def $ibytes_(N, iN(N)) : byte*                       hint(show $bytes_($IN(%),%))               hint(inverse $invibytes_)
+def $fbytes_(N, fN(N)) : byte*                       hint(builtin) hint(show $bytes_($FN(%),%)) hint(inverse $invfbytes_)
+def $nbytes_(numtype, num_(numtype)) : byte*         hint(builtin) hint(show $bytes_(%,%))      hint(inverse $invnbytes_)
+def $vbytes_(vectype, vec_(vectype)) : byte*         hint(builtin) hint(show $bytes_(%,%))      hint(inverse $invvbytes_)
+def $zbytes_(storagetype, lit_(storagetype)) : byte* hint(builtin) hint(show $bytes_(%,%))      hint(inverse $invzbytes_)
+def $cbytes_(Cnn, lit_(Cnn)) : byte*                 hint(builtin) hint(show $bytes_(%,%))      hint(inverse $invcbytes_)
+
+
+def $invibits_(N, bit*) : iN(N)                         hint(partial) hint(show $ibits_(%)^(-1)#((%)))
+def $invibytes_(N, byte*) : iN(N)                       hint(show $bytes_($IN(%))^(-1)#((%)))
+def $invfbytes_(N, byte*) : fN(N)                       hint(show $bytes_($FN(%))^(-1)#((%))) hint(builtin "inverse_of_fbytes")
+def $invnbytes_(numtype, byte*) : num_(numtype)         hint(show $bytes_(%)^(-1)#((%)))      hint(builtin "inverse_of_nbytes")
+def $invvbytes_(vectype, byte*) : vec_(vectype)         hint(show $bytes_(%)^(-1)#((%)))      hint(builtin "inverse_of_vbytes")
+def $invzbytes_(storagetype, byte*) : lit_(storagetype) hint(show $bytes_(%)^(-1)#((%)))      hint(builtin "inverse_of_zbytes")
+def $invcbytes_(Cnn, byte*) : lit_(Cnn)                 hint(show $bytes_(%)^(-1)#((%)))      hint(builtin "inverse_of_cbytes")
+
+
+;; def $littleendian(bit*) : byte*
+;; def $littleendian(eps) = eps
+;; def $littleendian(d*) = $littleendian(d*[8:l-8]) $invibits_(8, d*[0:8])
+;;                       -- if l = |d*|
+;; FIXME(zilinc): if inline |d*|, interpreter backend runs into infinite loop.
+
+def $littleendian(bit*) : byte*                      hint(partial)
+def $littleendian(eps) = eps
+def $littleendian(d^8 d'*) = $littleendian(d'*) $invibits_(8, d^8)
+
+
+def $ibits_(N, i) = 0^(N - |d*|) d*
+                  -- if d* = $rev_(bit, $ibits_np(i))
+                  -- if |d*| <= N
+
+def $ibytes_(N, i) = $littleendian($ibits_(N, i))
+
+def $invibits_(0, eps) = 0
+def $invibits_(N, d d'*) = $(2^(N-1) * d + $invibits_($(N-1), d'*))  -- if |d'*| = $(N-1)
+;; FIXME(zilinc): The key 'N' is not in the map. e.g. i64.wast
+;; def $invibits_(N, d d'^(N-1)) = $(2^(N-1) * d + $invibits_($(N-1), d'^(N-1)))
+
+
+def $invibytes_(N, b) = b  -- if N = 8 ;; || N = 32
+def $invibytes_(N, b_0 b*) = $($invibytes_($(N-8), b*) * 2^8 + b_0)
+                           -- if $(N = |b*| * 8 + 8) /\ |b*| > 0 ;; || (N = 32 /\ |b*| <= 1)
+;; NOTE(zilinc): The interpreter implementation has that N = 32 case for packtype, but it's
+;; not in the Wasm spec. Also, would it make $invibytes a real inverse of ibytes?
+
+;; def $invibytes_(N, b*) = n  -- if $ibytes_(N, n) = b*
+;; def $invfbytes_(N, b*) = p  -- if $fbytes_(N, p) = b*
+
 
 
 ;; Signed numbers
 
-def $signed_(N, nat) : int
-def $signed_(N, i) = i           -- if $(i < 2^(N-1))
-def $signed_(N, i) = $(i - 2^N)  -- if $(2^(N-1) <= i < 2^N)
+def $signed_(N, nat) : int          hint(partial) hint(inverse $invsigned_)
+def $signed_(N, i) = i              -- if $(i < 2^(N-1))
+def $signed_(N, i) = $(i - 2^N)     -- if $(2^(N-1) <= i < 2^N)
 
-def $invsigned_(N, int) : nat    hint(show $signed_(%)^(-1)#((%)))
-def $invsigned_(N, i) = j        -- if $signed_(N, j) = i
+def $invsigned_(N, int) : nat       hint(partial) hint(show $signed_(%)^(-1)#((%)))
+def $invsigned_(N, i) = i           -- if $(0 <= i < 2^(N-1))
+def $invsigned_(N, i) = $(i + 2^N)  -- if $(-2^(N-1) <= i < 0)
 
 def $sx(storagetype) : sx?  hint(show $sx(%))
 def $sx(consttype) = eps
@@ -50,8 +107,25 @@ def $bool(bool) : nat
 def $bool(false) = 0
 def $bool(true) = 1
 
-def $int(rat) : int
-;;def $int(+-q) = +-n  -- if n <- nat /\ $(q - 1) < n <= q
+def $bit2bool(bit) : bool
+def $bit2bool(0) = false
+def $bit2bool(1) = true
+
+
+
+;; Bit-wise operators
+
+def $bitsand_(N, bit*, bit*) : bit*    hint(show %2 $AND_(%1) %3)
+def $bitsand_(N, d_1*, d_2*) = ($bool($bit2bool(d_1) /\ $bit2bool(d_2)))*
+
+def $bitsor_(N, bit*, bit*) : bit*     hint(show %2 $OR_(%1) %3)
+def $bitsor_(N, d_1*, d_2*) = ($bool($bit2bool(d_1) \/ $bit2bool(d_2)))*
+
+def $bitsxor_(N, bit*, bit*) : bit*    hint(show %2 $XOR_(%1) %3)
+def $bitsxor_(N, d_1*, d_2*) = ($bool($xor($bit2bool(d_1), $bit2bool(d_2))))*
+
+def $bitsnot_(N, bit*) : bit*          hint(show $NOT_(%1) %2)
+def $bitsnot_(N, d*) = ($bool(~ $bit2bool(d)))*
 
 
 ;; Saturation
@@ -71,7 +145,7 @@ def $sat_s_(N, i) = i               -- otherwise
 
 def $ineg_(N, iN(N)) : iN(N)
 def $iabs_(N, iN(N)) : iN(N)
-def $iclz_(N, iN(N)) : iN(N)
+def $iclz_(N, iN(N)) : iLt(N)
 def $ictz_(N, iN(N)) : iN(N)
 def $ipopcnt_(N, iN(N)) : iN(N)
 def $iextend_(N, M, sx, iN(N)) : iN(N)          hint(show $iextend_((%,%))^(%)#((%)))
@@ -85,8 +159,8 @@ def $imin_(N, sx, iN(N), iN(N)) : iN(N)         hint(show $imin_(%)^(%)%((%,%)))
 def $imax_(N, sx, iN(N), iN(N)) : iN(N)         hint(show $imax_(%)^(%)%((%,%)))
 def $iadd_sat_(N, sx, iN(N), iN(N)) : iN(N)     hint(show $iadd__sat_(%)^(%)#((%,%)))
 def $isub_sat_(N, sx, iN(N), iN(N)) : iN(N)     hint(show $isub__sat_(%)^(%)#((%,%)))
-def $iq15mulr_sat_(N, sx, iN(N), iN(N)) : iN(N) hint(show $iq15mulr__sat_(%)^(%)#((%,%)))
-def $irelaxed_q15mulr_(N, sx, iN(N), iN(N)) : iN(N)* hint(show $relaxed__iq15mulr_(%)^(%)#((%,%)))
+def $iq15mulr_sat_(N, sx, iN(N), iN(N)) : iN(N) hint(partial) hint(show $iq15mulr__sat_(%)^(%)#((%,%)))
+def $irelaxed_q15mulr_(N, sx, iN(N), iN(N)) : iN(N)* hint(show $relaxed__iq15mulr_(%)^(%)#((%,%))) hint(builtin)
 def $iavgr_(N, sx, iN(N), iN(N)) : iN(N)        hint(show $iavgr_(%)^(%)#((%,%)))
 
 def $inot_(N, iN(N)) : iN(N)
@@ -101,7 +175,7 @@ def $irotl_(N, iN(N), iN(N)) : iN(N)
 def $irotr_(N, iN(N), iN(N)) : iN(N)
 
 def $ibitselect_(N, iN(N), iN(N), iN(N)) : iN(N)
-def $irelaxed_laneselect_(N, iN(N), iN(N), iN(N)) : iN(N)*
+def $irelaxed_laneselect_(N, iN(N), iN(N), iN(N)) : iN(N)*  hint(builtin)
 
 def $ieqz_(N, iN(N)) : u32
 def $inez_(N, iN(N)) : u32
@@ -114,19 +188,36 @@ def $ile_(N, sx, iN(N), iN(N)) : u32     hint(show $ile_(%)^(%)#((%,%)))
 def $ige_(N, sx, iN(N), iN(N)) : u32     hint(show $ige_(%)^(%)#((%,%)))
 
 
-;; TODO(3, rossberg): implement numerics internally
+def $ineg_(N, i) = $((2^N - i) \ 2^N)
 
-;;def $ineg_(N, i_1) = $((2^N - i_1) \ 2^N)
-def $ineg_(N, i_1) = $invsigned_(N, $(- $signed_(N, i_1)))
+def $iabs_(N, i) = i                   -- if $signed_(N, i) >= 0
+def $iabs_(N, i) = $ineg_(N, i)        -- otherwise
 
-def $iabs_(N, i_1) = i_1             -- if $signed_(N, i_1) >= 0
-def $iabs_(N, i_1) = $ineg_(N, i_1)  -- otherwise
+;; TODO(_, zilinc)
+;; def $clzbits(bit*) : nat               hint(partial)
+;; def $clzbits(0^k) = k                  -- if k > 0 ;; -- if (d = 0)^k
+;; def $clzbits(0^k' 1 d'*) = k'          ;; -- if (d = 0)^k'
 
-;;def $iclz_(N, i_1) = k               -- if $ibits_(N, i_1) = (0)^k 1 d*
+;; def $clzbits(bit*) : nat               hint(partial)
+;; def $clzbits(d^k) = k                  -- if k > 0
+;;                                        -- if (d = 0)^k
+;; def $clzbits(d^k' 1 d'*) = k'          -- if (d = 0)^k'
 
-;;def $ictz_(N, i_1) = k               -- if $ibits_(N, i_1) = d* 1 (0)^k
+def $eqbitzero(bit) : bool             hint(show $eq__bit_0(%)) hint(show $eq__bit_0)
+def $eqbitzero(d) = ~ $bit2bool(d)
 
-;;def $ipopcnt_(N, i_1) = k            -- if $ibits_(N, i_1) = (0* 1)^k 0*
+def $eqbitone(bit): bool               hint(show $eq__bit_1(%)) hint(show $eq__bit_1)
+def $eqbitone(d) = $bit2bool(d)
+
+;; NOTE(zilinc): because `clzbits` doesn't work.
+;; def $iclz_(N, i) = $clzbits(d*)        -- if d* = $ibits_(N, i)
+def $iclz_(N, i) = |$takeWhile_(bit, $eqbitzero, d*)|   -- if d* = $ibits_(N, i)
+
+
+def $ictz_(N, i) = |$takeWhile_(bit, $eqbitzero, d'*)|  -- if d*  = $ibits_(N, i)
+                                                        -- if d'* = $rev_(bit, d*)
+
+def $ipopcnt_(N, i) = |$filter_(bit, $eqbitone, d*)|    -- if d* = $ibits_(N, i)
 
 def $iextend_(N, M, U, i) = $(i \ 2^M)
 def $iextend_(N, M, S, i) = $invsigned_(N, $signed_(M, $(i \ 2^M)))
@@ -138,33 +229,83 @@ def $isub_(N, i_1, i_2) = $((2^N + i_1 - i_2) \ 2^N)
 
 def $imul_(N, i_1, i_2) = $((i_1 * i_2) \ 2^N)
 
-;;def $idiv_(N, U, i_1, 0)   = eps
-;;def $idiv_(N, U, i_1, i_2) = $($int(i_1 / i_2))
-;;def $idiv_(N, S, i_1, 0)   = eps
-;;def $idiv_(N, S, i_1, i_2) = eps  -- if $($signed_(N, i_1) / $signed_(N, i_2)) = 2^(N-1)
-;;def $idiv_(N, S, i_1, i_2) = $($invsigned_(N, $int($signed_(N, i_1) / $signed_(N, i_2))))
+def $idiv_(N, U, i_1, 0)   = eps
+def $idiv_(N, U, i_1, i_2) = $int($(i_1 / i_2))
+def $idiv_(N, S, i_1, 0)   = eps
+def $idiv_(N, S, i_1, i_2) = eps  -- if $signed_(N, i_1) = $($signed_(N, i_2) * 2^(N-1))
+def $idiv_(N, S, i_1, i_2) = $invsigned_(N, $int($($signed_(N, i_1) / $signed_(N, i_2))))
 
-;;def $irem_(N, U, i_1, 0)   = eps
-;;def $irem_(N, U, i_1, i_2) = $(i_1 - i_2 * $int(i_1 / i_2))
-;;def $irem_(N, S, i_1, 0)   = eps
-;;def $irem_(N, S, i_1, i_2) = $($invsigned_(N, j_1 - j_2 * $int(j_1 / f_2)))
-;;                             -- if j_1 = $signed_(N, i_1) /\ j_2 = $signed_(N, i_2)
+def $irem_(N, U, i_1, 0)   = eps
+def $irem_(N, U, i_1, i_2) = $(i_1 - i_2 * $int($(i_1 / i_2)))
+def $irem_(N, S, i_1, 0)   = eps
+def $irem_(N, S, i_1, i_2) = $invsigned_(N, $(j_1 - j_2 * $int($(j_1 / j_2))))
+                             -- if j_1 = $signed_(N, i_1)
+                             -- if j_2 = $signed_(N, i_2)
 
-;;def $imin_(N, U, i_1, i_2) = i_1  -- if i_1 <= i_2
-;;def $imin_(N, U, i_1, i_2) = i_2  -- otherwise
-;;def $imin_(N, S, i_1, i_2) = i_1  -- if $signed_(N, i_1) <= $signed_(N, i_2)
-;;def $imin_(N, S, i_1, i_2) = i_2  -- otherwise
 
-;;def $imax_(N, U, i_1, i_2) = i_1  -- if i_1 >= i_2
-;;def $imax_(N, U, i_1, i_2) = i_2  -- otherwise
-;;def $imax_(N, S, i_1, i_2) = i_1  -- if $signed_(N, i_1) >= $signed_(N, i_2)
-;;def $imax_(N, S, i_1, i_2) = i_2  -- otherwise
+def $imin_(N, sx, i_1, i_2) = i_1  -- if $ilt_(N, sx, i_1, i_2) = 1
+def $imin_(N, sx, i_1, i_2) = i_2  -- otherwise
+
+def $imax_(N, sx, i_1, i_2) = i_1  -- if $igt_(N, sx, i_1, i_2) = 1
+def $imax_(N, sx, i_1, i_2) = i_2  -- otherwise
 
 def $iadd_sat_(N, U, i_1, i_2) = $sat_u_(N, $(i_1 + i_2))
 def $iadd_sat_(N, S, i_1, i_2) = $invsigned_(N, $sat_s_(N, $($signed_(N, i_1) + $signed_(N, i_2))))
 
 def $isub_sat_(N, U, i_1, i_2) = $sat_u_(N, $(i_1 - i_2))
 def $isub_sat_(N, S, i_1, i_2) = $invsigned_(N, $sat_s_(N, $($signed_(N, i_1) - $signed_(N, i_2))))
+
+;; Q15.1 multiplication: https://en.wikipedia.org/wiki/Q_(number_format)
+def $iq15mulr_sat_(N, S, i_1, i_2) = $invsigned_(N, j_2)
+                                   -- if N = 16
+                                   -- if N' = 32
+                                   -- if j_0 = $($signed_(N, i_1) * $signed_(N, i_2) + 2^14)
+                                   -- if j_1 = $ishr_(N', S, $invsigned_(N', j_0), 15)
+                                   -- if j_2 = $sat_s_(N, $signed_(N', j_1))  ;; $sat_s_ only works on signed int
+
+
+def $iavgr_(N, U, i_1, i_2) = $int($((i_1 + i_2 + 1) / 2))
+def $iavgr_(N, S, i_1, i_2) = $int($((i_1' + i_2' + 1) / 2))    -- if i_1' = $signed_(N, i_1)
+                                                                -- if i_2' = $signed_(N, i_2)
+
+def $inot_(N, i) = $invibits_(N, $bitsnot_(N, $ibits_(N, i)))
+
+def $irev_(N, i) = $invibits_(N, $rev_(bit, $ibits_(N, i)))
+
+def $iand_(N, i_1, i_2) = $invibits_(N, $bitsand_(N, $ibits_(N, i_1), $ibits_(N, i_2)))
+
+def $iandnot_(N, i_1, i_2) = $iand_(N, i_1, $inot_(N, i_2))
+
+def $ior_(N, i_1, i_2) = $invibits_(N, $bitsor_(N, $ibits_(N, i_1), $ibits_(N, i_2)))
+
+def $ixor_(N, i_1, i_2) = $invibits_(N, $bitsxor_(N, $ibits_(N, i_1), $ibits_(N, i_2)))
+
+def $ishl_(N, i_1, i_2) = $invibits_(N, d* 0^k)
+                        -- if k = $(i_2 \ N)
+                        -- if d* = $drop'_(bit, k, $ibits_(N, i_1))
+
+def $ishr_(N, U, i_1, i_2) = $invibits_(N, 0^k d*)
+                           -- if k = $(i_2 \ N)
+                           -- if d* = $take'_(bit, $(N-k), $ibits_(N, i_1))
+def $ishr_(N, S, i_1, i_2) = $invibits_(N, d_0 d_0^k d_1*)
+                           -- if k = $(i_2 \ N)
+                           -- if d_0 d_1* = $take'_(bit, $(N-k), $ibits_(N, i_1))
+
+def $irotl_(N, i_1, i_2) = $invibits_(N, d_2* d_1*)
+                         -- if k = $(i_2 \ N)
+                         -- if d_1* = $take'_(bit, k, $ibits_(N, i_1))
+                         -- if d_2* = $drop'_(bit, k, $ibits_(N, i_1))
+
+def $irotr_(N, i_1, i_2) = $invibits_(N, d_2* d_1*)
+                         -- if k = $(i_2 \ N)
+                         -- if d_1* = $take'_(bit, $(N-k), $ibits_(N, i_1))
+                         -- if d_2* = $drop'_(bit, $(N-k), $ibits_(N, i_1))
+
+;; FIXME(zilinc): type inference failure on k
+;; def $irotr_(N, i_1, i_2) = $invibits_(N, d_2^k d_1^(N-k))
+;;                          -- var k : nat
+;;                          -- if k = $(i_2 \ N) 
+;;                          -- if d_1^(N-k) d_2^k = $ibits_(N, i_1)
 
 
 def $ieqz_(N, i_1) = $bool(i_1 = 0)
@@ -189,37 +330,43 @@ def $ige_(N, U, i_1, i_2) = $bool(i_1 >= i_2)
 def $ige_(N, S, i_1, i_2) = $bool($signed_(N, i_1) >= $signed_(N, i_2))
 
 
+def $ibitselect_(N, i_1, i_2, i_3) = $ior_(N, j_1, j_2)
+                                   -- if j_1 = $iand_(N, i_1, i_3)
+                                   -- if j_3 = $inot_(N, i_3)
+                                   -- if j_2 = $iand_(N, i_2, j_3)
+
+
 ;; Floating-point operations
 
-def $fabs_(N, fN(N)) : fN(N)*
-def $fneg_(N, fN(N)) : fN(N)*
-def $fsqrt_(N, fN(N)) : fN(N)*
-def $fceil_(N, fN(N)) : fN(N)*
-def $ffloor_(N, fN(N)) : fN(N)*
-def $ftrunc_(N, fN(N)) : fN(N)*
-def $fnearest_(N, fN(N)) : fN(N)*
+def $fabs_(N, fN(N)) : fN(N)*                  hint(builtin)
+def $fneg_(N, fN(N)) : fN(N)*                  hint(builtin)
+def $fsqrt_(N, fN(N)) : fN(N)*                 hint(builtin)
+def $fceil_(N, fN(N)) : fN(N)*                 hint(builtin)
+def $ffloor_(N, fN(N)) : fN(N)*                hint(builtin)
+def $ftrunc_(N, fN(N)) : fN(N)*                hint(builtin)
+def $fnearest_(N, fN(N)) : fN(N)*              hint(builtin)
 
-def $fadd_(N, fN(N), fN(N)) : fN(N)*
-def $fsub_(N, fN(N), fN(N)) : fN(N)*
-def $fmul_(N, fN(N), fN(N)) : fN(N)*
-def $fdiv_(N, fN(N), fN(N)) : fN(N)*
-def $fmin_(N, fN(N), fN(N)) : fN(N)*
-def $fmax_(N, fN(N), fN(N)) : fN(N)*
-def $fpmin_(N, fN(N), fN(N)) : fN(N)*
-def $fpmax_(N, fN(N), fN(N)) : fN(N)*
-def $frelaxed_min_(N, fN(N), fN(N)) : fN(N)*    hint(show $frelaxed__min_(%,%,%))
-def $frelaxed_max_(N, fN(N), fN(N)) : fN(N)*    hint(show $frelaxed__max_(%,%,%))
-def $fcopysign_(N, fN(N), fN(N)) : fN(N)*
+def $fadd_(N, fN(N), fN(N)) : fN(N)*           hint(builtin)
+def $fsub_(N, fN(N), fN(N)) : fN(N)*           hint(builtin)
+def $fmul_(N, fN(N), fN(N)) : fN(N)*           hint(builtin)
+def $fdiv_(N, fN(N), fN(N)) : fN(N)*           hint(builtin)
+def $fmin_(N, fN(N), fN(N)) : fN(N)*           hint(builtin)
+def $fmax_(N, fN(N), fN(N)) : fN(N)*           hint(builtin)
+def $fpmin_(N, fN(N), fN(N)) : fN(N)*          hint(builtin)
+def $fpmax_(N, fN(N), fN(N)) : fN(N)*          hint(builtin)
+def $frelaxed_min_(N, fN(N), fN(N)) : fN(N)*   hint(builtin) hint(show $frelaxed__min_(%,%,%))
+def $frelaxed_max_(N, fN(N), fN(N)) : fN(N)*   hint(builtin) hint(show $frelaxed__max_(%,%,%))
+def $fcopysign_(N, fN(N), fN(N)) : fN(N)*      hint(builtin)
 
-def $feq_(N, fN(N), fN(N)) : u32
-def $fne_(N, fN(N), fN(N)) : u32
-def $flt_(N, fN(N), fN(N)) : u32
-def $fgt_(N, fN(N), fN(N)) : u32
-def $fle_(N, fN(N), fN(N)) : u32
-def $fge_(N, fN(N), fN(N)) : u32
+def $feq_(N, fN(N), fN(N)) : u32               hint(builtin)
+def $fne_(N, fN(N), fN(N)) : u32               hint(builtin)
+def $flt_(N, fN(N), fN(N)) : u32               hint(builtin)
+def $fgt_(N, fN(N), fN(N)) : u32               hint(builtin)
+def $fle_(N, fN(N), fN(N)) : u32               hint(builtin)
+def $fge_(N, fN(N), fN(N)) : u32               hint(builtin)
 
-def $frelaxed_madd_(N, fN(N), fN(N), fN(N)) : fN(N)*    hint(show $frelaxed__madd_(%,%,%))
-def $frelaxed_nmadd_(N, fN(N), fN(N), fN(N)) : fN(N)*   hint(show $frelaxed__nmadd_(%,%,%))
+def $frelaxed_madd_(N, fN(N), fN(N), fN(N)) : fN(N)*   hint(builtin) hint(show $frelaxed__madd_(%,%,%))
+def $frelaxed_nmadd_(N, fN(N), fN(N), fN(N)) : fN(N)*  hint(builtin) hint(show $frelaxed__nmadd_(%,%,%))
 
 
 ;; TODO(3, rossberg): implement numerics internally
@@ -229,18 +376,26 @@ def $frelaxed_nmadd_(N, fN(N), fN(N), fN(N)) : fN(N)*   hint(show $frelaxed__nma
 
 def $wrap__(M, N, iN(M)) : iN(N)
 def $extend__(M, N, sx, iN(M)) : iN(N)               hint(show $extend_((%,%))^(%)#((%)))
-def $trunc__(M, N, sx, fN(M)) : iN(N)?               hint(show $trunc_((%,%))^(%)#((%)))
-def $trunc_sat__(M, N, sx, fN(M)) : iN(N)?           hint(show $trunc__sat_((%,%))^(%)#((%)))
-def $relaxed_trunc__(M, N, sx, fN(M)) : iN(N)?       hint(show $relaxed__trunc_((%,%))^(%)#((%)))
-def $demote__(M, N, fN(M)) : fN(N)*
-def $promote__(M, N, fN(M)) : fN(N)*
-def $convert__(M, N, sx, iN(M)) : fN(N)              hint(show $convert_((%,%))^(%)#((%)))
+def $trunc__(M, N, sx, fN(M)) : iN(N)?               hint(builtin) hint(show $trunc_((%,%))^(%)#((%)))
+def $trunc_sat__(M, N, sx, fN(M)) : iN(N)?           hint(builtin) hint(show $trunc__sat_((%,%))^(%)#((%)))
+def $relaxed_trunc__(M, N, sx, fN(M)) : iN(N)?       hint(builtin) hint(show $relaxed__trunc_((%,%))^(%)#((%)))
+def $demote__(M, N, fN(M)) : fN(N)*                  hint(builtin)
+def $promote__(M, N, fN(M)) : fN(N)*                 hint(builtin)
+def $convert__(M, N, sx, iN(M)) : fN(N)              hint(builtin) hint(show $convert_((%,%))^(%)#((%)))
 def $narrow__(M, N, sx, iN(M)) : iN(N)               hint(show $narrow_((%,%))^(%)#(%))
 
-def $reinterpret__(numtype_1, numtype_2, num_(numtype_1)) : num_(numtype_2)
+def $reinterpret__(numtype_1, numtype_2, num_(numtype_1)) : num_(numtype_2)  hint(builtin)
 
 
 ;; TODO(3, rossberg): implement numerics internally
+
+def $wrap__(M, N, i) = $(i \ 2^N)
+
+def $extend__(M, N, U, i) = i
+def $extend__(M, N, S, i) = $invsigned_(N, $signed_(M, i))
+
+def $narrow__(M, N, U, i) = $sat_u_(N, $signed_(M, i))
+def $narrow__(M, N, S, i) = $invsigned_(N, $sat_s_(N, $signed_(M, i)))
 
 
 ;; Packed numbers
@@ -274,11 +429,11 @@ def $cunpacknum_(packtype, c) = $extend__($psize(packtype), $size($lunpack(packt
 def $unop_(numtype, unop_(numtype), num_(numtype)) : num_(numtype)*
     hint(show %2#$_(%1,%3))
 def $binop_(numtype, binop_(numtype), num_(numtype), num_(numtype)) : num_(numtype)*
-    hint(show %2#$_(%1,%3, %4))
+    hint(show %2#$_(%1,%3,%4))
 def $testop_(numtype, testop_(numtype), num_(numtype)) : u32
     hint(show %2#$_(%1,%3))
 def $relop_(numtype, relop_(numtype), num_(numtype), num_(numtype)) : u32
-    hint(show %2#$_(%1,%3, %4))
+    hint(show %2#$_(%1,%3,%4))
 def $cvtop__(numtype_1, numtype_2, cvtop__(numtype_1, numtype_2), num_(numtype_1)) : num_(numtype_2)*
     hint(show %3#$__(%1,%2,%4))
 
