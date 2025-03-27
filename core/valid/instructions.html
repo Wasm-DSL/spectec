@@ -2100,7 +2100,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 </li>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-resulttype"><span class="std std-ref">label</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{labels}}{}[{l'}]\)</span> exists.</p></li>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-resulttype"><span class="std std-ref">result type</span></a> <span class="math notranslate nohighlight">\({t^\ast}\)</span> <a class="reference internal" href="matching.html#match-resulttype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-resulttype"><span class="std std-ref">label</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{labels}}{}[{l'}]\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a> <span class="math notranslate nohighlight">\({t_1^\ast}~\rightarrow~{t_2^\ast}\)</span> is <a class="reference internal" href="types.html#valid-instrtype"><span class="std std-ref">valid</span></a>.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a> <span class="math notranslate nohighlight">\({t_1^\ast}~{t^\ast}~\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}~\rightarrow~{t_2^\ast}\)</span> is <a class="reference internal" href="types.html#valid-instrtype"><span class="std std-ref">valid</span></a>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
@@ -2110,7 +2110,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
  \qquad
 C \href{../valid/matching.html#match-resulttype}{\vdash} {t^\ast} \href{../valid/matching.html#match-resulttype}{\leq} C{.}\href{../valid/conventions.html#context}{\mathsf{labels}}{}[{l'}]
  \qquad
-C \href{../valid/types.html#valid-instrtype}{\vdash} {t_1^\ast} \rightarrow {t_2^\ast} : \href{../valid/types.html#valid-instrtype}{\mathsf{ok}}
+C \href{../valid/types.html#valid-instrtype}{\vdash} {t_1^\ast}~{t^\ast}~\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}} \rightarrow {t_2^\ast} : \href{../valid/types.html#valid-instrtype}{\mathsf{ok}}
 }{
 C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_table}}~{l^\ast}~{l'} : {t_1^\ast}~{t^\ast}~\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}} \rightarrow {t_2^\ast}
 }
