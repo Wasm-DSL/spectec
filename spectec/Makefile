@@ -1,7 +1,8 @@
 # Configuration
 
-NAME = watsup
+NAME = spectec
 EXT = $(NAME)
+LOG = _log
 
 
 # Main targets
@@ -18,7 +19,10 @@ ci: all
 EXE = exe-$(NAME)/main.exe
 SRCDIR = src
 OUTDIR = _build/default/src
+ROOTDIR = ..
+REFINTERPDIR = $(ROOTDIR)/interpreter
 CLONEDIR = src/backend-interpreter/reference-interpreter
+CLONERM = dune-project jslib
 
 .PHONY: exe
 
@@ -27,10 +31,11 @@ exe: $(CLONEDIR)
 	dune build $(SRCDIR)/$(EXE)
 	ln -f $(OUTDIR)/$(EXE) ./$(NAME)
 
-$(CLONEDIR):
-	@rm -rf $(CLONEDIR)
-	git clone --single-branch https://github.com/WebAssembly/gc.git $(CLONEDIR)
-	@(cd $(CLONEDIR)/interpreter; git checkout 3fa0537 -q; rm dune-project jslib/wast.ml script/run.mli valid/match.mli; cp ../../dune-ref-interp dune)
+$(CLONEDIR): $(shell find $(REFINTERPDIR) -type f)
+	rm -rf $(CLONEDIR)
+	cp -R $(REFINTERPDIR) $(CLONEDIR)
+	rm -r $(CLONERM:%=$@/%)
+	cp $@/../dune-ref-interp $@/dune
 
 
 # Latex
@@ -45,16 +50,40 @@ latex: exe
 
 TESTDIRS = $(shell ls -d test-*)
 
-.PHONY: test testpromote $(TESTDIRS)
+.PHONY: test testpromote $(TESTDIRS) doc/example
 
-test: exe $(TESTDIRS)
-	@dune runtest && echo OK || (echo Failure. Run \`make testpromote\` to accept changes in test expectations. && false)
+test: exe $(TESTDIRS) doc/example
+
+dunetest:
+	@echo "#### Running (dune runtest)"
+	@dune runtest && echo OK || (echo "####>" Failure running dune test. && echo "####>" Run \`make testpromote\` to accept changes in test expectations. && false)
 
 testpromote:
 	dune promote
 
 $(TESTDIRS): test-%: exe
-	(cd $@ && make test >/dev/null)
+	@echo "#### Running (cd $@; make test)"
+	@(cd $@ && ((make test >$(LOG) 2>&1 && (grep warning $(LOG) || true)) || (cat $(LOG) && echo "####>" Failure running $@. See log above. && false)))
+	@echo "#### Running (cd $@; dune runtest)"
+	@(cd $@ && dune runtest)
+
+doc/example: exe
+	@echo "#### Running (cd $@; make all)"
+	@(cd $@ && make out clean >$(LOG) 2>&1 && rm -f $(LOG))
+
+
+# Spec
+
+.PHONY: spec spec-pdf
+
+spec:
+	(cd ../document/core && make main)
+
+spec-pdf:
+	(cd ../document/core && make pdf)
+
+spec-clean:
+	(cd ../document/core && make clean)
 
 
 # Cleanup
@@ -70,3 +99,6 @@ distclean: clean
 	rm -f ./$(NAME)
 	rm -rf $(CLONEDIR)
 	for dir in $(TESTDIRS); do (cd $$dir && make distclean); done
+
+specclean:
+	(cd ../document/core && make clean)
