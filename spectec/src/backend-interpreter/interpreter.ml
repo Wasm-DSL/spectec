@@ -418,6 +418,12 @@ and has_same_keys re rv =
 
 and assign lhs rhs env =
   match lhs.it, rhs with
+  | _ when Free.IdSet.is_empty (Free.free_expr lhs) ->
+    (* when the lhs is a constant *)
+    let lhs' = eval_expr Ds.Env.empty lhs in
+    if lhs' = rhs then env
+    else
+      fail_expr lhs ("invalid assignment: constant lhs not equal to rhs " ^ string_of_value rhs)
   | VarE name, _ -> Env.add name rhs env
   | IterE ({ it = VarE x1; _ }, ((List|List1), [x2, lhs'])), ListV _ when x1 = x2 ->
     assign lhs' rhs env
@@ -495,6 +501,7 @@ and assign_split lhs vs env =
     let get_fixed_length e =
       match e.it with
       | ListE es -> Some (List.length es)
+      (* FIXME(zilinc): If e contains fresh vars, then it will fail to eval. *)
       | IterE (_, (ListN (e, None), _)) -> Some (al_to_nat (eval_expr env e))
       | _ -> None
     in
