@@ -78,6 +78,17 @@ let r_swizzle = relaxed "R_swizzle" 0
 let r_laneselect = relaxed "R_laneselect" 0
 
 
+let rat_to_int : numerics =
+  {
+    name = "rat_to_int";
+    f =
+      (function
+      | [ NumV (`Rat q) ] ->
+        Q.to_bigint q |> al_of_z_int
+      | vs -> error_values "rat_to_int" vs
+      )
+  }
+
 let signed : numerics =
   {
     name = "signed";

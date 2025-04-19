@@ -164,6 +164,7 @@ and translate_exp exp =
   match exp.it with
   | Il.NumE n -> numE n ~at ~note
   | Il.BoolE b -> boolE b ~at ~note
+  | Il.TextE s -> textE s ~at ~note
   (* List *)
   | Il.LenE inner_exp -> lenE (translate_exp inner_exp) ~at ~note
   | Il.ListE exps -> listE (List.map translate_exp exps) ~at ~note

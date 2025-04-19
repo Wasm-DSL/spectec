@@ -203,6 +203,7 @@ and eval_expr env expr =
   (* Value *)
   | NumE n -> numV n
   | BoolE b -> boolV b
+  | TextE s -> textV s
   (* Numeric Operation *)
   | CvtE (e1, _, nt) ->
     (match eval_expr env e1 with

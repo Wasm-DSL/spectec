@@ -33,7 +33,7 @@ let walk_path (walker: unit_walker) (path: path) : unit =
 
 let walk_expr (walker: unit_walker) (expr: expr) : unit =
   match expr.it with
-  | VarE _ | SubE _ | NumE _ | BoolE _ | GetCurStateE
+  | VarE _ | SubE _ | NumE _ | BoolE _ | TextE _ | GetCurStateE
   | GetCurContextE _ | YetE _
   | TopValueE None | ContextKindE _ -> ()
 
@@ -130,7 +130,7 @@ let walk_expr (walker: walker) (expr: expr) : expr =
   let walk_expr = walker.walk_expr walker in
   let it =
     match expr.it with
-    | NumE _ | BoolE _ | VarE _ | SubE _ | GetCurStateE
+    | NumE _ | BoolE _ | TextE _ | VarE _ | SubE _ | GetCurStateE
     | GetCurContextE _ | ContextKindE _ | YetE _ -> expr.it
     | CvtE (e, t1, t2) -> CvtE (walk_expr e, t1, t2)
     | UnE (op, e) -> UnE (op, walk_expr e)
