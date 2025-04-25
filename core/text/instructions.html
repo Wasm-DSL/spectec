@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Instructions &#8212; WebAssembly 3.0 (Draft 2025-04-22)</title>
+    <title>Instructions &#8212; WebAssembly 3.0 (Draft 2025-04-25)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=f4476a26"></script>
+    <script src="../_static/documentation_options.js?v=7a1c9be8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -319,10 +319,10 @@ Lexically, an <span class="math notranslate nohighlight">\(\href{../text/instruc
 \def\mathdef2803#1{{}}\mathdef2803{memory argument} &amp; \href{../text/instructions.html#text-memarg}{\mathtt{memarg}}_N &amp;::=&amp;
   o{:}\href{../text/instructions.html#text-memarg}{\mathtt{offset}}~~a{:}\href{../text/instructions.html#text-memarg}{\mathtt{align}}_N &amp;\Rightarrow&amp; \{ \href{../syntax/instructions.html#syntax-instr-memory}{\mathsf{align}}~n,~\href{../syntax/instructions.html#syntax-instr-memory}{\mathsf{offset}}~o \} &amp; (\mathrel{\mbox{if}} a = 2^n) \\
 \def\mathdef2803#1{{}}\mathdef2803{memory offset} &amp; \href{../text/instructions.html#text-memarg}{\mathtt{offset}} &amp;::=&amp;
-  \def\mathdef2969#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef2969{offset{=}}o{:}\href{../text/values.html#text-int}{\def\mathdef2833#1{{\mathtt{u}#1}}\mathdef2833{\mathtt{32}}} &amp;\Rightarrow&amp; o \\ &amp;&amp;|&amp;
+  \def\mathdef2969#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef2969{offset{=}}o{:}\href{../text/values.html#text-int}{\def\mathdef2834#1{{\mathtt{u}#1}}\mathdef2834{\mathtt{64}}} &amp;\Rightarrow&amp; o \\ &amp;&amp;|&amp;
   \epsilon &amp;\Rightarrow&amp; 0 \\
 \def\mathdef2803#1{{}}\mathdef2803{memory alignment} &amp; \href{../text/instructions.html#text-memarg}{\mathtt{align}}_N &amp;::=&amp;
-  \def\mathdef2970#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef2970{align{=}}a{:}\href{../text/values.html#text-int}{\def\mathdef2833#1{{\mathtt{u}#1}}\mathdef2833{\mathtt{32}}} &amp;\Rightarrow&amp; a \\ &amp;&amp;|&amp;
+  \def\mathdef2970#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef2970{align{=}}a{:}\href{../text/values.html#text-int}{\def\mathdef2834#1{{\mathtt{u}#1}}\mathdef2834{\mathtt{64}}} &amp;\Rightarrow&amp; a \\ &amp;&amp;|&amp;
   \epsilon &amp;\Rightarrow&amp; N \\
 \def\mathdef2803#1{{}}\mathdef2803{instruction} &amp; \href{../text/instructions.html#text-plaininstr}{\mathtt{plaininstr}}_I &amp;::=&amp; \dots \phantom{averylonginstructionnameforvectext} &amp;&amp; \phantom{vechasreallylonginstructionnames} \\ &amp;&amp;|&amp;
   \def\mathdef2971#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef2971{i32.load}~~x{:}\href{../text/modules.html#text-memidx}{\mathtt{memidx}}~~m{:}\href{../text/instructions.html#text-memarg}{\mathtt{memarg}}_4 &amp;\Rightarrow&amp; \href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}.\href{../syntax/instructions.html#syntax-instr-memory}{\mathsf{load}}~x~m \\ &amp;&amp;|&amp;

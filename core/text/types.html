@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Types &#8212; WebAssembly 3.0 (Draft 2025-04-22)</title>
+    <title>Types &#8212; WebAssembly 3.0 (Draft 2025-04-25)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=f4476a26"></script>
+    <script src="../_static/documentation_options.js?v=7a1c9be8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -296,7 +296,7 @@ They cannot be referenced from anywhere.</p>
 \end{array}\end{split}\]</div>
 <section id="id4">
 <h3>Abbreviations<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
-<p>The address type can be omited, in which case it defaults <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}\)</span>:</p>
+<p>The address type can be omitted, in which case it defaults <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}\)</span>:</p>
 <div class="math notranslate nohighlight">
 \[\begin{array}{llclll}
 \def\mathdef4082#1{{}}\mathdef4082{address type} &amp;
@@ -309,8 +309,8 @@ They cannot be referenced from anywhere.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{llclll}
 \def\mathdef4082#1{{}}\mathdef4082{limits} &amp; \href{../text/types.html#text-limits}{\mathtt{limits}} &amp;::=&amp;
-  n{:}\href{../text/values.html#text-int}{\def\mathdef4112#1{{\mathtt{u}#1}}\mathdef4112{\mathtt{32}}} &amp;\Rightarrow&amp; \{ \href{../syntax/types.html#syntax-limits}{\mathsf{min}}~n, \href{../syntax/types.html#syntax-limits}{\mathsf{max}}~\epsilon \} \\ &amp;&amp;|&amp;
-  n{:}\href{../text/values.html#text-int}{\def\mathdef4112#1{{\mathtt{u}#1}}\mathdef4112{\mathtt{32}}}~~m{:}\href{../text/values.html#text-int}{\def\mathdef4112#1{{\mathtt{u}#1}}\mathdef4112{\mathtt{32}}} &amp;\Rightarrow&amp; \{ \href{../syntax/types.html#syntax-limits}{\mathsf{min}}~n, \href{../syntax/types.html#syntax-limits}{\mathsf{max}}~m \} \\
+  n{:}\href{../text/values.html#text-int}{\def\mathdef4113#1{{\mathtt{u}#1}}\mathdef4113{\mathtt{64}}} &amp;\Rightarrow&amp; \{ \href{../syntax/types.html#syntax-limits}{\mathsf{min}}~n, \href{../syntax/types.html#syntax-limits}{\mathsf{max}}~\epsilon \} \\ &amp;&amp;|&amp;
+  n{:}\href{../text/values.html#text-int}{\def\mathdef4113#1{{\mathtt{u}#1}}\mathdef4113{\mathtt{64}}}~~m{:}\href{../text/values.html#text-int}{\def\mathdef4113#1{{\mathtt{u}#1}}\mathdef4113{\mathtt{64}}} &amp;\Rightarrow&amp; \{ \href{../syntax/types.html#syntax-limits}{\mathsf{min}}~n, \href{../syntax/types.html#syntax-limits}{\mathsf{max}}~m \} \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="memory-types">
