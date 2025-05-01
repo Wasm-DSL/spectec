@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Instructions &#8212; WebAssembly 3.0 (Draft 2025-04-25)</title>
+    <title>Instructions &#8212; WebAssembly 3.0 (Draft 2025-05-01)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=7a1c9be8"></script>
+    <script src="../_static/documentation_options.js?v=dcf65863"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -1737,17 +1737,17 @@ respectively.</p>
 &amp; (\href{../syntax/types.html#syntax-vectype}{\mathsf{v\scriptstyle128}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~c_1)~(\href{../syntax/types.html#syntax-vectype}{\mathsf{v\scriptstyle128}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~c_2)~({{\mathit{sh}}_2{.}\href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{narrow}}}{\mathsf{\_}}{{\mathit{sh}}_1}{\mathsf{\_}}{{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}}) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; (\href{../syntax/types.html#syntax-vectype}{\mathsf{v\scriptstyle128}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~c) &amp; \quad \mbox{if}~ c = {\href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{narrow}}}{{{}_{{\mathit{sh}}_1, {\mathit{sh}}_2}^{{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}}}}{(c_1, c_2)} \\
 \end{array}\end{split}\]</div>
 </section>
-<section id="mathit-sh-2-xref-syntax-instructions-syntax-vcvtop-mathit-vcvtop-mathsf-xref-syntax-instructions-syntax-zero-mathit-zero-mathsf-mathit-sh-1-mathsf-xref-syntax-instructions-syntax-half-mathit-half">
-<span id="exec-vcvtop"></span><h3><span class="math notranslate nohighlight">\({\mathit{sh}}_2 {.} {{\href{../syntax/instructions.html#syntax-vcvtop}{\mathit{vcvtop}}}}{\mathsf{\_}}{{{\href{../syntax/instructions.html#syntax-zero}{\mathit{zero}}}^?}}{\mathsf{\_}}{{\mathit{sh}}_1}{\mathsf{\_}}{{{\href{../syntax/instructions.html#syntax-half}{\mathit{half}}}^?}}\)</span><a class="headerlink" href="#mathit-sh-2-xref-syntax-instructions-syntax-vcvtop-mathit-vcvtop-mathsf-xref-syntax-instructions-syntax-zero-mathit-zero-mathsf-mathit-sh-1-mathsf-xref-syntax-instructions-syntax-half-mathit-half" title="Link to this heading">¶</a></h3>
+<section id="mathit-sh-2-xref-syntax-instructions-syntax-vcvtop-mathit-vcvtop-mathsf-mathit-sh-1">
+<span id="exec-vcvtop"></span><h3><span class="math notranslate nohighlight">\({\mathit{sh}}_2 {.} {{\href{../syntax/instructions.html#syntax-vcvtop}{\mathit{vcvtop}}}}{\mathsf{\_}}{{\mathit{sh}}_1}\)</span><a class="headerlink" href="#mathit-sh-2-xref-syntax-instructions-syntax-vcvtop-mathit-vcvtop-mathsf-mathit-sh-1" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
 <li><p>Assert: Due to <a class="reference internal" href="../valid/instructions.html#valid-vcvtop"><span class="std std-ref">validation</span></a>, a value of <a class="reference internal" href="../syntax/types.html#syntax-vectype"><span class="std std-ref">vector type</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-vectype}{\mathsf{v\scriptstyle128}}\)</span> is on the top of the stack.</p></li>
 <li><p>Pop the value <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-vectype}{\mathsf{v\scriptstyle128}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~c_1)\)</span> from the stack.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(c\)</span> be <span class="math notranslate nohighlight">\({{\href{../syntax/instructions.html#syntax-vcvtop}{\mathit{vcvtop}}}}_{{\mathit{sh}}_1, {\mathit{sh}}_2}({\href{../syntax/instructions.html#syntax-vcvtop}{\mathit{vcvtop}}}, {{\href{../syntax/instructions.html#syntax-half}{\mathit{half}}}^?}, {{\href{../syntax/instructions.html#syntax-zero}{\mathit{zero}}}^?}, c_1)\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\(c\)</span> be <span class="math notranslate nohighlight">\({{\href{../syntax/instructions.html#syntax-vcvtop}{\mathit{vcvtop}}}}_{{\mathit{sh}}_1, {\mathit{sh}}_2}({\href{../syntax/instructions.html#syntax-vcvtop}{\mathit{vcvtop}}}, c_1)\)</span>.</p></li>
 <li><p>Push the value <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-vectype}{\mathsf{v\scriptstyle128}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~c)\)</span> to the stack.</p></li>
 </ol>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
-&amp; (\href{../syntax/types.html#syntax-vectype}{\mathsf{v\scriptstyle128}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~c_1)~({\mathit{sh}}_2 {.} {{\href{../syntax/instructions.html#syntax-vcvtop}{\mathit{vcvtop}}}}{\mathsf{\_}}{{{\href{../syntax/instructions.html#syntax-zero}{\mathit{zero}}}^?}}{\mathsf{\_}}{{\mathit{sh}}_1}{\mathsf{\_}}{{{\href{../syntax/instructions.html#syntax-half}{\mathit{half}}}^?}}) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; (\href{../syntax/types.html#syntax-vectype}{\mathsf{v\scriptstyle128}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~c) &amp; \quad \mbox{if}~ c = {{\href{../syntax/instructions.html#syntax-vcvtop}{\mathit{vcvtop}}}}_{{\mathit{sh}}_1, {\mathit{sh}}_2}({\href{../syntax/instructions.html#syntax-vcvtop}{\mathit{vcvtop}}}, {{\href{../syntax/instructions.html#syntax-half}{\mathit{half}}}^?}, {{\href{../syntax/instructions.html#syntax-zero}{\mathit{zero}}}^?}, c_1) \\
+&amp; (\href{../syntax/types.html#syntax-vectype}{\mathsf{v\scriptstyle128}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~c_1)~({\mathit{sh}}_2 {.} {{\href{../syntax/instructions.html#syntax-vcvtop}{\mathit{vcvtop}}}}{\mathsf{\_}}{{\mathit{sh}}_1}) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; (\href{../syntax/types.html#syntax-vectype}{\mathsf{v\scriptstyle128}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~c) &amp; \quad \mbox{if}~ c = {{\href{../syntax/instructions.html#syntax-vcvtop}{\mathit{vcvtop}}}}_{{\mathit{sh}}_1, {\mathit{sh}}_2}({\href{../syntax/instructions.html#syntax-vcvtop}{\mathit{vcvtop}}}, c_1) \\
 \end{array}\end{split}\]</div>
 </section>
 </section>
