@@ -1,11 +1,12 @@
 # Configuration
 
-NAME = watsup
+NAME = spectec
 EXE = $(PWD)/../$(NAME)
 EXT = $(NAME)
+LOG = _log
 
 OWNDIR = $(PWD)
-SPECDIR = ../spec
+SPECDIR = ../../specification
 SPECS = $(shell cd $(SPECDIR) && ls -d wasm-*)
 SPECFILES = $(shell ls $(SPECS:%=$(SPECDIR)/%/*.$(EXT)))
 
@@ -35,7 +36,7 @@ test-latex: $(SPECS:%=$(LATEXOUTNAME)-%.pdf)
 
 $(LATEXOUTNAME)-%.tex: $(LATEXINNAME).tex $(SPECFILES) $(EXE)
 	cp $< $@
-	(cd $(SPECDIR)/$* && $(EXE) *.$(EXT) --splice-latex -i -p $(OWNDIR)/$@)
+	(cd $(SPECDIR)/$* && $(EXE) -l *.$(EXT) --splice-latex -i -p $(OWNDIR)/$@)
 
 $(LATEXOUTNAME)-%.pdf: $(LATEXOUTNAME)-%.tex
 	pdflatex $<
@@ -53,7 +54,7 @@ test-sphinx: $(SPECS:%=sphinx-splice-%)
 
 $(SPHINXOUTNAME)-%.rst: $(SPHINXINNAME).rst $(SPECFILES) $(EXE)
 	cp $< $@
-	(cd $(SPECDIR)/$* && $(EXE) *.$(EXT) --splice-sphinx -i -p $(OWNDIR)/$@)
+	(cd $(SPECDIR)/$* && $(EXE) -l *.$(EXT) --splice-sphinx -i -p $(OWNDIR)/$@)
 
 sphinx-splice-%: sphinx-html-% sphinx-pdf-%
 	#
@@ -89,7 +90,7 @@ exe:
 clean:
 	dune clean
 	rm -f *.aux *.log
-	rm -rf $(SPHINXDIR)
+	rm -rf $(SPHINXDIR) $(LOG)
 
 distclean: clean
 	rm -f $(LATEXOUTNAME)-*.tex $(SPHINXOUTNAME)-*.rst
