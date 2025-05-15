@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Instructions &#8212; WebAssembly 3.0 (Draft 2025-05-10)</title>
+    <title>Instructions &#8212; WebAssembly 3.0 (Draft 2025-05-15)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=bfe52e20"></script>
+    <script src="../_static/documentation_options.js?v=d2144b5c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -1374,12 +1374,12 @@ respectively.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{lll}
 \mathit{op}_{t\mathsf{x}N}(n_1,\dots,n_k) &amp;=&amp;
-  \{ \href{../exec/numerics.html#aux-lanes}{\mathrm{lanes}}^{-1}_{t\mathsf{x}N}(i^\ast) ~|~ i^\ast \in \Large\times\href{../Step_pure/instructions.html#exec-instr-numeric}{\mathit{op}}_t(i_1,\dots,i_k)^\ast \land i_1^\ast = \href{../exec/numerics.html#aux-lanes}{\mathrm{lanes}}_{t\mathsf{x}N}(n_1) \land \dots \land i_k^\ast = \href{../exec/numerics.html#aux-lanes}{\mathrm{lanes}}_{t\mathsf{x}N}(n_k) \} \\
+  \{ \href{../exec/numerics.html#aux-lanes}{\mathrm{lanes}}^{-1}_{t\mathsf{x}N}(i^\ast) ~|~ i^\ast \in {\Large\times}(\href{../Step_pure/instructions.html#exec-instr-numeric}{\mathit{op}}_t(i_1,\dots,i_k)^\ast) \land i_1^\ast = \href{../exec/numerics.html#aux-lanes}{\mathrm{lanes}}_{t\mathsf{x}N}(n_1) \land \dots \land i_k^\ast = \href{../exec/numerics.html#aux-lanes}{\mathrm{lanes}}_{t\mathsf{x}N}(n_k) \} \\
 \end{array}\end{split}\]</div>
-<p>where <span class="math notranslate nohighlight">\(\Large\times \{x^\ast\}^N\)</span> transforms a sequence of <span class="math notranslate nohighlight">\(N\)</span> sets of values into a set of sequences of <span class="math notranslate nohighlight">\(N\)</span> values by computing the set product:</p>
+<p>where <span class="math notranslate nohighlight">\({\Large\times} \{x^\ast\}^N\)</span> transforms a sequence of <span class="math notranslate nohighlight">\(N\)</span> sets of values into a set of sequences of <span class="math notranslate nohighlight">\(N\)</span> values by computing the set product:</p>
 <div class="math notranslate nohighlight">
 \[\begin{array}{lll}
-\Large\times (S_1 \dots S_N) &amp;=&amp; \{ x_1 \dots x_N ~|~ x_1 \in S_1 \land \dots \land x_N \in S_N \}
+{\Large\times} (S_1 \dots S_N) &amp;=&amp; \{ x_1 \dots x_N ~|~ x_1 \in S_1 \land \dots \land x_N \in S_N \}
 \end{array}\]</div>
 <p>The remaining vector operators use <a class="reference internal" href="numerics.html#op-vec"><span class="std std-ref">individual definitions</span></a>.</p>
 <section id="xref-syntax-types-syntax-vectype-mathsf-v-scriptstyle128-mathsf-xref-syntax-instructions-syntax-instr-vec-mathsf-const-c">
