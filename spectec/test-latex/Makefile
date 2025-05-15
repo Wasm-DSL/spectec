@@ -1,11 +1,12 @@
 # Configuration
 
-NAME = watsup
+NAME = spectec
 EXE = $(PWD)/../$(NAME)
 EXT = $(NAME)
+LOG = _log
 
 OWNDIR = $(PWD)
-SPECDIR = ../spec
+SPECDIR = ../../specification
 SPECS = $(shell cd $(SPECDIR) && ls -d wasm-*)
 SPECFILES = $(shell ls $(SPECS:%=$(SPECDIR)/%/*.$(EXT)))
 TESTFILES = $(shell ls *.$(EXT))
@@ -39,7 +40,7 @@ gen: $(SPECS:%=$(GENINNAME)-%.tex)
 test-gen: $(SPECS:%=$(GENOUTNAME)-%.pdf) test-test
 
 $(GENINNAME)-%.tex: $(SPECFILES) $(EXE)
-	(cd $(SPECDIR)/$* && $(EXE) *.$(EXT) -o $(OWNDIR)/$@)
+	(cd $(SPECDIR)/$* && $(EXE) -l --latex *.$(EXT) -o $(OWNDIR)/$@)
 
 $(GENOUTNAME)-%.tex: $(GENOUTNAME).tex
 	ln -f $< $@
@@ -52,7 +53,7 @@ $(GENOUTNAME)-%.pdf: $(GENOUTNAME)-%.tex $(EXE) $(GENINNAME)-%.tex
 test-test: $(TESTFILES:%.$(EXT)=test-%.pdf)
 
 test-%.tex: %.$(EXT) $(EXE)
-	$(EXE) $< -o $@
+	$(EXE) -l --latex $< -o $@
 
 test-%.pdf: test-%.tex $(GENOUTNAME).tex
 	ln -f $< $(GENINNAME).tex
@@ -76,6 +77,7 @@ exe:
 clean:
 	dune clean
 	rm -f *.aux *.log
+	rm -f $(LOG)
 
 distclean: clean
 	rm -f $(GENINNAME)-*.tex test-*.tex

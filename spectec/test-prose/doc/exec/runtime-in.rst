@@ -20,11 +20,11 @@ $${syntax+:
 
 .. _def-default:
 
-$${definition-prose: default}
+$${definition-prose: default_}
 
 \
 
-$${definition: default}
+$${definition: default_}
 
 Results
 ~~~~~~~
@@ -179,49 +179,49 @@ Export Instances
 
 $${syntax: exportinst}
 
-.. _syntax-externval:
+.. _syntax-externaddr:
 
-External Values
-~~~~~~~~~~~~~~~
+External Addresses
+~~~~~~~~~~~~~~~~~~
 
-$${syntax: externval}
+$${syntax: externaddr}
 
-.. _def-funcsxv:
+.. _def-funcsxa:
 
-$${definition-prose: funcsxv}
-
-\
-
-$${definition: funcsxv}
-
-.. _def-tablesxv:
-
-$${definition-prose: tablesxv}
+$${definition-prose: funcsxa}
 
 \
 
-$${definition: tablesxv}
+$${definition: funcsxa}
 
-.. _def-memsxv:
+.. _def-tablesxa:
 
-$${definition-prose: memsxv}
-
-\
-
-$${definition: memsxv}
-
-.. _def-globalsxv:
-
-$${definition-prose: globalsxv}
+$${definition-prose: tablesxa}
 
 \
 
-$${definition: globalsxv}
+$${definition: tablesxa}
+
+.. _def-memsxa:
+
+$${definition-prose: memsxa}
+
+\
+
+$${definition: memsxa}
+
+.. _def-globalsxa:
+
+$${definition-prose: globalsxa}
+
+\
+
+$${definition: globalsxa}
 
 .. _syntax-structinst:
 .. _syntax-arrayinst:
 .. _syntax-fieldval:
-.. _syntax-packedval:
+.. _syntax-packval:
 .. _exec-runtime-aggregate-instances:
 
 Aggregate Instances
@@ -231,7 +231,7 @@ $${syntax+:
   structinst
   arrayinst
   fieldval
-  packedval
+  packval
 }
 
 .. _def-arrayinst:
@@ -267,7 +267,7 @@ $${syntax: frame}
 Administrative Instructions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-$${syntax: admininstr}
+$${syntax: instr/admin}
 
 .. _syntax-state:
 .. _syntax-config:
@@ -280,14 +280,6 @@ $${syntax+:
   state
   config
 }
-
-.. _syntax-E:
-.. _exec-runtime-evaluation-contexts:
-
-Evaluation Contexts
-~~~~~~~~~~~~~~~~~~~
-
-$${syntax: E}
 
 .. _exec-runtime-typing:
 
