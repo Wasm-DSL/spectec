@@ -1,11 +1,12 @@
 # Configuration
 
-NAME = watsup
+NAME = spectec
 EXE = $(PWD)/../$(NAME)
 EXT = $(NAME)
+LOG = _log
 
 OWNDIR = $(PWD)
-SPECDIR = ../spec
+SPECDIR = ../../specification
 SPECFILES = $(shell cd $(SPECDIR) && ls -d wasm-*)
 TESTFILES = $(shell ls *.$(EXT))
 SPECS = $(SPECFILES:%=test-%)
@@ -26,10 +27,10 @@ all: test
 test: $(SPECS) $(TESTS)
 
 $(SPECS): test-%: $(EXE)
-	(cd $(SPECDIR)/$* && $(EXE) *.$(EXT))
+	(cd $(SPECDIR)/$* && $(EXE) -l *.$(EXT))
 
 $(TESTS): test-%: %.$(EXT) $(EXE)
-	($(EXE) $<)
+	($(EXE) -l $<)
 
 
 # Executable
@@ -45,6 +46,6 @@ exe:
 .PHONY: clean distclean
 
 clean:
-	# Nothing so far
+	rm -f $(LOG)
 
 distclean: clean
