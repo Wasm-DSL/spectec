@@ -75,6 +75,7 @@ and string_of_expr expr =
   match expr.it with
   | NumE n -> Num.to_string n
   | BoolE b -> string_of_bool b
+  | TextE s -> s
   | CvtE (e, _, _) -> string_of_expr e  (* TODO: show? *)
   | UnE (`NotOp, { it = IsCaseOfE (e, a); _ }) ->
     sprintf "%s is not %s" (string_of_expr e) (string_of_atom a)

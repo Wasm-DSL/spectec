@@ -203,11 +203,14 @@ def $JN(64) = I64
 
 ;; Size
 
-def $size(numtype) : nat       hint(show |%|)
+def $size(numtype) : nat       hint(show |%|) hint(inverse $invsize)
 def $vsize(vectype) : nat      hint(show |%|)
 def $psize(packtype) : nat     hint(show |%|)
-def $lsize(lanetype) : nat     hint(show |%|)
+def $lsize(lanetype) : nat     hint(show |%|) hint(inverse $invlsize)
 def $zsize(storagetype) : nat  hint(show |%|)
+
+def $invsize(nat) : numtype    hint(builtin "inverse_of_size")
+def $invlsize(nat) : lanetype  hint(builtin "inverse_of_lsize")
 
 def $size(I32) = 32
 def $size(I64) = 64
@@ -228,7 +231,7 @@ def $zsize(packtype) = $psize(packtype)
 
 
 ;; TODO(2, rossberg): get rid of these terrible hacks by defining $Inn(nat) hint(show I#%)
-def $sizenn(numtype) : nat     hint(show N)   hint(macro none)  ;; HACK!
+def $sizenn(numtype) : nat     hint(show N)   hint(macro none) hint(inverse $invsizenn)  ;; HACK!
 def $sizenn1(numtype) : nat    hint(show N_1) hint(macro none)  ;; HACK!
 def $sizenn2(numtype) : nat    hint(show N_2) hint(macro none)  ;; HACK!
 def $sizenn(nt) = $size(nt)
@@ -241,12 +244,15 @@ def $vsizenn(vt) = $vsize(vt)
 def $psizenn(packtype) : nat   hint(show N)   hint(macro none)  ;; HACK!
 def $psizenn(pt) = $psize(pt)
 
-def $lsizenn(lanetype) : nat   hint(show N)   hint(macro none)  ;; HACK!
+def $lsizenn(lanetype) : nat   hint(show N)   hint(macro none) hint(inverse $invlsizenn)  ;; HACK!
 def $lsizenn1(lanetype) : nat  hint(show N_1) hint(macro none)  ;; HACK!
 def $lsizenn2(lanetype) : nat  hint(show N_2) hint(macro none)  ;; HACK!
 def $lsizenn(lt) = $lsize(lt)
 def $lsizenn1(lt) = $lsize(lt)
 def $lsizenn2(lt) = $lsize(lt)
+
+def $invsizenn(nat) : numtype    hint(builtin "inverse_of_sizenn")
+def $invlsizenn(nat) : lanetype  hint(builtin "inverse_of_lsizenn")
 
 
 ;; Unpacking

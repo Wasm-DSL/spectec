@@ -6,6 +6,10 @@ def $min(nat, nat) : nat
 def $min(i, j) = i  -- if $(i <= j)
 def $min(i, j) = j  -- otherwise
 
+def $max(nat, nat) : nat
+def $max(i, j) = i  -- if $(i >= j)
+def $max(i, j) = j  -- otherwise
+
 def $sum(nat*) : nat  hint(show (+) %) hint(macro none)
 def $sum(eps) = 0
 def $sum(n n'*) = $(n + $sum(n'*))

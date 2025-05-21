@@ -112,6 +112,7 @@ and string_of_expr expr =
   match expr.it with
   | NumE n -> Num.to_string n
   | BoolE b -> string_of_bool b
+  | TextE s -> s
   | CvtE (e, _, t) -> sprintf "$%s$(%s)" (Il.Print.string_of_numtyp t) (string_of_expr e)
   | UnE (op, e) -> sprintf "%s(%s)" (string_of_unop op) (string_of_expr e)
   | BinE (op, e1, e2) ->
@@ -395,7 +396,7 @@ and structured_string_of_record_expr r =
 
 and structured_string_of_expr expr =
   match expr.it with
-  | NumE _ | BoolE _ -> string_of_expr expr
+  | NumE _ | BoolE _ | TextE _ -> string_of_expr expr
   | CvtE (e, t1, t2) ->
     "CvtE ("
     ^ structured_string_of_expr e

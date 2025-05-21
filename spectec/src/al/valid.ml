@@ -250,6 +250,12 @@ let check_bool source typ =
   | BoolT -> ()
   | _ -> error_mismatch source typ (varT "bool")
 
+
+let check_text source typ =
+  match (get_base_typ typ).it with
+  | TextT -> ()
+  | _ -> error_mismatch source typ (varT "text")
+
 let check_list source typ =
   match typ.it with
   | IterT (_, iter) when iter <> Opt -> ()
@@ -474,6 +480,7 @@ and valid_expr env (expr: expr) : unit =
   | VarE id ->
     if not (Env.mem id env) then error expr.at ("free identifier " ^ id)
   | NumE _ -> check_num source expr.note;
+  | TextE _ -> check_text source expr.note;
   | BoolE _  | IsCaseOfE _ | IsValidE _ | MatchE _ | HasTypeE _ | ContextKindE _ ->
     check_bool source expr.note;
   | CvtE (expr', _, _) ->

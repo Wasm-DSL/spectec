@@ -11,13 +11,61 @@ def $opt_(syntax X, w) = w
 
 ;; Concatenation
 
-def $concat_(syntax X, (X*)*) : X*  hint(show (++) %2)
+def $concat_(syntax X, (X*)*) : X*  hint(show (++) %2) hint(inverse $invconcat_)
 def $concat_(syntax X, eps) = eps
 def $concat_(syntax X, (w*) (w'*)*) = w* ++ $concat_(X, (w'*)*)
 
-def $concatn_(syntax X, (X*)*, nat) : X*  hint(show (++) %2)
+def $concatn_(syntax X, (X*)*, nat) : X*  hint(show (++) %2) hint(inverse $invconcatn_)
 def $concatn_(syntax X, eps, n) = eps
 def $concatn_(syntax X, (w^n) (w'^n)*, n) = w^n $concatn_(X, (w'^n)*, n)
+
+def $invconcat_(syntax X, X*) : (X*)*        hint(builtin "inverse_of_concat")
+def $invconcatn_(syntax X, nat, X*) : (X*)*  hint(builtin "inverse_of_concatn")
+
+
+;; List manipulation
+
+
+;; This version might be easier to define in theorem provers (eyeball close)
+def $rev_(syntax X, X*) : X*
+def $rev_(syntax X, []) = []
+def $rev_(syntax X, w_0 w*) = $rev_(X, w*) w_0
+
+;; This version is more succinct in SpecTec.
+def $rev'_(syntax X, X*) : X*
+def $rev'_(syntax X, w^N) = (w^N[N-1-i])^(i < N)
+
+def $filter_(syntax X, def $p(X) : bool, X*) : X*
+def $filter_(syntax X, $p, []) = []
+def $filter_(syntax X, $p, w_0 w*) = w_0 $filter_(X, $p, w*)  -- if $p(w_0)
+def $filter_(syntax X, $p, w_0 w*) = $filter_(X, $p, w*)  -- otherwise
+
+
+def $take_(syntax X, nat, X*) : X*
+def $take_(syntax X, 0, w*) = []
+def $take_(syntax X, n, []) = []
+def $take_(syntax X, n, w w'*) = w $take_(X, $(n-1), w'*)  -- if n > 0
+
+def $take'_(syntax X, nat, X*) : X*
+def $take'_(syntax X, n, w^n') = w^n'    -- if n' < n
+def $take'_(syntax X, n, w^n w'*) = w^n
+
+def $takeWhile_(syntax X, def $p(X) : bool, X*) : X*
+def $takeWhile_(syntax X, $p, []) = []
+def $takeWhile_(syntax X, $p, w_0 w*) = w_0 $takeWhile_(X, $p, w*)  -- if $p(w_0)
+def $takeWhile_(syntax X, $p, w_0 w*) = []                          -- otherwise
+
+
+def $drop_(syntax X, nat, X*) : X*
+def $drop_(syntax X, 0, w*) = w*
+def $drop_(syntax X, n, []) = []
+def $drop_(syntax X, n, w w'*) = $drop_(X, $(n-1), w'*)  -- if n > 0
+
+;; Doesn't work with the interpreter backend
+def $drop'_(syntax X, nat, X*) : X*
+def $drop'_(syntax X, n, w^n') = []      -- if n' < n
+def $drop'_(syntax X, n, w^n w'*) = w'*
+
 
 
 ;; Set functions
