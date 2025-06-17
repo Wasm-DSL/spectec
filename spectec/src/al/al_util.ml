@@ -44,6 +44,7 @@ let mk_expr at note it = it $$ at % note
 
 let varE ?(at = no) ~note id = VarE id |> mk_expr at note
 let boolE ?(at = no) ~note b = BoolE b |> mk_expr at note
+let textE ?(at = no) ~note s = TextE s |> mk_expr at note
 let numE ?(at = no) ~note i = NumE i |> mk_expr at note
 let natE ?(at = no) ~note i = NumE (`Nat i) |> mk_expr at note
 let cvtE ?(at = no) ~note (e, nt1, nt2) = CvtE (e, nt1, nt2) |> mk_expr at note
@@ -94,6 +95,7 @@ let natV i = assert (i >= Z.zero); NumV (`Nat i)
 let intV i = NumV (`Int i)
 let natV_of_int i = Z.of_int i |> natV
 let boolV b = BoolV b
+let textV s = TextV s
 let strV r = StrV r
 let caseV (s, vl) = CaseV (s, vl)
 let optV v_opt = OptV v_opt

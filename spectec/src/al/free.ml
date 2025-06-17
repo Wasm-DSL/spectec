@@ -18,6 +18,7 @@ let rec free_expr expr =
   match expr.it with
   | NumE _
   | BoolE _
+  | TextE _
   | GetCurStateE
   | GetCurContextE _
   | ContextKindE _

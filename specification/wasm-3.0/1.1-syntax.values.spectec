@@ -22,6 +22,7 @@ syntax u64 = uN(64)
 syntax u128 = uN(128)
 syntax s33 = sN(33)
 
+var d : bit
 var b : byte
 
 

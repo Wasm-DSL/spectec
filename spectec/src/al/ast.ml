@@ -64,6 +64,7 @@ and expr' =
   | VarE of id                                    (* varid *)
   | NumE of Num.num                               (* number *)
   | BoolE of bool                                 (* boolean *)
+  | TextE of string                               (* text *)
   | CvtE of expr * numtyp * numtyp                (* conversion *)
   | UnE of unop * expr                            (* unop expr *)
   | BinE of binop * expr * expr                   (* expr binop expr *)

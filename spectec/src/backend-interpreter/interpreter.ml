@@ -32,6 +32,25 @@ let try_with_error fname at stringifier f step =
   | Exception.FreeVar _) as e -> error at (prefix ^ Printexc.to_string e) (stringifier step)
   | Failure msg -> error at (prefix ^ msg) (stringifier step)
 
+let warning = ref true
+let warn msg = if !warning then print_endline ("WARNING: " ^ msg)
+
+
+(* Hints *)
+
+(* `find_hint fname hintid` tries to find a hint `hintid` on a spectec function
+    definition whose name is `fname`. If not found, return `None`.
+*)
+let find_hint fname hintid =
+  let open Il.Ast in
+  let open Il2al.Il2al_util in
+  List.find_map (fun hintdef ->
+    match hintdef.it with
+    | DecH (id', hints) when fname = id'.it ->
+      List.find_opt (fun hint -> hint.hintid.it = hintid) hints
+    | _ -> None
+  ) !hintdefs
+
 
 (* Matrix operations *)
 
@@ -203,6 +222,7 @@ and eval_expr env expr =
   (* Value *)
   | NumE n -> numV n
   | BoolE b -> boolV b
+  | TextE s -> textV s
   (* Numeric Operation *)
   | CvtE (e1, _, nt) ->
     (match eval_expr env e1 with
@@ -248,7 +268,7 @@ and eval_expr env expr =
     let fname' = dispatch_fname fname env in
     let el = remove_typargs al in
     let args = List.map (eval_arg env) el in
-    (match call_func fname' args  with
+    (match call_func fname' args with
     | Some v -> v
     | _ -> raise (Exception.MissingReturnValue fname)
     )
@@ -257,10 +277,29 @@ and eval_expr env expr =
     let el = remove_typargs al in
     (* TODO: refactor numerics function name *)
     let args = List.map (eval_arg env) el in
-    (match call_func ("inverse_of_"^fname') args  with
+    let inv_fname =
+      (* NOTE(zilinc): If function $f has hint(inverse $invf), but $invf is
+         defined in terms of the inversion of $f, then infinite loop! We
+         can implement loop checks.
+      *)
+      (match find_hint fname' "inverse" with
+      | Some hint ->
+        (match hint.hintexp.it with
+          (* TODO(zilinc): we assume that there is only one way to inverse the function. 
+          We can in fact extend the hint, so that we know which argument is becoming 
+          the output of the inverse function.
+          *)
+        | CallE (fid, []) -> fid.it
+        | _ -> failwith (sprintf "ill-formed inverse hint for definition `%s`" fname')
+        )
+      | None -> fail_expr expr (sprintf "no inverse hint is given for definition `%s`" fname')
+      )
+    in
+    (match call_func inv_fname args with
     | Some v -> v
     | _ -> raise (Exception.MissingReturnValue fname)
     )
+
   (* Data Structure *)
   | ListE el -> List.map (eval_expr env) el |> listV_of_list
   | CompE (e1, e2) ->
@@ -418,6 +457,12 @@ and has_same_keys re rv =
 
 and assign lhs rhs env =
   match lhs.it, rhs with
+  | _ when Free.IdSet.is_empty (Free.free_expr lhs) ->
+    (* when the lhs is a constant *)
+    let lhs' = eval_expr Ds.Env.empty lhs in
+    if lhs' = rhs then env
+    else
+      fail_expr lhs ("invalid assignment: constant lhs not equal to rhs " ^ string_of_value rhs)
   | VarE name, _ -> Env.add name rhs env
   | IterE ({ it = VarE x1; _ }, ((List|List1), [x2, lhs'])), ListV _ when x1 = x2 ->
     assign lhs' rhs env
@@ -495,6 +540,7 @@ and assign_split lhs vs env =
     let get_fixed_length e =
       match e.it with
       | ListE es -> Some (List.length es)
+      (* FIXME(zilinc): If e contains fresh vars, then it will fail to eval. *)
       | IterE (_, (ListN (e, None), _)) -> Some (al_to_nat (eval_expr env e))
       | _ -> None
     in
@@ -753,14 +799,30 @@ and create_context (name: string) (args: value list) : AlContext.mode =
   AlContext.al (name, params, body, env, 0)
 
 and call_func (name: string) (args: value list) : value option =
+  let opt_builtin = match find_hint name "builtin" with
+                    | Some hint -> Some hint.hintexp
+                    | None      -> None
+  in
+  let has_builtin = Option.is_some opt_builtin in
+  let name' = match opt_builtin with
+              | Some builtin ->
+                (match builtin.it with
+                | SeqE [] -> name         (* hint(builtin) *)
+                | TextE fname -> fname    (* hint(builtin "g") *)
+                | _ -> failwith (sprintf "ill-formed builtin hint for definition `%s`" name))
+              | None -> name
+  in
   (* Function *)
-  if bound_func name then
+  if bound_func name && not has_builtin then
     [create_context name args]
     |> run
     |> AlContext.get_return_value
   (* Numerics *)
-  else if Numerics.mem name then
-    Some (Numerics.call_numerics name args)
+  else if Numerics.mem name' then (
+    if not has_builtin then
+      warn (sprintf "Numeric function `%s` is not defined within SpecTec; \nconsider adding a hint(builtin)" name);
+    Some (Numerics.call_numerics name' args)
+  )
   (* Relation *)
   else if Relation.mem name then (
     if bound_rule name then
