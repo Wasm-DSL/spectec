@@ -145,7 +145,7 @@ def $sat_s_(N, i) = i               -- otherwise
 
 def $ineg_(N, iN(N)) : iN(N)
 def $iabs_(N, iN(N)) : iN(N)
-def $iclz_(N, iN(N)) : iLt(N)
+def $iclz_(N, iN(N)) : iN(N)
 def $ictz_(N, iN(N)) : iN(N)
 def $ipopcnt_(N, iN(N)) : iN(N)
 def $iextend_(N, M, sx, iN(N)) : iN(N)          hint(show $iextend_((%,%))^(%)#((%)))
