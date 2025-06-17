@@ -25,8 +25,6 @@ syntax s33 = sN(33)
 var d : bit
 var b : byte
 
-syntax iLt(N) hint(show nat_(lt#%)) = 0 | ... | $nat$(N-1)
-
 
 ;; Floating-point
 
