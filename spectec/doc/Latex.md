@@ -227,11 +227,6 @@ Hints of the form `hint(show <exp>)` are recognised on a number of constructs an
   while, the operator `#` represents textual concatenation;
   see below for details.
 
-* When a function identifier shall be displayed with both a subscript and a superscript,
-  as SpecTec has built-in support for subscripts as described above, the underscore(s) (`_`)
-  for subscripts should come first, followed by the superscript (e.g. `^(-1)` for the inverse
-  function). E.g. `$signed_(%)^(-1)#((%))`.
-
 * For a variant case or a function declaration,
   show hints control how the case is rendered;
   the expression will typically contain holes `%`,
@@ -312,6 +307,16 @@ syntax instr = ...
   | EXTEND numtype n   hint(show %.EXTEND#%)
 ```
 With those, the expressions `CONST f64 5` and `EXTEND i32 8` will be rendered as `f64.const 5` and `i32.extend8`, respectively.
+
+**Example:**
+Super- and subscripts can be combined in a show hint:
+```
+def $f(nat, nat, nat, nat) : nat  hint(show $f_(%)^(%)#((%,%))
+```
+Here, the underscore in the function name turns the immediate argument into a subscript,
+while the superscript is explicit.
+The remaining argument(s) are concatenated as a tuple.
+
 
 
 #### Macro Hints (`macro`)
