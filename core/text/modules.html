@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-05-20)</title>
+    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-06-23)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=88af6a0e"></script>
+    <script src="../_static/documentation_options.js?v=60660f0a"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -543,7 +543,7 @@ The data is written as a <a class="reference internal" href="values.html#text-st
   \def\mathdef3988#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3988{(}~\def\mathdef3989#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3989{data}~~\href{../text/values.html#text-id}{\mathtt{id}}^?~~b^\ast{:}\href{../text/modules.html#text-datastring}{\mathtt{datastring}}~\def\mathdef3990#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3990{)} \\ &amp;&amp;&amp; \qquad
     \Rightarrow\quad \{ \href{../syntax/modules.html#syntax-data}{\mathsf{init}}~b^\ast, \href{../syntax/modules.html#syntax-data}{\mathsf{mode}}~\href{../syntax/modules.html#syntax-datamode}{\mathsf{passive}} \} \\ &amp;&amp;|&amp;
   \def\mathdef3991#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3991{(}~\def\mathdef3992#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3992{data}~~\href{../text/values.html#text-id}{\mathtt{id}}^?~~x{:}\href{../text/modules.html#text-memuse}{\mathtt{memuse}}_I~~\def\mathdef3993#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3993{(}~\def\mathdef3994#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3994{offset}~~e{:}\href{../text/instructions.html#text-expr}{\mathtt{expr}}_I~\def\mathdef3995#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3995{)}~~b^\ast{:}\href{../text/modules.html#text-datastring}{\mathtt{datastring}}~\def\mathdef3996#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3996{)} \\ &amp;&amp;&amp; \qquad
-    \Rightarrow\quad \{ \href{../syntax/modules.html#syntax-data}{\mathsf{init}}~b^\ast, \href{../syntax/modules.html#syntax-data}{\mathsf{mode}}~\href{../syntax/modules.html#syntax-datamode}{\mathsf{active}}~\{ \href{../syntax/modules.html#syntax-data}{\mathsf{memory}}~x', \href{../syntax/modules.html#syntax-data}{\mathsf{offset}}~e \} \} \\
+    \Rightarrow\quad \{ \href{../syntax/modules.html#syntax-data}{\mathsf{init}}~b^\ast, \href{../syntax/modules.html#syntax-data}{\mathsf{mode}}~\href{../syntax/modules.html#syntax-datamode}{\mathsf{active}}~\{ \href{../syntax/modules.html#syntax-data}{\mathsf{memory}}~x, \href{../syntax/modules.html#syntax-data}{\mathsf{offset}}~e \} \} \\
 \def\mathdef3586#1{{}}\mathdef3586{data string} &amp; \href{../text/modules.html#text-datastring}{\mathtt{datastring}} &amp;::=&amp;
   (b^\ast{:}\href{../text/values.html#text-string}{\mathtt{string}})^\ast \quad\Rightarrow\quad \href{../syntax/conventions.html#notation-concat}{\bigoplus}((b^\ast)^\ast) \\
 \def\mathdef3586#1{{}}\mathdef3586{memory use} &amp; \href{../text/modules.html#text-memuse}{\mathtt{memuse}}_I &amp;::=&amp;
