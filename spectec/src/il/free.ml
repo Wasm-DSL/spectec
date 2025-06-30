@@ -52,7 +52,6 @@ let disjoint sets1 sets2 =
 
 let free_opt free_x xo = Option.(value (map free_x xo) ~default:empty)
 let free_list free_x xs = List.(fold_left (+) empty (map free_x xs))
-let free_pair free_x free_y (x, y) = free_x x + free_y y
 let bound_list = free_list
 
 let rec free_list_dep free_x bound_x = function
@@ -149,7 +148,7 @@ and free_path p =
   | DotP (p1, _atom) -> free_path p1
 
 and free_iterexp (iter, xes) =
-  free_iter iter + free_list (free_pair free_varid free_exp) xes
+  free_iter iter + free_list free_exp (List.map snd xes)
 
 and bound_iterexp (iter, xes) =
   bound_iter iter + free_list bound_varid (List.map fst xes)

@@ -65,22 +65,28 @@ let dispatch_fname f env =
 let rec create_sub_env (iter, xes) env =
   let length_to_list l = List.init l al_of_nat in
 
-  let xe_to_values (x, e) =
+  let xe_to_values (_, e) =
     match iter with
-    | ListN (e_n, Some x') when x = x' ->
-      eval_expr env e_n |> al_to_nat |> length_to_list
     | Opt ->
       eval_expr env e |> unwrap_optv |> Option.to_list
-    | _ ->
+    | List | List1 | ListN _ ->
       eval_expr env e |> unwrap_listv_to_list
   in
 
   let xs = List.map fst xes in
+  let vss = List.map xe_to_values xes in
 
-  xes
-  |> List.map xe_to_values
+  let xs', vss' =
+    match iter with
+    | ListN (e_n, Some x) ->
+if x="k" then Printf.printf "[adding %s]\n%!" x;
+      x :: xs, (eval_expr env e_n |> al_to_nat |> length_to_list) :: vss
+    | _ -> xs, vss
+  in
+
+  vss'
   |> transpose
-  |> List.map (fun vs -> List.fold_right2 Env.add xs vs env)
+  |> List.map (fun vs -> List.fold_right2 Env.add xs' vs env)
 
 and access_path env base path =
   match path.it with

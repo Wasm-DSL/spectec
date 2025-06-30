@@ -60,6 +60,7 @@ let rec free_list_dep free_x bound_x = function
 let free_nl_elem free_x = function Nl -> empty | Elem x -> free_x x
 let free_nl_list free_x xs = List.(fold_left (+) empty (map (free_nl_elem free_x) xs))
 
+let bound_opt = free_opt
 let bound_list = free_list
 
 
@@ -90,7 +91,12 @@ let bound_op op = free_op op
 let rec free_iter iter =
   match iter with
   | Opt | List | List1 -> empty
-  | ListN (e, id_opt) -> free_exp e + free_opt free_varid id_opt
+  | ListN (e, _id_opt) -> free_exp e
+
+and bound_iter iter =
+  match iter with
+  | Opt | List | List1 -> empty
+  | ListN (_e, id_opt) -> bound_opt bound_varid id_opt
 
 
 (* Types *)
@@ -101,7 +107,7 @@ and free_typ t =
   | BoolT | NumT _ | TextT -> empty
   | ParenT t1 -> free_typ t1
   | TupT ts -> free_list free_typ ts
-  | IterT (t1, iter) -> free_typ t1 + free_iter iter
+  | IterT (t1, iter) -> free_typ t1 - bound_iter iter + free_iter iter
   | StrT tfs ->
     free_nl_list (fun tf -> free_typfield tf - det_typfield tf) tfs
   | CaseT (_, ts, tcs, _) ->
@@ -151,7 +157,7 @@ and free_exp e =
     free_exp e1 + free_path p + free_exp e2
   | StrE efs -> free_nl_list free_expfield efs
   | CallE (id, as_) -> free_defid id + free_list free_arg as_
-  | IterE (e1, iter) -> free_exp e1 + free_iter iter
+  | IterE (e1, iter) -> free_exp e1 - bound_iter iter + free_iter iter
   | TypE (e1, t) -> free_exp e1 + free_typ t
 
 and free_expfield (_, e) = free_exp e
@@ -184,7 +190,7 @@ and det_exp e =
   | InfixE (e1, _, e2) -> det_exp e1 + det_exp e2
   | SeqE es | ListE es | TupE es -> free_list det_exp es
   | StrE efs -> free_nl_list det_expfield efs
-  | IterE (e1, iter) -> det_exp e1 + det_iter iter
+  | IterE (e1, iter) -> det_exp e1 - bound_iter iter + det_iter iter
   (* As a special hack to work with bijective functions,
    * we treat last position of a call as a pattern, too. *)
   | CallE (_, []) -> empty
@@ -202,7 +208,7 @@ and det_expfield (_, e) = det_exp e
 and det_iter iter =
   match iter with
   | Opt | List | List1 -> empty
-  | ListN (e, id_opt) -> det_exp e + free_opt bound_varid id_opt
+  | ListN (e, _id_opt) -> det_exp e
 
 and idx_exp e =
   match e.it with
@@ -211,7 +217,7 @@ and idx_exp e =
   | InfixE (e1, _, e2) -> idx_exp e1 + idx_exp e2
   | SeqE es | ListE es | TupE es -> free_list idx_exp es
   | StrE efs -> free_nl_list idx_expfield efs
-  | IterE (e1, iter) -> idx_exp e1 + idx_iter iter
+  | IterE (e1, iter) -> idx_exp e1 - bound_iter iter + idx_iter iter
   | CallE (_, as_) -> free_list idx_arg as_
   | TypE (e1, _) -> idx_exp e1
   | IdxE (_, e2) -> det_exp e2
@@ -222,7 +228,7 @@ and idx_expfield (_, e) = idx_exp e
 and idx_iter iter =
   match iter with
   | Opt | List | List1 -> empty
-  | ListN (e, id_opt) -> idx_exp e + free_opt bound_varid id_opt
+  | ListN (e, _id_opt) -> idx_exp e
 
 and det_cond_exp e =
   match e.it with
@@ -244,7 +250,7 @@ and free_sym g =
   | RangeG (g1, g2) | FuseG (g1, g2) -> free_sym g1 + free_sym g2
   | ParenG g1 | UnparenG g1 -> free_sym g1
   | TupG gs -> free_list free_sym gs
-  | IterG (g1, iter) -> free_sym g1 + free_iter iter
+  | IterG (g1, iter) -> free_sym g1 - bound_iter iter + free_iter iter
   | ArithG e -> free_exp e
   | AttrG (e, g1) -> free_exp e + free_sym g1
 
@@ -282,7 +288,7 @@ and free_prem prem =
   | RulePr (id, e) -> free_relid id + free_exp e
   | IfPr e -> free_exp e
   | ElsePr -> empty
-  | IterPr (prem1, iter) -> free_prem prem1 + free_iter iter
+  | IterPr (prem1, iter) -> free_prem prem1 - bound_iter iter + free_iter iter
 
 and det_prem prem =
   match prem.it with

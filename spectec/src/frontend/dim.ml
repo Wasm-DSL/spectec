@@ -321,6 +321,8 @@ let union = Env.union (fun _ (_, ctx1 as occ1) (_, ctx2 as occ2) ->
   (* For well-typed scripts, t1 == t2. *)
   Some (if List.length ctx1 < List.length ctx2 then occ1 else occ2))
 
+let diff occ1 occ2 = Env.fold (fun x _ occ -> Env.remove x occ) occ2 occ1
+
 let strip_index = function
   | ListN (e, Some _) -> ListN (e, None)
   | iter -> iter
@@ -333,6 +335,7 @@ let rec annot_varid id = function
   | [] -> id
   | iter::iters -> annot_varid (annot_varid' id.it iter $ id.at) iters
 
+(* Returns the occur sets for possible length exp and iter var separately *)
 let rec annot_iter env iter : Il.Ast.iter * (occur * occur) =
   match iter with
   | Opt | List | List1 -> iter, Env.(empty, empty)
@@ -478,22 +481,19 @@ and annot_path env p : Il.Ast.path * occur =
 and annot_iterexp env occur1 (iter, xes) at : Il.Ast.iterexp * occur =
   assert (xes = []);
   let iter', (occur2, occur3) = annot_iter env iter in
-  let occur1'_l =
+  let occur1'_l =  (* lift local variables *)
     List.filter_map (fun (x, (t, iters)) ->
       match iters with
       | [] -> None
       | iter::iters' ->
         assert (Il.Eq.eq_iter (strip_index iter') iter);
         Some (x, (annot_varid' x iter, (IterT (t, iter) $ at, iters')))
-    ) (Env.bindings (union occur1 occur3))
+    ) (Env.bindings (diff occur1 occur3))
   in
-(* TODO(2, rossberg): this should be active
-  if occur1'_l = [] then
-    error at "iteration does not contain iterable variable";
-*)
+  let occur1' = Env.of_seq (List.to_seq (List.map snd occur1'_l)) in
   let xes' =
     List.map (fun (x, (x', (t, _))) -> x $ at, VarE (x' $ at) $$ at % t) occur1'_l in
-  (iter', xes'), union (Env.of_seq (List.to_seq (List.map snd occur1'_l))) occur2
+  (iter', xes'), union occur1' occur2
 
 and annot_sym env g : Il.Ast.sym * occur =
   Il.Debug.(log_in "el.annot_sym" (fun _ -> il_sym g));

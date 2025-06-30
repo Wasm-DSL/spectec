@@ -698,6 +698,7 @@ let rec elab_iter env iter : Il.iter =
   | List -> Il.List
   | List1 -> Il.List1
   | ListN (e, id_opt) ->
+    let e' = checkpoint (elab_exp env e (NumT `NatT $ e.at)) in
     Option.iter (fun id ->
       let e' = checkpoint (elab_exp env (VarE (id, []) $ id.at) (NumT `NatT $ id.at)) in
       (* TODO(4, rossberg): extend IL to allow arbitrary pattern exps *)
@@ -705,7 +706,6 @@ let rec elab_iter env iter : Il.iter =
       | Il.VarE _ -> ()
       | _ -> error_typ env id.at "iteration variable" (NumT `NatT $ id.at)
     ) id_opt;
-    let e' = checkpoint (elab_exp env e (NumT `NatT $ e.at)) in
     Il.ListN (e', id_opt)
 
 
@@ -1778,7 +1778,7 @@ and cast_exp' phrase env e' t1 t2 : Il.exp' attempt =
 
 
 and elab_iterexp env iter : Il.iterexp =
-  (elab_iter env iter, [])
+  (elab_iter env iter, [])  (* bindings are added later by Dim.annot_exp *)
 
 
 (* Premises *)
