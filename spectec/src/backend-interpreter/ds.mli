@@ -6,11 +6,14 @@ val bound_rule : string -> bool
 val bound_func : string -> bool
 val lookup_algo : string -> algorithm
 
-val get_store : unit -> store
-
 type env = value Env.t
 val lookup_env : string -> env -> value
-val add_store : env -> env
+val lookup_env_opt : string -> env -> value option
+
+module Store : sig
+  val get : unit -> value
+  val access : string -> value
+end
 
 module Info : sig
   type info = { algo_name: string; instr: instr; mutable covered: bool }
@@ -23,40 +26,47 @@ end
 module Register : sig
   val add : string -> value -> unit
   val add_with_var : Reference_interpreter.Script.var option -> value -> unit
+  exception ModuleNotFound of string
   val find : string -> value
   val get_module_name : Reference_interpreter.Script.var option -> string
 end
 
+module Modules : sig
+  val add : string -> Reference_interpreter.Ast.module_ -> unit
+  val add_with_var : Reference_interpreter.Script.var option -> Reference_interpreter.Ast.module_ -> unit
+  val find : string -> Reference_interpreter.Ast.module_
+  val get_module_name : Reference_interpreter.Script.var option -> string
+end
+
 module AlContext : sig
-  type return_value =
-    | Bot
-    | None
-    | Some of value
-  type t = string * env * return_value * int
-
-  val context_stack_length : int ref
-  val create_context : string -> t
-  val init_context : unit -> unit
-  val push_context : t -> unit
-  val pop_context : unit -> t
-  val get_context : unit -> t
-  val get_name : unit -> string
-
-  val string_of_return_value : return_value -> string
-  val string_of_context : t -> string
-  val string_of_context_stack : unit -> string
-
-  val set_env : env -> unit
-  val update_env : string -> value -> unit
-  val get_env : unit -> env
-
-  val set_return_value : value -> unit
-  val set_return : unit -> unit
-  val get_return_value : unit -> return_value
-
-  val get_depth : unit -> int
-  val increase_depth : unit -> unit
-  val decrease_depth : unit -> unit
+  type mode =
+    (* Al context *)
+    | Al of string * arg list * instr list * env * int
+    (* Wasm context *)
+    | Wasm of int
+    (* Special context for enter/execute *)
+    | Enter of string * instr list * env
+    | Execute of value
+    (* Return register *)
+    | Return of value
+  val al : string * arg list * instr list * env * int -> mode
+  val wasm : int -> mode
+  val enter : string * instr list * env -> mode
+  val execute : value -> mode
+  val return : value -> mode
+  type t = mode list
+  val string_of_context : mode -> string
+  val tl : t -> t
+  val is_reducible : t -> bool
+  val can_tail_call : instr -> bool
+  val get_name : t -> string
+  val add_instrs : instr list -> t -> t
+  val set_env : env -> t -> t
+  val get_env : t -> env
+  val update_env : string -> value -> t -> t
+  val get_return_value : t -> value option
+  val increase_depth : t -> t
+  val decrease_depth : t -> t
 end
 
 module WasmContext : sig
@@ -69,12 +79,12 @@ module WasmContext : sig
   val string_of_context : t -> string
   val string_of_context_stack : unit -> string
 
-  val get_current_context : unit -> value
-  val get_current_frame : unit -> value
+  val get_top_context : unit -> value
+  val get_current_context : id -> value
   val get_module_instance : unit -> value
-  val get_current_label : unit -> value
 
   val get_value_stack : unit -> value list
+  val pop_value_stack : unit -> value list
   val push_value : value -> unit
   val pop_value : unit -> value
 
