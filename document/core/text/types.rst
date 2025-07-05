@@ -13,7 +13,7 @@ Number Types
 ~~~~~~~~~~~~
 
 .. math::
-   \begin{array}{llcll@{\qquad\qquad}l}
+   \begin{array}{llrll@{\qquad\qquad}l}
    \production{number type} & \Tnumtype_I &::=&
      \text{i32} &\Rightarrow& \I32 \\ &&|&
      \text{i64} &\Rightarrow& \I64 \\ &&|&
@@ -39,15 +39,28 @@ Vector Types
 .. index:: heap type
    pair: text format; heap type
 .. _text-heaptype:
+.. _text-absheaptype:
 
 Heap Types
 ~~~~~~~~~~
 
 .. math::
-   \begin{array}{llcll@{\qquad\qquad}l}
-   \production{heap type} & \Theaptype_I &::=&
+   \begin{array}{llrll@{\qquad\qquad}l}
+   \production{abstract heap type} & \Tabsheaptype &::=&
+     \text{any} &\Rightarrow& \ANY \\ &&|&
+     \text{eq} &\Rightarrow& \EQT \\ &&|&
+     \text{i31} &\Rightarrow& \I31 \\ &&|&
+     \text{struct} &\Rightarrow& \STRUCT \\ &&|&
+     \text{array} &\Rightarrow& \ARRAY \\ &&|&
+     \text{none} &\Rightarrow& \NONE \\ &&|&
      \text{func} &\Rightarrow& \FUNC \\ &&|&
+     \text{nofunc} &\Rightarrow& \NOFUNC \\ &&|&
      \text{extern} &\Rightarrow& \EXTERN \\ &&|&
+     \text{noexn} &\Rightarrow& \NOEXN \\ &&|&
+     \text{exn} &\Rightarrow& \EXN \\ &&|&
+     \text{noextern} &\Rightarrow& \NOEXTERN \\
+   \production{heap type} & \Theaptype_I &::=&
+     t{:}\Tabsheaptype &\Rightarrow& y \\ &&|&
      x{:}\Ttypeidx_I &\Rightarrow& x \\
    \end{array}
 
@@ -76,8 +89,18 @@ There are shorthands for references to abstract heap types.
 .. math::
    \begin{array}{llclll}
    \production{reference type} &
+     \text{anyref} &\equiv& \text{(}~\text{ref}~~\text{null}~~\text{any}~\text{)} \\
+     \text{eqref} &\equiv& \text{(}~\text{ref}~~\text{null}~~\text{eq}~\text{)} \\
+     \text{i31ref} &\equiv& \text{(}~\text{ref}~~\text{null}~~\text{i31}~\text{)} \\
+     \text{structref} &\equiv& \text{(}~\text{ref}~~\text{null}~~\text{struct}~\text{)} \\
+     \text{arrayref} &\equiv& \text{(}~\text{ref}~~\text{null}~~\text{array}~\text{)} \\
+     \text{nullref} &\equiv& \text{(}~\text{ref}~~\text{null}~~\text{none}~\text{)} \\
      \text{funcref} &\equiv& \text{(}~\text{ref}~~\text{null}~~\text{func}~\text{)} \\
+     \text{nullfuncref} &\equiv& \text{(}~\text{ref}~~\text{null}~~\text{nofunc}~\text{)} \\
+     \text{exnref} &\equiv& \text{(}~\text{ref}~~\text{null}~~\text{exn}~\text{)} \\
+     \text{nullexnref} &\equiv& \text{(}~\text{ref}~~\text{null}~~\text{noexn}~\text{)} \\
      \text{externref} &\equiv& \text{(}~\text{ref}~~\text{null}~~\text{extern}~\text{)} \\
+     \text{nullexternref} &\equiv& \text{(}~\text{ref}~~\text{null}~~\text{noextern}~\text{)} \\
    \end{array}
 
 
@@ -109,7 +132,7 @@ Function Types
 .. math::
    \begin{array}{llclll@{\qquad\qquad}l}
    \production{function type} & \Tfunctype_I &::=&
-     \text{(}~\text{func}~~t_1^\ast{:\,}\Tvec(\Tparam_I)~~t_2^\ast{:\,}\Tvec(\Tresult_I)~\text{)}
+     \text{(}~\text{func}~~t_1^\ast{:\,}\Tlist(\Tparam_I)~~t_2^\ast{:\,}\Tlist(\Tresult_I)~\text{)}
        &\Rightarrow& [t_1^\ast] \to [t_2^\ast] \\
    \production{parameter} & \Tparam_I &::=&
      \text{(}~\text{param}~~\Tid^?~~t{:}\Tvaltype_I~\text{)}
@@ -140,6 +163,155 @@ Multiple anonymous parameters or results may be combined into a single declarati
    \end{array}
 
 
+.. index:: aggregate type, value type, structure type, array type, field type, storage type, packed type, mutability
+   pair: text format; aggregate type
+   pair: text format; structure type
+   pair: text format; array type
+   pair: text format; field type
+   pair: text format; storage type
+   pair: text format; packed type
+.. _text-aggrtype:
+.. _text-structtype:
+.. _text-arraytype:
+.. _text-fieldtype:
+.. _text-storagetype:
+.. _text-packtype:
+
+Aggregate Types
+~~~~~~~~~~~~~~~
+
+.. math::
+   \begin{array}{llclll@{\qquad\qquad}l}
+   \production{array type} & \Tarraytype_I &::=&
+     \text{(}~\text{array}~~\X{ft}{:}\Tfieldtype_I~\text{)}
+       &\Rightarrow& \X{ft} \\
+   \production{structure type} & \Tstructtype_I &::=&
+     \text{(}~\text{struct}~~\X{ft}^\ast{:\,}\Tlist(\Tfield_I)~\text{)}
+       &\Rightarrow& \X{ft}^\ast \\
+   \production{field} & \Tfield_I &::=&
+     \text{(}~\text{field}~~\Tid^?~~\X{ft}{:}\Tfieldtype_I~\text{)}
+       &\Rightarrow& \X{ft} \\
+   \production{field type} & \Tfieldtype_I &::=&
+     \X{st}{:}\Bstoragetype
+       &\Rightarrow& \MCONST~\X{st} \\ &&|&
+     \text{(}~\text{mut}~~\X{st}{:}\Bstoragetype~\text{)}
+       &\Rightarrow& \MVAR~\X{st} \\
+   \production{storage type} & \Tstoragetype_I &::=&
+     t{:}\Tvaltype_I
+       &\Rightarrow& t \\ &&|&
+     t{:}\Tpacktype
+       &\Rightarrow& t \\
+   \production{packed type} & \Tpacktype &::=&
+     \text{i8}
+       &\Rightarrow& \I8 \\ &&|&
+     \text{i16}
+       &\Rightarrow& \I16 \\
+   \end{array}
+
+Abbreviations
+.............
+
+Multiple anonymous structure fields may be combined into a single declaration:
+
+.. math::
+   \begin{array}{llclll}
+   \production{field} &
+     \text{(}~~\text{field}~~\Tfieldtype^\ast~~\text{)} &\equiv&
+     (\text{(}~~\text{field}~~\Tfieldtype~~\text{)})^\ast \\
+   \end{array}
+
+
+.. index:: composite type, structure type, array type, function type
+   pair: text format; composite type
+.. _text-comptype:
+
+Composite Types
+~~~~~~~~~~~~~~~
+
+.. math::
+   \begin{array}{llclll@{\qquad\qquad}l}
+   \production{composite type} & \Tcomptype_I &::=&
+     \X{at}{:}\Tarraytype_I
+       &\Rightarrow& \TARRAY~\X{at} \\ &&|&
+     \X{st}{:}\Tstructtype_I
+       &\Rightarrow& \TSTRUCT~\X{at} \\ &&|&
+     \X{ft}{:}\Tfunctype_I
+       &\Rightarrow& \TFUNC~\X{ft} \\
+   \end{array}
+
+
+.. index:: recursive type, sub type, composite type
+   pair: text format; recursive type
+   pair: text format; sub type
+.. _text-rectype:
+.. _text-subtype:
+.. _text-typedef:
+
+Recursive Types
+~~~~~~~~~~~~~~~
+
+.. math::
+   \begin{array}{llclll@{\qquad\qquad}l}
+   \production{recursive type} & \Trectype_I &::=&
+     \text{(}~\text{rec}~~\X{st}^\ast{:\,}\Tlist(\Ttypedef_I)~\text{)}
+       &\Rightarrow& \TREC~\X{st}^\ast \\
+   \production{defined type} & \Ttypedef_I &::=&
+     \text{(}~\text{type}~~\Tid^?~~\X{st}{:}\Tsubtype_I~\text{)}
+       &\Rightarrow& \X{st} \\
+   \production{sub type} & \Tsubtype_I &::=&
+     \text{(}~\text{sub}~~\text{final}^?~~x^\ast{:\,}\Tlist(\Ttypeidx_I)~~\X{ct}{:}\Tcomptype_I~\text{)}
+       &\Rightarrow& \TSUB~\TFINAL^?~x^\ast~\X{ct} \\
+   \end{array}
+
+
+Abbreviations
+.............
+
+Singular recursive types can omit the :math:`\text{rec}` keyword:
+
+.. math::
+   \begin{array}{llclll}
+   \production{recursive type} &
+     \Ttypedef &\equiv&
+     \text{(}~~\text{rec}~~\Ttypedef~~\text{)} \\
+   \end{array}
+
+Similarly, final sub types with no super-types can omit the |Tsub| keyword and arguments:
+
+.. math::
+   \begin{array}{llclll}
+   \production{sub type} &
+     \Tcomptype &\equiv&
+     \text{(}~~\text{sub}~~\text{final}~~\epsilon~~\Tcomptype~~\text{)} \\
+   \end{array}
+
+
+.. index:: address type
+   pair: text format; address type
+.. _text-addrtype:
+
+Address Types
+~~~~~~~~~~~~~
+
+.. math::
+   \begin{array}{llclll}
+   \production{address type} & \Taddrtype &::=&
+     \text{i32} &\Rightarrow& \I32 \\ &&|&
+     \text{i64} &\Rightarrow& \I64 \\
+   \end{array}
+
+Abbreviations
+.............
+
+The address type can be omitted, in which case it defaults :math:`\I32`:
+
+.. math::
+   \begin{array}{llclll}
+   \production{address type} &
+     \text{} &\equiv& \text{i32}
+   \end{array}
+
+
 .. index:: limits
    pair: text format; limits
 .. _text-limits:
@@ -150,8 +322,8 @@ Limits
 .. math::
     \begin{array}{llclll}
     \production{limits} & \Tlimits &::=&
-      n{:}\Tu32 &\Rightarrow& \{ \LMIN~n, \LMAX~\epsilon \} \\ &&|&
-      n{:}\Tu32~~m{:}\Tu32 &\Rightarrow& \{ \LMIN~n, \LMAX~m \} \\
+      n{:}\Tu64 &\Rightarrow& \{ \LMIN~n, \LMAX~\epsilon \} \\ &&|&
+      n{:}\Tu64~~m{:}\Tu64 &\Rightarrow& \{ \LMIN~n, \LMAX~m \} \\
     \end{array}
 
 
@@ -165,7 +337,7 @@ Memory Types
 .. math::
    \begin{array}{llclll@{\qquad\qquad}l}
    \production{memory type} & \Tmemtype_I &::=&
-     \X{lim}{:}\Tlimits &\Rightarrow& \X{lim} \\
+     \X{at}{:}\Taddrtype~~\X{lim}{:}\Tlimits &\Rightarrow& \X{at}~\X{lim} \\
    \end{array}
 
 
@@ -179,7 +351,7 @@ Table Types
 .. math::
    \begin{array}{llclll}
    \production{table type} & \Ttabletype_I &::=&
-     \X{lim}{:}\Tlimits~~\X{et}{:}\Treftype_I &\Rightarrow& \X{lim}~\X{et} \\
+     \X{at}{:}\Taddrtype~~\X{lim}{:}\Tlimits~~\X{et}{:}\Treftype_I &\Rightarrow& \X{at}~\X{lim}~\X{et} \\
    \end{array}
 
 
