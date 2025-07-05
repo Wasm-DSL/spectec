@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-07-03)</title>
+    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-07-05)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=daa8e3a4"></script>
+    <script src="../_static/documentation_options.js?v=25265833"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -448,7 +448,7 @@ It decodes into the list of <a class="reference internal" href="../syntax/module
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
 &amp; {\href{../binary/modules.html#binary-tagsec}{\mathtt{tagsec}}} &amp; ::= &amp; {{\href{../syntax/modules.html#syntax-tag}{\mathit{tag}}}^\ast}{:}{{\href{../binary/modules.html#binary-section}{\mathtt{section}}}}_{13}({\href{../binary/conventions.html#binary-list}{\mathtt{list}}}({\href{../binary/modules.html#binary-tag}{\mathtt{tag}}})) &amp; \quad\Rightarrow\quad{} &amp; {{\href{../syntax/modules.html#syntax-tag}{\mathit{tag}}}^\ast} \\
-&amp; {\href{../binary/modules.html#binary-tag}{\mathtt{tag}}} &amp; ::= &amp; x{:}{\href{../binary/modules.html#binary-typeidx}{\mathtt{typeidx}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/modules.html#syntax-tag}{\mathsf{tag}}~x \\
+&amp; {\href{../binary/modules.html#binary-tag}{\mathtt{tag}}} &amp; ::= &amp; {\mathit{jt}}{:}{\href{../binary/types.html#binary-tagtype}{\mathtt{tagtype}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/modules.html#syntax-tag}{\mathsf{tag}}~{\mathit{jt}} \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="binary-module">
@@ -483,7 +483,7 @@ Furthermore, it must be present if any <a class="reference internal" href="../sy
   &amp;&amp;&amp; {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast} &amp; \quad\Rightarrow\quad{} &amp; &amp; \\
 &amp;&amp;&amp; \multicolumn{4}{&#64;{}l&#64;{}}{\quad
 \begin{array}[t]{&#64;{}l&#64;{}l&#64;{}l&#64;{}}
-\href{../syntax/modules.html#syntax-module}{\mathsf{module}}~{{\href{../syntax/types.html#syntax-rectype}{\mathit{type}}}^\ast}~{{\href{../syntax/modules.html#syntax-import}{\mathit{import}}}^\ast}~{{\href{../syntax/modules.html#syntax-func}{\mathit{func}}}^\ast}~{{\href{../syntax/modules.html#syntax-global}{\mathit{global}}}^\ast}~{{\href{../syntax/modules.html#syntax-table}{\mathit{table}}}^\ast}~{{\href{../syntax/modules.html#syntax-mem}{\mathit{mem}}}^\ast}~{{\href{../syntax/modules.html#syntax-tag}{\mathit{tag}}}^\ast}~{{\href{../syntax/modules.html#syntax-elem}{\mathit{elem}}}^\ast}~{{\href{../syntax/modules.html#syntax-data}{\mathit{data}}}^\ast}~{{\href{../syntax/modules.html#syntax-start}{\mathit{start}}}^?}~{{\href{../syntax/modules.html#syntax-export}{\mathit{export}}}^\ast} &amp; &amp; \\
+\href{../syntax/modules.html#syntax-module}{\mathsf{module}}~{{\href{../syntax/types.html#syntax-rectype}{\mathit{type}}}^\ast}~{{\href{../syntax/modules.html#syntax-import}{\mathit{import}}}^\ast}~{{\href{../syntax/modules.html#syntax-tag}{\mathit{tag}}}^\ast}~{{\href{../syntax/modules.html#syntax-global}{\mathit{global}}}^\ast}~{{\href{../syntax/modules.html#syntax-mem}{\mathit{mem}}}^\ast}~{{\href{../syntax/modules.html#syntax-table}{\mathit{table}}}^\ast}~{{\href{../syntax/modules.html#syntax-func}{\mathit{func}}}^\ast}~{{\href{../syntax/modules.html#syntax-data}{\mathit{data}}}^\ast}~{{\href{../syntax/modules.html#syntax-elem}{\mathit{elem}}}^\ast}~{{\href{../syntax/modules.html#syntax-start}{\mathit{start}}}^?}~{{\href{../syntax/modules.html#syntax-export}{\mathit{export}}}^\ast} &amp; &amp; \\
  \multicolumn{3}{&#64;{}l&#64;{}}{\quad
 \begin{array}[t]{&#64;{}l&#64;{}}
 \quad
