@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-07-05)</title>
+    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-07-06)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=25265833"></script>
+    <script src="../_static/documentation_options.js?v=b75986d8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -526,9 +526,11 @@ Furthermore, for backwards compatibility with earlier versions of WebAssembly, i
 \def\mathdef3586#1{{}}\mathdef3586{table use} &amp;
   \epsilon &amp;\equiv&amp; \def\mathdef3967#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3967{(}~\def\mathdef3968#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3968{table}~~\def\mathdef3969#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3969{0}~\def\mathdef3970#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3970{)} \\
 \def\mathdef3586#1{{}}\mathdef3586{element segment} &amp;
-  \def\mathdef3971#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3971{(}~\def\mathdef3972#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3972{elem}~~\href{../text/values.html#text-id}{\mathtt{id}}^?~~\def\mathdef3973#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3973{(}~\def\mathdef3974#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3974{offset}~~\href{../text/instructions.html#text-expr}{\mathtt{expr}}_I~\def\mathdef3975#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3975{)}~~\href{../text/conventions.html#text-list}{\mathtt{list}}(\href{../text/modules.html#text-funcidx}{\mathtt{funcidx}}_I)~\def\mathdef3976#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3976{)}
+  \def\mathdef3971#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3971{(}~\def\mathdef3972#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3972{elem}~~\href{../text/values.html#text-id}{\mathtt{id}}^?~~\def\mathdef3973#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3973{(}~\def\mathdef3974#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3974{offset}~~\href{../text/instructions.html#text-expr}{\mathtt{expr}}_I~\def\mathdef3975#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3975{)}~~\\ &amp;
+  \qquad \href{../text/conventions.html#text-list}{\mathtt{list}}(\href{../text/modules.html#text-funcidx}{\mathtt{funcidx}}_I)~\def\mathdef3976#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3976{)}
     &amp;\equiv&amp;
-  \def\mathdef3977#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3977{(}~\def\mathdef3978#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3978{elem}~~\href{../text/values.html#text-id}{\mathtt{id}}^?~~\def\mathdef3979#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3979{(}~\def\mathdef3980#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3980{table}~~\def\mathdef3981#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3981{0}~\def\mathdef3982#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3982{)}~~\def\mathdef3983#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3983{(}~\def\mathdef3984#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3984{offset}~~\href{../text/instructions.html#text-expr}{\mathtt{expr}}_I~\def\mathdef3985#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3985{)}~~\def\mathdef3986#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3986{func}~~\href{../text/conventions.html#text-list}{\mathtt{list}}(\href{../text/modules.html#text-funcidx}{\mathtt{funcidx}}_I)~\def\mathdef3987#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3987{)}
+  \def\mathdef3977#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3977{(}~\def\mathdef3978#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3978{elem}~~\href{../text/values.html#text-id}{\mathtt{id}}^?~~\def\mathdef3979#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3979{(}~\def\mathdef3980#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3980{table}~~\def\mathdef3981#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3981{0}~\def\mathdef3982#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3982{)}~~\def\mathdef3983#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3983{(}~\def\mathdef3984#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3984{offset}~~\href{../text/instructions.html#text-expr}{\mathtt{expr}}_I~\def\mathdef3985#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3985{)}~~\\ &amp;
+  &amp;&amp;\qquad \def\mathdef3986#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3986{func}~~\href{../text/conventions.html#text-list}{\mathtt{list}}(\href{../text/modules.html#text-funcidx}{\mathtt{funcidx}}_I)~\def\mathdef3987#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3987{)}
 \end{array}\end{split}\]</div>
 <p>As another abbreviation, element segments may also be specified inline with <a class="reference internal" href="#text-table"><span class="std std-ref">table</span></a> definitions; see the respective section.</p>
 </section>

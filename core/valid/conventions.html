@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Conventions &#8212; WebAssembly 3.0 (Draft 2025-07-05)</title>
+    <title>Conventions &#8212; WebAssembly 3.0 (Draft 2025-07-06)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=25265833"></script>
+    <script src="../_static/documentation_options.js?v=b75986d8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -137,7 +137,7 @@ i.e., all <a class="reference internal" href="../syntax/modules.html#syntax-type
 <p>It is an invariant of the semantics that sub types occur only in one of two forms:
 either as “syntactic” types as in a source module, where all supertypes are type indices,
 or as “semantic” types, where all supertypes are resolved to either defined types or recursive type indices.</p>
-<p>Recursive type indices are internal to a recursive type.
+<p>Recursive type indices are local to a recursive type.
 They are distinguished from regular type indices and represented such that two closed types are syntactically equal if and only if they have the same recursive structure.</p>
 </div>
 <section id="convention">
@@ -177,9 +177,18 @@ but are formed by <a class="reference internal" href="#aux-roll-deftype"><span c
 <span id="type-subst"></span><span id="index-3"></span><span id="id2"></span><h3>Conventions<a class="headerlink" href="#notation-subst" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><span class="math notranslate nohighlight">\({t}{{}[ {x^\ast} \href{../valid/conventions.html#notation-subst}{\mathrel{:=}} {{\mathit{dt}}^\ast} ]}\)</span> denotes the parallel <em>substitution</em> of <a class="reference internal" href="../syntax/modules.html#syntax-typeidx"><span class="std std-ref">type indices</span></a> <span class="math notranslate nohighlight">\({x^\ast}\)</span> with corresponding <a class="reference internal" href="#syntax-deftype"><span class="std std-ref">defined types</span></a> <span class="math notranslate nohighlight">\({{\mathit{dt}}^\ast}\)</span> in type <span class="math notranslate nohighlight">\(t\)</span>, provided <span class="math notranslate nohighlight">\({|{x^\ast}|} = {|{{\mathit{dt}}^\ast}|}\)</span>.</p></li>
-<li><p><span class="math notranslate nohighlight">\({t}{{}[ {(\mathsf{rec}~i)^\ast} \href{../valid/conventions.html#notation-subst}{\mathrel{:=}} {{\mathit{dt}}^\ast} ]}\)</span> denotes the parallel substitution of <a class="reference internal" href="#syntax-rectypeidx"><span class="std std-ref">recursive type indices</span></a> <span class="math notranslate nohighlight">\({(\mathsf{rec}~i)^\ast}\)</span> with <a class="reference internal" href="#syntax-deftype"><span class="std std-ref">defined types</span></a> <span class="math notranslate nohighlight">\({{\mathit{dt}}^\ast}\)</span> in type <span class="math notranslate nohighlight">\(t\)</span>, provided <span class="math notranslate nohighlight">\({|{(\mathsf{rec}~i)^\ast}|} = {|{{\mathit{dt}}^\ast}|}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\({t}{{}[ {(\mathsf{rec}~i)^\ast} \href{../valid/conventions.html#notation-subst}{\mathrel{:=}} {{\mathit{dt}}^\ast} ]}\)</span> denotes the parallel substitution of <a class="reference internal" href="#syntax-rectypeidx"><span class="std std-ref">recursive type indices</span></a> <span class="math notranslate nohighlight">\({(\mathsf{rec}~i)^\ast}\)</span> with <a class="reference internal" href="#syntax-deftype"><span class="std std-ref">defined types</span></a> <span class="math notranslate nohighlight">\({{\mathit{dt}}^\ast}\)</span> in type <span class="math notranslate nohighlight">\(t\)</span>, provided <span class="math notranslate nohighlight">\({|{(\mathsf{rec}~i)^\ast}|} = {|{{\mathit{dt}}^\ast}|}\)</span>.
+This substitution does not proceed under <a class="reference internal" href="../syntax/types.html#syntax-rectype"><span class="std std-ref">recursive types</span></a>,
+since they are considered local <em>binders</em> for all recursive type indices.</p></li>
 <li><p><span class="math notranslate nohighlight">\({t}{{}[ {\href{../valid/conventions.html#notation-subst}{\mathrel{:=}}}\, {{\mathit{dt}}^\ast} ]}\)</span> is shorthand for the substitution <span class="math notranslate nohighlight">\({t}{{}[ {x^\ast} \href{../valid/conventions.html#notation-subst}{\mathrel{:=}} {{\mathit{dt}}^\ast} ]}\)</span>, where <span class="math notranslate nohighlight">\({x^\ast} = 0~\ldots~({|{{\mathit{dt}}^\ast}|} - 1)\)</span>.</p></li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All recursive types formed by the semantics are closed with respect to recursive type indices that occur inside them.
+Hence, substitution of recursive type indices never needs to modify the bodies of recursive types.
+In addition, all types used for substitution are closed with respect to recursive type indices,
+such that name capture of recursive type indices cannot occur.</p>
+</div>
 </section>
 </section>
 <section id="rolling-and-unrolling">
@@ -303,6 +312,10 @@ The label stack is the only part of the context that changes as validation of an
 {{{\href{../valid/conventions.html#aux-clostype}{\mathsf{clos}}}^\ast}}{(\epsilon)} &amp; = &amp; \epsilon \\
 {{{\href{../valid/conventions.html#aux-clostype}{\mathsf{clos}}}^\ast}}{({{\mathit{dt}}^\ast}~{\mathit{dt}}_n)} &amp; = &amp; {{\mathit{dt}'}^\ast}~{{\mathit{dt}}_n}{{}[ {\href{../valid/conventions.html#notation-subst}{\mathrel{:=}}}\, {{\mathit{dt}'}^\ast} ]} &amp; \quad \mbox{if}~ {{\mathit{dt}'}^\ast} = {{{\href{../valid/conventions.html#aux-clostype}{\mathsf{clos}}}^\ast}}{({{\mathit{dt}}^\ast})} \\
 \end{array}\end{split}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Free type indices referring to types within the same <a class="reference internal" href="../syntax/types.html#syntax-rectype"><span class="std std-ref">recursive type</span></a> are handled separately by <a class="reference internal" href="#aux-roll-rectype"><span class="std std-ref">rolling up</span></a> recursive types before closing them.</p>
+</div>
 </section>
 </section>
 <section id="prose-notation">
