@@ -1258,8 +1258,8 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <p>The <a class="reference internal" href="../syntax/instructions.html#syntax-instr"><span class="std std-ref">instruction</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-variable}{\mathsf{global{.}get}}~x)\)</span> is <a class="reference internal" href="#valid-instr"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a> <span class="math notranslate nohighlight">\(\epsilon~\rightarrow~t\)</span> if:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">global</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{globals}}{}[x]\)</span> exists.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">global</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{globals}}{}[x]\)</span> is of the form <span class="math notranslate nohighlight">\(({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~t)\)</span>.</p></li>
+<li><p>The <span class="xref std std-ref">global</span> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{globals}}{}[x]\)</span> exists.</p></li>
+<li><p>The <span class="xref std std-ref">global</span> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{globals}}{}[x]\)</span> is of the form <span class="math notranslate nohighlight">\(({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~t)\)</span>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
@@ -1277,8 +1277,8 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <p>The <a class="reference internal" href="../syntax/instructions.html#syntax-instr"><span class="std std-ref">instruction</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-variable}{\mathsf{global{.}set}}~x)\)</span> is <a class="reference internal" href="#valid-instr"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a> <span class="math notranslate nohighlight">\(t~\rightarrow~\epsilon\)</span> if:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">global</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{globals}}{}[x]\)</span> exists.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">global</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{globals}}{}[x]\)</span> is of the form <span class="math notranslate nohighlight">\((\mathsf{mut}~t)\)</span>.</p></li>
+<li><p>The <span class="xref std std-ref">global</span> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{globals}}{}[x]\)</span> exists.</p></li>
+<li><p>The <span class="xref std std-ref">global</span> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{globals}}{}[x]\)</span> is of the form <span class="math notranslate nohighlight">\((\mathsf{mut}~t)\)</span>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
@@ -2719,8 +2719,8 @@ C \href{../valid/instructions.html#valid-expr}{\vdash} {{\href{../syntax/instruc
 <blockquote>
 <div><ul class="simple">
 <li><p>The <a class="reference internal" href="../exec/runtime.html#syntax-val"><span class="std std-ref">value</span></a> <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}\)</span> is of the form <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-variable}{\mathsf{global{.}get}}~x)\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">global</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{globals}}{}[x]\)</span> exists.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">global</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{globals}}{}[x]\)</span> is of the form <span class="math notranslate nohighlight">\((\epsilon~t)\)</span>.</p></li>
+<li><p>The <span class="xref std std-ref">global</span> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{globals}}{}[x]\)</span> exists.</p></li>
+<li><p>The <span class="xref std std-ref">global</span> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{globals}}{}[x]\)</span> is of the form <span class="math notranslate nohighlight">\((\epsilon~t)\)</span>.</p></li>
 </ul>
 </div></blockquote>
 </li>
