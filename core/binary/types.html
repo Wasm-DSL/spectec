@@ -209,32 +209,8 @@ Additional shorthands are recognized for unary recursions and sub types without 
 &amp; &amp; | &amp; \mathtt{0x05}~~n{:}{\href{../binary/values.html#binary-int}{\def\mathdef1836#1{{\mathtt{u}#1}}\mathdef1836{\mathtt{64}}}}~~m{:}{\href{../binary/values.html#binary-int}{\def\mathdef1836#1{{\mathtt{u}#1}}\mathdef1836{\mathtt{64}}}} &amp; \quad\Rightarrow\quad{} &amp; (\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle64}}, {}[ n \href{../syntax/types.html#syntax-limits}{\,{..}\,} m ]) \\
 \end{array}\end{split}\]</div>
 </section>
-<section id="memory-types">
-<span id="binary-memtype"></span><span id="index-10"></span><h2>Memory Types<a class="headerlink" href="#memory-types" title="Link to this heading">¶</a></h2>
-<p><a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">Memory types</span></a> are encoded with their <a class="reference internal" href="#binary-limits"><span class="std std-ref">limits</span></a>.</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
-&amp; {\href{../binary/types.html#binary-memtype}{\mathtt{memtype}}} &amp; ::= &amp; ({\mathit{at}}, {\mathit{lim}}){:}{\href{../binary/types.html#binary-limits}{\mathtt{limits}}} &amp; \quad\Rightarrow\quad{} &amp; {\mathit{at}}~{\mathit{lim}}~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}} \\
-\end{array}\end{split}\]</div>
-</section>
-<section id="table-types">
-<span id="binary-tabletype"></span><span id="index-11"></span><h2>Table Types<a class="headerlink" href="#table-types" title="Link to this heading">¶</a></h2>
-<p><a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">Table types</span></a> are encoded with their <a class="reference internal" href="#binary-limits"><span class="std std-ref">limits</span></a> and the encoding of their element <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a>.</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
-&amp; {\href{../binary/types.html#binary-tabletype}{\mathtt{tabletype}}} &amp; ::= &amp; {\mathit{rt}}{:}{\href{../binary/types.html#binary-reftype}{\mathtt{reftype}}}~~({\mathit{at}}, {\mathit{lim}}){:}{\href{../binary/types.html#binary-limits}{\mathtt{limits}}} &amp; \quad\Rightarrow\quad{} &amp; {\mathit{at}}~{\mathit{lim}}~{\mathit{rt}} \\
-\end{array}\end{split}\]</div>
-</section>
-<section id="global-types">
-<span id="binary-globaltype"></span><span id="binary-mut"></span><span id="index-12"></span><h2>Global Types<a class="headerlink" href="#global-types" title="Link to this heading">¶</a></h2>
-<p><span class="xref std std-ref">Global types</span> are encoded by their <a class="reference internal" href="#binary-valtype"><span class="std std-ref">value type</span></a> and a flag for their <span class="xref std std-ref">mutability</span>.</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
-&amp; {\href{../binary/types.html#binary-globaltype}{\mathtt{globaltype}}} &amp; ::= &amp; t{:}{\href{../binary/types.html#binary-valtype}{\mathtt{valtype}}}~~{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}{:}{\href{../binary/types.html#binary-mut}{\mathtt{mut}}} &amp; \quad\Rightarrow\quad{} &amp; {\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~t \\
-\end{array}\end{split}\]</div>
-</section>
 <section id="tag-types">
-<span id="binary-tagtype"></span><span id="index-13"></span><h2>Tag Types<a class="headerlink" href="#tag-types" title="Link to this heading">¶</a></h2>
+<span id="binary-tagtype"></span><span id="index-10"></span><h2>Tag Types<a class="headerlink" href="#tag-types" title="Link to this heading">¶</a></h2>
 <p><a class="reference internal" href="../valid/conventions.html#syntax-tagtype"><span class="std std-ref">Tag types</span></a> are encoded by a <a class="reference internal" href="../syntax/modules.html#syntax-typeidx"><span class="std std-ref">type index</span></a> denoting a <a class="reference internal" href="../syntax/types.html#syntax-functype"><span class="std std-ref">function type</span></a>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
@@ -243,8 +219,32 @@ Additional shorthands are recognized for unary recursions and sub types without 
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>In future versions of WebAssembly,
-the preceding zero byte may encode additional flags.</p>
+the preceding zero byte may encode additional attributes.</p>
 </div>
+</section>
+<section id="global-types">
+<span id="binary-globaltype"></span><span id="binary-mut"></span><span id="index-11"></span><h2>Global Types<a class="headerlink" href="#global-types" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">Global types</span></a> are encoded by their <a class="reference internal" href="#binary-valtype"><span class="std std-ref">value type</span></a> and a flag for their <a class="reference internal" href="../syntax/types.html#syntax-mut"><span class="std std-ref">mutability</span></a>.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
+&amp; {\href{../binary/types.html#binary-globaltype}{\mathtt{globaltype}}} &amp; ::= &amp; t{:}{\href{../binary/types.html#binary-valtype}{\mathtt{valtype}}}~~{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}{:}{\href{../binary/types.html#binary-mut}{\mathtt{mut}}} &amp; \quad\Rightarrow\quad{} &amp; {\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~t \\
+\end{array}\end{split}\]</div>
+</section>
+<section id="memory-types">
+<span id="binary-memtype"></span><span id="index-12"></span><h2>Memory Types<a class="headerlink" href="#memory-types" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">Memory types</span></a> are encoded with their <a class="reference internal" href="#binary-limits"><span class="std std-ref">limits</span></a>.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
+&amp; {\href{../binary/types.html#binary-memtype}{\mathtt{memtype}}} &amp; ::= &amp; ({\mathit{at}}, {\mathit{lim}}){:}{\href{../binary/types.html#binary-limits}{\mathtt{limits}}} &amp; \quad\Rightarrow\quad{} &amp; {\mathit{at}}~{\mathit{lim}}~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}} \\
+\end{array}\end{split}\]</div>
+</section>
+<section id="table-types">
+<span id="binary-tabletype"></span><span id="index-13"></span><h2>Table Types<a class="headerlink" href="#table-types" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">Table types</span></a> are encoded with their <a class="reference internal" href="#binary-limits"><span class="std std-ref">limits</span></a> and the encoding of their element <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a>.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
+&amp; {\href{../binary/types.html#binary-tabletype}{\mathtt{tabletype}}} &amp; ::= &amp; {\mathit{rt}}{:}{\href{../binary/types.html#binary-reftype}{\mathtt{reftype}}}~~({\mathit{at}}, {\mathit{lim}}){:}{\href{../binary/types.html#binary-limits}{\mathtt{limits}}} &amp; \quad\Rightarrow\quad{} &amp; {\mathit{at}}~{\mathit{lim}}~{\mathit{rt}} \\
+\end{array}\end{split}\]</div>
 </section>
 <section id="external-types">
 <span id="binary-externtype"></span><span id="index-14"></span><h2>External Types<a class="headerlink" href="#external-types" title="Link to this heading">¶</a></h2>

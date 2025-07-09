@@ -177,14 +177,14 @@ Similarly, <span class="math notranslate nohighlight">\(\href{../syntax/types.ht
 invokes <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{trunc}}^{\mathsf{s}}_{\href{../syntax/types.html#syntax-numtype}{\mathsf{f\scriptstyle32}},\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle64}}}(z)\)</span>,
 which maps to the generic <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#op-trunc}{\mathrm{trunc}^{\mathsf{s}}}_{32,64}(z)\)</span>.</p>
 </div>
-<section id="t-mathsf-xref-syntax-instructions-syntax-instr-numeric-mathsf-const-c">
-<span id="exec-const"></span><h3><span class="math notranslate nohighlight">\(t\mathsf{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~c\)</span><a class="headerlink" href="#t-mathsf-xref-syntax-instructions-syntax-instr-numeric-mathsf-const-c" title="Link to this heading">¶</a></h3>
+<section id="mathit-nt-mathsf-xref-syntax-instructions-syntax-instr-numeric-mathsf-const-c">
+<span id="exec-const"></span><h3><span class="math notranslate nohighlight">\(\mathit{nt}\mathsf{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~c\)</span><a class="headerlink" href="#mathit-nt-mathsf-xref-syntax-instructions-syntax-instr-numeric-mathsf-const-c" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
-<li><p>Push the value <span class="math notranslate nohighlight">\(t.\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~c\)</span> to the stack.</p></li>
+<li><p>Push the value <span class="math notranslate nohighlight">\(({\mathit{nt}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~c)\)</span> to the stack.</p></li>
 </ol>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>No formal reduction rule is required for this instruction, since <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}\)</span> instructions already are <a class="reference internal" href="runtime.html#syntax-val"><span class="std std-ref">values</span></a>.</p>
+<p>No formal reduction rule is required for this instruction, since <span class="math notranslate nohighlight">\(\mathsf{const}\)</span> instructions already are <a class="reference internal" href="runtime.html#syntax-val"><span class="std std-ref">values</span></a>.</p>
 </div>
 </section>
 <section id="mathit-nt-xref-syntax-instructions-syntax-unop-mathit-unop">
@@ -1280,11 +1280,11 @@ respectively.</p>
 <section id="xref-syntax-types-syntax-vectype-mathsf-v-scriptstyle128-mathsf-xref-syntax-instructions-syntax-instr-vec-mathsf-const-c">
 <span id="exec-vconst"></span><h3><span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-vectype}{\mathsf{v\scriptstyle128}}\mathsf{.}\href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{const}}~c\)</span><a class="headerlink" href="#xref-syntax-types-syntax-vectype-mathsf-v-scriptstyle128-mathsf-xref-syntax-instructions-syntax-instr-vec-mathsf-const-c" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
-<li><p>Push the value <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-vectype}{\mathsf{v\scriptstyle128}}.\href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{const}}~c\)</span> to the stack.</p></li>
+<li><p>Push the value <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-vectype}{\mathsf{v\scriptstyle128}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~c)\)</span> to the stack.</p></li>
 </ol>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>No formal reduction rule is required for this instruction, since <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{const}}\)</span> instructions coincide with <a class="reference internal" href="runtime.html#syntax-val"><span class="std std-ref">values</span></a>.</p>
+<p>No formal reduction rule is required for this instruction, since <span class="math notranslate nohighlight">\(\mathsf{const}\)</span> instructions are already <a class="reference internal" href="runtime.html#syntax-val"><span class="std std-ref">values</span></a>.</p>
 </div>
 </section>
 <section id="xref-syntax-types-syntax-vectype-mathsf-v-scriptstyle128-xref-syntax-instructions-syntax-vvunop-mathit-vvunop">

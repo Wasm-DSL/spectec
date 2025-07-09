@@ -248,8 +248,20 @@ which is a sequence of values, written with brackets.</p>
 &amp; {\href{../syntax/types.html#syntax-resulttype}{\mathit{resulttype}}} &amp; ::= &amp; {\href{../syntax/conventions.html#syntax-list}{\mathit{list}}}({\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}) \\
 \end{array}\end{split}\]</div>
 </section>
+<section id="block-types">
+<span id="syntax-blocktype"></span><span id="index-8"></span><h2>Block Types<a class="headerlink" href="#block-types" title="Link to this heading">¶</a></h2>
+<p><em>Block types</em> classify the <em>input</em> and <em>output</em> of structured <a class="reference internal" href="instructions.html#syntax-instr-control"><span class="std std-ref">control instructions</span></a> delimiting <a class="reference internal" href="instructions.html#syntax-block"><span class="std std-ref">blocks</span></a> of instructions.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
+&amp; {\href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}}} &amp; ::= &amp; {{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}^?} \\
+&amp; &amp; | &amp; {\href{../syntax/modules.html#syntax-funcidx}{\mathit{funcidx}}} \\
+\end{array}\end{split}\]</div>
+<p>They are given either as a <a class="reference internal" href="modules.html#syntax-funcidx"><span class="std std-ref">type index</span></a> that refers to a suitable <a class="reference internal" href="#syntax-functype"><span class="std std-ref">function type</span></a> reinterpreted as an <a class="reference internal" href="../valid/conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a>,
+or as an optional <a class="reference internal" href="#syntax-valtype"><span class="std std-ref">value type</span></a> inline,
+which is a shorthand for the instruction type <span class="math notranslate nohighlight">\(\epsilon \rightarrow {{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}^?}\)</span>.</p>
+</section>
 <section id="function-types">
-<span id="syntax-functype"></span><span id="index-8"></span><h2>Function Types<a class="headerlink" href="#function-types" title="Link to this heading">¶</a></h2>
+<span id="syntax-functype"></span><span id="index-9"></span><h2>Function Types<a class="headerlink" href="#function-types" title="Link to this heading">¶</a></h2>
 <p><em>Function types</em> classify the signature of <a class="reference internal" href="modules.html#syntax-func"><span class="std std-ref">functions</span></a>,
 mapping a list of parameters to a list of results.
 They are also used to classify the inputs and outputs of <a class="reference internal" href="instructions.html#syntax-instr"><span class="std std-ref">instructions</span></a>.</p>
@@ -259,7 +271,7 @@ They are also used to classify the inputs and outputs of <a class="reference int
 \end{array}\end{split}\]</div>
 </section>
 <section id="aggregate-types">
-<span id="syntax-packtype"></span><span id="syntax-storagetype"></span><span id="syntax-fieldtype"></span><span id="syntax-arraytype"></span><span id="syntax-structtype"></span><span id="syntax-aggrtype"></span><span id="index-9"></span><h2>Aggregate Types<a class="headerlink" href="#aggregate-types" title="Link to this heading">¶</a></h2>
+<span id="syntax-packtype"></span><span id="syntax-storagetype"></span><span id="syntax-fieldtype"></span><span id="syntax-arraytype"></span><span id="syntax-structtype"></span><span id="syntax-aggrtype"></span><span id="index-10"></span><h2>Aggregate Types<a class="headerlink" href="#aggregate-types" title="Link to this heading">¶</a></h2>
 <p><em>Aggregate types</em> describe compound objects consisting of multiple values.
 These are either <em>structures</em> or <em>arrays</em>,
 which both consist of a list of possibly mutable, possibly packed <em>fields</em>.
@@ -287,7 +299,7 @@ Structures are heterogeneous, but require static indexing, while arrays need to 
 </section>
 </section>
 <section id="composite-types">
-<span id="syntax-comptype"></span><span id="index-10"></span><h2>Composite Types<a class="headerlink" href="#composite-types" title="Link to this heading">¶</a></h2>
+<span id="syntax-comptype"></span><span id="index-11"></span><h2>Composite Types<a class="headerlink" href="#composite-types" title="Link to this heading">¶</a></h2>
 <p><em>Composite types</em> are all types composed from simpler types,
 including <a class="reference internal" href="#syntax-functype"><span class="std std-ref">function types</span></a> and <a class="reference internal" href="#syntax-aggrtype"><span class="std std-ref">aggregate types</span></a>.</p>
 <div class="math notranslate nohighlight">
@@ -298,7 +310,7 @@ including <a class="reference internal" href="#syntax-functype"><span class="std
 \end{array}\end{split}\]</div>
 </section>
 <section id="recursive-types">
-<span id="syntax-subtype"></span><span id="syntax-rectype"></span><span id="index-11"></span><h2>Recursive Types<a class="headerlink" href="#recursive-types" title="Link to this heading">¶</a></h2>
+<span id="syntax-subtype"></span><span id="syntax-rectype"></span><span id="index-12"></span><h2>Recursive Types<a class="headerlink" href="#recursive-types" title="Link to this heading">¶</a></h2>
 <p><em>Recursive types</em> denote a group of mutually recursive <a class="reference internal" href="#syntax-comptype"><span class="std std-ref">composite types</span></a>, each of which can optionally declare a list of <a class="reference internal" href="#syntax-typeuse"><span class="std std-ref">type uses</span></a> of supertypes that it <a class="reference internal" href="../valid/matching.html#match-comptype"><span class="std std-ref">matches</span></a>.
 Each type can also be declared <em>final</em>, preventing further subtyping.</p>
 <div class="math notranslate nohighlight">
@@ -308,8 +320,8 @@ Each type can also be declared <em>final</em>, preventing further subtyping.</p>
 \end{array}\end{split}\]</div>
 <p>In a <a class="reference internal" href="modules.html#syntax-module"><span class="std std-ref">module</span></a>, each member of a recursive type is assigned a separate <a class="reference internal" href="modules.html#syntax-typeidx"><span class="std std-ref">type index</span></a>.</p>
 </section>
-<section id="address-type">
-<span id="syntax-addrtype"></span><h2>Address Type<a class="headerlink" href="#address-type" title="Link to this heading">¶</a></h2>
+<section id="address-types">
+<span id="syntax-addrtype"></span><h2>Address Types<a class="headerlink" href="#address-types" title="Link to this heading">¶</a></h2>
 <p><em>Address types</em> are a subset of <a class="reference internal" href="#syntax-numtype"><span class="std std-ref">number types</span></a> that classify the values that can be used as offsets into
 <a class="reference internal" href="modules.html#syntax-mem"><span class="std std-ref">memories</span></a> and <a class="reference internal" href="modules.html#syntax-table"><span class="std std-ref">tables</span></a>.</p>
 <div class="math notranslate nohighlight">
@@ -327,7 +339,7 @@ Each type can also be declared <em>final</em>, preventing further subtyping.</p>
 </section>
 </section>
 <section id="limits">
-<span id="syntax-limits"></span><span id="index-12"></span><h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">¶</a></h2>
+<span id="syntax-limits"></span><span id="index-13"></span><h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">¶</a></h2>
 <p><em>Limits</em> classify the size range of resizeable storage associated with <a class="reference internal" href="#syntax-memtype"><span class="std std-ref">memory types</span></a> and <a class="reference internal" href="#syntax-tabletype"><span class="std std-ref">table types</span></a>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
@@ -335,8 +347,8 @@ Each type can also be declared <em>final</em>, preventing further subtyping.</p>
 \end{array}\end{split}\]</div>
 </section>
 <section id="tag-types">
-<span id="syntax-globaltype"></span><span id="syntax-mut"></span><span id="index-13"></span><h2>Tag Types<a class="headerlink" href="#tag-types" title="Link to this heading">¶</a></h2>
-<p><em>Tag types</em> classify <span class="xref std std-ref">tags</span>.
+<span id="syntax-tagtype"></span><span id="index-14"></span><h2>Tag Types<a class="headerlink" href="#tag-types" title="Link to this heading">¶</a></h2>
+<p><em>Tag types</em> classify <a class="reference internal" href="modules.html#syntax-tag"><span class="std std-ref">tags</span></a>.
 The <a class="reference internal" href="#syntax-typeuse"><span class="std std-ref">type use</span></a> has to refer to the definition of a <a class="reference internal" href="#syntax-functype"><span class="std std-ref">function type</span></a> that declares the types of parameter and result values associated with the tag.
 The result type is empty for exception tags.</p>
 <div class="math notranslate nohighlight">
@@ -345,7 +357,7 @@ The result type is empty for exception tags.</p>
 \end{array}\end{split}\]</div>
 </section>
 <section id="global-types">
-<span id="id7"></span><span id="id6"></span><span id="index-14"></span><h2>Global Types<a class="headerlink" href="#global-types" title="Link to this heading">¶</a></h2>
+<span id="syntax-globaltype"></span><span id="syntax-mut"></span><span id="index-15"></span><h2>Global Types<a class="headerlink" href="#global-types" title="Link to this heading">¶</a></h2>
 <p><em>Global types</em> classify <a class="reference internal" href="modules.html#syntax-global"><span class="std std-ref">global</span></a> variables, which hold a value and can either be mutable or immutable.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
@@ -353,7 +365,7 @@ The result type is empty for exception tags.</p>
 \end{array}\end{split}\]</div>
 </section>
 <section id="memory-types">
-<span id="syntax-memtype"></span><span id="index-15"></span><h2>Memory Types<a class="headerlink" href="#memory-types" title="Link to this heading">¶</a></h2>
+<span id="syntax-memtype"></span><span id="index-16"></span><h2>Memory Types<a class="headerlink" href="#memory-types" title="Link to this heading">¶</a></h2>
 <p><em>Memory types</em> classify linear <a class="reference internal" href="modules.html#syntax-mem"><span class="std std-ref">memories</span></a> and their size range.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
@@ -363,7 +375,7 @@ The result type is empty for exception tags.</p>
 The limits are given in units of <a class="reference internal" href="../exec/runtime.html#page-size"><span class="std std-ref">page size</span></a>.</p>
 </section>
 <section id="table-types">
-<span id="syntax-tabletype"></span><span id="index-16"></span><h2>Table Types<a class="headerlink" href="#table-types" title="Link to this heading">¶</a></h2>
+<span id="syntax-tabletype"></span><span id="index-17"></span><h2>Table Types<a class="headerlink" href="#table-types" title="Link to this heading">¶</a></h2>
 <p><em>Table types</em> classify <a class="reference internal" href="modules.html#syntax-table"><span class="std std-ref">tables</span></a> over elements of <a class="reference internal" href="#syntax-reftype"><span class="std std-ref">reference type</span></a> within a size range.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
@@ -373,7 +385,7 @@ The limits are given in units of <a class="reference internal" href="../exec/run
 The limits are given in numbers of entries.</p>
 </section>
 <section id="data-types">
-<span id="syntax-datatype"></span><span id="index-17"></span><h2>Data Types<a class="headerlink" href="#data-types" title="Link to this heading">¶</a></h2>
+<span id="syntax-datatype"></span><span id="index-18"></span><h2>Data Types<a class="headerlink" href="#data-types" title="Link to this heading">¶</a></h2>
 <p><em>Data types</em> classify <a class="reference internal" href="modules.html#syntax-elem"><span class="std std-ref">data segments</span></a>.
 Since the contents of a data segment requires no further classification, they merely consist of a universal marker <span class="math notranslate nohighlight">\(\mathsf{ok}\)</span> indicating well-formedness.</p>
 <div class="math notranslate nohighlight">
@@ -382,7 +394,7 @@ Since the contents of a data segment requires no further classification, they me
 \end{array}\end{split}\]</div>
 </section>
 <section id="element-types">
-<span id="syntax-elemtype"></span><span id="index-18"></span><h2>Element Types<a class="headerlink" href="#element-types" title="Link to this heading">¶</a></h2>
+<span id="syntax-elemtype"></span><span id="index-19"></span><h2>Element Types<a class="headerlink" href="#element-types" title="Link to this heading">¶</a></h2>
 <p><em>Element types</em> classify <a class="reference internal" href="modules.html#syntax-elem"><span class="std std-ref">element segments</span></a> by the <a class="reference internal" href="#syntax-reftype"><span class="std std-ref">reference type</span></a> of its elements.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
@@ -390,7 +402,7 @@ Since the contents of a data segment requires no further classification, they me
 \end{array}\end{split}\]</div>
 </section>
 <section id="external-types">
-<span id="syntax-externtype"></span><span id="index-19"></span><h2>External Types<a class="headerlink" href="#external-types" title="Link to this heading">¶</a></h2>
+<span id="syntax-externtype"></span><span id="index-20"></span><h2>External Types<a class="headerlink" href="#external-types" title="Link to this heading">¶</a></h2>
 <p><em>External types</em> classify <a class="reference internal" href="modules.html#syntax-import"><span class="std std-ref">imports</span></a> and <a class="reference internal" href="../exec/runtime.html#syntax-externaddr"><span class="std std-ref">external addresses</span></a> with their respective types.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
@@ -401,8 +413,8 @@ Since the contents of a data segment requires no further classification, they me
 <p class="admonition-title">Note</p>
 <p>Future versions of WebAssembly may have additional uses for tags, and may allow non-empty result types in the function types of tags.</p>
 </div>
-<section id="id8">
-<h3>Conventions<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
+<section id="id6">
+<h3>Conventions<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
 <p>The following auxiliary notation is defined for sequences of external types.
 It filters out entries of a specific kind in an order-preserving fashion:</p>
 <div class="math notranslate nohighlight">

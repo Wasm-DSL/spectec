@@ -347,7 +347,7 @@ It records its <a class="reference internal" href="../syntax/types.html#syntax-m
 <section id="global-instances">
 <span id="syntax-globalinst"></span><span id="index-10"></span><h2>Global Instances<a class="headerlink" href="#global-instances" title="Link to this heading">¶</a></h2>
 <p>A <em>global instance</em> is the runtime representation of a <a class="reference internal" href="../syntax/modules.html#syntax-global"><span class="std std-ref">global</span></a> variable.
-It records its <span class="xref std std-ref">type</span> and holds an individual <a class="reference internal" href="#syntax-val"><span class="std std-ref">value</span></a>.</p>
+It records its <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">type</span></a> and holds an individual <a class="reference internal" href="#syntax-val"><span class="std std-ref">value</span></a>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
 &amp; {\href{../exec/runtime.html#syntax-globalinst}{\mathit{globalinst}}} &amp; ::= &amp; \{ \begin{array}[t]{&#64;{}l&#64;{}l&#64;{}}
@@ -542,7 +542,7 @@ Locals are mutated by respective <a class="reference internal" href="../syntax/i
 <li><p>The meta variable <span class="math notranslate nohighlight">\(L\)</span> ranges over labels where clear from context.</p></li>
 <li><p>The meta variable <span class="math notranslate nohighlight">\(f\)</span> ranges over frame states where clear from context.</p></li>
 <li><p>The meta variable <span class="math notranslate nohighlight">\(H\)</span> ranges over exception handlers where clear from context.</p></li>
-<li><p>The following auxiliary definition takes a <a class="reference internal" href="../syntax/instructions.html#syntax-blocktype"><span class="std std-ref">block type</span></a> and looks up the <a class="reference internal" href="../valid/conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a> that it denotes in the current frame:</p>
+<li><p>The following auxiliary definition takes a <a class="reference internal" href="../syntax/types.html#syntax-blocktype"><span class="std std-ref">block type</span></a> and looks up the <a class="reference internal" href="../valid/conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a> that it denotes in the current frame:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}lcl&#64;{}l&#64;{}}
 {{\href{../exec/runtime.html#aux-blocktype}{\mathrm{instrtype}}}}_{z}(x) &amp; = &amp; {\mathit{ft}} &amp; \quad \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{\mathit{ft}} \\
@@ -578,7 +578,7 @@ Traps are bubbled up through nested instruction sequences, ultimately reducing t
 <p>For example, the <a class="reference internal" href="instructions.html#exec-block"><span class="std std-ref">reduction rule</span></a> for <span class="math notranslate nohighlight">\(\mathsf{block}\)</span> is:</p>
 <div class="math notranslate nohighlight">
 \[(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{block}}~{\mathit{bt}}~{{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast}) \href{../exec/conventions.html#exec-notation}{\hookrightarrow} ({{\href{../exec/runtime.html#syntax-label}{\mathsf{label}}}_{n}}{\{ \epsilon \}}~{{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast})\]</div>
-<p>if the <a class="reference internal" href="../syntax/instructions.html#syntax-blocktype"><span class="std std-ref">block type</span></a> <span class="math notranslate nohighlight">\({\mathit{bt}}\)</span> denotes a <a class="reference internal" href="../syntax/types.html#syntax-functype"><span class="std std-ref">function type</span></a> <span class="math notranslate nohighlight">\({t_1^{m}} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^{n}}\)</span>,
+<p>if the <a class="reference internal" href="../syntax/types.html#syntax-blocktype"><span class="std std-ref">block type</span></a> <span class="math notranslate nohighlight">\({\mathit{bt}}\)</span> denotes a <a class="reference internal" href="../syntax/types.html#syntax-functype"><span class="std std-ref">function type</span></a> <span class="math notranslate nohighlight">\({t_1^{m}} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^{n}}\)</span>,
 such that <span class="math notranslate nohighlight">\(n\)</span> is the block’s result arity.
 This rule replaces the block with a label instruction,
 which can be interpreted as “pushing” the label on the stack.

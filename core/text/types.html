@@ -313,8 +313,25 @@ They cannot be referenced from anywhere.</p>
   n{:}\href{../text/values.html#text-int}{\def\mathdef4114#1{{\mathtt{u}#1}}\mathdef4114{\mathtt{64}}}~~m{:}\href{../text/values.html#text-int}{\def\mathdef4114#1{{\mathtt{u}#1}}\mathdef4114{\mathtt{64}}} &amp;\Rightarrow&amp; \{ \href{../syntax/types.html#syntax-limits}{\mathsf{min}}~n, \href{../syntax/types.html#syntax-limits}{\mathsf{max}}~m \} \\
 \end{array}\end{split}\]</div>
 </section>
+<section id="tag-types">
+<span id="text-tagtype"></span><span id="index-12"></span><h2>Tag Types<a class="headerlink" href="#tag-types" title="Link to this heading">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{llcl}
+\def\mathdef4083#1{{}}\mathdef4083{tag} &amp; \href{../text/types.html#text-tagtype}{\mathtt{tagtype}}_I &amp;::=&amp;
+  x,I'{:}\href{../text/modules.html#text-typeuse}{\mathtt{typeuse}}_I~\def\mathdef4286#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef4286{)} \Rightarrow\quad x \\
+\end{array}\end{split}\]</div>
+</section>
+<section id="global-types">
+<span id="text-globaltype"></span><span id="index-13"></span><h2>Global Types<a class="headerlink" href="#global-types" title="Link to this heading">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{llclll}
+\def\mathdef4083#1{{}}\mathdef4083{global type} &amp; \href{../text/types.html#text-globaltype}{\mathtt{globaltype}}_I &amp;::=&amp;
+  t{:}\href{../text/types.html#text-valtype}{\mathtt{valtype}} &amp;\Rightarrow&amp; \href{../syntax/types.html#syntax-mut}{\mathsf{const}}~t \\ &amp;&amp;|&amp;
+  \def\mathdef4287#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef4287{(}~\def\mathdef4288#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef4288{mut}~~t{:}\href{../text/types.html#text-valtype}{\mathtt{valtype}}_I~\def\mathdef4289#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef4289{)} &amp;\Rightarrow&amp; \href{../syntax/types.html#syntax-mut}{\mathsf{var}}~t \\
+\end{array}\end{split}\]</div>
+</section>
 <section id="memory-types">
-<span id="text-memtype"></span><span id="index-12"></span><h2>Memory Types<a class="headerlink" href="#memory-types" title="Link to this heading">¶</a></h2>
+<span id="text-memtype"></span><span id="index-14"></span><h2>Memory Types<a class="headerlink" href="#memory-types" title="Link to this heading">¶</a></h2>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{llclll&#64;{\qquad\qquad}l}
 \def\mathdef4083#1{{}}\mathdef4083{memory type} &amp; \href{../text/types.html#text-memtype}{\mathtt{memtype}}_I &amp;::=&amp;
@@ -322,20 +339,11 @@ They cannot be referenced from anywhere.</p>
 \end{array}\end{split}\]</div>
 </section>
 <section id="table-types">
-<span id="text-tabletype"></span><span id="index-13"></span><h2>Table Types<a class="headerlink" href="#table-types" title="Link to this heading">¶</a></h2>
+<span id="text-tabletype"></span><span id="index-15"></span><h2>Table Types<a class="headerlink" href="#table-types" title="Link to this heading">¶</a></h2>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{llclll}
 \def\mathdef4083#1{{}}\mathdef4083{table type} &amp; \href{../text/types.html#text-tabletype}{\mathtt{tabletype}}_I &amp;::=&amp;
   \mathit{at}{:}\href{../text/types.html#text-addrtype}{\mathtt{addrtype}}~~\mathit{lim}{:}\href{../text/types.html#text-limits}{\mathtt{limits}}~~\mathit{et}{:}\href{../text/types.html#text-reftype}{\mathtt{reftype}}_I &amp;\Rightarrow&amp; \mathit{at}~\mathit{lim}~\mathit{et} \\
-\end{array}\end{split}\]</div>
-</section>
-<section id="global-types">
-<span id="text-globaltype"></span><span id="index-14"></span><h2>Global Types<a class="headerlink" href="#global-types" title="Link to this heading">¶</a></h2>
-<div class="math notranslate nohighlight">
-\[\begin{split}\begin{array}{llclll}
-\def\mathdef4083#1{{}}\mathdef4083{global type} &amp; \href{../text/types.html#text-globaltype}{\mathtt{globaltype}}_I &amp;::=&amp;
-  t{:}\href{../text/types.html#text-valtype}{\mathtt{valtype}} &amp;\Rightarrow&amp; \href{../syntax/types.html#syntax-mut}{\mathsf{const}}~t \\ &amp;&amp;|&amp;
-  \def\mathdef4286#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef4286{(}~\def\mathdef4287#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef4287{mut}~~t{:}\href{../text/types.html#text-valtype}{\mathtt{valtype}}_I~\def\mathdef4288#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef4288{)} &amp;\Rightarrow&amp; \href{../syntax/types.html#syntax-mut}{\mathsf{var}}~t \\
 \end{array}\end{split}\]</div>
 </section>
 </section>

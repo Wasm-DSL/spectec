@@ -449,8 +449,6 @@ The <span class="math notranslate nohighlight">\(\mathsf{memory{.}init}\)</span>
 <p>Instructions in this group affect the flow of control.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
-&amp; {\href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}}} &amp; ::= &amp; {{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}^?} \\
-&amp; &amp; | &amp; {\href{../syntax/modules.html#syntax-funcidx}{\mathit{funcidx}}} \\[0.8ex]
 &amp; {\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}} &amp; ::= &amp; \dots \\
 &amp; &amp; | &amp; \href{../syntax/instructions.html#syntax-instr-control}{\mathsf{block}}~{\href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}}}~{{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast} \\
 &amp; &amp; | &amp; \href{../syntax/instructions.html#syntax-instr-control}{\mathsf{loop}}~{\href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}}}~{{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast} \\
@@ -481,8 +479,7 @@ The <span class="math notranslate nohighlight">\(\mathsf{memory{.}init}\)</span>
 <p>The <span class="math notranslate nohighlight">\(\mathsf{block}\)</span>, <span class="math notranslate nohighlight">\(\mathsf{loop}\)</span>, <span class="math notranslate nohighlight">\(\mathsf{if}\)</span> and <span class="math notranslate nohighlight">\(\mathsf{try\_table}\)</span> instructions are <em>structured</em> instructions.
 They bracket nested sequences of instructions, called <em>blocks</em>, terminated with, or separated by, <span class="math notranslate nohighlight">\(\mathsf{end}\)</span> or <span class="math notranslate nohighlight">\(\mathsf{else}\)</span> pseudo-instructions.
 As the grammar prescribes, they must be well-nested.</p>
-<p>A structured instruction can consume <em>input</em> and produce <em>output</em> on the operand stack according to its annotated <em>block type</em>.
-It is given either as a <a class="reference internal" href="modules.html#syntax-funcidx"><span class="std std-ref">type index</span></a> that refers to a suitable <a class="reference internal" href="types.html#syntax-functype"><span class="std std-ref">function type</span></a> reinterpreted as an <a class="reference internal" href="../valid/conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a>, or as an optional <a class="reference internal" href="types.html#syntax-valtype"><span class="std std-ref">value type</span></a> inline, which is a shorthand for the instruction type <span class="math notranslate nohighlight">\(\epsilon \rightarrow {{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}^?}\)</span>.</p>
+<p>A structured instruction can consume <em>input</em> and produce <em>output</em> on the operand stack according to its annotated <a class="reference internal" href="types.html#syntax-blocktype"><span class="std std-ref">block type</span></a>.</p>
 <p>Each structured control instruction introduces an implicit <em>label</em>.
 Labels are targets for branch instructions that reference them with <a class="reference internal" href="modules.html#syntax-labelidx"><span class="std std-ref">label indices</span></a>.
 Unlike with other <a class="reference internal" href="modules.html#syntax-index"><span class="std std-ref">index spaces</span></a>, indexing of labels is relative by nesting depth,
