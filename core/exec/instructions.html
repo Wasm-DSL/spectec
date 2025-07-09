@@ -2577,7 +2577,6 @@ In practice, the choice depends on the <a class="reference internal" href="../ap
 <li><p>Else:</p>
 <ol class="arabic simple">
 <li><p>Pop all values <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast}\)</span> from the top of the stack.</p></li>
-<li><p>Assert: Due to <a class="reference internal" href="../valid/instructions.html#valid-br"><span class="std std-ref">validation</span></a>, <span class="math notranslate nohighlight">\(l &gt; 0\)</span>.</p></li>
 <li><p>Pop the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-label}{\mathsf{label}}\)</span> L from the stack.</p></li>
 <li><p>Push the values <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast}\)</span> to the stack.</p></li>
 <li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br}}~l - 1)\)</span>.</p></li>
