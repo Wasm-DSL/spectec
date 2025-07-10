@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Matching &#8212; WebAssembly 3.0 (Draft 2025-07-09)</title>
+    <title>Matching &#8212; WebAssembly 3.0 (Draft 2025-07-10)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=014a295c"></script>
+    <script src="../_static/documentation_options.js?v=5a110155"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -775,50 +775,36 @@ C \href{../valid/matching.html#match-limits}{\vdash} {}[ n_1 \href{../syntax/typ
 \qquad
 \end{array}\]</div>
 </section>
-<section id="table-types">
-<span id="match-tabletype"></span><span id="index-13"></span><h2>Table Types<a class="headerlink" href="#table-types" title="Link to this heading">¶</a></h2>
-<p>The <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table type</span></a> <span class="math notranslate nohighlight">\(({\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_1~{\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_1)\)</span> <a class="reference internal" href="#match-tabletype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table type</span></a> <span class="math notranslate nohighlight">\(({\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_2~{\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_2)\)</span> if:</p>
+<section id="tag-types">
+<span id="match-tagtype"></span><span id="index-13"></span><h2>Tag Types<a class="headerlink" href="#tag-types" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1\)</span> <a class="reference internal" href="#match-tagtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2\)</span> if:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-limits"><span class="std std-ref">limits range</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_1\)</span> <a class="reference internal" href="#match-limits"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-limits"><span class="std std-ref">limits range</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_2\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_1\)</span> <a class="reference internal" href="#match-reftype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_2\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_2\)</span> <a class="reference internal" href="#match-reftype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_1\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1\)</span> <a class="reference internal" href="#match-deftype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2\)</span> <a class="reference internal" href="#match-deftype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1\)</span>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C \href{../valid/matching.html#match-limits}{\vdash} {\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_1 \href{../valid/matching.html#match-limits}{\leq} {\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_2
+C \href{../valid/matching.html#match-deftype}{\vdash} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1 \href{../valid/matching.html#match-deftype}{\leq} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2
  \qquad
-C \href{../valid/matching.html#match-reftype}{\vdash} {\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_1 \href{../valid/matching.html#match-reftype}{\leq} {\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_2
- \qquad
-C \href{../valid/matching.html#match-reftype}{\vdash} {\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_2 \href{../valid/matching.html#match-reftype}{\leq} {\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_1
+C \href{../valid/matching.html#match-deftype}{\vdash} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2 \href{../valid/matching.html#match-deftype}{\leq} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1
 }{
-C \href{../valid/matching.html#match-tabletype}{\vdash} {\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_1~{\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_1 \href{../valid/matching.html#match-tabletype}{\leq} {\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_2~{\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_2
+C \href{../valid/matching.html#match-tagtype}{\vdash} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1 \href{../valid/matching.html#match-tagtype}{\leq} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2
 }
 \qquad
 \end{array}\]</div>
-</section>
-<section id="memory-types">
-<span id="match-memtype"></span><span id="index-14"></span><h2>Memory Types<a class="headerlink" href="#memory-types" title="Link to this heading">¶</a></h2>
-<p>The <a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">memory type</span></a> <span class="math notranslate nohighlight">\(({\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_1~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}})\)</span> <a class="reference internal" href="#match-memtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">memory type</span></a> <span class="math notranslate nohighlight">\(({\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_2~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}})\)</span> if:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-limits"><span class="std std-ref">limits range</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_1\)</span> <a class="reference internal" href="#match-limits"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-limits"><span class="std std-ref">limits range</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_2\)</span>.</p></li>
-</ul>
-</div></blockquote>
-<div class="math notranslate nohighlight">
-\[\begin{array}{&#64;{}c&#64;{}}\displaystyle
-\frac{
-C \href{../valid/matching.html#match-limits}{\vdash} {\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_1 \href{../valid/matching.html#match-limits}{\leq} {\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_2
-}{
-C \href{../valid/matching.html#match-memtype}{\vdash} {\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_1~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}} \href{../valid/matching.html#match-memtype}{\leq} {\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_2~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}}
-}
-\qquad
-\end{array}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the conclusion of this rule looks identical to its premise,
+they in fact describe different relations:
+the premise invokes subtyping on defined types,
+while the conclusion defines it on tag types that happen to be expressed as defined types.</p>
+</div>
 </section>
 <section id="global-types">
-<span id="match-globaltype"></span><span id="index-15"></span><h2>Global Types<a class="headerlink" href="#global-types" title="Link to this heading">¶</a></h2>
+<span id="match-globaltype"></span><span id="index-14"></span><h2>Global Types<a class="headerlink" href="#global-types" title="Link to this heading">¶</a></h2>
 <p>The <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">global type</span></a> <span class="math notranslate nohighlight">\(({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}_1)\)</span> <a class="reference internal" href="#match-globaltype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">global type</span></a> <span class="math notranslate nohighlight">\(({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}'}~{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}_2)\)</span> if:</p>
 <blockquote>
 <div><ul>
@@ -860,78 +846,62 @@ C \href{../valid/matching.html#match-globaltype}{\vdash} \mathsf{mut}~{\href{../
 \qquad
 \end{array}\]</div>
 </section>
-<section id="tag-types">
-<span id="match-tagtype"></span><span id="index-16"></span><h2>Tag Types<a class="headerlink" href="#tag-types" title="Link to this heading">¶</a></h2>
-<p>The <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1\)</span> <a class="reference internal" href="#match-tagtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2\)</span> if:</p>
+<section id="memory-types">
+<span id="match-memtype"></span><span id="index-15"></span><h2>Memory Types<a class="headerlink" href="#memory-types" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">memory type</span></a> <span class="math notranslate nohighlight">\(({\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_1~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}})\)</span> <a class="reference internal" href="#match-memtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">memory type</span></a> <span class="math notranslate nohighlight">\(({\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_2~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}})\)</span> if:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1\)</span> <a class="reference internal" href="#match-deftype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2\)</span> <a class="reference internal" href="#match-deftype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-limits"><span class="std std-ref">limits range</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_1\)</span> <a class="reference internal" href="#match-limits"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-limits"><span class="std std-ref">limits range</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_2\)</span>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C \href{../valid/matching.html#match-deftype}{\vdash} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1 \href{../valid/matching.html#match-deftype}{\leq} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2
- \qquad
-C \href{../valid/matching.html#match-deftype}{\vdash} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2 \href{../valid/matching.html#match-deftype}{\leq} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1
+C \href{../valid/matching.html#match-limits}{\vdash} {\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_1 \href{../valid/matching.html#match-limits}{\leq} {\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_2
 }{
-C \href{../valid/matching.html#match-tagtype}{\vdash} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1 \href{../valid/matching.html#match-tagtype}{\leq} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2
+C \href{../valid/matching.html#match-memtype}{\vdash} {\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_1~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}} \href{../valid/matching.html#match-memtype}{\leq} {\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_2~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}}
 }
 \qquad
 \end{array}\]</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the conclusion of this rule looks identical to its premise,
-they in fact describe different relations:
-the premise invokes subtyping on defined types,
-while the conclusion defines it on tag types that happen to be expressed as defined types.</p>
-</div>
+</section>
+<section id="table-types">
+<span id="match-tabletype"></span><span id="index-16"></span><h2>Table Types<a class="headerlink" href="#table-types" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table type</span></a> <span class="math notranslate nohighlight">\(({\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_1~{\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_1)\)</span> <a class="reference internal" href="#match-tabletype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table type</span></a> <span class="math notranslate nohighlight">\(({\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_2~{\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_2)\)</span> if:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-limits"><span class="std std-ref">limits range</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_1\)</span> <a class="reference internal" href="#match-limits"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-limits"><span class="std std-ref">limits range</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_2\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_1\)</span> <a class="reference internal" href="#match-reftype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_2\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_2\)</span> <a class="reference internal" href="#match-reftype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_1\)</span>.</p></li>
+</ul>
+</div></blockquote>
+<div class="math notranslate nohighlight">
+\[\begin{array}{&#64;{}c&#64;{}}\displaystyle
+\frac{
+C \href{../valid/matching.html#match-limits}{\vdash} {\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_1 \href{../valid/matching.html#match-limits}{\leq} {\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_2
+ \qquad
+C \href{../valid/matching.html#match-reftype}{\vdash} {\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_1 \href{../valid/matching.html#match-reftype}{\leq} {\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_2
+ \qquad
+C \href{../valid/matching.html#match-reftype}{\vdash} {\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_2 \href{../valid/matching.html#match-reftype}{\leq} {\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_1
+}{
+C \href{../valid/matching.html#match-tabletype}{\vdash} {\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_1~{\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_1 \href{../valid/matching.html#match-tabletype}{\leq} {\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}_2~{\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}_2
+}
+\qquad
+\end{array}\]</div>
 </section>
 <section id="external-types">
 <span id="match-externtype"></span><span id="index-17"></span><h2>External Types<a class="headerlink" href="#external-types" title="Link to this heading">¶</a></h2>
-<p>The <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{func}}~{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1)\)</span> <a class="reference internal" href="#match-externtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{func}}~{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2)\)</span> if:</p>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}_1)\)</span> <a class="reference internal" href="#match-externtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}_2)\)</span> if:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1\)</span> <a class="reference internal" href="#match-deftype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}_1\)</span> <a class="reference internal" href="#match-tagtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}_2\)</span>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C \href{../valid/matching.html#match-deftype}{\vdash} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1 \href{../valid/matching.html#match-deftype}{\leq} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2
+C \href{../valid/matching.html#match-tagtype}{\vdash} {\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}_1 \href{../valid/matching.html#match-tagtype}{\leq} {\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}_2
 }{
-C \href{../valid/matching.html#match-externtype}{\vdash} \href{../syntax/types.html#syntax-externtype}{\mathsf{func}}~{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1 \href{../valid/matching.html#match-externtype}{\leq} \href{../syntax/types.html#syntax-externtype}{\mathsf{func}}~{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2
-}
-\qquad
-\end{array}\]</div>
-<p>The <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{table}}~{\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}_1)\)</span> <a class="reference internal" href="#match-externtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{table}}~{\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}_2)\)</span> if:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}_1\)</span> <a class="reference internal" href="#match-tabletype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}_2\)</span>.</p></li>
-</ul>
-</div></blockquote>
-<div class="math notranslate nohighlight">
-\[\begin{array}{&#64;{}c&#64;{}}\displaystyle
-\frac{
-C \href{../valid/matching.html#match-tabletype}{\vdash} {\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}_1 \href{../valid/matching.html#match-tabletype}{\leq} {\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}_2
-}{
-C \href{../valid/matching.html#match-externtype}{\vdash} \href{../syntax/types.html#syntax-externtype}{\mathsf{table}}~{\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}_1 \href{../valid/matching.html#match-externtype}{\leq} \href{../syntax/types.html#syntax-externtype}{\mathsf{table}}~{\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}_2
-}
-\qquad
-\end{array}\]</div>
-<p>The <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{mem}}~{\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}_1)\)</span> <a class="reference internal" href="#match-externtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{mem}}~{\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}_2)\)</span> if:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">memory type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}_1\)</span> <a class="reference internal" href="#match-memtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">memory type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}_2\)</span>.</p></li>
-</ul>
-</div></blockquote>
-<div class="math notranslate nohighlight">
-\[\begin{array}{&#64;{}c&#64;{}}\displaystyle
-\frac{
-C \href{../valid/matching.html#match-memtype}{\vdash} {\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}_1 \href{../valid/matching.html#match-memtype}{\leq} {\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}_2
-}{
-C \href{../valid/matching.html#match-externtype}{\vdash} \href{../syntax/types.html#syntax-externtype}{\mathsf{mem}}~{\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}_1 \href{../valid/matching.html#match-externtype}{\leq} \href{../syntax/types.html#syntax-externtype}{\mathsf{mem}}~{\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}_2
+C \href{../valid/matching.html#match-externtype}{\vdash} \href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}_1 \href{../valid/matching.html#match-externtype}{\leq} \href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}_2
 }
 \qquad
 \end{array}\]</div>
@@ -950,18 +920,48 @@ C \href{../valid/matching.html#match-externtype}{\vdash} \href{../syntax/types.h
 }
 \qquad
 \end{array}\]</div>
-<p>The <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}_1)\)</span> <a class="reference internal" href="#match-externtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}_2)\)</span> if:</p>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{mem}}~{\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}_1)\)</span> <a class="reference internal" href="#match-externtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{mem}}~{\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}_2)\)</span> if:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}_1\)</span> <a class="reference internal" href="#match-tagtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}_2\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">memory type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}_1\)</span> <a class="reference internal" href="#match-memtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">memory type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}_2\)</span>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C \href{../valid/matching.html#match-tagtype}{\vdash} {\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}_1 \href{../valid/matching.html#match-tagtype}{\leq} {\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}_2
+C \href{../valid/matching.html#match-memtype}{\vdash} {\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}_1 \href{../valid/matching.html#match-memtype}{\leq} {\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}_2
 }{
-C \href{../valid/matching.html#match-externtype}{\vdash} \href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}_1 \href{../valid/matching.html#match-externtype}{\leq} \href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}_2
+C \href{../valid/matching.html#match-externtype}{\vdash} \href{../syntax/types.html#syntax-externtype}{\mathsf{mem}}~{\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}_1 \href{../valid/matching.html#match-externtype}{\leq} \href{../syntax/types.html#syntax-externtype}{\mathsf{mem}}~{\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}_2
+}
+\qquad
+\end{array}\]</div>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{table}}~{\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}_1)\)</span> <a class="reference internal" href="#match-externtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{table}}~{\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}_2)\)</span> if:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}_1\)</span> <a class="reference internal" href="#match-tabletype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}_2\)</span>.</p></li>
+</ul>
+</div></blockquote>
+<div class="math notranslate nohighlight">
+\[\begin{array}{&#64;{}c&#64;{}}\displaystyle
+\frac{
+C \href{../valid/matching.html#match-tabletype}{\vdash} {\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}_1 \href{../valid/matching.html#match-tabletype}{\leq} {\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}_2
+}{
+C \href{../valid/matching.html#match-externtype}{\vdash} \href{../syntax/types.html#syntax-externtype}{\mathsf{table}}~{\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}_1 \href{../valid/matching.html#match-externtype}{\leq} \href{../syntax/types.html#syntax-externtype}{\mathsf{table}}~{\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}_2
+}
+\qquad
+\end{array}\]</div>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{func}}~{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1)\)</span> <a class="reference internal" href="#match-externtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{func}}~{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2)\)</span> if:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1\)</span> <a class="reference internal" href="#match-deftype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2\)</span>.</p></li>
+</ul>
+</div></blockquote>
+<div class="math notranslate nohighlight">
+\[\begin{array}{&#64;{}c&#64;{}}\displaystyle
+\frac{
+C \href{../valid/matching.html#match-deftype}{\vdash} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1 \href{../valid/matching.html#match-deftype}{\leq} {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2
+}{
+C \href{../valid/matching.html#match-externtype}{\vdash} \href{../syntax/types.html#syntax-externtype}{\mathsf{func}}~{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_1 \href{../valid/matching.html#match-externtype}{\leq} \href{../syntax/types.html#syntax-externtype}{\mathsf{func}}~{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}_2
 }
 \qquad
 \end{array}\]</div>
