@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-07-10)</title>
+    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-07-11)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=5a110155"></script>
+    <script src="../_static/documentation_options.js?v=2bc44b0c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -152,7 +152,7 @@ The indices of these imports precede the indices of other definitions in the sam
 <section id="types">
 <span id="syntax-typedef"></span><span id="syntax-type"></span><span id="index-2"></span><h2>Types<a class="headerlink" href="#types" title="Link to this heading">¶</a></h2>
 <p>The <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-rectype}{\mathit{type}}}\)</span> section of a module defines a list of <a class="reference internal" href="types.html#syntax-rectype"><span class="std std-ref">recursive types</span></a>, each consisting of a list of <a class="reference internal" href="types.html#syntax-subtype"><span class="std std-ref">sub types</span></a> referenced by individual <a class="reference internal" href="#syntax-typeidx"><span class="std std-ref">type indices</span></a>.
-All <a class="reference internal" href="types.html#syntax-functype"><span class="std std-ref">function</span></a> or <a class="reference internal" href="types.html#syntax-aggrtype"><span class="std std-ref">aggregate</span></a> types used in a module must be defined in this section.</p>
+All <a class="reference internal" href="types.html#syntax-functype"><span class="std std-ref">function</span></a>, <a class="reference internal" href="types.html#syntax-structtype"><span class="std std-ref">structure</span></a>, or <a class="reference internal" href="types.html#syntax-arraytype"><span class="std std-ref">array</span></a> types used in a module must be defined in this section.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
 &amp; {\href{../syntax/types.html#syntax-rectype}{\mathit{type}}} &amp; ::= &amp; \href{../syntax/modules.html#syntax-type}{\mathsf{type}}~{\href{../syntax/types.html#syntax-rectype}{\mathit{rectype}}} \\

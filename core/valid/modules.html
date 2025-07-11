@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-07-10)</title>
+    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-07-11)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=5a110155"></script>
+    <script src="../_static/documentation_options.js?v=2bc44b0c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -291,12 +291,12 @@ C \href{../valid/modules.html#valid-table}{\vdash} \href{../syntax/modules.html#
 </section>
 <section id="functions">
 <span id="valid-func"></span><span id="index-5"></span><h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
-<p>Functions <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-func}{\mathit{func}}}\)</span> are classified by <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined types</span></a> that <a class="reference internal" href="conventions.html#aux-expand-deftype"><span class="std std-ref">expand</span></a> to <a class="reference internal" href="../syntax/types.html#syntax-functype"><span class="std std-ref">function types</span></a> of the form <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^\ast})\)</span>.</p>
+<p>Functions <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-func}{\mathit{func}}}\)</span> are classified by <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined types</span></a> that <a class="reference internal" href="conventions.html#aux-expand-deftype"><span class="std std-ref">expand</span></a> to <a class="reference internal" href="../syntax/types.html#syntax-functype"><span class="std std-ref">function types</span></a> of the form <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast} \href{../syntax/types.html#syntax-comptype}{\rightarrow} {t_2^\ast}\)</span>.</p>
 <p>The <a class="reference internal" href="../syntax/modules.html#syntax-func"><span class="std std-ref">function</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/modules.html#syntax-func}{\mathsf{func}}~x~{{\href{../syntax/modules.html#syntax-local}{\mathit{local}}}^\ast}~{\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}})\)</span> is <a class="reference internal" href="#valid-func"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> if:</p>
 <blockquote>
 <div><ul>
 <li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> exists.</p></li>
-<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype"><span class="std std-ref">expansion</span></a> of the <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> is the <a class="reference internal" href="../syntax/types.html#syntax-comptype"><span class="std std-ref">composite type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast}~\href{../syntax/types.html#syntax-functype}{\rightarrow}~{t_2^\ast})\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype"><span class="std std-ref">expansion</span></a> of the <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> is the <a class="reference internal" href="../syntax/types.html#syntax-comptype"><span class="std std-ref">composite type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast}~\href{../syntax/types.html#syntax-comptype}{\rightarrow}~{t_2^\ast})\)</span>.</p></li>
 <li><p>The length of <span class="math notranslate nohighlight">\({{{\mathit{lt}}}^\ast}\)</span> is equal to the length of <span class="math notranslate nohighlight">\({{\href{../syntax/modules.html#syntax-local}{\mathit{local}}}^\ast}\)</span>.</p></li>
 <li><p>For all <span class="math notranslate nohighlight">\({{\mathit{lt}}}\)</span> in <span class="math notranslate nohighlight">\({{{\mathit{lt}}}^\ast}\)</span>, and corresponding <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-local}{\mathit{local}}}\)</span> in <span class="math notranslate nohighlight">\({{\href{../syntax/modules.html#syntax-local}{\mathit{local}}}^\ast}\)</span>:</p>
 <blockquote>
@@ -311,7 +311,7 @@ C \href{../valid/modules.html#valid-table}{\vdash} \href{../syntax/modules.html#
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~({t_1^\ast} \href{../syntax/types.html#syntax-functype}{\rightarrow} {t_2^\ast})
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast} \href{../syntax/types.html#syntax-comptype}{\rightarrow} {t_2^\ast}
  \qquad
 (C \href{../valid/modules.html#valid-local}{\vdash} {\href{../syntax/modules.html#syntax-local}{\mathit{local}}} : {{\mathit{lt}}})^\ast
  \qquad
@@ -517,13 +517,13 @@ C \href{../valid/modules.html#valid-elemmode}{\vdash} \href{../syntax/modules.ht
 <blockquote>
 <div><ul class="simple">
 <li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">function</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{funcs}}{}[x]\)</span> exists.</p></li>
-<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype"><span class="std std-ref">expansion</span></a> of the <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">function</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{funcs}}{}[x]\)</span> is the <a class="reference internal" href="../syntax/types.html#syntax-comptype"><span class="std std-ref">composite type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~\epsilon~\href{../syntax/types.html#syntax-functype}{\rightarrow}~\epsilon)\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype"><span class="std std-ref">expansion</span></a> of the <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">function</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{funcs}}{}[x]\)</span> is the <a class="reference internal" href="../syntax/types.html#syntax-comptype"><span class="std std-ref">composite type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~\href{../syntax/types.html#syntax-comptype}{\rightarrow})\)</span>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{funcs}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~(\epsilon \href{../syntax/types.html#syntax-functype}{\rightarrow} \epsilon)
+C{.}\href{../valid/conventions.html#context}{\mathsf{funcs}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~\epsilon \href{../syntax/types.html#syntax-comptype}{\rightarrow} \epsilon
 }{
 C \href{../valid/modules.html#valid-start}{\vdash} \href{../syntax/modules.html#syntax-start}{\mathsf{start}}~x : \href{../valid/modules.html#valid-start}{\mathsf{ok}}
 }
