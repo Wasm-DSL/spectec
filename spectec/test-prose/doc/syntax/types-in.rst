@@ -4,25 +4,23 @@ Types
 -----
 
 .. _syntax-numtype:
-.. _syntax-c_numtype:
+.. _syntax-const:
 
 Number Types
 ~~~~~~~~~~~~
 
 $${syntax+: 
   numtype
-  c_numtype
 }
 
 .. _syntax-vectype:
-.. _syntax-c_vectype:
+.. _syntax-vconst:
 
 Vector Types
 ~~~~~~~~~~~~
 
 $${syntax+: 
   vectype
-  c_vectype
 }
 
 .. _syntax-absheaptype:
@@ -61,15 +59,7 @@ Result Types
 
 $${syntax: resulttype}
 
-.. _syntax-functype:
-
-Function Types
-~~~~~~~~~~~~~~
-
-$${syntax: functype}
-
-.. _syntax-packedtype:
-.. _syntax-c_packedtype:
+.. _syntax-packtype:
 .. _syntax-storagetype:
 .. _syntax-fieldtype:
 
@@ -77,8 +67,7 @@ Aggregate Types
 ~~~~~~~~~~~~~~~
 
 $${syntax+: 
-  packedtype
-  c_packedtype
+  packtype
   storagetype
   fieldtype
 }

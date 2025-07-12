@@ -4,161 +4,198 @@
 Values
 ------
 
-.. index:: value, value type, validation
+.. index:: value, value type, validation, structure, structure type, structure instance, array, array type, array instance, function, function type, function instance, null reference, scalar reference, store
 .. _valid-val:
 
 Value Typing
 ~~~~~~~~~~~~
 
-For the purpose of checking argument :ref:`values <syntax-externval>` against the parameter types of exported :ref:`functions <syntax-func>`,
+For the purpose of checking argument :ref:`values <syntax-val>` against the parameter types of exported :ref:`functions <syntax-func>`,
 values are classified by :ref:`value types <syntax-valtype>`.
-The following auxiliary typing rules specify this typing relation relative to a :ref:`store <syntax-store>` :math:`S` in which possibly referenced addresses live.
+The following auxiliary typing rules specify this typing relation relative to a :ref:`store <syntax-store>` :math:`S` in which possibly referenced :ref:`addresses <syntax-addr>` live.
+
+${rule-ignore: Val_ok/*}
+
 
 .. _valid-num:
 
-:ref:`Numeric Values <syntax-val>` :math:`t.\CONST~c`
-.....................................................
+Numeric Values
+..............
 
-* The value is valid with :ref:`number type <syntax-numtype>` :math:`t`.
+$${rule-prose: Num_ok}
 
-.. math::
-   \frac{
-   }{
-     S \vdashval t.\CONST~c : t
-   }
+$${rule: Num_ok}
+
 
 .. _valid-vec:
 
-:ref:`Vector Values <syntax-val>` :math:`t.\CONST~c`
-....................................................
+Vector Values
+.............
 
-* The value is valid with :ref:`vector type <syntax-vectype>` :math:`t`.
+$${rule-prose: Vec_ok}
 
-.. math::
-   \frac{
-   }{
-     S \vdashval t.\CONST~c : t
-   }
+$${rule: Vec_ok}
+
 
 .. _valid-ref:
 
-:ref:`Null References <syntax-ref>` :math:`\REFNULL~t`
-......................................................
+Null References
+...............
 
-* The :ref:`heap type <syntax-heaptype>` must be :ref:`valid <valid-heaptype>` under the empty :ref:`context <context>`.
+$${rule-prose: Ref_ok/null}
 
-* Then value is valid with :ref:`reference type <syntax-reftype>` :math:`(\REF~\NULL~t)`.
+$${rule: Ref_ok/null}
 
-.. math::
-   \frac{
-     \vdashheaptype t \ok
-   }{
-     S \vdashval \REFNULL~t : (\REF~\NULL~t)
-   }
+.. note::
+   A null reference can be typed with any smaller type.
+   In particular, that allows it to be typed with the least type in its respective hierarchy.
+   That ensures that the value is compatible with any nullable type in that hierarchy.
 
 
-:ref:`Function References <syntax-ref>` :math:`\REFFUNCADDR~a`
-..............................................................
+.. _valid-ref.i31num:
 
-* The :ref:`external value <syntax-externval>` :math:`\EVFUNC~a` must be :ref:`valid <valid-externval>` with :ref:`external type <syntax-externtype>` :math:`\ETFUNC~\functype`.
+Scalar References
+.................
 
-* Then the value is valid with :ref:`reference type <syntax-reftype>` :math:`(\REF~\functype)`.
+$${rule-prose: Ref_ok/i31}
 
-.. math::
-   \frac{
-     S \vdashexternval \EVFUNC~a : \ETFUNC~\functype
-   }{
-     S \vdashval \REFFUNCADDR~a : \REF~\functype
-   }
+$${rule: Ref_ok/i31}
 
 
-:ref:`External References <syntax-ref.extern>` :math:`\REFEXTERNADDR~a`
-.......................................................................
+.. _valid-ref.struct:
 
-* The value is valid with :ref:`reference type <syntax-reftype>` :math:`(\REF~\EXTERN)`.
+Structure References
+....................
 
-.. math::
-   \frac{
-   }{
-     S \vdashval \REFEXTERNADDR~a : (\REF~\EXTERN)
-   }
+$${rule-prose: Ref_ok/struct}
+
+$${rule: Ref_ok/struct}
 
 
+.. _valid-ref.array:
 
-.. index:: external value, external type, validation, import, store
-.. _valid-externval:
+Array References
+................
+
+$${rule-prose: Ref_ok/array}
+
+$${rule: Ref_ok/array}
+
+
+.. _valid-ref.exn:
+
+Exception References
+....................
+
+$${rule-prose: Ref_ok/exn}
+
+$${rule: Ref_ok/exn}
+
+
+Function References
+...................
+
+$${rule-prose: Ref_ok/func}
+
+$${rule: Ref_ok/func}
+
+
+Host References
+...............
+
+$${rule-prose: Ref_ok/host}
+
+$${rule: Ref_ok/host}
+
+.. note::
+   A bare host reference is considered internalized.
+
+
+External References
+...................
+
+$${rule-prose: Ref_ok/extern}
+
+$${rule: Ref_ok/extern}
+
+
+Subsumption
+...........
+
+$${rule-prose: Ref_ok/sub}
+
+$${rule: Ref_ok/sub}
+
+
+.. index:: external address, external type, validation, import, store
+.. _valid-externaddr:
 
 External Typing
 ~~~~~~~~~~~~~~~
 
-For the purpose of checking :ref:`external values <syntax-externval>` against :ref:`imports <syntax-import>`,
+For the purpose of checking :ref:`external address <syntax-externaddr>` against :ref:`imports <syntax-import>`,
 such values are classified by :ref:`external types <syntax-externtype>`.
 The following auxiliary typing rules specify this typing relation relative to a :ref:`store <syntax-store>` :math:`S` in which the referenced instances live.
 
 
 .. index:: function type, function address
-.. _valid-externval-func:
+.. _valid-externaddr-func:
 
-:math:`\EVFUNC~a`
-.................
+Functions
+.........
 
-* The store entry :math:`S.\SFUNCS[a]` must exist.
+$${rule-prose: Externaddr_ok/func}
 
-* Then :math:`\EVFUNC~a` is valid with :ref:`external type <syntax-externtype>` :math:`\ETFUNC~S.\SFUNCS[a].\FITYPE`.
-
-.. math::
-   \frac{
-   }{
-     S \vdashexternval \EVFUNC~a : \ETFUNC~S.\SFUNCS[a].\FITYPE
-   }
+$${rule: Externaddr_ok/func}
 
 
 .. index:: table type, table address
-.. _valid-externval-table:
+.. _valid-externaddr-table:
 
-:math:`\EVTABLE~a`
-..................
+Tables
+......
 
-* The store entry :math:`S.\STABLES[a]` must exist.
+$${rule-prose: Externaddr_ok/table}
 
-* Then :math:`\EVTABLE~a` is valid with :ref:`external type <syntax-externtype>` :math:`\ETTABLE~S.\STABLES[a].\TITYPE`.
-
-.. math::
-   \frac{
-   }{
-     S \vdashexternval \EVTABLE~a : \ETTABLE~S.\STABLES[a].\TITYPE
-   }
+$${rule: Externaddr_ok/table}
 
 
 .. index:: memory type, memory address
-.. _valid-externval-mem:
+.. _valid-externaddr-mem:
 
-:math:`\EVMEM~a`
-................
+Memories
+........
 
-* The store entry :math:`S.\SMEMS[a]` must exist.
+$${rule-prose: Externaddr_ok/mem}
 
-* Then :math:`\EVMEM~a` is valid with :ref:`external type <syntax-externtype>` :math:`\ETMEM~S.\SMEMS[a].\MITYPE`.
-
-.. math::
-   \frac{
-   }{
-     S \vdashexternval \EVMEM~a : \ETMEM~S.\SMEMS[a].\MITYPE
-   }
+$${rule: Externaddr_ok/mem}
 
 
 .. index:: global type, global address, value type, mutability
-.. _valid-externval-global:
+.. _valid-externaddr-global:
 
-:math:`\EVGLOBAL~a`
-...................
+Globals
+.......
 
-* The store entry :math:`S.\SGLOBALS[a]` must exist.
+$${rule-prose: Externaddr_ok/global}
 
-* Then :math:`\EVGLOBAL~a` is valid with :ref:`external type <syntax-externtype>` :math:`\ETGLOBAL~S.\SGLOBALS[a].\GITYPE`.
+$${rule: Externaddr_ok/global}
 
-.. math::
-   \frac{
-   }{
-     S \vdashexternval \EVGLOBAL~a : \ETGLOBAL~S.\SGLOBALS[a].\GITYPE
-   }
+
+.. index:: tag type, tag address, exception tag, function type
+.. _valid-externaddr-tag:
+
+Tags
+....
+
+$${rule-prose: Externaddr_ok/tag}
+
+$${rule: Externaddr_ok/tag}
+
+
+Subsumption
+...........
+
+$${rule-prose: Externaddr_ok/sub}
+
+$${rule: Externaddr_ok/sub}
