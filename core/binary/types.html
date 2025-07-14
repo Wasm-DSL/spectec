@@ -203,9 +203,9 @@ Additional shorthands are recognized for unary recursions and sub types without 
 <p><a class="reference internal" href="../syntax/types.html#syntax-limits"><span class="std std-ref">Limits</span></a> are encoded with a preceding flag indicating whether a maximum is present, and a flag for the <a class="reference internal" href="../syntax/types.html#syntax-addrtype"><span class="std std-ref">address type</span></a>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
-&amp; {\href{../binary/types.html#binary-limits}{\mathtt{limits}}} &amp; ::= &amp; \mathtt{0x00}~~n{:}{\href{../binary/values.html#binary-int}{\def\mathdef1836#1{{\mathtt{u}#1}}\mathdef1836{\mathtt{64}}}} &amp; \quad\Rightarrow\quad{} &amp; (\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}, {}[ n \href{../syntax/types.html#syntax-limits}{\,{..}\,} {2^{64}} - 1 ]) \\
+&amp; {{\href{../binary/types.html#binary-limits}{\mathtt{limits}}}}_{N} &amp; ::= &amp; \mathtt{0x00}~~n{:}{\href{../binary/values.html#binary-int}{\def\mathdef1836#1{{\mathtt{u}#1}}\mathdef1836{\mathtt{64}}}} &amp; \quad\Rightarrow\quad{} &amp; (\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}, {}[ n \href{../syntax/types.html#syntax-limits}{\,{..}\,} {2^{N}} - 1 ]) \\
 &amp; &amp; | &amp; \mathtt{0x01}~~n{:}{\href{../binary/values.html#binary-int}{\def\mathdef1836#1{{\mathtt{u}#1}}\mathdef1836{\mathtt{64}}}}~~m{:}{\href{../binary/values.html#binary-int}{\def\mathdef1836#1{{\mathtt{u}#1}}\mathdef1836{\mathtt{64}}}} &amp; \quad\Rightarrow\quad{} &amp; (\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}, {}[ n \href{../syntax/types.html#syntax-limits}{\,{..}\,} m ]) \\
-&amp; &amp; | &amp; \mathtt{0x04}~~n{:}{\href{../binary/values.html#binary-int}{\def\mathdef1836#1{{\mathtt{u}#1}}\mathdef1836{\mathtt{64}}}} &amp; \quad\Rightarrow\quad{} &amp; (\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle64}}, {}[ n \href{../syntax/types.html#syntax-limits}{\,{..}\,} {2^{64}} - 1 ]) \\
+&amp; &amp; | &amp; \mathtt{0x04}~~n{:}{\href{../binary/values.html#binary-int}{\def\mathdef1836#1{{\mathtt{u}#1}}\mathdef1836{\mathtt{64}}}} &amp; \quad\Rightarrow\quad{} &amp; (\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle64}}, {}[ n \href{../syntax/types.html#syntax-limits}{\,{..}\,} {2^{N}} - 1 ]) \\
 &amp; &amp; | &amp; \mathtt{0x05}~~n{:}{\href{../binary/values.html#binary-int}{\def\mathdef1836#1{{\mathtt{u}#1}}\mathdef1836{\mathtt{64}}}}~~m{:}{\href{../binary/values.html#binary-int}{\def\mathdef1836#1{{\mathtt{u}#1}}\mathdef1836{\mathtt{64}}}} &amp; \quad\Rightarrow\quad{} &amp; (\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle64}}, {}[ n \href{../syntax/types.html#syntax-limits}{\,{..}\,} m ]) \\
 \end{array}\end{split}\]</div>
 </section>
@@ -235,7 +235,7 @@ the preceding zero byte may encode additional attributes.</p>
 <p><a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">Memory types</span></a> are encoded with their <a class="reference internal" href="#binary-limits"><span class="std std-ref">limits</span></a>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
-&amp; {\href{../binary/types.html#binary-memtype}{\mathtt{memtype}}} &amp; ::= &amp; ({\mathit{at}}, {\mathit{lim}}){:}{\href{../binary/types.html#binary-limits}{\mathtt{limits}}} &amp; \quad\Rightarrow\quad{} &amp; {\mathit{at}}~{\mathit{lim}}~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}} \\
+&amp; {\href{../binary/types.html#binary-memtype}{\mathtt{memtype}}} &amp; ::= &amp; ({\mathit{at}}, {\mathit{lim}}){:}{{\href{../binary/types.html#binary-limits}{\mathtt{limits}}}}_{{|{\mathit{at}}|} / (64 \, {\mathrm{Ki}})} &amp; \quad\Rightarrow\quad{} &amp; {\mathit{at}}~{\mathit{lim}}~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}} \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="table-types">
@@ -243,7 +243,7 @@ the preceding zero byte may encode additional attributes.</p>
 <p><a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">Table types</span></a> are encoded with their <a class="reference internal" href="#binary-limits"><span class="std std-ref">limits</span></a> and the encoding of their element <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
-&amp; {\href{../binary/types.html#binary-tabletype}{\mathtt{tabletype}}} &amp; ::= &amp; {\mathit{rt}}{:}{\href{../binary/types.html#binary-reftype}{\mathtt{reftype}}}~~({\mathit{at}}, {\mathit{lim}}){:}{\href{../binary/types.html#binary-limits}{\mathtt{limits}}} &amp; \quad\Rightarrow\quad{} &amp; {\mathit{at}}~{\mathit{lim}}~{\mathit{rt}} \\
+&amp; {\href{../binary/types.html#binary-tabletype}{\mathtt{tabletype}}} &amp; ::= &amp; {\mathit{rt}}{:}{\href{../binary/types.html#binary-reftype}{\mathtt{reftype}}}~~({\mathit{at}}, {\mathit{lim}}){:}{{\href{../binary/types.html#binary-limits}{\mathtt{limits}}}}_{{|{\mathit{at}}|}} &amp; \quad\Rightarrow\quad{} &amp; {\mathit{at}}~{\mathit{lim}}~{\mathit{rt}} \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="external-types">

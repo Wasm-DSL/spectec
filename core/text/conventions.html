@@ -139,10 +139,10 @@ A pattern may also be used instead of a variable, e.g., <span class="math notran
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{llclll}
 \def\mathdef2710#1{{}}\mathdef2710{limits} &amp; \href{../text/types.html#text-limits}{\mathtt{limits}} &amp;::=&amp;
-  n{:}\href{../text/values.html#text-int}{\def\mathdef2740#1{{\mathtt{u}#1}}\mathdef2740{\mathtt{32}}} &amp;\Rightarrow&amp; \{ \href{../syntax/types.html#syntax-limits}{\mathsf{min}}~n, \href{../syntax/types.html#syntax-limits}{\mathsf{max}}~\epsilon \} \\ &amp;&amp;|&amp;
-  n{:}\href{../text/values.html#text-int}{\def\mathdef2740#1{{\mathtt{u}#1}}\mathdef2740{\mathtt{32}}}~~m{:}\href{../text/values.html#text-int}{\def\mathdef2740#1{{\mathtt{u}#1}}\mathdef2740{\mathtt{32}}} &amp;\Rightarrow&amp; \{ \href{../syntax/types.html#syntax-limits}{\mathsf{min}}~n, \href{../syntax/types.html#syntax-limits}{\mathsf{max}}~m \} \\
+  n{:}\href{../text/values.html#text-int}{\def\mathdef2741#1{{\mathtt{u}#1}}\mathdef2741{\mathtt{64}}} &amp;\Rightarrow&amp; [ n\,{..}\, 2^64-1 ] \\ &amp;&amp;|&amp;
+  n{:}\href{../text/values.html#text-int}{\def\mathdef2741#1{{\mathtt{u}#1}}\mathdef2741{\mathtt{64}}}~~m{:}\href{../text/values.html#text-int}{\def\mathdef2741#1{{\mathtt{u}#1}}\mathdef2741{\mathtt{64}}} &amp;\Rightarrow&amp; [ n\,{..}\, m ] \\
 \end{array}\end{split}\]</div>
-<p>The variables <span class="math notranslate nohighlight">\(n\)</span> and <span class="math notranslate nohighlight">\(m\)</span> name the attributes of the respective <span class="math notranslate nohighlight">\(\href{../text/values.html#text-int}{\def\mathdef2740#1{{\mathtt{u}#1}}\mathdef2740{\mathtt{32}}}\)</span> nonterminals, which in this case are the actual <a class="reference internal" href="../syntax/values.html#syntax-uint"><span class="std std-ref">unsigned integers</span></a> those parse into.
+<p>The variables <span class="math notranslate nohighlight">\(n\)</span> and <span class="math notranslate nohighlight">\(m\)</span> name the attributes of the respective <span class="math notranslate nohighlight">\(\href{../text/values.html#text-int}{\def\mathdef2741#1{{\mathtt{u}#1}}\mathdef2741{\mathtt{64}}}\)</span> nonterminals, which in this case are the actual <a class="reference internal" href="../syntax/values.html#syntax-uint"><span class="std std-ref">unsigned integers</span></a> those parse into.
 The attribute of the complete production then is the abstract syntax for the limit, expressed in terms of the former values.</p>
 </div>
 </section>
@@ -166,12 +166,12 @@ In addition, the context records the types defined in the module, so that <a cla
 \def\mathdef2710#1{{}}\mathdef2710{identifier context} &amp; I &amp;::=&amp;
   \begin{array}[t]{l&#64;{~}ll}
   \{ &amp; \href{../text/conventions.html#text-context}{\mathsf{types}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
-     &amp; \href{../text/conventions.html#text-context}{\mathsf{funcs}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
-     &amp; \href{../text/conventions.html#text-context}{\mathsf{tables}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
-     &amp; \href{../text/conventions.html#text-context}{\mathsf{mems}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
-     &amp; \href{../text/conventions.html#text-context}{\mathsf{globals}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
      &amp; \href{../text/conventions.html#text-context}{\mathsf{tags}} &amp; (\href{../text/values.html#text-name}{\mathtt{name}}^?)^\ast, \\
+     &amp; \href{../text/conventions.html#text-context}{\mathsf{globals}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
+     &amp; \href{../text/conventions.html#text-context}{\mathsf{mems}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
+     &amp; \href{../text/conventions.html#text-context}{\mathsf{tables}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
      &amp; \href{../text/conventions.html#text-context}{\mathsf{elems}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
+     &amp; \href{../text/conventions.html#text-context}{\mathsf{funcs}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
      &amp; \href{../text/conventions.html#text-context}{\mathsf{datas}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
      &amp; \href{../text/conventions.html#text-context}{\mathsf{locals}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
      &amp; \href{../text/conventions.html#text-context}{\mathsf{labels}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\

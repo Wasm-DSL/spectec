@@ -229,13 +229,14 @@ If it does, the post conditions are guaranteed by the semantics.</p>
 <span id="embed-module-imports"></span><span id="index-7"></span><h3><span class="math notranslate nohighlight">\(\mathrm{module\_imports}(\href{../syntax/modules.html#syntax-module}{\mathit{module}}) : (\href{../syntax/values.html#syntax-name}{\mathit{name}}, \href{../syntax/values.html#syntax-name}{\mathit{name}}, \href{../syntax/types.html#syntax-externtype}{\mathit{externtype}})^\ast\)</span><a class="headerlink" href="#mathrm-module-imports-xref-syntax-modules-syntax-module-mathit-module-xref-syntax-values-syntax-name-mathit-name-xref-syntax-values-syntax-name-mathit-name-xref-syntax-types-syntax-externtype-mathit-externtype-ast" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
 <li><p>Pre-condition: <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-module}{\mathit{module}}\)</span> is <a class="reference internal" href="../valid/modules.html#valid-module"><span class="std std-ref">valid</span></a> with the external import types <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}^\ast\)</span> and external export types <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}'}^\ast\)</span>.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-import}{\mathit{import}}^\ast\)</span> be the <a class="reference internal" href="../syntax/modules.html#syntax-import"><span class="std std-ref">imports</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-module}{\mathit{module}}.\href{../syntax/modules.html#syntax-module}{\mathsf{imports}}\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-import}{\mathit{import}}^\ast\)</span> be the <a class="reference internal" href="../syntax/modules.html#syntax-import"><span class="std std-ref">imports</span></a> of <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-module}{\mathit{module}}\)</span>.</p></li>
 <li><p>Assert: the length of <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-import}{\mathit{import}}^\ast\)</span> equals the length of <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}^\ast\)</span>.</p></li>
 <li><p>For each <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-import}{\mathit{import}}_i\)</span> in <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-import}{\mathit{import}}^\ast\)</span> and corresponding <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}_i\)</span> in <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}^\ast\)</span>, do:</p></li>
 </ol>
 <blockquote>
 <div><ol class="loweralpha simple">
-<li><p>Let <span class="math notranslate nohighlight">\(\mathit{result}_i\)</span> be the triple <span class="math notranslate nohighlight">\((\href{../syntax/modules.html#syntax-import}{\mathit{import}}_i.\href{../syntax/modules.html#syntax-import}{\mathsf{module}}, \href{../syntax/modules.html#syntax-import}{\mathit{import}}_i.\href{../syntax/modules.html#syntax-import}{\mathsf{name}}, \href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}_i)\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-import}{\mathsf{import}}~\mathit{nm}_{i1}~\mathit{nm}_{i2}~\mathit{xt}_i\)</span> be the deconstruction of <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-import}{\mathit{import}}_i\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\(\mathit{result}_i\)</span> be the triple <span class="math notranslate nohighlight">\((\mathit{nm}_{i1}, \mathit{nm}_{i2}, \href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}_i)\)</span>.</p></li>
 </ol>
 </div></blockquote>
 <ol class="arabic simple" start="5">
@@ -245,21 +246,22 @@ If it does, the post conditions are guaranteed by the semantics.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}~ \\
 \begin{array}{lclll}
-\mathrm{module\_imports}(m) &amp;=&amp; (\mathit{im}.\href{../syntax/modules.html#syntax-import}{\mathsf{module}}, \mathit{im}.\href{../syntax/modules.html#syntax-import}{\mathsf{name}}, \href{../syntax/types.html#syntax-externtype}{\mathit{externtype}})^\ast \\
-  &amp;&amp; \qquad (\mathrel{\mbox{if}} \mathit{im}^\ast = m.\href{../syntax/modules.html#syntax-module}{\mathsf{imports}} \wedge {} \href{../valid/modules.html#valid-module}{\vdash} m : \href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}^\ast \rightarrow {\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}'}^\ast) \\
+\mathrm{module\_imports}(m) &amp;=&amp; (\mathit{nm}_1, \mathit{nm}_2, \href{../syntax/types.html#syntax-externtype}{\mathit{externtype}})^\ast \\
+  &amp;&amp; \qquad (\mathrel{\mbox{if}} (\href{../syntax/modules.html#syntax-import}{\mathsf{import}}~\mathit{nm}_1~\mathit{nm}_2~\mathit{xt}^\ast)^\ast \in m \wedge {} \href{../valid/modules.html#valid-module}{\vdash} m : \href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}^\ast \rightarrow {\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}'}^\ast) \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="mathrm-module-exports-xref-syntax-modules-syntax-module-mathit-module-xref-syntax-values-syntax-name-mathit-name-xref-syntax-types-syntax-externtype-mathit-externtype-ast">
 <span id="embed-module-exports"></span><span id="index-8"></span><h3><span class="math notranslate nohighlight">\(\mathrm{module\_exports}(\href{../syntax/modules.html#syntax-module}{\mathit{module}}) : (\href{../syntax/values.html#syntax-name}{\mathit{name}}, \href{../syntax/types.html#syntax-externtype}{\mathit{externtype}})^\ast\)</span><a class="headerlink" href="#mathrm-module-exports-xref-syntax-modules-syntax-module-mathit-module-xref-syntax-values-syntax-name-mathit-name-xref-syntax-types-syntax-externtype-mathit-externtype-ast" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
 <li><p>Pre-condition: <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-module}{\mathit{module}}\)</span> is <a class="reference internal" href="../valid/modules.html#valid-module"><span class="std std-ref">valid</span></a> with the external import types <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}^\ast\)</span> and external export types <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}'}^\ast\)</span>.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-export}{\mathit{export}}^\ast\)</span> be the <a class="reference internal" href="../syntax/modules.html#syntax-export"><span class="std std-ref">exports</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-module}{\mathit{module}}.\href{../syntax/modules.html#syntax-module}{\mathsf{exports}}\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-export}{\mathit{export}}^\ast\)</span> be the <a class="reference internal" href="../syntax/modules.html#syntax-export"><span class="std std-ref">exports</span></a> of <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-module}{\mathit{module}}\)</span>.</p></li>
 <li><p>Assert: the length of <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-export}{\mathit{export}}^\ast\)</span> equals the length of <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}'}^\ast\)</span>.</p></li>
 <li><p>For each <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-export}{\mathit{export}}_i\)</span> in <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-export}{\mathit{export}}^\ast\)</span> and corresponding <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}'_i\)</span> in <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}'}^\ast\)</span>, do:</p></li>
 </ol>
 <blockquote>
 <div><ol class="loweralpha simple">
-<li><p>Let <span class="math notranslate nohighlight">\(\mathit{result}_i\)</span> be the pair <span class="math notranslate nohighlight">\((\href{../syntax/modules.html#syntax-export}{\mathit{export}}_i.\href{../syntax/modules.html#syntax-export}{\mathsf{name}}, \href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}'_i)\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-export}{\mathsf{export}}~\mathit{nm}_i~\href{../syntax/modules.html#syntax-externidx}{\mathit{externidx}}_i\)</span> be the deconstruction of <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-export}{\mathit{export}}_i\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\(\mathit{result}_i\)</span> be the pair <span class="math notranslate nohighlight">\((\mathit{nm}_i, \href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}'_i)\)</span>.</p></li>
 </ol>
 </div></blockquote>
 <ol class="arabic simple" start="5">
@@ -269,8 +271,8 @@ If it does, the post conditions are guaranteed by the semantics.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}~ \\
 \begin{array}{lclll}
-\mathrm{module\_exports}(m) &amp;=&amp; (\mathit{ex}.\href{../syntax/modules.html#syntax-export}{\mathsf{name}}, \href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}')^\ast \\
-  &amp;&amp; \qquad (\mathrel{\mbox{if}} \mathit{ex}^\ast = m.\href{../syntax/modules.html#syntax-module}{\mathsf{exports}} \wedge {} \href{../valid/modules.html#valid-module}{\vdash} m : \href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}^\ast \rightarrow {\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}'}^\ast) \\
+\mathrm{module\_exports}(m) &amp;=&amp; (\\mathit{nm}, \href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}')^\ast \\
+  &amp;&amp; \qquad (\mathrel{\mbox{if}} (\href{../syntax/modules.html#syntax-export}{\mathsf{export}}~\mathit{nm}~\mathit{xt}^\ast)^\ast \in m \wedge {} \href{../valid/modules.html#valid-module}{\vdash} m : \href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}^\ast \rightarrow {\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}'}^\ast) \\
 \end{array}\end{split}\]</div>
 </section>
 </section>
@@ -290,7 +292,7 @@ If it does, the post conditions are guaranteed by the semantics.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}~ \\
 \begin{array}{lclll}
-\mathrm{instance\_export}(m, \href{../syntax/values.html#syntax-name}{\mathit{name}}) &amp;=&amp; m.\href{../exec/runtime.html#syntax-moduleinst}{\mathsf{exports}}[i].\href{../exec/runtime.html#syntax-exportinst}{\mathsf{addr}} &amp;&amp; (\mathrel{\mbox{if}} m.\href{../syntax/modules.html#syntax-module}{\mathsf{exports}}[i].\href{../exec/runtime.html#syntax-exportinst}{\mathsf{name}} = \href{../syntax/values.html#syntax-name}{\mathit{name}}) \\
+\mathrm{instance\_export}(m, \href{../syntax/values.html#syntax-name}{\mathit{name}}) &amp;=&amp; m.\href{../exec/runtime.html#syntax-moduleinst}{\mathsf{exports}}[i].\href{../exec/runtime.html#syntax-exportinst}{\mathsf{addr}} &amp;&amp; (\mathrel{\mbox{if}} m.\href{../exec/runtime.html#syntax-moduleinst}{\mathsf{exports}}[i].\href{../exec/runtime.html#syntax-exportinst}{\mathsf{name}} = \href{../syntax/values.html#syntax-name}{\mathit{name}}) \\
 \mathrm{instance\_export}(m, \href{../syntax/values.html#syntax-name}{\mathit{name}}) &amp;=&amp; \href{../appendix/embedding.html#embed-error}{\mathsf{error}} &amp;&amp; (\mathrel{\mbox{otherwise}}) \\
 \end{array}\end{split}\]</div>
 </section>
@@ -630,14 +632,14 @@ If it does, the post conditions are guaranteed by the semantics.</p>
 <ol class="arabic simple">
 <li><p>Let <span class="math notranslate nohighlight">\(\mathit{gi}\)</span> be the <a class="reference internal" href="../exec/runtime.html#syntax-globalinst"><span class="std std-ref">global instance</span></a> <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-store}{\mathit{store}}.\href{../exec/runtime.html#syntax-store}{\mathsf{globals}}[\href{../exec/runtime.html#syntax-globaladdr}{\mathit{globaladdr}}]\)</span>.</p></li>
 <li><p>Let <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-mut}{\mathit{mut}}~t\)</span> be the structure of the <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">global type</span></a> <span class="math notranslate nohighlight">\(\mathit{gi}.\href{../exec/runtime.html#syntax-globalinst}{\mathsf{type}}\)</span>.</p></li>
-<li><p>If <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-mut}{\mathit{mut}}\)</span> is not <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-mut}{\mathsf{var}}\)</span>, then return <span class="math notranslate nohighlight">\(\href{../appendix/embedding.html#embed-error}{\mathsf{error}}\)</span>.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-mut}{\mathit{mut}}\)</span> is empty, then return <span class="math notranslate nohighlight">\(\href{../appendix/embedding.html#embed-error}{\mathsf{error}}\)</span>.</p></li>
 <li><p>Replace <span class="math notranslate nohighlight">\(\mathit{gi}.\href{../exec/runtime.html#syntax-globalinst}{\mathsf{value}}\)</span> with the <a class="reference internal" href="../exec/runtime.html#syntax-val"><span class="std std-ref">value</span></a> <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-val}{\mathit{val}}\)</span>.</p></li>
 <li><p>Return the updated store.</p></li>
 </ol>
 <div class="math notranslate nohighlight">
 \[\begin{split}~ \\
 \begin{array}{lclll}
-\mathrm{global\_write}(S, a, v) &amp;=&amp; S' &amp;&amp; (\mathrel{\mbox{if}} S.\href{../exec/runtime.html#syntax-store}{\mathsf{globals}}[a].\href{../exec/runtime.html#syntax-globalinst}{\mathsf{type}} = \href{../syntax/types.html#syntax-mut}{\mathsf{var}}~t \wedge S' = S \href{../syntax/conventions.html#notation-replace}{\mathrel{\mbox{with}}} \href{../exec/runtime.html#syntax-store}{\mathsf{globals}}[a].\href{../exec/runtime.html#syntax-globalinst}{\mathsf{value}} = v) \\
+\mathrm{global\_write}(S, a, v) &amp;=&amp; S' &amp;&amp; (\mathrel{\mbox{if}} S.\href{../exec/runtime.html#syntax-store}{\mathsf{globals}}[a].\href{../exec/runtime.html#syntax-globalinst}{\mathsf{type}} = \href{../syntax/types.html#syntax-mut}{\mathsf{mut}}~t \wedge S' = S \href{../syntax/conventions.html#notation-replace}{\mathrel{\mbox{with}}} \href{../exec/runtime.html#syntax-store}{\mathsf{globals}}[a].\href{../exec/runtime.html#syntax-globalinst}{\mathsf{value}} = v) \\
 \mathrm{global\_write}(S, a, v) &amp;=&amp; \href{../appendix/embedding.html#embed-error}{\mathsf{error}} &amp;&amp; (\mathrel{\mbox{otherwise}}) \\
 \end{array}\end{split}\]</div>
 </section>
