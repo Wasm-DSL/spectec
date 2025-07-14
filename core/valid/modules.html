@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-07-13)</title>
+    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-07-14)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=c86edfbe"></script>
+    <script src="../_static/documentation_options.js?v=46352e70"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -113,13 +113,13 @@ C \href{../valid/modules.html#valid-type}{\vdash} \href{../syntax/modules.html#s
 }
 \qquad
 \end{array}\]</div>
-<p>The type definition sequence <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-rectype}{\mathit{type}}'}^\ast}\)</span> is <a class="reference internal" href="#valid-type"><span class="std std-ref">valid</span></a> with the defined type sequence <span class="math notranslate nohighlight">\({{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}^\ast}\)</span> if:</p>
+<p>The type definition sequence <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-rectype}{\mathit{type}}}^\ast}\)</span> is <a class="reference internal" href="#valid-type"><span class="std std-ref">valid</span></a> with the defined type sequence <span class="math notranslate nohighlight">\({{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}^\ast}\)</span> if:</p>
 <blockquote>
 <div><ul>
 <li><p>Either:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The type definition sequence <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-rectype}{\mathit{type}}'}^\ast}\)</span> is empty.</p></li>
+<li><p>The type definition sequence <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-rectype}{\mathit{type}}}^\ast}\)</span> is empty.</p></li>
 <li><p>The defined type sequence <span class="math notranslate nohighlight">\({{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}^\ast}\)</span> is empty.</p></li>
 </ul>
 </div></blockquote>
@@ -127,11 +127,11 @@ C \href{../valid/modules.html#valid-type}{\vdash} \href{../syntax/modules.html#s
 <li><p>Or:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The type definition sequence <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-rectype}{\mathit{type}}'}^\ast}\)</span> is of the form <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-rectype}{\mathit{type}}}_1~{{\href{../syntax/types.html#syntax-rectype}{\mathit{type}}}^\ast}\)</span>.</p></li>
+<li><p>The type definition sequence <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-rectype}{\mathit{type}}}^\ast}\)</span> is of the form <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-rectype}{\mathit{type}}}_1~{{\href{../syntax/types.html#syntax-rectype}{\mathit{type}}'}^\ast}\)</span>.</p></li>
 <li><p>The defined type sequence <span class="math notranslate nohighlight">\({{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}^\ast}\)</span> is of the form <span class="math notranslate nohighlight">\({{\mathit{dt}}_1^\ast}~{{\mathit{dt}}^\ast}\)</span>.</p></li>
 <li><p>The <a class="reference internal" href="../syntax/modules.html#syntax-type"><span class="std std-ref">type definition</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-rectype}{\mathit{type}}}_1\)</span> is <a class="reference internal" href="#valid-type"><span class="std std-ref">valid</span></a> with the defined type sequence <span class="math notranslate nohighlight">\({{\mathit{dt}}_1^\ast}\)</span>.</p></li>
 <li><p>Let <span class="math notranslate nohighlight">\({C'}\)</span> be the same context as <span class="math notranslate nohighlight">\(C\)</span>, but with the defined type sequence <span class="math notranslate nohighlight">\({{\mathit{dt}}_1^\ast}\)</span> appended to the field <span class="math notranslate nohighlight">\(\href{../valid/conventions.html#context}{\mathsf{types}}\)</span>.</p></li>
-<li><p>Under the context <span class="math notranslate nohighlight">\({C'}\)</span>, the type definition sequence <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-rectype}{\mathit{type}}}^\ast}\)</span> is <a class="reference internal" href="#valid-type"><span class="std std-ref">valid</span></a> with the defined type sequence <span class="math notranslate nohighlight">\({{\mathit{dt}}^\ast}\)</span>.</p></li>
+<li><p>Under the context <span class="math notranslate nohighlight">\({C'}\)</span>, the type definition sequence <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-rectype}{\mathit{type}}'}^\ast}\)</span> is <a class="reference internal" href="#valid-type"><span class="std std-ref">valid</span></a> with the defined type sequence <span class="math notranslate nohighlight">\({{\mathit{dt}}^\ast}\)</span>.</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -202,13 +202,13 @@ C \href{../valid/modules.html#valid-global}{\vdash} \href{../syntax/modules.html
 \qquad
 \end{array}\]</div>
 <p>Sequences of globals are handled incrementally, such that each definition has access to previous definitions.</p>
-<p>The global sequence <span class="math notranslate nohighlight">\({{\href{../syntax/modules.html#syntax-global}{\mathit{global}}'}^\ast}\)</span> is <a class="reference internal" href="#valid-global"><span class="std std-ref">valid</span></a> with the global type sequence <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-globaltype}{\mathit{globaltype}}}^\ast}\)</span> if:</p>
+<p>The global sequence <span class="math notranslate nohighlight">\({{\href{../syntax/modules.html#syntax-global}{\mathit{global}}}^\ast}\)</span> is <a class="reference internal" href="#valid-global"><span class="std std-ref">valid</span></a> with the global type sequence <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-globaltype}{\mathit{globaltype}}}^\ast}\)</span> if:</p>
 <blockquote>
 <div><ul>
 <li><p>Either:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The global sequence <span class="math notranslate nohighlight">\({{\href{../syntax/modules.html#syntax-global}{\mathit{global}}'}^\ast}\)</span> is empty.</p></li>
+<li><p>The global sequence <span class="math notranslate nohighlight">\({{\href{../syntax/modules.html#syntax-global}{\mathit{global}}}^\ast}\)</span> is empty.</p></li>
 <li><p>The global type sequence <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-globaltype}{\mathit{globaltype}}}^\ast}\)</span> is empty.</p></li>
 </ul>
 </div></blockquote>
@@ -216,11 +216,11 @@ C \href{../valid/modules.html#valid-global}{\vdash} \href{../syntax/modules.html
 <li><p>Or:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The global sequence <span class="math notranslate nohighlight">\({{\href{../syntax/modules.html#syntax-global}{\mathit{global}}'}^\ast}\)</span> is of the form <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-global}{\mathit{global}}}_1~{{\href{../syntax/modules.html#syntax-global}{\mathit{global}}}^\ast}\)</span>.</p></li>
+<li><p>The global sequence <span class="math notranslate nohighlight">\({{\href{../syntax/modules.html#syntax-global}{\mathit{global}}}^\ast}\)</span> is of the form <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-global}{\mathit{global}}}_1~{{\href{../syntax/modules.html#syntax-global}{\mathit{global}}'}^\ast}\)</span>.</p></li>
 <li><p>The global type sequence <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-globaltype}{\mathit{globaltype}}}^\ast}\)</span> is of the form <span class="math notranslate nohighlight">\({\mathit{gt}}_1~{{\mathit{gt}}^\ast}\)</span>.</p></li>
 <li><p>The <a class="reference internal" href="../syntax/modules.html#syntax-global"><span class="std std-ref">global</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-global}{\mathit{global}}}_1\)</span> is <a class="reference internal" href="#valid-global"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">global type</span></a> <span class="math notranslate nohighlight">\({\mathit{gt}}_1\)</span>.</p></li>
 <li><p>Let <span class="math notranslate nohighlight">\({C'}\)</span> be the same context as <span class="math notranslate nohighlight">\(C\)</span>, but with the global type sequence <span class="math notranslate nohighlight">\({\mathit{gt}}_1\)</span> appended to the field <span class="math notranslate nohighlight">\(\href{../valid/conventions.html#context}{\mathsf{globals}}\)</span>.</p></li>
-<li><p>Under the context <span class="math notranslate nohighlight">\({C'}\)</span>, the global sequence <span class="math notranslate nohighlight">\({{\href{../syntax/modules.html#syntax-global}{\mathit{global}}}^\ast}\)</span> is <a class="reference internal" href="#valid-global"><span class="std std-ref">valid</span></a> with the global type sequence <span class="math notranslate nohighlight">\({{\mathit{gt}}^\ast}\)</span>.</p></li>
+<li><p>Under the context <span class="math notranslate nohighlight">\({C'}\)</span>, the global sequence <span class="math notranslate nohighlight">\({{\href{../syntax/modules.html#syntax-global}{\mathit{global}}'}^\ast}\)</span> is <a class="reference internal" href="#valid-global"><span class="std std-ref">valid</span></a> with the global type sequence <span class="math notranslate nohighlight">\({{\mathit{gt}}^\ast}\)</span>.</p></li>
 </ul>
 </div></blockquote>
 </li>
