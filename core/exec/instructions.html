@@ -2018,8 +2018,8 @@ However, it may be substantially slower on some hardware.</p>
 <li><p>Else:</p>
 <ol class="loweralpha simple">
 <li><p>Assert: Due to validation, <span class="math notranslate nohighlight">\({\mathit{nt}}\)</span> is <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-numtype}{\mathsf{i}}}{{\href{../syntax/types.html#syntax-numtype}{\scriptstyle\kern-0.1emN}}}\)</span>.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\({\mathit{loadop\_{\scriptstyle 0}}}\)</span> be <span class="math notranslate nohighlight">\({{\href{../syntax/instructions.html#syntax-loadop}{\mathit{loadop}}}^?}\)</span>.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\({n}{\mathsf{\_}}{{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}}\)</span> be the destructuring of <span class="math notranslate nohighlight">\({\mathit{loadop\_{\scriptstyle 0}}}\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-loadop}{\mathit{loadop}}}_0\)</span> be <span class="math notranslate nohighlight">\({{\href{../syntax/instructions.html#syntax-loadop}{\mathit{loadop}}}^?}\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\({n}{\mathsf{\_}}{{\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}}}\)</span> be the destructuring of <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-loadop}{\mathit{loadop}}}_0\)</span>.</p></li>
 <li><p>If <span class="math notranslate nohighlight">\(i + {\mathit{ao}}{.}\href{../syntax/instructions.html#syntax-instr-memory}{\mathsf{offset}} + n / 8 &gt; {|z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{mems}}{}[x]{.}\href{../exec/runtime.html#syntax-meminst}{\mathsf{bytes}}|}\)</span>, then:</p>
 <ol class="arabic simple">
 <li><p>Trap.</p></li>
