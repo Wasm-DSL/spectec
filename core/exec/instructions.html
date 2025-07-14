@@ -354,23 +354,9 @@ since the instruction form is already a <a class="reference internal" href="runt
 <li><p>Pop the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span> from the stack.</p></li>
 <li><p>Assert: Due to <a class="reference internal" href="../valid/instructions.html#valid-ref-eq"><span class="std std-ref">validation</span></a>, a <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> is on the top of the stack.</p></li>
 <li><p>Pop the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> from the stack.</p></li>
-<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> is some <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}null}}~{\href{../syntax/types.html#syntax-heaptype}{\mathit{heaptype}}}\)</span>, then:</p>
+<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> is some <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}null}}~{\href{../syntax/types.html#syntax-heaptype}{\mathit{heaptype}}}\)</span> and <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span> is some <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}null}}~{\href{../syntax/types.html#syntax-heaptype}{\mathit{heaptype}}}\)</span>, then:</p>
 <ol class="loweralpha simple">
-<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span> is some <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}null}}~{\href{../syntax/types.html#syntax-heaptype}{\mathit{heaptype}}}\)</span>, then:</p>
-<ol class="arabic simple">
 <li><p>Push the value <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~1)\)</span> to the stack.</p></li>
-</ol>
-</li>
-<li><p>Else if <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1 = {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span>, then:</p>
-<ol class="arabic simple">
-<li><p>Push the value <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~1)\)</span> to the stack.</p></li>
-</ol>
-</li>
-<li><p>Else:</p>
-<ol class="arabic simple">
-<li><p>Push the value <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~0)\)</span> to the stack.</p></li>
-</ol>
-</li>
 </ol>
 </li>
 <li><p>Else if <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1 = {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span>, then:</p>
@@ -3066,17 +3052,7 @@ In practice, the choice depends on the <a class="reference internal" href="../ap
 <li><p>Else if <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}}_0\)</span> is some <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{catch\_ref}}~{\href{../syntax/modules.html#syntax-tagidx}{\mathit{tagidx}}}~{\href{../syntax/modules.html#syntax-labelidx}{\mathit{labelidx}}}\)</span>, then:</p>
 <ol class="loweralpha simple">
 <li><p>Let <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{catch\_ref}}~x~l)\)</span> be the destructuring of <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}}_0\)</span>.</p></li>
-<li><p>If <span class="math notranslate nohighlight">\(x \geq {|z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{tags}}|}\)</span>, then:</p>
-<ol class="arabic simple">
-<li><p>Let <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}}~{{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}'}^\ast}\)</span> be <span class="math notranslate nohighlight">\({{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}''}^\ast}\)</span>.</p></li>
-<li><p>Pop the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> H from the stack.</p></li>
-<li><p>Let H be the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> whose arity is <span class="math notranslate nohighlight">\(n\)</span> and whose catch handler is <span class="math notranslate nohighlight">\({{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}'}^\ast}\)</span>.</p></li>
-<li><p>Push the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> H.</p></li>
-<li><p>Push the value <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}exn}}~a)\)</span> to the stack.</p></li>
-<li><p>Execute the instruction <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{throw\_ref}}\)</span>.</p></li>
-</ol>
-</li>
-<li><p>Else if <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{exns}}{}[a]{.}\href{../exec/runtime.html#syntax-exninst}{\mathsf{tag}} \neq z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{tags}}{}[x]\)</span>, then:</p>
+<li><p>If <span class="math notranslate nohighlight">\(x \geq {|z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{tags}}|}\)</span> or <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{exns}}{}[a]{.}\href{../exec/runtime.html#syntax-exninst}{\mathsf{tag}} \neq z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{tags}}{}[x]\)</span>, then:</p>
 <ol class="arabic simple">
 <li><p>Let <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}}~{{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}'}^\ast}\)</span> be <span class="math notranslate nohighlight">\({{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}''}^\ast}\)</span>.</p></li>
 <li><p>Pop the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> H from the stack.</p></li>
