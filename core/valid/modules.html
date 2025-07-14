@@ -157,21 +157,21 @@ C \href{../valid/modules.html#valid-types}{\vdash} {\href{../syntax/types.html#s
 </section>
 <section id="tags">
 <span id="valid-tag"></span><span id="index-1"></span><h2>Tags<a class="headerlink" href="#tags" title="Link to this heading">¶</a></h2>
-<p>Tags <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-tag}{\mathit{tag}}\)</span> are classified by their <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag types</span></a>,
+<p>Tags <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-tag}{\mathit{tag}}\)</span> are classified by their <a class="reference internal" href="../syntax/types.html#syntax-tagtype"><span class="std std-ref">tag types</span></a>,
 which are <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">defined types</span></a> expanding to <a class="reference internal" href="../syntax/types.html#syntax-functype"><span class="std std-ref">function types</span></a>.</p>
-<p>The <a class="reference internal" href="../syntax/modules.html#syntax-tag"><span class="std std-ref">tag</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/modules.html#syntax-tag}{\mathsf{tag}}~{\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}})\)</span> is <a class="reference internal" href="#valid-tag"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\(t\)</span> if:</p>
+<p>The <a class="reference internal" href="../syntax/modules.html#syntax-tag"><span class="std std-ref">tag</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/modules.html#syntax-tag}{\mathsf{tag}}~{\href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}})\)</span> is <a class="reference internal" href="#valid-tag"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\(t\)</span> if:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}\)</span> is <a class="reference internal" href="types.html#valid-tagtype"><span class="std std-ref">valid</span></a>.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(t\)</span> be the <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({{\href{../valid/conventions.html#aux-clostype}{\mathsf{clos}}}}_{C}({\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}})\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}}\)</span> is <a class="reference internal" href="types.html#valid-tagtype"><span class="std std-ref">valid</span></a>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\(t\)</span> be the <a class="reference internal" href="../syntax/types.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({{\href{../valid/conventions.html#aux-clostype}{\mathsf{clos}}}}_{C}({\href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}})\)</span>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C \href{../valid/types.html#valid-tagtype}{\vdash} {\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}} : \href{../valid/types.html#valid-tagtype}{\mathsf{ok}}
+C \href{../valid/types.html#valid-tagtype}{\vdash} {\href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}} : \href{../valid/types.html#valid-tagtype}{\mathsf{ok}}
 }{
-C \href{../valid/modules.html#valid-tag}{\vdash} \href{../syntax/modules.html#syntax-tag}{\mathsf{tag}}~{\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}} : {{\href{../valid/conventions.html#aux-clostype}{\mathsf{clos}}}}_{C}({\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}})
+C \href{../valid/modules.html#valid-tag}{\vdash} \href{../syntax/modules.html#syntax-tag}{\mathsf{tag}}~{\href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}} : {{\href{../valid/conventions.html#aux-clostype}{\mathsf{clos}}}}_{C}({\href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}})
 }
 \qquad
 \end{array}\]</div>
@@ -573,8 +573,8 @@ C \href{../valid/modules.html#valid-export}{\vdash} \href{../syntax/modules.html
 <p>The <a class="reference internal" href="../syntax/modules.html#syntax-externidx"><span class="std std-ref">external index</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/modules.html#syntax-externidx}{\mathsf{tag}}~x)\)</span> is <a class="reference internal" href="#valid-externidx"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\mathit{jt}})\)</span> if:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{tags}}{}[x]\)</span> exists.</p></li>
-<li><p>The <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{tags}}{}[x]\)</span> is of the form <span class="math notranslate nohighlight">\({\mathit{jt}}\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-tagtype"><span class="std std-ref">tag</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{tags}}{}[x]\)</span> exists.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-tagtype"><span class="std std-ref">tag</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{tags}}{}[x]\)</span> is of the form <span class="math notranslate nohighlight">\({\mathit{jt}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
@@ -687,7 +687,7 @@ Instead, the <a class="reference internal" href="conventions.html#context"><span
 <li><p>For all <span class="math notranslate nohighlight">\({\mathit{jt}}\)</span> in <span class="math notranslate nohighlight">\({{\mathit{jt}}^\ast}\)</span>, and corresponding <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-tag}{\mathit{tag}}}\)</span> in <span class="math notranslate nohighlight">\({{\href{../syntax/modules.html#syntax-tag}{\mathit{tag}}}^\ast}\)</span>:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Under the context <span class="math notranslate nohighlight">\({C'}\)</span>, the <a class="reference internal" href="../syntax/modules.html#syntax-tag"><span class="std std-ref">tag</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-tag}{\mathit{tag}}}\)</span> is <a class="reference internal" href="#valid-tag"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\mathit{jt}}\)</span>.</p></li>
+<li><p>Under the context <span class="math notranslate nohighlight">\({C'}\)</span>, the <a class="reference internal" href="../syntax/modules.html#syntax-tag"><span class="std std-ref">tag</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-tag}{\mathit{tag}}}\)</span> is <a class="reference internal" href="#valid-tag"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\mathit{jt}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
 </li>

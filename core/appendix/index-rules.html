@@ -138,10 +138,10 @@
 <td><p><span class="math notranslate nohighlight">\(C \href{../appendix/properties.html#valid-deftype}{\vdash} \href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}} : \href{../appendix/properties.html#valid-deftype}{\mathsf{ok}}\)</span></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="../valid/types.html#valid-blocktype"><span class="std std-ref">Block type</span></a></p></td>
-<td><p><span class="math notranslate nohighlight">\(C \href{../valid/types.html#valid-blocktype}{\vdash} \href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}} : \href{../valid/conventions.html#syntax-instrtype}{\mathit{instrtype}}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(C \href{../valid/types.html#valid-blocktype}{\vdash} \href{../syntax/types.html#syntax-blocktype}{\mathit{blocktype}} : \href{../valid/conventions.html#syntax-instrtype}{\mathit{instrtype}}\)</span></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="../valid/types.html#valid-tagtype"><span class="std std-ref">Tag type</span></a></p></td>
-<td><p><span class="math notranslate nohighlight">\(C \href{../valid/types.html#valid-tagtype}{\vdash} \href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}} : \href{../valid/types.html#valid-tagtype}{\mathsf{ok}}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(C \href{../valid/types.html#valid-tagtype}{\vdash} \href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}} : \href{../valid/types.html#valid-tagtype}{\mathsf{ok}}\)</span></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="../valid/types.html#valid-globaltype"><span class="std std-ref">Global type</span></a></p></td>
 <td><p><span class="math notranslate nohighlight">\(C \href{../valid/types.html#valid-globaltype}{\vdash} \href{../syntax/types.html#syntax-globaltype}{\mathit{globaltype}} : \href{../valid/types.html#valid-globaltype}{\mathsf{ok}}\)</span></p></td>
@@ -186,7 +186,7 @@
 <td><p><span class="math notranslate nohighlight">\(C \href{../valid/types.html#valid-limits}{\vdash} \href{../syntax/types.html#syntax-limits}{\mathit{limits}} : k\)</span></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="../valid/modules.html#valid-tag"><span class="std std-ref">Tag</span></a></p></td>
-<td><p><span class="math notranslate nohighlight">\(C \href{../valid/modules.html#valid-tag}{\vdash} \href{../syntax/modules.html#syntax-tag}{\mathit{tag}} : \href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(C \href{../valid/modules.html#valid-tag}{\vdash} \href{../syntax/modules.html#syntax-tag}{\mathit{tag}} : \href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}\)</span></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="../valid/modules.html#valid-global"><span class="std std-ref">Global</span></a></p></td>
 <td><p><span class="math notranslate nohighlight">\(C \href{../valid/modules.html#valid-global}{\vdash} \href{../syntax/modules.html#syntax-global}{\mathit{global}} : \href{../syntax/types.html#syntax-globaltype}{\mathit{globaltype}}\)</span></p></td>
@@ -255,7 +255,7 @@
 <td><p><span class="math notranslate nohighlight">\(S \href{../exec/values.html#valid-externaddr}{\vdash} \href{../exec/runtime.html#syntax-externaddr}{\mathit{externaddr}} : \href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}\)</span></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="properties.html#valid-taginst"><span class="std std-ref">Tag instance</span></a></p></td>
-<td><p><span class="math notranslate nohighlight">\(S \href{../appendix/properties.html#valid-taginst}{\vdash} \href{../exec/runtime.html#syntax-taginst}{\mathit{taginst}} : \href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(S \href{../appendix/properties.html#valid-taginst}{\vdash} \href{../exec/runtime.html#syntax-taginst}{\mathit{taginst}} : \href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}\)</span></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="properties.html#valid-globalinst"><span class="std std-ref">Global instance</span></a></p></td>
 <td><p><span class="math notranslate nohighlight">\(S \href{../appendix/properties.html#valid-globalinst}{\vdash} \href{../exec/runtime.html#syntax-globalinst}{\mathit{globalinst}} : \href{../syntax/types.html#syntax-globaltype}{\mathit{globaltype}}\)</span></p></td>
@@ -369,7 +369,7 @@
 <td><p><span class="math notranslate nohighlight">\(C \href{../valid/matching.html#match-limits}{\vdash} \href{../syntax/types.html#syntax-limits}{\mathit{limits}}_1 \href{../valid/matching.html#match-limits}{\leq} \href{../syntax/types.html#syntax-limits}{\mathit{limits}}_2\)</span></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="../valid/matching.html#match-tagtype"><span class="std std-ref">Tag type</span></a></p></td>
-<td><p><span class="math notranslate nohighlight">\(C \href{../valid/matching.html#match-tagtype}{\vdash} \href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}_1 \href{../valid/matching.html#match-tagtype}{\leq} \href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}_2\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(C \href{../valid/matching.html#match-tagtype}{\vdash} \href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}_1 \href{../valid/matching.html#match-tagtype}{\leq} \href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}_2\)</span></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="../valid/matching.html#match-globaltype"><span class="std std-ref">Global type</span></a></p></td>
 <td><p><span class="math notranslate nohighlight">\(C \href{../valid/matching.html#match-globaltype}{\vdash} \href{../syntax/types.html#syntax-globaltype}{\mathit{globaltype}}_1 \href{../valid/matching.html#match-globaltype}{\leq} \href{../syntax/types.html#syntax-globaltype}{\mathit{globaltype}}_2\)</span></p></td>

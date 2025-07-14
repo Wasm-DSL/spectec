@@ -253,7 +253,7 @@ which is a sequence of values, written with brackets.</p>
 <p><em>Block types</em> classify the <em>input</em> and <em>output</em> of structured <a class="reference internal" href="instructions.html#syntax-instr-control"><span class="std std-ref">control instructions</span></a> delimiting <a class="reference internal" href="instructions.html#syntax-block"><span class="std std-ref">blocks</span></a> of instructions.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
-&amp; {\href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}}} &amp; ::= &amp; {{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}^?} \\
+&amp; {\href{../syntax/types.html#syntax-blocktype}{\mathit{blocktype}}} &amp; ::= &amp; {{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}^?} \\
 &amp; &amp; | &amp; {\href{../syntax/modules.html#syntax-funcidx}{\mathit{funcidx}}} \\
 \end{array}\end{split}\]</div>
 <p>They are given either as a <a class="reference internal" href="modules.html#syntax-funcidx"><span class="std std-ref">type index</span></a> that refers to a suitable <a class="reference internal" href="#syntax-functype"><span class="std std-ref">function type</span></a> reinterpreted as an <a class="reference internal" href="../valid/conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a>,
@@ -325,12 +325,12 @@ Each type can also be declared <em>final</em>, preventing further subtyping.</p>
 </section>
 <section id="tag-types">
 <span id="syntax-tagtype"></span><span id="index-12"></span><h2>Tag Types<a class="headerlink" href="#tag-types" title="Link to this heading">¶</a></h2>
-<p><em>Tag types</em> classify <a class="reference internal" href="modules.html#syntax-tag"><span class="std std-ref">tags</span></a>.
-The <a class="reference internal" href="#syntax-typeuse"><span class="std std-ref">type use</span></a> has to refer to the definition of a <a class="reference internal" href="#syntax-functype"><span class="std std-ref">function type</span></a> that declares the types of parameter and result values associated with the tag.
+<p><em>Tag types</em> classify the signature <a class="reference internal" href="modules.html#syntax-tag"><span class="std std-ref">tags</span></a>
+with a <a class="reference internal" href="#syntax-typeuse"><span class="std std-ref">type use</span></a> referring to the definition of a <a class="reference internal" href="#syntax-functype"><span class="std std-ref">function type</span></a> that declares the types of parameter and result values associated with the tag.
 The result type is empty for exception tags.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
-&amp; {\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}} &amp; ::= &amp; {\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} \\
+&amp; {\href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}} &amp; ::= &amp; {\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="global-types">
@@ -383,7 +383,7 @@ Since the contents of a data segment requires no further classification, they me
 <p><em>External types</em> classify <a class="reference internal" href="modules.html#syntax-import"><span class="std std-ref">imports</span></a> and <a class="reference internal" href="../exec/runtime.html#syntax-externaddr"><span class="std std-ref">external addresses</span></a> with their respective types.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
-&amp; {\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}} &amp; ::= &amp; \href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}} ~|~ \href{../syntax/types.html#syntax-externtype}{\mathsf{global}}~{\href{../syntax/types.html#syntax-globaltype}{\mathit{globaltype}}} ~|~ \href{../syntax/types.html#syntax-externtype}{\mathsf{mem}}~{\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}} ~|~ \href{../syntax/types.html#syntax-externtype}{\mathsf{table}}~{\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}} ~|~ \href{../syntax/types.html#syntax-externtype}{\mathsf{func}}~{\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} \\
+&amp; {\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}} &amp; ::= &amp; \href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}} ~|~ \href{../syntax/types.html#syntax-externtype}{\mathsf{global}}~{\href{../syntax/types.html#syntax-globaltype}{\mathit{globaltype}}} ~|~ \href{../syntax/types.html#syntax-externtype}{\mathsf{mem}}~{\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}} ~|~ \href{../syntax/types.html#syntax-externtype}{\mathsf{table}}~{\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}} ~|~ \href{../syntax/types.html#syntax-externtype}{\mathsf{func}}~{\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} \\
 \end{array}\end{split}\]</div>
 <p>For functions, the <a class="reference internal" href="#syntax-typeuse"><span class="std std-ref">type use</span></a> has to refer to the definition of a <a class="reference internal" href="#syntax-functype"><span class="std std-ref">function type</span></a>.</p>
 <div class="admonition note">

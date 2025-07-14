@@ -223,16 +223,8 @@ It gives rise to an <em>iso-recursive</em> interpretation of types.</p>
 &amp; {\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}} &amp; {\mathrel{\href{../valid/conventions.html#aux-expand-typeuse}{\approx}}}_{C} {} &amp; {\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}} &amp; \quad \mbox{if}~ C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[{\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}}] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} {\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}} \\
 \end{array}\end{split}\]</div>
 </section>
-<section id="tag-types">
-<span id="syntax-tagtype"></span><span id="index-5"></span><h2>Tag Types<a class="headerlink" href="#tag-types" title="Link to this heading">¶</a></h2>
-<p><em>Tag types</em> classify the signature of <a class="reference internal" href="../syntax/modules.html#syntax-tag"><span class="std std-ref">tags</span></a> with a <a class="reference internal" href="#syntax-deftype"><span class="std std-ref">defined type</span></a> that denotes a <a class="reference internal" href="../syntax/types.html#syntax-functype"><span class="std std-ref">function type</span></a>.</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}\begin{array}{llll}
-\def\mathdef4430#1{{}}\mathdef4430{tag type} &amp;\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}} &amp;::=&amp; \href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}} \\
-\end{array}\end{split}\]</div>
-</section>
 <section id="instruction-types">
-<span id="syntax-instrtype"></span><span id="index-6"></span><h2>Instruction Types<a class="headerlink" href="#instruction-types" title="Link to this heading">¶</a></h2>
+<span id="syntax-instrtype"></span><span id="index-5"></span><h2>Instruction Types<a class="headerlink" href="#instruction-types" title="Link to this heading">¶</a></h2>
 <p><em>Instruction types</em> classify the behaviour of <a class="reference internal" href="../syntax/instructions.html#syntax-instr"><span class="std std-ref">instructions</span></a> or instruction sequences, by describing how they manipulate the <a class="reference internal" href="../exec/runtime.html#stack"><span class="std std-ref">operand stack</span></a> and the initialization status of <a class="reference internal" href="../syntax/modules.html#syntax-local"><span class="std std-ref">locals</span></a>:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
@@ -248,7 +240,7 @@ they do not occur in programs.</p>
 </div>
 </section>
 <section id="local-types">
-<span id="syntax-localtype"></span><span id="syntax-init"></span><span id="index-7"></span><h2>Local Types<a class="headerlink" href="#local-types" title="Link to this heading">¶</a></h2>
+<span id="syntax-localtype"></span><span id="syntax-init"></span><span id="index-6"></span><h2>Local Types<a class="headerlink" href="#local-types" title="Link to this heading">¶</a></h2>
 <p><em>Local types</em> classify <a class="reference internal" href="../syntax/modules.html#syntax-local"><span class="std std-ref">locals</span></a>, by describing their <a class="reference internal" href="../syntax/types.html#syntax-valtype"><span class="std std-ref">value type</span></a> as well as their <em>initialization status</em>:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
@@ -262,7 +254,7 @@ they do not occur in programs.</p>
 </div>
 </section>
 <section id="contexts">
-<span id="context"></span><span id="index-8"></span><h2>Contexts<a class="headerlink" href="#contexts" title="Link to this heading">¶</a></h2>
+<span id="context"></span><span id="index-7"></span><h2>Contexts<a class="headerlink" href="#contexts" title="Link to this heading">¶</a></h2>
 <p>Validity of an individual definition is specified relative to a <em>context</em>,
 which collects relevant information about the surrounding <a class="reference internal" href="../syntax/modules.html#syntax-module"><span class="std std-ref">module</span></a> and the definitions in scope:</p>
 <ul class="simple">
@@ -272,7 +264,7 @@ which collects relevant information about the surrounding <a class="reference in
 <li><p><em>Tables</em>: the list of <a class="reference internal" href="../syntax/modules.html#syntax-table"><span class="std std-ref">tables</span></a> declared in the current module, represented by their <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table type</span></a>.</p></li>
 <li><p><em>Memories</em>: the list of <a class="reference internal" href="../syntax/modules.html#syntax-mem"><span class="std std-ref">memories</span></a> declared in the current module, represented by their <a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">memory type</span></a>.</p></li>
 <li><p><em>Globals</em>: the list of <a class="reference internal" href="../syntax/modules.html#syntax-global"><span class="std std-ref">globals</span></a> declared in the current module, represented by their <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">global type</span></a>.</p></li>
-<li><p><em>Tags</em>: the list of tags declared in the current module, represented by their <a class="reference internal" href="#syntax-tagtype"><span class="std std-ref">tag type</span></a>.</p></li>
+<li><p><em>Tags</em>: the list of tags declared in the current module, represented by their <a class="reference internal" href="../syntax/types.html#syntax-tagtype"><span class="std std-ref">tag type</span></a>.</p></li>
 <li><p><em>Element Segments</em>: the list of <a class="reference internal" href="../syntax/modules.html#syntax-elem"><span class="std std-ref">element segments</span></a> declared in the current module, represented by the elements’ <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a>.</p></li>
 <li><p><em>Data Segments</em>: the list of <a class="reference internal" href="../syntax/modules.html#syntax-data"><span class="std std-ref">data segments</span></a> declared in the current module, each represented by an <span class="math notranslate nohighlight">\(\href{../valid/modules.html#valid-data}{\mathsf{ok}}\)</span> entry.</p></li>
 <li><p><em>Locals</em>: the list of <a class="reference internal" href="../syntax/modules.html#syntax-local"><span class="std std-ref">locals</span></a> declared in the current <a class="reference internal" href="../syntax/modules.html#syntax-func"><span class="std std-ref">function</span></a> (including parameters), represented by their <a class="reference internal" href="#syntax-localtype"><span class="std std-ref">local type</span></a>.</p></li>
@@ -290,7 +282,7 @@ The label stack is the only part of the context that changes as validation of an
 &amp; {\href{../valid/conventions.html#context}{\mathit{context}}} &amp; ::= &amp; \{ \begin{array}[t]{&#64;{}l&#64;{}l&#64;{}}
 \href{../valid/conventions.html#context}{\mathsf{types}}~{{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}}^\ast} \\
 \href{../appendix/properties.html#context-ext}{\mathsf{recs}}~{{\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}^\ast} \\
-\href{../valid/conventions.html#context}{\mathsf{tags}}~{{\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}^\ast} \\
+\href{../valid/conventions.html#context}{\mathsf{tags}}~{{\href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}}^\ast} \\
 \href{../valid/conventions.html#context}{\mathsf{globals}}~{{\href{../syntax/types.html#syntax-globaltype}{\mathit{globaltype}}}^\ast} \\
 \href{../valid/conventions.html#context}{\mathsf{mems}}~{{\href{../syntax/types.html#syntax-memtype}{\mathit{memtype}}}^\ast} \\
 \href{../valid/conventions.html#context}{\mathsf{tables}}~{{\href{../syntax/types.html#syntax-tabletype}{\mathit{tabletype}}}^\ast} \\
@@ -304,7 +296,7 @@ The label stack is the only part of the context that changes as validation of an
 \end{array} \\
 \end{array}\end{split}\]</div>
 <section id="aux-clostype">
-<span id="type-closure"></span><span id="index-9"></span><span id="id3"></span><h3>Convention<a class="headerlink" href="#aux-clostype" title="Link to this heading">¶</a></h3>
+<span id="type-closure"></span><span id="index-8"></span><span id="id3"></span><h3>Convention<a class="headerlink" href="#aux-clostype" title="Link to this heading">¶</a></h3>
 <p>A type of any shape can be <em>closed</em> to bring it into <a class="reference internal" href="#type-closed"><span class="std std-ref">closed</span></a> form relative to a <a class="reference internal" href="#context"><span class="std std-ref">context</span></a> it is <a class="reference internal" href="modules.html#valid-type"><span class="std std-ref">valid</span></a> in, by <a class="reference internal" href="#notation-subst"><span class="std std-ref">substituting</span></a> each <a class="reference internal" href="../syntax/modules.html#syntax-typeidx"><span class="std std-ref">type index</span></a> <span class="math notranslate nohighlight">\(x\)</span> occurring in it with its own corresponding <a class="reference internal" href="#syntax-deftype"><span class="std std-ref">defined type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span>, after first closing the types in <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}\)</span> themselves.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}lcl&#64;{}l&#64;{}}
@@ -343,7 +335,7 @@ The formulation “Under context <span class="math notranslate nohighlight">\({C
 </ul>
 </section>
 <section id="formal-notation">
-<span id="valid-notation"></span><span id="index-10"></span><h2>Formal Notation<a class="headerlink" href="#formal-notation" title="Link to this heading">¶</a></h2>
+<span id="valid-notation"></span><span id="index-9"></span><h2>Formal Notation<a class="headerlink" href="#formal-notation" title="Link to this heading">¶</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This section gives a brief explanation of the notation for specifying typing rules formally.
@@ -408,17 +400,17 @@ a recursive rule, where the premise is itself a typing judgement:</p>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C \href{../valid/types.html#valid-blocktype}{\vdash} {\href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}}} : {t_1^\ast} \rightarrow {t_2^\ast}
+C \href{../valid/types.html#valid-blocktype}{\vdash} {\href{../syntax/types.html#syntax-blocktype}{\mathit{blocktype}}} : {t_1^\ast} \rightarrow {t_2^\ast}
  \qquad
 \{ \begin{array}[t]{&#64;{}l&#64;{}}
 \href{../valid/conventions.html#context}{\mathsf{labels}}~({t_2^\ast}) \}\end{array} \oplus C \vdash {{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast} : {t_1^\ast} \rightarrow {t_2^\ast}
 }{
-C \vdash \href{../syntax/instructions.html#syntax-instr-control}{\mathsf{block}}~{\href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}}}~{{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast} : {t_1^\ast} \rightarrow {t_2^\ast}
+C \vdash \href{../syntax/instructions.html#syntax-instr-control}{\mathsf{block}}~{\href{../syntax/types.html#syntax-blocktype}{\mathit{blocktype}}}~{{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast} : {t_1^\ast} \rightarrow {t_2^\ast}
 }
 \qquad
 \end{array}\]</div>
 <p>A <span class="math notranslate nohighlight">\(\mathsf{block}\)</span> instruction is only valid when the instruction sequence in its body is.
-Moreover, the result type must match the block’s annotation <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}}}\)</span>.
+Moreover, the result type must match the block’s annotation <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-blocktype}{\mathit{blocktype}}}\)</span>.
 If so, then the <span class="math notranslate nohighlight">\(\mathsf{block}\)</span> instruction has the same type as the body.
 Inside the body an additional label of the corresponding result type is available,
 which is expressed by extending the context <span class="math notranslate nohighlight">\(C\)</span> with the additional label information for the premise.</p>

@@ -515,7 +515,7 @@ C \href{../valid/types.html#valid-limits}{\vdash} {}[ n \href{../syntax/types.ht
 </section>
 <section id="tag-types">
 <span id="valid-tagtype"></span><span id="index-12"></span><h2>Tag Types<a class="headerlink" href="#tag-types" title="Link to this heading">¶</a></h2>
-<p>The <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}}\)</span> is <a class="reference internal" href="#valid-tagtype"><span class="std std-ref">valid</span></a> if:</p>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}}\)</span> is <a class="reference internal" href="#valid-tagtype"><span class="std std-ref">valid</span></a> if:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-typeuse"><span class="std std-ref">type use</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}}\)</span> is <a class="reference internal" href="#valid-typeuse"><span class="std std-ref">valid</span></a>.</p></li>
@@ -593,18 +593,18 @@ C \href{../valid/types.html#valid-tabletype}{\vdash} {\href{../syntax/types.html
 </section>
 <section id="external-types">
 <span id="valid-externtype"></span><span id="index-16"></span><h2>External Types<a class="headerlink" href="#external-types" title="Link to this heading">¶</a></h2>
-<p>The <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}})\)</span> is <a class="reference internal" href="#valid-externtype"><span class="std std-ref">valid</span></a> if:</p>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}})\)</span> is <a class="reference internal" href="#valid-externtype"><span class="std std-ref">valid</span></a> if:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="conventions.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}}\)</span> is <a class="reference internal" href="#valid-tagtype"><span class="std std-ref">valid</span></a>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}}\)</span> is <a class="reference internal" href="#valid-tagtype"><span class="std std-ref">valid</span></a>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C \href{../valid/types.html#valid-tagtype}{\vdash} {\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}} : \href{../valid/types.html#valid-tagtype}{\mathsf{ok}}
+C \href{../valid/types.html#valid-tagtype}{\vdash} {\href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}} : \href{../valid/types.html#valid-tagtype}{\mathsf{ok}}
 }{
-C \href{../valid/types.html#valid-externtype}{\vdash} \href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\href{../valid/conventions.html#syntax-tagtype}{\mathit{tagtype}}} : \href{../valid/types.html#valid-externtype}{\mathsf{ok}}
+C \href{../valid/types.html#valid-externtype}{\vdash} \href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}} : \href{../valid/types.html#valid-externtype}{\mathsf{ok}}
 }
 \qquad
 \end{array}\]</div>
