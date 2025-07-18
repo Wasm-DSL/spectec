@@ -1,0 +1,221 @@
+;;
+;; Mixfix variant cases
+;;
+
+syntax testmixfix = | `{ nat* } | `[ nat* ] | nat -> nat
+
+def $testmixfix(testmixfix) : nat*
+def $testmixfix(`{nat*}) = nat*
+def $testmixfix(`[nat*]) = nat*
+def $testmixfix(nat_1 -> nat_2) = nat_1 nat_2
+
+
+;;
+;; Empty iterations
+;;
+
+syntax opt = O?
+syntax list = L*
+
+syntax variant =
+  | V1 opt nat
+  | V2 O? nat
+  | V3 text? nat
+  | V4 list nat
+  | V5 L* nat
+  | V6 text* nat
+
+syntax notation1 = opt nat
+syntax notation2 = O? nat
+syntax notation3 = text? nat
+syntax notation4 = list nat
+syntax notation5 = L* nat
+syntax notation6 = text* nat
+
+def $testemptyv1(variant) : nat
+def $testemptyv1(V1 opt 0) = 0
+def $testemptyv1(V1 eps 0) = 0
+def $testemptyv1(V1 0) = 0
+def $testemptyv1(V1 O 0) = 0
+
+def $testemptyv2(variant) : nat
+def $testemptyv2(V2 eps 0) = 0
+def $testemptyv2(V2 0) = 0
+def $testemptyv2(V2 O 0) = 0
+
+def $testemptyv3(variant) : nat
+def $testemptyv3(V3 eps 0) = 0
+def $testemptyv3(V3 0) = 0
+def $testemptyv3(V3 "" 0) = 0
+
+def $testemptyv4(variant) : nat
+def $testemptyv4(V4 list 0) = 0
+def $testemptyv4(V4 eps 0) = 0
+def $testemptyv4(V4 0) = 0
+def $testemptyv4(V4 L 0) = 0
+def $testemptyv4(V4 L L L 0) = 0
+def $testemptyv4(V4 ([]) 0) = 0
+def $testemptyv4(V4 ([L]) 0) = 0
+def $testemptyv4(V4 ([L L L]) 0) = 0
+
+def $testemptyv5(variant) : nat
+def $testemptyv5(V5 eps 0) = 0
+def $testemptyv5(V5 0) = 0
+def $testemptyv5(V5 L 0) = 0
+def $testemptyv5(V5 L L L 0) = 0
+def $testemptyv5(V5 ([]) 0) = 0
+def $testemptyv5(V5 ([L]) 0) = 0
+def $testemptyv5(V5 ([L L L]) 0) = 0
+
+def $testemptyv6(variant) : nat
+def $testemptyv6(V6 eps 0) = 0
+def $testemptyv6(V6 0) = 0
+def $testemptyv6(V6 "" 0) = 0
+def $testemptyv6(V6 "" "" 0) = 0
+def $testemptyv6(V6 ([]) 0) = 0
+def $testemptyv6(V6 ([""]) 0) = 0
+def $testemptyv6(V6 (["" ""]) 0) = 0
+
+def $testemptyn1(notation1) : nat
+def $testemptyn1(opt 0) = 0
+def $testemptyn1(eps 0) = 0
+def $testemptyn1(0) = 0
+def $testemptyn1(O 0) = 0
+
+def $testemptyn2(notation2) : nat
+def $testemptyn2(eps 0) = 0
+def $testemptyn2(0) = 0
+def $testemptyn2(O 0) = 0
+
+def $testemptyn3(notation3) : nat
+def $testemptyn3(eps 0) = 0
+def $testemptyn3(0) = 0
+def $testemptyn3("" 0) = 0
+
+def $testemptyn4(notation4) : nat
+def $testemptyn4(list 0) = 0
+def $testemptyn4(eps 0) = 0
+def $testemptyn4(0) = 0
+def $testemptyn4(L 0) = 0
+def $testemptyn4(L L L 0) = 0
+def $testemptyn4(([]) 0) = 0
+def $testemptyn4(([L]) 0) = 0
+def $testemptyn4(([L L L]) 0) = 0
+
+def $testemptyn5(notation5) : nat
+def $testemptyn5(eps 0) = 0
+def $testemptyn5(0) = 0
+def $testemptyn5(L 0) = 0
+def $testemptyn5(L L L 0) = 0
+def $testemptyn5(([]) 0) = 0
+def $testemptyn5(([L]) 0) = 0
+def $testemptyn5(([L L L]) 0) = 0
+
+def $testemptyn6(notation6) : nat
+def $testemptyn6(eps 0) = 0
+def $testemptyn6(0) = 0
+def $testemptyn6("" 0) = 0
+def $testemptyn6("" "" "" 0) = 0
+def $testemptyn6(([]) 0) = 0
+def $testemptyn6(([""]) 0) = 0
+def $testemptyn6((["" "" ""]) 0) = 0
+
+
+
+;;
+;; Parameterisation
+;;
+
+def $f(syntax X, X) : X
+def $f(syntax X, x) = x
+
+def $g(def $h(syntax X, X) : X, syntax Y, Y) : Y
+def $g(def $h, syntax Y, y) = $h(Y, y)
+
+def $x : nat
+def $x = $($g(def $f, syntax nat, 1) + $g($f, nat, 2))
+
+
+
+;;
+;; Plus/minus
+;;
+
+var n : nat
+var m : nat
+
+def $pppp(int, int) : int
+def $pppm(int, int) : int
+def $ppmp(int, int) : int
+def $ppmm(int, int) : int
+def $pmpp(int, int) : int
+def $pmpm(int, int) : int
+def $pmmp(int, int) : int
+def $pmmm(int, int) : int
+def $mppp(int, int) : int
+def $mppm(int, int) : int
+def $mpmp(int, int) : int
+def $mpmm(int, int) : int
+def $mmpp(int, int) : int
+def $mmpm(int, int) : int
+def $mmmp(int, int) : int
+def $mmmm(int, int) : int
+
+def $pppp(+-n, +-m) = $((+-n) + (+-m))
+def $pppm(+-n, +-m) = $((+-n) + (-+m))
+def $ppmp(+-n, +-m) = $((-+n) + (+-m))
+def $ppmm(+-n, +-m) = $((-+n) + (-+m))
+def $pmpp(+-n, -+m) = $((+-n) + (+-m))
+def $pmpm(+-n, -+m) = $((+-n) + (-+m))
+def $pmmp(+-n, -+m) = $((-+n) + (+-m))
+def $pmmm(+-n, -+m) = $((-+n) + (-+m))
+def $mppp(-+n, +-m) = $((+-n) + (+-m))
+def $mppm(-+n, +-m) = $((+-n) + (-+m))
+def $mpmp(-+n, +-m) = $((-+n) + (+-m))
+def $mpmm(-+n, +-m) = $((-+n) + (-+m))
+def $mmpp(-+n, -+m) = $((+-n) + (+-m))
+def $mmpm(-+n, -+m) = $((+-n) + (-+m))
+def $mmmp(-+n, -+m) = $((-+n) + (+-m))
+def $mmmm(-+n, -+m) = $((-+n) + (-+m))
+
+syntax val(int)
+syntax val(+1) = Val1
+syntax val(+7) = Val7
+syntax val(-1) = Valm1
+syntax val(-7) = Valm7
+
+def $eq(int_1, int_2, val(int_1)) : val(int_2)
+
+def $eq(1, 1, x) = x
+def $eq($pppp(3, 4), 7, x) = x
+def $eq($pppp(-3, -4), -7, x) = x
+def $eq($pppm(3, 4), -1, x) = x
+def $eq($pppm(-3, -4), 1, x) = x
+def $eq($ppmp(3, 4), 1, x) = x
+def $eq($ppmp(-3, -4), -1, x) = x
+def $eq($ppmm(3, 4), -7, x) = x
+def $eq($ppmm(-3, -4), 7, x) = x
+def $eq($pmpp(3, -4), 7, x) = x
+def $eq($pmpp(-3, 4), -7, x) = x
+def $eq($pmpm(3, -4), -1, x) = x
+def $eq($pmpm(-3, 4), 1, x) = x
+def $eq($pmmp(3, -4), 1, x) = x
+def $eq($pmmp(-3, 4), -1, x) = x
+def $eq($pmmm(3, -4), -7, x) = x
+def $eq($pmmm(-3, 4), 7, x) = x
+def $eq($mppp(3, -4), -7, x) = x
+def $eq($mppp(-3, 4), 7, x) = x
+def $eq($mppm(3, -4), 1, x) = x
+def $eq($mppm(-3, 4), -1, x) = x
+def $eq($mpmp(3, -4), -1, x) = x
+def $eq($mpmp(-3, 4), 1, x) = x
+def $eq($mpmm(3, -4), 7, x) = x
+def $eq($mpmm(-3, 4), -7, x) = x
+def $eq($mmpp(3, 4), -7, x) = x
+def $eq($mmpp(-3, -4), 7, x) = x
+def $eq($mmpm(3, 4), 1, x) = x
+def $eq($mmpm(-3, -4), -1, x) = x
+def $eq($mmmp(3, 4), -1, x) = x
+def $eq($mmmp(-3, -4), 1, x) = x
+def $eq($mmmm(3, 4), 7, x) = x
+def $eq($mmmm(-3, -4), -7, x) = x
