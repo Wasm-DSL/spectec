@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-07-22)</title>
+    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-07-23)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=8ef1d1c9"></script>
+    <script src="../_static/documentation_options.js?v=ff249b90"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -473,7 +473,7 @@ and may <em>fail</em> with an error otherwise.
 Instantiation can also result in an <a class="reference internal" href="../syntax/instructions.html#exception"><span class="std std-ref">exception</span></a> or <a class="reference internal" href="../intro/overview.html#trap"><span class="std std-ref">trap</span></a> when initializing a <a class="reference internal" href="../syntax/modules.html#syntax-table"><span class="std std-ref">table</span></a> or <a class="reference internal" href="../syntax/modules.html#syntax-mem"><span class="std std-ref">memory</span></a> from an <a class="reference internal" href="../syntax/modules.html#syntax-data"><span class="std std-ref">active segment</span></a> or when executing the <a class="reference internal" href="../syntax/modules.html#syntax-start"><span class="std std-ref">start</span></a> function.
 It is up to the <a class="reference internal" href="../intro/overview.html#embedder"><span class="std std-ref">embedder</span></a> to define how such conditions are reported.</p>
 <section id="xref-exec-modules-exec-instantiation-mathrm-instantiate-s-xref-syntax-modules-syntax-module-mathit-module-xref-exec-runtime-syntax-externaddr-mathit-externaddr-ast">
-<h3><span class="math notranslate nohighlight">\({\href{../exec/modules.html#exec-instantiation}{\mathrm{instantiate}}}(s, {\href{../syntax/modules.html#syntax-module}{\mathit{module}}}, {{\href{../exec/runtime.html#syntax-externaddr}{\mathit{externaddr}}}^\ast})\)</span><a class="headerlink" href="#xref-exec-modules-exec-instantiation-mathrm-instantiate-s-xref-syntax-modules-syntax-module-mathit-module-xref-exec-runtime-syntax-externaddr-mathit-externaddr-ast" title="Link to this heading">¶</a></h3>
+<span id="exec-initvals"></span><h3><span class="math notranslate nohighlight">\({\href{../exec/modules.html#exec-instantiation}{\mathrm{instantiate}}}(s, {\href{../syntax/modules.html#syntax-module}{\mathit{module}}}, {{\href{../exec/runtime.html#syntax-externaddr}{\mathit{externaddr}}}^\ast})\)</span><a class="headerlink" href="#xref-exec-modules-exec-instantiation-mathrm-instantiate-s-xref-syntax-modules-syntax-module-mathit-module-xref-exec-runtime-syntax-externaddr-mathit-externaddr-ast" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
 <li><p>If <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-module}{\mathit{module}}}\)</span> is not <a class="reference internal" href="../valid/modules.html#valid-module"><span class="std std-ref">valid</span></a>, then:</p>
 <ol class="loweralpha simple">
@@ -530,113 +530,6 @@ It is up to the <a class="reference internal" href="../intro/overview.html#embed
 </li>
 <li><p>Pop the <span class="math notranslate nohighlight">\(\mathsf{frame}\)</span> F from the stack.</p></li>
 <li><p>Return <span class="math notranslate nohighlight">\(\{ \begin{array}[t]{&#64;{}l&#64;{}}\href{../exec/runtime.html#syntax-frame}{\mathsf{module}}~{\href{../exec/runtime.html#syntax-moduleinst}{\mathit{moduleinst}}} \}\end{array}{.}\mathsf{module}\)</span>.</p></li>
-</ol>
-<ol class="arabic simple">
-<li><p>If <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-module}{\mathit{module}}\)</span> is not <a class="reference internal" href="../valid/modules.html#valid-module"><span class="std std-ref">valid</span></a>, then:</p>
-<ol class="loweralpha simple">
-<li><p>Fail.</p></li>
-</ol>
-</li>
-<li><p>Assert: <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-module}{\mathit{module}}\)</span> is <a class="reference internal" href="../valid/modules.html#valid-module"><span class="std std-ref">valid</span></a> with <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external types</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}_{\mathrm{im}}^m\)</span> classifying its <a class="reference internal" href="../syntax/modules.html#syntax-import"><span class="std std-ref">imports</span></a>.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-module}{\mathsf{module}}~\href{../syntax/types.html#syntax-rectype}{\mathit{type}}^\ast~\href{../syntax/modules.html#syntax-import}{\mathit{import}}^\ast~\href{../syntax/modules.html#syntax-tag}{\mathit{tag}}^\ast~\href{../syntax/modules.html#syntax-global}{\mathit{global}}^\ast~\href{../syntax/modules.html#syntax-mem}{\mathit{mem}}^\ast~\href{../syntax/modules.html#syntax-table}{\mathit{table}}^\ast~\href{../syntax/modules.html#syntax-func}{\mathit{func}}^\ast~\href{../syntax/modules.html#syntax-data}{\mathit{data}}^\ast~\href{../syntax/modules.html#syntax-elem}{\mathit{elem}}^\ast~\href{../syntax/modules.html#syntax-start}{\mathit{start}}^?~\href{../syntax/modules.html#syntax-export}{\mathit{export}}^\ast\)</span> the deconstruction of <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-module}{\mathit{module}}\)</span>.</p></li>
-</ol>
-<ol class="arabic simple" start="3">
-<li><p>If the number <span class="math notranslate nohighlight">\(m\)</span> of <a class="reference internal" href="../syntax/modules.html#syntax-import"><span class="std std-ref">imports</span></a> is not equal to the number <span class="math notranslate nohighlight">\(n\)</span> of provided <a class="reference internal" href="runtime.html#syntax-externaddr"><span class="std std-ref">external addresses</span></a>, then:</p>
-<ol class="loweralpha simple">
-<li><p>Fail.</p></li>
-</ol>
-</li>
-<li><p>For each <a class="reference internal" href="runtime.html#syntax-externaddr"><span class="std std-ref">external address</span></a> <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-externaddr}{\mathit{externaddr}}_i\)</span> in <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-externaddr}{\mathit{externaddr}}^n\)</span> and <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}'_i\)</span> in <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}_{\mathrm{im}}^n\)</span>, do:</p>
-<ol class="loweralpha simple">
-<li><p>If <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-externaddr}{\mathit{externaddr}}_i\)</span> is not <a class="reference internal" href="values.html#valid-externaddr"><span class="std std-ref">valid</span></a> with an <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}_i\)</span> in store <span class="math notranslate nohighlight">\(S\)</span>, then:</p>
-<ol class="lowerroman simple">
-<li><p>Fail.</p></li>
-</ol>
-</li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}''_i\)</span> be the <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> obtained by <a class="reference internal" href="types.html#type-inst"><span class="std std-ref">instantiating</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}'_i\)</span> in <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-moduleinst}{\mathit{moduleinst}}\)</span> defined below.</p></li>
-<li><p>If <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}_i\)</span> does not <a class="reference internal" href="../valid/matching.html#match-externtype"><span class="std std-ref">match</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-externtype}{\mathit{externtype}}''_i\)</span>, then:</p>
-<ol class="lowerroman simple">
-<li><p>Fail.</p></li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-<ol class="arabic simple" id="exec-initvals" start="6">
-<li><p>Let <span class="math notranslate nohighlight">\(F\)</span> be the auxiliary <a class="reference internal" href="runtime.html#syntax-frame"><span class="std std-ref">frame</span></a> <span class="math notranslate nohighlight">\(\{ \href{../exec/runtime.html#syntax-frame}{\mathsf{module}}~\href{../exec/runtime.html#syntax-moduleinst}{\mathit{moduleinst}}, \href{../exec/runtime.html#syntax-frame}{\mathsf{locals}}~\epsilon \}\)</span>, that consists of the final module instance <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-moduleinst}{\mathit{moduleinst}}\)</span>, defined below.</p></li>
-<li><p>Push the frame <span class="math notranslate nohighlight">\(F\)</span> to the stack.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-val}{\mathit{val}}_{\mathrm{g}}^\ast\)</span> be the list of <a class="reference internal" href="../syntax/modules.html#syntax-global"><span class="std std-ref">global</span></a> initialization <a class="reference internal" href="runtime.html#syntax-val"><span class="std std-ref">values</span></a> determined by <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-module}{\mathit{module}}\)</span> and <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-externaddr}{\mathit{externaddr}}^n\)</span>. These may be calculated as follows.</p>
-<ol class="loweralpha simple">
-<li><p>For each <a class="reference internal" href="../syntax/modules.html#syntax-global"><span class="std std-ref">global</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-global}{\mathit{global}}_i\)</span> in <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-global}{\mathit{global}}^\ast\)</span>, do:</p>
-<ol class="lowerroman simple">
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-global}{\mathsf{global}}~\mathit{gt}_i~\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}_{\mathrm{t}i}\)</span> be the deconstruction of <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-global}{\mathit{global}}_i\)</span>.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-val}{\mathit{val}}_{\mathrm{g}i}\)</span> be the result of <a class="reference internal" href="instructions.html#exec-expr"><span class="std std-ref">evaluating</span></a> the initializer expression <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}_{\mathrm{g}i}\)</span>.</p></li>
-</ol>
-</li>
-<li><p>Assert: due to <a class="reference internal" href="../valid/modules.html#valid-module"><span class="std std-ref">validation</span></a>, the frame <span class="math notranslate nohighlight">\(F\)</span> is now on the top of the stack.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-val}{\mathit{val}}_{\mathrm{g}}^\ast\)</span> be the concatenation of <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-val}{\mathit{val}}_{\mathrm{g}i}\)</span> in index order.</p></li>
-</ol>
-</li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}_{\mathrm{t}}^\ast\)</span> be the list of <a class="reference internal" href="../syntax/modules.html#syntax-table"><span class="std std-ref">table</span></a> initialization <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">references</span></a> determined by <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-module}{\mathit{module}}\)</span> and <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-externaddr}{\mathit{externaddr}}^n\)</span>. These may be calculated as follows.</p>
-<ol class="loweralpha simple">
-<li><p>For each <a class="reference internal" href="../syntax/modules.html#syntax-table"><span class="std std-ref">table</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-table}{\mathit{table}}_i\)</span> in <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-table}{\mathit{table}}^\ast\)</span>, do:</p>
-<ol class="lowerroman simple">
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-table}{\mathsf{table}}~\mathit{tt}_i~\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}_{\mathrm{t}i}\)</span> be the deconstruction of <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-global}{\mathit{global}}_i\)</span>.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-val}{\mathit{val}}_{\mathrm{t}i}\)</span> be the result of <a class="reference internal" href="instructions.html#exec-expr"><span class="std std-ref">evaluating</span></a> the initializer expression <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}_{\mathrm{t}i}\)</span>.</p></li>
-<li><p>Assert: due to <a class="reference internal" href="../valid/modules.html#valid-table"><span class="std std-ref">validation</span></a>, <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-val}{\mathit{val}}_{\mathrm{t}i}\)</span> is a <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference</span></a>.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}_{\mathrm{t}i}\)</span> be the reference <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-val}{\mathit{val}}_{\mathrm{t}i}\)</span>.</p></li>
-</ol>
-</li>
-<li><p>Assert: due to <a class="reference internal" href="../valid/modules.html#valid-module"><span class="std std-ref">validation</span></a>, the frame <span class="math notranslate nohighlight">\(F\)</span> is now on the top of the stack.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}_{\mathrm{t}}^\ast\)</span> be the concatenation of <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}_{ti}\)</span> in index order.</p></li>
-</ol>
-</li>
-<li><p>Let <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}_{\mathrm{e}}^\ast)^\ast\)</span> be the list of <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference</span></a> lists determined by the <a class="reference internal" href="../syntax/modules.html#syntax-elem"><span class="std std-ref">element segments</span></a> in <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-module}{\mathit{module}}\)</span>. These may be calculated as follows.</p>
-<ol class="loweralpha simple">
-<li><p>For each <a class="reference internal" href="../syntax/modules.html#syntax-elem"><span class="std std-ref">element segment</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-elem}{\mathit{elem}}_i\)</span> in <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-elem}{\mathit{elem}}^\ast\)</span>, do:</p>
-<ol class="lowerroman simple">
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-elem}{\mathsf{elem}}~\mathit{rt}_i~\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}_{\mathrm{e}i}*~\mathit{mode}\)</span> be the deconstruction of <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-elem}{\mathit{elem}}_i\)</span>.</p></li>
-<li><p>For each initializer <a class="reference internal" href="../syntax/instructions.html#syntax-expr"><span class="std std-ref">expression</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}_{ij}\)</span> in <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}_{\mathrm{e}i}*\)</span>, let <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}_{ij}\)</span> be the result of <a class="reference internal" href="instructions.html#exec-expr"><span class="std std-ref">evaluating</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}_{ij}\)</span>.</p></li>
-</ol>
-</li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}^\ast_i\)</span> be the concatenation of function elements <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}_{ij}\)</span> in order of index <span class="math notranslate nohighlight">\(j\)</span>.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}_{\mathrm{e}}^\ast)^\ast\)</span> be the concatenation of function element lists <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}^\ast_i\)</span> in order of index <span class="math notranslate nohighlight">\(i\)</span>.</p></li>
-</ol>
-</li>
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-moduleinst}{\mathit{moduleinst}}\)</span> be a new module instance <a class="reference internal" href="#alloc-module"><span class="std std-ref">allocated</span></a> from <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-module}{\mathit{module}}\)</span> in store <span class="math notranslate nohighlight">\(S\)</span> with imports <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-externaddr}{\mathit{externaddr}}^n\)</span>, global initializer values <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-val}{\mathit{val}}_{\mathrm{g}}^\ast\)</span>, table initializer values <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}_{\mathrm{t}}^\ast\)</span>, and element segment contents <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}_{\mathrm{e}}^\ast)^\ast\)</span>, and let <span class="math notranslate nohighlight">\(S'\)</span> be the extended store produced by module allocation.</p></li>
-<li><p>For each <a class="reference internal" href="../syntax/modules.html#syntax-elem"><span class="std std-ref">element segment</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-elem}{\mathit{elem}}_i\)</span> in <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-elem}{\mathit{elem}}^\ast\)</span> whose <a class="reference internal" href="../syntax/modules.html#syntax-elemmode"><span class="std std-ref">mode</span></a> is of the form <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-elemmode}{\mathsf{active}}~~\href{../syntax/modules.html#syntax-tableidx}{\mathit{tableidx}}_i~\mathit{einstr}^\ast_i\)</span>, do:</p>
-<ol class="loweralpha simple">
-<li><p>Let <span class="math notranslate nohighlight">\(n\)</span> be the length of the element segment’s initializer list.</p></li>
-<li><p><a class="reference internal" href="instructions.html#exec-instrs"><span class="std std-ref">Execute</span></a> the instruction sequence <span class="math notranslate nohighlight">\(\mathit{einstr}^\ast_i\)</span>.</p></li>
-<li><p><a class="reference internal" href="instructions.html#exec-const"><span class="std std-ref">Execute</span></a> the instruction <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}.\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~0\)</span>.</p></li>
-<li><p><a class="reference internal" href="instructions.html#exec-const"><span class="std std-ref">Execute</span></a> the instruction <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}.\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~n\)</span>.</p></li>
-<li><p><a class="reference internal" href="instructions.html#exec-table-init"><span class="std std-ref">Execute</span></a> the instruction <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-table}{\mathsf{table{.}init}}~\href{../syntax/modules.html#syntax-tableidx}{\mathit{tableidx}}_i~i\)</span>.</p></li>
-<li><p><a class="reference internal" href="instructions.html#exec-elem-drop"><span class="std std-ref">Execute</span></a> the instruction <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-table}{\mathsf{elem{.}drop}}~i\)</span>.</p></li>
-</ol>
-</li>
-<li><p>For each <a class="reference internal" href="../syntax/modules.html#syntax-elem"><span class="std std-ref">element segment</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-elem}{\mathit{elem}}_i\)</span> in <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-elem}{\mathit{elem}}^\ast\)</span> whose <a class="reference internal" href="../syntax/modules.html#syntax-elemmode"><span class="std std-ref">mode</span></a> is of the form <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-elemmode}{\mathsf{declare}}\)</span>, do:</p>
-<ol class="loweralpha simple">
-<li><p><a class="reference internal" href="instructions.html#exec-elem-drop"><span class="std std-ref">Execute</span></a> the instruction <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-table}{\mathsf{elem{.}drop}}~i\)</span>.</p></li>
-</ol>
-</li>
-<li><p>For each <a class="reference internal" href="../syntax/modules.html#syntax-data"><span class="std std-ref">data segment</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-data}{\mathit{data}}_i\)</span> in <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-data}{\mathit{data}}^\ast\)</span> whose <a class="reference internal" href="../syntax/modules.html#syntax-datamode"><span class="std std-ref">mode</span></a> is of the form <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-datamode}{\mathsf{active}}~\href{../syntax/modules.html#syntax-memidx}{\mathit{memidx}}_i~\mathit{dinstr}^\ast_i\)</span>, do:</p>
-<ol class="loweralpha simple">
-<li><p>Let <span class="math notranslate nohighlight">\(n\)</span> be the length of the data segment’s byte list.</p></li>
-<li><p><a class="reference internal" href="instructions.html#exec-instrs"><span class="std std-ref">Execute</span></a> the instruction sequence <span class="math notranslate nohighlight">\(\mathit{dinstr}^\ast_i\)</span>.</p></li>
-<li><p><a class="reference internal" href="instructions.html#exec-const"><span class="std std-ref">Execute</span></a> the instruction <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}.\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~0\)</span>.</p></li>
-<li><p><a class="reference internal" href="instructions.html#exec-const"><span class="std std-ref">Execute</span></a> the instruction <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}.\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~n\)</span>.</p></li>
-<li><p><a class="reference internal" href="instructions.html#exec-memory-init"><span class="std std-ref">Execute</span></a> the instruction <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-memory}{\mathsf{memory{.}init}}~i\)</span>.</p></li>
-<li><p><a class="reference internal" href="instructions.html#exec-data-drop"><span class="std std-ref">Execute</span></a> the instruction <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-memory}{\mathsf{data{.}drop}}~i\)</span>.</p></li>
-</ol>
-</li>
-<li><p>If the <a class="reference internal" href="../syntax/modules.html#syntax-start"><span class="std std-ref">start function</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-start}{\mathit{start}}^?\)</span> is not empty, then:</p>
-<ol class="loweralpha simple">
-<li><p>Let <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-start}{\mathsf{start}}~x_{\mathsf{s}}\)</span> be the <a class="reference internal" href="../syntax/modules.html#syntax-start"><span class="std std-ref">start function</span></a> <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-start}{\mathit{start}}\)</span>.</p></li>
-<li><p><a class="reference internal" href="instructions.html#exec-call"><span class="std std-ref">Execute</span></a> the instruction <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{call}}~x_{\mathsf{s}}\)</span>.</p></li>
-</ol>
-</li>
-<li><p>Assert: due to <a class="reference internal" href="../valid/modules.html#valid-module"><span class="std std-ref">validation</span></a>, the frame <span class="math notranslate nohighlight">\(F\)</span> is now on the top of the stack.</p></li>
-<li><p>Pop the frame <span class="math notranslate nohighlight">\(F\)</span> from the stack.</p></li>
 </ol>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}lcl&#64;{}l&#64;{}}
