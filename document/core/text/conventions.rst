@@ -53,6 +53,8 @@ In order to distinguish symbols of the textual syntax from symbols of the abstra
 
 * Productions are written :math:`\T{sym} ::= T_1 \Rightarrow A_1 ~|~ \dots ~|~ T_n \Rightarrow A_n`, where each :math:`A_i` is the attribute that is synthesized for :math:`\T{sym}` in the given case, usually from attribute variables bound in :math:`T_i`.
 
+* Large productions may be split into multiple definitions, indicated by ending the first one with explicit ellipses, :math:`\T{sym} ::= T_1 \Rightarrow A_1 ~|~ \dots`, and starting continuations with ellipses, :math:`\T{sym} ::= \dots ~|~ T_2 \Rightarrow A_2`.
+
 * Some productions are augmented by side conditions in parentheses, which restrict the applicability of the production. They provide a shorthand for a combinatorial expansion of the production into many separate cases.
 
 * If the same meta variable or non-terminal symbol appears multiple times in a production (in the syntax or in an attribute), then all those occurrences must have the same instantiation.
@@ -78,11 +80,11 @@ In order to distinguish symbols of the textual syntax from symbols of the abstra
    .. math::
       \begin{array}{llclll}
       \production{limits} & \Tlimits &::=&
-        n{:}\Tu32 &\Rightarrow& \{ \LMIN~n, \LMAX~\epsilon \} \\ &&|&
-        n{:}\Tu32~~m{:}\Tu32 &\Rightarrow& \{ \LMIN~n, \LMAX~m \} \\
+        n{:}\Tu64 &\Rightarrow& [ n\,{..}\, 2^64-1 ] \\ &&|&
+        n{:}\Tu64~~m{:}\Tu64 &\Rightarrow& [ n\,{..}\, m ] \\
       \end{array}
 
-   The variables :math:`n` and :math:`m` name the attributes of the respective |Tu32| nonterminals, which in this case are the actual :ref:`unsigned integers <syntax-uint>` those parse into.
+   The variables :math:`n` and :math:`m` name the attributes of the respective |Tu64| nonterminals, which in this case are the actual :ref:`unsigned integers <syntax-uint>` those parse into.
    The attribute of the complete production then is the abstract syntax for the limit, expressed in terms of the former values.
 
 
@@ -120,23 +122,29 @@ It is convenient to define identifier contexts as :ref:`records <notation-record
    \begin{array}{llll}
    \production{identifier context} & I &::=&
      \begin{array}[t]{l@{~}ll}
-     \{ & \ITYPES & (\Tid^?)^\ast, \\
-        & \IFUNCS & (\Tid^?)^\ast, \\
-        & \ITABLES & (\Tid^?)^\ast, \\
-        & \IMEMS & (\Tid^?)^\ast, \\
-        & \IGLOBALS & (\Tid^?)^\ast, \\
-        & \IELEM & (\Tid^?)^\ast, \\
-        & \IDATA & (\Tid^?)^\ast, \\
-        & \ILOCALS & (\Tid^?)^\ast, \\
-        & \ILABELS & (\Tid^?)^\ast, \\
-        & \ITYPEDEFS & \functype^\ast ~\} \\
+     \{ & \ITYPES & (\name^?)^\ast, \\
+        & \ITAGS & (\Tname^?)^\ast, \\
+        & \IGLOBALS & (\name^?)^\ast, \\
+        & \IMEMS & (\name^?)^\ast, \\
+        & \ITABLES & (\name^?)^\ast, \\
+        & \IELEM & (\name^?)^\ast, \\
+        & \IFUNCS & (\name^?)^\ast, \\
+        & \IDATA & (\name^?)^\ast, \\
+        & \ILOCALS & (\name^?)^\ast, \\
+        & \ILABELS & (\name^?)^\ast, \\
+        & \IFIELDS & ((\name^?)^\ast)^\ast ~\} \\
+        & \ITYPEDEFS & \subtype^\ast ~\} \\
      \end{array}
    \end{array}
 
-For each index space, such a context contains the list of :ref:`identifiers <text-id>` assigned to the defined indices.
+For each index space, such a context contains the list of :ref:`names <syntax-name>` assigned to the defined indices,
+which were denoted by the corresponding :ref:`identifiers <text-id>`.
 Unnamed indices are associated with empty (:math:`\epsilon`) entries in these lists.
+Fields have *dependent* name spaces, and hence a separate list of field identifiers per type.
 
 An identifier context is *well-formed* if no index space contains duplicate identifiers.
+For fields, names need only be unique within a single type.
+
 
 
 Conventions
@@ -146,17 +154,17 @@ To avoid unnecessary clutter, empty components are omitted when writing out iden
 For example, the record :math:`\{\}` is shorthand for an :ref:`identifier context <text-context>` whose components are all empty.
 
 
-.. index:: vector
-   pair: text format; vector
-.. _text-vec:
+.. index:: list
+   pair: text format; list
+.. _text-list:
 
-Vectors
-~~~~~~~
+Lists
+~~~~~
 
-:ref:`Vectors <syntax-vec>` are written as plain sequences, but with a restriction on the length of these sequence.
+:ref:`Lists <syntax-list>` are written as plain sequences, but with a restriction on the length of these sequence.
 
 .. math::
    \begin{array}{llclll@{\qquad\qquad}l}
-   \production{vector} & \Tvec(\T{A}) &::=&
+   \production{list} & \Tlist(\T{A}) &::=&
      (x{:}\T{A})^n &\Rightarrow& x^n & (\iff n < 2^{32}) \\
    \end{array}
