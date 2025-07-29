@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-07-25)</title>
+    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-07-29)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=00aa2007"></script>
+    <script src="../_static/documentation_options.js?v=24c65168"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -466,21 +466,21 @@ Furthermore, it must be present if any <a class="reference internal" href="../sy
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
 &amp; {\href{../binary/modules.html#binary-magic}{\mathtt{magic}}} &amp; ::= &amp; \mathtt{0x00}~~\mathtt{0x61}~~\mathtt{0x73}~~\mathtt{0x6D} \\
 &amp; {\href{../binary/modules.html#binary-version}{\mathtt{version}}} &amp; ::= &amp; \mathtt{0x01}~~\mathtt{0x00}~~\mathtt{0x00}~~\mathtt{0x00} \\
-&amp; {\href{../binary/modules.html#binary-module}{\mathtt{module}}} &amp; ::= &amp; {\href{../binary/modules.html#binary-magic}{\mathtt{magic}}}~~{\href{../binary/modules.html#binary-version}{\mathtt{version}}} \\
-  &amp;&amp;&amp; {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/types.html#syntax-rectype}{\mathit{type}}}^\ast}{:}{\href{../binary/modules.html#binary-typesec}{\mathtt{typesec}}} \\
-  &amp;&amp;&amp; {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-import}{\mathit{import}}}^\ast}{:}{\href{../binary/modules.html#binary-importsec}{\mathtt{importsec}}} \\
-  &amp;&amp;&amp; {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}}^\ast}{:}{\href{../binary/modules.html#binary-funcsec}{\mathtt{funcsec}}} \\
-  &amp;&amp;&amp; {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-table}{\mathit{table}}}^\ast}{:}{\href{../binary/modules.html#binary-tablesec}{\mathtt{tablesec}}} \\
-  &amp;&amp;&amp; {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-mem}{\mathit{mem}}}^\ast}{:}{\href{../binary/modules.html#binary-memsec}{\mathtt{memsec}}} \\
-  &amp;&amp;&amp; {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-tag}{\mathit{tag}}}^\ast}{:}{\href{../binary/modules.html#binary-tagsec}{\mathtt{tagsec}}} \\
-  &amp;&amp;&amp; {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-global}{\mathit{global}}}^\ast}{:}{\href{../binary/modules.html#binary-globalsec}{\mathtt{globalsec}}} \\
-  &amp;&amp;&amp; {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-export}{\mathit{export}}}^\ast}{:}{\href{../binary/modules.html#binary-exportsec}{\mathtt{exportsec}}} \\
-  &amp;&amp;&amp; {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-start}{\mathit{start}}}^?}{:}{\href{../binary/modules.html#binary-startsec}{\mathtt{startsec}}} \\
-  &amp;&amp;&amp; {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-elem}{\mathit{elem}}}^\ast}{:}{\href{../binary/modules.html#binary-elemsec}{\mathtt{elemsec}}} \\
-  &amp;&amp;&amp; {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{n^?}{:}{\href{../binary/modules.html#binary-datacntsec}{\mathtt{datacntsec}}} \\
-  &amp;&amp;&amp; {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{({{\href{../syntax/modules.html#syntax-local}{\mathit{local}}}^\ast}, {\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}})^\ast}{:}{\href{../binary/modules.html#binary-codesec}{\mathtt{codesec}}} \\
-  &amp;&amp;&amp; {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-data}{\mathit{data}}}^\ast}{:}{\href{../binary/modules.html#binary-datasec}{\mathtt{datasec}}} \\
-  &amp;&amp;&amp; {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast} &amp; \quad\Rightarrow\quad{} &amp; &amp; \\
+&amp; {\href{../binary/modules.html#binary-module}{\mathtt{module}}} &amp; ::= &amp; \begin{array}[t]{&#64;{}l&#64;{}} {\href{../binary/modules.html#binary-magic}{\mathtt{magic}}}~~{\href{../binary/modules.html#binary-version}{\mathtt{version}}} \\
+  {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/types.html#syntax-rectype}{\mathit{type}}}^\ast}{:}{\href{../binary/modules.html#binary-typesec}{\mathtt{typesec}}} \\
+  {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-import}{\mathit{import}}}^\ast}{:}{\href{../binary/modules.html#binary-importsec}{\mathtt{importsec}}} \\
+  {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-typeidx}{\mathit{typeidx}}}^\ast}{:}{\href{../binary/modules.html#binary-funcsec}{\mathtt{funcsec}}} \\
+  {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-table}{\mathit{table}}}^\ast}{:}{\href{../binary/modules.html#binary-tablesec}{\mathtt{tablesec}}} \\
+  {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-mem}{\mathit{mem}}}^\ast}{:}{\href{../binary/modules.html#binary-memsec}{\mathtt{memsec}}} \\
+  {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-tag}{\mathit{tag}}}^\ast}{:}{\href{../binary/modules.html#binary-tagsec}{\mathtt{tagsec}}} \\
+  {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-global}{\mathit{global}}}^\ast}{:}{\href{../binary/modules.html#binary-globalsec}{\mathtt{globalsec}}} \\
+  {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-export}{\mathit{export}}}^\ast}{:}{\href{../binary/modules.html#binary-exportsec}{\mathtt{exportsec}}} \\
+  {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-start}{\mathit{start}}}^?}{:}{\href{../binary/modules.html#binary-startsec}{\mathtt{startsec}}} \\
+  {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-elem}{\mathit{elem}}}^\ast}{:}{\href{../binary/modules.html#binary-elemsec}{\mathtt{elemsec}}} \\
+  {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{n^?}{:}{\href{../binary/modules.html#binary-datacntsec}{\mathtt{datacntsec}}} \\
+  {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{({{\href{../syntax/modules.html#syntax-local}{\mathit{local}}}^\ast}, {\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}})^\ast}{:}{\href{../binary/modules.html#binary-codesec}{\mathtt{codesec}}} \\
+  {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast}~~{{\href{../syntax/modules.html#syntax-data}{\mathit{data}}}^\ast}{:}{\href{../binary/modules.html#binary-datasec}{\mathtt{datasec}}} \\
+  {{\href{../binary/modules.html#binary-customsec}{\mathtt{customsec}}}^\ast} \end{array} &amp; \quad\Rightarrow\quad{} &amp; &amp; \\
 &amp;&amp;&amp; \multicolumn{4}{&#64;{}l&#64;{}}{\quad
 \begin{array}[t]{&#64;{}l&#64;{}l&#64;{}l&#64;{}}
 \href{../syntax/modules.html#syntax-module}{\mathsf{module}}~{{\href{../syntax/types.html#syntax-rectype}{\mathit{type}}}^\ast}~{{\href{../syntax/modules.html#syntax-import}{\mathit{import}}}^\ast}~{{\href{../syntax/modules.html#syntax-tag}{\mathit{tag}}}^\ast}~{{\href{../syntax/modules.html#syntax-global}{\mathit{global}}}^\ast}~{{\href{../syntax/modules.html#syntax-mem}{\mathit{mem}}}^\ast}~{{\href{../syntax/modules.html#syntax-table}{\mathit{table}}}^\ast}~{{\href{../syntax/modules.html#syntax-func}{\mathit{func}}}^\ast}~{{\href{../syntax/modules.html#syntax-data}{\mathit{data}}}^\ast}~{{\href{../syntax/modules.html#syntax-elem}{\mathit{elem}}}^\ast}~{{\href{../syntax/modules.html#syntax-start}{\mathit{start}}}^?}~{{\href{../syntax/modules.html#syntax-export}{\mathit{export}}}^\ast} &amp; &amp; \\

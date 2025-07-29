@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-07-25)</title>
+    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-07-29)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=00aa2007"></script>
+    <script src="../_static/documentation_options.js?v=24c65168"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -310,7 +310,7 @@ Consequently, a memory declaration can contain any number of exports, possibly f
     &amp;\equiv&amp;
     \def\mathdef3771#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3771{(}~\def\mathdef3772#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3772{table}~~\href{../text/values.html#text-id}{\mathtt{id}}^?~~\href{../text/types.html#text-tabletype}{\mathtt{tabletype}}~~\def\mathdef3773#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3773{(}~\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}null}}~\mathit{ht}~\def\mathdef3774#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3774{)}~\def\mathdef3775#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3775{)}
     \\ &amp;&amp;&amp; \qquad\qquad
-    (\mathrel{\mbox{if}} \href{../text/types.html#text-tabletype}{\mathtt{tabletype}} = \href{../text/types.html#text-limits}{\mathtt{limits}}~\def\mathdef3776#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3776{(}~\def\mathdef3777#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3777{ref}~\def\mathdef3778#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3778{null}^?~\mathit{ht}~\def\mathdef3779#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3779{)}) \\
+    (\mathrel{\mbox{if}} \href{../text/types.html#text-tabletype}{\mathtt{tabletype}} = \href{../text/types.html#text-addrtype}{\mathtt{addrtype}}^?~\href{../text/types.html#text-limits}{\mathtt{limits}}~\def\mathdef3776#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3776{(}~\def\mathdef3777#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3777{ref}~\def\mathdef3778#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3778{null}^?~\mathit{ht}~\def\mathdef3779#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3779{)}) \\
 \end{array}\end{split}\]</div>
 <p>An <a class="reference internal" href="#text-elem"><span class="std std-ref">element segment</span></a> can be given inline with a table definition, in which case its offset is <span class="math notranslate nohighlight">\(0\)</span> and the <a class="reference internal" href="types.html#text-limits"><span class="std std-ref">limits</span></a> of the <a class="reference internal" href="types.html#text-tabletype"><span class="std std-ref">table type</span></a> are inferred from the length of the given segment:</p>
 <div class="math notranslate nohighlight">
@@ -427,11 +427,11 @@ or a symbolic <a class="reference internal" href="values.html#text-id"><span cla
 </div>
 <section id="id6">
 <h3>Abbreviations<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
-<p>As an abbreviation, a single instruction may occur in place of the offset of an active data segment:</p>
+<p>As an abbreviation, a single <a class="reference internal" href="instructions.html#text-foldedinstr"><span class="std std-ref">folded instruction</span></a> may occur in place of the offset of an active data segment:</p>
 <div class="math notranslate nohighlight">
 \[\begin{array}{llcll}
 \def\mathdef3586#1{{}}\mathdef3586{data offset} &amp;
-  \def\mathdef3904#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3904{(}~\href{../text/instructions.html#text-instr}{\mathtt{instr}}~\def\mathdef3905#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3905{)} &amp;\equiv&amp;
+  \def\mathdef3904#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3904{(}~\href{../text/instructions.html#text-foldedinstr}{\mathtt{foldedinstr}}~\def\mathdef3905#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3905{)} &amp;\equiv&amp;
   \def\mathdef3906#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3906{(}~\def\mathdef3907#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3907{offset}~~\href{../text/instructions.html#text-instr}{\mathtt{instr}}~\def\mathdef3908#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3908{)}
 \end{array}\]</div>
 <p>Also, a memory use can be omitted, defaulting to <span class="math notranslate nohighlight">\(\mathtt{0}\)</span>.</p>
@@ -466,14 +466,14 @@ or a symbolic <a class="reference internal" href="values.html#text-id"><span cla
 \end{array}\end{split}\]</div>
 <section id="id7">
 <h3>Abbreviations<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
-<p>As an abbreviation, a single instruction may occur in place of the offset of an active element segment or as an element expression:</p>
+<p>As an abbreviation, a single <a class="reference internal" href="instructions.html#text-foldedinstr"><span class="std std-ref">folded instruction</span></a> may occur in place of the offset of an active element segment or as an element expression:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{llcll}
 \def\mathdef3586#1{{}}\mathdef3586{element offset} &amp;
-  \def\mathdef3932#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3932{(}~\href{../text/instructions.html#text-instr}{\mathtt{instr}}~\def\mathdef3933#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3933{)} &amp;\equiv&amp;
+  \def\mathdef3932#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3932{(}~\href{../text/instructions.html#text-foldedinstr}{\mathtt{foldedinstr}}~\def\mathdef3933#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3933{)} &amp;\equiv&amp;
   \def\mathdef3934#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3934{(}~\def\mathdef3935#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3935{offset}~~\href{../text/instructions.html#text-instr}{\mathtt{instr}}~\def\mathdef3936#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3936{)} \\
 \def\mathdef3586#1{{}}\mathdef3586{element item} &amp;
-  \def\mathdef3937#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3937{(}~\href{../text/instructions.html#text-instr}{\mathtt{instr}}~\def\mathdef3938#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3938{)} &amp;\equiv&amp;
+  \def\mathdef3937#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3937{(}~\href{../text/instructions.html#text-foldedinstr}{\mathtt{foldedinstr}}~\def\mathdef3938#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3938{)} &amp;\equiv&amp;
   \def\mathdef3939#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3939{(}~\def\mathdef3940#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3940{item}~~\href{../text/instructions.html#text-instr}{\mathtt{instr}}~\def\mathdef3941#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef3941{)} \\
 \end{array}\end{split}\]</div>
 <p>Also, the element list may be written as just a sequence of <a class="reference internal" href="#text-funcidx"><span class="std std-ref">function indices</span></a>:</p>
