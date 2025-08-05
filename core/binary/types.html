@@ -139,9 +139,9 @@ Thus, the binary format for type constructors corresponds to the encodings of sm
 <p><a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">Reference types</span></a> are either encoded by a single byte followed by a <a class="reference internal" href="#binary-heaptype"><span class="std std-ref">heap type</span></a>, or, as a short form, directly as an <a class="reference internal" href="#binary-absheaptype"><span class="std std-ref">abstract heap type</span></a>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
-&amp; {\href{../binary/types.html#binary-reftype}{\mathtt{reftype}}} &amp; ::= &amp; \mathtt{0x63}~~{\mathit{ht}}{:}{\href{../binary/types.html#binary-heaptype}{\mathtt{heaptype}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~{\mathit{ht}} \\
+&amp; {\href{../binary/types.html#binary-reftype}{\mathtt{reftype}}} &amp; ::= &amp; \mathtt{0x63}~~{\mathit{ht}}{:}{\href{../binary/types.html#binary-heaptype}{\mathtt{heaptype}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~{\mathit{ht}} \\
 &amp; &amp; | &amp; \mathtt{0x64}~~{\mathit{ht}}{:}{\href{../binary/types.html#binary-heaptype}{\mathtt{heaptype}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\mathit{ht}} \\
-&amp; &amp; | &amp; {\mathit{ht}}{:}{\href{../binary/types.html#binary-absheaptype}{\mathtt{absheaptype}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~{\mathit{ht}} \\
+&amp; &amp; | &amp; {\mathit{ht}}{:}{\href{../binary/types.html#binary-absheaptype}{\mathtt{absheaptype}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~{\mathit{ht}} \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="value-types">
@@ -174,7 +174,7 @@ Thus, the binary format for types corresponds to the <a class="reference externa
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
 &amp; {\href{../binary/types.html#binary-mut}{\mathtt{mut}}} &amp; ::= &amp; \mathtt{0x00} &amp; \quad\Rightarrow\quad{} &amp; \epsilon \\
-&amp; &amp; | &amp; \mathtt{0x01} &amp; \quad\Rightarrow\quad{} &amp; \mathsf{mut} \\[0.8ex]
+&amp; &amp; | &amp; \mathtt{0x01} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-mut}{\mathsf{mut}} \\[0.8ex]
 &amp; {\href{../binary/types.html#binary-comptype}{\mathtt{comptype}}} &amp; ::= &amp; \mathtt{0x5E}~~{\mathit{ft}}{:}{\href{../binary/types.html#binary-fieldtype}{\mathtt{fieldtype}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~{\mathit{ft}} \\
 &amp; &amp; | &amp; \mathtt{0x5F}~~{{\mathit{ft}}^\ast}{:}{\href{../binary/conventions.html#binary-list}{\mathtt{list}}}({\href{../binary/types.html#binary-fieldtype}{\mathtt{fieldtype}}}) &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{{\mathit{ft}}^\ast} \\
 &amp; &amp; | &amp; \mathtt{0x60}~~{t_1^\ast}{:}{\href{../binary/types.html#binary-resulttype}{\mathtt{resulttype}}}~~{t_2^\ast}{:}{\href{../binary/types.html#binary-resulttype}{\mathtt{resulttype}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast} \href{../syntax/types.html#syntax-comptype}{\rightarrow} {t_2^\ast} \\[0.8ex]
@@ -193,9 +193,9 @@ Additional shorthands are recognized for unary recursions and sub types without 
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
 &amp; {\href{../binary/types.html#binary-rectype}{\mathtt{rectype}}} &amp; ::= &amp; \mathtt{0x4E}~~{{\mathit{st}}^\ast}{:}{\href{../binary/conventions.html#binary-list}{\mathtt{list}}}({\href{../binary/types.html#binary-subtype}{\mathtt{subtype}}}) &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~{{\mathit{st}}^\ast} \\
 &amp; &amp; | &amp; {\mathit{st}}{:}{\href{../binary/types.html#binary-subtype}{\mathtt{subtype}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~{\mathit{st}} \\[0.8ex]
-&amp; {\href{../binary/types.html#binary-subtype}{\mathtt{subtype}}} &amp; ::= &amp; \mathtt{0x4F}~~{x^\ast}{:}{\href{../binary/conventions.html#binary-list}{\mathtt{list}}}({\href{../binary/modules.html#binary-typeidx}{\mathtt{typeidx}}})~~{\mathit{ct}}{:}{\href{../binary/types.html#binary-comptype}{\mathtt{comptype}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~\mathsf{final}~{x^\ast}~{\mathit{ct}} \\
+&amp; {\href{../binary/types.html#binary-subtype}{\mathtt{subtype}}} &amp; ::= &amp; \mathtt{0x4F}~~{x^\ast}{:}{\href{../binary/conventions.html#binary-list}{\mathtt{list}}}({\href{../binary/modules.html#binary-typeidx}{\mathtt{typeidx}}})~~{\mathit{ct}}{:}{\href{../binary/types.html#binary-comptype}{\mathtt{comptype}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}~{x^\ast}~{\mathit{ct}} \\
 &amp; &amp; | &amp; \mathtt{0x50}~~{x^\ast}{:}{\href{../binary/conventions.html#binary-list}{\mathtt{list}}}({\href{../binary/modules.html#binary-typeidx}{\mathtt{typeidx}}})~~{\mathit{ct}}{:}{\href{../binary/types.html#binary-comptype}{\mathtt{comptype}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~{x^\ast}~{\mathit{ct}} \\
-&amp; &amp; | &amp; {\mathit{ct}}{:}{\href{../binary/types.html#binary-comptype}{\mathtt{comptype}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~\mathsf{final}~\epsilon~{\mathit{ct}} \\
+&amp; &amp; | &amp; {\mathit{ct}}{:}{\href{../binary/types.html#binary-comptype}{\mathtt{comptype}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}~\epsilon~{\mathit{ct}} \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="limits">

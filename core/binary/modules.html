@@ -250,7 +250,7 @@ It decodes into the list of <a class="reference internal" href="../syntax/module
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
 &amp; {\href{../binary/modules.html#binary-tablesec}{\mathtt{tablesec}}} &amp; ::= &amp; {{\mathit{tab}}^\ast}{:}{{\href{../binary/modules.html#binary-section}{\mathtt{section}}}}_{4}({\href{../binary/conventions.html#binary-list}{\mathtt{list}}}({\href{../binary/modules.html#binary-table}{\mathtt{table}}})) &amp; \quad\Rightarrow\quad{} &amp; {{\mathit{tab}}^\ast} \\
-&amp; {\href{../binary/modules.html#binary-table}{\mathtt{table}}} &amp; ::= &amp; {\mathit{tt}}{:}{\href{../binary/types.html#binary-tabletype}{\mathtt{tabletype}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/modules.html#syntax-table}{\mathsf{table}}~{\mathit{tt}}~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}null}}~{\mathit{ht}}) &amp; \quad \mbox{if}~ {\mathit{tt}} = {\mathit{at}}~{\mathit{lim}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\mathsf{null}^?}~{\mathit{ht}}) \\
+&amp; {\href{../binary/modules.html#binary-table}{\mathtt{table}}} &amp; ::= &amp; {\mathit{tt}}{:}{\href{../binary/types.html#binary-tabletype}{\mathtt{tabletype}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/modules.html#syntax-table}{\mathsf{table}}~{\mathit{tt}}~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}null}}~{\mathit{ht}}) &amp; \quad \mbox{if}~ {\mathit{tt}} = {\mathit{at}}~{\mathit{lim}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}~{\mathit{ht}}) \\
 &amp; &amp; | &amp; \mathtt{0x40}~~\mathtt{0x00}~~{\mathit{tt}}{:}{\href{../binary/types.html#binary-tabletype}{\mathtt{tabletype}}}~~e{:}{\href{../binary/instructions.html#binary-expr}{\mathtt{expr}}} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/modules.html#syntax-table}{\mathsf{table}}~{\mathit{tt}}~e \\
 \end{array}\end{split}\]</div>
 <div class="admonition note">
@@ -307,7 +307,7 @@ It decodes into the list of <a class="reference internal" href="../syntax/module
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
 &amp; {\href{../binary/modules.html#binary-elemsec}{\mathtt{elemsec}}} &amp; ::= &amp; {{\href{../syntax/modules.html#syntax-elem}{\mathit{elem}}}^\ast}{:}{{\href{../binary/modules.html#binary-section}{\mathtt{section}}}}_{9}({\href{../binary/conventions.html#binary-list}{\mathtt{list}}}({\href{../binary/modules.html#binary-elem}{\mathtt{elem}}})) &amp; \quad\Rightarrow\quad{} &amp; {{\href{../syntax/modules.html#syntax-elem}{\mathit{elem}}}^\ast} \\
-&amp; {\href{../binary/modules.html#binary-elemkind}{\mathtt{elemkind}}} &amp; ::= &amp; \mathtt{0x00} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~\href{../syntax/types.html#syntax-heaptype}{\mathsf{func}} \\
+&amp; {\href{../binary/modules.html#binary-elemkind}{\mathtt{elemkind}}} &amp; ::= &amp; \mathtt{0x00} &amp; \quad\Rightarrow\quad{} &amp; \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~\href{../syntax/types.html#syntax-heaptype}{\mathsf{func}} \\
 &amp; {\href{../binary/modules.html#binary-elem}{\mathtt{elem}}} &amp; ::= &amp; 0{:}{\href{../binary/values.html#binary-int}{\def\mathdef1790#1{{\mathtt{u}#1}}\mathdef1790{\mathtt{32}}}}~~e_o{:}{\href{../binary/instructions.html#binary-expr}{\mathtt{expr}}}~~{y^\ast}{:}{\href{../binary/conventions.html#binary-list}{\mathtt{list}}}({\href{../binary/modules.html#binary-funcidx}{\mathtt{funcidx}}}) &amp; \quad\Rightarrow\quad{} &amp; &amp; \\
 &amp;&amp;&amp; \multicolumn{4}{&#64;{}l&#64;{}}{\quad
 \begin{array}[t]{&#64;{}l&#64;{}}
@@ -335,7 +335,7 @@ It decodes into the list of <a class="reference internal" href="../syntax/module
 &amp; &amp; | &amp; 4{:}{\href{../binary/values.html#binary-int}{\def\mathdef1790#1{{\mathtt{u}#1}}\mathdef1790{\mathtt{32}}}}~~e_{\mathsf{o}}{:}{\href{../binary/instructions.html#binary-expr}{\mathtt{expr}}}~~{e^\ast}{:}{\href{../binary/conventions.html#binary-list}{\mathtt{list}}}({\href{../binary/instructions.html#binary-expr}{\mathtt{expr}}}) &amp; \quad\Rightarrow\quad{} &amp; &amp; \\
 &amp;&amp;&amp; \multicolumn{4}{&#64;{}l&#64;{}}{\quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\href{../syntax/modules.html#syntax-elem}{\mathsf{elem}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~\href{../syntax/types.html#syntax-heaptype}{\mathsf{func}})~{e^\ast}~(\href{../syntax/modules.html#syntax-elemmode}{\mathsf{active}}~0~e_{\mathsf{o}}) \\
+\href{../syntax/modules.html#syntax-elem}{\mathsf{elem}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~\href{../syntax/types.html#syntax-heaptype}{\mathsf{func}})~{e^\ast}~(\href{../syntax/modules.html#syntax-elemmode}{\mathsf{active}}~0~e_{\mathsf{o}}) \\
 \end{array}
 } \\
 &amp; &amp; | &amp; 5{:}{\href{../binary/values.html#binary-int}{\def\mathdef1790#1{{\mathtt{u}#1}}\mathdef1790{\mathtt{32}}}}~~{\mathit{rt}}{:}{\href{../binary/types.html#binary-reftype}{\mathtt{reftype}}}~~{e^\ast}{:}{\href{../binary/conventions.html#binary-list}{\mathtt{list}}}({\href{../binary/instructions.html#binary-expr}{\mathtt{expr}}}) &amp; \quad\Rightarrow\quad{} &amp; &amp; \\
@@ -347,7 +347,7 @@ It decodes into the list of <a class="reference internal" href="../syntax/module
 &amp; &amp; | &amp; 6{:}{\href{../binary/values.html#binary-int}{\def\mathdef1790#1{{\mathtt{u}#1}}\mathdef1790{\mathtt{32}}}}~~x{:}{\href{../binary/modules.html#binary-tableidx}{\mathtt{tableidx}}}~~e_{\mathsf{o}}{:}{\href{../binary/instructions.html#binary-expr}{\mathtt{expr}}}~~{e^\ast}{:}{\href{../binary/conventions.html#binary-list}{\mathtt{list}}}({\href{../binary/instructions.html#binary-expr}{\mathtt{expr}}}) &amp; \quad\Rightarrow\quad{} &amp; &amp; \\
 &amp;&amp;&amp; \multicolumn{4}{&#64;{}l&#64;{}}{\quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\href{../syntax/modules.html#syntax-elem}{\mathsf{elem}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~\href{../syntax/types.html#syntax-heaptype}{\mathsf{func}})~{e^\ast}~(\href{../syntax/modules.html#syntax-elemmode}{\mathsf{active}}~x~e_{\mathsf{o}}) \\
+\href{../syntax/modules.html#syntax-elem}{\mathsf{elem}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~\href{../syntax/types.html#syntax-heaptype}{\mathsf{func}})~{e^\ast}~(\href{../syntax/modules.html#syntax-elemmode}{\mathsf{active}}~x~e_{\mathsf{o}}) \\
 \end{array}
 } \\
 &amp; &amp; | &amp; 7{:}{\href{../binary/values.html#binary-int}{\def\mathdef1790#1{{\mathtt{u}#1}}\mathdef1790{\mathtt{32}}}}~~{\mathit{rt}}{:}{\href{../binary/types.html#binary-reftype}{\mathtt{reftype}}}~~{e^\ast}{:}{\href{../binary/conventions.html#binary-list}{\mathtt{list}}}({\href{../binary/instructions.html#binary-expr}{\mathtt{expr}}}) &amp; \quad\Rightarrow\quad{} &amp; &amp; \\

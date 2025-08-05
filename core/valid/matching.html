@@ -375,23 +375,23 @@ C \href{../valid/matching.html#match-heaptype}{\vdash} \href{../valid/convention
 </section>
 <section id="reference-types">
 <span id="match-reftype"></span><span id="index-4"></span><h2>Reference Types<a class="headerlink" href="#reference-types" title="Link to this heading">¶</a></h2>
-<p>The <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}}_1~{\mathit{ht}}_1)\)</span> <a class="reference internal" href="#match-reftype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}}_2~{\mathit{ht}}_2)\)</span> if:</p>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}}_1^?}~{\mathit{ht}}_1)\)</span> <a class="reference internal" href="#match-reftype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}}_2^?}~{\mathit{ht}}_2)\)</span> if:</p>
 <blockquote>
 <div><ul>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap type</span></a> <span class="math notranslate nohighlight">\({\mathit{ht}}_1\)</span> <a class="reference internal" href="#match-heaptype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap type</span></a> <span class="math notranslate nohighlight">\({\mathit{ht}}_2\)</span>.</p></li>
 <li><p>Either:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}}_1\)</span> is absent.</p></li>
-<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}}_2\)</span> is absent.</p></li>
+<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}}_1^?}\)</span> is absent.</p></li>
+<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}}_2^?}\)</span> is absent.</p></li>
 </ul>
 </div></blockquote>
 </li>
 <li><p>Or:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}}_1\)</span> is of the form <span class="math notranslate nohighlight">\({\mathsf{null}^?}\)</span>.</p></li>
-<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}}_2\)</span> is of the form <span class="math notranslate nohighlight">\(\mathsf{null}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}}_1^?}\)</span> is of the form <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}}_2^?}\)</span> is of the form <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -408,7 +408,7 @@ C \href{../valid/matching.html#match-reftype}{\vdash} \href{../syntax/types.html
 \frac{
 C \href{../valid/matching.html#match-heaptype}{\vdash} {\mathit{ht}}_1 \href{../valid/matching.html#match-heaptype}{\leq} {\mathit{ht}}_2
 }{
-C \href{../valid/matching.html#match-reftype}{\vdash} \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\mathsf{null}^?}~{\mathit{ht}}_1 \href{../valid/matching.html#match-reftype}{\leq} \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~{\mathit{ht}}_2
+C \href{../valid/matching.html#match-reftype}{\vdash} \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}~{\mathit{ht}}_1 \href{../valid/matching.html#match-reftype}{\leq} \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~{\mathit{ht}}_2
 }
 \qquad
 \end{array}\]</div>
@@ -596,23 +596,23 @@ C \href{../valid/matching.html#match-comptype}{\vdash} \href{../syntax/types.htm
 </section>
 <section id="field-types">
 <span id="match-packtype"></span><span id="match-storagetype"></span><span id="match-fieldtype"></span><span id="index-9"></span><h2>Field Types<a class="headerlink" href="#field-types" title="Link to this heading">¶</a></h2>
-<p>The <a class="reference internal" href="../syntax/types.html#syntax-fieldtype"><span class="std std-ref">field type</span></a> <span class="math notranslate nohighlight">\(({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}}_1~{\mathit{zt}}_1)\)</span> <a class="reference internal" href="#match-fieldtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-fieldtype"><span class="std std-ref">field type</span></a> <span class="math notranslate nohighlight">\(({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}}_2~{\mathit{zt}}_2)\)</span> if:</p>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-fieldtype"><span class="std std-ref">field type</span></a> <span class="math notranslate nohighlight">\(({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}}_1^?}~{\mathit{zt}}_1)\)</span> <a class="reference internal" href="#match-fieldtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-fieldtype"><span class="std std-ref">field type</span></a> <span class="math notranslate nohighlight">\(({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}}_2^?}~{\mathit{zt}}_2)\)</span> if:</p>
 <blockquote>
 <div><ul>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-storagetype"><span class="std std-ref">storage type</span></a> <span class="math notranslate nohighlight">\({\mathit{zt}}_1\)</span> <a class="reference internal" href="#match-storagetype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-storagetype"><span class="std std-ref">storage type</span></a> <span class="math notranslate nohighlight">\({\mathit{zt}}_2\)</span>.</p></li>
 <li><p>Either:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}}_1\)</span> is absent.</p></li>
-<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}}_2\)</span> is absent.</p></li>
+<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}}_1^?}\)</span> is absent.</p></li>
+<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}}_2^?}\)</span> is absent.</p></li>
 </ul>
 </div></blockquote>
 </li>
 <li><p>Or:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}}_1\)</span> is of the form <span class="math notranslate nohighlight">\(\mathsf{mut}\)</span>.</p></li>
-<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}}_2\)</span> is of the form <span class="math notranslate nohighlight">\(\mathsf{mut}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}}_1^?}\)</span> is of the form <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}}_2^?}\)</span> is of the form <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}\)</span>.</p></li>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-storagetype"><span class="std std-ref">storage type</span></a> <span class="math notranslate nohighlight">\({\mathit{zt}}_2\)</span> <a class="reference internal" href="#match-storagetype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-storagetype"><span class="std std-ref">storage type</span></a> <span class="math notranslate nohighlight">\({\mathit{zt}}_1\)</span>.</p></li>
 </ul>
 </div></blockquote>
@@ -632,7 +632,7 @@ C \href{../valid/matching.html#match-storagetype}{\vdash} {\mathit{zt}}_1 \href{
  \qquad
 C \href{../valid/matching.html#match-storagetype}{\vdash} {\mathit{zt}}_2 \href{../valid/matching.html#match-storagetype}{\leq} {\mathit{zt}}_1
 }{
-C \href{../valid/matching.html#match-fieldtype}{\vdash} \mathsf{mut}~{\mathit{zt}}_1 \href{../valid/matching.html#match-fieldtype}{\leq} \mathsf{mut}~{\mathit{zt}}_2
+C \href{../valid/matching.html#match-fieldtype}{\vdash} \href{../syntax/types.html#syntax-mut}{\mathsf{mut}}~{\mathit{zt}}_1 \href{../valid/matching.html#match-fieldtype}{\leq} \href{../syntax/types.html#syntax-mut}{\mathsf{mut}}~{\mathit{zt}}_2
 }
 \qquad
 \end{array}\]</div>
@@ -767,23 +767,23 @@ while the conclusion defines it on tag types that happen to be expressed as defi
 </section>
 <section id="global-types">
 <span id="match-globaltype"></span><span id="index-13"></span><h2>Global Types<a class="headerlink" href="#global-types" title="Link to this heading">¶</a></h2>
-<p>The <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">global type</span></a> <span class="math notranslate nohighlight">\(({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}}_1~{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}_1)\)</span> <a class="reference internal" href="#match-globaltype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">global type</span></a> <span class="math notranslate nohighlight">\(({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}}_2~{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}_2)\)</span> if:</p>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">global type</span></a> <span class="math notranslate nohighlight">\(({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}}_1^?}~{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}_1)\)</span> <a class="reference internal" href="#match-globaltype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">global type</span></a> <span class="math notranslate nohighlight">\(({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}}_2^?}~{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}_2)\)</span> if:</p>
 <blockquote>
 <div><ul>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-valtype"><span class="std std-ref">value type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}_1\)</span> <a class="reference internal" href="#match-valtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-valtype"><span class="std std-ref">value type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}_2\)</span>.</p></li>
 <li><p>Either:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}}_1\)</span> is absent.</p></li>
-<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}}_2\)</span> is absent.</p></li>
+<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}}_1^?}\)</span> is absent.</p></li>
+<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}}_2^?}\)</span> is absent.</p></li>
 </ul>
 </div></blockquote>
 </li>
 <li><p>Or:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}}_1\)</span> is of the form <span class="math notranslate nohighlight">\(\mathsf{mut}\)</span>.</p></li>
-<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}}_2\)</span> is of the form <span class="math notranslate nohighlight">\(\mathsf{mut}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}}_1^?}\)</span> is of the form <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}}_2^?}\)</span> is of the form <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}\)</span>.</p></li>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-valtype"><span class="std std-ref">value type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}_2\)</span> <a class="reference internal" href="#match-valtype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-valtype"><span class="std std-ref">value type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}_1\)</span>.</p></li>
 </ul>
 </div></blockquote>
@@ -803,7 +803,7 @@ C \href{../valid/matching.html#match-valtype}{\vdash} {\href{../syntax/types.htm
  \qquad
 C \href{../valid/matching.html#match-valtype}{\vdash} {\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}_2 \href{../valid/matching.html#match-valtype}{\leq} {\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}_1
 }{
-C \href{../valid/matching.html#match-globaltype}{\vdash} \mathsf{mut}~{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}_1 \href{../valid/matching.html#match-globaltype}{\leq} \mathsf{mut}~{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}_2
+C \href{../valid/matching.html#match-globaltype}{\vdash} \href{../syntax/types.html#syntax-mut}{\mathsf{mut}}~{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}_1 \href{../valid/matching.html#match-globaltype}{\leq} \href{../syntax/types.html#syntax-mut}{\mathsf{mut}}~{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}}_2
 }
 \qquad
 \end{array}\]</div>

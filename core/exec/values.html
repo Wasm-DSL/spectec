@@ -118,7 +118,7 @@ s \href{../exec/values.html#valid-vec}{\vdash} {\mathit{vt}}{.}\href{../syntax/i
 </section>
 <section id="null-references">
 <span id="valid-ref"></span><h3>Null References<a class="headerlink" href="#null-references" title="Link to this heading">¶</a></h3>
-<p>The <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}null}}~{\mathit{ht}})\)</span> is <a class="reference internal" href="#valid-ref"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~{\mathit{ht}'})\)</span> if:</p>
+<p>The <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}null}}~{\mathit{ht}})\)</span> is <a class="reference internal" href="#valid-ref"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~{\mathit{ht}'})\)</span> if:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap type</span></a> <span class="math notranslate nohighlight">\({\mathit{ht}'}\)</span> <a class="reference internal" href="../valid/matching.html#match-heaptype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap type</span></a> <span class="math notranslate nohighlight">\({\mathit{ht}}\)</span>.</p></li>
@@ -130,7 +130,7 @@ s \href{../exec/values.html#valid-vec}{\vdash} {\mathit{vt}}{.}\href{../syntax/i
 \{ \begin{array}[t]{&#64;{}l&#64;{}}
  \}\end{array} \href{../valid/matching.html#match-heaptype}{\vdash} {\mathit{ht}'} \href{../valid/matching.html#match-heaptype}{\leq} {\mathit{ht}}
 }{
-s \href{../exec/values.html#valid-ref}{\vdash} \href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}null}}~{\mathit{ht}} : (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~{\mathit{ht}'})
+s \href{../exec/values.html#valid-ref}{\vdash} \href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}null}}~{\mathit{ht}} : (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~{\mathit{ht}'})
 }
 \qquad
 \end{array}\]</div>

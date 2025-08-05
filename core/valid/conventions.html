@@ -146,8 +146,8 @@ They are distinguished from regular type indices and represented such that two c
 <li><p>The <em>difference</em> <span class="math notranslate nohighlight">\({\mathit{rt}}_1 \href{../valid/conventions.html#aux-reftypediff}{\setminus} {\mathit{rt}}_2\)</span> between two <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference types</span></a> is defined as follows:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}lcl&#64;{}l&#64;{}}
-(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}}{{{}_{1}^?}}~{\mathit{ht}}_1) \href{../valid/conventions.html#aux-reftypediff}{\setminus} (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~{\mathit{ht}}_2) &amp; = &amp; (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\mathit{ht}}_1) \\
-(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}}{{{}_{1}^?}}~{\mathit{ht}}_1) \href{../valid/conventions.html#aux-reftypediff}{\setminus} (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\mathit{ht}}_2) &amp; = &amp; (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}}{{{}_{1}^?}}~{\mathit{ht}}_1) \\
+(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}}_1^?}~{\mathit{ht}}_1) \href{../valid/conventions.html#aux-reftypediff}{\setminus} (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~{\mathit{ht}}_2) &amp; = &amp; (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\mathit{ht}}_1) \\
+(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}}_1^?}~{\mathit{ht}}_1) \href{../valid/conventions.html#aux-reftypediff}{\setminus} (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\mathit{ht}}_2) &amp; = &amp; (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}}_1^?}~{\mathit{ht}}_1) \\
 \end{array}\end{split}\]</div>
 </li>
 </ul>
@@ -384,7 +384,7 @@ independent of any side conditions.</p>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{globals}}{}[x] = {\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~t
+C{.}\href{../valid/conventions.html#context}{\mathsf{globals}}{}[x] = \href{../syntax/types.html#syntax-mut}{\mathsf{mut}}~t
 }{
 C \vdash \href{../syntax/instructions.html#syntax-instr-variable}{\mathsf{global{.}get}}~x : \epsilon \rightarrow t
 }

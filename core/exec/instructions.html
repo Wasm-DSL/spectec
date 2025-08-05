@@ -488,12 +488,12 @@
 <span id="exec-call-indirect"></span><h3><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{call\_indirect}}~x~y\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-control-mathsf-call-indirect-x-y" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
 <li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-table}{\mathsf{table{.}get}}~x)\)</span>.</p></li>
-<li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}cast}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~y))\)</span>.</p></li>
+<li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}cast}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~y))\)</span>.</p></li>
 <li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{call\_ref}}~y)\)</span>.</p></li>
 </ol>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
-&amp; (\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{call\_indirect}}~x~y) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; (\href{../syntax/instructions.html#syntax-instr-table}{\mathsf{table{.}get}}~x)~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}cast}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~y))~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{call\_ref}}~y) \\
+&amp; (\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{call\_indirect}}~x~y) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; (\href{../syntax/instructions.html#syntax-instr-table}{\mathsf{table{.}get}}~x)~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}cast}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~y))~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{call\_ref}}~y) \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="xref-syntax-instructions-syntax-instr-control-mathsf-return-call-x">
@@ -571,12 +571,12 @@
 <span id="exec-return-call-indirect"></span><h3><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{return\_call\_indirect}}~x~y\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-control-mathsf-return-call-indirect-x-y" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
 <li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-table}{\mathsf{table{.}get}}~x)\)</span>.</p></li>
-<li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}cast}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~y))\)</span>.</p></li>
+<li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}cast}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~y))\)</span>.</p></li>
 <li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{return\_call\_ref}}~y)\)</span>.</p></li>
 </ol>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
-&amp; (\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{return\_call\_indirect}}~x~y) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; (\href{../syntax/instructions.html#syntax-instr-table}{\mathsf{table{.}get}}~x)~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}cast}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\mathsf{null}~y))~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{return\_call\_ref}}~y) \\
+&amp; (\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{return\_call\_indirect}}~x~y) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; (\href{../syntax/instructions.html#syntax-instr-table}{\mathsf{table{.}get}}~x)~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}cast}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~y))~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{return\_call\_ref}}~y) \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="xref-syntax-instructions-syntax-instr-control-mathsf-throw-x">
