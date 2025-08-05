@@ -158,26 +158,25 @@ The attribute of the complete production then is the abstract syntax for the lim
 <span id="text-context"></span><span id="text-context-wf"></span><span id="index-3"></span><h2>Contexts<a class="headerlink" href="#contexts" title="Link to this heading">¶</a></h2>
 <p>The text format allows the use of symbolic <a class="reference internal" href="values.html#text-id"><span class="std std-ref">identifiers</span></a> in place of <a class="reference internal" href="../syntax/modules.html#syntax-index"><span class="std std-ref">indices</span></a>.
 To resolve these identifiers into concrete indices,
-some grammar productions are indexed by an <em>identifier context</em> <span class="math notranslate nohighlight">\(I\)</span> as a synthesized attribute that records the declared identifiers in each <a class="reference internal" href="../syntax/modules.html#syntax-index"><span class="std std-ref">index space</span></a>.
+some grammar productions are indexed by an <em>identifier context</em> <span class="math notranslate nohighlight">\({\href{../text/conventions.html#text-context}{I}}\)</span> as a synthesized attribute that records the declared identifiers in each <a class="reference internal" href="../syntax/modules.html#syntax-index"><span class="std std-ref">index space</span></a>.
 In addition, the context records the types defined in the module, so that <a class="reference internal" href="types.html#text-param"><span class="std std-ref">parameter</span></a> indices can be computed for <a class="reference internal" href="modules.html#text-func"><span class="std std-ref">functions</span></a>.</p>
-<p>It is convenient to define identifier contexts as <a class="reference internal" href="../syntax/conventions.html#notation-record"><span class="std std-ref">records</span></a> <span class="math notranslate nohighlight">\(I\)</span> with abstract syntax as follows:</p>
+<p>It is convenient to define identifier contexts as <a class="reference internal" href="../syntax/conventions.html#notation-record"><span class="std std-ref">records</span></a> <span class="math notranslate nohighlight">\({\href{../text/conventions.html#text-context}{I}}\)</span> with abstract syntax as follows:</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}\begin{array}{llll}
-\def\mathdef2710#1{{}}\mathdef2710{identifier context} &amp; I &amp;::=&amp;
-  \begin{array}[t]{l&#64;{~}ll}
-  \{ &amp; \href{../text/conventions.html#text-context}{\mathsf{types}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
-     &amp; \href{../text/conventions.html#text-context}{\mathsf{tags}} &amp; (\href{../text/values.html#text-name}{\mathtt{name}}^?)^\ast, \\
-     &amp; \href{../text/conventions.html#text-context}{\mathsf{globals}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
-     &amp; \href{../text/conventions.html#text-context}{\mathsf{mems}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
-     &amp; \href{../text/conventions.html#text-context}{\mathsf{tables}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
-     &amp; \href{../text/conventions.html#text-context}{\mathsf{elems}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
-     &amp; \href{../text/conventions.html#text-context}{\mathsf{funcs}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
-     &amp; \href{../text/conventions.html#text-context}{\mathsf{datas}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
-     &amp; \href{../text/conventions.html#text-context}{\mathsf{locals}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
-     &amp; \href{../text/conventions.html#text-context}{\mathsf{labels}} &amp; (\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast, \\
-     &amp; \href{../text/conventions.html#text-context}{\mathsf{fields}} &amp; ((\href{../syntax/values.html#syntax-name}{\mathit{name}}^?)^\ast)^\ast ~\} \\
-     &amp; \href{../text/conventions.html#text-context}{\mathsf{typedefs}} &amp; \href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}^\ast ~\} \\
-  \end{array}
+\[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
+&amp; {\href{../text/conventions.html#text-context}{I}} &amp; ::= &amp; \{ \begin{array}[t]{&#64;{}l&#64;{}l&#64;{}}
+\href{../text/conventions.html#text-context}{\mathsf{types}}~{({{\href{../syntax/values.html#syntax-name}{\mathit{name}}}^?})^\ast} \\
+\href{../text/conventions.html#text-context}{\mathsf{tags}}~{({{\href{../syntax/values.html#syntax-name}{\mathit{name}}}^?})^\ast} \\
+\href{../text/conventions.html#text-context}{\mathsf{globals}}~{({{\href{../syntax/values.html#syntax-name}{\mathit{name}}}^?})^\ast} \\
+\href{../text/conventions.html#text-context}{\mathsf{mems}}~{({{\href{../syntax/values.html#syntax-name}{\mathit{name}}}^?})^\ast} \\
+\href{../text/conventions.html#text-context}{\mathsf{tables}}~{({{\href{../syntax/values.html#syntax-name}{\mathit{name}}}^?})^\ast} \\
+\href{../text/conventions.html#text-context}{\mathsf{funcs}}~{({{\href{../syntax/values.html#syntax-name}{\mathit{name}}}^?})^\ast} \\
+\href{../text/conventions.html#text-context}{\mathsf{datas}}~{({{\href{../syntax/values.html#syntax-name}{\mathit{name}}}^?})^\ast} \\
+\href{../text/conventions.html#text-context}{\mathsf{elems}}~{({{\href{../syntax/values.html#syntax-name}{\mathit{name}}}^?})^\ast} \\
+\href{../text/conventions.html#text-context}{\mathsf{locals}}~{({{\href{../syntax/values.html#syntax-name}{\mathit{name}}}^?})^\ast} \\
+\href{../text/conventions.html#text-context}{\mathsf{labels}}~{({{\href{../syntax/values.html#syntax-name}{\mathit{name}}}^?})^\ast} \\
+\href{../text/conventions.html#text-context}{\mathsf{fields}}~{({({{\href{../syntax/values.html#syntax-name}{\mathit{name}}}^?})^\ast})^\ast} \\
+\href{../text/conventions.html#text-context}{\mathsf{typedefs}}~{({{\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}^?})^\ast} \} \\
+\end{array} \\
 \end{array}\end{split}\]</div>
 <p>For each index space, such a context contains the list of <a class="reference internal" href="../syntax/values.html#syntax-name"><span class="std std-ref">names</span></a> assigned to the defined indices,
 which were denoted by the corresponding <a class="reference internal" href="values.html#text-id"><span class="std std-ref">identifiers</span></a>.
@@ -188,16 +187,15 @@ For fields, names need only be unique within a single type.</p>
 <section id="id1">
 <h3>Conventions<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
 <p>To avoid unnecessary clutter, empty components are omitted when writing out identifier contexts.
-For example, the record <span class="math notranslate nohighlight">\(\{\}\)</span> is shorthand for an <a class="reference internal" href="#text-context"><span class="std std-ref">identifier context</span></a> whose components are all empty.</p>
+For example, the record <span class="math notranslate nohighlight">\(\{ \begin{array}[t]{&#64;{}l&#64;{}}  \}\end{array}\)</span> is shorthand for an <a class="reference internal" href="#text-context"><span class="std std-ref">identifier context</span></a> whose components are all empty.</p>
 </section>
 </section>
 <section id="lists">
 <span id="text-list"></span><span id="index-4"></span><h2>Lists<a class="headerlink" href="#lists" title="Link to this heading">¶</a></h2>
 <p><a class="reference internal" href="../syntax/conventions.html#syntax-list"><span class="std std-ref">Lists</span></a> are written as plain sequences, but with a restriction on the length of these sequence.</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}\begin{array}{llclll&#64;{\qquad\qquad}l}
-\def\mathdef2710#1{{}}\mathdef2710{list} &amp; \href{../text/conventions.html#text-list}{\mathtt{list}}(\mathtt{A}) &amp;::=&amp;
-  (x{:}\mathtt{A})^n &amp;\Rightarrow&amp; x^n &amp; (\mathrel{\mbox{if}} n &lt; 2^{32}) \\
+\[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
+&amp; {\href{../text/conventions.html#text-list}{\mathtt{list}}}({\mathtt{X}}) &amp; ::= &amp; {({\mathit{el}}{:}{\mathtt{X}})^\ast} &amp; \quad\Rightarrow\quad{} &amp; {{\mathit{el}}^\ast} &amp; \quad \mbox{if}~ {|{{\mathit{el}}^\ast}|} &lt; {2^{32}} \\
 \end{array}\end{split}\]</div>
 </section>
 </section>

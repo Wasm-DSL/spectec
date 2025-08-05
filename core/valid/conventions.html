@@ -111,9 +111,9 @@ these forms cannot be used in a program;
 they only occur during <a class="reference internal" href="index.html#valid"><span class="std std-ref">validation</span></a> or <a class="reference internal" href="../exec/index.html#exec"><span class="std std-ref">execution</span></a>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
-&amp; {\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}} &amp; ::= &amp; \dots ~|~ \href{../valid/conventions.html#syntax-valtype-ext}{\mathsf{bot}} \\
-&amp; {\href{../syntax/types.html#syntax-absheaptype}{\mathit{absheaptype}}} &amp; ::= &amp; \dots ~|~ \href{../valid/conventions.html#syntax-valtype-ext}{\mathsf{bot}} \\
-&amp; {\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} &amp; ::= &amp; \dots ~|~ {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} ~|~ \href{../syntax/types.html#syntax-heaptype}{\mathsf{rec}} {.} \mathbb{N} \\
+&amp; {\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}} &amp; ::= &amp; \dots ~~|~~ \href{../valid/conventions.html#syntax-valtype-ext}{\mathsf{bot}} \\
+&amp; {\href{../syntax/types.html#syntax-absheaptype}{\mathit{absheaptype}}} &amp; ::= &amp; \dots ~~|~~ \href{../valid/conventions.html#syntax-valtype-ext}{\mathsf{bot}} \\
+&amp; {\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} &amp; ::= &amp; \dots ~~|~~ {\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} ~~|~~ \href{../syntax/types.html#syntax-heaptype}{\mathsf{rec}} {.} \mathbb{N} \\
 \end{array}\end{split}\]</div>
 <p>The unique <a class="reference internal" href="../syntax/types.html#syntax-valtype"><span class="std std-ref">value type</span></a> <span class="math notranslate nohighlight">\(\href{../valid/conventions.html#syntax-valtype-ext}{\mathsf{bot}}\)</span> is a <em>bottom type</em> that <a class="reference internal" href="matching.html#match-valtype"><span class="std std-ref">matches</span></a> all value types.
 Similarly, <span class="math notranslate nohighlight">\(\href{../valid/conventions.html#syntax-valtype-ext}{\mathsf{bot}}\)</span> is also used as a bottom type of all <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap types</span></a>.</p>
@@ -245,7 +245,7 @@ they do not occur in programs.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
 &amp; {\href{../valid/conventions.html#syntax-localtype}{\mathit{localtype}}} &amp; ::= &amp; {\href{../valid/conventions.html#syntax-init}{\mathit{init}}}~{\href{../syntax/types.html#syntax-valtype}{\mathit{valtype}}} \\
-&amp; {\href{../valid/conventions.html#syntax-init}{\mathit{init}}} &amp; ::= &amp; \href{../valid/conventions.html#syntax-init}{\mathsf{set}} ~|~ \href{../valid/conventions.html#syntax-init}{\mathsf{unset}} \\
+&amp; {\href{../valid/conventions.html#syntax-init}{\mathit{init}}} &amp; ::= &amp; \href{../valid/conventions.html#syntax-init}{\mathsf{set}} ~~|~~ \href{../valid/conventions.html#syntax-init}{\mathsf{unset}} \\
 \end{array}\end{split}\]</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>

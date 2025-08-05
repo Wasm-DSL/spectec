@@ -104,7 +104,7 @@ or <em>host references</em> pointing to an uninterpreted form of <a class="refer
 Any of the aformentioned references can furthermore be wrapped up as an <em>external reference</em>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
-&amp; {\href{../exec/runtime.html#syntax-val}{\mathit{val}}} &amp; ::= &amp; {\href{../exec/runtime.html#syntax-num}{\mathit{num}}} ~|~ {\href{../exec/runtime.html#syntax-vec}{\mathit{vec}}} ~|~ {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}} \\[0.8ex]
+&amp; {\href{../exec/runtime.html#syntax-val}{\mathit{val}}} &amp; ::= &amp; {\href{../exec/runtime.html#syntax-num}{\mathit{num}}} ~~|~~ {\href{../exec/runtime.html#syntax-vec}{\mathit{vec}}} ~~|~~ {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}} \\[0.8ex]
 &amp; {\href{../exec/runtime.html#syntax-num}{\mathit{num}}} &amp; ::= &amp; {\href{../syntax/types.html#syntax-numtype}{\mathit{numtype}}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~{{\href{../exec/runtime.html#syntax-num}{\mathit{num}}}}_{{\href{../syntax/types.html#syntax-numtype}{\mathit{numtype}}}} \\[0.8ex]
 &amp; {\href{../exec/runtime.html#syntax-vec}{\mathit{vec}}} &amp; ::= &amp; {\href{../syntax/types.html#syntax-vectype}{\mathit{vectype}}}{.}\href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{const}}~{{\href{../exec/runtime.html#syntax-vec}{\mathit{vec}}}}_{{\href{../syntax/types.html#syntax-vectype}{\mathit{vectype}}}} \\[0.8ex]
 &amp; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}} &amp; ::= &amp; {\href{../exec/runtime.html#syntax-addrref}{\mathit{addrref}}} \\
@@ -145,7 +145,7 @@ For other references, no default value is defined, <span class="math notranslate
 It is either a sequence of <a class="reference internal" href="#syntax-val"><span class="std std-ref">values</span></a>, a thrown <a class="reference internal" href="instructions.html#exec-throw-ref"><span class="std std-ref">exception</span></a>, or a <a class="reference internal" href="#syntax-trap"><span class="std std-ref">trap</span></a>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
-&amp; {\href{../exec/runtime.html#syntax-result}{\mathit{result}}} &amp; ::= &amp; {{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast} ~|~ ( \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}exn}}~{\href{../exec/runtime.html#syntax-exnaddr}{\mathit{exnaddr}}} )~\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{throw\_ref}} ~|~ \href{../exec/runtime.html#syntax-trap}{\mathsf{trap}} \\
+&amp; {\href{../exec/runtime.html#syntax-result}{\mathit{result}}} &amp; ::= &amp; {{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast} ~~|~~ ( \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}exn}}~{\href{../exec/runtime.html#syntax-exnaddr}{\mathit{exnaddr}}} )~\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{throw\_ref}} ~~|~~ \href{../exec/runtime.html#syntax-trap}{\mathsf{trap}} \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="store">
@@ -212,7 +212,7 @@ These are simply indices into the respective store component.
 In addition, an <a class="reference internal" href="../intro/overview.html#embedder"><span class="std std-ref">embedder</span></a> may supply an uninterpreted set of <em>host addresses</em>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
-&amp; {\href{../exec/runtime.html#syntax-addr}{\mathit{addr}}} &amp; ::= &amp; 0 ~|~ 1 ~|~ 2 ~|~ \dots \\
+&amp; {\href{../exec/runtime.html#syntax-addr}{\mathit{addr}}} &amp; ::= &amp; 0 ~~|~~ 1 ~~|~~ 2 ~~|~~ \dots \\
 &amp; {\href{../exec/runtime.html#syntax-funcaddr}{\mathit{funcaddr}}} &amp; ::= &amp; {\href{../exec/runtime.html#syntax-addr}{\mathit{addr}}} \\
 &amp; {\href{../exec/runtime.html#syntax-tableaddr}{\mathit{tableaddr}}} &amp; ::= &amp; {\href{../exec/runtime.html#syntax-addr}{\mathit{addr}}} \\
 &amp; {\href{../exec/runtime.html#syntax-memaddr}{\mathit{memaddr}}} &amp; ::= &amp; {\href{../exec/runtime.html#syntax-addr}{\mathit{addr}}} \\
@@ -256,7 +256,7 @@ It is an <a class="reference internal" href="#syntax-addr"><span class="std std-
 in the shared <a class="reference internal" href="#syntax-store"><span class="std std-ref">store</span></a>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
-&amp; {\href{../exec/runtime.html#syntax-externaddr}{\mathit{externaddr}}} &amp; ::= &amp; \href{../exec/runtime.html#syntax-externaddr}{\mathsf{tag}}~{\href{../exec/runtime.html#syntax-tagaddr}{\mathit{tagaddr}}} ~|~ \href{../exec/runtime.html#syntax-externaddr}{\mathsf{global}}~{\href{../exec/runtime.html#syntax-globaladdr}{\mathit{globaladdr}}} ~|~ \href{../exec/runtime.html#syntax-externaddr}{\mathsf{mem}}~{\href{../exec/runtime.html#syntax-memaddr}{\mathit{memaddr}}} ~|~ \href{../exec/runtime.html#syntax-externaddr}{\mathsf{table}}~{\href{../exec/runtime.html#syntax-tableaddr}{\mathit{tableaddr}}} ~|~ \href{../exec/runtime.html#syntax-externaddr}{\mathsf{func}}~{\href{../exec/runtime.html#syntax-funcaddr}{\mathit{funcaddr}}} \\
+&amp; {\href{../exec/runtime.html#syntax-externaddr}{\mathit{externaddr}}} &amp; ::= &amp; \href{../exec/runtime.html#syntax-externaddr}{\mathsf{tag}}~{\href{../exec/runtime.html#syntax-tagaddr}{\mathit{tagaddr}}} ~~|~~ \href{../exec/runtime.html#syntax-externaddr}{\mathsf{global}}~{\href{../exec/runtime.html#syntax-globaladdr}{\mathit{globaladdr}}} ~~|~~ \href{../exec/runtime.html#syntax-externaddr}{\mathsf{mem}}~{\href{../exec/runtime.html#syntax-memaddr}{\mathit{memaddr}}} ~~|~~ \href{../exec/runtime.html#syntax-externaddr}{\mathsf{table}}~{\href{../exec/runtime.html#syntax-tableaddr}{\mathit{tableaddr}}} ~~|~~ \href{../exec/runtime.html#syntax-externaddr}{\mathsf{func}}~{\href{../exec/runtime.html#syntax-funcaddr}{\mathit{funcaddr}}} \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="module-instances">
@@ -303,7 +303,7 @@ The module instance is used to resolve references to other definitions during ex
 &amp; {\href{../exec/runtime.html#syntax-funcinst}{\mathit{funcinst}}} &amp; ::= &amp; \{ \begin{array}[t]{&#64;{}l&#64;{}l&#64;{}}
 \href{../exec/runtime.html#syntax-funcinst}{\mathsf{type}}~{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} ,  \href{../exec/runtime.html#syntax-funcinst}{\mathsf{module}}~{\href{../exec/runtime.html#syntax-moduleinst}{\mathit{moduleinst}}} ,  \href{../exec/runtime.html#syntax-funcinst}{\mathsf{code}}~{{\href{../exec/runtime.html#syntax-funcinst}{\mathit{code}}}} \} \\
 \end{array} \\
-&amp; {{\href{../exec/runtime.html#syntax-funcinst}{\mathit{code}}}} &amp; ::= &amp; {\href{../syntax/modules.html#syntax-func}{\mathit{func}}} ~|~ {\href{../exec/runtime.html#syntax-hostfunc}{\mathit{hostfunc}}} \\
+&amp; {{\href{../exec/runtime.html#syntax-funcinst}{\mathit{code}}}} &amp; ::= &amp; {\href{../syntax/modules.html#syntax-func}{\mathit{func}}} ~~|~~ {\href{../exec/runtime.html#syntax-hostfunc}{\mathit{hostfunc}}} \\
 \end{array}\end{split}\]</div>
 <p>A <em>host function</em> is a function expressed outside WebAssembly but passed to a <a class="reference internal" href="../syntax/modules.html#syntax-module"><span class="std std-ref">module</span></a> as an <a class="reference internal" href="../syntax/modules.html#syntax-import"><span class="std std-ref">import</span></a>.
 The definition and behavior of host functions are outside the scope of this specification.
@@ -427,7 +427,7 @@ Both record their respective <a class="reference internal" href="../valid/conven
 &amp; {\href{../exec/runtime.html#syntax-arrayinst}{\mathit{arrayinst}}} &amp; ::= &amp; \{ \begin{array}[t]{&#64;{}l&#64;{}l&#64;{}}
 \href{../exec/runtime.html#syntax-arrayinst}{\mathsf{type}}~{\href{../valid/conventions.html#syntax-deftype}{\mathit{deftype}}} ,  \href{../exec/runtime.html#syntax-arrayinst}{\mathsf{fields}}~{{\href{../exec/runtime.html#syntax-fieldval}{\mathit{fieldval}}}^\ast} \} \\
 \end{array} \\
-&amp; {\href{../exec/runtime.html#syntax-fieldval}{\mathit{fieldval}}} &amp; ::= &amp; {\href{../exec/runtime.html#syntax-val}{\mathit{val}}} ~|~ {\href{../exec/runtime.html#syntax-packval}{\mathit{packval}}} \\
+&amp; {\href{../exec/runtime.html#syntax-fieldval}{\mathit{fieldval}}} &amp; ::= &amp; {\href{../exec/runtime.html#syntax-val}{\mathit{val}}} ~~|~~ {\href{../exec/runtime.html#syntax-packval}{\mathit{packval}}} \\
 &amp; {\href{../exec/runtime.html#syntax-packval}{\mathit{packval}}} &amp; ::= &amp; {\href{../syntax/types.html#syntax-packtype}{\mathit{packtype}}}{.}\href{../exec/runtime.html#syntax-packval}{\mathsf{pack}}~{{\href{../syntax/values.html#syntax-int}{\mathit{i}\kern-0.1em}}}{N} \\
 \end{array}\end{split}\]</div>
 <section id="aux-unpackfield">

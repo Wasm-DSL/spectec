@@ -93,7 +93,7 @@ Moreover, in the definition of programs, immutable sequences of values occur to 
 In the abstract syntax they are represented as hexadecimal literals.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
-&amp; {\href{../syntax/values.html#syntax-byte}{\mathit{byte}}} &amp; ::= &amp; \mathtt{0x00} ~|~ \ldots ~|~ \mathtt{0xFF} \\
+&amp; {\href{../syntax/values.html#syntax-byte}{\mathit{byte}}} &amp; ::= &amp; \mathtt{0x00} ~~|~~ \ldots ~~|~~ \mathtt{0xFF} \\
 \end{array}\end{split}\]</div>
 <section id="conventions">
 <h3>Conventions<a class="headerlink" href="#conventions" title="Link to this heading">¶</a></h3>
@@ -108,8 +108,8 @@ In the abstract syntax they are represented as hexadecimal literals.</p>
 <p>Different classes of <em>integers</em> with different value ranges are distinguished by their <em>bit width</em> <span class="math notranslate nohighlight">\(N\)</span> and by whether they are <em>unsigned</em> or <em>signed</em>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
-&amp; {{\href{../syntax/values.html#syntax-int}{\mathit{u}\kern-0.1em}}}{N} &amp; ::= &amp; 0 ~|~ \ldots ~|~ {2^{N}} - 1 \\
-&amp; {{\href{../syntax/values.html#syntax-int}{\mathit{s}\kern-0.1em}}}{N} &amp; ::= &amp; {-{2^{N - 1}}} ~|~ \ldots ~|~ {-1} ~|~ 0 ~|~ {+1} ~|~ \ldots ~|~ {+{2^{N - 1}}} - 1 \\
+&amp; {{\href{../syntax/values.html#syntax-int}{\mathit{u}\kern-0.1em}}}{N} &amp; ::= &amp; 0 ~~|~~ \ldots ~~|~~ {2^{N}} - 1 \\
+&amp; {{\href{../syntax/values.html#syntax-int}{\mathit{s}\kern-0.1em}}}{N} &amp; ::= &amp; {-{2^{N - 1}}} ~~|~~ \ldots ~~|~~ {-1} ~~|~~ 0 ~~|~~ {+1} ~~|~~ \ldots ~~|~~ {+{2^{N - 1}}} - 1 \\
 &amp; {{\href{../syntax/values.html#syntax-int}{\mathit{i}\kern-0.1em}}}{N} &amp; ::= &amp; {{\href{../syntax/values.html#syntax-int}{\mathit{u}\kern-0.1em}}}{N} \\
 \end{array}\end{split}\]</div>
 <p>The class <span class="math notranslate nohighlight">\({\href{../syntax/values.html#syntax-int}{\mathit{i}\kern-0.1em}}\)</span> defines <em>uninterpreted</em> integers, whose signedness interpretation can vary depending on context.
@@ -141,7 +141,7 @@ NaN values have a <em>payload</em> that describes the mantissa bits in the under
 No distinction is made between signalling and quiet NaNs.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
-&amp; {{\href{../syntax/values.html#syntax-float}{\mathit{f}\kern-0.15em}}}{N} &amp; ::= &amp; {+{{\href{../syntax/values.html#syntax-float}{\mathit{fmag}\scriptstyle\kern-0.1emN}}}} ~|~ {-{{\href{../syntax/values.html#syntax-float}{\mathit{fmag}\scriptstyle\kern-0.1emN}}}} \\
+&amp; {{\href{../syntax/values.html#syntax-float}{\mathit{f}\kern-0.15em}}}{N} &amp; ::= &amp; {+{{\href{../syntax/values.html#syntax-float}{\mathit{fmag}\scriptstyle\kern-0.1emN}}}} ~~|~~ {-{{\href{../syntax/values.html#syntax-float}{\mathit{fmag}\scriptstyle\kern-0.1emN}}}} \\
 &amp; {{\href{../syntax/values.html#syntax-float}{\mathit{fmag}\scriptstyle\kern-0.1emN}}} &amp; ::= &amp; (1 + m \cdot {2^{{-M}}}) \cdot {2^{e}} &amp; \quad \mbox{if}~ m &lt; {2^{M}} \land 2 - {2^{E - 1}} \leq e \leq {2^{E - 1}} - 1 \\
 &amp; &amp; | &amp; (0 + m \cdot {2^{{-M}}}) \cdot {2^{e}} &amp; \quad \mbox{if}~ m &lt; {2^{M}} \land 2 - {2^{E - 1}} = e \\
 &amp; &amp; | &amp; \infty \\
@@ -185,7 +185,7 @@ They are represented in the abstract syntax using <span class="math notranslate 
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}}
 &amp; {\href{../syntax/values.html#syntax-name}{\mathit{name}}} &amp; ::= &amp; {{\href{../syntax/values.html#syntax-name}{\mathit{char}}}^\ast} &amp; \quad \mbox{if}~ {|{\href{../binary/values.html#binary-utf8}{\mathrm{utf\scriptstyle8}}}({{\href{../syntax/values.html#syntax-name}{\mathit{char}}}^\ast})|} &lt; {2^{32}} \\
-&amp; {\href{../syntax/values.html#syntax-name}{\mathit{char}}} &amp; ::= &amp; \mathrm{U{+}00} ~|~ \ldots ~|~ \mathrm{U{+}D7FF} ~|~ \mathrm{U{+}E000} ~|~ \ldots ~|~ \mathrm{U{+}10FFFF} \\
+&amp; {\href{../syntax/values.html#syntax-name}{\mathit{char}}} &amp; ::= &amp; \mathrm{U{+}00} ~~|~~ \ldots ~~|~~ \mathrm{U{+}D7FF} ~~|~~ \mathrm{U{+}E000} ~~|~~ \ldots ~~|~~ \mathrm{U{+}10FFFF} \\
 \end{array}\end{split}\]</div>
 <p>Due to the limitations of the <a class="reference internal" href="../binary/values.html#binary-name"><span class="std std-ref">binary format</span></a>,
 the length of a name is bounded by the length of its <a class="reference internal" href="../binary/values.html#binary-utf8"><span class="std std-ref">UTF-8</span></a> encoding.</p>
