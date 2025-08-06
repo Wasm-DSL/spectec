@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Instructions &#8212; WebAssembly 3.0 (Draft 2025-08-05)</title>
+    <title>Instructions &#8212; WebAssembly 3.0 (Draft 2025-08-06)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=6e3b0a21"></script>
+    <script src="../_static/documentation_options.js?v=fc44d4ca"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -2087,7 +2087,13 @@ since the instruction form is already a <a class="reference internal" href="runt
 <li><p>Let <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{\href{../syntax/conventions.html#syntax-list}{\mathit{list}}}_0)\)</span> be the destructuring of the <a class="reference internal" href="../valid/conventions.html#aux-expand-deftype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x]\)</span>.</p></li>
 <li><p>Let <span class="math notranslate nohighlight">\({({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}\)</span> be <span class="math notranslate nohighlight">\({\href{../syntax/conventions.html#syntax-list}{\mathit{list}}}_0\)</span>.</p></li>
 <li><p>Assert: Due to <a class="reference internal" href="../valid/instructions.html#valid-struct-new-default"><span class="std std-ref">validation</span></a>, for all <span class="math notranslate nohighlight">\({\mathit{zt}}\)</span> in <span class="math notranslate nohighlight">\({{\mathit{zt}}^\ast}\)</span>, <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})}\)</span> is defined.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast}\)</span> be <span class="math notranslate nohighlight">\({{{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})}^\ast}\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast}\)</span> be the value sequence <span class="math notranslate nohighlight">\(\epsilon\)</span>.</p></li>
+<li><p>For each <span class="math notranslate nohighlight">\({\mathit{zt}}\)</span> in <span class="math notranslate nohighlight">\({{\mathit{zt}}^\ast}\)</span>, do:</p>
+<ol class="loweralpha simple">
+<li><p>Let <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}\)</span> be <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})}\)</span>.</p></li>
+<li><p>Append <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}\)</span> to <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast}\)</span>.</p></li>
+</ol>
+</li>
 <li><p>Assert: Due to <a class="reference internal" href="../valid/instructions.html#valid-struct-new-default"><span class="std std-ref">validation</span></a>, <span class="math notranslate nohighlight">\({|{{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast}|} = {|{{\mathit{zt}}^\ast}|}\)</span>.</p></li>
 <li><p>Push the values <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast}\)</span> to the stack.</p></li>
 <li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new}}~x)\)</span>.</p></li>
