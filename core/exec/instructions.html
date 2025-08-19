@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Instructions &#8212; WebAssembly 3.0 (Draft 2025-08-11)</title>
+    <title>Instructions &#8212; WebAssembly 3.0 (Draft 2025-08-19)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=60d9191e"></script>
+    <script src="../_static/documentation_options.js?v=58914754"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -674,8 +674,8 @@
 <ol class="loweralpha simple">
 <li><p>Let <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}}~{{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}'}^\ast}\)</span> be <span class="math notranslate nohighlight">\({{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}''}^\ast}\)</span>.</p></li>
 <li><p>Pop the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> from the stack.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(H\)</span> be the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> whose arity is <span class="math notranslate nohighlight">\(n\)</span> and whose catch handler is <span class="math notranslate nohighlight">\({{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}'}^\ast}\)</span>.</p></li>
-<li><p>Push the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> <span class="math notranslate nohighlight">\(H\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\({H'}\)</span> be the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> whose arity is <span class="math notranslate nohighlight">\(n\)</span> and whose catch handler is <span class="math notranslate nohighlight">\({{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}'}^\ast}\)</span>.</p></li>
+<li><p>Push the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> <span class="math notranslate nohighlight">\({H'}\)</span>.</p></li>
 <li><p>Push the value <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}exn}}~a)\)</span> to the stack.</p></li>
 <li><p>Execute the instruction <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{throw\_ref}}\)</span>.</p></li>
 </ol>
@@ -708,8 +708,8 @@
 <ol class="arabic simple">
 <li><p>Let <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}}~{{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}'}^\ast}\)</span> be <span class="math notranslate nohighlight">\({{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}''}^\ast}\)</span>.</p></li>
 <li><p>Pop the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> from the stack.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(H\)</span> be the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> whose arity is <span class="math notranslate nohighlight">\(n\)</span> and whose catch handler is <span class="math notranslate nohighlight">\({{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}'}^\ast}\)</span>.</p></li>
-<li><p>Push the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> <span class="math notranslate nohighlight">\(H\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\({H'}\)</span> be the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> whose arity is <span class="math notranslate nohighlight">\(n\)</span> and whose catch handler is <span class="math notranslate nohighlight">\({{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}'}^\ast}\)</span>.</p></li>
+<li><p>Push the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> <span class="math notranslate nohighlight">\({H'}\)</span>.</p></li>
 <li><p>Push the value <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}exn}}~a)\)</span> to the stack.</p></li>
 <li><p>Execute the instruction <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{throw\_ref}}\)</span>.</p></li>
 </ol>
@@ -723,8 +723,8 @@
 <ol class="arabic simple">
 <li><p>Let <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}}~{{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}'}^\ast}\)</span> be <span class="math notranslate nohighlight">\({{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}''}^\ast}\)</span>.</p></li>
 <li><p>Pop the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> from the stack.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\(H\)</span> be the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> whose arity is <span class="math notranslate nohighlight">\(n\)</span> and whose catch handler is <span class="math notranslate nohighlight">\({{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}'}^\ast}\)</span>.</p></li>
-<li><p>Push the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> <span class="math notranslate nohighlight">\(H\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\({H'}\)</span> be the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> whose arity is <span class="math notranslate nohighlight">\(n\)</span> and whose catch handler is <span class="math notranslate nohighlight">\({{\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}'}^\ast}\)</span>.</p></li>
+<li><p>Push the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-handler}{\mathsf{handler}}\)</span> <span class="math notranslate nohighlight">\({H'}\)</span>.</p></li>
 <li><p>Push the value <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}exn}}~a)\)</span> to the stack.</p></li>
 <li><p>Execute the instruction <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{throw\_ref}}\)</span>.</p></li>
 </ol>
