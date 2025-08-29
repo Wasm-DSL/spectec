@@ -66,6 +66,15 @@ const EXPECT_INVALID = false;
 
 /* DATA **********************************************************************/
 
+let hostrefs = {};
+let hostsym = Symbol("hostref");
+function hostref(s) {
+  if (! (s in hostrefs)) hostrefs[s] = {[hostsym]: s};
+  return hostrefs[s];
+}
+function eq_ref(x, y) {
+  return x === y ? 1 : 0;
+}
 let externrefs = {};
 let externsym = Symbol("externref");
 function externref(s) {
@@ -96,6 +105,8 @@ function reinitializeRegistry() {
         return;
 
     let spectest = {
+        hostref: hostref,
+        eq_ref: eq_ref,
         externref: externref,
         is_externref: is_externref,
         is_funcref: is_funcref,
@@ -110,8 +121,8 @@ function reinitializeRegistry() {
         print_f64: console.log.bind(console),
         global_i32: 666,
         global_i64: 666n,
-        global_f32: 666,
-        global_f64: 666,
+        global_f32: 666.6,
+        global_f64: 666.6,
         table: new WebAssembly.Table({initial: 10, maximum: 20, element: 'anyfunc'}),
         memory: new WebAssembly.Memory({initial: 1, maximum: 2})
     };
@@ -191,7 +202,19 @@ function assert_invalid(bytes) {
 
 const assert_malformed = assert_invalid;
 
-function instance(bytes, imports = registry, valid = true) {
+function assert_invalid_custom(bytes) {
+    uniqueTest(() => {
+        try {
+            module(bytes, /* valid */ true);
+        } catch(e) {
+            throw new Error('failed on custom section error');
+        }
+    }, "A wast module that should have an invalid or malformed custom section.");
+}
+
+const assert_malformed_custom = assert_invalid_custom;
+
+function instance(mod, imports = registry, valid = true) {
     if (imports instanceof Result) {
         if (imports.isError())
             return imports;
@@ -200,10 +223,9 @@ function instance(bytes, imports = registry, valid = true) {
 
     let err = null;
 
-    let m, i;
+    let i;
     try {
-        let m = module(bytes);
-        i = new WebAssembly.Instance(m, imports);
+        i = new WebAssembly.Instance(mod, imports);
     } catch(e) {
         err = e;
     }
@@ -362,11 +384,25 @@ function assert_return(action, ...expected) {
                     // so there's no good way to test that it's a canonical NaN.
                     assert_true(Number.isNaN(actual[i]), `expected NaN, observed ${actual[i]}.`);
                     return;
+                case "ref.i31":
+                    assert_true(typeof actual[i] === "number" && (actual[i] & 0x7fffffff) === actual[i], `expected Wasm i31, got ${actual[i]}`);
+                    return;
+                case "ref.any":
+                case "ref.eq":
+                case "ref.struct":
+                case "ref.array":
+                    // For now, JS can't distinguish exported Wasm GC values,
+                    // so we only test for object.
+                    assert_true(typeof actual[i] === "object", `expected Wasm GC object, got ${actual[i]}`);
+                    return;
                 case "ref.func":
                     assert_true(typeof actual[i] === "function", `expected Wasm function, got ${actual[i]}`);
                     return;
                 case "ref.extern":
                     assert_true(actual[i] !== null, `expected Wasm reference, got ${actual[i]}`);
+                    return;
+                case "ref.null":
+                    assert_true(actual[i] === null, `expected Wasm null reference, got ${actual[i]}`);
                     return;
                 default:
                     assert_equals(actual[i], expected[i]);
