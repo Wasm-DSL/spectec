@@ -13,7 +13,7 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Modules" href="modules.html" />
@@ -257,8 +257,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 \frac{
 C \href{../valid/types.html#valid-blocktype}{\vdash} {\mathit{bt}} : {t_1^\ast} \rightarrow {t_2^\ast}
  \qquad
-\{ \begin{array}[t]{&#64;{}l&#64;{}}
-\href{../valid/conventions.html#context}{\mathsf{labels}}~({t_2^\ast}) \}\end{array} \oplus C \href{../valid/instructions.html#valid-instrs}{\vdash} {{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast} : {t_1^\ast} \mathrel{\href{../valid/conventions.html#syntax-instrtype}{\rightarrow}}_{{x^\ast}} {t_2^\ast}
+\{ \href{../valid/conventions.html#context}{\mathsf{labels}}~({t_2^\ast}) \} \oplus C \href{../valid/instructions.html#valid-instrs}{\vdash} {{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast} : {t_1^\ast} \mathrel{\href{../valid/conventions.html#syntax-instrtype}{\rightarrow}}_{{x^\ast}} {t_2^\ast}
 }{
 C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-control}{\mathsf{block}}~{\mathit{bt}}~{{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast} : {t_1^\ast} \rightarrow {t_2^\ast}
 }
@@ -266,7 +265,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 \end{array}\]</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The <a class="reference internal" href="../syntax/conventions.html#notation-concat"><span class="std std-ref">notation</span></a> <span class="math notranslate nohighlight">\(\{ \begin{array}[t]{&#64;{}l&#64;{}} \href{../valid/conventions.html#context}{\mathsf{labels}}~({t^\ast}) \}\end{array} \oplus C\)</span> inserts the new label type at index <span class="math notranslate nohighlight">\(0\)</span>, shifting all others.
+<p>The <a class="reference internal" href="../syntax/conventions.html#notation-concat"><span class="std std-ref">notation</span></a> <span class="math notranslate nohighlight">\(\{ \href{../valid/conventions.html#context}{\mathsf{labels}}~({t^\ast}) \} \oplus C\)</span> inserts the new label type at index <span class="math notranslate nohighlight">\(0\)</span>, shifting all others.
 The same applies to all other block instructions.</p>
 </div>
 </section>
@@ -285,8 +284,7 @@ The same applies to all other block instructions.</p>
 \frac{
 C \href{../valid/types.html#valid-blocktype}{\vdash} {\mathit{bt}} : {t_1^\ast} \rightarrow {t_2^\ast}
  \qquad
-\{ \begin{array}[t]{&#64;{}l&#64;{}}
-\href{../valid/conventions.html#context}{\mathsf{labels}}~({t_1^\ast}) \}\end{array} \oplus C \href{../valid/instructions.html#valid-instrs}{\vdash} {{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast} : {t_1^\ast} \mathrel{\href{../valid/conventions.html#syntax-instrtype}{\rightarrow}}_{{x^\ast}} {t_2^\ast}
+\{ \href{../valid/conventions.html#context}{\mathsf{labels}}~({t_1^\ast}) \} \oplus C \href{../valid/instructions.html#valid-instrs}{\vdash} {{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast} : {t_1^\ast} \mathrel{\href{../valid/conventions.html#syntax-instrtype}{\rightarrow}}_{{x^\ast}} {t_2^\ast}
 }{
 C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-control}{\mathsf{loop}}~{\mathit{bt}}~{{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast} : {t_1^\ast} \rightarrow {t_2^\ast}
 }
@@ -309,11 +307,9 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 \frac{
 C \href{../valid/types.html#valid-blocktype}{\vdash} {\mathit{bt}} : {t_1^\ast} \rightarrow {t_2^\ast}
  \qquad
-\{ \begin{array}[t]{&#64;{}l&#64;{}}
-\href{../valid/conventions.html#context}{\mathsf{labels}}~({t_2^\ast}) \}\end{array} \oplus C \href{../valid/instructions.html#valid-instrs}{\vdash} {{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}_1^\ast} : {t_1^\ast} \mathrel{\href{../valid/conventions.html#syntax-instrtype}{\rightarrow}}_{{x_1^\ast}} {t_2^\ast}
+\{ \href{../valid/conventions.html#context}{\mathsf{labels}}~({t_2^\ast}) \} \oplus C \href{../valid/instructions.html#valid-instrs}{\vdash} {{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}_1^\ast} : {t_1^\ast} \mathrel{\href{../valid/conventions.html#syntax-instrtype}{\rightarrow}}_{{x_1^\ast}} {t_2^\ast}
  \qquad
-\{ \begin{array}[t]{&#64;{}l&#64;{}}
-\href{../valid/conventions.html#context}{\mathsf{labels}}~({t_2^\ast}) \}\end{array} \oplus C \href{../valid/instructions.html#valid-instrs}{\vdash} {{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}_2^\ast} : {t_1^\ast} \mathrel{\href{../valid/conventions.html#syntax-instrtype}{\rightarrow}}_{{x_2^\ast}} {t_2^\ast}
+\{ \href{../valid/conventions.html#context}{\mathsf{labels}}~({t_2^\ast}) \} \oplus C \href{../valid/instructions.html#valid-instrs}{\vdash} {{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}_2^\ast} : {t_1^\ast} \mathrel{\href{../valid/conventions.html#syntax-instrtype}{\rightarrow}}_{{x_2^\ast}} {t_2^\ast}
 }{
 C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-control}{\mathsf{if}}~{\mathit{bt}}~{{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}_1^\ast}~\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{else}}~{{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}_2^\ast} : {t_1^\ast}~\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}} \rightarrow {t_2^\ast}
 }
@@ -777,8 +773,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 \frac{
 C \href{../valid/types.html#valid-blocktype}{\vdash} {\mathit{bt}} : {t_1^\ast} \rightarrow {t_2^\ast}
  \qquad
-\{ \begin{array}[t]{&#64;{}l&#64;{}}
-\href{../valid/conventions.html#context}{\mathsf{labels}}~({t_2^\ast}) \}\end{array} \oplus C \href{../valid/instructions.html#valid-instrs}{\vdash} {{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast} : {t_1^\ast} \mathrel{\href{../valid/conventions.html#syntax-instrtype}{\rightarrow}}_{{x^\ast}} {t_2^\ast}
+\{ \href{../valid/conventions.html#context}{\mathsf{labels}}~({t_2^\ast}) \} \oplus C \href{../valid/instructions.html#valid-instrs}{\vdash} {{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast} : {t_1^\ast} \mathrel{\href{../valid/conventions.html#syntax-instrtype}{\rightarrow}}_{{x^\ast}} {t_2^\ast}
  \qquad
 (C \href{../valid/instructions.html#valid-catch}{\vdash} {\href{../syntax/instructions.html#syntax-catch}{\mathit{catch}}} : \href{../valid/instructions.html#valid-catch}{\mathsf{ok}})^\ast
 }{

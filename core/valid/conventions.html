@@ -13,7 +13,7 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Types" href="types.html" />
@@ -402,8 +402,7 @@ a recursive rule, where the premise is itself a typing judgement:</p>
 \frac{
 C \href{../valid/types.html#valid-blocktype}{\vdash} {\href{../syntax/types.html#syntax-blocktype}{\mathit{blocktype}}} : {t_1^\ast} \rightarrow {t_2^\ast}
  \qquad
-\{ \begin{array}[t]{&#64;{}l&#64;{}}
-\href{../valid/conventions.html#context}{\mathsf{labels}}~({t_2^\ast}) \}\end{array} \oplus C \vdash {{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast} : {t_1^\ast} \rightarrow {t_2^\ast}
+\{ \href{../valid/conventions.html#context}{\mathsf{labels}}~({t_2^\ast}) \} \oplus C \vdash {{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast} : {t_1^\ast} \rightarrow {t_2^\ast}
 }{
 C \vdash \href{../syntax/instructions.html#syntax-instr-control}{\mathsf{block}}~{\href{../syntax/types.html#syntax-blocktype}{\mathit{blocktype}}}~{{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast} : {t_1^\ast} \rightarrow {t_2^\ast}
 }

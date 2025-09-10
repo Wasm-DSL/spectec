@@ -13,7 +13,7 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Modules" href="modules.html" />
@@ -365,8 +365,7 @@
 &amp; s ; f ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_on\_cast}}~l~{\mathit{rt}}_1~{\mathit{rt}}_2) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br}}~l) &amp; \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
 \mbox{if}~ s \href{../exec/values.html#valid-ref}{\vdash} {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}} : {\mathit{rt}} \\
-{\land}~ \{ \begin{array}[t]{&#64;{}l&#64;{}}
- \}\end{array} \href{../valid/matching.html#match-reftype}{\vdash} {\mathit{rt}} \href{../valid/matching.html#match-reftype}{\leq} {{\href{../exec/types.html#type-inst}{\mathrm{clos}}}}_{f{.}\href{../exec/runtime.html#syntax-frame}{\mathsf{module}}}({\mathit{rt}}_2) \\
+{\land}~ \{  \} \href{../valid/matching.html#match-reftype}{\vdash} {\mathit{rt}} \href{../valid/matching.html#match-reftype}{\leq} {{\href{../exec/types.html#type-inst}{\mathrm{clos}}}}_{f{.}\href{../exec/runtime.html#syntax-frame}{\mathsf{module}}}({\mathit{rt}}_2) \\
 \end{array} \\
 &amp; s ; f ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_on\_cast}}~l~{\mathit{rt}}_1~{\mathit{rt}}_2) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}} &amp; \quad \mbox{otherwise} \\
 \end{array}\end{split}\]</div>
@@ -395,8 +394,7 @@
 &amp; s ; f ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_on\_cast\_fail}}~l~{\mathit{rt}}_1~{\mathit{rt}}_2) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}} &amp; \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
 \mbox{if}~ s \href{../exec/values.html#valid-ref}{\vdash} {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}} : {\mathit{rt}} \\
-{\land}~ \{ \begin{array}[t]{&#64;{}l&#64;{}}
- \}\end{array} \href{../valid/matching.html#match-reftype}{\vdash} {\mathit{rt}} \href{../valid/matching.html#match-reftype}{\leq} {{\href{../exec/types.html#type-inst}{\mathrm{clos}}}}_{f{.}\href{../exec/runtime.html#syntax-frame}{\mathsf{module}}}({\mathit{rt}}_2) \\
+{\land}~ \{  \} \href{../valid/matching.html#match-reftype}{\vdash} {\mathit{rt}} \href{../valid/matching.html#match-reftype}{\leq} {{\href{../exec/types.html#type-inst}{\mathrm{clos}}}}_{f{.}\href{../exec/runtime.html#syntax-frame}{\mathsf{module}}}({\mathit{rt}}_2) \\
 \end{array} \\
 &amp; s ; f ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_on\_cast\_fail}}~l~{\mathit{rt}}_1~{\mathit{rt}}_2) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br}}~l) &amp; \quad \mbox{otherwise} \\
 \end{array}\end{split}\]</div>
@@ -590,7 +588,7 @@
 <li><p>Let <span class="math notranslate nohighlight">\(a\)</span> be the length of <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{exns}}\)</span>.</p></li>
 <li><p>Assert: Due to <a class="reference internal" href="../valid/instructions.html#valid-throw"><span class="std std-ref">validation</span></a>, there are at least <span class="math notranslate nohighlight">\(n\)</span> values on the top of the stack.</p></li>
 <li><p>Pop the values <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}}\)</span> from the stack.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\({\mathit{exn}}\)</span> be the <a class="reference internal" href="runtime.html#syntax-exninst"><span class="std std-ref">exception instance</span></a> <span class="math notranslate nohighlight">\(\{ \begin{array}[t]{&#64;{}l&#64;{}}\href{../exec/runtime.html#syntax-exninst}{\mathsf{tag}}~z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{tags}}{}[x],\; \href{../exec/runtime.html#syntax-exninst}{\mathsf{fields}}~{{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}} \}\end{array}\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\({\mathit{exn}}\)</span> be the <a class="reference internal" href="runtime.html#syntax-exninst"><span class="std std-ref">exception instance</span></a> <span class="math notranslate nohighlight">\(\{ \href{../exec/runtime.html#syntax-exninst}{\mathsf{tag}}~z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{tags}}{}[x],\;\allowbreak \href{../exec/runtime.html#syntax-exninst}{\mathsf{fields}}~{{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}} \}\)</span>.</p></li>
 <li><p>Append <span class="math notranslate nohighlight">\({\mathit{exn}}\)</span> to <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{exns}}\)</span>.</p></li>
 <li><p>Push the value <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}exn}}~a)\)</span> to the stack.</p></li>
 <li><p>Execute the instruction <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{throw\_ref}}\)</span>.</p></li>
@@ -601,8 +599,7 @@
 \begin{array}[t]{&#64;{}l&#64;{}}
 \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{tags}}{}[x]{.}\href{../exec/runtime.html#syntax-taginst}{\mathsf{type}} \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t^{n}} \href{../syntax/types.html#syntax-comptype}{\rightarrow} \epsilon \\
 {\land}~ a = {|z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{exns}}|} \\
-{\land}~ {\mathit{exn}} = \{ \begin{array}[t]{&#64;{}l&#64;{}}
-\href{../exec/runtime.html#syntax-exninst}{\mathsf{tag}}~z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{tags}}{}[x],\; \href{../exec/runtime.html#syntax-exninst}{\mathsf{fields}}~{{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}} \}\end{array} \\
+{\land}~ {\mathit{exn}} = \{ \href{../exec/runtime.html#syntax-exninst}{\mathsf{tag}}~z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{tags}}{}[x],\;\allowbreak \href{../exec/runtime.html#syntax-exninst}{\mathsf{fields}}~{{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}} \} \\
 \end{array} \\
 \end{array}\end{split}\]</div>
 </section>
@@ -942,8 +939,7 @@ and returning from it.</p>
 \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{funcs}}{}[a] = {\mathit{fi}} \\
 {\land}~ {\mathit{fi}}{.}\href{../exec/runtime.html#syntax-funcinst}{\mathsf{type}} \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^{n}} \href{../syntax/types.html#syntax-comptype}{\rightarrow} {t_2^{m}} \\
 {\land}~ {\mathit{fi}}{.}\href{../exec/runtime.html#syntax-funcinst}{\mathsf{code}} = \href{../syntax/modules.html#syntax-func}{\mathsf{func}}~x~{(\href{../syntax/modules.html#syntax-local}{\mathsf{local}}~t)^\ast}~({{\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}^\ast}) \\
-{\land}~ f = \{ \begin{array}[t]{&#64;{}l&#64;{}}
-\href{../exec/runtime.html#syntax-frame}{\mathsf{locals}}~{{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}}~{({{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{t})^\ast},\; \href{../exec/runtime.html#syntax-frame}{\mathsf{module}}~{\mathit{fi}}{.}\href{../exec/runtime.html#syntax-funcinst}{\mathsf{module}} \}\end{array} \\
+{\land}~ f = \{ \href{../exec/runtime.html#syntax-frame}{\mathsf{locals}}~{{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}}~{({{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{t})^\ast},\;\allowbreak \href{../exec/runtime.html#syntax-frame}{\mathsf{module}}~{\mathit{fi}}{.}\href{../exec/runtime.html#syntax-funcinst}{\mathsf{module}} \} \\
 \end{array}
 } \\
 \end{array}\end{split}\]</div>
@@ -2018,8 +2014,7 @@ since the instruction form is already a <a class="reference internal" href="runt
 &amp; s ; f ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}test}}~{\mathit{rt}}) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; (\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~1) &amp; \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
 \mbox{if}~ s \href{../exec/values.html#valid-ref}{\vdash} {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}} : {\mathit{rt}'} \\
-{\land}~ \{ \begin{array}[t]{&#64;{}l&#64;{}}
- \}\end{array} \href{../valid/matching.html#match-reftype}{\vdash} {\mathit{rt}'} \href{../valid/matching.html#match-reftype}{\leq} {{\href{../exec/types.html#type-inst}{\mathrm{clos}}}}_{f{.}\href{../exec/runtime.html#syntax-frame}{\mathsf{module}}}({\mathit{rt}}) \\
+{\land}~ \{  \} \href{../valid/matching.html#match-reftype}{\vdash} {\mathit{rt}'} \href{../valid/matching.html#match-reftype}{\leq} {{\href{../exec/types.html#type-inst}{\mathrm{clos}}}}_{f{.}\href{../exec/runtime.html#syntax-frame}{\mathsf{module}}}({\mathit{rt}}) \\
 \end{array} \\
 &amp; s ; f ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}test}}~{\mathit{rt}}) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; (\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}{.}\href{../syntax/instructions.html#syntax-instr-numeric}{\mathsf{const}}~0) &amp; \quad \mbox{otherwise} \\
 \end{array}\end{split}\]</div>
@@ -2043,8 +2038,7 @@ since the instruction form is already a <a class="reference internal" href="runt
 &amp; s ; f ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}cast}}~{\mathit{rt}}) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}} &amp; \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
 \mbox{if}~ s \href{../exec/values.html#valid-ref}{\vdash} {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}} : {\mathit{rt}'} \\
-{\land}~ \{ \begin{array}[t]{&#64;{}l&#64;{}}
- \}\end{array} \href{../valid/matching.html#match-reftype}{\vdash} {\mathit{rt}'} \href{../valid/matching.html#match-reftype}{\leq} {{\href{../exec/types.html#type-inst}{\mathrm{clos}}}}_{f{.}\href{../exec/runtime.html#syntax-frame}{\mathsf{module}}}({\mathit{rt}}) \\
+{\land}~ \{  \} \href{../valid/matching.html#match-reftype}{\vdash} {\mathit{rt}'} \href{../valid/matching.html#match-reftype}{\leq} {{\href{../exec/types.html#type-inst}{\mathrm{clos}}}}_{f{.}\href{../exec/runtime.html#syntax-frame}{\mathsf{module}}}({\mathit{rt}}) \\
 \end{array} \\
 &amp; s ; f ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}cast}}~{\mathit{rt}}) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; \href{../exec/runtime.html#syntax-trap}{\mathsf{trap}} &amp; \quad \mbox{otherwise} \\
 \end{array}\end{split}\]</div>
@@ -2091,7 +2085,7 @@ since the instruction form is already a <a class="reference internal" href="runt
 <li><p>Let <span class="math notranslate nohighlight">\(a\)</span> be the length of <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{structs}}\)</span>.</p></li>
 <li><p>Assert: Due to <a class="reference internal" href="../valid/instructions.html#valid-struct-new"><span class="std std-ref">validation</span></a>, there are at least <span class="math notranslate nohighlight">\(n\)</span> values on the top of the stack.</p></li>
 <li><p>Pop the values <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}}\)</span> from the stack.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\({\mathit{si}}\)</span> be the <a class="reference internal" href="runtime.html#syntax-structinst"><span class="std std-ref">structure instance</span></a> <span class="math notranslate nohighlight">\(\{ \begin{array}[t]{&#64;{}l&#64;{}}\href{../exec/runtime.html#syntax-structinst}{\mathsf{type}}~z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x],\; \href{../exec/runtime.html#syntax-structinst}{\mathsf{fields}}~{{{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}})^{n}} \}\end{array}\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\({\mathit{si}}\)</span> be the <a class="reference internal" href="runtime.html#syntax-structinst"><span class="std std-ref">structure instance</span></a> <span class="math notranslate nohighlight">\(\{ \href{../exec/runtime.html#syntax-structinst}{\mathsf{type}}~z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x],\;\allowbreak \href{../exec/runtime.html#syntax-structinst}{\mathsf{fields}}~{{{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}})^{n}} \}\)</span>.</p></li>
 <li><p>Push the value <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a)\)</span> to the stack.</p></li>
 <li><p>Append <span class="math notranslate nohighlight">\({\mathit{si}}\)</span> to <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{structs}}\)</span>.</p></li>
 </ol>
@@ -2101,8 +2095,7 @@ since the instruction form is already a <a class="reference internal" href="runt
 \begin{array}[t]{&#64;{}l&#64;{}}
 \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^{n}} \\
 {\land}~ a = {|z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{structs}}|} \\
-{\land}~ {\mathit{si}} = \{ \begin{array}[t]{&#64;{}l&#64;{}}
-\href{../exec/runtime.html#syntax-structinst}{\mathsf{type}}~z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x],\; \href{../exec/runtime.html#syntax-structinst}{\mathsf{fields}}~{({{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}))^{n}} \}\end{array} \\
+{\land}~ {\mathit{si}} = \{ \href{../exec/runtime.html#syntax-structinst}{\mathsf{type}}~z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x],\;\allowbreak \href{../exec/runtime.html#syntax-structinst}{\mathsf{fields}}~{({{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}))^{n}} \} \\
 \end{array} \\
 \end{array}\end{split}\]</div>
 </section>
@@ -2242,7 +2235,7 @@ since the instruction form is already a <a class="reference internal" href="runt
 <li><p>Let <span class="math notranslate nohighlight">\(a\)</span> be the length of <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{arrays}}\)</span>.</p></li>
 <li><p>Assert: Due to <a class="reference internal" href="../valid/instructions.html#valid-array-new-fixed"><span class="std std-ref">validation</span></a>, there are at least <span class="math notranslate nohighlight">\(n\)</span> values on the top of the stack.</p></li>
 <li><p>Pop the values <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}}\)</span> from the stack.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\({\mathit{ai}}\)</span> be the <a class="reference internal" href="runtime.html#syntax-arrayinst"><span class="std std-ref">array instance</span></a> <span class="math notranslate nohighlight">\(\{ \begin{array}[t]{&#64;{}l&#64;{}}\href{../exec/runtime.html#syntax-arrayinst}{\mathsf{type}}~z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x],\; \href{../exec/runtime.html#syntax-arrayinst}{\mathsf{fields}}~{{{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}})^{n}} \}\end{array}\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\({\mathit{ai}}\)</span> be the <a class="reference internal" href="runtime.html#syntax-arrayinst"><span class="std std-ref">array instance</span></a> <span class="math notranslate nohighlight">\(\{ \href{../exec/runtime.html#syntax-arrayinst}{\mathsf{type}}~z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x],\;\allowbreak \href{../exec/runtime.html#syntax-arrayinst}{\mathsf{fields}}~{{{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}})^{n}} \}\)</span>.</p></li>
 <li><p>Push the value <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}array}}~a)\)</span> to the stack.</p></li>
 <li><p>Append <span class="math notranslate nohighlight">\({\mathit{ai}}\)</span> to <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{arrays}}\)</span>.</p></li>
 </ol>
@@ -2253,8 +2246,7 @@ since the instruction form is already a <a class="reference internal" href="runt
 \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
 \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{array}}~({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}}) \\
-{\land}~ a = {|z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{arrays}}|} \land {\mathit{ai}} = \{ \begin{array}[t]{&#64;{}l&#64;{}}
-\href{../exec/runtime.html#syntax-arrayinst}{\mathsf{type}}~z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x],\; \href{../exec/runtime.html#syntax-arrayinst}{\mathsf{fields}}~{({{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}))^{n}} \}\end{array} \\
+{\land}~ a = {|z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{arrays}}|} \land {\mathit{ai}} = \{ \href{../exec/runtime.html#syntax-arrayinst}{\mathsf{type}}~z{.}\href{../exec/runtime.html#syntax-store}{\mathsf{types}}{}[x],\;\allowbreak \href{../exec/runtime.html#syntax-arrayinst}{\mathsf{fields}}~{({{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}))^{n}} \} \\
 \end{array}
 } \\
 \end{array}\end{split}\]</div>

@@ -13,7 +13,7 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Instructions" href="instructions.html" />
@@ -127,8 +127,7 @@ s \href{../exec/values.html#valid-vec}{\vdash} {\mathit{vt}}{.}\href{../syntax/i
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-\{ \begin{array}[t]{&#64;{}l&#64;{}}
- \}\end{array} \href{../valid/matching.html#match-heaptype}{\vdash} {\mathit{ht}'} \href{../valid/matching.html#match-heaptype}{\leq} {\mathit{ht}}
+\{  \} \href{../valid/matching.html#match-heaptype}{\vdash} {\mathit{ht}'} \href{../valid/matching.html#match-heaptype}{\leq} {\mathit{ht}}
 }{
 s \href{../exec/values.html#valid-ref}{\vdash} \href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}null}}~{\mathit{ht}} : (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~{\mathit{ht}'})
 }
@@ -276,8 +275,7 @@ s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax
 \frac{
 s \href{../exec/values.html#valid-ref}{\vdash} {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}} : {\mathit{rt}'}
  \qquad
-\{ \begin{array}[t]{&#64;{}l&#64;{}}
- \}\end{array} \href{../valid/matching.html#match-reftype}{\vdash} {\mathit{rt}'} \href{../valid/matching.html#match-reftype}{\leq} {\mathit{rt}}
+\{  \} \href{../valid/matching.html#match-reftype}{\vdash} {\mathit{rt}'} \href{../valid/matching.html#match-reftype}{\leq} {\mathit{rt}}
 }{
 s \href{../exec/values.html#valid-ref}{\vdash} {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}} : {\mathit{rt}}
 }
@@ -399,8 +397,7 @@ s \href{../exec/values.html#valid-externaddr}{\vdash} \href{../exec/runtime.html
 \frac{
 s \href{../exec/values.html#valid-externaddr}{\vdash} {\href{../exec/runtime.html#syntax-externaddr}{\mathit{externaddr}}} : {\mathit{xt}'}
  \qquad
-\{ \begin{array}[t]{&#64;{}l&#64;{}}
- \}\end{array} \href{../valid/matching.html#match-externtype}{\vdash} {\mathit{xt}'} \href{../valid/matching.html#match-externtype}{\leq} {\mathit{xt}}
+\{  \} \href{../valid/matching.html#match-externtype}{\vdash} {\mathit{xt}'} \href{../valid/matching.html#match-externtype}{\leq} {\mathit{xt}}
 }{
 s \href{../exec/values.html#valid-externaddr}{\vdash} {\href{../exec/runtime.html#syntax-externaddr}{\mathit{externaddr}}} : {\mathit{xt}}
 }
