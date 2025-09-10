@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-09-08)</title>
+    <title>Modules &#8212; WebAssembly 3.0 (Draft 2025-09-10)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=a4c0a58d"></script>
+    <script src="../_static/documentation_options.js?v=8e4ec7dd"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -309,19 +309,21 @@ C \href{../valid/modules.html#valid-table}{\vdash} \href{../syntax/modules.html#
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
-\[\begin{array}{&#64;{}c&#64;{}}\displaystyle
+\[\begin{split}\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
+\begin{array}{&#64;{}c&#64;{}}
 C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast} \href{../syntax/types.html#syntax-comptype}{\rightarrow} {t_2^\ast}
  \qquad
 (C \href{../valid/modules.html#valid-local}{\vdash} {\href{../syntax/modules.html#syntax-local}{\mathit{local}}} : {{\mathit{lt}}})^\ast
- \qquad
+ \\
 C \oplus \{ \begin{array}[t]{&#64;{}l&#64;{}}
 \href{../valid/conventions.html#context}{\mathsf{locals}}~{(\href{../valid/conventions.html#syntax-init}{\mathsf{set}}~t_1)^\ast}~{{{\mathit{lt}}}^\ast},\; \href{../valid/conventions.html#context}{\mathsf{labels}}~({t_2^\ast}),\; \href{../valid/conventions.html#context}{\mathsf{return}}~({t_2^\ast}) \}\end{array} \href{../valid/instructions.html#valid-expr}{\vdash} {\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}} : {t_2^\ast}
+\end{array}
 }{
 C \href{../valid/modules.html#valid-func}{\vdash} \href{../syntax/modules.html#syntax-func}{\mathsf{func}}~x~{{\href{../syntax/modules.html#syntax-local}{\mathit{local}}}^\ast}~{\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}} : C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]
 }
 \qquad
-\end{array}\]</div>
+\end{array}\end{split}\]</div>
 </section>
 <section id="locals">
 <span id="valid-local"></span><span id="index-6"></span><h2>Locals<a class="headerlink" href="#locals" title="Link to this heading">¶</a></h2>
@@ -391,6 +393,13 @@ C \href{../valid/modules.html#valid-data}{\vdash} \href{../syntax/modules.html#s
 <li><p>Either:</p>
 <blockquote>
 <div><ul class="simple">
+<li><p>The <a class="reference internal" href="../syntax/modules.html#syntax-datamode"><span class="std std-ref">data mode</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-datamode}{\mathit{datamode}}}\)</span> is of the form <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-datamode}{\mathsf{passive}}\)</span>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Or:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>The <a class="reference internal" href="../syntax/modules.html#syntax-datamode"><span class="std std-ref">data mode</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-datamode}{\mathit{datamode}}}\)</span> is of the form <span class="math notranslate nohighlight">\((\href{../syntax/modules.html#syntax-datamode}{\mathsf{active}}~x~{\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}})\)</span>.</p></li>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">memory</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{mems}}{}[x]\)</span> exists.</p></li>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">memory</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{mems}}{}[x]\)</span> is of the form <span class="math notranslate nohighlight">\(({\mathit{at}}~{\mathit{lim}}~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}})\)</span>.</p></li>
@@ -399,28 +408,21 @@ C \href{../valid/modules.html#valid-data}{\vdash} \href{../syntax/modules.html#s
 </ul>
 </div></blockquote>
 </li>
-<li><p>Or:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>The <a class="reference internal" href="../syntax/modules.html#syntax-datamode"><span class="std std-ref">data mode</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-datamode}{\mathit{datamode}}}\)</span> is of the form <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-datamode}{\mathsf{passive}}\)</span>.</p></li>
-</ul>
-</div></blockquote>
-</li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
+\frac{
+}{
+C \href{../valid/modules.html#valid-datamode}{\vdash} \href{../syntax/modules.html#syntax-datamode}{\mathsf{passive}} : \href{../valid/modules.html#valid-data}{\mathsf{ok}}
+}
+\qquad
 \frac{
 C{.}\href{../valid/conventions.html#context}{\mathsf{mems}}{}[x] = {\mathit{at}}~{\mathit{lim}}~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}}
  \qquad
 C \href{../valid/instructions.html#valid-const}{\vdash} {\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}} : {\mathit{at}}~\href{../valid/instructions.html#valid-const}{\mathsf{const}}
 }{
 C \href{../valid/modules.html#valid-datamode}{\vdash} \href{../syntax/modules.html#syntax-datamode}{\mathsf{active}}~x~{\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}} : \href{../valid/modules.html#valid-data}{\mathsf{ok}}
-}
-\qquad
-\frac{
-}{
-C \href{../valid/modules.html#valid-datamode}{\vdash} \href{../syntax/modules.html#syntax-datamode}{\mathsf{passive}} : \href{../valid/modules.html#valid-data}{\mathsf{ok}}
 }
 \qquad
 \end{array}\]</div>
@@ -462,18 +464,6 @@ C \href{../valid/modules.html#valid-elem}{\vdash} \href{../syntax/modules.html#s
 <li><p>Either:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="../syntax/modules.html#syntax-elemmode"><span class="std std-ref">element mode</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-elemmode}{\mathit{elemmode}}}\)</span> is of the form <span class="math notranslate nohighlight">\((\href{../syntax/modules.html#syntax-elemmode}{\mathsf{active}}~x~{\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}})\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{tables}}{}[x]\)</span> exists.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{tables}}{}[x]\)</span> is of the form <span class="math notranslate nohighlight">\(({\mathit{at}}~{\mathit{lim}}~{\mathit{rt}'})\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\mathit{rt}}\)</span> <a class="reference internal" href="matching.html#match-reftype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\mathit{rt}'}\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/instructions.html#syntax-expr"><span class="std std-ref">expression</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}}\)</span> is <a class="reference internal" href="instructions.html#valid-expr"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-valtype"><span class="std std-ref">value type</span></a> <span class="math notranslate nohighlight">\({\mathit{at}}\)</span>.</p></li>
-<li><p><span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}}\)</span> is constant.</p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p>Or:</p>
-<blockquote>
-<div><ul class="simple">
 <li><p>The <a class="reference internal" href="../syntax/modules.html#syntax-elemmode"><span class="std std-ref">element mode</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-elemmode}{\mathit{elemmode}}}\)</span> is of the form <span class="math notranslate nohighlight">\(\href{../syntax/modules.html#syntax-elemmode}{\mathsf{passive}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
@@ -485,10 +475,32 @@ C \href{../valid/modules.html#valid-elem}{\vdash} \href{../syntax/modules.html#s
 </ul>
 </div></blockquote>
 </li>
+<li><p>Or:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The <a class="reference internal" href="../syntax/modules.html#syntax-elemmode"><span class="std std-ref">element mode</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/modules.html#syntax-elemmode}{\mathit{elemmode}}}\)</span> is of the form <span class="math notranslate nohighlight">\((\href{../syntax/modules.html#syntax-elemmode}{\mathsf{active}}~x~{\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}})\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{tables}}{}[x]\)</span> exists.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{tables}}{}[x]\)</span> is of the form <span class="math notranslate nohighlight">\(({\mathit{at}}~{\mathit{lim}}~{\mathit{rt}'})\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\mathit{rt}}\)</span> <a class="reference internal" href="matching.html#match-reftype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\mathit{rt}'}\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/instructions.html#syntax-expr"><span class="std std-ref">expression</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}}\)</span> is <a class="reference internal" href="instructions.html#valid-expr"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-valtype"><span class="std std-ref">value type</span></a> <span class="math notranslate nohighlight">\({\mathit{at}}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}}\)</span> is constant.</p></li>
+</ul>
+</div></blockquote>
+</li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
-\[\begin{array}{&#64;{}c&#64;{}}\displaystyle
+\[\begin{split}\begin{array}{&#64;{}c&#64;{}}\displaystyle
+\frac{
+}{
+C \href{../valid/modules.html#valid-elemmode}{\vdash} \href{../syntax/modules.html#syntax-elemmode}{\mathsf{passive}} : {\mathit{rt}}
+}
+\qquad
+\frac{
+}{
+C \href{../valid/modules.html#valid-elemmode}{\vdash} \href{../syntax/modules.html#syntax-elemmode}{\mathsf{declare}} : {\mathit{rt}}
+}
+\\[3ex]\displaystyle
 \frac{
 C{.}\href{../valid/conventions.html#context}{\mathsf{tables}}{}[x] = {\mathit{at}}~{\mathit{lim}}~{\mathit{rt}'}
  \qquad
@@ -499,17 +511,7 @@ C \href{../valid/instructions.html#valid-const}{\vdash} {\href{../syntax/instruc
 C \href{../valid/modules.html#valid-elemmode}{\vdash} \href{../syntax/modules.html#syntax-elemmode}{\mathsf{active}}~x~{\href{../syntax/instructions.html#syntax-expr}{\mathit{expr}}} : {\mathit{rt}}
 }
 \qquad
-\frac{
-}{
-C \href{../valid/modules.html#valid-elemmode}{\vdash} \href{../syntax/modules.html#syntax-elemmode}{\mathsf{passive}} : {\mathit{rt}}
-}
-\qquad
-\frac{
-}{
-C \href{../valid/modules.html#valid-elemmode}{\vdash} \href{../syntax/modules.html#syntax-elemmode}{\mathsf{declare}} : {\mathit{rt}}
-}
-\qquad
-\end{array}\]</div>
+\end{array}\end{split}\]</div>
 </section>
 <section id="start-function">
 <span id="valid-start"></span><span id="index-9"></span><h2>Start Function<a class="headerlink" href="#start-function" title="Link to this heading">¶</a></h2>
