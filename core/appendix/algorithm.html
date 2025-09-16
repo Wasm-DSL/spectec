@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Validation Algorithm &#8212; WebAssembly 3.0 (Draft 2025-09-10)</title>
+    <title>Validation Algorithm &#8212; WebAssembly 3.0 (Draft 2025-09-16)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=8e4ec7dd"></script>
+    <script src="../_static/documentation_options.js?v=71c07c4a"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
@@ -235,8 +235,8 @@ The initialization stack records all <a class="reference internal" href="../synt
   vals.push(type)
 
 <span class="k">func</span> <span class="nf">pop_val</span>() : val_type =
-  <span class="k">if</span> (vals.size() = ctrls[0].height &amp;&amp; ctrls[0].unreachable) <span class="k">return</span> Bot
-  error_if(vals.size() = ctrls[0].height)
+  <span class="k">if</span> (vals.size() = ctrls[0].val_height &amp;&amp; ctrls[0].unreachable) <span class="k">return</span> Bot
+  error_if(vals.size() = ctrls[0].val_height)
   <span class="k">return</span> vals.pop()
 
 <span class="k">func</span> <span class="nf">pop_val</span>(<span class="nf">expect</span> : val_type) : val_type =
@@ -314,7 +314,7 @@ Thus, the initialization status of all locals can be reset to a previous state b
   <span class="k">return</span> (if (frame.opcode = loop) frame.start_types else frame.end_types)
 
 <span class="k">func</span> <span class="nf">unreachable</span>() =
-  vals.resize(ctrls[0].height)
+  vals.resize(ctrls[0].val_height)
   ctrls[0].unreachable := true
 </pre></div>
 </div>
