@@ -135,7 +135,7 @@ grammar Tid : name =
 
 ;; Identifier contexts
 
-syntax idctxt hint(desc "identifier context") hint(macro "I" "I%") =
+syntax idctxt hint(desc "identifier context") hint(macro "I" "I%") hint(prefix "ITXT_") =
   { TYPES (name?)*        hint(desc "type"),
     TAGS (name?)*         hint(desc "tag"),
     GLOBALS (name?)*      hint(desc "global"),

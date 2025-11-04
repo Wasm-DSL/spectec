@@ -177,15 +177,15 @@ var tu : typeuse
 
 ;; Computed types
 
-def $IN(N) : Inn  hint(show I#%) hint(macro "INX")
+def $IN(N) : Inn  hint(show I#%) hint(macro "INX") hint(partial)
 def $IN(32) = I32
 def $IN(64) = I64
 
-def $FN(N) : Fnn  hint(show F#%) hint(macro "FNX")
+def $FN(N) : Fnn  hint(show F#%) hint(macro "FNX") hint(partial)
 def $FN(32) = F32
 def $FN(64) = F64
 
-def $JN(N) : Jnn  hint(show I#%) hint(macro "INX")
+def $JN(N) : Jnn  hint(show I#%) hint(macro "INX") hint(partial)
 def $JN(8) = I8
 def $JN(16) = I16
 def $JN(32) = I32
@@ -234,7 +234,8 @@ def $inv_fsize(32) = F32
 def $inv_fsize(64) = F64
 def $inv_jsize(8)  = I8
 def $inv_jsize(16) = I16
-def $inv_jsize(n)  = $inv_isize(n)
+def $inv_jsize(32) = I32 ;; HACK! should use $inv_isize
+def $inv_jsize(64) = I64 ;; HACK! should use $inv_isize
 
 ;; TODO(2, rossberg): get rid of these terrible hacks by defining $Inn(nat) hint(show I#%)
 def $sizenn(numtype) : nat     hint(show N)   hint(macro none)  ;; HACK!
@@ -261,7 +262,10 @@ def $jsizenn(Jnn) : nat   hint(show N) hint(macro none) hint(inverse $inv_jsizen
 def $jsizenn(Jnn) = $lsize(Jnn)
 
 def $inv_jsizenn(nat) : Jnn hint(partial)
-def $inv_jsizenn(n)  = $inv_jsize(n)
+def $inv_jsizenn(8)  = I8
+def $inv_jsizenn(16)  = I16
+def $inv_jsizenn(32)  = I32
+def $inv_jsizenn(64)  = I64
 
 
 ;; Unpacking

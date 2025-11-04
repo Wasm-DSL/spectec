@@ -27,11 +27,11 @@ var b : byte
 
 ;; Floating-point
 
-def $signif(N) : nat
+def $signif(N) : nat hint(partial)
 def $signif(32) = 23
 def $signif(64) = 52
 
-def $expon(N) : nat
+def $expon(N) : nat hint(partial)
 def $expon(32) = 8
 def $expon(64) = 11
 
@@ -185,7 +185,7 @@ def $free_elemidx(elemidx) : free
 def $free_dataidx(dataidx) : free
 def $free_localidx(localidx) : free
 def $free_labelidx(labelidx) : free
-def $free_externidx(externidx) : free
+def $free_externidx(externidx) : free hint(partial)
 
 def $free_typeidx(typeidx) = {TYPES typeidx}
 def $free_funcidx(funcidx) = {FUNCS funcidx}

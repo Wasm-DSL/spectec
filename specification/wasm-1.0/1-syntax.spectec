@@ -117,7 +117,8 @@ var t : valtype
 syntax resulttype hint(desc "result type") =
   valtype?
 
-syntax mut = MUT?
+syntax mutopt = | MUT
+syntax mut = mutopt?
 
 syntax limits hint(desc "limits") =
   `[u32 .. u32?]

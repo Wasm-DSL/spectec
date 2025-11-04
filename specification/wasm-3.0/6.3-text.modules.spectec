@@ -252,7 +252,7 @@ grammar Telemtable_(I)/abbrev : () hint(show Ttable_(%)) =
 
 ;; Modules
 
-syntax decl hint(name "declaration") =
+syntax decl hint(name "declaration") hint(prefix "DECL_") =
   type | import | tag | global | mem | table | func | data | elem | start | export
 
 def $typesd(decl*) : type*      hint(show $types(%))   hint(macro "typesd")

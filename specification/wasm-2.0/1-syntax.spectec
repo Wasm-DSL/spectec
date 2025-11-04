@@ -394,7 +394,7 @@ syntax vrelop_(Fnn X N) =
 syntax half hint(desc "lane part") = LOW | HIGH
 syntax zero = ZERO
 
-syntax vcvtop = EXTEND half sx | TRUNC_SAT sx zero? | CONVERT half? sx | DEMOTE zero | PROMOTE LOW
+syntax vcvtop hint(prefix "V_") = EXTEND half sx | TRUNC_SAT sx zero? | CONVERT half? sx | DEMOTE zero | PROMOTE LOW
 
 syntax vshiftop_(ishape) hint(prefix "VSHIFT_")
 syntax vshiftop_(Jnn X N) = SHL | SHR sx
