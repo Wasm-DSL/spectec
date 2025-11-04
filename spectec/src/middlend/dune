@@ -9,6 +9,7 @@
     typefamilyremoval
     else
     undep
+    monotypeparams
     utils
   )
 )
