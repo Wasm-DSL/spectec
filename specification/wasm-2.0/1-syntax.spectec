@@ -121,24 +121,24 @@ var x33 : s33 hint(show x)
 
 ;; Value types
 
-syntax numtype hint(desc "number type") =
+syntax numtype hint(desc "number type") hint(prefix "NUMTYPE_") =
   | I32 | I64 | F32 | F64
 
-syntax vectype hint(desc "vector type") =
+syntax vectype hint(desc "vector type") hint(prefix "VECTYPE_") =
   | V128
 
-syntax consttype hint(desc "literal type") =
+syntax consttype hint(desc "literal type") hint(prefix "CONST_") =
   | numtype | vectype
 
 syntax reftype hint(desc "reference type") =
   | FUNCREF | EXTERNREF
 
-syntax valtype hint(desc "value type") =
+syntax valtype hint(desc "value type") hint(prefix "VALTYPE_") =
   | numtype | vectype | reftype | BOT
 
-syntax Inn hint(show I#n) = I32 | I64
-syntax Fnn hint(show F#n) = F32 | F64
-syntax Vnn hint(show V#n) = V128
+syntax Inn hint(show I#n) hint(prefix "INN_") = I32 | I64
+syntax Fnn hint(show F#n) hint(prefix "FNN_") = F32 | F64
+syntax Vnn hint(show V#n) hint(prefix "VNN_") = vectype
 
 
 syntax resulttype hint(desc "result type") =
@@ -148,16 +148,17 @@ syntax resulttype hint(desc "result type") =
 ;; Packed types
 
 syntax packtype hint(desc "packed type") = I8 | I16
-syntax lanetype hint(desc "lane type") = numtype | packtype
+syntax lanetype hint(desc "lane type") hint(prefix "LANETYPE_") = numtype | packtype
 
 syntax Pnn hint(show I#n) = packtype
-syntax Jnn hint(show I#n) = Inn | Pnn
-syntax Lnn hint(show I#n) = Inn | Fnn | Pnn
+syntax Jnn hint(show I#n) hint(prefix "JNN_") = Inn | Pnn
+syntax Lnn hint(show I#n) = lanetype
 
 
 ;; External types
 
-syntax mut = MUT?
+syntax mutopt = | MUT
+syntax mut = mutopt?
 
 syntax limits hint(desc "limits") =
   `[u32 .. u32?]
@@ -174,7 +175,7 @@ syntax elemtype hint(desc "element type") =
   reftype
 syntax datatype hint(desc "data type") =
   OK
-syntax externtype hint(desc "external type") =
+syntax externtype hint(desc "external type") hint(prefix "EXT_") =
   | FUNC functype | GLOBAL globaltype | TABLE tabletype | MEM memtype
 
 
@@ -277,22 +278,39 @@ def $zero(Fnn) = $fzero($size(Fnn))
 syntax sx hint(desc "signedness") = U | S
 syntax sz hint(desc "pack size") = `8 | `16 | `32 | `64
 
-syntax unop_(numtype)
-syntax unop_(Inn) = CLZ | CTZ | POPCNT | EXTEND n
-syntax unop_(Fnn) = ABS | NEG | SQRT | CEIL | FLOOR | TRUNC | NEAREST
+syntax unop_(numtype) hint(prefix "UI_" "UF_")
+syntax unop_(Inn) = 
+  | CLZ | CTZ | POPCNT | EXTEND n 
+syntax unop_(Fnn) = 
+  | ABS 
+  | NEG
+  | SQRT
+  | CEIL
+  | FLOOR
+  | TRUNC
+  | NEAREST
 
-syntax binop_(numtype)
+syntax binop_(numtype) hint(prefix "BI_" "BF_")
 syntax binop_(Inn) =
-  | ADD | SUB | MUL | DIV sx hint(show DIV_#%) | REM sx hint(show REM_#%)
-  | AND | OR | XOR | SHL | SHR sx hint(show SHR_#%) | ROTL | ROTR
+  | ADD | SUB | MUL
+  | DIV sx hint(show DIV_#%) | REM sx hint(show REM_#%) 
+  | AND | OR | XOR 
+  | SHL | SHR sx hint(show SHR_#%)
+  | ROTL | ROTR
 syntax binop_(Fnn) =
-  | ADD | SUB | MUL | DIV | MIN | MAX | COPYSIGN
+  | ADD
+  | SUB
+  | MUL
+  | DIV
+  | MIN
+  | MAX
+  | COPYSIGN
 
-syntax testop_(numtype)
+syntax testop_(numtype) hint(partial)
 syntax testop_(Inn) = EQZ
 ;; syntax testop_(Fnn) = |      ;; uninhabited
 
-syntax relop_(numtype)
+syntax relop_(numtype) hint(prefix "RI_" "RF_")
 syntax relop_(Inn) =
   | EQ | NE \
   | LT sx hint(show LT_#%) | GT sx hint(show GT_#%) \
@@ -315,9 +333,9 @@ syntax cvtop =
 
 syntax dim hint(desc "dimension") = `1 | `2 | `4 | `8 | `16
 syntax shape hint(desc "shape") = lanetype X dim  hint(show %0#X#%2)
-syntax ishape hint(desc "shape") = Jnn X dim      hint(show %0#X#%2)
-syntax fshape hint(desc "shape") = Fnn X dim      hint(show %0#X#%2)
-syntax pshape hint(desc "shape") = Pnn X dim      hint(show %0#X#%2)
+syntax ishape hint(desc "shape") hint(prefix "I") = Jnn X dim      hint(show %0#X#%2)
+syntax fshape hint(desc "shape") hint(prefix "F") = Fnn X dim      hint(show %0#X#%2)
+syntax pshape hint(desc "shape") hint(prefix "P") = Pnn X dim      hint(show %0#X#%2)
 
 def $dim(shape) : dim
 def $shsize(shape) : nat  hint(show |%|)
@@ -327,42 +345,58 @@ syntax vvbinop = AND | ANDNOT | OR | XOR
 syntax vvternop = BITSELECT
 syntax vvtestop = ANY_TRUE
 
-syntax vunop_(shape)
+syntax vunop_(shape) hint(prefix "VUI_" "VUF_")
 syntax vunop_(Jnn X N) = ABS | NEG
   | POPCNT -- if Jnn = I8
 syntax vunop_(Fnn X N) = ABS | NEG | SQRT | CEIL | FLOOR | TRUNC | NEAREST
 
-syntax vbinop_(shape)
+syntax vbinop_(shape) hint(prefix "VBI_" "VBF_")
 syntax vbinop_(Jnn X N) =
   | ADD
   | SUB
-  | ADD_SAT sx hint(show ADD_SAT#_#%)      -- if $lsizenn(Jnn) <= `16
-  | SUB_SAT sx hint(show SUB_SAT#_#%)      -- if $lsizenn(Jnn) <= `16
-  | MUL                                    -- if $lsizenn(Jnn) >= `16
-  | AVGR U                                 -- if $lsizenn(Jnn) <= `16
-  | Q15MULR_SAT S                          -- if $lsizenn(Jnn) = `16
-  | MIN sx hint(show MIN#_#%)              -- if $lsizenn(Jnn) <= `32
-  | MAX sx hint(show MAX#_#%)              -- if $lsizenn(Jnn) <= `32
-syntax vbinop_(Fnn X N) = ADD | SUB | MUL | DIV | MIN | MAX | PMIN | PMAX
+  | ADD_SAT sx hint(show ADD_SAT#_#%)  -- if $lsizenn(Jnn) <= `16
+  | SUB_SAT sx hint(show SUB_SAT#_#%)  -- if $lsizenn(Jnn) <= `16
+  | MUL                                -- if $lsizenn(Jnn) >= `16
+  | AVGR U                             -- if $lsizenn(Jnn) <= `16
+  | Q15MULR_SAT S                      -- if $lsizenn(Jnn) = `16
+  | MIN sx hint(show MIN#_#%)          -- if $lsizenn(Jnn) <= `32
+  | MAX sx hint(show MAX#_#%)          -- if $lsizenn(Jnn) <= `32
+syntax vbinop_(Fnn X N) = 
+  | ADD
+  | SUB
+  | MUL
+  | DIV
+  | MIN
+  | MAX
+  | PMIN
+  | PMAX
 
-syntax vtestop_(shape)
+syntax vtestop_(shape) hint(partial)
 syntax vtestop_(Jnn X N) = ALL_TRUE
 ;; syntax vtestop_(Fnn X N) = |           ;; uninhabited
 
-syntax vrelop_(shape)
-syntax vrelop_(Jnn X N) = EQ | NE
-  | LT sx  -- if $lsizenn(Jnn) =/= `64 \/ sx = S
-  | GT sx  -- if $lsizenn(Jnn) =/= `64 \/ sx = S
-  | LE sx  -- if $lsizenn(Jnn) =/= `64 \/ sx = S
-  | GE sx  -- if $lsizenn(Jnn) =/= `64 \/ sx = S
-syntax vrelop_(Fnn X N) = EQ | NE | LT | GT | LE | GE
+syntax vrelop_(shape) hint(prefix "VRI_" "VRF_")
+syntax vrelop_(Jnn X N) = 
+  | EQ
+  | NE
+  | LT sx -- if $lsizenn(Jnn) =/= `64 \/ sx = S
+  | GT sx -- if $lsizenn(Jnn) =/= `64 \/ sx = S
+  | LE sx -- if $lsizenn(Jnn) =/= `64 \/ sx = S
+  | GE sx -- if $lsizenn(Jnn) =/= `64 \/ sx = S
+syntax vrelop_(Fnn X N) = 
+  | EQ
+  | NE
+  | LT
+  | GT
+  | LE
+  | GE
 
 syntax half hint(desc "lane part") = LOW | HIGH
 syntax zero = ZERO
 
 syntax vcvtop = EXTEND half sx | TRUNC_SAT sx zero? | CONVERT half? sx | DEMOTE zero | PROMOTE LOW
 
-syntax vshiftop_(ishape)
+syntax vshiftop_(ishape) hint(prefix "VSHIFT_")
 syntax vshiftop_(Jnn X N) = SHL | SHR sx
 
 syntax vextunop_(ishape)
@@ -380,10 +414,10 @@ syntax memarg hint(desc "memory argument") = {ALIGN u32, OFFSET u32}
 
 var ao : memarg
 
-syntax loadop_(numtype)
+syntax loadop_(numtype) hint(partial) hint(prefix "LI_")
 syntax loadop_(Inn) = sz _ sx hint(show %0#_#%2) -- if sz < $sizenn(Inn)
 
-syntax vloadop =
+syntax vloadop hint(prefix "VL_") =
   | SHAPE nat X nat _ sx  hint(show %1#X#%3#_#%5)
   | SPLAT nat             hint(show %#_#SPLAT)
   | ZERO nat              hint(show %#_#ZERO)
@@ -521,7 +555,7 @@ syntax instr/data hint(desc "data instruction") = ...
 syntax expr hint(desc "expression") =
   instr*
 
-syntax instr hint(desc "instruction")
+syntax instr hint(desc "instruction") hint(prefix "instr_")
 
 var in : instr
 var e : expr
@@ -532,7 +566,7 @@ var e : expr
 ;;
 
 syntax elemmode = ACTIVE tableidx expr | PASSIVE | DECLARE
-syntax datamode = ACTIVE memidx expr | PASSIVE
+syntax datamode hint(prefix "DATAM_") = ACTIVE memidx expr | PASSIVE
 
 syntax type hint(desc "type") =
   TYPE functype
@@ -553,7 +587,7 @@ syntax data hint(desc "memory segment") =
 syntax start hint(desc "start function") =
   START funcidx
 
-syntax externidx hint(desc "external index") =
+syntax externidx hint(desc "external index") hint(prefix "EXTIDX_") =
   | FUNC funcidx | GLOBAL globalidx | TABLE tableidx | MEM memidx
 syntax export hint(desc "export") =
   EXPORT name externidx

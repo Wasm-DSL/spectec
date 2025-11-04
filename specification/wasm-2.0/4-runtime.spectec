@@ -22,7 +22,7 @@ var da : dataaddr
 
 ;; External addresses
 
-syntax externaddr hint(desc "external value") =
+syntax externaddr hint(desc "external value") hint(prefix "EXTADDR_") =
   | FUNC funcaddr | GLOBAL globaladdr | TABLE tableaddr | MEM memaddr
 
 var xa : externaddr
@@ -40,7 +40,7 @@ syntax vec hint(desc "vector") =
   | VCONST vectype vec_(vectype)         hint(show %.CONST %)
 syntax ref hint(desc "reference") hint(macro "reff") =
   | REF.NULL reftype | REF.FUNC_ADDR funcaddr | REF.HOST_ADDR hostaddr
-syntax val hint(desc "value") =
+syntax val hint(desc "value") hint(prefix "VAL_") =
   | num | vec | ref
 
 syntax result hint(desc "result") =
@@ -57,29 +57,29 @@ var res : result
 
 ;; Instances
 
-syntax funcinst hint(desc "function instance") =
-  { TYPE functype,
+syntax funcinst hint(desc "function instance") hint(prefix "FINST_") =
+  { TYPE functype ,
     MODULE moduleinst,
     CODE func }
-syntax globalinst hint(desc "global instance") =
+syntax globalinst hint(desc "global instance") hint(prefix "GINST_") =
   { TYPE globaltype,
     VALUE val }
-syntax tableinst hint(desc "table instance") =
+syntax tableinst hint(desc "table instance") hint(prefix "TINST_") =
   { TYPE tabletype,
     REFS ref* }
-syntax meminst hint(desc "memory instance") =
+syntax meminst hint(desc "memory instance") hint(prefix "MINST_") =
   { TYPE memtype,
     BYTES byte* }
-syntax eleminst hint(desc "element instance") =
+syntax eleminst hint(desc "element instance") hint(prefix "EINST_") =
   { TYPE elemtype,
     REFS ref* }
-syntax datainst hint(desc "data instance") =
+syntax datainst hint(desc "data instance") hint(prefix "DINST_") =
   { BYTES byte* }
 syntax exportinst hint(desc "export instance") =
   { NAME name,
     ADDR externaddr }
 
-syntax moduleinst hint(desc "module instance") =
+syntax moduleinst hint(desc "module instance") hint(prefix "MODULE_") =
   { TYPES functype*,
     FUNCS funcaddr*,
     GLOBALS globaladdr*,
@@ -109,7 +109,7 @@ syntax store hint(desc "store") =
     ELEMS eleminst*,
     DATAS datainst* }
 
-syntax frame hint(desc "frame") =
+syntax frame hint(desc "frame") hint(prefix "F_") =
   { LOCALS val*,
     MODULE moduleinst }
 
@@ -125,7 +125,7 @@ var z : state
 ;; Administrative Instructions
 ;;
 
-syntax admininstr hint(show instr) hint(desc "administrative instruction") =
+syntax admininstr hint(show instr) hint(desc "administrative instruction") hint(prefix "AI_") =
   | instr
   | REF.FUNC_ADDR funcaddr         hint(show REF.FUNC %)
   | REF.HOST_ADDR hostaddr         hint(show REF.EXTERN %)

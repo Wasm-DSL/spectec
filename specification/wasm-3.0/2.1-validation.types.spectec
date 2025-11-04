@@ -6,10 +6,10 @@
 
 relation Numtype_ok: context |- numtype : OK    hint(name "K-num")  hint(macro "%numtype")
 relation Vectype_ok: context |- vectype : OK    hint(name "K-vec")  hint(macro "%vectype")
-relation Heaptype_ok: context |- heaptype : OK  hint(name "K-heap") hint(macro "%heaptype")
+relation Heaptype_ok: context |- heaptype : OK  hint(name "K-heap") hint(macro "%heaptype")   hint(prefix "OK_")
 relation Reftype_ok: context |- reftype : OK    hint(name "K-ref")  hint(macro "%reftype")
-relation Valtype_ok: context |- valtype : OK    hint(name "K-val")  hint(macro "%valtype")
-relation Typeuse_ok: context |- typeuse : OK    hint(name "K-typeuse") hint(macro "%typeuse")
+relation Valtype_ok: context |- valtype : OK    hint(name "K-val")  hint(macro "%valtype")    hint(prefix "OK_")
+relation Typeuse_ok: context |- typeuse : OK    hint(name "K-typeuse") hint(macro "%typeuse") hint(prefix "OK_")
 
 rule Numtype_ok:
   C |- numtype : OK
@@ -65,7 +65,7 @@ rule Instrtype_ok:
 relation Expand: deftype ~~ comptype hint(macro "%expanddt") hint(tabular)
   hint(prose "The :ref:`expansion <aux-expand-deftype>` of %1 is %2")  ;; TODO(3, ?): avoid hardcoding reST
 
-relation Expand_use: typeuse ~~_context comptype  hint(macro "%expandyy") hint(tabular)
+relation Expand_use: typeuse ~~_context comptype  hint(macro "%expandyy") hint(tabular) hint(prefix "EXPAND_USE_")
   hint(prose "The :ref:`expansion <aux-expand-typeuse>` of %2 is %3")  ;; TODO(3, ?): avoid hardcoding reST
 
 rule Expand: deftype ~~ comptype   -- if $expanddt(deftype) = comptype
@@ -76,24 +76,24 @@ rule Expand_use/typeidx: _IDX typeidx ~~_C comptype  -- Expand: C.TYPES[typeidx]
 
 ;; Type definitions
 
-syntax oktypeidx hint(show OK#((typeidx))) hint(prose_desc "type index") =
+syntax oktypeidx hint(show OK#((typeidx))) hint(prose_desc "type index") hint(prefix "TYPEIDX_") =
   | OK typeidx      hint(show OK#(%))     hint(macro "%subtype")    hint(prose "%1")
-syntax oktypeidxnat hint(show OK#(typeidx,n)) =
+syntax oktypeidxnat hint(show OK#(typeidx,n)) hint(prefix "TYPEIDXNAT_") =
   | OK typeidx nat  hint(show OK#(%,%))   hint(macro "%subtypeext")
 
 relation Packtype_ok: context |- packtype : OK          hint(name "K-pack")    hint(macro "%packtype")
 relation Fieldtype_ok: context |- fieldtype : OK        hint(name "K-field")   hint(macro "%fieldtype")
-relation Storagetype_ok: context |- storagetype : OK    hint(name "K-storage") hint(macro "%storagetype")
-relation Comptype_ok: context |- comptype : OK          hint(name "K-comp")    hint(macro "%comptype")
+relation Storagetype_ok: context |- storagetype : OK    hint(name "K-storage") hint(macro "%storagetype") hint(prefix "OK_")
+relation Comptype_ok: context |- comptype : OK          hint(name "K-comp")    hint(macro "%comptype")    hint(prefix "OK_")
 relation Subtype_ok: context |- subtype : oktypeidx     hint(name "K-sub")     hint(macro "%subtype")     hint(prosepp "for")
 relation Rectype_ok: context |- rectype : oktypeidx     hint(name "K-rect")    hint(macro "%rectype")     hint(prosepp "for")
 relation Subtype_ok2: context |- subtype : oktypeidxnat hint(name "K-sub2")    hint(macro "%subtypeext")  hint(prosepp "for")
-relation Rectype_ok2: context |- rectype : oktypeidxnat hint(name "K-rec2")    hint(macro "%rectypeext")  hint(prosepp "for")
+relation Rectype_ok2: context |- rectype : oktypeidxnat hint(name "K-rec2")    hint(macro "%rectypeext")  hint(prosepp "for") hint(prefix "OK_")
 relation Deftype_ok: context |- deftype : OK            hint(name "K-def")     hint(macro "%deftype")
 
 ;; Forward declarations for validation.subtyping
-relation Comptype_sub: context |- comptype <: comptype  hint(name "S-comp")    hint(macro "%comptypematch")
-relation Deftype_sub: context |- deftype <: deftype     hint(name "S-def")     hint(macro "%deftypematch")
+relation Comptype_sub: context |- comptype <: comptype  hint(name "S-comp")    hint(macro "%comptypematch") hint(prefix "SUB_")
+relation Deftype_sub: context |- deftype <: deftype     hint(name "S-def")     hint(macro "%deftypematch")  hint(prefix "SUB_")
 
 
 rule Typeuse_ok/typeidx:
@@ -203,7 +203,7 @@ relation Tagtype_ok: context |- tagtype : OK        hint(name "K-tag")    hint(m
 relation Globaltype_ok: context |- globaltype : OK  hint(name "K-global") hint(macro "%globaltype")
 relation Memtype_ok: context |- memtype : OK        hint(name "K-mem")    hint(macro "%memtype")
 relation Tabletype_ok: context |- tabletype : OK    hint(name "K-table")  hint(macro "%tabletype")
-relation Externtype_ok: context |- externtype : OK  hint(name "K-extern") hint(macro "%externtype")
+relation Externtype_ok: context |- externtype : OK  hint(name "K-extern") hint(macro "%externtype") hint(prefix "EXTOK_")
 
 
 rule Limits_ok:

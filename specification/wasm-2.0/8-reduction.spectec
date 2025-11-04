@@ -2,10 +2,10 @@
 ;; Configurations
 ;;
 
-relation Step: config ~> config                 hint(show "E") hint(tabular)
-relation Step_pure: admininstr* ~> admininstr*  hint(show "E") hint(tabular)
-relation Step_read: config ~> admininstr*       hint(show "E") hint(tabular)
-relation Steps: config ~>* config               hint(show "E") hint(tabular)
+relation Step: config ~> config                 hint(show "E") hint(tabular) hint(prefix "step_")
+relation Step_pure: admininstr* ~> admininstr*  hint(show "E") hint(tabular) hint(prefix "step_")
+relation Step_read: config ~> admininstr*       hint(show "E") hint(tabular) hint(prefix "step_")
+relation Steps: config ~>* config               hint(show "E") hint(tabular) hint(prefix "steps_")
 
 rule Step/pure:
   z; instr*  ~>  z; instr'*

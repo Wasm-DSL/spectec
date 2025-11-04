@@ -2,7 +2,7 @@
 ;; Contexts
 ;;
 
-syntax context hint(desc "context") =
+syntax context hint(desc "context") hint(prefix "C_") =
   { TYPES functype*, FUNCS functype*, GLOBALS globaltype*,
     TABLES tabletype*, MEMS memtype*,
     ELEMS elemtype*, DATAS datatype*,
@@ -21,7 +21,7 @@ relation Functype_ok: |- functype : OK      hint(show "K-func")
 relation Globaltype_ok: |- globaltype : OK  hint(show "K-global")
 relation Tabletype_ok: |- tabletype : OK    hint(show "K-table")
 relation Memtype_ok: |- memtype : OK        hint(show "K-mem")
-relation Externtype_ok: |- externtype : OK  hint(show "K-extern")
+relation Externtype_ok: |- externtype : OK  hint(show "K-extern") hint(prefix "ext_ok_")
 
 
 rule Limits_ok:
@@ -89,7 +89,7 @@ relation Functype_sub: |- functype <: functype       hint(show "S-func")
 relation Globaltype_sub: |- globaltype <: globaltype hint(show "S-global")
 relation Tabletype_sub: |- tabletype <: tabletype    hint(show "S-table")
 relation Memtype_sub: |- memtype <: memtype          hint(show "S-mem")
-relation Externtype_sub: |- externtype <: externtype hint(show "S-extern")
+relation Externtype_sub: |- externtype <: externtype hint(show "S-extern") hint(prefix "ext_sub_")
 
 
 rule Limits_sub:
@@ -134,8 +134,8 @@ rule Externtype_sub/mem:
 ;; Instructions
 ;;
 
-relation Instr_ok: context |- instr : functype   hint(show "T")
-relation Instrs_ok: context |- instr* : functype hint(show "T*")
+relation Instr_ok: context |- instr : functype   hint(show "T")  hint(prefix "INSTR_OK_")
+relation Instrs_ok: context |- instr* : functype hint(show "T*") hint(prefix "INSTRS_OK_")
 relation Expr_ok: context |- expr : resulttype   hint(show "T-expr")
 
 
@@ -191,7 +191,7 @@ rule Instr_ok/select-impl:
 
 ;; Block instructions
 
-relation Blocktype_ok: context |- blocktype : functype hint(show "K-block")
+relation Blocktype_ok: context |- blocktype : functype hint(show "K-block") hint(prefix "block_ok_")
 
 rule Blocktype_ok/valtype:
   C |- _RESULT valtype? : eps -> valtype?
@@ -565,7 +565,7 @@ relation Mem_ok: context |- mem : memtype            hint(show "T-mem")
 relation Elem_ok: context |- elem : reftype          hint(show "T-elem")
 relation Data_ok: context |- data : OK               hint(show "T-data")
 relation Elemmode_ok: context |- elemmode : reftype  hint(show "T-elemmode")
-relation Datamode_ok: context |- datamode : OK       hint(show "T-datamode")
+relation Datamode_ok: context |- datamode : OK       hint(show "T-datamode") hint(prefix "datamode_ok_")
 relation Start_ok: context |- start : OK             hint(show "T-start")
 
 
@@ -632,7 +632,7 @@ rule Start_ok:
 
 relation Import_ok: context |- import : externtype        hint(show "T-import")
 relation Export_ok: context |- export : externtype        hint(show "T-export")
-relation Externidx_ok: context |- externidx : externtype  hint(show "T-externidx")
+relation Externidx_ok: context |- externidx : externtype  hint(show "T-externidx") hint(prefix "extidx_ok_")
 
 rule Import_ok:
   C |- IMPORT name_1 name_2 xt : xt

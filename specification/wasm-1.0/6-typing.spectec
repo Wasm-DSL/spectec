@@ -2,7 +2,7 @@
 ;; Contexts
 ;;
 
-syntax context hint(desc "context") =
+syntax context hint(desc "context") hint(prefix "C_") =
   { TYPES functype*, FUNCS functype*, GLOBALS globaltype*,
     TABLES tabletype*, MEMS memtype*,
     LOCALS valtype*, LABELS resulttype*, RETURN resulttype? }
@@ -20,7 +20,7 @@ relation Functype_ok: |- functype : OK      hint(show "K-func")
 relation Globaltype_ok: |- globaltype : OK  hint(show "K-global")
 relation Tabletype_ok: |- tabletype : OK    hint(show "K-table")
 relation Memtype_ok: |- memtype : OK        hint(show "K-mem")
-relation Externtype_ok: |- externtype : OK  hint(show "K-extern")
+relation Externtype_ok: |- externtype : OK  hint(show "K-extern") hint(prefix "ext_")
 
 
 rule Limits_ok:
@@ -72,7 +72,7 @@ relation Functype_sub: |- functype <: functype       hint(show "S-func")
 relation Globaltype_sub: |- globaltype <: globaltype hint(show "S-global")
 relation Tabletype_sub: |- tabletype <: tabletype    hint(show "S-table")
 relation Memtype_sub: |- memtype <: memtype          hint(show "S-mem")
-relation Externtype_sub: |- externtype <: externtype hint(show "S-extern")
+relation Externtype_sub: |- externtype <: externtype hint(show "S-extern") hint(prefix "extsub_")
 
 
 rule Limits_sub:
@@ -118,7 +118,7 @@ rule Externtype_sub/mem:
 ;;
 
 relation Instr_ok: context |- instr : functype   hint(show "T")
-relation Instrs_ok: context |- instr* : functype hint(show "T*")
+relation Instrs_ok: context |- instr* : functype hint(show "T*") hint(prefix "instrs_")
 relation Expr_ok: context |- expr : resulttype   hint(show "T-expr")
 
 
@@ -312,7 +312,7 @@ rule Instr_ok/store-pack:
 ;; Constant Expressions
 ;;
 
-relation Instr_const: context |- instr CONST              hint(show "C-instr")
+relation Instr_const: context |- instr CONST              hint(show "C-instr") hint(prefix "C_instr_")
 relation Expr_const: context |- expr CONST                hint(show "C-expr")
 relation Expr_ok_const: context |- expr : valtype? CONST  hint(show "TC-expr")
 
@@ -395,7 +395,7 @@ rule Start_ok:
 
 relation Import_ok: context |- import : externtype        hint(show "T-import")
 relation Export_ok: context |- export : externtype        hint(show "T-export")
-relation Externidx_ok: context |- externidx : externtype  hint(show "T-externidx")
+relation Externidx_ok: context |- externidx : externtype  hint(show "T-externidx") hint(prefix "OK_")
 
 rule Import_ok:
   C |- IMPORT name_1 name_2 xt : xt

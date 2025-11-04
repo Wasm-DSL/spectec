@@ -97,35 +97,6 @@ let construct_tuple_exp at e t args =
   ) args in
   TupE (extra_tup_exps @ [{e with note = t}]) $$ e.at % tupt
 
-(* HACK This is used to distinguish between normal types and type families *)
-let check_normal_type_creation (inst : inst) : bool = 
-  match inst.it with
-  | InstD (_, args, _) -> List.for_all (fun arg -> 
-    match arg.it with 
-    (* Args in normal types can really only be variable expressions or type params *)
-    | ExpA {it = VarE _; _} | TypA _ -> true
-    | _ -> false  
-    ) args 
-
-let rec reduce_type_aliasing env t =
-  match t.it with
-  | VarT(id, args) -> 
-    (match Env.find_opt_typ env id with 
-    | Some (_, [inst]) when check_normal_type_creation inst -> reduce_inst_alias env args inst t
-    | _ -> t
-    )
-  | _ -> t
-
-and reduce_inst_alias env args inst base_typ = 
-  match inst.it with
-  | InstD (_, args', {it = AliasT typ; _}) ->
-    let subst_opt = Eval.match_list Eval.match_arg env Subst.empty args args' in
-    (match subst_opt with
-    | Some subst -> reduce_type_aliasing env (Subst.subst_typ subst typ)
-    | None -> reduce_type_aliasing env typ
-    ) 
-  | _ -> base_typ
-
 let make_arg_from_param p = 
   (match p.it with
   | ExpP (id, typ) -> ExpA (VarE id $$ id.at % typ)
@@ -184,7 +155,7 @@ let make_arg b =
 let check_type_family insts = 
   match insts with
   | [] -> false
-  | [inst] when check_normal_type_creation inst -> false
+  | [inst] when Utils.check_normal_type_creation inst -> false
   | _ -> true
 
 let has_one_inst env family_typ =
@@ -204,8 +175,8 @@ let make_bind_set binds =
   ) StringMap.empty binds
 
 let rec check_type_equality env t t' = 
-  let r_t = reduce_type_aliasing env t in 
-  let r_t' = reduce_type_aliasing env t' in 
+  let r_t = Utils.reduce_type_aliasing env t in 
+  let r_t' = Utils.reduce_type_aliasing env t' in 
   match r_t.it, r_t'.it with
   | VarT (id, args), VarT (id', args') ->
     let r_args = List.map (Eval.reduce_arg env) args in
@@ -265,7 +236,7 @@ let rec get_real_typ_from_exp bind_map env e =
         | TupT typs -> List.map fst typs
         | _ -> assert false
     in
-    let expected_exps = get_tuple_exps (reduce_type_aliasing env e.note) in 
+    let expected_exps = get_tuple_exps (Utils.reduce_type_aliasing env e.note) in 
     TupT (List.map2 (fun t e -> ({e with note = t}, t)) typs expected_exps) $ e.at
   | ListE (e' :: _) -> 
     let iter = (match e.note.it with 
@@ -317,7 +288,7 @@ let rec get_chain_from_inst id env family_typ args insts =
       (match (Eval.match_list Eval.match_arg env Subst.empty args args') with 
         | exception Eval.Irred -> helper insts' (num + 1)
         | Some subst -> 
-          let subst_typ = reduce_type_aliasing env (Il.Subst.subst_typ subst sub_typ) in
+          let subst_typ = Utils.reduce_type_aliasing env (Il.Subst.subst_typ subst sub_typ) in
           (id, binds, subst, num, family_typ, subst_typ) :: get_type_family_conversion_chain env subst_typ 
         | _ -> helper insts' (num + 1)
       )
@@ -396,8 +367,8 @@ let rec simplify_conversions proj_list constructor_list =
     (p :: ps', c :: cs')
   
 let apply_conversion env exp real_typ expected_typ = 
-  let reduced_r_typ = reduce_type_aliasing env real_typ in
-  let reduced_e_typ = reduce_type_aliasing env expected_typ in 
+  let reduced_r_typ = Utils.reduce_type_aliasing env real_typ in
+  let reduced_e_typ = Utils.reduce_type_aliasing env expected_typ in 
   let (iters, iter_exp, r_typ, e_typ) = handle_iter_typ exp reduced_r_typ reduced_e_typ in 
   if (is_family_typ env r_typ || is_family_typ env e_typ) 
     then (
@@ -416,7 +387,7 @@ let add_iter_ids_to_map env id_exp_pairs bind_map =
   List.fold_left (fun acc (id, e') -> 
     let r_typ = 
       get_real_typ_from_exp bind_map env e' |>
-      reduce_type_aliasing env |>
+      Utils.reduce_type_aliasing env |>
       remove_iter_from_type
     in 
     StringMap.add id.it r_typ acc
@@ -487,7 +458,8 @@ and transform_path bind_map env p =
 and transform_sym bind_map env s = 
   (match s.it with
   | VarG (id, args) -> VarG (id, List.map (transform_arg bind_map env) args)
-  | SeqG syms | AltG syms -> SeqG (List.map (transform_sym bind_map env) syms)
+  | SeqG syms -> SeqG (List.map (transform_sym bind_map env) syms)
+  | AltG syms -> AltG (List.map (transform_sym bind_map env) syms)
   | RangeG (syml, symu) -> RangeG (transform_sym bind_map env syml, transform_sym bind_map env symu)
   | IterG (sym, (iter, id_exp_pairs)) -> IterG (transform_sym bind_map env sym, (transform_iter bind_map env iter, 
       List.map (fun (id, exp) -> (id, transform_exp bind_map env exp)) id_exp_pairs)
@@ -531,7 +503,7 @@ let rec transform_prem bind_map env prem =
     IterPr (transform_prem new_bind_map env prem1, 
       (transform_iter new_bind_map env iter, List.map (fun (id, exp) -> (id, transform_exp new_bind_map env exp)) id_exp_pairs)
     )
-  | NegPr prem1 -> NegPr (transform_prem bind_map env prem1)
+  | NegPr p -> NegPr (transform_prem bind_map env p)
   ) $ prem.at
 
 let transform_rule env rule = 
@@ -652,7 +624,7 @@ let gen_family_projections id has_one_inst case_num inst =
 
 let rec create_types_from_instances def =
   (match def.it with
-  | TypD (id, params, [inst]) when check_normal_type_creation inst -> [TypD (id, params, [inst])]
+  | TypD (id, params, [inst]) when Utils.check_normal_type_creation inst -> [TypD (id, params, [inst])]
   | TypD (id, params, insts) -> let types = List.concat_map (create_types id) insts in
     let transformed_instances = List.map (fun inst -> match inst.it with 
       | InstD (binds, args, {it = StructT _; at; _}) | InstD(binds, args, {it = VariantT _; at; _}) -> 
@@ -666,7 +638,7 @@ let rec create_types_from_instances def =
 
 let rec transform_type_family def =
   (match def.it with
-  | TypD (id, params, [inst]) when check_normal_type_creation inst -> [TypD (id, params, [inst])]
+  | TypD (id, params, [inst]) when Utils.check_normal_type_creation inst -> [TypD (id, params, [inst])]
   | TypD (id, params, insts) -> 
     let deftyp = VariantT (List.mapi (fun case_num inst -> match inst.it with 
       | InstD (binds, args, {it = AliasT typ; _}) ->
@@ -700,8 +672,46 @@ let rec transform_type_family def =
   | d -> [d]
   ) |> List.map (fun d -> d $ def.at)
 
+(* 
+This small portion makes sure that prefix hints still work as intended for the generated
+types. It does so by removing the hint from the type family and taking the list of prefixes.
+It gives each prefix to the corresponding instance, creating a hint def for each in the process.
+*)
+let has_prefix_hint (hint : hint) = hint.hintid.it = "prefix"
+
+let is_family_typ_id env id = 
+  match (Env.find_opt_typ env id) with
+  | Some (_, insts) -> check_type_family insts
+  | _ -> false
+
+let collect_prefix_hints env def = 
+  let wrap_prefix p at = 
+    El.Ast.TextE p $ at
+  in
+  match def.it with
+  | HintD {it = TypH (id, hints); at = hintat; _} when is_family_typ_id env id ->
+    (match (List.find_opt has_prefix_hint hints) with
+      | Some h -> 
+        let (_, insts) = Env.find_typ env id in
+        let prefix_list = Naming.list_of_prefix h.hintexp in
+        if (List.length prefix_list <> List.length insts) then error def.at "Type family number of prefixes does not match number of instances" else 
+        List.filter_map (fun (prefix, inst) -> 
+          if prefix = "" then None else
+          (match inst.it with
+          | InstD (_, _, {it = AliasT {it = VarT (id', _); _}; _}) -> 
+            Some (HintD (TypH (id', [{h with hintexp = wrap_prefix prefix hintat}]) $ hintat) $ def.at)
+          | _ -> None
+          ) 
+        ) (List.combine prefix_list insts)
+        
+      | _ -> [def]
+    )
+  | _ -> [def]
+
+(* Main transformation function *)
 let transform (il : script): script = 
   let il_transformed = List.concat_map create_types_from_instances il in
   let env = Env.env_of_script il_transformed in 
   List.map (transform_def env) il_transformed |>
-  List.concat_map transform_type_family
+  List.concat_map (collect_prefix_hints env) |>
+  List.concat_map transform_type_family 

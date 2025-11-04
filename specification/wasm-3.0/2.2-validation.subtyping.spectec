@@ -6,9 +6,9 @@
 
 relation Numtype_sub: context |- numtype <: numtype    hint(name "S-num")  hint(macro "%numtypematch")
 relation Vectype_sub: context |- vectype <: vectype    hint(name "S-vec")  hint(macro "%vectypematch")
-relation Heaptype_sub: context |- heaptype <: heaptype hint(name "S-heap") hint(macro "%heaptypematch")
-relation Reftype_sub: context |- reftype <: reftype    hint(name "S-ref")  hint(macro "%reftypematch")
-relation Valtype_sub: context |- valtype <: valtype    hint(name "S-val")  hint(macro "%valtypematch")
+relation Heaptype_sub: context |- heaptype <: heaptype hint(name "S-heap") hint(macro "%heaptypematch") hint(prefix "SUBHEAPTYPE_")
+relation Reftype_sub: context |- reftype <: reftype    hint(name "S-ref")  hint(macro "%reftypematch")  hint(prefix "SUB_")
+relation Valtype_sub: context |- valtype <: valtype    hint(name "S-val")  hint(macro "%valtypematch")  hint(prefix "SUBVALTYPE_")
 
 rule Numtype_sub:
   C |- numtype <: numtype
@@ -131,8 +131,8 @@ rule Instrtype_sub:
 ;; Type definitions
 
 relation Packtype_sub: context |- packtype <: packtype          hint(name "S-pack")    hint(macro "%packtypematch")
-relation Storagetype_sub: context |- storagetype <: storagetype hint(name "S-storage") hint(macro "%storagetypematch")
-relation Fieldtype_sub: context |- fieldtype <: fieldtype       hint(name "S-field")   hint(macro "%fieldtypematch")
+relation Storagetype_sub: context |- storagetype <: storagetype hint(name "S-storage") hint(macro "%storagetypematch") hint(prefix "SUB_")
+relation Fieldtype_sub: context |- fieldtype <: fieldtype       hint(name "S-field")   hint(macro "%fieldtypematch")   hint(prefix "SUB_")
 
 ;; Forward declared in validation.types
 ;;relation Comptype_sub: context |- comptype <: comptype        hint(name "S-comp")    hint(macro "%comptypematch")
@@ -190,10 +190,10 @@ rule Deftype_sub/super:
 
 relation Limits_sub: context |- limits <: limits             hint(name "S-limits") hint(macro "%limitsmatch")
 relation Tagtype_sub: context |- tagtype <: tagtype          hint(name "S-tag")    hint(macro "%tagtypematch")
-relation Globaltype_sub: context |- globaltype <: globaltype hint(name "S-global") hint(macro "%globaltypematch")
+relation Globaltype_sub: context |- globaltype <: globaltype hint(name "S-global") hint(macro "%globaltypematch") hint(prefix "GLOBSUB_")
 relation Memtype_sub: context |- memtype <: memtype          hint(name "S-mem")    hint(macro "%memtypematch")
 relation Tabletype_sub: context |- tabletype <: tabletype    hint(name "S-table")  hint(macro "%tabletypematch")
-relation Externtype_sub: context |- externtype <: externtype hint(name "S-extern") hint(macro "%externtypematch")
+relation Externtype_sub: context |- externtype <: externtype hint(name "S-extern") hint(macro "%externtypematch") hint(prefix "EXTSUB_")
 
 
 rule Limits_sub:

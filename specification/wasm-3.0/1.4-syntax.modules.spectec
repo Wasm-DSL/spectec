@@ -2,9 +2,9 @@
 ;; Syntax of Modules
 ;;
 
-syntax elemmode hint(desc "element mode") hint(macro "%" "E%") =
+syntax elemmode hint(desc "element mode") hint(macro "%" "E%") hint(prefix "ELEMMODE_") =
   ACTIVE tableidx expr | PASSIVE | DECLARE
-syntax datamode hint(desc "data mode") hint(macro "%" "D%") =
+syntax datamode hint(desc "data mode") hint(macro "%" "D%") hint(prefix "DATAMODE_") =
   ACTIVE memidx expr | PASSIVE
 
 syntax type hint(desc "type definition") =

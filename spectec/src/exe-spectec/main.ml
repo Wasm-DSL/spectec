@@ -23,6 +23,7 @@ type pass =
   | Else
   | Undep
   | Uncaseremoval
+  | Naming
 
 (* This list declares the intended order of passes.
 
@@ -31,7 +32,7 @@ passers (--all-passes, some targets), we do _not_ want to use the order of
 flags on the command line.
 *)
 let _skip_passes = [ Unthe ]  (* Not clear how to extend them to indexed types *)
-let all_passes = [ TypeFamilyRemoval; Undep; Totalize; Else; Uncaseremoval; Sideconditions; Sub ]
+let all_passes = [ TypeFamilyRemoval; Undep; Totalize; Else; Uncaseremoval; Sideconditions; Sub; Naming ]
 
 type file_kind =
   | Spec
@@ -81,6 +82,7 @@ let pass_flag = function
   | Else -> "else"
   | Undep -> "remove-indexed-types"
   | Uncaseremoval -> "uncase-elimination"
+  | Naming -> "unique-naming"
 
 let pass_desc = function
   | Sub -> "Synthesize explicit subtype coercions"
@@ -91,6 +93,7 @@ let pass_desc = function
   | Else -> "Eliminate the otherwise premise in relations"
   | Undep -> "Transform indexed types into types with well-formedness predicates"
   | Uncaseremoval -> "Eliminate the uncase expression"
+  | Naming -> "Improves names and makes them unique"
 
 
 let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
@@ -102,6 +105,7 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | Else -> Middlend.Else.transform
   | Undep -> Middlend.Undep.transform
   | Uncaseremoval -> Middlend.Uncaseremoval.transform
+  | Naming -> Middlend.Naming.transform
 
 
 (* Argument parsing *)

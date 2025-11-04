@@ -2,10 +2,10 @@
 ;; Execution of Instructions
 ;;
 
-relation Step: config ~> config       hint(name "E") hint(macro "stepto") hint(tabular)
-relation Step_pure: instr* ~> instr*  hint(name "E") hint(macro "stepto") hint(tabular)
-relation Step_read: config ~> instr*  hint(name "E") hint(macro "stepto") hint(tabular)
-relation Steps: config ~>* config     hint(name "E") hint(macro "steptostar") hint(tabular)
+relation Step: config ~> config       hint(name "E") hint(macro "stepto") hint(tabular) hint(prefix "step_")
+relation Step_pure: instr* ~> instr*  hint(name "E") hint(macro "stepto") hint(tabular) hint(prefix "step_")
+relation Step_read: config ~> instr*  hint(name "E") hint(macro "stepto") hint(tabular) hint(prefix "step_")
+relation Steps: config ~>* config     hint(name "E") hint(macro "steptostar") hint(tabular) hint(prefix "steps_")
 
 
 ;; Structural

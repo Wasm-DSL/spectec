@@ -2,8 +2,8 @@
 ;; Validation of Instructions
 ;;
 
-relation Instr_ok: context |- instr : instrtype     hint(name "T")        hint(macro "%instr")
-relation Instrs_ok: context |- instr* : instrtype   hint(name "T-instr*") hint(macro "%instrs")
+relation Instr_ok: context |- instr : instrtype     hint(name "T")        hint(macro "%instr")  hint(prefix "INSTR_OK_")
+relation Instrs_ok: context |- instr* : instrtype   hint(name "T-instr*") hint(macro "%instrs") hint(prefix "INSTRS_OK_")
 relation Expr_ok: context |- expr : resulttype      hint(name "T-expr")   hint(macro "%expr")
 
 relation Defaultable: |- valtype DEFAULTABLE  hint(show $default_(%2) =/= eps)
@@ -39,7 +39,7 @@ rule Instr_ok/select-impl:
 
 ;; Block instructions
 
-relation Blocktype_ok: context |- blocktype : instrtype hint(name "K-block") hint(macro "%blocktype") hint(prosepp "as")
+relation Blocktype_ok: context |- blocktype : instrtype hint(name "K-block") hint(macro "%blocktype") hint(prosepp "as") hint(prefix "BLOCKOK_")
 
 rule Blocktype_ok/valtype:
   C |- _RESULT valtype? : eps -> valtype?
@@ -161,7 +161,7 @@ rule Instr_ok/return_call_indirect:
 
 ;; Exception instructions
 
-relation Catch_ok: context |- catch : OK hint(name "T") hint(macro "%catch")
+relation Catch_ok: context |- catch : OK hint(name "T") hint(macro "%catch") hint(prefix "OK_")
 
 rule Instr_ok/throw:
   C |- THROW x : t_1* t* -> t_2*
@@ -634,7 +634,7 @@ rule Expr_ok:
 
 ;; Constant expressions
 
-relation Instr_const: context |- instr CONST             hint(name "C-instr") hint(macro "%instrconst")
+relation Instr_const: context |- instr CONST             hint(name "C-instr") hint(macro "%instrconst") hint(prefix "C_INSTR_OK_")
 relation Expr_const: context |- expr CONST               hint(name "C-expr")  hint(macro "%exprconst")
 relation Expr_ok_const: context |- expr : valtype CONST  hint(name "TC-expr") hint(macro "%exprokconst")
 

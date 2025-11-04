@@ -21,7 +21,7 @@ var it : instrtype
 
 ;; Contexts
 
-syntax context hint(desc "context") hint(macro "%" "C%") =
+syntax context hint(desc "context") hint(macro "%" "C%") hint(prefix "C_") =
   { TYPES deftype*          hint(desc "type"),
     RECS subtype*           hint(desc "recursive type"),
     TAGS tagtype*           hint(desc "tag"),

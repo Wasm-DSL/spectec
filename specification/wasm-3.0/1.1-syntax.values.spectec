@@ -110,7 +110,7 @@ syntax labelidx hint(desc "label index") = idx
 syntax localidx hint(desc "local index") = idx
 syntax fieldidx hint(desc "field index") = idx
 
-syntax externidx hint(desc "external index") hint(macro "%" "XX%") =
+syntax externidx hint(desc "external index") hint(macro "%" "XX%") hint(prefix "EXTIDX_") =
   | FUNC funcidx | GLOBAL globalidx | TABLE tableidx | MEM memidx | TAG tagidx
 
 var x : idx

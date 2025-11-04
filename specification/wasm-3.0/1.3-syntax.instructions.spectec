@@ -28,11 +28,11 @@ syntax lit_(packtype) = pack_(packtype)
 syntax sz hint(desc "pack size") = `8 | `16 | `32 | `64
 syntax sx hint(desc "signedness") = U | S
 
-syntax unop_(numtype)
+syntax unop_(numtype) hint(prefix "UI_" "UF_")
 syntax unop_(Inn) = CLZ | CTZ | POPCNT | EXTEND sz hint(show EXTEND#%#_#S) -- if $(sz < $sizenn(Inn))
 syntax unop_(Fnn) = ABS | NEG | SQRT | CEIL | FLOOR | TRUNC | NEAREST
 
-syntax binop_(numtype)
+syntax binop_(numtype) hint(prefix "BI_" "BF_")
 syntax binop_(Inn) =
   | ADD | SUB | MUL | DIV sx hint(show DIV#_#%) | REM sx hint(show REM#_#%)
   | AND | OR | XOR | SHL | SHR sx hint(show SHR#_#%) | ROTL | ROTR
@@ -43,7 +43,7 @@ syntax testop_(numtype)
 syntax testop_(Inn) = EQZ
 ;; syntax testop_(Fnn) = |      ;; uninhabited
 
-syntax relop_(numtype)
+syntax relop_(numtype) hint(prefix "RI_" "RF_")
 syntax relop_(Inn) =
   | EQ | NE \
   | LT sx hint(show LT#_#%) | GT sx hint(show GT#_#%) \
@@ -52,7 +52,7 @@ syntax relop_(Fnn) =
   | EQ | NE | LT | GT | LE | GE
 
 ;; TODO(3, rossberg): change order of parameters?
-syntax cvtop__(numtype_1, numtype_2)
+syntax cvtop__(numtype_1, numtype_2) hint(prefix "CVTII_" "CVTIF_" "CVTFI_" "CVTFF_")
 syntax cvtop__(Inn_1, Inn_2) =
   | EXTEND sx hint(show %0#_#%1)  -- if $sizenn1(Inn_1) < $sizenn2(Inn_2)
   | WRAP         -- if $sizenn1(Inn_1) > $sizenn2(Inn_2)
@@ -99,12 +99,12 @@ syntax vvbinop hint(macro "%" "V%") = AND | ANDNOT | OR | XOR
 syntax vvternop hint(macro "%" "V%") = BITSELECT
 syntax vvtestop hint(macro "%" "V%") = ANY_TRUE
 
-syntax vunop_(shape) hint(macro "%" "V%")
+syntax vunop_(shape) hint(macro "%" "V%") hint(prefix "VUI_" "VUF_")
 syntax vunop_(Jnn X M) = ABS | NEG
   | POPCNT -- if $lsizenn(Jnn) = `8
 syntax vunop_(Fnn X M) = ABS | NEG | SQRT | CEIL | FLOOR | TRUNC | NEAREST
 
-syntax vbinop_(shape) hint(macro "%" "V%")
+syntax vbinop_(shape) hint(macro "%" "V%") hint(prefix "VBI_" "VBF_")
 syntax vbinop_(Jnn X M) =
   | ADD
   | SUB
@@ -127,7 +127,7 @@ syntax vtestop_(shape) hint(macro "%" "V%")
 syntax vtestop_(Jnn X M) = ALL_TRUE
 ;; syntax vtestop_(Fnn X N) = |           ;; uninhabited
 
-syntax vrelop_(shape) hint(macro "%" "V%")
+syntax vrelop_(shape) hint(macro "%" "V%") hint(prefix "VRI_" "VRF_")
 syntax vrelop_(Jnn X M) = EQ | NE
   | LT sx hint(show LT#_#%)  -- if $lsizenn(Jnn) =/= `64 \/ sx = S
   | GT sx hint(show GT#_#%)  -- if $lsizenn(Jnn) =/= `64 \/ sx = S
@@ -135,7 +135,7 @@ syntax vrelop_(Jnn X M) = EQ | NE
   | GE sx hint(show GE#_#%)  -- if $lsizenn(Jnn) =/= `64 \/ sx = S
 syntax vrelop_(Fnn X M) = EQ | NE | LT | GT | LE | GE
 
-syntax vshiftop_(ishape) hint(macro "%" "V%")
+syntax vshiftop_(ishape) hint(macro "%" "V%") hint(prefix "VSHIFT_")
 syntax vshiftop_(Jnn X M) = SHL | SHR sx hint(show SHR#_#%)
 
 syntax vswizzlop_(bshape) hint(macro "%" "V%")
@@ -160,7 +160,7 @@ syntax vextternop__(Jnn_1 X M_1, Jnn_2 X M_2) =
   | RELAXED_DOT_ADD S hint(show RELAXED_DOT_ADD#_#%)
     -- if $(4 * $lsizenn1(Jnn_1)) = $lsizenn2(Jnn_2) = `32
 
-syntax vcvtop__(shape_1, shape_2) hint(macro "%" "V%")
+syntax vcvtop__(shape_1, shape_2) hint(macro "%" "V%") hint(prefix "VCVTII_" "VCVTIF_" "VCVTFI_" "VCVTFF_")
 syntax vcvtop__(Jnn_1 X M_1, Jnn_2 X M_2) =
   | EXTEND half sx hint(show EXTEND#_#%#_#%)
     -- if $lsizenn2(Jnn_2) = $(2 * $lsizenn1(Jnn_1))
@@ -188,13 +188,13 @@ syntax memarg hint(desc "memory argument") = {ALIGN u32, OFFSET u32}
 
 var ao : memarg
 
-syntax loadop_(numtype)
+syntax loadop_(numtype) hint(prefix "LOP_")
 syntax loadop_(Inn) = sz _ sx hint(show %0#_#%2) -- if sz < $sizenn(Inn)
 
 syntax storeop_(numtype)
 syntax storeop_(Inn) = sz                        -- if sz < $sizenn(Inn)
 
-syntax vloadop_(vectype) hint(macro "%" "L%") =
+syntax vloadop_(vectype) hint(macro "%" "L%") hint(prefix "VLOAD_") =
   | SHAPE sz X M _ sx  hint(show %1#X#%3#_#%5) hint(macro "%shape") -- if $(sz * M = $vsize(vectype)/2)
   | SPLAT sz           hint(show %#_#SPLAT)
   | ZERO sz            hint(show %#_#ZERO) -- if sz >= `32
@@ -202,7 +202,7 @@ syntax vloadop_(vectype) hint(macro "%" "L%") =
 
 ;; Block types
 
-syntax blocktype hint(desc "block type") =
+syntax blocktype hint(desc "block type") hint(prefix "BLOCKTYPE_") =
   | _RESULT valtype?
   | _IDX funcidx
 
@@ -211,7 +211,7 @@ var bt : blocktype
 
 ;; Instructions
 
-syntax instr hint(desc "instruction")
+syntax instr hint(desc "instruction") hint(prefix "INSTR_")
 
 syntax instr/parametric hint(desc "parametric instruction") =
   | NOP

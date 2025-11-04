@@ -22,8 +22,8 @@ rule Nondefaultable: |- t NONDEFAULTABLE -- if $default_(t) = eps
 
 relation Num_ok: store |- num : numtype  hint(macro "%num")
 relation Vec_ok: store |- vec : vectype  hint(macro "%vec")
-relation Ref_ok: store |- ref : reftype  hint(macro "%ref")
-relation Val_ok: store |- val : valtype  hint(macro "%val")
+relation Ref_ok: store |- ref : reftype  hint(macro "%ref") hint(prefix "OKREF_")
+relation Val_ok: store |- val : valtype  hint(macro "%val") hint(prefix "OKVAL_")
 
 rule Num_ok:
   s |- CONST nt c : nt
@@ -83,7 +83,7 @@ rule Val_ok/ref:
 
 ;; External addresses
 
-relation Externaddr_ok: store |- externaddr : externtype  hint(macro "%externaddr")
+relation Externaddr_ok: store |- externaddr : externtype  hint(macro "%externaddr") hint(prefix "OKEXTADDR_")
 
 rule Externaddr_ok/tag:
   s |- TAG a : TAG taginst.TYPE

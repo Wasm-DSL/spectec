@@ -13,7 +13,7 @@ relation Func_ok: context |- func : deftype          hint(name "T-func")     hin
 relation Data_ok: context |- data : datatype         hint(name "T-data")     hint(macro "%data")  hint(prosepp "")
 relation Elem_ok: context |- elem : elemtype         hint(name "T-elem")     hint(macro "%elem")
 relation Datamode_ok: context |- datamode : datatype hint(name "T-datamode") hint(macro "%datamode") hint(prosepp "")
-relation Elemmode_ok: context |- elemmode : elemtype hint(name "T-elemmode") hint(macro "%elemmode")
+relation Elemmode_ok: context |- elemmode : elemtype hint(name "T-elemmode") hint(macro "%elemmode") hint(prefix "ELEMMODE_OK_")
 relation Start_ok: context |- start : OK             hint(name "T-start")    hint(macro "%start")
 relation Local_ok: context |- local : localtype      hint(name "T-local")    hint(macro "%local")
 
@@ -97,7 +97,7 @@ rule Start_ok:
 
 relation Import_ok: context |- import : externtype        hint(name "T-import")    hint(macro "%import")
 relation Export_ok: context |- export : name externtype   hint(name "T-export")    hint(macro "%export")
-relation Externidx_ok: context |- externidx : externtype  hint(name "T-externidx") hint(macro "%externidx")
+relation Externidx_ok: context |- externidx : externtype  hint(name "T-externidx") hint(macro "%externidx") hint(prefix "EXTIDX_OK_")
 
 rule Import_ok:
   C |- IMPORT name_1 name_2 xt : $clos_externtype(C, xt)
@@ -132,8 +132,8 @@ rule Externidx_ok/func:
 ;; Modules
 
 relation Module_ok: |- module : moduletype            hint(name "T-module")  hint(macro "%module")
-relation Types_ok: context |- type* : deftype*        hint(name "T-types")   hint(macro "%types")
-relation Globals_ok: context |- global* : globaltype* hint(name "T-globals") hint(macro "%globals")
+relation Types_ok: context |- type* : deftype*        hint(name "T-types")   hint(macro "%types")   hint(prefix "TYPES_OK_")
+relation Globals_ok: context |- global* : globaltype* hint(name "T-globals") hint(macro "%globals") hint(prefix "GLOB_OK_")
 
 ;; HACK for notation
 syntax nonfuncs = global* mem* table* elem*

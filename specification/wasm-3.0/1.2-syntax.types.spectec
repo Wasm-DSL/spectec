@@ -7,19 +7,19 @@
 ;; TODO(3, rossberg): add ability to do this inline
 syntax null hint(show NULL) hint(macro "%" "%") = NULL
 
-syntax addrtype hint(desc "address type") =
+syntax addrtype hint(desc "address type") hint(prefix "ADDRTYPE_") =
   | I32 | I64
 
-syntax numtype hint(desc "number type") =
+syntax numtype hint(desc "number type") hint(prefix "NUMTYPE_") =
   | I32 | I64 | F32 | F64
 
-syntax vectype hint(desc "vector type") =
+syntax vectype hint(desc "vector type") hint(prefix "VECTYPE_") =
   | V128
 
-syntax consttype hint(desc "constant type") =
+syntax consttype hint(desc "constant type") hint(prefix "CONST_") =
   | numtype | vectype
 
-syntax absheaptype/syn hint(desc "abstract heap type") =
+syntax absheaptype/syn hint(desc "abstract heap type") hint(prefix "ABSHEAPTYPE_") =
   | ANY | EQ hint(macro "EQT") | I31 | STRUCT | ARRAY | NONE
   | FUNC hint(macro "FUNCT") | NOFUNC
   | EXN | NOEXN
@@ -29,10 +29,10 @@ syntax absheaptype/sem =
   | ... | BOT
 
 syntax rectype hint(desc "recursive type")  ;; forward decl
-syntax deftype hint(desc "defined type") =
+syntax deftype hint(desc "defined type") hint(prefix "DEFTYPE_") =
   | _DEF rectype n hint(show %.%)
 
-syntax typeuse/syn hint(desc "type use") =
+syntax typeuse/syn hint(desc "type use") hint(prefix "TYPEUSE_") =
   | _IDX typeidx | ...
 syntax typeuse/sem =
   | ... | deftype | REC n hint(show REC.%)
@@ -40,7 +40,7 @@ syntax typeuse/sem =
 syntax typevar hint(desc "type variable") =
   | _IDX typeidx | REC n hint(show REC.%)
 
-syntax heaptype hint(desc "heap type") =
+syntax heaptype hint(desc "heap type") hint(prefix "HEAPTYPE_") =
   | absheaptype | typeuse
 
 syntax reftype hint(desc "reference type") =
@@ -51,11 +51,12 @@ syntax valtype/syn hint(desc "value type") =
 syntax valtype/sem =
   | ... | BOT
 
+syntax valtype hint(prefix "VALTYPE_")
 
 syntax Inn hint(show I#N) hint(macro "nt%") = addrtype
 syntax Fnn hint(show F#N) hint(macro "nt%") = F32 | F64
-syntax Vnn hint(show V#N) hint(macro "nt%") = V128
-syntax Cnn hint(show t) = Inn | Fnn | Vnn
+syntax Vnn hint(show V#N) hint(macro "nt%") = vectype
+syntax Cnn hint(show t) hint(prefix "CNN_") = Inn | Fnn | Vnn
 
 
 def $ANYREF    : reftype hint(show ANYREF)
@@ -88,13 +89,13 @@ def $NULLEXTERNREF = (REF NULL NOEXTERN)
 ;; Packed types
 
 syntax packtype hint(desc "packed type") = I8 | I16
-syntax lanetype hint(desc "lane type") = numtype | packtype
-syntax storagetype hint(desc "storage type") = valtype | packtype
+syntax lanetype hint(desc "lane type") hint(prefix "LANETYPE_") = numtype | packtype
+syntax storagetype hint(desc "storage type") hint(prefix "STORAGETYPE_") = valtype | packtype
 
 
 syntax Pnn hint(show I#N) hint(macro "nt%") = packtype
-syntax Jnn hint(show I#N) hint(macro "nt%") = Inn | Pnn
-syntax Lnn hint(show I#N) hint(macro "nt%") = Inn | Fnn | Pnn
+syntax Jnn hint(show I#N) hint(macro "nt%") hint(prefix "JNN_") = Inn | Pnn
+syntax Lnn hint(show I#N) hint(macro "nt%") = lanetype
 
 
 ;; Result types
@@ -111,7 +112,7 @@ syntax final hint(show FINAL) hint(macro "T%" "T%") = FINAL
 
 syntax fieldtype  hint(desc "field type") = mut? storagetype
 
-syntax comptype hint(desc "composite type") hint(macro "%" "T%") =
+syntax comptype hint(desc "composite type") hint(macro "%" "T%") hint(prefix "COMPTYPE_") =
   | STRUCT list(fieldtype)
   | ARRAY fieldtype
   | FUNC resulttype -> resulttype
@@ -119,7 +120,7 @@ syntax comptype hint(desc "composite type") hint(macro "%" "T%") =
 syntax subtype hint(desc "sub type") hint(macro "%" "T%") =
   | SUB final? typeuse* comptype
 
-syntax rectype hint(desc "recursive type") hint(macro "%" "T%") =
+syntax rectype hint(desc "recursive type") hint(macro "%" "T%") hint(prefix "MK_") =
   | REC list(subtype)
 
 
@@ -134,7 +135,7 @@ syntax tabletype hint(desc "table type") = addrtype limits reftype
 syntax datatype hint(desc "data type") = OK hint(macro "%data")
 syntax elemtype hint(desc "element type") = reftype
 
-syntax externtype hint(desc "external type") hint(macro "%" "XT%") =
+syntax externtype hint(desc "external type") hint(macro "%" "XT%") hint(prefix "EXTTYPE_") =
   | TAG tagtype | GLOBAL globaltype | MEM memtype | TABLE tabletype | FUNC typeuse
 
 syntax moduletype hint(desc "module type") =

@@ -17,7 +17,7 @@ syntax arrayaddr hint(desc "array address") = addr
 syntax exnaddr hint(desc "exception address") = addr
 syntax hostaddr hint(desc "host address") = addr
 
-syntax externaddr hint(desc "external address") hint(macro "%" "XA%") =
+syntax externaddr hint(desc "external address") hint(macro "%" "XA%") hint(prefix "EXTADDR_") =
   | TAG tagaddr | GLOBAL globaladdr | MEM memaddr | TABLE tableaddr | FUNC funcaddr
 
 var a : addr
@@ -26,13 +26,13 @@ var xa : externaddr
 
 ;; Values
 
-syntax num hint(desc "number value") =
+syntax num hint(desc "number value") hint(prefix "NUM_") =
   | CONST numtype num_(numtype)          hint(show %.CONST %%)
 
-syntax vec hint(desc "vector value") =
+syntax vec hint(desc "vector value") hint(prefix "VEC_") =
   | VCONST vectype vec_(vectype)         hint(show %.CONST %%)    hint(macro "VCONST")
 
-syntax addrref hint(desc "address value") =
+syntax addrref hint(desc "address value") hint(prefix "ADDRREF_") =
   | REF.I31_NUM u31                      hint(show REF.I31 %%)    hint(macro "%NUM")
   | REF.STRUCT_ADDR structaddr           hint(show REF.STRUCT %%) hint(macro "%ADDR")
   | REF.ARRAY_ADDR arrayaddr             hint(show REF.ARRAY %%)  hint(macro "%ADDR")
@@ -45,10 +45,10 @@ syntax ref hint(desc "reference value")  hint(macro "reff") =
   | addrref
   | REF.NULL heaptype
 
-syntax val hint(desc "value") =
+syntax val hint(desc "value") hint(prefix "VAL_") =
   | num | vec | ref
 
-syntax result hint(desc "result") =
+syntax result hint(desc "result") hint(prefix "RESULT_") =
   | _VALS val* | `(REF.EXN_ADDR exnaddr) THROW_REF | TRAP
 
 var r : ref
@@ -58,27 +58,27 @@ var res : result
 ;; Instances
 
 syntax hostfunc hint(desc "host function") hint(macro "%" "FI%") = `...
-syntax funccode hint(show code) hint(macro "funccode") = func | hostfunc
+syntax funccode hint(show code) hint(macro "funccode") hint(prefix "FUNCCODE_") = func | hostfunc
 
-syntax taginst hint(desc "tag instance") hint(macro "%" "HI%") =
+syntax taginst hint(desc "tag instance") hint(macro "%" "HI%") hint(prefix "TAGINST_") =
   { TYPE tagtype }
 
-syntax globalinst hint(desc "global instance") hint(macro "%" "GI%") =
+syntax globalinst hint(desc "global instance") hint(macro "%" "GI%") hint(prefix "GINST_") =
   { TYPE globaltype, VALUE val }
 
-syntax meminst hint(desc "memory instance") hint(macro "%" "MI%") =
+syntax meminst hint(desc "memory instance") hint(macro "%" "MI%") hint(prefix "MINST_") =
   { TYPE memtype, BYTES byte* }
 
-syntax tableinst hint(desc "table instance") hint(macro "%" "TI%") =
+syntax tableinst hint(desc "table instance") hint(macro "%" "TI%") hint(prefix "TINST_") =
   { TYPE tabletype, REFS ref* }
 
-syntax funcinst hint(desc "function instance") hint(macro "%" "FI%") =
+syntax funcinst hint(desc "function instance") hint(macro "%" "FI%") hint(prefix "FINST_") =
   { TYPE deftype, MODULE moduleinst, CODE funccode }
 
-syntax datainst hint(desc "data instance") hint(macro "%" "DI%") =
+syntax datainst hint(desc "data instance") hint(macro "%" "DI%") hint(prefix "DINST_") =
   { BYTES byte* }
 
-syntax eleminst hint(desc "element instance") hint(macro "%" "EI%") =
+syntax eleminst hint(desc "element instance") hint(macro "%" "EI%") hint(prefix "EINST_") =
   { TYPE elemtype, REFS ref* }
 
 syntax exportinst hint(desc "export instance") hint(macro "%" "XI%") =
@@ -88,21 +88,21 @@ syntax exportinst hint(desc "export instance") hint(macro "%" "XI%") =
 syntax packval hint(desc "packed value") =
   | PACK packtype iN($psizenn(packtype))    hint(show %.PACK %)
 
-syntax fieldval hint(desc "field value") =
+syntax fieldval hint(desc "field value") hint(prefix "FVAL_") =
   | val | packval
 
-syntax structinst hint(desc "structure instance") hint(macro "%" "SI%") =
+syntax structinst hint(desc "structure instance") hint(macro "%" "SI%") hint(prefix "SINST_") =
   { TYPE deftype, FIELDS fieldval* }
 
-syntax arrayinst hint(desc "array instance") hint(macro "%" "AI%") =
+syntax arrayinst hint(desc "array instance") hint(macro "%" "AI%") hint(prefix "AINST_") =
   { TYPE deftype, FIELDS fieldval* }
 
-syntax exninst hint(desc "exception instance") hint(macro "%" "EI%") =
+syntax exninst hint(desc "exception instance") hint(macro "%" "EI%") hint(prefix "EXCINST_") =
   { TAG tagaddr, FIELDS val* }
 
 
-syntax moduleinst hint(desc "module instance") hint(macro "%" "MI%") =
-  { TYPES deftype*,
+syntax moduleinst hint(desc "module instance") hint(macro "%" "MI%") hint(prefix "MODULE_") =
+{ TYPES deftype*,
     TAGS tagaddr*,
     GLOBALS globaladdr*,
     MEMS memaddr*,
@@ -115,7 +115,7 @@ syntax moduleinst hint(desc "module instance") hint(macro "%" "MI%") =
 
 ;; State
 
-syntax store hint(desc "store") hint(macro "%" "S%") =
+syntax store hint(desc "store") hint(macro "%" "S%") hint(prefix "S_") =
   { TAGS taginst*,
     GLOBALS globalinst*,
     MEMS meminst*,
@@ -127,7 +127,7 @@ syntax store hint(desc "store") hint(macro "%" "S%") =
     ARRAYS arrayinst*,
     EXNS exninst* }
 
-syntax frame hint(desc "frame") hint(macro "%" "A%") =
+syntax frame hint(desc "frame") hint(macro "%" "A%") hint(prefix "F_")  =
   { LOCALS (val?)*, MODULE moduleinst }
 
 
