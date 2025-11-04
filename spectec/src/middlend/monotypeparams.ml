@@ -49,7 +49,7 @@ let msg_prefix = "Encountered an unbounded type: "
 let _unbounded_error at msg = error at mono (msg_prefix ^ msg)
 
 let print_env (m_env : monoenv) = 
-  print_endline "Printing the Env: ";
+  print_endline "Printing the m_env: ";
   print_endline " ";
 
   print_endline "Function calls:";
@@ -88,9 +88,9 @@ let concrete_dep_types_bind m_env id t =
 let function_calls_bind m_env id t =
   m_env.calls <- bind_exp m_env.calls id t
 
-let reduce_type_arg (env : Il.Env.t) (arg : arg): arg = 
+let reduce_type_arg (m_env : Il.Env.t) (arg : arg): arg = 
   (match arg.it with
-  | TypA typ -> TypA (Utils.reduce_type_aliasing env typ)
+  | TypA typ -> TypA (Utils.reduce_type_aliasing m_env typ)
   | a -> a
   ) $ arg.at
 
@@ -105,6 +105,29 @@ and get_dep_args arg =
   match arg.it with
   | TypA typ -> get_dep_args_typ typ
   | _ -> []
+
+let rec create_dep_type args t = 
+  (match t.it with
+  | VarT (id, []) -> VarT (id, []) $ t.at, args
+  | VarT (id, args') when List.length args' <= List.length args -> 
+    let part_args, rest = Util.Lib.List.split (List.length args') args in
+    VarT (id, part_args) $ t.at, rest
+  | IterT (t', iter) -> 
+    let t'', rest = create_dep_type args t' in
+    IterT (t'', iter) $ t.at, rest
+  | TupT typs -> 
+    let typs', rest = List.fold_left (fun (typs', args') (e, t') -> 
+      let (t'', rest') = create_dep_type args' t' in 
+      ((e, t'') :: typs', rest')
+    ) ([], args) typs in
+    TupT typs' $ t.at, rest
+  | _ -> t, []
+  )
+  
+and create_dep_type_args args arg = 
+  match arg.it with
+  | TypA typ -> TypA (fst (create_dep_type args typ)) $ arg.at
+  | _ -> arg
   
 let transform_atom (a : atom) = 
   match a.it with
@@ -153,7 +176,7 @@ and to_string_typ (typ : typ) : string =
   | VarT (id, _) -> id.it
   | IterT (typ, iter) -> string_of_typ typ ^ "_" ^ string_of_iter iter
   | TupT [] -> ""
-  | TupT exp_typ_pairs -> "tt" ^ String.concat "_" (List.map (fun (e, t) -> to_string_exp e ^ to_string_typ t) exp_typ_pairs) 
+  | TupT exp_typ_pairs -> "tt" ^ String.concat "_" (List.map (fun (_, t) -> to_string_typ t) exp_typ_pairs) 
 
 and to_string_arg (arg : arg): string =
   match arg.it with
@@ -193,6 +216,26 @@ let get_variable_id_from_param (param : param): id =
   | TypP id -> id
   | DefP (id, _, _) -> id
   | GramP (id, _) -> id
+
+let rec generate_params ids args = 
+  match args with
+  | [] -> ([], [], [])
+  | a :: ags -> 
+    let dep_args = get_dep_args a in
+    let (new_ids, new_binds, new_params, new_args') = List.fold_left (fun (ids', binds, params, args') a -> 
+      match a.it with
+      | ExpA e -> 
+        let typ_id = to_string_typ e.note in 
+        let name = Utils.generate_var ids' typ_id in
+        let bind = ExpB (name $ a.at, e.note) $ a.at in
+        let new_param = ExpP (name $ e.at, e.note) $ a.at in
+        let new_arg = ExpA (VarE (name $ e.at) $$ e.at % e.note) $ e.at in
+        (name :: ids', bind :: binds, new_param :: params, new_arg :: args')
+      | _ -> assert false
+    ) (ids, [], [], []) dep_args in
+    let (binds', params', args') = generate_params new_ids ags in
+    let a' = create_dep_type_args new_args' a in
+    (new_binds @ binds', new_params @ params', a' :: args')
 
 let rec transform_exp (m_env : monoenv) (subst : Subst.subst) (exp : exp): exp =
   let t_func = transform_exp m_env subst in
@@ -302,6 +345,19 @@ and transform_prem (m_env : monoenv) (subst : Subst.subst) (prem : prem): prem =
   | NegPr p -> NegPr (transform_prem m_env subst p)
   ) $ prem.at
 
+and transform_sym m_env subst s = 
+  (match s.it with
+  | VarG (id, args) -> VarG (id, List.map (transform_arg m_env subst) args)
+  | SeqG syms -> SeqG (List.map (transform_sym m_env subst) syms)
+  | AltG syms -> AltG (List.map (transform_sym m_env subst) syms)
+  | RangeG (syml, symu) -> RangeG (transform_sym m_env subst syml, transform_sym m_env subst symu)
+  | IterG (sym, (iter, id_exp_pairs)) -> IterG (transform_sym m_env subst sym, (transform_iter m_env subst iter, 
+      List.map (fun (id, exp) -> (id, transform_exp m_env subst exp)) id_exp_pairs)
+    )
+  | AttrG (e, sym) -> AttrG (transform_exp m_env subst e, transform_sym m_env subst sym)
+  | sym -> sym 
+  ) $ s.at 
+
 
 (* TODO think about how to resolve type params for type families*)
 and transform_family_type_instances (_m_env : monoenv) (params : param list) (id : id) (insts : inst list): def' list =
@@ -339,7 +395,7 @@ let transform_type_creation (m_env : monoenv) (id : id) params (inst : inst) : d
         $ deftyp.at)
     )
 
-let transform_clause (m_env : monoenv) (subst : Subst.subst) (clause : clause) : clause =
+let transform_clause (m_env : monoenv) (subst : Subst.subst) binds (clause : clause) : clause =
   let typ_bind b = 
     match b.it with
     | TypB id -> not (Subst.mem_typid subst id)
@@ -350,9 +406,9 @@ let transform_clause (m_env : monoenv) (subst : Subst.subst) (clause : clause) :
     not (Free.Set.exists (fun id -> Subst.mem_typid subst (id $ no_region)) typids)
   in 
   match clause.it with
-  | DefD (binds, args, exp, prems) ->
-    DefD (List.filter typ_bind binds |> List.map (transform_bind m_env subst), 
-    List.filter typ_arg args |> List.map (transform_arg m_env subst), 
+  | DefD (binds', args, exp, prems) ->
+    DefD (binds @ List.filter typ_bind binds' |> List.map (transform_bind m_env subst), 
+    List.map Utils.make_arg_from_bind binds @ List.filter typ_arg args |> List.map (transform_arg m_env subst), 
     transform_exp m_env subst exp, 
     List.map (transform_prem m_env subst) prems) $ clause.at
         
@@ -365,18 +421,20 @@ let transform_function_definitions (m_env : monoenv) (id : id) (params: param li
   match (StringMap.find_opt id.it m_env.calls), used with
   | _, [] -> (* function has no type parameters *) 
     let subst = Il.Subst.empty in
-    [apply_recursive (DecD (id, params, transform_type m_env subst return_type, List.map (transform_clause m_env subst) clauses))]
+    [apply_recursive (DecD (id, params, transform_type m_env subst return_type, List.map (transform_clause m_env subst []) clauses))]
   | None, _ -> (* function is not used *) 
     print_endline ("WARNING: function " ^ id.it ^ " is not being used, removing it.");
     []
   | Some set_ref, _ -> (* function has type params *)
     List.iter (fun e -> 
-      let (new_id, used_call_args) = get_function_call e in 
+      let (new_id, call_args) = get_function_call e in 
+      let ids = List.map (fun i -> (Utils.get_param_id i).it) params in 
+      let (new_binds, new_params, call_args') = generate_params ids call_args in 
       let used_param_ids = List.map get_variable_id_from_param used in 
-      let subst = create_args_pairings used_param_ids used_call_args in
-      let def' = DecD (new_id.it $ id.at, List.map (transform_param m_env subst) unused, 
+      let subst = create_args_pairings used_param_ids call_args' in
+      let def' = DecD (new_id.it $ id.at, new_params @ List.map (transform_param m_env subst) unused, 
         transform_type m_env subst return_type, 
-        List.map (transform_clause m_env subst) clauses) in 
+        List.map (transform_clause m_env subst new_binds) clauses) in 
       add_to_mono_list m_env ((apply_recursive def') $ at)
     ) (ExpSet.elements !set_ref);
     []
@@ -389,6 +447,14 @@ let transform_rule (m_env : monoenv) (rule : rule) : rule =
     mixop, 
     transform_exp m_env Subst.empty exp, 
     List.map (transform_prem m_env Subst.empty) prems) $ rule.at
+
+let transform_prod m_env subst prod = 
+  (match prod.it with 
+  | ProdD (binds, sym, exp, prems) -> ProdD (List.map (transform_bind m_env subst) binds,
+    transform_sym m_env subst sym,
+    transform_exp m_env subst exp,
+    List.map (transform_prem m_env subst) prems
+  )) $ prod.at
 
 let rec transform_def (m_env : monoenv) (def : def) : def list =
   (match def.it with
@@ -403,6 +469,7 @@ let rec transform_def (m_env : monoenv) (def : def) : def list =
       | [] -> []
       | _ -> [RecD new_defs]
     )
+  |  GramD (id, params, typ, prods) -> [GramD (id, List.map (transform_param m_env Subst.empty) params, transform_type m_env Subst.empty typ, List.map (transform_prod m_env Subst.empty) prods)]
   | _ -> [def.it]
   ) |> List.map (fun new_def -> new_def $ def.at) 
 

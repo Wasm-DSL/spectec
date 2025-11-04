@@ -150,14 +150,6 @@ let make_param_from_bind b =
   | GramB _ -> assert false
   ) $ b.at
 
-let make_arg_from_bind b = 
-  (match b.it with
-  | ExpB (id, typ) -> ExpA (VarE id $$ id.at % typ)
-  | TypB id -> TypA (VarT (id, []) $ id.at)
-  | DefB (id, _, _) -> DefA id
-  | GramB (id, _, _) -> GramA (VarG (id, []) $ id.at)
-  ) $ b.at
-
 let create_arg_param_subst args params =
   List.fold_left2 (fun s a p -> 
     match a.it, p.it with
@@ -338,7 +330,7 @@ and get_type_family_conversion_chain env family_typ =
 let make_projection_family_data env (lst : family_data list) (base_exp : exp) = 
   List.fold_right (fun (id, binds, subst, case_num, family_typ, sub_typ) exp ->
     let proj_id = proj_name id case_num in 
-    let new_args = List.map make_arg_from_bind binds |> Subst.subst_list Subst.subst_arg subst in
+    let new_args = List.map Utils.make_arg_from_bind binds |> Subst.subst_list Subst.subst_arg subst in
     let sub_typ' = Subst.subst_typ subst sub_typ in 
     let opt_typ = IterT (sub_typ', Opt) $ sub_typ'.at in
     let calle = CallE (proj_id, new_args @ [(ExpA exp) $ exp.at]) in
@@ -347,7 +339,7 @@ let make_projection_family_data env (lst : family_data list) (base_exp : exp) =
 
 let make_constructor_family_data (lst : family_data list) (base_exp : exp) = 
   List.fold_left (fun exp (id, binds, subst, case_num, family_typ, sub_typ) ->
-    let new_args = List.map make_arg_from_bind binds |> Subst.subst_list Subst.subst_arg subst in
+    let new_args = List.map Utils.make_arg_from_bind binds |> Subst.subst_list Subst.subst_arg subst in
     let tupe = construct_tuple_exp base_exp.at exp sub_typ new_args in
     CaseE (constructor_name_mixop id binds case_num, tupe) $$ id.at % family_typ 
   ) base_exp lst 
@@ -636,7 +628,7 @@ let gen_family_projections id has_one_inst case_num inst =
       let new_bind = ExpB (var_typ_fam $ id.at, typ) $ id.at in
       let var_exp = VarE (var_typ_fam $ id.at) $$ id.at % typ in
       let opt_exp = OptE (Some (var_exp)) $$ id.at % return_type in
-      let new_args = List.map make_arg_from_bind binds in
+      let new_args = List.map Utils.make_arg_from_bind binds in
       let new_case = CaseE(constructor_name_mixop id binds case_num, construct_tuple_exp deftyp.at var_exp typ new_args) $$ id.at % family_typ in
 
       let return_exp = if has_one_inst then var_exp else opt_exp in
@@ -671,7 +663,7 @@ let rec transform_type_family def =
     let deftyp = VariantT (List.mapi (fun case_num inst -> match inst.it with 
       | InstD (binds, args, {it = AliasT typ; _}) ->
         let name = var_typ_fam $ typ.at in
-        let new_args = List.map make_arg_from_bind binds in
+        let new_args = List.map Utils.make_arg_from_bind binds in
         let tupt = construct_tuple_typ typ new_args id.at in
         let new_bind = ExpB (name, typ) $ typ.at in
 
