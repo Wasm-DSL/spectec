@@ -17,6 +17,7 @@ sig
   val visit_typ : typ -> unit
   val visit_deftyp : deftyp -> unit
   val visit_exp : exp -> unit
+  val visit_arg : arg -> unit
   val visit_path : path -> unit
   val visit_sym : sym -> unit
   val visit_prem : prem -> unit
@@ -39,6 +40,7 @@ struct
   let visit_typ _ = ()
   let visit_deftyp _ = ()
   let visit_exp _ = ()
+  let visit_arg _ = ()
   let visit_path _ = ()
   let visit_sym _ = ()
   let visit_prem _ = ()
@@ -187,6 +189,7 @@ and prems prs = list prem prs
 (* Definitions *)
 
 and arg a =
+  visit_arg a;
   match a.it with
   | ExpA e -> exp e
   | TypA t -> typ t

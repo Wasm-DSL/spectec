@@ -7,6 +7,7 @@ type sets = {typid : Set.t; relid : Set.t; varid : Set.t; defid : Set.t; gramid 
 val empty : sets
 val union : sets -> sets -> sets
 val diff : sets -> sets -> sets
+val inter : sets -> sets -> sets
 
 val subset : sets -> sets -> bool
 val disjoint : sets -> sets -> bool

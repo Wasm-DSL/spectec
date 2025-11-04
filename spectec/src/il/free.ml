@@ -33,6 +33,14 @@ let diff sets1 sets2 =
     gramid = Set.diff sets1.gramid sets2.gramid;
   }
 
+let inter sets1 sets2 =
+  { typid = Set.inter sets1.typid sets2.typid;
+    relid = Set.inter sets1.relid sets2.relid;
+    varid = Set.inter sets1.varid sets2.varid;
+    defid = Set.inter sets1.defid sets2.defid;
+    gramid = Set.inter sets1.gramid sets2.gramid;
+  }
+  
 let (+) = union
 let (-) = diff
 
