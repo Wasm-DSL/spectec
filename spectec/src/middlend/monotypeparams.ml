@@ -146,7 +146,7 @@ let is_type_arg (a : arg) =
 
 let is_type_param (p : param) =
   match p.it with
-  | TypP _ -> true
+  | TypP _ | DefP _ -> true
   | _ -> false
 
 (* String transformation functions *)
@@ -182,6 +182,7 @@ and to_string_arg (arg : arg): string =
   match arg.it with
   | ExpA exp -> to_string_exp exp
   | TypA typ -> to_string_typ typ
+  | DefA id -> id.it
   | _ -> ""
 
 and transform_id_from_args (id : id) (args : arg list): id =
@@ -261,6 +262,9 @@ let rec transform_exp (m_env : monoenv) (subst : Subst.subst) (exp : exp): exp =
   | SliceE (e1, e2, e3) -> SliceE (t_func e1, t_func e2, t_func e3)
   | UpdE (e1, path, e2) -> UpdE (t_func e1, transform_path m_env subst path, t_func e2)
   | ExtE (e1, path, e2) -> ExtE (t_func e1, transform_path m_env subst path, t_func e2)
+  | CallE (id, _) when not (Il.Env.mem_def m_env.il_env id) -> 
+    (* Must be a function parameter, subst it *)
+    (Il.Subst.subst_exp subst exp).it
   | CallE (id, args) ->
     let subst_args = List.map (transform_arg m_env subst) args in
     let (type_args, normal_args) = List.partition is_type_arg subst_args in
@@ -322,6 +326,7 @@ and transform_arg (m_env : monoenv) (subst : Subst.subst) (arg : arg) : arg =
   (match arg.it with
   | ExpA exp -> ExpA (transform_exp m_env subst exp)
   | TypA typ -> TypA (transform_type m_env subst typ)
+  | DefA _ -> (Subst.subst_arg subst arg).it
   | _ -> arg.it) $ arg.at
   
 and transform_param (m_env : monoenv) (subst : Subst.subst) (param : param) : param =
@@ -363,11 +368,26 @@ and transform_sym m_env subst s =
 and transform_family_type_instances (_m_env : monoenv) (params : param list) (id : id) (insts : inst list): def' list =
   [TypD (id, params, insts)]
 
+let typ_bind subst b = 
+  match b.it with
+  | TypB id -> not (Subst.mem_typid subst id)
+  | DefB (id, _, _) -> not (Subst.mem_defid subst id)
+  | _ -> true
+
+let typ_arg subst a = 
+  let free = Free.free_arg a in
+  let typids = free.typid in 
+  let defids = free.defid in 
+  not (
+    Free.Set.exists (fun id -> Subst.mem_typid subst (id $ no_region)) typids ||
+    Free.Set.exists (fun id -> Subst.mem_defid subst (id $ no_region)) defids
+  )
+
 let transform_type_creation (m_env : monoenv) (id : id) params (inst : inst) : def' list =
   match inst.it with 
     | InstD (binds, args, deftyp) -> 
-      let type_args = List.filter is_type_arg args in 
-      let transform_deftyp func = match type_args, StringMap.find_opt id.it m_env.concrete_dependent_types with
+      let type_params, rest = List.partition is_type_param params in 
+      let transform_deftyp func = match type_params, StringMap.find_opt id.it m_env.concrete_dependent_types with
       | [], None -> (* Means its a normal type *) 
         [TypD (id, params, [InstD (binds, args, func Il.Subst.empty) $ inst.at])]
       | _, None -> 
@@ -376,8 +396,17 @@ let transform_type_creation (m_env : monoenv) (id : id) params (inst : inst) : d
       | _, Some set_ref ->
         List.iter ( fun t -> 
           let dep_args = get_dependent_type_args t in 
-          let subst = Option.value (try Eval.match_list Eval.match_arg m_env.il_env Il.Subst.empty dep_args type_args with Eval.Irred -> None) ~default:Il.Subst.empty in
-          let def' = TypD (transform_id_from_args id dep_args, [], [InstD ([], [], func subst) $ inst.at]) in
+          let ids = List.map (fun i -> (Utils.get_param_id i).it) params in 
+          let used_param_ids = List.map get_variable_id_from_param type_params in 
+          let (new_binds, new_params, dep_args') = generate_params ids dep_args in
+          let subst = create_args_pairings used_param_ids dep_args' in 
+          let def' = TypD (transform_id_from_args id dep_args, new_params @ rest, 
+          [InstD (
+          new_binds @ List.filter (typ_bind subst) binds 
+                    |> List.map (transform_bind m_env subst), 
+          List.map Utils.make_arg_from_bind new_binds @ List.filter (typ_arg subst) args 
+                                                 |> List.map (transform_arg m_env subst), 
+          func subst) $ inst.at]) in
           add_to_mono_list m_env (def' $ inst.at)
         ) (TypSet.elements !set_ref);
         []
@@ -396,19 +425,10 @@ let transform_type_creation (m_env : monoenv) (id : id) params (inst : inst) : d
     )
 
 let transform_clause (m_env : monoenv) (subst : Subst.subst) binds (clause : clause) : clause =
-  let typ_bind b = 
-    match b.it with
-    | TypB id -> not (Subst.mem_typid subst id)
-    | _ -> true
-  in 
-  let typ_arg a = 
-    let typids = (Free.free_arg a).typid in
-    not (Free.Set.exists (fun id -> Subst.mem_typid subst (id $ no_region)) typids)
-  in 
   match clause.it with
   | DefD (binds', args, exp, prems) ->
-    DefD (binds @ List.filter typ_bind binds' |> List.map (transform_bind m_env subst), 
-    List.map Utils.make_arg_from_bind binds @ List.filter typ_arg args |> List.map (transform_arg m_env subst), 
+    DefD (binds @ List.filter (typ_bind subst) binds' |> List.map (transform_bind m_env subst), 
+    List.map Utils.make_arg_from_bind binds @ List.filter (typ_arg subst) args |> List.map (transform_arg m_env subst), 
     transform_exp m_env subst exp, 
     List.map (transform_prem m_env subst) prems) $ clause.at
         
@@ -490,6 +510,16 @@ let rec reorder_monomorphized_functions (m_env : monoenv) (def : def): def list 
       typs && funcs
     ) mono_list in
 
+  let rec repeat_partition lst def =
+    let (rest, filtered_list) = partition_list lst def in
+    if filtered_list = [] then (rest, []) else
+    let (rest', filtered_list') = List.fold_left (fun (rs, fs) def' -> 
+      let rs', fs' = repeat_partition rs def' in
+      (rs', fs' @ fs)
+    ) (rest, []) filtered_list in 
+    (rest', filtered_list' @ filtered_list)
+  in
+
   match def.it with
   | RecD defs -> 
     let new_defs = List.concat_map (reorder_monomorphized_functions m_env) defs in
@@ -498,14 +528,9 @@ let rec reorder_monomorphized_functions (m_env : monoenv) (def : def): def list 
       | _ -> [d]
     ) new_defs in
     [RecD removed_rec_defs $ def.at]
-  | _ -> let (rest, filtered_mono_list) = partition_list m_env.mono_list def in
+  | _ -> let (rest, filtered_mono_list) = repeat_partition m_env.mono_list def in
     m_env.mono_list <- rest;
     filtered_mono_list @ [def]
-
-and repeat_reordering (m_env : monoenv) (defs : def list) : def list =
-  match m_env.mono_list with
-  | [] -> defs
-  | _ -> repeat_reordering m_env (List.concat_map (reorder_monomorphized_functions m_env) defs)
 
 (* Main transformation function *)
 let transform (script: Il.Ast.script) =
@@ -514,4 +539,4 @@ let transform (script: Il.Ast.script) =
   (* Reverse the script in order to monomorphize nested ones correctly *)
   let transformed_script = List.rev (List.concat_map (transform_def m_env) (List.rev script)) in
   print_env m_env;
-  repeat_reordering m_env transformed_script
+  List.concat_map (reorder_monomorphized_functions m_env) transformed_script
