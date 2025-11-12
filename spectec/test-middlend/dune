@@ -26,8 +26,10 @@
 ; Adding a new pass is somewhat tedious:
 ; - Add the filename in `targets` below
 ; - Add a `diff`-rule at the bottom
-; - Create a (empty) expected output file in this directory
-;   (Only necessary because of https://github.com/ocaml/dune/issues/8075)
+; - Remove all expected files (`rm *.exp`)
+; - Run `dune runtest --diff-command "diff -Nur"`
+;   (Without this flag `diff` will stumble over the missing files, see https://github.com/ocaml/dune/issues/8075)
+; - Run `dune promote`
 ;
 ; Same when reordering passes: the filenames have to be updated.
 
