@@ -22,6 +22,7 @@ type pass =
   | TypeFamilyRemoval
   | Else
   | Undep
+  | AliasDemut
 
 (* This list declares the intended order of passes.
 
@@ -30,7 +31,7 @@ passers (--all-passes, some targets), we do _not_ want to use the order of
 flags on the command line.
 *)
 let _skip_passes = [ Unthe ]  (* Not clear how to extend them to indexed types *)
-let all_passes = [ TypeFamilyRemoval; Undep; Totalize; Else; Sideconditions; Sub ]
+let all_passes = [ TypeFamilyRemoval; Undep; Totalize; Else; Sideconditions; Sub; AliasDemut ]
 
 type file_kind =
   | Spec
@@ -77,6 +78,7 @@ let pass_flag = function
   | Unthe -> "the-elimination"
   | Sideconditions -> "sideconditions"
   | TypeFamilyRemoval -> "typefamily-removal"
+  | AliasDemut -> "alias-demut"
   | Else -> "else"
   | Undep -> "remove-indexed-types"
 
@@ -88,6 +90,7 @@ let pass_desc = function
   | TypeFamilyRemoval -> "Transform Type families into sum types"
   | Else -> "Eliminate the otherwise premise in relations"
   | Undep -> "Transform indexed types into types with well-formedness predicates"
+  | AliasDemut -> "Lifts type aliases out of mutual groups"
 
 
 let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
@@ -98,6 +101,7 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | TypeFamilyRemoval -> Middlend.Typefamilyremoval.transform
   | Else -> Middlend.Else.transform
   | Undep -> Middlend.Undep.transform
+  | AliasDemut -> Middlend.AliasDemut.transform
 
 
 (* Argument parsing *)
