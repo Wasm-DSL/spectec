@@ -1,6 +1,6 @@
-# A simple test of processing `test.spectec` in this directory.
-# Output from all passes is dumped compared to `test.spectec.exp`
-# Run `dune promote` to update expected output.
+; A simple test of processing `test.spectec` in this directory.
+; Output from all passes is dumped compared to `test.spectec.exp`
+; Run `dune promote` to update expected output.
 
 (rule
   (action (with-stdout-to test.spectec.act
@@ -13,23 +13,23 @@
 )
 (rule (alias runtest) (action (diff test.spectec.exp test.spectec.act)))
 
-# A more complicated setup that tests the various middle end passes against the full specification.
-#
-# It runs spectec on the 3.0 specification files and dumps the IL of each pass
-# into a separate file (`specification.XX-passname.act`).
-# It then compares it against the expected output files (`specification.XX-passname.exp`).
-# `dune promote` can be used to update the expected files.
-#
-# It is often helpful to diff the the output from one pass against its previous pass,
-# hence the numbers in the filenames.
-#
-# Adding a new pass is somewhat tedious:
-# - Add the filename in `targets` below
-# - Add a `diff`-rule at the bottom
-# - Create a (empty) expected output file in this directory
-#   (Only necessary because of https://github.com/ocaml/dune/issues/8075)
-#
-# Same when reordering passes: the filenames have to be updated.
+; A more complicated setup that tests the various middle end passes against the full specification.
+;
+; It runs spectec on the 3.0 specification files and dumps the IL of each pass
+; into a separate file (`specification.XX-passname.act`).
+; It then compares it against the expected output files (`specification.XX-passname.exp`).
+; `dune promote` can be used to update the expected files.
+;
+; It is often helpful to diff the the output from one pass against its previous pass,
+; hence the numbers in the filenames.
+;
+; Adding a new pass is somewhat tedious:
+; - Add the filename in `targets` below
+; - Add a `diff`-rule at the bottom
+; - Create a (empty) expected output file in this directory
+;   (Only necessary because of https://github.com/ocaml/dune/issues/8075)
+;
+; Same when reordering passes: the filenames have to be updated.
 
 (rule
   (targets
