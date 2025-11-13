@@ -32,7 +32,7 @@ Called from Backend_prose__Render.render_def in file "src/backend-prose/render.m
 Called from Stdlib__List.map in file "list.ml", line 87, characters 15-19
 Called from Stdlib__List.map in file "list.ml", line 88, characters 14-21
 Called from Backend_prose__Render.render_prose in file "src/backend-prose/render.ml", line 1554, characters 29-60
-Called from Dune__exe__Main in file "src/exe-spectec/main.ml", line 350, characters 26-91
+Called from Dune__exe__Main in file "src/exe-spectec/main.ml", line 352, characters 26-91
 Generating prose for Wasm 2.0...
 spectec 0.5 generator
 == Parsing...
