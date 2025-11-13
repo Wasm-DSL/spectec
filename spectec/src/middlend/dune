@@ -10,6 +10,8 @@
     else
     undep
     utils
+    subexpansion
+    uncaseremoval
     aliasDemut
   )
 )
