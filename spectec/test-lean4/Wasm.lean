@@ -51,10 +51,11 @@ def prod : ∀  (var_0 : (List Nat)) , Nat
   | (v_n :: n'_lst) => (v_n * (prod n'_lst))
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:7.1-7.44 -/
-def opt_ : ∀  (X : Type) (var_0 : (List X)) , (Option X)
-  | X, [] => none
-  | X, [w] => (some w)
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:7.1-7.58 -/
+def opt_ : ∀  (X : Type) (var_0 : (List X)) , (Option (Option X))
+  | X, [] => (some none)
+  | X, [w] => (some (some w))
+  | X, x1 => none
 
 
 /- Recursive Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:14.1-14.82 -/
@@ -209,26 +210,28 @@ abbrev u128 : Type := uN
 /- Type Alias Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:23.1-23.21 -/
 abbrev s33 : Type := sN
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:30.1-30.21 -/
-def signif : ∀  (v_N : N) , Nat
-  | 32 => 23
-  | 64 => 52
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:30.1-30.35 -/
+def signif : ∀  (v_N : N) , (Option Nat)
+  | 32 => (some 23)
+  | 64 => (some 52)
+  | x0 => none
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:34.1-34.20 -/
-def expon : ∀  (v_N : N) , Nat
-  | 32 => 8
-  | 64 => 11
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:34.1-34.34 -/
+def expon : ∀  (v_N : N) , (Option Nat)
+  | 32 => (some 8)
+  | 64 => (some 11)
+  | x0 => none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:38.1-38.47 -/
 def fun_M : ∀  (v_N : N) , Nat
-  | v_N => (signif v_N)
+  | v_N => (Option.get! (signif v_N))
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:41.1-41.47 -/
 def E : ∀  (v_N : N) , Nat
-  | v_N => (expon v_N)
+  | v_N => (Option.get! (expon v_N))
 
 
 /- Type Alias Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:48.1-48.47 -/
@@ -289,7 +292,7 @@ opaque fone : forall (v_N : N), fN := opaqueDef
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:67.1-67.21 -/
 def canon_ : ∀  (v_N : N) , Nat
-  | v_N => (2 ^ ((((signif v_N) : Nat) - (1 : Nat)) : Nat))
+  | v_N => (2 ^ ((((Option.get! (signif v_N)) : Nat) - (1 : Nat)) : Nat))
 
 
 /- Type Alias Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:73.1-74.8 -/
@@ -514,8 +517,8 @@ opaque free_localidx : forall (v_localidx : localidx), free := opaqueDef
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:187.1-187.36 -/
 opaque free_labelidx : forall (v_labelidx : labelidx), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:188.1-188.38 -/
-opaque free_externidx : forall (v_externidx : externidx), free := opaqueDef
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:188.1-188.52 -/
+opaque free_externidx : forall (v_externidx : externidx), (Option free) := opaqueDef
 
 /- Inductive Type Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:8.1-8.55 -/
 inductive null : Type where
@@ -1039,12 +1042,6 @@ def lanetype_Jnn : ∀  (var_0 : Jnn) , lanetype
   | .I16 => .I16
 
 
-/- Auxiliary Definition at:  -/
-def Jnn_addrtype : ∀  (var_0 : addrtype) , Jnn
-  | .I32 => .I32
-  | .I64 => .I64
-
-
 /- Inductive Type Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:97.1-97.62 -/
 inductive Lnn : Type where
   | I32 : Lnn
@@ -1159,24 +1156,27 @@ inductive wf_moduletype : moduletype -> Prop where
     Forall (fun (var_0 : externtype) => (wf_externtype var_0)) var_0 ->
     wf_moduletype (.mk_moduletype externtype_lst var_0)
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:179.1-179.51 -/
-def IN : ∀  (v_N : N) , Inn
-  | 32 => .I32
-  | 64 => .I64
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:179.1-179.65 -/
+def IN : ∀  (v_N : N) , (Option Inn)
+  | 32 => (some .I32)
+  | 64 => (some .I64)
+  | x0 => none
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:183.1-183.51 -/
-def FN : ∀  (v_N : N) , Fnn
-  | 32 => .F32
-  | 64 => .F64
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:183.1-183.65 -/
+def FN : ∀  (v_N : N) , (Option Fnn)
+  | 32 => (some .F32)
+  | 64 => (some .F64)
+  | x0 => none
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:187.1-187.51 -/
-def JN : ∀  (v_N : N) , Jnn
-  | 8 => .I8
-  | 16 => .I16
-  | 32 => .I32
-  | 64 => .I64
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:187.1-187.65 -/
+def JN : ∀  (v_N : N) , (Option Jnn)
+  | 8 => (some .I8)
+  | 16 => (some .I16)
+  | 32 => (some .I32)
+  | 64 => (some .I64)
+  | x0 => none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:196.1-196.46 -/
@@ -1246,7 +1246,8 @@ def inv_isize : ∀  (nat : Nat) , (Option Inn)
 def inv_jsize : ∀  (nat : Nat) , (Option Jnn)
   | 8 => (some .I8)
   | 16 => (some .I16)
-  | v_n => (some (Jnn_addrtype (Option.get! (inv_isize v_n))))
+  | 32 => (some .I32)
+  | 64 => (some .I64)
   | x0 => none
 
 
@@ -1257,58 +1258,61 @@ def inv_fsize : ∀  (nat : Nat) , (Option Fnn)
   | x0 => none
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:239.1-239.63 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:240.1-240.63 -/
 def sizenn : ∀  (v_numtype : numtype) , Nat
   | nt => (size nt)
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:240.1-240.63 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:241.1-241.63 -/
 def sizenn1 : ∀  (v_numtype : numtype) , Nat
   | nt => (size nt)
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:241.1-241.63 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:242.1-242.63 -/
 def sizenn2 : ∀  (v_numtype : numtype) , Nat
   | nt => (size nt)
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:246.1-246.63 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:247.1-247.63 -/
 def vsizenn : ∀  (v_vectype : vectype) , Nat
   | vt => (vsize vt)
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:249.1-249.63 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:250.1-250.63 -/
 def psizenn : ∀  (v_packtype : packtype) , Nat
   | pt => (psize pt)
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:252.1-252.63 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:253.1-253.63 -/
 def lsizenn : ∀  (v_lanetype : lanetype) , Nat
   | lt => (lsize lt)
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:253.1-253.63 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:254.1-254.63 -/
 def lsizenn1 : ∀  (v_lanetype : lanetype) , Nat
   | lt => (lsize lt)
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:254.1-254.63 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:255.1-255.63 -/
 def lsizenn2 : ∀  (v_lanetype : lanetype) , Nat
   | lt => (lsize lt)
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:259.1-259.83 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:260.1-260.83 -/
 def jsizenn : ∀  (v_Jnn : Jnn) , Nat
   | v_Jnn => (lsize (lanetype_Jnn v_Jnn))
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:262.1-262.42 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:263.1-263.42 -/
 def inv_jsizenn : ∀  (nat : Nat) , (Option Jnn)
-  | v_n => (some (Option.get! (inv_jsize v_n)))
+  | 8 => (some .I8)
+  | 16 => (some .I16)
+  | 32 => (some .I32)
+  | 64 => (some .I64)
   | x0 => none
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:268.1-268.56 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:272.1-272.56 -/
 def lunpack : ∀  (v_lanetype : lanetype) , numtype
   | .I32 => .I32
   | .I64 => .I64
@@ -1318,10 +1322,10 @@ def lunpack : ∀  (v_lanetype : lanetype) , numtype
   | .I16 => .I32
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:272.1-272.35 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:276.1-276.35 -/
 opaque unpack : forall (v_storagetype : storagetype), valtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:276.1-276.73 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:280.1-280.73 -/
 def nunpack : ∀  (v_storagetype : storagetype) , (Option numtype)
   | .I32 => (some .I32)
   | .I64 => (some .I64)
@@ -1332,13 +1336,13 @@ def nunpack : ∀  (v_storagetype : storagetype) , (Option numtype)
   | x0 => none
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:280.1-280.73 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:284.1-284.73 -/
 def vunpack : ∀  (v_storagetype : storagetype) , (Option vectype)
   | .V128 => (some .V128)
   | x0 => none
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:283.1-283.74 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:287.1-287.74 -/
 def cunpack : ∀  (v_storagetype : storagetype) , (Option consttype)
   | .I32 => (some .I32)
   | .I64 => (some .I64)
@@ -1356,163 +1360,163 @@ def cunpack : ∀  (v_storagetype : storagetype) , (Option consttype)
   | x0 => none
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:291.1-291.90 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:295.1-295.90 -/
 opaque minat : forall (v_addrtype : addrtype) (v_addrtype_0 : addrtype), addrtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:295.1-295.82 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:299.1-299.82 -/
 opaque diffrt : forall (v_reftype : reftype) (v_reftype_0 : reftype), reftype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:300.1-300.63 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:304.1-304.63 -/
 def as_deftype : ∀  (v_typeuse : typeuse) , (Option deftype)
   | (._DEF v_rectype v_n) => (some (._DEF v_rectype v_n))
   | x0 => none
 
 
-/- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:308.1-308.87 -/
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:308.1-308.87 -/
+/- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:312.1-312.87 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:312.1-312.87 -/
 opaque tagsxt : forall (var_0 : (List externtype)), (List tagtype) := opaqueDef
 
-/- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:309.1-309.90 -/
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:309.1-309.90 -/
+/- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:313.1-313.90 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:313.1-313.90 -/
 opaque globalsxt : forall (var_0 : (List externtype)), (List globaltype) := opaqueDef
 
-/- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:310.1-310.87 -/
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:310.1-310.87 -/
+/- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:314.1-314.87 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:314.1-314.87 -/
 opaque memsxt : forall (var_0 : (List externtype)), (List memtype) := opaqueDef
 
-/- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:311.1-311.89 -/
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:311.1-311.89 -/
+/- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:315.1-315.89 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:315.1-315.89 -/
 opaque tablesxt : forall (var_0 : (List externtype)), (List tabletype) := opaqueDef
 
-/- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:312.1-312.88 -/
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:312.1-312.88 -/
+/- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:316.1-316.88 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:316.1-316.88 -/
 opaque funcsxt : forall (var_0 : (List externtype)), (List deftype) := opaqueDef
 
-/- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:337.1-337.112 -/
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:337.1-337.112 -/
+/- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:341.1-341.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:341.1-341.112 -/
 opaque subst_typevar : forall (v_typevar : typevar) (var_0 : (List typevar)) (var_1 : (List typeuse)), typeuse := opaqueDef
 
-/- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:401.1-401.59 -/
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:401.1-401.59 -/
+/- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:405.1-405.59 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:405.1-405.59 -/
 opaque minus_recs : forall (var_0 : (List typevar)) (var_1 : (List typeuse)), (List typevar) × (List typeuse) := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:347.1-347.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:351.1-351.112 -/
 opaque subst_packtype : forall (v_packtype : packtype) (var_0 : (List typevar)) (var_1 : (List typeuse)), packtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:341.1-341.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:345.1-345.112 -/
 opaque subst_numtype : forall (v_numtype : numtype) (var_0 : (List typevar)) (var_1 : (List typeuse)), numtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:342.1-342.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:346.1-346.112 -/
 opaque subst_vectype : forall (v_vectype : vectype) (var_0 : (List typevar)) (var_1 : (List typeuse)), vectype := opaqueDef
 
-/- Recursive Definitions at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:338.1-354.112 -/
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:338.1-338.112 -/
+/- Recursive Definitions at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:342.1-358.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:342.1-342.112 -/
 opaque subst_typeuse : forall (v_typeuse : typeuse) (var_0 : (List typevar)) (var_1 : (List typeuse)), typeuse := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:343.1-343.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:347.1-347.112 -/
 opaque subst_heaptype : forall (v_heaptype : heaptype) (var_0 : (List typevar)) (var_1 : (List typeuse)), heaptype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:344.1-344.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:348.1-348.112 -/
 opaque subst_reftype : forall (v_reftype : reftype) (var_0 : (List typevar)) (var_1 : (List typeuse)), reftype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:345.1-345.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:349.1-349.112 -/
 opaque subst_valtype : forall (v_valtype : valtype) (var_0 : (List typevar)) (var_1 : (List typeuse)), valtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:348.1-348.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:352.1-352.112 -/
 opaque subst_storagetype : forall (v_storagetype : storagetype) (var_0 : (List typevar)) (var_1 : (List typeuse)), storagetype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:349.1-349.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:353.1-353.112 -/
 opaque subst_fieldtype : forall (v_fieldtype : fieldtype) (var_0 : (List typevar)) (var_1 : (List typeuse)), fieldtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:351.1-351.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:355.1-355.112 -/
 opaque subst_comptype : forall (v_comptype : comptype) (var_0 : (List typevar)) (var_1 : (List typeuse)), comptype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:352.1-352.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:356.1-356.112 -/
 opaque subst_subtype : forall (v_subtype : subtype) (var_0 : (List typevar)) (var_1 : (List typeuse)), subtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:353.1-353.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:357.1-357.112 -/
 opaque subst_rectype : forall (v_rectype : rectype) (var_0 : (List typevar)) (var_1 : (List typeuse)), rectype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:354.1-354.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:358.1-358.112 -/
 opaque subst_deftype : forall (v_deftype : deftype) (var_0 : (List typevar)) (var_1 : (List typeuse)), deftype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:340.1-340.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:344.1-344.112 -/
 opaque subst_addrtype : forall (v_addrtype : addrtype) (var_0 : (List typevar)) (var_1 : (List typeuse)), addrtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:356.1-356.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:360.1-360.112 -/
 opaque subst_tagtype : forall (v_tagtype : tagtype) (var_0 : (List typevar)) (var_1 : (List typeuse)), tagtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:357.1-357.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:361.1-361.112 -/
 opaque subst_globaltype : forall (v_globaltype : globaltype) (var_0 : (List typevar)) (var_1 : (List typeuse)), globaltype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:358.1-358.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:362.1-362.112 -/
 opaque subst_memtype : forall (v_memtype : memtype) (var_0 : (List typevar)) (var_1 : (List typeuse)), memtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:359.1-359.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:363.1-363.112 -/
 opaque subst_tabletype : forall (v_tabletype : tabletype) (var_0 : (List typevar)) (var_1 : (List typeuse)), tabletype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:361.1-361.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:365.1-365.112 -/
 opaque subst_externtype : forall (v_externtype : externtype) (var_0 : (List typevar)) (var_1 : (List typeuse)), externtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:362.1-362.112 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:366.1-366.112 -/
 opaque subst_moduletype : forall (v_moduletype : moduletype) (var_0 : (List typevar)) (var_1 : (List typeuse)), moduletype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:431.1-431.94 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:435.1-435.94 -/
 opaque subst_all_valtype : forall (v_valtype : valtype) (var_0 : (List typeuse)), valtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:432.1-432.94 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:436.1-436.94 -/
 opaque subst_all_reftype : forall (v_reftype : reftype) (var_0 : (List typeuse)), reftype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:433.1-433.94 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:437.1-437.94 -/
 opaque subst_all_deftype : forall (v_deftype : deftype) (var_0 : (List typeuse)), deftype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:434.1-434.94 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:438.1-438.94 -/
 opaque subst_all_tagtype : forall (v_tagtype : tagtype) (var_0 : (List typeuse)), tagtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:435.1-435.103 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:439.1-439.103 -/
 opaque subst_all_globaltype : forall (v_globaltype : globaltype) (var_0 : (List typeuse)), globaltype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:436.1-436.94 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:440.1-440.94 -/
 opaque subst_all_memtype : forall (v_memtype : memtype) (var_0 : (List typeuse)), memtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:437.1-437.100 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:441.1-441.100 -/
 opaque subst_all_tabletype : forall (v_tabletype : tabletype) (var_0 : (List typeuse)), tabletype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:438.1-438.103 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:442.1-442.103 -/
 opaque subst_all_externtype : forall (v_externtype : externtype) (var_0 : (List typeuse)), externtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:439.1-439.103 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:443.1-443.103 -/
 opaque subst_all_moduletype : forall (v_moduletype : moduletype) (var_0 : (List typeuse)), moduletype := opaqueDef
 
-/- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:451.1-451.97 -/
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:451.1-451.97 -/
+/- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:455.1-455.97 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:455.1-455.97 -/
 opaque subst_all_deftypes : forall (var_0 : (List deftype)) (var_1 : (List typeuse)), (List deftype) := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:458.1-458.88 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:462.1-462.88 -/
 opaque rollrt : forall (v_typeidx : typeidx) (v_rectype : rectype), rectype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:459.1-459.90 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:463.1-463.90 -/
 opaque unrollrt : forall (v_rectype : rectype), rectype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:460.1-460.90 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:464.1-464.90 -/
 opaque rolldt : forall (v_typeidx : typeidx) (v_rectype : rectype), (List deftype) := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:461.1-461.90 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:465.1-465.90 -/
 opaque unrolldt : forall (v_deftype : deftype), subtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:462.1-462.90 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:466.1-466.90 -/
 opaque expanddt : forall (v_deftype : deftype), comptype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:477.1-477.35 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:481.1-481.35 -/
 opaque free_addrtype : forall (v_numtype : numtype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:478.1-478.34 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:482.1-482.34 -/
 opaque free_numtype : forall (v_numtype : numtype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:479.1-479.36 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:483.1-483.36 -/
 opaque free_packtype : forall (v_packtype : packtype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:480.1-480.36 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:484.1-484.36 -/
 def free_lanetype : ∀  (v_lanetype : lanetype) , free
   | .I32 => (free_numtype .I32)
   | .I64 => (free_numtype .I64)
@@ -1522,10 +1526,10 @@ def free_lanetype : ∀  (v_lanetype : lanetype) , free
   | .I16 => (free_packtype .I16)
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:481.1-481.34 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:485.1-485.34 -/
 opaque free_vectype : forall (v_vectype : vectype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:482.1-482.38 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:486.1-486.38 -/
 def free_consttype : ∀  (v_consttype : consttype) , free
   | .I32 => (free_numtype .I32)
   | .I64 => (free_numtype .I64)
@@ -1534,73 +1538,73 @@ def free_consttype : ∀  (v_consttype : consttype) , free
   | .V128 => (free_vectype .V128)
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:483.1-483.42 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:487.1-487.42 -/
 opaque free_absheaptype : forall (v_absheaptype : absheaptype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:486.1-486.34 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:490.1-490.34 -/
 opaque free_typevar : forall (v_typevar : typevar), free := opaqueDef
 
-/- Recursive Definitions at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:484.1-523.34 -/
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:484.1-484.36 -/
+/- Recursive Definitions at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:488.1-527.34 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:488.1-488.36 -/
 opaque free_heaptype : forall (v_heaptype : heaptype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:485.1-485.34 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:489.1-489.34 -/
 opaque free_reftype : forall (v_reftype : reftype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:487.1-487.34 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:491.1-491.34 -/
 opaque free_typeuse : forall (v_typeuse : typeuse), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:488.1-488.34 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:492.1-492.34 -/
 opaque free_valtype : forall (v_valtype : valtype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:490.1-490.40 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:494.1-494.40 -/
 opaque free_resulttype : forall (v_resulttype : resulttype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:491.1-491.42 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:495.1-495.42 -/
 opaque free_storagetype : forall (v_storagetype : storagetype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:492.1-492.38 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:496.1-496.38 -/
 opaque free_fieldtype : forall (v_fieldtype : fieldtype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:493.1-493.36 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:497.1-497.36 -/
 opaque free_comptype : forall (v_comptype : comptype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:494.1-494.34 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:498.1-498.34 -/
 opaque free_subtype : forall (v_subtype : subtype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:495.1-495.34 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:499.1-499.34 -/
 opaque free_rectype : forall (v_rectype : rectype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:523.1-523.34 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:527.1-527.34 -/
 def free_deftype : ∀  (v_deftype : deftype) , free
   | (._DEF v_rectype v_n) => (free_rectype v_rectype)
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:497.1-497.49 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:501.1-501.49 -/
 def free_tagtype : ∀  (v_tagtype : tagtype) , (Option free)
   | (._DEF v_rectype v_n) => (some (free_deftype (._DEF v_rectype v_n)))
   | x0 => none
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:498.1-498.40 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:502.1-502.40 -/
 opaque free_globaltype : forall (v_globaltype : globaltype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:499.1-499.34 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:503.1-503.34 -/
 opaque free_memtype : forall (v_memtype : memtype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:500.1-500.38 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:504.1-504.38 -/
 opaque free_tabletype : forall (v_tabletype : tabletype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:501.1-501.36 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:505.1-505.36 -/
 opaque free_datatype : forall (v_datatype : datatype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:502.1-502.36 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:506.1-506.36 -/
 opaque free_elemtype : forall (v_elemtype : elemtype), free := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:503.1-503.54 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:507.1-507.54 -/
 opaque free_externtype : forall (v_externtype : externtype), (Option free) := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:504.1-504.40 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:508.1-508.40 -/
 opaque free_moduletype : forall (v_moduletype : moduletype), free := opaqueDef
 
 /- Inductive Type Definition at: ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:7.1-7.21 -/
@@ -3812,23 +3816,23 @@ inductive wf_context : context -> Prop where
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:46.1-46.144 -/
 opaque with_locals : forall (v_context : context) (var_0 : (List localidx)) (var_1 : (List localtype)), context := opaqueDef
 
-/- Recursive Definition at: ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:59.1-59.94 -/
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:59.1-59.94 -/
+/- Recursive Definition at: ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:61.1-61.94 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:61.1-61.94 -/
 opaque clos_deftypes : forall (var_0 : (List deftype)), (List deftype) := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:54.1-54.93 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:56.1-56.93 -/
 opaque clos_valtype : forall (v_context : context) (v_valtype : valtype), valtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:55.1-55.93 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:57.1-57.93 -/
 opaque clos_deftype : forall (v_context : context) (v_deftype : deftype), deftype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:56.1-56.93 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:58.1-58.93 -/
 opaque clos_tagtype : forall (v_context : context) (v_tagtype : tagtype), tagtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:57.1-57.102 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:59.1-59.102 -/
 opaque clos_externtype : forall (v_context : context) (v_externtype : externtype), externtype := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:58.1-58.102 -/
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:60.1-60.102 -/
 opaque clos_moduletype : forall (v_context : context) (v_moduletype : moduletype), moduletype := opaqueDef
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/2.1-validation.types.spectec:7.1-7.91 -/
