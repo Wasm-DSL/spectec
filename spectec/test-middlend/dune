@@ -40,9 +40,10 @@
     specification.02-remove-indexed-types.act
     specification.03-totalize.act
     specification.04-else.act
-    specification.05-sideconditions.act
-    specification.06-sub.act
-    specification.07-alias-demut.act
+    specification.05-uncase-removal.act
+    specification.06-sideconditions.act
+    specification.07-sub.act
+    specification.08-alias-demut.act
   )
   (action
     (system "../src/exe-spectec/main.exe ../../../../specification/wasm-3.0/*.spectec -l --print-all-il-to specification.%s.act --print-no-pos --all-passes --check")
@@ -59,6 +60,7 @@
 (rule (alias runtest) (action (diff specification.02-remove-indexed-types.exp specification.02-remove-indexed-types.act)))
 (rule (alias runtest) (action (diff specification.03-totalize.exp specification.03-totalize.act)))
 (rule (alias runtest) (action (diff specification.04-else.exp specification.04-else.act)))
-(rule (alias runtest) (action (diff specification.05-sideconditions.exp specification.05-sideconditions.act)))
-(rule (alias runtest) (action (diff specification.06-sub.exp specification.06-sub.act)))
-(rule (alias runtest) (action (diff specification.07-alias-demut.exp specification.07-alias-demut.act)))
+(rule (alias runtest) (action (diff specification.05-uncase-removal.exp specification.05-uncase-removal.act)))
+(rule (alias runtest) (action (diff specification.06-sideconditions.exp specification.06-sideconditions.act)))
+(rule (alias runtest) (action (diff specification.07-sub.exp specification.07-sub.act)))
+(rule (alias runtest) (action (diff specification.08-alias-demut.exp specification.08-alias-demut.act)))
