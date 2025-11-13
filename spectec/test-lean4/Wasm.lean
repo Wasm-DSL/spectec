@@ -6026,15 +6026,16 @@ opaque signed_ : forall (v_N : N) (nat : Nat), Nat := opaqueDef
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec:56.1-56.68 -/
 opaque inv_signed_ : forall (v_N : N) (int : Nat), Nat := opaqueDef
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec:61.1-61.46 -/
-def fun_sx : ∀  (v_storagetype : storagetype) , (Option sx)
-  | .I32 => none
-  | .I64 => none
-  | .F32 => none
-  | .F64 => none
-  | .V128 => none
-  | .I8 => (some .S)
-  | .I16 => (some .S)
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec:61.1-61.60 -/
+def fun_sx : ∀  (v_storagetype : storagetype) , (Option (Option sx))
+  | .I32 => (some none)
+  | .I64 => (some none)
+  | .F32 => (some none)
+  | .F64 => (some none)
+  | .V128 => (some none)
+  | .I8 => (some (some .S))
+  | .I16 => (some (some .S))
+  | x0 => none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec:68.1-68.51 -/
@@ -8166,7 +8167,8 @@ inductive Step_read_before_array_copy_gt : config -> Prop where
     (wf_comptype (.ARRAY (.mk_fieldtype mut_opt zt_2))) ->
     (¬(Step_read_before_array_copy_le (.mk_config z [(.REF_ARRAY_ADDR a_1), (.CONST .I32 i_1), (.REF_ARRAY_ADDR a_2), (.CONST .I32 i_2), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.ARRAY_COPY x_1 x_2)]))) ->
     (Expand (fun_type z x_2) (.ARRAY (.mk_fieldtype mut_opt zt_2))) ->
-    (((proj_uN_0 (Option.get! (proj_num__0 .I32 i_1))) <= (proj_uN_0 (Option.get! (proj_num__0 .I32 i_2)))) && (sx_opt == (fun_sx zt_2))) ->
+    ((fun_sx zt_2) != none) ->
+    (((proj_uN_0 (Option.get! (proj_num__0 .I32 i_1))) <= (proj_uN_0 (Option.get! (proj_num__0 .I32 i_2)))) && (sx_opt == (Option.get! (fun_sx zt_2)))) ->
     Step_read_before_array_copy_gt (.mk_config z [(.REF_ARRAY_ADDR a_1), (.CONST .I32 i_1), (.REF_ARRAY_ADDR a_2), (.CONST .I32 i_2), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.ARRAY_COPY x_1 x_2)])
   | array_copy_zero_1 : forall (z : state) (a_1 : addr) (i_1 : num_) (a_2 : addr) (i_2 : num_) (v_n : n) (x_1 : idx) (x_2 : idx), 
     (wf_config (.mk_config z [(.REF_ARRAY_ADDR a_1), (.CONST .I32 i_1), (.REF_ARRAY_ADDR a_2), (.CONST .I32 i_2), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.ARRAY_COPY x_1 x_2)])) ->
@@ -8946,7 +8948,8 @@ inductive Step_read : config -> (List instr) -> Prop where
     (wf_comptype (.ARRAY (.mk_fieldtype mut_opt zt_2))) ->
     (¬(Step_read_before_array_copy_le (.mk_config z [(.REF_ARRAY_ADDR a_1), (.CONST .I32 i_1), (.REF_ARRAY_ADDR a_2), (.CONST .I32 i_2), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.ARRAY_COPY x_1 x_2)]))) ->
     (Expand (fun_type z x_2) (.ARRAY (.mk_fieldtype mut_opt zt_2))) ->
-    (((proj_uN_0 (Option.get! (proj_num__0 .I32 i_1))) <= (proj_uN_0 (Option.get! (proj_num__0 .I32 i_2)))) && (sx_opt == (fun_sx zt_2))) ->
+    ((fun_sx zt_2) != none) ->
+    (((proj_uN_0 (Option.get! (proj_num__0 .I32 i_1))) <= (proj_uN_0 (Option.get! (proj_num__0 .I32 i_2)))) && (sx_opt == (Option.get! (fun_sx zt_2)))) ->
     Step_read (.mk_config z [(.REF_ARRAY_ADDR a_1), (.CONST .I32 i_1), (.REF_ARRAY_ADDR a_2), (.CONST .I32 i_2), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.ARRAY_COPY x_1 x_2)]) [(.REF_ARRAY_ADDR a_1), (.CONST .I32 i_1), (.REF_ARRAY_ADDR a_2), (.CONST .I32 i_2), (.ARRAY_GET sx_opt x_2), (.ARRAY_SET x_1), (.REF_ARRAY_ADDR a_1), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 .I32 i_1))) + 1)))), (.REF_ARRAY_ADDR a_2), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 .I32 i_2))) + 1)))), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat)))), (.ARRAY_COPY x_1 x_2)]
   | array_copy_gt : forall (z : state) (a_1 : addr) (i_1 : num_) (a_2 : addr) (i_2 : num_) (v_n : n) (x_1 : idx) (x_2 : idx) (sx_opt : (Option sx)) (mut_opt : (Option «mut»)) (zt_2 : storagetype), 
     ((proj_num__0 .I32 i_1) != none) ->
@@ -8965,7 +8968,8 @@ inductive Step_read : config -> (List instr) -> Prop where
     (wf_comptype (.ARRAY (.mk_fieldtype mut_opt zt_2))) ->
     (¬(Step_read_before_array_copy_gt (.mk_config z [(.REF_ARRAY_ADDR a_1), (.CONST .I32 i_1), (.REF_ARRAY_ADDR a_2), (.CONST .I32 i_2), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.ARRAY_COPY x_1 x_2)]))) ->
     (Expand (fun_type z x_2) (.ARRAY (.mk_fieldtype mut_opt zt_2))) ->
-    (sx_opt == (fun_sx zt_2)) ->
+    ((fun_sx zt_2) != none) ->
+    (sx_opt == (Option.get! (fun_sx zt_2))) ->
     Step_read (.mk_config z [(.REF_ARRAY_ADDR a_1), (.CONST .I32 i_1), (.REF_ARRAY_ADDR a_2), (.CONST .I32 i_2), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.ARRAY_COPY x_1 x_2)]) [(.REF_ARRAY_ADDR a_1), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN (((((proj_uN_0 (Option.get! (proj_num__0 .I32 i_1))) + v_n) : Nat) - (1 : Nat)) : Nat)))), (.REF_ARRAY_ADDR a_2), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN (((((proj_uN_0 (Option.get! (proj_num__0 .I32 i_2))) + v_n) : Nat) - (1 : Nat)) : Nat)))), (.ARRAY_GET sx_opt x_2), (.ARRAY_SET x_1), (.REF_ARRAY_ADDR a_1), (.CONST .I32 i_1), (.REF_ARRAY_ADDR a_2), (.CONST .I32 i_2), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat)))), (.ARRAY_COPY x_1 x_2)]
   | array_init_elem_null : forall (z : state) (ht : heaptype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
     (wf_config (.mk_config z [(.REF_NULL ht), (.CONST .I32 i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.ARRAY_INIT_ELEM x y)])) ->
