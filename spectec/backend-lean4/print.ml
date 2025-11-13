@@ -148,7 +148,9 @@ let render_atom a =
   | _ -> ""
 
   let render_id a = match a with
-  | "mut" | "local" | "export" | "import" | "catch" | "syntax"
+  | "rec" -> "rec_"
+  | "bool" -> "nat_of_bool"
+  | "mut" | "local" | "export" | "import" | "catch" | "syntax" | "at"
     -> "«" ^ a ^ "»"
   | _ -> a
 
@@ -297,15 +299,15 @@ and render_arg exp_type a =
   match a.it with 
   | ExpA e -> render_exp exp_type e
   | TypA t -> render_type exp_type t
-  | DefA id -> id.it 
+  | DefA id -> render_id id.it 
   | _ -> comment_parens ("Unsupported arg: " ^ Il.Print.string_of_arg a)
 
 and render_bind exp_type b =
   match b.it with
-  | ExpB (id, typ) -> parens (id.it ^ " : " ^ render_type exp_type typ)
-  | TypB id -> parens (id.it ^ " : Type 0")
+  | ExpB (id, typ) -> parens (render_id id.it ^ " : " ^ render_type exp_type typ)
+  | TypB id -> parens (render_id id.it ^ " : Type 0")
   | DefB (id, params, typ) -> 
-    parens (id.it ^ " : " ^ 
+    parens (render_id id.it ^ " : " ^ 
     string_of_list_suffix " -> " " -> " (render_param_type exp_type) params ^
     render_type exp_type typ)
   | GramB _ -> comment_parens ("Unsupported bind: " ^ Il.Print.string_of_bind b)
@@ -556,7 +558,7 @@ let render_relation id typ rules =
     | RuleD (rule_id, binds, _, exp, prems) ->
       let string_prems = string_of_list "\n    " " ->\n    " " ->\n    " (render_prem) prems in
       let forall_quantifiers = string_of_list "forall " ", " " " (render_bind REL) binds in
-      "| " ^ rule_id.it ^ " : " ^ forall_quantifiers ^ string_prems ^ id ^ " " ^ String.concat " " (List.map (render_exp REL) (transform_case_tup exp))
+      "| " ^ render_id rule_id.it ^ " : " ^ forall_quantifiers ^ string_prems ^ id ^ " " ^ String.concat " " (List.map (render_exp REL) (transform_case_tup exp))
   ) rules)
 
 let render_axiom id params r_typ =

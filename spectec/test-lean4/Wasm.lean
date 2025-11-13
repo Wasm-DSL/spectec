@@ -3957,7 +3957,7 @@ inductive Typeuse_ok : context -> typeuse -> Prop where
     ((proj_uN_0 v_typeidx) < (List.length (C.TYPES))) ->
     (((C.TYPES)[(proj_uN_0 v_typeidx)]!) == dt) ->
     Typeuse_ok C (._IDX v_typeidx)
-  | rec : forall (C : context) (i : n) (st : subtype), 
+  | rec_ : forall (C : context) (i : n) (st : subtype), 
     (wf_context C) ->
     (wf_subtype st) ->
     (wf_typeuse (.REC i)) ->
@@ -4209,7 +4209,7 @@ inductive Heaptype_sub : context -> heaptype -> heaptype -> Prop where
     ((proj_uN_0 v_typeidx) < (List.length (C.TYPES))) ->
     (Heaptype_sub C v_heaptype (heaptype_deftype ((C.TYPES)[(proj_uN_0 v_typeidx)]!))) ->
     Heaptype_sub C v_heaptype (._IDX v_typeidx)
-  | rec : forall (C : context) (i : n) (typeuse_lst : (List typeuse)) (j : Nat) (final_opt : (Option final)) (ct : comptype), 
+  | rec_ : forall (C : context) (i : n) (typeuse_lst : (List typeuse)) (j : Nat) (final_opt : (Option final)) (ct : comptype), 
     (j < (List.length typeuse_lst)) ->
     (wf_context C) ->
     (wf_heaptype (.REC i)) ->
@@ -4553,7 +4553,7 @@ inductive Blocktype_ok : context -> blocktype -> instrtype -> Prop where
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/2.3-validation.instructions.spectec:164.1-164.77 -/
 inductive Catch_ok : context -> «catch» -> Prop where
-  | catch : forall (C : context) (x : idx) (l : labelidx) (t_lst : (List valtype)), 
+  | «catch» : forall (C : context) (x : idx) (l : labelidx) (t_lst : (List valtype)), 
     (wf_context C) ->
     (wf_catch (.CATCH x l)) ->
     (wf_comptype (.FUNC (.mk_list t_lst) (.mk_list []))) ->
@@ -4746,19 +4746,19 @@ inductive Instr_ok : context -> instr -> instrtype -> Prop where
     ((proj_uN_0 x) < (List.length (C.TYPES))) ->
     (Expand ((C.TYPES)[(proj_uN_0 x)]!) (.FUNC (.mk_list t_1_lst) (.mk_list t_2_lst))) ->
     Instr_ok C (.CALL_REF (._IDX x)) (.mk_instrtype (.mk_list (t_1_lst ++ [(.REF (some .NULL) (._IDX x))])) [] (.mk_list t_2_lst))
-  | call_indirect : forall (C : context) (x : idx) (y : idx) (t_1_lst : (List valtype)) (at : addrtype) (t_2_lst : (List valtype)) (lim : limits) (rt : reftype), 
+  | call_indirect : forall (C : context) (x : idx) (y : idx) (t_1_lst : (List valtype)) («at» : addrtype) (t_2_lst : (List valtype)) (lim : limits) (rt : reftype), 
     (wf_context C) ->
     (wf_instr (.CALL_INDIRECT x (._IDX y))) ->
-    (wf_instrtype (.mk_instrtype (.mk_list (t_1_lst ++ [(valtype_addrtype at)])) [] (.mk_list t_2_lst))) ->
-    (wf_tabletype (.mk_tabletype at lim rt)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list (t_1_lst ++ [(valtype_addrtype «at»)])) [] (.mk_list t_2_lst))) ->
+    (wf_tabletype (.mk_tabletype «at» lim rt)) ->
     (wf_reftype (.REF (some .NULL) .FUNC)) ->
     (wf_comptype (.FUNC (.mk_list t_1_lst) (.mk_list t_2_lst))) ->
     ((proj_uN_0 x) < (List.length (C.TABLES))) ->
-    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype at lim rt)) ->
+    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype «at» lim rt)) ->
     (Reftype_sub C rt (.REF (some .NULL) .FUNC)) ->
     ((proj_uN_0 y) < (List.length (C.TYPES))) ->
     (Expand ((C.TYPES)[(proj_uN_0 y)]!) (.FUNC (.mk_list t_1_lst) (.mk_list t_2_lst))) ->
-    Instr_ok C (.CALL_INDIRECT x (._IDX y)) (.mk_instrtype (.mk_list (t_1_lst ++ [(valtype_addrtype at)])) [] (.mk_list t_2_lst))
+    Instr_ok C (.CALL_INDIRECT x (._IDX y)) (.mk_instrtype (.mk_list (t_1_lst ++ [(valtype_addrtype «at»)])) [] (.mk_list t_2_lst))
   | return : forall (C : context) (t_1_lst : (List valtype)) (t_lst : (List valtype)) (t_2_lst : (List valtype)), 
     (wf_context C) ->
     (wf_instr .RETURN) ->
@@ -4793,24 +4793,24 @@ inductive Instr_ok : context -> instr -> instrtype -> Prop where
     (Resulttype_sub C (.mk_list t_2_lst) (.mk_list t'_2_lst)) ->
     (Instrtype_ok C (.mk_instrtype (.mk_list t_3_lst) [] (.mk_list t_4_lst))) ->
     Instr_ok C (.RETURN_CALL_REF (._IDX x)) (.mk_instrtype (.mk_list (t_3_lst ++ (t_1_lst ++ [(.REF (some .NULL) (._IDX x))]))) [] (.mk_list t_4_lst))
-  | return_call_indirect : forall (C : context) (x : idx) (y : idx) (t_3_lst : (List valtype)) (t_1_lst : (List valtype)) (at : addrtype) (t_4_lst : (List valtype)) (lim : limits) (rt : reftype) (t_2_lst : (List valtype)) (t'_2_lst : (List valtype)), 
+  | return_call_indirect : forall (C : context) (x : idx) (y : idx) (t_3_lst : (List valtype)) (t_1_lst : (List valtype)) («at» : addrtype) (t_4_lst : (List valtype)) (lim : limits) (rt : reftype) (t_2_lst : (List valtype)) (t'_2_lst : (List valtype)), 
     (wf_context C) ->
     Forall (fun (t'_2 : valtype) => (wf_valtype t'_2)) t'_2_lst ->
     (wf_instr (.RETURN_CALL_INDIRECT x (._IDX y))) ->
-    (wf_instrtype (.mk_instrtype (.mk_list (t_3_lst ++ (t_1_lst ++ [(valtype_addrtype at)]))) [] (.mk_list t_4_lst))) ->
-    (wf_tabletype (.mk_tabletype at lim rt)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list (t_3_lst ++ (t_1_lst ++ [(valtype_addrtype «at»)]))) [] (.mk_list t_4_lst))) ->
+    (wf_tabletype (.mk_tabletype «at» lim rt)) ->
     (wf_reftype (.REF (some .NULL) .FUNC)) ->
     (wf_comptype (.FUNC (.mk_list t_1_lst) (.mk_list t_2_lst))) ->
     (wf_instrtype (.mk_instrtype (.mk_list t_3_lst) [] (.mk_list t_4_lst))) ->
     ((proj_uN_0 x) < (List.length (C.TABLES))) ->
-    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype at lim rt)) ->
+    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype «at» lim rt)) ->
     (Reftype_sub C rt (.REF (some .NULL) .FUNC)) ->
     ((proj_uN_0 y) < (List.length (C.TYPES))) ->
     (Expand ((C.TYPES)[(proj_uN_0 y)]!) (.FUNC (.mk_list t_1_lst) (.mk_list t_2_lst))) ->
     ((C.RETURN) == (some (.mk_list t'_2_lst))) ->
     (Resulttype_sub C (.mk_list t_2_lst) (.mk_list t'_2_lst)) ->
     (Instrtype_ok C (.mk_instrtype (.mk_list t_3_lst) [] (.mk_list t_4_lst))) ->
-    Instr_ok C (.RETURN_CALL_INDIRECT x (._IDX y)) (.mk_instrtype (.mk_list (t_3_lst ++ (t_1_lst ++ [(valtype_addrtype at)]))) [] (.mk_list t_4_lst))
+    Instr_ok C (.RETURN_CALL_INDIRECT x (._IDX y)) (.mk_instrtype (.mk_list (t_3_lst ++ (t_1_lst ++ [(valtype_addrtype «at»)]))) [] (.mk_list t_4_lst))
   | throw : forall (C : context) (x : idx) (t_1_lst : (List valtype)) (t_lst : (List valtype)) (t_2_lst : (List valtype)), 
     (wf_context C) ->
     (wf_instr (.THROW x)) ->
@@ -5100,46 +5100,46 @@ inductive Instr_ok : context -> instr -> instrtype -> Prop where
     ((proj_uN_0 x) < (List.length (C.GLOBALS))) ->
     (((C.GLOBALS)[(proj_uN_0 x)]!) == (.mk_globaltype (some .MUT) t)) ->
     Instr_ok C (.GLOBAL_SET x) (.mk_instrtype (.mk_list [t]) [] (.mk_list []))
-  | table_get : forall (C : context) (x : idx) (at : addrtype) (rt : reftype) (lim : limits), 
+  | table_get : forall (C : context) (x : idx) («at» : addrtype) (rt : reftype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.TABLE_GET x)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at)]) [] (.mk_list [(valtype_reftype rt)]))) ->
-    (wf_tabletype (.mk_tabletype at lim rt)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»)]) [] (.mk_list [(valtype_reftype rt)]))) ->
+    (wf_tabletype (.mk_tabletype «at» lim rt)) ->
     ((proj_uN_0 x) < (List.length (C.TABLES))) ->
-    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype at lim rt)) ->
-    Instr_ok C (.TABLE_GET x) (.mk_instrtype (.mk_list [(valtype_addrtype at)]) [] (.mk_list [(valtype_reftype rt)]))
-  | table_set : forall (C : context) (x : idx) (at : addrtype) (rt : reftype) (lim : limits), 
+    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype «at» lim rt)) ->
+    Instr_ok C (.TABLE_GET x) (.mk_instrtype (.mk_list [(valtype_addrtype «at»)]) [] (.mk_list [(valtype_reftype rt)]))
+  | table_set : forall (C : context) (x : idx) («at» : addrtype) (rt : reftype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.TABLE_SET x)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at), (valtype_reftype rt)]) [] (.mk_list []))) ->
-    (wf_tabletype (.mk_tabletype at lim rt)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»), (valtype_reftype rt)]) [] (.mk_list []))) ->
+    (wf_tabletype (.mk_tabletype «at» lim rt)) ->
     ((proj_uN_0 x) < (List.length (C.TABLES))) ->
-    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype at lim rt)) ->
-    Instr_ok C (.TABLE_SET x) (.mk_instrtype (.mk_list [(valtype_addrtype at), (valtype_reftype rt)]) [] (.mk_list []))
-  | table_size : forall (C : context) (x : idx) (at : addrtype) (lim : limits) (rt : reftype), 
+    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype «at» lim rt)) ->
+    Instr_ok C (.TABLE_SET x) (.mk_instrtype (.mk_list [(valtype_addrtype «at»), (valtype_reftype rt)]) [] (.mk_list []))
+  | table_size : forall (C : context) (x : idx) («at» : addrtype) (lim : limits) (rt : reftype), 
     (wf_context C) ->
     (wf_instr (.TABLE_SIZE x)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list []) [] (.mk_list [(valtype_addrtype at)]))) ->
-    (wf_tabletype (.mk_tabletype at lim rt)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list []) [] (.mk_list [(valtype_addrtype «at»)]))) ->
+    (wf_tabletype (.mk_tabletype «at» lim rt)) ->
     ((proj_uN_0 x) < (List.length (C.TABLES))) ->
-    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype at lim rt)) ->
-    Instr_ok C (.TABLE_SIZE x) (.mk_instrtype (.mk_list []) [] (.mk_list [(valtype_addrtype at)]))
-  | table_grow : forall (C : context) (x : idx) (rt : reftype) (at : addrtype) (lim : limits), 
+    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype «at» lim rt)) ->
+    Instr_ok C (.TABLE_SIZE x) (.mk_instrtype (.mk_list []) [] (.mk_list [(valtype_addrtype «at»)]))
+  | table_grow : forall (C : context) (x : idx) (rt : reftype) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.TABLE_GROW x)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_reftype rt), (valtype_addrtype at)]) [] (.mk_list [.I32]))) ->
-    (wf_tabletype (.mk_tabletype at lim rt)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_reftype rt), (valtype_addrtype «at»)]) [] (.mk_list [.I32]))) ->
+    (wf_tabletype (.mk_tabletype «at» lim rt)) ->
     ((proj_uN_0 x) < (List.length (C.TABLES))) ->
-    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype at lim rt)) ->
-    Instr_ok C (.TABLE_GROW x) (.mk_instrtype (.mk_list [(valtype_reftype rt), (valtype_addrtype at)]) [] (.mk_list [.I32]))
-  | table_fill : forall (C : context) (x : idx) (at : addrtype) (rt : reftype) (lim : limits), 
+    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype «at» lim rt)) ->
+    Instr_ok C (.TABLE_GROW x) (.mk_instrtype (.mk_list [(valtype_reftype rt), (valtype_addrtype «at»)]) [] (.mk_list [.I32]))
+  | table_fill : forall (C : context) (x : idx) («at» : addrtype) (rt : reftype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.TABLE_FILL x)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at), (valtype_reftype rt), (valtype_addrtype at)]) [] (.mk_list []))) ->
-    (wf_tabletype (.mk_tabletype at lim rt)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»), (valtype_reftype rt), (valtype_addrtype «at»)]) [] (.mk_list []))) ->
+    (wf_tabletype (.mk_tabletype «at» lim rt)) ->
     ((proj_uN_0 x) < (List.length (C.TABLES))) ->
-    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype at lim rt)) ->
-    Instr_ok C (.TABLE_FILL x) (.mk_instrtype (.mk_list [(valtype_addrtype at), (valtype_reftype rt), (valtype_addrtype at)]) [] (.mk_list []))
+    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype «at» lim rt)) ->
+    Instr_ok C (.TABLE_FILL x) (.mk_instrtype (.mk_list [(valtype_addrtype «at»), (valtype_reftype rt), (valtype_addrtype «at»)]) [] (.mk_list []))
   | table_copy : forall (C : context) (x_1 : idx) (x_2 : idx) (at_1 : addrtype) (at_2 : addrtype) (lim_1 : limits) (rt_1 : reftype) (lim_2 : limits) (rt_2 : reftype), 
     (wf_context C) ->
     (wf_instr (.TABLE_COPY x_1 x_2)) ->
@@ -5152,18 +5152,18 @@ inductive Instr_ok : context -> instr -> instrtype -> Prop where
     (((C.TABLES)[(proj_uN_0 x_2)]!) == (.mk_tabletype at_2 lim_2 rt_2)) ->
     (Reftype_sub C rt_2 rt_1) ->
     Instr_ok C (.TABLE_COPY x_1 x_2) (.mk_instrtype (.mk_list [(valtype_addrtype at_1), (valtype_addrtype at_2), (valtype_addrtype (minat at_1 at_2))]) [] (.mk_list []))
-  | table_init : forall (C : context) (x : idx) (y : idx) (at : addrtype) (lim : limits) (rt_1 : reftype) (rt_2 : reftype), 
+  | table_init : forall (C : context) (x : idx) (y : idx) («at» : addrtype) (lim : limits) (rt_1 : reftype) (rt_2 : reftype), 
     (wf_context C) ->
     (wf_reftype rt_2) ->
     (wf_instr (.TABLE_INIT x y)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at), .I32, .I32]) [] (.mk_list []))) ->
-    (wf_tabletype (.mk_tabletype at lim rt_1)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»), .I32, .I32]) [] (.mk_list []))) ->
+    (wf_tabletype (.mk_tabletype «at» lim rt_1)) ->
     ((proj_uN_0 x) < (List.length (C.TABLES))) ->
-    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype at lim rt_1)) ->
+    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype «at» lim rt_1)) ->
     ((proj_uN_0 y) < (List.length (C.ELEMS))) ->
     (((C.ELEMS)[(proj_uN_0 y)]!) == rt_2) ->
     (Reftype_sub C rt_2 rt_1) ->
-    Instr_ok C (.TABLE_INIT x y) (.mk_instrtype (.mk_list [(valtype_addrtype at), .I32, .I32]) [] (.mk_list []))
+    Instr_ok C (.TABLE_INIT x y) (.mk_instrtype (.mk_list [(valtype_addrtype «at»), .I32, .I32]) [] (.mk_list []))
   | elem_drop : forall (C : context) (x : idx) (rt : reftype), 
     (wf_context C) ->
     (wf_reftype rt) ->
@@ -5172,30 +5172,30 @@ inductive Instr_ok : context -> instr -> instrtype -> Prop where
     ((proj_uN_0 x) < (List.length (C.ELEMS))) ->
     (((C.ELEMS)[(proj_uN_0 x)]!) == rt) ->
     Instr_ok C (.ELEM_DROP x) (.mk_instrtype (.mk_list []) [] (.mk_list []))
-  | memory_size : forall (C : context) (x : idx) (at : addrtype) (lim : limits), 
+  | memory_size : forall (C : context) (x : idx) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.MEMORY_SIZE x)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list []) [] (.mk_list [(valtype_addrtype at)]))) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list []) [] (.mk_list [(valtype_addrtype «at»)]))) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((proj_uN_0 x) < (List.length (C.MEMS))) ->
-    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE at lim)) ->
-    Instr_ok C (.MEMORY_SIZE x) (.mk_instrtype (.mk_list []) [] (.mk_list [(valtype_addrtype at)]))
-  | memory_grow : forall (C : context) (x : idx) (at : addrtype) (lim : limits), 
+    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE «at» lim)) ->
+    Instr_ok C (.MEMORY_SIZE x) (.mk_instrtype (.mk_list []) [] (.mk_list [(valtype_addrtype «at»)]))
+  | memory_grow : forall (C : context) (x : idx) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.MEMORY_GROW x)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at)]) [] (.mk_list [(valtype_addrtype at)]))) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»)]) [] (.mk_list [(valtype_addrtype «at»)]))) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((proj_uN_0 x) < (List.length (C.MEMS))) ->
-    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE at lim)) ->
-    Instr_ok C (.MEMORY_GROW x) (.mk_instrtype (.mk_list [(valtype_addrtype at)]) [] (.mk_list [(valtype_addrtype at)]))
-  | memory_fill : forall (C : context) (x : idx) (at : addrtype) (lim : limits), 
+    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE «at» lim)) ->
+    Instr_ok C (.MEMORY_GROW x) (.mk_instrtype (.mk_list [(valtype_addrtype «at»)]) [] (.mk_list [(valtype_addrtype «at»)]))
+  | memory_fill : forall (C : context) (x : idx) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.MEMORY_FILL x)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at), .I32, (valtype_addrtype at)]) [] (.mk_list []))) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»), .I32, (valtype_addrtype «at»)]) [] (.mk_list []))) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((proj_uN_0 x) < (List.length (C.MEMS))) ->
-    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE at lim)) ->
-    Instr_ok C (.MEMORY_FILL x) (.mk_instrtype (.mk_list [(valtype_addrtype at), .I32, (valtype_addrtype at)]) [] (.mk_list []))
+    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE «at» lim)) ->
+    Instr_ok C (.MEMORY_FILL x) (.mk_instrtype (.mk_list [(valtype_addrtype «at»), .I32, (valtype_addrtype «at»)]) [] (.mk_list []))
   | memory_copy : forall (C : context) (x_1 : idx) (x_2 : idx) (at_1 : addrtype) (at_2 : addrtype) (lim_1 : limits) (lim_2 : limits), 
     (wf_context C) ->
     (wf_instr (.MEMORY_COPY x_1 x_2)) ->
@@ -5207,16 +5207,16 @@ inductive Instr_ok : context -> instr -> instrtype -> Prop where
     ((proj_uN_0 x_2) < (List.length (C.MEMS))) ->
     (((C.MEMS)[(proj_uN_0 x_2)]!) == (.PAGE at_2 lim_2)) ->
     Instr_ok C (.MEMORY_COPY x_1 x_2) (.mk_instrtype (.mk_list [(valtype_addrtype at_1), (valtype_addrtype at_2), (valtype_addrtype (minat at_1 at_2))]) [] (.mk_list []))
-  | memory_init : forall (C : context) (x : idx) (y : idx) (at : addrtype) (lim : limits), 
+  | memory_init : forall (C : context) (x : idx) (y : idx) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.MEMORY_INIT x y)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at), .I32, .I32]) [] (.mk_list []))) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»), .I32, .I32]) [] (.mk_list []))) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((proj_uN_0 x) < (List.length (C.MEMS))) ->
-    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE at lim)) ->
+    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE «at» lim)) ->
     ((proj_uN_0 y) < (List.length (C.DATAS))) ->
     (((C.DATAS)[(proj_uN_0 y)]!) == .OK) ->
-    Instr_ok C (.MEMORY_INIT x y) (.mk_instrtype (.mk_list [(valtype_addrtype at), .I32, .I32]) [] (.mk_list []))
+    Instr_ok C (.MEMORY_INIT x y) (.mk_instrtype (.mk_list [(valtype_addrtype «at»), .I32, .I32]) [] (.mk_list []))
   | data_drop : forall (C : context) (x : idx), 
     (wf_context C) ->
     (wf_instr (.DATA_DROP x)) ->
@@ -5224,107 +5224,107 @@ inductive Instr_ok : context -> instr -> instrtype -> Prop where
     ((proj_uN_0 x) < (List.length (C.DATAS))) ->
     (((C.DATAS)[(proj_uN_0 x)]!) == .OK) ->
     Instr_ok C (.DATA_DROP x) (.mk_instrtype (.mk_list []) [] (.mk_list []))
-  | load_val : forall (C : context) (nt : numtype) (x : idx) (v_memarg : memarg) (at : addrtype) (lim : limits), 
+  | load_val : forall (C : context) (nt : numtype) (x : idx) (v_memarg : memarg) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.LOAD nt none x v_memarg)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at)]) [] (.mk_list [(valtype_numtype nt)]))) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»)]) [] (.mk_list [(valtype_numtype nt)]))) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((proj_uN_0 x) < (List.length (C.MEMS))) ->
-    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE at lim)) ->
+    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE «at» lim)) ->
     (((2 ^ (proj_uN_0 (v_memarg.ALIGN))) : Nat) <= (((size nt) : Nat) / (8 : Nat))) ->
-    Instr_ok C (.LOAD nt none x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype at)]) [] (.mk_list [(valtype_numtype nt)]))
-  | load_pack : forall (C : context) (v_Inn : Inn) (v_M : M) (v_sx : sx) (x : idx) (v_memarg : memarg) (at : addrtype) (lim : limits), 
+    Instr_ok C (.LOAD nt none x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype «at»)]) [] (.mk_list [(valtype_numtype nt)]))
+  | load_pack : forall (C : context) (v_Inn : Inn) (v_M : M) (v_sx : sx) (x : idx) (v_memarg : memarg) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.LOAD (numtype_addrtype v_Inn) (some (.mk_loadop__0 v_Inn (._ (.mk_sz v_M) v_sx))) x v_memarg)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at)]) [] (.mk_list [(valtype_addrtype v_Inn)]))) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»)]) [] (.mk_list [(valtype_addrtype v_Inn)]))) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((proj_uN_0 x) < (List.length (C.MEMS))) ->
-    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE at lim)) ->
+    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE «at» lim)) ->
     (((2 ^ (proj_uN_0 (v_memarg.ALIGN))) : Nat) <= ((v_M : Nat) / (8 : Nat))) ->
-    Instr_ok C (.LOAD (numtype_addrtype v_Inn) (some (.mk_loadop__0 v_Inn (._ (.mk_sz v_M) v_sx))) x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype at)]) [] (.mk_list [(valtype_addrtype v_Inn)]))
-  | store_val : forall (C : context) (nt : numtype) (x : idx) (v_memarg : memarg) (at : addrtype) (lim : limits), 
+    Instr_ok C (.LOAD (numtype_addrtype v_Inn) (some (.mk_loadop__0 v_Inn (._ (.mk_sz v_M) v_sx))) x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype «at»)]) [] (.mk_list [(valtype_addrtype v_Inn)]))
+  | store_val : forall (C : context) (nt : numtype) (x : idx) (v_memarg : memarg) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.STORE nt none x v_memarg)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at), (valtype_numtype nt)]) [] (.mk_list []))) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»), (valtype_numtype nt)]) [] (.mk_list []))) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((proj_uN_0 x) < (List.length (C.MEMS))) ->
-    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE at lim)) ->
+    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE «at» lim)) ->
     (((2 ^ (proj_uN_0 (v_memarg.ALIGN))) : Nat) <= (((size nt) : Nat) / (8 : Nat))) ->
-    Instr_ok C (.STORE nt none x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype at), (valtype_numtype nt)]) [] (.mk_list []))
-  | store_pack : forall (C : context) (v_Inn : Inn) (v_M : M) (x : idx) (v_memarg : memarg) (at : addrtype) (lim : limits), 
+    Instr_ok C (.STORE nt none x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype «at»), (valtype_numtype nt)]) [] (.mk_list []))
+  | store_pack : forall (C : context) (v_Inn : Inn) (v_M : M) (x : idx) (v_memarg : memarg) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.STORE (numtype_addrtype v_Inn) (some (.mk_storeop__0 v_Inn (.mk_storeop_Inn (.mk_sz v_M)))) x v_memarg)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at), (valtype_addrtype v_Inn)]) [] (.mk_list []))) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»), (valtype_addrtype v_Inn)]) [] (.mk_list []))) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((proj_uN_0 x) < (List.length (C.MEMS))) ->
-    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE at lim)) ->
+    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE «at» lim)) ->
     (((2 ^ (proj_uN_0 (v_memarg.ALIGN))) : Nat) <= ((v_M : Nat) / (8 : Nat))) ->
-    Instr_ok C (.STORE (numtype_addrtype v_Inn) (some (.mk_storeop__0 v_Inn (.mk_storeop_Inn (.mk_sz v_M)))) x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype at), (valtype_addrtype v_Inn)]) [] (.mk_list []))
-  | vload_val : forall (C : context) (x : idx) (v_memarg : memarg) (at : addrtype) (lim : limits), 
+    Instr_ok C (.STORE (numtype_addrtype v_Inn) (some (.mk_storeop__0 v_Inn (.mk_storeop_Inn (.mk_sz v_M)))) x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype «at»), (valtype_addrtype v_Inn)]) [] (.mk_list []))
+  | vload_val : forall (C : context) (x : idx) (v_memarg : memarg) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.VLOAD .V128 none x v_memarg)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at)]) [] (.mk_list [.V128]))) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»)]) [] (.mk_list [.V128]))) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((proj_uN_0 x) < (List.length (C.MEMS))) ->
-    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE at lim)) ->
+    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE «at» lim)) ->
     (((2 ^ (proj_uN_0 (v_memarg.ALIGN))) : Nat) <= (((vsize .V128) : Nat) / (8 : Nat))) ->
-    Instr_ok C (.VLOAD .V128 none x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype at)]) [] (.mk_list [.V128]))
-  | vload_pack : forall (C : context) (v_M : M) (v_N : N) (v_sx : sx) (x : idx) (v_memarg : memarg) (at : addrtype) (lim : limits), 
+    Instr_ok C (.VLOAD .V128 none x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype «at»)]) [] (.mk_list [.V128]))
+  | vload_pack : forall (C : context) (v_M : M) (v_N : N) (v_sx : sx) (x : idx) (v_memarg : memarg) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.VLOAD .V128 (some (.SHAPEX_ (.mk_sz v_M) v_N v_sx)) x v_memarg)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at)]) [] (.mk_list [.V128]))) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»)]) [] (.mk_list [.V128]))) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((proj_uN_0 x) < (List.length (C.MEMS))) ->
-    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE at lim)) ->
+    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE «at» lim)) ->
     (((2 ^ (proj_uN_0 (v_memarg.ALIGN))) : Nat) <= (((v_M : Nat) / (8 : Nat)) * (v_N : Nat))) ->
-    Instr_ok C (.VLOAD .V128 (some (.SHAPEX_ (.mk_sz v_M) v_N v_sx)) x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype at)]) [] (.mk_list [.V128]))
-  | vload_splat : forall (C : context) (v_N : N) (x : idx) (v_memarg : memarg) (at : addrtype) (lim : limits), 
+    Instr_ok C (.VLOAD .V128 (some (.SHAPEX_ (.mk_sz v_M) v_N v_sx)) x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype «at»)]) [] (.mk_list [.V128]))
+  | vload_splat : forall (C : context) (v_N : N) (x : idx) (v_memarg : memarg) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.VLOAD .V128 (some (.SPLAT (.mk_sz v_N))) x v_memarg)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at)]) [] (.mk_list [.V128]))) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»)]) [] (.mk_list [.V128]))) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((proj_uN_0 x) < (List.length (C.MEMS))) ->
-    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE at lim)) ->
+    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE «at» lim)) ->
     (((2 ^ (proj_uN_0 (v_memarg.ALIGN))) : Nat) <= ((v_N : Nat) / (8 : Nat))) ->
-    Instr_ok C (.VLOAD .V128 (some (.SPLAT (.mk_sz v_N))) x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype at)]) [] (.mk_list [.V128]))
-  | vload_zero : forall (C : context) (v_N : N) (x : idx) (v_memarg : memarg) (at : addrtype) (lim : limits), 
+    Instr_ok C (.VLOAD .V128 (some (.SPLAT (.mk_sz v_N))) x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype «at»)]) [] (.mk_list [.V128]))
+  | vload_zero : forall (C : context) (v_N : N) (x : idx) (v_memarg : memarg) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.VLOAD .V128 (some (.ZERO (.mk_sz v_N))) x v_memarg)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at)]) [] (.mk_list [.V128]))) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»)]) [] (.mk_list [.V128]))) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((proj_uN_0 x) < (List.length (C.MEMS))) ->
-    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE at lim)) ->
+    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE «at» lim)) ->
     (((2 ^ (proj_uN_0 (v_memarg.ALIGN))) : Nat) <= ((v_N : Nat) / (8 : Nat))) ->
-    Instr_ok C (.VLOAD .V128 (some (.ZERO (.mk_sz v_N))) x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype at)]) [] (.mk_list [.V128]))
-  | vload_lane : forall (C : context) (v_N : N) (x : idx) (v_memarg : memarg) (i : laneidx) (at : addrtype) (lim : limits), 
+    Instr_ok C (.VLOAD .V128 (some (.ZERO (.mk_sz v_N))) x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype «at»)]) [] (.mk_list [.V128]))
+  | vload_lane : forall (C : context) (v_N : N) (x : idx) (v_memarg : memarg) (i : laneidx) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.VLOAD_LANE .V128 (.mk_sz v_N) x v_memarg i)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at), .V128]) [] (.mk_list [.V128]))) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»), .V128]) [] (.mk_list [.V128]))) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((proj_uN_0 x) < (List.length (C.MEMS))) ->
-    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE at lim)) ->
+    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE «at» lim)) ->
     (((2 ^ (proj_uN_0 (v_memarg.ALIGN))) : Nat) <= ((v_N : Nat) / (8 : Nat))) ->
     (((proj_uN_0 i) : Nat) < ((128 : Nat) / (v_N : Nat))) ->
-    Instr_ok C (.VLOAD_LANE .V128 (.mk_sz v_N) x v_memarg i) (.mk_instrtype (.mk_list [(valtype_addrtype at), .V128]) [] (.mk_list [.V128]))
-  | vstore : forall (C : context) (x : idx) (v_memarg : memarg) (at : addrtype) (lim : limits), 
+    Instr_ok C (.VLOAD_LANE .V128 (.mk_sz v_N) x v_memarg i) (.mk_instrtype (.mk_list [(valtype_addrtype «at»), .V128]) [] (.mk_list [.V128]))
+  | vstore : forall (C : context) (x : idx) (v_memarg : memarg) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.VSTORE .V128 x v_memarg)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at), .V128]) [] (.mk_list []))) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»), .V128]) [] (.mk_list []))) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((proj_uN_0 x) < (List.length (C.MEMS))) ->
-    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE at lim)) ->
+    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE «at» lim)) ->
     (((2 ^ (proj_uN_0 (v_memarg.ALIGN))) : Nat) <= (((vsize .V128) : Nat) / (8 : Nat))) ->
-    Instr_ok C (.VSTORE .V128 x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype at), .V128]) [] (.mk_list []))
-  | vstore_lane : forall (C : context) (v_N : N) (x : idx) (v_memarg : memarg) (i : laneidx) (at : addrtype) (lim : limits), 
+    Instr_ok C (.VSTORE .V128 x v_memarg) (.mk_instrtype (.mk_list [(valtype_addrtype «at»), .V128]) [] (.mk_list []))
+  | vstore_lane : forall (C : context) (v_N : N) (x : idx) (v_memarg : memarg) (i : laneidx) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_instr (.VSTORE_LANE .V128 (.mk_sz v_N) x v_memarg i)) ->
-    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype at), .V128]) [] (.mk_list []))) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_instrtype (.mk_instrtype (.mk_list [(valtype_addrtype «at»), .V128]) [] (.mk_list []))) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((proj_uN_0 x) < (List.length (C.MEMS))) ->
-    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE at lim)) ->
+    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE «at» lim)) ->
     (((2 ^ (proj_uN_0 (v_memarg.ALIGN))) : Nat) <= ((v_N : Nat) / (8 : Nat))) ->
     (((proj_uN_0 i) : Nat) < ((128 : Nat) / (v_N : Nat))) ->
-    Instr_ok C (.VSTORE_LANE .V128 (.mk_sz v_N) x v_memarg i) (.mk_instrtype (.mk_list [(valtype_addrtype at), .V128]) [] (.mk_list []))
+    Instr_ok C (.VSTORE_LANE .V128 (.mk_sz v_N) x v_memarg i) (.mk_instrtype (.mk_list [(valtype_addrtype «at»), .V128]) [] (.mk_list []))
   | const : forall (C : context) (nt : numtype) (c_nt : num_), 
     (wf_context C) ->
     (wf_instr (.CONST nt c_nt)) ->
@@ -5652,12 +5652,12 @@ inductive Mem_ok : context -> mem -> memtype -> Prop where
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/2.4-validation.modules.spectec:11.1-11.98 -/
 inductive Table_ok : context -> table -> tabletype -> Prop where
-  | mk_Table_ok : forall (C : context) (v_tabletype : tabletype) (v_expr : expr) (at : addrtype) (lim : limits) (rt : reftype), 
+  | mk_Table_ok : forall (C : context) (v_tabletype : tabletype) (v_expr : expr) («at» : addrtype) (lim : limits) (rt : reftype), 
     (wf_context C) ->
     (wf_table (.TABLE v_tabletype v_expr)) ->
-    (wf_tabletype (.mk_tabletype at lim rt)) ->
+    (wf_tabletype (.mk_tabletype «at» lim rt)) ->
     (Tabletype_ok C v_tabletype) ->
-    (v_tabletype == (.mk_tabletype at lim rt)) ->
+    (v_tabletype == (.mk_tabletype «at» lim rt)) ->
     (Expr_ok_const C v_expr (valtype_reftype rt)) ->
     Table_ok C (.TABLE v_tabletype v_expr) v_tabletype
 
@@ -5696,13 +5696,13 @@ inductive Datamode_ok : context -> datamode -> datatype -> Prop where
     (wf_context C) ->
     (wf_datamode .PASSIVE) ->
     Datamode_ok C .PASSIVE .OK
-  | active : forall (C : context) (x : idx) (v_expr : expr) (at : addrtype) (lim : limits), 
+  | active : forall (C : context) (x : idx) (v_expr : expr) («at» : addrtype) (lim : limits), 
     (wf_context C) ->
     (wf_datamode (.ACTIVE x v_expr)) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((proj_uN_0 x) < (List.length (C.MEMS))) ->
-    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE at lim)) ->
-    (Expr_ok_const C v_expr (valtype_addrtype at)) ->
+    (((C.MEMS)[(proj_uN_0 x)]!) == (.PAGE «at» lim)) ->
+    (Expr_ok_const C v_expr (valtype_addrtype «at»)) ->
     Datamode_ok C (.ACTIVE x v_expr) .OK
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/2.4-validation.modules.spectec:13.1-13.115 -/
@@ -5725,15 +5725,15 @@ inductive Elemmode_ok : context -> elemmode -> elemtype -> Prop where
     (wf_reftype rt) ->
     (wf_elemmode .DECLARE) ->
     Elemmode_ok C .DECLARE rt
-  | active : forall (C : context) (x : idx) (v_expr : expr) (rt : reftype) (at : addrtype) (lim : limits) (rt' : reftype), 
+  | active : forall (C : context) (x : idx) (v_expr : expr) (rt : reftype) («at» : addrtype) (lim : limits) (rt' : reftype), 
     (wf_context C) ->
     (wf_reftype rt) ->
     (wf_elemmode (.ACTIVE x v_expr)) ->
-    (wf_tabletype (.mk_tabletype at lim rt')) ->
+    (wf_tabletype (.mk_tabletype «at» lim rt')) ->
     ((proj_uN_0 x) < (List.length (C.TABLES))) ->
-    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype at lim rt')) ->
+    (((C.TABLES)[(proj_uN_0 x)]!) == (.mk_tabletype «at» lim rt')) ->
     (Reftype_sub C rt rt') ->
-    (Expr_ok_const C v_expr (valtype_addrtype at)) ->
+    (Expr_ok_const C v_expr (valtype_addrtype «at»)) ->
     Elemmode_ok C (.ACTIVE x v_expr) rt
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/2.4-validation.modules.spectec:14.1-14.97 -/
@@ -6041,7 +6041,7 @@ def fun_sx : ∀  (v_storagetype : storagetype) , (Option sx)
 opaque fun_zero : forall (v_lanetype : lanetype), lane_ := opaqueDef
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec:72.1-72.22 -/
-def bool : ∀  (v_bool : Bool) , Nat
+def nat_of_bool : ∀  (v_bool : Bool) , Nat
   | false => 0
   | true => 1
 
@@ -7858,26 +7858,26 @@ inductive Step_read_before_throw_ref_handler_next : config -> Prop where
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec:357.1-360.14 -/
 inductive Step_read_before_table_fill_zero : config -> Prop where
-  | table_fill_oob_0 : forall (z : state) (at : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_FILL x)])) ->
+  | table_fill_oob_0 : forall (z : state) («at» : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_FILL x)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
-    (((proj_uN_0 (Option.get! (proj_num__0 at i))) + v_n) > (List.length ((fun_table z x).REFS))) ->
-    Step_read_before_table_fill_zero (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_FILL x)])
+    ((proj_num__0 «at» i) != none) ->
+    (((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + v_n) > (List.length ((fun_table z x).REFS))) ->
+    Step_read_before_table_fill_zero (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_FILL x)])
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec:362.1-366.15 -/
 inductive Step_read_before_table_fill_succ : config -> Prop where
-  | table_fill_zero_0 : forall (z : state) (at : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_FILL x)])) ->
-    (¬(Step_read_before_table_fill_zero (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_FILL x)]))) ->
+  | table_fill_zero_0 : forall (z : state) («at» : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_FILL x)])) ->
+    (¬(Step_read_before_table_fill_zero (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_FILL x)]))) ->
     (v_n == 0) ->
-    Step_read_before_table_fill_succ (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_FILL x)])
-  | table_fill_oob_1 : forall (z : state) (at : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_FILL x)])) ->
+    Step_read_before_table_fill_succ (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_FILL x)])
+  | table_fill_oob_1 : forall (z : state) («at» : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_FILL x)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
-    (((proj_uN_0 (Option.get! (proj_num__0 at i))) + v_n) > (List.length ((fun_table z x).REFS))) ->
-    Step_read_before_table_fill_succ (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_FILL x)])
+    ((proj_num__0 «at» i) != none) ->
+    (((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + v_n) > (List.length ((fun_table z x).REFS))) ->
+    Step_read_before_table_fill_succ (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_FILL x)])
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec:374.1-377.14 -/
 inductive Step_read_before_table_copy_zero : config -> Prop where
@@ -7936,51 +7936,51 @@ inductive Step_read_before_table_copy_gt : config -> Prop where
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec:398.1-401.14 -/
 inductive Step_read_before_table_init_zero : config -> Prop where
-  | table_init_oob_0 : forall (z : state) (at : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])) ->
+  | table_init_oob_0 : forall (z : state) («at» : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
+    ((proj_num__0 «at» i) != none) ->
     ((proj_num__0 .I32 j) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + v_n) > (List.length ((fun_table z x).REFS))) || (((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + v_n) > (List.length ((fun_elem z y).REFS)))) ->
-    Step_read_before_table_init_zero (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + v_n) > (List.length ((fun_table z x).REFS))) || (((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + v_n) > (List.length ((fun_elem z y).REFS)))) ->
+    Step_read_before_table_init_zero (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec:403.1-407.15 -/
 inductive Step_read_before_table_init_succ : config -> Prop where
-  | table_init_zero_0 : forall (z : state) (at : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])) ->
-    (¬(Step_read_before_table_init_zero (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)]))) ->
+  | table_init_zero_0 : forall (z : state) («at» : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])) ->
+    (¬(Step_read_before_table_init_zero (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)]))) ->
     (v_n == 0) ->
-    Step_read_before_table_init_succ (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])
-  | table_init_oob_1 : forall (z : state) (at : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])) ->
+    Step_read_before_table_init_succ (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])
+  | table_init_oob_1 : forall (z : state) («at» : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
+    ((proj_num__0 «at» i) != none) ->
     ((proj_num__0 .I32 j) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + v_n) > (List.length ((fun_table z x).REFS))) || (((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + v_n) > (List.length ((fun_elem z y).REFS)))) ->
-    Step_read_before_table_init_succ (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + v_n) > (List.length ((fun_table z x).REFS))) || (((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + v_n) > (List.length ((fun_elem z y).REFS)))) ->
+    Step_read_before_table_init_succ (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec:559.1-562.14 -/
 inductive Step_read_before_memory_fill_zero : config -> Prop where
-  | memory_fill_oob_0 : forall (z : state) (at : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_FILL x)])) ->
+  | memory_fill_oob_0 : forall (z : state) («at» : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_FILL x)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
-    (((proj_uN_0 (Option.get! (proj_num__0 at i))) + v_n) > (List.length ((fun_mem z x).BYTES))) ->
-    Step_read_before_memory_fill_zero (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_FILL x)])
+    ((proj_num__0 «at» i) != none) ->
+    (((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + v_n) > (List.length ((fun_mem z x).BYTES))) ->
+    Step_read_before_memory_fill_zero (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_FILL x)])
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec:564.1-568.15 -/
 inductive Step_read_before_memory_fill_succ : config -> Prop where
-  | memory_fill_zero_0 : forall (z : state) (at : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_FILL x)])) ->
-    (¬(Step_read_before_memory_fill_zero (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_FILL x)]))) ->
+  | memory_fill_zero_0 : forall (z : state) («at» : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_FILL x)])) ->
+    (¬(Step_read_before_memory_fill_zero (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_FILL x)]))) ->
     (v_n == 0) ->
-    Step_read_before_memory_fill_succ (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_FILL x)])
-  | memory_fill_oob_1 : forall (z : state) (at : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_FILL x)])) ->
+    Step_read_before_memory_fill_succ (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_FILL x)])
+  | memory_fill_oob_1 : forall (z : state) («at» : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_FILL x)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
-    (((proj_uN_0 (Option.get! (proj_num__0 at i))) + v_n) > (List.length ((fun_mem z x).BYTES))) ->
-    Step_read_before_memory_fill_succ (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_FILL x)])
+    ((proj_num__0 «at» i) != none) ->
+    (((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + v_n) > (List.length ((fun_mem z x).BYTES))) ->
+    Step_read_before_memory_fill_succ (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_FILL x)])
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec:576.1-579.14 -/
 inductive Step_read_before_memory_copy_zero : config -> Prop where
@@ -8039,28 +8039,28 @@ inductive Step_read_before_memory_copy_gt : config -> Prop where
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec:600.1-603.14 -/
 inductive Step_read_before_memory_init_zero : config -> Prop where
-  | memory_init_oob_0 : forall (z : state) (at : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])) ->
+  | memory_init_oob_0 : forall (z : state) («at» : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
+    ((proj_num__0 «at» i) != none) ->
     ((proj_num__0 .I32 j) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + v_n) > (List.length ((fun_mem z x).BYTES))) || (((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + v_n) > (List.length ((fun_data z y).BYTES)))) ->
-    Step_read_before_memory_init_zero (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + v_n) > (List.length ((fun_mem z x).BYTES))) || (((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + v_n) > (List.length ((fun_data z y).BYTES)))) ->
+    Step_read_before_memory_init_zero (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec:605.1-609.15 -/
 inductive Step_read_before_memory_init_succ : config -> Prop where
-  | memory_init_zero_0 : forall (z : state) (at : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])) ->
-    (¬(Step_read_before_memory_init_zero (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)]))) ->
+  | memory_init_zero_0 : forall (z : state) («at» : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])) ->
+    (¬(Step_read_before_memory_init_zero (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)]))) ->
     (v_n == 0) ->
-    Step_read_before_memory_init_succ (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])
-  | memory_init_oob_1 : forall (z : state) (at : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])) ->
+    Step_read_before_memory_init_succ (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])
+  | memory_init_oob_1 : forall (z : state) («at» : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
+    ((proj_num__0 «at» i) != none) ->
     ((proj_num__0 .I32 j) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + v_n) > (List.length ((fun_mem z x).BYTES))) || (((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + v_n) > (List.length ((fun_data z y).BYTES)))) ->
-    Step_read_before_memory_init_succ (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + v_n) > (List.length ((fun_mem z x).BYTES))) || (((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + v_n) > (List.length ((fun_data z y).BYTES)))) ->
+    Step_read_before_memory_init_succ (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec:666.1-668.15 -/
 inductive Step_read_before_ref_test_false : config -> Prop where
@@ -8447,45 +8447,45 @@ inductive Step_read : config -> (List instr) -> Prop where
     (wf_config (.mk_config z [(.GLOBAL_GET x)])) ->
     (((fun_global z x).VALUE) == v_val) ->
     Step_read (.mk_config z [(.GLOBAL_GET x)]) [(instr_val v_val)]
-  | table_get_oob : forall (z : state) (at : addrtype) (i : num_) (x : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.TABLE_GET x)])) ->
+  | table_get_oob : forall (z : state) («at» : addrtype) (i : num_) (x : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.TABLE_GET x)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
-    ((proj_uN_0 (Option.get! (proj_num__0 at i))) >= (List.length ((fun_table z x).REFS))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.TABLE_GET x)]) [.TRAP]
-  | table_get_val : forall (z : state) (at : addrtype) (i : num_) (x : idx), 
-    ((proj_uN_0 (Option.get! (proj_num__0 at i))) < (List.length ((fun_table z x).REFS))) ->
-    ((proj_num__0 at i) != none) ->
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.TABLE_GET x)])) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.TABLE_GET x)]) [(instr_ref (((fun_table z x).REFS)[(proj_uN_0 (Option.get! (proj_num__0 at i)))]!))]
-  | table_size : forall (z : state) (x : idx) (at : addrtype) (v_n : n) (lim : limits) (rt : reftype), 
+    ((proj_num__0 «at» i) != none) ->
+    ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) >= (List.length ((fun_table z x).REFS))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.TABLE_GET x)]) [.TRAP]
+  | table_get_val : forall (z : state) («at» : addrtype) (i : num_) (x : idx), 
+    ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) < (List.length ((fun_table z x).REFS))) ->
+    ((proj_num__0 «at» i) != none) ->
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.TABLE_GET x)])) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.TABLE_GET x)]) [(instr_ref (((fun_table z x).REFS)[(proj_uN_0 (Option.get! (proj_num__0 «at» i)))]!))]
+  | table_size : forall (z : state) (x : idx) («at» : addrtype) (v_n : n) (lim : limits) (rt : reftype), 
     (wf_config (.mk_config z [(.TABLE_SIZE x)])) ->
-    (wf_instr (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n)))) ->
-    (wf_tabletype (.mk_tabletype at lim rt)) ->
+    (wf_instr (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n)))) ->
+    (wf_tabletype (.mk_tabletype «at» lim rt)) ->
     ((List.length ((fun_table z x).REFS)) == v_n) ->
-    (((fun_table z x).TYPE) == (.mk_tabletype at lim rt)) ->
-    Step_read (.mk_config z [(.TABLE_SIZE x)]) [(.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n)))]
-  | table_fill_oob : forall (z : state) (at : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_FILL x)])) ->
+    (((fun_table z x).TYPE) == (.mk_tabletype «at» lim rt)) ->
+    Step_read (.mk_config z [(.TABLE_SIZE x)]) [(.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n)))]
+  | table_fill_oob : forall (z : state) («at» : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_FILL x)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
-    (((proj_uN_0 (Option.get! (proj_num__0 at i))) + v_n) > (List.length ((fun_table z x).REFS))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_FILL x)]) [.TRAP]
-  | table_fill_zero : forall (z : state) (at : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_FILL x)])) ->
-    (¬(Step_read_before_table_fill_zero (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_FILL x)]))) ->
+    ((proj_num__0 «at» i) != none) ->
+    (((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + v_n) > (List.length ((fun_table z x).REFS))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_FILL x)]) [.TRAP]
+  | table_fill_zero : forall (z : state) («at» : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_FILL x)])) ->
+    (¬(Step_read_before_table_fill_zero (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_FILL x)]))) ->
     (v_n == 0) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_FILL x)]) []
-  | table_fill_succ : forall (z : state) (at : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
-    ((proj_num__0 at i) != none) ->
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_FILL x)])) ->
-    (wf_instr (.CONST (numtype_addrtype at) i)) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_FILL x)]) []
+  | table_fill_succ : forall (z : state) («at» : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
+    ((proj_num__0 «at» i) != none) ->
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_FILL x)])) ->
+    (wf_instr (.CONST (numtype_addrtype «at») i)) ->
     (wf_instr (.TABLE_SET x)) ->
-    (wf_instr (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 at i))) + 1))))) ->
-    (wf_instr (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat))))) ->
+    (wf_instr (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + 1))))) ->
+    (wf_instr (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat))))) ->
     (wf_instr (.TABLE_FILL x)) ->
-    (¬(Step_read_before_table_fill_succ (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_FILL x)]))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_FILL x)]) [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.TABLE_SET x), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 at i))) + 1)))), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat)))), (.TABLE_FILL x)]
+    (¬(Step_read_before_table_fill_succ (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_FILL x)]))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_FILL x)]) [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.TABLE_SET x), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + 1)))), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat)))), (.TABLE_FILL x)]
   | table_copy_oob : forall (z : state) (at_1 : addrtype) (i_1 : num_) (at_2 : addrtype) (i_2 : num_) (at' : addrtype) (v_n : n) (x_1 : idx) (x_2 : idx), 
     (wf_config (.mk_config z [(.CONST (numtype_addrtype at_1) i_1), (.CONST (numtype_addrtype at_2) i_2), (.CONST (numtype_addrtype at') (.mk_num__0 at' (.mk_uN v_n))), (.TABLE_COPY x_1 x_2)])) ->
     (wf_instr .TRAP) ->
@@ -8527,159 +8527,159 @@ inductive Step_read : config -> (List instr) -> Prop where
     (wf_instr (.TABLE_COPY x y)) ->
     (¬(Step_read_before_table_copy_gt (.mk_config z [(.CONST (numtype_addrtype at_1) i_1), (.CONST (numtype_addrtype at_2) i_2), (.CONST (numtype_addrtype at') (.mk_num__0 at' (.mk_uN v_n))), (.TABLE_COPY x y)]))) ->
     Step_read (.mk_config z [(.CONST (numtype_addrtype at_1) i_1), (.CONST (numtype_addrtype at_2) i_2), (.CONST (numtype_addrtype at') (.mk_num__0 at' (.mk_uN v_n))), (.TABLE_COPY x y)]) [(.CONST (numtype_addrtype at_1) (.mk_num__0 at_1 (.mk_uN (((((proj_uN_0 (Option.get! (proj_num__0 at_1 i_1))) + v_n) : Nat) - (1 : Nat)) : Nat)))), (.CONST (numtype_addrtype at_2) (.mk_num__0 at_2 (.mk_uN (((((proj_uN_0 (Option.get! (proj_num__0 at_2 i_2))) + v_n) : Nat) - (1 : Nat)) : Nat)))), (.TABLE_GET y), (.TABLE_SET x), (.CONST (numtype_addrtype at_1) i_1), (.CONST (numtype_addrtype at_2) i_2), (.CONST (numtype_addrtype at') (.mk_num__0 at' (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat)))), (.TABLE_COPY x y)]
-  | table_init_oob : forall (z : state) (at : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])) ->
+  | table_init_oob : forall (z : state) («at» : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
+    ((proj_num__0 «at» i) != none) ->
     ((proj_num__0 .I32 j) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + v_n) > (List.length ((fun_table z x).REFS))) || (((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + v_n) > (List.length ((fun_elem z y).REFS)))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)]) [.TRAP]
-  | table_init_zero : forall (z : state) (at : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])) ->
-    (¬(Step_read_before_table_init_zero (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)]))) ->
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + v_n) > (List.length ((fun_table z x).REFS))) || (((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + v_n) > (List.length ((fun_elem z y).REFS)))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)]) [.TRAP]
+  | table_init_zero : forall (z : state) («at» : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])) ->
+    (¬(Step_read_before_table_init_zero (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)]))) ->
     (v_n == 0) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)]) []
-  | table_init_succ : forall (z : state) (at : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)]) []
+  | table_init_succ : forall (z : state) («at» : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
     ((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) < (List.length ((fun_elem z y).REFS))) ->
     ((proj_num__0 .I32 j) != none) ->
-    ((proj_num__0 at i) != none) ->
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])) ->
-    (wf_instr (.CONST (numtype_addrtype at) i)) ->
+    ((proj_num__0 «at» i) != none) ->
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)])) ->
+    (wf_instr (.CONST (numtype_addrtype «at») i)) ->
     (wf_instr (.TABLE_SET x)) ->
-    (wf_instr (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 at i))) + 1))))) ->
+    (wf_instr (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + 1))))) ->
     (wf_instr (.CONST .I32 (.mk_num__0 .I32 (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + 1))))) ->
     (wf_instr (.CONST .I32 (.mk_num__0 .I32 (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat))))) ->
     (wf_instr (.TABLE_INIT x y)) ->
-    (¬(Step_read_before_table_init_succ (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)]))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)]) [(.CONST (numtype_addrtype at) i), (instr_ref (((fun_elem z y).REFS)[(proj_uN_0 (Option.get! (proj_num__0 .I32 j)))]!)), (.TABLE_SET x), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 at i))) + 1)))), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + 1)))), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat)))), (.TABLE_INIT x y)]
-  | load_num_oob : forall (z : state) (at : addrtype) (i : num_) (nt : numtype) (x : idx) (ao : memarg), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.LOAD nt none x ao)])) ->
+    (¬(Step_read_before_table_init_succ (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)]))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.TABLE_INIT x y)]) [(.CONST (numtype_addrtype «at») i), (instr_ref (((fun_elem z y).REFS)[(proj_uN_0 (Option.get! (proj_num__0 .I32 j)))]!)), (.TABLE_SET x), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + 1)))), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + 1)))), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat)))), (.TABLE_INIT x y)]
+  | load_num_oob : forall (z : state) («at» : addrtype) (i : num_) (nt : numtype) (x : idx) (ao : memarg), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.LOAD nt none x ao)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) + ((((size nt) : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.LOAD nt none x ao)]) [.TRAP]
-  | load_num_val : forall (z : state) (at : addrtype) (i : num_) (nt : numtype) (x : idx) (ao : memarg) (c : num_), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.LOAD nt none x ao)])) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) + ((((size nt) : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.LOAD nt none x ao)]) [.TRAP]
+  | load_num_val : forall (z : state) («at» : addrtype) (i : num_) (nt : numtype) (x : idx) (ao : memarg) (c : num_), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.LOAD nt none x ao)])) ->
     (wf_instr (.CONST nt c)) ->
-    ((proj_num__0 at i) != none) ->
-    ((nbytes_ nt c) == (List.extract ((fun_mem z x).BYTES) ((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) ((((size nt) : Nat) / (8 : Nat)) : Nat))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.LOAD nt none x ao)]) [(.CONST nt c)]
-  | load_pack_oob : forall (z : state) (at : addrtype) (i : num_) (v_Inn : Inn) (v_n : n) (v_sx : sx) (x : idx) (ao : memarg), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.LOAD (numtype_addrtype v_Inn) (some (.mk_loadop__0 v_Inn (._ (.mk_sz v_n) v_sx))) x ao)])) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((nbytes_ nt c) == (List.extract ((fun_mem z x).BYTES) ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) ((((size nt) : Nat) / (8 : Nat)) : Nat))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.LOAD nt none x ao)]) [(.CONST nt c)]
+  | load_pack_oob : forall (z : state) («at» : addrtype) (i : num_) (v_Inn : Inn) (v_n : n) (v_sx : sx) (x : idx) (ao : memarg), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.LOAD (numtype_addrtype v_Inn) (some (.mk_loadop__0 v_Inn (._ (.mk_sz v_n) v_sx))) x ao)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) + (((v_n : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.LOAD (numtype_addrtype v_Inn) (some (.mk_loadop__0 v_Inn (._ (.mk_sz v_n) v_sx))) x ao)]) [.TRAP]
-  | load_pack_val : forall (z : state) (at : addrtype) (i : num_) (v_Inn : Inn) (v_n : n) (v_sx : sx) (x : idx) (ao : memarg) (c : iN), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.LOAD (numtype_addrtype v_Inn) (some (.mk_loadop__0 v_Inn (._ (.mk_sz v_n) v_sx))) x ao)])) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) + (((v_n : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.LOAD (numtype_addrtype v_Inn) (some (.mk_loadop__0 v_Inn (._ (.mk_sz v_n) v_sx))) x ao)]) [.TRAP]
+  | load_pack_val : forall (z : state) («at» : addrtype) (i : num_) (v_Inn : Inn) (v_n : n) (v_sx : sx) (x : idx) (ao : memarg) (c : iN), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.LOAD (numtype_addrtype v_Inn) (some (.mk_loadop__0 v_Inn (._ (.mk_sz v_n) v_sx))) x ao)])) ->
     (wf_instr (.CONST (numtype_addrtype v_Inn) (.mk_num__0 v_Inn (extend__ v_n (size (numtype_addrtype v_Inn)) v_sx c)))) ->
-    ((proj_num__0 at i) != none) ->
-    ((ibytes_ v_n c) == (List.extract ((fun_mem z x).BYTES) ((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) (((v_n : Nat) / (8 : Nat)) : Nat))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.LOAD (numtype_addrtype v_Inn) (some (.mk_loadop__0 v_Inn (._ (.mk_sz v_n) v_sx))) x ao)]) [(.CONST (numtype_addrtype v_Inn) (.mk_num__0 v_Inn (extend__ v_n (size (numtype_addrtype v_Inn)) v_sx c)))]
-  | vload_oob : forall (z : state) (at : addrtype) (i : num_) (x : idx) (ao : memarg), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.VLOAD .V128 none x ao)])) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((ibytes_ v_n c) == (List.extract ((fun_mem z x).BYTES) ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) (((v_n : Nat) / (8 : Nat)) : Nat))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.LOAD (numtype_addrtype v_Inn) (some (.mk_loadop__0 v_Inn (._ (.mk_sz v_n) v_sx))) x ao)]) [(.CONST (numtype_addrtype v_Inn) (.mk_num__0 v_Inn (extend__ v_n (size (numtype_addrtype v_Inn)) v_sx c)))]
+  | vload_oob : forall (z : state) («at» : addrtype) (i : num_) (x : idx) (ao : memarg), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VLOAD .V128 none x ao)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) + ((((vsize .V128) : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.VLOAD .V128 none x ao)]) [.TRAP]
-  | vload_val : forall (z : state) (at : addrtype) (i : num_) (x : idx) (ao : memarg) (c : vec_), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.VLOAD .V128 none x ao)])) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) + ((((vsize .V128) : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VLOAD .V128 none x ao)]) [.TRAP]
+  | vload_val : forall (z : state) («at» : addrtype) (i : num_) (x : idx) (ao : memarg) (c : vec_), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VLOAD .V128 none x ao)])) ->
     (wf_instr (.VCONST .V128 c)) ->
-    ((proj_num__0 at i) != none) ->
-    ((vbytes_ .V128 c) == (List.extract ((fun_mem z x).BYTES) ((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) ((((vsize .V128) : Nat) / (8 : Nat)) : Nat))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.VLOAD .V128 none x ao)]) [(.VCONST .V128 c)]
-  | vload_pack_oob : forall (z : state) (at : addrtype) (i : num_) (v_M : M) (v_K : K) (v_sx : sx) (x : idx) (ao : memarg), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.VLOAD .V128 (some (.SHAPEX_ (.mk_sz v_M) v_K v_sx)) x ao)])) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((vbytes_ .V128 c) == (List.extract ((fun_mem z x).BYTES) ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) ((((vsize .V128) : Nat) / (8 : Nat)) : Nat))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VLOAD .V128 none x ao)]) [(.VCONST .V128 c)]
+  | vload_pack_oob : forall (z : state) («at» : addrtype) (i : num_) (v_M : M) (v_K : K) (v_sx : sx) (x : idx) (ao : memarg), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VLOAD .V128 (some (.SHAPEX_ (.mk_sz v_M) v_K v_sx)) x ao)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) + ((((v_M * v_K) : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.VLOAD .V128 (some (.SHAPEX_ (.mk_sz v_M) v_K v_sx)) x ao)]) [.TRAP]
-  | vload_pack_val : forall (z : state) (at : addrtype) (i : num_) (v_M : M) (v_K : K) (v_sx : sx) (x : idx) (ao : memarg) (c : vec_) (j_lst : (List iN)) (k_lst : (List Nat)) (v_Jnn : Jnn), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.VLOAD .V128 (some (.SHAPEX_ (.mk_sz v_M) v_K v_sx)) x ao)])) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) + ((((v_M * v_K) : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VLOAD .V128 (some (.SHAPEX_ (.mk_sz v_M) v_K v_sx)) x ao)]) [.TRAP]
+  | vload_pack_val : forall (z : state) («at» : addrtype) (i : num_) (v_M : M) (v_K : K) (v_sx : sx) (x : idx) (ao : memarg) (c : vec_) (j_lst : (List iN)) (k_lst : (List Nat)) (v_Jnn : Jnn), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VLOAD .V128 (some (.SHAPEX_ (.mk_sz v_M) v_K v_sx)) x ao)])) ->
     (wf_instr (.VCONST .V128 c)) ->
     (wf_shape (.X (lanetype_Jnn v_Jnn) (.mk_dim v_K))) ->
     ((List.length j_lst) == v_K) ->
     Forall (fun (j : iN) => (wf_lane_ (fun_lanetype (.X (lanetype_Jnn v_Jnn) (.mk_dim v_K))) (.mk_lane__2 v_Jnn (extend__ v_M (jsizenn v_Jnn) v_sx j)))) j_lst ->
-    Forall (fun (j : iN) => ((proj_num__0 at i) != none)) j_lst ->
-    Forall₂ (fun (j : iN) (k : Nat) => ((ibytes_ v_M j) == (List.extract ((fun_mem z x).BYTES) (((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) + ((((k * v_M) : Nat) / (8 : Nat)) : Nat)) (((v_M : Nat) / (8 : Nat)) : Nat)))) j_lst k_lst ->
+    Forall (fun (j : iN) => ((proj_num__0 «at» i) != none)) j_lst ->
+    Forall₂ (fun (j : iN) (k : Nat) => ((ibytes_ v_M j) == (List.extract ((fun_mem z x).BYTES) (((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) + ((((k * v_M) : Nat) / (8 : Nat)) : Nat)) (((v_M : Nat) / (8 : Nat)) : Nat)))) j_lst k_lst ->
     ((c == (inv_lanes_ (.X (lanetype_Jnn v_Jnn) (.mk_dim v_K)) (List.map (fun (j : iN) => (.mk_lane__2 v_Jnn (extend__ v_M (jsizenn v_Jnn) v_sx j))) j_lst))) && ((jsizenn v_Jnn) == (v_M * 2))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.VLOAD .V128 (some (.SHAPEX_ (.mk_sz v_M) v_K v_sx)) x ao)]) [(.VCONST .V128 c)]
-  | vload_splat_oob : forall (z : state) (at : addrtype) (i : num_) (v_N : N) (x : idx) (ao : memarg), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.VLOAD .V128 (some (.SPLAT (.mk_sz v_N))) x ao)])) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VLOAD .V128 (some (.SHAPEX_ (.mk_sz v_M) v_K v_sx)) x ao)]) [(.VCONST .V128 c)]
+  | vload_splat_oob : forall (z : state) («at» : addrtype) (i : num_) (v_N : N) (x : idx) (ao : memarg), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VLOAD .V128 (some (.SPLAT (.mk_sz v_N))) x ao)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) + (((v_N : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.VLOAD .V128 (some (.SPLAT (.mk_sz v_N))) x ao)]) [.TRAP]
-  | vload_splat_val : forall (z : state) (at : addrtype) (i : num_) (v_N : N) (x : idx) (ao : memarg) (c : vec_) (j : iN) (v_Jnn : Jnn) (v_M : M), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.VLOAD .V128 (some (.SPLAT (.mk_sz v_N))) x ao)])) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) + (((v_N : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VLOAD .V128 (some (.SPLAT (.mk_sz v_N))) x ao)]) [.TRAP]
+  | vload_splat_val : forall (z : state) («at» : addrtype) (i : num_) (v_N : N) (x : idx) (ao : memarg) (c : vec_) (j : iN) (v_Jnn : Jnn) (v_M : M), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VLOAD .V128 (some (.SPLAT (.mk_sz v_N))) x ao)])) ->
     (wf_instr (.VCONST .V128 c)) ->
     (wf_shape (.X (lanetype_Jnn v_Jnn) (.mk_dim v_M))) ->
     (wf_lane_ (fun_lanetype (.X (lanetype_Jnn v_Jnn) (.mk_dim v_M))) (.mk_lane__2 v_Jnn (.mk_uN (proj_uN_0 j)))) ->
-    ((proj_num__0 at i) != none) ->
-    ((ibytes_ v_N j) == (List.extract ((fun_mem z x).BYTES) ((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) (((v_N : Nat) / (8 : Nat)) : Nat))) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((ibytes_ v_N j) == (List.extract ((fun_mem z x).BYTES) ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) (((v_N : Nat) / (8 : Nat)) : Nat))) ->
     (v_N == (jsize v_Jnn)) ->
     ((v_M : Nat) == ((128 : Nat) / (v_N : Nat))) ->
     (c == (inv_lanes_ (.X (lanetype_Jnn v_Jnn) (.mk_dim v_M)) (List.replicate v_M (.mk_lane__2 v_Jnn (.mk_uN (proj_uN_0 j)))))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.VLOAD .V128 (some (.SPLAT (.mk_sz v_N))) x ao)]) [(.VCONST .V128 c)]
-  | vload_zero_oob : forall (z : state) (at : addrtype) (i : num_) (v_N : N) (x : idx) (ao : memarg), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.VLOAD .V128 (some (.ZERO (.mk_sz v_N))) x ao)])) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VLOAD .V128 (some (.SPLAT (.mk_sz v_N))) x ao)]) [(.VCONST .V128 c)]
+  | vload_zero_oob : forall (z : state) («at» : addrtype) (i : num_) (v_N : N) (x : idx) (ao : memarg), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VLOAD .V128 (some (.ZERO (.mk_sz v_N))) x ao)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) + (((v_N : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.VLOAD .V128 (some (.ZERO (.mk_sz v_N))) x ao)]) [.TRAP]
-  | vload_zero_val : forall (z : state) (at : addrtype) (i : num_) (v_N : N) (x : idx) (ao : memarg) (c : vec_) (j : iN), 
+    ((proj_num__0 «at» i) != none) ->
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) + (((v_N : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VLOAD .V128 (some (.ZERO (.mk_sz v_N))) x ao)]) [.TRAP]
+  | vload_zero_val : forall (z : state) («at» : addrtype) (i : num_) (v_N : N) (x : idx) (ao : memarg) (c : vec_) (j : iN), 
     (wf_uN v_N j) ->
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.VLOAD .V128 (some (.ZERO (.mk_sz v_N))) x ao)])) ->
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VLOAD .V128 (some (.ZERO (.mk_sz v_N))) x ao)])) ->
     (wf_instr (.VCONST .V128 c)) ->
-    ((proj_num__0 at i) != none) ->
-    ((ibytes_ v_N j) == (List.extract ((fun_mem z x).BYTES) ((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) (((v_N : Nat) / (8 : Nat)) : Nat))) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((ibytes_ v_N j) == (List.extract ((fun_mem z x).BYTES) ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) (((v_N : Nat) / (8 : Nat)) : Nat))) ->
     (c == (extend__ v_N 128 .U j)) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.VLOAD .V128 (some (.ZERO (.mk_sz v_N))) x ao)]) [(.VCONST .V128 c)]
-  | vload_lane_oob : forall (z : state) (at : addrtype) (i : num_) (c_1 : vec_) (v_N : N) (x : idx) (ao : memarg) (j : laneidx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.VCONST .V128 c_1), (.VLOAD_LANE .V128 (.mk_sz v_N) x ao j)])) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VLOAD .V128 (some (.ZERO (.mk_sz v_N))) x ao)]) [(.VCONST .V128 c)]
+  | vload_lane_oob : forall (z : state) («at» : addrtype) (i : num_) (c_1 : vec_) (v_N : N) (x : idx) (ao : memarg) (j : laneidx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VCONST .V128 c_1), (.VLOAD_LANE .V128 (.mk_sz v_N) x ao j)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) + (((v_N : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.VCONST .V128 c_1), (.VLOAD_LANE .V128 (.mk_sz v_N) x ao j)]) [.TRAP]
-  | vload_lane_val : forall (z : state) (at : addrtype) (i : num_) (c_1 : vec_) (v_N : N) (x : idx) (ao : memarg) (j : laneidx) (c : vec_) (k : iN) (v_Jnn : Jnn) (v_M : M), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.VCONST .V128 c_1), (.VLOAD_LANE .V128 (.mk_sz v_N) x ao j)])) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) + (((v_N : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VCONST .V128 c_1), (.VLOAD_LANE .V128 (.mk_sz v_N) x ao j)]) [.TRAP]
+  | vload_lane_val : forall (z : state) («at» : addrtype) (i : num_) (c_1 : vec_) (v_N : N) (x : idx) (ao : memarg) (j : laneidx) (c : vec_) (k : iN) (v_Jnn : Jnn) (v_M : M), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VCONST .V128 c_1), (.VLOAD_LANE .V128 (.mk_sz v_N) x ao j)])) ->
     (wf_instr (.VCONST .V128 c)) ->
     (wf_shape (.X (lanetype_Jnn v_Jnn) (.mk_dim v_M))) ->
     (wf_lane_ (fun_lanetype (.X (lanetype_Jnn v_Jnn) (.mk_dim v_M))) (.mk_lane__2 v_Jnn (.mk_uN (proj_uN_0 k)))) ->
-    ((proj_num__0 at i) != none) ->
-    ((ibytes_ v_N k) == (List.extract ((fun_mem z x).BYTES) ((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) (((v_N : Nat) / (8 : Nat)) : Nat))) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((ibytes_ v_N k) == (List.extract ((fun_mem z x).BYTES) ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) (((v_N : Nat) / (8 : Nat)) : Nat))) ->
     (v_N == (jsize v_Jnn)) ->
     ((v_M : Nat) == (((vsize .V128) : Nat) / (v_N : Nat))) ->
     (c == (inv_lanes_ (.X (lanetype_Jnn v_Jnn) (.mk_dim v_M)) (List.modify (lanes_ (.X (lanetype_Jnn v_Jnn) (.mk_dim v_M)) c_1) (proj_uN_0 j) (fun (_ : lane_) => (.mk_lane__2 v_Jnn (.mk_uN (proj_uN_0 k))))))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.VCONST .V128 c_1), (.VLOAD_LANE .V128 (.mk_sz v_N) x ao j)]) [(.VCONST .V128 c)]
-  | memory_size : forall (z : state) (x : idx) (at : addrtype) (v_n : n) (lim : limits), 
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VCONST .V128 c_1), (.VLOAD_LANE .V128 (.mk_sz v_N) x ao j)]) [(.VCONST .V128 c)]
+  | memory_size : forall (z : state) (x : idx) («at» : addrtype) (v_n : n) (lim : limits), 
     (wf_config (.mk_config z [(.MEMORY_SIZE x)])) ->
-    (wf_instr (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n)))) ->
-    (wf_memtype (.PAGE at lim)) ->
+    (wf_instr (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n)))) ->
+    (wf_memtype (.PAGE «at» lim)) ->
     ((v_n * (64 * (Ki ))) == (List.length ((fun_mem z x).BYTES))) ->
-    (((fun_mem z x).TYPE) == (.PAGE at lim)) ->
-    Step_read (.mk_config z [(.MEMORY_SIZE x)]) [(.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n)))]
-  | memory_fill_oob : forall (z : state) (at : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_FILL x)])) ->
+    (((fun_mem z x).TYPE) == (.PAGE «at» lim)) ->
+    Step_read (.mk_config z [(.MEMORY_SIZE x)]) [(.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n)))]
+  | memory_fill_oob : forall (z : state) («at» : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_FILL x)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
-    (((proj_uN_0 (Option.get! (proj_num__0 at i))) + v_n) > (List.length ((fun_mem z x).BYTES))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_FILL x)]) [.TRAP]
-  | memory_fill_zero : forall (z : state) (at : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_FILL x)])) ->
-    (¬(Step_read_before_memory_fill_zero (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_FILL x)]))) ->
+    ((proj_num__0 «at» i) != none) ->
+    (((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + v_n) > (List.length ((fun_mem z x).BYTES))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_FILL x)]) [.TRAP]
+  | memory_fill_zero : forall (z : state) («at» : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_FILL x)])) ->
+    (¬(Step_read_before_memory_fill_zero (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_FILL x)]))) ->
     (v_n == 0) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_FILL x)]) []
-  | memory_fill_succ : forall (z : state) (at : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
-    ((proj_num__0 at i) != none) ->
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_FILL x)])) ->
-    (wf_instr (.CONST (numtype_addrtype at) i)) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_FILL x)]) []
+  | memory_fill_succ : forall (z : state) («at» : addrtype) (i : num_) (v_val : val) (v_n : n) (x : idx), 
+    ((proj_num__0 «at» i) != none) ->
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_FILL x)])) ->
+    (wf_instr (.CONST (numtype_addrtype «at») i)) ->
     (wf_instr (.STORE .I32 (some (.mk_storeop__0 .I32 (.mk_storeop_Inn (.mk_sz 8)))) x (memarg0 ))) ->
-    (wf_instr (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 at i))) + 1))))) ->
-    (wf_instr (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat))))) ->
+    (wf_instr (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + 1))))) ->
+    (wf_instr (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat))))) ->
     (wf_instr (.MEMORY_FILL x)) ->
-    (¬(Step_read_before_memory_fill_succ (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_FILL x)]))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_FILL x)]) [(.CONST (numtype_addrtype at) i), (instr_val v_val), (.STORE .I32 (some (.mk_storeop__0 .I32 (.mk_storeop_Inn (.mk_sz 8)))) x (memarg0 )), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 at i))) + 1)))), (instr_val v_val), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat)))), (.MEMORY_FILL x)]
+    (¬(Step_read_before_memory_fill_succ (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_FILL x)]))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_FILL x)]) [(.CONST (numtype_addrtype «at») i), (instr_val v_val), (.STORE .I32 (some (.mk_storeop__0 .I32 (.mk_storeop_Inn (.mk_sz 8)))) x (memarg0 )), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + 1)))), (instr_val v_val), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat)))), (.MEMORY_FILL x)]
   | memory_copy_oob : forall (z : state) (at_1 : addrtype) (i_1 : num_) (at_2 : addrtype) (i_2 : num_) (at' : addrtype) (v_n : n) (x_1 : idx) (x_2 : idx), 
     (wf_config (.mk_config z [(.CONST (numtype_addrtype at_1) i_1), (.CONST (numtype_addrtype at_2) i_2), (.CONST (numtype_addrtype at') (.mk_num__0 at' (.mk_uN v_n))), (.MEMORY_COPY x_1 x_2)])) ->
     (wf_instr .TRAP) ->
@@ -8721,32 +8721,32 @@ inductive Step_read : config -> (List instr) -> Prop where
     (wf_instr (.MEMORY_COPY x_1 x_2)) ->
     (¬(Step_read_before_memory_copy_gt (.mk_config z [(.CONST (numtype_addrtype at_1) i_1), (.CONST (numtype_addrtype at_2) i_2), (.CONST (numtype_addrtype at') (.mk_num__0 at' (.mk_uN v_n))), (.MEMORY_COPY x_1 x_2)]))) ->
     Step_read (.mk_config z [(.CONST (numtype_addrtype at_1) i_1), (.CONST (numtype_addrtype at_2) i_2), (.CONST (numtype_addrtype at') (.mk_num__0 at' (.mk_uN v_n))), (.MEMORY_COPY x_1 x_2)]) [(.CONST (numtype_addrtype at_1) (.mk_num__0 at_1 (.mk_uN (((((proj_uN_0 (Option.get! (proj_num__0 at_1 i_1))) + v_n) : Nat) - (1 : Nat)) : Nat)))), (.CONST (numtype_addrtype at_2) (.mk_num__0 at_2 (.mk_uN (((((proj_uN_0 (Option.get! (proj_num__0 at_2 i_2))) + v_n) : Nat) - (1 : Nat)) : Nat)))), (.LOAD .I32 (some (.mk_loadop__0 .I32 (._ (.mk_sz 8) .U))) x_2 (memarg0 )), (.STORE .I32 (some (.mk_storeop__0 .I32 (.mk_storeop_Inn (.mk_sz 8)))) x_1 (memarg0 )), (.CONST (numtype_addrtype at_1) i_1), (.CONST (numtype_addrtype at_2) i_2), (.CONST (numtype_addrtype at') (.mk_num__0 at' (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat)))), (.MEMORY_COPY x_1 x_2)]
-  | memory_init_oob : forall (z : state) (at : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])) ->
+  | memory_init_oob : forall (z : state) («at» : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])) ->
     (wf_instr .TRAP) ->
-    ((proj_num__0 at i) != none) ->
+    ((proj_num__0 «at» i) != none) ->
     ((proj_num__0 .I32 j) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + v_n) > (List.length ((fun_mem z x).BYTES))) || (((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + v_n) > (List.length ((fun_data z y).BYTES)))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)]) [.TRAP]
-  | memory_init_zero : forall (z : state) (at : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])) ->
-    (¬(Step_read_before_memory_init_zero (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)]))) ->
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + v_n) > (List.length ((fun_mem z x).BYTES))) || (((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + v_n) > (List.length ((fun_data z y).BYTES)))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)]) [.TRAP]
+  | memory_init_zero : forall (z : state) («at» : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])) ->
+    (¬(Step_read_before_memory_init_zero (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)]))) ->
     (v_n == 0) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)]) []
-  | memory_init_succ : forall (z : state) (at : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)]) []
+  | memory_init_succ : forall (z : state) («at» : addrtype) (i : num_) (j : num_) (v_n : n) (x : idx) (y : idx), 
     ((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) < (List.length ((fun_data z y).BYTES))) ->
     ((proj_num__0 .I32 j) != none) ->
-    ((proj_num__0 at i) != none) ->
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])) ->
-    (wf_instr (.CONST (numtype_addrtype at) i)) ->
+    ((proj_num__0 «at» i) != none) ->
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)])) ->
+    (wf_instr (.CONST (numtype_addrtype «at») i)) ->
     (wf_instr (.CONST .I32 (.mk_num__0 .I32 (.mk_uN (proj_byte_0 (((fun_data z y).BYTES)[(proj_uN_0 (Option.get! (proj_num__0 .I32 j)))]!)))))) ->
     (wf_instr (.STORE .I32 (some (.mk_storeop__0 .I32 (.mk_storeop_Inn (.mk_sz 8)))) x (memarg0 ))) ->
-    (wf_instr (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 at i))) + 1))))) ->
+    (wf_instr (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + 1))))) ->
     (wf_instr (.CONST .I32 (.mk_num__0 .I32 (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + 1))))) ->
     (wf_instr (.CONST .I32 (.mk_num__0 .I32 (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat))))) ->
     (wf_instr (.MEMORY_INIT x y)) ->
-    (¬(Step_read_before_memory_init_succ (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)]))) ->
-    Step_read (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)]) [(.CONST (numtype_addrtype at) i), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN (proj_byte_0 (((fun_data z y).BYTES)[(proj_uN_0 (Option.get! (proj_num__0 .I32 j)))]!))))), (.STORE .I32 (some (.mk_storeop__0 .I32 (.mk_storeop_Inn (.mk_sz 8)))) x (memarg0 )), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 at i))) + 1)))), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + 1)))), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat)))), (.MEMORY_INIT x y)]
+    (¬(Step_read_before_memory_init_succ (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)]))) ->
+    Step_read (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST .I32 j), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN v_n))), (.MEMORY_INIT x y)]) [(.CONST (numtype_addrtype «at») i), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN (proj_byte_0 (((fun_data z y).BYTES)[(proj_uN_0 (Option.get! (proj_num__0 .I32 j)))]!))))), (.STORE .I32 (some (.mk_storeop__0 .I32 (.mk_storeop_Inn (.mk_sz 8)))) x (memarg0 )), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + 1)))), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 .I32 j))) + 1)))), (.CONST .I32 (.mk_num__0 .I32 (.mk_uN (((v_n : Nat) - (1 : Nat)) : Nat)))), (.MEMORY_INIT x y)]
   | ref_null_idx : forall (z : state) (x : idx), 
     (wf_config (.mk_config z [(.REF_NULL (._IDX x))])) ->
     (wf_instr (.REF_NULL (heaptype_deftype (fun_type z x)))) ->
@@ -9106,96 +9106,96 @@ inductive Step : config -> config -> Prop where
     (wf_config (.mk_config z [(instr_val v_val), (.GLOBAL_SET x)])) ->
     (wf_config (.mk_config (with_global z x v_val) [])) ->
     Step (.mk_config z [(instr_val v_val), (.GLOBAL_SET x)]) (.mk_config (with_global z x v_val) [])
-  | table_set_oob : forall (z : state) (at : addrtype) (i : num_) (v_ref : ref) (x : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_ref v_ref), (.TABLE_SET x)])) ->
+  | table_set_oob : forall (z : state) («at» : addrtype) (i : num_) (v_ref : ref) (x : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_ref v_ref), (.TABLE_SET x)])) ->
     (wf_config (.mk_config z [.TRAP])) ->
-    ((proj_num__0 at i) != none) ->
-    ((proj_uN_0 (Option.get! (proj_num__0 at i))) >= (List.length ((fun_table z x).REFS))) ->
-    Step (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_ref v_ref), (.TABLE_SET x)]) (.mk_config z [.TRAP])
-  | table_set_val : forall (z : state) (at : addrtype) (i : num_) (v_ref : ref) (x : idx), 
-    ((proj_num__0 at i) != none) ->
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_ref v_ref), (.TABLE_SET x)])) ->
-    (wf_config (.mk_config (with_table z x (proj_uN_0 (Option.get! (proj_num__0 at i))) v_ref) [])) ->
-    ((proj_uN_0 (Option.get! (proj_num__0 at i))) < (List.length ((fun_table z x).REFS))) ->
-    Step (.mk_config z [(.CONST (numtype_addrtype at) i), (instr_ref v_ref), (.TABLE_SET x)]) (.mk_config (with_table z x (proj_uN_0 (Option.get! (proj_num__0 at i))) v_ref) [])
-  | table_grow_succeed : forall (z : state) (v_ref : ref) (at : addrtype) (v_n : n) (x : idx) (ti : tableinst), 
-    (wf_config (.mk_config z [(instr_ref v_ref), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_GROW x)])) ->
-    (wf_config (.mk_config (with_tableinst z x ti) [(.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN (List.length ((fun_table z x).REFS)))))])) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) >= (List.length ((fun_table z x).REFS))) ->
+    Step (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_ref v_ref), (.TABLE_SET x)]) (.mk_config z [.TRAP])
+  | table_set_val : forall (z : state) («at» : addrtype) (i : num_) (v_ref : ref) (x : idx), 
+    ((proj_num__0 «at» i) != none) ->
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_ref v_ref), (.TABLE_SET x)])) ->
+    (wf_config (.mk_config (with_table z x (proj_uN_0 (Option.get! (proj_num__0 «at» i))) v_ref) [])) ->
+    ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) < (List.length ((fun_table z x).REFS))) ->
+    Step (.mk_config z [(.CONST (numtype_addrtype «at») i), (instr_ref v_ref), (.TABLE_SET x)]) (.mk_config (with_table z x (proj_uN_0 (Option.get! (proj_num__0 «at» i))) v_ref) [])
+  | table_grow_succeed : forall (z : state) (v_ref : ref) («at» : addrtype) (v_n : n) (x : idx) (ti : tableinst), 
+    (wf_config (.mk_config z [(instr_ref v_ref), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_GROW x)])) ->
+    (wf_config (.mk_config (with_tableinst z x ti) [(.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN (List.length ((fun_table z x).REFS)))))])) ->
     ((growtable (fun_table z x) v_n v_ref) != none) ->
     (ti == (Option.get! (growtable (fun_table z x) v_n v_ref))) ->
-    Step (.mk_config z [(instr_ref v_ref), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_GROW x)]) (.mk_config (with_tableinst z x ti) [(.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN (List.length ((fun_table z x).REFS)))))])
-  | table_grow_fail : forall (z : state) (v_ref : ref) (at : addrtype) (v_n : n) (x : idx), 
-    (wf_config (.mk_config z [(instr_ref v_ref), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_GROW x)])) ->
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN (inv_signed_ (size (numtype_addrtype at)) (0 - (1 : Nat))))))])) ->
-    Step (.mk_config z [(instr_ref v_ref), (.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.TABLE_GROW x)]) (.mk_config z [(.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN (inv_signed_ (size (numtype_addrtype at)) (0 - (1 : Nat))))))])
+    Step (.mk_config z [(instr_ref v_ref), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_GROW x)]) (.mk_config (with_tableinst z x ti) [(.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN (List.length ((fun_table z x).REFS)))))])
+  | table_grow_fail : forall (z : state) (v_ref : ref) («at» : addrtype) (v_n : n) (x : idx), 
+    (wf_config (.mk_config z [(instr_ref v_ref), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_GROW x)])) ->
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN (inv_signed_ (size (numtype_addrtype «at»)) (0 - (1 : Nat))))))])) ->
+    Step (.mk_config z [(instr_ref v_ref), (.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.TABLE_GROW x)]) (.mk_config z [(.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN (inv_signed_ (size (numtype_addrtype «at»)) (0 - (1 : Nat))))))])
   | elem_drop : forall (z : state) (x : idx), 
     (wf_config (.mk_config z [(.ELEM_DROP x)])) ->
     (wf_config (.mk_config (with_elem z x []) [])) ->
     Step (.mk_config z [(.ELEM_DROP x)]) (.mk_config (with_elem z x []) [])
-  | store_num_oob : forall (z : state) (at : addrtype) (i : num_) (nt : numtype) (c : num_) (x : idx) (ao : memarg), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST nt c), (.STORE nt none x ao)])) ->
+  | store_num_oob : forall (z : state) («at» : addrtype) (i : num_) (nt : numtype) (c : num_) (x : idx) (ao : memarg), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST nt c), (.STORE nt none x ao)])) ->
     (wf_config (.mk_config z [.TRAP])) ->
-    ((proj_num__0 at i) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) + ((((size nt) : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
-    Step (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST nt c), (.STORE nt none x ao)]) (.mk_config z [.TRAP])
-  | store_num_val : forall (z : state) (at : addrtype) (i : num_) (nt : numtype) (c : num_) (x : idx) (ao : memarg) (b_lst : (List byte)), 
-    ((proj_num__0 at i) != none) ->
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST nt c), (.STORE nt none x ao)])) ->
-    (wf_config (.mk_config (with_mem z x ((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) ((((size nt) : Nat) / (8 : Nat)) : Nat) b_lst) [])) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) + ((((size nt) : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
+    Step (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST nt c), (.STORE nt none x ao)]) (.mk_config z [.TRAP])
+  | store_num_val : forall (z : state) («at» : addrtype) (i : num_) (nt : numtype) (c : num_) (x : idx) (ao : memarg) (b_lst : (List byte)), 
+    ((proj_num__0 «at» i) != none) ->
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST nt c), (.STORE nt none x ao)])) ->
+    (wf_config (.mk_config (with_mem z x ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) ((((size nt) : Nat) / (8 : Nat)) : Nat) b_lst) [])) ->
     (b_lst == (nbytes_ nt c)) ->
-    Step (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST nt c), (.STORE nt none x ao)]) (.mk_config (with_mem z x ((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) ((((size nt) : Nat) / (8 : Nat)) : Nat) b_lst) [])
-  | store_pack_oob : forall (z : state) (at : addrtype) (i : num_) (v_Inn : Inn) (c : num_) (v_n : n) (x : idx) (ao : memarg), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST (numtype_addrtype v_Inn) c), (.STORE (numtype_addrtype v_Inn) (some (.mk_storeop__0 v_Inn (.mk_storeop_Inn (.mk_sz v_n)))) x ao)])) ->
+    Step (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST nt c), (.STORE nt none x ao)]) (.mk_config (with_mem z x ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) ((((size nt) : Nat) / (8 : Nat)) : Nat) b_lst) [])
+  | store_pack_oob : forall (z : state) («at» : addrtype) (i : num_) (v_Inn : Inn) (c : num_) (v_n : n) (x : idx) (ao : memarg), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST (numtype_addrtype v_Inn) c), (.STORE (numtype_addrtype v_Inn) (some (.mk_storeop__0 v_Inn (.mk_storeop_Inn (.mk_sz v_n)))) x ao)])) ->
     (wf_config (.mk_config z [.TRAP])) ->
-    ((proj_num__0 at i) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) + (((v_n : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
-    Step (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST (numtype_addrtype v_Inn) c), (.STORE (numtype_addrtype v_Inn) (some (.mk_storeop__0 v_Inn (.mk_storeop_Inn (.mk_sz v_n)))) x ao)]) (.mk_config z [.TRAP])
-  | store_pack_val : forall (z : state) (at : addrtype) (i : num_) (v_Inn : Inn) (c : num_) (v_n : n) (x : idx) (ao : memarg) (b_lst : (List byte)), 
-    ((proj_num__0 at i) != none) ->
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST (numtype_addrtype v_Inn) c), (.STORE (numtype_addrtype v_Inn) (some (.mk_storeop__0 v_Inn (.mk_storeop_Inn (.mk_sz v_n)))) x ao)])) ->
-    (wf_config (.mk_config (with_mem z x ((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) (((v_n : Nat) / (8 : Nat)) : Nat) b_lst) [])) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) + (((v_n : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
+    Step (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST (numtype_addrtype v_Inn) c), (.STORE (numtype_addrtype v_Inn) (some (.mk_storeop__0 v_Inn (.mk_storeop_Inn (.mk_sz v_n)))) x ao)]) (.mk_config z [.TRAP])
+  | store_pack_val : forall (z : state) («at» : addrtype) (i : num_) (v_Inn : Inn) (c : num_) (v_n : n) (x : idx) (ao : memarg) (b_lst : (List byte)), 
+    ((proj_num__0 «at» i) != none) ->
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST (numtype_addrtype v_Inn) c), (.STORE (numtype_addrtype v_Inn) (some (.mk_storeop__0 v_Inn (.mk_storeop_Inn (.mk_sz v_n)))) x ao)])) ->
+    (wf_config (.mk_config (with_mem z x ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) (((v_n : Nat) / (8 : Nat)) : Nat) b_lst) [])) ->
     ((proj_num__0 v_Inn c) != none) ->
     (b_lst == (ibytes_ v_n (wrap__ (size (numtype_addrtype v_Inn)) v_n (Option.get! (proj_num__0 v_Inn c))))) ->
-    Step (.mk_config z [(.CONST (numtype_addrtype at) i), (.CONST (numtype_addrtype v_Inn) c), (.STORE (numtype_addrtype v_Inn) (some (.mk_storeop__0 v_Inn (.mk_storeop_Inn (.mk_sz v_n)))) x ao)]) (.mk_config (with_mem z x ((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) (((v_n : Nat) / (8 : Nat)) : Nat) b_lst) [])
-  | vstore_oob : forall (z : state) (at : addrtype) (i : num_) (c : vec_) (x : idx) (ao : memarg), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.VCONST .V128 c), (.VSTORE .V128 x ao)])) ->
+    Step (.mk_config z [(.CONST (numtype_addrtype «at») i), (.CONST (numtype_addrtype v_Inn) c), (.STORE (numtype_addrtype v_Inn) (some (.mk_storeop__0 v_Inn (.mk_storeop_Inn (.mk_sz v_n)))) x ao)]) (.mk_config (with_mem z x ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) (((v_n : Nat) / (8 : Nat)) : Nat) b_lst) [])
+  | vstore_oob : forall (z : state) («at» : addrtype) (i : num_) (c : vec_) (x : idx) (ao : memarg), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VCONST .V128 c), (.VSTORE .V128 x ao)])) ->
     (wf_config (.mk_config z [.TRAP])) ->
-    ((proj_num__0 at i) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) + ((((vsize .V128) : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
-    Step (.mk_config z [(.CONST (numtype_addrtype at) i), (.VCONST .V128 c), (.VSTORE .V128 x ao)]) (.mk_config z [.TRAP])
-  | vstore_val : forall (z : state) (at : addrtype) (i : num_) (c : vec_) (x : idx) (ao : memarg) (b_lst : (List byte)), 
-    ((proj_num__0 at i) != none) ->
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.VCONST .V128 c), (.VSTORE .V128 x ao)])) ->
-    (wf_config (.mk_config (with_mem z x ((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) ((((vsize .V128) : Nat) / (8 : Nat)) : Nat) b_lst) [])) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) + ((((vsize .V128) : Nat) / (8 : Nat)) : Nat)) > (List.length ((fun_mem z x).BYTES))) ->
+    Step (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VCONST .V128 c), (.VSTORE .V128 x ao)]) (.mk_config z [.TRAP])
+  | vstore_val : forall (z : state) («at» : addrtype) (i : num_) (c : vec_) (x : idx) (ao : memarg) (b_lst : (List byte)), 
+    ((proj_num__0 «at» i) != none) ->
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VCONST .V128 c), (.VSTORE .V128 x ao)])) ->
+    (wf_config (.mk_config (with_mem z x ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) ((((vsize .V128) : Nat) / (8 : Nat)) : Nat) b_lst) [])) ->
     (b_lst == (vbytes_ .V128 c)) ->
-    Step (.mk_config z [(.CONST (numtype_addrtype at) i), (.VCONST .V128 c), (.VSTORE .V128 x ao)]) (.mk_config (with_mem z x ((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) ((((vsize .V128) : Nat) / (8 : Nat)) : Nat) b_lst) [])
-  | vstore_lane_oob : forall (z : state) (at : addrtype) (i : num_) (c : vec_) (v_N : N) (x : idx) (ao : memarg) (j : laneidx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.VCONST .V128 c), (.VSTORE_LANE .V128 (.mk_sz v_N) x ao j)])) ->
+    Step (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VCONST .V128 c), (.VSTORE .V128 x ao)]) (.mk_config (with_mem z x ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) ((((vsize .V128) : Nat) / (8 : Nat)) : Nat) b_lst) [])
+  | vstore_lane_oob : forall (z : state) («at» : addrtype) (i : num_) (c : vec_) (v_N : N) (x : idx) (ao : memarg) (j : laneidx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VCONST .V128 c), (.VSTORE_LANE .V128 (.mk_sz v_N) x ao j)])) ->
     (wf_config (.mk_config z [.TRAP])) ->
-    ((proj_num__0 at i) != none) ->
-    ((((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) + v_N) > (List.length ((fun_mem z x).BYTES))) ->
-    Step (.mk_config z [(.CONST (numtype_addrtype at) i), (.VCONST .V128 c), (.VSTORE_LANE .V128 (.mk_sz v_N) x ao j)]) (.mk_config z [.TRAP])
-  | vstore_lane_val : forall (z : state) (at : addrtype) (i : num_) (c : vec_) (v_N : N) (x : idx) (ao : memarg) (j : laneidx) (b_lst : (List byte)) (v_Jnn : Jnn) (v_M : M), 
-    ((proj_num__0 at i) != none) ->
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) i), (.VCONST .V128 c), (.VSTORE_LANE .V128 (.mk_sz v_N) x ao j)])) ->
-    (wf_config (.mk_config (with_mem z x ((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) (((v_N : Nat) / (8 : Nat)) : Nat) b_lst) [])) ->
+    ((proj_num__0 «at» i) != none) ->
+    ((((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) + v_N) > (List.length ((fun_mem z x).BYTES))) ->
+    Step (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VCONST .V128 c), (.VSTORE_LANE .V128 (.mk_sz v_N) x ao j)]) (.mk_config z [.TRAP])
+  | vstore_lane_val : forall (z : state) («at» : addrtype) (i : num_) (c : vec_) (v_N : N) (x : idx) (ao : memarg) (j : laneidx) (b_lst : (List byte)) (v_Jnn : Jnn) (v_M : M), 
+    ((proj_num__0 «at» i) != none) ->
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VCONST .V128 c), (.VSTORE_LANE .V128 (.mk_sz v_N) x ao j)])) ->
+    (wf_config (.mk_config (with_mem z x ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) (((v_N : Nat) / (8 : Nat)) : Nat) b_lst) [])) ->
     ((proj_lane__2 v_Jnn ((lanes_ (.X (lanetype_Jnn v_Jnn) (.mk_dim v_M)) c)[(proj_uN_0 j)]!)) != none) ->
     ((proj_uN_0 j) < (List.length (lanes_ (.X (lanetype_Jnn v_Jnn) (.mk_dim v_M)) c))) ->
     (wf_uN v_N (.mk_uN (proj_uN_0 (Option.get! (proj_lane__2 v_Jnn ((lanes_ (.X (lanetype_Jnn v_Jnn) (.mk_dim v_M)) c)[(proj_uN_0 j)]!)))))) ->
     (v_N == (jsize v_Jnn)) ->
     ((v_M : Nat) == ((128 : Nat) / (v_N : Nat))) ->
     (b_lst == (ibytes_ v_N (.mk_uN (proj_uN_0 (Option.get! (proj_lane__2 v_Jnn ((lanes_ (.X (lanetype_Jnn v_Jnn) (.mk_dim v_M)) c)[(proj_uN_0 j)]!))))))) ->
-    Step (.mk_config z [(.CONST (numtype_addrtype at) i), (.VCONST .V128 c), (.VSTORE_LANE .V128 (.mk_sz v_N) x ao j)]) (.mk_config (with_mem z x ((proj_uN_0 (Option.get! (proj_num__0 at i))) + (proj_uN_0 (ao.OFFSET))) (((v_N : Nat) / (8 : Nat)) : Nat) b_lst) [])
-  | memory_grow_succeed : forall (z : state) (at : addrtype) (v_n : n) (x : idx) (mi : meminst), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_GROW x)])) ->
-    (wf_config (.mk_config (with_meminst z x mi) [(.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN ((((List.length ((fun_mem z x).BYTES)) : Nat) / ((64 * (Ki )) : Nat)) : Nat))))])) ->
+    Step (.mk_config z [(.CONST (numtype_addrtype «at») i), (.VCONST .V128 c), (.VSTORE_LANE .V128 (.mk_sz v_N) x ao j)]) (.mk_config (with_mem z x ((proj_uN_0 (Option.get! (proj_num__0 «at» i))) + (proj_uN_0 (ao.OFFSET))) (((v_N : Nat) / (8 : Nat)) : Nat) b_lst) [])
+  | memory_grow_succeed : forall (z : state) («at» : addrtype) (v_n : n) (x : idx) (mi : meminst), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_GROW x)])) ->
+    (wf_config (.mk_config (with_meminst z x mi) [(.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN ((((List.length ((fun_mem z x).BYTES)) : Nat) / ((64 * (Ki )) : Nat)) : Nat))))])) ->
     ((growmem (fun_mem z x) v_n) != none) ->
     (mi == (Option.get! (growmem (fun_mem z x) v_n))) ->
-    Step (.mk_config z [(.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_GROW x)]) (.mk_config (with_meminst z x mi) [(.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN ((((List.length ((fun_mem z x).BYTES)) : Nat) / ((64 * (Ki )) : Nat)) : Nat))))])
-  | memory_grow_fail : forall (z : state) (at : addrtype) (v_n : n) (x : idx), 
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_GROW x)])) ->
-    (wf_config (.mk_config z [(.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN (inv_signed_ (size (numtype_addrtype at)) (0 - (1 : Nat))))))])) ->
-    Step (.mk_config z [(.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN v_n))), (.MEMORY_GROW x)]) (.mk_config z [(.CONST (numtype_addrtype at) (.mk_num__0 at (.mk_uN (inv_signed_ (size (numtype_addrtype at)) (0 - (1 : Nat))))))])
+    Step (.mk_config z [(.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_GROW x)]) (.mk_config (with_meminst z x mi) [(.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN ((((List.length ((fun_mem z x).BYTES)) : Nat) / ((64 * (Ki )) : Nat)) : Nat))))])
+  | memory_grow_fail : forall (z : state) («at» : addrtype) (v_n : n) (x : idx), 
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_GROW x)])) ->
+    (wf_config (.mk_config z [(.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN (inv_signed_ (size (numtype_addrtype «at»)) (0 - (1 : Nat))))))])) ->
+    Step (.mk_config z [(.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN v_n))), (.MEMORY_GROW x)]) (.mk_config z [(.CONST (numtype_addrtype «at») (.mk_num__0 «at» (.mk_uN (inv_signed_ (size (numtype_addrtype «at»)) (0 - (1 : Nat))))))])
   | data_drop : forall (z : state) (x : idx), 
     (wf_config (.mk_config z [(.DATA_DROP x)])) ->
     (wf_config (.mk_config (with_data z x []) [])) ->
