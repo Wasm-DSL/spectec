@@ -1471,21 +1471,22 @@ def $lsize(v_lanetype : lanetype) : nat
   def $lsize(I16_lanetype) = $psize(I16_packtype)
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-def $zsize(v_storagetype : storagetype) : nat
+def $zsize(v_storagetype : storagetype) : nat?
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $zsize(I32_storagetype) = $size(I32_numtype)
+  def $zsize(I32_storagetype) = ?($size(I32_numtype))
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $zsize(I64_storagetype) = $size(I64_numtype)
+  def $zsize(I64_storagetype) = ?($size(I64_numtype))
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $zsize(F32_storagetype) = $size(F32_numtype)
+  def $zsize(F32_storagetype) = ?($size(F32_numtype))
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $zsize(F64_storagetype) = $size(F64_numtype)
+  def $zsize(F64_storagetype) = ?($size(F64_numtype))
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $zsize(V128_storagetype) = $vsize(V128_vectype)
+  def $zsize(V128_storagetype) = ?($vsize(V128_vectype))
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $zsize(I8_storagetype) = $psize(I8_packtype)
+  def $zsize(I8_storagetype) = ?($psize(I8_packtype))
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $zsize(I16_storagetype) = $psize(I16_packtype)
+  def $zsize(I16_storagetype) = ?($psize(I16_packtype))
+  def $zsize{x0 : storagetype}(x0) = ?()
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $isize(v_Inn : Inn) : nat
@@ -1697,9 +1698,10 @@ def $diffrt(v_reftype : reftype, v_reftype_0 : reftype) : reftype
     -- wf_reftype: `%`(REF_reftype(null_1_opt, ht_1))
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-def $as_deftype(v_typeuse : typeuse) : deftype
+def $as_deftype(v_typeuse : typeuse) : deftype?
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $as_deftype{v_rectype : rectype, v_n : n}(_DEF_typeuse(v_rectype, v_n)) = _DEF_deftype(v_rectype, v_n)
+  def $as_deftype{v_rectype : rectype, v_n : n}(_DEF_typeuse(v_rectype, v_n)) = ?(_DEF_deftype(v_rectype, v_n))
+  def $as_deftype{x0 : typeuse}(x0) = ?()
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 rec {
@@ -2429,9 +2431,10 @@ def $free_deftype(v_deftype : deftype) : free
 }
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-def $free_tagtype(v_tagtype : tagtype) : free
+def $free_tagtype(v_tagtype : tagtype) : free?
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $free_tagtype{v_rectype : rectype, v_n : n}(_DEF_tagtype(v_rectype, v_n)) = $free_deftype(_DEF_deftype(v_rectype, v_n))
+  def $free_tagtype{v_rectype : rectype, v_n : n}(_DEF_tagtype(v_rectype, v_n)) = ?($free_deftype(_DEF_deftype(v_rectype, v_n)))
+  def $free_tagtype{x0 : tagtype}(x0) = ?()
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $free_globaltype(v_globaltype : globaltype) : free
@@ -2465,27 +2468,28 @@ def $free_elemtype(v_elemtype : elemtype) : free
     -- wf_reftype: `%`(v_reftype)
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-def $free_externtype(v_externtype : externtype) : free
+def $free_externtype(v_externtype : externtype) : free?
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $free_externtype{v_tagtype : typeuse}(TAG_externtype(v_tagtype)) = $free_tagtype(v_tagtype)
+  def $free_externtype{v_tagtype : typeuse}(TAG_externtype(v_tagtype)) = ?(!($free_tagtype(v_tagtype)))
     -- wf_typeuse: `%`(v_tagtype)
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $free_externtype{v_globaltype : globaltype}(GLOBAL_externtype(v_globaltype)) = $free_globaltype(v_globaltype)
+  def $free_externtype{v_globaltype : globaltype}(GLOBAL_externtype(v_globaltype)) = ?($free_globaltype(v_globaltype))
     -- wf_globaltype: `%`(v_globaltype)
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $free_externtype{v_memtype : memtype}(MEM_externtype(v_memtype)) = $free_memtype(v_memtype)
+  def $free_externtype{v_memtype : memtype}(MEM_externtype(v_memtype)) = ?($free_memtype(v_memtype))
     -- wf_memtype: `%`(v_memtype)
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $free_externtype{v_tabletype : tabletype}(TABLE_externtype(v_tabletype)) = $free_tabletype(v_tabletype)
+  def $free_externtype{v_tabletype : tabletype}(TABLE_externtype(v_tabletype)) = ?($free_tabletype(v_tabletype))
     -- wf_tabletype: `%`(v_tabletype)
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $free_externtype{v_typeuse : typeuse}(FUNC_externtype(v_typeuse)) = $free_typeuse(v_typeuse)
+  def $free_externtype{v_typeuse : typeuse}(FUNC_externtype(v_typeuse)) = ?($free_typeuse(v_typeuse))
     -- wf_typeuse: `%`(v_typeuse)
+  def $free_externtype{x0 : externtype}(x0) = ?()
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $free_moduletype(v_moduletype : moduletype) : free
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $free_moduletype{externtype_1_lst : externtype*, externtype_2_lst : externtype*}(mk_moduletype_moduletype(externtype_1_lst, externtype_2_lst)) = $free_list($free_externtype(externtype_1)*{externtype_1 <- externtype_1_lst}) +++ $free_list($free_externtype(externtype_2)*{externtype_2 <- externtype_2_lst})
+  def $free_moduletype{externtype_1_lst : externtype*, externtype_2_lst : externtype*}(mk_moduletype_moduletype(externtype_1_lst, externtype_2_lst)) = $free_list(!($free_externtype(externtype_1))*{externtype_1 <- externtype_1_lst}) +++ $free_list(!($free_externtype(externtype_2))*{externtype_2 <- externtype_2_lst})
     -- (wf_externtype: `%`(externtype_1))*{externtype_1 <- externtype_1_lst}
     -- (wf_externtype: `%`(externtype_2))*{externtype_2 <- externtype_2_lst}
 
@@ -5455,7 +5459,7 @@ def $free_type(v_type : type) : free
 ;; ../../../../specification/wasm-3.0/1.4-syntax.modules.spectec
 def $free_tag(v_tag : tag) : free
   ;; ../../../../specification/wasm-3.0/1.4-syntax.modules.spectec
-  def $free_tag{v_tagtype : typeuse}(TAG_tag(v_tagtype)) = $free_tagtype(v_tagtype)
+  def $free_tag{v_tagtype : typeuse}(TAG_tag(v_tagtype)) = !($free_tagtype(v_tagtype))
     -- wf_typeuse: `%`(v_tagtype)
 
 ;; ../../../../specification/wasm-3.0/1.4-syntax.modules.spectec
@@ -5539,7 +5543,7 @@ def $free_start(v_start : start) : free
 ;; ../../../../specification/wasm-3.0/1.4-syntax.modules.spectec
 def $free_import(v_import : import) : free
   ;; ../../../../specification/wasm-3.0/1.4-syntax.modules.spectec
-  def $free_import{name_1 : name, name_2 : name, v_externtype : externtype}(IMPORT_import(name_1, name_2, v_externtype)) = $free_externtype(v_externtype)
+  def $free_import{name_1 : name, name_2 : name, v_externtype : externtype}(IMPORT_import(name_1, name_2, v_externtype)) = !($free_externtype(v_externtype))
     -- wf_name: `%`(name_1)
     -- wf_name: `%`(name_2)
     -- wf_externtype: `%`(v_externtype)
@@ -6589,8 +6593,9 @@ relation Catch_ok: `%|-%:OK`(context, catch)
     -- wf_context: `%`(C)
     -- wf_catch: `%`(CATCH_catch(x, l))
     -- wf_comptype: `%`(FUNC_comptype(mk_list_resulttype(t_lst), mk_list_resulttype([])))
+    -- if ($as_deftype(C.TAGS_context[$proj_uN_0(x).0]) =/= ?())
     -- if ($proj_uN_0(x).0 < |C.TAGS_context|)
-    -- Expand: `%~~%`($as_deftype(C.TAGS_context[$proj_uN_0(x).0]), FUNC_comptype(mk_list_resulttype(t_lst), mk_list_resulttype([])))
+    -- Expand: `%~~%`(!($as_deftype(C.TAGS_context[$proj_uN_0(x).0])), FUNC_comptype(mk_list_resulttype(t_lst), mk_list_resulttype([])))
     -- if ($proj_uN_0(l).0 < |C.LABELS_context|)
     -- Resulttype_sub: `%|-%<:%`(C, mk_list_resulttype(t_lst), C.LABELS_context[$proj_uN_0(l).0])
 
@@ -6600,8 +6605,9 @@ relation Catch_ok: `%|-%:OK`(context, catch)
     -- wf_context: `%`(C)
     -- wf_catch: `%`(CATCH_REF_catch(x, l))
     -- wf_comptype: `%`(FUNC_comptype(mk_list_resulttype(t_lst), mk_list_resulttype([])))
+    -- if ($as_deftype(C.TAGS_context[$proj_uN_0(x).0]) =/= ?())
     -- if ($proj_uN_0(x).0 < |C.TAGS_context|)
-    -- Expand: `%~~%`($as_deftype(C.TAGS_context[$proj_uN_0(x).0]), FUNC_comptype(mk_list_resulttype(t_lst), mk_list_resulttype([])))
+    -- Expand: `%~~%`(!($as_deftype(C.TAGS_context[$proj_uN_0(x).0])), FUNC_comptype(mk_list_resulttype(t_lst), mk_list_resulttype([])))
     -- if ($proj_uN_0(l).0 < |C.LABELS_context|)
     -- Resulttype_sub: `%|-%<:%`(C, mk_list_resulttype(t_lst ++ [REF_valtype(?(), EXN_heaptype)]), C.LABELS_context[$proj_uN_0(l).0])
 
@@ -6924,8 +6930,9 @@ relation Instr_ok: `%|-%:%`(context, instr, instrtype)
     -- wf_instrtype: `%`(mk_instrtype_instrtype(mk_list_resulttype(t_1_lst ++ t_lst), [], mk_list_resulttype(t_2_lst)))
     -- wf_comptype: `%`(FUNC_comptype(mk_list_resulttype(t_lst), mk_list_resulttype([])))
     -- wf_instrtype: `%`(mk_instrtype_instrtype(mk_list_resulttype(t_1_lst), [], mk_list_resulttype(t_2_lst)))
+    -- if ($as_deftype(C.TAGS_context[$proj_uN_0(x).0]) =/= ?())
     -- if ($proj_uN_0(x).0 < |C.TAGS_context|)
-    -- Expand: `%~~%`($as_deftype(C.TAGS_context[$proj_uN_0(x).0]), FUNC_comptype(mk_list_resulttype(t_lst), mk_list_resulttype([])))
+    -- Expand: `%~~%`(!($as_deftype(C.TAGS_context[$proj_uN_0(x).0])), FUNC_comptype(mk_list_resulttype(t_lst), mk_list_resulttype([])))
     -- Instrtype_ok: `%|-%:OK`(C, mk_instrtype_instrtype(mk_list_resulttype(t_1_lst), [], mk_list_resulttype(t_2_lst)))
 
   ;; ../../../../specification/wasm-3.0/2.3-validation.instructions.spectec:171.1-173.42
@@ -8415,21 +8422,22 @@ def $inv_signed_(v_N : N, int : int) : nat
     -- if ((- ((2 ^ (((v_N : nat <:> int) - (1 : nat <:> int)) : int <:> nat)) : nat <:> int) <= i) /\ (i < (0 : nat <:> int)))
 
 ;; ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec
-def $fun_sx(v_storagetype : storagetype) : sx?
+def $fun_sx(v_storagetype : storagetype) : sx??
   ;; ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec
-  def $fun_sx(I32_storagetype) = ?()
+  def $fun_sx(I32_storagetype) = ?(?())
   ;; ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec
-  def $fun_sx(I64_storagetype) = ?()
+  def $fun_sx(I64_storagetype) = ?(?())
   ;; ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec
-  def $fun_sx(F32_storagetype) = ?()
+  def $fun_sx(F32_storagetype) = ?(?())
   ;; ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec
-  def $fun_sx(F64_storagetype) = ?()
+  def $fun_sx(F64_storagetype) = ?(?())
   ;; ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec
-  def $fun_sx(V128_storagetype) = ?()
+  def $fun_sx(V128_storagetype) = ?(?())
   ;; ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec
-  def $fun_sx(I8_storagetype) = ?(S_sx)
+  def $fun_sx(I8_storagetype) = ?(?(S_sx))
   ;; ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec
-  def $fun_sx(I16_storagetype) = ?(S_sx)
+  def $fun_sx(I16_storagetype) = ?(?(S_sx))
+  def $fun_sx{x0 : storagetype}(x0) = ?()
 
 ;; ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec
 def $fun_zero(v_lanetype : lanetype) : lane_
@@ -15521,7 +15529,8 @@ relation Step_read_before_array_copy_gt: `%`(config)
     -- wf_comptype: `%`(ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt_2)))
     -- ~ Step_read_before_array_copy_le: `%`(mk_config_config(z, [REF_ARRAY_ADDR_instr(a_1) CONST_instr(I32_numtype, i_1) REF_ARRAY_ADDR_instr(a_2) CONST_instr(I32_numtype, i_2) CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN(v_n))) ARRAY_COPY_instr(x_1, x_2)]))
     -- Expand: `%~~%`($fun_type(z, x_2), ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt_2)))
-    -- if (($proj_uN_0(!($proj_num__0(I32_Inn, i_1))).0 <= $proj_uN_0(!($proj_num__0(I32_Inn, i_2))).0) /\ (sx_opt = $fun_sx(zt_2)))
+    -- if ($fun_sx(zt_2) =/= ?())
+    -- if (($proj_uN_0(!($proj_num__0(I32_Inn, i_1))).0 <= $proj_uN_0(!($proj_num__0(I32_Inn, i_2))).0) /\ (sx_opt = !($fun_sx(zt_2))))
 
   ;; ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec
   rule array_copy_zero_1{z : state, a_1 : addr, i_1 : num_, a_2 : addr, i_2 : num_, v_n : n, x_1 : idx, x_2 : idx}:
@@ -15603,7 +15612,8 @@ relation Step_read_before_array_init_data_zero: `%`(config)
     -- wf_comptype: `%`(ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt)))
     -- Expand: `%~~%`($fun_type(z, x), ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt)))
     -- if ($proj_num__0(I32_Inn, j) =/= ?())
-    -- if (($proj_uN_0(!($proj_num__0(I32_Inn, j))).0 + ((((v_n * $zsize(zt)) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat)) > |$fun_data(z, y).BYTES_datainst|)
+    -- if ($zsize(zt) =/= ?())
+    -- if (($proj_uN_0(!($proj_num__0(I32_Inn, j))).0 + ((((v_n * !($zsize(zt))) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat)) > |$fun_data(z, y).BYTES_datainst|)
 
   ;; ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec
   rule array_init_data_oob1_0{z : state, a : addr, i : num_, j : num_, v_n : n, x : idx, y : idx}:
@@ -15631,7 +15641,8 @@ relation Step_read_before_array_init_data_num: `%`(config)
     -- wf_comptype: `%`(ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt)))
     -- Expand: `%~~%`($fun_type(z, x), ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt)))
     -- if ($proj_num__0(I32_Inn, j) =/= ?())
-    -- if (($proj_uN_0(!($proj_num__0(I32_Inn, j))).0 + ((((v_n * $zsize(zt)) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat)) > |$fun_data(z, y).BYTES_datainst|)
+    -- if ($zsize(zt) =/= ?())
+    -- if (($proj_uN_0(!($proj_num__0(I32_Inn, j))).0 + ((((v_n * !($zsize(zt))) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat)) > |$fun_data(z, y).BYTES_datainst|)
 
   ;; ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec
   rule array_init_data_oob1_1{z : state, a : addr, i : num_, j : num_, v_n : n, x : idx, y : idx}:
@@ -16362,7 +16373,8 @@ relation Step_read: `%~>%`(config, instr*)
     -- wf_comptype: `%`(ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt)))
     -- Expand: `%~~%`($fun_type(z, x), ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt)))
     -- if ($proj_num__0(I32_Inn, i) =/= ?())
-    -- if (($proj_uN_0(!($proj_num__0(I32_Inn, i))).0 + ((((v_n * $zsize(zt)) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat)) > |$fun_data(z, y).BYTES_datainst|)
+    -- if ($zsize(zt) =/= ?())
+    -- if (($proj_uN_0(!($proj_num__0(I32_Inn, i))).0 + ((((v_n * !($zsize(zt))) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat)) > |$fun_data(z, y).BYTES_datainst|)
 
   ;; ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec
   rule array_new_data_num{z : state, i : num_, v_n : n, x : idx, y : idx, zt : storagetype, c_lst : lit_*, mut_opt : mut?}:
@@ -16374,8 +16386,9 @@ relation Step_read: `%~>%`(config, instr*)
     -- wf_instr: `%`(ARRAY_NEW_FIXED_instr(x, mk_uN_u32(v_n)))
     -- wf_comptype: `%`(ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt)))
     -- Expand: `%~~%`($fun_type(z, x), ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt)))
+    -- if ($zsize(zt) =/= ?())
     -- if ($proj_num__0(I32_Inn, i) =/= ?())
-    -- if ($concatn_(syntax byte, $zbytes_(zt, c)^v_n{c <- c_lst}, ((($zsize(zt) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat)) = $fun_data(z, y).BYTES_datainst[$proj_uN_0(!($proj_num__0(I32_Inn, i))).0 : ((((v_n * $zsize(zt)) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat)])
+    -- if ($concatn_(syntax byte, $zbytes_(zt, c)^v_n{c <- c_lst}, (((!($zsize(zt)) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat)) = $fun_data(z, y).BYTES_datainst[$proj_uN_0(!($proj_num__0(I32_Inn, i))).0 : ((((v_n * !($zsize(zt))) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat)])
 
   ;; ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec
   rule array_get_null{z : state, ht : heaptype, i : num_, sx_opt : sx?, x : idx}:
@@ -16506,7 +16519,8 @@ relation Step_read: `%~>%`(config, instr*)
     -- wf_comptype: `%`(ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt_2)))
     -- ~ Step_read_before_array_copy_le: `%`(mk_config_config(z, [REF_ARRAY_ADDR_instr(a_1) CONST_instr(I32_numtype, i_1) REF_ARRAY_ADDR_instr(a_2) CONST_instr(I32_numtype, i_2) CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN(v_n))) ARRAY_COPY_instr(x_1, x_2)]))
     -- Expand: `%~~%`($fun_type(z, x_2), ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt_2)))
-    -- if (($proj_uN_0(!($proj_num__0(I32_Inn, i_1))).0 <= $proj_uN_0(!($proj_num__0(I32_Inn, i_2))).0) /\ (sx_opt = $fun_sx(zt_2)))
+    -- if ($fun_sx(zt_2) =/= ?())
+    -- if (($proj_uN_0(!($proj_num__0(I32_Inn, i_1))).0 <= $proj_uN_0(!($proj_num__0(I32_Inn, i_2))).0) /\ (sx_opt = !($fun_sx(zt_2))))
 
   ;; ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec
   rule array_copy_gt{z : state, a_1 : addr, i_1 : num_, a_2 : addr, i_2 : num_, v_n : n, x_1 : idx, x_2 : idx, sx_opt : sx?, mut_opt : mut?, zt_2 : storagetype}:
@@ -16527,7 +16541,8 @@ relation Step_read: `%~>%`(config, instr*)
     -- wf_comptype: `%`(ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt_2)))
     -- ~ Step_read_before_array_copy_gt: `%`(mk_config_config(z, [REF_ARRAY_ADDR_instr(a_1) CONST_instr(I32_numtype, i_1) REF_ARRAY_ADDR_instr(a_2) CONST_instr(I32_numtype, i_2) CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN(v_n))) ARRAY_COPY_instr(x_1, x_2)]))
     -- Expand: `%~~%`($fun_type(z, x_2), ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt_2)))
-    -- if (sx_opt = $fun_sx(zt_2))
+    -- if ($fun_sx(zt_2) =/= ?())
+    -- if (sx_opt = !($fun_sx(zt_2)))
 
   ;; ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec
   rule array_init_elem_null{z : state, ht : heaptype, i : num_, j : num_, v_n : n, x : idx, y : idx}:
@@ -16600,7 +16615,8 @@ relation Step_read: `%~>%`(config, instr*)
     -- wf_comptype: `%`(ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt)))
     -- Expand: `%~~%`($fun_type(z, x), ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt)))
     -- if ($proj_num__0(I32_Inn, j) =/= ?())
-    -- if (($proj_uN_0(!($proj_num__0(I32_Inn, j))).0 + ((((v_n * $zsize(zt)) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat)) > |$fun_data(z, y).BYTES_datainst|)
+    -- if ($zsize(zt) =/= ?())
+    -- if (($proj_uN_0(!($proj_num__0(I32_Inn, j))).0 + ((((v_n * !($zsize(zt))) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat)) > |$fun_data(z, y).BYTES_datainst|)
 
   ;; ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec
   rule array_init_data_zero{z : state, a : addr, i : num_, j : num_, v_n : n, x : idx, y : idx}:
@@ -16611,23 +16627,24 @@ relation Step_read: `%~>%`(config, instr*)
 
   ;; ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec
   rule array_init_data_num{z : state, a : addr, i : num_, j : num_, v_n : n, x : idx, y : idx, zt : storagetype, c : lit_, mut_opt : mut?}:
-    `%~>%`(mk_config_config(z, [REF_ARRAY_ADDR_instr(a) CONST_instr(I32_numtype, i) CONST_instr(I32_numtype, j) CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN(v_n))) ARRAY_INIT_DATA_instr(x, y)]), [REF_ARRAY_ADDR_instr(a) CONST_instr(I32_numtype, i) $const(!($cunpack(zt)), $cunpacknum_(zt, c)) ARRAY_SET_instr(x) REF_ARRAY_ADDR_instr(a) CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN(($proj_uN_0(!($proj_num__0(I32_Inn, i))).0 + 1)))) CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN(($proj_uN_0(!($proj_num__0(I32_Inn, j))).0 + ((($zsize(zt) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat))))) CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN((((v_n : nat <:> int) - (1 : nat <:> int)) : int <:> nat)))) ARRAY_INIT_DATA_instr(x, y)])
+    `%~>%`(mk_config_config(z, [REF_ARRAY_ADDR_instr(a) CONST_instr(I32_numtype, i) CONST_instr(I32_numtype, j) CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN(v_n))) ARRAY_INIT_DATA_instr(x, y)]), [REF_ARRAY_ADDR_instr(a) CONST_instr(I32_numtype, i) $const(!($cunpack(zt)), $cunpacknum_(zt, c)) ARRAY_SET_instr(x) REF_ARRAY_ADDR_instr(a) CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN(($proj_uN_0(!($proj_num__0(I32_Inn, i))).0 + 1)))) CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN(($proj_uN_0(!($proj_num__0(I32_Inn, j))).0 + (((!($zsize(zt)) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat))))) CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN((((v_n : nat <:> int) - (1 : nat <:> int)) : int <:> nat)))) ARRAY_INIT_DATA_instr(x, y)])
     -- if ($cunpack(zt) =/= ?())
     -- if ($proj_num__0(I32_Inn, i) =/= ?())
     -- if ($proj_num__0(I32_Inn, j) =/= ?())
+    -- if ($zsize(zt) =/= ?())
     -- wf_lit_: `%%`(zt, c)
     -- wf_config: `%`(mk_config_config(z, [REF_ARRAY_ADDR_instr(a) CONST_instr(I32_numtype, i) CONST_instr(I32_numtype, j) CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN(v_n))) ARRAY_INIT_DATA_instr(x, y)]))
     -- wf_instr: `%`(REF_ARRAY_ADDR_instr(a))
     -- wf_instr: `%`(CONST_instr(I32_numtype, i))
     -- wf_instr: `%`(ARRAY_SET_instr(x))
     -- wf_instr: `%`(CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN(($proj_uN_0(!($proj_num__0(I32_Inn, i))).0 + 1)))))
-    -- wf_instr: `%`(CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN(($proj_uN_0(!($proj_num__0(I32_Inn, j))).0 + ((($zsize(zt) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat))))))
+    -- wf_instr: `%`(CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN(($proj_uN_0(!($proj_num__0(I32_Inn, j))).0 + (((!($zsize(zt)) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat))))))
     -- wf_instr: `%`(CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN((((v_n : nat <:> int) - (1 : nat <:> int)) : int <:> nat)))))
     -- wf_instr: `%`(ARRAY_INIT_DATA_instr(x, y))
     -- wf_comptype: `%`(ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt)))
     -- ~ Step_read_before_array_init_data_num: `%`(mk_config_config(z, [REF_ARRAY_ADDR_instr(a) CONST_instr(I32_numtype, i) CONST_instr(I32_numtype, j) CONST_instr(I32_numtype, mk_num__0_num_(I32_Inn, mk_uN_uN(v_n))) ARRAY_INIT_DATA_instr(x, y)]))
     -- Expand: `%~~%`($fun_type(z, x), ARRAY_comptype(mk_fieldtype_fieldtype(mut_opt, zt)))
-    -- if ($zbytes_(zt, c) = $fun_data(z, y).BYTES_datainst[$proj_uN_0(!($proj_num__0(I32_Inn, j))).0 : ((($zsize(zt) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat)])
+    -- if ($zbytes_(zt, c) = $fun_data(z, y).BYTES_datainst[$proj_uN_0(!($proj_num__0(I32_Inn, j))).0 : (((!($zsize(zt)) : nat <:> rat) / (8 : nat <:> rat)) : rat <:> nat)])
 
 ;; ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec
 rec {
@@ -16686,7 +16703,8 @@ relation Step: `%~>%`(config, config)
     -- wf_comptype: `%`(FUNC_comptype(mk_list_resulttype(t_lst), mk_list_resulttype([])))
     -- if ($proj_uN_0(x).0 < |$fun_tagaddr(z)|)
     -- wf_exninst: `%`({TAG $fun_tagaddr(z)[$proj_uN_0(x).0], FIELDS val_lst})
-    -- Expand: `%~~%`($as_deftype($fun_tag(z, x).TYPE_taginst), FUNC_comptype(mk_list_resulttype(t_lst), mk_list_resulttype([])))
+    -- if ($as_deftype($fun_tag(z, x).TYPE_taginst) =/= ?())
+    -- Expand: `%~~%`(!($as_deftype($fun_tag(z, x).TYPE_taginst)), FUNC_comptype(mk_list_resulttype(t_lst), mk_list_resulttype([])))
     -- if (a = |$fun_exninst(z)|)
     -- if (exn = {TAG $fun_tagaddr(z)[$proj_uN_0(x).0], FIELDS val_lst})
 

@@ -579,6 +579,46 @@ let has_prems c =
   match c.it with
   | DefD (_, _, _, prems) -> prems <> []
 
+(* In-order traversal of args, collecting variables. Only support expressions that we expect in function patterns *)
+let rec
+  args_vars (args : arg list) : string list = List.concat_map arg_vars args
+and
+  arg_vars (arg : arg) : string list = match arg.it with
+  | ExpA e -> exp_vars e
+  | TypA _ -> []
+  | DefA id -> [id.it]
+  | _ -> [] 
+and
+  exp_vars (e : exp) : string list = match e.it with
+  | VarE id -> [id.it]
+  | CaseE (_, e1) -> exp_vars e1
+  | TupE exps -> List.concat_map exp_vars exps
+  | _ -> []
+
+(* Check if the args mention a pattern variable more than once *)
+let has_nonlinear_pattern c =
+  match c.it with
+  | DefD (binds, args, _, _) -> 
+    let bound_ids = List.map get_bind_id binds in
+    let rec go seen (vars : string list) =
+      match vars with
+      | [] -> false
+      | id :: rest ->
+        if List.mem id bound_ids then
+          if List.mem id seen then true
+          else go (id :: seen) rest
+        else
+          go seen rest
+    in
+    go [] (args_vars args)
+
+let is_supported_clause clause = 
+  not (has_prems clause) &&
+  not (has_nonlinear_pattern clause)
+
+let is_supported_function _params _r_typ clauses = 
+  List.for_all is_supported_clause clauses
+
 let is_axiom def =
   match def.it with
   | DecD (_, _, _, _clauses) -> true
@@ -606,14 +646,11 @@ let rec string_of_def def =
     render_global_declaration id typ exp
   | DecD (id, params, typ, []) -> 
     render_axiom id params typ
-  | DecD (id, params, typ, _clauses) ->
-    render_axiom id params typ
-  (*
-  | DecD (id, params, typ, clauses)  when List.exists has_prems clauses ->
-    render_axiom id params typ
   | DecD (id, params, typ, clauses) -> 
-    render_function_def id.it params typ clauses
-    *)
+    if is_supported_function params typ clauses then
+      render_function_def id.it params typ clauses
+    else
+      render_axiom id params typ
   | RelD (id, _, typ, []) -> 
     render_rel_axiom id typ
   | RelD (id, _, typ, rules) -> 
