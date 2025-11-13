@@ -250,6 +250,8 @@ let () =
       enable_pass Undep;
       enable_pass TypeFamilyRemoval;
       enable_pass Sub;
+      enable_pass ImproveIds;
+      enable_pass AliasDemut;
     | _ when !print_al || !print_al_o <> "" ->
       enable_pass Sideconditions;
     | _ -> ()
