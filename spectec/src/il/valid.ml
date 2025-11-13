@@ -642,22 +642,27 @@ and valid_args env as_ ps s at : Subst.t =
     valid_args env as' ps' s' at
 
 and valid_bind envr b =
-  match b.it with
-  | ExpB (id, t) ->
-    valid_typ !envr t;
-    envr := Env.bind_var !envr id t
-  | TypB id ->
-    envr := Env.bind_typ !envr id ([], [])
-  | DefB (id, ps, t) ->
-    let envr' = local_env envr in
-    List.iter (valid_param envr') ps;
-    valid_typ !envr' t;
-    envr := Env.bind_def !envr id (ps, t, [])
-  | GramB (id, ps, t) ->
-    let envr' = local_env envr in
-    List.iter (valid_param envr') ps;
-    valid_typ !envr' t;
-    envr := Env.bind_gram !envr id (ps, t, [])
+  try
+    match b.it with
+    | ExpB (id, t) ->
+      valid_typ !envr t;
+      envr := Env.bind_var !envr id t
+    | TypB id ->
+      envr := Env.bind_typ !envr id ([], [])
+    | DefB (id, ps, t) ->
+      let envr' = local_env envr in
+      List.iter (valid_param envr') ps;
+      valid_typ !envr' t;
+      envr := Env.bind_def !envr id (ps, t, [])
+    | GramB (id, ps, t) ->
+      let envr' = local_env envr in
+      List.iter (valid_param envr') ps;
+      valid_typ !envr' t;
+      envr := Env.bind_gram !envr id (ps, t, [])
+  with exn ->
+    let bt = Printexc.get_raw_backtrace () in
+    Printf.eprintf "[valid_bind] %s\n%!" (Debug.il_bind b);
+    Printexc.raise_with_backtrace exn bt
 
 and valid_param envr p =
   match p.it with
@@ -699,18 +704,23 @@ let valid_rule envr mixop t rule =
     valid_expmix ~side:`Lhs !envr' mixop' e (mixop, t) e.at;
     List.iter (valid_prem !envr') prems
 
-let valid_clause envr ps t clause =
+let valid_clause envr id ps t clause =
   Debug.(log_in "il.valid_clause" line);
   Debug.(log_in_at "il.valid_clause" clause.at
     (fun _ -> fmt ": (%s) -> %s" (il_params ps) (il_typ t))
   );
-  match clause.it with
-  | DefD (bs, as_, e, prems) ->
-    let envr' = local_env envr in
-    List.iter (valid_bind envr') bs;
-    let s = valid_args !envr' as_ ps Subst.empty clause.at in
-    valid_exp !envr' e (Subst.subst_typ s t);
-    List.iter (valid_prem !envr') prems
+  try
+    match clause.it with
+    | DefD (bs, as_, e, prems) ->
+      let envr' = local_env envr in
+      List.iter (valid_bind envr') bs;
+      let s = valid_args !envr' as_ ps Subst.empty clause.at in
+      valid_exp !envr' e (Subst.subst_typ s t);
+      List.iter (valid_prem !envr') prems
+  with exn ->
+    let bt = Printexc.get_raw_backtrace () in
+    Printf.eprintf "[valid_clause] %s\n%!" (Debug.il_clause id clause);
+    Printexc.raise_with_backtrace exn bt
 
 let valid_prod envr ps t prod =
   Debug.(log_in "il.valid_prod" line);
@@ -750,44 +760,49 @@ let infer_def envr d =
 let rec valid_def envr d =
   Debug.(log_in "il.valid_def" line);
   Debug.(log_in_at "il.valid_def" d.at (fun _ -> il_def d));
-  match d.it with
-  | TypD (id, ps, insts) ->
-    let envr' = local_env envr in
-    List.iter (valid_param envr') ps;
-    List.iter (valid_inst envr ps) insts;
-    envr := Env.bind_typ !envr id (ps, insts);
-  | RelD (id, mixop, t, rules) ->
-    valid_typcase envr (mixop, ([], t, []), []);
-    List.iter (valid_rule envr mixop t) rules;
-    envr := Env.bind_rel !envr id (mixop, t, rules)
-  | DecD (id, ps, t, clauses) ->
-    let envr' = local_env envr in
-    List.iter (valid_param envr') ps;
-    valid_typ !envr' t;
-    List.iter (valid_clause envr ps t) clauses;
-    envr := Env.bind_def !envr id (ps, t, clauses)
-  | GramD (id, ps, t, prods) ->
-    let envr' = local_env envr in
-    List.iter (valid_param envr') ps;
-    valid_typ !envr' t;
-    List.iter (valid_prod envr' ps t) prods;
-    envr := Env.bind_gram !envr id (ps, t, prods)
-  | RecD ds ->
-    List.iter (infer_def envr) ds;
-    List.iter (valid_def envr) ds;
-    List.iter (fun d ->
-      match (List.hd ds).it, d.it with
-      | HintD _, _ | _, HintD _
-      | TypD _, TypD _
-      | RelD _, RelD _
-      | DecD _, DecD _
-      | GramD _, GramD _ -> ()
-      | _, _ ->
-        error (List.hd ds).at (" " ^ string_of_region d.at ^
-          ": invalid recursion between definitions of different sort")
-    ) ds
-  | HintD _ ->
-    ()
+  try
+    match d.it with
+    | TypD (id, ps, insts) ->
+      let envr' = local_env envr in
+      List.iter (valid_param envr') ps;
+      List.iter (valid_inst envr ps) insts;
+      envr := Env.bind_typ !envr id (ps, insts);
+    | RelD (id, mixop, t, rules) ->
+      valid_typcase envr (mixop, ([], t, []), []);
+      List.iter (valid_rule envr mixop t) rules;
+      envr := Env.bind_rel !envr id (mixop, t, rules)
+    | DecD (id, ps, t, clauses) ->
+      let envr' = local_env envr in
+      List.iter (valid_param envr') ps;
+      valid_typ !envr' t;
+      List.iter (valid_clause envr id ps t) clauses;
+      envr := Env.bind_def !envr id (ps, t, clauses)
+    | GramD (id, ps, t, prods) ->
+      let envr' = local_env envr in
+      List.iter (valid_param envr') ps;
+      valid_typ !envr' t;
+      List.iter (valid_prod envr' ps t) prods;
+      envr := Env.bind_gram !envr id (ps, t, prods)
+    | RecD ds ->
+      List.iter (infer_def envr) ds;
+      List.iter (valid_def envr) ds;
+      List.iter (fun d ->
+        match (List.hd ds).it, d.it with
+        | HintD _, _ | _, HintD _
+        | TypD _, TypD _
+        | RelD _, RelD _
+        | DecD _, DecD _
+        | GramD _, GramD _ -> ()
+        | _, _ ->
+          error (List.hd ds).at (" " ^ string_of_region d.at ^
+            ": invalid recursion between definitions of different sort")
+      ) ds
+    | HintD _ ->
+      ()
+with exn ->
+  let bt = Printexc.get_raw_backtrace () in
+  Printf.eprintf "[valid_def] %s\n%!" (Debug.il_def d);
+  Printexc.raise_with_backtrace exn bt
 
 
 (* Scripts *)
