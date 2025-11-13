@@ -15,4475 +15,24 @@ spectec 0.5 generator
 == IL Validation after pass sideconditions...
 == Translating to AL...
 == Prose Generation...
-
-
-
-The limits :math:`{}[ n .. {m^?} ]` is :ref:`valid <valid-val>` with :math:`k` if:
-
-
-   * :math:`n` is less than or equal to :math:`k`.
-
-   * If :math:`m` is defined, then:
-
-      * :math:`n` is less than or equal to :math:`m`.
-
-      * :math:`m` is less than or equal to :math:`k`.
-
-
-
-
-The function type :math:`{t_1^\ast}~\rightarrow~{t_2^?}` is always :ref:`valid <valid-val>`.
-
-
-
-
-The global type :math:`({\mathsf{mut}^?}~t)` is always :ref:`valid <valid-val>`.
-
-
-
-
-The table type :math:`{\mathit{limits}}` is :ref:`valid <valid-val>` if:
-
-
-   * The limits :math:`{\mathit{limits}}` is :ref:`valid <valid-val>` with :math:`{2^{32}} - 1`.
-
-
-
-
-The memory type :math:`{\mathit{limits}}` is :ref:`valid <valid-val>` if:
-
-
-   * The limits :math:`{\mathit{limits}}` is :ref:`valid <valid-val>` with :math:`{2^{16}}`.
-
-
-
-
-The external type :math:`{\mathit{externtype}}` is :ref:`valid <valid-val>` if:
-
-
-   * Either:
-
-      * The external type :math:`{\mathit{externtype}}` is of the form :math:`(\mathsf{func}~{\mathit{functype}})`.
-
-      * The function type :math:`{\mathit{functype}}` is :ref:`valid <valid-val>`.
-
-   * Or:
-
-      * The external type :math:`{\mathit{externtype}}` is of the form :math:`(\mathsf{global}~{\mathit{globaltype}})`.
-
-      * The global type :math:`{\mathit{globaltype}}` is :ref:`valid <valid-val>`.
-   * Or:
-
-      * The external type :math:`{\mathit{externtype}}` is of the form :math:`(\mathsf{table}~{\mathit{tabletype}})`.
-
-      * The table type :math:`{\mathit{tabletype}}` is :ref:`valid <valid-val>`.
-   * Or:
-
-      * The external type :math:`{\mathit{externtype}}` is of the form :math:`(\mathsf{mem}~{\mathit{memtype}})`.
-
-      * The memory type :math:`{\mathit{memtype}}` is :ref:`valid <valid-val>`.
-
-
-
-
-The external type :math:`(\mathsf{func}~{\mathit{functype}})` is :ref:`valid <valid-val>` if:
-
-
-   * The function type :math:`{\mathit{functype}}` is :ref:`valid <valid-val>`.
-
-
-
-
-The external type :math:`(\mathsf{global}~{\mathit{globaltype}})` is :ref:`valid <valid-val>` if:
-
-
-   * The global type :math:`{\mathit{globaltype}}` is :ref:`valid <valid-val>`.
-
-
-
-
-The external type :math:`(\mathsf{table}~{\mathit{tabletype}})` is :ref:`valid <valid-val>` if:
-
-
-   * The table type :math:`{\mathit{tabletype}}` is :ref:`valid <valid-val>`.
-
-
-
-
-The external type :math:`(\mathsf{mem}~{\mathit{memtype}})` is :ref:`valid <valid-val>` if:
-
-
-   * The memory type :math:`{\mathit{memtype}}` is :ref:`valid <valid-val>`.
-
-
-
-
-The limits :math:`{}[ n_{11} .. n_{12} ]` :ref:`matches <match>` the limits :math:`{}[ n_{21} .. n_{22} ]` if:
-
-
-   * :math:`n_{11}` is greater than or equal to :math:`n_{21}`.
-
-   * :math:`n_{12}` is less than or equal to :math:`n_{22}`.
-
-
-
-
-The function type :math:`{\mathit{ft}}` :ref:`matches <match>` only itself.
-
-
-
-
-The global type :math:`{\mathit{gt}}` :ref:`matches <match>` only itself.
-
-
-
-
-The table type :math:`{\mathit{lim}}_1` :ref:`matches <match>` the table type :math:`{\mathit{lim}}_2` if:
-
-
-   * The limits :math:`{\mathit{lim}}_1` :ref:`matches <match>` the limits :math:`{\mathit{lim}}_2`.
-
-
-
-
-The memory type :math:`{\mathit{lim}}_1` :ref:`matches <match>` the memory type :math:`{\mathit{lim}}_2` if:
-
-
-   * The limits :math:`{\mathit{lim}}_1` :ref:`matches <match>` the limits :math:`{\mathit{lim}}_2`.
-
-
-
-
-The external type :math:`{\mathit{externtype}}_1` :ref:`matches <match>` the external type :math:`{\mathit{externtype}}_2` if:
-
-
-   * Either:
-
-      * The external type :math:`{\mathit{externtype}}_1` is of the form :math:`(\mathsf{func}~{\mathit{ft}}_1)`.
-
-      * The external type :math:`{\mathit{externtype}}_2` is of the form :math:`(\mathsf{func}~{\mathit{ft}}_2)`.
-
-      * The function type :math:`{\mathit{ft}}_1` :ref:`matches <match>` the function type :math:`{\mathit{ft}}_2`.
-
-   * Or:
-
-      * The external type :math:`{\mathit{externtype}}_1` is of the form :math:`(\mathsf{global}~{\mathit{gt}}_1)`.
-
-      * The external type :math:`{\mathit{externtype}}_2` is of the form :math:`(\mathsf{global}~{\mathit{gt}}_2)`.
-
-      * The global type :math:`{\mathit{gt}}_1` :ref:`matches <match>` the global type :math:`{\mathit{gt}}_2`.
-   * Or:
-
-      * The external type :math:`{\mathit{externtype}}_1` is of the form :math:`(\mathsf{table}~{\mathit{tt}}_1)`.
-
-      * The external type :math:`{\mathit{externtype}}_2` is of the form :math:`(\mathsf{table}~{\mathit{tt}}_2)`.
-
-      * The table type :math:`{\mathit{tt}}_1` :ref:`matches <match>` the table type :math:`{\mathit{tt}}_2`.
-   * Or:
-
-      * The external type :math:`{\mathit{externtype}}_1` is of the form :math:`(\mathsf{mem}~{\mathit{mt}}_1)`.
-
-      * The external type :math:`{\mathit{externtype}}_2` is of the form :math:`(\mathsf{mem}~{\mathit{mt}}_2)`.
-
-      * The memory type :math:`{\mathit{mt}}_1` :ref:`matches <match>` the memory type :math:`{\mathit{mt}}_2`.
-
-
-
-
-The external type :math:`(\mathsf{func}~{\mathit{ft}}_1)` :ref:`matches <match>` the external type :math:`(\mathsf{func}~{\mathit{ft}}_2)` if:
-
-
-   * The function type :math:`{\mathit{ft}}_1` :ref:`matches <match>` the function type :math:`{\mathit{ft}}_2`.
-
-
-
-
-The external type :math:`(\mathsf{global}~{\mathit{gt}}_1)` :ref:`matches <match>` the external type :math:`(\mathsf{global}~{\mathit{gt}}_2)` if:
-
-
-   * The global type :math:`{\mathit{gt}}_1` :ref:`matches <match>` the global type :math:`{\mathit{gt}}_2`.
-
-
-
-
-The external type :math:`(\mathsf{table}~{\mathit{tt}}_1)` :ref:`matches <match>` the external type :math:`(\mathsf{table}~{\mathit{tt}}_2)` if:
-
-
-   * The table type :math:`{\mathit{tt}}_1` :ref:`matches <match>` the table type :math:`{\mathit{tt}}_2`.
-
-
-
-
-The external type :math:`(\mathsf{mem}~{\mathit{mt}}_1)` :ref:`matches <match>` the external type :math:`(\mathsf{mem}~{\mathit{mt}}_2)` if:
-
-
-   * The memory type :math:`{\mathit{mt}}_1` :ref:`matches <match>` the memory type :math:`{\mathit{mt}}_2`.
-
-
-
-
-The instruction :math:`\mathsf{nop}` is :ref:`valid <valid-val>` with the function type :math:`\epsilon~\rightarrow~\epsilon`.
-
-
-
-
-The instruction :math:`\mathsf{unreachable}` is :ref:`valid <valid-val>` with the function type :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}`.
-
-
-
-
-The instruction :math:`\mathsf{drop}` is :ref:`valid <valid-val>` with the function type :math:`t~\rightarrow~\epsilon`.
-
-
-
-
-The instruction :math:`\mathsf{select}` is :ref:`valid <valid-val>` with the function type :math:`t~t~\mathsf{i{\scriptstyle 32}}~\rightarrow~t`.
-
-
-
-
-The instruction :math:`(\mathsf{block}~{t^?}~{{\mathit{instr}}^\ast})` is :ref:`valid <valid-val>` with the function type :math:`\epsilon~\rightarrow~{t^?}` if:
-
-
-   * Let :math:`{C'}` be the same context as :math:`C`, but with the result type sequence :math:`{t^?}` prepended to the field :math:`\mathsf{labels}`.
-
-   * Under the context :math:`{C'}`, the instruction sequence :math:`{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` with the function type :math:`\epsilon~\rightarrow~{t^?}`.
-
-
-
-
-The instruction :math:`(\mathsf{loop}~{t^?}~{{\mathit{instr}}^\ast})` is :ref:`valid <valid-val>` with the function type :math:`\epsilon~\rightarrow~{t^?}` if:
-
-
-   * The instruction sequence :math:`{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` with the function type :math:`\epsilon~\rightarrow~\epsilon`.
-
-
-
-
-The instruction :math:`(\mathsf{if}~{t^?}~{{\mathit{instr}}_1^\ast}~\mathsf{else}~{{\mathit{instr}}_2^\ast})` is :ref:`valid <valid-val>` with the function type :math:`\mathsf{i{\scriptstyle 32}}~\rightarrow~{t^?}` if:
-
-
-   * Let :math:`{C'}` be the same context as :math:`C`, but with the result type sequence :math:`{t^?}` prepended to the field :math:`\mathsf{labels}`.
-
-   * Under the context :math:`{C'}`, the instruction sequence :math:`{{\mathit{instr}}_1^\ast}` is :ref:`valid <valid-val>` with the function type :math:`\epsilon~\rightarrow~{t^?}`.
-
-   * Under the context :math:`{C'}`, the instruction sequence :math:`{{\mathit{instr}}_2^\ast}` is :ref:`valid <valid-val>` with the function type :math:`\epsilon~\rightarrow~{t^?}`.
-
-
-
-
-The instruction :math:`(\mathsf{br}~l)` is :ref:`valid <valid-val>` with the function type :math:`{t_1^\ast}~{t^?}~\rightarrow~{t_2^\ast}` if:
-
-
-   * The result type :math:`C{.}\mathsf{labels}{}[l]` exists.
-
-   * The number type :math:`C{.}\mathsf{labels}{}[l]` is of the form :math:`{t^?}`.
-
-
-
-
-The instruction :math:`(\mathsf{br\_if}~l)` is :ref:`valid <valid-val>` with the function type :math:`{t^?}~\mathsf{i{\scriptstyle 32}}~\rightarrow~{t^?}` if:
-
-
-   * The result type :math:`C{.}\mathsf{labels}{}[l]` exists.
-
-   * The number type :math:`C{.}\mathsf{labels}{}[l]` is of the form :math:`{t^?}`.
-
-
-
-
-The instruction :math:`(\mathsf{br\_table}~{l^\ast}~{l'})` is :ref:`valid <valid-val>` with the function type :math:`{t_1^\ast}~{t^?}~\mathsf{i{\scriptstyle 32}}~\rightarrow~{t_2^\ast}` if:
-
-
-   * The result type :math:`C{.}\mathsf{labels}{}[{l'}]` exists.
-
-   * The result type :math:`{t^?}` is of the form :math:`C{.}\mathsf{labels}{}[{l'}]`.
-
-   * For all :math:`l` in :math:`{l^\ast}`:
-
-      * The result type :math:`C{.}\mathsf{labels}{}[l]` exists.
-
-      * The result type :math:`{t^?}` is of the form :math:`C{.}\mathsf{labels}{}[l]`.
-
-
-
-
-The instruction :math:`(\mathsf{call}~x)` is :ref:`valid <valid-val>` with the function type :math:`{t_1^\ast}~\rightarrow~{t_2^?}` if:
-
-
-   * The function type :math:`C{.}\mathsf{funcs}{}[x]` exists.
-
-   * The function type :math:`C{.}\mathsf{funcs}{}[x]` is of the form :math:`{t_1^\ast}~\rightarrow~{t_2^?}`.
-
-
-
-
-The instruction :math:`(\mathsf{call\_indirect}~x)` is :ref:`valid <valid-val>` with the function type :math:`{t_1^\ast}~\mathsf{i{\scriptstyle 32}}~\rightarrow~{t_2^?}` if:
-
-
-   * The function type :math:`C{.}\mathsf{types}{}[x]` exists.
-
-   * The function type :math:`C{.}\mathsf{types}{}[x]` is of the form :math:`{t_1^\ast}~\rightarrow~{t_2^?}`.
-
-
-
-
-The instruction :math:`\mathsf{return}` is :ref:`valid <valid-val>` with the function type :math:`{t_1^\ast}~{t^?}~\rightarrow~{t_2^\ast}` if:
-
-
-   * The result type :math:`C{.}\mathsf{return}` is of the form :math:`{t^?}`.
-
-
-
-
-The instruction :math:`(t{.}\mathsf{const}~c_t)` is :ref:`valid <valid-val>` with the function type :math:`\epsilon~\rightarrow~t`.
-
-
-
-
-The instruction :math:`(t~{.}~{\mathit{unop}}_t)` is :ref:`valid <valid-val>` with the function type :math:`t~\rightarrow~t`.
-
-
-
-
-The instruction :math:`(t~{.}~{\mathit{binop}}_t)` is :ref:`valid <valid-val>` with the function type :math:`t~t~\rightarrow~t`.
-
-
-
-
-The instruction :math:`(t~{.}~{\mathit{testop}}_t)` is :ref:`valid <valid-val>` with the function type :math:`t~\rightarrow~\mathsf{i{\scriptstyle 32}}`.
-
-
-
-
-The instruction :math:`(t~{.}~{\mathit{relop}}_t)` is :ref:`valid <valid-val>` with the function type :math:`t~t~\rightarrow~\mathsf{i{\scriptstyle 32}}`.
-
-
-
-
-The instruction :math:`({{\mathit{nt}}_1~{.}~{\mathit{cvtop}}}{\mathsf{\_}}{{\mathit{nt}}_2})` is :ref:`valid <valid-val>` with the function type :math:`{\mathit{nt}}_2~\rightarrow~{\mathit{nt}}_1` if:
-
-
-   * Either:
-
-      * :math:`{\mathit{cvtop}}` is of the form :math:`\mathsf{reinterpret}`.
-
-      * :math:`{|{\mathit{nt}}_1|}` is of the form :math:`{|{\mathit{nt}}_2|}`.
-
-   * Or:
-
-
-
-
-The instruction :math:`(\mathsf{local{.}get}~x)` is :ref:`valid <valid-val>` with the function type :math:`\epsilon~\rightarrow~t` if:
-
-
-   * The number type :math:`C{.}\mathsf{locals}{}[x]` exists.
-
-   * The number type :math:`C{.}\mathsf{locals}{}[x]` is of the form :math:`t`.
-
-
-
-
-The instruction :math:`(\mathsf{local{.}set}~x)` is :ref:`valid <valid-val>` with the function type :math:`t~\rightarrow~\epsilon` if:
-
-
-   * The number type :math:`C{.}\mathsf{locals}{}[x]` exists.
-
-   * The number type :math:`C{.}\mathsf{locals}{}[x]` is of the form :math:`t`.
-
-
-
-
-The instruction :math:`(\mathsf{local{.}tee}~x)` is :ref:`valid <valid-val>` with the function type :math:`t~\rightarrow~t` if:
-
-
-   * The number type :math:`C{.}\mathsf{locals}{}[x]` exists.
-
-   * The number type :math:`C{.}\mathsf{locals}{}[x]` is of the form :math:`t`.
-
-
-
-
-The instruction :math:`(\mathsf{global{.}get}~x)` is :ref:`valid <valid-val>` with the function type :math:`\epsilon~\rightarrow~t` if:
-
-
-   * The global type :math:`C{.}\mathsf{globals}{}[x]` exists.
-
-   * The global type :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`({\mathit{mut}}~t)`.
-
-
-
-
-The instruction :math:`(\mathsf{global{.}set}~x)` is :ref:`valid <valid-val>` with the function type :math:`t~\rightarrow~\epsilon` if:
-
-
-   * The global type :math:`C{.}\mathsf{globals}{}[x]` exists.
-
-   * The global type :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`(\mathsf{mut}~t)`.
-
-
-
-
-The instruction :math:`\mathsf{memory{.}size}` is :ref:`valid <valid-val>` with the function type :math:`\epsilon~\rightarrow~\mathsf{i{\scriptstyle 32}}`.
-
-
-
-
-The instruction :math:`\mathsf{memory{.}grow}` is :ref:`valid <valid-val>` with the function type :math:`\mathsf{i{\scriptstyle 32}}~\rightarrow~\mathsf{i{\scriptstyle 32}}`.
-
-
-
-
-The instruction :math:`({t{.}\mathsf{load}}{{{\mathit{loadop}}^?}}~{\mathit{memarg}})` is :ref:`valid <valid-val>` with the function type :math:`\mathsf{i{\scriptstyle 32}}~\rightarrow~{t'}` if:
-
-
-   * Either:
-
-      * :math:`{{\mathit{loadop}}^?}` is absent.
-
-      * The number type :math:`{t'}` is of the form :math:`t`.
-
-      * :math:`{2^{{\mathit{memarg}}{.}\mathsf{align}}}` is less than or equal to :math:`{|t|} / 8`.
-
-   * Or:
-
-      * The number type :math:`t` is of the form :math:`{\mathsf{i}}{n}`.
-
-      * :math:`{{\mathit{loadop}}^?}` is of the form :math:`{M}{\mathsf{\_}}{{\mathit{sx}}}`.
-
-      * The number type :math:`{t'}` is of the form :math:`{\mathsf{i}}{n}`.
-
-      * :math:`{2^{{\mathit{memarg}}{.}\mathsf{align}}}` is less than or equal to :math:`M / 8`.
-
-
-
-
-The instruction :math:`({t{.}\mathsf{store}}{{{\mathit{sz}}^?}}~{\mathit{memarg}})` is :ref:`valid <valid-val>` with the function type :math:`\mathsf{i{\scriptstyle 32}}~{t'}~\rightarrow~\epsilon` if:
-
-
-   * Either:
-
-      * The pack size :math:`{{\mathit{sz}}^?}` is absent.
-
-      * The number type :math:`{t'}` is of the form :math:`t`.
-
-      * :math:`{2^{{\mathit{memarg}}{.}\mathsf{align}}}` is less than or equal to :math:`{|t|} / 8`.
-
-   * Or:
-
-      * The number type :math:`t` is of the form :math:`{\mathsf{i}}{n}`.
-
-      * The pack size :math:`{{\mathit{sz}}^?}` is of the form :math:`M`.
-
-      * The number type :math:`{t'}` is of the form :math:`{\mathsf{i}}{n}`.
-
-      * :math:`{2^{{\mathit{memarg}}{.}\mathsf{align}}}` is less than or equal to :math:`M / 8`.
-
-
-
-
-The instruction :math:`({{\mathit{nt}}_1~{.}~\mathsf{reinterpret}}{\mathsf{\_}}{{\mathit{nt}}_2})` is :ref:`valid <valid-val>` with the function type :math:`{\mathit{nt}}_2~\rightarrow~{\mathit{nt}}_1` if:
-
-
-   * :math:`{|{\mathit{nt}}_1|}` is of the form :math:`{|{\mathit{nt}}_2|}`.
-
-
-
-
-The instruction :math:`({{\mathit{nt}}_1~{.}~{\mathit{cvtop}}}{\mathsf{\_}}{{\mathit{nt}}_2})` is :ref:`valid <valid-val>` with the function type :math:`{\mathit{nt}}_2~\rightarrow~{\mathit{nt}}_1`.
-
-
-
-
-The instruction :math:`(\mathsf{load}~t~{\mathit{memarg}})` is :ref:`valid <valid-val>` with the function type :math:`\mathsf{i{\scriptstyle 32}}~\rightarrow~t` if:
-
-
-   * :math:`{2^{{\mathit{memarg}}{.}\mathsf{align}}}` is less than or equal to :math:`{|t|} / 8`.
-
-
-
-
-The instruction :math:`({{\mathsf{i}}{n}{.}\mathsf{load}}{{M}{\mathsf{\_}}{{\mathit{sx}}}}~{\mathit{memarg}})` is :ref:`valid <valid-val>` with the function type :math:`\mathsf{i{\scriptstyle 32}}~\rightarrow~{\mathsf{i}}{n}` if:
-
-
-   * :math:`{2^{{\mathit{memarg}}{.}\mathsf{align}}}` is less than or equal to :math:`M / 8`.
-
-
-
-
-The instruction :math:`(\mathsf{store}~t~{\mathit{memarg}})` is :ref:`valid <valid-val>` with the function type :math:`\mathsf{i{\scriptstyle 32}}~t~\rightarrow~\epsilon` if:
-
-
-   * :math:`{2^{{\mathit{memarg}}{.}\mathsf{align}}}` is less than or equal to :math:`{|t|} / 8`.
-
-
-
-
-The instruction :math:`({{\mathsf{i}}{n}{.}\mathsf{store}}{M}~{\mathit{memarg}})` is :ref:`valid <valid-val>` with the function type :math:`\mathsf{i{\scriptstyle 32}}~{\mathsf{i}}{n}~\rightarrow~\epsilon` if:
-
-
-   * :math:`{2^{{\mathit{memarg}}{.}\mathsf{align}}}` is less than or equal to :math:`M / 8`.
-
-
-
-
-The instruction sequence :math:`{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` with the function type :math:`{{\mathit{valtype}}^\ast}~\rightarrow~{{\mathit{valtype}'}^\ast}` if:
-
-
-   * Either:
-
-      * The instruction sequence :math:`{{\mathit{instr}}^\ast}` is empty.
-
-      * The number type sequence :math:`{{\mathit{valtype}}^\ast}` is empty.
-
-      * The number type sequence :math:`{{\mathit{valtype}'}^\ast}` is empty.
-
-   * Or:
-
-      * The instruction sequence :math:`{{\mathit{instr}}^\ast}` is of the form :math:`{\mathit{instr}}_1~{{\mathit{instr}}_2^\ast}`.
-
-      * The instruction :math:`{\mathit{instr}}_1` is :ref:`valid <valid-val>` with the function type :math:`{{\mathit{valtype}}^\ast}~\rightarrow~{t_2^\ast}`.
-
-      * The instruction sequence :math:`{{\mathit{instr}}_2^\ast}` is :ref:`valid <valid-val>` with the function type :math:`{t_2^\ast}~\rightarrow~{{\mathit{valtype}'}^\ast}`.
-   * Or:
-
-      * The number type sequence :math:`{{\mathit{valtype}}^\ast}` is of the form :math:`{t^\ast}~{t_1^\ast}`.
-
-      * The number type sequence :math:`{{\mathit{valtype}'}^\ast}` is of the form :math:`{t^\ast}~{t_2^\ast}`.
-
-      * The instruction sequence :math:`{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` with the function type :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}`.
-
-
-
-
-The instruction sequence :math:`\epsilon` is :ref:`valid <valid-val>` with the function type :math:`\epsilon~\rightarrow~\epsilon`.
-
-
-
-
-The instruction sequence :math:`{\mathit{instr}}_1~{{\mathit{instr}}_2^\ast}` is :ref:`valid <valid-val>` with the function type :math:`{t_1^\ast}~\rightarrow~{t_3^\ast}` if:
-
-
-   * The instruction :math:`{\mathit{instr}}_1` is :ref:`valid <valid-val>` with the function type :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}`.
-
-   * The instruction sequence :math:`{{\mathit{instr}}_2^\ast}` is :ref:`valid <valid-val>` with the function type :math:`{t_2^\ast}~\rightarrow~{t_3^\ast}`.
-
-
-
-
-The instruction sequence :math:`{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` with the function type :math:`{t^\ast}~{t_1^\ast}~\rightarrow~{t^\ast}~{t_2^\ast}` if:
-
-
-   * The instruction sequence :math:`{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` with the function type :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}`.
-
-
-
-
-The expression :math:`{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` with the result type :math:`{t^?}` if:
-
-
-   * The instruction sequence :math:`{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` with the function type :math:`\epsilon~\rightarrow~{t^?}`.
-
-
-
-
-:math:`{\mathit{instr}}` is constant if:
-
-
-   * Either:
-
-      * The instruction :math:`{\mathit{instr}}` is of the form :math:`(t{.}\mathsf{const}~c)`.
-
-   * Or:
-
-      * The instruction :math:`{\mathit{instr}}` is of the form :math:`(\mathsf{global{.}get}~x)`.
-
-      * The global type :math:`C{.}\mathsf{globals}{}[x]` exists.
-
-      * The global type :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`(\epsilon~t)`.
-
-
-
-
-:math:`(t{.}\mathsf{const}~c)` is constant.
-
-
-
-
-:math:`(\mathsf{global{.}get}~x)` is constant if:
-
-
-   * The global type :math:`C{.}\mathsf{globals}{}[x]` exists.
-
-   * The global type :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`(\epsilon~t)`.
-
-
-
-
-:math:`{{\mathit{instr}}^\ast}` is constant if:
-
-
-   * For all :math:`{\mathit{instr}}` in :math:`{{\mathit{instr}}^\ast}`:
-
-      * :math:`{\mathit{instr}}` is constant.
-
-
-
-
-The type :math:`(\mathsf{type}~{\mathit{ft}})` is :ref:`valid <valid-val>` with the function type :math:`{\mathit{ft}}` if:
-
-
-   * The function type :math:`{\mathit{ft}}` is :ref:`valid <valid-val>`.
-
-
-
-
-The function :math:`(\mathsf{func}~x~{(\mathsf{local}~t)^\ast}~{\mathit{expr}})` is :ref:`valid <valid-val>` with the function type :math:`{t_1^\ast}~\rightarrow~{t_2^?}` if:
-
-
-   * The function type :math:`C{.}\mathsf{types}{}[x]` exists.
-
-   * The function type :math:`C{.}\mathsf{types}{}[x]` is of the form :math:`{t_1^\ast}~\rightarrow~{t_2^?}`.
-
-   * Under the context :math:`C` with the field :math:`\mathsf{locals}` appended by :math:`{t_1^\ast}~{t^\ast}` and the field :math:`\mathsf{labels}` appended by :math:`{t_2^?}` and the field :math:`\mathsf{return}` appended by :math:`{t_2^?}`, the expression :math:`{\mathit{expr}}` is :ref:`valid <valid-val>` with the result type :math:`{t_2^?}`.
-
-
-
-
-The global :math:`(\mathsf{global}~{\mathit{gt}}~{\mathit{expr}})` is :ref:`valid <valid-val>` with the global type :math:`{\mathit{gt}}` if:
-
-
-   * The global type :math:`{\mathit{gt}}` is :ref:`valid <valid-val>`.
-
-   * The global type :math:`{\mathit{gt}}` is of the form :math:`({\mathit{mut}}~t)`.
-
-   * The expression :math:`{\mathit{expr}}` is :ref:`valid <valid-val>` with the number type :math:`t`.
-
-   * :math:`{\mathit{expr}}` is constant.
-
-
-
-
-The table :math:`(\mathsf{table}~{\mathit{tt}})` is :ref:`valid <valid-val>` with the table type :math:`{\mathit{tt}}` if:
-
-
-   * The table type :math:`{\mathit{tt}}` is :ref:`valid <valid-val>`.
-
-
-
-
-The memory :math:`(\mathsf{memory}~{\mathit{mt}})` is :ref:`valid <valid-val>` with the memory type :math:`{\mathit{mt}}` if:
-
-
-   * The memory type :math:`{\mathit{mt}}` is :ref:`valid <valid-val>`.
-
-
-
-
-The table segment :math:`(\mathsf{elem}~{\mathit{expr}}~{x^\ast})` is :ref:`valid <valid-val>` if:
-
-
-   * The expression :math:`{\mathit{expr}}` is :ref:`valid <valid-val>` with the number type :math:`\mathsf{i{\scriptstyle 32}}`.
-
-   * :math:`{\mathit{expr}}` is constant.
-
-   * For all :math:`x` in :math:`{x^\ast}`:
-
-      * The function type :math:`C{.}\mathsf{funcs}{}[x]` exists.
-
-
-
-
-The memory segment :math:`(\mathsf{data}~{\mathit{expr}}~{b^\ast})` is :ref:`valid <valid-val>` if:
-
-
-   * The expression :math:`{\mathit{expr}}` is :ref:`valid <valid-val>` with the number type :math:`\mathsf{i{\scriptstyle 32}}`.
-
-   * :math:`{\mathit{expr}}` is constant.
-
-
-
-
-The start function :math:`(\mathsf{start}~x)` is :ref:`valid <valid-val>` if:
-
-
-   * The function type :math:`C{.}\mathsf{funcs}{}[x]` exists.
-
-   * The function type :math:`C{.}\mathsf{funcs}{}[x]` is of the form :math:`\epsilon~\rightarrow~\epsilon`.
-
-
-
-
-The import :math:`(\mathsf{import}~{\mathit{name}}_1~{\mathit{name}}_2~{\mathit{xt}})` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{xt}}` if:
-
-
-   * The external type :math:`{\mathit{xt}}` is :ref:`valid <valid-val>`.
-
-
-
-
-The external index :math:`{\mathit{externidx}}` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{externtype}}` if:
-
-
-   * Either:
-
-      * The external index :math:`{\mathit{externidx}}` is of the form :math:`(\mathsf{func}~x)`.
-
-      * The external type :math:`{\mathit{externtype}}` is of the form :math:`(\mathsf{func}~{\mathit{ft}})`.
-
-      * The function type :math:`C{.}\mathsf{funcs}{}[x]` exists.
-
-      * The function type :math:`C{.}\mathsf{funcs}{}[x]` is of the form :math:`{\mathit{ft}}`.
-
-   * Or:
-
-      * The external index :math:`{\mathit{externidx}}` is of the form :math:`(\mathsf{global}~x)`.
-
-      * The external type :math:`{\mathit{externtype}}` is of the form :math:`(\mathsf{global}~{\mathit{gt}})`.
-
-      * The global type :math:`C{.}\mathsf{globals}{}[x]` exists.
-
-      * The global type :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`{\mathit{gt}}`.
-   * Or:
-
-      * The external index :math:`{\mathit{externidx}}` is of the form :math:`(\mathsf{table}~x)`.
-
-      * The external type :math:`{\mathit{externtype}}` is of the form :math:`(\mathsf{table}~{\mathit{tt}})`.
-
-      * The table type :math:`C{.}\mathsf{tables}{}[x]` exists.
-
-      * The table type :math:`C{.}\mathsf{tables}{}[x]` is of the form :math:`{\mathit{tt}}`.
-   * Or:
-
-      * The external index :math:`{\mathit{externidx}}` is of the form :math:`(\mathsf{mem}~x)`.
-
-      * The external type :math:`{\mathit{externtype}}` is of the form :math:`(\mathsf{mem}~{\mathit{mt}})`.
-
-      * The memory type :math:`C{.}\mathsf{mems}{}[x]` exists.
-
-      * The memory type :math:`C{.}\mathsf{mems}{}[x]` is of the form :math:`{\mathit{mt}}`.
-
-
-
-
-The external index :math:`(\mathsf{func}~x)` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{func}~{\mathit{ft}})` if:
-
-
-   * The function type :math:`C{.}\mathsf{funcs}{}[x]` exists.
-
-   * The function type :math:`C{.}\mathsf{funcs}{}[x]` is of the form :math:`{\mathit{ft}}`.
-
-
-
-
-The external index :math:`(\mathsf{global}~x)` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{global}~{\mathit{gt}})` if:
-
-
-   * The global type :math:`C{.}\mathsf{globals}{}[x]` exists.
-
-   * The global type :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`{\mathit{gt}}`.
-
-
-
-
-The external index :math:`(\mathsf{table}~x)` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{table}~{\mathit{tt}})` if:
-
-
-   * The table type :math:`C{.}\mathsf{tables}{}[x]` exists.
-
-   * The table type :math:`C{.}\mathsf{tables}{}[x]` is of the form :math:`{\mathit{tt}}`.
-
-
-
-
-The external index :math:`(\mathsf{mem}~x)` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{mem}~{\mathit{mt}})` if:
-
-
-   * The memory type :math:`C{.}\mathsf{mems}{}[x]` exists.
-
-   * The memory type :math:`C{.}\mathsf{mems}{}[x]` is of the form :math:`{\mathit{mt}}`.
-
-
-
-
-The export :math:`(\mathsf{export}~{\mathit{name}}~{\mathit{externidx}})` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{xt}}` if:
-
-
-   * The external index :math:`{\mathit{externidx}}` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{xt}}`.
-
-
-
-
-The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\ast}~{{\mathit{func}}^\ast}~{{\mathit{global}}^\ast}~{{\mathit{table}}^\ast}~{{\mathit{mem}}^\ast}~{{\mathit{elem}}^\ast}~{{\mathit{data}}^\ast}~{{\mathit{start}}^?}~{{\mathit{export}}^\ast})` is :ref:`valid <valid-val>` if:
-
-
-   * For all :math:`{\mathit{type}}` in :math:`{{\mathit{type}}^\ast}`:
-
-      * The type :math:`{\mathit{type}}` is :ref:`valid <valid-val>` with the function type :math:`{\mathit{ft}'}`.
-
-   * :math:`{{\mathit{ft}'}^\ast}` is the concatenation of all such :math:`{\mathit{ft}'}`.
-
-   * For all :math:`{\mathit{import}}` in :math:`{{\mathit{import}}^\ast}`:
-
-      * Under the context :math:`\{ \mathsf{types}~{{\mathit{ft}'}^\ast},\;\allowbreak \mathsf{return}~\epsilon \}`, the import :math:`{\mathit{import}}` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{ixt}}`.
-
-   * :math:`{{\mathit{ixt}}^\ast}` is the concatenation of all such :math:`{\mathit{ixt}}`.
-
-   * For all :math:`{\mathit{global}}` in :math:`{{\mathit{global}}^\ast}`:
-
-      * Under the context :math:`{C'}`, the global :math:`{\mathit{global}}` is :ref:`valid <valid-val>` with the global type :math:`{\mathit{gt}}`.
-
-   * :math:`{{\mathit{gt}}^\ast}` is the concatenation of all such :math:`{\mathit{gt}}`.
-
-   * For all :math:`{\mathit{func}}` in :math:`{{\mathit{func}}^\ast}`:
-
-      * The function :math:`{\mathit{func}}` is :ref:`valid <valid-val>` with the function type :math:`{\mathit{ft}}`.
-
-   * :math:`{{\mathit{ft}}^\ast}` is the concatenation of all such :math:`{\mathit{ft}}`.
-
-   * For all :math:`{\mathit{table}}` in :math:`{{\mathit{table}}^\ast}`:
-
-      * The table :math:`{\mathit{table}}` is :ref:`valid <valid-val>` with the table type :math:`{\mathit{tt}}`.
-
-   * :math:`{{\mathit{tt}}^\ast}` is the concatenation of all such :math:`{\mathit{tt}}`.
-
-   * For all :math:`{\mathit{mem}}` in :math:`{{\mathit{mem}}^\ast}`:
-
-      * The memory :math:`{\mathit{mem}}` is :ref:`valid <valid-val>` with the memory type :math:`{\mathit{mt}}`.
-
-   * :math:`{{\mathit{mt}}^\ast}` is the concatenation of all such :math:`{\mathit{mt}}`.
-
-   * For all :math:`{\mathit{elem}}` in :math:`{{\mathit{elem}}^\ast}`:
-
-      * The table segment :math:`{\mathit{elem}}` is :ref:`valid <valid-val>`.
-
-   * For all :math:`{\mathit{data}}` in :math:`{{\mathit{data}}^\ast}`:
-
-      * The memory segment :math:`{\mathit{data}}` is :ref:`valid <valid-val>`.
-
-   * If :math:`{\mathit{start}}` is defined, then:
-
-      * The start function :math:`{\mathit{start}}` is :ref:`valid <valid-val>`.
-
-   * For all :math:`{\mathit{export}}` in :math:`{{\mathit{export}}^\ast}`:
-
-      * The export :math:`{\mathit{export}}` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{xt}}`.
-
-   * The length of :math:`{{\mathit{tt}}^\ast}` is less than or equal to :math:`1`.
-
-   * The length of :math:`{{\mathit{mt}}^\ast}` is less than or equal to :math:`1`.
-
-   * The context :math:`{C'}` is of the form :math:`\{ \mathsf{types}~{{\mathit{ft}'}^\ast},\;\allowbreak \mathsf{funcs}~{{\mathit{ift}}^\ast}~{{\mathit{ft}}^\ast},\;\allowbreak \mathsf{globals}~{{\mathit{igt}}^\ast},\;\allowbreak \mathsf{return}~\epsilon \}`.
-
-   * The function type sequence :math:`{{\mathit{ift}}^\ast}` is of the form :math:`{\mathrm{funcs}}({{\mathit{ixt}}^\ast})`.
-
-   * The global type sequence :math:`{{\mathit{igt}}^\ast}` is of the form :math:`{\mathrm{globals}}({{\mathit{ixt}}^\ast})`.
-
-   * The table type sequence :math:`{{\mathit{itt}}^\ast}` is of the form :math:`{\mathrm{tables}}({{\mathit{ixt}}^\ast})`.
-
-   * The memory type sequence :math:`{{\mathit{imt}}^\ast}` is of the form :math:`{\mathrm{mems}}({{\mathit{ixt}}^\ast})`.
-
-
-:math:`\mathsf{load}~t~{\mathit{ao}}`
-.....................................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i)` from the stack.
-
-#. If :math:`i + {\mathit{ao}}{.}\mathsf{offset} + {|t|} / 8 > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}`, then:
-
-   a. Trap.
-
-#. Let :math:`c` be the result for which :math:`{{\mathrm{bytes}}}_{t}(c)` :math:`=` :math:`z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : {|t|} / 8]`.
-
-#. Push the value :math:`(t{.}\mathsf{const}~c)` to the stack.
-
-
-:math:`{{\mathsf{i}}{n}{.}\mathsf{load}}{{n}{\mathsf{\_}}{{\mathit{sx}}}}~{\mathit{ao}}`
-........................................................................................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i)` from the stack.
-
-#. If :math:`i + {\mathit{ao}}{.}\mathsf{offset} + n / 8 > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}`, then:
-
-   a. Trap.
-
-#. Let :math:`c` be the result for which :math:`{{\mathrm{bytes}}}_{{\mathsf{i}}{n}}(c)` :math:`=` :math:`z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : n / 8]`.
-
-#. Push the value :math:`({\mathsf{i}}{n}{.}\mathsf{const}~{{{{\mathrm{extend}}}_{n, {|{\mathsf{i}}{n}|}}^{{\mathit{sx}}}}}{(c)})` to the stack.
-
-
-:math:`\mathsf{store}~t~{\mathit{ao}}`
-......................................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, a value of number type :math:`t` is on the top of the stack.
-
-#. Pop the value :math:`({\mathit{valtype}}_0{.}\mathsf{const}~c)` from the stack.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i)` from the stack.
-
-#. If :math:`i + {\mathit{ao}}{.}\mathsf{offset} + {|t|} / 8 > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}`, then:
-
-   a. Trap.
-
-#. Let :math:`{b^\ast}` be :math:`{{\mathrm{bytes}}}_{t}(c)`.
-
-#. Perform :math:`z{}[{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : {|t|} / 8] = {b^\ast}]`.
-
-
-:math:`{{\mathsf{i}}{n}{.}\mathsf{store}}{n}~{\mathit{ao}}`
-...........................................................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, a value of number type :math:`{\mathsf{i}}{n}` is on the top of the stack.
-
-#. Pop the value :math:`({\mathit{valtype}}_0{.}\mathsf{const}~c)` from the stack.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i)` from the stack.
-
-#. If :math:`i + {\mathit{ao}}{.}\mathsf{offset} + n / 8 > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}`, then:
-
-   a. Trap.
-
-#. Let :math:`{b^\ast}` be :math:`{{\mathrm{bytes}}}_{{\mathsf{i}}{n}}({{\mathrm{wrap}}}_{{|{\mathsf{i}}{n}|}, n}(c))`.
-
-#. Perform :math:`z{}[{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : n / 8] = {b^\ast}]`.
-
-
-:math:`\mathsf{unreachable}`
-............................
-
-
-1. Trap.
-
-
-:math:`\mathsf{nop}`
-....................
-
-
-1. Do nothing.
-
-
-:math:`\mathsf{drop}`
-.....................
-
-
-1. Assert: Due to validation, a value is on the top of the stack.
-
-#. Pop the value :math:`{\mathit{val}}` from the stack.
-
-
-:math:`\mathsf{select}`
-.......................
-
-
-1. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~c)` from the stack.
-
-#. Assert: Due to validation, a value is on the top of the stack.
-
-#. Pop the value :math:`{\mathit{val}}_2` from the stack.
-
-#. Assert: Due to validation, a value is on the top of the stack.
-
-#. Pop the value :math:`{\mathit{val}}_1` from the stack.
-
-#. If :math:`c \neq 0`, then:
-
-   a. Push the value :math:`{\mathit{val}}_1` to the stack.
-
-#. Else:
-
-   a. Push the value :math:`{\mathit{val}}_2` to the stack.
-
-
-:math:`\mathsf{if}~{t^?}~{{\mathit{instr}}_1^\ast}~{{\mathit{instr}}_2^\ast}`
-.............................................................................
-
-
-1. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~c)` from the stack.
-
-#. If :math:`c \neq 0`, then:
-
-   a. Execute the instruction :math:`(\mathsf{block}~{t^?}~{{\mathit{instr}}_1^\ast})`.
-
-#. Else:
-
-   a. Execute the instruction :math:`(\mathsf{block}~{t^?}~{{\mathit{instr}}_2^\ast})`.
-
-
-:math:`\mathsf{label}`
-......................
-
-
-1. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
-
-#. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{label}`.
-
-#. Pop the :math:`\mathsf{label}` from the stack.
-
-#. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
-
-
-:math:`\mathsf{br}~{n'}`
-........................
-
-
-1. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{label}`.
-
-#. Let :math:`L` be the topmost :math:`\mathsf{label}`.
-
-#. Let :math:`n` be the arity of :math:`L`
-
-#. If :math:`{n'} = 0`, then:
-
-   a. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
-
-   #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
-
-   #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
-
-   #. Pop the :math:`\mathsf{label}` from the stack.
-
-   #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
-
-   #. Jump to the continuation of :math:`L`.
-
-#. Else:
-
-   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
-
-   #. Let :math:`l` be the label index :math:`{n'} - 1`.
-
-   #. Pop the :math:`\mathsf{label}` from the stack.
-
-   #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
-
-   #. Execute the instruction :math:`(\mathsf{br}~l)`.
-
-
-:math:`\mathsf{br\_if}~l`
-.........................
-
-
-1. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~c)` from the stack.
-
-#. If :math:`c \neq 0`, then:
-
-   a. Execute the instruction :math:`(\mathsf{br}~l)`.
-
-#. Else:
-
-   a. Do nothing.
-
-
-:math:`\mathsf{br\_table}~{l^\ast}~{l'}`
-........................................
-
-
-1. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i)` from the stack.
-
-#. If :math:`i < {|{l^\ast}|}`, then:
-
-   a. Execute the instruction :math:`(\mathsf{br}~{l^\ast}{}[i])`.
-
-#. Else:
-
-   a. Execute the instruction :math:`(\mathsf{br}~{l'})`.
-
-
-:math:`\mathsf{frame}`
-......................
-
-
-1. Let :math:`f` be the topmost :math:`\mathsf{frame}`.
-
-#. Let :math:`n` be the arity of :math:`f`
-
-#. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
-
-#. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
-
-#. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
-
-#. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{frame}`.
-
-#. Pop the :math:`\mathsf{frame}` from the stack.
-
-#. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
-
-
-:math:`\mathsf{return}`
-.......................
-
-
-1. If the first non-value entry of the stack is a :math:`\mathsf{frame}`, then:
-
-   a. Let :math:`f` be the topmost :math:`\mathsf{frame}`.
-
-   #. Let :math:`n` be the arity of :math:`f`
-
-   #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
-
-   #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
-
-   #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
-
-   #. Pop the :math:`\mathsf{frame}` from the stack.
-
-   #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
-
-#. Else:
-
-   a. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{label}`.
-
-   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
-
-   #. Pop the :math:`\mathsf{label}` from the stack.
-
-   #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
-
-   #. Execute the instruction :math:`\mathsf{return}`.
-
-
-:math:`t~{.}~{\mathit{unop}}`
-.............................
-
-
-1. Assert: Due to validation, a value of number type :math:`t` is on the top of the stack.
-
-#. Pop the value :math:`({\mathit{valtype}}_0{.}\mathsf{const}~c_1)` from the stack.
-
-#. If :math:`{{\mathit{unop}}}{{}_{t}}{(c_1)}` is empty, then:
-
-   a. Trap.
-
-#. Let :math:`c` be an element of :math:`{{\mathit{unop}}}{{}_{t}}{(c_1)}`.
-
-#. Push the value :math:`(t{.}\mathsf{const}~c)` to the stack.
-
-
-:math:`t~{.}~{\mathit{binop}}`
-..............................
-
-
-1. Assert: Due to validation, a value of number type :math:`t` is on the top of the stack.
-
-#. Pop the value :math:`({\mathit{valtype}}_0{.}\mathsf{const}~c_2)` from the stack.
-
-#. Assert: Due to validation, a num is on the top of the stack.
-
-#. Pop the value :math:`({\mathit{valtype}}_0{.}\mathsf{const}~c_1)` from the stack.
-
-#. If :math:`{{\mathit{binop}}}{{}_{t}}{(c_1, c_2)}` is empty, then:
-
-   a. Trap.
-
-#. Let :math:`c` be an element of :math:`{{\mathit{binop}}}{{}_{t}}{(c_1, c_2)}`.
-
-#. Push the value :math:`(t{.}\mathsf{const}~c)` to the stack.
-
-
-:math:`t~{.}~{\mathit{testop}}`
-...............................
-
-
-1. Assert: Due to validation, a value of number type :math:`t` is on the top of the stack.
-
-#. Pop the value :math:`({\mathit{valtype}}_0{.}\mathsf{const}~c_1)` from the stack.
-
-#. Let :math:`c` be :math:`{{\mathit{testop}}}{{}_{t}}{(c_1)}`.
-
-#. Push the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~c)` to the stack.
-
-
-:math:`t~{.}~{\mathit{relop}}`
-..............................
-
-
-1. Assert: Due to validation, a value of number type :math:`t` is on the top of the stack.
-
-#. Pop the value :math:`({\mathit{valtype}}_0{.}\mathsf{const}~c_2)` from the stack.
-
-#. Assert: Due to validation, a num is on the top of the stack.
-
-#. Pop the value :math:`({\mathit{valtype}}_0{.}\mathsf{const}~c_1)` from the stack.
-
-#. Let :math:`c` be :math:`{{\mathit{relop}}}{{}_{t}}{(c_1, c_2)}`.
-
-#. Push the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~c)` to the stack.
-
-
-:math:`{t_2~{.}~{\mathit{cvtop}}}{\mathsf{\_}}{t_1}`
-....................................................
-
-
-1. Assert: Due to validation, a value of number type :math:`t_1` is on the top of the stack.
-
-#. Pop the value :math:`({\mathit{valtype}}_0{.}\mathsf{const}~c_1)` from the stack.
-
-#. If :math:`{{\mathit{cvtop}}}{{}_{t_1, t_2}}{(c_1)}` is empty, then:
-
-   a. Trap.
-
-#. Let :math:`c` be an element of :math:`{{\mathit{cvtop}}}{{}_{t_1, t_2}}{(c_1)}`.
-
-#. Push the value :math:`(t_2{.}\mathsf{const}~c)` to the stack.
-
-
-:math:`\mathsf{local{.}tee}~x`
-..............................
-
-
-1. Assert: Due to validation, a value is on the top of the stack.
-
-#. Pop the value :math:`{\mathit{val}}` from the stack.
-
-#. Push the value :math:`{\mathit{val}}` to the stack.
-
-#. Push the value :math:`{\mathit{val}}` to the stack.
-
-#. Execute the instruction :math:`(\mathsf{local{.}set}~x)`.
-
-
-:math:`\mathsf{block}~{t^?}~{{\mathit{instr}}^\ast}`
-....................................................
-
-
-1. Let :math:`n` be :math:`0`.
-
-#. If :math:`{t^?}` is not defined, then:
-
-   #. Let :math:`L` be the :math:`\mathsf{label}` whose arity is :math:`n` and whose continuation is the end of the block.
-
-   a. Enter the block :math:`{{\mathit{instr}}^\ast}` with the :math:`\mathsf{label}` :math:`L`.
-
-#. Let :math:`n` be :math:`1`.
-
-#. If :math:`{t^?} \neq \epsilon`, then:
-
-   #. Let :math:`L` be the :math:`\mathsf{label}` whose arity is :math:`n` and whose continuation is the end of the block.
-
-   a. Enter the block :math:`{{\mathit{instr}}^\ast}` with the :math:`\mathsf{label}` :math:`L`.
-
-
-:math:`\mathsf{loop}~{t^?}~{{\mathit{instr}}^\ast}`
-...................................................
-
-
-#. Let :math:`L` be the :math:`\mathsf{label}` whose continuation is the start of the block.
-
-1. Enter the block :math:`{{\mathit{instr}}^\ast}` with the :math:`\mathsf{label}` :math:`L`.
-
-
-:math:`\mathsf{call}~x`
-.......................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, :math:`x < {|z{.}\mathsf{module}{.}\mathsf{funcs}|}`.
-
-#. Execute the instruction :math:`(\mathsf{call}~z{.}\mathsf{module}{.}\mathsf{funcs}{}[x])`.
-
-
-:math:`\mathsf{call\_indirect}~x`
-.................................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i)` from the stack.
-
-#. If :math:`i \geq {|z{.}\mathsf{tables}{}[0]{.}\mathsf{refs}|}`, then:
-
-   a. Trap.
-
-#. If :math:`z{.}\mathsf{tables}{}[0]{.}\mathsf{refs}{}[i]` is not defined, then:
-
-   a. Trap.
-
-#. Let :math:`a` be :math:`z{.}\mathsf{tables}{}[0]{.}\mathsf{refs}{}[i]`.
-
-#. If :math:`a \geq {|z{.}\mathsf{funcs}|}`, then:
-
-   a. Trap.
-
-#. If :math:`z{.}\mathsf{types}{}[x] \neq z{.}\mathsf{funcs}{}[a]{.}\mathsf{type}`, then:
-
-   a. Trap.
-
-#. Execute the instruction :math:`(\mathsf{call}~a)`.
-
-
-:math:`\mathsf{call}~a`
-.......................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, :math:`a < {|z{.}\mathsf{funcs}|}`.
-
-#. Let :math:`\{ \mathsf{type}~{t_1^{k}}~\rightarrow~{t_2^{n}},\;\allowbreak \mathsf{module}~{\mathit{mm}},\;\allowbreak \mathsf{code}~{\mathit{func}} \}` be the destructuring of :math:`z{.}\mathsf{funcs}{}[a]`.
-
-#. Let :math:`(\mathsf{func}~x~{{\mathit{local}}_0^\ast}~{{\mathit{instr}}^\ast})` be the destructuring of :math:`{\mathit{func}}`.
-
-#. Let :math:`{t^\ast}` be the number type sequence :math:`\epsilon`.
-
-#. For each :math:`{\mathit{local}}_0` in :math:`{{\mathit{local}}_0^\ast}`, do:
-
-   a. Let :math:`(\mathsf{local}~t)` be the destructuring of :math:`{\mathit{local}}_0`.
-
-   #. Append :math:`t` to :math:`{t^\ast}`.
-
-#. Assert: Due to validation, there are at least :math:`k` values on the top of the stack.
-
-#. Pop the values :math:`{{\mathit{val}}^{k}}` from the stack.
-
-#. Let :math:`f` be the frame :math:`\{ \mathsf{locals}~{{\mathit{val}}^{k}}~{{{\mathrm{default}}}_{t}^\ast},\;\allowbreak \mathsf{module}~{\mathit{mm}} \}`.
-
-#. Let :math:`{f'}` be the :math:`\mathsf{frame}` :math:`f` whose arity is :math:`n`.
-
-#. Push the :math:`\mathsf{frame}` :math:`{f'}`.
-
-#. Let :math:`L` be the :math:`\mathsf{label}` whose arity is :math:`n` and whose continuation is the end of the block.
-
-#. Enter the block :math:`{{\mathit{instr}}^\ast}` with the :math:`\mathsf{label}` :math:`L`.
-
-
-:math:`\mathsf{local{.}get}~x`
-..............................
-
-
-1. Let :math:`z` be the current state.
-
-#. Push the value :math:`z{.}\mathsf{locals}{}[x]` to the stack.
-
-
-:math:`\mathsf{global{.}get}~x`
-...............................
-
-
-1. Let :math:`z` be the current state.
-
-#. Push the value :math:`z{.}\mathsf{globals}{}[x]{.}\mathsf{value}` to the stack.
-
-
-:math:`{t{.}\mathsf{load}}{{{\mathit{loadop}}^?}}~{\mathit{ao}}`
-................................................................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i)` from the stack.
-
-#. If :math:`{{\mathit{loadop}}^?}` is not defined, then:
-
-   a. If :math:`i + {\mathit{ao}}{.}\mathsf{offset} + {|t|} / 8 > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}`, then:
-
-      1) Trap.
-
-   #. Let :math:`c` be the result for which :math:`{{\mathrm{bytes}}}_{t}(c)` :math:`=` :math:`z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : {|t|} / 8]`.
-
-   #. Push the value :math:`(t{.}\mathsf{const}~c)` to the stack.
-
-#. Else:
-
-   a. Assert: Due to validation, :math:`t` is :math:`{\mathsf{i}}{n}`.
-
-   #. Let :math:`{\mathit{loadop}}_0` be :math:`{{\mathit{loadop}}^?}`.
-
-   #. Let :math:`{n}{\mathsf{\_}}{{\mathit{sx}}}` be the destructuring of :math:`{\mathit{loadop}}_0`.
-
-   #. If :math:`i + {\mathit{ao}}{.}\mathsf{offset} + n / 8 > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}`, then:
-
-      1) Trap.
-
-   #. Let :math:`c` be the result for which :math:`{{\mathrm{bytes}}}_{{\mathsf{i}}{n}}(c)` :math:`=` :math:`z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : n / 8]`.
-
-   #. Push the value :math:`(t{.}\mathsf{const}~{{{{\mathrm{extend}}}_{n, {|t|}}^{{\mathit{sx}}}}}{(c)})` to the stack.
-
-
-:math:`\mathsf{memory{.}size}`
-..............................
-
-
-1. Let :math:`z` be the current state.
-
-#. Let :math:`n \cdot 64 \cdot {\mathrm{Ki}}` be the length of :math:`z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}`.
-
-#. Push the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~n)` to the stack.
-
-
-:math:`\mathsf{local{.}set}~x`
-..............................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, a value is on the top of the stack.
-
-#. Pop the value :math:`{\mathit{val}}` from the stack.
-
-#. Perform :math:`z{}[{.}\mathsf{locals}{}[x] = {\mathit{val}}]`.
-
-
-:math:`\mathsf{global{.}set}~x`
-...............................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, a value is on the top of the stack.
-
-#. Pop the value :math:`{\mathit{val}}` from the stack.
-
-#. Perform :math:`z{}[{.}\mathsf{globals}{}[x]{.}\mathsf{value} = {\mathit{val}}]`.
-
-
-:math:`{t{.}\mathsf{store}}{{{\mathit{sz}}^?}}~{\mathit{ao}}`
-.............................................................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, a num is on the top of the stack.
-
-#. Pop the value :math:`({t'}{.}\mathsf{const}~c)` from the stack.
-
-#. Assert: Due to validation, a value is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i)` from the stack.
-
-#. Assert: Due to validation, :math:`t = {t'}`.
-
-#. If :math:`{{\mathit{sz}}^?}` is not defined, then:
-
-   a. If :math:`i + {\mathit{ao}}{.}\mathsf{offset} + {|{t'}|} / 8 > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}`, then:
-
-      1) Trap.
-
-   #. Let :math:`{b^\ast}` be :math:`{{\mathrm{bytes}}}_{{t'}}(c)`.
-
-   #. Perform :math:`z{}[{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : {|{t'}|} / 8] = {b^\ast}]`.
-
-#. Else:
-
-   a. Assert: Due to validation, :math:`{t'}` is :math:`{\mathsf{i}}{n}`.
-
-   #. Let :math:`n` be :math:`{{\mathit{sz}}^?}`.
-
-   #. If :math:`i + {\mathit{ao}}{.}\mathsf{offset} + n / 8 > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}`, then:
-
-      1) Trap.
-
-   #. Let :math:`{b^\ast}` be :math:`{{\mathrm{bytes}}}_{{\mathsf{i}}{n}}({{\mathrm{wrap}}}_{{|{t'}|}, n}(c))`.
-
-   #. Perform :math:`z{}[{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : n / 8] = {b^\ast}]`.
-
-
-:math:`\mathsf{memory{.}grow}`
-..............................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~n)` from the stack.
-
-#. Either:
-
-   a. Let :math:`{\mathit{mi}}` be the memory instance :math:`{\mathrm{growmemory}}(z{.}\mathsf{mems}{}[0], n)`.
-
-   #. Push the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|} / (64 \, {\mathrm{Ki}}))` to the stack.
-
-   #. Perform :math:`z{}[{.}\mathsf{mems}{}[0] = {\mathit{mi}}]`.
-
-#. Or:
-
-   a. Push the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{{{{\mathrm{signed}}}_{32}^{{-1}}}}{({-1})})` to the stack.
-
-
-:math:`{\mathrm{Ki}}`
-.....................
-
-
-1. Return :math:`1024`.
-
-
-:math:`{\mathrm{min}}(i, j)`
-............................
-
-
-1. If :math:`i \leq j`, then:
-
-   a. Return :math:`i`.
-
-#. Return :math:`j`.
-
-
-:math:`{\mathrm{sum}}({{n''}^\ast})`
-....................................
-
-
-1. If :math:`{{n''}^\ast} = \epsilon`, then:
-
-   a. Return :math:`0`.
-
-#. Let :math:`n~{{n'}^\ast}` be :math:`{{n''}^\ast}`.
-
-#. Return :math:`n + {\mathrm{sum}}({{n'}^\ast})`.
-
-
-:math:`{X^\ast}`
-................
-
-
-1. If :math:`{X^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Assert: Due to validation, :math:`{|{X^\ast}|} = 1`.
-
-#. Let :math:`w` be :math:`{X^\ast}`.
-
-#. Return :math:`w`.
-
-
-:math:`{X^?}`
-.............
-
-
-1. If :math:`{X^?}` is not defined, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`w` be :math:`{X^?}`.
-
-#. Return :math:`w`.
-
-
-:math:`{\mathrm{concat}}({X^\ast})`
-...................................
-
-
-1. If :math:`{X^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`{w^\ast}~{{{w'}^\ast}^\ast}` be :math:`{X^\ast}`.
-
-#. Return :math:`{w^\ast}~{\mathrm{concat}}({{{w'}^\ast}^\ast})`.
-
-
-:math:`{\mathrm{signif}}(N)`
-............................
-
-
-1. If :math:`N = 32`, then:
-
-   a. Return :math:`23`.
-
-#. Assert: Due to validation, :math:`N = 64`.
-
-#. Return :math:`52`.
-
-
-:math:`{\mathrm{expon}}(N)`
-...........................
-
-
-1. If :math:`N = 32`, then:
-
-   a. Return :math:`8`.
-
-#. Assert: Due to validation, :math:`N = 64`.
-
-#. Return :math:`11`.
-
-
-:math:`M`
-.........
-
-
-1. Return :math:`{\mathrm{signif}}(N)`.
-
-
-:math:`E`
-.........
-
-
-1. Return :math:`{\mathrm{expon}}(N)`.
-
-
-:math:`{+0}`
-............
-
-
-1. Return :math:`({+((0 + 0 \cdot {2^{{-M}}}) \cdot {2^{e}})})`.
-
-
-:math:`{+1}`
-............
-
-
-1. Return :math:`({+((1 + 1 \cdot {2^{{-M}}}) \cdot {2^{0}})})`.
-
-
-:math:`{{\mathrm{canon}}}_{N}`
-..............................
-
-
-1. Return :math:`{2^{{\mathrm{signif}}(N) - 1}}`.
-
-
-:math:`{|{\mathit{valtype}}|}`
-..............................
-
-
-1. If :math:`{\mathit{valtype}} = \mathsf{i{\scriptstyle 32}}`, then:
-
-   a. Return :math:`32`.
-
-#. If :math:`{\mathit{valtype}} = \mathsf{i{\scriptstyle 64}}`, then:
-
-   a. Return :math:`64`.
-
-#. If :math:`{\mathit{valtype}} = \mathsf{f{\scriptstyle 32}}`, then:
-
-   a. Return :math:`32`.
-
-#. Assert: Due to validation, :math:`{\mathit{valtype}} = \mathsf{f{\scriptstyle 64}}`.
-
-#. Return :math:`64`.
-
-
-:math:`{\mathrm{funcs}}({{\mathit{externtype}'}^\ast})`
-.......................................................
-
-
-1. If :math:`{{\mathit{externtype}'}^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`{\mathit{externtype}}_0~{{\mathit{xt}}^\ast}` be :math:`{{\mathit{externtype}'}^\ast}`.
-
-#. If :math:`{\mathit{externtype}}_0` is some :math:`\mathsf{func}~{\mathit{functype}}`, then:
-
-   a. Let :math:`(\mathsf{func}~{\mathit{ft}})` be the destructuring of :math:`{\mathit{externtype}}_0`.
-
-   #. Return :math:`{\mathit{ft}}~{\mathrm{funcs}}({{\mathit{xt}}^\ast})`.
-
-#. Let :math:`{\mathit{externtype}}~{{\mathit{xt}}^\ast}` be :math:`{{\mathit{externtype}'}^\ast}`.
-
-#. Return :math:`{\mathrm{funcs}}({{\mathit{xt}}^\ast})`.
-
-
-:math:`{\mathrm{globals}}({{\mathit{externtype}'}^\ast})`
-.........................................................
-
-
-1. If :math:`{{\mathit{externtype}'}^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`{\mathit{externtype}}_0~{{\mathit{xt}}^\ast}` be :math:`{{\mathit{externtype}'}^\ast}`.
-
-#. If :math:`{\mathit{externtype}}_0` is some :math:`\mathsf{global}~{\mathit{globaltype}}`, then:
-
-   a. Let :math:`(\mathsf{global}~{\mathit{gt}})` be the destructuring of :math:`{\mathit{externtype}}_0`.
-
-   #. Return :math:`{\mathit{gt}}~{\mathrm{globals}}({{\mathit{xt}}^\ast})`.
-
-#. Let :math:`{\mathit{externtype}}~{{\mathit{xt}}^\ast}` be :math:`{{\mathit{externtype}'}^\ast}`.
-
-#. Return :math:`{\mathrm{globals}}({{\mathit{xt}}^\ast})`.
-
-
-:math:`{\mathrm{tables}}({{\mathit{externtype}'}^\ast})`
-........................................................
-
-
-1. If :math:`{{\mathit{externtype}'}^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`{\mathit{externtype}}_0~{{\mathit{xt}}^\ast}` be :math:`{{\mathit{externtype}'}^\ast}`.
-
-#. If :math:`{\mathit{externtype}}_0` is some :math:`\mathsf{table}~{\mathit{tabletype}}`, then:
-
-   a. Let :math:`(\mathsf{table}~{\mathit{tt}})` be the destructuring of :math:`{\mathit{externtype}}_0`.
-
-   #. Return :math:`{\mathit{tt}}~{\mathrm{tables}}({{\mathit{xt}}^\ast})`.
-
-#. Let :math:`{\mathit{externtype}}~{{\mathit{xt}}^\ast}` be :math:`{{\mathit{externtype}'}^\ast}`.
-
-#. Return :math:`{\mathrm{tables}}({{\mathit{xt}}^\ast})`.
-
-
-:math:`{\mathrm{mems}}({{\mathit{externtype}'}^\ast})`
-......................................................
-
-
-1. If :math:`{{\mathit{externtype}'}^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`{\mathit{externtype}}_0~{{\mathit{xt}}^\ast}` be :math:`{{\mathit{externtype}'}^\ast}`.
-
-#. If :math:`{\mathit{externtype}}_0` is some :math:`\mathsf{mem}~{\mathit{memtype}}`, then:
-
-   a. Let :math:`(\mathsf{mem}~{\mathit{mt}})` be the destructuring of :math:`{\mathit{externtype}}_0`.
-
-   #. Return :math:`{\mathit{mt}}~{\mathrm{mems}}({{\mathit{xt}}^\ast})`.
-
-#. Let :math:`{\mathit{externtype}}~{{\mathit{xt}}^\ast}` be :math:`{{\mathit{externtype}'}^\ast}`.
-
-#. Return :math:`{\mathrm{mems}}({{\mathit{xt}}^\ast})`.
-
-
-
-
-
-
-1. Return :math:`\{ \mathsf{align}~0,\;\allowbreak \mathsf{offset}~0 \}`.
-
-
-:math:`\mathbb{B}(b)`
-.....................
-
-
-1. If :math:`b` is false, then:
-
-   a. Return :math:`0`.
-
-#. Assert: Due to validation, :math:`b` is true.
-
-#. Return :math:`1`.
-
-
-:math:`{{\mathrm{signed}}}_{N}(i)`
-..................................
-
-
-1. If :math:`i < {2^{N - 1}}`, then:
-
-   a. Return :math:`i`.
-
-#. Assert: Due to validation, :math:`{2^{N - 1}} \leq i`.
-
-#. Assert: Due to validation, :math:`i < {2^{N}}`.
-
-#. Return :math:`i - {2^{N}}`.
-
-
-:math:`{{{{\mathrm{signed}}}_{N}^{{-1}}}}{(i)}`
-...............................................
-
-
-1. If :math:`0 \leq i` and :math:`i < {2^{N - 1}}`, then:
-
-   a. Return :math:`i`.
-
-#. Assert: Due to validation, :math:`{-{2^{N - 1}}} \leq i`.
-
-#. Assert: Due to validation, :math:`i < 0`.
-
-#. Return :math:`i + {2^{N}}`.
-
-
-:math:`{{\mathit{unop}}}{{}_{{\mathit{valtype}}}}{({\mathit{iN}})}`
-...................................................................
-
-
-1. If :math:`{\mathit{valtype}}` is :math:`{\mathsf{i}}{n}`, then:
-
-   a. If :math:`{\mathit{unop}} = \mathsf{clz}`, then:
-
-      1) Return :math:`{{\mathrm{iclz}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}})`.
-
-   #. If :math:`{\mathit{unop}} = \mathsf{ctz}`, then:
-
-      1) Return :math:`{{\mathrm{ictz}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}})`.
-
-   #. If :math:`{\mathit{unop}} = \mathsf{popcnt}`, then:
-
-      1) Return :math:`{{\mathrm{ipopcnt}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}})`.
-
-#. Assert: Due to validation, :math:`{\mathit{valtype}}` is :math:`{\mathsf{f}}{n}`.
-
-#. If :math:`{\mathit{unop}} = \mathsf{abs}`, then:
-
-   a. Return :math:`{{\mathrm{fabs}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}})`.
-
-#. If :math:`{\mathit{unop}} = \mathsf{neg}`, then:
-
-   a. Return :math:`{{\mathrm{fneg}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}})`.
-
-#. If :math:`{\mathit{unop}} = \mathsf{sqrt}`, then:
-
-   a. Return :math:`{{\mathrm{fsqrt}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}})`.
-
-#. If :math:`{\mathit{unop}} = \mathsf{ceil}`, then:
-
-   a. Return :math:`{{\mathrm{fceil}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}})`.
-
-#. If :math:`{\mathit{unop}} = \mathsf{floor}`, then:
-
-   a. Return :math:`{{\mathrm{ffloor}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}})`.
-
-#. If :math:`{\mathit{unop}} = \mathsf{trunc}`, then:
-
-   a. Return :math:`{{\mathrm{ftrunc}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}})`.
-
-#. Assert: Due to validation, :math:`{\mathit{unop}} = \mathsf{nearest}`.
-
-#. Return :math:`{{\mathrm{fnearest}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}})`.
-
-
-:math:`{{\mathrm{iadd}}}_{N}(i_1, i_2)`
-.......................................
-
-
-1. Return :math:`(i_1 + i_2) \mathbin{\mathrm{mod}} ({2^{N}})`.
-
-
-:math:`{{{{\mathrm{idiv}}}_{N}^{{\mathit{sx}}}}}{(i_1, i_2)}`
-.............................................................
-
-
-1. If :math:`{\mathit{sx}} = \mathsf{u}`, then:
-
-   a. If :math:`i_2 = 0`, then:
-
-      1) Return :math:`\epsilon`.
-
-   #. Return :math:`{\mathrm{truncz}}(i_1 / i_2)`.
-
-#. Assert: Due to validation, :math:`{\mathit{sx}} = \mathsf{s}`.
-
-#. If :math:`i_2 = 0`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. If :math:`{{\mathrm{signed}}}_{N}(i_1) / {{\mathrm{signed}}}_{N}(i_2) = {2^{N - 1}}`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Return :math:`{{{{\mathrm{signed}}}_{N}^{{-1}}}}{({\mathrm{truncz}}({{\mathrm{signed}}}_{N}(i_1) / {{\mathrm{signed}}}_{N}(i_2)))}`.
-
-
-:math:`{{\mathrm{imul}}}_{N}(i_1, i_2)`
-.......................................
-
-
-1. Return :math:`i_1 \cdot i_2 \mathbin{\mathrm{mod}} ({2^{N}})`.
-
-
-:math:`{{{{\mathrm{irem}}}_{N}^{{\mathit{sx}}}}}{(i_1, i_2)}`
-.............................................................
-
-
-1. If :math:`{\mathit{sx}} = \mathsf{u}`, then:
-
-   a. If :math:`i_2 = 0`, then:
-
-      1) Return :math:`\epsilon`.
-
-   #. Return :math:`i_1 - i_2 \cdot {\mathrm{truncz}}(i_1 / i_2)`.
-
-#. Assert: Due to validation, :math:`{\mathit{sx}} = \mathsf{s}`.
-
-#. If :math:`i_2 = 0`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`j_1` be :math:`{{\mathrm{signed}}}_{N}(i_1)`.
-
-#. Let :math:`j_2` be :math:`{{\mathrm{signed}}}_{N}(i_2)`.
-
-#. Return :math:`{{{{\mathrm{signed}}}_{N}^{{-1}}}}{(j_1 - j_2 \cdot {\mathrm{truncz}}(j_1 / j_2))}`.
-
-
-:math:`{{\mathrm{isub}}}_{N}(i_1, i_2)`
-.......................................
-
-
-1. Return :math:`({2^{N}} + i_1 - i_2) \mathbin{\mathrm{mod}} ({2^{N}})`.
-
-
-:math:`{{\mathit{binop}}}{{}_{{\mathit{valtype}}}}{({\mathit{iN}}_1, {\mathit{iN}}_2)}`
-.......................................................................................
-
-
-1. If :math:`{\mathit{valtype}}` is :math:`{\mathsf{i}}{n}`, then:
-
-   a. If :math:`{\mathit{binop}} = \mathsf{add}`, then:
-
-      1) Return :math:`{{\mathrm{iadd}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-   #. If :math:`{\mathit{binop}} = \mathsf{sub}`, then:
-
-      1) Return :math:`{{\mathrm{isub}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-   #. If :math:`{\mathit{binop}} = \mathsf{mul}`, then:
-
-      1) Return :math:`{{\mathrm{imul}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-   #. If :math:`{\mathit{binop}}` is some :math:`{\mathsf{div}}{{\mathit{sx}}}`, then:
-
-      1) Let :math:`({\mathsf{div}}{{\mathit{sx}}})` be the destructuring of :math:`{\mathit{binop}}`.
-
-      #) Return :math:`{{{{\mathrm{idiv}}}_{{|{\mathit{valtype}}|}}^{{\mathit{sx}}}}}{({\mathit{iN}}_1, {\mathit{iN}}_2)}`.
-
-   #. If :math:`{\mathit{binop}}` is some :math:`{\mathsf{rem}}{{\mathit{sx}}}`, then:
-
-      1) Let :math:`({\mathsf{rem}}{{\mathit{sx}}})` be the destructuring of :math:`{\mathit{binop}}`.
-
-      #) Return :math:`{{{{\mathrm{irem}}}_{{|{\mathit{valtype}}|}}^{{\mathit{sx}}}}}{({\mathit{iN}}_1, {\mathit{iN}}_2)}`.
-
-   #. If :math:`{\mathit{binop}} = \mathsf{and}`, then:
-
-      1) Return :math:`{{\mathrm{iand}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-   #. If :math:`{\mathit{binop}} = \mathsf{or}`, then:
-
-      1) Return :math:`{{\mathrm{ior}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-   #. If :math:`{\mathit{binop}} = \mathsf{xor}`, then:
-
-      1) Return :math:`{{\mathrm{ixor}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-   #. If :math:`{\mathit{binop}} = \mathsf{shl}`, then:
-
-      1) Return :math:`{{\mathrm{ishl}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-   #. If :math:`{\mathit{binop}}` is some :math:`{\mathsf{shr}}{{\mathit{sx}}}`, then:
-
-      1) Let :math:`({\mathsf{shr}}{{\mathit{sx}}})` be the destructuring of :math:`{\mathit{binop}}`.
-
-      #) Return :math:`{{{{\mathrm{ishr}}}_{{|{\mathit{valtype}}|}}^{{\mathit{sx}}}}}{({\mathit{iN}}_1, {\mathit{iN}}_2)}`.
-
-   #. If :math:`{\mathit{binop}} = \mathsf{rotl}`, then:
-
-      1) Return :math:`{{\mathrm{irotl}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-   #. If :math:`{\mathit{binop}} = \mathsf{rotr}`, then:
-
-      1) Return :math:`{{\mathrm{irotr}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-#. Assert: Due to validation, :math:`{\mathit{valtype}}` is :math:`{\mathsf{f}}{n}`.
-
-#. If :math:`{\mathit{binop}} = \mathsf{add}`, then:
-
-   a. Return :math:`{{\mathrm{fadd}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-#. If :math:`{\mathit{binop}} = \mathsf{sub}`, then:
-
-   a. Return :math:`{{\mathrm{fsub}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-#. If :math:`{\mathit{binop}} = \mathsf{mul}`, then:
-
-   a. Return :math:`{{\mathrm{fmul}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-#. If :math:`{\mathit{binop}} = \mathsf{div}`, then:
-
-   a. Return :math:`{{\mathrm{fdiv}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-#. If :math:`{\mathit{binop}} = \mathsf{min}`, then:
-
-   a. Return :math:`{{\mathrm{fmin}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-#. If :math:`{\mathit{binop}} = \mathsf{max}`, then:
-
-   a. Return :math:`{{\mathrm{fmax}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-#. Assert: Due to validation, :math:`{\mathit{binop}} = \mathsf{copysign}`.
-
-#. Return :math:`{{\mathrm{fcopysign}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-
-:math:`{{\mathrm{ieqz}}}_{N}(i_1)`
-..................................
-
-
-1. Return :math:`\mathbb{B}(i_1 = 0)`.
-
-
-:math:`{\mathsf{eqz}}{{}_{{\mathsf{i}}{n}}}{({\mathit{iN}})}`
-.............................................................
-
-
-1. Return :math:`{{\mathrm{ieqz}}}_{{|{\mathsf{i}}{n}|}}({\mathit{iN}})`.
-
-
-:math:`{{\mathrm{ieq}}}_{N}(i_1, i_2)`
-......................................
-
-
-1. Return :math:`\mathbb{B}(i_1 = i_2)`.
-
-
-:math:`{{{{\mathrm{ige}}}_{N}^{{\mathit{sx}}}}}{(i_1, i_2)}`
-............................................................
-
-
-1. If :math:`{\mathit{sx}} = \mathsf{u}`, then:
-
-   a. Return :math:`\mathbb{B}(i_1 \geq i_2)`.
-
-#. Assert: Due to validation, :math:`{\mathit{sx}} = \mathsf{s}`.
-
-#. Return :math:`\mathbb{B}({{\mathrm{signed}}}_{N}(i_1) \geq {{\mathrm{signed}}}_{N}(i_2))`.
-
-
-:math:`{{{{\mathrm{igt}}}_{N}^{{\mathit{sx}}}}}{(i_1, i_2)}`
-............................................................
-
-
-1. If :math:`{\mathit{sx}} = \mathsf{u}`, then:
-
-   a. Return :math:`\mathbb{B}(i_1 > i_2)`.
-
-#. Assert: Due to validation, :math:`{\mathit{sx}} = \mathsf{s}`.
-
-#. Return :math:`\mathbb{B}({{\mathrm{signed}}}_{N}(i_1) > {{\mathrm{signed}}}_{N}(i_2))`.
-
-
-:math:`{{{{\mathrm{ile}}}_{N}^{{\mathit{sx}}}}}{(i_1, i_2)}`
-............................................................
-
-
-1. If :math:`{\mathit{sx}} = \mathsf{u}`, then:
-
-   a. Return :math:`\mathbb{B}(i_1 \leq i_2)`.
-
-#. Assert: Due to validation, :math:`{\mathit{sx}} = \mathsf{s}`.
-
-#. Return :math:`\mathbb{B}({{\mathrm{signed}}}_{N}(i_1) \leq {{\mathrm{signed}}}_{N}(i_2))`.
-
-
-:math:`{{{{\mathrm{ilt}}}_{N}^{{\mathit{sx}}}}}{(i_1, i_2)}`
-............................................................
-
-
-1. If :math:`{\mathit{sx}} = \mathsf{u}`, then:
-
-   a. Return :math:`\mathbb{B}(i_1 < i_2)`.
-
-#. Assert: Due to validation, :math:`{\mathit{sx}} = \mathsf{s}`.
-
-#. Return :math:`\mathbb{B}({{\mathrm{signed}}}_{N}(i_1) < {{\mathrm{signed}}}_{N}(i_2))`.
-
-
-:math:`{{\mathrm{ine}}}_{N}(i_1, i_2)`
-......................................
-
-
-1. Return :math:`\mathbb{B}(i_1 \neq i_2)`.
-
-
-:math:`{{\mathit{relop}}}{{}_{{\mathit{valtype}}}}{({\mathit{iN}}_1, {\mathit{iN}}_2)}`
-.......................................................................................
-
-
-1. If :math:`{\mathit{valtype}}` is :math:`{\mathsf{i}}{n}`, then:
-
-   a. If :math:`{\mathit{relop}} = \mathsf{eq}`, then:
-
-      1) Return :math:`{{\mathrm{ieq}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-   #. If :math:`{\mathit{relop}} = \mathsf{ne}`, then:
-
-      1) Return :math:`{{\mathrm{ine}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-   #. If :math:`{\mathit{relop}}` is some :math:`{\mathsf{lt}}{{\mathit{sx}}}`, then:
-
-      1) Let :math:`({\mathsf{lt}}{{\mathit{sx}}})` be the destructuring of :math:`{\mathit{relop}}`.
-
-      #) Return :math:`{{{{\mathrm{ilt}}}_{{|{\mathit{valtype}}|}}^{{\mathit{sx}}}}}{({\mathit{iN}}_1, {\mathit{iN}}_2)}`.
-
-   #. If :math:`{\mathit{relop}}` is some :math:`{\mathsf{gt}}{{\mathit{sx}}}`, then:
-
-      1) Let :math:`({\mathsf{gt}}{{\mathit{sx}}})` be the destructuring of :math:`{\mathit{relop}}`.
-
-      #) Return :math:`{{{{\mathrm{igt}}}_{{|{\mathit{valtype}}|}}^{{\mathit{sx}}}}}{({\mathit{iN}}_1, {\mathit{iN}}_2)}`.
-
-   #. If :math:`{\mathit{relop}}` is some :math:`{\mathsf{le}}{{\mathit{sx}}}`, then:
-
-      1) Let :math:`({\mathsf{le}}{{\mathit{sx}}})` be the destructuring of :math:`{\mathit{relop}}`.
-
-      #) Return :math:`{{{{\mathrm{ile}}}_{{|{\mathit{valtype}}|}}^{{\mathit{sx}}}}}{({\mathit{iN}}_1, {\mathit{iN}}_2)}`.
-
-   #. If :math:`{\mathit{relop}}` is some :math:`{\mathsf{ge}}{{\mathit{sx}}}`, then:
-
-      1) Let :math:`({\mathsf{ge}}{{\mathit{sx}}})` be the destructuring of :math:`{\mathit{relop}}`.
-
-      #) Return :math:`{{{{\mathrm{ige}}}_{{|{\mathit{valtype}}|}}^{{\mathit{sx}}}}}{({\mathit{iN}}_1, {\mathit{iN}}_2)}`.
-
-#. Assert: Due to validation, :math:`{\mathit{valtype}}` is :math:`{\mathsf{f}}{n}`.
-
-#. If :math:`{\mathit{relop}} = \mathsf{eq}`, then:
-
-   a. Return :math:`{{\mathrm{feq}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-#. If :math:`{\mathit{relop}} = \mathsf{ne}`, then:
-
-   a. Return :math:`{{\mathrm{fne}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-#. If :math:`{\mathit{relop}} = \mathsf{lt}`, then:
-
-   a. Return :math:`{{\mathrm{flt}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-#. If :math:`{\mathit{relop}} = \mathsf{gt}`, then:
-
-   a. Return :math:`{{\mathrm{fgt}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-#. If :math:`{\mathit{relop}} = \mathsf{le}`, then:
-
-   a. Return :math:`{{\mathrm{fle}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-#. Assert: Due to validation, :math:`{\mathit{relop}} = \mathsf{ge}`.
-
-#. Return :math:`{{\mathrm{fge}}}_{{|{\mathit{valtype}}|}}({\mathit{iN}}_1, {\mathit{iN}}_2)`.
-
-
-:math:`{{\mathit{cvtop}}}{{}_{{\mathit{valtype}}, {\mathit{valtype}'}}}{({\mathit{iN}})}`
-.........................................................................................
-
-
-1. If :math:`{\mathit{cvtop}}` is some :math:`\mathsf{extend}~{\mathit{sx}}`, then:
-
-   a. Let :math:`(\mathsf{extend}~{\mathit{sx}})` be the destructuring of :math:`{\mathit{cvtop}}`.
-
-   #. If :math:`{\mathit{valtype}} = \mathsf{i{\scriptstyle 32}}` and :math:`{\mathit{valtype}'} = \mathsf{i{\scriptstyle 64}}`, then:
-
-      1) Return :math:`{{{{\mathrm{extend}}}_{32, 64}^{{\mathit{sx}}}}}{({\mathit{iN}})}`.
-
-#. If :math:`{\mathit{valtype}} = \mathsf{i{\scriptstyle 64}}` and :math:`{\mathit{valtype}'} = \mathsf{i{\scriptstyle 32}}` and :math:`{\mathit{cvtop}} = \mathsf{wrap}`, then:
-
-   a. Return :math:`{{\mathrm{wrap}}}_{64, 32}({\mathit{iN}})`.
-
-#. If :math:`{\mathit{valtype}}` is :math:`{\mathsf{f}}{n}` and :math:`{\mathit{valtype}'}` is :math:`{\mathsf{i}}{n}` and :math:`{\mathit{cvtop}}` is some :math:`\mathsf{trunc}~{\mathit{sx}}`, then:
-
-   a. Let :math:`(\mathsf{trunc}~{\mathit{sx}})` be the destructuring of :math:`{\mathit{cvtop}}`.
-
-   #. Return :math:`{{{{\mathrm{trunc}}}_{{|{\mathit{valtype}}|}, {|{\mathit{valtype}'}|}}^{{\mathit{sx}}}}}{({\mathit{iN}})}`.
-
-#. If :math:`{\mathit{valtype}} = \mathsf{f{\scriptstyle 32}}` and :math:`{\mathit{valtype}'} = \mathsf{f{\scriptstyle 64}}` and :math:`{\mathit{cvtop}} = \mathsf{promote}`, then:
-
-   a. Return :math:`{{\mathrm{promote}}}_{32, 64}({\mathit{iN}})`.
-
-#. If :math:`{\mathit{valtype}} = \mathsf{f{\scriptstyle 64}}` and :math:`{\mathit{valtype}'} = \mathsf{f{\scriptstyle 32}}` and :math:`{\mathit{cvtop}} = \mathsf{demote}`, then:
-
-   a. Return :math:`{{\mathrm{demote}}}_{64, 32}({\mathit{iN}})`.
-
-#. If :math:`{\mathit{valtype}}` is :math:`{\mathsf{i}}{n}` and :math:`{\mathit{valtype}'}` is :math:`{\mathsf{f}}{n}`, then:
-
-   a. If :math:`{\mathit{cvtop}}` is some :math:`\mathsf{convert}~{\mathit{sx}}`, then:
-
-      1) Let :math:`(\mathsf{convert}~{\mathit{sx}})` be the destructuring of :math:`{\mathit{cvtop}}`.
-
-      #) Return :math:`{{{{\mathrm{convert}}}_{{|{\mathit{valtype}}|}, {|{\mathit{valtype}'}|}}^{{\mathit{sx}}}}}{({\mathit{iN}})}`.
-
-   #. If :math:`{\mathit{cvtop}} = \mathsf{reinterpret}` and :math:`{|{\mathit{valtype}}|} = {|{\mathit{valtype}'}|}`, then:
-
-      1) Return :math:`{{\mathrm{reinterpret}}}_{{\mathit{valtype}}, {\mathit{valtype}'}}({\mathit{iN}})`.
-
-#. Assert: Due to validation, :math:`{\mathit{valtype}}` is :math:`{\mathsf{f}}{n}`.
-
-#. Assert: Due to validation, :math:`{\mathit{valtype}'}` is :math:`{\mathsf{i}}{n}`.
-
-#. Assert: Due to validation, :math:`{\mathit{cvtop}} = \mathsf{reinterpret}`.
-
-#. Assert: Due to validation, :math:`{|{\mathit{valtype}'}|} = {|{\mathit{valtype}}|}`.
-
-#. Return :math:`{{\mathrm{reinterpret}}}_{{\mathit{valtype}}, {\mathit{valtype}'}}({\mathit{iN}})`.
-
-
-:math:`{{\mathrm{inez}}}_{N}(i_1)`
-..................................
-
-
-1. Return :math:`\mathbb{B}(i_1 \neq 0)`.
-
-
-:math:`{{\mathrm{default}}}_{{\mathit{valtype}}}`
-.................................................
-
-
-1. If :math:`{\mathit{valtype}} = \mathsf{i{\scriptstyle 32}}`, then:
-
-   a. Return :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~0)`.
-
-#. If :math:`{\mathit{valtype}} = \mathsf{i{\scriptstyle 64}}`, then:
-
-   a. Return :math:`(\mathsf{i{\scriptstyle 64}}{.}\mathsf{const}~0)`.
-
-#. If :math:`{\mathit{valtype}} = \mathsf{f{\scriptstyle 32}}`, then:
-
-   a. Return :math:`(\mathsf{f{\scriptstyle 32}}{.}\mathsf{const}~{+0})`.
-
-#. Assert: Due to validation, :math:`{\mathit{valtype}} = \mathsf{f{\scriptstyle 64}}`.
-
-#. Return :math:`(\mathsf{f{\scriptstyle 64}}{.}\mathsf{const}~{+0})`.
-
-
-:math:`{\mathrm{funcs}}({{\mathit{externaddr}'}^\ast})`
-.......................................................
-
-
-1. If :math:`{{\mathit{externaddr}'}^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`{\mathit{externaddr}}_0~{{\mathit{xv}}^\ast}` be :math:`{{\mathit{externaddr}'}^\ast}`.
-
-#. If :math:`{\mathit{externaddr}}_0` is some :math:`\mathsf{func}~{\mathit{funcaddr}}`, then:
-
-   a. Let :math:`(\mathsf{func}~{\mathit{fa}})` be the destructuring of :math:`{\mathit{externaddr}}_0`.
-
-   #. Return :math:`{\mathit{fa}}~{\mathrm{funcs}}({{\mathit{xv}}^\ast})`.
-
-#. Let :math:`{\mathit{externaddr}}~{{\mathit{xv}}^\ast}` be :math:`{{\mathit{externaddr}'}^\ast}`.
-
-#. Return :math:`{\mathrm{funcs}}({{\mathit{xv}}^\ast})`.
-
-
-:math:`{\mathrm{globals}}({{\mathit{externaddr}'}^\ast})`
-.........................................................
-
-
-1. If :math:`{{\mathit{externaddr}'}^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`{\mathit{externaddr}}_0~{{\mathit{xv}}^\ast}` be :math:`{{\mathit{externaddr}'}^\ast}`.
-
-#. If :math:`{\mathit{externaddr}}_0` is some :math:`\mathsf{global}~{\mathit{globaladdr}}`, then:
-
-   a. Let :math:`(\mathsf{global}~{\mathit{ga}})` be the destructuring of :math:`{\mathit{externaddr}}_0`.
-
-   #. Return :math:`{\mathit{ga}}~{\mathrm{globals}}({{\mathit{xv}}^\ast})`.
-
-#. Let :math:`{\mathit{externaddr}}~{{\mathit{xv}}^\ast}` be :math:`{{\mathit{externaddr}'}^\ast}`.
-
-#. Return :math:`{\mathrm{globals}}({{\mathit{xv}}^\ast})`.
-
-
-:math:`{\mathrm{tables}}({{\mathit{externaddr}'}^\ast})`
-........................................................
-
-
-1. If :math:`{{\mathit{externaddr}'}^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`{\mathit{externaddr}}_0~{{\mathit{xv}}^\ast}` be :math:`{{\mathit{externaddr}'}^\ast}`.
-
-#. If :math:`{\mathit{externaddr}}_0` is some :math:`\mathsf{table}~{\mathit{tableaddr}}`, then:
-
-   a. Let :math:`(\mathsf{table}~{\mathit{ta}})` be the destructuring of :math:`{\mathit{externaddr}}_0`.
-
-   #. Return :math:`{\mathit{ta}}~{\mathrm{tables}}({{\mathit{xv}}^\ast})`.
-
-#. Let :math:`{\mathit{externaddr}}~{{\mathit{xv}}^\ast}` be :math:`{{\mathit{externaddr}'}^\ast}`.
-
-#. Return :math:`{\mathrm{tables}}({{\mathit{xv}}^\ast})`.
-
-
-:math:`{\mathrm{mems}}({{\mathit{externaddr}'}^\ast})`
-......................................................
-
-
-1. If :math:`{{\mathit{externaddr}'}^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`{\mathit{externaddr}}_0~{{\mathit{xv}}^\ast}` be :math:`{{\mathit{externaddr}'}^\ast}`.
-
-#. If :math:`{\mathit{externaddr}}_0` is some :math:`\mathsf{mem}~{\mathit{memaddr}}`, then:
-
-   a. Let :math:`(\mathsf{mem}~{\mathit{ma}})` be the destructuring of :math:`{\mathit{externaddr}}_0`.
-
-   #. Return :math:`{\mathit{ma}}~{\mathrm{mems}}({{\mathit{xv}}^\ast})`.
-
-#. Let :math:`{\mathit{externaddr}}~{{\mathit{xv}}^\ast}` be :math:`{{\mathit{externaddr}'}^\ast}`.
-
-#. Return :math:`{\mathrm{mems}}({{\mathit{xv}}^\ast})`.
-
-
-:math:`(s, f){.}\mathsf{store}`
-...............................
-
-
-1. Return.
-
-
-:math:`(s, f){.}\mathsf{frame}`
-...............................
-
-
-1. Return :math:`f`.
-
-
-:math:`(s, f){.}\mathsf{module}{.}\mathsf{funcs}`
-.................................................
-
-
-1. Return :math:`f{.}\mathsf{module}{.}\mathsf{funcs}`.
-
-
-:math:`(s, f){.}\mathsf{funcs}`
-...............................
-
-
-1. Return :math:`s{.}\mathsf{funcs}`.
-
-
-:math:`(s, f){.}\mathsf{globals}`
-.................................
-
-
-1. Return :math:`s{.}\mathsf{globals}`.
-
-
-:math:`(s, f){.}\mathsf{tables}`
-................................
-
-
-1. Return :math:`s{.}\mathsf{tables}`.
-
-
-:math:`(s, f){.}\mathsf{mems}`
-..............................
-
-
-1. Return :math:`s{.}\mathsf{mems}`.
-
-
-:math:`(s, f){.}\mathsf{module}`
-................................
-
-
-1. Return :math:`f{.}\mathsf{module}`.
-
-
-:math:`(s, f){.}\mathsf{types}{}[x]`
-....................................
-
-
-1. Return :math:`f{.}\mathsf{module}{.}\mathsf{types}{}[x]`.
-
-
-:math:`(s, f){.}\mathsf{funcs}{}[x]`
-....................................
-
-
-1. Return :math:`s{.}\mathsf{funcs}{}[f{.}\mathsf{module}{.}\mathsf{funcs}{}[x]]`.
-
-
-:math:`(s, f){.}\mathsf{globals}{}[x]`
-......................................
-
-
-1. Return :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]`.
-
-
-:math:`(s, f){.}\mathsf{tables}{}[x]`
-.....................................
-
-
-1. Return :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]`.
-
-
-:math:`(s, f){.}\mathsf{mems}{}[x]`
-...................................
-
-
-1. Return :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]`.
-
-
-:math:`(s, f){.}\mathsf{locals}{}[x]`
-.....................................
-
-
-1. Return :math:`f{.}\mathsf{locals}{}[x]`.
-
-
-:math:`(s, f){}[{.}\mathsf{locals}{}[x] = v]`
-.............................................
-
-
-1. Replace :math:`f{.}\mathsf{locals}{}[x]` with :math:`v`.
-
-
-:math:`(s, f){}[{.}\mathsf{globals}{}[x]{.}\mathsf{value} = v]`
-...............................................................
-
-
-1. Replace :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]{.}\mathsf{value}` with :math:`v`.
-
-
-:math:`(s, f){}[{.}\mathsf{tables}{}[x]{.}\mathsf{refs}{}[i] = a]`
-..................................................................
-
-
-1. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]{.}\mathsf{refs}{}[i]` with :math:`a`.
-
-
-:math:`(s, f){}[{.}\mathsf{tables}{}[x] = {\mathit{ti}}]`
-.........................................................
-
-
-1. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]` with :math:`{\mathit{ti}}`.
-
-
-:math:`(s, f){}[{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i : j] = {b^\ast}]`
-............................................................................
-
-
-1. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]{.}\mathsf{bytes}{}[i : j]` with :math:`{b^\ast}`.
-
-
-:math:`(s, f){}[{.}\mathsf{mems}{}[x] = {\mathit{mi}}]`
-.......................................................
-
-
-1. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]` with :math:`{\mathit{mi}}`.
-
-
-:math:`{\mathrm{growtable}}({\mathit{ti}}, n)`
-..............................................
-
-
-1. Let :math:`\{ \mathsf{type}~{}[ i .. {j^?} ],\;\allowbreak \mathsf{refs}~{a^\ast} \}` be the destructuring of :math:`{\mathit{ti}}`.
-
-#. Let :math:`{i'}` be :math:`{|{a^\ast}|} + n`.
-
-#. If :math:`{({i'} \leq j)^?}`, then:
-
-   a. Let :math:`{\mathit{ti}'}` be the table instance :math:`\{ \mathsf{type}~{}[ {i'} .. {j^?} ],\;\allowbreak \mathsf{refs}~{a^\ast}~{\epsilon^{n}} \}`.
-
-   #. Return :math:`{\mathit{ti}'}`.
-
-#. Fail.
-
-
-:math:`{\mathrm{growmemory}}({\mathit{mi}}, n)`
-...............................................
-
-
-1. Let :math:`\{ \mathsf{type}~{}[ i .. {j^?} ],\;\allowbreak \mathsf{bytes}~{b^\ast} \}` be the destructuring of :math:`{\mathit{mi}}`.
-
-#. Let :math:`{i'}` be :math:`{|{b^\ast}|} / (64 \, {\mathrm{Ki}}) + n`.
-
-#. If :math:`{({i'} \leq j)^?}`, then:
-
-   a. Let :math:`{\mathit{mi}'}` be the memory instance :math:`\{ \mathsf{type}~{}[ {i'} .. {j^?} ],\;\allowbreak \mathsf{bytes}~{b^\ast}~{\mathtt{0x00}^{n \cdot 64 \, {\mathrm{Ki}}}} \}`.
-
-   #. Return :math:`{\mathit{mi}'}`.
-
-#. Fail.
-
-
-:math:`{\mathrm{funcs}}({{\mathit{externaddr}''}^\ast})`
-........................................................
-
-
-1. If :math:`{{\mathit{externaddr}''}^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`{\mathit{externaddr}}_0~{{\mathit{externaddr}'}^\ast}` be :math:`{{\mathit{externaddr}''}^\ast}`.
-
-#. If :math:`{\mathit{externaddr}}_0` is some :math:`\mathsf{func}~{\mathit{funcaddr}}`, then:
-
-   a. Let :math:`(\mathsf{func}~{\mathit{fa}})` be the destructuring of :math:`{\mathit{externaddr}}_0`.
-
-   #. Return :math:`{\mathit{fa}}~{\mathrm{funcs}}({{\mathit{externaddr}'}^\ast})`.
-
-#. Let :math:`{\mathit{externaddr}}~{{\mathit{externaddr}'}^\ast}` be :math:`{{\mathit{externaddr}''}^\ast}`.
-
-#. Return :math:`{\mathrm{funcs}}({{\mathit{externaddr}'}^\ast})`.
-
-
-:math:`{\mathrm{globals}}({{\mathit{externaddr}''}^\ast})`
-..........................................................
-
-
-1. If :math:`{{\mathit{externaddr}''}^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`{\mathit{externaddr}}_0~{{\mathit{externaddr}'}^\ast}` be :math:`{{\mathit{externaddr}''}^\ast}`.
-
-#. If :math:`{\mathit{externaddr}}_0` is some :math:`\mathsf{global}~{\mathit{globaladdr}}`, then:
-
-   a. Let :math:`(\mathsf{global}~{\mathit{ga}})` be the destructuring of :math:`{\mathit{externaddr}}_0`.
-
-   #. Return :math:`{\mathit{ga}}~{\mathrm{globals}}({{\mathit{externaddr}'}^\ast})`.
-
-#. Let :math:`{\mathit{externaddr}}~{{\mathit{externaddr}'}^\ast}` be :math:`{{\mathit{externaddr}''}^\ast}`.
-
-#. Return :math:`{\mathrm{globals}}({{\mathit{externaddr}'}^\ast})`.
-
-
-:math:`{\mathrm{tables}}({{\mathit{externaddr}''}^\ast})`
-.........................................................
-
-
-1. If :math:`{{\mathit{externaddr}''}^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`{\mathit{externaddr}}_0~{{\mathit{externaddr}'}^\ast}` be :math:`{{\mathit{externaddr}''}^\ast}`.
-
-#. If :math:`{\mathit{externaddr}}_0` is some :math:`\mathsf{table}~{\mathit{tableaddr}}`, then:
-
-   a. Let :math:`(\mathsf{table}~{\mathit{ta}})` be the destructuring of :math:`{\mathit{externaddr}}_0`.
-
-   #. Return :math:`{\mathit{ta}}~{\mathrm{tables}}({{\mathit{externaddr}'}^\ast})`.
-
-#. Let :math:`{\mathit{externaddr}}~{{\mathit{externaddr}'}^\ast}` be :math:`{{\mathit{externaddr}''}^\ast}`.
-
-#. Return :math:`{\mathrm{tables}}({{\mathit{externaddr}'}^\ast})`.
-
-
-:math:`{\mathrm{mems}}({{\mathit{externaddr}''}^\ast})`
-.......................................................
-
-
-1. If :math:`{{\mathit{externaddr}''}^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`{\mathit{externaddr}}_0~{{\mathit{externaddr}'}^\ast}` be :math:`{{\mathit{externaddr}''}^\ast}`.
-
-#. If :math:`{\mathit{externaddr}}_0` is some :math:`\mathsf{mem}~{\mathit{memaddr}}`, then:
-
-   a. Let :math:`(\mathsf{mem}~{\mathit{ma}})` be the destructuring of :math:`{\mathit{externaddr}}_0`.
-
-   #. Return :math:`{\mathit{ma}}~{\mathrm{mems}}({{\mathit{externaddr}'}^\ast})`.
-
-#. Let :math:`{\mathit{externaddr}}~{{\mathit{externaddr}'}^\ast}` be :math:`{{\mathit{externaddr}''}^\ast}`.
-
-#. Return :math:`{\mathrm{mems}}({{\mathit{externaddr}'}^\ast})`.
-
-
-:math:`{\mathrm{allocfunc}}(s, {\mathit{moduleinst}}, {\mathit{func}})`
-.......................................................................
-
-
-1. Let :math:`(\mathsf{func}~x~{{\mathit{local}}^\ast}~{\mathit{expr}})` be the destructuring of :math:`{\mathit{func}}`.
-
-#. Let :math:`{\mathit{fi}}` be the function instance :math:`\{ \mathsf{type}~{\mathit{moduleinst}}{.}\mathsf{types}{}[x],\;\allowbreak \mathsf{module}~{\mathit{moduleinst}},\;\allowbreak \mathsf{code}~{\mathit{func}} \}`.
-
-#. Let :math:`a` be the length of :math:`s{.}\mathsf{funcs}`.
-
-#. Append :math:`{\mathit{fi}}` to :math:`s{.}\mathsf{funcs}`.
-
-#. Return :math:`a`.
-
-
-:math:`{\mathrm{allocfuncs}}(s, {\mathit{moduleinst}}, {{\mathit{func}''}^\ast})`
-.................................................................................
-
-
-1. If :math:`{{\mathit{func}''}^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`{\mathit{func}}~{{\mathit{func}'}^\ast}` be :math:`{{\mathit{func}''}^\ast}`.
-
-#. Let :math:`{\mathit{fa}}` be :math:`{\mathrm{allocfunc}}(s, {\mathit{moduleinst}}, {\mathit{func}})`.
-
-#. Let :math:`{{\mathit{fa}'}^\ast}` be :math:`{\mathrm{allocfuncs}}(s, {\mathit{moduleinst}}, {{\mathit{func}'}^\ast})`.
-
-#. Return :math:`{\mathit{fa}}~{{\mathit{fa}'}^\ast}`.
-
-
-:math:`{\mathrm{allocglobal}}(s, {\mathit{globaltype}}, {\mathit{val}})`
-........................................................................
-
-
-1. Let :math:`{\mathit{gi}}` be the global instance :math:`\{ \mathsf{type}~{\mathit{globaltype}},\;\allowbreak \mathsf{value}~{\mathit{val}} \}`.
-
-#. Let :math:`a` be the length of :math:`s{.}\mathsf{globals}`.
-
-#. Append :math:`{\mathit{gi}}` to :math:`s{.}\mathsf{globals}`.
-
-#. Return :math:`a`.
-
-
-:math:`{\mathrm{allocglobals}}(s, {{\mathit{globaltype}''}^\ast}, {{\mathit{val}''}^\ast})`
-...........................................................................................
-
-
-1. If :math:`{{\mathit{globaltype}''}^\ast} = \epsilon`, then:
-
-   a. Assert: :math:`{{\mathit{val}''}^\ast} = \epsilon`.
-
-   #. Return :math:`\epsilon`.
-
-#. Else:
-
-   a. Let :math:`{\mathit{globaltype}}~{{\mathit{globaltype}'}^\ast}` be :math:`{{\mathit{globaltype}''}^\ast}`.
-
-   #. Assert: :math:`{|{{\mathit{val}''}^\ast}|} \geq 1`.
-
-   #. Let :math:`{\mathit{val}}~{{\mathit{val}'}^\ast}` be :math:`{{\mathit{val}''}^\ast}`.
-
-   #. Let :math:`{\mathit{ga}}` be :math:`{\mathrm{allocglobal}}(s, {\mathit{globaltype}}, {\mathit{val}})`.
-
-   #. Let :math:`{{\mathit{ga}'}^\ast}` be :math:`{\mathrm{allocglobals}}(s, {{\mathit{globaltype}'}^\ast}, {{\mathit{val}'}^\ast})`.
-
-   #. Return :math:`{\mathit{ga}}~{{\mathit{ga}'}^\ast}`.
-
-
-:math:`{\mathrm{alloctable}}(s, {}[ i .. {j^?} ])`
-..................................................
-
-
-1. Let :math:`{\mathit{ti}}` be the table instance :math:`\{ \mathsf{type}~{}[ i .. {j^?} ],\;\allowbreak \mathsf{refs}~{\epsilon^{i}} \}`.
-
-#. Let :math:`a` be the length of :math:`s{.}\mathsf{tables}`.
-
-#. Append :math:`{\mathit{ti}}` to :math:`s{.}\mathsf{tables}`.
-
-#. Return :math:`a`.
-
-
-:math:`{\mathrm{alloctables}}(s, {{\mathit{tabletype}''}^\ast})`
-................................................................
-
-
-1. If :math:`{{\mathit{tabletype}''}^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`{\mathit{tabletype}}~{{\mathit{tabletype}'}^\ast}` be :math:`{{\mathit{tabletype}''}^\ast}`.
-
-#. Let :math:`{\mathit{ta}}` be :math:`{\mathrm{alloctable}}(s, {\mathit{tabletype}})`.
-
-#. Let :math:`{{\mathit{ta}'}^\ast}` be :math:`{\mathrm{alloctables}}(s, {{\mathit{tabletype}'}^\ast})`.
-
-#. Return :math:`{\mathit{ta}}~{{\mathit{ta}'}^\ast}`.
-
-
-:math:`{\mathrm{allocmem}}(s, {}[ i .. {j^?} ])`
-................................................
-
-
-1. Let :math:`{\mathit{mi}}` be the memory instance :math:`\{ \mathsf{type}~{}[ i .. {j^?} ],\;\allowbreak \mathsf{bytes}~{\mathtt{0x00}^{i \cdot 64 \, {\mathrm{Ki}}}} \}`.
-
-#. Let :math:`a` be the length of :math:`s{.}\mathsf{mems}`.
-
-#. Append :math:`{\mathit{mi}}` to :math:`s{.}\mathsf{mems}`.
-
-#. Return :math:`a`.
-
-
-:math:`{\mathrm{allocmems}}(s, {{\mathit{memtype}''}^\ast})`
-............................................................
-
-
-1. If :math:`{{\mathit{memtype}''}^\ast} = \epsilon`, then:
-
-   a. Return :math:`\epsilon`.
-
-#. Let :math:`{\mathit{memtype}}~{{\mathit{memtype}'}^\ast}` be :math:`{{\mathit{memtype}''}^\ast}`.
-
-#. Let :math:`{\mathit{ma}}` be :math:`{\mathrm{allocmem}}(s, {\mathit{memtype}})`.
-
-#. Let :math:`{{\mathit{ma}'}^\ast}` be :math:`{\mathrm{allocmems}}(s, {{\mathit{memtype}'}^\ast})`.
-
-#. Return :math:`{\mathit{ma}}~{{\mathit{ma}'}^\ast}`.
-
-
-:math:`{\mathrm{instexport}}({{\mathit{fa}}^\ast}, {{\mathit{ga}}^\ast}, {{\mathit{ta}}^\ast}, {{\mathit{ma}}^\ast}, \mathsf{export}~{\mathit{name}}~{\mathit{externidx}})`
-...........................................................................................................................................................................
-
-
-1. If :math:`{\mathit{externidx}}` is some :math:`\mathsf{func}~{\mathit{funcidx}}`, then:
-
-   a. Let :math:`(\mathsf{func}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
-
-   #. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{func}~{{\mathit{fa}}^\ast}{}[x]) \}`.
-
-#. If :math:`{\mathit{externidx}}` is some :math:`\mathsf{global}~{\mathit{globalidx}}`, then:
-
-   a. Let :math:`(\mathsf{global}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
-
-   #. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{global}~{{\mathit{ga}}^\ast}{}[x]) \}`.
-
-#. If :math:`{\mathit{externidx}}` is some :math:`\mathsf{table}~{\mathit{tableidx}}`, then:
-
-   a. Let :math:`(\mathsf{table}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
-
-   #. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{table}~{{\mathit{ta}}^\ast}{}[x]) \}`.
-
-#. Assert: :math:`{\mathit{externidx}}` is some :math:`\mathsf{mem}~{\mathit{memidx}}`.
-
-#. Let :math:`(\mathsf{mem}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
-
-#. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{mem}~{{\mathit{ma}}^\ast}{}[x]) \}`.
-
-
-:math:`{\mathrm{allocmodule}}(s, {\mathit{module}}, {{\mathit{externaddr}}^\ast}, {{\mathit{val}}^\ast})`
-.........................................................................................................
-
-
-1. Let :math:`(\mathsf{module}~{{\mathit{type}}_0^\ast}~{{\mathit{import}}^\ast}~{{\mathit{func}}^{n_{\mathit{func}}}}~{{\mathit{global}}_1^\ast}~{{\mathit{table}}_2^\ast}~{{\mathit{mem}}_3^\ast}~{{\mathit{elem}}^\ast}~{{\mathit{data}}^\ast}~{{\mathit{start}}^?}~{{\mathit{export}}^\ast})` be the destructuring of :math:`{\mathit{module}}`.
-
-#. Let :math:`{(\mathsf{memory}~{\mathit{memtype}})^{n_{\mathit{mem}}}}` be :math:`{{\mathit{mem}}_3^\ast}`.
-
-#. Let :math:`{(\mathsf{table}~{\mathit{tabletype}})^{n_{\mathit{table}}}}` be :math:`{{\mathit{table}}_2^\ast}`.
-
-#. Let :math:`{(\mathsf{global}~{\mathit{globaltype}}~{\mathit{expr}}_1)^{n_{\mathit{global}}}}` be :math:`{{\mathit{global}}_1^\ast}`.
-
-#. Let :math:`{{\mathit{ft}}^\ast}` be the function type sequence :math:`\epsilon`.
-
-#. For each :math:`{\mathit{type}}_0` in :math:`{{\mathit{type}}_0^\ast}`, do:
-
-   a. Let :math:`(\mathsf{type}~{\mathit{ft}})` be the destructuring of :math:`{\mathit{type}}_0`.
-
-   #. Append :math:`{\mathit{ft}}` to :math:`{{\mathit{ft}}^\ast}`.
-
-#. Let :math:`{{\mathit{fa}}_{\mathit{ex}}^\ast}` be :math:`{\mathrm{funcs}}({{\mathit{externaddr}}^\ast})`.
-
-#. Let :math:`{{\mathit{ga}}_{\mathit{ex}}^\ast}` be :math:`{\mathrm{globals}}({{\mathit{externaddr}}^\ast})`.
-
-#. Let :math:`{{\mathit{ma}}_{\mathit{ex}}^\ast}` be :math:`{\mathrm{mems}}({{\mathit{externaddr}}^\ast})`.
-
-#. Let :math:`{{\mathit{ta}}_{\mathit{ex}}^\ast}` be :math:`{\mathrm{tables}}({{\mathit{externaddr}}^\ast})`.
-
-#. Let :math:`{{\mathit{fa}}^\ast}` be :math:`{|s{.}\mathsf{funcs}|} + i_{\mathit{func}}` for all :math:`i_{\mathit{func}}` from :math:`0` to :math:`n_{\mathit{func}} - 1`.
-
-#. Let :math:`{{\mathit{ga}}^\ast}` be :math:`{|s{.}\mathsf{globals}|} + i_{\mathit{global}}` for all :math:`i_{\mathit{global}}` from :math:`0` to :math:`n_{\mathit{global}} - 1`.
-
-#. Let :math:`{{\mathit{ta}}^\ast}` be :math:`{|s{.}\mathsf{tables}|} + i_{\mathit{table}}` for all :math:`i_{\mathit{table}}` from :math:`0` to :math:`n_{\mathit{table}} - 1`.
-
-#. Let :math:`{{\mathit{ma}}^\ast}` be :math:`{|s{.}\mathsf{mems}|} + i_{\mathit{mem}}` for all :math:`i_{\mathit{mem}}` from :math:`0` to :math:`n_{\mathit{mem}} - 1`.
-
-#. Let :math:`{{\mathit{xi}}^\ast}` be the export instance sequence :math:`\epsilon`.
-
-#. For each :math:`{\mathit{export}}` in :math:`{{\mathit{export}}^\ast}`, do:
-
-   a. Let :math:`{\mathit{xi}}` be the export instance :math:`{\mathrm{instexport}}({{\mathit{fa}}_{\mathit{ex}}^\ast}~{{\mathit{fa}}^\ast}, {{\mathit{ga}}_{\mathit{ex}}^\ast}~{{\mathit{ga}}^\ast}, {{\mathit{ta}}_{\mathit{ex}}^\ast}~{{\mathit{ta}}^\ast}, {{\mathit{ma}}_{\mathit{ex}}^\ast}~{{\mathit{ma}}^\ast}, {\mathit{export}})`.
-
-   #. Append :math:`{\mathit{xi}}` to :math:`{{\mathit{xi}}^\ast}`.
-
-#. Let :math:`{\mathit{moduleinst}}` be the module instance :math:`\{ \mathsf{types}~{{\mathit{ft}}^\ast},\;\allowbreak \mathsf{funcs}~{{\mathit{fa}}_{\mathit{ex}}^\ast}~{{\mathit{fa}}^\ast},\;\allowbreak \mathsf{globals}~{{\mathit{ga}}_{\mathit{ex}}^\ast}~{{\mathit{ga}}^\ast},\;\allowbreak \mathsf{tables}~{{\mathit{ta}}_{\mathit{ex}}^\ast}~{{\mathit{ta}}^\ast},\;\allowbreak \mathsf{mems}~{{\mathit{ma}}_{\mathit{ex}}^\ast}~{{\mathit{ma}}^\ast},\;\allowbreak \mathsf{exports}~{{\mathit{xi}}^\ast} \}`.
-
-#. Let :math:`{{\mathit{funcaddr}}_0^\ast}` be :math:`{\mathrm{allocfuncs}}(s, {\mathit{moduleinst}}, {{\mathit{func}}^{n_{\mathit{func}}}})`.
-
-#. Assert: Due to validation, :math:`{{\mathit{funcaddr}}_0^\ast} = {{\mathit{fa}}^\ast}`.
-
-#. Let :math:`{{\mathit{globaladdr}}_0^\ast}` be :math:`{\mathrm{allocglobals}}(s, {{\mathit{globaltype}}^{n_{\mathit{global}}}}, {{\mathit{val}}^\ast})`.
-
-#. Assert: Due to validation, :math:`{{\mathit{globaladdr}}_0^\ast} = {{\mathit{ga}}^\ast}`.
-
-#. Let :math:`{{\mathit{tableaddr}}_0^\ast}` be :math:`{\mathrm{alloctables}}(s, {{\mathit{tabletype}}^{n_{\mathit{table}}}})`.
-
-#. Assert: Due to validation, :math:`{{\mathit{tableaddr}}_0^\ast} = {{\mathit{ta}}^\ast}`.
-
-#. Let :math:`{{\mathit{memaddr}}_0^\ast}` be :math:`{\mathrm{allocmems}}(s, {{\mathit{memtype}}^{n_{\mathit{mem}}}})`.
-
-#. Assert: Due to validation, :math:`{{\mathit{memaddr}}_0^\ast} = {{\mathit{ma}}^\ast}`.
-
-#. Return :math:`{\mathit{moduleinst}}`.
-
-
-:math:`{\mathrm{initelem}}(s, {\mathit{moduleinst}}, {{\mathit{u{\kern-0.1em\scriptstyle 32}}}^\ast}, {{\mathit{funcaddr}}^\ast})`
-..................................................................................................................................
-
-
-1. If :math:`{{\mathit{funcaddr}}^\ast} = \epsilon`, then:
-
-   a. Assert: :math:`{{\mathit{u{\kern-0.1em\scriptstyle 32}}}^\ast} = \epsilon`.
-
-   #. Return.
-
-#. Else:
-
-   a. Let :math:`{a^\ast}~{{{a'}^\ast}^\ast}` be :math:`{{\mathit{funcaddr}}^\ast}`.
-
-   #. Assert: :math:`{|{{\mathit{u{\kern-0.1em\scriptstyle 32}}}^\ast}|} \geq 1`.
-
-   #. Let :math:`i~{{i'}^\ast}` be :math:`{{\mathit{u{\kern-0.1em\scriptstyle 32}}}^\ast}`.
-
-   #. Replace :math:`s{.}\mathsf{tables}{}[{\mathit{moduleinst}}{.}\mathsf{tables}{}[0]]{.}\mathsf{refs}{}[i : {|{a^\ast}|}]` with :math:`{a^\ast}`.
-
-   #. Perform :math:`{\mathrm{initelem}}(s, {\mathit{moduleinst}}, {{i'}^\ast}, {{{a'}^\ast}^\ast})`.
-
-   #. Return.
-
-
-:math:`{\mathrm{initdata}}(s, {\mathit{moduleinst}}, {{\mathit{u{\kern-0.1em\scriptstyle 32}}}^\ast}, {{\mathit{byte}}^\ast})`
-..............................................................................................................................
-
-
-1. If :math:`{{\mathit{byte}}^\ast} = \epsilon`, then:
-
-   a. Assert: :math:`{{\mathit{u{\kern-0.1em\scriptstyle 32}}}^\ast} = \epsilon`.
-
-   #. Return.
-
-#. Else:
-
-   a. Let :math:`{b^\ast}~{{{b'}^\ast}^\ast}` be :math:`{{\mathit{byte}}^\ast}`.
-
-   #. Assert: :math:`{|{{\mathit{u{\kern-0.1em\scriptstyle 32}}}^\ast}|} \geq 1`.
-
-   #. Let :math:`i~{{i'}^\ast}` be :math:`{{\mathit{u{\kern-0.1em\scriptstyle 32}}}^\ast}`.
-
-   #. Replace :math:`s{.}\mathsf{mems}{}[{\mathit{moduleinst}}{.}\mathsf{mems}{}[0]]{.}\mathsf{bytes}{}[i : {|{b^\ast}|}]` with :math:`{b^\ast}`.
-
-   #. Perform :math:`{\mathrm{initdata}}(s, {\mathit{moduleinst}}, {{i'}^\ast}, {{{b'}^\ast}^\ast})`.
-
-   #. Return.
-
-
-:math:`{\mathrm{instantiate}}(s, {\mathit{module}}, {{\mathit{externaddr}}^\ast})`
-..................................................................................
-
-
-1. Let :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\ast}~{{\mathit{func}}^\ast}~{{\mathit{global}}^\ast}~{{\mathit{table}}^\ast}~{{\mathit{mem}}^\ast}~{{\mathit{elem}}^\ast}~{{\mathit{data}}^\ast}~{{\mathit{start}}^?}~{{\mathit{export}}^\ast})` be the destructuring of :math:`{\mathit{module}}`.
-
-#. Let :math:`{{\mathit{functype}}^\ast}` be the function type sequence :math:`\epsilon`.
-
-#. For each :math:`{\mathit{type}}` in :math:`{{\mathit{type}}^\ast}`, do:
-
-   a. Let :math:`(\mathsf{type}~{\mathit{functype}})` be the destructuring of :math:`{\mathit{type}}`.
-
-   #. Append :math:`{\mathit{functype}}` to :math:`{{\mathit{functype}}^\ast}`.
-
-#. Let :math:`n_{\mathsf{f}}` be the length of :math:`{{\mathit{func}}^\ast}`.
-
-#. Let :math:`{{b^\ast}^\ast}` be the byte sequence sequence :math:`\epsilon`.
-
-#. Let :math:`{{\mathit{expr}}_{\mathsf{d}}^\ast}` be the expression sequence :math:`\epsilon`.
-
-#. For each :math:`{\mathit{data}}` in :math:`{{\mathit{data}}^\ast}`, do:
-
-   a. Let :math:`(\mathsf{data}~{\mathit{expr}}_{\mathsf{d}}~{b^\ast})` be the destructuring of :math:`{\mathit{data}}`.
-
-   #. Append :math:`{b^\ast}` to :math:`{{b^\ast}^\ast}`.
-
-   #. Append :math:`{\mathit{expr}}_{\mathsf{d}}` to :math:`{{\mathit{expr}}_{\mathsf{d}}^\ast}`.
-
-#. Let :math:`{{\mathit{expr}}_{\mathsf{e}}^\ast}` be the expression sequence :math:`\epsilon`.
-
-#. Let :math:`{{x^\ast}^\ast}` be the function index sequence sequence :math:`\epsilon`.
-
-#. For each :math:`{\mathit{elem}}` in :math:`{{\mathit{elem}}^\ast}`, do:
-
-   a. Let :math:`(\mathsf{elem}~{\mathit{expr}}_{\mathsf{e}}~{x^\ast})` be the destructuring of :math:`{\mathit{elem}}`.
-
-   #. Append :math:`{\mathit{expr}}_{\mathsf{e}}` to :math:`{{\mathit{expr}}_{\mathsf{e}}^\ast}`.
-
-   #. Append :math:`{x^\ast}` to :math:`{{x^\ast}^\ast}`.
-
-#. Let :math:`{{\mathit{expr}}_{\mathsf{g}}^\ast}` be the expression sequence :math:`\epsilon`.
-
-#. For each :math:`{\mathit{global}}` in :math:`{{\mathit{global}}^\ast}`, do:
-
-   a. Let :math:`(\mathsf{global}~{\mathit{globaltype}}~{\mathit{expr}}_{\mathsf{g}})` be the destructuring of :math:`{\mathit{global}}`.
-
-   #. Append :math:`{\mathit{expr}}_{\mathsf{g}}` to :math:`{{\mathit{expr}}_{\mathsf{g}}^\ast}`.
-
-#. Let :math:`{\mathit{moduleinst}}_{\mathit{init}}` be the module instance :math:`\{ \mathsf{types}~{{\mathit{functype}}^\ast},\;\allowbreak \mathsf{funcs}~{\mathrm{funcs}}({{\mathit{externaddr}}^\ast})~{({|s{.}\mathsf{funcs}|} + i_{\mathsf{f}})^{i_{\mathsf{f}}<n_{\mathsf{f}}}},\;\allowbreak \mathsf{globals}~{\mathrm{globals}}({{\mathit{externaddr}}^\ast}) \}`.
-
-#. Let :math:`f_{\mathit{init}}` be the frame :math:`\{ \mathsf{module}~{\mathit{moduleinst}}_{\mathit{init}} \}`.
-
-#. Let :math:`z` be the state :math:`(s, f_{\mathit{init}})`.
-
-#. Let :math:`F` be the :math:`\mathsf{frame}` :math:`z{.}\mathsf{frame}`.
-
-#. Push the :math:`\mathsf{frame}` :math:`F`.
-
-#. Let :math:`{i_{\mathsf{d}}^\ast}` be :math:`\epsilon`.
-
-#. For each :math:`{\mathit{expr}}_{\mathsf{d}}` in :math:`{{\mathit{expr}}_{\mathsf{d}}^\ast}`, do:
-
-   a. Let :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i_{\mathsf{d}})` be the result of :ref:`evaluating <exec-expr>` :math:`{\mathit{expr}}_{\mathsf{d}}` with state :math:`z`.
-
-   #. Append :math:`i_{\mathsf{d}}` to :math:`{i_{\mathsf{d}}^\ast}`.
-
-#. Let :math:`{i_{\mathsf{e}}^\ast}` be :math:`\epsilon`.
-
-#. For each :math:`{\mathit{expr}}_{\mathsf{e}}` in :math:`{{\mathit{expr}}_{\mathsf{e}}^\ast}`, do:
-
-   a. Let :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i_{\mathsf{e}})` be the result of :ref:`evaluating <exec-expr>` :math:`{\mathit{expr}}_{\mathsf{e}}` with state :math:`z`.
-
-   #. Append :math:`i_{\mathsf{e}}` to :math:`{i_{\mathsf{e}}^\ast}`.
-
-#. Let :math:`{{\mathit{val}}^\ast}` be the value sequence :math:`\epsilon`.
-
-#. For each :math:`{\mathit{expr}}_{\mathsf{g}}` in :math:`{{\mathit{expr}}_{\mathsf{g}}^\ast}`, do:
-
-   a. Let :math:`{\mathit{val}}` be the result of :ref:`evaluating <exec-expr>` :math:`{\mathit{expr}}_{\mathsf{g}}` with state :math:`z`.
-
-   #. Append :math:`{\mathit{val}}` to :math:`{{\mathit{val}}^\ast}`.
-
-#. Pop the :math:`\mathsf{frame}` from the stack.
-
-#. Let :math:`{\mathit{moduleinst}}` be :math:`{\mathrm{allocmodule}}(s, {\mathit{module}}, {{\mathit{externaddr}}^\ast}, {{\mathit{val}}^\ast})`.
-
-#. Let :math:`f` be the frame :math:`\{ \mathsf{module}~{\mathit{moduleinst}} \}`.
-
-#. Perform :math:`{\mathrm{initelem}}(s, {\mathit{moduleinst}}, {i_{\mathsf{e}}^\ast}, {{{\mathit{moduleinst}}{.}\mathsf{funcs}{}[x]^\ast}^\ast})`.
-
-#. Perform :math:`{\mathrm{initdata}}(s, {\mathit{moduleinst}}, {i_{\mathsf{d}}^\ast}, {{b^\ast}^\ast})`.
-
-#. Let :math:`{f'}` be the :math:`\mathsf{frame}` :math:`f`.
-
-#. Push the :math:`\mathsf{frame}` :math:`{f'}`.
-
-#. If :math:`{{\mathit{start}}^?}` is defined, then:
-
-   a. Let :math:`(\mathsf{start}~{x'})` be :math:`{{\mathit{start}}^?}`.
-
-   #. Let :math:`{\mathit{instr}}_0` be the administrative instruction :math:`(\mathsf{call}~{x'})`.
-
-   #. Execute the instruction :math:`{\mathit{instr}}_0`.
-
-#. Pop the :math:`\mathsf{frame}` from the stack.
-
-#. Return :math:`f{.}\mathsf{module}`.
-
-
-:math:`{\mathrm{invoke}}(s, {\mathit{fa}}, {{\mathit{val}}^{n}})`
-.................................................................
-
-
-1. Let :math:`f` be the frame :math:`\{ \mathsf{module}~\{  \} \}`.
-
-#. Let :math:`F` be the :math:`\mathsf{frame}` :math:`(s, f)`.
-
-#. Push the :math:`\mathsf{frame}` :math:`F`.
-
-#. Let :math:`{t_1^{n}}~\rightarrow~{t_2^\ast}` be the destructuring of :math:`(s, f){.}\mathsf{funcs}{}[{\mathit{fa}}]{.}\mathsf{type}`.
-
-#. Pop the :math:`\mathsf{frame}` from the stack.
-
-#. Let :math:`k` be the length of :math:`{t_2^\ast}`.
-
-#. Let :math:`{f'}` be the :math:`\mathsf{frame}` :math:`f` whose arity is :math:`k`.
-
-#. Push the :math:`\mathsf{frame}` :math:`{f'}`.
-
-#. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
-
-#. Execute the instruction :math:`(\mathsf{call}~{\mathit{fa}})`.
-
-#. Pop the values :math:`{{\mathit{val}'}^{k}}` from the stack.
-
-#. Pop the :math:`\mathsf{frame}` from the stack.
-
-#. Return :math:`{{\mathit{val}'}^{k}}`.
-
-
-:math:`\mathsf{eval\_expr}~{{\mathit{instr}}^\ast}`
-...................................................
-
-
-1. Execute the sequence :math:`{{\mathit{instr}}^\ast}`.
-
-#. Pop the value :math:`{\mathit{val}}` from the stack.
-
-#. Return :math:`{\mathit{val}}`.
-
-
-== Complete.
-spectec 0.5 generator
-== Parsing...
-== Elaboration...
-== IL Validation...
-== Running pass sideconditions...
-== IL Validation after pass sideconditions...
-== Translating to AL...
-== Prose Generation...
-Limits_ok
-- the limits ([ n .. m? ]) is valid with k if:
-  - n is less than or equal to k.
-  - If m is defined, then:
-    - n is less than or equal to m.
-    - m is less than or equal to k.
-
-Functype_ok
-- the function type t_1* -> t_2? is always valid.
-
-Globaltype_ok
-- the global type (MUT? t) is always valid.
-
-Tabletype_ok
-- the table type limits is valid if:
-  - limits is valid with ((2 ^ 32) - 1).
-
-Memtype_ok
-- the memory type limits is valid if:
-  - limits is valid with (2 ^ 16).
-
-Externtype_ok
-- the external type externtype is valid if:
-  - Either:
-    - externtype is (FUNC functype).
-    - the function type functype is valid.
-  - Or:
-    - externtype is (GLOBAL globaltype).
-    - the global type globaltype is valid.
-  - Or:
-    - externtype is (TABLE tabletype).
-    - the table type tabletype is valid.
-  - Or:
-    - externtype is (MEM memtype).
-    - the memory type memtype is valid.
-
-Externtype_ok/func
-- the external type (FUNC functype) is valid if:
-  - the function type functype is valid.
-
-Externtype_ok/global
-- the external type (GLOBAL globaltype) is valid if:
-  - the global type globaltype is valid.
-
-Externtype_ok/table
-- the external type (TABLE tabletype) is valid if:
-  - the table type tabletype is valid.
-
-Externtype_ok/mem
-- the external type (MEM memtype) is valid if:
-  - the memory type memtype is valid.
-
-Limits_sub
-- the limits ([ n_11 .. ?(n_12) ]) matches the limits ([ n_21 .. ?(n_22) ]) if:
-  - n_11 is greater than or equal to n_21.
-  - n_12 is less than or equal to n_22.
-
-Functype_sub
-- the function type ft matches only itself.
-
-Globaltype_sub
-- the global type gt matches only itself.
-
-Tabletype_sub
-- the table type lim_1 matches the table type lim_2 if:
-  - lim_1 matches lim_2.
-
-Memtype_sub
-- the memory type lim_1 matches the memory type lim_2 if:
-  - lim_1 matches lim_2.
-
-Externtype_sub
-- the external type externtype_1 matches the external type externtype_2 if:
-  - Either:
-    - externtype_1 is (FUNC ft_1).
-    - externtype_2 is (FUNC ft_2).
-    - the function type ft_1 matches the function type ft_2.
-  - Or:
-    - externtype_1 is (GLOBAL gt_1).
-    - externtype_2 is (GLOBAL gt_2).
-    - the global type gt_1 matches the global type gt_2.
-  - Or:
-    - externtype_1 is (TABLE tt_1).
-    - externtype_2 is (TABLE tt_2).
-    - the table type tt_1 matches the table type tt_2.
-  - Or:
-    - externtype_1 is (MEM mt_1).
-    - externtype_2 is (MEM mt_2).
-    - the memory type mt_1 matches the memory type mt_2.
-
-Externtype_sub/func
-- the external type (FUNC ft_1) matches the external type (FUNC ft_2) if:
-  - the function type ft_1 matches the function type ft_2.
-
-Externtype_sub/global
-- the external type (GLOBAL gt_1) matches the external type (GLOBAL gt_2) if:
-  - the global type gt_1 matches the global type gt_2.
-
-Externtype_sub/table
-- the external type (TABLE tt_1) matches the external type (TABLE tt_2) if:
-  - the table type tt_1 matches the table type tt_2.
-
-Externtype_sub/mem
-- the external type (MEM mt_1) matches the external type (MEM mt_2) if:
-  - the memory type mt_1 matches the memory type mt_2.
-
-Instr_ok/nop
-- the instruction NOP is valid with the function type [] -> [].
-
-Instr_ok/unreachable
-- the instruction UNREACHABLE is valid with the function type t_1* -> t_2*.
-
-Instr_ok/drop
-- the instruction DROP is valid with the function type [t] -> [].
-
-Instr_ok/select
-- the instruction SELECT is valid with the function type [t, t, I32] -> [t].
-
-Instr_ok/block
-- the instruction (BLOCK t? instr*) is valid with the function type [] -> t? if:
-  - the context C' is the context C with .LABELS prepended by [t?].
-  - Under the context C', the instruction sequence instr* is valid with [] -> t?.
-
-Instr_ok/loop
-- the instruction (LOOP t? instr*) is valid with the function type [] -> t? if:
-  - the instruction sequence instr* is valid with the function type [] -> [].
-
-Instr_ok/if
-- the instruction (IF t? instr_1* ELSE instr_2*) is valid with the function type [I32] -> t? if:
-  - the context C' is the context C with .LABELS prepended by [t?].
-  - Under the context C', the instruction sequence instr_1* is valid with the function type [] -> t?.
-  - Under the context C', the instruction sequence instr_2* is valid with [] -> t?.
-
-Instr_ok/br
-- the instruction (BR l) is valid with the function type t_1* :: t? -> t_2* if:
-  - the result type C.LABELS[l] exists.
-  - C.LABELS[l] is t?.
-
-Instr_ok/br_if
-- the instruction (BR_IF l) is valid with the function type t? :: [I32] -> t? if:
-  - the result type C.LABELS[l] exists.
-  - C.LABELS[l] is t?.
-
-Instr_ok/br_table
-- the instruction (BR_TABLE l* l') is valid with the function type t_1* :: t? :: [I32] -> t_2* if:
-  - the result type C.LABELS[l'] exists.
-  - the result type t? is C.LABELS[l'].
-  - For all l in l*:
-    - the result type C.LABELS[l] exists.
-    - t? is C.LABELS[l].
-
-Instr_ok/call
-- the instruction (CALL x) is valid with the function type t_1* -> t_2? if:
-  - the function type C.FUNCS[x] exists.
-  - C.FUNCS[x] is t_1* -> t_2?.
-
-Instr_ok/call_indirect
-- the instruction (CALL_INDIRECT x) is valid with the function type t_1* :: [I32] -> t_2? if:
-  - the function type C.TYPES[x] exists.
-  - C.TYPES[x] is t_1* -> t_2?.
-
-Instr_ok/return
-- the instruction RETURN is valid with the function type t_1* :: t? -> t_2* if:
-  - the result type C.RETURN is ?(t?).
-
-Instr_ok/const
-- the instruction (t.CONST c_t) is valid with the function type [] -> [t].
-
-Instr_ok/unop
-- the instruction (UNOP t unop_t) is valid with the function type [t] -> [t].
-
-Instr_ok/binop
-- the instruction (BINOP t binop_t) is valid with the function type [t, t] -> [t].
-
-Instr_ok/testop
-- the instruction (TESTOP t testop_t) is valid with the function type [t] -> [I32].
-
-Instr_ok/relop
-- the instruction (RELOP t relop_t) is valid with the function type [t, t] -> [I32].
-
-Instr_ok/cvtop
-- the instruction (CVTOP nt_1 nt_2 cvtop) is valid with the function type [nt_2] -> [nt_1] if:
-  - Either:
-    - cvtop is REINTERPRET.
-    - $size(nt_1) is $size(nt_2).
-  - Or:
-
-
-Instr_ok/local.get
-- the instruction (LOCAL.GET x) is valid with the function type [] -> [t] if:
-  - the number type C.LOCALS[x] exists.
-  - C.LOCALS[x] is t.
-
-Instr_ok/local.set
-- the instruction (LOCAL.SET x) is valid with the function type [t] -> [] if:
-  - the number type C.LOCALS[x] exists.
-  - C.LOCALS[x] is t.
-
-Instr_ok/local.tee
-- the instruction (LOCAL.TEE x) is valid with the function type [t] -> [t] if:
-  - the number type C.LOCALS[x] exists.
-  - C.LOCALS[x] is t.
-
-Instr_ok/global.get
-- the instruction (GLOBAL.GET x) is valid with the function type [] -> [t] if:
-  - the global type C.GLOBALS[x] exists.
-  - C.GLOBALS[x] is (mut t).
-
-Instr_ok/global.set
-- the instruction (GLOBAL.SET x) is valid with the function type [t] -> [] if:
-  - the global type C.GLOBALS[x] exists.
-  - C.GLOBALS[x] is (?(MUT) t).
-
-Instr_ok/memory.size
-- the instruction MEMORY.SIZE is valid with the function type [] -> [I32].
-
-Instr_ok/memory.grow
-- the instruction MEMORY.GROW is valid with the function type [I32] -> [I32].
-
-Instr_ok/load
-- the instruction (LOAD t loadop_? memarg) is valid with the function type [I32] -> [t'] if:
-  - Either:
-    - loadop_? is ?().
-    - the number type t' is t.
-    - (2 ^ memarg.ALIGN) is less than or equal to ($size(t) / 8).
-  - Or:
-    - the number type t is Inn.
-    - loadop_? is ?(M _ sx).
-    - t' is Inn.
-    - (2 ^ memarg.ALIGN) is less than or equal to (M / 8).
-
-Instr_ok/store
-- the instruction (STORE t sz? memarg) is valid with the function type [I32, t'] -> [] if:
-  - Either:
-    - the pack size sz? is ?().
-    - the number type t' is t.
-    - (2 ^ memarg.ALIGN) is less than or equal to ($size(t) / 8).
-  - Or:
-    - the number type t is Inn.
-    - sz? is ?(M).
-    - t' is Inn.
-    - (2 ^ memarg.ALIGN) is less than or equal to (M / 8).
-
-Instr_ok/cvtop-reinterpret
-- the instruction (CVTOP nt_1 nt_2 REINTERPRET) is valid with the function type [nt_2] -> [nt_1] if:
-  - $size(nt_1) is $size(nt_2).
-
-Instr_ok/cvtop-convert
-- the instruction (CVTOP nt_1 nt_2 cvtop) is valid with [nt_2] -> [nt_1].
-
-Instr_ok/load-val
-- the instruction (LOAD t ?() memarg) is valid with the function type [I32] -> [t] if:
-  - (2 ^ memarg.ALIGN) is less than or equal to ($size(t) / 8).
-
-Instr_ok/load-pack
-- the instruction (LOAD Inn ?(M _ sx) memarg) is valid with the function type [I32] -> [Inn] if:
-  - (2 ^ memarg.ALIGN) is less than or equal to (M / 8).
-
-Instr_ok/store-val
-- the instruction (STORE t ?() memarg) is valid with the function type [I32, t] -> [] if:
-  - (2 ^ memarg.ALIGN) is less than or equal to ($size(t) / 8).
-
-Instr_ok/store-pack
-- the instruction (STORE Inn ?(M) memarg) is valid with the function type [I32, Inn] -> [] if:
-  - (2 ^ memarg.ALIGN) is less than or equal to (M / 8).
-
-Instrs_ok
-- the instruction sequence instr* is valid with the function type valtype* -> valtype'* if:
-  - Either:
-    - instr* is [].
-    - the number type sequence valtype* is [].
-    - the number type sequence valtype'* is [].
-  - Or:
-    - instr* is [instr_1] :: instr_2*.
-    - the instruction instr_1 is valid with the function type valtype* -> t_2*.
-    - the instruction sequence instr_2* is valid with the function type t_2* -> valtype'*.
-  - Or:
-    - valtype* is t* :: t_1*.
-    - valtype'* is t* :: t_2*.
-    - instr* is valid with the function type t_1* -> t_2*.
-
-Instrs_ok/empty
-- the instruction sequence [] is valid with the function type [] -> [].
-
-Instrs_ok/seq
-- the instruction sequence [instr_1] :: instr_2* is valid with the function type t_1* -> t_3* if:
-  - the instruction instr_1 is valid with the function type t_1* -> t_2*.
-  - the instruction sequence instr_2* is valid with the function type t_2* -> t_3*.
-
-Instrs_ok/frame
-- the instruction sequence instr* is valid with the function type t* :: t_1* -> t* :: t_2* if:
-  - instr* is valid with the function type t_1* -> t_2*.
-
-Expr_ok
-- the expression instr* is valid with the result type t? if:
-  - instr* is valid with the function type [] -> t?.
-
-Instr_const
-- the instruction instr is constant if:
-  - Either:
-    - instr is (t.CONST c).
-  - Or:
-    - instr is (GLOBAL.GET x).
-    - the global type C.GLOBALS[x] exists.
-    - C.GLOBALS[x] is (?() t).
-
-Instr_const/const
-- the instruction (t.CONST c) is constant.
-
-Instr_const/global.get
-- the instruction (GLOBAL.GET x) is constant if:
-  - the global type C.GLOBALS[x] exists.
-  - C.GLOBALS[x] is (?() t).
-
-Expr_const
-- the expression instr* is constant if:
-  - For all instr in instr*:
-    - the instruction instr is constant.
-
-Type_ok
-- the type (TYPE ft) is valid with the function type ft if:
-  - ft is valid.
-
-Func_ok
-- the function (FUNC x (LOCAL t)* expr) is valid with the function type t_1* -> t_2? if:
-  - the function type C.TYPES[x] exists.
-  - C.TYPES[x] is t_1* -> t_2?.
-  - Under the context C with .LOCALS appended by t_1* :: t* and .LABELS appended by [t_2?] and .RETURN appended by ?(t_2?), the expression expr is valid with the result type t_2?.
-
-Global_ok
-- the global (GLOBAL gt expr) is valid with the global type gt if:
-  - gt is valid.
-  - gt is (mut t).
-  - the expression expr is valid with the number type ?(t).
-  - expr is constant.
-
-Table_ok
-- the table (TABLE tt) is valid with the table type tt if:
-  - tt is valid.
-
-Mem_ok
-- the memory (MEMORY mt) is valid with the memory type mt if:
-  - mt is valid.
-
-Elem_ok
-- the table segment (ELEM expr x*) is valid if:
-  - the expression expr is valid with the number type ?(I32).
-  - expr is constant.
-  - For all x in x*:
-    - the function type C.FUNCS[x] exists.
-
-Data_ok
-- the memory segment (DATA expr b*) is valid if:
-  - the expression expr is valid with the number type ?(I32).
-  - expr is constant.
-
-Start_ok
-- the start function (START x) is valid if:
-  - the function type C.FUNCS[x] exists.
-  - C.FUNCS[x] is [] -> [].
-
-Import_ok
-- the import (IMPORT name_1 name_2 xt) is valid with the external type xt if:
-  - xt is valid.
-
-Externidx_ok
-- the external index externidx is valid with the external type externtype if:
-  - Either:
-    - externidx is (FUNC x).
-    - externtype is (FUNC ft).
-    - the function type C.FUNCS[x] exists.
-    - C.FUNCS[x] is ft.
-  - Or:
-    - externidx is (GLOBAL x).
-    - externtype is (GLOBAL gt).
-    - the global type C.GLOBALS[x] exists.
-    - C.GLOBALS[x] is gt.
-  - Or:
-    - externidx is (TABLE x).
-    - externtype is (TABLE tt).
-    - the table type C.TABLES[x] exists.
-    - C.TABLES[x] is tt.
-  - Or:
-    - externidx is (MEM x).
-    - externtype is (MEM mt).
-    - the memory type C.MEMS[x] exists.
-    - C.MEMS[x] is mt.
-
-Externidx_ok/func
-- the external index (FUNC x) is valid with the external type (FUNC ft) if:
-  - the function type C.FUNCS[x] exists.
-  - C.FUNCS[x] is ft.
-
-Externidx_ok/global
-- the external index (GLOBAL x) is valid with the external type (GLOBAL gt) if:
-  - the global type C.GLOBALS[x] exists.
-  - C.GLOBALS[x] is gt.
-
-Externidx_ok/table
-- the external index (TABLE x) is valid with the external type (TABLE tt) if:
-  - the table type C.TABLES[x] exists.
-  - C.TABLES[x] is tt.
-
-Externidx_ok/mem
-- the external index (MEM x) is valid with the external type (MEM mt) if:
-  - the memory type C.MEMS[x] exists.
-  - C.MEMS[x] is mt.
-
-Export_ok
-- the export (EXPORT name externidx) is valid with the external type xt if:
-  - the external index externidx is valid with xt.
-
-Module_ok
-- the module (MODULE type* import* func* global* table* mem* elem* data* start? export*) is valid if:
-  - For all type in type*:
-    - the type type is valid with the function type ft'.
-  - ft'* is the concatenation of all such ft'.
-  - For all import in import*:
-    - Under the context { TYPES: ft'*; RETURN: ?() }, the import import is valid with the external type ixt.
-  - ixt* is the concatenation of all such ixt.
-  - For all global in global*:
-    - Under the context C', the global global is valid with the global type gt.
-  - gt* is the concatenation of all such gt.
-  - For all func in func*:
-    - the function func is valid with the function type ft.
-  - ft* is the concatenation of all such ft.
-  - For all table in table*:
-    - the table table is valid with the table type tt.
-  - tt* is the concatenation of all such tt.
-  - For all mem in mem*:
-    - the memory mem is valid with the memory type mt.
-  - mt* is the concatenation of all such mt.
-  - For all elem in elem*:
-    - the table segment elem is valid.
-  - For all data in data*:
-    - the memory segment data is valid.
-  - If start is defined, then:
-    - the start function start is valid.
-  - For all export in export*:
-    - the export export is valid with the external type xt.
-  - |tt*| is less than or equal to 1.
-  - |mt*| is less than or equal to 1.
-  - the context C' is { TYPES: ft'*; FUNCS: ift* :: ft*; GLOBALS: igt*; RETURN: ?() }.
-  - the function type sequence ift* is $funcsxt(ixt*).
-  - the global type sequence igt* is $globalsxt(ixt*).
-  - the table type sequence itt* is $tablesxt(ixt*).
-  - the memory type sequence imt* is $memsxt(ixt*).
-
-Step_read/load-num-* t ?() ao
-1. Let z be the current state.
-2. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-3. Pop the value (I32.CONST i) from the stack.
-4. If (((i + ao.OFFSET) + ($size(t) / 8)) > |$mem(z, 0).BYTES|), then:
-  a. Trap.
-5. Let c be $bytes__1^-1(t, $mem(z, 0).BYTES[(i + ao.OFFSET) : ($size(t) / 8)]).
-6. Push the value (t.CONST c) to the stack.
-
-Step_read/load-pack-* Inn ?(n _ sx) ao
-1. Let z be the current state.
-2. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-3. Pop the value (I32.CONST i) from the stack.
-4. If (((i + ao.OFFSET) + (n / 8)) > |$mem(z, 0).BYTES|), then:
-  a. Trap.
-5. Let c be $ibytes__1^-1(n, $mem(z, 0).BYTES[(i + ao.OFFSET) : (n / 8)]).
-6. Push the value (Inn.CONST $extend__(n, $size(Inn), sx, c)) to the stack.
-
-Step/store-num-* t ?() ao
-1. Let z be the current state.
-2. Assert: Due to validation, a value of value type t is on the top of the stack.
-3. Pop the value (valtype_0.CONST c) from the stack.
-4. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-5. Pop the value (I32.CONST i) from the stack.
-6. If (((i + ao.OFFSET) + ($size(t) / 8)) > |$mem(z, 0).BYTES|), then:
-  a. Trap.
-7. Let b* be $bytes_(t, c).
-8. Perform $with_mem(z, 0, (i + ao.OFFSET), ($size(t) / 8), b*).
-
-Step/store-pack-* Inn ?(n) ao
-1. Let z be the current state.
-2. Assert: Due to validation, a value of value type Inn is on the top of the stack.
-3. Pop the value (valtype_0.CONST c) from the stack.
-4. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-5. Pop the value (I32.CONST i) from the stack.
-6. If (((i + ao.OFFSET) + (n / 8)) > |$mem(z, 0).BYTES|), then:
-  a. Trap.
-7. Let b* be $ibytes_(n, $wrap__($size(Inn), n, c)).
-8. Perform $with_mem(z, 0, (i + ao.OFFSET), (n / 8), b*).
-
-Step_pure/unreachable
-1. Trap.
-
-Step_pure/nop
-1. Do nothing.
-
-Step_pure/drop
-1. Assert: Due to validation, a value is on the top of the stack.
-2. Pop the value val from the stack.
-
-Step_pure/select
-1. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-2. Pop the value (I32.CONST c) from the stack.
-3. Assert: Due to validation, a value is on the top of the stack.
-4. Pop the value val_2 from the stack.
-5. Assert: Due to validation, a value is on the top of the stack.
-6. Pop the value val_1 from the stack.
-7. If (c =/= 0), then:
-  a. Push the value val_1 to the stack.
-8. Else:
-  a. Push the value val_2 to the stack.
-
-Step_pure/if t? instr_1* instr_2*
-1. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-2. Pop the value (I32.CONST c) from the stack.
-3. If (c =/= 0), then:
-  a. Execute the instruction (BLOCK t? instr_1*).
-4. Else:
-  a. Execute the instruction (BLOCK t? instr_2*).
-
-Step_pure/label
-1. Pop all values val* from the top of the stack.
-2. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
-3. Pop the label (LABEL_ _ { _ }) from the stack.
-4. Push the values val* to the stack.
-
-Step_pure/br n'
-1. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
-2. Let (LABEL_ n { instr'* }) be the topmost LABEL_.
-3. If (n' = 0), then:
-  a. Assert: Due to validation, there are at least n values on the top of the stack.
-  b. Pop the values val^n from the stack.
-  c. Pop all values val'* from the top of the stack.
-  d. Pop the label (LABEL_ _ { _ }) from the stack.
-  e. Push the values val^n to the stack.
-  f. Execute the sequence instr'*.
-4. Else:
-  a. Pop all values val* from the top of the stack.
-  b. Let l be (n' - 1).
-  c. Pop the label (LABEL_ _ { _ }) from the stack.
-  d. Push the values val* to the stack.
-  e. Execute the instruction (BR l).
-
-Step_pure/br_if l
-1. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-2. Pop the value (I32.CONST c) from the stack.
-3. If (c =/= 0), then:
-  a. Execute the instruction (BR l).
-4. Else:
-  a. Do nothing.
-
-Step_pure/br_table l* l'
-1. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-2. Pop the value (I32.CONST i) from the stack.
-3. If (i < |l*|), then:
-  a. Execute the instruction (BR l*[i]).
-4. Else:
-  a. Execute the instruction (BR l').
-
-Step_pure/frame
-1. Let (FRAME_ n { f }) be the topmost FRAME_.
-2. Assert: Due to validation, there are at least n values on the top of the stack.
-3. Assert: Due to validation, there are at least n values on the top of the stack.
-4. Pop the values val^n from the stack.
-5. Assert: Due to validation, the first non-value entry of the stack is a FRAME_.
-6. Pop the frame (FRAME_ _ { _ }) from the stack.
-7. Push the values val^n to the stack.
-
-Step_pure/return
-1. If the first non-value entry of the stack is a FRAME_, then:
-  a. Let (FRAME_ n { f }) be the topmost FRAME_.
-  b. Assert: Due to validation, there are at least n values on the top of the stack.
-  c. Pop the values val^n from the stack.
-  d. Pop all values val'* from the top of the stack.
-  e. Pop the frame (FRAME_ _ { _ }) from the stack.
-  f. Push the values val^n to the stack.
-2. Else:
-  a. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
-  b. Pop all values val* from the top of the stack.
-  c. Pop the label (LABEL_ _ { _ }) from the stack.
-  d. Push the values val* to the stack.
-  e. Execute the instruction RETURN.
-
-Step_pure/unop t unop
-1. Assert: Due to validation, a value of value type t is on the top of the stack.
-2. Pop the value (valtype_0.CONST c_1) from the stack.
-3. If (|$unop_(t, unop, c_1)| <= 0), then:
-  a. Trap.
-4. Let c be an element of $unop_(t, unop, c_1).
-5. Push the value (t.CONST c) to the stack.
-
-Step_pure/binop t binop
-1. Assert: Due to validation, a value of value type t is on the top of the stack.
-2. Pop the value (valtype_0.CONST c_2) from the stack.
-3. Assert: Due to validation, a value of value type num is on the top of the stack.
-4. Pop the value (valtype_0.CONST c_1) from the stack.
-5. If (|$binop_(t, binop, c_1, c_2)| <= 0), then:
-  a. Trap.
-6. Let c be an element of $binop_(t, binop, c_1, c_2).
-7. Push the value (t.CONST c) to the stack.
-
-Step_pure/testop t testop
-1. Assert: Due to validation, a value of value type t is on the top of the stack.
-2. Pop the value (valtype_0.CONST c_1) from the stack.
-3. Let c be $testop_(t, testop, c_1).
-4. Push the value (I32.CONST c) to the stack.
-
-Step_pure/relop t relop
-1. Assert: Due to validation, a value of value type t is on the top of the stack.
-2. Pop the value (valtype_0.CONST c_2) from the stack.
-3. Assert: Due to validation, a value of value type num is on the top of the stack.
-4. Pop the value (valtype_0.CONST c_1) from the stack.
-5. Let c be $relop_(t, relop, c_1, c_2).
-6. Push the value (I32.CONST c) to the stack.
-
-Step_pure/cvtop t_2 t_1 cvtop
-1. Assert: Due to validation, a value of value type t_1 is on the top of the stack.
-2. Pop the value (valtype_0.CONST c_1) from the stack.
-3. If (|$cvtop__(t_1, t_2, cvtop, c_1)| <= 0), then:
-  a. Trap.
-4. Let c be an element of $cvtop__(t_1, t_2, cvtop, c_1).
-5. Push the value (t_2.CONST c) to the stack.
-
-Step_pure/local.tee x
-1. Assert: Due to validation, a value is on the top of the stack.
-2. Pop the value val from the stack.
-3. Push the value val to the stack.
-4. Push the value val to the stack.
-5. Execute the instruction (LOCAL.SET x).
-
-Step_read/block t? instr*
-1. Let n be 0.
-2. If t? is not defined, then:
-  a. Enter instr* with label (LABEL_ n { [] }).
-3. Let n be 1.
-4. If (t? =/= ?()), then:
-  a. Enter instr* with label (LABEL_ n { [] }).
-
-Step_read/loop t? instr*
-1. Enter instr* with label (LABEL_ 0 { [(LOOP t? instr*)] }).
-
-Step_read/call x
-1. Let z be the current state.
-2. Assert: Due to validation, (x < |$funcaddr(z)|).
-3. Execute the instruction (CALL_ADDR $funcaddr(z)[x]).
-
-Step_read/call_indirect x
-1. Let z be the current state.
-2. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-3. Pop the value (I32.CONST i) from the stack.
-4. If (i >= |$table(z, 0).REFS|), then:
-  a. Trap.
-5. If $table(z, 0).REFS[i] is not defined, then:
-  a. Trap.
-6. Let ?(a) be $table(z, 0).REFS[i].
-7. If (a >= |$funcinst(z)|), then:
-  a. Trap.
-8. If ($type(z, x) =/= $funcinst(z)[a].TYPE), then:
-  a. Trap.
-9. Execute the instruction (CALL_ADDR a).
-
-Step_read/call_addr a
-1. Let z be the current state.
-2. Assert: Due to validation, (a < |$funcinst(z)|).
-3. Let { TYPE: t_1^k -> t_2^n; MODULE: mm; CODE: func } be $funcinst(z)[a].
-4. Let (FUNC x local_0* instr*) be func.
-5. Let t* be [].
-6. For each local_0 in local_0*, do:
-  a. Let (LOCAL t) be local_0.
-  b. Append t to the t*.
-7. Assert: Due to validation, there are at least k values on the top of the stack.
-8. Pop the values val^k from the stack.
-9. Let f be { LOCALS: val^k :: $default_(t)*; MODULE: mm }.
-10. Push the frame (FRAME_ n { f }) to the stack.
-11. Enter instr* with label (LABEL_ n { [] }).
-
-Step_read/local.get x
-1. Let z be the current state.
-2. Push the value $local(z, x) to the stack.
-
-Step_read/global.get x
-1. Let z be the current state.
-2. Push the value $global(z, x).VALUE to the stack.
-
-Step_read/load t loadop_? ao
-1. Let z be the current state.
-2. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-3. Pop the value (I32.CONST i) from the stack.
-4. If loadop_? is not defined, then:
-  a. If (((i + ao.OFFSET) + ($size(t) / 8)) > |$mem(z, 0).BYTES|), then:
-    1) Trap.
-  b. Let c be $bytes__1^-1(t, $mem(z, 0).BYTES[(i + ao.OFFSET) : ($size(t) / 8)]).
-  c. Push the value (t.CONST c) to the stack.
-5. Else:
-  a. Assert: Due to validation, t is Inn.
-  b. Let ?(loadop_0) be loadop_?.
-  c. Let n _ sx be loadop_0.
-  d. If (((i + ao.OFFSET) + (n / 8)) > |$mem(z, 0).BYTES|), then:
-    1) Trap.
-  e. Let c be $ibytes__1^-1(n, $mem(z, 0).BYTES[(i + ao.OFFSET) : (n / 8)]).
-  f. Push the value (t.CONST $extend__(n, $size(t), sx, c)) to the stack.
-
-Step_read/memory.size
-1. Let z be the current state.
-2. Let ((n * 64) * $Ki()) be |$mem(z, 0).BYTES|.
-3. Push the value (I32.CONST n) to the stack.
-
-Step/local.set x
-1. Let z be the current state.
-2. Assert: Due to validation, a value is on the top of the stack.
-3. Pop the value val from the stack.
-4. Perform $with_local(z, x, val).
-
-Step/global.set x
-1. Let z be the current state.
-2. Assert: Due to validation, a value is on the top of the stack.
-3. Pop the value val from the stack.
-4. Perform $with_global(z, x, val).
-
-Step/store t sz? ao
-1. Let z be the current state.
-2. Assert: Due to validation, a value of value type num is on the top of the stack.
-3. Pop the value (t'.CONST c) from the stack.
-4. Assert: Due to validation, a value is on the top of the stack.
-5. Pop the value (I32.CONST i) from the stack.
-6. Assert: Due to validation, (t = t').
-7. If sz? is not defined, then:
-  a. If (((i + ao.OFFSET) + ($size(t') / 8)) > |$mem(z, 0).BYTES|), then:
-    1) Trap.
-  b. Let b* be $bytes_(t', c).
-  c. Perform $with_mem(z, 0, (i + ao.OFFSET), ($size(t') / 8), b*).
-8. Else:
-  a. Assert: Due to validation, t' is Inn.
-  b. Let ?(n) be sz?.
-  c. If (((i + ao.OFFSET) + (n / 8)) > |$mem(z, 0).BYTES|), then:
-    1) Trap.
-  d. Let b* be $ibytes_(n, $wrap__($size(t'), n, c)).
-  e. Perform $with_mem(z, 0, (i + ao.OFFSET), (n / 8), b*).
-
-Step/memory.grow
-1. Let z be the current state.
-2. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-3. Pop the value (I32.CONST n) from the stack.
-4. Either:
-  a. Let mi be $growmemory($mem(z, 0), n).
-  b. Push the value (I32.CONST (|$mem(z, 0).BYTES| / (64 * $Ki()))) to the stack.
-  c. Perform $with_meminst(z, 0, mi).
-5. Or:
-  a. Push the value (I32.CONST $inv_signed_(32, (- 1))) to the stack.
-
-Ki
-1. Return 1024.
-
-min i j
-1. If (i <= j), then:
-  a. Return i.
-2. Return j.
-
-sum n''*
-1. If (n''* = []), then:
-  a. Return 0.
-2. Let [n] :: n'* be n''*.
-3. Return (n + $sum(n'*)).
-
-opt_ `X X*
-1. If (X* = []), then:
-  a. Return ?().
-2. Assert: Due to validation, (|X*| = 1).
-3. Let [w] be X*.
-4. Return ?(w).
-
-list_ `X X?
-1. If X? is not defined, then:
-  a. Return [].
-2. Let ?(w) be X?.
-3. Return [w].
-
-concat_ `X X*
-1. If (X* = []), then:
-  a. Return [].
-2. Let [w*] :: w'** be X*.
-3. Return w* :: $concat_(`X, w'**).
-
-signif N
-1. If (N = 32), then:
-  a. Return 23.
-2. Assert: Due to validation, (N = 64).
-3. Return 52.
-
-expon N
-1. If (N = 32), then:
-  a. Return 8.
-2. Assert: Due to validation, (N = 64).
-3. Return 11.
-
-M N
-1. Return $signif(N).
-
-E N
-1. Return $expon(N).
-
-fzero N
-1. Return (POS (SUBNORM 0)).
-
-fone N
-1. Return (POS (NORM 1 0)).
-
-canon_ N
-1. Return (2 ^ ($signif(N) - 1)).
-
-size valtype
-1. If (valtype = I32), then:
-  a. Return 32.
-2. If (valtype = I64), then:
-  a. Return 64.
-3. If (valtype = F32), then:
-  a. Return 32.
-4. Assert: Due to validation, (valtype = F64).
-5. Return 64.
-
-funcsxt externtype'*
-1. If (externtype'* = []), then:
-  a. Return [].
-2. Let [externtype_0] :: xt* be externtype'*.
-3. If externtype_0 is some FUNC, then:
-  a. Let (FUNC ft) be externtype_0.
-  b. Return [ft] :: $funcsxt(xt*).
-4. Let [externtype] :: xt* be externtype'*.
-5. Return $funcsxt(xt*).
-
-globalsxt externtype'*
-1. If (externtype'* = []), then:
-  a. Return [].
-2. Let [externtype_0] :: xt* be externtype'*.
-3. If externtype_0 is some GLOBAL, then:
-  a. Let (GLOBAL gt) be externtype_0.
-  b. Return [gt] :: $globalsxt(xt*).
-4. Let [externtype] :: xt* be externtype'*.
-5. Return $globalsxt(xt*).
-
-tablesxt externtype'*
-1. If (externtype'* = []), then:
-  a. Return [].
-2. Let [externtype_0] :: xt* be externtype'*.
-3. If externtype_0 is some TABLE, then:
-  a. Let (TABLE tt) be externtype_0.
-  b. Return [tt] :: $tablesxt(xt*).
-4. Let [externtype] :: xt* be externtype'*.
-5. Return $tablesxt(xt*).
-
-memsxt externtype'*
-1. If (externtype'* = []), then:
-  a. Return [].
-2. Let [externtype_0] :: xt* be externtype'*.
-3. If externtype_0 is some MEM, then:
-  a. Let (MEM mt) be externtype_0.
-  b. Return [mt] :: $memsxt(xt*).
-4. Let [externtype] :: xt* be externtype'*.
-5. Return $memsxt(xt*).
-
-memarg0
-1. Return { ALIGN: 0; OFFSET: 0 }.
-
-bool b
-1. If (b = false), then:
-  a. Return 0.
-2. Assert: Due to validation, (b = true).
-3. Return 1.
-
-signed_ N i
-1. If (i < (2 ^ (N - 1))), then:
-  a. Return i.
-2. Assert: Due to validation, ((2 ^ (N - 1)) <= i).
-3. Assert: Due to validation, (i < (2 ^ N)).
-4. Return (i - (2 ^ N)).
-
-inv_signed_ N i
-1. If ((0 <= i) /\ (i < (2 ^ (N - 1)))), then:
-  a. Return i.
-2. Assert: Due to validation, ((- (2 ^ (N - 1))) <= i).
-3. Assert: Due to validation, (i < 0).
-4. Return (i + (2 ^ N)).
-
-unop_ valtype unop_ iN
-1. If valtype is Inn, then:
-  a. If (unop_ = CLZ), then:
-    1) Return [$iclz_($size(valtype), iN)].
-  b. If (unop_ = CTZ), then:
-    1) Return [$ictz_($size(valtype), iN)].
-  c. If (unop_ = POPCNT), then:
-    1) Return [$ipopcnt_($size(valtype), iN)].
-2. Assert: Due to validation, valtype is Fnn.
-3. If (unop_ = ABS), then:
-  a. Return $fabs_($size(valtype), iN).
-4. If (unop_ = NEG), then:
-  a. Return $fneg_($size(valtype), iN).
-5. If (unop_ = SQRT), then:
-  a. Return $fsqrt_($size(valtype), iN).
-6. If (unop_ = CEIL), then:
-  a. Return $fceil_($size(valtype), iN).
-7. If (unop_ = FLOOR), then:
-  a. Return $ffloor_($size(valtype), iN).
-8. If (unop_ = TRUNC), then:
-  a. Return $ftrunc_($size(valtype), iN).
-9. Assert: Due to validation, (unop_ = NEAREST).
-10. Return $fnearest_($size(valtype), iN).
-
-iadd_ N i_1 i_2
-1. Return ((i_1 + i_2) \ (2 ^ N)).
-
-idiv_ N sx i_1 i_2
-1. If (sx = U), then:
-  a. If (i_2 = 0), then:
-    1) Return ?().
-  b. Return ?($truncz((i_1 / i_2))).
-2. Assert: Due to validation, (sx = S).
-3. If (i_2 = 0), then:
-  a. Return ?().
-4. If (($signed_(N, i_1) / $signed_(N, i_2)) = (2 ^ (N - 1))), then:
-  a. Return ?().
-5. Return ?($inv_signed_(N, $truncz(($signed_(N, i_1) / $signed_(N, i_2))))).
-
-imul_ N i_1 i_2
-1. Return ((i_1 * i_2) \ (2 ^ N)).
-
-irem_ N sx i_1 i_2
-1. If (sx = U), then:
-  a. If (i_2 = 0), then:
-    1) Return ?().
-  b. Return ?((i_1 - (i_2 * $truncz((i_1 / i_2))))).
-2. Assert: Due to validation, (sx = S).
-3. If (i_2 = 0), then:
-  a. Return ?().
-4. Let j_1 be $signed_(N, i_1).
-5. Let j_2 be $signed_(N, i_2).
-6. Return ?($inv_signed_(N, (j_1 - (j_2 * $truncz((j_1 / j_2)))))).
-
-isub_ N i_1 i_2
-1. Return ((((2 ^ N) + i_1) - i_2) \ (2 ^ N)).
-
-binop_ valtype binop_ iN_1 iN_2
-1. If valtype is Inn, then:
-  a. If (binop_ = ADD), then:
-    1) Return [$iadd_($size(valtype), iN_1, iN_2)].
-  b. If (binop_ = SUB), then:
-    1) Return [$isub_($size(valtype), iN_1, iN_2)].
-  c. If (binop_ = MUL), then:
-    1) Return [$imul_($size(valtype), iN_1, iN_2)].
-  d. If binop_ is some DIV, then:
-    1) Let (DIV sx) be binop_.
-    2) Return $list_(`val_((Inn : Inn <: valtype)), $idiv_($size(valtype), sx, iN_1, iN_2)).
-  e. If binop_ is some REM, then:
-    1) Let (REM sx) be binop_.
-    2) Return $list_(`val_((Inn : Inn <: valtype)), $irem_($size(valtype), sx, iN_1, iN_2)).
-  f. If (binop_ = AND), then:
-    1) Return [$iand_($size(valtype), iN_1, iN_2)].
-  g. If (binop_ = OR), then:
-    1) Return [$ior_($size(valtype), iN_1, iN_2)].
-  h. If (binop_ = XOR), then:
-    1) Return [$ixor_($size(valtype), iN_1, iN_2)].
-  i. If (binop_ = SHL), then:
-    1) Return [$ishl_($size(valtype), iN_1, iN_2)].
-  j. If binop_ is some SHR, then:
-    1) Let (SHR sx) be binop_.
-    2) Return [$ishr_($size(valtype), sx, iN_1, iN_2)].
-  k. If (binop_ = ROTL), then:
-    1) Return [$irotl_($size(valtype), iN_1, iN_2)].
-  l. If (binop_ = ROTR), then:
-    1) Return [$irotr_($size(valtype), iN_1, iN_2)].
-2. Assert: Due to validation, valtype is Fnn.
-3. If (binop_ = ADD), then:
-  a. Return $fadd_($size(valtype), iN_1, iN_2).
-4. If (binop_ = SUB), then:
-  a. Return $fsub_($size(valtype), iN_1, iN_2).
-5. If (binop_ = MUL), then:
-  a. Return $fmul_($size(valtype), iN_1, iN_2).
-6. If (binop_ = DIV), then:
-  a. Return $fdiv_($size(valtype), iN_1, iN_2).
-7. If (binop_ = MIN), then:
-  a. Return $fmin_($size(valtype), iN_1, iN_2).
-8. If (binop_ = MAX), then:
-  a. Return $fmax_($size(valtype), iN_1, iN_2).
-9. Assert: Due to validation, (binop_ = COPYSIGN).
-10. Return $fcopysign_($size(valtype), iN_1, iN_2).
-
-ieqz_ N i_1
-1. Return $bool((i_1 = 0)).
-
-testop_ Inn EQZ iN
-1. Return $ieqz_($size(Inn), iN).
-
-ieq_ N i_1 i_2
-1. Return $bool((i_1 = i_2)).
-
-ige_ N sx i_1 i_2
-1. If (sx = U), then:
-  a. Return $bool((i_1 >= i_2)).
-2. Assert: Due to validation, (sx = S).
-3. Return $bool(($signed_(N, i_1) >= $signed_(N, i_2))).
-
-igt_ N sx i_1 i_2
-1. If (sx = U), then:
-  a. Return $bool((i_1 > i_2)).
-2. Assert: Due to validation, (sx = S).
-3. Return $bool(($signed_(N, i_1) > $signed_(N, i_2))).
-
-ile_ N sx i_1 i_2
-1. If (sx = U), then:
-  a. Return $bool((i_1 <= i_2)).
-2. Assert: Due to validation, (sx = S).
-3. Return $bool(($signed_(N, i_1) <= $signed_(N, i_2))).
-
-ilt_ N sx i_1 i_2
-1. If (sx = U), then:
-  a. Return $bool((i_1 < i_2)).
-2. Assert: Due to validation, (sx = S).
-3. Return $bool(($signed_(N, i_1) < $signed_(N, i_2))).
-
-ine_ N i_1 i_2
-1. Return $bool((i_1 =/= i_2)).
-
-relop_ valtype relop_ iN_1 iN_2
-1. If valtype is Inn, then:
-  a. If (relop_ = EQ), then:
-    1) Return $ieq_($size(valtype), iN_1, iN_2).
-  b. If (relop_ = NE), then:
-    1) Return $ine_($size(valtype), iN_1, iN_2).
-  c. If relop_ is some LT, then:
-    1) Let (LT sx) be relop_.
-    2) Return $ilt_($size(valtype), sx, iN_1, iN_2).
-  d. If relop_ is some GT, then:
-    1) Let (GT sx) be relop_.
-    2) Return $igt_($size(valtype), sx, iN_1, iN_2).
-  e. If relop_ is some LE, then:
-    1) Let (LE sx) be relop_.
-    2) Return $ile_($size(valtype), sx, iN_1, iN_2).
-  f. If relop_ is some GE, then:
-    1) Let (GE sx) be relop_.
-    2) Return $ige_($size(valtype), sx, iN_1, iN_2).
-2. Assert: Due to validation, valtype is Fnn.
-3. If (relop_ = EQ), then:
-  a. Return $feq_($size(valtype), iN_1, iN_2).
-4. If (relop_ = NE), then:
-  a. Return $fne_($size(valtype), iN_1, iN_2).
-5. If (relop_ = LT), then:
-  a. Return $flt_($size(valtype), iN_1, iN_2).
-6. If (relop_ = GT), then:
-  a. Return $fgt_($size(valtype), iN_1, iN_2).
-7. If (relop_ = LE), then:
-  a. Return $fle_($size(valtype), iN_1, iN_2).
-8. Assert: Due to validation, (relop_ = GE).
-9. Return $fge_($size(valtype), iN_1, iN_2).
-
-cvtop__ valtype valtype' cvtop iN
-1. If cvtop is some EXTEND, then:
-  a. Let (EXTEND sx) be cvtop.
-  b. If ((valtype = I32) /\ (valtype' = I64)), then:
-    1) Return [$extend__(32, 64, sx, iN)].
-2. If ((valtype = I64) /\ ((valtype' = I32) /\ (cvtop = WRAP))), then:
-  a. Return [$wrap__(64, 32, iN)].
-3. If (valtype is Fnn /\ (valtype' is Inn /\ cvtop is some TRUNC)), then:
-  a. Let (TRUNC sx) be cvtop.
-  b. Return $list_(`val_((Inn : Inn <: valtype)), $trunc__($size(valtype), $size(valtype'), sx, iN)).
-4. If ((valtype = F32) /\ ((valtype' = F64) /\ (cvtop = PROMOTE))), then:
-  a. Return $promote__(32, 64, iN).
-5. If ((valtype = F64) /\ ((valtype' = F32) /\ (cvtop = DEMOTE))), then:
-  a. Return $demote__(64, 32, iN).
-6. If (valtype is Inn /\ valtype' is Fnn), then:
-  a. If cvtop is some CONVERT, then:
-    1) Let (CONVERT sx) be cvtop.
-    2) Return [$convert__($size(valtype), $size(valtype'), sx, iN)].
-  b. If ((cvtop = REINTERPRET) /\ ($size(valtype) = $size(valtype'))), then:
-    1) Return [$reinterpret__(valtype, valtype', iN)].
-7. Assert: Due to validation, valtype is Fnn.
-8. Assert: Due to validation, valtype' is Inn.
-9. Assert: Due to validation, (cvtop = REINTERPRET).
-10. Assert: Due to validation, ($size(valtype') = $size(valtype)).
-11. Return [$reinterpret__(valtype, valtype', iN)].
-
-inez_ N i_1
-1. Return $bool((i_1 =/= 0)).
-
-default_ valtype
-1. If (valtype = I32), then:
-  a. Return (I32.CONST 0).
-2. If (valtype = I64), then:
-  a. Return (I64.CONST 0).
-3. If (valtype = F32), then:
-  a. Return (F32.CONST $fzero(32)).
-4. Assert: Due to validation, (valtype = F64).
-5. Return (F64.CONST $fzero(64)).
-
-funcsxa externaddr'*
-1. If (externaddr'* = []), then:
-  a. Return [].
-2. Let [externaddr_0] :: xv* be externaddr'*.
-3. If externaddr_0 is some FUNC, then:
-  a. Let (FUNC fa) be externaddr_0.
-  b. Return [fa] :: $funcsxa(xv*).
-4. Let [externaddr] :: xv* be externaddr'*.
-5. Return $funcsxa(xv*).
-
-globalsxa externaddr'*
-1. If (externaddr'* = []), then:
-  a. Return [].
-2. Let [externaddr_0] :: xv* be externaddr'*.
-3. If externaddr_0 is some GLOBAL, then:
-  a. Let (GLOBAL ga) be externaddr_0.
-  b. Return [ga] :: $globalsxa(xv*).
-4. Let [externaddr] :: xv* be externaddr'*.
-5. Return $globalsxa(xv*).
-
-tablesxa externaddr'*
-1. If (externaddr'* = []), then:
-  a. Return [].
-2. Let [externaddr_0] :: xv* be externaddr'*.
-3. If externaddr_0 is some TABLE, then:
-  a. Let (TABLE ta) be externaddr_0.
-  b. Return [ta] :: $tablesxa(xv*).
-4. Let [externaddr] :: xv* be externaddr'*.
-5. Return $tablesxa(xv*).
-
-memsxa externaddr'*
-1. If (externaddr'* = []), then:
-  a. Return [].
-2. Let [externaddr_0] :: xv* be externaddr'*.
-3. If externaddr_0 is some MEM, then:
-  a. Let (MEM ma) be externaddr_0.
-  b. Return [ma] :: $memsxa(xv*).
-4. Let [externaddr] :: xv* be externaddr'*.
-5. Return $memsxa(xv*).
-
-store (s, f)
-1. Return.
-
-frame (s, f)
-1. Return f.
-
-funcaddr (s, f)
-1. Return f.MODULE.FUNCS.
-
-funcinst (s, f)
-1. Return s.FUNCS.
-
-globalinst (s, f)
-1. Return s.GLOBALS.
-
-tableinst (s, f)
-1. Return s.TABLES.
-
-meminst (s, f)
-1. Return s.MEMS.
-
-moduleinst (s, f)
-1. Return f.MODULE.
-
-type (s, f) x
-1. Return f.MODULE.TYPES[x].
-
-func (s, f) x
-1. Return s.FUNCS[f.MODULE.FUNCS[x]].
-
-global (s, f) x
-1. Return s.GLOBALS[f.MODULE.GLOBALS[x]].
-
-table (s, f) x
-1. Return s.TABLES[f.MODULE.TABLES[x]].
-
-mem (s, f) x
-1. Return s.MEMS[f.MODULE.MEMS[x]].
-
-local (s, f) x
-1. Return f.LOCALS[x].
-
-with_local (s, f) x v
-1. Replace f.LOCALS[x] with v.
-
-with_global (s, f) x v
-1. Replace s.GLOBALS[f.MODULE.GLOBALS[x]].VALUE with v.
-
-with_table (s, f) x i a
-1. Replace s.TABLES[f.MODULE.TABLES[x]].REFS[i] with ?(a).
-
-with_tableinst (s, f) x ti
-1. Replace s.TABLES[f.MODULE.TABLES[x]] with ti.
-
-with_mem (s, f) x i j b*
-1. Replace s.MEMS[f.MODULE.MEMS[x]].BYTES[i : j] with b*.
-
-with_meminst (s, f) x mi
-1. Replace s.MEMS[f.MODULE.MEMS[x]] with mi.
-
-growtable ti n
-1. Let { TYPE: ([ i .. j? ]); REFS: ?(a)* } be ti.
-2. Let i' be (|a*| + n).
-3. If (i' <= j)?, then:
-  a. Let ti' be { TYPE: ([ i' .. j? ]); REFS: ?(a)* :: ?()^n }.
-  b. Return ti'.
-4. Fail.
-
-growmemory mi n
-1. Let { TYPE: ([ i .. j? ]); BYTES: b* } be mi.
-2. Let i' be ((|b*| / (64 * $Ki())) + n).
-3. If (i' <= j)?, then:
-  a. Let mi' be { TYPE: ([ i' .. j? ]); BYTES: b* :: 0^(n * (64 * $Ki())) }.
-  b. Return mi'.
-4. Fail.
-
-funcs externaddr''*
-1. If (externaddr''* = []), then:
-  a. Return [].
-2. Let [externaddr_0] :: externaddr'* be externaddr''*.
-3. If externaddr_0 is some FUNC, then:
-  a. Let (FUNC fa) be externaddr_0.
-  b. Return [fa] :: $funcs(externaddr'*).
-4. Let [externaddr] :: externaddr'* be externaddr''*.
-5. Return $funcs(externaddr'*).
-
-globals externaddr''*
-1. If (externaddr''* = []), then:
-  a. Return [].
-2. Let [externaddr_0] :: externaddr'* be externaddr''*.
-3. If externaddr_0 is some GLOBAL, then:
-  a. Let (GLOBAL ga) be externaddr_0.
-  b. Return [ga] :: $globals(externaddr'*).
-4. Let [externaddr] :: externaddr'* be externaddr''*.
-5. Return $globals(externaddr'*).
-
-tables externaddr''*
-1. If (externaddr''* = []), then:
-  a. Return [].
-2. Let [externaddr_0] :: externaddr'* be externaddr''*.
-3. If externaddr_0 is some TABLE, then:
-  a. Let (TABLE ta) be externaddr_0.
-  b. Return [ta] :: $tables(externaddr'*).
-4. Let [externaddr] :: externaddr'* be externaddr''*.
-5. Return $tables(externaddr'*).
-
-mems externaddr''*
-1. If (externaddr''* = []), then:
-  a. Return [].
-2. Let [externaddr_0] :: externaddr'* be externaddr''*.
-3. If externaddr_0 is some MEM, then:
-  a. Let (MEM ma) be externaddr_0.
-  b. Return [ma] :: $mems(externaddr'*).
-4. Let [externaddr] :: externaddr'* be externaddr''*.
-5. Return $mems(externaddr'*).
-
-allocfunc s moduleinst func
-1. Let (FUNC x local* expr) be func.
-2. Let fi be { TYPE: moduleinst.TYPES[x]; MODULE: moduleinst; CODE: func }.
-3. Let a be |s.FUNCS|.
-4. Append fi to the s.FUNCS.
-5. Return a.
-
-allocfuncs s moduleinst func''*
-1. If (func''* = []), then:
-  a. Return [].
-2. Let [func] :: func'* be func''*.
-3. Let fa be $allocfunc(s, moduleinst, func).
-4. Let fa'* be $allocfuncs(s, moduleinst, func'*).
-5. Return [fa] :: fa'*.
-
-allocglobal s globaltype val
-1. Let gi be { TYPE: globaltype; VALUE: val }.
-2. Let a be |s.GLOBALS|.
-3. Append gi to the s.GLOBALS.
-4. Return a.
-
-allocglobals s globaltype''* val''*
-1. If (globaltype''* = []), then:
-  a. Assert: Due to validation, (val''* = []).
-  b. Return [].
-2. Else:
-  a. Let [globaltype] :: globaltype'* be globaltype''*.
-  b. Assert: Due to validation, (|val''*| >= 1).
-  c. Let [val] :: val'* be val''*.
-  d. Let ga be $allocglobal(s, globaltype, val).
-  e. Let ga'* be $allocglobals(s, globaltype'*, val'*).
-  f. Return [ga] :: ga'*.
-
-alloctable s ([ i .. j? ])
-1. Let ti be { TYPE: ([ i .. j? ]); REFS: ?()^i }.
-2. Let a be |s.TABLES|.
-3. Append ti to the s.TABLES.
-4. Return a.
-
-alloctables s tabletype''*
-1. If (tabletype''* = []), then:
-  a. Return [].
-2. Let [tabletype] :: tabletype'* be tabletype''*.
-3. Let ta be $alloctable(s, tabletype).
-4. Let ta'* be $alloctables(s, tabletype'*).
-5. Return [ta] :: ta'*.
-
-allocmem s ([ i .. j? ])
-1. Let mi be { TYPE: ([ i .. j? ]); BYTES: 0^(i * (64 * $Ki())) }.
-2. Let a be |s.MEMS|.
-3. Append mi to the s.MEMS.
-4. Return a.
-
-allocmems s memtype''*
-1. If (memtype''* = []), then:
-  a. Return [].
-2. Let [memtype] :: memtype'* be memtype''*.
-3. Let ma be $allocmem(s, memtype).
-4. Let ma'* be $allocmems(s, memtype'*).
-5. Return [ma] :: ma'*.
-
-instexport fa* ga* ta* ma* (EXPORT name externidx)
-1. If externidx is some FUNC, then:
-  a. Let (FUNC x) be externidx.
-  b. Return { NAME: name; ADDR: (FUNC fa*[x]) }.
-2. If externidx is some GLOBAL, then:
-  a. Let (GLOBAL x) be externidx.
-  b. Return { NAME: name; ADDR: (GLOBAL ga*[x]) }.
-3. If externidx is some TABLE, then:
-  a. Let (TABLE x) be externidx.
-  b. Return { NAME: name; ADDR: (TABLE ta*[x]) }.
-4. Assert: Due to validation, externidx is some MEM.
-5. Let (MEM x) be externidx.
-6. Return { NAME: name; ADDR: (MEM ma*[x]) }.
-
-allocmodule s module externaddr* val*
-1. Let (MODULE type_0* import* func^n_func global_1* table_2* mem_3* elem* data* start? export*) be module.
-2. Let (MEMORY memtype)^n_mem be mem_3*.
-3. Let (TABLE tabletype)^n_table be table_2*.
-4. Let (GLOBAL globaltype expr_1)^n_global be global_1*.
-5. Let ft* be [].
-6. For each type_0 in type_0*, do:
-  a. Let (TYPE ft) be type_0.
-  b. Append ft to the ft*.
-7. Let fa_ex* be $funcs(externaddr*).
-8. Let ga_ex* be $globals(externaddr*).
-9. Let ma_ex* be $mems(externaddr*).
-10. Let ta_ex* be $tables(externaddr*).
-11. Let fa* be (|s.FUNCS| + i_func)^(i_func<n_func).
-12. Let ga* be (|s.GLOBALS| + i_global)^(i_global<n_global).
-13. Let ta* be (|s.TABLES| + i_table)^(i_table<n_table).
-14. Let ma* be (|s.MEMS| + i_mem)^(i_mem<n_mem).
-15. Let xi* be [].
-16. For each export in export*, do:
-  a. Let xi be $instexport(fa_ex* :: fa*, ga_ex* :: ga*, ta_ex* :: ta*, ma_ex* :: ma*, export).
-  b. Append xi to the xi*.
-17. Let moduleinst be { TYPES: ft*; FUNCS: fa_ex* :: fa*; GLOBALS: ga_ex* :: ga*; TABLES: ta_ex* :: ta*; MEMS: ma_ex* :: ma*; EXPORTS: xi* }.
-18. Let funcaddr_0* be $allocfuncs(s, moduleinst, func^n_func).
-19. Assert: Due to validation, (funcaddr_0* = fa*).
-20. Let globaladdr_0* be $allocglobals(s, globaltype^n_global, val*).
-21. Assert: Due to validation, (globaladdr_0* = ga*).
-22. Let tableaddr_0* be $alloctables(s, tabletype^n_table).
-23. Assert: Due to validation, (tableaddr_0* = ta*).
-24. Let memaddr_0* be $allocmems(s, memtype^n_mem).
-25. Assert: Due to validation, (memaddr_0* = ma*).
-26. Return moduleinst.
-
-initelem s moduleinst u32* funcaddr*
-1. If (funcaddr* = []), then:
-  a. Assert: Due to validation, (u32* = []).
-  b. Return.
-2. Else:
-  a. Let [a*] :: a'** be funcaddr*.
-  b. Assert: Due to validation, (|u32*| >= 1).
-  c. Let [i] :: i'* be u32*.
-  d. Replace s.TABLES[moduleinst.TABLES[0]].REFS[i : |a*|] with ?(a)*.
-  e. Perform $initelem(s, moduleinst, i'*, a'**).
-  f. Return.
-
-initdata s moduleinst u32* byte*
-1. If (byte* = []), then:
-  a. Assert: Due to validation, (u32* = []).
-  b. Return.
-2. Else:
-  a. Let [b*] :: b'** be byte*.
-  b. Assert: Due to validation, (|u32*| >= 1).
-  c. Let [i] :: i'* be u32*.
-  d. Replace s.MEMS[moduleinst.MEMS[0]].BYTES[i : |b*|] with b*.
-  e. Perform $initdata(s, moduleinst, i'*, b'**).
-  f. Return.
-
-instantiate s module externaddr*
-1. Let (MODULE type* import* func* global* table* mem* elem* data* start? export*) be module.
-2. Let functype* be [].
-3. For each type in type*, do:
-  a. Let (TYPE functype) be type.
-  b. Append functype to the functype*.
-4. Let n_F be |func*|.
-5. Let b** be [].
-6. Let expr_D* be [].
-7. For each data in data*, do:
-  a. Let (DATA expr_D b*) be data.
-  b. Append b* to the b**.
-  c. Append expr_D to the expr_D*.
-8. Let expr_E* be [].
-9. Let x** be [].
-10. For each elem in elem*, do:
-  a. Let (ELEM expr_E x*) be elem.
-  b. Append expr_E to the expr_E*.
-  c. Append x* to the x**.
-11. Let expr_G* be [].
-12. For each global in global*, do:
-  a. Let (GLOBAL globaltype expr_G) be global.
-  b. Append expr_G to the expr_G*.
-13. Let moduleinst_init be { TYPES: functype*; FUNCS: $funcs(externaddr*) :: (|s.FUNCS| + i_F)^(i_F<n_F); GLOBALS: $globals(externaddr*) }.
-14. Let f_init be { MODULE: moduleinst_init }.
-15. Let z be (s, f_init).
-16. Push the frame (FRAME_ 0 { $frame(z) }) to the stack.
-17. Let i_D* be [].
-18. For each expr_D in expr_D*, do:
-  a. Let [(I32.CONST i_D)] be $Eval_expr(z, expr_D).
-  b. Append i_D to the i_D*.
-19. Let i_E* be [].
-20. For each expr_E in expr_E*, do:
-  a. Let [(I32.CONST i_E)] be $Eval_expr(z, expr_E).
-  b. Append i_E to the i_E*.
-21. Let val* be [].
-22. For each expr_G in expr_G*, do:
-  a. Let [val] be $Eval_expr(z, expr_G).
-  b. Append val to the val*.
-23. Pop the frame (FRAME_ 0 { $frame(z) }) from the stack.
-24. Let moduleinst be $allocmodule(s, module, externaddr*, val*).
-25. Let f be { MODULE: moduleinst }.
-26. Perform $initelem(s, moduleinst, i_E*, moduleinst.FUNCS[x]**).
-27. Perform $initdata(s, moduleinst, i_D*, b**).
-28. Push the frame (FRAME_ 0 { f }) to the stack.
-29. If start? is defined, then:
-  a. Let ?((START x')) be start?.
-  b. Let instr_0 be (CALL x').
-  c. Execute the instruction instr_0.
-30. Pop the frame (FRAME_ 0 { f }) from the stack.
-31. Return f.MODULE.
-
-invoke s fa val^n
-1. Let f be { MODULE: {} }.
-2. Push the frame (FRAME_ 0 { (s, f) }) to the stack.
-3. Let t_1^n -> t_2* be $funcinst((s, f))[fa].TYPE.
-4. Pop the frame (FRAME_ 0 { _f }) from the stack.
-5. Let k be |t_2*|.
-6. Push the frame (FRAME_ k { f }) to the stack.
-7. Push the values val^n to the stack.
-8. Execute the instruction (CALL_ADDR fa).
-9. Pop the values val'^k from the stack.
-10. Pop the frame (FRAME_ k { f }) from the stack.
-11. Return val'^k.
-
-Eval_expr instr*
-1. Execute the sequence instr*.
-2. Pop the value val from the stack.
-3. Return [val].
-
-== Complete.
+../../../../specification/wasm-1.0/B-soundness.spectec:64.8-64.52: prem_to_instrs: Yet `Externaddrs_ok: `%|-%:%`(S, FUNC_externaddr(fa), FUNC_externtype(functype))`
+Untranslated relation Admin_instr_ok: `%;%|-%:%`(store, context, admininstr, functype)
+Untranslated relation Admin_instrs_ok: `%;%|-%:%`(store, context, admininstr*, functype)
+Untranslated relation Thread_ok: `%;%|-%;%:%`(store, resulttype?, frame, admininstr*, resulttype)
+../../../../specification/wasm-1.0/B-soundness.spectec:193.6-193.46: prem_to_instrs: Yet `Thread_ok: `%;%|-%;%:%`(S, ?(), F, admininstr*{admininstr <- `admininstr*`}, t?{t <- `t?`})`
+../src/exe-spectec/main.exe: uncaught exception Failure("int_of_string")
+
+Backtrace:
+Raised by primitive operation at Backend_prose__Prose_util.hole_to_int in file "src/backend-prose/prose_util.ml", line 249, characters 2-60
+Called from Backend_prose__Prose_util.apply_prose_hint.(fun) in file "src/backend-prose/prose_util.ml", line 254, characters 64-81
+Called from Stdlib__List.map in file "list.ml", line 86, characters 15-19
+Called from Backend_prose__Prose_util.apply_prose_hint in file "src/backend-prose/prose_util.ml", lines 253-256, characters 2-13
+Called from Backend_prose__Render.render_func_algo in file "src/backend-prose/render.ml", line 1536, characters 14-52
+Called from Backend_prose__Render.render_def in file "src/backend-prose/render.ml", line 1551, characters 13-52
+Called from Stdlib__List.map in file "list.ml", line 87, characters 15-19
+Called from Stdlib__List.map in file "list.ml", line 88, characters 14-21
+Called from Backend_prose__Render.render_prose in file "src/backend-prose/render.ml", line 1554, characters 29-60
+Called from Dune__exe__Main in file "src/exe-spectec/main.ml", line 350, characters 26-91
 Generating prose for Wasm 2.0...
 spectec 0.5 generator
 == Parsing...
@@ -5861,6 +1410,8 @@ The export :math:`(\mathsf{export}~{\mathit{name}}~{\mathit{externidx}})` is :re
 The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\ast}~{{\mathit{func}}^\ast}~{{\mathit{global}}^\ast}~{{\mathit{table}}^\ast}~{{\mathit{mem}}^\ast}~{{\mathit{elem}}^\ast}~{{\mathit{data}}^{n}}~{{\mathit{start}}^?}~{{\mathit{export}}^\ast})` is :ref:`valid <valid-val>` if:
 
 
+   * The length of :math:`{{\mathit{data}}^\ast}` is equal to :math:`n`.
+
    * For all :math:`{\mathit{type}}` in :math:`{{\mathit{type}}^\ast}`:
 
       * The type :math:`{\mathit{type}}` is :ref:`valid <valid-val>` with the function type :math:`{\mathit{ft}'}`.
@@ -6037,6 +1588,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 #. Let :math:`{j^{N}}` be the result for which :math:`{({{\mathrm{bytes}}}_{{\mathsf{i}}{M}}({j^{N}}) = z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} + k \cdot M / 8 : M / 8])^{k<N}}`.
 
 #. Let :math:`{\mathsf{i}}{n}` be the result for which :math:`{|{\mathsf{i}}{n}|}` :math:`=` :math:`M \cdot 2`.
+
+#. Assert: Due to validation, :math:`{|{j^\ast}|} = N`.
 
 #. Let :math:`c` be :math:`{{\mathrm{inv}}_{{\mathit{lanes}}}}_{{{\mathsf{i}}{n}}{\mathsf{x}}{N}}({{{{{\mathrm{extend}}}_{M, {|{\mathsf{i}}{n}|}}^{{\mathit{sx}}}}}{(j)}^{N}})`.
 
@@ -6283,13 +1836,19 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
-   #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+   #. If :math:`{|{{\mathit{val}}^\ast}|} \neq n`, then:
 
-   #. Pop the :math:`\mathsf{label}` from the stack.
+      1) Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-   #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
+   #. Else:
 
-   #. Jump to the continuation of :math:`L`.
+      1) Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+      #) Pop the :math:`\mathsf{label}` from the stack.
+
+      #) Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
+
+      #) Jump to the continuation of :math:`L`.
 
 #. Else:
 
@@ -6356,6 +1915,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Pop the :math:`\mathsf{frame}` from the stack.
 
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
+
 #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
 
@@ -6372,6 +1933,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
    #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+   #. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
@@ -6916,9 +2479,15 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Let :math:`{t_1^{k}}~\rightarrow~{t_2^{n}}` be the destructuring of :math:`{{\mathrm{blocktype}}}_{z}({\mathit{bt}})`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = k`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = n`.
+
 #. Assert: Due to validation, there are at least :math:`k` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{k}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = k`.
 
 #. Let :math:`L` be the :math:`\mathsf{label}` whose arity is :math:`n` and whose continuation is the end of the block.
 
@@ -6933,9 +2502,15 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Let :math:`{t_1^{k}}~\rightarrow~{t_2^{n}}` be the destructuring of :math:`{{\mathrm{blocktype}}}_{z}({\mathit{bt}})`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = k`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = n`.
+
 #. Assert: Due to validation, there are at least :math:`k` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{k}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = k`.
 
 #. Let :math:`L` be the :math:`\mathsf{label}` whose arity is :math:`k` and whose continuation is the start of the block.
 
@@ -6994,6 +2569,10 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Let :math:`\{ \mathsf{type}~{t_1^{k}}~\rightarrow~{t_2^{n}},\;\allowbreak \mathsf{module}~{\mathit{mm}},\;\allowbreak \mathsf{code}~{\mathit{func}} \}` be the destructuring of :math:`z{.}\mathsf{funcs}{}[a]`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = k`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = n`.
+
 #. Let :math:`(\mathsf{func}~x~{{\mathit{local}}_0^\ast}~{{\mathit{instr}}^\ast})` be the destructuring of :math:`{\mathit{func}}`.
 
 #. Let :math:`{t^\ast}` be the value type sequence :math:`\epsilon`.
@@ -7007,6 +2586,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 #. Assert: Due to validation, there are at least :math:`k` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{k}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = k`.
 
 #. Let :math:`f` be the frame :math:`\{ \mathsf{locals}~{{\mathit{val}}^{k}}~{{{\mathrm{default}}}_{t}^\ast},\;\allowbreak \mathsf{module}~{\mathit{mm}} \}`.
 
@@ -7306,9 +2887,11 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
       #) Let :math:`{\mathsf{i}}{n}` be the result for which :math:`{|{\mathsf{i}}{n}|}` :math:`=` :math:`M \cdot 2`.
 
-      #) Let :math:`c` be :math:`{{\mathrm{inv}}_{{\mathit{lanes}}}}_{{{\mathsf{i}}{n}}{\mathsf{x}}{N}}({{{{{\mathrm{extend}}}_{M, {|{\mathsf{i}}{n}|}}^{{\mathit{sx}}}}}{(j)}^{N}})`.
+      #) If :math:`{|{j^\ast}|} = N`, then:
 
-      #) Push the value :math:`(\mathsf{v{\scriptstyle 128}}{.}\mathsf{const}~c)` to the stack.
+         a) Let :math:`c` be :math:`{{\mathrm{inv}}_{{\mathit{lanes}}}}_{{{\mathsf{i}}{n}}{\mathsf{x}}{N}}({{{{{\mathrm{extend}}}_{M, {|{\mathsf{i}}{n}|}}^{{\mathit{sx}}}}}{(j)}^{N}})`.
+
+         #) Push the value :math:`(\mathsf{v{\scriptstyle 128}}{.}\mathsf{const}~c)` to the stack.
 
    #. If :math:`{\mathit{vloadop}}_0` is some :math:`{\mathbb{N}}{\mathsf{\_}}{\mathsf{splat}}`, then:
 
@@ -9806,9 +5389,11 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    a. Return :math:`(\mathsf{ref{.}null}~\mathsf{funcref})`.
 
-#. Assert: Due to validation, :math:`{\mathit{valtype}} = \mathsf{externref}`.
+#. If :math:`{\mathit{valtype}} = \mathsf{externref}`, then:
 
-#. Return :math:`(\mathsf{ref{.}null}~\mathsf{externref})`.
+   a. Return :math:`(\mathsf{ref{.}null}~\mathsf{externref})`.
+
+#. Fail.
 
 
 :math:`{\mathrm{funcs}}({{\mathit{externaddr}'}^\ast})`
@@ -11432,6 +7017,7 @@ Export_ok
 
 Module_ok
 - the module (MODULE type* import* func* global* table* mem* elem* data^n start? export*) is valid if:
+  - |data*| is n.
   - For all type in type*:
     - the type type is valid with the function type ft'.
   - ft'* is the concatenation of all such ft'.
@@ -11518,8 +7104,9 @@ Step_read/vload-shape-* V128 ?((SHAPE M X N _ sx)) ao
   a. Trap.
 5. Let j^N be $ibytes__1^-1(M, $mem(z, 0).BYTES[((i + ao.OFFSET) + ((k * M) / 8)) : (M / 8)])^(k<N).
 6. Let Jnn be $jsize^-1((M * 2)).
-7. Let c be $inv_lanes_(Jnn X N, $extend__(M, $jsize(Jnn), sx, j)^N).
-8. Push the value (V128.CONST c) to the stack.
+7. Assert: Due to validation, (|j*| = N).
+8. Let c be $inv_lanes_(Jnn X N, $extend__(M, $jsize(Jnn), sx, j)^N).
+9. Push the value (V128.CONST c) to the stack.
 
 Step_read/vload-splat-* V128 ?((SPLAT N)) ao
 1. Let z be the current state.
@@ -11633,10 +7220,13 @@ Step_pure/br n'
 3. If (n' = 0), then:
   a. Assert: Due to validation, there are at least n values on the top of the stack.
   b. Pop the values val^n from the stack.
-  c. Pop all values val'* from the top of the stack.
-  d. Pop the label (LABEL_ _ { _ }) from the stack.
-  e. Push the values val^n to the stack.
-  f. Execute the sequence instr'*.
+  c. If (|val*| =/= n), then:
+    1) Pop all values val* from the top of the stack.
+  d. Else:
+    1) Pop all values val'* from the top of the stack.
+    2) Pop the label (LABEL_ _ { _ }) from the stack.
+    3) Push the values val^n to the stack.
+    4) Execute the sequence instr'*.
 4. Else:
   a. Pop all values val* from the top of the stack.
   b. Let l be (n' - 1).
@@ -11667,16 +7257,18 @@ Step_pure/frame
 4. Pop the values val^n from the stack.
 5. Assert: Due to validation, the first non-value entry of the stack is a FRAME_.
 6. Pop the frame (FRAME_ _ { _ }) from the stack.
-7. Push the values val^n to the stack.
+7. Assert: Due to validation, (|val*| = n).
+8. Push the values val^n to the stack.
 
 Step_pure/return
 1. If the first non-value entry of the stack is a FRAME_, then:
   a. Let (FRAME_ n { f }) be the topmost FRAME_.
   b. Assert: Due to validation, there are at least n values on the top of the stack.
   c. Pop the values val^n from the stack.
-  d. Pop all values val'* from the top of the stack.
-  e. Pop the frame (FRAME_ _ { _ }) from the stack.
-  f. Push the values val^n to the stack.
+  d. Assert: Due to validation, (|val*| = n).
+  e. Pop all values val'* from the top of the stack.
+  f. Pop the frame (FRAME_ _ { _ }) from the stack.
+  g. Push the values val^n to the stack.
 2. Else:
   a. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
   b. Pop all values val* from the top of the stack.
@@ -11932,16 +7524,22 @@ Step_pure/local.tee x
 Step_read/block bt instr*
 1. Let z be the current state.
 2. Let t_1^k -> t_2^n be $blocktype(z, bt).
-3. Assert: Due to validation, there are at least k values on the top of the stack.
-4. Pop the values val^k from the stack.
-5. Enter val^k :: instr* with label (LABEL_ n { [] }).
+3. Assert: Due to validation, (|t_1*| = k).
+4. Assert: Due to validation, (|t_2*| = n).
+5. Assert: Due to validation, there are at least k values on the top of the stack.
+6. Pop the values val^k from the stack.
+7. Assert: Due to validation, (|val*| = k).
+8. Enter val^k :: instr* with label (LABEL_ n { [] }).
 
 Step_read/loop bt instr*
 1. Let z be the current state.
 2. Let t_1^k -> t_2^n be $blocktype(z, bt).
-3. Assert: Due to validation, there are at least k values on the top of the stack.
-4. Pop the values val^k from the stack.
-5. Enter val^k :: instr* with label (LABEL_ k { [(LOOP bt instr*)] }).
+3. Assert: Due to validation, (|t_1*| = k).
+4. Assert: Due to validation, (|t_2*| = n).
+5. Assert: Due to validation, there are at least k values on the top of the stack.
+6. Pop the values val^k from the stack.
+7. Assert: Due to validation, (|val*| = k).
+8. Enter val^k :: instr* with label (LABEL_ k { [(LOOP bt instr*)] }).
 
 Step_read/call x
 1. Let z be the current state.
@@ -11967,16 +7565,19 @@ Step_read/call_addr a
 1. Let z be the current state.
 2. Assert: Due to validation, (a < |$funcinst(z)|).
 3. Let { TYPE: t_1^k -> t_2^n; MODULE: mm; CODE: func } be $funcinst(z)[a].
-4. Let (FUNC x local_0* instr*) be func.
-5. Let t* be [].
-6. For each local_0 in local_0*, do:
+4. Assert: Due to validation, (|t_1*| = k).
+5. Assert: Due to validation, (|t_2*| = n).
+6. Let (FUNC x local_0* instr*) be func.
+7. Let t* be [].
+8. For each local_0 in local_0*, do:
   a. Let (LOCAL t) be local_0.
   b. Append t to the t*.
-7. Assert: Due to validation, there are at least k values on the top of the stack.
-8. Pop the values val^k from the stack.
-9. Let f be { LOCALS: val^k :: $default_(t)*; MODULE: mm }.
-10. Push the frame (FRAME_ n { f }) to the stack.
-11. Enter instr* with label (LABEL_ n { [] }).
+9. Assert: Due to validation, there are at least k values on the top of the stack.
+10. Pop the values val^k from the stack.
+11. Assert: Due to validation, (|val*| = k).
+12. Let f be { LOCALS: val^k :: $default_(t)*; MODULE: mm }.
+13. Push the frame (FRAME_ n { f }) to the stack.
+14. Enter instr* with label (LABEL_ n { [] }).
 
 Step_read/ref.func x
 1. Let z be the current state.
@@ -12116,8 +7717,9 @@ Step_read/vload V128 vloadop? ao
       a) Trap.
     3) Let j^N be $ibytes__1^-1(M, $mem(z, 0).BYTES[((i + ao.OFFSET) + ((k * M) / 8)) : (M / 8)])^(k<N).
     4) Let Jnn be $jsize^-1((M * 2)).
-    5) Let c be $inv_lanes_(Jnn X N, $extend__(M, $jsize(Jnn), sx, j)^N).
-    6) Push the value (V128.CONST c) to the stack.
+    5) If (|j*| = N), then:
+      a) Let c be $inv_lanes_(Jnn X N, $extend__(M, $jsize(Jnn), sx, j)^N).
+      b) Push the value (V128.CONST c) to the stack.
   c. If vloadop_0 is some SPLAT, then:
     1) Let (SPLAT N) be vloadop_0.
     2) If (((i + ao.OFFSET) + (N / 8)) > |$mem(z, 0).BYTES|), then:
@@ -13312,8 +8914,9 @@ default_ valtype
   a. Return (V128.CONST 0).
 6. If (valtype = FUNCREF), then:
   a. Return (REF.NULL FUNCREF).
-7. Assert: Due to validation, (valtype = EXTERNREF).
-8. Return (REF.NULL EXTERNREF).
+7. If (valtype = EXTERNREF), then:
+  a. Return (REF.NULL EXTERNREF).
+8. Fail.
 
 funcsxa externaddr'*
 1. If (externaddr'* = []), then:
@@ -14139,6 +9742,8 @@ The defined type :math:`({\mathit{rectype}}~{.}~i)` is :ref:`valid <valid-val>` 
 
 
    * The recursive type :math:`{\mathit{rectype}}` is :ref:`valid <valid-val>` for the type index :math:`x`.
+
+   * The length of :math:`{{\mathit{subtype}}^\ast}` is equal to :math:`n`.
 
    * The recursive type :math:`{\mathit{rectype}}` is of the form :math:`(\mathsf{rec}~{{\mathit{subtype}}^{n}})`.
 
@@ -17592,13 +13197,19 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
-   #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+   #. If :math:`{|{{\mathit{val}}^\ast}|} \neq n`, then:
 
-   #. Pop the :math:`\mathsf{label}` from the stack.
+      1) Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-   #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
+   #. Else:
 
-   #. Jump to the continuation of :math:`L`.
+      1) Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+      #) Pop the :math:`\mathsf{label}` from the stack.
+
+      #) Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
+
+      #) Jump to the continuation of :math:`L`.
 
 #. Else:
 
@@ -17637,9 +13248,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`(\mathsf{func}~{t_1^{n}}~\rightarrow~{t_2^{m}})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{funcs}{}[a]{.}\mathsf{type}`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = n`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = m`.
+
 #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
 #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
@@ -17936,6 +13553,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`{\mathsf{i}}{N}` be the result for which :math:`N` :math:`=` :math:`M \cdot 2`.
 
+#. Assert: Due to validation, :math:`{|{j^\ast}|} = K`.
+
 #. Let :math:`c` be :math:`{{{{\mathrm{lanes}}}_{{{\mathsf{i}}{N}}{\mathsf{x}}{K}}^{{-1}}}}{({{{{{\mathrm{extend}}}_{M, N}^{{\mathit{sx}}}}}{(j)}^{K}})}`.
 
 #. Push the value :math:`(\mathsf{v{\scriptstyle 128}}{.}\mathsf{const}~c)` to the stack.
@@ -18181,13 +13800,19 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
       #) Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
-      #) Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+      #) If :math:`{|{{\mathit{val}}^\ast}|} \neq n`, then:
 
-      #) Pop the :math:`\mathsf{label}` from the stack.
+         a) Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-      #) Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
+      #) Else:
 
-      #) Jump to the continuation of :math:`L`.
+         a) Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+         #) Pop the :math:`\mathsf{label}` from the stack.
+
+         #) Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
+
+         #) Jump to the continuation of :math:`L`.
 
    #. Else:
 
@@ -18322,6 +13947,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Pop the :math:`\mathsf{frame}` from the stack.
 
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
+
 #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
 
@@ -18338,6 +13965,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
    #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+   #. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
@@ -19004,9 +14633,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Assert: Due to validation, :math:`{{\mathit{localidx}}_0^\ast} = \epsilon`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = m`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = n`.
+
 #. Assert: Due to validation, there are at least :math:`m` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{m}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = m`.
 
 #. Let :math:`L` be the :math:`\mathsf{label}` whose arity is :math:`n` and whose continuation is the end of the block.
 
@@ -19023,9 +14658,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Assert: Due to validation, :math:`{{\mathit{localidx}}_0^\ast} = \epsilon`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = m`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = n`.
+
 #. Assert: Due to validation, there are at least :math:`m` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{m}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = m`.
 
 #. Let :math:`L` be the :math:`\mathsf{label}` whose arity is :math:`m` and whose continuation is the start of the block.
 
@@ -19133,9 +14774,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`(\mathsf{func}~{t_1^{n}}~\rightarrow~{t_2^{m}})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`{\mathit{fi}}{.}\mathsf{type}`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = n`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = m`.
+
 #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
 #. Let :math:`f` be the frame :math:`\{ \mathsf{locals}~{{\mathit{val}}^{n}}~{{{\mathrm{default}}}_{t}^\ast},\;\allowbreak \mathsf{module}~{\mathit{fi}}{.}\mathsf{module} \}`.
 
@@ -19213,9 +14860,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Let :math:`(\mathsf{func}~{t_1^{n}}~\rightarrow~{t_2^{m}})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{funcs}{}[a]{.}\mathsf{type}`.
 
+   #. Assert: Due to validation, :math:`{|{t_1^\ast}|} = n`.
+
+   #. Assert: Due to validation, :math:`{|{t_2^\ast}|} = m`.
+
    #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+   #. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
@@ -19443,9 +15096,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Assert: Due to validation, :math:`{{\mathit{localidx}}_0^\ast} = \epsilon`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = m`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = n`.
+
 #. Assert: Due to validation, there are at least :math:`m` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{m}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = m`.
 
 #. Let :math:`H` be the :math:`\mathsf{handler}` whose arity is :math:`n` and whose catch handler is :math:`{{\mathit{catch}}^\ast}`.
 
@@ -19740,9 +15399,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
       #) Let :math:`{\mathsf{i}}{N}` be the result for which :math:`N` :math:`=` :math:`M \cdot 2`.
 
-      #) Let :math:`c` be :math:`{{{{\mathrm{lanes}}}_{{{\mathsf{i}}{N}}{\mathsf{x}}{K}}^{{-1}}}}{({{{{{\mathrm{extend}}}_{M, N}^{{\mathit{sx}}}}}{(j)}^{K}})}`.
+      #) If :math:`{|{j^\ast}|} = K`, then:
 
-      #) Push the value :math:`(\mathsf{v{\scriptstyle 128}}{.}\mathsf{const}~c)` to the stack.
+         a) Let :math:`c` be :math:`{{{{\mathrm{lanes}}}_{{{\mathsf{i}}{N}}{\mathsf{x}}{K}}^{{-1}}}}{({{{{{\mathrm{extend}}}_{M, N}^{{\mathit{sx}}}}}{(j)}^{K}})}`.
+
+         #) Push the value :math:`(\mathsf{v{\scriptstyle 128}}{.}\mathsf{const}~c)` to the stack.
 
    #. If :math:`{\mathit{vloadop}}_0` is some :math:`{{\mathit{sz}}}{\mathsf{\_}}{\mathsf{splat}}`, then:
 
@@ -20048,6 +15709,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`{({\mathsf{mut}^?}~{\mathit{zt}})^\ast}` be :math:`{\mathit{list}}_0`.
 
+#. Assert: Due to validation, :math:`{|{{\mathit{mut?}}^\ast}|} = {|{{\mathit{zt}}^\ast}|}`.
+
 #. Assert: Due to validation, for all :math:`{\mathit{zt}}` in :math:`{{\mathit{zt}}^\ast}`, :math:`{{\mathrm{default}}}_{{\mathrm{unpack}}({\mathit{zt}})}` is defined.
 
 #. Let :math:`{{\mathit{val}}^\ast}` be the value sequence :math:`\epsilon`.
@@ -20094,6 +15757,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Let :math:`{({\mathsf{mut}^?}~{\mathit{zt}})^\ast}` be :math:`{\mathit{list}}_0`.
 
 #. Assert: Due to validation, :math:`i < {|{{\mathit{zt}}^\ast}|}`.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{mut?}}^\ast}|} = {|{{\mathit{zt}}^\ast}|}`.
 
 #. Push the value :math:`{{{{\mathrm{unpack}}}_{{{\mathit{zt}}^\ast}{}[i]}^{{{\mathit{sx}}^?}}}}{(z{.}\mathsf{structs}{}[a]{.}\mathsf{fields}{}[i])}` to the stack.
 
@@ -20143,6 +15808,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`{{\mathit{ref}}^{n}}` be :math:`z{.}\mathsf{elems}{}[y]{.}\mathsf{refs}{}[i : n]`.
 
+#. Assert: Due to validation, :math:`{|{{\mathit{ref}}^\ast}|} = n`.
+
 #. Push the values :math:`{{\mathit{ref}}^{n}}` to the stack.
 
 #. Execute the instruction :math:`(\mathsf{array{.}new\_fixed}~x~n)`.
@@ -20175,6 +15842,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Let :math:`{{{\mathit{byte}}^\ast}^\ast}` be the result for which each :math:`{{\mathit{byte}}^\ast}` has length :math:`{|{\mathit{zt}}|} / 8`, and the :ref:`concatenation <notation-concat>` of :math:`{{{\mathit{byte}}^\ast}^\ast}` is :math:`z{.}\mathsf{datas}{}[y]{.}\mathsf{bytes}{}[i : n \cdot {|{\mathit{zt}}|} / 8]`.
 
 #. Let :math:`{c^{n}}` be the result for which :math:`{({{\mathrm{bytes}}}_{{\mathit{zt}}}({c^{n}}) = {{\mathit{byte}}^\ast})^\ast}`.
+
+#. Assert: Due to validation, :math:`{|{c^\ast}|} = n`.
 
 #. Push the values :math:`{{\mathrm{unpack}}({\mathit{zt}}){.}\mathsf{const}~{{\mathrm{unpack}}}_{{\mathit{zt}}}(c)^{n}}` to the stack.
 
@@ -20575,9 +16244,13 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`a` be the length of :math:`z{.}\mathsf{exns}`.
 
+#. Assert: Due to validation, :math:`{|{t^\ast}|} = n`.
+
 #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
 #. Let :math:`{\mathit{exn}}` be the exception instance :math:`\{ \mathsf{tag}~z{.}\mathsf{tags}{}[x],\;\allowbreak \mathsf{fields}~{{\mathit{val}}^{n}} \}`.
 
@@ -20810,9 +16483,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`a` be the length of :math:`z{.}\mathsf{structs}`.
 
+#. Assert: Due to validation, :math:`{|{{\mathit{mut?}}^\ast}|} = n`.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{zt}}^\ast}|} = n`.
+
 #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
 #. Let :math:`{\mathit{si}}` be the structure instance :math:`\{ \mathsf{type}~z{.}\mathsf{types}{}[x],\;\allowbreak \mathsf{fields}~{{{\mathrm{pack}}}_{{\mathit{zt}}}({\mathit{val}})^{n}} \}`.
 
@@ -20851,6 +16530,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Assert: Due to validation, :math:`i < {|{{\mathit{zt}}^\ast}|}`.
 
+#. Assert: Due to validation, :math:`{|{{\mathit{mut?}}^\ast}|} = {|{{\mathit{zt}}^\ast}|}`.
+
 #. Replace :math:`z{.}\mathsf{structs}{}[a]{.}\mathsf{fields}{}[i]` with :math:`{{\mathrm{pack}}}_{{{\mathit{zt}}^\ast}{}[i]}({\mathit{val}})`.
 
 
@@ -20871,6 +16552,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
 #. Let :math:`{\mathit{ai}}` be the array instance :math:`\{ \mathsf{type}~z{.}\mathsf{types}{}[x],\;\allowbreak \mathsf{fields}~{{{\mathrm{pack}}}_{{\mathit{zt}}}({\mathit{val}})^{n}} \}`.
 
@@ -20963,11 +16646,13 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`\epsilon`.
 
-#. Assert: Due to validation, :math:`{|{X^\ast}|} = 1`.
+#. If :math:`{|{X^\ast}|} = 1`, then:
 
-#. Let :math:`w` be :math:`{X^\ast}`.
+   a. Let :math:`w` be :math:`{X^\ast}`.
 
-#. Return :math:`w`.
+   #. Return :math:`w`.
+
+#. Fail.
 
 
 :math:`{\bigoplus}\, {X^\ast}`
@@ -21099,9 +16784,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`23`.
 
-#. Assert: Due to validation, :math:`N = 64`.
+#. If :math:`N = 64`, then:
 
-#. Return :math:`52`.
+   a. Return :math:`52`.
+
+#. Fail.
 
 
 :math:`{\mathrm{expon}}(N)`
@@ -21112,9 +16799,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`8`.
 
-#. Assert: Due to validation, :math:`N = 64`.
+#. If :math:`N = 64`, then:
 
-#. Return :math:`11`.
+   a. Return :math:`11`.
+
+#. Fail.
 
 
 :math:`M`
@@ -21386,11 +17075,13 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Return :math:`{\mathrm{free}}_{\mathit{tableidx}}({\mathit{tableidx}})`.
 
-#. Assert: Due to validation, :math:`{\mathit{externidx}}` is some :math:`\mathsf{mem}~{\mathit{memidx}}`.
+#. If :math:`{\mathit{externidx}}` is some :math:`\mathsf{mem}~{\mathit{memidx}}`, then:
 
-#. Let :math:`(\mathsf{mem}~{\mathit{memidx}})` be the destructuring of :math:`{\mathit{externidx}}`.
+   a. Let :math:`(\mathsf{mem}~{\mathit{memidx}})` be the destructuring of :math:`{\mathit{externidx}}`.
 
-#. Return :math:`{\mathrm{free}}_{\mathit{memidx}}({\mathit{memidx}})`.
+   #. Return :math:`{\mathrm{free}}_{\mathit{memidx}}({\mathit{memidx}})`.
+
+#. Fail.
 
 
 :math:`\mathsf{anyref}`
@@ -21485,9 +17176,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`\mathsf{i{\scriptstyle 32}}`.
 
-#. Assert: Due to validation, :math:`N = 64`.
+#. If :math:`N = 64`, then:
 
-#. Return :math:`\mathsf{i{\scriptstyle 64}}`.
+   a. Return :math:`\mathsf{i{\scriptstyle 64}}`.
+
+#. Fail.
 
 
 :math:`{\mathsf{f}}{N}`
@@ -21498,9 +17191,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`\mathsf{f{\scriptstyle 32}}`.
 
-#. Assert: Due to validation, :math:`N = 64`.
+#. If :math:`N = 64`, then:
 
-#. Return :math:`\mathsf{f{\scriptstyle 64}}`.
+   a. Return :math:`\mathsf{f{\scriptstyle 64}}`.
+
+#. Fail.
 
 
 :math:`{\mathsf{i}}{N}`
@@ -21519,9 +17214,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`\mathsf{i{\scriptstyle 32}}`.
 
-#. Assert: Due to validation, :math:`N = 64`.
+#. If :math:`N = 64`, then:
 
-#. Return :math:`\mathsf{i{\scriptstyle 64}}`.
+   a. Return :math:`\mathsf{i{\scriptstyle 64}}`.
+
+#. Fail.
 
 
 :math:`{|{\mathit{numtype}}|}`
@@ -21643,7 +17340,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`\mathsf{i{\scriptstyle 16}}`.
 
-#. Return :math:`{\mathrm{inv}}_{\mathit{isize}}(n)`.
+#. If :math:`n = 32`, then:
+
+   a. Return :math:`\mathsf{i{\scriptstyle 32}}`.
+
+#. If :math:`n = 64`, then:
+
+   a. Return :math:`\mathsf{i{\scriptstyle 64}}`.
+
+#. Fail.
 
 
 :math:`{\mathrm{inv}}_{\mathit{fsize}}(n)`
@@ -21728,7 +17433,23 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 ............................................
 
 
-1. Return :math:`{\mathrm{inv}}_{\mathit{jsize}}(n)`.
+1. If :math:`n = 8`, then:
+
+   a. Return :math:`\mathsf{i{\scriptstyle 8}}`.
+
+#. If :math:`n = 16`, then:
+
+   a. Return :math:`\mathsf{i{\scriptstyle 16}}`.
+
+#. If :math:`n = 32`, then:
+
+   a. Return :math:`\mathsf{i{\scriptstyle 32}}`.
+
+#. If :math:`n = 64`, then:
+
+   a. Return :math:`\mathsf{i{\scriptstyle 64}}`.
+
+#. Fail.
 
 
 :math:`{\mathrm{unpack}}({\mathit{lanetype}})`
@@ -23450,21 +19171,25 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 ...................................................................................................................
 
 
-1. If :math:`{{\mathit{localtype}}^\ast} = \epsilon`, then:
+1. If :math:`{{\mathit{localidx}}^\ast} = \epsilon`, then:
 
-   a. Assert: Due to validation, :math:`{{\mathit{localidx}}^\ast} = \epsilon`.
+   a. If :math:`{{\mathit{localtype}}^\ast} = \epsilon`, then:
+
+      1) Return :math:`C`.
 
    #. Return :math:`C`.
 
-#. Else:
+#. If :math:`{{\mathit{localtype}}^\ast} = \epsilon`, then:
 
-   a. Let :math:`{{\mathit{lt}}}_1~{{{\mathit{lt}}}^\ast}` be :math:`{{\mathit{localtype}}^\ast}`.
+   a. Return :math:`C`.
 
-   #. Assert: Due to validation, :math:`{|{{\mathit{localidx}}^\ast}|} \geq 1`.
+#. Let :math:`{{\mathit{lt}}}_1~{{{\mathit{lt}}}^\ast}` be :math:`{{\mathit{localtype}}^\ast}`.
 
-   #. Let :math:`x_1~{x^\ast}` be :math:`{{\mathit{localidx}}^\ast}`.
+#. Assert: Due to validation, :math:`{|{{\mathit{localidx}}^\ast}|} \geq 1`.
 
-   #. Return :math:`C{}[{.}\mathsf{locals}{}[x_1] = {{\mathit{lt}}}_1]` with the local types of :math:`{x^\ast}` updated to :math:`{{{\mathit{lt}}}^\ast}`.
+#. Let :math:`x_1~{x^\ast}` be :math:`{{\mathit{localidx}}^\ast}`.
+
+#. Return :math:`C{}[{.}\mathsf{locals}{}[x_1] = {{\mathit{lt}}}_1]` with the local types of :math:`{x^\ast}` updated to :math:`{{{\mathit{lt}}}^\ast}`.
 
 
 :math:`{{{\mathrm{clos}}^\ast}}{({{\mathit{deftype}}^\ast})}`
@@ -23581,7 +19306,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`({\mathit{valtype}}{.}\mathsf{const}~{+0})`.
 
-#. If :math:`{\mathit{valtype}}` is :math:`{\mathsf{v}}{N}`, then:
+#. If :math:`{\mathit{valtype}}` is vector type, then:
 
    a. Return :math:`({\mathit{valtype}}{.}\mathsf{const}~0)`.
 
@@ -26917,6 +22642,7 @@ Rectype_ok2/cons
 Deftype_ok
 - the defined type (_DEF rectype i) is valid if:
   - the recursive type rectype is valid for the type index (OK x).
+  - |subtype*| is n.
   - rectype is (REC subtype^n).
   - i is less than n.
 
@@ -28701,10 +24427,13 @@ Step_pure/br-label-* l
 3. If (l = 0), then:
   a. Assert: Due to validation, there are at least n values on the top of the stack.
   b. Pop the values val^n from the stack.
-  c. Pop all values val'* from the top of the stack.
-  d. Pop the label (LABEL_ _ { _ }) from the stack.
-  e. Push the values val^n to the stack.
-  f. Execute the sequence instr'*.
+  c. If (|val*| =/= n), then:
+    1) Pop all values val* from the top of the stack.
+  d. Else:
+    1) Pop all values val'* from the top of the stack.
+    2) Pop the label (LABEL_ _ { _ }) from the stack.
+    3) Push the values val^n to the stack.
+    4) Execute the sequence instr'*.
 4. Else:
   a. Pop all values val* from the top of the stack.
   b. Pop the label (LABEL_ _ { _ }) from the stack.
@@ -28723,13 +24452,16 @@ Step_read/return_call_ref-frame-* yy
 8. Assert: Due to validation, (a < |$funcinst(z)|).
 9. Assert: Due to validation, $Expand($funcinst(z)[a].TYPE) is some FUNC.
 10. Let (FUNC t_1^n -> t_2^m) be $Expand($funcinst(z)[a].TYPE).
-11. Assert: Due to validation, there are at least n values on the top of the stack.
-12. Pop the values val^n from the stack.
-13. Pop all values val'* from the top of the stack.
-14. Pop the frame (FRAME_ _ { _ }) from the stack.
-15. Push the values val^n to the stack.
-16. Push the value (REF.FUNC_ADDR a) to the stack.
-17. Execute the instruction (CALL_REF yy).
+11. Assert: Due to validation, (|t_1*| = n).
+12. Assert: Due to validation, (|t_2*| = m).
+13. Assert: Due to validation, there are at least n values on the top of the stack.
+14. Pop the values val^n from the stack.
+15. Assert: Due to validation, (|val*| = n).
+16. Pop all values val'* from the top of the stack.
+17. Pop the frame (FRAME_ _ { _ }) from the stack.
+18. Push the values val^n to the stack.
+19. Push the value (REF.FUNC_ADDR a) to the stack.
+20. Execute the instruction (CALL_REF yy).
 
 Step_read/throw_ref-instrs-*
 1. Assert: Due to validation, a value is on the top of the stack.
@@ -28862,8 +24594,9 @@ Step_read/vload-pack-* V128 ?((SHAPE M X K _ sx)) x ao
   a. Trap.
 5. Let j^K be $ibytes__1^-1(M, $mem(z, x).BYTES[((i + ao.OFFSET) + ((k * M) / 8)) : (M / 8)])^(k<K).
 6. Let Jnn be $jsizenn^-1((M * 2)).
-7. Let c be $inv_lanes_(Jnn X K, $extend__(M, $jsizenn(Jnn), sx, j)^K).
-8. Push the value (V128.CONST c) to the stack.
+7. Assert: Due to validation, (|j*| = K).
+8. Let c be $inv_lanes_(Jnn X K, $extend__(M, $jsizenn(Jnn), sx, j)^K).
+9. Push the value (V128.CONST c) to the stack.
 
 Step_read/vload-splat-* V128 ?((SPLAT N)) x ao
 1. Let z be the current state.
@@ -28977,10 +24710,13 @@ Step_pure/br l
   b. If (l = 0), then:
     1) Assert: Due to validation, there are at least n values on the top of the stack.
     2) Pop the values val^n from the stack.
-    3) Pop all values val'* from the top of the stack.
-    4) Pop the label (LABEL_ _ { _ }) from the stack.
-    5) Push the values val^n to the stack.
-    6) Execute the sequence instr'*.
+    3) If (|val*| =/= n), then:
+      a) Pop all values val* from the top of the stack.
+    4) Else:
+      a) Pop all values val'* from the top of the stack.
+      b) Pop the label (LABEL_ _ { _ }) from the stack.
+      c) Push the values val^n to the stack.
+      d) Execute the sequence instr'*.
   c. Else:
     1) Pop all values val* from the top of the stack.
     2) Pop the label (LABEL_ _ { _ }) from the stack.
@@ -29043,16 +24779,18 @@ Step_pure/frame
 4. Pop the values val^n from the stack.
 5. Assert: Due to validation, the first non-value entry of the stack is a FRAME_.
 6. Pop the frame (FRAME_ _ { _ }) from the stack.
-7. Push the values val^n to the stack.
+7. Assert: Due to validation, (|val*| = n).
+8. Push the values val^n to the stack.
 
 Step_pure/return
 1. If the first non-value entry of the stack is a FRAME_, then:
   a. Let (FRAME_ n { f }) be the topmost FRAME_.
   b. Assert: Due to validation, there are at least n values on the top of the stack.
   c. Pop the values val^n from the stack.
-  d. Pop all values val'* from the top of the stack.
-  e. Pop the frame (FRAME_ _ { _ }) from the stack.
-  f. Push the values val^n to the stack.
+  d. Assert: Due to validation, (|val*| = n).
+  e. Pop all values val'* from the top of the stack.
+  f. Pop the frame (FRAME_ _ { _ }) from the stack.
+  g. Push the values val^n to the stack.
 2. Else if the first non-value entry of the stack is a LABEL_, then:
   a. Pop all values val* from the top of the stack.
   b. Pop the label (LABEL_ _ { _ }) from the stack.
@@ -29364,17 +25102,23 @@ Step_read/block bt instr*
 1. Let z be the current state.
 2. Let t_1^m ->_ localidx_0* t_2^n be $blocktype_(z, bt).
 3. Assert: Due to validation, (localidx_0* = []).
-4. Assert: Due to validation, there are at least m values on the top of the stack.
-5. Pop the values val^m from the stack.
-6. Enter val^m :: instr* with label (LABEL_ n { [] }).
+4. Assert: Due to validation, (|t_1*| = m).
+5. Assert: Due to validation, (|t_2*| = n).
+6. Assert: Due to validation, there are at least m values on the top of the stack.
+7. Pop the values val^m from the stack.
+8. Assert: Due to validation, (|val*| = m).
+9. Enter val^m :: instr* with label (LABEL_ n { [] }).
 
 Step_read/loop bt instr*
 1. Let z be the current state.
 2. Let t_1^m ->_ localidx_0* t_2^n be $blocktype_(z, bt).
 3. Assert: Due to validation, (localidx_0* = []).
-4. Assert: Due to validation, there are at least m values on the top of the stack.
-5. Pop the values val^m from the stack.
-6. Enter val^m :: instr* with label (LABEL_ m { [(LOOP bt instr*)] }).
+4. Assert: Due to validation, (|t_1*| = m).
+5. Assert: Due to validation, (|t_2*| = n).
+6. Assert: Due to validation, there are at least m values on the top of the stack.
+7. Pop the values val^m from the stack.
+8. Assert: Due to validation, (|val*| = m).
+9. Enter val^m :: instr* with label (LABEL_ m { [(LOOP bt instr*)] }).
 
 Step_read/br_on_cast l rt_1 rt_2
 1. Let (FRAME_ _ { f }) be the topmost FRAME_.
@@ -29424,11 +25168,14 @@ Step_read/call_ref yy
   b. Append t to the t*.
 13. Assert: Due to validation, $Expand(fi.TYPE) is some FUNC.
 14. Let (FUNC t_1^n -> t_2^m) be $Expand(fi.TYPE).
-15. Assert: Due to validation, there are at least n values on the top of the stack.
-16. Pop the values val^n from the stack.
-17. Let f be { LOCALS: ?(val)^n :: $default_(t)*; MODULE: fi.MODULE }.
-18. Push the frame (FRAME_ m { f }) to the stack.
-19. Enter instr* with label (LABEL_ m { [] }).
+15. Assert: Due to validation, (|t_1*| = n).
+16. Assert: Due to validation, (|t_2*| = m).
+17. Assert: Due to validation, there are at least n values on the top of the stack.
+18. Pop the values val^n from the stack.
+19. Assert: Due to validation, (|val*| = n).
+20. Let f be { LOCALS: ?(val)^n :: $default_(t)*; MODULE: fi.MODULE }.
+21. Push the frame (FRAME_ m { f }) to the stack.
+22. Enter instr* with label (LABEL_ m { [] }).
 
 Step_read/return_call x
 1. Let z be the current state.
@@ -29461,13 +25208,16 @@ Step_read/return_call_ref yy
   g. Assert: Due to validation, (a < |$funcinst(z)|).
   h. Assert: Due to validation, $Expand($funcinst(z)[a].TYPE) is some FUNC.
   i. Let (FUNC t_1^n -> t_2^m) be $Expand($funcinst(z)[a].TYPE).
-  j. Assert: Due to validation, there are at least n values on the top of the stack.
-  k. Pop the values val^n from the stack.
-  l. Pop all values val'* from the top of the stack.
-  m. Pop the frame (FRAME_ _ { _ }) from the stack.
-  n. Push the values val^n to the stack.
-  o. Push the value (REF.FUNC_ADDR a) to the stack.
-  p. Execute the instruction (CALL_REF yy).
+  j. Assert: Due to validation, (|t_1*| = n).
+  k. Assert: Due to validation, (|t_2*| = m).
+  l. Assert: Due to validation, there are at least n values on the top of the stack.
+  m. Pop the values val^n from the stack.
+  n. Assert: Due to validation, (|val*| = n).
+  o. Pop all values val'* from the top of the stack.
+  p. Pop the frame (FRAME_ _ { _ }) from the stack.
+  q. Push the values val^n to the stack.
+  r. Push the value (REF.FUNC_ADDR a) to the stack.
+  s. Execute the instruction (CALL_REF yy).
 
 Step_read/throw_ref
 1. Let z be the current state.
@@ -29567,10 +25317,13 @@ Step_read/try_table bt catch* instr*
 1. Let z be the current state.
 2. Let t_1^m ->_ localidx_0* t_2^n be $blocktype_(z, bt).
 3. Assert: Due to validation, (localidx_0* = []).
-4. Assert: Due to validation, there are at least m values on the top of the stack.
-5. Pop the values val^m from the stack.
-6. Push the handler (HANDLER_ n { catch* }) to the stack.
-7. Enter val^m :: instr* with label (LABEL_ n { [] }).
+4. Assert: Due to validation, (|t_1*| = m).
+5. Assert: Due to validation, (|t_2*| = n).
+6. Assert: Due to validation, there are at least m values on the top of the stack.
+7. Pop the values val^m from the stack.
+8. Assert: Due to validation, (|val*| = m).
+9. Push the handler (HANDLER_ n { catch* }) to the stack.
+10. Enter val^m :: instr* with label (LABEL_ n { [] }).
 
 Step_read/local.get x
 1. Let z be the current state.
@@ -29709,8 +25462,9 @@ Step_read/vload V128 vloadop_? x ao
       a) Trap.
     3) Let j^K be $ibytes__1^-1(M, $mem(z, x).BYTES[((i + ao.OFFSET) + ((k * M) / 8)) : (M / 8)])^(k<K).
     4) Let Jnn be $jsizenn^-1((M * 2)).
-    5) Let c be $inv_lanes_(Jnn X K, $extend__(M, $jsizenn(Jnn), sx, j)^K).
-    6) Push the value (V128.CONST c) to the stack.
+    5) If (|j*| = K), then:
+      a) Let c be $inv_lanes_(Jnn X K, $extend__(M, $jsizenn(Jnn), sx, j)^K).
+      b) Push the value (V128.CONST c) to the stack.
   c. If vloadop_0 is some SPLAT, then:
     1) Let (SPLAT N) be vloadop_0.
     2) If (((i + ao.OFFSET) + (N / 8)) > |$mem(z, x).BYTES|), then:
@@ -29858,14 +25612,15 @@ Step_read/struct.new_default x
 2. Assert: Due to validation, $Expand($type(z, x)) is some STRUCT.
 3. Let (STRUCT list_0) be $Expand($type(z, x)).
 4. Let (mut? zt)* be list_0.
-5. Assert: Due to validation, $default_($unpack(zt)) is defined*.
-6. Let val* be [].
-7. For each zt in zt*, do:
+5. Assert: Due to validation, (|mut?*| = |zt*|).
+6. Assert: Due to validation, $default_($unpack(zt)) is defined*.
+7. Let val* be [].
+8. For each zt in zt*, do:
   a. Let ?(val) be $default_($unpack(zt)).
   b. Append val to the val*.
-8. Assert: Due to validation, (|val*| = |zt*|).
-9. Push the values val* to the stack.
-10. Execute the instruction (STRUCT.NEW x).
+9. Assert: Due to validation, (|val*| = |zt*|).
+10. Push the values val* to the stack.
+11. Execute the instruction (STRUCT.NEW x).
 
 Step_read/struct.get sx? x i
 1. Let z be the current state.
@@ -29881,7 +25636,8 @@ Step_read/struct.get sx? x i
 10. Let (STRUCT list_0) be $Expand($type(z, x)).
 11. Let (mut? zt)* be list_0.
 12. Assert: Due to validation, (i < |zt*|).
-13. Push the value $unpackfield_(zt*[i], sx?, $structinst(z)[a].FIELDS[i]) to the stack.
+13. Assert: Due to validation, (|mut?*| = |zt*|).
+14. Push the value $unpackfield_(zt*[i], sx?, $structinst(z)[a].FIELDS[i]) to the stack.
 
 Step_read/array.new_default x
 1. Let z be the current state.
@@ -29904,8 +25660,9 @@ Step_read/array.new_elem x y
 6. If ((i + n) > |$elem(z, y).REFS|), then:
   a. Trap.
 7. Let ref^n be $elem(z, y).REFS[i : n].
-8. Push the values ref^n to the stack.
-9. Execute the instruction (ARRAY.NEW_FIXED x n).
+8. Assert: Due to validation, (|ref*| = n).
+9. Push the values ref^n to the stack.
+10. Execute the instruction (ARRAY.NEW_FIXED x n).
 
 Step_read/array.new_data x y
 1. Let z be the current state.
@@ -29920,8 +25677,9 @@ Step_read/array.new_data x y
   a. Trap.
 10. Let byte** be $concatn__1^-1(`byte, ($zsize(zt) / 8), $data(z, y).BYTES[i : ((n * $zsize(zt)) / 8)]).
 11. Let c^n be $zbytes__1^-1(zt, byte*)*.
-12. Push the values $const($cunpack(zt), $cunpacknum_(zt, c))^n to the stack.
-13. Execute the instruction (ARRAY.NEW_FIXED x n).
+12. Assert: Due to validation, (|c*| = n).
+13. Push the values $const($cunpack(zt), $cunpacknum_(zt, c))^n to the stack.
+14. Execute the instruction (ARRAY.NEW_FIXED x n).
 
 Step_read/array.get sx? x
 1. Let z be the current state.
@@ -30116,12 +25874,14 @@ Step/throw x
 4. Let (FUNC t^n -> resulttype_0) be $Expand($as_deftype($tag(z, x).TYPE)).
 5. Assert: Due to validation, (resulttype_0 = []).
 6. Let a be |$exninst(z)|.
-7. Assert: Due to validation, there are at least n values on the top of the stack.
-8. Pop the values val^n from the stack.
-9. Let exn be { TAG: $tagaddr(z)[x]; FIELDS: val^n }.
-10. Perform $add_exninst(z, [exn]).
-11. Push the value (REF.EXN_ADDR a) to the stack.
-12. Execute the instruction THROW_REF.
+7. Assert: Due to validation, (|t*| = n).
+8. Assert: Due to validation, there are at least n values on the top of the stack.
+9. Pop the values val^n from the stack.
+10. Assert: Due to validation, (|val*| = n).
+11. Let exn be { TAG: $tagaddr(z)[x]; FIELDS: val^n }.
+12. Perform $add_exninst(z, [exn]).
+13. Push the value (REF.EXN_ADDR a) to the stack.
+14. Execute the instruction THROW_REF.
 
 Step/local.set x
 1. Let z be the current state.
@@ -30228,11 +25988,14 @@ Step/struct.new x
 3. Let (STRUCT list_0) be $Expand($type(z, x)).
 4. Let (mut? zt)^n be list_0.
 5. Let a be |$structinst(z)|.
-6. Assert: Due to validation, there are at least n values on the top of the stack.
-7. Pop the values val^n from the stack.
-8. Let si be { TYPE: $type(z, x); FIELDS: $packfield_(zt, val)^n }.
-9. Push the value (REF.STRUCT_ADDR a) to the stack.
-10. Perform $add_structinst(z, [si]).
+6. Assert: Due to validation, (|mut?*| = n).
+7. Assert: Due to validation, (|zt*| = n).
+8. Assert: Due to validation, there are at least n values on the top of the stack.
+9. Pop the values val^n from the stack.
+10. Assert: Due to validation, (|val*| = n).
+11. Let si be { TYPE: $type(z, x); FIELDS: $packfield_(zt, val)^n }.
+12. Push the value (REF.STRUCT_ADDR a) to the stack.
+13. Perform $add_structinst(z, [si]).
 
 Step/struct.set x i
 1. Let z be the current state.
@@ -30248,7 +26011,8 @@ Step/struct.set x i
 10. Let (STRUCT list_0) be $Expand($type(z, x)).
 11. Let (mut? zt)* be list_0.
 12. Assert: Due to validation, (i < |zt*|).
-13. Perform $with_struct(z, a, i, $packfield_(zt*[i], val)).
+13. Assert: Due to validation, (|mut?*| = |zt*|).
+14. Perform $with_struct(z, a, i, $packfield_(zt*[i], val)).
 
 Step/array.new_fixed x n
 1. Let z be the current state.
@@ -30258,9 +26022,10 @@ Step/array.new_fixed x n
 5. Let a be |$arrayinst(z)|.
 6. Assert: Due to validation, there are at least n values on the top of the stack.
 7. Pop the values val^n from the stack.
-8. Let ai be { TYPE: $type(z, x); FIELDS: $packfield_(zt, val)^n }.
-9. Push the value (REF.ARRAY_ADDR a) to the stack.
-10. Perform $add_arrayinst(z, [ai]).
+8. Assert: Due to validation, (|val*| = n).
+9. Let ai be { TYPE: $type(z, x); FIELDS: $packfield_(zt, val)^n }.
+10. Push the value (REF.ARRAY_ADDR a) to the stack.
+11. Perform $add_arrayinst(z, [ai]).
 
 Step/array.set x
 1. Let z be the current state.
@@ -30301,9 +26066,10 @@ prod n''*
 opt_ `X X*
 1. If (X* = []), then:
   a. Return ?().
-2. Assert: Due to validation, (|X*| = 1).
-3. Let [w] be X*.
-4. Return ?(w).
+2. If (|X*| = 1), then:
+  a. Let [w] be X*.
+  b. Return ?(w).
+3. Fail.
 
 concat_ `X X*
 1. If (X* = []), then:
@@ -30364,14 +26130,16 @@ setproduct_ `X X*
 signif N
 1. If (N = 32), then:
   a. Return 23.
-2. Assert: Due to validation, (N = 64).
-3. Return 52.
+2. If (N = 64), then:
+  a. Return 52.
+3. Fail.
 
 expon N
 1. If (N = 32), then:
   a. Return 8.
-2. Assert: Due to validation, (N = 64).
-3. Return 11.
+2. If (N = 64), then:
+  a. Return 11.
+3. Fail.
 
 M N
 1. Return $signif(N).
@@ -30495,9 +26263,10 @@ free_externidx externidx
 3. If externidx is some TABLE, then:
   a. Let (TABLE tableidx) be externidx.
   b. Return $free_tableidx(tableidx).
-4. Assert: Due to validation, externidx is some MEM.
-5. Let (MEM memidx) be externidx.
-6. Return $free_memidx(memidx).
+4. If externidx is some MEM, then:
+  a. Let (MEM memidx) be externidx.
+  b. Return $free_memidx(memidx).
+5. Fail.
 
 ANYREF
 1. Return (REF ?(NULL) ANY).
@@ -30538,14 +26307,16 @@ NULLEXTERNREF
 IN N
 1. If (N = 32), then:
   a. Return I32.
-2. Assert: Due to validation, (N = 64).
-3. Return I64.
+2. If (N = 64), then:
+  a. Return I64.
+3. Fail.
 
 FN N
 1. If (N = 32), then:
   a. Return F32.
-2. Assert: Due to validation, (N = 64).
-3. Return F64.
+2. If (N = 64), then:
+  a. Return F64.
+3. Fail.
 
 JN N
 1. If (N = 8), then:
@@ -30554,8 +26325,9 @@ JN N
   a. Return I16.
 3. If (N = 32), then:
   a. Return I32.
-4. Assert: Due to validation, (N = 64).
-5. Return I64.
+4. If (N = 64), then:
+  a. Return I64.
+5. Fail.
 
 size numtype
 1. If (numtype = I32), then:
@@ -30611,7 +26383,11 @@ inv_jsize n
   a. Return I8.
 2. If (n = 16), then:
   a. Return I16.
-3. Return $inv_isize(n).
+3. If (n = 32), then:
+  a. Return I32.
+4. If (n = 64), then:
+  a. Return I64.
+5. Fail.
 
 inv_fsize n
 1. If (n = 32), then:
@@ -30648,7 +26424,15 @@ jsizenn Jnn
 1. Return $lsize(Jnn).
 
 inv_jsizenn n
-1. Return $inv_jsize(n).
+1. If (n = 8), then:
+  a. Return I8.
+2. If (n = 16), then:
+  a. Return I16.
+3. If (n = 32), then:
+  a. Return I32.
+4. If (n = 64), then:
+  a. Return I64.
+5. Fail.
 
 lunpack lanetype
 1. If lanetype is numtype, then:
@@ -31456,14 +27240,16 @@ dataidx_funcs func*
 1. Return $free_list($free_func(func)*).DATAS.
 
 with_locals C localidx* localtype*
-1. If (localtype* = []), then:
-  a. Assert: Due to validation, (localidx* = []).
+1. If (localidx* = []), then:
+  a. If (localtype* = []), then:
+    1) Return C.
   b. Return C.
-2. Else:
-  a. Let [lct_1] :: lct* be localtype*.
-  b. Assert: Due to validation, (|localidx*| >= 1).
-  c. Let [x_1] :: x* be localidx*.
-  d. Return $with_locals(C with .LOCALS[x_1] replaced by lct_1, x*, lct*).
+2. If (localtype* = []), then:
+  a. Return C.
+3. Let [lct_1] :: lct* be localtype*.
+4. Assert: Due to validation, (|localidx*| >= 1).
+5. Let [x_1] :: x* be localidx*.
+6. Return $with_locals(C with .LOCALS[x_1] replaced by lct_1, x*, lct*).
 
 clos_deftypes deftype*
 1. If (deftype* = []), then:
@@ -31517,7 +27303,7 @@ default_ valtype
   a. Return ?((valtype.CONST 0)).
 2. If valtype is Fnn, then:
   a. Return ?((valtype.CONST $fzero($size(valtype)))).
-3. If valtype is Vnn, then:
+3. If valtype is vectype, then:
   a. Return ?((valtype.CONST 0)).
 4. Assert: Due to validation, valtype is some REF.
 5. Let (REF NULL_0? ht) be valtype.

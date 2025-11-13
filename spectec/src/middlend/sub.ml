@@ -203,7 +203,7 @@ and t_sym env x = { x with it = t_sym' env x.it }
 
 and t_arg' env = function
   | ExpA exp -> ExpA (t_exp env exp)
-  | TypA t -> TypA t
+  | TypA t -> TypA (t_typ env t)
   | DefA id -> DefA id
   | GramA sym -> GramA (t_sym env sym)
 
@@ -274,13 +274,13 @@ let t_rule env x = { x with it = t_rule' env x.it }
 let rec t_def' env = function
   | RecD defs -> RecD (List.map (t_def env) defs)
   | DecD (id, params, typ, clauses) ->
-    DecD (id, t_params env params, typ, t_clauses env clauses)
+    DecD (id, t_params env params, t_typ env typ, t_clauses env clauses)
   | TypD (id, params, insts) ->
     TypD (id, t_params env params, t_insts env insts)
   | RelD (id, mixop, typ, rules) ->
     RelD (id, mixop, t_typ env typ, List.map (t_rule env) rules)
   | GramD (id, params, typ, prods) ->
-    GramD (id, t_params env params, typ, t_prods env prods)
+    GramD (id, t_params env params, t_typ env typ, t_prods env prods)
   | HintD _ as def -> def
 
 and t_def env (def : def) = { def with it = t_def' env def.it }

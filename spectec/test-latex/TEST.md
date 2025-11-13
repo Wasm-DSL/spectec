@@ -2788,13 +2788,11 @@ $$
 \end{array}
 $$
 
-\vspace{1ex}
-
 $$
 \begin{array}[t]{@{}lrrl@{}l@{}}
 & {\mathsf{i}}{N} & ::= & {\mathit{addrtype}} \\
 & {\mathsf{f}}{N} & ::= & \mathsf{f{\scriptstyle 32}} ~~|~~ \mathsf{f{\scriptstyle 64}} \\
-& {\mathsf{v}}{N} & ::= & \mathsf{v{\scriptstyle 128}} \\
+& {\mathsf{v}}{N} & ::= & {\mathit{vectype}} \\
 & t & ::= & {\mathsf{i}}{N} ~~|~~ {\mathsf{f}}{N} ~~|~~ {\mathsf{v}}{N} \\
 \end{array}
 $$
@@ -2889,7 +2887,7 @@ $$
 \begin{array}[t]{@{}lrrl@{}l@{}}
 & {\mathsf{i}}{N} & ::= & {\mathit{packtype}} \\
 & {\mathsf{i}}{N} & ::= & {\mathsf{i}}{N} ~~|~~ {\mathsf{i}}{N} \\
-& {\mathsf{i}}{N} & ::= & {\mathsf{i}}{N} ~~|~~ {\mathsf{f}}{N} ~~|~~ {\mathsf{i}}{N} \\
+& {\mathsf{i}}{N} & ::= & {\mathit{lanetype}} \\
 \end{array}
 $$
 
@@ -3034,7 +3032,8 @@ $$
 \begin{array}[t]{@{}lcl@{}l@{}}
 {\mathrm{inv}}_{\mathit{jsize}}(8) & = & \mathsf{i{\scriptstyle 8}} \\
 {\mathrm{inv}}_{\mathit{jsize}}(16) & = & \mathsf{i{\scriptstyle 16}} \\
-{\mathrm{inv}}_{\mathit{jsize}}(n) & = & {\mathrm{inv}}_{\mathit{isize}}(n) \\
+{\mathrm{inv}}_{\mathit{jsize}}(32) & = & \mathsf{i{\scriptstyle 32}} \\
+{\mathrm{inv}}_{\mathit{jsize}}(64) & = & \mathsf{i{\scriptstyle 64}} \\
 \end{array}
 $$
 
@@ -3094,7 +3093,10 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{inv}}_{\mathit{jsizenn}}(n) & = & {\mathrm{inv}}_{\mathit{jsize}}(n) \\
+{\mathrm{inv}}_{\mathit{jsizenn}}(8) & = & \mathsf{i{\scriptstyle 8}} \\
+{\mathrm{inv}}_{\mathit{jsizenn}}(16) & = & \mathsf{i{\scriptstyle 16}} \\
+{\mathrm{inv}}_{\mathit{jsizenn}}(32) & = & \mathsf{i{\scriptstyle 32}} \\
+{\mathrm{inv}}_{\mathit{jsizenn}}(64) & = & \mathsf{i{\scriptstyle 64}} \\
 \end{array}
 $$
 
@@ -4527,6 +4529,8 @@ $$
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
 C{}[{.}\mathsf{local}{}[\epsilon] = \epsilon] & = & C \\
+C{}[{.}\mathsf{local}{}[\epsilon] = {{{\mathit{lt}}}^\ast}] & = & C \\
+C{}[{.}\mathsf{local}{}[{x^\ast}] = \epsilon] & = & C \\
 C{}[{.}\mathsf{local}{}[x_1~{x^\ast}] = {{\mathit{lt}}}_1~{{{\mathit{lt}}}^\ast}] & = & C{}[{.}\mathsf{locals}{}[x_1] = {{\mathit{lt}}}_1]{}[{.}\mathsf{local}{}[{x^\ast}] = {{{\mathit{lt}}}^\ast}] \\
 \end{array}
 $$
