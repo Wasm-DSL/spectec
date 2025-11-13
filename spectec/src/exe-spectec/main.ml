@@ -13,6 +13,7 @@ type target =
  | Prose of bool
  | Splice of Backend_splice.Config.t
  | Interpreter of string list
+ | Lean4
 
 type pass =
   | Sub
@@ -22,7 +23,10 @@ type pass =
   | TypeFamilyRemoval
   | Else
   | Undep
+  | SubExpansion
+  | Uncaseremoval
   | AliasDemut
+  | ImproveIds
 
 (* This list declares the intended order of passes.
 
@@ -31,7 +35,18 @@ passers (--all-passes, some targets), we do _not_ want to use the order of
 flags on the command line.
 *)
 let _skip_passes = [ Unthe ]  (* Not clear how to extend them to indexed types *)
-let all_passes = [ TypeFamilyRemoval; Undep; Totalize; Else; Sideconditions; Sub; AliasDemut ]
+let all_passes = [
+  TypeFamilyRemoval;
+  Undep;
+  Totalize;
+  Else;
+  Uncaseremoval;
+  Sideconditions;
+  SubExpansion;
+  Sub;
+  AliasDemut;
+  ImproveIds;
+]
 
 type file_kind =
   | Spec
@@ -92,6 +107,9 @@ let pass_flag = function
   | AliasDemut -> "alias-demut"
   | Else -> "else"
   | Undep -> "remove-indexed-types"
+  | SubExpansion -> "sub-expansion"
+  | Uncaseremoval -> "uncase-removal"
+  | ImproveIds -> "improve-ids"
 
 let pass_desc = function
   | Sub -> "Synthesize explicit subtype coercions"
@@ -101,7 +119,10 @@ let pass_desc = function
   | TypeFamilyRemoval -> "Transform Type families into sum types"
   | Else -> "Eliminate the otherwise premise in relations"
   | Undep -> "Transform indexed types into types with well-formedness predicates"
+  | SubExpansion -> "Expands subtype matching"
+  | Uncaseremoval -> "Eliminate the uncase expression"
   | AliasDemut -> "Lifts type aliases out of mutual groups"
+  | ImproveIds -> "Disambiguates ids used from each other"
 
 
 let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
@@ -112,7 +133,10 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | TypeFamilyRemoval -> Middlend.Typefamilyremoval.transform
   | Else -> Middlend.Else.transform
   | Undep -> Middlend.Undep.transform
+  | SubExpansion -> Middlend.Subexpansion.transform
+  | Uncaseremoval -> Middlend.Uncaseremoval.transform
   | AliasDemut -> Middlend.AliasDemut.transform
+  | ImproveIds -> Middlend.Improveids.transform
 
 
 (* Argument parsing *)
@@ -167,6 +191,7 @@ let argspec = Arg.align (
   "--prose-rst", Arg.Unit (fun () -> target := Prose false), " Generate prose";
   "--interpreter", Arg.Rest_all (fun args -> target := Interpreter args),
     " Generate interpreter";
+  "--lean4", Arg.Unit (fun () -> target := Lean4), " Generate Lean4 specification";
   "--debug", Arg.Unit (fun () -> Backend_interpreter.Debugger.debug := true),
     " Debug interpreter";
   "--unified-vars", Arg.Unit (fun () -> Il2al.Unify.rename := false),
@@ -216,6 +241,15 @@ let () =
     (match !target with
     | Prose _ | Splice _ | Interpreter _ ->
       enable_pass Sideconditions;
+    | Lean4 ->
+      enable_pass Sideconditions; 
+      enable_pass Totalize; 
+      enable_pass Else;
+      enable_pass Uncaseremoval; 
+      enable_pass SubExpansion;
+      enable_pass Undep;
+      enable_pass TypeFamilyRemoval;
+      enable_pass Sub;
     | _ when !print_al || !print_al_o <> "" ->
       enable_pass Sideconditions;
     | _ -> ()
@@ -242,7 +276,7 @@ let () =
     if !print_final_il && not !print_all_il then print_il il;
 
     let al =
-      if not !print_al && !print_al_o = "" && (!target = Check || !target = Ast || !target = Latex) then []
+      if not !print_al && !print_al_o = "" && (!target = Check || !target = Ast || !target = Latex || !target = Lean4) then []
       else (
         log "Translating to AL...";
         let interp = match !target with
@@ -352,6 +386,19 @@ let () =
       Backend_interpreter.Ds.init al;
       log "Interpreting...";
       Backend_interpreter.Runner.run args
+    | Lean4 ->
+      log "Lean4 Generation...";
+      (match !odsts with
+      | [] -> print_endline (Backend_lean4.Print.string_of_script il)
+      | [odst] -> 
+        let coq_code = Backend_lean4.Print.string_of_script il in
+        let oc = Out_channel.open_text odst in
+        Fun.protect (fun () -> Out_channel.output_string oc coq_code)
+          ~finally:(fun () -> Out_channel.close oc)
+      | _ ->
+        prerr_endline "too many output file names";
+        exit 2
+      )
     );
     log "Complete."
   with

@@ -1,0 +1,14 @@
+(rule
+  (targets
+    Wasm.lean.act
+  )
+  (action
+    (system "../src/exe-spectec/main.exe ../../../../specification/wasm-3.0/[012345]*.spectec -v -l --lean4 -o Wasm.lean.act")
+  )
+  (deps
+    (file ../src/exe-spectec/main.exe)
+    (glob_files_rec ../_specification/*)
+  )
+)
+
+(rule (alias runtest) (action (diff Wasm.lean Wasm.lean.act)))
