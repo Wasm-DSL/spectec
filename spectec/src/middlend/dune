@@ -4,8 +4,12 @@
   (modules
     sub
     totalize
-    wild
     unthe
     sideconditions
+    typefamilyremoval
+    else
+    undep
+    utils
+    aliasDemut
   )
 )
