@@ -77,10 +77,6 @@ let print_al = ref false
 let print_al_o = ref ""
 let print_no_pos = ref false
 
-module PS = Set.Make(struct type t = pass let compare = compare; end)
-let selected_passes = ref (PS.empty)
-let enable_pass pass = selected_passes := PS.add pass !selected_passes
-
 
 let print_il il =
   Printf.printf "%s\n%!" (Il.Print.string_of_script ~suppress_pos:(!print_no_pos) il)
@@ -137,6 +133,13 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | Uncaseremoval -> Middlend.Uncaseremoval.transform
   | AliasDemut -> Middlend.AliasDemut.transform
   | ImproveIds -> Middlend.Improveids.transform
+
+module PS = Set.Make(struct type t = pass let compare = compare; end)
+let selected_passes = ref (PS.empty)
+let enable_pass pass =
+  if not (List.mem pass all_passes) then
+      Util.Error.error Util.Source.no_region "pass not in all_passes:" (pass_flag pass);
+  selected_passes := PS.add pass !selected_passes
 
 
 (* Argument parsing *)
