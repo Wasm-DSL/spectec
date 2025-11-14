@@ -2,7 +2,9 @@
   (libraries spectec)
   (deps
     (file ../src/exe-spectec/main.exe)
-    (glob_files_rec ../_specification/*)
+    (glob_files ../specification/wasm-1.0/*)
+    (glob_files ../specification/wasm-2.0/*)
+    (glob_files ../specification/wasm-3.0/*)
   )
   (files TEST.md)
 )
