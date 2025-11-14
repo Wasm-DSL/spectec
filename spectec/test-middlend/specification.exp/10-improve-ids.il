@@ -46,11 +46,12 @@ def $prod(var_0 : nat*) : nat
 }
 
 ;; ../../../../specification/wasm-3.0/0.3-aux.seq.spectec
-def $opt_(syntax X, var_0 : X*) : X?
+def $opt_(syntax X, var_0 : X*) : X??
   ;; ../../../../specification/wasm-3.0/0.3-aux.seq.spectec
-  def $opt_{syntax X}(syntax X, []) = ?()
+  def $opt_{syntax X}(syntax X, []) = ?(?())
   ;; ../../../../specification/wasm-3.0/0.3-aux.seq.spectec
-  def $opt_{syntax X, w : X}(syntax X, [w]) = ?(w)
+  def $opt_{syntax X, w : X}(syntax X, [w]) = ?(?(w))
+  def $opt_{syntax X, x1 : X*}(syntax X, x1) = ?()
 
 ;; ../../../../specification/wasm-3.0/0.3-aux.seq.spectec
 rec {
@@ -244,28 +245,30 @@ syntax u128 = uN
 syntax s33 = sN
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-def $signif(v_N : N) : nat
+def $signif(v_N : N) : nat?
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $signif(32) = 23
+  def $signif(32) = ?(23)
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $signif(64) = 52
+  def $signif(64) = ?(52)
+  def $signif{x0 : N}(x0) = ?()
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-def $expon(v_N : N) : nat
+def $expon(v_N : N) : nat?
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $expon(32) = 8
+  def $expon(32) = ?(8)
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $expon(64) = 11
+  def $expon(64) = ?(11)
+  def $expon{x0 : N}(x0) = ?()
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 def $fun_M(v_N : N) : nat
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $fun_M{v_N : nat}(v_N) = $signif(v_N)
+  def $fun_M{v_N : nat}(v_N) = !($signif(v_N))
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 def $E(v_N : N) : nat
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $E{v_N : nat}(v_N) = $expon(v_N)
+  def $E{v_N : nat}(v_N) = !($expon(v_N))
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 syntax exp = int
@@ -342,7 +345,7 @@ def $fone(v_N : N) : fN
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 def $canon_(v_N : N) : nat
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $canon_{v_N : nat}(v_N) = (2 ^ ((($signif(v_N) : nat <:> int) - (1 : nat <:> int)) : int <:> nat))
+  def $canon_{v_N : nat}(v_N) = (2 ^ (((!($signif(v_N)) : nat <:> int) - (1 : nat <:> int)) : int <:> nat))
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 syntax vN = uN
@@ -1408,29 +1411,32 @@ relation wf_moduletype: `%`(moduletype)
     -- (wf_externtype: `%`(var_0))*{var_0 <- var_0}
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-def $IN(v_N : N) : Inn
+def $IN(v_N : N) : Inn?
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $IN(32) = I32_Inn
+  def $IN(32) = ?(I32_Inn)
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $IN(64) = I64_Inn
+  def $IN(64) = ?(I64_Inn)
+  def $IN{x0 : N}(x0) = ?()
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-def $FN(v_N : N) : Fnn
+def $FN(v_N : N) : Fnn?
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $FN(32) = F32_Fnn
+  def $FN(32) = ?(F32_Fnn)
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $FN(64) = F64_Fnn
+  def $FN(64) = ?(F64_Fnn)
+  def $FN{x0 : N}(x0) = ?()
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-def $JN(v_N : N) : Jnn
+def $JN(v_N : N) : Jnn?
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $JN(8) = I8_Jnn
+  def $JN(8) = ?(I8_Jnn)
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $JN(16) = I16_Jnn
+  def $JN(16) = ?(I16_Jnn)
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $JN(32) = I32_Jnn
+  def $JN(32) = ?(I32_Jnn)
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $JN(64) = I64_Jnn
+  def $JN(64) = ?(I64_Jnn)
+  def $JN{x0 : N}(x0) = ?()
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $size(v_numtype : numtype) : nat
@@ -18812,7 +18818,7 @@ syntax startopt = start*
 ;; ../../../../specification/wasm-3.0/5.4-binary.modules.spectec
 grammar Bstartsec : start?
   ;; ../../../../specification/wasm-3.0/5.4-binary.modules.spectec
-  prod{v_startopt : startopt} v_startopt:Bsection_(8, syntax start, grammar Bstart) => $opt_(syntax start, v_startopt)
+  prod{v_startopt : startopt} v_startopt:Bsection_(8, syntax start, grammar Bstart) => !($opt_(syntax start, v_startopt))
 
 ;; ../../../../specification/wasm-3.0/5.4-binary.modules.spectec
 grammar Belemkind : reftype
@@ -18893,7 +18899,7 @@ syntax nopt = u32*
 ;; ../../../../specification/wasm-3.0/5.4-binary.modules.spectec
 grammar Bdatacntsec : u32?
   ;; ../../../../specification/wasm-3.0/5.4-binary.modules.spectec
-  prod{v_nopt : nopt} v_nopt:Bsection_(12, syntax u32, grammar Bdatacnt) => $opt_(syntax u32, v_nopt)
+  prod{v_nopt : nopt} v_nopt:Bsection_(12, syntax u32, grammar Bdatacnt) => !($opt_(syntax u32, v_nopt))
 
 ;; ../../../../specification/wasm-3.0/5.4-binary.modules.spectec
 grammar Btag : tag
@@ -19335,7 +19341,7 @@ grammar TfNmag(v_N : N) : fNmag
   prod "nan" => NAN_fNmag($canon_(v_N))
   ;; ../../../../specification/wasm-3.0/6.1-text.values.spectec
   prod{v_n : n} {{"nan:0x"} {v_n:Thexnum}} => NAN_fNmag(v_n)
-    -- if ((1 <= v_n) /\ (v_n < (2 ^ $signif(v_N))))
+    -- if ((1 <= v_n) /\ (v_n < (2 ^ !($signif(v_N)))))
 
 ;; ../../../../specification/wasm-3.0/6.1-text.values.spectec
 grammar TfN(v_N : N) : fN
