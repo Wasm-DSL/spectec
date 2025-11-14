@@ -677,6 +677,7 @@ let rec string_of_def def =
 
 let exported_string = {|/- Preamble -/
 set_option linter.unusedVariables false
+set_option match.ignoreUnusedAlts true
 
 instance : Append (Option a) where
   append := fun o1 o2 => match o1 with | none => o2 | _ => o1
