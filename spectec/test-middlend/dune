@@ -33,7 +33,7 @@
   )
   (deps
     (file ../src/exe-spectec/main.exe)
-    (glob_files_rec ../_specification/*)
+    (glob_files ../specification/wasm-3.0/*)    
   )
 )
 

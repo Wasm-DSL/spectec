@@ -52,10 +52,11 @@ def prod : ∀  (var_0 : (List Nat)) , Nat
   | (v_n :: n'_lst) => (v_n * (prod n'_lst))
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:7.1-7.44 -/
-def opt_ : ∀  (X : Type) (var_0 : (List X)) , (Option X)
-  | X, [] => none
-  | X, [w] => (some w)
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:7.1-7.58 -/
+def opt_ : ∀  (X : Type) (var_0 : (List X)) , (Option (Option X))
+  | X, [] => (some none)
+  | X, [w] => (some (some w))
+  | X, x1 => none
 
 
 /- Recursive Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:14.1-14.82 -/
@@ -210,10 +211,11 @@ abbrev u128 : Type := uN
 /- Type Alias Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:23.1-23.21 -/
 abbrev s33 : Type := sN
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:30.1-30.21 -/
-def signif : ∀  (v_N : N) , Nat
-  | 32 => 23
-  | 64 => 52
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:30.1-30.35 -/
+def signif : ∀  (v_N : N) , (Option Nat)
+  | 32 => (some 23)
+  | 64 => (some 52)
+  | x0 => none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:34.1-34.20 -/
@@ -224,7 +226,7 @@ def expon : ∀  (v_N : N) , Nat
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:38.1-38.47 -/
 def fun_M : ∀  (v_N : N) , Nat
-  | v_N => (signif v_N)
+  | v_N => (Option.get! (signif v_N))
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:41.1-41.47 -/
@@ -290,7 +292,7 @@ opaque fone : forall (v_N : N), fN := opaqueDef
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:67.1-67.21 -/
 def canon_ : ∀  (v_N : N) , Nat
-  | v_N => (2 ^ ((((signif v_N) : Nat) - (1 : Nat)) : Nat))
+  | v_N => (2 ^ ((((Option.get! (signif v_N)) : Nat) - (1 : Nat)) : Nat))
 
 
 /- Type Alias Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:73.1-74.8 -/
