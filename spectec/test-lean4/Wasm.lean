@@ -218,10 +218,11 @@ def signif : ∀  (v_N : N) , (Option Nat)
   | x0 => none
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:34.1-34.20 -/
-def expon : ∀  (v_N : N) , Nat
-  | 32 => 8
-  | 64 => 11
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:34.1-34.34 -/
+def expon : ∀  (v_N : N) , (Option Nat)
+  | 32 => (some 8)
+  | 64 => (some 11)
+  | x0 => none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:38.1-38.47 -/
@@ -231,7 +232,7 @@ def fun_M : ∀  (v_N : N) , Nat
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:41.1-41.47 -/
 def E : ∀  (v_N : N) , Nat
-  | v_N => (expon v_N)
+  | v_N => (Option.get! (expon v_N))
 
 
 /- Type Alias Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:48.1-48.47 -/
@@ -1151,24 +1152,27 @@ inductive wf_moduletype : moduletype -> Prop where
     Forall (fun (var_0 : externtype) => (wf_externtype var_0)) var_0 ->
     wf_moduletype (.mk_moduletype externtype_lst var_0)
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:179.1-179.51 -/
-def IN : ∀  (v_N : N) , Inn
-  | 32 => .I32
-  | 64 => .I64
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:179.1-179.65 -/
+def IN : ∀  (v_N : N) , (Option Inn)
+  | 32 => (some .I32)
+  | 64 => (some .I64)
+  | x0 => none
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:183.1-183.51 -/
-def FN : ∀  (v_N : N) , Fnn
-  | 32 => .F32
-  | 64 => .F64
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:183.1-183.65 -/
+def FN : ∀  (v_N : N) , (Option Fnn)
+  | 32 => (some .F32)
+  | 64 => (some .F64)
+  | x0 => none
 
 
-/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:187.1-187.51 -/
-def JN : ∀  (v_N : N) , Jnn
-  | 8 => .I8
-  | 16 => .I16
-  | 32 => .I32
-  | 64 => .I64
+/- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:187.1-187.65 -/
+def JN : ∀  (v_N : N) , (Option Jnn)
+  | 8 => (some .I8)
+  | 16 => (some .I16)
+  | 32 => (some .I32)
+  | 64 => (some .I64)
+  | x0 => none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:196.1-196.46 -/
