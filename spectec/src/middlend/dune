@@ -11,5 +11,9 @@
     undep
     utils
     deftorel
+    subexpansion
+    uncaseremoval
+    aliasDemut
+    improveids
   )
 )
