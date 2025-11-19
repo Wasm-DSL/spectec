@@ -209,20 +209,19 @@ let get_type_args t =
   | VarT (_, args) -> args
   | _ -> error t.at ("Following type should be a variable type: " ^ Il.Print.string_of_typ t)
 
-let rec render_param_type exp_type alias_set param = 
+let rec render_param_type exp_type param = 
   match param.it with
-  | ExpP (_, typ) -> render_type exp_type alias_set typ
+  | ExpP (_, typ) -> render_type exp_type typ
   | TypP _ -> "eqType"
   | DefP (_, params, typ) -> 
-    string_of_list_suffix " -> " " -> " (render_param_type exp_type alias_set) params ^ render_type exp_type alias_set typ
+    string_of_list_suffix " -> " " -> " (render_param_type exp_type) params ^ render_type exp_type typ
   | GramP _ -> comment_parens ("Unsupported param: " ^ Il.Print.string_of_param param)
 
-and render_type exp_type alias_set typ = 
-  let rt_func = render_type exp_type alias_set in
+and render_type exp_type typ = 
+  let rt_func = render_type exp_type in
   match typ.it with
-  | VarT (id, []) when StringSet.mem id.it alias_set -> rt_func (Il.Eval.reduce_typ !env_ref typ) 
   | VarT (id, []) -> id.it
-  | VarT (id, args) -> parens (id.it ^ " " ^ String.concat " " (List.map (render_arg exp_type alias_set) args))
+  | VarT (id, args) -> parens (id.it ^ " " ^ String.concat " " (List.map (render_arg exp_type) args))
   | BoolT -> "bool"
   | NumT nt -> render_numtyp nt
   | TextT -> "string"
@@ -231,8 +230,8 @@ and render_type exp_type alias_set typ =
   | IterT (t, Opt) -> parens ("option " ^ rt_func t)
   | IterT (t, _) -> parens ("list " ^ rt_func t)
 
-and render_exp exp_type alias_set exp =
-  let r_func = render_exp exp_type alias_set in
+and render_exp exp_type exp =
+  let r_func = render_exp exp_type in
   match exp.it with 
   | VarE id -> render_id id.it
   | BoolE b -> string_of_bool b
@@ -291,15 +290,15 @@ and render_exp exp_type alias_set exp =
   | CatE (e1, e2) -> parens (r_func e1 ^ " ++ " ^ r_func e2)
   | IdxE (e1, e2) -> parens ("lookup_total " ^ r_func e1 ^ " " ^ r_func e2)
   | SliceE (e1, e2, e3) -> parens ("list_slice" ^ r_func e1 ^ " " ^ r_func e2 ^ " " ^ r_func e3)
-  | UpdE (e1, p, e2) -> render_path_start p alias_set e1 false e2
-  | ExtE (e1, p, e2) -> render_path_start p alias_set e1 true e2
-  | CallE (id, args) -> parens (render_id id.it ^ " " ^ String.concat " " (List.map (render_arg exp_type alias_set) args))
+  | UpdE (e1, p, e2) -> render_path_start p e1 false e2
+  | ExtE (e1, p, e2) -> render_path_start p e1 true e2
+  | CallE (id, args) -> parens (render_id id.it ^ " " ^ String.concat " " (List.map (render_arg exp_type) args))
   (* Iter handling *)
   | IterE (e, (ListN (n, _), [])) -> parens ("List.repeat " ^ (r_func e) ^ " " ^ (r_func n)) 
   | IterE (e, (_, [])) -> r_func e
   | IterE (e, _) when exp_type = LHS -> r_func e
   | IterE (e, (iter, iter_binds)) ->
-    let binds = List.map (fun (id, e) -> parens (render_id id.it  ^ " : " ^ render_type exp_type alias_set (remove_iter_from_type e.note))) iter_binds in
+    let binds = List.map (fun (id, e) -> parens (render_id id.it  ^ " : " ^ render_type exp_type (remove_iter_from_type e.note))) iter_binds in
     let iter_exps = List.map snd iter_binds in 
     let n = List.length iter_binds - 1 in
     let lst = if iter = Opt then iter_exp_opt_funcs else iter_exp_lst_funcs in
@@ -308,33 +307,33 @@ and render_exp exp_type alias_set exp =
     | None -> error exp.at "Iteration exceeded the supported amount for rocq translation"
     in 
     parens (pred_name ^ " " ^ render_lambda binds (r_func e) ^ " " ^ 
-    String.concat " " (List.map (render_exp exp_type alias_set) iter_exps))
+    String.concat " " (List.map (render_exp exp_type) iter_exps))
   | CvtE (e1, _nt1, nt2) -> parens (r_func e1 ^ " : " ^ render_numtyp nt2)
   | SubE _ -> error exp.at "Encountered subtype expression. Please run sub pass"
 
-and render_arg exp_type alias_set a = 
+and render_arg exp_type a = 
   match a.it with 
-  | ExpA e -> render_exp exp_type alias_set e
-  | TypA t -> render_type exp_type alias_set t
+  | ExpA e -> render_exp exp_type e
+  | TypA t -> render_type exp_type t
   | DefA id -> render_id id.it 
   | _ -> comment_parens ("Unsupported arg: " ^ Il.Print.string_of_arg a)
 
-and render_bind exp_type alias_set b =
+and render_bind exp_type b =
   match b.it with
-  | ExpB (id, typ) -> parens (render_id id.it  ^ " : " ^ render_type exp_type alias_set typ)
+  | ExpB (id, typ) -> parens (render_id id.it  ^ " : " ^ render_type exp_type typ)
   | TypB id -> parens (render_id id.it  ^ " : Type")
   | DefB (id, params, typ) -> 
     parens (render_id id.it  ^ " : " ^ 
-    string_of_list_suffix " -> " " -> " (render_param_type exp_type alias_set) params ^
-    render_type exp_type alias_set typ)
+    string_of_list_suffix " -> " " -> " (render_param_type exp_type) params ^
+    render_type exp_type typ)
   | GramB _ -> comment_parens ("Unsupported bind: " ^ Il.Print.string_of_bind b)
 
-and render_param exp_type alias_set param = 
+and render_param exp_type param = 
   let get_id p =
     match p.it with
     | ExpP (id, _) | TypP id | DefP (id, _, _) | GramP (id, _) -> render_id id.it 
   in
-  parens (get_id param ^ " : " ^ render_param_type exp_type alias_set param)
+  parens (get_id param ^ " : " ^ render_param_type exp_type param)
 
 
 (* PATH Functions *)
@@ -347,15 +346,15 @@ and transform_list_path (p : path) =
 and render_lambda binds text =
   parens ("fun " ^ String.concat " " binds ^ " => " ^ text)
 
-and render_path_start (p : path) alias_set start_exp is_extend end_exp = 
+and render_path_start (p : path) start_exp is_extend end_exp = 
   let paths = List.rev (p :: transform_list_path p) in
-  (render_path paths alias_set (start_exp.note) p.at 0 (Some start_exp) is_extend end_exp)
+  (render_path paths (start_exp.note) p.at 0 (Some start_exp) is_extend end_exp)
 
-and render_path (paths : path list) alias_set typ at n name is_extend end_exp = 
+and render_path (paths : path list) typ at n name is_extend end_exp = 
   let render_record_update t1 t2 t3 =
     parens (t1 ^ " <| " ^ t2 ^ " := " ^ t3 ^ " |>")
   in
-  let r_func_e = render_exp RHS alias_set in
+  let r_func_e = render_exp RHS in
   let is_dot p = (match p.it with
     | DotP _ -> true
     | _ -> false 
@@ -370,7 +369,7 @@ and render_path (paths : path list) alias_set typ at n name is_extend end_exp =
   (* End logic for extend *)
   | [{it = IdxP (_, e); _}] when is_extend -> 
     let extend_term = parens (new_name ^ " ++ " ^ r_func_e end_exp) in
-    let bind = render_bind RHS alias_set (ExpB (new_name $ no_region, new_name_typ) $ no_region) in
+    let bind = render_bind RHS (ExpB (new_name $ no_region, new_name_typ) $ no_region) in
     parens ("list_update_func " ^ r_func_e (list_name n) ^ " " ^ r_func_e e ^ render_lambda [bind] extend_term)
   | [{it = DotP (_, a); _}] when is_extend -> 
     let projection_term = parens (render_atom a ^ " " ^ r_func_e (list_name n)) in
@@ -378,11 +377,11 @@ and render_path (paths : path list) alias_set typ at n name is_extend end_exp =
     render_record_update (r_func_e (list_name n)) (render_atom a) extend_term
   | [{it = SliceP (_, e1, e2); _}] when is_extend -> 
     let extend_term = parens (new_name ^ " ++ " ^ r_func_e end_exp) in
-    let bind = render_bind RHS alias_set (ExpB (new_name $ no_region, new_name_typ) $ no_region) in
+    let bind = render_bind RHS (ExpB (new_name $ no_region, new_name_typ) $ no_region) in
     parens ("list_slice_update " ^ r_func_e (list_name n) ^ " " ^ r_func_e e1 ^ " " ^ r_func_e e2 ^ " " ^ render_lambda [bind] extend_term)
   (* End logic for update *)
   | [{it = IdxP (_, e); _}] -> 
-    let bind = render_bind RHS alias_set (ExpB ("_" $ no_region, new_name_typ) $ no_region) in
+    let bind = render_bind RHS (ExpB ("_" $ no_region, new_name_typ) $ no_region) in
     parens ("list_update_func " ^ r_func_e (list_name n) ^ " " ^ r_func_e e ^ " " ^ render_lambda [bind] (r_func_e end_exp))
   | [{it = DotP (_, a); _}] -> 
     render_record_update (r_func_e (list_name n)) (render_atom a) (r_func_e end_exp)
@@ -390,9 +389,9 @@ and render_path (paths : path list) alias_set typ at n name is_extend end_exp =
     parens ("list_slice_update " ^ r_func_e (list_name n) ^ " " ^ r_func_e e1 ^ " " ^ r_func_e e2 ^ " " ^ r_func_e end_exp)
   (* Middle logic *)
   | {it = IdxP (_, e); note; _} :: ps -> 
-    let path_term = render_path ps alias_set note at (n + 1) None is_extend end_exp in
+    let path_term = render_path ps note at (n + 1) None is_extend end_exp in
     let new_name = var_prefix ^ string_of_int (n + 1) in 
-    let bind = render_bind RHS alias_set (ExpB (new_name $ no_region, new_name_typ) $ no_region) in
+    let bind = render_bind RHS (ExpB (new_name $ no_region, new_name_typ) $ no_region) in
     parens ("list_update_func " ^ r_func_e (list_name n) ^ " " ^ r_func_e e ^ " " ^ render_lambda [bind] path_term)
   | ({it = DotP _; note; _} as p) :: ps -> 
     let (dot_paths, ps') = list_split is_dot (p :: ps) in
@@ -419,7 +418,7 @@ and render_path (paths : path list) alias_set typ at n name is_extend end_exp =
         render_record_update (r_func_e (list_name n)) update_fields final_term
       )
       else (
-        let path_term = render_path ps' alias_set note at n (Some new_exp) is_extend end_exp in
+        let path_term = render_path ps' note at n (Some new_exp) is_extend end_exp in
         render_record_update (r_func_e (list_name n)) update_fields path_term
       )
   | ({it = SliceP (_, _e1, _e2); _} as p) :: _ps ->
@@ -434,8 +433,8 @@ and render_path (paths : path list) alias_set typ at n name is_extend end_exp =
   (* Catch all error if we encounter empty list or RootP *)
   | _ -> error at "Paths should not be empty"
 
-and render_binders (alias_set : StringSet.t) (binds : bind list) = 
-  string_of_list_prefix " " " " (render_bind RHS alias_set) binds
+and render_binders (binds : bind list) = 
+  string_of_list_prefix " " " " (render_bind RHS) binds
 
 let render_binders_ids (binds : bind list) = 
   string_of_list_prefix " " " " get_bind_id binds
@@ -443,15 +442,15 @@ let render_binders_ids (binds : bind list) =
 let render_match_binders params =
   String.concat ", " (List.map get_param_id params)
 
-let render_params alias_set params = 
-  string_of_list_prefix " " " " (render_param RHS alias_set) params
+let render_params params = 
+  string_of_list_prefix " " " " (render_param RHS) params
 
-let render_match_args alias_set args =
-  string_of_list_prefix " " ", " (render_arg LHS alias_set) args
+let render_match_args args =
+  string_of_list_prefix " " ", " (render_arg LHS) args
 
 
-let string_of_eqtype_proof recursive (cant_do_equality: bool) alias_set id (binds : bind list) =
-  let binders = render_binders alias_set binds in 
+let string_of_eqtype_proof recursive (cant_do_equality: bool) id (binds : bind list) =
+  let binders = render_binders binds in 
   let binder_ids = render_binders_ids binds in
   let id' = render_id id in 
   (* Decidable equality proof *)
@@ -487,20 +486,20 @@ let string_of_eqtype_proof recursive (cant_do_equality: bool) alias_set id (bind
   "HB.instance Definition _" ^ binders ^ " := hasDecEq.Build " ^ parens (id' ^ binder_ids) ^ " " ^ parens ("eq" ^ id' ^ "P" ^ binder_ids) ^ ".\n" ^
   "Hint Resolve " ^ id' ^ "_eq_dec : eq_dec_db" 
 
-let string_of_relation_args alias_set typ = 
-  string_of_list "" " -> " " -> " (render_type REL alias_set) (transform_case_typ typ)
+let string_of_relation_args typ = 
+  string_of_list "" " -> " " -> " (render_type REL) (transform_case_typ typ)
   
-let rec render_prem alias_set prem =
-  let r_func = render_prem alias_set in 
+let rec render_prem prem =
+  let r_func = render_prem in 
   match prem.it with
-  | IfPr exp -> render_exp REL alias_set exp
-  | RulePr (id, _m, exp) -> parens (render_id id.it ^ string_of_list_prefix " " " " (render_exp REL alias_set) (transform_case_tup exp))
+  | IfPr exp -> render_exp REL exp
+  | RulePr (id, _m, exp) -> parens (render_id id.it ^ string_of_list_prefix " " " " (render_exp REL) (transform_case_tup exp))
   | NegPr p -> parens ("~" ^ r_func p)
   | ElsePr -> "True " ^ comment_parens ("Unsupported premise: otherwise") (* Will be removed by an else pass *)
   | IterPr (p, (_, [])) -> r_func p
   | IterPr (p, (iter, ps)) -> 
     let option_conversion s = if iter = Opt then parens ("option_to_list " ^ s) else s in
-    let binds = List.map (fun (id, e) -> parens (render_id id.it ^ " : " ^ render_type REL alias_set (remove_iter_from_type e.note))) ps in
+    let binds = List.map (fun (id, e) -> parens (render_id id.it ^ " : " ^ render_type REL (remove_iter_from_type e.note))) ps in
     let iter_exps = List.map snd ps in 
     let n = List.length ps - 1 in
     let pred_name = match (List.nth_opt iter_prem_rels_list n) with 
@@ -508,22 +507,22 @@ let rec render_prem alias_set prem =
     | None -> error prem.at "Iteration exceeded the supported amount for rocq translation"
     in 
     pred_name ^ " " ^ render_lambda binds (r_func p) ^ " " ^ 
-    String.concat " " (List.map (render_exp REL alias_set) iter_exps |> List.map option_conversion)
+    String.concat " " (List.map (render_exp REL) iter_exps |> List.map option_conversion)
   | LetPr _ -> 
     "True " ^ comment_parens ("Unsupported premise: " ^ Il.Print.string_of_prem prem)
  
-let render_typealias alias_set id binds typ = 
-  "Definition " ^ id ^ render_binders alias_set binds ^ " : Type := " ^ render_type RHS alias_set typ
+let render_typealias id binds typ = 
+  "Definition " ^ id ^ render_binders binds ^ " : Type := " ^ render_type RHS typ
 
-let render_record recursive alias_set id binds fields = 
+let render_record recursive id binds fields = 
   let constructor_name = "MK" ^ id in
-  let inhabitance_binders = render_binders alias_set binds in 
+  let inhabitance_binders = render_binders binds in 
   let binders = render_binders_ids binds in 
 
   (* Standard Record definition *)
   "Record " ^ id ^ inhabitance_binders ^ " := " ^ constructor_name ^ "\n{\t" ^ 
   String.concat "\n;\t" (List.map (fun (a, (_, typ, _), _) -> 
-    render_atom a ^ " : " ^ render_type RHS alias_set typ) fields) ^ "\n}.\n\n" ^
+    render_atom a ^ " : " ^ render_type RHS typ) fields) ^ "\n}.\n\n" ^
 
   (* Inhabitance proof for default values *)
   "Global Instance Inhabited_" ^ id ^ inhabitance_binders ^ " : Inhabited " ^ parens (id ^ binders) ^ " := \n" ^
@@ -544,7 +543,7 @@ let render_record recursive alias_set id binds fields =
   (* Setter proof *)
   "#[export] Instance eta__" ^ id ^ " : Settable _ := settable! " ^ constructor_name ^ " <" ^ 
   String.concat ";" (List.map (fun (a, _, _) -> render_atom a) fields) ^ ">"
-  ^ ".\n\n" ^ string_of_eqtype_proof recursive false alias_set id [] 
+  ^ ".\n\n" ^ string_of_eqtype_proof recursive false id [] 
 
 let rec has_typ id t =
   match t.it with
@@ -553,9 +552,9 @@ let rec has_typ id t =
   | TupT pairs -> List.exists (fun (_, t') -> has_typ id t') pairs
   | _ -> false
 
-let inhabitance_proof alias_set id binds cases = 
+let inhabitance_proof id binds cases = 
   (* Inhabitance proof for default values *)
-  let inhabitance_binders = render_binders alias_set binds in 
+  let inhabitance_binders = render_binders binds in 
   let binders = render_binders_ids binds in 
   "Global Instance Inhabited__" ^ id ^ inhabitance_binders ^ " : Inhabited " ^ parens (id ^ binders) ^
   let rec render_proof cs = 
@@ -574,55 +573,53 @@ let cant_do_equality binds cases =
   (List.exists is_typ_bind binds) ||
   (List.exists (fun (_, (binds', _, _), _) -> List.exists is_typ_bind binds') cases)
   
-let render_case_typs alias_set t = 
+let render_case_typs t = 
   let typs = transform_case_args t in
   string_of_list_prefix " " " " (fun (e, t) -> 
-    parens (render_exp RHS alias_set e ^ " : " ^ render_type RHS alias_set t)) typs
+    parens (render_exp RHS e ^ " : " ^ render_type RHS t)) typs
 
-let render_variant_typ alias_set is_recursive prefix id binds cases = 
-  prefix ^ id ^ render_binders alias_set binds ^ " : Type :=\n\t" ^
+let render_variant_typ is_recursive prefix id binds cases = 
+  prefix ^ id ^ render_binders binds ^ " : Type :=\n\t" ^
   String.concat "\n\t" (List.map (fun (m, (_, t, _), _) ->
-    "| " ^ render_mixop id m ^ render_case_typs alias_set t ^ " : " ^ id ^ render_binders_ids binds   
+    "| " ^ render_mixop id m ^ render_case_typs t ^ " : " ^ id ^ render_binders_ids binds   
   )  cases) ^ 
   if is_recursive then "" else
   (* Inhabitance proof *)
-  ".\n\n" ^ inhabitance_proof alias_set id binds cases ^
+  ".\n\n" ^ inhabitance_proof id binds cases ^
   (* Eq proof *)
-  ".\n\n" ^ string_of_eqtype_proof is_recursive (cant_do_equality binds cases) alias_set id binds
+  ".\n\n" ^ string_of_eqtype_proof is_recursive (cant_do_equality binds cases) id binds
 
-let render_function_def alias_set prefix id params r_typ clauses = 
-  prefix ^ id ^ render_params alias_set params ^ " : " ^ render_type RHS alias_set r_typ ^ " :=\n" ^
-  "\tmatch " ^ render_match_binders params ^ " return " ^ render_type RHS alias_set r_typ ^ " with\n\t\t" ^
+let render_function_def prefix id params r_typ clauses = 
+  prefix ^ id ^ render_params params ^ " : " ^ render_type RHS r_typ ^ " :=\n" ^
+  "\tmatch " ^ render_match_binders params ^ " return " ^ render_type RHS r_typ ^ " with\n\t\t" ^
   String.concat "\n\t\t" (List.map (fun clause -> match clause.it with
     | DefD (_, args, exp, _) -> 
-    "|" ^ render_match_args alias_set args ^ " => " ^ render_exp RHS alias_set exp) clauses) ^
+    "|" ^ render_match_args args ^ " => " ^ render_exp RHS exp) clauses) ^
   "\n\tend"
 
-let render_relation alias_set prefix id typ rules = 
-  prefix ^ id ^ " : " ^ string_of_relation_args alias_set typ ^ "Prop :=\n\t" ^
+let render_relation prefix id typ rules = 
+  prefix ^ id ^ " : " ^ string_of_relation_args typ ^ "Prop :=\n\t" ^
   String.concat "\n\t" (List.map (fun rule -> match rule.it with
     | RuleD (rule_id, binds, _, exp, prems) ->
-      let string_prems = string_of_list "\n\t\t" " ->\n\t\t" " ->\n\t\t" (render_prem alias_set) prems in
-      let forall_quantifiers = string_of_list "forall " ", " " " (render_bind REL alias_set) binds in
-      "| " ^ render_id rule_id.it ^ " : " ^ forall_quantifiers ^ string_prems ^ render_id id ^ " " ^ String.concat " " (List.map (render_exp REL alias_set) (transform_case_tup exp))
+      let string_prems = string_of_list "\n\t\t" " ->\n\t\t" " ->\n\t\t" (render_prem) prems in
+      let forall_quantifiers = string_of_list "forall " ", " " " (render_bind REL) binds in
+      "| " ^ render_id rule_id.it ^ " : " ^ forall_quantifiers ^ string_prems ^ render_id id ^ " " ^ String.concat " " (List.map (render_exp REL) (transform_case_tup exp))
   ) rules)
 
-let render_axiom prefix alias_set id params r_typ =
-  prefix ^ id  ^ " : " ^ string_of_list "forall " ", " " " (render_param RHS alias_set) params ^ render_type RHS alias_set r_typ
+let render_axiom prefix id params r_typ =
+  prefix ^ id ^ " : " ^ string_of_list "forall " ", " " " (render_param RHS) params ^ render_type RHS r_typ
 
-let render_rel_axiom alias_set prefix id typ =
-  prefix ^ id  ^ " : " ^ string_of_relation_args alias_set typ ^ "Prop"
+let render_rel_axiom prefix id typ =
+  prefix ^ id ^ " : " ^ string_of_relation_args typ ^ "Prop"
 
-let render_global_declaration id alias_set typ exp = 
-  "Definition " ^ id  ^ " : " ^ render_type RHS alias_set typ ^ " := " ^ render_exp RHS alias_set exp
+let render_global_declaration id typ exp = 
+  "Definition " ^ id ^ " : " ^ render_type RHS typ ^ " := " ^ render_exp RHS exp
 
-let render_extra_info alias_set def = 
+let render_extra_info def = 
   match def.it with
-  | TypD (id, _, [{it = InstD (binds, _, {it = AliasT typ; _}); _}]) -> 
-    Some (render_typealias alias_set id.it binds typ)
   | TypD (id, _, [{it = InstD (binds, _, {it = VariantT typcases; _}); _}]) -> 
-    Some (inhabitance_proof alias_set id.it binds typcases ^ ".\n\n" ^
-    string_of_eqtype_proof true (cant_do_equality binds typcases) alias_set id.it binds)
+    Some (inhabitance_proof id.it binds typcases ^ ".\n\n" ^
+    string_of_eqtype_proof true (cant_do_equality binds typcases) id.it binds)
   | _ -> None
 
 let get_type_alias_id def = 
@@ -638,8 +635,8 @@ let start_prefix def =
   match def.it with
   | _ when is_inductive def -> "Inductive "
   | DecD (_, _, _, []) -> "Axiom "
-  | DecD (_, _, _, _clauses) -> "Axiom " (* TODO add condition: when List.exists has_prems clauses*)
-  (* Enable this when deftorel comes in: | DecD _ -> "Fixpoint " *)
+  | DecD (_, _, _, clauses)  when List.exists has_prems clauses -> "Axiom "
+  | DecD _ -> "Fixpoint "
   | TypD (_, _, [inst]) when is_record_typ inst -> "Record "
   | _ -> ""
 
@@ -649,68 +646,52 @@ let is_axiom def =
   | _ -> false
 
 (* TODO - revise mutual recursion with other defs such as records and axioms *)
-let rec string_of_def has_endline recursive (alias_set : StringSet.t) def = 
+let rec string_of_def has_endline recursive def = 
   let end_newline = if has_endline then ".\n\n" else "" in 
   let start = if recursive then "" else comment_parens (comment_desc_def def ^ " at: " ^ Util.Source.string_of_region def.at) ^ "\n" in
   match def.it with
   | TypD (id, _, [{it = InstD (binds, _, {it = AliasT typ; _}); _}]) -> 
     if recursive then "" else 
-    start ^ render_typealias alias_set (render_id id.it) binds typ ^ end_newline
+    start ^ render_typealias (render_id id.it) binds typ ^ end_newline
   | TypD (id, _, [{it = InstD (binds, _, {it = StructT typfields; _}); _}])-> 
-    start ^ render_record recursive alias_set (render_id id.it) binds typfields ^ end_newline
+    start ^ render_record recursive (render_id id.it) binds typfields ^ end_newline
   | TypD (id, _, [{it = InstD (binds, _, {it = VariantT typcases; _}); _}]) -> 
     let prefix = if recursive then "" else "Inductive " in
-    start ^ render_variant_typ alias_set recursive prefix (render_id id.it) binds typcases ^ end_newline
+    start ^ render_variant_typ recursive prefix (render_id id.it) binds typcases ^ end_newline
   | DecD (id, [], typ, [{it = DefD ([], [], exp, _); _}]) -> 
-    start ^ render_global_declaration (render_id id.it) alias_set typ exp ^ end_newline
+    start ^ render_global_declaration (render_id id.it) typ exp ^ end_newline
   | DecD (id, params, typ, []) -> 
     let prefix = if recursive then "" else "Axiom " in
-    start ^ render_axiom prefix alias_set (render_id id.it) params typ ^ end_newline
-  | DecD (id, params, typ, _clauses)  -> (* TODO add condition: when List.exists has_prems clauses*)
+    start ^ render_axiom prefix (render_id id.it) params typ ^ end_newline
+  | DecD (id, params, typ, clauses) when List.exists has_prems clauses ->
     let prefix = if recursive then "" else "Axiom " in
-    start ^ render_axiom prefix alias_set (render_id id.it) params typ ^ end_newline
-  (* TODO activate this when deftorel comes in *)
-  (* | DecD (id, params, typ, clauses) -> 
+    start ^ render_axiom prefix (render_id id.it) params typ ^ end_newline
+  | DecD (id, params, typ, clauses) -> 
     let prefix = if recursive then "" else "Definition " in
-    start ^ render_function_def alias_set prefix id.it params typ clauses ^ end_newline *)
+    start ^ render_function_def prefix (render_id id.it) params typ clauses ^ end_newline
   | RelD (id, _, typ, []) -> 
     let prefix = if recursive then "" else "Axiom " in
-    start ^ render_rel_axiom alias_set prefix (render_id id.it) typ ^ end_newline
+    start ^ render_rel_axiom prefix (render_id id.it) typ ^ end_newline
   | RelD (id, _, typ, rules) -> 
     let prefix = if recursive then "" else "Inductive " in
-    start ^ render_relation alias_set prefix (render_id id.it) typ rules ^ end_newline
+    start ^ render_relation prefix (render_id id.it) typ rules ^ end_newline
   (* Mutual recursion - special handling for rocq *)
   | RecD defs -> start ^ (match defs with
     | [] -> ""
     | [d] -> 
-      let extra_info = render_extra_info alias_set d in
+      let extra_info = render_extra_info d in
       start_prefix d ^ 
-      string_of_def false true StringSet.empty d ^
+      string_of_def false true d ^
       begin match extra_info with
       | None -> end_newline
       | Some s -> end_newline ^ s ^ end_newline
       end
-    (* HACK - this is simply to deal with functions that are not supposed to be axioms.
-    The functions that are supposed to be axioms should not be mutually recursive anyways.
-    *)
-    | (d :: _defs') when List.exists is_axiom defs ->
-      let prefix = ".\n\n" ^ start_prefix d in
-      let aliases = StringSet.union alias_set (List.filter_map get_type_alias_id defs |> StringSet.of_list) in 
-      let extra_info = String.concat ".\n\n" (List.filter_map (render_extra_info alias_set) defs) in
-      start_prefix d ^ 
-      String.concat prefix (
-        Util.Lib.List.filter_not is_alias_typ_def defs |> 
-        List.map (string_of_def false true aliases)
-      ) ^ ".\n\n" ^ 
-      extra_info ^ if extra_info = "" then "" else end_newline
-    | (d :: _defs') -> 
+    | (d :: _) -> 
       let prefix = "\n\nwith\n\n" in
-      let aliases = StringSet.union alias_set (List.filter_map get_type_alias_id defs |> StringSet.of_list) in 
-      let extra_info = String.concat ".\n\n" (List.filter_map (render_extra_info alias_set) defs) in
+      let extra_info = String.concat ".\n\n" (List.filter_map render_extra_info defs) in
       start_prefix d ^ 
       String.concat prefix (
-        Util.Lib.List.filter_not is_alias_typ_def defs |> 
-        List.map (string_of_def false true aliases)
+        List.map (string_of_def false true) defs
       ) ^ ".\n\n" ^ 
       extra_info ^ if extra_info = "" then "" else end_newline
     )
@@ -852,4 +833,4 @@ let string_of_script (il : script) =
   env_ref := Il.Env.env_of_script il;
   exported_string ^
   "(* Generated Code *)\n" ^
-  String.concat "" (List.filter is_valid_def il |> List.map (string_of_def true false StringSet.empty))
+  String.concat "" (List.filter is_valid_def il |> List.map (string_of_def true false))
