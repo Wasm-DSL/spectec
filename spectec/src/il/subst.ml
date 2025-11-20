@@ -213,9 +213,9 @@ and subst_prem s prem =
   | RulePr (id, op, e) -> RulePr (id, op, subst_exp s e)
   | IfPr e -> IfPr (subst_exp s e)
   | ElsePr -> ElsePr
-  | IterPr (prem1, iterexp) ->
+  | IterPr (prems, iterexp) ->
     let it', s' = subst_iterexp s iterexp in
-    IterPr (subst_prem s' prem1, it')
+    IterPr (subst_list subst_prem s' prems, it')
   | LetPr (e1, e2, ids) -> LetPr (subst_exp s e1, subst_exp s e2, ids)
   | NegPr prem' -> NegPr (subst_prem s prem')
   ) $ prem.at

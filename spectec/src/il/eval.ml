@@ -502,7 +502,7 @@ and reduce_prem env prem : bool option =
     | None -> None
     | exception Irred -> None
     )
-  | IterPr (_prem, _iter) -> None  (* TODO(3, rossberg): reduce? *)
+  | IterPr (_prems, _iter) -> None  (* TODO(3, rossberg): reduce? *)
   | NegPr prem -> 
     let* b = reduce_prem env prem in
     Some (not b)

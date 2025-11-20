@@ -177,7 +177,7 @@ and prem pr =
   | RulePr (x, op, e) -> relid x; mixop op; exp e
   | IfPr e -> exp e
   | ElsePr -> ()
-  | IterPr (pr1, it) -> prem pr1; iterexp it
+  | IterPr (pr1, it) -> list prem pr1; iterexp it
   | LetPr (e1, e2, _) -> exp e1; exp e2
   | NegPr pr1 -> prem pr1
 

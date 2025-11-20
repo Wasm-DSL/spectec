@@ -1824,7 +1824,7 @@ and elab_prem env prem : Il.prem list =
   | IterPr (prem1, iter) ->
     let iter' = elab_iterexp env iter in
     let prem1' = List.hd (elab_prem env prem1) in
-    [Il.IterPr (prem1', iter') $ prem.at]
+    [Il.IterPr ([prem1'], iter') $ prem.at]
 
 
 (* Grammars *)

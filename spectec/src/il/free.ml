@@ -175,7 +175,7 @@ and free_prem prem =
   | IfPr e -> free_exp e
   | LetPr (e1, e2, _) -> free_exp e1 + free_exp e2
   | ElsePr -> empty
-  | IterPr (prem1, iter) -> (free_prem prem1 - bound_iterexp iter) + free_iterexp iter
+  | IterPr (prems, iter) -> (free_list free_prem prems - bound_iterexp iter) + free_iterexp iter
   | NegPr prem' -> free_prem prem'
 
 and free_prems prems = free_list free_prem prems

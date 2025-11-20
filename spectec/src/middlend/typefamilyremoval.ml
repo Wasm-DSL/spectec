@@ -526,9 +526,9 @@ let rec transform_prem bind_map env prem =
   | IfPr e -> IfPr (transform_exp bind_map env e)
   | LetPr (e1, e2, ids) -> LetPr (transform_exp bind_map env e1, transform_exp bind_map env e2, ids)
   | ElsePr -> ElsePr
-  | IterPr (prem1, (iter, id_exp_pairs)) -> 
+  | IterPr (prems1, (iter, id_exp_pairs)) ->
     let new_bind_map = add_iter_ids_to_map env id_exp_pairs bind_map in
-    IterPr (transform_prem new_bind_map env prem1, 
+    IterPr (List.map (transform_prem new_bind_map env) prems1,
       (transform_iter new_bind_map env iter, List.map (fun (id, exp) -> (id, transform_exp new_bind_map env exp)) id_exp_pairs)
     )
   | NegPr prem1 -> NegPr (transform_prem bind_map env prem1)
