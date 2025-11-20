@@ -27,14 +27,14 @@ let lenE e = match e.it with
 | _ -> LenE e $$ e.at % (NumT `NatT $ e.at)
 
 (* Smart constructor for IterPr that removes dead iter-variables *)
-let iterPr (pr, (iter, vars)) =
-  let frees = free_prem pr in
+let iterPr (prs, (iter, vars)) =
+  let frees = free_list free_prem prs in
   let vars' = List.filter (fun (id, _) ->
     Set.mem id.it frees.varid
   ) vars in
   (* Must keep at least one variable to keep the iteration well-formed *)
   let vars'' = if vars' <> [] then vars' else [List.hd vars] in
-  IterPr (pr, (iter, vars''))
+  IterPr (prs, (iter, vars''))
 
 let is_null e = CmpE (`EqOp, `BoolT, e, OptE None $$ e.at % e.note) $$ e.at % (BoolT $ e.at)
 let iffE e1 e2 = IfPr (BinE (`EquivOp, `BoolT, e1, e2) $$ e1.at % (BoolT $ e1.at)) $ e1.at
@@ -107,7 +107,7 @@ let rec t_exp env e : prem list =
   ->
     t_iterexp env iterexp @
     let env' = env_under_iter env iterexp in
-    List.map (fun pr -> iterPr (pr, iterexp) $ e.at) (t_exp env' e1)
+    List.map (fun pr -> iterPr ([pr], iterexp) $ e.at) (t_exp env' e1)
 
 and t_iterexp env (iter, _) = t_iter env iter
 
@@ -134,11 +134,12 @@ let rec t_prem env prem =
   | IfPr e -> t_exp env e
   | LetPr (e1, e2, _) -> t_exp env e1 @ t_exp env e2
   | ElsePr -> []
-  | IterPr (prem, iterexp)
+  | IterPr ([prem'], iterexp)
   -> iter_side_conditions env iterexp @
      t_iterexp env iterexp @
      let env' = env_under_iter env iterexp in
-     List.map (fun pr -> iterPr (pr, iterexp) $ prem.at) (t_prem env' prem)
+     List.map (fun pr -> iterPr ([pr], iterexp) $ prem'.at) (t_prem env' prem')
+  | IterPr (_, _) -> assert false
   | NegPr _prem' -> 
     (* We do not want to infer anything from NegPr *)
     []
@@ -162,7 +163,8 @@ let is_true prem = match prem.it with
 (* Does prem1 obviously imply prem2? *)
 let rec implies prem1 prem2 = Il.Eq.eq_prem prem1 prem2 ||
   match prem2.it with
-  | IterPr (prem2', _) -> implies prem1 prem2'
+  | IterPr ([prem2'], _) -> implies prem1 prem2'
+  | IterPr (_, _) -> assert false
   | _ -> false
 
 let reduce_prems prems = prems

@@ -600,9 +600,9 @@ and valid_prem env prem =
         " do not occur in left-hand side expression")
   | ElsePr ->
     ()
-  | IterPr (prem', iterexp) ->
+  | IterPr (prems, iterexp) ->
     let _iter, env' = valid_iterexp env iterexp prem.at in
-    valid_prem env' prem'
+    List.iter (valid_prem env') prems
   | NegPr prem' -> valid_prem env prem'
 
 

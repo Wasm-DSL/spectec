@@ -53,7 +53,7 @@ let under_iterexp (iter, vs) eqns : iterexp * eqns =
    ) eqns in
    let eqns' = List.map2 (fun (bind, pr) (v, e) ->
      let iterexp' = update_iterexp_vars (Il.Free.free_prem pr) (iter, vs @ [(v, e)]) in
-     let pr' = IterPr (pr, iterexp') $ no_region in
+     let pr' = IterPr ([pr], iterexp') $ no_region in
      (ExpB (v, e.note) $ bind.at, pr')
    ) eqns new_vs in
    (iter, vs @ new_vs), eqns'
@@ -201,12 +201,13 @@ and t_prem' n prem : eqns * prem' =
   | IfPr e -> unary t_exp n e (fun e' -> IfPr e')
   | LetPr (e1, e2, ids) -> binary t_exp t_exp n (e1, e2) (fun (e1', e2') -> LetPr (e1', e2', ids))
   | ElsePr -> [], prem
-  | IterPr (prem, iterexp) ->
+  | IterPr ([prem], iterexp) ->
     let eqns1, prem' = t_prem n prem in
     let iterexp', eqns1' = under_iterexp iterexp eqns1 in
     let eqns2, iterexp'' = t_iterexp n iterexp' in
     let iterexp''' = update_iterexp_vars (Il.Free.free_prem prem') iterexp'' in
-    eqns1' @ eqns2, IterPr (prem', iterexp''')
+    eqns1' @ eqns2, IterPr ([prem'], iterexp''')
+  | IterPr (_, _) -> assert false
   | NegPr prem ->
     let eqns1, prem' = t_prem n prem in
     eqns1, NegPr (prem')

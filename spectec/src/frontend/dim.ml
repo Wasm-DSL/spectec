@@ -596,10 +596,11 @@ and annot_prem env prem : Il.Ast.prem * occur =
       LetPr (e1', e2', ids), union occur1 occur2
     | ElsePr ->
       ElsePr, Env.empty
-    | IterPr (prem1, iter) ->
+    | IterPr ([prem1], iter) ->
       let prem1', occur1 = annot_prem env prem1 in
       let iter', occur' = annot_iterexp env occur1 iter prem.at in
-      IterPr (prem1', iter'), occur'
+      IterPr ([prem1'], iter'), occur'
+    | IterPr (_, _) -> assert false
     | NegPr prem1 ->
       let prem1', occur1 = annot_prem env prem1 in
       NegPr prem1', occur1

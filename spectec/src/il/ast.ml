@@ -163,7 +163,7 @@ and prem' =
   | IfPr of exp                                       (* side condition *)
   | LetPr of exp * exp * string list                  (* binding *)
   | ElsePr                                            (* otherwise *)
-  | IterPr of prem * iterexp                          (* iteration *)
+  | IterPr of prem list * iterexp                     (* iteration *)
   | NegPr of prem                                     (* negated premise *)
 
 and hintdef = hintdef' phrase

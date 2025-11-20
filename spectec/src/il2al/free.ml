@@ -85,8 +85,8 @@ let rec free_prem ignore_listN prem =
   | IfPr e -> f e
   | LetPr (e1, e2, _ids) -> f e1 + f e2
   | ElsePr -> empty
-  | IterPr (prem', iter) ->
-    let free1 = fp prem' in
+  | IterPr (prems, iter) ->
+    let free1 = free_list fp prems in
     let bound, free2 = fi iter in
     diff (free1 + free2) bound
   | NegPr prem' -> fp prem'

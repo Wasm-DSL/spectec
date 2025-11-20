@@ -167,7 +167,7 @@ and prem pr =
   | IfPr e -> Node ("if", [exp e])
   | LetPr (e1, e2, _xs) -> Node ("let", [exp e1; exp e2])
   | ElsePr -> Atom "else"
-  | IterPr (pr1, it) -> Node ("iter", [prem pr1] @ iterexp it)
+  | IterPr (prs, it) -> Node ("iter", List.map prem prs @ iterexp it)
   | NegPr pr1 -> Node ("neg", [prem pr1])
 
 

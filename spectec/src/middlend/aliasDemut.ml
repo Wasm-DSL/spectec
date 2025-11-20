@@ -141,7 +141,7 @@ and t_prem' env = function
   | IfPr e -> IfPr (t_exp env e)
   | LetPr (e1, e2, ids) -> LetPr (t_exp env e1, t_exp env e2, ids)
   | ElsePr -> ElsePr
-  | IterPr (prem, iterexp) -> IterPr (t_prem env prem, t_iterexp env iterexp)
+  | IterPr (prems, iterexp) -> IterPr (t_prems env prems, t_iterexp env iterexp)
 
 and t_prem env x = { x with it = t_prem' env x.it }
 

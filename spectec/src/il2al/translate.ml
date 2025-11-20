@@ -969,7 +969,8 @@ and translate_prem prem =
     init_lhs_id ();
     translate_letpr exp1 exp2 ids
   | Il.RulePr (id, _, exp) -> translate_rulepr id exp
-  | Il.IterPr (pr, iterexp) -> translate_iterpr pr iterexp
+  | Il.IterPr ([pr], iterexp) -> translate_iterpr pr iterexp
+  | Il.IterPr (_, _) -> assert false
   | Il.NegPr _ -> error at "encountered a negated premise"
 
 

@@ -142,9 +142,9 @@ and collect_userdef_prem iterexps p =
   match p.it with
   | IfPr e | RulePr (_, _, e) -> collect_userdef_exp iterexps e
   | LetPr (e1, e2, _) -> collect_userdef_exp iterexps e1 @ collect_userdef_exp iterexps e2
-  | IterPr (p', ((_, id_exp_pairs) as iterexp)) -> collect_userdef_prem (iterexp :: iterexps) p' @
+  | IterPr (ps, ((_, id_exp_pairs) as iterexp)) -> List.concat_map (collect_userdef_prem (iterexp :: iterexps)) ps @
     List.concat_map (fun (_, exp) -> collect_userdef_exp iterexps exp) id_exp_pairs
-  | _ -> [] 
+  | _ -> []
 
 and collect_userdef_path iterexps p =
   match p.it with
@@ -251,7 +251,7 @@ let rec transform_prem env prem =
   | IfPr e -> IfPr (transform_exp env e)
   | LetPr (e1, e2, ids) -> LetPr (transform_exp env e1, transform_exp env e2, ids)
   | ElsePr -> ElsePr
-  | IterPr (prem1, (iter, id_exp_pairs)) -> IterPr (transform_prem env prem1, 
+  | IterPr (prems1, (iter, id_exp_pairs)) -> IterPr (List.map (transform_prem env) prems1, 
       (transform_iter env iter, List.map (fun (id, exp) -> (id, transform_exp env exp)) id_exp_pairs)
     )
   | NegPr p -> NegPr p
@@ -311,7 +311,7 @@ let rec get_wf_pred env (exp, t) =
       let name = get_id exp' in
       let name' = remove_last_char name.it $ name.at in 
       let prems = get_wf_pred env (VarE name' $$ name.at % typ, typ) in
-      List.map (fun prem -> IterPr (prem, (iter, [(name', exp')])) $ name.at) prems
+      List.map (fun prem -> IterPr ([prem], (iter, [(name', exp')])) $ name.at) prems
     | TupT exp_typ_pairs -> 
       let prems = 
         List.mapi (fun idx (_, typ) -> 
@@ -416,7 +416,7 @@ let get_extra_prems env binds exp prems =
   
   let more_prems = List.concat_map (fun (pair, iterexps) -> 
     List.map (fun prem' -> List.fold_left (fun acc iterexp ->
-      IterPr (acc, iterexp) $ acc.at   
+      IterPr ([acc], iterexp) $ acc.at
     ) prem' iterexps) (get_wf_pred env pair) 
   ) unique_terms in
 
