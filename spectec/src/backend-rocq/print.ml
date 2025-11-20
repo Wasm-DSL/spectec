@@ -1,5 +1,6 @@
 open Il.Ast
 open Util.Source
+open Il
 
 module StringSet = Set.Make(String)
 
@@ -657,6 +658,14 @@ let is_axiom def =
   | DecD (_, _, _, _clauses) -> true
   | _ -> false
 
+let remove_overlapping_clauses clauses = 
+  Util.Lib.List.nub (fun clause clause' -> match clause.it, clause'.it with
+  | DefD (_, args, exp, _), DefD (_, args', exp', _) -> 
+    let reduced_exp = Eval.reduce_exp !env_ref exp in 
+    let reduced_exp' = Eval.reduce_exp !env_ref exp' in 
+    Eq.eq_list Eq.eq_arg args args' && Eq.eq_exp reduced_exp reduced_exp'
+  ) clauses
+
 (* TODO - revise mutual recursion with other defs such as records and axioms *)
 let rec string_of_def has_endline recursive def = 
   let end_newline = if has_endline then ".\n\n" else "" in 
@@ -680,7 +689,7 @@ let rec string_of_def has_endline recursive def =
     start ^ render_axiom prefix (render_id id.it) params typ ^ end_newline
   | DecD (id, params, typ, clauses) -> 
     let prefix = if recursive then "" else "Definition " in
-    start ^ render_function_def prefix (render_id id.it) params typ clauses ^ end_newline
+    start ^ render_function_def prefix (render_id id.it) params typ (remove_overlapping_clauses clauses) ^ end_newline
   | RelD (id, _, typ, []) -> 
     let prefix = if recursive then "" else "Axiom " in
     start ^ render_rel_axiom prefix (render_id id.it) typ ^ end_newline
