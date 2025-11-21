@@ -614,12 +614,50 @@ let has_nonlinear_pattern c =
     in
     go [] (args_vars args)
 
-let is_supported_clause clause = 
-  not (has_prems clause) &&
-  not (has_nonlinear_pattern clause)
+let clauses_have_same_args c1 c2 =
+  match (c1.it, c2.it) with
+  | (DefD (binds1, args1, _, _), DefD (binds2, args2, _, _)) ->
+    binds1 == binds2 && args1 == args2
 
-let is_supported_function _params _r_typ clauses = 
-  List.for_all is_supported_clause clauses
+let group_clauses_by_same_args clauses =
+  let rec group_helper acc clause =
+    match acc with
+    | [] -> [[clause]]
+    | group :: rest ->
+      let representative = List.hd group in
+      if clauses_have_same_args representative clause then
+        (clause :: group) :: rest
+      else
+        group :: group_helper rest clause
+  in
+  List.fold_left group_helper [] clauses
+  
+let rec is_bool_premise prem =
+  match prem.it with
+  | IfPr _exp -> true
+  | NegPr prem -> is_bool_premise prem
+  | _ -> false
+
+let is_else_premise prem =
+  match prem.it with
+  | ElsePr -> true
+  | _ -> false
+
+let is_supported_clause id clauses = 
+  match List.rev clauses with
+  | [] -> true 
+  | [c] -> not (has_prems c)
+  | last :: others -> 
+    Printf.eprintf "Checking supported clauses; %s\n" (String.concat "\n" (List.map (Il.Print.string_of_clause id) clauses));
+    (let DefD (_, _, _, prems) = last.it in match prems with | [p] -> is_else_premise p | _ -> false) &&
+    List.for_all (fun c -> 
+      let DefD (_, _, _, prems) = c.it in
+      List.for_all is_bool_premise prems
+    ) others
+
+let is_supported_function id _params _r_typ clauses = 
+  List.for_all (fun c -> not (has_nonlinear_pattern c)) clauses &&
+  List.for_all (is_supported_clause id) (group_clauses_by_same_args clauses)
 
 let is_axiom def =
   match def.it with
@@ -649,7 +687,7 @@ let rec string_of_def def =
   | DecD (id, params, typ, []) -> 
     render_axiom id params typ
   | DecD (id, params, typ, clauses) -> 
-    if is_supported_function params typ clauses then
+    if is_supported_function id params typ clauses then
       render_function_def id.it params typ clauses
     else
       render_axiom id params typ
