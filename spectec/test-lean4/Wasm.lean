@@ -36,47 +36,66 @@ abbrev n : Type := Nat
 abbrev m : Type := Nat
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/0.2-aux.num.spectec:5.1-5.25 -/
-opaque min : forall (nat : Nat) (nat_0 : Nat), Nat := opaqueDef
+def min : ∀  (nat : Nat) (nat_0 : Nat) , Nat
+  | i, j =>
+    if (i <= j) then
+      i
+    else
+      j
+
 
 /- Recursive Definition at: ../../../../specification/wasm-3.0/0.2-aux.num.spectec:9.1-9.56 -/
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/0.2-aux.num.spectec:9.1-9.56 -/
 def sum : ∀  (var_0 : (List Nat)) , Nat
-  | [] => 0
-  | (v_n :: n'_lst) => (v_n + (sum n'_lst))
+  | [] =>
+    0
+  | (v_n :: n'_lst) =>
+    (v_n + (sum n'_lst))
 
 
 /- Recursive Definition at: ../../../../specification/wasm-3.0/0.2-aux.num.spectec:13.1-13.57 -/
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/0.2-aux.num.spectec:13.1-13.57 -/
 def prod : ∀  (var_0 : (List Nat)) , Nat
-  | [] => 1
-  | (v_n :: n'_lst) => (v_n * (prod n'_lst))
+  | [] =>
+    1
+  | (v_n :: n'_lst) =>
+    (v_n * (prod n'_lst))
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:7.1-7.58 -/
 def opt_ : ∀  (X : Type) (var_0 : (List X)) , (Option (Option X))
-  | X, [] => (some none)
-  | X, [w] => (some (some w))
-  | X, x1 => none
+  | X, [] =>
+    (some none)
+  | X, [w] =>
+    (some (some w))
+  | X, x1 =>
+    none
 
 
 /- Recursive Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:14.1-14.82 -/
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:14.1-14.82 -/
 def concat_ : ∀  (X : Type) (var_0 : (List (List X))) , (List X)
-  | X, [] => []
-  | X, (w_lst :: w'_lst_lst) => (w_lst ++ (concat_ X w'_lst_lst))
+  | X, [] =>
+    []
+  | X, (w_lst :: w'_lst_lst) =>
+    (w_lst ++ (concat_ X w'_lst_lst))
 
 
 /- Recursive Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:18.1-18.89 -/
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:18.1-18.89 -/
 def concatn_ : ∀  (X : Type) (var_0 : (List (List X))) (nat : Nat) , (List X)
-  | X, [], v_n => []
-  | X, (w_lst :: w'_lst_lst), v_n => (w_lst ++ (concatn_ X w'_lst_lst v_n))
+  | X, [], v_n =>
+    []
+  | X, (w_lst :: w'_lst_lst), v_n =>
+    (w_lst ++ (concatn_ X w'_lst_lst v_n))
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:22.1-22.58 -/
 def concatopt_ : ∀  (X : Type) (var_0 : (List (Option X))) , (List X)
-  | X, [] => []
-  | X, (w_opt :: w'_opt_lst) => ((Option.toList w_opt) ++ (concat_ X (List.map (fun (w'_opt : (Option X)) => (Option.toList w'_opt)) w'_opt_lst)))
+  | X, [] =>
+    []
+  | X, (w_opt :: w'_opt_lst) =>
+    ((Option.toList w_opt) ++ (concat_ X (List.map (fun (w'_opt : (Option X)) => (Option.toList w'_opt)) w'_opt_lst)))
 
 
 /- Axiom Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:26.1-26.39 -/
@@ -91,34 +110,50 @@ opaque inv_concatn_ : forall (X : Type) (nat : Nat) (var_0 : (List X)), (List (L
 
 /- Recursive Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:40.1-40.38 -/
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:40.1-40.38 -/
-opaque setminus1_ : forall (X : Type) (X_0 : X) (var_0 : (List X)), (List X) := opaqueDef
+def setminus1_ : ∀  (X : Type) (X_0 : X) (var_0 : (List X)) , (List X)
+  | X, w, [] =>
+    [w]
+  | X, w, (w_1 :: w'_lst) =>
+    if (w == w_1) then
+      []
+    else
+      (setminus1_ X w w'_lst)
+
 
 /- Recursive Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:39.1-39.56 -/
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:39.1-39.56 -/
 def setminus_ : ∀  (X : Type) (var_0 : (List X)) (var_1 : (List X)) , (List X)
-  | X, [], w_lst => []
-  | X, (w_1 :: w'_lst), w_lst => ((setminus1_ X w_1 w_lst) ++ (setminus_ X w'_lst w_lst))
+  | X, [], w_lst =>
+    []
+  | X, (w_1 :: w'_lst), w_lst =>
+    ((setminus1_ X w_1 w_lst) ++ (setminus_ X w'_lst w_lst))
 
 
 /- Recursive Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:51.1-51.46 -/
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:51.1-51.46 -/
 def setproduct2_ : ∀  (X : Type) (X_0 : X) (var_0 : (List (List X))) , (List (List X))
-  | X, w_1, [] => []
-  | X, w_1, (w'_lst :: w_lst_lst) => ([([w_1] ++ w'_lst)] ++ (setproduct2_ X w_1 w_lst_lst))
+  | X, w_1, [] =>
+    []
+  | X, w_1, (w'_lst :: w_lst_lst) =>
+    ([([w_1] ++ w'_lst)] ++ (setproduct2_ X w_1 w_lst_lst))
 
 
 /- Recursive Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:50.1-50.47 -/
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:50.1-50.47 -/
 def setproduct1_ : ∀  (X : Type) (var_0 : (List X)) (var_1 : (List (List X))) , (List (List X))
-  | X, [], w_lst_lst => []
-  | X, (w_1 :: w'_lst), w_lst_lst => ((setproduct2_ X w_1 w_lst_lst) ++ (setproduct1_ X w'_lst w_lst_lst))
+  | X, [], w_lst_lst =>
+    []
+  | X, (w_1 :: w'_lst), w_lst_lst =>
+    ((setproduct2_ X w_1 w_lst_lst) ++ (setproduct1_ X w'_lst w_lst_lst))
 
 
 /- Recursive Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:49.1-49.84 -/
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/0.3-aux.seq.spectec:49.1-49.84 -/
 def setproduct_ : ∀  (X : Type) (var_0 : (List (List X))) , (List (List X))
-  | X, [] => [[]]
-  | X, (w_1_lst :: w_lst_lst) => (setproduct1_ X w_1_lst (setproduct_ X w_lst_lst))
+  | X, [] =>
+    [[]]
+  | X, (w_1_lst :: w_lst_lst) =>
+    (setproduct1_ X w_1_lst (setproduct_ X w_lst_lst))
 
 
 /- Axiom Definition at: ../../../../specification/wasm-3.0/1.0-syntax.profiles.spectec:5.1-5.29 -/
@@ -144,7 +179,8 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:8.1-8.50 -/
 def proj_byte_0 : ∀  (x : byte) , Nat
-  | (.mk_byte v_num_0) => (v_num_0)
+  | (.mk_byte v_num_0) =>
+    (v_num_0)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:8.8-8.12 -/
@@ -161,7 +197,8 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:10.1-11.25 -/
 def proj_uN_0 : ∀  (x : uN) , Nat
-  | (.mk_uN v_num_0) => (v_num_0)
+  | (.mk_uN v_num_0) =>
+    (v_num_0)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:10.8-10.11 -/
@@ -178,7 +215,8 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:12.1-13.50 -/
 def proj_sN_0 : ∀  (x : sN) , Nat
-  | (.mk_sN v_num_0) => (v_num_0)
+  | (.mk_sN v_num_0) =>
+    (v_num_0)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:12.8-12.11 -/
@@ -213,26 +251,34 @@ abbrev s33 : Type := sN
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:30.1-30.35 -/
 def signif : ∀  (v_N : N) , (Option Nat)
-  | 32 => (some 23)
-  | 64 => (some 52)
-  | x0 => none
+  | 32 =>
+    (some 23)
+  | 64 =>
+    (some 52)
+  | x0 =>
+    none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:34.1-34.34 -/
 def expon : ∀  (v_N : N) , (Option Nat)
-  | 32 => (some 8)
-  | 64 => (some 11)
-  | x0 => none
+  | 32 =>
+    (some 8)
+  | 64 =>
+    (some 11)
+  | x0 =>
+    none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:38.1-38.47 -/
 def fun_M : ∀  (v_N : N) , Nat
-  | v_N => (Option.get! (signif v_N))
+  | v_N =>
+    (Option.get! (signif v_N))
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:41.1-41.47 -/
 def E : ∀  (v_N : N) , Nat
-  | v_N => (Option.get! (expon v_N))
+  | v_N =>
+    (Option.get! (expon v_N))
 
 
 /- Type Alias Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:48.1-48.47 -/
@@ -293,7 +339,8 @@ opaque fone : forall (v_N : N), fN := opaqueDef
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:67.1-67.21 -/
 def canon_ : ∀  (v_N : N) , Nat
-  | v_N => (2 ^ ((((Option.get! (signif v_N)) : Nat) - (1 : Nat)) : Nat))
+  | v_N =>
+    (2 ^ ((((Option.get! (signif v_N)) : Nat) - (1 : Nat)) : Nat))
 
 
 /- Type Alias Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:73.1-74.8 -/
@@ -310,7 +357,8 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:82.1-82.49 -/
 def proj_list_0 : ∀  (X : Type) (x : (list X)) , (List X)
-  | X, (.mk_list v_X_list_0) => (v_X_list_0)
+  | X, (.mk_list v_X_list_0) =>
+    (v_X_list_0)
 
 
 /- Inductive Type Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:87.1-87.85 -/
@@ -321,7 +369,8 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:87.1-87.85 -/
 def proj_char_0 : ∀  (x : char) , Nat
-  | (.mk_char v_num_0) => (v_num_0)
+  | (.mk_char v_num_0) =>
+    (v_num_0)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:87.8-87.12 -/
@@ -345,7 +394,8 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:91.1-91.70 -/
 def proj_name_0 : ∀  (x : name) , (List char)
-  | (.mk_name v_char_list_0) => (v_char_list_0)
+  | (.mk_name v_char_list_0) =>
+    (v_char_list_0)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:91.8-91.12 -/
@@ -545,8 +595,10 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at:  -/
 def numtype_addrtype : ∀  (var_0 : addrtype) , numtype
-  | .I32 => .I32
-  | .I64 => .I64
+  | .I32 =>
+    .I32
+  | .I64 =>
+    .I64
 
 
 /- Inductive Type Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:16.1-17.9 -/
@@ -567,10 +619,14 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at:  -/
 def consttype_numtype : ∀  (var_0 : numtype) , consttype
-  | .I32 => .I32
-  | .I64 => .I64
-  | .F32 => .F32
-  | .F64 => .F64
+  | .I32 =>
+    .I32
+  | .I64 =>
+    .I64
+  | .F32 =>
+    .F32
+  | .F64 =>
+    .F64
 
 
 /- Inductive Type Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:28.1-29.14 -/
@@ -693,78 +749,118 @@ abbrev resulttype : Type := (list valtype)
 
 /- Auxiliary Definition at:  -/
 def heaptype_absheaptype : ∀  (var_0 : absheaptype) , heaptype
-  | .ANY => .ANY
-  | .EQ => .EQ
-  | .I31 => .I31
-  | .STRUCT => .STRUCT
-  | .ARRAY => .ARRAY
-  | .NONE => .NONE
-  | .FUNC => .FUNC
-  | .NOFUNC => .NOFUNC
-  | .EXN => .EXN
-  | .NOEXN => .NOEXN
-  | .EXTERN => .EXTERN
-  | .NOEXTERN => .NOEXTERN
-  | .BOT => .BOT
+  | .ANY =>
+    .ANY
+  | .EQ =>
+    .EQ
+  | .I31 =>
+    .I31
+  | .STRUCT =>
+    .STRUCT
+  | .ARRAY =>
+    .ARRAY
+  | .NONE =>
+    .NONE
+  | .FUNC =>
+    .FUNC
+  | .NOFUNC =>
+    .NOFUNC
+  | .EXN =>
+    .EXN
+  | .NOEXN =>
+    .NOEXN
+  | .EXTERN =>
+    .EXTERN
+  | .NOEXTERN =>
+    .NOEXTERN
+  | .BOT =>
+    .BOT
 
 
 /- Auxiliary Definition at:  -/
 def valtype_addrtype : ∀  (var_0 : addrtype) , valtype
-  | .I32 => .I32
-  | .I64 => .I64
+  | .I32 =>
+    .I32
+  | .I64 =>
+    .I64
 
 
 /- Auxiliary Definition at:  -/
 def storagetype_consttype : ∀  (var_0 : consttype) , storagetype
-  | .I32 => .I32
-  | .I64 => .I64
-  | .F32 => .F32
-  | .F64 => .F64
-  | .V128 => .V128
+  | .I32 =>
+    .I32
+  | .I64 =>
+    .I64
+  | .F32 =>
+    .F32
+  | .F64 =>
+    .F64
+  | .V128 =>
+    .V128
 
 
 /- Auxiliary Definition at:  -/
 def storagetype_numtype : ∀  (var_0 : numtype) , storagetype
-  | .I32 => .I32
-  | .I64 => .I64
-  | .F32 => .F32
-  | .F64 => .F64
+  | .I32 =>
+    .I32
+  | .I64 =>
+    .I64
+  | .F32 =>
+    .F32
+  | .F64 =>
+    .F64
 
 
 /- Auxiliary Definition at:  -/
 def valtype_numtype : ∀  (var_0 : numtype) , valtype
-  | .I32 => .I32
-  | .I64 => .I64
-  | .F32 => .F32
-  | .F64 => .F64
+  | .I32 =>
+    .I32
+  | .I64 =>
+    .I64
+  | .F32 =>
+    .F32
+  | .F64 =>
+    .F64
 
 
 /- Auxiliary Definition at:  -/
 def heaptype_typeuse : ∀  (var_0 : typeuse) , heaptype
-  | (._IDX x0) => (._IDX x0)
-  | (._DEF x0 x1) => (._DEF x0 x1)
-  | (.REC x0) => (.REC x0)
+  | (._IDX x0) =>
+    (._IDX x0)
+  | (._DEF x0 x1) =>
+    (._DEF x0 x1)
+  | (.REC x0) =>
+    (.REC x0)
 
 
 /- Auxiliary Definition at:  -/
 def storagetype_valtype : ∀  (var_0 : valtype) , storagetype
-  | .I32 => .I32
-  | .I64 => .I64
-  | .F32 => .F32
-  | .F64 => .F64
-  | .V128 => .V128
-  | (.REF x0 x1) => (.REF x0 x1)
-  | .BOT => .BOT
+  | .I32 =>
+    .I32
+  | .I64 =>
+    .I64
+  | .F32 =>
+    .F32
+  | .F64 =>
+    .F64
+  | .V128 =>
+    .V128
+  | (.REF x0 x1) =>
+    (.REF x0 x1)
+  | .BOT =>
+    .BOT
 
 
 /- Auxiliary Definition at:  -/
 def storagetype_vectype : ∀  (var_0 : vectype) , storagetype
-  | .V128 => .V128
+  | .V128 =>
+    .V128
 
 
 /- Auxiliary Definition at:  -/
 def valtype_vectype : ∀  (var_0 : vectype) , valtype
-  | .V128 => .V128
+  | .V128 =>
+    .V128
 
 
 /- Recursive Definitions at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:37.1-123.22 -/
@@ -855,12 +951,14 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at:  -/
 def heaptype_deftype : ∀  (var_0 : deftype) , heaptype
-  | (._DEF x0 x1) => (._DEF x0 x1)
+  | (._DEF x0 x1) =>
+    (._DEF x0 x1)
 
 
 /- Auxiliary Definition at:  -/
 def typeuse_deftype : ∀  (var_0 : deftype) , typeuse
-  | (._DEF x0 x1) => (._DEF x0 x1)
+  | (._DEF x0 x1) =>
+    (._DEF x0 x1)
 
 
 /- Inductive Type Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:40.1-41.42 -/
@@ -872,8 +970,10 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at:  -/
 def typeuse_typevar : ∀  (var_0 : typevar) , typeuse
-  | (._IDX x0) => (._IDX x0)
-  | (.REC x0) => (.REC x0)
+  | (._IDX x0) =>
+    (._IDX x0)
+  | (.REC x0) =>
+    (.REC x0)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:40.8-40.15 -/
@@ -891,12 +991,14 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at:  -/
 def storagetype_reftype : ∀  (var_0 : reftype) , storagetype
-  | (.REF x0 x1) => (.REF x0 x1)
+  | (.REF x0 x1) =>
+    (.REF x0 x1)
 
 
 /- Auxiliary Definition at:  -/
 def valtype_reftype : ∀  (var_0 : reftype) , valtype
-  | (.REF x0 x1) => (.REF x0 x1)
+  | (.REF x0 x1) =>
+    (.REF x0 x1)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:46.8-46.15 -/
@@ -917,8 +1019,10 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at:  -/
 def numtype_Fnn : ∀  (var_0 : Fnn) , numtype
-  | .F32 => .F32
-  | .F64 => .F64
+  | .F32 =>
+    .F32
+  | .F64 =>
+    .F64
 
 
 /- Type Alias Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:57.1-57.54 -/
@@ -979,8 +1083,10 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at:  -/
 def storagetype_packtype : ∀  (var_0 : packtype) , storagetype
-  | .I8 => .I8
-  | .I16 => .I16
+  | .I8 =>
+    .I8
+  | .I16 =>
+    .I16
 
 
 /- Inductive Type Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:91.1-91.60 -/
@@ -996,28 +1102,38 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at:  -/
 def lanetype_Fnn : ∀  (var_0 : Fnn) , lanetype
-  | .F32 => .F32
-  | .F64 => .F64
+  | .F32 =>
+    .F32
+  | .F64 =>
+    .F64
 
 
 /- Auxiliary Definition at:  -/
 def lanetype_addrtype : ∀  (var_0 : addrtype) , lanetype
-  | .I32 => .I32
-  | .I64 => .I64
+  | .I32 =>
+    .I32
+  | .I64 =>
+    .I64
 
 
 /- Auxiliary Definition at:  -/
 def lanetype_numtype : ∀  (var_0 : numtype) , lanetype
-  | .I32 => .I32
-  | .I64 => .I64
-  | .F32 => .F32
-  | .F64 => .F64
+  | .I32 =>
+    .I32
+  | .I64 =>
+    .I64
+  | .F32 =>
+    .F32
+  | .F64 =>
+    .F64
 
 
 /- Auxiliary Definition at:  -/
 def lanetype_packtype : ∀  (var_0 : packtype) , lanetype
-  | .I8 => .I8
-  | .I16 => .I16
+  | .I8 =>
+    .I8
+  | .I16 =>
+    .I16
 
 
 /- Type Alias Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:95.1-95.55 -/
@@ -1034,16 +1150,22 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at:  -/
 def lanetype_Jnn : ∀  (var_0 : Jnn) , lanetype
-  | .I32 => .I32
-  | .I64 => .I64
-  | .I8 => .I8
-  | .I16 => .I16
+  | .I32 =>
+    .I32
+  | .I64 =>
+    .I64
+  | .I8 =>
+    .I8
+  | .I16 =>
+    .I16
 
 
 /- Auxiliary Definition at:  -/
 def Jnn_addrtype : ∀  (var_0 : addrtype) , Jnn
-  | .I32 => .I32
-  | .I64 => .I64
+  | .I32 =>
+    .I32
+  | .I64 =>
+    .I64
 
 
 /- Type Alias Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:97.1-97.55 -/
@@ -1154,164 +1276,226 @@ inductive wf_moduletype : moduletype -> Prop where
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:179.1-179.65 -/
 def IN : ∀  (v_N : N) , (Option Inn)
-  | 32 => (some .I32)
-  | 64 => (some .I64)
-  | x0 => none
+  | 32 =>
+    (some .I32)
+  | 64 =>
+    (some .I64)
+  | x0 =>
+    none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:183.1-183.65 -/
 def FN : ∀  (v_N : N) , (Option Fnn)
-  | 32 => (some .F32)
-  | 64 => (some .F64)
-  | x0 => none
+  | 32 =>
+    (some .F32)
+  | 64 =>
+    (some .F64)
+  | x0 =>
+    none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:187.1-187.65 -/
 def JN : ∀  (v_N : N) , (Option Jnn)
-  | 8 => (some .I8)
-  | 16 => (some .I16)
-  | 32 => (some .I32)
-  | 64 => (some .I64)
-  | x0 => none
+  | 8 =>
+    (some .I8)
+  | 16 =>
+    (some .I16)
+  | 32 =>
+    (some .I32)
+  | 64 =>
+    (some .I64)
+  | x0 =>
+    none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:196.1-196.46 -/
 def size : ∀  (v_numtype : numtype) , Nat
-  | .I32 => 32
-  | .I64 => 64
-  | .F32 => 32
-  | .F64 => 64
+  | .I32 =>
+    32
+  | .I64 =>
+    64
+  | .F32 =>
+    32
+  | .F64 =>
+    64
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:197.1-197.46 -/
 def vsize : ∀  (v_vectype : vectype) , Nat
-  | .V128 => 128
+  | .V128 =>
+    128
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:198.1-198.46 -/
 def psize : ∀  (v_packtype : packtype) , Nat
-  | .I8 => 8
-  | .I16 => 16
+  | .I8 =>
+    8
+  | .I16 =>
+    16
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:199.1-199.46 -/
 def lsize : ∀  (v_lanetype : lanetype) , Nat
-  | .I32 => (size .I32)
-  | .I64 => (size .I64)
-  | .F32 => (size .F32)
-  | .F64 => (size .F64)
-  | .I8 => (psize .I8)
-  | .I16 => (psize .I16)
+  | .I32 =>
+    (size .I32)
+  | .I64 =>
+    (size .I64)
+  | .F32 =>
+    (size .F32)
+  | .F64 =>
+    (size .F64)
+  | .I8 =>
+    (psize .I8)
+  | .I16 =>
+    (psize .I16)
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:200.1-200.60 -/
 def zsize : ∀  (v_storagetype : storagetype) , (Option Nat)
-  | .I32 => (some (size .I32))
-  | .I64 => (some (size .I64))
-  | .F32 => (some (size .F32))
-  | .F64 => (some (size .F64))
-  | .V128 => (some (vsize .V128))
-  | .I8 => (some (psize .I8))
-  | .I16 => (some (psize .I16))
-  | x0 => none
+  | .I32 =>
+    (some (size .I32))
+  | .I64 =>
+    (some (size .I64))
+  | .F32 =>
+    (some (size .F32))
+  | .F64 =>
+    (some (size .F64))
+  | .V128 =>
+    (some (vsize .V128))
+  | .I8 =>
+    (some (psize .I8))
+  | .I16 =>
+    (some (psize .I16))
+  | x0 =>
+    none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:201.1-201.71 -/
 def isize : ∀  (v_Inn : Inn) , Nat
-  | v_Inn => (size (numtype_addrtype v_Inn))
+  | v_Inn =>
+    (size (numtype_addrtype v_Inn))
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:202.1-202.71 -/
 def jsize : ∀  (v_Jnn : Jnn) , Nat
-  | v_Jnn => (lsize (lanetype_Jnn v_Jnn))
+  | v_Jnn =>
+    (lsize (lanetype_Jnn v_Jnn))
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:203.1-203.71 -/
 def fsize : ∀  (v_Fnn : Fnn) , Nat
-  | v_Fnn => (size (numtype_Fnn v_Fnn))
+  | v_Fnn =>
+    (size (numtype_Fnn v_Fnn))
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:226.1-226.40 -/
 def inv_isize : ∀  (nat : Nat) , (Option Inn)
-  | 32 => (some .I32)
-  | 64 => (some .I64)
-  | x0 => none
+  | 32 =>
+    (some .I32)
+  | 64 =>
+    (some .I64)
+  | x0 =>
+    none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:227.1-227.40 -/
 def inv_jsize : ∀  (nat : Nat) , (Option Jnn)
-  | 8 => (some .I8)
-  | 16 => (some .I16)
-  | v_n => (some (Jnn_addrtype (Option.get! (inv_isize v_n))))
-  | x0 => none
+  | 8 =>
+    (some .I8)
+  | 16 =>
+    (some .I16)
+  | v_n =>
+    (some (Jnn_addrtype (Option.get! (inv_isize v_n))))
+  | x0 =>
+    none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:228.1-228.40 -/
 def inv_fsize : ∀  (nat : Nat) , (Option Fnn)
-  | 32 => (some .F32)
-  | 64 => (some .F64)
-  | x0 => none
+  | 32 =>
+    (some .F32)
+  | 64 =>
+    (some .F64)
+  | x0 =>
+    none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:239.1-239.63 -/
 def sizenn : ∀  (v_numtype : numtype) , Nat
-  | nt => (size nt)
+  | nt =>
+    (size nt)
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:240.1-240.63 -/
 def sizenn1 : ∀  (v_numtype : numtype) , Nat
-  | nt => (size nt)
+  | nt =>
+    (size nt)
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:241.1-241.63 -/
 def sizenn2 : ∀  (v_numtype : numtype) , Nat
-  | nt => (size nt)
+  | nt =>
+    (size nt)
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:246.1-246.63 -/
 def vsizenn : ∀  (v_vectype : vectype) , Nat
-  | vt => (vsize vt)
+  | vt =>
+    (vsize vt)
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:249.1-249.63 -/
 def psizenn : ∀  (v_packtype : packtype) , Nat
-  | pt => (psize pt)
+  | pt =>
+    (psize pt)
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:252.1-252.63 -/
 def lsizenn : ∀  (v_lanetype : lanetype) , Nat
-  | lt => (lsize lt)
+  | lt =>
+    (lsize lt)
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:253.1-253.63 -/
 def lsizenn1 : ∀  (v_lanetype : lanetype) , Nat
-  | lt => (lsize lt)
+  | lt =>
+    (lsize lt)
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:254.1-254.63 -/
 def lsizenn2 : ∀  (v_lanetype : lanetype) , Nat
-  | lt => (lsize lt)
+  | lt =>
+    (lsize lt)
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:259.1-259.83 -/
 def jsizenn : ∀  (v_Jnn : Jnn) , Nat
-  | v_Jnn => (lsize (lanetype_Jnn v_Jnn))
+  | v_Jnn =>
+    (lsize (lanetype_Jnn v_Jnn))
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:262.1-262.42 -/
 def inv_jsizenn : ∀  (nat : Nat) , (Option Jnn)
-  | v_n => (some (Option.get! (inv_jsize v_n)))
-  | x0 => none
+  | v_n =>
+    (some (Option.get! (inv_jsize v_n)))
+  | x0 =>
+    none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:268.1-268.56 -/
 def lunpack : ∀  (v_lanetype : lanetype) , numtype
-  | .I32 => .I32
-  | .I64 => .I64
-  | .F32 => .F32
-  | .F64 => .F64
-  | .I8 => .I32
-  | .I16 => .I32
+  | .I32 =>
+    .I32
+  | .I64 =>
+    .I64
+  | .F32 =>
+    .F32
+  | .F64 =>
+    .F64
+  | .I8 =>
+    .I32
+  | .I16 =>
+    .I32
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:272.1-272.35 -/
@@ -1319,49 +1503,80 @@ opaque unpack : forall (v_storagetype : storagetype), valtype := opaqueDef
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:276.1-276.73 -/
 def nunpack : ∀  (v_storagetype : storagetype) , (Option numtype)
-  | .I32 => (some .I32)
-  | .I64 => (some .I64)
-  | .F32 => (some .F32)
-  | .F64 => (some .F64)
-  | .I8 => (some .I32)
-  | .I16 => (some .I32)
-  | x0 => none
+  | .I32 =>
+    (some .I32)
+  | .I64 =>
+    (some .I64)
+  | .F32 =>
+    (some .F32)
+  | .F64 =>
+    (some .F64)
+  | .I8 =>
+    (some .I32)
+  | .I16 =>
+    (some .I32)
+  | x0 =>
+    none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:280.1-280.73 -/
 def vunpack : ∀  (v_storagetype : storagetype) , (Option vectype)
-  | .V128 => (some .V128)
-  | x0 => none
+  | .V128 =>
+    (some .V128)
+  | x0 =>
+    none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:283.1-283.74 -/
 def cunpack : ∀  (v_storagetype : storagetype) , (Option consttype)
-  | .I32 => (some .I32)
-  | .I64 => (some .I64)
-  | .F32 => (some .F32)
-  | .F64 => (some .F64)
-  | .V128 => (some .V128)
-  | .I8 => (some .I32)
-  | .I16 => (some .I32)
-  | .I32 => (some (consttype_numtype (lunpack .I32)))
-  | .I64 => (some (consttype_numtype (lunpack .I64)))
-  | .F32 => (some (consttype_numtype (lunpack .F32)))
-  | .F64 => (some (consttype_numtype (lunpack .F64)))
-  | .I8 => (some (consttype_numtype (lunpack .I8)))
-  | .I16 => (some (consttype_numtype (lunpack .I16)))
-  | x0 => none
+  | .I32 =>
+    (some .I32)
+  | .I64 =>
+    (some .I64)
+  | .F32 =>
+    (some .F32)
+  | .F64 =>
+    (some .F64)
+  | .V128 =>
+    (some .V128)
+  | .I8 =>
+    (some .I32)
+  | .I16 =>
+    (some .I32)
+  | .I32 =>
+    (some (consttype_numtype (lunpack .I32)))
+  | .I64 =>
+    (some (consttype_numtype (lunpack .I64)))
+  | .F32 =>
+    (some (consttype_numtype (lunpack .F32)))
+  | .F64 =>
+    (some (consttype_numtype (lunpack .F64)))
+  | .I8 =>
+    (some (consttype_numtype (lunpack .I8)))
+  | .I16 =>
+    (some (consttype_numtype (lunpack .I16)))
+  | x0 =>
+    none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:291.1-291.90 -/
-opaque minat : forall (v_addrtype : addrtype) (v_addrtype_0 : addrtype), addrtype := opaqueDef
+def minat : ∀  (v_addrtype : addrtype) (v_addrtype_0 : addrtype) , addrtype
+  | at_1, at_2 =>
+    if ((size (numtype_addrtype at_1)) <= (size (numtype_addrtype at_2))) then
+      at_1
+    else
+      at_2
+
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:295.1-295.82 -/
 opaque diffrt : forall (v_reftype : reftype) (v_reftype_0 : reftype), reftype := opaqueDef
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:300.1-300.63 -/
 def as_deftype : ∀  (v_typeuse : typeuse) , (Option deftype)
-  | (._DEF v_rectype v_n) => (some (._DEF v_rectype v_n))
-  | x0 => none
+  | (._DEF v_rectype v_n) =>
+    (some (._DEF v_rectype v_n))
+  | x0 =>
+    none
 
 
 /- Recursive Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:308.1-308.87 -/
@@ -1510,12 +1725,18 @@ opaque free_packtype : forall (v_packtype : packtype), free := opaqueDef
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:480.1-480.36 -/
 def free_lanetype : ∀  (v_lanetype : lanetype) , free
-  | .I32 => (free_numtype .I32)
-  | .I64 => (free_numtype .I64)
-  | .F32 => (free_numtype .F32)
-  | .F64 => (free_numtype .F64)
-  | .I8 => (free_packtype .I8)
-  | .I16 => (free_packtype .I16)
+  | .I32 =>
+    (free_numtype .I32)
+  | .I64 =>
+    (free_numtype .I64)
+  | .F32 =>
+    (free_numtype .F32)
+  | .F64 =>
+    (free_numtype .F64)
+  | .I8 =>
+    (free_packtype .I8)
+  | .I16 =>
+    (free_packtype .I16)
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:481.1-481.34 -/
@@ -1523,11 +1744,16 @@ opaque free_vectype : forall (v_vectype : vectype), free := opaqueDef
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:482.1-482.38 -/
 def free_consttype : ∀  (v_consttype : consttype) , free
-  | .I32 => (free_numtype .I32)
-  | .I64 => (free_numtype .I64)
-  | .F32 => (free_numtype .F32)
-  | .F64 => (free_numtype .F64)
-  | .V128 => (free_vectype .V128)
+  | .I32 =>
+    (free_numtype .I32)
+  | .I64 =>
+    (free_numtype .I64)
+  | .F32 =>
+    (free_numtype .F32)
+  | .F64 =>
+    (free_numtype .F64)
+  | .V128 =>
+    (free_vectype .V128)
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:483.1-483.42 -/
@@ -1569,13 +1795,16 @@ opaque free_rectype : forall (v_rectype : rectype), free := opaqueDef
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:523.1-523.34 -/
 def free_deftype : ∀  (v_deftype : deftype) , free
-  | (._DEF v_rectype v_n) => (free_rectype v_rectype)
+  | (._DEF v_rectype v_n) =>
+    (free_rectype v_rectype)
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:497.1-497.49 -/
 def free_tagtype : ∀  (v_tagtype : tagtype) , (Option free)
-  | (._DEF v_rectype v_n) => (some (free_deftype (._DEF v_rectype v_n)))
-  | x0 => none
+  | (._DEF v_rectype v_n) =>
+    (some (free_deftype (._DEF v_rectype v_n)))
+  | x0 =>
+    none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:498.1-498.40 -/
@@ -1701,7 +1930,8 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:28.1-28.56 -/
 def proj_sz_0 : ∀  (x : sz) , Nat
-  | (.mk_sz v_num_0) => (v_num_0)
+  | (.mk_sz v_num_0) =>
+    (v_num_0)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:28.8-28.10 -/
@@ -2001,7 +2231,8 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:73.1-73.60 -/
 def proj_dim_0 : ∀  (x : dim) , Nat
-  | (.mk_dim v_num_0) => (v_num_0)
+  | (.mk_dim v_num_0) =>
+    (v_num_0)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:73.8-73.11 -/
@@ -2028,12 +2259,14 @@ opaque fun_dim : forall (v_shape : shape), dim := opaqueDef
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:81.1-81.58 -/
 def fun_lanetype : ∀  (v_shape : shape) , lanetype
-  | (.X v_Lnn (.mk_dim v_N)) => v_Lnn
+  | (.X v_Lnn (.mk_dim v_N)) =>
+    v_Lnn
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:84.1-84.57 -/
 def unpackshape : ∀  (v_shape : shape) , numtype
-  | (.X v_Lnn (.mk_dim v_N)) => (lunpack v_Lnn)
+  | (.X v_Lnn (.mk_dim v_N)) =>
+    (lunpack v_Lnn)
 
 
 /- Inductive Type Definition at: ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:88.1-88.78 -/
@@ -2044,7 +2277,8 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:88.1-88.78 -/
 def proj_ishape_0 : ∀  (x : ishape) , shape
-  | (.mk_ishape v_shape_0) => (v_shape_0)
+  | (.mk_ishape v_shape_0) =>
+    (v_shape_0)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:88.8-88.14 -/
@@ -2062,7 +2296,8 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:89.1-89.77 -/
 def proj_bshape_0 : ∀  (x : bshape) , shape
-  | (.mk_bshape v_shape_0) => (v_shape_0)
+  | (.mk_bshape v_shape_0) =>
+    (v_shape_0)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:89.8-89.14 -/
@@ -3053,27 +3288,44 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at:  -/
 def instr_addrref : ∀  (var_0 : addrref) , instr
-  | (.REF_I31_NUM x0) => (.REF_I31_NUM x0)
-  | (.REF_STRUCT_ADDR x0) => (.REF_STRUCT_ADDR x0)
-  | (.REF_ARRAY_ADDR x0) => (.REF_ARRAY_ADDR x0)
-  | (.REF_FUNC_ADDR x0) => (.REF_FUNC_ADDR x0)
-  | (.REF_EXN_ADDR x0) => (.REF_EXN_ADDR x0)
-  | (.REF_HOST_ADDR x0) => (.REF_HOST_ADDR x0)
-  | (.REF_EXTERN x0) => (.REF_EXTERN x0)
+  | (.REF_I31_NUM x0) =>
+    (.REF_I31_NUM x0)
+  | (.REF_STRUCT_ADDR x0) =>
+    (.REF_STRUCT_ADDR x0)
+  | (.REF_ARRAY_ADDR x0) =>
+    (.REF_ARRAY_ADDR x0)
+  | (.REF_FUNC_ADDR x0) =>
+    (.REF_FUNC_ADDR x0)
+  | (.REF_EXN_ADDR x0) =>
+    (.REF_EXN_ADDR x0)
+  | (.REF_HOST_ADDR x0) =>
+    (.REF_HOST_ADDR x0)
+  | (.REF_EXTERN x0) =>
+    (.REF_EXTERN x0)
 
 
 /- Auxiliary Definition at:  -/
 def instr_val : ∀  (var_0 : val) , instr
-  | (.CONST x0 x1) => (.CONST x0 x1)
-  | (.VCONST x0 x1) => (.VCONST x0 x1)
-  | (.REF_NULL x0) => (.REF_NULL x0)
-  | (.REF_I31_NUM x0) => (.REF_I31_NUM x0)
-  | (.REF_STRUCT_ADDR x0) => (.REF_STRUCT_ADDR x0)
-  | (.REF_ARRAY_ADDR x0) => (.REF_ARRAY_ADDR x0)
-  | (.REF_FUNC_ADDR x0) => (.REF_FUNC_ADDR x0)
-  | (.REF_EXN_ADDR x0) => (.REF_EXN_ADDR x0)
-  | (.REF_HOST_ADDR x0) => (.REF_HOST_ADDR x0)
-  | (.REF_EXTERN x0) => (.REF_EXTERN x0)
+  | (.CONST x0 x1) =>
+    (.CONST x0 x1)
+  | (.VCONST x0 x1) =>
+    (.VCONST x0 x1)
+  | (.REF_NULL x0) =>
+    (.REF_NULL x0)
+  | (.REF_I31_NUM x0) =>
+    (.REF_I31_NUM x0)
+  | (.REF_STRUCT_ADDR x0) =>
+    (.REF_STRUCT_ADDR x0)
+  | (.REF_ARRAY_ADDR x0) =>
+    (.REF_ARRAY_ADDR x0)
+  | (.REF_FUNC_ADDR x0) =>
+    (.REF_FUNC_ADDR x0)
+  | (.REF_EXN_ADDR x0) =>
+    (.REF_EXN_ADDR x0)
+  | (.REF_HOST_ADDR x0) =>
+    (.REF_HOST_ADDR x0)
+  | (.REF_EXTERN x0) =>
+    (.REF_EXTERN x0)
 
 
 /- Recursive Definition at: ../../../../specification/wasm-3.0/4.0-execution.configurations.spectec:136.1-142.9 -/
@@ -3673,7 +3925,8 @@ inductive wf_module : module -> Prop where
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.4-syntax.modules.spectec:62.1-62.28 -/
 def free_type : ∀  (v_type : type) , free
-  | (.TYPE v_rectype) => (free_rectype v_rectype)
+  | (.TYPE v_rectype) =>
+    (free_rectype v_rectype)
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/1.4-syntax.modules.spectec:63.1-63.26 -/
@@ -5902,7 +6155,8 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec:5.1-5.24 -/
 def proj_relaxed2_0 : ∀  (x : relaxed2) , Nat
-  | (.mk_relaxed2 v_num_0) => (v_num_0)
+  | (.mk_relaxed2 v_num_0) =>
+    (v_num_0)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec:5.8-5.16 -/
@@ -5919,7 +6173,8 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec:6.1-6.32 -/
 def proj_relaxed4_0 : ∀  (x : relaxed4) , Nat
-  | (.mk_relaxed4 v_num_0) => (v_num_0)
+  | (.mk_relaxed4 v_num_0) =>
+    (v_num_0)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec:6.8-6.16 -/
@@ -6020,14 +6275,22 @@ opaque inv_signed_ : forall (v_N : N) (int : Nat), Nat := opaqueDef
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec:61.1-61.60 -/
 def fun_sx : ∀  (v_storagetype : storagetype) , (Option (Option sx))
-  | .I32 => (some none)
-  | .I64 => (some none)
-  | .F32 => (some none)
-  | .F64 => (some none)
-  | .V128 => (some none)
-  | .I8 => (some (some .S))
-  | .I16 => (some (some .S))
-  | x0 => none
+  | .I32 =>
+    (some none)
+  | .I64 =>
+    (some none)
+  | .F32 =>
+    (some none)
+  | .F64 =>
+    (some none)
+  | .V128 =>
+    (some none)
+  | .I8 =>
+    (some (some .S))
+  | .I16 =>
+    (some (some .S))
+  | x0 =>
+    none
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec:68.1-68.51 -/
@@ -6035,8 +6298,10 @@ opaque fun_zero : forall (v_lanetype : lanetype), lane_ := opaqueDef
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec:72.1-72.22 -/
 def nat_of_bool : ∀  (v_bool : Bool) , Nat
-  | false => 0
-  | true => 1
+  | false =>
+    0
+  | true =>
+    1
 
 
 /- Axiom Definition at: ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec:76.1-76.23 -/
@@ -6046,10 +6311,28 @@ opaque truncz : forall (rat : Nat), Nat := opaqueDef
 opaque ceilz : forall (rat : Nat), Nat := opaqueDef
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec:87.1-87.61 -/
-opaque sat_u_ : forall (v_N : N) (int : Nat), Nat := opaqueDef
+def sat_u_ : ∀  (v_N : N) (int : Nat) , Nat
+  | v_N, i =>
+    if (i < (0 : Nat)) then
+      0
+    else
+    if (i > (((2 ^ v_N) : Nat) - (1 : Nat))) then
+      ((((2 ^ v_N) : Nat) - (1 : Nat)) : Nat)
+    else
+      (i : Nat)
+
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec:92.1-92.61 -/
-opaque sat_s_ : forall (v_N : N) (int : Nat), Nat := opaqueDef
+def sat_s_ : ∀  (v_N : N) (int : Nat) , Nat
+  | v_N, i =>
+    if (i < (0 - ((2 ^ (((v_N : Nat) - (1 : Nat)) : Nat)) : Nat))) then
+      (0 - ((2 ^ (((v_N : Nat) - (1 : Nat)) : Nat)) : Nat))
+    else
+    if (i > (((2 ^ (((v_N : Nat) - (1 : Nat)) : Nat)) : Nat) - (1 : Nat))) then
+      (((2 ^ (((v_N : Nat) - (1 : Nat)) : Nat)) : Nat) - (1 : Nat))
+    else
+      i
+
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec:100.1-100.29 -/
 opaque ineg_ : forall (v_N : N) (v_iN : iN), iN := opaqueDef
@@ -6314,8 +6597,10 @@ opaque halfop : forall (shape_1 : shape) (shape_2 : shape) (v_vcvtop__ : vcvtop_
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec:35.1-35.32 -/
 def fun_half : ∀  (v_half : half) (nat : Nat) (nat_0 : Nat) , Nat
-  | .LOW, i, j => i
-  | .HIGH, i, j => j
+  | .LOW, i, j =>
+    i
+  | .HIGH, i, j =>
+    j
 
 
 /- Auxiliary Definition at: ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec:40.1-40.46 -/
@@ -6458,7 +6743,8 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at:  -/
 def val_num : ∀  (var_0 : num) , val
-  | (.CONST x0 x1) => (.CONST x0 x1)
+  | (.CONST x0 x1) =>
+    (.CONST x0 x1)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/4.0-execution.configurations.spectec:29.8-29.11 -/
@@ -6475,7 +6761,8 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at:  -/
 def val_vec : ∀  (var_0 : vec) , val
-  | (.VCONST x0 x1) => (.VCONST x0 x1)
+  | (.VCONST x0 x1) =>
+    (.VCONST x0 x1)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/4.0-execution.configurations.spectec:32.8-32.11 -/
@@ -6499,37 +6786,60 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at:  -/
 def ref_addrref : ∀  (var_0 : addrref) , ref
-  | (.REF_I31_NUM x0) => (.REF_I31_NUM x0)
-  | (.REF_STRUCT_ADDR x0) => (.REF_STRUCT_ADDR x0)
-  | (.REF_ARRAY_ADDR x0) => (.REF_ARRAY_ADDR x0)
-  | (.REF_FUNC_ADDR x0) => (.REF_FUNC_ADDR x0)
-  | (.REF_EXN_ADDR x0) => (.REF_EXN_ADDR x0)
-  | (.REF_HOST_ADDR x0) => (.REF_HOST_ADDR x0)
-  | (.REF_EXTERN x0) => (.REF_EXTERN x0)
+  | (.REF_I31_NUM x0) =>
+    (.REF_I31_NUM x0)
+  | (.REF_STRUCT_ADDR x0) =>
+    (.REF_STRUCT_ADDR x0)
+  | (.REF_ARRAY_ADDR x0) =>
+    (.REF_ARRAY_ADDR x0)
+  | (.REF_FUNC_ADDR x0) =>
+    (.REF_FUNC_ADDR x0)
+  | (.REF_EXN_ADDR x0) =>
+    (.REF_EXN_ADDR x0)
+  | (.REF_HOST_ADDR x0) =>
+    (.REF_HOST_ADDR x0)
+  | (.REF_EXTERN x0) =>
+    (.REF_EXTERN x0)
 
 
 /- Auxiliary Definition at:  -/
 def instr_ref : ∀  (var_0 : ref) , instr
-  | (.REF_I31_NUM x0) => (.REF_I31_NUM x0)
-  | (.REF_STRUCT_ADDR x0) => (.REF_STRUCT_ADDR x0)
-  | (.REF_ARRAY_ADDR x0) => (.REF_ARRAY_ADDR x0)
-  | (.REF_FUNC_ADDR x0) => (.REF_FUNC_ADDR x0)
-  | (.REF_EXN_ADDR x0) => (.REF_EXN_ADDR x0)
-  | (.REF_HOST_ADDR x0) => (.REF_HOST_ADDR x0)
-  | (.REF_EXTERN x0) => (.REF_EXTERN x0)
-  | (.REF_NULL x0) => (.REF_NULL x0)
+  | (.REF_I31_NUM x0) =>
+    (.REF_I31_NUM x0)
+  | (.REF_STRUCT_ADDR x0) =>
+    (.REF_STRUCT_ADDR x0)
+  | (.REF_ARRAY_ADDR x0) =>
+    (.REF_ARRAY_ADDR x0)
+  | (.REF_FUNC_ADDR x0) =>
+    (.REF_FUNC_ADDR x0)
+  | (.REF_EXN_ADDR x0) =>
+    (.REF_EXN_ADDR x0)
+  | (.REF_HOST_ADDR x0) =>
+    (.REF_HOST_ADDR x0)
+  | (.REF_EXTERN x0) =>
+    (.REF_EXTERN x0)
+  | (.REF_NULL x0) =>
+    (.REF_NULL x0)
 
 
 /- Auxiliary Definition at:  -/
 def val_ref : ∀  (var_0 : ref) , val
-  | (.REF_I31_NUM x0) => (.REF_I31_NUM x0)
-  | (.REF_STRUCT_ADDR x0) => (.REF_STRUCT_ADDR x0)
-  | (.REF_ARRAY_ADDR x0) => (.REF_ARRAY_ADDR x0)
-  | (.REF_FUNC_ADDR x0) => (.REF_FUNC_ADDR x0)
-  | (.REF_EXN_ADDR x0) => (.REF_EXN_ADDR x0)
-  | (.REF_HOST_ADDR x0) => (.REF_HOST_ADDR x0)
-  | (.REF_EXTERN x0) => (.REF_EXTERN x0)
-  | (.REF_NULL x0) => (.REF_NULL x0)
+  | (.REF_I31_NUM x0) =>
+    (.REF_I31_NUM x0)
+  | (.REF_STRUCT_ADDR x0) =>
+    (.REF_STRUCT_ADDR x0)
+  | (.REF_ARRAY_ADDR x0) =>
+    (.REF_ARRAY_ADDR x0)
+  | (.REF_FUNC_ADDR x0) =>
+    (.REF_FUNC_ADDR x0)
+  | (.REF_EXN_ADDR x0) =>
+    (.REF_EXN_ADDR x0)
+  | (.REF_HOST_ADDR x0) =>
+    (.REF_HOST_ADDR x0)
+  | (.REF_EXTERN x0) =>
+    (.REF_EXTERN x0)
+  | (.REF_NULL x0) =>
+    (.REF_NULL x0)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/4.0-execution.configurations.spectec:44.8-44.11 -/
@@ -6760,16 +7070,26 @@ deriving Inhabited, BEq
 
 /- Auxiliary Definition at:  -/
 def fieldval_val : ∀  (var_0 : val) , fieldval
-  | (.CONST x0 x1) => (.CONST x0 x1)
-  | (.VCONST x0 x1) => (.VCONST x0 x1)
-  | (.REF_NULL x0) => (.REF_NULL x0)
-  | (.REF_I31_NUM x0) => (.REF_I31_NUM x0)
-  | (.REF_STRUCT_ADDR x0) => (.REF_STRUCT_ADDR x0)
-  | (.REF_ARRAY_ADDR x0) => (.REF_ARRAY_ADDR x0)
-  | (.REF_FUNC_ADDR x0) => (.REF_FUNC_ADDR x0)
-  | (.REF_EXN_ADDR x0) => (.REF_EXN_ADDR x0)
-  | (.REF_HOST_ADDR x0) => (.REF_HOST_ADDR x0)
-  | (.REF_EXTERN x0) => (.REF_EXTERN x0)
+  | (.CONST x0 x1) =>
+    (.CONST x0 x1)
+  | (.VCONST x0 x1) =>
+    (.VCONST x0 x1)
+  | (.REF_NULL x0) =>
+    (.REF_NULL x0)
+  | (.REF_I31_NUM x0) =>
+    (.REF_I31_NUM x0)
+  | (.REF_STRUCT_ADDR x0) =>
+    (.REF_STRUCT_ADDR x0)
+  | (.REF_ARRAY_ADDR x0) =>
+    (.REF_ARRAY_ADDR x0)
+  | (.REF_FUNC_ADDR x0) =>
+    (.REF_FUNC_ADDR x0)
+  | (.REF_EXN_ADDR x0) =>
+    (.REF_EXN_ADDR x0)
+  | (.REF_HOST_ADDR x0) =>
+    (.REF_HOST_ADDR x0)
+  | (.REF_EXTERN x0) =>
+    (.REF_EXTERN x0)
 
 
 /- Inductive Relations Definition at: ../../../../specification/wasm-3.0/4.0-execution.configurations.spectec:91.8-91.16 -/

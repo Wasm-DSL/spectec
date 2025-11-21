@@ -542,14 +542,41 @@ let render_variant_typ id binds cases =
   )  cases) ^ 
   "\nderiving Inhabited, BEq\n"
 
+let clauses_have_same_args c1 c2 =
+  match (c1.it, c2.it) with
+  | (DefD (binds1, args1, _, _), DefD (binds2, args2, _, _)) ->
+    Il.Eq.eq_list Il.Eq.eq_bind binds1 binds2 &&
+    Il.Eq.eq_list Il.Eq.eq_arg args1 args2
+
+let group_clauses_by_same_args clauses =
+  let group_helper acc clause =
+    match acc with
+    | [] -> [[clause]]
+    | group :: rest ->
+      let representative = List.hd group in
+      if clauses_have_same_args representative clause then
+        (group @ [clause]) :: rest
+      else
+        [clause] :: group :: rest
+  in
+  List.fold_left group_helper [] clauses |> List.rev
+  
 let render_function_def id params r_typ clauses = 
+  let groups = group_clauses_by_same_args clauses in
   "def " ^ render_id id ^ " : ∀ " ^ render_params params ^ " , " ^ render_type RHS r_typ ^ "\n" ^
-  String.concat "\n" (List.map (fun clause -> match clause.it with
-    | DefD (_, args, exp, prems) -> 
-    "  |" ^ render_match_args args ^ " => " ^ render_exp RHS exp ^ 
-    (if prems = [] then "" else
-      "\n    /-\n    " ^ String.concat "\n    " (List.map (render_prem) prems) ^ "\n    -/")
-  ) clauses) ^
+  String.concat "\n" (List.map (fun group -> match (List.hd group).it with
+    | DefD (_, args, _, _) -> 
+    "  |" ^ render_match_args args ^ " =>\n    " ^
+    String.concat "\n    " (List.map (fun clause ->
+      let DefD (_, _, exp, prems) = clause.it in
+      match prems with
+      | [] -> render_exp RHS exp
+      | [{it = ElsePr; _}] -> "  " ^ render_exp RHS exp
+      | _ ->
+        "if " ^ String.concat " && " (List.map (fun prem -> render_prem prem) prems) ^ " then\n      " ^
+        render_exp RHS exp ^ "\n    else"
+    ) group)
+  ) groups) ^
   "\n"
 
 let render_relation id typ rules = 
@@ -614,24 +641,6 @@ let has_nonlinear_pattern c =
     in
     go [] (args_vars args)
 
-let clauses_have_same_args c1 c2 =
-  match (c1.it, c2.it) with
-  | (DefD (binds1, args1, _, _), DefD (binds2, args2, _, _)) ->
-    binds1 == binds2 && args1 == args2
-
-let group_clauses_by_same_args clauses =
-  let rec group_helper acc clause =
-    match acc with
-    | [] -> [[clause]]
-    | group :: rest ->
-      let representative = List.hd group in
-      if clauses_have_same_args representative clause then
-        (clause :: group) :: rest
-      else
-        group :: group_helper rest clause
-  in
-  List.fold_left group_helper [] clauses
-  
 let rec is_bool_premise prem =
   match prem.it with
   | IfPr _exp -> true
@@ -643,12 +652,12 @@ let is_else_premise prem =
   | ElsePr -> true
   | _ -> false
 
-let is_supported_clause id clauses = 
+let is_supported_clause _id clauses = 
   match List.rev clauses with
   | [] -> true 
   | [c] -> not (has_prems c)
   | last :: others -> 
-    Printf.eprintf "Checking supported clauses; %s\n" (String.concat "\n" (List.map (Il.Print.string_of_clause id) clauses));
+    (* Printf.eprintf "Checking supported clauses; %s\n" (String.concat "\n" (List.map (Il.Print.string_of_clause id) clauses)); *)
     (let DefD (_, _, _, prems) = last.it in match prems with | [p] -> is_else_premise p | _ -> false) &&
     List.for_all (fun c -> 
       let DefD (_, _, _, prems) = c.it in
