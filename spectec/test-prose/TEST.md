@@ -2404,42 +2404,62 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 ....................................
 
 
-1. Return :math:`f{.}\mathsf{module}{.}\mathsf{types}{}[x]`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{types}|}`.
+
+#. Return :math:`f{.}\mathsf{module}{.}\mathsf{types}{}[x]`.
 
 
 :math:`(s, f){.}\mathsf{funcs}{}[x]`
 ....................................
 
 
-1. Return :math:`s{.}\mathsf{funcs}{}[f{.}\mathsf{module}{.}\mathsf{funcs}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{funcs}{}[x] < {|s{.}\mathsf{funcs}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{funcs}|}`.
+
+#. Return :math:`s{.}\mathsf{funcs}{}[f{.}\mathsf{module}{.}\mathsf{funcs}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{globals}{}[x]`
 ......................................
 
 
-1. Return :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{globals}{}[x] < {|s{.}\mathsf{globals}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{globals}|}`.
+
+#. Return :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{tables}{}[x]`
 .....................................
 
 
-1. Return :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{tables}{}[x] < {|s{.}\mathsf{tables}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{tables}|}`.
+
+#. Return :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{mems}{}[x]`
 ...................................
 
 
-1. Return :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{mems}{}[x] < {|s{.}\mathsf{mems}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{mems}|}`.
+
+#. Return :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{locals}{}[x]`
 .....................................
 
 
-1. Return :math:`f{.}\mathsf{locals}{}[x]`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{locals}|}`.
+
+#. Return :math:`f{.}\mathsf{locals}{}[x]`.
 
 
 :math:`(s, f){}[{.}\mathsf{locals}{}[x] = v]`
@@ -2453,35 +2473,45 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 ...............................................................
 
 
-1. Replace :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]{.}\mathsf{value}` with :math:`v`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{globals}|}`.
+
+#. Replace :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]{.}\mathsf{value}` with :math:`v`.
 
 
 :math:`(s, f){}[{.}\mathsf{tables}{}[x]{.}\mathsf{refs}{}[i] = a]`
 ..................................................................
 
 
-1. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]{.}\mathsf{refs}{}[i]` with :math:`a`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{tables}|}`.
+
+#. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]{.}\mathsf{refs}{}[i]` with :math:`a`.
 
 
 :math:`(s, f){}[{.}\mathsf{tables}{}[x] = {\mathit{ti}}]`
 .........................................................
 
 
-1. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]` with :math:`{\mathit{ti}}`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{tables}|}`.
+
+#. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]` with :math:`{\mathit{ti}}`.
 
 
 :math:`(s, f){}[{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i : j] = {b^\ast}]`
 ............................................................................
 
 
-1. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]{.}\mathsf{bytes}{}[i : j]` with :math:`{b^\ast}`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{mems}|}`.
+
+#. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]{.}\mathsf{bytes}{}[i : j]` with :math:`{b^\ast}`.
 
 
 :math:`(s, f){}[{.}\mathsf{mems}{}[x] = {\mathit{mi}}]`
 .......................................................
 
 
-1. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]` with :math:`{\mathit{mi}}`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{mems}|}`.
+
+#. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]` with :math:`{\mathit{mi}}`.
 
 
 :math:`{\mathrm{growtable}}({\mathit{ti}}, n)`
@@ -2607,6 +2637,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 
 1. Let :math:`(\mathsf{func}~x~{{\mathit{local}}^\ast}~{\mathit{expr}})` be the destructuring of :math:`{\mathit{func}}`.
+
+#. Assert: :math:`x < {|{\mathit{moduleinst}}{.}\mathsf{types}|}`.
 
 #. Let :math:`{\mathit{fi}}` be the function instance :math:`\{ \mathsf{type}~{\mathit{moduleinst}}{.}\mathsf{types}{}[x],\;\allowbreak \mathsf{module}~{\mathit{moduleinst}},\;\allowbreak \mathsf{code}~{\mathit{func}} \}`.
 
@@ -2740,23 +2772,31 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    a. Let :math:`(\mathsf{func}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
 
-   #. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{func}~{{\mathit{fa}}^\ast}{}[x]) \}`.
+   #. If :math:`x < {|{{\mathit{fa}}^\ast}|}`, then:
+
+      1) Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{func}~{{\mathit{fa}}^\ast}{}[x]) \}`.
 
 #. If :math:`{\mathit{externidx}}` is some :math:`\mathsf{global}~{\mathit{globalidx}}`, then:
 
    a. Let :math:`(\mathsf{global}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
 
-   #. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{global}~{{\mathit{ga}}^\ast}{}[x]) \}`.
+   #. If :math:`x < {|{{\mathit{ga}}^\ast}|}`, then:
+
+      1) Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{global}~{{\mathit{ga}}^\ast}{}[x]) \}`.
 
 #. If :math:`{\mathit{externidx}}` is some :math:`\mathsf{table}~{\mathit{tableidx}}`, then:
 
    a. Let :math:`(\mathsf{table}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
 
-   #. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{table}~{{\mathit{ta}}^\ast}{}[x]) \}`.
+   #. If :math:`x < {|{{\mathit{ta}}^\ast}|}`, then:
+
+      1) Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{table}~{{\mathit{ta}}^\ast}{}[x]) \}`.
 
 #. Assert: :math:`{\mathit{externidx}}` is some :math:`\mathsf{mem}~{\mathit{memidx}}`.
 
 #. Let :math:`(\mathsf{mem}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
+
+#. Assert: :math:`x < {|{{\mathit{ma}}^\ast}|}`.
 
 #. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{mem}~{{\mathit{ma}}^\ast}{}[x]) \}`.
 
@@ -2844,6 +2884,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Let :math:`i~{{i'}^\ast}` be :math:`{{\mathit{u{\kern-0.1em\scriptstyle 32}}}^\ast}`.
 
+   #. Assert: :math:`0 < {|{\mathit{moduleinst}}{.}\mathsf{tables}|}`.
+
    #. Replace :math:`s{.}\mathsf{tables}{}[{\mathit{moduleinst}}{.}\mathsf{tables}{}[0]]{.}\mathsf{refs}{}[i : {|{a^\ast}|}]` with :math:`{a^\ast}`.
 
    #. Perform :math:`{\mathrm{initelem}}(s, {\mathit{moduleinst}}, {{i'}^\ast}, {{{a'}^\ast}^\ast})`.
@@ -2869,6 +2911,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Let :math:`i~{{i'}^\ast}` be :math:`{{\mathit{u{\kern-0.1em\scriptstyle 32}}}^\ast}`.
 
+   #. Assert: :math:`0 < {|{\mathit{moduleinst}}{.}\mathsf{mems}|}`.
+
    #. Replace :math:`s{.}\mathsf{mems}{}[{\mathit{moduleinst}}{.}\mathsf{mems}{}[0]]{.}\mathsf{bytes}{}[i : {|{b^\ast}|}]` with :math:`{b^\ast}`.
 
    #. Perform :math:`{\mathrm{initdata}}(s, {\mathit{moduleinst}}, {{i'}^\ast}, {{{b'}^\ast}^\ast})`.
@@ -2891,6 +2935,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
    #. Append :math:`{\mathit{functype}}` to :math:`{{\mathit{functype}}^\ast}`.
 
 #. Let :math:`n_{\mathsf{f}}` be the length of :math:`{{\mathit{func}}^\ast}`.
+
+#. Let :math:`{(\mathsf{start}~{x'})^?}` be :math:`{{\mathit{start}}^?}`.
 
 #. Let :math:`{{b^\ast}^\ast}` be the byte sequence sequence :math:`\epsilon`.
 
@@ -2960,7 +3006,15 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Pop the :math:`\mathsf{frame}` from the stack.
 
+#. Assert: :math:`{|{{\mathit{expr}}_{\mathsf{g}}^\ast}|} = {|{{\mathit{val}}^\ast}|}`.
+
+#. Assert: :math:`{|{{\mathit{expr}}_{\mathsf{e}}^\ast}|} = {|{i_{\mathsf{e}}^\ast}|}`.
+
+#. Assert: :math:`{|{{\mathit{expr}}_{\mathsf{d}}^\ast}|} = {|{i_{\mathsf{d}}^\ast}|}`.
+
 #. Let :math:`{\mathit{moduleinst}}` be :math:`{\mathrm{allocmodule}}(s, {\mathit{module}}, {{\mathit{externaddr}}^\ast}, {{\mathit{val}}^\ast})`.
+
+#. Assert: :math:`{{(x < {|{\mathit{moduleinst}}{.}\mathsf{funcs}|})^\ast}^\ast}`.
 
 #. Let :math:`f` be the frame :math:`\{ \mathsf{module}~{\mathit{moduleinst}} \}`.
 
@@ -2972,11 +3026,9 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Push the :math:`\mathsf{frame}` :math:`{f'}`.
 
-#. If :math:`{{\mathit{start}}^?}` is defined, then:
+#. If :math:`{(\mathsf{call}~{x'})^?}` is defined, then:
 
-   a. Let :math:`(\mathsf{start}~{x'})` be :math:`{{\mathit{start}}^?}`.
-
-   #. Let :math:`{\mathit{instr}}_0` be the administrative instruction :math:`(\mathsf{call}~{x'})`.
+   a. Let :math:`{\mathit{instr}}_0` be :math:`{(\mathsf{call}~{x'})^?}`.
 
    #. Execute the instruction :math:`{\mathit{instr}}_0`.
 
@@ -2994,6 +3046,12 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 #. Let :math:`F` be the :math:`\mathsf{frame}` :math:`(s, f)`.
 
 #. Push the :math:`\mathsf{frame}` :math:`F`.
+
+#. Assert: :math:`{\mathit{fa}} < {|(s, f){.}\mathsf{funcs}|}`.
+
+#. Let :math:`{F'}` be the :math:`\mathsf{frame}` :math:`(s, f)`.
+
+#. Push the :math:`\mathsf{frame}` :math:`{F'}`.
 
 #. Let :math:`{t_1^{n}}~\rightarrow~{t_2^\ast}` be the destructuring of :math:`(s, f){.}\mathsf{funcs}{}[{\mathit{fa}}]{.}\mathsf{type}`.
 
@@ -4191,40 +4249,55 @@ moduleinst (s, f)
 1. Return f.MODULE.
 
 type (s, f) x
-1. Return f.MODULE.TYPES[x].
+1. Assert: Due to validation, (x < |f.MODULE.TYPES|).
+2. Return f.MODULE.TYPES[x].
 
 func (s, f) x
-1. Return s.FUNCS[f.MODULE.FUNCS[x]].
+1. Assert: Due to validation, (f.MODULE.FUNCS[x] < |s.FUNCS|).
+2. Assert: Due to validation, (x < |f.MODULE.FUNCS|).
+3. Return s.FUNCS[f.MODULE.FUNCS[x]].
 
 global (s, f) x
-1. Return s.GLOBALS[f.MODULE.GLOBALS[x]].
+1. Assert: Due to validation, (f.MODULE.GLOBALS[x] < |s.GLOBALS|).
+2. Assert: Due to validation, (x < |f.MODULE.GLOBALS|).
+3. Return s.GLOBALS[f.MODULE.GLOBALS[x]].
 
 table (s, f) x
-1. Return s.TABLES[f.MODULE.TABLES[x]].
+1. Assert: Due to validation, (f.MODULE.TABLES[x] < |s.TABLES|).
+2. Assert: Due to validation, (x < |f.MODULE.TABLES|).
+3. Return s.TABLES[f.MODULE.TABLES[x]].
 
 mem (s, f) x
-1. Return s.MEMS[f.MODULE.MEMS[x]].
+1. Assert: Due to validation, (f.MODULE.MEMS[x] < |s.MEMS|).
+2. Assert: Due to validation, (x < |f.MODULE.MEMS|).
+3. Return s.MEMS[f.MODULE.MEMS[x]].
 
 local (s, f) x
-1. Return f.LOCALS[x].
+1. Assert: Due to validation, (x < |f.LOCALS|).
+2. Return f.LOCALS[x].
 
 with_local (s, f) x v
 1. Replace f.LOCALS[x] with v.
 
 with_global (s, f) x v
-1. Replace s.GLOBALS[f.MODULE.GLOBALS[x]].VALUE with v.
+1. Assert: Due to validation, (x < |f.MODULE.GLOBALS|).
+2. Replace s.GLOBALS[f.MODULE.GLOBALS[x]].VALUE with v.
 
 with_table (s, f) x i a
-1. Replace s.TABLES[f.MODULE.TABLES[x]].REFS[i] with ?(a).
+1. Assert: Due to validation, (x < |f.MODULE.TABLES|).
+2. Replace s.TABLES[f.MODULE.TABLES[x]].REFS[i] with ?(a).
 
 with_tableinst (s, f) x ti
-1. Replace s.TABLES[f.MODULE.TABLES[x]] with ti.
+1. Assert: Due to validation, (x < |f.MODULE.TABLES|).
+2. Replace s.TABLES[f.MODULE.TABLES[x]] with ti.
 
 with_mem (s, f) x i j b*
-1. Replace s.MEMS[f.MODULE.MEMS[x]].BYTES[i : j] with b*.
+1. Assert: Due to validation, (x < |f.MODULE.MEMS|).
+2. Replace s.MEMS[f.MODULE.MEMS[x]].BYTES[i : j] with b*.
 
 with_meminst (s, f) x mi
-1. Replace s.MEMS[f.MODULE.MEMS[x]] with mi.
+1. Assert: Due to validation, (x < |f.MODULE.MEMS|).
+2. Replace s.MEMS[f.MODULE.MEMS[x]] with mi.
 
 growtable ti n
 1. Let { TYPE: ([ i .. j? ]); REFS: ?(a)* } be ti.
@@ -4284,10 +4357,11 @@ mems externaddr''*
 
 allocfunc s moduleinst func
 1. Let (FUNC x local* expr) be func.
-2. Let fi be { TYPE: moduleinst.TYPES[x]; MODULE: moduleinst; CODE: func }.
-3. Let a be |s.FUNCS|.
-4. Append fi to the s.FUNCS.
-5. Return a.
+2. Assert: Due to validation, (x < |moduleinst.TYPES|).
+3. Let fi be { TYPE: moduleinst.TYPES[x]; MODULE: moduleinst; CODE: func }.
+4. Let a be |s.FUNCS|.
+5. Append fi to the s.FUNCS.
+6. Return a.
 
 allocfuncs s moduleinst func''*
 1. If (func''* = []), then:
@@ -4346,16 +4420,20 @@ allocmems s memtype''*
 instexport fa* ga* ta* ma* (EXPORT name externidx)
 1. If externidx is some FUNC, then:
   a. Let (FUNC x) be externidx.
-  b. Return { NAME: name; ADDR: (FUNC fa*[x]) }.
+  b. If (x < |fa*|), then:
+    1) Return { NAME: name; ADDR: (FUNC fa*[x]) }.
 2. If externidx is some GLOBAL, then:
   a. Let (GLOBAL x) be externidx.
-  b. Return { NAME: name; ADDR: (GLOBAL ga*[x]) }.
+  b. If (x < |ga*|), then:
+    1) Return { NAME: name; ADDR: (GLOBAL ga*[x]) }.
 3. If externidx is some TABLE, then:
   a. Let (TABLE x) be externidx.
-  b. Return { NAME: name; ADDR: (TABLE ta*[x]) }.
+  b. If (x < |ta*|), then:
+    1) Return { NAME: name; ADDR: (TABLE ta*[x]) }.
 4. Assert: Due to validation, externidx is some MEM.
 5. Let (MEM x) be externidx.
-6. Return { NAME: name; ADDR: (MEM ma*[x]) }.
+6. Assert: Due to validation, (x < |ma*|).
+7. Return { NAME: name; ADDR: (MEM ma*[x]) }.
 
 allocmodule s module externaddr* val*
 1. Let (MODULE type_0* import* func^n_func global_1* table_2* mem_3* elem* data* start? export*) be module.
@@ -4397,9 +4475,10 @@ initelem s moduleinst u32* funcaddr*
   a. Let [a*] :: a'** be funcaddr*.
   b. Assert: Due to validation, (|u32*| >= 1).
   c. Let [i] :: i'* be u32*.
-  d. Replace s.TABLES[moduleinst.TABLES[0]].REFS[i : |a*|] with ?(a)*.
-  e. Perform $initelem(s, moduleinst, i'*, a'**).
-  f. Return.
+  d. Assert: Due to validation, (0 < |moduleinst.TABLES|).
+  e. Replace s.TABLES[moduleinst.TABLES[0]].REFS[i : |a*|] with ?(a)*.
+  f. Perform $initelem(s, moduleinst, i'*, a'**).
+  g. Return.
 
 initdata s moduleinst u32* byte*
 1. If (byte* = []), then:
@@ -4409,9 +4488,10 @@ initdata s moduleinst u32* byte*
   a. Let [b*] :: b'** be byte*.
   b. Assert: Due to validation, (|u32*| >= 1).
   c. Let [i] :: i'* be u32*.
-  d. Replace s.MEMS[moduleinst.MEMS[0]].BYTES[i : |b*|] with b*.
-  e. Perform $initdata(s, moduleinst, i'*, b'**).
-  f. Return.
+  d. Assert: Due to validation, (0 < |moduleinst.MEMS|).
+  e. Replace s.MEMS[moduleinst.MEMS[0]].BYTES[i : |b*|] with b*.
+  f. Perform $initdata(s, moduleinst, i'*, b'**).
+  g. Return.
 
 instantiate s module externaddr*
 1. Let (MODULE type* import* func* global* table* mem* elem* data* start? export*) be module.
@@ -4420,63 +4500,69 @@ instantiate s module externaddr*
   a. Let (TYPE functype) be type.
   b. Append functype to the functype*.
 4. Let n_F be |func*|.
-5. Let b** be [].
-6. Let expr_D* be [].
-7. For each data in data*, do:
+5. Let (START x')? be start?.
+6. Let b** be [].
+7. Let expr_D* be [].
+8. For each data in data*, do:
   a. Let (DATA expr_D b*) be data.
   b. Append b* to the b**.
   c. Append expr_D to the expr_D*.
-8. Let expr_E* be [].
-9. Let x** be [].
-10. For each elem in elem*, do:
+9. Let expr_E* be [].
+10. Let x** be [].
+11. For each elem in elem*, do:
   a. Let (ELEM expr_E x*) be elem.
   b. Append expr_E to the expr_E*.
   c. Append x* to the x**.
-11. Let expr_G* be [].
-12. For each global in global*, do:
+12. Let expr_G* be [].
+13. For each global in global*, do:
   a. Let (GLOBAL globaltype expr_G) be global.
   b. Append expr_G to the expr_G*.
-13. Let moduleinst_init be { TYPES: functype*; FUNCS: $funcs(externaddr*) :: (|s.FUNCS| + i_F)^(i_F<n_F); GLOBALS: $globals(externaddr*) }.
-14. Let f_init be { MODULE: moduleinst_init }.
-15. Let z be (s, f_init).
-16. Push the frame (FRAME_ 0 { $frame(z) }) to the stack.
-17. Let i_D* be [].
-18. For each expr_D in expr_D*, do:
+14. Let moduleinst_init be { TYPES: functype*; FUNCS: $funcs(externaddr*) :: (|s.FUNCS| + i_F)^(i_F<n_F); GLOBALS: $globals(externaddr*) }.
+15. Let f_init be { MODULE: moduleinst_init }.
+16. Let z be (s, f_init).
+17. Push the frame (FRAME_ 0 { $frame(z) }) to the stack.
+18. Let i_D* be [].
+19. For each expr_D in expr_D*, do:
   a. Let [(I32.CONST i_D)] be $Eval_expr(z, expr_D).
   b. Append i_D to the i_D*.
-19. Let i_E* be [].
-20. For each expr_E in expr_E*, do:
+20. Let i_E* be [].
+21. For each expr_E in expr_E*, do:
   a. Let [(I32.CONST i_E)] be $Eval_expr(z, expr_E).
   b. Append i_E to the i_E*.
-21. Let val* be [].
-22. For each expr_G in expr_G*, do:
+22. Let val* be [].
+23. For each expr_G in expr_G*, do:
   a. Let [val] be $Eval_expr(z, expr_G).
   b. Append val to the val*.
-23. Pop the frame (FRAME_ 0 { $frame(z) }) from the stack.
-24. Let moduleinst be $allocmodule(s, module, externaddr*, val*).
-25. Let f be { MODULE: moduleinst }.
-26. Perform $initelem(s, moduleinst, i_E*, moduleinst.FUNCS[x]**).
-27. Perform $initdata(s, moduleinst, i_D*, b**).
-28. Push the frame (FRAME_ 0 { f }) to the stack.
-29. If start? is defined, then:
-  a. Let ?((START x')) be start?.
-  b. Let instr_0 be (CALL x').
-  c. Execute the instruction instr_0.
-30. Pop the frame (FRAME_ 0 { f }) from the stack.
-31. Return f.MODULE.
+24. Pop the frame (FRAME_ 0 { $frame(z) }) from the stack.
+25. Assert: Due to validation, (|expr_G*| = |val*|).
+26. Assert: Due to validation, (|expr_E*| = |i_E*|).
+27. Assert: Due to validation, (|expr_D*| = |i_D*|).
+28. Let moduleinst be $allocmodule(s, module, externaddr*, val*).
+29. Assert: Due to validation, (x < |moduleinst.FUNCS|)**.
+30. Let f be { MODULE: moduleinst }.
+31. Perform $initelem(s, moduleinst, i_E*, moduleinst.FUNCS[x]**).
+32. Perform $initdata(s, moduleinst, i_D*, b**).
+33. Push the frame (FRAME_ 0 { f }) to the stack.
+34. If (CALL x')? is defined, then:
+  a. Let ?(instr_0) be (CALL x')?.
+  b. Execute the instruction instr_0.
+35. Pop the frame (FRAME_ 0 { f }) from the stack.
+36. Return f.MODULE.
 
 invoke s fa val^n
 1. Let f be { MODULE: {} }.
 2. Push the frame (FRAME_ 0 { (s, f) }) to the stack.
-3. Let t_1^n -> t_2* be $funcinst((s, f))[fa].TYPE.
-4. Pop the frame (FRAME_ 0 { _f }) from the stack.
-5. Let k be |t_2*|.
-6. Push the frame (FRAME_ k { f }) to the stack.
-7. Push the values val^n to the stack.
-8. Execute the instruction (CALL_ADDR fa).
-9. Pop the values val'^k from the stack.
-10. Pop the frame (FRAME_ k { f }) from the stack.
-11. Return val'^k.
+3. Assert: Due to validation, (fa < |$funcinst((s, f))|).
+4. Push the frame (FRAME_ 0 { (s, f) }) to the stack.
+5. Let t_1^n -> t_2* be $funcinst((s, f))[fa].TYPE.
+6. Pop the frame (FRAME_ 0 { _f }) from the stack.
+7. Let k be |t_2*|.
+8. Push the frame (FRAME_ k { f }) to the stack.
+9. Push the values val^n to the stack.
+10. Execute the instruction (CALL_ADDR fa).
+11. Pop the values val'^k from the stack.
+12. Pop the frame (FRAME_ k { f }) from the stack.
+13. Return val'^k.
 
 Eval_expr instr*
 1. Execute the sequence instr*.
@@ -9969,56 +10055,84 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 ....................................
 
 
-1. Return :math:`f{.}\mathsf{module}{.}\mathsf{types}{}[x]`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{types}|}`.
+
+#. Return :math:`f{.}\mathsf{module}{.}\mathsf{types}{}[x]`.
 
 
 :math:`(s, f){.}\mathsf{funcs}{}[x]`
 ....................................
 
 
-1. Return :math:`s{.}\mathsf{funcs}{}[f{.}\mathsf{module}{.}\mathsf{funcs}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{funcs}{}[x] < {|s{.}\mathsf{funcs}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{funcs}|}`.
+
+#. Return :math:`s{.}\mathsf{funcs}{}[f{.}\mathsf{module}{.}\mathsf{funcs}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{globals}{}[x]`
 ......................................
 
 
-1. Return :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{globals}{}[x] < {|s{.}\mathsf{globals}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{globals}|}`.
+
+#. Return :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{tables}{}[x]`
 .....................................
 
 
-1. Return :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{tables}{}[x] < {|s{.}\mathsf{tables}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{tables}|}`.
+
+#. Return :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{mems}{}[x]`
 ...................................
 
 
-1. Return :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{mems}{}[x] < {|s{.}\mathsf{mems}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{mems}|}`.
+
+#. Return :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{elems}{}[x]`
 ....................................
 
 
-1. Return :math:`s{.}\mathsf{elems}{}[f{.}\mathsf{module}{.}\mathsf{elems}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{elems}{}[x] < {|s{.}\mathsf{elems}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{elems}|}`.
+
+#. Return :math:`s{.}\mathsf{elems}{}[f{.}\mathsf{module}{.}\mathsf{elems}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{datas}{}[x]`
 ....................................
 
 
-1. Return :math:`s{.}\mathsf{datas}{}[f{.}\mathsf{module}{.}\mathsf{datas}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{datas}{}[x] < {|s{.}\mathsf{datas}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{datas}|}`.
+
+#. Return :math:`s{.}\mathsf{datas}{}[f{.}\mathsf{module}{.}\mathsf{datas}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{locals}{}[x]`
 .....................................
 
 
-1. Return :math:`f{.}\mathsf{locals}{}[x]`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{locals}|}`.
+
+#. Return :math:`f{.}\mathsf{locals}{}[x]`.
 
 
 :math:`(s, f){}[{.}\mathsf{locals}{}[x] = v]`
@@ -10032,49 +10146,63 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 ...............................................................
 
 
-1. Replace :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]{.}\mathsf{value}` with :math:`v`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{globals}|}`.
+
+#. Replace :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]{.}\mathsf{value}` with :math:`v`.
 
 
 :math:`(s, f){}[{.}\mathsf{tables}{}[x]{.}\mathsf{refs}{}[i] = r]`
 ..................................................................
 
 
-1. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]{.}\mathsf{refs}{}[i]` with :math:`r`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{tables}|}`.
+
+#. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]{.}\mathsf{refs}{}[i]` with :math:`r`.
 
 
 :math:`(s, f){}[{.}\mathsf{tables}{}[x] = {\mathit{ti}}]`
 .........................................................
 
 
-1. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]` with :math:`{\mathit{ti}}`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{tables}|}`.
+
+#. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]` with :math:`{\mathit{ti}}`.
 
 
 :math:`(s, f){}[{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i : j] = {b^\ast}]`
 ............................................................................
 
 
-1. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]{.}\mathsf{bytes}{}[i : j]` with :math:`{b^\ast}`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{mems}|}`.
+
+#. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]{.}\mathsf{bytes}{}[i : j]` with :math:`{b^\ast}`.
 
 
 :math:`(s, f){}[{.}\mathsf{mems}{}[x] = {\mathit{mi}}]`
 .......................................................
 
 
-1. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]` with :math:`{\mathit{mi}}`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{mems}|}`.
+
+#. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]` with :math:`{\mathit{mi}}`.
 
 
 :math:`(s, f){}[{.}\mathsf{elems}{}[x]{.}\mathsf{refs} = {r^\ast}]`
 ...................................................................
 
 
-1. Replace :math:`s{.}\mathsf{elems}{}[f{.}\mathsf{module}{.}\mathsf{elems}{}[x]]{.}\mathsf{refs}` with :math:`{r^\ast}`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{elems}|}`.
+
+#. Replace :math:`s{.}\mathsf{elems}{}[f{.}\mathsf{module}{.}\mathsf{elems}{}[x]]{.}\mathsf{refs}` with :math:`{r^\ast}`.
 
 
 :math:`(s, f){}[{.}\mathsf{datas}{}[x]{.}\mathsf{bytes} = {b^\ast}]`
 ....................................................................
 
 
-1. Replace :math:`s{.}\mathsf{datas}{}[f{.}\mathsf{module}{.}\mathsf{datas}{}[x]]{.}\mathsf{bytes}` with :math:`{b^\ast}`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{datas}|}`.
+
+#. Replace :math:`s{.}\mathsf{datas}{}[f{.}\mathsf{module}{.}\mathsf{datas}{}[x]]{.}\mathsf{bytes}` with :math:`{b^\ast}`.
 
 
 :math:`{\mathrm{growtable}}({\mathit{ti}}, n, r)`
@@ -10225,6 +10353,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 
 1. Let :math:`(\mathsf{func}~x~{{\mathit{local}}^\ast}~{\mathit{expr}})` be the destructuring of :math:`{\mathit{func}}`.
+
+#. Assert: :math:`x < {|{\mathit{moduleinst}}{.}\mathsf{types}|}`.
 
 #. Let :math:`{\mathit{fi}}` be the function instance :math:`\{ \mathsf{type}~{\mathit{moduleinst}}{.}\mathsf{types}{}[x],\;\allowbreak \mathsf{module}~{\mathit{moduleinst}},\;\allowbreak \mathsf{code}~{\mathit{func}} \}`.
 
@@ -10426,23 +10556,31 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    a. Let :math:`(\mathsf{func}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
 
-   #. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{func}~{{\mathit{fa}}^\ast}{}[x]) \}`.
+   #. If :math:`x < {|{{\mathit{fa}}^\ast}|}`, then:
+
+      1) Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{func}~{{\mathit{fa}}^\ast}{}[x]) \}`.
 
 #. If :math:`{\mathit{externidx}}` is some :math:`\mathsf{global}~{\mathit{globalidx}}`, then:
 
    a. Let :math:`(\mathsf{global}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
 
-   #. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{global}~{{\mathit{ga}}^\ast}{}[x]) \}`.
+   #. If :math:`x < {|{{\mathit{ga}}^\ast}|}`, then:
+
+      1) Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{global}~{{\mathit{ga}}^\ast}{}[x]) \}`.
 
 #. If :math:`{\mathit{externidx}}` is some :math:`\mathsf{table}~{\mathit{tableidx}}`, then:
 
    a. Let :math:`(\mathsf{table}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
 
-   #. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{table}~{{\mathit{ta}}^\ast}{}[x]) \}`.
+   #. If :math:`x < {|{{\mathit{ta}}^\ast}|}`, then:
+
+      1) Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{table}~{{\mathit{ta}}^\ast}{}[x]) \}`.
 
 #. Assert: :math:`{\mathit{externidx}}` is some :math:`\mathsf{mem}~{\mathit{memidx}}`.
 
 #. Let :math:`(\mathsf{mem}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
+
+#. Assert: :math:`x < {|{{\mathit{ma}}^\ast}|}`.
 
 #. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{mem}~{{\mathit{ma}}^\ast}{}[x]) \}`.
 
@@ -10588,6 +10726,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Let :math:`n_{\mathsf{f}}` be the length of :math:`{{\mathit{func}}^\ast}`.
 
+#. Let :math:`{(\mathsf{start}~x)^?}` be :math:`{{\mathit{start}}^?}`.
+
 #. Let :math:`{{\mathit{expr}}_{\mathsf{g}}^\ast}` be the expression sequence :math:`\epsilon`.
 
 #. For each :math:`{\mathit{global}}` in :math:`{{\mathit{global}}^\ast}`, do:
@@ -10603,6 +10743,10 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
    a. Let :math:`(\mathsf{elem}~{\mathit{reftype}}~{{\mathit{expr}}_{\mathsf{e}}^\ast}~{\mathit{elemmode}})` be the destructuring of :math:`{\mathit{elem}}`.
 
    #. Append :math:`{{\mathit{expr}}_{\mathsf{e}}^\ast}` to :math:`{{{\mathit{expr}}_{\mathsf{e}}^\ast}^\ast}`.
+
+#. Assert: :math:`{(i < {|{{\mathit{elem}}^\ast}|})^{i<n_{\mathsf{e}}}}`.
+
+#. Assert: :math:`{(j < {|{{\mathit{data}}^\ast}|})^{j<n_{\mathsf{d}}}}`.
 
 #. Let :math:`{{\mathit{instr}}_{\mathsf{d}}^\ast}` be the :ref:`concatenation <notation-concat>` of :math:`{{\mathrm{rundata}}({{\mathit{data}}^\ast}{}[j], j)^{j<n_{\mathsf{d}}}}`.
 
@@ -10642,6 +10786,12 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Pop the :math:`\mathsf{frame}` from the stack.
 
+#. Assert: :math:`{|{{\mathit{expr}}_{\mathsf{g}}^\ast}|} = {|{{\mathit{val}}^\ast}|}`.
+
+#. Assert: :math:`{|{{{\mathit{expr}}_{\mathsf{e}}^\ast}^\ast}|} = {|{{{\mathit{ref}}^\ast}^\ast}|}`.
+
+#. Assert: :math:`{({|{{\mathit{expr}}_{\mathsf{e}}^\ast}|} = {|{{\mathit{ref}}^\ast}|})^\ast}`.
+
 #. Let :math:`{\mathit{moduleinst}}` be :math:`{\mathrm{allocmodule}}(s, {\mathit{module}}, {{\mathit{externaddr}}^\ast}, {{\mathit{val}}^\ast}, {{{\mathit{ref}}^\ast}^\ast})`.
 
 #. Let :math:`f` be the frame :math:`\{ \mathsf{module}~{\mathit{moduleinst}} \}`.
@@ -10654,11 +10804,9 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Execute the sequence :math:`{{\mathit{instr}}_{\mathsf{d}}^\ast}`.
 
-#. If :math:`{{\mathit{start}}^?}` is defined, then:
+#. If :math:`{(\mathsf{call}~x)^?}` is defined, then:
 
-   a. Let :math:`(\mathsf{start}~x)` be :math:`{{\mathit{start}}^?}`.
-
-   #. Let :math:`{\mathit{instr}}_0` be the administrative instruction :math:`(\mathsf{call}~x)`.
+   a. Let :math:`{\mathit{instr}}_0` be :math:`{(\mathsf{call}~x)^?}`.
 
    #. Execute the instruction :math:`{\mathit{instr}}_0`.
 
@@ -10676,6 +10824,12 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 #. Let :math:`F` be the :math:`\mathsf{frame}` :math:`(s, f)`.
 
 #. Push the :math:`\mathsf{frame}` :math:`F`.
+
+#. Assert: :math:`{\mathit{fa}} < {|(s, f){.}\mathsf{funcs}|}`.
+
+#. Let :math:`{F'}` be the :math:`\mathsf{frame}` :math:`(s, f)`.
+
+#. Push the :math:`\mathsf{frame}` :math:`{F'}`.
 
 #. Let :math:`{t_1^{n}}~\rightarrow~{t_2^\ast}` be the destructuring of :math:`(s, f){.}\mathsf{funcs}{}[{\mathit{fa}}]{.}\mathsf{type}`.
 
@@ -13386,52 +13540,73 @@ moduleinst (s, f)
 1. Return f.MODULE.
 
 type (s, f) x
-1. Return f.MODULE.TYPES[x].
+1. Assert: Due to validation, (x < |f.MODULE.TYPES|).
+2. Return f.MODULE.TYPES[x].
 
 func (s, f) x
-1. Return s.FUNCS[f.MODULE.FUNCS[x]].
+1. Assert: Due to validation, (f.MODULE.FUNCS[x] < |s.FUNCS|).
+2. Assert: Due to validation, (x < |f.MODULE.FUNCS|).
+3. Return s.FUNCS[f.MODULE.FUNCS[x]].
 
 global (s, f) x
-1. Return s.GLOBALS[f.MODULE.GLOBALS[x]].
+1. Assert: Due to validation, (f.MODULE.GLOBALS[x] < |s.GLOBALS|).
+2. Assert: Due to validation, (x < |f.MODULE.GLOBALS|).
+3. Return s.GLOBALS[f.MODULE.GLOBALS[x]].
 
 table (s, f) x
-1. Return s.TABLES[f.MODULE.TABLES[x]].
+1. Assert: Due to validation, (f.MODULE.TABLES[x] < |s.TABLES|).
+2. Assert: Due to validation, (x < |f.MODULE.TABLES|).
+3. Return s.TABLES[f.MODULE.TABLES[x]].
 
 mem (s, f) x
-1. Return s.MEMS[f.MODULE.MEMS[x]].
+1. Assert: Due to validation, (f.MODULE.MEMS[x] < |s.MEMS|).
+2. Assert: Due to validation, (x < |f.MODULE.MEMS|).
+3. Return s.MEMS[f.MODULE.MEMS[x]].
 
 elem (s, f) x
-1. Return s.ELEMS[f.MODULE.ELEMS[x]].
+1. Assert: Due to validation, (f.MODULE.ELEMS[x] < |s.ELEMS|).
+2. Assert: Due to validation, (x < |f.MODULE.ELEMS|).
+3. Return s.ELEMS[f.MODULE.ELEMS[x]].
 
 data (s, f) x
-1. Return s.DATAS[f.MODULE.DATAS[x]].
+1. Assert: Due to validation, (f.MODULE.DATAS[x] < |s.DATAS|).
+2. Assert: Due to validation, (x < |f.MODULE.DATAS|).
+3. Return s.DATAS[f.MODULE.DATAS[x]].
 
 local (s, f) x
-1. Return f.LOCALS[x].
+1. Assert: Due to validation, (x < |f.LOCALS|).
+2. Return f.LOCALS[x].
 
 with_local (s, f) x v
 1. Replace f.LOCALS[x] with v.
 
 with_global (s, f) x v
-1. Replace s.GLOBALS[f.MODULE.GLOBALS[x]].VALUE with v.
+1. Assert: Due to validation, (x < |f.MODULE.GLOBALS|).
+2. Replace s.GLOBALS[f.MODULE.GLOBALS[x]].VALUE with v.
 
 with_table (s, f) x i r
-1. Replace s.TABLES[f.MODULE.TABLES[x]].REFS[i] with r.
+1. Assert: Due to validation, (x < |f.MODULE.TABLES|).
+2. Replace s.TABLES[f.MODULE.TABLES[x]].REFS[i] with r.
 
 with_tableinst (s, f) x ti
-1. Replace s.TABLES[f.MODULE.TABLES[x]] with ti.
+1. Assert: Due to validation, (x < |f.MODULE.TABLES|).
+2. Replace s.TABLES[f.MODULE.TABLES[x]] with ti.
 
 with_mem (s, f) x i j b*
-1. Replace s.MEMS[f.MODULE.MEMS[x]].BYTES[i : j] with b*.
+1. Assert: Due to validation, (x < |f.MODULE.MEMS|).
+2. Replace s.MEMS[f.MODULE.MEMS[x]].BYTES[i : j] with b*.
 
 with_meminst (s, f) x mi
-1. Replace s.MEMS[f.MODULE.MEMS[x]] with mi.
+1. Assert: Due to validation, (x < |f.MODULE.MEMS|).
+2. Replace s.MEMS[f.MODULE.MEMS[x]] with mi.
 
 with_elem (s, f) x r*
-1. Replace s.ELEMS[f.MODULE.ELEMS[x]].REFS with r*.
+1. Assert: Due to validation, (x < |f.MODULE.ELEMS|).
+2. Replace s.ELEMS[f.MODULE.ELEMS[x]].REFS with r*.
 
 with_data (s, f) x b*
-1. Replace s.DATAS[f.MODULE.DATAS[x]].BYTES with b*.
+1. Assert: Due to validation, (x < |f.MODULE.DATAS|).
+2. Replace s.DATAS[f.MODULE.DATAS[x]].BYTES with b*.
 
 growtable ti n r
 1. Let { TYPE: (([ i .. j? ]) rt); REFS: r'* } be ti.
@@ -13503,10 +13678,11 @@ mems externaddr''*
 
 allocfunc s moduleinst func
 1. Let (FUNC x local* expr) be func.
-2. Let fi be { TYPE: moduleinst.TYPES[x]; MODULE: moduleinst; CODE: func }.
-3. Let a be |s.FUNCS|.
-4. Append fi to the s.FUNCS.
-5. Return a.
+2. Assert: Due to validation, (x < |moduleinst.TYPES|).
+3. Let fi be { TYPE: moduleinst.TYPES[x]; MODULE: moduleinst; CODE: func }.
+4. Let a be |s.FUNCS|.
+5. Append fi to the s.FUNCS.
+6. Return a.
 
 allocfuncs s moduleinst func''*
 1. If (func''* = []), then:
@@ -13597,16 +13773,20 @@ allocdatas s byte''*
 instexport fa* ga* ta* ma* (EXPORT name externidx)
 1. If externidx is some FUNC, then:
   a. Let (FUNC x) be externidx.
-  b. Return { NAME: name; ADDR: (FUNC fa*[x]) }.
+  b. If (x < |fa*|), then:
+    1) Return { NAME: name; ADDR: (FUNC fa*[x]) }.
 2. If externidx is some GLOBAL, then:
   a. Let (GLOBAL x) be externidx.
-  b. Return { NAME: name; ADDR: (GLOBAL ga*[x]) }.
+  b. If (x < |ga*|), then:
+    1) Return { NAME: name; ADDR: (GLOBAL ga*[x]) }.
 3. If externidx is some TABLE, then:
   a. Let (TABLE x) be externidx.
-  b. Return { NAME: name; ADDR: (TABLE ta*[x]) }.
+  b. If (x < |ta*|), then:
+    1) Return { NAME: name; ADDR: (TABLE ta*[x]) }.
 4. Assert: Due to validation, externidx is some MEM.
 5. Let (MEM x) be externidx.
-6. Return { NAME: name; ADDR: (MEM ma*[x]) }.
+6. Assert: Due to validation, (x < |ma*|).
+7. Return { NAME: name; ADDR: (MEM ma*[x]) }.
 
 allocmodule s module externaddr* val* ref**
 1. Let (MODULE type_0* import* func^n_func global_1* table_2* mem_3* elem_4* data_5* start? export*) be module.
@@ -13676,56 +13856,63 @@ instantiate s module externaddr*
 4. Let n_D be |data*|.
 5. Let n_E be |elem*|.
 6. Let n_F be |func*|.
-7. Let expr_G* be [].
-8. For each global in global*, do:
+7. Let (START x)? be start?.
+8. Let expr_G* be [].
+9. For each global in global*, do:
   a. Let (GLOBAL globaltype expr_G) be global.
   b. Append expr_G to the expr_G*.
-9. Let expr_E** be [].
-10. For each elem in elem*, do:
+10. Let expr_E** be [].
+11. For each elem in elem*, do:
   a. Let (ELEM reftype expr_E* elemmode) be elem.
   b. Append expr_E* to the expr_E**.
-11. Let instr_D* be $concat_(`instr, $rundata(data*[j], j)^(j<n_D)).
-12. Let instr_E* be $concat_(`instr, $runelem(elem*[i], i)^(i<n_E)).
-13. Let moduleinst_init be { TYPES: functype*; FUNCS: $funcs(externaddr*) :: (|s.FUNCS| + i_F)^(i_F<n_F); GLOBALS: $globals(externaddr*) }.
-14. Let f_init be { MODULE: moduleinst_init }.
-15. Let z be (s, f_init).
-16. Push the frame (FRAME_ 0 { $frame(z) }) to the stack.
-17. Let val* be [].
-18. For each expr_G in expr_G*, do:
+12. Assert: Due to validation, (i < |elem*|)^(i<n_E).
+13. Assert: Due to validation, (j < |data*|)^(j<n_D).
+14. Let instr_D* be $concat_(`instr, $rundata(data*[j], j)^(j<n_D)).
+15. Let instr_E* be $concat_(`instr, $runelem(elem*[i], i)^(i<n_E)).
+16. Let moduleinst_init be { TYPES: functype*; FUNCS: $funcs(externaddr*) :: (|s.FUNCS| + i_F)^(i_F<n_F); GLOBALS: $globals(externaddr*) }.
+17. Let f_init be { MODULE: moduleinst_init }.
+18. Let z be (s, f_init).
+19. Push the frame (FRAME_ 0 { $frame(z) }) to the stack.
+20. Let val* be [].
+21. For each expr_G in expr_G*, do:
   a. Let [val] be $Eval_expr(z, expr_G).
   b. Append val to the val*.
-19. Let ref** be [].
-20. For each expr_E* in expr_E**, do:
+22. Let ref** be [].
+23. For each expr_E* in expr_E**, do:
   a. Let ref* be [].
   b. For each expr_E in expr_E*, do:
     1) Let [ref] be $Eval_expr(z, expr_E).
     2) Append ref to the ref*.
   c. Append ref* to the ref**.
-21. Pop the frame (FRAME_ 0 { $frame(z) }) from the stack.
-22. Let moduleinst be $allocmodule(s, module, externaddr*, val*, ref**).
-23. Let f be { MODULE: moduleinst }.
-24. Push the frame (FRAME_ 0 { f }) to the stack.
-25. Execute the sequence instr_E*.
-26. Execute the sequence instr_D*.
-27. If start? is defined, then:
-  a. Let ?((START x)) be start?.
-  b. Let instr_0 be (CALL x).
-  c. Execute the instruction instr_0.
-28. Pop the frame (FRAME_ 0 { f }) from the stack.
-29. Return f.MODULE.
+24. Pop the frame (FRAME_ 0 { $frame(z) }) from the stack.
+25. Assert: Due to validation, (|expr_G*| = |val*|).
+26. Assert: Due to validation, (|expr_E**| = |ref**|).
+27. Assert: Due to validation, (|expr_E*| = |ref*|)*.
+28. Let moduleinst be $allocmodule(s, module, externaddr*, val*, ref**).
+29. Let f be { MODULE: moduleinst }.
+30. Push the frame (FRAME_ 0 { f }) to the stack.
+31. Execute the sequence instr_E*.
+32. Execute the sequence instr_D*.
+33. If (CALL x)? is defined, then:
+  a. Let ?(instr_0) be (CALL x)?.
+  b. Execute the instruction instr_0.
+34. Pop the frame (FRAME_ 0 { f }) from the stack.
+35. Return f.MODULE.
 
 invoke s fa val^n
 1. Let f be { MODULE: {} }.
 2. Push the frame (FRAME_ 0 { (s, f) }) to the stack.
-3. Let t_1^n -> t_2* be $funcinst((s, f))[fa].TYPE.
-4. Pop the frame (FRAME_ 0 { _f }) from the stack.
-5. Let k be |t_2*|.
-6. Push the frame (FRAME_ k { f }) to the stack.
-7. Push the values val^n to the stack.
-8. Execute the instruction (CALL_ADDR fa).
-9. Pop the values val'^k from the stack.
-10. Pop the frame (FRAME_ k { f }) from the stack.
-11. Return val'^k.
+3. Assert: Due to validation, (fa < |$funcinst((s, f))|).
+4. Push the frame (FRAME_ 0 { (s, f) }) to the stack.
+5. Let t_1^n -> t_2* be $funcinst((s, f))[fa].TYPE.
+6. Pop the frame (FRAME_ 0 { _f }) from the stack.
+7. Let k be |t_2*|.
+8. Push the frame (FRAME_ k { f }) to the stack.
+9. Push the values val^n to the stack.
+10. Execute the instruction (CALL_ADDR fa).
+11. Pop the values val'^k from the stack.
+12. Pop the frame (FRAME_ k { f }) from the stack.
+13. Return val'^k.
 
 Eval_expr instr*
 1. Execute the sequence instr*.
@@ -21019,6 +21206,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`w~{{w'}^\ast}` be :math:`{X^\ast}`.
 
+#. Assert: Due to validation, :math:`{|{{w'}^\ast}|} > 0`.
+
 #. Return :math:`w` is not contained in :math:`{{w'}^\ast}` and :math:`{{w'}^\ast}~{\mathrm{disjoint}}`.
 
 
@@ -22325,6 +22514,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 1. Let :math:`(\mathsf{rec}~{{\mathit{subtype}}^\ast})` be the destructuring of :math:`{\mathrm{unroll}}({\mathit{rectype}})`.
 
+#. Assert: Due to validation, :math:`i < {|{{\mathit{subtype}}^\ast}|}`.
+
 #. Return :math:`{{\mathit{subtype}}^\ast}{}[i]`.
 
 
@@ -23560,11 +23751,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Let :math:`{\mathit{typeidx}}` be the heap type :math:`{\mathit{heaptype}}`.
 
-   #. Return :math:`{\mathrm{unroll}}(C{.}\mathsf{types}{}[{\mathit{typeidx}}])`.
+   #. If :math:`{\mathit{typeidx}} < {|C{.}\mathsf{types}|}`, then:
+
+      1) Return :math:`{\mathrm{unroll}}(C{.}\mathsf{types}{}[{\mathit{typeidx}}])`.
 
 #. Assert: Due to validation, :math:`{\mathit{heaptype}}` is some :math:`\mathsf{rec}~{.}~{.}`.
 
 #. Let :math:`(\mathsf{rec}~{.}~{.})` be the destructuring of :math:`{\mathit{heaptype}}`.
+
+#. Assert: Due to validation, :math:`i < {|C{.}\mathsf{recs}|}`.
 
 #. Return :math:`C{.}\mathsf{recs}{}[i]`.
 
@@ -23616,7 +23811,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 ...............................................
 
 
-1. If :math:`{\mathrm{ND}}`, then:
+1. If :math:`i \geq {|X_1~X_2|}`, then:
+
+   a. Return :math:`X_1~X_2{}[0]`.
+
+#. If :math:`{\mathrm{ND}}`, then:
 
    a. Return :math:`X_1~X_2{}[i]`.
 
@@ -23627,7 +23826,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 .........................................................
 
 
-1. If :math:`{\mathrm{ND}}`, then:
+1. If :math:`i \geq {|X_1~X_2~X_3~X_4|}`, then:
+
+   a. Return :math:`X_1~X_2~X_3~X_4{}[0]`.
+
+#. If :math:`{\mathrm{ND}}`, then:
 
    a. Return :math:`X_1~X_2~X_3~X_4{}[i]`.
 
@@ -24434,6 +24637,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`0`.
 
+#. Assert: Due to validation, :math:`i \mathbin{\mathrm{mod}} {|{c^\ast}|} < {|{c^\ast}|}`.
+
 #. Return :math:`{{\mathrm{relaxed}}({\mathrm{R}}_{\mathit{swizzle}})}{{}[ 0, {c^\ast}{}[i \mathbin{\mathrm{mod}} {|{c^\ast}|}] ]}`.
 
 
@@ -24723,6 +24928,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 1. Let :math:`{c_1^\ast}` be :math:`{{\mathrm{lanes}}}_{{{\mathsf{i}}{N}}{\mathsf{x}}{M}}(v_1)`.
 
 #. Let :math:`{c_2^\ast}` be :math:`{{\mathrm{lanes}}}_{{{\mathsf{i}}{N}}{\mathsf{x}}{M}}(v_2)`.
+
+#. Assert: Due to validation, :math:`{(i < {|{c_1^\ast}~{c_2^\ast}|})^\ast}`.
 
 #. Let :math:`{c^\ast}` be :math:`\epsilon`.
 
@@ -25074,9 +25281,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Let :math:`{{c^\ast}^\ast}` be :math:`{\Large\times}~{{{\mathrm{lcvtop}}}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{{M'}}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{{M'}}}({\mathit{vcvtop}}, c_1)^\ast}`.
 
-   #. Let :math:`v` be an element of :math:`{{{{{\mathrm{lanes}}}_{{{{\mathsf{i}}{N}}_2}{\mathsf{x}}{{M'}}}^{{-1}}}}{({c^\ast})}^\ast}`.
+   #. If :math:`{|{{{{{\mathrm{lanes}}}_{{{{\mathsf{i}}{N}}_2}{\mathsf{x}}{{M'}}}^{{-1}}}}{({c^\ast})}^\ast}|} > 0`, then:
 
-   #. Return :math:`v`.
+      1) Let :math:`v` be an element of :math:`{{{{{\mathrm{lanes}}}_{{{{\mathsf{i}}{N}}_2}{\mathsf{x}}{{M'}}}^{{-1}}}}{({c^\ast})}^\ast}`.
+
+      #) Return :math:`v`.
 
 #. If :math:`{\mathrm{halfop}}({{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{{M'}}, {\mathit{vcvtop}})` is defined, then:
 
@@ -25086,15 +25295,19 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Let :math:`{{c^\ast}^\ast}` be :math:`{\Large\times}~{{{\mathrm{lcvtop}}}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{{M'}}}({\mathit{vcvtop}}, c_1)^\ast}`.
 
-   #. Let :math:`v` be an element of :math:`{{{{{\mathrm{lanes}}}_{{{{\mathsf{i}}{N}}_2}{\mathsf{x}}{{M'}}}^{{-1}}}}{({c^\ast})}^\ast}`.
+   #. If :math:`{|{{{{{\mathrm{lanes}}}_{{{{\mathsf{i}}{N}}_2}{\mathsf{x}}{{M'}}}^{{-1}}}}{({c^\ast})}^\ast}|} > 0`, then:
 
-   #. Return :math:`v`.
+      1) Let :math:`v` be an element of :math:`{{{{{\mathrm{lanes}}}_{{{{\mathsf{i}}{N}}_2}{\mathsf{x}}{{M'}}}^{{-1}}}}{({c^\ast})}^\ast}`.
+
+      #) Return :math:`v`.
 
 #. Assert: Due to validation, :math:`{\mathrm{zeroop}}({{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{{M'}}, {\mathit{vcvtop}}) = \mathsf{zero}`.
 
 #. Let :math:`{c_1^\ast}` be :math:`{{\mathrm{lanes}}}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M}}(v_1)`.
 
 #. Let :math:`{{c^\ast}^\ast}` be :math:`{\Large\times}~{{{\mathrm{lcvtop}}}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{{M'}}}({\mathit{vcvtop}}, c_1)^\ast}~{0^{M}}`.
+
+#. Assert: Due to validation, :math:`{|{{{{{\mathrm{lanes}}}_{{{{\mathsf{i}}{N}}_2}{\mathsf{x}}{{M'}}}^{{-1}}}}{({c^\ast})}^\ast}|} > 0`.
 
 #. Let :math:`v` be an element of :math:`{{{{{\mathrm{lanes}}}_{{{{\mathsf{i}}{N}}_2}{\mathsf{x}}{{M'}}}^{{-1}}}}{({c^\ast})}^\ast}`.
 
@@ -25291,6 +25504,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Let :math:`{c'}` be :math:`{}{{}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{\mathsf{i}}{N}}{\mathsf{x}}{M}}(c_1, c_2)}`.
 
 #. Let :math:`{c''}` be :math:`{{\mathsf{extadd\_pairwise}}{\mathsf{\_}}{\mathsf{s}}}{{}_{{{\mathsf{i}}{N}}{\mathsf{x}}{M}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}({c'})}`.
+
+#. Assert: Due to validation, :math:`{|{\mathsf{add}}{{}_{{{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}({c''}, c_3)}|} > 0`.
 
 #. Let :math:`c` be an element of :math:`{\mathsf{add}}{{}_{{{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}({c''}, c_3)}`.
 
@@ -25551,63 +25766,95 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 ....................................
 
 
-1. Return :math:`f{.}\mathsf{module}{.}\mathsf{types}{}[x]`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{types}|}`.
+
+#. Return :math:`f{.}\mathsf{module}{.}\mathsf{types}{}[x]`.
 
 
 :math:`(s, f){.}\mathsf{tags}{}[x]`
 ...................................
 
 
-1. Return :math:`s{.}\mathsf{tags}{}[f{.}\mathsf{module}{.}\mathsf{tags}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{tags}{}[x] < {|s{.}\mathsf{tags}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{tags}|}`.
+
+#. Return :math:`s{.}\mathsf{tags}{}[f{.}\mathsf{module}{.}\mathsf{tags}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{globals}{}[x]`
 ......................................
 
 
-1. Return :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{globals}{}[x] < {|s{.}\mathsf{globals}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{globals}|}`.
+
+#. Return :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{mems}{}[x]`
 ...................................
 
 
-1. Return :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{mems}{}[x] < {|s{.}\mathsf{mems}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{mems}|}`.
+
+#. Return :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{tables}{}[x]`
 .....................................
 
 
-1. Return :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{tables}{}[x] < {|s{.}\mathsf{tables}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{tables}|}`.
+
+#. Return :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{funcs}{}[x]`
 ....................................
 
 
-1. Return :math:`s{.}\mathsf{funcs}{}[f{.}\mathsf{module}{.}\mathsf{funcs}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{funcs}{}[x] < {|s{.}\mathsf{funcs}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{funcs}|}`.
+
+#. Return :math:`s{.}\mathsf{funcs}{}[f{.}\mathsf{module}{.}\mathsf{funcs}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{datas}{}[x]`
 ....................................
 
 
-1. Return :math:`s{.}\mathsf{datas}{}[f{.}\mathsf{module}{.}\mathsf{datas}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{datas}{}[x] < {|s{.}\mathsf{datas}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{datas}|}`.
+
+#. Return :math:`s{.}\mathsf{datas}{}[f{.}\mathsf{module}{.}\mathsf{datas}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{elems}{}[x]`
 ....................................
 
 
-1. Return :math:`s{.}\mathsf{elems}{}[f{.}\mathsf{module}{.}\mathsf{elems}{}[x]]`.
+1. Assert: Due to validation, :math:`f{.}\mathsf{module}{.}\mathsf{elems}{}[x] < {|s{.}\mathsf{elems}|}`.
+
+#. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{elems}|}`.
+
+#. Return :math:`s{.}\mathsf{elems}{}[f{.}\mathsf{module}{.}\mathsf{elems}{}[x]]`.
 
 
 :math:`(s, f){.}\mathsf{locals}{}[x]`
 .....................................
 
 
-1. Return :math:`f{.}\mathsf{locals}{}[x]`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{locals}|}`.
+
+#. Return :math:`f{.}\mathsf{locals}{}[x]`.
 
 
 :math:`(s, f){}[{.}\mathsf{locals}{}[x] = v]`
@@ -25621,49 +25868,63 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 ...............................................................
 
 
-1. Replace :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]{.}\mathsf{value}` with :math:`v`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{globals}|}`.
+
+#. Replace :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]{.}\mathsf{value}` with :math:`v`.
 
 
 :math:`(s, f){}[{.}\mathsf{tables}{}[x]{.}\mathsf{refs}{}[i] = r]`
 ..................................................................
 
 
-1. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]{.}\mathsf{refs}{}[i]` with :math:`r`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{tables}|}`.
+
+#. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]{.}\mathsf{refs}{}[i]` with :math:`r`.
 
 
 :math:`(s, f){}[{.}\mathsf{tables}{}[x] = {\mathit{ti}}]`
 .........................................................
 
 
-1. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]` with :math:`{\mathit{ti}}`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{tables}|}`.
+
+#. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]` with :math:`{\mathit{ti}}`.
 
 
 :math:`(s, f){}[{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i : j] = {b^\ast}]`
 ............................................................................
 
 
-1. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]{.}\mathsf{bytes}{}[i : j]` with :math:`{b^\ast}`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{mems}|}`.
+
+#. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]{.}\mathsf{bytes}{}[i : j]` with :math:`{b^\ast}`.
 
 
 :math:`(s, f){}[{.}\mathsf{mems}{}[x] = {\mathit{mi}}]`
 .......................................................
 
 
-1. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]` with :math:`{\mathit{mi}}`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{mems}|}`.
+
+#. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]` with :math:`{\mathit{mi}}`.
 
 
 :math:`(s, f){}[{.}\mathsf{elems}{}[x]{.}\mathsf{refs} = {r^\ast}]`
 ...................................................................
 
 
-1. Replace :math:`s{.}\mathsf{elems}{}[f{.}\mathsf{module}{.}\mathsf{elems}{}[x]]{.}\mathsf{refs}` with :math:`{r^\ast}`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{elems}|}`.
+
+#. Replace :math:`s{.}\mathsf{elems}{}[f{.}\mathsf{module}{.}\mathsf{elems}{}[x]]{.}\mathsf{refs}` with :math:`{r^\ast}`.
 
 
 :math:`(s, f){}[{.}\mathsf{datas}{}[x]{.}\mathsf{bytes} = {b^\ast}]`
 ....................................................................
 
 
-1. Replace :math:`s{.}\mathsf{datas}{}[f{.}\mathsf{module}{.}\mathsf{datas}{}[x]]{.}\mathsf{bytes}` with :math:`{b^\ast}`.
+1. Assert: Due to validation, :math:`x < {|f{.}\mathsf{module}{.}\mathsf{datas}|}`.
+
+#. Replace :math:`s{.}\mathsf{datas}{}[f{.}\mathsf{module}{.}\mathsf{datas}{}[x]]{.}\mathsf{bytes}` with :math:`{b^\ast}`.
 
 
 :math:`(s, f){}[{.}\mathsf{structs}{}[a]{.}\mathsf{fields}{}[i] = {\mathit{fv}}]`
@@ -26086,29 +26347,39 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Let :math:`(\mathsf{tag}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
 
-   #. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{tag}~{\mathit{moduleinst}}{.}\mathsf{tags}{}[x]) \}`.
+   #. If :math:`x < {|{\mathit{moduleinst}}{.}\mathsf{tags}|}`, then:
+
+      1) Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{tag}~{\mathit{moduleinst}}{.}\mathsf{tags}{}[x]) \}`.
 
 #. If :math:`{\mathit{externidx}}` is some :math:`\mathsf{global}~{\mathit{globalidx}}`, then:
 
    a. Let :math:`(\mathsf{global}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
 
-   #. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{global}~{\mathit{moduleinst}}{.}\mathsf{globals}{}[x]) \}`.
+   #. If :math:`x < {|{\mathit{moduleinst}}{.}\mathsf{globals}|}`, then:
+
+      1) Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{global}~{\mathit{moduleinst}}{.}\mathsf{globals}{}[x]) \}`.
 
 #. If :math:`{\mathit{externidx}}` is some :math:`\mathsf{mem}~{\mathit{memidx}}`, then:
 
    a. Let :math:`(\mathsf{mem}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
 
-   #. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{mem}~{\mathit{moduleinst}}{.}\mathsf{mems}{}[x]) \}`.
+   #. If :math:`x < {|{\mathit{moduleinst}}{.}\mathsf{mems}|}`, then:
+
+      1) Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{mem}~{\mathit{moduleinst}}{.}\mathsf{mems}{}[x]) \}`.
 
 #. If :math:`{\mathit{externidx}}` is some :math:`\mathsf{table}~{\mathit{tableidx}}`, then:
 
    a. Let :math:`(\mathsf{table}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
 
-   #. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{table}~{\mathit{moduleinst}}{.}\mathsf{tables}{}[x]) \}`.
+   #. If :math:`x < {|{\mathit{moduleinst}}{.}\mathsf{tables}|}`, then:
+
+      1) Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{table}~{\mathit{moduleinst}}{.}\mathsf{tables}{}[x]) \}`.
 
 #. Assert: Due to validation, :math:`{\mathit{externidx}}` is some :math:`\mathsf{func}~{\mathit{funcidx}}`.
 
 #. Let :math:`(\mathsf{func}~x)` be the destructuring of :math:`{\mathit{externidx}}`.
+
+#. Assert: Due to validation, :math:`x < {|{\mathit{moduleinst}}{.}\mathsf{funcs}|}`.
 
 #. Return :math:`\{ \mathsf{name}~{\mathit{name}},\;\allowbreak \mathsf{addr}~(\mathsf{func}~{\mathit{moduleinst}}{.}\mathsf{funcs}{}[x]) \}`.
 
@@ -26203,6 +26474,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
    #. Append :math:`{{\mathit{local}}^\ast}` to :math:`{{{\mathit{local}}^\ast}^\ast}`.
 
    #. Append :math:`x` to :math:`{x^\ast}`.
+
+#. Assert: Due to validation, :math:`{(x < {|{{\mathit{dt}}^\ast}|})^\ast}`.
 
 #. Let :math:`{{\mathit{aa}}^\ast}` be :math:`\epsilon`.
 
@@ -26352,6 +26625,12 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\ast}~{{\mathit{tag}}^\ast}~{{\mathit{global}}^\ast}~{{\mathit{mem}}^\ast}~{{\mathit{table}}^\ast}~{{\mathit{func}}^\ast}~{{\mathit{data}}^\ast}~{{\mathit{elem}}^\ast}~{{\mathit{start}}^?}~{{\mathit{export}}^\ast})` be the destructuring of :math:`{\mathit{module}}`.
 
+#. Assert: Due to validation, :math:`{|{{\mathit{externaddr}}^\ast}|} = {|{{\mathit{xt}}_{\mathsf{i}}^\ast}|}`.
+
+#. Assert: Due to validation, :math:`{(i_{\mathsf{d}} < {|{{\mathit{data}}^\ast}|})^{i_{\mathsf{d}}<{|{{\mathit{data}}^\ast}|}}}`.
+
+#. Assert: Due to validation, :math:`{(i_{\mathsf{e}} < {|{{\mathit{elem}}^\ast}|})^{i_{\mathsf{e}}<{|{{\mathit{elem}}^\ast}|}}}`.
+
 #. If :math:`{|{{\mathit{externaddr}}^\ast}|} \neq {|{{\mathit{xt}}_{\mathsf{i}}^\ast}|}`, then:
 
    a. Fail.
@@ -26365,6 +26644,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Let :math:`{{\mathit{instr}}_{\mathsf{d}}^\ast}` be the :ref:`concatenation <notation-concat>` of :math:`{{{\mathrm{rundata}}}_{i_{\mathsf{d}}}({{\mathit{data}}^\ast}{}[i_{\mathsf{d}}])^{i_{\mathsf{d}}<{|{{\mathit{data}}^\ast}|}}}`.
 
 #. Let :math:`{{\mathit{instr}}_{\mathsf{e}}^\ast}` be the :ref:`concatenation <notation-concat>` of :math:`{{{\mathrm{runelem}}}_{i_{\mathsf{e}}}({{\mathit{elem}}^\ast}{}[i_{\mathsf{e}}])^{i_{\mathsf{e}}<{|{{\mathit{elem}}^\ast}|}}}`.
+
+#. Let :math:`{(\mathsf{start}~x)^?}` be :math:`{{\mathit{start}}^?}`.
 
 #. Let :math:`{\mathit{moduleinst}}_0` be the module instance :math:`\{ \mathsf{types}~{{{\mathrm{alloctype}}^\ast}}{({{\mathit{type}}^\ast})},\;\allowbreak \mathsf{globals}~{\mathrm{globals}}({{\mathit{externaddr}}^\ast}),\;\allowbreak \mathsf{funcs}~{\mathrm{funcs}}({{\mathit{externaddr}}^\ast})~{({|s{.}\mathsf{funcs}|} + i_{\mathsf{f}})^{i_{\mathsf{f}}<{|{{\mathit{func}}^\ast}|}}} \}`.
 
@@ -26395,6 +26676,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
    a. Let :math:`(\mathsf{elem}~{\mathit{reftype}}~{{\mathit{expr}}_{\mathsf{e}}^\ast}~{\mathit{elemmode}})` be the destructuring of :math:`{\mathit{elem}}`.
 
    #. Append :math:`{{\mathit{expr}}_{\mathsf{e}}^\ast}` to :math:`{{{\mathit{expr}}_{\mathsf{e}}^\ast}^\ast}`.
+
+#. Let :math:`{{\mathit{instr}}_{\mathsf{s}}^?}` be :math:`{(\mathsf{call}~x)^?}`.
 
 #. Let :math:`z` be the state :math:`(s, \{ \mathsf{module}~{\mathit{moduleinst}}_0 \})`.
 
@@ -26428,6 +26711,12 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Pop the :math:`\mathsf{frame}` from the stack.
 
+#. Assert: Due to validation, :math:`{|{{\mathit{expr}}_{\mathsf{t}}^\ast}|} = {|{{\mathit{ref}}_{\mathsf{t}}^\ast}|}`.
+
+#. Assert: Due to validation, :math:`{|{{{\mathit{expr}}_{\mathsf{e}}^\ast}^\ast}|} = {|{{{\mathit{ref}}_{\mathsf{e}}^\ast}^\ast}|}`.
+
+#. Assert: Due to validation, :math:`{({|{{\mathit{expr}}_{\mathsf{e}}^\ast}|} = {|{{\mathit{ref}}_{\mathsf{e}}^\ast}|})^\ast}`.
+
 #. Let :math:`{\mathit{moduleinst}}` be :math:`{\mathrm{allocmodule}}(s, {\mathit{module}}, {{\mathit{externaddr}}^\ast}, {{\mathit{val}}_{\mathsf{g}}^\ast}, {{\mathit{ref}}_{\mathsf{t}}^\ast}, {{{\mathit{ref}}_{\mathsf{e}}^\ast}^\ast})`.
 
 #. Let :math:`{F'}` be the :math:`\mathsf{frame}` :math:`\{ \mathsf{module}~{\mathit{moduleinst}} \}`.
@@ -26438,13 +26727,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Execute the sequence :math:`{{\mathit{instr}}_{\mathsf{d}}^\ast}`.
 
-#. If :math:`{{\mathit{start}}^?}` is defined, then:
+#. If :math:`{{\mathit{instr}}_{\mathsf{s}}^?}` is defined, then:
 
-   a. Let :math:`(\mathsf{start}~x)` be :math:`{{\mathit{start}}^?}`.
+   a. Let :math:`{\mathit{instr}}_0` be :math:`{{\mathit{instr}}_{\mathsf{s}}^?}`.
 
-   #. Let :math:`{\mathit{instr}}_{\mathsf{s}}` be the instruction :math:`(\mathsf{call}~x)`.
-
-   #. Execute the instruction :math:`{\mathit{instr}}_{\mathsf{s}}`.
+   #. Execute the instruction :math:`{\mathit{instr}}_0`.
 
 #. Pop the :math:`\mathsf{frame}` from the stack.
 
@@ -26455,9 +26742,13 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 ........................................................................
 
 
-1. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`s{.}\mathsf{funcs}{}[{\mathit{funcaddr}}]{.}\mathsf{type}` is some :math:`\mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}}`.
+1. Assert: Due to validation, :math:`{\mathit{funcaddr}} < {|s{.}\mathsf{funcs}|}`.
+
+#. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`s{.}\mathsf{funcs}{}[{\mathit{funcaddr}}]{.}\mathsf{type}` is some :math:`\mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}}`.
 
 #. Let :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`s{.}\mathsf{funcs}{}[{\mathit{funcaddr}}]{.}\mathsf{type}`.
+
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = {|{{\mathit{val}}^\ast}|}`.
 
 #. If :math:`{|{t_1^\ast}|} \neq {|{{\mathit{val}}^\ast}|}`, then:
 
@@ -30327,7 +30618,8 @@ disjoint_ `X X*
 1. If (X* = []), then:
   a. Return true.
 2. Let [w] :: w'* be X*.
-3. Return (w is not contained in w'* /\ $disjoint_(`X, w'*)).
+3. Assert: Due to validation, (|w'*| > 0).
+4. Return (w is not contained in w'* /\ $disjoint_(`X, w'*)).
 
 setminus1_ `X w X*
 1. If (X* = []), then:
@@ -30922,7 +31214,8 @@ rolldt x rectype
 
 unrolldt (_DEF rectype i)
 1. Let (REC subtype*) be $unrollrt(rectype).
-2. Return subtype*[i].
+2. Assert: Due to validation, (i < |subtype*|).
+3. Return subtype*[i].
 
 expanddt deftype
 1. Let (SUB final? typeuse* comptype) be $unrolldt(deftype).
@@ -31507,10 +31800,12 @@ unrollht C heaptype
   a. Return $unrolldt(heaptype).
 2. If heaptype is some _IDX, then:
   a. Let (_IDX typeidx) be heaptype.
-  b. Return $unrolldt(C.TYPES[typeidx]).
+  b. If (typeidx < |C.TYPES|), then:
+    1) Return $unrolldt(C.TYPES[typeidx]).
 3. Assert: Due to validation, heaptype is some REC.
 4. Let (REC i) be heaptype.
-5. Return C.RECS[i].
+5. Assert: Due to validation, (i < |C.RECS|).
+6. Return C.RECS[i].
 
 default_ valtype
 1. If valtype is addrtype, then:
@@ -31533,14 +31828,18 @@ funcidx_nonfuncs (global* mem* table* elem*)
 1. Return $funcidx_module((MODULE [] [] [] global* mem* table* [] [] elem* ?() [])).
 
 relaxed2 i `X X_1 X_2
-1. If $ND(), then:
+1. If (i >= |[X_1, X_2]|), then:
+  a. Return [X_1, X_2][0].
+2. If $ND(), then:
   a. Return [X_1, X_2][i].
-2. Return [X_1, X_2][0].
+3. Return [X_1, X_2][0].
 
 relaxed4 i `X X_1 X_2 X_3 X_4
-1. If $ND(), then:
+1. If (i >= |[X_1, X_2, X_3, X_4]|), then:
+  a. Return [X_1, X_2, X_3, X_4][0].
+2. If $ND(), then:
   a. Return [X_1, X_2, X_3, X_4][i].
-2. Return [X_1, X_2, X_3, X_4][0].
+3. Return [X_1, X_2, X_3, X_4][0].
 
 signed_ N i
 1. If (i < (2 ^ (N - 1))), then:
@@ -31921,7 +32220,8 @@ irelaxed_swizzle_lane_ N c* i
   a. Return c*[i].
 2. If ($signed_(N, i) < 0), then:
   a. Return 0.
-3. Return $relaxed2($R_swizzle(), `iN(N), 0, c*[(i \ |c*|)]).
+3. Assert: Due to validation, ((i \ |c*|) < |c*|).
+4. Return $relaxed2($R_swizzle(), `iN(N), 0, c*[(i \ |c*|)]).
 
 ivunop_ Jnn X M $f_ v_1
 1. Let c_1* be $lanes_(Jnn X M, v_1).
@@ -32057,11 +32357,12 @@ ivswizzlop_ Jnn X M $f_ v_1 v_2
 ivshufflop_ Jnn X M i* v_1 v_2
 1. Let c_1* be $lanes_(Jnn X M, v_1).
 2. Let c_2* be $lanes_(Jnn X M, v_2).
-3. Let c* be [].
-4. For each i in i*, do:
+3. Assert: Due to validation, (i < |c_1* :: c_2*|)*.
+4. Let c* be [].
+5. For each i in i*, do:
   a. Let c be c_1* :: c_2*[i].
   b. Append c to the c*.
-5. Return $inv_lanes_(Jnn X M, c*).
+6. Return $inv_lanes_(Jnn X M, c*).
 
 vvunop_ Vnn NOT v
 1. Return [$inot_($vsizenn(Vnn), v)].
@@ -32227,19 +32528,22 @@ vcvtop__ Lnn_1 X M Lnn_2 X M' vcvtop v_1
 1. If ((M = M') /\ ($halfop(Lnn_1 X M', Lnn_2 X M', vcvtop) is not defined /\ $zeroop(Lnn_1 X M', Lnn_2 X M', vcvtop) is not defined)), then:
   a. Let c_1* be $lanes_(Lnn_1 X M', v_1).
   b. Let c** be $setproduct_(`lane_(Lnn_2), $lcvtop__(Lnn_1 X M', Lnn_2 X M', vcvtop, c_1)*).
-  c. Let v be an element of $inv_lanes_(Lnn_2 X M', c*)*.
-  d. Return v.
+  c. If (|$inv_lanes_(Lnn_2 X M', c*)*| > 0), then:
+    1) Let v be an element of $inv_lanes_(Lnn_2 X M', c*)*.
+    2) Return v.
 2. If $halfop(Lnn_1 X M, Lnn_2 X M', vcvtop) is defined, then:
   a. Let ?(half) be $halfop(Lnn_1 X M, Lnn_2 X M', vcvtop).
   b. Let c_1* be $lanes_(Lnn_1 X M, v_1)[$half(half, 0, M') : M'].
   c. Let c** be $setproduct_(`lane_(Lnn_2), $lcvtop__(Lnn_1 X M, Lnn_2 X M', vcvtop, c_1)*).
-  d. Let v be an element of $inv_lanes_(Lnn_2 X M', c*)*.
-  e. Return v.
+  d. If (|$inv_lanes_(Lnn_2 X M', c*)*| > 0), then:
+    1) Let v be an element of $inv_lanes_(Lnn_2 X M', c*)*.
+    2) Return v.
 3. Assert: Due to validation, ($zeroop(Lnn_1 X M, Lnn_2 X M', vcvtop) = ?(ZERO)).
 4. Let c_1* be $lanes_(Lnn_1 X M, v_1).
 5. Let c** be $setproduct_(`lane_(Lnn_2), $lcvtop__(Lnn_1 X M, Lnn_2 X M', vcvtop, c_1)* :: [$zero(Lnn_2)]^M).
-6. Let v be an element of $inv_lanes_(Lnn_2 X M', c*)*.
-7. Return v.
+6. Assert: Due to validation, (|$inv_lanes_(Lnn_2 X M', c*)*| > 0).
+7. Let v be an element of $inv_lanes_(Lnn_2 X M', c*)*.
+8. Return v.
 
 vshiftop_ Jnn X M vshiftop_ v i
 1. If (vshiftop_ = SHL), then:
@@ -32329,8 +32633,9 @@ vextternop__ Jnn_1 X M_1 Jnn_2 X M_2 RELAXED_DOT_ADDS c_1 c_2 c_3
 2. Let Jnn be $jsizenn^-1((2 * $lsizenn1(Jnn_1))).
 3. Let c' be $vextbinop__(Jnn_1 X M_1, Jnn X M, RELAXED_DOTS, c_1, c_2).
 4. Let c'' be $vextunop__(Jnn X M, Jnn_2 X M_2, (EXTADD_PAIRWISE S), c').
-5. Let c be an element of $vbinop_(Jnn_2 X M_2, ADD, c'', c_3).
-6. Return c.
+5. Assert: Due to validation, (|$vbinop_(Jnn_2 X M_2, ADD, c'', c_3)| > 0).
+6. Let c be an element of $vbinop_(Jnn_2 X M_2, ADD, c'', c_3).
+7. Return c.
 
 Ki
 1. Return 1024.
@@ -32447,55 +32752,78 @@ exninst (s, f)
 1. Return s.EXNS.
 
 type (s, f) x
-1. Return f.MODULE.TYPES[x].
+1. Assert: Due to validation, (x < |f.MODULE.TYPES|).
+2. Return f.MODULE.TYPES[x].
 
 tag (s, f) x
-1. Return s.TAGS[f.MODULE.TAGS[x]].
+1. Assert: Due to validation, (f.MODULE.TAGS[x] < |s.TAGS|).
+2. Assert: Due to validation, (x < |f.MODULE.TAGS|).
+3. Return s.TAGS[f.MODULE.TAGS[x]].
 
 global (s, f) x
-1. Return s.GLOBALS[f.MODULE.GLOBALS[x]].
+1. Assert: Due to validation, (f.MODULE.GLOBALS[x] < |s.GLOBALS|).
+2. Assert: Due to validation, (x < |f.MODULE.GLOBALS|).
+3. Return s.GLOBALS[f.MODULE.GLOBALS[x]].
 
 mem (s, f) x
-1. Return s.MEMS[f.MODULE.MEMS[x]].
+1. Assert: Due to validation, (f.MODULE.MEMS[x] < |s.MEMS|).
+2. Assert: Due to validation, (x < |f.MODULE.MEMS|).
+3. Return s.MEMS[f.MODULE.MEMS[x]].
 
 table (s, f) x
-1. Return s.TABLES[f.MODULE.TABLES[x]].
+1. Assert: Due to validation, (f.MODULE.TABLES[x] < |s.TABLES|).
+2. Assert: Due to validation, (x < |f.MODULE.TABLES|).
+3. Return s.TABLES[f.MODULE.TABLES[x]].
 
 func (s, f) x
-1. Return s.FUNCS[f.MODULE.FUNCS[x]].
+1. Assert: Due to validation, (f.MODULE.FUNCS[x] < |s.FUNCS|).
+2. Assert: Due to validation, (x < |f.MODULE.FUNCS|).
+3. Return s.FUNCS[f.MODULE.FUNCS[x]].
 
 data (s, f) x
-1. Return s.DATAS[f.MODULE.DATAS[x]].
+1. Assert: Due to validation, (f.MODULE.DATAS[x] < |s.DATAS|).
+2. Assert: Due to validation, (x < |f.MODULE.DATAS|).
+3. Return s.DATAS[f.MODULE.DATAS[x]].
 
 elem (s, f) x
-1. Return s.ELEMS[f.MODULE.ELEMS[x]].
+1. Assert: Due to validation, (f.MODULE.ELEMS[x] < |s.ELEMS|).
+2. Assert: Due to validation, (x < |f.MODULE.ELEMS|).
+3. Return s.ELEMS[f.MODULE.ELEMS[x]].
 
 local (s, f) x
-1. Return f.LOCALS[x].
+1. Assert: Due to validation, (x < |f.LOCALS|).
+2. Return f.LOCALS[x].
 
 with_local (s, f) x v
 1. Replace f.LOCALS[x] with ?(v).
 
 with_global (s, f) x v
-1. Replace s.GLOBALS[f.MODULE.GLOBALS[x]].VALUE with v.
+1. Assert: Due to validation, (x < |f.MODULE.GLOBALS|).
+2. Replace s.GLOBALS[f.MODULE.GLOBALS[x]].VALUE with v.
 
 with_table (s, f) x i r
-1. Replace s.TABLES[f.MODULE.TABLES[x]].REFS[i] with r.
+1. Assert: Due to validation, (x < |f.MODULE.TABLES|).
+2. Replace s.TABLES[f.MODULE.TABLES[x]].REFS[i] with r.
 
 with_tableinst (s, f) x ti
-1. Replace s.TABLES[f.MODULE.TABLES[x]] with ti.
+1. Assert: Due to validation, (x < |f.MODULE.TABLES|).
+2. Replace s.TABLES[f.MODULE.TABLES[x]] with ti.
 
 with_mem (s, f) x i j b*
-1. Replace s.MEMS[f.MODULE.MEMS[x]].BYTES[i : j] with b*.
+1. Assert: Due to validation, (x < |f.MODULE.MEMS|).
+2. Replace s.MEMS[f.MODULE.MEMS[x]].BYTES[i : j] with b*.
 
 with_meminst (s, f) x mi
-1. Replace s.MEMS[f.MODULE.MEMS[x]] with mi.
+1. Assert: Due to validation, (x < |f.MODULE.MEMS|).
+2. Replace s.MEMS[f.MODULE.MEMS[x]] with mi.
 
 with_elem (s, f) x r*
-1. Replace s.ELEMS[f.MODULE.ELEMS[x]].REFS with r*.
+1. Assert: Due to validation, (x < |f.MODULE.ELEMS|).
+2. Replace s.ELEMS[f.MODULE.ELEMS[x]].REFS with r*.
 
 with_data (s, f) x b*
-1. Replace s.DATAS[f.MODULE.DATAS[x]].BYTES with b*.
+1. Assert: Due to validation, (x < |f.MODULE.DATAS|).
+2. Replace s.DATAS[f.MODULE.DATAS[x]].BYTES with b*.
 
 with_struct (s, f) a i fv
 1. Replace s.STRUCTS[a].FIELDS[i] with fv.
@@ -32692,19 +33020,24 @@ allocelems s elemtype* ref''*
 allocexport moduleinst (EXPORT name externidx)
 1. If externidx is some TAG, then:
   a. Let (TAG x) be externidx.
-  b. Return { NAME: name; ADDR: (TAG moduleinst.TAGS[x]) }.
+  b. If (x < |moduleinst.TAGS|), then:
+    1) Return { NAME: name; ADDR: (TAG moduleinst.TAGS[x]) }.
 2. If externidx is some GLOBAL, then:
   a. Let (GLOBAL x) be externidx.
-  b. Return { NAME: name; ADDR: (GLOBAL moduleinst.GLOBALS[x]) }.
+  b. If (x < |moduleinst.GLOBALS|), then:
+    1) Return { NAME: name; ADDR: (GLOBAL moduleinst.GLOBALS[x]) }.
 3. If externidx is some MEM, then:
   a. Let (MEM x) be externidx.
-  b. Return { NAME: name; ADDR: (MEM moduleinst.MEMS[x]) }.
+  b. If (x < |moduleinst.MEMS|), then:
+    1) Return { NAME: name; ADDR: (MEM moduleinst.MEMS[x]) }.
 4. If externidx is some TABLE, then:
   a. Let (TABLE x) be externidx.
-  b. Return { NAME: name; ADDR: (TABLE moduleinst.TABLES[x]) }.
+  b. If (x < |moduleinst.TABLES|), then:
+    1) Return { NAME: name; ADDR: (TABLE moduleinst.TABLES[x]) }.
 5. Assert: Due to validation, externidx is some FUNC.
 6. Let (FUNC x) be externidx.
-7. Return { NAME: name; ADDR: (FUNC moduleinst.FUNCS[x]) }.
+7. Assert: Due to validation, (x < |moduleinst.FUNCS|).
+8. Return { NAME: name; ADDR: (FUNC moduleinst.FUNCS[x]) }.
 
 allocexports moduleinst export*
 1. Return $allocexport(moduleinst, export)*.
@@ -32750,41 +33083,42 @@ allocmodule s module externaddr* val_G* ref_T* ref_E**
   b. Append expr_F to the expr_F*.
   c. Append local* to the local**.
   d. Append x to the x*.
-25. Let aa* be [].
-26. For each tagtype in tagtype*, do:
+25. Assert: Due to validation, (x < |dt*|)*.
+26. Let aa* be [].
+27. For each tagtype in tagtype*, do:
   a. Let aa be $alloctag(s, $subst_all_tagtype(tagtype, dt*)).
   b. Append aa to the aa*.
-27. Let ga* be [].
-28. For each globaltype in globaltype* and val_G in val_G*, do:
+28. Let ga* be [].
+29. For each globaltype in globaltype* and val_G in val_G*, do:
   a. Let ga be $allocglobal(s, $subst_all_globaltype(globaltype, dt*), val_G).
   b. Append ga to the ga*.
-29. Let ma* be [].
-30. For each memtype in memtype*, do:
+30. Let ma* be [].
+31. For each memtype in memtype*, do:
   a. Let ma be $allocmem(s, $subst_all_memtype(memtype, dt*)).
   b. Append ma to the ma*.
-31. Let ta* be [].
-32. For each tabletype in tabletype* and ref_T in ref_T*, do:
+32. Let ta* be [].
+33. For each tabletype in tabletype* and ref_T in ref_T*, do:
   a. Let ta be $alloctable(s, $subst_all_tabletype(tabletype, dt*), ref_T).
   b. Append ta to the ta*.
-33. Let xi* be [].
-34. For each export in export*, do:
+34. Let xi* be [].
+35. For each export in export*, do:
   a. Let xi be $allocexport({ TAGS: aa_I* :: aa*; GLOBALS: ga_I* :: ga*; MEMS: ma_I* :: ma*; TABLES: ta_I* :: ta*; FUNCS: fa_I* :: fa* }, export).
   b. Append xi to the xi*.
-35. Let da* be [].
-36. For each byte* in byte**, do:
+36. Let da* be [].
+37. For each byte* in byte**, do:
   a. Let da be $allocdata(s, OK, byte*).
   b. Append da to the da*.
-37. Let ea* be [].
-38. For each elemtype in elemtype* and ref_E* in ref_E**, do:
+38. Let ea* be [].
+39. For each elemtype in elemtype* and ref_E* in ref_E**, do:
   a. Let ea be $allocelem(s, $subst_all_reftype(elemtype, dt*), ref_E*).
   b. Append ea to the ea*.
-39. Let moduleinst be { TYPES: dt*; TAGS: aa_I* :: aa*; GLOBALS: ga_I* :: ga*; MEMS: ma_I* :: ma*; TABLES: ta_I* :: ta*; FUNCS: fa_I* :: fa*; DATAS: da*; ELEMS: ea*; EXPORTS: xi* }.
-40. Let funcaddr_0* be [].
-41. For each expr_F in expr_F* and local* in local** and x in x*, do:
+40. Let moduleinst be { TYPES: dt*; TAGS: aa_I* :: aa*; GLOBALS: ga_I* :: ga*; MEMS: ma_I* :: ma*; TABLES: ta_I* :: ta*; FUNCS: fa_I* :: fa*; DATAS: da*; ELEMS: ea*; EXPORTS: xi* }.
+41. Let funcaddr_0* be [].
+42. For each expr_F in expr_F* and local* in local** and x in x*, do:
   a. Let funcaddr_0 be $allocfunc(s, dt*[x], (FUNC x local* expr_F), moduleinst).
   b. Append funcaddr_0 to the funcaddr_0*.
-42. Assert: Due to validation, (funcaddr_0* = fa*).
-43. Return moduleinst.
+43. Assert: Due to validation, (funcaddr_0* = fa*).
+44. Return moduleinst.
 
 rundata_ x (DATA b^n datamode)
 1. If (datamode = PASSIVE), then:
@@ -32820,64 +33154,73 @@ evalglobals z globaltype* expr''*
 instantiate s module externaddr*
 1. Let xt_I* -> xt_E* be $Module_ok(module).
 2. Let (MODULE type* import* tag* global* mem* table* func* data* elem* start? export*) be module.
-3. If not $Externaddr_ok(externaddr, xt_I)*, then:
+3. Assert: Due to validation, (|externaddr*| = |xt_I*|).
+4. Assert: Due to validation, (i_D < |data*|)^(i_D<|data*|).
+5. Assert: Due to validation, (i_E < |elem*|)^(i_E<|elem*|).
+6. If not $Externaddr_ok(externaddr, xt_I)*, then:
   a. Fail.
-4. Let instr_D* be $concat_(`instr, $rundata_(i_D, data*[i_D])^(i_D<|data*|)).
-5. Let instr_E* be $concat_(`instr, $runelem_(i_E, elem*[i_E])^(i_E<|elem*|)).
-6. Let moduleinst_0 be { TYPES: $alloctypes(type*); GLOBALS: $globalsxa(externaddr*); FUNCS: $funcsxa(externaddr*) :: (|s.FUNCS| + i_F)^(i_F<|func*|) }.
-7. Let expr_T* be [].
-8. For each table in table*, do:
+7. Let instr_D* be $concat_(`instr, $rundata_(i_D, data*[i_D])^(i_D<|data*|)).
+8. Let instr_E* be $concat_(`instr, $runelem_(i_E, elem*[i_E])^(i_E<|elem*|)).
+9. Let (START x)? be start?.
+10. Let moduleinst_0 be { TYPES: $alloctypes(type*); GLOBALS: $globalsxa(externaddr*); FUNCS: $funcsxa(externaddr*) :: (|s.FUNCS| + i_F)^(i_F<|func*|) }.
+11. Let expr_T* be [].
+12. For each table in table*, do:
   a. Let (TABLE tabletype expr_T) be table.
   b. Append expr_T to the expr_T*.
-9. Let expr_G* be [].
-10. Let globaltype* be [].
-11. For each global in global*, do:
+13. Let expr_G* be [].
+14. Let globaltype* be [].
+15. For each global in global*, do:
   a. Let (GLOBAL globaltype expr_G) be global.
   b. Append expr_G to the expr_G*.
   c. Append globaltype to the globaltype*.
-12. Let expr_E** be [].
-13. For each elem in elem*, do:
+16. Let expr_E** be [].
+17. For each elem in elem*, do:
   a. Let (ELEM reftype expr_E* elemmode) be elem.
   b. Append expr_E* to the expr_E**.
-14. Let z be (s, { MODULE: moduleinst_0 }).
-15. Push the frame (FRAME_ 0 { $frame(z) }) to the stack.
-16. Let val_G* be $evalglobals(z, globaltype*, expr_G*).
-17. Let ref_T* be [].
-18. For each expr_T in expr_T*, do:
+18. Let instr_S? be (CALL x)?.
+19. Let z be (s, { MODULE: moduleinst_0 }).
+20. Push the frame (FRAME_ 0 { $frame(z) }) to the stack.
+21. Let val_G* be $evalglobals(z, globaltype*, expr_G*).
+22. Let ref_T* be [].
+23. For each expr_T in expr_T*, do:
   a. Let [ref_T] be $Eval_expr(z, expr_T).
   b. Append ref_T to the ref_T*.
-19. Let ref_E** be [].
-20. For each expr_E* in expr_E**, do:
+24. Let ref_E** be [].
+25. For each expr_E* in expr_E**, do:
   a. Let ref_E* be [].
   b. For each expr_E in expr_E*, do:
     1) Let [ref_E] be $Eval_expr(z, expr_E).
     2) Append ref_E to the ref_E*.
   c. Append ref_E* to the ref_E**.
-21. Pop the frame (FRAME_ 0 { f }) from the stack.
-22. Let moduleinst be $allocmodule(s, module, externaddr*, val_G*, ref_T*, ref_E**).
-23. Push the frame (FRAME_ 0 { { MODULE: moduleinst } }) to the stack.
-24. Execute the sequence instr_E*.
-25. Execute the sequence instr_D*.
-26. If start? is defined, then:
-  a. Let ?((START x)) be start?.
-  b. Let instr_S be (CALL x).
-  c. Execute the instruction instr_S.
-27. Pop the frame (FRAME_ 0 { { MODULE: moduleinst } }) from the stack.
-28. Return moduleinst.
+26. Pop the frame (FRAME_ 0 { f }) from the stack.
+27. Assert: Due to validation, (|expr_T*| = |ref_T*|).
+28. Assert: Due to validation, (|expr_E**| = |ref_E**|).
+29. Assert: Due to validation, (|expr_E*| = |ref_E*|)*.
+30. Let moduleinst be $allocmodule(s, module, externaddr*, val_G*, ref_T*, ref_E**).
+31. Push the frame (FRAME_ 0 { { MODULE: moduleinst } }) to the stack.
+32. Execute the sequence instr_E*.
+33. Execute the sequence instr_D*.
+34. If instr_S? is defined, then:
+  a. Let ?(instr_0) be instr_S?.
+  b. Execute the instruction instr_0.
+35. Pop the frame (FRAME_ 0 { { MODULE: moduleinst } }) from the stack.
+36. Return moduleinst.
 
 invoke s funcaddr val*
-1. Assert: Due to validation, $Expand(s.FUNCS[funcaddr].TYPE) is some FUNC.
-2. Let (FUNC t_1* -> t_2*) be $Expand(s.FUNCS[funcaddr].TYPE).
-3. If not $Val_ok(val, t_1)*, then:
+1. Assert: Due to validation, (funcaddr < |s.FUNCS|).
+2. Assert: Due to validation, $Expand(s.FUNCS[funcaddr].TYPE) is some FUNC.
+3. Let (FUNC t_1* -> t_2*) be $Expand(s.FUNCS[funcaddr].TYPE).
+4. Assert: Due to validation, (|t_1*| = |val*|).
+5. If not $Val_ok(val, t_1)*, then:
   a. Fail.
-4. Let k be |t_2*|.
-5. Push the frame (FRAME_ k { { MODULE: {} } }) to the stack.
-6. Push the values val* to the stack.
-7. Push the value (REF.FUNC_ADDR funcaddr) to the stack.
-8. Execute the instruction (CALL_REF s.FUNCS[funcaddr].TYPE).
-9. Pop the values val'^k from the stack.
-10. Pop the frame (FRAME_ k { { MODULE: {} } }) from the stack.
-11. Return val'^k.
+6. Let k be |t_2*|.
+7. Push the frame (FRAME_ k { { MODULE: {} } }) to the stack.
+8. Push the values val* to the stack.
+9. Push the value (REF.FUNC_ADDR funcaddr) to the stack.
+10. Execute the instruction (CALL_REF s.FUNCS[funcaddr].TYPE).
+11. Pop the values val'^k from the stack.
+12. Pop the frame (FRAME_ k { { MODULE: {} } }) from the stack.
+13. Return val'^k.
 
 concat_idctxt idctxt*
 1. If (idctxt* = []), then:
