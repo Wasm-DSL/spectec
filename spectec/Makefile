@@ -72,15 +72,9 @@ doc/example: exe
 	@(cd $@ && make out clean >$(LOG) 2>&1 && rm -f $(LOG))
 
 
-# Specification (copy to local workspace to make dune deps for tests happy)
+# Specification
 
 SPECIFICATIONDIR = $(ROOTDIR)/specification
-SPECCLONEDIR = _specification
-
-$(SPECCLONEDIR): $(shell find $(SPECIFICATIONDIR) -type f)
-	rm -rf $(SPECCLONEDIR)
-	cp -R $(SPECIFICATIONDIR) $(SPECCLONEDIR)
-
 
 # Spec document
 
