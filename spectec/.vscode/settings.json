@@ -1,0 +1,8 @@
+{
+    "ocaml.sandbox": {
+        "kind": "global"
+    },
+    "files.exclude": {
+        "**/_build": true
+    }
+}

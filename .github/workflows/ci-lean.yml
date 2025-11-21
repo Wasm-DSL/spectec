@@ -1,0 +1,26 @@
+name: CI Lean4
+
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ spectec/**, document/** ]
+
+  pull_request:
+    branches: [ main ]
+    paths: [ spectec/**, document/** ]
+
+jobs:
+  test-lean:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Install Elan
+      run: |
+        curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+        echo "$HOME/.elan/bin" >> $GITHUB_PATH
+    - name: Run Lean.wasm
+      working-directory: spectec/test-lean4
+      run: |
+        lean Wasm.lean 

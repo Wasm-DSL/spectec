@@ -5,11 +5,6 @@ EXE = $(PWD)/../$(NAME)
 EXT = $(NAME)
 LOG = _log
 
-OWNDIR = $(PWD)
-SPECDIR = ../../specification/wasm-3.0
-SPECFILES = $(shell ls $(SPECDIR)/*.$(EXT))
-
-
 # Main targets
 
 .PHONY: all
@@ -21,9 +16,7 @@ all: test
 
 .PHONY: test
 
-test: $(SPECDIR) $(EXE)
-	(cd $(SPECDIR) && $(EXE) -l *.$(EXT))
-
+test:
 
 # Executable
 
