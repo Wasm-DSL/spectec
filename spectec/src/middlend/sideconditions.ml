@@ -7,7 +7,7 @@ of terms in premises and conclusions:
  * Option projection     !(e)         e =!= null
 
 (The option projection would probably be nicer by rewriting !(e) to a fresh
-variable x and require e=?x. Maybe later.)
+variable x and require e=?x, see the UnThe pass for that.)
 *)
 
 open Util
@@ -188,10 +188,28 @@ let t_rule x = { x with it = t_rule' x.it }
 
 let t_rules = List.map t_rule
 
+let t_clause' = function
+  | DefD (binds, args, exp, prems) ->
+    let env = List.fold_left (fun env bind ->
+      match bind.it with
+      | ExpB (v, t) -> Env.add v.it t env
+      | _ -> env) Env.empty binds
+    in
+    let prems' = t_prems env prems in
+    let extra_prems = t_exp env exp in
+    let reduced_prems = reduce_prems (extra_prems @ prems') in
+    DefD (binds, args, exp, reduced_prems)
+
+let t_clause x = { x with it = t_clause' x.it }
+
+let t_clauses = List.map t_clause
+
 let rec t_def' = function
   | RecD defs -> RecD (List.map t_def defs)
   | RelD (id, mixop, typ, rules) ->
     RelD (id, mixop, typ, t_rules rules)
+  | DecD (id, params, typ, clauses) ->
+    DecD (id, params, typ, t_clauses clauses)
   | def -> def
 
 and t_def x = { x with it = t_def' x.it }
