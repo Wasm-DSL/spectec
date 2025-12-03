@@ -30,12 +30,6 @@ let group_clauses_by_same_args clauses =
   in
   List.fold_left group_helper [] clauses |> List.rev
 
-let rec is_bool_premise prem =
-  match prem.it with
-   | IfPr _exp -> true
-   | NegPr prem -> is_bool_premise prem
-   | _ -> false
-   
 let is_else_premise prem =
   match prem.it with
   | ElsePr -> true
@@ -47,22 +41,31 @@ let has_only_else_premise clause =
     List.for_all is_else_premise prems
   | _ -> false
 
-let has_only_bool_prems (clause : clause) : exp list option =
+let mk_and : exp -> exp -> exp = fun e1 e2 ->
+  BinE (`AndOp, `BoolT, e1, e2) $$ (no_region, BoolT $ no_region)
+
+let rec prem_to_bool_exp (prem : prem) : exp option =
+  match prem.it with
+    | IfPr exp -> Some exp
+    | NegPr prem' ->
+        Option.bind (prem_to_bool_exp prem') (fun exp ->
+          Some (UnE (`NotOp, `BoolT, exp) $$ (prem.at, BoolT $ no_region)))
+    | _ -> None
+
+and prems_to_bool_exp = function
+  | [] -> Some (BoolE true $$ (no_region, BoolT $ no_region))
+  | [prem] -> prem_to_bool_exp prem
+  | prem :: rest ->
+    Option.bind (prem_to_bool_exp prem) (fun exp1 ->
+      Option.bind (prems_to_bool_exp rest) (fun exp2 ->
+        Some (mk_and exp1 exp2)
+      )
+    )
+
+let clause_prems_to_bool_exp (clause : clause) : exp option =
   match clause.it with
   | DefD (_, _, _, prems) ->
-    if List.for_all is_bool_premise prems then
-      Some (List.filter_map (fun prem -> match prem.it with
-        | IfPr exp -> Some exp
-        | NegPr _ -> None
-        | _ -> None) prems)
-    else
-      None
-
-let rec mk_conj : exp list -> exp = function 
-  | [] -> BoolE true $$ (no_region, BoolT $ no_region)
-  | [e] -> e
-  | e :: rest ->
-    BinE (`AndOp, `BoolT, e, mk_conj rest) $$ (no_region, BoolT $ no_region)
+    prems_to_bool_exp prems
 
 let mk_if (cond : exp) (then_exp : exp) (else_exp : exp) : exp =
   IfE (cond, then_exp, else_exp) $$ (no_region, then_exp.note)
@@ -77,14 +80,14 @@ let rec t_clause_group_to_expr (clauses : clause list) : exp option =
     else
       None
   | clause :: rest_clauses ->
-    match has_only_bool_prems clause with
+    match clause_prems_to_bool_exp clause with
     | None -> None
-    | Some conds ->
+    | Some cond ->
       match clause.it with
       | DefD (_, _, rhs, _) ->
         match t_clause_group_to_expr rest_clauses with
         | None -> None
-        | Some else_exp -> Some (mk_if (mk_conj conds) rhs else_exp)
+        | Some else_exp -> Some (mk_if cond rhs else_exp)
 
 let t_clause_group (clauses : clause list) : clause list =
   match t_clause_group_to_expr clauses with
