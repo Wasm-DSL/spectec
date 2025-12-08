@@ -7779,13 +7779,13 @@ relation wf_relaxed4: `%`(relaxed4)
 ;; ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec
 def $relaxed2(relaxed2 : relaxed2, syntax X, X : X, X : X) : X
   ;; ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec
-  def $relaxed2{i : relaxed2, syntax X, X_1 : X, X_2 : X}(i, syntax X, X_1, X_2) = (if $ND then [X_1 X_2][i!`%`_relaxed2.0] else [X_1 X_2][0])
+  def $relaxed2{i : relaxed2, syntax X, X_1 : X, X_2 : X}(i, syntax X, X_1, X_2) = (if $ND then [X_1 X_2][$proj_relaxed2_0(i).0] else [X_1 X_2][0])
     -- wf_relaxed2: `%`(i)
 
 ;; ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec
 def $relaxed4(relaxed4 : relaxed4, syntax X, X : X, X : X, X : X, X : X) : X
   ;; ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec
-  def $relaxed4{i : relaxed4, syntax X, X_1 : X, X_2 : X, X_3 : X, X_4 : X}(i, syntax X, X_1, X_2, X_3, X_4) = (if $ND then [X_1 X_2 X_3 X_4][i!`%`_relaxed4.0] else [X_1 X_2 X_3 X_4][0])
+  def $relaxed4{i : relaxed4, syntax X, X_1 : X, X_2 : X, X_3 : X, X_4 : X}(i, syntax X, X_1, X_2, X_3, X_4) = (if $ND then [X_1 X_2 X_3 X_4][$proj_relaxed4_0(i).0] else [X_1 X_2 X_3 X_4][0])
     -- wf_relaxed4: `%`(i)
 
 ;; ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec
@@ -7932,7 +7932,7 @@ def $ineg_(N : N, iN : iN) : iN
 ;; ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec
 def $iabs_(N : N, iN : iN) : iN
   ;; ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec
-  def $iabs_{N : nat, i_1 : uN}(N, i_1) = (if ($signed_(N, i_1!`%`_uN.0) >= (0 : nat <:> int)) then i_1 else $ineg_(N, i_1))
+  def $iabs_{N : nat, i_1 : uN}(N, i_1) = (if ($signed_(N, $proj_uN_0(i_1).0) >= (0 : nat <:> int)) then i_1 else $ineg_(N, i_1))
     -- wf_uN: `%%`(N, i_1)
 
 ;; ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec
@@ -8022,7 +8022,7 @@ def $imin_(N : N, sx : sx, iN : iN, iN : iN) : iN
     -- wf_uN: `%%`(N, i_2)
     -- if ($proj_uN_0(i_1).0 > $proj_uN_0(i_2).0)
   ;; ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec
-  def $imin_{N : nat, i_1 : uN, i_2 : uN}(N, S_sx, i_1, i_2) = (if ($signed_(N, i_1!`%`_uN.0) <= $signed_(N, i_2!`%`_uN.0)) then i_1 else i_2)
+  def $imin_{N : nat, i_1 : uN, i_2 : uN}(N, S_sx, i_1, i_2) = (if ($signed_(N, $proj_uN_0(i_1).0) <= $signed_(N, $proj_uN_0(i_2).0)) then i_1 else i_2)
     -- wf_uN: `%%`(N, i_1)
     -- wf_uN: `%%`(N, i_2)
 
@@ -8039,7 +8039,7 @@ def $imax_(N : N, sx : sx, iN : iN, iN : iN) : iN
     -- wf_uN: `%%`(N, i_2)
     -- if ($proj_uN_0(i_1).0 < $proj_uN_0(i_2).0)
   ;; ../../../../specification/wasm-3.0/3.1-numerics.scalar.spectec
-  def $imax_{N : nat, i_1 : uN, i_2 : uN}(N, S_sx, i_1, i_2) = (if ($signed_(N, i_1!`%`_uN.0) >= $signed_(N, i_2!`%`_uN.0)) then i_1 else i_2)
+  def $imax_{N : nat, i_1 : uN, i_2 : uN}(N, S_sx, i_1, i_2) = (if ($signed_(N, $proj_uN_0(i_1).0) >= $signed_(N, $proj_uN_0(i_2).0)) then i_1 else i_2)
     -- wf_uN: `%%`(N, i_1)
     -- wf_uN: `%%`(N, i_2)
 
@@ -8541,7 +8541,7 @@ def $half(half : half, nat : nat, nat : nat) : nat
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $iswizzle_lane_(N : N, iN*, iN : iN) : iN
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
-  def $iswizzle_lane_{N : nat, `c*` : iN*, i : uN}(N, c*{c <- `c*`}, i) = (if (i!`%`_uN.0 < |c*{c <- `c*`}|) then c*{c <- `c*`}[i!`%`_uN.0] else `%`_iN(0))
+  def $iswizzle_lane_{N : nat, `c*` : iN*, i : uN}(N, c*{c <- `c*`}, i) = (if ($proj_uN_0(i).0 < |c*{c <- `c*`}|) then c*{c <- `c*`}[$proj_uN_0(i).0] else `%`_iN(0))
     -- (wf_uN: `%%`(N, c))*{c <- `c*`}
     -- wf_uN: `%%`(N, i)
     -- wf_uN: `%%`(N, `%`_uN(0))
@@ -8549,7 +8549,7 @@ def $iswizzle_lane_(N : N, iN*, iN : iN) : iN
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $irelaxed_swizzle_lane_(N : N, iN*, iN : iN) : iN
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
-  def $irelaxed_swizzle_lane_{N : nat, `c*` : iN*, i : uN}(N, c*{c <- `c*`}, i) = (if (i!`%`_uN.0 < |c*{c <- `c*`}|) then c*{c <- `c*`}[i!`%`_uN.0] else (if ($signed_(N, i!`%`_uN.0) < (0 : nat <:> int)) then `%`_iN(0) else $relaxed2($R_swizzle, syntax iN, `%`_iN(0), c*{c <- `c*`}[(i!`%`_uN.0 \ |c*{c <- `c*`}|)])))
+  def $irelaxed_swizzle_lane_{N : nat, `c*` : iN*, i : uN}(N, c*{c <- `c*`}, i) = (if ($proj_uN_0(i).0 < |c*{c <- `c*`}|) then c*{c <- `c*`}[$proj_uN_0(i).0] else (if ($signed_(N, $proj_uN_0(i).0) < (0 : nat <:> int)) then `%`_iN(0) else $relaxed2($R_swizzle, syntax iN, `%`_iN(0), c*{c <- `c*`}[($proj_uN_0(i).0 \ |c*{c <- `c*`}|)])))
     -- (wf_uN: `%%`(N, c))*{c <- `c*`}
     -- wf_uN: `%%`(N, i)
     -- wf_uN: `%%`(N, `%`_uN(0))
@@ -15131,7 +15131,7 @@ def $concat_idctxt(idctxt*) : idctxt
   def $concat_idctxt([]) = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS [], LABELS [], FIELDS [], TYPEDEFS []}
     -- wf_idctxt: `%`({TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS [], LABELS [], FIELDS [], TYPEDEFS []})
   ;; ../../../../specification/wasm-3.0/6.1-text.values.spectec:157.1-157.52
-  def $concat_idctxt{I : idctxt, I' : idctxt}([I I']) = I +++ $concat_idctxt(I'*{})
+  def $concat_idctxt{I : idctxt, I' : idctxt}([I I']) = I +++ $concat_idctxt([I'])
     -- wf_idctxt: `%`(I)
     -- wf_idctxt: `%`(I')
 }
@@ -15446,7 +15446,7 @@ grammar Tblocktype_(I : I) : blocktype
   prod{`t?` : valtype?} t?{t <- `t?`}:Tresult_(I)?{} => _RESULT_blocktype(t?{t <- `t?`})
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
   prod{x : idx, I' : I} (x, I'):Ttypeuse_(I) => _IDX_blocktype(x)
-    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS ?(`%`_name([]))*{}, LABELS [], FIELDS [], TYPEDEFS []})
+    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS [?(`%`_name([]))], LABELS [], FIELDS [], TYPEDEFS []})
 
 ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
 grammar Tcatch_(I : I) : catch
@@ -15517,7 +15517,7 @@ grammar Tplaininstr_(I : I) : instr
   prod{x : idx} {{"call_ref"} {x:Ttypeidx_(I)}} => CALL_REF_instr(_IDX_typeuse(x))
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
   prod{x : idx, y : idx, I' : I} {{"call_indirect"} {x:Ttableidx_(I)} {(y, I'):Ttypeuse_(I)}} => CALL_INDIRECT_instr(x, _IDX_typeuse(y))
-    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS ?(`%`_name([]))*{}, LABELS [], FIELDS [], TYPEDEFS []})
+    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS [?(`%`_name([]))], LABELS [], FIELDS [], TYPEDEFS []})
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
   prod "return" => RETURN_instr
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
@@ -15526,7 +15526,7 @@ grammar Tplaininstr_(I : I) : instr
   prod{x : idx} {{"return_call_ref"} {x:Ttypeidx_(I)}} => RETURN_CALL_REF_instr(_IDX_typeuse(x))
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
   prod{x : idx, y : idx, I' : I} {{"return_call_indirect"} {x:Ttableidx_(I)} {(y, I'):Ttypeuse_(I)}} => RETURN_CALL_INDIRECT_instr(x, _IDX_typeuse(y))
-    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS ?(`%`_name([]))*{}, LABELS [], FIELDS [], TYPEDEFS []})
+    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS [?(`%`_name([]))], LABELS [], FIELDS [], TYPEDEFS []})
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
   prod{x : idx} {{"throw"} {x:Ttagidx_(I)}} => THROW_instr(x)
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
