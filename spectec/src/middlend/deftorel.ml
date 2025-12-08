@@ -566,6 +566,34 @@ let tail_mixop mixop =
   | Xl.Mixop.Seq xs -> Xl.Mixop.Seq (List.tl xs)
   | _ -> mixop
 
+(* 
+  This function filters out premises that were function calls before. It only filters them out if they are
+  not being used in the premises following it. It assumes that the premises are in order (at the very least,
+  that function calls return variables are not used beforehand) which is true by the construction above. 
+  This avoids the problem with violating strictly positive condition for inductive relations when the recursive
+  function call appears in the return expression. This does not however prevent the violation of the condition
+  completely, as any recursive function call that appears as a pattern guard will violate this (as long as the
+  fallthrough semantics is enforced).
+*)
+let rec filter_return_prems prems = 
+  let pred p ps = 
+    match p.it with
+    | RulePr (id, _, _, {it = TupE exps; _}) when String.starts_with ~prefix:fun_prefix id.it ->
+      let last_exp = Lib.List.last_opt exps in 
+      begin match last_exp with
+      | None -> true
+      | Some exp -> 
+        let free_vars = (Free.free_exp exp).varid in
+        let free_vars_prems = (Free.free_list Free.free_prem ps).varid in
+        Free.Set.inter free_vars free_vars_prems <> Free.Set.empty
+      end
+    | _ -> true
+  in 
+  match prems with
+  | [] -> []
+  | p :: ps when pred p ps -> p :: filter_return_prems ps
+  | _ :: ps -> filter_return_prems ps
+
 let generate_matching_rules env args tupt r = 
   match r.it with
   | RuleD (id, binds, mixop, exp', prems) -> 
@@ -573,7 +601,7 @@ let generate_matching_rules env args tupt r =
     let new_exp = TupE args' $$ exp'.at % tupt in
     (try Eval.match_list Eval.match_exp env.il_env Subst.empty args' args with Eval.Irred -> None) |>
     Option.map (fun _ -> 
-      {r with it = RuleD (id, binds, tail_mixop mixop, new_exp, prems)}
+      {r with it = RuleD (id, binds, tail_mixop mixop, new_exp, filter_return_prems prems)}
     )
 
 let fall_through_prems env id mixop typs rules =
