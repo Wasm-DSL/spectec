@@ -81,7 +81,7 @@ let rec collect_fcalls_exp iter_binds env e =
   | CompE (e1, e2) | MemE (e1, e2)
   | CatE (e1, e2) | IdxE (e1, e2) -> collect_fcalls_exp iter_binds env e1 @ collect_fcalls_exp iter_binds env e2
   | TupE exps | ListE exps -> List.concat_map (collect_fcalls_exp iter_binds env) exps
-  | SliceE (e1, e2, e3) -> collect_fcalls_exp iter_binds env e1 @ collect_fcalls_exp iter_binds env e2 @ collect_fcalls_exp iter_binds env e3
+  | SliceE (e1, e2, e3) | IfE (e1, e2, e3) -> collect_fcalls_exp iter_binds env e1 @ collect_fcalls_exp iter_binds env e2 @ collect_fcalls_exp iter_binds env e3
   | UpdE (e1, p, e2) 
   | ExtE (e1, p, e2) -> collect_fcalls_exp iter_binds env e1 @ collect_fcalls_path iter_binds env p @ collect_fcalls_exp iter_binds env e2
   | IterE (e1,( (iter, id_exp_pairs) as iterexp)) -> 
@@ -247,6 +247,11 @@ and transform_exp call_map env e: (exp * (id * typ * int) list) =
     let e2', iter_ids2 = t_func e2 in 
     let e3', iter_ids3 = t_func e3 in
     SliceE (e1', e2', e3'), iter_ids @ iter_ids2 @ iter_ids3
+  | IfE (e1, e2, e3) ->
+    let e1', iter_ids = t_func e1 in 
+    let e2', iter_ids2 = t_func e2 in 
+    let e3', iter_ids3 = t_func e3 in
+    IfE (e1', e2', e3'), iter_ids @ iter_ids2 @ iter_ids3
   | UpdE (e1, p, e2) -> 
     let e1', iter_ids = t_func e1 in  
     let p', iter_ids2 = transform_path call_map env p in
@@ -467,7 +472,7 @@ let rec has_sub_exp e =
   | CompE (e1, e2) | MemE (e1, e2)
   | CatE (e1, e2) | IdxE (e1, e2) -> has_sub_exp e1 || has_sub_exp e2
   | TupE exps | ListE exps -> List.exists has_sub_exp exps
-  | SliceE (e1, e2, e3) -> has_sub_exp e1 || has_sub_exp e2 || has_sub_exp e3
+  | SliceE (e1, e2, e3) | IfE (e1, e2, e3) -> has_sub_exp e1 || has_sub_exp e2 || has_sub_exp e3
   | UpdE (e1, p, e2) 
   | ExtE (e1, p, e2) -> has_sub_exp e1 || has_sub_exp_path p || has_sub_exp e2
   | CallE (_id, args) -> List.exists has_sub_exp_arg args
@@ -498,7 +503,7 @@ let rec utilizes_rel_def env e =
   | CompE (e1, e2) | MemE (e1, e2)
   | CatE (e1, e2) | IdxE (e1, e2) -> utilizes_rel_def env e1 || utilizes_rel_def env e2
   | TupE exps | ListE exps -> List.exists (utilizes_rel_def env) exps
-  | SliceE (e1, e2, e3) -> utilizes_rel_def env e1 || utilizes_rel_def env e2 || utilizes_rel_def env e3
+  | SliceE (e1, e2, e3) | IfE (e1, e2, e3) -> utilizes_rel_def env e1 || utilizes_rel_def env e2 || utilizes_rel_def env e3
   | UpdE (e1, p, e2) 
   | ExtE (e1, p, e2) -> utilizes_rel_def env e1 || utilizes_rel_def_path env p || utilizes_rel_def env e2
   | IterE (e1, (_, id_exp_pairs)) -> utilizes_rel_def env e1 || List.exists (fun (_, exp) -> utilizes_rel_def env exp) id_exp_pairs
