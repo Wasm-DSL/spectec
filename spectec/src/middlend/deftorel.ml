@@ -587,7 +587,9 @@ let generate_matching_rules env args tupt r =
     let (args', _) = Lib.List.split_last (get_tuple_exp exp') in
     let new_exp = TupE args' $$ exp'.at % tupt in
     (try Eval.match_list Eval.match_exp env.il_env Subst.empty args' args with Eval.Irred -> None) |>
-    Option.map (fun _ -> {r with it = RuleD (id, binds, List.tl mixop, new_exp, prems)})
+    Option.map (fun _ -> 
+      {r with it = RuleD (id, binds, List.tl mixop, new_exp, prems)}
+    )
 
 let fall_through_prems env id mixop typs rules =
   let gen_rel_name rid = 
@@ -633,6 +635,13 @@ let cvt_def_to_rel env id params r_typ clauses =
   let new_id = { id with it = fun_prefix ^ id.it } in
   fall_through_prems env new_id new_mixop tup_types rules
 
+let uses_def ids_set def = 
+  match def.it with
+  | RelD (_, _, _, rules) -> 
+    let free_defs = (Free.free_list (Free.free_rule) rules).relid in
+    Free.Set.inter free_defs ids_set <> Free.Set.empty
+  | _ -> false
+
 let rec transform_def (env : env) def = 
   let must_be_rel_def d =
     match d.it with
@@ -646,18 +655,25 @@ let rec transform_def (env : env) def =
   in
   (match def.it with
   | RelD (id, m, typ, rules) -> 
-    [{ def with it =RelD (id, m, typ, List.map (transform_rule env) rules) }]
+    [{ def with it = RelD (id, m, typ, List.map (transform_rule env) rules) }]
   | DecD (id, params, typ, clauses) when must_be_relation env id params clauses -> 
     env.rel_set <- StringSet.add id.it env.rel_set;
     cvt_def_to_rel env id params typ clauses
   | DecD (id, params, typ, clauses) -> 
     [{ def with it = DecD (id, params, typ, List.map (transform_clause env) clauses) }]
   | RecD defs when List.exists must_be_rel_def defs && List.for_all has_exp_params defs -> 
+    let ids_ref = ref StringSet.empty in
     List.iter (fun d -> match d.it with
-    | DecD (id, _, _, _) -> env.rel_set <- StringSet.add id.it env.rel_set
+    | DecD (id, _, _, _) -> 
+      ids_ref := StringSet.add (fun_prefix ^ id.it) !ids_ref;
+      env.rel_set <- StringSet.add id.it env.rel_set
     | _ -> () 
     ) defs;
-    [{ def with it = RecD (List.concat_map (transform_def env) defs) }]
+    let rec_defs, filtered_defs = defs |>
+      List.concat_map (transform_def env) |> 
+      List.partition (uses_def !ids_ref)
+    in 
+    filtered_defs @ [{ def with it = RecD rec_defs }]
   | RecD defs -> [{ def with it = RecD (List.concat_map (transform_def env) defs) }]
   | GramD (id, params, typ, prods) -> [{ def with it = GramD (id, params, typ, List.map (transform_prod env) prods) }]
   | d -> [d $ def.at]
