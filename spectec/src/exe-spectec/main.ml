@@ -28,6 +28,7 @@ type pass =
   | Uncaseremoval
   | AliasDemut
   | ImproveIds
+  | Ite
 
 (* This list declares the intended order of passes.
 
@@ -36,8 +37,20 @@ passers (--all-passes, some targets), we do _not_ want to use the order of
 flags on the command line.
 *)
 let _skip_passes = [ Unthe ]  (* Not clear how to extend them to indexed types *)
-let all_passes = [ TypeFamilyRemoval; Undep; Totalize; Else; Uncaseremoval; 
-                   Sideconditions; SubExpansion; Sub; DefToRel; AliasDemut; ImproveIds ]
+let all_passes = [
+  Ite;
+  TypeFamilyRemoval;
+  Undep;
+  Totalize;
+  Else;
+  Uncaseremoval;
+  Sideconditions;
+  SubExpansion;
+  Sub;
+  DefToRel;
+  AliasDemut;
+  ImproveIds
+]
 
 type file_kind =
   | Spec
@@ -102,6 +115,7 @@ let pass_flag = function
   | SubExpansion -> "sub-expansion"
   | Uncaseremoval -> "uncase-removal"
   | ImproveIds -> "improve-ids"
+  | Ite -> "ite"
 
 let pass_desc = function
   | Sub -> "Synthesize explicit subtype coercions"
@@ -116,6 +130,7 @@ let pass_desc = function
   | Uncaseremoval -> "Eliminate the uncase expression"
   | AliasDemut -> "Lifts type aliases out of mutual groups"
   | ImproveIds -> "Disambiguates ids used from each other"
+  | Ite -> "If-then-else introduction"
 
 
 let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
@@ -131,6 +146,7 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | Uncaseremoval -> Middlend.Uncaseremoval.transform
   | AliasDemut -> Middlend.AliasDemut.transform
   | ImproveIds -> Middlend.Improveids.transform
+  | Ite -> Middlend.Ite.transform
 
 
 (* Argument parsing *)

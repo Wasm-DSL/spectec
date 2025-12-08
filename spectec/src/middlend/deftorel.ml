@@ -81,7 +81,7 @@ let rec collect_fcalls_exp iter_binds env e =
   | CompE (e1, e2) | MemE (e1, e2)
   | CatE (e1, e2) | IdxE (e1, e2) -> collect_fcalls_exp iter_binds env e1 @ collect_fcalls_exp iter_binds env e2
   | TupE exps | ListE exps -> List.concat_map (collect_fcalls_exp iter_binds env) exps
-  | SliceE (e1, e2, e3) -> collect_fcalls_exp iter_binds env e1 @ collect_fcalls_exp iter_binds env e2 @ collect_fcalls_exp iter_binds env e3
+  | SliceE (e1, e2, e3) | IfE (e1, e2, e3) -> collect_fcalls_exp iter_binds env e1 @ collect_fcalls_exp iter_binds env e2 @ collect_fcalls_exp iter_binds env e3
   | UpdE (e1, p, e2) 
   | ExtE (e1, p, e2) -> collect_fcalls_exp iter_binds env e1 @ collect_fcalls_path iter_binds env p @ collect_fcalls_exp iter_binds env e2
   | IterE (e1,( (iter, id_exp_pairs) as iterexp)) -> 
@@ -247,6 +247,11 @@ and transform_exp call_map env e: (exp * (id * typ * int) list) =
     let e2', iter_ids2 = t_func e2 in 
     let e3', iter_ids3 = t_func e3 in
     SliceE (e1', e2', e3'), iter_ids @ iter_ids2 @ iter_ids3
+  | IfE (e1, e2, e3) ->
+    let e1', iter_ids = t_func e1 in 
+    let e2', iter_ids2 = t_func e2 in 
+    let e3', iter_ids3 = t_func e3 in
+    IfE (e1', e2', e3'), iter_ids @ iter_ids2 @ iter_ids3
   | UpdE (e1, p, e2) -> 
     let e1', iter_ids = t_func e1 in  
     let p', iter_ids2 = transform_path call_map env p in
@@ -467,7 +472,7 @@ let rec has_sub_exp e =
   | CompE (e1, e2) | MemE (e1, e2)
   | CatE (e1, e2) | IdxE (e1, e2) -> has_sub_exp e1 || has_sub_exp e2
   | TupE exps | ListE exps -> List.exists has_sub_exp exps
-  | SliceE (e1, e2, e3) -> has_sub_exp e1 || has_sub_exp e2 || has_sub_exp e3
+  | SliceE (e1, e2, e3) | IfE (e1, e2, e3) -> has_sub_exp e1 || has_sub_exp e2 || has_sub_exp e3
   | UpdE (e1, p, e2) 
   | ExtE (e1, p, e2) -> has_sub_exp e1 || has_sub_exp_path p || has_sub_exp e2
   | CallE (_id, args) -> List.exists has_sub_exp_arg args
@@ -498,7 +503,7 @@ let rec utilizes_rel_def env e =
   | CompE (e1, e2) | MemE (e1, e2)
   | CatE (e1, e2) | IdxE (e1, e2) -> utilizes_rel_def env e1 || utilizes_rel_def env e2
   | TupE exps | ListE exps -> List.exists (utilizes_rel_def env) exps
-  | SliceE (e1, e2, e3) -> utilizes_rel_def env e1 || utilizes_rel_def env e2 || utilizes_rel_def env e3
+  | SliceE (e1, e2, e3) | IfE (e1, e2, e3) -> utilizes_rel_def env e1 || utilizes_rel_def env e2 || utilizes_rel_def env e3
   | UpdE (e1, p, e2) 
   | ExtE (e1, p, e2) -> utilizes_rel_def env e1 || utilizes_rel_def_path env p || utilizes_rel_def env e2
   | IterE (e1, (_, id_exp_pairs)) -> utilizes_rel_def env e1 || List.exists (fun (_, exp) -> utilizes_rel_def env exp) id_exp_pairs
@@ -582,7 +587,9 @@ let generate_matching_rules env args tupt r =
     let (args', _) = Lib.List.split_last (get_tuple_exp exp') in
     let new_exp = TupE args' $$ exp'.at % tupt in
     (try Eval.match_list Eval.match_exp env.il_env Subst.empty args' args with Eval.Irred -> None) |>
-    Option.map (fun _ -> {r with it = RuleD (id, binds, List.tl mixop, new_exp, prems)})
+    Option.map (fun _ -> 
+      {r with it = RuleD (id, binds, List.tl mixop, new_exp, prems)}
+    )
 
 let fall_through_prems env id mixop typs rules =
   let gen_rel_name rid = 
@@ -628,6 +635,13 @@ let cvt_def_to_rel env id params r_typ clauses =
   let new_id = { id with it = fun_prefix ^ id.it } in
   fall_through_prems env new_id new_mixop tup_types rules
 
+let uses_def ids_set def = 
+  match def.it with
+  | RelD (_, _, _, rules) -> 
+    let free_defs = (Free.free_list (Free.free_rule) rules).relid in
+    Free.Set.inter free_defs ids_set <> Free.Set.empty
+  | _ -> false
+
 let rec transform_def (env : env) def = 
   let must_be_rel_def d =
     match d.it with
@@ -641,18 +655,25 @@ let rec transform_def (env : env) def =
   in
   (match def.it with
   | RelD (id, m, typ, rules) -> 
-    [{ def with it =RelD (id, m, typ, List.map (transform_rule env) rules) }]
+    [{ def with it = RelD (id, m, typ, List.map (transform_rule env) rules) }]
   | DecD (id, params, typ, clauses) when must_be_relation env id params clauses -> 
     env.rel_set <- StringSet.add id.it env.rel_set;
     cvt_def_to_rel env id params typ clauses
   | DecD (id, params, typ, clauses) -> 
     [{ def with it = DecD (id, params, typ, List.map (transform_clause env) clauses) }]
   | RecD defs when List.exists must_be_rel_def defs && List.for_all has_exp_params defs -> 
+    let ids_ref = ref StringSet.empty in
     List.iter (fun d -> match d.it with
-    | DecD (id, _, _, _) -> env.rel_set <- StringSet.add id.it env.rel_set
+    | DecD (id, _, _, _) -> 
+      ids_ref := StringSet.add (fun_prefix ^ id.it) !ids_ref;
+      env.rel_set <- StringSet.add id.it env.rel_set
     | _ -> () 
     ) defs;
-    [{ def with it = RecD (List.concat_map (transform_def env) defs) }]
+    let rec_defs, filtered_defs = defs |>
+      List.concat_map (transform_def env) |> 
+      List.partition (uses_def !ids_ref)
+    in 
+    filtered_defs @ [{ def with it = RecD rec_defs }]
   | RecD defs -> [{ def with it = RecD (List.concat_map (transform_def env) defs) }]
   | GramD (id, params, typ, prods) -> [{ def with it = GramD (id, params, typ, List.map (transform_prod env) prods) }]
   | d -> [d $ def.at]
