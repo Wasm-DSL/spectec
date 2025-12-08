@@ -317,6 +317,7 @@ and render_exp exp_type exp =
     String.concat " " (List.map (render_exp exp_type) iter_exps))
   | CvtE (e1, _nt1, nt2) -> parens (r_func e1 ^ " : " ^ render_numtyp nt2)
   | SubE _ -> error exp.at "Encountered subtype expression. Please run sub pass"
+  | IfE (e1, e2, e3) -> parens ("if " ^ r_func e1 ^ " then " ^ r_func e2 ^ " else " ^ r_func e3)
 
 and render_arg exp_type a = 
   match a.it with 
