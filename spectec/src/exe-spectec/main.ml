@@ -262,7 +262,8 @@ let () =
       enable_pass SubExpansion;
       enable_pass ImproveIds;
       enable_pass AliasDemut;
-      enable_pass DefToRel
+      enable_pass DefToRel;
+      enable_pass Ite
     | _ when !print_al || !print_al_o <> "" ->
       enable_pass Sideconditions;
     | _ -> ()
