@@ -64,6 +64,8 @@ let empty () = {
 let wf_pred_prefix = "wf_"
 let rule_prefix = "case_"
 
+let wf_hint_id = "wf-relation"
+
 (* flag that deactivates adding wellformedness predicates to relations *)
 let deactivate_wfness = false
 
@@ -239,7 +241,9 @@ let get_exp_typ b =
   match b.it with
   | ExpB (id, typ) -> Some (VarE id $$ id.at % typ, typ)
   | _ -> None
-  
+
+let generate_well_formed_rel_hint at: hint = { hintid = wf_hint_id $ at; hintexp = El.Ast.SeqE [] $ at} 
+
 let create_well_formed_predicate env id inst = 
   let tf = { base_transformer with transform_exp = t_exp env; transform_typ = t_typ} in
   let at = id.at in 
@@ -250,6 +254,7 @@ let create_well_formed_predicate env id inst =
       | _ -> None
     ) binds) in
   let tupt pairs = TupT (pairs @ [(VarE ("_" $ at) $$ at % user_typ, user_typ)]) $ at in
+  let hint = HintD (RelH (wf_pred_prefix ^ id.it $ id.at, [generate_well_formed_rel_hint at]) $ at) $ at in 
   match inst.it with
   (* Variant well formedness predicate creation *)
   | InstD (binds, _args, {it = VariantT typcases; _}) -> 
@@ -275,10 +280,10 @@ let create_well_formed_predicate env id inst =
     let has_no_prems = List.for_all (fun rule -> match rule.it with
       | RuleD (_, _, _, _, prems) -> prems = []   
     ) rules in
-    if has_no_prems then None else 
-    let relation = RelD (wf_pred_prefix ^ id.it $ id.at, new_mixop dep_exp_typ_pairs, tupt pairs_without_names, rules) $ at in 
+    if has_no_prems then [] else 
+    let relation = RelD (wf_pred_prefix ^ id.it $ id.at, new_mixop dep_exp_typ_pairs, tupt pairs_without_names, rules) $ at in
     bind_wf_set env id.it;
-    Some relation
+    [relation; hint]
 
   (* Struct/Record well formedness predicate creation *)
   | InstD (binds, _args, {it = StructT typfields; _}) -> 
@@ -309,11 +314,11 @@ let create_well_formed_predicate env id inst =
       List.map (transform_prem tf) (new_prems)) $ at 
     in
   
-    if new_prems = [] then None else 
+    if new_prems = [] then [] else 
     let relation = RelD (wf_pred_prefix ^ id.it $ id.at, new_mixop dep_exp_typ_pairs, tupt pairs_without_names, [rule]) $ at in 
     bind_wf_set env id.it;
-    Some relation
-  | _ -> None
+    [relation; hint]
+  | _ -> []
 
 let get_extra_prems env binds exp prems = 
   if deactivate_wfness then [] else 
@@ -397,7 +402,7 @@ let rec t_def env def =
     (TypD (id, List.map (transform_param tf) params |> List.filter is_type_param, [inst]) $ def.at, [])
   | TypD (id, params, [inst]) -> 
     let relation = create_well_formed_predicate env id inst in
-    (TypD (id, List.map (transform_param tf) params |> List.filter is_type_param, [t_inst env inst]) $ def.at, Option.to_list relation)
+    (TypD (id, List.map (transform_param tf) params |> List.filter is_type_param, [t_inst env inst]) $ def.at, relation)
   | TypD (_, _, _) -> 
     error def.at "Multiples instances encountered, please run type family removal pass first."
   | RelD (id, m, typ, rules) -> 
