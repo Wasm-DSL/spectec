@@ -28,6 +28,7 @@ type pass =
   | ImproveIds
   | Ite
   | LetIntro
+  | ElseSimp
 
 (* This list declares the intended order of passes.
 
@@ -43,6 +44,7 @@ let all_passes = [
   Undep;
   Totalize;
   Else;
+  ElseSimp;
   Uncaseremoval;
   Sideconditions;
   SubExpansion;
@@ -115,6 +117,7 @@ let pass_flag = function
   | ImproveIds -> "improve-ids"
   | Ite -> "ite"
   | LetIntro -> "let-intro"
+  | ElseSimp -> "else-simplification"
 
 let pass_desc = function
   | Sub -> "Synthesize explicit subtype coercions"
@@ -130,6 +133,7 @@ let pass_desc = function
   | ImproveIds -> "Disambiguates ids used from each other"
   | Ite -> "If-then-else introduction"
   | LetIntro -> "Let Premise introduction"
+  | ElseSimp -> "Simplifies generated otherwise relations (after else pass)"
 
 
 let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
@@ -146,6 +150,7 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | ImproveIds -> Middlend.Improveids.transform
   | Ite -> Middlend.Ite.transform
   | LetIntro -> Middlend.Letintro.transform
+  | ElseSimp -> Middlend.Elsesimp.transform
 
 
 (* Argument parsing *)
