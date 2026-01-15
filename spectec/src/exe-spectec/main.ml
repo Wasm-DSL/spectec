@@ -28,6 +28,7 @@ type pass =
   | ImproveIds
   | Ite
   | ElseSimp
+  | LetIntro
 
 (* This list declares the intended order of passes.
 
@@ -38,6 +39,7 @@ flags on the command line.
 let _skip_passes = [ Unthe ]  (* Not clear how to extend them to indexed types *)
 let all_passes = [
   Ite;
+  LetIntro;
   TypeFamilyRemoval;
   Undep;
   Totalize;
@@ -115,6 +117,7 @@ let pass_flag = function
   | ImproveIds -> "improve-ids"
   | Ite -> "ite"
   | ElseSimp -> "else-simplification"
+  | LetIntro -> "let-intro"
 
 let pass_desc = function
   | Sub -> "Synthesize explicit subtype coercions"
@@ -130,6 +133,7 @@ let pass_desc = function
   | ImproveIds -> "Disambiguates ids used from each other"
   | Ite -> "If-then-else introduction"
   | ElseSimp -> "Simplifies generated otherwise relations (after else pass)"
+  | LetIntro -> "Let Premise introduction"
 
 
 let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
@@ -146,6 +150,7 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | ImproveIds -> Middlend.Improveids.transform
   | Ite -> Middlend.Ite.transform
   | ElseSimp -> Middlend.Elsesimp.transform
+  | LetIntro -> Middlend.Letintro.transform
 
 
 (* Argument parsing *)

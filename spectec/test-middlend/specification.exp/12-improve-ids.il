@@ -386,7 +386,7 @@ def $utf8(var_0 : char*) : byte*
     -- wf_byte: `%`(b)
     -- wf_byte: `%`(mk_byte_byte($proj_char_0(ch).0))
     -- if ($proj_char_0(ch).0 < 128)
-    -- if (mk_byte_byte($proj_char_0(ch).0) = b)
+    -- where b = mk_byte_byte($proj_char_0(ch).0) {b}
   ;; ../../../../specification/wasm-3.0/5.1-binary.values.spectec:52.1-54.46
   def $utf8{ch : char, b_1 : byte, b_2 : byte}([ch]) = [b_1 b_2]
     -- wf_byte: `%`(b_1)
@@ -1733,7 +1733,7 @@ def $minus_recs(var_0 : typevar*, var_1 : typeuse*) : (typevar*, typeuse*)
     -- (wf_typevar: `%`(tv'))*{tv' <- tv'_lst}
     -- (wf_typeuse: `%`(tu'))*{tu' <- tu'_lst}
     -- wf_typevar: `%`(_IDX_typevar(x))
-    -- if ((tv'_lst, tu'_lst) = $minus_recs(tv_lst, tu_lst))
+    -- where (tv'_lst, tu'_lst) = $minus_recs(tv_lst, tu_lst) {tu'_lst, tv'_lst}
 }
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
@@ -1849,7 +1849,7 @@ def $subst_rectype(v_rectype : rectype, var_0 : typevar*, var_1 : typeuse*) : re
   def $subst_rectype{st_lst : subtype*, tv_lst : typevar*, tu_lst : typeuse*, tv'_lst : typevar*, tu'_lst : typeuse*}(REC_rectype(mk_list_list(st_lst)), tv_lst, tu_lst) = REC_rectype(mk_list_list($subst_subtype(st, tv'_lst, tu'_lst)*{st <- st_lst}))
     -- (wf_typevar: `%`(tv'))*{tv' <- tv'_lst}
     -- (wf_typeuse: `%`(tu'))*{tu' <- tu'_lst}
-    -- if ((tv'_lst, tu'_lst) = $minus_recs(tv_lst, tu_lst))
+    -- where (tv'_lst, tu'_lst) = $minus_recs(tv_lst, tu_lst) {tu'_lst, tv'_lst}
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:354.1-354.112
 def $subst_deftype(v_deftype : deftype, var_0 : typevar*, var_1 : typeuse*) : deftype
@@ -1979,35 +1979,35 @@ def $rollrt(v_typeidx : typeidx, v_rectype : rectype) : rectype
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
   def $rollrt{x : uN, v_rectype : rectype, subtype_lst : subtype*, i_lst : nat*, v_n : nat}(x, v_rectype) = REC_rectype(mk_list_list($subst_subtype(v_subtype, _IDX_typevar(mk_uN_typeidx(($proj_uN_0(x).0 + i)))^(i<v_n){i <- i_lst}, REC_typeuse(i)^(i<v_n){i <- i_lst})^v_n{v_subtype <- subtype_lst}))
     -- (wf_subtype: `%`(v_subtype))*{v_subtype <- subtype_lst}
-    -- if (v_rectype = REC_rectype(mk_list_list(subtype_lst)))
+    -- where REC_rectype(mk_list_list(subtype_lst)) = v_rectype {subtype_lst}
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $unrollrt(v_rectype : rectype) : rectype
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
   def $unrollrt{v_rectype : rectype, subtype_lst : subtype*, i_lst : nat*, v_n : nat}(v_rectype) = REC_rectype(mk_list_list($subst_subtype(v_subtype, REC_typevar(i)^(i<v_n){i <- i_lst}, _DEF_typeuse(v_rectype, i)^(i<v_n){i <- i_lst})^v_n{v_subtype <- subtype_lst}))
     -- (wf_subtype: `%`(v_subtype))*{v_subtype <- subtype_lst}
-    -- if (v_rectype = REC_rectype(mk_list_list(subtype_lst)))
+    -- where REC_rectype(mk_list_list(subtype_lst)) = v_rectype {subtype_lst}
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $rolldt(v_typeidx : typeidx, v_rectype : rectype) : deftype*
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
   def $rolldt{x : uN, v_rectype : rectype, subtype_lst : subtype*, v_n : nat, i_lst : nat*}(x, v_rectype) = _DEF_deftype(REC_rectype(mk_list_list(subtype_lst)), i)^(i<v_n){i <- i_lst}
     -- (wf_subtype: `%`(v_subtype))*{v_subtype <- subtype_lst}
-    -- if ($rollrt(x, v_rectype) = REC_rectype(mk_list_list(subtype_lst)))
+    -- where REC_rectype(mk_list_list(subtype_lst)) = $rollrt(x, v_rectype) {subtype_lst}
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $unrolldt(v_deftype : deftype) : subtype
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
   def $unrolldt{v_rectype : rectype, i : nat, subtype_lst : subtype*}(_DEF_deftype(v_rectype, i)) = subtype_lst[i]
     -- (wf_subtype: `%`(v_subtype))*{v_subtype <- subtype_lst}
-    -- if ($unrollrt(v_rectype) = REC_rectype(mk_list_list(subtype_lst)))
+    -- where REC_rectype(mk_list_list(subtype_lst)) = $unrollrt(v_rectype) {subtype_lst}
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $expanddt(v_deftype : deftype) : comptype
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
   def $expanddt{v_deftype : deftype, v_comptype : comptype, final_opt : final?, typeuse_lst : typeuse*}(v_deftype) = v_comptype
     -- wf_subtype: `%`(SUB_subtype(final_opt, typeuse_lst, v_comptype))
-    -- if ($unrolldt(v_deftype) = SUB_subtype(final_opt, typeuse_lst, v_comptype))
+    -- where SUB_subtype(final_opt, typeuse_lst, v_comptype) = $unrolldt(v_deftype) {final_opt, typeuse_lst, v_comptype}
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $free_addrtype(v_numtype : numtype) : free
@@ -4807,7 +4807,7 @@ def $free_block(var_0 : instr*) : free
   ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:577.1-578.47
   def $free_block{instr_lst : instr*, v_free : free}(instr_lst) = v_free[LABELS_free = $shift_labelidxs(v_free.LABELS_free)]
     -- wf_free: `%`(v_free)
-    -- if (v_free = $free_list($free_instr(v_instr)*{v_instr <- instr_lst}))
+    -- where v_free = $free_list($free_instr(v_instr)*{v_instr <- instr_lst}) {v_free}
 }
 
 ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec
@@ -5182,38 +5182,38 @@ def $clos_deftypes(var_0 : deftype*) : deftype*
   def $clos_deftypes([]) = []
   ;; ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:69.1-69.101
   def $clos_deftypes{dt_lst : deftype*, dt_n : deftype, dt'_lst : deftype*}(dt_lst ++ [dt_n]) = dt'_lst ++ [$subst_all_deftype(dt_n, $typeuse_deftype(dt')*{dt' <- dt'_lst})]
-    -- if (dt'_lst = $clos_deftypes(dt_lst))
+    -- where dt'_lst = $clos_deftypes(dt_lst) {dt'_lst}
 }
 
 ;; ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec
 def $clos_valtype(v_context : context, v_valtype : valtype) : valtype
   ;; ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec
   def $clos_valtype{C : context, t : valtype, dt_lst : deftype*}(C, t) = $subst_all_valtype(t, $typeuse_deftype(dt)*{dt <- dt_lst})
-    -- if (dt_lst = $clos_deftypes(C.TYPES_context))
+    -- where dt_lst = $clos_deftypes(C.TYPES_context) {dt_lst}
 
 ;; ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec
 def $clos_deftype(v_context : context, v_deftype : deftype) : deftype
   ;; ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec
   def $clos_deftype{C : context, dt : deftype, dt'_lst : deftype*}(C, dt) = $subst_all_deftype(dt, $typeuse_deftype(dt')*{dt' <- dt'_lst})
-    -- if (dt'_lst = $clos_deftypes(C.TYPES_context))
+    -- where dt'_lst = $clos_deftypes(C.TYPES_context) {dt'_lst}
 
 ;; ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec
 def $clos_tagtype(v_context : context, v_tagtype : tagtype) : tagtype
   ;; ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec
   def $clos_tagtype{C : context, jt : typeuse, dt_lst : deftype*}(C, jt) = $subst_all_tagtype(jt, $typeuse_deftype(dt)*{dt <- dt_lst})
-    -- if (dt_lst = $clos_deftypes(C.TYPES_context))
+    -- where dt_lst = $clos_deftypes(C.TYPES_context) {dt_lst}
 
 ;; ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec
 def $clos_externtype(v_context : context, v_externtype : externtype) : externtype
   ;; ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec
   def $clos_externtype{C : context, xt : externtype, dt_lst : deftype*}(C, xt) = $subst_all_externtype(xt, $typeuse_deftype(dt)*{dt <- dt_lst})
-    -- if (dt_lst = $clos_deftypes(C.TYPES_context))
+    -- where dt_lst = $clos_deftypes(C.TYPES_context) {dt_lst}
 
 ;; ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec
 def $clos_moduletype(v_context : context, v_moduletype : moduletype) : moduletype
   ;; ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec
   def $clos_moduletype{C : context, mmt : moduletype, dt_lst : deftype*}(C, mmt) = $subst_all_moduletype(mmt, $typeuse_deftype(dt)*{dt <- dt_lst})
-    -- if (dt_lst = $clos_deftypes(C.TYPES_context))
+    -- where dt_lst = $clos_deftypes(C.TYPES_context) {dt_lst}
 
 ;; ../../../../specification/wasm-3.0/2.1-validation.types.spectec
 relation Numtype_ok: `%|-%:OK`(context, numtype)
@@ -8959,29 +8959,29 @@ def $ivunop_(v_shape : shape, def $f_(v_N : N, v_iN : iN) : iN, v_vec_ : vec_) :
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I32_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I32_Jnn)), !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I32_Jnn)), !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivunop_{v_M : nat, def $f_(v_N : N, v_iN : iN) : iN, v_1 : uN, c_lst : iN*, c_1_lst : lane_*}(`%X%`_shape(I64_lanetype, mk_dim_dim(v_M)), def $f_, v_1) = [$inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I64_Jnn, c)*{c <- c_lst})]
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I64_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I64_Jnn)), !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I64_Jnn)), !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivunop_{v_M : nat, def $f_(v_N : N, v_iN : iN) : iN, v_1 : uN, c_lst : iN*, c_1_lst : lane_*}(`%X%`_shape(I8_lanetype, mk_dim_dim(v_M)), def $f_, v_1) = [$inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I8_Jnn, c)*{c <- c_lst})]
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I8_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I8_Jnn)), !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I8_Jnn)), !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivunop_{v_M : nat, def $f_(v_N : N, v_iN : iN) : iN, v_1 : uN, c_lst : iN*, c_1_lst : lane_*}(`%X%`_shape(I16_lanetype, mk_dim_dim(v_M)), def $f_, v_1) = [$inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I16_Jnn, c)*{c <- c_lst})]
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I16_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I16_Jnn)), !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I16_Jnn)), !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $fvunop_(v_shape : shape, def $f_(v_N : N, v_fN : fN) : fN*, v_vec_ : vec_) : vec_*
@@ -8990,15 +8990,15 @@ def $fvunop_(v_shape : shape, def $f_(v_N : N, v_fN : fN) : fN*, v_vec_ : vec_) 
     -- (wf_lane_: `%%`($lanetype_Fnn(F32_Fnn), c))*{c <- c_lst}*{c_lst <- c_lst_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($lanetype_Fnn(F32_Fnn), mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, iter_0))))*{iter_0 <- $f_($sizenn($numtype_Fnn(F32_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))))}*{c_1 <- c_1_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst_lst = $setproduct_(syntax lane_, mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, iter_0))*{iter_0 <- $f_($sizenn($numtype_Fnn(F32_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))))}*{c_1 <- c_1_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, iter_0))*{iter_0 <- $f_($sizenn($numtype_Fnn(F32_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))))}*{c_1 <- c_1_lst}) {c_lst_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fvunop_{v_M : nat, def $f_(v_N : N, v_fN : fN) : fN*, v_1 : uN, c_lst_lst : lane_**, c_1_lst : lane_*}(`%X%`_shape(F64_lanetype, mk_dim_dim(v_M)), def $f_, v_1) = $inv_lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), c_lst)*{c_lst <- c_lst_lst}
     -- (wf_lane_: `%%`($lanetype_Fnn(F64_Fnn), c))*{c <- c_lst}*{c_lst <- c_lst_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($lanetype_Fnn(F64_Fnn), mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, iter_0))))*{iter_0 <- $f_($sizenn($numtype_Fnn(F64_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))))}*{c_1 <- c_1_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst_lst = $setproduct_(syntax lane_, mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, iter_0))*{iter_0 <- $f_($sizenn($numtype_Fnn(F64_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))))}*{c_1 <- c_1_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, iter_0))*{iter_0 <- $f_($sizenn($numtype_Fnn(F64_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))))}*{c_1 <- c_1_lst}) {c_lst_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $ivbinop_(v_shape : shape, def $f_(v_N : N, v_iN : iN, v_iN : iN) : iN, v_vec_ : vec_, v_vec__0 : vec_) : vec_*
@@ -9008,36 +9008,36 @@ def $ivbinop_(v_shape : shape, def $f_(v_N : N, v_iN : iN, v_iN : iN) : iN, v_ve
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), c_2))*{c_2 <- c_2_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I32_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I32_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I32_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivbinop_{v_M : nat, def $f_(v_N : N, v_iN : iN, v_iN : iN) : iN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I64_lanetype, mk_dim_dim(v_M)), def $f_, v_1, v_2) = [$inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I64_Jnn, c)*{c <- c_lst})]
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), c_2))*{c_2 <- c_2_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I64_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I64_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I64_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivbinop_{v_M : nat, def $f_(v_N : N, v_iN : iN, v_iN : iN) : iN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I8_lanetype, mk_dim_dim(v_M)), def $f_, v_1, v_2) = [$inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I8_Jnn, c)*{c <- c_lst})]
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), c_2))*{c_2 <- c_2_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I8_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I8_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I8_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivbinop_{v_M : nat, def $f_(v_N : N, v_iN : iN, v_iN : iN) : iN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I16_lanetype, mk_dim_dim(v_M)), def $f_, v_1, v_2) = [$inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I16_Jnn, c)*{c <- c_lst})]
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), c_2))*{c_2 <- c_2_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I16_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I16_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I16_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $ivbinopsx_(v_shape : shape, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_iN : iN) : iN, v_sx : sx, v_vec_ : vec_, v_vec__0 : vec_) : vec_*
@@ -9047,36 +9047,36 @@ def $ivbinopsx_(v_shape : shape, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_iN : i
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), c_2))*{c_2 <- c_2_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I32_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivbinopsx_{v_M : nat, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_iN : iN) : iN, v_sx : sx, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I64_lanetype, mk_dim_dim(v_M)), def $f_, v_sx, v_1, v_2) = [$inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I64_Jnn, c)*{c <- c_lst})]
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), c_2))*{c_2 <- c_2_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I64_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivbinopsx_{v_M : nat, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_iN : iN) : iN, v_sx : sx, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I8_lanetype, mk_dim_dim(v_M)), def $f_, v_sx, v_1, v_2) = [$inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I8_Jnn, c)*{c <- c_lst})]
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), c_2))*{c_2 <- c_2_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I8_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivbinopsx_{v_M : nat, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_iN : iN) : iN, v_sx : sx, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I16_lanetype, mk_dim_dim(v_M)), def $f_, v_sx, v_1, v_2) = [$inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I16_Jnn, c)*{c <- c_lst})]
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), c_2))*{c_2 <- c_2_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I16_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $ivbinopsxnd_(v_shape : shape, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_iN : iN) : iN*, v_sx : sx, v_vec_ : vec_, v_vec__0 : vec_) : vec_*
@@ -9085,33 +9085,33 @@ def $ivbinopsxnd_(v_shape : shape, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_iN :
     -- (wf_lane_: `%%`($lanetype_Jnn(I32_Jnn), c))*{c <- c_lst}*{c_lst <- c_lst_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($lanetype_Jnn(I32_Jnn), mk_lane__2_lane_(I32_Jnn, iter_0)))*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst_lst = $setproduct_(syntax lane_, mk_lane__2_lane_(I32_Jnn, iter_0)*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, mk_lane__2_lane_(I32_Jnn, iter_0)*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}) {c_lst_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivbinopsxnd_{v_M : nat, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_iN : iN) : iN*, v_sx : sx, v_1 : uN, v_2 : uN, c_lst_lst : lane_**, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I64_lanetype, mk_dim_dim(v_M)), def $f_, v_sx, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), c_lst)*{c_lst <- c_lst_lst}
     -- (wf_lane_: `%%`($lanetype_Jnn(I64_Jnn), c))*{c <- c_lst}*{c_lst <- c_lst_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($lanetype_Jnn(I64_Jnn), mk_lane__2_lane_(I64_Jnn, iter_0)))*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst_lst = $setproduct_(syntax lane_, mk_lane__2_lane_(I64_Jnn, iter_0)*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, mk_lane__2_lane_(I64_Jnn, iter_0)*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}) {c_lst_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivbinopsxnd_{v_M : nat, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_iN : iN) : iN*, v_sx : sx, v_1 : uN, v_2 : uN, c_lst_lst : lane_**, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I8_lanetype, mk_dim_dim(v_M)), def $f_, v_sx, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), c_lst)*{c_lst <- c_lst_lst}
     -- (wf_lane_: `%%`($lanetype_Jnn(I8_Jnn), c))*{c <- c_lst}*{c_lst <- c_lst_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($lanetype_Jnn(I8_Jnn), mk_lane__2_lane_(I8_Jnn, iter_0)))*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst_lst = $setproduct_(syntax lane_, mk_lane__2_lane_(I8_Jnn, iter_0)*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, mk_lane__2_lane_(I8_Jnn, iter_0)*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}) {c_lst_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivbinopsxnd_{v_M : nat, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_iN : iN) : iN*, v_sx : sx, v_1 : uN, v_2 : uN, c_lst_lst : lane_**, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I16_lanetype, mk_dim_dim(v_M)), def $f_, v_sx, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), c_lst)*{c_lst <- c_lst_lst}
     -- (wf_lane_: `%%`($lanetype_Jnn(I16_Jnn), c))*{c <- c_lst}*{c_lst <- c_lst_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($lanetype_Jnn(I16_Jnn), mk_lane__2_lane_(I16_Jnn, iter_0)))*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst_lst = $setproduct_(syntax lane_, mk_lane__2_lane_(I16_Jnn, iter_0)*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, mk_lane__2_lane_(I16_Jnn, iter_0)*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}) {c_lst_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $fvbinop_(v_shape : shape, def $f_(v_N : N, v_fN : fN, v_fN : fN) : fN*, v_vec_ : vec_, v_vec__0 : vec_) : vec_*
@@ -9120,17 +9120,17 @@ def $fvbinop_(v_shape : shape, def $f_(v_N : N, v_fN : fN, v_fN : fN) : fN*, v_v
     -- (wf_lane_: `%%`($lanetype_Fnn(F32_Fnn), c))*{c <- c_lst}*{c_lst <- c_lst_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($lanetype_Fnn(F32_Fnn), mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, iter_0))))*{iter_0 <- $f_($sizenn($numtype_Fnn(F32_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst_lst = $setproduct_(syntax lane_, mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, iter_0))*{iter_0 <- $f_($sizenn($numtype_Fnn(F32_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, iter_0))*{iter_0 <- $f_($sizenn($numtype_Fnn(F32_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}) {c_lst_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fvbinop_{v_M : nat, def $f_(v_N : N, v_fN : fN, v_fN : fN) : fN*, v_1 : uN, v_2 : uN, c_lst_lst : lane_**, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(F64_lanetype, mk_dim_dim(v_M)), def $f_, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), c_lst)*{c_lst <- c_lst_lst}
     -- (wf_lane_: `%%`($lanetype_Fnn(F64_Fnn), c))*{c <- c_lst}*{c_lst <- c_lst_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($lanetype_Fnn(F64_Fnn), mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, iter_0))))*{iter_0 <- $f_($sizenn($numtype_Fnn(F64_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst_lst = $setproduct_(syntax lane_, mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, iter_0))*{iter_0 <- $f_($sizenn($numtype_Fnn(F64_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, iter_0))*{iter_0 <- $f_($sizenn($numtype_Fnn(F64_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))))}*{c_1 <- c_1_lst, c_2 <- c_2_lst}) {c_lst_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $ivternopnd_(v_shape : shape, def $f_(v_N : N, v_iN : iN, v_iN : iN, v_iN : iN) : iN*, v_vec_ : vec_, v_vec__0 : vec_, v_vec__1 : vec_) : vec_*
@@ -9139,37 +9139,37 @@ def $ivternopnd_(v_shape : shape, def $f_(v_N : N, v_iN : iN, v_iN : iN, v_iN : 
     -- (wf_lane_: `%%`($lanetype_Jnn(I32_Jnn), c))*{c <- c_lst}*{c_lst <- c_lst_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($lanetype_Jnn(I32_Jnn), mk_lane__2_lane_(I32_Jnn, iter_0)))*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I32_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)), !($proj_lane__2(c_3)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_3_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_3))
-    -- if (c_lst_lst = $setproduct_(syntax lane_, mk_lane__2_lane_(I32_Jnn, iter_0)*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I32_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)), !($proj_lane__2(c_3)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_3_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_3) {c_3_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, mk_lane__2_lane_(I32_Jnn, iter_0)*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I32_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)), !($proj_lane__2(c_3)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}) {c_lst_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivternopnd_{v_M : nat, def $f_(v_N : N, v_iN : iN, v_iN : iN, v_iN : iN) : iN*, v_1 : uN, v_2 : uN, v_3 : uN, c_lst_lst : lane_**, c_1_lst : lane_*, c_2_lst : lane_*, c_3_lst : lane_*}(`%X%`_shape(I64_lanetype, mk_dim_dim(v_M)), def $f_, v_1, v_2, v_3) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), c_lst)*{c_lst <- c_lst_lst}
     -- (wf_lane_: `%%`($lanetype_Jnn(I64_Jnn), c))*{c <- c_lst}*{c_lst <- c_lst_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($lanetype_Jnn(I64_Jnn), mk_lane__2_lane_(I64_Jnn, iter_0)))*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I64_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)), !($proj_lane__2(c_3)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_3_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_3))
-    -- if (c_lst_lst = $setproduct_(syntax lane_, mk_lane__2_lane_(I64_Jnn, iter_0)*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I64_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)), !($proj_lane__2(c_3)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_3_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_3) {c_3_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, mk_lane__2_lane_(I64_Jnn, iter_0)*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I64_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)), !($proj_lane__2(c_3)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}) {c_lst_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivternopnd_{v_M : nat, def $f_(v_N : N, v_iN : iN, v_iN : iN, v_iN : iN) : iN*, v_1 : uN, v_2 : uN, v_3 : uN, c_lst_lst : lane_**, c_1_lst : lane_*, c_2_lst : lane_*, c_3_lst : lane_*}(`%X%`_shape(I8_lanetype, mk_dim_dim(v_M)), def $f_, v_1, v_2, v_3) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), c_lst)*{c_lst <- c_lst_lst}
     -- (wf_lane_: `%%`($lanetype_Jnn(I8_Jnn), c))*{c <- c_lst}*{c_lst <- c_lst_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($lanetype_Jnn(I8_Jnn), mk_lane__2_lane_(I8_Jnn, iter_0)))*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I8_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)), !($proj_lane__2(c_3)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_3_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_3))
-    -- if (c_lst_lst = $setproduct_(syntax lane_, mk_lane__2_lane_(I8_Jnn, iter_0)*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I8_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)), !($proj_lane__2(c_3)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_3_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_3) {c_3_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, mk_lane__2_lane_(I8_Jnn, iter_0)*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I8_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)), !($proj_lane__2(c_3)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}) {c_lst_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivternopnd_{v_M : nat, def $f_(v_N : N, v_iN : iN, v_iN : iN, v_iN : iN) : iN*, v_1 : uN, v_2 : uN, v_3 : uN, c_lst_lst : lane_**, c_1_lst : lane_*, c_2_lst : lane_*, c_3_lst : lane_*}(`%X%`_shape(I16_lanetype, mk_dim_dim(v_M)), def $f_, v_1, v_2, v_3) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), c_lst)*{c_lst <- c_lst_lst}
     -- (wf_lane_: `%%`($lanetype_Jnn(I16_Jnn), c))*{c <- c_lst}*{c_lst <- c_lst_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($lanetype_Jnn(I16_Jnn), mk_lane__2_lane_(I16_Jnn, iter_0)))*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I16_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)), !($proj_lane__2(c_3)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_3_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_3))
-    -- if (c_lst_lst = $setproduct_(syntax lane_, mk_lane__2_lane_(I16_Jnn, iter_0)*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I16_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)), !($proj_lane__2(c_3)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_3_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_3) {c_3_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, mk_lane__2_lane_(I16_Jnn, iter_0)*{iter_0 <- $f_($lsizenn($lanetype_Jnn(I16_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)), !($proj_lane__2(c_3)))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}) {c_lst_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $fvternop_(v_shape : shape, def $f_(v_N : N, v_fN : fN, v_fN : fN, v_fN : fN) : fN*, v_vec_ : vec_, v_vec__0 : vec_, v_vec__1 : vec_) : vec_*
@@ -9178,19 +9178,19 @@ def $fvternop_(v_shape : shape, def $f_(v_N : N, v_fN : fN, v_fN : fN, v_fN : fN
     -- (wf_lane_: `%%`($lanetype_Fnn(F32_Fnn), c))*{c <- c_lst}*{c_lst <- c_lst_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($lanetype_Fnn(F32_Fnn), mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, iter_0))))*{iter_0 <- $f_($sizenn($numtype_Fnn(F32_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))), !($proj_num__1(!($proj_lane__0(c_3)))))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_3_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_3))
-    -- if (c_lst_lst = $setproduct_(syntax lane_, mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, iter_0))*{iter_0 <- $f_($sizenn($numtype_Fnn(F32_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))), !($proj_num__1(!($proj_lane__0(c_3)))))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_3_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_3) {c_3_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, iter_0))*{iter_0 <- $f_($sizenn($numtype_Fnn(F32_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))), !($proj_num__1(!($proj_lane__0(c_3)))))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}) {c_lst_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fvternop_{v_M : nat, def $f_(v_N : N, v_fN : fN, v_fN : fN, v_fN : fN) : fN*, v_1 : uN, v_2 : uN, v_3 : uN, c_lst_lst : lane_**, c_1_lst : lane_*, c_2_lst : lane_*, c_3_lst : lane_*}(`%X%`_shape(F64_lanetype, mk_dim_dim(v_M)), def $f_, v_1, v_2, v_3) = $inv_lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), c_lst)*{c_lst <- c_lst_lst}
     -- (wf_lane_: `%%`($lanetype_Fnn(F64_Fnn), c))*{c <- c_lst}*{c_lst <- c_lst_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($lanetype_Fnn(F64_Fnn), mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, iter_0))))*{iter_0 <- $f_($sizenn($numtype_Fnn(F64_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))), !($proj_num__1(!($proj_lane__0(c_3)))))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_3_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_3))
-    -- if (c_lst_lst = $setproduct_(syntax lane_, mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, iter_0))*{iter_0 <- $f_($sizenn($numtype_Fnn(F64_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))), !($proj_num__1(!($proj_lane__0(c_3)))))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_3_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_3) {c_3_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, iter_0))*{iter_0 <- $f_($sizenn($numtype_Fnn(F64_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))), !($proj_num__1(!($proj_lane__0(c_3)))))}*{c_1 <- c_1_lst, c_2 <- c_2_lst, c_3 <- c_3_lst}) {c_lst_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $ivtestop_(v_shape : shape, def $f_(v_N : N, v_iN : iN) : u32, v_vec_ : vec_) : u32
@@ -9199,29 +9199,29 @@ def $ivtestop_(v_shape : shape, def $f_(v_N : N, v_iN : iN) : u32, v_vec_ : vec_
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_uN: `%%`(32, mk_uN_uN($prod($proj_uN_0(c).0*{c <- c_lst})))
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I32_Jnn)), !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I32_Jnn)), !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivtestop_{v_M : nat, def $f_(v_N : N, v_iN : iN) : u32, v_1 : uN, c_lst : u32*, c_1_lst : lane_*}(`%X%`_shape(I64_lanetype, mk_dim_dim(v_M)), def $f_, v_1) = mk_uN_u32($prod($proj_uN_0(c).0*{c <- c_lst}))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_uN: `%%`(32, mk_uN_uN($prod($proj_uN_0(c).0*{c <- c_lst})))
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I64_Jnn)), !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I64_Jnn)), !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivtestop_{v_M : nat, def $f_(v_N : N, v_iN : iN) : u32, v_1 : uN, c_lst : u32*, c_1_lst : lane_*}(`%X%`_shape(I8_lanetype, mk_dim_dim(v_M)), def $f_, v_1) = mk_uN_u32($prod($proj_uN_0(c).0*{c <- c_lst}))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_uN: `%%`(32, mk_uN_uN($prod($proj_uN_0(c).0*{c <- c_lst})))
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I8_Jnn)), !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I8_Jnn)), !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivtestop_{v_M : nat, def $f_(v_N : N, v_iN : iN) : u32, v_1 : uN, c_lst : u32*, c_1_lst : lane_*}(`%X%`_shape(I16_lanetype, mk_dim_dim(v_M)), def $f_, v_1) = mk_uN_u32($prod($proj_uN_0(c).0*{c <- c_lst}))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_uN: `%%`(32, mk_uN_uN($prod($proj_uN_0(c).0*{c <- c_lst})))
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I16_Jnn)), !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I16_Jnn)), !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $fvtestop_(v_shape : shape, def $f_(v_N : N, v_fN : fN) : u32, v_vec_ : vec_) : u32
@@ -9230,15 +9230,15 @@ def $fvtestop_(v_shape : shape, def $f_(v_N : N, v_fN : fN) : u32, v_vec_ : vec_
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_uN: `%%`(32, mk_uN_uN($prod($proj_uN_0(c).0*{c <- c_lst})))
     -- wf_shape: `%`(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($sizenn($numtype_Fnn(F32_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))))*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($sizenn($numtype_Fnn(F32_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))))*{c_1 <- c_1_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fvtestop_{v_M : nat, def $f_(v_N : N, v_fN : fN) : u32, v_1 : uN, c_lst : u32*, c_1_lst : lane_*}(`%X%`_shape(F64_lanetype, mk_dim_dim(v_M)), def $f_, v_1) = mk_uN_u32($prod($proj_uN_0(c).0*{c <- c_lst}))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_uN: `%%`(32, mk_uN_uN($prod($proj_uN_0(c).0*{c <- c_lst})))
     -- wf_shape: `%`(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($sizenn($numtype_Fnn(F64_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))))*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($sizenn($numtype_Fnn(F64_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))))*{c_1 <- c_1_lst} {c_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $ivrelop_(v_shape : shape, def $f_(v_N : N, v_iN : iN, v_iN : iN) : u32, v_vec_ : vec_, v_vec__0 : vec_) : vec_
@@ -9247,33 +9247,33 @@ def $ivrelop_(v_shape : shape, def $f_(v_N : N, v_iN : iN, v_iN : iN) : u32, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I32_Jnn, c)))*{c <- c_lst}
     -- (wf_uN: `%%`(1, mk_uN_uN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I32_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0)))*{c_1 <- c_1_lst, c_2 <- c_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $extend__(1, $lsizenn($lanetype_Jnn(I32_Jnn)), S_sx, mk_uN_iN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I32_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $extend__(1, $lsizenn($lanetype_Jnn(I32_Jnn)), S_sx, mk_uN_iN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I32_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivrelop_{v_M : nat, def $f_(v_N : N, v_iN : iN, v_iN : iN) : u32, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I64_lanetype, mk_dim_dim(v_M)), def $f_, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I64_Jnn, c)*{c <- c_lst})
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I64_Jnn, c)))*{c <- c_lst}
     -- (wf_uN: `%%`(1, mk_uN_uN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I64_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0)))*{c_1 <- c_1_lst, c_2 <- c_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $extend__(1, $lsizenn($lanetype_Jnn(I64_Jnn)), S_sx, mk_uN_iN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I64_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $extend__(1, $lsizenn($lanetype_Jnn(I64_Jnn)), S_sx, mk_uN_iN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I64_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivrelop_{v_M : nat, def $f_(v_N : N, v_iN : iN, v_iN : iN) : u32, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I8_lanetype, mk_dim_dim(v_M)), def $f_, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I8_Jnn, c)*{c <- c_lst})
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I8_Jnn, c)))*{c <- c_lst}
     -- (wf_uN: `%%`(1, mk_uN_uN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I8_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0)))*{c_1 <- c_1_lst, c_2 <- c_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $extend__(1, $lsizenn($lanetype_Jnn(I8_Jnn)), S_sx, mk_uN_iN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I8_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $extend__(1, $lsizenn($lanetype_Jnn(I8_Jnn)), S_sx, mk_uN_iN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I8_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivrelop_{v_M : nat, def $f_(v_N : N, v_iN : iN, v_iN : iN) : u32, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I16_lanetype, mk_dim_dim(v_M)), def $f_, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I16_Jnn, c)*{c <- c_lst})
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I16_Jnn, c)))*{c <- c_lst}
     -- (wf_uN: `%%`(1, mk_uN_uN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I16_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0)))*{c_1 <- c_1_lst, c_2 <- c_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $extend__(1, $lsizenn($lanetype_Jnn(I16_Jnn)), S_sx, mk_uN_iN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I16_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $extend__(1, $lsizenn($lanetype_Jnn(I16_Jnn)), S_sx, mk_uN_iN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I16_Jnn)), !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $ivrelopsx_(v_shape : shape, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_iN : iN) : u32, v_sx : sx, v_vec_ : vec_, v_vec__0 : vec_) : vec_
@@ -9282,33 +9282,33 @@ def $ivrelopsx_(v_shape : shape, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_iN : i
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I32_Jnn, c)))*{c <- c_lst}
     -- (wf_uN: `%%`(1, mk_uN_uN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0)))*{c_1 <- c_1_lst, c_2 <- c_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $extend__(1, $lsizenn($lanetype_Jnn(I32_Jnn)), S_sx, mk_uN_iN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $extend__(1, $lsizenn($lanetype_Jnn(I32_Jnn)), S_sx, mk_uN_iN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivrelopsx_{v_M : nat, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_iN : iN) : u32, v_sx : sx, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I64_lanetype, mk_dim_dim(v_M)), def $f_, v_sx, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I64_Jnn, c)*{c <- c_lst})
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I64_Jnn, c)))*{c <- c_lst}
     -- (wf_uN: `%%`(1, mk_uN_uN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0)))*{c_1 <- c_1_lst, c_2 <- c_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $extend__(1, $lsizenn($lanetype_Jnn(I64_Jnn)), S_sx, mk_uN_iN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $extend__(1, $lsizenn($lanetype_Jnn(I64_Jnn)), S_sx, mk_uN_iN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivrelopsx_{v_M : nat, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_iN : iN) : u32, v_sx : sx, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I8_lanetype, mk_dim_dim(v_M)), def $f_, v_sx, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I8_Jnn, c)*{c <- c_lst})
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I8_Jnn, c)))*{c <- c_lst}
     -- (wf_uN: `%%`(1, mk_uN_uN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0)))*{c_1 <- c_1_lst, c_2 <- c_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $extend__(1, $lsizenn($lanetype_Jnn(I8_Jnn)), S_sx, mk_uN_iN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $extend__(1, $lsizenn($lanetype_Jnn(I8_Jnn)), S_sx, mk_uN_iN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivrelopsx_{v_M : nat, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_iN : iN) : u32, v_sx : sx, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I16_lanetype, mk_dim_dim(v_M)), def $f_, v_sx, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I16_Jnn, c)*{c <- c_lst})
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I16_Jnn, c)))*{c <- c_lst}
     -- (wf_uN: `%%`(1, mk_uN_uN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0)))*{c_1 <- c_1_lst, c_2 <- c_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $extend__(1, $lsizenn($lanetype_Jnn(I16_Jnn)), S_sx, mk_uN_iN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $extend__(1, $lsizenn($lanetype_Jnn(I16_Jnn)), S_sx, mk_uN_iN($proj_uN_0($f_($lsizenn($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)), !($proj_lane__2(c_2)))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $fvrelop_(v_shape : shape, def $f_(v_N : N, v_fN : fN, v_fN : fN) : u32, v_vec_ : vec_, v_vec__0 : vec_) : vec_
@@ -9318,9 +9318,9 @@ def $fvrelop_(v_shape : shape, def $f_(v_N : N, v_fN : fN, v_fN : fN) : u32, v_v
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(v_Inn), mk_dim_dim(v_M))), mk_lane__0_lane_($numtype_addrtype(v_Inn), mk_num__0_num_(v_Inn, mk_uN_uN($proj_uN_0(c).0)))))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)))
     -- (wf_uN: `%%`(1, mk_uN_uN($proj_uN_0($f_($sizenn($numtype_Fnn(F32_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))))).0)))*{c_1 <- c_1_lst, c_2 <- c_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $extend__(1, $sizenn($numtype_Fnn(F32_Fnn)), S_sx, mk_uN_iN($proj_uN_0($f_($sizenn($numtype_Fnn(F32_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $extend__(1, $sizenn($numtype_Fnn(F32_Fnn)), S_sx, mk_uN_iN($proj_uN_0($f_($sizenn($numtype_Fnn(F32_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
     -- if ($isize(v_Inn) = $fsize(F32_Fnn))
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fvrelop_{v_M : nat, def $f_(v_N : N, v_fN : fN, v_fN : fN) : u32, v_1 : uN, v_2 : uN, v_Inn : addrtype, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(F64_lanetype, mk_dim_dim(v_M)), def $f_, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_addrtype(v_Inn), mk_dim_dim(v_M)), mk_lane__0_lane_($numtype_addrtype(v_Inn), mk_num__0_num_(v_Inn, mk_uN_uN($proj_uN_0(c).0)))*{c <- c_lst})
@@ -9328,9 +9328,9 @@ def $fvrelop_(v_shape : shape, def $f_(v_N : N, v_fN : fN, v_fN : fN) : u32, v_v
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(v_Inn), mk_dim_dim(v_M))), mk_lane__0_lane_($numtype_addrtype(v_Inn), mk_num__0_num_(v_Inn, mk_uN_uN($proj_uN_0(c).0)))))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)))
     -- (wf_uN: `%%`(1, mk_uN_uN($proj_uN_0($f_($sizenn($numtype_Fnn(F64_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))))).0)))*{c_1 <- c_1_lst, c_2 <- c_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $extend__(1, $sizenn($numtype_Fnn(F64_Fnn)), S_sx, mk_uN_iN($proj_uN_0($f_($sizenn($numtype_Fnn(F64_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $extend__(1, $sizenn($numtype_Fnn(F64_Fnn)), S_sx, mk_uN_iN($proj_uN_0($f_($sizenn($numtype_Fnn(F64_Fnn)), !($proj_num__1(!($proj_lane__0(c_1)))), !($proj_num__1(!($proj_lane__0(c_2)))))).0))*{c_1 <- c_1_lst, c_2 <- c_2_lst} {c_lst}
     -- if ($isize(v_Inn) = $fsize(F64_Fnn))
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
@@ -9340,29 +9340,29 @@ def $ivshiftop_(v_shape : shape, def $f_(v_N : N, v_iN : iN, v_u32 : u32) : iN, 
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I32_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I32_Jnn)), !($proj_lane__2(c_1)), i)*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I32_Jnn)), !($proj_lane__2(c_1)), i)*{c_1 <- c_1_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivshiftop_{v_M : nat, def $f_(v_N : N, v_iN : iN, v_u32 : u32) : iN, v_1 : uN, i : uN, c_lst : iN*, c_1_lst : lane_*}(`%X%`_shape(I64_lanetype, mk_dim_dim(v_M)), def $f_, v_1, i) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I64_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I64_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I64_Jnn)), !($proj_lane__2(c_1)), i)*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I64_Jnn)), !($proj_lane__2(c_1)), i)*{c_1 <- c_1_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivshiftop_{v_M : nat, def $f_(v_N : N, v_iN : iN, v_u32 : u32) : iN, v_1 : uN, i : uN, c_lst : iN*, c_1_lst : lane_*}(`%X%`_shape(I8_lanetype, mk_dim_dim(v_M)), def $f_, v_1, i) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I8_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I8_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I8_Jnn)), !($proj_lane__2(c_1)), i)*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I8_Jnn)), !($proj_lane__2(c_1)), i)*{c_1 <- c_1_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivshiftop_{v_M : nat, def $f_(v_N : N, v_iN : iN, v_u32 : u32) : iN, v_1 : uN, i : uN, c_lst : iN*, c_1_lst : lane_*}(`%X%`_shape(I16_lanetype, mk_dim_dim(v_M)), def $f_, v_1, i) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I16_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I16_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I16_Jnn)), !($proj_lane__2(c_1)), i)*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I16_Jnn)), !($proj_lane__2(c_1)), i)*{c_1 <- c_1_lst} {c_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $ivshiftopsx_(v_shape : shape, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_u32 : u32) : iN, v_sx : sx, v_vec_ : vec_, v_u32 : u32) : vec_
@@ -9371,29 +9371,29 @@ def $ivshiftopsx_(v_shape : shape, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_u32 
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I32_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)), i)*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)), i)*{c_1 <- c_1_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivshiftopsx_{v_M : nat, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_u32 : u32) : iN, v_sx : sx, v_1 : uN, i : uN, c_lst : iN*, c_1_lst : lane_*}(`%X%`_shape(I64_lanetype, mk_dim_dim(v_M)), def $f_, v_sx, v_1, i) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I64_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I64_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)), i)*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)), i)*{c_1 <- c_1_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivshiftopsx_{v_M : nat, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_u32 : u32) : iN, v_sx : sx, v_1 : uN, i : uN, c_lst : iN*, c_1_lst : lane_*}(`%X%`_shape(I8_lanetype, mk_dim_dim(v_M)), def $f_, v_sx, v_1, i) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I8_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I8_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)), i)*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)), i)*{c_1 <- c_1_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivshiftopsx_{v_M : nat, def $f_(v_N : N, v_sx : sx, v_iN : iN, v_u32 : u32) : iN, v_sx : sx, v_1 : uN, i : uN, c_lst : iN*, c_1_lst : lane_*}(`%X%`_shape(I16_lanetype, mk_dim_dim(v_M)), def $f_, v_sx, v_1, i) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I16_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I16_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)), i)*{c_1 <- c_1_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)), i)*{c_1 <- c_1_lst} {c_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $ivbitmaskop_(v_shape : shape, v_vec_ : vec_) : u32
@@ -9403,7 +9403,7 @@ def $ivbitmaskop_(v_shape : shape, v_vec_ : vec_) : u32
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)))
     -- (wf_bit: `%`(mk_bit_bit($proj_uN_0($ilt_($lsizenn($lanetype_Jnn(I32_Jnn)), S_sx, !($proj_lane__2(c_1)), mk_uN_iN(0))).0)))*{c_1 <- c_1_lst}
     -- wf_bit: `%`(mk_bit_bit(0))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
     -- if ($ibits_(32, c) = mk_bit_bit($proj_uN_0($ilt_($lsizenn($lanetype_Jnn(I32_Jnn)), S_sx, !($proj_lane__2(c_1)), mk_uN_iN(0))).0)*{c_1 <- c_1_lst} ++ mk_bit_bit(0)^(((32 : nat <:> int) - (v_M : nat <:> int)) : int <:> nat){})
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivbitmaskop_{v_M : nat, v_1 : uN, c : uN, c_1_lst : lane_*}(`%X%`_shape(I64_lanetype, mk_dim_dim(v_M)), v_1) = $irev_(32, c)
@@ -9411,7 +9411,7 @@ def $ivbitmaskop_(v_shape : shape, v_vec_ : vec_) : u32
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)))
     -- (wf_bit: `%`(mk_bit_bit($proj_uN_0($ilt_($lsizenn($lanetype_Jnn(I64_Jnn)), S_sx, !($proj_lane__2(c_1)), mk_uN_iN(0))).0)))*{c_1 <- c_1_lst}
     -- wf_bit: `%`(mk_bit_bit(0))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
     -- if ($ibits_(32, c) = mk_bit_bit($proj_uN_0($ilt_($lsizenn($lanetype_Jnn(I64_Jnn)), S_sx, !($proj_lane__2(c_1)), mk_uN_iN(0))).0)*{c_1 <- c_1_lst} ++ mk_bit_bit(0)^(((32 : nat <:> int) - (v_M : nat <:> int)) : int <:> nat){})
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivbitmaskop_{v_M : nat, v_1 : uN, c : uN, c_1_lst : lane_*}(`%X%`_shape(I8_lanetype, mk_dim_dim(v_M)), v_1) = $irev_(32, c)
@@ -9419,7 +9419,7 @@ def $ivbitmaskop_(v_shape : shape, v_vec_ : vec_) : u32
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)))
     -- (wf_bit: `%`(mk_bit_bit($proj_uN_0($ilt_($lsizenn($lanetype_Jnn(I8_Jnn)), S_sx, !($proj_lane__2(c_1)), mk_uN_iN(0))).0)))*{c_1 <- c_1_lst}
     -- wf_bit: `%`(mk_bit_bit(0))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
     -- if ($ibits_(32, c) = mk_bit_bit($proj_uN_0($ilt_($lsizenn($lanetype_Jnn(I8_Jnn)), S_sx, !($proj_lane__2(c_1)), mk_uN_iN(0))).0)*{c_1 <- c_1_lst} ++ mk_bit_bit(0)^(((32 : nat <:> int) - (v_M : nat <:> int)) : int <:> nat){})
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivbitmaskop_{v_M : nat, v_1 : uN, c : uN, c_1_lst : lane_*}(`%X%`_shape(I16_lanetype, mk_dim_dim(v_M)), v_1) = $irev_(32, c)
@@ -9427,7 +9427,7 @@ def $ivbitmaskop_(v_shape : shape, v_vec_ : vec_) : u32
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)))
     -- (wf_bit: `%`(mk_bit_bit($proj_uN_0($ilt_($lsizenn($lanetype_Jnn(I16_Jnn)), S_sx, !($proj_lane__2(c_1)), mk_uN_iN(0))).0)))*{c_1 <- c_1_lst}
     -- wf_bit: `%`(mk_bit_bit(0))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
     -- if ($ibits_(32, c) = mk_bit_bit($proj_uN_0($ilt_($lsizenn($lanetype_Jnn(I16_Jnn)), S_sx, !($proj_lane__2(c_1)), mk_uN_iN(0))).0)*{c_1 <- c_1_lst} ++ mk_bit_bit(0)^(((32 : nat <:> int) - (v_M : nat <:> int)) : int <:> nat){})
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
@@ -9438,36 +9438,36 @@ def $ivswizzlop_(v_shape : shape, def $f_(v_N : N, iN*, v_iN : iN) : iN, v_vec_ 
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), c_2))*{c_2 <- c_2_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I32_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I32_Jnn)), !($proj_lane__2(c_1))*{c_1 <- c_1_lst}, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I32_Jnn)), !($proj_lane__2(c_1))*{c_1 <- c_1_lst}, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivswizzlop_{v_M : nat, def $f_(v_N : N, iN*, v_iN : iN) : iN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I64_lanetype, mk_dim_dim(v_M)), def $f_, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I64_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), c_2))*{c_2 <- c_2_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I64_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I64_Jnn)), !($proj_lane__2(c_1))*{c_1 <- c_1_lst}, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I64_Jnn)), !($proj_lane__2(c_1))*{c_1 <- c_1_lst}, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivswizzlop_{v_M : nat, def $f_(v_N : N, iN*, v_iN : iN) : iN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I8_lanetype, mk_dim_dim(v_M)), def $f_, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I8_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), c_2))*{c_2 <- c_2_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I8_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I8_Jnn)), !($proj_lane__2(c_1))*{c_1 <- c_1_lst}, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I8_Jnn)), !($proj_lane__2(c_1))*{c_1 <- c_1_lst}, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivswizzlop_{v_M : nat, def $f_(v_N : N, iN*, v_iN : iN) : iN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I16_lanetype, mk_dim_dim(v_M)), def $f_, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), mk_lane__2_lane_(I16_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), c_2))*{c_2 <- c_2_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), mk_lane__2_lane_(I16_Jnn, c)))*{c <- c_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = $f_($lsizenn($lanetype_Jnn(I16_Jnn)), !($proj_lane__2(c_1))*{c_1 <- c_1_lst}, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = $f_($lsizenn($lanetype_Jnn(I16_Jnn)), !($proj_lane__2(c_1))*{c_1 <- c_1_lst}, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $ivshufflop_(v_shape : shape, var_0 : laneidx*, v_vec_ : vec_, v_vec__0 : vec_) : vec_
@@ -9477,36 +9477,36 @@ def $ivshufflop_(v_shape : shape, var_0 : laneidx*, v_vec_ : vec_, v_vec__0 : ve
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M))), c_2))*{c_2 <- c_2_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = c_1_lst ++ c_2_lst[$proj_uN_0(i).0]*{i <- i_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = c_1_lst ++ c_2_lst[$proj_uN_0(i).0]*{i <- i_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivshufflop_{v_M : nat, i_lst : laneidx*, v_1 : uN, v_2 : uN, c_lst : lane_*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I64_lanetype, mk_dim_dim(v_M)), i_lst, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), c_lst)
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M))), c_2))*{c_2 <- c_2_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = c_1_lst ++ c_2_lst[$proj_uN_0(i).0]*{i <- i_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = c_1_lst ++ c_2_lst[$proj_uN_0(i).0]*{i <- i_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivshufflop_{v_M : nat, i_lst : laneidx*, v_1 : uN, v_2 : uN, c_lst : lane_*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I8_lanetype, mk_dim_dim(v_M)), i_lst, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), c_lst)
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M))), c_2))*{c_2 <- c_2_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = c_1_lst ++ c_2_lst[$proj_uN_0(i).0]*{i <- i_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = c_1_lst ++ c_2_lst[$proj_uN_0(i).0]*{i <- i_lst} {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivshufflop_{v_M : nat, i_lst : laneidx*, v_1 : uN, v_2 : uN, c_lst : lane_*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I16_lanetype, mk_dim_dim(v_M)), i_lst, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), c_lst)
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), c_1))*{c_1 <- c_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M))), c_2))*{c_2 <- c_2_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_2))
-    -- if (c_lst = c_1_lst ++ c_2_lst[$proj_uN_0(i).0]*{i <- i_lst})
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(v_M)), v_2) {c_2_lst}
+    -- where c_lst = c_1_lst ++ c_2_lst[$proj_uN_0(i).0]*{i <- i_lst} {c_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $vvunop_(v_vectype : vectype, v_vvunop : vvunop, v_vec_ : vec_) : vec_*
@@ -9951,291 +9951,291 @@ def $lcvtop__(shape_1 : shape, shape_2 : shape, v_vcvtop__ : vcvtop__, v_lane_ :
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_half : half, v_sx : sx, c_1 : uN, c : uN}(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___0_vcvtop__(I32_Jnn, M_1, I32_Jnn, M_2, EXTEND_vcvtop__Jnn_1_M_1_Jnn_2_M_2(v_half, v_sx)), mk_lane__2_lane_(I32_Jnn, c_1)) = [mk_lane__2_lane_(I32_Jnn, c)]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c))
-    -- if (c = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), v_sx, c_1))
+    -- where c = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_half : half, v_sx : sx, c_1 : uN, c : uN}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___0_vcvtop__(I64_Jnn, M_1, I32_Jnn, M_2, EXTEND_vcvtop__Jnn_1_M_1_Jnn_2_M_2(v_half, v_sx)), mk_lane__2_lane_(I64_Jnn, c_1)) = [mk_lane__2_lane_(I32_Jnn, c)]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c))
-    -- if (c = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), v_sx, c_1))
+    -- where c = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_half : half, v_sx : sx, c_1 : uN, c : uN}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___0_vcvtop__(I8_Jnn, M_1, I32_Jnn, M_2, EXTEND_vcvtop__Jnn_1_M_1_Jnn_2_M_2(v_half, v_sx)), mk_lane__2_lane_(I8_Jnn, c_1)) = [mk_lane__2_lane_(I32_Jnn, c)]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c))
-    -- if (c = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), v_sx, c_1))
+    -- where c = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_half : half, v_sx : sx, c_1 : uN, c : uN}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___0_vcvtop__(I16_Jnn, M_1, I32_Jnn, M_2, EXTEND_vcvtop__Jnn_1_M_1_Jnn_2_M_2(v_half, v_sx)), mk_lane__2_lane_(I16_Jnn, c_1)) = [mk_lane__2_lane_(I32_Jnn, c)]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c))
-    -- if (c = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), v_sx, c_1))
+    -- where c = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_half : half, v_sx : sx, c_1 : uN, c : uN}(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___0_vcvtop__(I32_Jnn, M_1, I64_Jnn, M_2, EXTEND_vcvtop__Jnn_1_M_1_Jnn_2_M_2(v_half, v_sx)), mk_lane__2_lane_(I32_Jnn, c_1)) = [mk_lane__2_lane_(I64_Jnn, c)]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c))
-    -- if (c = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), v_sx, c_1))
+    -- where c = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_half : half, v_sx : sx, c_1 : uN, c : uN}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___0_vcvtop__(I64_Jnn, M_1, I64_Jnn, M_2, EXTEND_vcvtop__Jnn_1_M_1_Jnn_2_M_2(v_half, v_sx)), mk_lane__2_lane_(I64_Jnn, c_1)) = [mk_lane__2_lane_(I64_Jnn, c)]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c))
-    -- if (c = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), v_sx, c_1))
+    -- where c = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_half : half, v_sx : sx, c_1 : uN, c : uN}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___0_vcvtop__(I8_Jnn, M_1, I64_Jnn, M_2, EXTEND_vcvtop__Jnn_1_M_1_Jnn_2_M_2(v_half, v_sx)), mk_lane__2_lane_(I8_Jnn, c_1)) = [mk_lane__2_lane_(I64_Jnn, c)]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c))
-    -- if (c = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), v_sx, c_1))
+    -- where c = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_half : half, v_sx : sx, c_1 : uN, c : uN}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___0_vcvtop__(I16_Jnn, M_1, I64_Jnn, M_2, EXTEND_vcvtop__Jnn_1_M_1_Jnn_2_M_2(v_half, v_sx)), mk_lane__2_lane_(I16_Jnn, c_1)) = [mk_lane__2_lane_(I64_Jnn, c)]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c))
-    -- if (c = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), v_sx, c_1))
+    -- where c = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_half : half, v_sx : sx, c_1 : uN, c : uN}(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I8_lanetype, mk_dim_dim(M_2)), mk_vcvtop___0_vcvtop__(I32_Jnn, M_1, I8_Jnn, M_2, EXTEND_vcvtop__Jnn_1_M_1_Jnn_2_M_2(v_half, v_sx)), mk_lane__2_lane_(I32_Jnn, c_1)) = [mk_lane__2_lane_(I8_Jnn, c)]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c))
-    -- if (c = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), v_sx, c_1))
+    -- where c = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_half : half, v_sx : sx, c_1 : uN, c : uN}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I8_lanetype, mk_dim_dim(M_2)), mk_vcvtop___0_vcvtop__(I64_Jnn, M_1, I8_Jnn, M_2, EXTEND_vcvtop__Jnn_1_M_1_Jnn_2_M_2(v_half, v_sx)), mk_lane__2_lane_(I64_Jnn, c_1)) = [mk_lane__2_lane_(I8_Jnn, c)]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c))
-    -- if (c = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), v_sx, c_1))
+    -- where c = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_half : half, v_sx : sx, c_1 : uN, c : uN}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I8_lanetype, mk_dim_dim(M_2)), mk_vcvtop___0_vcvtop__(I8_Jnn, M_1, I8_Jnn, M_2, EXTEND_vcvtop__Jnn_1_M_1_Jnn_2_M_2(v_half, v_sx)), mk_lane__2_lane_(I8_Jnn, c_1)) = [mk_lane__2_lane_(I8_Jnn, c)]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c))
-    -- if (c = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), v_sx, c_1))
+    -- where c = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_half : half, v_sx : sx, c_1 : uN, c : uN}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I8_lanetype, mk_dim_dim(M_2)), mk_vcvtop___0_vcvtop__(I16_Jnn, M_1, I8_Jnn, M_2, EXTEND_vcvtop__Jnn_1_M_1_Jnn_2_M_2(v_half, v_sx)), mk_lane__2_lane_(I16_Jnn, c_1)) = [mk_lane__2_lane_(I8_Jnn, c)]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c))
-    -- if (c = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), v_sx, c_1))
+    -- where c = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_half : half, v_sx : sx, c_1 : uN, c : uN}(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I16_lanetype, mk_dim_dim(M_2)), mk_vcvtop___0_vcvtop__(I32_Jnn, M_1, I16_Jnn, M_2, EXTEND_vcvtop__Jnn_1_M_1_Jnn_2_M_2(v_half, v_sx)), mk_lane__2_lane_(I32_Jnn, c_1)) = [mk_lane__2_lane_(I16_Jnn, c)]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c))
-    -- if (c = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), v_sx, c_1))
+    -- where c = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_half : half, v_sx : sx, c_1 : uN, c : uN}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I16_lanetype, mk_dim_dim(M_2)), mk_vcvtop___0_vcvtop__(I64_Jnn, M_1, I16_Jnn, M_2, EXTEND_vcvtop__Jnn_1_M_1_Jnn_2_M_2(v_half, v_sx)), mk_lane__2_lane_(I64_Jnn, c_1)) = [mk_lane__2_lane_(I16_Jnn, c)]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c))
-    -- if (c = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), v_sx, c_1))
+    -- where c = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_half : half, v_sx : sx, c_1 : uN, c : uN}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I16_lanetype, mk_dim_dim(M_2)), mk_vcvtop___0_vcvtop__(I8_Jnn, M_1, I16_Jnn, M_2, EXTEND_vcvtop__Jnn_1_M_1_Jnn_2_M_2(v_half, v_sx)), mk_lane__2_lane_(I8_Jnn, c_1)) = [mk_lane__2_lane_(I16_Jnn, c)]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c))
-    -- if (c = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), v_sx, c_1))
+    -- where c = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_half : half, v_sx : sx, c_1 : uN, c : uN}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I16_lanetype, mk_dim_dim(M_2)), mk_vcvtop___0_vcvtop__(I16_Jnn, M_1, I16_Jnn, M_2, EXTEND_vcvtop__Jnn_1_M_1_Jnn_2_M_2(v_half, v_sx)), mk_lane__2_lane_(I16_Jnn, c_1)) = [mk_lane__2_lane_(I16_Jnn, c)]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c))
-    -- if (c = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), v_sx, c_1))
+    -- where c = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, half_opt : half?, v_sx : sx, c_1 : uN, c : fN}(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___1_vcvtop__(I32_Jnn, M_1, F32_Fnn, M_2, CONVERT_vcvtop__Jnn_1_M_1_Fnn_2_M_2(half_opt, v_sx)), mk_lane__2_lane_(I32_Jnn, c_1)) = [mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c)))
-    -- if (c = $convert__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), v_sx, c_1))
+    -- where c = $convert__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, half_opt : half?, v_sx : sx, c_1 : uN, c : fN}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___1_vcvtop__(I64_Jnn, M_1, F32_Fnn, M_2, CONVERT_vcvtop__Jnn_1_M_1_Fnn_2_M_2(half_opt, v_sx)), mk_lane__2_lane_(I64_Jnn, c_1)) = [mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c)))
-    -- if (c = $convert__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), v_sx, c_1))
+    -- where c = $convert__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, half_opt : half?, v_sx : sx, c_1 : uN, c : fN}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___1_vcvtop__(I8_Jnn, M_1, F32_Fnn, M_2, CONVERT_vcvtop__Jnn_1_M_1_Fnn_2_M_2(half_opt, v_sx)), mk_lane__2_lane_(I8_Jnn, c_1)) = [mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c)))
-    -- if (c = $convert__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), v_sx, c_1))
+    -- where c = $convert__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, half_opt : half?, v_sx : sx, c_1 : uN, c : fN}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___1_vcvtop__(I16_Jnn, M_1, F32_Fnn, M_2, CONVERT_vcvtop__Jnn_1_M_1_Fnn_2_M_2(half_opt, v_sx)), mk_lane__2_lane_(I16_Jnn, c_1)) = [mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c)))
-    -- if (c = $convert__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), v_sx, c_1))
+    -- where c = $convert__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, half_opt : half?, v_sx : sx, c_1 : uN, c : fN}(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___1_vcvtop__(I32_Jnn, M_1, F64_Fnn, M_2, CONVERT_vcvtop__Jnn_1_M_1_Fnn_2_M_2(half_opt, v_sx)), mk_lane__2_lane_(I32_Jnn, c_1)) = [mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c)))
-    -- if (c = $convert__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), v_sx, c_1))
+    -- where c = $convert__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, half_opt : half?, v_sx : sx, c_1 : uN, c : fN}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___1_vcvtop__(I64_Jnn, M_1, F64_Fnn, M_2, CONVERT_vcvtop__Jnn_1_M_1_Fnn_2_M_2(half_opt, v_sx)), mk_lane__2_lane_(I64_Jnn, c_1)) = [mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c)))
-    -- if (c = $convert__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), v_sx, c_1))
+    -- where c = $convert__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, half_opt : half?, v_sx : sx, c_1 : uN, c : fN}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___1_vcvtop__(I8_Jnn, M_1, F64_Fnn, M_2, CONVERT_vcvtop__Jnn_1_M_1_Fnn_2_M_2(half_opt, v_sx)), mk_lane__2_lane_(I8_Jnn, c_1)) = [mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c)))
-    -- if (c = $convert__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), v_sx, c_1))
+    -- where c = $convert__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, half_opt : half?, v_sx : sx, c_1 : uN, c : fN}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___1_vcvtop__(I16_Jnn, M_1, F64_Fnn, M_2, CONVERT_vcvtop__Jnn_1_M_1_Fnn_2_M_2(half_opt, v_sx)), mk_lane__2_lane_(I16_Jnn, c_1)) = [mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))]
     -- wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c)))
-    -- if (c = $convert__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), v_sx, c_1))
+    -- where c = $convert__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), v_sx, c_1) {c}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F32_Fnn, M_1, I32_Jnn, M_2, TRUNC_SAT_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I32_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1))
+    -- where c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F32_Fnn, M_1, I32_Jnn, M_2, TRUNC_SAT_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I32_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1))
+    -- where c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F32_Fnn, M_1, I32_Jnn, M_2, TRUNC_SAT_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I32_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1))
+    -- where c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F32_Fnn, M_1, I32_Jnn, M_2, TRUNC_SAT_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I32_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1))
+    -- where c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F32_Fnn, M_1, I64_Jnn, M_2, TRUNC_SAT_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I64_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1))
+    -- where c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F32_Fnn, M_1, I64_Jnn, M_2, TRUNC_SAT_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I64_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1))
+    -- where c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F32_Fnn, M_1, I64_Jnn, M_2, TRUNC_SAT_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I64_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1))
+    -- where c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F32_Fnn, M_1, I64_Jnn, M_2, TRUNC_SAT_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I64_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1))
+    -- where c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F64_Fnn, M_1, I32_Jnn, M_2, TRUNC_SAT_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I32_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1))
+    -- where c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F64_Fnn, M_1, I32_Jnn, M_2, TRUNC_SAT_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I32_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1))
+    -- where c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F64_Fnn, M_1, I32_Jnn, M_2, TRUNC_SAT_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I32_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1))
+    -- where c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F64_Fnn, M_1, I32_Jnn, M_2, TRUNC_SAT_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I32_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1))
+    -- where c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F64_Fnn, M_1, I64_Jnn, M_2, TRUNC_SAT_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I64_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1))
+    -- where c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F64_Fnn, M_1, I64_Jnn, M_2, TRUNC_SAT_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I64_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1))
+    -- where c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F64_Fnn, M_1, I64_Jnn, M_2, TRUNC_SAT_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I64_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1))
+    -- where c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F64_Fnn, M_1, I64_Jnn, M_2, TRUNC_SAT_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I64_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1))
+    -- where c_opt = $trunc_sat__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F32_Fnn, M_1, I32_Jnn, M_2, RELAXED_TRUNC_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I32_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1))
+    -- where c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F32_Fnn, M_1, I32_Jnn, M_2, RELAXED_TRUNC_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I32_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1))
+    -- where c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F32_Fnn, M_1, I32_Jnn, M_2, RELAXED_TRUNC_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I32_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1))
+    -- where c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F32_Fnn, M_1, I32_Jnn, M_2, RELAXED_TRUNC_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I32_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1))
+    -- where c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F32_Fnn, M_1, I64_Jnn, M_2, RELAXED_TRUNC_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I64_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1))
+    -- where c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F32_Fnn, M_1, I64_Jnn, M_2, RELAXED_TRUNC_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I64_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1))
+    -- where c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F32_Fnn, M_1, I64_Jnn, M_2, RELAXED_TRUNC_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I64_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1))
+    -- where c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F32_Fnn, M_1, I64_Jnn, M_2, RELAXED_TRUNC_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I64_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1))
+    -- where c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F64_Fnn, M_1, I32_Jnn, M_2, RELAXED_TRUNC_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I32_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1))
+    -- where c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F64_Fnn, M_1, I32_Jnn, M_2, RELAXED_TRUNC_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I32_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1))
+    -- where c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F64_Fnn, M_1, I32_Jnn, M_2, RELAXED_TRUNC_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I32_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1))
+    -- where c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F64_Fnn, M_1, I32_Jnn, M_2, RELAXED_TRUNC_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I32_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I32_Inn), mk_num__0_num_(I32_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1))
+    -- where c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I32_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F64_Fnn, M_1, I64_Jnn, M_2, RELAXED_TRUNC_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I64_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1))
+    -- where c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F64_Fnn, M_1, I64_Jnn, M_2, RELAXED_TRUNC_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I64_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1))
+    -- where c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F64_Fnn, M_1, I64_Jnn, M_2, RELAXED_TRUNC_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I64_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1))
+    -- where c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, v_sx : sx, zero_opt : zero?, c_1 : fN, c_opt : iN?}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___2_vcvtop__(F64_Fnn, M_1, I64_Jnn, M_2, RELAXED_TRUNC_vcvtop__Fnn_1_M_1_Jnn_2_M_2(v_sx, zero_opt)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = lift(mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))?{c <- c_opt})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_addrtype(I64_Inn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_addrtype(I64_Inn), mk_num__0_num_(I64_Inn, c))))?{c <- c_opt}
-    -- if (c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1))
+    -- where c_opt = $relaxed_trunc__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_addrtype(I64_Inn)), v_sx, c_1) {c_opt}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, c_1 : fN, c_lst : fN*}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___3_vcvtop__(F32_Fnn, M_1, F32_Fnn, M_2, DEMOTE_vcvtop__Fnn_1_M_1_Fnn_2_M_2(ZERO_zero)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))))*{c <- c_lst}
-    -- if (c_lst = $demote__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), c_1))
+    -- where c_lst = $demote__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), c_1) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, c_1 : fN, c_lst : fN*}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___3_vcvtop__(F32_Fnn, M_1, F32_Fnn, M_2, DEMOTE_vcvtop__Fnn_1_M_1_Fnn_2_M_2(ZERO_zero)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))))*{c <- c_lst}
-    -- if (c_lst = $demote__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), c_1))
+    -- where c_lst = $demote__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), c_1) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, c_1 : fN, c_lst : fN*}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___3_vcvtop__(F32_Fnn, M_1, F64_Fnn, M_2, DEMOTE_vcvtop__Fnn_1_M_1_Fnn_2_M_2(ZERO_zero)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))))*{c <- c_lst}
-    -- if (c_lst = $demote__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), c_1))
+    -- where c_lst = $demote__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), c_1) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, c_1 : fN, c_lst : fN*}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___3_vcvtop__(F32_Fnn, M_1, F64_Fnn, M_2, DEMOTE_vcvtop__Fnn_1_M_1_Fnn_2_M_2(ZERO_zero)), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))))*{c <- c_lst}
-    -- if (c_lst = $demote__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), c_1))
+    -- where c_lst = $demote__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), c_1) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, c_1 : fN, c_lst : fN*}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___3_vcvtop__(F64_Fnn, M_1, F32_Fnn, M_2, DEMOTE_vcvtop__Fnn_1_M_1_Fnn_2_M_2(ZERO_zero)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))))*{c <- c_lst}
-    -- if (c_lst = $demote__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), c_1))
+    -- where c_lst = $demote__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), c_1) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, c_1 : fN, c_lst : fN*}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___3_vcvtop__(F64_Fnn, M_1, F32_Fnn, M_2, DEMOTE_vcvtop__Fnn_1_M_1_Fnn_2_M_2(ZERO_zero)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))))*{c <- c_lst}
-    -- if (c_lst = $demote__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), c_1))
+    -- where c_lst = $demote__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), c_1) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, c_1 : fN, c_lst : fN*}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___3_vcvtop__(F64_Fnn, M_1, F64_Fnn, M_2, DEMOTE_vcvtop__Fnn_1_M_1_Fnn_2_M_2(ZERO_zero)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))))*{c <- c_lst}
-    -- if (c_lst = $demote__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), c_1))
+    -- where c_lst = $demote__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), c_1) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, c_1 : fN, c_lst : fN*}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___3_vcvtop__(F64_Fnn, M_1, F64_Fnn, M_2, DEMOTE_vcvtop__Fnn_1_M_1_Fnn_2_M_2(ZERO_zero)), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))))*{c <- c_lst}
-    -- if (c_lst = $demote__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), c_1))
+    -- where c_lst = $demote__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), c_1) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, c_1 : fN, c_lst : fN*}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___3_vcvtop__(F32_Fnn, M_1, F32_Fnn, M_2, `PROMOTELOW`_vcvtop__Fnn_1_M_1_Fnn_2_M_2), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))))*{c <- c_lst}
-    -- if (c_lst = $promote__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), c_1))
+    -- where c_lst = $promote__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), c_1) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, c_1 : fN, c_lst : fN*}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___3_vcvtop__(F32_Fnn, M_1, F32_Fnn, M_2, `PROMOTELOW`_vcvtop__Fnn_1_M_1_Fnn_2_M_2), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))))*{c <- c_lst}
-    -- if (c_lst = $promote__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), c_1))
+    -- where c_lst = $promote__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), c_1) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, c_1 : fN, c_lst : fN*}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___3_vcvtop__(F32_Fnn, M_1, F64_Fnn, M_2, `PROMOTELOW`_vcvtop__Fnn_1_M_1_Fnn_2_M_2), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))))*{c <- c_lst}
-    -- if (c_lst = $promote__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), c_1))
+    -- where c_lst = $promote__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), c_1) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, c_1 : fN, c_lst : fN*}(`%X%`_shape(F32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___3_vcvtop__(F32_Fnn, M_1, F64_Fnn, M_2, `PROMOTELOW`_vcvtop__Fnn_1_M_1_Fnn_2_M_2), mk_lane__0_lane_(F32_numtype, mk_num__1_num_(F32_Fnn, c_1))) = mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))))*{c <- c_lst}
-    -- if (c_lst = $promote__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), c_1))
+    -- where c_lst = $promote__($lsizenn1($lanetype_Fnn(F32_Fnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), c_1) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, c_1 : fN, c_lst : fN*}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___3_vcvtop__(F64_Fnn, M_1, F32_Fnn, M_2, `PROMOTELOW`_vcvtop__Fnn_1_M_1_Fnn_2_M_2), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))))*{c <- c_lst}
-    -- if (c_lst = $promote__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), c_1))
+    -- where c_lst = $promote__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), c_1) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, c_1 : fN, c_lst : fN*}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F32_lanetype, mk_dim_dim(M_2)), mk_vcvtop___3_vcvtop__(F64_Fnn, M_1, F32_Fnn, M_2, `PROMOTELOW`_vcvtop__Fnn_1_M_1_Fnn_2_M_2), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F32_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F32_Fnn), mk_num__1_num_(F32_Fnn, c))))*{c <- c_lst}
-    -- if (c_lst = $promote__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), c_1))
+    -- where c_lst = $promote__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_Fnn(F32_Fnn)), c_1) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, c_1 : fN, c_lst : fN*}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___3_vcvtop__(F64_Fnn, M_1, F64_Fnn, M_2, `PROMOTELOW`_vcvtop__Fnn_1_M_1_Fnn_2_M_2), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))))*{c <- c_lst}
-    -- if (c_lst = $promote__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), c_1))
+    -- where c_lst = $promote__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), c_1) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $lcvtop__{M_1 : nat, M_2 : nat, c_1 : fN, c_lst : fN*}(`%X%`_shape(F64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(F64_lanetype, mk_dim_dim(M_2)), mk_vcvtop___3_vcvtop__(F64_Fnn, M_1, F64_Fnn, M_2, `PROMOTELOW`_vcvtop__Fnn_1_M_1_Fnn_2_M_2), mk_lane__0_lane_(F64_numtype, mk_num__1_num_(F64_Fnn, c_1))) = mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))*{c <- c_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Fnn(F64_Fnn), mk_dim_dim(M_2))), mk_lane__0_lane_($numtype_Fnn(F64_Fnn), mk_num__1_num_(F64_Fnn, c))))*{c <- c_lst}
-    -- if (c_lst = $promote__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), c_1))
+    -- where c_lst = $promote__($lsizenn1($lanetype_Fnn(F64_Fnn)), $lsizenn2($lanetype_Fnn(F64_Fnn)), c_1) {c_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $fun_vcvtop__(shape_1 : shape, shape_2 : shape, v_vcvtop__ : vcvtop__, v_vec_ : vec_) : vec_
@@ -10247,8 +10247,8 @@ def $fun_vcvtop__(shape_1 : shape, shape_2 : shape, v_vcvtop__ : vcvtop__, v_vec
     -- wf_shape: `%`(`%X%`_shape(Lnn_1, mk_dim_dim(v_M)))
     -- wf_shape: `%`(`%X%`_shape(Lnn_2, mk_dim_dim(v_M)))
     -- if (($halfop(`%X%`_shape(Lnn_1, mk_dim_dim(v_M)), `%X%`_shape(Lnn_2, mk_dim_dim(v_M)), vcvtop) = ?()) /\ ($zeroop(`%X%`_shape(Lnn_1, mk_dim_dim(v_M)), `%X%`_shape(Lnn_2, mk_dim_dim(v_M)), vcvtop) = ?()))
-    -- if (c_1_lst = $lanes_(`%X%`_shape(Lnn_1, mk_dim_dim(v_M)), v_1))
-    -- if (c_lst_lst = $setproduct_(syntax lane_, $lcvtop__(`%X%`_shape(Lnn_1, mk_dim_dim(v_M)), `%X%`_shape(Lnn_2, mk_dim_dim(v_M)), vcvtop, c_1)*{c_1 <- c_1_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape(Lnn_1, mk_dim_dim(v_M)), v_1) {c_1_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, $lcvtop__(`%X%`_shape(Lnn_1, mk_dim_dim(v_M)), `%X%`_shape(Lnn_2, mk_dim_dim(v_M)), vcvtop, c_1)*{c_1 <- c_1_lst}) {c_lst_lst}
     -- if (v <- $inv_lanes_(`%X%`_shape(Lnn_2, mk_dim_dim(v_M)), c_lst)*{c_lst <- c_lst_lst})
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vcvtop__{Lnn_1 : lanetype, M_1 : nat, Lnn_2 : lanetype, M_2 : nat, vcvtop : vcvtop__, v_1 : uN, v : uN, v_half : half, c_1_lst : lane_*, c_lst_lst : lane_**}(`%X%`_shape(Lnn_1, mk_dim_dim(M_1)), `%X%`_shape(Lnn_2, mk_dim_dim(M_2)), vcvtop, v_1) = v
@@ -10258,8 +10258,8 @@ def $fun_vcvtop__(shape_1 : shape, shape_2 : shape, v_vcvtop__ : vcvtop__, v_vec
     -- wf_shape: `%`(`%X%`_shape(Lnn_1, mk_dim_dim(M_1)))
     -- wf_shape: `%`(`%X%`_shape(Lnn_2, mk_dim_dim(M_2)))
     -- if ($halfop(`%X%`_shape(Lnn_1, mk_dim_dim(M_1)), `%X%`_shape(Lnn_2, mk_dim_dim(M_2)), vcvtop) = ?(v_half))
-    -- if (c_1_lst = $lanes_(`%X%`_shape(Lnn_1, mk_dim_dim(M_1)), v_1)[$fun_half(v_half, 0, M_2) : M_2])
-    -- if (c_lst_lst = $setproduct_(syntax lane_, $lcvtop__(`%X%`_shape(Lnn_1, mk_dim_dim(M_1)), `%X%`_shape(Lnn_2, mk_dim_dim(M_2)), vcvtop, c_1)*{c_1 <- c_1_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape(Lnn_1, mk_dim_dim(M_1)), v_1)[$fun_half(v_half, 0, M_2) : M_2] {c_1_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, $lcvtop__(`%X%`_shape(Lnn_1, mk_dim_dim(M_1)), `%X%`_shape(Lnn_2, mk_dim_dim(M_2)), vcvtop, c_1)*{c_1 <- c_1_lst}) {c_lst_lst}
     -- if (v <- $inv_lanes_(`%X%`_shape(Lnn_2, mk_dim_dim(M_2)), c_lst)*{c_lst <- c_lst_lst})
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vcvtop__{Lnn_1 : lanetype, M_1 : nat, Lnn_2 : lanetype, M_2 : nat, vcvtop : vcvtop__, v_1 : uN, v : uN, c_1_lst : lane_*, c_lst_lst : lane_**}(`%X%`_shape(Lnn_1, mk_dim_dim(M_1)), `%X%`_shape(Lnn_2, mk_dim_dim(M_2)), vcvtop, v_1) = v
@@ -10269,8 +10269,8 @@ def $fun_vcvtop__(shape_1 : shape, shape_2 : shape, v_vcvtop__ : vcvtop__, v_vec
     -- wf_shape: `%`(`%X%`_shape(Lnn_1, mk_dim_dim(M_1)))
     -- wf_shape: `%`(`%X%`_shape(Lnn_2, mk_dim_dim(M_2)))
     -- if ($zeroop(`%X%`_shape(Lnn_1, mk_dim_dim(M_1)), `%X%`_shape(Lnn_2, mk_dim_dim(M_2)), vcvtop) = ?(ZERO_zero))
-    -- if (c_1_lst = $lanes_(`%X%`_shape(Lnn_1, mk_dim_dim(M_1)), v_1))
-    -- if (c_lst_lst = $setproduct_(syntax lane_, $lcvtop__(`%X%`_shape(Lnn_1, mk_dim_dim(M_1)), `%X%`_shape(Lnn_2, mk_dim_dim(M_2)), vcvtop, c_1)*{c_1 <- c_1_lst} ++ [$fun_zero(Lnn_2)]^M_1{}))
+    -- where c_1_lst = $lanes_(`%X%`_shape(Lnn_1, mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_lst_lst = $setproduct_(syntax lane_, $lcvtop__(`%X%`_shape(Lnn_1, mk_dim_dim(M_1)), `%X%`_shape(Lnn_2, mk_dim_dim(M_2)), vcvtop, c_1)*{c_1 <- c_1_lst} ++ [$fun_zero(Lnn_2)]^M_1{}) {c_lst_lst}
     -- if (v <- $inv_lanes_(`%X%`_shape(Lnn_2, mk_dim_dim(M_2)), c_lst)*{c_lst <- c_lst_lst})
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
@@ -10341,11 +10341,11 @@ def $vnarrowop__(shape_1 : shape, shape_2 : shape, v_sx : sx, v_vec_ : vec_, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c'_1)))*{c'_1 <- c'_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c'_2)))*{c'_2 <- c'_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_2))
-    -- if (c'_1_lst = $narrow__($lsize($lanetype_Jnn(I32_Jnn)), $lsize($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $narrow__($lsize($lanetype_Jnn(I32_Jnn)), $lsize($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I32_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I32_Jnn, c'_2)*{c'_2 <- c'_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_2) {c_2_lst}
+    -- where c'_1_lst = $narrow__($lsize($lanetype_Jnn(I32_Jnn)), $lsize($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $narrow__($lsize($lanetype_Jnn(I32_Jnn)), $lsize($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I32_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I32_Jnn, c'_2)*{c'_2 <- c'_2_lst}) {v}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $vnarrowop__{M_1 : nat, M_2 : nat, v_sx : sx, v_1 : uN, v_2 : uN, v : uN, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), v_sx, v_1, v_2) = v
     -- wf_uN: `%%`(128, v)
@@ -10355,11 +10355,11 @@ def $vnarrowop__(shape_1 : shape, shape_2 : shape, v_sx : sx, v_vec_ : vec_, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c'_1)))*{c'_1 <- c'_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c'_2)))*{c'_2 <- c'_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_2))
-    -- if (c'_1_lst = $narrow__($lsize($lanetype_Jnn(I64_Jnn)), $lsize($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $narrow__($lsize($lanetype_Jnn(I64_Jnn)), $lsize($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I32_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I32_Jnn, c'_2)*{c'_2 <- c'_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_2) {c_2_lst}
+    -- where c'_1_lst = $narrow__($lsize($lanetype_Jnn(I64_Jnn)), $lsize($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $narrow__($lsize($lanetype_Jnn(I64_Jnn)), $lsize($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I32_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I32_Jnn, c'_2)*{c'_2 <- c'_2_lst}) {v}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $vnarrowop__{M_1 : nat, M_2 : nat, v_sx : sx, v_1 : uN, v_2 : uN, v : uN, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), v_sx, v_1, v_2) = v
     -- wf_uN: `%%`(128, v)
@@ -10369,11 +10369,11 @@ def $vnarrowop__(shape_1 : shape, shape_2 : shape, v_sx : sx, v_vec_ : vec_, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c'_1)))*{c'_1 <- c'_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c'_2)))*{c'_2 <- c'_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_2))
-    -- if (c'_1_lst = $narrow__($lsize($lanetype_Jnn(I8_Jnn)), $lsize($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $narrow__($lsize($lanetype_Jnn(I8_Jnn)), $lsize($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I32_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I32_Jnn, c'_2)*{c'_2 <- c'_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_2) {c_2_lst}
+    -- where c'_1_lst = $narrow__($lsize($lanetype_Jnn(I8_Jnn)), $lsize($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $narrow__($lsize($lanetype_Jnn(I8_Jnn)), $lsize($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I32_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I32_Jnn, c'_2)*{c'_2 <- c'_2_lst}) {v}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $vnarrowop__{M_1 : nat, M_2 : nat, v_sx : sx, v_1 : uN, v_2 : uN, v : uN, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), v_sx, v_1, v_2) = v
     -- wf_uN: `%%`(128, v)
@@ -10383,11 +10383,11 @@ def $vnarrowop__(shape_1 : shape, shape_2 : shape, v_sx : sx, v_vec_ : vec_, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c'_1)))*{c'_1 <- c'_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c'_2)))*{c'_2 <- c'_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_2))
-    -- if (c'_1_lst = $narrow__($lsize($lanetype_Jnn(I16_Jnn)), $lsize($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $narrow__($lsize($lanetype_Jnn(I16_Jnn)), $lsize($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I32_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I32_Jnn, c'_2)*{c'_2 <- c'_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_2) {c_2_lst}
+    -- where c'_1_lst = $narrow__($lsize($lanetype_Jnn(I16_Jnn)), $lsize($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $narrow__($lsize($lanetype_Jnn(I16_Jnn)), $lsize($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I32_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I32_Jnn, c'_2)*{c'_2 <- c'_2_lst}) {v}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $vnarrowop__{M_1 : nat, M_2 : nat, v_sx : sx, v_1 : uN, v_2 : uN, v : uN, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), v_sx, v_1, v_2) = v
     -- wf_uN: `%%`(128, v)
@@ -10397,11 +10397,11 @@ def $vnarrowop__(shape_1 : shape, shape_2 : shape, v_sx : sx, v_vec_ : vec_, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c'_1)))*{c'_1 <- c'_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c'_2)))*{c'_2 <- c'_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_2))
-    -- if (c'_1_lst = $narrow__($lsize($lanetype_Jnn(I32_Jnn)), $lsize($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $narrow__($lsize($lanetype_Jnn(I32_Jnn)), $lsize($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I64_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I64_Jnn, c'_2)*{c'_2 <- c'_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_2) {c_2_lst}
+    -- where c'_1_lst = $narrow__($lsize($lanetype_Jnn(I32_Jnn)), $lsize($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $narrow__($lsize($lanetype_Jnn(I32_Jnn)), $lsize($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I64_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I64_Jnn, c'_2)*{c'_2 <- c'_2_lst}) {v}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $vnarrowop__{M_1 : nat, M_2 : nat, v_sx : sx, v_1 : uN, v_2 : uN, v : uN, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), v_sx, v_1, v_2) = v
     -- wf_uN: `%%`(128, v)
@@ -10411,11 +10411,11 @@ def $vnarrowop__(shape_1 : shape, shape_2 : shape, v_sx : sx, v_vec_ : vec_, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c'_1)))*{c'_1 <- c'_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c'_2)))*{c'_2 <- c'_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_2))
-    -- if (c'_1_lst = $narrow__($lsize($lanetype_Jnn(I64_Jnn)), $lsize($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $narrow__($lsize($lanetype_Jnn(I64_Jnn)), $lsize($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I64_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I64_Jnn, c'_2)*{c'_2 <- c'_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_2) {c_2_lst}
+    -- where c'_1_lst = $narrow__($lsize($lanetype_Jnn(I64_Jnn)), $lsize($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $narrow__($lsize($lanetype_Jnn(I64_Jnn)), $lsize($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I64_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I64_Jnn, c'_2)*{c'_2 <- c'_2_lst}) {v}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $vnarrowop__{M_1 : nat, M_2 : nat, v_sx : sx, v_1 : uN, v_2 : uN, v : uN, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), v_sx, v_1, v_2) = v
     -- wf_uN: `%%`(128, v)
@@ -10425,11 +10425,11 @@ def $vnarrowop__(shape_1 : shape, shape_2 : shape, v_sx : sx, v_vec_ : vec_, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c'_1)))*{c'_1 <- c'_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c'_2)))*{c'_2 <- c'_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_2))
-    -- if (c'_1_lst = $narrow__($lsize($lanetype_Jnn(I8_Jnn)), $lsize($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $narrow__($lsize($lanetype_Jnn(I8_Jnn)), $lsize($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I64_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I64_Jnn, c'_2)*{c'_2 <- c'_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_2) {c_2_lst}
+    -- where c'_1_lst = $narrow__($lsize($lanetype_Jnn(I8_Jnn)), $lsize($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $narrow__($lsize($lanetype_Jnn(I8_Jnn)), $lsize($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I64_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I64_Jnn, c'_2)*{c'_2 <- c'_2_lst}) {v}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $vnarrowop__{M_1 : nat, M_2 : nat, v_sx : sx, v_1 : uN, v_2 : uN, v : uN, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), v_sx, v_1, v_2) = v
     -- wf_uN: `%%`(128, v)
@@ -10439,11 +10439,11 @@ def $vnarrowop__(shape_1 : shape, shape_2 : shape, v_sx : sx, v_vec_ : vec_, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c'_1)))*{c'_1 <- c'_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c'_2)))*{c'_2 <- c'_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_2))
-    -- if (c'_1_lst = $narrow__($lsize($lanetype_Jnn(I16_Jnn)), $lsize($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $narrow__($lsize($lanetype_Jnn(I16_Jnn)), $lsize($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I64_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I64_Jnn, c'_2)*{c'_2 <- c'_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_2) {c_2_lst}
+    -- where c'_1_lst = $narrow__($lsize($lanetype_Jnn(I16_Jnn)), $lsize($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $narrow__($lsize($lanetype_Jnn(I16_Jnn)), $lsize($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I64_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I64_Jnn, c'_2)*{c'_2 <- c'_2_lst}) {v}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $vnarrowop__{M_1 : nat, M_2 : nat, v_sx : sx, v_1 : uN, v_2 : uN, v : uN, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I8_lanetype, mk_dim_dim(M_2)), v_sx, v_1, v_2) = v
     -- wf_uN: `%%`(128, v)
@@ -10453,11 +10453,11 @@ def $vnarrowop__(shape_1 : shape, shape_2 : shape, v_sx : sx, v_vec_ : vec_, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c'_1)))*{c'_1 <- c'_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c'_2)))*{c'_2 <- c'_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_2))
-    -- if (c'_1_lst = $narrow__($lsize($lanetype_Jnn(I32_Jnn)), $lsize($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $narrow__($lsize($lanetype_Jnn(I32_Jnn)), $lsize($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I8_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I8_Jnn, c'_2)*{c'_2 <- c'_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_2) {c_2_lst}
+    -- where c'_1_lst = $narrow__($lsize($lanetype_Jnn(I32_Jnn)), $lsize($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $narrow__($lsize($lanetype_Jnn(I32_Jnn)), $lsize($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I8_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I8_Jnn, c'_2)*{c'_2 <- c'_2_lst}) {v}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $vnarrowop__{M_1 : nat, M_2 : nat, v_sx : sx, v_1 : uN, v_2 : uN, v : uN, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I8_lanetype, mk_dim_dim(M_2)), v_sx, v_1, v_2) = v
     -- wf_uN: `%%`(128, v)
@@ -10467,11 +10467,11 @@ def $vnarrowop__(shape_1 : shape, shape_2 : shape, v_sx : sx, v_vec_ : vec_, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c'_1)))*{c'_1 <- c'_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c'_2)))*{c'_2 <- c'_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_2))
-    -- if (c'_1_lst = $narrow__($lsize($lanetype_Jnn(I64_Jnn)), $lsize($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $narrow__($lsize($lanetype_Jnn(I64_Jnn)), $lsize($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I8_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I8_Jnn, c'_2)*{c'_2 <- c'_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_2) {c_2_lst}
+    -- where c'_1_lst = $narrow__($lsize($lanetype_Jnn(I64_Jnn)), $lsize($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $narrow__($lsize($lanetype_Jnn(I64_Jnn)), $lsize($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I8_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I8_Jnn, c'_2)*{c'_2 <- c'_2_lst}) {v}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $vnarrowop__{M_1 : nat, M_2 : nat, v_sx : sx, v_1 : uN, v_2 : uN, v : uN, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I8_lanetype, mk_dim_dim(M_2)), v_sx, v_1, v_2) = v
     -- wf_uN: `%%`(128, v)
@@ -10481,11 +10481,11 @@ def $vnarrowop__(shape_1 : shape, shape_2 : shape, v_sx : sx, v_vec_ : vec_, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c'_1)))*{c'_1 <- c'_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c'_2)))*{c'_2 <- c'_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_2))
-    -- if (c'_1_lst = $narrow__($lsize($lanetype_Jnn(I8_Jnn)), $lsize($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $narrow__($lsize($lanetype_Jnn(I8_Jnn)), $lsize($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I8_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I8_Jnn, c'_2)*{c'_2 <- c'_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_2) {c_2_lst}
+    -- where c'_1_lst = $narrow__($lsize($lanetype_Jnn(I8_Jnn)), $lsize($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $narrow__($lsize($lanetype_Jnn(I8_Jnn)), $lsize($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I8_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I8_Jnn, c'_2)*{c'_2 <- c'_2_lst}) {v}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $vnarrowop__{M_1 : nat, M_2 : nat, v_sx : sx, v_1 : uN, v_2 : uN, v : uN, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I8_lanetype, mk_dim_dim(M_2)), v_sx, v_1, v_2) = v
     -- wf_uN: `%%`(128, v)
@@ -10495,11 +10495,11 @@ def $vnarrowop__(shape_1 : shape, shape_2 : shape, v_sx : sx, v_vec_ : vec_, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c'_1)))*{c'_1 <- c'_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c'_2)))*{c'_2 <- c'_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_2))
-    -- if (c'_1_lst = $narrow__($lsize($lanetype_Jnn(I16_Jnn)), $lsize($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $narrow__($lsize($lanetype_Jnn(I16_Jnn)), $lsize($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I8_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I8_Jnn, c'_2)*{c'_2 <- c'_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_2) {c_2_lst}
+    -- where c'_1_lst = $narrow__($lsize($lanetype_Jnn(I16_Jnn)), $lsize($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $narrow__($lsize($lanetype_Jnn(I16_Jnn)), $lsize($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I8_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I8_Jnn, c'_2)*{c'_2 <- c'_2_lst}) {v}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $vnarrowop__{M_1 : nat, M_2 : nat, v_sx : sx, v_1 : uN, v_2 : uN, v : uN, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I16_lanetype, mk_dim_dim(M_2)), v_sx, v_1, v_2) = v
     -- wf_uN: `%%`(128, v)
@@ -10509,11 +10509,11 @@ def $vnarrowop__(shape_1 : shape, shape_2 : shape, v_sx : sx, v_vec_ : vec_, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c'_1)))*{c'_1 <- c'_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c'_2)))*{c'_2 <- c'_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_2))
-    -- if (c'_1_lst = $narrow__($lsize($lanetype_Jnn(I32_Jnn)), $lsize($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $narrow__($lsize($lanetype_Jnn(I32_Jnn)), $lsize($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I16_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I16_Jnn, c'_2)*{c'_2 <- c'_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_2) {c_2_lst}
+    -- where c'_1_lst = $narrow__($lsize($lanetype_Jnn(I32_Jnn)), $lsize($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $narrow__($lsize($lanetype_Jnn(I32_Jnn)), $lsize($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I16_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I16_Jnn, c'_2)*{c'_2 <- c'_2_lst}) {v}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $vnarrowop__{M_1 : nat, M_2 : nat, v_sx : sx, v_1 : uN, v_2 : uN, v : uN, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I16_lanetype, mk_dim_dim(M_2)), v_sx, v_1, v_2) = v
     -- wf_uN: `%%`(128, v)
@@ -10523,11 +10523,11 @@ def $vnarrowop__(shape_1 : shape, shape_2 : shape, v_sx : sx, v_vec_ : vec_, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c'_1)))*{c'_1 <- c'_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c'_2)))*{c'_2 <- c'_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_2))
-    -- if (c'_1_lst = $narrow__($lsize($lanetype_Jnn(I64_Jnn)), $lsize($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $narrow__($lsize($lanetype_Jnn(I64_Jnn)), $lsize($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I16_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I16_Jnn, c'_2)*{c'_2 <- c'_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_2) {c_2_lst}
+    -- where c'_1_lst = $narrow__($lsize($lanetype_Jnn(I64_Jnn)), $lsize($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $narrow__($lsize($lanetype_Jnn(I64_Jnn)), $lsize($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I16_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I16_Jnn, c'_2)*{c'_2 <- c'_2_lst}) {v}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $vnarrowop__{M_1 : nat, M_2 : nat, v_sx : sx, v_1 : uN, v_2 : uN, v : uN, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I16_lanetype, mk_dim_dim(M_2)), v_sx, v_1, v_2) = v
     -- wf_uN: `%%`(128, v)
@@ -10537,11 +10537,11 @@ def $vnarrowop__(shape_1 : shape, shape_2 : shape, v_sx : sx, v_vec_ : vec_, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c'_1)))*{c'_1 <- c'_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c'_2)))*{c'_2 <- c'_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_2))
-    -- if (c'_1_lst = $narrow__($lsize($lanetype_Jnn(I8_Jnn)), $lsize($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $narrow__($lsize($lanetype_Jnn(I8_Jnn)), $lsize($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I16_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I16_Jnn, c'_2)*{c'_2 <- c'_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_2) {c_2_lst}
+    -- where c'_1_lst = $narrow__($lsize($lanetype_Jnn(I8_Jnn)), $lsize($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $narrow__($lsize($lanetype_Jnn(I8_Jnn)), $lsize($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I16_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I16_Jnn, c'_2)*{c'_2 <- c'_2_lst}) {v}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $vnarrowop__{M_1 : nat, M_2 : nat, v_sx : sx, v_1 : uN, v_2 : uN, v : uN, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I16_lanetype, mk_dim_dim(M_2)), v_sx, v_1, v_2) = v
     -- wf_uN: `%%`(128, v)
@@ -10551,11 +10551,11 @@ def $vnarrowop__(shape_1 : shape, shape_2 : shape, v_sx : sx, v_vec_ : vec_, v_v
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c'_1)))*{c'_1 <- c'_1_lst}
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c'_2)))*{c'_2 <- c'_2_lst}
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_2))
-    -- if (c'_1_lst = $narrow__($lsize($lanetype_Jnn(I16_Jnn)), $lsize($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $narrow__($lsize($lanetype_Jnn(I16_Jnn)), $lsize($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I16_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I16_Jnn, c'_2)*{c'_2 <- c'_2_lst}))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_2) {c_2_lst}
+    -- where c'_1_lst = $narrow__($lsize($lanetype_Jnn(I16_Jnn)), $lsize($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $narrow__($lsize($lanetype_Jnn(I16_Jnn)), $lsize($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where v = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I16_Jnn, c'_1)*{c'_1 <- c'_1_lst} ++ mk_lane__2_lane_(I16_Jnn, c'_2)*{c'_2 <- c'_2_lst}) {v}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $ivadd_pairwise_(v_N : N, var_0 : iN*) : iN*
@@ -10574,9 +10574,9 @@ def $ivextunop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*) : iN*, 
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I32_Jnn)), c'_1_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I32_Jnn)), c'_1_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextunop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*) : iN*, v_sx : sx, v_1 : uN, c_lst : iN*, c_1_lst : lane_*, c'_1_lst : iN*}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), def $f_, v_sx, v_1) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I32_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10584,9 +10584,9 @@ def $ivextunop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*) : iN*, 
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I32_Jnn)), c'_1_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I32_Jnn)), c'_1_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextunop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*) : iN*, v_sx : sx, v_1 : uN, c_lst : iN*, c_1_lst : lane_*, c'_1_lst : iN*}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), def $f_, v_sx, v_1) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I32_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10594,9 +10594,9 @@ def $ivextunop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*) : iN*, 
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I32_Jnn)), c'_1_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I32_Jnn)), c'_1_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextunop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*) : iN*, v_sx : sx, v_1 : uN, c_lst : iN*, c_1_lst : lane_*, c'_1_lst : iN*}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), def $f_, v_sx, v_1) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I32_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10604,9 +10604,9 @@ def $ivextunop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*) : iN*, 
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I32_Jnn)), c'_1_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I32_Jnn)), c'_1_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextunop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*) : iN*, v_sx : sx, v_1 : uN, c_lst : iN*, c_1_lst : lane_*, c'_1_lst : iN*}(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), def $f_, v_sx, v_1) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I64_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10614,9 +10614,9 @@ def $ivextunop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*) : iN*, 
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I64_Jnn)), c'_1_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I64_Jnn)), c'_1_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextunop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*) : iN*, v_sx : sx, v_1 : uN, c_lst : iN*, c_1_lst : lane_*, c'_1_lst : iN*}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), def $f_, v_sx, v_1) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I64_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10624,9 +10624,9 @@ def $ivextunop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*) : iN*, 
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I64_Jnn)), c'_1_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I64_Jnn)), c'_1_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextunop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*) : iN*, v_sx : sx, v_1 : uN, c_lst : iN*, c_1_lst : lane_*, c'_1_lst : iN*}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), def $f_, v_sx, v_1) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I64_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10634,9 +10634,9 @@ def $ivextunop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*) : iN*, 
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I64_Jnn)), c'_1_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I64_Jnn)), c'_1_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextunop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*) : iN*, v_sx : sx, v_1 : uN, c_lst : iN*, c_1_lst : lane_*, c'_1_lst : iN*}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), def $f_, v_sx, v_1) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I64_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10644,9 +10644,9 @@ def $ivextunop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*) : iN*, 
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I64_Jnn)), c'_1_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I64_Jnn)), c'_1_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextunop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*) : iN*, v_sx : sx, v_1 : uN, c_lst : iN*, c_1_lst : lane_*, c'_1_lst : iN*}(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I8_lanetype, mk_dim_dim(M_2)), def $f_, v_sx, v_1) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I8_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10654,9 +10654,9 @@ def $ivextunop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*) : iN*, 
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I8_Jnn)), c'_1_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I8_Jnn)), c'_1_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextunop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*) : iN*, v_sx : sx, v_1 : uN, c_lst : iN*, c_1_lst : lane_*, c'_1_lst : iN*}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I8_lanetype, mk_dim_dim(M_2)), def $f_, v_sx, v_1) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I8_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10664,9 +10664,9 @@ def $ivextunop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*) : iN*, 
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I8_Jnn)), c'_1_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I8_Jnn)), c'_1_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextunop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*) : iN*, v_sx : sx, v_1 : uN, c_lst : iN*, c_1_lst : lane_*, c'_1_lst : iN*}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I8_lanetype, mk_dim_dim(M_2)), def $f_, v_sx, v_1) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I8_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10674,9 +10674,9 @@ def $ivextunop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*) : iN*, 
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I8_Jnn)), c'_1_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I8_Jnn)), c'_1_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextunop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*) : iN*, v_sx : sx, v_1 : uN, c_lst : iN*, c_1_lst : lane_*, c'_1_lst : iN*}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I8_lanetype, mk_dim_dim(M_2)), def $f_, v_sx, v_1) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I8_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10684,9 +10684,9 @@ def $ivextunop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*) : iN*, 
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I8_Jnn)), c'_1_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I8_Jnn)), c'_1_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextunop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*) : iN*, v_sx : sx, v_1 : uN, c_lst : iN*, c_1_lst : lane_*, c'_1_lst : iN*}(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I16_lanetype, mk_dim_dim(M_2)), def $f_, v_sx, v_1) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I16_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10694,9 +10694,9 @@ def $ivextunop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*) : iN*, 
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I16_Jnn)), c'_1_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I16_Jnn)), c'_1_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextunop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*) : iN*, v_sx : sx, v_1 : uN, c_lst : iN*, c_1_lst : lane_*, c'_1_lst : iN*}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I16_lanetype, mk_dim_dim(M_2)), def $f_, v_sx, v_1) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I16_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10704,9 +10704,9 @@ def $ivextunop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*) : iN*, 
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I16_Jnn)), c'_1_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I16_Jnn)), c'_1_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextunop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*) : iN*, v_sx : sx, v_1 : uN, c_lst : iN*, c_1_lst : lane_*, c'_1_lst : iN*}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I16_lanetype, mk_dim_dim(M_2)), def $f_, v_sx, v_1) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I16_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10714,9 +10714,9 @@ def $ivextunop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*) : iN*, 
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I16_Jnn)), c'_1_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I16_Jnn)), c'_1_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextunop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*) : iN*, v_sx : sx, v_1 : uN, c_lst : iN*, c_1_lst : lane_*, c'_1_lst : iN*}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I16_lanetype, mk_dim_dim(M_2)), def $f_, v_sx, v_1) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I16_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10724,9 +10724,9 @@ def $ivextunop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*) : iN*, 
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1))
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I16_Jnn)), c'_1_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1) {c_1_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), v_sx, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I16_Jnn)), c'_1_lst) {c_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $fun_vextunop__(ishape_1 : ishape, ishape_2 : ishape, v_vextunop__ : vextunop__, v_vec_ : vec_) : vec_
@@ -10822,11 +10822,11 @@ def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*, iN*) :
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I32_Jnn)), c'_1_lst, c'_2_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_2_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I32_Jnn)), c'_1_lst, c'_2_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextbinop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*, iN*) : iN*, sx_1 : sx, sx_2 : sx, i : uN, k : uN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), def $f_, sx_1, sx_2, i, k, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I32_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10836,11 +10836,11 @@ def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*, iN*) :
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I32_Jnn)), c'_1_lst, c'_2_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_2_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I32_Jnn)), c'_1_lst, c'_2_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextbinop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*, iN*) : iN*, sx_1 : sx, sx_2 : sx, i : uN, k : uN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), def $f_, sx_1, sx_2, i, k, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I32_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10850,11 +10850,11 @@ def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*, iN*) :
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I32_Jnn)), c'_1_lst, c'_2_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_2_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I32_Jnn)), c'_1_lst, c'_2_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextbinop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*, iN*) : iN*, sx_1 : sx, sx_2 : sx, i : uN, k : uN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I32_lanetype, mk_dim_dim(M_2)), def $f_, sx_1, sx_2, i, k, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I32_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10864,11 +10864,11 @@ def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*, iN*) :
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I32_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I32_Jnn)), c'_1_lst, c'_2_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_2_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I32_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I32_Jnn)), c'_1_lst, c'_2_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextbinop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*, iN*) : iN*, sx_1 : sx, sx_2 : sx, i : uN, k : uN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), def $f_, sx_1, sx_2, i, k, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I64_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10878,11 +10878,11 @@ def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*, iN*) :
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I64_Jnn)), c'_1_lst, c'_2_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_2_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I64_Jnn)), c'_1_lst, c'_2_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextbinop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*, iN*) : iN*, sx_1 : sx, sx_2 : sx, i : uN, k : uN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), def $f_, sx_1, sx_2, i, k, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I64_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10892,11 +10892,11 @@ def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*, iN*) :
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I64_Jnn)), c'_1_lst, c'_2_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_2_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I64_Jnn)), c'_1_lst, c'_2_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextbinop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*, iN*) : iN*, sx_1 : sx, sx_2 : sx, i : uN, k : uN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), def $f_, sx_1, sx_2, i, k, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I64_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10906,11 +10906,11 @@ def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*, iN*) :
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I64_Jnn)), c'_1_lst, c'_2_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_2_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I64_Jnn)), c'_1_lst, c'_2_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextbinop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*, iN*) : iN*, sx_1 : sx, sx_2 : sx, i : uN, k : uN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I64_lanetype, mk_dim_dim(M_2)), def $f_, sx_1, sx_2, i, k, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I64_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10920,11 +10920,11 @@ def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*, iN*) :
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I64_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I64_Jnn)), c'_1_lst, c'_2_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_2_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I64_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I64_Jnn)), c'_1_lst, c'_2_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextbinop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*, iN*) : iN*, sx_1 : sx, sx_2 : sx, i : uN, k : uN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I8_lanetype, mk_dim_dim(M_2)), def $f_, sx_1, sx_2, i, k, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I8_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10934,11 +10934,11 @@ def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*, iN*) :
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I8_Jnn)), c'_1_lst, c'_2_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_2_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I8_Jnn)), c'_1_lst, c'_2_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextbinop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*, iN*) : iN*, sx_1 : sx, sx_2 : sx, i : uN, k : uN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I8_lanetype, mk_dim_dim(M_2)), def $f_, sx_1, sx_2, i, k, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I8_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10948,11 +10948,11 @@ def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*, iN*) :
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I8_Jnn)), c'_1_lst, c'_2_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_2_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I8_Jnn)), c'_1_lst, c'_2_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextbinop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*, iN*) : iN*, sx_1 : sx, sx_2 : sx, i : uN, k : uN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I8_lanetype, mk_dim_dim(M_2)), def $f_, sx_1, sx_2, i, k, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I8_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10962,11 +10962,11 @@ def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*, iN*) :
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I8_Jnn)), c'_1_lst, c'_2_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_2_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I8_Jnn)), c'_1_lst, c'_2_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextbinop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*, iN*) : iN*, sx_1 : sx, sx_2 : sx, i : uN, k : uN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I8_lanetype, mk_dim_dim(M_2)), def $f_, sx_1, sx_2, i, k, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I8_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10976,11 +10976,11 @@ def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*, iN*) :
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I8_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I8_Jnn)), c'_1_lst, c'_2_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_2_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I8_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I8_Jnn)), c'_1_lst, c'_2_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextbinop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*, iN*) : iN*, sx_1 : sx, sx_2 : sx, i : uN, k : uN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I16_lanetype, mk_dim_dim(M_2)), def $f_, sx_1, sx_2, i, k, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I16_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -10990,11 +10990,11 @@ def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*, iN*) :
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I16_Jnn)), c'_1_lst, c'_2_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_2_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I32_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I16_Jnn)), c'_1_lst, c'_2_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextbinop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*, iN*) : iN*, sx_1 : sx, sx_2 : sx, i : uN, k : uN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I16_lanetype, mk_dim_dim(M_2)), def $f_, sx_1, sx_2, i, k, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I16_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -11004,11 +11004,11 @@ def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*, iN*) :
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I16_Jnn)), c'_1_lst, c'_2_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_2_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I64_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I16_Jnn)), c'_1_lst, c'_2_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextbinop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*, iN*) : iN*, sx_1 : sx, sx_2 : sx, i : uN, k : uN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I16_lanetype, mk_dim_dim(M_2)), def $f_, sx_1, sx_2, i, k, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I16_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -11018,11 +11018,11 @@ def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*, iN*) :
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I16_Jnn)), c'_1_lst, c'_2_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_2_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I8_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I16_Jnn)), c'_1_lst, c'_2_lst) {c_lst}
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivextbinop__{M_1 : nat, M_2 : nat, def $f_(v_N : N, iN*, iN*) : iN*, sx_1 : sx, sx_2 : sx, i : uN, k : uN, v_1 : uN, v_2 : uN, c_lst : iN*, c_1_lst : lane_*, c_2_lst : lane_*, c'_1_lst : iN*, c'_2_lst : iN*}(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1)), `%X%`_shape(I16_lanetype, mk_dim_dim(M_2)), def $f_, sx_1, sx_2, i, k, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_lane__2_lane_(I16_Jnn, c)*{c <- c_lst})
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1))), c_1))*{c_1 <- c_1_lst}
@@ -11032,11 +11032,11 @@ def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(v_N : N, iN*, iN*) :
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)))
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_lane__2_lane_(I16_Jnn, c)))*{c <- c_lst}
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)))
-    -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0])
-    -- if (c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst})
-    -- if (c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst})
-    -- if (c_lst = $f_($lsizenn2($lanetype_Jnn(I16_Jnn)), c'_1_lst, c'_2_lst))
+    -- where c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_1)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_1_lst}
+    -- where c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1)), v_2)[$proj_uN_0(i).0 : $proj_uN_0(k).0] {c_2_lst}
+    -- where c'_1_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), sx_1, !($proj_lane__2(c_1)))*{c_1 <- c_1_lst} {c'_1_lst}
+    -- where c'_2_lst = $extend__($lsizenn1($lanetype_Jnn(I16_Jnn)), $lsizenn2($lanetype_Jnn(I16_Jnn)), sx_2, !($proj_lane__2(c_2)))*{c_2 <- c_2_lst} {c'_2_lst}
+    -- where c_lst = $f_($lsizenn2($lanetype_Jnn(I16_Jnn)), c'_1_lst, c'_2_lst) {c_lst}
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $ivmul_(v_N : N, var_0 : iN*, var_1 : iN*) : iN*
@@ -11349,9 +11349,9 @@ def $fun_vextternop__(ishape_1 : ishape, ishape_2 : ishape, v_vextternop__ : vex
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)))
     -- wf_vbinop_: `%%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I32_Jnn, M_2, ADD_vbinop_Jnn_M))
     -- if ($jsizenn(v_Jnn) = (2 * $lsizenn1($lanetype_Jnn(I32_Jnn))))
-    -- if (v_M = (2 * M_2))
-    -- if (c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I32_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2))
-    -- if (c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I32_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c'))
+    -- where v_M = (2 * M_2) {v_M}
+    -- where c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I32_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2) {c'}
+    -- where c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I32_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c') {c''}
     -- if (c <- $fun_vbinop_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I32_Jnn, M_2, ADD_vbinop_Jnn_M), c'', c_3))
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vextternop__{M_1 : nat, M_2 : nat, c_1 : uN, c_2 : uN, c_3 : uN, c : uN, v_Jnn : Jnn, v_M : nat, c' : uN, c'' : uN}(mk_ishape_ishape(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape(I32_lanetype, mk_dim_dim(M_2))), mk_vextternop___0_vextternop__(I64_Jnn, M_1, I32_Jnn, M_2, `RELAXED_DOT_ADDS`_vextternop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2, c_3) = c
@@ -11366,9 +11366,9 @@ def $fun_vextternop__(ishape_1 : ishape, ishape_2 : ishape, v_vextternop__ : vex
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)))
     -- wf_vbinop_: `%%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I32_Jnn, M_2, ADD_vbinop_Jnn_M))
     -- if ($jsizenn(v_Jnn) = (2 * $lsizenn1($lanetype_Jnn(I64_Jnn))))
-    -- if (v_M = (2 * M_2))
-    -- if (c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I64_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2))
-    -- if (c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I32_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c'))
+    -- where v_M = (2 * M_2) {v_M}
+    -- where c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I64_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2) {c'}
+    -- where c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I32_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c') {c''}
     -- if (c <- $fun_vbinop_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I32_Jnn, M_2, ADD_vbinop_Jnn_M), c'', c_3))
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vextternop__{M_1 : nat, M_2 : nat, c_1 : uN, c_2 : uN, c_3 : uN, c : uN, v_Jnn : Jnn, v_M : nat, c' : uN, c'' : uN}(mk_ishape_ishape(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape(I32_lanetype, mk_dim_dim(M_2))), mk_vextternop___0_vextternop__(I8_Jnn, M_1, I32_Jnn, M_2, `RELAXED_DOT_ADDS`_vextternop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2, c_3) = c
@@ -11383,9 +11383,9 @@ def $fun_vextternop__(ishape_1 : ishape, ishape_2 : ishape, v_vextternop__ : vex
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)))
     -- wf_vbinop_: `%%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I32_Jnn, M_2, ADD_vbinop_Jnn_M))
     -- if ($jsizenn(v_Jnn) = (2 * $lsizenn1($lanetype_Jnn(I8_Jnn))))
-    -- if (v_M = (2 * M_2))
-    -- if (c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I8_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2))
-    -- if (c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I32_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c'))
+    -- where v_M = (2 * M_2) {v_M}
+    -- where c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I8_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2) {c'}
+    -- where c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I32_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c') {c''}
     -- if (c <- $fun_vbinop_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I32_Jnn, M_2, ADD_vbinop_Jnn_M), c'', c_3))
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vextternop__{M_1 : nat, M_2 : nat, c_1 : uN, c_2 : uN, c_3 : uN, c : uN, v_Jnn : Jnn, v_M : nat, c' : uN, c'' : uN}(mk_ishape_ishape(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape(I32_lanetype, mk_dim_dim(M_2))), mk_vextternop___0_vextternop__(I16_Jnn, M_1, I32_Jnn, M_2, `RELAXED_DOT_ADDS`_vextternop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2, c_3) = c
@@ -11400,9 +11400,9 @@ def $fun_vextternop__(ishape_1 : ishape, ishape_2 : ishape, v_vextternop__ : vex
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)))
     -- wf_vbinop_: `%%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I32_Jnn, M_2, ADD_vbinop_Jnn_M))
     -- if ($jsizenn(v_Jnn) = (2 * $lsizenn1($lanetype_Jnn(I16_Jnn))))
-    -- if (v_M = (2 * M_2))
-    -- if (c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I16_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2))
-    -- if (c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I32_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c'))
+    -- where v_M = (2 * M_2) {v_M}
+    -- where c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I16_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2) {c'}
+    -- where c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I32_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c') {c''}
     -- if (c <- $fun_vbinop_(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I32_Jnn, M_2, ADD_vbinop_Jnn_M), c'', c_3))
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vextternop__{M_1 : nat, M_2 : nat, c_1 : uN, c_2 : uN, c_3 : uN, c : uN, v_Jnn : Jnn, v_M : nat, c' : uN, c'' : uN}(mk_ishape_ishape(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape(I64_lanetype, mk_dim_dim(M_2))), mk_vextternop___0_vextternop__(I32_Jnn, M_1, I64_Jnn, M_2, `RELAXED_DOT_ADDS`_vextternop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2, c_3) = c
@@ -11417,9 +11417,9 @@ def $fun_vextternop__(ishape_1 : ishape, ishape_2 : ishape, v_vextternop__ : vex
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)))
     -- wf_vbinop_: `%%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I64_Jnn, M_2, ADD_vbinop_Jnn_M))
     -- if ($jsizenn(v_Jnn) = (2 * $lsizenn1($lanetype_Jnn(I32_Jnn))))
-    -- if (v_M = (2 * M_2))
-    -- if (c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I32_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2))
-    -- if (c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I64_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c'))
+    -- where v_M = (2 * M_2) {v_M}
+    -- where c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I32_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2) {c'}
+    -- where c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I64_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c') {c''}
     -- if (c <- $fun_vbinop_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I64_Jnn, M_2, ADD_vbinop_Jnn_M), c'', c_3))
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vextternop__{M_1 : nat, M_2 : nat, c_1 : uN, c_2 : uN, c_3 : uN, c : uN, v_Jnn : Jnn, v_M : nat, c' : uN, c'' : uN}(mk_ishape_ishape(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape(I64_lanetype, mk_dim_dim(M_2))), mk_vextternop___0_vextternop__(I64_Jnn, M_1, I64_Jnn, M_2, `RELAXED_DOT_ADDS`_vextternop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2, c_3) = c
@@ -11434,9 +11434,9 @@ def $fun_vextternop__(ishape_1 : ishape, ishape_2 : ishape, v_vextternop__ : vex
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)))
     -- wf_vbinop_: `%%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I64_Jnn, M_2, ADD_vbinop_Jnn_M))
     -- if ($jsizenn(v_Jnn) = (2 * $lsizenn1($lanetype_Jnn(I64_Jnn))))
-    -- if (v_M = (2 * M_2))
-    -- if (c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I64_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2))
-    -- if (c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I64_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c'))
+    -- where v_M = (2 * M_2) {v_M}
+    -- where c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I64_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2) {c'}
+    -- where c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I64_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c') {c''}
     -- if (c <- $fun_vbinop_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I64_Jnn, M_2, ADD_vbinop_Jnn_M), c'', c_3))
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vextternop__{M_1 : nat, M_2 : nat, c_1 : uN, c_2 : uN, c_3 : uN, c : uN, v_Jnn : Jnn, v_M : nat, c' : uN, c'' : uN}(mk_ishape_ishape(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape(I64_lanetype, mk_dim_dim(M_2))), mk_vextternop___0_vextternop__(I8_Jnn, M_1, I64_Jnn, M_2, `RELAXED_DOT_ADDS`_vextternop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2, c_3) = c
@@ -11451,9 +11451,9 @@ def $fun_vextternop__(ishape_1 : ishape, ishape_2 : ishape, v_vextternop__ : vex
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)))
     -- wf_vbinop_: `%%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I64_Jnn, M_2, ADD_vbinop_Jnn_M))
     -- if ($jsizenn(v_Jnn) = (2 * $lsizenn1($lanetype_Jnn(I8_Jnn))))
-    -- if (v_M = (2 * M_2))
-    -- if (c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I8_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2))
-    -- if (c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I64_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c'))
+    -- where v_M = (2 * M_2) {v_M}
+    -- where c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I8_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2) {c'}
+    -- where c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I64_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c') {c''}
     -- if (c <- $fun_vbinop_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I64_Jnn, M_2, ADD_vbinop_Jnn_M), c'', c_3))
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vextternop__{M_1 : nat, M_2 : nat, c_1 : uN, c_2 : uN, c_3 : uN, c : uN, v_Jnn : Jnn, v_M : nat, c' : uN, c'' : uN}(mk_ishape_ishape(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape(I64_lanetype, mk_dim_dim(M_2))), mk_vextternop___0_vextternop__(I16_Jnn, M_1, I64_Jnn, M_2, `RELAXED_DOT_ADDS`_vextternop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2, c_3) = c
@@ -11468,9 +11468,9 @@ def $fun_vextternop__(ishape_1 : ishape, ishape_2 : ishape, v_vextternop__ : vex
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)))
     -- wf_vbinop_: `%%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I64_Jnn, M_2, ADD_vbinop_Jnn_M))
     -- if ($jsizenn(v_Jnn) = (2 * $lsizenn1($lanetype_Jnn(I16_Jnn))))
-    -- if (v_M = (2 * M_2))
-    -- if (c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I16_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2))
-    -- if (c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I64_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c'))
+    -- where v_M = (2 * M_2) {v_M}
+    -- where c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I16_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2) {c'}
+    -- where c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I64_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c') {c''}
     -- if (c <- $fun_vbinop_(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I64_Jnn, M_2, ADD_vbinop_Jnn_M), c'', c_3))
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vextternop__{M_1 : nat, M_2 : nat, c_1 : uN, c_2 : uN, c_3 : uN, c : uN, v_Jnn : Jnn, v_M : nat, c' : uN, c'' : uN}(mk_ishape_ishape(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape(I8_lanetype, mk_dim_dim(M_2))), mk_vextternop___0_vextternop__(I32_Jnn, M_1, I8_Jnn, M_2, `RELAXED_DOT_ADDS`_vextternop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2, c_3) = c
@@ -11485,9 +11485,9 @@ def $fun_vextternop__(ishape_1 : ishape, ishape_2 : ishape, v_vextternop__ : vex
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)))
     -- wf_vbinop_: `%%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I8_Jnn, M_2, ADD_vbinop_Jnn_M))
     -- if ($jsizenn(v_Jnn) = (2 * $lsizenn1($lanetype_Jnn(I32_Jnn))))
-    -- if (v_M = (2 * M_2))
-    -- if (c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I32_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2))
-    -- if (c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I8_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c'))
+    -- where v_M = (2 * M_2) {v_M}
+    -- where c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I32_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2) {c'}
+    -- where c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I8_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c') {c''}
     -- if (c <- $fun_vbinop_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I8_Jnn, M_2, ADD_vbinop_Jnn_M), c'', c_3))
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vextternop__{M_1 : nat, M_2 : nat, c_1 : uN, c_2 : uN, c_3 : uN, c : uN, v_Jnn : Jnn, v_M : nat, c' : uN, c'' : uN}(mk_ishape_ishape(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape(I8_lanetype, mk_dim_dim(M_2))), mk_vextternop___0_vextternop__(I64_Jnn, M_1, I8_Jnn, M_2, `RELAXED_DOT_ADDS`_vextternop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2, c_3) = c
@@ -11502,9 +11502,9 @@ def $fun_vextternop__(ishape_1 : ishape, ishape_2 : ishape, v_vextternop__ : vex
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)))
     -- wf_vbinop_: `%%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I8_Jnn, M_2, ADD_vbinop_Jnn_M))
     -- if ($jsizenn(v_Jnn) = (2 * $lsizenn1($lanetype_Jnn(I64_Jnn))))
-    -- if (v_M = (2 * M_2))
-    -- if (c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I64_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2))
-    -- if (c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I8_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c'))
+    -- where v_M = (2 * M_2) {v_M}
+    -- where c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I64_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2) {c'}
+    -- where c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I8_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c') {c''}
     -- if (c <- $fun_vbinop_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I8_Jnn, M_2, ADD_vbinop_Jnn_M), c'', c_3))
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vextternop__{M_1 : nat, M_2 : nat, c_1 : uN, c_2 : uN, c_3 : uN, c : uN, v_Jnn : Jnn, v_M : nat, c' : uN, c'' : uN}(mk_ishape_ishape(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape(I8_lanetype, mk_dim_dim(M_2))), mk_vextternop___0_vextternop__(I8_Jnn, M_1, I8_Jnn, M_2, `RELAXED_DOT_ADDS`_vextternop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2, c_3) = c
@@ -11519,9 +11519,9 @@ def $fun_vextternop__(ishape_1 : ishape, ishape_2 : ishape, v_vextternop__ : vex
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)))
     -- wf_vbinop_: `%%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I8_Jnn, M_2, ADD_vbinop_Jnn_M))
     -- if ($jsizenn(v_Jnn) = (2 * $lsizenn1($lanetype_Jnn(I8_Jnn))))
-    -- if (v_M = (2 * M_2))
-    -- if (c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I8_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2))
-    -- if (c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I8_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c'))
+    -- where v_M = (2 * M_2) {v_M}
+    -- where c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I8_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2) {c'}
+    -- where c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I8_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c') {c''}
     -- if (c <- $fun_vbinop_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I8_Jnn, M_2, ADD_vbinop_Jnn_M), c'', c_3))
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vextternop__{M_1 : nat, M_2 : nat, c_1 : uN, c_2 : uN, c_3 : uN, c : uN, v_Jnn : Jnn, v_M : nat, c' : uN, c'' : uN}(mk_ishape_ishape(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape(I8_lanetype, mk_dim_dim(M_2))), mk_vextternop___0_vextternop__(I16_Jnn, M_1, I8_Jnn, M_2, `RELAXED_DOT_ADDS`_vextternop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2, c_3) = c
@@ -11536,9 +11536,9 @@ def $fun_vextternop__(ishape_1 : ishape, ishape_2 : ishape, v_vextternop__ : vex
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)))
     -- wf_vbinop_: `%%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I8_Jnn, M_2, ADD_vbinop_Jnn_M))
     -- if ($jsizenn(v_Jnn) = (2 * $lsizenn1($lanetype_Jnn(I16_Jnn))))
-    -- if (v_M = (2 * M_2))
-    -- if (c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I16_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2))
-    -- if (c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I8_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c'))
+    -- where v_M = (2 * M_2) {v_M}
+    -- where c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I16_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2) {c'}
+    -- where c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I8_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c') {c''}
     -- if (c <- $fun_vbinop_(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I8_Jnn, M_2, ADD_vbinop_Jnn_M), c'', c_3))
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vextternop__{M_1 : nat, M_2 : nat, c_1 : uN, c_2 : uN, c_3 : uN, c : uN, v_Jnn : Jnn, v_M : nat, c' : uN, c'' : uN}(mk_ishape_ishape(`%X%`_shape(I32_lanetype, mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape(I16_lanetype, mk_dim_dim(M_2))), mk_vextternop___0_vextternop__(I32_Jnn, M_1, I16_Jnn, M_2, `RELAXED_DOT_ADDS`_vextternop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2, c_3) = c
@@ -11553,9 +11553,9 @@ def $fun_vextternop__(ishape_1 : ishape, ishape_2 : ishape, v_vextternop__ : vex
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)))
     -- wf_vbinop_: `%%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I16_Jnn, M_2, ADD_vbinop_Jnn_M))
     -- if ($jsizenn(v_Jnn) = (2 * $lsizenn1($lanetype_Jnn(I32_Jnn))))
-    -- if (v_M = (2 * M_2))
-    -- if (c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I32_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2))
-    -- if (c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I16_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c'))
+    -- where v_M = (2 * M_2) {v_M}
+    -- where c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I32_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I32_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2) {c'}
+    -- where c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I16_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c') {c''}
     -- if (c <- $fun_vbinop_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I16_Jnn, M_2, ADD_vbinop_Jnn_M), c'', c_3))
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vextternop__{M_1 : nat, M_2 : nat, c_1 : uN, c_2 : uN, c_3 : uN, c : uN, v_Jnn : Jnn, v_M : nat, c' : uN, c'' : uN}(mk_ishape_ishape(`%X%`_shape(I64_lanetype, mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape(I16_lanetype, mk_dim_dim(M_2))), mk_vextternop___0_vextternop__(I64_Jnn, M_1, I16_Jnn, M_2, `RELAXED_DOT_ADDS`_vextternop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2, c_3) = c
@@ -11570,9 +11570,9 @@ def $fun_vextternop__(ishape_1 : ishape, ishape_2 : ishape, v_vextternop__ : vex
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)))
     -- wf_vbinop_: `%%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I16_Jnn, M_2, ADD_vbinop_Jnn_M))
     -- if ($jsizenn(v_Jnn) = (2 * $lsizenn1($lanetype_Jnn(I64_Jnn))))
-    -- if (v_M = (2 * M_2))
-    -- if (c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I64_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2))
-    -- if (c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I16_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c'))
+    -- where v_M = (2 * M_2) {v_M}
+    -- where c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I64_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I64_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2) {c'}
+    -- where c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I16_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c') {c''}
     -- if (c <- $fun_vbinop_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I16_Jnn, M_2, ADD_vbinop_Jnn_M), c'', c_3))
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vextternop__{M_1 : nat, M_2 : nat, c_1 : uN, c_2 : uN, c_3 : uN, c : uN, v_Jnn : Jnn, v_M : nat, c' : uN, c'' : uN}(mk_ishape_ishape(`%X%`_shape(I8_lanetype, mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape(I16_lanetype, mk_dim_dim(M_2))), mk_vextternop___0_vextternop__(I8_Jnn, M_1, I16_Jnn, M_2, `RELAXED_DOT_ADDS`_vextternop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2, c_3) = c
@@ -11587,9 +11587,9 @@ def $fun_vextternop__(ishape_1 : ishape, ishape_2 : ishape, v_vextternop__ : vex
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)))
     -- wf_vbinop_: `%%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I16_Jnn, M_2, ADD_vbinop_Jnn_M))
     -- if ($jsizenn(v_Jnn) = (2 * $lsizenn1($lanetype_Jnn(I8_Jnn))))
-    -- if (v_M = (2 * M_2))
-    -- if (c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I8_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2))
-    -- if (c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I16_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c'))
+    -- where v_M = (2 * M_2) {v_M}
+    -- where c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I8_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I8_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2) {c'}
+    -- where c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I16_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c') {c''}
     -- if (c <- $fun_vbinop_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I16_Jnn, M_2, ADD_vbinop_Jnn_M), c'', c_3))
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $fun_vextternop__{M_1 : nat, M_2 : nat, c_1 : uN, c_2 : uN, c_3 : uN, c : uN, v_Jnn : Jnn, v_M : nat, c' : uN, c'' : uN}(mk_ishape_ishape(`%X%`_shape(I16_lanetype, mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape(I16_lanetype, mk_dim_dim(M_2))), mk_vextternop___0_vextternop__(I16_Jnn, M_1, I16_Jnn, M_2, `RELAXED_DOT_ADDS`_vextternop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2, c_3) = c
@@ -11604,9 +11604,9 @@ def $fun_vextternop__(ishape_1 : ishape, ishape_2 : ishape, v_vextternop__ : vex
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)))
     -- wf_vbinop_: `%%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I16_Jnn, M_2, ADD_vbinop_Jnn_M))
     -- if ($jsizenn(v_Jnn) = (2 * $lsizenn1($lanetype_Jnn(I16_Jnn))))
-    -- if (v_M = (2 * M_2))
-    -- if (c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I16_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2))
-    -- if (c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I16_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c'))
+    -- where v_M = (2 * M_2) {v_M}
+    -- where c' = $fun_vextbinop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_1))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_vextbinop___0_vextbinop__(I16_Jnn, M_1, v_Jnn, v_M, `RELAXED_DOTS`_vextbinop__Jnn_1_M_1_Jnn_2_M_2), c_1, c_2) {c'}
+    -- where c'' = $fun_vextunop__(mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(v_Jnn), mk_dim_dim(v_M))), mk_ishape_ishape(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2))), mk_vextunop___0_vextunop__(v_Jnn, v_M, I16_Jnn, M_2, EXTADD_PAIRWISE_vextunop__Jnn_1_M_1_Jnn_2_M_2(S_sx)), c') {c''}
     -- if (c <- $fun_vbinop_(`%X%`_shape($lanetype_Jnn(I16_Jnn), mk_dim_dim(M_2)), mk_vbinop__0_vbinop_(I16_Jnn, M_2, ADD_vbinop_Jnn_M), c'', c_3))
 
 ;; ../../../../specification/wasm-3.0/4.0-execution.configurations.spectec
@@ -12487,7 +12487,7 @@ def $growtable(v_tableinst : tableinst, nat : nat, v_ref : ref) : tableinst?
     -- wf_tableinst: `%`(tableinst')
     -- wf_tableinst: `%`({TYPE mk_tabletype_tabletype(at, mk_limits_limits(i, j_opt), rt), REFS r'_lst})
     -- wf_tableinst: `%`({TYPE mk_tabletype_tabletype(at, mk_limits_limits(i', j_opt), rt), REFS r'_lst ++ r^v_n{}})
-    -- if (v_tableinst = {TYPE mk_tabletype_tabletype(at, mk_limits_limits(i, j_opt), rt), REFS r'_lst})
+    -- where {TYPE mk_tabletype_tabletype(at, mk_limits_limits(i, j_opt), rt), REFS r'_lst} = v_tableinst {at, i, j_opt, r'_lst, rt}
     -- if (tableinst' = {TYPE mk_tabletype_tabletype(at, mk_limits_limits(i', j_opt), rt), REFS r'_lst ++ r^v_n{}})
     -- if ($proj_uN_0(i').0 = (|r'_lst| + v_n))
     -- (if ($proj_uN_0(i').0 <= $proj_uN_0(j).0))?{j <- j_opt}
@@ -12500,7 +12500,7 @@ def $growmem(v_meminst : meminst, nat : nat) : meminst?
     -- wf_meminst: `%`(meminst')
     -- wf_meminst: `%`({TYPE `%%PAGE`_memtype(at, mk_limits_limits(i, j_opt)), BYTES b_lst})
     -- wf_meminst: `%`({TYPE `%%PAGE`_memtype(at, mk_limits_limits(i', j_opt)), BYTES b_lst ++ mk_byte_byte(0)^(v_n * (64 * $Ki)){}})
-    -- if (v_meminst = {TYPE `%%PAGE`_memtype(at, mk_limits_limits(i, j_opt)), BYTES b_lst})
+    -- where {TYPE `%%PAGE`_memtype(at, mk_limits_limits(i, j_opt)), BYTES b_lst} = v_meminst {at, b_lst, i, j_opt}
     -- if (meminst' = {TYPE `%%PAGE`_memtype(at, mk_limits_limits(i', j_opt)), BYTES b_lst ++ mk_byte_byte(0)^(v_n * (64 * $Ki)){}})
     -- if (($proj_uN_0(i').0 : nat <:> rat) = (((|b_lst| : nat <:> rat) / ((64 * $Ki) : nat <:> rat)) + (v_n : nat <:> rat)))
     -- (if ($proj_uN_0(i').0 <= $proj_uN_0(j).0))?{j <- j_opt}
@@ -12692,31 +12692,31 @@ relation Externaddr_ok: `%|-%:%`(store, externaddr, externtype)
 def $inst_valtype(v_moduleinst : moduleinst, v_valtype : valtype) : valtype
   ;; ../../../../specification/wasm-3.0/4.2-execution.types.spectec
   def $inst_valtype{v_moduleinst : moduleinst, t : valtype, dt_lst : deftype*}(v_moduleinst, t) = $subst_all_valtype(t, $typeuse_deftype(dt)*{dt <- dt_lst})
-    -- if (dt_lst = v_moduleinst.TYPES_moduleinst)
+    -- where dt_lst = v_moduleinst.TYPES_moduleinst {dt_lst}
 
 ;; ../../../../specification/wasm-3.0/4.2-execution.types.spectec
 def $inst_reftype(v_moduleinst : moduleinst, v_reftype : reftype) : reftype
   ;; ../../../../specification/wasm-3.0/4.2-execution.types.spectec
   def $inst_reftype{v_moduleinst : moduleinst, rt : reftype, dt_lst : deftype*}(v_moduleinst, rt) = $subst_all_reftype(rt, $typeuse_deftype(dt)*{dt <- dt_lst})
-    -- if (dt_lst = v_moduleinst.TYPES_moduleinst)
+    -- where dt_lst = v_moduleinst.TYPES_moduleinst {dt_lst}
 
 ;; ../../../../specification/wasm-3.0/4.2-execution.types.spectec
 def $inst_globaltype(v_moduleinst : moduleinst, v_globaltype : globaltype) : globaltype
   ;; ../../../../specification/wasm-3.0/4.2-execution.types.spectec
   def $inst_globaltype{v_moduleinst : moduleinst, gt : globaltype, dt_lst : deftype*}(v_moduleinst, gt) = $subst_all_globaltype(gt, $typeuse_deftype(dt)*{dt <- dt_lst})
-    -- if (dt_lst = v_moduleinst.TYPES_moduleinst)
+    -- where dt_lst = v_moduleinst.TYPES_moduleinst {dt_lst}
 
 ;; ../../../../specification/wasm-3.0/4.2-execution.types.spectec
 def $inst_memtype(v_moduleinst : moduleinst, v_memtype : memtype) : memtype
   ;; ../../../../specification/wasm-3.0/4.2-execution.types.spectec
   def $inst_memtype{v_moduleinst : moduleinst, mt : memtype, dt_lst : deftype*}(v_moduleinst, mt) = $subst_all_memtype(mt, $typeuse_deftype(dt)*{dt <- dt_lst})
-    -- if (dt_lst = v_moduleinst.TYPES_moduleinst)
+    -- where dt_lst = v_moduleinst.TYPES_moduleinst {dt_lst}
 
 ;; ../../../../specification/wasm-3.0/4.2-execution.types.spectec
 def $inst_tabletype(v_moduleinst : moduleinst, v_tabletype : tabletype) : tabletype
   ;; ../../../../specification/wasm-3.0/4.2-execution.types.spectec
   def $inst_tabletype{v_moduleinst : moduleinst, tt : tabletype, dt_lst : deftype*}(v_moduleinst, tt) = $subst_all_tabletype(tt, $typeuse_deftype(dt)*{dt <- dt_lst})
-    -- if (dt_lst = v_moduleinst.TYPES_moduleinst)
+    -- where dt_lst = v_moduleinst.TYPES_moduleinst {dt_lst}
 
 ;; ../../../../specification/wasm-3.0/4.3-execution.instructions.spectec
 relation Step_pure_before_br_on_null_addr: `%`(instr*)
@@ -15261,8 +15261,8 @@ def $alloctypes(var_0 : type*) : deftype*
   ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:9.1-13.24
   def $alloctypes{type'_lst : type*, v_type : type, deftype'_lst : deftype*, deftype_lst : deftype*, v_rectype : rectype, x : uN}(type'_lst ++ [v_type]) = deftype'_lst ++ deftype_lst
     -- wf_uN: `%%`(32, x)
-    -- if (deftype'_lst = $alloctypes(type'_lst))
-    -- if (v_type = TYPE_type(v_rectype))
+    -- where deftype'_lst = $alloctypes(type'_lst) {deftype'_lst}
+    -- where TYPE_type(v_rectype) = v_type {v_rectype}
     -- if (deftype_lst = $subst_all_deftypes($rolldt(x, v_rectype), $typeuse_deftype(deftype')*{deftype' <- deftype'_lst}))
     -- if ($proj_uN_0(x).0 = |deftype'_lst|)
 }
@@ -15286,8 +15286,8 @@ def $alloctags(v_store : store, var_0 : tagtype*) : (store, tagaddr*)
   def $alloctags{s : store, v_tagtype : typeuse, tagtype'_lst : tagtype*, s_2 : store, ja : nat, ja'_lst : tagaddr*, s_1 : store}(s, [v_tagtype] ++ tagtype'_lst) = (s_2, [ja] ++ ja'_lst)
     -- wf_store: `%`(s_2)
     -- wf_store: `%`(s_1)
-    -- if ((s_1, ja) = $alloctag(s, v_tagtype))
-    -- if ((s_2, ja'_lst) = $alloctags(s_1, tagtype'_lst))
+    -- where (s_1, ja) = $alloctag(s, v_tagtype) {ja, s_1}
+    -- where (s_2, ja'_lst) = $alloctags(s_1, tagtype'_lst) {ja'_lst, s_2}
 }
 
 ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
@@ -15309,8 +15309,8 @@ def $allocglobals(v_store : store, var_0 : globaltype*, var_1 : val*) : (store, 
   def $allocglobals{s : store, v_globaltype : globaltype, globaltype'_lst : globaltype*, v_val : val, val'_lst : val*, s_2 : store, ga : nat, ga'_lst : globaladdr*, s_1 : store}(s, [v_globaltype] ++ globaltype'_lst, [v_val] ++ val'_lst) = (s_2, [ga] ++ ga'_lst)
     -- wf_store: `%`(s_2)
     -- wf_store: `%`(s_1)
-    -- if ((s_1, ga) = $allocglobal(s, v_globaltype, v_val))
-    -- if ((s_2, ga'_lst) = $allocglobals(s_1, globaltype'_lst, val'_lst))
+    -- where (s_1, ga) = $allocglobal(s, v_globaltype, v_val) {ga, s_1}
+    -- where (s_2, ga'_lst) = $allocglobals(s_1, globaltype'_lst, val'_lst) {ga'_lst, s_2}
 }
 
 ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
@@ -15332,8 +15332,8 @@ def $allocmems(v_store : store, var_0 : memtype*) : (store, memaddr*)
   def $allocmems{s : store, v_memtype : memtype, memtype'_lst : memtype*, s_2 : store, ma : nat, ma'_lst : memaddr*, s_1 : store}(s, [v_memtype] ++ memtype'_lst) = (s_2, [ma] ++ ma'_lst)
     -- wf_store: `%`(s_2)
     -- wf_store: `%`(s_1)
-    -- if ((s_1, ma) = $allocmem(s, v_memtype))
-    -- if ((s_2, ma'_lst) = $allocmems(s_1, memtype'_lst))
+    -- where (s_1, ma) = $allocmem(s, v_memtype) {ma, s_1}
+    -- where (s_2, ma'_lst) = $allocmems(s_1, memtype'_lst) {ma'_lst, s_2}
 }
 
 ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
@@ -15355,8 +15355,8 @@ def $alloctables(v_store : store, var_0 : tabletype*, var_1 : ref*) : (store, ta
   def $alloctables{s : store, v_tabletype : tabletype, tabletype'_lst : tabletype*, v_ref : ref, ref'_lst : ref*, s_2 : store, ta : nat, ta'_lst : tableaddr*, s_1 : store}(s, [v_tabletype] ++ tabletype'_lst, [v_ref] ++ ref'_lst) = (s_2, [ta] ++ ta'_lst)
     -- wf_store: `%`(s_2)
     -- wf_store: `%`(s_1)
-    -- if ((s_1, ta) = $alloctable(s, v_tabletype, v_ref))
-    -- if ((s_2, ta'_lst) = $alloctables(s_1, tabletype'_lst, ref'_lst))
+    -- where (s_1, ta) = $alloctable(s, v_tabletype, v_ref) {s_1, ta}
+    -- where (s_2, ta'_lst) = $alloctables(s_1, tabletype'_lst, ref'_lst) {s_2, ta'_lst}
 }
 
 ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
@@ -15378,8 +15378,8 @@ def $allocfuncs(v_store : store, var_0 : deftype*, var_1 : funccode*, var_2 : mo
   def $allocfuncs{s : store, dt : deftype, dt'_lst : deftype*, v_funccode : funccode, funccode'_lst : funccode*, v_moduleinst : moduleinst, moduleinst'_lst : moduleinst*, s_2 : store, fa : nat, fa'_lst : funcaddr*, s_1 : store}(s, [dt] ++ dt'_lst, [v_funccode] ++ funccode'_lst, [v_moduleinst] ++ moduleinst'_lst) = (s_2, [fa] ++ fa'_lst)
     -- wf_store: `%`(s_2)
     -- wf_store: `%`(s_1)
-    -- if ((s_1, fa) = $allocfunc(s, dt, v_funccode, v_moduleinst))
-    -- if ((s_2, fa'_lst) = $allocfuncs(s_1, dt'_lst, funccode'_lst, moduleinst'_lst))
+    -- where (s_1, fa) = $allocfunc(s, dt, v_funccode, v_moduleinst) {fa, s_1}
+    -- where (s_2, fa'_lst) = $allocfuncs(s_1, dt'_lst, funccode'_lst, moduleinst'_lst) {fa'_lst, s_2}
 }
 
 ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
@@ -15401,8 +15401,8 @@ def $allocdatas(v_store : store, var_0 : datatype*, var_1 : byte**) : (store, da
   def $allocdatas{s : store, ok : datatype, ok'_lst : datatype*, b_lst : byte*, b'_lst_lst : byte**, s_2 : store, da : nat, da'_lst : dataaddr*, s_1 : store}(s, [ok] ++ ok'_lst, [b_lst] ++ b'_lst_lst) = (s_2, [da] ++ da'_lst)
     -- wf_store: `%`(s_2)
     -- wf_store: `%`(s_1)
-    -- if ((s_1, da) = $allocdata(s, ok, b_lst))
-    -- if ((s_2, da'_lst) = $allocdatas(s_1, ok'_lst, b'_lst_lst))
+    -- where (s_1, da) = $allocdata(s, ok, b_lst) {da, s_1}
+    -- where (s_2, da'_lst) = $allocdatas(s_1, ok'_lst, b'_lst_lst) {da'_lst, s_2}
 }
 
 ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
@@ -15424,8 +15424,8 @@ def $allocelems(v_store : store, var_0 : elemtype*, var_1 : ref**) : (store, ele
   def $allocelems{s : store, rt : reftype, rt'_lst : reftype*, ref_lst : ref*, ref'_lst_lst : ref**, s_2 : store, ea : nat, ea'_lst : elemaddr*, s_1 : store}(s, [rt] ++ rt'_lst, [ref_lst] ++ ref'_lst_lst) = (s_2, [ea] ++ ea'_lst)
     -- wf_store: `%`(s_2)
     -- wf_store: `%`(s_1)
-    -- if ((s_1, ea) = $allocelem(s, rt, ref_lst))
-    -- if ((s_2, ea'_lst) = $allocelems(s_1, rt'_lst, ref'_lst_lst))
+    -- where (s_1, ea) = $allocelem(s, rt, ref_lst) {ea, s_1}
+    -- where (s_2, ea'_lst) = $allocelems(s_1, rt'_lst, ref'_lst_lst) {ea'_lst, s_2}
 }
 
 ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
@@ -15473,27 +15473,27 @@ def $allocmodule(v_store : store, v_module : module, var_0 : externaddr*, var_1 
     -- (wf_elem: `%`(ELEM_elem(v_elemtype, expr_E_lst, v_elemmode)))*{v_elemmode <- elemmode_lst, v_elemtype <- elemtype_lst, expr_E_lst <- expr_E_lst_lst}
     -- wf_moduleinst: `%`({TYPES [], TAGS aa_I_lst ++ aa_lst, GLOBALS ga_I_lst ++ ga_lst, MEMS ma_I_lst ++ ma_lst, TABLES ta_I_lst ++ ta_lst, FUNCS fa_I_lst ++ fa_lst, DATAS [], ELEMS [], EXPORTS []})
     -- wf_moduleinst: `%`({TYPES dt_lst, TAGS aa_I_lst ++ aa_lst, GLOBALS ga_I_lst ++ ga_lst, MEMS ma_I_lst ++ ma_lst, TABLES ta_I_lst ++ ta_lst, FUNCS fa_I_lst ++ fa_lst, DATAS da_lst, ELEMS ea_lst, EXPORTS xi_lst})
-    -- if (v_module = MODULE_module(type_lst, import_lst, tag_lst, global_lst, mem_lst, table_lst, func_lst, data_lst, elem_lst, start_opt, export_lst))
-    -- if (tag_lst = TAG_tag(v_tagtype)*{v_tagtype <- tagtype_lst})
-    -- if (global_lst = GLOBAL_global(v_globaltype, expr_G)*{expr_G <- expr_G_lst, v_globaltype <- globaltype_lst})
-    -- if (mem_lst = MEMORY_mem(v_memtype)*{v_memtype <- memtype_lst})
-    -- if (table_lst = TABLE_table(v_tabletype, expr_T)*{expr_T <- expr_T_lst, v_tabletype <- tabletype_lst})
-    -- if (func_lst = FUNC_func(x, local_lst, expr_F)*{expr_F <- expr_F_lst, local_lst <- local_lst_lst, x <- x_lst})
-    -- if (data_lst = DATA_data(byte_lst, v_datamode)*{byte_lst <- byte_lst_lst, v_datamode <- datamode_lst})
-    -- if (elem_lst = ELEM_elem(v_elemtype, expr_E_lst, v_elemmode)*{v_elemmode <- elemmode_lst, v_elemtype <- elemtype_lst, expr_E_lst <- expr_E_lst_lst})
-    -- if (aa_I_lst = $tagsxa(externaddr_lst))
-    -- if (ga_I_lst = $globalsxa(externaddr_lst))
-    -- if (ma_I_lst = $memsxa(externaddr_lst))
-    -- if (ta_I_lst = $tablesxa(externaddr_lst))
-    -- if (fa_I_lst = $funcsxa(externaddr_lst))
-    -- if (dt_lst = $alloctypes(type_lst))
+    -- where MODULE_module(type_lst, import_lst, tag_lst, global_lst, mem_lst, table_lst, func_lst, data_lst, elem_lst, start_opt, export_lst) = v_module {data_lst, elem_lst, export_lst, func_lst, global_lst, import_lst, mem_lst, start_opt, table_lst, tag_lst, type_lst}
+    -- where TAG_tag(v_tagtype)*{v_tagtype <- tagtype_lst} = tag_lst {tagtype_lst, v_tagtype}
+    -- where GLOBAL_global(v_globaltype, expr_G)*{expr_G <- expr_G_lst, v_globaltype <- globaltype_lst} = global_lst {expr_G, expr_G_lst, globaltype_lst, v_globaltype}
+    -- where MEMORY_mem(v_memtype)*{v_memtype <- memtype_lst} = mem_lst {memtype_lst, v_memtype}
+    -- where TABLE_table(v_tabletype, expr_T)*{expr_T <- expr_T_lst, v_tabletype <- tabletype_lst} = table_lst {expr_T, expr_T_lst, tabletype_lst, v_tabletype}
+    -- where FUNC_func(x, local_lst, expr_F)*{expr_F <- expr_F_lst, local_lst <- local_lst_lst, x <- x_lst} = func_lst {expr_F, expr_F_lst, local_lst, local_lst_lst, x, x_lst}
+    -- where DATA_data(byte_lst, v_datamode)*{byte_lst <- byte_lst_lst, v_datamode <- datamode_lst} = data_lst {byte_lst, byte_lst_lst, datamode_lst, v_datamode}
+    -- where ELEM_elem(v_elemtype, expr_E_lst, v_elemmode)*{v_elemmode <- elemmode_lst, v_elemtype <- elemtype_lst, expr_E_lst <- expr_E_lst_lst} = elem_lst {elemmode_lst, elemtype_lst, expr_E_lst, expr_E_lst_lst, v_elemmode, v_elemtype}
+    -- where aa_I_lst = $tagsxa(externaddr_lst) {aa_I_lst}
+    -- where ga_I_lst = $globalsxa(externaddr_lst) {ga_I_lst}
+    -- where ma_I_lst = $memsxa(externaddr_lst) {ma_I_lst}
+    -- where ta_I_lst = $tablesxa(externaddr_lst) {ta_I_lst}
+    -- where fa_I_lst = $funcsxa(externaddr_lst) {fa_I_lst}
+    -- where dt_lst = $alloctypes(type_lst) {dt_lst}
     -- if (fa_lst = (|s.FUNCS_store| + i_F)^(i_F<|func_lst|){i_F <- i_F_lst})
-    -- if ((s_1, aa_lst) = $alloctags(s, $subst_all_tagtype(v_tagtype, $typeuse_deftype(dt)*{dt <- dt_lst})*{v_tagtype <- tagtype_lst}))
-    -- if ((s_2, ga_lst) = $allocglobals(s_1, $subst_all_globaltype(v_globaltype, $typeuse_deftype(dt)*{dt <- dt_lst})*{v_globaltype <- globaltype_lst}, val_G_lst))
-    -- if ((s_3, ma_lst) = $allocmems(s_2, $subst_all_memtype(v_memtype, $typeuse_deftype(dt)*{dt <- dt_lst})*{v_memtype <- memtype_lst}))
-    -- if ((s_4, ta_lst) = $alloctables(s_3, $subst_all_tabletype(v_tabletype, $typeuse_deftype(dt)*{dt <- dt_lst})*{v_tabletype <- tabletype_lst}, ref_T_lst))
-    -- if ((s_5, da_lst) = $allocdatas(s_4, OK_datatype^|data_lst|{}, byte_lst_lst))
-    -- if ((s_6, ea_lst) = $allocelems(s_5, $subst_all_reftype(v_elemtype, $typeuse_deftype(dt)*{dt <- dt_lst})*{v_elemtype <- elemtype_lst}, ref_E_lst_lst))
+    -- where (s_1, aa_lst) = $alloctags(s, $subst_all_tagtype(v_tagtype, $typeuse_deftype(dt)*{dt <- dt_lst})*{v_tagtype <- tagtype_lst}) {aa_lst, s_1}
+    -- where (s_2, ga_lst) = $allocglobals(s_1, $subst_all_globaltype(v_globaltype, $typeuse_deftype(dt)*{dt <- dt_lst})*{v_globaltype <- globaltype_lst}, val_G_lst) {ga_lst, s_2}
+    -- where (s_3, ma_lst) = $allocmems(s_2, $subst_all_memtype(v_memtype, $typeuse_deftype(dt)*{dt <- dt_lst})*{v_memtype <- memtype_lst}) {ma_lst, s_3}
+    -- where (s_4, ta_lst) = $alloctables(s_3, $subst_all_tabletype(v_tabletype, $typeuse_deftype(dt)*{dt <- dt_lst})*{v_tabletype <- tabletype_lst}, ref_T_lst) {s_4, ta_lst}
+    -- where (s_5, da_lst) = $allocdatas(s_4, OK_datatype^|data_lst|{}, byte_lst_lst) {da_lst, s_5}
+    -- where (s_6, ea_lst) = $allocelems(s_5, $subst_all_reftype(v_elemtype, $typeuse_deftype(dt)*{dt <- dt_lst})*{v_elemtype <- elemtype_lst}, ref_E_lst_lst) {ea_lst, s_6}
     -- if ((s_7, fa_lst) = $allocfuncs(s_6, dt_lst[$proj_uN_0(x).0]*{x <- x_lst}, FUNC_funccode(x, local_lst, expr_F)*{expr_F <- expr_F_lst, local_lst <- local_lst_lst, x <- x_lst}, v_moduleinst^|func_lst|{}))
     -- if (xi_lst = $allocexports({TYPES [], TAGS aa_I_lst ++ aa_lst, GLOBALS ga_I_lst ++ ga_lst, MEMS ma_I_lst ++ ma_lst, TABLES ta_I_lst ++ ta_lst, FUNCS fa_I_lst ++ fa_lst, DATAS [], ELEMS [], EXPORTS []}, export_lst))
     -- if (v_moduleinst = {TYPES dt_lst, TAGS aa_I_lst ++ aa_lst, GLOBALS ga_I_lst ++ ga_lst, MEMS ma_I_lst ++ ma_lst, TABLES ta_I_lst ++ ta_lst, FUNCS fa_I_lst ++ fa_lst, DATAS da_lst, ELEMS ea_lst, EXPORTS xi_lst})
@@ -15538,9 +15538,9 @@ def $evalglobals(v_state : state, var_0 : globaltype*, var_1 : expr*) : (state, 
     -- wf_state: `%`(mk_state_state(s, f))
     -- wf_state: `%`(mk_state_state(s', f[MODULE_frame.GLOBALS_moduleinst =++ [a]]))
     -- Eval_expr: `%;%~>*%;%`(z, v_expr, z, [v_val])
-    -- if (z = mk_state_state(s, f))
-    -- if ((s', a) = $allocglobal(s, gt, v_val))
-    -- if ((z', val'_lst) = $evalglobals(mk_state_state(s', f[MODULE_frame.GLOBALS_moduleinst =++ [a]]), gt'_lst, expr'_lst))
+    -- where mk_state_state(s, f) = z {f, s}
+    -- where (s', a) = $allocglobal(s, gt, v_val) {a, s'}
+    -- where (z', val'_lst) = $evalglobals(mk_state_state(s', f[MODULE_frame.GLOBALS_moduleinst =++ [a]]), gt'_lst, expr'_lst) {val'_lst, z'}
 }
 
 ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
@@ -15567,21 +15567,21 @@ def $instantiate(v_store : store, v_module : module, var_0 : externaddr*) : conf
     -- (wf_instr: `%`(CALL_instr(x)))?{x <- x_opt}
     -- Module_ok: `|-%:%`(v_module, mk_moduletype_moduletype(xt_I_lst, xt_E_lst))
     -- (Externaddr_ok: `%|-%:%`(s, v_externaddr, xt_I))*{v_externaddr <- externaddr_lst, xt_I <- xt_I_lst}
-    -- if (v_module = MODULE_module(type_lst, import_lst, tag_lst, global_lst, mem_lst, table_lst, func_lst, data_lst, elem_lst, start_opt, export_lst))
-    -- if (global_lst = GLOBAL_global(v_globaltype, expr_G)*{expr_G <- expr_G_lst, v_globaltype <- globaltype_lst})
-    -- if (table_lst = TABLE_table(v_tabletype, expr_T)*{expr_T <- expr_T_lst, v_tabletype <- tabletype_lst})
-    -- if (data_lst = DATA_data(byte_lst, v_datamode)*{byte_lst <- byte_lst_lst, v_datamode <- datamode_lst})
-    -- if (elem_lst = ELEM_elem(v_reftype, expr_E_lst, v_elemmode)*{v_elemmode <- elemmode_lst, expr_E_lst <- expr_E_lst_lst, v_reftype <- reftype_lst})
-    -- if (start_opt = START_start(x)?{x <- x_opt})
+    -- where MODULE_module(type_lst, import_lst, tag_lst, global_lst, mem_lst, table_lst, func_lst, data_lst, elem_lst, start_opt, export_lst) = v_module {data_lst, elem_lst, export_lst, func_lst, global_lst, import_lst, mem_lst, start_opt, table_lst, tag_lst, type_lst}
+    -- where GLOBAL_global(v_globaltype, expr_G)*{expr_G <- expr_G_lst, v_globaltype <- globaltype_lst} = global_lst {expr_G, expr_G_lst, globaltype_lst, v_globaltype}
+    -- where TABLE_table(v_tabletype, expr_T)*{expr_T <- expr_T_lst, v_tabletype <- tabletype_lst} = table_lst {expr_T, expr_T_lst, tabletype_lst, v_tabletype}
+    -- where DATA_data(byte_lst, v_datamode)*{byte_lst <- byte_lst_lst, v_datamode <- datamode_lst} = data_lst {byte_lst, byte_lst_lst, datamode_lst, v_datamode}
+    -- where ELEM_elem(v_reftype, expr_E_lst, v_elemmode)*{v_elemmode <- elemmode_lst, expr_E_lst <- expr_E_lst_lst, v_reftype <- reftype_lst} = elem_lst {elemmode_lst, expr_E_lst, expr_E_lst_lst, reftype_lst, v_elemmode, v_reftype}
+    -- where START_start(x)?{x <- x_opt} = start_opt {x, x_opt}
     -- if (moduleinst_0 = {TYPES $alloctypes(type_lst), TAGS [], GLOBALS $globalsxa(externaddr_lst), MEMS [], TABLES [], FUNCS $funcsxa(externaddr_lst) ++ (|s.FUNCS_store| + i_F)^(i_F<|func_lst|){i_F <- i_F_lst}, DATAS [], ELEMS [], EXPORTS []})
     -- if (z = mk_state_state(s, {LOCALS [], MODULE moduleinst_0}))
-    -- if ((z', val_G_lst) = $evalglobals(z, globaltype_lst, expr_G_lst))
+    -- where (z', val_G_lst) = $evalglobals(z, globaltype_lst, expr_G_lst) {val_G_lst, z'}
     -- (Eval_expr: `%;%~>*%;%`(z', expr_T, z', [$val_ref(ref_T)]))*{expr_T <- expr_T_lst, ref_T <- ref_T_lst}
     -- (Eval_expr: `%;%~>*%;%`(z', expr_E, z', [$val_ref(ref_E)]))*{expr_E <- expr_E_lst, ref_E <- ref_E_lst}*{expr_E_lst <- expr_E_lst_lst, ref_E_lst <- ref_E_lst_lst}
-    -- if ((s', v_moduleinst) = $allocmodule(s, v_module, externaddr_lst, val_G_lst, ref_T_lst, ref_E_lst_lst))
+    -- where (s', v_moduleinst) = $allocmodule(s, v_module, externaddr_lst, val_G_lst, ref_T_lst, ref_E_lst_lst) {s', v_moduleinst}
     -- if (instr_D_lst = $concat_(syntax instr, $rundata_(mk_uN_dataidx(i_D), data_lst[i_D])^(i_D<|data_lst|){i_D <- i_D_lst}))
     -- if (instr_E_lst = $concat_(syntax instr, $runelem_(mk_uN_elemidx(i_E), elem_lst[i_E])^(i_E<|elem_lst|){i_E <- i_E_lst}))
-    -- if (instr_S_opt = CALL_instr(x)?{x <- x_opt})
+    -- where instr_S_opt = CALL_instr(x)?{x <- x_opt} {instr_S_opt}
 
 ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
 def $invoke(v_store : store, v_funcaddr : funcaddr, var_0 : val*) : config
@@ -19702,8 +19702,8 @@ def $allocXs(syntax X, syntax Y, v_store : store, var_0 : X*, var_1 : Y*) : (sto
   def $allocXs{syntax X, syntax Y, s : store, X : X, X'_lst : X*, Y : Y, Y'_lst : Y*, s_2 : store, a : nat, a'_lst : addr*, s_1 : store}(syntax X, syntax Y, s, [X] ++ X'_lst, [Y] ++ Y'_lst) = (s_2, [a] ++ a'_lst)
     -- wf_store: `%`(s_2)
     -- wf_store: `%`(s_1)
-    -- if ((s_1, a) = $allocX(syntax X, syntax Y, s, X, Y))
-    -- if ((s_2, a'_lst) = $allocXs(syntax X, syntax Y, s_1, X'_lst, Y'_lst))
+    -- where (s_1, a) = $allocX(syntax X, syntax Y, s, X, Y) {a, s_1}
+    -- where (s_2, a'_lst) = $allocXs(syntax X, syntax Y, s_1, X'_lst, Y'_lst) {a'_lst, s_2}
 }
 
 ;; ../../../../specification/wasm-3.0/X.4-notation.binary.spectec
