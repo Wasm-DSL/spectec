@@ -141,9 +141,26 @@ let is_part_of_else_set env d =
   | RelD (id, _, _, _) -> StringSet.mem id.it env.else_set_to_remove
   | _ -> false
 
+let filter_else_set env: (module Iter.Arg) =
+  let module Arg = 
+    struct
+      include Iter.Skip 
+      let visit_prem prem = 
+        match prem.it with
+        | RulePr (id, _, _) when StringSet.mem id.it env.else_set_to_remove -> 
+          env.else_set_to_remove <- StringSet.remove id.it env.else_set_to_remove
+        | _ -> ()
+    end
+  in (module Arg)
+
 let transform defs =
   let env = new_env defs in
   List.iter (register_hints env) defs;
-  List.map (t_def env) defs |>
-  Lib.List.filter_not (is_part_of_else_set env) 
+  let defs' = List.map (t_def env) defs in
+  let (module Arg) = filter_else_set env in
+  let module Acc = Iter.Make(Arg) in
+  (* Remove still existing else relations from set*)
+  List.iter Acc.def defs';
+  (* Filter out remaining else relations *)
+  Lib.List.filter_not (is_part_of_else_set env) defs'
   
