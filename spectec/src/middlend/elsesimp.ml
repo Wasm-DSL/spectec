@@ -147,7 +147,7 @@ let filter_else_set env: (module Iter.Arg) =
       include Iter.Skip 
       let visit_prem prem = 
         match prem.it with
-        | RulePr (id, _, _) when StringSet.mem id.it env.else_set_to_remove -> 
+        | RulePr (id, _, _, _) when StringSet.mem id.it env.else_set_to_remove -> 
           env.else_set_to_remove <- StringSet.remove id.it env.else_set_to_remove
         | _ -> ()
     end
