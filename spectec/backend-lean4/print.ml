@@ -9,7 +9,7 @@ let iter_exp_opt_funcs = ["Option.map"; "option_zipWith"; "option_map3"]
 let error at msg = Util.Error.error at "Lean4 translation" msg 
 
 (* List of declaration ids that are hand-coded in the preamble *)
-let builtins = [ "disjoint_" ]
+let builtins = [ "disjoint_"; "setminus1_"; "setminus_" ]
 
 let rec list_split (f : 'a -> bool) = function 
   | [] -> ([], [])
@@ -744,6 +744,10 @@ macro "opaqueDef" : term => `(by first | exact Inhabited.default | intros; assum
 def disjoint_ (X : Type) [BEq X] : ∀ (var_0 : (List X)), Bool
   | [] => true
   | (w :: w'_lst) => ((!(List.contains w'_lst w)) && (disjoint_ X w'_lst))
+
+/- written manually due to `BEq` constraint -/
+def setminus_ (X : Type) [BEq X] (l1 l2 : List X) : List X :=
+  l1.filter (fun x => !(List.contains l2 x))
 |}
 
 
