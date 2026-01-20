@@ -419,36 +419,6 @@ let is_exp_param param =
   | ExpP _ -> true
   | _ -> false
 
-let rec has_sub_exp e = 
-  match e.it with
-  | SubE _ -> true
-  | StrE fields -> List.exists (fun (_a, e1) -> has_sub_exp e1) fields
-  | UnE (_, _, e1) | CvtE (e1, _, _) | LiftE e1 | TheE e1 | OptE (Some e1) 
-  | ProjE (e1, _) | UncaseE (e1, _)
-  | CaseE (_, e1) | LenE e1 | DotE (e1, _) -> has_sub_exp e1
-  | BinE (_, _, e1, e2) | CmpE (_, _, e1, e2)
-  | CompE (e1, e2) | MemE (e1, e2)
-  | CatE (e1, e2) | IdxE (e1, e2) -> has_sub_exp e1 || has_sub_exp e2
-  | TupE exps | ListE exps -> List.exists has_sub_exp exps
-  | SliceE (e1, e2, e3) -> has_sub_exp e1 || has_sub_exp e2 || has_sub_exp e3
-  | UpdE (e1, p, e2) 
-  | ExtE (e1, p, e2) -> has_sub_exp e1 || has_sub_exp_path p || has_sub_exp e2
-  | CallE (_id, args) -> List.exists has_sub_exp_arg args
-  | IterE (e1, (_, id_exp_pairs)) -> has_sub_exp e1 || List.exists (fun (_, exp) -> has_sub_exp exp) id_exp_pairs
-  | _ -> false
-
-and has_sub_exp_arg a = 
-  match a.it with
-  | ExpA e -> has_sub_exp e 
-  | _ -> false
-
-and has_sub_exp_path p = 
-  match p.it with
-  | RootP -> false
-  | IdxP (p, e) -> has_sub_exp_path p || has_sub_exp e
-  | SliceP (p, e1, e2) -> has_sub_exp_path p || has_sub_exp e1 || has_sub_exp e2
-  | DotP (p, _) -> has_sub_exp_path p
-
 let utilizes_rel_def env e = 
   match e.it with
   | CallE (id, _) -> (StringSet.mem id.it env.rel_set, true)
@@ -480,8 +450,6 @@ let must_be_relation env id params clauses =
   List.exists (fun c -> match c.it with 
   | DefD (quants, args, exp, prems) -> 
     Acc.args args;
-    (* Can't have subtyping matching *)
-    List.exists has_sub_exp_arg args || 
     (* Premises might not be decidable *)
     prems <> [] || 
     (* Functions that have function calls transformed to relations must also be relations *)
