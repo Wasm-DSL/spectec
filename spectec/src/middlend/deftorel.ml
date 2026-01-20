@@ -262,6 +262,11 @@ and transform_exp call_map env e: (exp * (id * typ * int) list) =
     let t1', iter_ids2 = transform_typ call_map env t1 in
     let t2', iter_ids3 = transform_typ call_map env t2 in
     SubE (e1', t1', t2'), iter_ids @ iter_ids2 @ iter_ids3
+  | IfE (e1, e2, e3) ->
+    let e1', iter_ids = t_func e1 in
+    let e2', iter_ids2 = t_func e2 in
+    let e3', iter_ids3 = t_func e3 in
+    IfE (e1', e2', e3'), iter_ids @ iter_ids2 @ iter_ids3
   | exp -> exp, []) in 
   {e with it}, iter_ids
 
