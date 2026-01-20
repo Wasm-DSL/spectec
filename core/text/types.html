@@ -5,14 +5,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Types &#8212; WebAssembly 3.0 (Draft 2026-01-19)</title>
+    <title>Types &#8212; WebAssembly 3.0 (2026-01-20)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=616c94b5"></script>
+    <script src="../_static/documentation_options.js?v=cc4c3a9f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}}</script>
+    <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}, "options": {"menuOptions": {"settings": {"enrich": false}}}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -240,8 +240,8 @@ paired with the <a class="reference internal" href="conventions.html#text-contex
 <span id="text-limits"></span><span id="index-9"></span><h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">¶</a></h2>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rrl&#64;{}l&#64;{}l&#64;{}l&#64;{}}
-&amp; {\href{../text/types.html#text-limits}{\mathtt{limits}}} &amp; ::= &amp; n{:}{\href{../text/values.html#text-int}{\mathtt{u64}}} &amp; \quad\Rightarrow\quad{} &amp; {}[ n~\href{../syntax/types.html#syntax-limits}{\,{..}\,} ] \\
-&amp; &amp; | &amp; n{:}{\href{../text/values.html#text-int}{\mathtt{u64}}}~~m{:}{\href{../text/values.html#text-int}{\mathtt{u64}}} &amp; \quad\Rightarrow\quad{} &amp; {}[ n~\href{../syntax/types.html#syntax-limits}{\,{..}\,}~m ] \\
+&amp; {\href{../text/types.html#text-limits}{\mathtt{limits}}} &amp; ::= &amp; n{:}{\href{../text/values.html#text-int}{\mathtt{u64}}} &amp; \quad\Rightarrow\quad{} &amp; {}[ n \href{../syntax/types.html#syntax-limits}{\,{..}\,} \epsilon ] \\
+&amp; &amp; | &amp; n{:}{\href{../text/values.html#text-int}{\mathtt{u64}}}~~m{:}{\href{../text/values.html#text-int}{\mathtt{u64}}} &amp; \quad\Rightarrow\quad{} &amp; {}[ n \href{../syntax/types.html#syntax-limits}{\,{..}\,} m ] \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="tag-types">
@@ -297,7 +297,7 @@ If inline declarations are given, then their types must match the referenced <a 
 &amp;&amp;&amp; \multicolumn{4}{&#64;{}l&#64;{}}{\quad
 \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\mbox{if}~ {\href{../text/conventions.html#text-context}{I}}{.}\href{../text/conventions.html#text-context}{\mathsf{typedefs}}{}[x] = (\href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~{{\mathit{st}}^\ast})~{.}~i \\
+\mbox{if}~ {\href{../text/conventions.html#text-context}{I}}{.}\href{../text/conventions.html#text-context}{\mathsf{typedefs}}{}[x] = (\href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~{{\mathit{st}}^\ast}) {.} i \\
 {\land}~ {{\mathit{st}}^\ast}{}[i] = \href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}~(\href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast} \href{../syntax/types.html#syntax-comptype}{\rightarrow} {t_2^\ast}) \\
 {\land}~ {\href{../text/conventions.html#text-context}{I}'} = \{ \href{../text/conventions.html#text-context}{\mathsf{locals}}~{(\epsilon)^{{|{t_1^\ast}|}}} \} \\
 \end{array}
@@ -306,7 +306,7 @@ If inline declarations are given, then their types must match the referenced <a 
 &amp;&amp;&amp; \multicolumn{4}{&#64;{}l&#64;{}}{\quad
 \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\mbox{if}~ {\href{../text/conventions.html#text-context}{I}}{.}\href{../text/conventions.html#text-context}{\mathsf{typedefs}}{}[x] = (\href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~{{\mathit{st}}^\ast})~{.}~i \\
+\mbox{if}~ {\href{../text/conventions.html#text-context}{I}}{.}\href{../text/conventions.html#text-context}{\mathsf{typedefs}}{}[x] = (\href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~{{\mathit{st}}^\ast}) {.} i \\
 {\land}~ {{\mathit{st}}^\ast}{}[i] = \href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}~(\href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast} \href{../syntax/types.html#syntax-comptype}{\rightarrow} {t_2^\ast}) \\
 {\land}~ {\href{../text/conventions.html#text-context}{I}'} = \{ \href{../text/conventions.html#text-context}{\mathsf{locals}}~{({{\mathit{id}}^?})^\ast} \} \\
 {\land}~ {\vdash}\, {\href{../text/conventions.html#text-context}{I}'} : \mathsf{ok} \\
@@ -336,8 +336,8 @@ In that case, a <a class="reference internal" href="../syntax/modules.html#synta
 &amp;&amp;&amp; \multicolumn{4}{&#64;{}l&#64;{}}{\quad
 \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\mbox{if}~ {\href{../text/conventions.html#text-context}{I}}{.}\href{../text/conventions.html#text-context}{\mathsf{typedefs}}{}[x] = (\href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~(\href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}~(\href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast} \href{../syntax/types.html#syntax-comptype}{\rightarrow} {t_2^\ast})))~{.}~0 \\
-{\land}~ ({\href{../text/conventions.html#text-context}{I}}{.}\href{../text/conventions.html#text-context}{\mathsf{typedefs}}{}[i] \neq (\href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~(\href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}~(\href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast} \href{../syntax/types.html#syntax-comptype}{\rightarrow} {t_2^\ast})))~{.}~0)^{i&lt;x} \\
+\mbox{if}~ {\href{../text/conventions.html#text-context}{I}}{.}\href{../text/conventions.html#text-context}{\mathsf{typedefs}}{}[x] = (\href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~(\href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}~(\href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast} \href{../syntax/types.html#syntax-comptype}{\rightarrow} {t_2^\ast}))) {.} 0 \\
+{\land}~ ({\href{../text/conventions.html#text-context}{I}}{.}\href{../text/conventions.html#text-context}{\mathsf{typedefs}}{}[i] \neq (\href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~(\href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}~(\href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast} \href{../syntax/types.html#syntax-comptype}{\rightarrow} {t_2^\ast}))) {.} 0)^{i&lt;x} \\
 \end{array}
 } \\
 \end{array}\end{split}\]</div>
