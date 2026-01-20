@@ -1,5 +1,6 @@
 open Il.Ast
 open Il
+open Il.Walk
 open Util.Source
 open Util
 
@@ -59,54 +60,28 @@ let filter_iter_quants args iter_quants =
   ) (free_vars, []) iter_quants) 
   |> snd |> List.rev
 
-let rec collect_fcalls_exp iter_quants env e = 
+let rec create_collector iterexps env = 
+  let base_collector_iters = base_collector [] (@) in
+  { base_collector_iters with collect_exp = collect_fcalls_exp iterexps env; collect_prem = collect_fcalls_prem iterexps env }
+
+and collect_fcalls_exp iterexps env e = 
   match e.it with
   | CallE (id, args) when StringSet.mem id.it env.rel_set -> 
-    let new_iter_quants = filter_iter_quants args iter_quants in
-    ((fun_prefix ^ id.it $ id.at, args, e.note), new_iter_quants, List.length new_iter_quants) ::
-    List.concat_map (collect_fcalls_arg iter_quants env) args
-  | CallE (_, args) -> List.concat_map (collect_fcalls_arg iter_quants env) args
-  | StrE fields -> List.concat_map (fun (_a, e1) -> collect_fcalls_exp iter_quants env e1) fields
-  | UnE (_, _, e1) | CvtE (e1, _, _) | LiftE e1 | TheE e1 | OptE (Some e1) 
-  | ProjE (e1, _) | UncaseE (e1, _)
-  | CaseE (_, e1) | LenE e1 | DotE (e1, _)
-  | SubE (e1, _, _) -> collect_fcalls_exp iter_quants env e1
-  | BinE (_, _, e1, e2) | CmpE (_, _, e1, e2)
-  | CompE (e1, e2) | MemE (e1, e2)
-  | CatE (e1, e2) | IdxE (e1, e2) -> collect_fcalls_exp iter_quants env e1 @ collect_fcalls_exp iter_quants env e2
-  | TupE exps | ListE exps -> List.concat_map (collect_fcalls_exp iter_quants env) exps
-  | SliceE (e1, e2, e3) -> collect_fcalls_exp iter_quants env e1 @ collect_fcalls_exp iter_quants env e2 @ collect_fcalls_exp iter_quants env e3
-  | UpdE (e1, p, e2) 
-  | ExtE (e1, p, e2) -> collect_fcalls_exp iter_quants env e1 @ collect_fcalls_path iter_quants env p @ collect_fcalls_exp iter_quants env e2
-  | IterE (e1,( (iter, id_exp_pairs) as iterexp)) -> 
-    collect_fcalls_exp (iterexp :: iter_quants) env e1 @ collect_fcalls_iter (iterexp :: iter_quants) env iter @
-    List.concat_map (fun (_, exp) -> collect_fcalls_exp iter_quants env exp) id_exp_pairs
-  | _ -> []
+    let new_iter_quants = filter_iter_quants args iterexps in
+    ([((fun_prefix ^ id.it $ id.at, args, e.note), new_iter_quants, List.length new_iter_quants)], true)
+  | IterE (e1, iterexp) -> 
+    let c1 = create_collector iterexps env in
+    let c2 = create_collector (iterexp :: iterexps) env in 
+    (collect_exp c2 e1 @ collect_iterexp c1 iterexp, false)
+  | _ -> ([], true)
 
-and collect_fcalls_iter iter_quants env i = 
-  match i with
-  | ListN (e1, _) -> collect_fcalls_exp iter_quants env e1
-  | _ -> []
-    
-and collect_fcalls_arg iter_quants env a =
-  match a.it with
-  | ExpA exp -> collect_fcalls_exp iter_quants env exp
-  | _ -> (* TODO - possibly need to go through all types of args *) 
-    []
-
-and collect_fcalls_prem iter_quants env p =
+and collect_fcalls_prem iterexps env p =
   match p.it with
-  | IfPr e | RulePr (_, _, _, e) -> collect_fcalls_exp iter_quants env e
-  | LetPr (e1, e2, _) -> collect_fcalls_exp iter_quants env e1 @ collect_fcalls_exp iter_quants env e2
-  | IterPr (p', iterexp) -> collect_fcalls_prem (iterexp :: iter_quants) env p'
-  | _ -> [] 
-
-and collect_fcalls_path iter_quants env p =
-  match p.it with
-  | RootP -> []
-  | IdxP (p, e) -> collect_fcalls_path iter_quants env p @ collect_fcalls_exp iter_quants env e
-  | SliceP (p, e1, e2) -> collect_fcalls_path iter_quants env p @ collect_fcalls_exp iter_quants env e1 @ collect_fcalls_exp iter_quants env e2
-  | DotP (p, _) -> collect_fcalls_path iter_quants env p
+  | IterPr (p', iterexp) -> 
+    let c1 = create_collector iterexps env in
+    let c2 = create_collector (iterexp :: iterexps) env in 
+    (collect_prem c2 p' @ collect_iterexp c1 iterexp, false)
+  | _ -> ([], true) 
 
 let create_fun_prem ids ((id, args, r_typ), iterexps, _) =
   let fresh_var = Utils.generate_var ids "" in
@@ -404,8 +379,9 @@ and transform_prem_normal call_map env prem = fst (transform_prem call_map env p
 
 let transform_rule env rule = 
   (match rule.it with
-  | RuleD (id, quants, m, exp, prems) -> 
-    let fcalls = collect_fcalls_exp [] env exp @ List.concat_map (collect_fcalls_prem [] env) prems in
+  | RuleD (id, quants, m, exp, prems) ->
+    let c = create_collector [] env in 
+    let fcalls = collect_exp c exp @ List.concat_map (collect_prem c) prems in
     let call_map, new_quants, new_prems = create_call_map fcalls quants in
     RuleD (id.it $ no_region, 
     List.map (transform_param call_map env) (quants @ new_quants), 
@@ -417,7 +393,8 @@ let transform_rule env rule =
 let transform_clause env clause = 
   (match clause.it with
   | DefD (quants, args, exp, prems) -> 
-    let fcalls = collect_fcalls_exp [] env exp @ List.concat_map (collect_fcalls_prem [] env) prems in
+    let c = create_collector [] env in 
+    let fcalls = collect_exp c exp @ List.concat_map (collect_prem c) prems in
     let call_map, new_quants, new_prems = create_call_map fcalls quants in
     DefD ( 
     List.map (transform_param call_map env) (quants @ new_quants), 
@@ -429,7 +406,8 @@ let transform_clause env clause =
 let transform_prod env prod = 
   match prod.it with
   | ProdD (quants, sym, exp, prems) -> 
-    let fcalls = collect_fcalls_exp [] env exp @ List.concat_map (collect_fcalls_prem [] env) prems in
+    let c = create_collector [] env in 
+    let fcalls = collect_exp c exp @ List.concat_map (collect_prem c) prems in
     let call_map, new_quants, new_prems = create_call_map fcalls quants in    
     ProdD (List.map (transform_param call_map env) (quants @ new_quants), 
     sym, 
@@ -471,45 +449,10 @@ and has_sub_exp_path p =
   | SliceP (p, e1, e2) -> has_sub_exp_path p || has_sub_exp e1 || has_sub_exp e2
   | DotP (p, _) -> has_sub_exp_path p
 
-let rec utilizes_rel_def env e = 
+let utilizes_rel_def env e = 
   match e.it with
-  | CallE (id, args) -> StringSet.mem id.it env.rel_set || List.exists (utilizes_rel_def_arg env) args
-  | StrE fields -> List.exists (fun (_a, e1) -> utilizes_rel_def env e1) fields
-  | UnE (_, _, e1) | CvtE (e1, _, _) | LiftE e1 | TheE e1 | OptE (Some e1) 
-  | ProjE (e1, _) | UncaseE (e1, _)
-  | CaseE (_, e1) | LenE e1 | DotE (e1, _)
-  | SubE (e1, _, _) -> utilizes_rel_def env e1
-  | BinE (_, _, e1, e2) | CmpE (_, _, e1, e2)
-  | CompE (e1, e2) | MemE (e1, e2)
-  | CatE (e1, e2) | IdxE (e1, e2) -> utilizes_rel_def env e1 || utilizes_rel_def env e2
-  | TupE exps | ListE exps -> List.exists (utilizes_rel_def env) exps
-  | SliceE (e1, e2, e3) -> utilizes_rel_def env e1 || utilizes_rel_def env e2 || utilizes_rel_def env e3
-  | UpdE (e1, p, e2) 
-  | ExtE (e1, p, e2) -> utilizes_rel_def env e1 || utilizes_rel_def_path env p || utilizes_rel_def env e2
-  | IterE (e1, (_, id_exp_pairs)) -> utilizes_rel_def env e1 || List.exists (fun (_, exp) -> utilizes_rel_def env exp) id_exp_pairs
-  | _ -> false
-
-and utilizes_rel_def_arg env a = 
-  match a.it with
-  | ExpA e -> utilizes_rel_def env e 
-  | _ -> false
-
-and utilizes_rel_def_path env p = 
-  match p.it with
-  | RootP -> false
-  | IdxP (p, e) -> utilizes_rel_def_path env p || utilizes_rel_def env e
-  | SliceP (p, e1, e2) -> utilizes_rel_def_path env p || utilizes_rel_def env e1 || utilizes_rel_def env e2
-  | DotP (p, _) -> utilizes_rel_def_path env p
-
-and utilizes_rel_def_prem env p = 
-  match p.it with
-  | IfPr e -> utilizes_rel_def env e
-  | RulePr (_, _, _, e) -> utilizes_rel_def env e
-  | LetPr (e1, e2, _) -> utilizes_rel_def env e1 || utilizes_rel_def env e2
-  | IterPr (p', (_, id_exp_pairs)) ->
-    utilizes_rel_def_prem env p' || 
-    List.exists (fun (_, exp) -> utilizes_rel_def env exp) id_exp_pairs
-  | _ -> false
+  | CallE (id, _) -> (StringSet.mem id.it env.rel_set, true)
+  | _ -> (false, true)
 
 let collect_list_length_vars () : StringSet.t ref * (module Iter.Arg) =
   let module Arg = 
@@ -526,6 +469,7 @@ let collect_list_length_vars () : StringSet.t ref * (module Iter.Arg) =
 
 let must_be_relation env id params clauses = 
   let listn_set, (module Arg : Iter.Arg) = collect_list_length_vars () in
+  let rel_def_checker = { exists_base_checker with collect_exp = utilizes_rel_def env} in
   assert (!listn_set = StringSet.empty);
   let module Acc = Iter.Make(Arg) in
   (* Current limitation of relations - can only have standard types. 
@@ -541,8 +485,8 @@ let must_be_relation env id params clauses =
     (* Premises might not be decidable *)
     prems <> [] || 
     (* Functions that have function calls transformed to relations must also be relations *)
-    utilizes_rel_def env exp ||
-    List.exists (utilizes_rel_def_prem env) prems || 
+    collect_exp rel_def_checker exp ||
+    List.exists (collect_prem rel_def_checker) prems || 
     (* Checking if equality binding is active *)
     fst (List.fold_left (fun (acc_bool, free_set) arg -> 
       let free_vars = Free.free_arg arg in
@@ -596,13 +540,18 @@ let rec filter_return_prems prems =
 
 let generate_matching_rules env args tupt r = 
   match r.it with
-  | RuleD (id, binds, mixop, exp', prems) -> 
+  | RuleD (id, quants, mixop, exp', prems) -> 
     let (args', _) = Lib.List.split_last (get_tuple_exp exp') in
     let new_exp = TupE args' $$ exp'.at % tupt in
     (try Eval.match_list Eval.match_exp env.il_env Subst.empty args' args with Eval.Irred -> None) |>
     Option.map (fun _ -> 
-      {r with it = RuleD (id, binds, tail_mixop mixop, new_exp, filter_return_prems prems)}
+      {r with it = RuleD (id, quants, tail_mixop mixop, new_exp, filter_return_prems prems)}
     )
+
+let is_otherwise prem =
+  match prem.it with
+  | ElsePr -> true
+  | _ -> false
 
 let fall_through_prems env id mixop typs rules =
   let gen_rel_name rid = 
@@ -610,7 +559,7 @@ let fall_through_prems env id mixop typs rules =
   in
   let rec go prev_rules = function
   | [] -> [ RelD (id, [], mixop, TupT typs $ id.at, List.rev prev_rules) $ id.at ]
-  | ({it = RuleD (rid, binds, m, exp, prems); _} as r) :: rs ->
+  | ({it = RuleD (rid, quants, m, exp, prems); _} as r) :: rs when List.exists is_otherwise prems ->
     let (args, _) = Lib.List.split_last (get_tuple_exp exp) in
     let (typs', _) = Lib.List.split_last typs in
     let tupt = TupT typs' $ id.at in
@@ -618,11 +567,12 @@ let fall_through_prems env id mixop typs rules =
       List.filter_map (generate_matching_rules env args tupt) prev_rules
     in
     let prems' = List.filter (fun p -> p.it <> ElsePr) prems in
-    if rules' = [] then go ({ r with it = RuleD (rid, binds, m, exp, prems') } :: prev_rules) rs else
+    if rules' = [] then go ({ r with it = RuleD (rid, quants, m, exp, prems') } :: prev_rules) rs else
     let relation = RelD (gen_rel_name rid, [], tail_mixop mixop, tupt, rules') $ id.at in 
     let negrulepr = NegPr (RulePr (gen_rel_name rid, [], tail_mixop mixop, TupE args $$ exp.at % tupt) $ rid.at) $ rid.at in
-    let new_rule = { r with it = RuleD (rid, binds, m, exp, negrulepr :: prems') } in
+    let new_rule = { r with it = RuleD (rid, quants, m, exp, negrulepr :: prems') } in
     relation :: go (new_rule :: prev_rules) rs
+  | r :: rs -> go (r :: prev_rules) rs
   in
   go [] rules
 
@@ -639,7 +589,8 @@ let cvt_def_to_rel env id params r_typ clauses =
     match clause.it with
     | DefD (quants, args, exp, prems) -> 
       let exps = List.map get_exp_arg args in
-      let fcalls = collect_fcalls_exp [] env exp @ List.concat_map (collect_fcalls_prem [] env) prems in
+      let c = create_collector [] env in 
+      let fcalls = collect_exp c exp @ List.concat_map (collect_prem c) prems in
       let call_map, new_quants, new_prems = create_call_map fcalls quants in
       let tupe = TupE (exps @ [transform_exp_normal call_map env exp]) $$ id.at % (TupT tup_types $ id.at) in
       RuleD (fun_prefix ^ id.it ^ "_case_" ^ Int.to_string i $ id.at, quants @ new_quants, new_mixop, tupe, List.map (transform_prem_normal call_map env) (new_prems @ prems)) $ id.at
