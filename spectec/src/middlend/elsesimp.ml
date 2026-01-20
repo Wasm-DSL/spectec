@@ -115,13 +115,9 @@ let t_rule env else_ids rule =
   
   if prems' = [] || not (List.for_all is_boolean_prem prems') then None else
   let neg_exps = List.filter_map get_exp prems' in
-  match neg_exps with
-  | [] -> None
-  | x :: xs -> 
-    let new_exp = List.fold_left (fun acc exp -> BinE (`OrOp, `BoolT, acc, exp) $$ x.at % (BoolT $ x.at)) x xs in 
-    let new_prem = IfPr new_exp $ x.at in
-    bind_else_set env else_id;
-    Some { rule with it = RuleD (id, quants @ quants', m, exp, new_prem :: Lib.List.filter_not (is_neg_prem else_ids) prems) }
+  let new_prems = List.map (fun e -> IfPr e $ e.at) neg_exps in
+  bind_else_set env else_id;
+  Some { rule with it = RuleD (id, quants @ quants', m, exp, new_prems @ Lib.List.filter_not (is_neg_prem else_ids) prems) }
 
 let rec t_def env d = 
   {d with it = 
