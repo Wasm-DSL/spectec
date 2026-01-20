@@ -46,19 +46,34 @@ let transform_typ_iter i =
   | _ -> i
 
 let filter_iter_quants args iter_quants = 
+  let check_iter free_set iter =
+    match iter with
+    | ListN (_, Some id) -> Free.Set.mem id.it free_set
+    | _ -> false
+  in
   let free_vars = (Free.free_list Free.free_arg args).varid in
-  (List.fold_left (fun (free_set, acc) (iter, id_exp_pairs) -> 
+  (List.fold_left (fun (free_set, acc) (iter, id_exp_pairs) ->
+    let has_definite_iter = check_iter free_set iter in
+
     let new_id_exp_pairs = List.filter (fun (id, _) -> 
       Free.Set.mem id.it free_set
     ) id_exp_pairs in
-    if new_id_exp_pairs = [] then (free_set, acc) else 
+    
+    (* Must preserve iteration if the iteration variable (i.e. i) is used,
+     * EVEN if the list itself is not being used.
+     *)
+    let new_id_exp_pairs' = if has_definite_iter then id_exp_pairs else
+      new_id_exp_pairs 
+    in
+  
+    if new_id_exp_pairs' = [] && (not has_definite_iter) then (free_set, acc) else 
     let iter_vars = List.fold_left (fun acc (_, e) ->
       Free.Set.union acc (Free.free_exp e).varid  
-    ) Free.Set.empty new_id_exp_pairs in 
+    ) Free.Set.empty new_id_exp_pairs' in 
     let new_set = Free.Set.union iter_vars free_set in
-    (new_set, (iter, new_id_exp_pairs) :: acc)
+    (new_set, (iter, new_id_exp_pairs') :: acc)
   ) (free_vars, []) iter_quants) 
-  |> snd |> List.rev
+  |> snd |> List.rev 
 
 let rec create_collector iterexps env = 
   let base_collector_iters = base_collector [] (@) in
@@ -262,6 +277,11 @@ and transform_exp call_map env e: (exp * (id * typ * int) list) =
     let t1', iter_ids2 = transform_typ call_map env t1 in
     let t2', iter_ids3 = transform_typ call_map env t2 in
     SubE (e1', t1', t2'), iter_ids @ iter_ids2 @ iter_ids3
+  | IfE (e1, e2, e3) ->
+    let e1', iter_ids = t_func e1 in
+    let e2', iter_ids2 = t_func e2 in
+    let e3', iter_ids3 = t_func e3 in
+    IfE (e1', e2', e3'), iter_ids @ iter_ids2 @ iter_ids3
   | exp -> exp, []) in 
   {e with it}, iter_ids
 
@@ -344,11 +364,11 @@ let rec transform_prem call_map env prem =
   | IfPr e -> 
     let e', iter_ids = transform_exp call_map env e in
     IfPr e', iter_ids
-  | LetPr (e1, e2, ids) -> 
+  | LetPr (ids, e1, e2) -> 
     (* TODO - properly handle this if it actually gets used *)
     let e1', iter_ids = transform_exp call_map env e1 in
     let e2', iter_ids2 = transform_exp call_map env e2 in
-    LetPr (e1', e2', ids), iter_ids @ iter_ids2
+    LetPr (ids, e1', e2'), iter_ids @ iter_ids2
   | ElsePr -> ElsePr, []
   | IterPr (prem1, (iter, id_exp_pairs)) -> 
     let prem1', iter_ids = transform_prem call_map env prem1 in
@@ -387,7 +407,7 @@ let transform_rule env rule =
     List.map (transform_param call_map env) (quants @ new_quants), 
     m, 
     transform_exp_normal call_map env exp, 
-    List.map (transform_prem_normal call_map env) (new_prems @ prems))
+    List.map (transform_prem_normal call_map env) (prems @ new_prems))
   ) $ rule.at
 
 let transform_clause env clause = 
@@ -400,7 +420,7 @@ let transform_clause env clause =
     List.map (transform_param call_map env) (quants @ new_quants), 
     args, 
     transform_exp_normal call_map env exp, 
-    List.map (transform_prem_normal call_map env) (new_prems @ prems))
+    List.map (transform_prem_normal call_map env) (prems @ new_prems))
   ) $ clause.at
 
 let transform_prod env prod = 
@@ -412,7 +432,7 @@ let transform_prod env prod =
     ProdD (List.map (transform_param call_map env) (quants @ new_quants), 
     sym, 
     transform_exp_normal call_map env exp, 
-    List.map (transform_prem_normal call_map env) (new_prems @ prems)) $ prod.at
+    List.map (transform_prem_normal call_map env) (prems @ new_prems)) $ prod.at
 
 let is_exp_param param = 
   match param.it with
