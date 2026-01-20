@@ -43,10 +43,10 @@ let all_passes = [
   Totalize;
   Else;
   Uncaseremoval;
-  Sideconditions;
   SubExpansion;
   Sub;
   DefToRel;
+  Sideconditions;
   AliasDemut;
   ImproveIds
 ]
