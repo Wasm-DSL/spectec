@@ -13,6 +13,7 @@ type target =
  | Prose of bool
  | Splice of Backend_splice.Config.t
  | Interpreter of string list
+ | Lean4
 
 type pass =
   | Sub
@@ -78,10 +79,6 @@ let print_al = ref false
 let print_al_o = ref ""
 let print_no_pos = ref false
 
-module PS = Set.Make(struct type t = pass let compare = compare; end)
-let selected_passes = ref (PS.empty)
-let enable_pass pass = selected_passes := PS.add pass !selected_passes
-
 
 let print_il il =
   Printf.printf "%s\n%!" (Il.Print.string_of_script ~suppress_pos:(!print_no_pos) il)
@@ -142,6 +139,13 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | ImproveIds -> Middlend.Improveids.transform
   | Ite -> Middlend.Ite.transform
 
+module PS = Set.Make(struct type t = pass let compare = compare; end)
+let selected_passes = ref (PS.empty)
+let enable_pass pass =
+  if not (List.mem pass all_passes) then
+      Util.Error.error Util.Source.no_region "pass not in all_passes:" (pass_flag pass);
+  selected_passes := PS.add pass !selected_passes
+
 
 (* Argument parsing *)
 
@@ -195,6 +199,7 @@ let argspec = Arg.align (
   "--prose-rst", Arg.Unit (fun () -> target := Prose false), " Generate prose";
   "--interpreter", Arg.Rest_all (fun args -> target := Interpreter args),
     " Generate interpreter";
+  "--lean4", Arg.Unit (fun () -> target := Lean4), " Generate Lean4 specification";
   "--debug", Arg.Unit (fun () -> Backend_interpreter.Debugger.debug := true),
     " Debug interpreter";
   "--unified-vars", Arg.Unit (fun () -> Il2al.Unify.rename := false),
@@ -244,6 +249,17 @@ let () =
     (match !target with
     | Prose _ | Splice _ | Interpreter _ ->
       enable_pass Sideconditions;
+    | Lean4 ->
+      enable_pass Sideconditions; 
+      enable_pass Totalize; 
+      enable_pass Else;
+      enable_pass Uncaseremoval; 
+      enable_pass SubExpansion;
+      enable_pass Undep;
+      enable_pass TypeFamilyRemoval;
+      enable_pass Sub;
+      enable_pass ImproveIds;
+      enable_pass AliasDemut;
     | _ when !print_al || !print_al_o <> "" ->
       enable_pass Sideconditions;
     | _ -> ()
@@ -270,7 +286,7 @@ let () =
     if !print_final_il && not !print_all_il then print_il il;
 
     let al =
-      if not !print_al && !print_al_o = "" && (!target = Check || !target = Ast || !target = Latex) then []
+      if not !print_al && !print_al_o = "" && (!target = Check || !target = Ast || !target = Latex || !target = Lean4) then []
       else (
         log "Translating to AL...";
         let interp = match !target with
@@ -380,6 +396,19 @@ let () =
       Backend_interpreter.Ds.init al;
       log "Interpreting...";
       Backend_interpreter.Runner.run args
+    | Lean4 ->
+      log "Lean4 Generation...";
+      (match !odsts with
+      | [] -> print_endline (Backend_lean4.Print.string_of_script il)
+      | [odst] -> 
+        let coq_code = Backend_lean4.Print.string_of_script il in
+        let oc = Out_channel.open_text odst in
+        Fun.protect (fun () -> Out_channel.output_string oc coq_code)
+          ~finally:(fun () -> Out_channel.close oc)
+      | _ ->
+        prerr_endline "too many output file names";
+        exit 2
+      )
     );
     log "Complete."
   with

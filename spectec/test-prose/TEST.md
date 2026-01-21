@@ -1063,13 +1063,19 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
-   #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+   #. If :math:`{|{{\mathit{val}}^\ast}|} \neq n`, then:
 
-   #. Pop the :math:`\mathsf{label}` from the stack.
+      1) Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-   #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
+   #. Else:
 
-   #. Jump to the continuation of :math:`L`.
+      1) Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+      #) Pop the :math:`\mathsf{label}` from the stack.
+
+      #) Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
+
+      #) Jump to the continuation of :math:`L`.
 
 #. Else:
 
@@ -1136,6 +1142,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Pop the :math:`\mathsf{frame}` from the stack.
 
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
+
 #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
 
@@ -1152,6 +1160,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
    #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+   #. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
@@ -1354,6 +1364,10 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Let :math:`\{ \mathsf{type}~{t_1^{k}}~\rightarrow~{t_2^{n}},\;\allowbreak \mathsf{module}~{\mathit{mm}},\;\allowbreak \mathsf{code}~{\mathit{func}} \}` be the destructuring of :math:`z{.}\mathsf{funcs}{}[a]`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = k`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = n`.
+
 #. Let :math:`(\mathsf{func}~x~{{\mathit{local}}_0^\ast}~{{\mathit{instr}}^\ast})` be the destructuring of :math:`{\mathit{func}}`.
 
 #. Let :math:`{t^\ast}` be the number type sequence :math:`\epsilon`.
@@ -1367,6 +1381,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 #. Assert: Due to validation, there are at least :math:`k` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{k}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = k`.
 
 #. Let :math:`f` be the frame :math:`\{ \mathsf{locals}~{{\mathit{val}}^{k}}~{{{\mathrm{default}}}_{t}^\ast},\;\allowbreak \mathsf{module}~{\mathit{mm}} \}`.
 
@@ -3566,10 +3582,13 @@ Step_pure/br n'
 3. If (n' = 0), then:
   a. Assert: Due to validation, there are at least n values on the top of the stack.
   b. Pop the values val^n from the stack.
-  c. Pop all values val'* from the top of the stack.
-  d. Pop the label (LABEL_ _ { _ }) from the stack.
-  e. Push the values val^n to the stack.
-  f. Execute the sequence instr'*.
+  c. If (|val*| =/= n), then:
+    1) Pop all values val* from the top of the stack.
+  d. Else:
+    1) Pop all values val'* from the top of the stack.
+    2) Pop the label (LABEL_ _ { _ }) from the stack.
+    3) Push the values val^n to the stack.
+    4) Execute the sequence instr'*.
 4. Else:
   a. Pop all values val* from the top of the stack.
   b. Let l be (n' - 1).
@@ -3600,16 +3619,18 @@ Step_pure/frame
 4. Pop the values val^n from the stack.
 5. Assert: Due to validation, the first non-value entry of the stack is a FRAME_.
 6. Pop the frame (FRAME_ _ { _ }) from the stack.
-7. Push the values val^n to the stack.
+7. Assert: Due to validation, (|val*| = n).
+8. Push the values val^n to the stack.
 
 Step_pure/return
 1. If the first non-value entry of the stack is a FRAME_, then:
   a. Let (FRAME_ n { f }) be the topmost FRAME_.
   b. Assert: Due to validation, there are at least n values on the top of the stack.
   c. Pop the values val^n from the stack.
-  d. Pop all values val'* from the top of the stack.
-  e. Pop the frame (FRAME_ _ { _ }) from the stack.
-  f. Push the values val^n to the stack.
+  d. Assert: Due to validation, (|val*| = n).
+  e. Pop all values val'* from the top of the stack.
+  f. Pop the frame (FRAME_ _ { _ }) from the stack.
+  g. Push the values val^n to the stack.
 2. Else:
   a. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
   b. Pop all values val* from the top of the stack.
@@ -3699,16 +3720,19 @@ Step_read/call_addr a
 1. Let z be the current state.
 2. Assert: Due to validation, (a < |$funcinst(z)|).
 3. Let { TYPE: t_1^k -> t_2^n; MODULE: mm; CODE: func } be $funcinst(z)[a].
-4. Let (FUNC x local_0* instr*) be func.
-5. Let t* be [].
-6. For each local_0 in local_0*, do:
+4. Assert: Due to validation, (|t_1*| = k).
+5. Assert: Due to validation, (|t_2*| = n).
+6. Let (FUNC x local_0* instr*) be func.
+7. Let t* be [].
+8. For each local_0 in local_0*, do:
   a. Let (LOCAL t) be local_0.
   b. Append t to the t*.
-7. Assert: Due to validation, there are at least k values on the top of the stack.
-8. Pop the values val^k from the stack.
-9. Let f be { LOCALS: val^k :: $default_(t)*; MODULE: mm }.
-10. Push the frame (FRAME_ n { f }) to the stack.
-11. Enter instr* with label (LABEL_ n { [] }).
+9. Assert: Due to validation, there are at least k values on the top of the stack.
+10. Pop the values val^k from the stack.
+11. Assert: Due to validation, (|val*| = k).
+12. Let f be { LOCALS: val^k :: $default_(t)*; MODULE: mm }.
+13. Push the frame (FRAME_ n { f }) to the stack.
+14. Enter instr* with label (LABEL_ n { [] }).
 
 Step_read/local.get x
 1. Let z be the current state.
@@ -5861,6 +5885,8 @@ The export :math:`(\mathsf{export}~{\mathit{name}}~{\mathit{externidx}})` is :re
 The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\ast}~{{\mathit{func}}^\ast}~{{\mathit{global}}^\ast}~{{\mathit{table}}^\ast}~{{\mathit{mem}}^\ast}~{{\mathit{elem}}^\ast}~{{\mathit{data}}^{n}}~{{\mathit{start}}^?}~{{\mathit{export}}^\ast})` is :ref:`valid <valid-val>` if:
 
 
+   * The length of :math:`{{\mathit{data}}^\ast}` is equal to :math:`n`.
+
    * For all :math:`{\mathit{type}}` in :math:`{{\mathit{type}}^\ast}`:
 
       * The type :math:`{\mathit{type}}` is :ref:`valid <valid-val>` with the function type :math:`{\mathit{ft}'}`.
@@ -6037,6 +6063,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 #. Let :math:`{j^{N}}` be the result for which :math:`{({{\mathrm{bytes}}}_{{\mathsf{i}}{M}}({j^{N}}) = z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} + k \cdot M / 8 : M / 8])^{k<N}}`.
 
 #. Let :math:`{\mathsf{i}}{n}` be the result for which :math:`{|{\mathsf{i}}{n}|}` :math:`=` :math:`M \cdot 2`.
+
+#. Assert: Due to validation, :math:`{|{j^\ast}|} = N`.
 
 #. Let :math:`c` be :math:`{{\mathrm{inv}}_{{\mathit{lanes}}}}_{{{\mathsf{i}}{n}}{\mathsf{x}}{N}}({{{{{\mathrm{extend}}}_{M, {|{\mathsf{i}}{n}|}}^{{\mathit{sx}}}}}{(j)}^{N}})`.
 
@@ -6283,13 +6311,19 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
-   #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+   #. If :math:`{|{{\mathit{val}}^\ast}|} \neq n`, then:
 
-   #. Pop the :math:`\mathsf{label}` from the stack.
+      1) Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-   #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
+   #. Else:
 
-   #. Jump to the continuation of :math:`L`.
+      1) Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+      #) Pop the :math:`\mathsf{label}` from the stack.
+
+      #) Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
+
+      #) Jump to the continuation of :math:`L`.
 
 #. Else:
 
@@ -6356,6 +6390,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Pop the :math:`\mathsf{frame}` from the stack.
 
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
+
 #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
 
@@ -6372,6 +6408,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
    #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+   #. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
@@ -6916,9 +6954,15 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Let :math:`{t_1^{k}}~\rightarrow~{t_2^{n}}` be the destructuring of :math:`{{\mathrm{blocktype}}}_{z}({\mathit{bt}})`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = k`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = n`.
+
 #. Assert: Due to validation, there are at least :math:`k` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{k}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = k`.
 
 #. Let :math:`L` be the :math:`\mathsf{label}` whose arity is :math:`n` and whose continuation is the end of the block.
 
@@ -6933,9 +6977,15 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Let :math:`{t_1^{k}}~\rightarrow~{t_2^{n}}` be the destructuring of :math:`{{\mathrm{blocktype}}}_{z}({\mathit{bt}})`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = k`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = n`.
+
 #. Assert: Due to validation, there are at least :math:`k` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{k}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = k`.
 
 #. Let :math:`L` be the :math:`\mathsf{label}` whose arity is :math:`k` and whose continuation is the start of the block.
 
@@ -6994,6 +7044,10 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Let :math:`\{ \mathsf{type}~{t_1^{k}}~\rightarrow~{t_2^{n}},\;\allowbreak \mathsf{module}~{\mathit{mm}},\;\allowbreak \mathsf{code}~{\mathit{func}} \}` be the destructuring of :math:`z{.}\mathsf{funcs}{}[a]`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = k`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = n`.
+
 #. Let :math:`(\mathsf{func}~x~{{\mathit{local}}_0^\ast}~{{\mathit{instr}}^\ast})` be the destructuring of :math:`{\mathit{func}}`.
 
 #. Let :math:`{t^\ast}` be the value type sequence :math:`\epsilon`.
@@ -7007,6 +7061,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 #. Assert: Due to validation, there are at least :math:`k` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{k}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = k`.
 
 #. Let :math:`f` be the frame :math:`\{ \mathsf{locals}~{{\mathit{val}}^{k}}~{{{\mathrm{default}}}_{t}^\ast},\;\allowbreak \mathsf{module}~{\mathit{mm}} \}`.
 
@@ -7306,9 +7362,11 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
       #) Let :math:`{\mathsf{i}}{n}` be the result for which :math:`{|{\mathsf{i}}{n}|}` :math:`=` :math:`M \cdot 2`.
 
-      #) Let :math:`c` be :math:`{{\mathrm{inv}}_{{\mathit{lanes}}}}_{{{\mathsf{i}}{n}}{\mathsf{x}}{N}}({{{{{\mathrm{extend}}}_{M, {|{\mathsf{i}}{n}|}}^{{\mathit{sx}}}}}{(j)}^{N}})`.
+      #) If :math:`{|{j^\ast}|} = N`, then:
 
-      #) Push the value :math:`(\mathsf{v{\scriptstyle 128}}{.}\mathsf{const}~c)` to the stack.
+         a) Let :math:`c` be :math:`{{\mathrm{inv}}_{{\mathit{lanes}}}}_{{{\mathsf{i}}{n}}{\mathsf{x}}{N}}({{{{{\mathrm{extend}}}_{M, {|{\mathsf{i}}{n}|}}^{{\mathit{sx}}}}}{(j)}^{N}})`.
+
+         #) Push the value :math:`(\mathsf{v{\scriptstyle 128}}{.}\mathsf{const}~c)` to the stack.
 
    #. If :math:`{\mathit{vloadop}}_0` is some :math:`{\mathbb{N}}{\mathsf{\_}}{\mathsf{splat}}`, then:
 
@@ -11432,6 +11490,7 @@ Export_ok
 
 Module_ok
 - the module (MODULE type* import* func* global* table* mem* elem* data^n start? export*) is valid if:
+  - |data*| is n.
   - For all type in type*:
     - the type type is valid with the function type ft'.
   - ft'* is the concatenation of all such ft'.
@@ -11518,8 +11577,9 @@ Step_read/vload-shape-* V128 ?((SHAPE M X N _ sx)) ao
   a. Trap.
 5. Let j^N be $ibytes__1^-1(M, $mem(z, 0).BYTES[((i + ao.OFFSET) + ((k * M) / 8)) : (M / 8)])^(k<N).
 6. Let Jnn be $jsize^-1((M * 2)).
-7. Let c be $inv_lanes_(Jnn X N, $extend__(M, $jsize(Jnn), sx, j)^N).
-8. Push the value (V128.CONST c) to the stack.
+7. Assert: Due to validation, (|j*| = N).
+8. Let c be $inv_lanes_(Jnn X N, $extend__(M, $jsize(Jnn), sx, j)^N).
+9. Push the value (V128.CONST c) to the stack.
 
 Step_read/vload-splat-* V128 ?((SPLAT N)) ao
 1. Let z be the current state.
@@ -11633,10 +11693,13 @@ Step_pure/br n'
 3. If (n' = 0), then:
   a. Assert: Due to validation, there are at least n values on the top of the stack.
   b. Pop the values val^n from the stack.
-  c. Pop all values val'* from the top of the stack.
-  d. Pop the label (LABEL_ _ { _ }) from the stack.
-  e. Push the values val^n to the stack.
-  f. Execute the sequence instr'*.
+  c. If (|val*| =/= n), then:
+    1) Pop all values val* from the top of the stack.
+  d. Else:
+    1) Pop all values val'* from the top of the stack.
+    2) Pop the label (LABEL_ _ { _ }) from the stack.
+    3) Push the values val^n to the stack.
+    4) Execute the sequence instr'*.
 4. Else:
   a. Pop all values val* from the top of the stack.
   b. Let l be (n' - 1).
@@ -11667,16 +11730,18 @@ Step_pure/frame
 4. Pop the values val^n from the stack.
 5. Assert: Due to validation, the first non-value entry of the stack is a FRAME_.
 6. Pop the frame (FRAME_ _ { _ }) from the stack.
-7. Push the values val^n to the stack.
+7. Assert: Due to validation, (|val*| = n).
+8. Push the values val^n to the stack.
 
 Step_pure/return
 1. If the first non-value entry of the stack is a FRAME_, then:
   a. Let (FRAME_ n { f }) be the topmost FRAME_.
   b. Assert: Due to validation, there are at least n values on the top of the stack.
   c. Pop the values val^n from the stack.
-  d. Pop all values val'* from the top of the stack.
-  e. Pop the frame (FRAME_ _ { _ }) from the stack.
-  f. Push the values val^n to the stack.
+  d. Assert: Due to validation, (|val*| = n).
+  e. Pop all values val'* from the top of the stack.
+  f. Pop the frame (FRAME_ _ { _ }) from the stack.
+  g. Push the values val^n to the stack.
 2. Else:
   a. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
   b. Pop all values val* from the top of the stack.
@@ -11932,16 +11997,22 @@ Step_pure/local.tee x
 Step_read/block bt instr*
 1. Let z be the current state.
 2. Let t_1^k -> t_2^n be $blocktype(z, bt).
-3. Assert: Due to validation, there are at least k values on the top of the stack.
-4. Pop the values val^k from the stack.
-5. Enter val^k :: instr* with label (LABEL_ n { [] }).
+3. Assert: Due to validation, (|t_1*| = k).
+4. Assert: Due to validation, (|t_2*| = n).
+5. Assert: Due to validation, there are at least k values on the top of the stack.
+6. Pop the values val^k from the stack.
+7. Assert: Due to validation, (|val*| = k).
+8. Enter val^k :: instr* with label (LABEL_ n { [] }).
 
 Step_read/loop bt instr*
 1. Let z be the current state.
 2. Let t_1^k -> t_2^n be $blocktype(z, bt).
-3. Assert: Due to validation, there are at least k values on the top of the stack.
-4. Pop the values val^k from the stack.
-5. Enter val^k :: instr* with label (LABEL_ k { [(LOOP bt instr*)] }).
+3. Assert: Due to validation, (|t_1*| = k).
+4. Assert: Due to validation, (|t_2*| = n).
+5. Assert: Due to validation, there are at least k values on the top of the stack.
+6. Pop the values val^k from the stack.
+7. Assert: Due to validation, (|val*| = k).
+8. Enter val^k :: instr* with label (LABEL_ k { [(LOOP bt instr*)] }).
 
 Step_read/call x
 1. Let z be the current state.
@@ -11967,16 +12038,19 @@ Step_read/call_addr a
 1. Let z be the current state.
 2. Assert: Due to validation, (a < |$funcinst(z)|).
 3. Let { TYPE: t_1^k -> t_2^n; MODULE: mm; CODE: func } be $funcinst(z)[a].
-4. Let (FUNC x local_0* instr*) be func.
-5. Let t* be [].
-6. For each local_0 in local_0*, do:
+4. Assert: Due to validation, (|t_1*| = k).
+5. Assert: Due to validation, (|t_2*| = n).
+6. Let (FUNC x local_0* instr*) be func.
+7. Let t* be [].
+8. For each local_0 in local_0*, do:
   a. Let (LOCAL t) be local_0.
   b. Append t to the t*.
-7. Assert: Due to validation, there are at least k values on the top of the stack.
-8. Pop the values val^k from the stack.
-9. Let f be { LOCALS: val^k :: $default_(t)*; MODULE: mm }.
-10. Push the frame (FRAME_ n { f }) to the stack.
-11. Enter instr* with label (LABEL_ n { [] }).
+9. Assert: Due to validation, there are at least k values on the top of the stack.
+10. Pop the values val^k from the stack.
+11. Assert: Due to validation, (|val*| = k).
+12. Let f be { LOCALS: val^k :: $default_(t)*; MODULE: mm }.
+13. Push the frame (FRAME_ n { f }) to the stack.
+14. Enter instr* with label (LABEL_ n { [] }).
 
 Step_read/ref.func x
 1. Let z be the current state.
@@ -12116,8 +12190,9 @@ Step_read/vload V128 vloadop? ao
       a) Trap.
     3) Let j^N be $ibytes__1^-1(M, $mem(z, 0).BYTES[((i + ao.OFFSET) + ((k * M) / 8)) : (M / 8)])^(k<N).
     4) Let Jnn be $jsize^-1((M * 2)).
-    5) Let c be $inv_lanes_(Jnn X N, $extend__(M, $jsize(Jnn), sx, j)^N).
-    6) Push the value (V128.CONST c) to the stack.
+    5) If (|j*| = N), then:
+      a) Let c be $inv_lanes_(Jnn X N, $extend__(M, $jsize(Jnn), sx, j)^N).
+      b) Push the value (V128.CONST c) to the stack.
   c. If vloadop_0 is some SPLAT, then:
     1) Let (SPLAT N) be vloadop_0.
     2) If (((i + ao.OFFSET) + (N / 8)) > |$mem(z, 0).BYTES|), then:
@@ -14145,6 +14220,8 @@ The defined type :math:`({\mathit{rectype}} {.} i)` is :ref:`valid <valid-val>` 
 
 
    * The recursive type :math:`{\mathit{rectype}}` is :ref:`valid <valid-val>` for the type index :math:`x`.
+
+   * The length of :math:`{{\mathit{subtype}}^\ast}` is equal to :math:`n`.
 
    * The recursive type :math:`{\mathit{rectype}}` is of the form :math:`(\mathsf{rec}~{{\mathit{subtype}}^{n}})`.
 
@@ -17678,13 +17755,19 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
-   #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+   #. If :math:`{|{{\mathit{val}}^\ast}|} \neq n`, then:
 
-   #. Pop the :math:`\mathsf{label}` from the stack.
+      1) Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-   #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
+   #. Else:
 
-   #. Jump to the continuation of :math:`L`.
+      1) Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+      #) Pop the :math:`\mathsf{label}` from the stack.
+
+      #) Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
+
+      #) Jump to the continuation of :math:`L`.
 
 #. Else:
 
@@ -17723,9 +17806,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`(\mathsf{func}~{t_1^{n}}~\rightarrow~{t_2^{m}})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{funcs}{}[a]{.}\mathsf{type}`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = n`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = m`.
+
 #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
 #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
@@ -18022,6 +18111,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`{\mathsf{i}}{N}` be the result for which :math:`N` :math:`=` :math:`M \cdot 2`.
 
+#. Assert: Due to validation, :math:`{|{j^\ast}|} = K`.
+
 #. Let :math:`c` be :math:`{{{{\mathrm{lanes}}}_{{{\mathsf{i}}{N}}{\mathsf{x}}{K}}^{{-1}}}}{({{{{{\mathrm{extend}}}_{M, N}^{{\mathit{sx}}}}}{(j)}^{K}})}`.
 
 #. Push the value :math:`(\mathsf{v{\scriptstyle 128}}{.}\mathsf{const}~c)` to the stack.
@@ -18267,13 +18358,19 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
       #) Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
-      #) Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+      #) If :math:`{|{{\mathit{val}}^\ast}|} \neq n`, then:
 
-      #) Pop the :math:`\mathsf{label}` from the stack.
+         a) Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-      #) Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
+      #) Else:
 
-      #) Jump to the continuation of :math:`L`.
+         a) Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+         #) Pop the :math:`\mathsf{label}` from the stack.
+
+         #) Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
+
+         #) Jump to the continuation of :math:`L`.
 
    #. Else:
 
@@ -18408,6 +18505,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Pop the :math:`\mathsf{frame}` from the stack.
 
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
+
 #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
 
@@ -18424,6 +18523,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
    #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+   #. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
@@ -19092,9 +19193,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Assert: Due to validation, :math:`{{\mathit{localidx}}_0^\ast} = \epsilon`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = m`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = n`.
+
 #. Assert: Due to validation, there are at least :math:`m` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{m}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = m`.
 
 #. Let :math:`L` be the :math:`\mathsf{label}` whose arity is :math:`n` and whose continuation is the end of the block.
 
@@ -19111,9 +19218,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Assert: Due to validation, :math:`{{\mathit{localidx}}_0^\ast} = \epsilon`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = m`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = n`.
+
 #. Assert: Due to validation, there are at least :math:`m` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{m}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = m`.
 
 #. Let :math:`L` be the :math:`\mathsf{label}` whose arity is :math:`m` and whose continuation is the start of the block.
 
@@ -19221,9 +19334,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`(\mathsf{func}~{t_1^{n}}~\rightarrow~{t_2^{m}})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`{\mathit{fi}}{.}\mathsf{type}`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = n`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = m`.
+
 #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
 #. Let :math:`f` be the frame :math:`\{ \mathsf{locals}~{{\mathit{val}}^{n}}~{{{\mathrm{default}}}_{t}^\ast},\;\allowbreak \mathsf{module}~{\mathit{fi}}{.}\mathsf{module} \}`.
 
@@ -19301,9 +19420,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Let :math:`(\mathsf{func}~{t_1^{n}}~\rightarrow~{t_2^{m}})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{funcs}{}[a]{.}\mathsf{type}`.
 
+   #. Assert: Due to validation, :math:`{|{t_1^\ast}|} = n`.
+
+   #. Assert: Due to validation, :math:`{|{t_2^\ast}|} = m`.
+
    #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+   #. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
@@ -19531,9 +19656,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Assert: Due to validation, :math:`{{\mathit{localidx}}_0^\ast} = \epsilon`.
 
+#. Assert: Due to validation, :math:`{|{t_1^\ast}|} = m`.
+
+#. Assert: Due to validation, :math:`{|{t_2^\ast}|} = n`.
+
 #. Assert: Due to validation, there are at least :math:`m` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{m}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = m`.
 
 #. Let :math:`H` be the :math:`\mathsf{handler}` whose arity is :math:`n` and whose catch handler is :math:`{{\mathit{catch}}^\ast}`.
 
@@ -19828,9 +19959,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
       #) Let :math:`{\mathsf{i}}{N}` be the result for which :math:`N` :math:`=` :math:`M \cdot 2`.
 
-      #) Let :math:`c` be :math:`{{{{\mathrm{lanes}}}_{{{\mathsf{i}}{N}}{\mathsf{x}}{K}}^{{-1}}}}{({{{{{\mathrm{extend}}}_{M, N}^{{\mathit{sx}}}}}{(j)}^{K}})}`.
+      #) If :math:`{|{j^\ast}|} = K`, then:
 
-      #) Push the value :math:`(\mathsf{v{\scriptstyle 128}}{.}\mathsf{const}~c)` to the stack.
+         a) Let :math:`c` be :math:`{{{{\mathrm{lanes}}}_{{{\mathsf{i}}{N}}{\mathsf{x}}{K}}^{{-1}}}}{({{{{{\mathrm{extend}}}_{M, N}^{{\mathit{sx}}}}}{(j)}^{K}})}`.
+
+         #) Push the value :math:`(\mathsf{v{\scriptstyle 128}}{.}\mathsf{const}~c)` to the stack.
 
    #. If :math:`{\mathit{vloadop}}_0` is some :math:`{{\mathit{sz}}}{\mathsf{\_}}{\mathsf{splat}}`, then:
 
@@ -20136,6 +20269,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`{({\mathsf{mut}^?}~{\mathit{zt}})^\ast}` be :math:`{\mathit{list}}_0`.
 
+#. Assert: Due to validation, :math:`{|{{\mathit{mut?}}^\ast}|} = {|{{\mathit{zt}}^\ast}|}`.
+
 #. Assert: Due to validation, for all :math:`{\mathit{zt}}` in :math:`{{\mathit{zt}}^\ast}`, :math:`{{\mathrm{default}}}_{{\mathrm{unpack}}({\mathit{zt}})}` is defined.
 
 #. Let :math:`{{\mathit{val}}^\ast}` be the value sequence :math:`\epsilon`.
@@ -20182,6 +20317,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Let :math:`{({\mathsf{mut}^?}~{\mathit{zt}})^\ast}` be :math:`{\mathit{list}}_0`.
 
 #. Assert: Due to validation, :math:`i < {|{{\mathit{zt}}^\ast}|}`.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{mut?}}^\ast}|} = {|{{\mathit{zt}}^\ast}|}`.
 
 #. Push the value :math:`{{{{\mathrm{unpack}}}_{{{\mathit{zt}}^\ast}{}[i]}^{{{\mathit{sx}}^?}}}}{(z{.}\mathsf{structs}{}[a]{.}\mathsf{fields}{}[i])}` to the stack.
 
@@ -20231,6 +20368,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`{{\mathit{ref}}^{n}}` be :math:`z{.}\mathsf{elems}{}[y]{.}\mathsf{refs}{}[i : n]`.
 
+#. Assert: Due to validation, :math:`{|{{\mathit{ref}}^\ast}|} = n`.
+
 #. Push the values :math:`{{\mathit{ref}}^{n}}` to the stack.
 
 #. Execute the instruction :math:`(\mathsf{array{.}new\_fixed}~x~n)`.
@@ -20263,6 +20402,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Let :math:`{{{\mathit{byte}}^\ast}^\ast}` be the result for which each :math:`{{\mathit{byte}}^\ast}` has length :math:`{|{\mathit{zt}}|} / 8`, and the :ref:`concatenation <notation-concat>` of :math:`{{{\mathit{byte}}^\ast}^\ast}` is :math:`z{.}\mathsf{datas}{}[y]{.}\mathsf{bytes}{}[i : n \cdot {|{\mathit{zt}}|} / 8]`.
 
 #. Let :math:`{c^{n}}` be the result for which :math:`{({{\mathrm{bytes}}}_{{\mathit{zt}}}({c^{n}}) = {{\mathit{byte}}^\ast})^\ast}`.
+
+#. Assert: Due to validation, :math:`{|{c^\ast}|} = n`.
 
 #. Push the values :math:`{{\mathrm{unpack}}({\mathit{zt}}){.}\mathsf{const}~{{\mathrm{unpack}}}_{{\mathit{zt}}}(c)^{n}}` to the stack.
 
@@ -20663,9 +20804,13 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`a` be the length of :math:`z{.}\mathsf{exns}`.
 
+#. Assert: Due to validation, :math:`{|{t^\ast}|} = n`.
+
 #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
 #. Let :math:`{\mathit{exn}}` be the exception instance :math:`\{ \mathsf{tag}~z{.}\mathsf{tags}{}[x],\;\allowbreak \mathsf{fields}~{{\mathit{val}}^{n}} \}`.
 
@@ -20898,9 +21043,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`a` be the length of :math:`z{.}\mathsf{structs}`.
 
+#. Assert: Due to validation, :math:`{|{{\mathit{mut?}}^\ast}|} = n`.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{zt}}^\ast}|} = n`.
+
 #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
 #. Let :math:`{\mathit{si}}` be the structure instance :math:`\{ \mathsf{type}~z{.}\mathsf{types}{}[x],\;\allowbreak \mathsf{fields}~{{{\mathrm{pack}}}_{{\mathit{zt}}}({\mathit{val}})^{n}} \}`.
 
@@ -20939,6 +21090,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Assert: Due to validation, :math:`i < {|{{\mathit{zt}}^\ast}|}`.
 
+#. Assert: Due to validation, :math:`{|{{\mathit{mut?}}^\ast}|} = {|{{\mathit{zt}}^\ast}|}`.
+
 #. Replace :math:`z{.}\mathsf{structs}{}[a]{.}\mathsf{fields}{}[i]` with :math:`{{\mathrm{pack}}}_{{{\mathit{zt}}^\ast}{}[i]}({\mathit{val}})`.
 
 
@@ -20959,6 +21112,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
 #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|} = n`.
 
 #. Let :math:`{\mathit{ai}}` be the array instance :math:`\{ \mathsf{type}~z{.}\mathsf{types}{}[x],\;\allowbreak \mathsf{fields}~{{{\mathrm{pack}}}_{{\mathit{zt}}}({\mathit{val}})^{n}} \}`.
 
@@ -21051,11 +21206,13 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`\epsilon`.
 
-#. Assert: Due to validation, :math:`{|{X^\ast}|} = 1`.
+#. If :math:`{|{X^\ast}|} = 1`, then:
 
-#. Let :math:`w` be :math:`{X^\ast}`.
+   a. Let :math:`w` be :math:`{X^\ast}`.
 
-#. Return :math:`w`.
+   #. Return :math:`w`.
+
+#. Fail.
 
 
 :math:`{\bigoplus}\, {X^\ast}`
@@ -21187,9 +21344,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`23`.
 
-#. Assert: Due to validation, :math:`N = 64`.
+#. If :math:`N = 64`, then:
 
-#. Return :math:`52`.
+   a. Return :math:`52`.
+
+#. Fail.
 
 
 :math:`{\mathrm{expon}}(N)`
@@ -21200,9 +21359,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`8`.
 
-#. Assert: Due to validation, :math:`N = 64`.
+#. If :math:`N = 64`, then:
 
-#. Return :math:`11`.
+   a. Return :math:`11`.
+
+#. Fail.
 
 
 :math:`M`
@@ -21573,9 +21734,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`\mathsf{i{\scriptstyle 32}}`.
 
-#. Assert: Due to validation, :math:`N = 64`.
+#. If :math:`N = 64`, then:
 
-#. Return :math:`\mathsf{i{\scriptstyle 64}}`.
+   a. Return :math:`\mathsf{i{\scriptstyle 64}}`.
+
+#. Fail.
 
 
 :math:`{\mathsf{f}}{N}`
@@ -21586,9 +21749,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`\mathsf{f{\scriptstyle 32}}`.
 
-#. Assert: Due to validation, :math:`N = 64`.
+#. If :math:`N = 64`, then:
 
-#. Return :math:`\mathsf{f{\scriptstyle 64}}`.
+   a. Return :math:`\mathsf{f{\scriptstyle 64}}`.
+
+#. Fail.
 
 
 :math:`{\mathsf{i}}{N}`
@@ -21607,9 +21772,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`\mathsf{i{\scriptstyle 32}}`.
 
-#. Assert: Due to validation, :math:`N = 64`.
+#. If :math:`N = 64`, then:
 
-#. Return :math:`\mathsf{i{\scriptstyle 64}}`.
+   a. Return :math:`\mathsf{i{\scriptstyle 64}}`.
+
+#. Fail.
 
 
 :math:`{|{\mathit{numtype}}|}`
@@ -21678,9 +21845,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`{|{\mathit{storagetype}}|}`.
 
-#. Assert: Due to validation, :math:`{\mathit{storagetype}}` is packed type.
+#. If :math:`{\mathit{storagetype}}` is packed type, then:
 
-#. Return :math:`{|{\mathit{storagetype}}|}`.
+   a. Return :math:`{|{\mathit{storagetype}}|}`.
+
+#. Fail.
 
 
 :math:`{|{\mathsf{i}}{N}|}`
@@ -22696,11 +22865,13 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Return :math:`{\mathrm{free}}_{\mathit{tabletype}}({\mathit{tabletype}})`.
 
-#. Assert: Due to validation, :math:`{\mathit{externtype}}` is some :math:`\mathsf{func}~{\mathit{typeuse}}`.
+#. If :math:`{\mathit{externtype}}` is some :math:`\mathsf{func}~{\mathit{typeuse}}`, then:
 
-#. Let :math:`(\mathsf{func}~{\mathit{typeuse}})` be the destructuring of :math:`{\mathit{externtype}}`.
+   a. Let :math:`(\mathsf{func}~{\mathit{typeuse}})` be the destructuring of :math:`{\mathit{externtype}}`.
 
-#. Return :math:`{\mathrm{free}}_{\mathit{typeuse}}({\mathit{typeuse}})`.
+   #. Return :math:`{\mathrm{free}}_{\mathit{typeuse}}({\mathit{typeuse}})`.
+
+#. Fail.
 
 
 :math:`{\mathrm{free}}_{\mathit{moduletype}}({{\mathit{externtype}}_1^\ast}~\rightarrow~{{\mathit{externtype}}_2^\ast})`
@@ -23760,9 +23931,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`\epsilon`.
 
-#. Assert: Due to validation, :math:`{\mathit{storagetype}}` is packed type.
+#. If :math:`{\mathit{storagetype}}` is packed type, then:
 
-#. Return :math:`\mathsf{s}`.
+   a. Return :math:`\mathsf{s}`.
+
+#. Fail.
 
 
 :math:`0`
@@ -26966,6 +27139,7 @@ Rectype_ok2/cons
 Deftype_ok
 - the defined type (_DEF rectype i) is valid if:
   - the recursive type rectype is valid for the type index (OK x).
+  - |subtype*| is n.
   - rectype is (REC subtype^n).
   - i is less than n.
 
@@ -28790,10 +28964,13 @@ Step_pure/br-label-* l
 3. If (l = 0), then:
   a. Assert: Due to validation, there are at least n values on the top of the stack.
   b. Pop the values val^n from the stack.
-  c. Pop all values val'* from the top of the stack.
-  d. Pop the label (LABEL_ _ { _ }) from the stack.
-  e. Push the values val^n to the stack.
-  f. Execute the sequence instr'*.
+  c. If (|val*| =/= n), then:
+    1) Pop all values val* from the top of the stack.
+  d. Else:
+    1) Pop all values val'* from the top of the stack.
+    2) Pop the label (LABEL_ _ { _ }) from the stack.
+    3) Push the values val^n to the stack.
+    4) Execute the sequence instr'*.
 4. Else:
   a. Pop all values val* from the top of the stack.
   b. Pop the label (LABEL_ _ { _ }) from the stack.
@@ -28812,13 +28989,16 @@ Step_read/return_call_ref-frame-* yy
 8. Assert: Due to validation, (a < |$funcinst(z)|).
 9. Assert: Due to validation, $Expand($funcinst(z)[a].TYPE) is some FUNC.
 10. Let (FUNC t_1^n -> t_2^m) be $Expand($funcinst(z)[a].TYPE).
-11. Assert: Due to validation, there are at least n values on the top of the stack.
-12. Pop the values val^n from the stack.
-13. Pop all values val'* from the top of the stack.
-14. Pop the frame (FRAME_ _ { _ }) from the stack.
-15. Push the values val^n to the stack.
-16. Push the value (REF.FUNC_ADDR a) to the stack.
-17. Execute the instruction (CALL_REF yy).
+11. Assert: Due to validation, (|t_1*| = n).
+12. Assert: Due to validation, (|t_2*| = m).
+13. Assert: Due to validation, there are at least n values on the top of the stack.
+14. Pop the values val^n from the stack.
+15. Assert: Due to validation, (|val*| = n).
+16. Pop all values val'* from the top of the stack.
+17. Pop the frame (FRAME_ _ { _ }) from the stack.
+18. Push the values val^n to the stack.
+19. Push the value (REF.FUNC_ADDR a) to the stack.
+20. Execute the instruction (CALL_REF yy).
 
 Step_read/throw_ref-instrs-*
 1. Assert: Due to validation, a value is on the top of the stack.
@@ -28951,8 +29131,9 @@ Step_read/vload-pack-* V128 ?((SHAPE M X K _ sx)) x ao
   a. Trap.
 5. Let j^K be $ibytes__1^-1(M, $mem(z, x).BYTES[((i + ao.OFFSET) + ((k * M) / 8)) : (M / 8)])^(k<K).
 6. Let Jnn be $jsizenn^-1((M * 2)).
-7. Let c be $inv_lanes_(Jnn X K, $extend__(M, $jsizenn(Jnn), sx, j)^K).
-8. Push the value (V128.CONST c) to the stack.
+7. Assert: Due to validation, (|j*| = K).
+8. Let c be $inv_lanes_(Jnn X K, $extend__(M, $jsizenn(Jnn), sx, j)^K).
+9. Push the value (V128.CONST c) to the stack.
 
 Step_read/vload-splat-* V128 ?((SPLAT N)) x ao
 1. Let z be the current state.
@@ -29066,10 +29247,13 @@ Step_pure/br l
   b. If (l = 0), then:
     1) Assert: Due to validation, there are at least n values on the top of the stack.
     2) Pop the values val^n from the stack.
-    3) Pop all values val'* from the top of the stack.
-    4) Pop the label (LABEL_ _ { _ }) from the stack.
-    5) Push the values val^n to the stack.
-    6) Execute the sequence instr'*.
+    3) If (|val*| =/= n), then:
+      a) Pop all values val* from the top of the stack.
+    4) Else:
+      a) Pop all values val'* from the top of the stack.
+      b) Pop the label (LABEL_ _ { _ }) from the stack.
+      c) Push the values val^n to the stack.
+      d) Execute the sequence instr'*.
   c. Else:
     1) Pop all values val* from the top of the stack.
     2) Pop the label (LABEL_ _ { _ }) from the stack.
@@ -29132,16 +29316,18 @@ Step_pure/frame
 4. Pop the values val^n from the stack.
 5. Assert: Due to validation, the first non-value entry of the stack is a FRAME_.
 6. Pop the frame (FRAME_ _ { _ }) from the stack.
-7. Push the values val^n to the stack.
+7. Assert: Due to validation, (|val*| = n).
+8. Push the values val^n to the stack.
 
 Step_pure/return
 1. If the first non-value entry of the stack is a FRAME_, then:
   a. Let (FRAME_ n { f }) be the topmost FRAME_.
   b. Assert: Due to validation, there are at least n values on the top of the stack.
   c. Pop the values val^n from the stack.
-  d. Pop all values val'* from the top of the stack.
-  e. Pop the frame (FRAME_ _ { _ }) from the stack.
-  f. Push the values val^n to the stack.
+  d. Assert: Due to validation, (|val*| = n).
+  e. Pop all values val'* from the top of the stack.
+  f. Pop the frame (FRAME_ _ { _ }) from the stack.
+  g. Push the values val^n to the stack.
 2. Else if the first non-value entry of the stack is a LABEL_, then:
   a. Pop all values val* from the top of the stack.
   b. Pop the label (LABEL_ _ { _ }) from the stack.
@@ -29454,17 +29640,23 @@ Step_read/block bt instr*
 1. Let z be the current state.
 2. Let t_1^m ->_ localidx_0* t_2^n be $blocktype_(z, bt).
 3. Assert: Due to validation, (localidx_0* = []).
-4. Assert: Due to validation, there are at least m values on the top of the stack.
-5. Pop the values val^m from the stack.
-6. Enter val^m :: instr* with label (LABEL_ n { [] }).
+4. Assert: Due to validation, (|t_1*| = m).
+5. Assert: Due to validation, (|t_2*| = n).
+6. Assert: Due to validation, there are at least m values on the top of the stack.
+7. Pop the values val^m from the stack.
+8. Assert: Due to validation, (|val*| = m).
+9. Enter val^m :: instr* with label (LABEL_ n { [] }).
 
 Step_read/loop bt instr*
 1. Let z be the current state.
 2. Let t_1^m ->_ localidx_0* t_2^n be $blocktype_(z, bt).
 3. Assert: Due to validation, (localidx_0* = []).
-4. Assert: Due to validation, there are at least m values on the top of the stack.
-5. Pop the values val^m from the stack.
-6. Enter val^m :: instr* with label (LABEL_ m { [(LOOP bt instr*)] }).
+4. Assert: Due to validation, (|t_1*| = m).
+5. Assert: Due to validation, (|t_2*| = n).
+6. Assert: Due to validation, there are at least m values on the top of the stack.
+7. Pop the values val^m from the stack.
+8. Assert: Due to validation, (|val*| = m).
+9. Enter val^m :: instr* with label (LABEL_ m { [(LOOP bt instr*)] }).
 
 Step_read/br_on_cast l rt_1 rt_2
 1. Let (FRAME_ _ { f }) be the topmost FRAME_.
@@ -29514,11 +29706,14 @@ Step_read/call_ref yy
   b. Append t to the t*.
 13. Assert: Due to validation, $Expand(fi.TYPE) is some FUNC.
 14. Let (FUNC t_1^n -> t_2^m) be $Expand(fi.TYPE).
-15. Assert: Due to validation, there are at least n values on the top of the stack.
-16. Pop the values val^n from the stack.
-17. Let f be { LOCALS: ?(val)^n :: $default_(t)*; MODULE: fi.MODULE }.
-18. Push the frame (FRAME_ m { f }) to the stack.
-19. Enter instr* with label (LABEL_ m { [] }).
+15. Assert: Due to validation, (|t_1*| = n).
+16. Assert: Due to validation, (|t_2*| = m).
+17. Assert: Due to validation, there are at least n values on the top of the stack.
+18. Pop the values val^n from the stack.
+19. Assert: Due to validation, (|val*| = n).
+20. Let f be { LOCALS: ?(val)^n :: $default_(t)*; MODULE: fi.MODULE }.
+21. Push the frame (FRAME_ m { f }) to the stack.
+22. Enter instr* with label (LABEL_ m { [] }).
 
 Step_read/return_call x
 1. Let z be the current state.
@@ -29551,13 +29746,16 @@ Step_read/return_call_ref yy
   g. Assert: Due to validation, (a < |$funcinst(z)|).
   h. Assert: Due to validation, $Expand($funcinst(z)[a].TYPE) is some FUNC.
   i. Let (FUNC t_1^n -> t_2^m) be $Expand($funcinst(z)[a].TYPE).
-  j. Assert: Due to validation, there are at least n values on the top of the stack.
-  k. Pop the values val^n from the stack.
-  l. Pop all values val'* from the top of the stack.
-  m. Pop the frame (FRAME_ _ { _ }) from the stack.
-  n. Push the values val^n to the stack.
-  o. Push the value (REF.FUNC_ADDR a) to the stack.
-  p. Execute the instruction (CALL_REF yy).
+  j. Assert: Due to validation, (|t_1*| = n).
+  k. Assert: Due to validation, (|t_2*| = m).
+  l. Assert: Due to validation, there are at least n values on the top of the stack.
+  m. Pop the values val^n from the stack.
+  n. Assert: Due to validation, (|val*| = n).
+  o. Pop all values val'* from the top of the stack.
+  p. Pop the frame (FRAME_ _ { _ }) from the stack.
+  q. Push the values val^n to the stack.
+  r. Push the value (REF.FUNC_ADDR a) to the stack.
+  s. Execute the instruction (CALL_REF yy).
 
 Step_read/throw_ref
 1. Let z be the current state.
@@ -29657,10 +29855,13 @@ Step_read/try_table bt catch* instr*
 1. Let z be the current state.
 2. Let t_1^m ->_ localidx_0* t_2^n be $blocktype_(z, bt).
 3. Assert: Due to validation, (localidx_0* = []).
-4. Assert: Due to validation, there are at least m values on the top of the stack.
-5. Pop the values val^m from the stack.
-6. Push the handler (HANDLER_ n { catch* }) to the stack.
-7. Enter val^m :: instr* with label (LABEL_ n { [] }).
+4. Assert: Due to validation, (|t_1*| = m).
+5. Assert: Due to validation, (|t_2*| = n).
+6. Assert: Due to validation, there are at least m values on the top of the stack.
+7. Pop the values val^m from the stack.
+8. Assert: Due to validation, (|val*| = m).
+9. Push the handler (HANDLER_ n { catch* }) to the stack.
+10. Enter val^m :: instr* with label (LABEL_ n { [] }).
 
 Step_read/local.get x
 1. Let z be the current state.
@@ -29799,8 +30000,9 @@ Step_read/vload V128 vloadop_? x ao
       a) Trap.
     3) Let j^K be $ibytes__1^-1(M, $mem(z, x).BYTES[((i + ao.OFFSET) + ((k * M) / 8)) : (M / 8)])^(k<K).
     4) Let Jnn be $jsizenn^-1((M * 2)).
-    5) Let c be $inv_lanes_(Jnn X K, $extend__(M, $jsizenn(Jnn), sx, j)^K).
-    6) Push the value (V128.CONST c) to the stack.
+    5) If (|j*| = K), then:
+      a) Let c be $inv_lanes_(Jnn X K, $extend__(M, $jsizenn(Jnn), sx, j)^K).
+      b) Push the value (V128.CONST c) to the stack.
   c. If vloadop_0 is some SPLAT, then:
     1) Let (SPLAT N) be vloadop_0.
     2) If (((i + ao.OFFSET) + (N / 8)) > |$mem(z, x).BYTES|), then:
@@ -29948,14 +30150,15 @@ Step_read/struct.new_default x
 2. Assert: Due to validation, $Expand($type(z, x)) is some STRUCT.
 3. Let (STRUCT list_0) be $Expand($type(z, x)).
 4. Let (mut? zt)* be list_0.
-5. Assert: Due to validation, $default_($unpack(zt)) is defined*.
-6. Let val* be [].
-7. For each zt in zt*, do:
+5. Assert: Due to validation, (|mut?*| = |zt*|).
+6. Assert: Due to validation, $default_($unpack(zt)) is defined*.
+7. Let val* be [].
+8. For each zt in zt*, do:
   a. Let ?(val) be $default_($unpack(zt)).
   b. Append val to the val*.
-8. Assert: Due to validation, (|val*| = |zt*|).
-9. Push the values val* to the stack.
-10. Execute the instruction (STRUCT.NEW x).
+9. Assert: Due to validation, (|val*| = |zt*|).
+10. Push the values val* to the stack.
+11. Execute the instruction (STRUCT.NEW x).
 
 Step_read/struct.get sx? x i
 1. Let z be the current state.
@@ -29971,7 +30174,8 @@ Step_read/struct.get sx? x i
 10. Let (STRUCT list_0) be $Expand($type(z, x)).
 11. Let (mut? zt)* be list_0.
 12. Assert: Due to validation, (i < |zt*|).
-13. Push the value $unpackfield_(zt*[i], sx?, $structinst(z)[a].FIELDS[i]) to the stack.
+13. Assert: Due to validation, (|mut?*| = |zt*|).
+14. Push the value $unpackfield_(zt*[i], sx?, $structinst(z)[a].FIELDS[i]) to the stack.
 
 Step_read/array.new_default x
 1. Let z be the current state.
@@ -29994,8 +30198,9 @@ Step_read/array.new_elem x y
 6. If ((i + n) > |$elem(z, y).REFS|), then:
   a. Trap.
 7. Let ref^n be $elem(z, y).REFS[i : n].
-8. Push the values ref^n to the stack.
-9. Execute the instruction (ARRAY.NEW_FIXED x n).
+8. Assert: Due to validation, (|ref*| = n).
+9. Push the values ref^n to the stack.
+10. Execute the instruction (ARRAY.NEW_FIXED x n).
 
 Step_read/array.new_data x y
 1. Let z be the current state.
@@ -30010,8 +30215,9 @@ Step_read/array.new_data x y
   a. Trap.
 10. Let byte** be $concatn__1^-1(`byte, ($zsize(zt) / 8), $data(z, y).BYTES[i : ((n * $zsize(zt)) / 8)]).
 11. Let c^n be $zbytes__1^-1(zt, byte*)*.
-12. Push the values $const($cunpack(zt), $cunpacknum_(zt, c))^n to the stack.
-13. Execute the instruction (ARRAY.NEW_FIXED x n).
+12. Assert: Due to validation, (|c*| = n).
+13. Push the values $const($cunpack(zt), $cunpacknum_(zt, c))^n to the stack.
+14. Execute the instruction (ARRAY.NEW_FIXED x n).
 
 Step_read/array.get sx? x
 1. Let z be the current state.
@@ -30206,12 +30412,14 @@ Step/throw x
 4. Let (FUNC t^n -> resulttype_0) be $Expand($as_deftype($tag(z, x).TYPE)).
 5. Assert: Due to validation, (resulttype_0 = []).
 6. Let a be |$exninst(z)|.
-7. Assert: Due to validation, there are at least n values on the top of the stack.
-8. Pop the values val^n from the stack.
-9. Let exn be { TAG: $tagaddr(z)[x]; FIELDS: val^n }.
-10. Perform $add_exninst(z, [exn]).
-11. Push the value (REF.EXN_ADDR a) to the stack.
-12. Execute the instruction THROW_REF.
+7. Assert: Due to validation, (|t*| = n).
+8. Assert: Due to validation, there are at least n values on the top of the stack.
+9. Pop the values val^n from the stack.
+10. Assert: Due to validation, (|val*| = n).
+11. Let exn be { TAG: $tagaddr(z)[x]; FIELDS: val^n }.
+12. Perform $add_exninst(z, [exn]).
+13. Push the value (REF.EXN_ADDR a) to the stack.
+14. Execute the instruction THROW_REF.
 
 Step/local.set x
 1. Let z be the current state.
@@ -30318,11 +30526,14 @@ Step/struct.new x
 3. Let (STRUCT list_0) be $Expand($type(z, x)).
 4. Let (mut? zt)^n be list_0.
 5. Let a be |$structinst(z)|.
-6. Assert: Due to validation, there are at least n values on the top of the stack.
-7. Pop the values val^n from the stack.
-8. Let si be { TYPE: $type(z, x); FIELDS: $packfield_(zt, val)^n }.
-9. Push the value (REF.STRUCT_ADDR a) to the stack.
-10. Perform $add_structinst(z, [si]).
+6. Assert: Due to validation, (|mut?*| = n).
+7. Assert: Due to validation, (|zt*| = n).
+8. Assert: Due to validation, there are at least n values on the top of the stack.
+9. Pop the values val^n from the stack.
+10. Assert: Due to validation, (|val*| = n).
+11. Let si be { TYPE: $type(z, x); FIELDS: $packfield_(zt, val)^n }.
+12. Push the value (REF.STRUCT_ADDR a) to the stack.
+13. Perform $add_structinst(z, [si]).
 
 Step/struct.set x i
 1. Let z be the current state.
@@ -30338,7 +30549,8 @@ Step/struct.set x i
 10. Let (STRUCT list_0) be $Expand($type(z, x)).
 11. Let (mut? zt)* be list_0.
 12. Assert: Due to validation, (i < |zt*|).
-13. Perform $with_struct(z, a, i, $packfield_(zt*[i], val)).
+13. Assert: Due to validation, (|mut?*| = |zt*|).
+14. Perform $with_struct(z, a, i, $packfield_(zt*[i], val)).
 
 Step/array.new_fixed x n
 1. Let z be the current state.
@@ -30348,9 +30560,10 @@ Step/array.new_fixed x n
 5. Let a be |$arrayinst(z)|.
 6. Assert: Due to validation, there are at least n values on the top of the stack.
 7. Pop the values val^n from the stack.
-8. Let ai be { TYPE: $type(z, x); FIELDS: $packfield_(zt, val)^n }.
-9. Push the value (REF.ARRAY_ADDR a) to the stack.
-10. Perform $add_arrayinst(z, [ai]).
+8. Assert: Due to validation, (|val*| = n).
+9. Let ai be { TYPE: $type(z, x); FIELDS: $packfield_(zt, val)^n }.
+10. Push the value (REF.ARRAY_ADDR a) to the stack.
+11. Perform $add_arrayinst(z, [ai]).
 
 Step/array.set x
 1. Let z be the current state.
@@ -30391,9 +30604,10 @@ prod n''*
 opt_ `X X*
 1. If (X* = []), then:
   a. Return ?().
-2. Assert: Due to validation, (|X*| = 1).
-3. Let [w] be X*.
-4. Return ?(w).
+2. If (|X*| = 1), then:
+  a. Let [w] be X*.
+  b. Return ?(w).
+3. Fail.
 
 concat_ `X X*
 1. If (X* = []), then:
@@ -30454,14 +30668,16 @@ setproduct_ `X X*
 signif N
 1. If (N = 32), then:
   a. Return 23.
-2. Assert: Due to validation, (N = 64).
-3. Return 52.
+2. If (N = 64), then:
+  a. Return 52.
+3. Fail.
 
 expon N
 1. If (N = 32), then:
   a. Return 8.
-2. Assert: Due to validation, (N = 64).
-3. Return 11.
+2. If (N = 64), then:
+  a. Return 11.
+3. Fail.
 
 M N
 1. Return $signif(N).
@@ -30628,14 +30844,16 @@ NULLEXTERNREF
 IN N
 1. If (N = 32), then:
   a. Return I32.
-2. Assert: Due to validation, (N = 64).
-3. Return I64.
+2. If (N = 64), then:
+  a. Return I64.
+3. Fail.
 
 FN N
 1. If (N = 32), then:
   a. Return F32.
-2. Assert: Due to validation, (N = 64).
-3. Return F64.
+2. If (N = 64), then:
+  a. Return F64.
+3. Fail.
 
 JN N
 1. If (N = 8), then:
@@ -30644,8 +30862,9 @@ JN N
   a. Return I16.
 3. If (N = 32), then:
   a. Return I32.
-4. Assert: Due to validation, (N = 64).
-5. Return I64.
+4. If (N = 64), then:
+  a. Return I64.
+5. Fail.
 
 size numtype
 1. If (numtype = I32), then:
@@ -30677,8 +30896,9 @@ zsize storagetype
   a. Return $size(storagetype).
 2. If storagetype is vectype, then:
   a. Return $vsize(storagetype).
-3. Assert: Due to validation, storagetype is packtype.
-4. Return $psize(storagetype).
+3. If storagetype is packtype, then:
+  a. Return $psize(storagetype).
+4. Fail.
 
 isize Inn
 1. Return $size(Inn).
@@ -31140,9 +31360,10 @@ free_externtype externtype
 4. If externtype is some TABLE, then:
   a. Let (TABLE tabletype) be externtype.
   b. Return $free_tabletype(tabletype).
-5. Assert: Due to validation, externtype is some FUNC.
-6. Let (FUNC typeuse) be externtype.
-7. Return $free_typeuse(typeuse).
+5. If externtype is some FUNC, then:
+  a. Let (FUNC typeuse) be externtype.
+  b. Return $free_typeuse(typeuse).
+6. Fail.
 
 free_moduletype externtype_1* -> externtype_2*
 1. Return $free_list($free_externtype(externtype_1)*) ++ $free_list($free_externtype(externtype_2)*).
@@ -31649,8 +31870,9 @@ inv_signed_ N i
 sx storagetype
 1. If storagetype is consttype, then:
   a. Return ?().
-2. Assert: Due to validation, storagetype is packtype.
-3. Return ?(S).
+2. If storagetype is packtype, then:
+  a. Return ?(S).
+3. Fail.
 
 zero lanetype
 1. If lanetype is Jnn, then:

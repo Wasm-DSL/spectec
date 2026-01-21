@@ -37,12 +37,6 @@ exe:
 	@(cd ..; make exe)
 
 
-# Specification
-
-$(SPECCLONE): $(SPECFILES)
-	@(cd ..; make _specification)
-
-
 # Cleanup
 
 .PHONY: clean distclean

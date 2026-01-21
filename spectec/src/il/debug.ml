@@ -19,6 +19,7 @@ let il_param = string_of_param
 let il_args = list il_arg
 let il_binds = string_of_binds
 let il_params = list il_param
+let il_clause = string_of_clause
 let il_def = string_of_def
 let il_free s = String.concat " "
   Free.[

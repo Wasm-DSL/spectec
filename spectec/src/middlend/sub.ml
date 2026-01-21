@@ -120,7 +120,7 @@ let rec t_exp env exp =
       error sub_ty.at ("Non-variable or number type expression not supported `" ^ Il.Print.string_of_typ sub_ty ^ "`")
     end
 )
-  | _ -> exp
+   | _ -> exp
 
 (* Step 2 and 3: Traverse definitions, collect type information, insert as soon as possible *)
 

@@ -29,11 +29,11 @@ var b : byte
 
 ;; Floating-point
 
-def $signif(N) : nat
+def $signif(N) : nat hint(partial)
 def $signif(32) = 23
 def $signif(64) = 52
 
-def $expon(N) : nat
+def $expon(N) : nat hint(partial)
 def $expon(32) = 8
 def $expon(64) = 11
 

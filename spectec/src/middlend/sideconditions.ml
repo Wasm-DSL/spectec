@@ -40,7 +40,7 @@ let iterPr (pr, (iter, vars)) =
 let is_null e = CmpE (`EqOp, `BoolT, e, OptE None $$ e.at % e.note) $$ e.at % (BoolT $ e.at)
 let iffE e1 e2 = IfPr (BinE (`EquivOp, `BoolT, e1, e2) $$ e1.at % (BoolT $ e1.at)) $ e1.at
 let same_len e1 e2 = IfPr (CmpE (`EqOp, `BoolT, lenE e1, lenE e2) $$ e1.at % (BoolT $ e1.at)) $ e1.at
-(* let has_len ne e = IfPr (CmpE (`EqOp, None, lenE e, ne) $$ e.at % (BoolT $ e.at)) $ e.at *)
+let has_len ne e = IfPr (CmpE (`EqOp, `BoolT, lenE e, ne) $$ e.at % (BoolT $ e.at)) $ e.at
 
 (* updates the types in the environment as we go under iteras *)
 let env_under_iter env ((_, vs) : iterexp) =
@@ -51,7 +51,7 @@ let iter_side_conditions _env ((iter, vs) : iterexp) : prem list =
   match iter, List.map snd vs with
   | Opt, (e::es) -> List.map (fun e' -> iffE (is_null e) (is_null e')) es
   | (List|List1), (e::es) -> List.map (same_len e) es
-  (* | ListN (ne, None), es -> List.map (has_len ne) es *)
+  | ListN (ne, None), es -> List.map (has_len ne) es
   | ListN _, _ -> []
   | _ -> []
 
@@ -153,3 +153,4 @@ and t_def x = { x with it = t_def' x.it }
 
 let transform (defs : script) =
   List.map t_def defs
+
