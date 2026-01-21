@@ -156,9 +156,11 @@ and t_exp env e =
     (* Remove every arg but last for family projections *)
   | CallE (id, args) when StringSet.mem id.it env.proj_set && args <> [] -> 
     CallE (id, [(Lib.List.last args)])
-    (* HACK - Change IterE of option with no iteration variable into a OptE *)
+    (* HACK - Change IterE of option and list with no iteration variable into a OptE *)
   | IterE (e1, (Opt, [])) -> 
-    OptE (Some e1) 
+    OptE (Some e1)
+  | IterE (e1, (List, [])) | IterE (e1, (List1, [])) ->
+    ListE [e1] 
   | exp -> exp
   ) $$ e.at % e.note
 

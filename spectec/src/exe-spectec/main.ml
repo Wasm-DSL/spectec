@@ -22,6 +22,7 @@ type pass =
   | TypeFamilyRemoval
   | Else
   | Undep
+  | DefToRel
   | SubExpansion
   | Uncaseremoval
   | AliasDemut
@@ -42,9 +43,10 @@ let all_passes = [
   Totalize;
   Else;
   Uncaseremoval;
-  Sideconditions;
   SubExpansion;
   Sub;
+  DefToRel;
+  Sideconditions;
   AliasDemut;
   ImproveIds
 ]
@@ -108,6 +110,7 @@ let pass_flag = function
   | AliasDemut -> "alias-demut"
   | Else -> "else"
   | Undep -> "remove-indexed-types"
+  | DefToRel -> "definition-to-relation"
   | SubExpansion -> "sub-expansion"
   | Uncaseremoval -> "uncase-removal"
   | ImproveIds -> "improve-ids"
@@ -121,6 +124,7 @@ let pass_desc = function
   | TypeFamilyRemoval -> "Transform Type families into sum types"
   | Else -> "Eliminate the otherwise premise in relations"
   | Undep -> "Transform indexed types into types with well-formedness predicates"
+  | DefToRel -> "Transform specific function definitions into relations"
   | SubExpansion -> "Expands subtype matching"
   | Uncaseremoval -> "Eliminate the uncase expression"
   | AliasDemut -> "Lifts type aliases out of mutual groups"
@@ -136,6 +140,7 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | TypeFamilyRemoval -> Middlend.Typefamilyremoval.transform
   | Else -> Middlend.Else.transform
   | Undep -> Middlend.Undep.transform
+  | DefToRel -> Middlend.Deftorel.transform
   | SubExpansion -> Middlend.Subexpansion.transform
   | Uncaseremoval -> Middlend.Uncaseremoval.transform
   | AliasDemut -> Middlend.AliasDemut.transform
