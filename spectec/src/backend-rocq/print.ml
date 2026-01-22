@@ -1,6 +1,7 @@
 open Il.Ast
 open Util.Source
 open Il
+open Il.Walk
 
 module StringSet = Set.Make(String)
 
@@ -39,16 +40,20 @@ let is_type_family_param p =
   | ExpP (_, t) -> is_type_family t
   | _ -> false
 
+let get_type_var t = 
+  match t.it with
+  | VarT (id, _) when not (Il.Env.mem_typ !env_ref.il_env id) -> [id.it]
+  | _ -> []
+
 let needs_inh_class e =
   match e.it with
-  | IdxE _ -> (true, false)
-  | TheE _ -> (true, false)
-  | _ -> (false, true)
+  | IdxE _ | TheE _ -> (get_type_var e.note, false)
+  | _ -> ([], true)
 
 let needs_inh_class_path p = 
   match p.it with
-  | IdxP _ -> (true, false)
-  | _ -> (false, true)
+  | IdxP _ -> (get_type_var p.note, false)
+  | _ -> ([], true)
 
 type exptype =
   | LHS
@@ -638,9 +643,22 @@ let render_variant_typ is_recursive prefix id binds cases =
 let render_extra_clause params = 
   "|" ^ string_of_list_prefix " " ", " (fun _ -> "_") params ^ " => default_val"
 
+let render_inh_param inhib_type_vars param = 
+  match param.it with
+  | TypP id when List.mem id.it inhib_type_vars -> Some ("{_ : Inhabited " ^ render_id id.it ^ "}")
+  | _ -> None
+
 let render_function_def prefix id params r_typ clauses = 
   let has_typ_fam = List.length params > 1 && List.exists is_type_family_param params in
-  prefix ^ id ^ render_params params ^ " : " ^ render_type RHS r_typ ^ " :=\n" ^
+  let base_list_collector = base_collector [] (@) in
+  let c = { base_list_collector with collect_exp = needs_inh_class; collect_path = needs_inh_class_path } in
+  let inhabited_typ_vars = List.concat_map (fun clause -> 
+    let DefD (_, _, exp, prems) = clause.it in 
+    collect_exp c exp @ List.concat_map (collect_prem c) prems 
+  ) clauses in
+  let extra_params = List.filter_map (render_inh_param inhabited_typ_vars) params in
+  let e_params_render = if extra_params = [] then "" else " " ^ String.concat " " extra_params in
+  prefix ^ id ^ render_params params ^ e_params_render ^ " : " ^ render_type RHS r_typ ^ " :=\n" ^
   "\tmatch " ^ render_match_binders params ^ " return " ^ render_type RHS r_typ ^ " with\n\t\t" ^
   String.concat "\n\t\t" (List.map (fun clause -> match clause.it with
     | DefD (_, args, exp, _) -> 
@@ -672,11 +690,6 @@ let render_extra_info def =
   | TypD (id, _, [{it = InstD (binds, _, {it = VariantT typcases; _}); _}]) -> 
     Some (inhabitance_proof id.it binds typcases ^ ".\n\n" ^
     string_of_eqtype_proof true (cant_do_equality binds typcases) id.it binds)
-  | _ -> None
-
-let get_type_alias_id def = 
-  match def.it with
-  | TypD (id, _, [inst]) when is_alias_typ inst -> Some id.it
   | _ -> None
 
 let has_prems c = 
