@@ -4,16 +4,51 @@ open Il
 
 module StringSet = Set.Make(String)
 
+type rocq_env = {
+  mutable tf_set : StringSet.t;
+  mutable il_env : Il.Env.t
+}
+
+let new_env () = {
+  tf_set = StringSet.empty;
+  il_env = Il.Env.empty
+}
+
 let iter_prem_rels_list = ["List.Forall"; "List.Forall2"; "List_Forall3"]
 let iter_exp_lst_funcs = ["List.map"; "list_zipWith"; "list_map3"]
 let iter_exp_opt_funcs = ["option_map"; "option_zipWith"; "option_map3"]
 let error at msg = Util.Error.error at "Rocq translation" msg 
+
+let env_ref = ref (new_env ())
 
 let rec list_split (f : 'a -> bool) = function 
   | [] -> ([], [])
   | x :: xs when f x -> let x_true, x_false = list_split f xs in
     (x :: x_true, x_false)
   | xs -> ([], xs)
+
+let rec is_type_family t = 
+  match t.it with
+  | VarT (id, _) -> StringSet.mem id.it !env_ref.tf_set
+  | IterT (t', _) -> is_type_family t'
+  | TupT typs -> List.exists (fun (_, t') -> is_type_family t') typs
+  | _ -> false
+
+let is_type_family_param p =
+  match p.it with
+  | ExpP (_, t) -> is_type_family t
+  | _ -> false
+
+let needs_inh_class e =
+  match e.it with
+  | IdxE _ -> (true, false)
+  | TheE _ -> (true, false)
+  | _ -> (false, true)
+
+let needs_inh_class_path p = 
+  match p.it with
+  | IdxP _ -> (true, false)
+  | _ -> (false, true)
 
 type exptype =
   | LHS
@@ -70,8 +105,6 @@ let curly_parens s = "{" ^ s ^ "}"
 let comment_parens s = "(* " ^ s ^ " *)"
 
 let family_type_suffix = "entry"
-
-let env_ref = ref Il.Env.empty
 
 let is_record_typ inst = 
   match inst.it with
@@ -174,7 +207,7 @@ let render_mixop typ_id (m : mixop) =
   (* HACK - should be done in improve ids *)
   match s with
   | "_" -> "mk_" ^ typ_id 
-  | s when Il.Env.mem_typ !env_ref (s $ no_region) -> "mk_" ^ s
+  | s when Il.Env.mem_typ !env_ref.il_env (s $ no_region) -> "mk_" ^ s
   | s -> s
 
 let get_bind_id b = 
@@ -261,7 +294,7 @@ and render_exp exp_type exp =
     | _ -> make_proj_chain i (List.length typs - 1) e 
     end
   | CaseE (m, e) when exp_type = LHS -> 
-    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref exp.note) |> render_id in
+    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env exp.note) |> render_id in
     let exps = transform_case_tup e in
     begin match exps with
     | [] -> render_mixop name m
@@ -269,9 +302,9 @@ and render_exp exp_type exp =
     end
   | CaseE (m, e) -> 
     let exps = transform_case_tup e in
-    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref exp.note) |> render_id  in
+    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env exp.note) |> render_id  in
     (* Reduce here to remove type aliasing *)
-    let args = get_type_args (Il.Eval.reduce_typ !env_ref exp.note) in
+    let args = get_type_args (Il.Eval.reduce_typ !env_ref.il_env exp.note) in
     let implicit_args = if args = [] then "" else " " ^ String.concat " " (List.init (List.length args) (fun _ -> "_")) in
     begin match exps with
     | [] -> render_mixop name m
@@ -282,10 +315,10 @@ and render_exp exp_type exp =
   | OptE None -> "None"
   | TheE e -> parens ("the " ^ r_func e)
   | StrE fields -> "{| " ^ (String.concat "; " (List.map (fun (a, e) -> 
-    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref exp.note) |> render_id in
+    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env exp.note) |> render_id in
     render_atom name a ^ " := " ^ r_func e) fields)) ^ " |}"
   | DotE (e, a) -> 
-    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref e.note) |> render_id in
+    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env e.note) |> render_id in
     parens (render_atom name a ^ " " ^ r_func e)
   | CompE (e1, e2) -> parens (r_func e1 ^ " @@ " ^ r_func e2)
   | ListE [] -> "[]"
@@ -380,7 +413,7 @@ and render_path (paths : path list) typ at n name is_extend end_exp =
     let bind = render_bind RHS (ExpB (new_name $ no_region, new_name_typ) $ no_region) in
     parens ("list_update_func " ^ r_func_e (list_name n) ^ " " ^ r_func_e e ^ render_lambda [bind] extend_term)
   | [{it = DotP (p, a); _}] when is_extend -> 
-    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref p.note) |> render_id in
+    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env p.note) |> render_id in
     let projection_term = parens (render_atom name a ^ " " ^ r_func_e (list_name n)) in
     let extend_term = parens (projection_term ^ " ++ " ^ r_func_e end_exp) in
     render_record_update (r_func_e (list_name n)) (render_atom name a) extend_term
@@ -392,8 +425,8 @@ and render_path (paths : path list) typ at n name is_extend end_exp =
   | [{it = IdxP (_, e); _}] -> 
     let bind = render_bind RHS (ExpB ("_" $ no_region, new_name_typ) $ no_region) in
     parens ("list_update_func " ^ r_func_e (list_name n) ^ " " ^ r_func_e e ^ " " ^ render_lambda [bind] (r_func_e end_exp))
-  | [{it = DotP (p, a); _}] -> 
-    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref p.note) |> render_id in
+  | [{it = DotP (p, a); _}] ->
+    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env p.note) |> render_id in
     render_record_update (r_func_e (list_name n)) (render_atom name a) (r_func_e end_exp)
   | [{it = SliceP (_, e1, e2); _}] -> 
     parens ("list_slice_update " ^ r_func_e (list_name n) ^ " " ^ r_func_e e1 ^ " " ^ r_func_e e2 ^ " " ^ r_func_e end_exp)
@@ -407,7 +440,7 @@ and render_path (paths : path list) typ at n name is_extend end_exp =
     let (dot_paths, ps') = list_split is_dot (p :: ps) in
     let (end_name, end_atom, dot_paths') = match List.rev dot_paths with
       | {it = DotP (p, a'); _} :: ds -> 
-        let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref p.note) |> render_id in
+        let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env p.note) |> render_id in
         (render_atom name a', a', ds)
       | _ -> assert false (* Impossible since it has p *)
     in
@@ -420,7 +453,7 @@ and render_path (paths : path list) typ at n name is_extend end_exp =
     let update_fields = String.concat ";" (List.map (fun p -> 
       match p.it with
       | DotP (p', a) -> 
-        let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref p'.note) |> render_id in
+        let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env p'.note) |> render_id in
         render_atom name a
       | _ -> error at "Should be a record access" 
     ) dot_paths) in
@@ -461,7 +494,6 @@ let render_params params =
 
 let render_match_args args =
   string_of_list_prefix " " ", " (render_arg LHS) args
-
 
 let string_of_eqtype_proof recursive (cant_do_equality: bool) id (binds : bind list) =
   let binders = render_binders binds in 
@@ -548,7 +580,7 @@ let render_record recursive id binds fields =
   "Definition _append_" ^ id ^ inhabitance_binders ^ " (arg1 arg2 : " ^ parens (id ^ binders) ^ ") :=\n" ^ 
   "{|\n\t" ^ String.concat "\t" ((List.map (fun (a, (_, t, _), _) ->
     let record_id' = render_atom id a in
-    if (check_trivial_append !env_ref t) 
+    if (check_trivial_append !env_ref.il_env t) 
     then record_id' ^ " := " ^ "arg1.(" ^ record_id' ^ ") @@ arg2.(" ^ record_id' ^ ");\n" 
     else record_id' ^ " := " ^ "arg1.(" ^ record_id' ^ "); " ^ comment_parens "FIXME - Non-trivial append" ^ "\n" 
   )) fields) ^ "|}.\n\n" ^ 
@@ -603,12 +635,18 @@ let render_variant_typ is_recursive prefix id binds cases =
   (* Eq proof *)
   ".\n\n" ^ string_of_eqtype_proof is_recursive (cant_do_equality binds cases) id binds
 
+let render_extra_clause params = 
+  "|" ^ string_of_list_prefix " " ", " (fun _ -> "_") params ^ " => default_val"
+
 let render_function_def prefix id params r_typ clauses = 
+  let has_typ_fam = List.length params > 1 && List.exists is_type_family_param params in
   prefix ^ id ^ render_params params ^ " : " ^ render_type RHS r_typ ^ " :=\n" ^
   "\tmatch " ^ render_match_binders params ^ " return " ^ render_type RHS r_typ ^ " with\n\t\t" ^
   String.concat "\n\t\t" (List.map (fun clause -> match clause.it with
     | DefD (_, args, exp, _) -> 
-    "|" ^ render_match_args args ^ " => " ^ render_exp RHS exp) clauses) ^
+    "|" ^ render_match_args args ^ " => " ^ render_exp RHS exp) clauses
+  ) ^
+  (if has_typ_fam then "\n\t\t" ^ render_extra_clause params else "") ^
   "\n\tend"
 
 let render_relation prefix id typ rules = 
@@ -662,8 +700,8 @@ let is_axiom def =
 let remove_overlapping_clauses clauses = 
   Util.Lib.List.nub (fun clause clause' -> match clause.it, clause'.it with
   | DefD (_, args, exp, _), DefD (_, args', exp', _) -> 
-    let reduced_exp = Eval.reduce_exp !env_ref exp in 
-    let reduced_exp' = Eval.reduce_exp !env_ref exp' in 
+    let reduced_exp = Eval.reduce_exp !env_ref.il_env exp in 
+    let reduced_exp' = Eval.reduce_exp !env_ref.il_env exp' in 
     Eq.eq_list Eq.eq_arg args args' && Eq.eq_exp reduced_exp reduced_exp'
   ) clauses
 
@@ -850,9 +888,18 @@ let rec is_valid_def def =
   | GramD _ | HintD _ -> false
   | RecD defs -> List.for_all is_valid_def defs
   | _ -> true
-  
+
+let is_tf_hint h = h.hintid.it = Middlend.Typefamilyremoval.type_family_hint_id
+
+let register_tf_hint env def =
+  match def.it with
+  | HintD { it = TypH (id, hints); _} when List.exists is_tf_hint hints ->
+    env.tf_set <- StringSet.add id.it env.tf_set
+  | _ -> ()
+     
 let string_of_script (il : script) =
-  env_ref := Il.Env.env_of_script il;
+  !env_ref.il_env <- Il.Env.env_of_script il;
+  List.iter (register_tf_hint !env_ref) il; 
   exported_string ^
   "(* Generated Code *)\n" ^
   String.concat "" (List.filter is_valid_def il |> List.map (string_of_def true false))
