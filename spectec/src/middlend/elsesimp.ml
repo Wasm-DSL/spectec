@@ -106,15 +106,21 @@ let t_rule env else_ids rule =
   let* else_relation = Il.Env.find_opt_rel env.il_env (else_id $ no_region) in
   let (_, _, rules) = else_relation in
   let free_vars_binds = Free.free_list Free.bound_bind binds in 
-  let prems', binds' = List.map (fun r ->
+  let prems_list, binds' = List.map (fun r ->
     let RuleD (_, binds', _, _, prems') = r.it in
     let free_vars = Free.diff (Free.free_list Free.free_prem prems') free_vars_binds in 
     Lib.List.filter_not (is_wf_or_neg_prem else_ids env) prems', List.filter (is_in_bind free_vars) binds'
   ) rules |> List.split in
-  let prems', binds' = List.concat prems', List.concat binds' in
+  let binds' = List.concat binds' in
   
-  if prems' = [] || not (List.for_all is_boolean_prem prems') then None else
-  let neg_exps = List.filter_map get_exp prems' in
+  if prems_list = [] || not (List.for_all (fun prems' -> List.for_all is_boolean_prem prems') prems_list) then None else
+  let neg_exps = List.filter_map (fun prems' -> 
+    let exps = List.filter_map get_exp prems' in
+    match exps with 
+    | [] -> None
+    | x :: xs ->
+      Some (List.fold_left (fun acc exp -> BinE (`OrOp, `BoolT, acc, exp) $$ x.at % (BoolT $ x.at)) x xs)
+  ) prems_list in
   let new_prems = List.map (fun e -> IfPr e $ e.at) neg_exps in
   bind_else_set env else_id;
   Some { rule with it = RuleD (id, binds @ binds', m, exp, new_prems @ Lib.List.filter_not (is_neg_prem else_ids) prems) }
