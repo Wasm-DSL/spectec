@@ -896,11 +896,11 @@ let exported_string =
   "Import ListNotations.\n" ^
   "Import RecordSetNotations.\n\n"
 
-let rec is_valid_def def = 
+let rec filter_def def = 
   match def.it with
-  | GramD _ | HintD _ -> false
-  | RecD defs -> List.for_all is_valid_def defs
-  | _ -> true
+  | GramD _ | HintD _ -> None
+  | RecD defs -> Some {def with it = RecD (List.filter_map filter_def defs) } 
+  | _ -> Some def
 
 let is_tf_hint h = h.hintid.it = Middlend.Typefamilyremoval.type_family_hint_id
 
@@ -915,4 +915,4 @@ let string_of_script (il : script) =
   List.iter (register_tf_hint !env_ref) il; 
   exported_string ^
   "(* Generated Code *)\n" ^
-  String.concat "" (List.filter is_valid_def il |> List.map (string_of_def true false))
+  String.concat "" (List.filter_map filter_def il |> List.map (string_of_def true false))
