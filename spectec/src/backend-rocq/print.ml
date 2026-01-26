@@ -108,6 +108,7 @@ let square_parens s = "[" ^ s ^ "]"
 let parens s = "(" ^ s ^ ")"
 let curly_parens s = "{" ^ s ^ "}"
 let comment_parens s = "(* " ^ s ^ " *)"
+let line_parens spc s = "|" ^ spc ^ s ^ spc ^ "|"
 
 let family_type_suffix = "entry"
 
@@ -318,7 +319,7 @@ and render_exp exp_type exp =
   | UncaseE _ -> error exp.at "Encountered uncase. Run uncase-removal pass"
   | OptE (Some e) -> parens ("Some " ^ r_func e)
   | OptE None -> "None"
-  | TheE e -> parens ("the " ^ r_func e)
+  | TheE e -> parens ("!" ^ parens (r_func e))
   | StrE fields -> "{| " ^ (String.concat "; " (List.map (fun (a, e) -> 
     let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env exp.note) |> render_id in
     render_atom name a ^ " := " ^ r_func e) fields)) ^ " |}"
@@ -330,10 +331,10 @@ and render_exp exp_type exp =
   | ListE exps -> square_parens (String.concat "; " (List.map r_func exps)) 
   | LiftE e -> parens ("option_to_list " ^ r_func e)
   | MemE (e1, e2) -> parens (r_func e1 ^ " \\in " ^ r_func e2)
-  | LenE e1 -> parens ("List.length " ^ r_func e1)
+  | LenE e1 -> parens (line_parens "" (r_func e1))
   | CatE ({it = ListE [e1]; _}, e2) when exp_type = LHS -> parens (r_func e1 ^ " :: " ^ r_func e2) 
   | CatE (e1, e2) -> parens (r_func e1 ^ " ++ " ^ r_func e2)
-  | IdxE (e1, e2) -> parens ("lookup_total " ^ r_func e1 ^ " " ^ r_func e2)
+  | IdxE (e1, e2) -> parens (r_func e1 ^ square_parens (line_parens " " (r_func e2)))
   | SliceE (e1, e2, e3) -> parens ("list_slice" ^ r_func e1 ^ " " ^ r_func e2 ^ " " ^ r_func e3)
   | UpdE (e1, p, e2) -> render_path_start p e1 false e2
   | ExtE (e1, p, e2) -> render_path_start p e1 true e2
@@ -892,6 +893,9 @@ let exported_string =
   "Global Instance list_coercion (A B : Type) {_: Coercion A B}: Coercion (list A) (list B) := { coerce := list_coerce }.\n\n" ^
   "Global Instance id_coercion (A : Type): Coercion A A := { coerce := id_coerce }.\n\n" ^
   "Global Instance transitive_coercion (A B C : Type) `{Coercion A B} `{Coercion B C}: Coercion A C := { coerce := transitive_coerce }.\n\n" ^
+  "Notation \"| x |\" := (List.length x) (at level 60).\n" ^
+  "Notation \"!( x )\" := (the x) (at level 60).\n" ^
+  "Notation \"x '[|' a '|]'\" := (lookup_total x a) (at level 10).\n" ^
   "Open Scope wasm_scope.\n" ^
   "Import ListNotations.\n" ^
   "Import RecordSetNotations.\n\n"

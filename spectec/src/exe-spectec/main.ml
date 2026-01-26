@@ -273,7 +273,8 @@ let () =
       enable_pass ImproveIds;
       enable_pass AliasDemut;
       enable_pass DefToRel;
-      enable_pass Ite
+      enable_pass Ite;
+      enable_pass ElseSimp
     | _ when !print_al || !print_al_o <> "" ->
       enable_pass Sideconditions;
     | _ -> ()
