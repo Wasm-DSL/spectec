@@ -16,6 +16,8 @@ let new_env () = {
   il_env = Il.Env.empty
 }
 
+let empty_info: region * Xl.Atom.info = (no_region, {def = ""; case = ""})
+
 let env_ref: env ref = ref (new_env ())
 
 let _print_env () =
@@ -36,6 +38,20 @@ let register_id typ_id base_id id =
     | None -> Some [(base_id, id)]
   ) !env_ref.disamb_map
 
+let is_atomid a =
+  match a.it with
+  | Atom.Atom _ -> true
+  | _ -> false
+
+let get_atom_id a = 
+  match a.it with
+  | Atom.Atom s -> s
+  | _ -> ""
+
+let get_mixop_s m = 
+  String.concat "" (List.map (
+      fun atoms -> String.concat "" (List.filter is_atomid atoms |> List.map get_atom_id)) m
+  ) 
 
 let t_atom_opt typ_id a =
   match a.it with
@@ -54,7 +70,10 @@ let t_atom typ_id a =
 let t_mixop typ_id m = 
   match m with
   | [a] :: tail when List.for_all ((=) []) tail -> [t_atom typ_id a] :: tail 
-  | _ -> m
+  | _ ->
+    let s = get_mixop_s m in
+    let new_atom = Atom.Atom s $$ empty_info in
+    [[t_atom typ_id new_atom]]
   (* List.map (fun atoms -> List.map (t_atom typ_id) atoms) m *)
 
 let t_exp e = 
@@ -112,7 +131,12 @@ let rec t_atom_new typ_id base_a a =
 let t_mixop_new typ_id m = 
   match m with
   | [a] :: tail when List.for_all ((=) []) tail -> [t_atom_new typ_id a a] :: tail 
-  | _ -> m
+  | _ -> 
+    let s = get_mixop_s m in 
+    let new_atom = Atom.Atom s $$ empty_info in
+    [[t_atom_new typ_id new_atom new_atom]]
+
+
   (* List.map (fun atoms -> List.map (fun a -> t_atom_new typ_id a a) atoms) m *)
     
 let t_inst t typ_id inst = 
