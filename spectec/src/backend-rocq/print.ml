@@ -1,6 +1,5 @@
 open Il.Ast
 open Util.Source
-open Il
 open Il.Walk
 
 module StringSet = Set.Make(String)
@@ -380,12 +379,7 @@ and render_bind exp_type b =
   | GramB _ -> comment_parens ("Unsupported bind: " ^ Il.Print.string_of_bind b)
 
 and render_param exp_type param = 
-  let get_id p =
-    match p.it with
-    | ExpP (id, _) | TypP id | DefP (id, _, _) | GramP (id, _) -> render_id id.it 
-  in
-  parens (get_id param ^ " : " ^ render_param_type exp_type param)
-
+  parens (get_param_id param ^ " : " ^ render_param_type exp_type param)
 
 (* PATH Functions *)
 and transform_list_path (p : path) = 
@@ -625,8 +619,9 @@ let inhabitance_proof id binds cases =
   in
   render_proof cases 
 
-let render_coercion base_typ_id coerc_typ_id proj_func_id = 
-  "Global Instance " ^ proj_func_id ^ "_coercion : Coercion " ^ base_typ_id ^ " " ^ coerc_typ_id ^ " := { coerce := " ^ proj_func_id ^ " }" 
+let render_coercion (base_typ_id, typ_params) coerc_typ_id proj_func_id = 
+  "Global Instance " ^ proj_func_id ^ "_coercion" ^ render_params typ_params ^ " : Coercion " ^ base_typ_id ^ " " ^ coerc_typ_id ^ " := { coerce := " ^ proj_func_id ^ 
+  string_of_list_prefix " " " " get_param_id typ_params ^ " }" 
 
 let cant_do_equality binds cases = 
   (List.exists is_typ_bind binds) ||
@@ -657,9 +652,14 @@ let render_inh_param inhib_type_vars param =
   | _ -> None
 
 let render_single_type id at params = 
-  match params with
-  | [{it = ExpP (_, typ); _}] -> render_type RHS typ
-  | _ -> error at ("Given projection function: " ^ id ^ " has no parameters!")
+  let is_typ_param p = 
+    match p.it with
+    | TypP _ -> true
+    | _ -> false 
+  in
+  match List.rev params with
+  | {it = ExpP (_, typ); _} :: ps when List.for_all is_typ_param ps -> (render_type RHS typ, ps)
+  | _ -> error at ("Given projection function: " ^ id ^ " has invalid parameters!")
 
 let render_function_def prefix id at params r_typ clauses = 
   let has_typ_fam = List.length params > 1 && List.exists is_type_family_param params in
@@ -729,14 +729,6 @@ let is_axiom def =
   | DecD (_, _, _, _clauses) -> true
   | _ -> false
 
-let remove_overlapping_clauses clauses = 
-  Util.Lib.List.nub (fun clause clause' -> match clause.it, clause'.it with
-  | DefD (_, args, exp, _), DefD (_, args', exp', _) -> 
-    let reduced_exp = Eval.reduce_exp !env_ref.il_env exp in 
-    let reduced_exp' = Eval.reduce_exp !env_ref.il_env exp' in 
-    Eq.eq_list Eq.eq_arg args args' && Eq.eq_exp reduced_exp reduced_exp'
-  ) clauses
-
 (* TODO - revise mutual recursion with other defs such as records and axioms *)
 let rec string_of_def has_endline recursive def = 
   let end_newline = if has_endline then ".\n\n" else "" in 
@@ -760,7 +752,7 @@ let rec string_of_def has_endline recursive def =
     start ^ render_axiom prefix (render_id id.it) params typ ^ end_newline
   | DecD (id, params, typ, clauses) -> 
     let prefix = if recursive then "" else "Definition " in
-    start ^ render_function_def prefix (render_id id.it) id.at params typ (remove_overlapping_clauses clauses) ^ end_newline
+    start ^ render_function_def prefix (render_id id.it) id.at params typ (clauses) ^ end_newline
   | RelD (id, _, typ, []) -> 
     let prefix = if recursive then "" else "Axiom " in
     start ^ render_rel_axiom prefix (render_id id.it) typ ^ end_newline

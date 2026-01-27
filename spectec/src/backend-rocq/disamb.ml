@@ -1,6 +1,7 @@
 open Il.Ast
 open Util.Source
 open Il.Walk
+open Il
 open Xl
 
 module StringMap = Map.Make(String)
@@ -132,6 +133,22 @@ let rec t_def def =
     ) rules) }
   | _ -> transform_def t def
 
+(* Remove overlaps created by sub expansion *)
+let remove_overlapping_clauses clauses = 
+  Util.Lib.List.nub (fun clause clause' -> match clause.it, clause'.it with
+  | DefD (_, args, exp, _), DefD (_, args', exp', _) -> 
+    let reduced_exp = Eval.reduce_exp !env_ref.il_env exp in 
+    let reduced_exp' = Eval.reduce_exp !env_ref.il_env exp' in 
+    Eq.eq_list Eq.eq_arg args args' && Eq.eq_exp reduced_exp reduced_exp'
+  ) clauses
+
+let rec rem_overlap_def def = 
+  match def.it with
+  | DecD (id, params, typ, clauses) -> {def with it = DecD (id, params, typ, remove_overlapping_clauses clauses)}
+  | RecD defs -> {def with it = RecD (List.map rem_overlap_def defs)}
+  | _ -> def  
+
 let transform il =
   !env_ref.il_env <- Il.Env.env_of_script il;
-  List.map t_def il
+  List.map rem_overlap_def il |>
+  List.map t_def
