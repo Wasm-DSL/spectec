@@ -75,11 +75,18 @@ let has_atom_hole m =
   | [{it = Atom "_"; _}] -> true
   | _ -> false
 
+let register_atom_id env s =
+  env.atom_str_set <- StringSet.add s env.atom_str_set
+
 (* Atom functions *)
 let transform_atom env typ_id a = 
   match a.it with
-  | Atom s -> Atom (t_user_def_id env (s $ a.at)).it $$ a.at % a.note
-  | _ -> Atom (make_prefix ^ typ_id) $$ a.at % a.note
+  | Atom s -> 
+    register_atom_id env (t_user_def_id env (s $ a.at)).it;
+    Atom (t_user_def_id env (s $ a.at)).it $$ a.at % a.note
+  | _ -> 
+    register_atom_id env (make_prefix ^ typ_id);
+    Atom (make_prefix ^ typ_id) $$ a.at % a.note
 
 let transform_mixop env typ_id (m : mixop) =
 (* TODO! Not sure what the expected result is for this one. *)

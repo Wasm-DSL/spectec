@@ -151,7 +151,7 @@ and transform_prem t p =
 and transform_param t p =
   { p with it = match p.it with
     | ExpP (id, typ) -> ExpP (t.transform_var_id id, transform_typ t typ)
-    | TypP id -> TypP (t.transform_typ_id id)
+    | TypP id -> TypP (t.transform_var_id id)
     | DefP (id, params, typ) -> DefP (t.transform_def_id id, List.map (transform_param t) params, transform_typ t typ)
     | GramP (id, params, typ) -> GramP (t.transform_gram_id id, List.map (transform_param t) params, transform_typ t typ)
   }
