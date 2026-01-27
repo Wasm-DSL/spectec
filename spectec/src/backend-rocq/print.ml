@@ -7,12 +7,14 @@ module StringSet = Set.Make(String)
 
 type rocq_env = {
   mutable tf_set : StringSet.t;
-  mutable il_env : Il.Env.t
+  mutable il_env : Il.Env.t;
+  mutable proj_set : StringSet.t
 }
 
 let new_env () = {
   tf_set = StringSet.empty;
-  il_env = Il.Env.empty
+  il_env = Il.Env.empty;
+  proj_set = StringSet.empty
 }
 
 let iter_prem_rels_list = ["List.Forall"; "List.Forall2"; "List_Forall3"]
@@ -338,6 +340,8 @@ and render_exp exp_type exp =
   | SliceE (e1, e2, e3) -> parens ("list_slice" ^ r_func e1 ^ " " ^ r_func e2 ^ " " ^ r_func e3)
   | UpdE (e1, p, e2) -> render_path_start p e1 false e2
   | ExtE (e1, p, e2) -> render_path_start p e1 true e2
+  | CallE (id, [a]) when StringSet.mem id.it !env_ref.proj_set ->
+    parens (render_arg exp_type a ^ " :> " ^ (render_type exp_type exp.note))
   | CallE (id, args) -> parens (render_id id.it ^ " " ^ String.concat " " (List.map (render_arg exp_type) args))
   (* Iter handling *)
   | IterE (e, (ListN (n, _), [])) -> parens ("List.repeat " ^ (r_func e) ^ " " ^ (r_func n)) 
@@ -621,6 +625,9 @@ let inhabitance_proof id binds cases =
   in
   render_proof cases 
 
+let render_coercion base_typ_id coerc_typ_id proj_func_id = 
+  "Global Instance " ^ proj_func_id ^ "_coercion : Coercion " ^ base_typ_id ^ " " ^ coerc_typ_id ^ " := { coerce := " ^ proj_func_id ^ " }" 
+
 let cant_do_equality binds cases = 
   (List.exists is_typ_bind binds) ||
   (List.exists (fun (_, (binds', _, _), _) -> List.exists is_typ_bind binds') cases)
@@ -649,8 +656,14 @@ let render_inh_param inhib_type_vars param =
   | TypP id when List.mem id.it inhib_type_vars -> Some ("{_ : Inhabited " ^ render_id id.it ^ "}")
   | _ -> None
 
-let render_function_def prefix id params r_typ clauses = 
+let render_single_type id at params = 
+  match params with
+  | [{it = ExpP (_, typ); _}] -> render_type RHS typ
+  | _ -> error at "Given projection function: " ^ id ^ " has no parameters!"
+
+let render_function_def prefix id at params r_typ clauses = 
   let has_typ_fam = List.length params > 1 && List.exists is_type_family_param params in
+  let is_proj_func = StringSet.mem id !env_ref.proj_set in
   let base_list_collector = base_collector [] (@) in
   let c = { base_list_collector with collect_exp = needs_inh_class; collect_path = needs_inh_class_path } in
   let inhabited_typ_vars = List.concat_map (fun clause -> 
@@ -666,7 +679,12 @@ let render_function_def prefix id params r_typ clauses =
     "|" ^ render_match_args args ^ " => " ^ render_exp RHS exp) clauses
   ) ^
   (if has_typ_fam then "\n\t\t" ^ render_extra_clause params else "") ^
-  "\n\tend"
+  "\n\tend" ^
+  if is_proj_func 
+    then 
+      ".\n\n" ^ 
+      render_coercion (render_single_type id at params) (render_type RHS r_typ) id 
+    else ""
 
 let render_relation prefix id typ rules = 
   prefix ^ id ^ " : " ^ string_of_relation_args typ ^ "Prop :=\n\t" ^
@@ -742,7 +760,7 @@ let rec string_of_def has_endline recursive def =
     start ^ render_axiom prefix (render_id id.it) params typ ^ end_newline
   | DecD (id, params, typ, clauses) -> 
     let prefix = if recursive then "" else "Definition " in
-    start ^ render_function_def prefix (render_id id.it) params typ (remove_overlapping_clauses clauses) ^ end_newline
+    start ^ render_function_def prefix (render_id id.it) id.at params typ (remove_overlapping_clauses clauses) ^ end_newline
   | RelD (id, _, typ, []) -> 
     let prefix = if recursive then "" else "Axiom " in
     start ^ render_rel_axiom prefix (render_id id.it) typ ^ end_newline
@@ -889,10 +907,13 @@ let exported_string =
   "Definition id_coerce {A : Type} (a : A) : A := a.\n\n" ^
   "Definition transitive_coerce {A B C : Type} `{Coercion A B} `{Coercion B C} (a : A): C :=\n" ^
 	"\tcoerce (coerce a).\n\n" ^
+  "Definition total_coerce {A B: Type} `{Coercion A (option B)} {_ : Inhabited B} (a : A): B :=\n" ^
+	"\tthe (coerce a).\n\n" ^
   "Global Instance option_coercion (A B : Type) {_: Coercion A B}: Coercion (option A) (option B) := { coerce := option_coerce }.\n\n" ^
   "Global Instance list_coercion (A B : Type) {_: Coercion A B}: Coercion (list A) (list B) := { coerce := list_coerce }.\n\n" ^
   "Global Instance id_coercion (A : Type): Coercion A A := { coerce := id_coerce }.\n\n" ^
   "Global Instance transitive_coercion (A B C : Type) `{Coercion A B} `{Coercion B C}: Coercion A C := { coerce := transitive_coerce }.\n\n" ^
+  "Global Instance total_coercion (A B : Type) `{Coercion A (option B)} {_ : Inhabited B}: Coercion A B := { coerce := total_coerce}.\n\n" ^
   "Notation \"| x |\" := (List.length x) (at level 60).\n" ^
   "Notation \"!( x )\" := (the x) (at level 60).\n" ^
   "Notation \"x '[|' a '|]'\" := (lookup_total x a) (at level 10).\n" ^
@@ -908,15 +929,20 @@ let rec filter_def def =
 
 let is_tf_hint h = h.hintid.it = Middlend.Typefamilyremoval.type_family_hint_id
 
-let register_tf_hint env def =
+let is_proj_hint h = h.hintid.it = Middlend.Uncaseremoval.uncase_proj_hint_id
+
+let rec register_hints env def =
   match def.it with
   | HintD { it = TypH (id, hints); _} when List.exists is_tf_hint hints ->
     env.tf_set <- StringSet.add id.it env.tf_set
+  | HintD { it = DecH (id, hints); _} when List.exists is_proj_hint hints ->
+    env.proj_set <- StringSet.add id.it env.proj_set
+  | RecD defs -> List.iter (register_hints env) defs
   | _ -> ()
      
 let string_of_script (il : script) =
   !env_ref.il_env <- Il.Env.env_of_script il;
-  List.iter (register_tf_hint !env_ref) il; 
+  List.iter (register_hints !env_ref) il; 
   exported_string ^
   "(* Generated Code *)\n" ^
   String.concat "" (List.filter_map filter_def il |> List.map (string_of_def true false))

@@ -103,10 +103,16 @@ let make_bind p =
   | GramP _ -> assert false (* Avoid this *)
   ) $ p.at
 
+let uncase_proj_hint_id = "uncase-proj-func" 
+
+let generate_proj_func_hint at: hint = { hintid = uncase_proj_hint_id $ at; hintexp = El.Ast.SeqE [] $ at} 
+
+
 let create_projection_functions id params mixops inst =
   let get_deftyp inst' = (match inst'.it with
     | InstD (_binds, _args, deftyp) -> deftyp.it
   ) in 
+  let proj_name idx = (proj_prefix ^ id.it ^ "_" ^ Int.to_string idx) $ id.at in
   let at = inst.at in 
   let user_typ = VarT (id, List.map make_arg params) $ at in 
   let param_ids = List.map (fun p -> (Utils.get_param_id p).it) params in 
@@ -124,7 +130,7 @@ let create_projection_functions id params mixops inst =
     let new_arg = ExpA new_case_exp $ at in 
     if has_one_case then 
       let clause = DefD (List.map make_bind params @ new_binds, List.map make_arg params @ [new_arg], new_tup, []) $ at in 
-      DecD ((proj_prefix ^ id.it ^ "_" ^ Int.to_string idx) $ id.at, new_params, no_name_tupt, [clause])
+      DecD (proj_name idx, new_params, no_name_tupt, [clause])
     else
       (* extra handling in case that it has more than one case *)
       let extra_arg = ExpA (VarE (fresh_name $ at) $$ at % user_typ) $ at in
@@ -134,10 +140,10 @@ let create_projection_functions id params mixops inst =
       let opt_tup = OptE (Some new_tup) $$ at % opt_type in 
       let clause' = DefD (List.map make_bind params @ new_binds, List.map make_arg params @ [new_arg], opt_tup, []) $ at in
       let extra_clause = DefD (List.map make_bind params @ new_binds @ [new_bind], List.map make_arg params @ [extra_arg], none_exp, []) $ at in
-      DecD ((proj_prefix ^ id.it ^ "_" ^ Int.to_string idx) $ id.at, new_params, opt_type, [clause'; extra_clause])
+      DecD (proj_name idx, new_params, opt_type, [clause'; extra_clause])
   in
 
-  List.map (fun m -> 
+  List.concat_map (fun m -> 
     (match (get_deftyp inst) with
     (* Should not happen due to reduction while collecting uncase expressions *)
     | AliasT _typ -> error inst.at "Found type alias while constructing projection functions, should not happen"
@@ -149,7 +155,10 @@ let create_projection_functions id params mixops inst =
         Some (i, m, t)
       ) (List.mapi (fun i t -> (i, t)) typcases) in
       begin match mixop_opt with
-      | Some (i, m, t) -> make_func m (get_case_typs t) (List.length typcases = 1) i
+      | Some (idx, m, t) -> 
+        make_func m (get_case_typs t) (List.length typcases = 1) idx ::
+        (* Add hint to distinguish this projection function from other functions *)
+        [ HintD (DecH (proj_name idx, [generate_proj_func_hint id.at]) $ id.at) ]
       | None -> 
         error inst.at ("Could not find mixop " ^ Il.Print.string_of_mixop m ^ 
         " while constructing projection functions") 
