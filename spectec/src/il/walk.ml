@@ -154,7 +154,7 @@ and transform_bind t b =
   let f = t.transform_bind in
   let it = match b.it with
     | ExpB (id, typ) -> ExpB (t.transform_var_id id, transform_typ t typ)
-    | TypB id -> TypB (t.transform_typ_id id)
+    | TypB id -> TypB (t.transform_var_id id)
     | DefB (id, params, typ) -> DefB (t.transform_def_id id, List.map (transform_param t) params, transform_typ t typ)
     | GramB (id, params, typ) -> GramB (t.transform_gram_id id, List.map (transform_param t) params, transform_typ t typ)
   in
@@ -163,7 +163,7 @@ and transform_bind t b =
 and transform_param t p =
   { p with it = match p.it with
     | ExpP (id, typ) -> ExpP (t.transform_var_id id, transform_typ t typ)
-    | TypP id -> TypP (t.transform_typ_id id)
+    | TypP id -> TypP (t.transform_var_id id)
     | DefP (id, params, typ) -> DefP (t.transform_def_id id, List.map (transform_param t) params, transform_typ t typ)
     | GramP (id, typ) -> GramP (t.transform_gram_id id, transform_typ t typ)
   }
