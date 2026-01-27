@@ -64,7 +64,7 @@ type exptype =
 
 let var_prefix = "var_"
 
-let render_rule_id rel_id id = rel_id ^ "__" ^ id 
+(* let render_rule_id rel_id id = rel_id ^ "__" ^ id  *)
 
 let reserved_ids = 
   ["N"; "in"; "In"; 
@@ -200,16 +200,16 @@ let render_id id =
   | s when StringSet.mem s reserved_ids -> "res_" ^ s
   | _ -> id
 
-let render_atom typ_id a =
+let render_atom a =
   match a.it with
-  | Xl.Atom.Atom a -> typ_id ^ "_" ^ render_id a
+  | Xl.Atom.Atom a -> render_id a
   | _ -> ""
 
 let render_mixop typ_id (m : mixop) = 
   let s = (match m with
-    | [{it = Atom a; _}] :: tail when List.for_all ((=) []) tail -> typ_id ^ "_" ^ render_id a
+    | [{it = Atom a; _}] :: tail when List.for_all ((=) []) tail -> render_id a
     | mixop -> String.concat "" (List.map (
-      fun atoms -> String.concat "" (List.filter is_atomid atoms |> List.map (render_atom typ_id))) mixop
+      fun atoms -> String.concat "" (List.filter is_atomid atoms |> List.map (render_atom))) mixop
     )
   ) in
   (* HACK - should be done in improve ids *)
@@ -323,11 +323,11 @@ and render_exp exp_type exp =
   | OptE None -> "None"
   | TheE e -> parens ("!" ^ parens (r_func e))
   | StrE fields -> "{| " ^ (String.concat "; " (List.map (fun (a, e) -> 
-    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env exp.note) |> render_id in
-    render_atom name a ^ " := " ^ r_func e) fields)) ^ " |}"
+    (* let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env exp.note) |> render_id in *)
+    render_atom a ^ " := " ^ r_func e) fields)) ^ " |}"
   | DotE (e, a) -> 
-    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env e.note) |> render_id in
-    parens (render_atom name a ^ " " ^ r_func e)
+    (* let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env e.note) |> render_id in *)
+    parens (render_atom a ^ " " ^ r_func e)
   | CompE (e1, e2) -> parens (r_func e1 ^ " @@ " ^ r_func e2)
   | ListE [] -> "[]"
   | ListE exps -> square_parens (String.concat "; " (List.map r_func exps)) 
@@ -422,11 +422,11 @@ and render_path (paths : path list) typ at n name is_extend end_exp =
     let extend_term = parens (new_name ^ " ++ " ^ r_func_e end_exp) in
     let bind = render_bind RHS (ExpB (new_name $ no_region, new_name_typ) $ no_region) in
     parens ("list_update_func " ^ r_func_e (list_name n) ^ " " ^ r_func_e e ^ render_lambda [bind] extend_term)
-  | [{it = DotP (p, a); _}] when is_extend -> 
-    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env p.note) |> render_id in
-    let projection_term = parens (render_atom name a ^ " " ^ r_func_e (list_name n)) in
+  | [{it = DotP (_p, a); _}] when is_extend -> 
+    (* let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env p.note) |> render_id in *)
+    let projection_term = parens (render_atom a ^ " " ^ r_func_e (list_name n)) in
     let extend_term = parens (projection_term ^ " ++ " ^ r_func_e end_exp) in
-    render_record_update (r_func_e (list_name n)) (render_atom name a) extend_term
+    render_record_update (r_func_e (list_name n)) (render_atom a) extend_term
   | [{it = SliceP (_, e1, e2); _}] when is_extend -> 
     let extend_term = parens (new_name ^ " ++ " ^ r_func_e end_exp) in
     let bind = render_bind RHS (ExpB (new_name $ no_region, new_name_typ) $ no_region) in
@@ -435,9 +435,9 @@ and render_path (paths : path list) typ at n name is_extend end_exp =
   | [{it = IdxP (_, e); _}] -> 
     let bind = render_bind RHS (ExpB ("_" $ no_region, new_name_typ) $ no_region) in
     parens ("list_update_func " ^ r_func_e (list_name n) ^ " " ^ r_func_e e ^ " " ^ render_lambda [bind] (r_func_e end_exp))
-  | [{it = DotP (p, a); _}] ->
-    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env p.note) |> render_id in
-    render_record_update (r_func_e (list_name n)) (render_atom name a) (r_func_e end_exp)
+  | [{it = DotP (_p, a); _}] ->
+    (* let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env p.note) |> render_id in *)
+    render_record_update (r_func_e (list_name n)) (render_atom a) (r_func_e end_exp)
   | [{it = SliceP (_, e1, e2); _}] -> 
     parens ("list_slice_update " ^ r_func_e (list_name n) ^ " " ^ r_func_e e1 ^ " " ^ r_func_e e2 ^ " " ^ r_func_e end_exp)
   (* Middle logic *)
@@ -449,9 +449,9 @@ and render_path (paths : path list) typ at n name is_extend end_exp =
   | ({it = DotP _; note; _} as p) :: ps -> 
     let (dot_paths, ps') = list_split is_dot (p :: ps) in
     let (end_name, end_atom, dot_paths') = match List.rev dot_paths with
-      | {it = DotP (p, a'); _} :: ds -> 
-        let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env p.note) |> render_id in
-        (render_atom name a', a', ds)
+      | {it = DotP (_p, a'); _} :: ds -> 
+        (* let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env p.note) |> render_id in *)
+        (render_atom a', a', ds)
       | _ -> assert false (* Impossible since it has p *)
     in
     let projection_term = List.fold_right (fun p acc -> 
@@ -462,9 +462,9 @@ and render_path (paths : path list) typ at n name is_extend end_exp =
     )  dot_paths' (list_name n) in
     let update_fields = String.concat ";" (List.map (fun p -> 
       match p.it with
-      | DotP (p', a) -> 
-        let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env p'.note) |> render_id in
-        render_atom name a
+      | DotP (_p', a) -> 
+        (* let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env p'.note) |> render_id in *)
+        render_atom a
       | _ -> error at "Should be a record access" 
     ) dot_paths) in
     let new_term = parens (end_name ^ " " ^ r_func_e projection_term) in
@@ -578,18 +578,18 @@ let render_record recursive id binds fields =
   (* Standard Record definition *)
   "Record " ^ id ^ inhabitance_binders ^ " := " ^ constructor_name ^ "\n{\t" ^ 
   String.concat "\n;\t" (List.map (fun (a, (_, typ, _), _) -> 
-    render_atom id a ^ " : " ^ render_type RHS typ) fields) ^ "\n}.\n\n" ^
+    render_atom a ^ " : " ^ render_type RHS typ) fields) ^ "\n}.\n\n" ^
 
   (* Inhabitance proof for default values *)
   "Global Instance Inhabited_" ^ id ^ inhabitance_binders ^ " : Inhabited " ^ parens (id ^ binders) ^ " := \n" ^
   "{default_val := {|\n\t" ^
       String.concat ";\n\t" (List.map (fun (a, _, _) -> 
-        render_atom id a  ^ " := default_val") fields) ^ "|} }.\n\n" ^
+        render_atom a  ^ " := default_val") fields) ^ "|} }.\n\n" ^
 
   (* Append instance *)
   "Definition _append_" ^ id ^ inhabitance_binders ^ " (arg1 arg2 : " ^ parens (id ^ binders) ^ ") :=\n" ^ 
   "{|\n\t" ^ String.concat "\t" ((List.map (fun (a, (_, t, _), _) ->
-    let record_id' = render_atom id a in
+    let record_id' = render_atom a in
     if (check_trivial_append !env_ref.il_env t) 
     then record_id' ^ " := " ^ "arg1.(" ^ record_id' ^ ") @@ arg2.(" ^ record_id' ^ ");\n" 
     else record_id' ^ " := " ^ "arg1.(" ^ record_id' ^ "); " ^ comment_parens "FIXME - Non-trivial append" ^ "\n" 
@@ -598,7 +598,7 @@ let render_record recursive id binds fields =
 
   (* Setter proof *)
   "#[export] Instance eta__" ^ id ^ " : Settable _ := settable! " ^ constructor_name ^ " <" ^ 
-  String.concat ";" (List.map (fun (a, _, _) -> render_atom id a) fields) ^ ">"
+  String.concat ";" (List.map (fun (a, _, _) -> render_atom a) fields) ^ ">"
   ^ ".\n\n" ^ string_of_eqtype_proof recursive false id [] 
 
 let rec has_typ id t =
@@ -659,7 +659,7 @@ let render_inh_param inhib_type_vars param =
 let render_single_type id at params = 
   match params with
   | [{it = ExpP (_, typ); _}] -> render_type RHS typ
-  | _ -> error at "Given projection function: " ^ id ^ " has no parameters!"
+  | _ -> error at ("Given projection function: " ^ id ^ " has no parameters!")
 
 let render_function_def prefix id at params r_typ clauses = 
   let has_typ_fam = List.length params > 1 && List.exists is_type_family_param params in
@@ -681,10 +681,10 @@ let render_function_def prefix id at params r_typ clauses =
   (if has_typ_fam then "\n\t\t" ^ render_extra_clause params else "") ^
   "\n\tend" ^
   if is_proj_func 
-    then 
-      ".\n\n" ^ 
-      render_coercion (render_single_type id at params) (render_type RHS r_typ) id 
-    else ""
+  then 
+    ".\n\n" ^ 
+    render_coercion (render_single_type id at params) (render_type RHS r_typ) id 
+  else ""
 
 let render_relation prefix id typ rules = 
   prefix ^ id ^ " : " ^ string_of_relation_args typ ^ "Prop :=\n\t" ^
@@ -692,7 +692,7 @@ let render_relation prefix id typ rules =
     | RuleD (rule_id, binds, _, exp, prems) ->
       let string_prems = string_of_list "\n\t\t" " ->\n\t\t" " ->\n\t\t" (render_prem) prems in
       let forall_quantifiers = string_of_list "forall " ", " " " (render_bind REL) binds in
-      "| " ^ render_rule_id id rule_id.it ^ " : " ^ forall_quantifiers ^ string_prems ^ render_id id ^ " " ^ String.concat " " (List.map (render_exp REL) (transform_case_tup exp))
+      "| " ^ render_id (rule_id.it) ^ " : " ^ forall_quantifiers ^ string_prems ^ render_id id ^ " " ^ String.concat " " (List.map (render_exp REL) (transform_case_tup exp))
   ) rules)
 
 let render_axiom prefix id params r_typ =
@@ -943,6 +943,7 @@ let rec register_hints env def =
 let string_of_script (il : script) =
   !env_ref.il_env <- Il.Env.env_of_script il;
   List.iter (register_hints !env_ref) il; 
+  let il' = Disamb.transform il in 
   exported_string ^
   "(* Generated Code *)\n" ^
-  String.concat "" (List.filter_map filter_def il |> List.map (string_of_def true false))
+  String.concat "" (List.filter_map filter_def il' |> List.map (string_of_def true false))

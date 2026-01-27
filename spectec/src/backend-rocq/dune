@@ -1,5 +1,5 @@
 (library
   (name backend_rocq)
-  (libraries il middlend)
-  (modules print)
+  (libraries il middlend xl)
+  (modules print disamb)
 )
