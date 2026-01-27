@@ -52,7 +52,10 @@ let t_atom typ_id a =
   (* | None -> error a.at "Could not find modified atom id" *)
 
 let t_mixop typ_id m = 
-  List.map (fun atoms -> List.map (t_atom typ_id) atoms) m
+  match m with
+  | [a] :: tail when List.for_all ((=) []) tail -> [t_atom typ_id a] :: tail 
+  | _ -> m
+  (* List.map (fun atoms -> List.map (t_atom typ_id) atoms) m *)
 
 let t_exp e = 
   match e.it with
@@ -80,7 +83,10 @@ let rec t_rule_new rel_id base_r_id r_id =
   let lst = StringMap.bindings !env_ref.disamb_map in 
   begin match (List.find_opt (fun (_, ss) -> List.exists (fun (_, s') -> r_id = s') ss) lst) with
   | Some _ -> t_rule_new rel_id base_r_id new_id
-  | None when Il.Env.mem_typ !env_ref.il_env (r_id $ no_region) -> t_rule_new rel_id base_r_id new_id
+  | None when 
+    Il.Env.mem_typ !env_ref.il_env (r_id $ no_region) || 
+    Il.Env.mem_def !env_ref.il_env (r_id $ no_region) -> 
+    t_rule_new rel_id base_r_id new_id
   | None ->  
     register_id rel_id base_r_id r_id;
     r_id
@@ -93,7 +99,9 @@ let rec t_atom_new typ_id base_a a =
     begin match (List.find_opt (fun (_, ss) -> List.exists (fun (_, s') -> s = s') ss) lst) with
     | Some _ -> 
       t_atom_new typ_id base_a {a with it = Xl.Atom.Atom (typ_id ^ "_" ^ s)}
-    | None when Il.Env.mem_typ !env_ref.il_env (s $ no_region) ->
+    | None when 
+      Il.Env.mem_typ !env_ref.il_env (s $ no_region) ||
+      Il.Env.mem_def !env_ref.il_env (s $ no_region)  ->
       t_atom_new typ_id base_a {a with it = Xl.Atom.Atom (typ_id ^ "_" ^ s)}
     | None ->  
       register_id typ_id base_s s;
@@ -102,7 +110,10 @@ let rec t_atom_new typ_id base_a a =
   | _-> a
 
 let t_mixop_new typ_id m = 
-  List.map (fun atoms -> List.map (fun a -> t_atom_new typ_id a a) atoms) m
+  match m with
+  | [a] :: tail when List.for_all ((=) []) tail -> [t_atom_new typ_id a a] :: tail 
+  | _ -> m
+  (* List.map (fun atoms -> List.map (fun a -> t_atom_new typ_id a a) atoms) m *)
     
 let t_inst t typ_id inst = 
   let InstD (binds, args, deftyp) = inst.it in

@@ -76,7 +76,8 @@ let reserved_ids =
   "()"; "tt"; 
   "Import"; "Export"; 
   "List"; "String"; 
-  "Type"; "list"; "nat"] |> StringSet.of_list
+  "Type"; "list"; "nat";
+  "cons"] |> StringSet.of_list
 
 let remove_iter_from_type t =
   match t.it with
@@ -199,8 +200,9 @@ let render_id id =
   | s when StringSet.mem s reserved_ids -> "res_" ^ s
   | _ -> id
 
-let render_atom a =
+let render_atom ?(in_mixop = false) a =
   match a.it with
+  | Xl.Atom.Atom a when in_mixop -> a
   | Xl.Atom.Atom a -> render_id a
   | _ -> ""
 
@@ -208,7 +210,7 @@ let render_mixop typ_id (m : mixop) =
   let s = (match m with
     | [{it = Atom a; _}] :: tail when List.for_all ((=) []) tail -> render_id a
     | mixop -> String.concat "" (List.map (
-      fun atoms -> String.concat "" (List.filter is_atomid atoms |> List.map (render_atom))) mixop
+      fun atoms -> String.concat "" (List.filter is_atomid atoms |> List.map (render_atom ~in_mixop:true))) mixop
     )
   ) in
   (* HACK - should be done in improve ids *)
