@@ -154,7 +154,7 @@ and transform_bind t b =
   let f = t.transform_bind in
   let it = match b.it with
     | ExpB (id, typ) -> ExpB (t.transform_var_id id, transform_typ t typ)
-    | TypB id -> TypB (t.transform_typ_id id)
+    | TypB id -> TypB (t.transform_var_id id)
     | DefB (id, params, typ) -> DefB (t.transform_def_id id, List.map (transform_param t) params, transform_typ t typ)
     | GramB (id, params, typ) -> GramB (t.transform_gram_id id, List.map (transform_param t) params, transform_typ t typ)
   in
@@ -163,7 +163,7 @@ and transform_bind t b =
 and transform_param t p =
   { p with it = match p.it with
     | ExpP (id, typ) -> ExpP (t.transform_var_id id, transform_typ t typ)
-    | TypP id -> TypP (t.transform_typ_id id)
+    | TypP id -> TypP (t.transform_var_id id)
     | DefP (id, params, typ) -> DefP (t.transform_def_id id, List.map (transform_param t) params, transform_typ t typ)
     | GramP (id, typ) -> GramP (t.transform_gram_id id, transform_typ t typ)
   }
@@ -226,6 +226,7 @@ type 'a collector = {
   default: 'a;
   compose: 'a -> 'a -> 'a;
   collect_exp: exp -> 'a * bool;
+  collect_path: path -> 'a * bool;
   collect_bind: bind -> 'a * bool;
   collect_prem: prem -> 'a * bool;
   collect_iterexp: iterexp -> 'a * bool;
@@ -239,6 +240,7 @@ let base_collector default compose = {
   default = default;
   compose = compose;
   collect_exp = no_collect default;
+  collect_path = no_collect default;
   collect_bind = no_collect default;
   collect_prem = no_collect default;
   collect_iterexp = no_collect default;
@@ -303,11 +305,16 @@ and collect_iterexp c iterexp =
 
 and collect_path c p =
   let ( $@ ) = c.compose in
-  match p.it with
-  | RootP -> c.default
-  | DotP (p', _) -> collect_path c p'
-  | IdxP (p', e) -> collect_path c p' $@ collect_exp c e
-  | SliceP (p', e1, e2) -> collect_path c p' $@ collect_exp c e1 $@ collect_exp c e2
+  let f = c.collect_path in
+  let traverse_list = 
+    match p.it with
+    | RootP -> c.default
+    | DotP (p', _) -> collect_path c p'
+    | IdxP (p', e) -> collect_path c p' $@ collect_exp c e
+    | SliceP (p', e1, e2) -> collect_path c p' $@ collect_exp c e1 $@ collect_exp c e2
+  in
+  let (res, continue) = f p in
+  res $@ if continue then traverse_list else c.default
 
 and collect_arg c a =
   let f = c.collect_arg in

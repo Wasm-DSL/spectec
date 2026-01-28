@@ -60,7 +60,10 @@ type family_data = (id * bind list * Subst.t * int * typ * typ)
 let error at msg = Error.error at "Type families removal" msg
 
 let projection_hint_id = "tf_projection_func"
-let projection_hint = { hintid = projection_hint_id $ no_region; hintexp = El.Ast.SeqE [] $ no_region}
+let projection_hint = { hintid = projection_hint_id $ no_region; hintexp = El.Ast.SeqE [] $ no_region }
+
+let type_family_hint_id = "type_family"
+let type_family_hint = { hintid = type_family_hint_id $ no_region; hintexp = El.Ast.SeqE [] $ no_region }
 
 let bind_to_string bind = 
   match bind.it with
@@ -702,7 +705,8 @@ let rec transform_type_family def =
     in
     let proj_ids, projections = List.split (List.mapi (gen_family_projections id one_inst) insts) in
 
-    let hintdefs = List.map (fun id -> HintD (DecH (id, [projection_hint]) $ def.at)) proj_ids in
+    let hintdefs = HintD (TypH (id, [type_family_hint]) $ def.at) :: 
+      List.map (fun id' -> HintD (DecH (id', [projection_hint]) $ def.at)) proj_ids in
     TypD (id, params, [inst]) :: projections @ hintdefs
   | RecD defs -> [RecD (List.concat_map transform_type_family defs)]
   | d -> [d]

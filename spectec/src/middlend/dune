@@ -10,10 +10,13 @@
     else
     undep
     utils
+    deftorel
     subexpansion
     uncaseremoval
     aliasDemut
     improveids
     ite
+    elsesimp
+    letintro
   )
 )
