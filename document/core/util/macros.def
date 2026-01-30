@@ -531,6 +531,9 @@
 .. |MEMORYINIT| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{memory{.}init}}
 .. |DATADROP| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{data{.}drop}}
 
+.. |ATOMICLOAD| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{atomic{.}load}}
+.. |ATOMICSTORE| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{atomic{.}store}}
+
 .. |LX| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{x}}
 .. |LSPLAT| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{splat}}
 .. |LZERO| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{zero}}

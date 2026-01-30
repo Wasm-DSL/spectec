@@ -231,6 +231,13 @@ The ${:DATA.DROP} instruction prevents further use of a passive data segment. Th
 .. _syntax-ref.cast:
 .. _syntax-instr-ref:
 
+Atomic Memory Instructions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+$${syntax: atop_ {instr/atomic}}
+
+
 Reference Instructions
 ~~~~~~~~~~~~~~~~~~~~~~
 
