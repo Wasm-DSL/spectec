@@ -179,6 +179,15 @@ Added instructions that modify ranges of memory or table entries. [#proposal-ref
 
 * Active data and element segments boundaries are no longer checked at compile time but may trap instead
 
+.. index:: instruction
+
+Atomic Instructions
+....................
+
+* New :ref:`atomic instructions <syntax-instr-atomic>`:
+
+  - |ATOMICLOAD|
+ 
 
 .. index:: instructions, SIMD, value type, vector type
 

@@ -196,9 +196,9 @@ Instructions in this group are concerned with linear :ref:`memory <syntax-mem>`.
 
 $${syntax: memarg loadop_ storeop_ vloadop_ {instr/memory instr/data}}
 
+
 Memory is accessed with ${:LOAD} and ${:STORE} instructions for the different :ref:`number types <syntax-numtype>` and `vector types <syntax-vectype>`.
 They all take a :ref:`memory index <syntax-memidx>` and a *memory argument* ${:memarg} that contains an address *offset* and the expected *alignment* (expressed as the exponent of a power of 2).
-
 Integer loads and stores can optionally specify a *storage size* ${:sz} that is smaller than the :ref:`bit width <syntax-numtype>` of the respective value type.
 In the case of loads, a sign extension mode ${:sx} is then required to select appropriate behavior.
 
@@ -219,6 +219,15 @@ The ${:MEMORY.INIT} instruction copies data from a :ref:`passive data segment <s
 
 The ${:DATA.DROP} instruction prevents further use of a passive data segment. This instruction is intended to be used as an optimization hint. After a data segment is dropped its data can no longer be retrieved, so the memory used by this segment may be freed.
 
+.. index:: ! atomic instruction, memory, memory index, page size, little endian, trap
+   pair: abstract syntax; instruction
+.. _syntax-instr-atomic:
+
+Atomic Instructions
+~~~~~~~~~~~~~~~~~~~
+
+$${syntax: memarg loadop_ storeop_ vloadop_ {instr/atomic}}
+
 
 .. index:: ! reference instruction, reference, null, cast, heap type, reference type
    pair: abstract syntax; instruction
@@ -228,15 +237,9 @@ The ${:DATA.DROP} instruction prevents further use of a passive data segment. Th
 .. _syntax-ref.as_non_null:
 .. _syntax-ref.eq:
 .. _syntax-ref.test:
+
 .. _syntax-ref.cast:
 .. _syntax-instr-ref:
-
-Atomic Memory Instructions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-$${syntax: atop_ {instr/atomic}}
-
 
 Reference Instructions
 ~~~~~~~~~~~~~~~~~~~~~~
