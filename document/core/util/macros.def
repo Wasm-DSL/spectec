@@ -532,6 +532,8 @@
 .. |DATADROP| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{data{.}drop}}
 
 .. |ATOMICLOAD| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic{.}load}}
+.. |ATOMICSTORE| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic{.}store}}
+.. |ATOMICRMW| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic{.}rmw}}
 
 .. |LX| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{x}}
 .. |LSPLAT| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{splat}}
@@ -751,6 +753,7 @@
 .. |loadop| mathdef:: \xref{syntax/instructions}{syntax-loadop}{\X{loadop}}
 .. |storeop| mathdef:: \xref{syntax/instructions}{syntax-storeop}{\X{storeop}}
 .. |vloadop| mathdef:: \xref{syntax/instructions}{syntax-vloadop}{\X{vloadop}}
+.. |atopop| mathdef:: \xref{syntax/instructions}{syntax-atopop}{\X{atopop}}
 
 .. |sx| mathdef:: \xref{syntax/instructions}{syntax-sx}{\X{sx}}
 .. |sz| mathdef:: \xref{syntax/instructions}{syntax-sz}{\X{sz}}

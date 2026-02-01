@@ -187,7 +187,8 @@ Atomic Instructions
 * New :ref:`atomic instructions <syntax-instr-atomic>`:
 
   - |ATOMICLOAD|
- 
+  - |ATOMICSTORE|
+  - |ATOMICRMW| 
 
 .. index:: instructions, SIMD, value type, vector type
 

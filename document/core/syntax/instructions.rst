@@ -222,11 +222,12 @@ The ${:DATA.DROP} instruction prevents further use of a passive data segment. Th
 .. index:: ! atomic instruction, memory, memory index, page size, little endian, trap
    pair: abstract syntax; instruction
 .. _syntax-instr-atomic:
+.. _syntax-atopop:
 
 Atomic Instructions
 ~~~~~~~~~~~~~~~~~~~
 
-$${syntax: memarg loadop_ storeop_ vloadop_ {instr/atomic}}
+$${syntax: memarg loadop_ storeop_ atopop_ vloadop_ {instr/atomic}}
 
 
 .. index:: ! reference instruction, reference, null, cast, heap type, reference type
