@@ -189,6 +189,14 @@ Atomic Instructions
   - |ATOMICLOAD|
   - |ATOMICSTORE|
   - |ATOMICRMW| 
+  - |ATOMICCMPXCHG|
+
+Integer Types:
+................
+
+* :ref:`Address types <syntax-inntype>` denote a subset of the integral :ref:`integer types <syntax-inntype>`
+
+They represent {:I32} and {:I64}.  
 
 .. index:: instructions, SIMD, value type, vector type
 

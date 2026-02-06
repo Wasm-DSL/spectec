@@ -223,12 +223,14 @@ The ${:DATA.DROP} instruction prevents further use of a passive data segment. Th
    pair: abstract syntax; instruction
 .. _syntax-instr-atomic:
 .. _syntax-atopop:
+.. _syntax-cmpxchgop:
 
 Atomic Instructions
 ~~~~~~~~~~~~~~~~~~~
 
-$${syntax: memarg loadop_ storeop_ atopop_ atop_ {instr/atomic}}
+$${syntax: memarg loadop_ storeop_ atopop_ cmpxchgop_ atop_ {instr/atomic}}
 
+The packed types work on :ref:`integer types <syntax-inntype>`. 
 
 .. index:: ! reference instruction, reference, null, cast, heap type, reference type
    pair: abstract syntax; instruction

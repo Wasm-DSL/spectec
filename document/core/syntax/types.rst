@@ -12,6 +12,7 @@ Types are checked during :ref:`validation <valid>`, :ref:`instantiation <exec-in
    pair: abstract syntax; number type
    pair: number; type
 .. _syntax-numtype:
+.. _syntax-inntype:
 
 Number Types
 ~~~~~~~~~~~~
@@ -31,6 +32,10 @@ Values of number type can be stored in :ref:`memories <syntax-mem>`.
 
 .. _bitwidth-numtype:
 .. _bitwidth-valtype:
+
+*Integer types* represent ${:I32} ${:I64}. 
+
+$${syntax: inntype}
 
 Conventions
 ...........
