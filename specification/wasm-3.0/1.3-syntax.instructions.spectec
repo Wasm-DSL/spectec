@@ -39,6 +39,14 @@ syntax binop_(Inn) =
 syntax binop_(Fnn) =
   | ADD | SUB | MUL | DIV | MIN hint(macro "FMIN") | MAX hint(macro "FMAX") | COPYSIGN
 
+;; Atomic operations
+syntax atop_(inntype) =
+  | ADD | SUB | AND | OR | XOR | XCHG
+
+syntax atopop_(inntype) = sz                        -- if sz < $sizenn(inntype)
+
+syntax cmpxchgop_(inntype) = sz                     -- if sz < $sizenn(inntype)
+
 syntax testop_(numtype)
 syntax testop_(Inn) = EQZ
 ;; syntax testop_(Fnn) = |      ;; uninhabited
@@ -297,6 +305,13 @@ syntax instr/memory hint(desc "memory instruction") = ...
   | MEMORY.INIT memidx dataidx
   | ...
 
+syntax instr/atomic hint(desc "atomic instruction") = ... 
+  | ATOMIC.LOAD numtype loadop_(numtype)? memidx memarg   hint(show %. ATOMIC.LOAD % %) hint(show %. ATOMIC.LOAD# ##% % %)
+  | ATOMIC.STORE numtype storeop_(numtype)? memidx memarg   hint(show %. ATOMIC.STORE % %) hint(show %. ATOMIC.STORE# ##% % %)
+  | ATOMIC.RMW inntype atopop_(inntype)? atop_(inntype) memidx memarg  hint(show %. ATOMIC.RMW % % %) hint(show %. ATOMIC.RMW#  ##% % % %)
+  | ATOMIC.CMPXCHG inntype cmpxchgop_(inntype)? memidx memarg   hint(show %. ATOMIC.CMPXCHG % %) hint(show %. ATOMIC.CMPXCHG# ##% % %)
+  | ...
+
 syntax instr/data hint(desc "data instruction") = ...
   | DATA.DROP dataidx
   | ...
@@ -353,6 +368,7 @@ syntax instr/num hint(desc "numeric instruction") = ...
   | TESTOP numtype testop_(numtype)  hint(show %.##%)
   | RELOP numtype relop_(numtype)    hint(show %.##%)
   | CVTOP numtype_1 numtype_2 cvtop__(numtype_2, numtype_1)  hint(show %1.##%3#_#%2)
+  | ATOP Inn atop_(Inn) hint(show %.##%)
   | ...
 
 syntax instr/vec hint(desc "vector instruction") = ...

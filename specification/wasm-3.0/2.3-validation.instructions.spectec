@@ -506,7 +506,48 @@ rule Instr_ok/vstore_lane:
   -- if $(2^(memarg.ALIGN) <= N/8)
   -- if $(i < 128/N)
 
+;; Atomic Instructions
 
+rule Instr_ok/atomic.load-val:
+  C |- ATOMIC.LOAD nt x memarg : at -> nt
+  -- if C.MEMS[x] = at lim PAGE
+  -- if $(2^(memarg.ALIGN) <= $size(nt)/8)
+
+rule Instr_ok/atomic.load-pack:
+  C |- ATOMIC.LOAD Inn (M _ sx) x memarg : at -> Inn
+  -- if C.MEMS[x] = at lim PAGE
+  -- if $(2^(memarg.ALIGN) <= M/8)
+
+rule Instr_ok/atomic.store-val:
+  C |- ATOMIC.STORE nt x memarg : at nt -> eps
+  -- if C.MEMS[x] = at lim PAGE
+  -- if $(2^(memarg.ALIGN) <= $size(nt)/8)
+
+rule Instr_ok/atomic.store-pack:
+  C |- ATOMIC.STORE Inn M x memarg : at Inn -> eps
+  -- if C.MEMS[x] = at lim PAGE
+  -- if $(2^(memarg.ALIGN) <= M/8)
+
+rule Instr_ok/atomic.rmw-val:
+  C |- ATOMIC.RMW inntype atop x memarg : at inntype -> eps
+  -- if C.MEMS[x] = at lim PAGE
+  -- if $(2^(memarg.ALIGN) <= $size(inntype)/8)
+
+rule Instr_ok/atomic.rmw-pack:
+  C |- ATOMIC.RMW inntype M atop x memarg : at inntype ->  eps
+  -- if C.MEMS[x] = at lim PAGE
+  -- if $(2^(memarg.ALIGN) <= M/8)
+ 
+rule Instr_ok/atomic.cmpxchg-val:
+  C |- ATOMIC.RMW inntype atop x memarg : at inntype -> eps
+  -- if C.MEMS[x] = at lim PAGE
+  -- if $(2^(memarg.ALIGN) <= $size(inntype)/8)
+
+rule Instr_ok/atomic.cmpxchg-pack:
+  C |- ATOMIC.RMW inntype M atop x memarg : at inntype ->  eps
+  -- if C.MEMS[x] = at lim PAGE
+  -- if $(2^(memarg.ALIGN) <= M/8)
+  
 ;; Numeric instructions
 
 rule Instr_ok/const:
@@ -526,6 +567,9 @@ rule Instr_ok/relop:
 
 rule Instr_ok/cvtop:
   C |- CVTOP nt_1 nt_2 cvtop : nt_2 -> nt_1
+
+rule Instr_ok/atop:
+  C |- ATOP Inn atop : Inn Inn -> Inn
 
 
 ;; Vector instructions
