@@ -310,6 +310,9 @@ syntax instr/atomic hint(desc "atomic instruction") = ...
   | ATOMIC.STORE numtype storeop_(numtype)? memidx memarg   hint(show %. ATOMIC.STORE % %) hint(show %. ATOMIC.STORE# ##% % %)
   | ATOMIC.RMW inntype atopop_(inntype)? atop_(inntype) memidx memarg  hint(show %. ATOMIC.RMW % % %) hint(show %. ATOMIC.RMW#  ##% % % %)
   | ATOMIC.CMPXCHG inntype cmpxchgop_(inntype)? memidx memarg   hint(show %. ATOMIC.CMPXCHG % %) hint(show %. ATOMIC.CMPXCHG# ##% % %)
+  | MEMORY.ATOMIC.NOTIFY memidx memarg hint(show MEMORY.ATOMIC.NOTIFY % %) hint(show MEMORY.ATOMIC.NOTIFY# ##% %)
+  | MEMORY.ATOMIC.WAIT inntype memidx memarg hint(show MEMORY.ATOMIC.WAIT % % %) hint(show MEMORY.ATOMIC.WAIT# ##% % %)
+  | ATOMIC.FENCE  hint(show %. ATOMIC.FENCE %) hint(show %. ATOMIC.FENCE# ##%)
   | ...
 
 syntax instr/data hint(desc "data instruction") = ...

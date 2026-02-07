@@ -547,7 +547,22 @@ rule Instr_ok/atomic.cmpxchg-pack:
   C |- ATOMIC.RMW inntype M atop x memarg : at inntype ->  eps
   -- if C.MEMS[x] = at lim PAGE
   -- if $(2^(memarg.ALIGN) <= M/8)
-  
+
+rule Instr_ok/memory.atomic.notify:
+  C |- MEMORY.ATOMIC.NOTIFY x memarg : at I32 -> eps
+  -- if C.MEMS[x] = at lim PAGE
+  -- if $(2^(memarg.ALIGN) <= $size(I32)/8)
+
+(;
+Placeholder for future atomic validation rules
+rule Instr_ok/memory.atomic.wait:
+  C |- MEMORY.ATOMIC.NOTIFY x memarg :
+
+rule Instr_ok/atomic.fence:
+  C |- ATOMIC.FENCE x memarg:
+;)
+
+
 ;; Numeric instructions
 
 rule Instr_ok/const:

@@ -704,6 +704,27 @@ rule Step/atomic.cmpxchg-num-notequals-pack:
   -- if d =/= expected
   -- if $ibytes_(n, d) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
 
+rule Step/memory.atomic.notify-oob:
+  z; (CONST at i) (CONST I32 count) (MEMORY.ATOMIC.NOTIFY x ao) ~> z; TRAP
+  ----
+  -- if $(i + ao.OFFSET + $size(I32)/8) > |$mem(z, x).BYTES|
+
+rule Step/memory.atomic.notify:
+  z; (CONST at i) (CONST I32 count) (MEMORY.ATOMIC.NOTIFY x ao) ~> z; (CONST I32 0)
+  ----
+
+rule Step/memory.atomic.wait-oob:
+  z; (CONST at i) (CONST inntype expected) (CONST i64 timeout) (MEMORY.ATOMIC.WAIT inntype x ao) ~> z; TRAP
+  ----
+  -- if $(i + ao.OFFSET + $size(inntype)/8) > |$mem(z, x).BYTES|
+
+rule Step/memory.atomic.wait:
+  z; (CONST at i) (CONST inntype expected) (CONST i64 timeout) (MEMORY.ATOMIC.WAIT inntype x ao) ~> z; TRAP
+  ----
+
+rule Step/atomic.fence:
+  z; (ATOMIC.FENCE) ~> z; eps
+  ----
 
 ;; Reference instructions
 

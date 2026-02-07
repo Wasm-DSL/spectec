@@ -536,6 +536,9 @@
 .. |ATOMICSTORE| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic{.}store}}
 .. |ATOMICRMW| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic{.}rmw}}
 .. |ATOMICCMPXCHG| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic{.}cmpxchg}}
+.. |MEMORYATOMICNOTIFY| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{memory{.}atomic{.}notify}}
+.. |MEMORYATOMICWAIT| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{memory{.}atomic{.}wait}}
+.. |ATOMICFENCE| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic{.}fence}}
 
 .. |LX| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{x}}
 .. |LSPLAT| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{splat}}

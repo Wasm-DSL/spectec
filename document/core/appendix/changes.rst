@@ -190,6 +190,9 @@ Atomic Instructions
   - |ATOMICSTORE|
   - |ATOMICRMW| 
   - |ATOMICCMPXCHG|
+  - |MEMORYATOMICNOTIFY|
+  - |MEMORYATOMICWAIT|
+  - |ATOMICFENCE|
 
 Integer Types:
 ................
