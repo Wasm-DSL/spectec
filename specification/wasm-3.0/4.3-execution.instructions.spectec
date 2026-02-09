@@ -615,44 +615,44 @@ rule Step/data.drop:
 ;; Atomic instructions
 
 rule Step_read/atomic.load-num-oob:
-  z; (CONST at i) (ATOMIC.LOAD nt x ao)  ~>  TRAP
+  z; (CONST at i) (ATOMIC.LOAD inntype x ao)  ~>  TRAP
   ----
-  -- if $(i + ao.OFFSET + $size(nt)/8 > |$mem(z, x).BYTES|)
+  -- if $(i + ao.OFFSET + $size(inntype)/8 > |$mem(z, x).BYTES|)
 
 rule Step_read/atomic.load-num-val:
-  z; (CONST at i) (ATOMIC.LOAD nt x ao)  ~>  (CONST nt c)
+  z; (CONST at i) (ATOMIC.LOAD inntype x ao)  ~>  (CONST inntype c)
   ----
-  -- if $nbytes_(nt, c) = $mem(z, x).BYTES[i + ao.OFFSET : $size(nt)/8]
+  -- if $ibytes_($size(inntype), c) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
 
 rule Step_read/atomic.load-pack-oob:
-  z; (CONST at i) (ATOMIC.LOAD Inn (n _ sx) x ao)  ~>  TRAP
+  z; (CONST at i) (ATOMIC.LOAD inntype (n _ sx) x ao)  ~>  TRAP
   ----
   -- if $(i + ao.OFFSET + n/8 > |$mem(z, x).BYTES|)
 
 rule Step_read/atomic.load-pack-val:
-  z; (CONST at i) (ATOMIC.LOAD Inn (n _ sx) x ao)  ~>  (CONST Inn $extend__(n, $size(Inn), sx, c))
+  z; (CONST at i) (ATOMIC.LOAD inntype (n _ sx) x ao)  ~>  (CONST inntype $extend__(n, $size(inntype), sx, c))
   ----
   -- if $ibytes_(n, c) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
 
 rule Step/atomic.store-num-oob:
-  z; (CONST at i) (CONST nt c) (ATOMIC.STORE nt x ao)  ~>  z; TRAP
+  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype x ao)  ~>  z; TRAP
   ----
-  -- if $(i + ao.OFFSET + $size(nt)/8) > |$mem(z, x).BYTES|
+  -- if $(i + ao.OFFSET + $size(inntype)/8) > |$mem(z, x).BYTES|
 
 rule Step/atomic.store-num-val:
-  z; (CONST at i) (CONST nt c) (ATOMIC.STORE nt x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $($size(nt)/8), b*); eps
+  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $($size(inntype)/8), b*); eps
   ----
-  -- if b* = $nbytes_(nt, c)
+  -- if b* = $ibytes_($size(inntype), c)
 
 rule Step/atomic.store-pack-oob:
-  z; (CONST at i) (CONST Inn c) (ATOMIC.STORE Inn n x ao)  ~>  z; TRAP
+  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype n x ao)  ~>  z; TRAP
   ----
   -- if $(i + ao.OFFSET + n/8) > |$mem(z, x).BYTES|
 
 rule Step/atomic.store-pack-val:
-  z; (CONST at i) (CONST Inn c) (ATOMIC.STORE Inn n x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); eps
+  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype n x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); eps
   ----
-  -- if b* = $ibytes_(n, $wrap__($size(Inn), n, c))
+  -- if b* = $ibytes_(n, $wrap__($size(inntype), n, c))
 
 rule Step/atomic.rmw-num-oob:
   z;  (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype atop x ao) ~> z; TRAP

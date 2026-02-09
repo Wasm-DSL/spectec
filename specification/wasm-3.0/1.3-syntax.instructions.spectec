@@ -306,8 +306,8 @@ syntax instr/memory hint(desc "memory instruction") = ...
   | ...
 
 syntax instr/atomic hint(desc "atomic instruction") = ... 
-  | ATOMIC.LOAD numtype loadop_(numtype)? memidx memarg   hint(show %. ATOMIC.LOAD % %) hint(show %. ATOMIC.LOAD# ##% % %)
-  | ATOMIC.STORE numtype storeop_(numtype)? memidx memarg   hint(show %. ATOMIC.STORE % %) hint(show %. ATOMIC.STORE# ##% % %)
+  | ATOMIC.LOAD inntype loadop_(inntype)? memidx memarg   hint(show %. ATOMIC.LOAD % %) hint(show %. ATOMIC.LOAD# ##% % %)
+  | ATOMIC.STORE inntype storeop_(inntype)? memidx memarg   hint(show %. ATOMIC.STORE % %) hint(show %. ATOMIC.STORE# ##% % %)
   | ATOMIC.RMW inntype atopop_(inntype)? atop_(inntype) memidx memarg  hint(show %. ATOMIC.RMW % % %) hint(show %. ATOMIC.RMW#  ##% % % %)
   | ATOMIC.CMPXCHG inntype cmpxchgop_(inntype)? memidx memarg   hint(show %. ATOMIC.CMPXCHG % %) hint(show %. ATOMIC.CMPXCHG# ##% % %)
   | MEMORY.ATOMIC.NOTIFY memidx memarg hint(show MEMORY.ATOMIC.NOTIFY % %) hint(show MEMORY.ATOMIC.NOTIFY# ##% %)

@@ -509,22 +509,22 @@ rule Instr_ok/vstore_lane:
 ;; Atomic Instructions
 
 rule Instr_ok/atomic.load-val:
-  C |- ATOMIC.LOAD nt x memarg : at -> nt
+  C |- ATOMIC.LOAD inntype x memarg : at -> inntype
   -- if C.MEMS[x] = at lim PAGE
-  -- if $(2^(memarg.ALIGN) <= $size(nt)/8)
+  -- if $(2^(memarg.ALIGN) <= $size(inntype)/8)
 
 rule Instr_ok/atomic.load-pack:
-  C |- ATOMIC.LOAD Inn (M _ sx) x memarg : at -> Inn
+  C |- ATOMIC.LOAD inntype (M _ sx) x memarg : at -> inntype
   -- if C.MEMS[x] = at lim PAGE
   -- if $(2^(memarg.ALIGN) <= M/8)
 
 rule Instr_ok/atomic.store-val:
-  C |- ATOMIC.STORE nt x memarg : at nt -> eps
+  C |- ATOMIC.STORE inntype x memarg : at inntype -> eps
   -- if C.MEMS[x] = at lim PAGE
-  -- if $(2^(memarg.ALIGN) <= $size(nt)/8)
+  -- if $(2^(memarg.ALIGN) <= $size(inntype)/8)
 
 rule Instr_ok/atomic.store-pack:
-  C |- ATOMIC.STORE Inn M x memarg : at Inn -> eps
+  C |- ATOMIC.STORE inntype M x memarg : at inntype -> eps
   -- if C.MEMS[x] = at lim PAGE
   -- if $(2^(memarg.ALIGN) <= M/8)
 

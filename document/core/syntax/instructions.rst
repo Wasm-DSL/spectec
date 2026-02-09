@@ -221,6 +221,7 @@ The ${:DATA.DROP} instruction prevents further use of a passive data segment. Th
 
 .. index:: ! atomic instruction, memory, memory index, page size, little endian, trap
    pair: abstract syntax; instruction
+.. _syntax-memarg:
 .. _syntax-instr-atomic:
 .. _syntax-atopop:
 .. _syntax-cmpxchgop:
@@ -228,7 +229,12 @@ The ${:DATA.DROP} instruction prevents further use of a passive data segment. Th
 Atomic Instructions
 ~~~~~~~~~~~~~~~~~~~
 
+Instructions in this group are concerned with accessing linear memory atomically.
+
 $${syntax: memarg loadop_ storeop_ atopop_ cmpxchgop_ atop_ {instr/atomic}}
+
+Memory is accessed atomically using |ATOMICLOAD|, |ATOMICSTORE| and |ATOMICRMW| instructions. 
+
 
 The packed types work on :ref:`integer types <syntax-inntype>`. 
 
