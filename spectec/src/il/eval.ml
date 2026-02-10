@@ -361,9 +361,9 @@ and reduce_exp env e : exp =
     | NumE n ->
       (match Num.cvt nt2 n with
       | Some n' -> NumE n' $> e
-      | None -> e1'
+      | None -> CvtE (e1', _nt1, nt2) $> e
       )
-    | _ -> e1'
+    | _ -> CvtE (e1', _nt1, nt2) $> e
     )
   | SubE (e1, t1, t2) ->
     let e1' = reduce_exp env e1 in
