@@ -272,7 +272,7 @@ and collect_exp c e =
     | SubE (e1, t1, t2) -> c_exp e1 $@ collect_typ c t1 $@ collect_typ c t2
   in
   let (res, continue) = f e in 
-  res $@ if continue then traverse_list else c.default
+  res $@ if continue then traverse_list $@ collect_typ c e.note else c.default
 
 and collect_iter c iter = 
   match iter with
@@ -289,11 +289,12 @@ and collect_iterexp c iterexp =
 
 and collect_path c p =
   let ( $@ ) = c.compose in
-  match p.it with
+  (match p.it with
   | RootP -> c.default
   | DotP (p', _) -> collect_path c p'
   | IdxP (p', e) -> collect_path c p' $@ collect_exp c e
-  | SliceP (p', e1, e2) -> collect_path c p' $@ collect_exp c e1 $@ collect_exp c e2
+  | SliceP (p', e1, e2) -> collect_path c p' $@ collect_exp c e1 $@ collect_exp c e2) $@ 
+  collect_typ c p.note
 
 and collect_arg c a =
   let f = c.collect_arg in
