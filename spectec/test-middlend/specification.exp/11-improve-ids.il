@@ -7817,14 +7817,14 @@ relation wf_relaxed4: `%`(relaxed4)
     -- if ((((i = 0) \/ (i = 1)) \/ (i = 2)) \/ (i = 3))
 
 ;; ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec
-def $fun_relaxed2(v_relaxed2 : relaxed2, syntax X, X_0 : X, X_1 : X) : X
+def $fun_relaxed2(v_relaxed2 : relaxed2, syntax v_X, v_X_0 : v_X, v_X_1 : v_X) : v_X
   ;; ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec
-  def $fun_relaxed2{i : relaxed2, syntax X, X_1 : X, X_2 : X}(i, syntax X, X_1, X_2) = (if $ND then [X_1 X_2][$proj_relaxed2_0(i).0] else [X_1 X_2][0])
+  def $fun_relaxed2{i : relaxed2, syntax v_X, X_1 : v_X, X_2 : v_X}(i, syntax v_X, X_1, X_2) = (if $ND then [X_1 X_2][$proj_relaxed2_0(i).0] else [X_1 X_2][0])
 
 ;; ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec
-def $fun_relaxed4(v_relaxed4 : relaxed4, syntax X, X_0 : X, X_1 : X, X_2 : X, X_3 : X) : X
+def $fun_relaxed4(v_relaxed4 : relaxed4, syntax v_X, v_X_0 : v_X, v_X_1 : v_X, v_X_2 : v_X, v_X_3 : v_X) : v_X
   ;; ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec
-  def $fun_relaxed4{i : relaxed4, syntax X, X_1 : X, X_2 : X, X_3 : X, X_4 : X}(i, syntax X, X_1, X_2, X_3, X_4) = (if $ND then [X_1 X_2 X_3 X_4][$proj_relaxed4_0(i).0] else [X_1 X_2 X_3 X_4][0])
+  def $fun_relaxed4{i : relaxed4, syntax v_X, X_1 : v_X, X_2 : v_X, X_3 : v_X, X_4 : v_X}(i, syntax v_X, X_1, X_2, X_3, X_4) = (if $ND then [X_1 X_2 X_3 X_4][$proj_relaxed4_0(i).0] else [X_1 X_2 X_3 X_4][0])
 
 ;; ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec
 def $R_fmadd : relaxed2
@@ -17663,7 +17663,7 @@ def $concat_idctxt(var_0 : idctxt*) : idctxt
   def $concat_idctxt([]) = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS [], LABELS [], FIELDS [], TYPEDEFS []}
     -- wf_idctxt: `%`({TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS [], LABELS [], FIELDS [], TYPEDEFS []})
   ;; ../../../../specification/wasm-3.0/6.1-text.values.spectec:156.1-156.52
-  def $concat_idctxt{v_I : idctxt, I' : idctxt}([v_I I']) = v_I +++ $concat_idctxt(I'*{})
+  def $concat_idctxt{v_I : idctxt, I' : idctxt}([v_I I']) = v_I +++ $concat_idctxt([I'])
 }
 
 ;; ../../../../specification/wasm-3.0/6.1-text.values.spectec
@@ -17976,7 +17976,7 @@ grammar Tblocktype_(v_I : I) : blocktype
   prod{t_opt : valtype?} t_opt:Tresult_(v_I)?{} => _RESULT_blocktype(t_opt)
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
   prod{x : idx, I' : I} (x, I'):Ttypeuse_(v_I) => _IDX_blocktype(x)
-    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS ?(mk_name_name([]))*{}, LABELS [], FIELDS [], TYPEDEFS []})
+    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS [?(mk_name_name([]))], LABELS [], FIELDS [], TYPEDEFS []})
 
 ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
 grammar Tcatch_(v_I : I) : catch
@@ -18047,7 +18047,7 @@ grammar Tplaininstr_(v_I : I) : instr
   prod{x : idx} {{"call_ref"} {x:Ttypeidx_(v_I)}} => CALL_REF_instr(_IDX_typeuse(x))
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
   prod{x : idx, y : idx, I' : I} {{"call_indirect"} {x:Ttableidx_(v_I)} {(y, I'):Ttypeuse_(v_I)}} => CALL_INDIRECT_instr(x, _IDX_typeuse(y))
-    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS ?(mk_name_name([]))*{}, LABELS [], FIELDS [], TYPEDEFS []})
+    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS [?(mk_name_name([]))], LABELS [], FIELDS [], TYPEDEFS []})
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
   prod "return" => RETURN_instr
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
@@ -18056,7 +18056,7 @@ grammar Tplaininstr_(v_I : I) : instr
   prod{x : idx} {{"return_call_ref"} {x:Ttypeidx_(v_I)}} => RETURN_CALL_REF_instr(_IDX_typeuse(x))
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
   prod{x : idx, y : idx, I' : I} {{"return_call_indirect"} {x:Ttableidx_(v_I)} {(y, I'):Ttypeuse_(v_I)}} => RETURN_CALL_INDIRECT_instr(x, _IDX_typeuse(y))
-    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS ?(mk_name_name([]))*{}, LABELS [], FIELDS [], TYPEDEFS []})
+    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS [?(mk_name_name([]))], LABELS [], FIELDS [], TYPEDEFS []})
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
   prod{x : idx} {{"throw"} {x:Ttagidx_(v_I)}} => THROW_instr(x)
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
@@ -19665,21 +19665,21 @@ relation wf_callframe: `%`(callframe)
     -- wf_frame: `%`(v_frame)
 
 ;; ../../../../specification/wasm-3.0/X.3-notation.execution.spectec
-def $allocX(syntax X, syntax Y, v_store : store, X_0 : X, Y_0 : Y) : (store, addr)
+def $allocX(syntax v_X, syntax Y, v_store : store, v_X_0 : v_X, Y_0 : Y) : (store, addr)
 
 ;; ../../../../specification/wasm-3.0/X.3-notation.execution.spectec
 rec {
 
 ;; ../../../../specification/wasm-3.0/X.3-notation.execution.spectec:32.1-32.117
-def $allocXs(syntax X, syntax Y, v_store : store, var_0 : X*, var_1 : Y*) : (store, addr*)
+def $allocXs(syntax v_X, syntax Y, v_store : store, var_0 : v_X*, var_1 : Y*) : (store, addr*)
   ;; ../../../../specification/wasm-3.0/X.3-notation.execution.spectec:33.1-33.57
-  def $allocXs{syntax X, syntax Y, s : store}(syntax X, syntax Y, s, [], []) = (s, [])
+  def $allocXs{syntax v_X, syntax Y, s : store}(syntax v_X, syntax Y, s, [], []) = (s, [])
   ;; ../../../../specification/wasm-3.0/X.3-notation.execution.spectec:34.1-36.65
-  def $allocXs{syntax X, syntax Y, s : store, X : X, X'_lst : X*, Y : Y, Y'_lst : Y*, s_2 : store, a : nat, a'_lst : addr*, s_1 : store}(syntax X, syntax Y, s, [X] ++ X'_lst, [Y] ++ Y'_lst) = (s_2, [a] ++ a'_lst)
+  def $allocXs{syntax v_X, syntax Y, s : store, v_X : v_X, X'_lst : v_X*, Y : Y, Y'_lst : Y*, s_2 : store, a : nat, a'_lst : addr*, s_1 : store}(syntax v_X, syntax Y, s, [v_X] ++ X'_lst, [Y] ++ Y'_lst) = (s_2, [a] ++ a'_lst)
     -- wf_store: `%`(s_2)
     -- wf_store: `%`(s_1)
-    -- if ((s_1, a) = $allocX(syntax X, syntax Y, s, X, Y))
-    -- if ((s_2, a'_lst) = $allocXs(syntax X, syntax Y, s_1, X'_lst, Y'_lst))
+    -- if ((s_1, a) = $allocX(syntax v_X, syntax Y, s, v_X, Y))
+    -- if ((s_2, a'_lst) = $allocXs(syntax v_X, syntax Y, s_1, X'_lst, Y'_lst))
 }
 
 ;; ../../../../specification/wasm-3.0/X.4-notation.binary.spectec
@@ -19694,12 +19694,12 @@ relation wf_symdots: `%`(symdots)
     -- if (i = 0)
 
 ;; ../../../../specification/wasm-3.0/X.4-notation.binary.spectec
-def $var(syntax X) : nat
+def $var(syntax v_X) : nat
   ;; ../../../../specification/wasm-3.0/X.4-notation.binary.spectec
-  def $var{syntax X}(syntax X) = 0
+  def $var{syntax v_X}(syntax v_X) = 0
 
 ;; ../../../../specification/wasm-3.0/X.4-notation.binary.spectec
-grammar Bvar(syntax X) : ()
+grammar Bvar(syntax v_X) : ()
   ;; ../../../../specification/wasm-3.0/X.4-notation.binary.spectec
   prod 0x00 => ()
 
@@ -19718,7 +19718,7 @@ grammar Bsymsplit : ()
   prod{`<implicit_prod_result>` : ()} `<implicit_prod_result>`:Bvar(syntax B) => `<implicit_prod_result>`
 
 ;; ../../../../specification/wasm-3.0/X.5-notation.text.spectec
-grammar Tvar(syntax X) : ()
+grammar Tvar(syntax v_X) : ()
   ;; ../../../../specification/wasm-3.0/X.5-notation.text.spectec
   prod 0x00 => ()
 
