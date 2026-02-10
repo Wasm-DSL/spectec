@@ -167,7 +167,7 @@ let rec rename_params s = function
 let lookup_arg_typ typcases m = 
   List.find_map (fun (m', (_, arg_typ, _), _) -> if Il.Eq.eq_mixop m m' then Some arg_typ else None) typcases
 
-let insert_injections env (def : def) : def list =
+let insert_injections transformer env (def : def) : def list =
   add_type_info env def;
   let pairs = ready_pairs env in
   [ def ] @
@@ -184,6 +184,13 @@ let insert_injections env (def : def) : def list =
       match arg_typ.it, arg_typ2 with
       | TupT ts, Some {it = TupT ts'; _} ->
         let binds = List.mapi (fun i (_, arg_typ_i) -> ExpB ("x" ^ string_of_int i $ no_region, arg_typ_i) $ no_region) ts in
+        let vals = List.mapi (fun i (old_exp, _) -> "x" ^ string_of_int i $ no_region, old_exp) ts in
+        let subst = List.fold_left (fun subst (new_name, old) -> 
+          match old.it with
+          | VarE old_id -> Il.Subst.add_varid subst old_id (VarE (new_name) $$ new_name.at % old.note)  
+          | _ -> subst
+        ) Il.Subst.empty vals
+        in
         let xes is_lhs = List.map2 (fun bind (_, arg_typ_i2) ->
           match bind.it with
           | ExpB (x, arg_typ_i) -> 
@@ -194,9 +201,11 @@ let insert_injections env (def : def) : def list =
           | TypB _ | DefB _ | GramB _ -> assert false) binds ts'
         in
         let xe is_lhs = TupE (xes is_lhs) $$ no_region % arg_typ in
-        DefD (binds,
-          [ExpA (CaseE (m, xe true) $$ no_region % real_ty) $ no_region],
-          t_exp env (CaseE (m, xe false) $$ no_region % sup_ty), []) $ no_region
+        let lhs = ExpA (CaseE (m, xe true) $$ no_region % real_ty) $ no_region in
+        let rhs = transform_exp transformer (CaseE (m, xe false) $$ no_region % sup_ty) in
+        DefD (Il.Subst.subst_binds subst binds |> fst,
+          [Il.Subst.subst_arg subst lhs],
+          Il.Subst.subst_exp subst rhs, []) $ no_region
       | _ ->
         let x = "x" $ no_region in
         let xe = VarE x $$ no_region % arg_typ in
@@ -213,6 +222,6 @@ let transform (defs : script) =
   let transformer = { base_transformer with transform_exp = t_exp env } in
   let defs' = List.map (transform_def transformer) defs in
   env.pairs_mutable <- false;
-  let defs'' =  List.concat_map (insert_injections env) defs' in
+  let defs'' =  List.concat_map (insert_injections transformer env) defs' in
   S.iter (fun (sub, sup) -> error sup.at ("left-over subtype coercion `" ^ sub.it ^ "` <: `" ^ sup.it ^ "`")) env.pairs;
   defs''  
