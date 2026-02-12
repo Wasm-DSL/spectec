@@ -726,6 +726,78 @@ $${rule-prose: Instr_ok/data.drop}
 
 $${rule: Instr_ok/data.drop}
 
+.. index:: atomic instruction
+   pair: validation; instruction
+   single: abstract syntax; instruction
+
+Atomic Instructions
+~~~~~~~~~~~~~~~~~~~~~
+
+.. _valid-atomic.load-val:
+
+:math:`t\K{.}\ATOMICLOAD~x~\memarg`
+.....................................
+
+$${rule-prose: Instr_ok/atomic.load-val}
+
+$${rule: Instr_ok/atomic.load-val}
+
+.. _valid-atomic.load-pack:
+
+:math:`t\K{.}\ATOMICLOAD{N}\K{\_}sx~x~\memarg`
+.......................................................
+
+$${rule-prose: Instr_ok/atomic.load-pack}
+
+$${rule: Instr_ok/atomic.load-pack}
+
+:math:`t\K{.}\ATOMICSTORE~x~\memarg`
+.....................................
+
+$${rule-prose: Instr_ok/atomic.store-val}
+
+$${rule: Instr_ok/atomic.store-val}
+
+:math:`t\K{.}\ATOMICSTORE{N}\K{\_}sx~x~\memarg`
+.....................................
+
+$${rule-prose: Instr_ok/atomic.store-pack}
+
+$${rule: Instr_ok/atomic.store-pack}
+
+:math:`t\K{.}\ATOMICRMW~x~\memarg`
+.....................................
+
+$${rule-prose: Instr_ok/atomic.rmw-val}
+
+$${rule: Instr_ok/atomic.rmw-val}
+
+:math:`t\K{.}\ATOMICRMW{N}\K{\_}sx~x~\memarg`
+.....................................
+
+$${rule-prose: Instr_ok/atomic.rmw-pack}
+
+$${rule: Instr_ok/atomic.rmw-pack}
+
+:math:`t\K{.}\ATOMICCMPXCHG~x~\memarg`
+.....................................
+
+$${rule-prose: Instr_ok/atomic.cmpxchg-val}
+
+$${rule: Instr_ok/atomic.cmpxchg-val}
+
+:math:`t\K{.}\ATOMICCMPXCHG{N}\K{\_}sx~x~\memarg`
+.....................................
+$${rule-prose: Instr_ok/atomic.cmpxchg-pack}
+
+$${rule: Instr_ok/atomic.cmpxchg-pack}
+
+:math:`t\K{.}\MEMORYATOMICNOTIFY~x~\memarg`
+.....................................
+
+$${rule-prose: Instr_ok/memory.atomic.notify}
+
+$${rule: Instr_ok/memory.atomic.notify}
 
 .. index:: reference instructions, reference type
    pair: validation; instruction
