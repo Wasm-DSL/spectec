@@ -17,6 +17,10 @@ Types are checked during :ref:`validation <valid>`, :ref:`instantiation <exec-in
 Number Types
 ~~~~~~~~~~~~
 
+*Integer types* represent ${:I32} ${:I64}. 
+
+$${syntax: inntype}
+
 *Number types* classify numeric values.
 
 $${syntax: numtype}
@@ -32,10 +36,6 @@ Values of number type can be stored in :ref:`memories <syntax-mem>`.
 
 .. _bitwidth-numtype:
 .. _bitwidth-valtype:
-
-*Integer types* represent ${:I32} ${:I64}. 
-
-$${syntax: inntype}
 
 Conventions
 ...........

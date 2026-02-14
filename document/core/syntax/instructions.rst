@@ -219,19 +219,18 @@ The ${:MEMORY.INIT} instruction copies data from a :ref:`passive data segment <s
 
 The ${:DATA.DROP} instruction prevents further use of a passive data segment. This instruction is intended to be used as an optimization hint. After a data segment is dropped its data can no longer be retrieved, so the memory used by this segment may be freed.
 
-.. index:: ! atomic instruction, memory, memory index, page size, little endian, trap
+.. index:: ! atomic memory instruction, memory, memory index, page size, little endian, trap
    pair: abstract syntax; instruction
-.. _syntax-memarg:
 .. _syntax-instr-atomic:
-.. _syntax-atopop:
-.. _syntax-cmpxchgop:
+.. _syntax-atop:
+.. _syntax-rmwop:
 
-Atomic Instructions
-~~~~~~~~~~~~~~~~~~~
+Atomic Memory Instructions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Instructions in this group are concerned with accessing linear memory atomically.
 
-$${syntax: memarg loadop_ storeop_ atopop_ cmpxchgop_ atop_ {instr/atomic}}
+$${syntax: memarg atop_ rmwop_ {instr/atomic}}
 
 Memory is accessed atomically using |ATOMICLOAD|, |ATOMICSTORE| and |ATOMICRMW| instructions. All instructions take a *memory immediate* ${:memarg}, just like their non-atomic equivalents. Unlike non-atomic memory access instructions, only :ref:`integer types <syntax-inntype>` may be used. Also unlike non-atomic memory access instructions, there are no sign extension modes; atomic memory accesses are always zero-extending. 
 
@@ -346,7 +345,6 @@ The instructions ${:ANY.CONVERT_EXTERN} and ${:EXTERN.CONVERT_ANY} allow lossles
 .. _syntax-relop:
 .. _syntax-cvtop:
 .. _syntax-instr-numeric:
-.. _syntax-atop:
 
 Numeric Instructions
 ~~~~~~~~~~~~~~~~~~~~

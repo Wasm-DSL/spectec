@@ -368,7 +368,7 @@ def $unop_(numtype, unop_(numtype), num_(numtype)) : num_(numtype)*
     hint(show %2#$_(%1,%3))
 def $binop_(numtype, binop_(numtype), num_(numtype), num_(numtype)) : num_(numtype)*
     hint(show %2#$_(%1,%3, %4))
-def $atop_(Inn, atop_(Inn), num_(Inn), num_(Inn)) : num_(Inn)*
+def $rmwop_(Inn, rmwop_(Inn), num_(Inn), num_(Inn)) : num_(Inn)*
     hint(show %2#$_(%1,%3, %4))
 def $testop_(numtype, testop_(numtype), num_(numtype)) : u32
     hint(show %2#$_(%1,%3))
@@ -403,12 +403,12 @@ def $binop_(Inn, SHR sx, i_1, i_2) = $ishr_($sizenn(Inn), sx, i_1, i_2)
 def $binop_(Inn, ROTL, i_1, i_2) = $irotl_($sizenn(Inn), i_1, i_2)
 def $binop_(Inn, ROTR, i_1, i_2) = $irotr_($sizenn(Inn), i_1, i_2)
 
-def $atop_(Inn, ADD, i_1, i_2) = $iadd_($sizenn(Inn), i_1, i_2)
-def $atop_(Inn, SUB, i_1, i_2) = $isub_($sizenn(Inn), i_1, i_2)
-def $atop_(Inn, AND, i_1, i_2) = $iand_($sizenn(Inn), i_1, i_2)
-def $atop_(Inn, OR, i_1, i_2) = $ior_($sizenn(Inn), i_1, i_2)
-def $atop_(Inn, XOR, i_1, i_2) = $ixor_($sizenn(Inn), i_1, i_2)
-def $atop_(Inn, XCHG, i_1, i_2) = $ixchg_($sizenn(Inn), i_1, i_2)
+def $rmwop_(Inn, ADD, i_1, i_2) = $iadd_($sizenn(Inn), i_1, i_2)
+def $rmwop_(Inn, SUB, i_1, i_2) = $isub_($sizenn(Inn), i_1, i_2)
+def $rmwop_(Inn, AND, i_1, i_2) = $iand_($sizenn(Inn), i_1, i_2)
+def $rmwop_(Inn, OR, i_1, i_2) = $ior_($sizenn(Inn), i_1, i_2)
+def $rmwop_(Inn, XOR, i_1, i_2) = $ixor_($sizenn(Inn), i_1, i_2)
+def $rmwop_(Inn, XCHG, i_1, i_2) = $ixchg_($sizenn(Inn), i_1, i_2)
 
 def $binop_(Fnn, ADD, f_1, f_2) = $fadd_($sizenn(Fnn), f_1, f_2)
 def $binop_(Fnn, SUB, f_1, f_2) = $fsub_($sizenn(Fnn), f_1, f_2)

@@ -704,7 +704,7 @@
 .. |testop| mathdef:: \xref{syntax/instructions}{syntax-testop}{\X{testop}}
 .. |relop| mathdef:: \xref{syntax/instructions}{syntax-relop}{\X{relop}}
 .. |cvtop| mathdef:: \xref{syntax/instructions}{syntax-cvtop}{\X{cvtop}}
-.. |atop| mathdef:: \xref{syntax/instructions}{syntax-atop}{\X{atop}}
+.. |rmwop| mathdef:: \xref{syntax/instructions}{syntax-rmwop}{\X{rmwop}}
 
 .. |unopF| mathdef:: \xref{exec/instructions}{exec-instr-numeric}{\X{unop}}
 .. |binopF| mathdef:: \xref{exec/instructions}{exec-instr-numeric}{\X{binop}}
@@ -760,8 +760,7 @@
 .. |loadop| mathdef:: \xref{syntax/instructions}{syntax-loadop}{\X{loadop}}
 .. |storeop| mathdef:: \xref{syntax/instructions}{syntax-storeop}{\X{storeop}}
 .. |vloadop| mathdef:: \xref{syntax/instructions}{syntax-vloadop}{\X{vloadop}}
-.. |atopop| mathdef:: \xref{syntax/instructions}{syntax-atopop}{\X{atopop}}
-.. |cmpxchgop| mathdef:: \xref{syntax/instructions}{syntax-cmpxchgop}{\X{cmpxchgop}}
+.. |atop| mathdef:: \xref{syntax/instructions}{syntax-atop}{\X{atop}}
 
 .. |sx| mathdef:: \xref{syntax/instructions}{syntax-sx}{\X{sx}}
 .. |sz| mathdef:: \xref{syntax/instructions}{syntax-sz}{\X{sz}}

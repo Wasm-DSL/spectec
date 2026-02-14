@@ -181,10 +181,10 @@ Added instructions that modify ranges of memory or table entries. [#proposal-ref
 
 .. index:: instruction
 
-Atomic Instructions
-....................
+Atomic Memory Instructions
+................................
 
-* New :ref:`atomic instructions <syntax-instr-atomic>`:
+* New :ref:`atomic memory instructions <syntax-instr-atomic>`:
 
   - |ATOMICLOAD|
   - |ATOMICSTORE|

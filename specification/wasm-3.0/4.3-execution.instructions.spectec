@@ -612,7 +612,7 @@ rule Step_read/memory.init-succ:
 rule Step/data.drop:
   z; (DATA.DROP x)  ~>  $with_data(z, x, eps); eps
 
-;; Atomic instructions
+;; Atomic Memory instructions
 
 rule Step_read/atomic.load-num-oob:
   z; (CONST at i) (ATOMIC.LOAD inntype x ao)  ~>  TRAP
@@ -625,12 +625,12 @@ rule Step_read/atomic.load-num-val:
   -- if $ibytes_($size(inntype), c) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
 
 rule Step_read/atomic.load-pack-oob:
-  z; (CONST at i) (ATOMIC.LOAD inntype (n _ sx) x ao)  ~>  TRAP
+  z; (CONST at i) (ATOMIC.LOAD inntype n x ao)  ~>  TRAP
   ----
   -- if $(i + ao.OFFSET + n/8 > |$mem(z, x).BYTES|)
 
 rule Step_read/atomic.load-pack-val:
-  z; (CONST at i) (ATOMIC.LOAD inntype (n _ sx) x ao)  ~>  (CONST inntype $extend__(n, $size(inntype), sx, c))
+  z; (CONST at i) (ATOMIC.LOAD inntype n x ao)  ~>  (CONST inntype $extend__(n, $size(inntype), U, c))
   ----
   -- if $ibytes_(n, c) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
 
@@ -660,17 +660,17 @@ rule Step/atomic.rmw-num-oob:
   -- if $(i + ao.OFFSET + $size(inntype)/8) > |$mem(z, x).BYTES|
 
 rule Step/atomic.rmw-num-val:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype atop x ao) ~> $with_mem(z, x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (CONST inntype d)
+  z; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype rmwop x ao) ~> $with_mem(z, x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (CONST inntype d)
   ----
-  -- if f = $atop_(inntype, atop, c, d)
+  -- if f = $rmwop_(inntype, rmwop, c, d)
   -- if b* = $ibytes_($size(inntype), f)
   -- if $ibytes_($size(inntype), d) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
 
 rule Step/atomic.rmw-num-pack:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype n atop x ao) ~> $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); (CONST inntype d)
+  z; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype n rmwop x ao) ~> $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); (CONST inntype d)
   ----
-  -- if f = $atop_(inntype, atop, c, d)
-  -- if b* = $ibytes_(n, $wrap__($size(inntype), n, c))
+  -- if f = $rmwop_(inntype, rmwop, c, d)
+  -- if b* = $ibytes_(n, $wrap__($size(inntype), n, f))
   -- if $ibytes_(n, d) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
 
 rule Step/atomic.cmpxchg-num-oob:
@@ -711,7 +711,6 @@ rule Step/memory.atomic.notify-oob:
 
 rule Step/memory.atomic.notify:
   z; (CONST at i) (CONST I32 count) (MEMORY.ATOMIC.NOTIFY x ao) ~> z; (CONST I32 0)
-  ----
 
 rule Step/memory.atomic.wait-oob:
   z; (CONST at i) (CONST inntype expected) (CONST i64 timeout) (MEMORY.ATOMIC.WAIT inntype x ao) ~> z; TRAP
@@ -720,11 +719,9 @@ rule Step/memory.atomic.wait-oob:
 
 rule Step/memory.atomic.wait:
   z; (CONST at i) (CONST inntype expected) (CONST i64 timeout) (MEMORY.ATOMIC.WAIT inntype x ao) ~> z; TRAP
-  ----
 
 rule Step/atomic.fence:
   z; (ATOMIC.FENCE) ~> z; eps
-  ----
 
 ;; Reference instructions
 
@@ -1083,15 +1080,6 @@ rule Step_pure/cvtop-val:
 rule Step_pure/cvtop-trap:
   (CONST nt_1 c_1) (CVTOP nt_2 nt_1 cvtop)  ~>  TRAP
   -- if $cvtop__(nt_1, nt_2, cvtop, c_1) = eps
-
-rule Step_pure/atop-val:
-  (CONST Inn c_1) (CONST Inn c_2) (ATOP Inn atop)  ~>  (CONST Inn c)
-  -- if c <- $atop_(Inn, atop, c_1, c_2)
-
-rule Step_pure/atop-trap:
-  (CONST Inn c_1) (CONST Inn c_2) (ATOP Inn atop)  ~>  TRAP
-  -- if $atop_(Inn, atop, c_1, c_2) = eps
-
 
 ;; Vector instructions
 

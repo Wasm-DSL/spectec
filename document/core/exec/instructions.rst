@@ -675,11 +675,8 @@ $${rule: {Step/data.drop}}
 
 .. index:: atomic memory instructions
 
-Atomic Instructions
-~~~~~~~~~~~~~~~~~~~~~
-
-.. note::
-   These are the atomic memory instructions.
+Atomic Memory Instructions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 $${rule-prose: Step_read/atomic.load}
 
