@@ -264,9 +264,11 @@ let rec get_real_typ_from_exp bind_map env e =
   | TextE _ -> TextT $ e.at
   | TupE es -> let typs = List.map (get_real_typ_from_exp bind_map env) es in
     let get_tuple_exps t =
-      match t.it with
-        | TupT typs -> List.map fst typs
-        | _ -> assert false
+      match es, t.it with
+      | _, TupT typs -> List.map fst typs
+      | [_], _ -> [VarE ("_" $ t.at) $$ t.at % t] 
+      (* Has one tuple exp, might just be a normal type instead of a single tuple type *)
+      | _, _ -> assert false (* Should never happen *)
     in
     let expected_exps = get_tuple_exps (Eval.reduce_typ env e.note) in 
     TupT (List.map2 (fun t e -> ({e with note = t}, t)) typs expected_exps) $ e.at
