@@ -268,7 +268,7 @@ let rec get_real_typ_from_exp bind_map env e =
         | TupT typs -> List.map fst typs
         | _ -> assert false
     in
-    let expected_exps = get_tuple_exps (reduce_type_aliasing env e.note) in 
+    let expected_exps = get_tuple_exps (Eval.reduce_typ env e.note) in 
     TupT (List.map2 (fun t e -> ({e with note = t}, t)) typs expected_exps) $ e.at
   | ListE (e' :: _) -> 
     let iter = (match e.note.it with 
