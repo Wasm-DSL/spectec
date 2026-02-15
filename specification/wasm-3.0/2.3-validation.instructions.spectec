@@ -529,37 +529,37 @@ rule Instr_ok/atomic.store-pack:
   -- if $(2^(memarg.ALIGN) <= N/8)
 
 rule Instr_ok/atomic.rmw-val:
-  C |- ATOMIC.RMW inntype rmwop x memarg : at inntype -> eps
+  C |- ATOMIC.RMW inntype rmwop x memarg : at inntype -> inntype
   -- if C.MEMS[x] = at lim PAGE
   -- if $(2^(memarg.ALIGN) <= $size(inntype)/8)
 
 rule Instr_ok/atomic.rmw-pack:
-  C |- ATOMIC.RMW inntype N rmwop x memarg : at inntype ->  eps
+  C |- ATOMIC.RMW inntype N rmwop x memarg : at inntype -> inntype
   -- if C.MEMS[x] = at lim PAGE
   -- if $(2^(memarg.ALIGN) <= N/8)
  
 rule Instr_ok/atomic.cmpxchg-val:
-  C |- ATOMIC.RMW inntype rmwop x memarg : at inntype -> eps
+  C |- ATOMIC.RMW inntype rmwop x memarg : at inntype inntype -> inntype
   -- if C.MEMS[x] = at lim PAGE
   -- if $(2^(memarg.ALIGN) <= $size(inntype)/8)
 
 rule Instr_ok/atomic.cmpxchg-pack:
-  C |- ATOMIC.RMW inntype N rmwop x memarg : at inntype ->  eps
+  C |- ATOMIC.RMW inntype N rmwop x memarg : at inntype inntype -> inntype
   -- if C.MEMS[x] = at lim PAGE
   -- if $(2^(memarg.ALIGN) <= N/8)
 
 rule Instr_ok/memory.atomic.notify:
-  C |- MEMORY.ATOMIC.NOTIFY x memarg : at I32 -> eps
+  C |- MEMORY.ATOMIC.NOTIFY x memarg : at I32 -> I32
   -- if C.MEMS[x] = at lim PAGE
-  -- if $(2^(memarg.ALIGN) <= $size(I32)/8)
+  -- if $(2^(memarg.ALIGN) = 4)
 
 rule Instr_ok/memory.atomic.wait:
-  C |- MEMORY.ATOMIC.NOTIFY x memarg : at inntype -> eps
+  C |- MEMORY.ATOMIC.WAIT inntype x memarg : at inntype I64 -> I32
   -- if C.MEMS[x] = at lim PAGE
-  -- if $(2^(memarg.ALIGN) <= $size(I32)/8)
+  -- if $(2^(memarg.ALIGN) <= $size(inntype)/8)
 
 rule Instr_ok/atomic.fence:
-  C |- ATOMIC.FENCE : at eps ->  eps
+  C |- ATOMIC.FENCE : at eps -> eps
 
 
 ;; Numeric instructions
