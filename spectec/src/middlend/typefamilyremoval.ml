@@ -75,24 +75,25 @@ let var_typ_fam = "var_x"
 let iter_var_name = "iter_"
 let name_prefix id = id.it ^ "_"
 
-let empty_info: region * Xl.Atom.info = (no_region, {def = ""; case = ""})
+let empty_info typ_id: region * Xl.Atom.info = (no_region, {def = typ_id; case = ""})
 let sub_type_name_quants quants = (String.concat "_" (List.map quant_to_string quants))
 let constructor_name' id case_num = make_prefix ^ name_prefix id ^ Int.to_string case_num
-let _constructor_name id quants = constructor_name' id quants $ id.at 
-let constructor_name_mixop id quants case_num: mixop = Xl.Mixop.(Seq (Atom (Xl.Atom.Atom (constructor_name' id case_num) $$ empty_info) :: List.map (fun _ -> Arg ()) quants))
+let constructor_name_mixop id num_quants case_num: mixop = 
+  Xl.Mixop.(Seq (Atom (Xl.Atom.Atom (constructor_name' id case_num) $$ empty_info id.it) 
+  :: List.init num_quants (fun _ -> Arg ())))
 let proj_name' id case_num = proj_prefix ^ name_prefix id ^ Int.to_string case_num
 let proj_name id case_num = proj_name' id case_num $ id.at
 
-let construct_tuple_typ typ args at = 
+let construct_tuple_typ typ quants at = 
   let name = var_typ_fam $ typ.at in  
-  let extra_case_args = List.map (fun a -> match a.it with 
-    | ExpA exp -> ("_" $ exp.at, exp.note)
+  let extra_case_args = List.map (fun p -> match p.it with 
+    | ExpP (x, t) -> (x, t)
     | _ -> error at "Removal of other arguments is not supported yet"
-  ) args in
+  ) quants in
   TupT (extra_case_args @ [(name, typ)]) $ typ.at 
 
-let construct_tuple_exp at e t args =
-  let tupt = construct_tuple_typ t args at in 
+let construct_tuple_exp at e t quants args =
+  let tupt = construct_tuple_typ t quants at in 
   let extra_tup_exps = List.map (fun a -> match a.it with 
     | ExpA exp -> exp
     | _ -> error at "Removal of other arguments is not supported yet"
@@ -239,11 +240,12 @@ let rec get_real_typ_from_exp quant_map env e =
   | TextE _ -> TextT $ e.at
   | TupE es -> let typs = List.map (get_real_typ_from_exp quant_map env) es in
     let get_tuple_ids t =
-      match t.it with
-        | TupT typs -> List.map fst typs
-        | _ -> assert false
+      match es, t.it with
+      | _, TupT typs -> List.map fst typs
+      | [_], _ -> ["_" $ t.at] (* Has one tuple exp, might just be a normal type instead of a single tuple type *)
+      | _, _ -> assert false (* Should never happen *)
     in
-    let expected_ids = get_tuple_ids (reduce_type_aliasing env e.note) in 
+    let expected_ids = get_tuple_ids (Eval.reduce_typ env e.note) in 
     TupT (List.combine expected_ids typs) $ e.at
   | ListE (e' :: _) -> 
     let iter = (match e.note.it with 
@@ -326,8 +328,8 @@ let make_projection_family_data env (lst : family_data list) (base_exp : exp) =
 let make_constructor_family_data (lst : family_data list) (base_exp : exp) = 
   List.fold_left (fun exp (id, quants, subst, case_num, family_typ, sub_typ) ->
     let new_args = List.map make_arg_from_param quants |> Subst.subst_list Subst.subst_arg subst in
-    let tupe = construct_tuple_exp base_exp.at exp sub_typ new_args in
-    CaseE (constructor_name_mixop id quants case_num, tupe) $$ id.at % family_typ 
+    let tupe = construct_tuple_exp base_exp.at exp sub_typ quants new_args in
+    CaseE (constructor_name_mixop id (List.length quants + 1) case_num, tupe) $$ id.at % family_typ 
   ) base_exp lst 
 
 let handle_iter_typ base_exp real_typ expected_typ = 
@@ -601,7 +603,7 @@ let gen_family_projections id has_one_inst case_num inst =
       let var_exp = VarE (var_typ_fam $ id.at) $$ id.at % typ in
       let opt_exp = OptE (Some (var_exp)) $$ id.at % return_type in
       let new_args = List.map make_arg_from_param quants in
-      let new_case = CaseE(constructor_name_mixop id quants case_num, construct_tuple_exp deftyp.at var_exp typ new_args) $$ id.at % family_typ in
+      let new_case = CaseE(constructor_name_mixop id (List.length quants + 1) case_num, construct_tuple_exp deftyp.at var_exp typ quants new_args) $$ id.at % family_typ in
 
       let return_exp = if has_one_inst then var_exp else opt_exp in
       let new_clause = DefD (quants @ [new_quant], new_args @ [ExpA new_case $ id.at], return_exp, []) $ id.at in
@@ -635,11 +637,7 @@ let rec transform_type_family def =
   | TypD (id, params, insts) -> 
     let deftyp = VariantT (List.mapi (fun case_num inst -> match inst.it with 
       | InstD (quants, args, {it = AliasT typ; _}) ->
-        let name = var_typ_fam $ typ.at in
-        let new_args = List.map make_arg_from_param quants in
-        let tupt = construct_tuple_typ typ new_args id.at in
-        let new_quant = ExpP (name, typ) $ typ.at in
-
+        let tupt = construct_tuple_typ typ quants id.at in
         let prems = List.map2 (fun a p ->
           let var_param = (match p.it with
             | ExpP (id', typ') -> VarE id' $$ id'.at % typ'
@@ -652,7 +650,7 @@ let rec transform_type_family def =
           let cmp_exp = CmpE (`EqOp, `BoolT, var_param, exp_arg) $$ id.at % (BoolT $ id.at) in
           IfPr cmp_exp $ id.at
         ) args params in 
-        (constructor_name_mixop id quants case_num, (tupt, quants @ [new_quant], prems), [])
+        (constructor_name_mixop id (List.length quants + 1) case_num, (tupt, [], prems), [])
       | _ -> error def.at "Should be type alias"
     ) insts) $ def.at in
     let inst = InstD (params, List.map make_arg_from_param params, deftyp) $ def.at in 
