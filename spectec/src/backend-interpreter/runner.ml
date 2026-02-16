@@ -6,6 +6,18 @@ open Construct
 open Util
 open Ds
 
+
+(* Errors *)
+
+module Assert = Reference_interpreter.Error.Make ()
+let _error_interpret at msg = Error.error at "interpreter" msg
+
+(* Logging *)
+
+let logging = ref false
+
+let log fmt = Printf.(if !logging then fprintf stderr fmt else ifprintf stderr fmt)
+
 (* Result *)
 
 let success = 1, 1
@@ -19,9 +31,13 @@ let num_parse_fail = ref 0
 let is_long_test path =
   List.mem (Filename.basename path)
     [ "memory_copy.wast";
+      "memory_copy64.wast";
       "memory_fill.wast";
+      "memory_fill64.wast";
       "memory_grow.wast";
+      "memory_grow64.wast";
       "call_indirect.wast";
+      "call_indirect64.wast";
       "return_call.wast";
       "return_call_indirect.wast";
       "return_call_ref.wast"
@@ -45,8 +61,19 @@ let try_run runner target =
   let result =
     try
       runner target
-    with e ->
-      prerr_endline (Printexc.to_string e); fail
+    with
+    | Exception.Error (at, msg, step) ->
+      let msg' = msg ^ " (interpreting " ^ step ^ " at " ^ Source.string_of_region at ^ ")" in
+      (* error_interpret at msg' *)
+      prerr_endline msg';
+      fail
+    | Exception.Invalid (e, _) ->
+      let msg = "validation failure (" ^ Printexc.to_string e ^ ")" in
+      prerr_endline msg;
+      fail
+    | e ->
+      prerr_endline (Printexc.to_string e);
+      fail
   in
   result, Sys.time () -. start_time
 
@@ -58,73 +85,83 @@ let print_runner_result name result =
   in
 
   if name = "Total" then
-    Printf.printf "Total [%d/%d] (%.2f%%)\n\n" num_success total percentage
-  else
-    Printf.printf "- %d/%d (%.2f%%)\n\n" num_success total percentage;
-  Printf.eprintf "%s took %f ms.\n" name (execution_time *. 1000.)
+    log "Total [%d/%d] (%.2f%%)\n\n" num_success total percentage
+  else (
+    log "- %d/%d (%.2f%%)\n\n" num_success total percentage;
+    if num_success < total then
+       Printf.printf "Test failed for %s\n" name
+  );
+  log "%s took %f ms.\n" name (execution_time *. 1000.)
 
 let get_export name modulename =
   modulename
   |> Register.find
-  |> strv_access "EXPORT"
+  |> strv_access "EXPORTS"
   |> listv_find
     (fun export -> al_to_string (strv_access "NAME" export) = name)
 
-let get_externval import =
-  import.it.module_name
+let get_externaddr import =
+  let Ast.Import (module_name, item_name, _) = import.it in
+  module_name
   |> Utf8.encode
-  |> get_export (Utf8.encode import.it.Ast.item_name)
-  |> strv_access "VALUE"
+  |> get_export (Utf8.encode item_name)
+  |> strv_access "ADDR"
 
 let textual_to_module textual =
   match (snd textual).it with
-  | Script.Textual m -> m
+  | Script.Textual (m, _) -> m
   | _ -> assert false
 
+let get_export_addr name modulename =
+  let vl =
+    modulename
+    |> get_export name
+    |> strv_access "ADDR"
+    |> args_of_casev
+  in
+  try List.hd vl with Failure _ ->
+    failwith ("Function export doesn't contain function address")
+
+(* Flags *)
+
+let err_exit = ref true
 
 (** Main functions **)
 
 let invoke module_name funcname args =
-  Printf.eprintf "[Invoking %s %s...]\n" funcname (Value.string_of_values args);
+  log "[Invoking %s %s...]\n" funcname (Value.string_of_values args);
 
-  let funcaddr =
-    module_name
-    |> get_export funcname
-    |> strv_access "VALUE"
-    |> casev_nth_arg 0
-  in
-
+  let funcaddr = get_export_addr funcname module_name in
   Interpreter.invoke [funcaddr; al_of_list al_of_value args]
 
-let get_global_value module_name globalname =
-  Printf.eprintf "[Getting %s...]\n" globalname;
 
-  module_name
-  |> get_export globalname
-  |> strv_access "VALUE"
-  |> casev_nth_arg 0
-  |> al_to_int
-  |> listv_nth (Record.find "GLOBAL" (get_store ()))
+let get_global_value module_name globalname =
+  log "[Getting %s...]\n" globalname;
+
+  let index = get_export_addr globalname module_name in
+  index
+  |> al_to_nat
+  |> listv_nth (Store.access "GLOBALS")
   |> strv_access "VALUE"
   |> Array.make 1
   |> listV
 
 let instantiate module_ =
-  Printf.eprintf "[Instantiating module...]\n";
+  log "[Instantiating module...]\n";
 
-  let al_module = al_of_module module_ in
-  let externvals = List.map get_externval module_.it.imports in
-
-  Interpreter.instantiate [ al_module; listV_of_list externvals ]
+  match al_of_module module_, List.map get_externaddr module_.it.imports with
+  | exception exn -> raise (Exception.Invalid (exn, Printexc.get_raw_backtrace ()))
+  | al_module, externaddrs ->
+    Interpreter.instantiate [ al_module; listV_of_list externaddrs ]
 
 
 (** Wast runner **)
 
 let module_of_def def =
   match def.it with
-  | Textual m -> m
-  | Encoded (name, bs) -> Decode.decode name bs
-  | Quoted (_, s) -> Parse.Module.parse_string s |> textual_to_module
+  | Textual (m, _) -> m
+  | Encoded (name, bs) -> Decode.decode name bs.it
+  | Quoted (_, s) -> Parse.Module.parse_string s.it |> textual_to_module
 
 let run_action action =
   match action.it with
@@ -137,7 +174,7 @@ let test_assertion assertion =
   match assertion.it with
   | AssertReturn (action, expected) ->
     let result = run_action action |> al_to_list al_to_value in
-    Run.assert_result no_region result (List.map it expected);
+    Run.assert_results no_region result expected;
     success
   | AssertTrap (action, re) -> (
     try
@@ -146,13 +183,32 @@ let test_assertion assertion =
       fail
     with Exception.Trap -> success
   )
-  | AssertUninstantiable (def, re) -> (
+  | AssertUninstantiable (var_opt, re) -> (
     try
-      def |> module_of_def |> instantiate |> ignore;
+      Modules.find (Modules.get_module_name var_opt) |> instantiate |> ignore;
       Run.assert_message assertion.at "instantiation" "module instance" re;
       fail
     with Exception.Trap -> success
   )
+  | AssertException action ->
+    (match run_action action with
+    | exception Exception.Throw -> success
+    | _ -> Assert.error assertion.at "expected exception"
+    )
+  | AssertInvalid (def, re) when !Construct.version = 3 ->
+    (match def |> module_of_def |> instantiate |> ignore with
+    | exception Exception.Invalid _ -> success
+    | _ ->
+      Run.assert_message assertion.at "validation" "module instance" re;
+      fail
+    )
+  | AssertInvalidCustom (def, re) when !Construct.version = 3 ->
+    (match def |> module_of_def |> instantiate |> ignore with
+    | exception Exception.Invalid _ -> success
+    | _ ->
+      Run.assert_message assertion.at "validation" "module instance" re;
+      fail
+    )
   (* ignore other kinds of assertions *)
   | _ -> pass
 
@@ -161,8 +217,12 @@ let run_command' command =
   | Module (var_opt, def) ->
     def
     |> module_of_def
+    |> Modules.add_with_var var_opt;
+    success
+  | Instance (var1_opt, var2_opt) ->
+    Modules.find (Modules.get_module_name var2_opt)
     |> instantiate
-    |> Register.add_with_var var_opt;
+    |> Register.add_with_var var1_opt;
     success
   | Register (modulename, var_opt) ->
     let moduleinst = Register.find (Register.get_module_name var_opt) in
@@ -172,7 +232,33 @@ let run_command' command =
     ignore (run_action a); success
   | Assertion a -> test_assertion a
   | Meta _ -> pass
-let run_command = try_run run_command'
+
+let run_command command =
+  let start_time = Sys.time () in
+  let result =
+    let print_fail at msg = Printf.printf "- Test failed at %s (%s)\n" (string_of_region at) msg in
+    try
+      run_command' command
+    with
+    | Exception.Error (at, msg, step) ->
+      let msg' = msg ^ " (interpreting " ^ step ^ " at " ^ Source.string_of_region at ^ ")" in
+      command.at |> string_of_region |> print_endline;
+      (* error_interpret at msg' *)
+      print_fail command.at msg';
+      fail
+    | Exception.Invalid (e, backtrace) ->
+      print_fail command.at (Printexc.to_string e);
+      Printexc.print_raw_backtrace stdout backtrace;
+      fail
+    | Register.ModuleNotFound x ->
+      print_fail command.at ("Target module(" ^ x ^ ") does not exist or is not instantiated sucessfully");
+      fail
+    | e ->
+      print_fail command.at (Printexc.to_string e);
+      Printexc.print_backtrace stdout;
+      fail
+  in
+  result, Sys.time () -. start_time
 
 let run_wast name script =
   let script =
@@ -181,22 +267,26 @@ let run_wast name script =
     else script
   in
 
-  (* Intialize builtin *)
-  Register.add "spectest" (Builtin.builtin ());
+  (* Intialize spectest *)
+  Register.add "spectest" (Host.spectest ());
 
-  let result =
-    script
-    |> List.map run_command
-    |> sum_results_with_time
+  let _, results = List.fold_left_map (fun err cmd ->
+    if err && !err_exit then
+      err, (fail, 0.0)
+    else
+      let cmd_result = run_command cmd in
+      (fst cmd_result = fail), cmd_result
+  ) false script
   in
+  let result = sum_results_with_time results in
   print_runner_result name result; result
 
 
 (** Wasm runner **)
 
 let run_wasm' args module_ =
-  (* Intialize builtin *)
-  Register.add "spectest" (Builtin.builtin ());
+  (* Intialize spectest *)
+  Register.add "spectest" (Host.spectest ());
 
   (* Instantiate *)
   module_
@@ -227,16 +317,16 @@ let run_wat = run_wasm
 (** Parse **)
 
 let parse_file name parser_ file =
-  Printf.printf "===== %s =====\n%!" name;
-  Printf.eprintf "===========================\n\n%s\n\n" name;
+  log "===========================\n\n%s\n\n" name;
 
   try
     parser_ file
   with e ->
+    let bt = Printexc.get_raw_backtrace () in
     print_endline ("- Failed to parse " ^ name ^ "\n");
-    prerr_endline ("- Failed to parse " ^ name ^ "\n");
+    log ("- Failed to parse %s\n") name;
     num_parse_fail := !num_parse_fail + 1;
-    raise e
+    Printexc.raise_with_backtrace e bt
 
 
 (** Runner **)
@@ -245,26 +335,32 @@ let rec run_file path args =
   if Sys.is_directory path then
     run_dir path
   else try
-    (* Read file *)
-    let file = In_channel.with_open_bin path In_channel.input_all in
-
     (* Check file extension *)
     match Filename.extension path with
     | ".wast" ->
-      file
-      |> parse_file path Parse.Script.parse_string
-      |> run_wast path
+      let (m1, n1), time1 =
+        path
+        |> parse_file path Parse.Script.parse_file
+        |> run_wast path
+      in
+      let (m2, n2), time2 =
+        match args with
+        | path' :: args' when Sys.file_exists path -> run_file  path' args'
+        | path' :: _ -> failwith ("file " ^ path' ^ " does not exist")
+        | [] -> pass, 0.0
+      in
+      (m1 + m2, n1 + n2), time1 +. time2
     | ".wat" ->
-      file
-      |> parse_file path Parse.Module.parse_string
+      path
+      |> parse_file path Parse.Module.parse_file
       |> textual_to_module
       |> run_wat args
     | ".wasm" ->
-      file
-      |> parse_file path (Decode.decode "wasm module")
+      In_channel.with_open_bin path In_channel.input_all
+      |> parse_file path (Decode.decode path)
       |> run_wasm args
-    | _ -> pass, 0.
-  with Decode.Code _ | Parse.Syntax _ -> pass, 0.
+    | _ -> pass, 0.0
+  with Decode.Code _ | Parse.Syntax _ -> pass, 0.0
 
 and run_dir path =
   path
@@ -287,4 +383,5 @@ let run = function
         print_endline ((string_of_int !num_parse_fail) ^ " parsing fail");
       print_runner_result "Total" result;
     )
-  | _ -> failwith "Cannot find file to run"
+  | path :: _ -> failwith ("file " ^ path ^ " does not exist")
+  | [] -> failwith "no file to run"
