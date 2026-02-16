@@ -201,7 +201,7 @@ let rec get_wf_pred env (exp, t) =
   let exp' = {exp with note = t'} in 
   match t'.it with
     | VarT (id, args) when StringSet.mem id.it env.wf_set ->
-      let new_mixop = Xl.Mixop.(Seq (List.map (fun _ -> Arg ()) args)) in
+      let new_mixop = Xl.Mixop.(Seq (List.init (List.length args + 1) (fun _ -> Arg ()))) in
       let exp_args = List.filter_map (fun a -> match a.it with 
         | ExpA exp -> Some exp
         | _ -> None
@@ -234,7 +234,7 @@ let create_well_formed_predicate env id inst =
   let tf = { base_transformer with transform_exp = t_exp env; transform_typ = t_typ} in
   let at = id.at in 
   let user_typ = VarT(id, []) $ at in
-  let new_mixop pairs = Xl.Mixop.(Seq (List.map (fun _ -> Arg ()) pairs)) in
+  let new_mixop pairs = Xl.Mixop.(Seq (List.init (List.length pairs + 1) (fun _ -> Arg ()))) in
   let create_pairs quants = List.split (List.filter_map (fun b -> match b.it with 
       | ExpP (id', typ) -> Some (("_" $ id'.at, typ), (id', typ))
       | _ -> None
@@ -249,7 +249,7 @@ let create_well_formed_predicate env id inst =
         | TupT tups -> tups
         | _ -> [("_" $ id.at, case_typ)] 
       in 
-      let extra_quants, t_pairs = Utils.improve_ids_quants [] false id.at exp_typ_pairs in
+      let extra_quants, t_pairs = Utils.improve_ids_quants [] true id.at exp_typ_pairs in
       let new_quants = case_quants @ extra_quants in 
       let exp = TupE (List.map (fun (id, t) -> VarE id $$ id.at % t) t_pairs) $$ at % (TupT t_pairs $ at) in 
       let case_exp = CaseE (m, exp) $$ at % user_typ in
