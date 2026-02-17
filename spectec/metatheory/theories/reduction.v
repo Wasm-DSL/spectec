@@ -233,7 +233,8 @@ Inductive step_exp: store -> il_exp -> il_exp -> Prop :=
   (* TODO ctx on iter and exppull? *)
   (* | se_iter_quest : forall s e ep_lst, *)
   (* TODO other iter rules *)
-    (* CallE rules *)
+
+  (* CallE rules *)
   | se_call_ctx : forall s x ags n a a',
     List.nth_error ags n = Some a ->
     step_arg s a a' ->
@@ -269,6 +270,21 @@ Inductive step_exp: store -> il_exp -> il_exp -> Prop :=
     step_exp s (SubE (TupE es) (TupT tups) (TupT tups')) 
     (TupE (List.map (fun '(e, ((_, t1), (_, t2))) => SubE e t1 t2) (zip es (zip tups tups'))))
   (* TODO sub x's *)
+  
+  (* IfE rules *)
+  | se_ife_ctx1 : forall s e1 e2 e3 e1',
+    step_exp s e1 e1' ->
+    step_exp s (IfE e1 e2 e3) (IfE e1' e2 e3)
+  | se_ife_ctx2 : forall s e1 e2 e3 e2',
+    step_exp s e2 e2' ->
+    step_exp s (IfE e1 e2 e3) (IfE e1 e2' e3)
+  | se_ife_ctx3 : forall s e1 e2 e3 e3',
+    step_exp s e3 e3' -> 
+    step_exp s (IfE e1 e2 e3) (IfE e1 e2 e3')
+  | se_ife_true : forall s e2 e3,
+    step_exp s (IfE (BoolE true) e2 e3) e2
+  | se_ife_false : forall s e2 e3,
+    step_exp s (IfE (BoolE false) e2 e3) e3 
 with
 
 step_arg : store -> il_arg -> il_arg -> Prop :=
@@ -322,6 +338,12 @@ step_prems : store -> list il_prem -> list il_prem -> Prop :=
     step_prems s [IterPr p it eps] [IterPr p' it eps]
   (* TODO ctx for iter and exppull? *)
   (* TODO other iter rules *)
+  (* NegPr rules *)
+  | sp_neg_ctx : forall s p p',
+    step_prems s [p] [p'] ->
+    step_prems s [NegPr p] [NegPr p']
+  | sp_neg_bool: forall s b,
+    step_prems s [NegPr (IfPr (BoolE b))] [IfPr (BoolE (negb b))]
 with
 
 reduce_exp : store -> il_exp -> il_exp -> Prop :=
