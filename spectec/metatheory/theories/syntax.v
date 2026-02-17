@@ -103,9 +103,7 @@ il_exp : Type :=
   | TupE : list il_exp -> il_exp
   | ProjE : il_exp -> nat -> il_exp
   | CaseE : mixop -> il_exp -> il_exp
-  | UncaseE : il_exp -> mixop -> il_exp
   | OptE : option il_exp -> il_exp
-  | TheE : il_exp -> il_exp
   | StrE : list (atom * il_exp) -> il_exp
   | DotE : il_exp * atom -> il_exp
   | CompE : il_exp -> il_exp -> il_exp
@@ -116,6 +114,7 @@ il_exp : Type :=
   | CatE : il_exp -> il_exp -> il_exp
   | IdxE : il_exp -> il_exp -> il_exp
   | SliceE : il_exp -> il_exp -> il_exp -> il_exp
+  | AccE : il_exp -> il_path -> il_exp
   | UpdE : il_exp -> il_path -> il_exp -> il_exp
   | ExtE : il_exp -> il_path -> il_exp -> il_exp
   | CallE : il_id -> list il_arg -> il_exp
@@ -129,6 +128,8 @@ with
 il_path : Type :=
   | RootP
   | IdxP : il_path -> il_exp -> il_path
+  | TheP : il_path -> il_path
+  | UncaseP : il_path -> mixop -> il_path 
   | SliceP : il_path -> il_exp -> il_exp -> il_path
   | DotP : il_path -> atom -> il_path
 
@@ -166,8 +167,8 @@ Inductive il_prem : Type :=
   | NegPr : il_prem -> il_prem
 .
 
-Definition typfield : Type := atom * (list il_quant * il_typ * list il_prem).
-Definition typcase : Type := mixop * (list il_quant * il_typ * list il_prem).
+Definition typfield : Type := atom * list il_quant * il_typ * list il_prem.
+Definition typcase : Type := mixop * list il_quant * il_typ * list il_prem.
 
 Inductive il_deftyp : Type :=
   | AliasT : il_typ -> il_deftyp

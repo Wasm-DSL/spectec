@@ -71,6 +71,8 @@ Fixpoint bound_params (ps : list il_param) : dom :=
   end
 .
 
+(* TODO handle capture avoidance *)
+
 Definition subst_fun (s : il_subst) (x : il_id) : il_id :=
   match StringMap.find x s.(S_FUN) with
   | Some y => y
@@ -92,7 +94,7 @@ Fixpoint subst_typ (s : il_subst) (t : il_typ) : il_typ :=
     | Some t' => t'
     | None => VarT x (List.map (subst_arg s) args)
     end
-  | TupT xts => TupT (List.map (fun p => (fst p, subst_typ s (snd p))) xts)
+  | TupT xts => TupT (List.map (fun '(x, t) => (x, subst_typ s t)) xts)
   | IterT t' it => IterT (subst_typ s t') (subst_iter s it)
   | _ => t
   end
@@ -112,10 +114,9 @@ subst_exp (s : il_subst) (e : il_exp) : il_exp :=
   | TupE exps => TupE (List.map (subst_exp s) exps)
   | CaseE m e' => CaseE m (subst_exp s e')
   | OptE (Some e') => OptE (Some (subst_exp s e'))
-  | TheE e' => TheE (subst_exp s e')
   | ListE exps => ListE (List.map (subst_exp s) exps)
   | LiftE e' => LiftE (subst_exp s e')
-  | StrE efields => StrE (List.map (fun p => (fst p, subst_exp s (snd p)))efields)
+  | StrE efields => StrE (List.map (fun '(a, e) => (a, subst_exp s e))efields)
   | ProjE e' n => ProjE (subst_exp s e') n
   | LenE e' => LenE (subst_exp s e')
   | MemE e1 e2 => MemE (subst_exp s e1) (subst_exp s e2)
@@ -123,10 +124,11 @@ subst_exp (s : il_subst) (e : il_exp) : il_exp :=
   | CompE e1 e2 => CompE (subst_exp s e1) (subst_exp s e2)
   | IdxE e1 e2 => IdxE (subst_exp s e1) (subst_exp s e2)
   | SliceE e1 e2 e3 => SliceE (subst_exp s e1) (subst_exp s e2) (subst_exp s e3)
-  | UpdE e1 p e2 => UpdE (subst_exp s e1) p (subst_exp s e2)
-  | ExtE e1 p e2 => ExtE (subst_exp s e1) p (subst_exp s e2)
+  | AccE e' p => AccE (subst_exp s e') (subst_path s p)
+  | UpdE e1 p e2 => UpdE (subst_exp s e1) (subst_path s p) (subst_exp s e2)
+  | ExtE e1 p e2 => ExtE (subst_exp s e1) (subst_path s p) (subst_exp s e2)
   | CallE x args => CallE x (List.map (subst_arg s) args)
-  | IterE e' it xexps => IterE (subst_exp s e') (subst_iter s it) (List.map (fun p => (fst p, subst_exp s (snd p))) xexps)
+  | IterE e' it xexps => IterE (subst_exp s e') (subst_iter s it) (List.map (fun '(x, e) => (x, subst_exp s e)) xexps)
   | CvtE e' nt1 nt2 => CvtE (subst_exp s e') nt1 nt2
   | SubE e' t1 t2 => SubE (subst_exp s e') (subst_typ s t1) (subst_typ s t2)
   | _ => e
@@ -140,6 +142,8 @@ subst_path (s : il_subst) (p : il_path) : il_path :=
   | IdxP p' e' => IdxP (subst_path s p') (subst_exp s e')
   | SliceP p' e1 e2 => SliceP (subst_path s p') (subst_exp s e1) (subst_exp s e2)
   | DotP p' a => DotP (subst_path s p') a
+  | TheP p' => TheP (subst_path s p')
+  | UncaseP p' m => UncaseP (subst_path s p') m 
   end
 
 with 
@@ -168,7 +172,7 @@ Fixpoint subst_prem (s : il_subst) (p : il_prem) : il_prem :=
   | IfPr e => IfPr (subst_exp s e)
   | ElsePr => ElsePr
   | LetPr e1 e2 => LetPr (subst_exp s e1) (subst_exp s e2)
-  | IterPr p' it xexps => IterPr (subst_prem s p') (subst_iter s it) (List.map (fun p'' => (fst p'', subst_exp s (snd p''))) xexps)
+  | IterPr p' it xexps => IterPr (subst_prem s p') (subst_iter s it) (List.map (fun '(x, e) => (x, subst_exp s e)) xexps)
   | NegPr p' => NegPr (subst_prem s p')
   end.
 
@@ -187,6 +191,18 @@ Fixpoint args_for_params (ags : list il_arg) (ps : list il_param) : il_subst :=
   | _, [] => subst_empty
   | [], _ => subst_empty
   | a :: ags', p :: ps' => append_subst (arg_for_param a p) (args_for_params ags' ps')
+  end
+.
+
+Definition subst_deftyp (s : il_subst) (dt : il_deftyp) : il_deftyp :=
+  match dt with
+  | AliasT t => AliasT (subst_typ s t)
+  | StructT typfields => StructT (List.map (fun '(a, qs, t, prems) =>
+    (a, List.map (subst_quant s) qs, subst_typ s t, List.map (subst_prem s) prems) 
+  ) typfields)
+  | VariantT typcases => VariantT (List.map (fun '(m, qs, t, prems) =>
+    (m, List.map (subst_quant s) qs, subst_typ s t, List.map (subst_prem s) prems) 
+  ) typcases)
   end
 .
 
