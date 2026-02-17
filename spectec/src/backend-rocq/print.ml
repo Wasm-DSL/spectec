@@ -794,7 +794,7 @@ let exported_string =
   "Declare Scope wasm_scope.\n\n" ^
   "Class Inhabited (T: Type) := { default_val : T }.\n\n" ^
   "Definition lookup_total {T: Type} {_: Inhabited T} (l: seq T) (n: nat) : T :=\n" ^
-  "\tseq.nth n l default_val.\n\n" ^
+  "\tseq.nth default_val l n.\n\n" ^
   "Definition the {T : Type} {_ : Inhabited T} (arg : option T) : T :=\n" ^
 	"\tmatch arg with\n" ^
 	"\t\t| None => default_val\n" ^
@@ -854,14 +854,14 @@ let exported_string =
 	"\t\t| _, _, _ => None\n" ^
 	"\tend.\n\n" ^
   "Definition list_map3 {A B C D: Type} (f : A -> B -> C -> D) (xs : seq A) (ys : seq B) (zs : seq C) : seq D :=\n" ^
-	"\tseq.map (fun '(x, (y, z)) => f x y z) (seq.combine xs (seq.combine ys zs)).\n\n" ^
+	"\tseq.map (fun '(x, (y, z)) => f x y z) (seq.zip xs (seq.zip ys zs)).\n\n" ^
   "Inductive List_Forall3 {A B C: Type} (R : A -> B -> C -> Prop): seq A -> seq B -> seq C -> Prop :=\n" ^
   "\t| Forall3_nil : List_Forall3 R nil nil nil\n" ^ 
   "\t| Forall3_cons : forall x y z l l' l'',\n"^
   "\t\tR x y z -> List_Forall3 R l l' l'' -> List_Forall3 R (x :: l) (y :: l') (z :: l'').\n\n" ^
   "Class Append (α: Type) := _append : α -> α -> α.\n\n" ^
   "Infix \"@@\" := _append (right associativity, at level 60) : wasm_scope.\n\n" ^
-  "Global Instance Append_List_ {α: Type}: Append (seq α) := { _append l1 l2 := seq.app l1 l2 }.\n\n" ^
+  "Global Instance Append_List_ {α: Type}: Append (seq α) := { _append l1 l2 := seq.cat l1 l2 }.\n\n" ^
   "Global Instance Append_Option {α: Type}: Append (option α) := { _append o1 o2 := option_append o1 o2 }.\n\n" ^
   "Global Instance Append_nat : Append (nat) := { _append n1 n2 := n1 + n2}.\n\n" ^
   "Global Instance Inh_unit : Inhabited unit := { default_val := tt }.\n\n" ^
@@ -910,7 +910,7 @@ let exported_string =
   "Global Instance id_coercion (A : Type): Coercion A A := { coerce := id_coerce }.\n\n" ^
   "Global Instance transitive_coercion (A B C : Type) `{Coercion A B} `{Coercion B C}: Coercion A C := { coerce := transitive_coerce }.\n\n" ^
   "Global Instance total_coercion (A B : Type) `{Coercion A (option B)} {_ : Inhabited B}: Coercion A B := { coerce := total_coerce}.\n\n" ^
-  "Notation \"| x |\" := (seq.length x) (at level 60).\n" ^
+  "Notation \"| x |\" := (seq.size x) (at level 60).\n" ^
   "Notation \"!( x )\" := (the x) (at level 60).\n" ^
   "Notation \"x '[|' a '|]'\" := (lookup_total x a) (at level 10).\n" ^
   "Open Scope wasm_scope.\n" ^
