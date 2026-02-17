@@ -5,11 +5,6 @@ Require Import Stdlib.FSets.FMapAVL.
 Require Import Stdlib.Structures.OrderedTypeEx.
 Import ListNotations.
 
-Module StringMap := FMapAVL.Make(String_as_OT).
-
-Definition singleton {A} (k : string) (v : A) : StringMap.t A :=
-  StringMap.add k v (StringMap.empty A).
-
 Record il_subst : Type := 
   {
   S_EXP : StringMap.t il_exp;
@@ -23,15 +18,18 @@ Definition empty_typ : StringMap.t il_typ := StringMap.empty il_typ.
 Definition empty_id : StringMap.t il_id := StringMap.empty il_id.
 Definition subst_empty : il_subst := {| S_EXP := empty_exp; S_TYP := empty_typ; S_FUN := empty_id |}.
 
-Definition union {A}
-  (m1 m2 : StringMap.t A) : StringMap.t A :=
-  StringMap.fold (fun k v => StringMap.add k v) m1 m2.
-
 Definition append_subst (s1 s2 : il_subst) : il_subst :=
   {|
   S_EXP := union s1.(S_EXP) s2.(S_EXP);
   S_TYP := union s1.(S_TYP) s2.(S_TYP);
   S_FUN := union s1.(S_FUN) s2.(S_FUN) 
+  |}.
+
+Definition subst_svar (x : il_id) (e : il_exp) : il_subst :=
+  {|
+  S_EXP := singleton x e;
+  S_TYP := empty_typ;
+  S_FUN := empty_id
   |}.
 
 Record dom : Type :=

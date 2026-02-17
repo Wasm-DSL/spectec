@@ -3,11 +3,12 @@ From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype rat ssri
 From MetaSpectec Require Import syntax subst env numerics.
 Import ListNotations.
 
-Definition option_forall {T : Type} (f : T -> Prop) (arg : option T) : Prop :=
-	match arg with
-		| None => True
-		| Some a => f a
-	end.
+Inductive option_forall {T : Type} (P : (T -> Prop)) : option T -> Prop :=
+	| opt_none : option_forall P None
+  | opt_some : forall x,
+    P x ->
+    option_forall P (Some x)
+.
 
 Definition list_zipWith {X Y Z : Type} (f : X -> Y -> Z) (xs : seq X) (ys : seq Y) : seq Z :=
 	seq.map (fun '(x, y) => f x y) (seq.zip xs ys).
