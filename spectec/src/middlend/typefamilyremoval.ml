@@ -79,7 +79,10 @@ let iter_var_name = "iter_"
 let name_prefix id = id.it ^ "_"
 
 let empty_info: region * Xl.Atom.info = (no_region, {def = ""; case = ""})
-let sub_type_name_binds binds = (String.concat "_" (List.map bind_to_string binds))
+let sub_type_name_binds binds i = 
+  let s = (String.concat "_" (List.map bind_to_string binds)) in 
+  if s = "" then "_" ^ Int.to_string i else s
+
 let constructor_name' id case_num = make_prefix ^ name_prefix id ^ Int.to_string case_num
 let _constructor_name id binds = constructor_name' id binds $ id.at 
 let constructor_name_mixop id binds case_num: mixop = [[ Xl.Atom.Atom (constructor_name' id case_num) $$ empty_info ]] @ List.init (List.length binds + 1) (fun _ -> [])
@@ -600,7 +603,7 @@ let transform_inst env inst =
     [InstD (List.map (transform_bind env) binds, List.map (transform_arg StringMap.empty env) args, transform_deftyp env deftyp) $ inst.at]
  
 (* Creates new TypD's for each StructT and VariantT *)
-let create_types id inst = 
+let create_types idx id inst = 
   let make_param_from_bind b = 
   (match b.it with 
   | ExpB (id, typ) -> ExpP (id, typ)
@@ -614,7 +617,7 @@ let create_types id inst =
     | AliasT _ -> []
     | StructT _ | VariantT _ ->
       let inst = InstD(binds, List.map make_arg binds, deftyp) $ inst.at in 
-      [TypD (id.it ^ sub_type_name_binds binds $ id.at, List.map make_param_from_bind binds, [inst])]
+      [TypD (id.it ^ sub_type_name_binds binds idx $ id.at, List.map make_param_from_bind binds, [inst])]
     )
 
 let rec transform_def env def = 
@@ -661,10 +664,10 @@ let gen_family_projections id has_one_inst case_num inst =
 let rec create_types_from_instances def =
   (match def.it with
   | TypD (id, params, [inst]) when check_normal_type_creation inst -> [TypD (id, params, [inst])]
-  | TypD (id, params, insts) -> let types = List.concat_map (create_types id) insts in
-    let transformed_instances = List.map (fun inst -> match inst.it with 
+  | TypD (id, params, insts) -> let types = List.mapi (fun i inst -> create_types i id inst) insts |> List.concat in
+    let transformed_instances = List.mapi (fun i inst -> match inst.it with 
       | InstD (binds, args, {it = StructT _; at; _}) | InstD(binds, args, {it = VariantT _; at; _}) -> 
-        InstD (binds, args, AliasT (VarT (id.it ^ sub_type_name_binds binds $ id.at, List.map make_arg binds) $ id.at) $ at) $ inst.at
+        InstD (binds, args, AliasT (VarT (id.it ^ sub_type_name_binds binds i $ id.at, List.map make_arg binds) $ id.at) $ at) $ inst.at
       | _ -> inst 
     ) insts in
     types @ [TypD(id, params, transformed_instances)]
