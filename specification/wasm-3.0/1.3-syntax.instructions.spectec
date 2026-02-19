@@ -22,6 +22,7 @@ syntax lit_(numtype) = num_(numtype)
 syntax lit_(vectype) = vec_(vectype)
 syntax lit_(packtype) = pack_(packtype)
 
+syntax atomicpack_(Jnn) = iN($jsizenn(Jnn))
 
 ;; Numeric operators
 
@@ -40,11 +41,10 @@ syntax binop_(Fnn) =
   | ADD | SUB | MUL | DIV | MIN hint(macro "FMIN") | MAX hint(macro "FMAX") | COPYSIGN
 
 ;; Atomic operations
-syntax rmwop_(inntype) =
+syntax rmwop_(Jnn) =
   | ADD | SUB | AND | OR | XOR | XCHG
 
-syntax atop_(numtype)
-syntax atop_(inntype) = sz                        -- if sz < $sizenn(inntype)
+syntax atop_(Jnn) = ATOP sz U?     hint(show %1) hint(show %1#_#%2)                    -- if sz < $jsizenn(Jnn)
 
 syntax testop_(numtype)
 syntax testop_(Inn) = EQZ
@@ -308,7 +308,7 @@ syntax instr/atomic hint(desc "atomic memory instruction") = ...
   | ATOMIC.LOAD inntype atop_(inntype)? memidx memarg   hint(show %. ATOMIC.LOAD % %) hint(show %. ATOMIC.LOAD# ##% % %)
   | ATOMIC.STORE inntype atop_(inntype)? memidx memarg   hint(show %. ATOMIC.STORE % %) hint(show %. ATOMIC.STORE# ##% % %)
   | ATOMIC.RMW inntype atop_(inntype)? rmwop_(inntype) memidx memarg  hint(show %. ATOMIC.RMW % % %) hint(show %. ATOMIC.RMW#  ##% % % %)
-  | ATOMIC.CMPXCHG inntype atop_(inntype)? memidx memarg   hint(show %. ATOMIC.CMPXCHG % %) hint(show %. ATOMIC.CMPXCHG# ##% % %)
+  | ATOMIC.RMW.CMPXCHG inntype atop_(inntype)? memidx memarg   hint(show %. ATOMIC.RMW.CMPXCHG % %) hint(show %. ATOMIC.RMW.CMPXCHG# ##% % %)
   | MEMORY.ATOMIC.NOTIFY memidx memarg hint(show MEMORY.ATOMIC.NOTIFY % %) hint(show MEMORY.ATOMIC.NOTIFY# ##% %)
   | MEMORY.ATOMIC.WAIT inntype memidx memarg hint(show MEMORY.ATOMIC.WAIT % % %) hint(show MEMORY.ATOMIC.WAIT# ##% % %)
   | ATOMIC.FENCE  hint(show %. ATOMIC.FENCE %) hint(show %. ATOMIC.FENCE# ##%)

@@ -690,9 +690,9 @@ $${rule-prose: Step/atomic.rmw}
 
 $${rule: {Step/atomic.rmw-*}}
 
-$${rule-prose: Step/atomic.cmpxchg}
+$${rule-prose: Step/atomic.rmw.cmpxchg}
 
-$${rule: {Step/atomic.cmpxchg-*}}
+$${rule: {Step/atomic.rmw.cmpxchg-*}}
 
 $${rule-prose: Step/memory.atomic.notify}
 

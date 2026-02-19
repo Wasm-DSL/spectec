@@ -136,6 +136,13 @@ Each variant of :ref:`memory instruction <syntax-instr-memory>` is encoded with 
 
 $${grammar: Bmemarg Binstr/memory}
 
+.. index:: atomic instruction, memory index
+   pair: binary format; instruction
+
+Atomic Memory Instructions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+$${grammar: Bmemarg Binstr/atomic.memory}
 
 .. index:: reference instruction
    pair: binary format; instruction

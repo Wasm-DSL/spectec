@@ -779,18 +779,18 @@ $${rule-prose: Instr_ok/atomic.rmw-pack}
 
 $${rule: Instr_ok/atomic.rmw-pack}
 
-:math:`t\K{.}\ATOMICCMPXCHG~x~\memarg`
+:math:`t\K{.}\ATOMICRMWCMPXCHG~x~\memarg`
 ....................................................
 
-$${rule-prose: Instr_ok/atomic.cmpxchg-val}
+$${rule-prose: Instr_ok/atomic.rmw.cmpxchg-val}
 
-$${rule: Instr_ok/atomic.cmpxchg-val}
+$${rule: Instr_ok/atomic.rmw.cmpxchg-val}
 
-:math:`t\K{.}\ATOMICCMPXCHG{N}\K{\_}u~x~\memarg`
+:math:`t\K{.}\ATOMICRMWCMPXCHG{N}\K{\_}u~x~\memarg`
 ....................................................
-$${rule-prose: Instr_ok/atomic.cmpxchg-pack}
+$${rule-prose: Instr_ok/atomic.rmw.cmpxchg-pack}
 
-$${rule: Instr_ok/atomic.cmpxchg-pack}
+$${rule: Instr_ok/atomic.rmw.cmpxchg-pack}
 
 :math:`\MEMORYATOMICNOTIFY~x~\memarg`
 ....................................................

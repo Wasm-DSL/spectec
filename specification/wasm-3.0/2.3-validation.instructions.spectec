@@ -514,7 +514,7 @@ rule Instr_ok/atomic.load-val:
   -- if $(2^(memarg.ALIGN) <= $size(inntype)/8)
 
 rule Instr_ok/atomic.load-pack:
-  C |- ATOMIC.LOAD inntype N x memarg : at -> inntype
+  C |- ATOMIC.LOAD inntype (ATOP N u) x memarg : at -> inntype
   -- if C.MEMS[x] = at lim PAGE
   -- if $(2^(memarg.ALIGN) <= N/8)
 
@@ -524,7 +524,7 @@ rule Instr_ok/atomic.store-val:
   -- if $(2^(memarg.ALIGN) <= $size(inntype)/8)
 
 rule Instr_ok/atomic.store-pack:
-  C |- ATOMIC.STORE inntype N x memarg : at inntype -> eps
+  C |- ATOMIC.STORE inntype (ATOP N u) x memarg : at inntype -> eps
   -- if C.MEMS[x] = at lim PAGE
   -- if $(2^(memarg.ALIGN) <= N/8)
 
@@ -534,17 +534,17 @@ rule Instr_ok/atomic.rmw-val:
   -- if $(2^(memarg.ALIGN) <= $size(inntype)/8)
 
 rule Instr_ok/atomic.rmw-pack:
-  C |- ATOMIC.RMW inntype N rmwop x memarg : at inntype -> inntype
+  C |- ATOMIC.RMW inntype (ATOP N u) rmwop x memarg : at inntype -> inntype
   -- if C.MEMS[x] = at lim PAGE
   -- if $(2^(memarg.ALIGN) <= N/8)
  
-rule Instr_ok/atomic.cmpxchg-val:
-  C |- ATOMIC.RMW inntype rmwop x memarg : at inntype inntype -> inntype
+rule Instr_ok/atomic.rmw.cmpxchg-val:
+  C |- ATOMIC.RMW.CMPXCHG inntype rmwop x memarg : at inntype inntype -> inntype
   -- if C.MEMS[x] = at lim PAGE
   -- if $(2^(memarg.ALIGN) <= $size(inntype)/8)
 
-rule Instr_ok/atomic.cmpxchg-pack:
-  C |- ATOMIC.RMW inntype N rmwop x memarg : at inntype inntype -> inntype
+rule Instr_ok/atomic.rmw.cmpxchg-pack:
+  C |- ATOMIC.RMW.CMPXCHG inntype (ATOP N u) x memarg : at inntype inntype -> inntype
   -- if C.MEMS[x] = at lim PAGE
   -- if $(2^(memarg.ALIGN) <= N/8)
 
