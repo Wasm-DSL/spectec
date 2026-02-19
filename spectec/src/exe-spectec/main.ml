@@ -14,6 +14,7 @@ type target =
  | Splice of Backend_splice.Config.t
  | Interpreter of string list
  | Rocq
+ | Lean4
 
 type pass =
   | Sub
@@ -212,6 +213,7 @@ let argspec = Arg.align (
   "--interpreter", Arg.Rest_all (fun args -> target := Interpreter args),
     " Generate interpreter";
   "--rocq", Arg.Unit (fun () -> target := Rocq), " Generate Rocq Inductive Definitions";
+  "--lean4", Arg.Unit (fun () -> target := Lean4), " Generate Lean4 specification";
   "--debug", Arg.Unit (fun () -> Backend_interpreter.Debugger.debug := true),
     " Debug interpreter";
   "--unified-vars", Arg.Unit (fun () -> Il2al.Unify.rename := false),
@@ -261,9 +263,9 @@ let () =
     (match !target with
     | Prose _ | Splice _ | Interpreter _ ->
       enable_pass Sideconditions;
-    | Rocq -> 
-      enable_pass Sideconditions;
-      enable_pass Totalize;
+    | Rocq | Lean4 ->
+      enable_pass Sideconditions; 
+      enable_pass Totalize; 
       enable_pass Else;
       enable_pass TypeFamilyRemoval;
       enable_pass Undep;
@@ -301,7 +303,7 @@ let () =
     if !print_final_il && not !print_all_il then print_il il;
 
     let al =
-      if not !print_al && !print_al_o = "" && (!target = Check || !target = Ast || !target = Latex || !target = Rocq) then []
+      if not !print_al && !print_al_o = "" && (!target = Check || !target = Ast || !target = Latex || !target = Rocq || !target = Lean4) then []
       else (
         log "Translating to AL...";
         let interp = match !target with
@@ -419,6 +421,19 @@ let () =
         let coq_code = Backend_rocq.Print.string_of_script il in
         let oc = Out_channel.open_text odst in
         Fun.protect (fun () -> Out_channel.output_string oc coq_code)
+          ~finally:(fun () -> Out_channel.close oc)
+      | _ ->
+        prerr_endline "too many output file names";
+        exit 2
+      )
+    | Lean4 ->
+      log "Lean Generation...";
+      (match !odsts with
+      | [] -> print_endline (Backend_lean4.Print.string_of_script il)
+      | [odst] -> 
+        let code = Backend_lean4.Print.string_of_script il in
+        let oc = Out_channel.open_text odst in
+        Fun.protect (fun () -> Out_channel.output_string oc code)
           ~finally:(fun () -> Out_channel.close oc)
       | _ ->
         prerr_endline "too many output file names";
