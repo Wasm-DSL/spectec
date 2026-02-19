@@ -153,6 +153,12 @@ let t_inst tf env id inst =
   )
   ) $ inst.at
 
+(* Necessary to reset ids due to change on iterE *)
+let t_prem prem = 
+  { prem with it = match prem.it with
+  | LetPr (e1, e2, _) -> LetPr (e1, e2, Free.Set.elements (Free.free_exp e1).varid)
+  | p -> p }
+
 let transform_rule tf env rel_id rule = 
   (match rule.it with
   | RuleD (id, quants, m, exp, prems) -> 
@@ -168,7 +174,8 @@ let rec t_def env def =
   let tf = { base_transformer with 
     transform_exp = t_exp env;
     transform_typ = t_typ env;
-    transform_path = t_path env; 
+    transform_path = t_path env;
+    transform_prem = t_prem;
     transform_var_id = t_var_id env;
     transform_typ_id = t_user_def_id env;
     transform_rel_id = t_user_def_id env;
