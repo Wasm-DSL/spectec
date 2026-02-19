@@ -178,8 +178,8 @@ def $Ki = 1024
 
 ;; Packed fields
 
-def $packfield_(storagetype, val) : fieldval         hint(show $pack_(%,%)) hint(macro "packfield")
-def $unpackfield_(storagetype, sx?, fieldval) : val  hint(show $unpack_(%)^(%)#((%))) hint(macro "unpackfield")
+def $packfield_(storagetype, val) : fieldval         hint(show $pack_(%,%)) hint(macro "packfield") hint(partial)
+def $unpackfield_(storagetype, sx?, fieldval) : val  hint(show $unpack_(%)^(%)#((%))) hint(macro "unpackfield") hint(partial)
 
 def $packfield_(valtype, val) = val
 def $packfield_(packtype, CONST I32 i) = PACK packtype $wrap__(32, $psize(packtype), i)

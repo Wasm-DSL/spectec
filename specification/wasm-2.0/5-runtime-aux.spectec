@@ -4,7 +4,7 @@
 
 ;; Default values
 
-def $default_(valtype) : val
+def $default_(valtype) : val hint(partial)
 
 def $default_(I32) = (CONST I32 0)
 def $default_(I64) = (CONST I64 0)
