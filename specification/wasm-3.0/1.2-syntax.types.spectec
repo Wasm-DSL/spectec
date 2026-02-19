@@ -176,15 +176,15 @@ var tu : typeuse
 
 ;; Computed types
 
-def $IN(N) : Inn  hint(show I#%) hint(macro "INX")
+def $IN(N) : Inn  hint(show I#%) hint(macro "INX") hint(partial)
 def $IN(32) = I32
 def $IN(64) = I64
 
-def $FN(N) : Fnn  hint(show F#%) hint(macro "FNX")
+def $FN(N) : Fnn  hint(show F#%) hint(macro "FNX") hint(partial)
 def $FN(32) = F32
 def $FN(64) = F64
 
-def $JN(N) : Jnn  hint(show I#%) hint(macro "INX")
+def $JN(N) : Jnn  hint(show I#%) hint(macro "INX") hint(partial)
 def $JN(8) = I8
 def $JN(16) = I16
 def $JN(32) = I32
@@ -197,7 +197,7 @@ def $size(numtype) : nat       hint(show |%|)
 def $vsize(vectype) : nat      hint(show |%|)
 def $psize(packtype) : nat     hint(show |%|)
 def $lsize(lanetype) : nat     hint(show |%|)
-def $zsize(storagetype) : nat  hint(show |%|)
+def $zsize(storagetype) : nat  hint(show |%|) hint(partial)
 def $isize(Inn) : nat          hint(show |%|) hint(inverse $inv_isize)
 def $jsize(Jnn) : nat          hint(show |%|) hint(inverse $inv_jsize)
 def $fsize(Fnn) : nat          hint(show |%|) hint(inverse $inv_fsize)
@@ -233,7 +233,8 @@ def $inv_fsize(32) = F32
 def $inv_fsize(64) = F64
 def $inv_jsize(8)  = I8
 def $inv_jsize(16) = I16
-def $inv_jsize(n)  = $inv_isize(n)
+def $inv_jsize(32) = I32 ;; HACK! should use $inv_isize
+def $inv_jsize(64) = I64 ;; HACK! should use $inv_isize
 
 ;; TODO(2, rossberg): get rid of these terrible hacks by defining $Inn(nat) hint(show I#%)
 def $sizenn(numtype) : nat     hint(show N)   hint(macro none)  ;; HACK!
@@ -260,7 +261,10 @@ def $jsizenn(Jnn) : nat   hint(show N) hint(macro none) hint(inverse $inv_jsizen
 def $jsizenn(Jnn) = $lsize(Jnn)
 
 def $inv_jsizenn(nat) : Jnn hint(partial)
-def $inv_jsizenn(n)  = $inv_jsize(n)
+def $inv_jsizenn(8)  = I8
+def $inv_jsizenn(16) = I16
+def $inv_jsizenn(32) = I32
+def $inv_jsizenn(64) = I64
 
 
 ;; Unpacking
@@ -297,7 +301,7 @@ def $diffrt((REF null_1? ht_1), (REF NULL ht_2)) = (REF ht_1)
 def $diffrt((REF null_1? ht_1), (REF ht_2)) = (REF null_1? ht_1)
 
 ;; TODO(3, rossberg): Could this be inferable as a narrowing coercion?
-def $as_deftype(typeuse) : deftype  hint(show %)
+def $as_deftype(typeuse) : deftype  hint(show %) hint(partial)
 def $as_deftype(dt) = dt
 
 
@@ -363,6 +367,8 @@ def $subst_moduletype(moduletype, typevar*, typeuse*) : moduletype    hint(show 
 
 
 def $subst_typevar(tv, eps, eps) = tv
+def $subst_typevar(tv, eps, tu_1 tu'*) = tv
+def $subst_typevar(tv, tv_1 tv'*, eps) = tv
 def $subst_typevar(tv, tv_1 tv'*, tu_1 tu'*) = tu_1                            -- if tv = tv_1
 def $subst_typevar(tv, tv_1 tv'*, tu_1 tu'*) = $subst_typevar(tv, tv'*, tu'*)  -- otherwise
 
@@ -474,7 +480,7 @@ def $expanddt(deftype) = comptype                         -- if $unrolldt(deftyp
 
 ;; Free indices
 
-def $free_addrtype(numtype) : free
+def $free_addrtype(addrtype) : free
 def $free_numtype(numtype) : free
 def $free_packtype(packtype) : free
 def $free_lanetype(lanetype) : free
