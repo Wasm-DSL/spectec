@@ -31,9 +31,13 @@ let num_parse_fail = ref 0
 let is_long_test path =
   List.mem (Filename.basename path)
     [ "memory_copy.wast";
+      "memory_copy64.wast";
       "memory_fill.wast";
+      "memory_fill64.wast";
       "memory_grow.wast";
+      "memory_grow64.wast";
       "call_indirect.wast";
+      "call_indirect64.wast";
       "return_call.wast";
       "return_call_indirect.wast";
       "return_call_ref.wast"
@@ -81,9 +85,12 @@ let print_runner_result name result =
   in
 
   if name = "Total" then
-    Printf.printf "Total [%d/%d] (%.2f%%)\n\n" num_success total percentage
-  else
-    Printf.printf "- %d/%d (%.2f%%)\n\n" num_success total percentage;
+    log "Total [%d/%d] (%.2f%%)\n\n" num_success total percentage
+  else (
+    log "- %d/%d (%.2f%%)\n\n" num_success total percentage;
+    if num_success < total then
+       Printf.printf "Test failed for %s\n" name
+  );
   log "%s took %f ms.\n" name (execution_time *. 1000.)
 
 let get_export name modulename =
@@ -114,6 +121,10 @@ let get_export_addr name modulename =
   in
   try List.hd vl with Failure _ ->
     failwith ("Function export doesn't contain function address")
+
+(* Flags *)
+
+let err_exit = ref true
 
 (** Main functions **)
 
@@ -259,11 +270,15 @@ let run_wast name script =
   (* Intialize spectest *)
   Register.add "spectest" (Host.spectest ());
 
-  let result =
-    script
-    |> List.map run_command
-    |> sum_results_with_time
+  let _, results = List.fold_left_map (fun err cmd ->
+    if err && !err_exit then
+      err, (fail, 0.0)
+    else
+      let cmd_result = run_command cmd in
+      (fst cmd_result = fail), cmd_result
+  ) false script
   in
+  let result = sum_results_with_time results in
   print_runner_result name result; result
 
 
@@ -302,7 +317,6 @@ let run_wat = run_wasm
 (** Parse **)
 
 let parse_file name parser_ file =
-  Printf.printf "===== %s =====\n%!" name;
   log "===========================\n\n%s\n\n" name;
 
   try

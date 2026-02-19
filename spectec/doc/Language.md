@@ -151,13 +151,19 @@ atomid ::=
   "_|_" | "^|^"
 
 atomop ::=
-  ":" | ";" | "\" | <:"
+  ":" | ";" | "\" | "<:" | ":>"
   "<<" | ">>"
   "|-" | "-|"
-  ":=" | "~~"
+  ":=" | "==" | "~~"
   "->" | "~>" | "~>*" | "=>"
-  "`." | ".." | "..."
-  "?" | "*"
+  "." | ".." | "..."
+  "`^?" | "`^+" | "`^*"
+  "`+" | "`-" | "`+-" | "`-+" | "`*" | "`/" | "`\"
+  "`=" | "`=/=" | "`<" | "`>" | "`<=" | "`>="
+  "`~" | "`/\" | "`\/" | "`==>" | "`<=>"
+  "`<-"
+  "(/\)" | "(\/)" | "(+)" | "(*)" | "(++)"
+  ":_" | "=_" | "==_" | "~~_" | "->_" | "=>_" | "~>_" | "~>*_" | "|-_" | "-|_"
 ```
 
 ##### Type Aliases
@@ -236,22 +242,22 @@ not administrative ones.
 In addition to the basic grammar shown above,
 definitions of syntax variants can also be split into multiple _fragments_:
 ```
-def ::=
-  "syntax" varid subid* "=" deftyp-frag        syntax fragment definition
+deftyp ::= ...
+  deftyp-frag                                  syntax fragment definition
 
 deftyp-frag ::=
   "..."
   ("..." "|")? casetyp*"|" ("|" "...")?        variant fragment
 ```
 A variant with dots "..." at the end can be extended further by later variant definitions of the same name.
-This definition must start with dots, accordingly.
+These definitions must start with dots, accordingly.
 A variant is completed by a fragment without trailing dots.
 Each fragment must be named uniquely by amending the type name with a (possibly empty) list of hierarchical sub-identifiers of the form `x/y`,
 which can be used to refer to a fragment from splices.
 Currently, variant types defined in fragments cannot have parameters.
 
 **Example:**
-The instruction syntax above could be defined in two fragments:
+The instruction syntax above could be defined in multiple fragments:
 ```
 syntax instr/stack = DROP | ...
 syntax instr/arith = ... | CONST numtyp const | ...
@@ -297,6 +303,32 @@ syntax person = {NAME text, AGE nat, ADDRESS text}
 SpecTec provides special syntax for accessing values of record type,
 in particular, dot notation for field access.
 
+In addition to the basic grammar shown above,
+like [variant types](#variant-types),
+definitions of record syntax can also be split into multiple _fragments_:
+```
+deftyp-frag ::=
+  "{" "..." "}"
+  "{" ("..." ",")? fieldtyp*"," (...")? "}"        record fragment
+```
+A record with dots "..." at the end can be extended further by later record definitions of the same name.
+These definitions must start with dots, accordingly.
+A record is completed by a fragment without trailing dots.
+Each fragment must be named uniquely by amending the type name with a (possibly empty) list of hierarchical sub-identifiers of the form `x/y`,
+which can be used to refer to a fragment from splices.
+Currently, record types defined in fragments cannot have parameters.
+
+**Example:**
+The person record above could be defined in multiple fragments:
+```
+syntax person/name = { NAME text, ... }
+syntax person/age = { ..., AGE nat, ... }
+syntax person/address = { ..., ADDRESS text }
+```
+
+Semantically, a record definition split into fragments is equivalent to a combined one.
+Splitting a definition only has organisational purpose.
+
 
 ##### Premises
 
@@ -308,7 +340,7 @@ premise ::=
   "var" id ":" typ                                          local variable declaration
   "if" exp                                                  side condition
   "otherwise"                                               fallback side condition
-  relid ":" exp                                             relational premise
+  relid args ":" exp                                        relational premise
   "(" premise ")" iter*                                     iterated relational premise
 ```
 
@@ -439,7 +471,7 @@ exp ::= ...
   exp cmpop exp                        comparison
 
 notop ::= "~"
-logop ::= "/\" | "\/" | "=>"
+logop ::= "/\" | "\/" | "==>" | "<=>"
 cmpop ::= "=" | "=/=" | "<" | ">" | "<=" | ">="
 ```
 
@@ -1072,8 +1104,8 @@ While functions are used to algorithmically compute on a meta-level,
 
 ```
 def ::=
-  "relation" relid ":" nottyp                   relation declaration
-  "rule" relid subid* ":" exp ("--" premise)*   rule
+  "relation" relid params ":" nottyp                   relation declaration
+  "rule" relid params subid* ":" exp ("--" premise)*   rule
 ```
 
 Relations are declared with a type that specifies their notation,
@@ -1341,15 +1373,19 @@ ruleid ::= id
 subid ::= ("/" | "-") ruleid
 
 atomop ::=
-  "in" | ":" | ";" | "\" | <:"
+  ":" | ";" | "\" | "<:" | ":>"
   "<<" | ">>"
   "|-" | "-|"
-  ":=" | "~~" | "~~_"
+  ":=" | "==" | "~~"
   "->" | "~>" | "~>*" | "=>"
-  "`." | ".." | "..."
-  "`?" | "`+" | "`*"
+  "." | ".." | "..."
+  "`^?" | "`^+" | "`^*"
+  "`+" | "`-" | "`+-" | "`-+" | "`*" | "`/" | "`\"
+  "`=" | "`=/=" | "`<" | "`>" | "`<=" | "`>="
+  "`~" | "`/\" | "`\/" | "`==>" | "`<=>"
+  "`<-"
   "(/\)" | "(\/)" | "(+)" | "(*)" | "(++)"
-  ":_" | "=_" | "==_" | "->_" | "=>_" | "~>_" | "~>*_" | "|-_" | "-|_"
+  ":_" | "=_" | "==_" | "~~_" | "->_" | "=>_" | "~>_" | "~>*_" | "|-_" | "-|_"
 ```
 
 
@@ -1412,7 +1448,7 @@ nottyp ::=
 
 ```
 notop ::= "~"
-logop ::= "/\" | "\/" | "=>"
+logop ::= "/\" | "\/" | "==>" | "<=>"
 cmpop ::= "=" | "=/=" | "<" | ">" | "<=" | ">="
 exp ::=
   varid                                meta variable
@@ -1521,15 +1557,15 @@ params ::= ("(" param*"," ")")?
 param ::=
   (varid ":") typ
   "syntax" synid
-  "grammar" gramid ":" typ
+  "grammar" gramid params ":" typ
   "def" "$" defid params ":" typ
 
 def ::=
   "syntax" varid params hint*                               syntax declaration
   "syntax" varid subid* params hint* "=" deftyp             syntax definition
   "grammar" gramid subid* params ":" typ hint* "=" gram     grammar definition
-  "relation" relid hint* ":" nottyp                         relation declaration
-  "rule" relid subid* hint* ":" exp ("--" premise)*  rule
+  "relation" relid params hint* ":" nottyp                  relation declaration
+  "rule" relid params subid* hint* ":" exp ("--" premise)*  rule
   "var" varid ":" typ hint*                                 variable declaration
   "def" "$" defid params ":" typ hint*                      function declaration
   "def" "$" defid args "=" exp ("--" premise)*              function clause
@@ -1542,7 +1578,7 @@ def ::=
 
 premise ::=
   "var" id ":" typ                                          local variable declaration
-  relid ":" exp                                             relational premise
+  relid args ":" exp                                        relational premise
   "if" exp                                                  side condition
   "otherwise"                                               fallback side condition
   "(" premise ")" iter*                                     iterated relational premise

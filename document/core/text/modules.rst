@@ -74,7 +74,7 @@ $${grammar: Ttype_}
 Tags
 ~~~~
 
-An tag definition can bind a symbolic :ref:`tag identifier <text-id>`.
+A tag definition can bind a symbolic :ref:`tag identifier <text-id>`.
 
 $${grammar: Ttag_}
 
@@ -265,10 +265,6 @@ Data segments allow for an optional :ref:`memory index <text-memidx>` to identif
 The data is written as a :ref:`string <text-string>`, which may be split up into a possibly empty sequence of individual string literals.
 
 $${grammar: Tdata_ Tdatastring {Tmemuse_/plain Toffset_/plain}}
-
-.. note::
-   In the current version of WebAssembly, the only valid memory index is 0
-   or a symbolic :ref:`memory identifier <text-id>` resolving to the same value.
 
 
 Abbreviations

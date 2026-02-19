@@ -73,6 +73,19 @@ let is_post_exp e =
   | HoleE _ -> true
   | _ -> false
 
+let is_atom t =
+  match t.it with
+  | AtomT _ -> true
+  | _ -> false
+
+let is_typfield t =
+  match t.it with
+  | SeqT [t1; _] -> is_atom t1
+  | VarT _ | BoolT | NumT _ | TextT | TupT _ | SeqT _
+  | AtomT _ | InfixT _ | BrackT _
+  | ParenT _ | IterT _ -> false
+  | StrT _ | CaseT _ | ConT _ | RangeT _ -> assert false
+
 let rec is_typcase t =
   match t.it with
   | AtomT _ | InfixT _ | BrackT _ -> true
@@ -156,9 +169,9 @@ and short_alt_prod' = function
 %token BIGAND BIGOR BIGADD BIGMUL BIGCAT
 %token COMMA_NL NL_BAR NL_NL NL_NL_NL
 %token EQ NE LT GT LE GE APPROX EQUIV ASSIGN SUB SUP EQCAT EQSUB EQUIVSUB APPROXSUB
-%token NOT AND OR
+%token NOT AND OR IMPL DIMPL
 %token QUEST PLUS MINUS STAR SLASH BACKSLASH UP CAT PLUSMINUS MINUSPLUS
-%token ARROW ARROW2 ARROWSUB ARROW2SUB DARROW2 SQARROW SQARROWSUB SQARROWSTAR SQARROWSTARSUB
+%token ARROW ARROW2 ARROWSUB ARROW2SUB SQARROW SQARROWSUB SQARROWSTAR SQARROWSTARSUB
 %token MEM NOTMEM PREC SUCC TURNSTILE TILESTURN TURNSTILESUB TILESTURNSUB
 %token DOLLAR TICK
 %token BOT TOP
@@ -174,7 +187,7 @@ and short_alt_prod' = function
 %token<string> UPID LOID DOTID UPID_LPAREN LOID_LPAREN
 %token EOF
 
-%right ARROW2 DARROW2 ARROW2SUB
+%right ARROW2 ARROW2SUB IMPL DIMPL
 %left OR
 %left AND
 %nonassoc TURNSTILE TURNSTILESUB
@@ -185,7 +198,7 @@ and short_alt_prod' = function
 %right EQ NE LT GT LE GE MEM NOTMEM EQSUB
 %right ARROW ARROWSUB
 %left SEMICOLON
-%left DOTDOTDOT
+%left DOT DOTDOT DOTDOTDOT
 %left PLUS MINUS CAT
 %left STAR SLASH BACKSLASH
 
@@ -231,20 +244,30 @@ nl_dash_list1(X) :
   | DASH DASH nl_dash_list(X) { Nl::$3 }
   | DASH X nl_dash_list(X) { (Elem $2)::$3 }
 
-%inline dots :
+%inline bar_dots :
   | DOTDOTDOT {}
-  | bar(dots) DOTDOTDOT {}
+  | bar(bar_dots) DOTDOTDOT {}
 
-dots_list(X) :
-  | dots_list1(X) { let x, y = $1 in (NoDots, x, y) }
-  | bar(X) dots_list1(X) { let x, y = $2 in (NoDots, x, y) }
-  | dots bar(X) dots_list1(X) { let x, y = $3 in (Dots, $2 @ x, y) }
+dots_bar_list(X) :
+  | dots_bar_list1(X) { let x, y = $1 in (NoDots, x, y) }
+  | bar(X) dots_bar_list1(X) { let x, y = $2 in (NoDots, x, y) }
+  | bar_dots bar(X) dots_bar_list1(X) { let x, y = $3 in (Dots, $2 @ x, y) }
 
-dots_list1(X) :
+dots_bar_list1(X) :
   | (* empty *) { [], NoDots }
   | DOTDOTDOT { [], Dots }
   | X { (Elem $1)::[], NoDots }
-  | X bar(X) dots_list1(X) { let x, y = $3 in (Elem $1)::$2 @ x, y }
+  | X bar(X) dots_bar_list1(X) { let x, y = $3 in (Elem $1)::$2 @ x, y }
+
+dots_comma_list(X) :
+  | dots_comma_list1(X) { let x, y = $1 in (NoDots, x, y) }
+  | DOTDOTDOT comma(X) dots_comma_list1(X) { let x, y = $3 in (Dots, $2 @ x, y) }
+
+dots_comma_list1(X) :
+  | (* empty *) { [], NoDots }
+  | DOTDOTDOT { [], Dots }
+  | X { (Elem $1)::[], NoDots }
+  | X comma(X) dots_comma_list1(X) { let x, y = $3 in (Elem $1)::$2 @ x, y }
 
 
 (* Identifiers *)
@@ -273,6 +296,12 @@ ruleid_ :
   | BOOLLIT { Bool.to_string $1 }
   | INFINITY { "infinity" }
   | EPS { "eps" }
+  | BOOL { "bool" }
+  | NAT { "nat" }
+  | INT { "int" }
+  | RAT { "rat" }
+  | REAL { "real" }
+  | TEXT { "text" }
   | IF { "if" }
   | VAR { "var" }
   | DEF { "def" }
@@ -297,22 +326,28 @@ atom_escape :
   | TICK GE { Atom.GreaterEqual }
   | TICK MEM { Atom.Mem }
   | TICK NOTMEM { Atom.NotMem }
-  | TICK QUEST { Atom.Quest }
+  | TICK UP QUEST { Atom.Quest }
+  | TICK UP STAR { Atom.Star }
+  | TICK UP PLUS { Atom.Iter }
   | TICK PLUS { Atom.Plus }
-  | TICK STAR { Atom.Star }
+  | TICK MINUS { Atom.Minus }
+  | TICK PLUSMINUS { Atom.PlusMinus }
+  | TICK MINUSPLUS { Atom.MinusPlus }
+  | TICK STAR { Atom.Times }
+  | TICK SLASH { Atom.Slash }
+  | TICK NOT { Atom.Not }
+  | TICK AND { Atom.And }
+  | TICK OR { Atom.Or }
+  | TICK IMPL { Atom.Arrow2 }
+  | TICK DIMPL { Atom.Equiv }
   | TICK BAR { Atom.Bar }
   | TICK CAT { Atom.Cat }
   | TICK COMMA { Atom.Comma }
-  | TICK ARROW2 { Atom.Arrow2 }
   | TICK infixop_ { $2 }
   | TICK relop_ { $2 }
   | BOT { Atom.Bot }
   | TOP { Atom.Top }
   | INFINITY { Atom.Infinity }
-  | DOT { Atom.Dot }
-  | DOTDOT { Atom.Dot2 }
-  | TICK DOT { Atom.Dot }
-  | TICK DOTDOT { Atom.Dot2 }
 
 varid_bind_with_suffix :
   | varid { $1 }
@@ -359,16 +394,19 @@ check_atom :
 %inline boolop :
   | AND { `AndOp }
   | OR { `OrOp }
-  | ARROW2 { `ImplOp }
-  | DARROW2 { `EquivOp }
+  | IMPL { `ImplOp }
+  | DIMPL { `EquivOp }
 
 %inline infixop :
   | infixop_ { $1 $$ $sloc }
 %inline infixop_ :
+  | DOT { Atom.Dot }
+  | DOTDOT { Atom.Dot2 }
   | DOTDOTDOT { Atom.Dot3 }
   | SEMICOLON { Atom.Semicolon }
   | BACKSLASH { Atom.Backslash }
   | ARROW { Atom.Arrow }
+  | ARROW2 { Atom.Arrow2 }
   | ARROWSUB { Atom.ArrowSub }
   | ARROW2SUB { Atom.Arrow2Sub }
   | BIGAND { Atom.BigAnd }
@@ -446,8 +484,37 @@ typ : typ_post { $1 }
 
 deftyp : deftyp_ { $1 $ $sloc }
 deftyp_ :
-  | LBRACE comma_nl_list(fieldtyp) RBRACE { StrT $2 }
-  | dots_list(casetyp)
+  | LBRACE dots_comma_list(fieldtyp) RBRACE
+    { let dots1, tfs, dots2 = $2 in
+      match dots1, El.Convert.filter_nl tfs, dots2 with
+      | NoDots, [(t, prems, hints)], NoDots when not (is_typfield t) ->
+        if prems <> [] then
+          error t.at "misplaced premise"
+        else if hints <> [] then
+          error (List.hd hints).hintid.at "misplaced hint"
+        else
+          t.it
+      | _ ->
+        let y1, y2, _ =
+          List.fold_right
+            (fun elem (y1, y2, at) ->
+              (* at is the position of leftmost id element so far *)
+              match elem with
+              | Nl -> if at = None then y1, Nl::y2, at else Nl::y1, y2, at
+              | Elem (t, prems, hints) ->
+                match t.it with
+                | SeqT [{it = AtomT atom; _}; t2] when at = None ->
+                  y1, (Elem (atom, (t2, prems), hints))::y2, None
+                | AtomT _ | InfixT _ | BrackT _ | SeqT _ ->
+                  error t.at "malformed field type"
+                | _ when prems = [] && hints = [] ->
+                  (Elem t)::y1, y2, Some t.at
+                | _ ->
+                  let at = Option.value at ~default: t.at in
+                  error at "misplaced type"
+            ) tfs ([], [], None)
+        in StrT (dots1, y1, y2, dots2) }
+  | dots_bar_list(casetyp)
     { let dots1, tcs, dots2 = $1 in
       match dots1, El.Convert.filter_nl tcs, dots2 with
       | NoDots, [(t, prems, hints)], NoDots when not (is_typcase t) ->
@@ -460,10 +527,10 @@ deftyp_ :
       | _ ->
         let y1, y2, _ =
           List.fold_right
-            (fun elem (y1, y2, at) ->
-              (* at is the position of leftmost id element so far *)
+            (fun elem (y1, y2, b) ->
+              (* b is true when the last type to the right was a constructor *)
               match elem with
-              | Nl -> if at = None then y1, Nl::y2, at else Nl::y1, y2, at
+              | Nl -> if b then y1, Nl::y2, b else Nl::y1, y2, b
               | Elem (t, prems, hints) ->
                 match t.it with
                 | AtomT atom
@@ -471,14 +538,13 @@ deftyp_ :
                 | BrackT (atom, _, _)
                 | SeqT ({it = AtomT atom; _}::_)
                 | SeqT ({it = InfixT (_, atom, _); _}::_)
-                | SeqT ({it = BrackT (atom, _, _); _}::_) when at = None ->
-                  y1, (Elem (atom, (t, prems), hints))::y2, at
+                | SeqT ({it = BrackT (atom, _, _); _}::_) ->
+                  y1, (Elem (atom, (t, prems), hints))::y2, true
                 | _ when prems = [] && hints = [] ->
-                  (Elem t)::y1, y2, Some t.at
+                  (Elem t)::y1, y2, false
                 | _ ->
-                  let at = Option.value at ~default:t.at in
-                  error at "misplaced type";
-            ) tcs ([], [], None)
+                  error t.at "misplaced type"
+            ) tcs ([], [], true)
         in CaseT (dots1, y1, y2, dots2) }
   | nl_bar_list1(enumtyp(enum1), enumtyp(arith)) { RangeT $1 }
 
@@ -533,7 +599,7 @@ nottyp_rel_ :
 nottyp : nottyp_rel { $1 }
 
 fieldtyp :
-  | fieldid typ_post hint* prem_bin_list { ($1, ($2, $4), $3) }
+  | nottyp hint* prem_bin_list { $1, $3, $2 }
 
 casetyp :
   | nottyp hint* prem_list { $1, $3, $2 }
@@ -591,7 +657,7 @@ exp_prim_ :
   | exp_hole_ { $1 }
   | EPS { EpsE }
   | LBRACE comma_nl_list(fieldexp) RBRACE { StrE $2 }
-  | LPAREN comma_list(exp_bin) RPAREN
+  | LPAREN comma_list(exp_rel) RPAREN
     { match $2 with
       | [] -> ParenE (SeqE [] $ $sloc)
       | [e] -> ParenE e
@@ -660,12 +726,18 @@ exp_bin_ :
 exp_rel : exp_rel_ { $1 $ $sloc }
 exp_rel_ :
   | exp_bin_ { $1 }
-  | comma(exp) exp_rel { CommaE (SeqE [] $ $loc($1), $2) }
   | relop exp_rel { InfixE (SeqE [] $ $loc($1), $1, $2) }
-  | exp_rel comma(exp) exp_rel { CommaE ($1, $3) }
   | exp_rel relop exp_rel { InfixE ($1, $2, $3) }
 
-exp : exp_rel { $1 }
+exp_comma : exp_comma_ { $1 $ $sloc }
+exp_comma_ :
+  | exp_bin_ { $1 }
+  | comma(exp) exp_comma { CommaE (SeqE [] $ $loc($1), $2) }
+  | relop exp_comma { InfixE (SeqE [] $ $loc($1), $1, $2) }
+  | exp_comma comma(exp) exp_comma { CommaE ($1, $3) }
+  | exp_comma relop exp_comma { InfixE ($1, $2, $3) }
+
+exp : exp_comma { $1 }
 
 fieldexp :
   | fieldid exp_atom+
@@ -760,7 +832,8 @@ prem_post_ :
 prem_bin : prem_bin_ { $1 $ $sloc }
 prem_bin_ :
   | prem_post_ { $1 }
-  | relid COLON exp_bin { RulePr ($1, $3) }
+  | relid COLON exp_bin { RulePr ($1, [], $3) }
+  | relid LPAREN comma_list(arg) RPAREN COLON exp_bin { RulePr ($1, $3, $6) }
   | IF exp_bin
     { let rec iters e =
         match e.it with
@@ -771,7 +844,8 @@ prem_bin_ :
 prem : prem_ { $1 $ $sloc }
 prem_ :
   | prem_post_ { $1 }
-  | relid COLON exp { RulePr ($1, $3) }
+  | relid COLON exp { RulePr ($1, [], $3) }
+  | relid LPAREN comma_list(arg) RPAREN COLON exp_bin { RulePr ($1, $3, $6) }
   | VAR varid_bind_with_suffix COLON typ { VarPr ($2, $4) }
   | IF exp
     { let rec iters e =
@@ -837,7 +911,7 @@ prod_ :
   | sym EQUIV sym prem_list { EquivP ($1, $3, $4) }
 
 gram :
-  | dots_list(prod) { $1 $ $sloc }
+  | dots_bar_list(prod) { $1 $ $sloc }
 
 
 prod_short : prod_short_ { $1 $ $sloc }
@@ -848,18 +922,18 @@ prod_short_ :
     }
 
 gram_short :
-  | dots_list(prod_short) { $1 $ $sloc }
+  | dots_bar_list(prod_short) { $1 $ $sloc }
 *)
 
 
 gram : gram_ { $1 $ $sloc }
-gram_ :  (* dots * prod nl_list * dots *)
-  (* Inline and transform dots_list to avoid conflicts *)
+gram_ :  (* bar_dots * prod nl_list * bar_dots *)
+  (* Inline and transform dots_bar_list to avoid conflicts *)
   | gram_long_or_short { let x, y = $1 [] in (NoDots, x, y) }
   | bar(sym) gram_long_or_short { let x, y = $2 [] in (NoDots, x, y) }
-  | dots bar(gram) gram_long_or_short { let x, y = $3 [] in (Dots, $2 @ x, y) }
+  | bar_dots bar(gram) gram_long_or_short { let x, y = $3 [] in (Dots, $2 @ x, y) }
 
-gram_long_or_short :  (* prod nl_list * dots *)
+gram_long_or_short :  (* prod nl_list * bar_dots *)
   | gram_empty { fun alts -> short_alt_prod (alts, []), $1 }
   | gram_long1 { $1 }
   | gram_short1 { $1 }
@@ -975,10 +1049,12 @@ param_ :
   | varid_bind_with_suffix COLON typ { ExpP ($1, $3) }
   | typ
     { let id =
-        try El.Convert.varid_of_typ $1 with Error.Error _ -> "" $ $sloc
+        try El.Convert.varid_of_typ $1 with Error.Error _ -> "_" $ $sloc
       in ExpP (id, $1) }
   | SYNTAX varid_bind { TypP $2 }
-  | GRAMMAR gramid COLON typ { GramP ($2, $4) }
+  | GRAMMAR gramid COLON typ { GramP ($2, [], $4) }
+  | GRAMMAR gramid_lparen enter_scope comma_list(param) RPAREN COLON typ exit_scope
+    { GramP ($2, $4, $7) }
   | DEF DOLLAR defid COLON typ
     { DefP ($3, [], $5) }
   | DEF DOLLAR defid_lparen enter_scope comma_list(param) RPAREN COLON typ exit_scope
@@ -1009,10 +1085,15 @@ def_ :
     { let id = if $6 = "" then "" else String.sub $6 1 (String.length $6 - 1) in
       GramD ($2, id $ $loc($6), $4, TupT [] $ $loc($1), $9, $7) }
   | RELATION relid COLON nottyp hint*
-    { RelD ($2, $4, $5) }
-  | RULE relid ruleid_list COLON exp prem_list
+    { RelD ($2, [], $4, $5) }
+  | RELATION relid LPAREN comma_list(param) RPAREN COLON nottyp hint*
+    { RelD ($2, $4, $7, $8) }
+  | RULE relid ruleid_list COLON exp prem_list hint*
     { let id = if $3 = "" then "" else String.sub $3 1 (String.length $3 - 1) in
-      RuleD ($2, id $ $loc($3), $5, $6) }
+      RuleD ($2, [], id $ $loc($3), $5, $6, $7) }
+  | RULE relid LPAREN comma_list(param) RPAREN ruleid_list COLON exp prem_list hint*
+    { let id = if $6 = "" then "" else String.sub $6 1 (String.length $6 - 1) in
+      RuleD ($2, $4, id $ $loc($6), $8, $9, $10) }
   | VAR varid_bind COLON typ hint*
     { VarD ($2, $4, $5) }
   | DEF DOLLAR defid COLON typ hint*
@@ -1041,6 +1122,9 @@ def_ :
       HintD (GramH ($2, id $ $loc($3), $4) $ $sloc) }
   | RELATION relid hint*
     { HintD (RelH ($2, $3) $ $sloc) }
+  | RULE relid ruleid_list hint*
+    { let id = if $3 = "" then "" else String.sub $3 1 (String.length $3 - 1) in
+      HintD (RuleH ($2, id $ $loc($3), $4) $ $sloc) }
   | VAR varid_bind hint*
     { HintD (VarH ($2, $3) $ $sloc) }
   | DEF DOLLAR defid hint*
