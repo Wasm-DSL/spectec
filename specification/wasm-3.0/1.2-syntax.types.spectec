@@ -233,8 +233,7 @@ def $inv_fsize(32) = F32
 def $inv_fsize(64) = F64
 def $inv_jsize(8)  = I8
 def $inv_jsize(16) = I16
-def $inv_jsize(32) = I32 ;; HACK! should use $inv_isize
-def $inv_jsize(64) = I64 ;; HACK! should use $inv_isize
+def $inv_jsize(n) = $inv_isize(n)
 
 ;; TODO(2, rossberg): get rid of these terrible hacks by defining $Inn(nat) hint(show I#%)
 def $sizenn(numtype) : nat     hint(show N)   hint(macro none)  ;; HACK!
@@ -261,10 +260,7 @@ def $jsizenn(Jnn) : nat   hint(show N) hint(macro none) hint(inverse $inv_jsizen
 def $jsizenn(Jnn) = $lsize(Jnn)
 
 def $inv_jsizenn(nat) : Jnn hint(partial)
-def $inv_jsizenn(8)  = I8
-def $inv_jsizenn(16) = I16
-def $inv_jsizenn(32) = I32
-def $inv_jsizenn(64) = I64
+def $inv_jsizenn(n) = $inv_jsize(n)
 
 
 ;; Unpacking
@@ -338,98 +334,96 @@ def $funcsxt(externtype xt*) = $funcsxt(xt*)  -- otherwise
 
 ;; Substitution
 
-def $subst_typevar(typevar, typevar*, typeuse*) : typeuse             hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_typeuse(typeuse, typevar*, typeuse*) : typeuse             hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_typevar(typevar, (typevar, typeuse)*) : typeuse             hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_typeuse(typeuse, (typevar, typeuse)*) : typeuse             hint(show %#`[%:=%]) hint(macro "%subst")
 
-def $subst_addrtype(addrtype, typevar*, typeuse*) : addrtype          hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_numtype(numtype, typevar*, typeuse*) : numtype             hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_vectype(vectype, typevar*, typeuse*) : vectype             hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_heaptype(heaptype, typevar*, typeuse*) : heaptype          hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_reftype(reftype, typevar*, typeuse*) : reftype             hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_valtype(valtype, typevar*, typeuse*) : valtype             hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_addrtype(addrtype, (typevar, typeuse)*) : addrtype          hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_numtype(numtype, (typevar, typeuse)*) : numtype             hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_vectype(vectype, (typevar, typeuse)*) : vectype             hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_heaptype(heaptype, (typevar, typeuse)*) : heaptype          hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_reftype(reftype, (typevar, typeuse)*) : reftype             hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_valtype(valtype, (typevar, typeuse)*) : valtype             hint(show %#`[%:=%]) hint(macro "%subst")
 
-def $subst_packtype(packtype, typevar*, typeuse*) : packtype          hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_storagetype(storagetype, typevar*, typeuse*) : storagetype hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_fieldtype(fieldtype, typevar*, typeuse*) : fieldtype       hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_packtype(packtype, (typevar, typeuse)*) : packtype          hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_storagetype(storagetype, (typevar, typeuse)*) : storagetype hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_fieldtype(fieldtype, (typevar, typeuse)*) : fieldtype       hint(show %#`[%:=%]) hint(macro "%subst")
 
-def $subst_comptype(comptype, typevar*, typeuse*) : comptype          hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_subtype(subtype, typevar*, typeuse*) : subtype             hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_rectype(rectype, typevar*, typeuse*) : rectype             hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_deftype(deftype, typevar*, typeuse*) : deftype             hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_comptype(comptype, (typevar, typeuse)*) : comptype          hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_subtype(subtype, (typevar, typeuse)*) : subtype             hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_rectype(rectype, (typevar, typeuse)*) : rectype             hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_deftype(deftype, (typevar, typeuse)*) : deftype             hint(show %#`[%:=%]) hint(macro "%subst")
 
-def $subst_tagtype(tagtype, typevar*, typeuse*) : tagtype             hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_globaltype(globaltype, typevar*, typeuse*) : globaltype    hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_memtype(memtype, typevar*, typeuse*) : memtype             hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_tabletype(tabletype, typevar*, typeuse*) : tabletype       hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_tagtype(tagtype, (typevar, typeuse)*) : tagtype             hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_globaltype(globaltype, (typevar, typeuse)*) : globaltype    hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_memtype(memtype, (typevar, typeuse)*) : memtype             hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_tabletype(tabletype, (typevar, typeuse)*) : tabletype       hint(show %#`[%:=%]) hint(macro "%subst")
 
-def $subst_externtype(externtype, typevar*, typeuse*) : externtype    hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_moduletype(moduletype, typevar*, typeuse*) : moduletype    hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_externtype(externtype, (typevar, typeuse)*) : externtype    hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_moduletype(moduletype, (typevar, typeuse)*) : moduletype    hint(show %#`[%:=%]) hint(macro "%subst")
 
 
-def $subst_typevar(tv, eps, eps) = tv
-def $subst_typevar(tv, eps, tu_1 tu'*) = tv
-def $subst_typevar(tv, tv_1 tv'*, eps) = tv
-def $subst_typevar(tv, tv_1 tv'*, tu_1 tu'*) = tu_1                            -- if tv = tv_1
-def $subst_typevar(tv, tv_1 tv'*, tu_1 tu'*) = $subst_typevar(tv, tv'*, tu'*)  -- otherwise
+def $subst_typevar(tv, eps) = tv
+def $subst_typevar(tv, (tv_1, tu_1) tvu*) = tu_1                            -- if tv = tv_1
+def $subst_typevar(tv, (tv_1, tu_1) tvu*) = $subst_typevar(tv, tvu*)  -- otherwise
 
-def $subst_typeuse(tv', tv*, tu*) = $subst_typevar(tv', tv*, tu*)
-def $subst_typeuse(dt, tv*, tu*) = $subst_deftype(dt, tv*, tu*)
+def $subst_typeuse(tv', tvu*) = $subst_typevar(tv', tvu*)
+def $subst_typeuse(dt, tvu*) = $subst_deftype(dt, tvu*)
 
-def $subst_addrtype(at, tv*, tu*) = at
-def $subst_numtype(nt, tv*, tu*) = nt
-def $subst_vectype(vt, tv*, tu*) = vt
+def $subst_addrtype(at, tvu*) = at
+def $subst_numtype(nt, tvu*) = nt
+def $subst_vectype(vt, tvu*) = vt
 
-def $subst_heaptype(tv', tv*, tu*) = $subst_typevar(tv', tv*, tu*)
-def $subst_heaptype(dt, tv*, tu*) = $subst_deftype(dt, tv*, tu*)
-def $subst_heaptype(ht, tv*, tu*) = ht  -- otherwise
+def $subst_heaptype(tv', tvu*) = $subst_typevar(tv', tvu*)
+def $subst_heaptype(dt, tvu*) = $subst_deftype(dt, tvu*)
+def $subst_heaptype(ht, tvu*) = ht  -- otherwise
 
-def $subst_reftype((REF null? ht), tv*, tu*) = REF null? $subst_heaptype(ht, tv*, tu*)
+def $subst_reftype((REF null? ht), tvu*) = REF null? $subst_heaptype(ht, tvu*)
 
-def $subst_valtype(nt, tv*, tu*) = $subst_numtype(nt, tv*, tu*)
-def $subst_valtype(vt, tv*, tu*) = $subst_vectype(vt, tv*, tu*)
-def $subst_valtype(rt, tv*, tu*) = $subst_reftype(rt, tv*, tu*)
-def $subst_valtype(BOT, tv*, tu*) = BOT
+def $subst_valtype(nt, tvu*) = $subst_numtype(nt, tvu*)
+def $subst_valtype(vt, tvu*) = $subst_vectype(vt, tvu*)
+def $subst_valtype(rt, tvu*) = $subst_reftype(rt, tvu*)
+def $subst_valtype(BOT, tvu*) = BOT
 
-def $subst_packtype(pt, tv*, tu*) = pt
+def $subst_packtype(pt, tvu*) = pt
 
-def $subst_storagetype(t, tv*, tu*) = $subst_valtype(t, tv*, tu*)
-def $subst_storagetype(pt, tv*, tu*) = $subst_packtype(pt, tv*, tu*)
+def $subst_storagetype(t, tvu*) = $subst_valtype(t, tvu*)
+def $subst_storagetype(pt, tvu*) = $subst_packtype(pt, tvu*)
 
-def $subst_fieldtype((mut? zt), tv*, tu*) = mut? $subst_storagetype(zt, tv*, tu*)
+def $subst_fieldtype((mut? zt), tvu*) = mut? $subst_storagetype(zt, tvu*)
 
-def $subst_comptype((STRUCT ft*), tv*, tu*) = STRUCT $subst_fieldtype(ft, tv*, tu*)*
-def $subst_comptype((ARRAY ft), tv*, tu*) = ARRAY $subst_fieldtype(ft, tv*, tu*)
-def $subst_comptype((FUNC t_1* -> t_2*), tv*, tu*) = FUNC $subst_valtype(t_1, tv*, tu*)* -> $subst_valtype(t_2, tv*, tu*)*
+def $subst_comptype((STRUCT ft*), tvu*) = STRUCT $subst_fieldtype(ft, tvu*)*
+def $subst_comptype((ARRAY ft), tvu*) = ARRAY $subst_fieldtype(ft, tvu*)
+def $subst_comptype((FUNC t_1* -> t_2*), tvu*) = FUNC $subst_valtype(t_1, tvu*)* -> $subst_valtype(t_2, tvu*)*
 
-def $subst_subtype((SUB final? tu'* ct), tv*, tu*) =
-  SUB final? $subst_typeuse(tu', tv*, tu*)* $subst_comptype(ct, tv*, tu*)
+def $subst_subtype((SUB final? tu'* ct), tvu*) =
+  SUB final? $subst_typeuse(tu', tvu*)* $subst_comptype(ct, tvu*)
 
-def $minus_recs(typevar*, typeuse*) : (typevar*, typeuse*)
-def $minus_recs(eps, eps) = (eps, eps)
-def $minus_recs((REC n) tv*, tu_1 tu*) = $minus_recs(tv*, tu*)
-def $minus_recs((_IDX x) tv*, tu_1 tu*) = ((_IDX x) tv'*, tu_1 tu'*)
-  -- if (tv'*, tu'*) = $minus_recs(tv*, tu*)
+def $minus_recs((typevar, typeuse)*) : (typevar, typeuse)*
+def $minus_recs(eps) = eps
+def $minus_recs((REC n, tu_1) tvu*) = $minus_recs(tvu*)
+def $minus_recs((_IDX x, tu_1) tvu*) = (_IDX x, tu_1) tvu'*
+  -- if tvu'* = $minus_recs(tvu*)
 
-def $subst_rectype((REC st*), tv*, tu*) = REC $subst_subtype(st, tv'*, tu'*)*
-  -- if (tv'*, tu'*) = $minus_recs(tv*, tu*)
+def $subst_rectype((REC st*), tvu*) = REC $subst_subtype(st, tvu'*)*
+  -- if tvu'* = $minus_recs(tvu*)
 ;; TODO(4, rossberg): animation cannot handle this declarative formulation:
 ;;  -- if tv'* = $setminus_(typevar, tv*, (REC i)^(i<|st*|))
 ;;  -- (if (tv', tu') <- (tv, tu)*)*
 
-def $subst_deftype((_DEF qt i), tv*, tu*) = _DEF $subst_rectype(qt, tv*, tu*) i
+def $subst_deftype((_DEF qt i), tvu*) = _DEF $subst_rectype(qt, tvu*) i
 
-def $subst_tagtype(tu', tv*, tu*) = $subst_typeuse(tu', tv*, tu*)
-def $subst_globaltype((mut? t), tv*, tu*) = mut? $subst_valtype(t, tv*, tu*)
-def $subst_memtype((at lim PAGE), tv*, tu*) = at lim PAGE
-def $subst_tabletype((at lim rt), tv*, tu*) = at lim $subst_reftype(rt, tv*, tu*)
+def $subst_tagtype(tu', tvu*) = $subst_typeuse(tu', tvu*)
+def $subst_globaltype((mut? t), tvu*) = mut? $subst_valtype(t, tvu*)
+def $subst_memtype((at lim PAGE), tvu*) = at lim PAGE
+def $subst_tabletype((at lim rt), tvu*) = at lim $subst_reftype(rt, tvu*)
 
-def $subst_externtype((TAG jt), tv*, tu*) = TAG $subst_tagtype(jt, tv*, tu*)
-def $subst_externtype((GLOBAL gt), tv*, tu*) = GLOBAL $subst_globaltype(gt, tv*, tu*)
-def $subst_externtype((TABLE tt), tv*, tu*) = TABLE $subst_tabletype(tt, tv*, tu*)
-def $subst_externtype((MEM mt), tv*, tu*) = MEM $subst_memtype(mt, tv*, tu*)
-def $subst_externtype((FUNC dt), tv*, tu*) = FUNC $subst_deftype(dt, tv*, tu*)
+def $subst_externtype((TAG jt), tvu*) = TAG $subst_tagtype(jt, tvu*)
+def $subst_externtype((GLOBAL gt), tvu*) = GLOBAL $subst_globaltype(gt, tvu*)
+def $subst_externtype((TABLE tt), tvu*) = TABLE $subst_tabletype(tt, tvu*)
+def $subst_externtype((MEM mt), tvu*) = MEM $subst_memtype(mt, tvu*)
+def $subst_externtype((FUNC dt), tvu*) = FUNC $subst_deftype(dt, tvu*)
 
-def $subst_moduletype(xt_1* -> xt_2*, tv*, tu*) = $subst_externtype(xt_1, tv*, tu*)* -> $subst_externtype(xt_2, tv*, tu*)*
+def $subst_moduletype(xt_1* -> xt_2*, tvu*) = $subst_externtype(xt_1, tvu*)* -> $subst_externtype(xt_2, tvu*)*
 
 
 ;; Complete substitution
@@ -444,15 +438,15 @@ def $subst_all_tabletype(tabletype, typeuse*) : tabletype  hint(show %#`[:=%]) h
 def $subst_all_externtype(externtype, typeuse*) : externtype  hint(show %#`[:=%]) hint(macro "%subst")
 def $subst_all_moduletype(moduletype, typeuse*) : moduletype  hint(show %#`[:=%]) hint(macro "%subst")
 
-def $subst_all_valtype(t, tu^n) = $subst_valtype(t, (_IDX i)^(i<n), tu^n)
-def $subst_all_reftype(rt, tu^n) = $subst_reftype(rt, (_IDX i)^(i<n), tu^n)
-def $subst_all_deftype(dt, tu^n) = $subst_deftype(dt, (_IDX i)^(i<n), tu^n)
-def $subst_all_tagtype(jt, tu^n) = $subst_tagtype(jt, (_IDX i)^(i<n), tu^n)
-def $subst_all_globaltype(gt, tu^n) = $subst_globaltype(gt, (_IDX i)^(i<n), tu^n)
-def $subst_all_memtype(mt, tu^n) = $subst_memtype(mt, (_IDX i)^(i<n), tu^n)
-def $subst_all_tabletype(tt, tu^n) = $subst_tabletype(tt, (_IDX i)^(i<n), tu^n)
-def $subst_all_externtype(xt, tu^n) = $subst_externtype(xt, (_IDX i)^(i<n), tu^n)
-def $subst_all_moduletype(mmt, tu^n) = $subst_moduletype(mmt, (_IDX i)^(i<n), tu^n)
+def $subst_all_valtype(t, tu^n) = $subst_valtype(t, (_IDX i, tu)^(i<n))
+def $subst_all_reftype(rt, tu^n) = $subst_reftype(rt, (_IDX i, tu)^(i<n))
+def $subst_all_deftype(dt, tu^n) = $subst_deftype(dt, (_IDX i, tu)^(i<n))
+def $subst_all_tagtype(jt, tu^n) = $subst_tagtype(jt, (_IDX i, tu)^(i<n))
+def $subst_all_globaltype(gt, tu^n) = $subst_globaltype(gt, (_IDX i, tu)^(i<n))
+def $subst_all_memtype(mt, tu^n) = $subst_memtype(mt, (_IDX i, tu)^(i<n))
+def $subst_all_tabletype(tt, tu^n) = $subst_tabletype(tt, (_IDX i, tu)^(i<n))
+def $subst_all_externtype(xt, tu^n) = $subst_externtype(xt, (_IDX i, tu)^(i<n))
+def $subst_all_moduletype(mmt, tu^n) = $subst_moduletype(mmt, (_IDX i, tu)^(i<n))
 
 def $subst_all_deftypes(deftype*, typeuse*) : deftype*  hint(show %#`[:=%]) hint(macro "%subst")
 def $subst_all_deftypes(eps, tu*) = eps
@@ -467,9 +461,9 @@ def $rolldt(typeidx, rectype) : deftype* hint(show $roll_(%)*#((%))) hint(macro 
 def $unrolldt(deftype) : subtype         hint(show $unroll(%))     hint(macro "unrolldt")
 def $expanddt(deftype) : comptype        hint(show $expand(%))     hint(macro "expanddt")
 
-def $rollrt(x, rectype) = REC ($subst_subtype(subtype, ((_IDX $(x + i)))^(i<n), (REC i)^(i<n)))^n
+def $rollrt(x, rectype) = REC ($subst_subtype(subtype, ((_IDX $(x + i), REC i))^(i<n)))^n
   -- if rectype = REC subtype^n
-def $unrollrt(rectype) = REC ($subst_subtype(subtype, (REC i)^(i<n), (_DEF rectype i)^(i<n)))^n
+def $unrollrt(rectype) = REC ($subst_subtype(subtype, (REC i, _DEF rectype i)^(i<n)))^n
   -- if rectype = REC subtype^n
 
 def $rolldt(x, rectype) = (_DEF (REC subtype^n) i)^(i<n)  -- if $rollrt(x, rectype) = REC subtype^n
