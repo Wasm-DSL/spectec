@@ -149,6 +149,7 @@ iter : Type :=
   | I_SUP : option il_id -> il_exp -> iter
 .
 
+Definition exppull : Type := (il_id * il_exp).
 
 Inductive il_param : Type :=
   | ExpP : il_id -> il_typ -> il_param

@@ -171,6 +171,9 @@ Inductive step_exp: store -> il_exp -> il_exp -> Prop :=
   | se_acc_ctxexp : forall s e e' p,
     step_exp s e e' ->
     step_exp s (AccE e p) (AccE e' p)
+  | se_acc_ctxpath : forall s e p p',
+    step_path s p p' ->
+    step_exp s (AccE e p) (AccE e p')
   (* TODO: what does step path mean? *)
   | se_acc_root : forall s e,
     step_exp s (AccE e RootP) e
@@ -199,6 +202,9 @@ Inductive step_exp: store -> il_exp -> il_exp -> Prop :=
   | se_upd_ctxl : forall s e1 e1' p e2,
     step_exp s e1 e1' ->
     step_exp s (UpdE e1 p e2) (UpdE e1' p e2)
+  | se_upd_ctxm : forall s e1 p p' e2,
+    step_path s p p' ->
+    step_exp s (UpdE e1 p e2) (UpdE e1 p' e2)
   | se_upd_ctxr : forall s e1 p e2 e2',
     step_exp s e2 e2' ->
     step_exp s (UpdE e1 p e2) (UpdE e1 p e2')
@@ -231,7 +237,10 @@ Inductive step_exp: store -> il_exp -> il_exp -> Prop :=
   | se_iter_ctx1 : forall s e it ep_lst e',
     step_exp s e e' ->
     step_exp s (IterE e it ep_lst) (IterE e' it ep_lst)
-  (* TODO ctx on iter and exppull? *)
+  | se_iter_ctx2 : forall s e it it' ep_lst,
+    step_iter s it it' ->
+    step_exp s (IterE e it ep_lst) (IterE e it' ep_lst)
+  (* TODO ctx on exppull? *)
   (* | se_iter_quest : forall s e ep_lst, *)
   (* TODO other iter rules *)
 
@@ -314,6 +323,34 @@ step_typ : store -> il_typ -> il_typ -> Prop :=
 
 with
 
+step_path : store -> il_path -> il_path -> Prop :=
+  | sp_idx_ctxl : forall s p p' e,
+    step_path s p p' ->
+    step_path s (IdxP p e) (IdxP p' e)
+  | sp_idx_ctxr : forall s p e e',
+    step_exp s e e' ->
+    step_path s (IdxP p e) (IdxP p e')
+  | sp_the_ctx : forall s p p',
+    step_path s p p' ->
+    step_path s (TheP p) (TheP p')
+  | sp_uncase_ctx : forall s m p p',
+    step_path s p p' ->
+    step_path s (UncaseP p m) (UncaseP p' m)
+  | sp_slice_ctx1 : forall s p p' e1 e2,
+    step_path s p p' ->
+    step_path s (SliceP p e1 e2) (SliceP p' e1 e2)
+  | sp_slice_ctx2 : forall s p e1 e1' e2,
+    step_exp s e1 e1' ->
+    step_path s (SliceP p e1 e2) (SliceP p e1' e2)
+  | sp_slice_ctx3 : forall s p e1 e2 e2',
+    step_exp s e2 e2' ->
+    step_path s (SliceP p e1 e2) (SliceP p e1 e2')
+  | sp_dot_ctx : forall s p p' a, 
+    step_path s p p' ->
+    step_path s (DotP p a) (DotP p' a) 
+
+with 
+
 step_prems : store -> list il_prem -> list il_prem -> Prop :=
   | sp_ctx : forall s p ps p' ps',
     step_prems s [p] p' ->
@@ -345,7 +382,15 @@ step_prems : store -> list il_prem -> list il_prem -> Prop :=
     step_prems s [NegPr p] [NegPr p']
   | sp_neg_bool: forall s b,
     step_prems s [NegPr (IfPr (BoolE b))] [IfPr (BoolE (negb b))]
+
 with
+
+step_iter : store -> iter -> iter -> Prop :=
+  | si_ctx : forall s x e e',
+    step_exp s e e' ->
+    step_iter s (I_SUP x e) (I_SUP x e')
+
+with 
 
 reduce_exp : store -> il_exp -> il_exp -> Prop :=
   | re_refl : forall s e, reduce_exp s e e
