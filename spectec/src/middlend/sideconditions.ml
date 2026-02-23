@@ -33,9 +33,7 @@ let iterPr (pr, (iter, vars)) =
   let vars' = List.filter (fun (id, _) ->
     Set.mem id.it frees.varid
   ) vars in
-  (* Must keep at least one variable to keep the iteration well-formed *)
-  let vars'' = if vars' <> [] then vars' else [List.hd vars] in
-  IterPr (pr, (iter, vars''))
+  IterPr (pr, (iter, vars'))
 
 let is_null e = CmpE (`EqOp, `BoolT, e, OptE None $$ e.at % e.note) $$ e.at % (BoolT $ e.at)
 let iffE e1 e2 = IfPr (BinE (`EquivOp, `BoolT, e1, e2) $$ e1.at % (BoolT $ e1.at)) $ e1.at
@@ -126,27 +124,31 @@ let reduce_prems prems = prems
   |> Util.Lib.List.filter_not is_true
   |> Util.Lib.List.nub implies
 
-let t_rule' = function
-  | RuleD (id, binds, mixop, exp, prems) ->
-    let env = List.fold_left (fun env bind ->
-      match bind.it with
-      | ExpB (v, t) -> Env.add v.it t env
-      | TypB _ | DefB _ | GramB _ -> error bind.at "unexpected type argument in rule") Env.empty binds
-    in
-    let collector = create_collector env in
+let t_params env =
+  List.fold_left (fun env param ->
+    match param.it with
+    | ExpP (v, t) -> Env.add v.it t env
+    | TypP _ | DefP _ | GramP _ -> error param.at "unexpected paramater or quantifier in rule"
+  ) env
+
+let t_rule' env = function
+  | RuleD (id, quants, mixop, exp, prems) ->
+    let env' = t_params env quants in
+    let collector = create_collector env' in
     let prems' = List.concat_map (fun prem -> collect_prem collector prem @ [prem]) prems in
     let extra_prems = collect_exp collector exp in
     let reduced_prems = reduce_prems (extra_prems @ prems') in
-    RuleD (id, binds, mixop, exp, reduced_prems)
+    RuleD (id, quants, mixop, exp, reduced_prems)
 
-let t_rule x = { x with it = t_rule' x.it }
+let t_rule env x = { x with it = t_rule' env x.it }
 
-let t_rules = List.map t_rule
+let t_rules env = List.map (t_rule env)
 
 let rec t_def' = function
   | RecD defs -> RecD (List.map t_def defs)
-  | RelD (id, mixop, typ, rules) ->
-    RelD (id, mixop, typ, t_rules rules)
+  | RelD (id, params, mixop, typ, rules) ->
+    let env = t_params Env.empty params in
+    RelD (id, params, mixop, typ, t_rules env rules)
   | def -> def
 
 and t_def x = { x with it = t_def' x.it }

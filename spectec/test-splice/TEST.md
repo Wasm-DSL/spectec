@@ -1,7 +1,7 @@
 # Preview
 
 ```sh
-$ (../src/exe-spectec/main.exe ../../../../specification/wasm-3.0/*.spectec -l --splice-latex -p spec-latex.in.tex -w)
+$ (../src/exe-spectec/main.exe ../../../../specification/wasm-latest/*.spectec -l --splice-latex -p spec-latex.in.tex -w)
 == Parsing...
 == Elaboration...
 == IL Validation...
@@ -57,6 +57,7 @@ $$
 & & | & \mathsf{block}~{\mathit{blocktype}}~{{\mathit{instr}}^\ast} \\
 & & | & \mathsf{loop}~{\mathit{blocktype}}~{{\mathit{instr}}^\ast} \\
 & & | & \mathsf{if}~{\mathit{blocktype}}~{{\mathit{instr}}^\ast}~\mathsf{else}~{{\mathit{instr}}^\ast} \\
+& & | & \dots \\
 \end{array}
 $$
 
@@ -84,7 +85,8 @@ $$
 & & | & \mathsf{memory{.}grow}~{\mathit{memidx}} \\
 & & | & \mathsf{memory{.}fill}~{\mathit{memidx}} \\
 & & | & \mathsf{memory{.}copy}~{\mathit{memidx}}~{\mathit{memidx}} \\
-& & | & \mathsf{memory{.}init}~{\mathit{memidx}}~{\mathit{dataidx}} \\[0.8ex]
+& & | & \mathsf{memory{.}init}~{\mathit{memidx}}~{\mathit{dataidx}} \\
+& & | & \dots \\[0.8ex]
 & {\mathit{expr}} & ::= & {{\mathit{instr}}^\ast} \\
 \end{array}
 $$
@@ -1196,6 +1198,7 @@ warning: rule `Resulttype_sub` was never spliced
 warning: rule `Start_ok` was never spliced
 warning: rule `Step/ctxt-instrs` was never spliced
 warning: rule `Step/ctxt-label` was never spliced
+warning: rule `Step/ctxt-handler` was never spliced
 warning: rule `Step/ctxt-frame` was never spliced
 warning: rule `Step/throw` was never spliced
 warning: rule `Step/local.set` was never spliced
@@ -1251,6 +1254,7 @@ warning: rule `Step_pure/return-handler` was never spliced
 warning: rule `Step_pure/handler-vals` was never spliced
 warning: rule `Step_pure/trap-instrs` was never spliced
 warning: rule `Step_pure/trap-label` was never spliced
+warning: rule `Step_pure/trap-handler` was never spliced
 warning: rule `Step_pure/trap-frame` was never spliced
 warning: rule `Step_pure/local.tee` was never spliced
 warning: rule `Step_pure/ref.i31` was never spliced
