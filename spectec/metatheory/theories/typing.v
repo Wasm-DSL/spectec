@@ -107,16 +107,16 @@ Inductive ok_exp: il_env -> il_exp -> il_typ -> Prop :=
   | oke_lift : forall env e t,
     ok_exp env e (IterT t I_OPT) ->
     ok_exp env e (IterT t I_STAR)
-  | oke_case : forall env m e x ags tcs n t qs ps,
+  | oke_case : forall env m e x ags tcs t qs ps,
     expand_typ (env_to_store env) (VarT x ags) (VariantT tcs) ->
-    List.nth_error tcs n = Some (m, qs, t, ps) ->
+    List.In (m, qs, t, ps) tcs ->
     ok_exp env e t ->
     ok_exp env (CaseE m e) (VarT x ags)
-  | oke_str : forall env a e x ags tfs fs n t qs ps,
+  | oke_str : forall env a e x ags tfs fs t qs ps,
     expand_typ (env_to_store env) (VarT x ags) (StructT tfs) ->
     size tfs = size fs ->
-    List.nth_error tfs n = Some (a, qs, t, ps) ->
-    List.nth_error fs n = Some (a, e) ->
+    List.In (a, qs, t, ps) tfs ->
+    List.In (a, e) fs ->
     ok_exp env e t ->
     ok_exp env (StrE fs) (VarT x ags)
   (* TODO rule for ProjE *)
@@ -131,4 +131,88 @@ Inductive ok_exp: il_env -> il_exp -> il_typ -> Prop :=
     ok_exp env e1 (IterT t I_STAR) ->
     ok_exp env e2 (IterT t I_STAR) ->
     ok_exp env (CatE e1 e2) (IterT t I_STAR)
+  | oke_comp : forall env e1 e2 t,
+    ok_exp env e1 t ->
+    ok_exp env e2 t ->
+    composable_typ env t ->
+    ok_exp env (CompE e1 e2) t
+  | oke_acc : forall env e p t t',
+    ok_exp env e t ->
+    ok_path env p t t' ->
+    ok_exp env (AccE e p) t'
+  | oke_upd : forall env e1 p e2 t1 t2,
+    ok_exp env e1 t1 ->
+    ok_exp env e2 t2 ->
+    ok_path env p t1 t2 ->
+    ok_exp env (UpdE e1 p e2) t1
+  | oke_ext : forall env e1 p e2 t1 t2,
+    ok_exp env e1 t1 ->
+    ok_exp env e2 (IterT t2 I_STAR) ->
+    ok_path env p t1 (IterT t2 I_STAR) ->
+    ok_exp env (ExtE e1 p e2) t1
+  | oke_call : forall env x ags ps sbst rt clauses,
+    StringMap.find x (DEFS env) = Some (ps, rt, clauses) ->
+    (* TODO - ok_args *)
+    ok_exp env (CallE x ags) (subst_typ sbst rt)
+  (* TODO iterE valid *)
+  | oke_cvt : forall env e nt1 nt2,
+    ok_exp env e (NumT nt1) ->
+    ok_exp env (CvtE e nt1 nt2) (NumT nt2)
+  (* TODO subE valid *)
+  | ok_exp_conv : forall env e t t',
+    ok_exp env e t' ->
+    eq_typ (env_to_store env) t t' ->
+    ok_exp env e t
+with
+
+ok_path : il_env -> il_path -> il_typ -> il_typ -> Prop :=
+  | okp_root : forall env t,
+    ok_typ env t ->
+    ok_path env RootP t t
+  | okp_the : forall env p t t',
+    ok_path env p t (IterT t' I_OPT) ->
+    ok_path env (TheP p) t t'
+  | okp_idx : forall env p e t t',
+    ok_path env p t (IterT t' I_STAR) ->
+    ok_exp env e (NumT NatT) ->
+    ok_path env (IdxP p e) t t'
+  | okp_slice : forall env p e1 e2 t t',
+    ok_path env p t (IterT t' I_STAR) ->
+    ok_exp env e1 (NumT NatT) ->
+    ok_exp env e2 (NumT NatT) ->
+    ok_path env (SliceP p e1 e2) t t'
+  | okp_dot : forall env p a x ags t t' tfs qs prems,
+    ok_path env p t (VarT x ags) -> 
+    expand_typ (env_to_store env) (VarT x ags) (StructT tfs) ->
+    List.In (a, qs, t', prems) tfs ->
+    ok_path env (DotP p a) t t'
+  | okp_uncase : forall env p m t t' x ags qs prems tcs,
+    ok_path env p t (VarT x ags) ->
+    expand_typ (env_to_store env) (VarT x ags) (VariantT tcs) ->
+    List.In (m, qs, t', prems) tcs ->
+    ok_path env (UncaseP p m) t t'
+  | okp_conv : forall env p t t' t'',
+    ok_path env p t'' t' ->
+    eq_typ (env_to_store env) t t'' ->
+    ok_path env p t t'
+
+with
+
+ok_typ : il_env -> il_typ -> Prop :=
+  | okt_bool : forall env, ok_typ env BoolT
+  | okt_num : forall env nt, ok_typ env (NumT nt)
+  | okt_text : forall env, ok_typ env TextT
+  | okt_tupemp : forall env, ok_typ env (TupT [])
+  | okt_tup : forall env x1 t1 tups,
+    let env' := single_var x1 t1 in
+    ok_typ env t1 ->
+    ok_typ (append_env env env') (TupT tups) ->
+    ok_typ env (TupT ((x1, t1) :: tups))
+  | okt_iter : forall env t it,
+    ok_typ env t ->
+    (it = I_STAR) \/ (it = I_OPT) ->
+    ok_typ env (IterT t it)
+  | okt_var : forall env x ags ps insts,
+    (StringMap.find x (TYPS env) = Some (ps, insts)) -> 
+    ok_typ env (VarT x ags)
 .

@@ -424,3 +424,11 @@ Inductive reduce_typ : store -> il_typ -> il_typ -> Prop :=
     reduce_typ s t2 t3 ->
     reduce_typ s t1 t3
 .
+
+Inductive eq_typ : store -> il_typ -> il_typ -> Prop :=
+  | eq_typ_rule : forall s t1 t2 t1' t2',
+    reduce_typ s t1 t1' ->
+    reduce_typ s t2 t2' ->
+    t1' = t2' ->
+    eq_typ s t1 t2
+.
