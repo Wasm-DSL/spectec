@@ -57,13 +57,27 @@ rule Step_typ/ITER-ctx:
   -- Step_typ: S |- t ~> t'
 
 
+;; Iterators
+
+relation Step_iter: S |- iter ~> iter
+relation Step_exppull: S |- exppull ~> exppull
+
+rule Step_iter/SUP:
+  S |- SUP x? e ~> SUP x? e'
+  -- Step_exp: S |- e ~> e'
+
+
+rule Step_exppull/ctx:
+  S |- x `<- e ~> x `<- e'
+  -- Step_exp: S |- e ~> e'
+
+
 ;; Expressions
 
 relation Reduce_exp: S |- exp ~>* exp
 relation Step_exp: S |- exp ~> exp
+relation Step_expfield: S |- expfield ~> expfield
 relation Step_path: S |- path ~> path
-relation Step_iter: S |- iter ~> iter
-relation Step_exppull: S |- exppull ~> exppull
 relation Eq_exp: S |- exp == exp
 
 
@@ -142,8 +156,8 @@ rule Step_exp/TUP-ctx:
   -- Step_exp: S |- e*[n] ~> e'_n
 
 rule Step_exp/STR-ctx:
-  S |- STR (a `= e)* ~> STR (a `= e)*[[n] = (a*[n] `= e'_n)]
-  -- Step_exp: S |- e*[n] ~> e'_n
+  S |- STR ef* ~> STR ef*[[n] = ef'_n]
+  -- Step_expfield: S |- ef*[n] ~> ef'_n
 
 rule Step_exp/INJ-ctx:
   S |- INJ mixop e ~> INJ mixop e'
@@ -398,6 +412,44 @@ rule Step_exp/SUB-CASE:
   -- Expand_typ: S |- VAR x_2 a_2* => VARIANT tc_2*
   -- if (op `: t_1 `- `{q_1*} pr_1*) <- tc_1*
   -- if (op `: t_2 `- `{q_2*} pr_2*) <- tc_2*
+
+
+rule Step_expfield/ctx:
+  S |- a `= e ~> a `= e'
+  -- Step_exp: S |- e ~> e'
+
+
+rule Step_path/THE-ctx:
+  S |- THE p ~> THE p'
+  -- Step_path: S |- p ~> p'
+
+rule Step_path/IDX-ctx1:
+  S |- IDX p e ~> IDX p' e
+  -- Step_path: S |- p ~> p'
+
+rule Step_path/IDX-ctx2:
+  S |- IDX p e ~> IDX p e'
+  -- Step_exp: S |- e ~> e'
+
+rule Step_path/SLICE-ctx1:
+  S |- SLICE p e_1 e_2 ~> SLICE p' e_1 e_2
+  -- Step_path: S |- p ~> p'
+
+rule Step_path/SLICE-ctx2:
+  S |- SLICE p e_1 e_2 ~> SLICE p e'_1 e_2
+  -- Step_exp: S |- e_1 ~> e'_1
+
+rule Step_path/SLICE-ctx3:
+  S |- SLICE p e_1 e_2 ~> SLICE p e_1 e'_2
+  -- Step_exp: S |- e_2 ~> e'_2
+
+rule Step_path/DOT-ctx:
+  S |- DOT p a ~> DOT p' a
+  -- Step_path: S |- p ~> p'
+
+rule Step_path/PROJ-ctx:
+  S |- PROJ p m ~> PROJ p' m
+  -- Step_path: S |- p ~> p'
 
 
 ;; Arguments
