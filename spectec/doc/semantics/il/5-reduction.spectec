@@ -62,7 +62,7 @@ rule Step_typ/ITER-ctx:
 relation Step_iter: S |- iter ~> iter
 relation Step_exppull: S |- exppull ~> exppull
 
-rule Step_iter/SUP:
+rule Step_iter/SUP-ctx:
   S |- SUP x? e ~> SUP x? e'
   -- Step_exp: S |- e ~> e'
 
