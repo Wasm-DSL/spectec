@@ -12,6 +12,12 @@ let check_normal_type_creation (inst : inst) : bool =
     | _ -> false  
     ) args 
 
+let check_type_family insts = 
+  match insts with
+  | [] -> false
+  | [inst] when check_normal_type_creation inst -> false
+  | _ -> true
+
 let rec reduce_type_aliasing env t =
   match t.it with
   | VarT(id, args) -> 
