@@ -164,7 +164,7 @@ Inductive il_prem : Type :=
   | IfPr : il_exp -> il_prem
   | ElsePr
   | LetPr : il_exp -> il_exp -> il_prem
-  | IterPr : il_prem -> iter -> list (il_id * il_exp) -> il_prem
+  | IterPr : il_prem -> iter -> list exppull -> il_prem
   | NegPr : il_prem -> il_prem
 .
 

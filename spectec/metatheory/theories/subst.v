@@ -54,6 +54,13 @@ Record dom : Type :=
   }
 .
 
+Fixpoint many_svars (xs : list (il_id * il_exp)) : il_subst :=
+  match xs with
+  | [] => subst_empty 
+  | (x, e) :: xs' => append_subst (subst_svar x e) (many_svars xs')
+  end
+.
+
 Definition append_dom (d1 d2 : dom) : dom :=
   {|
   D_EXP := d1.(D_EXP) ++ d2.(D_EXP);

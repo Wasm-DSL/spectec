@@ -62,6 +62,7 @@ Notation "x [ i ]v = t" := (StringMap.find i (VARS x) = Some t) (at level 20) : 
 Notation "x [ i ]t = t" := (StringMap.find i (TYPS x) = Some t) (at level 20) : env_scope.
 Notation "x [ i ]d = t" := (StringMap.find i (DEFS x) = Some t) (at level 20) : env_scope.
 Notation "x [ i ]r = t" := (StringMap.find i (RELS x) = Some t) (at level 20) : env_scope.
+Notation "x @@ y" := (append_env x y) (at level 20) : env_scope.
 
 Record store := {
   S_TYPS : StringMap.t typ_def;
