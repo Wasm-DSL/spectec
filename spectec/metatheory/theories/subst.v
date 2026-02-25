@@ -32,6 +32,20 @@ Definition subst_svar (x : il_id) (e : il_exp) : il_subst :=
   S_FUN := empty_id
   |}.
 
+Definition subst_styp (x : il_id) (t : il_typ) : il_subst :=
+  {|
+  S_EXP := empty_exp;
+  S_TYP := singleton x t;
+  S_FUN := empty_id
+  |}.
+
+Definition subst_sfun (x : il_id) (y : il_id) : il_subst :=
+  {|
+  S_EXP := empty_exp;
+  S_TYP := empty_typ;
+  S_FUN := singleton x y
+  |}.
+
 Record dom : Type :=
   {
   D_EXP : list il_id;

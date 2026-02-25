@@ -1,5 +1,5 @@
 From Stdlib Require Import List String.
-From mathcomp Require Import all_ssreflect all_algebra.
+From mathcomp Require Import all_ssreflect all_algebra. 
 Import GRing.Theory.
 
 Parameter R : archiNumDomainType.
@@ -179,13 +179,13 @@ Inductive il_deftyp : Type :=
 
 Definition il_inst : Type := list il_quant * list il_arg * il_deftyp.
 
-Definition il_rule : Type := il_id * list il_quant * mixop * il_exp * list il_prem.
+Definition il_rule : Type := list il_quant * il_exp * list il_prem.
 
 Definition il_clause : Type := list il_quant * list il_arg * il_exp * list il_prem.
 
 Inductive il_def : Type :=
   | TypD : il_id -> list il_param -> list il_inst -> il_def
-  | RelD : il_id -> mixop -> il_typ -> list il_rule -> il_def
+  | RelD : il_id -> list il_param -> il_typ -> list il_rule -> il_def
   | DecD : il_id -> list il_param -> il_typ -> list il_clause -> il_def
   | RecD : list il_def -> il_def
 .
