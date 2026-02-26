@@ -27,6 +27,7 @@ rule Eq_typ:
   -- Reduce_typ: S |- t_1 ~>* t'_1
   -- Reduce_typ: S |- t_2 ~>* t'_2
   -- if t'_1 = t'_2
+  ;; Note: defined types are nominal
 
 
 rule Reduce_typ/normal:
@@ -385,6 +386,10 @@ rule Step_exp/SUB-ctx3:
   S |- SUB e t_1 t_2 ~> SUB e t_1 t'_2
   -- Step_typ: S |- t_2 ~> t'_2
 
+rule Step_exp/SUB-refl:
+  S |- SUB e t_1 t_2 ~> e
+  -- Eq_typ: S |- t_1 == t_2
+
 rule Step_exp/SUB-SUB:
   S |- SUB (SUB e' t'_1 t'_2) t_1 t_2 ~> SUB e' t'_1 t_2
 
@@ -458,12 +463,6 @@ relation Reduce_arg: S |- arg ~>* arg
 relation Step_arg: S |- arg ~> arg
 relation Eq_arg: S |- arg == arg
 relation Match_args: S |- arg* `/ `{quant*} arg* => subst
-
-
-rule Match_args:
-  S |- a* `/ `{q*} a' => s
-  -- Ok_subst: $storeenv(S) |- s : q*
-  -- if a* = $subst_arg(s, a')*
 
 
 rule Eq_arg:

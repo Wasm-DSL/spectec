@@ -10,6 +10,11 @@ syntax subst =
   }
 
 
+def $composesubsts(subst*) : subst  hint(show (++)%)
+def $composesubsts(eps) = {}
+def $composesubsts(s_1 s*) = s_1 ++ $composesubsts(s*)
+
+
 ;; Domain
 
 syntax dom =
@@ -23,6 +28,10 @@ def $dom_subst(subst) : dom
 
 def $dom_subst(s) = {EXP x_E*, TYP x_T*, FUN x_F*, GRAM x_G*}
   -- if s = {EXP (x_E, e)*, TYP (x_T, t)*, FUN (x_F, x'_F)*, GRAM (x_G, x'_G)*}
+
+def $composedoms(dom*) : dom  hint(show (++)%)
+def $composedoms(eps) = {}
+def $composedoms(d_1 d*) = d_1 ++ $composedoms(d*)
 
 
 ;; Bound parameters

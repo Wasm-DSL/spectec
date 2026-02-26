@@ -1,0 +1,234 @@
+(;
+rule Match_args:
+  S |- a* `/ `{q*} a' => s
+  -- Ok_subst: $storeenv(S) |- s : q*
+  -- if a* = $subst_arg(s, a')*
+;)
+
+rule Match_args/eps:
+  S |- eps `/ `{{}} eps => {}
+
+rule Match_args/cons:
+  S |- a_1 a* `/ `{d_1 ++ d} a'_1 a'* => (s_1 ++ s)?
+  -- Match_arg: S |- a_1 `/ `{d_1} a'_1 => s_1
+  -- Match_args: S |- a* `/ `{d} $subst_arg(s_1, a')* => s?
+
+rule Match_args/cons-fail1:
+  S |- a_1 a* `/ `{d_1 ++ d} a'_1 a'* => eps
+  -- Match_arg: S |- a_1 `/ `{d_1} a'_1 => eps
+
+relation Match_arg: S |- arg `/ `{dom} arg => subst?
+relation Match_typ: S |- typ `/ `{dom} typ => subst?
+relation Match_exp: S |- exp `/ `{dom} exp => subst?
+relation Match_fun: S |- id `/ `{dom} id => subst?
+relation Match_sym: S |- sym `/ `{dom} sym => subst?
+
+rule Match_arg/EXP:
+  S |- EXP e `/ `{d} EXP e' => s?
+  -- Match_exp: S |- e `/ `{d} e' => s?
+
+rule Match_arg/TYP:
+  S |- TYP t `/ `{d} TYP t' => s?
+  -- Match_typ: S |- t `/ `{d} t' => s?
+
+rule Match_arg/FUN:
+  S |- FUN x `/ `{d} FUN x' => s?
+  -- Match_fun: S |- x `/ `{d} x' => s?
+
+rule Match_arg/GRAM:
+  S |- GRAM g `/ `{d} GRAM g' => s?
+  -- Match_gram: S |- g `/ `{d} g' => s?
+
+
+rule Match_typ/subst:
+  S |- t `/ `{{TYP x}} VAR x => {TYP (x, t)}
+
+rule Match_typ/eq:
+  S |- t `/ `{{}} t' => {}
+  -- Eq_typ: S |- t == t'
+
+rule Match_typ/disj:
+  S |- t `/ `{d} t' => eps
+  -- Disj_typ: S |- t =/= t'
+
+rule Match_typ/VAR:
+  S |- VAR x a* `/ `{d} VAR x a'* => s?
+  -- Match_args: S |- a* `/ `{d} a'* => s?
+
+rule Match_typ/TUP:
+  S |- TUP (x_1 `: t_1) tb* `/ `{d_1 ++ d} TUP (x'_1 `: t'_1) tb'* => (s_1 ++ s)?
+  -- Match_typ: S |- t_1 `/ `{d_1} t'_1* => s_1
+  -- if s'_1 = s_1 ++ {EXP (x'_1, VAR x_1)}
+  -- Match_typ: S |- TUP tb* `/ `{d} $subst_typ(s'_1, TUP tb'*) => s?
+
+rule Match_typ/TUP-fail1:
+  S |- TUP (x_1 `: t_1) tb* `/ `{d_1 ++ d} TUP (x'_1 `: t'_1) tb'* => eps
+  -- Match_typ: S |- t_1 `/ `{d_1} t'_1* => eps
+
+rule Match_typ/ITER:
+  S |- ITER t it `/ `{d} ITER t' it => s?
+  -- Match_typ: S |- t `/ `{d} t' => s?
+
+
+rule Match_exp/subst:
+  S |- e `/ `{{EXP x}} VAR x => {EXP (x, e)}
+
+rule Match_typ/eq:
+  S |- e `/ `{{}} e' => {}
+  -- Eq_exp: S |- e == e'
+
+rule Match_exp/disj:
+  S |- e `/ `{d} e' => eps
+  -- Disj_exp: S |- e =/= e'
+
+rule Match_exp/UN-PLUS:
+  S |- num `/ `{d} UN PLUS e => s?
+  -- if ~ $isneg(num)
+  -- Match_exp: S |- num `/ `{d} e => s?
+
+rule Match_exp/UN-MINUS:
+  S |- num `/ `{d} UN MINUS e => s?
+  -- if $isneg(num)
+  -- Match_exp: S |- $numun(MINUS, num) `/ `{d} e => s?
+
+rule Match_exp/CVT:
+  S |- num `/` `{d} CVT e nt_1 nt_2 ~> NUM $numcvt(nt_1, num) `/` `{d} e
+
+rule Match_exp/TUP:
+  S |- TUP e_1 e* `/ `{d_1 ++ d} TUP e'_1 e'* => (s_1 ++ s)?
+  -- Match_exp: S |- e_1 `/ `{d_1} e'_1* => s_1
+  -- Match_exp: S |- TUP e* `/ `{d} $subst_exp(s_1, TUP e'*) => s?
+
+rule Match_exp/TUP-fail1:
+  S |- TUP e_1 e* `/ `{d_1 ++ d} TUP e'_1 e'* => eps
+  -- Match_exp: S |- e_1 `/ `{d_1} e'_1* => eps
+
+rule Match_exp/INJ:
+  S |- INJ op e `/ `{d} INJ op e' => s?
+  -- Match_exp: S |- e `/ `{d} e' => s?
+
+rule Match_exp/OPT:
+  S |- OPT e `/ `{d} OPT e' => s?
+  -- Match_exp: S |- e `/ `{d} e' => s?
+
+rule Match_exp/LIST:
+  S |- LIST e_1 e* `/ `{d_1 ++ d} LIST e'_1 e'* => (s_1 ++ s)?
+  -- Match_exp: S |- e_1 `/ `{d_1} e'_1* => s_1
+  -- Match_exp: S |- LIST e* `/ `{d} $subst_exp(s_1, LIST e'*) => s?
+
+rule Match_exp/LIST-fail1:
+  S |- LIST e_1 e* `/ `{d_1 ++ d} LIST e'_1 e'* => eps
+  -- Match_exp: S |- e_1 `/ `{d_1} e'_1* => eps
+
+rule Match_exp/CAT-1:
+  S |- LIST e_1^n e_2* `/ `{d_1 ++ d_2} CAT (LIST e'_1^n) e'_2 => (s_1 ++ s_2)?
+  -- Match_exp: S |- LIST e_1^n `/ `{d_1} LIST e'_1* => s_1
+  -- Match_exp: S |- LIST e_2* `/ `{d_2} $subst_exp(s_1, e'_2) => s_2?
+
+rule Match_exp/CAT-1-fail1:
+  S |- LIST e_1^n e_2* `/ `{d_1 ++ d_2} CAT (LIST e'_1^n) e'_2 => eps
+  -- Match_exp: S |- LIST e_1^n `/ `{d_1} LIST e'_1* => eps
+
+rule Match_exp/CAT-2:
+  S |- LIST e_1* e_2^n `/ `{d_1 ++ d_2} CAT e'_1 (LIST e'_2^n) => (s_1 ++ s_2)?
+  -- Match_exp: S |- LIST e_1* `/ `{d_1} e'_1 => s_1
+  -- Match_exp: S |- LIST e_2^n `/ `{d_2} $subst_exp(s_1, LIST e'_2^n) => s_2?
+
+rule Match_exp/CAT-2-fail1:
+  S |- LIST e_1* e_2^n `/ `{d_1 ++ d_2} CAT e'_1 (LIST e'_2^n) => eps
+  -- Match_exp: S |- LIST e_1* `/ `{d_1} e'_1 => eps
+
+rule Match_exp/STR:
+  S |- STR (l_1 `= e_1) le* `/ `{d_1 ++ d} STR (l_1 `= e'_1) le'* => (s_1 ++ s)?
+  -- Match_exp: S |- e_1 `/ `{d_1} e'_1* => s_1
+  -- Match_exp: S |- STR le* `/ `{d} $subst_exp(s_1, STR le'*) => s?
+
+rule Match_exp/STR-fail1:
+  S |- STR (l_1 `= e_1) le* `/ `{d_1 ++ d} STR (l_1 `= e'_1) le'* => eps
+  -- Match_exp: S |- e_1 `/ `{d_1} e'_1* => eps
+
+
+rule Match_exp/ITER-QUEST:
+  S |- OPT e? `/ `{$composedoms(d*)} ITER e' QUEST (x `<- ex')* => $composesubsts(s*)
+  -- (Match_exp: S |- e `/ `{{EXP x*}} e' => s')?
+  -- (Match_exp: S |- OPT $subst_exp(s', x)? `/ `{d} ex' => s)*
+  ;; Note: inner match can only instantiate iteration variables
+
+rule Match_exp/ITER-QUEST-fail1:
+  S |- OPT e `/ `{$composedoms(d*)} ITER e' QUEST (x `<- ex')* => eps
+  -- Match_exp: S |- e `/ `{{EXP x*}} e' => eps
+
+rule Match_exp/ITER-QUEST-fail2:
+  S |- OPT e? `/ `{$composedoms(d*)} ITER e' QUEST (x `<- ex')* => eps
+  -- (Match_exp: S |- e `/ `{{EXP x*}} e' => s')?
+  -- Match_exp: S |- OPT $subst_exp(s', x*[i])? `/ `{d} ex'*[i] => eps
+
+
+rule Match_exp/ITER-PLUS:
+  S |- LIST e* `/ `{d} ITER e PLUS (x `<- ex')* => s?
+  -- Match_exp: S |- LIST e* `/ `{d} ITER e STAR (x `<- ex')* => s?
+  -- if |e*| >= 1
+
+rule Match_exp/ITER-STAR:
+  S |- LIST e* `/ `{d} ITER e STAR (x `<- ex')* => s?
+  -- Match_exp: S |- LIST e* `/ `{d} ITER e (SUP eps (NAT n)) (x `<- ex')* => s?
+  -- if |e*| = n
+
+rule Match_exp/ITER-SUP-eps:
+  S |- LIST e* `/ `{d} ITER e (SUP eps en') (x `<- ex')* => s?
+  -- Match_exp: S |- LIST e* `/ `{d} ITER e (SUP y en') (x `<- ex')* => s?
+  ;; TODO: y fresh
+
+rule Match_exp/ITER-SUP:
+  S |- LIST e^n `/ `{dn ++ $composedoms(d*)} ITER e (SUP y en') (x `<- ex')* => sn + $composesubsts(s*)
+  -- Match_exp S |- NAT n `/ `{dn} en' => sn
+  -- (Match_exp: S |- e `/ `{{EXP x*}} $subst_exp(sn ++ {EXP (y, NAT i)}, e') => s')^(i<n)
+  -- (Match_exp: S |- LIST $subst_exp(s', x)^n `/ `{d} ex' => s)*
+  ;; -- if x*^n = $transpose_(exp, e'^n*)
+
+rule Match_exp/ITER-SUP-fail1:
+  S |- LIST e^n `/ `{dn ++ $composedoms(d*)} ITER e (SUP y en') (x `<- ex')* => eps
+  -- Match_exp S |- NAT n `/ `{dn} en' => eps
+
+
+rule Match_exp/SUB-SUB:
+  S |- SUB e t_1 t_2 `/ `{d} SUB e' t'_1 t'_2 => s
+  -- Sub_typ: $storeenv(S) |- t_1 <: t'_1
+  -- Reduce_exp: S |- SUB e t_1 t'_1 ~>* e''
+  -- Match_exp: S |- e'' `/ `{d} e' => s
+
+;; TODO: disjointness
+
+rule Match_exp/SUB-TUP:
+  S |- TUP e* `/ `{d} SUB e' (TUP (x_1 `: t'_1)*) (TUP (x_2 `: t'_2)*) => s
+  -- if s_1 = {EXP (x_1, e)*}
+  -- if s_2 = {EXP (x_2, e)*}
+  -- (Reduce_exp: S |- SUB e' $subst_typ(s_1, t'_1) $subst_typ(s_2, t'_2) ~> e'')*
+  -- Match_exp: S |- TUP e''* `/ `{d} e' => s
+
+  | CVT exp numtyp numtyp   ;; exp : typ1 <:> typ2
+  | SUB exp typ typ         ;; exp : typ1 <: typ2
+
+syntax expfield = atom `= exp  ;; atom `=` exp
+syntax exppull = id `<- exp    ;; id `<-` exp
+
+syntax path =
+  | ROOT               ;;
+  | THE path           ;; path!
+  | IDX path exp       ;; path[ exp ]
+  | SLICE path exp exp ;; path[ exp : exp ]
+  | DOT path atom      ;; path.atom
+  | PROJ path mixop    ;; path!mixop
+
+
+;; Grammars
+
+syntax sym =
+  | VAR id arg*        ;; gramid( arg* )
+  | NUM nat            ;; num
+  | TEXT text          ;; text
+  | SEQ sym*           ;; sym*
+  | ALT sym*           ;; sym `|` sym
+  | RANGE sym sym      ;; sym `|` `...` `|` sym
+  | ITER sym iter exppull*   ;; sym iter{ expiter* }
+  | ATTR exp sym       ;; exp `:` sym
