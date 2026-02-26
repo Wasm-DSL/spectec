@@ -52,20 +52,24 @@ module StringSet = Set.Make(String)
 type env = {
   mutable wf_set : StringSet.t;
   mutable proj_set : StringSet.t;
+  mutable tf_set : StringSet.t;
   mutable il_env : Il.Env.t;
 }
 
 let empty () = {
   wf_set = StringSet.empty;
   proj_set = StringSet.empty;
-  il_env = Il.Env.empty
+  tf_set = StringSet.empty;
+  il_env = Il.Env.empty;
 }
 
 let wf_pred_prefix = "wf_"
 let rule_prefix = "case_"
 
+let wf_hint_id = "wf-relation"
+
 (* flag that deactivates adding wellformedness predicates to relations *)
-let deactivate_wfness = false
+let deactivate_wfness = true
 
 let error at msg = error at "Undep error" msg
 
@@ -151,9 +155,11 @@ and t_exp env e =
     (* Remove every arg but last for family projections *)
   | CallE (id, args) when StringSet.mem id.it env.proj_set && args <> [] -> 
     CallE (id, [(Lib.List.last args)])
-    (* HACK - Change IterE of option with no iteration variable into a OptE *)
+    (* HACK - Change IterE of option and list with no iteration variable into a OptE *)
   | IterE (e1, (Opt, [])) -> 
-    OptE (Some e1) 
+    OptE (Some e1)
+  | IterE (e1, (List, [])) | IterE (e1, (List1, [])) ->
+    ListE [e1] 
   | exp -> exp
   ) $$ e.at % e.note
 
@@ -229,7 +235,9 @@ let get_exp_typ q =
   match q.it with
   | ExpP (id, typ) -> Some (VarE id $$ id.at % typ, typ)
   | _ -> None
-  
+
+let generate_well_formed_rel_hint at: hint = { hintid = wf_hint_id $ at; hintexp = El.Ast.SeqE [] $ at} 
+
 let create_well_formed_predicate env id inst = 
   let tf = { base_transformer with transform_exp = t_exp env; transform_typ = t_typ} in
   let at = id.at in 
@@ -240,6 +248,7 @@ let create_well_formed_predicate env id inst =
       | _ -> None
     ) quants) in
   let tupt pairs = TupT (pairs @ [("_" $ at, user_typ)]) $ at in
+  let hint = HintD (RelH (wf_pred_prefix ^ id.it $ id.at, [generate_well_formed_rel_hint at]) $ at) $ at in 
   match inst.it with
   (* Variant well formedness predicate creation *)
   | InstD (quants, _args, {it = VariantT typcases; _}) -> 
@@ -265,10 +274,10 @@ let create_well_formed_predicate env id inst =
     let has_no_prems = List.for_all (fun rule -> match rule.it with
       | RuleD (_, _, _, _, prems) -> prems = []   
     ) rules in
-    if has_no_prems then None else 
+    if has_no_prems then [] else 
     let relation = RelD (wf_pred_prefix ^ id.it $ id.at, [], new_mixop dep_exp_typ_pairs, tupt pairs_without_names, rules) $ at in 
     bind_wf_set env id.it;
-    Some relation
+    [relation; hint]
 
   (* Struct/Record well formedness predicate creation *)
   | InstD (quants, _args, {it = StructT typfields; _}) -> 
@@ -299,19 +308,26 @@ let create_well_formed_predicate env id inst =
       List.map (transform_prem tf) (new_prems)) $ at 
     in
   
-    if new_prems = [] then None else 
+    if new_prems = [] then [] else 
     let relation = RelD (wf_pred_prefix ^ id.it $ id.at, [], new_mixop dep_exp_typ_pairs, tupt pairs_without_names, [rule]) $ at in 
     bind_wf_set env id.it;
-    Some relation
-  | _ -> None
+    [relation; hint]
+  | _ -> []
+
+let rec has_type_family env typ = 
+  match typ.it with
+  | VarT (id, _) -> StringSet.mem id.it env.tf_set
+  | IterT (typ, _) -> has_type_family env typ
+  | TupT typs -> List.exists (fun (_, t) -> has_type_family env t) typs
+  | _ -> false
 
 let get_extra_prems env quants exp prems = 
-  if deactivate_wfness then [] else 
   let cl = create_collector [] in 
   let wf_terms = collect_exp cl exp @ List.concat_map (collect_prem cl) prems in
   let unique_terms = Util.Lib.List.nub (fun ((e1, _t1), iterexp1) ((e2, _t2), iterexp2) -> 
     Il.Eq.eq_exp e1 e2 && Il.Eq.eq_list Il.Eq.eq_iterexp iterexp1 iterexp2
   ) wf_terms in
+  let unique_terms = if deactivate_wfness then List.filter (fun ((_, t), _) -> has_type_family env t) unique_terms else unique_terms in
   
   let more_prems = List.concat_map (fun (pair, iterexps) -> 
     List.map (fun prem' -> List.fold_left (fun acc iterexp ->
@@ -321,8 +337,8 @@ let get_extra_prems env quants exp prems =
     
   (* Leverage the fact that the wellformed predicates are "bubbled up" and remove unnecessary wf preds*)
   let free_vars = (Free.free_list Free.free_prem more_prems).varid in 
-  let quants_filtered = Lib.List.filter_not (fun q -> match q.it with 
-    | ExpP (id, _) -> Free.Set.mem id.it free_vars
+  let quants_filtered = Lib.List.filter_not (fun b -> match b.it with 
+    | ExpP (id, typ) -> Free.Set.mem id.it free_vars || (deactivate_wfness && (not (has_type_family env typ)))
     | _ -> true
   ) quants in
   let quant_prems = (List.filter_map get_exp_typ quants_filtered) |> List.concat_map (get_wf_pred env) in
@@ -387,7 +403,7 @@ let rec t_def env def =
     (TypD (id, List.map (transform_param tf) params |> List.filter is_type_param, [inst]) $ def.at, [])
   | TypD (id, params, [inst]) -> 
     let relation = create_well_formed_predicate env id inst in
-    (TypD (id, List.map (transform_param tf) params |> List.filter is_type_param, [t_inst env inst]) $ def.at, Option.to_list relation)
+    (TypD (id, List.map (transform_param tf) params |> List.filter is_type_param, [t_inst env inst]) $ def.at, relation)
   | TypD (_, _, _) -> 
     error def.at "Multiples instances encountered, please run type family removal pass first."
   | RelD (id, params, m, typ, rules) -> 
@@ -413,6 +429,7 @@ let rec t_def env def =
   | HintD hintdef -> (HintD hintdef $ def.at, [])
   
 let has_proj_hint (hint : hint) = hint.hintid.it = Typefamilyremoval.projection_hint_id
+let has_tf_hint (hint : hint) = hint.hintid.it = Typefamilyremoval.type_family_hint_id
 
 let create_proj_map_def set (d : def) = 
   match d.it with
@@ -423,12 +440,24 @@ let create_proj_map_def set (d : def) =
     ) 
   | _ -> ()
 
+let create_tf_set_def set (d : def) = 
+  match d.it with
+  | HintD {it = TypH (id, hints); _} ->
+    (match (List.find_opt has_tf_hint hints) with
+    | Some _ -> set := StringSet.add id.it !set
+    | _ -> ()
+    ) 
+  | _ -> ()
+
 let transform (il : script): script =
   let env = empty () in 
   env.il_env <- Il.Env.env_of_script il;
   let proj_set = ref StringSet.empty in
+  let tf_set = ref StringSet.empty in 
   List.iter (create_proj_map_def proj_set) il;
+  List.iter (create_tf_set_def tf_set) il;
   env.proj_set <- !proj_set;
+  env.tf_set <- !tf_set;
   List.concat_map (fun d -> 
     let (t_d, wf_relations) = t_def env d in 
     t_d :: wf_relations
