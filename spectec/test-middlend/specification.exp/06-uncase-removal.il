@@ -15082,7 +15082,7 @@ grammar Tblocktype_(I : I) : blocktype
   prod{`t?` : valtype?} t?{t <- `t?`}:Tresult_(I)?{} => _RESULT_blocktype(t?{t <- `t?`})
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
   prod{x : idx, I' : I} (x, I'):Ttypeuse_(I) => _IDX_blocktype(x)
-    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS ?(`%`_name([]))*{}, LABELS [], FIELDS [], TYPEDEFS []})
+    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS [?(`%`_name([]))], LABELS [], FIELDS [], TYPEDEFS []})
 
 ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
 grammar Tcatch_(I : I) : catch
@@ -15153,7 +15153,7 @@ grammar Tplaininstr_(I : I) : instr
   prod{x : idx} {{"call_ref"} {x:Ttypeidx_(I)}} => CALL_REF_instr(_IDX_typeuse(x))
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
   prod{x : idx, y : idx, I' : I} {{"call_indirect"} {x:Ttableidx_(I)} {(y, I'):Ttypeuse_(I)}} => CALL_INDIRECT_instr(x, _IDX_typeuse(y))
-    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS ?(`%`_name([]))*{}, LABELS [], FIELDS [], TYPEDEFS []})
+    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS [?(`%`_name([]))], LABELS [], FIELDS [], TYPEDEFS []})
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
   prod "return" => RETURN_instr
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
@@ -15162,7 +15162,7 @@ grammar Tplaininstr_(I : I) : instr
   prod{x : idx} {{"return_call_ref"} {x:Ttypeidx_(I)}} => RETURN_CALL_REF_instr(_IDX_typeuse(x))
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
   prod{x : idx, y : idx, I' : I} {{"return_call_indirect"} {x:Ttableidx_(I)} {(y, I'):Ttypeuse_(I)}} => RETURN_CALL_INDIRECT_instr(x, _IDX_typeuse(y))
-    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS ?(`%`_name([]))*{}, LABELS [], FIELDS [], TYPEDEFS []})
+    -- if (I' = {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS [?(`%`_name([]))], LABELS [], FIELDS [], TYPEDEFS []})
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
   prod{x : idx} {{"throw"} {x:Ttagidx_(I)}} => THROW_instr(x)
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
