@@ -50,7 +50,7 @@ let get_atom_id a =
 
 let get_mixop_s m = 
   String.concat "" (List.map (
-      fun atoms -> String.concat "" (List.filter is_atomid atoms |> List.map get_atom_id)) m
+      fun atoms -> String.concat "" (List.filter is_atomid atoms |> List.map get_atom_id)) (Xl.Mixop.flatten m)
   ) 
 
 let t_atom_opt typ_id a =
@@ -64,16 +64,15 @@ let t_atom_opt typ_id a =
 let t_atom typ_id a =
   match (t_atom_opt typ_id a) with
   | Some a -> a
-  | _ -> assert false
-  (* | None -> error a.at "Could not find modified atom id" *)
+  | None -> error a.at "Could not find modified atom id"
 
-let t_mixop typ_id m = 
+let t_mixop typ_id (m : mixop) = 
   match m with
-  | [a] :: tail when List.for_all ((=) []) tail -> [t_atom typ_id a] :: tail 
+  (* | [a] :: tail when List.for_all ((=) []) tail -> [t_atom typ_id a] :: tail  *)
   | _ ->
     let s = get_mixop_s m in
     let new_atom = Atom.Atom s $$ empty_info in
-    [[t_atom typ_id new_atom]]
+    Xl.Mixop.Atom (t_atom typ_id new_atom)
   (* List.map (fun atoms -> List.map (t_atom typ_id) atoms) m *)
 
 let t_exp e = 
@@ -130,28 +129,28 @@ let rec t_atom_new typ_id base_a a =
 
 let t_mixop_new typ_id m = 
   match m with
-  | [a] :: tail when List.for_all ((=) []) tail -> [t_atom_new typ_id a a] :: tail 
+  (* | [a] :: tail when List.for_all ((=) []) tail -> [t_atom_new typ_id a a] :: tail  *)
   | _ -> 
     let s = get_mixop_s m in 
     let new_atom = Atom.Atom s $$ empty_info in
-    [[t_atom_new typ_id new_atom new_atom]]
+    Xl.Mixop.Atom (t_atom_new typ_id new_atom new_atom)
 
 
   (* List.map (fun atoms -> List.map (fun a -> t_atom_new typ_id a a) atoms) m *)
     
 let t_inst t typ_id inst = 
-  let InstD (binds, args, deftyp) = inst.it in
+  let InstD (quants, args, deftyp) = inst.it in
   let deftyp' = match deftyp.it with
-  | VariantT typcases -> VariantT (List.map (fun (m, (binds', typ, prems), h) -> 
+  | VariantT typcases -> VariantT (List.map (fun (m, (typ, quants', prems), h) -> 
     (t_mixop_new typ_id m, 
-    (List.map (transform_bind t) binds', transform_typ t typ, List.map (transform_prem t) prems), 
+    (transform_typ t typ, List.map (transform_param t) quants', List.map (transform_prem t) prems), 
     h)
   ) typcases)
-  | StructT typfields -> StructT (List.map (fun (a, (binds', typ, prems), h) -> 
-    (t_atom_new typ_id a a, (List.map (transform_bind t) binds', transform_typ t typ, List.map (transform_prem t) prems), h)
+  | StructT typfields -> StructT (List.map (fun (a, (typ, quants', prems), h) -> 
+    (t_atom_new typ_id a a, (transform_typ t typ, List.map (transform_param t) quants', List.map (transform_prem t) prems), h)
   ) typfields)
   | AliasT typ -> AliasT (transform_typ t typ) in
-  { inst with it = InstD (List.map (transform_bind t) binds, List.map (transform_arg t) args, {deftyp with it = deftyp'})} 
+  { inst with it = InstD (List.map (transform_param t) quants, List.map (transform_arg t) args, {deftyp with it = deftyp'})} 
 
 let rec t_def def = 
   let t = { base_transformer with transform_path = t_path; transform_exp = t_exp } in
@@ -159,12 +158,12 @@ let rec t_def def =
   | TypD (typ_id, params, insts) -> 
     { def with it = TypD (typ_id, List.map (transform_param t) params, List.map (t_inst t typ_id.it) insts) }
   | RecD defs -> { def with it = RecD (List.map t_def defs) }
-  | RelD (id, m, typ, rules) -> 
-    { def with it = RelD (id, m, typ, 
+  | RelD (id, ps, m, typ, rules) -> 
+    { def with it = RelD (id, ps, m, typ, 
     List.map (fun rule ->
-      let RuleD (r_id, binds, m, exp, prems) = rule.it in
+      let RuleD (r_id, quants, m, exp, prems) = rule.it in
       { rule with it = RuleD ((t_rule_new id.it r_id.it r_id.it) $ r_id.at, 
-      List.map (transform_bind t) binds, m, transform_exp t exp, List.map (transform_prem t) prems) }
+      List.map (transform_param t) quants, m, transform_exp t exp, List.map (transform_prem t) prems) }
     ) rules) }
   | _ -> transform_def t def
 
