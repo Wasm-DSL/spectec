@@ -580,11 +580,11 @@ let uses_def ids_set def =
   | _ -> false
 
 let rec transform_def (env : env) def = 
-  let must_be_rel_def d =
+  (* let must_be_rel_def d =
     match d.it with
     | DecD (id, params, _, clauses) -> must_be_relation env id params clauses
     | _ -> false
-  in
+  in *)
   let has_exp_params d =
     match d.it with
     | DecD (_, params, _, _) -> List.for_all is_exp_param params
@@ -598,7 +598,7 @@ let rec transform_def (env : env) def =
     cvt_def_to_rel env id params typ clauses
   | DecD (id, params, typ, clauses) -> 
     [{ def with it = DecD (id, params, typ, List.map (transform_clause env) clauses) }]
-  | RecD defs when List.exists must_be_rel_def defs && List.for_all has_exp_params defs -> 
+  | RecD defs when List.for_all has_exp_params defs -> 
     let ids_ref = ref StringSet.empty in
     List.iter (fun d -> match d.it with
     | DecD (id, _, _, _) -> 
