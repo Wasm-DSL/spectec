@@ -31,6 +31,13 @@ and reduce_inst_alias env args inst base_typ =
     ) 
   | _ -> base_typ
 
+let is_part_of_quant (free_set : Free.sets) b =
+  match b.it with
+  | ExpP (id, _) -> Free.Set.mem id.it free_set.varid 
+  | TypP id -> Free.Set.mem id.it free_set.typid
+  | DefP (id, _, _) -> Free.Set.mem id.it free_set.defid
+  | GramP (id, _, _) -> Free.Set.mem id.it free_set.gramid
+
 let generate_var ids id =
   let start = 0 in
   let fresh_prefix = "var" in
