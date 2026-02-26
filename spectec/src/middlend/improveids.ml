@@ -8,6 +8,7 @@ open Il.Walk
 open Util.Source
 (* open Util *)
 open Xl.Atom
+open Xl
 
 module StringMap = Map.Make(String)
 module StringSet = Set.Make(String)
@@ -27,7 +28,7 @@ type id_type =
   | USERDEF     (* Types, type constructors and relations *)
   | FUNCDEF     (* function definitions *)
 
-let empty_info: region * Xl.Atom.info = (no_region, {def = ""; case = ""})
+let empty_info typ_id: region * Xl.Atom.info = (no_region, {def = typ_id; case = ""})
 
 (* Id transformation *)
 let rec transform_id' (env : env) (id_type : id_type) (s : text) = 
@@ -36,6 +37,7 @@ let rec transform_id' (env : env) (id_type : id_type) (s : text) =
     String.map (function
      | '.' -> '_'
      | '-' -> '_'
+     | '#' -> '_'
      | c -> c
     ) s'
     (* This suffixes any '*' with '_lst' and '?' with '_opt' for clarity *)
@@ -88,16 +90,24 @@ let transform_atom env typ_id a =
     register_atom_id env (make_prefix ^ typ_id);
     Atom (make_prefix ^ typ_id) $$ a.at % a.note
 
+(* Atom transformation where there might be other atom constructs, leave them be *)
+let transform_atom' env a = 
+  match a.it with
+  | Atom s -> 
+    register_atom_id env (t_user_def_id env (s $ a.at)).it;
+    Atom (t_user_def_id env (s $ a.at)).it $$ a.at % a.note
+  | _ -> a
+
 let transform_mixop env typ_id (m : mixop) =
-(* TODO! Not sure what the expected result is for this one. *)
-ignore (env, typ_id, empty_info, is_atomid, has_atom_hole, transform_atom); m
-(*
-  let m' = List.map (fun inner_m -> List.filter is_atomid inner_m) m in
+  let m' = List.map (fun inner_m -> List.filter is_atomid inner_m) (Mixop.flatten m) in
   let len = List.length m' in 
   match m' with
-  | _ when List.for_all (fun l -> l = [] || has_atom_hole l) m' -> [(Atom (make_prefix ^ typ_id) $$ empty_info)] :: List.init (len - 1) (fun _ -> [])
-  | _ -> Xl.Mixop.map_atoms (transform_atom env typ_id)) m'
-*)
+  | _ when List.for_all (fun l -> l = [] || has_atom_hole l) m' -> 
+    register_atom_id env (make_prefix ^ typ_id);
+    let atom = Xl.Mixop.Atom (Atom (make_prefix ^ typ_id) $$ empty_info typ_id) in
+    Xl.Mixop.(Seq (atom :: List.init (len - 1) (fun _ -> Arg ())))
+  | _ -> Xl.Mixop.map_atoms (transform_atom' env) m
+
 
 let rec check_iteration_naming e iterexp = 
   match e.it, iterexp with
@@ -160,6 +170,12 @@ let t_inst tf env id inst =
   )
   ) $ inst.at
 
+(* Necessary to reset ids due to change on iterE *)
+let t_prem prem = 
+  { prem with it = match prem.it with
+  | LetPr (e1, e2, _) -> LetPr (e1, e2, Free.Set.elements (Free.free_exp e1).varid)
+  | p -> p }
+
 let transform_rule tf env rel_id rule = 
   (match rule.it with
   | RuleD (id, quants, m, exp, prems) -> 
@@ -175,7 +191,8 @@ let rec t_def env def =
   let tf = { base_transformer with 
     transform_exp = t_exp env;
     transform_typ = t_typ env;
-    transform_path = t_path env; 
+    transform_path = t_path env;
+    transform_prem = t_prem;
     transform_var_id = t_var_id env;
     transform_typ_id = t_user_def_id env;
     transform_rel_id = t_user_def_id env;
