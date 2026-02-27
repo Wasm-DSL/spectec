@@ -400,8 +400,10 @@ def $subst_subtype((SUB final? tu'* ct), tvu*) =
 
 def $minus_recs((typevar, typeuse)*) : (typevar, typeuse)*
 def $minus_recs(eps) = eps
-def $minus_recs((REC n, tu_1) tvu*) = $minus_recs(tvu*)
-def $minus_recs((_IDX x, tu_1) tvu*) = (_IDX x, tu_1) tvu'*
+def $minus_recs((tv, tu) tvu*) = $minus_recs(tvu*)
+  -- if tv = REC n
+def $minus_recs((tv, tu) tvu*) = (_IDX x, tu) tvu'*
+  -- if tv = _IDX x
   -- if tvu'* = $minus_recs(tvu*)
 
 def $subst_rectype((REC st*), tvu*) = REC $subst_subtype(st, tvu'*)*
