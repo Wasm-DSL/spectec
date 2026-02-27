@@ -371,10 +371,12 @@ and eval_expr env expr =
     else
       Array.make i v |> listV
   (* HARDCODE: The case where itered variable does not appear in xes.
-    --> Insert itered variable. This was instroduced due to the change of IrerE's ListN. *)
-  | IterE (e1, (ListN (e2, Some x), [])) ->
+    --> Insert itered variable. This was instroduced due to the change of IrerE's ListN.
+    TODO: Do this in the preprocess *)
+  | IterE (e1, (ListN (e2, Some x), xes))
+    when List.for_all (fun (x', _) -> x <> x') xes ->
     let dummy_expr = VarE "_" $$ no_region % (Il.Ast.VarT ("_" $ no_region, []) $ no_region) in
-    let expr' = {expr with it = IterE (e1, (ListN (e2, Some x), [(x, dummy_expr)]))} in
+    let expr' = {expr with it = IterE (e1, (ListN (e2, Some x), [(x, dummy_expr)] @ xes))} in
     eval_expr env expr'
   | IterE (inner_e, (iter, xes)) ->
     let vs =
@@ -426,9 +428,17 @@ and eval_expr env expr =
     check_type (string_of_typ t) v expr
   | MatchE (e1, e2) ->
     (* Deferred to reference interpreter *)
-    let rt1 = e1 |> eval_expr env |> Construct.al_to_reftype in
-    let rt2 = e2 |> eval_expr env |> Construct.al_to_reftype in
-    boolV (Match.match_reftype [] rt1 rt2)
+    let v1 = eval_expr env e1 in
+    let v2 = eval_expr env e2 in
+    let rt1 = Construct.al_to_reftype v1 in
+    let rt2 = Construct.al_to_reftype v2 in
+    begin try boolV (Match.match_reftype [] rt1 rt2) with
+    | _ -> fail_expr expr @@
+      Printf.sprintf
+        "\nMatching the reftype\n\t%s\nwith the reftype\n\t%s\nusing the reference interpreter resulted in an unexpected error\n"
+        (Al.Print.string_of_value v1)
+        (Al.Print.string_of_value v2)
+    end
   | TopValueE _ ->
     (* TODO: type check *)
     boolV (List.length (WasmContext.get_value_stack ()) > 0)
