@@ -428,9 +428,17 @@ and eval_expr env expr =
     check_type (string_of_typ t) v expr
   | MatchE (e1, e2) ->
     (* Deferred to reference interpreter *)
-    let rt1 = e1 |> eval_expr env |> Construct.al_to_reftype in
-    let rt2 = e2 |> eval_expr env |> Construct.al_to_reftype in
-    boolV (Match.match_reftype [] rt1 rt2)
+    let v1 = eval_expr env e1 in
+    let v2 = eval_expr env e2 in
+    let rt1 = Construct.al_to_reftype v1 in
+    let rt2 = Construct.al_to_reftype v2 in
+    begin try boolV (Match.match_reftype [] rt1 rt2) with
+    | _ -> fail_expr expr @@
+      Printf.sprintf
+        "\nMatching the reftype\n\t%s\nwith the reftype\n\t%s\nusing the reference interpreter resulted in an unexpected error\n"
+        (Al.Print.string_of_value v1)
+        (Al.Print.string_of_value v2)
+    end
   | TopValueE _ ->
     (* TODO: type check *)
     boolV (List.length (WasmContext.get_value_stack ()) > 0)
