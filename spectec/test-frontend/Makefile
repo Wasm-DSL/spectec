@@ -1,15 +1,18 @@
 # Configuration
 
-NAME = watsup
+NAME = spectec
 EXE = $(PWD)/../$(NAME)
 EXT = $(NAME)
+LOG = _log
 
 OWNDIR = $(PWD)
-SPECDIR = ../spec
+SPECDIR = ../../specification
+SPECCLONE = ../_specification
 SPECFILES = $(shell cd $(SPECDIR) && ls -d wasm-*)
 TESTFILES = $(shell ls *.$(EXT))
 SPECS = $(SPECFILES:%=test-%)
 TESTS = $(TESTFILES:%.$(EXT)=test-%)
+SPECDEPFILES = $(shell ls $(SPECFILES:%=$(SPECDIR)/%/*.$(EXT)))
 
 
 # Main targets
@@ -25,11 +28,11 @@ all: test
 
 test: $(SPECS) $(TESTS)
 
-$(SPECS): test-%: $(EXE)
-	(cd $(SPECDIR)/$* && $(EXE) *.$(EXT))
+$(SPECS): test-%: $(SPECCLONE) $(EXE)
+	(cd $(SPECCLONE)/$* && $(EXE) -l *.$(EXT))
 
 $(TESTS): test-%: %.$(EXT) $(EXE)
-	($(EXE) $<)
+	($(EXE) -l $<)
 
 
 # Executable
@@ -40,11 +43,17 @@ exe:
 	@(cd ..; make exe)
 
 
+# Specification
+
+$(SPECCLONE): $(SPECDEPFILES)
+	@(cd ..; make _specification)
+
+
 # Cleanup
 
 .PHONY: clean distclean
 
 clean:
-	# Nothing so far
+	rm -f $(LOG)
 
 distclean: clean

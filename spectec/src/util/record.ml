@@ -21,7 +21,7 @@ let add k v r =
 
 let find s r =
   try assoc s r |> (!) with
-  | _ -> failwith ("No field name: " ^ s ^ "\n")
+  | _ -> failwith ("No field name\n")
 
 let find_opt s r =
   assoc_opt s r |> Option.map (!)
@@ -39,6 +39,8 @@ let fold f r acc =
 let filter f =
   filter (fun (k, v) -> f k !v)
 
-let to_list r = r
+let to_list r =
+  List.map (fun (k, v_ref) -> k, !v_ref) r
 
-let of_list r = r
+let of_list l =
+  List.map (fun (k, v) -> k, ref v) l

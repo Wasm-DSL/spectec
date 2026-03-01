@@ -8,22 +8,21 @@ $${definition: size}
 $${syntax+:
   limits
   {globaltype
-  functype
   tabletype
   memtype}
   {}
   externtype
 }
 
-$${syntax: {instr/control}}
+$${syntax: {instr/block}}
 
-$${syntax: {instr/numeric instr/local instr/global instr/memory} expr}
+$${syntax: {instr/num instr/local instr/global instr/memory} expr}
 
 
 
 **Typing** ${relation: Instr_ok}
 
-An instruction sequence ${:instr*} is well-typed with an instruction type ${functype: t_1* -> t_2*}, written ${:instr*} :math:`:` ${functype: t_1* -> t_2*}, according to the following rules:
+An instruction sequence ${:instr*} is well-typed with an instruction type ${: t_1* -> t_2*}, written ${:instr*} :math:`:` ${: t_1* -> t_2*}, according to the following rules:
 
 $${rule:
   {Instrs_ok/empty Instrs_ok/seq}
@@ -40,14 +39,14 @@ $${rule+: Instr_ok/loop}
 $${rule+: Instr_ok/if}
 
 
-$${rule-ignore: Instr_ok/convert-*}
+$${rule-ignore: Instr_ok/memory.grow}
 
 
 **Runtime**
 
-$${definition: default}
+$${definition: default_}
 
-$${definition: {funcaddr funcinst} {func table}}
+$${definition: {funcinst} {func table}}
 
 
 **Reduction** ${relation: Step_pure}

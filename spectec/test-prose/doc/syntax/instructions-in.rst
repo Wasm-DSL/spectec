@@ -6,65 +6,41 @@ Instructions
 Numeric Instructions
 ~~~~~~~~~~~~~~~~~~~~
 
-.. _syntax-inn:
-.. _syntax-fnn:
+.. _syntax-Inn:
+.. _syntax-Fnn:
 .. _syntax-sx:
-.. _syntax-instr-numeric:
-.. _syntax-iunop:
-.. _syntax-funop:
-.. _syntax-ibinop:
-.. _syntax-fbinop:
-.. _syntax-itestop:
-.. _syntax-ftestop:
-.. _syntax-irelop:
-.. _syntax-frelop:
+.. _syntax-instr-num:
+.. _syntax-unop:
+.. _syntax-binop:
+.. _syntax-testop:
+.. _syntax-relop:
 
 $${syntax+: 
-  {inn
-  fnn}
+  {Inn
+  Fnn}
   sx
-  instr/numeric
-  {iunop
-  funop
-  ibinop
-  fbinop
-  itestop
-  ftestop
-  irelop
-  frelop}
+  instr/num
+  {unop_
+  binop_
+  testop_
+  relop_
+  cvtop__}
 }
 
-\
 
-Occasionally, it is convenient to group operators together according to the following grammar shorthands:
-
-.. _syntax-unop_numtype:
-.. _syntax-binop_numtype:
-.. _syntax-testop-numtype:
-.. _syntax-relop_numtype:
-.. _syntax-cvtop:
-
-$${syntax+:
-  unop_numtype
-  binop_numtype
-  testop_numtype
-  relop_numtype
-  cvtop
-}
-
-.. _syntax-instr-reference:
+.. _syntax-instr-ref:
 
 Reference Instructions
 ~~~~~~~~~~~~~~~~~~~~~~
 
-$${syntax: instr/reference}
+$${syntax: instr/ref}
 
 .. _syntax-instr-heap:
 
 Aggregate Instructions
 ~~~~~~~~~~~~~~~~~~~~~~
 
-$${syntax: instr/heap}
+$${syntax: instr/struct instr/array instr/i31 instr/extern}
 
 .. _syntax-instr-local:
 .. _syntax-instr-global:
@@ -82,27 +58,27 @@ $${syntax+:
 Table Instructions
 ~~~~~~~~~~~~~~~~~~
 
-$${syntax: instr/table}
+$${syntax: instr/table instr/elem}
 
 
 Memory Instructions
 ~~~~~~~~~~~~~~~~~~~
 
 .. _syntax-instr-memory:
-.. _syntax-memop:
+.. _syntax-memarg:
 
 $${syntax+: 
-  instr/memory
-  memop
+  instr/memory instr/data
+  memarg loadop_ vloadop_
 }
 
-.. _def-memop0:
+.. _def-memarg0:
 
-%{definition-prose: memop0}
+%{definition-prose: memarg0}
 
 \
 
-$${definition: memop0}
+$${definition: memarg0}
 
 .. _syntax-blocktype:
 .. _syntax-instr-control:
@@ -112,7 +88,7 @@ Control Instructions
 
 $${syntax+: 
   blocktype
-  instr/control
+  {instr/block instr/br instr/call}
 }
 
 .. _syntax-instr-expr:

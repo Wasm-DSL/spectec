@@ -29,7 +29,6 @@ $${syntax+:
   u31
   u32
   u64
-  u128
   s33
 }
 
@@ -37,13 +36,13 @@ Floating-Point
 ~~~~~~~~~~~~~~
 
 .. _syntax-fN:
-.. _syntax-fmag:
+.. _syntax-fNmag:
 .. _syntax-f32:
 .. _syntax-f64:
 
 $${syntax+: 
   fN
-  fmag
+  fNmag
   f32
   f64
 }
@@ -100,9 +99,5 @@ $${syntax+:
 }
 
 .. _def-utf8:
-
-$${definition-prose: utf8}
-
-\
 
 $${definition: utf8}

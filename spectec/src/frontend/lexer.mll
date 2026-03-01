@@ -14,22 +14,15 @@ let region lexbuf =
   let right = convert_pos (Lexing.lexeme_end_p lexbuf) in
   Source.{left = left; right = right}
 
-let error lexbuf msg = raise (Source.Error (region lexbuf, msg))
+let error lexbuf msg = raise (Error.Error (region lexbuf, msg))
 let error_nest start lexbuf msg =
   lexbuf.Lexing.lex_start_p <- start;
   error lexbuf msg
 
-let nat lexbuf s =
-  try
-    let n = int_of_string s in
-    if n >= 0 then n else raise (Failure "")
-  with Failure _ -> error lexbuf "nat literal out of range"
-
-let hex lexbuf s =
-  try
-    let n = int_of_string s in
-    if n >= 0 then n else raise (Failure "")
-  with Failure _ -> error lexbuf "hex literal out of range"
+let nat _lexbuf s = Z.of_string s
+let hex _lexbuf s = Z.of_string s
+let int lexbuf s =
+  try int_of_string s with Failure _ -> error lexbuf "hex literal out of range"
 
 let text _lexbuf s =
   let b = Buffer.create (String.length s) in
@@ -79,7 +72,7 @@ let letter = upletter | loletter
 let idchar = letter | digit | '_' | '\''
 
 let upid = (upletter | '_') idchar*
-let loid = (loletter | '`') idchar*
+let loid = loletter idchar*
 let id = upid | loid
 let atomid = upid
 let typid = loid
@@ -91,8 +84,9 @@ let symbol =
   ['+''-''*''/''\\''^''~''=''<''>''!''?''@''#''$''%''&''|'':''`''.''\'']
 
 let space = [' ''\t''\n''\r']
-let control = ['\x00'-'\x1f'] # space
+let control = ['\x00'-'\x1f''\x7f'] # space
 let ascii = ['\x00'-'\x7f']
+let printable = ascii # control
 let ascii_no_nl = ascii # '\x0a'
 let utf8cont = ['\x80'-'\xbf']
 let utf8enc =
@@ -127,10 +121,10 @@ rule after_nl = parse
 
 and after_nl_nl = parse
   | indent* "|"[' ''\t'] { NL_BAR }
-  | indent* "--" { NL_NL_DASH }
   | indent* '\n' { Lexing.new_line lexbuf; NL_NL_NL }
   | indent* line_comment '\n' { Lexing.new_line lexbuf; after_nl_nl lexbuf }
-  | "" { token lexbuf }
+  | indent* line_comment? eof { EOF }
+  | "" { NL_NL }
 
 and token = parse
   | "(" { LPAREN }
@@ -140,6 +134,7 @@ and token = parse
   | "{" { LBRACE }
   | "}" { RBRACE }
   | ":" { COLON }
+  | ":_" { COLONSUB }
   | ";" { SEMICOLON }
   | "," { COMMA }
   | "." { DOT }
@@ -155,8 +150,6 @@ and token = parse
 (*
   | line_comment? '\n' indent* "|"[' ''\t']
     { Lexing.new_line lexbuf; NL_BAR }
-  | line_comment? '\n' indent* '\n' (indent* line_comment '\n')* indent* "--"
-    { Lexing.new_line lexbuf; Lexing.new_line lexbuf; NL_NL_DASH }
   | line_comment? '\n' indent* '\n' indent* '\n'
     { Lexing.new_line lexbuf; Lexing.new_line lexbuf; Lexing.new_line lexbuf;
       NL_NL_NL }
@@ -173,11 +166,19 @@ and token = parse
   | ":>" { SUP }
   | ":=" { ASSIGN }
   | "==" { EQUIV }
-  | "=.." { EQDOT2 }
+  | "=++" { EQCAT }
+  | "=_" { EQSUB }
+  | "==_" { EQUIVSUB }
+  | "~~_" { APPROXSUB }
 
   | "~" { NOT }
   | "/\\" { AND }
   | "\\/" { OR }
+  | "(/\\)" { BIGAND }
+  | "(\\/)" { BIGOR }
+  | "(+)" { BIGADD }
+  | "(*)" { BIGMUL }
+  | "(++)" { BIGCAT }
 
   | "?" { QUEST }
   | "+" { PLUS }
@@ -186,30 +187,40 @@ and token = parse
   | "/" { SLASH }
   | "\\" { BACKSLASH }
   | "^" { UP }
-  | "++" { COMPOSE }
+  | "++" { CAT }
+  | "+-" { PLUSMINUS }
+  | "-+" { MINUSPLUS }
 
-  | "<-" { IN }
+  | "<-" { MEM }
+  | "</-" { NOTMEM }
   | "->" { ARROW }
   | "=>" { ARROW2 }
-  | "<=>" { DARROW2 }
+  | "->_" { ARROWSUB }
+  | "=>_" { ARROW2SUB }
   | "~>" { SQARROW }
+  | "~>_" { SQARROWSUB }
   | "~>*" { SQARROWSTAR }
+  | "~>*_" { SQARROWSTARSUB }
   | "<<" { PREC }
   | ">>" { SUCC }
   | "|-" { TURNSTILE }
   | "-|" { TILESTURN }
+  | "|-_" { TURNSTILESUB }
+  | "-|_" { TILESTURNSUB }
+  | "==>" { IMPL }
+  | "<=>" { DIMPL }
 
   | "$" { DOLLAR }
 
   | "_|_" { BOT }
   | "^|^" { TOP }
   | "%" { HOLE }
-  | "%"(nat as s) { HOLEN (nat lexbuf s) }
+  | "%"(nat as s) { HOLEN (int lexbuf s) }
   | "%%" { MULTIHOLE }
-  | "!%" { SKIP }
-  | "!%"(nat as s) { SKIPN (nat lexbuf s) }
-  | "!%%" { MULTISKIP }
+  | "!%" { NOTHING }
   | "#" { FUSE }
+  | "##" { FUSEFUSE }
+  | "%latex" { LATEX }
 
   | "`" { TICK }
 
@@ -249,24 +260,30 @@ and token = parse
   | loid as s { LOID s }
   | (upid as s) "(" { if is_var s then LOID_LPAREN s else UPID_LPAREN s }
   | (loid as s) "(" { LOID_LPAREN s }
+  | "`"(upid as s) { LOID s }
+  | "`"(loid as s) { UPID s }
+  | "`"(upid as s) "(" { LOID_LPAREN s }
+  | "`"(loid as s) "(" { UPID_LPAREN s }
   | "."(id as s) { DOTID s }
 
-  | ";;"utf8_no_nl*eof { EOF }
-  | ";;"utf8_no_nl*'\n' { Lexing.new_line lexbuf; token lexbuf }
-  | ";;"utf8_no_nl* { token lexbuf (* causes error on following position *) }
+  | line_comment eof { EOF }
+  | line_comment '\n' { Lexing.new_line lexbuf; token lexbuf }
+  | line_comment { token lexbuf (* causes error on following position *) }
   | "(;" { comment (Lexing.lexeme_start_p lexbuf) lexbuf; token lexbuf }
   | space#'\n' { token lexbuf }
-  | '\n' { Lexing.new_line lexbuf; token lexbuf }
+  | "\n" { Lexing.new_line lexbuf; token lexbuf }
+  | "\\\n" { Lexing.new_line lexbuf; token lexbuf }
   | eof { EOF }
 
+  | printable { error lexbuf "malformed token" }
   | control { error lexbuf "misplaced control character" }
   | utf8enc { error lexbuf "misplaced unicode character" }
-  | _ { error lexbuf "malformed token or UTF-8 encoding" }
+  | _ { error lexbuf "malformed UTF-8 encoding" }
 
 and comment start = parse
   | ";)" { () }
   | "(;" { comment (Lexing.lexeme_start_p lexbuf) lexbuf; comment start lexbuf }
-  | '\n' { Lexing.new_line lexbuf; comment start lexbuf }
+  | "\n" { Lexing.new_line lexbuf; comment start lexbuf }
   | utf8_no_nl { comment start lexbuf }
   | eof { error_nest start lexbuf "unclosed comment" }
   | _ { error lexbuf "malformed UTF-8 encoding" }

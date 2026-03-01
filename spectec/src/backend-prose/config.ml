@@ -1,13 +1,9 @@
 type config =
   {
-    (* Generate macro definitions in a separate file *)
-    macros: bool;
+    (* Abort rendering if the renderer fails *)
+    panic_on_error : bool;
   }
 
 type t = config
 
-let default = { macros = false; }
-
-let latex = default
-
-let sphinx = default
+let default = { panic_on_error = true }
