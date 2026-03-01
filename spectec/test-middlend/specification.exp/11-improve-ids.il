@@ -15503,33 +15503,70 @@ def $runelem_(v_elemidx : elemidx, v_elem : elem) : instr*
 ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
 rec {
 
-;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:160.1-160.94
-def $evalglobals(v_state : state, var_0 : globaltype*, var_1 : expr*) : (state, val*)
-  ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:161.1-161.41
-  def $evalglobals{z : state}(z, [], []) = (z, [])
-  ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:162.1-167.81
-  def $evalglobals{z : state, gt : globaltype, gt'_lst : globaltype*, v_expr : instr*, expr'_lst : expr*, z' : state, v_val : val, val'_lst : val*, s : store, f : frame, s' : store, a : nat}(z, [gt] ++ gt'_lst, [v_expr] ++ expr'_lst) = (z', [v_val] ++ val'_lst)
+;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:160.1-160.92
+def $evalexprs(v_state : state, var_0 : expr*) : (state, ref*)
+  ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:161.1-161.34
+  def $evalexprs{z : state}(z, []) = (z, [])
+  ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:162.1-165.46
+  def $evalexprs{z : state, v_expr : instr*, expr'_lst : expr*, z'' : state, v_ref : ref, ref'_lst : ref*, z' : state}(z, [v_expr] ++ expr'_lst) = (z'', [v_ref] ++ ref'_lst)
+    -- wf_state: `%`(z'')
+    -- wf_ref: `%`(v_ref)
+    -- (wf_ref: `%`(ref'))*{ref' <- ref'_lst}
     -- wf_state: `%`(z')
+    -- Eval_expr: `%;%~>*%;%`(z, v_expr, z', [$val_ref(v_ref)])
+    -- if ((z'', ref'_lst) = $evalexprs(z', expr'_lst))
+}
+
+;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
+rec {
+
+;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:167.1-167.96
+def $evalexprss(v_state : state, var_0 : expr**) : (state, ref**)
+  ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:168.1-168.35
+  def $evalexprss{z : state}(z, []) = (z, [])
+  ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:169.1-172.49
+  def $evalexprss{z : state, expr_lst : expr*, expr'_lst_lst : expr**, z'' : state, ref_lst : ref*, ref'_lst_lst : ref**, z' : state}(z, [expr_lst] ++ expr'_lst_lst) = (z'', [ref_lst] ++ ref'_lst_lst)
+    -- wf_state: `%`(z'')
+    -- (wf_ref: `%`(v_ref))*{v_ref <- ref_lst}
+    -- (wf_ref: `%`(ref'))*{ref' <- ref'_lst}*{ref'_lst <- ref'_lst_lst}
+    -- wf_state: `%`(z')
+    -- if ((z', ref_lst) = $evalexprs(z, expr_lst))
+    -- if ((z'', ref'_lst_lst) = $evalexprss(z', expr'_lst_lst))
+}
+
+;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
+rec {
+
+;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:174.1-174.111
+def $evalglobals(v_state : state, var_0 : globaltype*, var_1 : expr*) : (state, val*)
+  ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:175.1-175.41
+  def $evalglobals{z : state}(z, [], []) = (z, [])
+  ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:176.1-181.82
+  def $evalglobals{z : state, gt : globaltype, gt'_lst : globaltype*, v_expr : instr*, expr'_lst : expr*, z'' : state, v_val : val, val'_lst : val*, z' : state, s : store, f : frame, s' : store, a : nat}(z, [gt] ++ gt'_lst, [v_expr] ++ expr'_lst) = (z'', [v_val] ++ val'_lst)
+    -- wf_state: `%`(z'')
     -- wf_val: `%`(v_val)
     -- (wf_val: `%`(val'))*{val' <- val'_lst}
+    -- wf_state: `%`(z')
     -- wf_state: `%`(`%;%`_state(s, f))
     -- wf_state: `%`(`%;%`_state(s', f[MODULE_frame.GLOBALS_moduleinst =++ [a]]))
-    -- Eval_expr: `%;%~>*%;%`(z, v_expr, z, [v_val])
-    -- if (z = `%;%`_state(s, f))
+    -- Eval_expr: `%;%~>*%;%`(z, v_expr, z', [v_val])
+    -- if (z' = `%;%`_state(s, f))
     -- if ((s', a) = $allocglobal(s, gt, v_val))
-    -- if ((z', val'_lst) = $evalglobals(`%;%`_state(s', f[MODULE_frame.GLOBALS_moduleinst =++ [a]]), gt'_lst, expr'_lst))
+    -- if ((z'', val'_lst) = $evalglobals(`%;%`_state(s', f[MODULE_frame.GLOBALS_moduleinst =++ [a]]), gt'_lst, expr'_lst))
 }
 
 ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
 def $instantiate(v_store : store, v_module : module, var_0 : externaddr*) : config
   ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
-  def $instantiate{s : store, v_module : module, externaddr_lst : externaddr*, s' : store, v_moduleinst : moduleinst, instr_E_lst : instr*, instr_D_lst : instr*, instr_S_opt : instr?, xt_I_lst : externtype*, xt_E_lst : externtype*, type_lst : type*, import_lst : import*, tag_lst : tag*, global_lst : global*, mem_lst : mem*, table_lst : table*, func_lst : func*, data_lst : data*, elem_lst : elem*, start_opt : start?, export_lst : export*, expr_G_lst : expr*, globaltype_lst : globaltype*, expr_T_lst : expr*, tabletype_lst : tabletype*, byte_lst_lst : byte**, datamode_lst : datamode*, elemmode_lst : elemmode*, expr_E_lst_lst : expr**, reftype_lst : reftype*, x_opt : idx?, moduleinst_0 : moduleinst, z : state, z' : state, val_G_lst : val*, ref_T_lst : ref*, ref_E_lst_lst : ref**, i_D : nat, i_E : nat}(s, v_module, externaddr_lst) = `%;%`_config(`%;%`_state(s', {LOCALS [], MODULE v_moduleinst}), instr_E_lst ++ instr_D_lst ++ lift(instr_S_opt))
+  def $instantiate{s : store, v_module : module, externaddr_lst : externaddr*, s'''' : store, v_moduleinst : moduleinst, instr_E_lst : instr*, instr_D_lst : instr*, instr_S_opt : instr?, xt_I_lst : externtype*, xt_E_lst : externtype*, type_lst : type*, import_lst : import*, tag_lst : tag*, global_lst : global*, mem_lst : mem*, table_lst : table*, func_lst : func*, data_lst : data*, elem_lst : elem*, start_opt : start?, export_lst : export*, expr_G_lst : expr*, globaltype_lst : globaltype*, expr_T_lst : expr*, tabletype_lst : tabletype*, byte_lst_lst : byte**, datamode_lst : datamode*, elemmode_lst : elemmode*, expr_E_lst_lst : expr**, reftype_lst : reftype*, x_opt : idx?, moduleinst_0 : moduleinst, z : state, z' : state, val_G_lst : val*, z'' : state, ref_T_lst : ref*, z''' : state, ref_E_lst_lst : ref**, s''' : store, f : frame, i_D : nat, i_E : nat}(s, v_module, externaddr_lst) = `%;%`_config(`%;%`_state(s'''', {LOCALS [], MODULE v_moduleinst}), instr_E_lst ++ instr_D_lst ++ lift(instr_S_opt))
     -- wf_state: `%`(z)
     -- wf_state: `%`(z')
     -- (wf_val: `%`(val_G))*{val_G <- val_G_lst}
+    -- wf_state: `%`(z'')
     -- (wf_ref: `%`(ref_T))*{ref_T <- ref_T_lst}
+    -- wf_state: `%`(z''')
     -- (wf_ref: `%`(ref_E))*{ref_E <- ref_E_lst}*{ref_E_lst <- ref_E_lst_lst}
-    -- wf_config: `%`(`%;%`_config(`%;%`_state(s', {LOCALS [], MODULE v_moduleinst}), instr_E_lst ++ instr_D_lst ++ lift(instr_S_opt)))
+    -- wf_config: `%`(`%;%`_config(`%;%`_state(s'''', {LOCALS [], MODULE v_moduleinst}), instr_E_lst ++ instr_D_lst ++ lift(instr_S_opt)))
     -- wf_moduletype: `%`(`%->%`_moduletype(xt_I_lst, xt_E_lst))
     -- wf_module: `%`(MODULE_module(type_lst, import_lst, tag_lst, global_lst, mem_lst, table_lst, func_lst, data_lst, elem_lst, start_opt, export_lst))
     -- (wf_global: `%`(GLOBAL_global(v_globaltype, expr_G)))*{expr_G <- expr_G_lst, v_globaltype <- globaltype_lst}
@@ -15539,6 +15576,7 @@ def $instantiate(v_store : store, v_module : module, var_0 : externaddr*) : conf
     -- (wf_start: `%`(START_start(x)))?{x <- x_opt}
     -- wf_moduleinst: `%`({TYPES $alloctypes(type_lst), TAGS [], GLOBALS $globalsxa(externaddr_lst), MEMS [], TABLES [], FUNCS $funcsxa(externaddr_lst) ++ (|s.FUNCS_store| + i_F)^(i_F<|func_lst|){}, DATAS [], ELEMS [], EXPORTS []})
     -- wf_state: `%`(`%;%`_state(s, {LOCALS [], MODULE moduleinst_0}))
+    -- wf_state: `%`(`%;%`_state(s''', f))
     -- wf_uN: `%%`(32, `%`_uN(i_D))
     -- wf_uN: `%%`(32, `%`_uN(i_E))
     -- (wf_instr: `%`(CALL_instr(x)))?{x <- x_opt}
@@ -15553,9 +15591,10 @@ def $instantiate(v_store : store, v_module : module, var_0 : externaddr*) : conf
     -- if (moduleinst_0 = {TYPES $alloctypes(type_lst), TAGS [], GLOBALS $globalsxa(externaddr_lst), MEMS [], TABLES [], FUNCS $funcsxa(externaddr_lst) ++ (|s.FUNCS_store| + i_F)^(i_F<|func_lst|){}, DATAS [], ELEMS [], EXPORTS []})
     -- if (z = `%;%`_state(s, {LOCALS [], MODULE moduleinst_0}))
     -- if ((z', val_G_lst) = $evalglobals(z, globaltype_lst, expr_G_lst))
-    -- (Eval_expr: `%;%~>*%;%`(z', expr_T, z', [$val_ref(ref_T)]))*{expr_T <- expr_T_lst, ref_T <- ref_T_lst}
-    -- (Eval_expr: `%;%~>*%;%`(z', expr_E, z', [$val_ref(ref_E)]))*{expr_E <- expr_E_lst, ref_E <- ref_E_lst}*{expr_E_lst <- expr_E_lst_lst, ref_E_lst <- ref_E_lst_lst}
-    -- if ((s', v_moduleinst) = $allocmodule(s, v_module, externaddr_lst, val_G_lst, ref_T_lst, ref_E_lst_lst))
+    -- if ((z'', ref_T_lst) = $evalexprs(z', expr_T_lst))
+    -- if ((z''', ref_E_lst_lst) = $evalexprss(z'', expr_E_lst_lst))
+    -- if (z''' = `%;%`_state(s''', f))
+    -- if ((s'''', v_moduleinst) = $allocmodule(s''', v_module, externaddr_lst, val_G_lst, ref_T_lst, ref_E_lst_lst))
     -- if (instr_D_lst = $concat_(syntax instr, $rundata_(`%`_dataidx(i_D), data_lst[i_D])^(i_D<|data_lst|){}))
     -- if (instr_E_lst = $concat_(syntax instr, $runelem_(`%`_elemidx(i_E), elem_lst[i_E])^(i_E<|elem_lst|){}))
     -- if (instr_S_opt = CALL_instr(x)?{x <- x_opt})
@@ -19564,9 +19603,14 @@ grammar Tdata_(v_I : I) : (data, idctxt)
   prod{b_lst : byte*, x : idx, e : expr, id_opt : char?} {{"("} {"data"} {?(`%`_name(lift(id_opt))):Tid?{}} {x:Tmemuse_(v_I)} {e:Toffset_(v_I)} {b_lst:Tdatastring} {")"}} => (DATA_data(b_lst, ACTIVE_datamode(x, e)), {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [?(`%`_name(lift(id_opt)))], ELEMS [], LOCALS [], LABELS [], FIELDS [], TYPEDEFS []})
 
 ;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
+grammar Telemexpr_(v_I : I) : expr
+  ;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
+  prod{e : expr} {{"("} {"item"} {e:Texpr_(v_I)} {")"}} => e
+
+;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
 grammar Telemlist_(v_I : I) : (reftype, expr*)
   ;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
-  prod{rt : reftype, e_lst : expr*} {{rt:Treftype_(v_I)} {e_lst:Tlist(syntax expr, grammar Texpr_(v_I))}} => (rt, e_lst)
+  prod{rt : reftype, e_lst : expr*} {{rt:Treftype_(v_I)} {e_lst:Tlist(syntax expr, grammar Telemexpr_(v_I))}} => (rt, e_lst)
 
 ;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
 grammar Ttableuse_(v_I : I) : tableidx
@@ -19581,11 +19625,6 @@ grammar Telem_(v_I : I) : (elem, idctxt)
   prod{rt : reftype, e_lst : expr*, x : idx, e' : expr, id_opt : char?} {{"("} {"elem"} {?(`%`_name(lift(id_opt))):Tid?{}} {x:Ttableuse_(v_I)} {e':Toffset_(v_I)} {(rt, e_lst):Telemlist_(v_I)} {")"}} => (ELEM_elem(rt, e_lst, ACTIVE_elemmode(x, e')), {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [?(`%`_name(lift(id_opt)))], LOCALS [], LABELS [], FIELDS [], TYPEDEFS []})
   ;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
   prod{rt : reftype, e_lst : expr*, id_opt : char?} {{"("} {"elem"} {?(`%`_name(lift(id_opt))):Tid?{}} {"declare"} {(rt, e_lst):Telemlist_(v_I)} {")"}} => (ELEM_elem(rt, e_lst, DECLARE_elemmode), {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [?(`%`_name(lift(id_opt)))], LOCALS [], LABELS [], FIELDS [], TYPEDEFS []})
-
-;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
-grammar Telemexpr_(v_I : I) : expr
-  ;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
-  prod{e : expr} {{"("} {"item"} {e:Texpr_(v_I)} {")"}} => e
 
 ;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
 grammar Tstart_(v_I : I) : (start, idctxt)
