@@ -46,6 +46,13 @@ syntax rmwop_(Jnn) =
 
 syntax atop_(Jnn) = ATOP sz U?     hint(show %1) hint(show %1#_#%2)                    -- if sz < $jsizenn(Jnn)
 
+syntax atloadop_(Jnn)
+syntax atloadop_(Inn) = sz _ U hint(show %0#_#%2) -- if sz < $sizenn(Inn)
+
+syntax atstoreop_(Jnn)
+syntax atstoreop_(Inn) = sz                        -- if sz < $sizenn(Inn)
+
+
 syntax testop_(numtype)
 syntax testop_(Inn) = EQZ
 ;; syntax testop_(Fnn) = |      ;; uninhabited
@@ -305,13 +312,13 @@ syntax instr/memory hint(desc "memory instruction") = ...
   | ...
 
 syntax instr/atomic hint(desc "atomic memory instruction") = ... 
-  | ATOMIC.LOAD inntype atop_(inntype)? memidx memarg   hint(show %. ATOMIC.LOAD % %) hint(show %. ATOMIC.LOAD# ##% % %)
-  | ATOMIC.STORE inntype atop_(inntype)? memidx memarg   hint(show %. ATOMIC.STORE % %) hint(show %. ATOMIC.STORE# ##% % %)
-  | ATOMIC.RMW inntype atop_(inntype)? rmwop_(inntype) memidx memarg  hint(show %. ATOMIC.RMW % % %) hint(show %. ATOMIC.RMW#  ##% % % %)
-  | ATOMIC.RMW.CMPXCHG inntype atop_(inntype)? memidx memarg   hint(show %. ATOMIC.RMW.CMPXCHG % %) hint(show %. ATOMIC.RMW.CMPXCHG# ##% % %)
+  | ATOMIC.LOAD inntype atloadop_(inntype)? memidx memarg   hint(show %#.#ATOMIC.LOAD % %) hint(show %#.#ATOMIC.LOAD# ##% % %)
+  | ATOMIC.STORE inntype atstoreop_(inntype)? memidx memarg   hint(show %#.#ATOMIC.STORE % %) hint(show %#.#ATOMIC.STORE# ##% % %)
+  | ATOMIC.RMW inntype atstoreop_(inntype)? rmwop_(inntype) memidx memarg  hint(show %#.#ATOMIC.RMW % % %) hint(show %#.#ATOMIC.RMW#  ##% % % %)
+  | ATOMIC.RMW.CMPXCHG inntype atstoreop_(inntype)? memidx memarg   hint(show %#.#ATOMIC.RMW.CMPXCHG % %) hint(show %#.#ATOMIC.RMW.CMPXCHG# ##% % %)
   | MEMORY.ATOMIC.NOTIFY memidx memarg hint(show MEMORY.ATOMIC.NOTIFY % %) hint(show MEMORY.ATOMIC.NOTIFY# ##% %)
   | MEMORY.ATOMIC.WAIT inntype memidx memarg hint(show MEMORY.ATOMIC.WAIT % % %) hint(show MEMORY.ATOMIC.WAIT# ##% % %)
-  | ATOMIC.FENCE  hint(show %. ATOMIC.FENCE %) hint(show %. ATOMIC.FENCE# ##%)
+  | ATOMIC.FENCE  hint(show %#.#ATOMIC.FENCE %) hint(show %#.#ATOMIC.FENCE# ##%)
   | ...
 
 syntax instr/data hint(desc "data instruction") = ...

@@ -625,12 +625,12 @@ rule Step_read/atomic.load-num-val:
   -- if $ibytes_($size(inntype), c) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
 
 rule Step_read/atomic.load-pack-oob:
-  z; (CONST at i) (ATOMIC.LOAD inntype (ATOP n u) x ao)  ~>  TRAP
+  z; (CONST at i) (ATOMIC.LOAD inntype (n _ U) x ao)  ~>  TRAP
   ---- ----
   -- if $(i + ao.OFFSET + n/8 > |$mem(z, x).BYTES|)
 
 rule Step_read/atomic.load-pack-val:
-  z; (CONST at i) (ATOMIC.LOAD inntype (ATOP n u) x ao)  ~>  (CONST inntype $extend__(n, $size(inntype), U, c))
+  z; (CONST at i) (ATOMIC.LOAD inntype (n _ U) x ao)  ~>  (CONST inntype $extend__(n, $size(inntype), U, c))
   ---- ----
   -- if $ibytes_(n, c) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
 
@@ -645,61 +645,69 @@ rule Step/atomic.store-num-val:
   -- if b* = $ibytes_($size(inntype), c)
 
 rule Step/atomic.store-pack-oob:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype (ATOP n u) x ao)  ~>  z; TRAP
+  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype n x ao)  ~>  z; TRAP
   ---- ----
   -- if $(i + ao.OFFSET + n/8) > |$mem(z, x).BYTES|
 
 rule Step/atomic.store-pack-val:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype (ATOP n u) x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); eps
+  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype n x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); eps
   ---- ----
   -- if b* = $ibytes_(n, $wrap__($size(inntype), n, c))
 
 rule Step/atomic.rmw-num-oob:
-  z;  (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype atop x ao) ~> z; TRAP
+  z;  (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype rmwop x ao) ~> 
+  z; TRAP
   ---- ----
   -- if $(i + ao.OFFSET + $size(inntype)/8) > |$mem(z, x).BYTES|
 
 rule Step/atomic.rmw-num-val:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype rmwop x ao) ~> $with_mem(z, x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (CONST inntype d)
+  z; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype rmwop x ao) ~> 
+  $with_mem(z, x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (CONST inntype d)
   ---- ----
   -- if j = $rmwop_(inntype, rmwop, c, d)
   -- if b* = $ibytes_($size(inntype), j)
   -- if $ibytes_($size(inntype), d) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
 
 rule Step/atomic.rmw-num-pack:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype (ATOP n u) rmwop x ao) ~> $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); (CONST inntype d)
+  z; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype n rmwop x ao) ~> 
+  $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); (CONST inntype d)
   ---- ----
   -- if j = $rmwop_($inv_jsize(n), rmwop, $wrap__($size(inntype), n, c), $wrap__($size(inntype), n, d))
   -- if b* = $ibytes_(n, $extend__(n, $size(inntype), U, j))
   -- if $ibytes_(n, d) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
 
 rule Step/atomic.rmw.cmpxchg-num-oob:
-  z;  (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~> z; TRAP
+  z;  (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~> 
+  z; TRAP
   ---- ----
   -- if $(i + ao.OFFSET + $size(inntype)/8) > |$mem(z, x).BYTES|
 
 rule Step/atomic.rmw.cmpxchg-num-equals-val:
-  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~> $with_mem(z, x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (CONST inntype d)
+  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~> 
+  $with_mem(z, x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (CONST inntype d)
   ---- ----
   -- if d = c
   -- if $ibytes_($size(inntype), d) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
   -- if b* = $ibytes_($size(inntype), g)
 
 rule Step/atomic.rmww.cmpxchg-num-notequals-val:
-  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~> z; (CONST inntype d)
+  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~> 
+  z; (CONST inntype d)
   ---- ----
   -- if d =/= c
   -- if $ibytes_($size(inntype), d) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
 
 rule Step/atomic.rmw.cmpxchg-num-equals-pack:
-  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype (ATOP n u) x ao) ~> $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); (CONST inntype d)
+  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype n x ao) ~> 
+  $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); (CONST inntype d)
   ---- ----
   -- if d = c
   -- if $ibytes_(n, d) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
   -- if b* = $ibytes_(n, $wrap__($size(inntype), n, g))
 
 rule Step/atomic.rmw.cmpxchg-num-notequals-pack:
-  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype (ATOP n u) x ao) ~> z; (CONST inntype d)
+  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype n x ao) ~> 
+  z; (CONST inntype d)
   ---- ----
   -- if d =/= c
   -- if $ibytes_(n, d) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]

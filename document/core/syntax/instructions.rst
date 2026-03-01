@@ -222,7 +222,8 @@ The ${:DATA.DROP} instruction prevents further use of a passive data segment. Th
 .. index:: ! atomic memory instruction, memory, memory index, page size, little endian, trap
    pair: abstract syntax; instruction
 .. _syntax-instr-atomic:
-.. _syntax-atop:
+.. _syntax-atloadop:
+.. _syntax-atstoreop:
 .. _syntax-rmwop:
 
 Atomic Memory Instructions
@@ -230,7 +231,7 @@ Atomic Memory Instructions
 
 Instructions in this group are concerned with accessing linear memory atomically.
 
-$${syntax: memarg atop_ rmwop_ {instr/atomic}}
+$${syntax: memarg atloadop_ atstoreop_ rmwop_ {instr/atomic}}
 
 Memory is accessed atomically using |ATOMICLOAD|, |ATOMICSTORE| and |ATOMICRMW| instructions. All instructions take a *memory immediate* ${:memarg}, just like their non-atomic equivalents. Unlike non-atomic memory access instructions, only :ref:`integer types <syntax-inntype>` may be used. Also unlike non-atomic memory access instructions, there are no sign extension modes; atomic memory accesses are always zero-extending. 
 

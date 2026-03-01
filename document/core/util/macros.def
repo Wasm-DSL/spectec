@@ -760,7 +760,8 @@
 .. |loadop| mathdef:: \xref{syntax/instructions}{syntax-loadop}{\X{loadop}}
 .. |storeop| mathdef:: \xref{syntax/instructions}{syntax-storeop}{\X{storeop}}
 .. |vloadop| mathdef:: \xref{syntax/instructions}{syntax-vloadop}{\X{vloadop}}
-.. |atop| mathdef:: \xref{syntax/instructions}{syntax-atop}{\X{atop}}
+.. |atloadop| mathdef:: \xref{syntax/instructions}{syntax-atloadop}{\X{atloadop}}
+.. |atstoreop| mathdef:: \xref{syntax/instructions}{syntax-atstoreop}{\X{atstoreop}}
 
 .. |sx| mathdef:: \xref{syntax/instructions}{syntax-sx}{\X{sx}}
 .. |sz| mathdef:: \xref{syntax/instructions}{syntax-sz}{\X{sz}}
