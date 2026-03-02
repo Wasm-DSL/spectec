@@ -18,6 +18,7 @@ open Util
 open Source
 open Il.Ast
 open Il.Walk
+open Il
 
 (* Errors *)
 
@@ -49,6 +50,40 @@ let t_exp env exp =
     {exp with it = TheE {exp with note = IterT (exp.note, Opt) $ exp.at}}
   | _ -> exp
 
+let f_exp env subst exp =
+  match exp.it with
+  | TheE ({ it = CallE (f, _); _} as exp') when is_partial env f ->
+    let id = (Fresh.fresh_varid "iter_val") $ exp'.at  in 
+    subst := (id, exp') :: !subst;
+    { exp' with it = VarE id }
+  | _ -> exp
+
+let fix_partial_funcs env exp = 
+  match exp.it with
+    (* If there is a call in the root of the RHS then just return that *)
+  | TheE ({ it = CallE (f, _); _} as exp') when is_partial env f ->
+    exp'
+  | _ ->
+    (* Apply transformation to wrap an option iteration on the rhs *)
+    let eps_ref = ref [] in 
+    let t = { base_transformer with transform_exp = f_exp env eps_ref } in
+    let t_e = transform_exp t exp in 
+    if !eps_ref = [] then 
+      { exp with it = OptE (Some exp); note = IterT (exp.note, Opt) $ exp.at } 
+    else 
+      { exp with it = IterE (t_e, (Opt, !eps_ref)); note = IterT (exp.note, Opt) $ exp.at }  
+
+let has_catch_all clauses = 
+  List.exists (fun clause ->
+    let DefD (_, args, _, _) = clause.it in
+    List.for_all (fun a -> 
+      match a.it with
+      | ExpA {it = VarE _; _} -> true
+      | TypA _ | DefA _ -> true
+      | _ -> false 
+    ) args
+  ) clauses
+
 let rec t_def env d = 
   let t = { base_transformer with transform_exp = t_exp env } in
   match d.it with
@@ -62,7 +97,7 @@ let rec t_def env d =
       let clauses'' = List.map (fun clause -> match clause.it with
         DefD (quants, lhs, rhs, prems) ->
           { clause with
-            it = DefD (List.map (transform_param t) quants, lhs, OptE (Some rhs) $$ no_region % typ'', prems) }
+            it = DefD (List.map (transform_param t) quants, lhs, fix_partial_funcs env rhs, prems) }
         ) clauses' in
       let params, args = List.mapi (fun i param -> match param.it with
         | ExpP (_, typI) ->
@@ -73,8 +108,9 @@ let rec t_def env d =
         | GramP (id, _, _) -> [], GramA (VarG (id, []) $ no_region) $ no_region
         ) params' |> List.split in
       let catch_all = DefD (List.concat params, args,
-        OptE None $$ no_region % typ'', []) $ no_region in
-      DecD (id, params', typ'', clauses'' @ [ catch_all ]) $ d.at
+        OptE None $$ no_region % typ'', [ElsePr $ no_region]) $ no_region in
+      let last_c = if has_catch_all clauses'' then [] else [catch_all] in
+      DecD (id, params', typ'', clauses'' @ last_c) $ d.at
     else
       DecD (id, params', typ', clauses') $ d.at
   | _ -> transform_def t d
