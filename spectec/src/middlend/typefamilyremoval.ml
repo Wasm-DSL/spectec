@@ -60,7 +60,10 @@ type family_data = (id * quant list * Subst.t * int * typ * typ)
 let error at msg = Error.error at "Type families removal" msg
 
 let projection_hint_id = "tf_projection_func"
-let projection_hint = { hintid = projection_hint_id $ no_region; hintexp = El.Ast.SeqE [] $ no_region}
+let projection_hint = { hintid = projection_hint_id $ no_region; hintexp = El.Ast.SeqE [] $ no_region }
+
+let type_family_hint_id = "type_family"
+let type_family_hint = { hintid = type_family_hint_id $ no_region; hintexp = El.Ast.SeqE [] $ no_region }
 
 let quant_to_string quant = 
   match quant.it with
@@ -76,7 +79,9 @@ let iter_var_name = "iter_"
 let name_prefix id = id.it ^ "_"
 
 let empty_info typ_id: region * Xl.Atom.info = (no_region, {def = typ_id; case = ""})
-let sub_type_name_quants quants = (String.concat "_" (List.map quant_to_string quants))
+let sub_type_name_quants quants i =
+  let s = (String.concat "_" (List.map quant_to_string quants)) in 
+  if s = "" then "_" ^ Int.to_string i else s
 let constructor_name' id case_num = make_prefix ^ name_prefix id ^ Int.to_string case_num
 let constructor_name_mixop id num_quants case_num: mixop = 
   Xl.Mixop.(Seq (Atom (Xl.Atom.Atom (constructor_name' id case_num) $$ empty_info id.it) 
@@ -566,14 +571,14 @@ let transform_inst env inst =
     [InstD (List.map (transform_param env) quants, List.map (transform_arg StringMap.empty env) args, transform_deftyp env deftyp) $ inst.at]
  
 (* Creates new TypD's for each StructT and VariantT *)
-let create_types id inst = 
+let create_types idx id inst = 
   match inst.it with
   | InstD (quants, _, deftyp) -> 
     (match deftyp.it with 
     | AliasT _ -> []
     | StructT _ | VariantT _ ->
       let inst = InstD (quants, List.map make_arg quants, deftyp) $ inst.at in 
-      [TypD (id.it ^ sub_type_name_quants quants $ id.at, quants, [inst])]
+      [TypD (id.it ^ sub_type_name_quants quants idx $ id.at, quants, [inst])]
     )
 
 let rec transform_def env def = 
@@ -620,10 +625,10 @@ let gen_family_projections id has_one_inst case_num inst =
 let rec create_types_from_instances def =
   (match def.it with
   | TypD (id, params, [inst]) when check_normal_type_creation inst -> [TypD (id, params, [inst])]
-  | TypD (id, params, insts) -> let types = List.concat_map (create_types id) insts in
-    let transformed_instances = List.map (fun inst -> match inst.it with 
+  | TypD (id, params, insts) -> let types = List.mapi (fun i inst -> create_types i id inst) insts |> List.concat in
+    let transformed_instances = List.mapi (fun i inst -> match inst.it with 
       | InstD (quants, args, {it = StructT _; at; _}) | InstD (quants, args, {it = VariantT _; at; _}) -> 
-        InstD (quants, args, AliasT (VarT (id.it ^ sub_type_name_quants quants $ id.at, List.map make_arg quants) $ id.at) $ at) $ inst.at
+        InstD (quants, args, AliasT (VarT (id.it ^ sub_type_name_quants quants i $ id.at, List.map make_arg quants) $ id.at) $ at) $ inst.at
       | _ -> inst 
     ) insts in
     types @ [TypD(id, params, transformed_instances)]
@@ -660,7 +665,8 @@ let rec transform_type_family def =
     in
     let proj_ids, projections = List.split (List.mapi (gen_family_projections id one_inst) insts) in
 
-    let hintdefs = List.map (fun id -> HintD (DecH (id, [projection_hint]) $ def.at)) proj_ids in
+    let hintdefs = HintD (TypH (id, [type_family_hint]) $ def.at) :: 
+      List.map (fun id' -> HintD (DecH (id', [projection_hint]) $ def.at)) proj_ids in
     TypD (id, params, [inst]) :: projections @ hintdefs
   | RecD defs -> [RecD (List.concat_map transform_type_family defs)]
   | d -> [d]
