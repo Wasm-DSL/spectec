@@ -27,6 +27,7 @@ type pass =
   | AliasDemut
   | ImproveIds
   | Ite
+  | PatSimp
 
 (* This list declares the intended order of passes.
 
@@ -37,6 +38,7 @@ flags on the command line.
 let _skip_passes = [ Unthe ]  (* Not clear how to extend them to indexed types *)
 let all_passes = [
   Ite;
+  PatSimp;
   TypeFamilyRemoval;
   Undep;
   Totalize;
@@ -112,6 +114,7 @@ let pass_flag = function
   | Uncaseremoval -> "uncase-removal"
   | ImproveIds -> "improve-ids"
   | Ite -> "ite"
+  | PatSimp -> "pattern-simp"
 
 let pass_desc = function
   | Sub -> "Synthesize explicit subtype coercions"
@@ -126,6 +129,7 @@ let pass_desc = function
   | AliasDemut -> "Lifts type aliases out of mutual groups"
   | ImproveIds -> "Disambiguates ids used from each other"
   | Ite -> "If-then-else introduction"
+  | PatSimp -> "Simplifies non-linear and definite iteration patterns"
 
 
 let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
@@ -141,7 +145,7 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | AliasDemut -> Middlend.AliasDemut.transform
   | ImproveIds -> Middlend.Improveids.transform
   | Ite -> Middlend.Ite.transform
-
+  | PatSimp -> Middlend.PatSimp.transform
 
 (* Argument parsing *)
 
