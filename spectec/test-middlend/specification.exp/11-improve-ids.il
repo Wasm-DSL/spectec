@@ -9453,7 +9453,7 @@ def $ivshufflop_(v_shape : shape, var_0 : laneidx*, v_vec_ : vec_, v_vec__0 : ve
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I32_Jnn), `%`_dim(v_M)))
     -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), `%`_dim(v_M)), v_1))
     -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I32_Jnn), `%`_dim(v_M)), v_2))
-    -- if (c_lst = c_1_lst ++ c_2_lst[$proj_uN_0(i#116714).0]*{i#116714 <- i_lst})
+    -- if (c_lst = c_1_lst ++ c_2_lst[$proj_uN_0(i#116810).0]*{i#116810 <- i_lst})
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivshufflop_{v_M : nat, i_lst : laneidx*, v_1 : uN, v_2 : uN, c_lst : lane_*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I64_lanetype, `%`_dim(v_M)), i_lst, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), `%`_dim(v_M)), c_lst)
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I64_Jnn), `%`_dim(v_M))), c#150))*{c#150 <- c_lst}
@@ -9462,7 +9462,7 @@ def $ivshufflop_(v_shape : shape, var_0 : laneidx*, v_vec_ : vec_, v_vec__0 : ve
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I64_Jnn), `%`_dim(v_M)))
     -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), `%`_dim(v_M)), v_1))
     -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I64_Jnn), `%`_dim(v_M)), v_2))
-    -- if (c_lst = c_1_lst ++ c_2_lst[$proj_uN_0(i#116724).0]*{i#116724 <- i_lst})
+    -- if (c_lst = c_1_lst ++ c_2_lst[$proj_uN_0(i#116820).0]*{i#116820 <- i_lst})
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivshufflop_{v_M : nat, i_lst : laneidx*, v_1 : uN, v_2 : uN, c_lst : lane_*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I8_lanetype, `%`_dim(v_M)), i_lst, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), `%`_dim(v_M)), c_lst)
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I8_Jnn), `%`_dim(v_M))), c#153))*{c#153 <- c_lst}
@@ -9471,7 +9471,7 @@ def $ivshufflop_(v_shape : shape, var_0 : laneidx*, v_vec_ : vec_, v_vec__0 : ve
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I8_Jnn), `%`_dim(v_M)))
     -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), `%`_dim(v_M)), v_1))
     -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I8_Jnn), `%`_dim(v_M)), v_2))
-    -- if (c_lst = c_1_lst ++ c_2_lst[$proj_uN_0(i#116734).0]*{i#116734 <- i_lst})
+    -- if (c_lst = c_1_lst ++ c_2_lst[$proj_uN_0(i#116830).0]*{i#116830 <- i_lst})
   ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
   def $ivshufflop_{v_M : nat, i_lst : laneidx*, v_1 : uN, v_2 : uN, c_lst : lane_*, c_1_lst : lane_*, c_2_lst : lane_*}(`%X%`_shape(I16_lanetype, `%`_dim(v_M)), i_lst, v_1, v_2) = $inv_lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), `%`_dim(v_M)), c_lst)
     -- (wf_lane_: `%%`($fun_lanetype(`%X%`_shape($lanetype_Jnn(I16_Jnn), `%`_dim(v_M))), c#156))*{c#156 <- c_lst}
@@ -9480,7 +9480,7 @@ def $ivshufflop_(v_shape : shape, var_0 : laneidx*, v_vec_ : vec_, v_vec__0 : ve
     -- wf_shape: `%`(`%X%`_shape($lanetype_Jnn(I16_Jnn), `%`_dim(v_M)))
     -- if (c_1_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), `%`_dim(v_M)), v_1))
     -- if (c_2_lst = $lanes_(`%X%`_shape($lanetype_Jnn(I16_Jnn), `%`_dim(v_M)), v_2))
-    -- if (c_lst = c_1_lst ++ c_2_lst[$proj_uN_0(i#116744).0]*{i#116744 <- i_lst})
+    -- if (c_lst = c_1_lst ++ c_2_lst[$proj_uN_0(i#116840).0]*{i#116840 <- i_lst})
 
 ;; ../../../../specification/wasm-3.0/3.2-numerics.vector.spectec
 def $vvunop_(v_vectype : vectype, v_vvunop : vvunop, v_vec_ : vec_) : vec_*

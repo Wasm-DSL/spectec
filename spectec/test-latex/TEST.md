@@ -43,7 +43,6 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{InfixArrow}}(a \rightarrow_{c} {}) & = & 0 \\
 {\mathrm{InfixArrow}}(a \rightarrow_{c} b) & = & 0 \\
 {\mathrm{InfixArrow}}(a \rightarrow_{{c^\ast}} b) & = & 0 \\
 {\mathrm{InfixArrow}}(a \rightarrow_{c} b_1~b_2) & = & 0 \\
@@ -55,7 +54,6 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{InfixArrow{\kern-0.1em\scriptstyle 2}}}(a \Rightarrow_{c} {}) & = & 0 \\
 {\mathrm{InfixArrow{\kern-0.1em\scriptstyle 2}}}(a \Rightarrow_{c} b) & = & 0 \\
 {\mathrm{InfixArrow{\kern-0.1em\scriptstyle 2}}}(a \Rightarrow_{{c^\ast}} b) & = & 0 \\
 {\mathrm{InfixArrow{\kern-0.1em\scriptstyle 2}}}(a \Rightarrow_{c} b_1~b_2) & = & 0 \\
@@ -67,7 +65,6 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{AtomArrow}}(a~{\rightarrow}_{c}) & = & 0 \\
 {\mathrm{AtomArrow}}(a~{\rightarrow}_{c}\,b) & = & 0 \\
 {\mathrm{AtomArrow}}(a~{\rightarrow}_{{c^\ast}}\,b) & = & 0 \\
 {\mathrm{AtomArrow}}(a~{\rightarrow}_{c}\,b_1~b_2) & = & 0 \\
@@ -79,7 +76,6 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{AtomArrow{\kern-0.1em\scriptstyle 2}}}(a~{\Rightarrow}_{c}) & = & 0 \\
 {\mathrm{AtomArrow{\kern-0.1em\scriptstyle 2}}}(a~{\Rightarrow}_{c}\,b) & = & 0 \\
 {\mathrm{AtomArrow{\kern-0.1em\scriptstyle 2}}}(a~{\Rightarrow}_{{c^\ast}}\,b) & = & 0 \\
 {\mathrm{AtomArrow{\kern-0.1em\scriptstyle 2}}}(a~{\Rightarrow}_{c}\,b_1~b_2) & = & 0 \\
@@ -98,7 +94,6 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{MacroInfixArrow}}(a \rightarrow_{c} {}) & = & 0 \\
 {\mathrm{MacroInfixArrow}}(a \rightarrow_{c} b) & = & 0 \\
 {\mathrm{MacroInfixArrow}}(a \rightarrow_{{c^\ast}} b) & = & 0 \\
 {\mathrm{MacroInfixArrow}}(a \rightarrow_{c} b_1~b_2) & = & 0 \\
@@ -110,7 +105,6 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{MacroAtomArrow}}(a \rightarrow_{c} {}) & = & 0 \\
 {\mathrm{MacroAtomArrow}}(a \rightarrow_{c} b) & = & 0 \\
 {\mathrm{MacroAtomArrow}}(a \rightarrow_{{c^\ast}} b) & = & 0 \\
 {\mathrm{MacroAtomArrow}}(a \rightarrow_{c} b_1~b_2) & = & 0 \\
@@ -129,25 +123,23 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{ShowInfixArrow}}(a \rightarrow_{c} ) & = & 0 \\
 {\mathrm{ShowInfixArrow}}(a \rightarrow_{c} b) & = & 0 \\
-{\mathrm{ShowInfixArrow}}(a \rightarrow_{({c^\ast})} b) & = & 0 \\
+{\mathrm{ShowInfixArrow}}(a \rightarrow_{{c^\ast}} b) & = & 0 \\
 {\mathrm{ShowInfixArrow}}(a \rightarrow_{c} b_1~b_2) & = & 0 \\
-{\mathrm{ShowInfixArrow}}(a \rightarrow_{({c^\ast})} b_1~b_2) & = & 0 \\
-{\mathrm{ShowInfixArrow}}(a \rightarrow_{(c_1~c_2)} b_1~b_2) & = & 0 \\
-{\mathrm{ShowInfixArrow}}({\rightarrow}_{(c_1~c_2)} b_1~b_2) & = & 0 \\
+{\mathrm{ShowInfixArrow}}(a \rightarrow_{{c^\ast}} b_1~b_2) & = & 0 \\
+{\mathrm{ShowInfixArrow}}(a \rightarrow_{c_1~c_2} b_1~b_2) & = & 0 \\
+{\mathrm{ShowInfixArrow}}({\rightarrow}_{c_1~c_2} b_1~b_2) & = & 0 \\
 \end{array}
 $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{ShowAtomArrow}}(a~{\rightarrow}_{c}) & = & 0 \\
 {\mathrm{ShowAtomArrow}}(a~{\rightarrow}_{c}\,b) & = & 0 \\
-{\mathrm{ShowAtomArrow}}(a~{\rightarrow}_{({c^\ast})}\,b) & = & 0 \\
+{\mathrm{ShowAtomArrow}}(a~{\rightarrow}_{{c^\ast}}\,b) & = & 0 \\
 {\mathrm{ShowAtomArrow}}(a~{\rightarrow}_{c}\,b_1~b_2) & = & 0 \\
-{\mathrm{ShowAtomArrow}}(a~{\rightarrow}_{({c^\ast})}\,b_1~b_2) & = & 0 \\
-{\mathrm{ShowAtomArrow}}(a~{\rightarrow}_{(c_1~c_2)}\,b_1~b_2) & = & 0 \\
-{\mathrm{ShowAtomArrow}}({\rightarrow}_{(c_1~c_2)}\,b_1~b_2) & = & 0 \\
+{\mathrm{ShowAtomArrow}}(a~{\rightarrow}_{{c^\ast}}\,b_1~b_2) & = & 0 \\
+{\mathrm{ShowAtomArrow}}(a~{\rightarrow}_{c_1~c_2}\,b_1~b_2) & = & 0 \\
+{\mathrm{ShowAtomArrow}}({\rightarrow}_{c_1~c_2}\,b_1~b_2) & = & 0 \\
 \end{array}
 $$
 
@@ -160,25 +152,23 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{ShowMacroInfixArrow}}(a \rightarrow_{c} ) & = & 0 \\
 {\mathrm{ShowMacroInfixArrow}}(a \rightarrow_{c} b) & = & 0 \\
-{\mathrm{ShowMacroInfixArrow}}(a \rightarrow_{({c^\ast})} b) & = & 0 \\
+{\mathrm{ShowMacroInfixArrow}}(a \rightarrow_{{c^\ast}} b) & = & 0 \\
 {\mathrm{ShowMacroInfixArrow}}(a \rightarrow_{c} b_1~b_2) & = & 0 \\
-{\mathrm{ShowMacroInfixArrow}}(a \rightarrow_{({c^\ast})} b_1~b_2) & = & 0 \\
-{\mathrm{ShowMacroInfixArrow}}(a \rightarrow_{(c_1~c_2)} b_1~b_2) & = & 0 \\
-{\mathrm{ShowMacroInfixArrow}}({\rightarrow}_{(c_1~c_2)} b_1~b_2) & = & 0 \\
+{\mathrm{ShowMacroInfixArrow}}(a \rightarrow_{{c^\ast}} b_1~b_2) & = & 0 \\
+{\mathrm{ShowMacroInfixArrow}}(a \rightarrow_{c_1~c_2} b_1~b_2) & = & 0 \\
+{\mathrm{ShowMacroInfixArrow}}({\rightarrow}_{c_1~c_2} b_1~b_2) & = & 0 \\
 \end{array}
 $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{ShowMacroAtomArrow}}(a~{\rightarrow}_{c}) & = & 0 \\
 {\mathrm{ShowMacroAtomArrow}}(a~{\rightarrow}_{c}\,b) & = & 0 \\
-{\mathrm{ShowMacroAtomArrow}}(a~{\rightarrow}_{({c^\ast})}\,b) & = & 0 \\
+{\mathrm{ShowMacroAtomArrow}}(a~{\rightarrow}_{{c^\ast}}\,b) & = & 0 \\
 {\mathrm{ShowMacroAtomArrow}}(a~{\rightarrow}_{c}\,b_1~b_2) & = & 0 \\
-{\mathrm{ShowMacroAtomArrow}}(a~{\rightarrow}_{({c^\ast})}\,b_1~b_2) & = & 0 \\
-{\mathrm{ShowMacroAtomArrow}}(a~{\rightarrow}_{(c_1~c_2)}\,b_1~b_2) & = & 0 \\
-{\mathrm{ShowMacroAtomArrow}}({\rightarrow}_{(c_1~c_2)}\,b_1~b_2) & = & 0 \\
+{\mathrm{ShowMacroAtomArrow}}(a~{\rightarrow}_{{c^\ast}}\,b_1~b_2) & = & 0 \\
+{\mathrm{ShowMacroAtomArrow}}(a~{\rightarrow}_{c_1~c_2}\,b_1~b_2) & = & 0 \\
+{\mathrm{ShowMacroAtomArrow}}({\rightarrow}_{c_1~c_2}\,b_1~b_2) & = & 0 \\
 \end{array}
 $$
 
@@ -1228,7 +1218,6 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\InfixArrow}(a \rightarrow_{c} {}) & = & 0 \\
 {\InfixArrow}(a \rightarrow_{c} b) & = & 0 \\
 {\InfixArrow}(a \rightarrow_{{c^\ast}} b) & = & 0 \\
 {\InfixArrow}(a \rightarrow_{c} b_1~b_2) & = & 0 \\
@@ -1240,7 +1229,6 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\InfixArrow2}(a \Rightarrow_{c} {}) & = & 0 \\
 {\InfixArrow2}(a \Rightarrow_{c} b) & = & 0 \\
 {\InfixArrow2}(a \Rightarrow_{{c^\ast}} b) & = & 0 \\
 {\InfixArrow2}(a \Rightarrow_{c} b_1~b_2) & = & 0 \\
@@ -1252,7 +1240,6 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\AtomArrow}(a~{\rightarrow}_{c}) & = & 0 \\
 {\AtomArrow}(a~{\rightarrow}_{c}\,b) & = & 0 \\
 {\AtomArrow}(a~{\rightarrow}_{{c^\ast}}\,b) & = & 0 \\
 {\AtomArrow}(a~{\rightarrow}_{c}\,b_1~b_2) & = & 0 \\
@@ -1264,7 +1251,6 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\AtomArrow2}(a~{\Rightarrow}_{c}) & = & 0 \\
 {\AtomArrow2}(a~{\Rightarrow}_{c}\,b) & = & 0 \\
 {\AtomArrow2}(a~{\Rightarrow}_{{c^\ast}}\,b) & = & 0 \\
 {\AtomArrow2}(a~{\Rightarrow}_{c}\,b_1~b_2) & = & 0 \\
@@ -1283,7 +1269,6 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\MacroInfixArrow}(a \to_{c} {}) & = & 0 \\
 {\MacroInfixArrow}(a \to_{c} b) & = & 0 \\
 {\MacroInfixArrow}(a \to_{{c^\ast}} b) & = & 0 \\
 {\MacroInfixArrow}(a \to_{c} b_1~b_2) & = & 0 \\
@@ -1295,7 +1280,6 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\MacroAtomArrow}(a \to_{c} {}) & = & 0 \\
 {\MacroAtomArrow}(a \to_{c} b) & = & 0 \\
 {\MacroAtomArrow}(a \to_{{c^\ast}} b) & = & 0 \\
 {\MacroAtomArrow}(a \to_{c} b_1~b_2) & = & 0 \\
@@ -1314,25 +1298,23 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\ShowInfixArrow}(a \rightarrow_{c} ) & = & 0 \\
 {\ShowInfixArrow}(a \rightarrow_{c} b) & = & 0 \\
-{\ShowInfixArrow}(a \rightarrow_{({c^\ast})} b) & = & 0 \\
+{\ShowInfixArrow}(a \rightarrow_{{c^\ast}} b) & = & 0 \\
 {\ShowInfixArrow}(a \rightarrow_{c} b_1~b_2) & = & 0 \\
-{\ShowInfixArrow}(a \rightarrow_{({c^\ast})} b_1~b_2) & = & 0 \\
-{\ShowInfixArrow}(a \rightarrow_{(c_1~c_2)} b_1~b_2) & = & 0 \\
-{\ShowInfixArrow}({\rightarrow}_{(c_1~c_2)} b_1~b_2) & = & 0 \\
+{\ShowInfixArrow}(a \rightarrow_{{c^\ast}} b_1~b_2) & = & 0 \\
+{\ShowInfixArrow}(a \rightarrow_{c_1~c_2} b_1~b_2) & = & 0 \\
+{\ShowInfixArrow}({\rightarrow}_{c_1~c_2} b_1~b_2) & = & 0 \\
 \end{array}
 $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\ShowAtomArrow}(a~{\rightarrow}_{c}) & = & 0 \\
 {\ShowAtomArrow}(a~{\rightarrow}_{c}\,b) & = & 0 \\
-{\ShowAtomArrow}(a~{\rightarrow}_{({c^\ast})}\,b) & = & 0 \\
+{\ShowAtomArrow}(a~{\rightarrow}_{{c^\ast}}\,b) & = & 0 \\
 {\ShowAtomArrow}(a~{\rightarrow}_{c}\,b_1~b_2) & = & 0 \\
-{\ShowAtomArrow}(a~{\rightarrow}_{({c^\ast})}\,b_1~b_2) & = & 0 \\
-{\ShowAtomArrow}(a~{\rightarrow}_{(c_1~c_2)}\,b_1~b_2) & = & 0 \\
-{\ShowAtomArrow}({\rightarrow}_{(c_1~c_2)}\,b_1~b_2) & = & 0 \\
+{\ShowAtomArrow}(a~{\rightarrow}_{{c^\ast}}\,b_1~b_2) & = & 0 \\
+{\ShowAtomArrow}(a~{\rightarrow}_{c_1~c_2}\,b_1~b_2) & = & 0 \\
+{\ShowAtomArrow}({\rightarrow}_{c_1~c_2}\,b_1~b_2) & = & 0 \\
 \end{array}
 $$
 
@@ -1345,25 +1327,23 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\ShowMacroInfixArrow}(a \to_{c} ) & = & 0 \\
 {\ShowMacroInfixArrow}(a \to_{c} b) & = & 0 \\
-{\ShowMacroInfixArrow}(a \to_{({c^\ast})} b) & = & 0 \\
+{\ShowMacroInfixArrow}(a \to_{{c^\ast}} b) & = & 0 \\
 {\ShowMacroInfixArrow}(a \to_{c} b_1~b_2) & = & 0 \\
-{\ShowMacroInfixArrow}(a \to_{({c^\ast})} b_1~b_2) & = & 0 \\
-{\ShowMacroInfixArrow}(a \to_{(c_1~c_2)} b_1~b_2) & = & 0 \\
-{\ShowMacroInfixArrow}({\to}_{(c_1~c_2)} b_1~b_2) & = & 0 \\
+{\ShowMacroInfixArrow}(a \to_{{c^\ast}} b_1~b_2) & = & 0 \\
+{\ShowMacroInfixArrow}(a \to_{c_1~c_2} b_1~b_2) & = & 0 \\
+{\ShowMacroInfixArrow}({\to}_{c_1~c_2} b_1~b_2) & = & 0 \\
 \end{array}
 $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\ShowMacroAtomArrow}(a~{\to}_{c}) & = & 0 \\
 {\ShowMacroAtomArrow}(a~{\to}_{c}\,b) & = & 0 \\
-{\ShowMacroAtomArrow}(a~{\to}_{({c^\ast})}\,b) & = & 0 \\
+{\ShowMacroAtomArrow}(a~{\to}_{{c^\ast}}\,b) & = & 0 \\
 {\ShowMacroAtomArrow}(a~{\to}_{c}\,b_1~b_2) & = & 0 \\
-{\ShowMacroAtomArrow}(a~{\to}_{({c^\ast})}\,b_1~b_2) & = & 0 \\
-{\ShowMacroAtomArrow}(a~{\to}_{(c_1~c_2)}\,b_1~b_2) & = & 0 \\
-{\ShowMacroAtomArrow}({\to}_{(c_1~c_2)}\,b_1~b_2) & = & 0 \\
+{\ShowMacroAtomArrow}(a~{\to}_{{c^\ast}}\,b_1~b_2) & = & 0 \\
+{\ShowMacroAtomArrow}(a~{\to}_{c_1~c_2}\,b_1~b_2) & = & 0 \\
+{\ShowMacroAtomArrow}({\to}_{c_1~c_2}\,b_1~b_2) & = & 0 \\
 \end{array}
 $$
 

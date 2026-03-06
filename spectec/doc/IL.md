@@ -153,6 +153,7 @@ prem ::=
   "rule" id mixop exp             ;; -- id: mixop-exp
   "if" exp                        ;; -- if exp
   "else"                          ;; -- otherwise
+  "not"                           ;; -- not prem
   "let" exp exp                   ;; -- if exp = exp (when one side introduces variables)
   "iter" prem iter dom            ;; -- prem*
 ```
