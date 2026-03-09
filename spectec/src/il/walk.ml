@@ -20,7 +20,7 @@ open Ast
 
 (* Base traversal *)
 
-type 'env transformer = {
+type transformer = {
   transform_exp: exp -> exp;
   transform_prem: prem -> prem;
   transform_iterexp: iterexp -> iterexp;
@@ -33,10 +33,13 @@ type 'env transformer = {
   transform_typ_id: id -> id;
   transform_rel_id: id -> id;
   transform_def_id: id -> id;
-  transform_gram_id: id -> id
+  transform_gram_id: id -> id;
+
+  filter_exp : exp -> exp option
 }
 
 let id = Fun.id
+let op_id = fun x -> Some x
 
 let base_transformer = {
   transform_exp = id;
@@ -50,7 +53,9 @@ let base_transformer = {
   transform_typ_id = id;
   transform_rel_id = id;
   transform_def_id = id;
-  transform_gram_id = id
+  transform_gram_id = id;
+
+  filter_exp = op_id
 }
 
 let rec transform_typ t typ = 
@@ -67,6 +72,7 @@ let rec transform_typ t typ =
 
 and transform_exp t e =
   let f = t.transform_exp in
+  let g = t.filter_exp in
   let t_exp = transform_exp t in
   let it =
     match e.it with
@@ -101,7 +107,13 @@ and transform_exp t e =
     | SubE (e1, _t1, t2) -> SubE (t_exp e1, _t1, t2)
     | IfE (e1, e2, e3) -> IfE (t_exp e1, t_exp e2, t_exp e3)
   in
-  f { e with it; note = transform_typ t e.note }
+
+  let e' = 
+    match g {e with it; note = transform_typ t e.note } with 
+    | Some e' -> f e'
+    | None -> e 
+  in
+  f e'
 
 and transform_iter t iter =
   match iter with

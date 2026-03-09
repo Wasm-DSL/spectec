@@ -472,7 +472,7 @@ rule Ok_sym/RANGE:
 rule Ok_sym/ITER:
   E |- ITER g it (x `<- e)* : ITER t it'
   -- Ok_iter: E |- it : it' -| E'
-  -- (Ok_exp: E |- e' : ITER t' it')*
+  -- (Ok_exp: E |- e : ITER t' it')*
   -- Ok_sym: E ++ {EXP (x, t')*} ++ E' |- g : t
   -- Ok_typ: E |- t : OK
 
@@ -518,8 +518,8 @@ rule Ok_prem/LET:
 rule Ok_prem/ITER:
   E |- ITER pr it (x `<- e)* : OK
   -- Ok_iter: E |- it : it' -| E'
-  -- (Ok_exp: E |- e' : ITER t' it')*
-  -- Ok_prem: E ++ {EXP (x, t_x)*} ++ E' |- pr : OK
+  -- (Ok_exp: E |- e : ITER t' it')*
+  -- Ok_prem: E ++ {EXP (x, t')*} ++ E' |- pr : OK
 
 
 rule Ok_prems:

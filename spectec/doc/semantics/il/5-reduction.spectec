@@ -154,9 +154,17 @@ rule Step_exp/CMP-EQ-true:
   S |- CMP EQ e_1 e_2 ~> BOOL true
   -- if e_1 = e_2
 
+rule Step_exp/CMP-EQ-false:
+  S |- CMP EQ val_1 val_2 ~> BOOL false
+  -- if val_1 = val_2
+
 rule Step_exp/CMP-NE-false:
   S |- CMP NE e_1 e_2 ~> BOOL false
-  -- if e_1 = e_2
+  -- if e_1 =/= e_2
+
+rule Step_exp/CMP-NE-true:
+  S |- CMP NE val_1 val_2 ~> BOOL true
+  -- if val_1 =/= val_2
 
 rule Step_exp/CMP-NUM:
   S |- CMP numcmpop num_1 num_2 ~> BOOL $numcmp(numcmpop, num_1, num_2)
@@ -364,7 +372,7 @@ rule Step_exp/ITER-STAR:
   ;; TODO: y fresh
 
 rule Step_exp/ITER-SUP:
-  S |- ITER e (SUP x_i (NAT n)) (x `<- LIST e'^n)* ~> LIST $subst_exp({EXP (x, e'')* (x_i, NAT i)}, e)^(i<n)
+  S |- ITER e (SUP y (NAT n)) (x `<- LIST e'^n)* ~> LIST $subst_exp({EXP (x, e'')* (y, NAT i)}, e)^(i<n)
   -- if e''*^n = $transpose_(exp, e'^n*)
 
 
@@ -817,5 +825,5 @@ rule Step_prems/ITER-STAR:
   ;; TODO: y fresh
 
 rule Step_prems/ITER-SUP:
-  S |- ITER pr (SUP x_i (NAT n)) (x `<- LIST e^n)* ~> $subst_prem({EXP (x, e')* (x_i, NAT i)}, pr)^(i<n)
+  S |- ITER pr (SUP y (NAT n)) (x `<- LIST e^n)* ~> $subst_prem({EXP (x, e_x)* (y, NAT i)}, pr)^(i<n)
   -- if e'*^n = $transpose_(exp, e^n*)

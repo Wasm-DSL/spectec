@@ -553,14 +553,15 @@ syntax free =
   ELEMS elemidx*,
   DATAS dataidx*,
   LOCALS localidx*,
-  LABELS labelidx*
+  LABELS labelidx*,
+  TAGS tagidx*
 }
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 relation wf_free: `%`(free)
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  rule free_case_{var_0 : typeidx*, var_1 : funcidx*, var_2 : globalidx*, var_3 : tableidx*, var_4 : memidx*, var_5 : elemidx*, var_6 : dataidx*, var_7 : localidx*, var_8 : labelidx*}:
-    `%`({TYPES var_0, FUNCS var_1, GLOBALS var_2, TABLES var_3, MEMS var_4, ELEMS var_5, DATAS var_6, LOCALS var_7, LABELS var_8})
+  rule free_case_{var_0 : typeidx*, var_1 : funcidx*, var_2 : globalidx*, var_3 : tableidx*, var_4 : memidx*, var_5 : elemidx*, var_6 : dataidx*, var_7 : localidx*, var_8 : labelidx*, var_9 : tagidx*}:
+    `%`({TYPES var_0, FUNCS var_1, GLOBALS var_2, TABLES var_3, MEMS var_4, ELEMS var_5, DATAS var_6, LOCALS var_7, LABELS var_8, TAGS var_9})
     -- (wf_uN: `%%`(32, var_0))*{var_0 <- var_0}
     -- (wf_uN: `%%`(32, var_1))*{var_1 <- var_1}
     -- (wf_uN: `%%`(32, var_2))*{var_2 <- var_2}
@@ -570,80 +571,87 @@ relation wf_free: `%`(free)
     -- (wf_uN: `%%`(32, var_6))*{var_6 <- var_6}
     -- (wf_uN: `%%`(32, var_7))*{var_7 <- var_7}
     -- (wf_uN: `%%`(32, var_8))*{var_8 <- var_8}
+    -- (wf_uN: `%%`(32, var_9))*{var_9 <- var_9}
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 def $free_opt(free?) : free
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $free_opt(?()) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_opt(?()) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
   def $free_opt{free : free}(?(free)) = free
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 rec {
 
-;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:172.1-172.29
+;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:173.1-173.29
 def $free_list(free*) : free
-  ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:177.1-177.25
-  def $free_list([]) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
-  ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:178.1-178.57
+  ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:178.1-178.25
+  def $free_list([]) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
+  ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec:179.1-179.57
   def $free_list{free : free, `free'*` : free*}([free] ++ free'*{free' <- `free'*`}) = free +++ $free_list(free'*{free' <- `free'*`})
 }
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 def $free_typeidx(typeidx : typeidx) : free
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $free_typeidx{typeidx : uN}(typeidx) = {TYPES [typeidx], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [typeidx], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_typeidx{typeidx : uN}(typeidx) = {TYPES [typeidx], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [typeidx], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 def $free_funcidx(funcidx : funcidx) : free
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $free_funcidx{funcidx : uN}(funcidx) = {TYPES [], FUNCS [funcidx], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [funcidx], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_funcidx{funcidx : uN}(funcidx) = {TYPES [], FUNCS [funcidx], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [funcidx], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 def $free_globalidx(globalidx : globalidx) : free
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $free_globalidx{globalidx : uN}(globalidx) = {TYPES [], FUNCS [], GLOBALS [globalidx], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [globalidx], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_globalidx{globalidx : uN}(globalidx) = {TYPES [], FUNCS [], GLOBALS [globalidx], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [globalidx], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 def $free_tableidx(tableidx : tableidx) : free
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $free_tableidx{tableidx : uN}(tableidx) = {TYPES [], FUNCS [], GLOBALS [], TABLES [tableidx], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [tableidx], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_tableidx{tableidx : uN}(tableidx) = {TYPES [], FUNCS [], GLOBALS [], TABLES [tableidx], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [tableidx], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 def $free_memidx(memidx : memidx) : free
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $free_memidx{memidx : uN}(memidx) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [memidx], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [memidx], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_memidx{memidx : uN}(memidx) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [memidx], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [memidx], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 def $free_elemidx(elemidx : elemidx) : free
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $free_elemidx{elemidx : uN}(elemidx) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [elemidx], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [elemidx], DATAS [], LOCALS [], LABELS []})
+  def $free_elemidx{elemidx : uN}(elemidx) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [elemidx], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [elemidx], DATAS [], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 def $free_dataidx(dataidx : dataidx) : free
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $free_dataidx{dataidx : uN}(dataidx) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [dataidx], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [dataidx], LOCALS [], LABELS []})
+  def $free_dataidx{dataidx : uN}(dataidx) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [dataidx], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [dataidx], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 def $free_localidx(localidx : localidx) : free
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $free_localidx{localidx : uN}(localidx) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [localidx], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [localidx], LABELS []})
+  def $free_localidx{localidx : uN}(localidx) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [localidx], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [localidx], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 def $free_labelidx(labelidx : labelidx) : free
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
-  def $free_labelidx{labelidx : uN}(labelidx) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [labelidx]}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [labelidx]})
+  def $free_labelidx{labelidx : uN}(labelidx) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [labelidx], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [labelidx], TAGS []})
+
+;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
+def $free_tagidx(tagidx : tagidx) : free
+  ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
+  def $free_tagidx{tagidx : uN}(tagidx) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS [tagidx]}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS [tagidx]})
 
 ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
 def $free_externidx(externidx : externidx) : free
@@ -655,6 +663,8 @@ def $free_externidx(externidx : externidx) : free
   def $free_externidx{tableidx : uN}(TABLE_externidx(tableidx)) = $free_tableidx(tableidx)
   ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
   def $free_externidx{memidx : uN}(MEM_externidx(memidx)) = $free_memidx(memidx)
+  ;; ../../../../specification/wasm-3.0/1.1-syntax.values.spectec
+  def $free_externidx{tagidx : uN}(TAG_externidx(tagidx)) = $free_tagidx(tagidx)
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 syntax null = 
@@ -1493,7 +1503,7 @@ def $funcsxt(externtype*) : deftype*
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 rec {
 
-;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:337.1-337.112
+;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:337.1-337.126
 def $subst_typevar(typevar : typevar, typevar*, typeuse*) : typeuse
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:365.1-365.38
   def $subst_typevar{tv : typevar}(tv, [], []) = (tv : typevar <: typeuse)
@@ -1504,7 +1514,7 @@ def $subst_typevar(typevar : typevar, typevar*, typeuse*) : typeuse
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 rec {
 
-;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:401.1-401.59
+;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:401.1-401.73
 def $minus_recs(typevar*, typeuse*) : (typevar*, typeuse*)
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:402.1-402.39
   def $minus_recs([], []) = ([], [])
@@ -1768,22 +1778,22 @@ def $expanddt(deftype : deftype) : comptype
     -- if ($unrolldt(deftype) = SUB_subtype(final?{final <- `final?`}, typeuse*{typeuse <- `typeuse*`}, comptype))
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-def $free_addrtype(numtype : numtype) : free
+def $free_addrtype(addrtype : addrtype) : free
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $free_addrtype{addrtype : addrtype}((addrtype : addrtype <: numtype)) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_addrtype{addrtype : addrtype}(addrtype) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $free_numtype(numtype : numtype) : free
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $free_numtype{numtype : numtype}(numtype) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_numtype{numtype : numtype}(numtype) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $free_packtype(packtype : packtype) : free
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $free_packtype{packtype : packtype}(packtype) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_packtype{packtype : packtype}(packtype) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $free_lanetype(lanetype : lanetype) : free
@@ -1795,8 +1805,8 @@ def $free_lanetype(lanetype : lanetype) : free
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $free_vectype(vectype : vectype) : free
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $free_vectype{vectype : vectype}(vectype) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_vectype{vectype : vectype}(vectype) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $free_consttype(consttype : consttype) : free
@@ -1808,16 +1818,16 @@ def $free_consttype(consttype : consttype) : free
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $free_absheaptype(absheaptype : absheaptype) : free
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $free_absheaptype{absheaptype : absheaptype}(absheaptype) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_absheaptype{absheaptype : absheaptype}(absheaptype) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $free_typevar(typevar : typevar) : free
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
   def $free_typevar{typeidx : uN}(_IDX_typevar(typeidx)) = $free_typeidx(typeidx)
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $free_typevar{n : nat}(REC_typevar(n)) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_typevar{n : nat}(REC_typevar(n)) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 rec {
@@ -1850,8 +1860,8 @@ def $free_valtype(valtype : valtype) : free
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:539.1-539.52
   def $free_valtype{reftype : reftype}((reftype : reftype <: valtype)) = $free_reftype(reftype)
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:540.1-540.28
-  def $free_valtype(BOT_valtype) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_valtype(BOT_valtype) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:490.1-490.40
 def $free_resulttype(resulttype : resulttype) : free
@@ -1908,18 +1918,18 @@ def $free_globaltype(globaltype : globaltype) : free
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $free_memtype(memtype : memtype) : free
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $free_memtype{addrtype : addrtype, limits : limits}(`%%PAGE`_memtype(addrtype, limits)) = $free_addrtype((addrtype : addrtype <: numtype))
+  def $free_memtype{addrtype : addrtype, limits : limits}(`%%PAGE`_memtype(addrtype, limits)) = $free_addrtype(addrtype)
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $free_tabletype(tabletype : tabletype) : free
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $free_tabletype{addrtype : addrtype, limits : limits, reftype : reftype}(`%%%`_tabletype(addrtype, limits, reftype)) = $free_addrtype((addrtype : addrtype <: numtype)) +++ $free_reftype(reftype)
+  def $free_tabletype{addrtype : addrtype, limits : limits, reftype : reftype}(`%%%`_tabletype(addrtype, limits, reftype)) = $free_addrtype(addrtype) +++ $free_reftype(reftype)
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $free_datatype(datatype : datatype) : free
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
-  def $free_datatype(OK_datatype) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_datatype(OK_datatype) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 def $free_elemtype(elemtype : elemtype) : free
@@ -4209,15 +4219,26 @@ def $free_blocktype(blocktype : blocktype) : free
   def $free_blocktype{typeidx : uN}(_IDX_blocktype(typeidx)) = $free_typeidx(typeidx)
 
 ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec
+def $free_catch(catch : catch) : free
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec
+  def $free_catch{tagidx : uN, labelidx : uN}(CATCH_catch(tagidx, labelidx)) = $free_tagidx(tagidx) +++ $free_labelidx(labelidx)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec
+  def $free_catch{tagidx : uN, labelidx : uN}(CATCH_REF_catch(tagidx, labelidx)) = $free_tagidx(tagidx) +++ $free_labelidx(labelidx)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec
+  def $free_catch{labelidx : uN}(CATCH_ALL_catch(labelidx)) = $free_labelidx(labelidx)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec
+  def $free_catch{labelidx : uN}(CATCH_ALL_REF_catch(labelidx)) = $free_labelidx(labelidx)
+
+;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec
 rec {
 
-;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:574.1-574.44
+;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:586.1-586.44
 def $shift_labelidxs(labelidx*) : labelidx*
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:575.1-575.32
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:587.1-587.32
   def $shift_labelidxs([]) = []
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:576.1-576.66
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:588.1-588.66
   def $shift_labelidxs{`labelidx'*` : labelidx*}([`%`_labelidx(0)] ++ labelidx'*{labelidx' <- `labelidx'*`}) = $shift_labelidxs(labelidx'*{labelidx' <- `labelidx'*`})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:577.1-577.91
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:589.1-589.91
   def $shift_labelidxs{labelidx : uN, `labelidx'*` : labelidx*}([labelidx] ++ labelidx'*{labelidx' <- `labelidx'*`}) = [`%`_labelidx((((labelidx!`%`_uN.0 : nat <:> int) - (1 : nat <:> int)) : int <:> nat))] ++ $shift_labelidxs(labelidx'*{labelidx' <- `labelidx'*`})
     -- wf_uN: `%%`(32, `%`_uN((((labelidx!`%`_uN.0 : nat <:> int) - (1 : nat <:> int)) : int <:> nat)))
 }
@@ -4225,227 +4246,234 @@ def $shift_labelidxs(labelidx*) : labelidx*
 ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec
 rec {
 
-;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:419.1-419.30
+;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:420.1-420.30
 def $free_instr(instr : instr) : free
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:430.1-430.26
-  def $free_instr(NOP_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:431.1-431.34
-  def $free_instr(UNREACHABLE_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:432.1-432.27
-  def $free_instr(DROP_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:433.1-433.86
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:437.1-437.26
+  def $free_instr(NOP_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:438.1-438.34
+  def $free_instr(UNREACHABLE_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:439.1-439.27
+  def $free_instr(DROP_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:440.1-440.86
   def $free_instr{`valtype*?` : valtype*?}(SELECT_instr(valtype*{valtype <- `valtype*`}?{`valtype*` <- `valtype*?`})) = $free_opt($free_list($free_valtype(valtype)*{valtype <- `valtype*`})?{`valtype*` <- `valtype*?`})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:435.1-435.92
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:442.1-442.92
   def $free_instr{blocktype : blocktype, `instr*` : instr*}(BLOCK_instr(blocktype, instr*{instr <- `instr*`})) = $free_blocktype(blocktype) +++ $free_block(instr*{instr <- `instr*`})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:436.1-436.91
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:443.1-443.91
   def $free_instr{blocktype : blocktype, `instr*` : instr*}(LOOP_instr(blocktype, instr*{instr <- `instr*`})) = $free_blocktype(blocktype) +++ $free_block(instr*{instr <- `instr*`})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:437.1-438.79
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:444.1-445.79
   def $free_instr{blocktype : blocktype, `instr_1*` : instr*, `instr_2*` : instr*}(`IF%%ELSE%`_instr(blocktype, instr_1*{instr_1 <- `instr_1*`}, instr_2*{instr_2 <- `instr_2*`})) = $free_blocktype(blocktype) +++ $free_block(instr_1*{instr_1 <- `instr_1*`}) +++ $free_block(instr_2*{instr_2 <- `instr_2*`})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:440.1-440.56
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:447.1-447.56
   def $free_instr{labelidx : uN}(BR_instr(labelidx)) = $free_labelidx(labelidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:441.1-441.59
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:448.1-448.59
   def $free_instr{labelidx : uN}(BR_IF_instr(labelidx)) = $free_labelidx(labelidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:442.1-443.69
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:449.1-450.69
   def $free_instr{`labelidx*` : labelidx*, labelidx' : uN}(BR_TABLE_instr(labelidx*{labelidx <- `labelidx*`}, labelidx')) = $free_list($free_labelidx(labelidx)*{labelidx <- `labelidx*`}) +++ $free_labelidx(labelidx')
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:444.1-444.64
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:451.1-451.64
   def $free_instr{labelidx : uN}(BR_ON_NULL_instr(labelidx)) = $free_labelidx(labelidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:445.1-445.68
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:452.1-452.68
   def $free_instr{labelidx : uN}(BR_ON_NON_NULL_instr(labelidx)) = $free_labelidx(labelidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:446.1-447.83
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:453.1-454.83
   def $free_instr{labelidx : uN, reftype_1 : reftype, reftype_2 : reftype}(BR_ON_CAST_instr(labelidx, reftype_1, reftype_2)) = $free_labelidx(labelidx) +++ $free_reftype(reftype_1) +++ $free_reftype(reftype_2)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:448.1-449.83
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:455.1-456.83
   def $free_instr{labelidx : uN, reftype_1 : reftype, reftype_2 : reftype}(BR_ON_CAST_FAIL_instr(labelidx, reftype_1, reftype_2)) = $free_labelidx(labelidx) +++ $free_reftype(reftype_1) +++ $free_reftype(reftype_2)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:451.1-451.55
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:458.1-458.55
   def $free_instr{funcidx : uN}(CALL_instr(funcidx)) = $free_funcidx(funcidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:452.1-452.59
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:459.1-459.59
   def $free_instr{typeuse : typeuse}(CALL_REF_instr(typeuse)) = $free_typeuse(typeuse)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:453.1-454.53
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:460.1-461.53
   def $free_instr{tableidx : uN, typeuse : typeuse}(CALL_INDIRECT_instr(tableidx, typeuse)) = $free_tableidx(tableidx) +++ $free_typeuse(typeuse)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:455.1-455.29
-  def $free_instr(RETURN_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:456.1-456.62
-  def $free_instr{funcidx : uN}(RETURN_CALL_instr(funcidx)) = $free_funcidx(funcidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:457.1-457.66
-  def $free_instr{typeuse : typeuse}(RETURN_CALL_REF_instr(typeuse)) = $free_typeuse(typeuse)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:458.1-459.53
-  def $free_instr{tableidx : uN, typeuse : typeuse}(RETURN_CALL_INDIRECT_instr(tableidx, typeuse)) = $free_tableidx(tableidx) +++ $free_typeuse(typeuse)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:461.1-461.63
-  def $free_instr{numtype : numtype, numlit : num_}(CONST_instr(numtype, numlit)) = $free_numtype(numtype)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:462.1-462.60
-  def $free_instr{numtype : numtype, unop : unop_}(UNOP_instr(numtype, unop)) = $free_numtype(numtype)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:462.1-462.29
+  def $free_instr(RETURN_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
   ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:463.1-463.62
+  def $free_instr{funcidx : uN}(RETURN_CALL_instr(funcidx)) = $free_funcidx(funcidx)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:464.1-464.66
+  def $free_instr{typeuse : typeuse}(RETURN_CALL_REF_instr(typeuse)) = $free_typeuse(typeuse)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:465.1-466.53
+  def $free_instr{tableidx : uN, typeuse : typeuse}(RETURN_CALL_INDIRECT_instr(tableidx, typeuse)) = $free_tableidx(tableidx) +++ $free_typeuse(typeuse)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:468.1-468.53
+  def $free_instr{tagidx : uN}(THROW_instr(tagidx)) = $free_tagidx(tagidx)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:469.1-469.32
+  def $free_instr(THROW_REF_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:470.1-471.99
+  def $free_instr{blocktype : blocktype, `catch*` : catch*, `instr*` : instr*}(TRY_TABLE_instr(blocktype, `%`_list(catch*{catch <- `catch*`}), instr*{instr <- `instr*`})) = $free_blocktype(blocktype) +++ $free_list($free_catch(catch)*{catch <- `catch*`}) +++ $free_list($free_instr(instr)*{instr <- `instr*`})
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:473.1-473.63
+  def $free_instr{numtype : numtype, numlit : num_}(CONST_instr(numtype, numlit)) = $free_numtype(numtype)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:474.1-474.60
+  def $free_instr{numtype : numtype, unop : unop_}(UNOP_instr(numtype, unop)) = $free_numtype(numtype)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:475.1-475.62
   def $free_instr{numtype : numtype, binop : binop_}(BINOP_instr(numtype, binop)) = $free_numtype(numtype)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:464.1-464.64
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:476.1-476.64
   def $free_instr{numtype : numtype, testop : testop_}(TESTOP_instr(numtype, testop)) = $free_numtype(numtype)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:465.1-465.62
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:477.1-477.62
   def $free_instr{numtype : numtype, relop : relop_}(RELOP_instr(numtype, relop)) = $free_numtype(numtype)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:466.1-467.55
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:478.1-479.55
   def $free_instr{numtype_1 : numtype, numtype_2 : numtype, cvtop : cvtop__}(CVTOP_instr(numtype_1, numtype_2, cvtop)) = $free_numtype(numtype_1) +++ $free_numtype(numtype_2)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:469.1-469.64
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:481.1-481.64
   def $free_instr{vectype : vectype, veclit : uN}(VCONST_instr(vectype, veclit)) = $free_vectype(vectype)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:470.1-470.64
-  def $free_instr{vectype : vectype, vvunop : vvunop}(VVUNOP_instr(vectype, vvunop)) = $free_vectype(vectype)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:471.1-471.66
-  def $free_instr{vectype : vectype, vvbinop : vvbinop}(VVBINOP_instr(vectype, vvbinop)) = $free_vectype(vectype)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:472.1-472.68
-  def $free_instr{vectype : vectype, vvternop : vvternop}(VVTERNOP_instr(vectype, vvternop)) = $free_vectype(vectype)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:473.1-473.68
-  def $free_instr{vectype : vectype, vvtestop : vvtestop}(VVTESTOP_instr(vectype, vvtestop)) = $free_vectype(vectype)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:474.1-474.56
-  def $free_instr{shape : shape, vunop : vunop_}(VUNOP_instr(shape, vunop)) = $free_shape(shape)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:475.1-475.58
-  def $free_instr{shape : shape, vbinop : vbinop_}(VBINOP_instr(shape, vbinop)) = $free_shape(shape)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:476.1-476.60
-  def $free_instr{shape : shape, vternop : vternop_}(VTERNOP_instr(shape, vternop)) = $free_shape(shape)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:477.1-477.60
-  def $free_instr{shape : shape, vtestop : vtestop_}(VTESTOP_instr(shape, vtestop)) = $free_shape(shape)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:478.1-478.58
-  def $free_instr{shape : shape, vrelop : vrelop_}(VRELOP_instr(shape, vrelop)) = $free_shape(shape)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:479.1-479.64
-  def $free_instr{ishape : ishape, vshiftop : vshiftop_}(VSHIFTOP_instr(ishape, vshiftop)) = $free_shape(ishape!`%`_ishape.0)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:480.1-480.55
-  def $free_instr{ishape : ishape}(VBITMASK_instr(ishape)) = $free_shape(ishape!`%`_ishape.0)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:481.1-481.66
-  def $free_instr{bshape : bshape, vswizzlop : vswizzlop_}(VSWIZZLOP_instr(bshape, vswizzlop)) = $free_shape(bshape!`%`_bshape.0)
   ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:482.1-482.64
+  def $free_instr{vectype : vectype, vvunop : vvunop}(VVUNOP_instr(vectype, vvunop)) = $free_vectype(vectype)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:483.1-483.66
+  def $free_instr{vectype : vectype, vvbinop : vvbinop}(VVBINOP_instr(vectype, vvbinop)) = $free_vectype(vectype)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:484.1-484.68
+  def $free_instr{vectype : vectype, vvternop : vvternop}(VVTERNOP_instr(vectype, vvternop)) = $free_vectype(vectype)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:485.1-485.68
+  def $free_instr{vectype : vectype, vvtestop : vvtestop}(VVTESTOP_instr(vectype, vvtestop)) = $free_vectype(vectype)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:486.1-486.56
+  def $free_instr{shape : shape, vunop : vunop_}(VUNOP_instr(shape, vunop)) = $free_shape(shape)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:487.1-487.58
+  def $free_instr{shape : shape, vbinop : vbinop_}(VBINOP_instr(shape, vbinop)) = $free_shape(shape)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:488.1-488.60
+  def $free_instr{shape : shape, vternop : vternop_}(VTERNOP_instr(shape, vternop)) = $free_shape(shape)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:489.1-489.60
+  def $free_instr{shape : shape, vtestop : vtestop_}(VTESTOP_instr(shape, vtestop)) = $free_shape(shape)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:490.1-490.58
+  def $free_instr{shape : shape, vrelop : vrelop_}(VRELOP_instr(shape, vrelop)) = $free_shape(shape)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:491.1-491.64
+  def $free_instr{ishape : ishape, vshiftop : vshiftop_}(VSHIFTOP_instr(ishape, vshiftop)) = $free_shape(ishape!`%`_ishape.0)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:492.1-492.55
+  def $free_instr{ishape : ishape}(VBITMASK_instr(ishape)) = $free_shape(ishape!`%`_ishape.0)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:493.1-493.66
+  def $free_instr{bshape : bshape, vswizzlop : vswizzlop_}(VSWIZZLOP_instr(bshape, vswizzlop)) = $free_shape(bshape!`%`_bshape.0)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:494.1-494.64
   def $free_instr{bshape : bshape, `laneidx*` : laneidx*}(VSHUFFLE_instr(bshape, laneidx*{laneidx <- `laneidx*`})) = $free_shape(bshape!`%`_bshape.0)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:483.1-484.49
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:495.1-496.49
   def $free_instr{ishape_1 : ishape, ishape_2 : ishape, vextunop : vextunop__}(VEXTUNOP_instr(ishape_1, ishape_2, vextunop)) = $free_shape(ishape_1!`%`_ishape.0) +++ $free_shape(ishape_2!`%`_ishape.0)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:485.1-486.49
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:497.1-498.49
   def $free_instr{ishape_1 : ishape, ishape_2 : ishape, vextbinop : vextbinop__}(VEXTBINOP_instr(ishape_1, ishape_2, vextbinop)) = $free_shape(ishape_1!`%`_ishape.0) +++ $free_shape(ishape_2!`%`_ishape.0)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:487.1-488.49
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:499.1-500.49
   def $free_instr{ishape_1 : ishape, ishape_2 : ishape, vextternop : vextternop__}(VEXTTERNOP_instr(ishape_1, ishape_2, vextternop)) = $free_shape(ishape_1!`%`_ishape.0) +++ $free_shape(ishape_2!`%`_ishape.0)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:489.1-490.49
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:501.1-502.49
   def $free_instr{ishape_1 : ishape, ishape_2 : ishape, sx : sx}(VNARROW_instr(ishape_1, ishape_2, sx)) = $free_shape(ishape_1!`%`_ishape.0) +++ $free_shape(ishape_2!`%`_ishape.0)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:491.1-492.47
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:503.1-504.47
   def $free_instr{shape_1 : shape, shape_2 : shape, vcvtop : vcvtop__}(VCVTOP_instr(shape_1, shape_2, vcvtop)) = $free_shape(shape_1) +++ $free_shape(shape_2)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:493.1-493.51
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:505.1-505.51
   def $free_instr{shape : shape}(VSPLAT_instr(shape)) = $free_shape(shape)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:494.1-494.70
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:506.1-506.70
   def $free_instr{shape : shape, `sx?` : sx?, laneidx : uN}(VEXTRACT_LANE_instr(shape, sx?{sx <- `sx?`}, laneidx)) = $free_shape(shape)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:495.1-495.66
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:507.1-507.66
   def $free_instr{shape : shape, laneidx : uN}(VREPLACE_LANE_instr(shape, laneidx)) = $free_shape(shape)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:497.1-497.62
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:509.1-509.62
   def $free_instr{heaptype : heaptype}(`REF.NULL`_instr(heaptype)) = $free_heaptype(heaptype)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:498.1-498.34
-  def $free_instr(`REF.IS_NULL`_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:499.1-499.38
-  def $free_instr(`REF.AS_NON_NULL`_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:500.1-500.29
-  def $free_instr(`REF.EQ`_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:501.1-501.59
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:510.1-510.34
+  def $free_instr(`REF.IS_NULL`_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:511.1-511.38
+  def $free_instr(`REF.AS_NON_NULL`_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:512.1-512.29
+  def $free_instr(`REF.EQ`_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:513.1-513.59
   def $free_instr{reftype : reftype}(`REF.TEST`_instr(reftype)) = $free_reftype(reftype)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:502.1-502.59
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:514.1-514.59
   def $free_instr{reftype : reftype}(`REF.CAST`_instr(reftype)) = $free_reftype(reftype)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:503.1-503.59
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:515.1-515.59
   def $free_instr{funcidx : uN}(`REF.FUNC`_instr(funcidx)) = $free_funcidx(funcidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:504.1-504.30
-  def $free_instr(`REF.I31`_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:506.1-506.33
-  def $free_instr{sx : sx}(`I31.GET`_instr(sx)) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:508.1-508.41
-  def $free_instr{typeidx : uN}(`STRUCT.NEW`_instr(typeidx)) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:509.1-509.69
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:516.1-516.30
+  def $free_instr(`REF.I31`_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:518.1-518.33
+  def $free_instr{sx : sx}(`I31.GET`_instr(sx)) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:520.1-520.41
+  def $free_instr{typeidx : uN}(`STRUCT.NEW`_instr(typeidx)) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:521.1-521.69
   def $free_instr{typeidx : uN}(`STRUCT.NEW_DEFAULT`_instr(typeidx)) = $free_typeidx(typeidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:510.1-510.69
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:522.1-522.69
   def $free_instr{`sx?` : sx?, typeidx : uN, u32 : uN}(`STRUCT.GET`_instr(sx?{sx <- `sx?`}, typeidx, u32)) = $free_typeidx(typeidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:511.1-511.65
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:523.1-523.65
   def $free_instr{typeidx : uN, u32 : uN}(`STRUCT.SET`_instr(typeidx, u32)) = $free_typeidx(typeidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:513.1-513.60
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:525.1-525.60
   def $free_instr{typeidx : uN}(`ARRAY.NEW`_instr(typeidx)) = $free_typeidx(typeidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:514.1-514.68
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:526.1-526.68
   def $free_instr{typeidx : uN}(`ARRAY.NEW_DEFAULT`_instr(typeidx)) = $free_typeidx(typeidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:515.1-515.70
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:527.1-527.70
   def $free_instr{typeidx : uN, u32 : uN}(`ARRAY.NEW_FIXED`_instr(typeidx, u32)) = $free_typeidx(typeidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:516.1-517.51
-  def $free_instr{typeidx : uN, dataidx : uN}(`ARRAY.NEW_DATA`_instr(typeidx, dataidx)) = $free_typeidx(typeidx) +++ $free_dataidx(dataidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:518.1-519.51
-  def $free_instr{typeidx : uN, elemidx : uN}(`ARRAY.NEW_ELEM`_instr(typeidx, elemidx)) = $free_typeidx(typeidx) +++ $free_elemidx(elemidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:520.1-520.64
-  def $free_instr{`sx?` : sx?, typeidx : uN}(`ARRAY.GET`_instr(sx?{sx <- `sx?`}, typeidx)) = $free_typeidx(typeidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:521.1-521.60
-  def $free_instr{typeidx : uN}(`ARRAY.SET`_instr(typeidx)) = $free_typeidx(typeidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:522.1-522.32
-  def $free_instr(`ARRAY.LEN`_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:523.1-523.61
-  def $free_instr{typeidx : uN}(`ARRAY.FILL`_instr(typeidx)) = $free_typeidx(typeidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:524.1-525.55
-  def $free_instr{typeidx_1 : uN, typeidx_2 : uN}(`ARRAY.COPY`_instr(typeidx_1, typeidx_2)) = $free_typeidx(typeidx_1) +++ $free_typeidx(typeidx_2)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:526.1-527.51
-  def $free_instr{typeidx : uN, dataidx : uN}(`ARRAY.INIT_DATA`_instr(typeidx, dataidx)) = $free_typeidx(typeidx) +++ $free_dataidx(dataidx)
   ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:528.1-529.51
+  def $free_instr{typeidx : uN, dataidx : uN}(`ARRAY.NEW_DATA`_instr(typeidx, dataidx)) = $free_typeidx(typeidx) +++ $free_dataidx(dataidx)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:530.1-531.51
+  def $free_instr{typeidx : uN, elemidx : uN}(`ARRAY.NEW_ELEM`_instr(typeidx, elemidx)) = $free_typeidx(typeidx) +++ $free_elemidx(elemidx)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:532.1-532.64
+  def $free_instr{`sx?` : sx?, typeidx : uN}(`ARRAY.GET`_instr(sx?{sx <- `sx?`}, typeidx)) = $free_typeidx(typeidx)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:533.1-533.60
+  def $free_instr{typeidx : uN}(`ARRAY.SET`_instr(typeidx)) = $free_typeidx(typeidx)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:534.1-534.32
+  def $free_instr(`ARRAY.LEN`_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:535.1-535.61
+  def $free_instr{typeidx : uN}(`ARRAY.FILL`_instr(typeidx)) = $free_typeidx(typeidx)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:536.1-537.55
+  def $free_instr{typeidx_1 : uN, typeidx_2 : uN}(`ARRAY.COPY`_instr(typeidx_1, typeidx_2)) = $free_typeidx(typeidx_1) +++ $free_typeidx(typeidx_2)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:538.1-539.51
+  def $free_instr{typeidx : uN, dataidx : uN}(`ARRAY.INIT_DATA`_instr(typeidx, dataidx)) = $free_typeidx(typeidx) +++ $free_dataidx(dataidx)
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:540.1-541.51
   def $free_instr{typeidx : uN, elemidx : uN}(`ARRAY.INIT_ELEM`_instr(typeidx, elemidx)) = $free_typeidx(typeidx) +++ $free_elemidx(elemidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:531.1-531.41
-  def $free_instr(`EXTERN.CONVERT_ANY`_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:532.1-532.41
-  def $free_instr(`ANY.CONVERT_EXTERN`_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:534.1-534.63
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:543.1-543.41
+  def $free_instr(`EXTERN.CONVERT_ANY`_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:544.1-544.41
+  def $free_instr(`ANY.CONVERT_EXTERN`_instr) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:546.1-546.63
   def $free_instr{localidx : uN}(`LOCAL.GET`_instr(localidx)) = $free_localidx(localidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:535.1-535.63
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:547.1-547.63
   def $free_instr{localidx : uN}(`LOCAL.SET`_instr(localidx)) = $free_localidx(localidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:536.1-536.63
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:548.1-548.63
   def $free_instr{localidx : uN}(`LOCAL.TEE`_instr(localidx)) = $free_localidx(localidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:538.1-538.67
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:550.1-550.67
   def $free_instr{globalidx : uN}(`GLOBAL.GET`_instr(globalidx)) = $free_globalidx(globalidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:539.1-539.67
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:551.1-551.67
   def $free_instr{globalidx : uN}(`GLOBAL.SET`_instr(globalidx)) = $free_globalidx(globalidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:541.1-541.63
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:553.1-553.63
   def $free_instr{tableidx : uN}(`TABLE.GET`_instr(tableidx)) = $free_tableidx(tableidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:542.1-542.63
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:554.1-554.63
   def $free_instr{tableidx : uN}(`TABLE.SET`_instr(tableidx)) = $free_tableidx(tableidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:543.1-543.64
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:555.1-555.64
   def $free_instr{tableidx : uN}(`TABLE.SIZE`_instr(tableidx)) = $free_tableidx(tableidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:544.1-544.64
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:556.1-556.64
   def $free_instr{tableidx : uN}(`TABLE.GROW`_instr(tableidx)) = $free_tableidx(tableidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:545.1-545.64
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:557.1-557.64
   def $free_instr{tableidx : uN}(`TABLE.FILL`_instr(tableidx)) = $free_tableidx(tableidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:546.1-547.59
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:558.1-559.59
   def $free_instr{tableidx_1 : uN, tableidx_2 : uN}(`TABLE.COPY`_instr(tableidx_1, tableidx_2)) = $free_tableidx(tableidx_1) +++ $free_tableidx(tableidx_2)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:548.1-549.53
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:560.1-561.53
   def $free_instr{tableidx : uN, elemidx : uN}(`TABLE.INIT`_instr(tableidx, elemidx)) = $free_tableidx(tableidx) +++ $free_elemidx(elemidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:550.1-550.60
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:562.1-562.60
   def $free_instr{elemidx : uN}(`ELEM.DROP`_instr(elemidx)) = $free_elemidx(elemidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:552.1-553.49
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:564.1-565.49
   def $free_instr{numtype : numtype, `loadop?` : loadop_?, memidx : uN, memarg : memarg}(LOAD_instr(numtype, loadop?{loadop <- `loadop?`}, memidx, memarg)) = $free_numtype(numtype) +++ $free_memidx(memidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:554.1-555.49
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:566.1-567.49
   def $free_instr{numtype : numtype, `storeop?` : storeop_?, memidx : uN, memarg : memarg}(STORE_instr(numtype, storeop?{storeop <- `storeop?`}, memidx, memarg)) = $free_numtype(numtype) +++ $free_memidx(memidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:556.1-557.49
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:568.1-569.49
   def $free_instr{vectype : vectype, `vloadop?` : vloadop_?, memidx : uN, memarg : memarg}(VLOAD_instr(vectype, vloadop?{vloadop <- `vloadop?`}, memidx, memarg)) = $free_vectype(vectype) +++ $free_memidx(memidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:558.1-559.49
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:570.1-571.49
   def $free_instr{vectype : vectype, sz : sz, memidx : uN, memarg : memarg, laneidx : uN}(VLOAD_LANE_instr(vectype, sz, memidx, memarg, laneidx)) = $free_vectype(vectype) +++ $free_memidx(memidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:560.1-561.49
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:572.1-573.49
   def $free_instr{vectype : vectype, memidx : uN, memarg : memarg}(VSTORE_instr(vectype, memidx, memarg)) = $free_vectype(vectype) +++ $free_memidx(memidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:562.1-563.49
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:574.1-575.49
   def $free_instr{vectype : vectype, sz : sz, memidx : uN, memarg : memarg, laneidx : uN}(VSTORE_LANE_instr(vectype, sz, memidx, memarg, laneidx)) = $free_vectype(vectype) +++ $free_memidx(memidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:564.1-564.59
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:576.1-576.59
   def $free_instr{memidx : uN}(`MEMORY.SIZE`_instr(memidx)) = $free_memidx(memidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:565.1-565.59
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:577.1-577.59
   def $free_instr{memidx : uN}(`MEMORY.GROW`_instr(memidx)) = $free_memidx(memidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:566.1-566.59
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:578.1-578.59
   def $free_instr{memidx : uN}(`MEMORY.FILL`_instr(memidx)) = $free_memidx(memidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:567.1-568.51
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:579.1-580.51
   def $free_instr{memidx_1 : uN, memidx_2 : uN}(`MEMORY.COPY`_instr(memidx_1, memidx_2)) = $free_memidx(memidx_1) +++ $free_memidx(memidx_2)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:569.1-570.49
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:581.1-582.49
   def $free_instr{memidx : uN, dataidx : uN}(`MEMORY.INIT`_instr(memidx, dataidx)) = $free_memidx(memidx) +++ $free_dataidx(dataidx)
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:571.1-571.60
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:583.1-583.60
   def $free_instr{dataidx : uN}(`DATA.DROP`_instr(dataidx)) = $free_dataidx(dataidx)
 
-;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:420.1-420.31
+;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:421.1-421.31
 def $free_block(instr*) : free
-  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:579.1-580.47
+  ;; ../../../../specification/wasm-3.0/1.3-syntax.instructions.spectec:591.1-592.47
   def $free_block{`instr*` : instr*, free : free}(instr*{instr <- `instr*`}) = free[LABELS_free = $shift_labelidxs(free.LABELS_free)]
     -- wf_free: `%`(free)
     -- if (free = $free_list($free_instr(instr)*{instr <- `instr*`}))
@@ -4690,8 +4718,8 @@ def $free_datamode(datamode : datamode) : free
   ;; ../../../../specification/wasm-3.0/1.4-syntax.modules.spectec
   def $free_datamode{memidx : uN, expr : instr*}(ACTIVE_datamode(memidx, expr)) = $free_memidx(memidx) +++ $free_expr(expr)
   ;; ../../../../specification/wasm-3.0/1.4-syntax.modules.spectec
-  def $free_datamode(PASSIVE_datamode) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_datamode(PASSIVE_datamode) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.4-syntax.modules.spectec
 def $free_data(data : data) : free
@@ -4703,11 +4731,11 @@ def $free_elemmode(elemmode : elemmode) : free
   ;; ../../../../specification/wasm-3.0/1.4-syntax.modules.spectec
   def $free_elemmode{tableidx : uN, expr : instr*}(ACTIVE_elemmode(tableidx, expr)) = $free_tableidx(tableidx) +++ $free_expr(expr)
   ;; ../../../../specification/wasm-3.0/1.4-syntax.modules.spectec
-  def $free_elemmode(PASSIVE_elemmode) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_elemmode(PASSIVE_elemmode) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
   ;; ../../../../specification/wasm-3.0/1.4-syntax.modules.spectec
-  def $free_elemmode(DECLARE_elemmode) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []}
-    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS []})
+  def $free_elemmode(DECLARE_elemmode) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
+    -- wf_free: `%`({TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []})
 
 ;; ../../../../specification/wasm-3.0/1.4-syntax.modules.spectec
 def $free_elem(elem : elem) : free
@@ -4806,7 +4834,7 @@ relation wf_context: `%`(context)
 ;; ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec
 rec {
 
-;; ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:46.1-46.144
+;; ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:46.1-46.158
 def $with_locals(context : context, localidx*, localtype*) : context
   ;; ../../../../specification/wasm-3.0/2.0-validation.contexts.spectec:48.1-48.34
   def $with_locals{C : context}(C, [], []) = C
@@ -11559,33 +11587,70 @@ def $runelem_(elemidx : elemidx, elem : elem) : instr*
 ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
 rec {
 
-;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:160.1-160.94
-def $evalglobals(state : state, globaltype*, expr*) : (state, val*)
-  ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:161.1-161.41
-  def $evalglobals{z : state}(z, [], []) = (z, [])
-  ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:162.1-167.81
-  def $evalglobals{z : state, gt : globaltype, `gt'*` : globaltype*, expr : instr*, `expr'*` : expr*, z' : state, val : val, `val'*` : val*, s : store, f : frame, s' : store, a : nat}(z, [gt] ++ gt'*{gt' <- `gt'*`}, [expr] ++ expr'*{expr' <- `expr'*`}) = (z', [val] ++ val'*{val' <- `val'*`})
+;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:160.1-160.92
+def $evalexprs(state : state, expr*) : (state, ref*)
+  ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:161.1-161.34
+  def $evalexprs{z : state}(z, []) = (z, [])
+  ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:162.1-165.46
+  def $evalexprs{z : state, expr : instr*, `expr'*` : expr*, z'' : state, ref : ref, `ref'*` : ref*, z' : state}(z, [expr] ++ expr'*{expr' <- `expr'*`}) = (z'', [ref] ++ ref'*{ref' <- `ref'*`})
+    -- wf_state: `%`(z'')
+    -- wf_ref: `%`(ref)
+    -- (wf_ref: `%`(ref'))*{ref' <- `ref'*`}
     -- wf_state: `%`(z')
+    -- Eval_expr: `%;%~>*%;%`(z, expr, z', [(ref : ref <: val)])
+    -- if ((z'', ref'*{ref' <- `ref'*`}) = $evalexprs(z', expr'*{expr' <- `expr'*`}))
+}
+
+;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
+rec {
+
+;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:167.1-167.96
+def $evalexprss(state : state, expr**) : (state, ref**)
+  ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:168.1-168.35
+  def $evalexprss{z : state}(z, []) = (z, [])
+  ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:169.1-172.49
+  def $evalexprss{z : state, `expr*` : expr*, `expr'**` : expr**, z'' : state, `ref*` : ref*, `ref'**` : ref**, z' : state}(z, [expr*{expr <- `expr*`}] ++ expr'*{expr' <- `expr'*`}*{`expr'*` <- `expr'**`}) = (z'', [ref*{ref <- `ref*`}] ++ ref'*{ref' <- `ref'*`}*{`ref'*` <- `ref'**`})
+    -- wf_state: `%`(z'')
+    -- (wf_ref: `%`(ref))*{ref <- `ref*`}
+    -- (wf_ref: `%`(ref'))*{ref' <- `ref'*`}*{`ref'*` <- `ref'**`}
+    -- wf_state: `%`(z')
+    -- if ((z', ref*{ref <- `ref*`}) = $evalexprs(z, expr*{expr <- `expr*`}))
+    -- if ((z'', ref'*{ref' <- `ref'*`}*{`ref'*` <- `ref'**`}) = $evalexprss(z', expr'*{expr' <- `expr'*`}*{`expr'*` <- `expr'**`}))
+}
+
+;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
+rec {
+
+;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:174.1-174.111
+def $evalglobals(state : state, globaltype*, expr*) : (state, val*)
+  ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:175.1-175.41
+  def $evalglobals{z : state}(z, [], []) = (z, [])
+  ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec:176.1-181.82
+  def $evalglobals{z : state, gt : globaltype, `gt'*` : globaltype*, expr : instr*, `expr'*` : expr*, z'' : state, val : val, `val'*` : val*, z' : state, s : store, f : frame, s' : store, a : nat}(z, [gt] ++ gt'*{gt' <- `gt'*`}, [expr] ++ expr'*{expr' <- `expr'*`}) = (z'', [val] ++ val'*{val' <- `val'*`})
+    -- wf_state: `%`(z'')
     -- wf_val: `%`(val)
     -- (wf_val: `%`(val'))*{val' <- `val'*`}
+    -- wf_state: `%`(z')
     -- wf_state: `%`(`%;%`_state(s, f))
     -- wf_state: `%`(`%;%`_state(s', f[MODULE_frame.GLOBALS_moduleinst =++ [a]]))
-    -- Eval_expr: `%;%~>*%;%`(z, expr, z, [val])
-    -- if (z = `%;%`_state(s, f))
+    -- Eval_expr: `%;%~>*%;%`(z, expr, z', [val])
+    -- if (z' = `%;%`_state(s, f))
     -- if ((s', a) = $allocglobal(s, gt, val))
-    -- if ((z', val'*{val' <- `val'*`}) = $evalglobals(`%;%`_state(s', f[MODULE_frame.GLOBALS_moduleinst =++ [a]]), gt'*{gt' <- `gt'*`}, expr'*{expr' <- `expr'*`}))
+    -- if ((z'', val'*{val' <- `val'*`}) = $evalglobals(`%;%`_state(s', f[MODULE_frame.GLOBALS_moduleinst =++ [a]]), gt'*{gt' <- `gt'*`}, expr'*{expr' <- `expr'*`}))
 }
 
 ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
 def $instantiate(store : store, module : module, externaddr*) : config
   ;; ../../../../specification/wasm-3.0/4.4-execution.modules.spectec
-  def $instantiate{s : store, module : module, `externaddr*` : externaddr*, s' : store, moduleinst : moduleinst, `instr_E*` : instr*, `instr_D*` : instr*, `instr_S?` : instr?, `xt_I*` : externtype*, `xt_E*` : externtype*, `type*` : type*, `import*` : import*, `tag*` : tag*, `global*` : global*, `mem*` : mem*, `table*` : table*, `func*` : func*, `data*` : data*, `elem*` : elem*, `start?` : start?, `export*` : export*, `expr_G*` : expr*, `globaltype*` : globaltype*, `expr_T*` : expr*, `tabletype*` : tabletype*, `byte**` : byte**, `datamode*` : datamode*, `elemmode*` : elemmode*, `expr_E**` : expr**, `reftype*` : reftype*, `x?` : idx?, moduleinst_0 : moduleinst, z : state, z' : state, `val_G*` : val*, `ref_T*` : ref*, `ref_E**` : ref**, i_D : nat, i_E : nat}(s, module, externaddr*{externaddr <- `externaddr*`}) = `%;%`_config(`%;%`_state(s', {LOCALS [], MODULE moduleinst}), instr_E*{instr_E <- `instr_E*`} ++ instr_D*{instr_D <- `instr_D*`} ++ lift(instr_S?{instr_S <- `instr_S?`}))
+  def $instantiate{s : store, module : module, `externaddr*` : externaddr*, s'''' : store, moduleinst : moduleinst, `instr_E*` : instr*, `instr_D*` : instr*, `instr_S?` : instr?, `xt_I*` : externtype*, `xt_E*` : externtype*, `type*` : type*, `import*` : import*, `tag*` : tag*, `global*` : global*, `mem*` : mem*, `table*` : table*, `func*` : func*, `data*` : data*, `elem*` : elem*, `start?` : start?, `export*` : export*, `expr_G*` : expr*, `globaltype*` : globaltype*, `expr_T*` : expr*, `tabletype*` : tabletype*, `byte**` : byte**, `datamode*` : datamode*, `elemmode*` : elemmode*, `expr_E**` : expr**, `reftype*` : reftype*, `x?` : idx?, moduleinst_0 : moduleinst, z : state, z' : state, `val_G*` : val*, z'' : state, `ref_T*` : ref*, z''' : state, `ref_E**` : ref**, s''' : store, f : frame, i_D : nat, i_E : nat}(s, module, externaddr*{externaddr <- `externaddr*`}) = `%;%`_config(`%;%`_state(s'''', {LOCALS [], MODULE moduleinst}), instr_E*{instr_E <- `instr_E*`} ++ instr_D*{instr_D <- `instr_D*`} ++ lift(instr_S?{instr_S <- `instr_S?`}))
     -- wf_state: `%`(z)
     -- wf_state: `%`(z')
     -- (wf_val: `%`(val_G))*{val_G <- `val_G*`}
+    -- wf_state: `%`(z'')
     -- (wf_ref: `%`(ref_T))*{ref_T <- `ref_T*`}
+    -- wf_state: `%`(z''')
     -- (wf_ref: `%`(ref_E))*{ref_E <- `ref_E*`}*{`ref_E*` <- `ref_E**`}
-    -- wf_config: `%`(`%;%`_config(`%;%`_state(s', {LOCALS [], MODULE moduleinst}), instr_E*{instr_E <- `instr_E*`} ++ instr_D*{instr_D <- `instr_D*`} ++ lift(instr_S?{instr_S <- `instr_S?`})))
+    -- wf_config: `%`(`%;%`_config(`%;%`_state(s'''', {LOCALS [], MODULE moduleinst}), instr_E*{instr_E <- `instr_E*`} ++ instr_D*{instr_D <- `instr_D*`} ++ lift(instr_S?{instr_S <- `instr_S?`})))
     -- wf_moduletype: `%`(`%->%`_moduletype(xt_I*{xt_I <- `xt_I*`}, xt_E*{xt_E <- `xt_E*`}))
     -- wf_module: `%`(MODULE_module(type*{type <- `type*`}, import*{import <- `import*`}, tag*{tag <- `tag*`}, global*{global <- `global*`}, mem*{mem <- `mem*`}, table*{table <- `table*`}, func*{func <- `func*`}, data*{data <- `data*`}, elem*{elem <- `elem*`}, start?{start <- `start?`}, export*{export <- `export*`}))
     -- (wf_global: `%`(GLOBAL_global(globaltype, expr_G)))*{expr_G <- `expr_G*`, globaltype <- `globaltype*`}
@@ -11595,6 +11660,7 @@ def $instantiate(store : store, module : module, externaddr*) : config
     -- (wf_start: `%`(START_start(x)))?{x <- `x?`}
     -- wf_moduleinst: `%`({TYPES $alloctypes(type*{type <- `type*`}), TAGS [], GLOBALS $globalsxa(externaddr*{externaddr <- `externaddr*`}), MEMS [], TABLES [], FUNCS $funcsxa(externaddr*{externaddr <- `externaddr*`}) ++ (|s.FUNCS_store| + i_F)^(i_F<|func*{func <- `func*`}|){}, DATAS [], ELEMS [], EXPORTS []})
     -- wf_state: `%`(`%;%`_state(s, {LOCALS [], MODULE moduleinst_0}))
+    -- wf_state: `%`(`%;%`_state(s''', f))
     -- wf_uN: `%%`(32, `%`_uN(i_D))
     -- wf_uN: `%%`(32, `%`_uN(i_E))
     -- (wf_instr: `%`(CALL_instr(x)))?{x <- `x?`}
@@ -11609,9 +11675,10 @@ def $instantiate(store : store, module : module, externaddr*) : config
     -- if (moduleinst_0 = {TYPES $alloctypes(type*{type <- `type*`}), TAGS [], GLOBALS $globalsxa(externaddr*{externaddr <- `externaddr*`}), MEMS [], TABLES [], FUNCS $funcsxa(externaddr*{externaddr <- `externaddr*`}) ++ (|s.FUNCS_store| + i_F)^(i_F<|func*{func <- `func*`}|){}, DATAS [], ELEMS [], EXPORTS []})
     -- if (z = `%;%`_state(s, {LOCALS [], MODULE moduleinst_0}))
     -- if ((z', val_G*{val_G <- `val_G*`}) = $evalglobals(z, globaltype*{globaltype <- `globaltype*`}, expr_G*{expr_G <- `expr_G*`}))
-    -- (Eval_expr: `%;%~>*%;%`(z', expr_T, z', [(ref_T : ref <: val)]))*{expr_T <- `expr_T*`, ref_T <- `ref_T*`}
-    -- (Eval_expr: `%;%~>*%;%`(z', expr_E, z', [(ref_E : ref <: val)]))*{expr_E <- `expr_E*`, ref_E <- `ref_E*`}*{`expr_E*` <- `expr_E**`, `ref_E*` <- `ref_E**`}
-    -- if ((s', moduleinst) = $allocmodule(s, module, externaddr*{externaddr <- `externaddr*`}, val_G*{val_G <- `val_G*`}, ref_T*{ref_T <- `ref_T*`}, ref_E*{ref_E <- `ref_E*`}*{`ref_E*` <- `ref_E**`}))
+    -- if ((z'', ref_T*{ref_T <- `ref_T*`}) = $evalexprs(z', expr_T*{expr_T <- `expr_T*`}))
+    -- if ((z''', ref_E*{ref_E <- `ref_E*`}*{`ref_E*` <- `ref_E**`}) = $evalexprss(z'', expr_E*{expr_E <- `expr_E*`}*{`expr_E*` <- `expr_E**`}))
+    -- if (z''' = `%;%`_state(s''', f))
+    -- if ((s'''', moduleinst) = $allocmodule(s''', module, externaddr*{externaddr <- `externaddr*`}, val_G*{val_G <- `val_G*`}, ref_T*{ref_T <- `ref_T*`}, ref_E*{ref_E <- `ref_E*`}*{`ref_E*` <- `ref_E**`}))
     -- if (instr_D*{instr_D <- `instr_D*`} = $concat_(syntax instr, $rundata_(`%`_dataidx(i_D), data*{data <- `data*`}[i_D])^(i_D<|data*{data <- `data*`}|){}))
     -- if (instr_E*{instr_E <- `instr_E*`} = $concat_(syntax instr, $runelem_(`%`_elemidx(i_E), elem*{elem <- `elem*`}[i_E])^(i_E<|elem*{elem <- `elem*`}|){}))
     -- if (instr_S?{instr_S <- `instr_S?`} = CALL_instr(x)?{x <- `x?`})
@@ -14493,7 +14560,7 @@ grammar Toffset : u64
 ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
 grammar Tmemarg_(N : N) : memarg
   ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
-  prod{n : n, m : m} {{`%`_u64(n):Toffset} {`%`_u64(m):Talign_(N)}} => {ALIGN `%`_u32(n), OFFSET `%`_u64(m)}
+  prod{n : n, m : m} {{`%`_u64(n):Talign_(N)} {`%`_u64(m):Toffset}} => {ALIGN `%`_u32(n), OFFSET `%`_u64(m)}
 
 ;; ../../../../specification/wasm-3.0/6.3-text.instructions.spectec
 grammar Tplaininstr_(I : I) : instr
@@ -15586,9 +15653,14 @@ grammar Tdata_(I : I) : (data, idctxt)
   prod{`b*` : byte*, x : idx, e : expr, `id?` : char?} {{"("} {"data"} {?(`%`_name(lift(id?{id <- `id?`}))):Tid?{}} {x:Tmemuse_(I)} {e:Toffset_(I)} {b*{b <- `b*`}:Tdatastring} {")"}} => (DATA_data(b*{b <- `b*`}, ACTIVE_datamode(x, e)), {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [?(`%`_name(lift(id?{id <- `id?`})))], ELEMS [], LOCALS [], LABELS [], FIELDS [], TYPEDEFS []})
 
 ;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
+grammar Telemexpr_(I : I) : expr
+  ;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
+  prod{e : expr} {{"("} {"item"} {e:Texpr_(I)} {")"}} => e
+
+;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
 grammar Telemlist_(I : I) : (reftype, expr*)
   ;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
-  prod{rt : reftype, `e*` : expr*} {{rt:Treftype_(I)} {e*{e <- `e*`}:Tlist(syntax expr, grammar Texpr_(I))}} => (rt, e*{e <- `e*`})
+  prod{rt : reftype, `e*` : expr*} {{rt:Treftype_(I)} {e*{e <- `e*`}:Tlist(syntax expr, grammar Telemexpr_(I))}} => (rt, e*{e <- `e*`})
 
 ;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
 grammar Ttableuse_(I : I) : tableidx
@@ -15603,11 +15675,6 @@ grammar Telem_(I : I) : (elem, idctxt)
   prod{rt : reftype, `e*` : expr*, x : idx, e' : expr, `id?` : char?} {{"("} {"elem"} {?(`%`_name(lift(id?{id <- `id?`}))):Tid?{}} {x:Ttableuse_(I)} {e':Toffset_(I)} {(rt, e*{e <- `e*`}):Telemlist_(I)} {")"}} => (ELEM_elem(rt, e*{e <- `e*`}, ACTIVE_elemmode(x, e')), {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [?(`%`_name(lift(id?{id <- `id?`})))], LOCALS [], LABELS [], FIELDS [], TYPEDEFS []})
   ;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
   prod{rt : reftype, `e*` : expr*, `id?` : char?} {{"("} {"elem"} {?(`%`_name(lift(id?{id <- `id?`}))):Tid?{}} {"declare"} {(rt, e*{e <- `e*`}):Telemlist_(I)} {")"}} => (ELEM_elem(rt, e*{e <- `e*`}, DECLARE_elemmode), {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [?(`%`_name(lift(id?{id <- `id?`})))], LOCALS [], LABELS [], FIELDS [], TYPEDEFS []})
-
-;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
-grammar Telemexpr_(I : I) : expr
-  ;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
-  prod{e : expr} {{"("} {"item"} {e:Texpr_(I)} {")"}} => e
 
 ;; ../../../../specification/wasm-3.0/6.4-text.modules.spectec
 grammar Tstart_(I : I) : (start, idctxt)

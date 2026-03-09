@@ -85,9 +85,7 @@ let lookup_env key env =
   try Env.find key env
   with Not_found ->
     let freeVar s = Exception.FreeVar s in
-    env
-    |> string_of_env
-    |> Printf.sprintf "The key '%s' is not in the map: %s.\n%!" key
+    Printf.sprintf "`%s` is a free variable" key
     |> freeVar
     |> raise
 
