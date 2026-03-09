@@ -1,9 +1,55 @@
-(mdx
-  (libraries spectec)
+; A simple test of processing `test.spectec` in this directory.
+; Output from all passes is dumped compared to `test.spectec.exp`
+; Run `dune promote` to update expected output.
+
+(rule
+  (action (with-stdout-to test.spectec.act
+    (run ../src/exe-spectec/main.exe test.spectec -l --print-all-il --print-no-pos --all-passes --check)
+  ))
   (deps
-    (file ../src/exe-watsup/main.exe)
-    (glob_files_rec ../spec/*)
-    (glob_files *.watsup)
+    (file ../src/exe-spectec/main.exe)
+    (glob_files *.spectec)
   )
-  (files TEST.md)
+)
+(rule (alias runtest) (action (diff test.spectec.exp test.spectec.act)))
+
+; A more complicated setup that tests the various middle end passes against the full specification.
+; 
+; It stores each pass's output in a separate directory.
+;
+; This requires a dynamic dune rule to enumerate the files. When this changes, then running
+;
+; rm specification.exp/*
+; dune runtest test-middlend --auto-promote --diff-command "diff -Nur"
+;
+; should update that dynamically included dune file.
+
+(rule
+  (targets
+    specification.act
+  )
+  (action
+    (system "mkdir -p specification.act; ../src/exe-spectec/main.exe ../../../../specification/wasm-3.0/*.spectec -l --print-all-il-to specification.act/%s.il --print-no-pos --all-passes --check")
+  )
+  (deps
+    (file ../src/exe-spectec/main.exe)
+    (glob_files_rec ../_specification/*)
+  )
+)
+
+(include dune.inc)
+
+(rule (alias dune.inc) (action (diff dune.inc dune.inc.gen)))
+(alias (name runtest) (deps (alias dune.inc)))
+
+; The generated rules depend on dune.inc. This way, these actions are not run when dune.inc is out
+; of date.
+(rule
+  (deps (file specification.act))
+  (action (with-stdout-to dune.inc.gen (system
+    "ls specification.act |
+     while read f; do
+       echo \"(rule (alias runtest) (deps (alias dune.inc) (file specification.act) (glob_files_rec specification.exp/*)) (action (no-infer (diff specification.exp/$f specification.act/$f))))\";
+     done"
+  )))
 )
