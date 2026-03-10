@@ -77,6 +77,7 @@ let reserved_ids =
   "()"; "tt"; 
   "Import"; "Export";
   "seq"; 
+  "size";
   "List"; "String"; 
   "Type"; "list"; "nat";
   "cons"] |> StringSet.of_list
@@ -211,6 +212,7 @@ let render_atom ?(in_mixop = false) a =
 
 let render_mixop typ_id (m : mixop) = 
   let s = (match m with
+    | Xl.Mixop.Atom a -> render_atom a
     (* | [{it = Atom a; _}] :: tail when List.for_all ((=) []) tail -> render_id a *)
     | mixop -> String.concat "" (List.map (
       fun atoms -> String.concat "" (List.filter is_atomid atoms |> List.map (render_atom ~in_mixop:true))) (Xl.Mixop.flatten mixop)
@@ -798,7 +800,7 @@ let rec string_of_def has_endline recursive def =
 
 let exported_string = 
   "(* Imported Code *)\n" ^
-  "From Coq Require Import String List Unicode.Utf8 Reals.\n" ^
+  "From Stdlib Require Import String List Unicode.Utf8 Reals.\n" ^
   "From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype rat ssrint.\n" ^
   "From HB Require Import structures.\n" ^
   "From RecordUpdate Require Import RecordSet.\n" ^
@@ -929,7 +931,11 @@ let exported_string =
   "Global Instance total_coercion (A B : Type) `{Coercion A (option B)} {_ : Inhabited B}: Coercion A B := { coerce := total_coerce}.\n\n" ^
   "Notation \"| x |\" := (seq.size x) (at level 60).\n" ^
   "Notation \"!( x )\" := (the x) (at level 60).\n" ^
-  "Notation \"x '[|' a '|]'\" := (lookup_total x a) (at level 10).\n" ^
+  "Notation \"x '[|' a '|]'\" := (lookup_total x a) (at level 10).\n\n" ^
+  "Lemma eqb_eq {T : eqType} (x y : T) :\n" ^
+  "\tx == y -> x = y.\n" ^
+  "Proof. by move/eqP. Qed.\n\n" ^
+  "Hint Resolve eqb_eq : core.\n" ^
   "Open Scope wasm_scope.\n" ^
   "Import ListNotations.\n" ^
   "Import RecordSetNotations.\n\n"
