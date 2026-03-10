@@ -1,0 +1,7 @@
+(coq.theory
+  (name WasmSpectec)
+  (theories Stdlib mathcomp HB RecordUpdate elpi elpi_elpi)
+  (package test-rocq)
+  (flags -w -notation-overridden -w -abstract-large-number -w -ambiguous-paths
+         -w -unused-pattern-matching-variable -w -non-recursive
+         ))
