@@ -1,0 +1,7 @@
+(coq.theory
+  (name MetaSpectec)
+  (theories Stdlib mathcomp HB elpi elpi_elpi)
+  (package metatheory)
+  (flags -w -notation-overridden -w -abstract-large-number -w -ambiguous-paths
+         -w -unused-pattern-matching-variable -w -non-recursive
+         ))
