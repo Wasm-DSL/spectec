@@ -1428,6 +1428,9 @@
 .. |EITAG| mathdef:: \xref{exec/runtime}{syntax-exninst}{\K{tag}}
 .. |EIFIELDS| mathdef:: \xref{exec/runtime}{syntax-exninst}{\K{fields}}
 
+.. |EVACTIONS| mathdef:: \xref{exec/runtime}{syntax-event}{\K{action}}
+.. |EVTIMESTAMP| mathdef:: \xref{exec/runtime}{syntax-event}{\K{timestamp}}
+
 .. |PACK| mathdef:: \xref{exec/runtime}{syntax-packval}{\K{pack}}
 .. |I8PACK| mathdef:: \xref{exec/runtime}{syntax-packval}{\K{i8.pack}}
 .. |I16PACK| mathdef:: \xref{exec/runtime}{syntax-packval}{\K{i16.pack}}
@@ -1484,6 +1487,7 @@
 .. |arrayinst| mathdef:: \xref{exec/runtime}{syntax-arrayinst}{\X{arrayinst}}
 .. |exportinst| mathdef:: \xref{exec/runtime}{syntax-exportinst}{\X{exportinst}}
 .. |exninst| mathdef:: \xref{exec/runtime}{syntax-exninst}{\X{exninst}}
+.. |event| mathdef:: \xref{exec/runtime}{syntax-event}{\X{event}}
 
 .. |hostfunc| mathdef:: \xref{exec/runtime}{syntax-hostfunc}{\X{hostfunc}}
 
@@ -1509,6 +1513,7 @@
 .. |SSTRUCTS| mathdef:: \xref{exec/runtime}{syntax-store}{\K{structs}}
 .. |SARRAYS| mathdef:: \xref{exec/runtime}{syntax-store}{\K{arrays}}
 .. |SEXNS| mathdef:: \xref{exec/runtime}{syntax-store}{\K{exns}}
+.. |STRACE| mathdef:: \xref{exec/runtime}{syntax-store}{\K{trace}}
 
 .. Store, non-terminals
 

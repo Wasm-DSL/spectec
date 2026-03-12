@@ -94,7 +94,8 @@ It consists of the runtime representation of all *instances* of
 and
 :ref:`structures <syntax-structinst>`,
 :ref:`arrays <syntax-arrayinst>` or
-:ref:`exceptions <syntax-exninst>`
+:ref:`exceptions <syntax-exninst>`,
+
 that have been :ref:`allocated <alloc>` during the life time of the abstract machine.
 
 It is an invariant of the semantics that no element or data instance is :ref:`addressed <syntax-addr>` from anywhere else but the owning module instances.
@@ -463,6 +464,16 @@ An *exception instance* is the runtime representation of an :ref:`exception <exc
 It holds the :ref:`address <syntax-tagaddr>` of the respective :ref:`tag <syntax-tag>` and the argument :ref:`values <syntax-val>`.
 
 $${syntax: exninst}
+
+
+.. index:: ! Traces
+.. _syntax-event:
+
+Traces
+~~~~~~
+:ref:`events <syntax-event>`
+
+This is for events.
 
 
 .. index:: ! stack, ! control frame, ! call frame, ! frame, ! label, ! handler, instruction, store, activation, function, call, ! call frame, local, exception, module instance
