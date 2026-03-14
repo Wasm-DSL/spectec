@@ -13,3 +13,4 @@ Execution
    values
    instructions
    modules
+   relaxed_memory_model

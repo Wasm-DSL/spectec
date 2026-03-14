@@ -466,16 +466,6 @@ It holds the :ref:`address <syntax-tagaddr>` of the respective :ref:`tag <syntax
 $${syntax: exninst}
 
 
-.. index:: ! Traces
-.. _syntax-event:
-
-Traces
-~~~~~~
-:ref:`events <syntax-event>`
-
-This is for events.
-
-
 .. index:: ! stack, ! control frame, ! call frame, ! frame, ! label, ! handler, instruction, store, activation, function, call, ! call frame, local, exception, module instance
    pair: abstract syntax; frame
    pair: abstract syntax; label

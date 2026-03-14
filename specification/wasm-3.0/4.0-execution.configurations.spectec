@@ -100,14 +100,18 @@ syntax arrayinst hint(desc "array instance") hint(macro "%" "AI%") =
 syntax exninst hint(desc "exception instance") hint(macro "%" "EI%") =
   { TAG tagaddr, FIELDS val* }
 
+;; TODO: Package timestamp into event and or action
+syntax timestamp = Inn
+
 syntax ord = 
   | UNORD | SEQCST
 
+;; TODO: Expand to doc version
 syntax action = 
-  | RD | WRITE| SYNC
+  | RD | WRITE | SYNC
 
-syntax event hint(desc "event") hint(macro "%" "EV%") = 
-  { ACTIONS action, ORDERING ord }
+syntax event = 
+  { ACTIONS action*, ORDERING ord }
 
 syntax moduleinst hint(desc "module instance") hint(macro "%" "MI%") =
   { TYPES deftype*,
@@ -133,8 +137,8 @@ syntax store hint(desc "store") hint(macro "%" "S%") =
     ELEMS eleminst*,
     STRUCTS structinst*,
     ARRAYS arrayinst*,
-    EXNS exninst*,
-    TRACE event* }
+    EXNS exninst* }
+    ;; TRACE event* }
 
 syntax frame hint(desc "frame") hint(macro "%" "A%") =
   { LOCALS (val?)*, MODULE moduleinst }

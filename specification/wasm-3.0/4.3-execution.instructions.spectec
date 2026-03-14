@@ -27,10 +27,12 @@ rule Steps/trans:
   -- Step: z; instr*  ~>  z'; instr'*
   -- Steps: z'; instr'*  ~>*  z''; instr''*
 
+(;
 rule Step_ordering/step:
   s; f; instr* ~> s ++ {TRACE event}; f'; instr'*
   -- Step: s; f; instr* ~> s ++ {TRACE event}; f'; instr'*
   -- if event = { ACTIONS RD, ORDERING UNORD }
+;)
 
 (;
 relation Step_super: config ~>`[ extra_stuff ] config
