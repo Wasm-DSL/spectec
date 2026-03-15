@@ -1319,16 +1319,34 @@
 
 .. Concurrency
 
-.. |UNORD| mathdef:: \xref{exec/relaxed_memory_model}{syntax-ord}{\K{UNORD}}
-.. |SEQCST| mathdef:: \xref{exec/relaxed_memory_model}{syntax-ord}{\K{SEQCST}}
-.. |ord| mathdef:: \xref{exec/relaxed_memory_model}{syntax-ord}{\X{ord}}
-.. |RD| mathdef:: \xref{exec/relaxed_memory_model}{syntax-action}{\K{RD}}
-.. |WRITE| mathdef:: \xref{exec/relaxed_memory_model}{syntax-action}{\K{WRITE}}
-.. |SYNC| mathdef:: \xref{exec/relaxed_memory_model}{syntax-action}{\K{SYNC}}
-.. |action| mathdef:: \xref{exec/relaxed_memory_model}{syntax-action}{\X{action}}
-.. |ACTIONS| mathdef:: \xref{exec/relaxed_memory_model}{syntax-event}{\K{actions}}
-.. |ORDERING| mathdef:: \xref{exec/relaxed_memory_model}{syntax-event}{\K{ordering}}
-.. |event| mathdef:: \xref{exec/relaxed_memory_model}{syntax-event}{\X{event}}
+.. |storeval| mathdef:: \xref{exec/runtime}{syntax-event}{\X{storeval}}
+.. |addrlen| mathdef:: \xref{exec/runtime}{syntax-event}{\K{addrlen}}
+.. |fld| mathdef:: \xref{exec/runtime}{syntax-event}{\X{fld}}
+.. |reg| mathdef:: \xref{exec/runtime}{syntax-event}{\X{reg}}
+.. |location| mathdef:: \xref{exec/runtime}{syntax-event}{\X{location}}
+
+.. |UNORD| mathdef:: \xref{exec/runtime}{syntax-ord}{\K{UNORD}}
+.. |SEQCST| mathdef:: \xref{exec/runtime}{syntax-ord}{\K{SEQCST}}
+.. |INIT| mathdef:: \xref{exec/runtime}{syntax-ord}{\K{INIT}}
+.. |ord| mathdef:: \xref{exec/runtime}{syntax-ord}{\X{ord}}
+
+.. |RD| mathdef:: \xref{exec/runtime}{syntax-action}{\K{RD}}
+.. |WR| mathdef:: \xref{exec/runtime}{syntax-action}{\K{WR}}
+.. |RMW| mathdef:: \xref{exec/runtime}{syntax-action}{\K{RMW}}
+.. |WAIT| mathdef:: \xref{exec/runtime}{syntax-action}{\K{WAIT}}
+.. |WOKEN| mathdef:: \xref{exec/runtime}{syntax-action}{\K{WOKEN}}
+.. |TIMEOUT| mathdef:: \xref{exec/runtime}{syntax-action}{\K{TIMEOUT}}
+.. |NOTIFY| mathdef:: \xref{exec/runtime}{syntax-action}{\K{NOTIFY}}
+.. |FENCE| mathdef:: \xref{exec/runtime}{syntax-action}{\K{FENCE}}
+.. |SPAWN| mathdef:: \xref{exec/runtime}{syntax-action}{\K{SPAWN}}
+.. |HOSTACT| mathdef:: \xref{exec/runtime}{syntax-action}{\K{HOSTACT}}
+.. |action| mathdef:: \xref{exec/runtime}{syntax-action}{\X{action}}
+
+.. |TIME| mathdef:: \xref{exec/runtime}{syntax-event}{\K{TIME}}
+.. |timestamp| mathdef:: \xref{exec/runtime}{syntax-event}{\K{timestamp}}
+.. |ACTIONS| mathdef:: \xref{exec/runtime}{syntax-event}{\K{actions}}
+.. |ORDERING| mathdef:: \xref{exec/runtime}{syntax-event}{\K{ordering}}
+.. |event| mathdef:: \xref{exec/runtime}{syntax-event}{\X{event}}
 
 .. Notation
 

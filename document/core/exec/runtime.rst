@@ -615,6 +615,18 @@ Traps are bubbled up through nested instruction sequences, ultimately reducing t
    This can be interpreted as removing the label from the stack and only leaving the locally accumulated operand values.
    Validation guarantees that ${:n} matches the number ${:|val*|} of resulting values at this point.
 
+.. index:: ! events
+.. _syntax-ord:
+.. _syntax-action:
+.. _syntax-event:
+
+Events
+~~~~~~
+
+The interaction of a computation with the :ref:`store <syntax-store>` is described through events. An event is a (possibly empty) set of actions, such as reads and writes, that are atomically performed by the execution of an individual :ref:`instruction <syntax-instr>`. Each event is annotated with two :ref:`time stamps <syntax-ord>`: the first records the time stamp of the event’s immediate predecessor while the second uniquely identifies the event.
+
+$${syntax: ord action event}
+
 
 .. index:: ! configuration, ! state, ! thread, store, frame, instruction, module instruction
 .. _syntax-state:

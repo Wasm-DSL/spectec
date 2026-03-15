@@ -100,18 +100,41 @@ syntax arrayinst hint(desc "array instance") hint(macro "%" "AI%") =
 syntax exninst hint(desc "exception instance") hint(macro "%" "EI%") =
   { TAG tagaddr, FIELDS val* }
 
+;; Concurrency
+syntax storeval = 
+  | val | _BYTES byte*
+
+syntax addrlen = nat
+
+syntax fld = 
+  | _ADDRLEN addrlen | _DATA data
+
+syntax reg = fld
+
+syntax location = reg
+
 ;; TODO: Package timestamp into event and or action
 syntax timestamp = Inn
 
 syntax ord = 
-  | UNORD | SEQCST
+  | UNORD | SEQCST | INIT
 
 ;; TODO: Expand to doc version
 syntax action = 
-  | RD | WRITE | SYNC
+  | RD ord location storeval
+  | WR ord location storeval
+  | RMW location storeval
+  | WAIT location sN(64)
+  | WOKEN location
+  | TIMEOUT location
+  | NOTIFY location u32 u32
+  | FENCE
+  | SPAWN
+  | HOSTACT
+
 
 syntax event = 
-  { ACTIONS action*, ORDERING ord }
+  { ACTIONS action*, TIME timestamp }
 
 syntax moduleinst hint(desc "module instance") hint(macro "%" "MI%") =
   { TYPES deftype*,
