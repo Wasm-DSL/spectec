@@ -1324,6 +1324,7 @@
 .. |fld| mathdef:: \xref{exec/runtime}{syntax-event}{\X{fld}}
 .. |reg| mathdef:: \xref{exec/runtime}{syntax-event}{\X{reg}}
 .. |location| mathdef:: \xref{exec/runtime}{syntax-event}{\X{location}}
+.. |time| mathdef:: \xref{exec/relaxed_memory_model}{op-time}{\F{time}}
 
 .. |UNORD| mathdef:: \xref{exec/runtime}{syntax-ord}{\K{UNORD}}
 .. |SEQCST| mathdef:: \xref{exec/runtime}{syntax-ord}{\K{SEQCST}}
@@ -1342,11 +1343,14 @@
 .. |HOSTACT| mathdef:: \xref{exec/runtime}{syntax-action}{\K{HOSTACT}}
 .. |action| mathdef:: \xref{exec/runtime}{syntax-action}{\X{action}}
 
+.. |TIMEp| mathdef:: \xref{exec/runtime}{syntax-event}{\K{TIMEp}}
 .. |TIME| mathdef:: \xref{exec/runtime}{syntax-event}{\K{TIME}}
-.. |timestamp| mathdef:: \xref{exec/runtime}{syntax-event}{\K{timestamp}}
+.. |timestamp| mathdef:: \xref{exec/runtime}{syntax-timestamp}{\X{timestamp}}
 .. |ACTIONS| mathdef:: \xref{exec/runtime}{syntax-event}{\K{actions}}
 .. |ORDERING| mathdef:: \xref{exec/runtime}{syntax-event}{\K{ordering}}
 .. |event| mathdef:: \xref{exec/runtime}{syntax-event}{\X{event}}
+
+.. |TRACE| mathdef:: \xref{exec/runtime}{syntax-store}{\X{TRACE}}
 
 .. Notation
 

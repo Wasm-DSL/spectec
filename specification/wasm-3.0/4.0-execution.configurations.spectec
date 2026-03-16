@@ -113,18 +113,16 @@ syntax reg = fld
 
 syntax location = reg
 
-;; TODO: Package timestamp into event and or action
 syntax timestamp = Inn
 
 syntax ord = 
   | UNORD | SEQCST | INIT
 
-;; TODO: Expand to doc version
 syntax action = 
   | RD ord location storeval
   | WR ord location storeval
   | RMW location storeval
-  | WAIT location sN(64)
+  | WAIT location s64
   | WOKEN location
   | TIMEOUT location
   | NOTIFY location u32 u32
@@ -134,7 +132,31 @@ syntax action =
 
 
 syntax event = 
-  { ACTIONS action*, TIME timestamp }
+  { ACTIONS action*, TIMEp timestamp, TIME timestamp }
+
+
+def $time(event): timestamp
+def $time(ev) = ev.TIME
+
+(;
+def $location(action): location
+def $location(RD ord location storeval) = location
+def $location(WR ord location storeval) = location
+def $location(RMW location storeval) = location
+def $location(WAIT location s64) = location
+def $location(WOKEN location) = location
+def $location(TIMEOUT location) = location
+def $location(NOTIFY location u32 u32) = location
+;)
+
+def $overlap(action, action): bool
+def $overlap(action1, action2) = true
+
+def $same(action, action): bool
+def $same(action1, action2) = true
+
+def $reading(action): bool
+;;def $reading(action1): 
 
 syntax moduleinst hint(desc "module instance") hint(macro "%" "MI%") =
   { TYPES deftype*,
@@ -160,8 +182,8 @@ syntax store hint(desc "store") hint(macro "%" "S%") =
     ELEMS eleminst*,
     STRUCTS structinst*,
     ARRAYS arrayinst*,
-    EXNS exninst* }
-    ;; TRACE event* }
+    EXNS exninst*,
+    TRACE event* }
 
 syntax frame hint(desc "frame") hint(macro "%" "A%") =
   { LOCALS (val?)*, MODULE moduleinst }

@@ -6,8 +6,6 @@ relation Step: config ~> config       hint(name "E") hint(macro "stepto") hint(t
 relation Step_pure: instr* ~> instr*  hint(name "E") hint(macro "stepto") hint(tabular)
 relation Step_read: config ~> instr*  hint(name "E") hint(macro "stepto") hint(tabular)
 relation Steps: config ~>* config     hint(name "E") hint(macro "steptostar") hint(tabular)
-relation Step_ordering: config ~> config  hint(name "E") hint(macro "stepto") hint(tabular)
-relation Step_super: config ~> config hint(name "E") hint(macro "stepto") hint(tabular)
 
 ;; Structural
 
@@ -26,6 +24,11 @@ rule Steps/trans:
   z; instr*  ~>*  z''; instr''*
   -- Step: z; instr*  ~>  z'; instr'*
   -- Steps: z'; instr'*  ~>*  z''; instr''*
+
+;; Concurrency
+relation Step_ordering: config ~> config  hint(name "E") hint(macro "stepto") hint(tabular)
+relation Step_super: config ~> config hint(name "E") hint(macro "stepto") hint(tabular)
+
 
 (;
 rule Step_ordering/step:
