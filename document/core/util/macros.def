@@ -1324,7 +1324,24 @@
 .. |fld| mathdef:: \xref{exec/runtime}{syntax-event}{\X{fld}}
 .. |reg| mathdef:: \xref{exec/runtime}{syntax-event}{\X{reg}}
 .. |location| mathdef:: \xref{exec/runtime}{syntax-event}{\X{location}}
+
 .. |time| mathdef:: \xref{exec/relaxed_memory_model}{op-time}{\F{time}}
+.. |timep| mathdef:: \xref{exec/relaxed_memory_model}{op-timep}{\F{timep}}
+.. |locationf| mathdef:: \xref{exec/relaxed_memory_model}{op-locationf}{\F{locationf}}
+.. |ordf| mathdef:: \xref{exec/relaxed_memory_model}{op-ordf}{\F{ordf}}
+.. |overlap| mathdef:: \xref{exec/relaxed_memory_model}{op-overlap}{\F{overlap}}
+.. |same| mathdef:: \xref{exec/relaxed_memory_model}{op-same}{\F{same}}
+.. |reading| mathdef:: \xref{exec/relaxed_memory_model}{op-reading}{\F{reading}}
+.. |writing| mathdef:: \xref{exec/relaxed_memory_model}{op-writing}{\F{writing}}
+.. |susp| mathdef:: \xref{exec/relaxed_memory_model}{op-susp}{\F{susp}}
+.. |BYTES| mathdef:: \xref{exec/relaxed_memory_model}{syntax-event}{\K{BYTES}}
+.. |read| mathdef:: \xref{exec/relaxed_memory_model}{op-read}{\F{read}}
+.. |write| mathdef:: \xref{exec/relaxed_memory_model}{op-write}{\F{write}}
+.. |offset| mathdef:: \xref{exec/relaxed_memory_model}{op-offset}{\F{offset}}
+.. |sync| mathdef:: \xref{exec/relaxed_memory_model}{op-sync}{\F{sync}}
+.. |range| mathdef:: \xref{exec/relaxed_memory_model}{op-range}{\F{range}}
+.. |tearfree| mathdef:: \xref{exec/relaxed_memory_model}{op-tearfree}{\F{tearfree}}
+.. |id| mathdef:: \xref{exec/relaxed_memory_model}{op-id}{\F{id}}
 
 .. |UNORD| mathdef:: \xref{exec/runtime}{syntax-ord}{\K{UNORD}}
 .. |SEQCST| mathdef:: \xref{exec/runtime}{syntax-ord}{\K{SEQCST}}

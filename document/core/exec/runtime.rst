@@ -637,7 +637,7 @@ Events
 
 The interaction of a computation with the :ref:`store <syntax-store>` is described through events. An event is a (possibly empty) set of actions, such as reads and writes, that are atomically performed by the execution of an individual :ref:`instruction <syntax-instr>`. Each event is annotated with two :ref:`time stamps <syntax-ord>`: the first records the time stamp of the event’s immediate predecessor while the second uniquely identifies the event.
 
-$${syntax: ord action event}
+$${syntax: ord action event location reg fld storeval}
 
 The access of mutable shared state is performed through the :ref:`rw <syntax-action>`, :ref:`wr <syntax-action>` and :ref:`rmw <syntax-action>` actions. Each action accesses an abstract location, which consists of an :ref:`address <syntax-addr>` of a :ref:`shared <syntax-memtype>` :ref:`memory <syntax-memtype>` instance, a symbolic field name in the respective object (either :ref:`len <syntax-ord>` for the size or :ref:`data <syntax-ord>` for the vector of bytes), and an offset index into the field.
 
