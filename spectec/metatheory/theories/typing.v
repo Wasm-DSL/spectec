@@ -4,14 +4,14 @@ From MetaSpectec Require Import syntax env reduction subst utils.
 Import ListNotations.
 Open Scope env_scope.
 
-Inductive composable_typ : il_env -> il_typ -> Prop :=
+Inductive catable_typ : il_env -> il_typ -> Prop :=
   | ct_iter : forall env t t' it,
     expand_typ (env_to_store env) t (AliasT (IterT t' it)) ->
-    composable_typ env t
+    catable_typ env t
   | ct_struct : forall env t typfields,
     expand_typ (env_to_store env) t (StructT typfields) ->
-    List.Forall (fun p => composable_typ env (snd (fst p))) typfields ->
-    composable_typ env t
+    List.Forall (fun p => catable_typ env (snd (fst p))) typfields ->
+    catable_typ env t
 .
 
 Inductive sub_numtyp : numtyp -> numtyp -> Prop :=
@@ -161,12 +161,8 @@ Inductive ok_exp: il_env -> il_exp -> il_typ -> Prop :=
   | oke_cat : forall env e1 e2 t,
     ok_exp env e1 (IterT t I_STAR) ->
     ok_exp env e2 (IterT t I_STAR) ->
+    catable_typ env t ->
     ok_exp env (CatE e1 e2) (IterT t I_STAR)
-  | oke_comp : forall env e1 e2 t,
-    ok_exp env e1 t ->
-    ok_exp env e2 t ->
-    composable_typ env t ->
-    ok_exp env (CompE e1 e2) t
   | oke_acc : forall env e p t t',
     ok_exp env e t ->
     ok_path env p t t' ->
@@ -185,7 +181,14 @@ Inductive ok_exp: il_env -> il_exp -> il_typ -> Prop :=
     StringMap.find x (DEFS env) = Some (ps, rt, clauses) ->
     ok_args env ags ps sbst ->
     ok_exp env (CallE x ags) (subst_typ sbst rt)
-  (* TODO iterE valid *)
+  | oke_iter : forall env env' e iter xps t iter',
+    ok_iter env iter iter' env' ->
+    List.Forall (fun p => ok_typ env (snd (fst p))) xps ->
+    List.Forall (fun p => ok_exp env (snd p) (IterT (snd (fst p)) iter')) xps ->
+    let envs := many_vars (List.map fst xps) in
+    ok_exp (env @@ envs @@ env') e t ->
+    ok_typ env t ->
+    ok_exp env (IterE e iter xps) (IterT t iter')
   | oke_cvt : forall env e nt1 nt2,
     ok_exp env e (NumT nt1) ->
     ok_exp env (CvtE e nt1 nt2) (NumT nt2)
@@ -193,6 +196,12 @@ Inductive ok_exp: il_env -> il_exp -> il_typ -> Prop :=
     ok_exp env e t1 ->
     sub_typ env t1 t2 ->
     ok_exp env (SubE e t1 t2) t2
+  | oke_match : forall env ags ps clauses t sbst,
+    ok_args env ags ps sbst -> 
+    ok_params env ps ->
+    let penv := paramenv ps in 
+    List.Forall (fun c => ok_clause (append_env env penv) c ps t) clauses ->
+    ok_exp env (MatchE ags clauses) t
   | ok_exp_conv : forall env e t t',
     ok_exp env e t' ->
     eq_typ (env_to_store env) t t' ->
@@ -251,6 +260,11 @@ ok_typ : il_env -> il_typ -> Prop :=
     (StringMap.find x (TYPS env) = Some (ps, insts)) -> 
     ok_args env ags ps sbst ->
     ok_typ env (VarT x ags)
+  | okt_match : forall env x ags ps insts sbst,
+    (StringMap.find x (TYPS env) = Some (ps, insts)) -> 
+    ok_args env ags ps sbst ->
+    List.Forall (fun inst => ok_inst env inst ps) insts ->
+    ok_typ env (MatchT x ags insts)
 
 with
 
@@ -258,12 +272,9 @@ ok_iter : il_env -> iter -> iter -> il_env -> Prop :=
   | oki_quest : forall env, ok_iter env I_OPT I_OPT env_empty 
   | oki_star : forall env, ok_iter env I_STAR I_STAR env_empty
   | oki_plus : forall env, ok_iter env I_PLUS I_STAR env_empty
-  | oki_sup_none : forall env e,
-    ok_exp env e (NumT NatT) ->
-    ok_iter env (I_SUP None e) I_STAR env_empty
   | oki_sup_some : forall env e x,
     ok_exp env e (NumT NatT) ->
-    ok_iter env (I_SUP (Some x) e) I_STAR (single_var x (NumT NatT))
+    ok_iter env (I_SUP x e) I_STAR (single_var x (NumT NatT))
 
 with
 
@@ -282,9 +293,13 @@ ok_prem : il_env -> il_prem -> Prop :=
     ok_exp env e1 t ->
     ok_exp env e2 t ->
     ok_prem env (LetPr e1 e2)
-  (* | okp_iter : forall env pr it it' env'' expps,
-    let env' := single_var x  
-    ok_iter env it it' env' -> *)
+  | okp_iter : forall env pr it it' env' xps,
+    ok_iter env it it' env' ->
+    List.Forall (fun p => ok_typ env (snd (fst p))) xps ->
+    List.Forall (fun p => ok_exp env (snd p) (IterT (snd (fst p)) it')) xps ->
+    let envs := many_vars (List.map fst xps) in
+    ok_prem (env @@ envs @@ env') pr ->
+    ok_prem env (IterPr pr it xps)
   | okp_neg : forall env p,
     ok_prem env p ->
     ok_prem env (NegPr p)
@@ -298,7 +313,6 @@ ok_arg : il_env -> il_arg -> il_param -> il_subst -> Prop :=
   | oka_typ : forall env t x,
     ok_typ env t ->
     ok_arg env (TypA t) (TypP x) (subst_styp x t)
-  (* TODO fun arg *)
   | oka_fun : forall env y x ps rt ps' rt' clauses sbst,
     StringMap.find y (DEFS env) = Some (ps', rt', clauses) ->
     sub_params env ps ps' sbst ->
@@ -334,9 +348,10 @@ ok_params : il_env -> list il_param -> Prop :=
   | okpas_cons : forall env p1 ps,
     ok_param env p1 ->
     ok_params (env @@ (paramenv [p1])) ps
-.
 
-Inductive ok_typfield : il_env -> typfield -> Prop :=
+with
+
+ok_typfield : il_env -> typfield -> Prop :=
   | oktypfield : forall env a t qs prems,
     let tenv := tupenv t in
     let qsenv := paramenv qs in
@@ -344,9 +359,10 @@ Inductive ok_typfield : il_env -> typfield -> Prop :=
     ok_params (env @@ tenv) qs ->
     List.Forall (fun p => ok_prem (env @@ tenv @@ qsenv) p) prems ->
     ok_typfield env (a, qs, t, prems)
-.
 
-Inductive ok_typcase : il_env -> typcase -> Prop :=
+with
+
+ok_typcase : il_env -> typcase -> Prop :=
   | oktypcase : forall env m t qs prems,
     let tenv := tupenv t in
     let qsenv := paramenv qs in
@@ -354,9 +370,10 @@ Inductive ok_typcase : il_env -> typcase -> Prop :=
     ok_params (env @@ tenv) qs ->
     List.Forall (fun p => ok_prem (env @@ tenv @@ qsenv) p) prems ->
     ok_typcase env (m, qs, t, prems)
-.
 
-Inductive ok_deftyp : il_env -> il_deftyp -> Prop :=
+with
+
+ok_deftyp : il_env -> il_deftyp -> Prop :=
   | okd_alias : forall env t,
     ok_typ env t ->
     ok_deftyp env (AliasT t)
@@ -370,15 +387,26 @@ Inductive ok_deftyp : il_env -> il_deftyp -> Prop :=
     List.Forall (fun tc => ok_typcase env tc) tcs ->
     disjoint mixops ->
     ok_deftyp env (VariantT tcs)
-.
- 
 
-Inductive ok_inst : il_env -> il_inst -> list il_param -> Prop :=
+with 
+
+ok_inst : il_env -> il_inst -> list il_param -> Prop :=
   | oki_inst : forall env qs ags dt ps sbst,
     ok_params env qs ->
     ok_args (env @@ (paramenv qs)) ags ps sbst ->
     ok_deftyp (env @@ (paramenv qs)) dt ->
     ok_inst env (qs, ags, dt) ps
+
+with
+
+ok_clause : il_env -> il_clause -> list il_param -> il_typ -> Prop :=
+  | okc_clause : forall env qs ags e prems ps t sbst,
+    let qsenv := paramenv qs in
+    ok_params env qs ->
+    ok_args (env @@ qsenv) ags ps sbst ->
+    ok_exp (env @@ qsenv) e t ->
+    List.Forall (fun p => ok_prem (env @@ qsenv) p) prems ->
+    ok_clause env (qs, ags, e, prems) ps t
 .
 
 Inductive ok_rule : il_env -> il_rule -> il_typ -> Prop :=
@@ -387,16 +415,6 @@ Inductive ok_rule : il_env -> il_rule -> il_typ -> Prop :=
     ok_exp (env @@ (paramenv qs)) e t ->
     List.Forall (fun p => ok_prem (env @@ (paramenv qs)) p) prems ->
     ok_rule env (qs, e, prems) t
-.
-
-Inductive ok_clause : il_env -> il_clause -> list il_param -> il_typ -> Prop :=
-  | okc_clause : forall env qs ags e prems ps t sbst,
-    let qsenv := paramenv qs in
-    ok_params env qs ->
-    ok_args (env @@ qsenv) ags ps sbst ->
-    ok_exp (env @@ qsenv) e t ->
-    List.Forall (fun p => ok_prem (env @@ qsenv) p) prems ->
-    ok_clause env (qs, ags, e, prems) ps t
 .
 
 Inductive ok_def : il_env -> il_def -> il_env -> Prop :=

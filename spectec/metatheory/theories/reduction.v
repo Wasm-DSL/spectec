@@ -232,34 +232,33 @@ Inductive step_exp: store -> il_exp -> il_exp -> Prop :=
     let es' := List.map opt_to_lst es in
     let es'' := transpose es' in
     let es''' := lst_to_opt es'' in
+    let ids := List.map fst xs in 
     same_size es' ->
     size xs = size es ->
     size es'' <= 1 ->
     step_exp s (IterE e I_OPT (list_zipWith (fun x e' => (x, OptE e')) xs es))
-    (OptE (option_map (fun ess => subst_exp (many_svars (zip xs ess)) e) es'''))
+    (OptE (option_map (fun ess => subst_exp (many_svars (zip ids ess)) e) es'''))
   | se_iter_plus : forall s e xs ess,
     same_size ess ->
     seq.all (fun es => size es >= 1) ess ->
     let res_ess := (list_zipWith (fun x es => (x, ListE es)) xs ess) in
     step_exp s (IterE e I_PLUS res_ess) (IterE e I_STAR res_ess)
-  | se_iter_star : forall s e xs ess n,
+  | se_iter_star : forall s e xs ess n y,
     seq.all (fun es => size es == n) ess ->
     let res_ess := (list_zipWith (fun x es => (x, ListE es)) xs ess) in
-    step_exp s (IterE e I_STAR res_ess) (IterE e (I_SUP None (NumE (NatE n))) res_ess)
-  | se_iter_sup_eps : forall s e eps e_n y,
-    (* TODO y needs to not clash with any other variable *)
-    step_exp s (IterE e (I_SUP None e_n) eps) (IterE e (I_SUP y e_n) eps)
+    step_exp s (IterE e I_STAR res_ess) (IterE e (I_SUP y (NumE (NatE n))) res_ess)
   | se_iter_sup : forall s e x_i n xs ess,
     seq.all (fun es => size es == n) ess ->
     size xs = size ess -> 
     let ess' := transpose ess in
+    let ids := List.map fst xs in
     let res_ess := (list_zipWith (fun x es => (x, ListE es)) xs ess) in
     let res_ess' := (list_mapi (fun i es => 
       let sbst := subst_svar x_i (NumE (NatE i)) in
-      let sbst' := many_svars (zip xs es) in
+      let sbst' := many_svars (zip ids es) in
       subst_exp (append_subst sbst sbst') e 
     ) ess') in
-    step_exp s (IterE e (I_SUP (Some x_i) (NumE (NatE n))) res_ess) (ListE res_ess')
+    step_exp s (IterE e (I_SUP x_i (NumE (NatE n))) res_ess) (ListE res_ess')
 
   (* CallE rules *)
   | se_call_ctx : forall s x ags n a a',
@@ -420,34 +419,33 @@ step_prems : store -> list il_prem -> list il_prem -> Prop :=
     let es' := List.map opt_to_lst es in
     let es'' := transpose es' in
     let es''' := lst_to_opt es'' in
+    let ids := List.map fst xs in 
     same_size es' ->
     size xs = size es ->
     size es'' <= 1 ->
     step_prems s [IterPr pr I_OPT (list_zipWith (fun x e' => (x, OptE e')) xs es)]
-    (opt_to_lst (option_map (fun ess => subst_prem (many_svars (zip xs ess)) pr) es'''))
+    (opt_to_lst (option_map (fun ess => subst_prem (many_svars (zip ids ess)) pr) es'''))
   | sp_iter_plus : forall s pr xs ess,
     same_size ess ->
     seq.all (fun es => size es >= 1) ess ->
     let res_ess := (list_zipWith (fun x es => (x, ListE es)) xs ess) in
     step_prems s [IterPr pr I_PLUS res_ess] [IterPr pr I_STAR res_ess]
-  | sp_iter_star : forall s pr xs ess n,
+  | sp_iter_star : forall s pr xs ess n y,
     seq.all (fun es => size es == n) ess ->
     let res_ess := (list_zipWith (fun x es => (x, ListE es)) xs ess) in
-    step_prems s [IterPr pr I_STAR res_ess] [IterPr pr (I_SUP None (NumE (NatE n))) res_ess]
-  | sp_iter_sup_eps : forall s pr eps e_n y,
-    (* TODO y needs to not clash with any other variable *)
-    step_prems s [IterPr pr (I_SUP None e_n) eps] [IterPr pr (I_SUP y e_n) eps]
+    step_prems s [IterPr pr I_STAR res_ess] [IterPr pr (I_SUP y (NumE (NatE n))) res_ess]
   | sp_iter_sup : forall s pr x_i n xs ess,
     seq.all (fun es => size es == n) ess ->
     size xs = size ess -> 
     let ess' := transpose ess in
     let res_ess := (list_zipWith (fun x es => (x, ListE es)) xs ess) in
+    let ids := List.map fst xs in 
     let res_ess' := (list_mapi (fun i es => 
       let sbst := subst_svar x_i (NumE (NatE i)) in
-      let sbst' := many_svars (zip xs es) in
+      let sbst' := many_svars (zip ids es) in
       subst_prem (append_subst sbst sbst') pr 
     ) ess') in
-    step_prems s [IterPr pr (I_SUP (Some x_i) (NumE (NatE n))) res_ess] res_ess'
+    step_prems s [IterPr pr (I_SUP x_i (NumE (NatE n))) res_ess] res_ess'
 
   (* TODO other iter rules *)
   (* NegPr rules *)

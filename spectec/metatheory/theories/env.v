@@ -49,6 +49,13 @@ Definition append_env (e1 e2 : il_env) : il_env :=
 Definition single_var (x : il_id) (t : il_typ) : il_env :=
   {| VARS := singleton x t; TYPS := empty_typs; DEFS := empty_defs; RELS := empty_rels |}.
 
+Fixpoint many_vars (xs : list (il_id * il_typ)) : il_env :=
+  match xs with
+  | [] => env_empty
+  | (x, t) :: xs' => append_env (single_var x t) (many_vars xs')
+  end
+.  
+
 Definition single_envtyp (x : il_id) (ps : list il_param) (insts : list il_inst) : il_env :=
   {| VARS := empty_vars; TYPS := singleton x (ps, insts); DEFS := empty_defs; RELS := empty_rels |}.
 

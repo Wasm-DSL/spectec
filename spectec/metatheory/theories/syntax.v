@@ -82,6 +82,17 @@ Inductive il_num : Type :=
   | RealE : R -> il_num
 .
 
+Inductive il_val : Type :=
+  | NumV : il_num -> il_val
+  | BoolV : bool -> il_val
+  | TextV : text -> il_val
+  | TupV : list il_val -> il_val
+  | CaseV : mixop -> il_val -> il_val
+  | OptV : option il_val -> il_val
+  | ListV : list il_val -> il_val
+  | StrV : list (atom * il_val) -> il_val
+.
+
 Inductive il_typ : Type :=
   | VarT : il_id -> list il_arg -> il_typ
   | BoolT
@@ -89,6 +100,7 @@ Inductive il_typ : Type :=
   | NumT : numtyp -> il_typ
   | TupT : list (il_id * il_typ) -> il_typ
   | IterT : il_typ -> iter -> il_typ
+  | MatchT : il_id -> list il_arg -> list (list il_param * list il_arg * il_deftyp) -> il_typ
 
 with
 
@@ -106,7 +118,6 @@ il_exp : Type :=
   | OptE : option il_exp -> il_exp
   | StrE : list (atom * il_exp) -> il_exp
   | DotE : il_exp * atom -> il_exp
-  | CompE : il_exp -> il_exp -> il_exp
   | ListE : list il_exp -> il_exp
   | LiftE : il_exp -> il_exp
   | MemE : il_exp -> il_exp -> il_exp
@@ -118,10 +129,11 @@ il_exp : Type :=
   | UpdE : il_exp -> il_path -> il_exp -> il_exp
   | ExtE : il_exp -> il_path -> il_exp -> il_exp
   | CallE : il_id -> list il_arg -> il_exp
-  | IterE : il_exp -> iter -> list (il_id * il_exp) -> il_exp
+  | IterE : il_exp -> iter -> list (il_id * il_typ * il_exp) -> il_exp
   | CvtE : il_exp -> numtyp -> numtyp -> il_exp
   | SubE : il_exp -> il_typ -> il_typ -> il_exp
   | IfE : il_exp -> il_exp -> il_exp -> il_exp
+  | MatchE : list il_arg -> list (list il_param * list il_arg * il_exp * list il_prem) -> il_exp
 
 with
 
@@ -146,41 +158,40 @@ iter : Type :=
   | I_STAR
   | I_OPT
   | I_PLUS
-  | I_SUP : option il_id -> il_exp -> iter
-.
+  | I_SUP : il_id -> il_exp -> iter
 
-Definition exppull : Type := (il_id * il_exp).
+with 
 
-Inductive il_param : Type :=
+il_param : Type :=
   | ExpP : il_id -> il_typ -> il_param
   | TypP : il_id -> il_param
   | DefP : il_id -> list il_param -> il_typ -> il_param
-.
 
-Definition il_quant : Type := il_param.
+with 
 
-Inductive il_prem : Type :=
+il_prem : Type :=
   | RulePr : il_id -> list il_arg -> il_exp -> il_prem
   | IfPr : il_exp -> il_prem
   | ElsePr
   | LetPr : il_exp -> il_exp -> il_prem
-  | IterPr : il_prem -> iter -> list exppull -> il_prem
+  | IterPr : il_prem -> iter -> list (il_id * il_typ * il_exp) -> il_prem
   | NegPr : il_prem -> il_prem
+
+with 
+
+il_deftyp : Type :=
+  | AliasT : il_typ -> il_deftyp
+  | StructT : list (atom * list il_param * il_typ * list il_prem) -> il_deftyp
+  | VariantT : list (mixop * list il_param * il_typ * list il_prem) -> il_deftyp
 .
 
+Definition exppull : Type := (il_id * il_typ * il_exp).
+Definition il_quant : Type := il_param.
 Definition typfield : Type := atom * list il_quant * il_typ * list il_prem.
 Definition typcase : Type := mixop * list il_quant * il_typ * list il_prem.
 
-Inductive il_deftyp : Type :=
-  | AliasT : il_typ -> il_deftyp
-  | StructT : list typfield -> il_deftyp
-  | VariantT : list typcase -> il_deftyp
-.
-
 Definition il_inst : Type := list il_quant * list il_arg * il_deftyp.
-
 Definition il_rule : Type := list il_quant * il_exp * list il_prem.
-
 Definition il_clause : Type := list il_quant * list il_arg * il_exp * list il_prem.
 
 Inductive il_def : Type :=
@@ -191,3 +202,17 @@ Inductive il_def : Type :=
 .
 
 Definition script : Type := list il_def.
+
+Fixpoint val_to_exp (v : il_val) : il_exp :=
+  match v with
+  | NumV n => NumE n
+  | BoolV b => BoolE b
+  | TextV t => TextE t
+  | TupV vs => TupE (List.map val_to_exp vs)
+  | CaseV m v => CaseE m (val_to_exp v)
+  | OptV (Some v) => OptE (Some (val_to_exp v))
+  | OptV None => OptE None
+  | ListV vs => ListE (List.map val_to_exp vs)
+  | StrV valfields => StrE (List.map (fun '(a, v) => (a, val_to_exp v)) valfields)
+  end
+.
