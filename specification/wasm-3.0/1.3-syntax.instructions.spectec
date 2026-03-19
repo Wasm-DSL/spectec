@@ -603,3 +603,37 @@ def $free_block(instr*) = free[.LABELS = $shift_labelidxs(free.LABELS)]
 
 
 def $free_expr(instr*) = $free_list($free_instr(instr)*)
+
+;; Concurrency
+syntax addrlen = nat
+
+syntax fld = 
+  | _ADDRLEN addrlen | _DATA data
+
+syntax reg = fld
+
+syntax location = reg
+
+syntax timestamp = Inn
+
+syntax ord = 
+  | UNORD | SEQCST | INIT
+
+syntax action = 
+  | RD ord location storeval
+  | WR ord location storeval
+  | RMW location storeval
+  | WAIT location s64
+  | WOKEN location
+  | TIMEOUT location
+  | NOTIFY location u32 u32
+  | FENCE
+  | SPAWN
+  | HOSTACT
+
+
+syntax event = 
+  { ACTIONS action*, TIMEp timestamp, TIME timestamp }
+
+syntax trace = event*
+

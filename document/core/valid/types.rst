@@ -314,3 +314,4 @@ $${rule: Externtype_ok/table}
 $${rule-prose: Externtype_ok/func}
 
 $${rule: Externtype_ok/func}
+

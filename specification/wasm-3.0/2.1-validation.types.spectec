@@ -250,3 +250,47 @@ rule Externtype_ok/func:
   C |- FUNC typeuse : OK
   -- Typeuse_ok: C |- typeuse : OK
   -- Expand_use: typeuse ~~_C $($(FUNC t_1* -> t_2*))
+
+;; Concurrency
+relation consistent: context |- trace : OK
+relation consistent_with: context |- trace : OK
+relation suspensions_consistent: timestamp ~> timestamp: bool
+relation suspensions_consistent_with: timestamp ~> timestamp: bool
+relation reads_each_from: timestamp ~> timestamp: bool
+relation reads_from: timestamp ~> timestamp: bool
+relation no_tear: timestamp ~> timestamp: bool
+relation value_consistent: timestamp ~> timestamp: bool
+relation hb_consistent: timestamp ~> timestamp: bool
+relation sc_last_visible: timestamp ~> timestamp: bool
+
+relation Step_ordering: config ~> config  hint(name "E") hint(macro "stepto") hint(tabular)
+relation Step_super: config ~> config hint(name "E") hint(macro "stepto") hint(tabular)
+
+;; relation Instr_ok: context |- instr : instrtype     hint(name "T")        hint(macro "%instr")
+
+rule consistent_with:
+  C |- trace : OK
+
+rule consistent:
+  context |- trace consistent : OK
+  -- consistent_with: context |- trace : OK
+
+(;
+rule Instr_ok/if:
+  C |- IF bt instr_1* ELSE instr_2* : t_1* I32 -> t_2*
+  -- Blocktype_ok: C |- bt : t_1* -> t_2*
+  -- Instrs_ok: {LABELS (t_2*)} ++ C |- instr_1* : t_1* ->_(x_1*) t_2*
+  -- Instrs_ok: {LABELS (t_2*)} ++ C |- instr_2* : t_1* ->_(x_2*) t_2*
+
+
+rule Step_ordering/step:
+  s; f; instr* ~> s ++ {TRACE event}; f'; instr'*
+  -- Step: s; f; instr* ~> s ++ {TRACE event}; f'; instr'*
+  -- if event = { ACTIONS RD, ORDERING UNORD }
+
+
+relation Step_super: config ~>`[ extra_stuff ] config
+rule Step_super/old: Step_super config_1 ~>`[eps] config_2  -- if Step: config_1 ~> config_2
+rule Step_super/thread: Step_super conig_1 ~>`[whatever] config_2  -- if Step_thread: config_1 ~>`[whatever] config_2
+;)
+

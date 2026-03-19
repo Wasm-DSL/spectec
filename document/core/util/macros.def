@@ -1343,6 +1343,8 @@
 .. |tearfree| mathdef:: \xref{exec/relaxed_memory_model}{op-tearfree}{\F{tearfree}}
 .. |id| mathdef:: \xref{exec/relaxed_memory_model}{op-id}{\F{id}}
 
+.. |funclower| mathdef:: \xref{exec/relaxed_memory_model}{op-func-lower}{\F{funclower}}
+
 .. |UNORD| mathdef:: \xref{exec/runtime}{syntax-ord}{\K{UNORD}}
 .. |SEQCST| mathdef:: \xref{exec/runtime}{syntax-ord}{\K{SEQCST}}
 .. |INIT| mathdef:: \xref{exec/runtime}{syntax-ord}{\K{INIT}}
@@ -1366,8 +1368,13 @@
 .. |ACTIONS| mathdef:: \xref{exec/runtime}{syntax-event}{\K{actions}}
 .. |ORDERING| mathdef:: \xref{exec/runtime}{syntax-event}{\K{ordering}}
 .. |event| mathdef:: \xref{exec/runtime}{syntax-event}{\X{event}}
+.. |trace| mathdef:: \xref{exec/relaxed_memory_model}{syntax-trace}{\X{trace}}
 
 .. |TRACE| mathdef:: \xref{exec/runtime}{syntax-store}{\X{TRACE}}
+
+.. |vdashconsistent| mathdef:: \xref{exec/relaxed_memory_model}{valid-consistent}{\vdash}
+.. |OKconsistent| mathdef:: \xref{exec/relaxed_memory_model}{valid-consistent}{\K{ok}}
+
 
 .. Notation
 

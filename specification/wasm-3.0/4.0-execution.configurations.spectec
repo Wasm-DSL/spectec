@@ -100,96 +100,6 @@ syntax arrayinst hint(desc "array instance") hint(macro "%" "AI%") =
 syntax exninst hint(desc "exception instance") hint(macro "%" "EI%") =
   { TAG tagaddr, FIELDS val* }
 
-;; Concurrency
-syntax storeval = 
-  | val | BYTES byte*
-
-syntax addrlen = nat
-
-syntax fld = 
-  | _ADDRLEN addrlen | _DATA data
-
-syntax reg = fld
-
-syntax location = reg
-
-syntax timestamp = Inn
-
-syntax ord = 
-  | UNORD | SEQCST | INIT
-
-syntax action = 
-  | RD ord location storeval
-  | WR ord location storeval
-  | RMW location storeval
-  | WAIT location s64
-  | WOKEN location
-  | TIMEOUT location
-  | NOTIFY location u32 u32
-  | FENCE
-  | SPAWN
-  | HOSTACT
-
-
-syntax event = 
-  { ACTIONS action*, TIMEp timestamp, TIME timestamp }
-
-;; TODO: Fill in rest of time function, then do rest of functions
-def $time(event): timestamp
-def $time(ev) = ev.TIME
-
-def $timep(event): timestamp
-def $timep(ev) = ev.TIMEp
-
-def $locationf(action): location
-def $locationf(RD ord location storeval) = location
-def $locationf(WR ord location storeval) = location
-def $locationf(RMW location storeval) = location
-def $locationf(WAIT location s64) = location
-def $locationf(WOKEN location) = location
-def $locationf(TIMEOUT location) = location
-def $locationf(NOTIFY location u32 u32) = location
-
-def $ordf(action): ord
-def $ordf(RD ord location storeval) = ord
-def $ordf(WR ord location storeval) = ord
-def $ordf(RMW location storeval) = SEQCST
-
-def $overlap(action, action): bool
-def $overlap(action1, action2) = true
-
-def $same(action, action): bool
-def $same(action1, action2) = true
-
-def $reading(action): action
-def $reading(action1) = action1 
-
-def $writing(action): action
-def $writing(action1) = action1
-
-def $susp(action): action
-def $susp(action1) = action1
-
-def $read(action): byte*
-def $read(RD ord location (BYTES bs)) = bs
-
-def $write(action): byte*
-def $write(WR ord location (BYTES bs)) = bs
-
-def $offset(action): u32
-def $offset(action1) = 0
-
-def $sync(action, action): bool
-def $sync(action1, action2) = true
-
-def $range(action): u32*
-def $range(action1) = [0]
-
-def $tearfree(action): bool
-def $tearfree(action1) = true
-
-def $id(action): action
-def $id(action1) = action1
 
 syntax moduleinst hint(desc "module instance") hint(macro "%" "MI%") =
   { TYPES deftype*,
@@ -201,7 +111,6 @@ syntax moduleinst hint(desc "module instance") hint(macro "%" "MI%") =
     DATAS dataaddr*,
     ELEMS elemaddr*,
     EXPORTS exportinst* }
-
 
 ;; State
 
@@ -415,3 +324,68 @@ def $growmem(meminst, n) = meminst'
   -- if meminst' = { TYPE (at `[i' .. j?] PAGE), BYTES b* (0x00)^(n * $($(64 * $Ki))) }
   -- if $(i' = |b*| / (64 * $Ki) + n)
   -- (if i' <= j)?
+
+
+;; Concurrency
+syntax storeval = 
+  | val | BYTES byte*
+
+def $time(event): timestamp
+def $time(ev) = ev.TIME
+
+def $timep(event): timestamp
+def $timep(ev) = ev.TIMEp
+
+def $locationf(action): location
+def $locationf(RD ord location storeval) = location
+def $locationf(WR ord location storeval) = location
+def $locationf(RMW location storeval) = location
+def $locationf(WAIT location s64) = location
+def $locationf(WOKEN location) = location
+def $locationf(TIMEOUT location) = location
+def $locationf(NOTIFY location u32 u32) = location
+
+def $ordf(action): ord
+def $ordf(RD ord location storeval) = ord
+def $ordf(WR ord location storeval) = ord
+def $ordf(RMW location storeval) = SEQCST
+
+def $overlap(action, action): bool
+def $overlap(action1, action2) = true
+
+def $same(action, action): bool
+def $same(action1, action2) = true
+
+def $reading(action): action
+def $reading(action1) = action1 
+
+def $writing(action): action
+def $writing(action1) = action1
+
+def $susp(action): action
+def $susp(action1) = action1
+
+def $read(action): byte*
+def $read(RD ord location (BYTES bs)) = bs
+
+def $write(action): byte*
+def $write(WR ord location (BYTES bs)) = bs
+
+def $offset(action): u32
+def $offset(action1) = 0
+
+def $sync(action, action): bool
+def $sync(action1, action2) = true
+
+def $range(action): u32*
+def $range(action1) = [0]
+
+def $tearfree(action): bool
+def $tearfree(action1) = true
+
+def $id(action): action
+def $id(action1) = action1
+
+def $funclower(event): action
+def $funclower(event1) = event1.ACTIONS[x] 
+

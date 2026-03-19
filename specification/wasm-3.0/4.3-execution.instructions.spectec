@@ -25,24 +25,6 @@ rule Steps/trans:
   -- Step: z; instr*  ~>  z'; instr'*
   -- Steps: z'; instr'*  ~>*  z''; instr''*
 
-;; Concurrency
-relation Step_ordering: config ~> config  hint(name "E") hint(macro "stepto") hint(tabular)
-relation Step_super: config ~> config hint(name "E") hint(macro "stepto") hint(tabular)
-
-
-(;
-rule Step_ordering/step:
-  s; f; instr* ~> s ++ {TRACE event}; f'; instr'*
-  -- Step: s; f; instr* ~> s ++ {TRACE event}; f'; instr'*
-  -- if event = { ACTIONS RD, ORDERING UNORD }
-;)
-
-(;
-relation Step_super: config ~>`[ extra_stuff ] config
-rule Step_super/old: Step_super config_1 ~>`[eps] config_2  -- if Step: config_1 ~> config_2
-rule Step_super/thread: Step_super conig_1 ~>`[whatever] config_2  -- if Step_thread: config_1 ~>`[whatever] config_2
-;)
-
 ;; Context
 
 rule Step/ctxt-instrs:

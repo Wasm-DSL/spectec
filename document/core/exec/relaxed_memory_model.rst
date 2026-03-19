@@ -23,7 +23,9 @@ The execution of a WebAssembly program gives rise to a trace of events. WebAssem
 .. _op-range:
 .. _op-tearfree:
 .. _op-id:
+.. _op-func-lower:
 .. _syntax-event:
+.. _syntax-trace:
 .. _syntax-action:
 .. _syntax-int:
 
@@ -62,11 +64,11 @@ The execution of a WebAssembly program gives rise to a trace of events. WebAssem
    \offset(\action) &=& \u32\quad (if\ \locationf(\action)=\reg[\u32]) \\
 
    \sync(\action_{1}, \action_{2}) &=& (\same(\action_{1}, \action_{2})\ \land \\
-                           \qquad \ord(\action_{1}) = ord(\action_{2}) = \SEQCST) \\
+                           \qquad \qquad \qquad \qquad \qquad \qquad \ord(\action_{1}) = ord(\action_{2}) = \SEQCST) \\
 
    \range(\action) &=& [\u32...\u32+n-1] \\
                         (if\ \location(\action)=\reg[\u32]\land\\
-                        \qquad n = max(\|\read(\action)\|,\|\write(\action)\|)) \\
+                        \qquad \qquad \qquad \qquad \qquad n = max(\|\read(\action)\|,\|\write(\action)\|)) \\
 
    \tearfree(rd_{\ord}\ \location\ \byte^{*}) &=& \bot (if\ \ord = \UNORD \vee\ \ord=\INIT) \\
    \tearfree(wr_{\ord}\ \location\ \byte^{*}) &=& \bot (if\ \ord = \UNORD \vee\ \ord=\INIT) \\
@@ -74,4 +76,27 @@ The execution of a WebAssembly program gives rise to a trace of events. WebAssem
 
    \id(\action) &=& \action \\
 
+   \funclower(\action) &=& \action \\
+
+   \trace &=& \event* \\
+
    \end{array}
+
+Consistency
+~~~~~~~~~~~
+
+
+:math:`Test`
+.....................................
+
+
+.. _valid-consistent:
+
+$${rule-prose: consistent_with}
+
+$${rule: consistent_with}
+
+$${rule-prose: consistent}
+
+$${rule: consistent}
+
