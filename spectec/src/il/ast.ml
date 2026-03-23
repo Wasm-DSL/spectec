@@ -1,53 +1,14 @@
 open Util.Source
-
-
-(* TODO: annotate types on nodes *)
+open Xl
 
 
 (* Terminals *)
 
-type nat = int
+type num = Num.num
 type text = string
 type id = string phrase
-
-type atom =
-  | Atom of string               (* atomid *)
-  | Infinity                     (* infinity *)
-  | Bot                          (* `_|_` *)
-  | Top                          (* `^|^` *)
-  | Dot                          (* `.` *)
-  | Dot2                         (* `..` *)
-  | Dot3                         (* `...` *)
-  | Semicolon                    (* `;` *)
-  | Backslash                    (* `\` *)
-  | In                           (* `<-` *)
-  | Arrow                        (* `->` *)
-  | Arrow2                       (* `=>` *)
-  | Colon                        (* `:` *)
-  | Sub                          (* `<:` *)
-  | Sup                          (* `:>` *)
-  | Assign                       (* `:=` *)
-  | Equiv                        (* `==` *)
-  | Approx                       (* `~~` *)
-  | SqArrow                      (* `~>` *)
-  | SqArrowStar                  (* `~>*` *)
-  | Prec                         (* `<<` *)
-  | Succ                         (* `>>` *)
-  | Turnstile                    (* `|-` *)
-  | Tilesturn                    (* `-|` *)
-  | Quest                        (* `?` *)
-  | Plus                         (* `+` *)
-  | Star                         (* `*` *)
-  | Comma                        (* `,` *)
-  | Bar                          (* `|` *)
-  | LParen                       (* `(` *)
-  | LBrack                       (* `[` *)
-  | LBrace                       (* `{` *)
-  | RParen                       (* `)` *)
-  | RBrack                       (* `]` *)
-  | RBrace                       (* `}` *)
-
-type mixop = atom list list      (* mixfix name *)
+type atom = Atom.atom
+type mixop = unit Mixop.mixop
 
 
 (* Iteration *)
@@ -61,133 +22,155 @@ type iter =
 
 (* Types *)
 
-and numtyp =
-  | NatT                         (* `nat` *)
-  | IntT                         (* `int` *)
-  | RatT                         (* `rat` *)
-  | RealT                        (* `real` *)
+and numtyp = Num.typ
+and optyp = [Bool.typ | Num.typ]
 
 and typ = typ' phrase
 and typ' =
-  | VarT of id                   (* varid *)
+  | VarT of id * arg list        (* typid( arg* ) *)
   | BoolT                        (* `bool` *)
   | NumT of numtyp               (* numtyp *)
   | TextT                        (* `text` *)
-  | TupT of typ list             (* typ * ... * typ *)
+  | TupT of (id * typ) list      (* (id : typ, ..., id : typ) *)
   | IterT of typ * iter          (* typ iter *)
 
 and deftyp = deftyp' phrase
 and deftyp' =
-  | AliasT of typ                       (* type alias *)
-  | NotationT of mixop * typ            (* notation type *)
-  | StructT of typfield list            (* record type *)
-  | VariantT of typcase list            (* variant type *)
+  | AliasT of typ                (* type alias *)
+  | StructT of typfield list     (* record type *)
+  | VariantT of typcase list     (* variant type *)
 
-and typfield = atom * (binds * typ * premise list) * hint list   (* record field *)
-and typcase = atom * (binds * typ * premise list) * hint list    (* variant case *)
+and typfield = atom * (typ * quant list * prem list) * hint list  (* record field *)
+and typcase = mixop * (typ * quant list * prem list) * hint list  (* variant case *)
 
 
 (* Expressions *)
 
-and unop =
-  | NotOp             (* `~` *)
-  | PlusOp of numtyp  (* `+` *)
-  | MinusOp of numtyp (* `-` *)
-
-and binop =
-  | AndOp            (* `/\` *)
-  | OrOp             (* `\/` *)
-  | ImplOp           (* `=>` *)
-  | EquivOp          (* `<=>` *)
-  | AddOp of numtyp  (* `+` *)
-  | SubOp of numtyp  (* `-` *)
-  | MulOp of numtyp  (* `*` *)
-  | DivOp of numtyp  (* `/` *)
-  | ExpOp of numtyp  (* `^` *)
-
-and cmpop =
-  | EqOp             (* `=` *)
-  | NeOp             (* `=/=` *)
-  | LtOp of numtyp   (* `<` *)
-  | GtOp of numtyp   (* `>` *)
-  | LeOp of numtyp   (* `<=` *)
-  | GeOp of numtyp   (* `>=` *)
+and unop = [Bool.unop | Num.unop]
+and binop = [Bool.binop | Num.binop]
+and cmpop = [Bool.cmpop | Num.cmpop]
 
 and exp = (exp', typ) note_phrase
 and exp' =
-  | VarE of id                   (* varid *)
-  | BoolE of bool                (* bool *)
-  | NatE of nat                  (* nat *)
-  | TextE of text                (* text *)
-  | UnE of unop * exp            (* unop exp *)
-  | BinE of binop * exp * exp    (* exp binop exp *)
-  | CmpE of cmpop * exp * exp    (* exp cmpop exp *)
-  | IdxE of exp * exp            (* exp `[` exp `]` *)
-  | SliceE of exp * exp * exp    (* exp `[` exp `:` exp `]` *)
-  | UpdE of exp * path * exp     (* exp `[` path `=` exp `]` *)
-  | ExtE of exp * path * exp     (* exp `[` path `=..` exp `]` *)
-  | StrE of expfield list        (* `{` list(expfield, `,`) `}` *)
-  | DotE of exp * atom           (* exp `.` atom *)
-  | CompE of exp * exp           (* exp `@` exp *)
-  | LenE of exp                  (* `|` exp `|` *)
-  | TupE of exp list             (* `(` list2(exp, `,`) `)` *)
-  | MixE of mixop * exp          (* exp atom exp *)
-  | CallE of id * exp            (* defid exp? *)
-  | IterE of exp * iterexp       (* exp iter *)
-  | OptE of exp option           (* exp? *)
-  | TheE of exp                  (* THE exp *)
-  | ListE of exp list            (* [exp ... exp] *)
-  | CatE of exp * exp            (* exp :: exp *)
-  | CaseE of atom * exp          (* atom exp *)
-  | SubE of exp * typ * typ      (* exp : typ1 <: typ2 *)
+  | VarE of id                              (* varid *)
+  | BoolE of bool                           (* bool *)
+  | NumE of num                             (* num *)
+  | TextE of text                           (* text *)
+  | UnE of unop * optyp * exp               (* unop exp *)
+  | BinE of binop * optyp * exp * exp       (* exp binop exp *)
+  | CmpE of cmpop * optyp * exp * exp       (* exp cmpop exp *)
+  | TupE of exp list                        (* ( exp* ) *)
+  | ProjE of exp * int                      (* exp.i *)
+  | CaseE of mixop * exp                    (* atom exp? *)
+  | UncaseE of exp * mixop                  (* exp!mixop *)
+  | OptE of exp option                      (* exp? *)
+  | TheE of exp                             (* exp! *)
+  | StrE of expfield list                   (* { expfield* } *)
+  | DotE of exp * atom                      (* exp.atom *)
+  | CompE of exp * exp                      (* exp @ exp *)
+  | ListE of exp list                       (* [exp ... exp] *)
+  | LiftE of exp                            (* exp : _? <: _* *)
+  | MemE of exp * exp                       (* exp `<-` exp *)
+  | LenE of exp                             (* |exp| *)
+  | CatE of exp * exp                       (* exp :: exp *)
+  | IdxE of exp * exp                       (* exp[exp]` *)
+  | SliceE of exp * exp * exp               (* exp[exp : exp] *)
+  | UpdE of exp * path * exp                (* exp[path = exp] *)
+  | ExtE of exp * path * exp                (* exp[path =.. exp] *)
+  | IfE of exp * exp * exp                  (* `if` exp exp exp *)
+  | CallE of id * arg list                  (* defid( arg* ) *)
+  | IterE of exp * iterexp                  (* exp iter *)
+  | CvtE of exp * numtyp * numtyp           (* exp : typ1 <:> typ2 *)
+  | SubE of exp * typ * typ                 (* exp : typ1 <: typ2 *)
 
-and expfield = atom * exp        (* atom exp *)
+and expfield = atom * exp                   (* atom exp *)
 
 and path = (path', typ) note_phrase
 and path' =
-  | RootP                        (*  *)
-  | IdxP of path * exp           (* path `[` exp `]` *)
-  | SliceP of path * exp * exp   (* path `[` exp `:` exp `]` *)
-  | DotP of path * atom          (* path `.` atom *)
+  | RootP                                   (*  *)
+  | IdxP of path * exp                      (* path[exp] *)
+  | SliceP of path * exp * exp              (* path[exp : exp] *)
+  | DotP of path * atom                     (* path.atom *)
 
-and iterexp = iter * id list
+and iterexp = iter * (id * exp) list
+
+
+(* Grammars *)
+
+and sym = sym' phrase
+and sym' =
+  | VarG of id * arg list                   (* gramid( arg* ) *)
+  | NumG of int                             (* num *)
+  | TextG of string                         (* text *)
+  | EpsG                                    (* epsilon *)
+  | SeqG of sym list                        (* sym sym *)
+  | AltG of sym list                        (* sym | sym *)
+  | RangeG of sym * sym                     (* sym | ... | sym *)
+  | IterG of sym * iterexp                  (* sym iter *)
+  | AttrG of exp * sym                      (* exp : sym *)
 
 
 (* Definitions *)
 
-and binds = (id * typ * iter list) list
+and arg = arg' phrase
+and arg' =
+  | ExpA of exp                             (* exp *)
+  | TypA of typ                             (* `syntax` typ *)
+  | DefA of id                              (* `def` defid *)
+  | GramA of sym                            (* `grammar` sym *)
+
+and param = param' phrase
+and param' =
+  | ExpP of id * typ                        (* varid : typ *)
+  | TypP of id                              (* `syntax` varid *)
+  | DefP of id * param list * typ           (* `def` defid params : typ *)
+  | GramP of id * param list * typ          (* `grammar` gramid param : typ *)
+
+and quant = param
 
 and def = def' phrase
 and def' =
-  | SynD of id * deftyp                               (* syntax type *)
-  | RelD of id * mixop * typ * rule list              (* relation *)
-  | DecD of id * typ * typ * clause list              (* definition *)
+  | TypD of id * param list * inst list               (* syntax type (family) *)
+  | RelD of id * param list * mixop * typ * rule list (* relation *)
+  | DecD of id * param list * typ * clause list       (* definition *)
+  | GramD of id * param list * typ * prod list        (* grammar *)
   | RecD of def list                                  (* recursive *)
   | HintD of hintdef
 
+and inst = inst' phrase
+and inst' =
+  | InstD of quant list * arg list * deftyp           (* family instance clause *)
+
 and rule = rule' phrase
 and rule' =
-  | RuleD of id * binds * mixop * exp * premise list  (* relation rule *)
+  | RuleD of id * quant list * mixop * exp * prem list (* relation rule *)
 
 and clause = clause' phrase
 and clause' =
-  | DefD of binds * exp * exp * premise list          (* definition clause *)
+  | DefD of quant list * arg list * exp * prem list   (* definition clause *)
 
-and premise = premise' phrase
-and premise' =
-  | RulePr of id * mixop * exp                        (* premise *)
+and prod = prod' phrase
+and prod' =
+  | ProdD of quant list * sym * exp * prem list       (* grammar production *)
+
+and prem = prem' phrase
+and prem' =
+  | RulePr of id * arg list * mixop * exp             (* premise *)
   | IfPr of exp                                       (* side condition *)
-  | LetPr of exp * exp * id list                      (* assignment *)
+  | LetPr of exp * exp * string list                  (* binding *)
   | ElsePr                                            (* otherwise *)
-  | IterPr of premise * iterexp                       (* iteration *)
+  | IterPr of prem * iterexp                          (* iteration *)
+  | NegPr of prem                                     (* negated premise *)
 
 and hintdef = hintdef' phrase
 and hintdef' =
-  | SynH of id * hint list
+  | TypH of id * hint list
   | RelH of id * hint list
   | DecH of id * hint list
+  | GramH of id * hint list
+  | RuleH of id * id * hint list
 
-and hint = {hintid : id; hintexp : string list}       (* hint *)
+and hint = {hintid : id; hintexp : El.Ast.exp}        (* hint *)
 
 
 (* Scripts *)
