@@ -1372,8 +1372,7 @@
 
 .. |TRACE| mathdef:: \xref{exec/runtime}{syntax-store}{\X{TRACE}}
 
-.. |vdashconsistent| mathdef:: \xref{exec/relaxed_memory_model}{valid-consistent}{\vdash}
-.. |OKconsistent| mathdef:: \xref{exec/relaxed_memory_model}{valid-consistent}{\K{ok}}
+.. |consistentwith| mathdef:: \xref{exec/relaxed_memory_model}{valid-consistentwith}{\X{consistentwith}}
 
 
 .. Notation

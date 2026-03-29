@@ -89,14 +89,7 @@ Consistency
 :math:`Test`
 .....................................
 
+.. _valid-consistentwith:
 
-.. _valid-consistent:
 
-$${rule-prose: consistent_with}
-
-$${rule: consistent_with}
-
-$${rule-prose: consistent}
-
-$${rule: consistent}
-
+$${rule: consistentwith}
