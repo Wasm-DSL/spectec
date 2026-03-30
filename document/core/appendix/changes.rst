@@ -179,6 +179,27 @@ Added instructions that modify ranges of memory or table entries. [#proposal-ref
 
 * Active data and element segments boundaries are no longer checked at compile time but may trap instead
 
+.. index:: instruction
+
+Atomic Memory Instructions
+................................
+
+* New :ref:`atomic memory instructions <syntax-instr-atomic>`:
+
+  - |ATOMICLOAD|
+  - |ATOMICSTORE|
+  - |ATOMICRMW| 
+  - |ATOMICRMWCMPXCHG|
+  - |MEMORYATOMICNOTIFY|
+  - |MEMORYATOMICWAIT|
+  - |ATOMICFENCE|
+
+Integer Types:
+................
+
+* :ref:`Address types <syntax-inntype>` denote a subset of the integral :ref:`integer types <syntax-inntype>`
+
+They represent {:I32} and {:I64}.  
 
 .. index:: instructions, SIMD, value type, vector type
 

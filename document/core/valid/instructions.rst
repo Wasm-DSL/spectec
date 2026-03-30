@@ -738,6 +738,93 @@ $${rule-prose: Instr_ok/data.drop}
 
 $${rule: Instr_ok/data.drop}
 
+.. index:: atomic memory instruction
+   pair: validation; instruction
+   single: abstract syntax; instruction
+
+Atomic Memory Instructions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. _valid-atomic.load-val:
+
+:math:`t\K{.}\ATOMICLOAD~x~\memarg`
+.....................................
+
+$${rule-prose: Instr_ok/atomic.load-val}
+
+$${rule: Instr_ok/atomic.load-val}
+
+.. _valid-atomic.load-pack:
+
+:math:`t\K{.}\ATOMICLOAD{N}\K{\_}u~x~\memarg`
+.......................................................
+
+$${rule-prose: Instr_ok/atomic.load-pack}
+
+$${rule: Instr_ok/atomic.load-pack}
+
+:math:`t\K{.}\ATOMICSTORE~x~\memarg`
+.....................................
+
+$${rule-prose: Instr_ok/atomic.store-val}
+
+$${rule: Instr_ok/atomic.store-val}
+
+:math:`t\K{.}\ATOMICSTORE{N}\K{\_}u~x~\memarg`
+....................................................
+
+$${rule-prose: Instr_ok/atomic.store-pack}
+
+$${rule: Instr_ok/atomic.store-pack}
+
+:math:`t\K{.}\ATOMICRMW~x~\memarg`
+.....................................
+
+$${rule-prose: Instr_ok/atomic.rmw-val}
+
+$${rule: Instr_ok/atomic.rmw-val}
+
+:math:`t\K{.}\ATOMICRMW{N}\K{\_}u~x~\memarg`
+....................................................
+
+$${rule-prose: Instr_ok/atomic.rmw-pack}
+
+$${rule: Instr_ok/atomic.rmw-pack}
+
+:math:`t\K{.}\ATOMICRMWCMPXCHG~x~\memarg`
+....................................................
+
+$${rule-prose: Instr_ok/atomic.rmw.cmpxchg-val}
+
+$${rule: Instr_ok/atomic.rmw.cmpxchg-val}
+
+:math:`t\K{.}\ATOMICRMWCMPXCHG{N}\K{\_}u~x~\memarg`
+....................................................
+$${rule-prose: Instr_ok/atomic.rmw.cmpxchg-pack}
+
+$${rule: Instr_ok/atomic.rmw.cmpxchg-pack}
+
+:math:`\MEMORYATOMICNOTIFY~x~\memarg`
+....................................................
+
+$${rule-prose: Instr_ok/memory.atomic.notify}
+
+$${rule: Instr_ok/memory.atomic.notify}
+
+:math:`\MEMORYATOMICWAIT{N}~\memarg`
+....................................................
+
+$${rule-prose: Instr_ok/memory.atomic.wait}
+
+$${rule: Instr_ok/memory.atomic.wait}
+
+:math:`\ATOMICFENCE`
+....................................................
+
+$${rule-prose: Instr_ok/atomic.fence}
+
+$${rule: Instr_ok/atomic.fence}
+
 
 .. index:: reference instructions, reference type
    pair: validation; instruction

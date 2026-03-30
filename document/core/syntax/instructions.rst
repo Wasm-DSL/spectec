@@ -202,7 +202,6 @@ $${syntax: memarg loadop_ storeop_ vloadop_ {instr/memory instr/data}}
 
 Memory is accessed with ${:LOAD} and ${:STORE} instructions for the different :ref:`number types <syntax-numtype>` and :ref:`vector types <syntax-vectype>`.
 They all take a :ref:`memory index <syntax-memidx>` and a *memory argument* ${:memarg} that contains an address *offset* and the expected *alignment* (expressed as the exponent of a power of 2).
-
 Integer loads and stores can optionally specify a *storage size* ${:sz} that is smaller than the :ref:`bit width <syntax-numtype>` of the respective value type.
 In the case of loads, a sign extension mode ${:sx} is then required to select appropriate behavior.
 
@@ -223,6 +222,26 @@ The ${:MEMORY.INIT} instruction copies data from a :ref:`passive data segment <s
 
 The ${:DATA.DROP} instruction prevents further use of a passive data segment. This instruction is intended to be used as an optimization hint. After a data segment is dropped its data can no longer be retrieved, so the memory used by this segment may be freed.
 
+.. index:: ! atomic memory instruction, memory, memory index, page size, little endian, trap
+   pair: abstract syntax; instruction
+.. _syntax-instr-atomic:
+.. _syntax-atloadop:
+.. _syntax-atstoreop:
+.. _syntax-rmwop:
+
+Atomic Memory Instructions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instructions in this group are concerned with accessing linear memory atomically.
+
+$${syntax: memarg atloadop_ atstoreop_ rmwop_ {instr/atomic}}
+
+Memory is accessed atomically using |ATOMICLOAD|, |ATOMICSTORE| and |ATOMICRMW| instructions. All instructions take a *memory immediate* ${:memarg}, just like their non-atomic equivalents. Unlike non-atomic memory access instructions, only :ref:`integer types <syntax-inntype>` may be used. Also unlike non-atomic memory access instructions, there are no sign extension modes; atomic memory accesses are always zero-extending. 
+
+The |ATOMICRMW| instructions are read-modify-write instructions. They each have an atomic operator, which specifies how memory will be modified. Each instruction returns the value read from memory before modification. The ${:xchg} operator doesn’t use the read value, but instead stores its argument unmodified. The ${:cmpgxchg} operator is similar, but only performs this action conditionally, if the read value is equal to a provided comparison argument. All other atomic operators have the same behavior as the :ref: `binary operator <syntax-binop>` of the same name.
+
+The |MEMORYATOMICWAIT|, |MEMORYATOMICNOTIFY| and |ATOMICFENCE| instructions provide primitive synchronization between threads. The |MEMORYATOMICWAIT| instructions atomically load a value from the calculated effective address and compare it to an expected value. If they are equal, the thread is then suspended until a given timeout expires or another thread wakes it. The |MEMORYATOMICNOTIFY| instruction wakes threads that are waiting on a given address, up to a given maximum. The |ATOMICFENCE| instruction takes no operands, and returns nothing. It is intended to preserve the synchronization guarantees of the fence operators of higher-level languages. Unlike other atomic operators, it does not target a particular linear memory.
+
 
 .. index:: ! reference instruction, reference, null, cast, heap type, reference type
    pair: abstract syntax; instruction
@@ -232,6 +251,7 @@ The ${:DATA.DROP} instruction prevents further use of a passive data segment. Th
 .. _syntax-ref.as_non_null:
 .. _syntax-ref.eq:
 .. _syntax-ref.test:
+
 .. _syntax-ref.cast:
 .. _syntax-instr-ref:
 
@@ -337,7 +357,7 @@ Numeric Instructions
 Numeric instructions provide basic operations over numeric :ref:`values <syntax-value>` of specific :ref:`type <syntax-numtype>`.
 These operations closely match respective operations available in hardware.
 
-$${syntax: {sz sx} num_ instr/num unop_ binop_ testop_ relop_ cvtop__}
+$${syntax: {sz sx} num_ instr/num unop_ binop_ testop_ relop_ cvtop__ atop_}
 
 Numeric instructions are divided by :ref:`number type <syntax-numtype>`.
 For each type, several subcategories can be distinguished:

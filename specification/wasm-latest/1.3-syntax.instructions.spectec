@@ -22,6 +22,7 @@ syntax lit_(numtype) = num_(numtype)
 syntax lit_(vectype) = vec_(vectype)
 syntax lit_(packtype) = pack_(packtype)
 
+syntax atomicpack_(Jnn) = iN($jsizenn(Jnn))
 
 ;; Numeric operators
 
@@ -38,6 +39,18 @@ syntax binop_(Inn) =
   | AND | OR | XOR | SHL | SHR sx hint(show SHR#_#%) | ROTL | ROTR
 syntax binop_(Fnn) =
   | ADD | SUB | MUL | DIV | MIN hint(macro "FMIN") | MAX hint(macro "FMAX") | COPYSIGN
+
+;; Atomic operations
+syntax rmwop_(Jnn) =
+  | ADD | SUB | AND | OR | XOR | XCHG
+
+syntax atop_(Jnn) = ATOP sz U?     hint(show %1) hint(show %1#_#%2)                    -- if sz < $jsizenn(Jnn)
+
+syntax atloadop_(Jnn)
+syntax atloadop_(Inn) = sz _ U hint(show %0#_#%2) -- if sz < $sizenn(Inn)
+
+syntax atstoreop_(Jnn)
+syntax atstoreop_(Inn) = sz                        -- if sz < $sizenn(Inn)
 
 syntax testop_(numtype)
 syntax testop_(Inn) = EQZ
@@ -297,6 +310,16 @@ syntax instr/memory hint(desc "memory instruction") = ...
   | MEMORY.FILL memidx
   | MEMORY.COPY memidx memidx
   | MEMORY.INIT memidx dataidx
+  | ...
+
+syntax instr/atomic hint(desc "atomic memory instruction") = ... 
+  | ATOMIC.LOAD inntype atloadop_(inntype)? memidx memarg   hint(show %#.#ATOMIC.LOAD % %) hint(show %#.#ATOMIC.LOAD# ##% % %)
+  | ATOMIC.STORE inntype atstoreop_(inntype)? memidx memarg   hint(show %#.#ATOMIC.STORE % %) hint(show %#.#ATOMIC.STORE# ##% % %)
+  | ATOMIC.RMW inntype atstoreop_(inntype)? rmwop_(inntype) memidx memarg  hint(show %#.#ATOMIC.RMW % % %) hint(show %#.#ATOMIC.RMW#  ##% % % %)
+  | ATOMIC.RMW.CMPXCHG inntype atstoreop_(inntype)? memidx memarg   hint(show %#.#ATOMIC.RMW.CMPXCHG % %) hint(show %#.#ATOMIC.RMW.CMPXCHG# ##% % %)
+  | MEMORY.ATOMIC.NOTIFY memidx memarg hint(show MEMORY.ATOMIC.NOTIFY % %) hint(show MEMORY.ATOMIC.NOTIFY# ##% %)
+  | MEMORY.ATOMIC.WAIT inntype memidx memarg hint(show MEMORY.ATOMIC.WAIT % % %) hint(show MEMORY.ATOMIC.WAIT# ##% % %)
+  | ATOMIC.FENCE  hint(show %#.#ATOMIC.FENCE %) hint(show %#.#ATOMIC.FENCE# ##%)
   | ...
 
 syntax instr/data hint(desc "data instruction") = ...
@@ -591,3 +614,37 @@ def $free_block(instr*) = free[.LABELS = $shift_labelidxs(free.LABELS)]
 
 
 def $free_expr(instr*) = $free_list($free_instr(instr)*)
+
+;; Concurrency
+syntax addrlen = nat
+
+syntax fld = 
+  | _ADDRLEN addrlen | _DATA data
+
+syntax reg = fld
+
+syntax location = reg
+
+syntax timestamp = Inn
+
+syntax ord = 
+  | UNORD | SEQCST | INIT
+
+syntax action = 
+  | RD ord location storeval
+  | WR ord location storeval
+  | RMW location storeval
+  | WAIT location s64
+  | WOKEN location
+  | TIMEOUT location
+  | NOTIFY location u32 u32
+  | FENCE
+  | SPAWN
+  | HOSTACT
+
+
+syntax event = 
+  { ACTIONS action*, TIMEp timestamp, TIME timestamp }
+
+syntax trace = event*
+

@@ -312,6 +312,7 @@
 .. |elemtype| mathdef:: \xref{syntax/types}{syntax-elemtype}{\X{elemtype}}
 .. |datatype| mathdef:: \xref{syntax/types}{syntax-datatype}{\X{datatype}}
 .. |externtype| mathdef:: \xref{syntax/types}{syntax-externtype}{\X{externtype}}
+.. |inntype| mathdef:: \xref{syntax/types}{syntax-inntype}{\X{inntype}}
 
 .. |limits| mathdef:: \xref{syntax/types}{syntax-limits}{\X{limits}}
 .. |null| mathdef:: \xref{syntax/types}{syntax-null}{\X{null}}
@@ -531,6 +532,14 @@
 .. |MEMORYINIT| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{memory{.}init}}
 .. |DATADROP| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{data{.}drop}}
 
+.. |ATOMICLOAD| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic{.}load}}
+.. |ATOMICSTORE| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic{.}store}}
+.. |ATOMICRMW| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic{.}rmw}}
+.. |ATOMICRMWCMPXCHG| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic{.}rmw{.}cmpxchg}}
+.. |MEMORYATOMICNOTIFY| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{memory{.}atomic{.}notify}}
+.. |MEMORYATOMICWAIT| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{memory{.}atomic{.}wait}}
+.. |ATOMICFENCE| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic{.}fence}}
+
 .. |LX| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{x}}
 .. |LSPLAT| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{splat}}
 .. |LZERO| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{zero}}
@@ -601,6 +610,7 @@
 .. |AND| mathdef:: \xref{syntax/instructions}{syntax-instr-numeric}{\K{and}}
 .. |OR| mathdef:: \xref{syntax/instructions}{syntax-instr-numeric}{\K{or}}
 .. |XOR| mathdef:: \xref{syntax/instructions}{syntax-instr-numeric}{\K{xor}}
+.. |XCHG| mathdef:: \xref{syntax/instructions}{syntax-instr-numeric}{\K{xchg}}
 .. |SHL| mathdef:: \xref{syntax/instructions}{syntax-instr-numeric}{\K{shl}}
 .. |SHR| mathdef:: \xref{syntax/instructions}{syntax-instr-numeric}{\K{shr}}
 .. |ROTL| mathdef:: \xref{syntax/instructions}{syntax-instr-numeric}{\K{rotl}}
@@ -694,6 +704,7 @@
 .. |testop| mathdef:: \xref{syntax/instructions}{syntax-testop}{\X{testop}}
 .. |relop| mathdef:: \xref{syntax/instructions}{syntax-relop}{\X{relop}}
 .. |cvtop| mathdef:: \xref{syntax/instructions}{syntax-cvtop}{\X{cvtop}}
+.. |rmwop| mathdef:: \xref{syntax/instructions}{syntax-rmwop}{\X{rmwop}}
 
 .. |unopF| mathdef:: \xref{exec/instructions}{exec-instr-numeric}{\X{unop}}
 .. |binopF| mathdef:: \xref{exec/instructions}{exec-instr-numeric}{\X{binop}}
@@ -749,6 +760,8 @@
 .. |loadop| mathdef:: \xref{syntax/instructions}{syntax-loadop}{\X{loadop}}
 .. |storeop| mathdef:: \xref{syntax/instructions}{syntax-storeop}{\X{storeop}}
 .. |vloadop| mathdef:: \xref{syntax/instructions}{syntax-vloadop}{\X{vloadop}}
+.. |atloadop| mathdef:: \xref{syntax/instructions}{syntax-atloadop}{\X{atloadop}}
+.. |atstoreop| mathdef:: \xref{syntax/instructions}{syntax-atstoreop}{\X{atstoreop}}
 
 .. |sx| mathdef:: \xref{syntax/instructions}{syntax-sx}{\X{sx}}
 .. |sz| mathdef:: \xref{syntax/instructions}{syntax-sz}{\X{sz}}
@@ -1306,6 +1319,64 @@
 .. Execution
 .. ---------
 
+.. Concurrency
+
+.. |storeval| mathdef:: \xref{exec/runtime}{syntax-event}{\X{storeval}}
+.. |addrlen| mathdef:: \xref{exec/runtime}{syntax-event}{\K{addrlen}}
+.. |fld| mathdef:: \xref{exec/runtime}{syntax-event}{\X{fld}}
+.. |reg| mathdef:: \xref{exec/runtime}{syntax-event}{\X{reg}}
+.. |location| mathdef:: \xref{exec/runtime}{syntax-event}{\X{location}}
+
+.. |time| mathdef:: \xref{exec/relaxed_memory_model}{op-time}{\F{time}}
+.. |timep| mathdef:: \xref{exec/relaxed_memory_model}{op-timep}{\F{timep}}
+.. |locationf| mathdef:: \xref{exec/relaxed_memory_model}{op-locationf}{\F{locationf}}
+.. |ordf| mathdef:: \xref{exec/relaxed_memory_model}{op-ordf}{\F{ordf}}
+.. |overlap| mathdef:: \xref{exec/relaxed_memory_model}{op-overlap}{\F{overlap}}
+.. |same| mathdef:: \xref{exec/relaxed_memory_model}{op-same}{\F{same}}
+.. |reading| mathdef:: \xref{exec/relaxed_memory_model}{op-reading}{\F{reading}}
+.. |writing| mathdef:: \xref{exec/relaxed_memory_model}{op-writing}{\F{writing}}
+.. |susp| mathdef:: \xref{exec/relaxed_memory_model}{op-susp}{\F{susp}}
+.. |BYTES| mathdef:: \xref{exec/relaxed_memory_model}{syntax-event}{\K{BYTES}}
+.. |read| mathdef:: \xref{exec/relaxed_memory_model}{op-read}{\F{read}}
+.. |write| mathdef:: \xref{exec/relaxed_memory_model}{op-write}{\F{write}}
+.. |offset| mathdef:: \xref{exec/relaxed_memory_model}{op-offset}{\F{offset}}
+.. |sync| mathdef:: \xref{exec/relaxed_memory_model}{op-sync}{\F{sync}}
+.. |range| mathdef:: \xref{exec/relaxed_memory_model}{op-range}{\F{range}}
+.. |tearfree| mathdef:: \xref{exec/relaxed_memory_model}{op-tearfree}{\F{tearfree}}
+.. |id| mathdef:: \xref{exec/relaxed_memory_model}{op-id}{\F{id}}
+
+.. |funclower| mathdef:: \xref{exec/relaxed_memory_model}{op-func-lower}{\F{funclower}}
+
+.. |UNORD| mathdef:: \xref{exec/runtime}{syntax-ord}{\K{UNORD}}
+.. |SEQCST| mathdef:: \xref{exec/runtime}{syntax-ord}{\K{SEQCST}}
+.. |INIT| mathdef:: \xref{exec/runtime}{syntax-ord}{\K{INIT}}
+.. |ord| mathdef:: \xref{exec/runtime}{syntax-ord}{\X{ord}}
+
+.. |RD| mathdef:: \xref{exec/runtime}{syntax-action}{\K{RD}}
+.. |WR| mathdef:: \xref{exec/runtime}{syntax-action}{\K{WR}}
+.. |RMW| mathdef:: \xref{exec/runtime}{syntax-action}{\K{RMW}}
+.. |WAIT| mathdef:: \xref{exec/runtime}{syntax-action}{\K{WAIT}}
+.. |WOKEN| mathdef:: \xref{exec/runtime}{syntax-action}{\K{WOKEN}}
+.. |TIMEOUT| mathdef:: \xref{exec/runtime}{syntax-action}{\K{TIMEOUT}}
+.. |NOTIFY| mathdef:: \xref{exec/runtime}{syntax-action}{\K{NOTIFY}}
+.. |FENCE| mathdef:: \xref{exec/runtime}{syntax-action}{\K{FENCE}}
+.. |SPAWN| mathdef:: \xref{exec/runtime}{syntax-action}{\K{SPAWN}}
+.. |HOSTACT| mathdef:: \xref{exec/runtime}{syntax-action}{\K{HOSTACT}}
+.. |action| mathdef:: \xref{exec/runtime}{syntax-action}{\X{action}}
+
+.. |TIMEp| mathdef:: \xref{exec/runtime}{syntax-event}{\K{TIMEp}}
+.. |TIME| mathdef:: \xref{exec/runtime}{syntax-event}{\K{TIME}}
+.. |timestamp| mathdef:: \xref{exec/runtime}{syntax-timestamp}{\X{timestamp}}
+.. |ACTIONS| mathdef:: \xref{exec/runtime}{syntax-event}{\K{actions}}
+.. |ORDERING| mathdef:: \xref{exec/runtime}{syntax-event}{\K{ordering}}
+.. |event| mathdef:: \xref{exec/runtime}{syntax-event}{\X{event}}
+.. |trace| mathdef:: \xref{exec/relaxed_memory_model}{syntax-trace}{\X{trace}}
+
+.. |TRACE| mathdef:: \xref{exec/runtime}{syntax-store}{\X{TRACE}}
+
+.. |consistentwith| mathdef:: \xref{exec/relaxed_memory_model}{valid-consistentwith}{\X{consistentwith}}
+
+
 .. Notation
 
 .. |stepto| mathdef:: \xref{exec/conventions}{exec-notation}{\hookrightarrow}
@@ -1498,6 +1569,7 @@
 .. |SSTRUCTS| mathdef:: \xref{exec/runtime}{syntax-store}{\K{structs}}
 .. |SARRAYS| mathdef:: \xref{exec/runtime}{syntax-store}{\K{arrays}}
 .. |SEXNS| mathdef:: \xref{exec/runtime}{syntax-store}{\K{exns}}
+.. |STRACE| mathdef:: \xref{exec/runtime}{syntax-store}{\K{trace}}
 
 .. Store, non-terminals
 
@@ -1587,6 +1659,7 @@
 .. |iandnot| mathdef:: \xref{exec/numerics}{op-iandnot}{\F{iandnot}}
 .. |ior| mathdef:: \xref{exec/numerics}{op-ior}{\F{ior}}
 .. |ixor| mathdef:: \xref{exec/numerics}{op-ixor}{\F{ixor}}
+.. |ixchg| mathdef:: \xref{exec/numerics}{op-ixchg}{\F{ixchg}}
 .. |ishl| mathdef:: \xref{exec/numerics}{op-ishl}{\F{ishl}}
 .. |ishr| mathdef:: \xref{exec/numerics}{op-ishr}{\F{ishr}}
 .. |ishru| mathdef:: \xref{exec/numerics}{op-ishr}{\F{ishr\_u}}

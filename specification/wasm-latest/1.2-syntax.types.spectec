@@ -12,6 +12,8 @@ syntax addrtype hint(desc "address type") =
 
 syntax numtype hint(desc "number type") =
   | I32 | I64 | F32 | F64
+  
+syntax inntype hint(desc "integer type")= addrtype
 
 syntax vectype hint(desc "vector type") =
   | V128

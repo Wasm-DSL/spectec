@@ -673,6 +673,38 @@ $${rule-prose: Step/data.drop}
 
 $${rule: {Step/data.drop}}
 
+.. index:: atomic memory instructions
+
+Atomic Memory Instructions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+$${rule-prose: Step_read/atomic.load}
+
+$${rule: {Step_read/atomic.load-*}}
+
+$${rule-prose: Step/atomic.store}
+
+$${rule: {Step/atomic.store-*}}
+
+$${rule-prose: Step/atomic.rmw}
+
+$${rule: {Step/atomic.rmw-*}}
+
+$${rule-prose: Step/atomic.rmw.cmpxchg}
+
+$${rule: {Step/atomic.rmw.cmpxchg-*}}
+
+$${rule-prose: Step/memory.atomic.notify}
+
+$${rule: {Step/memory.atomic.notify-*}}
+
+$${rule-prose: Step/memory.atomic.wait}
+
+$${rule: {Step/memory.atomic.wait-*}}
+
+$${rule-prose: Step/atomic.fence}
+
+$${rule: {Step/atomic.fence}}
 
 .. index:: reference instructions, reference
    pair: execution; instruction

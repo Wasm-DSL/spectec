@@ -94,7 +94,8 @@ It consists of the runtime representation of all *instances* of
 and
 :ref:`structures <syntax-structinst>`,
 :ref:`arrays <syntax-arrayinst>` or
-:ref:`exceptions <syntax-exninst>`
+:ref:`exceptions <syntax-exninst>`,
+
 that have been :ref:`allocated <alloc>` during the life time of the abstract machine.
 
 It is an invariant of the semantics that no element or data instance is :ref:`addressed <syntax-addr>` from anywhere else but the owning module instances.
@@ -224,7 +225,19 @@ in the shared :ref:`store <syntax-store>`.
 
 $${syntax: externaddr}
 
+.. index:: !  time stamp, event, relaxed memory model
+.. _syntax-timestamp:
 
+Time Stamps
+~~~~~~~~~~~
+
+In order to track the relative ordering in the execution of multiple threads and the occurrence of events, the semantics uses a notion of abstract time stamps.
+
+$${syntax: timestamp}
+
+Each time stamp denotes a discrete point in time, and is drawn from an infinite set. The shape of time stamps is not specified or observable.
+
+During the execution of WebAssembly code, time stamped events may be emitted which are related by one or both of these orderings, thus constraining the code’s observable behaviours according to WebAssembly’s relaxed memory model.
 
 .. index:: ! instance, function type, type instance, function instance, table instance, memory instance, global instance, tag instance, element instance, data instance, export instance, table address, memory address, global address, tag address, element address, data address, index, name
    pair: abstract syntax; module instance
@@ -613,6 +626,24 @@ Traps are bubbled up through nested instruction sequences, ultimately reducing t
 
    This can be interpreted as removing the label from the stack and only leaving the locally accumulated operand values.
    Validation guarantees that ${:n} matches the number ${:|val*|} of resulting values at this point.
+
+.. index:: ! events
+.. _syntax-ord:
+.. _syntax-action:
+.. _syntax-event:
+
+Events
+~~~~~~
+
+The interaction of a computation with the :ref:`store <syntax-store>` is described through events. An event is a (possibly empty) set of actions, such as reads and writes, that are atomically performed by the execution of an individual :ref:`instruction <syntax-instr>`. Each event is annotated with two :ref:`time stamps <syntax-ord>`: the first records the time stamp of the event’s immediate predecessor while the second uniquely identifies the event.
+
+$${syntax: ord action event location reg fld storeval}
+
+The access of mutable shared state is performed through the :ref:`rw <syntax-action>`, :ref:`wr <syntax-action>` and :ref:`rmw <syntax-action>` actions. Each action accesses an abstract location, which consists of an :ref:`address <syntax-addr>` of a :ref:`shared <syntax-memtype>` :ref:`memory <syntax-memtype>` instance, a symbolic field name in the respective object (either :ref:`len <syntax-ord>` for the size or :ref:`data <syntax-ord>` for the vector of bytes), and an offset index into the field.
+
+In each case, read and write actions record the store value that has been read or written, which is either a regular :ref:`value <syntax-val>` or a sequence of bytes, depending on the location accessed. A :ref:`rmw <syntax-action>`event, performing an atomic read-modify-write access, records both the store values read (first) and written (second); it is an invariant of the semantics that both are either regular values of the same type or byte sequences of the same length.
+
+:ref:`rd <syntax-action>` and :ref:`wr <syntax-action>` events are further annotated by a memory ordering, which describes whether the access is unordered, as e.g. performed by a :ref:`regular load or store instruction <syntax-instr-memory>`, or sequentially consistent, as e.g. performed by :ref:`atomic memory instructions <syntax-instr-atomic>`. A third ordering, initialisation, is used to record the initial value taken by the memory location upon its creation. A :ref:`rmw <syntax-action>` event always is sequentially consistent.
 
 
 .. index:: ! configuration, ! state, ! thread, store, frame, instruction, module instruction

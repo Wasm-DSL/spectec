@@ -457,6 +457,19 @@ The integer result of predicates -- i.e., :ref:`tests <syntax-testop>` and :ref:
    \ixor_N(i_1, i_2) &=& \ibits_N^{-1}(\ibits_N(i_1) \veebar \ibits_N(i_2))
    \end{array}
 
+.. _op-ixchg:
+
+:math:`\ixchg_N(i_1, i_2)`
+.............................
+
+* Returns the second argument :math:`i_2`.
+
+.. math::
+   \begin{array}{@{}lcll}
+   \ixchg_N(i_1, i_2) &=& \ibits_N^{-1}(\ibits_N(i_2))
+   \end{array}
+
+
 .. _op-ishl:
 
 :math:`\ishl_N(i_1, i_2)`

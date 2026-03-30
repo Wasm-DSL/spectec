@@ -12,9 +12,14 @@ Types are checked during :ref:`validation <valid>`, :ref:`instantiation <exec-in
    pair: abstract syntax; number type
    pair: number; type
 .. _syntax-numtype:
+.. _syntax-inntype:
 
 Number Types
 ~~~~~~~~~~~~
+
+*Integer types* represent ${:I32} ${:I64}. 
+
+$${syntax: inntype}
 
 *Number types* classify numeric values.
 
