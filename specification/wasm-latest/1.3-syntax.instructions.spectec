@@ -313,13 +313,13 @@ syntax instr/memory hint(desc "memory instruction") = ...
   | ...
 
 syntax instr/atomic hint(desc "atomic memory instruction") = ... 
-  | ATOMIC.LOAD inntype atloadop_(inntype)? memidx memarg   hint(show %#.#ATOMIC.LOAD % %) hint(show %#.#ATOMIC.LOAD# ##% % %)
-  | ATOMIC.STORE inntype atstoreop_(inntype)? memidx memarg   hint(show %#.#ATOMIC.STORE % %) hint(show %#.#ATOMIC.STORE# ##% % %)
-  | ATOMIC.RMW inntype atstoreop_(inntype)? rmwop_(inntype) memidx memarg  hint(show %#.#ATOMIC.RMW % % %) hint(show %#.#ATOMIC.RMW#  ##% % % %)
-  | ATOMIC.RMW.CMPXCHG inntype atstoreop_(inntype)? memidx memarg   hint(show %#.#ATOMIC.RMW.CMPXCHG % %) hint(show %#.#ATOMIC.RMW.CMPXCHG# ##% % %)
+  | ATOMIC.LOAD inntype atloadop_(inntype)? memidx memarg   hint(show %.ATOMIC.LOAD % %) hint(show %.ATOMIC.LOAD# ##% % %)
+  | ATOMIC.STORE inntype atstoreop_(inntype)? memidx memarg   hint(show %.ATOMIC.STORE % %) hint(show %.ATOMIC.STORE# ##% % %)
+  | ATOMIC.RMW inntype atstoreop_(inntype)? rmwop_(inntype) memidx memarg  hint(show %.ATOMIC.RMW % % %) hint(show %.ATOMIC.RMW#  ##% % % %)
+  | ATOMIC.RMW.CMPXCHG inntype atstoreop_(inntype)? memidx memarg   hint(show %.ATOMIC.RMW.CMPXCHG % %) hint(show %.ATOMIC.RMW.CMPXCHG# ##% % %)
   | MEMORY.ATOMIC.NOTIFY memidx memarg hint(show MEMORY.ATOMIC.NOTIFY % %) hint(show MEMORY.ATOMIC.NOTIFY# ##% %)
   | MEMORY.ATOMIC.WAIT inntype memidx memarg hint(show MEMORY.ATOMIC.WAIT % % %) hint(show MEMORY.ATOMIC.WAIT# ##% % %)
-  | ATOMIC.FENCE  hint(show %#.#ATOMIC.FENCE %) hint(show %#.#ATOMIC.FENCE# ##%)
+  | ATOMIC.FENCE  hint(show %.ATOMIC.FENCE %) hint(show %.ATOMIC.FENCE# ##%)
   | ...
 
 syntax instr/data hint(desc "data instruction") = ...
@@ -619,7 +619,7 @@ def $free_expr(instr*) = $free_list($free_instr(instr)*)
 syntax addrlen = nat
 
 syntax fld = 
-  | _ADDRLEN addrlen | _DATA data
+  | _ADDRLEN addrlen | _DATA byte*
 
 syntax reg = fld
 

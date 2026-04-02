@@ -355,8 +355,39 @@ def $overlap(action1, action2) = true
 def $same(action, action): bool
 def $same(action1, action2) = true
 
-def $reading(action): action
-def $reading(action1) = action1 
+def $reading(action): bool
+def $reading(act1) = true -- if $read(act1) =/= eps
+def $reading(act1) = false -- if $read(act1) = eps
+
+;; Write the lifting function thing
+def $reading_reg(reg, trace): event
+def $reading_reg(reg, 
+  tr1* ++
+  {ACTIONS (act1* ++ act ++ act2*), 
+  TIMEp timep, 
+  TIME time} ++
+  tr2*)
+  =   
+  {ACTIONS (act1* ++ act ++ act2*), 
+  TIMEp timep, 
+  TIME time} -- if $reading(act)
+
+(;
+def $func_reg(reg, act*_1 act act*_2, timep, time) = $func(act)
+  -- if $loc(act) = reg[u32]
+
+def $func_reg(reg, act*_1 act act*_2, timep, time) = $func(act)
+  -- where u32 : u32
+  -- if $loc(act) = reg[u32]
+
+def $func_reg(reg, act*_1 act act*_2, timep, time) = $func(act)
+  -- if $loc(act) = `%`_reg(u32)
+
+def $func_reg(reg, act*_1 act act*_2, timep, time,
+                   act*_3 act' act*_4, timep', time') = $func(act, act')
+  -- if $loc(act) = `%`_reg(u32)
+  -- if $loc(act') = `%`_reg(u32)
+;)
 
 def $writing(action): action
 def $writing(action1) = action1

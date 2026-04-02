@@ -252,12 +252,15 @@ rule Externtype_ok/func:
   -- Expand_use: typeuse ~~_C $($(FUNC t_1* -> t_2*))
 
 ;; Concurrency
-relation consistentwith: context |- trace
-relation consistent: context |- trace 
-relation suspensions_consistent: timestamp ~> timestamp: bool
+relation consistentwith: reg |- trace
+relation forallconsistentwith: (!) reg |- trace
+relation consistent: reg |- trace 
+
+relation suspensions__consistent: (!) u32 |- trace 
 relation suspensions_consistent_with: timestamp ~> timestamp: bool
-relation reads_each_from: timestamp ~> timestamp: bool
+
 relation reads_from: timestamp ~> timestamp: bool
+
 relation no_tear: timestamp ~> timestamp: bool
 relation value_consistent: timestamp ~> timestamp: bool
 relation hb_consistent: event ~> event: bool
@@ -270,9 +273,16 @@ relation Step_super: config ~> config hint(name "E") hint(macro "stepto") hint(t
 
 ;; relation Instr_ok: context |- instr : instrtype     hint(name "T")        hint(macro "%instr")
 
+rule consistent/init:
+  reg |- trace consistent
+  -- forallconsistentwith: (!) reg |- trace consistentwith
+
+
+;; TODO: Add there exists here
 rule consistentwith/init:
-  (!) C |- trace consistent
-  -- consistentwith: C |- trace consistentwith
+  reg |- trace consistentwith
+  -- suspensions__consistent: (!) i |- trace suspensions__consistent
+  -- if evt_r = $reading_reg(reg, trace)
 
 (;
 rule consistent:

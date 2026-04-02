@@ -532,9 +532,11 @@
 .. |MEMORYINIT| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{memory{.}init}}
 .. |DATADROP| mathdef:: \xref{syntax/instructions}{syntax-instr-memory}{\K{data{.}drop}}
 
+.. |ATOMIC| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic}}
 .. |ATOMICLOAD| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic{.}load}}
 .. |ATOMICSTORE| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic{.}store}}
 .. |ATOMICRMW| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic{.}rmw}}
+.. |CMPXCHG| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{cmpgxchg}}
 .. |ATOMICRMWCMPXCHG| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{atomic{.}rmw{.}cmpxchg}}
 .. |MEMORYATOMICNOTIFY| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{memory{.}atomic{.}notify}}
 .. |MEMORYATOMICWAIT| mathdef:: \xref{syntax/instructions}{syntax-instr-atomic}{\K{memory{.}atomic{.}wait}}
@@ -1344,6 +1346,7 @@
 .. |range| mathdef:: \xref{exec/relaxed_memory_model}{op-range}{\F{range}}
 .. |tearfree| mathdef:: \xref{exec/relaxed_memory_model}{op-tearfree}{\F{tearfree}}
 .. |id| mathdef:: \xref{exec/relaxed_memory_model}{op-id}{\F{id}}
+.. |reading_reg| mathdef:: \xref{exec/relaxed_memory_model}{op-reading-reg}{\F{reading_reg}}
 
 .. |funclower| mathdef:: \xref{exec/relaxed_memory_model}{op-func-lower}{\F{funclower}}
 
@@ -1374,8 +1377,8 @@
 
 .. |TRACE| mathdef:: \xref{exec/runtime}{syntax-store}{\X{TRACE}}
 
+.. |consistent| mathdef:: \xref{exec/relaxed_memory_model}{valid-consistent}{\X{consistent}}
 .. |consistentwith| mathdef:: \xref{exec/relaxed_memory_model}{valid-consistentwith}{\X{consistentwith}}
-
 
 .. Notation
 

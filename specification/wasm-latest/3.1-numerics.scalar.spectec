@@ -367,6 +367,8 @@ def $unop_(numtype, unop_(numtype), num_(numtype)) : num_(numtype)*
     hint(show %2#$_(%1,%3))
 def $binop_(numtype, binop_(numtype), num_(numtype), num_(numtype)) : num_(numtype)*
     hint(show %2#$_(%1,%3, %4))
+def $rmwop_(Jnn, rmwop_(Jnn), atomicpack_(Jnn), atomicpack_(Jnn)) : atomicpack_(Jnn)*
+    hint(show %2#$_(%1,%3, %4))
 def $testop_(numtype, testop_(numtype), num_(numtype)) : u32
     hint(show %2#$_(%1,%3))
 def $relop_(numtype, relop_(numtype), num_(numtype), num_(numtype)) : u32

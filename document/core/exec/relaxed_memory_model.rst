@@ -89,7 +89,10 @@ Consistency
 :math:`Test`
 .....................................
 
+.. _valid-consistent:
 .. _valid-consistentwith:
+.. _op-reading-reg:
 
+$${rule: consistent}
 
 $${rule: consistentwith}
