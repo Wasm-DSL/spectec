@@ -360,7 +360,48 @@ def $reading(act1) = true -- if $read(act1) =/= eps
 def $reading(act1) = false -- if $read(act1) = eps
 
 ;; Write the lifting function thing
-def $reading_reg(reg, trace): event
+def $has_read(event): bool
+def $has_read(evt) = true
+  -- if act <- evt.ACTIONS
+  -- if $read(act) =/= eps
+def $has_read(evt) = false -- otherwise
+
+
+def $has_write(event): bool
+def $has_write(evt) = true
+  -- if act <- evt.ACTIONS
+  -- if $write(act) =/= eps
+def $has_write(evt) = false -- otherwise
+
+def $has_init(event): bool
+def $has_init(evt) = true
+  -- if act <- evt.ACTIONS
+  -- if $ordf(act) = INIT
+def $has_init(evt) = false -- otherwise
+
+def $reading_filter(trace): event*
+def $reading_filter(eps) = eps
+def $reading_filter(ev evt*) = ev $reading_filter(evt*) -- if $has_read(ev)
+def $reading_filter(ev evt*) = $reading_filter(evt*) -- otherwise 
+
+def $writing_filter(trace): event*
+def $writing_filter(eps) = eps
+def $writing_filter(ev evt*) = ev $writing_filter(evt*) -- if $has_write(ev)
+def $writing_filter(ev evt*) = $writing_filter(evt*) -- otherwise
+
+def $init_filter(trace): event*
+def $init_filter(eps) = eps
+def $init_filter(ev evt*) = ev $init_filter(evt*) -- if $has_init(ev)
+def $init_filter(ev evt*) = $init_filter(evt*) -- otherwise
+
+def $overlap_reg(event, event): bool ;; Add back reg
+def $overlap_reg(evt1, evt2) = true ;; Placeholder, TODO fix this
+
+(;
+def $reading_reg(reg, event*): event*
+def $reading_reg(rg, ev*) = ev*
+  -- ( if $has_read(ev) )*
+
 def $reading_reg(reg, 
   tr1* ++
   {ACTIONS (act1* ++ act ++ act2*), 
@@ -372,7 +413,7 @@ def $reading_reg(reg,
   TIMEp timep, 
   TIME time} -- if $reading(act)
 
-(;
+
 def $func_reg(reg, act*_1 act act*_2, timep, time) = $func(act)
   -- if $loc(act) = reg[u32]
 

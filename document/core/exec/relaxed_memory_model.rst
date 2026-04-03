@@ -91,7 +91,10 @@ Consistency
 
 .. _valid-consistent:
 .. _valid-consistentwith:
+.. _relation-reads-each-from:
+.. _relation-suspensions-consistent:
 .. _op-reading-reg:
+.. _op-overlap-reg:
 
 $${rule: consistent}
 

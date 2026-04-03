@@ -259,14 +259,14 @@ relation consistent: reg |- trace
 relation suspensions__consistent: (!) u32 |- trace 
 relation suspensions_consistent_with: timestamp ~> timestamp: bool
 
-relation reads_from: timestamp ~> timestamp: bool
+relation reads__each__from: trace |- event event*
 
 relation no_tear: timestamp ~> timestamp: bool
 relation value_consistent: timestamp ~> timestamp: bool
 relation hb_consistent: event ~> event: bool
 relation sc_last_visible: timestamp ~> timestamp: bool
 
-relation happens_before: event ~> event: bool
+relation happens__before: bool => event << event
 
 relation Step_ordering: config ~> config  hint(name "E") hint(macro "stepto") hint(tabular)
 relation Step_super: config ~> config hint(name "E") hint(macro "stepto") hint(tabular)
@@ -282,7 +282,19 @@ rule consistent/init:
 rule consistentwith/init:
   reg |- trace consistentwith
   -- suspensions__consistent: (!) i |- trace suspensions__consistent
-  -- if evt_r = $reading_reg(reg, trace)
+  -- if read_evt* = $reading_filter(trace)
+  -- if write_evt* = $writing_filter(trace)
+  -- if |write_evt*| > 0
+  -- --
+  -- (if exists_write <- write_evt*)*
+  -- reads__each__from: trace |- read_evt reads__each__from exists_write*
+  -- --
+  -- if evt__init* = $init_filter(trace)
+  -- if evt* = trace
+  -- if evt__init =/= evt
+  -- --
+  -- if overlap = $overlap_reg(evt__init, evt)
+  -- happens__before: overlap => evt__init << evt
 
 (;
 rule consistent:

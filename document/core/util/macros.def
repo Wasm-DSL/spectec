@@ -1346,8 +1346,9 @@
 .. |range| mathdef:: \xref{exec/relaxed_memory_model}{op-range}{\F{range}}
 .. |tearfree| mathdef:: \xref{exec/relaxed_memory_model}{op-tearfree}{\F{tearfree}}
 .. |id| mathdef:: \xref{exec/relaxed_memory_model}{op-id}{\F{id}}
-.. |reading_reg| mathdef:: \xref{exec/relaxed_memory_model}{op-reading-reg}{\F{reading_reg}}
 
+.. |reading_reg| mathdef:: \xref{exec/relaxed_memory_model}{op-reading-reg}{\F{reading_reg}}
+.. |overlap_reg| mathdef:: \xref{exec/relaxed_memory_model}{op-overlap-reg}{\F{overlap__reg}}
 .. |funclower| mathdef:: \xref{exec/relaxed_memory_model}{op-func-lower}{\F{funclower}}
 
 .. |UNORD| mathdef:: \xref{exec/runtime}{syntax-ord}{\K{UNORD}}
@@ -1379,6 +1380,8 @@
 
 .. |consistent| mathdef:: \xref{exec/relaxed_memory_model}{valid-consistent}{\X{consistent}}
 .. |consistentwith| mathdef:: \xref{exec/relaxed_memory_model}{valid-consistentwith}{\X{consistentwith}}
+.. |reads__each__from| mathdef:: \xref{exec/relaxed_memory_model}{relation-reads-each-from}{\X{reads__each__from}}
+.. |suspensions__consistent| mathdef:: \xref{exec/relaxed_memory_model}{relation-suspensions-consistent}{\X{suspensions__consistent}}
 
 .. Notation
 
