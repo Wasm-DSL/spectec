@@ -13,8 +13,8 @@ Import ListNotations.
 Opaque instrtype_sub.
 
 Lemma Step_pure__nop_preserves : forall v_S v_C v_ft,
-	Admin_instrs_ok v_S v_C [(AI_NOP )] v_ft ->
-	Step_pure [(AI_NOP )] [] ->
+	Admin_instrs_ok v_S v_C [(admininstr_NOP )] v_ft ->
+	Step_pure [(admininstr_NOP )] [] ->
 	Admin_instrs_ok v_S v_C [] v_ft.
 Proof.
 	move => v_S v_C v_ft HType _.
@@ -26,8 +26,8 @@ Proof.
 Qed.
 
 Lemma Step_pure__drop_preserves : forall v_S v_C (v_val : wasm.val) v_ft,
-	Admin_instrs_ok v_S v_C [(v_val : admininstr); (AI_DROP )] v_ft ->
-	Step_pure [(v_val : admininstr); (AI_DROP )] [] ->
+	Admin_instrs_ok v_S v_C [(admininstr_val v_val); (admininstr_DROP )] v_ft ->
+	Step_pure [(admininstr_val v_val); (admininstr_DROP )] [] ->
 	Admin_instrs_ok v_S v_C [] v_ft.
 Proof.
 	move => v_S v_C v_val v_ft HType HReduce.
@@ -41,10 +41,10 @@ Proof.
 	auto.
 Qed.
 
-Lemma Step_pure__select_preserves_helper : forall v_S v_C (v_val_1 : wasm.val) (v_val_2 : wasm.val) (v_c : iN 32) v_t v_ft,
-	Admin_instrs_ok v_S v_C [(v_val_1 : admininstr);(v_val_2 : admininstr);(AI_CONST I32 (v_c));(AI_SELECT v_t)] v_ft ->
-	Admin_instrs_ok v_S v_C [(v_val_1 : admininstr)] v_ft /\
-	Admin_instrs_ok v_S v_C [(v_val_2 : admininstr)] v_ft.
+Lemma Step_pure__select_preserves_helper : forall v_S v_C (v_val_1 : wasm.val) (v_val_2 : wasm.val) (v_c : num_) v_t v_ft,
+	Admin_instrs_ok v_S v_C [(admininstr_val v_val_1);(admininstr_val v_val_2);(admininstr_CONST I32 (v_c));(admininstr_SELECT v_t)] v_ft ->
+	Admin_instrs_ok v_S v_C [(admininstr_val v_val_1)] v_ft /\
+	Admin_instrs_ok v_S v_C [(admininstr_val v_val_2)] v_ft.
 Proof.
 	move => v_S v_C v_val_1 v_val_2 v_c v_t v_ft HType.
     invert_ais_typing.
@@ -98,30 +98,30 @@ Proof.
 	}
 Qed.
 
-Lemma Step_pure__select_true_preserves : forall v_S v_C (v_val_1 : wasm.val) (v_val_2 : wasm.val) (v_c : iN 32) v_t v_ft,
-	Admin_instrs_ok v_S v_C [(v_val_1 : admininstr);(v_val_2 : admininstr);(AI_CONST I32 (v_c));(AI_SELECT v_t)] v_ft ->
-	Step_pure [(v_val_1 : admininstr);(v_val_2 : admininstr);(AI_CONST I32 (v_c));(AI_SELECT v_t)] [(v_val_1 : admininstr)] ->
-	Admin_instrs_ok v_S v_C [(v_val_1 : admininstr)] v_ft.
+Lemma Step_pure__select_true_preserves : forall v_S v_C (v_val_1 : wasm.val) (v_val_2 : wasm.val) (v_c : num_) v_t v_ft,
+	Admin_instrs_ok v_S v_C [(admininstr_val v_val_1);(admininstr_val v_val_2);(admininstr_CONST I32 (v_c));(admininstr_SELECT v_t)] v_ft ->
+	Step_pure [(admininstr_val v_val_1);(admininstr_val v_val_2);(admininstr_CONST I32 (v_c));(admininstr_SELECT v_t)] [(admininstr_val v_val_1)] ->
+	Admin_instrs_ok v_S v_C [(admininstr_val v_val_1)] v_ft.
 Proof.
 	move=> v_S v_C v_val_1 v_val_2 v_c v_t v_ft HType HReduce.
 	apply Step_pure__select_preserves_helper in HType as [H1 _].
 	auto.
 Qed.
 
-Lemma Step_pure__select_false_preserves : forall v_S v_C (v_val_1 : wasm.val) (v_val_2 : wasm.val) (v_c : iN 32) v_t v_ft,
-	Admin_instrs_ok v_S v_C [(v_val_1 : admininstr);(v_val_2 : admininstr);(AI_CONST I32 (v_c));(AI_SELECT v_t)] v_ft ->
-	Step_pure [(v_val_1 : admininstr);(v_val_2 : admininstr);(AI_CONST I32 (v_c));(AI_SELECT v_t)] [(v_val_2 : admininstr)] ->
-	Admin_instrs_ok v_S v_C [(v_val_2 : admininstr)] v_ft.
+Lemma Step_pure__select_false_preserves : forall v_S v_C (v_val_1 : wasm.val) (v_val_2 : wasm.val) (v_c : num_) v_t v_ft,
+	Admin_instrs_ok v_S v_C [(admininstr_val v_val_1);(admininstr_val v_val_2);(admininstr_CONST I32 (v_c));(admininstr_SELECT v_t)] v_ft ->
+	Step_pure [(admininstr_val v_val_1);(admininstr_val v_val_2);(admininstr_CONST I32 (v_c));(admininstr_SELECT v_t)] [(admininstr_val v_val_2)] ->
+	Admin_instrs_ok v_S v_C [(admininstr_val v_val_2)] v_ft.
 Proof.
 	move=> v_S v_C v_val_1 v_val_2 v_c v_t v_ft HType HReduce.
 	apply Step_pure__select_preserves_helper in HType as [_ H2].
 	auto.
 Qed.
 
-Lemma Step_pure__if_preserves_helper : forall v_S v_C (v_c : iN 32) (v_bt: blocktype) (v_instrs_1 : (list instr)) (v_instrs_2 : (list instr)) v_ft,
-	Admin_instrs_ok v_S v_C [(AI_CONST I32 v_c);(AI_IFELSE v_bt v_instrs_1 v_instrs_2)] v_ft ->
-	(Admin_instrs_ok v_S v_C [(AI_BLOCK v_bt v_instrs_1)] v_ft /\
-	Admin_instrs_ok v_S v_C [(AI_BLOCK v_bt v_instrs_2)] v_ft).
+Lemma Step_pure__if_preserves_helper : forall v_S v_C (v_c : num_) (v_bt: blocktype) (v_instrs_1 : (list instr)) (v_instrs_2 : (list instr)) v_ft,
+	Admin_instrs_ok v_S v_C [(admininstr_CONST I32 v_c);(admininstr_IFELSE v_bt v_instrs_1 v_instrs_2)] v_ft ->
+	(Admin_instrs_ok v_S v_C [(admininstr_BLOCK v_bt v_instrs_1)] v_ft /\
+	Admin_instrs_ok v_S v_C [(admininstr_BLOCK v_bt v_instrs_2)] v_ft).
 Proof.
 	move => v_S v_C v_c v_bt v_instrs_1 v_instrs_2 v_ft HType.
 	invert_ais_typing.
@@ -132,24 +132,24 @@ Proof.
 	
 	split;
 	construct_ais_typing;
-	eapply (AI_ok_instr) with (v_instr := instr_BLOCK v_bt _);
+	eapply (Admin_instr_ok__instr) with (v_instr := BLOCK v_bt _);
 	econstructor; auto.
 Qed.
 
-Lemma Step_pure__if_true_preserves : forall v_S v_C (v_c : iN 32) (v_bt: blocktype) (v_instrs_1 : (list instr)) (v_instrs_2 : (list instr)) v_ft,
-	Admin_instrs_ok v_S v_C [(AI_CONST I32 v_c);(AI_IFELSE v_bt v_instrs_1 v_instrs_2)] v_ft ->
-	Step_pure [(AI_CONST I32 v_c);(AI_IFELSE v_bt v_instrs_1 v_instrs_2)] [(AI_BLOCK v_bt v_instrs_1)] ->
-	Admin_instrs_ok v_S v_C [(AI_BLOCK v_bt v_instrs_1)] v_ft.
+Lemma Step_pure__if_true_preserves : forall v_S v_C (v_c : num_) (v_bt: blocktype) (v_instrs_1 : (list instr)) (v_instrs_2 : (list instr)) v_ft,
+	Admin_instrs_ok v_S v_C [(admininstr_CONST I32 v_c);(admininstr_IFELSE v_bt v_instrs_1 v_instrs_2)] v_ft ->
+	Step_pure [(admininstr_CONST I32 v_c);(admininstr_IFELSE v_bt v_instrs_1 v_instrs_2)] [(admininstr_BLOCK v_bt v_instrs_1)] ->
+	Admin_instrs_ok v_S v_C [(admininstr_BLOCK v_bt v_instrs_1)] v_ft.
 Proof.
 	move => v_S v_C v_c v_bt v_instrs_1 v_instrs_2 v_ft HType HReduce.
 	eapply (Step_pure__if_preserves_helper) in HType.
 	by destruct HType.
 Qed.
 
-Lemma Step_pure__if_false_preserves : forall v_S v_C (v_c : iN 32) (v_bt: blocktype) (v_instrs_1 : (list instr)) (v_instrs_2 : (list instr)) v_ft,
-	Admin_instrs_ok v_S v_C [(AI_CONST I32 v_c);(AI_IFELSE v_bt v_instrs_1 v_instrs_2)] v_ft ->
-	Step_pure [(AI_CONST I32 v_c);(AI_IFELSE v_bt v_instrs_1 v_instrs_2)] [(AI_BLOCK v_bt v_instrs_2)] ->
-	Admin_instrs_ok v_S v_C [(AI_BLOCK v_bt v_instrs_2)] v_ft.
+Lemma Step_pure__if_false_preserves : forall v_S v_C (v_c : num_) (v_bt: blocktype) (v_instrs_1 : (list instr)) (v_instrs_2 : (list instr)) v_ft,
+	Admin_instrs_ok v_S v_C [(admininstr_CONST I32 v_c);(admininstr_IFELSE v_bt v_instrs_1 v_instrs_2)] v_ft ->
+	Step_pure [(admininstr_CONST I32 v_c);(admininstr_IFELSE v_bt v_instrs_1 v_instrs_2)] [(admininstr_BLOCK v_bt v_instrs_2)] ->
+	Admin_instrs_ok v_S v_C [(admininstr_BLOCK v_bt v_instrs_2)] v_ft.
 Proof.
 	move => v_S v_C v_c v_bt v_instrs_1 v_instrs_2 v_ft HType HReduce.
 	eapply (Step_pure__if_preserves_helper) in HType.
@@ -157,9 +157,9 @@ Proof.
 Qed.
 
 Lemma Step_pure__label_vals_preserves : forall v_S v_C (v_n : n) (v_instrs : (list instr)) (v_val : (list wasm.val)) v_ft,
-	Admin_instrs_ok v_S v_C [(AI_LABEL_ v_n v_instrs (map fun_coec_val__admininstr v_val))] v_ft ->
-	Step_pure [(AI_LABEL_ v_n v_instrs (map fun_coec_val__admininstr v_val))] (map fun_coec_val__admininstr v_val) ->
-	Admin_instrs_ok v_S v_C (map fun_coec_val__admininstr v_val) v_ft.
+	Admin_instrs_ok v_S v_C [(LABEL_ v_n v_instrs (map admininstr_val v_val))] v_ft ->
+	Step_pure [(LABEL_ v_n v_instrs (map admininstr_val v_val))] (map admininstr_val v_val) ->
+	Admin_instrs_ok v_S v_C (map admininstr_val v_val) v_ft.
 Proof.
 	move => v_S v_C v_n v_instrs v_val v_ft HType HReduce.
 	invert_ais_typing.
@@ -173,9 +173,9 @@ Proof.
 Qed.
 
 Lemma Step_pure__br_zero_preserves : forall v_S v_C (v_n : n) (v_instr' : (list instr)) (v_val' : (list wasm.val)) (v_val : (list wasm.val)) v_admininstr v_ft,
-	Admin_instrs_ok v_S v_C [(AI_LABEL_ v_n v_instr' (@app _ (map fun_coec_val__admininstr v_val') (@app _ (map fun_coec_val__admininstr v_val) (@app _ [AI_BR 0] v_admininstr))))] v_ft ->
+	Admin_instrs_ok v_S v_C [(LABEL_ v_n v_instr' (@app _ (map admininstr_val v_val') (@app _ (map admininstr_val v_val) (@app _ [admininstr_BR 0] v_admininstr))))] v_ft ->
 	((List.length v_val) = v_n) ->
-	Admin_instrs_ok v_S v_C (@app _ (map fun_coec_val__admininstr v_val) (map fun_coec_instr__admininstr v_instr')) v_ft.
+	Admin_instrs_ok v_S v_C (@app _ (map admininstr_val v_val) (map admininstr_instr v_instr')) v_ft.
 Proof.
 	move => v_S v_C v_n v_instr' v_val' v_val v_admininstr v_ft HType Hlength.
 	invert_ais_typing.
@@ -196,14 +196,14 @@ Proof.
 	}
 
 	eapply construct_ais_subtyping.
-	eapply AIs_ok_instrs; eauto.
+	eapply instrs; eauto.
 	by eapply instrtype_sub_iff_resulttype_sub'.
 Qed.
 
 Lemma Step_pure__br_succ_preserves : forall v_S v_C (v_n : n) (v_instr' : (list instr)) (v_val : (list wasm.val)) (v_l : labelidx) v_admininstr v_ft,
-	Admin_instrs_ok v_S v_C [(AI_LABEL_ v_n v_instr' (@app _ (map fun_coec_val__admininstr v_val) (@app _ [AI_BR (v_l + 1)] v_admininstr)))] v_ft ->
-	Step_pure [(AI_LABEL_ v_n v_instr' (@app _ (map fun_coec_val__admininstr v_val) (@app _ [AI_BR (v_l + 1)] v_admininstr)))] (@app _ (map fun_coec_val__admininstr v_val) [(AI_BR v_l)]) ->
-	Admin_instrs_ok v_S v_C (@app _ (map fun_coec_val__admininstr v_val) [(AI_BR v_l)]) v_ft.
+	Admin_instrs_ok v_S v_C [(LABEL_ v_n v_instr' (@app _ (map admininstr_val v_val) (@app _ [admininstr_BR (v_l + 1)] v_admininstr)))] v_ft ->
+	Step_pure [(LABEL_ v_n v_instr' (@app _ (map admininstr_val v_val) (@app _ [admininstr_BR (v_l + 1)] v_admininstr)))] (@app _ (map admininstr_val v_val) [(admininstr_BR v_l)]) ->
+	Admin_instrs_ok v_S v_C (@app _ (map admininstr_val v_val) [(admininstr_BR v_l)]) v_ft.
 Proof.
 	move => v_S v_C v_n v_instr' v_val v_l v_admininstr v_ft HType HReduce.
 	typing_inversion HType;
@@ -234,11 +234,11 @@ Proof.
 		split. eapply resulttype_sub_app; eauto.
 		eapply resulttype_sub_refl.
 	}
-	eapply (AI_ok_instr _ _ (instr_BR _)).
+	eapply (Admin_instr_ok__instr _ _ (BR _)).
 
 
-	assert (([extr: resulttype] @@ C_LABELS v_C) =
-		(C_LABELS (prepend_label v_C extr))).
+	assert (([extr: resulttype] @@ LABELS v_C) =
+		(LABELS (prepend_label v_C extr))).
 	{
 	simpl. auto.
 	}
@@ -253,37 +253,40 @@ Proof.
 		eapply Nat.succ_lt_mono in H2.
 		by apply H2.
 	}
+	eq_to_prop.
 	reflexivity.
 Qed.
 
-Lemma Step_pure__br_if_true_preserves : forall v_S v_C (v_c : iN 32) (v_l : labelidx) v_ft,
-	Admin_instrs_ok v_S v_C [(AI_CONST I32 v_c);(AI_BR_IF v_l)] v_ft ->
-	Step_pure [(AI_CONST I32 v_c);(AI_BR_IF v_l)] [(AI_BR v_l)] ->
-	Admin_instrs_ok v_S v_C [(AI_BR v_l)] v_ft.
+Lemma Step_pure__br_if_true_preserves : forall v_S v_C (v_c : num_) (v_l : labelidx) v_ft,
+	Admin_instrs_ok v_S v_C [(admininstr_CONST I32 v_c);(admininstr_BR_IF v_l)] v_ft ->
+	Step_pure [(admininstr_CONST I32 v_c);(admininstr_BR_IF v_l)] [(admininstr_BR v_l)] ->
+	Admin_instrs_ok v_S v_C [(admininstr_BR v_l)] v_ft.
 Proof.
 	move => v_S v_C v_c v_l v_ft HType HReduce.
 	typing_inversion HType.
 	typing_inversion H1.
 	typing_inversion H2.
 	unfold_principal_typing Hai.
-	inversion Hai; subst; clear Hai.
 	unfold_principal_typing Hai0.
-	destruct Hai0 as [t [He1 [H1 H2]]].
+	destruct Hai as [t [He1 [H1 H2]]].
+	destruct Hai0 as [Hwf Heq].
+	inversion Heq; subst; clear Heq.
+	
 	inversion He1; subst; clear He1.
 
 	eapply construct_ais_typing_single.
-	eapply (AI_ok_instr _ _ (instr_BR _)).
-	eapply (instr_ok_br _ _ []).
+	eapply (Admin_instr_ok__instr _ _ (BR _)).
+	eapply (br _ _ []).
 	auto.
 	auto.
-	eapply (instrtype_sub_compose1 _ _ _ _ _ _ _ Hsub) in Hsub0.
-	rewrite cats0 in Hsub0.
-	eapply Hsub0.
+	eapply (instrtype_sub_compose1 _ _ _ _ _ _ _ Hsub0) in Hsub.
+	rewrite cats0 in Hsub.
+	eapply Hsub.
 Qed.
 
-Lemma Step_pure__br_if_false_preserves : forall v_S v_C (v_c : iN 32) (v_l : labelidx) v_ft,
-	Admin_instrs_ok v_S v_C [(AI_CONST I32 v_c);(AI_BR_IF v_l)] v_ft ->
-	Step_pure [(AI_CONST I32 v_c);(AI_BR_IF v_l)] [] ->
+Lemma Step_pure__br_if_false_preserves : forall v_S v_C (v_c : num_) (v_l : labelidx) v_ft,
+	Admin_instrs_ok v_S v_C [(admininstr_CONST I32 v_c);(admininstr_BR_IF v_l)] v_ft ->
+	Step_pure [(admininstr_CONST I32 v_c);(admininstr_BR_IF v_l)] [] ->
 	Admin_instrs_ok v_S v_C [] v_ft.
 Proof.
 	move => v_S v_C v_c v_l v_ft HType HReduce.
@@ -291,52 +294,60 @@ Proof.
 	typing_inversion H1.
 	typing_inversion H2.
 	unfold_principal_typing Hai.
-	inversion Hai; subst; clear Hai.
 	unfold_principal_typing Hai0.
-	destruct Hai0 as [t [He1 [H1 H2]]].
+	destruct Hai as [t [He1 [H1 H2]]].
+	destruct Hai0 as [Hwf Heq].
+	inversion Heq; subst; clear Heq.
 	inversion He1; subst; clear He1.
 
-	eapply (instrtype_sub_compose1 _ _ _ _ _ _ _ Hsub) in Hsub0.
-	rewrite cats0 in Hsub0.
+	eapply (instrtype_sub_compose1 _ _ _ _ _ _ _ Hsub0) in Hsub.
+	rewrite cats0 in Hsub.
 	eapply ais_empty_typing.
-	unfold_instrtype_sub Hsub0; subst.
+	unfold_instrtype_sub Hsub; subst.
 	apply resulttype_sub_app.
 	auto.
 	eapply resulttype_sub_trans; eauto.
 Qed.
 
-Lemma proj_identity : forall A a, mk_list A (fun_proj_list_0 A a) = a.
+Lemma proj_identity : forall (A : eqType) a, mk_list A (proj_list_0 A a) = a.
 Proof.
 	destruct a.
 	auto.
 Qed.
 
-Lemma Step_pure__br_table_lt_preserves : forall v_S v_C (v_i : uN 32) (v_l : (list labelidx)) (v_l' : labelidx) v_ft,
-	Admin_instrs_ok v_S v_C [(AI_CONST I32 v_i);(AI_BR_TABLE v_l v_l')] v_ft ->
-	Step_pure [(AI_CONST I32 (v_i : u32));(AI_BR_TABLE v_l v_l')] [(AI_BR (lookup_total v_l (fun_u32__nat v_i)))] ->
-	(fun_u32__nat v_i < Datatypes.length v_l) -> 
-	Admin_instrs_ok v_S v_C [(AI_BR (lookup_total v_l (fun_u32__nat v_i)))] v_ft.
+Lemma Step_pure__br_table_lt_preserves : forall v_S v_C (v_i : num_) (v_l : (list labelidx)) (v_l' : labelidx) v_ft,
+	Admin_instrs_ok v_S v_C [(admininstr_CONST I32 v_i);(admininstr_BR_TABLE v_l v_l')] v_ft ->
+	Step_pure [(admininstr_CONST I32 v_i);(admininstr_BR_TABLE v_l v_l')] [(admininstr_BR (lookup_total v_l ((!(proj_num__0 v_i)) :> nat)))] ->
+	((!(proj_num__0 v_i) :> nat) < Datatypes.length v_l) -> 
+	Admin_instrs_ok v_S v_C [(admininstr_BR (lookup_total v_l (!(proj_num__0 v_i) :> nat)))] v_ft.
 Proof.
 	move => v_S v_C v_i v_l v_l' v_ft HType HReduce H.
 	typing_inversion HType.
 
 	typing_inversion H1.
 	unfold_principal_typing Hai.
-	inversion Hai; subst; clear Hai.
 	typing_inversion H2.
-	unfold_principal_typing Hai.
+
 	destruct Hai as [t [t' [v_t [H1 [H2 [H3 [H4 H5]]]]]]].
 	inversion H1; subst; clear H1.
-	rewrite catA in Hsub0.
-	eapply (instrtype_sub_compose1 _ _ _ _ _ _ _ Hsub) in Hsub0.
-	rewrite cats0 in Hsub0.
+
+	
+	unfold_principal_typing Hai0.
+	destruct Hai0 as [Hwf Hai0].
+	inversion Hai0; subst; clear Hai0.
+	
+	rewrite catA in Hsub.
+	eapply (instrtype_sub_compose1 _ _ _ _ _ _ _ Hsub0) in Hsub.
+	rewrite cats0 in Hsub.
 
 	eapply construct_ais_typing_single.
-	eapply (AI_ok_instr _ _ (instr_BR _)).
-	eapply (instr_ok_br _ _ t _ t').
+	eapply (Admin_instr_ok__instr _ _ (BR _)).
+	eapply (br _ _ t _ t').
 	{
 	  eapply Forall_nth in H2.
-	  apply H2.
+		simpl.
+		unfold lookup_total.
+	  eapply H2.
 	  by apply/ltP.
 	}
     {
@@ -357,10 +368,10 @@ Proof.
 Qed.
 
 Lemma Step_pure__br_table_ge_preserves : forall v_S v_C (v_i : uN 32) (v_l : (list labelidx)) (v_l' : labelidx) v_ft,
-	Admin_instrs_ok v_S v_C [(AI_CONST I32 v_i);(AI_BR_TABLE v_l v_l')] v_ft ->
-	Step_pure [(AI_CONST I32 v_i);(AI_BR_TABLE v_l v_l')] [(AI_BR v_l')] ->
+	Admin_instrs_ok v_S v_C [(admininstr_CONST I32 v_i);(admininstr_BR_TABLE v_l v_l')] v_ft ->
+	Step_pure [(admininstr_CONST I32 v_i);(admininstr_BR_TABLE v_l v_l')] [(admininstr_BR v_l')] ->
 	(List.length v_l <= fun_u32__nat v_i) ->
-	Admin_instrs_ok v_S v_C [(AI_BR v_l')] v_ft.
+	Admin_instrs_ok v_S v_C [(admininstr_BR v_l')] v_ft.
 Proof.
 	move => v_S v_C v_i v_l v_l' v_ft HType HReduce H.
 	typing_inversion HType.
@@ -377,7 +388,7 @@ Proof.
 	rewrite cats0 in Hsub0.
 
 	eapply (construct_ais_typing_single).
-	eapply (AI_ok_instr _ _ (instr_BR _)).
+	eapply (Admin_instr_ok__instr _ _ (instr_BR _)).
 	eapply (instr_ok_br _ _ t _ t').
 	{
 	  apply H4.
@@ -398,9 +409,9 @@ Proof.
 Qed.
 
 Lemma Step_pure__frame_vals_preserves : forall v_S v_C (v_n : n) (v_f : frame) (v_val : (list wasm.val)) v_ft,
-	Admin_instrs_ok v_S v_C [(AI_FRAME_ v_n v_f (map fun_coec_val__admininstr v_val))] v_ft ->
-	Step_pure [(AI_FRAME_ v_n v_f (map fun_coec_val__admininstr v_val))] (map fun_coec_val__admininstr v_val) ->
-	Admin_instrs_ok v_S v_C (map fun_coec_val__admininstr v_val) v_ft.
+	Admin_instrs_ok v_S v_C [(admininstr_FRAME_ v_n v_f (map admininstr_val v_val))] v_ft ->
+	Step_pure [(admininstr_FRAME_ v_n v_f (map admininstr_val v_val))] (map admininstr_val v_val) ->
+	Admin_instrs_ok v_S v_C (map admininstr_val v_val) v_ft.
 Proof.
 	move => v_S v_C v_n v_f v_val v_ft HType HReduce.
 	typing_inversion HType.
@@ -413,10 +424,10 @@ Proof.
 Qed.
 
 Lemma Step_pure__return_frame_preserves : forall v_S v_C (v_n : n) (v_f : frame) (v_val' : (list wasm.val)) (v_val : (list wasm.val)) v_admininstr v_ft,
-	Admin_instrs_ok v_S v_C [(AI_FRAME_ v_n v_f (@app _ (map fun_coec_val__admininstr v_val') (@app _ (map fun_coec_val__admininstr v_val) (@app _ [(AI_RETURN )] v_admininstr))))] v_ft ->
-	Step_pure [(AI_FRAME_ v_n v_f (@app _ (map fun_coec_val__admininstr v_val') (@app _ (map fun_coec_val__admininstr v_val) (@app _ [(AI_RETURN )] v_admininstr))))] (map fun_coec_val__admininstr v_val) ->
+	Admin_instrs_ok v_S v_C [(admininstr_FRAME_ v_n v_f (@app _ (map admininstr_val v_val') (@app _ (map admininstr_val v_val) (@app _ [(admininstr_RETURN )] v_admininstr))))] v_ft ->
+	Step_pure [(admininstr_FRAME_ v_n v_f (@app _ (map admininstr_val v_val') (@app _ (map admininstr_val v_val) (@app _ [(admininstr_RETURN )] v_admininstr))))] (map admininstr_val v_val) ->
 	((List.length v_val) = v_n) ->
-	Admin_instrs_ok v_S v_C (map fun_coec_val__admininstr v_val) v_ft.
+	Admin_instrs_ok v_S v_C (map admininstr_val v_val) v_ft.
 Proof.
 	move => v_S v_C v_n v_f v_val' v_val v_admininstr v_ft HType HReduce HLength.
 	typing_inversion HType.
@@ -461,9 +472,9 @@ Proof.
 Qed.
 
 Lemma Step_pure__return_label_preserves : forall v_S v_C (v_n : n) (v_instr' : (list instr)) (v_val : (list wasm.val)) v_admininstr v_ft,
-	Admin_instrs_ok v_S v_C [(AI_LABEL_ v_n v_instr' (@app _ (map fun_coec_val__admininstr v_val) (@app _ [(AI_RETURN )] v_admininstr)))] v_ft ->
-	Step_pure [(AI_LABEL_ v_n v_instr' (@app _ (map fun_coec_val__admininstr v_val) (@app _ [(AI_RETURN )] v_admininstr)))] (@app _ (map fun_coec_val__admininstr v_val) [(AI_RETURN )]) ->
-	Admin_instrs_ok v_S v_C (@app _ (map fun_coec_val__admininstr v_val) [(AI_RETURN )]) v_ft.
+	Admin_instrs_ok v_S v_C [(LABEL_ v_n v_instr' (@app _ (map admininstr_val v_val) (@app _ [(admininstr_RETURN )] v_admininstr)))] v_ft ->
+	Step_pure [(LABEL_ v_n v_instr' (@app _ (map admininstr_val v_val) (@app _ [(admininstr_RETURN )] v_admininstr)))] (@app _ (map admininstr_val v_val) [(admininstr_RETURN )]) ->
+	Admin_instrs_ok v_S v_C (@app _ (map admininstr_val v_val) [(admininstr_RETURN )]) v_ft.
 Proof.
 	move => v_S v_C v_n v_instr' v_val v_admininstr v_ft HType HReduce.
 	typing_inversion HType.
@@ -492,16 +503,16 @@ Proof.
 	}
 	eapply construct_ais_typing_single.
 	2: by eapply instrtype_sub_refl.
-	eapply AI_ok_instr with (v_instr := instr_RETURN).
+	eapply Admin_instr_ok__instr with (v_instr := instr_RETURN).
 	rewrite catA.
 	econstructor.
 	auto.
 Qed.
 
 Lemma Step_pure__unop_val_preserves : forall v_S v_C v_t v_c_1 v_unop v_c v_ft,
-	Admin_instrs_ok v_S v_C [(AI_CONST v_t v_c_1);(AI_UNOP v_t v_unop)] v_ft ->
-	Step_pure [(AI_CONST v_t v_c_1);(AI_UNOP v_t v_unop)] [(AI_CONST v_t v_c)] ->
-	Admin_instrs_ok v_S v_C [(AI_CONST v_t v_c)] v_ft.
+	Admin_instrs_ok v_S v_C [(admininstr_CONST v_t v_c_1);(admininstr_UNOP v_t v_unop)] v_ft ->
+	Step_pure [(admininstr_CONST v_t v_c_1);(admininstr_UNOP v_t v_unop)] [(admininstr_CONST v_t v_c)] ->
+	Admin_instrs_ok v_S v_C [(admininstr_CONST v_t v_c)] v_ft.
 Proof.
 	move => v_S v_C t v unop_op v_c tf HType HReduce.
 	typing_inversion HType.
@@ -513,15 +524,15 @@ Proof.
 	inversion Hai; subst; clear Hai.
 
 	eapply construct_ais_typing_single.
-	eapply (AI_ok_instr _ _ (instr_CONST _ _)).
+	eapply (Admin_instr_ok__instr _ _ (instr_CONST _ _)).
 	constructor.
 	eapply instrtype_sub_compose; eauto.
 Qed.
 
 Lemma Step_pure__binop_val_preserves : forall v_S v_C v_t v_c_1 v_c_2 v_binop v_c v_ft,
-	Admin_instrs_ok v_S v_C [(AI_CONST v_t v_c_1);(AI_CONST v_t v_c_2);(AI_BINOP v_t v_binop)] v_ft ->
-	Step_pure [(AI_CONST v_t v_c_1);(AI_CONST v_t v_c_2);(AI_BINOP v_t v_binop)] [(AI_CONST v_t v_c)] ->
-	Admin_instrs_ok v_S v_C [(AI_CONST v_t v_c)] v_ft.
+	Admin_instrs_ok v_S v_C [(admininstr_CONST v_t v_c_1);(admininstr_CONST v_t v_c_2);(admininstr_BINOP v_t v_binop)] v_ft ->
+	Step_pure [(admininstr_CONST v_t v_c_1);(admininstr_CONST v_t v_c_2);(admininstr_BINOP v_t v_binop)] [(admininstr_CONST v_t v_c)] ->
+	Admin_instrs_ok v_S v_C [(admininstr_CONST v_t v_c)] v_ft.
 Proof.
 	move => v_S v_C v_t v_c_1 v_c_2 v_binop v_c v_ft HType HReduce.
 	typing_inversion HType.
@@ -537,15 +548,15 @@ Proof.
 	rewrite cats0 in Hsub0.
 
 	eapply construct_ais_typing_single.
-	eapply (AI_ok_instr _ _ (instr_CONST _ _)).
+	eapply (Admin_instr_ok__instr _ _ (instr_CONST _ _)).
 	constructor.
 	eapply instrtype_sub_compose; eauto.
 Qed.
 
-Lemma Step_pure__testop_preserves : forall v_S v_C v_t v_c_1 v_testop (v_c : iN 32) v_ft,
-	Admin_instrs_ok v_S v_C [(AI_CONST v_t v_c_1);(AI_TESTOP v_t v_testop)] v_ft ->
-	Step_pure [(AI_CONST v_t v_c_1);(AI_TESTOP v_t v_testop)] [(AI_CONST I32 v_c)] ->
-	Admin_instrs_ok v_S v_C [(AI_CONST I32 v_c)] v_ft.
+Lemma Step_pure__testop_preserves : forall v_S v_C v_t v_c_1 v_testop (v_c : num_) v_ft,
+	Admin_instrs_ok v_S v_C [(admininstr_CONST v_t v_c_1);(admininstr_TESTOP v_t v_testop)] v_ft ->
+	Step_pure [(admininstr_CONST v_t v_c_1);(admininstr_TESTOP v_t v_testop)] [(admininstr_CONST I32 v_c)] ->
+	Admin_instrs_ok v_S v_C [(admininstr_CONST I32 v_c)] v_ft.
 Proof.
 	move => v_S v_C t v unop_op v_c tf HType HReduce.
 	typing_inversion HType.
@@ -557,15 +568,15 @@ Proof.
 	inversion Hai; subst; clear Hai.
 
 	eapply construct_ais_typing_single.
-	eapply (AI_ok_instr _ _ (instr_CONST _ _)).
+	eapply (Admin_instr_ok__instr _ _ (instr_CONST _ _)).
 	constructor.
 	eapply instrtype_sub_compose; eauto.
 Qed.
 
-Lemma Step_pure__relop_preserves : forall v_S v_C v_t v_c_1 v_c_2 v_relop (v_c : iN 32) v_ft,
-	Admin_instrs_ok v_S v_C [(AI_CONST v_t v_c_1);(AI_CONST v_t v_c_2);(AI_RELOP v_t v_relop)] v_ft ->
-	Step_pure [(AI_CONST v_t v_c_1);(AI_CONST v_t v_c_2);(AI_RELOP v_t v_relop)] [(AI_CONST I32 v_c)] ->
-	Admin_instrs_ok v_S v_C [(AI_CONST I32 v_c)] v_ft.
+Lemma Step_pure__relop_preserves : forall v_S v_C v_t v_c_1 v_c_2 v_relop (v_c : num_) v_ft,
+	Admin_instrs_ok v_S v_C [(admininstr_CONST v_t v_c_1);(admininstr_CONST v_t v_c_2);(admininstr_RELOP v_t v_relop)] v_ft ->
+	Step_pure [(admininstr_CONST v_t v_c_1);(admininstr_CONST v_t v_c_2);(admininstr_RELOP v_t v_relop)] [(admininstr_CONST I32 v_c)] ->
+	Admin_instrs_ok v_S v_C [(admininstr_CONST I32 v_c)] v_ft.
 Proof.
 	move => v_S v_C v_t v_c_1 v_c_2 v_relop v_c v_ft HType HReduce.
 	typing_inversion HType.
@@ -581,15 +592,15 @@ Proof.
 	rewrite cats0 in Hsub0.
 
 	eapply construct_ais_typing_single.
-	eapply (AI_ok_instr _ _ (instr_CONST _ _)).
+	eapply (Admin_instr_ok__instr _ _ (instr_CONST _ _)).
 	constructor.
 	eapply instrtype_sub_compose; eauto.
 Qed.
 
 Lemma Step_pure__cvtop_val_preserves : forall v_S v_C v_t_1 v_c_1 v_t_2 v_cvtop v_c v_ft,
-	Admin_instrs_ok v_S v_C [(AI_CONST v_t_1 v_c_1);(AI_CVTOP v_t_2 v_t_1 v_cvtop)] v_ft ->
-	Step_pure [(AI_CONST v_t_1 v_c_1);(AI_CVTOP v_t_2 v_t_1 v_cvtop)] [(AI_CONST v_t_2 v_c)] ->
-	Admin_instrs_ok v_S v_C [(AI_CONST v_t_2 v_c)] v_ft.
+	Admin_instrs_ok v_S v_C [(admininstr_CONST v_t_1 v_c_1);(admininstr_CVTOP v_t_2 v_t_1 v_cvtop)] v_ft ->
+	Step_pure [(admininstr_CONST v_t_1 v_c_1);(admininstr_CVTOP v_t_2 v_t_1 v_cvtop)] [(admininstr_CONST v_t_2 v_c)] ->
+	Admin_instrs_ok v_S v_C [(admininstr_CONST v_t_2 v_c)] v_ft.
 Proof.
 	move => v_S v_C v_t_1 v_c_1 v_t_2 v_cvtop v_c v_ft HType HReduce.
 	typing_inversion HType.
@@ -601,15 +612,15 @@ Proof.
 	inversion Hai; subst; clear Hai.
 
 	eapply construct_ais_typing_single.
-	eapply (AI_ok_instr _ _ (instr_CONST _ _)).
+	eapply (Admin_instr_ok__instr _ _ (instr_CONST _ _)).
 	constructor.
 	eapply instrtype_sub_compose; eauto.
 Qed.
 
 Lemma Step_pure__local_tee_preserves : forall v_S v_C (v_val : wasm.val) (v_x : idx) v_ft,
-	Admin_instrs_ok v_S v_C [(v_val : admininstr);(AI_LOCAL_TEE v_x)] v_ft ->
-	Step_pure [(v_val : admininstr);(AI_LOCAL_TEE v_x)] [(v_val : admininstr);(v_val : admininstr);(AI_LOCAL_SET v_x)] ->
-	Admin_instrs_ok v_S v_C [(v_val : admininstr);(v_val : admininstr);(AI_LOCAL_SET v_x)] v_ft.
+	Admin_instrs_ok v_S v_C [(admininstr_val v_val);(admininstr_LOCAL_TEE v_x)] v_ft ->
+	Step_pure [(admininstr_val v_val);(admininstr_LOCAL_TEE v_x)] [(admininstr_val v_val);(admininstr_val v_val);(admininstr_LOCAL_SET v_x)] ->
+	Admin_instrs_ok v_S v_C [(admininstr_val v_val);(admininstr_val v_val);(admininstr_LOCAL_SET v_x)] v_ft.
 Proof.
 	move => v_S v_C v_val v_x v_ft HType HReduce.
 	invert_ais_typing.
@@ -636,7 +647,7 @@ Proof.
 	}
 	eapply construct_ais_typing_single.
 	{
-		eapply AI_ok_instr with (v_instr := instr_LOCAL_SET _).
+		eapply Admin_instr_ok__instr with (v_instr := instr_LOCAL_SET _).
 		econstructor; eauto.
 	}
 	rewrite -{2}(cats0 v_ft1).
@@ -645,9 +656,9 @@ Proof.
 Qed.
 
 Lemma Step_pure__ref_is_null_helper : forall v_S v_C v_rt v_ft v_n,
-	Admin_instrs_ok v_S v_C [REF_NULL v_rt: admininstr; AI_REF_IS_NULL] v_ft ->
-	Step_pure [REF_NULL v_rt: admininstr; AI_REF_IS_NULL] [AI_CONST I32 (mk_uN (fun_sizenn INN_I32) v_n)] ->
-	Admin_instrs_ok v_S v_C [AI_CONST I32 (mk_uN (fun_sizenn INN_I32) v_n)] v_ft.
+	Admin_instrs_ok v_S v_C [REF_NULL v_rt: admininstr; admininstr_REF_IS_NULL] v_ft ->
+	Step_pure [REF_NULL v_rt: admininstr; admininstr_REF_IS_NULL] [admininstr_CONST I32 (mk_uN (fun_sizenn INN_I32) v_n)] ->
+	Admin_instrs_ok v_S v_C [admininstr_CONST I32 (mk_uN (fun_sizenn INN_I32) v_n)] v_ft.
 Proof.
 	move => v_S v_C v_rt v_ft v_n HType HReduce.
 	typing_inversion HType.
@@ -663,21 +674,21 @@ Proof.
 	2: auto.
 	eapply construct_ais_typing_single.
 	2: eapply Hsub0.
-	eapply AI_ok_instr with (v_instr := instr_CONST _ _).
+	eapply Admin_instr_ok__instr with (v_instr := instr_CONST _ _).
 	constructor.
 Qed.
 
 Lemma Step_pure__ref_is_null_true_preserves : forall v_S v_C v_rt v_ft,
-	Admin_instrs_ok v_S v_C [REF_NULL v_rt: admininstr; AI_REF_IS_NULL] v_ft ->
-	Step_pure [REF_NULL v_rt: admininstr; AI_REF_IS_NULL] [AI_CONST I32 (mk_uN (fun_sizenn INN_I32) 1)] ->
-	Admin_instrs_ok v_S v_C [AI_CONST I32 (mk_uN (fun_sizenn INN_I32) 1)] v_ft.
+	Admin_instrs_ok v_S v_C [REF_NULL v_rt: admininstr; admininstr_REF_IS_NULL] v_ft ->
+	Step_pure [REF_NULL v_rt: admininstr; admininstr_REF_IS_NULL] [admininstr_CONST I32 (mk_uN (fun_sizenn INN_I32) 1)] ->
+	Admin_instrs_ok v_S v_C [admininstr_CONST I32 (mk_uN (fun_sizenn INN_I32) 1)] v_ft.
 Proof.
 	intros.
 	by apply Step_pure__ref_is_null_helper with (v_n := 1) in H.
 Qed.
 
 Lemma Step_pure_before_ref_is_null_false_iff : forall (v_ref: ref),
-    ~(Step_pure_before_ref_is_null_false [v_ref: admininstr; AI_REF_IS_NULL]) <->
+    ~(Step_pure_before_ref_is_null_false [v_ref: admininstr; admininstr_REF_IS_NULL]) <->
 	(forall v_rt, v_ref <> REF_NULL v_rt).
 Proof.
 	move => v_ref.
@@ -704,10 +715,10 @@ Proof.
 Qed.
 
 Lemma Step_pure__ref_is_null_false_preserves : forall v_S v_C (v_ref: ref) v_ft,
-	Admin_instrs_ok v_S v_C [v_ref: admininstr; AI_REF_IS_NULL] v_ft ->
-	Step_pure [v_ref: admininstr; AI_REF_IS_NULL] [AI_CONST I32 (mk_uN (fun_sizenn INN_I32) 0)] ->
-	¬ Step_pure_before_ref_is_null_false [v_ref: admininstr; AI_REF_IS_NULL] ->
-	Admin_instrs_ok v_S v_C [AI_CONST I32 (mk_uN (fun_sizenn INN_I32) 0)] v_ft.
+	Admin_instrs_ok v_S v_C [v_ref: admininstr; admininstr_REF_IS_NULL] v_ft ->
+	Step_pure [v_ref: admininstr; admininstr_REF_IS_NULL] [admininstr_CONST I32 (mk_uN (fun_sizenn INN_I32) 0)] ->
+	¬ Step_pure_before_ref_is_null_false [v_ref: admininstr; admininstr_REF_IS_NULL] ->
+	Admin_instrs_ok v_S v_C [admininstr_CONST I32 (mk_uN (fun_sizenn INN_I32) 0)] v_ft.
 Proof.
 	move => v_S v_C v_ref v_ft HType HReduce Hnotnull.
 	destruct v_ref.
@@ -731,7 +742,7 @@ Proof.
 		2: auto.
 		eapply construct_ais_typing_single.
 		2: eapply Hsub0.
-		eapply AI_ok_instr with (v_instr := instr_CONST _ _).
+		eapply Admin_instr_ok__instr with (v_instr := instr_CONST _ _).
 		constructor.
 	}
 	{
@@ -748,7 +759,7 @@ Proof.
 		2: auto.
 		eapply construct_ais_typing_single.
 		2: eapply Hsub0.
-		eapply AI_ok_instr with (v_instr := instr_CONST _ _).
+		eapply Admin_instr_ok__instr with (v_instr := instr_CONST _ _).
 		constructor.
 	}
 Qed.
