@@ -35,6 +35,14 @@ Definition option_map {X Y : Type} (f : X -> Y) (x_opt : option X) : option Y :=
   end
 .
 
+Definition same_opt {X : Type} (x_opt : option X) (y_opt : option X) : bool :=
+  match x_opt, y_opt with
+  | Some _, Some _ => true
+  | None, None => true
+  | _, _ => false
+  end
+.
+
 Definition list_zipWith {X Y Z : Type} (f : X -> Y -> Z) (xs : seq X) (ys : seq Y) : seq Z :=
 	seq.map (fun '(x, y) => f x y) (seq.zip xs ys).
 

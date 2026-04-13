@@ -216,3 +216,13 @@ Fixpoint val_to_exp (v : il_val) : il_exp :=
   | StrV valfields => StrE (List.map (fun '(a, v) => (a, val_to_exp v)) valfields)
   end
 .
+
+Inductive argmatch : Type :=
+  | MatchA : il_arg -> il_arg -> argmatch
+  | FailA : argmatch
+.
+
+Inductive expmatch : Type :=
+  | MatchEM : il_exp -> il_exp -> expmatch
+  | FailEM : expmatch
+.

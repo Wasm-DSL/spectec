@@ -24,7 +24,7 @@ Definition boolbin (op : boolbinop) (b1 b2 : bool) : bool :=
   end
 .
 
-Definition iszero(x : il_num) : bool := 
+Definition iszero (x : il_num) : bool := 
   match x with
   | NatE n => n == 0%nat
   | IntE i => i == 0%R
@@ -33,12 +33,21 @@ Definition iszero(x : il_num) : bool :=
   end
 .
 
-Definition isone(x : il_num) : bool := 
+Definition isone (x : il_num) : bool := 
   match x with
   | NatE n => n == 1%nat
   | IntE i => i == 1%R
   | RatE r => r == 1%R 
   | RealE r => r == 1%R
+  end
+.
+
+Definition isneg (x : il_num) : bool :=
+  match x with
+  | NatE n => false
+  | IntE i => (i < 0)%R
+  | RatE r => (r < 0)%R 
+  | RealE r => (r < 0)%R
   end
 .
 

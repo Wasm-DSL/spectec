@@ -255,6 +255,21 @@ Definition param_to_arg (p : il_param) : il_arg :=
   end
 .
 
+Definition subst_argmatch (s : il_subst) (a : argmatch) : argmatch :=
+  match a with
+  | FailA => FailA
+  | MatchA a' a'' => MatchA (subst_arg s a') (subst_arg s a'')
+  end
+.
+
+Definition subst_expmatch (s : il_subst) (e : expmatch) : expmatch :=
+  match e with
+  | FailEM => FailEM
+  | MatchEM e' e'' => MatchEM (subst_exp s e') (subst_exp s e'')
+  end
+.
+
+(* TODO *)
 Inductive ok_subst : il_env -> il_subst -> list il_quant -> Prop := 
   | Subst_OK : forall E s q_lst,
     ok_subst E s q_lst.

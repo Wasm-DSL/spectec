@@ -9,6 +9,8 @@ Inductive match_args : store -> list il_arg -> list il_quant -> list il_arg -> i
     match_args s ags qs ags' sbst
 .
 
+
+
 Inductive expand_typ : store -> il_typ -> il_deftyp -> Prop :=
   | et_plain : forall s t,
     is_plaintyp t ->
@@ -290,6 +292,8 @@ Inductive step_exp: store -> il_exp -> il_exp -> Prop :=
   | se_sub_ctx3 : forall s e t1 t2 t2',
     step_typ s t2 t2' ->
     step_exp s (SubE e t1 t2) (SubE e t1 t2')
+  | se_sub_refl : forall s e t,
+    step_exp s (SubE e t t) e
   | se_sub_sub : forall s e' t1' t2' t1 t2,
     step_exp s (SubE (SubE e' t1' t2') t1 t2) (SubE e' t1' t2)
   | se_sub_tup : forall s es tups tups',
@@ -303,21 +307,21 @@ Inductive step_exp: store -> il_exp -> il_exp -> Prop :=
     step_exp s (SubE (OptE e_opt) (IterT t1 I_OPT) (IterT t2 I_OPT)) (OptE (option_map (fun e => SubE e t1 t2) e_opt))
   | se_sub_list : forall s es t1 t2,
     step_exp s (SubE (ListE es) (IterT t1 I_STAR) (IterT t2 I_STAR)) (ListE (List.map (fun e => SubE e t1 t2) es))
-  | se_sub_case : forall s (e : il_exp) op e x1 ags1 x2 ags2 t1 t2 tcs1 tcs2 qs1 qs2 prs1 prs2,
-    expand_typ s (VarT x1 ags1) (VariantT tcs1) ->
-    expand_typ s (VarT x2 ags2) (VariantT tcs2) ->
-    List.In (op, qs1, t1, prs1) tcs1 ->
-    List.In (op, qs2, t2, prs2) tcs2 ->
-    step_exp s (SubE (CaseE op e) (VarT x1 ags1) (VarT x2 ags2)) (CaseE op (SubE e t1 t2))
-  | se_sub_str : forall s efs x1 ags1 x2 ags2 t1s t2s tfs1 tfs2 ats es,
-    expand_typ s (VarT x1 ags1) (StructT tfs1) ->
-    expand_typ s (VarT x2 ags2) (StructT tfs2) ->
+  | se_sub_case : forall s (e : il_exp) op e x1 x2 t1 t2 t1' t2' tcs1 tcs2 qs1 qs2 prs1 prs2,
+    t1 = MatchT x1 [] [([], [], VariantT tcs1)] ->
+    t2 = MatchT x2 [] [([], [], VariantT tcs2)] ->    
+    List.In (op, qs1, t1', prs1) tcs1 ->
+    List.In (op, qs2, t2', prs2) tcs2 ->
+    step_exp s (SubE (CaseE op e) t1 t2) (CaseE op (SubE e t1' t2'))
+  | se_sub_str : forall s efs x1 x2 t1 t2 t1s t2s tfs1 tfs2 ats es,
+    t1 = MatchT x1 [] [([], [], StructT tfs1)] ->
+    t2 = MatchT x2 [] [([], [], StructT tfs2)] -> 
     size efs = size tfs1 ->
     size efs = size tfs2 ->
     List_Forall3 (fun '(a, t) a' t' => a = a' /\ t = t') (atomtyps tfs2) ats t2s ->
     List.Forall2 (fun a t => List.In (a, t) (atomtyps tfs1)) ats t1s ->
     List.Forall2 (fun a e => List.In (a, e) efs) ats es ->
-    step_exp s (SubE (StrE efs) (VarT x1 ags1) (VarT x2 ags2))
+    step_exp s (SubE (StrE efs) t1 t2)
     (StrE (list_map3 (fun '(a, e) t1 t2 => (a, SubE e t1 t2)) (zip ats es) t1s t2s)) 
 
   (* IfE rules *)
@@ -328,6 +332,15 @@ Inductive step_exp: store -> il_exp -> il_exp -> Prop :=
     step_exp s (IfE (BoolE true) e2 e3) e2
   | se_ife_false : forall s e2 e3,
     step_exp s (IfE (BoolE false) e2 e3) e3
+  (* MatchE rules *)
+  | se_matche_ctx1 : forall s ags cs a a' n,
+    List.nth_error ags n = Some a ->
+    step_arg s a a' ->
+    step_exp s (MatchE ags cs) (MatchE (update ags n a') cs)
+  | se_matche_ctx2 : forall s ags cs c c' n,
+    List.nth_error cs n = Some c -> 
+    step_clause s c c' ->
+    step_exp s (MatchE ags cs) (MatchE ags (update cs n c'))
 with
 
 step_arg : store -> il_arg -> il_arg -> Prop :=
@@ -345,9 +358,9 @@ step_typ : store -> il_typ -> il_typ -> Prop :=
     List.nth_error ags n = Some a ->
     step_arg s a a' ->
     step_typ s (VarT x ags) (VarT x (update ags n a'))
-  | st_var_app : forall s x ags t, 
-    expand_typ s (VarT x ags) (AliasT t) ->
-    step_typ s (VarT x ags) t
+  | st_var_app : forall s x ags ps insts,
+    StringMap.find x (TYPS (store_to_env s)) = Some (ps, insts) ->
+    step_typ s (VarT x ags) (MatchT x ags insts)
   | st_tup_ctx : forall s tups n x t,
     List.nth_error tups n = Some (x, t) ->
     step_typ s (TupT tups) (TupT (update tups n (x, t)))
@@ -486,6 +499,81 @@ reduce_prems : store -> list il_prem -> list il_prem -> Prop :=
     step_prems s p1 p2 ->
     reduce_prems s p2 p3 ->
     reduce_prems s p1 p3
+
+with
+
+step_inst : store -> il_inst -> il_inst -> Prop :=
+  | sti_ctx : forall s qs ags t a a' n,
+    List.nth_error ags n = Some a ->
+    step_arg s a a' ->
+    step_inst s (qs, ags, t) (qs, update ags n a', t)
+
+with
+
+step_clause : store -> il_clause -> il_clause -> Prop :=
+  | stc_ctx1 : forall s qs ags e prems a a' n,
+    List.nth_error ags n = Some a ->
+    step_arg s a a' ->
+    step_clause s (qs, ags, e, prems) (qs, update ags n a', e, prems)
+  | stc_ctx2 : forall s qs ags e prems e',
+    step_exp s e e' ->
+    step_clause s (qs, ags, e, prems) (qs, ags, e', prems)
+  | stc_ctx3 : forall s qs ags e prems prems',
+    step_prems s prems prems' ->
+    step_clause s (qs, ags, e, prems) (qs, ags, e, prems')
+
+with
+
+step_argmatch_plain : store -> list argmatch -> list argmatch -> Prop :=
+  | sagp_ctx1 : forall s a a' a'',
+    step_arg s a a'' ->
+    step_argmatch_plain s [MatchA a a'] [MatchA a'' a']
+  | sagp_ctx2 : forall s a a' a'',
+    step_arg s a' a'' ->
+    step_argmatch_plain s [MatchA a a'] [MatchA a a'']
+  | sagp_eq : forall s a,
+    step_argmatch_plain s [MatchA a a] []
+
+with
+
+step_expmatch_plain : store -> list expmatch -> list expmatch -> Prop :=
+  | semp_ctx1 : forall s e e' e'',
+    step_exp s e e'' ->
+    step_expmatch_plain s [MatchEM e e'] [MatchEM e'' e']
+  | semp_ctx2 : forall s e e' e'',
+    step_exp s e' e'' ->
+    step_expmatch_plain s [MatchEM e e'] [MatchEM e e'']
+  | semp_eq : forall s e,
+    step_expmatch_plain s [MatchEM e e] []
+  | semp_unplus : forall s num e,
+    negb (isneg num) ->
+    step_expmatch_plain s [MatchEM (NumE num) (UnE (NumUnop PlusOp) e)] [MatchEM (NumE num) e]
+  | semp_unplus_false : forall s num e,
+    isneg num ->
+    step_expmatch_plain s [MatchEM (NumE num) (UnE (NumUnop PlusOp) e)] [FailEM]
+  | semp_unminus : forall s num num' e,
+    isneg num ->
+    numun MinusOp num = Some num' ->
+    step_expmatch_plain s [MatchEM (NumE num) (UnE (NumUnop MinusOp) e)] [MatchEM (NumE num') e] 
+  | semp_unminus_false : forall s num e,
+    negb (isneg num) ->
+    step_expmatch_plain s [MatchEM (NumE num) (UnE (NumUnop MinusOp) e)] [FailEM]
+  | semp_cvt : forall s num e nt1 nt2 num',
+    numcvt nt1 num = Some num' ->
+    step_expmatch_plain s [MatchEM (NumE num) (CvtE e nt1 nt2)] [MatchEM (NumE num') e]
+  | semp_cvt_false : forall s num e nt1 nt2,
+    numcvt nt1 num = None ->
+    step_expmatch_plain s [MatchEM (NumE num) (CvtE e nt1 nt2)] [FailEM]
+  | semp_tup : forall s tups tups',
+    size tups = size tups' ->
+    step_expmatch_plain s [MatchEM (TupE tups) (TupE tups')] (list_zipWith (fun e e' => MatchEM e e') tups tups')
+  | semp_case : forall s e e' op,
+    step_expmatch_plain s [MatchEM (CaseE op e) (CaseE op e')] [MatchEM e e']
+  | semp_case_fail : forall s e e' op op',
+    op <> op' ->
+    step_expmatch_plain s [MatchEM (CaseE op e) (CaseE op' e')] [MatchEM e e']
+  (* | semp_opt : forall s e e',
+     *)
 .
 
 Inductive reduce_arg : store -> il_arg -> il_arg -> Prop :=
