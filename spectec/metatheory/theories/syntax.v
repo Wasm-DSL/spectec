@@ -190,6 +190,8 @@ Definition il_quant : Type := il_param.
 Definition typfield : Type := atom * list il_quant * il_typ * list il_prem.
 Definition typcase : Type := mixop * list il_quant * il_typ * list il_prem.
 
+Definition expfield : Type := atom * il_exp.
+
 Definition il_inst : Type := list il_quant * list il_arg * il_deftyp.
 Definition il_rule : Type := list il_quant * il_exp * list il_prem.
 Definition il_clause : Type := list il_quant * list il_arg * il_exp * list il_prem.

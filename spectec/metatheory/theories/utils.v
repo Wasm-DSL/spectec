@@ -102,6 +102,27 @@ Definition transpose {X : Type} (xss : list (list X)) : list (list X) :=
   end
 .
 
+Definition transpose_opt {X : Type} (xss : option (list X)) : list (option X) :=
+  match xss with
+  | None => []
+  | Some xss' => List.map (fun x => Some x) xss'
+  end
+.
+
+Definition is_expmatch (x : argmatch) : bool :=
+  match x with
+  | MatchA (ExpA _) (ExpA _) => true
+  | _ => false
+  end
+.
+
+Definition to_argmatch (x : expmatch) : argmatch :=
+  match x with
+  | FailEM => FailA
+  | MatchEM e e' => MatchA (ExpA e) (ExpA e')
+  end
+.
+
 Definition list_mapi {X Y : Type} (f : nat -> X -> Y) (xs : list X) : list Y :=
   let idxs := iota 0 (size xs) in
   List.map (fun '(i, x) => f i x) (zip idxs xs)
@@ -110,10 +131,12 @@ Definition list_mapi {X Y : Type} (f : nat -> X -> Y) (xs : list X) : list Y :=
 Inductive List_Forall3 {A B C: Type} (R : A -> B -> C -> Prop): seq A -> seq B -> seq C -> Prop :=
 	| Forall3_nil : List_Forall3 R nil nil nil
 	| Forall3_cons : forall x y z l l' l'',
-		R x y z -> List_Forall3 R l l' l'' -> List_Forall3 R (x :: l) (y :: l') (z :: l'').
+		R x y z -> List_Forall3 R l l' l'' -> List_Forall3 R (x :: l) (y :: l') (z :: l'')
+.
 
 Definition list_map3 {A B C D: Type} (f : A -> B -> C -> D) (xs : seq A) (ys : seq B) (zs : seq C) : seq D :=
-	seq.map (fun '(x, (y, z)) => f x y z) (seq.zip xs (seq.zip ys zs)).
+	seq.map (fun '(x, (y, z)) => f x y z) (seq.zip xs (seq.zip ys zs))
+.
 
 Definition atomtyp (x : typfield) : atom * il_typ :=
   match x with
@@ -122,7 +145,14 @@ Definition atomtyp (x : typfield) : atom * il_typ :=
 .
 
 Definition atomtyps (xs : list typfield) : list (atom * il_typ) :=
-  List.map atomtyp xs.
+  List.map atomtyp xs
+.
+
+Definition exp_from_field (x : expfield) : il_exp :=
+  match x with
+  | (a, e) => e
+  end
+.
 
 (* Decidable equality axiom *)
 

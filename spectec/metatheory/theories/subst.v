@@ -269,6 +269,12 @@ Definition subst_expmatch (s : il_subst) (e : expmatch) : expmatch :=
   end
 .
 
+Definition subst_rule (s : il_subst) (r : il_rule) : il_rule :=
+  match r with
+  | (qs, exp, prems) => (List.map (subst_param s) qs, subst_exp s exp, List.map (subst_prem s) prems)
+  end
+.
+
 (* TODO *)
 Inductive ok_subst : il_env -> il_subst -> list il_quant -> Prop := 
   | Subst_OK : forall E s q_lst,

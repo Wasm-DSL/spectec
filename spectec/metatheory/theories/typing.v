@@ -25,27 +25,6 @@ Inductive sub_numtyp : numtyp -> numtyp -> Prop :=
     sub_numtyp nt1 nt2
 .
 
-Inductive sub_typ : il_env -> il_typ -> il_typ -> Prop :=
-  | st_tup : forall env x1 t1 x2 t2 tups tups',
-    let env' := (single_var x1 t1) in
-    let sbst := (subst_svar x2 (VarE x1)) in
-    sub_typ env t1 t2 ->
-    sub_typ (env @@ env') (TupT tups) (subst_typ sbst (TupT tups')) -> 
-    sub_typ env (TupT ((x1, t1) :: tups)) (TupT ((x2, t2) :: tups'))
-  | st_struct : forall env t1 t2 tfs1 tfs2,
-    expand_typ (env_to_store env) t1 (StructT tfs1) ->
-    expand_typ (env_to_store env) t2 (StructT tfs2) -> 
-    sub_typ env t1 t2
-  | st_iter : forall env t1 t2 it,
-    sub_typ env t1 t2 ->
-    sub_typ env (IterT t1 it) (IterT t2 it) 
-  | st_refl : forall env t, sub_typ env t t
-  | st_trans : forall env t1 t2 t',
-    sub_typ env t1 t' ->
-    sub_typ env t' t2 ->
-    sub_typ env t1 t2
-.
-
 Inductive sub_param : il_env -> il_param -> il_param -> il_subst -> Prop :=
   | sp_exp : forall env x1 t1 x2 t2,
     sub_typ env t1 t2 ->
@@ -67,6 +46,7 @@ sub_params : il_env -> list il_param -> list il_param -> il_subst -> Prop :=
     sub_params env p1s (List.map (subst_param sbst) p2s) sbst' ->
     sub_params env (p1 :: p1s) (p2 :: p2s) (append_subst sbst sbst')
 .
+
 
 Inductive ok_numunop : numunop -> numtyp -> numtyp -> Prop :=
   | ok_unop_sign : forall numop nt,
