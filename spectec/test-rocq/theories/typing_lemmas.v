@@ -1182,14 +1182,14 @@ Ltac do_ais_typing_inversion H :=
 		let H1 := fresh "H1" in
 		let H2 := fresh "H2" in
     eapply (ais_seq_typing_inversion _ _ [v_ai2] v_ai1) in H
-	  as [t3s [H1 H2]]
-  | Admin_instrs_ok _ _ (?v_ais ++ [?v_ai]) _ =>
+	  as [t3s [H2 H1]]
+  | Admin_instrs_ok _ _ ([?v_ai] ++ ?v_ais) _ =>
     let t3s := fresh "t3s" in
 		let H1 := fresh "H1" in
 		let H2 := fresh "H2" in
     eapply (ais_seq_typing_inversion _ _ v_ais v_ai) in H
-	  as [t3s [H1 H2]];
-		do_ais_typing_inversion H1
+	  as [t3s [H2 H1]];
+		do_ais_typing_inversion H2
   | Admin_instrs_ok _ _ (_ :: (_ :: _)) _ =>
     repeat rewrite -(cat1s _ (_ :: _)) in H;
 		repeat rewrite !catA in H;
