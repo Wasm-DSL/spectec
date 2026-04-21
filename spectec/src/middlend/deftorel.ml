@@ -443,6 +443,11 @@ let collect_list_length_vars () : StringSet.t ref * (module Iter.Arg) =
   in Arg.acc, (module Arg)
 
 let must_be_relation env id params clauses = 
+  let only_otherwise prems =
+    match prems with
+    | [{it = ElsePr; _}] -> true
+    | _ -> false
+  in
   let listn_set, (module Arg : Iter.Arg) = collect_list_length_vars () in
   let rel_def_checker = { exists_base_checker with collect_exp = utilizes_rel_def env} in
   assert (!listn_set = StringSet.empty);
@@ -456,7 +461,10 @@ let must_be_relation env id params clauses =
   | DefD (quants, args, exp, prems) -> 
     Acc.args args;
     (* Premises might not be decidable *)
-    prems <> [] || 
+    (* NOTE: if its only otherwise premise, then fall-through semantics should be
+      able to handle it.
+    *)
+    (prems <> [] && not (only_otherwise prems)) || 
     (* Functions that have function calls transformed to relations must also be relations *)
     collect_exp rel_def_checker exp ||
     List.exists (collect_prem rel_def_checker) prems || 
