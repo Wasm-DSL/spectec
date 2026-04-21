@@ -41,7 +41,7 @@
   to
   
   def $len(int* ) : nat
-  def $len{n : nat, `i*` : int*}(i^n{i <- `i*`}) = n
+  def $len{n : nat, `i*` : int*}(i*{i <- `i*`}) = n
     -- if (n = |`i*`|)
 *)
 
@@ -58,7 +58,7 @@ let create_eq_prem id typ id' =
   let idexp = VarE id $$ id.at % typ in
   let idexp' = VarE (id' $ id.at) $$ id.at % typ in
   let exp = CmpE (`EqOp, `BoolT, idexp, idexp') $$ id.at % (BoolT $ id.at) in
-  IfPr exp $ id.at 
+  IfPr exp $ id.at
 
 let create_eq_prem_exp e e' = 
   let exp = CmpE (`EqOp, `BoolT, e, e') $$ e.at % (BoolT $ e.at) in
@@ -85,7 +85,7 @@ let c_exp exp =
 
 let t_exp2 exp = 
   match exp.it with
-  | IterE (e, (_, eps)) -> { exp with it = IterE (e, (List, eps)) }
+  | IterE (e, (ListN _, eps)) -> { exp with it = IterE (e, (List, eps)) }
   | _ -> exp
 
 let t_typ2 typ = 
@@ -127,10 +127,30 @@ let handle_definite_iter clause =
   
   { clause with it = DefD (quants, List.map (transform_arg tf) args, exp, prs @ new_prs) }
 
+let handle_definite_iter_rel rule = 
+  let RuleD (id, quants, mixop, exp, prs) = rule.it in
+  let lst_cl = base_collector [] (@) in
+  let cl = { lst_cl with collect_exp = c_exp } in
+
+  let def_lst = collect_exp cl exp @ List.concat_map (collect_prem cl) prs in 
+  let def_lst_uniq = Lib.List.nub (fun (n1, eps1) (n2, eps2) ->
+    Il.Eq.eq_exp n1 n2 && List.length eps1 = List.length eps2 &&
+    List.for_all2 (fun (id1, e1) (id2, e2) -> id1.it = id2.it && Il.Eq.eq_exp e1 e2) eps1 eps2    
+  ) def_lst in
+  let new_prs = List.concat_map (fun (n, eps) ->
+    let lene e = LenE e $$ e.at % (NumT `NatT $ e.at) in 
+    List.map (fun (_, e) -> create_eq_prem_exp n (lene e)) eps   
+  ) def_lst_uniq
+  in
+  
+  { rule with it = RuleD (id, quants, mixop, exp, prs @ new_prs) }
+
 let rec t_def def = 
   match def.it with
   | DecD (id, params, rt, clauses) -> { def with it = DecD (id, params, rt, 
     clauses |> List.map handle_non_linear |> List.map handle_definite_iter) }
+  | RelD (id, qs, mixop, typ, rules) -> 
+    { def with it = RelD (id, qs, mixop, typ, List.map handle_definite_iter_rel rules) }
   | RecD defs -> { def with it = RecD (List.map t_def defs) }
   | _ -> def
 
