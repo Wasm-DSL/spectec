@@ -280,7 +280,8 @@ let () =
       enable_pass AliasDemut;
       enable_pass DefToRel;
       enable_pass Ite;
-      enable_pass ElseSimp
+      enable_pass ElseSimp;
+      enable_pass PatSimp
     | _ when !print_al || !print_al_o <> "" ->
       enable_pass Sideconditions;
     | _ -> ()

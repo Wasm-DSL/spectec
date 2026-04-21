@@ -270,7 +270,7 @@ and render_type exp_type typ =
   | NumT nt -> render_numtyp nt
   | TextT -> "string"
   | TupT [] -> "unit"
-  | TupT typs -> String.concat " * " (List.map (fun (_, t) -> rt_func t) typs)
+  | TupT typs -> parens (String.concat " * " (List.map (fun (_, t) -> rt_func t) typs))
   | IterT (t, Opt) -> parens ("option " ^ rt_func t)
   | IterT (t, _) -> parens ("seq " ^ rt_func t)
 

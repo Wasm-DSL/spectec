@@ -526,7 +526,7 @@ let is_otherwise prem =
   | ElsePr -> true
   | _ -> false
 
-let fall_through_prems env id mixop typs rules =
+let _fall_through_prems env id mixop typs rules =
   let gen_rel_name rid = 
     id.it ^ "_before_" ^ rid.it $ id.at
   in
@@ -570,7 +570,9 @@ let cvt_def_to_rel env id params r_typ clauses =
     ) clauses 
   in
   let new_id = { id with it = fun_prefix ^ id.it } in
-  fall_through_prems env new_id new_mixop tup_types rules
+  [RelD (new_id, [], new_mixop, TupT tup_types $ id.at, rules) $ new_id.at ]
+  (* TODO: Deactivated for now until I figure out a solution for recursive partial functions  *)
+  (* fall_through_prems env new_id new_mixop tup_types rules *)
 
 let uses_def ids_set def = 
   match def.it with
