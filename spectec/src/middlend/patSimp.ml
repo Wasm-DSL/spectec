@@ -43,6 +43,9 @@
   def $len(int* ) : nat
   def $len{n : nat, `i*` : int*}(i*{i <- `i*`}) = n
     -- if (n = |`i*`|)
+    
+NOTE: Currently does not work with dependent types. As such, it depends on the type family removal pass and undep pass.
+This is a todo for the future.
 *)
 
 open Il.Ast
@@ -64,6 +67,11 @@ let create_eq_prem_exp e e' =
   let exp = CmpE (`EqOp, `BoolT, e, e') $$ e.at % (BoolT $ e.at) in
   IfPr exp $ e.at 
 
+let create_iter_prem scope base_prem = 
+  List.fold_left (fun prem iterexp -> 
+    IterPr (prem, iterexp) $ prem.at
+  ) base_prem scope
+
 let t_exp varmap exp = 
   match exp.it with
   | VarE id -> 
@@ -78,9 +86,14 @@ let t_exp varmap exp =
     { exp with it = VarE (!fresh_var $ id.at) }
   | _ -> exp
 
-let c_exp exp = 
+let rec c_exp scope exp = 
   match exp.it with
-  | IterE (_, (ListN (e'', _), eps)) -> ([e'', eps], true)
+  | IterE (_, (ListN (e'', _), eps)) -> ([e'', eps, scope], true)
+  | IterE (e, (iter, eps)) ->
+    let lst_cl = base_collector [] (@) in
+    let cl = { lst_cl with collect_exp = c_exp ((iter, eps) :: scope) } in
+    let def_lst = collect_exp cl e in
+    (def_lst, false)
   | _ -> ([], true)
 
 let t_exp2 exp = 
@@ -97,7 +110,6 @@ let handle_non_linear clause =
   let DefD (quants, args, exp, prs) = clause.it in
   let varmap = ref StringMap.empty in 
   let tf = { base_transformer with transform_exp = t_exp varmap; transform_types_of_exp = false } in
-
   let args' = List.map (transform_arg tf) args in 
   let new_quants, new_prs = List.filter_map (fun q -> match q.it with
     | ExpP (id, typ) -> 
@@ -115,14 +127,16 @@ let handle_non_linear clause =
 let handle_definite_iter clause = 
   let DefD (quants, args, exp, prs) = clause.it in
   let lst_cl = base_collector [] (@) in
-  let cl = { lst_cl with collect_exp = c_exp } in
+  let cl = { lst_cl with collect_exp = c_exp [] } in
   let tf = { base_transformer with transform_exp = t_exp2; transform_typ = t_typ2 } in
 
-  let lst = List.concat_map (collect_arg cl) args in 
-  let new_prs = List.concat_map (fun (n, eps) ->
+  let def_lst = List.concat_map (collect_arg cl) args in 
+  let new_prs = List.concat_map (fun (n, eps, scope) ->
     let lene e = LenE e $$ e.at % (NumT `NatT $ e.at) in 
-    List.map (fun (_, e) -> create_eq_prem_exp n (lene e)) eps   
-  ) lst 
+    List.map (fun (_, e) -> 
+      let base_prem = create_eq_prem_exp n (lene e) in
+      create_iter_prem scope base_prem) eps   
+  ) def_lst 
   in
   
   { clause with it = DefD (quants, List.map (transform_arg tf) args, exp, prs @ new_prs) }
@@ -130,16 +144,18 @@ let handle_definite_iter clause =
 let handle_definite_iter_rel rule = 
   let RuleD (id, quants, mixop, exp, prs) = rule.it in
   let lst_cl = base_collector [] (@) in
-  let cl = { lst_cl with collect_exp = c_exp } in
+  let cl = { lst_cl with collect_exp = c_exp [] } in
 
   let def_lst = collect_exp cl exp @ List.concat_map (collect_prem cl) prs in 
-  let def_lst_uniq = Lib.List.nub (fun (n1, eps1) (n2, eps2) ->
+  let def_lst_uniq = Lib.List.nub (fun (n1, eps1, _) (n2, eps2, _) ->
     Il.Eq.eq_exp n1 n2 && List.length eps1 = List.length eps2 &&
     List.for_all2 (fun (id1, e1) (id2, e2) -> id1.it = id2.it && Il.Eq.eq_exp e1 e2) eps1 eps2    
   ) def_lst in
-  let new_prs = List.concat_map (fun (n, eps) ->
+  let new_prs = List.concat_map (fun (n, eps, scope) ->
     let lene e = LenE e $$ e.at % (NumT `NatT $ e.at) in 
-    List.map (fun (_, e) -> create_eq_prem_exp n (lene e)) eps   
+    List.map (fun (_, e) -> 
+      let base_prem = create_eq_prem_exp n (lene e) in
+      create_iter_prem scope base_prem) eps   
   ) def_lst_uniq
   in
   
@@ -148,7 +164,7 @@ let handle_definite_iter_rel rule =
 let rec t_def def = 
   match def.it with
   | DecD (id, params, rt, clauses) -> { def with it = DecD (id, params, rt, 
-    clauses |> List.map handle_non_linear |> List.map handle_definite_iter) }
+    clauses |> List.map handle_definite_iter |> List.map (handle_non_linear)) }
   | RelD (id, qs, mixop, typ, rules) -> 
     { def with it = RelD (id, qs, mixop, typ, List.map handle_definite_iter_rel rules) }
   | RecD defs -> { def with it = RecD (List.map t_def defs) }

@@ -38,9 +38,9 @@ flags on the command line.
 let _skip_passes = [ Unthe ]  (* Not clear how to extend them to indexed types *)
 let all_passes = [
   Ite;
-  PatSimp;
   TypeFamilyRemoval;
   Undep;
+  PatSimp;
   Totalize;
   Else;
   Uncaseremoval;
