@@ -11,3 +11,49 @@ var m : nat
 rule TestNestedIter:
   n**+ |- m*+
   -- if (|n*| = m)*+
+
+
+;;
+;;  Totalize testing some tricky totalize functionality
+;;
+
+def $t_totalize(nat) : nat hint(partial)
+def $t_totalize(3) = 5
+def $t_totalize(10) = 20
+
+def $t_totalize2(nat) : nat hint(partial)
+def $t_totalize2(1) = 2
+def $t_totalize2(n) = $t_totalize(n)
+
+def $t_totalize3(nat) : nat hint(partial)
+def $t_totalize3(n) = $($t_totalize(n) + $t_totalize2($(n + 10)))
+
+;; Partial functions calls in partial functions not supported 
+;; def $t_totalize3(nat) : nat hint(partial)
+;; def $t_totalize3(n) = $($t_totalize(n) + $t_totalize2($t_totalize(n)))
+;;
+;; def $t_totalize4(nat) : nat hint(partial)
+;; def $t_totalize4(n) = $t_totalize($t_totalize(n))
+
+;;
+;;  Pattern Simp testing
+;;
+
+syntax A = B nat
+
+def $t_patsimp(nat, nat) : nat
+def $t_patsimp(n, n) = n
+def $t_patsimp(n, m) = $(n + m)
+
+def $t_patsimp2(nat, nat, A) : nat
+def $t_patsimp2(n, n, B n) = n
+def $t_patsimp2(n, m, B m) = $(n + m)
+def $t_patsimp2(n, m, B k) = $(n + m + k)
+
+def $find(nat, nat*) : bool
+def $find(n, eps) = false
+def $find(n, n n'*) = true
+def $find(n, n_1 n'*) = $find(n, n'*)
+
+def $len(int*) : nat
+def $len(i^n) = n 

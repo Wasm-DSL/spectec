@@ -7,6 +7,7 @@ val bound_func : string -> bool
 val lookup_algo : string -> algorithm
 
 type env = value Env.t
+val string_of_env : env -> string
 val lookup_env : string -> env -> value
 val lookup_env_opt : string -> env -> value option
 

@@ -31,6 +31,7 @@ type pass =
   | Ite
   | ElseSimp
   | LetIntro
+  | PatSimp
 
 (* This list declares the intended order of passes.
 
@@ -44,6 +45,7 @@ let all_passes = [
   LetIntro;
   TypeFamilyRemoval;
   Undep;
+  PatSimp;
   Totalize;
   Else;
   ElseSimp;
@@ -122,6 +124,7 @@ let pass_flag = function
   | Ite -> "ite"
   | ElseSimp -> "else-simplification"
   | LetIntro -> "let-intro"
+  | PatSimp -> "pattern-simp"
 
 let pass_desc = function
   | Sub -> "Synthesize explicit subtype coercions"
@@ -139,6 +142,7 @@ let pass_desc = function
   | Ite -> "If-then-else introduction"
   | ElseSimp -> "Simplifies generated otherwise relations (after else pass)"
   | LetIntro -> "Let Premise introduction"
+  | PatSimp -> "Simplifies non-linear and definite iteration patterns"
 
 
 let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
@@ -158,6 +162,7 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | ElseSimp -> Middlend.Elsesimp.transform
   | LetIntro -> Middlend.Letintro.transform
 
+  | PatSimp -> Middlend.PatSimp.transform
 
 (* Argument parsing *)
 
