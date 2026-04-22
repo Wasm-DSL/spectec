@@ -2026,6 +2026,17 @@ Ltac join_subtyping_trans H1 H2 :=
   eapply (instrtype_sub_trans _ _ _ H1) in H2
 	as Hsubi.
 
+Ltac fix_size :=
+	repeat match goal with
+	| H : length ?l1 = size ?l2 |- _ =>
+		rewrite -!size_length in H 
+	| H : size ?l1 = length ?l2 |- _ =>
+		rewrite -!size_length in H 
+	| H : length ?l1 = length ?l2 |- _ =>
+		rewrite -!size_length in H 
+	| _ => auto
+	end.
+
 Ltac construct_size_le :=
   repeat rewrite take_size drop_size /=;
   repeat match goal with
