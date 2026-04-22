@@ -4,7 +4,7 @@ var F : frame
 
 ;; Externvals ok
 
-relation Externaddrs_ok: store |- externaddr : externtype hint(prefix "extaddr_ok_")
+relation Externaddrs_ok: store |- externaddr : externtype
 
 rule Externaddrs_ok/func:
   S |- FUNC a : FUNC ext
@@ -26,7 +26,7 @@ rule Externaddrs_ok/global:
 
 ;; Ref type ok
 
-relation Ref_ok: store |- ref : reftype hint(prefix "ok_")
+relation Ref_ok: store |- ref : reftype
 
 rule Ref_ok/null:
   S |- REF.NULL rt : rt
@@ -40,7 +40,7 @@ rule Ref_ok/extern:
 
 ;; Value type ok
 
-relation Val_ok: store |- val : valtype hint(prefix "ok_")
+relation Val_ok: store |- val : valtype
 
 rule Val_ok/numtype:
   S |- CONST nt c_t : nt
@@ -54,7 +54,7 @@ rule Val_ok/reftype:
 
 ;; Result type ok
 
-relation Result_ok: store |- result : valtype* hint(prefix "ok_")
+relation Result_ok: store |- result : valtype*
 
 rule Result_ok/result:
   S |- _VALS v* : t*
@@ -163,8 +163,8 @@ rule Store_ok:
 
 ;; Administrative instructions ok
 
-relation Admin_instr_ok: store; context |- admininstr : functype hint(prefix "AI_ok_")
-relation Admin_instrs_ok: store; context |- admininstr* : functype hint(prefix "AIs_ok_")
+relation Admin_instr_ok: store; context |- admininstr : functype
+relation Admin_instrs_ok: store; context |- admininstr* : functype
 relation Thread_ok: store ; resulttype? |- frame; admininstr* : resulttype
 
 
@@ -295,18 +295,10 @@ rule Data_extension:
 
 rule Store_extension:
   |- store_1 : store_2
-  -- if store_1.FUNCS = funcinst_1*
-  -- if store_1.TABLES = tableinst_1*
-  -- if store_1.MEMS = meminst_1*
-  -- if store_1.GLOBALS = globalinst_1*
-  -- if store_1.ELEMS = eleminst_1*
-  -- if store_1.DATAS = datainst_1*
-  -- if store_2.FUNCS = (funcinst_1'* funcinst_2*)
-  -- if store_2.TABLES = tableinst_1'* tableinst_2*
-  -- if store_2.MEMS = meminst_1'* meminst_2*
-  -- if store_2.GLOBALS = globalinst_1'* globalinst_2*
-  -- if store_2.ELEMS = eleminst_1'* eleminst_2*
-  -- if store_2.DATAS = datainst_1'* datainst_2*
+  -- if store_1 = { FUNCS funcinst_1*, GLOBALS globalinst_1*, TABLES tableinst_1*, MEMS meminst_1*, ELEMS eleminst_1*, DATAS datainst_1* }
+  -- if store_2 = { FUNCS funcinst_1'* funcinst_2*, GLOBALS globalinst_1'* globalinst_2*,
+                    TABLES tableinst_1'* tableinst_2*, MEMS meminst_1'* meminst_2*, 
+                    ELEMS eleminst_1'* eleminst_2*, DATAS datainst_1'* datainst_2* }
   -- (Func_extension: |- funcinst_1: funcinst_1')*
   -- (Table_extension: |- tableinst_1: tableinst_1')*
   -- (Mem_extension: |- meminst_1: meminst_1')*
