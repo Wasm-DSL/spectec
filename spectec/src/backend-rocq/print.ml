@@ -727,8 +727,13 @@ let render_extra_info def =
   | _ -> None
 
 let has_prems c = 
+  let only_otherwise prems =
+    match prems with
+    | [{it = ElsePr; _}] -> true
+    | _ -> false
+  in
   match c.it with
-  | DefD (_, _, _, prems) -> prems <> []
+  | DefD (_, _, _, prems) -> prems <> [] && not (only_otherwise prems)
 
 let start_prefix def = 
   match def.it with
