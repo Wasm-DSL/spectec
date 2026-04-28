@@ -618,14 +618,14 @@ def $free_expr(instr*) = $free_list($free_instr(instr)*)
 ;; Concurrency
 syntax addrlen = nat
 
-syntax fld = 
-  | _ADDRLEN addrlen | _DATA byte*
+;; Possbily memindx instead of Inn
+syntax reg = 
+  | LEN Inn
+  | DATA Inn
 
-syntax reg = fld
+syntax location = reg u32 -- if reg = LEN Inn ==> u32 = 0
 
-syntax location = reg
-
-syntax timestamp = Inn
+syntax timestamp = nat 
 
 syntax ord = 
   | UNORD | SEQCST | INIT

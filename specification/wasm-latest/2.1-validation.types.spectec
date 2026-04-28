@@ -75,7 +75,7 @@ rule Expand_use/typeidx: _IDX typeidx ~~_C comptype  -- Expand: C.TYPES[typeidx]
 
 
 ;; Type definitions
-
+ 
 syntax oktypeidx hint(show OK#((typeidx))) hint(prose_desc "type index") =
   | OK typeidx      hint(show OK#(%))     hint(macro "%subtype")    hint(prose "%1")
 syntax oktypeidxnat hint(show OK#(typeidx,n)) =
@@ -252,72 +252,191 @@ rule Externtype_ok/func:
   -- Expand_use: typeuse ~~_C $($(FUNC t_1* -> t_2*))
 
 ;; Concurrency
-relation consistentwith: reg |- trace
-relation forallconsistentwith: (!) reg |- trace
-relation consistent: reg |- trace 
+relation Consistentwith: reg |- trace Consistentwith
+relation forallconsistentwith: (!) reg |- trace Consistentwith
+relation Consistent: reg |- trace Consistent
 
 relation suspensions__consistent: (!) u32 |- trace 
 relation suspensions_consistent_with: timestamp ~> timestamp: bool
 
-relation reads__each__from: trace |- event event*
+relation Readseachfrom: trace reg |- event Readseachfrom event* 
+relation Readsfrom: trace reg |- event Readsfrom event
 
-relation no_tear: timestamp ~> timestamp: bool
-relation value_consistent: timestamp ~> timestamp: bool
-relation hb_consistent: event ~> event: bool
-relation sc_last_visible: timestamp ~> timestamp: bool
+relation Notear: reg |- event Notear event*
 
-relation happens__before: bool => event << event
+relation Valueconsistent: trace |- event Valueconsistent event
+relation Hbconsistent: trace reg u32 |- event Hbconsistent event
+relation Sclastvisible: trace reg |- event Sclastvisible event
+relation Suspensionsconsistent: nat reg |- trace Suspensionsconsistent
+relation Suspensionsconsistentwith: nat reg |- event* Suspensionsconsistentwith timestamp^a ;; TODO: Deconflict dimensions
+
+relation happensbeforeimplication: (!) event event |- bool => event Happensbefore event
+relation Happensbefore: event Happensbefore event
 
 relation Step_ordering: config ~> config  hint(name "E") hint(macro "stepto") hint(tabular)
 relation Step_super: config ~> config hint(name "E") hint(macro "stepto") hint(tabular)
 
 ;; relation Instr_ok: context |- instr : instrtype     hint(name "T")        hint(macro "%instr")
 
-rule consistent/init:
-  reg |- trace consistent
-  -- forallconsistentwith: (!) reg |- trace consistentwith
+rule Consistent/init:
+  reg |- trace Consistent
+  -- forallconsistentwith: (!) reg |- trace Consistentwith
 
+def $implies(bool, bool) : bool
+def $implies(p1, p2) = ~p1 /\ p2
 
-;; TODO: Add there exists here
-rule consistentwith/init:
-  reg |- trace consistentwith
+def $P(event, event*) : bool
+def $P(evt_i, evt*) = true
+  -- (if $implies(
+      ($has_init(evt_i) /\ (evt_i =/= evt) /\ $overlap_reg(evt_i, evt)),
+      $happensbefore(evt_i, evt)
+    ))*
+def $P(evt_i, evt*) = false  -- otherwise
+
+def $f(def $R(event, event*) : bool, event*, event*) : bool
+def $f(def $R, eps, evt*) = true
+def $f(def $R, evt_i evt_i'*, evt*) = true 
+  -- if $R(evt_i, evt*)
+  -- if $f(def $R, evt_i'*, evt*)
+def $f(def $R, evt_i evt_i'*, evt*) = false  -- otherwise
+
+def $forall(syntax X, X*, def $p(X) : bool) : bool  hint(show (!) x <- %2. %3#(x))
+def $forall(syntax X, testx*, $p) = true  -- (if $p(testx))*
+
+;; TODO: Dimension error from X and Y both using *?
+def $forall2(syntax X, syntax Y, X*, Y*, def $p(X, Y) : bool) : bool  hint(show (!) x <- %3, y <- %4. %5#(x, y))
+def $forall2(syntax X, syntax Y, eps, testy*, $p) = true
+def $forall2(syntax X, syntax Y, testx_1 testx*, testy*, $p) = $forall2(X, Y, testx*, testy*, $p)
+  -- (if $p(testx_1, testy))*
+
+def $impliesconsistentwith(event, event) : bool
+def $impliesconsistentwith(evt__init, evt) = $implies(
+              ($has_init(evt_i) /\ (evt_i =/= evt) /\ $overlap_reg(evt_i, evt)),
+              $happensbefore(evt_i, evt))
+
+def $impliestothappensbefore(event, event) : bool
+def $impliestothappensbefore(evt1, evt2) = $tot(evt1, evt2) ==> $happensbefore(evt1, evt2)
+
+def $notinrange(u32, u32*) : bool
+def $notinrange(k, eps) = true
+def $notinrange(k, rangeaddr' rangeaddr*) = false -- if k = rangeaddr'
+def $notinrange(k, rangeaddr' rangeaddr*) = true -- if k =/= rangeaddr' /\ $notinrange(k, rangeaddr*)
+
+;; relation P: a ~~ b
+
+;; def $p(a, b) : bool  hint(show a ~~ b)
+;; def $p(a, b) = true  -- P: a ~~ b
+
+;; and then invoke $forall2(a, b, x*, y*, $p)
+
+rule Consistentwith/init:
+  reg |- trace Consistentwith
   -- suspensions__consistent: (!) i |- trace suspensions__consistent
-  -- if read_evt* = $reading_filter(trace)
-  -- if write_evt* = $writing_filter(trace)
-  -- if |write_evt*| > 0
+  -- if read__evt* = $reading_filter(trace)
   -- --
-  -- (if exists_write <- write_evt*)*
-  -- reads__each__from: trace |- read_evt reads__each__from exists_write*
+  -- if trace__writes* = $writing_filter(trace)
+  -- if |trace__writes*| > 0
   -- --
-  -- if evt__init* = $init_filter(trace)
-  -- if evt* = trace
-  -- if evt__init =/= evt
+  -- (if write__evt <- trace__writes*)^n
+  -- (Readseachfrom: trace reg |- read__evt Readseachfrom write__evt^n)*
   -- --
-  -- if overlap = $overlap_reg(evt__init, evt)
-  -- happens__before: overlap => evt__init << evt
+  -- if evt__init^x = $init_filter(trace)
+  -- if $forall2(event, event, evt__init^x, trace, $impliesconsistentwith)
+  ;;-- if $f(def $P, evt__init^x, trace)
+  (;
+  -- (if evt <- trace)^c
+  -- ((Happensbefore: (!) evt__init evt |- ($overlap_reg(evt__init, evt) /\ evt <- trace /\ evt__init =/= evt) => evt__init Happensbefore evt)^x)^c
+  ;)
 
-(;
-rule consistent:
-  context |- trace consistent : OK
-  -- consistent_with: context |- trace consistent_with : OK
+rule Readseachfrom/init:
+  trace reg |- evt_R Readseachfrom evt_W*
+  -- if |evt_W*| = |$reading_action_filter(evt_R.ACTIONS)|
+  -- --
+  -- (Readsfrom: trace reg |- evt_R Readsfrom evt_W)*
+  -- --
+  -- Notear: reg |- evt_R Notear evt_W*
 
+rule Readsfrom/init:
+  trace reg |- evt_R Readsfrom evt_W
+  -- if evt_R =/= evt_W
+  -- --
+  -- if evt_W <- $writing_filter(trace)
+  -- --
+  -- Valueconsistent: trace |- evt_R Valueconsistent evt_W
+  -- --
+  -- Hbconsistent: trace reg k |- evt_R Hbconsistent evt_W
+  -- --
+  -- Sclastvisible: trace reg |- evt_R Sclastvisible evt_W
 
+rule Valueconsistent/init:
+  trace |- evt_R Valueconsistent evt_W
+  -- if read__action <- $reading_action_filter(evt_R.ACTIONS)
+  -- if write__action <- $write_action_filter(evt_W.ACTIONS)
+  -- --
+  -- if read__action = write__action
+  -- if k = $offset(read__action) 
+  -- if $offset(read__action) = $offset(write__action)
 
-rule Instr_ok/if:
-  C |- IF bt instr_1* ELSE instr_2* : t_1* I32 -> t_2*
-  -- Blocktype_ok: C |- bt : t_1* -> t_2*
-  -- Instrs_ok: {LABELS (t_2*)} ++ C |- instr_1* : t_1* ->_(x_1*) t_2*
-  -- Instrs_ok: {LABELS (t_2*)} ++ C |- instr_2* : t_1* ->_(x_2*) t_2*
+rule Hbconsistent/init:
+  trace reg k |- evt_R Hbconsistent evt_W
+  -- if ~$happensbefore(evt_R, evt_W)
+  -- --
+  -- if $sync($access_r(reg, evt_W), $access_r(reg, evt_R)) ==> $happensbefore(evt_W, evt_R)
+  -- --
+  -- if evt_W'* = $writing_filter(trace)
+  -- --
+  -- (if $happensbefore(evt_W, evt_W') /\ $happensbefore(evt_W', evt_R) ==> $notinrange(k, $range($access_r(reg, evt_W'))))*
 
+;; TODO: Find if within premise line break possible
+rule Sclastvisible/init:
+  trace reg |- evt_R Sclastvisible evt_W
+  -- if evt_W'* = $writing_filter(trace)
+  -- --
+  -- (if 
+      $happensbefore(evt_R, evt_W) ==>
+        $tot(evt_W, evt_W') /\ $tot(evt_W', evt_R) /\ $sync($access_r(reg, evt_W), $access_r(reg, evt_R)) ==>
+        ~$sync($access_r(reg, evt_W'), $access_r(reg, evt_R)) 
+        /\
+        $happensbefore(evt_W, evt_W') /\ $tot(evt_W', evt_R) ==>
+        ~$sync($access_r(reg, evt_W'), $access_r(reg, evt_R))
+        /\
+        $tot(evt_W, evt_W') /\ $happensbefore(evt_W', evt_R) ==>
+        ~$sync($access_r(reg, evt_W), $access_r(reg, evt_W'))
+      )*
 
-rule Step_ordering/step:
-  s; f; instr* ~> s ++ {TRACE event}; f'; instr'*
-  -- Step: s; f; instr* ~> s ++ {TRACE event}; f'; instr'*
-  -- if event = { ACTIONS RD, ORDERING UNORD }
+rule Notear/init:
+  reg |- evt_R Notear evt_W*
+  -- if evt_W'* = $same_and_tearfree_filter(reg, evt_R, evt_W*)
+  -- if $tearfree($access_r(reg, evt_R)) ==> |evt_W'*| <= 1
 
+rule Suspensionsconsistent/init:
+  i reg |- tr Suspensionsconsistent
+  -- if tr' = $susp_filter(reg, i, tr)
+  -- Suspensionsconsistentwith: i reg |- tr' Suspensionsconsistentwith eps
+  -- --
+  -- if $forall2(event, event, tr', tr', $impliestothappensbefore)
 
-relation Step_super: config ~>`[ extra_stuff ] config
-rule Step_super/old: Step_super config_1 ~>`[eps] config_2  -- if Step: config_1 ~> config_2
-rule Step_super/thread: Step_super conig_1 ~>`[whatever] config_2  -- if Step_thread: config_1 ~>`[whatever] config_2
-;)
+rule Suspensionsconsistentwith/init:
+  i reg |- eps Suspensionsconsistentwith timestamp*
+
+rule Suspensionsconsistentwith/wait:
+  i reg |- evt tr Suspensionsconsistentwith time*
+  -- if $id($access_r(reg, evt)) = (WAIT (reg i) s64)
+  -- --
+  -- Suspensionsconsistentwith: i reg |- tr Suspensionsconsistentwith (evt.TIME time*)
+
+rule Suspensionsconsistentwith/timeout:
+  i reg |- evt tr Suspensionsconsistentwith (time1^a evt.TIMEp time2^b)
+  -- if $id($access_r(reg, evt)) = (WOKEN (reg i))
+  -- --
+  -- Suspensionsconsistentwith: i reg |- tr Suspensionsconsistentwith (evt.TIME time2^b)
+
+rule Suspensionsconsistentwith/notify:
+  i reg |- evt_N evt^n tr Suspensionsconsistentwith (time^m (evt.TIMEp)^n)
+  -- (if $id($access_r(reg, evt)) = (WOKEN (reg i)))^n
+  -- -- 
+  -- if $id($access_r(reg, evt_N)) = (NOTIFY location n k)
+  -- if n < k ==> m = 0
+  -- --
+  -- Suspensionsconsistentwith: i reg |- tr Suspensionsconsistentwith time^m
 

@@ -91,11 +91,51 @@ Consistency
 
 .. _valid-consistent:
 .. _valid-consistentwith:
+.. _relation-happens-before:
 .. _relation-reads-each-from:
+.. _relation-reads-from:
 .. _relation-suspensions-consistent:
+.. _relation-suspensions-consistent-with:
+.. _relation-value-consistent:
+.. _relation-hb-consistent:
+.. _relation-sc-last-visible:
+.. _relation-no-tear:
 .. _op-reading-reg:
 .. _op-overlap-reg:
+.. _op-happens-before:
+.. _op-tot:
+.. _op-implies-tot-happens-before:
+.. _op-implies:
+.. _op-implies-consistent-with:
+.. _op-not-in-range:
+.. _op-forall:
+.. _op-forall2:
+.. _op-f:
+.. _op-p:
+.. _op-access-r:
+.. _op-loc-in-region:
+.. _op-same-and-tear-free-filter:
+.. _op-tear-free:
 
-$${rule: consistent}
 
-$${rule: consistentwith}
+$${definition: P f forall forall2 impliesconsistentwith}
+
+$${rule: Consistent}
+
+$${rule: Consistentwith}
+
+$${rule: Readseachfrom}
+
+$${rule: Readsfrom}
+
+$${rule: Valueconsistent}
+
+$${rule: Hbconsistent}
+
+$${rule: Sclastvisible}
+
+$${rule: Notear}
+
+$${rule: Suspensionsconsistent}
+
+$${rule: Suspensionsconsistentwith}

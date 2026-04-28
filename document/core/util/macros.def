@@ -1325,8 +1325,9 @@
 
 .. |storeval| mathdef:: \xref{exec/runtime}{syntax-event}{\X{storeval}}
 .. |addrlen| mathdef:: \xref{exec/runtime}{syntax-event}{\K{addrlen}}
-.. |fld| mathdef:: \xref{exec/runtime}{syntax-event}{\X{fld}}
 .. |reg| mathdef:: \xref{exec/runtime}{syntax-event}{\X{reg}}
+.. |LEN| mathdef:: \xref{exec/runtime}{syntax-event}{\K{LEN}}
+.. |DATA| mathdef:: \xref{exec/runtime}{syntax-event}{\K{DATA}}
 .. |location| mathdef:: \xref{exec/runtime}{syntax-event}{\X{location}}
 
 .. |time| mathdef:: \xref{exec/relaxed_memory_model}{op-time}{\F{time}}
@@ -1378,10 +1379,32 @@
 
 .. |TRACE| mathdef:: \xref{exec/runtime}{syntax-store}{\X{TRACE}}
 
-.. |consistent| mathdef:: \xref{exec/relaxed_memory_model}{valid-consistent}{\X{consistent}}
-.. |consistentwith| mathdef:: \xref{exec/relaxed_memory_model}{valid-consistentwith}{\X{consistentwith}}
-.. |reads__each__from| mathdef:: \xref{exec/relaxed_memory_model}{relation-reads-each-from}{\X{reads__each__from}}
-.. |suspensions__consistent| mathdef:: \xref{exec/relaxed_memory_model}{relation-suspensions-consistent}{\X{suspensions__consistent}}
+.. |implies| mathdef:: \xref{exec/relaxed_memory_model}{op-implies}{\F{implies}}
+.. |impliesconsistentwith| mathdef:: \xref{exec/relaxed_memory_model}{op-implies-consistent-with}{\F{impliesconsistentwith}}
+.. |notinrange| mathdef:: \xref{exec/relaxed_memory_model}{op-not-in-range}{\F{notinrange}}
+.. |forall| mathdef:: \xref{exec/relaxed_memory_model}{op-forall}{\F{forall}}
+.. |forall2| mathdef:: \xref{exec/relaxed_memory_model}{op-forall2}{\F{forall2}}
+.. |happensbefore| mathdef:: \xref{exec/relaxed_memory_model}{op-happens-before}{\F{happensbefore}}
+.. |tot| mathdef:: \xref{exec/relaxed_memory_model}{op-tot}{\F{tot}}
+.. |impliestothappensbefore| mathdef:: \xref{exec/relaxed_memory_model}{op-implies-tot-happens-before}{\F{impliestothappensbefore}}
+.. |loc_in_region| mathdef:: \xref{exec/relaxed_memory_model}{op-loc-in-region}{\F{loc_in_region}}
+.. |access_r| mathdef:: \xref{exec/relaxed_memory_model}{op-access-r}{\F{access_r}}
+.. |same_and_tearfree_filter| mathdef:: \xref{exec/relaxed_memory_model}{op-same-and-tear-free-filter}{\F{same_and_tearfree_filter}}
+.. |tearfree| mathdef:: \xref{exec/relaxed_memory_model}{op-tear-free}{\F{tearfree}}
+.. |P| mathdef:: \xref{exec/relaxed_memory_model}{op-p}{\F{P}}
+.. |f| mathdef:: \xref{exec/relaxed_memory_model}{op-f}{\F{f}}
+
+.. |consistent| mathdef:: \xref{exec/relaxed_memory_model}{valid-consistent}{\X{Consistent}}
+.. |consistentwith| mathdef:: \xref{exec/relaxed_memory_model}{valid-consistentwith}{\X{Consistentwith}}
+.. |Happensbefore| mathdef:: \xref{exec/relaxed_memory_model}{relation-happens-before}{\X{Happensbefore}}
+.. |readseachfrom| mathdef:: \xref{exec/relaxed_memory_model}{relation-reads-each-from}{\X{Readseachfrom}}
+.. |readsfrom| mathdef:: \xref{exec/relaxed_memory_model}{relation-reads-from}{\X{Readsfrom}}
+.. |valueconsistent| mathdef:: \xref{exec/relaxed_memory_model}{relation-value-consistent}{\X{Valueconsistent}}
+.. |Hbconsistent| mathdef:: \xref{exec/relaxed_memory_model}{relation-hb-consistent}{\X{Hbconsistent}}
+.. |Sclastvisible| mathdef:: \xref{exec/relaxed_memory_model}{relation-sc-last-visible}{\X{Sclastvisible}}
+.. |Notear| mathdef:: \xref{exec/relaxed_memory_model}{relation-no-tear}{\X{Notear}}
+.. |Suspensionsconsistent| mathdef:: \xref{exec/relaxed_memory_model}{relation-suspensions-consistent}{\X{Suspensionsconsistent}}
+.. |Suspensionsconsistentwith| mathdef:: \xref{exec/relaxed_memory_model}{relation-suspensions-consistent-with}{\X{Suspensionsconsistentwith}}
 
 .. Notation
 
