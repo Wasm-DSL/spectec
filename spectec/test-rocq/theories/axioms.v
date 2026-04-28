@@ -10,14 +10,14 @@ From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype.
 Import ListNotations.
 
 
-Axiom fun_nbytes_len: forall v_nt v_c,
-    length (fun_nbytes_ v_nt v_c) =
-    (Nat.divmod (the (fun_size v_nt)) 7 0 7).1.
+Axiom nbytes_len: forall v_nt v_c,
+    length (nbytes_ v_nt v_c) =
+    (Nat.divmod (the (res_size (valtype_numtype v_nt))) 7 0 7).1.
 
-Axiom fun_ibytes_32_len: forall v_n v_c,
-    length (fun_ibytes_ v_n (fun_wrap__ 32 v_n v_c)) = 
+Axiom ibytes_32_len: forall v_n v_c,
+    length (ibytes_ v_n (wrap__ 32 v_n v_c)) = 
 			(Nat.divmod v_n 7 0 7).1.
 
-Axiom fun_ibytes_64_len: forall v_n v_c,
-    length (fun_ibytes_ v_n (fun_wrap__ 64 v_n v_c)) = 
+Axiom ibytes_64_len: forall v_n v_c,
+    length (ibytes_ v_n (wrap__ 64 v_n v_c)) = 
 			(Nat.divmod v_n 7 0 7).1.

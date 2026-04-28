@@ -10071,15 +10071,15 @@ Inductive Func_extension : funcinst -> funcinst -> Prop :=
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:266.1-266.51 *)
 Inductive Table_extension : tableinst -> tableinst -> Prop :=
-	| mk_Table_extension : forall (n1 : u32) (v_m : m) (rt : reftype) (ref_1_lst : (seq ref)) (n2 : u32) (ref_2_lst : (seq ref)), 
+	| mk_Table_extension : forall (n1 : u32) (m_opt : (option m)) (rt : reftype) (ref_1_lst : (seq ref)) (n2 : u32) (ref_2_lst : (seq ref)), 
 		((n1 :> nat) <= (n2 :> nat)) ->
-		Table_extension {| tableinst_TYPE := (mk_tabletype (mk_limits n1 (Some (mk_uN v_m))) rt); REFS := ref_1_lst |} {| tableinst_TYPE := (mk_tabletype (mk_limits n2 (Some (mk_uN v_m))) rt); REFS := ref_2_lst |}.
+		Table_extension {| tableinst_TYPE := (mk_tabletype (mk_limits n1 (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)) rt); REFS := ref_1_lst |} {| tableinst_TYPE := (mk_tabletype (mk_limits n2 (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)) rt); REFS := ref_2_lst |}.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:267.1-267.45 *)
 Inductive Mem_extension : meminst -> meminst -> Prop :=
-	| mk_Mem_extension : forall (n1 : u32) (v_m : m) (b_1_lst : (seq byte)) (n2 : u32) (b_2_lst : (seq byte)), 
+	| mk_Mem_extension : forall (n1 : u32) (m_opt : (option m)) (b_1_lst : (seq byte)) (n2 : u32) (b_2_lst : (seq byte)), 
 		((n1 :> nat) <= (n2 :> nat)) ->
-		Mem_extension {| meminst_TYPE := (PAGE (mk_limits n1 (Some (mk_uN v_m)))); BYTES := b_1_lst |} {| meminst_TYPE := (PAGE (mk_limits n2 (Some (mk_uN v_m)))); BYTES := b_2_lst |}.
+		Mem_extension {| meminst_TYPE := (PAGE (mk_limits n1 (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt))); BYTES := b_1_lst |} {| meminst_TYPE := (PAGE (mk_limits n2 (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt))); BYTES := b_2_lst |}.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:268.1-268.54 *)
 Inductive Global_extension : globalinst -> globalinst -> Prop :=

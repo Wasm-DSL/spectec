@@ -274,11 +274,11 @@ rule Func_extension:
   |- funcinst : funcinst
 
 rule Table_extension:
-  |- {TYPE `[n1..m] rt, REFS ref_1*} : {TYPE `[n2..m] rt, REFS ref_2*}
+  |- {TYPE `[n1..m?] rt, REFS ref_1*} : {TYPE `[n2..m?] rt, REFS ref_2*}
   -- if n1 <= n2
 
 rule Mem_extension:
-  |- {TYPE `[n1..m] PAGE, BYTES b_1*} : {TYPE `[n2..m] PAGE, BYTES b_2*}
+  |- {TYPE `[n1..m?] PAGE, BYTES b_1*} : {TYPE `[n2..m?] PAGE, BYTES b_2*}
   -- if n1 <= n2
 
 rule Global_extension:

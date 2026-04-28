@@ -183,7 +183,7 @@ Proof.
 	resolve_all_pt.
 	invert_ais_typing.
 	resolve_all_pt.
-	fix_size.
+	list_to_seq.
 	rewrite lookup_label_0 /= in H4; subst.
 
 	eapply Forall2_length in HValsok0 as HLeneq.
@@ -318,13 +318,6 @@ Proof.
 	auto.
 Qed.
 
-Lemma nth_is_same_as_seq_nth {T : Type} : forall (lst : list T) n x, List.nth n lst x = seq.nth x lst n.
-Proof.
-	move=> lst n.
-	generalize dependent n.
-	induction lst; move=> n; destruct n; eauto.
-Qed.
-
 Lemma Step_pure__br_table_lt_preserves : forall v_S v_C (v_i : num_) (v_l : (list labelidx)) (v_l' : labelidx) v_ft,
 	Admin_instrs_ok v_S v_C [(admininstr_CONST I32 v_i);(admininstr_BR_TABLE v_l v_l')] v_ft ->
 	Step_pure [(admininstr_CONST I32 v_i);(admininstr_BR_TABLE v_l v_l')] [(admininstr_BR (lookup_total v_l ((!(proj_num__0 v_i)) :> nat)))] ->
@@ -450,7 +443,7 @@ Proof.
 	typing_inversion HType.
 	simpl in Hai.
 	extract_premise.
-	fix_size.
+	list_to_seq.
 	inversion H1; subst; clear H1.
 	typing_inversion H7.
 	typing_inversion H3.
@@ -479,7 +472,7 @@ Proof.
 	  as [Hsub0 Hsub2].
 	2: {
 		eapply Forall2_length in Hforall.
-		fix_size.
+		list_to_seq.
 		rewrite H0 in Hforall.
 		auto.
 		

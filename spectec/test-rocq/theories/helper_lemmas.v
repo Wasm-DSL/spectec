@@ -83,6 +83,14 @@ Proof.
 		simpl. apply le_n_S. apply H.
 Qed.  
 
+Lemma nth_is_same_as_seq_nth {T : Type} : forall (lst : list T) n x, List.nth n lst x = seq.nth x lst n.
+Proof.
+	move=> lst n.
+	generalize dependent n.
+	induction lst; move=> n; destruct n; eauto.
+Qed.
+
+
 Lemma length_same_split_zero: forall {A : Type} (l l2' : list A),
 	seq.size l = seq.size l + seq.size l2' ->
 	seq.size l2' = 0.
@@ -777,3 +785,19 @@ Qed.
 Lemma size_cons {X : Type} : forall x (s : seq X), 
 	seq.size (x :: s) = S (seq.size s).
 Proof. eauto. Qed.
+
+Lemma ltsize {X : Type} : forall x (s s2 : seq X),
+	(x < | s |)%coq_nat ->
+	(x < | s ++ s2 |)%coq_nat.
+Proof.
+	move=> x s s2 Hsize.
+	generalize dependent x.
+	induction s; move=> x Hsize.
+	- apply Nat.nlt_0_r in Hsize. exfalso. apply Hsize.
+	- destruct x. apply Nat.lt_0_succ.
+	- simpl in Hsize. simpl. apply Arith_base.lt_n_S_stt. apply IHs. apply PeanoNat.lt_S_n in Hsize. apply Hsize.
+Qed. 
+
+Lemma repeat_size {A : Type} : forall (x : A) (n : nat), 
+	size (List.repeat x n) = n.
+Proof. intros. induction n; simpl; eauto. Qed.

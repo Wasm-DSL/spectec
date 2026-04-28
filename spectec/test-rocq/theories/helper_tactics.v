@@ -302,6 +302,57 @@ Ltac eq_to_prop :=
     move/orP in H
   | H : is_true (_ && _) |- _ =>
     move/andP in H
-  | H : _ |- is_true (_ == _) =>
+  | _ : _ |- is_true (_ == _) =>
     apply/eqP
+  | _ : _ |- is_true (_ || _) =>
+    apply/orP
+  | _ : _ |- is_true (_ && _) =>
+    apply/andP
+  end.
+
+Ltac ineq_to_prop :=
+  repeat match goal with
+  | H : is_true (_ < _) |- _ =>
+    move/ltnP in H
+  | H : is_true (_ <= _) |- _ =>
+    move/leP in H
+  (* | H : is_true (_ > _) |- _ =>
+    move/gtnP in H
+  | H : is_true (_ >= _) |- _ =>
+    move/geP in H *)
+  | _ : _ |- is_true (_ < _) =>
+    apply/ltnP
+  | _ : _ |- is_true (_ <= _) =>
+    apply/leP
+  (* | _ : _ |- is_true (_ > _) =>
+    apply/gtnP
+  | _ : _ |- is_true (_ >= _) =>
+    apply/geP *)
+  end
+.
+
+Ltac eq_to_propH H :=
+  match type of H with
+  | is_true (_ == _) =>
+    move/eqP in H
+  | is_true (_ != _)  =>
+    move/negbTE in H;
+    move/eqP in H
+  | is_true (_ || _)=>
+    move/orP in H
+  | is_true (_ && _) =>
+    move/andP in H
+  end.
+
+
+Ltac ineq_to_propH H :=
+  match type of H with
+  | is_true (_ < _) =>
+    move/ltnP in H
+  | is_true (_ <= _) =>
+    move/leP in H
+  (* | is_true (_ > _) =>
+    move/gtnP in H
+  | is_true (_ >= _) =>
+    move/geP in H *)
   end.

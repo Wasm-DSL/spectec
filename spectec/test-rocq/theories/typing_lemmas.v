@@ -2026,7 +2026,7 @@ Ltac join_subtyping_trans H1 H2 :=
   eapply (instrtype_sub_trans _ _ _ H1) in H2
 	as Hsubi.
 
-Ltac fix_size :=
+Ltac list_to_seq :=
 	repeat match goal with
 	| H : length ?l1 = size ?l2 |- _ =>
 		rewrite -!size_length in H 
@@ -2034,6 +2034,14 @@ Ltac fix_size :=
 		rewrite -!size_length in H 
 	| H : length ?l1 = length ?l2 |- _ =>
 		rewrite -!size_length in H 
+	| H : context [ length ?l1 ] |- _ =>
+		rewrite -!size_length in H
+	| _ : _ |- context [ length ?l1 ] =>
+		rewrite -!size_length
+	| H : context [ List.nth _ _ _ ] |- _ =>
+		rewrite nth_is_same_as_seq_nth in H 
+	| _ : _ |- context [ List.nth _ _ _ ] =>
+		rewrite nth_is_same_as_seq_nth
 	| _ => auto
 	end.
 
