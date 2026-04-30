@@ -14,7 +14,7 @@ module StringSet = Set.Make(String)
 
 type env = {
   mutable atom_str_set : StringSet.t;
-  il_env : Il.Env.t;
+  mutable il_env : Il.Env.t;
 }
 
 let make_prefix = "mk_"
@@ -99,6 +99,17 @@ let rec check_iteration_naming e iterexp =
     Eq.eq_id id id' && check_iteration_naming e i
   | _ -> false 
 
+and create_transformer env =
+  { base_transformer with 
+    transform_exp = t_exp env;
+    transform_typ = t_typ env;
+    transform_path = t_path env; 
+    transform_var_id = t_var_id env;
+    transform_typ_id = t_user_def_id env;
+    transform_rel_id = t_user_def_id env;
+    transform_def_id = t_def_id env;
+  } 
+
 and t_typ env t = 
   (match t.it with
   | VarT (id, []) when not (Env.mem_typ env.il_env id) -> 
@@ -111,12 +122,12 @@ and t_exp env e =
   (match e.it with
   | CaseE (m, e1) -> 
     let id = Print.string_of_typ_name (Eval.reduce_typ env.il_env e.note) in
-    CaseE(transform_mixop env id m, e1)
+    CaseE (transform_mixop env id m, e1)
   | StrE fields -> 
     let id = Print.string_of_typ_name (Eval.reduce_typ env.il_env e.note) in
     StrE (List.map (fun (a, e1) -> (transform_atom env id a, e1)) fields)
   | UncaseE (e1, m) -> 
-    let id = Print.string_of_typ_name (Eval.reduce_typ env.il_env e.note) in
+    let id = Print.string_of_typ_name (Eval.reduce_typ env.il_env e1.note) in
     UncaseE (e1, transform_mixop env id m)
   | DotE (e1, a) -> 
     let id = Print.string_of_typ_name (Eval.reduce_typ env.il_env e1.note) in
@@ -165,16 +176,8 @@ let transform_rule tf env rel_id rule =
   ) $ rule.at
 
 let rec t_def env def = 
-  let tf = { base_transformer with 
-    transform_exp = t_exp env;
-    transform_typ = t_typ env;
-    transform_path = t_path env; 
-    transform_var_id = t_var_id env;
-    transform_typ_id = t_user_def_id env;
-    transform_rel_id = t_user_def_id env;
-    transform_def_id = t_def_id env;
-  } in
-  (match def.it with
+  let tf = create_transformer env in
+  let def = (match def.it with
   | TypD (id, params, insts) -> 
     TypD (t_user_def_id env id, 
     List.map (transform_param tf) params |> Utils.improve_ids_params, 
@@ -196,7 +199,9 @@ let rec t_def env def =
     List.map (transform_prod tf) prods)
   | RecD defs -> RecD (List.map (t_def env) defs)
   | HintD hintdef -> HintD hintdef
-  ) $ def.at
+  ) $ def.at in
+  env.il_env <- Env.env_of_def env.il_env def;
+  def
 
 let create_env il = {
   atom_str_set = StringSet.empty;
@@ -204,5 +209,5 @@ let create_env il = {
 }
 
 let transform (il : script): script =
-  let env = create_env il in 
+  let env = create_env il in  
   List.map (t_def env) il

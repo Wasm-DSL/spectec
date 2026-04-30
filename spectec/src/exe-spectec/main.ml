@@ -27,6 +27,7 @@ type pass =
   | AliasDemut
   | ImproveIds
   | Ite
+  | SubDep
 
 (* This list declares the intended order of passes.
 
@@ -43,10 +44,11 @@ let all_passes = [
   Else;
   Uncaseremoval;
   Sideconditions;
+  SubDep;
   SubExpansion;
   Sub;
   AliasDemut;
-  ImproveIds
+  ImproveIds;
 ]
 
 type file_kind =
@@ -112,6 +114,7 @@ let pass_flag = function
   | Uncaseremoval -> "uncase-removal"
   | ImproveIds -> "improve-ids"
   | Ite -> "ite"
+  | SubDep -> "sub-dep"
 
 let pass_desc = function
   | Sub -> "Synthesize explicit subtype coercions"
@@ -126,6 +129,7 @@ let pass_desc = function
   | AliasDemut -> "Lifts type aliases out of mutual groups"
   | ImproveIds -> "Disambiguates ids used from each other"
   | Ite -> "If-then-else introduction"
+  | SubDep -> "Synthesize explicit subtype coercions and expand subtype matching (Dep version)"
 
 
 let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
@@ -141,6 +145,7 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | AliasDemut -> Middlend.AliasDemut.transform
   | ImproveIds -> Middlend.Improveids.transform
   | Ite -> Middlend.Ite.transform
+  | SubDep -> Middlend.Subdep.transform
 
 
 (* Argument parsing *)
