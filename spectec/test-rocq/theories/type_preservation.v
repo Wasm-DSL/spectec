@@ -1941,37 +1941,44 @@ Proof.
 		all: eapply (instrtype_sub_compose0 _ _ _ _ _ _ Hsub) in Hsub0.
 		
 		all: eapply construct_ais_typing_single; eauto.
-		all: eapply Admin_instr_ok__instr with (v_instr := (CONST _ c)).
-		all: econstructor.
+		- eapply Admin_instr_ok__instr with (v_instr := (CONST I32 c)). 
+			econstructor. econstructor.
+			by inversion H0.
+		- eapply Admin_instr_ok__instr with (v_instr := (CONST I64 c)). 
+			econstructor. econstructor.
+			by inversion H0.
+		- eapply Admin_instr_ok__instr with (v_instr := (CONST F32 c)). 
+			econstructor. econstructor.
+			by inversion H0.
+		- eapply Admin_instr_ok__instr with (v_instr := (CONST F64 c)). 
+			econstructor. econstructor.
+			by inversion H0.
 	}
-	{ (* Load INN_I32 *)
+	{ (* Load Inn *)
 		typing_inversion HType.
-		typing_inversion H1.
+		typing_inversion H4.
 		simpl in Hai; extract_premise.
-		typing_inversion H2.
+		typing_inversion H5.
+		destruct v_Inn;
 		simpl in Hai; extract_premise.
-		eapply (instrtype_sub_compose0 _ _ _ _ _ _ Hsub) in Hsub0.
-		
-		eapply construct_ais_typing_single; eauto.
-		eapply Admin_instr_ok__instr with (v_instr := (CONST INN_I32
-			(fun_extend__ v_n (the (res_size INN_I32)) v_sx v_c))).
-		econstructor.
-	}
-	{ (* Load INN_I64 *)
-		typing_inversion HType.
-		typing_inversion H1.
-		simpl in Hai; extract_premise.
-		typing_inversion H2.
-		simpl in Hai; extract_premise.
-		eapply (instrtype_sub_compose0 _ _ _ _ _ _ Hsub) in Hsub0.
-		
-		eapply construct_ais_typing_single; eauto.
-		eapply Admin_instr_ok__instr with (v_instr := (CONST INN_I64
-			(fun_extend__ v_n (the (res_size INN_I64)) v_sx v_c))).
-		econstructor.
+		all: 
+			eapply (instrtype_sub_compose0 _ _ _ _ _ _ Hsub) in Hsub0;
+			eapply construct_ais_typing_single; eauto.
+		- (* I32 case *)
+			eapply Admin_instr_ok__instr with (v_instr := (CONST I32
+				(mk_num__0 Inn_I32 (extend__ v_n 32 v_sx c)))).
+			econstructor.
+			econstructor.
+			by inversion H1.
+		- (* I64 case *)
+			eapply Admin_instr_ok__instr with (v_instr := (CONST I64
+				(mk_num__0 Inn_I64 (extend__ v_n 64 v_sx c)))).
+			econstructor.
+			econstructor.
+			by inversion H1.
 	}
 	(* SIMD instructions *) 
-	1-14: admit.
+	1-5: admit.
 	{ (* Memory_size *)
 		typing_inversion HType.
 		simpl in Hai; extract_premise.
@@ -1979,18 +1986,25 @@ Proof.
 		eapply construct_ais_typing_single.
 		2: eapply Hsub.
 		eapply Admin_instr_ok__instr with
-			(v_instr := (CONST I32 (mk_uN (sizenn INN_I32) v_n))).
+			(v_instr := (CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))).
 		econstructor.
+		econstructor.
+		by inversion H.
 	}
 	{ (* Memory_fill *)
+		repeat rewrite -(cat1s _ (_ :: _)) in HType.
 		typing_inversion HType.
+		rename Hai into Haifinal.
+		rename Hsub into Hsubfinal.
+
+		typing_inversion H2.
 		simpl in Hai; extract_premise.
+
 
 		typing_inversion H4.
 		typing_inversion H3.
 		simpl in Hai; extract_premise.
-		typing_inversion H2.
-		simpl in Hai; extract_premise.
+		simpl in Haifinal; extract_premise.
 
 		rewrite -(cats0 [valtype_I32]) in Hsub.
 		eapply (instrtype_sub_compose2 _ _ _ _ _ _ _ Hsub) in Hsub0.
@@ -2000,7 +2014,7 @@ Proof.
 		eapply (instrtype_sub_compose2 _ _ _ _ _ _ _ Hsub0) in Hsub1.
 		simpl in Hsub1.
 
-		eapply (instrtype_sub_compose_eq _ _ _ _ _ _ _ Hsub1) in Hsub2
+		eapply (instrtype_sub_compose_eq _ _ _ _ _ _ _ Hsub1) in Hsubfinal
 			as [Hsub2 Hsubs].
 		2: eauto.
 
@@ -2024,6 +2038,7 @@ Proof.
 		{
 			eapply construct_ais_typing_single.
 			eapply construct_ai_const_I32.
+			- by inversion H3.
 			eapply instrtype_sub_refl.
 		}
 		{
@@ -2039,13 +2054,16 @@ Proof.
 		{
 			eapply construct_ais_typing_single.
 			eapply Admin_instr_ok__instr with (v_instr :=
-				instr_STORE INN_I32 (Some (mk_sz 8)) fun_memarg0).
-			eapply instr_ok_store_pack; eauto.
+				STORE I32 (Some (mk_sz 8)) memarg0).
+			assert (I32 = numtype_Inn (Inn_I32)) as Hnti. { auto. } 
+			rewrite Hnti.
+			eapply store_pack; eauto.
 			eapply instrtype_sub_refl.
 		}
 		{
 			eapply construct_ais_typing_single.
 			eapply construct_ai_const_I32.
+			- by inversion H4.
 			eapply instrtype_sub_refl.
 		}
 		{
@@ -2061,6 +2079,7 @@ Proof.
 		{
 			eapply construct_ais_typing_single.
 			eapply construct_ai_const_I32.
+			- by inversion H5.
 			instantiate (1 := [valtype_I32; valtype_I32; valtype_I32]).
 			eexists [valtype_I32; valtype_I32],[valtype_I32; valtype_I32],[],[valtype_I32].
 			split; auto.
@@ -2070,21 +2089,24 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr := instr_MEMORY_FILL).
+			eapply Admin_instr_ok__instr with (v_instr := MEMORY_FILL).
 			econstructor; eauto.
 			eapply instrtype_sub_refl.
 		}
 	}
 	{ (* Memory_copy *)
+		repeat rewrite -(cat1s _ (_ :: _)) in HType.
 		typing_inversion HType.
-		simpl in Hai; extract_premise.
+		rename Hai into Haifinal.
+		rename Hsub into Hsubfinal.
 
-		typing_inversion H4.
-		simpl in Hai; extract_premise.
 		typing_inversion H3.
 		simpl in Hai; extract_premise.
-		typing_inversion H2.
+		typing_inversion H5.
 		simpl in Hai; extract_premise.
+		typing_inversion H4.
+		simpl in Hai; extract_premise.
+		simpl in Haifinal; extract_premise.
 
 		rewrite -(cats0 [valtype_I32]) in Hsub.
 		eapply (instrtype_sub_compose2 _ _ _ _ _ _ _ Hsub) in Hsub0.
@@ -2094,7 +2116,7 @@ Proof.
 		eapply (instrtype_sub_compose2 _ _ _ _ _ _ _ Hsub0) in Hsub1.
 		simpl in Hsub1.
 
-		eapply (instrtype_sub_compose_eq _ _ _ _ _ _ _ Hsub1) in Hsub2
+		eapply (instrtype_sub_compose_eq _ _ _ _ _ _ _ Hsub1) in Hsubfinal
 			as [Hsub2 Hsubs].
 		2: eauto.
 
@@ -2113,12 +2135,12 @@ Proof.
 		construct_ais_typing.
 		{
 			eapply construct_ais_typing_single.
-			eapply construct_ai_const_I32.
+			eapply construct_ai_const_I32; eauto.
 			eapply instrtype_sub_refl.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply construct_ai_const_I32.
+			eapply construct_ai_const_I32; eauto.
 			instantiate (1 := [valtype_I32; valtype_I32]).
 			eexists [valtype_I32],[valtype_I32],[],[valtype_I32].
 			split; auto.
@@ -2129,8 +2151,18 @@ Proof.
 		{
 			eapply construct_ais_typing_single.
 			eapply Admin_instr_ok__instr with (v_instr :=
-				instr_LOAD INN_I32 (Some (op_ INN_I32 (mk_sz 8) U)) fun_memarg0).
+				LOAD I32 (Some (mk_loadop__0 Inn_I32
+					(mk_loadop_Inn (mk_sz 8) U))) memarg0).
+			assert (I32 = numtype_Inn (Inn_I32)) as Hnti. { auto. }
+			rewrite Hnti.
 			econstructor; eauto.
+			(* Well-formedness check *)
+			- econstructor.
+				econstructor.
+				- econstructor; eauto. econstructor; eauto. econstructor; eauto.
+				- eauto.
+				- econstructor. econstructor. eauto.
+				- econstructor. econstructor. eauto.
 			simpl.
 			instantiate (1 := [valtype_I32; valtype_I32]).
 			eexists [valtype_I32],[valtype_I32],[valtype_I32],[valtype_I32].
@@ -2142,18 +2174,22 @@ Proof.
 		{
 			eapply construct_ais_typing_single.
 			eapply Admin_instr_ok__instr with (v_instr :=
-				instr_STORE INN_I32 (Some (mk_sz 8)) fun_memarg0).
+				STORE I32 (Some (mk_sz 8)) memarg0).
+			assert (I32 = numtype_Inn (Inn_I32)) as Hnti. { auto. }
+			rewrite Hnti.
 			econstructor; eauto.
 			eapply instrtype_sub_refl.
 		}
 		{
 			eapply construct_ais_typing_single.
 			eapply construct_ai_const_I32.
+			- by inversion H7.
 			eapply instrtype_sub_refl.
 		}
 		{
 			eapply construct_ais_typing_single.
 			eapply construct_ai_const_I32.
+			- by inversion H8.
 			instantiate (1 := [valtype_I32; valtype_I32]).
 			eexists [valtype_I32],[valtype_I32],[],[valtype_I32].
 			split; auto.
@@ -2164,6 +2200,7 @@ Proof.
 		{
 			eapply construct_ais_typing_single.
 			eapply construct_ai_const_I32.
+			- by inversion H9.
 			instantiate (1 := [valtype_I32; valtype_I32; valtype_I32]).
 			eexists [valtype_I32; valtype_I32],[valtype_I32; valtype_I32],[],[valtype_I32].
 			split; auto.
@@ -2173,7 +2210,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr := instr_MEMORY_COPY).
+			eapply Admin_instr_ok__instr with (v_instr := MEMORY_COPY).
 			econstructor; eauto.
 			eapply instrtype_sub_refl.
 		}
@@ -2191,11 +2228,13 @@ Proof.
 		{
 			eapply construct_ais_typing_single.
 			eapply construct_ai_const_I32.
+			- by inversion H5. 
 			eapply instrtype_sub_refl.
 		}
 		{
 			eapply construct_ais_typing_single.
 			eapply construct_ai_const_I32.
+			- by inversion H6.
 			instantiate (1 := [valtype_I32; valtype_I32]).
 			eexists [valtype_I32],[valtype_I32],[],[valtype_I32].
 			split; auto.
@@ -2206,8 +2245,15 @@ Proof.
 		{
 			eapply construct_ais_typing_single.
 			eapply Admin_instr_ok__instr with (v_instr :=
-				instr_LOAD INN_I32 (Some (op_ INN_I32 (mk_sz 8) U)) fun_memarg0).
+				LOAD I32 (Some (mk_loadop__0 Inn_I32 
+				(mk_loadop_Inn (mk_sz 8) U))) memarg0).
+			assert (I32 = numtype_Inn (Inn_I32)) as Hnti. { auto. }
+			rewrite Hnti.
 			econstructor; eauto.
+			- (* Wellformedness check *)
+				econstructor; econstructor; econstructor; eauto.
+				econstructor; eauto.
+				econstructor; eauto.
 			simpl.
 			instantiate (1 := [valtype_I32; valtype_I32]).
 			eexists [valtype_I32],[valtype_I32],[valtype_I32],[valtype_I32].
@@ -2219,18 +2265,20 @@ Proof.
 		{
 			eapply construct_ais_typing_single.
 			eapply Admin_instr_ok__instr with (v_instr :=
-				instr_STORE INN_I32 (Some (mk_sz 8)) fun_memarg0).
+				STORE I32 (Some (mk_sz 8)) memarg0).
+			assert (I32 = numtype_Inn (Inn_I32)) as Hnti. { auto. }
+			rewrite Hnti.
 			econstructor; eauto.
 			eapply instrtype_sub_refl.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply construct_ai_const_I32.
+			eapply construct_ai_const_I32; eauto.
 			eapply instrtype_sub_refl.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply construct_ai_const_I32.
+			eapply construct_ai_const_I32; eauto.
 			instantiate (1 := [valtype_I32; valtype_I32]).
 			eexists [valtype_I32],[valtype_I32],[],[valtype_I32].
 			split; auto.
@@ -2241,6 +2289,7 @@ Proof.
 		{
 			eapply construct_ais_typing_single.
 			eapply construct_ai_const_I32.
+			- by inversion H10.
 			instantiate (1 := [valtype_I32; valtype_I32; valtype_I32]).
 			eexists [valtype_I32; valtype_I32],[valtype_I32; valtype_I32],[],[valtype_I32].
 			split; auto.
@@ -2250,21 +2299,24 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr := instr_MEMORY_COPY).
+			eapply Admin_instr_ok__instr with (v_instr := MEMORY_COPY).
 			econstructor; eauto.
 			eapply instrtype_sub_refl.
 		}
 	}
 	{ (* Memory_init 0 *)
+		repeat rewrite -(cat1s _ (_ :: _)) in HType.	
 		typing_inversion HType.
-		simpl in Hai; extract_premise.
+		rename Hai into Haifinal.
+		rename Hsub into Hsubfinal.
 
-		typing_inversion H4.
-		simpl in Hai; extract_premise.
 		typing_inversion H3.
 		simpl in Hai; extract_premise.
-		typing_inversion H2.
+		typing_inversion H5.
 		simpl in Hai; extract_premise.
+		typing_inversion H4.
+		simpl in Hai; extract_premise.
+		simpl in Haifinal; extract_premise.
 
 		rewrite -(cats0 [valtype_I32]) in Hsub.
 		eapply (instrtype_sub_compose2 _ _ _ _ _ _ _ Hsub) in Hsub0.
@@ -2274,7 +2326,7 @@ Proof.
 		eapply (instrtype_sub_compose2 _ _ _ _ _ _ _ Hsub0) in Hsub1.
 		simpl in Hsub1.
 
-		eapply (instrtype_sub_compose_eq _ _ _ _ _ _ _ Hsub1) in Hsub2
+		eapply (instrtype_sub_compose_eq _ _ _ _ _ _ _ Hsub1) in Hsubfinal
 			as [Hsub2 Hsubs].
 		2: eauto.
 
@@ -2293,12 +2345,13 @@ Proof.
 		construct_ais_typing.
 		{
 			eapply construct_ais_typing_single.
-			eapply construct_ai_const_I32.
+			eapply construct_ai_const_I32; eauto.
 			eapply instrtype_sub_refl.
 		}
 		{
 			eapply construct_ais_typing_single.
 			eapply construct_ai_const_I32.
+			- by inversion H6.
 			instantiate (1 := [valtype_I32; valtype_I32]).
 			eexists [valtype_I32],[valtype_I32],[],[valtype_I32].
 			split; auto.
@@ -2309,18 +2362,22 @@ Proof.
 		{
 			eapply construct_ais_typing_single.
 			eapply Admin_instr_ok__instr with (v_instr :=
-				instr_STORE INN_I32 (Some (mk_sz 8)) fun_memarg0).
+				STORE I32 (Some (mk_sz 8)) memarg0).
+			assert (I32 = numtype_Inn (Inn_I32)) as Hnti. { auto. }
+			rewrite Hnti.
 			econstructor; eauto.
 			eapply instrtype_sub_refl.
 		}
 		{
 			eapply construct_ais_typing_single.
 			eapply construct_ai_const_I32.
+			- by inversion H7.
 			eapply instrtype_sub_refl.
 		}
 		{
 			eapply construct_ais_typing_single.
 			eapply construct_ai_const_I32.
+			- by inversion H8.
 			instantiate (1 := [valtype_I32; valtype_I32]).
 			eexists [valtype_I32],[valtype_I32],[],[valtype_I32].
 			split; auto.
@@ -2331,6 +2388,7 @@ Proof.
 		{
 			eapply construct_ais_typing_single.
 			eapply construct_ai_const_I32.
+			- by inversion H9.
 			instantiate (1 := [valtype_I32; valtype_I32; valtype_I32]).
 			eexists [valtype_I32; valtype_I32],[valtype_I32; valtype_I32],[],[valtype_I32].
 			split; auto.
@@ -2341,8 +2399,8 @@ Proof.
 		{
 			eapply construct_ais_typing_single.
 			eapply Admin_instr_ok__instr with (v_instr :=
-				instr_MEMORY_INIT v_x).
-			econstructor; eauto.
+				MEMORY_INIT x).
+			econstructor; eq_to_prop; eauto.
 			eapply instrtype_sub_refl.
 		}
 	}
@@ -2365,16 +2423,16 @@ Qed.
 
 
 Lemma t_preservation_type: forall v_s v_f v_ais v_s' v_f' v_ais' v_C v_C' t1s t2s,
-    Step (mk_config (mk_state v_s v_f) v_ais) (mk_config (mk_state v_s' v_f') v_ais') ->
-    Store_ok v_s ->
-    Store_ok v_s' ->
+  Step (mk_config (mk_state v_s v_f) v_ais) (mk_config (mk_state v_s' v_f') v_ais') ->
+  Store_ok v_s ->
+  Store_ok v_s' ->
 	Store_extension v_s v_s' -> 
-    Module_instance_ok v_s (frame_MODULE v_f) v_C ->
-    Module_instance_ok v_s' (frame_MODULE v_f) v_C ->
+  Module_instance_ok v_s (frame_MODULE v_f) v_C ->
+  Module_instance_ok v_s' (frame_MODULE v_f) v_C ->
 	Vals_ok v_s (LOCALS v_f) (context_LOCALS v_C')->
 	inst_match v_C v_C' ->
-    Admin_instrs_ok v_s v_C' v_ais (t1s :-> t2s) ->
-    Admin_instrs_ok v_s' v_C' v_ais' (t1s :-> t2s).
+  Admin_instrs_ok v_s v_C' v_ais (t1s :-> t2s) ->
+  Admin_instrs_ok v_s' v_C' v_ais' (t1s :-> t2s).
 Proof.
 	move => v_s v_f v_ais v_s' v_f' v_ais' v_C v_C' t1s t2s HReduce HST1 HST2 HSExt HIT1 HIT2 HValOK Him.
 	move: v_C v_C' HIT1 HIT2 HValOK Him t1s t2s.
@@ -2386,8 +2444,8 @@ Proof.
 	generalize dependent v_f'.
 	dependent induction HReduce;
 	move => r_v_f' r_v_f v_ais' Heqc2 v_ais Heqc1 v_C v_C' HIT1 HIT2 HValOK Him tx ty HType;
-	try (destruct v_z; subst);
-	try (destruct v_z'; subst); try eauto;
+	try (destruct z; subst);
+	try (destruct z'; subst); try eauto;
 	try (apply config_same in Heqc1; apply config_same in Heqc2; 
 		destruct Heqc1 as [Hbefore1 [Hbefore2 Hbefore3]]; 
 		destruct Heqc2 as [Hafter1 [Hafter2 Hafter3]]; subst => //);
@@ -2415,7 +2473,105 @@ Proof.
 	].
 	- (* Step_pure *) eapply t_pure_preservation; eauto.
 	- (* Step_read *) eapply t_read_preservation; eauto.
-	{ (* Context Seq *)
+	{ (* Context Label *) 
+		typing_inversion HType.
+		unfold_principal_typing Hai; extract_premise.
+
+		eapply construct_ais_typing_single.
+		2: eapply Hsub.
+		econstructor; eq_to_prop; eauto.
+	}
+	{ (* Context Frame *)
+		invert_ais_typing.
+		resolve_all_pt; subst.
+
+		inversion H1; subst.
+		inversion H0; subst.
+
+		remember ({|
+			context_TYPES := [];
+			context_FUNCS := [];
+			context_GLOBALS := [];
+			context_TABLES := [];
+			context_MEMS := [];
+			context_ELEMS := [];
+			context_DATAS := [];
+			context_LOCALS := t_lst;
+			LABELS := [];
+			context_RETURN := None
+		|} @@ C0) as C0_l.
+		remember ({|
+			context_TYPES := [];
+			context_FUNCS := [];
+			context_GLOBALS := [];
+			context_TABLES := [];
+			context_MEMS := [];
+			context_ELEMS := [];
+			context_DATAS := [];
+			context_LOCALS := [];
+			LABELS := [];
+			context_RETURN := Some (mk_list valtype extr)
+		|} @@ C0_l) as C0_lr.
+		eapply inst_t_context_local_empty in H as HC1empty.
+
+		assert (t_lst = context_LOCALS C0_lr) as Heqv_t.
+		{
+			subst.
+			simpl.
+			rewrite HC1empty.
+			rewrite /_append /Append_List_.
+			rewrite cat0s.
+			by rewrite cats0.
+		}
+		
+		assert (Vals_ok v_s' (LOCALS f'') t_lst).
+		{
+			fold (Vals_ok v_s val_lst t_lst) in H3.
+			rewrite Heqv_t.
+			subst.
+			eapply t_preservation_vs_type; eauto.
+			{
+				simpl.
+				rewrite HC1empty.
+				rewrite /_append /Append_List_.
+				rewrite cat0s.
+				by rewrite cats0.
+			}
+			resolve_inst_match.
+		}
+
+		assert (Module_instance_ok v_s' (frame_MODULE f'') C0).
+		{
+			eapply step_moduleinst; eauto.
+			subst; resolve_inst_match.
+		}
+
+		construct_ais_typing.
+		econstructor; eauto.
+		eapply mk_Thread_ok with (C := C0_l).
+		{
+			destruct f''.
+			eapply reduce_inst_unchanged in HReduce.
+			rewrite /= in HReduce; subst.
+			eapply mk_Frame_ok; eauto.
+			unfold Vals_ok in H4.
+			by eapply Forall2_length in H4; eq_to_prop.
+		}
+		eapply IHHReduce; eauto; simpl; try by subst.
+		{
+			erewrite <- reduce_inst_unchanged in H5; eauto.
+			eauto.
+		}
+		{
+			subst. simpl.
+			rewrite HC1empty /_append /Append_List_.
+			rewrite cat0s.
+			rewrite cats0.
+			simpl.
+			auto.
+		}
+	}
+	{ (* Context Instrs *)
 		invert_ais_typing.
 		eapply ais_vals_typing_inversion in HType1
 			as [v_ts [HSub HValsok]].
@@ -2432,99 +2588,79 @@ Proof.
 			eapply store_extension_ais; eauto.
 		}
 	}
-	{ (* Context Label *) 
-		typing_inversion HType.
-		unfold_principal_typing Hai; extract_premise.
+	{ (* Table grow *)
+		invert_ais_typing.
+		resolve_all_pt.
+		eq_to_prop; subst.
+
+		rewrite -(cats0 [valtype_reftype t]) in Hsub.
+		eapply (instrtype_sub_compose2 _ _ _ _ _ _ _ Hsub) in Hsub1.
+		simpl in Hsub1.
+
+		rewrite -(cat1s) in Hsub1.
+		eapply (instrtype_sub_compose_eq _ _ _ _ _ _ _ Hsub1) in Hsub0.
+		2: eauto.
+		destruct Hsub0.
 
 		eapply construct_ais_typing_single.
-		2: eapply Hsub.
-		econstructor; eauto.
+		2: apply H3.
+		eapply construct_ai_const_I32.
+
+		inversion H1; subst; clear H.
+		inversion H11; subst; clear H11.
+		by inversion H9.
 	}
-	{ (* Context Frame *)
+	{ (* Table grow fail *)
 		invert_ais_typing.
-		resolve_all_pt; subst.
+		resolve_all_pt.
+		eq_to_prop; subst.
 
-		inversion H1; subst.
-		inversion H0; subst.
+		rewrite -(cats0 [valtype_reftype t]) in Hsub.
+		eapply (instrtype_sub_compose2 _ _ _ _ _ _ _ Hsub) in Hsub1.
+		simpl in Hsub1.
 
-		remember ({|
-			context_TYPES := [];
-			context_FUNCS := [];
-			context_GLOBALS := [];
-			context_LOCALS := [];
-			context_MEMS := [];
-			context_ELEMS := [];
-			context_DATAS := [];
-			context_LOCALS := v_t;
-			LABELS := [];
-			C_RETURN := None
-		|} @@ v_C1) as v_C1_l.
-		remember ({|
-			context_TYPES := [];
-			context_FUNCS := [];
-			context_GLOBALS := [];
-			context_LOCALS := [];
-			context_MEMS := [];
-			context_ELEMS := [];
-			context_DATAS := [];
-			context_LOCALS := [];
-			LABELS := [];
-			C_RETURN := Some (mk_list valtype extr)
-		|} @@ v_C1_l) as v_C1_lr.
-		eapply inst_t_context_local_empty in H as HC1empty.
+		rewrite -(cat1s) in Hsub1.
+		eapply (instrtype_sub_compose_eq _ _ _ _ _ _ _ Hsub1) in Hsub0.
+		2: eauto.
+		destruct Hsub0.
 
-		assert (v_t = context_LOCALS v_C1_lr) as Heqv_t.
-		{
-			subst.
-			simpl.
-			rewrite HC1empty.
-			by rewrite /_append /Append_List_ !app_nil_r.
-		}
-		
-		assert (Vals_ok v_s' (LOCALS v_f'') v_t).
-		{
-			fold (Vals_ok v_s v_val v_t) in H3.
-			rewrite Heqv_t.
-			subst.
-			eapply t_preservation_vs_type; eauto.
-			{
-				simpl.
-				rewrite HC1empty.
-				by rewrite /_append /Append_List_ !app_nil_r.
-			}
-			resolve_inst_match.
-		}
+		eapply construct_ais_typing_single.
+		2: apply H4.
+		eapply construct_ai_const_I32.
 
-		assert (Module_instance_ok v_s' (frame_MODULE v_f'') v_C1).
-		{
-			eapply step_moduleinst; eauto.
-			subst; resolve_inst_match.
-		}
-
-		construct_ais_typing.
-		econstructor; eauto.
-		eapply mk_Thread_ok with (v_C := v_C1_l).
-		{
-			destruct v_f''.
-			eapply reduce_inst_unchanged in HReduce.
-			rewrite /= in HReduce; subst.
-			eapply mk_Frame_ok; eauto.
-			by eapply Forall2_length in H4.
-		}
-		eapply IHHReduce; eauto; simpl; try by subst.
-		{
-			erewrite <- reduce_inst_unchanged in H5; eauto.
-			eauto.
-		}
-		{
-			subst. simpl.
-			rewrite HC1empty /_append /Append_List_ app_nil_r.
-			simpl.
-			auto.
-		}
+		inversion H1; subst; clear H.
+		inversion H10; subst; clear H10.
+		by inversion H8.
 	}
 	(* The rest are all SIMD instructions *)
-	1-5: admit.
+	1-2: admit.
+	{ (* Memory grow *)
+		invert_ais_typing.
+		resolve_all_pt.
+		eapply (instrtype_sub_compose0 _ _ _ _ _ _ Hsub0) in Hsub.
+		eapply construct_ais_typing_single.
+		2: apply Hsub.
+		eapply construct_ai_const_I32.
+		inversion H1; subst; clear H.
+		inversion H10; subst; clear H10.
+		by inversion H7.
+	}
+	{ (* Memory Grow fail *)
+		typing_inversion HType.
+		
+		typing_inversion H2.
+		simpl in Hai; extract_premise.
+
+		typing_inversion H3.
+		simpl in Hai; extract_premise.
+		eapply (instrtype_sub_compose0 _ _ _ _ _ _ Hsub) in Hsub0.
+		eapply construct_ais_typing_single.
+		2: apply Hsub0.
+		eapply construct_ai_const_I32.
+		inversion H1; subst; clear H.
+		inversion H8; subst; clear H8.
+		by inversion H5.
+	}
 Admitted.
 
 
@@ -2552,37 +2688,38 @@ Proof.
 	rename H22 into HAIs1.
 	(* Module_instance_ok store1 v_moduleinst v_C0 *)
 	inversion HModuleInst1.
+	eq_to_prop;
 	subst.
 
 	remember {|
-		FUNCS := funcinst_lst; GLOBALS := globalinst_lst; store_TABLES := tableinst_lst;
+		store_FUNCS := funcinst_lst; store_GLOBALS := globalinst_lst; store_TABLES := tableinst_lst;
 		store_MEMS := meminst_lst; store_ELEMS := eleminst_lst;	store_DATAS := datainst_lst
 	|} as store1.
 	remember {|
-		MODULE_TYPES := v_functype0;
-		MODULE_FUNCS := v_funcaddr;
-		GLOBALS := v_globaladdr;
-		TABLES := v_tableaddr;
-		MEMS := v_memaddr;
-		ELEMS := v_elemaddr;
-		DATAS := v_dataaddr;
-		MODULE_EXPORTS := v_exportinst
+		TYPES := functype_lst0;
+		FUNCS := funcaddr_lst;
+		GLOBALS := globaladdr_lst;
+		TABLES := tableaddr_lst;
+		MEMS := memaddr_lst;
+		ELEMS := elemaddr_lst;
+		DATAS := dataaddr_lst;
+		EXPORTS := exportinst_lst
 	|} as v_moduleinst.
 	remember {|
-		LOCALS := v_val;
+		LOCALS := val_lst;
 		frame_MODULE := v_moduleinst
 	|} as frame1.
 	remember {|
-		context_TYPES := v_functype0;
-		context_FUNCS := v_functype';
-		context_GLOBALS := v_globaltype0;
-		context_LOCALS := tabletype_lst0;
+		context_TYPES := functype_lst0;
+		context_FUNCS := functype'_lst;
+		context_GLOBALS := globaltype_lst0;
+		context_TABLES := tabletype_lst0;
 		context_MEMS := memtype_lst0;
-		context_ELEMS := v_reftype0;
-		context_DATAS := v_datatype;
+		context_ELEMS := reftype_lst0;
+		context_DATAS := datatype_lst;
 		context_LOCALS := [];
 		LABELS := [];
-		C_RETURN := None
+		context_RETURN := None
 	|} as v_C0.
 
 	assert (Store_extension store1 store2 /\ Store_ok store2) as
@@ -2590,17 +2727,17 @@ Proof.
 	{
 		apply (store_extension_reduce 
 			store1  
-			{|LOCALS := v_val;frame_MODULE := v_moduleinst|} 
-			l
+			{|LOCALS := val_lst; frame_MODULE := v_moduleinst|} 
+			admininstr_lst 
 			store2
 			frame2
-			l0
+			admininstr_lst0
 			v_C0
 			(upd_local_return v_C0
-					(_append v_t1 (context_LOCALS v_C0))
+					(_append t_lst1 (context_LOCALS v_C0))
 					(_append (option_map [eta (mk_list _)] None)
-						(C_RETURN v_C0)))
-			([] :-> (mk_list valtype v_t)) 
+						(context_RETURN v_C0)))
+			([] :-> (mk_list valtype t_lst)) 
 			). all:  subst; auto.
 		by resolve_inst_match.
 	}
@@ -2616,39 +2753,44 @@ Proof.
 	rewrite <- HModuleInst.
 	eapply mk_Thread_ok; auto.
 	{
-		assert (Vals_ok store2 locals2 v_t1).
+		assert (Vals_ok store2 locals2 t_lst1).
 		apply (t_preservation_vs_type) with
 			(C := v_C0)
 			(C' :=
 				{|
-				context_TYPES := v_functype0;
-				context_FUNCS := v_functype';
-				context_GLOBALS := v_globaltype0;
-				context_LOCALS := tabletype_lst0;
+				context_TYPES := functype_lst0;
+				context_FUNCS := functype'_lst;
+				context_GLOBALS := globaltype_lst0;
+				context_TABLES := tabletype_lst0;
 				context_MEMS := memtype_lst0;
-				context_ELEMS := v_reftype0;
-				context_DATAS := v_datatype;
-				context_LOCALS := v_t1;
+				context_ELEMS := reftype_lst0;
+				context_DATAS := datatype_lst;
+				context_LOCALS := t_lst1;
 				LABELS := [];
-				C_RETURN := None
+				context_RETURN := None
 				|})
 			(t1s := [])
-			(t2s := (mk_list valtype v_t))
+			(t2s := (mk_list valtype t_lst))
 			(s := store1)
 			(f := frame1)
 			(f' := {| LOCALS := locals2; frame_MODULE := module2 |})
-			(ais := l)
-			(ais' := l0)
+			(ais := admininstr_lst)
+			(ais' := admininstr_lst0)
 			; eauto;
 		try (subst; solve [
 			auto |
 			simpl; try rewrite cats0; auto |
-			resolve_inst_match |
-			subst; rewrite /_append /Append_context /_append_context
-			/_append /Append_List_ (app_nil_r v_t1) in HAIs1; simpl in HAIs1; auto
+			resolve_inst_match
 		]).
+		- subst. clear -HAIs1. 
+			rewrite /_append /Append_context /_append_context in HAIs1; simpl in HAIs1. 
+			rewrite /_append /Append_List_ in HAIs1.
+			repeat rewrite cats0 in HAIs1.
+			repeat rewrite cat0s in HAIs1.
+			simpl in HAIs1.
+			eapply HAIs1.
 
-		eapply (mk_Frame_ok store2 locals2 v_moduleinst v_C0 v_t1); eauto;
+		eapply (mk_Frame_ok store2 locals2 v_moduleinst t_lst1 v_C0); eq_to_prop; eauto.
 		by eapply Forall2_length in H0.
 	}
 	subst.
@@ -2656,6 +2798,6 @@ Proof.
 	(* Actual Typing proof *)
 	eapply t_preservation_type; eauto.
 	simpl in *.
-	by rewrite /_append /Append_List_ app_nil_r /=.
+	by rewrite /_append /Append_List_ cats0 /=.
 	by resolve_inst_match.
 Qed.
