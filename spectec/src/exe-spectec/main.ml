@@ -40,12 +40,12 @@ let all_passes = [
   Ite;
   TypeFamilyRemoval;
   Undep;
-  PatSimp;
   Totalize;
   Else;
   Uncaseremoval;
   Sideconditions;
   SubExpansion;
+  PatSimp;
   Sub;
   AliasDemut;
   ImproveIds
