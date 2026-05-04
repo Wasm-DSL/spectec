@@ -14,10 +14,6 @@ Axiom nbytes_len: forall v_nt v_c,
     length (nbytes_ v_nt v_c) =
     (Nat.divmod (the (res_size (valtype_numtype v_nt))) 7 0 7).1.
 
-Axiom ibytes_32_len: forall v_n v_c,
-    length (ibytes_ v_n (wrap__ 32 v_n v_c)) = 
-			(Nat.divmod v_n 7 0 7).1.
-
-Axiom ibytes_64_len: forall v_n v_c,
-    length (ibytes_ v_n (wrap__ 64 v_n v_c)) = 
+Axiom ibytes_len: forall size v_n v_c,
+    length (ibytes_ v_n (wrap__ size v_n v_c)) = 
 			(Nat.divmod v_n 7 0 7).1.

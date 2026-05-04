@@ -488,7 +488,7 @@ Qed.
 Lemma Step_pure__return_label_preserves : forall v_S v_C (v_n : n) (v_instr' : (list instr)) (v_val : (list wasm.val)) v_admininstr v_ft,
 	Admin_instrs_ok v_S v_C [(LABEL_ v_n v_instr' (((map admininstr_val v_val) ++ [(admininstr_RETURN )]) ++ v_admininstr))] v_ft ->
 	Step_pure [(LABEL_ v_n v_instr' (((map admininstr_val v_val) ++ [(admininstr_RETURN )]) ++ v_admininstr))] ((map admininstr_val v_val) ++ [(admininstr_RETURN )]) ->
-	Admin_instrs_ok v_S v_C (@app _ (map admininstr_val v_val) [(admininstr_RETURN )]) v_ft.
+	Admin_instrs_ok v_S v_C ((map admininstr_val v_val) ++ [(admininstr_RETURN )]) v_ft.
 Proof.
 	move => v_S v_C v_n v_instr' v_val v_admininstr v_ft HType HReduce.
 	repeat rewrite -catA in HType.
@@ -529,7 +529,7 @@ Qed.
 Lemma Step_pure__unop_val_preserves : forall v_S v_C v_t v_c_1 v_unop v_c v_ft,
 	Admin_instrs_ok v_S v_C [(admininstr_CONST v_t v_c_1);(admininstr_UNOP v_t v_unop)] v_ft ->
 	Step_pure [(admininstr_CONST v_t v_c_1);(admininstr_UNOP v_t v_unop)] [(admininstr_CONST v_t v_c)] ->
-	wf_num_ v_t v_c ->
+	wf_admininstr (admininstr_CONST v_t v_c) ->
 	Admin_instrs_ok v_S v_C [(admininstr_CONST v_t v_c)] v_ft.
 Proof.
 	move => v_S v_C t v unop_op v_c tf HType HReduce Hwfc.
@@ -545,13 +545,15 @@ Proof.
 	eapply construct_ais_typing_single.
 	eapply (Admin_instr_ok__instr _ _ (CONST _ _)).
 	constructor; eauto.
+	econstructor; eauto.
+	inversion Hwfc; eauto.
 	eapply instrtype_sub_compose; eauto.
 Qed.
  
 Lemma Step_pure__binop_val_preserves : forall v_S v_C v_t v_c_1 v_c_2 v_binop v_c v_ft,
 	Admin_instrs_ok v_S v_C [(admininstr_CONST v_t v_c_1);(admininstr_CONST v_t v_c_2);(admininstr_BINOP v_t v_binop)] v_ft ->
 	Step_pure [(admininstr_CONST v_t v_c_1);(admininstr_CONST v_t v_c_2);(admininstr_BINOP v_t v_binop)] [(admininstr_CONST v_t v_c)] ->
-	wf_num_ v_t v_c ->
+	wf_admininstr (admininstr_CONST v_t v_c) ->
 	Admin_instrs_ok v_S v_C [(admininstr_CONST v_t v_c)] v_ft.
 Proof.
 	move => v_S v_C v_t v_c_1 v_c_2 v_binop v_c v_ft HType HReduce Hwfc.
@@ -573,13 +575,15 @@ Proof.
 	eapply construct_ais_typing_single.
 	eapply (Admin_instr_ok__instr _ _ (CONST _ _)).
 	constructor; eauto.
+	econstructor; eauto.
+	inversion Hwfc; eauto.
 	eapply instrtype_sub_compose; eauto.
 Qed.
 
 Lemma Step_pure__testop_preserves : forall v_S v_C v_t v_c_1 v_testop (v_c : num_) v_ft,
 	Admin_instrs_ok v_S v_C [(admininstr_CONST v_t v_c_1);(admininstr_TESTOP v_t v_testop)] v_ft ->
 	Step_pure [(admininstr_CONST v_t v_c_1);(admininstr_TESTOP v_t v_testop)] [(admininstr_CONST I32 v_c)] ->
-	wf_num_ I32 v_c ->
+	wf_admininstr (admininstr_CONST I32 v_c) ->
 	Admin_instrs_ok v_S v_C [(admininstr_CONST I32 v_c)] v_ft.
 Proof.
 	move => v_S v_C t v unop_op v_c tf HType HReduce Hwfc.
@@ -595,13 +599,15 @@ Proof.
 	eapply construct_ais_typing_single.
 	eapply (Admin_instr_ok__instr _ _ (CONST _ _)).
 	constructor; eauto.
+	econstructor; eauto.
+	inversion Hwfc; eauto.
 	eapply instrtype_sub_compose; eauto.
 Qed.
 
 Lemma Step_pure__relop_preserves : forall v_S v_C v_t v_c_1 v_c_2 v_relop (v_c : num_) v_ft,
 	Admin_instrs_ok v_S v_C [(admininstr_CONST v_t v_c_1);(admininstr_CONST v_t v_c_2);(admininstr_RELOP v_t v_relop)] v_ft ->
 	Step_pure [(admininstr_CONST v_t v_c_1);(admininstr_CONST v_t v_c_2);(admininstr_RELOP v_t v_relop)] [(admininstr_CONST I32 v_c)] ->
-	wf_num_ I32 v_c ->
+	wf_admininstr (admininstr_CONST I32 v_c) ->
 	Admin_instrs_ok v_S v_C [(admininstr_CONST I32 v_c)] v_ft.
 Proof.
 	move => v_S v_C v_t v_c_1 v_c_2 v_relop v_c v_ft HType HReduce Hwfc.
@@ -623,13 +629,15 @@ Proof.
 	eapply construct_ais_typing_single.
 	eapply (Admin_instr_ok__instr _ _ (CONST _ _)).
 	constructor; eauto.
+	econstructor; eauto.
+	inversion Hwfc; eauto.
 	eapply instrtype_sub_compose; eauto.
 Qed.
 
 Lemma Step_pure__cvtop_val_preserves : forall v_S v_C v_t_1 v_c_1 v_t_2 v_cvtop v_c v_ft,
 	Admin_instrs_ok v_S v_C [(admininstr_CONST v_t_1 v_c_1);(admininstr_CVTOP v_t_2 v_t_1 v_cvtop)] v_ft ->
 	Step_pure [(admininstr_CONST v_t_1 v_c_1);(admininstr_CVTOP v_t_2 v_t_1 v_cvtop)] [(admininstr_CONST v_t_2 v_c)] ->
-	wf_num_ v_t_2 v_c ->
+	wf_admininstr (admininstr_CONST v_t_2 v_c) ->
 	Admin_instrs_ok v_S v_C [(admininstr_CONST v_t_2 v_c)] v_ft.
 Proof.
 	move => v_S v_C v_t_1 v_c_1 v_t_2 v_cvtop v_c v_ft HType HReduce Hwfc.
@@ -645,6 +653,8 @@ Proof.
 	eapply construct_ais_typing_single.
 	eapply (Admin_instr_ok__instr _ _ (CONST _ _)).
 	constructor; eauto.
+	econstructor; eauto.
+	inversion Hwfc; eauto.
 	eapply instrtype_sub_compose; eauto.
 Qed.
 
@@ -709,6 +719,7 @@ Proof.
 	eapply Admin_instr_ok__instr with (v_instr := CONST _ _).
 	constructor.
 	destruct HDisj; subst; econstructor; eauto; econstructor; eauto.
+	all: econstructor; econstructor; eauto.
 Qed.
 
 Lemma Step_pure__ref_is_null_true_preserves : forall v_S v_C v_rt v_ft,
@@ -749,6 +760,7 @@ Proof.
 		eapply Admin_instr_ok__instr with (v_instr := CONST _ _).
 		constructor.
 		econstructor; econstructor; eauto.
+		econstructor; econstructor; eauto.
 	- typing_inversion HType.
 		typing_inversion H1.
 		unfold_principal_typing Hai.
@@ -764,6 +776,7 @@ Proof.
 		2: eapply Hsub0.
 		eapply Admin_instr_ok__instr with (v_instr := CONST _ _).
 		constructor.
+		econstructor; econstructor; eauto.
 		econstructor; econstructor; eauto.
 Qed.
 

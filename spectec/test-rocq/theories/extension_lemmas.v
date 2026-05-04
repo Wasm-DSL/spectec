@@ -86,7 +86,7 @@ Proof.
 	by eapply IHfunctype_lst.
 Qed.
 
-Lemma s_invert_store_globals: forall s,
+Lemma s_invert_globals: forall s,
 	Store_ok s ->
 	exists gts,
 	List.Forall2 (fun g t =>
@@ -347,7 +347,7 @@ Proof.
 	by exists rt, lim_1, lim_2, ref_lst.
 Qed.
 
-Lemma minst_invert_store_globals: forall v_S minst C C',
+Lemma minst_invert_globals: forall v_S minst C C',
 	Module_instance_ok v_S minst C ->
 	inst_match C C' ->
 	List.Forall2 (fun ga gt => 
@@ -1814,25 +1814,25 @@ Proof.
 	econstructor; auto.
 Qed.
 
-Lemma construct_tableinsts_grow: forall s ts ref_lst t tba v_r v_j v_n,
+Lemma construct_tableinsts_grow: forall s ts ref_lst t tba v_r j_opt v_n,
 	Forall2 (λ v t, Table_instance_ok s v t) (store_TABLES s) ts ->
 	Ref_ok s ref_lst t ->
-	(Datatypes.length v_r + v_n) <= (fun_u32__nat v_j) ->
-	lookup_total (store_TABLES s) tba ={|
+	Forall (λ v_j, (Datatypes.length v_r + v_n) <= (v_j :> nat)) (option_to_list j_opt) ->
+	lookup_total (store_TABLES s) tba = {|
 		tableinst_TYPE := mk_tabletype (mk_limits
-			(mk_uN (size v_r)) (Some v_j)) t;
+			(mk_uN (size v_r)) j_opt) t;
 		REFS := v_r |} ->
 	Forall2 (λ v t, Table_instance_ok s v t)
 		(list_update_func (store_TABLES s) tba
 			(fun=> {|
 				tableinst_TYPE := mk_tabletype (mk_limits
-					(mk_uN (size v_r + v_n)) (Some v_j)) t;
+					(mk_uN (size v_r + v_n)) j_opt) t;
 				REFS := v_r ++ repeat ref_lst v_n
 			|}))
 		(list_update_func ts tba (fun=> mk_tabletype (mk_limits
-			(mk_uN (size v_r + v_n)) (Some v_j)) t)).
+			(mk_uN (size v_r + v_n)) j_opt) t)).
 Proof.
-	move => s ts ref_lst t tba v_r v_j v_n Hold HRef HRange HLookup.
+	move => s ts ref_lst t tba v_r j_opt v_n Hold HRef HRange HLookup.
 	move : tba HLookup HRef.
 	induction Hold; auto; move => tba HLookup HRef.
 	destruct tba.
@@ -1842,37 +1842,48 @@ Proof.
 		inversion H; subst.
 		rewrite /lookup_total /= in HLookup.
 		inversion HLookup; subst; clear HLookup.
-		destruct v_j.
-		econstructor; eq_to_prop; eauto.
+		destruct j_opt.
 		{
-			by rewrite size_cat repeat_size.
-		}
+		(* j_opt is Some *)
+			destruct u.
+			econstructor; eq_to_prop; eauto.
+			{
+				by rewrite size_cat repeat_size.
+			}
 
-		all: injection H0 as ?; subst.
-		{
-			rewrite Forall_app.
-			subst.
-			
-			split; auto.
-			clear - HRef H3.
-			induction v_n; auto.
-			econstructor; auto. 
+			all: injection H0 as ?; subst.
+			{
+				rewrite Forall_app.
+				subst.
+				
+				split; auto.
+				clear - HRef H3.
+				induction v_n; auto.
+				econstructor; auto. 
+			}
+			inversion H3; subst; clear H3.
+			econstructor.
+			inversion H4; subst; clear H4.
+			destruct m_opt; try discriminate; subst; eauto.
+			inversion H7; subst.
+			injection H3 as ?; subst.
+			destruct_all.
+			list_to_seq.
+			move/andP in H6; destruct H6. 
+			inversion HRange; subst.
+			econstructor; auto.
+			- eapply leq_trans in H3. 
+				apply H3.
+				apply H9.
+			- econstructor; eauto.
+				apply/andP; split; eauto.
 		}
-		inversion H3; subst; clear H3.
-		econstructor.
-		inversion H4; subst; clear H4.
-		destruct m_opt; try discriminate; subst; eauto.
-		inversion H7; subst.
-		injection H3 as ?; subst.
-		destruct_all.
-		list_to_seq.
-		move/andP in H6; destruct H6. 
-		econstructor; auto.
-		- eapply leq_trans in H3. 
-			apply H3.
-			apply HRange.
-		- econstructor; eauto.
-		 	apply/andP; split; eauto.
+		(* j_opt is None *)
+		{
+			eq_to_prop.
+			injection H0 as ?; subst.
+			inversion H4.
+		}
 	}
 	simpl.
 	econstructor; auto.

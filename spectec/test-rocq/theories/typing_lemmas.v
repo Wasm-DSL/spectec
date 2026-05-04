@@ -646,6 +646,9 @@ Proof.
 	  solve [eq_to_prop; destruct_disjunctions;
 	  repeat eexists; eauto].
 	}
+	{ (* CONST *)
+		inversion H2; eauto.
+	}
 	{
 		(* TABLE Init *)
 		rewrite H2. rewrite H6; reflexivity.
@@ -729,6 +732,10 @@ Proof.
 		{ (* BR *)
 			split.
 			exists t_1_lst, t2s, t_lst; split; eauto.
+			apply instrtype_sub_refl.
+		}
+		{
+			split; inversion H2; eauto.
 			apply instrtype_sub_refl.
 		}
 		{ (* TABLE INIT *)
@@ -978,7 +985,7 @@ Proof.
 	4: destruct Hai as [v_ft [Hai Heok]].
 	1: destruct Hai as [Hwf Hai].
 	all: inversion Hai; subst.
-	- exists (valtype_numtype v_numtype). split; auto. by constructor.
+	- exists (valtype_numtype v_numtype). split; auto. by econstructor; econstructor.
 	- exists (valtype_vectype v_vectype). split; auto. by constructor.
 	- exists (valtype_reftype v_reftype). split; auto.
 		rewrite val_ref_null_is_ref.
@@ -1387,7 +1394,7 @@ Lemma construct_ai_const_I32 : forall v_S v_C v_num,
 Proof.
 	move => v_S v_C v_num Hwf.
 	eapply Admin_instr_ok__instr with (v_instr := CONST _ _).
-	by econstructor.
+	by econstructor; econstructor.
 Qed.
 
 Lemma construct_ai_ref : forall v_S v_C (v_ref: wasm.ref) t_lst,
@@ -1415,7 +1422,7 @@ Proof.
 	move => v_S v_C v_val t_lst HValok.
 	inversion HValok; subst.
 	- eapply Admin_instr_ok__instr with (v_instr := (CONST nt c_t)).
-	  by econstructor.
+	  econstructor. econstructor. by inversion H.
 	- eapply Admin_instr_ok__instr with (v_instr := (VCONST vt c_t)).
 	  destruct vt.
 	  by econstructor.
@@ -1560,7 +1567,12 @@ Qed.
 
 Ltac vals_typing_inversion H :=
   match type of H with
-  | Admin_instrs_ok ?v_S ?v_C (map admininstr_val ?v_vals) (?t1s :-> ?t2s) =>
+  | Admin_instrs_ok ?v_S ?v_C (map (fun x => admininstr_val x) ?v_vals) (?t1s :-> ?t2s) =>
+	let v_ts := fresh "v_ts" in
+	let Hsub := fresh "Hsub" in
+	let Hforall := fresh "Hforall" in
+	eapply ais_vals_typing_inversion in H as [v_ts [Hsub Hforall]]
+	| Admin_instrs_ok ?v_S ?v_C (map admininstr_val ?v_vals) (?t1s :-> ?t2s) =>
 	let v_ts := fresh "v_ts" in
 	let Hsub := fresh "Hsub" in
 	let Hforall := fresh "Hforall" in
