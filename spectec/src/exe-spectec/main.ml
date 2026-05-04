@@ -45,13 +45,13 @@ let all_passes = [
   LetIntro;
   TypeFamilyRemoval;
   Undep;
-  PatSimp;
   Totalize;
   Else;
   ElseSimp;
   Uncaseremoval;
   SubExpansion;
   Sub;
+  PatSimp;
   DefToRel;
   Sideconditions;
   AliasDemut;

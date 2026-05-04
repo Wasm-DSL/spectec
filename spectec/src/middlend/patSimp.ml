@@ -79,7 +79,7 @@ let t_exp varmap exp =
     varmap := StringMap.update id.it (fun opt -> 
       match opt with
       | Some lst -> 
-        fresh_var := Il.Fresh.fresh_varid id.it;    
+        fresh_var := Utils.generate_var (List.map fst (StringMap.bindings !varmap) @ lst) id.it;    
         Some (!fresh_var :: lst)
       | None -> Some []
     ) !varmap;
