@@ -321,13 +321,18 @@ let rec has_type_family env typ =
   | TupT typs -> List.exists (fun (_, t) -> has_type_family env t) typs
   | _ -> false
 
+let has_type_family_term env e = (has_type_family env e.note, true)
+
 let get_extra_prems env quants exp prems = 
   let cl = create_collector [] in 
   let wf_terms = collect_exp cl exp @ List.concat_map (collect_prem cl) prems in
   let unique_terms = Util.Lib.List.nub (fun ((e1, _t1), iterexp1) ((e2, _t2), iterexp2) -> 
     Il.Eq.eq_exp e1 e2 && Il.Eq.eq_list Il.Eq.eq_iterexp iterexp1 iterexp2
   ) wf_terms in
-  let unique_terms = if deactivate_wfness then List.filter (fun ((_, t), _) -> has_type_family env t) unique_terms else unique_terms in
+  let unique_terms = if deactivate_wfness then List.filter (fun ((e, t), _) -> 
+    let ec = { exists_base_checker with collect_exp = has_type_family_term env } in
+    collect_exp ec e || has_type_family env t
+  ) unique_terms else unique_terms in
   
   let more_prems = List.concat_map (fun (pair, iterexps) -> 
     List.map (fun prem' -> List.fold_left (fun acc iterexp ->
