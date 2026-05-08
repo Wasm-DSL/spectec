@@ -152,6 +152,9 @@ grammar Binstr/atomic.memory : instr = ...
   | 0xFE 27:Bu32 (x,ao):Bmemarg => ATOMIC.STORE I64 `8 x ao
   | 0xFE 28:Bu32 (x,ao):Bmemarg => ATOMIC.STORE I64 `16 x ao
   | 0xFE 29:Bu32 (x,ao):Bmemarg => ATOMIC.STORE I64 `32 x ao
+  | ...
+
+grammar Binstr/atomic.memory.rmw : instr = ...
   | 0xFE 30:Bu32 (x,ao):Bmemarg => ATOMIC.RMW I32 ADD x ao
   | 0xFE 31:Bu32 (x,ao):Bmemarg => ATOMIC.RMW I64 ADD x ao
   | 0xFE 32:Bu32 (x,ao):Bmemarg => ATOMIC.RMW I32 `8 ADD x ao
@@ -202,6 +205,7 @@ grammar Binstr/atomic.memory : instr = ...
   | 0xFE 77:Bu32 (x,ao):Bmemarg => ATOMIC.RMW.CMPXCHG I64 `16 x ao
   | 0xFE 78:Bu32 (x,ao):Bmemarg => ATOMIC.RMW.CMPXCHG I64 `32 x ao
   | ...
+
 
 ;; Reference instructions
 

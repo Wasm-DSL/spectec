@@ -150,6 +150,8 @@ Atomic Memory Instructions
 
 $${grammar: Bmemarg Binstr/atomic.memory}
 
+$${grammar: Binstr/atomic.memory.rmw}
+
 .. index:: reference instruction
    pair: binary format; instruction
 .. _binary-instr-ref:

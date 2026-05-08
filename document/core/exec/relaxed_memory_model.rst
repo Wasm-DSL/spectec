@@ -1,7 +1,5 @@
 .. index:: ! relaxed memory model
 
-    
-.. index:: ! relaxed memory model
 Relaxed Memory Model
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -52,22 +50,22 @@ The execution of a WebAssembly program gives rise to a trace of events. WebAssem
    \reading(\action) &=& (read(\action) \neq \epsilon) \\
    \writing(\action) &=& (write(\action) \neq \epsilon) \\
 
-   \susp(\u32,\ wait\ \reg[\u32]\ \s64) &=& wait\ \reg[u32]\\
-   \susp(\u32,\ woken\ \reg[\u32]) &=& woken\ \reg[u32]\\
-   \susp(\u32,\ timeout\ \reg[\u32]) &=& timeout\ \reg[u32]\\
-   \susp(\u32,\ notify\ \reg[\u32]\ \u32'\ \u32'') &=& notify\ \reg[u32]\ \u32'\ \u32''\\
+   \susp(\u32,\ wait\ \region[\u32]\ \s64) &=& wait\ \region[u32]\\
+   \susp(\u32,\ woken\ \region[\u32]) &=& woken\ \region[u32]\\
+   \susp(\u32,\ timeout\ \region[\u32]) &=& timeout\ \region[u32]\\
+   \susp(\u32,\ notify\ \region[\u32]\ \u32'\ \u32'') &=& notify\ \region[u32]\ \u32'\ \u32''\\
    \susp(\u32,\ \action) &=& eps\\
 
    \read(\action) &=& (\byte*) \\
    \write(\action) &=& (\byte_{1}*) \\
 
-   \offset(\action) &=& \u32\quad (if\ \locationf(\action)=\reg[\u32]) \\
+   \offset(\action) &=& \u32\quad (if\ \locationf(\action)=\region[\u32]) \\
 
    \sync(\action_{1}, \action_{2}) &=& (\same(\action_{1}, \action_{2})\ \land \\
                            \qquad \qquad \qquad \qquad \qquad \qquad \ord(\action_{1}) = ord(\action_{2}) = \SEQCST) \\
 
    \range(\action) &=& [\u32...\u32+n-1] \\
-                        (if\ \location(\action)=\reg[\u32]\land\\
+                        (if\ \location(\action)=\region[\u32]\land\\
                         \qquad \qquad \qquad \qquad \qquad n = max(\|\read(\action)\|,\|\write(\action)\|)) \\
 
    \tearfree(rd_{\ord}\ \location\ \byte^{*}) &=& \bot (if\ \ord = \UNORD \vee\ \ord=\INIT) \\
@@ -86,11 +84,11 @@ Consistency
 ~~~~~~~~~~~
 
 
-:math:`Test`
+:math:`Relaxed Memory Model`
 .....................................
 
-.. _valid-consistent:
-.. _valid-consistentwith:
+.. _relation-consistent:
+.. _relation-consistent-with:
 .. _relation-happens-before:
 .. _relation-reads-each-from:
 .. _relation-reads-from:
@@ -108,17 +106,22 @@ Consistency
 .. _op-implies:
 .. _op-implies-consistent-with:
 .. _op-not-in-range:
+.. _op-write-filter:
 .. _op-forall:
-.. _op-forall2:
-.. _op-f:
-.. _op-p:
 .. _op-access-r:
 .. _op-loc-in-region:
 .. _op-same-and-tear-free-filter:
 .. _op-tear-free:
+.. _op-reading-action-filter:
+.. _op-write-action-filter:
+.. _op-susp-filter:
+.. _op-init-filter:
+.. _op-unfold-u32:
+.. _op-unfold-nat:
+.. _op-allreg:
+.. _op-allnat:
 
-
-$${definition: P f forall forall2 impliesconsistentwith}
+$${definition: forall1 forall2 impliesconsistentwith consistentwithfunction suspensionsconsistentfunction readseachfromfunction readsfromfunction}
 
 $${rule: Consistent}
 

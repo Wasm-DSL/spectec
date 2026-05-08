@@ -344,11 +344,11 @@ def $locationf(WOKEN location) = location
 def $locationf(TIMEOUT location) = location
 def $locationf(NOTIFY location u32 u32) = location
 
-def $loc_in_region(location, reg): bool
-def $loc_in_region(reg1 u32, reg) = true -- if reg1 = reg
-def $loc_in_region(reg1 u32, reg) = false -- otherwise
-def $loc_in_region(reg1 u32, reg) = true -- if reg1 = reg
-def $loc_in_region(reg1 u32, reg) = false -- otherwise
+def $locinregion(location, region): bool
+def $locinregion(reg1 u32, reg) = true -- if reg1 = reg
+def $locinregion(reg1 u32, reg) = false -- otherwise
+def $locinregion(reg1 u32, reg) = true -- if reg1 = reg
+def $locinregion(reg1 u32, reg) = false -- otherwise
 
 def $ordf(action): ord
 def $ordf(RD ord location storeval) = ord
@@ -389,20 +389,20 @@ def $has_init(evt) = false -- otherwise
 def $get_actions(event): action*
 def $get_actions(evt) = evt.ACTIONS
 
-def $reading_action_filter(action*): action*
-def $reading_action_filter(eps) = eps
-def $reading_action_filter(ac act*) = ac $reading_action_filter(act*) -- if $read(ac) =/= eps
-def $reading_action_filter(ac act*) = $reading_action_filter(act*) -- otherwise
+def $readingactionfilter(action*): action*
+def $readingactionfilter(eps) = eps
+def $readingactionfilter(ac act*) = ac $readingactionfilter(act*) -- if $read(ac) =/= eps
+def $readingactionfilter(ac act*) = $readingactionfilter(act*) -- otherwise
 
-def $write_action_filter(action*): action*
-def $write_action_filter(eps) = eps
-def $write_action_filter(ac act*) = ac $write_action_filter(act*) -- if $write(ac) =/= eps
-def $write_action_filter(ac act*) = $write_action_filter(act*) -- otherwise
+def $writeactionfilter(action*): action*
+def $writeactionfilter(eps) = eps
+def $writeactionfilter(ac act*) = ac $writeactionfilter(act*) -- if $write(ac) =/= eps
+def $writeactionfilter(ac act*) = $writeactionfilter(act*) -- otherwise
 
 def $reading_event_filter(event): event
 def $reading_event_filter(evt) = 
 {
-  ACTIONS $reading_action_filter(evt.ACTIONS),
+  ACTIONS $readingactionfilter(evt.ACTIONS),
   TIMEp evt.TIMEp,
   TIME evt.TIME
 }
@@ -413,15 +413,15 @@ def $reading_filter(ev evt*) = ev $reading_filter(evt*) -- if $has_read(ev)
 def $reading_filter(ev evt*) = $reading_filter(evt*) -- otherwise 
 
 ;; TODO: should be paramterised by reg
-def $writing_filter(trace): event*
-def $writing_filter(eps) = eps
-def $writing_filter(ev evt*) = ev $writing_filter(evt*) -- if $has_write(ev)
-def $writing_filter(ev evt*) = $writing_filter(evt*) -- otherwise
+def $writefilter(trace): event*
+def $writefilter(eps) = eps
+def $writefilter(ev evt*) = ev $writefilter(evt*) -- if $has_write(ev)
+def $writefilter(ev evt*) = $writefilter(evt*) -- otherwise
 
-def $init_filter(trace): event*
-def $init_filter(eps) = eps
-def $init_filter(ev evt*) = ev $init_filter(evt*) -- if $has_init(ev)
-def $init_filter(ev evt*) = $init_filter(evt*) -- otherwise
+def $initfilter(trace): event*
+def $initfilter(eps) = eps
+def $initfilter(ev evt*) = ev $initfilter(evt*) -- if $has_init(ev)
+def $initfilter(ev evt*) = $initfilter(evt*) -- otherwise
 
 def $overlap_reg(event, event): bool ;; Add back reg
 def $overlap_reg(evt1, evt2) = true ;; Placeholder, TODO fix this
@@ -452,16 +452,20 @@ def $offset(act) = $loc_offset($locationf(act))
 def $sync(action, action): bool
 def $sync(act1, act2) = true -- if $same(act1, act2) /\ $ordf(act1) = SEQCST /\ $ordf(act2) = SEQCST
 
-def $unfold_u32(u32, u32): u32*
-def $unfold_u32(uint32_1, 0) = eps
-def $unfold_u32(uint32_1, uint32_2) = $unfold_u32(uint32_1, $(uint32_2 - 1)) $(uint32_1 + uint32_2)
+def $unfoldu32(u32, u32): u32*
+def $unfoldu32(uint32_1, 0) = eps
+def $unfoldu32(uint32_1, uint32_2) = $unfoldu32(uint32_1, $(uint32_2 - 1)) $(uint32_1 + uint32_2)
+
+def $unfoldnat(nat, nat): nat*
+def $unfoldnat(nat_1, 0) = 0
+def $unfoldnat(nat_1, nat_2) = $unfoldnat(nat_1, $(nat_2 - 1)) $(nat_1 + nat_2)
 
 def $max(nat, nat): nat
 def $max(n1, n2) = n1 -- if n1 >= n2
 def $max(n1, n2) = n2 -- otherwise
 
 def $range(action): u32*
-def $range(act) = $unfold_u32($loc_offset($locationf(act)), 
+def $range(act) = $unfoldu32($loc_offset($locationf(act)), 
                                  $max(|$read(act)|, |$write(act)|))
 
 def $tearfree(action): bool
@@ -473,26 +477,26 @@ def $id(action1) = action1
 def $funclower(event): action
 def $funclower(event1) = event1.ACTIONS[x] 
 
-def $region_action_filter(reg, action*): action*
+def $region_action_filter(region, action*): action*
 def $region_action_filter(reg, eps) = eps
-def $region_action_filter(reg, act' act*) = [act'] -- if $region_action_filter(reg, act*) = eps /\ $loc_in_region($locationf(act'), reg)
+def $region_action_filter(reg, act' act*) = [act'] -- if $region_action_filter(reg, act*) = eps /\ $locinregion($locationf(act'), reg)
 
-def $access_r(reg, event): action
+def $access_r(region, event): action
 def $access_r(reg, evt) = $region_action_filter(reg, evt.ACTIONS)[1] -- if |$region_action_filter(reg, evt.ACTIONS)| = 1
 
-def $happensbefore(event, event): bool
+def $happensbefore(event, event): bool    hint(show %1 <<_hb %2)
 def $happensbefore(evt1, evt2) = true -- if evt1.TIME < evt2.TIME
 def $happensbefore(evt1, evt2) = false -- otherwise
 
-def $tot(event, event): bool
+def $tot(event, event): bool    hint(show %1 <<_tot %2)
 def $tot(evt1, evt2) = true -- if evt1.TIME < evt2.TIME
 def $tot(evt1, evt2) = false -- otherwise
 
-def $same_and_tearfree_filter(reg, event, event*): event*
-def $same_and_tearfree_filter(reg, evt1, eps) = eps
-def $same_and_tearfree_filter(reg, evt1, evt' evt*) = evt' $same_and_tearfree_filter(reg, evt1, evt*) -- if $same($access_r(reg, evt1), $access_r(reg, evt')) /\ $tearfree($access_r(reg, evt'))
+def $sameandtearfreefilter(region, event, event*): event*
+def $sameandtearfreefilter(reg, evt1, eps) = eps
+def $sameandtearfreefilter(reg, evt1, evt' evt*) = evt' $sameandtearfreefilter(reg, evt1, evt*) -- if $same($access_r(reg, evt1), $access_r(reg, evt')) /\ $tearfree($access_r(reg, evt'))
 
-def $susp_filter(reg, u32, event*) : event*
-def $susp_filter(reg, u32, eps) = eps
-def $susp_filter(reg, u32, evt' evt*) = evt' $susp_filter(reg, u32, evt*) 
+def $suspfilter(region, u32, event*) : event*
+def $suspfilter(reg, u32, eps) = eps
+def $suspfilter(reg, u32, evt' evt*) = evt' $suspfilter(reg, u32, evt*) 
 -- if $susp(u32, $access_r(reg, evt')) =/= eps
