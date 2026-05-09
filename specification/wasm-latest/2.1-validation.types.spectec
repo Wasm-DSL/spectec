@@ -306,7 +306,7 @@ def $forall1and3(syntax X, syntax Y, syntax Z, X*, Y, Z, def $p(X, Y, Z) : bool)
 def $forall1and3(syntax X, syntax Y, syntax Z, testx*, y1, z1, $p) = true -- (if $p(testx, y1, z1))*
 def $forall1and3(syntax X, syntax Y, syntax Z, testx*, y1, z1, $p) = false -- otherwise
 
-def $forall1and4(syntax X, syntax Y, syntax Z, syntax W, X*, Y, Z, W, def $p(X, Y, Z, W) : bool) : bool  hint(show (!) x <- %5. %8#(x, %6, %7))
+def $forall1and4(syntax X, syntax Y, syntax Z, syntax W, X*, Y, Z, W, def $p(X, Y, Z, W) : bool) : bool  hint(show (!) x <- %5. %9#(x, %7, %8))
 def $forall1and4(syntax X, syntax Y, syntax Z, syntax W, testx*, y1, z1, w1, $p) = true -- (if $p(testx, y1, z1, w1))*
 def $forall1and4(syntax X, syntax Y, syntax Z, syntax W, testx*, y1, z1, w1, $p) = false -- otherwise
 
@@ -336,6 +336,7 @@ rule Consistentwith/init:
   -- --
   -- if read__evt* = $reading_filter(tr)
   -- if trace__writes* = $writefilter(tr)
+  -- --
   -- if |trace__writes*| > 0
   -- (if write__evt <- trace__writes*)^n
   -- --
@@ -370,22 +371,24 @@ rule Valueconsistent/init:
   trace reg i k |- evt_R Valueconsistent evt_W 
   -- if [act_R] = $region_action_filter(reg, evt_R.ACTIONS)
   -- if [act_W] = $region_action_filter(reg, evt_W.ACTIONS)
+  -- --
   -- if k = $($offset(act_R) + i)
   -- if j = $(k - $offset(act_W))
   -- --
   -- if read__actions* = $readingactionfilter(evt_R.ACTIONS)
   -- if write__actions* = $writeactionfilter(evt_W.ACTIONS)
+  -- --
   -- if read__actions*[i] = write__actions*[j]
 
 rule Hbconsistent/init:
   trace reg k |- evt_R Hbconsistent evt_W
   -- if ~$happensbefore(evt_R, evt_W)
   -- --
-  -- if $sync($access_r(reg, evt_W), $access_r(reg, evt_R)) ==> $happensbefore(evt_W, evt_R)
+  -- if $access2_r(reg, evt_W, evt_R, bool, $sync)
   -- --
   -- if evt_W'* = $writefilter(trace)
   -- --
-  -- (if $happensbefore(evt_W, evt_W') /\ $happensbefore(evt_W', evt_R) ==> $notinrange(k, $range($access_r(reg, evt_W'))))*
+  -- (if $happensbefore(evt_W, evt_W') /\ $happensbefore(evt_W', evt_R) ==> $notinrange(k, $access1_r(reg, evt_W', u32*, $range)))*
 
 ;; TODO: Find if within premise line break possible
 rule Sclastvisible/init:
@@ -393,20 +396,24 @@ rule Sclastvisible/init:
   -- if evt_W'* = $writefilter(trace)
   -- --
   -- (if $happensbefore(evt_R, evt_W) ==>
-        $tot(evt_W, evt_W') /\ $tot(evt_W', evt_R) /\ $sync($access_r(reg, evt_W), $access_r(reg, evt_R)) ==>
-        ~$sync($access_r(reg, evt_W'), $access_r(reg, evt_R)) 
-        /\
+        $tot(evt_W, evt_W') /\ $tot(evt_W', evt_R) /\ $access2_r(reg, evt_W, evt_R, bool, $sync) ==>
+        ~$access2_r(reg, evt_W, evt_R, bool, $sync)
+      )*
+  -- --
+  -- (if $happensbefore(evt_R, evt_W) ==>
         $happensbefore(evt_W, evt_W') /\ $tot(evt_W', evt_R) ==>
-        ~$sync($access_r(reg, evt_W'), $access_r(reg, evt_R))
-        /\
+        ~$access2_r(reg, evt_W, evt_R, bool, $sync)
+      )*
+  -- --
+  -- (if $happensbefore(evt_R, evt_W) ==>
         $tot(evt_W, evt_W') /\ $happensbefore(evt_W', evt_R) ==>
-        ~$sync($access_r(reg, evt_W), $access_r(reg, evt_W'))
+        ~$access2_r(reg, evt_W, evt_R, bool, $sync)
       )*
 
 rule Notear/init:
   reg |- evt_R Notear evt_W* 
   -- if evt_W'* = $sameandtearfreefilter(reg, evt_R, evt_W*)
-  -- if $tearfree($access_r(reg, evt_R)) ==> |evt_W'*| <= 1
+  -- if $access1_r(reg, evt_R, bool, $tearfree) ==> |evt_W'*| <= 1
 
 rule Suspensionsconsistent/init:
   i reg |- tr Suspensionsconsistent 
@@ -420,21 +427,21 @@ rule Suspensionsconsistentwith/init:
 
 rule Suspensionsconsistentwith/wait:
   i reg |- evt tr Suspensionsconsistentwith time* 
-  -- if $id($access_r(reg, evt)) = (WAIT (reg i) s64)
+  -- if $access1_r(reg, evt, action, $id) = (WAIT (reg i ) s64)
   -- --
   -- Suspensionsconsistentwith: i reg |- tr Suspensionsconsistentwith (evt.TIME time*)
 
 rule Suspensionsconsistentwith/timeout:
   i reg |- evt tr Suspensionsconsistentwith (time1^a evt.TIMEp time2^b) 
-  -- if $id($access_r(reg, evt)) = (TIMEOUT (reg i))
+  -- if $access1_r(reg, evt, action, $id) = (TIMEOUT (reg i))
   -- --
   -- Suspensionsconsistentwith: i reg |- tr Suspensionsconsistentwith (evt.TIME time2^b)
 
 rule Suspensionsconsistentwith/notify:
   i reg |- evt_N evt^n tr Suspensionsconsistentwith (time^m (evt.TIMEp)^n) 
-  -- (if $id($access_r(reg, evt)) = (WOKEN (reg i)))^n
+  -- (if $access1_r(reg, evt, action, $id) = (WOKEN (reg i)))^n
   -- -- 
-  -- if $id($access_r(reg, evt_N)) = (NOTIFY location n k)
+  -- if $access1_r(reg, evt_N, action, $id) = (NOTIFY location n k)
   -- if n < k ==> m = 0
   -- --
   -- Suspensionsconsistentwith: i reg |- tr Suspensionsconsistentwith time^m
