@@ -68,8 +68,14 @@ let rule_prefix = "case_"
 
 let wf_hint_id = "wf-relation"
 
-(* flag that deactivates adding wellformedness predicates to relations *)
-let deactivate_wfness = false
+[@@@warning "-37"]
+type wfstate =
+  | ALL     (* Places wf premises whenever it encounters a term/variable that needs well-formedness check*)
+  | MINIMAL (* Places only wf premises in terms in relations and functions that do not appear in the conclusion *)
+  | NONE    (* Does not place any wf premises in relations/functions *)
+
+(* State that indicates what the placement algorithm should do *)
+let wf_state = MINIMAL
 
 let error at msg = error at "Undep error" msg
 
@@ -121,25 +127,26 @@ let filter_iter_quants exp iter_quants =
   ) (free_vars, []) iter_quants) 
   |> snd |> List.rev
 
-let rec create_collector iterexps = 
+let rec create_collector env iterexps = 
   let base_collector_iters: ((exp * typ) * iterexp list) list collector = base_collector [] (@) in
-  { base_collector_iters with collect_exp = collect_userdef_exp iterexps; collect_prem = collect_userdef_prem iterexps }
+  { base_collector_iters with collect_exp = collect_userdef_exp env iterexps; collect_prem = collect_userdef_prem env iterexps }
 
-and collect_userdef_exp iterexps e = 
+and collect_userdef_exp env iterexps e = 
   match e.it with
+  | CallE (id, _) when not (StringSet.mem id.it env.proj_set) -> ([((e, e.note), filter_iter_quants e iterexps)], true)
   | CaseE _ | StrE _ -> ([((e, e.note), filter_iter_quants e iterexps)], false)
   | IterE (e1, ((_, id_exp_pairs) as iterexp)) -> 
-    let c1 = create_collector iterexps in
-    let c2 = create_collector (iterexp :: iterexps) in 
+    let c1 = create_collector env iterexps in
+    let c2 = create_collector env (iterexp :: iterexps) in 
     (collect_exp c2 e1 @ 
     List.concat_map (fun (_, exp) -> collect_exp c1 exp) id_exp_pairs, false)
   | _ -> ([], true)
 
-and collect_userdef_prem iterexps p =
+and collect_userdef_prem env iterexps p =
   match p.it with
   | IterPr (p', ((_, id_exp_pairs) as iterexp)) -> 
-    let c1 = create_collector iterexps in
-    let c2 = create_collector (iterexp :: iterexps) in 
+    let c1 = create_collector env iterexps in
+    let c2 = create_collector env (iterexp :: iterexps) in 
     (collect_prem c2 p' @
     List.concat_map (fun (_, exp) -> collect_exp c1 exp) id_exp_pairs, false)
   | _ -> ([], true) 
@@ -195,6 +202,7 @@ let needs_wfness env def =
   | _ -> false
 
 let rec get_wf_pred env (exp, t) = 
+
   let get_id iter exp =
     match exp.it with
     | VarE id -> id
@@ -314,40 +322,41 @@ let create_well_formed_predicate env id inst =
     [relation; hint]
   | _ -> []
 
-let rec has_type_family env typ = 
-  match typ.it with
-  | VarT (id, _) -> StringSet.mem id.it env.tf_set
-  | IterT (typ, _) -> has_type_family env typ
-  | TupT typs -> List.exists (fun (_, t) -> has_type_family env t) typs
-  | _ -> false
-
-let has_type_family_term env e = (has_type_family env e.note, true)
+let get_wf_terms cl exp prems = 
+  let is_calle e = match e.it with
+    | CallE _ -> true
+    | _ -> false
+  in
+  let wf_terms = (if wf_state = MINIMAL then [] else collect_exp cl exp) @ List.concat_map (collect_prem cl) prems in
+  let (call_prems, constr_prems) = List.partition (fun ((e1, _), _) -> is_calle e1) wf_terms in
+  let unique_func = Util.Lib.List.nub (fun ((e1, _t1), iterexp1) ((e2, _t2), iterexp2) -> 
+    Il.Eq.eq_exp e1 e2 && Il.Eq.eq_list Il.Eq.eq_iterexp iterexp1 iterexp2
+  ) in
+  match wf_state with
+  | NONE -> ([], [])
+  | _ -> (unique_func call_prems, unique_func constr_prems)
 
 let get_extra_prems env quants exp prems = 
-  let cl = create_collector [] in 
-  let wf_terms = collect_exp cl exp @ List.concat_map (collect_prem cl) prems in
-  let unique_terms = Util.Lib.List.nub (fun ((e1, _t1), iterexp1) ((e2, _t2), iterexp2) -> 
-    Il.Eq.eq_exp e1 e2 && Il.Eq.eq_list Il.Eq.eq_iterexp iterexp1 iterexp2
-  ) wf_terms in
-  let unique_terms = if deactivate_wfness then List.filter (fun ((e, t), _) -> 
-    let ec = { exists_base_checker with collect_exp = has_type_family_term env } in
-    collect_exp ec e || has_type_family env t
-  ) unique_terms else unique_terms in
-  
-  let more_prems = List.concat_map (fun (pair, iterexps) -> 
+  let cl = create_collector env [] in 
+  let unique_call_terms, unique_constr_terms = get_wf_terms cl exp prems in  
+  let wf_creation_func = List.concat_map (fun (pair, iterexps) -> 
     List.map (fun prem' -> List.fold_left (fun acc iterexp ->
       IterPr (acc, iterexp) $ acc.at   
     ) prem' iterexps) (get_wf_pred env pair) 
-  ) unique_terms in
+  ) in
+  let call_prems, constr_prems = wf_creation_func unique_call_terms, wf_creation_func unique_constr_terms in
     
-  (* Leverage the fact that the wellformed predicates are "bubbled up" and remove unnecessary wf preds*)
-  let free_vars = (Free.free_list Free.free_prem more_prems).varid in 
-  let quants_filtered = Lib.List.filter_not (fun b -> match b.it with 
-    | ExpP (id, typ) -> Free.Set.mem id.it free_vars || (deactivate_wfness && (not (has_type_family env typ)))
+  (* Leverage the fact that the wellformed predicates are "bubbled up" and remove unnecessary wf preds *)
+  let free_vars_exp = (Free.free_exp exp).varid in
+  let free_vars = (Free.free_list Free.free_prem constr_prems).varid in 
+  let quants_filtered = Lib.List.filter_not (fun b -> 
+    match b.it, wf_state with 
+    | ExpP (id, _), ALL -> Free.Set.mem id.it free_vars
+    | ExpP (id, _), MINIMAL -> Free.Set.mem id.it free_vars || Free.Set.mem id.it free_vars_exp
     | _ -> true
   ) quants in
   let quant_prems = (List.filter_map get_exp_typ quants_filtered) |> List.concat_map (get_wf_pred env) in
-  quant_prems @ more_prems
+  quant_prems @ call_prems @ constr_prems
     
 let t_rule env rule = 
   let tf = { base_transformer with transform_exp = t_exp env; transform_typ = t_typ} in
