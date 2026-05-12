@@ -308,6 +308,8 @@ Ltac eq_to_prop :=
     apply/orP
   | _ : _ |- is_true (_ && _) =>
     apply/andP
+  | _ : _ |- is_true (_ != _) =>
+    apply/eqP
   end.
 
 Ltac ineq_to_prop :=
