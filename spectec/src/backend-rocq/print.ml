@@ -294,8 +294,8 @@ and render_exp exp_type exp =
     let rec make_proj_chain idx len e = 
       match idx, len with
       | 0, 0 -> r_func e
-      | i, n when i <= n -> parens ("snd " ^ r_func e)
-      | _ -> parens ("fst " ^ (make_proj_chain idx (len - 1) e))
+      | i', n when i' >= n -> r_func e ^ ".2"
+      | _ -> (make_proj_chain idx (len - 1) e) ^ ".1"
     in
     begin match typs with
     | [_] -> r_func e
