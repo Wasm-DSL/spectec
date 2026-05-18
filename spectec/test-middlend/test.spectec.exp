@@ -310,48 +310,25 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
     -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
 
 ;; test.spectec
-relation fun_t_totalize_before_fun_t_totalize_case_2: `%`(nat)
+def $t_totalize(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize_case_1:
-    `%`(10)
-
+  def $t_totalize(3) = ?(5)
   ;; test.spectec
-  rule fun_t_totalize_case_0:
-    `%`(3)
-
-;; test.spectec
-relation fun_t_totalize: `%%`(nat, nat?)
-  ;; test.spectec
-  rule fun_t_totalize_case_0:
-    `%%`(3, ?(5))
-
-  ;; test.spectec
-  rule fun_t_totalize_case_1:
-    `%%`(10, ?(20))
-
-  ;; test.spectec
-  rule fun_t_totalize_case_2{x0 : nat}:
-    `%%`(x0, ?())
-    -- ~ fun_t_totalize_before_fun_t_totalize_case_2: `%`(x0)
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
 
 ;; test.spectec
-relation fun_t_totalize2: `%%`(nat, nat?)
+def $t_totalize2(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize2_case_0:
-    `%%`(1, ?(2))
-
+  def $t_totalize2(1) = ?(2)
   ;; test.spectec
-  rule fun_t_totalize2_case_1{n : nat, var_0 : nat?}:
-    `%%`(n, var_0)
-    -- fun_t_totalize: `%%`(n, var_0)
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
 
 ;; test.spectec
-relation fun_t_totalize3: `%%`(nat, nat?)
+def $t_totalize3(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize3_case_0{n : nat, var_1 : nat?, var_0 : nat?}:
-    `%%`(n, (iter_val#2 + iter_val#1)?{iter_val#2 <- var_0, iter_val#1 <- var_1})
-    -- fun_t_totalize2: `%%`((n + 10), var_1)
-    -- fun_t_totalize: `%%`(n, var_0)
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
 
 == IL Validation after pass definition-to-relation...
 == Running pass sideconditions...
@@ -369,48 +346,25 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
     -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
 
 ;; test.spectec
-relation fun_t_totalize_before_fun_t_totalize_case_2: `%`(nat)
+def $t_totalize(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize_case_1:
-    `%`(10)
-
+  def $t_totalize(3) = ?(5)
   ;; test.spectec
-  rule fun_t_totalize_case_0:
-    `%`(3)
-
-;; test.spectec
-relation fun_t_totalize: `%%`(nat, nat?)
-  ;; test.spectec
-  rule fun_t_totalize_case_0:
-    `%%`(3, ?(5))
-
-  ;; test.spectec
-  rule fun_t_totalize_case_1:
-    `%%`(10, ?(20))
-
-  ;; test.spectec
-  rule fun_t_totalize_case_2{x0 : nat}:
-    `%%`(x0, ?())
-    -- ~ fun_t_totalize_before_fun_t_totalize_case_2: `%`(x0)
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
 
 ;; test.spectec
-relation fun_t_totalize2: `%%`(nat, nat?)
+def $t_totalize2(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize2_case_0:
-    `%%`(1, ?(2))
-
+  def $t_totalize2(1) = ?(2)
   ;; test.spectec
-  rule fun_t_totalize2_case_1{n : nat, var_0 : nat?}:
-    `%%`(n, var_0)
-    -- fun_t_totalize: `%%`(n, var_0)
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
 
 ;; test.spectec
-relation fun_t_totalize3: `%%`(nat, nat?)
+def $t_totalize3(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize3_case_0{n : nat, var_1 : nat?, var_0 : nat?}:
-    `%%`(n, (iter_val#2 + iter_val#1)?{iter_val#2 <- var_0, iter_val#1 <- var_1})
-    -- fun_t_totalize2: `%%`((n + 10), var_1)
-    -- fun_t_totalize: `%%`(n, var_0)
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
 
 == IL Validation after pass sideconditions...
 == Running pass alias-demut...
@@ -428,48 +382,25 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
     -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
 
 ;; test.spectec
-relation fun_t_totalize_before_fun_t_totalize_case_2: `%`(nat)
+def $t_totalize(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize_case_1:
-    `%`(10)
-
+  def $t_totalize(3) = ?(5)
   ;; test.spectec
-  rule fun_t_totalize_case_0:
-    `%`(3)
-
-;; test.spectec
-relation fun_t_totalize: `%%`(nat, nat?)
-  ;; test.spectec
-  rule fun_t_totalize_case_0:
-    `%%`(3, ?(5))
-
-  ;; test.spectec
-  rule fun_t_totalize_case_1:
-    `%%`(10, ?(20))
-
-  ;; test.spectec
-  rule fun_t_totalize_case_2{x0 : nat}:
-    `%%`(x0, ?())
-    -- ~ fun_t_totalize_before_fun_t_totalize_case_2: `%`(x0)
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
 
 ;; test.spectec
-relation fun_t_totalize2: `%%`(nat, nat?)
+def $t_totalize2(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize2_case_0:
-    `%%`(1, ?(2))
-
+  def $t_totalize2(1) = ?(2)
   ;; test.spectec
-  rule fun_t_totalize2_case_1{n : nat, var_0 : nat?}:
-    `%%`(n, var_0)
-    -- fun_t_totalize: `%%`(n, var_0)
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
 
 ;; test.spectec
-relation fun_t_totalize3: `%%`(nat, nat?)
+def $t_totalize3(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize3_case_0{n : nat, var_1 : nat?, var_0 : nat?}:
-    `%%`(n, (iter_val#2 + iter_val#1)?{iter_val#2 <- var_0, iter_val#1 <- var_1})
-    -- fun_t_totalize2: `%%`((n + 10), var_1)
-    -- fun_t_totalize: `%%`(n, var_0)
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
 
 == IL Validation after pass alias-demut...
 == Running pass improve-ids...
@@ -487,48 +418,25 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
     -- (if (|n_lst| = m))*{m <- m_lst, n_lst <- n_lst_lst}+{m_lst <- m_lst_lst, n_lst_lst <- n_lst_lst_lst}
 
 ;; test.spectec
-relation fun_t_totalize_before_fun_t_totalize_case_2: `%`(nat)
+def $t_totalize(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize_case_1:
-    `%`(10)
-
+  def $t_totalize(3) = ?(5)
   ;; test.spectec
-  rule fun_t_totalize_case_0:
-    `%`(3)
-
-;; test.spectec
-relation fun_t_totalize: `%%`(nat, nat?)
-  ;; test.spectec
-  rule fun_t_totalize_case_0:
-    `%%`(3, ?(5))
-
-  ;; test.spectec
-  rule fun_t_totalize_case_1:
-    `%%`(10, ?(20))
-
-  ;; test.spectec
-  rule fun_t_totalize_case_2{x0 : nat}:
-    `%%`(x0, ?())
-    -- ~ fun_t_totalize_before_fun_t_totalize_case_2: `%`(x0)
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
 
 ;; test.spectec
-relation fun_t_totalize2: `%%`(nat, nat?)
+def $t_totalize2(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize2_case_0:
-    `%%`(1, ?(2))
-
+  def $t_totalize2(1) = ?(2)
   ;; test.spectec
-  rule fun_t_totalize2_case_1{n : nat, var_0 : nat?}:
-    `%%`(n, var_0)
-    -- fun_t_totalize: `%%`(n, var_0)
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
 
 ;; test.spectec
-relation fun_t_totalize3: `%%`(nat, nat?)
+def $t_totalize3(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize3_case_0{n : nat, var_1 : nat?, var_0 : nat?}:
-    `%%`(n, (iter_val#2 + iter_val#1)?{iter_val#2 <- var_0, iter_val#1 <- var_1})
-    -- fun_t_totalize2: `%%`((n + 10), var_1)
-    -- fun_t_totalize: `%%`(n, var_0)
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
 
 == IL Validation after pass improve-ids...
 == Complete.
