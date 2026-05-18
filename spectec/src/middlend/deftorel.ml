@@ -589,7 +589,7 @@ let cvt_def_to_rel env id params r_typ clauses =
       let fcalls = collect_exp c exp @ List.concat_map (collect_prem c) prems in
       let call_map, new_quants, new_prems = create_call_map fcalls quants in
       let tupe = TupE (exps @ [transform_exp_normal call_map env exp]) $$ id.at % (TupT tup_types $ id.at) in
-      RuleD (fun_prefix ^ id.it ^ "_case_" ^ Int.to_string i $ id.at, quants @ new_quants, new_mixop, tupe, List.map (transform_prem_normal call_map env) (new_prems @ prems)) $ id.at
+      RuleD (fun_prefix ^ id.it ^ "_case_" ^ Int.to_string i $ id.at, quants @ new_quants, new_mixop, tupe, List.map (transform_prem_normal call_map env) (prems @ new_prems)) $ id.at
     ) clauses 
   in
   let new_id = { id with it = fun_prefix ^ id.it } in
