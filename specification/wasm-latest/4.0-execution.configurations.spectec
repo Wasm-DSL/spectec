@@ -407,10 +407,10 @@ def $reading_event_filter(evt) =
   TIME evt.TIME
 }
 
-def $reading_filter(trace): event*
-def $reading_filter(eps) = eps
-def $reading_filter(ev evt*) = ev $reading_filter(evt*) -- if $has_read(ev)
-def $reading_filter(ev evt*) = $reading_filter(evt*) -- otherwise 
+def $readingfilter(trace): event*
+def $readingfilter(eps) = eps
+def $readingfilter(ev evt*) = ev $readingfilter(evt*) -- if $has_read(ev)
+def $readingfilter(ev evt*) = $readingfilter(evt*) -- otherwise 
 
 ;; TODO: should be paramterised by reg
 def $writefilter(trace): event*
@@ -477,12 +477,12 @@ def $id(action1) = action1
 def $funclower(event): action
 def $funclower(event1) = event1.ACTIONS[x] 
 
-def $region_action_filter(region, action*): action*
-def $region_action_filter(reg, eps) = eps
-def $region_action_filter(reg, act' act*) = [act'] -- if $region_action_filter(reg, act*) = eps /\ $locinregion($locationf(act'), reg)
+def $regionactionfilter(region, action*): action*
+def $regionactionfilter(reg, eps) = eps
+def $regionactionfilter(reg, act' act*) = [act'] -- if $regionactionfilter(reg, act*) = eps /\ $locinregion($locationf(act'), reg)
 
 def $access_r(region, event): action
-def $access_r(reg, evt) = $region_action_filter(reg, evt.ACTIONS)[1] -- if |$region_action_filter(reg, evt.ACTIONS)| = 1
+def $access_r(reg, evt) = $regionactionfilter(reg, evt.ACTIONS)[1] -- if |$regionactionfilter(reg, evt.ACTIONS)| = 1
 
 def $access2_r(region, event, event, syntax X, def $p(action, action) : X): X    hint(show %5#_#%1(%2, %3))
 def $access2_r(reg, evt_1, evt_2, syntax X, $p) = $p($access_r(reg, evt_1), $access_r(reg, evt_2))

@@ -107,6 +107,8 @@ Consistency
 .. _op-implies-consistent-with:
 .. _op-not-in-range:
 .. _op-write-filter:
+.. _op-reading-filter:
+.. _op-region-action-filter:
 .. _op-forall:
 .. _op-access-r:
 .. _op-loc-in-region:
@@ -120,8 +122,14 @@ Consistency
 .. _op-unfold-nat:
 .. _op-allreg:
 .. _op-allnat:
+.. _forall-implies-consistent-with:
+.. _forall-implies-happens-tot-before:
+.. _relation-for-all-consistent-with:
+.. _relation-for-all-suspensions-consistent:
+.. _relation-for-all-reads-from:
+.. _relation-for-all-reads-each-from:
 
-$${definition: forall1 forall2 impliesconsistentwith consistentwithfunction suspensionsconsistentfunction readseachfromfunction readsfromfunction}
+$${definition: readingfilter writefilter initfilter readingactionfilter writeactionfilter suspfilter}
 
 $${rule: Consistent}
 

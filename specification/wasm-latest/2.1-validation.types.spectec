@@ -252,8 +252,8 @@ rule Externtype_ok/func:
   -- Expand_use: typeuse ~~_C $($(FUNC t_1* -> t_2*))
 
 ;; Concurrency
+
 relation Consistentwith: region |- trace Consistentwith 
-relation forallconsistentwith: (!) region |- trace Consistentwith
 relation Consistent: |- trace Consistent 
 
 relation Readseachfrom: trace region |- event Readseachfrom event* 
@@ -325,34 +325,52 @@ def $notinrange(k, eps) = true
 def $notinrange(k, rangeaddr' rangeaddr*) = false -- if k = rangeaddr'
 def $notinrange(k, rangeaddr' rangeaddr*) = true -- if k =/= rangeaddr' /\ $notinrange(k, rangeaddr*)
 
+def $forallimpliesconsistentwith(event*, event*) : bool   hint(show (!) evt_I, evt <- tr, ord_reg(evt_I) = init /\ evt_I =/= evt /\ overlap(evt_I, evt) ==> evt_I <<_hb evt)
+def $forallimpliesconsistentwith(evt__init^x, tr) = $forall2(event, event, evt__init^x, tr, $impliesconsistentwith)
+
+def $forallimpliestothappensbefore(trace, trace) : bool   hint(show (!) evt, evt' <- %1, evt <<_tot evt' ==> evt <<_hb evt')
+def $forallimpliestothappensbefore(tr', tr') = $forall2(event, event, tr', tr', $impliestothappensbefore)
+
+relation Forallconsistentwith: (!) region `<- region* |- trace Consistentwith   hint(show (!)##reg `. |-_reg tr Consistentwith )
+
+relation Forallsuspensionsconsistent: (!) u32 `<- u32* region |- trace Suspensionsconsistent    hint(show (!) i `<-k^(k<2^32) `. i |-_reg tr Suspensionsconsistent)
+
+relation Forallreadseachfrom: (!) event `<- event* (?) event `<- event* trace region |- event Readseachfrom event   hint(show (!) evt_R <- reading_reg#(tr), (?) evt_W `. tr |-_reg evt_R Readseachfrom evt_W)
+
+relation Forallreadsfrom: (!) u32 `<- u32* trace region |- event Readsfrom event    hint(show (!) i < |evt_W*| . tr i |-_reg evt_R Readsfrom (evt_W*[i]))
+
+rule Forallconsistentwith/init:
+  (!) reg `<- allreg* |- tr Consistentwith
+
+rule Forallsuspensionsconsistent/init:
+  (!) i `<- k^(k<2^32) reg |- tr Suspensionsconsistent
+
+rule Forallreadseachfrom/init:
+  (!) evt_R `<- $readingfilter(tr) (?) evt_W `<- $writefilter(tr) tr reg |- evt_R Readseachfrom evt_W
+
+rule Forallreadsfrom/init:
+  (!) i `<- k^(k<2^32) tr reg |- evt_R Readsfrom evt_W
+  
 ;; Can express all possible registers as a list? So can use $forall
 rule Consistent/init:
   |- tr Consistent 
-  -- if $forall1and2(region, trace, $allreg, tr, $consistentwithfunction)
+  -- Forallconsistentwith: (!) reg `<- $allreg |- tr Consistentwith
 
 rule Consistentwith/init:
   reg |- tr Consistentwith 
-  -- if $forall1and3(u32, region, trace, $unfoldu32(0, $nat$(2^32-1)), reg, tr, $suspensionsconsistentfunction)
+  -- Forallsuspensionsconsistent: (!) i `<- k^(k<2^32) reg |- tr Suspensionsconsistent
   -- --
-  -- if read__evt* = $reading_filter(tr)
-  -- if trace__writes* = $writefilter(tr)
-  -- --
-  -- if |trace__writes*| > 0
-  -- (if write__evt <- trace__writes*)^n
-  -- --
-  -- if $forall1and4(event, trace, region, event^n, read__evt*, tr, reg, write__evt^n, $readseachfromfunction)
+  -- Forallreadseachfrom: (!) evt_R `<- $readingfilter(tr) (?) evt_W `<- $writefilter(tr) tr reg |- evt_R Readseachfrom evt_W
   -- --
   -- if evt__init^x = $initfilter(tr)
-  -- if $forall2(event, event, evt__init^x, tr, $impliesconsistentwith)
+  -- if $forallimpliesconsistentwith(evt__init^x, tr)
 
 rule Readseachfrom/init:
-  trace reg |- evt_R Readseachfrom evt_W^n
-  -- if |evt_W^n| = |$readingactionfilter(evt_R.ACTIONS)|
-  -- if i* = $unfoldnat(0, |evt_W^n|) ;; Used for more faithful version of spec
+  tr reg |- evt_R Readseachfrom evt_W*
+  -- if |evt_W*| = |$readingactionfilter(evt_R.ACTIONS)|
+  -- Forallreadsfrom: (!) i `<- k^(k<2^32) tr reg |- evt_R Readsfrom evt_W*[i]
   -- --
-  -- if $forall1and5(nat, trace, region, event, event^n, i*, tr, reg, evt_R, evt_W^n, $readsfromfunction)
-  -- --
-  -- Notear: reg |- evt_R Notear evt_W^n
+  -- Notear: reg |- evt_R Notear evt_W*
 
 rule Readsfrom/init:
   tr reg i |- evt_R Readsfrom evt_W 
@@ -361,6 +379,7 @@ rule Readsfrom/init:
   -- if evt_W <- $writefilter(tr)
   -- --
   -- if k <- $unfoldu32(0, $nat$(2^32-1)) ;; HACK!
+  ;;-- if k <- u32list^(u32list<2^32) ;; HACK!
   -- Valueconsistent: tr reg i k |- evt_R Valueconsistent evt_W
   -- --
   -- Hbconsistent: tr reg k |- evt_R Hbconsistent evt_W
@@ -369,8 +388,8 @@ rule Readsfrom/init:
 
 rule Valueconsistent/init:
   trace reg i k |- evt_R Valueconsistent evt_W 
-  -- if [act_R] = $region_action_filter(reg, evt_R.ACTIONS)
-  -- if [act_W] = $region_action_filter(reg, evt_W.ACTIONS)
+  -- if [act_R] = $regionactionfilter(reg, evt_R.ACTIONS)
+  -- if [act_W] = $regionactionfilter(reg, evt_W.ACTIONS)
   -- --
   -- if k = $($offset(act_R) + i)
   -- if j = $(k - $offset(act_W))
@@ -390,7 +409,6 @@ rule Hbconsistent/init:
   -- --
   -- (if $happensbefore(evt_W, evt_W') /\ $happensbefore(evt_W', evt_R) ==> $notinrange(k, $access1_r(reg, evt_W', u32*, $range)))*
 
-;; TODO: Find if within premise line break possible
 rule Sclastvisible/init:
   trace reg |- evt_R Sclastvisible evt_W 
   -- if evt_W'* = $writefilter(trace)
@@ -420,7 +438,7 @@ rule Suspensionsconsistent/init:
   -- if tr' = $suspfilter(reg, i, tr)
   -- Suspensionsconsistentwith: i reg |- tr' Suspensionsconsistentwith eps
   -- --
-  -- if $forall2(event, event, tr', tr', $impliestothappensbefore)
+  -- if $forallimpliestothappensbefore(tr', tr')
 
 rule Suspensionsconsistentwith/init: 
   i reg |- eps Suspensionsconsistentwith timestamp* 
