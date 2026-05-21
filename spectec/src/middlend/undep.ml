@@ -66,7 +66,10 @@ let empty () = {
 let wf_pred_prefix = "wf_"
 let rule_prefix = "case_"
 
+let wf_lemma_suffix = "_is_wf"
+
 let wf_hint_id = "wf-relation"
+let wf_func_id = "wf-lemma-func"
 
 [@@@warning "-37"]
 type wfstate =
@@ -78,6 +81,14 @@ type wfstate =
 let wf_state = MINIMAL
 
 let error at msg = error at "Undep error" msg
+
+let make_arg p = 
+  (match p.it with
+  | ExpP (id, typ) -> ExpA (VarE id $$ id.at % typ) 
+  | TypP id -> TypA (VarT (id, []) $ id.at)
+  | DefP (id, _, _) -> DefA id 
+  | GramP (id, _, _) -> GramA (VarG (id, []) $ id.at)
+  ) $ p.at
 
 let rec split3concat = function
     [] -> ([], [], [])
@@ -244,19 +255,21 @@ let get_exp_typ q =
   | ExpP (id, typ) -> Some (VarE id $$ id.at % typ, typ)
   | _ -> None
 
-let generate_well_formed_rel_hint at: hint = { hintid = wf_hint_id $ at; hintexp = El.Ast.SeqE [] $ at} 
+let generate_well_formed_rel_hint id at: hint = { hintid = wf_hint_id $ at; hintexp = El.Ast.VarE (id, []) $ at} 
+let generate_well_formed_func_hint at: hint = { hintid = wf_func_id $ at; hintexp = El.Ast.SeqE [] $ at} 
+
 
 let create_well_formed_predicate env id inst = 
   let tf = { base_transformer with transform_exp = t_exp env; transform_typ = t_typ} in
   let at = id.at in 
   let user_typ = VarT(id, []) $ at in
-  let new_mixop pairs = Xl.Mixop.(Seq (List.init (List.length pairs + 1) (fun _ -> Arg ()))) in
   let create_pairs quants = List.split (List.filter_map (fun b -> match b.it with 
       | ExpP (id', typ) -> Some (("_" $ id'.at, typ), (id', typ))
       | _ -> None
     ) quants) in
   let tupt pairs = TupT (pairs @ [("_" $ at, user_typ)]) $ at in
-  let hint = HintD (RelH (wf_pred_prefix ^ id.it $ id.at, [generate_well_formed_rel_hint at]) $ at) $ at in 
+  let new_mixop pairs = Xl.Mixop.(Seq (List.init (List.length pairs + 1) (fun _ -> Arg ()))) in
+  let hint = HintD (RelH (wf_pred_prefix ^ id.it $ id.at, [generate_well_formed_rel_hint id at]) $ at) $ at in 
   match inst.it with
   (* Variant well formedness predicate creation *)
   | InstD (quants, _args, {it = VariantT typcases; _}) -> 
@@ -410,6 +423,61 @@ let remove_unused_params def =
     { def with it = DecD (id, params', typ, clauses') }
   | _ -> def
 
+let rec return_type_needs_wfness env (rt : typ) : bool =
+  match rt.it with
+  | VarT (id, _) -> StringSet.mem id.it env.wf_set
+  | TupT tups -> tups |> List.map snd |> List.exists (return_type_needs_wfness env)
+  | IterT (t, _) -> return_type_needs_wfness env t
+  | _ -> false
+
+(* HACK: Lemma is actually represented as a relation *)
+let generate_wf_lemma env tf id params rtyp = 
+  let lemma_name = id.it ^ wf_lemma_suffix in 
+  let params' = Utils.improve_ids_params params in 
+  let wf_prems = List.concat_map (fun p -> match p.it with
+    | ExpP (id, typ) -> get_wf_pred env (VarE id $$ id.at % typ, typ)
+    | _ -> [] 
+  ) params' in 
+  let ids = List.map Utils.get_param_id params in
+  let text_ids = List.map (fun p -> p.it) ids in 
+  let ret_exp_name = Utils.generate_var text_ids "ret_val" in 
+  let ret_exp = VarE (ret_exp_name $ id.at) $$ id.at % rtyp in
+  let fcall_exp = CallE (id, List.map make_arg params') $$ id.at % rtyp in
+  let fcall_prem = IfPr (CmpE (`EqOp, `BoolT, ret_exp, fcall_exp) $$ id.at % (BoolT $ id.at)) $ id.at in
+  let wf_conclusion = get_wf_pred env (ret_exp, rtyp) in
+  
+  let ret_param = ExpP (ret_exp_name $ id.at, rtyp) $ id.at in
+  let new_quants = params' @ [ret_param] in 
+
+  let fixed, not_fixed = List.partition_map (fun p -> match p.it with
+    | ExpP (id', typ) -> Right (VarE id' $$ id'.at % typ)
+    | _ -> Left p
+  ) params' 
+  in
+  let typtups = List.filter_map (fun p -> match p.it with
+    | ExpP (id', typ) -> Some (id', typ)
+    | _ -> None
+  ) params' 
+  in
+  let tupt = TupT (typtups @ [(ret_exp_name $ id.at, ret_exp.note)]) $ id.at in
+  let tupe = TupE (not_fixed @ [ret_exp]) $$ id.at % tupt in 
+  let new_mixop = Xl.Mixop.(Seq (List.init (List.length not_fixed + 1) (fun _ -> Arg ()))) in
+  let rule = RuleD (
+    lemma_name ^ "0" $ id.at, 
+    new_quants, 
+    new_mixop,
+    tupe,
+    wf_prems @ [fcall_prem] @ wf_conclusion
+  ) $ id.at
+  in
+  let hint = HintD (RelH (lemma_name $ id.at, [generate_well_formed_func_hint id.at]) $ id.at) $ id.at in 
+  let relation = RelD (lemma_name $ id.at, 
+    List.map (transform_param tf) fixed, new_mixop, 
+    transform_typ tf tupt, 
+    [transform_rule tf rule]) $ id.at in
+  [hint; relation]
+
+
 let rec t_def env def = 
   let tf = { base_transformer with transform_exp = t_exp env; transform_typ = t_typ } in
   match def.it with
@@ -429,8 +497,13 @@ let rec t_def env def =
       List.map (t_clause env) clauses
       ) $ def.at 
     in
+    let is_proj_func = StringSet.mem id.it env.proj_set in
     let t_d = if StringSet.mem id.it env.proj_set then remove_unused_params d else d in
-    (t_d, [])
+    let wf_lemma = if wf_state = MINIMAL && return_type_needs_wfness env typ && not is_proj_func
+      then generate_wf_lemma env tf id params typ 
+      else [] 
+    in
+    (t_d, wf_lemma)
   | GramD (id, params, typ, prods) -> 
     (GramD (id, List.map (transform_param tf) params, transform_typ tf typ, List.map (transform_prod tf) prods) $ def.at, [])
   | RecD defs -> 
@@ -441,7 +514,6 @@ let rec t_def env def =
     if List.concat wf_relations = [] then (rec_defs, []) else
     (rec_defs, [RecD (List.concat wf_relations) $ def.at])
   | HintD hintdef -> (HintD hintdef $ def.at, [])
-  
 let has_proj_hint (hint : hint) = hint.hintid.it = Typefamilyremoval.projection_hint_id
 let has_tf_hint (hint : hint) = hint.hintid.it = Typefamilyremoval.type_family_hint_id
 
