@@ -3,17 +3,21 @@ open Util.Source
 open Il.Walk
 
 module StringSet = Set.Make(String)
-
+module StringMap = Map.Make(String)
 type rocq_env = {
   mutable tf_set : StringSet.t;
   mutable il_env : Il.Env.t;
-  mutable proj_set : StringSet.t
+  mutable proj_set : StringSet.t;
+  mutable wf_lemma_set : StringSet.t;
+  mutable typ_to_wf_map : text StringMap.t
 }
 
 let new_env () = {
   tf_set = StringSet.empty;
   il_env = Il.Env.empty;
-  proj_set = StringSet.empty
+  proj_set = StringSet.empty;
+  wf_lemma_set = StringSet.empty;
+  typ_to_wf_map = StringMap.empty
 }
 
 let iter_prem_rels_list = ["List.Forall"; "List.Forall2"; "List_Forall3"]
@@ -676,6 +680,13 @@ let render_single_type id at params =
   | {it = ExpP (_, typ); _} :: ps when List.for_all is_typ_param ps -> (render_type RHS typ, ps)
   | _ -> error at ("Given projection function: " ^ id ^ " has invalid parameters!")
 
+let render_wfness_func_lemma id rule = 
+  let RuleD (_, quants, _, _, prems) = rule.it in
+  let forall_quantifiers = string_of_list "forall " ",\n\t" " " (render_param RHS) quants in
+  let string_prems = string_of_list "" "" " ->\n\t" (render_prem) prems in
+  "Lemma " ^ id ^ " : " ^ forall_quantifiers ^ string_prems ^ ".\n" ^
+  "Proof. Admitted"
+
 let render_function_def prefix id at params r_typ clauses = 
   let has_typ_fam = List.length params > 1 && List.exists is_type_family_param params in
   let is_proj_func = StringSet.mem id !env_ref.proj_set in
@@ -737,17 +748,14 @@ let has_prems c =
 
 let start_prefix def = 
   match def.it with
+  | RelD (id, _, _, _, _) when StringSet.mem id.it !env_ref.wf_lemma_set ->
+    ""
   | _ when is_inductive def -> "Inductive "
   | DecD (_, _, _, []) -> "Axiom "
   | DecD (_, _, _, clauses)  when List.exists has_prems clauses -> "Axiom "
   | DecD _ -> "Fixpoint "
   | TypD (_, _, [inst]) when is_record_typ inst -> "Record "
   | _ -> ""
-
-let is_axiom def =
-  match def.it with
-  | DecD (_, _, _, _clauses) -> true
-  | _ -> false
 
 (* TODO - revise mutual recursion with other defs such as records and axioms *)
 let rec string_of_def has_endline recursive def = 
@@ -776,6 +784,8 @@ let rec string_of_def has_endline recursive def =
   | RelD (id, _, _, typ, []) -> 
     let prefix = if recursive then "" else "Axiom " in
     start ^ render_rel_axiom prefix (render_id id.it) typ ^ end_newline
+  | RelD (id, _, _, _, [rule]) when StringSet.mem id.it !env_ref.wf_lemma_set ->
+    start ^ render_wfness_func_lemma id.it rule ^ end_newline
   | RelD (id, _, _, typ, rules) -> 
     let prefix = if recursive then "" else "Inductive " in
     start ^ render_relation prefix (render_id id.it) typ rules ^ end_newline
@@ -946,8 +956,9 @@ let rec filter_def def =
   | _ -> Some def
 
 let is_tf_hint h = h.hintid.it = Middlend.Typefamilyremoval.type_family_hint_id
-
 let is_proj_hint h = h.hintid.it = Middlend.Uncaseremoval.uncase_proj_hint_id
+let is_wf_hint h = h.hintid.it = Middlend.Undep.wf_hint_id
+let is_wf_func_hint h = h.hintid.it = Middlend.Undep.wf_func_id
 
 let rec register_hints env def =
   match def.it with
@@ -955,6 +966,14 @@ let rec register_hints env def =
     env.tf_set <- StringSet.add id.it env.tf_set
   | HintD { it = DecH (id, hints); _} when List.exists is_proj_hint hints ->
     env.proj_set <- StringSet.add id.it env.proj_set
+  | HintD { it = RelH (id, hints); _} when List.exists is_wf_func_hint hints -> 
+    env.wf_lemma_set <- StringSet.add id.it env.wf_lemma_set
+  | HintD { it = RelH (rel_id, hints); _} when List.exists is_wf_hint hints ->
+    begin match (List.find_opt is_wf_hint hints) with
+    | Some {hintexp = { it = El.Ast.VarE (typ_id, _); _}; _} ->
+      env.typ_to_wf_map <- StringMap.add typ_id.it rel_id.it env.typ_to_wf_map
+    | _ -> ()
+    end 
   | RecD defs -> List.iter (register_hints env) defs
   | _ -> ()
      
