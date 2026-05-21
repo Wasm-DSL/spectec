@@ -7,6 +7,7 @@ val bound_func : string -> bool
 val lookup_algo : string -> algorithm
 
 type env = value Env.t
+val string_of_env : env -> string
 val lookup_env : string -> env -> value
 val lookup_env_opt : string -> env -> value option
 
@@ -89,6 +90,13 @@ module WasmContext : sig
   val pop_value : unit -> value
 
   val pop_instr : unit -> value
+end
+
+module Access : sig
+  val access_store : string list -> value
+  val access_frame : string list -> value
+  val access_state : string list -> value
+  val access_env : AlContext.t -> string -> string list -> value
 end
 
 val init : algorithm list -> unit

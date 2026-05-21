@@ -1,15 +1,3 @@
-(*
-This transformation make explicit the following implicit side conditions
-of terms in premises and conclusions:
-
- * Array access          a[i]         i < |a|
- * Joint iteration       e*{v1,v2}    |v1*| = |v2*|
- * Option projection     !(e)         e =!= null
-
-(The option projection would probably be nicer by rewriting !(e) to a fresh
-variable x and require e=?x. Maybe later.)
-*)
-
 open Util
 open Source
 open Il.Ast
@@ -122,7 +110,18 @@ let rec implies prem1 prem2 = Il.Eq.eq_prem prem1 prem2 ||
   | IterPr (prem2', _) -> implies prem1 prem2'
   | _ -> false
 
+(* Remove empty premise iterators *)
+let rec flatten_empty_iter prem =
+  match prem.it with
+  | IterPr (prem', iterexp) ->
+    let prem'' = flatten_empty_iter prem' in
+    (match iterexp with
+    | ((Opt | List | List1), []) -> prem''
+    | _ -> IterPr (prem'', iterexp) $ prem.at)
+  | _ -> prem
+
 let reduce_prems prems = prems
+  |> List.map flatten_empty_iter
   |> Util.Lib.List.filter_not is_true
   |> Util.Lib.List.nub implies
 

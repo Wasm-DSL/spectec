@@ -562,6 +562,11 @@ let as_iter_typ_opt env t : (Il.typ * Il.iter) option =
   | Il.IterT (t1, iter) -> Some (t1, iter)
   | _ -> None
 
+let as_opt_typ_opt env t : Il.typ option =
+  match expand env t with
+  | Il.IterT (t1, Il.Opt) -> Some t1
+  | _ -> None
+
 let as_list_typ_opt env t : Il.typ option =
   match expand env t with
   | Il.IterT (t1, Il.List) -> Some t1
@@ -589,6 +594,8 @@ let as_num_typ phrase env dir t at =
   as_x_typ as_num_typ_opt phrase env dir t at "(nat|int|rat|real)"
 let as_iter_typ phrase env dir t at =
   as_x_typ as_iter_typ_opt phrase env dir t at "(_)*"
+let as_opt_typ phrase env dir t at =
+  as_x_typ as_opt_typ_opt phrase env dir t at "(_)?"
 let as_list_typ phrase env dir t at =
   as_x_typ as_list_typ_opt phrase env dir t at "(_)*"
 let as_tup_typ phrase env dir t at =
@@ -632,6 +639,30 @@ let is_iter_typ = is_x_typ as_iter_typ
 let is_variant_typ = is_x_typ as_variant_typ
 let is_notation_typ = is_x_typ as_notation_typ
 let is_empty_notation_typ = is_x_typ as_empty_notation_typ
+
+let rec find_typfield atom = function
+  | [] -> None
+  | ((atom', _, _) as tf1)::tfs when atom'.it = atom.it -> Some (tf1, tfs)
+  | tf1::tfs ->
+    match find_typfield atom tfs with
+    | None -> None
+    | Some (tf, tfs') -> Some (tf, tf1::tfs')
+
+let rec find_expfield atom = function
+  | [] -> None
+  | ((atom', _) as ef1)::efs when atom'.it = atom.it -> Some (ef1, efs)
+  | ef1::efs ->
+    match find_expfield atom efs with
+    | None -> None
+    | Some (ef, efs') -> Some (ef, ef1::efs')
+
+let rec order_expfields efs = function
+  | [] -> []
+  | (atom, _, _)::tfs' ->
+    (* TODO(4, rossberg): make this not quadratic *)
+    match find_expfield atom efs with
+    | None -> assert false
+    | Some (ef1, efs') -> ef1 :: order_expfields efs' tfs'
 
 
 (* Type Equivalence and Shallow Numeric Subtyping *)
@@ -1211,8 +1242,19 @@ and infer_exp' env e : (Il.exp' * Il.typ') attempt =
     ]
   | LenE e1 ->
     let* e1', t1 = infer_exp env e1 in
-    let* _t11 = as_list_typ "expression" env Infer t1 e1.at in
-    Ok (Il.LenE e1', Il.NumT `NatT)
+    choice env [
+      (fun env ->
+        (* Try as list *)
+        let* _t11 = as_list_typ "expression" env Infer t1 e1.at in
+        Ok (Il.LenE e1', Il.NumT `NatT)
+      );
+      (fun env ->
+        (* Try as option *)
+        let* t11 = as_opt_typ "expression" env Infer t1 e1.at in
+        let e1'' = Il.LiftE e1' $$ e1.at % (Il.IterT (t11, Il.List) $ e1.at) in
+        Ok (Il.LenE e1'', Il.NumT `NatT)
+      );
+    ]
   | SizeE id ->
     let _ = find "grammar" env.grams id in
     Ok (Il.NumE (`Nat Z.zero), Il.NumT `NatT)
@@ -1229,13 +1271,21 @@ and infer_exp' env e : (Il.exp' * Il.typ') attempt =
     fail_infer e.at "empty sequence"
   | SeqE [] ->  (* treat as empty tuple, not principal *)
     Ok (Il.TupE [], Il.TupT [])
-  | SeqE es | ListE es ->  (* treat as homogeneous sequence, not principal *)
+  | SeqE es ->  (* treat as homogeneous sequence, not principal *)
+    let* es', ts = infer_exp_list env es in
+    let t = List.hd ts in
+    if not (is_iter_typ env t)
+    && List.for_all (equiv_typ env t) (List.tl ts) then
+      Ok (Il.ListE es', Il.IterT (t, Il.List))
+    else
+      fail_infer e.at "expression sequence"
+  | ListE es ->  (* treat as homogeneous sequence, not principal *)
     let* es', ts = infer_exp_list env es in
     let t = List.hd ts in
     if List.for_all (equiv_typ env t) (List.tl ts) then
       Ok (Il.ListE es', Il.IterT (t, Il.List))
     else
-      fail_infer e.at "expression sequence"
+      fail_infer e.at "list expression"
   | InfixE _ -> fail_infer e.at "infix expression"
   | BrackE _ -> fail_infer e.at "bracket expression"
   | IterE (e1, it) ->
@@ -1452,25 +1502,31 @@ and elab_exp_list env (es : exp list) (xts : (id * Il.typ) list) at
 
 and elab_expfields env tid (efs : expfield list) (tfs : Il.typfield list) (t0 : Il.typ) at
   : Il.expfield list attempt =
+  let* efs = elab_expfields' env tid efs tfs t0 at in
+  Ok (order_expfields efs tfs)
+
+and elab_expfields' env tid (efs : expfield list) (tfs : Il.typfield list) (t0 : Il.typ) at
+  : Il.expfield list attempt =
   Debug.(log_in_at "el.elab_expfields" at
     (fun _ -> fmt "{%s} : {%s} = %s" (list el_expfield efs) (list il_typfield tfs) (il_typ t0))
   );
   assert (valid_tid tid);
   match efs, tfs with
   | [], [] -> Ok []
-  | (atom1, e)::efs2, (atom2, (tF, _qs, prems), _)::tfs2 when atom1.it = atom2.it ->
-    let* e' = elab_exp env e tF in
-    let* efs2' = elab_expfields env tid efs2 tfs2 t0 at in
-    let e' = if prems = [] then e' else tup_exp' [e'] e.at in
-    Ok ((elab_atom atom1 tid, e') :: efs2')
-  | _, (atom, (tF, _qs, prems), _)::tfs2 ->
+  | [], (atom, (tF, _qs, prems), _)::tfs2 ->
     let atom' = string_of_atom atom in
     let* e1' = cast_empty ("omitted record field `" ^ atom' ^ "`") env tF at in
     let e' = if prems = [] then e1' else tup_exp' [e1'] at in
     let* efs2' = elab_expfields env tid efs tfs2 t0 at in
     Ok ((elab_atom atom tid, e') :: efs2')
-  | (atom, e)::_, [] ->
-    fail_atom e.at atom t0 "undefined or misplaced record field"
+  | (atom, e)::efs2, tfs ->
+    match find_typfield atom tfs with
+    | None -> fail_atom e.at atom t0 "undefined or misplaced record field"
+    | Some ((_, (tF, _qs, prems), _), tfs2) ->
+      let* e' = elab_exp env e tF in
+      let* efs2' = elab_expfields env tid efs2 tfs2 t0 at in
+      let e' = if prems = [] then e' else tup_exp' [e'] e.at in
+      Ok ((elab_atom atom tid, e') :: efs2')
 
 and elab_exp_iter env (es : exp list) (t1, iter) t at : Il.exp attempt =
   let* e' = elab_exp_iter' env es (t1, iter) t at in
@@ -1504,7 +1560,7 @@ and elab_exp_iter' env (es : exp list) (t1, iter) t at : Il.exp' attempt =
 and elab_exp_notation env tid (e : exp) (t1, mixop, not) t : Il.exp attempt =
   (* Convert notation into applications of mixin operators *)
   assert (valid_tid tid);
-  let* es', _s = elab_exp_notation' env tid e not in
+  let* es', _s = nest e.at t (elab_exp_notation' env tid e not) in
   Ok (Il.CaseE (mixop, Il.TupE es' $$ e.at % t1) $$ e.at % t)
 
 and elab_exp_notation' env tid (e : exp) not : (Il.exp list * Il.Subst.t) attempt =
@@ -1683,6 +1739,20 @@ and elab_exp_notation_iter' env tid (es : exp list) (t1, iter) x t eo' nots at
         let* e', es2', s =
           elab_exp_notation_iter' env tid es2 (t1, iter) x t (Some e0'') nots at' in
         Ok (e', es2', s)
+      );
+      (fun env ->
+        (* Try parsing all as list element *)
+        let* e1' = elab_exp env (SeqE es $ at) t in
+        let e' =
+          match eo' with
+          | None -> e1'
+          | Some e0' -> cat_exp' e0' e1' $$ Source.over_region [e0'.at; e1'.at] % t
+        in
+        let s1 = Il.Subst.add_varid Il.Subst.empty x e' in
+        let not = Mixop.Seq nots in
+        let not' = Mixop.map (fun (x, t) -> x, Il.Subst.subst_typ s1 t) not in
+        let* es', s2 = elab_exp_notation' env tid (SeqE [] $ at) not' in
+        Ok (e', es', Il.Subst.union s1 s2)
       );
     ]
 
@@ -2222,6 +2292,10 @@ and elab_arg in_lhs env (a : arg) (p : Il.param) s : Il.arg list * Il.Subst.subs
   | ExpA {it = CallE (id, []); _}, Il.DefP _ -> a.it := DefA id
   | _, _ -> ()
   );
+  Debug.(log_at "el.elab_arg" a.at
+    (fun _ -> fmt "%s : %s" (el_arg a) (il_param p))
+    (fun (as', _) -> fmt "%s" (list il_arg as'))
+  ) @@ fun _ ->
   match !(a.it), (Il.Subst.subst_param s p).it with
   | ExpA e, Il.ExpP (x, t) ->
     let e' = checkpoint (elab_exp env e t) in
@@ -2638,7 +2712,7 @@ let rec elab_def_pass2 env (d : def) : Il.def list =
     let ps'' = elab_params env' ps in
     if not Il.Eq.(eq_list eq_param ps' ps'') then
       error d.at ("parameter list on rule differs from relation");
-    let es', _ = checkpoint (elab_exp_notation' env' x1 e not') in
+    let es', _ = checkpoint (nest e.at t' (elab_exp_notation' env' x1 e not')) in
     let prems' = List.concat (map_filter_nl_list (elab_prem env') prems) in
     let dims = Dim.check Map.empty [] [] [] es' [] prems' in
     let es' = List.map (Dim.annot_exp dims) es' in

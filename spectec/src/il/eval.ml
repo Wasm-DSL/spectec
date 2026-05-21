@@ -122,6 +122,33 @@ and reduce_typ_app' env id args at = function
     | Some s -> Some (Subst.subst_deftyp s dt)
 
 
+and as_struct_typ env t at : typfield list =
+  match (reduce_typdef env t).it with
+  | StructT tfs -> tfs
+  | _ ->
+    Error.error at "validation"
+      ("expression's type `" ^ Print.string_of_typ t ^ "` is not a record")
+
+and as_variant_typ env t at : typcase list =
+  match (reduce_typdef env t).it with
+  | VariantT tcs -> tcs
+  | _ ->
+    Error.error at "validation"
+      ("expression's type `" ^ Print.string_of_typ t ^ "` is not a variant")
+
+and find_typfield tfs atom at =
+  match List.find_opt (fun (atom', _, _) -> Eq.eq_atom atom' atom) tfs with
+  | Some (_, x, _) -> x
+  | None ->
+    Error.error at "validation" ("unbound field `" ^ Print.string_of_atom atom ^ "`")
+
+and find_typcase tcs op at =
+  match List.find_opt (fun (op', _, _) -> Eq.eq_mixop op' op) tcs with
+  | Some (_, x, _) -> x
+  | None ->
+    Error.error at "validation" ("unknown case `" ^ Print.string_of_mixop op ^ "`")
+
+
 (* Expression Reduction *)
 
 and is_head_normal_exp e =
@@ -179,10 +206,8 @@ and reduce_exp env e : exp =
     let e1' = reduce_exp env e1 in
     let e2' = reduce_exp env e2 in
     (match op, e1'.it, e2'.it with
-    | `EqOp, _, _ when Eq.eq_exp e1' e2' -> BoolE true
-    | `NeOp, _, _ when Eq.eq_exp e1' e2' -> BoolE false
-    | `EqOp, _, _ when is_normal_exp e1' && is_normal_exp e2' -> BoolE false
-    | `NeOp, _, _ when is_normal_exp e1' && is_normal_exp e2' -> BoolE true
+    | `EqOp, _, _ when is_normal_exp e1' && is_normal_exp e2' -> BoolE (Eq.eq_exp e1' e2')
+    | `NeOp, _, _ when is_normal_exp e1' && is_normal_exp e2' -> BoolE (not (Eq.eq_exp e1' e2'))
     | #Num.cmpop as op', NumE n1, NumE n2 ->
       (match Num.cmp op' n1 n2 with
       | Some b -> BoolE b
@@ -220,7 +245,9 @@ and reduce_exp env e : exp =
         then reduce_exp env (CatE (e', e2') $> e')
         else ExtE (e', p', e2') $> e'
       )
-  | StrE efs -> StrE (List.map (reduce_expfield env) efs) $> e
+  | StrE efs ->
+    let tfs = as_struct_typ env e.note e.at in
+    StrE (List.map (reduce_expfield env tfs) efs) $> e
   | DotE (e1, atom) ->
     let e1' = reduce_exp env e1 in
     (match e1'.it with
@@ -236,12 +263,13 @@ and reduce_exp env e : exp =
     | OptE None, OptE _ -> e2'.it
     | OptE _, OptE None -> e1'.it
     | StrE efs1, StrE efs2 ->
+      let tfs = as_struct_typ env e.note e.at in
       let merge (atom1, e1) (atom2, e2) =
         assert (Atom.eq atom1 atom2);
         (atom1, reduce_exp env (CompE (e1, e2) $> e1))
       in
       (try
-        StrE (List.map2 merge efs1 efs2)
+        StrE (List.map (reduce_expfield env tfs) (List.map2 merge efs1 efs2))
       with Irred | Failure _ ->
         CompE (e1', e2')
       )
@@ -356,17 +384,24 @@ and reduce_exp env e : exp =
     | OptE _, OptE None -> e1'.it
     | _ -> CatE (e1', e2')
     ) $> e
-  | CaseE (op, e1) -> CaseE (op, reduce_exp env e1) $> e
-  | CvtE (e1, _nt1, nt2) ->
+  | CaseE (op, e1) ->
+    let e1' = reduce_exp env e1 in
+    let tcs = as_variant_typ env e.note e.at in
+    let _t, _qs, prems = find_typcase tcs op e.at in
+    (match reduce_prems env Subst.empty prems with
+    | Some false -> raise Irred
+    | _ -> CaseE (op, e1') $> e
+    )
+  | CvtE (e1, nt1, nt2) ->
     let e1' = reduce_exp env e1 in
     (match e1'.it with
     | NumE n ->
       (match Num.cvt nt2 n with
-      | Some n' -> NumE n' $> e
-      | None -> e1'
+      | Some n' -> NumE n'
+      | None -> CvtE (e1', nt1, nt2)
       )
-    | _ -> e1'
-    )
+    | _ -> CvtE (e1', nt1, nt2)
+    ) $> e
   | SubE (e1, t1, t2) ->
     let e1' = reduce_exp env e1 in
     let t1' = reduce_typ env t1 in
@@ -413,8 +448,12 @@ and reduce_iter env = function
 and reduce_iterexp env (iter, xes) =
   (reduce_iter env iter, List.map (fun (id, e) -> id, reduce_exp env e) xes)
 
-and reduce_expfield env (atom, e) : expfield =
-  (atom, reduce_exp env e)
+and reduce_expfield env tfs (atom, e) : expfield =
+  let e' = reduce_exp env e in
+  let _t, _qs, prems = find_typfield tfs atom atom.at in
+  match reduce_prems env Subst.empty prems with
+  | Some false -> raise Irred
+  | _ -> (atom, e')
 
 and reduce_path env e p f =
   match p.it with
@@ -447,9 +486,10 @@ and reduce_path env e p f =
     let f' e' p1' =
       match e'.it with
       | StrE efs ->
+        let tfs = as_struct_typ env e'.note e'.at in
         StrE (List.map (fun (atomI, eI) ->
           if Eq.eq_atom atomI atom
-          then (atomI, f eI p1')
+          then reduce_expfield env tfs (atomI, f eI p1')
           else (atomI, eI)
         ) efs) $> e'
       | _ ->
@@ -507,7 +547,7 @@ and reduce_prem env prem : [`True of Subst.t | `False | `None] =
     | _ -> `None
     )
   | ElsePr -> `True Subst.empty
-  | LetPr (e1, e2, _ids) ->
+  | LetPr (_qs, e1, e2) ->
     (match match_exp env Subst.empty e2 e1 with
     | Some s -> `True s
     | None -> `None
@@ -525,7 +565,7 @@ and reduce_prem env prem : [`True of Subst.t | `False | `None] =
      * and others, which are assumed to flow inwards. *)
     let rec is_let_bound prem (x, _) =
       match prem.it with
-      | LetPr (_, _, xs) -> List.mem x.it xs
+      | LetPr (qs, _, _) -> Free.(Set.mem x.it (bound_quants qs).varid)
       | IterPr (premI, iterexpI) ->
         let _iter1', xes1' = reduce_iterexp env iterexpI in
         let xes1_out, _ = List.partition (is_let_bound premI) xes1' in
@@ -677,7 +717,7 @@ and match_typ env s t1 t2 : subst option =
     let t2' = reduce_typ env t2 in
     if Eq.eq_typ t2 t2' then None else
     match_typ env s t1 t2'
-  | TupT ets1, TupT ets2 -> match_list match_typbind env s ets1 ets2
+  | TupT xts1, TupT xts2 -> match_list match_typbind env s xts1 xts2
   | IterT (t11, iter1), IterT (t21, iter2) ->
     let* s' = match_typ env s t11 t21 in match_iter env s' iter1 iter2
   | _, _ -> None
@@ -699,7 +739,8 @@ and match_exp' env s e1 e2 : subst option =
     (fun r -> fmt "%s" (opt il_subst r))
   ) @@ fun _ ->
   assert (Eq.eq_exp e1 (reduce_exp env e1));
-  if Eq.eq_exp e1 e2 then Some s else  (* HACK around subtype elim pass introducing calls on LHS's *)
+  (* HACK around subtype elim pass introducing calls on LHS's *)
+  if Eq.eq_exp e1 e2 && is_normal_exp e1 && is_normal_exp e2 then Some s else
   match e1.it, (reduce_exp env (Subst.subst_exp s e2)).it with
   | _, VarE id when Subst.mem_varid s id ->
     (* A pattern variable already in the substitution is non-linear *)
@@ -718,6 +759,11 @@ and match_exp' env s e1 e2 : subst option =
     match_exp env s e1 e21
   | NumE n1, UnE (`MinusOp, _, e21) when Num.is_neg n1 ->
     match_exp env s (reduce_exp env {e1 with it = NumE (Num.abs n1)}) e21
+  | NumE n1, CvtE (e21, nt1, _nt2) ->
+    (match Num.cvt nt1 n1 with
+    | Some n1' -> match_exp env s (NumE n1' $> e1) e21
+    | None -> None
+    )
 (*
   | UnE (op1, _, e11), UnE (op2, _, e21) when op1 = op2 -> match_exp' env s e11 e21
   | BinE (e11, op1, e12), BinE (e21, op2, e22) when op1 = op2 ->
@@ -970,7 +1016,7 @@ and equiv_prem env pr1 pr2 =
   | RulePr (id1, mixop1, e1), RulePr (id2, mixop2, e2) ->
     id1.it = id2.it && Eq.eq_mixop mixop1 mixop2 && equiv_exp env e1 e2
   | IfPr e1, IfPr e2 -> equiv_exp env e1 e2
-  | LetPr (e11, e12, _ids1), LetPr (e21, e22, _id2) ->
+  | LetPr (_qs1, e11, e12), LetPr (_qs2, e21, e22) ->
     equiv_exp env e11 e21 && equiv_exp env e12 e22
   | IterPr (pr11, iter1), IterPr (pr21, iter2) ->
     equiv_prem env pr11 pr21 && equiv_iter env (fst iter1) (fst iter2)
@@ -1029,7 +1075,9 @@ and equiv_params env ps1 ps2 =
 (* Subtyping *)
 
 and sub_prems _env prems1 prems2 =
-  List.for_all (fun prem2 -> List.exists (Eq.eq_prem prem2) prems1) prems2
+  prems2 = [] ||
+  List.length prems1 = List.length prems2 &&
+  List.for_all2 Eq.eq_prem prems1 prems2
 
 and sub_typ env t1 t2 = sub_typ' env [] t1 t2
 

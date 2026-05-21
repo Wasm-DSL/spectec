@@ -1,45 +1,3 @@
-(*
-This transformation separates indexed types into simple types and their corresponding
-wellformedness predicate. 
-
-This is achieved through the following steps:
-  * Create the wellformedness predicate as a relation that takes in the corresponding
-  type, and its dependent type parameters. 
-    * For variants, it creates a wellformedness case for each variant case. it supplies
-    the premises that the indexed type used to have.
-    * For structs/records, it creates a singular case where all premises of all fields
-    are checked.
-  * For definitions and relations, we collect terms that should have a wellformedness check 
-  and add it to the current premise list. This results in wellformedness predicates being
-  "bubbled up."
-  * Then finally, we traverse through the IL, removing any notion of indexed types.
-
-As an example,
-given the following variant indexed type:
-
-syntax foo(v : t) = 
-  | CASE{v2 : t}(v2 : t)
-  -- if v = v2
-
-where t is an arbitrary type, and v and v2 are terms of type t.
-
-Assume that type t needs a wellformedness check.
-
-This is transformed into: 
-
-syntax foo = 
-  | CASE{v2 : t}(v2 : t)
-
-relation wf_foo: `%%`(t, foo)
-  rule foo_case_0{v : t, v2 : t}:
-    `%%`(v, CASE_foo(v2))
-    -- wf_t: `%`(v)
-    -- if (v = v2)
-
-This pass requires the typefamilyremoval pass to be ran first, as it ensures that type families are
-transformed correctly.
-*)
-
 open Il.Ast
 open Util.Source
 open Util.Error
@@ -123,20 +81,35 @@ let is_type_param param =
   | TypP _ -> true
   | _ -> false
 
+let check_iter free_set iter =
+  match iter with
+  | ListN (_, Some id) -> Free.Set.mem id.it free_set
+  | _ -> false
+
 let filter_iter_quants exp iter_quants = 
   let free_vars = (Free.free_exp exp).varid in
-  (List.fold_left (fun (free_set, acc) (iter, id_exp_pairs) -> 
+  (List.fold_left (fun (free_set, acc) (iter, id_exp_pairs) ->
+    let has_definite_iter = check_iter free_set iter in
+
     let new_id_exp_pairs = List.filter (fun (id, _) -> 
       Free.Set.mem id.it free_set
     ) id_exp_pairs in
-    if new_id_exp_pairs = [] then (free_set, acc) else 
+    
+    (* Must preserve iteration if the iteration variable (i.e. i) is used,
+     * EVEN if the list itself is not being used.
+     *)
+    let new_id_exp_pairs' = if has_definite_iter then id_exp_pairs else
+      new_id_exp_pairs 
+    in
+  
+    if new_id_exp_pairs' = [] && (not has_definite_iter) then (free_set, acc) else 
     let iter_vars = List.fold_left (fun acc (_, e) ->
       Free.Set.union acc (Free.free_exp e).varid  
-    ) Free.Set.empty new_id_exp_pairs in 
+    ) Free.Set.empty new_id_exp_pairs' in 
     let new_set = Free.Set.union iter_vars free_set in
-    (new_set, (iter, new_id_exp_pairs) :: acc)
+    (new_set, (iter, new_id_exp_pairs') :: acc)
   ) (free_vars, []) iter_quants) 
-  |> snd |> List.rev
+  |> snd |> List.rev 
 
 let rec create_collector env iterexps = 
   let base_collector_iters: ((exp * typ) * iterexp list) list collector = base_collector [] (@) in
@@ -380,7 +353,7 @@ let t_rule env rule =
       List.map (transform_param tf) quants, 
       m, 
       transform_exp tf exp, 
-      List.map (transform_prem tf) (extra_prems @ prems) 
+      List.map (transform_prem tf) (prems @ extra_prems) 
     )
   ) $ rule.at
 
@@ -395,7 +368,7 @@ let t_clause env clause =
     DefD (List.map (transform_param tf) quants, 
       List.map (transform_arg tf) args,
       transform_exp tf exp, 
-      List.map (transform_prem tf) (extra_prems @ prems)
+      List.map (transform_prem tf) (prems @ extra_prems)
     )
   ) $ clause.at
 
