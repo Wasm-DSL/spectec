@@ -18,7 +18,7 @@ open Il.Walk
 
 (* Errors *)
 
-let error at msg = Error.error at "side condition" msg
+let _error at msg = Error.error at "side condition" msg
 
 module Env = Map.Make(String)
 
@@ -130,7 +130,7 @@ let t_params env =
   List.fold_left (fun env param ->
     match param.it with
     | ExpP (v, t) -> Env.add v.it t env
-    | TypP _ | DefP _ | GramP _ -> error param.at "unexpected paramater or quantifier in rule"
+    | _ -> env
   ) env
 
 let t_rule' env = function
