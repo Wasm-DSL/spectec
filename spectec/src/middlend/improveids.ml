@@ -187,6 +187,28 @@ let transform_rule tf env rel_id rule =
   )
   ) $ rule.at
 
+let is_wf_hint hintid = hintid.it = Undep.wf_hint_id
+let transform_el_exp env hintid e = 
+  (match e.it with
+  | El.Ast.VarE (id, args) when is_wf_hint hintid -> El.Ast.VarE (t_user_def_id env id, args)
+  | e' -> e'
+  ) $ e.at
+
+let transform_hintdef env hintdef = 
+  let t_hint h = 
+    { h with hintexp = transform_el_exp env h.hintid h.hintexp} 
+  in
+  let t_hints hs = List.map t_hint hs in
+  let h = match hintdef.it with
+  | TypH (id, hints) -> TypH (t_user_def_id env id, t_hints hints)
+  | RelH (id, hints) -> RelH (t_user_def_id env id, t_hints hints)
+  | DecH (id, hints) -> DecH (t_user_def_id env id, t_hints hints)
+  | GramH (id, hints) -> GramH (t_user_def_id env id, t_hints hints)
+  | RuleH (id, rid, hints) -> 
+    RuleH (t_user_def_id env id, transform_rule_id env rid id $ rid.at, t_hints hints)
+  in
+  { hintdef with it = h }
+
 let rec t_def env def = 
   let tf = { base_transformer with 
     transform_exp = t_exp env;
@@ -219,7 +241,7 @@ let rec t_def env def =
     transform_typ tf typ, 
     List.map (transform_prod tf) prods)
   | RecD defs -> RecD (List.map (t_def env) defs)
-  | HintD hintdef -> HintD hintdef
+  | HintD hintdef -> HintD (transform_hintdef env hintdef)
   ) $ def.at
 
 let create_env il = {
