@@ -490,13 +490,12 @@ def $access2_r(reg, evt_1, evt_2, syntax X, $p) = $p($access_r(reg, evt_1), $acc
 def $access1_r(region, event, syntax X, def $p(action) : X): X    hint(show %4#_#%1(%2))
 def $access1_r(reg, evt, syntax X, $p) = $p($access_r(reg, evt))
 
+;; Concurrency TODO: Change update config/step to concurrent version
 def $happensbefore(event, event): bool    hint(show %1 <<_hb %2)
-def $happensbefore(evt1, evt2) = true -- if evt1.TIME < evt2.TIME
-def $happensbefore(evt1, evt2) = false -- otherwise
+def $happensbefore  hint(builtin)
 
 def $tot(event, event): bool    hint(show %1 <<_tot %2)
-def $tot(evt1, evt2) = true -- if evt1.TIME < evt2.TIME
-def $tot(evt1, evt2) = false -- otherwise
+def $tot  hint(builtin)
 
 def $sameandtearfreefilter(region, event, event*): event*
 def $sameandtearfreefilter(reg, evt1, eps) = eps
