@@ -82,7 +82,7 @@ let reserved_ids =
   "Import"; "Export";
   "seq"; 
   "List"; "String"; 
-  "Type"; "list"; "nat";
+  "Type"; "list"; "nat"; "int"; "rat";
   "cons"] |> StringSet.of_list
 
 let remove_iter_from_type t =
@@ -118,6 +118,14 @@ let parens s = "(" ^ s ^ ")"
 let curly_parens s = "{" ^ s ^ "}"
 let comment_parens s = "(* " ^ s ^ " *)"
 let line_parens spc s = "|" ^ spc ^ s ^ spc ^ "|"
+
+let op_parens optyp s = 
+  match optyp with
+  | `NatT -> parens s ^ "%N"
+  | `IntT -> parens s ^ "%Z"
+  | `RatT -> parens s ^ "%Q"
+  | `RealT -> parens s ^ "%nat" (* TODO *)
+  | _ -> parens s
 
 let family_type_suffix = "entry"
 
@@ -233,9 +241,9 @@ let get_param_id b =
 let render_numtyp nt = 
   match nt with
   | `NatT -> "nat"
-  | `IntT -> "nat"
-  | `RatT -> "nat"
-  | `RealT -> "nat"
+  | `IntT -> "int"
+  | `RatT -> "rat"
+  | `RealT -> "R"
 
 let transform_case_tup e = 
   match e.it with
@@ -288,9 +296,9 @@ and render_exp exp_type exp =
   | NumE (`Rat n) -> Q.to_string n (* TODO fix nums *)
   | NumE (`Real n) -> string_of_float n (* TODO fix nums *)
   | TextE s -> "\"" ^ String.escaped s ^ "\""
-  | UnE (unop, _, e1) -> parens (render_unop unop ^ r_func e1)
-  | BinE (binop, _, e1, e2) -> parens (r_func e1 ^ render_binop binop ^ r_func e2)
-  | CmpE (cmpop, _, e1, e2) -> parens (r_func e1 ^ render_cmpop cmpop ^ r_func e2)
+  | UnE (unop, optyp, e1) -> op_parens optyp (render_unop unop ^ r_func e1)
+  | BinE (binop, optyp, e1, e2) -> op_parens optyp (r_func e1 ^ render_binop binop ^ r_func e2)
+  | CmpE (cmpop, optyp, e1, e2) -> op_parens optyp (r_func e1 ^ render_cmpop cmpop ^ r_func e2)
   | TupE [] -> "()"
   | TupE exps -> parens (String.concat ", " (List.map r_func exps))
   | ProjE (e, i) -> 
@@ -746,10 +754,15 @@ let has_prems c =
   match c.it with
   | DefD (_, _, _, prems) -> prems <> [] && not (only_otherwise prems)
 
+let is_wf_lemma d = 
+  match d.it with
+  | RelD (id, _, _, _, _) when StringSet.mem id.it !env_ref.wf_lemma_set ->
+    true
+  | _ -> false
+
 let start_prefix def = 
   match def.it with
-  | RelD (id, _, _, _, _) when StringSet.mem id.it !env_ref.wf_lemma_set ->
-    ""
+  | _ when is_wf_lemma def -> ""
   | _ when is_inductive def -> "Inductive "
   | DecD (_, _, _, []) -> "Axiom "
   | DecD (_, _, _, clauses)  when List.exists has_prems clauses -> "Axiom "
@@ -784,7 +797,7 @@ let rec string_of_def has_endline recursive def =
   | RelD (id, _, _, typ, []) -> 
     let prefix = if recursive then "" else "Axiom " in
     start ^ render_rel_axiom prefix (render_id id.it) typ ^ end_newline
-  | RelD (id, _, _, _, [rule]) when StringSet.mem id.it !env_ref.wf_lemma_set ->
+  | RelD (id, _, _, _, [rule]) when is_wf_lemma def ->
     start ^ render_wfness_func_lemma id.it rule ^ end_newline
   | RelD (id, _, _, typ, rules) -> 
     let prefix = if recursive then "" else "Inductive " in
@@ -792,6 +805,10 @@ let rec string_of_def has_endline recursive def =
   (* Mutual recursion - special handling for rocq *)
   | RecD defs -> start ^ (match defs with
     | [] -> ""
+    | _ when List.for_all is_wf_lemma defs -> 
+      String.concat "" (
+        List.map (string_of_def true true) defs
+      )
     | [d] -> 
       let extra_info = render_extra_info d in
       start_prefix d ^ 
@@ -814,7 +831,7 @@ let rec string_of_def has_endline recursive def =
 let exported_string = 
   "(* Imported Code *)\n" ^
   "From Coq Require Import String List Unicode.Utf8 Reals.\n" ^
-  "From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype rat ssrint.\n" ^
+  "From mathcomp Require Import all_ssreflect all_algebra.\n" ^
   "From HB Require Import structures.\n" ^
   "From RecordUpdate Require Import RecordSet.\n" ^
   "Declare Scope wasm_scope.\n\n" ^
@@ -900,7 +917,8 @@ let exported_string =
   "Global Instance Inh_nat : Inhabited nat := { default_val := O }.\n\n" ^
   "Global Instance Inh_list {T: Type} : Inhabited (seq T) := { default_val := nil }.\n\n" ^
   "Global Instance Inh_option {T: Type} : Inhabited (option T) := { default_val := None }.\n\n" ^
-  "Global Instance Inh_Z : Inhabited Z := { default_val := Z0 }.\n\n" ^
+  "Global Instance Inh_int : Inhabited int := { default_val := 0 }.\n\n" ^
+  "Global Instance Inh_rat : Inhabited rat := { default_val := 0 }.\n\n" ^
   "Global Instance Inh_prod {T1 T2: Type} {_: Inhabited T1} {_: Inhabited T2} : Inhabited (prod T1 T2) := { default_val := (default_val, default_val) }.\n\n" ^
   "Global Instance Inh_type : Inhabited Type := { default_val := nat }.\n\n" ^
   "Definition option_to_list {T: Type} (arg : option T) : seq T :=\n" ^
@@ -909,9 +927,20 @@ let exported_string =
   "\t\t| Some a => a :: nil\n" ^ 
 	"\tend.\n\n" ^
   "Coercion option_to_list: option >-> seq.\n\n" ^
-  "Coercion Z.to_nat: Z >-> nat.\n\n" ^
-  "Coercion Z.of_nat: nat >-> Z.\n\n" ^
-  "Coercion ratz: int >-> rat.\n\n" ^
+  "Definition int_to_nat (i : int) : nat :=\n" ^
+  "\tmatch i with\n" ^
+  "\t\t| Posz n => n\n" ^
+  "\t\t| Negz n => 0\n" ^
+  "\tend.\n\n" ^ 
+  "Definition rat_to_int (r : rat) : int :=\n" ^
+  "\t((numq r) %/ (denq r))%Z.\n\n" ^
+  "Definition rat_to_nat (r : rat) : nat :=\n" ^
+  "\tint_to_nat (rat_to_int r).\n\n" ^
+  
+  "Coercion int_to_nat : int >-> nat.\n\n" ^
+  "Coercion ratz : int >-> rat.\n\n" ^
+  "Coercion rat_to_int : rat >-> int.\n\n" ^
+  "Coercion rat_to_nat : rat >-> nat.\n\n" ^
   "Create HintDb eq_dec_db.\n\n" ^
   "Ltac decidable_equality_step :=\n" ^
   "  do [ by eauto with eq_dec_db | decide equality ].\n\n" ^
