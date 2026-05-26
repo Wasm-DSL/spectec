@@ -20,15 +20,15 @@ let fun_prefix = "fun_"
 let res_prefix = "r_"
 
 type id_type = 
-  | VAR         (* Variables *)
-  | USERDEF     (* Types, type constructors and relations *)
-  | FUNCDEF     (* function definitions *)
+  | Var         (* Variables *)
+  | Userdef     (* Types and relations *)
+  | Funcdef     (* function definitions *)
+  | Atoms       (* Type constructors *)
 
 let empty_info typ_id: region * Xl.Atom.info = (no_region, {def = typ_id; case = ""})
 
 (* Id transformation *)
-let rec transform_id' (env : env) (id_type : id_type) (s : text) = 
-  let t_func = transform_id' env id_type in 
+let transform_id' (env : env) (id_type : id_type) (s : text) = 
   let change_id s' = 
     String.map (function
      | '.' -> '_'
@@ -44,24 +44,26 @@ let rec transform_id' (env : env) (id_type : id_type) (s : text) =
   match id_type with
   (* Leave naming hole as is *)
   | _ when s' = "_" -> s' 
-  | VAR when Il.Env.mem_typ env.il_env (s' $ no_region) 
+  | Var when Il.Env.mem_typ env.il_env (s' $ no_region) 
     || Il.Env.mem_rel env.il_env (s' $ no_region) 
     || Il.Env.mem_def env.il_env (s' $ no_region) 
-    || StringSet.mem s' env.atom_str_set -> t_func (var_prefix ^ s')
-  | FUNCDEF when Il.Env.mem_typ env.il_env (s' $ no_region) 
+    || StringSet.mem s' env.atom_str_set -> (var_prefix ^ s')
+  | Funcdef when Il.Env.mem_typ env.il_env (s' $ no_region) 
     || Il.Env.mem_rel env.il_env (s' $ no_region) 
-    || StringSet.mem s' env.atom_str_set -> t_func (fun_prefix ^ s')
+    || StringSet.mem s' env.atom_str_set -> (fun_prefix ^ s')
+  | Userdef when StringSet.mem s' env.atom_str_set -> (res_prefix ^ s')
   (* Checking whether an id is an int - if so, put a reserved prefix *)
-  | _ when Option.is_some (int_of_string_opt s') -> t_func (res_prefix ^ s')
+  | _ when Option.is_some (int_of_string_opt s') -> (res_prefix ^ s')
   | _ -> s'
 
-let t_var_id env id = transform_id' env VAR id.it $ id.at
-let t_def_id env id = transform_id' env FUNCDEF id.it $ id.at
-let t_user_def_id env id = transform_id' env USERDEF id.it $ id.at
+let t_var_id env id = transform_id' env Var id.it $ id.at
+let t_def_id env id = transform_id' env Funcdef id.it $ id.at
+let t_user_def_id env id = transform_id' env Userdef id.it $ id.at
+let t_atom_id env id = transform_id' env Atoms id.it $ id.at
 let transform_rule_id env rule_id rel_id = 
   match rule_id.it with
   | "" -> make_prefix ^ rel_id.it
-  | _ -> transform_id' env USERDEF rule_id.it
+  | _ -> transform_id' env Atoms rule_id.it
 
 let is_atomid a = 
   match a.it with
@@ -80,8 +82,8 @@ let register_atom_id env s =
 let transform_atom env typ_id a = 
   match a.it with
   | Atom s -> 
-    register_atom_id env (t_user_def_id env (s $ a.at)).it;
-    Atom (t_user_def_id env (s $ a.at)).it $$ a.at % a.note
+    register_atom_id env (t_atom_id env (s $ a.at)).it;
+    Atom (t_atom_id env (s $ a.at)).it $$ a.at % a.note
   | _ -> 
     register_atom_id env (make_prefix ^ typ_id);
     Atom (make_prefix ^ typ_id) $$ a.at % a.note
@@ -90,8 +92,8 @@ let transform_atom env typ_id a =
 let transform_atom' env a = 
   match a.it with
   | Atom s -> 
-    register_atom_id env (t_user_def_id env (s $ a.at)).it;
-    Atom (t_user_def_id env (s $ a.at)).it $$ a.at % a.note
+    register_atom_id env (t_atom_id env (s $ a.at)).it;
+    Atom (t_atom_id env (s $ a.at)).it $$ a.at % a.note
   | _ -> a
 
 let transform_mixop env typ_id (m : mixop) =
@@ -111,14 +113,6 @@ let rec check_iteration_naming e iterexp =
   | IterE (e, ((_, [(_, {it = VarE id; _})]) as i)), (_, [(id', _)]) -> 
     Eq.eq_id id id' && check_iteration_naming e i
   | _ -> false 
-
-and t_typ env t = 
-  (match t.it with
-  | VarT (id, []) when not (Env.mem_typ env.il_env id) -> 
-    (* Type parameter - treat it as such *)
-    VarT (t_var_id env id, [])
-  | typ -> typ
-  ) $ t.at
 
 and t_exp env e = 
   (match e.it with
@@ -202,7 +196,6 @@ let transform_hintdef env hintdef =
 let rec t_def env def = 
   let tf = { base_transformer with 
     transform_exp = t_exp env;
-    transform_typ = t_typ env;
     transform_path = t_path env;
     transform_var_id = t_var_id env;
     transform_typ_id = t_user_def_id env;

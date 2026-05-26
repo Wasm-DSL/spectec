@@ -29,14 +29,13 @@ let wf_lemma_suffix = "_is_wf"
 let wf_hint_id = "wf-relation"
 let wf_func_id = "wf-lemma-func"
 
-[@@@warning "-37"]
 type wfstate =
-  | ALL     (* Places wf premises whenever it encounters a term/variable that needs well-formedness check*)
-  | MINIMAL (* Places only wf premises in terms in relations and functions that do not appear in the conclusion *)
-  | NONE    (* Does not place any wf premises in relations/functions *)
+  | All     (* Places wf premises whenever it encounters a term/variable that needs well-formedness check*)
+  | Minimal (* Places only wf premises in terms in relations and functions that do not appear in the conclusion *)
+  | Wfnone    (* Does not place any wf premises in relations/functions *)
 
 (* State that indicates what the placement algorithm should do *)
-let wf_state = MINIMAL
+let wf_state : wfstate ref = ref Minimal
 
 let error at msg = error at "Undep error" msg
 
@@ -313,13 +312,13 @@ let get_wf_terms cl exp prems =
     | CallE _ -> true
     | _ -> false
   in
-  let wf_terms = (if wf_state = MINIMAL then [] else collect_exp cl exp) @ List.concat_map (collect_prem cl) prems in
+  let wf_terms = (if !wf_state = Minimal then [] else collect_exp cl exp) @ List.concat_map (collect_prem cl) prems in
   let (call_prems, constr_prems) = List.partition (fun ((e1, _), _) -> is_calle e1) wf_terms in
   let unique_func = Util.Lib.List.nub (fun ((e1, _t1), iterexp1) ((e2, _t2), iterexp2) -> 
     Il.Eq.eq_exp e1 e2 && Il.Eq.eq_list Il.Eq.eq_iterexp iterexp1 iterexp2
   ) in
-  match wf_state with
-  | NONE -> ([], [])
+  match !wf_state with
+  | Wfnone -> ([], [])
   | _ -> (unique_func call_prems, unique_func constr_prems)
 
 let get_extra_prems env quants exp prems = 
@@ -336,9 +335,9 @@ let get_extra_prems env quants exp prems =
   let free_vars_exp = (Free.free_exp exp).varid in
   let free_vars = (Free.free_list Free.free_prem constr_prems).varid in 
   let quants_filtered = Lib.List.filter_not (fun b -> 
-    match b.it, wf_state with 
-    | ExpP (id, _), ALL -> Free.Set.mem id.it free_vars
-    | ExpP (id, _), MINIMAL -> Free.Set.mem id.it free_vars || Free.Set.mem id.it free_vars_exp
+    match b.it, !wf_state with 
+    | ExpP (id, _), All -> Free.Set.mem id.it free_vars
+    | ExpP (id, _), Minimal -> Free.Set.mem id.it free_vars || Free.Set.mem id.it free_vars_exp
     | _ -> true
   ) quants in
   let quant_prems = (List.filter_map get_exp_typ quants_filtered) |> List.concat_map (get_wf_pred env) in
@@ -472,7 +471,7 @@ let rec t_def env def =
     in
     let is_proj_func = StringSet.mem id.it env.proj_set in
     let t_d = if StringSet.mem id.it env.proj_set then remove_unused_params d else d in
-    let wf_lemma = if wf_state = MINIMAL && return_type_needs_wfness env typ && not is_proj_func
+    let wf_lemma = if !wf_state = Minimal && return_type_needs_wfness env typ && not is_proj_func
       then generate_wf_lemma env tf id params typ 
       else [] 
     in

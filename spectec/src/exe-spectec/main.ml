@@ -152,6 +152,16 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | LetIntroMech -> Middlend.Letintromech.transform
   | ElseSimp -> Middlend.Elsesimp.transform
 
+(* Argument parsing - Specific for undep pass *)
+let set_wf_state s =
+  Middlend.Undep.wf_state :=
+    match s with
+    | "minimal" -> Middlend.Undep.Minimal
+    | "all" -> Middlend.Undep.All
+    | "none" -> Middlend.Undep.Wfnone
+    | _ ->
+        raise (Arg.Bad "wf-state must be minimal, all, or none")
+
 (* Argument parsing *)
 
 let banner () =
@@ -224,7 +234,11 @@ let argspec = Arg.align (
   "--all-passes", Arg.Unit (fun () -> List.iter enable_pass all_passes)," Run all passes";
 
   "--test-version", Arg.Int (fun i -> Backend_interpreter.Construct.version := i; Il2al.Translate.version := i), " Wasm version to assume for tests (default: 3)";
-
+  "--wf-state", Arg.String set_wf_state, " Denotes the placement of wfness relations for the remove-indexed-types pass 
+    (default: minimal):
+    minimal: Places wfness premises for terms that do not appear in the conclusion
+    all: Places wfness premises whenever it encounters a term that needs it
+    none: Does not place any wfness premises";
   "-help", Arg.Unit ignore, "";
   "--help", Arg.Unit ignore, "";
 ] )

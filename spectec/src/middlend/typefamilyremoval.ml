@@ -457,7 +457,8 @@ let rec transform_prem quant_map env prem =
     | IfPr e -> quant_map, IfPr (transform_exp quant_map env e)
     | LetPr (quants, e1, e2) ->
       (* NOTE: for let since we only have expressions we cannot modify the env ever. *)
-      let _, new_quant_map = extend_quant_set env quant_map quants in
+      let env', new_quant_map = extend_quant_set env quant_map quants in
+      assert (env = env');
       new_quant_map,
       LetPr (List.map (transform_param env) quants, transform_exp new_quant_map env e1, transform_exp quant_map env e2)
     | ElsePr -> quant_map, ElsePr
