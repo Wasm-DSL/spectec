@@ -17117,14 +17117,14 @@ relation State_ok: `|-%:%`(state, context)
     -- Frame_ok: `%|-%:%`(s, f, C)
 
 ;; ../../../../specification/wasm-3.0/7.1-soundness.configurations.spectec
-relation Config_ok: `|-%:OK`(config)
+relation Config_ok: `|-%:%`(config, resulttype)
   ;; ../../../../specification/wasm-3.0/7.1-soundness.configurations.spectec
-  rule mk_Config_ok{z : state, instr_lst : instr*, C : context, t_lst : valtype*}:
-    `|-%:OK`(mk_config_config(z, instr_lst))
-    -- State_ok: `|-%:%`(z, C)
-    -- Expr_ok: `%|-%:%`(C, instr_lst, mk_list_resulttype(t_lst))
+  rule mk_Config_ok{s : store, f : frame, instr_lst : instr*, t_lst : valtype*, C : context}:
+    `|-%:%`(mk_config_config(mk_state_state(s, f), instr_lst), mk_list_resulttype(t_lst))
+    -- State_ok: `|-%:%`(mk_state_state(s, f), C)
+    -- Expr_ok2: `%;%|-%:%`(s, C, instr_lst, mk_list_resulttype(t_lst))
     -- wf_context: `%`(C)
-    -- (wf_valtype: `%`(t))*{t <- t_lst}
+    -- wf_state: `%`(mk_state_state(s, f))
 
 ;; ../../../../specification/wasm-3.0/X.1-notation.syntax.spectec
 syntax A = nat
