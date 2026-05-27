@@ -8257,14 +8257,14 @@ relation wf_relaxed4: `%`(relaxed4)
     -- if ((((i = 0) \/ (i = 1)) \/ (i = 2)) \/ (i = 3))
 
 ;; ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec
-def $fun_relaxed2(v_relaxed2 : relaxed2, syntax v_X, v_X_0 : v_X, v_X_1 : v_X) : v_X
+def $fun_relaxed2(v_relaxed2 : relaxed2, syntax r_X, v_X : r_X, v_X_0 : r_X) : r_X
   ;; ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec
-  def $fun_relaxed2{i : relaxed2, syntax v_X, X_1 : v_X, X_2 : v_X}(i, syntax v_X, X_1, X_2) = (if $ND then [X_1 X_2][$proj_relaxed2_0(i).0] else [X_1 X_2][0])
+  def $fun_relaxed2{i : relaxed2, syntax r_X, X_1 : r_X, X_2 : r_X}(i, syntax r_X, X_1, X_2) = (if $ND then [X_1 X_2][$proj_relaxed2_0(i).0] else [X_1 X_2][0])
 
 ;; ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec
-def $fun_relaxed4(v_relaxed4 : relaxed4, syntax v_X, v_X_0 : v_X, v_X_1 : v_X, v_X_2 : v_X, v_X_3 : v_X) : v_X
+def $fun_relaxed4(v_relaxed4 : relaxed4, syntax r_X, v_X : r_X, v_X_0 : r_X, v_X_1 : r_X, v_X_2 : r_X) : r_X
   ;; ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec
-  def $fun_relaxed4{i : relaxed4, syntax v_X, X_1 : v_X, X_2 : v_X, X_3 : v_X, X_4 : v_X}(i, syntax v_X, X_1, X_2, X_3, X_4) = (if $ND then [X_1 X_2 X_3 X_4][$proj_relaxed4_0(i).0] else [X_1 X_2 X_3 X_4][0])
+  def $fun_relaxed4{i : relaxed4, syntax r_X, X_1 : r_X, X_2 : r_X, X_3 : r_X, X_4 : r_X}(i, syntax r_X, X_1, X_2, X_3, X_4) = (if $ND then [X_1 X_2 X_3 X_4][$proj_relaxed4_0(i).0] else [X_1 X_2 X_3 X_4][0])
 
 ;; ../../../../specification/wasm-3.0/3.0-numerics.relaxed.spectec
 def $R_fmadd : relaxed2
@@ -17250,42 +17250,42 @@ relation wf_callframe: `%`(callframe)
     -- wf_frame: `%`(v_frame)
 
 ;; ../../../../specification/wasm-3.0/X.3-notation.execution.spectec
-def $allocX(syntax v_X, syntax Y, v_store : store, v_X_0 : v_X, Y_0 : Y) : (store, addr)
+def $allocX(syntax r_X, syntax Y, v_store : store, v_X : r_X, Y_0 : Y) : (store, addr)
 
 ;; ../../../../specification/wasm-3.0/X.3-notation.execution.spectec
-relation allocX_is_wf(syntax v_X, syntax Y): `%%%%`(v_store : store, X_0 : v_X, Y_0 : Y, ret_val : (store, addr))
+relation allocX_is_wf(syntax r_X, syntax Y): `%%%%`(v_store : store, X_0 : r_X, Y_0 : Y, ret_val : (store, addr))
   ;; ../../../../specification/wasm-3.0/X.3-notation.execution.spectec
-  rule allocX_is_wf0{syntax v_X, syntax Y, v_store : store, X_0 : v_X, Y_0 : Y, ret_val : (store, addr)}:
+  rule allocX_is_wf0{syntax r_X, syntax Y, v_store : store, X_0 : r_X, Y_0 : Y, ret_val : (store, addr)}:
     `%%%%`(v_store, X_0, Y_0, ret_val)
     -- wf_store: `%`(v_store)
-    -- if (ret_val = $allocX(syntax v_X, syntax Y, v_store, X_0, Y_0))
+    -- if (ret_val = $allocX(syntax r_X, syntax Y, v_store, X_0, Y_0))
     -- wf_store: `%`(ret_val.0)
 
 ;; ../../../../specification/wasm-3.0/X.3-notation.execution.spectec
 rec {
 
 ;; ../../../../specification/wasm-3.0/X.3-notation.execution.spectec:32.1-32.117
-def $allocXs(syntax v_X, syntax Y, v_store : store, var_0 : v_X*, var_1 : Y*) : (store, addr*)
+def $allocXs(syntax r_X, syntax Y, v_store : store, var_0 : r_X*, var_1 : Y*) : (store, addr*)
   ;; ../../../../specification/wasm-3.0/X.3-notation.execution.spectec:33.1-33.57
-  def $allocXs{syntax v_X, syntax Y, s : store}(syntax v_X, syntax Y, s, [], []) = (s, [])
+  def $allocXs{syntax r_X, syntax Y, s : store}(syntax r_X, syntax Y, s, [], []) = (s, [])
   ;; ../../../../specification/wasm-3.0/X.3-notation.execution.spectec:34.1-36.65
-  def $allocXs{syntax v_X, syntax Y, s : store, v_X : v_X, X'_lst : v_X*, Y : Y, Y'_lst : Y*}(syntax v_X, syntax Y, s, [v_X] ++ X'_lst, [Y] ++ Y'_lst) = (s_2, [a] ++ a'_lst)
-    -- let{a : addr, s_1 : store} (s_1, a) = $allocX(syntax v_X, syntax Y, s, v_X, Y)
-    -- let{s_2 : store, a'_lst : addr*} (s_2, a'_lst) = $allocXs(syntax v_X, syntax Y, s_1, X'_lst, Y'_lst)
-    -- wf_store: `%`($allocX(syntax v_X, syntax Y, s, v_X, Y).0)
-    -- wf_store: `%`($allocXs(syntax v_X, syntax Y, s_1, X'_lst, Y'_lst).0)
+  def $allocXs{syntax r_X, syntax Y, s : store, v_X : r_X, X'_lst : r_X*, Y : Y, Y'_lst : Y*}(syntax r_X, syntax Y, s, [v_X] ++ X'_lst, [Y] ++ Y'_lst) = (s_2, [a] ++ a'_lst)
+    -- let{a : addr, s_1 : store} (s_1, a) = $allocX(syntax r_X, syntax Y, s, v_X, Y)
+    -- let{s_2 : store, a'_lst : addr*} (s_2, a'_lst) = $allocXs(syntax r_X, syntax Y, s_1, X'_lst, Y'_lst)
+    -- wf_store: `%`($allocX(syntax r_X, syntax Y, s, v_X, Y).0)
+    -- wf_store: `%`($allocXs(syntax r_X, syntax Y, s_1, X'_lst, Y'_lst).0)
 }
 
 ;; ../../../../specification/wasm-3.0/X.3-notation.execution.spectec
 rec {
 
 ;; ../../../../specification/wasm-3.0/X.3-notation.execution.spectec:32.6-32.14
-relation allocXs_is_wf(syntax v_X, syntax Y): `%%%%`(v_store : store, var_0 : v_X*, var_1 : Y*, ret_val : (store, addr*))
+relation allocXs_is_wf(syntax r_X, syntax Y): `%%%%`(v_store : store, var_0 : r_X*, var_1 : Y*, ret_val : (store, addr*))
   ;; ../../../../specification/wasm-3.0/X.3-notation.execution.spectec:32.6-32.14
-  rule allocXs_is_wf0{syntax v_X, syntax Y, v_store : store, var_0 : v_X*, var_1 : Y*, ret_val : (store, addr*)}:
+  rule allocXs_is_wf0{syntax r_X, syntax Y, v_store : store, var_0 : r_X*, var_1 : Y*, ret_val : (store, addr*)}:
     `%%%%`(v_store, var_0, var_1, ret_val)
     -- wf_store: `%`(v_store)
-    -- if (ret_val = $allocXs(syntax v_X, syntax Y, v_store, var_0, var_1))
+    -- if (ret_val = $allocXs(syntax r_X, syntax Y, v_store, var_0, var_1))
     -- wf_store: `%`(ret_val.0)
 }
 
@@ -17301,9 +17301,9 @@ relation wf_symdots: `%`(symdots)
     -- if (i = 0)
 
 ;; ../../../../specification/wasm-3.0/X.4-notation.binary.spectec
-def $var(syntax v_X) : nat
+def $var(syntax r_X) : nat
   ;; ../../../../specification/wasm-3.0/X.4-notation.binary.spectec
-  def $var{syntax v_X}(syntax v_X) = 0
+  def $var{syntax r_X}(syntax r_X) = 0
 
 ;; ../../../../specification/wasm-3.0/X.5-notation.text.spectec
 syntax abbreviated = ()
@@ -20943,7 +20943,7 @@ grammar Tdecldots_(v_I : I) : (decl, idctxt)*
   prod{`<implicit_prod_result>` : (decl, idctxt)} [`<implicit_prod_result>`]:Tdecl_(v_I)*{} => [`<implicit_prod_result>`]
 
 ;; ../../../../specification/wasm-3.0/X.4-notation.binary.spectec
-grammar Bvar(syntax v_X) : ()
+grammar Bvar(syntax r_X) : ()
   ;; ../../../../specification/wasm-3.0/X.4-notation.binary.spectec
   prod 0x00 => ((), ()).1
 
@@ -20962,7 +20962,7 @@ grammar Bsymsplit : ()
   prod{`<implicit_prod_result>` : ()} `<implicit_prod_result>`:Bvar(syntax B) => (`<implicit_prod_result>`, ()).1
 
 ;; ../../../../specification/wasm-3.0/X.5-notation.text.spectec
-grammar Tvar(syntax v_X) : ()
+grammar Tvar(syntax r_X) : ()
   ;; ../../../../specification/wasm-3.0/X.5-notation.text.spectec
   prod 0x00 => ((), ()).1
 
