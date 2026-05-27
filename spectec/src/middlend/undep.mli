@@ -41,9 +41,9 @@ transformed correctly.
 *)
 
 type wfstate =
-  | All     (* Places wf premises whenever it encounters a term/variable that needs well-formedness check*)
-  | Minimal (* Places only wf premises in terms in relations and functions that do not appear in the conclusion *)
-  | Wfnone    (* Does not place any wf premises in relations/functions *)
+  | WfAll     (* Places wf premises whenever it encounters a term/variable that needs well-formedness check*)
+  | WfMinimal (* Places only wf premises in terms in relations and functions that do not appear in the conclusion *)
+  | WfNone    (* Does not place any wf premises in relations/functions *)
 
 val wf_hint_id : string
 val wf_func_id : string

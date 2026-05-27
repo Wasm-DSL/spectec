@@ -156,9 +156,9 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
 let set_wf_state s =
   Middlend.Undep.wf_state :=
     match s with
-    | "minimal" -> Middlend.Undep.Minimal
-    | "all" -> Middlend.Undep.All
-    | "none" -> Middlend.Undep.Wfnone
+    | "minimal" -> Middlend.Undep.WfMinimal
+    | "all" -> Middlend.Undep.WfAll
+    | "none" -> Middlend.Undep.WfNone
     | _ ->
         raise (Arg.Bad "wf-state must be minimal, all, or none")
 
