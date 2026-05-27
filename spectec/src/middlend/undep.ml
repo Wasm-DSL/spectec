@@ -10,24 +10,42 @@ module StringSet = Set.Make(String)
 type env = {
   mutable wf_set : StringSet.t;
   mutable proj_set : StringSet.t;
+  mutable tf_set : StringSet.t;
   mutable il_env : Il.Env.t;
 }
 
 let empty () = {
   wf_set = StringSet.empty;
   proj_set = StringSet.empty;
-  il_env = Il.Env.empty
+  tf_set = StringSet.empty;
+  il_env = Il.Env.empty;
 }
 
 let wf_pred_prefix = "wf_"
 let rule_prefix = "case_"
 
-let wf_hint_id = "wf-relation"
+let wf_lemma_suffix = "_is_wf"
 
-(* flag that deactivates adding wellformedness predicates to relations *)
-let deactivate_wfness = false
+let wf_hint_id = "wf-relation"
+let wf_func_id = "wf-lemma-func"
+
+type wfstate =
+  | WfAll     (* Places wf premises whenever it encounters a term/variable that needs well-formedness check*)
+  | WfMinimal (* Places only wf premises in terms in relations and functions that do not appear in the conclusion *)
+  | WfNone    (* Does not place any wf premises in relations/functions *)
+
+(* State that indicates what the placement algorithm should do *)
+let wf_state : wfstate ref = ref WfMinimal
 
 let error at msg = error at "Undep error" msg
+
+let make_arg p = 
+  (match p.it with
+  | ExpP (id, typ) -> ExpA (VarE id $$ id.at % typ) 
+  | TypP id -> TypA (VarT (id, []) $ id.at)
+  | DefP (id, _, _) -> DefA id 
+  | GramP (id, _, _) -> GramA (VarG (id, []) $ id.at)
+  ) $ p.at
 
 let rec split3concat = function
     [] -> ([], [], [])
@@ -92,25 +110,26 @@ let filter_iter_quants exp iter_quants =
   ) (free_vars, []) iter_quants) 
   |> snd |> List.rev 
 
-let rec create_collector iterexps = 
+let rec create_collector env iterexps = 
   let base_collector_iters: ((exp * typ) * iterexp list) list collector = base_collector [] (@) in
-  { base_collector_iters with collect_exp = collect_userdef_exp iterexps; collect_prem = collect_userdef_prem iterexps }
+  { base_collector_iters with collect_exp = collect_userdef_exp env iterexps; collect_prem = collect_userdef_prem env iterexps }
 
-and collect_userdef_exp iterexps e = 
+and collect_userdef_exp env iterexps e = 
   match e.it with
+  | CallE (id, _) when not (StringSet.mem id.it env.proj_set) -> ([((e, e.note), filter_iter_quants e iterexps)], true)
   | CaseE _ | StrE _ -> ([((e, e.note), filter_iter_quants e iterexps)], false)
   | IterE (e1, ((_, id_exp_pairs) as iterexp)) -> 
-    let c1 = create_collector iterexps in
-    let c2 = create_collector (iterexp :: iterexps) in 
+    let c1 = create_collector env iterexps in
+    let c2 = create_collector env (iterexp :: iterexps) in 
     (collect_exp c2 e1 @ 
     List.concat_map (fun (_, exp) -> collect_exp c1 exp) id_exp_pairs, false)
   | _ -> ([], true)
 
-and collect_userdef_prem iterexps p =
+and collect_userdef_prem env iterexps p =
   match p.it with
   | IterPr (p', ((_, id_exp_pairs) as iterexp)) -> 
-    let c1 = create_collector iterexps in
-    let c2 = create_collector (iterexp :: iterexps) in 
+    let c1 = create_collector env iterexps in
+    let c2 = create_collector env (iterexp :: iterexps) in 
     (collect_prem c2 p' @
     List.concat_map (fun (_, exp) -> collect_exp c1 exp) id_exp_pairs, false)
   | _ -> ([], true) 
@@ -126,9 +145,11 @@ and t_exp env e =
     (* Remove every arg but last for family projections *)
   | CallE (id, args) when StringSet.mem id.it env.proj_set && args <> [] -> 
     CallE (id, [(Lib.List.last args)])
-    (* HACK - Change IterE of option with no iteration variable into a OptE *)
+    (* HACK - Change IterE of option and list with no iteration variable into a OptE *)
   | IterE (e1, (Opt, [])) -> 
-    OptE (Some e1) 
+    OptE (Some e1)
+  | IterE (e1, (List, [])) | IterE (e1, (List1, [])) ->
+    ListE [e1] 
   | exp -> exp
   ) $$ e.at % e.note
 
@@ -164,6 +185,7 @@ let needs_wfness env def =
   | _ -> false
 
 let rec get_wf_pred env (exp, t) = 
+
   let get_id iter exp =
     match exp.it with
     | VarE id -> id
@@ -205,19 +227,21 @@ let get_exp_typ q =
   | ExpP (id, typ) -> Some (VarE id $$ id.at % typ, typ)
   | _ -> None
 
-let generate_well_formed_rel_hint at: hint = { hintid = wf_hint_id $ at; hintexp = El.Ast.SeqE [] $ at} 
+let generate_well_formed_rel_hint id at: hint = { hintid = wf_hint_id $ at; hintexp = El.Ast.VarE (id, []) $ at} 
+let generate_well_formed_func_hint at: hint = { hintid = wf_func_id $ at; hintexp = El.Ast.SeqE [] $ at} 
+
 
 let create_well_formed_predicate env id inst = 
   let tf = { base_transformer with transform_exp = t_exp env; transform_typ = t_typ} in
   let at = id.at in 
   let user_typ = VarT(id, []) $ at in
-  let new_mixop pairs = Xl.Mixop.(Seq (List.init (List.length pairs + 1) (fun _ -> Arg ()))) in
   let create_pairs quants = List.split (List.filter_map (fun b -> match b.it with 
       | ExpP (id', typ) -> Some (("_" $ id'.at, typ), (id', typ))
       | _ -> None
     ) quants) in
   let tupt pairs = TupT (pairs @ [("_" $ at, user_typ)]) $ at in
-  let hint = HintD (RelH (wf_pred_prefix ^ id.it $ id.at, [generate_well_formed_rel_hint at]) $ at) $ at in 
+  let new_mixop pairs = Xl.Mixop.(Seq (List.init (List.length pairs + 1) (fun _ -> Arg ()))) in
+  let hint = HintD (RelH (wf_pred_prefix ^ id.it $ id.at, [generate_well_formed_rel_hint id at]) $ at) $ at in 
   match inst.it with
   (* Variant well formedness predicate creation *)
   | InstD (quants, _args, {it = VariantT typcases; _}) -> 
@@ -283,28 +307,41 @@ let create_well_formed_predicate env id inst =
     [relation; hint]
   | _ -> []
 
-let get_extra_prems env quants exp prems = 
-  if deactivate_wfness then [] else 
-  let cl = create_collector [] in 
-  let wf_terms = collect_exp cl exp @ List.concat_map (collect_prem cl) prems in
-  let unique_terms = Util.Lib.List.nub (fun ((e1, _t1), iterexp1) ((e2, _t2), iterexp2) -> 
+let get_wf_terms cl exp prems = 
+  let is_calle e = match e.it with
+    | CallE _ -> true
+    | _ -> false
+  in
+  let wf_terms = (if !wf_state = WfMinimal then [] else collect_exp cl exp) @ List.concat_map (collect_prem cl) prems in
+  let (call_prems, constr_prems) = List.partition (fun ((e1, _), _) -> is_calle e1) wf_terms in
+  let unique_func = Util.Lib.List.nub (fun ((e1, _t1), iterexp1) ((e2, _t2), iterexp2) -> 
     Il.Eq.eq_exp e1 e2 && Il.Eq.eq_list Il.Eq.eq_iterexp iterexp1 iterexp2
-  ) wf_terms in
-  
-  let more_prems = List.concat_map (fun (pair, iterexps) -> 
+  ) in
+  match !wf_state with
+  | WfNone -> ([], [])
+  | _ -> (unique_func call_prems, unique_func constr_prems)
+
+let get_extra_prems env quants exp prems = 
+  let cl = create_collector env [] in 
+  let unique_call_terms, unique_constr_terms = get_wf_terms cl exp prems in  
+  let wf_creation_func = List.concat_map (fun (pair, iterexps) -> 
     List.map (fun prem' -> List.fold_left (fun acc iterexp ->
       IterPr (acc, iterexp) $ acc.at   
     ) prem' iterexps) (get_wf_pred env pair) 
-  ) unique_terms in
+  ) in
+  let call_prems, constr_prems = wf_creation_func unique_call_terms, wf_creation_func unique_constr_terms in
     
-  (* Leverage the fact that the wellformed predicates are "bubbled up" and remove unnecessary wf preds*)
-  let free_vars = (Free.free_list Free.free_prem more_prems).varid in 
-  let quants_filtered = Lib.List.filter_not (fun q -> match q.it with 
-    | ExpP (id, _) -> Free.Set.mem id.it free_vars
+  (* Leverage the fact that the wellformed predicates are "bubbled up" and remove unnecessary wf preds *)
+  let free_vars_exp = (Free.free_exp exp).varid in
+  let free_vars = (Free.free_list Free.free_prem constr_prems).varid in 
+  let quants_filtered = Lib.List.filter_not (fun b -> 
+    match b.it, !wf_state with 
+    | ExpP (id, _), WfAll -> Free.Set.mem id.it free_vars
+    | ExpP (id, _), WfMinimal -> Free.Set.mem id.it free_vars || Free.Set.mem id.it free_vars_exp
     | _ -> true
   ) quants in
   let quant_prems = (List.filter_map get_exp_typ quants_filtered) |> List.concat_map (get_wf_pred env) in
-  quant_prems @ more_prems
+  quant_prems @ call_prems @ constr_prems
     
 let t_rule env rule = 
   let tf = { base_transformer with transform_exp = t_exp env; transform_typ = t_typ} in
@@ -358,6 +395,61 @@ let remove_unused_params def =
     { def with it = DecD (id, params', typ, clauses') }
   | _ -> def
 
+let rec return_type_needs_wfness env (rt : typ) : bool =
+  match rt.it with
+  | VarT (id, _) -> StringSet.mem id.it env.wf_set
+  | TupT tups -> tups |> List.map snd |> List.exists (return_type_needs_wfness env)
+  | IterT (t, _) -> return_type_needs_wfness env t
+  | _ -> false
+
+(* HACK: Lemma is actually represented as a relation *)
+let generate_wf_lemma env tf id params rtyp = 
+  let lemma_name = id.it ^ wf_lemma_suffix in 
+  let params' = Utils.improve_ids_params params in 
+  let wf_prems = List.concat_map (fun p -> match p.it with
+    | ExpP (id, typ) -> get_wf_pred env (VarE id $$ id.at % typ, typ)
+    | _ -> [] 
+  ) params' in 
+  let ids = List.map Utils.get_param_id params in
+  let text_ids = List.map (fun p -> p.it) ids in 
+  let ret_exp_name = Utils.generate_var text_ids "ret_val" in 
+  let ret_exp = VarE (ret_exp_name $ id.at) $$ id.at % rtyp in
+  let fcall_exp = CallE (id, List.map make_arg params') $$ id.at % rtyp in
+  let fcall_prem = IfPr (CmpE (`EqOp, `BoolT, ret_exp, fcall_exp) $$ id.at % (BoolT $ id.at)) $ id.at in
+  let wf_conclusion = get_wf_pred env (ret_exp, rtyp) in
+  
+  let ret_param = ExpP (ret_exp_name $ id.at, rtyp) $ id.at in
+  let new_quants = params' @ [ret_param] in 
+
+  let fixed, not_fixed = List.partition_map (fun p -> match p.it with
+    | ExpP (id', typ) -> Right (VarE id' $$ id'.at % typ)
+    | _ -> Left p
+  ) params' 
+  in
+  let typtups = List.filter_map (fun p -> match p.it with
+    | ExpP (id', typ) -> Some (id', typ)
+    | _ -> None
+  ) params' 
+  in
+  let tupt = TupT (typtups @ [(ret_exp_name $ id.at, ret_exp.note)]) $ id.at in
+  let tupe = TupE (not_fixed @ [ret_exp]) $$ id.at % tupt in 
+  let new_mixop = Xl.Mixop.(Seq (List.init (List.length not_fixed + 1) (fun _ -> Arg ()))) in
+  let rule = RuleD (
+    lemma_name ^ "0" $ id.at, 
+    new_quants, 
+    new_mixop,
+    tupe,
+    wf_prems @ [fcall_prem] @ wf_conclusion
+  ) $ id.at
+  in
+  let hint = HintD (RelH (lemma_name $ id.at, [generate_well_formed_func_hint id.at]) $ id.at) $ id.at in 
+  let relation = RelD (lemma_name $ id.at, 
+    List.map (transform_param tf) fixed, new_mixop, 
+    transform_typ tf tupt, 
+    [transform_rule tf rule]) $ id.at in
+  [hint; relation]
+
+
 let rec t_def env def = 
   let tf = { base_transformer with transform_exp = t_exp env; transform_typ = t_typ } in
   match def.it with
@@ -377,8 +469,13 @@ let rec t_def env def =
       List.map (t_clause env) clauses
       ) $ def.at 
     in
+    let is_proj_func = StringSet.mem id.it env.proj_set in
     let t_d = if StringSet.mem id.it env.proj_set then remove_unused_params d else d in
-    (t_d, [])
+    let wf_lemma = if !wf_state = WfMinimal && return_type_needs_wfness env typ && not is_proj_func
+      then generate_wf_lemma env tf id params typ 
+      else [] 
+    in
+    (t_d, wf_lemma)
   | GramD (id, params, typ, prods) -> 
     (GramD (id, List.map (transform_param tf) params, transform_typ tf typ, List.map (transform_prod tf) prods) $ def.at, [])
   | RecD defs -> 
@@ -389,8 +486,8 @@ let rec t_def env def =
     if List.concat wf_relations = [] then (rec_defs, []) else
     (rec_defs, [RecD (List.concat wf_relations) $ def.at])
   | HintD hintdef -> (HintD hintdef $ def.at, [])
-  
 let has_proj_hint (hint : hint) = hint.hintid.it = Typefamilyremoval.projection_hint_id
+let has_tf_hint (hint : hint) = hint.hintid.it = Typefamilyremoval.type_family_hint_id
 
 let create_proj_map_def set (d : def) = 
   match d.it with
@@ -401,12 +498,24 @@ let create_proj_map_def set (d : def) =
     ) 
   | _ -> ()
 
+let create_tf_set_def set (d : def) = 
+  match d.it with
+  | HintD {it = TypH (id, hints); _} ->
+    (match (List.find_opt has_tf_hint hints) with
+    | Some _ -> set := StringSet.add id.it !set
+    | _ -> ()
+    ) 
+  | _ -> ()
+
 let transform (il : script): script =
   let env = empty () in 
   env.il_env <- Il.Env.env_of_script il;
   let proj_set = ref StringSet.empty in
+  let tf_set = ref StringSet.empty in 
   List.iter (create_proj_map_def proj_set) il;
+  List.iter (create_tf_set_def tf_set) il;
   env.proj_set <- !proj_set;
+  env.tf_set <- !tf_set;
   List.concat_map (fun d -> 
     let (t_d, wf_relations) = t_def env d in 
     t_d :: wf_relations
