@@ -118,21 +118,21 @@ $${definition-prose: growtable}
 
 $${definition: growtable}
 
-.. _def-growmemory:
+.. _def-growmem:
 
-$${definition-prose: growmemory}
-
-\
-
-$${definition: growmemory}
-
-.. _def-instexport:
-
-$${definition-prose: instexport}
+$${definition-prose: growmem}
 
 \
 
-$${definition: instexport}
+$${definition: growmem}
+
+.. _def-allocexport:
+
+$${definition-prose: allocexport}
+
+\
+
+$${definition: allocexport}
 
 .. _def-allocmodule:
 
@@ -155,29 +155,21 @@ $${definition-prose: inst_reftype}
 
 $${definition: inst_reftype}
 
-.. _def-concat_instr:
-
-$${definition-prose: concat_instr}
-
-\
-
-$${definition: concat_instr}
-
 .. _def-rundata:
 
-$${definition-prose: rundata}
+$${definition-prose: rundata_}
 
 \
 
-$${definition: rundata}
+$${definition: rundata_}
 
 .. _def-runelem:
 
-$${definition-prose: runelem}
+$${definition-prose: runelem_}
 
 \
 
-$${definition: runelem}
+$${definition: runelem_}
 
 .. _def-instantiate:
 
@@ -199,19 +191,6 @@ $${definition-prose: invoke}
 \
 
 $${definition: invoke}
-
-.. _exec-module-address-getters:
-
-Address Getters
-~~~~~~~~~~~~~~~
-
-.. _def-funcaddr:
-
-$${definition-prose: funcaddr}
-
-\
-
-$${definition: funcaddr}
 
 .. _exec-modules-getters:
 
@@ -296,10 +275,6 @@ $${definition-prose: with_local}
 $${definition: with_local}
 
 .. _def-with_locals:
-
-$${definition-prose: with_locals}
-
-\
 
 $${definition: with_locals}
 

@@ -1,8 +1,8 @@
 (mdx
   (libraries spectec)
   (deps
-    (file ../src/exe-watsup/main.exe)
-    (glob_files_rec ../spec/*)
+    (file ../src/exe-spectec/main.exe)
+    (glob_files_rec ../_specification/*)
     (source_tree spec-test-1)
     (source_tree spec-test-2)
     (source_tree spec-test-3)

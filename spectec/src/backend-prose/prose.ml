@@ -1,23 +1,32 @@
 (* Currently, the prose directly borrows some structures of AL.
    Perhaps this should be improved later *)
 
-type cmpop = Eq | Ne | Lt | Gt | Le | Ge
+type cmpop = [Xl.Bool.cmpop | Xl.Num.cmpop]
+type binop = Xl.Bool.binop
 
-(* TODO: perhaps rename to `stmt`, to avoid confusion with Wasm *)
-type instr =
-| LetI of Al.Ast.expr * Al.Ast.expr
-| CmpI of Al.Ast.expr * cmpop * Al.Ast.expr
-| MustValidI of Al.Ast.expr * Al.Ast.expr * Al.Ast.expr option
-| MustMatchI of Al.Ast.expr * Al.Ast.expr
-| IsValidI of Al.Ast.expr option
-| IfI of Al.Ast.expr * instr list
-| ForallI of Al.Ast.expr * Al.Ast.expr * instr list
-| EquivI of Al.Ast.expr * Al.Ast.expr
-| YetI of string
+type expr = Al.Ast.expr
 
-(* TODO: perhaps rename to avoid name clash *)
+type stmt =
+| LetS of expr * expr
+| CondS of expr
+| CmpS of expr * cmpop * expr
+| IsValidS of expr option * expr * expr list * string option
+| MatchesS of expr * expr
+| IsConstS of expr option * expr
+| IsDefinedS of expr
+| IsDefaultableS of expr * cmpop
+| IfS of expr * stmt list
+| ForallS of (expr * expr) list * stmt list
+| IsConcatS of expr * expr
+| EitherS of stmt list list
+| BinS of stmt * binop * stmt
+| ContextS of expr * expr
+(* TODO: Merge others statements into RelS *)
+| RelS of string * expr list
+| YetS of string
+
 type def =
-| Pred of Al.Ast.kwd * Al.Ast.expr list * instr list
-| Algo of Al.Ast.algorithm
+| RuleD of Al.Ast.anchor * stmt * stmt list
+| AlgoD of Al.Ast.algorithm
 
 type prose = def list

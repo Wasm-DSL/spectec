@@ -59,13 +59,6 @@ Instruction Types
 
 $${rule: Instrtype_sub}
 
-.. _valid-matching-function-types:
-
-Function Types
-~~~~~~~~~~~~~~
-
-$${rule: Functype_sub}
-
 .. _valid-matching-composite-types:
 
 Composite Types
@@ -83,7 +76,7 @@ Field Types
 $${rule+:
   Fieldtype_sub/*
   Storagetype_sub/*
-  Packedtype_sub
+  Packtype_sub
 }
 
 .. _valid-matching-defined-types:

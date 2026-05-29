@@ -180,7 +180,7 @@
 (assert_return (invoke "type-second-f32") (f32.const 32))
 (assert_return (invoke "type-second-f64") (f64.const 64.1))
 
-(assert_trap (invoke "null") "null function")
+(assert_trap (invoke "null") "null function reference")
 
 (assert_return (invoke "fac-acc" (i64.const 0) (i64.const 1)) (i64.const 1))
 (assert_return (invoke "fac-acc" (i64.const 1) (i64.const 1)) (i64.const 1))
@@ -370,6 +370,27 @@
     (type $t (func))
     (func $f (param $r externref)
       (return_call_ref $t (local.get $r))
+    )
+  )
+  "type mismatch"
+)
+
+(assert_invalid
+  (module
+    (type $t (func))
+    (func $f (param $r funcref)
+      (return_call_ref $t (local.get $r))
+    )
+  )
+  "type mismatch"
+)
+
+(assert_invalid
+  (module
+    (type $ty (func (result i32 i32)))
+    (func (param (ref $ty)) (result i32)
+      local.get 0
+      return_call_ref $ty
     )
   )
   "type mismatch"
