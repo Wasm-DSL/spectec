@@ -1,23 +1,3 @@
-(*
-This transformation removes uses of the `otherwise` (`ElsePr`) premise from
-inductive relations.
-
-It only supports binary relations.
-
-1. It figures out which rules are meant by “otherwise”:
-
-  * All previous rules
-  * Excluding those that definitely can’t apply when the present rule applies
-    (decided by a simple and conservative comparision of the LHS).
-
-2. It creates an auxillary inductive unary predicate with these rules (LHS only).
-  * Note that these rules will be applied a simple naming scheme (just adding a number in front of it)
-    For now to resolve naming 
-
-3. It replaces the `ElsePr` with the negation of that rule.
-
-*)
-
 open Util
 open Source
 open Il.Ast
@@ -26,6 +6,8 @@ module StringMap = Map.Make(String)
 module StringSet = Set.Make(String)
 
 let env_ref = ref Il.Env.empty
+
+let else_relation_hint_id = "else-relation"
 
 (* Brought from Apart.ml *)
 
@@ -152,6 +134,8 @@ let unarize rule = match rule.it with
 let not_apart lhs rule = match rule.it with
   | RuleD (_, _, _, lhs2, _) -> not (apart lhs lhs2)
 
+let generate_else_rel_hint rel_id at: hint = { hintid = else_relation_hint_id $ at; hintexp = El.Ast.TextE rel_id.it $ at} 
+
 let rec go hint_map used_names at id mixop typ typ1 prev_rules : rule list -> def list = function
   | [] -> [ RelD (id, [], mixop, typ, List.rev prev_rules) $ at ]
   | r :: rules -> match r.it with
@@ -176,8 +160,8 @@ let rec go hint_map used_names at id mixop typ typ1 prev_rules : rule list -> de
         else
         [ RelD (aux_name, [], unary_mixfix, typ1, applicable_prev_rules) $ r.at ] @
         let extra_hintdef = match (StringMap.find_opt id.it hint_map) with
-          | Some hints -> [ HintD (RelH (aux_name, hints) $ at) $ at ]
-          | _ -> []
+          | Some hints -> [ HintD (RelH (aux_name, generate_else_rel_hint id at :: hints) $ at) $ at ]
+          | _ -> [ HintD (RelH (aux_name, [generate_else_rel_hint id at]) $ at) $ at ]
         in
         let prems' = List.map (replace_else aux_name lhs) prems in
         let rule' = { r with it = RuleD (rid, quants, rmixop, exp, prems') } in

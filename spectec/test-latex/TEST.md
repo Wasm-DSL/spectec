@@ -9461,7 +9461,7 @@ $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
 }{
-s \vdash \mathsf{ref{.}null} : (\mathsf{ref}~\mathsf{null}~\mathsf{bot})
+s \vdash \mathsf{ref{.}null} : \mathsf{ref}~\mathsf{null}~\mathsf{bot}
 } \, {[\textsc{\scriptsize Ref\_ok{-}null}]}
 \qquad
 \end{array}
@@ -9471,7 +9471,7 @@ $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
 }{
-s \vdash \mathsf{ref{.}i{\scriptstyle 31}}~i : (\mathsf{ref}~\mathsf{i{\scriptstyle 31}})
+s \vdash \mathsf{ref{.}i{\scriptstyle 31}}~i : \mathsf{ref}~\mathsf{i{\scriptstyle 31}}
 } \, {[\textsc{\scriptsize Ref\_ok{-}i31}]}
 \qquad
 \end{array}
@@ -9482,7 +9482,7 @@ $$
 \frac{
 s{.}\mathsf{structs}{}[a]{.}\mathsf{type} = {\mathit{dt}}
 }{
-s \vdash \mathsf{ref{.}struct}~a : (\mathsf{ref}~{\mathit{dt}})
+s \vdash \mathsf{ref{.}struct}~a : \mathsf{ref}~{\mathit{dt}}
 } \, {[\textsc{\scriptsize Ref\_ok{-}struct}]}
 \qquad
 \end{array}
@@ -9493,7 +9493,7 @@ $$
 \frac{
 s{.}\mathsf{arrays}{}[a]{.}\mathsf{type} = {\mathit{dt}}
 }{
-s \vdash \mathsf{ref{.}array}~a : (\mathsf{ref}~{\mathit{dt}})
+s \vdash \mathsf{ref{.}array}~a : \mathsf{ref}~{\mathit{dt}}
 } \, {[\textsc{\scriptsize Ref\_ok{-}array}]}
 \qquad
 \end{array}
@@ -9504,7 +9504,7 @@ $$
 \frac{
 s{.}\mathsf{funcs}{}[a]{.}\mathsf{type} = {\mathit{dt}}
 }{
-s \vdash \mathsf{ref{.}func}~a : (\mathsf{ref}~{\mathit{dt}})
+s \vdash \mathsf{ref{.}func}~a : \mathsf{ref}~{\mathit{dt}}
 } \, {[\textsc{\scriptsize Ref\_ok{-}func}]}
 \qquad
 \end{array}
@@ -9515,7 +9515,7 @@ $$
 \frac{
 s{.}\mathsf{exns}{}[a] = {\mathit{exn}}
 }{
-s \vdash \mathsf{ref{.}exn}~a : (\mathsf{ref}~\mathsf{exn})
+s \vdash \mathsf{ref{.}exn}~a : \mathsf{ref}~\mathsf{exn}
 } \, {[\textsc{\scriptsize Ref\_ok{-}exn}]}
 \qquad
 \end{array}
@@ -9525,7 +9525,7 @@ $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
 }{
-s \vdash \mathsf{ref{.}host}~a : (\mathsf{ref}~\mathsf{any})
+s \vdash \mathsf{ref{.}host}~a : \mathsf{ref}~\mathsf{any}
 } \, {[\textsc{\scriptsize Ref\_ok{-}host}]}
 \qquad
 \end{array}
@@ -9534,11 +9534,11 @@ $$
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
-s \vdash {\mathit{ref}} : (\mathsf{ref}~\mathsf{any})
+s \vdash {\mathit{ref}} : \mathsf{ref}~\mathsf{any}
  \qquad
 {\mathit{ref}} \neq \mathsf{ref{.}null}
 }{
-s \vdash \mathsf{ref{.}extern}~{\mathit{ref}} : (\mathsf{ref}~\mathsf{extern})
+s \vdash \mathsf{ref{.}extern}~{\mathit{ref}} : \mathsf{ref}~\mathsf{extern}
 } \, {[\textsc{\scriptsize Ref\_ok{-}extern}]}
 \qquad
 \end{array}
@@ -9548,6 +9548,8 @@ $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
 s \vdash {\mathit{ref}} : {\mathit{rt}'}
+ \qquad
+\{  \} \vdash {\mathit{rt}} : \mathsf{ok}
  \qquad
 \{  \} \vdash {\mathit{rt}'} \leq {\mathit{rt}}
 }{
@@ -9693,6 +9695,8 @@ $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
 s \vdash {\mathit{externaddr}} : {\mathit{xt}'}
+ \qquad
+\{  \} \vdash {\mathit{xt}} : \mathsf{ok}
  \qquad
 \{  \} \vdash {\mathit{xt}'} \leq {\mathit{xt}}
 }{
@@ -9875,11 +9879,7 @@ $$
 
 $$
 \begin{array}[t]{@{}lrcl@{}l@{}}
-{[\textsc{\scriptsize E{-}br\_on\_cast{-}succeed}]} \quad & s ; f ; {\mathit{ref}}~(\mathsf{br\_on\_cast}~l~{\mathit{rt}}_1~{\mathit{rt}}_2) & \hookrightarrow & {\mathit{ref}}~(\mathsf{br}~l) & \quad
-\begin{array}[t]{@{}l@{}}
-\mbox{if}~ s \vdash {\mathit{ref}} : {\mathit{rt}} \\
-{\land}~ \{  \} \vdash {\mathit{rt}} \leq {{\mathrm{inst}}}_{f{.}\mathsf{module}}({\mathit{rt}}_2) \\
-\end{array} \\
+{[\textsc{\scriptsize E{-}br\_on\_cast{-}succeed}]} \quad & s ; f ; {\mathit{ref}}~(\mathsf{br\_on\_cast}~l~{\mathit{rt}}_1~{\mathit{rt}}_2) & \hookrightarrow & {\mathit{ref}}~(\mathsf{br}~l) & \quad \mbox{if}~ s \vdash {\mathit{ref}} : {{\mathrm{inst}}}_{f{.}\mathsf{module}}({\mathit{rt}}_2) \\
 {[\textsc{\scriptsize E{-}br\_on\_cast{-}fail}]} \quad & s ; f ; {\mathit{ref}}~(\mathsf{br\_on\_cast}~l~{\mathit{rt}}_1~{\mathit{rt}}_2) & \hookrightarrow & {\mathit{ref}} & \quad \mbox{otherwise} \\
 \end{array}
 $$
@@ -9888,11 +9888,7 @@ $$
 
 $$
 \begin{array}[t]{@{}lrcl@{}l@{}}
-{[\textsc{\scriptsize E{-}br\_on\_cast\_fail{-}succeed}]} \quad & s ; f ; {\mathit{ref}}~(\mathsf{br\_on\_cast\_fail}~l~{\mathit{rt}}_1~{\mathit{rt}}_2) & \hookrightarrow & {\mathit{ref}} & \quad
-\begin{array}[t]{@{}l@{}}
-\mbox{if}~ s \vdash {\mathit{ref}} : {\mathit{rt}} \\
-{\land}~ \{  \} \vdash {\mathit{rt}} \leq {{\mathrm{inst}}}_{f{.}\mathsf{module}}({\mathit{rt}}_2) \\
-\end{array} \\
+{[\textsc{\scriptsize E{-}br\_on\_cast\_fail{-}succeed}]} \quad & s ; f ; {\mathit{ref}}~(\mathsf{br\_on\_cast\_fail}~l~{\mathit{rt}}_1~{\mathit{rt}}_2) & \hookrightarrow & {\mathit{ref}} & \quad \mbox{if}~ s \vdash {\mathit{ref}} : {{\mathrm{inst}}}_{f{.}\mathsf{module}}({\mathit{rt}}_2) \\
 {[\textsc{\scriptsize E{-}br\_on\_cast\_fail{-}fail}]} \quad & s ; f ; {\mathit{ref}}~(\mathsf{br\_on\_cast\_fail}~l~{\mathit{rt}}_1~{\mathit{rt}}_2) & \hookrightarrow & {\mathit{ref}}~(\mathsf{br}~l) & \quad \mbox{otherwise} \\
 \end{array}
 $$
@@ -10456,11 +10452,7 @@ $$
 
 $$
 \begin{array}[t]{@{}lrcl@{}l@{}}
-{[\textsc{\scriptsize E{-}ref.test{-}true}]} \quad & s ; f ; {\mathit{ref}}~(\mathsf{ref{.}test}~{\mathit{rt}}) & \hookrightarrow & (\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~1) & \quad
-\begin{array}[t]{@{}l@{}}
-\mbox{if}~ s \vdash {\mathit{ref}} : {\mathit{rt}'} \\
-{\land}~ \{  \} \vdash {\mathit{rt}'} \leq {{\mathrm{inst}}}_{f{.}\mathsf{module}}({\mathit{rt}}) \\
-\end{array} \\
+{[\textsc{\scriptsize E{-}ref.test{-}true}]} \quad & s ; f ; {\mathit{ref}}~(\mathsf{ref{.}test}~{\mathit{rt}}) & \hookrightarrow & (\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~1) & \quad \mbox{if}~ s \vdash {\mathit{ref}} : {{\mathrm{inst}}}_{f{.}\mathsf{module}}({\mathit{rt}}) \\
 {[\textsc{\scriptsize E{-}ref.test{-}false}]} \quad & s ; f ; {\mathit{ref}}~(\mathsf{ref{.}test}~{\mathit{rt}}) & \hookrightarrow & (\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~0) & \quad \mbox{otherwise} \\
 \end{array}
 $$
@@ -10469,11 +10461,7 @@ $$
 
 $$
 \begin{array}[t]{@{}lrcl@{}l@{}}
-{[\textsc{\scriptsize E{-}ref.cast{-}succeed}]} \quad & s ; f ; {\mathit{ref}}~(\mathsf{ref{.}cast}~{\mathit{rt}}) & \hookrightarrow & {\mathit{ref}} & \quad
-\begin{array}[t]{@{}l@{}}
-\mbox{if}~ s \vdash {\mathit{ref}} : {\mathit{rt}'} \\
-{\land}~ \{  \} \vdash {\mathit{rt}'} \leq {{\mathrm{inst}}}_{f{.}\mathsf{module}}({\mathit{rt}}) \\
-\end{array} \\
+{[\textsc{\scriptsize E{-}ref.cast{-}succeed}]} \quad & s ; f ; {\mathit{ref}}~(\mathsf{ref{.}cast}~{\mathit{rt}}) & \hookrightarrow & {\mathit{ref}} & \quad \mbox{if}~ s \vdash {\mathit{ref}} : {{\mathrm{inst}}}_{f{.}\mathsf{module}}({\mathit{rt}}) \\
 {[\textsc{\scriptsize E{-}ref.cast{-}fail}]} \quad & s ; f ; {\mathit{ref}}~(\mathsf{ref{.}cast}~{\mathit{rt}}) & \hookrightarrow & \mathsf{trap} & \quad \mbox{otherwise} \\
 \end{array}
 $$
@@ -13565,6 +13553,7 @@ $$
 & & | & \mbox{‘\texttt{i16x8.extmul\_low\_i8x16\_u}’} & \quad\Rightarrow\quad{} & {\mathsf{i{\scriptstyle 16}}}{\mathsf{x}}{\mathsf{{\scriptstyle 8}}} {.} {{\mathsf{extmul}}{\mathsf{\_}}{\mathsf{low}}{\mathsf{\_}}{\mathsf{u}}}{\mathsf{\_}}{{\mathsf{i{\scriptstyle 8}}}{\mathsf{x}}{\mathsf{{\scriptstyle 16}}}} \\
 & & | & \mbox{‘\texttt{i16x8.extmul\_high\_i8x16\_s}’} & \quad\Rightarrow\quad{} & {\mathsf{i{\scriptstyle 16}}}{\mathsf{x}}{\mathsf{{\scriptstyle 8}}} {.} {{\mathsf{extmul}}{\mathsf{\_}}{\mathsf{high}}{\mathsf{\_}}{\mathsf{s}}}{\mathsf{\_}}{{\mathsf{i{\scriptstyle 8}}}{\mathsf{x}}{\mathsf{{\scriptstyle 16}}}} \\
 & & | & \mbox{‘\texttt{i16x8.extmul\_high\_i8x16\_u}’} & \quad\Rightarrow\quad{} & {\mathsf{i{\scriptstyle 16}}}{\mathsf{x}}{\mathsf{{\scriptstyle 8}}} {.} {{\mathsf{extmul}}{\mathsf{\_}}{\mathsf{high}}{\mathsf{\_}}{\mathsf{u}}}{\mathsf{\_}}{{\mathsf{i{\scriptstyle 8}}}{\mathsf{x}}{\mathsf{{\scriptstyle 16}}}} \\
+& & | & \mbox{‘\texttt{i16x8.relaxed\_dot\_i8x16\_i7x16\_s}’} & \quad\Rightarrow\quad{} & {\mathsf{i{\scriptstyle 16}}}{\mathsf{x}}{\mathsf{{\scriptstyle 8}}} {.} {{\mathsf{relaxed\_dot}}{\mathsf{\_}}{\mathsf{s}}}{\mathsf{\_}}{{\mathsf{i{\scriptstyle 8}}}{\mathsf{x}}{\mathsf{{\scriptstyle 16}}}} \\
 & & | & \mbox{‘\texttt{i32x4.extmul\_low\_i16x8\_s}’} & \quad\Rightarrow\quad{} & {\mathsf{i{\scriptstyle 32}}}{\mathsf{x}}{\mathsf{{\scriptstyle 4}}} {.} {{\mathsf{extmul}}{\mathsf{\_}}{\mathsf{low}}{\mathsf{\_}}{\mathsf{s}}}{\mathsf{\_}}{{\mathsf{i{\scriptstyle 16}}}{\mathsf{x}}{\mathsf{{\scriptstyle 8}}}} \\
 & & | & \mbox{‘\texttt{i32x4.extmul\_low\_i16x8\_u}’} & \quad\Rightarrow\quad{} & {\mathsf{i{\scriptstyle 32}}}{\mathsf{x}}{\mathsf{{\scriptstyle 4}}} {.} {{\mathsf{extmul}}{\mathsf{\_}}{\mathsf{low}}{\mathsf{\_}}{\mathsf{u}}}{\mathsf{\_}}{{\mathsf{i{\scriptstyle 16}}}{\mathsf{x}}{\mathsf{{\scriptstyle 8}}}} \\
 & & | & \mbox{‘\texttt{i32x4.extmul\_high\_i16x8\_s}’} & \quad\Rightarrow\quad{} & {\mathsf{i{\scriptstyle 32}}}{\mathsf{x}}{\mathsf{{\scriptstyle 4}}} {.} {{\mathsf{extmul}}{\mathsf{\_}}{\mathsf{high}}{\mathsf{\_}}{\mathsf{s}}}{\mathsf{\_}}{{\mathsf{i{\scriptstyle 16}}}{\mathsf{x}}{\mathsf{{\scriptstyle 8}}}} \\
@@ -13574,6 +13563,7 @@ $$
 & & | & \mbox{‘\texttt{i64x2.extmul\_low\_i32x4\_u}’} & \quad\Rightarrow\quad{} & {\mathsf{i{\scriptstyle 64}}}{\mathsf{x}}{\mathsf{{\scriptstyle 2}}} {.} {{\mathsf{extmul}}{\mathsf{\_}}{\mathsf{low}}{\mathsf{\_}}{\mathsf{u}}}{\mathsf{\_}}{{\mathsf{i{\scriptstyle 32}}}{\mathsf{x}}{\mathsf{{\scriptstyle 4}}}} \\
 & & | & \mbox{‘\texttt{i64x2.extmul\_high\_i32x4\_s}’} & \quad\Rightarrow\quad{} & {\mathsf{i{\scriptstyle 64}}}{\mathsf{x}}{\mathsf{{\scriptstyle 2}}} {.} {{\mathsf{extmul}}{\mathsf{\_}}{\mathsf{high}}{\mathsf{\_}}{\mathsf{s}}}{\mathsf{\_}}{{\mathsf{i{\scriptstyle 32}}}{\mathsf{x}}{\mathsf{{\scriptstyle 4}}}} \\
 & & | & \mbox{‘\texttt{i64x2.extmul\_high\_i32x4\_u}’} & \quad\Rightarrow\quad{} & {\mathsf{i{\scriptstyle 64}}}{\mathsf{x}}{\mathsf{{\scriptstyle 2}}} {.} {{\mathsf{extmul}}{\mathsf{\_}}{\mathsf{high}}{\mathsf{\_}}{\mathsf{u}}}{\mathsf{\_}}{{\mathsf{i{\scriptstyle 32}}}{\mathsf{x}}{\mathsf{{\scriptstyle 4}}}} \\
+& & | & \mbox{‘\texttt{i32x4.relaxed\_dot\_i8x16\_i7x16\_add\_s}’} & \quad\Rightarrow\quad{} & {\mathsf{i{\scriptstyle 32}}}{\mathsf{x}}{\mathsf{{\scriptstyle 4}}} {.} {{\mathsf{relaxed\_dot\_add}}{\mathsf{\_}}{\mathsf{s}}}{\mathsf{\_}}{{\mathsf{i{\scriptstyle 16}}}{\mathsf{x}}{\mathsf{{\scriptstyle 8}}}} \\
 \end{array}
 $$
 
@@ -14800,7 +14790,7 @@ $\boxed{{\mathit{store}} \vdash {\mathit{frame}} : {\mathit{context}}}$
 
 $\boxed{{\vdash}\, {\mathit{state}} : {\mathit{context}}}$
 
-$\boxed{{\vdash}\, {\mathit{config}} : \mathsf{ok}}$
+$\boxed{{\vdash}\, {\mathit{config}} : {\mathit{resulttype}}}$
 
 $$
 \begin{array}{@{}c@{}}\displaystyle
@@ -14852,11 +14842,11 @@ $$
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
-{\vdash}\, z : C
+{\vdash}\, s ; f : C
  \qquad
-C \vdash {{\mathit{instr}}^\ast} : {t^\ast}
+s ; C \vdash {{\mathit{instr}}^\ast} : {t^\ast}
 }{
-{\vdash}\, z ; {{\mathit{instr}}^\ast} : \mathsf{ok}
+{\vdash}\, s ; f ; {{\mathit{instr}}^\ast} : {t^\ast}
 } \, {[\textsc{\scriptsize Config\_ok}]}
 \qquad
 \end{array}

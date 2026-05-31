@@ -16,5 +16,7 @@
     improveids
     ite
     deftorel
+    elsesimp
+    letintromech
   )
 )

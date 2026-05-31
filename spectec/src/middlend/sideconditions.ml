@@ -1,15 +1,3 @@
-(*
-This transformation make explicit the following implicit side conditions
-of terms in premises and conclusions:
-
- * Array access          a[i]         i < |a|
- * Joint iteration       e*{v1,v2}    |v1*| = |v2*|
- * Option projection     !(e)         e =!= null
-
-(The option projection would probably be nicer by rewriting !(e) to a fresh
-variable x and require e=?x. Maybe later.)
-*)
-
 open Util
 open Source
 open Il.Ast
@@ -146,9 +134,9 @@ let t_rule' env = function
   | RuleD (id, quants, mixop, exp, prems) ->
     let env' = t_params env quants in
     let collector = create_collector env' in
-    let prems' = List.concat_map (fun prem -> collect_prem collector prem @ [prem]) prems in
+    let prems' = List.concat_map (fun prem -> prem :: collect_prem collector prem) prems in
     let extra_prems = collect_exp collector exp in
-    let reduced_prems = reduce_prems (extra_prems @ prems') in
+    let reduced_prems = reduce_prems (prems' @ extra_prems) in
     RuleD (id, quants, mixop, exp, reduced_prems)
 
 let t_rule env x = { x with it = t_rule' env x.it }

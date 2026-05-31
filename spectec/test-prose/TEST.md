@@ -15,6 +15,7 @@ spectec 0.5 generator
 == IL Validation after pass sideconditions...
 == Translating to AL...
 == Prose Generation...
+../../../../specification/wasm-1.0/B-soundness.spectec:139.8-139.45: prem_to_instrs: Yet `Externaddr_ok: `%|-%:%`(s, FUNC_externaddr(fa), FUNC_externtype(ft))`
 
 
 
@@ -887,6 +888,485 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
    * The memory type sequence :math:`{{\mathit{imt}}^\ast}` is of the form :math:`{\mathrm{mems}}({{\mathit{ixt}}^\ast})`.
 
 
+
+
+The context :math:`C` is :ref:`valid <valid-val>` if:
+
+
+   * The context :math:`C` is of the form :math:`\{ \mathsf{types}~{{\mathit{ft}}^\ast},\;\allowbreak \mathsf{funcs}~{{\mathit{ft}}_2^\ast},\;\allowbreak \mathsf{globals}~{{\mathit{gt}}^\ast},\;\allowbreak \mathsf{tables}~{{\mathit{tt}}^\ast},\;\allowbreak \mathsf{mems}~{{\mathit{mt}}^\ast},\;\allowbreak \mathsf{locals}~{{\mathit{lct}}^\ast},\;\allowbreak \mathsf{labels}~{{\mathit{rt}}^\ast},\;\allowbreak \mathsf{return}~{{\mathit{rt}'}^?} \}`.
+
+   * For all :math:`{\mathit{ft}}` in :math:`{{\mathit{ft}}^\ast}`:
+
+      * The function type :math:`{\mathit{ft}}` is :ref:`valid <valid-val>`.
+
+   * For all :math:`{\mathit{gt}}` in :math:`{{\mathit{gt}}^\ast}`:
+
+      * The global type :math:`{\mathit{gt}}` is :ref:`valid <valid-val>`.
+
+   * For all :math:`{\mathit{mt}}` in :math:`{{\mathit{mt}}^\ast}`:
+
+      * The memory type :math:`{\mathit{mt}}` is :ref:`valid <valid-val>`.
+
+   * For all :math:`{\mathit{tt}}` in :math:`{{\mathit{tt}}^\ast}`:
+
+      * The table type :math:`{\mathit{tt}}` is :ref:`valid <valid-val>`.
+
+   * For all :math:`{\mathit{ft}}_2` in :math:`{{\mathit{ft}}_2^\ast}`:
+
+      * The function type :math:`{\mathit{ft}}_2` is :ref:`valid <valid-val>`.
+
+
+
+
+The value :math:`(t{.}\mathsf{const}~c_t)` is :ref:`valid <valid-val>` with the number type :math:`t`.
+
+
+
+
+The result :math:`{\mathit{result}}` is :ref:`valid <valid-val>` with the number type sequence :math:`{t^\ast}` if:
+
+
+   * Either:
+
+      * The result :math:`{\mathit{result}}` is of the form :math:`{v^\ast}`.
+
+      * For all :math:`t` in :math:`{t^\ast}`, and corresponding :math:`v` in :math:`{v^\ast}`:
+
+         * The value :math:`v` is :ref:`valid <valid-val>` with the number type :math:`t`.
+
+   * Or:
+
+      * The result :math:`{\mathit{result}}` is of the form :math:`\mathsf{trap}`.
+
+
+
+
+The result :math:`{v^\ast}` is :ref:`valid <valid-val>` with the number type sequence :math:`{t^\ast}` if:
+
+
+   * For all :math:`t` in :math:`{t^\ast}`, and corresponding :math:`v` in :math:`{v^\ast}`:
+
+      * The value :math:`v` is :ref:`valid <valid-val>` with the number type :math:`t`.
+
+
+
+
+The result :math:`\mathsf{trap}` is :ref:`valid <valid-val>` with the number type sequence :math:`{t^\ast}`.
+
+
+
+
+The external value :math:`{\mathit{externaddr}}` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{externtype}}` if:
+
+
+   * Either:
+
+      * The external value :math:`{\mathit{externaddr}}` is of the form :math:`(\mathsf{global}~a)`.
+
+      * The external type :math:`{\mathit{externtype}}` is of the form :math:`(\mathsf{global}~{\mathit{globalinst}}{.}\mathsf{type})`.
+
+      * The global instance :math:`s{.}\mathsf{globals}{}[a]` exists.
+
+      * The global instance :math:`s{.}\mathsf{globals}{}[a]` is of the form :math:`{\mathit{globalinst}}`.
+
+   * Or:
+
+      * The external value :math:`{\mathit{externaddr}}` is of the form :math:`(\mathsf{mem}~a)`.
+
+      * The external type :math:`{\mathit{externtype}}` is of the form :math:`(\mathsf{mem}~{\mathit{meminst}}{.}\mathsf{type})`.
+
+      * The memory instance :math:`s{.}\mathsf{mems}{}[a]` exists.
+
+      * The memory instance :math:`s{.}\mathsf{mems}{}[a]` is of the form :math:`{\mathit{meminst}}`.
+   * Or:
+
+      * The external value :math:`{\mathit{externaddr}}` is of the form :math:`(\mathsf{table}~a)`.
+
+      * The external type :math:`{\mathit{externtype}}` is of the form :math:`(\mathsf{table}~{\mathit{tableinst}}{.}\mathsf{type})`.
+
+      * The table instance :math:`s{.}\mathsf{tables}{}[a]` exists.
+
+      * The table instance :math:`s{.}\mathsf{tables}{}[a]` is of the form :math:`{\mathit{tableinst}}`.
+   * Or:
+
+      * The external value :math:`{\mathit{externaddr}}` is of the form :math:`(\mathsf{func}~a)`.
+
+      * The external type :math:`{\mathit{externtype}}` is of the form :math:`(\mathsf{func}~{\mathit{funcinst}}{.}\mathsf{type})`.
+
+      * The function instance :math:`s{.}\mathsf{funcs}{}[a]` exists.
+
+      * The function instance :math:`s{.}\mathsf{funcs}{}[a]` is of the form :math:`{\mathit{funcinst}}`.
+   * Or:
+
+      * The external value :math:`{\mathit{externaddr}}` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{xt}'}`.
+
+      * The external type :math:`{\mathit{xt}'}` :ref:`matches <match>` the external type :math:`{\mathit{externtype}}`.
+
+
+
+
+The external value :math:`(\mathsf{global}~a)` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{global}~{\mathit{globalinst}}{.}\mathsf{type})` if:
+
+
+   * The global instance :math:`s{.}\mathsf{globals}{}[a]` exists.
+
+   * The global instance :math:`s{.}\mathsf{globals}{}[a]` is of the form :math:`{\mathit{globalinst}}`.
+
+
+
+
+The external value :math:`(\mathsf{mem}~a)` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{mem}~{\mathit{meminst}}{.}\mathsf{type})` if:
+
+
+   * The memory instance :math:`s{.}\mathsf{mems}{}[a]` exists.
+
+   * The memory instance :math:`s{.}\mathsf{mems}{}[a]` is of the form :math:`{\mathit{meminst}}`.
+
+
+
+
+The external value :math:`(\mathsf{table}~a)` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{table}~{\mathit{tableinst}}{.}\mathsf{type})` if:
+
+
+   * The table instance :math:`s{.}\mathsf{tables}{}[a]` exists.
+
+   * The table instance :math:`s{.}\mathsf{tables}{}[a]` is of the form :math:`{\mathit{tableinst}}`.
+
+
+
+
+The external value :math:`(\mathsf{func}~a)` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{func}~{\mathit{funcinst}}{.}\mathsf{type})` if:
+
+
+   * The function instance :math:`s{.}\mathsf{funcs}{}[a]` exists.
+
+   * The function instance :math:`s{.}\mathsf{funcs}{}[a]` is of the form :math:`{\mathit{funcinst}}`.
+
+
+
+
+The external value :math:`{\mathit{externaddr}}` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{xt}}` if:
+
+
+   * The external value :math:`{\mathit{externaddr}}` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{xt}'}`.
+
+   * The external type :math:`{\mathit{xt}'}` :ref:`matches <match>` the external type :math:`{\mathit{xt}}`.
+
+
+
+
+The export instance :math:`\{ \mathsf{name}~{\mathit{nm}},\;\allowbreak \mathsf{addr}~{\mathit{xa}} \}` is :ref:`valid <valid-val>` if:
+
+
+   * The external value :math:`{\mathit{xa}}` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{xt}}`.
+
+
+
+
+The module instance :math:`\{ \mathsf{types}~{{\mathit{functype}}^\ast},\;\allowbreak \mathsf{funcs}~{{\mathit{funcaddr}}^\ast},\;\allowbreak \mathsf{globals}~{{\mathit{globaladdr}}^\ast},\;\allowbreak \mathsf{tables}~{{\mathit{tableaddr}}^\ast},\;\allowbreak \mathsf{mems}~{{\mathit{memaddr}}^\ast},\;\allowbreak \mathsf{exports}~{{\mathit{exportinst}}^\ast} \}` is :ref:`valid <valid-val>` with the context :math:`\{ \mathsf{types}~{{\mathit{functype}}^\ast},\;\allowbreak \mathsf{funcs}~{{\mathit{functype}}_{\mathsf{f}}^\ast},\;\allowbreak \mathsf{globals}~{{\mathit{globaltype}}^\ast},\;\allowbreak \mathsf{tables}~{{\mathit{tabletype}}^\ast},\;\allowbreak \mathsf{mems}~{{\mathit{memtype}}^\ast},\;\allowbreak \mathsf{return}~\epsilon \}` if:
+
+
+   * For all :math:`{\mathit{functype}}` in :math:`{{\mathit{functype}}^\ast}`:
+
+      * The function type :math:`{\mathit{functype}}` is :ref:`valid <valid-val>`.
+
+   * For all :math:`{\mathit{globaladdr}}` in :math:`{{\mathit{globaladdr}}^\ast}`, and corresponding :math:`{\mathit{globaltype}}` in :math:`{{\mathit{globaltype}}^\ast}`:
+
+      * The external value :math:`(\mathsf{global}~{\mathit{globaladdr}})` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{global}~{\mathit{globaltype}})`.
+
+   * For all :math:`{\mathit{funcaddr}}` in :math:`{{\mathit{funcaddr}}^\ast}`, and corresponding :math:`{\mathit{functype}}_{\mathsf{f}}` in :math:`{{\mathit{functype}}_{\mathsf{f}}^\ast}`:
+
+      * The external value :math:`(\mathsf{func}~{\mathit{funcaddr}})` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{func}~{\mathit{functype}}_{\mathsf{f}})`.
+
+   * For all :math:`{\mathit{memaddr}}` in :math:`{{\mathit{memaddr}}^\ast}`, and corresponding :math:`{\mathit{memtype}}` in :math:`{{\mathit{memtype}}^\ast}`:
+
+      * The external value :math:`(\mathsf{mem}~{\mathit{memaddr}})` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{mem}~{\mathit{memtype}})`.
+
+   * For all :math:`{\mathit{tableaddr}}` in :math:`{{\mathit{tableaddr}}^\ast}`, and corresponding :math:`{\mathit{tabletype}}` in :math:`{{\mathit{tabletype}}^\ast}`:
+
+      * The external value :math:`(\mathsf{table}~{\mathit{tableaddr}})` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{table}~{\mathit{tabletype}})`.
+
+   * For all :math:`{\mathit{exportinst}}` in :math:`{{\mathit{exportinst}}^\ast}`:
+
+      * The export instance :math:`{\mathit{exportinst}}` is :ref:`valid <valid-val>`.
+
+   * :math:`{{\mathit{exportinst}}{.}\mathsf{name}^\ast}~{\mathrm{disjoint}}` is true.
+
+   * The length of :math:`{(\mathsf{global}~{\mathit{globaladdr}})^\ast}~{(\mathsf{mem}~{\mathit{memaddr}})^\ast}~{(\mathsf{table}~{\mathit{tableaddr}})^\ast}~{(\mathsf{func}~{\mathit{funcaddr}})^\ast}` is greater than :math:`0`.
+
+   * For all :math:`{\mathit{exportinst}}` in :math:`{{\mathit{exportinst}}^\ast}`:
+
+      * :math:`{\mathit{exportinst}}{.}\mathsf{addr}` is contained in :math:`{(\mathsf{global}~{\mathit{globaladdr}})^\ast}~{(\mathsf{mem}~{\mathit{memaddr}})^\ast}~{(\mathsf{table}~{\mathit{tableaddr}})^\ast}~{(\mathsf{func}~{\mathit{funcaddr}})^\ast}`.
+
+
+
+
+The frame :math:`\{ \mathsf{locals}~{{\mathit{val}}^\ast},\;\allowbreak \mathsf{module}~{\mathit{moduleinst}} \}` is :ref:`valid <valid-val>` with the context :math:`C` with the field :math:`\mathsf{locals}` appended by :math:`{t^\ast}` if:
+
+
+   * The module instance :math:`{\mathit{moduleinst}}` is :ref:`valid <valid-val>` with the context :math:`C`.
+
+   * For all :math:`t` in :math:`{t^\ast}`, and corresponding :math:`{\mathit{val}}` in :math:`{{\mathit{val}}^\ast}`:
+
+      * The value :math:`{\mathit{val}}` is :ref:`valid <valid-val>` with the number type :math:`t`.
+
+
+
+
+:math:`{\mathit{instr}}` is valid with :math:`{{\mathit{valtype}}^\ast}~\rightarrow~{{\mathit{valtype}'}^\ast}` if:
+
+
+   * Either:
+
+      * The administrative instruction :math:`{\mathit{instr}}` is of the form :math:`{\mathit{instr}}`.
+
+      * The instruction :math:`{\mathit{instr}}` is :ref:`valid <valid-val>` with the function type :math:`{{\mathit{valtype}}^\ast}~\rightarrow~{{\mathit{valtype}'}^\ast}`.
+
+   * Or:
+
+      * The administrative instruction :math:`{\mathit{instr}}` is of the form :math:`({{\mathsf{label}}_{n}}{\{}~{{\mathit{instr}'}^\ast}~\}~{{{\mathit{instr}}'}^\ast})`.
+
+      * The number type sequence :math:`{{\mathit{valtype}}^\ast}` is empty.
+
+      * The number type sequence :math:`{{\mathit{valtype}'}^\ast}` is of the form :math:`{t^?}`.
+
+      * The length of :math:`{{t'}^?}` is equal to :math:`n`.
+
+      * :math:`{{\mathit{instr}'}^\ast}` is valid with :math:`{{t'}^?}~\rightarrow~{t^?}`.
+
+      * :math:`{{{\mathit{instr}}'}^\ast}` is valid with :math:`\epsilon~\rightarrow~{t^?}`.
+   * Or:
+
+      * The administrative instruction :math:`{\mathit{instr}}` is of the form :math:`({{\mathsf{frame}}_{n}}{\{}~f~\}~{{{\mathit{instr}}'}^\ast})`.
+
+      * The number type sequence :math:`{{\mathit{valtype}}^\ast}` is empty.
+
+      * The number type sequence :math:`{{\mathit{valtype}'}^\ast}` is of the form :math:`{t^?}`.
+
+      * The length of :math:`{t^?}` is equal to :math:`n`.
+
+      * The frame :math:`f` is :ref:`valid <valid-val>` with the context :math:`{C'}`.
+
+      * :math:`{{{\mathit{instr}}'}^\ast}` is valid with :math:`{t^?}`.
+   * Or:
+
+      * The administrative instruction :math:`{\mathit{instr}}` is of the form :math:`(\mathsf{call}~{\mathit{funcaddr}})`.
+
+      * The external value :math:`(\mathsf{func}~{\mathit{funcaddr}})` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{func}~{{\mathit{valtype}}^\ast}~\rightarrow~{{\mathit{valtype}'}^\ast})`.
+   * Or:
+
+      * The administrative instruction :math:`{\mathit{instr}}` is of the form :math:`\mathsf{trap}`.
+
+
+
+
+:math:`{\mathit{instr}}` is valid with :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}` if:
+
+
+   * The instruction :math:`{\mathit{instr}}` is :ref:`valid <valid-val>` with the function type :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}`.
+
+
+
+
+:math:`({{\mathsf{label}}_{n}}{\{}~{{\mathit{instr}}^\ast}~\}~{{\mathit{instr}}^\ast})` is valid with :math:`\epsilon~\rightarrow~{t^?}` if:
+
+
+   * The length of :math:`{{t'}^?}` is equal to :math:`n`.
+
+   * :math:`{{\mathit{instr}'}^\ast}` is valid with :math:`{{t'}^?}~\rightarrow~{t^?}`.
+
+   * :math:`{{\mathit{instr}}^\ast}` is valid with :math:`\epsilon~\rightarrow~{t^?}`.
+
+
+
+
+:math:`({{\mathsf{frame}}_{n}}{\{}~f~\}~{{\mathit{instr}}^\ast})` is valid with :math:`\epsilon~\rightarrow~{t^?}` if:
+
+
+   * The length of :math:`{t^?}` is equal to :math:`n`.
+
+   * The frame :math:`f` is :ref:`valid <valid-val>` with the context :math:`{C'}`.
+
+   * :math:`{{\mathit{instr}}^\ast}` is valid with :math:`{t^?}`.
+
+
+
+
+:math:`(\mathsf{call}~{\mathit{funcaddr}})` is valid with :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}` if:
+
+
+   * The external value :math:`(\mathsf{func}~{\mathit{funcaddr}})` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
+
+
+
+
+:math:`\mathsf{trap}` is valid with :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}`.
+
+
+
+
+:math:`{{\mathit{instr}}^\ast}` is valid with :math:`{{\mathit{valtype}}^\ast}~\rightarrow~{{\mathit{valtype}'}^\ast}` if:
+
+
+   * Either:
+
+      * The administrative instruction sequence :math:`{{\mathit{instr}}^\ast}` is empty.
+
+      * The number type sequence :math:`{{\mathit{valtype}}^\ast}` is empty.
+
+      * The number type sequence :math:`{{\mathit{valtype}'}^\ast}` is empty.
+
+   * Or:
+
+      * The administrative instruction sequence :math:`{{\mathit{instr}}^\ast}` is of the form :math:`{{\mathit{instr}}}_1~{{{\mathit{instr}}}_2^\ast}`.
+
+      * :math:`{{\mathit{instr}}}_1` is valid with :math:`{{\mathit{valtype}}^\ast}~\rightarrow~{t_2^\ast}`.
+
+      * :math:`{{{\mathit{instr}}}_2^\ast}` is valid with :math:`{t_2^\ast}~\rightarrow~{{\mathit{valtype}'}^\ast}`.
+   * Or:
+
+      * The number type sequence :math:`{{\mathit{valtype}}^\ast}` is of the form :math:`{t^\ast}~{t_1^\ast}`.
+
+      * The number type sequence :math:`{{\mathit{valtype}'}^\ast}` is of the form :math:`{t^\ast}~{t_2^\ast}`.
+
+      * :math:`{{\mathit{instr}}^\ast}` is valid with :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}`.
+
+
+
+
+:math:`\epsilon` is valid with :math:`\epsilon~\rightarrow~\epsilon`.
+
+
+
+
+:math:`{{\mathit{instr}}}_1~{{{\mathit{instr}}}_2^\ast}` is valid with :math:`{t_1^\ast}~\rightarrow~{t_3^\ast}` if:
+
+
+   * :math:`{{\mathit{instr}}}_1` is valid with :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}`.
+
+   * :math:`{{{\mathit{instr}}}_2^\ast}` is valid with :math:`{t_2^\ast}~\rightarrow~{t_3^\ast}`.
+
+
+
+
+:math:`{{\mathit{instr}}^\ast}` is valid with :math:`{t^\ast}~{t_1^\ast}~\rightarrow~{t^\ast}~{t_2^\ast}` if:
+
+
+   * :math:`{{\mathit{instr}}^\ast}` is valid with :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}`.
+
+
+
+
+:math:`{{\mathit{instr}}^\ast}` is valid with :math:`{t^?}` if:
+
+
+   * :math:`{{\mathit{instr}}^\ast}` is valid with :math:`\epsilon~\rightarrow~{t^?}`.
+
+
+
+
+The global instance :math:`\{ \mathsf{type}~({\mathit{mut}}~t),\;\allowbreak \mathsf{value}~{\mathit{val}} \}` is :ref:`valid <valid-val>` with the global type :math:`({\mathit{mut}}~t)` if:
+
+
+   * The global type :math:`({\mathit{mut}}~t)` is :ref:`valid <valid-val>`.
+
+   * The value :math:`{\mathit{val}}` is :ref:`valid <valid-val>` with the number type :math:`t`.
+
+
+
+
+The memory instance :math:`\{ \mathsf{type}~{}[ n .. m ],\;\allowbreak \mathsf{bytes}~{b^\ast} \}` is :ref:`valid <valid-val>` with the memory type :math:`{}[ n .. m ]` if:
+
+
+   * The memory type :math:`{}[ n .. m ]` is :ref:`valid <valid-val>`.
+
+   * The length of :math:`{b^\ast}` is equal to :math:`n \cdot 64 \, {\mathrm{Ki}}`.
+
+
+
+
+The table instance :math:`\{ \mathsf{type}~{}[ n .. m ],\;\allowbreak \mathsf{refs}~{({{\mathit{fa}}^?})^\ast} \}` is :ref:`valid <valid-val>` with the table type :math:`{}[ n .. m ]` if:
+
+
+   * The table type :math:`{}[ n .. m ]` is :ref:`valid <valid-val>`.
+
+   * For all :math:`{\mathit{fa?}}` in :math:`{{\mathit{fa?}}^\ast}`:
+
+      * The function address :math:`{\mathit{fa?}}` is absent if and only if the function type :math:`{\mathit{ft?}}` is absent.
+
+   * :math:`{{\mathit{ft?}}^\ast}` is the concatenation of all such :math:`{\mathit{ft?}}`.
+
+   * For all :math:`{\mathit{fa?}}` in :math:`{{\mathit{fa?}}^\ast}`, and corresponding :math:`{\mathit{ft?}}` in :math:`{{\mathit{ft?}}^\ast}`:
+
+      * YetS: TODO: prem_to_intrs iter.
+
+   * The length of :math:`{({{\mathit{fa}}^?})^\ast}` is equal to :math:`n`.
+
+
+
+
+The function instance :math:`\{ \mathsf{type}~{\mathit{ft}},\;\allowbreak \mathsf{module}~{\mathit{moduleinst}},\;\allowbreak \mathsf{code}~{\mathit{func}} \}` is :ref:`valid <valid-val>` with the function type :math:`{\mathit{ft}}` if:
+
+
+   * The function type :math:`{\mathit{ft}}` is :ref:`valid <valid-val>`.
+
+   * The module instance :math:`{\mathit{moduleinst}}` is :ref:`valid <valid-val>` with the context :math:`C`.
+
+   * The function :math:`{\mathit{func}}` is :ref:`valid <valid-val>` with the function type :math:`{\mathit{ft}}`.
+
+
+
+
+The store :math:`s` is :ref:`valid <valid-val>` if:
+
+
+   * For all :
+
+      * The global instance :math:`{\mathit{globalinst}}` is :ref:`valid <valid-val>` with the global type :math:`{\mathit{globaltype}}`.
+
+   * :math:`{{\mathit{globalinst}}^\ast}` is the concatenation of all such :math:`{\mathit{globalinst}}`.
+
+   * For all :
+
+      * The memory instance :math:`{\mathit{meminst}}` is :ref:`valid <valid-val>` with the memory type :math:`{\mathit{memtype}}`.
+
+   * :math:`{{\mathit{meminst}}^\ast}` is the concatenation of all such :math:`{\mathit{meminst}}`.
+
+   * For all :
+
+      * The table instance :math:`{\mathit{tableinst}}` is :ref:`valid <valid-val>` with the table type :math:`{\mathit{tabletype}}`.
+
+   * :math:`{{\mathit{tableinst}}^\ast}` is the concatenation of all such :math:`{\mathit{tableinst}}`.
+
+   * For all :
+
+      * The function instance :math:`{\mathit{funcinst}}` is :ref:`valid <valid-val>` with the function type :math:`{\mathit{functype}}`.
+
+   * :math:`{{\mathit{funcinst}}^\ast}` is the concatenation of all such :math:`{\mathit{funcinst}}`.
+
+   * The store :math:`s` is of the form :math:`\{ \mathsf{funcs}~{{\mathit{funcinst}}^\ast},\;\allowbreak \mathsf{globals}~{{\mathit{globalinst}}^\ast},\;\allowbreak \mathsf{tables}~{{\mathit{tableinst}}^\ast},\;\allowbreak \mathsf{mems}~{{\mathit{meminst}}^\ast} \}`.
+
+
+
+
+The state :math:`(s, f)` is :ref:`valid <valid-val>` with the context :math:`C` if:
+
+
+   * The store :math:`s` is :ref:`valid <valid-val>`.
+
+   * The frame :math:`f` is :ref:`valid <valid-val>` with the context :math:`C`.
+
+
+
+
+The configuration :math:`(s, f)~;~{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` with the result type :math:`{t^?}` if:
+
+
+   * The state :math:`(s, f)` is :ref:`valid <valid-val>` with the context :math:`C`.
+
+   * :math:`{{\mathit{instr}}^\ast}` is valid with :math:`{t^?}`.
+
+
 :math:`\mathsf{load}~t~{\mathit{ao}}`
 .....................................
 
@@ -1609,6 +2089,19 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 #. Let :math:`{w^\ast}~{{{w'}^\ast}^\ast}` be :math:`{X^\ast}`.
 
 #. Return :math:`{w^\ast}~{\mathrm{concat}}({{{w'}^\ast}^\ast})`.
+
+
+:math:`{X^\ast}~{\mathrm{disjoint}}`
+....................................
+
+
+1. If :math:`{X^\ast} = \epsilon`, then:
+
+   a. Return true.
+
+#. Let :math:`w~{{w'}^\ast}` be :math:`{X^\ast}`.
+
+#. Return :math:`w` is not contained in :math:`{{w'}^\ast}` and :math:`{{w'}^\ast}~{\mathrm{disjoint}}`.
 
 
 :math:`{\mathrm{signif}}(N)`
@@ -3044,6 +3537,7 @@ spectec 0.5 generator
 == IL Validation after pass sideconditions...
 == Translating to AL...
 == Prose Generation...
+../../../../specification/wasm-1.0/B-soundness.spectec:139.8-139.45: prem_to_instrs: Yet `Externaddr_ok: `%|-%:%`(s, FUNC_externaddr(fa), FUNC_externtype(ft))`
 Limits_ok
 - the limits ([ n .. m? ]) is valid with k if:
   - n is less than or equal to k.
@@ -3493,6 +3987,251 @@ Module_ok
   - the table type sequence itt* is $tablesxt(ixt*).
   - the memory type sequence imt* is $memsxt(ixt*).
 
+Context_ok
+- the context C is valid if:
+  - C is { TYPES: ft*; FUNCS: ft_2*; GLOBALS: gt*; TABLES: tt*; MEMS: mt*; LOCALS: lct*; LABELS: ?(rt)*; RETURN: ?(rt'?) }.
+  - For all ft in ft*:
+    - the function type ft is valid.
+  - For all gt in gt*:
+    - the global type gt is valid.
+  - For all mt in mt*:
+    - the memory type mt is valid.
+  - For all tt in tt*:
+    - the table type tt is valid.
+  - For all ft_2 in ft_2*:
+    - the function type ft_2 is valid.
+
+Val_ok
+- the value (t.CONST c_t) is valid with the number type t.
+
+Result_ok
+- the result result is valid with the number type sequence t* if:
+  - Either:
+    - result is (_VALS v*).
+    - For all t in t*, and corresponding v in v*:
+      - the value v is valid with the number type t.
+  - Or:
+    - result is TRAP.
+
+Result_ok/result
+- the result (_VALS v*) is valid with the number type sequence t* if:
+  - For all t in t*, and corresponding v in v*:
+    - the value v is valid with the number type t.
+
+Result_ok/trap
+- the result TRAP is valid with t*.
+
+Externaddr_ok
+- the external value externaddr is valid with the external type externtype if:
+  - Either:
+    - externaddr is (GLOBAL a).
+    - externtype is (GLOBAL globalinst.TYPE).
+    - the global instance s.GLOBALS[a] exists.
+    - s.GLOBALS[a] is globalinst.
+  - Or:
+    - externaddr is (MEM a).
+    - externtype is (MEM meminst.TYPE).
+    - the memory instance s.MEMS[a] exists.
+    - s.MEMS[a] is meminst.
+  - Or:
+    - externaddr is (TABLE a).
+    - externtype is (TABLE tableinst.TYPE).
+    - the table instance s.TABLES[a] exists.
+    - s.TABLES[a] is tableinst.
+  - Or:
+    - externaddr is (FUNC a).
+    - externtype is (FUNC funcinst.TYPE).
+    - the function instance s.FUNCS[a] exists.
+    - s.FUNCS[a] is funcinst.
+  - Or:
+    - externaddr is valid with the external type xt'.
+    - xt' matches externtype.
+
+Externaddr_ok/global
+- the external value (GLOBAL a) is valid with the external type (GLOBAL globalinst.TYPE) if:
+  - the global instance s.GLOBALS[a] exists.
+  - s.GLOBALS[a] is globalinst.
+
+Externaddr_ok/mem
+- the external value (MEM a) is valid with the external type (MEM meminst.TYPE) if:
+  - the memory instance s.MEMS[a] exists.
+  - s.MEMS[a] is meminst.
+
+Externaddr_ok/table
+- the external value (TABLE a) is valid with the external type (TABLE tableinst.TYPE) if:
+  - the table instance s.TABLES[a] exists.
+  - s.TABLES[a] is tableinst.
+
+Externaddr_ok/func
+- the external value (FUNC a) is valid with the external type (FUNC funcinst.TYPE) if:
+  - the function instance s.FUNCS[a] exists.
+  - s.FUNCS[a] is funcinst.
+
+Externaddr_ok/sub
+- the external value externaddr is valid with the external type xt if:
+  - externaddr is valid with the external type xt'.
+  - xt' matches xt.
+
+Exportinst_ok
+- the export instance { NAME: nm; ADDR: xa } is valid if:
+  - the external value xa is valid with the external type xt.
+
+Moduleinst_ok
+- the module instance { TYPES: functype*; FUNCS: funcaddr*; GLOBALS: globaladdr*; TABLES: tableaddr*; MEMS: memaddr*; EXPORTS: exportinst* } is valid with the context { TYPES: functype*; FUNCS: functype_F*; GLOBALS: globaltype*; TABLES: tabletype*; MEMS: memtype*; RETURN: ?() } if:
+  - For all functype in functype*:
+    - the function type functype is valid.
+  - For all globaladdr in globaladdr*, and corresponding globaltype in globaltype*:
+    - the external value (GLOBAL globaladdr) is valid with the external type (GLOBAL globaltype).
+  - For all funcaddr in funcaddr*, and corresponding functype_F in functype_F*:
+    - the external value (FUNC funcaddr) is valid with the external type (FUNC functype_F).
+  - For all memaddr in memaddr*, and corresponding memtype in memtype*:
+    - the external value (MEM memaddr) is valid with the external type (MEM memtype).
+  - For all tableaddr in tableaddr*, and corresponding tabletype in tabletype*:
+    - the external value (TABLE tableaddr) is valid with the external type (TABLE tabletype).
+  - For all exportinst in exportinst*:
+    - the export instance exportinst is valid.
+  - $disjoint_(`name, exportinst.NAME*) is true.
+  - |(GLOBAL globaladdr)* :: (MEM memaddr)* :: (TABLE tableaddr)* :: (FUNC funcaddr)*| is greater than 0.
+  - For all exportinst in exportinst*:
+    - exportinst.ADDR is contained in (GLOBAL globaladdr)* :: (MEM memaddr)* :: (TABLE tableaddr)* :: (FUNC funcaddr)*.
+
+Frame_ok
+- the frame { LOCALS: val*; MODULE: moduleinst } is valid with the context C with .LOCALS appended by t* if:
+  - the module instance moduleinst is valid with the context C.
+  - For all t in t*, and corresponding val in val*:
+    - the value val is valid with the number type t.
+
+Instr_ok2
+- admininstr is valid with valtype* -> valtype'* if:
+  - Either:
+    - the administrative instruction admininstr is instr.
+    - the instruction instr is valid with the function type valtype* -> valtype'*.
+  - Or:
+    - admininstr is (LABEL_ n { instr'* } admininstr'*).
+    - the number type sequence valtype* is [].
+    - the number type sequence valtype'* is t?.
+    - |t'?| is n.
+    - instr'* is valid with t'? -> t?.
+    - admininstr'* is valid with [] -> t?.
+  - Or:
+    - admininstr is (FRAME_ n { f } admininstr'*).
+    - valtype* is [].
+    - valtype'* is t?.
+    - |t?| is n.
+    - the frame f is valid with the context C'.
+    - admininstr'* is valid with t?.
+  - Or:
+    - admininstr is (CALL_ADDR funcaddr).
+    - the external value (FUNC funcaddr) is valid with the external type (FUNC valtype* -> valtype'*).
+  - Or:
+    - admininstr is TRAP.
+
+Instr_ok2/plain
+- instr is valid with t_1* -> t_2* if:
+  - the instruction instr is valid with the function type t_1* -> t_2*.
+
+Instr_ok2/label
+- (LABEL_ n { instr* } admininstr*) is valid with [] -> t? if:
+  - |t'?| is n.
+  - instr'* is valid with t'? -> t?.
+  - admininstr* is valid with [] -> t?.
+
+Instr_ok2/frame
+- (FRAME_ n { f } admininstr*) is valid with [] -> t? if:
+  - |t?| is n.
+  - the frame f is valid with the context C'.
+  - admininstr* is valid with t?.
+
+Instr_ok2/call_addr
+- (CALL_ADDR funcaddr) is valid with t_1* -> t_2* if:
+  - the external value (FUNC funcaddr) is valid with the external type (FUNC t_1* -> t_2*).
+
+Instr_ok2/trap
+- TRAP is valid with t_1* -> t_2*.
+
+Instrs_ok2
+- admininstr* is valid with valtype* -> valtype'* if:
+  - Either:
+    - the administrative instruction sequence admininstr* is [].
+    - the number type sequence valtype* is [].
+    - the number type sequence valtype'* is [].
+  - Or:
+    - admininstr* is [admininstr_1] :: admininstr_2*.
+    - admininstr_1 is valid with valtype* -> t_2*.
+    - admininstr_2* is valid with t_2* -> valtype'*.
+  - Or:
+    - valtype* is t* :: t_1*.
+    - valtype'* is t* :: t_2*.
+    - admininstr* is valid with t_1* -> t_2*.
+
+Instrs_ok2/empty
+- [] is valid with [] -> [].
+
+Instrs_ok2/seq
+- [admininstr_1] :: admininstr_2* is valid with t_1* -> t_3* if:
+  - admininstr_1 is valid with t_1* -> t_2*.
+  - admininstr_2* is valid with t_2* -> t_3*.
+
+Instrs_ok2/frame
+- admininstr* is valid with t* :: t_1* -> t* :: t_2* if:
+  - admininstr* is valid with t_1* -> t_2*.
+
+Expr_ok2
+- admininstr* is valid with t? if:
+  - admininstr* is valid with [] -> t?.
+
+Globalinst_ok
+- the global instance { TYPE: (mut t); VALUE: val } is valid with the global type (mut t) if:
+  - (mut t) is valid.
+  - the value val is valid with the number type t.
+
+Meminst_ok
+- the memory instance { TYPE: ([ n .. ?(m) ]); BYTES: b* } is valid with the memory type ([ n .. ?(m) ]) if:
+  - ([ n .. ?(m) ]) is valid.
+  - |b*| is (n * (64 * $Ki())).
+
+Tableinst_ok
+- the table instance { TYPE: ([ n .. ?(m) ]); REFS: fa?* } is valid with the table type ([ n .. ?(m) ]) if:
+  - ([ n .. ?(m) ]) is valid.
+  - For all fa? in fa?*:
+    - the function address fa? is ?() if and only if the function type ft? is ?().
+  - ft?* is the concatenation of all such ft?.
+  - For all fa? in fa?*, and corresponding ft? in ft?*:
+    -     -  Yet: TODO: prem_to_intrs iter.
+  - |fa?*| is n.
+
+Funcinst_ok
+- the function instance { TYPE: ft; MODULE: moduleinst; CODE: func } is valid with the function type ft if:
+  - ft is valid.
+  - the module instance moduleinst is valid with the context C.
+  - the function func is valid with ft.
+
+Store_ok
+- the store s is valid if:
+  - For all :
+    - the global instance globalinst is valid with the global type globaltype.
+  - globalinst* is the concatenation of all such globalinst.
+  - For all :
+    - the memory instance meminst is valid with the memory type memtype.
+  - meminst* is the concatenation of all such meminst.
+  - For all :
+    - the table instance tableinst is valid with the table type tabletype.
+  - tableinst* is the concatenation of all such tableinst.
+  - For all :
+    - the function instance funcinst is valid with the function type functype.
+  - funcinst* is the concatenation of all such funcinst.
+  - s is { FUNCS: funcinst*; GLOBALS: globalinst*; TABLES: tableinst*; MEMS: meminst* }.
+
+State_ok
+- the state (s, f) is valid with the context C if:
+  - the store s is valid.
+  - the frame f is valid with C.
+
+Config_ok
+- the configuration (s, f) ; instr* is valid with the result type t? if:
+  - the state (s, f) is valid with the context C.
+  - admininstr* is valid with t?.
+
 Step_read/load-num-* t ?() ao
 1. Let z be the current state.
 2. Assert: Due to validation, a value of value type I32 is on the top of the stack.
@@ -3826,6 +4565,12 @@ concat_ `X X*
   a. Return [].
 2. Let [w*] :: w'** be X*.
 3. Return w* :: $concat_(`X, w'**).
+
+disjoint_ `X X*
+1. If (X* = []), then:
+  a. Return true.
+2. Let [w] :: w'* be X*.
+3. Return (w is not contained in w'* /\ $disjoint_(`X, w'*)).
 
 signif N
 1. If (N = 32), then:
@@ -5940,6 +6685,627 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
    * The memory type sequence :math:`{{\mathit{imt}}^\ast}` is of the form :math:`{\mathrm{mems}}({{\mathit{ixt}}^\ast})`.
 
 
+
+
+The context :math:`C` is :ref:`valid <valid-val>` if:
+
+
+   * The context :math:`C` is of the form :math:`\{ \mathsf{types}~{{\mathit{ft}}^\ast},\;\allowbreak \mathsf{funcs}~{{\mathit{ft}}_2^\ast},\;\allowbreak \mathsf{globals}~{{\mathit{gt}}^\ast},\;\allowbreak \mathsf{tables}~{{\mathit{tt}}^\ast},\;\allowbreak \mathsf{mems}~{{\mathit{mt}}^\ast},\;\allowbreak \mathsf{elems}~{{\mathit{et}}^\ast},\;\allowbreak \mathsf{datas}~{{\mathit{ok}}^\ast},\;\allowbreak \mathsf{locals}~{{\mathit{lct}}^\ast},\;\allowbreak \mathsf{labels}~{{\mathit{rt}}^\ast},\;\allowbreak \mathsf{return}~{{\mathit{rt}'}^?} \}`.
+
+   * For all :math:`{\mathit{ft}}` in :math:`{{\mathit{ft}}^\ast}`:
+
+      * The function type :math:`{\mathit{ft}}` is :ref:`valid <valid-val>`.
+
+   * For all :math:`{\mathit{gt}}` in :math:`{{\mathit{gt}}^\ast}`:
+
+      * The global type :math:`{\mathit{gt}}` is :ref:`valid <valid-val>`.
+
+   * For all :math:`{\mathit{mt}}` in :math:`{{\mathit{mt}}^\ast}`:
+
+      * The memory type :math:`{\mathit{mt}}` is :ref:`valid <valid-val>`.
+
+   * For all :math:`{\mathit{tt}}` in :math:`{{\mathit{tt}}^\ast}`:
+
+      * The table type :math:`{\mathit{tt}}` is :ref:`valid <valid-val>`.
+
+   * For all :math:`{\mathit{ft}}_2` in :math:`{{\mathit{ft}}_2^\ast}`:
+
+      * The function type :math:`{\mathit{ft}}_2` is :ref:`valid <valid-val>`.
+
+
+
+
+The external value :math:`{\mathit{externaddr}}` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{externtype}}` if:
+
+
+   * Either:
+
+      * The external value :math:`{\mathit{externaddr}}` is of the form :math:`(\mathsf{global}~a)`.
+
+      * The external type :math:`{\mathit{externtype}}` is of the form :math:`(\mathsf{global}~{\mathit{globalinst}}{.}\mathsf{type})`.
+
+      * The global instance :math:`s{.}\mathsf{globals}{}[a]` exists.
+
+      * The global instance :math:`s{.}\mathsf{globals}{}[a]` is of the form :math:`{\mathit{globalinst}}`.
+
+   * Or:
+
+      * The external value :math:`{\mathit{externaddr}}` is of the form :math:`(\mathsf{mem}~a)`.
+
+      * The external type :math:`{\mathit{externtype}}` is of the form :math:`(\mathsf{mem}~{\mathit{meminst}}{.}\mathsf{type})`.
+
+      * The memory instance :math:`s{.}\mathsf{mems}{}[a]` exists.
+
+      * The memory instance :math:`s{.}\mathsf{mems}{}[a]` is of the form :math:`{\mathit{meminst}}`.
+   * Or:
+
+      * The external value :math:`{\mathit{externaddr}}` is of the form :math:`(\mathsf{table}~a)`.
+
+      * The external type :math:`{\mathit{externtype}}` is of the form :math:`(\mathsf{table}~{\mathit{tableinst}}{.}\mathsf{type})`.
+
+      * The table instance :math:`s{.}\mathsf{tables}{}[a]` exists.
+
+      * The table instance :math:`s{.}\mathsf{tables}{}[a]` is of the form :math:`{\mathit{tableinst}}`.
+   * Or:
+
+      * The external value :math:`{\mathit{externaddr}}` is of the form :math:`(\mathsf{func}~a)`.
+
+      * The external type :math:`{\mathit{externtype}}` is of the form :math:`(\mathsf{func}~{\mathit{funcinst}}{.}\mathsf{type})`.
+
+      * The function instance :math:`s{.}\mathsf{funcs}{}[a]` exists.
+
+      * The function instance :math:`s{.}\mathsf{funcs}{}[a]` is of the form :math:`{\mathit{funcinst}}`.
+   * Or:
+
+      * The external value :math:`{\mathit{externaddr}}` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{xt}'}`.
+
+      * The external type :math:`{\mathit{xt}'}` :ref:`matches <match>` the external type :math:`{\mathit{externtype}}`.
+
+
+
+
+The external value :math:`(\mathsf{global}~a)` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{global}~{\mathit{globalinst}}{.}\mathsf{type})` if:
+
+
+   * The global instance :math:`s{.}\mathsf{globals}{}[a]` exists.
+
+   * The global instance :math:`s{.}\mathsf{globals}{}[a]` is of the form :math:`{\mathit{globalinst}}`.
+
+
+
+
+The external value :math:`(\mathsf{mem}~a)` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{mem}~{\mathit{meminst}}{.}\mathsf{type})` if:
+
+
+   * The memory instance :math:`s{.}\mathsf{mems}{}[a]` exists.
+
+   * The memory instance :math:`s{.}\mathsf{mems}{}[a]` is of the form :math:`{\mathit{meminst}}`.
+
+
+
+
+The external value :math:`(\mathsf{table}~a)` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{table}~{\mathit{tableinst}}{.}\mathsf{type})` if:
+
+
+   * The table instance :math:`s{.}\mathsf{tables}{}[a]` exists.
+
+   * The table instance :math:`s{.}\mathsf{tables}{}[a]` is of the form :math:`{\mathit{tableinst}}`.
+
+
+
+
+The external value :math:`(\mathsf{func}~a)` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{func}~{\mathit{funcinst}}{.}\mathsf{type})` if:
+
+
+   * The function instance :math:`s{.}\mathsf{funcs}{}[a]` exists.
+
+   * The function instance :math:`s{.}\mathsf{funcs}{}[a]` is of the form :math:`{\mathit{funcinst}}`.
+
+
+
+
+The external value :math:`{\mathit{externaddr}}` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{xt}}` if:
+
+
+   * The external value :math:`{\mathit{externaddr}}` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{xt}'}`.
+
+   * The external type :math:`{\mathit{xt}'}` :ref:`matches <match>` the external type :math:`{\mathit{xt}}`.
+
+
+
+
+The reference :math:`{\mathit{ref}}` is :ref:`valid <valid-val>` with the reference type :math:`{\mathit{rt}}` if:
+
+
+   * Either:
+
+      * The reference :math:`{\mathit{ref}}` is of the form :math:`(\mathsf{ref{.}null}~{\mathit{rt}'})`.
+
+   * Or:
+
+      * The reference :math:`{\mathit{ref}}` is of the form :math:`(\mathsf{ref{.}func\_addr}~a)`.
+
+      * The reference type :math:`{\mathit{rt}}` is of the form :math:`\mathsf{funcref}`.
+
+      * The external value :math:`(\mathsf{func}~a)` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{func}~{\mathit{ext}})`.
+   * Or:
+
+      * The reference :math:`{\mathit{ref}}` is of the form :math:`(\mathsf{ref{.}host\_addr}~a)`.
+
+      * The reference type :math:`{\mathit{rt}}` is of the form :math:`\mathsf{externref}`.
+
+
+
+
+The reference :math:`(\mathsf{ref{.}null}~{\mathit{rt}})` is :ref:`valid <valid-val>` with the reference type :math:`{\mathit{rt}}`.
+
+
+
+
+The reference :math:`(\mathsf{ref{.}func\_addr}~a)` is :ref:`valid <valid-val>` with the reference type :math:`\mathsf{funcref}` if:
+
+
+   * The external value :math:`(\mathsf{func}~a)` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{func}~{\mathit{ext}})`.
+
+
+
+
+The reference :math:`(\mathsf{ref{.}host\_addr}~a)` is :ref:`valid <valid-val>` with the reference type :math:`\mathsf{externref}`.
+
+
+
+
+The value :math:`{\mathit{val}}` is :ref:`valid <valid-val>` with the value type :math:`{\mathit{valtype}}` if:
+
+
+   * Either:
+
+      * The value :math:`{\mathit{val}}` is of the form :math:`({\mathit{nt}}{.}\mathsf{const}~c_t)`.
+
+      * The value type :math:`{\mathit{valtype}}` is of the form :math:`{\mathit{nt}}`.
+
+   * Or:
+
+      * The value :math:`{\mathit{val}}` is of the form :math:`({\mathit{vt}}{.}\mathsf{const}~c_t)`.
+
+      * The value type :math:`{\mathit{valtype}}` is of the form :math:`{\mathit{vt}}`.
+   * Or:
+
+      * The value :math:`{\mathit{val}}` is of the form :math:`r`.
+
+      * The value type :math:`{\mathit{valtype}}` is of the form :math:`{\mathit{rt}}`.
+
+      * The reference :math:`r` is :ref:`valid <valid-val>` with the reference type :math:`{\mathit{rt}}`.
+
+
+
+
+The value :math:`({\mathit{nt}}{.}\mathsf{const}~c_t)` is :ref:`valid <valid-val>` with the value type :math:`{\mathit{nt}}`.
+
+
+
+
+The value :math:`({\mathit{vt}}{.}\mathsf{const}~c_t)` is :ref:`valid <valid-val>` with the value type :math:`{\mathit{vt}}`.
+
+
+
+
+The value :math:`r` is :ref:`valid <valid-val>` with the value type :math:`{\mathit{rt}}` if:
+
+
+   * The reference :math:`r` is :ref:`valid <valid-val>` with the reference type :math:`{\mathit{rt}}`.
+
+
+
+
+The result :math:`{\mathit{result}}` is :ref:`valid <valid-val>` with the value type sequence :math:`{t^\ast}` if:
+
+
+   * Either:
+
+      * The result :math:`{\mathit{result}}` is of the form :math:`{v^\ast}`.
+
+      * For all :math:`t` in :math:`{t^\ast}`, and corresponding :math:`v` in :math:`{v^\ast}`:
+
+         * The value :math:`v` is :ref:`valid <valid-val>` with the value type :math:`t`.
+
+   * Or:
+
+      * The result :math:`{\mathit{result}}` is of the form :math:`\mathsf{trap}`.
+
+
+
+
+The result :math:`{v^\ast}` is :ref:`valid <valid-val>` with the value type sequence :math:`{t^\ast}` if:
+
+
+   * For all :math:`t` in :math:`{t^\ast}`, and corresponding :math:`v` in :math:`{v^\ast}`:
+
+      * The value :math:`v` is :ref:`valid <valid-val>` with the value type :math:`t`.
+
+
+
+
+The result :math:`\mathsf{trap}` is :ref:`valid <valid-val>` with the value type sequence :math:`{t^\ast}`.
+
+
+
+
+The data instance :math:`\{ \mathsf{bytes}~{b^\ast} \}` is :ref:`valid <valid-val>` with the data type :math:`\mathsf{ok}`.
+
+
+
+
+The element instance :math:`\{ \mathsf{type}~{\mathit{rt}},\;\allowbreak \mathsf{refs}~{{\mathit{ref}}^\ast} \}` is :ref:`valid <valid-val>` with the element type :math:`{\mathit{rt}}` if:
+
+
+   * For all :math:`{\mathit{ref}}` in :math:`{{\mathit{ref}}^\ast}`:
+
+      * The reference :math:`{\mathit{ref}}` is :ref:`valid <valid-val>` with the reference type :math:`{\mathit{rt}}`.
+
+
+
+
+The export instance :math:`\{ \mathsf{name}~{\mathit{nm}},\;\allowbreak \mathsf{addr}~{\mathit{xa}} \}` is :ref:`valid <valid-val>` if:
+
+
+   * The external value :math:`{\mathit{xa}}` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{xt}}`.
+
+
+
+
+The module instance :math:`\{ \mathsf{types}~{{\mathit{functype}}^\ast},\;\allowbreak \mathsf{funcs}~{{\mathit{funcaddr}}^\ast},\;\allowbreak \mathsf{globals}~{{\mathit{globaladdr}}^\ast},\;\allowbreak \mathsf{tables}~{{\mathit{tableaddr}}^\ast},\;\allowbreak \mathsf{mems}~{{\mathit{memaddr}}^\ast},\;\allowbreak \mathsf{elems}~{{\mathit{elemaddr}}^\ast},\;\allowbreak \mathsf{datas}~{{\mathit{dataaddr}}^\ast},\;\allowbreak \mathsf{exports}~{{\mathit{exportinst}}^\ast} \}` is :ref:`valid <valid-val>` with the context :math:`\{ \mathsf{types}~{{\mathit{functype}}^\ast},\;\allowbreak \mathsf{funcs}~{{\mathit{functype}}_{\mathsf{f}}^\ast},\;\allowbreak \mathsf{globals}~{{\mathit{globaltype}}^\ast},\;\allowbreak \mathsf{tables}~{{\mathit{tabletype}}^\ast},\;\allowbreak \mathsf{mems}~{{\mathit{memtype}}^\ast},\;\allowbreak \mathsf{elems}~{{\mathit{elemtype}}^\ast},\;\allowbreak \mathsf{datas}~{{\mathit{datatype}}^\ast},\;\allowbreak \mathsf{return}~\epsilon \}` if:
+
+
+   * For all :math:`{\mathit{functype}}` in :math:`{{\mathit{functype}}^\ast}`:
+
+      * The function type :math:`{\mathit{functype}}` is :ref:`valid <valid-val>`.
+
+   * For all :math:`{\mathit{globaladdr}}` in :math:`{{\mathit{globaladdr}}^\ast}`, and corresponding :math:`{\mathit{globaltype}}` in :math:`{{\mathit{globaltype}}^\ast}`:
+
+      * The external value :math:`(\mathsf{global}~{\mathit{globaladdr}})` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{global}~{\mathit{globaltype}})`.
+
+   * For all :math:`{\mathit{funcaddr}}` in :math:`{{\mathit{funcaddr}}^\ast}`, and corresponding :math:`{\mathit{functype}}_{\mathsf{f}}` in :math:`{{\mathit{functype}}_{\mathsf{f}}^\ast}`:
+
+      * The external value :math:`(\mathsf{func}~{\mathit{funcaddr}})` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{func}~{\mathit{functype}}_{\mathsf{f}})`.
+
+   * For all :math:`{\mathit{memaddr}}` in :math:`{{\mathit{memaddr}}^\ast}`, and corresponding :math:`{\mathit{memtype}}` in :math:`{{\mathit{memtype}}^\ast}`:
+
+      * The external value :math:`(\mathsf{mem}~{\mathit{memaddr}})` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{mem}~{\mathit{memtype}})`.
+
+   * For all :math:`{\mathit{tableaddr}}` in :math:`{{\mathit{tableaddr}}^\ast}`, and corresponding :math:`{\mathit{tabletype}}` in :math:`{{\mathit{tabletype}}^\ast}`:
+
+      * The external value :math:`(\mathsf{table}~{\mathit{tableaddr}})` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{table}~{\mathit{tabletype}})`.
+
+   * For all :math:`{\mathit{exportinst}}` in :math:`{{\mathit{exportinst}}^\ast}`:
+
+      * The export instance :math:`{\mathit{exportinst}}` is :ref:`valid <valid-val>`.
+
+   * For all :math:`{\mathit{dataaddr}}` in :math:`{{\mathit{dataaddr}}^\ast}`:
+
+      * The data instance :math:`s{.}\mathsf{datas}{}[{\mathit{dataaddr}}]` exists.
+
+   * For all :math:`{\mathit{dataaddr}}` in :math:`{{\mathit{dataaddr}}^\ast}`, and corresponding :math:`{\mathit{datatype}}` in :math:`{{\mathit{datatype}}^\ast}`:
+
+      * The data instance :math:`s{.}\mathsf{datas}{}[{\mathit{dataaddr}}]` is :ref:`valid <valid-val>` with the data type :math:`{\mathit{datatype}}`.
+
+   * For all :math:`{\mathit{elemaddr}}` in :math:`{{\mathit{elemaddr}}^\ast}`:
+
+      * The element instance :math:`s{.}\mathsf{elems}{}[{\mathit{elemaddr}}]` exists.
+
+   * For all :math:`{\mathit{elemaddr}}` in :math:`{{\mathit{elemaddr}}^\ast}`, and corresponding :math:`{\mathit{elemtype}}` in :math:`{{\mathit{elemtype}}^\ast}`:
+
+      * The element instance :math:`s{.}\mathsf{elems}{}[{\mathit{elemaddr}}]` is :ref:`valid <valid-val>` with the element type :math:`{\mathit{elemtype}}`.
+
+   * :math:`{{\mathit{exportinst}}{.}\mathsf{name}^\ast}~{\mathrm{disjoint}}` is true.
+
+   * The length of :math:`{(\mathsf{global}~{\mathit{globaladdr}})^\ast}~{(\mathsf{mem}~{\mathit{memaddr}})^\ast}~{(\mathsf{table}~{\mathit{tableaddr}})^\ast}~{(\mathsf{func}~{\mathit{funcaddr}})^\ast}` is greater than :math:`0`.
+
+   * For all :math:`{\mathit{exportinst}}` in :math:`{{\mathit{exportinst}}^\ast}`:
+
+      * :math:`{\mathit{exportinst}}{.}\mathsf{addr}` is contained in :math:`{(\mathsf{global}~{\mathit{globaladdr}})^\ast}~{(\mathsf{mem}~{\mathit{memaddr}})^\ast}~{(\mathsf{table}~{\mathit{tableaddr}})^\ast}~{(\mathsf{func}~{\mathit{funcaddr}})^\ast}`.
+
+
+
+
+The frame :math:`\{ \mathsf{locals}~{{\mathit{val}}^\ast},\;\allowbreak \mathsf{module}~{\mathit{moduleinst}} \}` is :ref:`valid <valid-val>` with the context :math:`C` with the field :math:`\mathsf{locals}` appended by :math:`{t^\ast}` if:
+
+
+   * The module instance :math:`{\mathit{moduleinst}}` is :ref:`valid <valid-val>` with the context :math:`C`.
+
+   * For all :math:`t` in :math:`{t^\ast}`, and corresponding :math:`{\mathit{val}}` in :math:`{{\mathit{val}}^\ast}`:
+
+      * The value :math:`{\mathit{val}}` is :ref:`valid <valid-val>` with the value type :math:`t`.
+
+
+
+
+:math:`{\mathit{instr}}` is valid with :math:`{{\mathit{valtype}}^\ast}~\rightarrow~{{\mathit{valtype}'}^\ast}` if:
+
+
+   * Either:
+
+      * The administrative instruction :math:`{\mathit{instr}}` is of the form :math:`{\mathit{instr}}`.
+
+      * The instruction :math:`{\mathit{instr}}` is :ref:`valid <valid-val>` with the function type :math:`{{\mathit{valtype}}^\ast}~\rightarrow~{{\mathit{valtype}'}^\ast}`.
+
+   * Or:
+
+      * The administrative instruction :math:`{\mathit{instr}}` is of the form :math:`({{\mathsf{label}}_{n}}{\{}~{{\mathit{instr}'}^\ast}~\}~{{{\mathit{instr}}'}^\ast})`.
+
+      * The value type sequence :math:`{{\mathit{valtype}}^\ast}` is empty.
+
+      * :math:`{{\mathit{instr}'}^\ast}` is valid with :math:`{{t'}^{n}}~\rightarrow~{{\mathit{valtype}'}^\ast}`.
+
+      * :math:`{{{\mathit{instr}}'}^\ast}` is valid with :math:`\epsilon~\rightarrow~{{\mathit{valtype}'}^\ast}`.
+   * Or:
+
+      * The administrative instruction :math:`{\mathit{instr}}` is of the form :math:`({{\mathsf{frame}}_{n}}{\{}~f~\}~{{{\mathit{instr}}'}^\ast})`.
+
+      * The value type sequence :math:`{{\mathit{valtype}}^\ast}` is empty.
+
+      * The frame :math:`f` is :ref:`valid <valid-val>` with the context :math:`{C'}`.
+
+      * :math:`{{{\mathit{instr}}'}^\ast}` is valid with :math:`{{\mathit{valtype}'}^{n}}`.
+   * Or:
+
+      * The administrative instruction :math:`{\mathit{instr}}` is of the form :math:`(\mathsf{call}~{\mathit{funcaddr}})`.
+
+      * The external value :math:`(\mathsf{func}~{\mathit{funcaddr}})` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{func}~{{\mathit{valtype}}^\ast}~\rightarrow~{{\mathit{valtype}'}^\ast})`.
+   * Or:
+
+      * The administrative instruction :math:`{\mathit{instr}}` is of the form :math:`{\mathit{ref}}`.
+
+      * The value type sequence :math:`{{\mathit{valtype}}^\ast}` is empty.
+
+      * The value type sequence :math:`{{\mathit{valtype}'}^\ast}` is of the form :math:`{\mathit{rt}}`.
+
+      * The reference :math:`{\mathit{ref}}` is :ref:`valid <valid-val>` with the reference type :math:`{\mathit{rt}}`.
+   * Or:
+
+      * The administrative instruction :math:`{\mathit{instr}}` is of the form :math:`\mathsf{trap}`.
+
+
+
+
+:math:`{\mathit{instr}}` is valid with :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}` if:
+
+
+   * The instruction :math:`{\mathit{instr}}` is :ref:`valid <valid-val>` with the function type :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}`.
+
+
+
+
+:math:`({{\mathsf{label}}_{n}}{\{}~{{\mathit{instr}}^\ast}~\}~{{\mathit{instr}}^\ast})` is valid with :math:`\epsilon~\rightarrow~{t^\ast}` if:
+
+
+   * :math:`{{\mathit{instr}'}^\ast}` is valid with :math:`{{t'}^{n}}~\rightarrow~{t^\ast}`.
+
+   * :math:`{{\mathit{instr}}^\ast}` is valid with :math:`\epsilon~\rightarrow~{t^\ast}`.
+
+
+
+
+:math:`({{\mathsf{frame}}_{n}}{\{}~f~\}~{{\mathit{instr}}^\ast})` is valid with :math:`\epsilon~\rightarrow~{t^{n}}` if:
+
+
+   * The frame :math:`f` is :ref:`valid <valid-val>` with the context :math:`{C'}`.
+
+   * :math:`{{\mathit{instr}}^\ast}` is valid with :math:`{t^{n}}`.
+
+
+
+
+:math:`(\mathsf{call}~{\mathit{funcaddr}})` is valid with :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}` if:
+
+
+   * The external value :math:`(\mathsf{func}~{\mathit{funcaddr}})` is :ref:`valid <valid-val>` with the external type :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
+
+
+
+
+:math:`{\mathit{ref}}` is valid with :math:`\epsilon~\rightarrow~{\mathit{rt}}` if:
+
+
+   * The reference :math:`{\mathit{ref}}` is :ref:`valid <valid-val>` with the reference type :math:`{\mathit{rt}}`.
+
+
+
+
+:math:`\mathsf{trap}` is valid with :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}`.
+
+
+
+
+:math:`{{\mathit{instr}}^\ast}` is valid with :math:`{{\mathit{valtype}}^\ast}~\rightarrow~{{\mathit{valtype}'}^\ast}` if:
+
+
+   * Either:
+
+      * The administrative instruction sequence :math:`{{\mathit{instr}}^\ast}` is empty.
+
+      * The value type sequence :math:`{{\mathit{valtype}}^\ast}` is empty.
+
+      * The value type sequence :math:`{{\mathit{valtype}'}^\ast}` is empty.
+
+   * Or:
+
+      * The administrative instruction sequence :math:`{{\mathit{instr}}^\ast}` is of the form :math:`{{\mathit{instr}}}_1~{{{\mathit{instr}}}_2^\ast}`.
+
+      * :math:`{{\mathit{instr}}}_1` is valid with :math:`{{\mathit{valtype}}^\ast}~\rightarrow~{t_2^\ast}`.
+
+      * :math:`{{{\mathit{instr}}}_2^\ast}` is valid with :math:`{t_2^\ast}~\rightarrow~{{\mathit{valtype}'}^\ast}`.
+   * Or:
+
+      * The administrative instruction sequence :math:`{{\mathit{instr}}^\ast}` is of the form :math:`{{\mathit{instr}}^\ast}`.
+
+      * :math:`{{{\mathit{instr}}'}^\ast}` is valid with :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}`.
+
+      * The result type :math:`{{\mathit{valtype}}^\ast}` :ref:`matches <match>` the result type :math:`{t_1^\ast}`.
+
+      * The result type :math:`{t_2^\ast}` :ref:`matches <match>` the result type :math:`{{\mathit{valtype}'}^\ast}`.
+   * Or:
+
+      * The value type sequence :math:`{{\mathit{valtype}}^\ast}` is of the form :math:`{t^\ast}~{t_1^\ast}`.
+
+      * The value type sequence :math:`{{\mathit{valtype}'}^\ast}` is of the form :math:`{t^\ast}~{t_2^\ast}`.
+
+      * :math:`{{\mathit{instr}}^\ast}` is valid with :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}`.
+
+
+
+
+:math:`\epsilon` is valid with :math:`\epsilon~\rightarrow~\epsilon`.
+
+
+
+
+:math:`{{\mathit{instr}}}_1~{{{\mathit{instr}}}_2^\ast}` is valid with :math:`{t_1^\ast}~\rightarrow~{t_3^\ast}` if:
+
+
+   * :math:`{{\mathit{instr}}}_1` is valid with :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}`.
+
+   * :math:`{{{\mathit{instr}}}_2^\ast}` is valid with :math:`{t_2^\ast}~\rightarrow~{t_3^\ast}`.
+
+
+
+
+:math:`{{\mathit{instr}}^\ast}` is valid with :math:`{{t'}_1^\ast}~\rightarrow~{{t'}_2^\ast}` if:
+
+
+   * :math:`{{\mathit{instr}}^\ast}` is valid with :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}`.
+
+   * The result type :math:`{{t'}_1^\ast}` :ref:`matches <match>` the result type :math:`{t_1^\ast}`.
+
+   * The result type :math:`{t_2^\ast}` :ref:`matches <match>` the result type :math:`{{t'}_2^\ast}`.
+
+
+
+
+:math:`{{\mathit{instr}}^\ast}` is valid with :math:`{t^\ast}~{t_1^\ast}~\rightarrow~{t^\ast}~{t_2^\ast}` if:
+
+
+   * :math:`{{\mathit{instr}}^\ast}` is valid with :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}`.
+
+
+
+
+:math:`{{\mathit{instr}}^\ast}` is valid with :math:`{t^\ast}` if:
+
+
+   * :math:`{{\mathit{instr}}^\ast}` is valid with :math:`\epsilon~\rightarrow~{t^\ast}`.
+
+
+
+
+The global instance :math:`\{ \mathsf{type}~({\mathit{mut}}~t),\;\allowbreak \mathsf{value}~{\mathit{val}} \}` is :ref:`valid <valid-val>` with the global type :math:`({\mathit{mut}}~t)` if:
+
+
+   * The global type :math:`({\mathit{mut}}~t)` is :ref:`valid <valid-val>`.
+
+   * The value :math:`{\mathit{val}}` is :ref:`valid <valid-val>` with the value type :math:`t`.
+
+
+
+
+The memory instance :math:`\{ \mathsf{type}~{}[ n .. m ]~\mathsf{page},\;\allowbreak \mathsf{bytes}~{b^\ast} \}` is :ref:`valid <valid-val>` with the memory type :math:`{}[ n .. m ]~\mathsf{page}` if:
+
+
+   * The memory type :math:`{}[ n .. m ]~\mathsf{page}` is :ref:`valid <valid-val>`.
+
+   * The length of :math:`{b^\ast}` is equal to :math:`n \cdot 64 \, {\mathrm{Ki}}`.
+
+
+
+
+The table instance :math:`\{ \mathsf{type}~({}[ n .. m ]~{\mathit{rt}}),\;\allowbreak \mathsf{refs}~{{\mathit{ref}}^\ast} \}` is :ref:`valid <valid-val>` with the table type :math:`({}[ n .. m ]~{\mathit{rt}})` if:
+
+
+   * The table type :math:`({}[ n .. m ]~{\mathit{rt}})` is :ref:`valid <valid-val>`.
+
+   * For all :math:`{\mathit{ref}}` in :math:`{{\mathit{ref}}^\ast}`:
+
+      * The reference :math:`{\mathit{ref}}` is :ref:`valid <valid-val>` with the reference type :math:`{\mathit{rt}}`.
+
+   * The length of :math:`{{\mathit{ref}}^\ast}` is equal to :math:`n`.
+
+
+
+
+The function instance :math:`\{ \mathsf{type}~{\mathit{ft}},\;\allowbreak \mathsf{module}~{\mathit{moduleinst}},\;\allowbreak \mathsf{code}~{\mathit{func}} \}` is :ref:`valid <valid-val>` with the function type :math:`{\mathit{ft}}` if:
+
+
+   * The function type :math:`{\mathit{ft}}` is :ref:`valid <valid-val>`.
+
+   * The module instance :math:`{\mathit{moduleinst}}` is :ref:`valid <valid-val>` with the context :math:`C`.
+
+   * The function :math:`{\mathit{func}}` is :ref:`valid <valid-val>` with the function type :math:`{\mathit{ft}}`.
+
+
+
+
+The store :math:`s` is :ref:`valid <valid-val>` if:
+
+
+   * For all :
+
+      * The global instance :math:`{\mathit{globalinst}}` is :ref:`valid <valid-val>` with the global type :math:`{\mathit{globaltype}}`.
+
+   * :math:`{{\mathit{globalinst}}^\ast}` is the concatenation of all such :math:`{\mathit{globalinst}}`.
+
+   * For all :
+
+      * The memory instance :math:`{\mathit{meminst}}` is :ref:`valid <valid-val>` with the memory type :math:`{\mathit{memtype}}`.
+
+   * :math:`{{\mathit{meminst}}^\ast}` is the concatenation of all such :math:`{\mathit{meminst}}`.
+
+   * For all :
+
+      * The table instance :math:`{\mathit{tableinst}}` is :ref:`valid <valid-val>` with the table type :math:`{\mathit{tabletype}}`.
+
+   * :math:`{{\mathit{tableinst}}^\ast}` is the concatenation of all such :math:`{\mathit{tableinst}}`.
+
+   * For all :
+
+      * The function instance :math:`{\mathit{funcinst}}` is :ref:`valid <valid-val>` with the function type :math:`{\mathit{functype}}`.
+
+   * :math:`{{\mathit{funcinst}}^\ast}` is the concatenation of all such :math:`{\mathit{funcinst}}`.
+
+   * For all :
+
+      * The data instance :math:`{\mathit{datainst}}` is :ref:`valid <valid-val>` with the data type :math:`{\mathit{datatype}}`.
+
+   * :math:`{{\mathit{datainst}}^\ast}` is the concatenation of all such :math:`{\mathit{datainst}}`.
+
+   * For all :
+
+      * The element instance :math:`{\mathit{eleminst}}` is :ref:`valid <valid-val>` with the element type :math:`{\mathit{elemtype}}`.
+
+   * :math:`{{\mathit{eleminst}}^\ast}` is the concatenation of all such :math:`{\mathit{eleminst}}`.
+
+   * The store :math:`s` is of the form :math:`\{ \mathsf{funcs}~{{\mathit{funcinst}}^\ast},\;\allowbreak \mathsf{globals}~{{\mathit{globalinst}}^\ast},\;\allowbreak \mathsf{tables}~{{\mathit{tableinst}}^\ast},\;\allowbreak \mathsf{mems}~{{\mathit{meminst}}^\ast},\;\allowbreak \mathsf{elems}~{{\mathit{eleminst}}^\ast},\;\allowbreak \mathsf{datas}~{{\mathit{datainst}}^\ast} \}`.
+
+
+
+
+The state :math:`(s, f)` is :ref:`valid <valid-val>` with the context :math:`C` if:
+
+
+   * The store :math:`s` is :ref:`valid <valid-val>`.
+
+   * The frame :math:`f` is :ref:`valid <valid-val>` with the context :math:`C`.
+
+
+
+
+The configuration :math:`(s, f)~;~{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` with the result type :math:`{t^\ast}` if:
+
+
+   * The state :math:`(s, f)` is :ref:`valid <valid-val>` with the context :math:`C`.
+
+   * :math:`{{\mathit{instr}}^\ast}` is valid with :math:`{t^\ast}`.
+
+
 :math:`\mathsf{table{.}copy}~x~y`
 .................................
 
@@ -7871,6 +9237,19 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 #. Let :math:`{w_1^\ast}~{{w^\ast}^\ast}` be :math:`{X^\ast}`.
 
 #. Return :math:`{{\mathrm{setproduct{\kern-0.1em\scriptstyle 1}}}}_{X}({w_1^\ast}, {\Large\times}~{{w^\ast}^\ast})`.
+
+
+:math:`{X^\ast}~{\mathrm{disjoint}}`
+....................................
+
+
+1. If :math:`{X^\ast} = \epsilon`, then:
+
+   a. Return true.
+
+#. Let :math:`w~{{w'}^\ast}` be :math:`{X^\ast}`.
+
+#. Return :math:`w` is not contained in :math:`{{w'}^\ast}` and :math:`{{w'}^\ast}~{\mathrm{disjoint}}`.
 
 
 :math:`{\mathrm{signif}}(N)`
@@ -11480,6 +12859,326 @@ Module_ok
   - the table type sequence itt* is $tablesxt(ixt*).
   - the memory type sequence imt* is $memsxt(ixt*).
 
+Context_ok
+- the context C is valid if:
+  - C is { TYPES: ft*; FUNCS: ft_2*; GLOBALS: gt*; TABLES: tt*; MEMS: mt*; ELEMS: et*; DATAS: ok*; LOCALS: lct*; LABELS: [rt*]; RETURN: ?(rt'?) }.
+  - For all ft in ft*:
+    - the function type ft is valid.
+  - For all gt in gt*:
+    - the global type gt is valid.
+  - For all mt in mt*:
+    - the memory type mt is valid.
+  - For all tt in tt*:
+    - the table type tt is valid.
+  - For all ft_2 in ft_2*:
+    - the function type ft_2 is valid.
+
+Externaddr_ok
+- the external value externaddr is valid with the external type externtype if:
+  - Either:
+    - externaddr is (GLOBAL a).
+    - externtype is (GLOBAL globalinst.TYPE).
+    - the global instance s.GLOBALS[a] exists.
+    - s.GLOBALS[a] is globalinst.
+  - Or:
+    - externaddr is (MEM a).
+    - externtype is (MEM meminst.TYPE).
+    - the memory instance s.MEMS[a] exists.
+    - s.MEMS[a] is meminst.
+  - Or:
+    - externaddr is (TABLE a).
+    - externtype is (TABLE tableinst.TYPE).
+    - the table instance s.TABLES[a] exists.
+    - s.TABLES[a] is tableinst.
+  - Or:
+    - externaddr is (FUNC a).
+    - externtype is (FUNC funcinst.TYPE).
+    - the function instance s.FUNCS[a] exists.
+    - s.FUNCS[a] is funcinst.
+  - Or:
+    - externaddr is valid with the external type xt'.
+    - xt' matches externtype.
+
+Externaddr_ok/global
+- the external value (GLOBAL a) is valid with the external type (GLOBAL globalinst.TYPE) if:
+  - the global instance s.GLOBALS[a] exists.
+  - s.GLOBALS[a] is globalinst.
+
+Externaddr_ok/mem
+- the external value (MEM a) is valid with the external type (MEM meminst.TYPE) if:
+  - the memory instance s.MEMS[a] exists.
+  - s.MEMS[a] is meminst.
+
+Externaddr_ok/table
+- the external value (TABLE a) is valid with the external type (TABLE tableinst.TYPE) if:
+  - the table instance s.TABLES[a] exists.
+  - s.TABLES[a] is tableinst.
+
+Externaddr_ok/func
+- the external value (FUNC a) is valid with the external type (FUNC funcinst.TYPE) if:
+  - the function instance s.FUNCS[a] exists.
+  - s.FUNCS[a] is funcinst.
+
+Externaddr_ok/sub
+- the external value externaddr is valid with the external type xt if:
+  - externaddr is valid with the external type xt'.
+  - xt' matches xt.
+
+Ref_ok
+- the reference ref is valid with the reference type rt if:
+  - Either:
+    - ref is (REF.NULL rt').
+  - Or:
+    - ref is (REF.FUNC_ADDR a).
+    - rt is FUNCREF.
+    - the external value (FUNC a) is valid with the external type (FUNC ext).
+  - Or:
+    - ref is (REF.HOST_ADDR a).
+    - rt is EXTERNREF.
+
+Ref_ok/null
+- the reference (REF.NULL rt) is valid with rt.
+
+Ref_ok/func
+- the reference (REF.FUNC_ADDR a) is valid with the reference type FUNCREF if:
+  - the external value (FUNC a) is valid with the external type (FUNC ext).
+
+Ref_ok/extern
+- the reference (REF.HOST_ADDR a) is valid with the reference type EXTERNREF.
+
+Val_ok
+- the value val is valid with the value type valtype if:
+  - Either:
+    - val is (nt.CONST c_t).
+    - valtype is nt.
+  - Or:
+    - val is (vt.CONST c_t).
+    - valtype is vt.
+  - Or:
+    - val is r.
+    - valtype is rt.
+    - the reference r is valid with the reference type rt.
+
+Val_ok/numtype
+- the value (nt.CONST c_t) is valid with the value type nt.
+
+Val_ok/vectype
+- the value (vt.CONST c_t) is valid with the value type vt.
+
+Val_ok/reftype
+- the value r is valid with the value type rt if:
+  - r is valid with rt.
+
+Result_ok
+- the result result is valid with the value type sequence t* if:
+  - Either:
+    - result is (_VALS v*).
+    - For all t in t*, and corresponding v in v*:
+      - the value v is valid with the value type t.
+  - Or:
+    - result is TRAP.
+
+Result_ok/result
+- the result (_VALS v*) is valid with the value type sequence t* if:
+  - For all t in t*, and corresponding v in v*:
+    - the value v is valid with the value type t.
+
+Result_ok/trap
+- the result TRAP is valid with t*.
+
+Datainst_ok
+- the data instance { BYTES: b* } is valid with the data type OK.
+
+Eleminst_ok
+- the element instance { TYPE: rt; REFS: ref* } is valid with the element type rt if:
+  - For all ref in ref*:
+    - the reference ref is valid with rt.
+
+Exportinst_ok
+- the export instance { NAME: nm; ADDR: xa } is valid if:
+  - the external value xa is valid with the external type xt.
+
+Moduleinst_ok
+- the module instance { TYPES: functype*; FUNCS: funcaddr*; GLOBALS: globaladdr*; TABLES: tableaddr*; MEMS: memaddr*; ELEMS: elemaddr*; DATAS: dataaddr*; EXPORTS: exportinst* } is valid with the context { TYPES: functype*; FUNCS: functype_F*; GLOBALS: globaltype*; TABLES: tabletype*; MEMS: memtype*; ELEMS: elemtype*; DATAS: datatype*; RETURN: ?() } if:
+  - For all functype in functype*:
+    - the function type functype is valid.
+  - For all globaladdr in globaladdr*, and corresponding globaltype in globaltype*:
+    - the external value (GLOBAL globaladdr) is valid with the external type (GLOBAL globaltype).
+  - For all funcaddr in funcaddr*, and corresponding functype_F in functype_F*:
+    - the external value (FUNC funcaddr) is valid with the external type (FUNC functype_F).
+  - For all memaddr in memaddr*, and corresponding memtype in memtype*:
+    - the external value (MEM memaddr) is valid with the external type (MEM memtype).
+  - For all tableaddr in tableaddr*, and corresponding tabletype in tabletype*:
+    - the external value (TABLE tableaddr) is valid with the external type (TABLE tabletype).
+  - For all exportinst in exportinst*:
+    - the export instance exportinst is valid.
+  - For all dataaddr in dataaddr*:
+    - the data instance s.DATAS[dataaddr] exists.
+  - For all dataaddr in dataaddr*, and corresponding datatype in datatype*:
+    - s.DATAS[dataaddr] is valid with the data type datatype.
+  - For all elemaddr in elemaddr*:
+    - the element instance s.ELEMS[elemaddr] exists.
+  - For all elemaddr in elemaddr*, and corresponding elemtype in elemtype*:
+    - s.ELEMS[elemaddr] is valid with the element type elemtype.
+  - $disjoint_(`name, exportinst.NAME*) is true.
+  - |(GLOBAL globaladdr)* :: (MEM memaddr)* :: (TABLE tableaddr)* :: (FUNC funcaddr)*| is greater than 0.
+  - For all exportinst in exportinst*:
+    - exportinst.ADDR is contained in (GLOBAL globaladdr)* :: (MEM memaddr)* :: (TABLE tableaddr)* :: (FUNC funcaddr)*.
+
+Frame_ok
+- the frame { LOCALS: val*; MODULE: moduleinst } is valid with the context C with .LOCALS appended by t* if:
+  - the module instance moduleinst is valid with the context C.
+  - For all t in t*, and corresponding val in val*:
+    - the value val is valid with the value type t.
+
+Instr_ok2
+- admininstr is valid with valtype* -> valtype'* if:
+  - Either:
+    - the administrative instruction admininstr is instr.
+    - the instruction instr is valid with the function type valtype* -> valtype'*.
+  - Or:
+    - admininstr is (LABEL_ n { instr'* } admininstr'*).
+    - the value type sequence valtype* is [].
+    - instr'* is valid with t'^n -> valtype'*.
+    - admininstr'* is valid with [] -> valtype'*.
+  - Or:
+    - admininstr is (FRAME_ n { f } admininstr'*).
+    - valtype* is [].
+    - the frame f is valid with the context C'.
+    - admininstr'* is valid with valtype'^n.
+  - Or:
+    - admininstr is (CALL_ADDR funcaddr).
+    - the external value (FUNC funcaddr) is valid with the external type (FUNC valtype* -> valtype'*).
+  - Or:
+    - admininstr is ref.
+    - valtype* is [].
+    - the value type sequence valtype'* is [rt].
+    - the reference ref is valid with the reference type rt.
+  - Or:
+    - admininstr is TRAP.
+
+Instr_ok2/plain
+- instr is valid with t_1* -> t_2* if:
+  - the instruction instr is valid with the function type t_1* -> t_2*.
+
+Instr_ok2/label
+- (LABEL_ n { instr* } admininstr*) is valid with [] -> t* if:
+  - instr'* is valid with t'^n -> t*.
+  - admininstr* is valid with [] -> t*.
+
+Instr_ok2/frame
+- (FRAME_ n { f } admininstr*) is valid with [] -> t^n if:
+  - the frame f is valid with the context C'.
+  - admininstr* is valid with t^n.
+
+Instr_ok2/call_addr
+- (CALL_ADDR funcaddr) is valid with t_1* -> t_2* if:
+  - the external value (FUNC funcaddr) is valid with the external type (FUNC t_1* -> t_2*).
+
+Instr_ok2/ref
+- ref is valid with [] -> [rt] if:
+  - the reference ref is valid with the reference type rt.
+
+Instr_ok2/trap
+- TRAP is valid with t_1* -> t_2*.
+
+Instrs_ok2
+- admininstr* is valid with valtype* -> valtype'* if:
+  - Either:
+    - the administrative instruction sequence admininstr* is [].
+    - the value type sequence valtype* is [].
+    - the value type sequence valtype'* is [].
+  - Or:
+    - admininstr* is [admininstr_1] :: admininstr_2*.
+    - admininstr_1 is valid with valtype* -> t_2*.
+    - admininstr_2* is valid with t_2* -> valtype'*.
+  - Or:
+    - admininstr* is instr*.
+    - admininstr'* is valid with t_1* -> t_2*.
+    - valtype* matches the result type t_1*.
+    - the result type t_2* matches valtype'*.
+  - Or:
+    - valtype* is t* :: t_1*.
+    - valtype'* is t* :: t_2*.
+    - admininstr* is valid with t_1* -> t_2*.
+
+Instrs_ok2/empty
+- [] is valid with [] -> [].
+
+Instrs_ok2/seq
+- [admininstr_1] :: admininstr_2* is valid with t_1* -> t_3* if:
+  - admininstr_1 is valid with t_1* -> t_2*.
+  - admininstr_2* is valid with t_2* -> t_3*.
+
+Instrs_ok2/sub
+- instr* is valid with t'_1* -> t'_2* if:
+  - admininstr* is valid with t_1* -> t_2*.
+  - the result type t'_1* matches the result type t_1*.
+  - the result type t_2* matches the result type t'_2*.
+
+Instrs_ok2/frame
+- admininstr* is valid with t* :: t_1* -> t* :: t_2* if:
+  - admininstr* is valid with t_1* -> t_2*.
+
+Expr_ok2
+- admininstr* is valid with t* if:
+  - admininstr* is valid with [] -> t*.
+
+Globalinst_ok
+- the global instance { TYPE: (mut t); VALUE: val } is valid with the global type (mut t) if:
+  - (mut t) is valid.
+  - the value val is valid with the value type t.
+
+Meminst_ok
+- the memory instance { TYPE: ([ n .. ?(m) ]) PAGE; BYTES: b* } is valid with the memory type ([ n .. ?(m) ]) PAGE if:
+  - ([ n .. ?(m) ]) PAGE is valid.
+  - |b*| is (n * (64 * $Ki())).
+
+Tableinst_ok
+- the table instance { TYPE: (([ n .. ?(m) ]) rt); REFS: ref* } is valid with the table type (([ n .. ?(m) ]) rt) if:
+  - (([ n .. ?(m) ]) rt) is valid.
+  - For all ref in ref*:
+    - the reference ref is valid with the reference type rt.
+  - |ref*| is n.
+
+Funcinst_ok
+- the function instance { TYPE: ft; MODULE: moduleinst; CODE: func } is valid with the function type ft if:
+  - ft is valid.
+  - the module instance moduleinst is valid with the context C.
+  - the function func is valid with ft.
+
+Store_ok
+- the store s is valid if:
+  - For all :
+    - the global instance globalinst is valid with the global type globaltype.
+  - globalinst* is the concatenation of all such globalinst.
+  - For all :
+    - the memory instance meminst is valid with the memory type memtype.
+  - meminst* is the concatenation of all such meminst.
+  - For all :
+    - the table instance tableinst is valid with the table type tabletype.
+  - tableinst* is the concatenation of all such tableinst.
+  - For all :
+    - the function instance funcinst is valid with the function type functype.
+  - funcinst* is the concatenation of all such funcinst.
+  - For all :
+    - the data instance datainst is valid with the data type datatype.
+  - datainst* is the concatenation of all such datainst.
+  - For all :
+    - the element instance eleminst is valid with the element type elemtype.
+  - eleminst* is the concatenation of all such eleminst.
+  - s is { FUNCS: funcinst*; GLOBALS: globalinst*; TABLES: tableinst*; MEMS: meminst*; ELEMS: eleminst*; DATAS: datainst* }.
+
+State_ok
+- the state (s, f) is valid with the context C if:
+  - the store s is valid.
+  - the frame f is valid with C.
+
+Config_ok
+- the configuration (s, f) ; instr* is valid with the result type t* if:
+  - the state (s, f) is valid with the context C.
+  - admininstr* is valid with t*.
+
 Step_read/table.copy-trap-* x y
 1. Let z be the current state.
 2. Assert: Due to validation, a value of value type I32 is on the top of the stack.
@@ -12395,6 +14094,12 @@ setproduct_ `X X*
   a. Return [[]].
 2. Let [w_1*] :: w** be X*.
 3. Return $setproduct1_(`X, w_1*, $setproduct_(`X, w**)).
+
+disjoint_ `X X*
+1. If (X* = []), then:
+  a. Return true.
+2. Let [w] :: w'* be X*.
+3. Return (w is not contained in w'* /\ $disjoint_(`X, w'*)).
 
 signif N
 1. If (N = 32), then:
@@ -17550,6 +19255,8 @@ The reference value :math:`{\mathit{ref}}` is :ref:`valid <valid-val>` with the 
 
       * The reference value :math:`{\mathit{ref}}` is :ref:`valid <valid-val>` with the reference type :math:`{\mathit{rt}'}`.
 
+      * Under the context :math:`\{ \mathsf{return}~\epsilon \}`, the reference type :math:`{\mathit{rt}}` is :ref:`valid <valid-val>`.
+
       * The reference type :math:`{\mathit{rt}'}` :ref:`matches <match>` the reference type :math:`{\mathit{rt}}`.
 
 
@@ -17622,6 +19329,8 @@ The reference value :math:`{\mathit{ref}}` is :ref:`valid <valid-val>` with the 
 
 
    * The reference value :math:`{\mathit{ref}}` is :ref:`valid <valid-val>` with the reference type :math:`{\mathit{rt}'}`.
+
+   * Under the context :math:`\{ \mathsf{return}~\epsilon \}`, the reference type :math:`{\mathit{rt}}` is :ref:`valid <valid-val>`.
 
    * The reference type :math:`{\mathit{rt}'}` :ref:`matches <match>` the reference type :math:`{\mathit{rt}}`.
 
@@ -17777,6 +19486,8 @@ The external address :math:`{\mathit{externaddr}}` is :ref:`valid <valid-val>` w
 
       * The external address :math:`{\mathit{externaddr}}` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{xt}'}`.
 
+      * Under the context :math:`\{ \mathsf{return}~\epsilon \}`, the external type :math:`{\mathit{externtype}}` is :ref:`valid <valid-val>`.
+
       * The external type :math:`{\mathit{xt}'}` :ref:`matches <match>` the external type :math:`{\mathit{externtype}}`.
 
 
@@ -17836,6 +19547,8 @@ The external address :math:`{\mathit{externaddr}}` is :ref:`valid <valid-val>` w
 
 
    * The external address :math:`{\mathit{externaddr}}` is :ref:`valid <valid-val>` with the external type :math:`{\mathit{xt}'}`.
+
+   * Under the context :math:`\{ \mathsf{return}~\epsilon \}`, the external type :math:`{\mathit{xt}}` is :ref:`valid <valid-val>`.
 
    * The external type :math:`{\mathit{xt}'}` :ref:`matches <match>` the external type :math:`{\mathit{xt}}`.
 
@@ -18453,12 +20166,12 @@ The state :math:`(s, f)` is :ref:`valid <valid-val>` with the context :math:`C` 
 
 
 
-The configuration :math:`z~;~{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` if:
+The configuration :math:`(s, f)~;~{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` with the result type :math:`{t^\ast}` if:
 
 
-   * The state :math:`z` is :ref:`valid <valid-val>` with the context :math:`C`.
+   * The state :math:`(s, f)` is :ref:`valid <valid-val>` with the context :math:`C`.
 
-   * The expression :math:`{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` with the result type :math:`{t^\ast}`.
+   * :math:`{{\mathit{instr}}^\ast}` is valid with :math:`{t^\ast}`.
 
 
 
@@ -19991,11 +21704,9 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Pop the value :math:`{\mathit{ref}}` from the stack.
 
-#. Let :math:`{\mathit{rt}}` be the type of :math:`{\mathit{ref}}`.
-
 #. Push the value :math:`{\mathit{ref}}` to the stack.
 
-#. If :math:`{\mathit{rt}}` matches :math:`{{\mathrm{inst}}}_{f{.}\mathsf{module}}({\mathit{rt}}_2)`, then:
+#. If :math:`{\mathit{ref}}` is :ref:`valid <valid-val>` with type :math:`{{\mathrm{inst}}}_{f{.}\mathsf{module}}({\mathit{rt}}_2)`, then:
 
    a. Execute the instruction :math:`(\mathsf{br}~l)`.
 
@@ -20014,11 +21725,9 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Pop the value :math:`{\mathit{ref}}` from the stack.
 
-#. Let :math:`{\mathit{rt}}` be the type of :math:`{\mathit{ref}}`.
-
 #. Push the value :math:`{\mathit{ref}}` to the stack.
 
-#. If :math:`{\mathit{rt}}` matches :math:`{{\mathrm{inst}}}_{f{.}\mathsf{module}}({\mathit{rt}}_2)`, then:
+#. If :math:`{\mathit{ref}}` is :ref:`valid <valid-val>` with type :math:`{{\mathrm{inst}}}_{f{.}\mathsf{module}}({\mathit{rt}}_2)`, then:
 
    a. Do nothing.
 
@@ -20953,9 +22662,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Pop the value :math:`{\mathit{ref}}` from the stack.
 
-#. Let :math:`{\mathit{rt}'}` be the type of :math:`{\mathit{ref}}`.
-
-#. If :math:`{\mathit{rt}'}` matches :math:`{{\mathrm{inst}}}_{f{.}\mathsf{module}}({\mathit{rt}})`, then:
+#. If :math:`{\mathit{ref}}` is :ref:`valid <valid-val>` with type :math:`{{\mathrm{inst}}}_{f{.}\mathsf{module}}({\mathit{rt}})`, then:
 
    a. Push the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~1)` to the stack.
 
@@ -20974,9 +22681,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Pop the value :math:`{\mathit{ref}}` from the stack.
 
-#. Let :math:`{\mathit{rt}'}` be the type of :math:`{\mathit{ref}}`.
-
-#. If :math:`{\mathit{rt}'}` does not match :math:`{{\mathrm{inst}}}_{f{.}\mathsf{module}}({\mathit{rt}})`, then:
+#. If not :math:`{\mathit{ref}}` is :ref:`valid <valid-val>` with type :math:`{{\mathrm{inst}}}_{f{.}\mathsf{module}}({\mathit{rt}})`, then:
 
    a. Trap.
 
@@ -29709,6 +31414,7 @@ Ref_ok
     - ref' is not REF.NULL_ADDR.
   - Or:
     - ref is valid with the reference type rt'.
+    - Under the context { RETURN: ?() }, rt is valid.
     - rt' matches rt.
 
 Ref_ok/null
@@ -29747,6 +31453,7 @@ Ref_ok/extern
 Ref_ok/sub
 - the reference value ref is valid with the reference type rt if:
   - ref is valid with the reference type rt'.
+  - Under the context { RETURN: ?() }, rt is valid.
   - rt' matches rt.
 
 Val_ok
@@ -29827,6 +31534,7 @@ Externaddr_ok
     - s.FUNCS[a] is funcinst.
   - Or:
     - externaddr is valid with the external type xt'.
+    - Under the context { RETURN: ?() }, externtype is valid.
     - xt' matches externtype.
 
 Externaddr_ok/tag
@@ -29857,6 +31565,7 @@ Externaddr_ok/func
 Externaddr_ok/sub
 - the external address externaddr is valid with the external type xt if:
   - externaddr is valid with the external type xt'.
+  - Under the context { RETURN: ?() }, xt is valid.
   - xt' matches xt.
 
 Idctxt_ok
@@ -30170,9 +31879,9 @@ State_ok
   - the frame f is valid with C.
 
 Config_ok
-- the configuration z ; instr* is valid if:
-  - the state z is valid with the context C.
-  - the expression instr* is valid with the result type t*.
+- the configuration (s, f) ; instr* is valid with the result type t* if:
+  - the state (s, f) is valid with the context C.
+  - instr* is valid with t*.
 
 NotationTypingInstrScheme
 - the instruction sequence [instr] is valid with the instruction type valtype* -> valtype'* if:
@@ -30892,22 +32601,20 @@ Step_read/br_on_cast l rt_1 rt_2
 1. Let (FRAME_ _ { f }) be the topmost FRAME_.
 2. Assert: Due to validation, a value of value type ref is on the top of the stack.
 3. Pop the value ref from the stack.
-4. Let rt be $Ref_ok(ref).
-5. Push the value ref to the stack.
-6. If rt matches $inst_reftype(f.MODULE, rt_2), then:
+4. Push the value ref to the stack.
+5. If $Ref_ok(ref, $inst_reftype(f.MODULE, rt_2)), then:
   a. Execute the instruction (BR l).
-7. Else:
+6. Else:
   a. Do nothing.
 
 Step_read/br_on_cast_fail l rt_1 rt_2
 1. Let (FRAME_ _ { f }) be the topmost FRAME_.
 2. Assert: Due to validation, a value of value type ref is on the top of the stack.
 3. Pop the value ref from the stack.
-4. Let rt be $Ref_ok(ref).
-5. Push the value ref to the stack.
-6. If rt matches $inst_reftype(f.MODULE, rt_2), then:
+4. Push the value ref to the stack.
+5. If $Ref_ok(ref, $inst_reftype(f.MODULE, rt_2)), then:
   a. Do nothing.
-7. Else:
+6. Else:
   a. Execute the instruction (BR l).
 
 Step_read/call x
@@ -31349,20 +33056,18 @@ Step_read/ref.test rt
 1. Let (FRAME_ _ { f }) be the topmost FRAME_.
 2. Assert: Due to validation, a value of value type ref is on the top of the stack.
 3. Pop the value ref from the stack.
-4. Let rt' be $Ref_ok(ref).
-5. If rt' matches $inst_reftype(f.MODULE, rt), then:
+4. If $Ref_ok(ref, $inst_reftype(f.MODULE, rt)), then:
   a. Push the value (I32.CONST 1) to the stack.
-6. Else:
+5. Else:
   a. Push the value (I32.CONST 0) to the stack.
 
 Step_read/ref.cast rt
 1. Let (FRAME_ _ { f }) be the topmost FRAME_.
 2. Assert: Due to validation, a value of value type ref is on the top of the stack.
 3. Pop the value ref from the stack.
-4. Let rt' be $Ref_ok(ref).
-5. If rt' does not match $inst_reftype(f.MODULE, rt), then:
+4. If not $Ref_ok(ref, $inst_reftype(f.MODULE, rt)), then:
   a. Trap.
-6. Push the value ref to the stack.
+5. Push the value ref to the stack.
 
 Step_read/struct.new_default x
 1. Let z be the current state.

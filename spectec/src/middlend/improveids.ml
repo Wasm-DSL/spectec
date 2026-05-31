@@ -1,7 +1,3 @@
-(* 
-  This pass simply ensures that there is no ambiguity between any names.
-*)
-
 open Il.Ast
 open Il
 open Il.Walk
@@ -168,7 +164,7 @@ let rec t_def env def =
   let tf = { base_transformer with 
     transform_exp = t_exp env;
     transform_typ = t_typ env;
-    transform_path = t_path env; 
+    transform_path = t_path env;
     transform_var_id = t_var_id env;
     transform_typ_id = t_user_def_id env;
     transform_rel_id = t_user_def_id env;
