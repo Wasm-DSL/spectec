@@ -73,10 +73,11 @@ let as_paren_exp e =
   | ParenE e1 -> e1
   | _ -> e
 
-let as_tup_exp e =
+let rec as_tup_exp e =
   match e.it with
   | TupE es -> es
   | ParenE e1 -> [e1]
+  | ArithE e1 -> as_tup_exp e1
   | _ -> [e]
 
 let as_seq_exp e =
@@ -89,6 +90,7 @@ let rec fuse_exp e deep =
   | ParenE e1 when deep -> ParenE (fuse_exp e1 false) $ e.at
   | IterE (e1, iter) -> IterE (fuse_exp e1 deep, iter) $ e.at
   | SeqE (e1::es) -> List.fold_left (fun e1 e2 -> FuseE (e1, e2) $ e.at) e1 es
+  | InfixE (e1, atom, e2) -> fuse_exp (SeqE [e1; AtomE atom $ atom.at; e2] $ e.at) deep
   | _ -> e
 
 let as_tup_arg a =
@@ -1082,6 +1084,8 @@ Printf.eprintf "[render_atom %s @ %s] id=%s def=%s macros: %s (%s)\n%!"
           | Sup -> "\\geq"
           | SqArrow | SqArrowSub -> "\\hookrightarrow"
           | SqArrowStar | SqArrowStarSub -> "\\hookrightarrow^\\ast"
+          | Prec | PrecSub -> "\\prec"
+          | Succ | SuccSub -> "\\succ"
           | Cat -> "\\oplus"
           | Bar -> "\\mid"
           | BigAnd -> "\\bigwedge"
@@ -1700,6 +1704,8 @@ let () = render_args_fwd := render_args
 
 let merge_typ t1 t2 =
   match t1.it, t2.it with
+  | StrT (dots1, ids1, fields1, _), StrT (_, ids2, fields2, dots2) ->
+    StrT (dots1, ids1 @ strip_nl ids2, fields1 @ strip_nl fields2, dots2) $ t1.at
   | CaseT (dots1, ids1, cases1, _), CaseT (_, ids2, cases2, dots2) ->
     CaseT (dots1, ids1 @ strip_nl ids2, cases1 @ strip_nl cases2, dots2) $ t1.at
   | _, _ -> assert false

@@ -28,6 +28,8 @@ type pass =
   | ImproveIds
   | Ite
   | PatSimp
+  | ElseSimp
+  | LetIntroMech
 
 (* This list declares the intended order of passes.
 
@@ -38,10 +40,12 @@ flags on the command line.
 let _skip_passes = [ Unthe ]  (* Not clear how to extend them to indexed types *)
 let all_passes = [
   Ite;
+  LetIntroMech;
   TypeFamilyRemoval;
   Undep;
   Totalize;
   Else;
+  ElseSimp;
   Uncaseremoval;
   Sideconditions;
   SubExpansion;
@@ -115,6 +119,8 @@ let pass_flag = function
   | ImproveIds -> "improve-ids"
   | Ite -> "ite"
   | PatSimp -> "pattern-simp"
+  | ElseSimp -> "else-simplification"
+  | LetIntroMech -> "let-intro-mech"
 
 let pass_desc = function
   | Sub -> "Synthesize explicit subtype coercions"
@@ -130,6 +136,8 @@ let pass_desc = function
   | ImproveIds -> "Disambiguates ids used from each other"
   | Ite -> "If-then-else introduction"
   | PatSimp -> "Simplifies non-linear and definite iteration patterns"
+  | ElseSimp -> "Simplifies generated otherwise relations (after else pass)"
+  | LetIntroMech -> "Let Premise introduction for mechanization backends"
 
 
 let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
@@ -146,6 +154,8 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | ImproveIds -> Middlend.Improveids.transform
   | Ite -> Middlend.Ite.transform
   | PatSimp -> Middlend.PatSimp.transform
+  | LetIntroMech -> Middlend.Letintromech.transform
+  | ElseSimp -> Middlend.Elsesimp.transform
 
 (* Argument parsing *)
 
@@ -218,7 +228,7 @@ let argspec = Arg.align (
 ] @ List.map pass_argspec all_passes @ [
   "--all-passes", Arg.Unit (fun () -> List.iter enable_pass all_passes)," Run all passes";
 
-  "--test-version", Arg.Int (fun i -> Backend_interpreter.Construct.version := i), " Wasm version to assume for tests (default: 3)";
+  "--test-version", Arg.Int (fun i -> Backend_interpreter.Construct.version := i; Il2al.Translate.version := i), " Wasm version to assume for tests (default: 3)";
 
   "-help", Arg.Unit ignore, "";
   "--help", Arg.Unit ignore, "";
@@ -288,8 +298,8 @@ let () =
     let match_algo_name algo_name al_elt =
       algo_name = "" ||
       (match al_elt.Util.Source.it with
-      | Al.Ast.RuleA (a, _, _, _) ->
-        Al.Print.string_of_atom a = String.uppercase_ascii algo_name
+      | Al.Ast.RuleA (m, _, _, _) ->
+        Al.Print.string_of_mixop m = String.uppercase_ascii algo_name
       | Al.Ast.FuncA (id , _, _) ->
         id = String.lowercase_ascii algo_name)
     in
