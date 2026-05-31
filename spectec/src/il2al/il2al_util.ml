@@ -32,22 +32,37 @@ let prems_of_rule rule =
   match rule.it with
   | RuleD (_, _, _, _, prems) -> prems
 
+let mk_id x =
+  x $ no_region
+let mk_varT xt =
+  VarT (mk_id xt, []) $ no_region
+let mk_varE xe xt =
+  VarE (mk_id xe) $$ no_region % (mk_varT xt)
+
+let id_to_quant id = ExpP (id $ no_region, mk_varT "?") $ no_region
+
 let lhs_of_prem pr =
   match pr.it with
-  | LetPr (lhs, _, _) -> lhs
+  | LetPr (_, lhs, _) -> lhs
   | _ -> error pr.at "expected a LetPr"
 let rhs_of_prem pr =
   match pr.it with
-  | LetPr (_, rhs, _) -> rhs
+  | LetPr (_, _, rhs) -> rhs
   | _ -> error pr.at "expected a LetPr"
 let replace_lhs lhs pr =
   let open Il.Free in
   match pr.it with
-  | LetPr (lhs', rhs, _) ->
+  | LetPr (_qs, lhs', rhs) ->
     if Il.Eq.eq_exp lhs lhs' then
       pr
     else
-      { pr with it = LetPr (lhs, rhs, (free_exp lhs).varid |> Set.elements) }
+      let qs =
+        (free_exp lhs)
+        .varid
+        |> Set.elements
+        |> List.map id_to_quant
+      in
+      { pr with it = LetPr (qs, lhs, rhs) }
   | _ -> error pr.at "expected a LetPr"
 
 let case_of_case e =
@@ -87,7 +102,7 @@ let split_last_case mixop = Option.get (split_last_case' mixop)
 
 let is_let_prem_with_rhs_type t prem =
   match prem.it with
-  | LetPr (_, e, _) ->
+  | LetPr (_, _, e) ->
     (match e.note.it with
     | VarT (id, []) -> id.it = t
     | _ -> false

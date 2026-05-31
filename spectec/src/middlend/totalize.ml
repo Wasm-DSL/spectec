@@ -1,19 +1,3 @@
-(*
-This transformation totalizes partial functions.
-
-Partial functions are recognized by the partial flag hint (for now, inference
-would be possible).
-
-The declarations are changed:
-
- * the return type is wrapped in the option type `?`
- * all clauses rhs' are wrapped in the option type injection `?(…)`
- * a catch-all clause is added returning `null`
-
-All calls to such functions are wrapped in option projection `THE e`.
-
-*)
-
 open Util
 open Source
 open Il.Ast

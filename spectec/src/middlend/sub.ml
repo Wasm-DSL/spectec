@@ -1,27 +1,3 @@
-(*
-This transformation replaces SubE expressions with explicit subtype injection
-functions.
-
- 1. It traverses all expressions and finds out which type pairs
-    occur in SubE expressions
-    - all type pairs mentioned in SubE expressions
-    - for all variant types: list of constructors
-    - for all alias types: right hand side of the alias
-
- 2. It traverses all definitions to collect information about variant types and
-    type aliases (assuming only such types occur in type aliases).
-
- 3. It generates explicit injection functions for pairs, and put them in the
- right spot (after both types are defined, but outside `RecD` groups)
-
- 4. It replaces occurrences of SubE with a suitable CallE
-
-Step 1 and 4 are done together, and step 2 and 3
-
-This pass assumes that there is no name shadowing in the type definitions.
-
-*)
-
 open Util
 open Source
 open Il.Ast
@@ -115,6 +91,11 @@ let rec t_exp env exp =
         if Il.Eq.eq_typ t t' then proj_exp else
         t_exp env (SubE (proj_exp, t, t') $$ exp.at % t')
       ) (List.combine ts ts')) $$ exp.at % sup_ty
+    | IterT (t1, iter1), IterT (t2, iter2) when Il.Eq.eq_iter iter1 iter2 ->
+      let new_iterid = Il.Fresh.fresh_varid "iter_val" in
+      let new_exp = VarE (new_iterid $ e.at) $$ e.at % t1 in
+      let new_iterexp = (iter1, [(new_iterid $ e.at, e)]) in
+      IterE (SubE (new_exp, t1, t2) $$ e.at % t2, new_iterexp) $$ e.at % sup_ty
     | _, _ ->
 (* Printf.eprintf "[sub @ %s REMAINS] %s  <:  %s\n%!" (string_of_region exp'.at) (Il.Print.string_of_typ sub_ty) (Il.Print.string_of_typ sup_ty); *)
       error sub_ty.at ("Non-variable or number type expression not supported `" ^ Il.Print.string_of_typ sub_ty ^ "`")

@@ -324,8 +324,8 @@ syntax instr/i31 hint(desc "scalar reference instruction") = ...
 syntax instr/struct hint(desc "structure reference instruction") = ...
   | STRUCT.NEW typeidx
   | STRUCT.NEW_DEFAULT typeidx
-  | STRUCT.GET sx? typeidx u32      hint(show STRUCT.GET#_#% % %)
-  | STRUCT.SET typeidx u32
+  | STRUCT.GET sx? typeidx fieldidx      hint(show STRUCT.GET#_#% % %)
+  | STRUCT.SET typeidx fieldidx
   | ...
 
 syntax instr/array hint(desc "array reference instruction") = ...
@@ -427,10 +427,8 @@ def $free_shape(lanetype X dim) = $free_lanetype(lanetype)
 def $free_blocktype(_RESULT valtype?) = $free_opt($free_valtype(valtype)?)
 def $free_blocktype(_IDX typeidx) = $free_typeidx(typeidx)
 
-def $free_catch(CATCH tagidx labelidx) =
-  $free_tagidx(tagidx) ++ $free_labelidx(labelidx)
-def $free_catch(CATCH_REF tagidx labelidx) =
-  $free_tagidx(tagidx) ++ $free_labelidx(labelidx)
+def $free_catch(CATCH tagidx labelidx) = $free_tagidx(tagidx) ++ $free_labelidx(labelidx)
+def $free_catch(CATCH_REF tagidx labelidx) = $free_tagidx(tagidx) ++ $free_labelidx(labelidx)
 def $free_catch(CATCH_ALL labelidx) = $free_labelidx(labelidx)
 def $free_catch(CATCH_ALL_REF labelidx) = $free_labelidx(labelidx)
 
@@ -517,7 +515,7 @@ def $free_instr(REF.I31) = {}
 
 def $free_instr(I31.GET sx) = {}
 
-def $free_instr(STRUCT.NEW typeidx) = {}
+def $free_instr(STRUCT.NEW typeidx) = $free_typeidx(typeidx)
 def $free_instr(STRUCT.NEW_DEFAULT typeidx) = $free_typeidx(typeidx)
 def $free_instr(STRUCT.GET sx? typeidx u32) = $free_typeidx(typeidx)
 def $free_instr(STRUCT.SET typeidx u32) = $free_typeidx(typeidx)
