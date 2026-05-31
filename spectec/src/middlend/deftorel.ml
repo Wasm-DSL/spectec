@@ -16,16 +16,22 @@ end)
 type env = {
   mutable il_env : Il.Env.t;
   mutable rel_set : StringSet.t;
-  mutable def_arg_set : StringSet.t
+  mutable def_arg_set : StringSet.t;
+  mutable rec_funcs : StringSet.t
 }
 
 let empty_env = {
   il_env = Il.Env.empty;
   rel_set = StringSet.empty;
-  def_arg_set = StringSet.empty
+  def_arg_set = StringSet.empty;
+  rec_funcs = StringSet.empty
 }
 
 let fun_prefix = "fun_"
+
+let force_func_hint_id = "recfunc"
+
+let has_rec_hint  hint = hint.hintid.it = force_func_hint_id
 
 let apply_iter_to_var id iter =
   match iter with
@@ -458,9 +464,15 @@ let collect_list_length_vars () : StringSet.t ref * (module Iter.Arg) =
   in Arg.acc, (module Arg)
 
 let must_be_relation env id params clauses = 
-  let only_otherwise prems =
+  let is_let p = 
+    match p.it with
+    | LetPr _ -> true
+    | _ -> false
+  in
+  let only_otherwise_or_let prems =
     match prems with
     | [{it = ElsePr; _}] -> true
+    | prems when List.for_all is_let prems -> true
     | _ -> false
   in
   let listn_set, (module Arg : Iter.Arg) = collect_list_length_vars () in
@@ -477,9 +489,10 @@ let must_be_relation env id params clauses =
     Acc.args args;
     (* Premises might not be decidable *)
     (* NOTE: if its only otherwise premise, then fall-through semantics should be
-      able to handle it.
+      able to handle it. Also with let, if there are only let premises then this is
+      allowed.
     *)
-    (prems <> [] && not (only_otherwise prems)) || 
+    (prems <> [] && not (only_otherwise_or_let prems)) || 
     (* Functions that have function calls transformed to relations must also be relations *)
     collect_exp rel_def_checker exp ||
     List.exists (collect_prem rel_def_checker) prems || 
@@ -621,6 +634,10 @@ let rec transform_def (env : env) def =
     cvt_def_to_rel env id params typ clauses
   | DecD (id, params, typ, clauses) -> 
     [{ def with it = DecD (id, params, typ, List.map (transform_clause env) clauses) }]
+  | RecD [{it = DecD (id, params, typ, clauses); at; _}] when 
+    StringSet.mem id.it env.rec_funcs && not (must_be_relation env id params clauses) ->
+    let def' = DecD (id, params, typ, List.map (transform_clause env) clauses) $ at in
+    [{ def with it = RecD [def'] }]
   | RecD defs when List.for_all has_exp_params defs -> 
     let ids_ref = ref StringSet.empty in
     List.iter (fun d -> match d.it with
@@ -651,11 +668,19 @@ let collect_def_args (): StringSet.t ref * (module Iter.Arg) =
     end
   in Arg.acc, (module Arg)
 
+let create_rec_func_set env (d : def) = 
+  match d.it with
+  | HintD {it = DecH (id, hints); _} when List.exists has_rec_hint hints  ->
+    env.rec_funcs <- StringSet.add id.it env.rec_funcs
+  | _ -> ()
+
+
 let transform (il : script): script =
   let env = empty_env in 
   env.il_env <- Il.Env.env_of_script il;
   let acc, (module Arg : Iter.Arg) = collect_def_args () in
   let module Acc = Iter.Make(Arg) in
   List.iter Acc.def il;
+  List.iter (create_rec_func_set env) il;
   env.def_arg_set <- !acc;
   List.concat_map (transform_def env) il
