@@ -129,26 +129,27 @@ let filter_iter_quants exp iter_quants =
   ) (free_vars, []) iter_quants) 
   |> snd |> List.rev 
 
-let rec create_collector env iterexps = 
+let rec create_collector wfdef env iterexps = 
   let base_collector_iters: ((exp * typ) * iterexp list) list collector = base_collector [] (@) in
-  { base_collector_iters with collect_exp = collect_userdef_exp env iterexps; collect_prem = collect_userdef_prem env iterexps }
+  { base_collector_iters with collect_exp = collect_userdef_exp wfdef env iterexps; collect_prem = collect_userdef_prem wfdef env iterexps }
 
-and collect_userdef_exp env iterexps e = 
+and collect_userdef_exp wfdef env iterexps e = 
   match e.it with
-  | CallE (id, _) when not (StringSet.mem id.it env.proj_set) -> ([((e, e.note), filter_iter_quants e iterexps)], true)
+  | CallE (id, _) when not (StringSet.mem id.it env.proj_set) && not (can_optimize wfdef env) -> 
+    ([((e, e.note), filter_iter_quants e iterexps)], true)
   | CaseE _ | StrE _ -> ([((e, e.note), filter_iter_quants e iterexps)], false)
   | IterE (e1, ((_, id_exp_pairs) as iterexp)) -> 
-    let c1 = create_collector env iterexps in
-    let c2 = create_collector env (iterexp :: iterexps) in 
+    let c1 = create_collector wfdef env iterexps in
+    let c2 = create_collector wfdef env (iterexp :: iterexps) in 
     (collect_exp c2 e1 @ 
     List.concat_map (fun (_, exp) -> collect_exp c1 exp) id_exp_pairs, false)
   | _ -> ([], true)
 
-and collect_userdef_prem env iterexps p =
+and collect_userdef_prem wfdef env iterexps p =
   match p.it with
   | IterPr (p', ((_, id_exp_pairs) as iterexp)) -> 
-    let c1 = create_collector env iterexps in
-    let c2 = create_collector env (iterexp :: iterexps) in 
+    let c1 = create_collector wfdef env iterexps in
+    let c2 = create_collector wfdef env (iterexp :: iterexps) in 
     (collect_prem c2 p' @
     List.concat_map (fun (_, exp) -> collect_exp c1 exp) id_exp_pairs, false)
   | _ -> ([], true) 
@@ -341,7 +342,7 @@ let get_wf_terms wfdef env cl exp prems =
   | _ -> (unique_func call_prems, unique_func constr_prems)
 
 let get_extra_prems wfdef env quants exp prems = 
-  let cl = create_collector env [] in 
+  let cl = create_collector wfdef env [] in 
   let unique_call_terms, unique_constr_terms = get_wf_terms wfdef env cl exp prems in  
   let wf_creation_func = List.concat_map (fun (pair, iterexps) -> 
     List.map (fun prem' -> List.fold_left (fun acc iterexp ->
