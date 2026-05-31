@@ -28,6 +28,7 @@ type pass =
   | ImproveIds
   | Ite
   | PatSimp
+  | DefToRel
   | ElseSimp
   | LetIntroMech
 
@@ -47,10 +48,11 @@ let all_passes = [
   Else;
   ElseSimp;
   Uncaseremoval;
-  Sideconditions;
   SubExpansion;
   PatSimp;
   Sub;
+  DefToRel;
+  Sideconditions;
   AliasDemut;
   ImproveIds
 ]
@@ -119,6 +121,7 @@ let pass_flag = function
   | ImproveIds -> "improve-ids"
   | Ite -> "ite"
   | PatSimp -> "pattern-simp"
+  | DefToRel -> "definition-to-relation"
   | ElseSimp -> "else-simplification"
   | LetIntroMech -> "let-intro-mech"
 
@@ -136,6 +139,7 @@ let pass_desc = function
   | ImproveIds -> "Disambiguates ids used from each other"
   | Ite -> "If-then-else introduction"
   | PatSimp -> "Simplifies non-linear and definite iteration patterns"
+  | DefToRel -> "Transform specific function definitions into relations"
   | ElseSimp -> "Simplifies generated otherwise relations (after else pass)"
   | LetIntroMech -> "Let Premise introduction for mechanization backends"
 
@@ -154,6 +158,7 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | ImproveIds -> Middlend.Improveids.transform
   | Ite -> Middlend.Ite.transform
   | PatSimp -> Middlend.PatSimp.transform
+  | DefToRel -> Middlend.Deftorel.transform
   | LetIntroMech -> Middlend.Letintromech.transform
   | ElseSimp -> Middlend.Elsesimp.transform
 

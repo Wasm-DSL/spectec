@@ -16,6 +16,7 @@
     improveids
     ite
     patSimp
+    deftorel
     elsesimp
     letintromech
   )

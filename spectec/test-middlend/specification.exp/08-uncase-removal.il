@@ -1859,7 +1859,7 @@ relation subst_typevar_is_wf: `%%%%`(typevar : typevar, var_0 : typevar*, var_1 
 ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec
 rec {
 
-;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:401.1-401.73
+;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:401.1-401.87
 def $minus_recs(typevar*, typeuse*) : (typevar*, typeuse*)?
   ;; ../../../../specification/wasm-3.0/1.2-syntax.types.spectec:402.1-402.39
   def $minus_recs([], []) = ?(([], []))

@@ -713,8 +713,8 @@ let valid_rule env mixop t rule =
   match rule.it with
   | RuleD (_x, qs, mixop', e, prems) ->
     let env' = valid_quants env qs in
-    valid_expmix ~side:`Lhs env' mixop' e (mixop, t) e.at;
-    ignore (valid_prems env' prems)
+    let env'' = valid_prems env' prems in
+    valid_expmix ~side:`Lhs env'' mixop' e (mixop, t) e.at
 
 let valid_clause env x ps t clause =
   Debug.(log_in "il.valid_clause" line);
