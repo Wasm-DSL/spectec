@@ -95,7 +95,7 @@ let rec t_exp env exp =
       let new_iterid = Il.Fresh.fresh_varid "iter_val" in
       let new_exp = VarE (new_iterid $ e.at) $$ e.at % t1 in
       let new_iterexp = (iter1, [(new_iterid $ e.at, e)]) in
-      IterE (SubE (new_exp, t1, t2) $$ e.at % t2, new_iterexp) $$ e.at % sup_ty
+      IterE (t_exp env (SubE (new_exp, t1, t2) $$ e.at % t2), new_iterexp) $$ e.at % sup_ty
     | _, _ ->
 (* Printf.eprintf "[sub @ %s REMAINS] %s  <:  %s\n%!" (string_of_region exp'.at) (Il.Print.string_of_typ sub_ty) (Il.Print.string_of_typ sup_ty); *)
       error sub_ty.at ("Non-variable or number type expression not supported `" ^ Il.Print.string_of_typ sub_ty ^ "`")

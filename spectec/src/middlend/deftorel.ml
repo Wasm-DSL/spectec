@@ -521,31 +521,31 @@ let tail_mixop mixop =
 
 (* 
   This function filters out premises that were function calls before. It only filters them out if they are
-  not being used in the premises following it. It assumes that the premises are in order (at the very least,
-  that function calls return variables are not used beforehand) which is true by the construction above. 
+  not being used in any premise that it not the one that is being checked. 
   This avoids the problem with violating strictly positive condition for inductive relations when the recursive
   function call appears in the return expression. This does not however prevent the violation of the condition
   completely, as any recursive function call that appears as a pattern guard will violate this (as long as the
   fallthrough semantics is enforced).
 *)
-let rec filter_return_prems prems = 
+let rec filter_return_prems all_prems prems = 
   let pred p ps = 
     match p.it with
     | RulePr (id, _, _, {it = TupE exps; _}) when String.starts_with ~prefix:fun_prefix id.it ->
+      let ps' = Lib.List.filter_not (fun p' -> Eq.eq_prem p p') ps in
       let last_exp = Lib.List.last_opt exps in 
       begin match last_exp with
       | None -> true
       | Some exp -> 
         let free_vars = (Free.free_exp exp).varid in
-        let free_vars_prems = (Free.free_list Free.free_prem ps).varid in
+        let free_vars_prems = (Free.free_list Free.free_prem ps').varid in
         Free.Set.inter free_vars free_vars_prems <> Free.Set.empty
       end
     | _ -> true
   in 
   match prems with
   | [] -> []
-  | p :: ps when pred p ps -> p :: filter_return_prems ps
-  | _ :: ps -> filter_return_prems ps
+  | p :: ps when pred p all_prems -> p :: filter_return_prems all_prems ps
+  | _ :: ps -> filter_return_prems all_prems ps
 
 let generate_matching_rules env args tupt r = 
   match r.it with
@@ -554,7 +554,7 @@ let generate_matching_rules env args tupt r =
     let new_exp = TupE args' $$ exp'.at % tupt in
     (try Eval.match_list Eval.match_exp env.il_env Subst.empty args' args with Eval.Irred -> None) |>
     Option.map (fun _ -> 
-      {r with it = RuleD (id, quants, tail_mixop mixop, new_exp, filter_return_prems prems)}
+      {r with it = RuleD (id, quants, tail_mixop mixop, new_exp, filter_return_prems prems prems)}
     )
 
 let is_otherwise prem =
@@ -585,6 +585,14 @@ let fall_through_prems env id mixop typs rules =
   in
   go [] rules
 
+let cvt_let_to_if prems = 
+  let quants, prems = List.map (fun p -> match p.it with
+  | LetPr (quants, e1, e2) -> 
+    (quants, IfPr (CmpE (`EqOp, `BoolT, e1, e2) $$ e1.at % (BoolT $ e1.at)) $ p.at)
+  | _ -> ([], p)
+  ) prems |> List.split in
+  (List.concat quants, prems)
+
 let cvt_def_to_rel env id params r_typ clauses = 
   let get_param_typ p = 
     match p.it with
@@ -597,12 +605,13 @@ let cvt_def_to_rel env id params r_typ clauses =
   let rules = List.mapi (fun i clause -> 
     match clause.it with
     | DefD (quants, args, exp, prems) -> 
+      let new_quants, prems' = cvt_let_to_if prems in
       let exps = List.map get_exp_arg args in
       let c = create_collector [] env in 
-      let fcalls = collect_exp c exp @ List.concat_map (collect_prem c) prems in
-      let call_map, new_quants, new_prems = create_call_map fcalls quants in
+      let fcalls = collect_exp c exp @ List.concat_map (collect_prem c) prems' in
+      let call_map, new_quants', new_prems = create_call_map fcalls new_quants in
       let tupe = TupE (exps @ [transform_exp_normal call_map env exp]) $$ id.at % (TupT tup_types $ id.at) in
-      RuleD (fun_prefix ^ id.it ^ "_case_" ^ Int.to_string i $ id.at, quants @ new_quants, new_mixop, tupe, List.map (transform_prem_normal call_map env) (prems @ new_prems)) $ id.at
+      RuleD (fun_prefix ^ id.it ^ "_case_" ^ Int.to_string i $ id.at, quants @ new_quants @ new_quants', new_mixop, tupe, List.map (transform_prem_normal call_map env) (prems' @ new_prems)) $ id.at
     ) clauses 
   in
   let new_id = { id with it = fun_prefix ^ id.it } in

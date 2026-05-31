@@ -47,5 +47,6 @@ type wfstate =
 
 val wf_hint_id : string
 val wf_func_id : string
+val wf_rel_id : string
 val wf_state : wfstate ref
 val transform : Il.Ast.script -> Il.Ast.script
