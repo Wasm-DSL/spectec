@@ -6,7 +6,7 @@ open Il.Walk
 
 (* Errors *)
 
-let error at msg = Error.error at "side condition" msg
+let _error at msg = Error.error at "side condition" msg
 
 module Env = Map.Make(String)
 
@@ -21,6 +21,7 @@ let iterPr (pr, (iter, vars)) =
   let vars' = List.filter (fun (id, _) ->
     Set.mem id.it frees.varid
   ) vars in
+  if iter <= List1 && vars' = [] then pr.it else 
   IterPr (pr, (iter, vars'))
 
 let is_null e = CmpE (`EqOp, `BoolT, e, OptE None $$ e.at % e.note) $$ e.at % (BoolT $ e.at)
@@ -68,6 +69,7 @@ let rec t_exp env e =
     collect_iter collector1 iter @ 
     List.map (fun pr -> iterPr (pr, iterexp) $ e.at) (collect_exp collector2 e1), false)
   | _ -> ([], true)
+
 and t_prem env prem =
   let res, continue = (match prem.it with
   | IterPr (prem', ((iter, _) as iterexp))
@@ -127,7 +129,7 @@ let t_params env =
   List.fold_left (fun env param ->
     match param.it with
     | ExpP (v, t) -> Env.add v.it t env
-    | TypP _ | DefP _ | GramP _ -> error param.at "unexpected paramater or quantifier in rule"
+    | _ -> env
   ) env
 
 let t_rule' env = function
