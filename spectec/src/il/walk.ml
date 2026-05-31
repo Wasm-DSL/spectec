@@ -35,7 +35,8 @@ type transformer = {
   transform_def_id: id -> id;
   transform_gram_id: id -> id;
 
-  filter_exp : exp -> exp option
+  (* Adjusting traversal *)
+  transform_types_of_exp : bool
 }
 
 let id = Fun.id
@@ -55,7 +56,7 @@ let base_transformer = {
   transform_def_id = id;
   transform_gram_id = id;
 
-  filter_exp = op_id
+  transform_types_of_exp = true
 }
 
 let rec transform_typ t typ = 
@@ -72,7 +73,6 @@ let rec transform_typ t typ =
 
 and transform_exp t e =
   let f = t.transform_exp in
-  let g = t.filter_exp in
   let t_exp = transform_exp t in
   let it =
     match e.it with
@@ -107,13 +107,8 @@ and transform_exp t e =
     | SubE (e1, _t1, t2) -> SubE (t_exp e1, _t1, t2)
     | IfE (e1, e2, e3) -> IfE (t_exp e1, t_exp e2, t_exp e3)
   in
-
-  let e' = 
-    match g {e with it; note = transform_typ t e.note } with 
-    | Some e' -> f e'
-    | None -> e 
-  in
-  f e'
+  let typ' = if t.transform_types_of_exp then transform_typ t e.note else e.note in 
+  f { e with it; note = typ' }
 
 and transform_iter t iter =
   match iter with
