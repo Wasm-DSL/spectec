@@ -1871,6 +1871,14 @@ Inductive fun_tablesxt : (seq externtype) -> (seq tabletype) -> Prop :=
 		(fun_tablesxt xt_lst var_0) ->
 		fun_tablesxt ([::v_externtype] ++ xt_lst) var_0.
 
+(* Mutual Recursion at: ../specification/wasm-1.0/2-syntax-aux.spectec:22.1-22.65 *)
+Lemma tablesxt_is_wf : forall (var_0 : (seq externtype)) (ret_val : (seq tabletype)) (var_1 : (seq tabletype)),
+	List.Forall (fun (var_0 : externtype) => (wf_externtype var_0)) var_0 ->
+	(ret_val == var_1) ->
+	List.Forall (fun (ret_val : tabletype) => (wf_limits ret_val)) ret_val ->
+	(fun_tablesxt var_0 var_1).
+Proof. Admitted.
+
 (* Mutual Recursion at: ../specification/wasm-1.0/2-syntax-aux.spectec:23.1-23.63 *)
 Inductive fun_memsxt : (seq externtype) -> (seq memtype) -> Prop :=
 	| fun_memsxt_case_0 : fun_memsxt [:: ] [:: ]
@@ -1880,6 +1888,14 @@ Inductive fun_memsxt : (seq externtype) -> (seq memtype) -> Prop :=
 	| fun_memsxt_case_2 : forall (v_externtype : externtype) (xt_lst : (seq externtype)) (var_0 : (seq memtype)), 
 		(fun_memsxt xt_lst var_0) ->
 		fun_memsxt ([::v_externtype] ++ xt_lst) var_0.
+
+(* Mutual Recursion at: ../specification/wasm-1.0/2-syntax-aux.spectec:23.1-23.63 *)
+Lemma memsxt_is_wf : forall (var_0 : (seq externtype)) (ret_val : (seq memtype)) (var_1 : (seq memtype)),
+	List.Forall (fun (var_0 : externtype) => (wf_externtype var_0)) var_0 ->
+	(ret_val == var_1) ->
+	List.Forall (fun (ret_val : memtype) => (wf_limits ret_val)) ret_val ->
+	(fun_memsxt var_0 var_1).
+Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-1.0/2-syntax-aux.spectec:49.1-49.35 *)
 Definition memarg0 : memarg := {| ALIGN := (mk_uN 0); OFFSET := (mk_uN 0) |}.
@@ -1991,11 +2007,32 @@ Proof. Admitted.
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:86.1-86.29 *)
 Axiom iclz_ : forall (v_N : res_N) (v_iN : iN), iN.
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:86.6-86.12 *)
+Lemma iclz__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
+	(wf_uN v_N v_iN) ->
+	(ret_val == (iclz_ v_N v_iN)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
+
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:87.1-87.29 *)
 Axiom ictz_ : forall (v_N : res_N) (v_iN : iN), iN.
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:87.6-87.12 *)
+Lemma ictz__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
+	(wf_uN v_N v_iN) ->
+	(ret_val == (ictz_ v_N v_iN)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
+
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:88.1-88.32 *)
 Axiom ipopcnt_ : forall (v_N : res_N) (v_iN : iN), iN.
+
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:88.6-88.15 *)
+Lemma ipopcnt__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
+	(wf_uN v_N v_iN) ->
+	(ret_val == (ipopcnt_ v_N v_iN)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-1.0/3-numerics.spectec:28.1-29.32 *)
 Definition fun_unop_ (v_valtype : valtype) (v_unop_ : unop_) (v_val_ : val_) : (seq val_) :=
@@ -2114,8 +2151,24 @@ Definition iadd_ (v_N : res_N) (v_iN : iN) (v_iN_0 : iN) : iN :=
 		| v_N, i_1, i_2 => (mk_uN (((i_1 :> nat) + (i_2 :> nat))%N mod (2 ^ v_N)%N)%N)
 	end.
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:73.6-73.12 *)
+Lemma iadd__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+	(wf_uN v_N v_iN) ->
+	(wf_uN v_N iN_0) ->
+	(ret_val == (iadd_ v_N v_iN iN_0)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
+
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:79.1-79.36 *)
 Axiom iand_ : forall (v_N : res_N) (v_iN : iN) (v_iN_0 : iN), iN.
+
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:79.6-79.12 *)
+Lemma iand__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+	(wf_uN v_N v_iN) ->
+	(wf_uN v_N iN_0) ->
+	(ret_val == (iand_ v_N v_iN iN_0)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:76.6-76.12 *)
 Inductive fun_idiv_ : res_N -> sx -> iN -> iN -> (option iN) -> Prop :=
@@ -2133,14 +2186,39 @@ Inductive fun_idiv_ : res_N -> sx -> iN -> iN -> (option iN) -> Prop :=
 		(fun_inv_signed_ v_N (truncz ((var_1 : rat) / (var_2 : rat))%Q) var_0) ->
 		fun_idiv_ v_N res_S i_1 i_2 (Some (mk_uN var_0)).
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:76.6-76.12 *)
+Lemma idiv__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : (option iN)) (var_0 : (option iN)),
+	(wf_uN v_N v_iN) ->
+	(wf_uN v_N iN_0) ->
+	(ret_val == var_0) ->
+	List.Forall (fun (ret_val : iN) => (wf_uN v_N ret_val)) (option_to_list ret_val) ->
+	(fun_idiv_ v_N v_sx v_iN iN_0 var_0).
+Proof. Admitted.
+
 (* Auxiliary Definition at: ../specification/wasm-1.0/3-numerics.spectec:75.1-75.36 *)
 Definition imul_ (v_N : res_N) (v_iN : iN) (v_iN_0 : iN) : iN :=
 	match v_N, v_iN, v_iN_0 return iN with
 		| v_N, i_1, i_2 => (mk_uN (((i_1 :> nat) * (i_2 :> nat))%N mod (2 ^ v_N)%N)%N)
 	end.
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:75.6-75.12 *)
+Lemma imul__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+	(wf_uN v_N v_iN) ->
+	(wf_uN v_N iN_0) ->
+	(ret_val == (imul_ v_N v_iN iN_0)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
+
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:80.1-80.35 *)
 Axiom ior_ : forall (v_N : res_N) (v_iN : iN) (v_iN_0 : iN), iN.
+
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:80.6-80.11 *)
+Lemma ior__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+	(wf_uN v_N v_iN) ->
+	(wf_uN v_N iN_0) ->
+	(ret_val == (ior_ v_N v_iN iN_0)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:77.6-77.12 *)
 Inductive fun_irem_ : res_N -> sx -> iN -> iN -> (option iN) -> Prop :=
@@ -2154,17 +2232,58 @@ Inductive fun_irem_ : res_N -> sx -> iN -> iN -> (option iN) -> Prop :=
 		(fun_inv_signed_ v_N (j_1 - (j_2 * (truncz ((j_1 : rat) / (j_2 : rat))%Q))%Z)%Z var_0) ->
 		fun_irem_ v_N res_S i_1 i_2 (Some (mk_uN var_0)).
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:77.6-77.12 *)
+Lemma irem__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : (option iN)) (var_0 : (option iN)),
+	(wf_uN v_N v_iN) ->
+	(wf_uN v_N iN_0) ->
+	(ret_val == var_0) ->
+	List.Forall (fun (ret_val : iN) => (wf_uN v_N ret_val)) (option_to_list ret_val) ->
+	(fun_irem_ v_N v_sx v_iN iN_0 var_0).
+Proof. Admitted.
+
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:84.1-84.37 *)
 Axiom irotl_ : forall (v_N : res_N) (v_iN : iN) (v_iN_0 : iN), iN.
+
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:84.6-84.13 *)
+Lemma irotl__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+	(wf_uN v_N v_iN) ->
+	(wf_uN v_N iN_0) ->
+	(ret_val == (irotl_ v_N v_iN iN_0)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:85.1-85.37 *)
 Axiom irotr_ : forall (v_N : res_N) (v_iN : iN) (v_iN_0 : iN), iN.
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:85.6-85.13 *)
+Lemma irotr__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+	(wf_uN v_N v_iN) ->
+	(wf_uN v_N iN_0) ->
+	(ret_val == (irotr_ v_N v_iN iN_0)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
+
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:82.1-82.34 *)
 Axiom ishl_ : forall (v_N : res_N) (v_iN : iN) (v_u32 : u32), iN.
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:82.6-82.12 *)
+Lemma ishl__is_wf : forall (v_N : res_N) (v_iN : iN) (v_u32 : u32) (ret_val : iN),
+	(wf_uN v_N v_iN) ->
+	(wf_uN 32 v_u32) ->
+	(ret_val == (ishl_ v_N v_iN v_u32)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
+
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:83.1-83.74 *)
 Axiom ishr_ : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (v_u32 : u32), iN.
+
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:83.6-83.12 *)
+Lemma ishr__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (v_u32 : u32) (ret_val : iN),
+	(wf_uN v_N v_iN) ->
+	(wf_uN 32 v_u32) ->
+	(ret_val == (ishr_ v_N v_sx v_iN v_u32)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-1.0/3-numerics.spectec:74.1-74.36 *)
 Definition isub_ (v_N : res_N) (v_iN : iN) (v_iN_0 : iN) : iN :=
@@ -2172,8 +2291,24 @@ Definition isub_ (v_N : res_N) (v_iN : iN) (v_iN_0 : iN) : iN :=
 		| v_N, i_1, i_2 => (mk_uN ((((((2 ^ v_N)%N + (i_1 :> nat))%N : int) - ((i_2 :> nat) : int))%Z mod ((2 ^ v_N)%N : int))%Z : nat))
 	end.
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:74.6-74.12 *)
+Lemma isub__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+	(wf_uN v_N v_iN) ->
+	(wf_uN v_N iN_0) ->
+	(ret_val == (isub_ v_N v_iN iN_0)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
+
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:81.1-81.36 *)
 Axiom ixor_ : forall (v_N : res_N) (v_iN : iN) (v_iN_0 : iN), iN.
+
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:81.6-81.12 *)
+Lemma ixor__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+	(wf_uN v_N v_iN) ->
+	(wf_uN v_N iN_0) ->
+	(ret_val == (ixor_ v_N v_iN iN_0)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:30.6-30.13 *)
 Inductive fun_binop_ : valtype -> binop_ -> val_ -> val_ -> (seq val_) -> Prop :=
@@ -2240,6 +2375,13 @@ Definition ieqz_ (v_N : res_N) (v_iN : iN) : u32 :=
 		| v_N, i_1 => (mk_uN (res_bool ((i_1 :> nat) == 0)))
 	end.
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:89.6-89.12 *)
+Lemma ieqz__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : u32),
+	(wf_uN v_N v_iN) ->
+	(ret_val == (ieqz_ v_N v_iN)) ->
+	(wf_uN 32 ret_val).
+Proof. Admitted.
+
 (* Auxiliary Definition at: ../specification/wasm-1.0/3-numerics.spectec:32.1-33.32 *)
 Definition fun_testop_ (v_valtype : valtype) (v_testop_ : testop_) (v_val_ : val_) : val_ :=
 	match v_valtype, v_testop_, v_val_ return val_ with
@@ -2259,26 +2401,82 @@ Proof. Admitted.
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:159.1-159.33 *)
 Axiom feq_ : forall (v_N : res_N) (v_fN : fN) (v_fN_0 : fN), u32.
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:159.6-159.11 *)
+Lemma feq__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
+	(wf_fN v_N v_fN) ->
+	(wf_fN v_N fN_0) ->
+	(ret_val == (feq_ v_N v_fN fN_0)) ->
+	(wf_uN 32 ret_val).
+Proof. Admitted.
+
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:164.1-164.33 *)
 Axiom fge_ : forall (v_N : res_N) (v_fN : fN) (v_fN_0 : fN), u32.
+
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:164.6-164.11 *)
+Lemma fge__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
+	(wf_fN v_N v_fN) ->
+	(wf_fN v_N fN_0) ->
+	(ret_val == (fge_ v_N v_fN fN_0)) ->
+	(wf_uN 32 ret_val).
+Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:162.1-162.33 *)
 Axiom fgt_ : forall (v_N : res_N) (v_fN : fN) (v_fN_0 : fN), u32.
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:162.6-162.11 *)
+Lemma fgt__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
+	(wf_fN v_N v_fN) ->
+	(wf_fN v_N fN_0) ->
+	(ret_val == (fgt_ v_N v_fN fN_0)) ->
+	(wf_uN 32 ret_val).
+Proof. Admitted.
+
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:163.1-163.33 *)
 Axiom fle_ : forall (v_N : res_N) (v_fN : fN) (v_fN_0 : fN), u32.
+
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:163.6-163.11 *)
+Lemma fle__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
+	(wf_fN v_N v_fN) ->
+	(wf_fN v_N fN_0) ->
+	(ret_val == (fle_ v_N v_fN fN_0)) ->
+	(wf_uN 32 ret_val).
+Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:161.1-161.33 *)
 Axiom flt_ : forall (v_N : res_N) (v_fN : fN) (v_fN_0 : fN), u32.
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:161.6-161.11 *)
+Lemma flt__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
+	(wf_fN v_N v_fN) ->
+	(wf_fN v_N fN_0) ->
+	(ret_val == (flt_ v_N v_fN fN_0)) ->
+	(wf_uN 32 ret_val).
+Proof. Admitted.
+
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:160.1-160.33 *)
 Axiom fne_ : forall (v_N : res_N) (v_fN : fN) (v_fN_0 : fN), u32.
+
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:160.6-160.11 *)
+Lemma fne__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
+	(wf_fN v_N v_fN) ->
+	(wf_fN v_N fN_0) ->
+	(ret_val == (fne_ v_N v_fN fN_0)) ->
+	(wf_uN 32 ret_val).
+Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-1.0/3-numerics.spectec:91.1-91.33 *)
 Definition ieq_ (v_N : res_N) (v_iN : iN) (v_iN_0 : iN) : u32 :=
 	match v_N, v_iN, v_iN_0 return u32 with
 		| v_N, i_1, i_2 => (mk_uN (res_bool (i_1 == i_2)))
 	end.
+
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:91.6-91.11 *)
+Lemma ieq__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : u32),
+	(wf_uN v_N v_iN) ->
+	(wf_uN v_N iN_0) ->
+	(ret_val == (ieq_ v_N v_iN iN_0)) ->
+	(wf_uN 32 ret_val).
+Proof. Admitted.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:96.6-96.11 *)
 Inductive fun_ige_ : res_N -> sx -> iN -> iN -> u32 -> Prop :=
@@ -2288,6 +2486,15 @@ Inductive fun_ige_ : res_N -> sx -> iN -> iN -> u32 -> Prop :=
 		(fun_signed_ v_N (i_1 :> nat) var_0) ->
 		fun_ige_ v_N res_S i_1 i_2 (mk_uN (res_bool (var_0 >= var_1)%Z)).
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:96.6-96.11 *)
+Lemma ige__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32) (var_0 : u32),
+	(wf_uN v_N v_iN) ->
+	(wf_uN v_N iN_0) ->
+	(ret_val == var_0) ->
+	(wf_uN 32 ret_val) ->
+	(fun_ige_ v_N v_sx v_iN iN_0 var_0).
+Proof. Admitted.
+
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:94.6-94.11 *)
 Inductive fun_igt_ : res_N -> sx -> iN -> iN -> u32 -> Prop :=
 	| fun_igt__case_0 : forall (v_N : nat) (i_1 : uN) (i_2 : uN), fun_igt_ v_N U i_1 i_2 (mk_uN (res_bool ((i_1 :> nat) > (i_2 :> nat))%N))
@@ -2295,6 +2502,15 @@ Inductive fun_igt_ : res_N -> sx -> iN -> iN -> u32 -> Prop :=
 		(fun_signed_ v_N (i_2 :> nat) var_1) ->
 		(fun_signed_ v_N (i_1 :> nat) var_0) ->
 		fun_igt_ v_N res_S i_1 i_2 (mk_uN (res_bool (var_0 > var_1)%Z)).
+
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:94.6-94.11 *)
+Lemma igt__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32) (var_0 : u32),
+	(wf_uN v_N v_iN) ->
+	(wf_uN v_N iN_0) ->
+	(ret_val == var_0) ->
+	(wf_uN 32 ret_val) ->
+	(fun_igt_ v_N v_sx v_iN iN_0 var_0).
+Proof. Admitted.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:95.6-95.11 *)
 Inductive fun_ile_ : res_N -> sx -> iN -> iN -> u32 -> Prop :=
@@ -2304,6 +2520,15 @@ Inductive fun_ile_ : res_N -> sx -> iN -> iN -> u32 -> Prop :=
 		(fun_signed_ v_N (i_1 :> nat) var_0) ->
 		fun_ile_ v_N res_S i_1 i_2 (mk_uN (res_bool (var_0 <= var_1)%Z)).
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:95.6-95.11 *)
+Lemma ile__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32) (var_0 : u32),
+	(wf_uN v_N v_iN) ->
+	(wf_uN v_N iN_0) ->
+	(ret_val == var_0) ->
+	(wf_uN 32 ret_val) ->
+	(fun_ile_ v_N v_sx v_iN iN_0 var_0).
+Proof. Admitted.
+
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:93.6-93.11 *)
 Inductive fun_ilt_ : res_N -> sx -> iN -> iN -> u32 -> Prop :=
 	| fun_ilt__case_0 : forall (v_N : nat) (i_1 : uN) (i_2 : uN), fun_ilt_ v_N U i_1 i_2 (mk_uN (res_bool ((i_1 :> nat) < (i_2 :> nat))%N))
@@ -2312,11 +2537,28 @@ Inductive fun_ilt_ : res_N -> sx -> iN -> iN -> u32 -> Prop :=
 		(fun_signed_ v_N (i_1 :> nat) var_0) ->
 		fun_ilt_ v_N res_S i_1 i_2 (mk_uN (res_bool (var_0 < var_1)%Z)).
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:93.6-93.11 *)
+Lemma ilt__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32) (var_0 : u32),
+	(wf_uN v_N v_iN) ->
+	(wf_uN v_N iN_0) ->
+	(ret_val == var_0) ->
+	(wf_uN 32 ret_val) ->
+	(fun_ilt_ v_N v_sx v_iN iN_0 var_0).
+Proof. Admitted.
+
 (* Auxiliary Definition at: ../specification/wasm-1.0/3-numerics.spectec:92.1-92.33 *)
 Definition ine_ (v_N : res_N) (v_iN : iN) (v_iN_0 : iN) : u32 :=
 	match v_N, v_iN, v_iN_0 return u32 with
 		| v_N, i_1, i_2 => (mk_uN (res_bool (i_1 != i_2)))
 	end.
+
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:92.6-92.11 *)
+Lemma ine__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : u32),
+	(wf_uN v_N v_iN) ->
+	(wf_uN v_N iN_0) ->
+	(ret_val == (ine_ v_N v_iN iN_0)) ->
+	(wf_uN 32 ret_val).
+Proof. Admitted.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:34.6-34.13 *)
 Inductive fun_relop_ : valtype -> relop_ -> val_ -> val_ -> val_ -> Prop :=
@@ -2394,6 +2636,13 @@ Proof. Admitted.
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:40.1-40.89 *)
 Axiom extend__ : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_iN : iN), iN.
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:40.6-40.15 *)
+Lemma extend___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_iN : iN) (ret_val : iN),
+	(wf_uN v_M v_iN) ->
+	(ret_val == (extend__ v_M v_N v_sx v_iN)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
+
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:43.1-43.37 *)
 Axiom promote__ : forall (v_M : M) (v_N : res_N) (v_fN : fN), (seq fN).
 
@@ -2417,8 +2666,22 @@ Proof. Admitted.
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:41.1-41.88 *)
 Axiom trunc__ : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_fN : fN), (option iN).
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:41.6-41.14 *)
+Lemma trunc___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_fN : fN) (ret_val : (option iN)),
+	(wf_fN v_M v_fN) ->
+	(ret_val == (trunc__ v_M v_N v_sx v_fN)) ->
+	List.Forall (fun (ret_val : iN) => (wf_uN v_N ret_val)) (option_to_list ret_val).
+Proof. Admitted.
+
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:39.1-39.33 *)
 Axiom wrap__ : forall (v_M : M) (v_N : res_N) (v_iN : iN), iN.
+
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:39.6-39.13 *)
+Lemma wrap___is_wf : forall (v_M : M) (v_N : res_N) (v_iN : iN) (ret_val : iN),
+	(wf_uN v_M v_iN) ->
+	(ret_val == (wrap__ v_M v_N v_iN)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:36.6-36.14 *)
 Inductive fun_cvtop__ : valtype -> valtype -> cvtop -> val_ -> (seq val_) -> Prop :=
@@ -2500,6 +2763,13 @@ Proof. Admitted.
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:60.1-60.75 *)
 Axiom inv_ibytes_ : forall (v_N : res_N) (var_0 : (seq byte)), iN.
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:60.6-60.18 *)
+Lemma inv_ibytes__is_wf : forall (v_N : res_N) (var_0 : (seq byte)) (ret_val : iN),
+	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0 ->
+	(ret_val == (inv_ibytes_ v_N var_0)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
+
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:61.1-61.75 *)
 Axiom inv_fbytes_ : forall (v_N : res_N) (var_0 : (seq byte)), fN.
 
@@ -2523,11 +2793,25 @@ Proof. Admitted.
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:78.1-78.29 *)
 Axiom inot_ : forall (v_N : res_N) (v_iN : iN), iN.
 
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:78.6-78.12 *)
+Lemma inot__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
+	(wf_uN v_N v_iN) ->
+	(ret_val == (inot_ v_N v_iN)) ->
+	(wf_uN v_N ret_val).
+Proof. Admitted.
+
 (* Auxiliary Definition at: ../specification/wasm-1.0/3-numerics.spectec:90.1-90.27 *)
 Definition inez_ (v_N : res_N) (v_iN : iN) : u32 :=
 	match v_N, v_iN return u32 with
 		| v_N, i_1 => (mk_uN (res_bool ((i_1 :> nat) != 0)))
 	end.
+
+(* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:90.6-90.12 *)
+Lemma inez__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : u32),
+	(wf_uN v_N v_iN) ->
+	(ret_val == (inez_ v_N v_iN)) ->
+	(wf_uN 32 ret_val).
+Proof. Admitted.
 
 (* Type Alias Definition at: ../specification/wasm-1.0/4-runtime.spectec:5.1-5.39 *)
 Definition addr : Type := nat.
