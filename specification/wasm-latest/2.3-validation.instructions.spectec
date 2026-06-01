@@ -379,7 +379,7 @@ rule Instr_ok/table.size:
   -- if C.TABLES[x] = at lim rt
 
 rule Instr_ok/table.grow:
-  C |- TABLE.GROW x : rt at -> I32
+  C |- TABLE.GROW x : rt at -> at
   -- if C.TABLES[x] = at lim rt
 
 rule Instr_ok/table.fill:
@@ -637,7 +637,7 @@ rule Instrs_ok/frame:
 
 rule Expr_ok:
   C |- instr* : t*
-  -- Instrs_ok: C |- instr* : eps ->_(eps) t*
+  -- Instrs_ok: C |- instr* : eps -> t*
 
 
 ;; Constant expressions

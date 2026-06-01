@@ -16,8 +16,9 @@
     aliasDemut
     improveids
     ite
-    elsesimp
-    letintro
     patSimp
+    deftorel
+    elsesimp
+    letintromech
   )
 )

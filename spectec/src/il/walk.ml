@@ -148,7 +148,7 @@ and transform_prem t p =
   let it = match p.it with
     | RulePr (id, args, op, e) -> RulePr (t.transform_rel_id id, List.map (transform_arg t) args, op, transform_exp t e)
     | IfPr e -> IfPr (transform_exp t e)
-    | LetPr (e1, e2, ss) -> LetPr (transform_exp t e1, transform_exp t e2, ss)
+    | LetPr (quants, e1, e2) -> LetPr (List.map (transform_param t) quants, transform_exp t e1, transform_exp t e2)
     | ElsePr -> ElsePr
     | IterPr (p, ie) -> IterPr (transform_prem t p, transform_iterexp t ie)
     | NegPr p -> NegPr (transform_prem t p)
@@ -158,7 +158,7 @@ and transform_prem t p =
 and transform_param t p =
   { p with it = match p.it with
     | ExpP (id, typ) -> ExpP (t.transform_var_id id, transform_typ t typ)
-    | TypP id -> TypP (t.transform_var_id id)
+    | TypP id -> TypP (t.transform_typ_id id)
     | DefP (id, params, typ) -> DefP (t.transform_def_id id, List.map (transform_param t) params, transform_typ t typ)
     | GramP (id, params, typ) -> GramP (t.transform_gram_id id, List.map (transform_param t) params, transform_typ t typ)
   }
@@ -330,7 +330,7 @@ and collect_prem c p =
   let traverse_list = match p.it with
     | RulePr (_, args, _, e) -> compose_list c (collect_arg c) args $@ collect_exp c e
     | IfPr e -> collect_exp c e
-    | LetPr (e1, e2, _) -> collect_exp c e1 $@ collect_exp c e2
+    | LetPr (quants, e1, e2) -> compose_list c (collect_param c) quants $@ collect_exp c e1 $@ collect_exp c e2
     | ElsePr -> c.default
     | IterPr (p, ie) -> collect_prem c p $@ collect_iterexp c ie
     | NegPr p -> collect_prem c p

@@ -1,7 +1,3 @@
-(*
-Lifts type aliases out of mutual groups.
-*)
-
 open Util
 open Source
 open Il.Ast

@@ -139,7 +139,7 @@ def $len(int*) : nat
   def $len{n : nat, `i*` : int*}(i^n{i <- `i*`}) = n
 
 == IL Validation after pass ite...
-== Running pass let-intro...
+== Running pass let-intro-mech...
 
 ;; test.spectec
 relation HasSize: `%|-%`(nat, nat)
@@ -208,7 +208,7 @@ def $len(int*) : nat
   ;; test.spectec
   def $len{n : nat, `i*` : int*}(i^n{i <- `i*`}) = n
 
-== IL Validation after pass let-intro...
+== IL Validation after pass let-intro-mech...
 == Running pass typefamily-removal...
 
 ;; test.spectec
@@ -349,82 +349,6 @@ def $len(int*) : nat
   def $len{n : nat, `i*` : int*}(i^n{i <- `i*`}) = n
 
 == IL Validation after pass remove-indexed-types...
-== Running pass pattern-simp...
-
-;; test.spectec
-relation HasSize: `%|-%`(nat, nat)
-
-;; test.spectec
-relation TestNestedIter: `%|-%`(nat***, nat**)
-  ;; test.spectec
-  rule _{`n***` : nat***, `m**` : nat**}:
-    `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
-    -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
-
-;; test.spectec
-def $t_totalize(nat : nat) : nat
-  ;; test.spectec
-  def $t_totalize(3) = 5
-  ;; test.spectec
-  def $t_totalize(10) = 20
-
-;; test.spectec
-def $t_totalize2(nat : nat) : nat
-  ;; test.spectec
-  def $t_totalize2(1) = 2
-  ;; test.spectec
-  def $t_totalize2{n : nat}(n) = $t_totalize(n)
-
-;; test.spectec
-def $t_totalize3(nat : nat) : nat
-  ;; test.spectec
-  def $t_totalize3{n : nat}(n) = ($t_totalize(n) + $t_totalize2((n + 10)))
-
-;; test.spectec
-syntax A = 
-  | B(nat)
-
-;; test.spectec
-def $t_patsimp(nat : nat, nat : nat) : nat
-  ;; test.spectec
-  def $t_patsimp{n : nat, n#1 : nat}(n, n#1) = n
-    -- if (n = n#1)
-  ;; test.spectec
-  def $t_patsimp{n : nat, m : nat}(n, m) = (n + m)
-
-;; test.spectec
-def $t_patsimp2(nat : nat, nat : nat, A : A) : nat
-  ;; test.spectec
-  def $t_patsimp2{n : nat, n#3 : nat, n#2 : nat}(n, n#2, B_A(n#3)) = n
-    -- if (n = n#3)
-    -- if (n = n#2)
-  ;; test.spectec
-  def $t_patsimp2{n : nat, m : nat, m#1 : nat}(n, m, B_A(m#1)) = (n + m)
-    -- if (m = m#1)
-  ;; test.spectec
-  def $t_patsimp2{n : nat, m : nat, k : nat}(n, m, B_A(k)) = ((n + m) + k)
-
-;; test.spectec
-rec {
-
-;; test.spectec:53.1-53.28
-def $find(nat : nat, nat*) : bool
-  ;; test.spectec:54.1-54.26
-  def $find{n : nat}(n, []) = false
-  ;; test.spectec:55.1-55.27
-  def $find{n : nat, `n'*` : nat*, n#4 : nat}(n, [n#4] ++ n'*{n' <- `n'*`}) = true
-    -- if (n = n#4)
-  ;; test.spectec:56.1-56.38
-  def $find{n : nat, n_1 : nat, `n'*` : nat*}(n, [n_1] ++ n'*{n' <- `n'*`}) = $find(n, n'*{n' <- `n'*`})
-}
-
-;; test.spectec
-def $len(int*) : nat
-  ;; test.spectec
-  def $len{n : nat, `i*` : int*}(i*{i <- `i*`}) = n
-    -- if (n = |`i*`|)
-
-== IL Validation after pass pattern-simp...
 == Running pass totalize...
 
 ;; test.spectec
@@ -465,20 +389,16 @@ syntax A =
 ;; test.spectec
 def $t_patsimp(nat : nat, nat : nat) : nat
   ;; test.spectec
-  def $t_patsimp{n : nat, n#1 : nat}(n, n#1) = n
-    -- if (n = n#1)
+  def $t_patsimp{n : nat}(n, n) = n
   ;; test.spectec
   def $t_patsimp{n : nat, m : nat}(n, m) = (n + m)
 
 ;; test.spectec
 def $t_patsimp2(nat : nat, nat : nat, A : A) : nat
   ;; test.spectec
-  def $t_patsimp2{n : nat, n#3 : nat, n#2 : nat}(n, n#2, B_A(n#3)) = n
-    -- if (n = n#3)
-    -- if (n = n#2)
+  def $t_patsimp2{n : nat}(n, n, B_A(n)) = n
   ;; test.spectec
-  def $t_patsimp2{n : nat, m : nat, m#1 : nat}(n, m, B_A(m#1)) = (n + m)
-    -- if (m = m#1)
+  def $t_patsimp2{n : nat, m : nat}(n, m, B_A(m)) = (n + m)
   ;; test.spectec
   def $t_patsimp2{n : nat, m : nat, k : nat}(n, m, B_A(k)) = ((n + m) + k)
 
@@ -490,8 +410,7 @@ def $find(nat : nat, nat*) : bool
   ;; test.spectec:54.1-54.26
   def $find{n : nat}(n, []) = false
   ;; test.spectec:55.1-55.27
-  def $find{n : nat, `n'*` : nat*, n#4 : nat}(n, [n#4] ++ n'*{n' <- `n'*`}) = true
-    -- if (n = n#4)
+  def $find{n : nat, `n'*` : nat*}(n, [n] ++ n'*{n' <- `n'*`}) = true
   ;; test.spectec:56.1-56.38
   def $find{n : nat, n_1 : nat, `n'*` : nat*}(n, [n_1] ++ n'*{n' <- `n'*`}) = $find(n, n'*{n' <- `n'*`})
 }
@@ -499,8 +418,7 @@ def $find(nat : nat, nat*) : bool
 ;; test.spectec
 def $len(int*) : nat
   ;; test.spectec
-  def $len{n : nat, `i*` : int*}(i*{i <- `i*`}) = n
-    -- if (n = |`i*`|)
+  def $len{n : nat, `i*` : int*}(i^n{i <- `i*`}) = n
 
 == IL Validation after pass totalize...
 == Running pass else...
@@ -543,20 +461,16 @@ syntax A =
 ;; test.spectec
 def $t_patsimp(nat : nat, nat : nat) : nat
   ;; test.spectec
-  def $t_patsimp{n : nat, n#1 : nat}(n, n#1) = n
-    -- if (n = n#1)
+  def $t_patsimp{n : nat}(n, n) = n
   ;; test.spectec
   def $t_patsimp{n : nat, m : nat}(n, m) = (n + m)
 
 ;; test.spectec
 def $t_patsimp2(nat : nat, nat : nat, A : A) : nat
   ;; test.spectec
-  def $t_patsimp2{n : nat, n#3 : nat, n#2 : nat}(n, n#2, B_A(n#3)) = n
-    -- if (n = n#3)
-    -- if (n = n#2)
+  def $t_patsimp2{n : nat}(n, n, B_A(n)) = n
   ;; test.spectec
-  def $t_patsimp2{n : nat, m : nat, m#1 : nat}(n, m, B_A(m#1)) = (n + m)
-    -- if (m = m#1)
+  def $t_patsimp2{n : nat, m : nat}(n, m, B_A(m)) = (n + m)
   ;; test.spectec
   def $t_patsimp2{n : nat, m : nat, k : nat}(n, m, B_A(k)) = ((n + m) + k)
 
@@ -568,8 +482,7 @@ def $find(nat : nat, nat*) : bool
   ;; test.spectec:54.1-54.26
   def $find{n : nat}(n, []) = false
   ;; test.spectec:55.1-55.27
-  def $find{n : nat, `n'*` : nat*, n#4 : nat}(n, [n#4] ++ n'*{n' <- `n'*`}) = true
-    -- if (n = n#4)
+  def $find{n : nat, `n'*` : nat*}(n, [n] ++ n'*{n' <- `n'*`}) = true
   ;; test.spectec:56.1-56.38
   def $find{n : nat, n_1 : nat, `n'*` : nat*}(n, [n_1] ++ n'*{n' <- `n'*`}) = $find(n, n'*{n' <- `n'*`})
 }
@@ -577,8 +490,7 @@ def $find(nat : nat, nat*) : bool
 ;; test.spectec
 def $len(int*) : nat
   ;; test.spectec
-  def $len{n : nat, `i*` : int*}(i*{i <- `i*`}) = n
-    -- if (n = |`i*`|)
+  def $len{n : nat, `i*` : int*}(i^n{i <- `i*`}) = n
 
 == IL Validation after pass else...
 == Running pass else-simplification...
@@ -621,20 +533,16 @@ syntax A =
 ;; test.spectec
 def $t_patsimp(nat : nat, nat : nat) : nat
   ;; test.spectec
-  def $t_patsimp{n : nat, n#1 : nat}(n, n#1) = n
-    -- if (n = n#1)
+  def $t_patsimp{n : nat}(n, n) = n
   ;; test.spectec
   def $t_patsimp{n : nat, m : nat}(n, m) = (n + m)
 
 ;; test.spectec
 def $t_patsimp2(nat : nat, nat : nat, A : A) : nat
   ;; test.spectec
-  def $t_patsimp2{n : nat, n#3 : nat, n#2 : nat}(n, n#2, B_A(n#3)) = n
-    -- if (n = n#3)
-    -- if (n = n#2)
+  def $t_patsimp2{n : nat}(n, n, B_A(n)) = n
   ;; test.spectec
-  def $t_patsimp2{n : nat, m : nat, m#1 : nat}(n, m, B_A(m#1)) = (n + m)
-    -- if (m = m#1)
+  def $t_patsimp2{n : nat, m : nat}(n, m, B_A(m)) = (n + m)
   ;; test.spectec
   def $t_patsimp2{n : nat, m : nat, k : nat}(n, m, B_A(k)) = ((n + m) + k)
 
@@ -646,8 +554,7 @@ def $find(nat : nat, nat*) : bool
   ;; test.spectec:54.1-54.26
   def $find{n : nat}(n, []) = false
   ;; test.spectec:55.1-55.27
-  def $find{n : nat, `n'*` : nat*, n#4 : nat}(n, [n#4] ++ n'*{n' <- `n'*`}) = true
-    -- if (n = n#4)
+  def $find{n : nat, `n'*` : nat*}(n, [n] ++ n'*{n' <- `n'*`}) = true
   ;; test.spectec:56.1-56.38
   def $find{n : nat, n_1 : nat, `n'*` : nat*}(n, [n_1] ++ n'*{n' <- `n'*`}) = $find(n, n'*{n' <- `n'*`})
 }
@@ -655,8 +562,7 @@ def $find(nat : nat, nat*) : bool
 ;; test.spectec
 def $len(int*) : nat
   ;; test.spectec
-  def $len{n : nat, `i*` : int*}(i*{i <- `i*`}) = n
-    -- if (n = |`i*`|)
+  def $len{n : nat, `i*` : int*}(i^n{i <- `i*`}) = n
 
 == IL Validation after pass else-simplification...
 == Running pass uncase-removal...
@@ -699,20 +605,16 @@ syntax A =
 ;; test.spectec
 def $t_patsimp(nat : nat, nat : nat) : nat
   ;; test.spectec
-  def $t_patsimp{n : nat, n#1 : nat}(n, n#1) = n
-    -- if (n = n#1)
+  def $t_patsimp{n : nat}(n, n) = n
   ;; test.spectec
   def $t_patsimp{n : nat, m : nat}(n, m) = (n + m)
 
 ;; test.spectec
 def $t_patsimp2(nat : nat, nat : nat, A : A) : nat
   ;; test.spectec
-  def $t_patsimp2{n : nat, n#3 : nat, n#2 : nat}(n, n#2, B_A(n#3)) = n
-    -- if (n = n#3)
-    -- if (n = n#2)
+  def $t_patsimp2{n : nat}(n, n, B_A(n)) = n
   ;; test.spectec
-  def $t_patsimp2{n : nat, m : nat, m#1 : nat}(n, m, B_A(m#1)) = (n + m)
-    -- if (m = m#1)
+  def $t_patsimp2{n : nat, m : nat}(n, m, B_A(m)) = (n + m)
   ;; test.spectec
   def $t_patsimp2{n : nat, m : nat, k : nat}(n, m, B_A(k)) = ((n + m) + k)
 
@@ -724,8 +626,7 @@ def $find(nat : nat, nat*) : bool
   ;; test.spectec:54.1-54.26
   def $find{n : nat}(n, []) = false
   ;; test.spectec:55.1-55.27
-  def $find{n : nat, `n'*` : nat*, n#4 : nat}(n, [n#4] ++ n'*{n' <- `n'*`}) = true
-    -- if (n = n#4)
+  def $find{n : nat, `n'*` : nat*}(n, [n] ++ n'*{n' <- `n'*`}) = true
   ;; test.spectec:56.1-56.38
   def $find{n : nat, n_1 : nat, `n'*` : nat*}(n, [n_1] ++ n'*{n' <- `n'*`}) = $find(n, n'*{n' <- `n'*`})
 }
@@ -733,8 +634,7 @@ def $find(nat : nat, nat*) : bool
 ;; test.spectec
 def $len(int*) : nat
   ;; test.spectec
-  def $len{n : nat, `i*` : int*}(i*{i <- `i*`}) = n
-    -- if (n = |`i*`|)
+  def $len{n : nat, `i*` : int*}(i^n{i <- `i*`}) = n
 
 == IL Validation after pass uncase-removal...
 == Running pass sub-expansion...
@@ -777,20 +677,16 @@ syntax A =
 ;; test.spectec
 def $t_patsimp(nat : nat, nat : nat) : nat
   ;; test.spectec
-  def $t_patsimp{n : nat, n#1 : nat}(n, n#1) = n
-    -- if (n = n#1)
+  def $t_patsimp{n : nat}(n, n) = n
   ;; test.spectec
   def $t_patsimp{n : nat, m : nat}(n, m) = (n + m)
 
 ;; test.spectec
 def $t_patsimp2(nat : nat, nat : nat, A : A) : nat
   ;; test.spectec
-  def $t_patsimp2{n : nat, n#3 : nat, n#2 : nat}(n, n#2, B_A(n#3)) = n
-    -- if (n = n#3)
-    -- if (n = n#2)
+  def $t_patsimp2{n : nat}(n, n, B_A(n)) = n
   ;; test.spectec
-  def $t_patsimp2{n : nat, m : nat, m#1 : nat}(n, m, B_A(m#1)) = (n + m)
-    -- if (m = m#1)
+  def $t_patsimp2{n : nat, m : nat}(n, m, B_A(m)) = (n + m)
   ;; test.spectec
   def $t_patsimp2{n : nat, m : nat, k : nat}(n, m, B_A(k)) = ((n + m) + k)
 
@@ -802,8 +698,84 @@ def $find(nat : nat, nat*) : bool
   ;; test.spectec:54.1-54.26
   def $find{n : nat}(n, []) = false
   ;; test.spectec:55.1-55.27
-  def $find{n : nat, `n'*` : nat*, n#4 : nat}(n, [n#4] ++ n'#1*{n'#1 <- `n'*`}) = true
-    -- if (n = n#4)
+  def $find{n : nat, `n'*` : nat*}(n, [n] ++ n'#1*{n'#1 <- `n'*`}) = true
+  ;; test.spectec:56.1-56.38
+  def $find{n : nat, n_1 : nat, `n'*` : nat*}(n, [n_1] ++ n'#2*{n'#2 <- `n'*`}) = $find(n, n'*{n' <- `n'*`})
+}
+
+;; test.spectec
+def $len(int*) : nat
+  ;; test.spectec
+  def $len{n : nat, `i*` : int*}(i#1^n{i#1 <- `i*`}) = n
+
+== IL Validation after pass sub-expansion...
+== Running pass pattern-simp...
+
+;; test.spectec
+relation HasSize: `%|-%`(nat, nat)
+
+;; test.spectec
+relation TestNestedIter: `%|-%`(nat***, nat**)
+  ;; test.spectec
+  rule _{`n***` : nat***, `m**` : nat**}:
+    `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
+    -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
+
+;; test.spectec
+def $t_totalize(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize(3) = ?(5)
+  ;; test.spectec
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
+
+;; test.spectec
+def $t_totalize2(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize2(1) = ?(2)
+  ;; test.spectec
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
+
+;; test.spectec
+def $t_totalize3(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
+
+;; test.spectec
+syntax A = 
+  | B(nat)
+
+;; test.spectec
+def $t_patsimp(nat : nat, nat : nat) : nat
+  ;; test.spectec
+  def $t_patsimp{n : nat, n_0 : nat}(n, n_0) = n
+    -- if (n = n_0)
+  ;; test.spectec
+  def $t_patsimp{n : nat, m : nat}(n, m) = (n + m)
+
+;; test.spectec
+def $t_patsimp2(nat : nat, nat : nat, A : A) : nat
+  ;; test.spectec
+  def $t_patsimp2{n : nat, n_1 : nat, n_0 : nat}(n, n_0, B_A(n_1)) = n
+    -- if (n = n_1)
+    -- if (n = n_0)
+  ;; test.spectec
+  def $t_patsimp2{n : nat, m : nat, m_0 : nat}(n, m, B_A(m_0)) = (n + m)
+    -- if (m = m_0)
+  ;; test.spectec
+  def $t_patsimp2{n : nat, m : nat, k : nat}(n, m, B_A(k)) = ((n + m) + k)
+
+;; test.spectec
+rec {
+
+;; test.spectec:53.1-53.28
+def $find(nat : nat, nat*) : bool
+  ;; test.spectec:54.1-54.26
+  def $find{n : nat}(n, []) = false
+  ;; test.spectec:55.1-55.27
+  def $find{n : nat, `n'*` : nat*, n_0 : nat}(n, [n_0] ++ n'#1*{n'#1 <- `n'*`}) = true
+    -- if (n = n_0)
   ;; test.spectec:56.1-56.38
   def $find{n : nat, n_1 : nat, `n'*` : nat*}(n, [n_1] ++ n'#2*{n'#2 <- `n'*`}) = $find(n, n'*{n' <- `n'*`})
 }
@@ -814,7 +786,7 @@ def $len(int*) : nat
   def $len{n : nat, `i*` : int*}(i#1*{i#1 <- `i*`}) = n
     -- if (n = |`i*`|)
 
-== IL Validation after pass sub-expansion...
+== IL Validation after pass pattern-simp...
 == Running pass sub...
 
 ;; test.spectec
@@ -855,20 +827,20 @@ syntax A =
 ;; test.spectec
 def $t_patsimp(nat : nat, nat : nat) : nat
   ;; test.spectec
-  def $t_patsimp{n : nat, n#1 : nat}(n, n#1) = n
-    -- if (n = n#1)
+  def $t_patsimp{n : nat, n_0 : nat}(n, n_0) = n
+    -- if (n = n_0)
   ;; test.spectec
   def $t_patsimp{n : nat, m : nat}(n, m) = (n + m)
 
 ;; test.spectec
 def $t_patsimp2(nat : nat, nat : nat, A : A) : nat
   ;; test.spectec
-  def $t_patsimp2{n : nat, n#3 : nat, n#2 : nat}(n, n#2, B_A(n#3)) = n
-    -- if (n = n#3)
-    -- if (n = n#2)
+  def $t_patsimp2{n : nat, n_1 : nat, n_0 : nat}(n, n_0, B_A(n_1)) = n
+    -- if (n = n_1)
+    -- if (n = n_0)
   ;; test.spectec
-  def $t_patsimp2{n : nat, m : nat, m#1 : nat}(n, m, B_A(m#1)) = (n + m)
-    -- if (m = m#1)
+  def $t_patsimp2{n : nat, m : nat, m_0 : nat}(n, m, B_A(m_0)) = (n + m)
+    -- if (m = m_0)
   ;; test.spectec
   def $t_patsimp2{n : nat, m : nat, k : nat}(n, m, B_A(k)) = ((n + m) + k)
 
@@ -880,8 +852,8 @@ def $find(nat : nat, nat*) : bool
   ;; test.spectec:54.1-54.26
   def $find{n : nat}(n, []) = false
   ;; test.spectec:55.1-55.27
-  def $find{n : nat, `n'*` : nat*, n#4 : nat}(n, [n#4] ++ n'#1*{n'#1 <- `n'*`}) = true
-    -- if (n = n#4)
+  def $find{n : nat, `n'*` : nat*, n_0 : nat}(n, [n_0] ++ n'#1*{n'#1 <- `n'*`}) = true
+    -- if (n = n_0)
   ;; test.spectec:56.1-56.38
   def $find{n : nat, n_1 : nat, `n'*` : nat*}(n, [n_1] ++ n'#2*{n'#2 <- `n'*`}) = $find(n, n'*{n' <- `n'*`})
 }
@@ -906,48 +878,25 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
     -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
 
 ;; test.spectec
-relation fun_t_totalize_before_fun_t_totalize_case_2: `%`(nat)
+def $t_totalize(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize_case_1:
-    `%`(10)
-
+  def $t_totalize(3) = ?(5)
   ;; test.spectec
-  rule fun_t_totalize_case_0:
-    `%`(3)
-
-;; test.spectec
-relation fun_t_totalize: `%%`(nat, nat?)
-  ;; test.spectec
-  rule fun_t_totalize_case_0:
-    `%%`(3, ?(5))
-
-  ;; test.spectec
-  rule fun_t_totalize_case_1:
-    `%%`(10, ?(20))
-
-  ;; test.spectec
-  rule fun_t_totalize_case_2{x0 : nat}:
-    `%%`(x0, ?())
-    -- ~ fun_t_totalize_before_fun_t_totalize_case_2: `%`(x0)
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
 
 ;; test.spectec
-relation fun_t_totalize2: `%%`(nat, nat?)
+def $t_totalize2(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize2_case_0:
-    `%%`(1, ?(2))
-
+  def $t_totalize2(1) = ?(2)
   ;; test.spectec
-  rule fun_t_totalize2_case_1{n : nat, var_0 : nat?}:
-    `%%`(n, var_0)
-    -- fun_t_totalize: `%%`(n, var_0)
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
 
 ;; test.spectec
-relation fun_t_totalize3: `%%`(nat, nat?)
+def $t_totalize3(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize3_case_0{n : nat, var_1 : nat?, var_0 : nat?}:
-    `%%`(n, (iter_val#2 + iter_val#1)?{iter_val#2 <- var_0, iter_val#1 <- var_1})
-    -- fun_t_totalize2: `%%`((n + 10), var_1)
-    -- fun_t_totalize: `%%`(n, var_0)
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
 
 ;; test.spectec
 syntax A = 
@@ -956,9 +905,9 @@ syntax A =
 ;; test.spectec
 relation fun_t_patsimp: `%%%`(nat, nat, nat)
   ;; test.spectec
-  rule fun_t_patsimp_case_0{n : nat, n#1 : nat}:
-    `%%%`(n, n#1, n)
-    -- if (n = n#1)
+  rule fun_t_patsimp_case_0{n : nat, n_0 : nat}:
+    `%%%`(n, n_0, n)
+    -- if (n = n_0)
 
   ;; test.spectec
   rule fun_t_patsimp_case_1{n : nat, m : nat}:
@@ -967,15 +916,15 @@ relation fun_t_patsimp: `%%%`(nat, nat, nat)
 ;; test.spectec
 relation fun_t_patsimp2: `%%%%`(nat, nat, A, nat)
   ;; test.spectec
-  rule fun_t_patsimp2_case_0{n : nat, n#3 : nat, n#2 : nat}:
-    `%%%%`(n, n#2, B_A(n#3), n)
-    -- if (n = n#3)
-    -- if (n = n#2)
+  rule fun_t_patsimp2_case_0{n : nat, n_1 : nat, n_0 : nat}:
+    `%%%%`(n, n_0, B_A(n_1), n)
+    -- if (n = n_1)
+    -- if (n = n_0)
 
   ;; test.spectec
-  rule fun_t_patsimp2_case_1{n : nat, m : nat, m#1 : nat}:
-    `%%%%`(n, m, B_A(m#1), (n + m))
-    -- if (m = m#1)
+  rule fun_t_patsimp2_case_1{n : nat, m : nat, m_0 : nat}:
+    `%%%%`(n, m, B_A(m_0), (n + m))
+    -- if (m = m_0)
 
   ;; test.spectec
   rule fun_t_patsimp2_case_2{n : nat, m : nat, k : nat}:
@@ -991,9 +940,9 @@ relation fun_find: `%%%`(nat, nat*, bool)
     `%%%`(n, [], false)
 
   ;; test.spectec:53.6-53.11
-  rule fun_find_case_1{n : nat, `n'*` : nat*, n#4 : nat}:
-    `%%%`(n, [n#4] ++ n'#1*{n'#1 <- `n'*`}, true)
-    -- if (n = n#4)
+  rule fun_find_case_1{n : nat, `n'*` : nat*, n_0 : nat}:
+    `%%%`(n, [n_0] ++ n'#1*{n'#1 <- `n'*`}, true)
+    -- if (n = n_0)
 
   ;; test.spectec:53.6-53.11
   rule fun_find_case_2{n : nat, n_1 : nat, `n'*` : nat*, var_0 : bool}:
@@ -1019,53 +968,30 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
   ;; test.spectec
   rule _{`n***` : nat***, `m**` : nat**}:
     `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
+    -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
     -- if (|`m**`| = |`n***`|)
     -- (if (|`m*`| = |`n**`|))+{`m*` <- `m**`, `n**` <- `n***`}
-    -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
 
 ;; test.spectec
-relation fun_t_totalize_before_fun_t_totalize_case_2: `%`(nat)
+def $t_totalize(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize_case_1:
-    `%`(10)
-
+  def $t_totalize(3) = ?(5)
   ;; test.spectec
-  rule fun_t_totalize_case_0:
-    `%`(3)
-
-;; test.spectec
-relation fun_t_totalize: `%%`(nat, nat?)
-  ;; test.spectec
-  rule fun_t_totalize_case_0:
-    `%%`(3, ?(5))
-
-  ;; test.spectec
-  rule fun_t_totalize_case_1:
-    `%%`(10, ?(20))
-
-  ;; test.spectec
-  rule fun_t_totalize_case_2{x0 : nat}:
-    `%%`(x0, ?())
-    -- ~ fun_t_totalize_before_fun_t_totalize_case_2: `%`(x0)
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
 
 ;; test.spectec
-relation fun_t_totalize2: `%%`(nat, nat?)
+def $t_totalize2(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize2_case_0:
-    `%%`(1, ?(2))
-
+  def $t_totalize2(1) = ?(2)
   ;; test.spectec
-  rule fun_t_totalize2_case_1{n : nat, var_0 : nat?}:
-    `%%`(n, var_0)
-    -- fun_t_totalize: `%%`(n, var_0)
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
 
 ;; test.spectec
-relation fun_t_totalize3: `%%`(nat, nat?)
+def $t_totalize3(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize3_case_0{n : nat, var_1 : nat?, var_0 : nat?}:
-    `%%`(n, (iter_val#2 + iter_val#1)?{iter_val#2 <- var_0, iter_val#1 <- var_1})
-    -- fun_t_totalize2: `%%`((n + 10), var_1)
-    -- fun_t_totalize: `%%`(n, var_0)
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
 
 ;; test.spectec
 syntax A = 
@@ -1074,9 +1000,9 @@ syntax A =
 ;; test.spectec
 relation fun_t_patsimp: `%%%`(nat, nat, nat)
   ;; test.spectec
-  rule fun_t_patsimp_case_0{n : nat, n#1 : nat}:
-    `%%%`(n, n#1, n)
-    -- if (n = n#1)
+  rule fun_t_patsimp_case_0{n : nat, n_0 : nat}:
+    `%%%`(n, n_0, n)
+    -- if (n = n_0)
 
   ;; test.spectec
   rule fun_t_patsimp_case_1{n : nat, m : nat}:
@@ -1085,15 +1011,15 @@ relation fun_t_patsimp: `%%%`(nat, nat, nat)
 ;; test.spectec
 relation fun_t_patsimp2: `%%%%`(nat, nat, A, nat)
   ;; test.spectec
-  rule fun_t_patsimp2_case_0{n : nat, n#3 : nat, n#2 : nat}:
-    `%%%%`(n, n#2, B_A(n#3), n)
-    -- if (n = n#3)
-    -- if (n = n#2)
+  rule fun_t_patsimp2_case_0{n : nat, n_1 : nat, n_0 : nat}:
+    `%%%%`(n, n_0, B_A(n_1), n)
+    -- if (n = n_1)
+    -- if (n = n_0)
 
   ;; test.spectec
-  rule fun_t_patsimp2_case_1{n : nat, m : nat, m#1 : nat}:
-    `%%%%`(n, m, B_A(m#1), (n + m))
-    -- if (m = m#1)
+  rule fun_t_patsimp2_case_1{n : nat, m : nat, m_0 : nat}:
+    `%%%%`(n, m, B_A(m_0), (n + m))
+    -- if (m = m_0)
 
   ;; test.spectec
   rule fun_t_patsimp2_case_2{n : nat, m : nat, k : nat}:
@@ -1109,9 +1035,9 @@ relation fun_find: `%%%`(nat, nat*, bool)
     `%%%`(n, [], false)
 
   ;; test.spectec:53.6-53.11
-  rule fun_find_case_1{n : nat, `n'*` : nat*, n#4 : nat}:
-    `%%%`(n, [n#4] ++ n'#1*{n'#1 <- `n'*`}, true)
-    -- if (n = n#4)
+  rule fun_find_case_1{n : nat, `n'*` : nat*, n_0 : nat}:
+    `%%%`(n, [n_0] ++ n'#1*{n'#1 <- `n'*`}, true)
+    -- if (n = n_0)
 
   ;; test.spectec:53.6-53.11
   rule fun_find_case_2{n : nat, n_1 : nat, `n'*` : nat*, var_0 : bool}:
@@ -1137,53 +1063,30 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
   ;; test.spectec
   rule _{`n***` : nat***, `m**` : nat**}:
     `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
+    -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
     -- if (|`m**`| = |`n***`|)
     -- (if (|`m*`| = |`n**`|))+{`m*` <- `m**`, `n**` <- `n***`}
-    -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
 
 ;; test.spectec
-relation fun_t_totalize_before_fun_t_totalize_case_2: `%`(nat)
+def $t_totalize(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize_case_1:
-    `%`(10)
-
+  def $t_totalize(3) = ?(5)
   ;; test.spectec
-  rule fun_t_totalize_case_0:
-    `%`(3)
-
-;; test.spectec
-relation fun_t_totalize: `%%`(nat, nat?)
-  ;; test.spectec
-  rule fun_t_totalize_case_0:
-    `%%`(3, ?(5))
-
-  ;; test.spectec
-  rule fun_t_totalize_case_1:
-    `%%`(10, ?(20))
-
-  ;; test.spectec
-  rule fun_t_totalize_case_2{x0 : nat}:
-    `%%`(x0, ?())
-    -- ~ fun_t_totalize_before_fun_t_totalize_case_2: `%`(x0)
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
 
 ;; test.spectec
-relation fun_t_totalize2: `%%`(nat, nat?)
+def $t_totalize2(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize2_case_0:
-    `%%`(1, ?(2))
-
+  def $t_totalize2(1) = ?(2)
   ;; test.spectec
-  rule fun_t_totalize2_case_1{n : nat, var_0 : nat?}:
-    `%%`(n, var_0)
-    -- fun_t_totalize: `%%`(n, var_0)
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
 
 ;; test.spectec
-relation fun_t_totalize3: `%%`(nat, nat?)
+def $t_totalize3(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize3_case_0{n : nat, var_1 : nat?, var_0 : nat?}:
-    `%%`(n, (iter_val#2 + iter_val#1)?{iter_val#2 <- var_0, iter_val#1 <- var_1})
-    -- fun_t_totalize2: `%%`((n + 10), var_1)
-    -- fun_t_totalize: `%%`(n, var_0)
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
 
 ;; test.spectec
 syntax A = 
@@ -1192,9 +1095,9 @@ syntax A =
 ;; test.spectec
 relation fun_t_patsimp: `%%%`(nat, nat, nat)
   ;; test.spectec
-  rule fun_t_patsimp_case_0{n : nat, n#1 : nat}:
-    `%%%`(n, n#1, n)
-    -- if (n = n#1)
+  rule fun_t_patsimp_case_0{n : nat, n_0 : nat}:
+    `%%%`(n, n_0, n)
+    -- if (n = n_0)
 
   ;; test.spectec
   rule fun_t_patsimp_case_1{n : nat, m : nat}:
@@ -1203,15 +1106,15 @@ relation fun_t_patsimp: `%%%`(nat, nat, nat)
 ;; test.spectec
 relation fun_t_patsimp2: `%%%%`(nat, nat, A, nat)
   ;; test.spectec
-  rule fun_t_patsimp2_case_0{n : nat, n#3 : nat, n#2 : nat}:
-    `%%%%`(n, n#2, B_A(n#3), n)
-    -- if (n = n#3)
-    -- if (n = n#2)
+  rule fun_t_patsimp2_case_0{n : nat, n_1 : nat, n_0 : nat}:
+    `%%%%`(n, n_0, B_A(n_1), n)
+    -- if (n = n_1)
+    -- if (n = n_0)
 
   ;; test.spectec
-  rule fun_t_patsimp2_case_1{n : nat, m : nat, m#1 : nat}:
-    `%%%%`(n, m, B_A(m#1), (n + m))
-    -- if (m = m#1)
+  rule fun_t_patsimp2_case_1{n : nat, m : nat, m_0 : nat}:
+    `%%%%`(n, m, B_A(m_0), (n + m))
+    -- if (m = m_0)
 
   ;; test.spectec
   rule fun_t_patsimp2_case_2{n : nat, m : nat, k : nat}:
@@ -1227,9 +1130,9 @@ relation fun_find: `%%%`(nat, nat*, bool)
     `%%%`(n, [], false)
 
   ;; test.spectec:53.6-53.11
-  rule fun_find_case_1{n : nat, `n'*` : nat*, n#4 : nat}:
-    `%%%`(n, [n#4] ++ n'#1*{n'#1 <- `n'*`}, true)
-    -- if (n = n#4)
+  rule fun_find_case_1{n : nat, `n'*` : nat*, n_0 : nat}:
+    `%%%`(n, [n_0] ++ n'#1*{n'#1 <- `n'*`}, true)
+    -- if (n = n_0)
 
   ;; test.spectec:53.6-53.11
   rule fun_find_case_2{n : nat, n_1 : nat, `n'*` : nat*, var_0 : bool}:
@@ -1255,53 +1158,30 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
   ;; test.spectec
   rule mk_TestNestedIter{n_lst_lst_lst : nat***, m_lst_lst : nat**}:
     `%|-%`(n_lst_lst_lst, m_lst_lst)
+    -- (if (|n_lst| = m))*{m <- m_lst, n_lst <- n_lst_lst}+{m_lst <- m_lst_lst, n_lst_lst <- n_lst_lst_lst}
     -- if (|m_lst_lst| = |n_lst_lst_lst|)
     -- (if (|m_lst| = |n_lst_lst|))+{m_lst <- m_lst_lst, n_lst_lst <- n_lst_lst_lst}
-    -- (if (|n_lst| = m))*{m <- m_lst, n_lst <- n_lst_lst}+{m_lst <- m_lst_lst, n_lst_lst <- n_lst_lst_lst}
 
 ;; test.spectec
-relation fun_t_totalize_before_fun_t_totalize_case_2: `%`(nat)
+def $t_totalize(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize_case_1:
-    `%`(10)
-
+  def $t_totalize(3) = ?(5)
   ;; test.spectec
-  rule fun_t_totalize_case_0:
-    `%`(3)
-
-;; test.spectec
-relation fun_t_totalize: `%%`(nat, nat?)
-  ;; test.spectec
-  rule fun_t_totalize_case_0:
-    `%%`(3, ?(5))
-
-  ;; test.spectec
-  rule fun_t_totalize_case_1:
-    `%%`(10, ?(20))
-
-  ;; test.spectec
-  rule fun_t_totalize_case_2{x0 : nat}:
-    `%%`(x0, ?())
-    -- ~ fun_t_totalize_before_fun_t_totalize_case_2: `%`(x0)
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
 
 ;; test.spectec
-relation fun_t_totalize2: `%%`(nat, nat?)
+def $t_totalize2(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize2_case_0:
-    `%%`(1, ?(2))
-
+  def $t_totalize2(1) = ?(2)
   ;; test.spectec
-  rule fun_t_totalize2_case_1{n : nat, var_0 : nat?}:
-    `%%`(n, var_0)
-    -- fun_t_totalize: `%%`(n, var_0)
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
 
 ;; test.spectec
-relation fun_t_totalize3: `%%`(nat, nat?)
+def $t_totalize3(nat : nat) : nat?
   ;; test.spectec
-  rule fun_t_totalize3_case_0{n : nat, var_1 : nat?, var_0 : nat?}:
-    `%%`(n, (iter_val_2 + iter_val_1)?{iter_val_2 <- var_0, iter_val_1 <- var_1})
-    -- fun_t_totalize2: `%%`((n + 10), var_1)
-    -- fun_t_totalize: `%%`(n, var_0)
+  def $t_totalize3{n : nat}(n) = (iter_val_2 + iter_val_1)?{iter_val_2 <- $t_totalize(n), iter_val_1 <- $t_totalize2((n + 10))}
 
 ;; test.spectec
 syntax A = 
@@ -1310,9 +1190,9 @@ syntax A =
 ;; test.spectec
 relation fun_t_patsimp: `%%%`(nat, nat, nat)
   ;; test.spectec
-  rule fun_t_patsimp_case_0{n : nat, n_1 : nat}:
-    `%%%`(n, n_1, n)
-    -- if (n = n_1)
+  rule fun_t_patsimp_case_0{n : nat, n_0 : nat}:
+    `%%%`(n, n_0, n)
+    -- if (n = n_0)
 
   ;; test.spectec
   rule fun_t_patsimp_case_1{n : nat, m : nat}:
@@ -1321,15 +1201,15 @@ relation fun_t_patsimp: `%%%`(nat, nat, nat)
 ;; test.spectec
 relation fun_t_patsimp2: `%%%%`(nat, nat, A, nat)
   ;; test.spectec
-  rule fun_t_patsimp2_case_0{n : nat, n_3 : nat, n_2 : nat}:
-    `%%%%`(n, n_2, B_A(n_3), n)
-    -- if (n = n_3)
-    -- if (n = n_2)
+  rule fun_t_patsimp2_case_0{n : nat, n_1 : nat, n_0 : nat}:
+    `%%%%`(n, n_0, B_A(n_1), n)
+    -- if (n = n_1)
+    -- if (n = n_0)
 
   ;; test.spectec
-  rule fun_t_patsimp2_case_1{n : nat, m : nat, m_1 : nat}:
-    `%%%%`(n, m, B_A(m_1), (n + m))
-    -- if (m = m_1)
+  rule fun_t_patsimp2_case_1{n : nat, m : nat, m_0 : nat}:
+    `%%%%`(n, m, B_A(m_0), (n + m))
+    -- if (m = m_0)
 
   ;; test.spectec
   rule fun_t_patsimp2_case_2{n : nat, m : nat, k : nat}:
@@ -1345,9 +1225,9 @@ relation fun_find: `%%%`(nat, nat*, bool)
     `%%%`(n, [], false)
 
   ;; test.spectec:53.6-53.11
-  rule fun_find_case_1{n : nat, n'_lst : nat*, n_4 : nat}:
-    `%%%`(n, [n_4] ++ n'_lst, true)
-    -- if (n = n_4)
+  rule fun_find_case_1{n : nat, n'_lst : nat*, n_0 : nat}:
+    `%%%`(n, [n_0] ++ n'_lst, true)
+    -- if (n = n_0)
 
   ;; test.spectec:53.6-53.11
   rule fun_find_case_2{n : nat, n_1 : nat, n'_lst : nat*, var_0 : bool}:

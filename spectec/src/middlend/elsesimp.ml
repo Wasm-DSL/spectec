@@ -106,6 +106,7 @@ let t_rule env else_ids rule =
   let* else_relation = Il.Env.find_opt_rel env.il_env (else_id $ no_region) in
   let (_, _, _, rules) = else_relation in
   let free_vars_binds = Free.free_list Free.bound_quant quants in 
+  let free_vars_exp = Free.free_exp exp in
   let prems_list, binds' = List.map (fun r ->
     let RuleD (_, quants', _, _, prems') = r.it in
     let free_vars = Free.diff (Free.free_list Free.free_prem prems') free_vars_binds in 
@@ -113,7 +114,11 @@ let t_rule env else_ids rule =
   ) rules |> List.split in
   let quants' = List.concat binds' in
   
+  (* First check that there are indeed premises, and that they are all boolean premises *)
   if prems_list = [] || not (List.for_all (fun prems' -> List.for_all is_boolean_prem prems') prems_list) then None else
+  (* Then check that the quants actually appear in the conclusion (If they don't, then quantification changes!) *)
+  if not (List.for_all (is_in_quant free_vars_exp) quants') then None else
+  
   let neg_exps = List.filter_map (fun prems' -> 
     let exps = List.filter_map get_exp prems' in
     match exps with 

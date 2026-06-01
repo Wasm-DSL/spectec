@@ -1,254 +1,245 @@
-;; Store and Frame 
-var S : store
-var F : frame
+;; Contexts
 
-;; Externvals ok
+relation Context_ok: |- context : OK  hint(macro "%context")
 
-relation Externaddrs_ok: store |- externaddr : externtype
-
-rule Externaddrs_ok/func:
-  S |- FUNC a : FUNC ext
-    -- if S.FUNCS[a] = {TYPE ext, MODULE minst, CODE func}
-
-rule Externaddrs_ok/table:
-  S |- TABLE a : TABLE tt
-    -- if S.TABLES[a] = {TYPE tt', REFS ref*}
-    -- Tabletype_sub: |- tt' <: tt
-
-rule Externaddrs_ok/mem:
-  S |- MEM a : MEM mt
-    -- if S.MEMS[a] = {TYPE mt', BYTES b*}
-    -- Memtype_sub: |- mt' <: mt
-
-rule Externaddrs_ok/global:
-  S |- GLOBAL a : GLOBAL (mut valtype)
-    -- if S.GLOBALS[a] = {TYPE (mut valtype), VALUE val}
-
+rule Context_ok:
+  |- C : OK
+  -- if C =
+    { TYPES ft*,
+      FUNCS ft_2*,
+      GLOBALS gt*,
+      MEMS mt*,
+      TABLES tt*,
+      LOCALS lct*,
+      LABELS rt*,
+      RETURN rt'?,
+    }
+  -- (Functype_ok: |- ft : OK)*
+  -- (Globaltype_ok: |- gt : OK)*
+  -- (Memtype_ok: |- mt : OK)*
+  -- (Tabletype_ok: |- tt : OK)*
+  -- (Functype_ok: |- ft_2 : OK)*
+  
 ;; Value type ok
 
-relation Val_ok: store |- val : valtype
+relation Val_ok: |- val : valtype
 
-rule Val_ok/numtype:
-  S |- CONST nt c_t : nt
+rule Val_ok:
+  |- CONST t c_t : t
+
 
 ;; Result type ok
 
-relation Result_ok: store |- result : valtype*
+relation Result_ok: |- result : valtype*
 
 rule Result_ok/result:
-  S |- _VALS v* : t*
-  -- (Val_ok: S |- v : t)*
+  |- _VALS v* : t*
+  -- (Val_ok: |- v : t)*
 
 rule Result_ok/trap:
-  S |- TRAP : t*
+  |- TRAP : t*
+
+;; Administrative instructions
+
+syntax adminexpr = admininstr*
+
+relation Instr_ok2: store; context |- admininstr : functype
+  hint(prose "%3 is valid with %4")
+relation Instrs_ok2: store; context |- admininstr* : functype
+  hint(prose "%3 is valid with %4")
+relation Expr_ok2: store; context |- adminexpr : resulttype
+  hint(prose "%3 is valid with %4")
+
+rule Instr_ok2/plain:
+  s; C |- instr : t_1* -> t_2*
+  -- Instr_ok: C |- instr : t_1* -> t_2*
+
+rule Instr_ok2/label:
+  s; C |- LABEL_ n `{instr'*} admininstr* : eps -> t?
+  -- if |t'?| = n
+  -- Instrs_ok2: s; C |- instr'* : t'? -> t?
+  -- Instrs_ok2: s; {LABELS (t'?)} ++ C |- admininstr* : eps -> t?
+
+rule Instr_ok2/frame:
+  s; C |- FRAME_ n `{f} admininstr* : eps -> t?
+  -- if |t?| = n 
+  -- Frame_ok: s |- f : C'
+  -- Expr_ok2: s; C' |- admininstr* : t?
+
+rule Instr_ok2/call_addr:
+  s; C |- CALL_ADDR funcaddr : t_1* -> t_2*
+  -- Externaddr_ok: s |- FUNC funcaddr: FUNC (t_1* -> t_2*)
+
+rule Instr_ok2/trap:
+  s; C |- TRAP : t_1* -> t_2*
 
 
-;; Memory instance 
+rule Instrs_ok2/empty:
+  s; C |- eps : eps -> eps
 
-relation Memory_instance_ok: store |- meminst : memtype
+rule Instrs_ok2/seq:
+  s; C |- admininstr_1 admininstr_2* : t_1* -> t_3*
+  -- Instr_ok2: s; C |- admininstr_1 : t_1* -> t_2*
+  -- Instrs_ok2: s; C |- admininstr_2* : t_2* -> t_3*
 
-rule Memory_instance_ok:
-  S |- {TYPE mt, BYTES b*} : mt
-  -- if mt = `[n .. m?]
-  -- if $(|b*| = n * 64 * $Ki)
-  -- Memtype_ok : |- mt : OK
+rule Instrs_ok2/frame:
+  s; C |- admininstr* : t* t_1* -> t* t_2*
+  -- Instrs_ok2: s; C |- admininstr* : t_1* -> t_2*
 
-;; Table instance
+rule Expr_ok2:
+  s; C |- admininstr* : t?
+  -- Instrs_ok2: s; C |- admininstr* : eps -> t?
 
-relation Table_instance_ok: store |- tableinst : tabletype
+;; External addresses
 
-rule Table_instance_ok:
-  S |- {TYPE tt, REFS ref*} : tt
-  -- if tt = `[n .. m]
-  -- if n = |ref*|
-  -- Tabletype_ok : |- tt : OK
+relation Externaddr_ok: store |- externaddr : externtype  hint(macro "%externaddr")
 
-;; Global Instance
+rule Externaddr_ok/global:
+  s |- GLOBAL a : GLOBAL globalinst.TYPE
+  -- if s.GLOBALS[a] = globalinst
 
-relation Global_instance_ok: store |- globalinst : globaltype
+rule Externaddr_ok/mem:
+  s |- MEM a : MEM meminst.TYPE
+  -- if s.MEMS[a] = meminst
 
-rule Global_instance_ok:
-  S |- {TYPE gt, VALUE v} : gt
-    -- if gt = mut vt
-    -- Globaltype_ok: |- gt : OK
-    -- Val_ok: S |- v : vt
+rule Externaddr_ok/table:
+  s |- TABLE a : TABLE tableinst.TYPE
+  -- if s.TABLES[a] = tableinst
 
-;; Export Instance
+rule Externaddr_ok/func:
+  s |- FUNC a : FUNC funcinst.TYPE
+  -- if s.FUNCS[a] = funcinst
 
-relation Export_instance_ok: store |- exportinst : OK
+rule Externaddr_ok/sub:
+  s |- externaddr : xt
+  -- Externaddr_ok: s |- externaddr : xt'
+  -- Externtype_sub: |- xt' <: xt
 
-rule Export_instance_ok:
-  S |- {NAME name, ADDR eaddr} : OK
-    -- Externaddrs_ok: S |- eaddr : ext
+;; Instances
+
+relation Globalinst_ok: store |- globalinst : globaltype
+relation Meminst_ok: store |- meminst : memtype
+relation Tableinst_ok: store |- tableinst : tabletype
+relation Funcinst_ok: store |- funcinst : functype
+relation Exportinst_ok: store |- exportinst : OK
+
+rule Globalinst_ok:
+  s |- {TYPE mut t, VALUE val} : mut t
+  -- Globaltype_ok: |- mut t : OK
+  -- Val_ok: |- val : t
+
+rule Meminst_ok:
+  s |- {TYPE `[n..m], BYTES b*} : `[n..m]
+  -- Memtype_ok: |- `[n..m] : OK
+  -- if |b*| = $(n * $($(64 * $Ki)))
+
+rule Tableinst_ok:
+  s |- {TYPE `[n..m] , REFS (fa?)*} : `[n..m]
+  -- Tabletype_ok: |- `[n..m] : OK
+  -- ((Externaddr_ok: s |- FUNC fa : FUNC ft)?)*
+  -- if |(fa?)*| = n
+
+rule Funcinst_ok:
+  s |- {TYPE ft, MODULE moduleinst, CODE func} : ft
+  -- Functype_ok: |- ft : OK
+  -- Moduleinst_ok: s |- moduleinst : C
+  -- Func_ok: C |- func : ft
+
+rule Exportinst_ok:
+  s |- {NAME nm, ADDR xa} : OK
+  -- Externaddr_ok: s |- xa : xt
 
 
-;; Module Instance
+;; Modules
 
-relation Module_instance_ok: store |- moduleinst : context
+relation Moduleinst_ok: store |- moduleinst : context
 
-rule Module_instance_ok:
-  S |- { TYPES functype*, FUNCS funcaddr*, GLOBALS globaladdr*, TABLES tableaddr*, MEMS memaddr*, EXPORTS exportinst* } :
-    {TYPES functype*, FUNCS functype'*, GLOBALS globaltype*, TABLES tabletype*, MEMS memtype*}
-    -- (Functype_ok: |- functype : OK)*
-    -- (Externaddrs_ok: S |- FUNC funcaddr : FUNC functype')*
-    -- (Externaddrs_ok: S |- TABLE tableaddr : TABLE tabletype)*
-    -- (Externaddrs_ok: S |- MEM memaddr : MEM memtype)*
-    -- (Externaddrs_ok: S |- GLOBAL globaladdr : GLOBAL globaltype)*
-    -- (Export_instance_ok: S |- exportinst : OK)*
-    ;; TODO disjoint exportinst.name
+rule Moduleinst_ok:
+  s |- { TYPES functype*,
+         GLOBALS globaladdr*,
+         MEMS memaddr*,
+         TABLES tableaddr*,
+         FUNCS funcaddr*,
+         EXPORTS exportinst* } :
+           { TYPES functype*,
+             GLOBALS globaltype*,
+             MEMS memtype*,
+             TABLES tabletype*,
+             FUNCS functype_F*,
+           }
+  -- (Functype_ok: |- functype : OK)*
+  -- (Externaddr_ok: s |- GLOBAL globaladdr : GLOBAL globaltype)*
+  -- (Externaddr_ok: s |- FUNC funcaddr : FUNC functype_F)*
+  -- (Externaddr_ok: s |- MEM memaddr : MEM memtype)*
+  -- (Externaddr_ok: s |- TABLE tableaddr : TABLE tabletype)*
+  -- (Exportinst_ok: s |- exportinst : OK)*
+  ----
+  -- if $disjoint_(name, (exportinst.NAME)*)
+  -- (if exportinst.ADDR <- (GLOBAL globaladdr)* (MEM memaddr)* (TABLE tableaddr)* (FUNC funcaddr)*)*
 
-;; Function instance
 
-relation Function_instance_ok: store |- funcinst : functype
-
-rule Function_instance_ok:
-  S |- { TYPE functype, MODULE moduleinst, CODE func } : functype
-  -- Functype_ok: |- functype : OK
-  -- Module_instance_ok: S |- moduleinst : C
-  -- Func_ok: C |- func : functype
-
-;; Store ok
+;; Store
 
 relation Store_ok: |- store : OK
 
 rule Store_ok:
-  |- S : OK
-  -- if S = {FUNCS funcinst*, GLOBALS globalinst*, TABLES tableinst*, MEMS meminst*}
-  -- (Function_instance_ok: S |- funcinst : functype)*
-  -- (Global_instance_ok: S |- globalinst : globaltype)*
-  -- (Table_instance_ok: S |- tableinst : tabletype)*
-  -- (Memory_instance_ok: S |- meminst : memtype)*
+  |- s : OK
+  -- (Globalinst_ok: s |- globalinst : globaltype)*
+  -- (Meminst_ok: s |- meminst : memtype)*
+  -- (Tableinst_ok: s |- tableinst : tabletype)*
+  -- (Funcinst_ok: s |- funcinst : functype)*
+  ----
+  -- if s = {GLOBALS globalinst*, MEMS meminst*, TABLES tableinst*, FUNCS funcinst*}
 
-;; Administrative instructions ok
+;; Store extension
 
-relation Admin_instr_ok: store; context |- admininstr : functype
-relation Admin_instrs_ok: store; context |- admininstr* : functype
-relation Thread_ok: store ; resulttype? |- frame; admininstr* : resulttype
+relation Extend_globalinst: globalinst `<= globalinst
+relation Extend_meminst: meminst `<= meminst
+relation Extend_tableinst: tableinst `<= tableinst
+relation Extend_funcinst: funcinst `<= funcinst
+relation Extend_store: store `<= store
 
+rule Extend_globalinst:
+  {TYPE mut t, VALUE val} `<= {TYPE mut t, VALUE val'}
+  -- if mut = MUT \/ val = val'
 
-;; Administrative instruction sequences
+rule Extend_meminst:
+  {TYPE `[n..m], BYTES b*} `<= {TYPE `[n'..m], BYTES b'*}
+  -- if n <= n'
+  -- if |b*| <= |b'*|
 
-rule Admin_instrs_ok/empty:
-  S; C |- eps : eps -> eps
+rule Extend_tableinst:
+  {TYPE `[n..m], REFS ref*} `<= {TYPE `[n'..m], REFS ref'*}
+  -- if n <= n'
+  -- if |ref*| <= |ref'*|
 
-rule Admin_instrs_ok/seq:
-  S; C |- admininstr_1 admininstr_2* : t_1* -> t_3*
-  -- Admin_instr_ok: S; C |- admininstr_1 : t_1* -> t_2*
-  -- Admin_instrs_ok: S; C |- admininstr_2* : t_2* -> t_3*
+rule Extend_funcinst:
+  {TYPE ft, MODULE mm, CODE fc} `<= {TYPE ft, MODULE mm, CODE fc}
 
-rule Admin_instrs_ok/frame:
-  S; C |- admininstr* : t* t_1* -> t* t_2*
-  -- Admin_instrs_ok: S; C |- admininstr* : t_1* -> t_2*
+rule Extend_store:
+  s `<= s'
+  -- (Extend_globalinst: s.GLOBALS[a] `<= s'.GLOBALS[a] )^(a<|s.GLOBALS|)
+  -- (Extend_meminst: s.MEMS[a] `<= s'.MEMS[a] )^(a<|s.MEMS|)
+  -- (Extend_tableinst: s.TABLES[a] `<= s'.TABLES[a] )^(a<|s.TABLES|)
+  -- (Extend_funcinst: s.FUNCS[a] `<= s'.FUNCS[a] )^(a<|s.FUNCS|)
 
-rule Admin_instrs_ok/instrs:
-  S; C |- instr* : functype
-  -- Instrs_ok: C |- instr* : functype
-
-
-def $optionSize(valtype?) : nat
-def $optionSize(valtype) = 1
-def $optionSize(eps) = 0
-
-;; Administrative intructions 
-
-rule Admin_instr_ok/instr:
-  S; C |- instr : functype
-  -- Instr_ok: C |- instr : functype
-
-rule Admin_instr_ok/trap:
-  S; C |- TRAP : t_1* -> t_2*
-
-rule Admin_instr_ok/call_addr:
-  S; C |- CALL_ADDR funcaddr : t_1* -> t_2*
-  -- Externaddrs_ok: S |- FUNC funcaddr: FUNC (t_1* -> t_2*)
-
-rule Admin_instr_ok/label:
-  S; C |- LABEL_ n `{instr*} admininstr* : eps -> t_2*
-  -- Instrs_ok: C |- instr*: t_1? -> t_2*
-  -- Admin_instrs_ok: S; $($(C, LABELS (t_1?))) |- admininstr*: eps -> t_2*
-  -- if $(n = $optionSize(t_1?))
-
-rule Admin_instr_ok/frame:
-  S; C |- FRAME_ n `{F} admininstr* : eps -> t?
-  -- Thread_ok: S; t? |- F; admininstr*: t?
-  -- if $(n = $optionSize(t?))
-
-rule Admin_instr_ok/weakening:
-  S; C |- admininstr : t'* t'_1* -> t* t'_2*
-  -- Admin_instr_ok: S; C |- admininstr : t_1* -> t_2*
-
-;; Configuration validity
+;; Configurations
 
 relation Frame_ok: store |- frame : context
-
-rule Frame_ok:
-  S |- { LOCALS val*, MODULE moduleinst } : C, LOCALS t*
-  -- Module_instance_ok: S |- moduleinst : C
-  -- (Val_ok: S |- val : t)*
-
-rule Thread_ok:
-  S; resulttype? |- F; admininstr* : t?
-  -- Frame_ok: S |- F : C
-  -- Admin_instrs_ok: S; $($(C, RETURN resulttype?)) |- admininstr* : eps -> t?
-
+relation State_ok: |- state : context
 relation Config_ok: |- config : resulttype
 
+rule Frame_ok:
+  s |- {LOCALS val*, MODULE moduleinst} : C ++ {LOCALS t*}
+  -- Moduleinst_ok: s |- moduleinst : C
+  -- (Val_ok: |- val : t)*
+
+rule State_ok:
+  |- s; f : C
+  -- Store_ok: |- s : OK
+  -- Frame_ok: s |- f : C
+
 rule Config_ok:
-  |- S; F; admininstr* : t?
-  -- Store_ok: |- S : OK
-  -- Thread_ok: S; eps |- F; admininstr* : t?
-
-
-
-;; Store Extension 
-
-relation Func_extension: |- funcinst : funcinst
-relation Table_extension: |- tableinst : tableinst
-relation Mem_extension: |- meminst : meminst
-relation Global_extension: |- globalinst : globalinst
-relation Store_extension: |- store : store
-
-rule Func_extension:
-  |- funcinst : funcinst
-
-rule Table_extension:
-  |- {TYPE `[n1..m?], REFS ref_1*} : {TYPE `[n2..m?], REFS ref_2*}
-  -- if n1 <= n2
-
-rule Mem_extension:
-  |- {TYPE `[n1..m?], BYTES b_1*} : {TYPE `[n2..m?], BYTES b_2*}
-  -- if n1 <= n2
-
-rule Global_extension:
-  |- {TYPE (mut t), VALUE val_1} : {TYPE (mut t), VALUE val_2}
-  -- if (mut = MUT) \/ val_1 = val_2
-
-rule Store_extension:
-  |- store_1 : store_2
-  -- if store_1 = { FUNCS funcinst_1*, GLOBALS globalinst_1*, TABLES tableinst_1*, MEMS meminst_1}
-  -- if store_2 = { FUNCS funcinst_1'* funcinst_2*, GLOBALS globalinst_1'* globalinst_2*,
-                    TABLES tableinst_1'* tableinst_2*, MEMS meminst_1'* meminst_2*}
-  -- (Func_extension: |- funcinst_1: funcinst_1')*
-  -- (Table_extension: |- tableinst_1: tableinst_1')*
-  -- (Mem_extension: |- meminst_1: meminst_1')*
-  -- (Global_extension: |- globalinst_1: globalinst_1')*
-
-def $types__of(val*) : valtype*
-def $types__of(eps) = eps
-def $types__of((CONST numtype val_) val'*) = numtype $types__of(val'*)
-
-def $is__const(admininstr) : bool
-  hint(prose "% is a constant")
-def $is__const(CONST valtype val_) = true
-def $is__const(admininstr) = false
-
-def $const__list(admininstr*) : bool
-  hint(prose "% is a list of constants")
-def $const__list(eps) = true
-def $const__list(admininstr admininstr'*) = 
-  $is__const(admininstr) /\ $const__list(admininstr'*)
-
-def $terminal__form(admininstr*) : bool
-  hint(prose "% is in terminal form")
-def $terminal__form(admininstr*) = 
-  $const__list(admininstr*) \/ admininstr* = TRAP
+  |- s; f; instr* : t?
+  -- State_ok: |- s; f : C
+  -- Expr_ok2: s; C |- admininstr* : t?

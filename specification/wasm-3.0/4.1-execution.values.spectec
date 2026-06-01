@@ -8,7 +8,7 @@ def $default_(valtype) : val? hint(partial)
 def $default_(Inn) = (CONST Inn 0)
 def $default_(Fnn) = (CONST Fnn $fzero($size(Fnn)))
 def $default_(Vnn) = (VCONST Vnn 0)
-def $default_(REF NULL ht) = (REF.NULL ht)
+def $default_(REF NULL ht) = REF.NULL_ADDR
 def $default_(REF ht) = eps
 
 ;;relation Defaultable: |- valtype DEFAULTABLE ;; forward-declared in validation.instructions
@@ -33,38 +33,39 @@ rule Vec_ok:
 
 
 rule Ref_ok/null:
-  s |- REF.NULL ht : (REF NULL ht')
-  -- Heaptype_sub: {} |- ht' <: ht
+  s |- REF.NULL_ADDR : REF NULL BOT
 
 rule Ref_ok/i31:
-  s |- REF.I31_NUM i : (REF I31)
+  s |- REF.I31_NUM i : REF I31
 
 rule Ref_ok/struct:
-  s |- REF.STRUCT_ADDR a : (REF dt)
+  s |- REF.STRUCT_ADDR a : REF dt
   -- if s.STRUCTS[a].TYPE = dt
 
 rule Ref_ok/array:
-  s |- REF.ARRAY_ADDR a : (REF dt)
+  s |- REF.ARRAY_ADDR a : REF dt
   -- if s.ARRAYS[a].TYPE = dt
 
 rule Ref_ok/func:
-  s |- REF.FUNC_ADDR a : (REF dt)
+  s |- REF.FUNC_ADDR a : REF dt
   -- if s.FUNCS[a].TYPE = dt
 
 rule Ref_ok/exn:
-  s |- REF.EXN_ADDR a : (REF EXN)
+  s |- REF.EXN_ADDR a : REF EXN
   -- if s.EXNS[a] = exn
 
 rule Ref_ok/host:
-  s |- REF.HOST_ADDR a : (REF ANY)
+  s |- REF.HOST_ADDR a : REF ANY
 
 rule Ref_ok/extern:
-  s |- REF.EXTERN addrref : (REF EXTERN)
-  -- Ref_ok: s |- addrref : (REF ANY)
+  s |- REF.EXTERN ref : REF EXTERN
+  -- Ref_ok: s |- ref : REF ANY
+  -- if ref =/= REF.NULL_ADDR
 
 rule Ref_ok/sub:
   s |- ref : rt
   -- Ref_ok: s |- ref : rt'
+  -- Reftype_ok: {} |- rt : OK
   -- Reftype_sub: {} |- rt' <: rt
 
 
@@ -79,6 +80,23 @@ rule Val_ok/vec:
 rule Val_ok/ref:
   s |- ref : rt
   -- Ref_ok: s |- ref : rt
+
+
+;; Field values
+
+relation Packval_ok: store |- packval : packtype
+relation Fieldval_ok: store |- fieldval : storagetype
+
+rule Packval_ok:
+  s |- PACK pt c : pt
+
+rule Fieldval_ok/val:
+  s |- val : t
+  -- Val_ok: s |- val : t
+
+rule Fieldval_ok/packval:
+  s |- packval : pt
+  -- Packval_ok: s |- packval : pt
 
 
 ;; External addresses
@@ -108,4 +126,5 @@ rule Externaddr_ok/func:
 rule Externaddr_ok/sub:
   s |- externaddr : xt
   -- Externaddr_ok: s |- externaddr : xt'
+  -- Externtype_ok: {} |- xt : OK
   -- Externtype_sub: {} |- xt' <: xt
