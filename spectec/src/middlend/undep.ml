@@ -435,7 +435,7 @@ let generate_wf_lemma_func env tf id params rtyp =
   ) params' in 
   let ids = List.map Utils.get_param_id params in
   let text_ids = List.map (fun p -> p.it) ids in 
-  let ret_exp_name = Utils.generate_var text_ids "ret_val" in 
+  let ret_exp_name = Utils.annot_new_name (Utils.generate_var text_ids "ret_val") rtyp in 
   let ret_exp = VarE (ret_exp_name $ id.at) $$ id.at % rtyp in
   let fcall_exp = CallE (id, List.map make_arg params') $$ id.at % rtyp in
   let fcall_prem = IfPr (CmpE (`EqOp, `BoolT, ret_exp, fcall_exp) $$ id.at % (BoolT $ id.at)) $ id.at in
