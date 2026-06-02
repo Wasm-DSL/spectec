@@ -413,7 +413,7 @@ let transform_rule env rule =
     List.map (transform_param call_map env) (quants @ new_quants), 
     m, 
     transform_exp_normal call_map env exp, 
-    List.map (transform_prem_normal call_map env) (prems @ new_prems))
+    List.map (transform_prem_normal call_map env) (new_prems @ prems))
   ) $ rule.at
 
 let transform_clause env clause = 
@@ -438,7 +438,7 @@ let transform_prod env prod =
     ProdD (List.map (transform_param call_map env) (quants @ new_quants), 
     sym, 
     transform_exp_normal call_map env exp, 
-    List.map (transform_prem_normal call_map env) (prems @ new_prems)) $ prod.at
+    List.map (transform_prem_normal call_map env) (new_prems @ prems)) $ prod.at
 
 let is_exp_param param = 
   match param.it with
@@ -611,7 +611,7 @@ let cvt_def_to_rel env id params r_typ clauses =
       let fcalls = collect_exp c exp @ List.concat_map (collect_prem c) prems' in
       let call_map, new_quants', new_prems = create_call_map fcalls new_quants in
       let tupe = TupE (exps @ [transform_exp_normal call_map env exp]) $$ id.at % (TupT tup_types $ id.at) in
-      RuleD (fun_prefix ^ id.it ^ "_case_" ^ Int.to_string i $ id.at, quants @ new_quants @ new_quants', new_mixop, tupe, List.map (transform_prem_normal call_map env) (prems' @ new_prems)) $ id.at
+      RuleD (fun_prefix ^ id.it ^ "_case_" ^ Int.to_string i $ id.at, quants @ new_quants @ new_quants', new_mixop, tupe, List.map (transform_prem_normal call_map env) (new_prems @ prems')) $ id.at
     ) clauses 
   in
   let new_id = { id with it = fun_prefix ^ id.it } in
