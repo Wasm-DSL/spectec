@@ -27,6 +27,7 @@ type pass =
   | AliasDemut
   | ImproveIds
   | Ite
+  | DefToRel
   | ElseSimp
   | LetIntroMech
 
@@ -46,9 +47,10 @@ let all_passes = [
   Else;
   ElseSimp;
   Uncaseremoval;
-  Sideconditions;
   SubExpansion;
   Sub;
+  DefToRel;
+  Sideconditions;
   AliasDemut;
   ImproveIds
 ]
@@ -116,6 +118,7 @@ let pass_flag = function
   | Uncaseremoval -> "uncase-removal"
   | ImproveIds -> "improve-ids"
   | Ite -> "ite"
+  | DefToRel -> "definition-to-relation"
   | ElseSimp -> "else-simplification"
   | LetIntroMech -> "let-intro-mech"
 
@@ -132,6 +135,7 @@ let pass_desc = function
   | AliasDemut -> "Lifts type aliases out of mutual groups"
   | ImproveIds -> "Disambiguates ids used from each other"
   | Ite -> "If-then-else introduction"
+  | DefToRel -> "Transform specific function definitions into relations"
   | ElseSimp -> "Simplifies generated otherwise relations (after else pass)"
   | LetIntroMech -> "Let Premise introduction for mechanization backends"
 
@@ -149,6 +153,7 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | AliasDemut -> Middlend.AliasDemut.transform
   | ImproveIds -> Middlend.Improveids.transform
   | Ite -> Middlend.Ite.transform
+  | DefToRel -> Middlend.Deftorel.transform
   | LetIntroMech -> Middlend.Letintromech.transform
   | ElseSimp -> Middlend.Elsesimp.transform
 
