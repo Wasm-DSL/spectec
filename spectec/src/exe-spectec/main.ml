@@ -31,6 +31,8 @@ type pass =
   | DefToRel
   | ElseSimp
   | LetIntroMech
+  | DatatypeDiet
+  | SinglePatternMatch
 
 (* This list declares the intended order of passes.
 
@@ -54,7 +56,9 @@ let all_passes = [
   DefToRel;
   Sideconditions;
   AliasDemut;
-  ImproveIds
+  ImproveIds;
+  DatatypeDiet;
+  SinglePatternMatch
 ]
 
 type file_kind =
@@ -124,6 +128,9 @@ let pass_flag = function
   | DefToRel -> "definition-to-relation"
   | ElseSimp -> "else-simplification"
   | LetIntroMech -> "let-intro-mech"
+  | DatatypeDiet -> "datatype-diet"
+  | SinglePatternMatch -> "single-pattern-match"
+
 
 let pass_desc = function
   | Sub -> "Synthesize explicit subtype coercions"
@@ -142,6 +149,8 @@ let pass_desc = function
   | DefToRel -> "Transform specific function definitions into relations"
   | ElseSimp -> "Simplifies generated otherwise relations (after else pass)"
   | LetIntroMech -> "Let Premise introduction for mechanization backends"
+  | DatatypeDiet -> "Remove datatypes with over 50 constructors"
+  | SinglePatternMatch -> "Remove functions that pattern-match on several arguments"
 
 
 let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
@@ -161,6 +170,9 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | DefToRel -> Middlend.Deftorel.transform
   | LetIntroMech -> Middlend.Letintromech.transform
   | ElseSimp -> Middlend.Elsesimp.transform
+  | DatatypeDiet -> Middlend.Datatypediet.transform
+  | SinglePatternMatch -> Middlend.Singlepatternmatch.transform
+
 
 (* Argument parsing - Specific for undep pass *)
 let set_wf_state s =

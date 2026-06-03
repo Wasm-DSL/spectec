@@ -19,5 +19,7 @@
     deftorel
     elsesimp
     letintromech
+    datatypediet
+    singlepatternmatch
   )
 )
