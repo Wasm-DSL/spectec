@@ -13,6 +13,7 @@ type target =
  | Prose of bool
  | Splice of Backend_splice.Config.t
  | Interpreter of string list
+ | Isabelle
 
 type pass =
   | Sub
@@ -235,7 +236,8 @@ let argspec = Arg.align (
   "--prose", Arg.Unit (fun () -> target := Prose true), " Generate prose";
   "--prose-rst", Arg.Unit (fun () -> target := Prose false), " Generate prose";
   "--interpreter", Arg.Rest_all (fun args -> target := Interpreter args),
-    " Generate interpreter";
+  " Generate interpreter";
+  "--isabelle", Arg.Unit (fun () -> target := Isabelle), " Generate Isabelle Definitions";
   "--debug", Arg.Unit (fun () -> Backend_interpreter.Debugger.debug := true),
     " Debug interpreter";
   "--unified-vars", Arg.Unit (fun () -> Il2al.Unify.rename := false),
@@ -289,7 +291,24 @@ let () =
 
     (match !target with
     | Prose _ | Splice _ | Interpreter _ ->
+       enable_pass Sideconditions;
+    | Isabelle -> 
       enable_pass Sideconditions;
+      enable_pass Totalize;  
+      enable_pass Else;
+      enable_pass TypeFamilyRemoval;
+      enable_pass Undep;
+      enable_pass Uncaseremoval;
+      enable_pass Sub;
+      enable_pass SubExpansion;
+      enable_pass ImproveIds;
+      enable_pass AliasDemut;
+      enable_pass DefToRel;
+      enable_pass Ite;
+      enable_pass ElseSimp;
+      enable_pass PatSimp;
+      enable_pass DatatypeDiet;
+      enable_pass SinglePatternMatch 
     | _ when !print_al || !print_al_o <> "" ->
       enable_pass Sideconditions;
     | _ -> ()
@@ -316,7 +335,7 @@ let () =
     if !print_final_il && not !print_all_il then print_il il;
 
     let al =
-      if not !print_al && !print_al_o = "" && (!target = Check || !target = Ast || !target = Latex) then []
+      if not !print_al && !print_al_o = "" && (!target = Check || !target = Ast || !target = Latex || !target = Isabelle) then []
       else (
         log "Translating to AL...";
         let interp = match !target with
@@ -426,6 +445,24 @@ let () =
       Backend_interpreter.Ds.init al;
       log "Interpreting...";
       Backend_interpreter.Runner.run args
+
+    | Isabelle ->
+      log "Isabelle Generation...";
+      (match !odsts with
+      | [] -> print_endline (Backend_isabelle.Print.string_of_script "spectecIsabelle" il)
+      | [odst] ->
+         if not (Filename.check_suffix odst ".thy")
+         then (prerr_endline "output should be Isabelle file");
+         let coq_code = Backend_isabelle.Print.string_of_script
+                          (Filename.chop_suffix odst ".thy") il in
+        let oc = Out_channel.open_text odst in
+        Fun.protect (fun () -> Out_channel.output_string oc coq_code)
+          ~finally:(fun () -> Out_channel.close oc)
+      | _ ->
+        prerr_endline "too many output file names";
+        exit 2
+      )
+     
     );
     log "Complete."
   with
