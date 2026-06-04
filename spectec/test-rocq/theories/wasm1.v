@@ -258,30 +258,30 @@ Inductive fun_sum : (seq nat) -> nat -> Prop :=
 		fun_sum ([::v_n] ++ n'_lst) (v_n + var_0)%N.
 
 (* Auxiliary Definition at: ../specification/wasm-1.0/0-aux.spectec:32.1-32.58 *)
-Definition opt_ (X : eqType) (var_0 : (seq X)) : (option (option X)) :=
-	match X, var_0 return (option (option X)) with
+Definition opt_ (X : eqType) (var_0* : (seq X)) : (option (option X)) :=
+	match X, var_0* return (option (option X)) with
 		| X, [:: ] => (Some None)
 		| X, [::w] => (Some (Some w))
 		| X, x1 => None
 	end.
 
 (* Auxiliary Definition at: ../specification/wasm-1.0/0-aux.spectec:36.1-36.45 *)
-Definition list_ (X : eqType) (var_0 : (option X)) : (seq X) :=
-	match X, var_0 return (seq X) with
+Definition list_ (X : eqType) (var_0? : (option X)) : (seq X) :=
+	match X, var_0? return (seq X) with
 		| X, None => [:: ]
 		| X, (Some w) => [::w]
 	end.
 
 (* Mutual Recursion at: ../specification/wasm-1.0/0-aux.spectec:40.1-40.59 *)
-Fixpoint concat_ (X : eqType) (var_0 : (seq (seq X))) : (seq X) :=
-	match X, var_0 return (seq X) with
+Fixpoint concat_ (X : eqType) (var_0** : (seq (seq X))) : (seq X) :=
+	match X, var_0** return (seq X) with
 		| X, [:: ] => [:: ]
 		| X, (w_lst :: w'_lst_lst) => (w_lst ++ (concat_ X w'_lst_lst))
 	end.
 
 (* Mutual Recursion at: ../specification/wasm-1.0/0-aux.spectec:44.1-44.78 *)
-Fixpoint disjoint_ (X : eqType) (var_0 : (seq X)) : bool :=
-	match X, var_0 return bool with
+Fixpoint disjoint_ (X : eqType) (var_0* : (seq X)) : bool :=
+	match X, var_0* return bool with
 		| X, [:: ] => true
 		| X, (w :: w'_lst) => ((negb (w \in w'_lst)) && (disjoint_ X w'_lst))
 	end.
@@ -601,11 +601,11 @@ Inductive fun_utf8 : (seq char) -> (seq byte) -> Prop :=
 		fun_utf8 ch_lst (concat_ byte var_0_lst).
 
 (* Mutual Recursion at: ../specification/wasm-1.0/1-syntax.spectec:80.1-80.25 *)
-Lemma utf8_is_wf : forall (var_0 : (seq char)) (ret_val : (seq byte)) (var_1 : (seq byte)),
-	(fun_utf8 var_0 var_1) ->
-	List.Forall (fun (var_0 : char) => (wf_char var_0)) var_0 ->
-	(ret_val == var_1) ->
-	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val.
+Lemma utf8_is_wf : forall (var_0_lst : (seq char)) (ret_val_lst : (seq byte)) (var_0 : (seq byte)),
+	(fun_utf8 var_0_lst var_0) ->
+	List.Forall (fun (var_0 : char) => (wf_char var_0)) var_0_lst ->
+	(ret_val_lst == var_0) ->
+	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Inductive Type Definition at: ../specification/wasm-1.0/1-syntax.spectec:82.1-82.70 *)
@@ -1444,10 +1444,10 @@ Inductive wf_instr : instr -> Prop :=
 	| instr_case_5 : forall (v_blocktype : blocktype) (instr_lst : (seq instr)), 
 		List.Forall (fun (v_instr : instr) => (wf_instr v_instr)) instr_lst ->
 		wf_instr (LOOP v_blocktype instr_lst)
-	| instr_case_6 : forall (v_blocktype : blocktype) (instr_lst : (seq instr)) (instr_lst_0 : (seq instr)), 
+	| instr_case_6 : forall (v_blocktype : blocktype) (instr_lst : (seq instr)) (instr_lst_0_lst : (seq instr)), 
 		List.Forall (fun (v_instr : instr) => (wf_instr v_instr)) instr_lst ->
-		List.Forall (fun (instr_lst_0 : instr) => (wf_instr instr_lst_0)) instr_lst_0 ->
-		wf_instr (IFELSE v_blocktype instr_lst instr_lst_0)
+		List.Forall (fun (instr_lst_0 : instr) => (wf_instr instr_lst_0)) instr_lst_0_lst ->
+		wf_instr (IFELSE v_blocktype instr_lst instr_lst_0_lst)
 	| instr_case_7 : forall (v_labelidx : labelidx), 
 		(wf_uN 32 v_labelidx) ->
 		wf_instr (BR v_labelidx)
@@ -1498,10 +1498,10 @@ Inductive wf_instr : instr -> Prop :=
 	| instr_case_23 : forall (v_globalidx : globalidx), 
 		(wf_uN 32 v_globalidx) ->
 		wf_instr (GLOBAL_SET v_globalidx)
-	| instr_case_24 : forall (v_valtype : valtype) (var_0 : (option loadop_)) (v_memarg : memarg), 
-		List.Forall (fun (var_0 : loadop_) => (wf_loadop_ v_valtype var_0)) (option_to_list var_0) ->
+	| instr_case_24 : forall (v_valtype : valtype) (var_0_opt : (option loadop_)) (v_memarg : memarg), 
+		List.Forall (fun (var_0 : loadop_) => (wf_loadop_ v_valtype var_0)) (option_to_list var_0_opt) ->
 		(wf_memarg v_memarg) ->
-		wf_instr (LOAD v_valtype var_0 v_memarg)
+		wf_instr (LOAD v_valtype var_0_opt v_memarg)
 	| instr_case_25 : forall (Inn_opt : (option Inn)) (valtype_opt : (option valtype)) (v_valtype : valtype) (sz_opt : (option sz)) (v_memarg : memarg), 
 		List.Forall (fun (v_sz : sz) => (wf_sz v_sz)) (option_to_list sz_opt) ->
 		(wf_memarg v_memarg) ->
@@ -1872,11 +1872,11 @@ Inductive fun_tablesxt : (seq externtype) -> (seq tabletype) -> Prop :=
 		fun_tablesxt ([::v_externtype] ++ xt_lst) var_0.
 
 (* Mutual Recursion at: ../specification/wasm-1.0/2-syntax-aux.spectec:22.1-22.65 *)
-Lemma tablesxt_is_wf : forall (var_0 : (seq externtype)) (ret_val : (seq tabletype)) (var_1 : (seq tabletype)),
-	(fun_tablesxt var_0 var_1) ->
-	List.Forall (fun (var_0 : externtype) => (wf_externtype var_0)) var_0 ->
-	(ret_val == var_1) ->
-	List.Forall (fun (ret_val : tabletype) => (wf_limits ret_val)) ret_val.
+Lemma tablesxt_is_wf : forall (var_0_lst : (seq externtype)) (ret_val_lst : (seq tabletype)) (var_0 : (seq tabletype)),
+	(fun_tablesxt var_0_lst var_0) ->
+	List.Forall (fun (var_0 : externtype) => (wf_externtype var_0)) var_0_lst ->
+	(ret_val_lst == var_0) ->
+	List.Forall (fun (ret_val : tabletype) => (wf_limits ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Mutual Recursion at: ../specification/wasm-1.0/2-syntax-aux.spectec:23.1-23.63 *)
@@ -1890,11 +1890,11 @@ Inductive fun_memsxt : (seq externtype) -> (seq memtype) -> Prop :=
 		fun_memsxt ([::v_externtype] ++ xt_lst) var_0.
 
 (* Mutual Recursion at: ../specification/wasm-1.0/2-syntax-aux.spectec:23.1-23.63 *)
-Lemma memsxt_is_wf : forall (var_0 : (seq externtype)) (ret_val : (seq memtype)) (var_1 : (seq memtype)),
-	(fun_memsxt var_0 var_1) ->
-	List.Forall (fun (var_0 : externtype) => (wf_externtype var_0)) var_0 ->
-	(ret_val == var_1) ->
-	List.Forall (fun (ret_val : memtype) => (wf_limits ret_val)) ret_val.
+Lemma memsxt_is_wf : forall (var_0_lst : (seq externtype)) (ret_val_lst : (seq memtype)) (var_0 : (seq memtype)),
+	(fun_memsxt var_0_lst var_0) ->
+	List.Forall (fun (var_0 : externtype) => (wf_externtype var_0)) var_0_lst ->
+	(ret_val_lst == var_0) ->
+	List.Forall (fun (ret_val : memtype) => (wf_limits ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-1.0/2-syntax-aux.spectec:49.1-49.35 *)
@@ -1938,70 +1938,70 @@ Inductive fun_inv_signed_ : res_N -> int -> nat -> Prop :=
 Axiom fabs_ : forall (v_N : res_N) (v_fN : fN), (seq fN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:152.6-152.12 *)
-Lemma fabs__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val : (seq fN)),
+Lemma fabs__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
-	(ret_val == (fabs_ v_N v_fN)) ->
-	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val.
+	(ret_val_lst == (fabs_ v_N v_fN)) ->
+	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:155.1-155.31 *)
 Axiom fceil_ : forall (v_N : res_N) (v_fN : fN), (seq fN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:155.6-155.13 *)
-Lemma fceil__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val : (seq fN)),
+Lemma fceil__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
-	(ret_val == (fceil_ v_N v_fN)) ->
-	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val.
+	(ret_val_lst == (fceil_ v_N v_fN)) ->
+	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:156.1-156.32 *)
 Axiom ffloor_ : forall (v_N : res_N) (v_fN : fN), (seq fN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:156.6-156.14 *)
-Lemma ffloor__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val : (seq fN)),
+Lemma ffloor__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
-	(ret_val == (ffloor_ v_N v_fN)) ->
-	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val.
+	(ret_val_lst == (ffloor_ v_N v_fN)) ->
+	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:158.1-158.34 *)
 Axiom fnearest_ : forall (v_N : res_N) (v_fN : fN), (seq fN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:158.6-158.16 *)
-Lemma fnearest__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val : (seq fN)),
+Lemma fnearest__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
-	(ret_val == (fnearest_ v_N v_fN)) ->
-	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val.
+	(ret_val_lst == (fnearest_ v_N v_fN)) ->
+	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:153.1-153.30 *)
 Axiom fneg_ : forall (v_N : res_N) (v_fN : fN), (seq fN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:153.6-153.12 *)
-Lemma fneg__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val : (seq fN)),
+Lemma fneg__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
-	(ret_val == (fneg_ v_N v_fN)) ->
-	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val.
+	(ret_val_lst == (fneg_ v_N v_fN)) ->
+	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:154.1-154.31 *)
 Axiom fsqrt_ : forall (v_N : res_N) (v_fN : fN), (seq fN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:154.6-154.13 *)
-Lemma fsqrt__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val : (seq fN)),
+Lemma fsqrt__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
-	(ret_val == (fsqrt_ v_N v_fN)) ->
-	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val.
+	(ret_val_lst == (fsqrt_ v_N v_fN)) ->
+	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:157.1-157.32 *)
 Axiom ftrunc_ : forall (v_N : res_N) (v_fN : fN), (seq fN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:157.6-157.14 *)
-Lemma ftrunc__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val : (seq fN)),
+Lemma ftrunc__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
-	(ret_val == (ftrunc_ v_N v_fN)) ->
-	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val.
+	(ret_val_lst == (ftrunc_ v_N v_fN)) ->
+	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:86.1-86.29 *)
@@ -2061,88 +2061,88 @@ Definition fun_unop_ (v_valtype : valtype) (v_unop_ : unop_) (v_val_ : val_) : (
 	end.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:28.6-28.12 *)
-Lemma unop__is_wf : forall (v_valtype : valtype) (v_unop_ : unop_) (v_val_ : val_) (ret_val : (seq val_)),
+Lemma unop__is_wf : forall (v_valtype : valtype) (v_unop_ : unop_) (v_val_ : val_) (ret_val_lst : (seq val_)),
 	(wf_unop_ v_valtype v_unop_) ->
 	(wf_val_ v_valtype v_val_) ->
-	(ret_val == (fun_unop_ v_valtype v_unop_ v_val_)) ->
-	List.Forall (fun (ret_val : val_) => (wf_val_ v_valtype ret_val)) ret_val.
+	(ret_val_lst == (fun_unop_ v_valtype v_unop_ v_val_)) ->
+	List.Forall (fun (ret_val : val_) => (wf_val_ v_valtype ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:145.1-145.37 *)
 Axiom fadd_ : forall (v_N : res_N) (v_fN : fN) (v_fN_0 : fN), (seq fN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:145.6-145.12 *)
-Lemma fadd__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : (seq fN)),
+Lemma fadd__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
-	(ret_val == (fadd_ v_N v_fN fN_0)) ->
-	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val.
+	(ret_val_lst == (fadd_ v_N v_fN fN_0)) ->
+	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:151.1-151.42 *)
 Axiom fcopysign_ : forall (v_N : res_N) (v_fN : fN) (v_fN_0 : fN), (seq fN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:151.6-151.17 *)
-Lemma fcopysign__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : (seq fN)),
+Lemma fcopysign__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
-	(ret_val == (fcopysign_ v_N v_fN fN_0)) ->
-	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val.
+	(ret_val_lst == (fcopysign_ v_N v_fN fN_0)) ->
+	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:148.1-148.37 *)
 Axiom fdiv_ : forall (v_N : res_N) (v_fN : fN) (v_fN_0 : fN), (seq fN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:148.6-148.12 *)
-Lemma fdiv__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : (seq fN)),
+Lemma fdiv__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
-	(ret_val == (fdiv_ v_N v_fN fN_0)) ->
-	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val.
+	(ret_val_lst == (fdiv_ v_N v_fN fN_0)) ->
+	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:150.1-150.37 *)
 Axiom fmax_ : forall (v_N : res_N) (v_fN : fN) (v_fN_0 : fN), (seq fN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:150.6-150.12 *)
-Lemma fmax__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : (seq fN)),
+Lemma fmax__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
-	(ret_val == (fmax_ v_N v_fN fN_0)) ->
-	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val.
+	(ret_val_lst == (fmax_ v_N v_fN fN_0)) ->
+	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:149.1-149.37 *)
 Axiom fmin_ : forall (v_N : res_N) (v_fN : fN) (v_fN_0 : fN), (seq fN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:149.6-149.12 *)
-Lemma fmin__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : (seq fN)),
+Lemma fmin__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
-	(ret_val == (fmin_ v_N v_fN fN_0)) ->
-	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val.
+	(ret_val_lst == (fmin_ v_N v_fN fN_0)) ->
+	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:147.1-147.37 *)
 Axiom fmul_ : forall (v_N : res_N) (v_fN : fN) (v_fN_0 : fN), (seq fN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:147.6-147.12 *)
-Lemma fmul__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : (seq fN)),
+Lemma fmul__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
-	(ret_val == (fmul_ v_N v_fN fN_0)) ->
-	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val.
+	(ret_val_lst == (fmul_ v_N v_fN fN_0)) ->
+	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:146.1-146.37 *)
 Axiom fsub_ : forall (v_N : res_N) (v_fN : fN) (v_fN_0 : fN), (seq fN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:146.6-146.12 *)
-Lemma fsub__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : (seq fN)),
+Lemma fsub__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
-	(ret_val == (fsub_ v_N v_fN fN_0)) ->
-	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val.
+	(ret_val_lst == (fsub_ v_N v_fN fN_0)) ->
+	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-1.0/3-numerics.spectec:73.1-73.36 *)
@@ -2187,12 +2187,12 @@ Inductive fun_idiv_ : res_N -> sx -> iN -> iN -> (option iN) -> Prop :=
 		fun_idiv_ v_N res_S i_1 i_2 (Some (mk_uN var_0)).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:76.6-76.12 *)
-Lemma idiv__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : (option iN)) (var_0 : (option iN)),
+Lemma idiv__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val_opt : (option iN)) (var_0 : (option iN)),
 	(fun_idiv_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
-	(ret_val == var_0) ->
-	List.Forall (fun (ret_val : iN) => (wf_uN v_N ret_val)) (option_to_list ret_val).
+	(ret_val_opt == var_0) ->
+	List.Forall (fun (ret_val : iN) => (wf_uN v_N ret_val)) (option_to_list ret_val_opt).
 Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-1.0/3-numerics.spectec:75.1-75.36 *)
@@ -2233,12 +2233,12 @@ Inductive fun_irem_ : res_N -> sx -> iN -> iN -> (option iN) -> Prop :=
 		fun_irem_ v_N res_S i_1 i_2 (Some (mk_uN var_0)).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:77.6-77.12 *)
-Lemma irem__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : (option iN)) (var_0 : (option iN)),
+Lemma irem__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val_opt : (option iN)) (var_0 : (option iN)),
 	(fun_irem_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
-	(ret_val == var_0) ->
-	List.Forall (fun (ret_val : iN) => (wf_uN v_N ret_val)) (option_to_list ret_val).
+	(ret_val_opt == var_0) ->
+	List.Forall (fun (ret_val : iN) => (wf_uN v_N ret_val)) (option_to_list ret_val_opt).
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:84.1-84.37 *)
@@ -2360,13 +2360,13 @@ Inductive fun_binop_ : valtype -> binop_ -> val_ -> val_ -> (seq val_) -> Prop :
 	| fun_binop__case_37 : forall (fN_1 : fN) (fN_2 : fN), fun_binop_ F64 (mk_binop__1 Fnn_F64 COPYSIGN) (mk_val__1 Fnn_F64 fN_1) (mk_val__1 Fnn_F64 fN_2) (seq.map (fun (iter_0_32 : fN) => (mk_val__1 Fnn_F64 iter_0_32)) (fcopysign_ (res_size (valtype_Fnn Fnn_F64)) fN_1 fN_2)).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:30.6-30.13 *)
-Lemma binop__is_wf : forall (v_valtype : valtype) (v_binop_ : binop_) (v_val_ : val_) (val__0 : val_) (ret_val : (seq val_)) (var_0 : (seq val_)),
+Lemma binop__is_wf : forall (v_valtype : valtype) (v_binop_ : binop_) (v_val_ : val_) (val__0 : val_) (ret_val_lst : (seq val_)) (var_0 : (seq val_)),
 	(fun_binop_ v_valtype v_binop_ v_val_ val__0 var_0) ->
 	(wf_binop_ v_valtype v_binop_) ->
 	(wf_val_ v_valtype v_val_) ->
 	(wf_val_ v_valtype val__0) ->
-	(ret_val == var_0) ->
-	List.Forall (fun (ret_val : val_) => (wf_val_ v_valtype ret_val)) ret_val.
+	(ret_val_lst == var_0) ->
+	List.Forall (fun (ret_val : val_) => (wf_val_ v_valtype ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-1.0/3-numerics.spectec:89.1-89.27 *)
@@ -2627,10 +2627,10 @@ Proof. Admitted.
 Axiom demote__ : forall (v_M : M) (v_N : res_N) (v_fN : fN), (seq fN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:42.6-42.15 *)
-Lemma demote___is_wf : forall (v_M : M) (v_N : res_N) (v_fN : fN) (ret_val : (seq fN)),
+Lemma demote___is_wf : forall (v_M : M) (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_M v_fN) ->
-	(ret_val == (demote__ v_M v_N v_fN)) ->
-	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val.
+	(ret_val_lst == (demote__ v_M v_N v_fN)) ->
+	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:40.1-40.89 *)
@@ -2647,10 +2647,10 @@ Proof. Admitted.
 Axiom promote__ : forall (v_M : M) (v_N : res_N) (v_fN : fN), (seq fN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:43.6-43.16 *)
-Lemma promote___is_wf : forall (v_M : M) (v_N : res_N) (v_fN : fN) (ret_val : (seq fN)),
+Lemma promote___is_wf : forall (v_M : M) (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_M v_fN) ->
-	(ret_val == (promote__ v_M v_N v_fN)) ->
-	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val.
+	(ret_val_lst == (promote__ v_M v_N v_fN)) ->
+	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:45.1-45.76 *)
@@ -2667,10 +2667,10 @@ Proof. Admitted.
 Axiom trunc__ : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_fN : fN), (option iN).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:41.6-41.14 *)
-Lemma trunc___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_fN : fN) (ret_val : (option iN)),
+Lemma trunc___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_fN : fN) (ret_val_opt : (option iN)),
 	(wf_fN v_M v_fN) ->
-	(ret_val == (trunc__ v_M v_N v_sx v_fN)) ->
-	List.Forall (fun (ret_val : iN) => (wf_uN v_N ret_val)) (option_to_list ret_val).
+	(ret_val_opt == (trunc__ v_M v_N v_sx v_fN)) ->
+	List.Forall (fun (ret_val : iN) => (wf_uN v_N ret_val)) (option_to_list ret_val_opt).
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:39.1-39.33 *)
@@ -2723,70 +2723,70 @@ Inductive fun_cvtop__ : valtype -> valtype -> cvtop -> val_ -> (seq val_) -> Pro
 		fun_cvtop__ F64 I64 REINTERPRET (mk_val__1 Fnn_F64 v_fN) [::(reinterpret__ (valtype_Fnn Fnn_F64) (valtype_Inn Inn_I64) (mk_val__1 Fnn_F64 v_fN))].
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:36.6-36.14 *)
-Lemma cvtop___is_wf : forall (valtype_1 : valtype) (valtype_2 : valtype) (v_cvtop : cvtop) (v_val_ : val_) (ret_val : (seq val_)) (var_0 : (seq val_)),
+Lemma cvtop___is_wf : forall (valtype_1 : valtype) (valtype_2 : valtype) (v_cvtop : cvtop) (v_val_ : val_) (ret_val_lst : (seq val_)) (var_0 : (seq val_)),
 	(fun_cvtop__ valtype_1 valtype_2 v_cvtop v_val_ var_0) ->
 	(wf_val_ valtype_1 v_val_) ->
-	(ret_val == var_0) ->
-	List.Forall (fun (ret_val : val_) => (wf_val_ valtype_2 ret_val)) ret_val.
+	(ret_val_lst == var_0) ->
+	List.Forall (fun (ret_val : val_) => (wf_val_ valtype_2 ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:56.1-56.102 *)
 Axiom ibytes_ : forall (v_N : res_N) (v_iN : iN), (seq byte).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:56.6-56.14 *)
-Lemma ibytes__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : (seq byte)),
+Lemma ibytes__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val_lst : (seq byte)),
 	(wf_uN v_N v_iN) ->
-	(ret_val == (ibytes_ v_N v_iN)) ->
-	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val.
+	(ret_val_lst == (ibytes_ v_N v_iN)) ->
+	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:57.1-57.102 *)
 Axiom fbytes_ : forall (v_N : res_N) (v_fN : fN), (seq byte).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:57.6-57.14 *)
-Lemma fbytes__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val : (seq byte)),
+Lemma fbytes__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq byte)),
 	(wf_fN v_N v_fN) ->
-	(ret_val == (fbytes_ v_N v_fN)) ->
-	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val.
+	(ret_val_lst == (fbytes_ v_N v_fN)) ->
+	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:58.1-58.75 *)
 Axiom bytes_ : forall (v_valtype : valtype) (v_val_ : val_), (seq byte).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:58.6-58.13 *)
-Lemma bytes__is_wf : forall (v_valtype : valtype) (v_val_ : val_) (ret_val : (seq byte)),
+Lemma bytes__is_wf : forall (v_valtype : valtype) (v_val_ : val_) (ret_val_lst : (seq byte)),
 	(wf_val_ v_valtype v_val_) ->
-	(ret_val == (bytes_ v_valtype v_val_)) ->
-	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val.
+	(ret_val_lst == (bytes_ v_valtype v_val_)) ->
+	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:60.1-60.75 *)
-Axiom inv_ibytes_ : forall (v_N : res_N) (var_0 : (seq byte)), iN.
+Axiom inv_ibytes_ : forall (v_N : res_N) (var_0* : (seq byte)), iN.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:60.6-60.18 *)
-Lemma inv_ibytes__is_wf : forall (v_N : res_N) (var_0 : (seq byte)) (ret_val : iN),
-	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0 ->
-	(ret_val == (inv_ibytes_ v_N var_0)) ->
+Lemma inv_ibytes__is_wf : forall (v_N : res_N) (var_0_lst : (seq byte)) (ret_val : iN),
+	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst ->
+	(ret_val == (inv_ibytes_ v_N var_0_lst)) ->
 	(wf_uN v_N ret_val).
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:61.1-61.75 *)
-Axiom inv_fbytes_ : forall (v_N : res_N) (var_0 : (seq byte)), fN.
+Axiom inv_fbytes_ : forall (v_N : res_N) (var_0* : (seq byte)), fN.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:61.6-61.18 *)
-Lemma inv_fbytes__is_wf : forall (v_N : res_N) (var_0 : (seq byte)) (ret_val : fN),
-	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0 ->
-	(ret_val == (inv_fbytes_ v_N var_0)) ->
+Lemma inv_fbytes__is_wf : forall (v_N : res_N) (var_0_lst : (seq byte)) (ret_val : fN),
+	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst ->
+	(ret_val == (inv_fbytes_ v_N var_0_lst)) ->
 	(wf_fN v_N ret_val).
 Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-1.0/3-numerics.spectec:62.1-62.73 *)
-Axiom inv_bytes_ : forall (v_valtype : valtype) (var_0 : (seq byte)), val_.
+Axiom inv_bytes_ : forall (v_valtype : valtype) (var_0* : (seq byte)), val_.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/3-numerics.spectec:62.6-62.17 *)
-Lemma inv_bytes__is_wf : forall (v_valtype : valtype) (var_0 : (seq byte)) (ret_val : val_),
-	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0 ->
-	(ret_val == (inv_bytes_ v_valtype var_0)) ->
+Lemma inv_bytes__is_wf : forall (v_valtype : valtype) (var_0_lst : (seq byte)) (ret_val : val_),
+	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst ->
+	(ret_val == (inv_bytes_ v_valtype var_0_lst)) ->
 	(wf_val_ v_valtype ret_val).
 Proof. Admitted.
 
@@ -2985,9 +2985,9 @@ Hint Resolve moduleinst_eq_dec : eq_dec_db.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/4-runtime.spectec:65.8-65.18 *)
 Inductive wf_moduleinst : moduleinst -> Prop :=
-	| moduleinst_case_ : forall (var_0 : (seq functype)) (var_1 : (seq funcaddr)) (var_2 : (seq globaladdr)) (var_3 : (seq tableaddr)) (var_4 : (seq memaddr)) (var_5 : (seq exportinst)), 
-		List.Forall (fun (var_5 : exportinst) => (wf_exportinst var_5)) var_5 ->
-		wf_moduleinst {| TYPES := var_0; FUNCS := var_1; GLOBALS := var_2; TABLES := var_3; MEMS := var_4; EXPORTS := var_5 |}.
+	| moduleinst_case_ : forall (var_0_lst : (seq functype)) (var_1_lst : (seq funcaddr)) (var_2_lst : (seq globaladdr)) (var_3_lst : (seq tableaddr)) (var_4_lst : (seq memaddr)) (var_5_lst : (seq exportinst)), 
+		List.Forall (fun (var_5 : exportinst) => (wf_exportinst var_5)) var_5_lst ->
+		wf_moduleinst {| TYPES := var_0_lst; FUNCS := var_1_lst; GLOBALS := var_2_lst; TABLES := var_3_lst; MEMS := var_4_lst; EXPORTS := var_5_lst |}.
 
 (* Record Creation Definition at: ../specification/wasm-1.0/4-runtime.spectec:48.1-51.16 *)
 Record funcinst := MKfuncinst
@@ -3106,9 +3106,9 @@ Hint Resolve tableinst_eq_dec : eq_dec_db.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/4-runtime.spectec:55.8-55.17 *)
 Inductive wf_tableinst : tableinst -> Prop :=
-	| tableinst_case_ : forall (var_0 : tabletype) (var_1 : (seq (option funcaddr))), 
+	| tableinst_case_ : forall (var_0 : tabletype) (var_1_opt_lst : (seq (option funcaddr))), 
 		(wf_limits var_0) ->
-		wf_tableinst {| tableinst_TYPE := var_0; REFS := var_1 |}.
+		wf_tableinst {| tableinst_TYPE := var_0; REFS := var_1_opt_lst |}.
 
 (* Record Creation Definition at: ../specification/wasm-1.0/4-runtime.spectec:58.1-60.18 *)
 Record meminst := MKmeminst
@@ -3145,10 +3145,10 @@ Hint Resolve meminst_eq_dec : eq_dec_db.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/4-runtime.spectec:58.8-58.15 *)
 Inductive wf_meminst : meminst -> Prop :=
-	| meminst_case_ : forall (var_0 : memtype) (var_1 : (seq byte)), 
+	| meminst_case_ : forall (var_0 : memtype) (var_1_lst : (seq byte)), 
 		(wf_limits var_0) ->
-		List.Forall (fun (var_1 : byte) => (wf_byte var_1)) var_1 ->
-		wf_meminst {| meminst_TYPE := var_0; BYTES := var_1 |}.
+		List.Forall (fun (var_1 : byte) => (wf_byte var_1)) var_1_lst ->
+		wf_meminst {| meminst_TYPE := var_0; BYTES := var_1_lst |}.
 
 (* Record Creation Definition at: ../specification/wasm-1.0/4-runtime.spectec:83.1-87.20 *)
 Record store := MKstore
@@ -3191,12 +3191,12 @@ Hint Resolve store_eq_dec : eq_dec_db.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/4-runtime.spectec:83.8-83.13 *)
 Inductive wf_store : store -> Prop :=
-	| store_case_ : forall (var_0 : (seq funcinst)) (var_1 : (seq globalinst)) (var_2 : (seq tableinst)) (var_3 : (seq meminst)), 
-		List.Forall (fun (var_0 : funcinst) => (wf_funcinst var_0)) var_0 ->
-		List.Forall (fun (var_1 : globalinst) => (wf_globalinst var_1)) var_1 ->
-		List.Forall (fun (var_2 : tableinst) => (wf_tableinst var_2)) var_2 ->
-		List.Forall (fun (var_3 : meminst) => (wf_meminst var_3)) var_3 ->
-		wf_store {| store_FUNCS := var_0; store_GLOBALS := var_1; store_TABLES := var_2; store_MEMS := var_3 |}.
+	| store_case_ : forall (var_0_lst : (seq funcinst)) (var_1_lst : (seq globalinst)) (var_2_lst : (seq tableinst)) (var_3_lst : (seq meminst)), 
+		List.Forall (fun (var_0 : funcinst) => (wf_funcinst var_0)) var_0_lst ->
+		List.Forall (fun (var_1 : globalinst) => (wf_globalinst var_1)) var_1_lst ->
+		List.Forall (fun (var_2 : tableinst) => (wf_tableinst var_2)) var_2_lst ->
+		List.Forall (fun (var_3 : meminst) => (wf_meminst var_3)) var_3_lst ->
+		wf_store {| store_FUNCS := var_0_lst; store_GLOBALS := var_1_lst; store_TABLES := var_2_lst; store_MEMS := var_3_lst |}.
 
 (* Record Creation Definition at: ../specification/wasm-1.0/4-runtime.spectec:89.1-91.24 *)
 Record frame := MKframe
@@ -3233,10 +3233,10 @@ Hint Resolve frame_eq_dec : eq_dec_db.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/4-runtime.spectec:89.8-89.13 *)
 Inductive wf_frame : frame -> Prop :=
-	| frame_case_ : forall (var_0 : (seq val)) (var_1 : moduleinst), 
-		List.Forall (fun (var_0 : val) => (wf_val var_0)) var_0 ->
+	| frame_case_ : forall (var_0_lst : (seq val)) (var_1 : moduleinst), 
+		List.Forall (fun (var_0 : val) => (wf_val var_0)) var_0_lst ->
 		(wf_moduleinst var_1) ->
-		wf_frame {| LOCALS := var_0; frame_MODULE := var_1 |}.
+		wf_frame {| LOCALS := var_0_lst; frame_MODULE := var_1 |}.
 
 (* Inductive Type Definition at: ../specification/wasm-1.0/4-runtime.spectec:93.1-93.47 *)
 Inductive state : Type :=
@@ -3363,10 +3363,10 @@ Inductive wf_admininstr : admininstr -> Prop :=
 	| admininstr_case_5 : forall (v_blocktype : blocktype) (instr_lst : (seq instr)), 
 		List.Forall (fun (v_instr : instr) => (wf_instr v_instr)) instr_lst ->
 		wf_admininstr (admininstr_LOOP v_blocktype instr_lst)
-	| admininstr_case_6 : forall (v_blocktype : blocktype) (instr_lst : (seq instr)) (instr_lst_0 : (seq instr)), 
+	| admininstr_case_6 : forall (v_blocktype : blocktype) (instr_lst : (seq instr)) (instr_lst_0_lst : (seq instr)), 
 		List.Forall (fun (v_instr : instr) => (wf_instr v_instr)) instr_lst ->
-		List.Forall (fun (instr_lst_0 : instr) => (wf_instr instr_lst_0)) instr_lst_0 ->
-		wf_admininstr (admininstr_IFELSE v_blocktype instr_lst instr_lst_0)
+		List.Forall (fun (instr_lst_0 : instr) => (wf_instr instr_lst_0)) instr_lst_0_lst ->
+		wf_admininstr (admininstr_IFELSE v_blocktype instr_lst instr_lst_0_lst)
 	| admininstr_case_7 : forall (v_labelidx : labelidx), 
 		(wf_uN 32 v_labelidx) ->
 		wf_admininstr (admininstr_BR v_labelidx)
@@ -3417,10 +3417,10 @@ Inductive wf_admininstr : admininstr -> Prop :=
 	| admininstr_case_23 : forall (v_globalidx : globalidx), 
 		(wf_uN 32 v_globalidx) ->
 		wf_admininstr (admininstr_GLOBAL_SET v_globalidx)
-	| admininstr_case_24 : forall (v_valtype : valtype) (var_0 : (option loadop_)) (v_memarg : memarg), 
-		List.Forall (fun (var_0 : loadop_) => (wf_loadop_ v_valtype var_0)) (option_to_list var_0) ->
+	| admininstr_case_24 : forall (v_valtype : valtype) (var_0_opt : (option loadop_)) (v_memarg : memarg), 
+		List.Forall (fun (var_0 : loadop_) => (wf_loadop_ v_valtype var_0)) (option_to_list var_0_opt) ->
 		(wf_memarg v_memarg) ->
-		wf_admininstr (admininstr_LOAD v_valtype var_0 v_memarg)
+		wf_admininstr (admininstr_LOAD v_valtype var_0_opt v_memarg)
 	| admininstr_case_25 : forall (Inn_opt : (option Inn)) (valtype_opt : (option valtype)) (v_valtype : valtype) (sz_opt : (option sz)) (v_memarg : memarg), 
 		List.Forall (fun (v_sz : sz) => (wf_sz v_sz)) (option_to_list sz_opt) ->
 		(wf_memarg v_memarg) ->
@@ -3560,10 +3560,10 @@ Definition fun_funcinst (v_state : state) : (seq funcinst) :=
 	end.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/5-runtime-aux.spectec:56.6-56.15 *)
-Lemma funcinst_is_wf : forall (v_state : state) (ret_val : (seq funcinst)),
+Lemma funcinst_is_wf : forall (v_state : state) (ret_val_lst : (seq funcinst)),
 	(wf_state v_state) ->
-	(ret_val == (fun_funcinst v_state)) ->
-	List.Forall (fun (ret_val : funcinst) => (wf_funcinst ret_val)) ret_val.
+	(ret_val_lst == (fun_funcinst v_state)) ->
+	List.Forall (fun (ret_val : funcinst) => (wf_funcinst ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-1.0/5-runtime-aux.spectec:57.1-57.59 *)
@@ -3573,10 +3573,10 @@ Definition fun_globalinst (v_state : state) : (seq globalinst) :=
 	end.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/5-runtime-aux.spectec:57.6-57.17 *)
-Lemma globalinst_is_wf : forall (v_state : state) (ret_val : (seq globalinst)),
+Lemma globalinst_is_wf : forall (v_state : state) (ret_val_lst : (seq globalinst)),
 	(wf_state v_state) ->
-	(ret_val == (fun_globalinst v_state)) ->
-	List.Forall (fun (ret_val : globalinst) => (wf_globalinst ret_val)) ret_val.
+	(ret_val_lst == (fun_globalinst v_state)) ->
+	List.Forall (fun (ret_val : globalinst) => (wf_globalinst ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-1.0/5-runtime-aux.spectec:58.1-58.58 *)
@@ -3586,10 +3586,10 @@ Definition fun_tableinst (v_state : state) : (seq tableinst) :=
 	end.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/5-runtime-aux.spectec:58.6-58.16 *)
-Lemma tableinst_is_wf : forall (v_state : state) (ret_val : (seq tableinst)),
+Lemma tableinst_is_wf : forall (v_state : state) (ret_val_lst : (seq tableinst)),
 	(wf_state v_state) ->
-	(ret_val == (fun_tableinst v_state)) ->
-	List.Forall (fun (ret_val : tableinst) => (wf_tableinst ret_val)) ret_val.
+	(ret_val_lst == (fun_tableinst v_state)) ->
+	List.Forall (fun (ret_val : tableinst) => (wf_tableinst ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-1.0/5-runtime-aux.spectec:59.1-59.56 *)
@@ -3599,10 +3599,10 @@ Definition fun_meminst (v_state : state) : (seq meminst) :=
 	end.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/5-runtime-aux.spectec:59.6-59.14 *)
-Lemma meminst_is_wf : forall (v_state : state) (ret_val : (seq meminst)),
+Lemma meminst_is_wf : forall (v_state : state) (ret_val_lst : (seq meminst)),
 	(wf_state v_state) ->
-	(ret_val == (fun_meminst v_state)) ->
-	List.Forall (fun (ret_val : meminst) => (wf_meminst ret_val)) ret_val.
+	(ret_val_lst == (fun_meminst v_state)) ->
+	List.Forall (fun (ret_val : meminst) => (wf_meminst ret_val)) ret_val_lst.
 Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-1.0/5-runtime-aux.spectec:60.1-60.58 *)
@@ -3754,17 +3754,17 @@ Lemma with_tableinst_is_wf : forall (v_state : state) (v_tableidx : tableidx) (v
 Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-1.0/5-runtime-aux.spectec:89.1-89.100 *)
-Definition with_mem (v_state : state) (v_memidx : memidx) (res_nat : nat) (nat_0 : nat) (var_0 : (seq byte)) : state :=
-	match v_state, v_memidx, res_nat, nat_0, var_0 return state with
+Definition with_mem (v_state : state) (v_memidx : memidx) (res_nat : nat) (nat_0 : nat) (var_0* : (seq byte)) : state :=
+	match v_state, v_memidx, res_nat, nat_0, var_0* return state with
 		| (mk_state s f), x, i, j, b_lst => (mk_state (s <| store_MEMS := (list_update_func (store_MEMS s) ((MEMS (frame_MODULE f))[| (x :> nat) |]) (fun (var_1 : meminst) => (var_1 <| BYTES := (list_slice_update (BYTES var_1) i j b_lst) |>))) |>) f)
 	end.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/5-runtime-aux.spectec:89.6-89.15 *)
-Lemma with_mem_is_wf : forall (v_state : state) (v_memidx : memidx) (res_nat : nat) (nat_0 : nat) (var_0 : (seq byte)) (ret_val : state),
+Lemma with_mem_is_wf : forall (v_state : state) (v_memidx : memidx) (res_nat : nat) (nat_0 : nat) (var_0_lst : (seq byte)) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32 v_memidx) ->
-	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0 ->
-	(ret_val == (with_mem v_state v_memidx res_nat nat_0 var_0)) ->
+	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst ->
+	(ret_val == (with_mem v_state v_memidx res_nat nat_0 var_0_lst)) ->
 	(wf_state ret_val).
 Proof. Admitted.
 
@@ -3904,10 +3904,10 @@ Hint Resolve context_eq_dec : eq_dec_db.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/6-typing.spectec:5.8-5.15 *)
 Inductive wf_context : context -> Prop :=
-	| context_case_ : forall (var_0 : (seq functype)) (var_1 : (seq functype)) (var_2 : (seq globaltype)) (var_3 : (seq tabletype)) (var_4 : (seq memtype)) (var_5 : (seq valtype)) (var_6 : (seq resulttype)) (var_7 : (option resulttype)), 
-		List.Forall (fun (var_3 : tabletype) => (wf_limits var_3)) var_3 ->
-		List.Forall (fun (var_4 : memtype) => (wf_limits var_4)) var_4 ->
-		wf_context {| context_TYPES := var_0; context_FUNCS := var_1; context_GLOBALS := var_2; context_TABLES := var_3; context_MEMS := var_4; context_LOCALS := var_5; LABELS := var_6; context_RETURN := var_7 |}.
+	| context_case_ : forall (var_0_lst : (seq functype)) (var_1_lst : (seq functype)) (var_2_lst : (seq globaltype)) (var_3_lst : (seq tabletype)) (var_4_lst : (seq memtype)) (var_5_lst : (seq valtype)) (var_6_lst : (seq resulttype)) (var_7_opt : (option resulttype)), 
+		List.Forall (fun (var_3 : tabletype) => (wf_limits var_3)) var_3_lst ->
+		List.Forall (fun (var_4 : memtype) => (wf_limits var_4)) var_4_lst ->
+		wf_context {| context_TYPES := var_0_lst; context_FUNCS := var_1_lst; context_GLOBALS := var_2_lst; context_TABLES := var_3_lst; context_MEMS := var_4_lst; context_LOCALS := var_5_lst; LABELS := var_6_lst; context_RETURN := var_7_opt |}.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/6-typing.spectec:18.1-18.66 *)
 Inductive Limits_ok : limits -> nat -> Prop :=
@@ -4895,12 +4895,12 @@ Inductive fun_allocfuncs : store -> moduleinst -> (seq func) -> (store * (seq fu
 		fun_allocfuncs s v_moduleinst ([::v_func] ++ func'_lst) (s_2, ([::fa] ++ fa'_lst)).
 
 (* Mutual Recursion at: ../specification/wasm-1.0/9-module.spectec:41.1-41.63 *)
-Lemma allocfuncs_is_wf : forall (v_store : store) (v_moduleinst : moduleinst) (var_0 : (seq func)) (ret_val : (store * (seq funcaddr))) (var_1 : (store * (seq funcaddr))),
-	(fun_allocfuncs v_store v_moduleinst var_0 var_1) ->
+Lemma allocfuncs_is_wf : forall (v_store : store) (v_moduleinst : moduleinst) (var_0_lst : (seq func)) (ret_val : (store * (seq funcaddr))) (var_0 : (store * (seq funcaddr))),
+	(fun_allocfuncs v_store v_moduleinst var_0_lst var_0) ->
 	(wf_store v_store) ->
 	(wf_moduleinst v_moduleinst) ->
-	List.Forall (fun (var_0 : func) => (wf_func var_0)) var_0 ->
-	(ret_val == var_1) ->
+	List.Forall (fun (var_0 : func) => (wf_func var_0)) var_0_lst ->
+	(ret_val == var_0) ->
 	(wf_store ret_val.1).
 Proof. Admitted.
 
@@ -4931,11 +4931,11 @@ Inductive fun_allocglobals : store -> (seq globaltype) -> (seq val) -> (store * 
 		fun_allocglobals s ([::v_globaltype] ++ globaltype'_lst) ([::v_val] ++ val'_lst) (s_2, ([::ga] ++ ga'_lst)).
 
 (* Mutual Recursion at: ../specification/wasm-1.0/9-module.spectec:51.1-51.67 *)
-Lemma allocglobals_is_wf : forall (v_store : store) (var_0 : (seq globaltype)) (var_1 : (seq val)) (ret_val : (store * (seq globaladdr))) (var_2 : (store * (seq globaladdr))),
-	(fun_allocglobals v_store var_0 var_1 var_2) ->
+Lemma allocglobals_is_wf : forall (v_store : store) (var_0_lst : (seq globaltype)) (var_1_lst : (seq val)) (ret_val : (store * (seq globaladdr))) (var_0 : (store * (seq globaladdr))),
+	(fun_allocglobals v_store var_0_lst var_1_lst var_0) ->
 	(wf_store v_store) ->
-	List.Forall (fun (var_1 : val) => (wf_val var_1)) var_1 ->
-	(ret_val == var_2) ->
+	List.Forall (fun (var_1 : val) => (wf_val var_1)) var_1_lst ->
+	(ret_val == var_0) ->
 	(wf_store ret_val.1).
 Proof. Admitted.
 
@@ -4966,11 +4966,11 @@ Inductive fun_alloctables : store -> (seq tabletype) -> (store * (seq tableaddr)
 		fun_alloctables s ([::v_tabletype] ++ tabletype'_lst) (s_2, ([::ta] ++ ta'_lst)).
 
 (* Mutual Recursion at: ../specification/wasm-1.0/9-module.spectec:61.1-61.58 *)
-Lemma alloctables_is_wf : forall (v_store : store) (var_0 : (seq tabletype)) (ret_val : (store * (seq tableaddr))) (var_1 : (store * (seq tableaddr))),
-	(fun_alloctables v_store var_0 var_1) ->
+Lemma alloctables_is_wf : forall (v_store : store) (var_0_lst : (seq tabletype)) (ret_val : (store * (seq tableaddr))) (var_0 : (store * (seq tableaddr))),
+	(fun_alloctables v_store var_0_lst var_0) ->
 	(wf_store v_store) ->
-	List.Forall (fun (var_0 : tabletype) => (wf_limits var_0)) var_0 ->
-	(ret_val == var_1) ->
+	List.Forall (fun (var_0 : tabletype) => (wf_limits var_0)) var_0_lst ->
+	(ret_val == var_0) ->
 	(wf_store ret_val.1).
 Proof. Admitted.
 
@@ -5001,17 +5001,17 @@ Inductive fun_allocmems : store -> (seq memtype) -> (store * (seq memaddr)) -> P
 		fun_allocmems s ([::v_memtype] ++ memtype'_lst) (s_2, ([::ma] ++ ma'_lst)).
 
 (* Mutual Recursion at: ../specification/wasm-1.0/9-module.spectec:71.1-71.52 *)
-Lemma allocmems_is_wf : forall (v_store : store) (var_0 : (seq memtype)) (ret_val : (store * (seq memaddr))) (var_1 : (store * (seq memaddr))),
-	(fun_allocmems v_store var_0 var_1) ->
+Lemma allocmems_is_wf : forall (v_store : store) (var_0_lst : (seq memtype)) (ret_val : (store * (seq memaddr))) (var_0 : (store * (seq memaddr))),
+	(fun_allocmems v_store var_0_lst var_0) ->
 	(wf_store v_store) ->
-	List.Forall (fun (var_0 : memtype) => (wf_limits var_0)) var_0 ->
-	(ret_val == var_1) ->
+	List.Forall (fun (var_0 : memtype) => (wf_limits var_0)) var_0_lst ->
+	(ret_val == var_0) ->
 	(wf_store ret_val.1).
 Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-1.0/9-module.spectec:80.1-80.83 *)
-Definition instexport (var_0 : (seq funcaddr)) (var_1 : (seq globaladdr)) (var_2 : (seq tableaddr)) (var_3 : (seq memaddr)) (v_export : export) : exportinst :=
-	match var_0, var_1, var_2, var_3, v_export return exportinst with
+Definition instexport (var_0* : (seq funcaddr)) (var_1* : (seq globaladdr)) (var_2* : (seq tableaddr)) (var_3* : (seq memaddr)) (v_export : export) : exportinst :=
+	match var_0*, var_1*, var_2*, var_3*, v_export return exportinst with
 		| fa_lst, ga_lst, ta_lst, ma_lst, (EXPORT v_name (externidx_FUNC x)) => {| NAME := v_name; ADDR := (externaddr_FUNC (fa_lst[| (x :> nat) |])) |}
 		| fa_lst, ga_lst, ta_lst, ma_lst, (EXPORT v_name (externidx_GLOBAL x)) => {| NAME := v_name; ADDR := (externaddr_GLOBAL (ga_lst[| (x :> nat) |])) |}
 		| fa_lst, ga_lst, ta_lst, ma_lst, (EXPORT v_name (externidx_TABLE x)) => {| NAME := v_name; ADDR := (externaddr_TABLE (ta_lst[| (x :> nat) |])) |}
@@ -5019,9 +5019,9 @@ Definition instexport (var_0 : (seq funcaddr)) (var_1 : (seq globaladdr)) (var_2
 	end.
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/9-module.spectec:80.6-80.17 *)
-Lemma instexport_is_wf : forall (var_0 : (seq funcaddr)) (var_1 : (seq globaladdr)) (var_2 : (seq tableaddr)) (var_3 : (seq memaddr)) (v_export : export) (ret_val : exportinst),
+Lemma instexport_is_wf : forall (var_0_lst : (seq funcaddr)) (var_1_lst : (seq globaladdr)) (var_2_lst : (seq tableaddr)) (var_3_lst : (seq memaddr)) (v_export : export) (ret_val : exportinst),
 	(wf_export v_export) ->
-	(ret_val == (instexport var_0 var_1 var_2 var_3 v_export)) ->
+	(ret_val == (instexport var_0_lst var_1_lst var_2_lst var_3_lst v_export)) ->
 	(wf_exportinst ret_val).
 Proof. Admitted.
 
@@ -5059,12 +5059,12 @@ Inductive fun_allocmodule : store -> module -> (seq externaddr) -> (seq val) -> 
 		fun_allocmodule s v_module externaddr_lst val_lst (s_4, v_moduleinst).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/9-module.spectec:87.6-87.18 *)
-Lemma allocmodule_is_wf : forall (v_store : store) (v_module : module) (var_0 : (seq externaddr)) (var_1 : (seq val)) (ret_val : (store * moduleinst)) (var_2 : (store * moduleinst)),
-	(fun_allocmodule v_store v_module var_0 var_1 var_2) ->
+Lemma allocmodule_is_wf : forall (v_store : store) (v_module : module) (var_0_lst : (seq externaddr)) (var_1_lst : (seq val)) (ret_val : (store * moduleinst)) (var_0 : (store * moduleinst)),
+	(fun_allocmodule v_store v_module var_0_lst var_1_lst var_0) ->
 	(wf_store v_store) ->
 	(wf_module v_module) ->
-	List.Forall (fun (var_1 : val) => (wf_val var_1)) var_1 ->
-	(ret_val == var_2) ->
+	List.Forall (fun (var_1 : val) => (wf_val var_1)) var_1_lst ->
+	(ret_val == var_0) ->
 	(wf_store ret_val.1) ->
 	(wf_moduleinst ret_val.2).
 Proof. Admitted.
@@ -5081,12 +5081,12 @@ Inductive fun_initelem : store -> moduleinst -> (seq u32) -> (seq (seq funcaddr)
 		fun_initelem s v_moduleinst ([::i] ++ i'_lst) ([::a_lst] ++ a'_lst_lst) s_2.
 
 (* Mutual Recursion at: ../specification/wasm-1.0/9-module.spectec:128.1-128.61 *)
-Lemma initelem_is_wf : forall (v_store : store) (v_moduleinst : moduleinst) (var_0 : (seq u32)) (var_1 : (seq (seq funcaddr))) (ret_val : store) (var_2 : store),
-	(fun_initelem v_store v_moduleinst var_0 var_1 var_2) ->
+Lemma initelem_is_wf : forall (v_store : store) (v_moduleinst : moduleinst) (var_0_lst : (seq u32)) (var_1_lst_lst : (seq (seq funcaddr))) (ret_val : store) (var_0 : store),
+	(fun_initelem v_store v_moduleinst var_0_lst var_1_lst_lst var_0) ->
 	(wf_store v_store) ->
 	(wf_moduleinst v_moduleinst) ->
-	List.Forall (fun (var_0 : u32) => (wf_uN 32 var_0)) var_0 ->
-	(ret_val == var_2) ->
+	List.Forall (fun (var_0 : u32) => (wf_uN 32 var_0)) var_0_lst ->
+	(ret_val == var_0) ->
 	(wf_store ret_val).
 Proof. Admitted.
 
@@ -5101,13 +5101,13 @@ Inductive fun_initdata : store -> moduleinst -> (seq u32) -> (seq (seq byte)) ->
 		fun_initdata s v_moduleinst ([::i] ++ i'_lst) ([::b_lst] ++ b'_lst_lst) s_2.
 
 (* Mutual Recursion at: ../specification/wasm-1.0/9-module.spectec:134.1-134.57 *)
-Lemma initdata_is_wf : forall (v_store : store) (v_moduleinst : moduleinst) (var_0 : (seq u32)) (var_1 : (seq (seq byte))) (ret_val : store) (var_2 : store),
-	(fun_initdata v_store v_moduleinst var_0 var_1 var_2) ->
+Lemma initdata_is_wf : forall (v_store : store) (v_moduleinst : moduleinst) (var_0_lst : (seq u32)) (var_1_lst_lst : (seq (seq byte))) (ret_val : store) (var_0 : store),
+	(fun_initdata v_store v_moduleinst var_0_lst var_1_lst_lst var_0) ->
 	(wf_store v_store) ->
 	(wf_moduleinst v_moduleinst) ->
-	List.Forall (fun (var_0 : u32) => (wf_uN 32 var_0)) var_0 ->
-	List.Forall (fun (var_1 : (seq byte)) => List.Forall (fun (var_1 : byte) => (wf_byte var_1)) var_1) var_1 ->
-	(ret_val == var_2) ->
+	List.Forall (fun (var_0 : u32) => (wf_uN 32 var_0)) var_0_lst ->
+	List.Forall (fun (var_1_lst : (seq byte)) => List.Forall (fun (var_1 : byte) => (wf_byte var_1)) var_1_lst) var_1_lst_lst ->
+	(ret_val == var_0) ->
 	(wf_store ret_val).
 Proof. Admitted.
 
@@ -5162,11 +5162,11 @@ Inductive fun_instantiate : store -> module -> (seq externaddr) -> config -> Pro
 		fun_instantiate s v_module externaddr_lst (mk_config (mk_state s_3 f) (option_to_list (option_map (fun (x' : idx) => (admininstr_CALL x')) x'_opt))).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/9-module.spectec:140.6-140.18 *)
-Lemma instantiate_is_wf : forall (v_store : store) (v_module : module) (var_0 : (seq externaddr)) (ret_val : config) (var_1 : config),
-	(fun_instantiate v_store v_module var_0 var_1) ->
+Lemma instantiate_is_wf : forall (v_store : store) (v_module : module) (var_0_lst : (seq externaddr)) (ret_val : config) (var_0 : config),
+	(fun_instantiate v_store v_module var_0_lst var_0) ->
 	(wf_store v_store) ->
 	(wf_module v_module) ->
-	(ret_val == var_1) ->
+	(ret_val == var_0) ->
 	(wf_config ret_val).
 Proof. Admitted.
 
@@ -5182,11 +5182,11 @@ Inductive fun_invoke : store -> funcaddr -> (seq val) -> config -> Prop :=
 		fun_invoke s fa val_lst (mk_config (mk_state s f) ((seq.map (fun (v_val : val) => (admininstr_val v_val)) val_lst) ++ [::(CALL_ADDR fa)])).
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/9-module.spectec:169.6-169.13 *)
-Lemma invoke_is_wf : forall (v_store : store) (v_funcaddr : funcaddr) (var_0 : (seq val)) (ret_val : config) (var_1 : config),
-	(fun_invoke v_store v_funcaddr var_0 var_1) ->
+Lemma invoke_is_wf : forall (v_store : store) (v_funcaddr : funcaddr) (var_0_lst : (seq val)) (ret_val : config) (var_0 : config),
+	(fun_invoke v_store v_funcaddr var_0_lst var_0) ->
 	(wf_store v_store) ->
-	List.Forall (fun (var_0 : val) => (wf_val var_0)) var_0 ->
-	(ret_val == var_1) ->
+	List.Forall (fun (var_0 : val) => (wf_val var_0)) var_0_lst ->
+	(ret_val == var_0) ->
 	(wf_config ret_val).
 Proof. Admitted.
 
