@@ -205,21 +205,25 @@ let rec t_def env def =
   (match def.it with
   | TypD (id, params, insts) -> 
     TypD (t_user_def_id env id, 
-    List.map (transform_param tf) params |> Utils.improve_ids_params, 
+    Utils.improve_ids_params params |>
+    List.map (transform_param tf), 
     List.map (t_inst tf env id) insts)
   | RelD (id, params, m, typ, rules) -> 
     RelD (t_user_def_id env id,
-    List.map (transform_param tf) params |> Utils.improve_ids_params,
+    Utils.improve_ids_params params |>
+    List.map (transform_param tf),
     m, transform_typ tf typ,
     List.map (transform_rule tf env id) rules)
   | DecD (id, params, typ, clauses) -> 
     DecD (t_def_id env id, 
-    List.map (transform_param tf) params |> Utils.improve_ids_params, 
+     Utils.improve_ids_params params |>
+    List.map (transform_param tf), 
     transform_typ tf typ, 
     List.map (transform_clause tf) clauses)
   | GramD (id, params, typ, prods) -> 
     GramD (id, 
-    List.map (transform_param tf) params |> Utils.improve_ids_params, 
+    Utils.improve_ids_params params |>
+    List.map (transform_param tf), 
     transform_typ tf typ, 
     List.map (transform_prod tf) prods)
   | RecD defs -> RecD (List.map (t_def env) defs)
