@@ -307,8 +307,9 @@ let () =
       enable_pass Ite;
       enable_pass ElseSimp;
       enable_pass PatSimp;
-      enable_pass DatatypeDiet;
-      enable_pass SinglePatternMatch 
+      enable_pass LetIntroMech ;
+      enable_pass DatatypeDiet ;
+      enable_pass SinglePatternMatch
     | _ when !print_al || !print_al_o <> "" ->
       enable_pass Sideconditions;
     | _ -> ()

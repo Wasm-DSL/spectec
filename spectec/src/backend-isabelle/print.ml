@@ -576,8 +576,8 @@ let render_match_args typids args =
 
 
 let string_of_relation_args typ =
-  render_param_types REL StringSet.empty (transform_case_typ typ)
-(* string_of_list_suffix (" " ^ ra ^ " ") (" " ^ ra ^ " ") (render_type REL StringSet.empty) (transform_case_typ typ) *)
+  (*  render_param_types REL StringSet.empty (transform_case_typ typ) *)
+ string_of_list_suffix (" " ^ ra ^ " ") (" " ^ ra ^ " ") (render_type REL StringSet.empty) (transform_case_typ typ) 
 
 
 let rec render_prem typids prem =
@@ -611,8 +611,9 @@ let rec render_prem typids prem =
     in 
     pred_name ^ " " ^ render_lambda quants (r_func p) ^ " " ^ 
     String.concat " " (List.map (render_exp REL typids) iter_exps |> List.map option_conversion)
-  | LetPr _ -> 
-    "True " ^ comment_parens ("Unsupported premise: " ^ Il.Print.string_of_prem prem)
+  | LetPr (_, e1, e2) ->
+     "let " ^ render_exp LHS typids e1 ^ " := " ^ render_exp RHS typids e2 ^ " in "
+(*    "True " ^ comment_parens ("Unsupported premise: " ^ Il.Print.string_of_prem prem) *)
 
 
 
@@ -716,7 +717,7 @@ let render_function_def id params r_typ clauses =
   ) 
 
 let render_relation id typ rules =
-  let _typids, resl = string_of_relation_args typ in
+  let resl = string_of_relation_args typ in
   render_id id ^ " :: " ^ quotes (resl ^ "bool"),
   (List.map (fun rule ->
        match rule.it with
