@@ -26,16 +26,18 @@ let sanitise_id s =
   
 
 
-type isabelle_env = Il.Env.t ref
-(*  { mutable il_env : Il.Env.t;
-    mutable partial_funs : StringSet.t
-  } *)
+type isabelle_env = (* Il.Env.t ref *)
+  { mutable il_env : Il.Env.t;
+    mutable wf_lemma_set : StringSet.t
+    (* mutable partial_funs : StringSet.t *)
+  } 
 
 
-let new_env () = Il.Env.empty
-(*  { il_env = Il.Env.empty;
-    partial_funs = StringSet.empty
-  } *)
+let new_env () = (* Il.Env.empty *)
+  { il_env = Il.Env.empty;
+    wf_lemma_set = StringSet.empty
+    (*    partial_funs = StringSet.empty *)
+  } 
 
 let env_ref = ref (new_env ())
 
@@ -44,6 +46,12 @@ let env_ref = ref (new_env ())
 let register_partial (id : id) =
   !env_ref.partial_funs <- StringSet.add id.it !env_ref.partial_funs
  *)
+
+
+let is_let p =
+  match p.it with
+  | LetPr _ -> true
+  | _ -> false
 
 
 let iter_prem_rels_list = ["list_all"; "list_all2"; "list_all3"] 
@@ -61,7 +69,7 @@ let rec list_split (f : 'a -> bool) = function
 
 let get_type_var t = 
   match t.it with
-  | VarT (id, _) when not (Il.Env.mem_typ !env_ref(* .il_env *) id) -> [id.it]
+  | VarT (id, _) when not (Il.Env.mem_typ !env_ref.il_env id) -> [id.it]
   | _ -> []
 
 let needs_inh_class e =
@@ -253,7 +261,7 @@ let render_mixop typ_id (m : mixop) =
   (* HACK - should be done in improve ids *)
   match s with
   | "_" -> "mk_" ^ typ_id 
-  | s when Il.Env.mem_typ !env_ref(* .il_env *) (s $ no_region) -> "mk_" ^ s
+  | s when Il.Env.mem_typ !env_ref.il_env (s $ no_region) -> "mk_" ^ s
   | s -> render_id s
 
 let get_param_id b = 
@@ -378,7 +386,7 @@ and render_exp exp_type typids exp =
     | _ -> make_proj_chain i (List.length typs - 1) e 
     end
   | CaseE (m, e) -> 
-    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref(* .il_env *) exp.note) |> render_id in
+    let name = Il.Print.string_of_typ_name (Il.Eval.reduce_typ !env_ref.il_env exp.note) |> render_id in
     let exps = transform_case_tup e in
     begin match exps with
     | [] -> render_mixop name m
@@ -587,7 +595,7 @@ let rec render_prem typids prem =
   | RulePr (id, args, _m, exp) -> parens (render_id id.it ^ string_of_list_prefix " " " " (render_arg REL typids) args ^ 
     string_of_list_prefix " " " " (render_exp REL typids) (transform_case_tup exp))
   | NegPr p -> parens ("~" ^ r_func p)
-  | ElsePr -> "True" (* ^ comment_parens ("Unsupported premise: otherwise") *) (* Will be removed by an else pass *)
+  | ElsePr -> error prem.at "Unsupported Else premise" (* "True" (* ^ comment_parens ("Unsupported premise: otherwise") *) (* Will be removed by an else pass *) *)
   | IterPr (p, (_, [])) -> r_func p
 
   | IterPr (p, (ListN (_, Some i), ps)) ->
@@ -649,7 +657,7 @@ let render_record id quants fields =
     "\t\"append_" ^ id ^ inhabitance_quanters ^ " arg1 arg2 = ⦇\n\t\t" ^
       String.concat ",\n\t\t" (List.map (fun (a, (t, _, _), _) ->
                                    let record_id' = render_atom a in
-                                   match check_trivial_append !env_ref(* .il_env *) t with
+                                   match check_trivial_append !env_ref.il_env t with
                                      ListAppend -> record_id' ^ " = " ^ record_id' ^ " arg1 @ " ^ record_id' ^ " arg2"
                                    | OptionAppend -> record_id' ^ " = " ^ record_id' ^ " arg1 @@@ " ^ record_id' ^ " arg2" 
                                    | RecordAppend ->
@@ -712,18 +720,39 @@ let render_function_def id params r_typ clauses =
   id ^ " :: " ^ quotes (resl ^ render_type RHS typids r_typ),
   (List.map
      (fun clause -> match clause.it with
-                    | DefD (_, args, exp, _) ->
-                       quotes (id ^ render_match_args typids args ^ " = " ^ render_exp RHS typids exp)) clauses
-  ) 
+                    | DefD (_, args, exp, prems) ->
+
+                       let (let_prems, others) = List.partition is_let prems in
+                       assert (List.for_all (fun o -> o.it = ElsePr) others); 
+                       let string_of_let = string_of_list "\n\t\t\t " "\n\t\t\t " "\n\t\t\t " (render_prem typids) let_prems in 
+                       
+                       quotes (id ^ render_match_args typids args ^ " = " ^ string_of_let ^ render_exp RHS typids exp)) clauses
+  )
+
+let render_wfness_func_lemma id rule = 
+  let RuleD (_, quants, _, _, prems) = rule.it in
+  let typids, _l = render_param_types_list RHS StringSet.empty quants in
+  (*  let forall_quantifiers = string_of_list "\\<forall> " ".\n\t" " " snd l in *)
+  let letprems, others = List.partition is_let prems in
+  let string_lets = string_of_list "" "" "\n\t " (render_prem typids) letprems in
+  let string_prems = string_of_list "" "" (" " ^ lra ^ "\n\t ") (render_prem typids) others in
+  id ^ " :\n\t" ^ quotes ((* forall_quantifiers ^ *) string_lets ^ string_prems) ^ "\n" ^
+  "sorry"
 
 let render_relation id typ rules =
   let resl = string_of_relation_args typ in
   render_id id ^ " :: " ^ quotes (resl ^ "bool"),
   (List.map (fun rule ->
        match rule.it with
-       | RuleD (rule_id, _, _, exp, prems) ->
-          let string_prems = "\n\t\t\"" ^ string_of_list_suffix (" " ^ lra ^ "\n\t\t ") (" " ^ lra ^ "\n\t\t ") (render_prem StringSet.empty) prems in
-          render_id (rule_id.it) ^ " :" ^ (string_prems ^ render_id id ^ " " ^ String.concat " " (List.map (render_exp REL StringSet.empty) (transform_case_tup exp))) ^"\""
+       | RuleD (rule_id, quants, _, exp, prems) ->
+
+          let letprems, others = List.partition is_let prems in
+          let quantl, _quantr = render_quants quants in
+          let quantl = StringSet.of_list quantl in
+          (*          let forall_quantifiers = string_of_list "\\<forall> " ". " " " (fun x -> x) quantr in *)
+          let string_lets = string_of_list "\t\t" "" "\n\t\t " (render_prem quantl) letprems in
+          let string_prems = (* "\n\t\t" ^ *) string_of_list_suffix (" " ^ lra ^ "\n\t\t ") (" " ^ lra ^ "\n\t\t ") (render_prem quantl) others in
+          render_id (rule_id.it) ^ " :\n\t\t" ^ quotes ((* forall_quantifiers ^ *) string_lets ^ string_prems ^ render_id id ^ " " ^ String.concat " " (List.map (render_exp REL quantl) (transform_case_tup exp)))
      ) rules)
 
 let render_axiom id params r_typ =
@@ -741,6 +770,7 @@ let has_prems c =
   let only_otherwise prems =
     match prems with
     | [{it = ElsePr; _}] -> true
+    | prems when List.for_all is_let prems -> true
     | _ -> false
   in
   match c.it with
@@ -760,6 +790,7 @@ type isabelle_header =
 | Iind
 | Idat
 | Itsyn
+| Iwf
 
 
 let is_typ_param x =
@@ -770,6 +801,13 @@ let is_typ_arg x =
   match x.it with
   | TypA _ -> true
   | _ -> false
+
+let is_wf_lemma d = 
+  match d.it with
+  | RelD (id, _, _, _, _) when StringSet.mem id.it !env_ref.wf_lemma_set ->
+    true
+  | _ -> false
+
 
 (* TODO - revise mutual recursion with other defs such as records and axioms *)
 let rec components_of_def def =
@@ -793,7 +831,9 @@ let rec components_of_def def =
      let header, clauses = render_function_def (render_id id.it) params typ (clauses) in
      start, [Ifun], [header], clauses
   | RelD (id, _, _, typ, []) -> 
-    start , [Iax], [render_rel_axiom (render_id id.it) typ], []
+     start , [Iax], [render_rel_axiom (render_id id.it) typ], []
+  | RelD (id, _, _, _, [rule]) when is_wf_lemma def ->
+    start , [Iwf], [render_wfness_func_lemma id.it rule], []
   | RelD (id, _, _, typ, rules) -> 
      let header, clauses = render_relation (render_id id.it) typ rules in
      start, [Iind], [header], clauses
@@ -807,6 +847,8 @@ let rec components_of_def def =
 
   | _ -> error def.at ("Unsupported def: " ^ Il.Print.string_of_def def)
 
+
+
 let string_of_def def =
   let start, kwds, hdrs, clauses = components_of_def def in
   match kwds, hdrs with
@@ -816,6 +858,8 @@ let string_of_def def =
   | Irec :: _, _ -> error def.at "Several records defined mutually recursively"
   | [Idef], [hdr] -> start ^ "definition " ^ hdr ^ "\n\n"
   | Idef :: _, _ -> error def.at "Several global variables defined mutually recursively"
+  | [Iwf], [hdr] -> start ^ "lemma " ^ hdr ^ "\n\n"
+  | Iwf :: _,_ -> error def.at "Several well-formedness lemmas defined mutually recursively"
   | Idat :: kwds, _ ->
      if List.for_all (function Idat -> true | _ -> false) kwds
      then start ^ "datatype " ^ String.concat "\n\nand\n\n" hdrs ^ "\n\n"
@@ -896,20 +940,26 @@ let rec filter_def def =
   | RecD defs -> Some {def with it = RecD (List.filter_map filter_def defs) } 
   | _ -> Some def
 
-(* let is_partial_hint hint = hint.hintid.it = "partial"
+(* let is_partial_hint hint = hint.hintid.it = "partial" *)
+let is_wf_func_hint h = h.hintid.it = Middlend.Undep.wf_func_id
+let is_wf_rel_hint h = h.hintid.it = Middlend.Undep.wf_rel_id
 
-let register_hints def =
+let register_hints env def =
   match def.it with
-  | HintD {it = DecH (id, hints); _} when List.exists is_partial_hint hints ->
-    register_partial id
-  | _ -> () *)
+  | HintD { it = RelH (id, hints); _} when List.exists is_wf_func_hint hints -> 
+    env.wf_lemma_set <- StringSet.add id.it env.wf_lemma_set
+  | HintD { it = RelH (id, hints); _} when List.exists is_wf_rel_hint hints -> 
+    env.wf_lemma_set <- StringSet.add id.it env.wf_lemma_set
+(*  | HintD {it = DecH (id, hints); _} when List.exists is_partial_hint hints ->
+    register_partial id *)
+  | _ -> () 
      
 let string_of_script theoryname (il : script) =
-  env_ref := (* .il_env <- *) Il.Env.env_of_script il;
-  (*  List.iter register_hints il; *)
-  let il' = Disamb.transform il in
+  !env_ref.il_env <- Il.Env.env_of_script il;
+  List.iter (register_hints !env_ref) il; 
+  let il' = Disamb.transform il in 
   "theory " ^ theoryname ^ "\n" ^
   exported_string ^
   "(* Generated Code *)\n" ^
-    String.concat "" (List.filter_map filter_def il' |> List.map (string_of_def (* true false *))) ^
-      "end\n"
+    String.concat "" (List.filter_map filter_def il' |> List.map (string_of_def (* true false *))) ^  
+      "end\n" 
