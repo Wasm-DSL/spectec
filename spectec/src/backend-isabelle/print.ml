@@ -621,7 +621,6 @@ let rec render_prem typids prem =
     String.concat " " (List.map (render_exp REL typids) iter_exps |> List.map option_conversion)
   | LetPr (_, e1, e2) ->
      "let " ^ render_exp LHS typids e1 ^ " := " ^ render_exp RHS typids e2 ^ " in "
-(*    "True " ^ comment_parens ("Unsupported premise: " ^ Il.Print.string_of_prem prem) *)
 
 
 
@@ -929,7 +928,13 @@ let exported_string =
   "\t\"list_slice_update (x # l) (Suc n) m ul = x # list_slice_update l n m ul\"\n\n" ^
   "fun option_append :: \"'a option " ^ ra ^ " 'a option " ^ ra ^ " 'a option\" (infixl \"@@@\" 70) where\n" ^
   "\t\"option_append (Some x) _ = Some x\" |\n" ^
-  "\t\"option_append None y = y\"\n\n"
+  "\t\"option_append None y = y\"\n\n" ^
+  "fun list_alli_aux :: \"(nat " ^ ra ^ " 'a " ^ ra ^ "bool) " ^ ra ^ " nat " ^ ra ^ " 'a list " ^ ra ^ " bool\" where\n" ^
+  "\t\"list_alli_aux f n [] = True\" |\n" ^
+  "\t\"list_alli_aux f n (x # q) = (f n x ∧ list_alli_aux f (Suc n) q)\"\n\n" ^
+  "definition list_alli :: \"(nat " ^ ra ^ " 'a " ^ ra ^ "bool) " ^ ra ^ " 'a list " ^ ra ^ " bool\" where\n" ^
+  "\t\"list_alli f l = list_alli_aux f 0 l\"\n\n"
+        
 
 
 
