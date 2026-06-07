@@ -620,7 +620,7 @@ let rec render_prem typids prem =
     pred_name ^ " " ^ render_lambda quants (r_func p) ^ " " ^ 
     String.concat " " (List.map (render_exp REL typids) iter_exps |> List.map option_conversion)
   | LetPr (_, e1, e2) ->
-     "let " ^ render_exp LHS typids e1 ^ " := " ^ render_exp RHS typids e2 ^ " in "
+     "(let " ^ render_exp LHS typids e1 ^ " = " ^ render_exp RHS typids e2 ^ " in "
 
 
 
@@ -714,6 +714,9 @@ let render_single_type id at typids params =
   | {it = ExpP (_, typ); _} :: ps when List.for_all is_typ_param ps -> (render_type RHS typids typ)
   | _ -> error at ("Given projection function: " ^ id ^ " has invalid parameters!")
 
+let close_lets let_prems =
+  String.make (List.length let_prems) ')'
+
 let render_function_def id params r_typ clauses = 
   let typids, resl = render_param_types RHS StringSet.empty params in
   id ^ " :: " ^ quotes (resl ^ render_type RHS typids r_typ),
@@ -725,7 +728,7 @@ let render_function_def id params r_typ clauses =
                        assert (List.for_all (fun o -> o.it = ElsePr) others); 
                        let string_of_let = string_of_list "\n\t\t\t " "\n\t\t\t " "\n\t\t\t " (render_prem typids) let_prems in 
                        
-                       quotes (id ^ render_match_args typids args ^ " = " ^ string_of_let ^ render_exp RHS typids exp)) clauses
+                       quotes (id ^ render_match_args typids args ^ " = " ^ string_of_let ^ render_exp RHS typids exp ^ close_lets let_prems)) clauses
   )
 
 let render_wfness_func_lemma id rule = 
@@ -735,7 +738,7 @@ let render_wfness_func_lemma id rule =
   let letprems, others = List.partition is_let prems in
   let string_lets = string_of_list "" "" "\n\t " (render_prem typids) letprems in
   let string_prems = string_of_list "" "" (" " ^ lra ^ "\n\t ") (render_prem typids) others in
-  id ^ " :\n\t" ^ quotes ((* forall_quantifiers ^ *) string_lets ^ string_prems) ^ "\n" ^
+  id ^ " :\n\t" ^ quotes ((* forall_quantifiers ^ *) string_lets ^ string_prems ^ close_lets letprems) ^ "\n" ^
   "sorry"
 
 let render_relation id typ rules =
@@ -751,7 +754,7 @@ let render_relation id typ rules =
           (*          let forall_quantifiers = string_of_list "\\<forall> " ". " " " (fun x -> x) quantr in *)
           let string_lets = string_of_list "\t\t" "" "\n\t\t " (render_prem quantl) letprems in
           let string_prems = (* "\n\t\t" ^ *) string_of_list_suffix (" " ^ lra ^ "\n\t\t ") (" " ^ lra ^ "\n\t\t ") (render_prem quantl) others in
-          render_id (rule_id.it) ^ " :\n\t\t" ^ quotes ((* forall_quantifiers ^ *) string_lets ^ string_prems ^ render_id id ^ " " ^ String.concat " " (List.map (render_exp REL quantl) (transform_case_tup exp)))
+          render_id (rule_id.it) ^ " :\n\t\t" ^ quotes ((* forall_quantifiers ^ *) string_lets ^ string_prems ^ render_id id ^ " " ^ String.concat " " (List.map (render_exp REL quantl) (transform_case_tup exp)) ^ close_lets letprems)
      ) rules)
 
 let render_axiom id params r_typ =
