@@ -107,7 +107,7 @@ rule Instrs_ok2/seq:
   -- Instrs_ok2: s; C |- admininstr_2* : t_2* -> t_3*
 
 rule Instrs_ok2/sub:
-  s; C |- instr* : t'_1* -> t'_2*
+  s; C |- admininstr* : t'_1* -> t'_2*
   -- Instrs_ok2: s; C |- admininstr* : t_1* -> t_2*
   -- Resulttype_sub: |- t'_1* <: t_1*
   -- Resulttype_sub: |- t_2* <: t'_2*
