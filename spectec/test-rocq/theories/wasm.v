@@ -10940,15 +10940,14 @@ Instrs_ok2 : store -> context -> (seq admininstr) -> functype -> Prop :=
 		(wf_admininstr admininstr_1) ->
 		List.Forall (fun (admininstr_2 : admininstr) => (wf_admininstr admininstr_2)) admininstr_2_lst ->
 		Instrs_ok2 s C ([::admininstr_1] ++ admininstr_2_lst) (mk_functype (mk_list _ t_1_lst) (mk_list _ t_3_lst))
-	| Instrs_ok2__sub : forall (s : store) (C : context) (instr_lst : (seq instr)) (t'_1_lst : (seq valtype)) (t'_2_lst : (seq valtype)) (admininstr_lst : (seq admininstr)) (t_1_lst : (seq valtype)) (t_2_lst : (seq valtype)), 
+	| Instrs_ok2__sub : forall (s : store) (C : context) (admininstr_lst : (seq admininstr)) (t'_1_lst : (seq valtype)) (t'_2_lst : (seq valtype)) (t_1_lst : (seq valtype)) (t_2_lst : (seq valtype)), 
 		(Instrs_ok2 s C admininstr_lst (mk_functype (mk_list _ t_1_lst) (mk_list _ t_2_lst))) ->
 		(Resulttype_sub (mk_list _ t'_1_lst) (mk_list _ t_1_lst)) ->
 		(Resulttype_sub (mk_list _ t_2_lst) (mk_list _ t'_2_lst)) ->
 		(wf_store s) ->
 		(wf_context C) ->
-		List.Forall (fun (v_instr : instr) => (wf_instr v_instr)) instr_lst ->
 		List.Forall (fun (v_admininstr : admininstr) => (wf_admininstr v_admininstr)) admininstr_lst ->
-		Instrs_ok2 s C (seq.map (fun (v_instr : instr) => (admininstr_instr v_instr)) instr_lst) (mk_functype (mk_list _ t'_1_lst) (mk_list _ t'_2_lst))
+		Instrs_ok2 s C admininstr_lst (mk_functype (mk_list _ t'_1_lst) (mk_list _ t'_2_lst))
 	| Instrs_ok2__frame : forall (s : store) (C : context) (admininstr_lst : (seq admininstr)) (t_lst : (seq valtype)) (t_1_lst : (seq valtype)) (t_2_lst : (seq valtype)), 
 		(Instrs_ok2 s C admininstr_lst (mk_functype (mk_list _ t_1_lst) (mk_list _ t_2_lst))) ->
 		(wf_store s) ->
