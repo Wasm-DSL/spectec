@@ -223,10 +223,18 @@ let is_typ_arg x =
   match x.it with
   | TypA _ -> true
   | _ -> false
+
+
+ let is_let p =
+  match p.it with
+  | LetPr _ -> true
+  | _ -> false 
+
 let has_prems c = 
   let only_otherwise prems =
     match prems with
     | [{it = ElsePr; _}] -> true
+    | prems when List.for_all is_let prems -> true 
     | _ -> false
   in
   match c.it with
@@ -259,6 +267,15 @@ let rec get_constr_strings exp =
      let suffs = List.map get_constr_strings args |> List.flatten in
      [(* to_string *) op] :: List.map (fun suff -> (* to_string *) op :: suff) suffs
   | _ -> []
+
+
+let sanitise_string s =
+  let s = to_string s in
+  let rec aux i =
+    if i >= String.length s then ""
+    else if List.mem s.[i] ['%'; '('; ')'; '\''; ' '; '_'] then aux (i + 1)
+    else String.make 1 s.[i] ^ aux (i + 1)
+  in aux 0
 
 let inspect_clause_constr_strings clause =
   match clause.it with
@@ -427,7 +444,7 @@ let rec transform_def (datatypes : datatypes) rec_names def =
                                     count_cases datatypes paramtyp constructor_strings
                                  | _ -> 1) params constructor_strings
                              |> List.fold_left ( * ) 1 in
-      (*      Printf.printf "function %s has size %d\n" id.it estimate_of_size; *)
+      (* Printf.printf "function %s has size %d\n" id.it estimate_of_size;  *)
      if estimate_of_size <= limit then datatypes, [def] else
       let pattern_match_depths = inspect_clause_depth params clauses in
       let casei, depth = find_deepest pattern_match_depths in
@@ -446,9 +463,9 @@ let rec transform_def (datatypes : datatypes) rec_names def =
               let split_clauses = stop_at_first_catchall split_clauses in
               match split_clauses with
               | [] -> new_defs, toplevelclauses
-              | _ -> (DecD ({ id with it = id.it ^ "_" ^ to_string op },
+              | _ -> (DecD ({ id with it = id.it ^ "_" ^ sanitise_string op },
                             replace_nth casei
-                              (List.mapi (fun i t -> ExpP (to_string op ^ "_argument_" ^ string_of_int i $ id.at, t) $ id.at) paramtyps) params,
+                              (List.mapi (fun i t -> ExpP (sanitise_string op ^ "_argument_" ^ string_of_int casei ^ "_" ^ string_of_int i $ id.at, t) $ id.at) paramtyps) params,
                             typ,
                             split_clauses) $ def.at) :: new_defs,
                      (DefD (replace_nth casei (generate_dummy_params paramtyps id.at) params,
@@ -459,7 +476,7 @@ let rec transform_def (datatypes : datatypes) rec_names def =
                                      package_case_tup (
                                          generate_dummy_exps paramtyps id.at) id.at packaged_paramtyps) $$ (id.at, splittyp)) $ id.at]
                               (generate_args params),
-                            CallE ({id with it = id.it ^ "_" ^ to_string op},
+                            CallE ({id with it = id.it ^ "_" ^ sanitise_string op},
                                    replace_nth casei
                                      (generate_dummy_args paramtyps id.at)
                                      (generate_args params)) $$ (id.at, typ),
