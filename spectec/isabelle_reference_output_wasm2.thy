@@ -70,6 +70,10 @@ fun list_alli_aux :: "(nat ⇒ 'a ⇒bool) ⇒ nat ⇒ 'a list ⇒ bool" where
 definition list_alli :: "(nat ⇒ 'a ⇒bool) ⇒ 'a list ⇒ bool" where
 	"list_alli f l = list_alli_aux f 0 l"
 
+fun holds_upto :: "(nat ⇒ bool) ⇒ nat ⇒ bool" where
+	"holds_upto P 0 = P 0" |
+	"holds_upto P (Suc n) = P (Suc n) ∧ holds_upto P n"
+
 (* Generated Code *)
 (* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:162.14-162.17 *)
 datatype r_MUT =
@@ -8380,22 +8384,22 @@ inductive Step_pure :: "(admininstr list) ⇒ (admininstr list) ⇒ bool" where
 		"(ci_lst = (lanes_underscore (X (lanetype_packtype v_Pnn) (mk_dim v_M)) c_2)) ⟹
 		 list_all (λ (iter_0 :: lane_underscore). ((proj_lane__1 iter_0) ≠ None)) (lanes_underscore (X (lanetype_packtype v_Pnn) (mk_dim v_M)) c_1) ⟹
 		 (c'_lst = ((map (λ (iter_0 :: lane_underscore). (the ((proj_lane__1 iter_0)))) (lanes_underscore (X (lanetype_packtype v_Pnn) (mk_dim v_M)) c_1)) @ (repeat (((256 :: nat) - (v_M :: nat)) :: nat) (mk_uN 0)))) ⟹
-		 ((proj_uN_0 (the ((proj_lane__1 (ci_lst ! k))))) < (length c'_lst)) ⟹
-		 ((proj_lane__1 (ci_lst ! k)) ≠ None) ⟹
-		 (k < (length ci_lst)) ⟹
+		 holds_upto (λ k. ((proj_uN_0 (the ((proj_lane__1 (ci_lst ! k))))) < (length c'_lst))) v_M ⟹
+		 holds_upto (λ k. ((proj_lane__1 (ci_lst ! k)) ≠ None)) v_M ⟹
+		 holds_upto (λ k. (k < (length ci_lst))) v_M ⟹
 		 (c = (inv_lanes_underscore (X (lanetype_packtype v_Pnn) (mk_dim v_M)) (mkseq (λ k. (mk_lane__1 v_Pnn (c'_lst ! (proj_uN_0 (the ((proj_lane__1 (ci_lst ! k)))))))) v_M))) ⟹
 		 (wf_shape (X (lanetype_packtype v_Pnn) (mk_dim v_M))) ⟹
 		 (wf_uN (psize v_Pnn) (mk_uN 0)) ⟹
-		 (wf_lane_underscore (fun_lanetype (X (lanetype_packtype v_Pnn) (mk_dim v_M))) (mk_lane__1 v_Pnn (c'_lst ! (proj_uN_0 (the ((proj_lane__1 (ci_lst ! k)))))))) ⟹
+		 holds_upto (λ k. (wf_lane_underscore (fun_lanetype (X (lanetype_packtype v_Pnn) (mk_dim v_M))) (mk_lane__1 v_Pnn (c'_lst ! (proj_uN_0 (the ((proj_lane__1 (ci_lst ! k))))))))) v_M ⟹
 		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_2)), (admininstr_subcase_3 (admininstr_subtype_3_VSWIZZLE (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_M))))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
 	| Step_pure__vshuffle :
 		"((map (λ (c' :: iN). (mk_lane__1 v_Pnn c')) c'_lst) = ((lanes_underscore (X (lanetype_packtype v_Pnn) (mk_dim v_N)) c_1) @ (lanes_underscore (X (lanetype_packtype v_Pnn) (mk_dim v_N)) c_2))) ⟹
-		 ((proj_uN_0 (i_lst ! k)) < (length c'_lst)) ⟹
-		 (k < (length i_lst)) ⟹
+		 holds_upto (λ k. ((proj_uN_0 (i_lst ! k)) < (length c'_lst))) v_N ⟹
+		 holds_upto (λ k. (k < (length i_lst))) v_N ⟹
 		 (c = (inv_lanes_underscore (X (lanetype_packtype v_Pnn) (mk_dim v_N)) (mkseq (λ k. (mk_lane__1 v_Pnn (c'_lst ! (proj_uN_0 (i_lst ! k))))) v_N))) ⟹
 		 list_all (λ (c' :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_packtype v_Pnn) (mk_dim v_N))) (mk_lane__1 v_Pnn c'))) c'_lst ⟹
 		 (wf_shape (X (lanetype_packtype v_Pnn) (mk_dim v_N))) ⟹
-		 (wf_lane_underscore (fun_lanetype (X (lanetype_packtype v_Pnn) (mk_dim v_N))) (mk_lane__1 v_Pnn (c'_lst ! (proj_uN_0 (i_lst ! k))))) ⟹
+		 holds_upto (λ k. (wf_lane_underscore (fun_lanetype (X (lanetype_packtype v_Pnn) (mk_dim v_N))) (mk_lane__1 v_Pnn (c'_lst ! (proj_uN_0 (i_lst ! k)))))) v_N ⟹
 		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_2)), (admininstr_subcase_3 (admininstr_subtype_3_VSHUFFLE (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_N)) i_lst))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
 	| Step_pure__vsplat :
 		"(c = (inv_lanes_underscore (X v_Lnn (mk_dim v_N)) (repeat v_N (packnum_underscore v_Lnn c_1)))) ⟹
@@ -8732,7 +8736,7 @@ inductive Step_read :: "config ⇒ (admininstr list) ⇒ bool" where
 		 (wf_uN 32 (mk_uN 0)) ⟹
 		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_6 (admininstr_subtype_6_VLOAD V128 (Some (SHAPEX_underscore v_M v_N v_sx)) ao))]) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
 	| vload_shape_val :
-		"((proj_num__0 i) ≠ None) ⟹
+		"holds_upto (λ k. ((proj_num__0 i) ≠ None)) v_N ⟹
 		 list_alli (λ k (j :: iN). ((ibytes_underscore v_M j) = (list_slice (BYTES (fun_mem z (mk_uN 0))) (((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + ((((k * v_M) :: nat) div (8 :: nat)) :: nat)) (((v_M :: nat) div (8 :: nat)) :: nat)))) j_lst ⟹
 		 ((jsize v_Jnn) = (v_M * 2)) ⟹
 		 (c = (inv_lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (map (λ (j :: iN). (mk_lane__2 v_Jnn (extend__underscore v_M (jsize v_Jnn) v_sx j))) j_lst))) ⟹
@@ -9386,10 +9390,10 @@ inductive fun_instantiate :: "store ⇒ module ⇒ (externaddr list) ⇒ config 
 		 list_all2 (λ (expr_E_lst_2 :: (expr list)) (ref_lst_3 :: (ref list)). list_all2 (λ (expr_E_2 :: expr) (ref_7 :: ref). (Eval_expr z expr_E_2 z [(val_ref ref_7)])) expr_E_lst_2 ref_lst_3) expr_E_lst_lst ref_lst_lst ⟹
 		 ((s', v_moduleinst) = var_2) ⟹
 		 (f = ⦇ LOCALS = [], frame_MODULE = v_moduleinst ⦈) ⟹
-		 (i_50503 < (length elem_lst)) ⟹
+		 holds_upto (λ i_50503. (i_50503 < (length elem_lst))) n_E ⟹
 		 (instr_E_lst = (concat_underscore  (mkseq (λ i_50503. (runelem (elem_lst ! i_50503) (mk_uN i_50503))) n_E))) ⟹
-		 ((rundata (data_lst ! j_17) (mk_uN j_17)) ≠ None) ⟹
-		 (j_17 < (length data_lst)) ⟹
+		 holds_upto (λ j_17. ((rundata (data_lst ! j_17) (mk_uN j_17)) ≠ None)) n_D ⟹
+		 holds_upto (λ j_17. (j_17 < (length data_lst))) n_D ⟹
 		 (instr_D_lst = (concat_underscore  (mkseq (λ j_17. (the ((rundata (data_lst ! j_17) (mk_uN j_17))))) n_D))) ⟹
 		 list_all (λ (val_5 :: val). (wf_val val_5)) val_lst ⟹
 		 (wf_module (MODULE type_lst import_lst func_lst global_lst table_lst mem_lst elem_lst data_lst start_opt export_lst)) ⟹
@@ -9403,8 +9407,8 @@ inductive fun_instantiate :: "store ⇒ module ⇒ (externaddr list) ⇒ config 
 		 (wf_frame ⦇ LOCALS = [], frame_MODULE = moduleinst_init ⦈) ⟹
 		 (wf_state (mk_state s f_init)) ⟹
 		 (wf_frame ⦇ LOCALS = [], frame_MODULE = v_moduleinst ⦈) ⟹
-		 (wf_uN 32 (mk_uN i_50506)) ⟹
-		 (wf_uN 32 (mk_uN j_18)) ⟹
+		 holds_upto (λ i_50506. (wf_uN 32 (mk_uN i_50506))) n_E ⟹
+		 holds_upto (λ j_18. (wf_uN 32 (mk_uN j_18))) n_D ⟹
 		 fun_instantiate s v_module externaddr_lst (mk_config (mk_state s' f) ((map (λ (instr_E :: instr). (admininstr_instr instr_E)) instr_E_lst) @ ((map (λ (instr_D :: instr). (admininstr_instr instr_D)) instr_D_lst) @ (option_to_list (map_option (λ (x :: idx). (admininstr_subcase_1 (admininstr_subtype_1_CALL x))) x_opt)))))"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:167.6-167.18 *)
@@ -9794,24 +9798,24 @@ inductive Extend_eleminst :: "eleminst ⇒ eleminst ⇒ bool" where
 (* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:250.1-250.39 *)
 inductive Extend_store :: "store ⇒ store ⇒ bool" where
 	  mk_Extend_store :
-		"(a < (length (store_GLOBALS s))) ⟹
-		 (a < (length (store_GLOBALS s'))) ⟹
-		 (Extend_globalinst ((store_GLOBALS s) ! a) ((store_GLOBALS s') ! a)) ⟹
-		 (a < (length (store_MEMS s))) ⟹
-		 (a < (length (store_MEMS s'))) ⟹
-		 (Extend_meminst ((store_MEMS s) ! a) ((store_MEMS s') ! a)) ⟹
-		 (a < (length (store_TABLES s))) ⟹
-		 (a < (length (store_TABLES s'))) ⟹
-		 (Extend_tableinst ((store_TABLES s) ! a) ((store_TABLES s') ! a)) ⟹
-		 (a < (length (store_FUNCS s))) ⟹
-		 (a < (length (store_FUNCS s'))) ⟹
-		 (Extend_funcinst ((store_FUNCS s) ! a) ((store_FUNCS s') ! a)) ⟹
-		 (a < (length (store_DATAS s))) ⟹
-		 (a < (length (store_DATAS s'))) ⟹
-		 (Extend_datainst ((store_DATAS s) ! a) ((store_DATAS s') ! a)) ⟹
-		 (a < (length (store_ELEMS s))) ⟹
-		 (a < (length (store_ELEMS s'))) ⟹
-		 (Extend_eleminst ((store_ELEMS s) ! a) ((store_ELEMS s') ! a)) ⟹
+		"holds_upto (λ a. (a < (length (store_GLOBALS s)))) (length (store_GLOBALS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_GLOBALS s')))) (length (store_GLOBALS s)) ⟹
+		 holds_upto (λ a. (Extend_globalinst ((store_GLOBALS s) ! a) ((store_GLOBALS s') ! a))) (length (store_GLOBALS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_MEMS s)))) (length (store_MEMS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_MEMS s')))) (length (store_MEMS s)) ⟹
+		 holds_upto (λ a. (Extend_meminst ((store_MEMS s) ! a) ((store_MEMS s') ! a))) (length (store_MEMS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_TABLES s)))) (length (store_TABLES s)) ⟹
+		 holds_upto (λ a. (a < (length (store_TABLES s')))) (length (store_TABLES s)) ⟹
+		 holds_upto (λ a. (Extend_tableinst ((store_TABLES s) ! a) ((store_TABLES s') ! a))) (length (store_TABLES s)) ⟹
+		 holds_upto (λ a. (a < (length (store_FUNCS s)))) (length (store_FUNCS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_FUNCS s')))) (length (store_FUNCS s)) ⟹
+		 holds_upto (λ a. (Extend_funcinst ((store_FUNCS s) ! a) ((store_FUNCS s') ! a))) (length (store_FUNCS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_DATAS s)))) (length (store_DATAS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_DATAS s')))) (length (store_DATAS s)) ⟹
+		 holds_upto (λ a. (Extend_datainst ((store_DATAS s) ! a) ((store_DATAS s') ! a))) (length (store_DATAS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_ELEMS s)))) (length (store_ELEMS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_ELEMS s')))) (length (store_ELEMS s)) ⟹
+		 holds_upto (λ a. (Extend_eleminst ((store_ELEMS s) ! a) ((store_ELEMS s') ! a))) (length (store_ELEMS s)) ⟹
 		 (wf_store s) ⟹
 		 (wf_store s') ⟹
 		 Extend_store s s'"

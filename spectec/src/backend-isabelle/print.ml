@@ -596,6 +596,10 @@ let rec render_prem typids prem =
     string_of_list_prefix " " " " (render_exp REL typids) (transform_case_tup exp))
   | NegPr p -> parens ("~" ^ r_func p)
   | ElsePr -> error prem.at "Unsupported Else premise" (* "True" (* ^ comment_parens ("Unsupported premise: otherwise") *) (* Will be removed by an else pass *) *)
+  | IterPr (p, (ListN (e, Some i), [])) ->
+    let pred_name = "holds_upto" in
+    pred_name ^ " " ^ render_lambda [i.it] (r_func p) ^ " " ^ (render_exp REL typids e)
+
   | IterPr (p, (_, [])) -> r_func p
 
   | IterPr (p, (ListN (_, Some i), ps)) ->
@@ -936,7 +940,10 @@ let exported_string =
   "\t\"list_alli_aux f n [] = True\" |\n" ^
   "\t\"list_alli_aux f n (x # q) = (f n x ∧ list_alli_aux f (Suc n) q)\"\n\n" ^
   "definition list_alli :: \"(nat " ^ ra ^ " 'a " ^ ra ^ "bool) " ^ ra ^ " 'a list " ^ ra ^ " bool\" where\n" ^
-  "\t\"list_alli f l = list_alli_aux f 0 l\"\n\n"
+  "\t\"list_alli f l = list_alli_aux f 0 l\"\n\n" ^
+  "fun holds_upto :: \"(nat " ^ ra ^ " bool) " ^ ra ^ " nat " ^ ra ^ " bool\" where\n" ^
+  "\t\"holds_upto P 0 = P 0\" |\n" ^
+  "\t\"holds_upto P (Suc n) = (P (Suc n) ∧ holds_upto P n)\"\n\n"
         
 
 
