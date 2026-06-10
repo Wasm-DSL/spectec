@@ -70,6 +70,10 @@ fun list_alli_aux :: "(nat ⇒ 'a ⇒bool) ⇒ nat ⇒ 'a list ⇒ bool" where
 definition list_alli :: "(nat ⇒ 'a ⇒bool) ⇒ 'a list ⇒ bool" where
 	"list_alli f l = list_alli_aux f 0 l"
 
+fun holds_upto :: "(nat ⇒ bool) ⇒ nat ⇒ bool" where
+	"holds_upto P 0 = P 0" |
+	"holds_upto P (Suc n) = (P (Suc n) ∧ holds_upto P n)"
+
 (* Generated Code *)
 (* Inductive Type Definition at: ../specification/wasm-1.0/1-syntax.spectec:119.14-119.17 *)
 datatype r_MUT =
@@ -4447,18 +4451,18 @@ inductive Extend_meminst :: "meminst ⇒ meminst ⇒ bool" where
 	  mk_Extend_meminst :
 		"(v_n ≤ n') ⟹
 		 ((length b_lst) ≤ (length b'_lst)) ⟹
-		 (wf_meminst ⦇ meminst_TYPE = (mk_limits (mk_uN v_n) (Some (mk_uN v_m))), BYTES = b_lst ⦈) ⟹
-		 (wf_meminst ⦇ meminst_TYPE = (mk_limits (mk_uN n') (Some (mk_uN v_m))), BYTES = b'_lst ⦈) ⟹
-		 Extend_meminst ⦇ meminst_TYPE = (mk_limits (mk_uN v_n) (Some (mk_uN v_m))), BYTES = b_lst ⦈ ⦇ meminst_TYPE = (mk_limits (mk_uN n') (Some (mk_uN v_m))), BYTES = b'_lst ⦈"
+		 (wf_meminst ⦇ meminst_TYPE = (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)), BYTES = b_lst ⦈) ⟹
+		 (wf_meminst ⦇ meminst_TYPE = (mk_limits (mk_uN n') (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)), BYTES = b'_lst ⦈) ⟹
+		 Extend_meminst ⦇ meminst_TYPE = (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)), BYTES = b_lst ⦈ ⦇ meminst_TYPE = (mk_limits (mk_uN n') (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)), BYTES = b'_lst ⦈"
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:198.1-198.51 *)
 inductive Extend_tableinst :: "tableinst ⇒ tableinst ⇒ bool" where
 	  mk_Extend_tableinst :
 		"(v_n ≤ n') ⟹
 		 ((length ref_lst) ≤ (length ref'_lst)) ⟹
-		 (wf_tableinst ⦇ tableinst_TYPE = (mk_limits (mk_uN v_n) (Some (mk_uN v_m))), REFS = (map (λ (ref :: funcaddr). (Some ref)) ref_lst) ⦈) ⟹
-		 (wf_tableinst ⦇ tableinst_TYPE = (mk_limits (mk_uN n') (Some (mk_uN v_m))), REFS = (map (λ (ref' :: funcaddr). (Some ref')) ref'_lst) ⦈) ⟹
-		 Extend_tableinst ⦇ tableinst_TYPE = (mk_limits (mk_uN v_n) (Some (mk_uN v_m))), REFS = (map (λ (ref :: funcaddr). (Some ref)) ref_lst) ⦈ ⦇ tableinst_TYPE = (mk_limits (mk_uN n') (Some (mk_uN v_m))), REFS = (map (λ (ref' :: funcaddr). (Some ref')) ref'_lst) ⦈"
+		 (wf_tableinst ⦇ tableinst_TYPE = (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)), REFS = (map (λ (ref :: funcaddr). (Some ref)) ref_lst) ⦈) ⟹
+		 (wf_tableinst ⦇ tableinst_TYPE = (mk_limits (mk_uN n') (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)), REFS = (map (λ (ref' :: funcaddr). (Some ref')) ref'_lst) ⦈) ⟹
+		 Extend_tableinst ⦇ tableinst_TYPE = (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)), REFS = (map (λ (ref :: funcaddr). (Some ref)) ref_lst) ⦈ ⦇ tableinst_TYPE = (mk_limits (mk_uN n') (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)), REFS = (map (λ (ref' :: funcaddr). (Some ref')) ref'_lst) ⦈"
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:199.1-199.48 *)
 inductive Extend_funcinst :: "funcinst ⇒ funcinst ⇒ bool" where
@@ -4469,18 +4473,18 @@ inductive Extend_funcinst :: "funcinst ⇒ funcinst ⇒ bool" where
 (* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:200.1-200.39 *)
 inductive Extend_store :: "store ⇒ store ⇒ bool" where
 	  mk_Extend_store :
-		"(a < (length (store_GLOBALS s))) ⟹
-		 (a < (length (store_GLOBALS s'))) ⟹
-		 (Extend_globalinst ((store_GLOBALS s) ! a) ((store_GLOBALS s') ! a)) ⟹
-		 (a < (length (store_MEMS s))) ⟹
-		 (a < (length (store_MEMS s'))) ⟹
-		 (Extend_meminst ((store_MEMS s) ! a) ((store_MEMS s') ! a)) ⟹
-		 (a < (length (store_TABLES s))) ⟹
-		 (a < (length (store_TABLES s'))) ⟹
-		 (Extend_tableinst ((store_TABLES s) ! a) ((store_TABLES s') ! a)) ⟹
-		 (a < (length (store_FUNCS s))) ⟹
-		 (a < (length (store_FUNCS s'))) ⟹
-		 (Extend_funcinst ((store_FUNCS s) ! a) ((store_FUNCS s') ! a)) ⟹
+		"holds_upto (λ a. (a < (length (store_GLOBALS s)))) (length (store_GLOBALS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_GLOBALS s')))) (length (store_GLOBALS s)) ⟹
+		 holds_upto (λ a. (Extend_globalinst ((store_GLOBALS s) ! a) ((store_GLOBALS s') ! a))) (length (store_GLOBALS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_MEMS s)))) (length (store_MEMS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_MEMS s')))) (length (store_MEMS s)) ⟹
+		 holds_upto (λ a. (Extend_meminst ((store_MEMS s) ! a) ((store_MEMS s') ! a))) (length (store_MEMS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_TABLES s)))) (length (store_TABLES s)) ⟹
+		 holds_upto (λ a. (a < (length (store_TABLES s')))) (length (store_TABLES s)) ⟹
+		 holds_upto (λ a. (Extend_tableinst ((store_TABLES s) ! a) ((store_TABLES s') ! a))) (length (store_TABLES s)) ⟹
+		 holds_upto (λ a. (a < (length (store_FUNCS s)))) (length (store_FUNCS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_FUNCS s')))) (length (store_FUNCS s)) ⟹
+		 holds_upto (λ a. (Extend_funcinst ((store_FUNCS s) ! a) ((store_FUNCS s') ! a))) (length (store_FUNCS s)) ⟹
 		 (wf_store s) ⟹
 		 (wf_store s') ⟹
 		 Extend_store s s'"

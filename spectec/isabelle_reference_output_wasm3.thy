@@ -70,6 +70,10 @@ fun list_alli_aux :: "(nat ⇒ 'a ⇒bool) ⇒ nat ⇒ 'a list ⇒ bool" where
 definition list_alli :: "(nat ⇒ 'a ⇒bool) ⇒ 'a list ⇒ bool" where
 	"list_alli f l = list_alli_aux f 0 l"
 
+fun holds_upto :: "(nat ⇒ bool) ⇒ nat ⇒ bool" where
+	"holds_upto P 0 = P 0" |
+	"holds_upto P (Suc n) = (P (Suc n) ∧ holds_upto P n)"
+
 (* Generated Code *)
 (* Type Alias Definition at: ../specification/wasm-3.0/0.1-aux.vars.spectec:5.1-5.32 *)
 type_synonym N = "nat"
@@ -9419,111 +9423,111 @@ function (sequential) fun_relop__I32 :: "relop_underscore ⇒ num_underscore ⇒
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
-function (sequential) fun_relop__F64_mk_relop__1_F64_NE :: "num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F64_mk_relop__1_F64_NE (mk_num__1 Fnn_F64 f_1) (mk_num__1 Fnn_F64 f_2) = (fne_underscore (sizenn (numtype_Fnn Fnn_F64)) f_1 f_2)"
+function (sequential) fun_relop__F64_mkrelop1_F64_NE :: "num_underscore ⇒ num_underscore ⇒ u32" where
+		  "fun_relop__F64_mkrelop1_F64_NE (mk_num__1 Fnn_F64 f_1) (mk_num__1 Fnn_F64 f_2) = (fne_underscore (sizenn (numtype_Fnn Fnn_F64)) f_1 f_2)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
-function (sequential) fun_relop__F64_mk_relop__1_F64_LT :: "num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F64_mk_relop__1_F64_LT (mk_num__1 Fnn_F64 f_1) (mk_num__1 Fnn_F64 f_2) = (flt_underscore (sizenn (numtype_Fnn Fnn_F64)) f_1 f_2)"
+function (sequential) fun_relop__F64_mkrelop1_F64_LT :: "num_underscore ⇒ num_underscore ⇒ u32" where
+		  "fun_relop__F64_mkrelop1_F64_LT (mk_num__1 Fnn_F64 f_1) (mk_num__1 Fnn_F64 f_2) = (flt_underscore (sizenn (numtype_Fnn Fnn_F64)) f_1 f_2)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
-function (sequential) fun_relop__F64_mk_relop__1_F64_LE :: "num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F64_mk_relop__1_F64_LE (mk_num__1 Fnn_F64 f_1) (mk_num__1 Fnn_F64 f_2) = (fle_underscore (sizenn (numtype_Fnn Fnn_F64)) f_1 f_2)"
+function (sequential) fun_relop__F64_mkrelop1_F64_LE :: "num_underscore ⇒ num_underscore ⇒ u32" where
+		  "fun_relop__F64_mkrelop1_F64_LE (mk_num__1 Fnn_F64 f_1) (mk_num__1 Fnn_F64 f_2) = (fle_underscore (sizenn (numtype_Fnn Fnn_F64)) f_1 f_2)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
-function (sequential) fun_relop__F64_mk_relop__1_F64_GT :: "num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F64_mk_relop__1_F64_GT (mk_num__1 Fnn_F64 f_1) (mk_num__1 Fnn_F64 f_2) = (fgt_underscore (sizenn (numtype_Fnn Fnn_F64)) f_1 f_2)"
+function (sequential) fun_relop__F64_mkrelop1_F64_GT :: "num_underscore ⇒ num_underscore ⇒ u32" where
+		  "fun_relop__F64_mkrelop1_F64_GT (mk_num__1 Fnn_F64 f_1) (mk_num__1 Fnn_F64 f_2) = (fgt_underscore (sizenn (numtype_Fnn Fnn_F64)) f_1 f_2)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
-function (sequential) fun_relop__F64_mk_relop__1_F64_GE :: "num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F64_mk_relop__1_F64_GE (mk_num__1 Fnn_F64 f_1) (mk_num__1 Fnn_F64 f_2) = (fge_underscore (sizenn (numtype_Fnn Fnn_F64)) f_1 f_2)"
+function (sequential) fun_relop__F64_mkrelop1_F64_GE :: "num_underscore ⇒ num_underscore ⇒ u32" where
+		  "fun_relop__F64_mkrelop1_F64_GE (mk_num__1 Fnn_F64 f_1) (mk_num__1 Fnn_F64 f_2) = (fge_underscore (sizenn (numtype_Fnn Fnn_F64)) f_1 f_2)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
-function (sequential) fun_relop__F64_mk_relop__1_F64_EQ :: "num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F64_mk_relop__1_F64_EQ (mk_num__1 Fnn_F64 f_1) (mk_num__1 Fnn_F64 f_2) = (feq_underscore (sizenn (numtype_Fnn Fnn_F64)) f_1 f_2)"
+function (sequential) fun_relop__F64_mkrelop1_F64_EQ :: "num_underscore ⇒ num_underscore ⇒ u32" where
+		  "fun_relop__F64_mkrelop1_F64_EQ (mk_num__1 Fnn_F64 f_1) (mk_num__1 Fnn_F64 f_2) = (feq_underscore (sizenn (numtype_Fnn Fnn_F64)) f_1 f_2)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
-function (sequential) fun_relop__F64_mk_relop__1_F64 :: "relop_Fnn ⇒ num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F64_mk_relop__1_F64 relop_Fnn_NE v_num_underscore v_num__0 = (fun_relop__F64_mk_relop__1_F64_NE v_num_underscore v_num__0)"
-		| "fun_relop__F64_mk_relop__1_F64 relop_Fnn_LT v_num_underscore v_num__0 = (fun_relop__F64_mk_relop__1_F64_LT v_num_underscore v_num__0)"
-		| "fun_relop__F64_mk_relop__1_F64 relop_Fnn_LE v_num_underscore v_num__0 = (fun_relop__F64_mk_relop__1_F64_LE v_num_underscore v_num__0)"
-		| "fun_relop__F64_mk_relop__1_F64 relop_Fnn_GT v_num_underscore v_num__0 = (fun_relop__F64_mk_relop__1_F64_GT v_num_underscore v_num__0)"
-		| "fun_relop__F64_mk_relop__1_F64 relop_Fnn_GE v_num_underscore v_num__0 = (fun_relop__F64_mk_relop__1_F64_GE v_num_underscore v_num__0)"
-		| "fun_relop__F64_mk_relop__1_F64 relop_Fnn_EQ v_num_underscore v_num__0 = (fun_relop__F64_mk_relop__1_F64_EQ v_num_underscore v_num__0)"
+function (sequential) fun_relop__F64_mkrelop1_F64 :: "relop_Fnn ⇒ num_underscore ⇒ num_underscore ⇒ u32" where
+		  "fun_relop__F64_mkrelop1_F64 relop_Fnn_NE v_num_underscore num__0 = (fun_relop__F64_mkrelop1_F64_NE v_num_underscore num__0)"
+		| "fun_relop__F64_mkrelop1_F64 relop_Fnn_LT v_num_underscore num__0 = (fun_relop__F64_mkrelop1_F64_LT v_num_underscore num__0)"
+		| "fun_relop__F64_mkrelop1_F64 relop_Fnn_LE v_num_underscore num__0 = (fun_relop__F64_mkrelop1_F64_LE v_num_underscore num__0)"
+		| "fun_relop__F64_mkrelop1_F64 relop_Fnn_GT v_num_underscore num__0 = (fun_relop__F64_mkrelop1_F64_GT v_num_underscore num__0)"
+		| "fun_relop__F64_mkrelop1_F64 relop_Fnn_GE v_num_underscore num__0 = (fun_relop__F64_mkrelop1_F64_GE v_num_underscore num__0)"
+		| "fun_relop__F64_mkrelop1_F64 relop_Fnn_EQ v_num_underscore num__0 = (fun_relop__F64_mkrelop1_F64_EQ v_num_underscore num__0)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
-function (sequential) fun_relop__F64_mk_relop__1 :: "Fnn ⇒ relop_Fnn ⇒ num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F64_mk_relop__1 Fnn_F64 mk_relop__1_argument_1 v_num_underscore v_num__0 = (fun_relop__F64_mk_relop__1_F64 mk_relop__1_argument_1 v_num_underscore v_num__0)"
+function (sequential) fun_relop__F64_mkrelop1 :: "Fnn ⇒ relop_Fnn ⇒ num_underscore ⇒ num_underscore ⇒ u32" where
+		  "fun_relop__F64_mkrelop1 Fnn_F64 mkrelop1_argument_0_1 v_num_underscore num__0 = (fun_relop__F64_mkrelop1_F64 mkrelop1_argument_0_1 v_num_underscore num__0)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
 function (sequential) fun_relop__F64 :: "relop_underscore ⇒ num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F64 (mk_relop__1 constructor_parameter_0 constructor_parameter_1) v_num_underscore v_num__0 = (fun_relop__F64_mk_relop__1 constructor_parameter_0 constructor_parameter_1 v_num_underscore v_num__0)"
+		  "fun_relop__F64 (mk_relop__1 constructor_parameter_0 constructor_parameter_1) v_num_underscore num__0 = (fun_relop__F64_mkrelop1 constructor_parameter_0 constructor_parameter_1 v_num_underscore num__0)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
-function (sequential) fun_relop__F32_mk_relop__1_F32_NE :: "num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F32_mk_relop__1_F32_NE (mk_num__1 Fnn_F32 f_1) (mk_num__1 Fnn_F32 f_2) = (fne_underscore (sizenn (numtype_Fnn Fnn_F32)) f_1 f_2)"
+function (sequential) fun_relop__F32_mkrelop1_F32_NE :: "num_underscore ⇒ num_underscore ⇒ u32" where
+		  "fun_relop__F32_mkrelop1_F32_NE (mk_num__1 Fnn_F32 f_1) (mk_num__1 Fnn_F32 f_2) = (fne_underscore (sizenn (numtype_Fnn Fnn_F32)) f_1 f_2)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
-function (sequential) fun_relop__F32_mk_relop__1_F32_LT :: "num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F32_mk_relop__1_F32_LT (mk_num__1 Fnn_F32 f_1) (mk_num__1 Fnn_F32 f_2) = (flt_underscore (sizenn (numtype_Fnn Fnn_F32)) f_1 f_2)"
+function (sequential) fun_relop__F32_mkrelop1_F32_LT :: "num_underscore ⇒ num_underscore ⇒ u32" where
+		  "fun_relop__F32_mkrelop1_F32_LT (mk_num__1 Fnn_F32 f_1) (mk_num__1 Fnn_F32 f_2) = (flt_underscore (sizenn (numtype_Fnn Fnn_F32)) f_1 f_2)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
-function (sequential) fun_relop__F32_mk_relop__1_F32_LE :: "num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F32_mk_relop__1_F32_LE (mk_num__1 Fnn_F32 f_1) (mk_num__1 Fnn_F32 f_2) = (fle_underscore (sizenn (numtype_Fnn Fnn_F32)) f_1 f_2)"
+function (sequential) fun_relop__F32_mkrelop1_F32_LE :: "num_underscore ⇒ num_underscore ⇒ u32" where
+		  "fun_relop__F32_mkrelop1_F32_LE (mk_num__1 Fnn_F32 f_1) (mk_num__1 Fnn_F32 f_2) = (fle_underscore (sizenn (numtype_Fnn Fnn_F32)) f_1 f_2)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
-function (sequential) fun_relop__F32_mk_relop__1_F32_GT :: "num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F32_mk_relop__1_F32_GT (mk_num__1 Fnn_F32 f_1) (mk_num__1 Fnn_F32 f_2) = (fgt_underscore (sizenn (numtype_Fnn Fnn_F32)) f_1 f_2)"
+function (sequential) fun_relop__F32_mkrelop1_F32_GT :: "num_underscore ⇒ num_underscore ⇒ u32" where
+		  "fun_relop__F32_mkrelop1_F32_GT (mk_num__1 Fnn_F32 f_1) (mk_num__1 Fnn_F32 f_2) = (fgt_underscore (sizenn (numtype_Fnn Fnn_F32)) f_1 f_2)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
-function (sequential) fun_relop__F32_mk_relop__1_F32_GE :: "num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F32_mk_relop__1_F32_GE (mk_num__1 Fnn_F32 f_1) (mk_num__1 Fnn_F32 f_2) = (fge_underscore (sizenn (numtype_Fnn Fnn_F32)) f_1 f_2)"
+function (sequential) fun_relop__F32_mkrelop1_F32_GE :: "num_underscore ⇒ num_underscore ⇒ u32" where
+		  "fun_relop__F32_mkrelop1_F32_GE (mk_num__1 Fnn_F32 f_1) (mk_num__1 Fnn_F32 f_2) = (fge_underscore (sizenn (numtype_Fnn Fnn_F32)) f_1 f_2)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
-function (sequential) fun_relop__F32_mk_relop__1_F32_EQ :: "num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F32_mk_relop__1_F32_EQ (mk_num__1 Fnn_F32 f_1) (mk_num__1 Fnn_F32 f_2) = (feq_underscore (sizenn (numtype_Fnn Fnn_F32)) f_1 f_2)"
+function (sequential) fun_relop__F32_mkrelop1_F32_EQ :: "num_underscore ⇒ num_underscore ⇒ u32" where
+		  "fun_relop__F32_mkrelop1_F32_EQ (mk_num__1 Fnn_F32 f_1) (mk_num__1 Fnn_F32 f_2) = (feq_underscore (sizenn (numtype_Fnn Fnn_F32)) f_1 f_2)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
-function (sequential) fun_relop__F32_mk_relop__1_F32 :: "relop_Fnn ⇒ num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F32_mk_relop__1_F32 relop_Fnn_NE v_num_underscore v_num__0 = (fun_relop__F32_mk_relop__1_F32_NE v_num_underscore v_num__0)"
-		| "fun_relop__F32_mk_relop__1_F32 relop_Fnn_LT v_num_underscore v_num__0 = (fun_relop__F32_mk_relop__1_F32_LT v_num_underscore v_num__0)"
-		| "fun_relop__F32_mk_relop__1_F32 relop_Fnn_LE v_num_underscore v_num__0 = (fun_relop__F32_mk_relop__1_F32_LE v_num_underscore v_num__0)"
-		| "fun_relop__F32_mk_relop__1_F32 relop_Fnn_GT v_num_underscore v_num__0 = (fun_relop__F32_mk_relop__1_F32_GT v_num_underscore v_num__0)"
-		| "fun_relop__F32_mk_relop__1_F32 relop_Fnn_GE v_num_underscore v_num__0 = (fun_relop__F32_mk_relop__1_F32_GE v_num_underscore v_num__0)"
-		| "fun_relop__F32_mk_relop__1_F32 relop_Fnn_EQ v_num_underscore v_num__0 = (fun_relop__F32_mk_relop__1_F32_EQ v_num_underscore v_num__0)"
+function (sequential) fun_relop__F32_mkrelop1_F32 :: "relop_Fnn ⇒ num_underscore ⇒ num_underscore ⇒ u32" where
+		  "fun_relop__F32_mkrelop1_F32 relop_Fnn_NE v_num_underscore num__0 = (fun_relop__F32_mkrelop1_F32_NE v_num_underscore num__0)"
+		| "fun_relop__F32_mkrelop1_F32 relop_Fnn_LT v_num_underscore num__0 = (fun_relop__F32_mkrelop1_F32_LT v_num_underscore num__0)"
+		| "fun_relop__F32_mkrelop1_F32 relop_Fnn_LE v_num_underscore num__0 = (fun_relop__F32_mkrelop1_F32_LE v_num_underscore num__0)"
+		| "fun_relop__F32_mkrelop1_F32 relop_Fnn_GT v_num_underscore num__0 = (fun_relop__F32_mkrelop1_F32_GT v_num_underscore num__0)"
+		| "fun_relop__F32_mkrelop1_F32 relop_Fnn_GE v_num_underscore num__0 = (fun_relop__F32_mkrelop1_F32_GE v_num_underscore num__0)"
+		| "fun_relop__F32_mkrelop1_F32 relop_Fnn_EQ v_num_underscore num__0 = (fun_relop__F32_mkrelop1_F32_EQ v_num_underscore num__0)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
-function (sequential) fun_relop__F32_mk_relop__1 :: "Fnn ⇒ relop_Fnn ⇒ num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F32_mk_relop__1 Fnn_F32 mk_relop__1_argument_1 v_num_underscore v_num__0 = (fun_relop__F32_mk_relop__1_F32 mk_relop__1_argument_1 v_num_underscore v_num__0)"
+function (sequential) fun_relop__F32_mkrelop1 :: "Fnn ⇒ relop_Fnn ⇒ num_underscore ⇒ num_underscore ⇒ u32" where
+		  "fun_relop__F32_mkrelop1 Fnn_F32 mkrelop1_argument_0_1 v_num_underscore num__0 = (fun_relop__F32_mkrelop1_F32 mkrelop1_argument_0_1 v_num_underscore num__0)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
 function (sequential) fun_relop__F32 :: "relop_underscore ⇒ num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop__F32 (mk_relop__1 constructor_parameter_0 constructor_parameter_1) v_num_underscore v_num__0 = (fun_relop__F32_mk_relop__1 constructor_parameter_0 constructor_parameter_1 v_num_underscore v_num__0)"
+		  "fun_relop__F32 (mk_relop__1 constructor_parameter_0 constructor_parameter_1) v_num_underscore num__0 = (fun_relop__F32_mkrelop1 constructor_parameter_0 constructor_parameter_1 v_num_underscore num__0)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.1-371.32 *)
 function (sequential) fun_relop_underscore :: "numtype ⇒ relop_underscore ⇒ num_underscore ⇒ num_underscore ⇒ u32" where
-		  "fun_relop_underscore numtype_I64 v_relop_underscore v_num_underscore v_num__0 = (fun_relop__I64 v_relop_underscore v_num_underscore v_num__0)"
-		| "fun_relop_underscore numtype_I32 v_relop_underscore v_num_underscore v_num__0 = (fun_relop__I32 v_relop_underscore v_num_underscore v_num__0)"
-		| "fun_relop_underscore F64 v_relop_underscore v_num_underscore v_num__0 = (fun_relop__F64 v_relop_underscore v_num_underscore v_num__0)"
-		| "fun_relop_underscore F32 v_relop_underscore v_num_underscore v_num__0 = (fun_relop__F32 v_relop_underscore v_num_underscore v_num__0)"
+		  "fun_relop_underscore numtype_I64 v_relop_underscore v_num_underscore num__0 = (fun_relop__I64 v_relop_underscore v_num_underscore num__0)"
+		| "fun_relop_underscore numtype_I32 v_relop_underscore v_num_underscore num__0 = (fun_relop__I32 v_relop_underscore v_num_underscore num__0)"
+		| "fun_relop_underscore F64 v_relop_underscore v_num_underscore num__0 = (fun_relop__F64 v_relop_underscore v_num_underscore num__0)"
+		| "fun_relop_underscore F32 v_relop_underscore v_num_underscore num__0 = (fun_relop__F32 v_relop_underscore v_num_underscore num__0)"
 	by pat_completeness auto
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/3.1-numerics.scalar.spectec:370.6-370.13 *)
@@ -10290,29 +10294,29 @@ inductive fun_ivshufflop_underscore :: "shape ⇒ (laneidx list) ⇒ vec_undersc
 	  fun_ivshufflop__case_0 :
 		"(c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_1)) ⟹
 		 (c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_2)) ⟹
-		 list_all (λ (i_139043 :: laneidx). ((proj_uN_0 i_139043) < (length (c_1_lst @ c_2_lst)))) i_lst ⟹
-		 (c_lst = (map (λ (i_139043 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_139043))) i_lst)) ⟹
+		 list_all (λ (i_108620 :: laneidx). ((proj_uN_0 i_108620) < (length (c_1_lst @ c_2_lst)))) i_lst ⟹
+		 (c_lst = (map (λ (i_108620 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_108620))) i_lst)) ⟹
 		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) ⟹
 		 fun_ivshufflop_underscore (X lanetype_I32 (mk_dim v_M)) i_lst v_1 v_2 (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) c_lst)"
 	| fun_ivshufflop__case_1 :
 		"(c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_1)) ⟹
 		 (c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_2)) ⟹
-		 list_all (λ (i_139050 :: laneidx). ((proj_uN_0 i_139050) < (length (c_1_lst @ c_2_lst)))) i_lst ⟹
-		 (c_lst = (map (λ (i_139050 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_139050))) i_lst)) ⟹
+		 list_all (λ (i_108627 :: laneidx). ((proj_uN_0 i_108627) < (length (c_1_lst @ c_2_lst)))) i_lst ⟹
+		 (c_lst = (map (λ (i_108627 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_108627))) i_lst)) ⟹
 		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) ⟹
 		 fun_ivshufflop_underscore (X lanetype_I64 (mk_dim v_M)) i_lst v_1 v_2 (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) c_lst)"
 	| fun_ivshufflop__case_2 :
 		"(c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_1)) ⟹
 		 (c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_2)) ⟹
-		 list_all (λ (i_139057 :: laneidx). ((proj_uN_0 i_139057) < (length (c_1_lst @ c_2_lst)))) i_lst ⟹
-		 (c_lst = (map (λ (i_139057 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_139057))) i_lst)) ⟹
+		 list_all (λ (i_108634 :: laneidx). ((proj_uN_0 i_108634) < (length (c_1_lst @ c_2_lst)))) i_lst ⟹
+		 (c_lst = (map (λ (i_108634 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_108634))) i_lst)) ⟹
 		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) ⟹
 		 fun_ivshufflop_underscore (X lanetype_I8 (mk_dim v_M)) i_lst v_1 v_2 (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) c_lst)"
 	| fun_ivshufflop__case_3 :
 		"(c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_1)) ⟹
 		 (c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_2)) ⟹
-		 list_all (λ (i_139064 :: laneidx). ((proj_uN_0 i_139064) < (length (c_1_lst @ c_2_lst)))) i_lst ⟹
-		 (c_lst = (map (λ (i_139064 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_139064))) i_lst)) ⟹
+		 list_all (λ (i_108641 :: laneidx). ((proj_uN_0 i_108641) < (length (c_1_lst @ c_2_lst)))) i_lst ⟹
+		 (c_lst = (map (λ (i_108641 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_108641))) i_lst)) ⟹
 		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) ⟹
 		 fun_ivshufflop_underscore (X lanetype_I16 (mk_dim v_M)) i_lst v_1 v_2 (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) c_lst)"
 
@@ -12707,15 +12711,15 @@ function (sequential) unpackfield__BOT :: "(sx option) ⇒ fieldval ⇒ (val opt
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/4.0-execution.configurations.spectec:179.1-179.126 *)
 function (sequential) unpackfield_underscore :: "storagetype ⇒ (sx option) ⇒ fieldval ⇒ (val option)" where
-		  "unpackfield_underscore storagetype_V128 var_0_questionmark v_fieldval = (unpackfield__V128 var_0_questionmark v_fieldval)"
-		| "unpackfield_underscore (storagetype_REF constructor_parameter_0 constructor_parameter_1) var_0_questionmark v_fieldval = (unpackfield__REF constructor_parameter_0 constructor_parameter_1 var_0_questionmark v_fieldval)"
-		| "unpackfield_underscore I8 var_0_questionmark v_fieldval = (unpackfield__I8 var_0_questionmark v_fieldval)"
-		| "unpackfield_underscore storagetype_I64 var_0_questionmark v_fieldval = (unpackfield__I64 var_0_questionmark v_fieldval)"
-		| "unpackfield_underscore storagetype_I32 var_0_questionmark v_fieldval = (unpackfield__I32 var_0_questionmark v_fieldval)"
-		| "unpackfield_underscore I16 var_0_questionmark v_fieldval = (unpackfield__I16 var_0_questionmark v_fieldval)"
-		| "unpackfield_underscore storagetype_F64 var_0_questionmark v_fieldval = (unpackfield__F64 var_0_questionmark v_fieldval)"
-		| "unpackfield_underscore storagetype_F32 var_0_questionmark v_fieldval = (unpackfield__F32 var_0_questionmark v_fieldval)"
-		| "unpackfield_underscore storagetype_BOT var_0_questionmark v_fieldval = (unpackfield__BOT var_0_questionmark v_fieldval)"
+		  "unpackfield_underscore storagetype_V128 var_0_opt v_fieldval = (unpackfield__V128 var_0_opt v_fieldval)"
+		| "unpackfield_underscore (storagetype_REF constructor_parameter_0 constructor_parameter_1) var_0_opt v_fieldval = (unpackfield__REF constructor_parameter_0 constructor_parameter_1 var_0_opt v_fieldval)"
+		| "unpackfield_underscore I8 var_0_opt v_fieldval = (unpackfield__I8 var_0_opt v_fieldval)"
+		| "unpackfield_underscore storagetype_I64 var_0_opt v_fieldval = (unpackfield__I64 var_0_opt v_fieldval)"
+		| "unpackfield_underscore storagetype_I32 var_0_opt v_fieldval = (unpackfield__I32 var_0_opt v_fieldval)"
+		| "unpackfield_underscore I16 var_0_opt v_fieldval = (unpackfield__I16 var_0_opt v_fieldval)"
+		| "unpackfield_underscore storagetype_F64 var_0_opt v_fieldval = (unpackfield__F64 var_0_opt v_fieldval)"
+		| "unpackfield_underscore storagetype_F32 var_0_opt v_fieldval = (unpackfield__F32 var_0_opt v_fieldval)"
+		| "unpackfield_underscore storagetype_BOT var_0_opt v_fieldval = (unpackfield__BOT var_0_opt v_fieldval)"
 	by pat_completeness auto
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.0-execution.configurations.spectec:179.6-179.19 *)
@@ -14927,7 +14931,7 @@ inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
 		 (wf_instr (instr_subcase_9 TRAP)) ⟹
 		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 (Some (SHAPEX_underscore (mk_sz v_M) v_K v_sx)) x ao))]) [(instr_subcase_9 TRAP)]"
 	| vload_pack_val :
-		"((proj_num__0 i) ≠ None) ⟹
+		"holds_upto (λ k. ((proj_num__0 i) ≠ None)) v_K ⟹
 		 list_alli (λ k (j :: iN). ((ibytes_underscore v_M j) = (list_slice (BYTES (fun_mem z x)) (((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + ((((k * v_M) :: nat) div (8 :: nat)) :: nat)) (((v_M :: nat) div (8 :: nat)) :: nat)))) j_lst ⟹
 		 ((c = (inv_lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_K)) (map (λ (j :: iN). (mk_lane__2 v_Jnn (extend__underscore v_M (jsizenn v_Jnn) v_sx j))) j_lst))) ∧ ((jsizenn v_Jnn) = (v_M * 2))) ⟹
 		 list_alli (λ k (j :: iN). list_all (λ (iter :: byte). (wf_byte iter)) (ibytes_underscore v_M j)) j_lst ⟹
@@ -16213,9 +16217,9 @@ inductive fun_instantiate :: "store ⇒ module ⇒ (externaddr list) ⇒ config 
 		"(fun_funcsxa externaddr_lst var_11) ⟹
 		 (fun_globalsxa externaddr_lst var_10) ⟹
 		 (fun_alloctypes type_lst var_9) ⟹
-		 (i_E_1 < (length elem_lst)) ⟹
+		 holds_upto (λ i_E_1. (i_E_1 < (length elem_lst))) (length elem_lst) ⟹
 		 list_alli (λ i_E_1 (var_8 :: (instr list)). (fun_runelem_underscore (mk_uN i_E_1) (elem_lst ! i_E_1) var_8)) var_8_lst ⟹
-		 (i_D_1 < (length data_lst)) ⟹
+		 holds_upto (λ i_D_1. (i_D_1 < (length data_lst))) (length data_lst) ⟹
 		 list_alli (λ i_D_1 (var_7 :: (instr list)). (fun_rundata_underscore (mk_uN i_D_1) (data_lst ! i_D_1) var_7)) var_7_lst ⟹
 		 (fun_allocmodule s''' v_module externaddr_lst val_G_lst ref_T_lst ref_E_lst_lst var_6) ⟹
 		 (fun_evalexprss z'' expr_E_lst_lst var_5) ⟹
@@ -16259,8 +16263,8 @@ inductive fun_instantiate :: "store ⇒ module ⇒ (externaddr list) ⇒ config 
 		 (wf_moduleinst ⦇ moduleinst_TYPES = var_9, moduleinst_TAGS = [], moduleinst_GLOBALS = var_10, moduleinst_MEMS = [], moduleinst_TABLES = [], moduleinst_FUNCS = (var_11 @ (mkseq (λ i_F_3. ((length (store_FUNCS s)) + i_F_3)) (length func_lst))), moduleinst_DATAS = [], moduleinst_ELEMS = [], EXPORTS = [] ⦈) ⟹
 		 (wf_state (mk_state s ⦇ frame_LOCALS = [], MODULE = moduleinst_0 ⦈)) ⟹
 		 (wf_state (mk_state s''' f)) ⟹
-		 (wf_uN 32 (mk_uN i_D_2)) ⟹
-		 (wf_uN 32 (mk_uN i_E_2)) ⟹
+		 holds_upto (λ i_D_2. (wf_uN 32 (mk_uN i_D_2))) (length data_lst) ⟹
+		 holds_upto (λ i_E_2. (wf_uN 32 (mk_uN i_E_2))) (length elem_lst) ⟹
 		 list_all (λ (x_9 :: idx). (wf_instr (instr_subcase_1 (CALL x_9)))) (option_to_list x_opt) ⟹
 		 fun_instantiate s v_module externaddr_lst (mk_config (mk_state s'''' ⦇ frame_LOCALS = [], MODULE = v_moduleinst ⦈) (instr_E_lst @ (instr_D_lst @ (option_to_list instr_S_opt))))"
 
@@ -16782,7 +16786,7 @@ inductive Context_ok :: "res_context ⇒ bool" where
 		 (wf_context C_0) ⟹
 		 (wf_context ⦇ context_TYPES = dt_lst, context_TAGS = jt_lst, context_GLOBALS = gt_lst, context_MEMS = mt_lst, context_TABLES = tt_lst, context_FUNCS = dt_F_lst, context_DATAS = ok_lst, context_ELEMS = et_lst, context_LOCALS = lct_lst, context_LABELS = [(mk_list (map (λ (rt :: reftype). (valtype_reftype rt)) rt_lst))], context_RETURN = (Some (mk_list (option_to_list (map_option (λ (rt' :: reftype). (valtype_reftype rt')) rt'_opt)))), REFS = x_lst, RECS = st_lst ⦈) ⟹
 		 (wf_context ⦇ context_TYPES = dt_lst, context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [], context_RETURN = None, REFS = [], RECS = [] ⦈) ⟹
-		 (wf_context ⦇ context_TYPES = (list_slice dt_lst 0 i), context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [], context_RETURN = None, REFS = [], RECS = [] ⦈) ⟹
+		 holds_upto (λ i. (wf_context ⦇ context_TYPES = (list_slice dt_lst 0 i), context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [], context_RETURN = None, REFS = [], RECS = [] ⦈)) v_n ⟹
 		 (wf_context ⦇ context_TYPES = dt_lst, context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [], context_RETURN = None, REFS = [], RECS = st_lst ⦈) ⟹
 		 ((length t_1_lst) = (length t_2_lst)) ⟹
 		 list_all2 (λ (t_1 :: valtype) (t_2 :: valtype). (wf_comptype (comptype_FUNC (mk_list [t_1]) (mk_list [t_2])))) t_1_lst t_2_lst ⟹
@@ -17159,9 +17163,9 @@ inductive Store_ok :: "store ⇒ bool" where
 		 list_all (λ (v_structinst :: structinst). (Structinst_ok s v_structinst)) structinst_lst ⟹
 		 list_all (λ (v_arrayinst :: arrayinst). (Arrayinst_ok s v_arrayinst)) arrayinst_lst ⟹
 		 list_all (λ (v_exninst :: exninst). (Exninst_ok s v_exninst)) exninst_lst ⟹
-		 (NotImmutReachable (fieldval_REF_STRUCT_ADDR a) s (fieldval_REF_STRUCT_ADDR a)) ⟹
-		 (NotImmutReachable (fieldval_REF_ARRAY_ADDR a) s (fieldval_REF_ARRAY_ADDR a)) ⟹
-		 (NotImmutReachable (fieldval_REF_EXN_ADDR a) s (fieldval_REF_EXN_ADDR a)) ⟹
+		 holds_upto (λ a. (NotImmutReachable (fieldval_REF_STRUCT_ADDR a) s (fieldval_REF_STRUCT_ADDR a))) (length structinst_lst) ⟹
+		 holds_upto (λ a. (NotImmutReachable (fieldval_REF_ARRAY_ADDR a) s (fieldval_REF_ARRAY_ADDR a))) (length arrayinst_lst) ⟹
+		 holds_upto (λ a. (NotImmutReachable (fieldval_REF_EXN_ADDR a) s (fieldval_REF_EXN_ADDR a))) (length exninst_lst) ⟹
 		 (s = ⦇ store_TAGS = taginst_lst, store_GLOBALS = globalinst_lst, store_MEMS = meminst_lst, store_TABLES = tableinst_lst, store_FUNCS = funcinst_lst, store_DATAS = datainst_lst, store_ELEMS = eleminst_lst, STRUCTS = structinst_lst, ARRAYS = arrayinst_lst, EXNS = exninst_lst ⦈) ⟹
 		 (wf_store s) ⟹
 		 list_all (λ (v_tagtype :: tagtype). (wf_typeuse v_tagtype)) tagtype_lst ⟹
@@ -17169,9 +17173,9 @@ inductive Store_ok :: "store ⇒ bool" where
 		 list_all (λ (v_memtype :: memtype). (wf_memtype v_memtype)) memtype_lst ⟹
 		 list_all (λ (v_tabletype :: tabletype). (wf_tabletype v_tabletype)) tabletype_lst ⟹
 		 list_all (λ (v_elemtype :: elemtype). (wf_reftype v_elemtype)) elemtype_lst ⟹
-		 (wf_fieldval (fieldval_REF_STRUCT_ADDR a)) ⟹
-		 (wf_fieldval (fieldval_REF_ARRAY_ADDR a)) ⟹
-		 (wf_fieldval (fieldval_REF_EXN_ADDR a)) ⟹
+		 holds_upto (λ a. (wf_fieldval (fieldval_REF_STRUCT_ADDR a))) (length structinst_lst) ⟹
+		 holds_upto (λ a. (wf_fieldval (fieldval_REF_ARRAY_ADDR a))) (length arrayinst_lst) ⟹
+		 holds_upto (λ a. (wf_fieldval (fieldval_REF_EXN_ADDR a))) (length exninst_lst) ⟹
 		 (wf_store ⦇ store_TAGS = taginst_lst, store_GLOBALS = globalinst_lst, store_MEMS = meminst_lst, store_TABLES = tableinst_lst, store_FUNCS = funcinst_lst, store_DATAS = datainst_lst, store_ELEMS = eleminst_lst, STRUCTS = structinst_lst, ARRAYS = arrayinst_lst, EXNS = exninst_lst ⦈) ⟹
 		 Store_ok s"
 
@@ -17194,18 +17198,18 @@ inductive Extend_meminst :: "meminst ⇒ meminst ⇒ bool" where
 	  mk_Extend_meminst :
 		"(v_n ≤ n') ⟹
 		 ((length b_lst) ≤ (length b'_lst)) ⟹
-		 (wf_meminst ⦇ meminst_TYPE = (PAGE at (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))), BYTES = b_lst ⦈) ⟹
-		 (wf_meminst ⦇ meminst_TYPE = (PAGE at (mk_limits (mk_uN n') (Some (mk_uN v_m)))), BYTES = b'_lst ⦈) ⟹
-		 Extend_meminst ⦇ meminst_TYPE = (PAGE at (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))), BYTES = b_lst ⦈ ⦇ meminst_TYPE = (PAGE at (mk_limits (mk_uN n') (Some (mk_uN v_m)))), BYTES = b'_lst ⦈"
+		 (wf_meminst ⦇ meminst_TYPE = (PAGE at (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt))), BYTES = b_lst ⦈) ⟹
+		 (wf_meminst ⦇ meminst_TYPE = (PAGE at (mk_limits (mk_uN n') (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt))), BYTES = b'_lst ⦈) ⟹
+		 Extend_meminst ⦇ meminst_TYPE = (PAGE at (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt))), BYTES = b_lst ⦈ ⦇ meminst_TYPE = (PAGE at (mk_limits (mk_uN n') (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt))), BYTES = b'_lst ⦈"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/7.1-soundness.configurations.spectec:248.1-248.51 *)
 inductive Extend_tableinst :: "tableinst ⇒ tableinst ⇒ bool" where
 	  mk_Extend_tableinst :
 		"(v_n ≤ n') ⟹
 		 ((length ref_lst) ≤ (length ref'_lst)) ⟹
-		 (wf_tableinst ⦇ tableinst_TYPE = (mk_tabletype at (mk_limits (mk_uN v_n) (Some (mk_uN v_m))) rt), tableinst_REFS = ref_lst ⦈) ⟹
-		 (wf_tableinst ⦇ tableinst_TYPE = (mk_tabletype at (mk_limits (mk_uN n') (Some (mk_uN v_m))) rt), tableinst_REFS = ref'_lst ⦈) ⟹
-		 Extend_tableinst ⦇ tableinst_TYPE = (mk_tabletype at (mk_limits (mk_uN v_n) (Some (mk_uN v_m))) rt), tableinst_REFS = ref_lst ⦈ ⦇ tableinst_TYPE = (mk_tabletype at (mk_limits (mk_uN n') (Some (mk_uN v_m))) rt), tableinst_REFS = ref'_lst ⦈"
+		 (wf_tableinst ⦇ tableinst_TYPE = (mk_tabletype at (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)) rt), tableinst_REFS = ref_lst ⦈) ⟹
+		 (wf_tableinst ⦇ tableinst_TYPE = (mk_tabletype at (mk_limits (mk_uN n') (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)) rt), tableinst_REFS = ref'_lst ⦈) ⟹
+		 Extend_tableinst ⦇ tableinst_TYPE = (mk_tabletype at (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)) rt), tableinst_REFS = ref_lst ⦈ ⦇ tableinst_TYPE = (mk_tabletype at (mk_limits (mk_uN n') (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)) rt), tableinst_REFS = ref'_lst ⦈"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/7.1-soundness.configurations.spectec:249.1-249.48 *)
 inductive Extend_funcinst :: "funcinst ⇒ funcinst ⇒ bool" where
@@ -17261,36 +17265,36 @@ inductive Extend_exninst :: "exninst ⇒ exninst ⇒ bool" where
 (* Inductive Relations Definition at: ../specification/wasm-3.0/7.1-soundness.configurations.spectec:255.1-255.39 *)
 inductive Extend_store :: "store ⇒ store ⇒ bool" where
 	  mk_Extend_store :
-		"(a < (length (store_TAGS s))) ⟹
-		 (a < (length (store_TAGS s'))) ⟹
-		 (Extend_taginst ((store_TAGS s) ! a) ((store_TAGS s') ! a)) ⟹
-		 (a < (length (store_GLOBALS s))) ⟹
-		 (a < (length (store_GLOBALS s'))) ⟹
-		 (Extend_globalinst ((store_GLOBALS s) ! a) ((store_GLOBALS s') ! a)) ⟹
-		 (a < (length (store_MEMS s))) ⟹
-		 (a < (length (store_MEMS s'))) ⟹
-		 (Extend_meminst ((store_MEMS s) ! a) ((store_MEMS s') ! a)) ⟹
-		 (a < (length (store_TABLES s))) ⟹
-		 (a < (length (store_TABLES s'))) ⟹
-		 (Extend_tableinst ((store_TABLES s) ! a) ((store_TABLES s') ! a)) ⟹
-		 (a < (length (store_FUNCS s))) ⟹
-		 (a < (length (store_FUNCS s'))) ⟹
-		 (Extend_funcinst ((store_FUNCS s) ! a) ((store_FUNCS s') ! a)) ⟹
-		 (a < (length (store_DATAS s))) ⟹
-		 (a < (length (store_DATAS s'))) ⟹
-		 (Extend_datainst ((store_DATAS s) ! a) ((store_DATAS s') ! a)) ⟹
-		 (a < (length (store_ELEMS s))) ⟹
-		 (a < (length (store_ELEMS s'))) ⟹
-		 (Extend_eleminst ((store_ELEMS s) ! a) ((store_ELEMS s') ! a)) ⟹
-		 (a < (length (STRUCTS s))) ⟹
-		 (a < (length (STRUCTS s'))) ⟹
-		 (Extend_structinst ((STRUCTS s) ! a) ((STRUCTS s') ! a)) ⟹
-		 (a < (length (ARRAYS s))) ⟹
-		 (a < (length (ARRAYS s'))) ⟹
-		 (Extend_arrayinst ((ARRAYS s) ! a) ((ARRAYS s') ! a)) ⟹
-		 (a < (length (EXNS s))) ⟹
-		 (a < (length (EXNS s'))) ⟹
-		 (Extend_exninst ((EXNS s) ! a) ((EXNS s') ! a)) ⟹
+		"holds_upto (λ a. (a < (length (store_TAGS s)))) (length (store_TAGS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_TAGS s')))) (length (store_TAGS s)) ⟹
+		 holds_upto (λ a. (Extend_taginst ((store_TAGS s) ! a) ((store_TAGS s') ! a))) (length (store_TAGS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_GLOBALS s)))) (length (store_GLOBALS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_GLOBALS s')))) (length (store_GLOBALS s)) ⟹
+		 holds_upto (λ a. (Extend_globalinst ((store_GLOBALS s) ! a) ((store_GLOBALS s') ! a))) (length (store_GLOBALS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_MEMS s)))) (length (store_MEMS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_MEMS s')))) (length (store_MEMS s)) ⟹
+		 holds_upto (λ a. (Extend_meminst ((store_MEMS s) ! a) ((store_MEMS s') ! a))) (length (store_MEMS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_TABLES s)))) (length (store_TABLES s)) ⟹
+		 holds_upto (λ a. (a < (length (store_TABLES s')))) (length (store_TABLES s)) ⟹
+		 holds_upto (λ a. (Extend_tableinst ((store_TABLES s) ! a) ((store_TABLES s') ! a))) (length (store_TABLES s)) ⟹
+		 holds_upto (λ a. (a < (length (store_FUNCS s)))) (length (store_FUNCS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_FUNCS s')))) (length (store_FUNCS s)) ⟹
+		 holds_upto (λ a. (Extend_funcinst ((store_FUNCS s) ! a) ((store_FUNCS s') ! a))) (length (store_FUNCS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_DATAS s)))) (length (store_DATAS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_DATAS s')))) (length (store_DATAS s)) ⟹
+		 holds_upto (λ a. (Extend_datainst ((store_DATAS s) ! a) ((store_DATAS s') ! a))) (length (store_DATAS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_ELEMS s)))) (length (store_ELEMS s)) ⟹
+		 holds_upto (λ a. (a < (length (store_ELEMS s')))) (length (store_ELEMS s)) ⟹
+		 holds_upto (λ a. (Extend_eleminst ((store_ELEMS s) ! a) ((store_ELEMS s') ! a))) (length (store_ELEMS s)) ⟹
+		 holds_upto (λ a. (a < (length (STRUCTS s)))) (length (STRUCTS s)) ⟹
+		 holds_upto (λ a. (a < (length (STRUCTS s')))) (length (STRUCTS s)) ⟹
+		 holds_upto (λ a. (Extend_structinst ((STRUCTS s) ! a) ((STRUCTS s') ! a))) (length (STRUCTS s)) ⟹
+		 holds_upto (λ a. (a < (length (ARRAYS s)))) (length (ARRAYS s)) ⟹
+		 holds_upto (λ a. (a < (length (ARRAYS s')))) (length (ARRAYS s)) ⟹
+		 holds_upto (λ a. (Extend_arrayinst ((ARRAYS s) ! a) ((ARRAYS s') ! a))) (length (ARRAYS s)) ⟹
+		 holds_upto (λ a. (a < (length (EXNS s)))) (length (EXNS s)) ⟹
+		 holds_upto (λ a. (a < (length (EXNS s')))) (length (EXNS s)) ⟹
+		 holds_upto (λ a. (Extend_exninst ((EXNS s) ! a) ((EXNS s') ! a))) (length (EXNS s)) ⟹
 		 (wf_store s) ⟹
 		 (wf_store s') ⟹
 		 Extend_store s s'"

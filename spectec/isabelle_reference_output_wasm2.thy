@@ -72,7 +72,7 @@ definition list_alli :: "(nat ⇒ 'a ⇒bool) ⇒ 'a list ⇒ bool" where
 
 fun holds_upto :: "(nat ⇒ bool) ⇒ nat ⇒ bool" where
 	"holds_upto P 0 = P 0" |
-	"holds_upto P (Suc n) = P (Suc n) ∧ holds_upto P n"
+	"holds_upto P (Suc n) = (P (Suc n) ∧ holds_upto P n)"
 
 (* Generated Code *)
 (* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:162.14-162.17 *)
@@ -9390,8 +9390,8 @@ inductive fun_instantiate :: "store ⇒ module ⇒ (externaddr list) ⇒ config 
 		 list_all2 (λ (expr_E_lst_2 :: (expr list)) (ref_lst_3 :: (ref list)). list_all2 (λ (expr_E_2 :: expr) (ref_7 :: ref). (Eval_expr z expr_E_2 z [(val_ref ref_7)])) expr_E_lst_2 ref_lst_3) expr_E_lst_lst ref_lst_lst ⟹
 		 ((s', v_moduleinst) = var_2) ⟹
 		 (f = ⦇ LOCALS = [], frame_MODULE = v_moduleinst ⦈) ⟹
-		 holds_upto (λ i_50503. (i_50503 < (length elem_lst))) n_E ⟹
-		 (instr_E_lst = (concat_underscore  (mkseq (λ i_50503. (runelem (elem_lst ! i_50503) (mk_uN i_50503))) n_E))) ⟹
+		 holds_upto (λ i_50539. (i_50539 < (length elem_lst))) n_E ⟹
+		 (instr_E_lst = (concat_underscore  (mkseq (λ i_50539. (runelem (elem_lst ! i_50539) (mk_uN i_50539))) n_E))) ⟹
 		 holds_upto (λ j_17. ((rundata (data_lst ! j_17) (mk_uN j_17)) ≠ None)) n_D ⟹
 		 holds_upto (λ j_17. (j_17 < (length data_lst))) n_D ⟹
 		 (instr_D_lst = (concat_underscore  (mkseq (λ j_17. (the ((rundata (data_lst ! j_17) (mk_uN j_17))))) n_D))) ⟹
@@ -9407,7 +9407,7 @@ inductive fun_instantiate :: "store ⇒ module ⇒ (externaddr list) ⇒ config 
 		 (wf_frame ⦇ LOCALS = [], frame_MODULE = moduleinst_init ⦈) ⟹
 		 (wf_state (mk_state s f_init)) ⟹
 		 (wf_frame ⦇ LOCALS = [], frame_MODULE = v_moduleinst ⦈) ⟹
-		 holds_upto (λ i_50506. (wf_uN 32 (mk_uN i_50506))) n_E ⟹
+		 holds_upto (λ i_50542. (wf_uN 32 (mk_uN i_50542))) n_E ⟹
 		 holds_upto (λ j_18. (wf_uN 32 (mk_uN j_18))) n_D ⟹
 		 fun_instantiate s v_module externaddr_lst (mk_config (mk_state s' f) ((map (λ (instr_E :: instr). (admininstr_instr instr_E)) instr_E_lst) @ ((map (λ (instr_D :: instr). (admininstr_instr instr_D)) instr_D_lst) @ (option_to_list (map_option (λ (x :: idx). (admininstr_subcase_1 (admininstr_subtype_1_CALL x))) x_opt)))))"
 
@@ -9670,9 +9670,8 @@ and Expr_ok2 :: "store ⇒ res_context ⇒ adminexpr ⇒ resulttype ⇒ bool" wh
 		 (Resulttype_sub (mk_list t_2_lst) (mk_list t'_2_lst)) ⟹
 		 (wf_store s) ⟹
 		 (wf_context C) ⟹
-		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
 		 list_all (λ (v_admininstr :: admininstr). (wf_admininstr v_admininstr)) admininstr_lst ⟹
-		 Instrs_ok2 s C (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst) (mk_functype (mk_list t'_1_lst) (mk_list t'_2_lst))"
+		 Instrs_ok2 s C admininstr_lst (mk_functype (mk_list t'_1_lst) (mk_list t'_2_lst))"
 	| Instrs_ok2__frame :
 		"(Instrs_ok2 s C admininstr_lst (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (wf_store s) ⟹
@@ -9762,18 +9761,18 @@ inductive Extend_meminst :: "meminst ⇒ meminst ⇒ bool" where
 	  mk_Extend_meminst :
 		"(v_n ≤ n') ⟹
 		 ((length b_lst) ≤ (length b'_lst)) ⟹
-		 (wf_meminst ⦇ meminst_TYPE = (PAGE (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))), BYTES = b_lst ⦈) ⟹
-		 (wf_meminst ⦇ meminst_TYPE = (PAGE (mk_limits (mk_uN n') (Some (mk_uN v_m)))), BYTES = b'_lst ⦈) ⟹
-		 Extend_meminst ⦇ meminst_TYPE = (PAGE (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))), BYTES = b_lst ⦈ ⦇ meminst_TYPE = (PAGE (mk_limits (mk_uN n') (Some (mk_uN v_m)))), BYTES = b'_lst ⦈"
+		 (wf_meminst ⦇ meminst_TYPE = (PAGE (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt))), BYTES = b_lst ⦈) ⟹
+		 (wf_meminst ⦇ meminst_TYPE = (PAGE (mk_limits (mk_uN n') (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt))), BYTES = b'_lst ⦈) ⟹
+		 Extend_meminst ⦇ meminst_TYPE = (PAGE (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt))), BYTES = b_lst ⦈ ⦇ meminst_TYPE = (PAGE (mk_limits (mk_uN n') (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt))), BYTES = b'_lst ⦈"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:246.1-246.51 *)
 inductive Extend_tableinst :: "tableinst ⇒ tableinst ⇒ bool" where
 	  mk_Extend_tableinst :
 		"(v_n ≤ n') ⟹
 		 ((length ref_lst) ≤ (length ref'_lst)) ⟹
-		 (wf_tableinst ⦇ tableinst_TYPE = (mk_tabletype (mk_limits (mk_uN v_n) (Some (mk_uN v_m))) rt), REFS = ref_lst ⦈) ⟹
-		 (wf_tableinst ⦇ tableinst_TYPE = (mk_tabletype (mk_limits (mk_uN n') (Some (mk_uN v_m))) rt), REFS = ref'_lst ⦈) ⟹
-		 Extend_tableinst ⦇ tableinst_TYPE = (mk_tabletype (mk_limits (mk_uN v_n) (Some (mk_uN v_m))) rt), REFS = ref_lst ⦈ ⦇ tableinst_TYPE = (mk_tabletype (mk_limits (mk_uN n') (Some (mk_uN v_m))) rt), REFS = ref'_lst ⦈"
+		 (wf_tableinst ⦇ tableinst_TYPE = (mk_tabletype (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)) rt), REFS = ref_lst ⦈) ⟹
+		 (wf_tableinst ⦇ tableinst_TYPE = (mk_tabletype (mk_limits (mk_uN n') (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)) rt), REFS = ref'_lst ⦈) ⟹
+		 Extend_tableinst ⦇ tableinst_TYPE = (mk_tabletype (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)) rt), REFS = ref_lst ⦈ ⦇ tableinst_TYPE = (mk_tabletype (mk_limits (mk_uN n') (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)) rt), REFS = ref'_lst ⦈"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:247.1-247.48 *)
 inductive Extend_funcinst :: "funcinst ⇒ funcinst ⇒ bool" where
