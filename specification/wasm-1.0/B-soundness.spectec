@@ -204,12 +204,12 @@ rule Extend_globalinst:
   -- if mut = MUT \/ val = val'
 
 rule Extend_meminst:
-  {TYPE `[n..m], BYTES b*} `<= {TYPE `[n'..m], BYTES b'*}
+  {TYPE `[n..m?], BYTES b*} `<= {TYPE `[n'..m?], BYTES b'*}
   -- if n <= n'
   -- if |b*| <= |b'*|
 
 rule Extend_tableinst:
-  {TYPE `[n..m], REFS ref*} `<= {TYPE `[n'..m], REFS ref'*}
+  {TYPE `[n..m?], REFS ref*} `<= {TYPE `[n'..m?], REFS ref'*}
   -- if n <= n'
   -- if |ref*| <= |ref'*|
 
