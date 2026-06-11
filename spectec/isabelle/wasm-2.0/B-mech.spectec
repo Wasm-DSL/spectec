@@ -1,0 +1,23 @@
+def $is_val(admininstr) : bool
+def $is_val(val) = true
+def $is_val(admininstr) = false  -- otherwise
+
+def $is_instr(admininstr) : bool
+def $is_instr(instr) = true
+def $is_instr(admininstr) = false  -- otherwise
+
+def $is_admininstr(admininstr) : bool
+def $is_admininstr(instr) = false
+def $is_admininstr(admininstr) = true  -- otherwise
+
+syntax instrtype = resulttype -> resulttype
+
+relation Instrtype_sub: |- instrtype <: instrtype
+rule Instrtype_sub:
+  |- t_11* -> t_12* <: t_21* -> t_22*
+  -- if t_21* = t*  t_11'*
+  -- if t_22* = t'* t_12'*
+  -- Resulttype_sub: |- t* <: t'*
+  -- Resulttype_sub: |- t_11'* <: t_11*
+  -- Resulttype_sub: |- t_12* <: t_12'*
+
