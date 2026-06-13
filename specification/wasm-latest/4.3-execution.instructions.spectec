@@ -2,69 +2,81 @@
 ;; Execution of Instructions
 ;;
 
-relation Step: config ~> config       hint(name "E") hint(macro "stepto") hint(tabular)
-relation Step_pure: instr* ~> instr*  hint(name "E") hint(macro "stepto") hint(tabular)
-relation Step_read: config ~> instr*  hint(name "E") hint(macro "stepto") hint(tabular)
-relation Steps: config ~>* config     hint(name "E") hint(macro "steptostar") hint(tabular)
+;; Concurrency TODO: Add emit event or action thing
+
+;; Wrapper around
+
+relation Global_step: config ~>_(event?) config    hint(name "E") hint(macro "globalstepto") hint(tabular)
+relation Step: lconfig ~>_(event?) lconfig       hint(name "E") hint(macro "stepto") hint(tabular)
+relation Step_pure: thread* ~>_(event?) thread*  hint(name "E") hint(macro "stepto") hint(tabular)
+;; Concurrency TODO: Is this Step_read conversion to concurrent version correct? 
+relation Step_read: lconfig ~>_(event?) thread*  hint(name "E") hint(macro "stepto") hint(tabular)
+relation Steps: lconfig ~>*_(event*) lconfig     hint(name "E") hint(macro "steptostar") hint(tabular)
 
 
 ;; Structural
+rule Global_step/lift:
+  s; thread^a (f; instr^b; timestamp) thread_1^c ~>_({ACTIONS act^d, TIMEp timestamp, TIME timestamp'}) s; thread^a (f'; instr'^a1; timestamp') thread_1^c 
+  -- Step: lconfig ~>_({ACTIONS act^d, TIMEp timestamp, TIME timestamp'}) lconfig'
+  -- if $timestamphappensbefore(timestamp, timestamp')
+  -- (if act =/= SPAWN)^d
 
 rule Step/pure:
-  z; instr*  ~>  z; instr'*
-  -- Step_pure: instr* ~> instr'*
+  s; thread  ~>_(event?)  s; thread'
+  -- Step_pure: thread ~>_(event?) thread'
 
 rule Step/read:
-  z; instr*  ~>  z; instr'*
-  -- Step_read: z; instr* ~> instr'*
+  s; thread  ~>_(event?)  s; thread'
+  -- Step_read: s; thread ~>_(event?) thread'
 
 rule Steps/refl:
-  z; instr* ~>* z; instr*
+  s; thread ~>*_(event?) s; thread
 
 rule Steps/trans:
-  z; instr*  ~>*  z''; instr''*
-  -- Step: z; instr*  ~>  z'; instr'*
-  -- Steps: z'; instr'*  ~>*  z''; instr''*
-
+  s; thread  ~>*_(event?)  s''; thread''
+  -- Step: s; thread  ~>_(event?)  s'; thread'
+  -- Steps: s'; thread'  ~>*_(event?)  s''; thread''
 
 ;; Context
 
+;; Concurrency TODO: Is dimensionality wrong? Original uses all * too. Also context rules emit act* but not timestamps based on web spec?
+
 rule Step/ctxt-instrs:
-  z; val* instr* instr_1*  ~>  z'; val* instr'* instr_1*
-  -- Step: z; instr* ~> z'; instr'*
+  s; (f; val* instr* instr_1*; timestamp) ~>_(event?)  s'; (f'; val* instr'* instr_1*; timestamp')
+  -- Step: s; (f; instr*; timestamp) ~>_(event?)  s'; (f'; instr'*; timestamp')
   -- if val* =/= eps \/ instr_1* =/= eps
 
 rule Step/ctxt-label:
-  z; (LABEL_ n `{instr_0*} instr*)  ~>  z'; (LABEL_ n `{instr_0*} instr'*)
-  -- Step: z; instr* ~> z'; instr'*
+  s; (f; (LABEL_ n `{instr_0*} instr*); timestamp) ~>_(event?) s'; (f'; (LABEL_ n `{instr_0*}) instr'*; timestamp') 
+  -- Step: s; (f; instr*; timestamp) ~>_(event?) s'; (f'; instr'*; timestamp') 
 
 rule Step/ctxt-handler:
-  z; (HANDLER_ n `{catch*} instr*) ~> z'; (HANDLER_ n `{catch*} instr'*)
-  -- Step: z; instr* ~> z'; instr'*
+  s; (f; (HANDLER_ n `{catch*} instr*); timestamp) ~>_(event?) s'; (f'; (HANDLER_ n `{catch*} instr'*); timestamp')
+  -- Step: s; (f; instr*; timestamp) ~>_(event?) s'; (f'; instr'*; timestamp')
 
 rule Step/ctxt-frame:
-  s; f; (FRAME_ n `{f'} instr*)  ~>  s'; f; (FRAME_ n `{f''} instr'*)
-  -- Step: s; f'; instr* ~> s'; f''; instr'*
+  s; (f; (FRAME_ n `{f'}) instr*; timestamp) ~>_(event?)  s'; (f'; (FRAME_ n `{f''}) instr'*; timestamp')
+  -- Step: s; (f; instr*; timestamp) ~>_(event?) s'; (f'; instr'*; timestamp' ) 
 
 
 ;; Polymorphic instructions
 
+;; Concurrency TODO: Assume s and frame don't change but timestamp does.
 rule Step_pure/unreachable:
-  UNREACHABLE  ~>  TRAP
-
+  f; UNREACHABLE; timestamp ~> f'; TRAP; timestamp'
+  
 rule Step_pure/nop:
-  NOP  ~>  eps
+  f; NOP; timestamp ~> f'; eps; timestamp' 
 
 rule Step_pure/drop:
-  val DROP  ~>  eps
-
+  f; val DROP; timestamp  ~>  f'; eps; timestamp'
 
 rule Step_pure/select-true:
-  val_1 val_2 (CONST I32 c) (SELECT (t*)?)  ~>  val_1
+  f; val_1 val_2 (CONST I32 c) (SELECT (t*)?); timestamp ~> f'; val_1; timestamp'
   -- if c =/= 0
 
 rule Step_pure/select-false:
-  val_1 val_2 (CONST I32 c) (SELECT (t*)?)  ~>  val_2
+  f; val_1 val_2 (CONST I32 c) (SELECT (t*)?); timestamp  ~> f'; val_2; timestamp'
   -- if c = 0
 
 
@@ -75,1161 +87,2273 @@ def $blocktype_(z, _IDX x) = t_1* -> t_2*  -- Expand: $type(z, x) ~~ FUNC t_1* -
 def $blocktype_(z, _RESULT t?) = eps -> t?
 
 rule Step_read/block:
-  z; val^m (BLOCK bt instr*)  ~>  (LABEL_ n `{eps} val^m instr*)
-  -- if $blocktype_(z, bt) = t_1^m -> t_2^n
+  s; (f;  val^m (BLOCK bt instr*); timestamp) ~> f'; (LABEL_ n `{eps} val^m) instr*; timestamp'
+  -- if $blocktype_((s; f), bt) = t_1^m -> t_2^n
 
 rule Step_read/loop:
-  z; val^m (LOOP bt instr*)  ~>  (LABEL_ m `{LOOP bt instr*} val^m instr*)
-  -- if $blocktype_(z, bt) = t_1^m -> t_2^n
+  s; (f; val^m (LOOP bt instr*); timestamp) ~> f'; (LABEL_ m `{LOOP bt instr*} val^m instr*); timestamp'
+  -- if $blocktype_((s; f), bt) = t_1^m -> t_2^n
 
 rule Step_pure/if-true:
-  (CONST I32 c) (IF bt instr_1* ELSE instr_2*)  ~>  (BLOCK bt instr_1*)
+  f; (CONST I32 c) (IF bt instr_1* ELSE instr_2*); timestamp  ~> f'; (BLOCK bt instr_1*); timestamp'
   -- if c =/= 0
 
 rule Step_pure/if-false:
-  (CONST I32 c) (IF bt instr_1* ELSE instr_2*)  ~>  (BLOCK bt instr_2*)
+  f; (CONST I32 c) (IF bt instr_1* ELSE instr_2*); timestamp  ~>  f'; (BLOCK bt instr_2*); timestamp'
   -- if c = 0
 
-
 rule Step_pure/label-vals:
-  (LABEL_ n `{instr*} val*)  ~>  val*
+  f; (LABEL_ n `{instr*} val*); timestamp  ~>  f'; val*; timestamp'
 
 
 ;; Branch instructions
 
 ;; TODO(4, rossberg): may want a label context instead of bubbling up
 rule Step_pure/br-label-zero:
-  (LABEL_ n `{instr'*} val'* val^n (BR l) instr*)  ~>  val^n instr'*
+  f; (LABEL_ n `{instr'*} val'* val^n (BR l) instr*); timestamp  ~>  f'; val^n instr'*; timestamp'
   -- if l = 0
 
 rule Step_pure/br-label-succ:
-  (LABEL_ n `{instr'*} val* (BR l) instr*)  ~>  val* (BR $(l - 1))
+  f; (LABEL_ n `{instr'*} val* (BR l) instr*); timestamp  ~>  f'; val* (BR $(l - 1)); timestamp'
   -- if l > 0
 
 rule Step_pure/br-handler:
-  (HANDLER_ n `{catch*} val* (BR l) instr*)  ~>  val* (BR l)
+  f; (HANDLER_ n `{catch*} val* (BR l) instr*); timestamp  ~>  f'; val* (BR l); timestamp'
 
 
 rule Step_pure/br_if-true:
-  (CONST I32 c) (BR_IF l)  ~>  (BR l)
+  f; (CONST I32 c) (BR_IF l); timestamp ~> f'; (BR l); timestamp'
   -- if c =/= 0
 
 rule Step_pure/br_if-false:
-  (CONST I32 c) (BR_IF l)  ~>  eps
+  f; (CONST I32 c) (BR_IF l); timestamp  ~>  f'; eps; timestamp'
   -- if c = 0
 
 
 rule Step_pure/br_table-lt:
-  (CONST I32 i) (BR_TABLE l* l')  ~>  (BR l*[i])
+  f; (CONST I32 i) (BR_TABLE l* l'); timestamp  ~>  f'; (BR l*[i]); timestamp'
   -- if i < |l*|
 
 rule Step_pure/br_table-ge:
-  (CONST I32 i) (BR_TABLE l* l')  ~>  (BR l')
+  f; (CONST I32 i) (BR_TABLE l* l'); timestamp  ~>  f'; (BR l'); timestamp'
   -- if i >= |l*|
 
 
 rule Step_pure/br_on_null-null:
-  val (BR_ON_NULL l) ~> (BR l)
+  f; val (BR_ON_NULL l); timestamp ~> f'; (BR l); timestamp'
   -- if val = REF.NULL_ADDR
 
 rule Step_pure/br_on_null-addr:
-  val (BR_ON_NULL l) ~> val
+  f; val (BR_ON_NULL l); timestamp ~> f'; val; timestamp'
   -- otherwise
 
 
 rule Step_pure/br_on_non_null-null:
-  val (BR_ON_NON_NULL l) ~> eps
+  f; val (BR_ON_NON_NULL l); timestamp ~> f'; eps; timestamp'
   -- if val = REF.NULL_ADDR
 
 rule Step_pure/br_on_non_null-addr:
-  val (BR_ON_NON_NULL l) ~> val (BR l)
+  f; val (BR_ON_NON_NULL l); timestamp ~> f'; val (BR l); timestamp'
   -- otherwise
 
 
 rule Step_read/br_on_cast-succeed:
-  s; f; ref (BR_ON_CAST l rt_1 rt_2)  ~>  ref (BR l)
+  s; (f; ref (BR_ON_CAST l rt_1 rt_2); timestamp)  ~> f'; ref (BR l); timestamp'
   ;; TODO(3, rossberg): -- Ref_ok: s |- ref : $inst_reftype(f.MODULE, rt_2)
   -- Ref_ok: s |- ref : rt
   -- Reftype_sub: {} |- rt <: $inst_reftype(f.MODULE, rt_2)
 
 rule Step_read/br_on_cast-fail:
-  s; f; ref (BR_ON_CAST l rt_1 rt_2)  ~>  ref
+  s; (f; ref (BR_ON_CAST l rt_1 rt_2); timestamp)  ~> f'; ref; timestamp'
   -- otherwise
 
 
 rule Step_read/br_on_cast_fail-succeed:
-  s; f; ref (BR_ON_CAST_FAIL l rt_1 rt_2)  ~>  ref
+  s; (f; ref (BR_ON_CAST_FAIL l rt_1 rt_2); timestamp)  ~> f'; ref; timestamp'
   ;; TODO(3, rossberg): -- Ref_ok: s |- ref : $inst_reftype(f.MODULE, rt_2)
   -- Ref_ok: s |- ref : rt
   -- Reftype_sub: {} |- rt <: $inst_reftype(f.MODULE, rt_2)
 
 rule Step_read/br_on_cast_fail-fail:
-  s; f; ref (BR_ON_CAST_FAIL l rt_1 rt_2)  ~>  ref (BR l)
+  s; (f; ref (BR_ON_CAST_FAIL l rt_1 rt_2); timestamp)  ~> f'; ref (BR l); timestamp'
   -- otherwise
 
 
 ;; Function instructions
 
 rule Step_read/call:
-  z; (CALL x)  ~>  (REF.FUNC_ADDR a) (CALL_REF $funcinst(z)[a].TYPE)
-  -- if $moduleinst(z).FUNCS[x] = a
+  s; (f; (CALL x); timestamp)  ~> f'; (REF.FUNC_ADDR a) (CALL_REF $funcinst(s; f)[a].TYPE); timestamp'
+  -- if $moduleinst(s; f).FUNCS[x] = a
 
 rule Step_read/call_ref-null:
-  z; (REF.NULL_ADDR) (CALL_REF yy)  ~>  TRAP
+  s; (f; (REF.NULL_ADDR) (CALL_REF yy); timestamp)  ~> f'; TRAP; timestamp'
 
 rule Step_read/call_ref-func:
-  z; val^n (REF.FUNC_ADDR a) (CALL_REF yy)  ~>  (FRAME_ m `{f} (LABEL_ m `{eps} instr*))
+  s; (f; val^n (REF.FUNC_ADDR a) (CALL_REF yy); timestamp)  ~> f; (FRAME_ m `{f} (LABEL_ m `{eps} instr*)); timestamp'
   ----
-  -- if $funcinst(z)[a] = fi
+  -- if $funcinst(s; f)[a] = fi
   -- Expand: fi.TYPE ~~ FUNC t_1^n -> t_2^m
   -- if fi.CODE = FUNC x (LOCAL t)* (instr*)
   -- if f = {LOCALS val^n ($default_(t))*, MODULE fi.MODULE}
 
 
 rule Step_read/return_call:
-  z; (RETURN_CALL x)  ~>  (REF.FUNC_ADDR a) (RETURN_CALL_REF $funcinst(z)[a].TYPE)
-  -- if $moduleinst(z).FUNCS[x] = a
+  s; (f; (RETURN_CALL x); timestamp)  ~> f'; (REF.FUNC_ADDR a) (RETURN_CALL_REF $funcinst(s; f)[a].TYPE); timestamp'
+  -- if $moduleinst(s; f).FUNCS[x] = a
 
 
 rule Step_read/return_call_ref-label:
-  z; (LABEL_ k `{instr'*} val* (RETURN_CALL_REF yy) instr*)  ~>  val* (RETURN_CALL_REF yy)
+  s; (f; (LABEL_ k `{instr'*} val* (RETURN_CALL_REF yy) instr*); timestamp)  ~> f'; val* (RETURN_CALL_REF yy); timestamp'
 
 rule Step_read/return_call_ref-handler:
-  z; (HANDLER_ k `{catch*} val* (RETURN_CALL_REF yy) instr*)  ~>  val* (RETURN_CALL_REF yy)
+  s; (f; (HANDLER_ k `{catch*} val* (RETURN_CALL_REF yy) instr*); timestamp)  ~> f'; val* (RETURN_CALL_REF yy); timestamp'
 
 rule Step_read/return_call_ref-frame-null:
-  z; (FRAME_ k `{f} val* (REF.NULL_ADDR) (RETURN_CALL_REF yy) instr*)  ~>  TRAP
+  s; (f; (FRAME_ k `{f} val* (REF.NULL_ADDR) (RETURN_CALL_REF yy) instr*); timestamp)  ~> f'; TRAP; timestamp'
 
 rule Step_read/return_call_ref-frame-addr:
-  z; (FRAME_ k `{f} val'* val^n (REF.FUNC_ADDR a) (RETURN_CALL_REF yy) instr*)  ~>  val^n (REF.FUNC_ADDR a) (CALL_REF yy)
+  s; (f; (FRAME_ k `{f} val'* val^n (REF.FUNC_ADDR a) (RETURN_CALL_REF yy) instr*); timestamp)  ~> f'; val^n (REF.FUNC_ADDR a) (CALL_REF yy); timestamp'
   ----
-  -- Expand: $funcinst(z)[a].TYPE ~~ FUNC t_1^n -> t_2^m
-
+  -- Expand: $funcinst(s; f)[a].TYPE ~~ FUNC t_1^n -> t_2^m
 
 rule Step_pure/call_indirect:
-  (CALL_INDIRECT x yy)  ~>  (TABLE.GET x) (REF.CAST (REF NULL yy)) (CALL_REF yy)
+  f; (CALL_INDIRECT x yy); timestamp  ~>  f'; (TABLE.GET x) (REF.CAST (REF NULL yy)) (CALL_REF yy); timestamp'
 
 rule Step_pure/return_call_indirect:
-  (RETURN_CALL_INDIRECT x yy)  ~>  (TABLE.GET x) (REF.CAST (REF NULL yy)) (RETURN_CALL_REF yy)
+  f; (RETURN_CALL_INDIRECT x yy); timestamp  ~> f'; (TABLE.GET x) (REF.CAST (REF NULL yy)) (RETURN_CALL_REF yy); timestamp'
 
 
 rule Step_pure/frame-vals:
-  (FRAME_ n `{f} val^n)  ~>  val^n
+  f; (FRAME_ n `{f} val^n); timestamp  ~>  f'; val^n; timestamp'
 
 rule Step_pure/return-frame:
-  (FRAME_ n `{f} val'* val^n RETURN instr*)  ~>  val^n
+  f; (FRAME_ n `{f} val'* val^n RETURN instr*); timestamp  ~>  f'; val^n; timestamp'
 
 rule Step_pure/return-label:
-  (LABEL_ n `{instr'*} val* RETURN instr*)  ~>  val* RETURN
+  f; (LABEL_ n `{instr'*} val* RETURN instr*); timestamp  ~>  f'; val* RETURN; timestamp'
 
 rule Step_pure/return-handler:
-  (HANDLER_ n `{catch*} val* RETURN instr*)  ~>  val* RETURN
+  f; (HANDLER_ n `{catch*} val* RETURN instr*); timestamp  ~>  f'; val* RETURN; timestamp'
 
 
 ;; Exceptions
 
 rule Step/throw:
-  z; val^n (THROW x)  ~>  $add_exninst(z, exn); (REF.EXN_ADDR a) THROW_REF
-  -- Expand: $as_deftype($tag(z, x).TYPE) ~~ FUNC t^n -> eps
-  -- if a = |$exninst(z)|
-  -- if exn = {TAG $tagaddr(z)[x], FIELDS val^n}
+  s; (f; val^n (THROW x); timestamp)  ~>  s[.EXNS =++ exn]; (f'; (REF.EXN_ADDR a) THROW_REF; timestamp')
+  -- Expand: $as_deftype($tag(s; f, x).TYPE) ~~ FUNC t^n -> eps
+  -- if a = |$exninst(s; f)|
+  -- if exn = {TAG $tagaddr(s; f)[x], FIELDS val^n}
 
 rule Step_read/throw_ref-null:
-  z; (REF.NULL_ADDR) THROW_REF  ~>  TRAP
+  s; (f; (REF.NULL_ADDR) THROW_REF; timestamp)  ~> f'; TRAP; timestamp'
 
 rule Step_read/throw_ref-instrs:
-  z; val* (REF.EXN_ADDR a) THROW_REF instr*  ~>  (REF.EXN_ADDR a) THROW_REF
+  s; (f; val* (REF.EXN_ADDR a) THROW_REF instr*; timestamp)  ~>  f'; (REF.EXN_ADDR a) THROW_REF; timestamp'
   ----
   -- if val* =/= eps \/ instr* =/= eps
 
 rule Step_read/throw_ref-label:
-  z; (LABEL_ n `{instr'*} (REF.EXN_ADDR a) THROW_REF)  ~>  (REF.EXN_ADDR a) THROW_REF
+  s; (f; (LABEL_ n `{instr'*} (REF.EXN_ADDR a) THROW_REF); timestamp)  ~>  f'; (REF.EXN_ADDR a) THROW_REF; timestamp'
 
 rule Step_read/throw_ref-frame:
-  z; (FRAME_ n `{f} (REF.EXN_ADDR a) THROW_REF)  ~>  (REF.EXN_ADDR a) THROW_REF
+  s; (f; (FRAME_ n `{f} (REF.EXN_ADDR a) THROW_REF); timestamp)  ~>  f'; (REF.EXN_ADDR a) THROW_REF; timestamp'
 
 rule Step_read/throw_ref-handler-empty:
-  z; (HANDLER_ n `{eps} (REF.EXN_ADDR a) THROW_REF)  ~>  (REF.EXN_ADDR a) THROW_REF
+  s; (f; (HANDLER_ n `{eps} (REF.EXN_ADDR a) THROW_REF); timestamp)  ~>  f'; (REF.EXN_ADDR a) THROW_REF; timestamp'
 
 rule Step_read/throw_ref-handler-catch:
-  z; (HANDLER_ n `{(CATCH x l) catch'*} (REF.EXN_ADDR a) THROW_REF)  ~>  val* (BR l)
+  s; (f; (HANDLER_ n `{(CATCH x l) catch'*} (REF.EXN_ADDR a) THROW_REF); timestamp)  ~>  f'; val* (BR l); timestamp'
   ----
-  -- if $exninst(z)[a].TAG = $tagaddr(z)[x]
-  -- if val* = $exninst(z)[a].FIELDS
+  -- if $exninst(s; f)[a].TAG = $tagaddr(s; f)[x]
+  -- if val* = $exninst(s; f)[a].FIELDS
 
 rule Step_read/throw_ref-handler-catch_ref:
-  z; (HANDLER_ n `{(CATCH_REF x l) catch'*} (REF.EXN_ADDR a) THROW_REF)  ~>  val* (REF.EXN_ADDR a) (BR l)
+  s; (f; (HANDLER_ n `{(CATCH_REF x l) catch'*} (REF.EXN_ADDR a) THROW_REF); timestamp)  ~>  f'; val* (REF.EXN_ADDR a) (BR l); timestamp'
   ----
-  -- if $exninst(z)[a].TAG = $tagaddr(z)[x]
-  -- if val* = $exninst(z)[a].FIELDS
+  -- if $exninst(s; f)[a].TAG = $tagaddr(s; f)[x]
+  -- if val* = $exninst(s; f)[a].FIELDS
 
 rule Step_read/throw_ref-handler-catch_all:
-  z; (HANDLER_ n `{(CATCH_ALL l) catch'*} (REF.EXN_ADDR a) THROW_REF)  ~>  (BR l)
+  s; (f; (HANDLER_ n `{(CATCH_ALL l) catch'*} (REF.EXN_ADDR a) THROW_REF); timestamp)  ~>  f'; (BR l); timestamp'
 
 rule Step_read/throw_ref-handler-catch_all_ref:
-  z; (HANDLER_ n `{(CATCH_ALL_REF l) catch'*} (REF.EXN_ADDR a) THROW_REF)  ~>  (REF.EXN_ADDR a) (BR l)
+  s; (f; (HANDLER_ n `{(CATCH_ALL_REF l) catch'*} (REF.EXN_ADDR a) THROW_REF); timestamp)  ~>  f'; (REF.EXN_ADDR a) (BR l); timestamp'
 
 rule Step_read/throw_ref-handler-next:
-  z; (HANDLER_ n `{catch catch'*} (REF.EXN_ADDR a) THROW_REF)  ~>  (HANDLER_ n `{catch'*} (REF.EXN_ADDR a) THROW_REF)
+  s; (f; (HANDLER_ n `{catch catch'*} (REF.EXN_ADDR a) THROW_REF); timestamp)  ~>  f'; (HANDLER_ n `{catch'*} (REF.EXN_ADDR a) THROW_REF); timestamp'
   ----
   -- otherwise
 
 rule Step_read/try_table:
-  z; val^m (TRY_TABLE bt catch* instr*)  ~>  (HANDLER_ n `{catch*} (LABEL_ n `{eps} val^m instr*))
+  s; (f; val^m (TRY_TABLE bt catch* instr*); timestamp)  ~>  f'; (HANDLER_ n `{catch*} (LABEL_ n `{eps} val^m instr*)); timestamp'
   ----
-  -- if $blocktype_(z, bt) = t_1^m -> t_2^n
-
+  -- if $blocktype_((s; f), bt) = t_1^m -> t_2^n
 
 rule Step_pure/handler-vals:
-  (HANDLER_ n `{catch*} val*)  ~>  val*
+  f; (HANDLER_ n `{catch*} val*); timestamp  ~>  f'; val*; timestamp'
 
 
 ;; Traps
 
 rule Step_pure/trap-instrs:
-  val* TRAP instr*  ~>  TRAP
+  f; val* TRAP instr*; timestamp  ~>  f'; TRAP; timestamp'
   -- if val* =/= eps \/ instr* =/= eps
 
 rule Step_pure/trap-label:
-  (LABEL_ n `{instr'*} TRAP)  ~>  TRAP
+  f; (LABEL_ n `{instr'*} TRAP); timestamp  ~>  f'; TRAP; timestamp'
 
 rule Step_pure/trap-handler:
-  (HANDLER_ n `{catch*} TRAP)  ~>  TRAP
+  f; (HANDLER_ n `{catch*} TRAP); timestamp  ~>  f'; TRAP; timestamp'
 
 rule Step_pure/trap-frame:
-  (FRAME_ n `{f} TRAP)  ~>  TRAP
+  f; (FRAME_ n `{f} TRAP); timestamp  ~>  f'; TRAP; timestamp'
 
 
 ;; Local instructions
 
 rule Step_read/local.get:
-  z; (LOCAL.GET x)  ~>  val
-  -- if $local(z, x) = val
+  s; (f; (LOCAL.GET x); timestamp)  ~>  f; val; timestamp'
+  -- if $local(s; f, x) = val
 
 rule Step/local.set:
-  z; val (LOCAL.SET x)  ~>  $with_local(z, x, val); eps
+  s; (f; val (LOCAL.SET x); timestamp)  ~>  s; (f[.LOCALS[x] = v]; eps; timestamp')
 
 rule Step_pure/local.tee:
-  val (LOCAL.TEE x)  ~>  val val (LOCAL.SET x)
+  f; val (LOCAL.TEE x); timestamp  ~>  f'; val val (LOCAL.SET x); timestamp'
 
 
 ;; Global instructions
 
 rule Step_read/global.get:
-  z; (GLOBAL.GET x)  ~>  val
-  -- if $global(z, x).VALUE = val
+  s; (f; (GLOBAL.GET x); timestamp)  ~> f; val; timestamp'
+  -- if $global(s; f, x).VALUE = val
 
 rule Step/global.set:
-  z; val (GLOBAL.SET x)  ~>  $with_global(z, x, val); eps
+  s; (f; val (GLOBAL.SET x); timestamp)  ~>  s[.GLOBALS[f.MODULE.GLOBALS[x]].VALUE = v]; (f; eps; timestamp')
 
 
 ;; Table instructions
 
 rule Step_read/table.get-oob:
-  z; (CONST at i) (TABLE.GET x)  ~>  TRAP
-  -- if i >= |$table(z, x).REFS|
+  s; (f; (CONST at i) (TABLE.GET x); timestamp)  ~> f'; TRAP; timestamp'
+  -- if i >= |$table(s; f, x).REFS|
 
 rule Step_read/table.get-val:
-  z; (CONST at i) (TABLE.GET x)  ~>  $table(z,x).REFS[i]
-  -- if i < |$table(z, x).REFS|
+  s; (f; (CONST at i) (TABLE.GET x); timestamp)  ~>  f'; ($table(s; f,x).REFS[i]); timestamp'
+  -- if i < |$table(s; f, x).REFS|
 
 rule Step/table.set-oob:
-  z; (CONST at i) ref (TABLE.SET x)  ~>  z; TRAP
-  -- if i >= |$table(z, x).REFS|
+  s; (f; (CONST at i) ref (TABLE.SET x); timestamp)  ~>  s; (f'; TRAP; timestamp')
+  -- if i >= |$table(s; f, x).REFS|
 
 rule Step/table.set-val:
-  z; (CONST at i) ref (TABLE.SET x)  ~>  $with_table(z, x, i, ref); eps
-  -- if i < |$table(z, x).REFS|
+  s; (f; (CONST at i) ref (TABLE.SET x); timestamp)  ~>  s[.TABLES[f.MODULE.TABLES[x]].REFS[i] = r]; (f'; eps; timestamp')
+  -- if i < |$table(s; f, x).REFS|
 
 
 rule Step_read/table.size:
-  z; (TABLE.SIZE x)  ~>  (CONST at n)
-  -- if |$table(z, x).REFS| = n
-  -- if $table(z, x).TYPE = at lim rt
+  s; (f; (TABLE.SIZE x); timestamp)  ~> f; (CONST at n); timestamp'
+  -- if |$table(s; f, x).REFS| = n
+  -- if $table(s; f, x).TYPE = at lim rt
 
 
 rule Step/table.grow-succeed:
-  z; ref (CONST at n) (TABLE.GROW x)  ~>  $with_tableinst(z, x, ti); (CONST at $(|$table(z, x).REFS|))
+  s; (f; ref (CONST at n) (TABLE.GROW x); timestamp)  ~> s[.TABLES[f.MODULE.TABLES[x]].REFS[i] = r]; (f; (CONST at $(|$table(s; f, x).REFS|)); timestamp')
   ----
-  -- if ti = $growtable($table(z, x), n, ref)
+  -- if ti = $growtable($table(s; f, x), n, ref)
 
 rule Step/table.grow-fail:
-  z; ref (CONST at n) (TABLE.GROW x)  ~>  z; (CONST at $inv_signed_($size(at), $(-1)))
+  s; (f; ref (CONST at n) (TABLE.GROW x); timestamp)  ~>  s; (f; (CONST at $inv_signed_($size(at), $(-1))); timestamp')
 
 
 rule Step_read/table.fill-oob:
-  z; (CONST at i) val (CONST at n) (TABLE.FILL x)  ~>  TRAP
-  -- if $(i + n) > |$table(z, x).REFS|
+  s; (f; (CONST at i) val (CONST at n) (TABLE.FILL x); timestamp)  ~> f'; TRAP; timestamp'
+  -- if $(i + n) > |$table(s; f, x).REFS|
 
 rule Step_read/table.fill-zero:
-  z; (CONST at i) val (CONST at n) (TABLE.FILL x)  ~>  eps
+  s; (f; (CONST at i) val (CONST at n) (TABLE.FILL x); timestamp)  ~>  f'; eps; timestamp'
   -- otherwise
   -- if n = 0
 
 rule Step_read/table.fill-succ:
-  z; (CONST at i) val (CONST at n) (TABLE.FILL x)  ~>
-    (CONST at i) val (TABLE.SET x)
-    (CONST at $(i+1)) val (CONST at $(n-1)) (TABLE.FILL x)
+  s; (f; (CONST at i) val (CONST at n) (TABLE.FILL x); timestamp)  ~>
+    f; (CONST at i) val (TABLE.SET x)
+    (CONST at $(i+1)) val (CONST at $(n-1)) (TABLE.FILL x); timestamp
   -- otherwise
 
 
 rule Step_read/table.copy-oob:
-  z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (TABLE.COPY x_1 x_2)  ~>  TRAP
+  s; (f; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (TABLE.COPY x_1 x_2); timestamp)  ~> f; TRAP; timestamp'
   ---- ----
-  -- if $(i_1 + n) > |$table(z, x_1).REFS| \/ $(i_2 + n) > |$table(z, x_2).REFS|
+  -- if $(i_1 + n) > |$table(s; f, x_1).REFS| \/ $(i_2 + n) > |$table(s; f, x_2).REFS|
 
 rule Step_read/table.copy-zero:
-  z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (TABLE.COPY x y)  ~>  eps
+  s; (f; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (TABLE.COPY x y); timestamp)  ~>  f; eps; timestamp'
   -- otherwise
   -- if n = 0
 
 rule Step_read/table.copy-le:
-  z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (TABLE.COPY x y)  ~>
-    (CONST at_1 i_1) (CONST at_2 i_2) (TABLE.GET y) (TABLE.SET x)
-    (CONST at_1 $(i_1+1)) (CONST at_2 $(i_2+1)) (CONST at' $(n-1)) (TABLE.COPY x y)
+  s; (f; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (TABLE.COPY x y); timestamp)  ~>
+    f; (CONST at_1 i_1) (CONST at_2 i_2) (TABLE.GET y) (TABLE.SET x)
+    (CONST at_1 $(i_1+1)) (CONST at_2 $(i_2+1)) (CONST at' $(n-1)) (TABLE.COPY x y); timestamp'
   -- otherwise
   -- if i_1 <= i_2
 
 rule Step_read/table.copy-gt:
-  z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (TABLE.COPY x y)  ~>
-    (CONST at_1 $(i_1+n-1)) (CONST at_2 $(i_2+n-1)) (TABLE.GET y) (TABLE.SET x)
-    (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' $(n-1)) (TABLE.COPY x y)
+  s; (f; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (TABLE.COPY x y); timestamp)  ~>
+    f; (CONST at_1 $(i_1+n-1)) (CONST at_2 $(i_2+n-1)) (TABLE.GET y) (TABLE.SET x)
+    (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' $(n-1)) (TABLE.COPY x y); timestamp'
   -- otherwise
 
 
 rule Step_read/table.init-oob:
-  z; (CONST at i) (CONST I32 j) (CONST I32 n) (TABLE.INIT x y)  ~>  TRAP
+  s; (f; (CONST at i) (CONST I32 j) (CONST I32 n) (TABLE.INIT x y); timestamp)  ~>  f; TRAP; timestamp'
   ---- ----
-  -- if $(i + n) > |$table(z, x).REFS| \/ $(j + n) > |$elem(z, y).REFS|
+  -- if $(i + n) > |$table(s; f, x).REFS| \/ $(j + n) > |$elem(s; f, y).REFS|
 
 rule Step_read/table.init-zero:
-  z; (CONST at i) (CONST I32 j) (CONST I32 n) (TABLE.INIT x y)  ~>  eps
+  s; (f; (CONST at i) (CONST I32 j) (CONST I32 n) (TABLE.INIT x y); timestamp)  ~>  f; eps; timestamp'
   -- otherwise
   -- if n = 0
 
 rule Step_read/table.init-succ:
-  z; (CONST at i) (CONST I32 j) (CONST I32 n) (TABLE.INIT x y)  ~>
-    (CONST at i) $elem(z,y).REFS[j] (TABLE.SET x)
-    (CONST at $(i+1)) (CONST I32 $(j+1)) (CONST I32 $(n-1)) (TABLE.INIT x y)
+  s; (f; (CONST at i) (CONST I32 j) (CONST I32 n) (TABLE.INIT x y); timestamp)  ~>
+    f; (CONST at i) $elem(s; f,y).REFS[j] (TABLE.SET x)
+    (CONST at $(i+1)) (CONST I32 $(j+1)) (CONST I32 $(n-1)) (TABLE.INIT x y); timestamp'
   -- otherwise
 
 
 rule Step/elem.drop:
-  z; (ELEM.DROP x)  ~>  $with_elem(z, x, eps); eps
+  s; (f; (ELEM.DROP x); timestamp)  ~>  s[.ELEMS[f.MODULE.ELEMS[x]].REFS = r*]; (f; eps; timestamp')
 
 
 ;; Memory instructions
 
-rule Step_read/load-num-oob:
-  z; (CONST at i) (LOAD nt x ao)  ~>  TRAP
+rule Step_read/load-num-oob-unshared:
+  s; (f; (CONST at i) (LOAD nt x ao); timestamp)  ~>  f; TRAP; timestamp'
   ----
-  -- if $(i + ao.OFFSET + $size(nt)/8 > |$mem(z, x).BYTES|)
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
 
-rule Step_read/load-num-val:
-  z; (CONST at i) (LOAD nt x ao)  ~>  (CONST nt c)
+rule Step_read/load-num-val-unshared:
+  s; (f; (CONST at i) (LOAD nt x ao); timestamp)  ~>  f'; (CONST nt c); timestamp'
   ----
-  -- if $nbytes_(nt, c) = $mem(z, x).BYTES[i + ao.OFFSET : $size(nt)/8]
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $nbytes_(nt, c) = $mem(s; f, x).BYTES[ea : $size(nt)/8]
+  -- if $(i + ao.OFFSET + $size(nt)/8 <= |$mem(s; f, x).BYTES|)
 
-rule Step_read/load-pack-oob:
-  z; (CONST at i) (LOAD Inn (n _ sx) x ao)  ~>  TRAP
+rule Step_read/load-pack-oob-unshared:
+  s; (f; (CONST at i) (LOAD Inn (n _ sx) x ao); timestamp)  ~>  f'; TRAP; timestamp'
   ----
-  -- if $(i + ao.OFFSET + n/8 > |$mem(z, x).BYTES|)
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
 
-rule Step_read/load-pack-val:
-  z; (CONST at i) (LOAD Inn (n _ sx) x ao)  ~>  (CONST Inn $extend__(n, $size(Inn), sx, c))
+rule Step_read/load-pack-val-unshared:
+  s; (f; (CONST at i) (LOAD Inn (n _ sx) x ao); timestamp)  ~>  f'; (CONST Inn $extend__(n, $size(Inn), sx, c)); timestamp'
   ----
-  -- if $ibytes_(n, c) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $ibytes_(n, c) = $mem(s; f, x).BYTES[ea : n/8]
+  -- if $(i + ao.OFFSET + n/8 <= |$mem(s; f, x).BYTES|)
 
-rule Step_read/vload-oob:
-  z; (CONST at i) (VLOAD V128 x ao)  ~>  TRAP
-  -- if $(i + ao.OFFSET + $vsize(V128)/8 > |$mem(z, x).BYTES|)
+rule Step_read/load-num-oob-shared:
+  s; (f; (CONST at i) (LOAD nt x ao); timestamp)  ~>_({
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ), 
+    TIMEp timestamp,
+    TIME timestamp'
+  })  
+  f; TRAP; timestamp'
+  ----
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
 
-rule Step_read/vload-val:
-  z; (CONST at i) (VLOAD V128 x ao)  ~>  (VCONST V128 c)
-  -- if $vbytes_(V128, c) = $mem(z, x).BYTES[i + ao.OFFSET : $vsize(V128)/8]
+rule Step_read/load-num-val-shared:
+  s; (f; (CONST at i) (LOAD nt x ao); timestamp)  ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (RD ord ((REGDATA a) ea) (BYTES bytes) notears?), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; (CONST nt c); timestamp'
+  ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = UNORD /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |$mem(s; f, x).BYTES|
+        )
+  -- if storemem.TYPE = addrtype limits SHARED PAGE
+  -- if bytes = storemem.BYTES[ea : $size(nt)/8]
+  -- if $nbytes_(nt, c) = bytes
+  -- if $(i + ao.OFFSET + $size(nt)/8 <= nlen)
 
+rule Step_read/load-pack-oob-shared:
+  s; (f; (CONST at i) (LOAD Inn (n _ sx) x ao); timestamp)  ~>_({
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ), 
+    TIMEp timestamp,
+    TIME timestamp'
+  })  
+  f'; TRAP; timestamp'
+  ----
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
 
-rule Step_read/vload-pack-oob:
-  z; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao)  ~>  TRAP
-  -- if $(i + ao.OFFSET + M * K/8) > |$mem(z, x).BYTES|
+rule Step_read/load-pack-val-shared:
+  s; (f; (CONST at i) (LOAD Inn (n _ sx) x ao); timestamp)  ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (RD ord ((REGDATA a) ea) (BYTES bytes) notears?), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; (CONST Inn $extend__(n, $size(Inn), sx, c)); timestamp'
+  ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = UNORD /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET)
+        )
+  -- if storemem.TYPE = addrtype limits SHARED PAGE
+  -- if bytes = storemem.BYTES[ea : n/8]
+  -- if $ibytes_(n, c) = bytes
+  -- if $(ea + n/8 <= |$mem(s; f, x).BYTES|)
 
-rule Step_read/vload-pack-val:
-  z; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao)  ~>  (VCONST V128 c)
+rule Step_read/vload-oob-unshared:
+  s; (f; (CONST at i) (VLOAD V128 x ao); timestamp)  ~>  f'; TRAP; timestamp'
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+
+rule Step_read/vload-val-unshared:
+  s; (f; (CONST at i) (VLOAD V128 x ao); timestamp)  ~>  f'; (VCONST V128 c); timestamp'
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $vbytes_(V128, c) = $mem(s; f, x).BYTES[i + ao.OFFSET : $vsize(V128)/8]
+  -- if $(i + ao.OFFSET + $vsize(V128)/8 <= |$mem(s; f, x).BYTES|)
+
+rule Step_read/vload-pack-oob-unshared:
+  s; (f; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao); timestamp)  ~>  f'; TRAP; timestamp'
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+
+rule Step_read/vload-pack-val-unshared:
+  s; (f; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao); timestamp)  ~>  f'; (VCONST V128 c); timestamp'
   ---- ----
-  -- (if $ibytes_(M, j) = $mem(z, x).BYTES[i + ao.OFFSET + k * M/8 : M/8])^(k<K)
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- (if $ibytes_(M, j) = $mem(s; f, x).BYTES[i + ao.OFFSET + k * M/8 : M/8])^(k<K)
   -- if c = $inv_lanes_(Jnn X K, $extend__(M, $jsizenn(Jnn), sx, j)^K)
      /\ $jsizenn(Jnn) = $(M * 2)
+  -- if $(i + ao.OFFSET + M * K/8) <= |$mem(s; f, x).BYTES|
 
 
-rule Step_read/vload-splat-oob:
-  z; (CONST at i) (VLOAD V128 (SPLAT N) x ao)  ~>  TRAP
-  -- if $(i + ao.OFFSET + N/8) > |$mem(z, x).BYTES|
+rule Step_read/vload-oob-shared:
+  s; (f; (CONST at i) (VLOAD V128 x ao); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; TRAP; timestamp'
+  -- otherwise
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = UNORD /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |$mem(s; f, x).BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
 
-rule Step_read/vload-splat-val:
-  z; (CONST at i) (VLOAD V128 (SPLAT N) x ao)  ~>  (VCONST V128 c)
+rule Step_read/vload-val-shared:
+  s; (f; (CONST at i) (VLOAD V128 x ao); timestamp)  ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (RD ord ((REGDATA a) ea) (BYTES bytes)), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; (VCONST V128 c); timestamp'
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if $vbytes_(V128, c) = $mem(s; f, x).BYTES[i + ao.OFFSET : $vsize(V128)/8]
+  -- if $(i + ao.OFFSET + $vsize(V128)/8 <= |$mem(s; f, x).BYTES|)
+
+rule Step_read/vload-pack-oob-shared:
+  s; (f; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; TRAP; timestamp'
+  -- otherwise
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+
+rule Step_read/vload-pack-val-shared:
+  s; (f; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao); timestamp)  ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (RD ord ((REGDATA a) ea) (BYTES bytes) notears?), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; (VCONST V128 c); timestamp'
+  ---- ----
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- (if $ibytes_(M, j) = $mem(s; f, x).BYTES[i + ao.OFFSET + k * M/8 : M/8])^(k<K)
+  -- if c = $inv_lanes_(Jnn X K, $extend__(M, $jsizenn(Jnn), sx, j)^K)
+     /\ $jsizenn(Jnn) = $(M * 2)
+  -- if $(i + ao.OFFSET + M * K/8) <= |$mem(s; f, x).BYTES|
+
+rule Step_read/vload-splat-oob-unshared:
+  s; (f; (CONST at i) (VLOAD V128 (SPLAT N) x ao); timestamp)  ~>  f'; TRAP; timestamp'
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+
+rule Step_read/vload-splat-val-unshared:
+  s; (f; (CONST at i) (VLOAD V128 (SPLAT N) x ao); timestamp)  ~>  f'; (VCONST V128 c); timestamp'
   ----
-  -- if $ibytes_(N, j) = $mem(z, x).BYTES[i + ao.OFFSET : N/8]
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $ibytes_(N, j) = $mem(s; f, x).BYTES[i + ao.OFFSET : N/8]
   -- if N = $jsize(Jnn)  ;; TODO(3, rossberg): relate implicitly
   -- if M = $(128/N)
   -- if c = $inv_lanes_(Jnn X M, j^M)
+  -- if $(i + ao.OFFSET + N/8) <= |$mem(s; f, x).BYTES|
 
+rule Step_read/vload-splat-oob-shared:
+  s; (f; (CONST at i) (VLOAD V128 (SPLAT N) x ao); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; TRAP; timestamp'
+  -- otherwise
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
 
-rule Step_read/vload-zero-oob:
-  z; (CONST at i) (VLOAD V128 (ZERO N) x ao)  ~>  TRAP
-  -- if $(i + ao.OFFSET + N/8) > |$mem(z, x).BYTES|
-
-rule Step_read/vload-zero-val:
-  z; (CONST at i) (VLOAD V128 (ZERO N) x ao)  ~>  (VCONST V128 c)
+rule Step_read/vload-splat-val-shared:
+  s; (f; (CONST at i) (VLOAD V128 (SPLAT N) x ao); timestamp)  ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (RD ord ((REGDATA a) ea) (BYTES bytes)), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; (VCONST V128 c); timestamp'
   ----
-  -- if $ibytes_(N, j) = $mem(z, x).BYTES[i + ao.OFFSET : N/8]
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if $ibytes_(N, j) = $mem(s; f, x).BYTES[i + ao.OFFSET : N/8]
+  -- if N = $jsize(Jnn)  ;; TODO(3, rossberg): relate implicitly
+  -- if M = $(128/N)
+  -- if c = $inv_lanes_(Jnn X M, j^M)
+  -- if $(i + ao.OFFSET + N/8) <= |$mem(s; f, x).BYTES|
+
+rule Step_read/vload-zero-oob-unshared:
+  s; (f; (CONST at i) (VLOAD V128 (ZERO N) x ao); timestamp)  ~>  f'; TRAP; timestamp'
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+
+rule Step_read/vload-zero-val-unshared:
+  s; (f; (CONST at i) (VLOAD V128 (ZERO N) x ao); timestamp)  ~>  f'; (VCONST V128 c); timestamp'
+  ----
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $ibytes_(N, j) = $mem(s; f, x).BYTES[i + ao.OFFSET : N/8]
   -- if c = $extend__(N, 128, U, j)
+  -- if $(i + ao.OFFSET + N/8) <= |$mem(s; f, x).BYTES|
 
+rule Step_read/vload-zero-oob-shared:
+  s; (f; (CONST at i) (VLOAD V128 (ZERO N) x ao); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; TRAP; timestamp'
+  -- otherwise
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
 
-rule Step_read/vload_lane-oob:
-  z; (CONST at i) (VCONST V128 c_1) (VLOAD_LANE V128 N x ao j)  ~>  TRAP
-  -- if $(i + ao.OFFSET + N/8) > |$mem(z, x).BYTES|
-
-rule Step_read/vload_lane-val:
-  z; (CONST at i) (VCONST V128 c_1) (VLOAD_LANE V128 N x ao j)  ~>  (VCONST V128 c)
+rule Step_read/vload-zero-val-shared:
+  s; (f; (CONST at i) (VLOAD V128 (ZERO N) x ao); timestamp)  ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (RD ord ((REGDATA a) ea) (BYTES bytes)), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; (VCONST V128 c); timestamp'
   ----
-  -- if $ibytes_(N, k) = $mem(z, x).BYTES[i + ao.OFFSET : N/8]
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if $ibytes_(N, j) = $mem(s; f, x).BYTES[i + ao.OFFSET : N/8]
+  -- if c = $extend__(N, 128, U, j)
+  -- if $(i + ao.OFFSET + N/8) <= |$mem(s; f, x).BYTES|
+
+rule Step_read/vload_lane-oob-unshared:
+  s; (f; (CONST at i) (VCONST V128 c_1) (VLOAD_LANE V128 N x ao j); timestamp)  ~>  f'; TRAP; timestamp'
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+
+rule Step_read/vload_lane-val-unshared:
+  s; (f; (CONST at i) (VCONST V128 c_1) (VLOAD_LANE V128 N x ao j); timestamp)  ~>  f'; (VCONST V128 c); timestamp'
+  ----
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $ibytes_(N, k) = $mem(s; f, x).BYTES[i + ao.OFFSET : N/8]
   -- if N = $jsize(Jnn)  ;; TODO(2, rossberg): relate implicitly
   -- if M = $($vsize(V128)/N)
   -- if c = $inv_lanes_(Jnn X M, $lanes_(Jnn X M, c_1)[[j] = k])
+  -- if $(i + ao.OFFSET + N/8) <= |$mem(s; f, x).BYTES|
 
+rule Step_read/vload_lane-oob-shared:
+  s; (f; (CONST at i) (VCONST V128 c_1) (VLOAD_LANE V128 N x ao j); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; TRAP; timestamp'
+  -- otherwise
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
 
-rule Step/store-num-oob:
-  z; (CONST at i) (CONST nt c) (STORE nt x ao)  ~>  z; TRAP
+rule Step_read/vload_lane-val-shared:
+  s; (f; (CONST at i) (VCONST V128 c_1) (VLOAD_LANE V128 N x ao j); timestamp)  ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (RD ord ((REGDATA a) ea) (BYTES bytes)), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; (VCONST V128 c); timestamp'
   ----
-  -- if $(i + ao.OFFSET + $size(nt)/8) > |$mem(z, x).BYTES|
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if $ibytes_(N, k) = $mem(s; f, x).BYTES[i + ao.OFFSET : N/8]
+  -- if N = $jsize(Jnn)  ;; TODO(2, rossberg): relate implicitly
+  -- if M = $($vsize(V128)/N)
+  -- if c = $inv_lanes_(Jnn X M, $lanes_(Jnn X M, c_1)[[j] = k])
+  -- if $(i + ao.OFFSET + N/8) <= |$mem(s; f, x).BYTES|
 
-rule Step/store-num-val:
-  z; (CONST at i) (CONST nt c) (STORE nt x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $($size(nt)/8), b*); eps
+rule Step/store-num-oob-unshared:
+  s; (f; (CONST at i) (CONST nt c) (STORE nt x ao); timestamp)  ~>  s; (f'; TRAP; timestamp')
   ----
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+
+rule Step/store-num-val-unshared:
+  s; (f; (CONST at i) (CONST nt c) (STORE nt x ao); timestamp)  ~>  $c_with_mem((s; f), x, $(i + ao.OFFSET), $($size(nt)/8), b*); (f'; eps; timestamp')
+  ----
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
   ;; TODO(3, rossberg): enable otherwise?
   -- if b* = $nbytes_(nt, c)
+  -- if $(i + ao.OFFSET + $size(nt)/8) <= |$mem(s; f, x).BYTES|
 
-rule Step/store-pack-oob:
-  z; (CONST at i) (CONST Inn c) (STORE Inn n x ao)  ~>  z; TRAP
+rule Step/store-pack-oob-unshared:
+  s; (f; (CONST at i) (CONST Inn c) (STORE Inn n x ao); timestamp)  ~>  s; (f'; TRAP; timestamp')
   ----
-  -- if $(i + ao.OFFSET + n/8) > |$mem(z, x).BYTES|
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
 
-rule Step/store-pack-val:
-  z; (CONST at i) (CONST Inn c) (STORE Inn n x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); eps
+rule Step/store-pack-val-unshared:
+  s; (f; (CONST at i) (CONST Inn c) (STORE Inn n x ao); timestamp)  ~>  $c_with_mem(s; f, x, $(i + ao.OFFSET), $(n/8), b*); (f'; eps; timestamp')
   ----
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
   ;; TODO(3, rossberg): enable otherwise?
   -- if b* = $ibytes_(n, $wrap__($size(Inn), n, c))
+  -- if $(i + ao.OFFSET + n/8) <= |$mem(s; f, x).BYTES|
 
-rule Step/vstore-oob:
-  z; (CONST at i) (VCONST V128 c) (VSTORE V128 x ao)  ~>  z; TRAP
+rule Step/store-num-oob-shared:
+  s; (f; (CONST at i) (CONST nt c) (STORE nt x ao); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  s; (f'; TRAP; timestamp')
   ----
-  -- if $(i + ao.OFFSET + $vsize(V128)/8) > |$mem(z, x).BYTES|
+  -- otherwise
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = UNORD /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits shared PAGE
 
-rule Step/vstore-val:
-  z; (CONST at i) (VCONST V128 c) (VSTORE V128 x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $($vsize(V128)/8), b*); eps
+rule Step/store-num-val-shared:
+  s; (f; (CONST at i) (CONST nt c) (STORE nt x ao); timestamp)  ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (WR ord ((REGDATA a) ea) (BYTES b*) notears?), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  $c_with_mem((s; f), x, $(i + ao.OFFSET), $($size(nt)/8), b*); (f'; eps; timestamp')
   ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = UNORD /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits shared PAGE
+  ;; TODO(3, rossberg): enable otherwise?
+  -- if b* = $nbytes_(nt, c)
+  -- if $(i + ao.OFFSET + $size(nt)/8) <= |$mem(s; f, x).BYTES|
+
+rule Step/store-pack-oob-shared:
+  s; (f; (CONST at i) (CONST Inn c) (STORE Inn n x ao); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  s; (f'; TRAP; timestamp')
+  ----
+  -- otherwise
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = UNORD /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits shared PAGE
+
+rule Step/store-pack-val-shared:
+  s; (f; (CONST at i) (CONST Inn c) (STORE Inn n x ao); timestamp)  ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (WR ord ((REGDATA a) ea) (BYTES b*) notears?), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  $c_with_mem(s; f, x, $(i + ao.OFFSET), $(n/8), b*); (f'; eps; timestamp')
+  ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = UNORD /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits shared PAGE
+  ;; TODO(3, rossberg): enable otherwise?
+  -- if b* = $ibytes_(n, $wrap__($size(Inn), n, c))
+  -- if $(i + ao.OFFSET + n/8) <= |$mem(s; f, x).BYTES|
+
+rule Step/vstore-oob-unshared:
+  s; (f; (CONST at i) (VCONST V128 c) (VSTORE V128 x ao); timestamp)  ~>  s; (f'; TRAP; timestamp')
+  ----
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+
+rule Step/vstore-val-unshared:
+  s; (f; (CONST at i) (VCONST V128 c) (VSTORE V128 x ao); timestamp)  ~>  $c_with_mem(s; f, x, $(i + ao.OFFSET), $($vsize(V128)/8), b*); (f'; eps; timestamp')
+  ----
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
   -- if b* = $vbytes_(V128, c)
+  -- if $(i + ao.OFFSET + $vsize(V128)/8) <= |$mem(s; f, x).BYTES|
 
-
-rule Step/vstore_lane-oob:
-  z; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j)  ~>  z; TRAP
+rule Step/vstore_lane-oob-unshared:
+  s; (f; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j); timestamp)  ~>  s; (f'; TRAP; timestamp')
   ----
-  -- if $(i + ao.OFFSET + N) > |$mem(z, x).BYTES|
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
 
-rule Step/vstore_lane-val:
-  z; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $(N/8), b*); eps
+rule Step/vstore_lane-val-unshared:
+  s; (f; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j); timestamp)  ~>  $c_with_mem(s; f, x, $(i + ao.OFFSET), $(N/8), b*); (f'; eps; timestamp')
   ----
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
   -- if N = $jsize(Jnn)  ;; TODO(2, rossberg): relate implicitly
   -- if M = $(128/N)
   -- if b* = $ibytes_(N, $lanes_(Jnn X M, c)[j])
+  -- if $(i + ao.OFFSET + N) <= |$mem(s; f, x).BYTES|
 
-
-rule Step_read/memory.size:
-  z; (MEMORY.SIZE x)  ~>  (CONST at n)
-  -- if $(n * $($(64 * $Ki))) = |$mem(z, x).BYTES|
-  -- if $mem(z, x).TYPE = at lim PAGE
-
-
-rule Step/memory.grow-succeed:
-  z; (CONST at n) (MEMORY.GROW x)  ~>  $with_meminst(z, x, mi); (CONST at $(|$mem(z, x).BYTES| / $($(64 * $Ki))))
+rule Step/vstore-val-shared:
+  s; (f; (CONST at i) (VCONST V128 c) (VSTORE V128 x ao); timestamp)  ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (WR ord ((REGDATA a) ea) (BYTES b*) notears?), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  $c_with_mem(s; f, x, $(i + ao.OFFSET), $($vsize(V128)/8), b*); (f'; eps; timestamp')
   ----
-  -- if mi = $growmem($mem(z, x), n)
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = UNORD /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if b* = $vbytes_(V128, c)
 
-rule Step/memory.grow-fail:
-  z; (CONST at n) (MEMORY.GROW x)  ~>  z; (CONST at $inv_signed_($size(at), $(-1)))
+rule Step/vstore_lane-oob-shared:
+  s; (f; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  s; (f'; TRAP; timestamp')
+  ----
+  -- otherwise
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = UNORD /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+
+rule Step/vstore_lane-val-shared:
+  s; (f; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j); timestamp)  ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (WR ord ((REGDATA a) ea) (BYTES b*)), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  $c_with_mem(s; f, x, $(i + ao.OFFSET), $(N/8), b*); (f'; eps; timestamp')
+  ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = UNORD /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if N = $jsize(Jnn)  ;; TODO(2, rossberg): relate implicitly
+  -- if M = $(128/N)
+  -- if b* = $ibytes_(N, $lanes_(Jnn X M, c)[j])
+  -- if $(i + ao.OFFSET + N) <= |$mem(s; f, x).BYTES|
+
+
+rule Step_read/memory.size-unshared:
+  s; (f; (MEMORY.SIZE x); timestamp)  ~>  f'; (CONST at n); timestamp'
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $(n * $($(64 * $Ki))) = |$mem(s; f, x).BYTES|
+  -- if $mem(s; f, x).TYPE = at lim share PAGE
+
+rule Step/memory.grow-succeed-unshared:
+  s; (f; (CONST at n) (MEMORY.GROW x); timestamp)  ~>  $c_with_meminst(s; f, x, mi); (f'; (CONST at $(|$mem(s; f, x).BYTES| / $($(64 * $Ki)))); timestamp')
+  ----
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if mi = $growmem($mem(s; f, x), n)
+  
+rule Step/memory.grow-fail-unshared:
+  s; (f; (CONST at n) (MEMORY.GROW x); timestamp)  ~>  s; (f'; (CONST at $inv_signed_($size(at), $(-1))); timestamp')
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+
+rule Step_read/memory.size-shared:
+  s; (f; (MEMORY.SIZE x); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ),  
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; (CONST at n); timestamp'
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if $(n * $($(64 * $Ki))) = |$mem(s; f, x).BYTES|
+  -- if $mem(s; f, x).TYPE = at lim share PAGE
+
+rule Step/memory.grow-succeed-shared:
+  s; (f; (CONST at n) (MEMORY.GROW x); timestamp)  ~>_({ 
+    ACTIONS (
+      (RMW ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|)) (CONST I32 $(|$mem(s; f, x).BYTES| +  $($(n * $($(64 * $Ki)))))))
+      (WR SEQCST ((REGLEN a) $(|$mem(s; f, x).BYTES|)) (BYTES (0x00)^$($(n * $($(64 * $Ki))))))
+    ),  
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  $c_with_meminst(s; f, x, mi); (f'; (CONST at $(|$mem(s; f, x).BYTES| / $($(64 * $Ki)))); timestamp')
+  -- if (
+          a = f.MODULE.MEMS[0] 
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if mi = $growmem($mem(s; f, x), n)
+
+rule Step/memory.grow-fail-shared:
+  s; (f; (CONST at n) (MEMORY.GROW x); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ),  
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  s; (f'; (CONST at $inv_signed_($size(at), $(-1))); timestamp')
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
 
 
 rule Step_read/memory.fill-oob:
-  z; (CONST at i) val (CONST at n) (MEMORY.FILL x)  ~>  TRAP
-  -- if $(i + n) > |$mem(z, x).BYTES|
+  s; (f; (CONST at i) val (CONST at n) (MEMORY.FILL x); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ),  
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; TRAP; timestamp'
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE 
+  -- if $(i + n) > |$mem(s; f, x).BYTES|
 
 rule Step_read/memory.fill-zero:
-  z; (CONST at i) val (CONST at n) (MEMORY.FILL x)  ~>  eps
+  s; (f; (CONST at i) val (CONST at n) (MEMORY.FILL x); timestamp)  ~> f'; eps; timestamp'
   -- otherwise
   -- if n = 0
+  -- if ($mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE /\ |$mem(s; f, 0).BYTES| = |$mem(s; f, x).BYTES|)
 
 rule Step_read/memory.fill-succ:
-  z; (CONST at i) val (CONST at n) (MEMORY.FILL x)  ~>
-    (CONST at i) val (STORE I32 `8 x $memarg0)
-    (CONST at $(i+1)) val (CONST at $(n-1)) (MEMORY.FILL x)
+  s; (f; (CONST at i) val (CONST at n) (MEMORY.FILL x); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ),  
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f; 
+  (CONST at i) val (STORE I32 `8 x $memarg0)
+  (CONST at $(i+1)) val (CONST at $(n-1)) (MEMORY.FILL x)
+  ; timestamp'
   -- otherwise
-
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE 
 
 rule Step_read/memory.copy-oob:
-  z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (MEMORY.COPY x_1 x_2)  ~>  TRAP
+  s; (f; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (MEMORY.COPY x_1 x_2); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ),  
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; TRAP; timestamp'
   ---- ----
-  -- if $(i_1 + n) > |$mem(z, x_1).BYTES| \/ $(i_2 + n) > |$mem(z, x_2).BYTES|
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE 
+  -- if $(i_1 + n) > |$mem(s; f, x_1).BYTES| \/ $(i_2 + n) > |$mem(s; f, x_2).BYTES|
 
 rule Step_read/memory.copy-zero:
-  z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (MEMORY.COPY x_1 x_2)  ~>  eps
+  s; (f; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (MEMORY.COPY x_1 x_2); timestamp)  ~>  f'; eps; timestamp'
   -- otherwise
+  -- if ($mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE /\ |$mem(s; f, 0).BYTES| = |$mem(s; f, x).BYTES|)
   -- if n = 0
 
 rule Step_read/memory.copy-le:
-  z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (MEMORY.COPY x_1 x_2)  ~>
+  s; (f; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (MEMORY.COPY x_1 x_2); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ),  
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+    f;
     (CONST at_1 i_1) (CONST at_2 i_2) (LOAD I32 (`8 _ U) x_2 $memarg0) (STORE I32 `8 x_1 $memarg0)
-    (CONST at_1 $(i_1 + 1)) (CONST at_2 $(i_2 + 1)) (CONST at' $(n - 1)) (MEMORY.COPY x_1 x_2)
+    (CONST at_1 $(i_1 + 1)) (CONST at_2 $(i_2 + 1)) (CONST at' $(n - 1)) (MEMORY.COPY x_1 x_2);
+    timestamp
   -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE 
   -- if i_1 <= i_2
 
 rule Step_read/memory.copy-gt:
-  z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (MEMORY.COPY x_1 x_2)  ~>
+  s; (f; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (MEMORY.COPY x_1 x_2); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ),  
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+    f;
     (CONST at_1 $(i_1+n-1)) (CONST at_2 $(i_2+n-1)) (LOAD I32 (`8 _ U) x_2 $memarg0) (STORE I32 `8 x_1 $memarg0)
-    (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' $(n-1)) (MEMORY.COPY x_1 x_2)
+    (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' $(n-1)) (MEMORY.COPY x_1 x_2);
+    timestamp
   -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE 
 
 
 rule Step_read/memory.init-oob:
-  z; (CONST at i) (CONST I32 j) (CONST I32 n) (MEMORY.INIT x y)  ~>  TRAP
+  s; (f; (CONST at i) (CONST I32 j) (CONST I32 n) (MEMORY.INIT x y); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ),  
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; TRAP; timestamp'
   ---- ----
-  -- if $(i + n) > |$mem(z, x).BYTES| \/ $(j + n) > |$data(z, y).BYTES|
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if $(i + n) > |$mem(s; f, x).BYTES| \/ $(j + n) > |$data(s; f, y).BYTES|
 
 rule Step_read/memory.init-zero:
-  z; (CONST at i) (CONST I32 j) (CONST I32 n) (MEMORY.INIT x y)  ~>  eps
+  s; (f; (CONST at i) (CONST I32 j) (CONST I32 n) (MEMORY.INIT x y); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ),  
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; eps; timestamp'
   -- otherwise
+  -- if ($mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE /\ |$mem(s; f, 0).BYTES| = |$mem(s; f, x).BYTES|)
   -- if n = 0
 
 rule Step_read/memory.init-succ:
-  z; (CONST at i) (CONST I32 j) (CONST I32 n) (MEMORY.INIT x y)  ~>
-    (CONST at i) (CONST I32 $data(z,y).BYTES[j]) (STORE I32 `8 x $memarg0)
-    (CONST at $(i+1)) (CONST I32 $(j+1)) (CONST I32 $(n-1)) (MEMORY.INIT x y)
-  -- otherwise
-
+  s; (f; (CONST at i) (CONST I32 j) (CONST I32 n) (MEMORY.INIT x y); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ),  
+    TIMEp timestamp, 
+    TIME timestamp'
+  })     
+  f;  
+  (CONST at i) (CONST I32 $data(s; f,y).BYTES[j]) (STORE I32 `8 x $memarg0)
+  (CONST at $(i+1)) (CONST I32 $(j+1)) (CONST I32 $(n-1)) (MEMORY.INIT x y);
+  timestamp
+  -- otherwise 
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step/data.drop:
-  z; (DATA.DROP x)  ~>  $with_data(z, x, eps); eps
+  s; (f; (DATA.DROP x); timestamp)  ~>  $c_with_data((s; f), x, eps); (f'; eps; timestamp')
 
 ;; Atomic Memory instructions
 
-rule Step_read/atomic.load-num-oob:
-  z; (CONST at i) (ATOMIC.LOAD inntype x ao)  ~>  TRAP
-  ---- ----
-  -- if $(i + ao.OFFSET + $size(inntype)/8 > |$mem(z, x).BYTES|)
 
-rule Step_read/atomic.load-num-val:
-  z; (CONST at i) (ATOMIC.LOAD inntype x ao)  ~>  (CONST inntype c)
+rule Step_read/atomic.load-num-oob-unshared:
+  s; (f; (CONST at i) (ATOMIC.LOAD inntype x ao); timestamp)  ~>  f'; TRAP; timestamp'
   ---- ----
-  -- if $ibytes_($size(inntype), c) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  
+rule Step_read/atomic.load-num-val-unshared:
+  s; (f; (CONST at i) (ATOMIC.LOAD inntype x ao); timestamp)  ~>  f'; (CONST inntype c); timestamp'
+  ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $ibytes_($size(inntype), c) = $mem((s; f), x).BYTES[i + ao.OFFSET : $size(inntype)/8]
+  -- if $((i + ao.OFFSET) \ $size(inntype)/8) = 0
+  -- if $(i + ao.OFFSET + $size(inntype)/8 <= |$mem((s; f), x).BYTES|)
 
-rule Step_read/atomic.load-pack-oob:
-  z; (CONST at i) (ATOMIC.LOAD inntype (n _ U) x ao)  ~>  TRAP
+rule Step_read/atomic.load-pack-oob-unshared:
+  s; (f; (CONST at i) (ATOMIC.LOAD inntype (n _ U) x ao); timestamp)  ~>  f'; TRAP; timestamp'
   ---- ----
-  -- if $(i + ao.OFFSET + n/8 > |$mem(z, x).BYTES|)
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
 
-rule Step_read/atomic.load-pack-val:
-  z; (CONST at i) (ATOMIC.LOAD inntype (n _ U) x ao)  ~>  (CONST inntype $extend__(n, $size(inntype), U, c))
+rule Step_read/atomic.load-pack-val-unshared:
+  s; (f; (CONST at i) (ATOMIC.LOAD inntype (n _ U) x ao); timestamp)  ~>  f'; (CONST inntype $extend__(n, $size(inntype), U, c)); timestamp'
   ---- ----
-  -- if $ibytes_(n, c) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $ibytes_(n, c) = $mem((s; f), x).BYTES[i + ao.OFFSET : n/8]
+  -- if $((i + ao.OFFSET) \ n/8) = 0
+  -- if $(i + ao.OFFSET + n/8 <= |$mem((s; f), x).BYTES|)
 
-rule Step/atomic.store-num-oob:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype x ao)  ~>  z; TRAP
+rule Step_read/atomic.load-num-oob-shared:
+  s; (f; (CONST at i) (ATOMIC.LOAD inntype x ao); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ),  
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; TRAP; timestamp'
   ---- ----
-  -- if $(i + ao.OFFSET + $size(inntype)/8) > |$mem(z, x).BYTES|
+  -- otherwise
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
 
-rule Step/atomic.store-num-val:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $($size(inntype)/8), b*); eps
+rule Step_read/atomic.load-num-val-shared:
+  s; (f; (CONST at i) (ATOMIC.LOAD inntype x ao); timestamp)  ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (RD ord ((REGDATA a) ea) (BYTES bytes) notears?), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; (CONST inntype c); timestamp'
   ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if $ibytes_($size(inntype), c) = $mem((s; f), x).BYTES[i + ao.OFFSET : $size(inntype)/8]
+  -- if $((i + ao.OFFSET) \ n/8) = 0
+  -- if $(i + ao.OFFSET + $size(inntype)/8 <= |$mem((s; f), x).BYTES|)
+
+rule Step_read/atomic.load-pack-oob-shared:
+  s; (f; (CONST at i) (ATOMIC.LOAD inntype (n _ U) x ao); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; TRAP; timestamp'
+  ---- ----
+  -- otherwise
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+
+rule Step_read/atomic.load-pack-val-shared:
+  s; (f; (CONST at i) (ATOMIC.LOAD inntype (n _ U) x ao); timestamp)  ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (RD ord ((REGDATA a) ea) (BYTES bytes) notears?), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  f'; (CONST inntype $extend__(n, $size(inntype), U, c)); timestamp'
+  ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if $ibytes_(n, c) = $mem((s; f), x).BYTES[i + ao.OFFSET : n/8]
+  -- if $((i + ao.OFFSET) \ n/8) = 0
+  -- if $(i + ao.OFFSET + n/8 <= |$mem((s; f), x).BYTES|)
+
+rule Step/atomic.store-num-oob-unshared:
+  s; (f; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype x ao); timestamp)  ~>  s; (f'; TRAP; timestamp')
+  ---- ----
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+
+rule Step/atomic.store-num-val-unshared:
+  s; (f; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype x ao); timestamp)  ~>  $c_with_mem((s; f), x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (f'; eps; timestamp')
+  ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
   -- if b* = $ibytes_($size(inntype), c)
+  -- if $((i + ao.OFFSET) \ $size(inntype)/8) = 0
+  -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem((s; f), x).BYTES|
 
-rule Step/atomic.store-pack-oob:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype n x ao)  ~>  z; TRAP
+rule Step/atomic.store-pack-oob-unshared:
+  s; (f; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype n x ao); timestamp)  ~>  s; (f'; TRAP; timestamp')
   ---- ----
-  -- if $(i + ao.OFFSET + n/8) > |$mem(z, x).BYTES|
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
 
-rule Step/atomic.store-pack-val:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype n x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); eps
+rule Step/atomic.store-pack-val-unshared:
+  s; (f; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype n x ao); timestamp)  ~>  $c_with_mem((s; f), x, $(i + ao.OFFSET), $(n/8), b*); (f'; eps; timestamp')
   ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
   -- if b* = $ibytes_(n, $wrap__($size(inntype), n, c))
+  -- if $((i + ao.OFFSET) \ $size(inntype)/8) = 0
+  -- if $(i + ao.OFFSET + n/8) <= |$mem((s; f), x).BYTES|
 
-rule Step/atomic.rmw-num-oob:
-  z;  (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype rmwop x ao) ~> 
-  z; TRAP
+rule Step/atomic.store-num-oob-shared:
+  s; (f; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype x ao); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  s; (f'; TRAP; timestamp')
   ---- ----
-  -- if $(i + ao.OFFSET + $size(inntype)/8) > |$mem(z, x).BYTES|
+  -- otherwise
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
 
-rule Step/atomic.rmw-num-val:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype rmwop x ao) ~> 
-  $with_mem(z, x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (CONST inntype d)
+rule Step/atomic.store-num-val-shared:
+  s; (f; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype x ao); timestamp)  ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (WR ord ((REGDATA a) ea) (BYTES b*) notears?), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  $c_with_mem((s; f), x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (f'; eps; timestamp')
   ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if b* = $ibytes_($size(inntype), c)
+  -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem((s; f), x).BYTES|
+
+rule Step/atomic.store-pack-oob-shared:
+  s; (f; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype n x ao); timestamp)  ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  s; (f'; TRAP; timestamp')
+  ---- ----
+  -- otherwise
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+
+rule Step/atomic.store-pack-val-shared:
+  s; (f; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype n x ao); timestamp)  ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (WR ord ((REGDATA a) ea) (BYTES b*) notears?), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  $c_with_mem((s; f), x, $(i + ao.OFFSET), $(n/8), b*); (f'; eps; timestamp')
+  ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if b* = $ibytes_(n, $wrap__($size(inntype), n, c))
+  -- if $(i + ao.OFFSET + n/8) <= |$mem((s; f), x).BYTES|
+
+rule Step/atomic.rmw-num-oob-unshared:
+  s; (f;  (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype rmwop x ao); timestamp) ~> 
+  s; (f; TRAP; timestamp)
+  ---- ----
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+
+rule Step/atomic.rmw-num-val-unshared:
+  s; (f; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype rmwop x ao); timestamp) ~> 
+  $c_with_mem((s; f), x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (f; (CONST inntype d); timestamp)
+  ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
   -- if j = $rmwop_(inntype, rmwop, c, d)
   -- if b* = $ibytes_($size(inntype), j)
-  -- if $ibytes_($size(inntype), d) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
+  -- if $ibytes_($size(inntype), d) = $mem((s; f), x).BYTES[i + ao.OFFSET : $size(inntype)/8]
+  -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem((s; f), x).BYTES|
 
-rule Step/atomic.rmw-num-pack:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype n rmwop x ao) ~> 
-  $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); (CONST inntype d)
+rule Step/atomic.rmw-num-pack-unshared:
+  s; (f; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype n rmwop x ao); timestamp) ~> 
+  $c_with_mem((s; f), x, $(i + ao.OFFSET), $(n/8), b*); (f; (CONST inntype d); timestamp)
   ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
   -- if j = $rmwop_($inv_jsize(n), rmwop, $wrap__($size(inntype), n, c), $wrap__($size(inntype), n, d))
   -- if b* = $ibytes_(n, $extend__(n, $size(inntype), U, j))
-  -- if $ibytes_(n, d) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
+  -- if $ibytes_(n, d) = $mem((s; f), x).BYTES[i + ao.OFFSET : n/8]
 
-rule Step/atomic.rmw.cmpxchg-num-oob:
-  z;  (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~> 
-  z; TRAP
+rule Step/atomic.rmw.cmpxchg-num-oob-unshared:
+  s; (f;  (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao); timestamp) ~> 
+  s; (f; TRAP; timestamp)
   ---- ----
-  -- if $(i + ao.OFFSET + $size(inntype)/8) > |$mem(z, x).BYTES|
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
 
-rule Step/atomic.rmw.cmpxchg-num-equals-val:
-  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~> 
-  $with_mem(z, x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (CONST inntype d)
+rule Step/atomic.rmw.cmpxchg-num-equals-val-unshared:
+  s; (f; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao); timestamp) ~> 
+  $c_with_mem((s; f), x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (f; (CONST inntype d); timestamp)
   ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
   -- if d = c
-  -- if $ibytes_($size(inntype), d) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
+  -- if $ibytes_($size(inntype), d) = $mem((s; f), x).BYTES[i + ao.OFFSET : $size(inntype)/8]
   -- if b* = $ibytes_($size(inntype), g)
+  -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem((s; f), x).BYTES|
 
-rule Step/atomic.rmww.cmpxchg-num-notequals-val:
-  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~> 
-  z; (CONST inntype d)
+rule Step/atomic.rmww.cmpxchg-num-notequals-val-unshared:
+  s; (f; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao); timestamp) ~> 
+  s; (f; (CONST inntype d); timestamp)
   ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
   -- if d =/= c
-  -- if $ibytes_($size(inntype), d) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
+  -- if $ibytes_($size(inntype), d) = $mem((s; f), x).BYTES[i + ao.OFFSET : $size(inntype)/8]
+  -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem((s; f), x).BYTES|
 
-rule Step/atomic.rmw.cmpxchg-num-equals-pack:
-  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype n x ao) ~> 
-  $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); (CONST inntype d)
+rule Step/atomic.rmw.cmpxchg-num-equals-pack-unshared:
+  s; (f; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype n x ao); timestamp) ~> 
+  $c_with_mem((s; f), x, $(i + ao.OFFSET), $(n/8), b*); (f; (CONST inntype d); timestamp)
   ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
   -- if d = c
-  -- if $ibytes_(n, d) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
+  -- if $ibytes_(n, d) = $mem((s; f), x).BYTES[i + ao.OFFSET : n/8]
   -- if b* = $ibytes_(n, $wrap__($size(inntype), n, g))
+  -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem((s; f), x).BYTES|
 
-rule Step/atomic.rmw.cmpxchg-num-notequals-pack:
-  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype n x ao) ~> 
-  z; (CONST inntype d)
+rule Step/atomic.rmw.cmpxchg-num-notequals-pack-unshared:
+  s; (f; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype n x ao); timestamp) ~> 
+  s; (f; (CONST inntype d); timestamp)
   ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
   -- if d =/= c
-  -- if $ibytes_(n, d) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
+  -- if $ibytes_(n, d) = $mem((s; f), x).BYTES[i + ao.OFFSET : n/8]
+  -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem((s; f), x).BYTES|
 
-rule Step/memory.atomic.notify-oob:
-  z; (CONST at i) (CONST I32 count) (MEMORY.ATOMIC.NOTIFY x ao) ~> z; TRAP
+rule Step/memory.atomic.notify-oob-unshared:
+  s; (f; (CONST at i) (CONST I32 count) (MEMORY.ATOMIC.NOTIFY x ao); timestamp) ~> s; (f'; TRAP; timestamp')
   ---- ----
-  -- if $(i + ao.OFFSET + $size(I32)/8) > |$mem(z, x).BYTES|
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $(i + ao.OFFSET + $size(I32)/8) > |$mem((s; f), x).BYTES|
+  -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem((s; f), x).BYTES|
 
-rule Step/memory.atomic.notify:
-  z; (CONST at i) (CONST I32 count) (MEMORY.ATOMIC.NOTIFY x ao) ~> z; (CONST I32 0)
- 
-rule Step/memory.atomic.wait-oob:
-  z; (CONST at i) (CONST inntype expected) (CONST I64 timeout) (MEMORY.ATOMIC.WAIT inntype x ao) ~> z; TRAP
+rule Step/memory.atomic.notify-unshared:
+  s; (f; (CONST at i) (CONST I32 count) (MEMORY.ATOMIC.NOTIFY x ao); timestamp) ~> s; (f'; (CONST I32 0); timestamp')
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem((s; f), x).BYTES|
+
+
+rule Step/atomic.rmw-num-oob-shared:
+  s; (f;  (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype rmwop x ao); timestamp) ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })
+  s; (f; TRAP; timestamp)
   ---- ----
-  -- if $(i + ao.OFFSET + $size(inntype)/8) > |$mem(z, x).BYTES|
+  -- otherwise
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
 
-rule Step/memory.atomic.wait:
-  z; (CONST at i) (CONST inntype expected) (CONST I64 timeout) (MEMORY.ATOMIC.WAIT inntype x ao) ~> z; TRAP
+rule Step/atomic.rmw-num-val-shared:
+  s; (f; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype rmwop x ao); timestamp) ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (RMW ((REGDATA a) ea) (BYTES $mem(s; f, x).BYTES) (BYTES b*)), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  $c_with_mem((s; f), x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (f; (CONST inntype d); timestamp)
+  ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if j = $rmwop_(inntype, rmwop, c, d)
+  -- if b* = $ibytes_($size(inntype), j)
+  -- if $ibytes_($size(inntype), d) = $mem((s; f), x).BYTES[i + ao.OFFSET : $size(inntype)/8]
+  -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem((s; f), x).BYTES|
+
+rule Step/atomic.rmw-num-pack-shared:
+  s; (f; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype n rmwop x ao); timestamp) ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (RMW ((REGDATA a) ea) (BYTES $mem(s; f, x).BYTES) (BYTES b*)), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  $c_with_mem((s; f), x, $(i + ao.OFFSET), $(n/8), b*); (f; (CONST inntype d); timestamp)
+  ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if j = $rmwop_($inv_jsize(n), rmwop, $wrap__($size(inntype), n, c), $wrap__($size(inntype), n, d))
+  -- if b* = $ibytes_(n, $extend__(n, $size(inntype), U, j))
+  -- if $ibytes_(n, d) = $mem((s; f), x).BYTES[i + ao.OFFSET : n/8]
+  -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem((s; f), x).BYTES|
+
+rule Step/atomic.rmw.cmpxchg-num-oob-shared:
+  s; (f;  (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao); timestamp) ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  s; (f; TRAP; timestamp)
+  ---- ----
+  -- otherwise
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+
+rule Step/atomic.rmw.cmpxchg-num-equals-val-shared:
+  s; (f; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao); timestamp) ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (RMW ((REGDATA a) ea) (BYTES $mem(s; f, x).BYTES) (BYTES b*)), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })   
+  $c_with_mem((s; f), x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (f; (CONST inntype d); timestamp)
+  ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if d = c
+  -- if $ibytes_($size(inntype), d) = $mem((s; f), x).BYTES[i + ao.OFFSET : $size(inntype)/8]
+  -- if b* = $ibytes_($size(inntype), g)
+  -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem((s; f), x).BYTES|
+
+rule Step/atomic.rmww.cmpxchg-num-notequals-val-shared:
+  s; (f; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao); timestamp) ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (RMW ((REGDATA a) ea) (BYTES $mem(s; f, x).BYTES) (BYTES b*)), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  s; (f; (CONST inntype d); timestamp)
+  ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if d =/= c
+  -- if $ibytes_($size(inntype), d) = $mem((s; f), x).BYTES[i + ao.OFFSET : $size(inntype)/8]
+  -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem((s; f), x).BYTES|
+
+rule Step/atomic.rmw.cmpxchg-num-equals-pack-shared:
+  s; (f; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype n x ao); timestamp) ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (RMW ((REGDATA a) ea) (BYTES $mem(s; f, x).BYTES) (BYTES b*)), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })   
+  $c_with_mem((s; f), x, $(i + ao.OFFSET), $(n/8), b*); (f; (CONST inntype d); timestamp)
+  ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if d = c
+  -- if $ibytes_(n, d) = $mem((s; f), x).BYTES[i + ao.OFFSET : n/8]
+  -- if b* = $ibytes_(n, $wrap__($size(inntype), n, g))
+  -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem((s; f), x).BYTES|
+
+rule Step/atomic.rmw.cmpxchg-num-notequals-pack-shared:
+  s; (f; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype n x ao); timestamp) ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (RMW ((REGDATA a) ea) (BYTES $mem(s; f, x).BYTES) (BYTES b*)), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  s; (f; (CONST inntype d); timestamp)
+  ---- ----
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if d =/= c
+  -- if $ibytes_(n, d) = $mem((s; f), x).BYTES[i + ao.OFFSET : n/8]
+  -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem((s; f), x).BYTES|
+
+rule Step/memory.atomic.notify-oob-shared:
+  s; (f; (CONST at i) (CONST I32 count) (MEMORY.ATOMIC.NOTIFY x ao); timestamp) ~>_({ 
+    ACTIONS (
+      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+    ), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  s; (f'; TRAP; timestamp')
+  ---- ----
+  -- otherwise
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+
+rule Step/memory.atomic.notify-shared:
+  s; (f; (CONST at i) (CONST I32 count) (MEMORY.ATOMIC.NOTIFY x ao); timestamp) ~>_({ 
+    ACTIONS 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+      (RD ord ((REGDATA a) ea) (BYTES bytes)), 
+    TIMEp timestamp, 
+    TIME timestamp'
+  })  
+  s; (f'; (CONST I32 0); timestamp')
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if $(i + ao.OFFSET + $size(I32)/8) <= |$mem((s; f), x).BYTES|
+
+
+rule Step/memory.atomic.wait-oob-unshared:
+  s; (f; (CONST at i) (CONST inntype expected) (CONST I64 timeout) (MEMORY.ATOMIC.WAIT inntype x ao); timestamp) ~> s; (f'; TRAP; timestamp')
+  ---- ----
+  -- otherwise
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+
+rule Step/memory.atomic.wait-unshared:
+  s; (f; (CONST at i) (CONST inntype expected) (CONST I64 timeout) (MEMORY.ATOMIC.WAIT inntype x ao); timestamp) ~> s; (f'; TRAP; timestamp')
+  -- if (
+          a = f.MODULE.MEMS[0] /\
+          ord = SEQCST /\
+          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
+          storemem = $mem(s; f, x) /\
+          ea = $(i + ao.OFFSET) /\
+          nlen = |storemem.BYTES|
+        )
+  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem((s; f), x).BYTES|
 
 rule Step/atomic.fence:
-  z; (ATOMIC.FENCE) ~> z; eps
+  s; (f; (ATOMIC.FENCE); timestamp) ~> s; (f'; eps; timestamp')
 
 ;; Reference instructions
 
 rule Step_read/ref.null:
-  z; (REF.NULL ht)  ~>  REF.NULL_ADDR
+  s; (f; (REF.NULL ht); timestamp)  ~>  f'; REF.NULL_ADDR; timestamp'
 
 rule Step_read/ref.func:
-  z; (REF.FUNC x)  ~>  (REF.FUNC_ADDR $moduleinst(z).FUNCS[x])
+  s; (f; (REF.FUNC x); timestamp)  ~>  f'; (REF.FUNC_ADDR $moduleinst((s; f)).FUNCS[x]); timestamp'
 
 rule Step_pure/ref.i31:
-  (CONST I32 i) REF.I31  ~>  (REF.I31_NUM $wrap__(32, 31, i))
+  f; (CONST I32 i) REF.I31; timestamp  ~>  f'; (REF.I31_NUM $wrap__(32, 31, i)); timestamp'
 
 
 rule Step_pure/ref.is_null-true:
-  ref REF.IS_NULL  ~>  (CONST I32 1)
+  f; ref REF.IS_NULL; timestamp  ~>  f'; (CONST I32 1); timestamp'
   -- if ref = REF.NULL_ADDR
 
 rule Step_pure/ref.is_null-false:
-  ref REF.IS_NULL  ~>  (CONST I32 0)
+  f; ref REF.IS_NULL; timestamp  ~>  f'; (CONST I32 0); timestamp'
   -- otherwise
 
 
 rule Step_pure/ref.as_non_null-null:
-  ref REF.AS_NON_NULL  ~>  TRAP
+  f; ref REF.AS_NON_NULL; timestamp  ~>  f'; TRAP; timestamp'
   -- if ref = REF.NULL_ADDR
 
 rule Step_pure/ref.as_non_null-addr:
-  ref REF.AS_NON_NULL  ~>  ref
+  f; ref REF.AS_NON_NULL; timestamp  ~>  f'; ref; timestamp'
   -- otherwise
 
 
 rule Step_pure/ref.eq-null:
-  ref_1 ref_2 REF.EQ  ~>  (CONST I32 1)
+  f; ref_1 ref_2 REF.EQ; timestamp  ~>  f'; (CONST I32 1); timestamp'
   -- if ref_1 = REF.NULL_ADDR /\ ref_2 = REF.NULL_ADDR
 
 rule Step_pure/ref.eq-true:
-  ref_1 ref_2 REF.EQ  ~>  (CONST I32 1)
+  f; ref_1 ref_2 REF.EQ; timestamp  ~>  f'; (CONST I32 1); timestamp'
   -- otherwise
   -- if ref_1 = ref_2
 
 rule Step_pure/ref.eq-false:
-  ref_1 ref_2 REF.EQ  ~>  (CONST I32 0)
+  f; ref_1 ref_2 REF.EQ; timestamp  ~>  f'; (CONST I32 0); timestamp'
   -- otherwise
 
 
 rule Step_read/ref.test-true:
-  s; f; ref (REF.TEST rt)  ~>  (CONST I32 1)
+  s; (f; ref (REF.TEST rt); timestamp)  ~>  f'; (CONST I32 1); timestamp'
   ;; TODO(3, rossberg): -- Ref_ok: s |- ref : $inst_reftype(f.MODULE, rt)
   -- Ref_ok: s |- ref : rt'
   -- Reftype_sub: {} |- rt' <: $inst_reftype(f.MODULE, rt)
 
 rule Step_read/ref.test-false:
-  s; f; ref (REF.TEST rt)  ~>  (CONST I32 0)
+  s; (f; ref (REF.TEST rt); timestamp)  ~>  f'; (CONST I32 0); timestamp'
   -- otherwise
 
 
 rule Step_read/ref.cast-succeed:
-  s; f; ref (REF.CAST rt)  ~>  ref
+  s; (f; ref (REF.CAST rt); timestamp)  ~>  f'; ref; timestamp'
   ;; TODO(3, rossberg): -- Ref_ok: s |- ref : $inst_reftype(f.MODULE, rt)
   -- Ref_ok: s |- ref : rt'
   -- Reftype_sub: {} |- rt' <: $inst_reftype(f.MODULE, rt)
 
 rule Step_read/ref.cast-fail:
-  s; f; ref (REF.CAST rt)  ~>  TRAP
+  s; (f; ref (REF.CAST rt); timestamp)  ~>  f'; TRAP; timestamp'
   -- otherwise
 
 
 ;; Scalar reference instructions
 
 rule Step_pure/i31.get-null:
-  (REF.NULL_ADDR) (I31.GET sx)  ~>  TRAP
+  f; (REF.NULL_ADDR) (I31.GET sx); timestamp  ~>  f'; TRAP; timestamp'
 
 rule Step_pure/i31.get-num:
-  (REF.I31_NUM i) (I31.GET sx)  ~>  (CONST I32 $extend__(31, 32, sx, i))
+  f; (REF.I31_NUM i) (I31.GET sx); timestamp  ~>  f'; (CONST I32 $extend__(31, 32, sx, i)); timestamp'
 
 
 ;; Structure instructions
 
 rule Step/struct.new:
-  z; val^n (STRUCT.NEW x)  ~>  $add_structinst(z, si); (REF.STRUCT_ADDR a)
-  -- Expand: $type(z, x) ~~ STRUCT (mut? zt)^n
-  -- if a = |$structinst(z)|
-  -- if si = {TYPE $type(z, x), FIELDS ($packfield_(zt, val))^n}
+  s; (f; val^n (STRUCT.NEW x); timestamp)  ~>  $c_add_structinst((s; f), si); (f'; (REF.STRUCT_ADDR a); timestamp')
+  -- Expand: $type((s; f), x) ~~ STRUCT (mut? zt)^n
+  -- if a = |$structinst((s; f))|
+  -- if si = {TYPE $type((s; f), x), FIELDS ($packfield_(zt, val))^n}
 
 rule Step_read/struct.new_default:
-  z; (STRUCT.NEW_DEFAULT x)  ~>  val* (STRUCT.NEW x)
-  -- Expand: $type(z, x) ~~ STRUCT (mut? zt)*
+  s; (f; (STRUCT.NEW_DEFAULT x); timestamp)  ~>  f'; val* (STRUCT.NEW x); timestamp'
+  -- Expand: $type((s; f), x) ~~ STRUCT (mut? zt)*
   -- (if $default_($unpack(zt)) = val)*
 
 
 rule Step_read/struct.get-null:
-  z; (REF.NULL_ADDR) (STRUCT.GET sx? x i)  ~>  TRAP
+  s; (f; (REF.NULL_ADDR) (STRUCT.GET sx? x i); timestamp)  ~>  f'; TRAP; timestamp'
 
 rule Step_read/struct.get-struct:
-  z; (REF.STRUCT_ADDR a) (STRUCT.GET sx? x i)  ~>  $unpackfield_(zt*[i], sx?, $structinst(z)[a].FIELDS[i])
+  s; (f; (REF.STRUCT_ADDR a) (STRUCT.GET sx? x i); timestamp)  ~>  f'; $unpackfield_(zt*[i], sx?, $structinst((s; f))[a].FIELDS[i]); timestamp'
   ----
-  -- Expand: $type(z, x) ~~ STRUCT (mut? zt)*
+  -- Expand: $type((s; f), x) ~~ STRUCT (mut? zt)*
 
 
 rule Step/struct.set-null:
-  z; (REF.NULL_ADDR) val (STRUCT.SET x i)  ~>  z; TRAP
+  s; (f; (REF.NULL_ADDR) val (STRUCT.SET x i); timestamp)  ~>  s; (f'; TRAP; timestamp')
 
 rule Step/struct.set-struct:
-  z; (REF.STRUCT_ADDR a) val (STRUCT.SET x i)  ~>  $with_struct(z, a, i, $packfield_(zt*[i], val)); eps
+  s; (f; (REF.STRUCT_ADDR a) val (STRUCT.SET x i); timestamp)  ~>  $c_with_struct((s; f), a, i, $packfield_(zt*[i], val)); (f'; eps; timestamp')
   ----
-  -- Expand: $type(z, x) ~~ STRUCT (mut? zt)*
+  -- Expand: $type((s; f), x) ~~ STRUCT (mut? zt)*
 
 
 ;; Array instructions
 
 rule Step_pure/array.new:
-  val (CONST I32 n) (ARRAY.NEW x)  ~>  val^n (ARRAY.NEW_FIXED x n)
+  f; val (CONST I32 n) (ARRAY.NEW x); timestamp  ~>  f'; val^n (ARRAY.NEW_FIXED x n); timestamp'
 
 rule Step_read/array.new_default:
-  z; (CONST I32 n) (ARRAY.NEW_DEFAULT x)  ~>  val^n (ARRAY.NEW_FIXED x n)
-  -- Expand: $type(z, x) ~~ ARRAY (mut? zt)
+  s; (f; (CONST I32 n) (ARRAY.NEW_DEFAULT x); timestamp)  ~>  f'; val^n (ARRAY.NEW_FIXED x n); timestamp'
+  -- Expand: $type((s; f), x) ~~ ARRAY (mut? zt)
   -- if $default_($unpack(zt)) = val
 
 rule Step/array.new_fixed:
-  z; val^n (ARRAY.NEW_FIXED x n)  ~>  $add_arrayinst(z, ai); (REF.ARRAY_ADDR a)
+  s; (f; val^n (ARRAY.NEW_FIXED x n); timestamp)  ~>  $c_add_arrayinst((s; f), ai); (f'; (REF.ARRAY_ADDR a); timestamp')
   ----
-  -- Expand: $type(z, x) ~~ ARRAY (mut? zt)
-  -- if a = |$arrayinst(z)|
-     /\ ai = {TYPE $type(z, x), FIELDS ($packfield_(zt, val))^n}
+  -- Expand: $type((s; f), x) ~~ ARRAY (mut? zt)
+  -- if a = |$arrayinst((s; f))|
+     /\ ai = {TYPE $type((s; f), x), FIELDS ($packfield_(zt, val))^n}
 
 
 rule Step_read/array.new_elem-oob:
-  z; (CONST I32 i) (CONST I32 n) (ARRAY.NEW_ELEM x y)  ~>  TRAP
-  -- if $(i + n > |$elem(z, y).REFS|)
+  s; (f; (CONST I32 i) (CONST I32 n) (ARRAY.NEW_ELEM x y); timestamp)  ~>  f'; TRAP; timestamp'
+  -- if $(i + n > |$elem((s; f), y).REFS|)
 
 rule Step_read/array.new_elem-alloc:
-  z; (CONST I32 i) (CONST I32 n) (ARRAY.NEW_ELEM x y)  ~>  ref^n (ARRAY.NEW_FIXED x n)
+  s; (f; (CONST I32 i) (CONST I32 n) (ARRAY.NEW_ELEM x y); timestamp)  ~>  f'; ref^n (ARRAY.NEW_FIXED x n); timestamp'
   ----
-  -- if ref^n = $elem(z, y).REFS[i : n]
+  -- if ref^n = $elem((s; f), y).REFS[i : n]
 
 
 rule Step_read/array.new_data-oob:
-  z; (CONST I32 i) (CONST I32 n) (ARRAY.NEW_DATA x y)  ~>  TRAP
+  s; (f; (CONST I32 i) (CONST I32 n) (ARRAY.NEW_DATA x y); timestamp)  ~>  f'; TRAP; timestamp'
   ----
-  -- Expand: $type(z, x) ~~ ARRAY (mut? zt)
-  -- if $(i + n * $zsize(zt)/8 > |$data(z, y).BYTES|)
+  -- Expand: $type((s; f), x) ~~ ARRAY (mut? zt)
+  -- if $(i + n * $zsize(zt)/8 > |$data((s; f), y).BYTES|)
 
 ;; TODO(2, rossberg): outline Cnn = $cunpack(zt)
 rule Step_read/array.new_data-num:
-  z; (CONST I32 i) (CONST I32 n) (ARRAY.NEW_DATA x y)  ~>  ($const($cunpack(zt), $cunpacknum_(zt, c)))^n (ARRAY.NEW_FIXED x n)
+  s; (f; (CONST I32 i) (CONST I32 n) (ARRAY.NEW_DATA x y); timestamp)  ~>  f'; ($const($cunpack(zt), $cunpacknum_(zt, c)))^n (ARRAY.NEW_FIXED x n); timestamp'
   ----
-  -- Expand: $type(z, x) ~~ ARRAY (mut? zt)
-  -- if $concatn_(byte, $zbytes_(zt, c)^n, $($zsize(zt)/8)) = $data(z, y).BYTES[i : n * $zsize(zt)/8]
+  -- Expand: $type((s; f), x) ~~ ARRAY (mut? zt)
+  -- if $concatn_(byte, $zbytes_(zt, c)^n, $($zsize(zt)/8)) = $data((s; f), y).BYTES[i : n * $zsize(zt)/8]
 
 
 rule Step_read/array.get-null:
-  z; (REF.NULL_ADDR) (CONST I32 i) (ARRAY.GET sx? x)  ~>  TRAP
+  s; (f; (REF.NULL_ADDR) (CONST I32 i) (ARRAY.GET sx? x); timestamp)  ~>  f'; TRAP; timestamp'
 
 rule Step_read/array.get-oob:
-  z; (REF.ARRAY_ADDR a) (CONST I32 i) (ARRAY.GET sx? x)  ~>  TRAP
-  -- if i >= |$arrayinst(z)[a].FIELDS|
+  s; (f; (REF.ARRAY_ADDR a) (CONST I32 i) (ARRAY.GET sx? x); timestamp)  ~>  f'; TRAP; timestamp'
+  -- if i >= |$arrayinst((s; f))[a].FIELDS|
 
 rule Step_read/array.get-array:
-  z; (REF.ARRAY_ADDR a) (CONST I32 i) (ARRAY.GET sx? x)  ~>  $unpackfield_(zt, sx?, $arrayinst(z)[a].FIELDS[i])
+  s; (f; (REF.ARRAY_ADDR a) (CONST I32 i) (ARRAY.GET sx? x); timestamp)  ~>  f'; $unpackfield_(zt, sx?, $arrayinst((s; f))[a].FIELDS[i]); timestamp'
   ----
-  -- Expand: $type(z, x) ~~ ARRAY (mut? zt)
+  -- Expand: $type((s; f), x) ~~ ARRAY (mut? zt)
 
 
 rule Step/array.set-null:
-  z; (REF.NULL_ADDR) (CONST I32 i) val (ARRAY.SET x)  ~>  z; TRAP
+  s; (f; (REF.NULL_ADDR) (CONST I32 i) val (ARRAY.SET x); timestamp)  ~>  s; (f'; TRAP; timestamp')
 
 rule Step/array.set-oob:
-  z; (REF.ARRAY_ADDR a) (CONST I32 i) val (ARRAY.SET x)  ~>  z; TRAP
-  -- if i >= |$arrayinst(z)[a].FIELDS|
+  s; (f; (REF.ARRAY_ADDR a) (CONST I32 i) val (ARRAY.SET x); timestamp)  ~>  s; (f'; TRAP; timestamp')
+  -- if i >= |$arrayinst((s; f))[a].FIELDS|
 
 rule Step/array.set-array:
-  z; (REF.ARRAY_ADDR a) (CONST I32 i) val (ARRAY.SET x)  ~>  $with_array(z, a, i, $packfield_(zt, val)); eps
+  s; (f; (REF.ARRAY_ADDR a) (CONST I32 i) val (ARRAY.SET x); timestamp)  ~>  $c_with_array((s; f), a, i, $packfield_(zt, val)); (f'; eps; timestamp')
   ----
-  -- Expand: $type(z, x) ~~ ARRAY (mut? zt)
+  -- Expand: $type((s; f), x) ~~ ARRAY (mut? zt)
 
 
 rule Step_read/array.len-null:
-  z; (REF.NULL_ADDR) ARRAY.LEN  ~>  TRAP
+  s; (f; (REF.NULL_ADDR) ARRAY.LEN; timestamp)  ~>  f'; TRAP; timestamp'
 
 rule Step_read/array.len-array:
-  z; (REF.ARRAY_ADDR a) ARRAY.LEN  ~>  (CONST I32 $(|$arrayinst(z)[a].FIELDS|))
+  s; (f; (REF.ARRAY_ADDR a) ARRAY.LEN; timestamp)  ~>  f'; (CONST I32 $(|$arrayinst((s; f))[a].FIELDS|)); timestamp'
 
 
 rule Step_read/array.fill-null:
-  z; (REF.NULL_ADDR) (CONST I32 i) val (CONST I32 n) (ARRAY.FILL x)  ~>  TRAP
+  s; (f; (REF.NULL_ADDR) (CONST I32 i) val (CONST I32 n) (ARRAY.FILL x); timestamp)  ~>  f'; TRAP; timestamp'
 
 rule Step_read/array.fill-oob:
-  z; (REF.ARRAY_ADDR a) (CONST I32 i) val (CONST I32 n) (ARRAY.FILL x)  ~>  TRAP
-  -- if $(i + n > |$arrayinst(z)[a].FIELDS|)
+  s; (f; (REF.ARRAY_ADDR a) (CONST I32 i) val (CONST I32 n) (ARRAY.FILL x); timestamp)  ~>  f'; TRAP; timestamp'
+  -- if $(i + n > |$arrayinst((s; f))[a].FIELDS|)
 
 rule Step_read/array.fill-zero:
-  z; (REF.ARRAY_ADDR a) (CONST I32 i) val (CONST I32 n) (ARRAY.FILL x)  ~>  eps
+  s; (f; (REF.ARRAY_ADDR a) (CONST I32 i) val (CONST I32 n) (ARRAY.FILL x); timestamp)  ~>  f'; eps; timestamp'
   -- otherwise
   -- if n = 0
 
 rule Step_read/array.fill-succ:
-  z; (REF.ARRAY_ADDR a) (CONST I32 i) val (CONST I32 n) (ARRAY.FILL x)  ~>
+  s; (f; (REF.ARRAY_ADDR a) (CONST I32 i) val (CONST I32 n) (ARRAY.FILL x); timestamp)  ~>
+    f; 
     (REF.ARRAY_ADDR a) (CONST I32 i) val (ARRAY.SET x)
-    (REF.ARRAY_ADDR a) (CONST I32 $(i + 1)) val (CONST I32 $(n-1)) (ARRAY.FILL x)
+    (REF.ARRAY_ADDR a) (CONST I32 $(i + 1)) val (CONST I32 $(n-1)) (ARRAY.FILL x);
+    timestamp
   -- otherwise
 
 rule Step_read/array.copy-null1:
-  z; (REF.NULL_ADDR) (CONST I32 i_1) ref (CONST I32 i_2) (CONST I32 n) (ARRAY.COPY x_1 x_2)  ~>  TRAP
+  s; (f; (REF.NULL_ADDR) (CONST I32 i_1) ref (CONST I32 i_2) (CONST I32 n) (ARRAY.COPY x_1 x_2); timestamp)  ~>  f'; TRAP; timestamp'
 
 rule Step_read/array.copy-null2:
-  z; ref (CONST I32 i_1) (REF.NULL_ADDR) (CONST I32 i_2) (CONST I32 n) (ARRAY.COPY x_1 x_2)  ~>  TRAP
+  s; (f; ref (CONST I32 i_1) (REF.NULL_ADDR) (CONST I32 i_2) (CONST I32 n) (ARRAY.COPY x_1 x_2); timestamp)  ~>  f'; TRAP; timestamp'
 
 rule Step_read/array.copy-oob1:
-  z; (REF.ARRAY_ADDR a_1) (CONST I32 i_1) (REF.ARRAY_ADDR a_2) (CONST I32 i_2) (CONST I32 n) (ARRAY.COPY x_1 x_2)  ~>  TRAP
+  s; (f; (REF.ARRAY_ADDR a_1) (CONST I32 i_1) (REF.ARRAY_ADDR a_2) (CONST I32 i_2) (CONST I32 n) (ARRAY.COPY x_1 x_2); timestamp)  ~>  f'; TRAP; timestamp'
   ---- ----
-  -- if $(i_1 + n > |$arrayinst(z)[a_1].FIELDS|)
+  -- if $(i_1 + n > |$arrayinst((s; f))[a_1].FIELDS|)
 
 rule Step_read/array.copy-oob2:
-  z; (REF.ARRAY_ADDR a_1) (CONST I32 i_1) (REF.ARRAY_ADDR a_2) (CONST I32 i_2) (CONST I32 n) (ARRAY.COPY x_1 x_2)  ~>  TRAP
+  s; (f; (REF.ARRAY_ADDR a_1) (CONST I32 i_1) (REF.ARRAY_ADDR a_2) (CONST I32 i_2) (CONST I32 n) (ARRAY.COPY x_1 x_2); timestamp)  ~>  f'; TRAP; timestamp'
   ---- ----
-  -- if $(i_2 + n > |$arrayinst(z)[a_2].FIELDS|)
+  -- if $(i_2 + n > |$arrayinst((s; f))[a_2].FIELDS|)
 
 rule Step_read/array.copy-zero:
-  z; (REF.ARRAY_ADDR a_1) (CONST I32 i_1) (REF.ARRAY_ADDR a_2) (CONST I32 i_2) (CONST I32 n) (ARRAY.COPY x_1 x_2)  ~>  eps
+  s; (f; (REF.ARRAY_ADDR a_1) (CONST I32 i_1) (REF.ARRAY_ADDR a_2) (CONST I32 i_2) (CONST I32 n) (ARRAY.COPY x_1 x_2); timestamp)  ~>  f'; eps; timestamp'
   ---- ----
   -- otherwise
   -- if n = 0
 
 rule Step_read/array.copy-le:
-  z; (REF.ARRAY_ADDR a_1) (CONST I32 i_1) (REF.ARRAY_ADDR a_2) (CONST I32 i_2) (CONST I32 n) (ARRAY.COPY x_1 x_2)  ~>
+  s; (f; (REF.ARRAY_ADDR a_1) (CONST I32 i_1) (REF.ARRAY_ADDR a_2) (CONST I32 i_2) (CONST I32 n) (ARRAY.COPY x_1 x_2); timestamp)  ~>
+    f; 
     (REF.ARRAY_ADDR a_1) (CONST I32 i_1)
     (REF.ARRAY_ADDR a_2) (CONST I32 i_2)
     (ARRAY.GET sx? x_2) (ARRAY.SET x_1)
-    (REF.ARRAY_ADDR a_1) (CONST I32 $(i_1 + 1)) (REF.ARRAY_ADDR a_2) (CONST I32 $(i_2 + 1)) (CONST I32 $(n-1)) (ARRAY.COPY x_1 x_2)
+    (REF.ARRAY_ADDR a_1) (CONST I32 $(i_1 + 1)) (REF.ARRAY_ADDR a_2) (CONST I32 $(i_2 + 1)) (CONST I32 $(n-1)) (ARRAY.COPY x_1 x_2);
+    timestamp
   ---- ----
   -- otherwise
-  -- Expand: $type(z, x_2) ~~ ARRAY (mut? zt_2)
+  -- Expand: $type((s; f), x_2) ~~ ARRAY (mut? zt_2)
   -- if i_1 <= i_2
      /\ sx? = $sx(zt_2)
 
 rule Step_read/array.copy-gt:
-  z; (REF.ARRAY_ADDR a_1) (CONST I32 i_1) (REF.ARRAY_ADDR a_2) (CONST I32 i_2) (CONST I32 n) (ARRAY.COPY x_1 x_2)  ~>
+  s; (f; (REF.ARRAY_ADDR a_1) (CONST I32 i_1) (REF.ARRAY_ADDR a_2) (CONST I32 i_2) (CONST I32 n) (ARRAY.COPY x_1 x_2); timestamp)  ~>
+    f;
     (REF.ARRAY_ADDR a_1) (CONST I32 $(i_1 + n - 1))
     (REF.ARRAY_ADDR a_2) (CONST I32 $(i_2 + n - 1))
     (ARRAY.GET sx? x_2) (ARRAY.SET x_1)
-    (REF.ARRAY_ADDR a_1) (CONST I32 i_1) (REF.ARRAY_ADDR a_2) (CONST I32 i_2) (CONST I32 $(n-1)) (ARRAY.COPY x_1 x_2)
+    (REF.ARRAY_ADDR a_1) (CONST I32 i_1) (REF.ARRAY_ADDR a_2) (CONST I32 i_2) (CONST I32 $(n-1)) (ARRAY.COPY x_1 x_2);
+    timestamp
   ---- ----
   -- otherwise
-  -- Expand: $type(z, x_2) ~~ ARRAY (mut? zt_2)
+  -- Expand: $type((s; f), x_2) ~~ ARRAY (mut? zt_2)
   -- if sx? = $sx(zt_2)
 
 
 rule Step_read/array.init_elem-null:
-  z; (REF.NULL_ADDR) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_ELEM x y)  ~>  TRAP
+  s; (f; (REF.NULL_ADDR) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_ELEM x y); timestamp)  ~>  f'; TRAP; timestamp'
 
 rule Step_read/array.init_elem-oob1:
-  z; (REF.ARRAY_ADDR a) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_ELEM x y)  ~>  TRAP
+  s; (f; (REF.ARRAY_ADDR a) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_ELEM x y); timestamp)  ~>  f'; TRAP; timestamp'
   ---- ----
-  -- if $(i + n > |$arrayinst(z)[a].FIELDS|)
+  -- if $(i + n > |$arrayinst((s; f))[a].FIELDS|)
 
 rule Step_read/array.init_elem-oob2:
-  z; (REF.ARRAY_ADDR a) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_ELEM x y)  ~>  TRAP
+  s; (f; (REF.ARRAY_ADDR a) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_ELEM x y); timestamp)  ~>  f'; TRAP; timestamp'
   ---- ----
-  -- if $(j + n > |$elem(z, y).REFS|)
+  -- if $(j + n > |$elem((s; f), y).REFS|)
 
 rule Step_read/array.init_elem-zero:
-  z; (REF.ARRAY_ADDR a) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_ELEM x y)  ~>  eps
+  s; (f; (REF.ARRAY_ADDR a) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_ELEM x y); timestamp)  ~>  f'; eps; timestamp'
   ---- ----
   -- otherwise
   -- if n = 0
 
 rule Step_read/array.init_elem-succ:
-  z; (REF.ARRAY_ADDR a) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_ELEM x y)  ~>
+  s; (f; (REF.ARRAY_ADDR a) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_ELEM x y); timestamp)  ~>
+    f;
     (REF.ARRAY_ADDR a) (CONST I32 i) ref (ARRAY.SET x)
-    (REF.ARRAY_ADDR a) (CONST I32 $(i + 1)) (CONST I32 $(j + 1)) (CONST I32 $(n-1)) (ARRAY.INIT_ELEM x y)
+    (REF.ARRAY_ADDR a) (CONST I32 $(i + 1)) (CONST I32 $(j + 1)) (CONST I32 $(n-1)) (ARRAY.INIT_ELEM x y);
+    timestamp
   ---- ----
   -- otherwise
-  -- if ref = $elem(z, y).REFS[j]
+  -- if ref = $elem((s; f), y).REFS[j]
 
 
 rule Step_read/array.init_data-null:
-  z; (REF.NULL_ADDR) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_DATA x y)  ~>  TRAP
+  s; (f; (REF.NULL_ADDR) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_DATA x y); timestamp)  ~>  f'; TRAP; timestamp'
 
 rule Step_read/array.init_data-oob1:
-  z; (REF.ARRAY_ADDR a) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_DATA x y)  ~>  TRAP
+  s; (f; (REF.ARRAY_ADDR a) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_DATA x y); timestamp)  ~>  f'; TRAP; timestamp'
   ---- ----
-  -- if $(i + n > |$arrayinst(z)[a].FIELDS|)
+  -- if $(i + n > |$arrayinst((s; f))[a].FIELDS|)
 
 rule Step_read/array.init_data-oob2:
-  z; (REF.ARRAY_ADDR a) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_DATA x y)  ~>  TRAP
+  s; (f; (REF.ARRAY_ADDR a) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_DATA x y); timestamp)  ~>  f'; TRAP; timestamp'
   ---- ----
-  -- Expand: $type(z, x) ~~ ARRAY (mut? zt)
-  -- if $(j + n * $zsize(zt)/8 > |$data(z, y).BYTES|)
+  -- Expand: $type((s; f), x) ~~ ARRAY (mut? zt)
+  -- if $(j + n * $zsize(zt)/8 > |$data((s; f), y).BYTES|)
 
 rule Step_read/array.init_data-zero:
-  z; (REF.ARRAY_ADDR a) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_DATA x y)  ~>  eps
+  s; (f; (REF.ARRAY_ADDR a) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_DATA x y); timestamp)  ~>  f'; eps; timestamp'
   ---- ----
   -- otherwise
   -- if n = 0
 
 ;; TODO(2, rossberg): outline Cnn = $cunpack(zt)
 rule Step_read/array.init_data-num:
-  z; (REF.ARRAY_ADDR a) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_DATA x y)  ~>
+  s; (f; (REF.ARRAY_ADDR a) (CONST I32 i) (CONST I32 j) (CONST I32 n) (ARRAY.INIT_DATA x y); timestamp)  ~>
+    f; 
     (REF.ARRAY_ADDR a) (CONST I32 i) ($const($cunpack(zt), $cunpacknum_(zt, c))) (ARRAY.SET x)
-    (REF.ARRAY_ADDR a) (CONST I32 $(i + 1)) (CONST I32 $(j + $zsize(zt)/8)) (CONST I32 $(n-1)) (ARRAY.INIT_DATA x y)
+    (REF.ARRAY_ADDR a) (CONST I32 $(i + 1)) (CONST I32 $(j + $zsize(zt)/8)) (CONST I32 $(n-1)) (ARRAY.INIT_DATA x y);
+    timestamp
   ---- ----
   -- otherwise
-  -- Expand: $type(z, x) ~~ ARRAY (mut? zt)
-  -- if $zbytes_(zt, c) = $data(z, y).BYTES[j : $zsize(zt)/8]
+  -- Expand: $type((s; f), x) ~~ ARRAY (mut? zt)
+  -- if $zbytes_(zt, c) = $data((s; f), y).BYTES[j : $zsize(zt)/8]
 
 
 ;; External reference instructions
 
 rule Step_pure/extern.convert_any-null:
-  ref EXTERN.CONVERT_ANY  ~>  REF.NULL_ADDR
+  f; ref EXTERN.CONVERT_ANY; timestamp  ~>  f'; REF.NULL_ADDR; timestamp'
   -- if ref = REF.NULL_ADDR
 
 rule Step_pure/extern.convert_any-addr:
-  ref EXTERN.CONVERT_ANY  ~>  (REF.EXTERN ref)
+f; ref EXTERN.CONVERT_ANY; timestamp  ~>  f'; (REF.EXTERN ref); timestamp'
   -- otherwise
 
 
 rule Step_pure/any.convert_extern-null:
-  (REF.NULL_ADDR) ANY.CONVERT_EXTERN  ~>  REF.NULL_ADDR
+  f; (REF.NULL_ADDR) ANY.CONVERT_EXTERN; timestamp  ~>  f'; REF.NULL_ADDR; timestamp'
 
 rule Step_pure/any.convert_extern-addr:
-  (REF.EXTERN ref) ANY.CONVERT_EXTERN  ~>  ref
+  f; (REF.EXTERN ref) ANY.CONVERT_EXTERN; timestamp  ~>  f'; ref; timestamp'
 
 
 ;; Numeric instructions
 
 rule Step_pure/unop-val:
-  (CONST nt c_1) (UNOP nt unop)  ~>  (CONST nt c)
+  f; (CONST nt c_1) (UNOP nt unop); timestamp  ~>  f'; (CONST nt c); timestamp'
   -- if c <- $unop_(nt, unop, c_1)
 
 rule Step_pure/unop-trap:
-  (CONST nt c_1) (UNOP nt unop)  ~>  TRAP
+  f; (CONST nt c_1) (UNOP nt unop); timestamp  ~>  f'; TRAP; timestamp'
   -- if $unop_(nt, unop, c_1) = eps
 
 
 rule Step_pure/binop-val:
-  (CONST nt c_1) (CONST nt c_2) (BINOP nt binop)  ~>  (CONST nt c)
+  f; (CONST nt c_1) (CONST nt c_2) (BINOP nt binop); timestamp  ~>  f'; (CONST nt c); timestamp'
   -- if c <- $binop_(nt, binop, c_1, c_2)
 
 rule Step_pure/binop-trap:
-  (CONST nt c_1) (CONST nt c_2) (BINOP nt binop)  ~>  TRAP
+  f; (CONST nt c_1) (CONST nt c_2) (BINOP nt binop); timestamp  ~>  f'; TRAP; timestamp'
   -- if $binop_(nt, binop, c_1, c_2) = eps
 
 
 rule Step_pure/testop:
-  (CONST nt c_1) (TESTOP nt testop)  ~>  (CONST I32 c)
+  f; (CONST nt c_1) (TESTOP nt testop); timestamp  ~>  f'; (CONST I32 c); timestamp'
   -- if c = $testop_(nt, testop, c_1)
 
 rule Step_pure/relop:
-  (CONST nt c_1) (CONST nt c_2) (RELOP nt relop)  ~>  (CONST I32 c)
+  f; (CONST nt c_1) (CONST nt c_2) (RELOP nt relop); timestamp  ~>  f'; (CONST I32 c); timestamp'
   -- if c = $relop_(nt, relop, c_1, c_2)
 
 
 rule Step_pure/cvtop-val:
-  (CONST nt_1 c_1) (CVTOP nt_2 nt_1 cvtop)  ~>  (CONST nt_2 c)
+  f; (CONST nt_1 c_1) (CVTOP nt_2 nt_1 cvtop); timestamp  ~>  f'; (CONST nt_2 c); timestamp'
   -- if c <- $cvtop__(nt_1, nt_2, cvtop, c_1)
 
 rule Step_pure/cvtop-trap:
-  (CONST nt_1 c_1) (CVTOP nt_2 nt_1 cvtop)  ~>  TRAP
+  f; (CONST nt_1 c_1) (CVTOP nt_2 nt_1 cvtop); timestamp  ~>  f'; TRAP; timestamp'
   -- if $cvtop__(nt_1, nt_2, cvtop, c_1) = eps
 
 
 ;; Vector instructions
 
 rule Step_pure/vvunop:
-  (VCONST V128 c_1) (VVUNOP V128 vvunop)  ~>  (VCONST V128 c)
+  f; (VCONST V128 c_1) (VVUNOP V128 vvunop); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   -- if c <- $vvunop_(V128, vvunop, c_1)
 
 
 rule Step_pure/vvbinop:
-  (VCONST V128 c_1) (VCONST V128 c_2) (VVBINOP V128 vvbinop)  ~>  (VCONST V128 c)
+  f; (VCONST V128 c_1) (VCONST V128 c_2) (VVBINOP V128 vvbinop); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   -- if c <- $vvbinop_(V128, vvbinop, c_1, c_2)
 
 
 rule Step_pure/vvternop:
-  (VCONST V128 c_1) (VCONST V128 c_2) (VCONST V128 c_3) (VVTERNOP V128 vvternop)  ~>  (VCONST V128 c)
+  f; (VCONST V128 c_1) (VCONST V128 c_2) (VCONST V128 c_3) (VVTERNOP V128 vvternop); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   ----
   -- if c <- $vvternop_(V128, vvternop, c_1, c_2, c_3)
 
 
 rule Step_pure/vvtestop:
-  (VCONST V128 c_1) (VVTESTOP V128 ANY_TRUE) ~> (CONST I32 c)
+  f; (VCONST V128 c_1) (VVTESTOP V128 ANY_TRUE); timestamp ~> f'; (CONST I32 c); timestamp'
   -- if c = $inez_($vsize(V128), c_1)
 
 
 rule Step_pure/vunop-val:
-  (VCONST V128 c_1) (VUNOP sh vunop)  ~>  (VCONST V128 c)
+  f; (VCONST V128 c_1) (VUNOP sh vunop); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   -- if c <- $vunop_(sh, vunop, c_1)
 
 rule Step_pure/vunop-trap:
-  (VCONST V128 c_1) (VUNOP sh vunop)  ~>  TRAP
+  f; (VCONST V128 c_1) (VUNOP sh vunop); timestamp  ~>  f'; TRAP; timestamp'
   -- if $vunop_(sh, vunop, c_1) = eps
 
 
 rule Step_pure/vbinop-val:
-  (VCONST V128 c_1) (VCONST V128 c_2) (VBINOP sh vbinop)  ~>  (VCONST V128 c)
+  f; (VCONST V128 c_1) (VCONST V128 c_2) (VBINOP sh vbinop); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   -- if c <- $vbinop_(sh, vbinop, c_1, c_2)
 
 rule Step_pure/vbinop-trap:
-  (VCONST V128 c_1) (VCONST V128 c_2) (VBINOP sh vbinop)  ~>  TRAP
+  f; (VCONST V128 c_1) (VCONST V128 c_2) (VBINOP sh vbinop); timestamp  ~>  f'; TRAP; timestamp'
   -- if $vbinop_(sh, vbinop, c_1, c_2) = eps
 
 
 rule Step_pure/vternop-val:
-  (VCONST V128 c_1) (VCONST V128 c_2) (VCONST V128 c_3) (VTERNOP sh vternop)  ~>  (VCONST V128 c)
+  f; (VCONST V128 c_1) (VCONST V128 c_2) (VCONST V128 c_3) (VTERNOP sh vternop); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   -- if c <- $vternop_(sh, vternop, c_1, c_2, c_3)
 
 rule Step_pure/vternop-trap:
-  (VCONST V128 c_1) (VCONST V128 c_2) (VCONST V128 c_3) (VTERNOP sh vternop)  ~>  TRAP
+  f; (VCONST V128 c_1) (VCONST V128 c_2) (VCONST V128 c_3) (VTERNOP sh vternop); timestamp  ~>  f'; TRAP; timestamp'
   -- if $vternop_(sh, vternop, c_1, c_2, c_3) = eps
 
 
 rule Step_pure/vtestop:
-  (VCONST V128 c_1) (VTESTOP (Jnn X M) ALL_TRUE) ~> (CONST I32 c)
+  f; (VCONST V128 c_1) (VTESTOP (Jnn X M) ALL_TRUE); timestamp ~> f'; (CONST I32 c); timestamp'
   -- if i* = $lanes_(Jnn X M, c_1)
   -- if c = $prod(($inez_($jsizenn(Jnn), i)*))
 
 
 rule Step_pure/vrelop:
-  (VCONST V128 c_1) (VCONST V128 c_2) (VRELOP sh vrelop)  ~>  (VCONST V128 c)
+  f; (VCONST V128 c_1) (VCONST V128 c_2) (VRELOP sh vrelop); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   -- if c = $vrelop_(sh, vrelop, c_1, c_2)
 
 
 rule Step_pure/vshiftop:
-  (VCONST V128 c_1) (CONST I32 i) (VSHIFTOP sh vshiftop)  ~>  (VCONST V128 c)
+  f; (VCONST V128 c_1) (CONST I32 i) (VSHIFTOP sh vshiftop); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   -- if c = $vshiftop_(sh, vshiftop, c_1, i)
 
 
 rule Step_pure/vbitmask:
-  (VCONST V128 c_1) (VBITMASK sh)  ~>  (CONST I32 c)
+  f; (VCONST V128 c_1) (VBITMASK sh); timestamp  ~>  f'; (CONST I32 c); timestamp'
   -- if c = $vbitmaskop_(sh, c_1)
 
 
 rule Step_pure/vswizzlop:
-  (VCONST V128 c_1) (VCONST V128 c_2) (VSWIZZLOP sh swizzlop)  ~>  (VCONST V128 c)
+  f; (VCONST V128 c_1) (VCONST V128 c_2) (VSWIZZLOP sh swizzlop); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   -- if c = $vswizzlop_(sh, swizzlop, c_1, c_2)
 
 
 rule Step_pure/vshuffle:
-  (VCONST V128 c_1) (VCONST V128 c_2) (VSHUFFLE sh i*)  ~>  (VCONST V128 c)
+  f; (VCONST V128 c_1) (VCONST V128 c_2) (VSHUFFLE sh i*); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   -- if c = $vshufflop_(sh, i*, c_1, c_2)
 
 
 rule Step_pure/vsplat:
-  (CONST $lunpack(Lnn) c_1) (VSPLAT (Lnn X M))  ~>  (VCONST V128 c)
+  f; (CONST $lunpack(Lnn) c_1) (VSPLAT (Lnn X M)); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   -- if c = $inv_lanes_(Lnn X M, $lpacknum_(Lnn, c_1)^M)
 
 
 rule Step_pure/vextract_lane-num:
-  (VCONST V128 c_1) (VEXTRACT_LANE (nt X M) i)  ~>  (CONST nt c_2)
+  f; (VCONST V128 c_1) (VEXTRACT_LANE (nt X M) i); timestamp  ~>  f'; (CONST nt c_2); timestamp'
   -- if c_2 = $lanes_(nt X M, c_1)[i]
 
 rule Step_pure/vextract_lane-pack:
-  (VCONST V128 c_1) (VEXTRACT_LANE (pt X M) sx i)  ~>  (CONST I32 c_2)
+  f; (VCONST V128 c_1) (VEXTRACT_LANE (pt X M) sx i); timestamp  ~>  f'; (CONST I32 c_2); timestamp'
   -- if c_2 = $extend__($psize(pt), 32, sx, $lanes_(pt X M, c_1)[i])
 
 
 rule Step_pure/vreplace_lane:
-  (VCONST V128 c_1) (CONST $lunpack(Lnn) c_2) (VREPLACE_LANE (Lnn X M) i)  ~>  (VCONST V128 c)
+  f; (VCONST V128 c_1) (CONST $lunpack(Lnn) c_2) (VREPLACE_LANE (Lnn X M) i); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   ---- ----
   -- if c = $inv_lanes_(Lnn X M, $lanes_(Lnn X M, c_1)[[i] = $lpacknum_(Lnn, c_2)])
 
 
 rule Step_pure/vextunop:
-  (VCONST V128 c_1) (VEXTUNOP sh_2 sh_1 vextunop)  ~>  (VCONST V128 c)
+  f; (VCONST V128 c_1) (VEXTUNOP sh_2 sh_1 vextunop); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   -- if $vextunop__(sh_1, sh_2, vextunop, c_1) = c
 
 
 rule Step_pure/vextbinop:
-  (VCONST V128 c_1) (VCONST V128 c_2) (VEXTBINOP sh_2 sh_1 vextbinop)  ~>  (VCONST V128 c)
+  f; (VCONST V128 c_1) (VCONST V128 c_2) (VEXTBINOP sh_2 sh_1 vextbinop); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   -- if $vextbinop__(sh_1, sh_2, vextbinop, c_1, c_2) = c
 
 
 rule Step_pure/vextternop:
-  (VCONST V128 c_1) (VCONST V128 c_2) (VCONST V128 c_3) (VEXTTERNOP sh_2 sh_1 vextternop)  ~>  (VCONST V128 c)
+  f; (VCONST V128 c_1) (VCONST V128 c_2) (VCONST V128 c_3) (VEXTTERNOP sh_2 sh_1 vextternop); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   ----
   -- if $vextternop__(sh_1, sh_2, vextternop, c_1, c_2, c_3) = c
 
 
 rule Step_pure/vnarrow:
-  (VCONST V128 c_1) (VCONST V128 c_2) (VNARROW sh_2 sh_1 sx)  ~>  (VCONST V128 c)
+  f; (VCONST V128 c_1) (VCONST V128 c_2) (VNARROW sh_2 sh_1 sx); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   -- if c = $vnarrowop__(sh_1, sh_2, sx, c_1, c_2)
 
 
 rule Step_pure/vcvtop:
-  (VCONST V128 c_1) (VCVTOP sh_2 sh_1 vcvtop)  ~>  (VCONST V128 c)
+  f; (VCONST V128 c_1) (VCVTOP sh_2 sh_1 vcvtop); timestamp  ~>  f'; (VCONST V128 c); timestamp'
   -- if c = $vcvtop__(sh_1, sh_2, vcvtop, c_1)
-
 
 ;; Expressions
 
 relation Eval_expr: state; expr ~>* state; val*  hint(name "E-expr") hint(macro "steptostar") hint(tabular)
 
+(;
 rule Eval_expr:
-  z; instr*  ~>*  z'; val*
-  -- Steps: z; instr*  ~>*  z'; val*
+  s; f; instr*  ~>*  s'; f'; val*
+  -- Steps: s; f; instr*; timestamp  ~>*  s'; f'; val*; timestamp'
+;)

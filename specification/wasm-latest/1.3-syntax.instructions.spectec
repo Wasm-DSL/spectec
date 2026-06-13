@@ -629,10 +629,12 @@ syntax timestamp = nat
 syntax ord = 
   | UNORD | SEQCST | INIT
 
+syntax notears = NOTEAR
+
 syntax action = 
-  | RD ord location storeval
-  | WR ord location storeval
-  | RMW location storeval
+  | RD ord location storeval notears?
+  | WR ord location storeval notears?
+  | RMW location storeval storeval
   | WAIT location s64
   | WOKEN location
   | TIMEOUT location

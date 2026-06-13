@@ -141,7 +141,7 @@ grammar Tglobaltype_(I) : globaltype =
   | "(" "mut" t:Tvaltype_(I) ")" => MUT t
 
 grammar Tmemtype_(I) : memtype =
-  | at:Taddrtype lim:Tlimits => at lim PAGE
+  | at:Taddrtype lim:Tlimits => at lim share PAGE
 
 grammar Ttabletype_(I) : tabletype =
   | at:Taddrtype lim:Tlimits rt:Treftype_(I) => at lim rt

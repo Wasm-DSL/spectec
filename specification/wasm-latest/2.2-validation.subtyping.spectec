@@ -225,7 +225,7 @@ rule Globaltype_sub/var:
   -- Valtype_sub: C |- valtype_2 <: valtype_1
 
 rule Memtype_sub:
-  C |- addrtype limits_1 PAGE <: addrtype limits_2 PAGE
+  C |- addrtype limits_1 share PAGE <: addrtype limits_2 share PAGE
   -- Limits_sub: C |- limits_1 <: limits_2
 
 rule Tabletype_sub:

@@ -415,24 +415,24 @@ rule Memarg_ok:
 
 rule Instr_ok/memory.size:
   C |- MEMORY.SIZE x : eps -> at
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
 
 rule Instr_ok/memory.grow:
   C |- MEMORY.GROW x : at -> at
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
 
 rule Instr_ok/memory.fill:
   C |- MEMORY.FILL x : at I32 at -> eps
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
 
 rule Instr_ok/memory.copy:
   C |- MEMORY.COPY x_1 x_2 : at_1 at_2 $minat(at_1, at_2) -> eps
-  -- if C.MEMS[x_1] = at_1 lim_1 PAGE
-  -- if C.MEMS[x_2] = at_2 lim_2 PAGE
+  -- if C.MEMS[x_1] = at_1 lim_1 share PAGE
+  -- if C.MEMS[x_2] = at_2 lim_2 share PAGE
 
 rule Instr_ok/memory.init:
   C |- MEMORY.INIT x y : at I32 I32 -> eps
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- if C.DATAS[y] = OK
 
 rule Instr_ok/data.drop:
@@ -442,7 +442,7 @@ rule Instr_ok/data.drop:
 (;
 rule Instr_ok/load:
   C |- LOAD nt (N _ sx)? x memarg : at -> nt
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- if $(2^(memarg.ALIGN) <= $size(nt)/8)
   -- if $(2^(memarg.ALIGN) <= N/8 < $size(nt)/8)?
   -- if N? = eps \/ nt = Inn
@@ -450,18 +450,18 @@ rule Instr_ok/load:
 
 rule Instr_ok/load-val:
   C |- LOAD nt x memarg : at -> nt
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- Memarg_ok: |- memarg : at -> $size(nt)
 
 rule Instr_ok/load-pack:
   C |- LOAD Inn (M _ sx) x memarg : at -> Inn
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- Memarg_ok: |- memarg : at -> M
 
 (;
 rule Instr_ok/store:
   C |- STORE nt N? x memarg : at nt -> eps
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- if $(2^(memarg.ALIGN) <= $size(nt)/8)
   -- if $(2^(memarg.ALIGN) <= N/8 < $size(nt)/8)?
   -- if N? = eps \/ nt = Inn
@@ -469,48 +469,48 @@ rule Instr_ok/store:
 
 rule Instr_ok/store-val:
   C |- STORE nt x memarg : at nt -> eps
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- Memarg_ok: |- memarg : at -> $size(nt)
 
 rule Instr_ok/store-pack:
   C |- STORE Inn M x memarg : at Inn -> eps
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- Memarg_ok: |- memarg : at -> M
 
 rule Instr_ok/vload-val:
   C |- VLOAD V128 x memarg : at -> V128
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- Memarg_ok: |- memarg : at -> $vsize(V128)
 
 rule Instr_ok/vload-pack:
   C |- VLOAD V128 (SHAPE M X N _ sx) x memarg : at -> V128
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- Memarg_ok: |- memarg : at -> $(M*N)
 
 rule Instr_ok/vload-splat:
   C |- VLOAD V128 (SPLAT N) x memarg : at -> V128
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- Memarg_ok: |- memarg : at -> N
 
 rule Instr_ok/vload-zero:
   C |- VLOAD V128 (ZERO N) x memarg : at -> V128
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- Memarg_ok: |- memarg : at -> N
 
 rule Instr_ok/vload_lane:
   C |- VLOAD_LANE V128 N x memarg i : at V128 -> V128
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- Memarg_ok: |- memarg : at -> N
   -- if $(i < 128/N)
 
 rule Instr_ok/vstore:
   C |- VSTORE V128 x memarg : at V128 -> eps
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- Memarg_ok: |- memarg : at -> $vsize(V128)
 
 rule Instr_ok/vstore_lane:
   C |- VSTORE_LANE V128 N x memarg i : at V128 -> eps
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- Memarg_ok: |- memarg : at -> N
   -- if $(i < 128/N)
 
@@ -518,52 +518,52 @@ rule Instr_ok/vstore_lane:
 
 rule Instr_ok/atomic.load-val:
   C |- ATOMIC.LOAD inntype x memarg : at -> inntype
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- if $(2^(memarg.ALIGN) <= $size(inntype)/8)
 
 rule Instr_ok/atomic.load-pack:
   C |- ATOMIC.LOAD inntype (M _ U) x memarg : at -> inntype
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- if $(2^(memarg.ALIGN) <= M/8)
 
 rule Instr_ok/atomic.store-val:
   C |- ATOMIC.STORE inntype x memarg : at inntype -> eps
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- if $(2^(memarg.ALIGN) <= $size(inntype)/8)
 
 rule Instr_ok/atomic.store-pack:
   C |- ATOMIC.STORE inntype M x memarg : at inntype -> eps
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- if $(2^(memarg.ALIGN) <= M/8)
 
 rule Instr_ok/atomic.rmw-val:
   C |- ATOMIC.RMW inntype rmwop x memarg : at inntype -> inntype
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- if $(2^(memarg.ALIGN) <= $size(inntype)/8)
 
 rule Instr_ok/atomic.rmw-pack:
   C |- ATOMIC.RMW inntype M rmwop x memarg : at inntype -> inntype
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- if $(2^(memarg.ALIGN) <= M/8)
  
 rule Instr_ok/atomic.rmw.cmpxchg-val:
   C |- ATOMIC.RMW.CMPXCHG inntype rmwop x memarg : at inntype inntype -> inntype
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- if $(2^(memarg.ALIGN) <= $size(inntype)/8)
 
 rule Instr_ok/atomic.rmw.cmpxchg-pack:
   C |- ATOMIC.RMW.CMPXCHG inntype M x memarg : at inntype inntype -> inntype
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- if $(2^(memarg.ALIGN) <= M/8)
 
 rule Instr_ok/memory.atomic.notify:
   C |- MEMORY.ATOMIC.NOTIFY x memarg : at I32 -> I32
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- if $(2^(memarg.ALIGN) = 4)
 
 rule Instr_ok/memory.atomic.wait:
   C |- MEMORY.ATOMIC.WAIT inntype x memarg : at inntype I64 -> I32
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- if $(2^(memarg.ALIGN) <= $size(inntype)/8)
 
 rule Instr_ok/atomic.fence:

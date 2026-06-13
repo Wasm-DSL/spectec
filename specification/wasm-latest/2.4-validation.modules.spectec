@@ -73,7 +73,7 @@ rule Datamode_ok/passive:
 
 rule Datamode_ok/active:
   C |- ACTIVE x expr : OK
-  -- if C.MEMS[x] = at lim PAGE
+  -- if C.MEMS[x] = at lim share PAGE
   -- Expr_ok_const: C |- expr : at CONST
 
 rule Elemmode_ok/passive:

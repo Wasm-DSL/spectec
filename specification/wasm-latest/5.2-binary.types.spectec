@@ -93,7 +93,7 @@ grammar Bglobaltype : globaltype =
   | t:Bvaltype mut?:Bmut => mut? t
 
 grammar Bmemtype : memtype =
-  | (at,lim):Blimits => at lim PAGE
+  | (at,lim):Blimits => at lim share PAGE
 
 grammar Btabletype : tabletype =
   | rt:Breftype (at,lim):Blimits => at lim rt

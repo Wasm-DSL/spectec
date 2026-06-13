@@ -14,6 +14,7 @@ syntax sN(N) hint(desc "signed integer") hint(show s#%) hint(macro "sNX") =
 syntax iN(N) hint(desc "integer") hint(show i#%) hint(macro "iNX") =
   uN(N)
 
+syntax u0  = uN(`0)
 syntax u8  = uN(`8)
 syntax u16 = uN(`16)
 syntax u31 = uN(`31)

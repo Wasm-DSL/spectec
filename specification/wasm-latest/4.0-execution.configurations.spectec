@@ -63,8 +63,8 @@ syntax taginst hint(desc "tag instance") hint(macro "%" "HI%") =
 syntax globalinst hint(desc "global instance") hint(macro "%" "GI%") =
   { TYPE globaltype, VALUE val }
 
-syntax meminst hint(desc "memory instance") hint(macro "%" "MI%") =
-  { TYPE memtype, BYTES byte* }
+syntax meminst hint(desc "memory instance") hint(macro "%" "MI%") =  { TYPE memtype, BYTES byte* }
+;; |  { TYPE (addrtype limits SHARED PAGE) }
 
 syntax tableinst hint(desc "table instance") hint(macro "%" "TI%") =
   { TYPE tabletype, REFS ref* }
@@ -141,10 +141,11 @@ syntax instr/admin hint(desc "administrative instruction") =
 
 
 ;; Configurations
-
+syntax thread hint(desc "thread") = frame; instr*; timestamp
 syntax state hint(desc "state") = store; frame
-syntax config hint(desc "configuration") = state; instr*
-
+;;syntax config hint(desc "configuration") = state; instr*
+syntax config hint(desc "configuration") = store; thread*
+syntax lconfig hint(desc "local configuration") = store; thread
 
 ;; Meta variables
 
@@ -296,6 +297,24 @@ def $with_data((s; f), x, b*) = s[.DATAS[f.MODULE.DATAS[x]].BYTES = b*]; f
 def $with_struct((s; f), a, i, fv) = s[.STRUCTS[a].FIELDS[i] = fv]; f
 def $with_array((s; f), a, i, fv) = s[.ARRAYS[a].FIELDS[i] = fv]; f
 
+;; Concurrency State Update
+
+def $c_with_mem(state, memidx, nat, nat, byte*) : store       hint(show %[.MEMS[%].BYTES[% : %] = %]) hint(macro "ZM%") hint(prose "Replace" $mem(%1, %2).BYTES[%3:%4] "with" %5)
+def $c_with_mem((s; f), x, i, j, b*) = s[.MEMS[f.MODULE.MEMS[x]].BYTES[i : j] = b*]
+def $c_with_meminst(state, memidx, meminst) : store           hint(show %[.MEMS[%] = %])              hint(macro "Z%")  hint(prose "Replace" $meminst(%1)[%2] "with" %3)
+def $c_with_meminst((s; f), x, mi) = s[.MEMS[f.MODULE.MEMS[x]] = mi]
+def $c_with_data(state, dataidx, byte*) : store               hint(show %[.DATAS[%].BYTES = %])       hint(macro "ZD%") hint(prose "Replace" $data(%1, %2).BYTES "with" %3)
+def $c_with_data((s; f), x, b*) = s[.DATAS[f.MODULE.DATAS[x]].BYTES = b*]
+def $c_with_struct(state, structaddr, nat, fieldval) : store  hint(show %[.STRUCTS[%].FIELDS[%] = %]) hint(macro "ZS%") hint(prose "Replace" $structinst(%1)[%2].FIELDS[%3] "with" %4)
+def $c_with_struct((s; f), a, i, fv) = s[.STRUCTS[a].FIELDS[i] = fv]
+def $c_add_structinst(state, structinst*) : store  hint(show %[.STRUCTS =++ %]) hint(macro "Z%") hint(prose "Append" %2 "to" $structinst(%1))
+def $c_with_array(state, arrayaddr, nat, fieldval) : store    hint(show %[.ARRAYS[%].FIELDS[%] = %])  hint(macro "ZA%") hint(prose "Replace" $arrayinst(%1)[%2].FIELDS[%3] "with" %4)
+def $c_with_array((s; f), a, i, fv) = s[.ARRAYS[a].FIELDS[i] = fv]
+
+
+def $c_add_arrayinst(state, arrayinst*) : store    hint(show %[.ARRAYS =++ %])  hint(macro "Z%") hint(prose "Append" %2 "to" $arrayinst(%1))
+def $c_add_structinst((s; f), si*) = s[.STRUCTS =++ si*]
+def $c_add_arrayinst((s; f), ai*) = s[.ARRAYS =++ ai*]
 
 def $add_structinst(state, structinst*) : state  hint(show %[.STRUCTS =++ %]) hint(macro "Z%") hint(prose "Append" %2 "to" $structinst(%1))
 def $add_arrayinst(state, arrayinst*) : state    hint(show %[.ARRAYS =++ %])  hint(macro "Z%") hint(prose "Append" %2 "to" $arrayinst(%1))
@@ -318,8 +337,8 @@ def $growtable(tableinst, n, r) = tableinst'
   -- (if i' <= j)?
 
 def $growmem(meminst, n) = meminst'
-  -- if meminst = { TYPE (at `[i .. j?] PAGE), BYTES b* }
-  -- if meminst' = { TYPE (at `[i' .. j?] PAGE), BYTES b* (0x00)^(n * $($(64 * $Ki))) }
+  -- if meminst = { TYPE (at `[i .. j?] share PAGE), BYTES b* }
+  -- if meminst' = { TYPE (at `[i' .. j?] share PAGE), BYTES b* (0x00)^(n * $($(64 * $Ki))) }
   -- if $(i' = |b*| / (64 * $Ki) + n)
   -- (if i' <= j)?
 
@@ -338,7 +357,7 @@ def $timep(ev) = ev.TIMEp
 def $locationf(action): location
 def $locationf(RD ord location storeval) = location
 def $locationf(WR ord location storeval) = location
-def $locationf(RMW location storeval) = location
+def $locationf(RMW location storeval storeval) = location
 def $locationf(WAIT location s64) = location
 def $locationf(WOKEN location) = location
 def $locationf(TIMEOUT location) = location
@@ -353,7 +372,7 @@ def $locinregion(reg1 u32, reg) = false -- otherwise
 def $ordf(action): ord
 def $ordf(RD ord location storeval) = ord
 def $ordf(WR ord location storeval) = ord
-def $ordf(RMW location storeval) = SEQCST
+def $ordf(RMW location storeval storeval1) = SEQCST
 
 def $overlap(action, action): bool
 def $overlap(action1, action2) = true
@@ -494,6 +513,9 @@ def $access1_r(reg, evt, syntax X, $p) = $p($access_r(reg, evt))
 def $happensbefore(event, event): bool    hint(show %1 <<_hb %2)
 def $happensbefore  hint(builtin)
 
+def $timestamphappensbefore(timestamp, timestamp): bool    hint(show %1 <<_hb %2)
+def $timestamphappensbefore  hint(builtin)
+
 def $tot(event, event): bool    hint(show %1 <<_tot %2)
 def $tot  hint(builtin)
 
@@ -505,3 +527,5 @@ def $suspfilter(region, u32, event*) : event*
 def $suspfilter(reg, u32, eps) = eps
 def $suspfilter(reg, u32, evt' evt*) = evt' $suspfilter(reg, u32, evt*) 
 -- if $susp(u32, $access_r(reg, evt')) =/= eps
+
+def $tearing(numtype, nat, u64): notears?

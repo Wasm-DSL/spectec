@@ -221,7 +221,7 @@ rule Globaltype_ok:
   -- Valtype_ok: C |- t : OK
 
 rule Memtype_ok:
-  C |- addrtype limits PAGE : OK
+  C |- addrtype limits share PAGE : OK
   -- Limits_ok: C |- limits : $(2^($size(addrtype) - 16))
 
 rule Tabletype_ok:

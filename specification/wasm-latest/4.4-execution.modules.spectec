@@ -35,9 +35,9 @@ def $allocglobals(s, globaltype globaltype'*, val val'*) = (s_2, ga ga'*)
   -- if (s_2, ga'*) = $allocglobals(s_1, globaltype'*, val'*)
 
 def $allocmem(store, memtype) : (store, memaddr)
-def $allocmem(s, at `[i .. j?] PAGE) = (s ++ {MEMS meminst}, |s.MEMS|)
+def $allocmem(s, at `[i .. j?] share PAGE) = (s ++ {MEMS meminst}, |s.MEMS|)
   ---- ----
-  -- if meminst = { TYPE (at `[i .. j?] PAGE), BYTES (0x00)^(i * $($(64 * $Ki))) }
+  -- if meminst = { TYPE (at `[i .. j?] share PAGE), BYTES (0x00)^(i * $($(64 * $Ki))) }
 
 def $allocmems(store, memtype*) : (store, memaddr*) hint(show $allocmem*#((%,%))) hint(prose_allocxs)
 def $allocmems(s, eps) = (s, eps)
@@ -180,6 +180,7 @@ def $evalglobals(z, gt gt'*, expr expr'*) = (z'', val val'*)
   -- if (s', a) = $allocglobal(s, gt, val)
   -- if (z'', val'*) = $evalglobals((s'; f[.MODULE.GLOBALS =++ a]), gt'*, expr'*)
 
+(;
 def $instantiate(store, module, externaddr*) : config
 def $instantiate(s, module, externaddr*) = s''''; {MODULE moduleinst}; instr_E* instr_D* instr_S?
   ---- ----
@@ -208,7 +209,6 @@ def $instantiate(s, module, externaddr*) = s''''; {MODULE moduleinst}; instr_E* 
   -- if instr_E* = $concat_(instr, $runelem_(i_E, elem*[i_E])^(i_E<|elem*|))
   -- if instr_S? = (CALL x)?
 
-
 ;; Invocation
 
 def $invoke(store, funcaddr, val*) : config
@@ -216,3 +216,4 @@ def $invoke(s, funcaddr, val*) = s; {MODULE {}}; val* (REF.FUNC_ADDR funcaddr) (
   ----
   -- Expand: s.FUNCS[funcaddr].TYPE ~~ FUNC t_1* -> t_2*
   -- (Val_ok: s |- val : t_1)*
+;)
