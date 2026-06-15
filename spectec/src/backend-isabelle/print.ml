@@ -936,14 +936,13 @@ let exported_string =
   "fun option_append :: \"'a option " ^ ra ^ " 'a option " ^ ra ^ " 'a option\" (infixl \"@@@\" 70) where\n" ^
   "\t\"option_append (Some x) _ = Some x\" |\n" ^
   "\t\"option_append None y = y\"\n\n" ^
-  "fun list_alli_aux :: \"(nat " ^ ra ^ " 'a " ^ ra ^ "bool) " ^ ra ^ " nat " ^ ra ^ " 'a list " ^ ra ^ " bool\" where\n" ^
+  "fun list_alli_aux :: \"(nat " ^ ra ^ " 'a " ^ ra ^ " bool) " ^ ra ^ " nat " ^ ra ^ " 'a list " ^ ra ^ " bool\" where\n" ^
   "\t\"list_alli_aux f n [] = True\" |\n" ^
   "\t\"list_alli_aux f n (x # q) = (f n x ∧ list_alli_aux f (Suc n) q)\"\n\n" ^
-  "definition list_alli :: \"(nat " ^ ra ^ " 'a " ^ ra ^ "bool) " ^ ra ^ " 'a list " ^ ra ^ " bool\" where\n" ^
+  "definition list_alli :: \"(nat " ^ ra ^ " 'a " ^ ra ^ " bool) " ^ ra ^ " 'a list " ^ ra ^ " bool\" where\n" ^
   "\t\"list_alli f l = list_alli_aux f 0 l\"\n\n" ^
-  "fun holds_upto :: \"(nat " ^ ra ^ " bool) " ^ ra ^ " nat " ^ ra ^ " bool\" where\n" ^
-  "\t\"holds_upto P 0 = P 0\" |\n" ^
-  "\t\"holds_upto P (Suc n) = (P (Suc n) ∧ holds_upto P n)\"\n\n"
+  "definition holds_upto :: \"(nat " ^ ra ^ " bool) " ^ ra ^ " nat " ^ ra ^ " bool\" where\n" ^
+  "\t\"holds_upto P n ≡ ∀ i < n. P i\"\n\n"
         
 
 
