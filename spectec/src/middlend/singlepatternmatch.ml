@@ -252,7 +252,6 @@ let transform_case_typ t =
 
 let package_case_tup l at typ =
   match l with
-  | [e] -> e
   | _ -> TupE l $$ (at, typ)
 
 let rec get_arg_types = function
