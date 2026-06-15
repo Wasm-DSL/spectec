@@ -145,7 +145,7 @@ syntax thread hint(desc "thread") = frame; instr*; timestamp
 syntax state hint(desc "state") = store; frame
 ;;syntax config hint(desc "configuration") = state; instr*
 syntax config hint(desc "configuration") = store; thread*
-syntax lconfig hint(desc "local configuration") = store; thread
+syntax lconfig hint(desc "local configuration") = state; instr*
 
 ;; Meta variables
 
@@ -165,7 +165,6 @@ var ai : arrayinst
 var fv : fieldval
 var pv : packval
 
-;;var s : store
 var z : state
 
 
@@ -261,6 +260,7 @@ def $func(state, funcidx) : funcinst        hint(show %.FUNCS[%])   hint(macro "
 def $data(state, dataidx) : datainst        hint(show %.DATAS[%])   hint(macro "Z%")
 def $elem(state, tableidx) : eleminst       hint(show %.ELEMS[%])   hint(macro "Z%")
 def $local(state, localidx) : val?          hint(show %.LOCALS[%])  hint(macro "Z%")
+def $c_frame_mem_modules(state, memidx) : memaddr    hint(show %f.MEMS[%])  hint(macro "Z%")
 
 def $type((s; f), x) = f.MODULE.TYPES[x]
 def $tag((s; f), x) = s.TAGS[f.MODULE.TAGS[x]]
@@ -271,6 +271,7 @@ def $func((s; f), x) = s.FUNCS[f.MODULE.FUNCS[x]]
 def $data((s; f), x) = s.DATAS[f.MODULE.DATAS[x]]
 def $elem((s; f), x) = s.ELEMS[f.MODULE.ELEMS[x]]
 def $local((s; f), x) = f.LOCALS[x]
+def $c_frame_mem_modules((s; f), x) = f.MODULE.MEMS[x]
 
 
 ;; State update
