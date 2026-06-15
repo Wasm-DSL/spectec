@@ -21,3 +21,14 @@ rule Instrtype_sub:
   -- Resulttype_sub: |- t_11'* <: t_11*
   -- Resulttype_sub: |- t_12* <: t_12'*
 
+def $typeofval(val) : valtype
+def $typeofval(CONST numtype c) = numtype
+def $typeofval(VCONST vectype c) = vectype
+def $typeofval(REF.NULL reftype) = reftype
+def $typeofval(REF.FUNC_ADDR funcaddr) = FUNCREF
+def $typeofval(REF.HOST_ADDR hostaddr) = EXTERNREF
+
+def $typesofvals(val*) : valtype*
+def $typesofvals(val*) = valtype*
+  -- (if $typeofval(val) = valtype)*
+
