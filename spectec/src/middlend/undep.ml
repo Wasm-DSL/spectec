@@ -332,13 +332,20 @@ let get_wf_terms wfdef env cl exp prems =
     | CallE _ -> true
     | _ -> false
   in
-  let wf_terms = (if !wf_state = WfMinimal && can_optimize wfdef env then [] else collect_exp cl exp) @ List.concat_map (collect_prem cl) prems in
+  let exp_terms = collect_exp cl exp in
+  let wf_terms = (if !wf_state = WfMinimal && can_optimize wfdef env then [] else exp_terms) @ List.concat_map (collect_prem cl) prems in
   let (call_prems, constr_prems) = List.partition (fun ((e1, _), _) -> is_calle e1) wf_terms in
   let unique_func = Util.Lib.List.nub (fun ((e1, _t1), iterexp1) ((e2, _t2), iterexp2) -> 
     Il.Eq.eq_exp e1 e2 && Il.Eq.eq_list Il.Eq.eq_iterexp iterexp1 iterexp2
   ) in
+  let filter_terms_func = Lib.List.filter_not (fun ((e1, _), iterexp1) -> 
+    List.exists (fun ((e2, _), iterexp2) -> 
+      Il.Eq.eq_exp e1 e2 && Il.Eq.eq_list Il.Eq.eq_iterexp iterexp1 iterexp2
+    ) exp_terms
+  ) in
   match !wf_state with
   | WfNone -> ([], [])
+  | WfMinimal when can_optimize wfdef env -> (call_prems |> unique_func |> filter_terms_func, constr_prems |> unique_func |> filter_terms_func)
   | _ -> (unique_func call_prems, unique_func constr_prems)
 
 let get_extra_prems wfdef env quants exp prems = 
