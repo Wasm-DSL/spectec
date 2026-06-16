@@ -86,13 +86,13 @@ rule Globalinst_ok:
   -- Val_ok: s |- val : t
 
 rule Meminst_ok:
-  s |- {TYPE at `[n..m] PAGE, BYTES b*} : at `[n..m] PAGE
-  -- Memtype_ok: {} |- at `[n..m] PAGE : OK
+  s |- {TYPE at `[n..m?] PAGE, BYTES b*} : at `[n..m?] PAGE
+  -- Memtype_ok: {} |- at `[n..m?] PAGE : OK
   -- if |b*| = $(n * $($(64 * $Ki)))
 
 rule Tableinst_ok:
-  s |- {TYPE at `[n..m] rt, REFS ref*} : at `[n..m] rt
-  -- Tabletype_ok: {} |- at `[n..m] rt : OK
+  s |- {TYPE at `[n..m?] rt, REFS ref*} : at `[n..m?] rt
+  -- Tabletype_ok: {} |- at `[n..m?] rt : OK
   -- if |ref*| = n
   -- (Ref_ok: s |- ref : rt)*
 
