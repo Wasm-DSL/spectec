@@ -96,7 +96,7 @@ Definition List_Foralli {X : Type} (f : nat -> X -> Prop) (xs : list X) : Prop :
 	Foralli_help f 0 xs.
 
 Definition holds_upto (P : nat -> Prop) (n : nat) :=
-	Forall P (iota 0 (n + 1)).
+	Forall P (iota 0 n).
 
 Class Append (α: Type) := _append : α -> α -> α.
 
@@ -10158,7 +10158,6 @@ Inductive Step : config -> config -> Prop :=
 		Step (mk_config z admininstr_lst) (mk_config z admininstr'_lst)
 	| read : forall (z : state) (admininstr_lst : (seq admininstr)) (admininstr'_lst : (seq admininstr)), 
 		(Step_read (mk_config z admininstr_lst) admininstr'_lst) ->
-		(wf_config (mk_config z admininstr_lst)) ->
 		Step (mk_config z admininstr_lst) (mk_config z admininstr'_lst)
 	| ctxt_label : forall (z : state) (v_n : n) (instr_0_lst : (seq instr)) (admininstr_lst : (seq admininstr)) (z' : state) (admininstr'_lst : (seq admininstr)), 
 		(Step (mk_config z admininstr_lst) (mk_config z' admininstr'_lst)) ->
@@ -10664,8 +10663,8 @@ Inductive fun_instantiate : store -> module -> (seq externaddr) -> config -> Pro
 		List.Forall2 (fun (expr_E_lst_2 : (seq expr)) (ref_lst_3 : (seq ref)) => List.Forall2 (fun (expr_E_2 : expr) (ref_7 : ref) => (Eval_expr z expr_E_2 z [::(val_ref ref_7)])) expr_E_lst_2 ref_lst_3) expr_E_lst_lst ref_lst_lst ->
 		((s', v_moduleinst) == var_2) ->
 		(f == {| LOCALS := [:: ]; frame_MODULE := v_moduleinst |}) ->
-		holds_upto (fun i_71195 => (i_71195 < (|elem_lst|))%N) n_E ->
-		(instr_E_lst == (concat_ instr (seq.mkseq (fun i_71195 => (runelem (elem_lst[| i_71195 |]) (mk_uN i_71195))) n_E))) ->
+		holds_upto (fun i_71285 => (i_71285 < (|elem_lst|))%N) n_E ->
+		(instr_E_lst == (concat_ instr (seq.mkseq (fun i_71285 => (runelem (elem_lst[| i_71285 |]) (mk_uN i_71285))) n_E))) ->
 		holds_upto (fun j_17 => ((rundata (data_lst[| j_17 |]) (mk_uN j_17)) != None)) n_D ->
 		holds_upto (fun j_17 => (j_17 < (|data_lst|))%N) n_D ->
 		(instr_D_lst == (concat_ instr (seq.mkseq (fun j_17 => (!((rundata (data_lst[| j_17 |]) (mk_uN j_17))))) n_D))) ->
@@ -10681,7 +10680,7 @@ Inductive fun_instantiate : store -> module -> (seq externaddr) -> config -> Pro
 		(wf_frame {| LOCALS := [:: ]; frame_MODULE := moduleinst_init |}) ->
 		(wf_state (mk_state s f_init)) ->
 		(wf_frame {| LOCALS := [:: ]; frame_MODULE := v_moduleinst |}) ->
-		holds_upto (fun i_71198 => (wf_uN 32 (mk_uN i_71198))) n_E ->
+		holds_upto (fun i_71288 => (wf_uN 32 (mk_uN i_71288))) n_E ->
 		holds_upto (fun j_18 => (wf_uN 32 (mk_uN j_18))) n_D ->
 		fun_instantiate s v_module externaddr_lst (mk_config (mk_state s' f) ((seq.map (fun (instr_E : instr) => (admininstr_instr instr_E)) instr_E_lst) ++ ((seq.map (fun (instr_D : instr) => (admininstr_instr instr_D)) instr_D_lst) ++ (option_to_list (option_map (fun (x : idx) => (admininstr_CALL x)) x_opt))))).
 
@@ -10976,24 +10975,24 @@ Inductive Globalinst_ok : store -> globalinst -> globaltype -> Prop :=
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:151.1-151.48 *)
 Inductive Meminst_ok : store -> meminst -> memtype -> Prop :=
-	| mk_Meminst_ok : forall (s : store) (v_n : n) (v_m : m) (b_lst : (seq byte)), 
-		(Memtype_ok (PAGE (mk_limits (mk_uN v_n) (Some (mk_uN v_m))))) ->
+	| mk_Meminst_ok : forall (s : store) (v_n : n) (m_opt : (option m)) (b_lst : (seq byte)), 
+		(Memtype_ok (PAGE (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)))) ->
 		((|b_lst|) == (v_n * (64 * (Ki ))%N)%N) ->
 		(wf_store s) ->
-		(wf_meminst {| meminst_TYPE := (PAGE (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))); BYTES := b_lst |}) ->
-		(wf_memtype (PAGE (mk_limits (mk_uN v_n) (Some (mk_uN v_m))))) ->
-		Meminst_ok s {| meminst_TYPE := (PAGE (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))); BYTES := b_lst |} (PAGE (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))).
+		(wf_meminst {| meminst_TYPE := (PAGE (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt))); BYTES := b_lst |}) ->
+		(wf_memtype (PAGE (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)))) ->
+		Meminst_ok s {| meminst_TYPE := (PAGE (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt))); BYTES := b_lst |} (PAGE (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt))).
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:152.1-152.54 *)
 Inductive Tableinst_ok : store -> tableinst -> tabletype -> Prop :=
-	| mk_Tableinst_ok : forall (s : store) (v_n : n) (v_m : m) (rt : reftype) (ref_lst : (seq ref)), 
-		(Tabletype_ok (mk_tabletype (mk_limits (mk_uN v_n) (Some (mk_uN v_m))) rt)) ->
+	| mk_Tableinst_ok : forall (s : store) (v_n : n) (m_opt : (option m)) (rt : reftype) (ref_lst : (seq ref)), 
+		(Tabletype_ok (mk_tabletype (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)) rt)) ->
 		List.Forall (fun (v_ref : ref) => (Ref_ok s v_ref rt)) ref_lst ->
 		((|ref_lst|) == v_n) ->
 		(wf_store s) ->
-		(wf_tableinst {| tableinst_TYPE := (mk_tabletype (mk_limits (mk_uN v_n) (Some (mk_uN v_m))) rt); REFS := ref_lst |}) ->
-		(wf_tabletype (mk_tabletype (mk_limits (mk_uN v_n) (Some (mk_uN v_m))) rt)) ->
-		Tableinst_ok s {| tableinst_TYPE := (mk_tabletype (mk_limits (mk_uN v_n) (Some (mk_uN v_m))) rt); REFS := ref_lst |} (mk_tabletype (mk_limits (mk_uN v_n) (Some (mk_uN v_m))) rt).
+		(wf_tableinst {| tableinst_TYPE := (mk_tabletype (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)) rt); REFS := ref_lst |}) ->
+		(wf_tabletype (mk_tabletype (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)) rt)) ->
+		Tableinst_ok s {| tableinst_TYPE := (mk_tabletype (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)) rt); REFS := ref_lst |} (mk_tabletype (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)) rt).
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:153.1-153.51 *)
 Inductive Funcinst_ok : store -> funcinst -> functype -> Prop :=
@@ -11038,21 +11037,21 @@ Inductive Extend_globalinst : globalinst -> globalinst -> Prop :=
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:245.1-245.45 *)
 Inductive Extend_meminst : meminst -> meminst -> Prop :=
-	| mk_Extend_meminst : forall (v_n : n) (v_m : m) (b_lst : (seq byte)) (n' : n) (b'_lst : (seq byte)), 
+	| mk_Extend_meminst : forall (v_n : n) (m_opt : (option m)) (b_lst : (seq byte)) (n' : n) (b'_lst : (seq byte)), 
 		(v_n <= n')%N ->
 		((|b_lst|) <= (|b'_lst|))%N ->
-		(wf_meminst {| meminst_TYPE := (PAGE (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))); BYTES := b_lst |}) ->
-		(wf_meminst {| meminst_TYPE := (PAGE (mk_limits (mk_uN n') (Some (mk_uN v_m)))); BYTES := b'_lst |}) ->
-		Extend_meminst {| meminst_TYPE := (PAGE (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))); BYTES := b_lst |} {| meminst_TYPE := (PAGE (mk_limits (mk_uN n') (Some (mk_uN v_m)))); BYTES := b'_lst |}.
+		(wf_meminst {| meminst_TYPE := (PAGE (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt))); BYTES := b_lst |}) ->
+		(wf_meminst {| meminst_TYPE := (PAGE (mk_limits (mk_uN n') (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt))); BYTES := b'_lst |}) ->
+		Extend_meminst {| meminst_TYPE := (PAGE (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt))); BYTES := b_lst |} {| meminst_TYPE := (PAGE (mk_limits (mk_uN n') (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt))); BYTES := b'_lst |}.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:246.1-246.51 *)
 Inductive Extend_tableinst : tableinst -> tableinst -> Prop :=
-	| mk_Extend_tableinst : forall (v_n : n) (v_m : m) (rt : reftype) (ref_lst : (seq ref)) (n' : n) (ref'_lst : (seq ref)), 
+	| mk_Extend_tableinst : forall (v_n : n) (m_opt : (option m)) (rt : reftype) (ref_lst : (seq ref)) (n' : n) (ref'_lst : (seq ref)), 
 		(v_n <= n')%N ->
 		((|ref_lst|) <= (|ref'_lst|))%N ->
-		(wf_tableinst {| tableinst_TYPE := (mk_tabletype (mk_limits (mk_uN v_n) (Some (mk_uN v_m))) rt); REFS := ref_lst |}) ->
-		(wf_tableinst {| tableinst_TYPE := (mk_tabletype (mk_limits (mk_uN n') (Some (mk_uN v_m))) rt); REFS := ref'_lst |}) ->
-		Extend_tableinst {| tableinst_TYPE := (mk_tabletype (mk_limits (mk_uN v_n) (Some (mk_uN v_m))) rt); REFS := ref_lst |} {| tableinst_TYPE := (mk_tabletype (mk_limits (mk_uN n') (Some (mk_uN v_m))) rt); REFS := ref'_lst |}.
+		(wf_tableinst {| tableinst_TYPE := (mk_tabletype (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)) rt); REFS := ref_lst |}) ->
+		(wf_tableinst {| tableinst_TYPE := (mk_tabletype (mk_limits (mk_uN n') (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)) rt); REFS := ref'_lst |}) ->
+		Extend_tableinst {| tableinst_TYPE := (mk_tabletype (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)) rt); REFS := ref_lst |} {| tableinst_TYPE := (mk_tabletype (mk_limits (mk_uN n') (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)) rt); REFS := ref'_lst |}.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:247.1-247.48 *)
 Inductive Extend_funcinst : funcinst -> funcinst -> Prop :=
@@ -11110,14 +11109,13 @@ Inductive State_ok : state -> context -> Prop :=
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:290.1-290.43 *)
 Inductive Config_ok : config -> resulttype -> Prop :=
-	| mk_Config_ok : forall (s : store) (f : frame) (instr_lst : (seq instr)) (t_lst : (seq valtype)) (C : context) (admininstr_lst : (seq admininstr)), 
+	| mk_Config_ok : forall (s : store) (f : frame) (admininstr_lst : (seq admininstr)) (t_lst : (seq valtype)) (C : context), 
 		(State_ok (mk_state s f) C) ->
 		(Expr_ok2 s C admininstr_lst (mk_list _ t_lst)) ->
 		(wf_context C) ->
-		List.Forall (fun (v_admininstr : admininstr) => (wf_admininstr v_admininstr)) admininstr_lst ->
-		(wf_config (mk_config (mk_state s f) (seq.map (fun (v_instr : instr) => (admininstr_instr v_instr)) instr_lst))) ->
+		(wf_config (mk_config (mk_state s f) admininstr_lst)) ->
 		(wf_state (mk_state s f)) ->
-		Config_ok (mk_config (mk_state s f) (seq.map (fun (v_instr : instr) => (admininstr_instr v_instr)) instr_lst)) (mk_list _ t_lst).
+		Config_ok (mk_config (mk_state s f) admininstr_lst) (mk_list _ t_lst).
 
 (* Mutual Recursion at: ../specification/wasm-2.0/A-binary.spectec:20.1-22.82 *)
 (* Mutual Recursion at: ../specification/wasm-2.0/A-binary.spectec:24.1-27.82 *)
