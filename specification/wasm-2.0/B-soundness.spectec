@@ -107,7 +107,7 @@ rule Instrs_ok2/seq:
   -- Instrs_ok2: s; C |- admininstr_2* : t_2* -> t_3*
 
 rule Instrs_ok2/sub:
-  s; C |- instr* : t'_1* -> t'_2*
+  s; C |- admininstr* : t'_1* -> t'_2*
   -- Instrs_ok2: s; C |- admininstr* : t_1* -> t_2*
   -- Resulttype_sub: |- t'_1* <: t_1*
   -- Resulttype_sub: |- t_2* <: t'_2*
@@ -161,13 +161,13 @@ rule Globalinst_ok:
   -- Val_ok: s |- val : t
 
 rule Meminst_ok:
-  s |- {TYPE `[n..m] PAGE, BYTES b*} : `[n..m] PAGE
-  -- Memtype_ok: |- `[n..m] PAGE : OK
+  s |- {TYPE `[n..m?] PAGE, BYTES b*} : `[n..m?] PAGE
+  -- Memtype_ok: |- `[n..m?] PAGE : OK
   -- if |b*| = $(n * $($(64 * $Ki)))
 
 rule Tableinst_ok:
-  s |- {TYPE `[n..m] rt , REFS ref*} : `[n..m] rt
-  -- Tabletype_ok: |- `[n..m] rt : OK
+  s |- {TYPE `[n..m?] rt , REFS ref*} : `[n..m?] rt
+  -- Tabletype_ok: |- `[n..m?] rt : OK
   -- (Ref_ok : s |- ref : rt)*
   -- if |ref*| = n
 
@@ -254,12 +254,12 @@ rule Extend_globalinst:
   -- if mut = MUT \/ val = val'
 
 rule Extend_meminst:
-  {TYPE `[n..m] PAGE, BYTES b*} `<= {TYPE `[n'..m] PAGE, BYTES b'*}
+  {TYPE `[n..m?] PAGE, BYTES b*} `<= {TYPE `[n'..m?] PAGE, BYTES b'*}
   -- if n <= n'
   -- if |b*| <= |b'*|
 
 rule Extend_tableinst:
-  {TYPE `[n..m] rt, REFS ref*} `<= {TYPE `[n'..m] rt, REFS ref'*}
+  {TYPE `[n..m?] rt, REFS ref*} `<= {TYPE `[n'..m?] rt, REFS ref'*}
   -- if n <= n'
   -- if |ref*| <= |ref'*|
 
@@ -300,6 +300,6 @@ rule State_ok:
   -- Frame_ok: s |- f : C
 
 rule Config_ok:
-  |- s; f; instr* : t*
+  |- s; f; admininstr* : t*
   -- State_ok: |- s; f : C
   -- Expr_ok2: s; C |- admininstr* : t*
