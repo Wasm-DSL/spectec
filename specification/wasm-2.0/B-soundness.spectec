@@ -300,6 +300,6 @@ rule State_ok:
   -- Frame_ok: s |- f : C
 
 rule Config_ok:
-  |- s; f; instr* : t*
+  |- s; f; admininstr* : t*
   -- State_ok: |- s; f : C
   -- Expr_ok2: s; C |- admininstr* : t*
