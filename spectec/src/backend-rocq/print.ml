@@ -926,7 +926,7 @@ let exported_string =
   "Definition List_Foralli {X : Type} (f : nat -> X -> Prop) (xs : list X) : Prop :=\n" ^ 
 	"\tForalli_help f 0 xs.\n\n" ^
   "Definition holds_upto (P : nat -> Prop) (n : nat) :=\n" ^
-  "\tForall P (iota 0 (n + 1)).\n\n" ^
+  "\tForall P (iota 0 n).\n\n" ^
   "Class Append (α: Type) := _append : α -> α -> α.\n\n" ^
   "Infix \"@@\" := _append (right associativity, at level 60) : wasm_scope.\n\n" ^
   "Global Instance Append_List_ {α: Type}: Append (seq α) := { _append l1 l2 := seq.cat l1 l2 }.\n\n" ^

@@ -129,13 +129,13 @@ rule Globalinst_ok:
   -- Val_ok: |- val : t
 
 rule Meminst_ok:
-  s |- {TYPE `[n..m], BYTES b*} : `[n..m]
-  -- Memtype_ok: |- `[n..m] : OK
+  s |- {TYPE `[n..m?], BYTES b*} : `[n..m?]
+  -- Memtype_ok: |- `[n..m?] : OK
   -- if |b*| = $(n * $($(64 * $Ki)))
 
 rule Tableinst_ok:
-  s |- {TYPE `[n..m] , REFS (fa?)*} : `[n..m]
-  -- Tabletype_ok: |- `[n..m] : OK
+  s |- {TYPE `[n..m?] , REFS (fa?)*} : `[n..m?]
+  -- Tabletype_ok: |- `[n..m?] : OK
   -- ((Externaddr_ok: s |- FUNC fa : FUNC ft)?)*
   -- if |(fa?)*| = n
 
@@ -204,12 +204,12 @@ rule Extend_globalinst:
   -- if mut = MUT \/ val = val'
 
 rule Extend_meminst:
-  {TYPE `[n..m], BYTES b*} `<= {TYPE `[n'..m], BYTES b'*}
+  {TYPE `[n..m?], BYTES b*} `<= {TYPE `[n'..m?], BYTES b'*}
   -- if n <= n'
   -- if |b*| <= |b'*|
 
 rule Extend_tableinst:
-  {TYPE `[n..m], REFS ref*} `<= {TYPE `[n'..m], REFS ref'*}
+  {TYPE `[n..m?], REFS ref*} `<= {TYPE `[n'..m?], REFS ref'*}
   -- if n <= n'
   -- if |ref*| <= |ref'*|
 
@@ -240,6 +240,6 @@ rule State_ok:
   -- Frame_ok: s |- f : C
 
 rule Config_ok:
-  |- s; f; instr* : t?
+  |- s; f; admininstr* : t?
   -- State_ok: |- s; f : C
   -- Expr_ok2: s; C |- admininstr* : t?
