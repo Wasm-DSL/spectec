@@ -1,0 +1,12 @@
+(lang dune 3.11)
+(using coq 0.8)
+(generate_opam_files true)
+
+(package
+  (name metatheory)
+  (synopsis "Spectec Wasm formalisation in Rocq")
+  (depends
+    (coq (>= 9.0))
+    (coq-mathcomp-ssreflect (and (>= 2.0.0) (<= 2.4.0)))
+  )
+)
