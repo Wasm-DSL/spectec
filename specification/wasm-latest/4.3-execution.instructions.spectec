@@ -384,6 +384,7 @@ rule Step_read/table.copy-oob:
 
 rule Step_read/table.copy-zero:
   z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (TABLE.COPY x y)  ~>  eps
+  ---- ----
   -- otherwise
   -- if n = 0
 
@@ -391,6 +392,7 @@ rule Step_read/table.copy-le:
   z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (TABLE.COPY x y)  ~>
     (CONST at_1 i_1) (CONST at_2 i_2) (TABLE.GET y) (TABLE.SET x)
     (CONST at_1 $(i_1+1)) (CONST at_2 $(i_2+1)) (CONST at' $(n-1)) (TABLE.COPY x y)
+  ---- ----
   -- otherwise
   -- if i_1 <= i_2
 
@@ -398,6 +400,7 @@ rule Step_read/table.copy-gt:
   z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (TABLE.COPY x y)  ~>
     (CONST at_1 $(i_1+n-1)) (CONST at_2 $(i_2+n-1)) (TABLE.GET y) (TABLE.SET x)
     (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' $(n-1)) (TABLE.COPY x y)
+  ---- ----
   -- otherwise
 
 
@@ -426,96 +429,96 @@ rule Step/elem.drop:
 
 rule Step_read/load-num-oob-unshared:
   z; (CONST at i) (LOAD nt x ao)  ~>  TRAP
-  ----
+  ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step_read/load-num-val-unshared:
   z; (CONST at i) (LOAD nt x ao)  ~>  (CONST nt c)
-  ----
+  ---- ----
   -- if (
           ord = UNORD 
         )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
-  -- if $nbytes_(nt, c) = $mem(s; f, x).BYTES[ea : $size(nt)/8]
-  -- if $(i + ao.OFFSET + $size(nt)/8 <= |$mem(s; f, x).BYTES|)
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $nbytes_(nt, c) = $mem(z, x).BYTES[ea : $size(nt)/8]
+  -- if $(i + ao.OFFSET + $size(nt)/8 <= |$mem(z, x).BYTES|)
 
 rule Step_read/load-pack-oob-unshared:
   z; (CONST at i) (LOAD Inn (n _ sx) x ao)  ~>  TRAP
-  ----
+  ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step_read/load-pack-val-unshared:
   z; (CONST at i) (LOAD Inn (n _ sx) x ao)  ~>  (CONST Inn $extend__(n, $size(Inn), sx, c))
-  ----
+  ---- ----
   -- if (
           ord = UNORD 
         )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
-  -- if $ibytes_(n, c) = $mem(s; f, x).BYTES[ea : n/8]
-  -- if $(i + ao.OFFSET + n/8 <= |$mem(s; f, x).BYTES|)
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $ibytes_(n, c) = $mem(z, x).BYTES[ea : n/8]
+  -- if $(i + ao.OFFSET + n/8 <= |$mem(z, x).BYTES|)
 
 rule Step_read/load-num-oob-shared:
-  z; (CONST at i) (LOAD nt x ao) ~>_(
-    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))))
-  TRAP
-  ----
+  z; (CONST at i) (LOAD nt x ao) ~>_(action) TRAP
+  ---- ----
   -- otherwise
+  -- if action = (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|)))
   -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step_read/load-num-val-shared:
-  z; (CONST at i) (LOAD nt x ao)  ~>_(
-      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
-      (RD ord ((REGDATA a) ea) (BYTES bytes) notears?))  
+  z; (CONST at i) (LOAD nt x ao)  ~>_(action*)  
   (CONST nt c)
-  ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = UNORD /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(z, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |$mem(z, x).BYTES|
-        )
+  ---- ----
+  -- if action* = 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+      (RD ord ((REGDATA a) ea) (BYTES bytes) notears?)
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = UNORD 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET)
+  -- if nlen = |$mem(z, x).BYTES|
   -- if storemem.TYPE = addrtype limits SHARED PAGE
   -- if bytes = storemem.BYTES[ea : $size(nt)/8]
   -- if $nbytes_(nt, c) = bytes
   -- if $(i + ao.OFFSET + $size(nt)/8 <= nlen)
 
 rule Step_read/load-pack-oob-shared:
-  z; (CONST at i) (LOAD Inn (n _ sx) x ao)  ~>_(RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|)))
+  z; (CONST at i) (LOAD Inn (n _ sx) x ao)  ~>_(action)
   TRAP
-  ----
+  ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action = RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step_read/load-pack-val-shared:
-  z; (CONST at i) (LOAD Inn (n _ sx) x ao)  ~>_(
-      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
-      (RD ord ((REGDATA a) ea) (BYTES bytes) notears?))  
+  z; (CONST at i) (LOAD Inn (n _ sx) x ao)  ~>_(action*) 
   (CONST Inn $extend__(n, $size(Inn), sx, c))
-  ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = UNORD /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET)
-        )
+  ---- ----
+  -- if action* = (
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+      (RD ord ((REGDATA a) ea) (BYTES bytes) notears?)) 
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = UNORD 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET)
   -- if storemem.TYPE = addrtype limits SHARED PAGE
   -- if bytes = storemem.BYTES[ea : n/8]
   -- if $ibytes_(n, c) = bytes
-  -- if $(ea + n/8 <= |$mem(s; f, x).BYTES|)
+  -- if $(ea + n/8 <= |$mem(z, x).BYTES|)
 
 
 rule Step_read/vload-oob-unshared:
   z; (CONST at i) (VLOAD V128 x ao)  ~>  TRAP
+  ---- ----
   -- otherwise
   -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step_read/vload-val-unshared:
   z; (CONST at i) (VLOAD V128 x ao)  ~>  (VCONST V128 c)
+  ---- ----
   -- if (
           ord = UNORD 
         )
@@ -525,6 +528,7 @@ rule Step_read/vload-val-unshared:
 
 rule Step_read/vload-pack-oob-unshared:
   z; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao)  ~>  TRAP
+  ---- ----
   -- otherwise
   -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
@@ -542,25 +546,25 @@ rule Step_read/vload-pack-val-unshared:
 
 
 rule Step_read/vload-oob-shared:
-  z; (CONST at i) (VLOAD V128 x ao)  ~>_(
-      RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
-    )
+  z; (CONST at i) (VLOAD V128 x ao)  ~>_(action*)
   TRAP
+  ---- ----
   -- otherwise
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = UNORD /\
-          storemem = $mem(z, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |$mem(z, x).BYTES|
-        )
+  -- if action* = (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|)))
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = UNORD 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |$mem(z, x).BYTES|
   -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step_read/vload-val-shared:
-  z; (CONST at i) (VLOAD V128 x ao)  ~>_(
+  z; (CONST at i) (VLOAD V128 x ao)  ~>_(action*)
+  (VCONST V128 c)
+  ---- ----
+  -- if action* = (
       (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
       (RD ord ((REGDATA a) ea) (BYTES bytes)))  
-  (VCONST V128 c)
   -- if (
           ord = UNORD 
         )
@@ -569,22 +573,25 @@ rule Step_read/vload-val-shared:
   -- if $(i + ao.OFFSET + $vsize(V128)/8 <= |$mem(z, x).BYTES|)
 
 rule Step_read/vload-pack-oob-shared:
-  z; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao)  ~>_(
+  z; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao)  ~>_(action*)
+  TRAP
+  ---- ----
+  -- otherwise
+  -- if action* = (
       RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
     )  
-  TRAP
-  -- otherwise
   -- if (
           ord = UNORD 
         )
   -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step_read/vload-pack-val-shared:
-  z; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao)  ~>_(
-      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
-      (RD ord ((REGDATA a) ea) (BYTES bytes) notears?))  
+  z; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao)  ~>_(action*) 
   (VCONST V128 c)
   ---- ----
+  -- if action* = (
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+      (RD ord ((REGDATA a) ea) (BYTES bytes) notears?)) 
   -- if (
           ord = UNORD 
         )
@@ -596,12 +603,13 @@ rule Step_read/vload-pack-val-shared:
 
 rule Step_read/vload-splat-oob-unshared:
   z; (CONST at i) (VLOAD V128 (SPLAT N) x ao)  ~>  TRAP
+  ---- ----
   -- otherwise
   -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step_read/vload-splat-val-unshared:
   z; (CONST at i) (VLOAD V128 (SPLAT N) x ao)  ~>  (VCONST V128 c)
-  ----
+  ---- ----
   -- if (
           ord = UNORD 
         )
@@ -613,22 +621,25 @@ rule Step_read/vload-splat-val-unshared:
   -- if $(i + ao.OFFSET + N/8) <= |$mem(z, x).BYTES|
 
 rule Step_read/vload-splat-oob-shared:
-  z; (CONST at i) (VLOAD V128 (SPLAT N) x ao)  ~>_( 
+  z; (CONST at i) (VLOAD V128 (SPLAT N) x ao)  ~>_(action*)
+  TRAP
+  ---- ----
+  -- otherwise
+  -- if action* = ( 
     RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
     )  
-  TRAP
-  -- otherwise
   -- if (
           ord = UNORD 
         )
   -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step_read/vload-splat-val-shared:
-  z; (CONST at i) (VLOAD V128 (SPLAT N) x ao)  ~>_( 
+  z; (CONST at i) (VLOAD V128 (SPLAT N) x ao)  ~>_(action*)
+  (VCONST V128 c)
+  ---- ----
+  -- if action* = ( 
     (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
     (RD ord ((REGDATA a) ea) (BYTES bytes)))  
-  (VCONST V128 c)
-  ----
   -- if (
           ord = UNORD 
         )
@@ -641,12 +652,13 @@ rule Step_read/vload-splat-val-shared:
 
 rule Step_read/vload-zero-oob-unshared:
   z; (CONST at i) (VLOAD V128 (ZERO N) x ao)  ~>  TRAP
+  ---- ----
   -- otherwise
   -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step_read/vload-zero-val-unshared:
   z; (CONST at i) (VLOAD V128 (ZERO N) x ao)  ~>  (VCONST V128 c)
-  ----
+  ---- ----
   -- if (
           ord = UNORD 
         )
@@ -656,22 +668,25 @@ rule Step_read/vload-zero-val-unshared:
   -- if $(i + ao.OFFSET + N/8) <= |$mem(z, x).BYTES|
 
 rule Step_read/vload-zero-oob-shared:
-  z; (CONST at i) (VLOAD V128 (ZERO N) x ao)  ~>_( 
+  z; (CONST at i) (VLOAD V128 (ZERO N) x ao)  ~>_(action*)
+  TRAP
+  ---- ----
+  -- otherwise
+  -- if action* = ( 
     RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
     )  
-  TRAP
-  -- otherwise
   -- if (
           ord = UNORD 
         )
   -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step_read/vload-zero-val-shared:
-  z; (CONST at i) (VLOAD V128 (ZERO N) x ao)  ~>_( 
+  z; (CONST at i) (VLOAD V128 (ZERO N) x ao)  ~>_(action*)
+  (VCONST V128 c)
+  ---- ----
+  -- if action* = ( 
     (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
       (RD ord ((REGDATA a) ea) (BYTES bytes)))  
-  (VCONST V128 c)
-  ----
   -- if (
           ord = UNORD 
         )
@@ -682,12 +697,13 @@ rule Step_read/vload-zero-val-shared:
 
 rule Step_read/vload_lane-oob-unshared:
   z; (CONST at i) (VCONST V128 c_1) (VLOAD_LANE V128 N x ao j)  ~>  TRAP
+  ---- ----
   -- otherwise
   -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step_read/vload_lane-val-unshared:
   z; (CONST at i) (VCONST V128 c_1) (VLOAD_LANE V128 N x ao j)  ~>  (VCONST V128 c)
-  ----
+  ---- ----
   -- if (
           ord = UNORD 
         )
@@ -699,22 +715,25 @@ rule Step_read/vload_lane-val-unshared:
   -- if $(i + ao.OFFSET + N/8) <= |$mem(z, x).BYTES|
 
 rule Step_read/vload_lane-oob-shared:
-  z; (CONST at i) (VCONST V128 c_1) (VLOAD_LANE V128 N x ao j)  ~>_( 
+  z; (CONST at i) (VCONST V128 c_1) (VLOAD_LANE V128 N x ao j)  ~>_(action*)
+  TRAP
+  ---- ----
+  -- otherwise
+  -- if action* = ( 
     RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
     )  
-  TRAP
-  -- otherwise
   -- if (
           ord = UNORD 
         )
   -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step_read/vload_lane-val-shared:
-  z; (CONST at i) (VCONST V128 c_1) (VLOAD_LANE V128 N x ao j)  ~>_(
+  z; (CONST at i) (VCONST V128 c_1) (VLOAD_LANE V128 N x ao j)  ~>_(action*)
+  (VCONST V128 c)
+  ---- ----
+  -- if action* = (
     (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
     (RD ord ((REGDATA a) ea) (BYTES bytes)))  
-  (VCONST V128 c)
-  ----
   -- if (
           ord = UNORD 
         )
@@ -727,328 +746,345 @@ rule Step_read/vload_lane-val-shared:
 
 rule Step/store-num-oob-unshared:
   z; (CONST at i) (CONST nt c) (STORE nt x ao)  ~>  z; TRAP
-  ----
+  ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step/store-num-val-unshared:
   z; (CONST at i) (CONST nt c) (STORE nt x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $($size(nt)/8), b*);  eps
-  ----
+  ---- ----
   -- if (
           ord = UNORD 
         )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   ;; TODO(3, rossberg): enable otherwise?
   -- if b* = $nbytes_(nt, c)
-  -- if $(i + ao.OFFSET + $size(nt)/8) <= |$mem(s; f, x).BYTES|
+  -- if $(i + ao.OFFSET + $size(nt)/8) <= |$mem(z, x).BYTES|
 
 rule Step/store-pack-oob-unshared:
   z; (CONST at i) (CONST Inn c) (STORE Inn n x ao)  ~>  z; TRAP
-  ----
+  ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step/store-pack-val-unshared:
-  z; (CONST at i) (CONST Inn c) (STORE Inn n x ao)  ~>  $with_mem(s; f, x, $(i + ao.OFFSET), $(n/8), b*);  eps
-  ----
+  z; (CONST at i) (CONST Inn c) (STORE Inn n x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*);  eps
+  ---- ----
   -- if (
           ord = UNORD 
         )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   ;; TODO(3, rossberg): enable otherwise?
   -- if b* = $ibytes_(n, $wrap__($size(Inn), n, c))
-  -- if $(i + ao.OFFSET + n/8) <= |$mem(s; f, x).BYTES|
+  -- if $(i + ao.OFFSET + n/8) <= |$mem(z, x).BYTES|
 
 rule Step/store-num-oob-shared:
-  z; (CONST at i) (CONST nt c) (STORE nt x ao)  ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
-    )  
+  z; (CONST at i) (CONST nt c) (STORE nt x ao)  ~>_(action*)
   z; TRAP
-  ----
+  ---- ----
   -- otherwise
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = UNORD /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits shared PAGE
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    )  
+  -- if  a = $c_frame_mem_modules(z, 0) 
+  -- if  ord = UNORD 
+  -- if  notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if  storemem = $mem(z, x) 
+  -- if  ea = $(i + ao.OFFSET) 
+  -- if  nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits shared PAGE
 
 rule Step/store-num-val-shared:
-  z; (CONST at i) (CONST nt c) (STORE nt x ao)  ~>_( 
-    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
-    (WR ord ((REGDATA a) ea) (BYTES b*) notears?))  
+  z; (CONST at i) (CONST nt c) (STORE nt x ao)  ~>_(action*)
   $with_mem(z, x, $(i + ao.OFFSET), $($size(nt)/8), b*);  eps
-  ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = UNORD /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits shared PAGE
+  ---- ----
+  -- if action* = ( 
+    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+    (WR ord ((REGDATA a) ea) (BYTES b*) notears?))  
+  -- if  a = $c_frame_mem_modules(z, 0) 
+  -- if  ord = UNORD 
+  -- if  notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if  storemem = $mem(z, x) 
+  -- if  ea = $(i + ao.OFFSET) 
+  -- if  nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits shared PAGE
   ;; TODO(3, rossberg): enable otherwise?
   -- if b* = $nbytes_(nt, c)
-  -- if $(i + ao.OFFSET + $size(nt)/8) <= |$mem(s; f, x).BYTES|
+  -- if $(i + ao.OFFSET + $size(nt)/8) <= |$mem(z, x).BYTES|
 
 rule Step/store-pack-oob-shared:
-  z; (CONST at i) (CONST Inn c) (STORE Inn n x ao)  ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
-    )  
+  z; (CONST at i) (CONST Inn c) (STORE Inn n x ao)  ~>_(action*)
   z; TRAP
-  ----
+  ---- ----
   -- otherwise
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = UNORD /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits shared PAGE
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    )  
+  -- if  a = $c_frame_mem_modules(z, 0) 
+  -- if  ord = UNORD 
+  -- if  notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if  storemem = $mem(z, x) 
+  -- if  ea = $(i + ao.OFFSET) 
+  -- if  nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits shared PAGE
 
 rule Step/store-pack-val-shared:
-  z; (CONST at i) (CONST Inn c) (STORE Inn n x ao)  ~>_( 
-    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+  z; (CONST at i) (CONST Inn c) (STORE Inn n x ao)  ~>_(action*)
+  $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*);  eps
+  ---- ----
+  -- if action* = ( 
+    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
     (WR ord ((REGDATA a) ea) (BYTES b*) notears?))  
-  $with_mem(s; f, x, $(i + ao.OFFSET), $(n/8), b*);  eps
-  ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = UNORD /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits shared PAGE
+  -- if  a = $c_frame_mem_modules(z, 0) 
+  -- if  ord = UNORD 
+  -- if  notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if  storemem = $mem(z, x) 
+  -- if  ea = $(i + ao.OFFSET) 
+  -- if  nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits shared PAGE
   ;; TODO(3, rossberg): enable otherwise?
   -- if b* = $ibytes_(n, $wrap__($size(Inn), n, c))
-  -- if $(i + ao.OFFSET + n/8) <= |$mem(s; f, x).BYTES|
+  -- if $(i + ao.OFFSET + n/8) <= |$mem(z, x).BYTES|
 
 rule Step/vstore-oob-unshared:
   z; (CONST at i) (VCONST V128 c) (VSTORE V128 x ao)  ~>  z; TRAP
-  ----
+  ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step/vstore-val-unshared:
-  z; (CONST at i) (VCONST V128 c) (VSTORE V128 x ao)  ~>  $with_mem(s; f, x, $(i + ao.OFFSET), $($vsize(V128)/8), b*);  eps
-  ----
+  z; (CONST at i) (VCONST V128 c) (VSTORE V128 x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $($vsize(V128)/8), b*);  eps
+  ---- ----
   -- if (
           ord = UNORD 
         )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   -- if b* = $vbytes_(V128, c)
-  -- if $(i + ao.OFFSET + $vsize(V128)/8) <= |$mem(s; f, x).BYTES|
+  -- if $(i + ao.OFFSET + $vsize(V128)/8) <= |$mem(z, x).BYTES|
 
 rule Step/vstore_lane-oob-unshared:
   z; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j)  ~>  z; TRAP
-  ----
+  ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step/vstore_lane-val-unshared:
-  z; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j)  ~>  $with_mem(s; f, x, $(i + ao.OFFSET), $(N/8), b*);  eps
-  ----
+  z; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $(N/8), b*);  eps
+  ---- ----
   -- if (
           ord = UNORD 
         )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   -- if N = $jsize(Jnn)  ;; TODO(2, rossberg): relate implicitly
   -- if M = $(128/N)
   -- if b* = $ibytes_(N, $lanes_(Jnn X M, c)[j])
-  -- if $(i + ao.OFFSET + N) <= |$mem(s; f, x).BYTES|
+  -- if $(i + ao.OFFSET + N) <= |$mem(z, x).BYTES|
 
 rule Step/vstore-val-shared:
-  z; (CONST at i) (VCONST V128 c) (VSTORE V128 x ao)  ~>_( 
-    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+  z; (CONST at i) (VCONST V128 c) (VSTORE V128 x ao)  ~>_(action*)
+  $with_mem(z, x, $(i + ao.OFFSET), $($vsize(V128)/8), b*);  eps
+  ---- ----
+  -- if action* = ( 
+    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
     (WR ord ((REGDATA a) ea) (BYTES b*) notears?))  
-  $with_mem(s; f, x, $(i + ao.OFFSET), $($vsize(V128)/8), b*);  eps
-  ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = UNORD /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if  a = $c_frame_mem_modules(z, 0) 
+  -- if  ord = UNORD 
+  -- if  notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if  storemem = $mem(z, x) 
+  -- if  ea = $(i + ao.OFFSET) 
+  -- if  nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
   -- if b* = $vbytes_(V128, c)
 
 rule Step/vstore_lane-oob-shared:
-  z; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j)  ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|)))  
+  z; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j)  ~>_(action*)
   z; TRAP
-  ----
+  ---- ----
   -- otherwise
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = UNORD /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|)))  
+  -- if  a = $c_frame_mem_modules(z, 0) 
+  -- if  ord = UNORD 
+  -- if  notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if  storemem = $mem(z, x) 
+  -- if  ea = $(i + ao.OFFSET) 
+  -- if  nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step/vstore_lane-val-shared:
-  z; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j)  ~>_( 
-    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+  z; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j)  ~>_(action*)
+  $with_mem(z, x, $(i + ao.OFFSET), $(N/8), b*);  eps
+  ---- ----
+  -- if action* = ( 
+    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
     (WR ord ((REGDATA a) ea) (BYTES b*)))  
-  $with_mem(s; f, x, $(i + ao.OFFSET), $(N/8), b*);  eps
-  ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = UNORD /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if  a = $c_frame_mem_modules(z, 0) 
+  -- if  ord = UNORD 
+  -- if  notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if  storemem = $mem(z, x) 
+  -- if  ea = $(i + ao.OFFSET) 
+  -- if  nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
   -- if N = $jsize(Jnn)  ;; TODO(2, rossberg): relate implicitly
   -- if M = $(128/N)
   -- if b* = $ibytes_(N, $lanes_(Jnn X M, c)[j])
-  -- if $(i + ao.OFFSET + N) <= |$mem(s; f, x).BYTES|
+  -- if $(i + ao.OFFSET + N) <= |$mem(z, x).BYTES|
 
 
 rule Step_read/memory.size-unshared:
   z; (MEMORY.SIZE x)  ~>  (CONST at n)
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
-  -- if $(n * $($(64 * $Ki))) = |$mem(s; f, x).BYTES|
-  -- if $mem(s; f, x).TYPE = at lim share PAGE
+  -- --
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $(n * $($(64 * $Ki))) = |$mem(z, x).BYTES|
+  -- if $mem(z, x).TYPE = at lim share PAGE
 
 rule Step/memory.grow-succeed-unshared:
-  z; (CONST at n) (MEMORY.GROW x)  ~>  $with_meminst(s; f, x, mi);  (CONST at $(|$mem(s; f, x).BYTES| / $($(64 * $Ki))))
-  ----
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
-  -- if mi = $growmem($mem(s; f, x), n)
+  z; (CONST at n) (MEMORY.GROW x)  ~>  $with_meminst(z, x, mi);  (CONST at $(|$mem(z, x).BYTES| / $($(64 * $Ki))))
+  ---- ----
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if mi = $growmem($mem(z, x), n)
   
 rule Step/memory.grow-fail-unshared:
   z; (CONST at n) (MEMORY.GROW x)  ~>  z; (CONST at $inv_signed_($size(at), $(-1)))
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  ---- ----
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step_read/memory.size-shared:
-  z; (MEMORY.SIZE x)  ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
-    )  
+  z; (MEMORY.SIZE x)  ~>_(action*)
   (CONST at n)
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
-  -- if $(n * $($(64 * $Ki))) = |$mem(s; f, x).BYTES|
-  -- if $mem(s; f, x).TYPE = at lim share PAGE
+  ---- ----
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    )  
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
+  -- if $(n * $($(64 * $Ki))) = |$mem(z, x).BYTES|
+  -- if $mem(z, x).TYPE = at lim share PAGE
 
 rule Step/memory.grow-succeed-shared:
-  z; (CONST at n) (MEMORY.GROW x)  ~>_( 
-    (RMW ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|)) (CONST I32 $(|$mem(s; f, x).BYTES| +  $($(n * $($(64 * $Ki)))))))
-    (WR SEQCST ((REGLEN a) $(|$mem(s; f, x).BYTES|)) (BYTES (0x00)^$($(n * $($(64 * $Ki))))))
+  z; (CONST at n) (MEMORY.GROW x)  ~>_(action*)
+  $with_meminst(z, x, mi);  (CONST at memsz)
+  ---- ----
+  -- if memsz = $(|$mem(z, x).BYTES| / $($(64 * $Ki)))
+  -- if action* = ( 
+    (RMW ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|)) (CONST I32 $(|$mem(z, x).BYTES| +  $($(n * $($(64 * $Ki)))))))
+    (WR SEQCST ((REGLEN a) $(|$mem(z, x).BYTES|)) (BYTES (0x00)^$($(n * $($(64 * $Ki))))))
     )  
-  $with_meminst(s; f, x, mi);  (CONST at $(|$mem(s; f, x).BYTES| / $($(64 * $Ki))))
   -- if (
           a = $c_frame_mem_modules(z, 0) 
         )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
-  -- if mi = $growmem($mem(s; f, x), n)
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
+  -- if mi = $growmem($mem(z, x), n)
 
 rule Step/memory.grow-fail-shared:
-  z; (CONST at n) (MEMORY.GROW x)  ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
-    ) 
+  z; (CONST at n) (MEMORY.GROW x)  ~>_(action*)
   z; (CONST at $inv_signed_($size(at), $(-1)))
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  ---- ----
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    ) 
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 
 rule Step_read/memory.fill-oob:
-  z; (CONST at i) val (CONST at n) (MEMORY.FILL x)  ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
+  z; (CONST at i) val (CONST at n) (MEMORY.FILL x)  ~>_(action*)
+  TRAP 
+  ---- ----
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
     )
-  TRAP
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE 
-  -- if $(i + n) > |$mem(s; f, x).BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE 
+  -- if $(i + n) > |$mem(z, x).BYTES|
 
 rule Step_read/memory.fill-zero:
   z; (CONST at i) val (CONST at n) (MEMORY.FILL x)  ~> eps
+  ---- ----
   -- otherwise
   -- if n = 0
-  -- if ($mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE /\ |$mem(s; f, 0).BYTES| = |$mem(s; f, x).BYTES|)
+  -- if ($mem(z, x).TYPE = addrtype limits UNSHARED PAGE /\ |$mem(z, 0).BYTES| = |$mem(z, x).BYTES|)
 
 rule Step_read/memory.fill-succ:
-  z; (CONST at i) val (CONST at n) (MEMORY.FILL x)  ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
-    )  
+  z; (CONST at i) val (CONST at n) (MEMORY.FILL x)  ~>_(action*)
   (CONST at i) val (STORE I32 `8 x $memarg0)
   (CONST at $(i+1)) val (CONST at $(n-1)) (MEMORY.FILL x)
+  ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE 
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    )  
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE 
 
 rule Step_read/memory.copy-oob:
-  z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (MEMORY.COPY x_1 x_2)  ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
-    )  
+  z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (MEMORY.COPY x_1 x_2)  ~>_(action*)
   TRAP
   ---- ----
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE 
-  -- if $(i_1 + n) > |$mem(s; f, x_1).BYTES| \/ $(i_2 + n) > |$mem(s; f, x_2).BYTES|
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    )  
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE 
+  -- if $(i_1 + n) > |$mem(z, x_1).BYTES| \/ $(i_2 + n) > |$mem(z, x_2).BYTES|
 
 rule Step_read/memory.copy-zero:
   z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (MEMORY.COPY x_1 x_2)  ~>  eps
   -- otherwise
-  -- if ($mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE /\ |$mem(s; f, 0).BYTES| = |$mem(s; f, x).BYTES|)
+  -- if ($mem(z, x).TYPE = addrtype limits UNSHARED PAGE /\ |$mem(z, 0).BYTES| = |$mem(z, x).BYTES|)
   -- if n = 0
 
 rule Step_read/memory.copy-le:
-  z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (MEMORY.COPY x_1 x_2)  ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
-    )  
+  z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (MEMORY.COPY x_1 x_2)  ~>_(action*)
     (CONST at_1 i_1) (CONST at_2 i_2) (LOAD I32 (`8 _ U) x_2 $memarg0) (STORE I32 `8 x_1 $memarg0)
     (CONST at_1 $(i_1 + 1)) (CONST at_2 $(i_2 + 1)) (CONST at' $(n - 1)) (MEMORY.COPY x_1 x_2)
+  ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE 
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    )  
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE 
   -- if i_1 <= i_2
 
 rule Step_read/memory.copy-gt:
-  z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (MEMORY.COPY x_1 x_2)  ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
-    )
+  z; (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' n) (MEMORY.COPY x_1 x_2)  ~>_(action*) 
     (CONST at_1 $(i_1+n-1)) (CONST at_2 $(i_2+n-1)) (LOAD I32 (`8 _ U) x_2 $memarg0) (STORE I32 `8 x_1 $memarg0)
     (CONST at_1 i_1) (CONST at_2 i_2) (CONST at' $(n-1)) (MEMORY.COPY x_1 x_2)
+  ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE 
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    )
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE 
 
 
 rule Step_read/memory.init-oob:
-  z; (CONST at i) (CONST I32 j) (CONST I32 n) (MEMORY.INIT x y)  ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
-    )  
+  z; (CONST at i) (CONST I32 j) (CONST I32 n) (MEMORY.INIT x y)  ~>_(action*)
   TRAP
   ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
-  -- if $(i + n) > |$mem(s; f, x).BYTES| \/ $(j + n) > |$data(s; f, y).BYTES|
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    )  
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
+  -- if $(i + n) > |$mem(z, x).BYTES| \/ $(j + n) > |$data(z, y).BYTES|
 
 rule Step_read/memory.init-zero:
-  z; (CONST at i) (CONST I32 j) (CONST I32 n) (MEMORY.INIT x y)  ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
-    ) 
+  z; (CONST at i) (CONST I32 j) (CONST I32 n) (MEMORY.INIT x y)  ~>_(action*)
   eps
+  ---- ----
   -- otherwise
-  -- if ($mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE /\ |$mem(s; f, 0).BYTES| = |$mem(s; f, x).BYTES|)
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    ) 
+  -- if ($mem(z, x).TYPE = addrtype limits UNSHARED PAGE /\ |$mem(z, 0).BYTES| = |$mem(z, x).BYTES|)
   -- if n = 0
 
 rule Step_read/memory.init-succ:
-  z; (CONST at i) (CONST I32 j) (CONST I32 n) (MEMORY.INIT x y)  ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
-    )  
-  (CONST at i) (CONST I32 $data(s; f,y).BYTES[j]) (STORE I32 `8 x $memarg0)
+  z; (CONST at i) (CONST I32 j) (CONST I32 n) (MEMORY.INIT x y)  ~>_(action*)
+  (CONST at i) (CONST I32 $data(z,y).BYTES[j]) (STORE I32 `8 x $memarg0)
   (CONST at $(i+1)) (CONST I32 $(j+1)) (CONST I32 $(n-1)) (MEMORY.INIT x y)
+  ---- ----
   -- otherwise 
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    )  
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step/data.drop:
   z; (DATA.DROP x)  ~>  $with_data(z, x, eps);  eps
@@ -1060,20 +1096,18 @@ rule Step_read/atomic.load-num-oob-unshared:
   z; (CONST at i) (ATOMIC.LOAD inntype x ao)  ~>  TRAP
   ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   
 rule Step_read/atomic.load-num-val-unshared:
   z; (CONST at i) (ATOMIC.LOAD inntype x ao)  ~>  (CONST inntype c)
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   -- if $ibytes_($size(inntype), c) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
   -- if $((i + ao.OFFSET) \ $size(inntype)/8) = 0
   -- if $(i + ao.OFFSET + $size(inntype)/8 <= |$mem(z, x).BYTES|)
@@ -1082,91 +1116,85 @@ rule Step_read/atomic.load-pack-oob-unshared:
   z; (CONST at i) (ATOMIC.LOAD inntype (n _ U) x ao)  ~>  TRAP
   ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step_read/atomic.load-pack-val-unshared:
   z; (CONST at i) (ATOMIC.LOAD inntype (n _ U) x ao)  ~>  (CONST inntype $extend__(n, $size(inntype), U, c))
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   -- if $ibytes_(n, c) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
   -- if $((i + ao.OFFSET) \ n/8) = 0
   -- if $(i + ao.OFFSET + n/8 <= |$mem(z, x).BYTES|)
 
 rule Step_read/atomic.load-num-oob-shared:
-  z; (CONST at i) (ATOMIC.LOAD inntype x ao)  ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
-    )  
+  z; (CONST at i) (ATOMIC.LOAD inntype x ao)  ~>_(action*)
   TRAP
   ---- ----
   -- otherwise
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    )  
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step_read/atomic.load-num-val-shared:
-  z; (CONST at i) (ATOMIC.LOAD inntype x ao)  ~>_( 
-      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
-      (RD ord ((REGDATA a) ea) (BYTES bytes) notears?)) 
+  z; (CONST at i) (ATOMIC.LOAD inntype x ao)  ~>_(action*)
   (CONST inntype c)
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ( 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+      (RD ord ((REGDATA a) ea) (BYTES bytes) notears?)) 
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
   -- if $ibytes_($size(inntype), c) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
   -- if $((i + ao.OFFSET) \ n/8) = 0
   -- if $(i + ao.OFFSET + $size(inntype)/8 <= |$mem(z, x).BYTES|)
 
 rule Step_read/atomic.load-pack-oob-shared:
-  z; (CONST at i) (ATOMIC.LOAD inntype (n _ U) x ao)  ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|)))
+  z; (CONST at i) (ATOMIC.LOAD inntype (n _ U) x ao)  ~>_(action*)
   TRAP
   ---- ----
   -- otherwise
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|)))
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step_read/atomic.load-pack-val-shared:
-  z; (CONST at i) (ATOMIC.LOAD inntype (n _ U) x ao)  ~>_( 
-    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
-    (RD ord ((REGDATA a) ea) (BYTES bytes) notears?))
+  z; (CONST at i) (ATOMIC.LOAD inntype (n _ U) x ao)  ~>_(action*)
   (CONST inntype $extend__(n, $size(inntype), U, c))
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ( 
+    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+    (RD ord ((REGDATA a) ea) (BYTES bytes) notears?))
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
   -- if $ibytes_(n, c) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
   -- if $((i + ao.OFFSET) \ n/8) = 0
   -- if $(i + ao.OFFSET + n/8 <= |$mem(z, x).BYTES|)
@@ -1175,20 +1203,18 @@ rule Step/atomic.store-num-oob-unshared:
   z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype x ao)  ~>  z; TRAP
   ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step/atomic.store-num-val-unshared:
   z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $($size(inntype)/8), b*);  eps
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   -- if b* = $ibytes_($size(inntype), c)
   -- if $((i + ao.OFFSET) \ $size(inntype)/8) = 0
   -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem(z, x).BYTES|
@@ -1197,91 +1223,85 @@ rule Step/atomic.store-pack-oob-unshared:
   z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype n x ao)  ~>  z; TRAP
   ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step/atomic.store-pack-val-unshared:
   z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype n x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*);  eps
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   -- if b* = $ibytes_(n, $wrap__($size(inntype), n, c))
   -- if $((i + ao.OFFSET) \ $size(inntype)/8) = 0
   -- if $(i + ao.OFFSET + n/8) <= |$mem(z, x).BYTES|
 
 rule Step/atomic.store-num-oob-shared:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype x ao)  ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
-    ) 
+  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype x ao)  ~>_(action*)
   z; TRAP
   ---- ----
   -- otherwise
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    ) 
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step/atomic.store-num-val-shared:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype x ao)  ~>_( 
-    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
-      (WR ord ((REGDATA a) ea) (BYTES b*) notears?))
+  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype x ao)  ~>_(action*)
   $with_mem(z, x, $(i + ao.OFFSET), $($size(inntype)/8), b*);  eps
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ( 
+    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+    (WR ord ((REGDATA a) ea) (BYTES b*) notears?))
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
   -- if b* = $ibytes_($size(inntype), c)
   -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem(z, x).BYTES|
 
 rule Step/atomic.store-pack-oob-shared:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype n x ao)  ~>_(
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
-    )
+  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype n x ao)  ~>_(action*)
   z; TRAP
   ---- ----
   -- otherwise
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = (
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    )
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step/atomic.store-pack-val-shared:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype n x ao)  ~>_( 
-    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
-      (WR ord ((REGDATA a) ea) (BYTES b*) notears?))  
+  z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype n x ao)  ~>_(action*)
   $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*);  eps
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ( 
+    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+    (WR ord ((REGDATA a) ea) (BYTES b*) notears?))  
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
   -- if b* = $ibytes_(n, $wrap__($size(inntype), n, c))
   -- if $(i + ao.OFFSET + n/8) <= |$mem(z, x).BYTES|
 
@@ -1290,21 +1310,19 @@ rule Step/atomic.rmw-num-oob-unshared:
   z; TRAP
   ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step/atomic.rmw-num-val-unshared:
   z; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype rmwop x ao) ~> 
   $with_mem(z, x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (CONST inntype d)
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   -- if j = $rmwop_(inntype, rmwop, c, d)
   -- if b* = $ibytes_($size(inntype), j)
   -- if $ibytes_($size(inntype), d) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
@@ -1314,15 +1332,13 @@ rule Step/atomic.rmw-num-pack-unshared:
   z; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype n rmwop x ao) ~> 
   $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); (CONST inntype d)
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   -- if j = $rmwop_($inv_jsize(n), rmwop, $wrap__($size(inntype), n, c), $wrap__($size(inntype), n, d))
   -- if b* = $ibytes_(n, $extend__(n, $size(inntype), U, j))
   -- if $ibytes_(n, d) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
@@ -1332,21 +1348,19 @@ rule Step/atomic.rmw.cmpxchg-num-oob-unshared:
   z; TRAP
   ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step/atomic.rmw.cmpxchg-num-equals-val-unshared:
   z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~> 
   $with_mem(z, x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (CONST inntype d)
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   -- if d = c
   -- if $ibytes_($size(inntype), d) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
   -- if b* = $ibytes_($size(inntype), g)
@@ -1356,15 +1370,13 @@ rule Step/atomic.rmww.cmpxchg-num-notequals-val-unshared:
   z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~> 
   z; (CONST inntype d)
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   -- if d =/= c
   -- if $ibytes_($size(inntype), d) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
   -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem(z, x).BYTES|
@@ -1373,15 +1385,13 @@ rule Step/atomic.rmw.cmpxchg-num-equals-pack-unshared:
   z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype n x ao) ~> 
   $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); (CONST inntype d)
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   -- if d = c
   -- if $ibytes_(n, d) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
   -- if b* = $ibytes_(n, $wrap__($size(inntype), n, g))
@@ -1391,15 +1401,13 @@ rule Step/atomic.rmw.cmpxchg-num-notequals-pack-unshared:
   z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype n x ao) ~> 
   z; (CONST inntype d)
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   -- if d =/= c
   -- if $ibytes_(n, d) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
   -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem(z, x).BYTES|
@@ -1408,203 +1416,191 @@ rule Step/memory.atomic.notify-oob-unshared:
   z; (CONST at i) (CONST I32 count) (MEMORY.ATOMIC.NOTIFY x ao) ~> z; TRAP
   ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   -- if $(i + ao.OFFSET + $size(I32)/8) > |$mem(z, x).BYTES|
   -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem(z, x).BYTES|
 
 rule Step/memory.atomic.notify-unshared:
   z; (CONST at i) (CONST I32 count) (MEMORY.ATOMIC.NOTIFY x ao) ~> z; (CONST I32 0)
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem(z, x).BYTES|
 
 
 rule Step/atomic.rmw-num-oob-shared:
-  z;  (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype rmwop x ao) ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
-    )
+  z;  (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype rmwop x ao) ~>_(action*)
   z; TRAP
   ---- ----
   -- otherwise
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    )
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step/atomic.rmw-num-val-shared:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype rmwop x ao) ~>_( 
-    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
-      (RMW ((REGDATA a) ea) (BYTES $mem(s; f, x).BYTES) (BYTES b*)))
+  z; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype rmwop x ao) ~>_(action*)
   $with_mem(z, x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (CONST inntype d)
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ( 
+    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+    (RMW ((REGDATA a) ea) (BYTES $mem(z, x).BYTES) (BYTES b*)))
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
   -- if j = $rmwop_(inntype, rmwop, c, d)
   -- if b* = $ibytes_($size(inntype), j)
   -- if $ibytes_($size(inntype), d) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
   -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem(z, x).BYTES|
 
 rule Step/atomic.rmw-num-pack-shared:
-  z; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype n rmwop x ao) ~>_( 
-    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
-      (RMW ((REGDATA a) ea) (BYTES $mem(s; f, x).BYTES) (BYTES b*)))  
+  z; (CONST at i) (CONST inntype c) (ATOMIC.RMW inntype n rmwop x ao) ~>_(action*)
   $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); (CONST inntype d)
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ( 
+    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+    (RMW ((REGDATA a) ea) (BYTES $mem(z, x).BYTES) (BYTES b*)))  
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
   -- if j = $rmwop_($inv_jsize(n), rmwop, $wrap__($size(inntype), n, c), $wrap__($size(inntype), n, d))
   -- if b* = $ibytes_(n, $extend__(n, $size(inntype), U, j))
   -- if $ibytes_(n, d) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
   -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem(z, x).BYTES|
 
 rule Step/atomic.rmw.cmpxchg-num-oob-shared:
-  z;  (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~>_(RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
+  z;  (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~>_(action*)
   z; TRAP
   ---- ----
   -- otherwise
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step/atomic.rmw.cmpxchg-num-equals-val-shared:
-  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~>_( 
-      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
-      (RMW ((REGDATA a) ea) (BYTES $mem(s; f, x).BYTES) (BYTES b*)))   
+  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~>_(action*)
   $with_mem(z, x, $(i + ao.OFFSET), $($size(inntype)/8), b*); (CONST inntype d)
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ( 
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+      (RMW ((REGDATA a) ea) (BYTES $mem(z, x).BYTES) (BYTES b*)))   
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
   -- if d = c
   -- if $ibytes_($size(inntype), d) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
   -- if b* = $ibytes_($size(inntype), g)
   -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem(z, x).BYTES|
 
 rule Step/atomic.rmww.cmpxchg-num-notequals-val-shared:
-  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~>_(
-      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
-      (RMW ((REGDATA a) ea) (BYTES $mem(s; f, x).BYTES) (BYTES b*)))  
+  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype x ao) ~>_(action*)
   z; (CONST inntype d)
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = (
+      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+      (RMW ((REGDATA a) ea) (BYTES $mem(z, x).BYTES) (BYTES b*)))  
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
   -- if d =/= c
   -- if $ibytes_($size(inntype), d) = $mem(z, x).BYTES[i + ao.OFFSET : $size(inntype)/8]
   -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem(z, x).BYTES|
 
 rule Step/atomic.rmw.cmpxchg-num-equals-pack-shared:
-  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype n x ao) ~>_((RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
-      (RMW ((REGDATA a) ea) (BYTES $mem(s; f, x).BYTES) (BYTES b*)))   
+  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype n x ao) ~>_(action*) 
   $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*); (CONST inntype d)
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ((RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+      (RMW ((REGDATA a) ea) (BYTES $mem(z, x).BYTES) (BYTES b*)))  
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
   -- if d = c
   -- if $ibytes_(n, d) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
   -- if b* = $ibytes_(n, $wrap__($size(inntype), n, g))
   -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem(z, x).BYTES|
 
 rule Step/atomic.rmw.cmpxchg-num-notequals-pack-shared:
-  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype n x ao) ~>_((RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
-      (RMW ((REGDATA a) ea) (BYTES $mem(s; f, x).BYTES) (BYTES b*)))  
+  z; (CONST at i) (CONST inntype c) (CONST inntype g) (ATOMIC.RMW.CMPXCHG inntype n x ao) ~>_(action*)
   z; (CONST inntype d)
   ---- ----
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ((RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+      (RMW ((REGDATA a) ea) (BYTES $mem(z, x).BYTES) (BYTES b*)))  
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
   -- if d =/= c
   -- if $ibytes_(n, d) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
   -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem(z, x).BYTES|
 
 rule Step/memory.atomic.notify-oob-shared:
-  z; (CONST at i) (CONST I32 count) (MEMORY.ATOMIC.NOTIFY x ao) ~>_( 
-    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))
-    )
+  z; (CONST at i) (CONST I32 count) (MEMORY.ATOMIC.NOTIFY x ao) ~>_(action*)
   z; TRAP
   ---- ----
   -- otherwise
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    )
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
 rule Step/memory.atomic.notify-shared:
-  z; (CONST at i) (CONST I32 count) (MEMORY.ATOMIC.NOTIFY x ao) ~>_( 
-    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(s; f, x).BYTES|))) 
-    (RD ord ((REGDATA a) ea) (BYTES bytes)) )  
+  z; (CONST at i) (CONST I32 count) (MEMORY.ATOMIC.NOTIFY x ao) ~>_(action*)
   z; (CONST I32 0)
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits SHARED PAGE
+  -- if action* = ( 
+    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+    (RD ord ((REGDATA a) ea) (BYTES bytes)))  
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
   -- if $(i + ao.OFFSET + $size(I32)/8) <= |$mem(z, x).BYTES|
 
 
@@ -1612,19 +1608,17 @@ rule Step/memory.atomic.wait-oob-unshared:
   z; (CONST at i) (CONST inntype expected) (CONST I64 timeout) (MEMORY.ATOMIC.WAIT inntype x ao) ~> z; TRAP
   ---- ----
   -- otherwise
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step/memory.atomic.wait-unshared:
   z; (CONST at i) (CONST inntype expected) (CONST I64 timeout) (MEMORY.ATOMIC.WAIT inntype x ao) ~> z; TRAP
-  -- if (
-          a = $c_frame_mem_modules(z, 0) /\
-          ord = SEQCST /\
-          notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) /\
-          storemem = $mem(s; f, x) /\
-          ea = $(i + ao.OFFSET) /\
-          nlen = |storemem.BYTES|
-        )
-  -- if $mem(s; f, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if a = $c_frame_mem_modules(z, 0) 
+  -- if ord = SEQCST 
+  -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if storemem = $mem(z, x) 
+  -- if ea = $(i + ao.OFFSET) 
+  -- if nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
   -- if $(i + ao.OFFSET + $size(inntype)/8) <= |$mem(z, x).BYTES|
 
 rule Step/atomic.fence:
@@ -1720,7 +1714,7 @@ rule Step_read/struct.get-null:
 
 rule Step_read/struct.get-struct:
   z; (REF.STRUCT_ADDR a) (STRUCT.GET sx? x i)  ~>  $unpackfield_(zt*[i], sx?, $structinst(z)[a].FIELDS[i])
-  ----
+  ---- ----
   -- Expand: $type(z, x) ~~ STRUCT (mut? zt)*
 
 
@@ -1729,7 +1723,7 @@ rule Step/struct.set-null:
 
 rule Step/struct.set-struct:
   z; (REF.STRUCT_ADDR a) val (STRUCT.SET x i)  ~>  $with_struct(z, a, i, $packfield_(zt*[i], val)); eps
-  ----
+  ---- ----
   -- Expand: $type(z, x) ~~ STRUCT (mut? zt)*
 
 
@@ -1745,7 +1739,7 @@ rule Step_read/array.new_default:
 
 rule Step/array.new_fixed:
   z; val^n (ARRAY.NEW_FIXED x n)  ~>  $add_arrayinst(z, ai); (REF.ARRAY_ADDR a)
-  ----
+  ---- ----
   -- Expand: $type(z, x) ~~ ARRAY (mut? zt)
   -- if a = |$arrayinst(z)|
      /\ ai = {TYPE $type(z, x), FIELDS ($packfield_(zt, val))^n}
@@ -1757,20 +1751,20 @@ rule Step_read/array.new_elem-oob:
 
 rule Step_read/array.new_elem-alloc:
   z; (CONST I32 i) (CONST I32 n) (ARRAY.NEW_ELEM x y)  ~>  ref^n (ARRAY.NEW_FIXED x n)
-  ----
+  ---- ----
   -- if ref^n = $elem(z, y).REFS[i : n]
 
 
 rule Step_read/array.new_data-oob:
   z; (CONST I32 i) (CONST I32 n) (ARRAY.NEW_DATA x y)  ~>  TRAP
-  ----
+  ---- ----
   -- Expand: $type(z, x) ~~ ARRAY (mut? zt)
   -- if $(i + n * $zsize(zt)/8 > |$data(z, y).BYTES|)
 
 ;; TODO(2, rossberg): outline Cnn = $cunpack(zt)
 rule Step_read/array.new_data-num:
   z; (CONST I32 i) (CONST I32 n) (ARRAY.NEW_DATA x y)  ~>  ($const($cunpack(zt), $cunpacknum_(zt, c)))^n (ARRAY.NEW_FIXED x n)
-  ----
+  ---- ----
   -- Expand: $type(z, x) ~~ ARRAY (mut? zt)
   -- if $concatn_(byte, $zbytes_(zt, c)^n, $($zsize(zt)/8)) = $data(z, y).BYTES[i : n * $zsize(zt)/8]
 
@@ -1784,7 +1778,7 @@ rule Step_read/array.get-oob:
 
 rule Step_read/array.get-array:
   z; (REF.ARRAY_ADDR a) (CONST I32 i) (ARRAY.GET sx? x)  ~>  $unpackfield_(zt, sx?, $arrayinst(z)[a].FIELDS[i])
-  ----
+  ---- ----
   -- Expand: $type(z, x) ~~ ARRAY (mut? zt)
 
 
@@ -1797,7 +1791,7 @@ rule Step/array.set-oob:
 
 rule Step/array.set-array:
   z; (REF.ARRAY_ADDR a) (CONST I32 i) val (ARRAY.SET x)  ~>  $with_array(z, a, i, $packfield_(zt, val)); eps
-  ----
+  ---- ----
   -- Expand: $type(z, x) ~~ ARRAY (mut? zt)
 
 

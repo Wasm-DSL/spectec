@@ -476,10 +476,6 @@ def $unfoldu32(u32, u32): u32*
 def $unfoldu32(uint32_1, 0) = eps
 def $unfoldu32(uint32_1, uint32_2) = $unfoldu32(uint32_1, $(uint32_2 - 1)) $(uint32_1 + uint32_2)
 
-def $unfoldnat(nat, nat): nat*
-def $unfoldnat(nat_1, 0) = 0
-def $unfoldnat(nat_1, nat_2) = $unfoldnat(nat_1, $(nat_2 - 1)) $(nat_1 + nat_2)
-
 def $max(nat, nat): nat
 def $max(n1, n2) = n1 -- if n1 >= n2
 def $max(n1, n2) = n2 -- otherwise

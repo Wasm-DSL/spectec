@@ -299,31 +299,11 @@ def $forall2(syntax X, syntax Y, eps, testy*, $p) = true
 def $forall2(syntax X, syntax Y, testx_1 testx*, testy*, $p) = $forall2(X, Y, testx*, testy*, $p)
   -- (if $p(testx_1, testy))*
 
-def $forall1and2(syntax X, syntax Y, X*, Y, def $p(X, Y) : bool) : bool  hint(show (!) x <- %3. %5#(x, %4))
-def $forall1and2(syntax X, syntax Y, testx*, Y, $p) = true  -- (if $p(testx, Y))*
-
-def $forall1and3(syntax X, syntax Y, syntax Z, X*, Y, Z, def $p(X, Y, Z) : bool) : bool  hint(show (!) x <- %4. %7#(x, %5, %6))
-def $forall1and3(syntax X, syntax Y, syntax Z, testx*, y1, z1, $p) = true -- (if $p(testx, y1, z1))*
-def $forall1and3(syntax X, syntax Y, syntax Z, testx*, y1, z1, $p) = false -- otherwise
-
-def $forall1and4(syntax X, syntax Y, syntax Z, syntax W, X*, Y, Z, W, def $p(X, Y, Z, W) : bool) : bool  hint(show (!) x <- %5. %9#(x, %7, %8))
-def $forall1and4(syntax X, syntax Y, syntax Z, syntax W, testx*, y1, z1, w1, $p) = true -- (if $p(testx, y1, z1, w1))*
-def $forall1and4(syntax X, syntax Y, syntax Z, syntax W, testx*, y1, z1, w1, $p) = false -- otherwise
-
-def $forall1and5(syntax X, syntax Y, syntax Z, syntax W, syntax V, X*, Y, Z, W, V, def $p(X, Y, Z, W, V) : bool) : bool  hint(show (!) x <- %4. %7#(x))
-def $forall1and5(syntax X, syntax Y, syntax Z, syntax W, syntax V, testx*, y1, z1, w1, v1, $p) = true -- (if $p(testx, y1, z1, w1, v1))*
-def $forall1and5(syntax X, syntax Y, syntax Z, syntax W, syntax V, testx*, y1, z1, w1, v1, $p) = false -- otherwise
-
 def $impliesconsistentwith(event, event) : bool  
 def $impliesconsistentwith(evt__init, evt) =  $has_init(evt_i) /\ (evt_i =/= evt) /\ $overlap_reg(evt_i, evt) ==> $happensbefore(evt_i, evt)
 
 def $impliestothappensbefore(event, event) : bool
 def $impliestothappensbefore(evt1, evt2) = $tot(evt1, evt2) ==> $happensbefore(evt1, evt2)
-
-def $notinrange(u32, u32*) : bool
-def $notinrange(k, eps) = true
-def $notinrange(k, rangeaddr' rangeaddr*) = false -- if k = rangeaddr'
-def $notinrange(k, rangeaddr' rangeaddr*) = true -- if k =/= rangeaddr' /\ $notinrange(k, rangeaddr*)
 
 def $forallimpliesconsistentwith(event*, event*) : bool   hint(show (!) evt_I, evt <- tr, ord_reg(evt_I) = init /\ evt_I =/= evt /\ overlap(evt_I, evt) ==> evt_I <<_hb evt)
 def $forallimpliesconsistentwith(evt__init^x, tr) = $forall2(event, event, evt__init^x, tr, $impliesconsistentwith)
@@ -338,20 +318,7 @@ relation Forallsuspensionsconsistent: (!) u32 `<- u32* region |- trace Suspensio
 relation Forallreadseachfrom: (!) event `<- event* (?) event `<- event* trace region |- event Readseachfrom event   hint(show (!) evt_R <- reading_reg#(tr), (?) evt_W `. tr |-_reg evt_R Readseachfrom evt_W)
 
 relation Forallreadsfrom: (!) u32 `<- u32* trace region |- event Readsfrom event    hint(show (!) i < |evt_W*| . tr i |-_reg evt_R Readsfrom (evt_W*[i]))
-
-rule Forallconsistentwith/init:
-  (!) reg `<- allreg* |- tr Consistentwith
-
-rule Forallsuspensionsconsistent/init:
-  (!) i `<- k^(k<2^32) reg |- tr Suspensionsconsistent
-
-rule Forallreadseachfrom/init:
-  (!) evt_R `<- $readingfilter(tr) (?) evt_W `<- $writefilter(tr) tr reg |- evt_R Readseachfrom evt_W
-
-rule Forallreadsfrom/init:
-  (!) i `<- k^(k<2^32) tr reg |- evt_R Readsfrom evt_W
   
-;; Can express all possible registers as a list? So can use $forall
 rule Consistent/init:
   |- tr Consistent 
   -- Forallconsistentwith: (!) reg `<- $allreg |- tr Consistentwith
@@ -378,7 +345,7 @@ rule Readsfrom/init:
   -- --
   -- if evt_W <- $writefilter(tr)
   -- --
-  -- if k <- $unfoldu32(0, $nat$(2^32-1)) ;; HACK!
+  -- var k : u32 ;; HACK!
   ;;-- if k <- u32list^(u32list<2^32) ;; HACK!
   -- Valueconsistent: tr reg i k |- evt_R Valueconsistent evt_W
   -- --
@@ -407,7 +374,7 @@ rule Hbconsistent/init:
   -- --
   -- if evt_W'* = $writefilter(trace)
   -- --
-  -- (if $happensbefore(evt_W, evt_W') /\ $happensbefore(evt_W', evt_R) ==> $notinrange(k, $access1_r(reg, evt_W', u32*, $range)))*
+  -- (if $happensbefore(evt_W, evt_W') /\ $happensbefore(evt_W', evt_R) ==> k </- $access1_r(reg, evt_W', u32*, $range))*
 
 rule Sclastvisible/init:
   trace reg |- evt_R Sclastvisible evt_W 
