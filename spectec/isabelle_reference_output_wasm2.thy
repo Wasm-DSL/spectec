@@ -7477,7 +7477,7 @@ inductive Externtype_sub :: "externtype ⇒ externtype ⇒ bool" where
 		 (wf_externtype (MEM mt_2)) ⟹
 		 Externtype_sub (MEM mt_1) (MEM mt_2)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:194.1-194.76 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:198.1-198.76 *)
 inductive Blocktype_ok :: "res_context ⇒ blocktype ⇒ functype ⇒ bool" where
 	  Blocktype_ok__valtype :
 		"(wf_context C) ⟹
@@ -7929,13 +7929,18 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ functype ⇒ bool" where
 	| empty :
 		"(wf_context C) ⟹
 		 Instrs_ok C [] (mk_functype (mk_list []) (mk_list []))"
+	| Instrs_ok__instr :
+		"(Instr_ok C v_instr (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
+		 (wf_context C) ⟹
+		 (wf_instr v_instr) ⟹
+		 Instrs_ok C [v_instr] (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
 	| seq :
-		"(Instr_ok C instr_1 (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
+		"(Instrs_ok C instr_1_lst (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (Instrs_ok C instr_2_lst (mk_functype (mk_list t_2_lst) (mk_list t_3_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr instr_1) ⟹
+		 list_all (λ (instr_1 :: instr). (wf_instr instr_1)) instr_1_lst ⟹
 		 list_all (λ (instr_2 :: instr). (wf_instr instr_2)) instr_2_lst ⟹
-		 Instrs_ok C ([instr_1] @ instr_2_lst) (mk_functype (mk_list t_1_lst) (mk_list t_3_lst))"
+		 Instrs_ok C (instr_1_lst @ instr_2_lst) (mk_functype (mk_list t_1_lst) (mk_list t_3_lst))"
 	| sub :
 		"(Instrs_ok C instr_lst (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (Resulttype_sub (mk_list t'_1_lst) (mk_list t_1_lst)) ⟹
@@ -7957,7 +7962,7 @@ inductive Expr_ok :: "res_context ⇒ expr ⇒ resulttype ⇒ bool" where
 		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
 		 Expr_ok C instr_lst (mk_list t_lst)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:525.1-525.78 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:529.1-529.78 *)
 inductive Instr_const :: "res_context ⇒ instr ⇒ bool" where
 	  Instr_const__const :
 		"(wf_context C) ⟹
@@ -7982,7 +7987,7 @@ inductive Instr_const :: "res_context ⇒ instr ⇒ bool" where
 		 (wf_instr (instr_sc4 (GLOBAL_GET x))) ⟹
 		 Instr_const C (instr_sc4 (GLOBAL_GET x))"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:526.1-526.77 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:530.1-530.77 *)
 inductive Expr_const :: "res_context ⇒ expr ⇒ bool" where
 	  mk_Expr_const :
 		"list_all (λ (v_instr :: instr). (Instr_const C v_instr)) instr_lst ⟹
@@ -7990,7 +7995,7 @@ inductive Expr_const :: "res_context ⇒ expr ⇒ bool" where
 		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
 		 Expr_const C instr_lst"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:527.1-527.78 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:531.1-531.78 *)
 inductive Expr_ok_const :: "res_context ⇒ expr ⇒ valtype ⇒ bool" where
 	  mk_Expr_ok_const :
 		"(Expr_ok C v_expr (mk_list [t])) ⟹
@@ -7999,13 +8004,13 @@ inductive Expr_ok_const :: "res_context ⇒ expr ⇒ valtype ⇒ bool" where
 		 list_all (λ (v_expr :: instr). (wf_instr v_expr)) v_expr ⟹
 		 Expr_ok_const C v_expr t"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:560.1-560.73 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:564.1-564.73 *)
 inductive Type_ok :: "type ⇒ functype ⇒ bool" where
 	  mk_Type_ok :
 		"(Functype_ok ft) ⟹
 		 Type_ok (res_TYPE ft) ft"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:561.1-561.73 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:565.1-565.73 *)
 inductive Func_ok :: "res_context ⇒ func ⇒ functype ⇒ bool" where
 	  mk_Func_ok :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
@@ -8017,7 +8022,7 @@ inductive Func_ok :: "res_context ⇒ func ⇒ functype ⇒ bool" where
 		 (wf_context ⦇ context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = (t_1_lst @ t_lst), LABELS = [(mk_list t_2_lst)], context_RETURN = (Some (mk_list t_2_lst)) ⦈) ⟹
 		 Func_ok C (func_FUNC x (map (λ (t :: valtype). (LOCAL t)) t_lst) v_expr) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:562.1-562.75 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:566.1-566.75 *)
 inductive Global_ok :: "res_context ⇒ global ⇒ globaltype ⇒ bool" where
 	  mk_Global_ok :
 		"(Globaltype_ok gt) ⟹
@@ -8027,7 +8032,7 @@ inductive Global_ok :: "res_context ⇒ global ⇒ globaltype ⇒ bool" where
 		 (wf_global (global_GLOBAL gt v_expr)) ⟹
 		 Global_ok C (global_GLOBAL gt v_expr) gt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:563.1-563.74 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:567.1-567.74 *)
 inductive Table_ok :: "res_context ⇒ table ⇒ tabletype ⇒ bool" where
 	  mk_Table_ok :
 		"(Tabletype_ok tt) ⟹
@@ -8035,7 +8040,7 @@ inductive Table_ok :: "res_context ⇒ table ⇒ tabletype ⇒ bool" where
 		 (wf_table (table_TABLE tt)) ⟹
 		 Table_ok C (table_TABLE tt) tt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:564.1-564.72 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:568.1-568.72 *)
 inductive Mem_ok :: "res_context ⇒ mem ⇒ memtype ⇒ bool" where
 	  mk_Mem_ok :
 		"(Memtype_ok mt) ⟹
@@ -8043,7 +8048,7 @@ inductive Mem_ok :: "res_context ⇒ mem ⇒ memtype ⇒ bool" where
 		 (wf_mem (MEMORY mt)) ⟹
 		 Mem_ok C (MEMORY mt) mt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:567.1-567.77 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:571.1-571.77 *)
 inductive Elemmode_ok :: "res_context ⇒ elemmode ⇒ reftype ⇒ bool" where
 	  active :
 		"((proj_uN_0 x) < (length (context_TABLES C))) ⟹
@@ -8062,7 +8067,7 @@ inductive Elemmode_ok :: "res_context ⇒ elemmode ⇒ reftype ⇒ bool" where
 		 (wf_elemmode DECLARE) ⟹
 		 Elemmode_ok C DECLARE rt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:565.1-565.73 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:569.1-569.73 *)
 inductive Elem_ok :: "res_context ⇒ elem ⇒ reftype ⇒ bool" where
 	  mk_Elem_ok :
 		"list_all (λ (v_expr :: expr). (Expr_ok_const C v_expr (valtype_reftype rt))) expr_lst ⟹
@@ -8071,7 +8076,7 @@ inductive Elem_ok :: "res_context ⇒ elem ⇒ reftype ⇒ bool" where
 		 (wf_elem (ELEM rt expr_lst v_elemmode)) ⟹
 		 Elem_ok C (ELEM rt expr_lst v_elemmode) rt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:568.1-568.77 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:572.1-572.77 *)
 inductive Datamode_ok :: "res_context ⇒ datamode ⇒ bool" where
 	  Datamode_ok__active :
 		"(0 < (length (context_MEMS C))) ⟹
@@ -8086,7 +8091,7 @@ inductive Datamode_ok :: "res_context ⇒ datamode ⇒ bool" where
 		 (wf_datamode datamode_PASSIVE) ⟹
 		 Datamode_ok C datamode_PASSIVE"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:566.1-566.73 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:570.1-570.73 *)
 inductive Data_ok :: "res_context ⇒ data ⇒ bool" where
 	  mk_Data_ok :
 		"(Datamode_ok C v_datamode) ⟹
@@ -8094,7 +8099,7 @@ inductive Data_ok :: "res_context ⇒ data ⇒ bool" where
 		 (wf_data (DATA b_lst v_datamode)) ⟹
 		 Data_ok C (DATA b_lst v_datamode)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:569.1-569.74 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:573.1-573.74 *)
 inductive Start_ok :: "res_context ⇒ start ⇒ bool" where
 	  mk_Start_ok :
 		"((proj_uN_0 x) < (length (context_FUNCS C))) ⟹
@@ -8103,7 +8108,7 @@ inductive Start_ok :: "res_context ⇒ start ⇒ bool" where
 		 (wf_start (START x)) ⟹
 		 Start_ok C (START x)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:633.1-633.80 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:637.1-637.80 *)
 inductive Import_ok :: "res_context ⇒ import ⇒ externtype ⇒ bool" where
 	  mk_Import_ok :
 		"(Externtype_ok xt) ⟹
@@ -8111,7 +8116,7 @@ inductive Import_ok :: "res_context ⇒ import ⇒ externtype ⇒ bool" where
 		 (wf_import (IMPORT name_1 name_2 xt)) ⟹
 		 Import_ok C (IMPORT name_1 name_2 xt) xt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:635.1-635.83 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:639.1-639.83 *)
 inductive Externidx_ok :: "res_context ⇒ externidx ⇒ externtype ⇒ bool" where
 	  Externidx_ok__func :
 		"((proj_uN_0 x) < (length (context_FUNCS C))) ⟹
@@ -8142,7 +8147,7 @@ inductive Externidx_ok :: "res_context ⇒ externidx ⇒ externtype ⇒ bool" wh
 		 (wf_externtype (MEM mt)) ⟹
 		 Externidx_ok C (externidx_MEM x) (MEM mt)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:634.1-634.80 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:638.1-638.80 *)
 inductive Export_ok :: "res_context ⇒ export ⇒ externtype ⇒ bool" where
 	  mk_Export_ok :
 		"(Externidx_ok C v_externidx xt) ⟹
@@ -8151,7 +8156,7 @@ inductive Export_ok :: "res_context ⇒ export ⇒ externtype ⇒ bool" where
 		 (wf_export (EXPORT v_name v_externidx)) ⟹
 		 Export_ok C (EXPORT v_name v_externidx) xt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:665.1-665.62 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:669.1-669.62 *)
 inductive Module_ok :: "module ⇒ bool" where
 	  mk_Module_ok :
 		"(fun_memsxt ixt_lst var_3) ⟹
@@ -9388,8 +9393,8 @@ inductive fun_instantiate :: "store ⇒ module ⇒ (externaddr list) ⇒ config 
 		 list_all2 (λ (expr_E_lst_2 :: (expr list)) (ref_lst_3 :: (ref list)). list_all2 (λ (expr_E_2 :: expr) (ref_7 :: ref). (Eval_expr z expr_E_2 z [(val_ref ref_7)])) expr_E_lst_2 ref_lst_3) expr_E_lst_lst ref_lst_lst ⟹
 		 ((s', v_moduleinst) = var_2) ⟹
 		 (f = ⦇ LOCALS = [], frame_MODULE = v_moduleinst ⦈) ⟹
-		 holds_upto (λ i_71285. (i_71285 < (length elem_lst))) n_E ⟹
-		 (instr_E_lst = (concat_underscore  (mkseq (λ i_71285. (runelem (elem_lst ! i_71285) (mk_uN i_71285))) n_E))) ⟹
+		 holds_upto (λ i_71298. (i_71298 < (length elem_lst))) n_E ⟹
+		 (instr_E_lst = (concat_underscore  (mkseq (λ i_71298. (runelem (elem_lst ! i_71298) (mk_uN i_71298))) n_E))) ⟹
 		 holds_upto (λ j_17. ((rundata (data_lst ! j_17) (mk_uN j_17)) ≠ None)) n_D ⟹
 		 holds_upto (λ j_17. (j_17 < (length data_lst))) n_D ⟹
 		 (instr_D_lst = (concat_underscore  (mkseq (λ j_17. (the ((rundata (data_lst ! j_17) (mk_uN j_17))))) n_D))) ⟹
@@ -9405,7 +9410,7 @@ inductive fun_instantiate :: "store ⇒ module ⇒ (externaddr list) ⇒ config 
 		 (wf_frame ⦇ LOCALS = [], frame_MODULE = moduleinst_init ⦈) ⟹
 		 (wf_state (mk_state s f_init)) ⟹
 		 (wf_frame ⦇ LOCALS = [], frame_MODULE = v_moduleinst ⦈) ⟹
-		 holds_upto (λ i_71288. (wf_uN 32 (mk_uN i_71288))) n_E ⟹
+		 holds_upto (λ i_71301. (wf_uN 32 (mk_uN i_71301))) n_E ⟹
 		 holds_upto (λ j_18. (wf_uN 32 (mk_uN j_18))) n_D ⟹
 		 fun_instantiate s v_module externaddr_lst (mk_config (mk_state s' f) ((map (λ (instr_E :: instr). (admininstr_instr instr_E)) instr_E_lst) @ ((map (λ (instr_D :: instr). (admininstr_instr instr_D)) instr_D_lst) @ (option_to_list (map_option (λ (x :: idx). (admininstr_sc1 (admininstr_st1_CALL x))) x_opt)))))"
 
@@ -9835,5 +9840,192 @@ inductive Config_ok :: "config ⇒ resulttype ⇒ bool" where
 		 (wf_config (mk_config (mk_state s f) admininstr_lst)) ⟹
 		 (wf_state (mk_state s f)) ⟹
 		 Config_ok (mk_config (mk_state s f) admininstr_lst) (mk_list t_lst)"
+
+(* Auxiliary Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:1.1-1.31 *)
+function (sequential) is_val :: "admininstr ⇒ bool" where
+		  "is_val (admininstr_sc7 (admininstr_st7_REF_HOST_ADDR v_hostaddr)) = True"
+		| "is_val (admininstr_sc7 (admininstr_st7_REF_FUNC_ADDR v_funcaddr)) = True"
+		| "is_val (admininstr_sc4 (admininstr_st4_REF_NULL v_reftype)) = True"
+		| "is_val (admininstr_sc2 (admininstr_st2_VCONST v_vectype var_1)) = True"
+		| "is_val (admininstr_sc1 (admininstr_st1_CONST v_numtype var_0)) = True"
+		| "is_val v_admininstr = False"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:5.1-5.33 *)
+function (sequential) is_instr :: "admininstr ⇒ bool" where
+		  "is_instr (admininstr_sc7 (admininstr_st7_DATA_DROP dataidx_0)) = True"
+		| "is_instr (admininstr_sc7 (admininstr_st7_MEMORY_INIT v_dataidx)) = True"
+		| "is_instr (admininstr_sc7 admininstr_st7_MEMORY_COPY) = True"
+		| "is_instr (admininstr_sc7 admininstr_st7_MEMORY_FILL) = True"
+		| "is_instr (admininstr_sc7 admininstr_st7_MEMORY_GROW) = True"
+		| "is_instr (admininstr_sc6 admininstr_st6_MEMORY_SIZE) = True"
+		| "is_instr (admininstr_sc6 (admininstr_st6_VSTORE_LANE vectype_7 sz_0 memarg_4 laneidx_2)) = True"
+		| "is_instr (admininstr_sc6 (admininstr_st6_VSTORE vectype_6 memarg_3)) = True"
+		| "is_instr (admininstr_sc6 (admininstr_st6_VLOAD_LANE vectype_5 v_sz memarg_2 laneidx_1)) = True"
+		| "is_instr (admininstr_sc6 (admininstr_st6_VLOAD vectype_4 vloadop_opt memarg_1)) = True"
+		| "is_instr (admininstr_sc6 (admininstr_st6_STORE numtype_6 sz_opt memarg_0)) = True"
+		| "is_instr (admininstr_sc6 (admininstr_st6_LOAD numtype_5 var_13_opt v_memarg)) = True"
+		| "is_instr (admininstr_sc6 (admininstr_st6_ELEM_DROP elemidx_0)) = True"
+		| "is_instr (admininstr_sc6 (admininstr_st6_TABLE_INIT tableidx_7 v_elemidx)) = True"
+		| "is_instr (admininstr_sc5 (admininstr_st5_TABLE_COPY tableidx_5 tableidx_6)) = True"
+		| "is_instr (admininstr_sc5 (admininstr_st5_TABLE_FILL tableidx_4)) = True"
+		| "is_instr (admininstr_sc5 (admininstr_st5_TABLE_GROW tableidx_3)) = True"
+		| "is_instr (admininstr_sc5 (admininstr_st5_TABLE_SIZE tableidx_2)) = True"
+		| "is_instr (admininstr_sc5 (admininstr_st5_TABLE_SET tableidx_1)) = True"
+		| "is_instr (admininstr_sc5 (admininstr_st5_TABLE_GET tableidx_0)) = True"
+		| "is_instr (admininstr_sc5 (admininstr_st5_GLOBAL_SET globalidx_0)) = True"
+		| "is_instr (admininstr_sc5 (admininstr_st5_GLOBAL_GET v_globalidx)) = True"
+		| "is_instr (admininstr_sc5 (admininstr_st5_LOCAL_TEE localidx_1)) = True"
+		| "is_instr (admininstr_sc4 (admininstr_st4_LOCAL_SET localidx_0)) = True"
+		| "is_instr (admininstr_sc4 (admininstr_st4_LOCAL_GET v_localidx)) = True"
+		| "is_instr (admininstr_sc4 admininstr_st4_REF_IS_NULL) = True"
+		| "is_instr (admininstr_sc4 (admininstr_st4_REF_FUNC funcidx_0)) = True"
+		| "is_instr (admininstr_sc4 (admininstr_st4_REF_NULL v_reftype)) = True"
+		| "is_instr (admininstr_sc4 (admininstr_st4_VCVTOP shape_6 shape_7 v_vcvtop)) = True"
+		| "is_instr (admininstr_sc4 (admininstr_st4_VNARROW ishape_1_2 ishape_2_2 v_sx)) = True"
+		| "is_instr (admininstr_sc4 (admininstr_st4_VEXTBINOP ishape_1_1 ishape_2_1 var_12)) = True"
+		| "is_instr (admininstr_sc4 (admininstr_st4_VEXTUNOP ishape_1_0 ishape_2_0 var_11)) = True"
+		| "is_instr (admininstr_sc3 (admininstr_st3_VREPLACE_LANE shape_5 laneidx_0)) = True"
+		| "is_instr (admininstr_sc3 (admininstr_st3_VEXTRACT_LANE shape_4 sx_opt v_laneidx)) = True"
+		| "is_instr (admininstr_sc3 (admininstr_st3_VSPLAT shape_3)) = True"
+		| "is_instr (admininstr_sc3 (admininstr_st3_VSHUFFLE ishape_2 laneidx_lst)) = True"
+		| "is_instr (admininstr_sc3 (admininstr_st3_VSWIZZLE ishape_1)) = True"
+		| "is_instr (admininstr_sc3 (admininstr_st3_VBITMASK ishape_0)) = True"
+		| "is_instr (admininstr_sc3 (admininstr_st3_VSHIFTOP v_ishape var_10)) = True"
+		| "is_instr (admininstr_sc3 (admininstr_st3_VRELOP shape_2 var_9)) = True"
+		| "is_instr (admininstr_sc3 (admininstr_st3_VTESTOP shape_1 var_8)) = True"
+		| "is_instr (admininstr_sc2 (admininstr_st2_VBINOP shape_0 var_7)) = True"
+		| "is_instr (admininstr_sc2 (admininstr_st2_VUNOP v_shape var_6)) = True"
+		| "is_instr (admininstr_sc2 (admininstr_st2_VVTESTOP vectype_3 v_vvtestop)) = True"
+		| "is_instr (admininstr_sc2 (admininstr_st2_VVTERNOP vectype_2 v_vvternop)) = True"
+		| "is_instr (admininstr_sc2 (admininstr_st2_VVBINOP vectype_1 v_vvbinop)) = True"
+		| "is_instr (admininstr_sc2 (admininstr_st2_VVUNOP vectype_0 v_vvunop)) = True"
+		| "is_instr (admininstr_sc2 (admininstr_st2_VCONST v_vectype var_5)) = True"
+		| "is_instr (admininstr_sc2 (admininstr_st2_EXTEND numtype_4 v_n)) = True"
+		| "is_instr (admininstr_sc2 (admininstr_st2_CVTOP numtype_1_0 numtype_2_0 v_cvtop)) = True"
+		| "is_instr (admininstr_sc1 (admininstr_st1_RELOP numtype_3 var_4)) = True"
+		| "is_instr (admininstr_sc1 (admininstr_st1_TESTOP numtype_2 var_3)) = True"
+		| "is_instr (admininstr_sc1 (admininstr_st1_BINOP numtype_1 var_2)) = True"
+		| "is_instr (admininstr_sc1 (admininstr_st1_UNOP numtype_0 var_1)) = True"
+		| "is_instr (admininstr_sc1 (admininstr_st1_CONST v_numtype var_0)) = True"
+		| "is_instr (admininstr_sc1 admininstr_st1_RETURN) = True"
+		| "is_instr (admininstr_sc1 (admininstr_st1_CALL_INDIRECT v_tableidx v_typeidx)) = True"
+		| "is_instr (admininstr_sc1 (admininstr_st1_CALL v_funcidx)) = True"
+		| "is_instr (admininstr_sc1 (admininstr_st1_BR_TABLE labelidx_lst labelidx_1)) = True"
+		| "is_instr (admininstr_sc0 (admininstr_st0_BR_IF labelidx_0)) = True"
+		| "is_instr (admininstr_sc0 (admininstr_st0_BR v_labelidx)) = True"
+		| "is_instr (admininstr_sc0 (admininstr_st0_IFELSE blocktype_1 instr_lst_0_lst instr_lst_1_lst)) = True"
+		| "is_instr (admininstr_sc0 (admininstr_st0_LOOP blocktype_0 instr_lst_0_lst)) = True"
+		| "is_instr (admininstr_sc0 (admininstr_st0_BLOCK v_blocktype instr_lst)) = True"
+		| "is_instr (admininstr_sc0 (admininstr_st0_SELECT valtype_lst_opt)) = True"
+		| "is_instr (admininstr_sc0 admininstr_st0_DROP) = True"
+		| "is_instr (admininstr_sc0 admininstr_st0_UNREACHABLE) = True"
+		| "is_instr (admininstr_sc0 admininstr_st0_NOP) = True"
+		| "is_instr v_admininstr = False"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:9.1-9.38 *)
+function (sequential) is_admininstr :: "admininstr ⇒ bool" where
+		  "is_admininstr (admininstr_sc7 (admininstr_st7_DATA_DROP dataidx_0)) = False"
+		| "is_admininstr (admininstr_sc7 (admininstr_st7_MEMORY_INIT v_dataidx)) = False"
+		| "is_admininstr (admininstr_sc7 admininstr_st7_MEMORY_COPY) = False"
+		| "is_admininstr (admininstr_sc7 admininstr_st7_MEMORY_FILL) = False"
+		| "is_admininstr (admininstr_sc7 admininstr_st7_MEMORY_GROW) = False"
+		| "is_admininstr (admininstr_sc6 admininstr_st6_MEMORY_SIZE) = False"
+		| "is_admininstr (admininstr_sc6 (admininstr_st6_VSTORE_LANE vectype_7 sz_0 memarg_4 laneidx_2)) = False"
+		| "is_admininstr (admininstr_sc6 (admininstr_st6_VSTORE vectype_6 memarg_3)) = False"
+		| "is_admininstr (admininstr_sc6 (admininstr_st6_VLOAD_LANE vectype_5 v_sz memarg_2 laneidx_1)) = False"
+		| "is_admininstr (admininstr_sc6 (admininstr_st6_VLOAD vectype_4 vloadop_opt memarg_1)) = False"
+		| "is_admininstr (admininstr_sc6 (admininstr_st6_STORE numtype_6 sz_opt memarg_0)) = False"
+		| "is_admininstr (admininstr_sc6 (admininstr_st6_LOAD numtype_5 var_13_opt v_memarg)) = False"
+		| "is_admininstr (admininstr_sc6 (admininstr_st6_ELEM_DROP elemidx_0)) = False"
+		| "is_admininstr (admininstr_sc6 (admininstr_st6_TABLE_INIT tableidx_7 v_elemidx)) = False"
+		| "is_admininstr (admininstr_sc5 (admininstr_st5_TABLE_COPY tableidx_5 tableidx_6)) = False"
+		| "is_admininstr (admininstr_sc5 (admininstr_st5_TABLE_FILL tableidx_4)) = False"
+		| "is_admininstr (admininstr_sc5 (admininstr_st5_TABLE_GROW tableidx_3)) = False"
+		| "is_admininstr (admininstr_sc5 (admininstr_st5_TABLE_SIZE tableidx_2)) = False"
+		| "is_admininstr (admininstr_sc5 (admininstr_st5_TABLE_SET tableidx_1)) = False"
+		| "is_admininstr (admininstr_sc5 (admininstr_st5_TABLE_GET tableidx_0)) = False"
+		| "is_admininstr (admininstr_sc5 (admininstr_st5_GLOBAL_SET globalidx_0)) = False"
+		| "is_admininstr (admininstr_sc5 (admininstr_st5_GLOBAL_GET v_globalidx)) = False"
+		| "is_admininstr (admininstr_sc5 (admininstr_st5_LOCAL_TEE localidx_1)) = False"
+		| "is_admininstr (admininstr_sc4 (admininstr_st4_LOCAL_SET localidx_0)) = False"
+		| "is_admininstr (admininstr_sc4 (admininstr_st4_LOCAL_GET v_localidx)) = False"
+		| "is_admininstr (admininstr_sc4 admininstr_st4_REF_IS_NULL) = False"
+		| "is_admininstr (admininstr_sc4 (admininstr_st4_REF_FUNC funcidx_0)) = False"
+		| "is_admininstr (admininstr_sc4 (admininstr_st4_REF_NULL v_reftype)) = False"
+		| "is_admininstr (admininstr_sc4 (admininstr_st4_VCVTOP shape_6 shape_7 v_vcvtop)) = False"
+		| "is_admininstr (admininstr_sc4 (admininstr_st4_VNARROW ishape_1_2 ishape_2_2 v_sx)) = False"
+		| "is_admininstr (admininstr_sc4 (admininstr_st4_VEXTBINOP ishape_1_1 ishape_2_1 var_12)) = False"
+		| "is_admininstr (admininstr_sc4 (admininstr_st4_VEXTUNOP ishape_1_0 ishape_2_0 var_11)) = False"
+		| "is_admininstr (admininstr_sc3 (admininstr_st3_VREPLACE_LANE shape_5 laneidx_0)) = False"
+		| "is_admininstr (admininstr_sc3 (admininstr_st3_VEXTRACT_LANE shape_4 sx_opt v_laneidx)) = False"
+		| "is_admininstr (admininstr_sc3 (admininstr_st3_VSPLAT shape_3)) = False"
+		| "is_admininstr (admininstr_sc3 (admininstr_st3_VSHUFFLE ishape_2 laneidx_lst)) = False"
+		| "is_admininstr (admininstr_sc3 (admininstr_st3_VSWIZZLE ishape_1)) = False"
+		| "is_admininstr (admininstr_sc3 (admininstr_st3_VBITMASK ishape_0)) = False"
+		| "is_admininstr (admininstr_sc3 (admininstr_st3_VSHIFTOP v_ishape var_10)) = False"
+		| "is_admininstr (admininstr_sc3 (admininstr_st3_VRELOP shape_2 var_9)) = False"
+		| "is_admininstr (admininstr_sc3 (admininstr_st3_VTESTOP shape_1 var_8)) = False"
+		| "is_admininstr (admininstr_sc2 (admininstr_st2_VBINOP shape_0 var_7)) = False"
+		| "is_admininstr (admininstr_sc2 (admininstr_st2_VUNOP v_shape var_6)) = False"
+		| "is_admininstr (admininstr_sc2 (admininstr_st2_VVTESTOP vectype_3 v_vvtestop)) = False"
+		| "is_admininstr (admininstr_sc2 (admininstr_st2_VVTERNOP vectype_2 v_vvternop)) = False"
+		| "is_admininstr (admininstr_sc2 (admininstr_st2_VVBINOP vectype_1 v_vvbinop)) = False"
+		| "is_admininstr (admininstr_sc2 (admininstr_st2_VVUNOP vectype_0 v_vvunop)) = False"
+		| "is_admininstr (admininstr_sc2 (admininstr_st2_VCONST v_vectype var_5)) = False"
+		| "is_admininstr (admininstr_sc2 (admininstr_st2_EXTEND numtype_4 v_n)) = False"
+		| "is_admininstr (admininstr_sc2 (admininstr_st2_CVTOP numtype_1_0 numtype_2_0 v_cvtop)) = False"
+		| "is_admininstr (admininstr_sc1 (admininstr_st1_RELOP numtype_3 var_4)) = False"
+		| "is_admininstr (admininstr_sc1 (admininstr_st1_TESTOP numtype_2 var_3)) = False"
+		| "is_admininstr (admininstr_sc1 (admininstr_st1_BINOP numtype_1 var_2)) = False"
+		| "is_admininstr (admininstr_sc1 (admininstr_st1_UNOP numtype_0 var_1)) = False"
+		| "is_admininstr (admininstr_sc1 (admininstr_st1_CONST v_numtype var_0)) = False"
+		| "is_admininstr (admininstr_sc1 admininstr_st1_RETURN) = False"
+		| "is_admininstr (admininstr_sc1 (admininstr_st1_CALL_INDIRECT v_tableidx v_typeidx)) = False"
+		| "is_admininstr (admininstr_sc1 (admininstr_st1_CALL v_funcidx)) = False"
+		| "is_admininstr (admininstr_sc1 (admininstr_st1_BR_TABLE labelidx_lst labelidx_1)) = False"
+		| "is_admininstr (admininstr_sc0 (admininstr_st0_BR_IF labelidx_0)) = False"
+		| "is_admininstr (admininstr_sc0 (admininstr_st0_BR v_labelidx)) = False"
+		| "is_admininstr (admininstr_sc0 (admininstr_st0_IFELSE blocktype_1 instr_lst_0_lst instr_lst_1_lst)) = False"
+		| "is_admininstr (admininstr_sc0 (admininstr_st0_LOOP blocktype_0 instr_lst_0_lst)) = False"
+		| "is_admininstr (admininstr_sc0 (admininstr_st0_BLOCK v_blocktype instr_lst)) = False"
+		| "is_admininstr (admininstr_sc0 (admininstr_st0_SELECT valtype_lst_opt)) = False"
+		| "is_admininstr (admininstr_sc0 admininstr_st0_DROP) = False"
+		| "is_admininstr (admininstr_sc0 admininstr_st0_UNREACHABLE) = False"
+		| "is_admininstr (admininstr_sc0 admininstr_st0_NOP) = False"
+		| "is_admininstr v_admininstr = True"
+	by pat_completeness auto
+
+(* Inductive Type Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:13.1-13.44 *)
+datatype instrtype =
+	  mk_instrtype "resulttype" "resulttype"
+	
+
+(* Inductive Relations Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:15.1-15.50 *)
+inductive Instrtype_sub :: "instrtype ⇒ instrtype ⇒ bool" where
+	  mk_Instrtype_sub :
+		"(t_21_lst = (t_lst @ t_11'_lst)) ⟹
+		 (t_22_lst = (t'_lst @ t_12'_lst)) ⟹
+		 (Resulttype_sub (mk_list t_lst) (mk_list t'_lst)) ⟹
+		 (Resulttype_sub (mk_list t_11'_lst) (mk_list t_11_lst)) ⟹
+		 (Resulttype_sub (mk_list t_12_lst) (mk_list t_12'_lst)) ⟹
+		 Instrtype_sub (mk_instrtype (mk_list t_11_lst) (mk_list t_12_lst)) (mk_instrtype (mk_list t_21_lst) (mk_list t_22_lst))"
+
+(* Auxiliary Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:24.1-24.30 *)
+function (sequential) typeofval :: "val ⇒ valtype" where
+		  "typeofval (val_CONST v_numtype c) = (valtype_numtype v_numtype)"
+		| "typeofval (val_VCONST v_vectype c) = (valtype_vectype v_vectype)"
+		| "typeofval (val_REF_NULL v_reftype) = (valtype_reftype v_reftype)"
+		| "typeofval (val_REF_FUNC_ADDR v_funcaddr) = valtype_FUNCREF"
+		| "typeofval (val_REF_HOST_ADDR v_hostaddr) = valtype_EXTERNREF"
+	by pat_completeness auto
+
+(* Inductive Relations Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:31.6-31.18 *)
+inductive fun_typesofvals :: "(val list) ⇒ (valtype list) ⇒ bool" where
+	  fun_typesofvals_case_0 :
+		"((length val_lst) = (length valtype_lst)) ⟹
+		 list_all2 (λ (val_8 :: val) (valtype_215 :: valtype). ((typeofval val_8) = valtype_215)) val_lst valtype_lst ⟹
+		 fun_typesofvals val_lst valtype_lst"
 
 end

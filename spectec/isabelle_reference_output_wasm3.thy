@@ -7495,9 +7495,15 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 		"(wf_context C) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list []))) ⟹
 		 Instrs_ok C [] (mk_instrtype (mk_list []) [] (mk_list []))"
+	| Instrs_ok__instr :
+		"(Instr_ok C v_instr (mk_instrtype (mk_list t_1_lst) x_lst (mk_list t_2_lst))) ⟹
+		 (wf_context C) ⟹
+		 (wf_instr v_instr) ⟹
+		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) x_lst (mk_list t_2_lst))) ⟹
+		 Instrs_ok C [v_instr] (mk_instrtype (mk_list t_1_lst) x_lst (mk_list t_2_lst))"
 	| seq :
 		"(fun_with_locals C x_1_lst (map (λ (t :: valtype). (mk_localtype SET t)) t_lst) var_0) ⟹
-		 (Instr_ok C instr_1 (mk_instrtype (mk_list t_1_lst) x_1_lst (mk_list t_2_lst))) ⟹
+		 (Instrs_ok C instr_1_lst (mk_instrtype (mk_list t_1_lst) x_1_lst (mk_list t_2_lst))) ⟹
 		 ((length init_lst) = (length t_lst)) ⟹
 		 ((length init_lst) = (length x_1_lst)) ⟹
 		 list_all (λ (x_1 :: idx). ((proj_uN_0 x_1) < (length (context_LOCALS C)))) x_1_lst ⟹
@@ -7505,7 +7511,7 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 		 (var_0 ≠ None) ⟹
 		 (Instrs_ok (the (var_0)) instr_2_lst (mk_instrtype (mk_list t_2_lst) x_2_lst (mk_list t_3_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr instr_1) ⟹
+		 list_all (λ (instr_1 :: instr). (wf_instr instr_1)) instr_1_lst ⟹
 		 list_all (λ (instr_2 :: instr). (wf_instr instr_2)) instr_2_lst ⟹
 		 (wf_context (the (var_0))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) (x_1_lst @ x_2_lst) (mk_list t_3_lst))) ⟹
@@ -7513,7 +7519,7 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 		 list_all2 (λ (v_init :: init) (t :: valtype). (wf_localtype (mk_localtype v_init t))) init_lst t_lst ⟹
 		 list_all (λ (t :: valtype). (wf_localtype (mk_localtype SET t))) t_lst ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_2_lst) x_2_lst (mk_list t_3_lst))) ⟹
-		 Instrs_ok C ([instr_1] @ instr_2_lst) (mk_instrtype (mk_list t_1_lst) (x_1_lst @ x_2_lst) (mk_list t_3_lst))"
+		 Instrs_ok C (instr_1_lst @ instr_2_lst) (mk_instrtype (mk_list t_1_lst) (x_1_lst @ x_2_lst) (mk_list t_3_lst))"
 	| sub :
 		"(Instrs_ok C instr_lst it) ⟹
 		 (Instrtype_sub C it it') ⟹
@@ -7550,7 +7556,7 @@ inductive Nondefaultable :: "valtype ⇒ bool" where
 		 list_all (λ (iter :: val). (wf_val iter)) (option_to_list (the ((default_underscore t)))) ⟹
 		 Nondefaultable t"
 
-(* Inductive Relations Definition at: ../specification/wasm-3.0/2.3-validation.instructions.spectec:645.1-645.104 *)
+(* Inductive Relations Definition at: ../specification/wasm-3.0/2.3-validation.instructions.spectec:649.1-649.104 *)
 inductive Instr_const :: "res_context ⇒ instr ⇒ bool" where
 	  Instr_const__const :
 		"(wf_context C) ⟹
@@ -7619,7 +7625,7 @@ inductive Instr_const :: "res_context ⇒ instr ⇒ bool" where
 		 (wf_binop_underscore (numtype_addrtype v_Inn) (mk_binop__0 v_Inn MUL)) ⟹
 		 Instr_const C (instr_sc6 (BINOP (numtype_addrtype v_Inn) binop))"
 
-(* Inductive Relations Definition at: ../specification/wasm-3.0/2.3-validation.instructions.spectec:646.1-646.103 *)
+(* Inductive Relations Definition at: ../specification/wasm-3.0/2.3-validation.instructions.spectec:650.1-650.103 *)
 inductive Expr_const :: "res_context ⇒ expr ⇒ bool" where
 	  mk_Expr_const :
 		"list_all (λ (v_instr :: instr). (Instr_const C v_instr)) instr_lst ⟹
@@ -7627,7 +7633,7 @@ inductive Expr_const :: "res_context ⇒ expr ⇒ bool" where
 		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
 		 Expr_const C instr_lst"
 
-(* Inductive Relations Definition at: ../specification/wasm-3.0/2.3-validation.instructions.spectec:647.1-647.105 *)
+(* Inductive Relations Definition at: ../specification/wasm-3.0/2.3-validation.instructions.spectec:651.1-651.105 *)
 inductive Expr_ok_const :: "res_context ⇒ expr ⇒ valtype ⇒ bool" where
 	  mk_Expr_ok_const :
 		"(Expr_ok C v_expr (mk_list [t])) ⟹
@@ -10419,22 +10425,22 @@ function (sequential) ivshufflop_underscore :: "shape ⇒ (laneidx list) ⇒ vec
 		  "ivshufflop_underscore (X lanetype_I32 (mk_dim v_M)) i_lst v_1 v_2 = 
 			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_1) in 
 			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_2) in 
-			 (let c_lst = (map (λ (i_139087 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_139087))) i_lst) in 
+			 (let c_lst = (map (λ (i_139239 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_139239))) i_lst) in 
 			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) c_lst)))))"
 		| "ivshufflop_underscore (X lanetype_I64 (mk_dim v_M)) i_lst v_1 v_2 = 
 			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_1) in 
 			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_2) in 
-			 (let c_lst = (map (λ (i_139093 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_139093))) i_lst) in 
+			 (let c_lst = (map (λ (i_139245 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_139245))) i_lst) in 
 			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) c_lst)))))"
 		| "ivshufflop_underscore (X lanetype_I8 (mk_dim v_M)) i_lst v_1 v_2 = 
 			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_1) in 
 			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_2) in 
-			 (let c_lst = (map (λ (i_139099 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_139099))) i_lst) in 
+			 (let c_lst = (map (λ (i_139251 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_139251))) i_lst) in 
 			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) c_lst)))))"
 		| "ivshufflop_underscore (X lanetype_I16 (mk_dim v_M)) i_lst v_1 v_2 = 
 			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_1) in 
 			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_2) in 
-			 (let c_lst = (map (λ (i_139105 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_139105))) i_lst) in 
+			 (let c_lst = (map (λ (i_139257 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_139257))) i_lst) in 
 			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) c_lst)))))"
 		| "ivshufflop_underscore x0 x1 x2 x3 = None"
 	by pat_completeness auto
