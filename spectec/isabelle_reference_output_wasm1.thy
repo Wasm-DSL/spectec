@@ -1,4 +1,4 @@
-theory isabelle_reference_output_wasm1
+theory reference_isabelle_output_wasm1
 (* Imported Code *)
 	imports Main
 begin
@@ -63,16 +63,15 @@ fun option_append :: "'a option ⇒ 'a option ⇒ 'a option" (infixl "@@@" 70) w
 	"option_append (Some x) _ = Some x" |
 	"option_append None y = y"
 
-fun list_alli_aux :: "(nat ⇒ 'a ⇒bool) ⇒ nat ⇒ 'a list ⇒ bool" where
+fun list_alli_aux :: "(nat ⇒ 'a ⇒ bool) ⇒ nat ⇒ 'a list ⇒ bool" where
 	"list_alli_aux f n [] = True" |
 	"list_alli_aux f n (x # q) = (f n x ∧ list_alli_aux f (Suc n) q)"
 
-definition list_alli :: "(nat ⇒ 'a ⇒bool) ⇒ 'a list ⇒ bool" where
+definition list_alli :: "(nat ⇒ 'a ⇒ bool) ⇒ 'a list ⇒ bool" where
 	"list_alli f l = list_alli_aux f 0 l"
 
-fun holds_upto :: "(nat ⇒ bool) ⇒ nat ⇒ bool" where
-	"holds_upto P 0 = P 0" |
-	"holds_upto P (Suc n) = (P (Suc n) ∧ holds_upto P n)"
+definition holds_upto :: "(nat ⇒ bool) ⇒ nat ⇒ bool" where
+	"holds_upto P n ≡ ∀ i < n. P i"
 
 (* Generated Code *)
 (* Inductive Type Definition at: ../specification/wasm-1.0/1-syntax.spectec:119.14-119.17 *)
@@ -4388,26 +4387,26 @@ inductive Globalinst_ok :: "store ⇒ globalinst ⇒ globaltype ⇒ bool" where
 (* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:121.1-121.48 *)
 inductive Meminst_ok :: "store ⇒ meminst ⇒ memtype ⇒ bool" where
 	  mk_Meminst_ok :
-		"(Memtype_ok (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))) ⟹
+		"(Memtype_ok (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt))) ⟹
 		 ((length b_lst) = (v_n * (64 * (Ki )))) ⟹
 		 (wf_store s) ⟹
-		 (wf_meminst ⦇ meminst_TYPE = (mk_limits (mk_uN v_n) (Some (mk_uN v_m))), BYTES = b_lst ⦈) ⟹
-		 (wf_limits (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))) ⟹
-		 Meminst_ok s ⦇ meminst_TYPE = (mk_limits (mk_uN v_n) (Some (mk_uN v_m))), BYTES = b_lst ⦈ (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))"
+		 (wf_meminst ⦇ meminst_TYPE = (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)), BYTES = b_lst ⦈) ⟹
+		 (wf_limits (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt))) ⟹
+		 Meminst_ok s ⦇ meminst_TYPE = (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)), BYTES = b_lst ⦈ (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt))"
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:122.1-122.54 *)
 inductive Tableinst_ok :: "store ⇒ tableinst ⇒ tabletype ⇒ bool" where
 	  mk_Tableinst_ok :
-		"(Tabletype_ok (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))) ⟹
+		"(Tabletype_ok (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt))) ⟹
 		 ((length fa_opt_lst) = (length ft_opt_lst)) ⟹
 		 list_all2 (λ (fa_opt :: (funcaddr option)) (ft_opt :: (functype option)). ((fa_opt = None) ⟷ (ft_opt = None))) fa_opt_lst ft_opt_lst ⟹
 		 list_all2 (λ (fa_opt :: (funcaddr option)) (ft_opt :: (functype option)). list_all2 (λ (fa :: funcaddr) (ft :: functype). (Externaddr_ok s (externaddr_FUNC fa) (FUNC ft))) (option_to_list fa_opt) (option_to_list ft_opt)) fa_opt_lst ft_opt_lst ⟹
 		 ((length fa_opt_lst) = v_n) ⟹
 		 (wf_store s) ⟹
-		 (wf_tableinst ⦇ tableinst_TYPE = (mk_limits (mk_uN v_n) (Some (mk_uN v_m))), REFS = fa_opt_lst ⦈) ⟹
-		 (wf_limits (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))) ⟹
+		 (wf_tableinst ⦇ tableinst_TYPE = (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)), REFS = fa_opt_lst ⦈) ⟹
+		 (wf_limits (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt))) ⟹
 		 list_all (λ (ft_opt :: (functype option)). list_all (λ (ft :: functype). (wf_externtype (FUNC ft))) (option_to_list ft_opt)) ft_opt_lst ⟹
-		 Tableinst_ok s ⦇ tableinst_TYPE = (mk_limits (mk_uN v_n) (Some (mk_uN v_m))), REFS = fa_opt_lst ⦈ (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))"
+		 Tableinst_ok s ⦇ tableinst_TYPE = (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)), REFS = fa_opt_lst ⦈ (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt))"
 
 (* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:123.1-123.51 *)
 inductive Funcinst_ok :: "store ⇒ funcinst ⇒ functype ⇒ bool" where
@@ -4504,9 +4503,8 @@ inductive Config_ok :: "config ⇒ resulttype ⇒ bool" where
 		"(State_ok (mk_state s f) C) ⟹
 		 (Expr_ok2 s C admininstr_lst t_opt) ⟹
 		 (wf_context C) ⟹
-		 list_all (λ (v_admininstr :: admininstr). (wf_admininstr v_admininstr)) admininstr_lst ⟹
-		 (wf_config (mk_config (mk_state s f) (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))) ⟹
+		 (wf_config (mk_config (mk_state s f) admininstr_lst)) ⟹
 		 (wf_state (mk_state s f)) ⟹
-		 Config_ok (mk_config (mk_state s f) (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst)) t_opt"
+		 Config_ok (mk_config (mk_state s f) admininstr_lst) t_opt"
 
 end

@@ -1,4 +1,4 @@
-theory isabelle_reference_output_wasm3
+theory reference_isabelle_output_wasm3
 (* Imported Code *)
 	imports Main
 begin
@@ -63,16 +63,15 @@ fun option_append :: "'a option ⇒ 'a option ⇒ 'a option" (infixl "@@@" 70) w
 	"option_append (Some x) _ = Some x" |
 	"option_append None y = y"
 
-fun list_alli_aux :: "(nat ⇒ 'a ⇒bool) ⇒ nat ⇒ 'a list ⇒ bool" where
+fun list_alli_aux :: "(nat ⇒ 'a ⇒ bool) ⇒ nat ⇒ 'a list ⇒ bool" where
 	"list_alli_aux f n [] = True" |
 	"list_alli_aux f n (x # q) = (f n x ∧ list_alli_aux f (Suc n) q)"
 
-definition list_alli :: "(nat ⇒ 'a ⇒bool) ⇒ 'a list ⇒ bool" where
+definition list_alli :: "(nat ⇒ 'a ⇒ bool) ⇒ 'a list ⇒ bool" where
 	"list_alli f l = list_alli_aux f 0 l"
 
-fun holds_upto :: "(nat ⇒ bool) ⇒ nat ⇒ bool" where
-	"holds_upto P 0 = P 0" |
-	"holds_upto P (Suc n) = (P (Suc n) ∧ holds_upto P n)"
+definition holds_upto :: "(nat ⇒ bool) ⇒ nat ⇒ bool" where
+	"holds_upto P n ≡ ∀ i < n. P i"
 
 (* Generated Code *)
 (* Type Alias Definition at: ../specification/wasm-3.0/0.1-aux.vars.spectec:5.1-5.32 *)
@@ -4203,7 +4202,7 @@ inductive wf_frame :: "frame ⇒ bool" where
 		 wf_frame ⦇ frame_LOCALS = var_0_opt_lst, MODULE = var_1 ⦈"
 
 (* Inductive Type Definition at: ../specification/wasm-3.0/4.0-execution.configurations.spectec:133.1-139.9 *)
-datatype instr_subtype_8 =
+datatype instr_st8 =
 	  VEXTRACT_LANE "shape" "(sx option)" "laneidx"
 	| VSPLAT "shape"
 	| VCVTOP "shape" "shape" "vcvtop__underscore"
@@ -4217,7 +4216,7 @@ datatype instr_subtype_8 =
 	| VSHIFTOP "ishape" "vshiftop_underscore"
 
 (* Inductive Type Definition at: ../specification/wasm-3.0/4.0-execution.configurations.spectec:133.1-139.9 *)
-datatype instr_subtype_7 =
+datatype instr_st7 =
 	  VRELOP "shape" "vrelop_underscore"
 	| VTESTOP "shape" "vtestop_underscore"
 	| VTERNOP "shape" "vternop_underscore"
@@ -4227,16 +4226,16 @@ datatype instr_subtype_7 =
 	| VVTERNOP "vectype" "vvternop"
 	| VVBINOP "vectype" "vvbinop"
 	| VVUNOP "vectype" "vvunop"
-	| instr_subtype_7_VCONST "vectype" "vec_underscore"
+	| instr_st7_VCONST "vectype" "vec_underscore"
 	| CVTOP "numtype" "numtype" "cvtop__underscore"
 
 (* Inductive Type Definition at: ../specification/wasm-3.0/4.0-execution.configurations.spectec:133.1-139.9 *)
-datatype instr_subtype_6 =
+datatype instr_st6 =
 	  RELOP "numtype" "relop_underscore"
 	| TESTOP "numtype" "testop_underscore"
 	| BINOP "numtype" "binop_underscore"
 	| UNOP "numtype" "unop_underscore"
-	| instr_subtype_6_CONST "numtype" "num_underscore"
+	| instr_st6_CONST "numtype" "num_underscore"
 	| ANY_CONVERT_EXTERN
 	| EXTERN_CONVERT_ANY
 	| ARRAY_INIT_ELEM "typeidx" "elemidx"
@@ -4245,7 +4244,7 @@ datatype instr_subtype_6 =
 	| ARRAY_FILL "typeidx"
 
 (* Inductive Type Definition at: ../specification/wasm-3.0/4.0-execution.configurations.spectec:133.1-139.9 *)
-datatype instr_subtype_5 =
+datatype instr_st5 =
 	  ARRAY_LEN
 	| ARRAY_SET "typeidx"
 	| ARRAY_GET "(sx option)" "typeidx"
@@ -4259,7 +4258,7 @@ datatype instr_subtype_5 =
 	| STRUCT_NEW_DEFAULT "typeidx"
 
 (* Inductive Type Definition at: ../specification/wasm-3.0/4.0-execution.configurations.spectec:133.1-139.9 *)
-datatype instr_subtype_4 =
+datatype instr_st4 =
 	  STRUCT_NEW "typeidx"
 	| I31_GET "sx"
 	| REF_I31
@@ -4273,7 +4272,7 @@ datatype instr_subtype_4 =
 	| DATA_DROP "dataidx"
 
 (* Inductive Type Definition at: ../specification/wasm-3.0/4.0-execution.configurations.spectec:133.1-139.9 *)
-datatype instr_subtype_3 =
+datatype instr_st3 =
 	  MEMORY_INIT "memidx" "dataidx"
 	| MEMORY_COPY "memidx" "memidx"
 	| MEMORY_FILL "memidx"
@@ -4287,7 +4286,7 @@ datatype instr_subtype_3 =
 	| LOAD "numtype" "(loadop_underscore option)" "memidx" "memarg"
 
 (* Inductive Type Definition at: ../specification/wasm-3.0/4.0-execution.configurations.spectec:133.1-139.9 *)
-datatype instr_subtype_2 =
+datatype instr_st2 =
 	  ELEM_DROP "elemidx"
 	| TABLE_INIT "tableidx" "elemidx"
 	| TABLE_COPY "tableidx" "tableidx"
@@ -4301,7 +4300,7 @@ datatype instr_subtype_2 =
 	| LOCAL_TEE "localidx"
 
 (* Inductive Type Definition at: ../specification/wasm-3.0/4.0-execution.configurations.spectec:133.1-139.9 *)
-datatype instr_subtype_1 =
+datatype instr_st1 =
 	  LOCAL_SET "localidx"
 	| LOCAL_GET "localidx"
 	| THROW_REF
@@ -4315,7 +4314,7 @@ datatype instr_subtype_1 =
 	| CALL "funcidx"
 
 (* Inductive Type Definition at: ../specification/wasm-3.0/4.0-execution.configurations.spectec:133.1-139.9 *)
-datatype instr_subtype_0 =
+datatype instr_st0 =
 	  BR_ON_CAST_FAIL "labelidx" "reftype" "reftype"
 	| BR_ON_CAST "labelidx" "reftype" "reftype"
 	| BR_ON_NON_NULL "labelidx"
@@ -4330,36 +4329,36 @@ datatype instr_subtype_0 =
 
 (* Mutual Recursion at: ../specification/wasm-3.0/4.0-execution.configurations.spectec:133.1-139.9 *)
 datatype instr =
-	  instr_subcase_0 "instr_subtype_0"
-	| instr_subcase_1 "instr_subtype_1"
-	| instr_subcase_2 "instr_subtype_2"
-	| instr_subcase_3 "instr_subtype_3"
-	| instr_subcase_4 "instr_subtype_4"
-	| instr_subcase_5 "instr_subtype_5"
-	| instr_subcase_6 "instr_subtype_6"
-	| instr_subcase_7 "instr_subtype_7"
-	| instr_subcase_8 "instr_subtype_8"
-	| instr_subcase_9 "instr_subtype_9"
-	| instr_subcase_10 "instr_subtype_10"
+	  instr_sc0 "instr_st0"
+	| instr_sc1 "instr_st1"
+	| instr_sc2 "instr_st2"
+	| instr_sc3 "instr_st3"
+	| instr_sc4 "instr_st4"
+	| instr_sc5 "instr_st5"
+	| instr_sc6 "instr_st6"
+	| instr_sc7 "instr_st7"
+	| instr_sc8 "instr_st8"
+	| instr_sc9 "instr_st9"
+	| instr_sc10 "instr_st10"
 
 and
 
-instr_subtype_9 =
+instr_st9 =
 	  BLOCK "blocktype" "(instr list)"
 	| TRAP
-	| instr_subtype_9_REF_EXTERN "ref"
-	| instr_subtype_9_REF_HOST_ADDR "hostaddr"
-	| instr_subtype_9_REF_EXN_ADDR "exnaddr"
-	| instr_subtype_9_REF_FUNC_ADDR "funcaddr"
-	| instr_subtype_9_REF_ARRAY_ADDR "arrayaddr"
-	| instr_subtype_9_REF_STRUCT_ADDR "structaddr"
-	| instr_subtype_9_REF_NULL_ADDR
-	| instr_subtype_9_REF_I31_NUM "u31"
+	| instr_st9_REF_EXTERN "ref"
+	| instr_st9_REF_HOST_ADDR "hostaddr"
+	| instr_st9_REF_EXN_ADDR "exnaddr"
+	| instr_st9_REF_FUNC_ADDR "funcaddr"
+	| instr_st9_REF_ARRAY_ADDR "arrayaddr"
+	| instr_st9_REF_STRUCT_ADDR "structaddr"
+	| instr_st9_REF_NULL_ADDR
+	| instr_st9_REF_I31_NUM "u31"
 	| VREPLACE_LANE "shape" "laneidx"
 
 and
 
-instr_subtype_10 =
+instr_st10 =
 	  HANDLER_underscore "n" "(catch list)" "(instr list)"
 	| FRAME_underscore "n" "frame" "(instr list)"
 	| LABEL_underscore "n" "(instr list)" "(instr list)"
@@ -4369,419 +4368,419 @@ instr_subtype_10 =
 
 (* Auxiliary Definition at:  *)
 function (sequential) instr_ref :: "ref ⇒ instr" where
-		  "instr_ref (REF_I31_NUM x0) = (instr_subcase_9 (instr_subtype_9_REF_I31_NUM x0))"
-		| "instr_ref REF_NULL_ADDR = (instr_subcase_9 instr_subtype_9_REF_NULL_ADDR)"
-		| "instr_ref (REF_STRUCT_ADDR x0) = (instr_subcase_9 (instr_subtype_9_REF_STRUCT_ADDR x0))"
-		| "instr_ref (REF_ARRAY_ADDR x0) = (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR x0))"
-		| "instr_ref (REF_FUNC_ADDR x0) = (instr_subcase_9 (instr_subtype_9_REF_FUNC_ADDR x0))"
-		| "instr_ref (REF_EXN_ADDR x0) = (instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR x0))"
-		| "instr_ref (REF_HOST_ADDR x0) = (instr_subcase_9 (instr_subtype_9_REF_HOST_ADDR x0))"
-		| "instr_ref (REF_EXTERN x0) = (instr_subcase_9 (instr_subtype_9_REF_EXTERN x0))"
+		  "instr_ref (REF_I31_NUM x0) = (instr_sc9 (instr_st9_REF_I31_NUM x0))"
+		| "instr_ref REF_NULL_ADDR = (instr_sc9 instr_st9_REF_NULL_ADDR)"
+		| "instr_ref (REF_STRUCT_ADDR x0) = (instr_sc9 (instr_st9_REF_STRUCT_ADDR x0))"
+		| "instr_ref (REF_ARRAY_ADDR x0) = (instr_sc9 (instr_st9_REF_ARRAY_ADDR x0))"
+		| "instr_ref (REF_FUNC_ADDR x0) = (instr_sc9 (instr_st9_REF_FUNC_ADDR x0))"
+		| "instr_ref (REF_EXN_ADDR x0) = (instr_sc9 (instr_st9_REF_EXN_ADDR x0))"
+		| "instr_ref (REF_HOST_ADDR x0) = (instr_sc9 (instr_st9_REF_HOST_ADDR x0))"
+		| "instr_ref (REF_EXTERN x0) = (instr_sc9 (instr_st9_REF_EXTERN x0))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at:  *)
 function (sequential) instr_val :: "val ⇒ instr" where
-		  "instr_val (res_CONST x0 x1) = (instr_subcase_6 (instr_subtype_6_CONST x0 x1))"
-		| "instr_val (VCONST x0 x1) = (instr_subcase_7 (instr_subtype_7_VCONST x0 x1))"
-		| "instr_val (val_REF_I31_NUM x0) = (instr_subcase_9 (instr_subtype_9_REF_I31_NUM x0))"
-		| "instr_val val_REF_NULL_ADDR = (instr_subcase_9 instr_subtype_9_REF_NULL_ADDR)"
-		| "instr_val (val_REF_STRUCT_ADDR x0) = (instr_subcase_9 (instr_subtype_9_REF_STRUCT_ADDR x0))"
-		| "instr_val (val_REF_ARRAY_ADDR x0) = (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR x0))"
-		| "instr_val (val_REF_FUNC_ADDR x0) = (instr_subcase_9 (instr_subtype_9_REF_FUNC_ADDR x0))"
-		| "instr_val (val_REF_EXN_ADDR x0) = (instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR x0))"
-		| "instr_val (val_REF_HOST_ADDR x0) = (instr_subcase_9 (instr_subtype_9_REF_HOST_ADDR x0))"
-		| "instr_val (val_REF_EXTERN x0) = (instr_subcase_9 (instr_subtype_9_REF_EXTERN x0))"
+		  "instr_val (res_CONST x0 x1) = (instr_sc6 (instr_st6_CONST x0 x1))"
+		| "instr_val (VCONST x0 x1) = (instr_sc7 (instr_st7_VCONST x0 x1))"
+		| "instr_val (val_REF_I31_NUM x0) = (instr_sc9 (instr_st9_REF_I31_NUM x0))"
+		| "instr_val val_REF_NULL_ADDR = (instr_sc9 instr_st9_REF_NULL_ADDR)"
+		| "instr_val (val_REF_STRUCT_ADDR x0) = (instr_sc9 (instr_st9_REF_STRUCT_ADDR x0))"
+		| "instr_val (val_REF_ARRAY_ADDR x0) = (instr_sc9 (instr_st9_REF_ARRAY_ADDR x0))"
+		| "instr_val (val_REF_FUNC_ADDR x0) = (instr_sc9 (instr_st9_REF_FUNC_ADDR x0))"
+		| "instr_val (val_REF_EXN_ADDR x0) = (instr_sc9 (instr_st9_REF_EXN_ADDR x0))"
+		| "instr_val (val_REF_HOST_ADDR x0) = (instr_sc9 (instr_st9_REF_HOST_ADDR x0))"
+		| "instr_val (val_REF_EXTERN x0) = (instr_sc9 (instr_st9_REF_EXTERN x0))"
 	by pat_completeness auto
 
 (* Mutual Recursion at: ../specification/wasm-3.0/4.0-execution.configurations.spectec:133.1-139.9 *)
 inductive wf_instr :: "instr ⇒ bool" where
 	  instr_case_0 :
-		"wf_instr (instr_subcase_0 NOP)"
+		"wf_instr (instr_sc0 NOP)"
 	| instr_case_1 :
-		"wf_instr (instr_subcase_0 UNREACHABLE)"
+		"wf_instr (instr_sc0 UNREACHABLE)"
 	| instr_case_2 :
-		"wf_instr (instr_subcase_0 DROP)"
+		"wf_instr (instr_sc0 DROP)"
 	| instr_case_3 :
 		"list_all (λ (valtype_lst :: (valtype list)). list_all (λ (v_valtype :: valtype). (wf_valtype v_valtype)) valtype_lst) (option_to_list valtype_lst_opt) ⟹
-		 wf_instr (instr_subcase_0 (SELECT valtype_lst_opt))"
+		 wf_instr (instr_sc0 (SELECT valtype_lst_opt))"
 	| instr_case_4 :
 		"(wf_blocktype v_blocktype) ⟹
 		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
-		 wf_instr (instr_subcase_9 (BLOCK v_blocktype instr_lst))"
+		 wf_instr (instr_sc9 (BLOCK v_blocktype instr_lst))"
 	| instr_case_5 :
 		"(wf_blocktype v_blocktype) ⟹
 		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
-		 wf_instr (instr_subcase_10 (LOOP v_blocktype instr_lst))"
+		 wf_instr (instr_sc10 (LOOP v_blocktype instr_lst))"
 	| instr_case_6 :
 		"(wf_blocktype v_blocktype) ⟹
 		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
 		 list_all (λ (instr_lst_0 :: instr). (wf_instr instr_lst_0)) instr_lst_0_lst ⟹
-		 wf_instr (instr_subcase_10 (IFELSE v_blocktype instr_lst instr_lst_0_lst))"
+		 wf_instr (instr_sc10 (IFELSE v_blocktype instr_lst instr_lst_0_lst))"
 	| instr_case_7 :
 		"(wf_uN 32 v_labelidx) ⟹
-		 wf_instr (instr_subcase_0 (BR v_labelidx))"
+		 wf_instr (instr_sc0 (BR v_labelidx))"
 	| instr_case_8 :
 		"(wf_uN 32 v_labelidx) ⟹
-		 wf_instr (instr_subcase_0 (BR_IF v_labelidx))"
+		 wf_instr (instr_sc0 (BR_IF v_labelidx))"
 	| instr_case_9 :
 		"list_all (λ (v_labelidx :: labelidx). (wf_uN 32 v_labelidx)) labelidx_lst ⟹
 		 (wf_uN 32 v_labelidx) ⟹
-		 wf_instr (instr_subcase_0 (BR_TABLE labelidx_lst v_labelidx))"
+		 wf_instr (instr_sc0 (BR_TABLE labelidx_lst v_labelidx))"
 	| instr_case_10 :
 		"(wf_uN 32 v_labelidx) ⟹
-		 wf_instr (instr_subcase_0 (BR_ON_NULL v_labelidx))"
+		 wf_instr (instr_sc0 (BR_ON_NULL v_labelidx))"
 	| instr_case_11 :
 		"(wf_uN 32 v_labelidx) ⟹
-		 wf_instr (instr_subcase_0 (BR_ON_NON_NULL v_labelidx))"
+		 wf_instr (instr_sc0 (BR_ON_NON_NULL v_labelidx))"
 	| instr_case_12 :
 		"(wf_uN 32 v_labelidx) ⟹
 		 (wf_reftype v_reftype) ⟹
 		 (wf_reftype reftype_0) ⟹
-		 wf_instr (instr_subcase_0 (BR_ON_CAST v_labelidx v_reftype reftype_0))"
+		 wf_instr (instr_sc0 (BR_ON_CAST v_labelidx v_reftype reftype_0))"
 	| instr_case_13 :
 		"(wf_uN 32 v_labelidx) ⟹
 		 (wf_reftype v_reftype) ⟹
 		 (wf_reftype reftype_0) ⟹
-		 wf_instr (instr_subcase_0 (BR_ON_CAST_FAIL v_labelidx v_reftype reftype_0))"
+		 wf_instr (instr_sc0 (BR_ON_CAST_FAIL v_labelidx v_reftype reftype_0))"
 	| instr_case_14 :
 		"(wf_uN 32 v_funcidx) ⟹
-		 wf_instr (instr_subcase_1 (CALL v_funcidx))"
+		 wf_instr (instr_sc1 (CALL v_funcidx))"
 	| instr_case_15 :
 		"(wf_typeuse v_typeuse) ⟹
-		 wf_instr (instr_subcase_1 (CALL_REF v_typeuse))"
+		 wf_instr (instr_sc1 (CALL_REF v_typeuse))"
 	| instr_case_16 :
 		"(wf_uN 32 v_tableidx) ⟹
 		 (wf_typeuse v_typeuse) ⟹
-		 wf_instr (instr_subcase_1 (CALL_INDIRECT v_tableidx v_typeuse))"
+		 wf_instr (instr_sc1 (CALL_INDIRECT v_tableidx v_typeuse))"
 	| instr_case_17 :
-		"wf_instr (instr_subcase_1 RETURN)"
+		"wf_instr (instr_sc1 RETURN)"
 	| instr_case_18 :
 		"(wf_uN 32 v_funcidx) ⟹
-		 wf_instr (instr_subcase_1 (RETURN_CALL v_funcidx))"
+		 wf_instr (instr_sc1 (RETURN_CALL v_funcidx))"
 	| instr_case_19 :
 		"(wf_typeuse v_typeuse) ⟹
-		 wf_instr (instr_subcase_1 (RETURN_CALL_REF v_typeuse))"
+		 wf_instr (instr_sc1 (RETURN_CALL_REF v_typeuse))"
 	| instr_case_20 :
 		"(wf_uN 32 v_tableidx) ⟹
 		 (wf_typeuse v_typeuse) ⟹
-		 wf_instr (instr_subcase_1 (RETURN_CALL_INDIRECT v_tableidx v_typeuse))"
+		 wf_instr (instr_sc1 (RETURN_CALL_INDIRECT v_tableidx v_typeuse))"
 	| instr_case_21 :
 		"(wf_uN 32 v_tagidx) ⟹
-		 wf_instr (instr_subcase_1 (THROW v_tagidx))"
+		 wf_instr (instr_sc1 (THROW v_tagidx))"
 	| instr_case_22 :
-		"wf_instr (instr_subcase_1 THROW_REF)"
+		"wf_instr (instr_sc1 THROW_REF)"
 	| instr_case_23 :
 		"(wf_blocktype v_blocktype) ⟹
 		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
-		 wf_instr (instr_subcase_10 (TRY_TABLE v_blocktype var_0 instr_lst))"
+		 wf_instr (instr_sc10 (TRY_TABLE v_blocktype var_0 instr_lst))"
 	| instr_case_24 :
 		"(wf_uN 32 v_localidx) ⟹
-		 wf_instr (instr_subcase_1 (LOCAL_GET v_localidx))"
+		 wf_instr (instr_sc1 (LOCAL_GET v_localidx))"
 	| instr_case_25 :
 		"(wf_uN 32 v_localidx) ⟹
-		 wf_instr (instr_subcase_1 (LOCAL_SET v_localidx))"
+		 wf_instr (instr_sc1 (LOCAL_SET v_localidx))"
 	| instr_case_26 :
 		"(wf_uN 32 v_localidx) ⟹
-		 wf_instr (instr_subcase_2 (LOCAL_TEE v_localidx))"
+		 wf_instr (instr_sc2 (LOCAL_TEE v_localidx))"
 	| instr_case_27 :
 		"(wf_uN 32 v_globalidx) ⟹
-		 wf_instr (instr_subcase_2 (GLOBAL_GET v_globalidx))"
+		 wf_instr (instr_sc2 (GLOBAL_GET v_globalidx))"
 	| instr_case_28 :
 		"(wf_uN 32 v_globalidx) ⟹
-		 wf_instr (instr_subcase_2 (GLOBAL_SET v_globalidx))"
+		 wf_instr (instr_sc2 (GLOBAL_SET v_globalidx))"
 	| instr_case_29 :
 		"(wf_uN 32 v_tableidx) ⟹
-		 wf_instr (instr_subcase_2 (TABLE_GET v_tableidx))"
+		 wf_instr (instr_sc2 (TABLE_GET v_tableidx))"
 	| instr_case_30 :
 		"(wf_uN 32 v_tableidx) ⟹
-		 wf_instr (instr_subcase_2 (TABLE_SET v_tableidx))"
+		 wf_instr (instr_sc2 (TABLE_SET v_tableidx))"
 	| instr_case_31 :
 		"(wf_uN 32 v_tableidx) ⟹
-		 wf_instr (instr_subcase_2 (TABLE_SIZE v_tableidx))"
+		 wf_instr (instr_sc2 (TABLE_SIZE v_tableidx))"
 	| instr_case_32 :
 		"(wf_uN 32 v_tableidx) ⟹
-		 wf_instr (instr_subcase_2 (TABLE_GROW v_tableidx))"
+		 wf_instr (instr_sc2 (TABLE_GROW v_tableidx))"
 	| instr_case_33 :
 		"(wf_uN 32 v_tableidx) ⟹
-		 wf_instr (instr_subcase_2 (TABLE_FILL v_tableidx))"
+		 wf_instr (instr_sc2 (TABLE_FILL v_tableidx))"
 	| instr_case_34 :
 		"(wf_uN 32 v_tableidx) ⟹
 		 (wf_uN 32 tableidx_0) ⟹
-		 wf_instr (instr_subcase_2 (TABLE_COPY v_tableidx tableidx_0))"
+		 wf_instr (instr_sc2 (TABLE_COPY v_tableidx tableidx_0))"
 	| instr_case_35 :
 		"(wf_uN 32 v_tableidx) ⟹
 		 (wf_uN 32 v_elemidx) ⟹
-		 wf_instr (instr_subcase_2 (TABLE_INIT v_tableidx v_elemidx))"
+		 wf_instr (instr_sc2 (TABLE_INIT v_tableidx v_elemidx))"
 	| instr_case_36 :
 		"(wf_uN 32 v_elemidx) ⟹
-		 wf_instr (instr_subcase_2 (ELEM_DROP v_elemidx))"
+		 wf_instr (instr_sc2 (ELEM_DROP v_elemidx))"
 	| instr_case_37 :
 		"list_all (λ (var_0 :: loadop_underscore). (wf_loadop_underscore v_numtype var_0)) (option_to_list var_0_opt) ⟹
 		 (wf_uN 32 v_memidx) ⟹
 		 (wf_memarg v_memarg) ⟹
-		 wf_instr (instr_subcase_3 (LOAD v_numtype var_0_opt v_memidx v_memarg))"
+		 wf_instr (instr_sc3 (LOAD v_numtype var_0_opt v_memidx v_memarg))"
 	| instr_case_38 :
 		"list_all (λ (var_0 :: storeop_underscore). (wf_storeop_underscore v_numtype var_0)) (option_to_list var_0_opt) ⟹
 		 (wf_uN 32 v_memidx) ⟹
 		 (wf_memarg v_memarg) ⟹
-		 wf_instr (instr_subcase_3 (STORE v_numtype var_0_opt v_memidx v_memarg))"
+		 wf_instr (instr_sc3 (STORE v_numtype var_0_opt v_memidx v_memarg))"
 	| instr_case_39 :
 		"list_all (λ (var_0 :: vloadop_underscore). (wf_vloadop_underscore v_vectype var_0)) (option_to_list var_0_opt) ⟹
 		 (wf_uN 32 v_memidx) ⟹
 		 (wf_memarg v_memarg) ⟹
-		 wf_instr (instr_subcase_3 (VLOAD v_vectype var_0_opt v_memidx v_memarg))"
+		 wf_instr (instr_sc3 (VLOAD v_vectype var_0_opt v_memidx v_memarg))"
 	| instr_case_40 :
 		"(wf_sz v_sz) ⟹
 		 (wf_uN 32 v_memidx) ⟹
 		 (wf_memarg v_memarg) ⟹
 		 (wf_uN 8 v_laneidx) ⟹
-		 wf_instr (instr_subcase_3 (VLOAD_LANE v_vectype v_sz v_memidx v_memarg v_laneidx))"
+		 wf_instr (instr_sc3 (VLOAD_LANE v_vectype v_sz v_memidx v_memarg v_laneidx))"
 	| instr_case_41 :
 		"(wf_uN 32 v_memidx) ⟹
 		 (wf_memarg v_memarg) ⟹
-		 wf_instr (instr_subcase_3 (VSTORE v_vectype v_memidx v_memarg))"
+		 wf_instr (instr_sc3 (VSTORE v_vectype v_memidx v_memarg))"
 	| instr_case_42 :
 		"(wf_sz v_sz) ⟹
 		 (wf_uN 32 v_memidx) ⟹
 		 (wf_memarg v_memarg) ⟹
 		 (wf_uN 8 v_laneidx) ⟹
-		 wf_instr (instr_subcase_3 (VSTORE_LANE v_vectype v_sz v_memidx v_memarg v_laneidx))"
+		 wf_instr (instr_sc3 (VSTORE_LANE v_vectype v_sz v_memidx v_memarg v_laneidx))"
 	| instr_case_43 :
 		"(wf_uN 32 v_memidx) ⟹
-		 wf_instr (instr_subcase_3 (MEMORY_SIZE v_memidx))"
+		 wf_instr (instr_sc3 (MEMORY_SIZE v_memidx))"
 	| instr_case_44 :
 		"(wf_uN 32 v_memidx) ⟹
-		 wf_instr (instr_subcase_3 (MEMORY_GROW v_memidx))"
+		 wf_instr (instr_sc3 (MEMORY_GROW v_memidx))"
 	| instr_case_45 :
 		"(wf_uN 32 v_memidx) ⟹
-		 wf_instr (instr_subcase_3 (MEMORY_FILL v_memidx))"
+		 wf_instr (instr_sc3 (MEMORY_FILL v_memidx))"
 	| instr_case_46 :
 		"(wf_uN 32 v_memidx) ⟹
 		 (wf_uN 32 memidx_0) ⟹
-		 wf_instr (instr_subcase_3 (MEMORY_COPY v_memidx memidx_0))"
+		 wf_instr (instr_sc3 (MEMORY_COPY v_memidx memidx_0))"
 	| instr_case_47 :
 		"(wf_uN 32 v_memidx) ⟹
 		 (wf_uN 32 v_dataidx) ⟹
-		 wf_instr (instr_subcase_3 (MEMORY_INIT v_memidx v_dataidx))"
+		 wf_instr (instr_sc3 (MEMORY_INIT v_memidx v_dataidx))"
 	| instr_case_48 :
 		"(wf_uN 32 v_dataidx) ⟹
-		 wf_instr (instr_subcase_4 (DATA_DROP v_dataidx))"
+		 wf_instr (instr_sc4 (DATA_DROP v_dataidx))"
 	| instr_case_49 :
 		"(wf_heaptype v_heaptype) ⟹
-		 wf_instr (instr_subcase_4 (REF_NULL v_heaptype))"
+		 wf_instr (instr_sc4 (REF_NULL v_heaptype))"
 	| instr_case_50 :
-		"wf_instr (instr_subcase_4 REF_IS_NULL)"
+		"wf_instr (instr_sc4 REF_IS_NULL)"
 	| instr_case_51 :
-		"wf_instr (instr_subcase_4 REF_AS_NON_NULL)"
+		"wf_instr (instr_sc4 REF_AS_NON_NULL)"
 	| instr_case_52 :
-		"wf_instr (instr_subcase_4 REF_EQ)"
+		"wf_instr (instr_sc4 REF_EQ)"
 	| instr_case_53 :
 		"(wf_reftype v_reftype) ⟹
-		 wf_instr (instr_subcase_4 (REF_TEST v_reftype))"
+		 wf_instr (instr_sc4 (REF_TEST v_reftype))"
 	| instr_case_54 :
 		"(wf_reftype v_reftype) ⟹
-		 wf_instr (instr_subcase_4 (REF_CAST v_reftype))"
+		 wf_instr (instr_sc4 (REF_CAST v_reftype))"
 	| instr_case_55 :
 		"(wf_uN 32 v_funcidx) ⟹
-		 wf_instr (instr_subcase_4 (REF_FUNC v_funcidx))"
+		 wf_instr (instr_sc4 (REF_FUNC v_funcidx))"
 	| instr_case_56 :
-		"wf_instr (instr_subcase_4 REF_I31)"
+		"wf_instr (instr_sc4 REF_I31)"
 	| instr_case_57 :
-		"wf_instr (instr_subcase_4 (I31_GET v_sx))"
+		"wf_instr (instr_sc4 (I31_GET v_sx))"
 	| instr_case_58 :
 		"(wf_uN 32 v_typeidx) ⟹
-		 wf_instr (instr_subcase_4 (STRUCT_NEW v_typeidx))"
+		 wf_instr (instr_sc4 (STRUCT_NEW v_typeidx))"
 	| instr_case_59 :
 		"(wf_uN 32 v_typeidx) ⟹
-		 wf_instr (instr_subcase_5 (STRUCT_NEW_DEFAULT v_typeidx))"
+		 wf_instr (instr_sc5 (STRUCT_NEW_DEFAULT v_typeidx))"
 	| instr_case_60 :
 		"(wf_uN 32 v_typeidx) ⟹
 		 (wf_uN 32 v_fieldidx) ⟹
-		 wf_instr (instr_subcase_5 (STRUCT_GET sx_opt v_typeidx v_fieldidx))"
+		 wf_instr (instr_sc5 (STRUCT_GET sx_opt v_typeidx v_fieldidx))"
 	| instr_case_61 :
 		"(wf_uN 32 v_typeidx) ⟹
 		 (wf_uN 32 v_fieldidx) ⟹
-		 wf_instr (instr_subcase_5 (STRUCT_SET v_typeidx v_fieldidx))"
+		 wf_instr (instr_sc5 (STRUCT_SET v_typeidx v_fieldidx))"
 	| instr_case_62 :
 		"(wf_uN 32 v_typeidx) ⟹
-		 wf_instr (instr_subcase_5 (ARRAY_NEW v_typeidx))"
+		 wf_instr (instr_sc5 (ARRAY_NEW v_typeidx))"
 	| instr_case_63 :
 		"(wf_uN 32 v_typeidx) ⟹
-		 wf_instr (instr_subcase_5 (ARRAY_NEW_DEFAULT v_typeidx))"
+		 wf_instr (instr_sc5 (ARRAY_NEW_DEFAULT v_typeidx))"
 	| instr_case_64 :
 		"(wf_uN 32 v_typeidx) ⟹
 		 (wf_uN 32 v_u32) ⟹
-		 wf_instr (instr_subcase_5 (ARRAY_NEW_FIXED v_typeidx v_u32))"
+		 wf_instr (instr_sc5 (ARRAY_NEW_FIXED v_typeidx v_u32))"
 	| instr_case_65 :
 		"(wf_uN 32 v_typeidx) ⟹
 		 (wf_uN 32 v_dataidx) ⟹
-		 wf_instr (instr_subcase_5 (ARRAY_NEW_DATA v_typeidx v_dataidx))"
+		 wf_instr (instr_sc5 (ARRAY_NEW_DATA v_typeidx v_dataidx))"
 	| instr_case_66 :
 		"(wf_uN 32 v_typeidx) ⟹
 		 (wf_uN 32 v_elemidx) ⟹
-		 wf_instr (instr_subcase_5 (ARRAY_NEW_ELEM v_typeidx v_elemidx))"
+		 wf_instr (instr_sc5 (ARRAY_NEW_ELEM v_typeidx v_elemidx))"
 	| instr_case_67 :
 		"(wf_uN 32 v_typeidx) ⟹
-		 wf_instr (instr_subcase_5 (ARRAY_GET sx_opt v_typeidx))"
+		 wf_instr (instr_sc5 (ARRAY_GET sx_opt v_typeidx))"
 	| instr_case_68 :
 		"(wf_uN 32 v_typeidx) ⟹
-		 wf_instr (instr_subcase_5 (ARRAY_SET v_typeidx))"
+		 wf_instr (instr_sc5 (ARRAY_SET v_typeidx))"
 	| instr_case_69 :
-		"wf_instr (instr_subcase_5 ARRAY_LEN)"
+		"wf_instr (instr_sc5 ARRAY_LEN)"
 	| instr_case_70 :
 		"(wf_uN 32 v_typeidx) ⟹
-		 wf_instr (instr_subcase_6 (ARRAY_FILL v_typeidx))"
+		 wf_instr (instr_sc6 (ARRAY_FILL v_typeidx))"
 	| instr_case_71 :
 		"(wf_uN 32 v_typeidx) ⟹
 		 (wf_uN 32 typeidx_0) ⟹
-		 wf_instr (instr_subcase_6 (ARRAY_COPY v_typeidx typeidx_0))"
+		 wf_instr (instr_sc6 (ARRAY_COPY v_typeidx typeidx_0))"
 	| instr_case_72 :
 		"(wf_uN 32 v_typeidx) ⟹
 		 (wf_uN 32 v_dataidx) ⟹
-		 wf_instr (instr_subcase_6 (ARRAY_INIT_DATA v_typeidx v_dataidx))"
+		 wf_instr (instr_sc6 (ARRAY_INIT_DATA v_typeidx v_dataidx))"
 	| instr_case_73 :
 		"(wf_uN 32 v_typeidx) ⟹
 		 (wf_uN 32 v_elemidx) ⟹
-		 wf_instr (instr_subcase_6 (ARRAY_INIT_ELEM v_typeidx v_elemidx))"
+		 wf_instr (instr_sc6 (ARRAY_INIT_ELEM v_typeidx v_elemidx))"
 	| instr_case_74 :
-		"wf_instr (instr_subcase_6 EXTERN_CONVERT_ANY)"
+		"wf_instr (instr_sc6 EXTERN_CONVERT_ANY)"
 	| instr_case_75 :
-		"wf_instr (instr_subcase_6 ANY_CONVERT_EXTERN)"
+		"wf_instr (instr_sc6 ANY_CONVERT_EXTERN)"
 	| instr_case_76 :
 		"(wf_num_underscore v_numtype var_0) ⟹
-		 wf_instr (instr_subcase_6 (instr_subtype_6_CONST v_numtype var_0))"
+		 wf_instr (instr_sc6 (instr_st6_CONST v_numtype var_0))"
 	| instr_case_77 :
 		"(wf_unop_underscore v_numtype var_0) ⟹
-		 wf_instr (instr_subcase_6 (UNOP v_numtype var_0))"
+		 wf_instr (instr_sc6 (UNOP v_numtype var_0))"
 	| instr_case_78 :
 		"(wf_binop_underscore v_numtype var_0) ⟹
-		 wf_instr (instr_subcase_6 (BINOP v_numtype var_0))"
+		 wf_instr (instr_sc6 (BINOP v_numtype var_0))"
 	| instr_case_79 :
 		"(wf_testop_underscore v_numtype var_0) ⟹
-		 wf_instr (instr_subcase_6 (TESTOP v_numtype var_0))"
+		 wf_instr (instr_sc6 (TESTOP v_numtype var_0))"
 	| instr_case_80 :
 		"(wf_relop_underscore v_numtype var_0) ⟹
-		 wf_instr (instr_subcase_6 (RELOP v_numtype var_0))"
+		 wf_instr (instr_sc6 (RELOP v_numtype var_0))"
 	| instr_case_81 :
 		"(wf_cvtop__underscore numtype_2 numtype_1 var_0) ⟹
-		 wf_instr (instr_subcase_7 (CVTOP numtype_1 numtype_2 var_0))"
+		 wf_instr (instr_sc7 (CVTOP numtype_1 numtype_2 var_0))"
 	| instr_case_82 :
 		"(wf_uN (vsize v_vectype) var_0) ⟹
-		 wf_instr (instr_subcase_7 (instr_subtype_7_VCONST v_vectype var_0))"
+		 wf_instr (instr_sc7 (instr_st7_VCONST v_vectype var_0))"
 	| instr_case_83 :
-		"wf_instr (instr_subcase_7 (VVUNOP v_vectype v_vvunop))"
+		"wf_instr (instr_sc7 (VVUNOP v_vectype v_vvunop))"
 	| instr_case_84 :
-		"wf_instr (instr_subcase_7 (VVBINOP v_vectype v_vvbinop))"
+		"wf_instr (instr_sc7 (VVBINOP v_vectype v_vvbinop))"
 	| instr_case_85 :
-		"wf_instr (instr_subcase_7 (VVTERNOP v_vectype v_vvternop))"
+		"wf_instr (instr_sc7 (VVTERNOP v_vectype v_vvternop))"
 	| instr_case_86 :
-		"wf_instr (instr_subcase_7 (VVTESTOP v_vectype v_vvtestop))"
+		"wf_instr (instr_sc7 (VVTESTOP v_vectype v_vvtestop))"
 	| instr_case_87 :
 		"(wf_shape v_shape) ⟹
 		 (wf_vunop_underscore v_shape var_0) ⟹
-		 wf_instr (instr_subcase_7 (VUNOP v_shape var_0))"
+		 wf_instr (instr_sc7 (VUNOP v_shape var_0))"
 	| instr_case_88 :
 		"(wf_shape v_shape) ⟹
 		 (wf_vbinop_underscore v_shape var_0) ⟹
-		 wf_instr (instr_subcase_7 (VBINOP v_shape var_0))"
+		 wf_instr (instr_sc7 (VBINOP v_shape var_0))"
 	| instr_case_89 :
 		"(wf_shape v_shape) ⟹
 		 (wf_vternop_underscore v_shape var_0) ⟹
-		 wf_instr (instr_subcase_7 (VTERNOP v_shape var_0))"
+		 wf_instr (instr_sc7 (VTERNOP v_shape var_0))"
 	| instr_case_90 :
 		"(wf_shape v_shape) ⟹
 		 (wf_vtestop_underscore v_shape var_0) ⟹
-		 wf_instr (instr_subcase_7 (VTESTOP v_shape var_0))"
+		 wf_instr (instr_sc7 (VTESTOP v_shape var_0))"
 	| instr_case_91 :
 		"(wf_shape v_shape) ⟹
 		 (wf_vrelop_underscore v_shape var_0) ⟹
-		 wf_instr (instr_subcase_7 (VRELOP v_shape var_0))"
+		 wf_instr (instr_sc7 (VRELOP v_shape var_0))"
 	| instr_case_92 :
 		"(wf_ishape v_ishape) ⟹
 		 (wf_vshiftop_underscore v_ishape var_0) ⟹
-		 wf_instr (instr_subcase_8 (VSHIFTOP v_ishape var_0))"
+		 wf_instr (instr_sc8 (VSHIFTOP v_ishape var_0))"
 	| instr_case_93 :
 		"(wf_ishape v_ishape) ⟹
-		 wf_instr (instr_subcase_8 (VBITMASK v_ishape))"
+		 wf_instr (instr_sc8 (VBITMASK v_ishape))"
 	| instr_case_94 :
 		"(wf_bshape v_bshape) ⟹
 		 (wf_vswizzlop_underscore v_bshape var_0) ⟹
-		 wf_instr (instr_subcase_8 (VSWIZZLOP v_bshape var_0))"
+		 wf_instr (instr_sc8 (VSWIZZLOP v_bshape var_0))"
 	| instr_case_95 :
 		"(wf_bshape v_bshape) ⟹
 		 list_all (λ (v_laneidx :: laneidx). (wf_uN 8 v_laneidx)) laneidx_lst ⟹
 		 ((mk_dim (length laneidx_lst)) = (fun_dim (proj_bshape_0 v_bshape))) ⟹
-		 wf_instr (instr_subcase_8 (VSHUFFLE v_bshape laneidx_lst))"
+		 wf_instr (instr_sc8 (VSHUFFLE v_bshape laneidx_lst))"
 	| instr_case_96 :
 		"(wf_ishape ishape_1) ⟹
 		 (wf_ishape ishape_2) ⟹
 		 (wf_vextunop__underscore ishape_2 ishape_1 var_0) ⟹
-		 wf_instr (instr_subcase_8 (VEXTUNOP ishape_1 ishape_2 var_0))"
+		 wf_instr (instr_sc8 (VEXTUNOP ishape_1 ishape_2 var_0))"
 	| instr_case_97 :
 		"(wf_ishape ishape_1) ⟹
 		 (wf_ishape ishape_2) ⟹
 		 (wf_vextbinop__underscore ishape_2 ishape_1 var_0) ⟹
-		 wf_instr (instr_subcase_8 (VEXTBINOP ishape_1 ishape_2 var_0))"
+		 wf_instr (instr_sc8 (VEXTBINOP ishape_1 ishape_2 var_0))"
 	| instr_case_98 :
 		"(wf_ishape ishape_1) ⟹
 		 (wf_ishape ishape_2) ⟹
 		 (wf_vextternop__underscore ishape_2 ishape_1 var_0) ⟹
-		 wf_instr (instr_subcase_8 (VEXTTERNOP ishape_1 ishape_2 var_0))"
+		 wf_instr (instr_sc8 (VEXTTERNOP ishape_1 ishape_2 var_0))"
 	| instr_case_99 :
 		"(wf_ishape ishape_1) ⟹
 		 (wf_ishape ishape_2) ⟹
 		 (((lsize (fun_lanetype (proj_ishape_0 ishape_2))) = (2 * (lsize (fun_lanetype (proj_ishape_0 ishape_1))))) ∧ ((2 * (lsize (fun_lanetype (proj_ishape_0 ishape_1)))) ≤ 32)) ⟹
-		 wf_instr (instr_subcase_8 (VNARROW ishape_1 ishape_2 v_sx))"
+		 wf_instr (instr_sc8 (VNARROW ishape_1 ishape_2 v_sx))"
 	| instr_case_100 :
 		"(wf_shape shape_1) ⟹
 		 (wf_shape shape_2) ⟹
 		 (wf_vcvtop__underscore shape_2 shape_1 var_0) ⟹
-		 wf_instr (instr_subcase_8 (VCVTOP shape_1 shape_2 var_0))"
+		 wf_instr (instr_sc8 (VCVTOP shape_1 shape_2 var_0))"
 	| instr_case_101 :
 		"(wf_shape v_shape) ⟹
-		 wf_instr (instr_subcase_8 (VSPLAT v_shape))"
+		 wf_instr (instr_sc8 (VSPLAT v_shape))"
 	| instr_case_102 :
 		"(wf_shape v_shape) ⟹
 		 (wf_uN 8 v_laneidx) ⟹
 		 ((length [lanetype_I32, lanetype_I64, lanetype_F32, lanetype_F64]) > 0) ⟹
 		 ((sx_opt = None) ⟷ ((fun_lanetype v_shape) ∈ set [lanetype_I32, lanetype_I64, lanetype_F32, lanetype_F64])) ⟹
-		 wf_instr (instr_subcase_8 (VEXTRACT_LANE v_shape sx_opt v_laneidx))"
+		 wf_instr (instr_sc8 (VEXTRACT_LANE v_shape sx_opt v_laneidx))"
 	| instr_case_103 :
 		"(wf_shape v_shape) ⟹
 		 (wf_uN 8 v_laneidx) ⟹
-		 wf_instr (instr_subcase_9 (VREPLACE_LANE v_shape v_laneidx))"
+		 wf_instr (instr_sc9 (VREPLACE_LANE v_shape v_laneidx))"
 	| instr_case_104 :
 		"(wf_uN 31 v_u31) ⟹
-		 wf_instr (instr_subcase_9 (instr_subtype_9_REF_I31_NUM v_u31))"
+		 wf_instr (instr_sc9 (instr_st9_REF_I31_NUM v_u31))"
 	| instr_case_105 :
-		"wf_instr (instr_subcase_9 instr_subtype_9_REF_NULL_ADDR)"
+		"wf_instr (instr_sc9 instr_st9_REF_NULL_ADDR)"
 	| instr_case_106 :
-		"wf_instr (instr_subcase_9 (instr_subtype_9_REF_STRUCT_ADDR v_structaddr))"
+		"wf_instr (instr_sc9 (instr_st9_REF_STRUCT_ADDR v_structaddr))"
 	| instr_case_107 :
-		"wf_instr (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR v_arrayaddr))"
+		"wf_instr (instr_sc9 (instr_st9_REF_ARRAY_ADDR v_arrayaddr))"
 	| instr_case_108 :
-		"wf_instr (instr_subcase_9 (instr_subtype_9_REF_FUNC_ADDR v_funcaddr))"
+		"wf_instr (instr_sc9 (instr_st9_REF_FUNC_ADDR v_funcaddr))"
 	| instr_case_109 :
-		"wf_instr (instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR v_exnaddr))"
+		"wf_instr (instr_sc9 (instr_st9_REF_EXN_ADDR v_exnaddr))"
 	| instr_case_110 :
-		"wf_instr (instr_subcase_9 (instr_subtype_9_REF_HOST_ADDR v_hostaddr))"
+		"wf_instr (instr_sc9 (instr_st9_REF_HOST_ADDR v_hostaddr))"
 	| instr_case_111 :
 		"(wf_ref v_ref) ⟹
-		 wf_instr (instr_subcase_9 (instr_subtype_9_REF_EXTERN v_ref))"
+		 wf_instr (instr_sc9 (instr_st9_REF_EXTERN v_ref))"
 	| instr_case_112 :
 		"list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
 		 list_all (λ (instr_lst_0 :: instr). (wf_instr instr_lst_0)) instr_lst_0_lst ⟹
-		 wf_instr (instr_subcase_10 (LABEL_underscore v_n instr_lst instr_lst_0_lst))"
+		 wf_instr (instr_sc10 (LABEL_underscore v_n instr_lst instr_lst_0_lst))"
 	| instr_case_113 :
 		"(wf_frame v_frame) ⟹
 		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
-		 wf_instr (instr_subcase_10 (FRAME_underscore v_n v_frame instr_lst))"
+		 wf_instr (instr_sc10 (FRAME_underscore v_n v_frame instr_lst))"
 	| instr_case_114 :
 		"list_all (λ (v_catch :: catch). (wf_catch v_catch)) catch_lst ⟹
 		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
-		 wf_instr (instr_subcase_10 (HANDLER_underscore v_n catch_lst instr_lst))"
+		 wf_instr (instr_sc10 (HANDLER_underscore v_n catch_lst instr_lst))"
 	| instr_case_115 :
-		"wf_instr (instr_subcase_9 TRAP)"
+		"wf_instr (instr_sc9 TRAP)"
 
 (* Type Alias Definition at: ../specification/wasm-3.0/1.3-syntax.instructions.spectec:394.1-395.9 *)
 type_synonym expr = "(instr list)"
@@ -4798,11 +4797,11 @@ sorry
 
 (* Auxiliary Definition at: ../specification/wasm-3.0/1.3-syntax.instructions.spectec:409.1-409.69 *)
 function (sequential) const :: "consttype ⇒ lit_underscore ⇒ instr" where
-		  "const consttype_I32 (mk_lit__0 numtype_I32 c) = (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))"
-		| "const consttype_I64 (mk_lit__0 numtype_I64 c) = (instr_subcase_6 (instr_subtype_6_CONST numtype_I64 c))"
-		| "const consttype_F32 (mk_lit__0 F32 c) = (instr_subcase_6 (instr_subtype_6_CONST F32 c))"
-		| "const consttype_F64 (mk_lit__0 F64 c) = (instr_subcase_6 (instr_subtype_6_CONST F64 c))"
-		| "const consttype_V128 (mk_lit__1 V128 c) = (instr_subcase_7 (instr_subtype_7_VCONST V128 c))"
+		  "const consttype_I32 (mk_lit__0 numtype_I32 c) = (instr_sc6 (instr_st6_CONST numtype_I32 c))"
+		| "const consttype_I64 (mk_lit__0 numtype_I64 c) = (instr_sc6 (instr_st6_CONST numtype_I64 c))"
+		| "const consttype_F32 (mk_lit__0 F32 c) = (instr_sc6 (instr_st6_CONST F32 c))"
+		| "const consttype_F64 (mk_lit__0 F64 c) = (instr_sc6 (instr_st6_CONST F64 c))"
+		| "const consttype_V128 (mk_lit__1 V128 c) = (instr_sc7 (instr_st7_VCONST V128 c))"
 	by pat_completeness auto
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/1.3-syntax.instructions.spectec:409.6-409.12 *)
@@ -4880,242 +4879,242 @@ inductive shift_labelidxs_is_wf :: "(labelidx list) ⇒ (labelidx list) ⇒ bool
 inductive fun_free_instr :: "instr ⇒ free ⇒ bool"
 and fun_free_block :: "(instr list) ⇒ free ⇒ bool" where
 	  fun_free_instr_case_0 :
-		"fun_free_instr (instr_subcase_0 NOP) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
+		"fun_free_instr (instr_sc0 NOP) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
 	| fun_free_instr_case_1 :
-		"fun_free_instr (instr_subcase_0 UNREACHABLE) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
+		"fun_free_instr (instr_sc0 UNREACHABLE) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
 	| fun_free_instr_case_2 :
-		"fun_free_instr (instr_subcase_0 DROP) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
+		"fun_free_instr (instr_sc0 DROP) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
 	| fun_free_instr_case_3 :
 		"((var_1_lst_opt = None) ⟷ (valtype_lst_opt = None)) ⟹
 		 list_all2 (λ (var_1_lst :: (free list)) (valtype_lst :: (valtype list)). ((length var_1_lst) = (length valtype_lst))) (option_to_list var_1_lst_opt) (option_to_list valtype_lst_opt) ⟹
 		 list_all2 (λ (var_1_lst :: (free list)) (valtype_lst :: (valtype list)). list_all2 (λ (var_1 :: free) (v_valtype :: valtype). (fun_free_valtype v_valtype var_1)) var_1_lst valtype_lst) (option_to_list var_1_lst_opt) (option_to_list valtype_lst_opt) ⟹
 		 ((var_1_lst_opt = None) ⟷ (var_0_opt = None)) ⟹
 		 list_all2 (λ (var_1_lst :: (free list)) (var_0 :: free). (fun_free_list var_1_lst var_0)) (option_to_list var_1_lst_opt) (option_to_list var_0_opt) ⟹
-		 fun_free_instr (instr_subcase_0 (SELECT valtype_lst_opt)) (free_opt var_0_opt)"
+		 fun_free_instr (instr_sc0 (SELECT valtype_lst_opt)) (free_opt var_0_opt)"
 	| fun_free_instr_case_4 :
 		"(fun_free_block instr_lst var_1) ⟹
 		 (fun_free_blocktype v_blocktype var_0) ⟹
-		 fun_free_instr (instr_subcase_9 (BLOCK v_blocktype instr_lst)) (append_free var_0 var_1)"
+		 fun_free_instr (instr_sc9 (BLOCK v_blocktype instr_lst)) (append_free var_0 var_1)"
 	| fun_free_instr_case_5 :
 		"(fun_free_block instr_lst var_1) ⟹
 		 (fun_free_blocktype v_blocktype var_0) ⟹
-		 fun_free_instr (instr_subcase_10 (LOOP v_blocktype instr_lst)) (append_free var_0 var_1)"
+		 fun_free_instr (instr_sc10 (LOOP v_blocktype instr_lst)) (append_free var_0 var_1)"
 	| fun_free_instr_case_6 :
 		"(fun_free_block instr_2_lst var_2) ⟹
 		 (fun_free_block instr_1_lst var_1) ⟹
 		 (fun_free_blocktype v_blocktype var_0) ⟹
-		 fun_free_instr (instr_subcase_10 (IFELSE v_blocktype instr_1_lst instr_2_lst)) (append_free (append_free var_0 var_1) var_2)"
+		 fun_free_instr (instr_sc10 (IFELSE v_blocktype instr_1_lst instr_2_lst)) (append_free (append_free var_0 var_1) var_2)"
 	| fun_free_instr_case_7 :
-		"fun_free_instr (instr_subcase_0 (BR v_labelidx)) (free_labelidx v_labelidx)"
+		"fun_free_instr (instr_sc0 (BR v_labelidx)) (free_labelidx v_labelidx)"
 	| fun_free_instr_case_8 :
-		"fun_free_instr (instr_subcase_0 (BR_IF v_labelidx)) (free_labelidx v_labelidx)"
+		"fun_free_instr (instr_sc0 (BR_IF v_labelidx)) (free_labelidx v_labelidx)"
 	| fun_free_instr_case_9 :
 		"(fun_free_list (map (λ (v_labelidx :: labelidx). (free_labelidx v_labelidx)) labelidx_lst) var_0) ⟹
-		 fun_free_instr (instr_subcase_0 (BR_TABLE labelidx_lst labelidx')) (append_free var_0 (free_labelidx labelidx'))"
+		 fun_free_instr (instr_sc0 (BR_TABLE labelidx_lst labelidx')) (append_free var_0 (free_labelidx labelidx'))"
 	| fun_free_instr_case_10 :
-		"fun_free_instr (instr_subcase_0 (BR_ON_NULL v_labelidx)) (free_labelidx v_labelidx)"
+		"fun_free_instr (instr_sc0 (BR_ON_NULL v_labelidx)) (free_labelidx v_labelidx)"
 	| fun_free_instr_case_11 :
-		"fun_free_instr (instr_subcase_0 (BR_ON_NON_NULL v_labelidx)) (free_labelidx v_labelidx)"
+		"fun_free_instr (instr_sc0 (BR_ON_NON_NULL v_labelidx)) (free_labelidx v_labelidx)"
 	| fun_free_instr_case_12 :
 		"(fun_free_reftype reftype_2 var_1) ⟹
 		 (fun_free_reftype reftype_1 var_0) ⟹
-		 fun_free_instr (instr_subcase_0 (BR_ON_CAST v_labelidx reftype_1 reftype_2)) (append_free (append_free (free_labelidx v_labelidx) var_0) var_1)"
+		 fun_free_instr (instr_sc0 (BR_ON_CAST v_labelidx reftype_1 reftype_2)) (append_free (append_free (free_labelidx v_labelidx) var_0) var_1)"
 	| fun_free_instr_case_13 :
 		"(fun_free_reftype reftype_2 var_1) ⟹
 		 (fun_free_reftype reftype_1 var_0) ⟹
-		 fun_free_instr (instr_subcase_0 (BR_ON_CAST_FAIL v_labelidx reftype_1 reftype_2)) (append_free (append_free (free_labelidx v_labelidx) var_0) var_1)"
+		 fun_free_instr (instr_sc0 (BR_ON_CAST_FAIL v_labelidx reftype_1 reftype_2)) (append_free (append_free (free_labelidx v_labelidx) var_0) var_1)"
 	| fun_free_instr_case_14 :
-		"fun_free_instr (instr_subcase_1 (CALL v_funcidx)) (free_funcidx v_funcidx)"
+		"fun_free_instr (instr_sc1 (CALL v_funcidx)) (free_funcidx v_funcidx)"
 	| fun_free_instr_case_15 :
 		"(fun_free_typeuse v_typeuse var_0) ⟹
-		 fun_free_instr (instr_subcase_1 (CALL_REF v_typeuse)) var_0"
+		 fun_free_instr (instr_sc1 (CALL_REF v_typeuse)) var_0"
 	| fun_free_instr_case_16 :
 		"(fun_free_typeuse v_typeuse var_0) ⟹
-		 fun_free_instr (instr_subcase_1 (CALL_INDIRECT v_tableidx v_typeuse)) (append_free (free_tableidx v_tableidx) var_0)"
+		 fun_free_instr (instr_sc1 (CALL_INDIRECT v_tableidx v_typeuse)) (append_free (free_tableidx v_tableidx) var_0)"
 	| fun_free_instr_case_17 :
-		"fun_free_instr (instr_subcase_1 RETURN) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
+		"fun_free_instr (instr_sc1 RETURN) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
 	| fun_free_instr_case_18 :
-		"fun_free_instr (instr_subcase_1 (RETURN_CALL v_funcidx)) (free_funcidx v_funcidx)"
+		"fun_free_instr (instr_sc1 (RETURN_CALL v_funcidx)) (free_funcidx v_funcidx)"
 	| fun_free_instr_case_19 :
 		"(fun_free_typeuse v_typeuse var_0) ⟹
-		 fun_free_instr (instr_subcase_1 (RETURN_CALL_REF v_typeuse)) var_0"
+		 fun_free_instr (instr_sc1 (RETURN_CALL_REF v_typeuse)) var_0"
 	| fun_free_instr_case_20 :
 		"(fun_free_typeuse v_typeuse var_0) ⟹
-		 fun_free_instr (instr_subcase_1 (RETURN_CALL_INDIRECT v_tableidx v_typeuse)) (append_free (free_tableidx v_tableidx) var_0)"
+		 fun_free_instr (instr_sc1 (RETURN_CALL_INDIRECT v_tableidx v_typeuse)) (append_free (free_tableidx v_tableidx) var_0)"
 	| fun_free_instr_case_21 :
-		"fun_free_instr (instr_subcase_1 (THROW v_tagidx)) (free_tagidx v_tagidx)"
+		"fun_free_instr (instr_sc1 (THROW v_tagidx)) (free_tagidx v_tagidx)"
 	| fun_free_instr_case_22 :
-		"fun_free_instr (instr_subcase_1 THROW_REF) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
+		"fun_free_instr (instr_sc1 THROW_REF) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
 	| fun_free_instr_case_23 :
 		"((length var_3_lst) = (length instr_lst)) ⟹
 		 list_all2 (λ (var_3 :: free) (v_instr :: instr). (fun_free_instr v_instr var_3)) var_3_lst instr_lst ⟹
 		 (fun_free_list var_3_lst var_2) ⟹
 		 (fun_free_list (map (λ (v_catch :: catch). (free_catch v_catch)) catch_lst) var_1) ⟹
 		 (fun_free_blocktype v_blocktype var_0) ⟹
-		 fun_free_instr (instr_subcase_10 (TRY_TABLE v_blocktype (mk_list catch_lst) instr_lst)) (append_free (append_free var_0 var_1) var_2)"
+		 fun_free_instr (instr_sc10 (TRY_TABLE v_blocktype (mk_list catch_lst) instr_lst)) (append_free (append_free var_0 var_1) var_2)"
 	| fun_free_instr_case_24 :
-		"fun_free_instr (instr_subcase_6 (instr_subtype_6_CONST v_numtype numlit)) (free_numtype v_numtype)"
+		"fun_free_instr (instr_sc6 (instr_st6_CONST v_numtype numlit)) (free_numtype v_numtype)"
 	| fun_free_instr_case_25 :
-		"fun_free_instr (instr_subcase_6 (UNOP v_numtype unop)) (free_numtype v_numtype)"
+		"fun_free_instr (instr_sc6 (UNOP v_numtype unop)) (free_numtype v_numtype)"
 	| fun_free_instr_case_26 :
-		"fun_free_instr (instr_subcase_6 (BINOP v_numtype binop)) (free_numtype v_numtype)"
+		"fun_free_instr (instr_sc6 (BINOP v_numtype binop)) (free_numtype v_numtype)"
 	| fun_free_instr_case_27 :
-		"fun_free_instr (instr_subcase_6 (TESTOP v_numtype testop)) (free_numtype v_numtype)"
+		"fun_free_instr (instr_sc6 (TESTOP v_numtype testop)) (free_numtype v_numtype)"
 	| fun_free_instr_case_28 :
-		"fun_free_instr (instr_subcase_6 (RELOP v_numtype relop)) (free_numtype v_numtype)"
+		"fun_free_instr (instr_sc6 (RELOP v_numtype relop)) (free_numtype v_numtype)"
 	| fun_free_instr_case_29 :
-		"fun_free_instr (instr_subcase_7 (CVTOP numtype_1 numtype_2 cvtop)) (append_free (free_numtype numtype_1) (free_numtype numtype_2))"
+		"fun_free_instr (instr_sc7 (CVTOP numtype_1 numtype_2 cvtop)) (append_free (free_numtype numtype_1) (free_numtype numtype_2))"
 	| fun_free_instr_case_30 :
-		"fun_free_instr (instr_subcase_7 (instr_subtype_7_VCONST v_vectype veclit)) (free_vectype v_vectype)"
+		"fun_free_instr (instr_sc7 (instr_st7_VCONST v_vectype veclit)) (free_vectype v_vectype)"
 	| fun_free_instr_case_31 :
-		"fun_free_instr (instr_subcase_7 (VVUNOP v_vectype v_vvunop)) (free_vectype v_vectype)"
+		"fun_free_instr (instr_sc7 (VVUNOP v_vectype v_vvunop)) (free_vectype v_vectype)"
 	| fun_free_instr_case_32 :
-		"fun_free_instr (instr_subcase_7 (VVBINOP v_vectype v_vvbinop)) (free_vectype v_vectype)"
+		"fun_free_instr (instr_sc7 (VVBINOP v_vectype v_vvbinop)) (free_vectype v_vectype)"
 	| fun_free_instr_case_33 :
-		"fun_free_instr (instr_subcase_7 (VVTERNOP v_vectype v_vvternop)) (free_vectype v_vectype)"
+		"fun_free_instr (instr_sc7 (VVTERNOP v_vectype v_vvternop)) (free_vectype v_vectype)"
 	| fun_free_instr_case_34 :
-		"fun_free_instr (instr_subcase_7 (VVTESTOP v_vectype v_vvtestop)) (free_vectype v_vectype)"
+		"fun_free_instr (instr_sc7 (VVTESTOP v_vectype v_vvtestop)) (free_vectype v_vectype)"
 	| fun_free_instr_case_35 :
-		"fun_free_instr (instr_subcase_7 (VUNOP v_shape vunop)) (free_shape v_shape)"
+		"fun_free_instr (instr_sc7 (VUNOP v_shape vunop)) (free_shape v_shape)"
 	| fun_free_instr_case_36 :
-		"fun_free_instr (instr_subcase_7 (VBINOP v_shape vbinop)) (free_shape v_shape)"
+		"fun_free_instr (instr_sc7 (VBINOP v_shape vbinop)) (free_shape v_shape)"
 	| fun_free_instr_case_37 :
-		"fun_free_instr (instr_subcase_7 (VTERNOP v_shape vternop)) (free_shape v_shape)"
+		"fun_free_instr (instr_sc7 (VTERNOP v_shape vternop)) (free_shape v_shape)"
 	| fun_free_instr_case_38 :
-		"fun_free_instr (instr_subcase_7 (VTESTOP v_shape vtestop)) (free_shape v_shape)"
+		"fun_free_instr (instr_sc7 (VTESTOP v_shape vtestop)) (free_shape v_shape)"
 	| fun_free_instr_case_39 :
-		"fun_free_instr (instr_subcase_7 (VRELOP v_shape vrelop)) (free_shape v_shape)"
+		"fun_free_instr (instr_sc7 (VRELOP v_shape vrelop)) (free_shape v_shape)"
 	| fun_free_instr_case_40 :
-		"fun_free_instr (instr_subcase_8 (VSHIFTOP v_ishape vshiftop)) (free_shape (proj_ishape_0 v_ishape))"
+		"fun_free_instr (instr_sc8 (VSHIFTOP v_ishape vshiftop)) (free_shape (proj_ishape_0 v_ishape))"
 	| fun_free_instr_case_41 :
-		"fun_free_instr (instr_subcase_8 (VBITMASK v_ishape)) (free_shape (proj_ishape_0 v_ishape))"
+		"fun_free_instr (instr_sc8 (VBITMASK v_ishape)) (free_shape (proj_ishape_0 v_ishape))"
 	| fun_free_instr_case_42 :
-		"fun_free_instr (instr_subcase_8 (VSWIZZLOP v_bshape vswizzlop)) (free_shape (proj_bshape_0 v_bshape))"
+		"fun_free_instr (instr_sc8 (VSWIZZLOP v_bshape vswizzlop)) (free_shape (proj_bshape_0 v_bshape))"
 	| fun_free_instr_case_43 :
-		"fun_free_instr (instr_subcase_8 (VSHUFFLE v_bshape laneidx_lst)) (free_shape (proj_bshape_0 v_bshape))"
+		"fun_free_instr (instr_sc8 (VSHUFFLE v_bshape laneidx_lst)) (free_shape (proj_bshape_0 v_bshape))"
 	| fun_free_instr_case_44 :
-		"fun_free_instr (instr_subcase_8 (VEXTUNOP ishape_1 ishape_2 vextunop)) (append_free (free_shape (proj_ishape_0 ishape_1)) (free_shape (proj_ishape_0 ishape_2)))"
+		"fun_free_instr (instr_sc8 (VEXTUNOP ishape_1 ishape_2 vextunop)) (append_free (free_shape (proj_ishape_0 ishape_1)) (free_shape (proj_ishape_0 ishape_2)))"
 	| fun_free_instr_case_45 :
-		"fun_free_instr (instr_subcase_8 (VEXTBINOP ishape_1 ishape_2 vextbinop)) (append_free (free_shape (proj_ishape_0 ishape_1)) (free_shape (proj_ishape_0 ishape_2)))"
+		"fun_free_instr (instr_sc8 (VEXTBINOP ishape_1 ishape_2 vextbinop)) (append_free (free_shape (proj_ishape_0 ishape_1)) (free_shape (proj_ishape_0 ishape_2)))"
 	| fun_free_instr_case_46 :
-		"fun_free_instr (instr_subcase_8 (VEXTTERNOP ishape_1 ishape_2 vextternop)) (append_free (free_shape (proj_ishape_0 ishape_1)) (free_shape (proj_ishape_0 ishape_2)))"
+		"fun_free_instr (instr_sc8 (VEXTTERNOP ishape_1 ishape_2 vextternop)) (append_free (free_shape (proj_ishape_0 ishape_1)) (free_shape (proj_ishape_0 ishape_2)))"
 	| fun_free_instr_case_47 :
-		"fun_free_instr (instr_subcase_8 (VNARROW ishape_1 ishape_2 v_sx)) (append_free (free_shape (proj_ishape_0 ishape_1)) (free_shape (proj_ishape_0 ishape_2)))"
+		"fun_free_instr (instr_sc8 (VNARROW ishape_1 ishape_2 v_sx)) (append_free (free_shape (proj_ishape_0 ishape_1)) (free_shape (proj_ishape_0 ishape_2)))"
 	| fun_free_instr_case_48 :
-		"fun_free_instr (instr_subcase_8 (VCVTOP shape_1 shape_2 vcvtop)) (append_free (free_shape shape_1) (free_shape shape_2))"
+		"fun_free_instr (instr_sc8 (VCVTOP shape_1 shape_2 vcvtop)) (append_free (free_shape shape_1) (free_shape shape_2))"
 	| fun_free_instr_case_49 :
-		"fun_free_instr (instr_subcase_8 (VSPLAT v_shape)) (free_shape v_shape)"
+		"fun_free_instr (instr_sc8 (VSPLAT v_shape)) (free_shape v_shape)"
 	| fun_free_instr_case_50 :
-		"fun_free_instr (instr_subcase_8 (VEXTRACT_LANE v_shape sx_opt v_laneidx)) (free_shape v_shape)"
+		"fun_free_instr (instr_sc8 (VEXTRACT_LANE v_shape sx_opt v_laneidx)) (free_shape v_shape)"
 	| fun_free_instr_case_51 :
-		"fun_free_instr (instr_subcase_9 (VREPLACE_LANE v_shape v_laneidx)) (free_shape v_shape)"
+		"fun_free_instr (instr_sc9 (VREPLACE_LANE v_shape v_laneidx)) (free_shape v_shape)"
 	| fun_free_instr_case_52 :
 		"(fun_free_heaptype v_heaptype var_0) ⟹
-		 fun_free_instr (instr_subcase_4 (REF_NULL v_heaptype)) var_0"
+		 fun_free_instr (instr_sc4 (REF_NULL v_heaptype)) var_0"
 	| fun_free_instr_case_53 :
-		"fun_free_instr (instr_subcase_4 REF_IS_NULL) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
+		"fun_free_instr (instr_sc4 REF_IS_NULL) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
 	| fun_free_instr_case_54 :
-		"fun_free_instr (instr_subcase_4 REF_AS_NON_NULL) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
+		"fun_free_instr (instr_sc4 REF_AS_NON_NULL) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
 	| fun_free_instr_case_55 :
-		"fun_free_instr (instr_subcase_4 REF_EQ) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
+		"fun_free_instr (instr_sc4 REF_EQ) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
 	| fun_free_instr_case_56 :
 		"(fun_free_reftype v_reftype var_0) ⟹
-		 fun_free_instr (instr_subcase_4 (REF_TEST v_reftype)) var_0"
+		 fun_free_instr (instr_sc4 (REF_TEST v_reftype)) var_0"
 	| fun_free_instr_case_57 :
 		"(fun_free_reftype v_reftype var_0) ⟹
-		 fun_free_instr (instr_subcase_4 (REF_CAST v_reftype)) var_0"
+		 fun_free_instr (instr_sc4 (REF_CAST v_reftype)) var_0"
 	| fun_free_instr_case_58 :
-		"fun_free_instr (instr_subcase_4 (REF_FUNC v_funcidx)) (free_funcidx v_funcidx)"
+		"fun_free_instr (instr_sc4 (REF_FUNC v_funcidx)) (free_funcidx v_funcidx)"
 	| fun_free_instr_case_59 :
-		"fun_free_instr (instr_subcase_4 REF_I31) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
+		"fun_free_instr (instr_sc4 REF_I31) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
 	| fun_free_instr_case_60 :
-		"fun_free_instr (instr_subcase_4 (I31_GET v_sx)) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
+		"fun_free_instr (instr_sc4 (I31_GET v_sx)) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
 	| fun_free_instr_case_61 :
-		"fun_free_instr (instr_subcase_4 (STRUCT_NEW v_typeidx)) (free_typeidx v_typeidx)"
+		"fun_free_instr (instr_sc4 (STRUCT_NEW v_typeidx)) (free_typeidx v_typeidx)"
 	| fun_free_instr_case_62 :
-		"fun_free_instr (instr_subcase_5 (STRUCT_NEW_DEFAULT v_typeidx)) (free_typeidx v_typeidx)"
+		"fun_free_instr (instr_sc5 (STRUCT_NEW_DEFAULT v_typeidx)) (free_typeidx v_typeidx)"
 	| fun_free_instr_case_63 :
-		"fun_free_instr (instr_subcase_5 (STRUCT_GET sx_opt v_typeidx v_u32)) (free_typeidx v_typeidx)"
+		"fun_free_instr (instr_sc5 (STRUCT_GET sx_opt v_typeidx v_u32)) (free_typeidx v_typeidx)"
 	| fun_free_instr_case_64 :
-		"fun_free_instr (instr_subcase_5 (STRUCT_SET v_typeidx v_u32)) (free_typeidx v_typeidx)"
+		"fun_free_instr (instr_sc5 (STRUCT_SET v_typeidx v_u32)) (free_typeidx v_typeidx)"
 	| fun_free_instr_case_65 :
-		"fun_free_instr (instr_subcase_5 (ARRAY_NEW v_typeidx)) (free_typeidx v_typeidx)"
+		"fun_free_instr (instr_sc5 (ARRAY_NEW v_typeidx)) (free_typeidx v_typeidx)"
 	| fun_free_instr_case_66 :
-		"fun_free_instr (instr_subcase_5 (ARRAY_NEW_DEFAULT v_typeidx)) (free_typeidx v_typeidx)"
+		"fun_free_instr (instr_sc5 (ARRAY_NEW_DEFAULT v_typeidx)) (free_typeidx v_typeidx)"
 	| fun_free_instr_case_67 :
-		"fun_free_instr (instr_subcase_5 (ARRAY_NEW_FIXED v_typeidx v_u32)) (free_typeidx v_typeidx)"
+		"fun_free_instr (instr_sc5 (ARRAY_NEW_FIXED v_typeidx v_u32)) (free_typeidx v_typeidx)"
 	| fun_free_instr_case_68 :
-		"fun_free_instr (instr_subcase_5 (ARRAY_NEW_DATA v_typeidx v_dataidx)) (append_free (free_typeidx v_typeidx) (free_dataidx v_dataidx))"
+		"fun_free_instr (instr_sc5 (ARRAY_NEW_DATA v_typeidx v_dataidx)) (append_free (free_typeidx v_typeidx) (free_dataidx v_dataidx))"
 	| fun_free_instr_case_69 :
-		"fun_free_instr (instr_subcase_5 (ARRAY_NEW_ELEM v_typeidx v_elemidx)) (append_free (free_typeidx v_typeidx) (free_elemidx v_elemidx))"
+		"fun_free_instr (instr_sc5 (ARRAY_NEW_ELEM v_typeidx v_elemidx)) (append_free (free_typeidx v_typeidx) (free_elemidx v_elemidx))"
 	| fun_free_instr_case_70 :
-		"fun_free_instr (instr_subcase_5 (ARRAY_GET sx_opt v_typeidx)) (free_typeidx v_typeidx)"
+		"fun_free_instr (instr_sc5 (ARRAY_GET sx_opt v_typeidx)) (free_typeidx v_typeidx)"
 	| fun_free_instr_case_71 :
-		"fun_free_instr (instr_subcase_5 (ARRAY_SET v_typeidx)) (free_typeidx v_typeidx)"
+		"fun_free_instr (instr_sc5 (ARRAY_SET v_typeidx)) (free_typeidx v_typeidx)"
 	| fun_free_instr_case_72 :
-		"fun_free_instr (instr_subcase_5 ARRAY_LEN) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
+		"fun_free_instr (instr_sc5 ARRAY_LEN) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
 	| fun_free_instr_case_73 :
-		"fun_free_instr (instr_subcase_6 (ARRAY_FILL v_typeidx)) (free_typeidx v_typeidx)"
+		"fun_free_instr (instr_sc6 (ARRAY_FILL v_typeidx)) (free_typeidx v_typeidx)"
 	| fun_free_instr_case_74 :
-		"fun_free_instr (instr_subcase_6 (ARRAY_COPY typeidx_1 typeidx_2)) (append_free (free_typeidx typeidx_1) (free_typeidx typeidx_2))"
+		"fun_free_instr (instr_sc6 (ARRAY_COPY typeidx_1 typeidx_2)) (append_free (free_typeidx typeidx_1) (free_typeidx typeidx_2))"
 	| fun_free_instr_case_75 :
-		"fun_free_instr (instr_subcase_6 (ARRAY_INIT_DATA v_typeidx v_dataidx)) (append_free (free_typeidx v_typeidx) (free_dataidx v_dataidx))"
+		"fun_free_instr (instr_sc6 (ARRAY_INIT_DATA v_typeidx v_dataidx)) (append_free (free_typeidx v_typeidx) (free_dataidx v_dataidx))"
 	| fun_free_instr_case_76 :
-		"fun_free_instr (instr_subcase_6 (ARRAY_INIT_ELEM v_typeidx v_elemidx)) (append_free (free_typeidx v_typeidx) (free_elemidx v_elemidx))"
+		"fun_free_instr (instr_sc6 (ARRAY_INIT_ELEM v_typeidx v_elemidx)) (append_free (free_typeidx v_typeidx) (free_elemidx v_elemidx))"
 	| fun_free_instr_case_77 :
-		"fun_free_instr (instr_subcase_6 EXTERN_CONVERT_ANY) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
+		"fun_free_instr (instr_sc6 EXTERN_CONVERT_ANY) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
 	| fun_free_instr_case_78 :
-		"fun_free_instr (instr_subcase_6 ANY_CONVERT_EXTERN) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
+		"fun_free_instr (instr_sc6 ANY_CONVERT_EXTERN) ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], LOCALS = [], LABELS = [], TAGS = [] ⦈"
 	| fun_free_instr_case_79 :
-		"fun_free_instr (instr_subcase_1 (LOCAL_GET v_localidx)) (free_localidx v_localidx)"
+		"fun_free_instr (instr_sc1 (LOCAL_GET v_localidx)) (free_localidx v_localidx)"
 	| fun_free_instr_case_80 :
-		"fun_free_instr (instr_subcase_1 (LOCAL_SET v_localidx)) (free_localidx v_localidx)"
+		"fun_free_instr (instr_sc1 (LOCAL_SET v_localidx)) (free_localidx v_localidx)"
 	| fun_free_instr_case_81 :
-		"fun_free_instr (instr_subcase_2 (LOCAL_TEE v_localidx)) (free_localidx v_localidx)"
+		"fun_free_instr (instr_sc2 (LOCAL_TEE v_localidx)) (free_localidx v_localidx)"
 	| fun_free_instr_case_82 :
-		"fun_free_instr (instr_subcase_2 (GLOBAL_GET v_globalidx)) (free_globalidx v_globalidx)"
+		"fun_free_instr (instr_sc2 (GLOBAL_GET v_globalidx)) (free_globalidx v_globalidx)"
 	| fun_free_instr_case_83 :
-		"fun_free_instr (instr_subcase_2 (GLOBAL_SET v_globalidx)) (free_globalidx v_globalidx)"
+		"fun_free_instr (instr_sc2 (GLOBAL_SET v_globalidx)) (free_globalidx v_globalidx)"
 	| fun_free_instr_case_84 :
-		"fun_free_instr (instr_subcase_2 (TABLE_GET v_tableidx)) (free_tableidx v_tableidx)"
+		"fun_free_instr (instr_sc2 (TABLE_GET v_tableidx)) (free_tableidx v_tableidx)"
 	| fun_free_instr_case_85 :
-		"fun_free_instr (instr_subcase_2 (TABLE_SET v_tableidx)) (free_tableidx v_tableidx)"
+		"fun_free_instr (instr_sc2 (TABLE_SET v_tableidx)) (free_tableidx v_tableidx)"
 	| fun_free_instr_case_86 :
-		"fun_free_instr (instr_subcase_2 (TABLE_SIZE v_tableidx)) (free_tableidx v_tableidx)"
+		"fun_free_instr (instr_sc2 (TABLE_SIZE v_tableidx)) (free_tableidx v_tableidx)"
 	| fun_free_instr_case_87 :
-		"fun_free_instr (instr_subcase_2 (TABLE_GROW v_tableidx)) (free_tableidx v_tableidx)"
+		"fun_free_instr (instr_sc2 (TABLE_GROW v_tableidx)) (free_tableidx v_tableidx)"
 	| fun_free_instr_case_88 :
-		"fun_free_instr (instr_subcase_2 (TABLE_FILL v_tableidx)) (free_tableidx v_tableidx)"
+		"fun_free_instr (instr_sc2 (TABLE_FILL v_tableidx)) (free_tableidx v_tableidx)"
 	| fun_free_instr_case_89 :
-		"fun_free_instr (instr_subcase_2 (TABLE_COPY tableidx_1 tableidx_2)) (append_free (free_tableidx tableidx_1) (free_tableidx tableidx_2))"
+		"fun_free_instr (instr_sc2 (TABLE_COPY tableidx_1 tableidx_2)) (append_free (free_tableidx tableidx_1) (free_tableidx tableidx_2))"
 	| fun_free_instr_case_90 :
-		"fun_free_instr (instr_subcase_2 (TABLE_INIT v_tableidx v_elemidx)) (append_free (free_tableidx v_tableidx) (free_elemidx v_elemidx))"
+		"fun_free_instr (instr_sc2 (TABLE_INIT v_tableidx v_elemidx)) (append_free (free_tableidx v_tableidx) (free_elemidx v_elemidx))"
 	| fun_free_instr_case_91 :
-		"fun_free_instr (instr_subcase_2 (ELEM_DROP v_elemidx)) (free_elemidx v_elemidx)"
+		"fun_free_instr (instr_sc2 (ELEM_DROP v_elemidx)) (free_elemidx v_elemidx)"
 	| fun_free_instr_case_92 :
-		"fun_free_instr (instr_subcase_3 (LOAD v_numtype loadop_opt v_memidx v_memarg)) (append_free (free_numtype v_numtype) (free_memidx v_memidx))"
+		"fun_free_instr (instr_sc3 (LOAD v_numtype loadop_opt v_memidx v_memarg)) (append_free (free_numtype v_numtype) (free_memidx v_memidx))"
 	| fun_free_instr_case_93 :
-		"fun_free_instr (instr_subcase_3 (STORE v_numtype storeop_opt v_memidx v_memarg)) (append_free (free_numtype v_numtype) (free_memidx v_memidx))"
+		"fun_free_instr (instr_sc3 (STORE v_numtype storeop_opt v_memidx v_memarg)) (append_free (free_numtype v_numtype) (free_memidx v_memidx))"
 	| fun_free_instr_case_94 :
-		"fun_free_instr (instr_subcase_3 (VLOAD v_vectype vloadop_opt v_memidx v_memarg)) (append_free (free_vectype v_vectype) (free_memidx v_memidx))"
+		"fun_free_instr (instr_sc3 (VLOAD v_vectype vloadop_opt v_memidx v_memarg)) (append_free (free_vectype v_vectype) (free_memidx v_memidx))"
 	| fun_free_instr_case_95 :
-		"fun_free_instr (instr_subcase_3 (VLOAD_LANE v_vectype v_sz v_memidx v_memarg v_laneidx)) (append_free (free_vectype v_vectype) (free_memidx v_memidx))"
+		"fun_free_instr (instr_sc3 (VLOAD_LANE v_vectype v_sz v_memidx v_memarg v_laneidx)) (append_free (free_vectype v_vectype) (free_memidx v_memidx))"
 	| fun_free_instr_case_96 :
-		"fun_free_instr (instr_subcase_3 (VSTORE v_vectype v_memidx v_memarg)) (append_free (free_vectype v_vectype) (free_memidx v_memidx))"
+		"fun_free_instr (instr_sc3 (VSTORE v_vectype v_memidx v_memarg)) (append_free (free_vectype v_vectype) (free_memidx v_memidx))"
 	| fun_free_instr_case_97 :
-		"fun_free_instr (instr_subcase_3 (VSTORE_LANE v_vectype v_sz v_memidx v_memarg v_laneidx)) (append_free (free_vectype v_vectype) (free_memidx v_memidx))"
+		"fun_free_instr (instr_sc3 (VSTORE_LANE v_vectype v_sz v_memidx v_memarg v_laneidx)) (append_free (free_vectype v_vectype) (free_memidx v_memidx))"
 	| fun_free_instr_case_98 :
-		"fun_free_instr (instr_subcase_3 (MEMORY_SIZE v_memidx)) (free_memidx v_memidx)"
+		"fun_free_instr (instr_sc3 (MEMORY_SIZE v_memidx)) (free_memidx v_memidx)"
 	| fun_free_instr_case_99 :
-		"fun_free_instr (instr_subcase_3 (MEMORY_GROW v_memidx)) (free_memidx v_memidx)"
+		"fun_free_instr (instr_sc3 (MEMORY_GROW v_memidx)) (free_memidx v_memidx)"
 	| fun_free_instr_case_100 :
-		"fun_free_instr (instr_subcase_3 (MEMORY_FILL v_memidx)) (free_memidx v_memidx)"
+		"fun_free_instr (instr_sc3 (MEMORY_FILL v_memidx)) (free_memidx v_memidx)"
 	| fun_free_instr_case_101 :
-		"fun_free_instr (instr_subcase_3 (MEMORY_COPY memidx_1 memidx_2)) (append_free (free_memidx memidx_1) (free_memidx memidx_2))"
+		"fun_free_instr (instr_sc3 (MEMORY_COPY memidx_1 memidx_2)) (append_free (free_memidx memidx_1) (free_memidx memidx_2))"
 	| fun_free_instr_case_102 :
-		"fun_free_instr (instr_subcase_3 (MEMORY_INIT v_memidx v_dataidx)) (append_free (free_memidx v_memidx) (free_dataidx v_dataidx))"
+		"fun_free_instr (instr_sc3 (MEMORY_INIT v_memidx v_dataidx)) (append_free (free_memidx v_memidx) (free_dataidx v_dataidx))"
 	| fun_free_instr_case_103 :
-		"fun_free_instr (instr_subcase_4 (DATA_DROP v_dataidx)) (free_dataidx v_dataidx)"
+		"fun_free_instr (instr_sc4 (DATA_DROP v_dataidx)) (free_dataidx v_dataidx)"
 	| fun_free_block_case_0 :
 		"((length var_2_lst) = (length instr_lst)) ⟹
 		 list_all2 (λ (var_2 :: free) (instr_5 :: instr). (fun_free_instr instr_5 var_2)) var_2_lst instr_lst ⟹
@@ -6623,82 +6622,82 @@ inductive Instr_ok :: "res_context ⇒ instr ⇒ instrtype ⇒ bool"
 and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 	  nop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 NOP)) ⟹
+		 (wf_instr (instr_sc0 NOP)) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list []))) ⟹
-		 Instr_ok C (instr_subcase_0 NOP) (mk_instrtype (mk_list []) [] (mk_list []))"
+		 Instr_ok C (instr_sc0 NOP) (mk_instrtype (mk_list []) [] (mk_list []))"
 	| unreachable :
 		"(Instrtype_ok C (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 UNREACHABLE)) ⟹
+		 (wf_instr (instr_sc0 UNREACHABLE)) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
-		 Instr_ok C (instr_subcase_0 UNREACHABLE) (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc0 UNREACHABLE) (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))"
 	| drop :
 		"(Valtype_ok C t) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 DROP)) ⟹
+		 (wf_instr (instr_sc0 DROP)) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [t]) [] (mk_list []))) ⟹
-		 Instr_ok C (instr_subcase_0 DROP) (mk_instrtype (mk_list [t]) [] (mk_list []))"
+		 Instr_ok C (instr_sc0 DROP) (mk_instrtype (mk_list [t]) [] (mk_list []))"
 	| select_expl :
 		"(Valtype_ok C t) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 (SELECT (Some [t])))) ⟹
+		 (wf_instr (instr_sc0 (SELECT (Some [t])))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [t, t, valtype_I32]) [] (mk_list [t]))) ⟹
-		 Instr_ok C (instr_subcase_0 (SELECT (Some [t]))) (mk_instrtype (mk_list [t, t, valtype_I32]) [] (mk_list [t]))"
+		 Instr_ok C (instr_sc0 (SELECT (Some [t]))) (mk_instrtype (mk_list [t, t, valtype_I32]) [] (mk_list [t]))"
 	| select_impl :
 		"(Valtype_ok C t) ⟹
 		 (Valtype_sub C t t') ⟹
 		 ((t' = (valtype_numtype v_numtype)) ∨ (t' = (valtype_vectype v_vectype))) ⟹
 		 (wf_context C) ⟹
 		 (wf_valtype t') ⟹
-		 (wf_instr (instr_subcase_0 (SELECT None))) ⟹
+		 (wf_instr (instr_sc0 (SELECT None))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [t, t, valtype_I32]) [] (mk_list [t]))) ⟹
-		 Instr_ok C (instr_subcase_0 (SELECT None)) (mk_instrtype (mk_list [t, t, valtype_I32]) [] (mk_list [t]))"
+		 Instr_ok C (instr_sc0 (SELECT None)) (mk_instrtype (mk_list [t, t, valtype_I32]) [] (mk_list [t]))"
 	| block :
 		"(Blocktype_ok C bt (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (Instrs_ok (append_res_context ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [(mk_list t_2_lst)], context_RETURN = None, REFS = [], RECS = [] ⦈ C) instr_lst (mk_instrtype (mk_list t_1_lst) x_lst (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_9 (BLOCK bt instr_lst))) ⟹
+		 (wf_instr (instr_sc9 (BLOCK bt instr_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_context ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [(mk_list t_2_lst)], context_RETURN = None, REFS = [], RECS = [] ⦈) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) x_lst (mk_list t_2_lst))) ⟹
-		 Instr_ok C (instr_subcase_9 (BLOCK bt instr_lst)) (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc9 (BLOCK bt instr_lst)) (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))"
 	| loop :
 		"(Blocktype_ok C bt (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (Instrs_ok (append_res_context ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [(mk_list t_1_lst)], context_RETURN = None, REFS = [], RECS = [] ⦈ C) instr_lst (mk_instrtype (mk_list t_1_lst) x_lst (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_10 (LOOP bt instr_lst))) ⟹
+		 (wf_instr (instr_sc10 (LOOP bt instr_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_context ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [(mk_list t_1_lst)], context_RETURN = None, REFS = [], RECS = [] ⦈) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) x_lst (mk_list t_2_lst))) ⟹
-		 Instr_ok C (instr_subcase_10 (LOOP bt instr_lst)) (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc10 (LOOP bt instr_lst)) (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))"
 	| res_if :
 		"(Blocktype_ok C bt (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (Instrs_ok (append_res_context ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [(mk_list t_2_lst)], context_RETURN = None, REFS = [], RECS = [] ⦈ C) instr_1_lst (mk_instrtype (mk_list t_1_lst) x_1_lst (mk_list t_2_lst))) ⟹
 		 (Instrs_ok (append_res_context ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [(mk_list t_2_lst)], context_RETURN = None, REFS = [], RECS = [] ⦈ C) instr_2_lst (mk_instrtype (mk_list t_1_lst) x_2_lst (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_10 (IFELSE bt instr_1_lst instr_2_lst))) ⟹
+		 (wf_instr (instr_sc10 (IFELSE bt instr_1_lst instr_2_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (t_1_lst @ [valtype_I32])) [] (mk_list t_2_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_context ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [(mk_list t_2_lst)], context_RETURN = None, REFS = [], RECS = [] ⦈) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) x_1_lst (mk_list t_2_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) x_2_lst (mk_list t_2_lst))) ⟹
-		 Instr_ok C (instr_subcase_10 (IFELSE bt instr_1_lst instr_2_lst)) (mk_instrtype (mk_list (t_1_lst @ [valtype_I32])) [] (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc10 (IFELSE bt instr_1_lst instr_2_lst)) (mk_instrtype (mk_list (t_1_lst @ [valtype_I32])) [] (mk_list t_2_lst))"
 	| br :
 		"((proj_uN_0 l) < (length (context_LABELS C))) ⟹
 		 ((proj_list_0  ((context_LABELS C) ! (proj_uN_0 l))) = t_lst) ⟹
 		 (Instrtype_ok C (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
+		 (wf_instr (instr_sc0 (BR l))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (t_1_lst @ t_lst)) [] (mk_list t_2_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
-		 Instr_ok C (instr_subcase_0 (BR l)) (mk_instrtype (mk_list (t_1_lst @ t_lst)) [] (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc0 (BR l)) (mk_instrtype (mk_list (t_1_lst @ t_lst)) [] (mk_list t_2_lst))"
 	| br_if :
 		"((proj_uN_0 l) < (length (context_LABELS C))) ⟹
 		 ((proj_list_0  ((context_LABELS C) ! (proj_uN_0 l))) = t_lst) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 (BR_IF l))) ⟹
+		 (wf_instr (instr_sc0 (BR_IF l))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (t_lst @ [valtype_I32])) [] (mk_list t_lst))) ⟹
-		 Instr_ok C (instr_subcase_0 (BR_IF l)) (mk_instrtype (mk_list (t_lst @ [valtype_I32])) [] (mk_list t_lst))"
+		 Instr_ok C (instr_sc0 (BR_IF l)) (mk_instrtype (mk_list (t_lst @ [valtype_I32])) [] (mk_list t_lst))"
 	| br_table :
 		"list_all (λ (l :: labelidx). ((proj_uN_0 l) < (length (context_LABELS C)))) l_lst ⟹
 		 list_all (λ (l :: labelidx). (Resulttype_sub C (mk_list t_lst) ((context_LABELS C) ! (proj_uN_0 l)))) l_lst ⟹
@@ -6706,24 +6705,24 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 		 (Resulttype_sub C (mk_list t_lst) ((context_LABELS C) ! (proj_uN_0 l'))) ⟹
 		 (Instrtype_ok C (mk_instrtype (mk_list (t_1_lst @ (t_lst @ [valtype_I32]))) [] (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 (BR_TABLE l_lst l'))) ⟹
+		 (wf_instr (instr_sc0 (BR_TABLE l_lst l'))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (t_1_lst @ (t_lst @ [valtype_I32]))) [] (mk_list t_2_lst))) ⟹
-		 Instr_ok C (instr_subcase_0 (BR_TABLE l_lst l')) (mk_instrtype (mk_list (t_1_lst @ (t_lst @ [valtype_I32]))) [] (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc0 (BR_TABLE l_lst l')) (mk_instrtype (mk_list (t_1_lst @ (t_lst @ [valtype_I32]))) [] (mk_list t_2_lst))"
 	| br_on_null :
 		"((proj_uN_0 l) < (length (context_LABELS C))) ⟹
 		 ((proj_list_0  ((context_LABELS C) ! (proj_uN_0 l))) = t_lst) ⟹
 		 (Heaptype_ok C ht) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 (BR_ON_NULL l))) ⟹
+		 (wf_instr (instr_sc0 (BR_ON_NULL l))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (t_lst @ [(REF (Some NULL) ht)])) [] (mk_list (t_lst @ [(REF None ht)])))) ⟹
-		 Instr_ok C (instr_subcase_0 (BR_ON_NULL l)) (mk_instrtype (mk_list (t_lst @ [(REF (Some NULL) ht)])) [] (mk_list (t_lst @ [(REF None ht)])))"
+		 Instr_ok C (instr_sc0 (BR_ON_NULL l)) (mk_instrtype (mk_list (t_lst @ [(REF (Some NULL) ht)])) [] (mk_list (t_lst @ [(REF None ht)])))"
 	| br_on_non_null :
 		"((proj_uN_0 l) < (length (context_LABELS C))) ⟹
 		 (((context_LABELS C) ! (proj_uN_0 l)) = (mk_list (t_lst @ [(REF (Some NULL) ht)]))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 (BR_ON_NON_NULL l))) ⟹
+		 (wf_instr (instr_sc0 (BR_ON_NON_NULL l))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (t_lst @ [(REF (Some NULL) ht)])) [] (mk_list t_lst))) ⟹
-		 Instr_ok C (instr_subcase_0 (BR_ON_NON_NULL l)) (mk_instrtype (mk_list (t_lst @ [(REF (Some NULL) ht)])) [] (mk_list t_lst))"
+		 Instr_ok C (instr_sc0 (BR_ON_NON_NULL l)) (mk_instrtype (mk_list (t_lst @ [(REF (Some NULL) ht)])) [] (mk_list t_lst))"
 	| br_on_cast :
 		"((proj_uN_0 l) < (length (context_LABELS C))) ⟹
 		 (((context_LABELS C) ! (proj_uN_0 l)) = (mk_list (t_lst @ [(valtype_reftype rt)]))) ⟹
@@ -6733,9 +6732,9 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 		 (Reftype_sub C rt_2 rt) ⟹
 		 (wf_context C) ⟹
 		 (wf_reftype rt) ⟹
-		 (wf_instr (instr_subcase_0 (BR_ON_CAST l rt_1 rt_2))) ⟹
+		 (wf_instr (instr_sc0 (BR_ON_CAST l rt_1 rt_2))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (t_lst @ [(valtype_reftype rt_1)])) [] (mk_list (t_lst @ [(valtype_reftype (diffrt rt_1 rt_2))])))) ⟹
-		 Instr_ok C (instr_subcase_0 (BR_ON_CAST l rt_1 rt_2)) (mk_instrtype (mk_list (t_lst @ [(valtype_reftype rt_1)])) [] (mk_list (t_lst @ [(valtype_reftype (diffrt rt_1 rt_2))])))"
+		 Instr_ok C (instr_sc0 (BR_ON_CAST l rt_1 rt_2)) (mk_instrtype (mk_list (t_lst @ [(valtype_reftype rt_1)])) [] (mk_list (t_lst @ [(valtype_reftype (diffrt rt_1 rt_2))])))"
 	| br_on_cast_fail :
 		"((proj_uN_0 l) < (length (context_LABELS C))) ⟹
 		 (((context_LABELS C) ! (proj_uN_0 l)) = (mk_list (t_lst @ [(valtype_reftype rt)]))) ⟹
@@ -6746,25 +6745,25 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 		 (wf_context C) ⟹
 		 (wf_reftype rt) ⟹
 		 (wf_reftype (diffrt rt_1 rt_2)) ⟹
-		 (wf_instr (instr_subcase_0 (BR_ON_CAST_FAIL l rt_1 rt_2))) ⟹
+		 (wf_instr (instr_sc0 (BR_ON_CAST_FAIL l rt_1 rt_2))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (t_lst @ [(valtype_reftype rt_1)])) [] (mk_list (t_lst @ [(valtype_reftype rt_2)])))) ⟹
-		 Instr_ok C (instr_subcase_0 (BR_ON_CAST_FAIL l rt_1 rt_2)) (mk_instrtype (mk_list (t_lst @ [(valtype_reftype rt_1)])) [] (mk_list (t_lst @ [(valtype_reftype rt_2)])))"
+		 Instr_ok C (instr_sc0 (BR_ON_CAST_FAIL l rt_1 rt_2)) (mk_instrtype (mk_list (t_lst @ [(valtype_reftype rt_1)])) [] (mk_list (t_lst @ [(valtype_reftype rt_2)])))"
 	| call :
 		"((proj_uN_0 x) < (length (context_FUNCS C))) ⟹
 		 (Expand ((context_FUNCS C) ! (proj_uN_0 x)) (comptype_FUNC (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 (CALL x))) ⟹
+		 (wf_instr (instr_sc1 (CALL x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_comptype (comptype_FUNC (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
-		 Instr_ok C (instr_subcase_1 (CALL x)) (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc1 (CALL x)) (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))"
 	| call_ref :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x)) (comptype_FUNC (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 (CALL_REF (underscore_IDX x)))) ⟹
+		 (wf_instr (instr_sc1 (CALL_REF (underscore_IDX x)))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (t_1_lst @ [(REF (Some NULL) (heaptype__IDX x))])) [] (mk_list t_2_lst))) ⟹
 		 (wf_comptype (comptype_FUNC (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
-		 Instr_ok C (instr_subcase_1 (CALL_REF (underscore_IDX x))) (mk_instrtype (mk_list (t_1_lst @ [(REF (Some NULL) (heaptype__IDX x))])) [] (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc1 (CALL_REF (underscore_IDX x))) (mk_instrtype (mk_list (t_1_lst @ [(REF (Some NULL) (heaptype__IDX x))])) [] (mk_list t_2_lst))"
 	| call_indirect :
 		"((proj_uN_0 x) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype at lim rt)) ⟹
@@ -6772,20 +6771,20 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 		 ((proj_uN_0 y) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 y)) (comptype_FUNC (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 (CALL_INDIRECT x (underscore_IDX y)))) ⟹
+		 (wf_instr (instr_sc1 (CALL_INDIRECT x (underscore_IDX y)))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (t_1_lst @ [(valtype_addrtype at)])) [] (mk_list t_2_lst))) ⟹
 		 (wf_tabletype (mk_tabletype at lim rt)) ⟹
 		 (wf_reftype (reftype_REF (Some NULL) heaptype_FUNC)) ⟹
 		 (wf_comptype (comptype_FUNC (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
-		 Instr_ok C (instr_subcase_1 (CALL_INDIRECT x (underscore_IDX y))) (mk_instrtype (mk_list (t_1_lst @ [(valtype_addrtype at)])) [] (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc1 (CALL_INDIRECT x (underscore_IDX y))) (mk_instrtype (mk_list (t_1_lst @ [(valtype_addrtype at)])) [] (mk_list t_2_lst))"
 	| return :
 		"((context_RETURN C) = (Some (mk_list t_lst))) ⟹
 		 (Instrtype_ok C (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 RETURN)) ⟹
+		 (wf_instr (instr_sc1 RETURN)) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (t_1_lst @ t_lst)) [] (mk_list t_2_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
-		 Instr_ok C (instr_subcase_1 RETURN) (mk_instrtype (mk_list (t_1_lst @ t_lst)) [] (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc1 RETURN) (mk_instrtype (mk_list (t_1_lst @ t_lst)) [] (mk_list t_2_lst))"
 	| return_call :
 		"((proj_uN_0 x) < (length (context_FUNCS C))) ⟹
 		 (Expand ((context_FUNCS C) ! (proj_uN_0 x)) (comptype_FUNC (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
@@ -6794,11 +6793,11 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 		 (Instrtype_ok C (mk_instrtype (mk_list t_3_lst) [] (mk_list t_4_lst))) ⟹
 		 (wf_context C) ⟹
 		 list_all (λ (t'_2 :: valtype). (wf_valtype t'_2)) t'_2_lst ⟹
-		 (wf_instr (instr_subcase_1 (RETURN_CALL x))) ⟹
+		 (wf_instr (instr_sc1 (RETURN_CALL x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (t_3_lst @ t_1_lst)) [] (mk_list t_4_lst))) ⟹
 		 (wf_comptype (comptype_FUNC (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_3_lst) [] (mk_list t_4_lst))) ⟹
-		 Instr_ok C (instr_subcase_1 (RETURN_CALL x)) (mk_instrtype (mk_list (t_3_lst @ t_1_lst)) [] (mk_list t_4_lst))"
+		 Instr_ok C (instr_sc1 (RETURN_CALL x)) (mk_instrtype (mk_list (t_3_lst @ t_1_lst)) [] (mk_list t_4_lst))"
 	| return_call_ref :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x)) (comptype_FUNC (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
@@ -6807,11 +6806,11 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 		 (Instrtype_ok C (mk_instrtype (mk_list t_3_lst) [] (mk_list t_4_lst))) ⟹
 		 (wf_context C) ⟹
 		 list_all (λ (t'_2 :: valtype). (wf_valtype t'_2)) t'_2_lst ⟹
-		 (wf_instr (instr_subcase_1 (RETURN_CALL_REF (underscore_IDX x)))) ⟹
+		 (wf_instr (instr_sc1 (RETURN_CALL_REF (underscore_IDX x)))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (t_3_lst @ (t_1_lst @ [(REF (Some NULL) (heaptype__IDX x))]))) [] (mk_list t_4_lst))) ⟹
 		 (wf_comptype (comptype_FUNC (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_3_lst) [] (mk_list t_4_lst))) ⟹
-		 Instr_ok C (instr_subcase_1 (RETURN_CALL_REF (underscore_IDX x))) (mk_instrtype (mk_list (t_3_lst @ (t_1_lst @ [(REF (Some NULL) (heaptype__IDX x))]))) [] (mk_list t_4_lst))"
+		 Instr_ok C (instr_sc1 (RETURN_CALL_REF (underscore_IDX x))) (mk_instrtype (mk_list (t_3_lst @ (t_1_lst @ [(REF (Some NULL) (heaptype__IDX x))]))) [] (mk_list t_4_lst))"
 	| return_call_indirect :
 		"((proj_uN_0 x) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype at lim rt)) ⟹
@@ -6823,117 +6822,117 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 		 (Instrtype_ok C (mk_instrtype (mk_list t_3_lst) [] (mk_list t_4_lst))) ⟹
 		 (wf_context C) ⟹
 		 list_all (λ (t'_2 :: valtype). (wf_valtype t'_2)) t'_2_lst ⟹
-		 (wf_instr (instr_subcase_1 (RETURN_CALL_INDIRECT x (underscore_IDX y)))) ⟹
+		 (wf_instr (instr_sc1 (RETURN_CALL_INDIRECT x (underscore_IDX y)))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (t_3_lst @ (t_1_lst @ [(valtype_addrtype at)]))) [] (mk_list t_4_lst))) ⟹
 		 (wf_tabletype (mk_tabletype at lim rt)) ⟹
 		 (wf_reftype (reftype_REF (Some NULL) heaptype_FUNC)) ⟹
 		 (wf_comptype (comptype_FUNC (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_3_lst) [] (mk_list t_4_lst))) ⟹
-		 Instr_ok C (instr_subcase_1 (RETURN_CALL_INDIRECT x (underscore_IDX y))) (mk_instrtype (mk_list (t_3_lst @ (t_1_lst @ [(valtype_addrtype at)]))) [] (mk_list t_4_lst))"
+		 Instr_ok C (instr_sc1 (RETURN_CALL_INDIRECT x (underscore_IDX y))) (mk_instrtype (mk_list (t_3_lst @ (t_1_lst @ [(valtype_addrtype at)]))) [] (mk_list t_4_lst))"
 	| throw :
 		"((as_deftype ((context_TAGS C) ! (proj_uN_0 x))) ≠ None) ⟹
 		 ((proj_uN_0 x) < (length (context_TAGS C))) ⟹
 		 (Expand (the ((as_deftype ((context_TAGS C) ! (proj_uN_0 x))))) (comptype_FUNC (mk_list t_lst) (mk_list []))) ⟹
 		 (Instrtype_ok C (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 (THROW x))) ⟹
+		 (wf_instr (instr_sc1 (THROW x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (t_1_lst @ t_lst)) [] (mk_list t_2_lst))) ⟹
 		 (wf_comptype (comptype_FUNC (mk_list t_lst) (mk_list []))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
-		 Instr_ok C (instr_subcase_1 (THROW x)) (mk_instrtype (mk_list (t_1_lst @ t_lst)) [] (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc1 (THROW x)) (mk_instrtype (mk_list (t_1_lst @ t_lst)) [] (mk_list t_2_lst))"
 	| throw_ref :
 		"(Instrtype_ok C (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 THROW_REF)) ⟹
+		 (wf_instr (instr_sc1 THROW_REF)) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (t_1_lst @ [(REF (Some NULL) heaptype_EXN)])) [] (mk_list t_2_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
-		 Instr_ok C (instr_subcase_1 THROW_REF) (mk_instrtype (mk_list (t_1_lst @ [(REF (Some NULL) heaptype_EXN)])) [] (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc1 THROW_REF) (mk_instrtype (mk_list (t_1_lst @ [(REF (Some NULL) heaptype_EXN)])) [] (mk_list t_2_lst))"
 	| try_table :
 		"(Blocktype_ok C bt (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (Instrs_ok (append_res_context ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [(mk_list t_2_lst)], context_RETURN = None, REFS = [], RECS = [] ⦈ C) instr_lst (mk_instrtype (mk_list t_1_lst) x_lst (mk_list t_2_lst))) ⟹
 		 list_all (λ (v_catch :: catch). (Catch_ok C v_catch)) catch_lst ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_10 (TRY_TABLE bt (mk_list catch_lst) instr_lst))) ⟹
+		 (wf_instr (instr_sc10 (TRY_TABLE bt (mk_list catch_lst) instr_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_context ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [(mk_list t_2_lst)], context_RETURN = None, REFS = [], RECS = [] ⦈) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) x_lst (mk_list t_2_lst))) ⟹
-		 Instr_ok C (instr_subcase_10 (TRY_TABLE bt (mk_list catch_lst) instr_lst)) (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc10 (TRY_TABLE bt (mk_list catch_lst) instr_lst)) (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))"
 	| ref_null :
 		"(Heaptype_ok C ht) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (REF_NULL ht))) ⟹
+		 (wf_instr (instr_sc4 (REF_NULL ht))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list [(REF (Some NULL) ht)]))) ⟹
-		 Instr_ok C (instr_subcase_4 (REF_NULL ht)) (mk_instrtype (mk_list []) [] (mk_list [(REF (Some NULL) ht)]))"
+		 Instr_ok C (instr_sc4 (REF_NULL ht)) (mk_instrtype (mk_list []) [] (mk_list [(REF (Some NULL) ht)]))"
 	| ref_func :
 		"((proj_uN_0 x) < (length (context_FUNCS C))) ⟹
 		 (((context_FUNCS C) ! (proj_uN_0 x)) = dt) ⟹
 		 ((length (REFS C)) > 0) ⟹
 		 (x ∈ set (REFS C)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (REF_FUNC x))) ⟹
+		 (wf_instr (instr_sc4 (REF_FUNC x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list [(REF None (heaptype_deftype dt))]))) ⟹
-		 Instr_ok C (instr_subcase_4 (REF_FUNC x)) (mk_instrtype (mk_list []) [] (mk_list [(REF None (heaptype_deftype dt))]))"
+		 Instr_ok C (instr_sc4 (REF_FUNC x)) (mk_instrtype (mk_list []) [] (mk_list [(REF None (heaptype_deftype dt))]))"
 	| ref_i31 :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 REF_I31)) ⟹
+		 (wf_instr (instr_sc4 REF_I31)) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_I32]) [] (mk_list [(REF None heaptype_I31)]))) ⟹
-		 Instr_ok C (instr_subcase_4 REF_I31) (mk_instrtype (mk_list [valtype_I32]) [] (mk_list [(REF None heaptype_I31)]))"
+		 Instr_ok C (instr_sc4 REF_I31) (mk_instrtype (mk_list [valtype_I32]) [] (mk_list [(REF None heaptype_I31)]))"
 	| ref_is_null :
 		"(Heaptype_ok C ht) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 REF_IS_NULL)) ⟹
+		 (wf_instr (instr_sc4 REF_IS_NULL)) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(REF (Some NULL) ht)]) [] (mk_list [valtype_I32]))) ⟹
-		 Instr_ok C (instr_subcase_4 REF_IS_NULL) (mk_instrtype (mk_list [(REF (Some NULL) ht)]) [] (mk_list [valtype_I32]))"
+		 Instr_ok C (instr_sc4 REF_IS_NULL) (mk_instrtype (mk_list [(REF (Some NULL) ht)]) [] (mk_list [valtype_I32]))"
 	| ref_as_non_null :
 		"(Heaptype_ok C ht) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 REF_AS_NON_NULL)) ⟹
+		 (wf_instr (instr_sc4 REF_AS_NON_NULL)) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(REF (Some NULL) ht)]) [] (mk_list [(REF None ht)]))) ⟹
-		 Instr_ok C (instr_subcase_4 REF_AS_NON_NULL) (mk_instrtype (mk_list [(REF (Some NULL) ht)]) [] (mk_list [(REF None ht)]))"
+		 Instr_ok C (instr_sc4 REF_AS_NON_NULL) (mk_instrtype (mk_list [(REF (Some NULL) ht)]) [] (mk_list [(REF None ht)]))"
 	| ref_eq :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 REF_EQ)) ⟹
+		 (wf_instr (instr_sc4 REF_EQ)) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(REF (Some NULL) heaptype_EQ), (REF (Some NULL) heaptype_EQ)]) [] (mk_list [valtype_I32]))) ⟹
-		 Instr_ok C (instr_subcase_4 REF_EQ) (mk_instrtype (mk_list [(REF (Some NULL) heaptype_EQ), (REF (Some NULL) heaptype_EQ)]) [] (mk_list [valtype_I32]))"
+		 Instr_ok C (instr_sc4 REF_EQ) (mk_instrtype (mk_list [(REF (Some NULL) heaptype_EQ), (REF (Some NULL) heaptype_EQ)]) [] (mk_list [valtype_I32]))"
 	| ref_test :
 		"(Reftype_ok C rt) ⟹
 		 (Reftype_ok C rt') ⟹
 		 (Reftype_sub C rt rt') ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (REF_TEST rt))) ⟹
+		 (wf_instr (instr_sc4 (REF_TEST rt))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_reftype rt')]) [] (mk_list [valtype_I32]))) ⟹
-		 Instr_ok C (instr_subcase_4 (REF_TEST rt)) (mk_instrtype (mk_list [(valtype_reftype rt')]) [] (mk_list [valtype_I32]))"
+		 Instr_ok C (instr_sc4 (REF_TEST rt)) (mk_instrtype (mk_list [(valtype_reftype rt')]) [] (mk_list [valtype_I32]))"
 	| ref_cast :
 		"(Reftype_ok C rt) ⟹
 		 (Reftype_ok C rt') ⟹
 		 (Reftype_sub C rt rt') ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (REF_CAST rt))) ⟹
+		 (wf_instr (instr_sc4 (REF_CAST rt))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_reftype rt')]) [] (mk_list [(valtype_reftype rt)]))) ⟹
-		 Instr_ok C (instr_subcase_4 (REF_CAST rt)) (mk_instrtype (mk_list [(valtype_reftype rt')]) [] (mk_list [(valtype_reftype rt)]))"
+		 Instr_ok C (instr_sc4 (REF_CAST rt)) (mk_instrtype (mk_list [(valtype_reftype rt')]) [] (mk_list [(valtype_reftype rt)]))"
 	| i31_get :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (I31_GET v_sx))) ⟹
+		 (wf_instr (instr_sc4 (I31_GET v_sx))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(REF (Some NULL) heaptype_I31)]) [] (mk_list [valtype_I32]))) ⟹
-		 Instr_ok C (instr_subcase_4 (I31_GET v_sx)) (mk_instrtype (mk_list [(REF (Some NULL) heaptype_I31)]) [] (mk_list [valtype_I32]))"
+		 Instr_ok C (instr_sc4 (I31_GET v_sx)) (mk_instrtype (mk_list [(REF (Some NULL) heaptype_I31)]) [] (mk_list [valtype_I32]))"
 	| struct_new :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x)) (comptype_STRUCT (mk_list (list_zipWith (λ (mut_opt :: (mut option)) (zt :: storagetype). (mk_fieldtype mut_opt zt)) mut_opt_lst zt_lst)))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (STRUCT_NEW x))) ⟹
+		 (wf_instr (instr_sc4 (STRUCT_NEW x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (map (λ (zt :: storagetype). (unpack zt)) zt_lst)) [] (mk_list [(REF None (heaptype__IDX x))]))) ⟹
 		 (wf_comptype (comptype_STRUCT (mk_list (list_zipWith (λ (mut_opt :: (mut option)) (zt :: storagetype). (mk_fieldtype mut_opt zt)) mut_opt_lst zt_lst)))) ⟹
-		 Instr_ok C (instr_subcase_4 (STRUCT_NEW x)) (mk_instrtype (mk_list (map (λ (zt :: storagetype). (unpack zt)) zt_lst)) [] (mk_list [(REF None (heaptype__IDX x))]))"
+		 Instr_ok C (instr_sc4 (STRUCT_NEW x)) (mk_instrtype (mk_list (map (λ (zt :: storagetype). (unpack zt)) zt_lst)) [] (mk_list [(REF None (heaptype__IDX x))]))"
 	| struct_new_default :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x)) (comptype_STRUCT (mk_list (list_zipWith (λ (mut_opt :: (mut option)) (zt :: storagetype). (mk_fieldtype mut_opt zt)) mut_opt_lst zt_lst)))) ⟹
 		 list_all (λ (zt :: storagetype). (Defaultable (unpack zt))) zt_lst ⟹
 		 (wf_context C) ⟹
 		 list_all (λ (zt :: storagetype). (wf_valtype (unpack zt))) zt_lst ⟹
-		 (wf_instr (instr_subcase_5 (STRUCT_NEW_DEFAULT x))) ⟹
+		 (wf_instr (instr_sc5 (STRUCT_NEW_DEFAULT x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list [(REF None (heaptype__IDX x))]))) ⟹
 		 (wf_comptype (comptype_STRUCT (mk_list (list_zipWith (λ (mut_opt :: (mut option)) (zt :: storagetype). (mk_fieldtype mut_opt zt)) mut_opt_lst zt_lst)))) ⟹
-		 Instr_ok C (instr_subcase_5 (STRUCT_NEW_DEFAULT x)) (mk_instrtype (mk_list []) [] (mk_list [(REF None (heaptype__IDX x))]))"
+		 Instr_ok C (instr_sc5 (STRUCT_NEW_DEFAULT x)) (mk_instrtype (mk_list []) [] (mk_list [(REF None (heaptype__IDX x))]))"
 	| struct_get :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x)) (comptype_STRUCT (mk_list ft_lst))) ⟹
@@ -6941,58 +6940,58 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 		 ((ft_lst ! (proj_uN_0 i)) = (mk_fieldtype mut_opt zt)) ⟹
 		 ((sx_opt ≠ None) ⟷ (is_packtype zt)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (STRUCT_GET sx_opt x i))) ⟹
+		 (wf_instr (instr_sc5 (STRUCT_GET sx_opt x i))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x))]) [] (mk_list [(unpack zt)]))) ⟹
 		 (wf_comptype (comptype_STRUCT (mk_list ft_lst))) ⟹
 		 (wf_fieldtype (mk_fieldtype mut_opt zt)) ⟹
-		 Instr_ok C (instr_subcase_5 (STRUCT_GET sx_opt x i)) (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x))]) [] (mk_list [(unpack zt)]))"
+		 Instr_ok C (instr_sc5 (STRUCT_GET sx_opt x i)) (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x))]) [] (mk_list [(unpack zt)]))"
 	| struct_set :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x)) (comptype_STRUCT (mk_list ft_lst))) ⟹
 		 ((proj_uN_0 i) < (length ft_lst)) ⟹
 		 ((ft_lst ! (proj_uN_0 i)) = (mk_fieldtype (Some MUT) zt)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (STRUCT_SET x i))) ⟹
+		 (wf_instr (instr_sc5 (STRUCT_SET x i))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), (unpack zt)]) [] (mk_list []))) ⟹
 		 (wf_comptype (comptype_STRUCT (mk_list ft_lst))) ⟹
 		 (wf_fieldtype (mk_fieldtype (Some MUT) zt)) ⟹
-		 Instr_ok C (instr_subcase_5 (STRUCT_SET x i)) (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), (unpack zt)]) [] (mk_list []))"
+		 Instr_ok C (instr_sc5 (STRUCT_SET x i)) (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), (unpack zt)]) [] (mk_list []))"
 	| array_new :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x)) (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_NEW x))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_NEW x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(unpack zt), valtype_I32]) [] (mk_list [(REF None (heaptype__IDX x))]))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
-		 Instr_ok C (instr_subcase_5 (ARRAY_NEW x)) (mk_instrtype (mk_list [(unpack zt), valtype_I32]) [] (mk_list [(REF None (heaptype__IDX x))]))"
+		 Instr_ok C (instr_sc5 (ARRAY_NEW x)) (mk_instrtype (mk_list [(unpack zt), valtype_I32]) [] (mk_list [(REF None (heaptype__IDX x))]))"
 	| array_new_default :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x)) (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
 		 (Defaultable (unpack zt)) ⟹
 		 (wf_context C) ⟹
 		 (wf_valtype (unpack zt)) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_NEW_DEFAULT x))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_NEW_DEFAULT x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_I32]) [] (mk_list [(REF None (heaptype__IDX x))]))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
-		 Instr_ok C (instr_subcase_5 (ARRAY_NEW_DEFAULT x)) (mk_instrtype (mk_list [valtype_I32]) [] (mk_list [(REF None (heaptype__IDX x))]))"
+		 Instr_ok C (instr_sc5 (ARRAY_NEW_DEFAULT x)) (mk_instrtype (mk_list [valtype_I32]) [] (mk_list [(REF None (heaptype__IDX x))]))"
 	| array_new_fixed :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x)) (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_NEW_FIXED x (mk_uN v_n)))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_NEW_FIXED x (mk_uN v_n)))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list (repeat v_n (unpack zt))) [] (mk_list [(REF None (heaptype__IDX x))]))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
-		 Instr_ok C (instr_subcase_5 (ARRAY_NEW_FIXED x (mk_uN v_n))) (mk_instrtype (mk_list (repeat v_n (unpack zt))) [] (mk_list [(REF None (heaptype__IDX x))]))"
+		 Instr_ok C (instr_sc5 (ARRAY_NEW_FIXED x (mk_uN v_n))) (mk_instrtype (mk_list (repeat v_n (unpack zt))) [] (mk_list [(REF None (heaptype__IDX x))]))"
 	| array_new_elem :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x)) (comptype_ARRAY (mk_fieldtype mut_opt (storagetype_reftype rt)))) ⟹
 		 ((proj_uN_0 y) < (length (context_ELEMS C))) ⟹
 		 (Reftype_sub C ((context_ELEMS C) ! (proj_uN_0 y)) rt) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_NEW_ELEM x y))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_NEW_ELEM x y))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_I32, valtype_I32]) [] (mk_list [(REF None (heaptype__IDX x))]))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt (storagetype_reftype rt)))) ⟹
-		 Instr_ok C (instr_subcase_5 (ARRAY_NEW_ELEM x y)) (mk_instrtype (mk_list [valtype_I32, valtype_I32]) [] (mk_list [(REF None (heaptype__IDX x))]))"
+		 Instr_ok C (instr_sc5 (ARRAY_NEW_ELEM x y)) (mk_instrtype (mk_list [valtype_I32, valtype_I32]) [] (mk_list [(REF None (heaptype__IDX x))]))"
 	| array_new_data :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x)) (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
@@ -7001,40 +7000,40 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 		 (((context_DATAS C) ! (proj_uN_0 y)) = OK) ⟹
 		 (wf_context C) ⟹
 		 (wf_valtype (unpack zt)) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_NEW_DATA x y))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_NEW_DATA x y))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_I32, valtype_I32]) [] (mk_list [(REF None (heaptype__IDX x))]))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
-		 Instr_ok C (instr_subcase_5 (ARRAY_NEW_DATA x y)) (mk_instrtype (mk_list [valtype_I32, valtype_I32]) [] (mk_list [(REF None (heaptype__IDX x))]))"
+		 Instr_ok C (instr_sc5 (ARRAY_NEW_DATA x y)) (mk_instrtype (mk_list [valtype_I32, valtype_I32]) [] (mk_list [(REF None (heaptype__IDX x))]))"
 	| array_get :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x)) (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
 		 ((sx_opt ≠ None) ⟷ (is_packtype zt)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_GET sx_opt x))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_GET sx_opt x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), valtype_I32]) [] (mk_list [(unpack zt)]))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
-		 Instr_ok C (instr_subcase_5 (ARRAY_GET sx_opt x)) (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), valtype_I32]) [] (mk_list [(unpack zt)]))"
+		 Instr_ok C (instr_sc5 (ARRAY_GET sx_opt x)) (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), valtype_I32]) [] (mk_list [(unpack zt)]))"
 	| array_set :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x)) (comptype_ARRAY (mk_fieldtype (Some MUT) zt))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_SET x))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_SET x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), valtype_I32, (unpack zt)]) [] (mk_list []))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype (Some MUT) zt))) ⟹
-		 Instr_ok C (instr_subcase_5 (ARRAY_SET x)) (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), valtype_I32, (unpack zt)]) [] (mk_list []))"
+		 Instr_ok C (instr_sc5 (ARRAY_SET x)) (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), valtype_I32, (unpack zt)]) [] (mk_list []))"
 	| array_len :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 ARRAY_LEN)) ⟹
+		 (wf_instr (instr_sc5 ARRAY_LEN)) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(REF (Some NULL) heaptype_ARRAY)]) [] (mk_list [valtype_I32]))) ⟹
-		 Instr_ok C (instr_subcase_5 ARRAY_LEN) (mk_instrtype (mk_list [(REF (Some NULL) heaptype_ARRAY)]) [] (mk_list [valtype_I32]))"
+		 Instr_ok C (instr_sc5 ARRAY_LEN) (mk_instrtype (mk_list [(REF (Some NULL) heaptype_ARRAY)]) [] (mk_list [valtype_I32]))"
 	| array_fill :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x)) (comptype_ARRAY (mk_fieldtype (Some MUT) zt))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_6 (ARRAY_FILL x))) ⟹
+		 (wf_instr (instr_sc6 (ARRAY_FILL x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), valtype_I32, (unpack zt), valtype_I32]) [] (mk_list []))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype (Some MUT) zt))) ⟹
-		 Instr_ok C (instr_subcase_6 (ARRAY_FILL x)) (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), valtype_I32, (unpack zt), valtype_I32]) [] (mk_list []))"
+		 Instr_ok C (instr_sc6 (ARRAY_FILL x)) (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), valtype_I32, (unpack zt), valtype_I32]) [] (mk_list []))"
 	| array_copy :
 		"((proj_uN_0 x_1) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x_1)) (comptype_ARRAY (mk_fieldtype (Some MUT) zt_1))) ⟹
@@ -7042,21 +7041,21 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x_2)) (comptype_ARRAY (mk_fieldtype mut_opt zt_2))) ⟹
 		 (Storagetype_sub C zt_2 zt_1) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_6 (ARRAY_COPY x_1 x_2))) ⟹
+		 (wf_instr (instr_sc6 (ARRAY_COPY x_1 x_2))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x_1)), valtype_I32, (REF (Some NULL) (heaptype__IDX x_2)), valtype_I32, valtype_I32]) [] (mk_list []))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype (Some MUT) zt_1))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt_2))) ⟹
-		 Instr_ok C (instr_subcase_6 (ARRAY_COPY x_1 x_2)) (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x_1)), valtype_I32, (REF (Some NULL) (heaptype__IDX x_2)), valtype_I32, valtype_I32]) [] (mk_list []))"
+		 Instr_ok C (instr_sc6 (ARRAY_COPY x_1 x_2)) (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x_1)), valtype_I32, (REF (Some NULL) (heaptype__IDX x_2)), valtype_I32, valtype_I32]) [] (mk_list []))"
 	| array_init_elem :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x)) (comptype_ARRAY (mk_fieldtype (Some MUT) zt))) ⟹
 		 ((proj_uN_0 y) < (length (context_ELEMS C))) ⟹
 		 (Storagetype_sub C (storagetype_reftype ((context_ELEMS C) ! (proj_uN_0 y))) zt) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_6 (ARRAY_INIT_ELEM x y))) ⟹
+		 (wf_instr (instr_sc6 (ARRAY_INIT_ELEM x y))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), valtype_I32, valtype_I32, valtype_I32]) [] (mk_list []))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype (Some MUT) zt))) ⟹
-		 Instr_ok C (instr_subcase_6 (ARRAY_INIT_ELEM x y)) (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), valtype_I32, valtype_I32, valtype_I32]) [] (mk_list []))"
+		 Instr_ok C (instr_sc6 (ARRAY_INIT_ELEM x y)) (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), valtype_I32, valtype_I32, valtype_I32]) [] (mk_list []))"
 	| array_init_data :
 		"((proj_uN_0 x) < (length (context_TYPES C))) ⟹
 		 (Expand ((context_TYPES C) ! (proj_uN_0 x)) (comptype_ARRAY (mk_fieldtype (Some MUT) zt))) ⟹
@@ -7065,102 +7064,102 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 		 (((context_DATAS C) ! (proj_uN_0 y)) = OK) ⟹
 		 (wf_context C) ⟹
 		 (wf_valtype (unpack zt)) ⟹
-		 (wf_instr (instr_subcase_6 (ARRAY_INIT_DATA x y))) ⟹
+		 (wf_instr (instr_sc6 (ARRAY_INIT_DATA x y))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), valtype_I32, valtype_I32, valtype_I32]) [] (mk_list []))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype (Some MUT) zt))) ⟹
-		 Instr_ok C (instr_subcase_6 (ARRAY_INIT_DATA x y)) (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), valtype_I32, valtype_I32, valtype_I32]) [] (mk_list []))"
+		 Instr_ok C (instr_sc6 (ARRAY_INIT_DATA x y)) (mk_instrtype (mk_list [(REF (Some NULL) (heaptype__IDX x)), valtype_I32, valtype_I32, valtype_I32]) [] (mk_list []))"
 	| extern_convert_any :
 		"(null_1_opt = null_2_opt) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_6 EXTERN_CONVERT_ANY)) ⟹
+		 (wf_instr (instr_sc6 EXTERN_CONVERT_ANY)) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(REF null_1_opt heaptype_ANY)]) [] (mk_list [(REF null_2_opt heaptype_EXTERN)]))) ⟹
-		 Instr_ok C (instr_subcase_6 EXTERN_CONVERT_ANY) (mk_instrtype (mk_list [(REF null_1_opt heaptype_ANY)]) [] (mk_list [(REF null_2_opt heaptype_EXTERN)]))"
+		 Instr_ok C (instr_sc6 EXTERN_CONVERT_ANY) (mk_instrtype (mk_list [(REF null_1_opt heaptype_ANY)]) [] (mk_list [(REF null_2_opt heaptype_EXTERN)]))"
 	| any_convert_extern :
 		"(null_1_opt = null_2_opt) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_6 ANY_CONVERT_EXTERN)) ⟹
+		 (wf_instr (instr_sc6 ANY_CONVERT_EXTERN)) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(REF null_1_opt heaptype_EXTERN)]) [] (mk_list [(REF null_2_opt heaptype_ANY)]))) ⟹
-		 Instr_ok C (instr_subcase_6 ANY_CONVERT_EXTERN) (mk_instrtype (mk_list [(REF null_1_opt heaptype_EXTERN)]) [] (mk_list [(REF null_2_opt heaptype_ANY)]))"
+		 Instr_ok C (instr_sc6 ANY_CONVERT_EXTERN) (mk_instrtype (mk_list [(REF null_1_opt heaptype_EXTERN)]) [] (mk_list [(REF null_2_opt heaptype_ANY)]))"
 	| local_get :
 		"((proj_uN_0 x) < (length (context_LOCALS C))) ⟹
 		 (((context_LOCALS C) ! (proj_uN_0 x)) = (mk_localtype SET t)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 (LOCAL_GET x))) ⟹
+		 (wf_instr (instr_sc1 (LOCAL_GET x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list [t]))) ⟹
 		 (wf_localtype (mk_localtype SET t)) ⟹
-		 Instr_ok C (instr_subcase_1 (LOCAL_GET x)) (mk_instrtype (mk_list []) [] (mk_list [t]))"
+		 Instr_ok C (instr_sc1 (LOCAL_GET x)) (mk_instrtype (mk_list []) [] (mk_list [t]))"
 	| local_set :
 		"((proj_uN_0 x) < (length (context_LOCALS C))) ⟹
 		 (((context_LOCALS C) ! (proj_uN_0 x)) = (mk_localtype v_init t)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 (LOCAL_SET x))) ⟹
+		 (wf_instr (instr_sc1 (LOCAL_SET x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [t]) [x] (mk_list []))) ⟹
 		 (wf_localtype (mk_localtype v_init t)) ⟹
-		 Instr_ok C (instr_subcase_1 (LOCAL_SET x)) (mk_instrtype (mk_list [t]) [x] (mk_list []))"
+		 Instr_ok C (instr_sc1 (LOCAL_SET x)) (mk_instrtype (mk_list [t]) [x] (mk_list []))"
 	| local_tee :
 		"((proj_uN_0 x) < (length (context_LOCALS C))) ⟹
 		 (((context_LOCALS C) ! (proj_uN_0 x)) = (mk_localtype v_init t)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (LOCAL_TEE x))) ⟹
+		 (wf_instr (instr_sc2 (LOCAL_TEE x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [t]) [x] (mk_list [t]))) ⟹
 		 (wf_localtype (mk_localtype v_init t)) ⟹
-		 Instr_ok C (instr_subcase_2 (LOCAL_TEE x)) (mk_instrtype (mk_list [t]) [x] (mk_list [t]))"
+		 Instr_ok C (instr_sc2 (LOCAL_TEE x)) (mk_instrtype (mk_list [t]) [x] (mk_list [t]))"
 	| global_get :
 		"((proj_uN_0 x) < (length (context_GLOBALS C))) ⟹
 		 (((context_GLOBALS C) ! (proj_uN_0 x)) = (mk_globaltype mut_opt t)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (GLOBAL_GET x))) ⟹
+		 (wf_instr (instr_sc2 (GLOBAL_GET x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list [t]))) ⟹
 		 (wf_globaltype (mk_globaltype mut_opt t)) ⟹
-		 Instr_ok C (instr_subcase_2 (GLOBAL_GET x)) (mk_instrtype (mk_list []) [] (mk_list [t]))"
+		 Instr_ok C (instr_sc2 (GLOBAL_GET x)) (mk_instrtype (mk_list []) [] (mk_list [t]))"
 	| global_set :
 		"((proj_uN_0 x) < (length (context_GLOBALS C))) ⟹
 		 (((context_GLOBALS C) ! (proj_uN_0 x)) = (mk_globaltype (Some MUT) t)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (GLOBAL_SET x))) ⟹
+		 (wf_instr (instr_sc2 (GLOBAL_SET x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [t]) [] (mk_list []))) ⟹
 		 (wf_globaltype (mk_globaltype (Some MUT) t)) ⟹
-		 Instr_ok C (instr_subcase_2 (GLOBAL_SET x)) (mk_instrtype (mk_list [t]) [] (mk_list []))"
+		 Instr_ok C (instr_sc2 (GLOBAL_SET x)) (mk_instrtype (mk_list [t]) [] (mk_list []))"
 	| table_get :
 		"((proj_uN_0 x) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype at lim rt)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_GET x))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_GET x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [(valtype_reftype rt)]))) ⟹
 		 (wf_tabletype (mk_tabletype at lim rt)) ⟹
-		 Instr_ok C (instr_subcase_2 (TABLE_GET x)) (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [(valtype_reftype rt)]))"
+		 Instr_ok C (instr_sc2 (TABLE_GET x)) (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [(valtype_reftype rt)]))"
 	| table_set :
 		"((proj_uN_0 x) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype at lim rt)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_SET x))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_SET x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at), (valtype_reftype rt)]) [] (mk_list []))) ⟹
 		 (wf_tabletype (mk_tabletype at lim rt)) ⟹
-		 Instr_ok C (instr_subcase_2 (TABLE_SET x)) (mk_instrtype (mk_list [(valtype_addrtype at), (valtype_reftype rt)]) [] (mk_list []))"
+		 Instr_ok C (instr_sc2 (TABLE_SET x)) (mk_instrtype (mk_list [(valtype_addrtype at), (valtype_reftype rt)]) [] (mk_list []))"
 	| table_size :
 		"((proj_uN_0 x) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype at lim rt)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_SIZE x))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_SIZE x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list [(valtype_addrtype at)]))) ⟹
 		 (wf_tabletype (mk_tabletype at lim rt)) ⟹
-		 Instr_ok C (instr_subcase_2 (TABLE_SIZE x)) (mk_instrtype (mk_list []) [] (mk_list [(valtype_addrtype at)]))"
+		 Instr_ok C (instr_sc2 (TABLE_SIZE x)) (mk_instrtype (mk_list []) [] (mk_list [(valtype_addrtype at)]))"
 	| table_grow :
 		"((proj_uN_0 x) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype at lim rt)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_GROW x))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_GROW x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_reftype rt), (valtype_addrtype at)]) [] (mk_list [(valtype_addrtype at)]))) ⟹
 		 (wf_tabletype (mk_tabletype at lim rt)) ⟹
-		 Instr_ok C (instr_subcase_2 (TABLE_GROW x)) (mk_instrtype (mk_list [(valtype_reftype rt), (valtype_addrtype at)]) [] (mk_list [(valtype_addrtype at)]))"
+		 Instr_ok C (instr_sc2 (TABLE_GROW x)) (mk_instrtype (mk_list [(valtype_reftype rt), (valtype_addrtype at)]) [] (mk_list [(valtype_addrtype at)]))"
 	| table_fill :
 		"((proj_uN_0 x) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype at lim rt)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_FILL x))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_FILL x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at), (valtype_reftype rt), (valtype_addrtype at)]) [] (mk_list []))) ⟹
 		 (wf_tabletype (mk_tabletype at lim rt)) ⟹
-		 Instr_ok C (instr_subcase_2 (TABLE_FILL x)) (mk_instrtype (mk_list [(valtype_addrtype at), (valtype_reftype rt), (valtype_addrtype at)]) [] (mk_list []))"
+		 Instr_ok C (instr_sc2 (TABLE_FILL x)) (mk_instrtype (mk_list [(valtype_addrtype at), (valtype_reftype rt), (valtype_addrtype at)]) [] (mk_list []))"
 	| table_copy :
 		"((proj_uN_0 x_1) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x_1)) = (mk_tabletype at_1 lim_1 rt_1)) ⟹
@@ -7168,11 +7167,11 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 		 (((context_TABLES C) ! (proj_uN_0 x_2)) = (mk_tabletype at_2 lim_2 rt_2)) ⟹
 		 (Reftype_sub C rt_2 rt_1) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_COPY x_1 x_2))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_COPY x_1 x_2))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at_1), (valtype_addrtype at_2), (valtype_addrtype (minat at_1 at_2))]) [] (mk_list []))) ⟹
 		 (wf_tabletype (mk_tabletype at_1 lim_1 rt_1)) ⟹
 		 (wf_tabletype (mk_tabletype at_2 lim_2 rt_2)) ⟹
-		 Instr_ok C (instr_subcase_2 (TABLE_COPY x_1 x_2)) (mk_instrtype (mk_list [(valtype_addrtype at_1), (valtype_addrtype at_2), (valtype_addrtype (minat at_1 at_2))]) [] (mk_list []))"
+		 Instr_ok C (instr_sc2 (TABLE_COPY x_1 x_2)) (mk_instrtype (mk_list [(valtype_addrtype at_1), (valtype_addrtype at_2), (valtype_addrtype (minat at_1 at_2))]) [] (mk_list []))"
 	| table_init :
 		"((proj_uN_0 x) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype at lim rt_1)) ⟹
@@ -7181,317 +7180,317 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 		 (Reftype_sub C rt_2 rt_1) ⟹
 		 (wf_context C) ⟹
 		 (wf_reftype rt_2) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_INIT x y))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_INIT x y))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at), valtype_I32, valtype_I32]) [] (mk_list []))) ⟹
 		 (wf_tabletype (mk_tabletype at lim rt_1)) ⟹
-		 Instr_ok C (instr_subcase_2 (TABLE_INIT x y)) (mk_instrtype (mk_list [(valtype_addrtype at), valtype_I32, valtype_I32]) [] (mk_list []))"
+		 Instr_ok C (instr_sc2 (TABLE_INIT x y)) (mk_instrtype (mk_list [(valtype_addrtype at), valtype_I32, valtype_I32]) [] (mk_list []))"
 	| elem_drop :
 		"((proj_uN_0 x) < (length (context_ELEMS C))) ⟹
 		 (((context_ELEMS C) ! (proj_uN_0 x)) = rt) ⟹
 		 (wf_context C) ⟹
 		 (wf_reftype rt) ⟹
-		 (wf_instr (instr_subcase_2 (ELEM_DROP x))) ⟹
+		 (wf_instr (instr_sc2 (ELEM_DROP x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list []))) ⟹
-		 Instr_ok C (instr_subcase_2 (ELEM_DROP x)) (mk_instrtype (mk_list []) [] (mk_list []))"
+		 Instr_ok C (instr_sc2 (ELEM_DROP x)) (mk_instrtype (mk_list []) [] (mk_list []))"
 	| memory_size :
 		"((proj_uN_0 x) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x)) = (PAGE at lim)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (MEMORY_SIZE x))) ⟹
+		 (wf_instr (instr_sc3 (MEMORY_SIZE x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list [(valtype_addrtype at)]))) ⟹
 		 (wf_memtype (PAGE at lim)) ⟹
-		 Instr_ok C (instr_subcase_3 (MEMORY_SIZE x)) (mk_instrtype (mk_list []) [] (mk_list [(valtype_addrtype at)]))"
+		 Instr_ok C (instr_sc3 (MEMORY_SIZE x)) (mk_instrtype (mk_list []) [] (mk_list [(valtype_addrtype at)]))"
 	| memory_grow :
 		"((proj_uN_0 x) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x)) = (PAGE at lim)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (MEMORY_GROW x))) ⟹
+		 (wf_instr (instr_sc3 (MEMORY_GROW x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [(valtype_addrtype at)]))) ⟹
 		 (wf_memtype (PAGE at lim)) ⟹
-		 Instr_ok C (instr_subcase_3 (MEMORY_GROW x)) (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [(valtype_addrtype at)]))"
+		 Instr_ok C (instr_sc3 (MEMORY_GROW x)) (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [(valtype_addrtype at)]))"
 	| memory_fill :
 		"((proj_uN_0 x) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x)) = (PAGE at lim)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (MEMORY_FILL x))) ⟹
+		 (wf_instr (instr_sc3 (MEMORY_FILL x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at), valtype_I32, (valtype_addrtype at)]) [] (mk_list []))) ⟹
 		 (wf_memtype (PAGE at lim)) ⟹
-		 Instr_ok C (instr_subcase_3 (MEMORY_FILL x)) (mk_instrtype (mk_list [(valtype_addrtype at), valtype_I32, (valtype_addrtype at)]) [] (mk_list []))"
+		 Instr_ok C (instr_sc3 (MEMORY_FILL x)) (mk_instrtype (mk_list [(valtype_addrtype at), valtype_I32, (valtype_addrtype at)]) [] (mk_list []))"
 	| memory_copy :
 		"((proj_uN_0 x_1) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x_1)) = (PAGE at_1 lim_1)) ⟹
 		 ((proj_uN_0 x_2) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x_2)) = (PAGE at_2 lim_2)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (MEMORY_COPY x_1 x_2))) ⟹
+		 (wf_instr (instr_sc3 (MEMORY_COPY x_1 x_2))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at_1), (valtype_addrtype at_2), (valtype_addrtype (minat at_1 at_2))]) [] (mk_list []))) ⟹
 		 (wf_memtype (PAGE at_1 lim_1)) ⟹
 		 (wf_memtype (PAGE at_2 lim_2)) ⟹
-		 Instr_ok C (instr_subcase_3 (MEMORY_COPY x_1 x_2)) (mk_instrtype (mk_list [(valtype_addrtype at_1), (valtype_addrtype at_2), (valtype_addrtype (minat at_1 at_2))]) [] (mk_list []))"
+		 Instr_ok C (instr_sc3 (MEMORY_COPY x_1 x_2)) (mk_instrtype (mk_list [(valtype_addrtype at_1), (valtype_addrtype at_2), (valtype_addrtype (minat at_1 at_2))]) [] (mk_list []))"
 	| memory_init :
 		"((proj_uN_0 x) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x)) = (PAGE at lim)) ⟹
 		 ((proj_uN_0 y) < (length (context_DATAS C))) ⟹
 		 (((context_DATAS C) ! (proj_uN_0 y)) = OK) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (MEMORY_INIT x y))) ⟹
+		 (wf_instr (instr_sc3 (MEMORY_INIT x y))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at), valtype_I32, valtype_I32]) [] (mk_list []))) ⟹
 		 (wf_memtype (PAGE at lim)) ⟹
-		 Instr_ok C (instr_subcase_3 (MEMORY_INIT x y)) (mk_instrtype (mk_list [(valtype_addrtype at), valtype_I32, valtype_I32]) [] (mk_list []))"
+		 Instr_ok C (instr_sc3 (MEMORY_INIT x y)) (mk_instrtype (mk_list [(valtype_addrtype at), valtype_I32, valtype_I32]) [] (mk_list []))"
 	| data_drop :
 		"((proj_uN_0 x) < (length (context_DATAS C))) ⟹
 		 (((context_DATAS C) ! (proj_uN_0 x)) = OK) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (DATA_DROP x))) ⟹
+		 (wf_instr (instr_sc4 (DATA_DROP x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list []))) ⟹
-		 Instr_ok C (instr_subcase_4 (DATA_DROP x)) (mk_instrtype (mk_list []) [] (mk_list []))"
+		 Instr_ok C (instr_sc4 (DATA_DROP x)) (mk_instrtype (mk_list []) [] (mk_list []))"
 	| load_val :
 		"((proj_uN_0 x) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x)) = (PAGE at lim)) ⟹
 		 (Memarg_ok v_memarg at (size nt)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (LOAD nt None x v_memarg))) ⟹
+		 (wf_instr (instr_sc3 (LOAD nt None x v_memarg))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [(valtype_numtype nt)]))) ⟹
 		 (wf_memtype (PAGE at lim)) ⟹
-		 Instr_ok C (instr_subcase_3 (LOAD nt None x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [(valtype_numtype nt)]))"
+		 Instr_ok C (instr_sc3 (LOAD nt None x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [(valtype_numtype nt)]))"
 	| load_pack :
 		"((proj_uN_0 x) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x)) = (PAGE at lim)) ⟹
 		 (Memarg_ok v_memarg at v_M) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (LOAD (numtype_addrtype v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_M) v_sx))) x v_memarg))) ⟹
+		 (wf_instr (instr_sc3 (LOAD (numtype_addrtype v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_M) v_sx))) x v_memarg))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [(valtype_addrtype v_Inn)]))) ⟹
 		 (wf_memtype (PAGE at lim)) ⟹
-		 Instr_ok C (instr_subcase_3 (LOAD (numtype_addrtype v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_M) v_sx))) x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [(valtype_addrtype v_Inn)]))"
+		 Instr_ok C (instr_sc3 (LOAD (numtype_addrtype v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_M) v_sx))) x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [(valtype_addrtype v_Inn)]))"
 	| store_val :
 		"((proj_uN_0 x) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x)) = (PAGE at lim)) ⟹
 		 (Memarg_ok v_memarg at (size nt)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (STORE nt None x v_memarg))) ⟹
+		 (wf_instr (instr_sc3 (STORE nt None x v_memarg))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at), (valtype_numtype nt)]) [] (mk_list []))) ⟹
 		 (wf_memtype (PAGE at lim)) ⟹
-		 Instr_ok C (instr_subcase_3 (STORE nt None x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at), (valtype_numtype nt)]) [] (mk_list []))"
+		 Instr_ok C (instr_sc3 (STORE nt None x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at), (valtype_numtype nt)]) [] (mk_list []))"
 	| store_pack :
 		"((proj_uN_0 x) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x)) = (PAGE at lim)) ⟹
 		 (Memarg_ok v_memarg at v_M) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (STORE (numtype_addrtype v_Inn) (Some (mk_storeop__0 v_Inn (mk_storeop_Inn (mk_sz v_M)))) x v_memarg))) ⟹
+		 (wf_instr (instr_sc3 (STORE (numtype_addrtype v_Inn) (Some (mk_storeop__0 v_Inn (mk_storeop_Inn (mk_sz v_M)))) x v_memarg))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at), (valtype_addrtype v_Inn)]) [] (mk_list []))) ⟹
 		 (wf_memtype (PAGE at lim)) ⟹
-		 Instr_ok C (instr_subcase_3 (STORE (numtype_addrtype v_Inn) (Some (mk_storeop__0 v_Inn (mk_storeop_Inn (mk_sz v_M)))) x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at), (valtype_addrtype v_Inn)]) [] (mk_list []))"
+		 Instr_ok C (instr_sc3 (STORE (numtype_addrtype v_Inn) (Some (mk_storeop__0 v_Inn (mk_storeop_Inn (mk_sz v_M)))) x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at), (valtype_addrtype v_Inn)]) [] (mk_list []))"
 	| vload_val :
 		"((proj_uN_0 x) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x)) = (PAGE at lim)) ⟹
 		 (Memarg_ok v_memarg at (vsize V128)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (VLOAD V128 None x v_memarg))) ⟹
+		 (wf_instr (instr_sc3 (VLOAD V128 None x v_memarg))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [valtype_V128]))) ⟹
 		 (wf_memtype (PAGE at lim)) ⟹
-		 Instr_ok C (instr_subcase_3 (VLOAD V128 None x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc3 (VLOAD V128 None x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [valtype_V128]))"
 	| vload_pack :
 		"((proj_uN_0 x) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x)) = (PAGE at lim)) ⟹
 		 (Memarg_ok v_memarg at (v_M * v_N)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (VLOAD V128 (Some (SHAPEX_underscore (mk_sz v_M) v_N v_sx)) x v_memarg))) ⟹
+		 (wf_instr (instr_sc3 (VLOAD V128 (Some (SHAPEX_underscore (mk_sz v_M) v_N v_sx)) x v_memarg))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [valtype_V128]))) ⟹
 		 (wf_memtype (PAGE at lim)) ⟹
-		 Instr_ok C (instr_subcase_3 (VLOAD V128 (Some (SHAPEX_underscore (mk_sz v_M) v_N v_sx)) x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc3 (VLOAD V128 (Some (SHAPEX_underscore (mk_sz v_M) v_N v_sx)) x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [valtype_V128]))"
 	| vload_splat :
 		"((proj_uN_0 x) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x)) = (PAGE at lim)) ⟹
 		 (Memarg_ok v_memarg at v_N) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (VLOAD V128 (Some (SPLAT (mk_sz v_N))) x v_memarg))) ⟹
+		 (wf_instr (instr_sc3 (VLOAD V128 (Some (SPLAT (mk_sz v_N))) x v_memarg))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [valtype_V128]))) ⟹
 		 (wf_memtype (PAGE at lim)) ⟹
-		 Instr_ok C (instr_subcase_3 (VLOAD V128 (Some (SPLAT (mk_sz v_N))) x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc3 (VLOAD V128 (Some (SPLAT (mk_sz v_N))) x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [valtype_V128]))"
 	| vload_zero :
 		"((proj_uN_0 x) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x)) = (PAGE at lim)) ⟹
 		 (Memarg_ok v_memarg at v_N) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (VLOAD V128 (Some (vloadop__ZERO (mk_sz v_N))) x v_memarg))) ⟹
+		 (wf_instr (instr_sc3 (VLOAD V128 (Some (vloadop__ZERO (mk_sz v_N))) x v_memarg))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [valtype_V128]))) ⟹
 		 (wf_memtype (PAGE at lim)) ⟹
-		 Instr_ok C (instr_subcase_3 (VLOAD V128 (Some (vloadop__ZERO (mk_sz v_N))) x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc3 (VLOAD V128 (Some (vloadop__ZERO (mk_sz v_N))) x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at)]) [] (mk_list [valtype_V128]))"
 	| vload_lane :
 		"((proj_uN_0 x) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x)) = (PAGE at lim)) ⟹
 		 (Memarg_ok v_memarg at v_N) ⟹
 		 (((proj_uN_0 i) :: nat) < ((128 :: nat) div (v_N :: nat))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (VLOAD_LANE V128 (mk_sz v_N) x v_memarg i))) ⟹
+		 (wf_instr (instr_sc3 (VLOAD_LANE V128 (mk_sz v_N) x v_memarg i))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at), valtype_V128]) [] (mk_list [valtype_V128]))) ⟹
 		 (wf_memtype (PAGE at lim)) ⟹
-		 Instr_ok C (instr_subcase_3 (VLOAD_LANE V128 (mk_sz v_N) x v_memarg i)) (mk_instrtype (mk_list [(valtype_addrtype at), valtype_V128]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc3 (VLOAD_LANE V128 (mk_sz v_N) x v_memarg i)) (mk_instrtype (mk_list [(valtype_addrtype at), valtype_V128]) [] (mk_list [valtype_V128]))"
 	| vstore :
 		"((proj_uN_0 x) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x)) = (PAGE at lim)) ⟹
 		 (Memarg_ok v_memarg at (vsize V128)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (VSTORE V128 x v_memarg))) ⟹
+		 (wf_instr (instr_sc3 (VSTORE V128 x v_memarg))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at), valtype_V128]) [] (mk_list []))) ⟹
 		 (wf_memtype (PAGE at lim)) ⟹
-		 Instr_ok C (instr_subcase_3 (VSTORE V128 x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at), valtype_V128]) [] (mk_list []))"
+		 Instr_ok C (instr_sc3 (VSTORE V128 x v_memarg)) (mk_instrtype (mk_list [(valtype_addrtype at), valtype_V128]) [] (mk_list []))"
 	| vstore_lane :
 		"((proj_uN_0 x) < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! (proj_uN_0 x)) = (PAGE at lim)) ⟹
 		 (Memarg_ok v_memarg at v_N) ⟹
 		 (((proj_uN_0 i) :: nat) < ((128 :: nat) div (v_N :: nat))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (VSTORE_LANE V128 (mk_sz v_N) x v_memarg i))) ⟹
+		 (wf_instr (instr_sc3 (VSTORE_LANE V128 (mk_sz v_N) x v_memarg i))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_addrtype at), valtype_V128]) [] (mk_list []))) ⟹
 		 (wf_memtype (PAGE at lim)) ⟹
-		 Instr_ok C (instr_subcase_3 (VSTORE_LANE V128 (mk_sz v_N) x v_memarg i)) (mk_instrtype (mk_list [(valtype_addrtype at), valtype_V128]) [] (mk_list []))"
+		 Instr_ok C (instr_sc3 (VSTORE_LANE V128 (mk_sz v_N) x v_memarg i)) (mk_instrtype (mk_list [(valtype_addrtype at), valtype_V128]) [] (mk_list []))"
 	| Instr_ok__const :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt c_nt))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt c_nt))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list [(valtype_numtype nt)]))) ⟹
-		 Instr_ok C (instr_subcase_6 (instr_subtype_6_CONST nt c_nt)) (mk_instrtype (mk_list []) [] (mk_list [(valtype_numtype nt)]))"
+		 Instr_ok C (instr_sc6 (instr_st6_CONST nt c_nt)) (mk_instrtype (mk_list []) [] (mk_list [(valtype_numtype nt)]))"
 	| unop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_6 (UNOP nt unop_nt))) ⟹
+		 (wf_instr (instr_sc6 (UNOP nt unop_nt))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_numtype nt)]) [] (mk_list [(valtype_numtype nt)]))) ⟹
-		 Instr_ok C (instr_subcase_6 (UNOP nt unop_nt)) (mk_instrtype (mk_list [(valtype_numtype nt)]) [] (mk_list [(valtype_numtype nt)]))"
+		 Instr_ok C (instr_sc6 (UNOP nt unop_nt)) (mk_instrtype (mk_list [(valtype_numtype nt)]) [] (mk_list [(valtype_numtype nt)]))"
 	| binop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_6 (BINOP nt binop_nt))) ⟹
+		 (wf_instr (instr_sc6 (BINOP nt binop_nt))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_numtype nt), (valtype_numtype nt)]) [] (mk_list [(valtype_numtype nt)]))) ⟹
-		 Instr_ok C (instr_subcase_6 (BINOP nt binop_nt)) (mk_instrtype (mk_list [(valtype_numtype nt), (valtype_numtype nt)]) [] (mk_list [(valtype_numtype nt)]))"
+		 Instr_ok C (instr_sc6 (BINOP nt binop_nt)) (mk_instrtype (mk_list [(valtype_numtype nt), (valtype_numtype nt)]) [] (mk_list [(valtype_numtype nt)]))"
 	| testop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_6 (TESTOP nt testop_nt))) ⟹
+		 (wf_instr (instr_sc6 (TESTOP nt testop_nt))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_numtype nt)]) [] (mk_list [valtype_I32]))) ⟹
-		 Instr_ok C (instr_subcase_6 (TESTOP nt testop_nt)) (mk_instrtype (mk_list [(valtype_numtype nt)]) [] (mk_list [valtype_I32]))"
+		 Instr_ok C (instr_sc6 (TESTOP nt testop_nt)) (mk_instrtype (mk_list [(valtype_numtype nt)]) [] (mk_list [valtype_I32]))"
 	| relop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_6 (RELOP nt relop_nt))) ⟹
+		 (wf_instr (instr_sc6 (RELOP nt relop_nt))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_numtype nt), (valtype_numtype nt)]) [] (mk_list [valtype_I32]))) ⟹
-		 Instr_ok C (instr_subcase_6 (RELOP nt relop_nt)) (mk_instrtype (mk_list [(valtype_numtype nt), (valtype_numtype nt)]) [] (mk_list [valtype_I32]))"
+		 Instr_ok C (instr_sc6 (RELOP nt relop_nt)) (mk_instrtype (mk_list [(valtype_numtype nt), (valtype_numtype nt)]) [] (mk_list [valtype_I32]))"
 	| cvtop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_7 (CVTOP nt_1 nt_2 cvtop))) ⟹
+		 (wf_instr (instr_sc7 (CVTOP nt_1 nt_2 cvtop))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_numtype nt_2)]) [] (mk_list [(valtype_numtype nt_1)]))) ⟹
-		 Instr_ok C (instr_subcase_7 (CVTOP nt_1 nt_2 cvtop)) (mk_instrtype (mk_list [(valtype_numtype nt_2)]) [] (mk_list [(valtype_numtype nt_1)]))"
+		 Instr_ok C (instr_sc7 (CVTOP nt_1 nt_2 cvtop)) (mk_instrtype (mk_list [(valtype_numtype nt_2)]) [] (mk_list [(valtype_numtype nt_1)]))"
 	| vconst :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_7 (instr_subtype_7_VCONST V128 c)) (mk_instrtype (mk_list []) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc7 (instr_st7_VCONST V128 c)) (mk_instrtype (mk_list []) [] (mk_list [valtype_V128]))"
 	| Instr_ok__vvunop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_7 (VVUNOP V128 v_vvunop))) ⟹
+		 (wf_instr (instr_sc7 (VVUNOP V128 v_vvunop))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_7 (VVUNOP V128 v_vvunop)) (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc7 (VVUNOP V128 v_vvunop)) (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_V128]))"
 	| Instr_ok__vvbinop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_7 (VVBINOP V128 v_vvbinop))) ⟹
+		 (wf_instr (instr_sc7 (VVBINOP V128 v_vvbinop))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_7 (VVBINOP V128 v_vvbinop)) (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc7 (VVBINOP V128 v_vvbinop)) (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
 	| Instr_ok__vvternop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_7 (VVTERNOP V128 v_vvternop))) ⟹
+		 (wf_instr (instr_sc7 (VVTERNOP V128 v_vvternop))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128, valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_7 (VVTERNOP V128 v_vvternop)) (mk_instrtype (mk_list [valtype_V128, valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc7 (VVTERNOP V128 v_vvternop)) (mk_instrtype (mk_list [valtype_V128, valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
 	| Instr_ok__vvtestop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_7 (VVTESTOP V128 v_vvtestop))) ⟹
+		 (wf_instr (instr_sc7 (VVTESTOP V128 v_vvtestop))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_I32]))) ⟹
-		 Instr_ok C (instr_subcase_7 (VVTESTOP V128 v_vvtestop)) (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_I32]))"
+		 Instr_ok C (instr_sc7 (VVTESTOP V128 v_vvtestop)) (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_I32]))"
 	| vunop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_7 (VUNOP sh vunop))) ⟹
+		 (wf_instr (instr_sc7 (VUNOP sh vunop))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_7 (VUNOP sh vunop)) (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc7 (VUNOP sh vunop)) (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_V128]))"
 	| vbinop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_7 (VBINOP sh vbinop))) ⟹
+		 (wf_instr (instr_sc7 (VBINOP sh vbinop))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_7 (VBINOP sh vbinop)) (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc7 (VBINOP sh vbinop)) (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
 	| vternop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_7 (VTERNOP sh vternop))) ⟹
+		 (wf_instr (instr_sc7 (VTERNOP sh vternop))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128, valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_7 (VTERNOP sh vternop)) (mk_instrtype (mk_list [valtype_V128, valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc7 (VTERNOP sh vternop)) (mk_instrtype (mk_list [valtype_V128, valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
 	| vtestop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_7 (VTESTOP sh vtestop))) ⟹
+		 (wf_instr (instr_sc7 (VTESTOP sh vtestop))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_I32]))) ⟹
-		 Instr_ok C (instr_subcase_7 (VTESTOP sh vtestop)) (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_I32]))"
+		 Instr_ok C (instr_sc7 (VTESTOP sh vtestop)) (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_I32]))"
 	| vrelop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_7 (VRELOP sh vrelop))) ⟹
+		 (wf_instr (instr_sc7 (VRELOP sh vrelop))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_7 (VRELOP sh vrelop)) (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc7 (VRELOP sh vrelop)) (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
 	| vshiftop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_8 (VSHIFTOP sh vshiftop))) ⟹
+		 (wf_instr (instr_sc8 (VSHIFTOP sh vshiftop))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128, valtype_I32]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_8 (VSHIFTOP sh vshiftop)) (mk_instrtype (mk_list [valtype_V128, valtype_I32]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc8 (VSHIFTOP sh vshiftop)) (mk_instrtype (mk_list [valtype_V128, valtype_I32]) [] (mk_list [valtype_V128]))"
 	| vbitmask :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_8 (VBITMASK sh))) ⟹
+		 (wf_instr (instr_sc8 (VBITMASK sh))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_I32]))) ⟹
-		 Instr_ok C (instr_subcase_8 (VBITMASK sh)) (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_I32]))"
+		 Instr_ok C (instr_sc8 (VBITMASK sh)) (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_I32]))"
 	| vswizzlop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_8 (VSWIZZLOP sh vswizzlop))) ⟹
+		 (wf_instr (instr_sc8 (VSWIZZLOP sh vswizzlop))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_8 (VSWIZZLOP sh vswizzlop)) (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc8 (VSWIZZLOP sh vswizzlop)) (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
 	| vshuffle :
 		"list_all (λ (i :: laneidx). ((proj_uN_0 i) < (2 * (proj_dim_0 (fun_dim (proj_bshape_0 sh)))))) i_lst ⟹
 		 (wf_context C) ⟹
 		 (wf_dim (fun_dim (proj_bshape_0 sh))) ⟹
-		 (wf_instr (instr_subcase_8 (VSHUFFLE sh i_lst))) ⟹
+		 (wf_instr (instr_sc8 (VSHUFFLE sh i_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_8 (VSHUFFLE sh i_lst)) (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc8 (VSHUFFLE sh i_lst)) (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
 	| vsplat :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_8 (VSPLAT sh))) ⟹
+		 (wf_instr (instr_sc8 (VSPLAT sh))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [(valtype_numtype (unpackshape sh))]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_8 (VSPLAT sh)) (mk_instrtype (mk_list [(valtype_numtype (unpackshape sh))]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc8 (VSPLAT sh)) (mk_instrtype (mk_list [(valtype_numtype (unpackshape sh))]) [] (mk_list [valtype_V128]))"
 	| vextract_lane :
 		"((proj_uN_0 i) < (proj_dim_0 (fun_dim sh))) ⟹
 		 (wf_context C) ⟹
 		 (wf_dim (fun_dim sh)) ⟹
-		 (wf_instr (instr_subcase_8 (VEXTRACT_LANE sh sx_opt i))) ⟹
+		 (wf_instr (instr_sc8 (VEXTRACT_LANE sh sx_opt i))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [(valtype_numtype (unpackshape sh))]))) ⟹
-		 Instr_ok C (instr_subcase_8 (VEXTRACT_LANE sh sx_opt i)) (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [(valtype_numtype (unpackshape sh))]))"
+		 Instr_ok C (instr_sc8 (VEXTRACT_LANE sh sx_opt i)) (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [(valtype_numtype (unpackshape sh))]))"
 	| vreplace_lane :
 		"((proj_uN_0 i) < (proj_dim_0 (fun_dim sh))) ⟹
 		 (wf_context C) ⟹
 		 (wf_dim (fun_dim sh)) ⟹
-		 (wf_instr (instr_subcase_9 (VREPLACE_LANE sh i))) ⟹
+		 (wf_instr (instr_sc9 (VREPLACE_LANE sh i))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128, (valtype_numtype (unpackshape sh))]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_9 (VREPLACE_LANE sh i)) (mk_instrtype (mk_list [valtype_V128, (valtype_numtype (unpackshape sh))]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc9 (VREPLACE_LANE sh i)) (mk_instrtype (mk_list [valtype_V128, (valtype_numtype (unpackshape sh))]) [] (mk_list [valtype_V128]))"
 	| vextunop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_8 (VEXTUNOP sh_1 sh_2 vextunop))) ⟹
+		 (wf_instr (instr_sc8 (VEXTUNOP sh_1 sh_2 vextunop))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_8 (VEXTUNOP sh_1 sh_2 vextunop)) (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc8 (VEXTUNOP sh_1 sh_2 vextunop)) (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_V128]))"
 	| vextbinop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_8 (VEXTBINOP sh_1 sh_2 vextbinop))) ⟹
+		 (wf_instr (instr_sc8 (VEXTBINOP sh_1 sh_2 vextbinop))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_8 (VEXTBINOP sh_1 sh_2 vextbinop)) (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc8 (VEXTBINOP sh_1 sh_2 vextbinop)) (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
 	| vextternop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_8 (VEXTTERNOP sh_1 sh_2 vextternop))) ⟹
+		 (wf_instr (instr_sc8 (VEXTTERNOP sh_1 sh_2 vextternop))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128, valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_8 (VEXTTERNOP sh_1 sh_2 vextternop)) (mk_instrtype (mk_list [valtype_V128, valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc8 (VEXTTERNOP sh_1 sh_2 vextternop)) (mk_instrtype (mk_list [valtype_V128, valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
 	| vnarrow :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_8 (VNARROW sh_1 sh_2 v_sx))) ⟹
+		 (wf_instr (instr_sc8 (VNARROW sh_1 sh_2 v_sx))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_8 (VNARROW sh_1 sh_2 v_sx)) (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc8 (VNARROW sh_1 sh_2 v_sx)) (mk_instrtype (mk_list [valtype_V128, valtype_V128]) [] (mk_list [valtype_V128]))"
 	| vcvtop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_8 (VCVTOP sh_1 sh_2 vcvtop))) ⟹
+		 (wf_instr (instr_sc8 (VCVTOP sh_1 sh_2 vcvtop))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_V128]))) ⟹
-		 Instr_ok C (instr_subcase_8 (VCVTOP sh_1 sh_2 vcvtop)) (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_V128]))"
+		 Instr_ok C (instr_sc8 (VCVTOP sh_1 sh_2 vcvtop)) (mk_instrtype (mk_list [valtype_V128]) [] (mk_list [valtype_V128]))"
 	| Instrs_ok__empty :
 		"(wf_context C) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list []))) ⟹
@@ -7555,70 +7554,70 @@ inductive Nondefaultable :: "valtype ⇒ bool" where
 inductive Instr_const :: "res_context ⇒ instr ⇒ bool" where
 	  Instr_const__const :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt c_nt))) ⟹
-		 Instr_const C (instr_subcase_6 (instr_subtype_6_CONST nt c_nt))"
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt c_nt))) ⟹
+		 Instr_const C (instr_sc6 (instr_st6_CONST nt c_nt))"
 	| Instr_const__vconst :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST vt c_vt))) ⟹
-		 Instr_const C (instr_subcase_7 (instr_subtype_7_VCONST vt c_vt))"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST vt c_vt))) ⟹
+		 Instr_const C (instr_sc7 (instr_st7_VCONST vt c_vt))"
 	| Instr_const__ref_null :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (REF_NULL ht))) ⟹
-		 Instr_const C (instr_subcase_4 (REF_NULL ht))"
+		 (wf_instr (instr_sc4 (REF_NULL ht))) ⟹
+		 Instr_const C (instr_sc4 (REF_NULL ht))"
 	| Instr_const__ref_i31 :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 REF_I31)) ⟹
-		 Instr_const C (instr_subcase_4 REF_I31)"
+		 (wf_instr (instr_sc4 REF_I31)) ⟹
+		 Instr_const C (instr_sc4 REF_I31)"
 	| Instr_const__ref_func :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (REF_FUNC x))) ⟹
-		 Instr_const C (instr_subcase_4 (REF_FUNC x))"
+		 (wf_instr (instr_sc4 (REF_FUNC x))) ⟹
+		 Instr_const C (instr_sc4 (REF_FUNC x))"
 	| Instr_const__struct_new :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (STRUCT_NEW x))) ⟹
-		 Instr_const C (instr_subcase_4 (STRUCT_NEW x))"
+		 (wf_instr (instr_sc4 (STRUCT_NEW x))) ⟹
+		 Instr_const C (instr_sc4 (STRUCT_NEW x))"
 	| Instr_const__struct_new_default :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (STRUCT_NEW_DEFAULT x))) ⟹
-		 Instr_const C (instr_subcase_5 (STRUCT_NEW_DEFAULT x))"
+		 (wf_instr (instr_sc5 (STRUCT_NEW_DEFAULT x))) ⟹
+		 Instr_const C (instr_sc5 (STRUCT_NEW_DEFAULT x))"
 	| Instr_const__array_new :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_NEW x))) ⟹
-		 Instr_const C (instr_subcase_5 (ARRAY_NEW x))"
+		 (wf_instr (instr_sc5 (ARRAY_NEW x))) ⟹
+		 Instr_const C (instr_sc5 (ARRAY_NEW x))"
 	| Instr_const__array_new_default :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_NEW_DEFAULT x))) ⟹
-		 Instr_const C (instr_subcase_5 (ARRAY_NEW_DEFAULT x))"
+		 (wf_instr (instr_sc5 (ARRAY_NEW_DEFAULT x))) ⟹
+		 Instr_const C (instr_sc5 (ARRAY_NEW_DEFAULT x))"
 	| Instr_const__array_new_fixed :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_NEW_FIXED x (mk_uN v_n)))) ⟹
-		 Instr_const C (instr_subcase_5 (ARRAY_NEW_FIXED x (mk_uN v_n)))"
+		 (wf_instr (instr_sc5 (ARRAY_NEW_FIXED x (mk_uN v_n)))) ⟹
+		 Instr_const C (instr_sc5 (ARRAY_NEW_FIXED x (mk_uN v_n)))"
 	| Instr_const__any_convert_extern :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_6 ANY_CONVERT_EXTERN)) ⟹
-		 Instr_const C (instr_subcase_6 ANY_CONVERT_EXTERN)"
+		 (wf_instr (instr_sc6 ANY_CONVERT_EXTERN)) ⟹
+		 Instr_const C (instr_sc6 ANY_CONVERT_EXTERN)"
 	| Instr_const__extern_convert_any :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_6 EXTERN_CONVERT_ANY)) ⟹
-		 Instr_const C (instr_subcase_6 EXTERN_CONVERT_ANY)"
+		 (wf_instr (instr_sc6 EXTERN_CONVERT_ANY)) ⟹
+		 Instr_const C (instr_sc6 EXTERN_CONVERT_ANY)"
 	| Instr_const__global_get :
 		"((proj_uN_0 x) < (length (context_GLOBALS C))) ⟹
 		 (((context_GLOBALS C) ! (proj_uN_0 x)) = (mk_globaltype None t)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (GLOBAL_GET x))) ⟹
+		 (wf_instr (instr_sc2 (GLOBAL_GET x))) ⟹
 		 (wf_globaltype (mk_globaltype None t)) ⟹
-		 Instr_const C (instr_subcase_2 (GLOBAL_GET x))"
+		 Instr_const C (instr_sc2 (GLOBAL_GET x))"
 	| Instr_const__binop :
 		"((length [I32, I64]) > 0) ⟹
 		 (v_Inn ∈ set [I32, I64]) ⟹
 		 ((length [(mk_binop__0 v_Inn ADD), (mk_binop__0 v_Inn binop_Inn_SUB), (mk_binop__0 v_Inn MUL)]) > 0) ⟹
 		 (binop ∈ set [(mk_binop__0 v_Inn ADD), (mk_binop__0 v_Inn binop_Inn_SUB), (mk_binop__0 v_Inn MUL)]) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_6 (BINOP (numtype_addrtype v_Inn) binop))) ⟹
+		 (wf_instr (instr_sc6 (BINOP (numtype_addrtype v_Inn) binop))) ⟹
 		 (wf_binop_underscore (numtype_addrtype v_Inn) (mk_binop__0 v_Inn ADD)) ⟹
 		 (wf_binop_underscore (numtype_addrtype v_Inn) (mk_binop__0 v_Inn binop_Inn_SUB)) ⟹
 		 (wf_binop_underscore (numtype_addrtype v_Inn) (mk_binop__0 v_Inn MUL)) ⟹
-		 Instr_const C (instr_subcase_6 (BINOP (numtype_addrtype v_Inn) binop))"
+		 Instr_const C (instr_sc6 (BINOP (numtype_addrtype v_Inn) binop))"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/2.3-validation.instructions.spectec:646.1-646.103 *)
 inductive Expr_const :: "res_context ⇒ expr ⇒ bool" where
@@ -10073,14 +10072,33 @@ lemma irelaxed_swizzle_lane__is_wf :
 	 (wf_uN v_N ret_val)"
 sorry
 
-(* Auxiliary Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:54.1-54.73 *)
-axiomatization ivunop_underscore :: "shape ⇒ (N ⇒ iN ⇒ iN) ⇒ vec_underscore ⇒ (vec_underscore list)"
+(* Auxiliary Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:54.1-54.87 *)
+function (sequential) ivunop_underscore :: "shape ⇒ (N ⇒ iN ⇒ iN) ⇒ vec_underscore ⇒ ((vec_underscore list) option)" where
+		  "ivunop_underscore (X lanetype_I32 (mk_dim v_M)) f_underscore v_1 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_1) in 
+			 (let c_lst = (map (λ (c_1_2 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 c_1_2))))) c_1_lst) in 
+			 (Some [(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (λ (c_4 :: iN). (mk_lane__2 Jnn_I32 c_4)) c_lst))])))"
+		| "ivunop_underscore (X lanetype_I64 (mk_dim v_M)) f_underscore v_1 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_1) in 
+			 (let c_lst = (map (λ (c_1_4 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 c_1_4))))) c_1_lst) in 
+			 (Some [(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (λ (c_6 :: iN). (mk_lane__2 Jnn_I64 c_6)) c_lst))])))"
+		| "ivunop_underscore (X lanetype_I8 (mk_dim v_M)) f_underscore v_1 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_1) in 
+			 (let c_lst = (map (λ (c_1_6 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 c_1_6))))) c_1_lst) in 
+			 (Some [(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (λ (c_8 :: iN). (mk_lane__2 Jnn_I8 c_8)) c_lst))])))"
+		| "ivunop_underscore (X lanetype_I16 (mk_dim v_M)) f_underscore v_1 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_1) in 
+			 (let c_lst = (map (λ (c_1_8 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 c_1_8))))) c_1_lst) in 
+			 (Some [(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (λ (c_10 :: iN). (mk_lane__2 Jnn_I16 c_10)) c_lst))])))"
+		| "ivunop_underscore x0 f_underscore x2 = None"
+	by pat_completeness auto
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:54.6-54.14 *)
 lemma ivunop__is_wf :
 	"(wf_shape v_shape) ⟹
 	 (wf_uN 128 v_vec_underscore) ⟹
-	 (ret_val_lst = (ivunop_underscore v_shape f_underscore v_vec_underscore)) ⟹
+	 ((ivunop_underscore v_shape f_underscore v_vec_underscore) ≠ None) ⟹
+	 (ret_val_lst = (the ((ivunop_underscore v_shape f_underscore v_vec_underscore)))) ⟹
 	 list_all (λ (ret_val :: vec_underscore). (wf_uN 128 ret_val)) ret_val_lst"
 sorry
 
@@ -10095,27 +10113,73 @@ lemma fvunop__is_wf :
 	 list_all (λ (ret_val :: vec_underscore). (wf_uN 128 ret_val)) ret_val_lst"
 sorry
 
-(* Auxiliary Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:57.1-57.93 *)
-axiomatization ivbinop_underscore :: "shape ⇒ (N ⇒ iN ⇒ iN ⇒ iN) ⇒ vec_underscore ⇒ vec_underscore ⇒ (vec_underscore list)"
+(* Auxiliary Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:57.1-57.107 *)
+function (sequential) ivbinop_underscore :: "shape ⇒ (N ⇒ iN ⇒ iN ⇒ iN) ⇒ vec_underscore ⇒ vec_underscore ⇒ ((vec_underscore list) option)" where
+		  "ivbinop_underscore (X lanetype_I32 (mk_dim v_M)) f_underscore v_1 v_2 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_1) in 
+			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_2) in 
+			 (let c_lst = (list_zipWith (λ (c_1_16 :: lane_underscore) (c_2_2 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 c_1_16))) (the ((proj_lane__2 c_2_2))))) c_1_lst c_2_lst) in 
+			 (Some [(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (λ (c_16 :: iN). (mk_lane__2 Jnn_I32 c_16)) c_lst))]))))"
+		| "ivbinop_underscore (X lanetype_I64 (mk_dim v_M)) f_underscore v_1 v_2 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_1) in 
+			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_2) in 
+			 (let c_lst = (list_zipWith (λ (c_1_18 :: lane_underscore) (c_2_4 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 c_1_18))) (the ((proj_lane__2 c_2_4))))) c_1_lst c_2_lst) in 
+			 (Some [(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (λ (c_18 :: iN). (mk_lane__2 Jnn_I64 c_18)) c_lst))]))))"
+		| "ivbinop_underscore (X lanetype_I8 (mk_dim v_M)) f_underscore v_1 v_2 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_1) in 
+			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_2) in 
+			 (let c_lst = (list_zipWith (λ (c_1_20 :: lane_underscore) (c_2_6 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 c_1_20))) (the ((proj_lane__2 c_2_6))))) c_1_lst c_2_lst) in 
+			 (Some [(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (λ (c_20 :: iN). (mk_lane__2 Jnn_I8 c_20)) c_lst))]))))"
+		| "ivbinop_underscore (X lanetype_I16 (mk_dim v_M)) f_underscore v_1 v_2 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_1) in 
+			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_2) in 
+			 (let c_lst = (list_zipWith (λ (c_1_22 :: lane_underscore) (c_2_8 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 c_1_22))) (the ((proj_lane__2 c_2_8))))) c_1_lst c_2_lst) in 
+			 (Some [(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (λ (c_22 :: iN). (mk_lane__2 Jnn_I16 c_22)) c_lst))]))))"
+		| "ivbinop_underscore x0 f_underscore x2 x3 = None"
+	by pat_completeness auto
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:57.6-57.15 *)
 lemma ivbinop__is_wf :
 	"(wf_shape v_shape) ⟹
 	 (wf_uN 128 v_vec_underscore) ⟹
 	 (wf_uN 128 vec__0) ⟹
-	 (ret_val_lst = (ivbinop_underscore v_shape f_underscore v_vec_underscore vec__0)) ⟹
+	 ((ivbinop_underscore v_shape f_underscore v_vec_underscore vec__0) ≠ None) ⟹
+	 (ret_val_lst = (the ((ivbinop_underscore v_shape f_underscore v_vec_underscore vec__0)))) ⟹
 	 list_all (λ (ret_val :: vec_underscore). (wf_uN 128 ret_val)) ret_val_lst"
 sorry
 
-(* Auxiliary Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:58.1-58.103 *)
-axiomatization ivbinopsx_underscore :: "shape ⇒ (N ⇒ sx ⇒ iN ⇒ iN ⇒ iN) ⇒ sx ⇒ vec_underscore ⇒ vec_underscore ⇒ (vec_underscore list)"
+(* Auxiliary Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:58.1-58.117 *)
+function (sequential) ivbinopsx_underscore :: "shape ⇒ (N ⇒ sx ⇒ iN ⇒ iN ⇒ iN) ⇒ sx ⇒ vec_underscore ⇒ vec_underscore ⇒ ((vec_underscore list) option)" where
+		  "ivbinopsx_underscore (X lanetype_I32 (mk_dim v_M)) f_underscore v_sx v_1 v_2 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_1) in 
+			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_2) in 
+			 (let c_lst = (list_zipWith (λ (c_1_24 :: lane_underscore) (c_2_10 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 c_1_24))) (the ((proj_lane__2 c_2_10))))) c_1_lst c_2_lst) in 
+			 (Some [(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (λ (c_24 :: iN). (mk_lane__2 Jnn_I32 c_24)) c_lst))]))))"
+		| "ivbinopsx_underscore (X lanetype_I64 (mk_dim v_M)) f_underscore v_sx v_1 v_2 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_1) in 
+			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_2) in 
+			 (let c_lst = (list_zipWith (λ (c_1_26 :: lane_underscore) (c_2_12 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 c_1_26))) (the ((proj_lane__2 c_2_12))))) c_1_lst c_2_lst) in 
+			 (Some [(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (λ (c_26 :: iN). (mk_lane__2 Jnn_I64 c_26)) c_lst))]))))"
+		| "ivbinopsx_underscore (X lanetype_I8 (mk_dim v_M)) f_underscore v_sx v_1 v_2 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_1) in 
+			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_2) in 
+			 (let c_lst = (list_zipWith (λ (c_1_28 :: lane_underscore) (c_2_14 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 c_1_28))) (the ((proj_lane__2 c_2_14))))) c_1_lst c_2_lst) in 
+			 (Some [(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (λ (c_28 :: iN). (mk_lane__2 Jnn_I8 c_28)) c_lst))]))))"
+		| "ivbinopsx_underscore (X lanetype_I16 (mk_dim v_M)) f_underscore v_sx v_1 v_2 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_1) in 
+			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_2) in 
+			 (let c_lst = (list_zipWith (λ (c_1_30 :: lane_underscore) (c_2_16 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 c_1_30))) (the ((proj_lane__2 c_2_16))))) c_1_lst c_2_lst) in 
+			 (Some [(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (λ (c_30 :: iN). (mk_lane__2 Jnn_I16 c_30)) c_lst))]))))"
+		| "ivbinopsx_underscore x0 f_underscore x2 x3 x4 = None"
+	by pat_completeness auto
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:58.6-58.17 *)
 lemma ivbinopsx__is_wf :
 	"(wf_shape v_shape) ⟹
 	 (wf_uN 128 v_vec_underscore) ⟹
 	 (wf_uN 128 vec__0) ⟹
-	 (ret_val_lst = (ivbinopsx_underscore v_shape f_underscore v_sx v_vec_underscore vec__0)) ⟹
+	 ((ivbinopsx_underscore v_shape f_underscore v_sx v_vec_underscore vec__0) ≠ None) ⟹
+	 (ret_val_lst = (the ((ivbinopsx_underscore v_shape f_underscore v_sx v_vec_underscore vec__0)))) ⟹
 	 list_all (λ (ret_val :: vec_underscore). (wf_uN 128 ret_val)) ret_val_lst"
 sorry
 
@@ -10205,27 +10269,65 @@ lemma fvrelop__is_wf :
 	 (wf_uN 128 ret_val)"
 sorry
 
-(* Auxiliary Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:69.1-69.85 *)
-axiomatization ivshiftop_underscore :: "shape ⇒ (N ⇒ iN ⇒ u32 ⇒ iN) ⇒ vec_underscore ⇒ u32 ⇒ vec_underscore"
+(* Auxiliary Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:69.1-69.99 *)
+function (sequential) ivshiftop_underscore :: "shape ⇒ (N ⇒ iN ⇒ u32 ⇒ iN) ⇒ vec_underscore ⇒ u32 ⇒ (vec_underscore option)" where
+		  "ivshiftop_underscore (X lanetype_I32 (mk_dim v_M)) f_underscore v_1 i = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_1) in 
+			 (let c_lst = (map (λ (c_1_98 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 c_1_98))) i)) c_1_lst) in 
+			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (λ (c_76 :: iN). (mk_lane__2 Jnn_I32 c_76)) c_lst)))))"
+		| "ivshiftop_underscore (X lanetype_I64 (mk_dim v_M)) f_underscore v_1 i = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_1) in 
+			 (let c_lst = (map (λ (c_1_100 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 c_1_100))) i)) c_1_lst) in 
+			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (λ (c_78 :: iN). (mk_lane__2 Jnn_I64 c_78)) c_lst)))))"
+		| "ivshiftop_underscore (X lanetype_I8 (mk_dim v_M)) f_underscore v_1 i = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_1) in 
+			 (let c_lst = (map (λ (c_1_102 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 c_1_102))) i)) c_1_lst) in 
+			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (λ (c_80 :: iN). (mk_lane__2 Jnn_I8 c_80)) c_lst)))))"
+		| "ivshiftop_underscore (X lanetype_I16 (mk_dim v_M)) f_underscore v_1 i = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_1) in 
+			 (let c_lst = (map (λ (c_1_104 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 c_1_104))) i)) c_1_lst) in 
+			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (λ (c_82 :: iN). (mk_lane__2 Jnn_I16 c_82)) c_lst)))))"
+		| "ivshiftop_underscore x0 f_underscore x2 x3 = None"
+	by pat_completeness auto
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:69.6-69.17 *)
 lemma ivshiftop__is_wf :
 	"(wf_shape v_shape) ⟹
 	 (wf_uN 128 v_vec_underscore) ⟹
 	 (wf_uN 32 v_u32) ⟹
-	 (ret_val = (ivshiftop_underscore v_shape f_underscore v_vec_underscore v_u32)) ⟹
+	 ((ivshiftop_underscore v_shape f_underscore v_vec_underscore v_u32) ≠ None) ⟹
+	 (ret_val = (the ((ivshiftop_underscore v_shape f_underscore v_vec_underscore v_u32)))) ⟹
 	 (wf_uN 128 ret_val)"
 sorry
 
-(* Auxiliary Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:70.1-70.95 *)
-axiomatization ivshiftopsx_underscore :: "shape ⇒ (N ⇒ sx ⇒ iN ⇒ u32 ⇒ iN) ⇒ sx ⇒ vec_underscore ⇒ u32 ⇒ vec_underscore"
+(* Auxiliary Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:70.1-70.109 *)
+function (sequential) ivshiftopsx_underscore :: "shape ⇒ (N ⇒ sx ⇒ iN ⇒ u32 ⇒ iN) ⇒ sx ⇒ vec_underscore ⇒ u32 ⇒ (vec_underscore option)" where
+		  "ivshiftopsx_underscore (X lanetype_I32 (mk_dim v_M)) f_underscore v_sx v_1 i = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_1) in 
+			 (let c_lst = (map (λ (c_1_106 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 c_1_106))) i)) c_1_lst) in 
+			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (λ (c_84 :: iN). (mk_lane__2 Jnn_I32 c_84)) c_lst)))))"
+		| "ivshiftopsx_underscore (X lanetype_I64 (mk_dim v_M)) f_underscore v_sx v_1 i = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_1) in 
+			 (let c_lst = (map (λ (c_1_108 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 c_1_108))) i)) c_1_lst) in 
+			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (λ (c_86 :: iN). (mk_lane__2 Jnn_I64 c_86)) c_lst)))))"
+		| "ivshiftopsx_underscore (X lanetype_I8 (mk_dim v_M)) f_underscore v_sx v_1 i = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_1) in 
+			 (let c_lst = (map (λ (c_1_110 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 c_1_110))) i)) c_1_lst) in 
+			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (λ (c_88 :: iN). (mk_lane__2 Jnn_I8 c_88)) c_lst)))))"
+		| "ivshiftopsx_underscore (X lanetype_I16 (mk_dim v_M)) f_underscore v_sx v_1 i = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_1) in 
+			 (let c_lst = (map (λ (c_1_112 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 c_1_112))) i)) c_1_lst) in 
+			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (λ (c_90 :: iN). (mk_lane__2 Jnn_I16 c_90)) c_lst)))))"
+		| "ivshiftopsx_underscore x0 f_underscore x2 x3 x4 = None"
+	by pat_completeness auto
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:70.6-70.19 *)
 lemma ivshiftopsx__is_wf :
 	"(wf_shape v_shape) ⟹
 	 (wf_uN 128 v_vec_underscore) ⟹
 	 (wf_uN 32 v_u32) ⟹
-	 (ret_val = (ivshiftopsx_underscore v_shape f_underscore v_sx v_vec_underscore v_u32)) ⟹
+	 ((ivshiftopsx_underscore v_shape f_underscore v_sx v_vec_underscore v_u32) ≠ None) ⟹
+	 (ret_val = (the ((ivshiftopsx_underscore v_shape f_underscore v_sx v_vec_underscore v_u32)))) ⟹
 	 (wf_uN 128 ret_val)"
 sorry
 
@@ -10277,57 +10379,74 @@ lemma ivbitmaskop__is_wf :
 	 (wf_uN 32 ret_val)"
 sorry
 
-(* Auxiliary Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:73.1-73.96 *)
-axiomatization ivswizzlop_underscore :: "shape ⇒ (N ⇒ (iN list) ⇒ iN ⇒ iN) ⇒ vec_underscore ⇒ vec_underscore ⇒ vec_underscore"
+(* Auxiliary Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:73.1-73.110 *)
+function (sequential) ivswizzlop_underscore :: "shape ⇒ (N ⇒ (iN list) ⇒ iN ⇒ iN) ⇒ vec_underscore ⇒ vec_underscore ⇒ (vec_underscore option)" where
+		  "ivswizzlop_underscore (X lanetype_I32 (mk_dim v_M)) f_underscore v_1 v_2 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_1) in 
+			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_2) in 
+			 (let c_lst = (map (λ (c_2_84 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (map (λ (c_1_126 :: lane_underscore). (the ((proj_lane__2 c_1_126)))) c_1_lst) (the ((proj_lane__2 c_2_84))))) c_2_lst) in 
+			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (λ (c_92 :: iN). (mk_lane__2 Jnn_I32 c_92)) c_lst))))))"
+		| "ivswizzlop_underscore (X lanetype_I64 (mk_dim v_M)) f_underscore v_1 v_2 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_1) in 
+			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_2) in 
+			 (let c_lst = (map (λ (c_2_86 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (map (λ (c_1_128 :: lane_underscore). (the ((proj_lane__2 c_1_128)))) c_1_lst) (the ((proj_lane__2 c_2_86))))) c_2_lst) in 
+			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (λ (c_94 :: iN). (mk_lane__2 Jnn_I64 c_94)) c_lst))))))"
+		| "ivswizzlop_underscore (X lanetype_I8 (mk_dim v_M)) f_underscore v_1 v_2 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_1) in 
+			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_2) in 
+			 (let c_lst = (map (λ (c_2_88 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (map (λ (c_1_130 :: lane_underscore). (the ((proj_lane__2 c_1_130)))) c_1_lst) (the ((proj_lane__2 c_2_88))))) c_2_lst) in 
+			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (λ (c_96 :: iN). (mk_lane__2 Jnn_I8 c_96)) c_lst))))))"
+		| "ivswizzlop_underscore (X lanetype_I16 (mk_dim v_M)) f_underscore v_1 v_2 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_1) in 
+			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_2) in 
+			 (let c_lst = (map (λ (c_2_90 :: lane_underscore). (f_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (map (λ (c_1_132 :: lane_underscore). (the ((proj_lane__2 c_1_132)))) c_1_lst) (the ((proj_lane__2 c_2_90))))) c_2_lst) in 
+			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (λ (c_98 :: iN). (mk_lane__2 Jnn_I16 c_98)) c_lst))))))"
+		| "ivswizzlop_underscore x0 f_underscore x2 x3 = None"
+	by pat_completeness auto
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:73.6-73.18 *)
 lemma ivswizzlop__is_wf :
 	"(wf_shape v_shape) ⟹
 	 (wf_uN 128 v_vec_underscore) ⟹
 	 (wf_uN 128 vec__0) ⟹
-	 (ret_val = (ivswizzlop_underscore v_shape f_underscore v_vec_underscore vec__0)) ⟹
+	 ((ivswizzlop_underscore v_shape f_underscore v_vec_underscore vec__0) ≠ None) ⟹
+	 (ret_val = (the ((ivswizzlop_underscore v_shape f_underscore v_vec_underscore vec__0)))) ⟹
 	 (wf_uN 128 ret_val)"
 sorry
 
-(* Inductive Relations Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:74.6-74.18 *)
-inductive fun_ivshufflop_underscore :: "shape ⇒ (laneidx list) ⇒ vec_underscore ⇒ vec_underscore ⇒ vec_underscore ⇒ bool" where
-	  fun_ivshufflop__case_0 :
-		"(c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_1)) ⟹
-		 (c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_2)) ⟹
-		 list_all (λ (i_108620 :: laneidx). ((proj_uN_0 i_108620) < (length (c_1_lst @ c_2_lst)))) i_lst ⟹
-		 (c_lst = (map (λ (i_108620 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_108620))) i_lst)) ⟹
-		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) ⟹
-		 fun_ivshufflop_underscore (X lanetype_I32 (mk_dim v_M)) i_lst v_1 v_2 (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) c_lst)"
-	| fun_ivshufflop__case_1 :
-		"(c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_1)) ⟹
-		 (c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_2)) ⟹
-		 list_all (λ (i_108627 :: laneidx). ((proj_uN_0 i_108627) < (length (c_1_lst @ c_2_lst)))) i_lst ⟹
-		 (c_lst = (map (λ (i_108627 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_108627))) i_lst)) ⟹
-		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) ⟹
-		 fun_ivshufflop_underscore (X lanetype_I64 (mk_dim v_M)) i_lst v_1 v_2 (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) c_lst)"
-	| fun_ivshufflop__case_2 :
-		"(c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_1)) ⟹
-		 (c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_2)) ⟹
-		 list_all (λ (i_108634 :: laneidx). ((proj_uN_0 i_108634) < (length (c_1_lst @ c_2_lst)))) i_lst ⟹
-		 (c_lst = (map (λ (i_108634 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_108634))) i_lst)) ⟹
-		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) ⟹
-		 fun_ivshufflop_underscore (X lanetype_I8 (mk_dim v_M)) i_lst v_1 v_2 (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) c_lst)"
-	| fun_ivshufflop__case_3 :
-		"(c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_1)) ⟹
-		 (c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_2)) ⟹
-		 list_all (λ (i_108641 :: laneidx). ((proj_uN_0 i_108641) < (length (c_1_lst @ c_2_lst)))) i_lst ⟹
-		 (c_lst = (map (λ (i_108641 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_108641))) i_lst)) ⟹
-		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) ⟹
-		 fun_ivshufflop_underscore (X lanetype_I16 (mk_dim v_M)) i_lst v_1 v_2 (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) c_lst)"
+(* Auxiliary Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:74.1-74.85 *)
+function (sequential) ivshufflop_underscore :: "shape ⇒ (laneidx list) ⇒ vec_underscore ⇒ vec_underscore ⇒ (vec_underscore option)" where
+		  "ivshufflop_underscore (X lanetype_I32 (mk_dim v_M)) i_lst v_1 v_2 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_1) in 
+			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v_2) in 
+			 (let c_lst = (map (λ (i_139087 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_139087))) i_lst) in 
+			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) c_lst)))))"
+		| "ivshufflop_underscore (X lanetype_I64 (mk_dim v_M)) i_lst v_1 v_2 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_1) in 
+			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v_2) in 
+			 (let c_lst = (map (λ (i_139093 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_139093))) i_lst) in 
+			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) c_lst)))))"
+		| "ivshufflop_underscore (X lanetype_I8 (mk_dim v_M)) i_lst v_1 v_2 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_1) in 
+			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v_2) in 
+			 (let c_lst = (map (λ (i_139099 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_139099))) i_lst) in 
+			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) c_lst)))))"
+		| "ivshufflop_underscore (X lanetype_I16 (mk_dim v_M)) i_lst v_1 v_2 = 
+			 (let c_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_1) in 
+			 (let c_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v_2) in 
+			 (let c_lst = (map (λ (i_139105 :: laneidx). ((c_1_lst @ c_2_lst) ! (proj_uN_0 i_139105))) i_lst) in 
+			 (Some (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) c_lst)))))"
+		| "ivshufflop_underscore x0 x1 x2 x3 = None"
+	by pat_completeness auto
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:74.6-74.18 *)
 lemma ivshufflop__is_wf :
-	"(fun_ivshufflop_underscore v_shape var_0_lst v_vec_underscore vec__0 var_0) ⟹
-	 (wf_shape v_shape) ⟹
+	"(wf_shape v_shape) ⟹
 	 list_all (λ (var_0 :: laneidx). (wf_uN 8 var_0)) var_0_lst ⟹
 	 (wf_uN 128 v_vec_underscore) ⟹
 	 (wf_uN 128 vec__0) ⟹
-	 (ret_val = var_0) ⟹
+	 ((ivshufflop_underscore v_shape var_0_lst v_vec_underscore vec__0) ≠ None) ⟹
+	 (ret_val = (the ((ivshufflop_underscore v_shape var_0_lst v_vec_underscore vec__0)))) ⟹
 	 (wf_uN 128 ret_val)"
 sorry
 
@@ -10418,41 +10537,53 @@ inductive fun_vunop_underscore :: "shape ⇒ vunop_underscore ⇒ vec_underscore
 		"(v_M = M_0) ⟹
 		 fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_M_NEAREST) v (fvunop_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) fnearest_underscore v)"
 	| fun_vunop__case_14 :
-		"(v_M = M_0) ⟹
-		 fun_vunop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 M_0 vunop_Jnn_M_ABS) v (ivunop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) iabs_underscore v)"
+		"((ivunop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) iabs_underscore v) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vunop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 M_0 vunop_Jnn_M_ABS) v (the ((ivunop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) iabs_underscore v)))"
 	| fun_vunop__case_15 :
-		"(v_M = M_0) ⟹
-		 fun_vunop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 M_0 vunop_Jnn_M_ABS) v (ivunop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) iabs_underscore v)"
+		"((ivunop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) iabs_underscore v) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vunop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 M_0 vunop_Jnn_M_ABS) v (the ((ivunop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) iabs_underscore v)))"
 	| fun_vunop__case_16 :
-		"(v_M = M_0) ⟹
-		 fun_vunop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 M_0 vunop_Jnn_M_ABS) v (ivunop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) iabs_underscore v)"
+		"((ivunop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) iabs_underscore v) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vunop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 M_0 vunop_Jnn_M_ABS) v (the ((ivunop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) iabs_underscore v)))"
 	| fun_vunop__case_17 :
-		"(v_M = M_0) ⟹
-		 fun_vunop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 M_0 vunop_Jnn_M_ABS) v (ivunop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) iabs_underscore v)"
+		"((ivunop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) iabs_underscore v) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vunop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 M_0 vunop_Jnn_M_ABS) v (the ((ivunop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) iabs_underscore v)))"
 	| fun_vunop__case_18 :
-		"(v_M = M_0) ⟹
-		 fun_vunop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 M_0 vunop_Jnn_M_NEG) v (ivunop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) ineg_underscore v)"
+		"((ivunop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) ineg_underscore v) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vunop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 M_0 vunop_Jnn_M_NEG) v (the ((ivunop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) ineg_underscore v)))"
 	| fun_vunop__case_19 :
-		"(v_M = M_0) ⟹
-		 fun_vunop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 M_0 vunop_Jnn_M_NEG) v (ivunop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) ineg_underscore v)"
+		"((ivunop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) ineg_underscore v) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vunop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 M_0 vunop_Jnn_M_NEG) v (the ((ivunop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) ineg_underscore v)))"
 	| fun_vunop__case_20 :
-		"(v_M = M_0) ⟹
-		 fun_vunop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 M_0 vunop_Jnn_M_NEG) v (ivunop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) ineg_underscore v)"
+		"((ivunop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) ineg_underscore v) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vunop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 M_0 vunop_Jnn_M_NEG) v (the ((ivunop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) ineg_underscore v)))"
 	| fun_vunop__case_21 :
-		"(v_M = M_0) ⟹
-		 fun_vunop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 M_0 vunop_Jnn_M_NEG) v (ivunop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) ineg_underscore v)"
+		"((ivunop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) ineg_underscore v) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vunop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 M_0 vunop_Jnn_M_NEG) v (the ((ivunop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) ineg_underscore v)))"
 	| fun_vunop__case_22 :
-		"(v_M = M_0) ⟹
-		 fun_vunop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 M_0 vunop_Jnn_M_POPCNT) v (ivunop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) ipopcnt_underscore v)"
+		"((ivunop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) ipopcnt_underscore v) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vunop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 M_0 vunop_Jnn_M_POPCNT) v (the ((ivunop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) ipopcnt_underscore v)))"
 	| fun_vunop__case_23 :
-		"(v_M = M_0) ⟹
-		 fun_vunop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 M_0 vunop_Jnn_M_POPCNT) v (ivunop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) ipopcnt_underscore v)"
+		"((ivunop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) ipopcnt_underscore v) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vunop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 M_0 vunop_Jnn_M_POPCNT) v (the ((ivunop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) ipopcnt_underscore v)))"
 	| fun_vunop__case_24 :
-		"(v_M = M_0) ⟹
-		 fun_vunop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 M_0 vunop_Jnn_M_POPCNT) v (ivunop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) ipopcnt_underscore v)"
+		"((ivunop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) ipopcnt_underscore v) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vunop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 M_0 vunop_Jnn_M_POPCNT) v (the ((ivunop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) ipopcnt_underscore v)))"
 	| fun_vunop__case_25 :
-		"(v_M = M_0) ⟹
-		 fun_vunop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 M_0 vunop_Jnn_M_POPCNT) v (ivunop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) ipopcnt_underscore v)"
+		"((ivunop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) ipopcnt_underscore v) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vunop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 M_0 vunop_Jnn_M_POPCNT) v (the ((ivunop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) ipopcnt_underscore v)))"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:172.6-172.13 *)
 lemma vunop__is_wf :
@@ -10467,113 +10598,149 @@ sorry
 (* Inductive Relations Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:174.6-174.14 *)
 inductive fun_vbinop_underscore :: "shape ⇒ vbinop_underscore ⇒ vec_underscore ⇒ vec_underscore ⇒ (vec_underscore list) ⇒ bool" where
 	  fun_vbinop__case_0 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 vbinop_Jnn_M_ADD) v_1 v_2 (ivbinop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) iadd_underscore v_1 v_2)"
+		"((ivbinop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) iadd_underscore v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 vbinop_Jnn_M_ADD) v_1 v_2 (the ((ivbinop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) iadd_underscore v_1 v_2)))"
 	| fun_vbinop__case_1 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 vbinop_Jnn_M_ADD) v_1 v_2 (ivbinop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) iadd_underscore v_1 v_2)"
+		"((ivbinop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) iadd_underscore v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 vbinop_Jnn_M_ADD) v_1 v_2 (the ((ivbinop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) iadd_underscore v_1 v_2)))"
 	| fun_vbinop__case_2 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 vbinop_Jnn_M_ADD) v_1 v_2 (ivbinop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) iadd_underscore v_1 v_2)"
+		"((ivbinop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) iadd_underscore v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 vbinop_Jnn_M_ADD) v_1 v_2 (the ((ivbinop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) iadd_underscore v_1 v_2)))"
 	| fun_vbinop__case_3 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 vbinop_Jnn_M_ADD) v_1 v_2 (ivbinop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) iadd_underscore v_1 v_2)"
+		"((ivbinop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) iadd_underscore v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 vbinop_Jnn_M_ADD) v_1 v_2 (the ((ivbinop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) iadd_underscore v_1 v_2)))"
 	| fun_vbinop__case_4 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 vbinop_Jnn_M_SUB) v_1 v_2 (ivbinop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) isub_underscore v_1 v_2)"
+		"((ivbinop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) isub_underscore v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 vbinop_Jnn_M_SUB) v_1 v_2 (the ((ivbinop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) isub_underscore v_1 v_2)))"
 	| fun_vbinop__case_5 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 vbinop_Jnn_M_SUB) v_1 v_2 (ivbinop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) isub_underscore v_1 v_2)"
+		"((ivbinop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) isub_underscore v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 vbinop_Jnn_M_SUB) v_1 v_2 (the ((ivbinop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) isub_underscore v_1 v_2)))"
 	| fun_vbinop__case_6 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 vbinop_Jnn_M_SUB) v_1 v_2 (ivbinop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) isub_underscore v_1 v_2)"
+		"((ivbinop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) isub_underscore v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 vbinop_Jnn_M_SUB) v_1 v_2 (the ((ivbinop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) isub_underscore v_1 v_2)))"
 	| fun_vbinop__case_7 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 vbinop_Jnn_M_SUB) v_1 v_2 (ivbinop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) isub_underscore v_1 v_2)"
+		"((ivbinop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) isub_underscore v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 vbinop_Jnn_M_SUB) v_1 v_2 (the ((ivbinop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) isub_underscore v_1 v_2)))"
 	| fun_vbinop__case_8 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 vbinop_Jnn_M_MUL) v_1 v_2 (ivbinop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) imul_underscore v_1 v_2)"
+		"((ivbinop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) imul_underscore v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 vbinop_Jnn_M_MUL) v_1 v_2 (the ((ivbinop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) imul_underscore v_1 v_2)))"
 	| fun_vbinop__case_9 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 vbinop_Jnn_M_MUL) v_1 v_2 (ivbinop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) imul_underscore v_1 v_2)"
+		"((ivbinop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) imul_underscore v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 vbinop_Jnn_M_MUL) v_1 v_2 (the ((ivbinop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) imul_underscore v_1 v_2)))"
 	| fun_vbinop__case_10 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 vbinop_Jnn_M_MUL) v_1 v_2 (ivbinop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) imul_underscore v_1 v_2)"
+		"((ivbinop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) imul_underscore v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 vbinop_Jnn_M_MUL) v_1 v_2 (the ((ivbinop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) imul_underscore v_1 v_2)))"
 	| fun_vbinop__case_11 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 vbinop_Jnn_M_MUL) v_1 v_2 (ivbinop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) imul_underscore v_1 v_2)"
+		"((ivbinop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) imul_underscore v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 vbinop_Jnn_M_MUL) v_1 v_2 (the ((ivbinop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) imul_underscore v_1 v_2)))"
 	| fun_vbinop__case_12 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (ADD_SAT v_sx)) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) iadd_sat_underscore v_sx v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) iadd_sat_underscore v_sx v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (ADD_SAT v_sx)) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) iadd_sat_underscore v_sx v_1 v_2)))"
 	| fun_vbinop__case_13 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (ADD_SAT v_sx)) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) iadd_sat_underscore v_sx v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) iadd_sat_underscore v_sx v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (ADD_SAT v_sx)) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) iadd_sat_underscore v_sx v_1 v_2)))"
 	| fun_vbinop__case_14 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (ADD_SAT v_sx)) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) iadd_sat_underscore v_sx v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) iadd_sat_underscore v_sx v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (ADD_SAT v_sx)) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) iadd_sat_underscore v_sx v_1 v_2)))"
 	| fun_vbinop__case_15 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (ADD_SAT v_sx)) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) iadd_sat_underscore v_sx v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) iadd_sat_underscore v_sx v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (ADD_SAT v_sx)) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) iadd_sat_underscore v_sx v_1 v_2)))"
 	| fun_vbinop__case_16 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (SUB_SAT v_sx)) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) isub_sat_underscore v_sx v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) isub_sat_underscore v_sx v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (SUB_SAT v_sx)) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) isub_sat_underscore v_sx v_1 v_2)))"
 	| fun_vbinop__case_17 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (SUB_SAT v_sx)) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) isub_sat_underscore v_sx v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) isub_sat_underscore v_sx v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (SUB_SAT v_sx)) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) isub_sat_underscore v_sx v_1 v_2)))"
 	| fun_vbinop__case_18 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (SUB_SAT v_sx)) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) isub_sat_underscore v_sx v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) isub_sat_underscore v_sx v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (SUB_SAT v_sx)) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) isub_sat_underscore v_sx v_1 v_2)))"
 	| fun_vbinop__case_19 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (SUB_SAT v_sx)) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) isub_sat_underscore v_sx v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) isub_sat_underscore v_sx v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (SUB_SAT v_sx)) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) isub_sat_underscore v_sx v_1 v_2)))"
 	| fun_vbinop__case_20 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (vbinop_Jnn_M_MIN v_sx)) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) imin_underscore v_sx v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) imin_underscore v_sx v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (vbinop_Jnn_M_MIN v_sx)) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) imin_underscore v_sx v_1 v_2)))"
 	| fun_vbinop__case_21 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (vbinop_Jnn_M_MIN v_sx)) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) imin_underscore v_sx v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) imin_underscore v_sx v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (vbinop_Jnn_M_MIN v_sx)) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) imin_underscore v_sx v_1 v_2)))"
 	| fun_vbinop__case_22 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (vbinop_Jnn_M_MIN v_sx)) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) imin_underscore v_sx v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) imin_underscore v_sx v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (vbinop_Jnn_M_MIN v_sx)) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) imin_underscore v_sx v_1 v_2)))"
 	| fun_vbinop__case_23 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (vbinop_Jnn_M_MIN v_sx)) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) imin_underscore v_sx v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) imin_underscore v_sx v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (vbinop_Jnn_M_MIN v_sx)) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) imin_underscore v_sx v_1 v_2)))"
 	| fun_vbinop__case_24 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (vbinop_Jnn_M_MAX v_sx)) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) imax_underscore v_sx v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) imax_underscore v_sx v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (vbinop_Jnn_M_MAX v_sx)) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) imax_underscore v_sx v_1 v_2)))"
 	| fun_vbinop__case_25 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (vbinop_Jnn_M_MAX v_sx)) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) imax_underscore v_sx v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) imax_underscore v_sx v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (vbinop_Jnn_M_MAX v_sx)) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) imax_underscore v_sx v_1 v_2)))"
 	| fun_vbinop__case_26 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (vbinop_Jnn_M_MAX v_sx)) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) imax_underscore v_sx v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) imax_underscore v_sx v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (vbinop_Jnn_M_MAX v_sx)) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) imax_underscore v_sx v_1 v_2)))"
 	| fun_vbinop__case_27 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (vbinop_Jnn_M_MAX v_sx)) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) imax_underscore v_sx v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) imax_underscore v_sx v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (vbinop_Jnn_M_MAX v_sx)) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) imax_underscore v_sx v_1 v_2)))"
 	| fun_vbinop__case_28 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 AVGRU) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) iavgr_underscore U v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) iavgr_underscore U v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 AVGRU) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) iavgr_underscore U v_1 v_2)))"
 	| fun_vbinop__case_29 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 AVGRU) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) iavgr_underscore U v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) iavgr_underscore U v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 AVGRU) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) iavgr_underscore U v_1 v_2)))"
 	| fun_vbinop__case_30 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 AVGRU) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) iavgr_underscore U v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) iavgr_underscore U v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 AVGRU) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) iavgr_underscore U v_1 v_2)))"
 	| fun_vbinop__case_31 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 AVGRU) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) iavgr_underscore U v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) iavgr_underscore U v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 AVGRU) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) iavgr_underscore U v_1 v_2)))"
 	| fun_vbinop__case_32 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 Q15MULR_SATS) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) iq15mulr_sat_underscore S v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) iq15mulr_sat_underscore S v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 Q15MULR_SATS) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) iq15mulr_sat_underscore S v_1 v_2)))"
 	| fun_vbinop__case_33 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 Q15MULR_SATS) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) iq15mulr_sat_underscore S v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) iq15mulr_sat_underscore S v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 Q15MULR_SATS) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) iq15mulr_sat_underscore S v_1 v_2)))"
 	| fun_vbinop__case_34 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 Q15MULR_SATS) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) iq15mulr_sat_underscore S v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) iq15mulr_sat_underscore S v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 Q15MULR_SATS) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) iq15mulr_sat_underscore S v_1 v_2)))"
 	| fun_vbinop__case_35 :
-		"(v_M = M_0) ⟹
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 Q15MULR_SATS) v_1 v_2 (ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) iq15mulr_sat_underscore S v_1 v_2)"
+		"((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) iq15mulr_sat_underscore S v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 Q15MULR_SATS) v_1 v_2 (the ((ivbinopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) iq15mulr_sat_underscore S v_1 v_2)))"
 	| fun_vbinop__case_36 :
 		"(v_M = M_0) ⟹
 		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 RELAXED_Q15MULRS) v_1 v_2 (ivbinopsxnd_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) irelaxed_q15mulr_underscore S v_1 v_2)"
@@ -11088,29 +11255,37 @@ sorry
 (* Inductive Relations Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:186.6-186.16 *)
 inductive fun_vshiftop_underscore :: "ishape ⇒ vshiftop_underscore ⇒ vec_underscore ⇒ u32 ⇒ vec_underscore ⇒ bool" where
 	  fun_vshiftop__case_0 :
-		"(v_M = M_0) ⟹
-		 fun_vshiftop_underscore (mk_ishape (X lanetype_I32 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I32 M_0 vshiftop_Jnn_M_SHL) v i (ivshiftop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) ishl_underscore v i)"
+		"((ivshiftop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) ishl_underscore v i) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vshiftop_underscore (mk_ishape (X lanetype_I32 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I32 M_0 vshiftop_Jnn_M_SHL) v i (the ((ivshiftop_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) ishl_underscore v i)))"
 	| fun_vshiftop__case_1 :
-		"(v_M = M_0) ⟹
-		 fun_vshiftop_underscore (mk_ishape (X lanetype_I64 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I64 M_0 vshiftop_Jnn_M_SHL) v i (ivshiftop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) ishl_underscore v i)"
+		"((ivshiftop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) ishl_underscore v i) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vshiftop_underscore (mk_ishape (X lanetype_I64 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I64 M_0 vshiftop_Jnn_M_SHL) v i (the ((ivshiftop_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) ishl_underscore v i)))"
 	| fun_vshiftop__case_2 :
-		"(v_M = M_0) ⟹
-		 fun_vshiftop_underscore (mk_ishape (X lanetype_I8 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I8 M_0 vshiftop_Jnn_M_SHL) v i (ivshiftop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) ishl_underscore v i)"
+		"((ivshiftop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) ishl_underscore v i) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vshiftop_underscore (mk_ishape (X lanetype_I8 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I8 M_0 vshiftop_Jnn_M_SHL) v i (the ((ivshiftop_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) ishl_underscore v i)))"
 	| fun_vshiftop__case_3 :
-		"(v_M = M_0) ⟹
-		 fun_vshiftop_underscore (mk_ishape (X lanetype_I16 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I16 M_0 vshiftop_Jnn_M_SHL) v i (ivshiftop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) ishl_underscore v i)"
+		"((ivshiftop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) ishl_underscore v i) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vshiftop_underscore (mk_ishape (X lanetype_I16 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I16 M_0 vshiftop_Jnn_M_SHL) v i (the ((ivshiftop_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) ishl_underscore v i)))"
 	| fun_vshiftop__case_4 :
-		"(v_M = M_0) ⟹
-		 fun_vshiftop_underscore (mk_ishape (X lanetype_I32 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I32 M_0 (vshiftop_Jnn_M_SHR v_sx)) v i (ivshiftopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) ishr_underscore v_sx v i)"
+		"((ivshiftopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) ishr_underscore v_sx v i) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vshiftop_underscore (mk_ishape (X lanetype_I32 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I32 M_0 (vshiftop_Jnn_M_SHR v_sx)) v i (the ((ivshiftopsx_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) ishr_underscore v_sx v i)))"
 	| fun_vshiftop__case_5 :
-		"(v_M = M_0) ⟹
-		 fun_vshiftop_underscore (mk_ishape (X lanetype_I64 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I64 M_0 (vshiftop_Jnn_M_SHR v_sx)) v i (ivshiftopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) ishr_underscore v_sx v i)"
+		"((ivshiftopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) ishr_underscore v_sx v i) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vshiftop_underscore (mk_ishape (X lanetype_I64 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I64 M_0 (vshiftop_Jnn_M_SHR v_sx)) v i (the ((ivshiftopsx_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) ishr_underscore v_sx v i)))"
 	| fun_vshiftop__case_6 :
-		"(v_M = M_0) ⟹
-		 fun_vshiftop_underscore (mk_ishape (X lanetype_I8 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I8 M_0 (vshiftop_Jnn_M_SHR v_sx)) v i (ivshiftopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) ishr_underscore v_sx v i)"
+		"((ivshiftopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) ishr_underscore v_sx v i) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vshiftop_underscore (mk_ishape (X lanetype_I8 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I8 M_0 (vshiftop_Jnn_M_SHR v_sx)) v i (the ((ivshiftopsx_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) ishr_underscore v_sx v i)))"
 	| fun_vshiftop__case_7 :
-		"(v_M = M_0) ⟹
-		 fun_vshiftop_underscore (mk_ishape (X lanetype_I16 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I16 M_0 (vshiftop_Jnn_M_SHR v_sx)) v i (ivshiftopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) ishr_underscore v_sx v i)"
+		"((ivshiftopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) ishr_underscore v_sx v i) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vshiftop_underscore (mk_ishape (X lanetype_I16 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I16 M_0 (vshiftop_Jnn_M_SHR v_sx)) v i (the ((ivshiftopsx_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) ishr_underscore v_sx v i)))"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:186.6-186.16 *)
 lemma vshiftop__is_wf :
@@ -11150,11 +11325,13 @@ sorry
 (* Inductive Relations Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:190.6-190.17 *)
 inductive fun_vswizzlop_underscore :: "bshape ⇒ vswizzlop_underscore ⇒ vec_underscore ⇒ vec_underscore ⇒ vec_underscore ⇒ bool" where
 	  fun_vswizzlop__case_0 :
-		"(v_M = M_0) ⟹
-		 fun_vswizzlop_underscore (mk_bshape (X lanetype_I8 (mk_dim v_M))) (mk_vswizzlop__0 M_0 SWIZZLE) v_1 v_2 (ivswizzlop_underscore (X lanetype_I8 (mk_dim v_M)) iswizzle_lane_underscore v_1 v_2)"
+		"((ivswizzlop_underscore (X lanetype_I8 (mk_dim v_M)) iswizzle_lane_underscore v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vswizzlop_underscore (mk_bshape (X lanetype_I8 (mk_dim v_M))) (mk_vswizzlop__0 M_0 SWIZZLE) v_1 v_2 (the ((ivswizzlop_underscore (X lanetype_I8 (mk_dim v_M)) iswizzle_lane_underscore v_1 v_2)))"
 	| fun_vswizzlop__case_1 :
-		"(v_M = M_0) ⟹
-		 fun_vswizzlop_underscore (mk_bshape (X lanetype_I8 (mk_dim v_M))) (mk_vswizzlop__0 M_0 RELAXED_SWIZZLE) v_1 v_2 (ivswizzlop_underscore (X lanetype_I8 (mk_dim v_M)) irelaxed_swizzle_lane_underscore v_1 v_2)"
+		"((ivswizzlop_underscore (X lanetype_I8 (mk_dim v_M)) irelaxed_swizzle_lane_underscore v_1 v_2) ≠ None) ⟹
+		 (v_M = M_0) ⟹
+		 fun_vswizzlop_underscore (mk_bshape (X lanetype_I8 (mk_dim v_M))) (mk_vswizzlop__0 M_0 RELAXED_SWIZZLE) v_1 v_2 (the ((ivswizzlop_underscore (X lanetype_I8 (mk_dim v_M)) irelaxed_swizzle_lane_underscore v_1 v_2)))"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:190.6-190.17 *)
 lemma vswizzlop__is_wf :
@@ -11167,20 +11344,20 @@ lemma vswizzlop__is_wf :
 	 (wf_uN 128 ret_val)"
 sorry
 
-(* Inductive Relations Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:192.6-192.17 *)
-inductive fun_vshufflop_underscore :: "bshape ⇒ (laneidx list) ⇒ vec_underscore ⇒ vec_underscore ⇒ vec_underscore ⇒ bool" where
-	  fun_vshufflop__case_0 :
-		"(fun_ivshufflop_underscore (X lanetype_I8 (mk_dim v_M)) i_lst v_1 v_2 var_0) ⟹
-		 fun_vshufflop_underscore (mk_bshape (X lanetype_I8 (mk_dim v_M))) i_lst v_1 v_2 var_0"
+(* Auxiliary Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:192.1-193.40 *)
+function (sequential) vshufflop_underscore :: "bshape ⇒ (laneidx list) ⇒ vec_underscore ⇒ vec_underscore ⇒ (vec_underscore option)" where
+		  "vshufflop_underscore (mk_bshape (X lanetype_I8 (mk_dim v_M))) i_lst v_1 v_2 = (ivshufflop_underscore (X lanetype_I8 (mk_dim v_M)) i_lst v_1 v_2)"
+		| "vshufflop_underscore x0 x1 x2 x3 = None"
+	by pat_completeness auto
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/3.2-numerics.vector.spectec:192.6-192.17 *)
 lemma vshufflop__is_wf :
-	"(fun_vshufflop_underscore v_bshape var_0_lst v_vec_underscore vec__0 var_0) ⟹
-	 (wf_bshape v_bshape) ⟹
+	"(wf_bshape v_bshape) ⟹
 	 list_all (λ (var_0 :: laneidx). (wf_uN 8 var_0)) var_0_lst ⟹
 	 (wf_uN 128 v_vec_underscore) ⟹
 	 (wf_uN 128 vec__0) ⟹
-	 (ret_val = var_0) ⟹
+	 ((vshufflop_underscore v_bshape var_0_lst v_vec_underscore vec__0) ≠ None) ⟹
+	 (ret_val = (the ((vshufflop_underscore v_bshape var_0_lst v_vec_underscore vec__0)))) ⟹
 	 (wf_uN 128 ret_val)"
 sorry
 
@@ -13573,428 +13750,428 @@ inductive Step_pure_before_ref_eq_true :: "(instr list) ⇒ bool" where
 		"((ref_1 = REF_NULL_ADDR) ∧ (ref_2 = REF_NULL_ADDR)) ⟹
 		 (wf_ref ref_1) ⟹
 		 (wf_ref ref_2) ⟹
-		 (wf_instr (instr_subcase_4 REF_EQ)) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))) ⟹
+		 (wf_instr (instr_sc4 REF_EQ)) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))) ⟹
 		 (wf_ref REF_NULL_ADDR) ⟹
-		 Step_pure_before_ref_eq_true [(instr_ref ref_1), (instr_ref ref_2), (instr_subcase_4 REF_EQ)]"
+		 Step_pure_before_ref_eq_true [(instr_ref ref_1), (instr_ref ref_2), (instr_sc4 REF_EQ)]"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:6.1-6.88 *)
 inductive Step_pure :: "(instr list) ⇒ (instr list) ⇒ bool" where
 	  Step_pure__unreachable :
-		"(wf_instr (instr_subcase_0 UNREACHABLE)) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_pure [(instr_subcase_0 UNREACHABLE)] [(instr_subcase_9 TRAP)]"
+		"(wf_instr (instr_sc0 UNREACHABLE)) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_pure [(instr_sc0 UNREACHABLE)] [(instr_sc9 TRAP)]"
 	| Step_pure__nop :
-		"(wf_instr (instr_subcase_0 NOP)) ⟹
-		 Step_pure [(instr_subcase_0 NOP)] []"
+		"(wf_instr (instr_sc0 NOP)) ⟹
+		 Step_pure [(instr_sc0 NOP)] []"
 	| Step_pure__drop :
 		"(wf_val v_val) ⟹
-		 (wf_instr (instr_subcase_0 DROP)) ⟹
-		 Step_pure [(instr_val v_val), (instr_subcase_0 DROP)] []"
+		 (wf_instr (instr_sc0 DROP)) ⟹
+		 Step_pure [(instr_val v_val), (instr_sc0 DROP)] []"
 	| select_true :
 		"((proj_num__0 c) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 c)))) ≠ 0) ⟹
 		 (wf_val val_1) ⟹
 		 (wf_val val_2) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))) ⟹
-		 (wf_instr (instr_subcase_0 (SELECT t_lst_opt))) ⟹
-		 Step_pure [(instr_val val_1), (instr_val val_2), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c)), (instr_subcase_0 (SELECT t_lst_opt))] [(instr_val val_1)]"
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 c))) ⟹
+		 (wf_instr (instr_sc0 (SELECT t_lst_opt))) ⟹
+		 Step_pure [(instr_val val_1), (instr_val val_2), (instr_sc6 (instr_st6_CONST numtype_I32 c)), (instr_sc0 (SELECT t_lst_opt))] [(instr_val val_1)]"
 	| select_false :
 		"((proj_num__0 c) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 c)))) = 0) ⟹
 		 (wf_val val_1) ⟹
 		 (wf_val val_2) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))) ⟹
-		 (wf_instr (instr_subcase_0 (SELECT t_lst_opt))) ⟹
-		 Step_pure [(instr_val val_1), (instr_val val_2), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c)), (instr_subcase_0 (SELECT t_lst_opt))] [(instr_val val_2)]"
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 c))) ⟹
+		 (wf_instr (instr_sc0 (SELECT t_lst_opt))) ⟹
+		 Step_pure [(instr_val val_1), (instr_val val_2), (instr_sc6 (instr_st6_CONST numtype_I32 c)), (instr_sc0 (SELECT t_lst_opt))] [(instr_val val_2)]"
 	| if_true :
 		"((proj_num__0 c) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 c)))) ≠ 0) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))) ⟹
-		 (wf_instr (instr_subcase_10 (IFELSE bt instr_1_lst instr_2_lst))) ⟹
-		 (wf_instr (instr_subcase_9 (BLOCK bt instr_1_lst))) ⟹
-		 Step_pure [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c)), (instr_subcase_10 (IFELSE bt instr_1_lst instr_2_lst))] [(instr_subcase_9 (BLOCK bt instr_1_lst))]"
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 c))) ⟹
+		 (wf_instr (instr_sc10 (IFELSE bt instr_1_lst instr_2_lst))) ⟹
+		 (wf_instr (instr_sc9 (BLOCK bt instr_1_lst))) ⟹
+		 Step_pure [(instr_sc6 (instr_st6_CONST numtype_I32 c)), (instr_sc10 (IFELSE bt instr_1_lst instr_2_lst))] [(instr_sc9 (BLOCK bt instr_1_lst))]"
 	| if_false :
 		"((proj_num__0 c) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 c)))) = 0) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))) ⟹
-		 (wf_instr (instr_subcase_10 (IFELSE bt instr_1_lst instr_2_lst))) ⟹
-		 (wf_instr (instr_subcase_9 (BLOCK bt instr_2_lst))) ⟹
-		 Step_pure [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c)), (instr_subcase_10 (IFELSE bt instr_1_lst instr_2_lst))] [(instr_subcase_9 (BLOCK bt instr_2_lst))]"
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 c))) ⟹
+		 (wf_instr (instr_sc10 (IFELSE bt instr_1_lst instr_2_lst))) ⟹
+		 (wf_instr (instr_sc9 (BLOCK bt instr_2_lst))) ⟹
+		 Step_pure [(instr_sc6 (instr_st6_CONST numtype_I32 c)), (instr_sc10 (IFELSE bt instr_1_lst instr_2_lst))] [(instr_sc9 (BLOCK bt instr_2_lst))]"
 	| label_vals :
-		"(wf_instr (instr_subcase_10 (LABEL_underscore v_n instr_lst (map (λ (v_val :: val). (instr_val v_val)) val_lst)))) ⟹
-		 Step_pure [(instr_subcase_10 (LABEL_underscore v_n instr_lst (map (λ (v_val :: val). (instr_val v_val)) val_lst)))] (map (λ (v_val :: val). (instr_val v_val)) val_lst)"
+		"(wf_instr (instr_sc10 (LABEL_underscore v_n instr_lst (map (λ (v_val :: val). (instr_val v_val)) val_lst)))) ⟹
+		 Step_pure [(instr_sc10 (LABEL_underscore v_n instr_lst (map (λ (v_val :: val). (instr_val v_val)) val_lst)))] (map (λ (v_val :: val). (instr_val v_val)) val_lst)"
 	| br_label_zero :
 		"((proj_uN_0 l) = 0) ⟹
-		 (wf_instr (instr_subcase_10 (LABEL_underscore v_n instr'_lst ((((map (λ (val' :: val). (instr_val val')) val'_lst) @ (map (λ (v_val :: val). (instr_val v_val)) val_lst)) @ [(instr_subcase_0 (BR l))]) @ instr_lst)))) ⟹
+		 (wf_instr (instr_sc10 (LABEL_underscore v_n instr'_lst ((((map (λ (val' :: val). (instr_val val')) val'_lst) @ (map (λ (v_val :: val). (instr_val v_val)) val_lst)) @ [(instr_sc0 (BR l))]) @ instr_lst)))) ⟹
 		 (v_n = (length val_lst)) ⟹
-		 Step_pure [(instr_subcase_10 (LABEL_underscore v_n instr'_lst ((((map (λ (val' :: val). (instr_val val')) val'_lst) @ (map (λ (v_val :: val). (instr_val v_val)) val_lst)) @ [(instr_subcase_0 (BR l))]) @ instr_lst)))] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ instr'_lst)"
+		 Step_pure [(instr_sc10 (LABEL_underscore v_n instr'_lst ((((map (λ (val' :: val). (instr_val val')) val'_lst) @ (map (λ (v_val :: val). (instr_val v_val)) val_lst)) @ [(instr_sc0 (BR l))]) @ instr_lst)))] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ instr'_lst)"
 	| br_label_succ :
 		"((proj_uN_0 l) > 0) ⟹
-		 (wf_instr (instr_subcase_10 (LABEL_underscore v_n instr'_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_0 (BR l))]) @ instr_lst)))) ⟹
-		 (wf_instr (instr_subcase_0 (BR (mk_uN ((((proj_uN_0 l) :: nat) - (1 :: nat)) :: nat))))) ⟹
-		 Step_pure [(instr_subcase_10 (LABEL_underscore v_n instr'_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_0 (BR l))]) @ instr_lst)))] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_0 (BR (mk_uN ((((proj_uN_0 l) :: nat) - (1 :: nat)) :: nat))))])"
+		 (wf_instr (instr_sc10 (LABEL_underscore v_n instr'_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc0 (BR l))]) @ instr_lst)))) ⟹
+		 (wf_instr (instr_sc0 (BR (mk_uN ((((proj_uN_0 l) :: nat) - (1 :: nat)) :: nat))))) ⟹
+		 Step_pure [(instr_sc10 (LABEL_underscore v_n instr'_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc0 (BR l))]) @ instr_lst)))] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc0 (BR (mk_uN ((((proj_uN_0 l) :: nat) - (1 :: nat)) :: nat))))])"
 	| br_handler :
-		"(wf_instr (instr_subcase_10 (HANDLER_underscore v_n catch_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_0 (BR l))]) @ instr_lst)))) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
-		 Step_pure [(instr_subcase_10 (HANDLER_underscore v_n catch_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_0 (BR l))]) @ instr_lst)))] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_0 (BR l))])"
+		"(wf_instr (instr_sc10 (HANDLER_underscore v_n catch_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc0 (BR l))]) @ instr_lst)))) ⟹
+		 (wf_instr (instr_sc0 (BR l))) ⟹
+		 Step_pure [(instr_sc10 (HANDLER_underscore v_n catch_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc0 (BR l))]) @ instr_lst)))] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc0 (BR l))])"
 	| br_if_true :
 		"((proj_num__0 c) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 c)))) ≠ 0) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))) ⟹
-		 (wf_instr (instr_subcase_0 (BR_IF l))) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
-		 Step_pure [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c)), (instr_subcase_0 (BR_IF l))] [(instr_subcase_0 (BR l))]"
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 c))) ⟹
+		 (wf_instr (instr_sc0 (BR_IF l))) ⟹
+		 (wf_instr (instr_sc0 (BR l))) ⟹
+		 Step_pure [(instr_sc6 (instr_st6_CONST numtype_I32 c)), (instr_sc0 (BR_IF l))] [(instr_sc0 (BR l))]"
 	| br_if_false :
 		"((proj_num__0 c) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 c)))) = 0) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))) ⟹
-		 (wf_instr (instr_subcase_0 (BR_IF l))) ⟹
-		 Step_pure [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c)), (instr_subcase_0 (BR_IF l))] []"
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 c))) ⟹
+		 (wf_instr (instr_sc0 (BR_IF l))) ⟹
+		 Step_pure [(instr_sc6 (instr_st6_CONST numtype_I32 c)), (instr_sc0 (BR_IF l))] []"
 	| br_table_lt :
 		"((proj_uN_0 (the ((proj_num__0 i)))) < (length l_lst)) ⟹
 		 ((proj_num__0 i) ≠ None) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i))) ⟹
-		 (wf_instr (instr_subcase_0 (BR_TABLE l_lst l'))) ⟹
-		 (wf_instr (instr_subcase_0 (BR (l_lst ! (proj_uN_0 (the ((proj_num__0 i)))))))) ⟹
-		 Step_pure [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_0 (BR_TABLE l_lst l'))] [(instr_subcase_0 (BR (l_lst ! (proj_uN_0 (the ((proj_num__0 i)))))))]"
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 i))) ⟹
+		 (wf_instr (instr_sc0 (BR_TABLE l_lst l'))) ⟹
+		 (wf_instr (instr_sc0 (BR (l_lst ! (proj_uN_0 (the ((proj_num__0 i)))))))) ⟹
+		 Step_pure [(instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc0 (BR_TABLE l_lst l'))] [(instr_sc0 (BR (l_lst ! (proj_uN_0 (the ((proj_num__0 i)))))))]"
 	| br_table_ge :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 i)))) ≥ (length l_lst)) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i))) ⟹
-		 (wf_instr (instr_subcase_0 (BR_TABLE l_lst l'))) ⟹
-		 (wf_instr (instr_subcase_0 (BR l'))) ⟹
-		 Step_pure [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_0 (BR_TABLE l_lst l'))] [(instr_subcase_0 (BR l'))]"
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 i))) ⟹
+		 (wf_instr (instr_sc0 (BR_TABLE l_lst l'))) ⟹
+		 (wf_instr (instr_sc0 (BR l'))) ⟹
+		 Step_pure [(instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc0 (BR_TABLE l_lst l'))] [(instr_sc0 (BR l'))]"
 	| br_on_null_null :
 		"(v_val = val_REF_NULL_ADDR) ⟹
 		 (wf_val v_val) ⟹
-		 (wf_instr (instr_subcase_0 (BR_ON_NULL l))) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
+		 (wf_instr (instr_sc0 (BR_ON_NULL l))) ⟹
+		 (wf_instr (instr_sc0 (BR l))) ⟹
 		 (wf_val val_REF_NULL_ADDR) ⟹
-		 Step_pure [(instr_val v_val), (instr_subcase_0 (BR_ON_NULL l))] [(instr_subcase_0 (BR l))]"
+		 Step_pure [(instr_val v_val), (instr_sc0 (BR_ON_NULL l))] [(instr_sc0 (BR l))]"
 	| br_on_null_addr :
 		"(v_val ≠ val_REF_NULL_ADDR) ⟹
 		 (wf_val v_val) ⟹
-		 (wf_instr (instr_subcase_0 (BR_ON_NULL l))) ⟹
-		 Step_pure [(instr_val v_val), (instr_subcase_0 (BR_ON_NULL l))] [(instr_val v_val)]"
+		 (wf_instr (instr_sc0 (BR_ON_NULL l))) ⟹
+		 Step_pure [(instr_val v_val), (instr_sc0 (BR_ON_NULL l))] [(instr_val v_val)]"
 	| br_on_non_null_null :
 		"(v_val = val_REF_NULL_ADDR) ⟹
 		 (wf_val v_val) ⟹
-		 (wf_instr (instr_subcase_0 (BR_ON_NON_NULL l))) ⟹
+		 (wf_instr (instr_sc0 (BR_ON_NON_NULL l))) ⟹
 		 (wf_val val_REF_NULL_ADDR) ⟹
-		 Step_pure [(instr_val v_val), (instr_subcase_0 (BR_ON_NON_NULL l))] []"
+		 Step_pure [(instr_val v_val), (instr_sc0 (BR_ON_NON_NULL l))] []"
 	| br_on_non_null_addr :
 		"(v_val ≠ val_REF_NULL_ADDR) ⟹
 		 (wf_val v_val) ⟹
-		 (wf_instr (instr_subcase_0 (BR_ON_NON_NULL l))) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
-		 Step_pure [(instr_val v_val), (instr_subcase_0 (BR_ON_NON_NULL l))] [(instr_val v_val), (instr_subcase_0 (BR l))]"
+		 (wf_instr (instr_sc0 (BR_ON_NON_NULL l))) ⟹
+		 (wf_instr (instr_sc0 (BR l))) ⟹
+		 Step_pure [(instr_val v_val), (instr_sc0 (BR_ON_NON_NULL l))] [(instr_val v_val), (instr_sc0 (BR l))]"
 	| Step_pure__call_indirect :
-		"(wf_instr (instr_subcase_1 (CALL_INDIRECT x yy))) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_GET x))) ⟹
-		 (wf_instr (instr_subcase_4 (REF_CAST (reftype_REF (Some NULL) (heaptype_typeuse yy))))) ⟹
-		 (wf_instr (instr_subcase_1 (CALL_REF yy))) ⟹
-		 Step_pure [(instr_subcase_1 (CALL_INDIRECT x yy))] [(instr_subcase_2 (TABLE_GET x)), (instr_subcase_4 (REF_CAST (reftype_REF (Some NULL) (heaptype_typeuse yy)))), (instr_subcase_1 (CALL_REF yy))]"
+		"(wf_instr (instr_sc1 (CALL_INDIRECT x yy))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_GET x))) ⟹
+		 (wf_instr (instr_sc4 (REF_CAST (reftype_REF (Some NULL) (heaptype_typeuse yy))))) ⟹
+		 (wf_instr (instr_sc1 (CALL_REF yy))) ⟹
+		 Step_pure [(instr_sc1 (CALL_INDIRECT x yy))] [(instr_sc2 (TABLE_GET x)), (instr_sc4 (REF_CAST (reftype_REF (Some NULL) (heaptype_typeuse yy)))), (instr_sc1 (CALL_REF yy))]"
 	| Step_pure__return_call_indirect :
-		"(wf_instr (instr_subcase_1 (RETURN_CALL_INDIRECT x yy))) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_GET x))) ⟹
-		 (wf_instr (instr_subcase_4 (REF_CAST (reftype_REF (Some NULL) (heaptype_typeuse yy))))) ⟹
-		 (wf_instr (instr_subcase_1 (RETURN_CALL_REF yy))) ⟹
-		 Step_pure [(instr_subcase_1 (RETURN_CALL_INDIRECT x yy))] [(instr_subcase_2 (TABLE_GET x)), (instr_subcase_4 (REF_CAST (reftype_REF (Some NULL) (heaptype_typeuse yy)))), (instr_subcase_1 (RETURN_CALL_REF yy))]"
+		"(wf_instr (instr_sc1 (RETURN_CALL_INDIRECT x yy))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_GET x))) ⟹
+		 (wf_instr (instr_sc4 (REF_CAST (reftype_REF (Some NULL) (heaptype_typeuse yy))))) ⟹
+		 (wf_instr (instr_sc1 (RETURN_CALL_REF yy))) ⟹
+		 Step_pure [(instr_sc1 (RETURN_CALL_INDIRECT x yy))] [(instr_sc2 (TABLE_GET x)), (instr_sc4 (REF_CAST (reftype_REF (Some NULL) (heaptype_typeuse yy)))), (instr_sc1 (RETURN_CALL_REF yy))]"
 	| frame_vals :
-		"(wf_instr (instr_subcase_10 (FRAME_underscore v_n f (map (λ (v_val :: val). (instr_val v_val)) val_lst)))) ⟹
+		"(wf_instr (instr_sc10 (FRAME_underscore v_n f (map (λ (v_val :: val). (instr_val v_val)) val_lst)))) ⟹
 		 (v_n = (length val_lst)) ⟹
-		 Step_pure [(instr_subcase_10 (FRAME_underscore v_n f (map (λ (v_val :: val). (instr_val v_val)) val_lst)))] (map (λ (v_val :: val). (instr_val v_val)) val_lst)"
+		 Step_pure [(instr_sc10 (FRAME_underscore v_n f (map (λ (v_val :: val). (instr_val v_val)) val_lst)))] (map (λ (v_val :: val). (instr_val v_val)) val_lst)"
 	| return_frame :
-		"(wf_instr (instr_subcase_10 (FRAME_underscore v_n f ((((map (λ (val' :: val). (instr_val val')) val'_lst) @ (map (λ (v_val :: val). (instr_val v_val)) val_lst)) @ [(instr_subcase_1 RETURN)]) @ instr_lst)))) ⟹
+		"(wf_instr (instr_sc10 (FRAME_underscore v_n f ((((map (λ (val' :: val). (instr_val val')) val'_lst) @ (map (λ (v_val :: val). (instr_val v_val)) val_lst)) @ [(instr_sc1 RETURN)]) @ instr_lst)))) ⟹
 		 (v_n = (length val_lst)) ⟹
-		 Step_pure [(instr_subcase_10 (FRAME_underscore v_n f ((((map (λ (val' :: val). (instr_val val')) val'_lst) @ (map (λ (v_val :: val). (instr_val v_val)) val_lst)) @ [(instr_subcase_1 RETURN)]) @ instr_lst)))] (map (λ (v_val :: val). (instr_val v_val)) val_lst)"
+		 Step_pure [(instr_sc10 (FRAME_underscore v_n f ((((map (λ (val' :: val). (instr_val val')) val'_lst) @ (map (λ (v_val :: val). (instr_val v_val)) val_lst)) @ [(instr_sc1 RETURN)]) @ instr_lst)))] (map (λ (v_val :: val). (instr_val v_val)) val_lst)"
 	| return_label :
-		"(wf_instr (instr_subcase_10 (LABEL_underscore v_n instr'_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_1 RETURN)]) @ instr_lst)))) ⟹
-		 (wf_instr (instr_subcase_1 RETURN)) ⟹
-		 Step_pure [(instr_subcase_10 (LABEL_underscore v_n instr'_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_1 RETURN)]) @ instr_lst)))] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_1 RETURN)])"
+		"(wf_instr (instr_sc10 (LABEL_underscore v_n instr'_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc1 RETURN)]) @ instr_lst)))) ⟹
+		 (wf_instr (instr_sc1 RETURN)) ⟹
+		 Step_pure [(instr_sc10 (LABEL_underscore v_n instr'_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc1 RETURN)]) @ instr_lst)))] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc1 RETURN)])"
 	| return_handler :
-		"(wf_instr (instr_subcase_10 (HANDLER_underscore v_n catch_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_1 RETURN)]) @ instr_lst)))) ⟹
-		 (wf_instr (instr_subcase_1 RETURN)) ⟹
-		 Step_pure [(instr_subcase_10 (HANDLER_underscore v_n catch_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_1 RETURN)]) @ instr_lst)))] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_1 RETURN)])"
+		"(wf_instr (instr_sc10 (HANDLER_underscore v_n catch_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc1 RETURN)]) @ instr_lst)))) ⟹
+		 (wf_instr (instr_sc1 RETURN)) ⟹
+		 Step_pure [(instr_sc10 (HANDLER_underscore v_n catch_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc1 RETURN)]) @ instr_lst)))] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc1 RETURN)])"
 	| handler_vals :
-		"(wf_instr (instr_subcase_10 (HANDLER_underscore v_n catch_lst (map (λ (v_val :: val). (instr_val v_val)) val_lst)))) ⟹
-		 Step_pure [(instr_subcase_10 (HANDLER_underscore v_n catch_lst (map (λ (v_val :: val). (instr_val v_val)) val_lst)))] (map (λ (v_val :: val). (instr_val v_val)) val_lst)"
+		"(wf_instr (instr_sc10 (HANDLER_underscore v_n catch_lst (map (λ (v_val :: val). (instr_val v_val)) val_lst)))) ⟹
+		 Step_pure [(instr_sc10 (HANDLER_underscore v_n catch_lst (map (λ (v_val :: val). (instr_val v_val)) val_lst)))] (map (λ (v_val :: val). (instr_val v_val)) val_lst)"
 	| trap_instrs :
 		"((val_lst ≠ []) ∨ (instr_lst ≠ [])) ⟹
 		 list_all (λ (v_val :: val). (wf_val v_val)) val_lst ⟹
 		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_pure ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ ([(instr_subcase_9 TRAP)] @ instr_lst)) [(instr_subcase_9 TRAP)]"
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_pure ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ ([(instr_sc9 TRAP)] @ instr_lst)) [(instr_sc9 TRAP)]"
 	| trap_label :
-		"(wf_instr (instr_subcase_10 (LABEL_underscore v_n instr'_lst [(instr_subcase_9 TRAP)]))) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_pure [(instr_subcase_10 (LABEL_underscore v_n instr'_lst [(instr_subcase_9 TRAP)]))] [(instr_subcase_9 TRAP)]"
+		"(wf_instr (instr_sc10 (LABEL_underscore v_n instr'_lst [(instr_sc9 TRAP)]))) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_pure [(instr_sc10 (LABEL_underscore v_n instr'_lst [(instr_sc9 TRAP)]))] [(instr_sc9 TRAP)]"
 	| trap_handler :
-		"(wf_instr (instr_subcase_10 (HANDLER_underscore v_n catch_lst [(instr_subcase_9 TRAP)]))) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_pure [(instr_subcase_10 (HANDLER_underscore v_n catch_lst [(instr_subcase_9 TRAP)]))] [(instr_subcase_9 TRAP)]"
+		"(wf_instr (instr_sc10 (HANDLER_underscore v_n catch_lst [(instr_sc9 TRAP)]))) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_pure [(instr_sc10 (HANDLER_underscore v_n catch_lst [(instr_sc9 TRAP)]))] [(instr_sc9 TRAP)]"
 	| trap_frame :
-		"(wf_instr (instr_subcase_10 (FRAME_underscore v_n f [(instr_subcase_9 TRAP)]))) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_pure [(instr_subcase_10 (FRAME_underscore v_n f [(instr_subcase_9 TRAP)]))] [(instr_subcase_9 TRAP)]"
+		"(wf_instr (instr_sc10 (FRAME_underscore v_n f [(instr_sc9 TRAP)]))) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_pure [(instr_sc10 (FRAME_underscore v_n f [(instr_sc9 TRAP)]))] [(instr_sc9 TRAP)]"
 	| Step_pure__local_tee :
 		"(wf_val v_val) ⟹
-		 (wf_instr (instr_subcase_2 (LOCAL_TEE x))) ⟹
-		 (wf_instr (instr_subcase_1 (LOCAL_SET x))) ⟹
-		 Step_pure [(instr_val v_val), (instr_subcase_2 (LOCAL_TEE x))] [(instr_val v_val), (instr_val v_val), (instr_subcase_1 (LOCAL_SET x))]"
+		 (wf_instr (instr_sc2 (LOCAL_TEE x))) ⟹
+		 (wf_instr (instr_sc1 (LOCAL_SET x))) ⟹
+		 Step_pure [(instr_val v_val), (instr_sc2 (LOCAL_TEE x))] [(instr_val v_val), (instr_val v_val), (instr_sc1 (LOCAL_SET x))]"
 	| Step_pure__ref_i31 :
 		"((proj_num__0 i) ≠ None) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i))) ⟹
-		 (wf_instr (instr_subcase_4 REF_I31)) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_I31_NUM (wrap__underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0))))))))))))))))))))))))))))))) (the ((proj_num__0 i))))))) ⟹
-		 Step_pure [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_4 REF_I31)] [(instr_subcase_9 (instr_subtype_9_REF_I31_NUM (wrap__underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0))))))))))))))))))))))))))))))) (the ((proj_num__0 i))))))]"
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 i))) ⟹
+		 (wf_instr (instr_sc4 REF_I31)) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_I31_NUM (wrap__underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0))))))))))))))))))))))))))))))) (the ((proj_num__0 i))))))) ⟹
+		 Step_pure [(instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc4 REF_I31)] [(instr_sc9 (instr_st9_REF_I31_NUM (wrap__underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0))))))))))))))))))))))))))))))) (the ((proj_num__0 i))))))]"
 	| ref_is_null_true :
 		"(v_ref = REF_NULL_ADDR) ⟹
 		 (wf_ref v_ref) ⟹
-		 (wf_instr (instr_subcase_4 REF_IS_NULL)) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))) ⟹
+		 (wf_instr (instr_sc4 REF_IS_NULL)) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))) ⟹
 		 (wf_ref REF_NULL_ADDR) ⟹
-		 Step_pure [(instr_ref v_ref), (instr_subcase_4 REF_IS_NULL)] [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))]"
+		 Step_pure [(instr_ref v_ref), (instr_sc4 REF_IS_NULL)] [(instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))]"
 	| ref_is_null_false :
 		"(v_ref ≠ REF_NULL_ADDR) ⟹
 		 (wf_ref v_ref) ⟹
-		 (wf_instr (instr_subcase_4 REF_IS_NULL)) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 0))))) ⟹
-		 Step_pure [(instr_ref v_ref), (instr_subcase_4 REF_IS_NULL)] [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 0))))]"
+		 (wf_instr (instr_sc4 REF_IS_NULL)) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 0))))) ⟹
+		 Step_pure [(instr_ref v_ref), (instr_sc4 REF_IS_NULL)] [(instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 0))))]"
 	| ref_as_non_null_null :
 		"(v_ref = REF_NULL_ADDR) ⟹
 		 (wf_ref v_ref) ⟹
-		 (wf_instr (instr_subcase_4 REF_AS_NON_NULL)) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
+		 (wf_instr (instr_sc4 REF_AS_NON_NULL)) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
 		 (wf_ref REF_NULL_ADDR) ⟹
-		 Step_pure [(instr_ref v_ref), (instr_subcase_4 REF_AS_NON_NULL)] [(instr_subcase_9 TRAP)]"
+		 Step_pure [(instr_ref v_ref), (instr_sc4 REF_AS_NON_NULL)] [(instr_sc9 TRAP)]"
 	| ref_as_non_null_addr :
 		"(v_ref ≠ REF_NULL_ADDR) ⟹
 		 (wf_ref v_ref) ⟹
-		 (wf_instr (instr_subcase_4 REF_AS_NON_NULL)) ⟹
-		 Step_pure [(instr_ref v_ref), (instr_subcase_4 REF_AS_NON_NULL)] [(instr_ref v_ref)]"
+		 (wf_instr (instr_sc4 REF_AS_NON_NULL)) ⟹
+		 Step_pure [(instr_ref v_ref), (instr_sc4 REF_AS_NON_NULL)] [(instr_ref v_ref)]"
 	| ref_eq_null :
 		"((ref_1 = REF_NULL_ADDR) ∧ (ref_2 = REF_NULL_ADDR)) ⟹
 		 (wf_ref ref_1) ⟹
 		 (wf_ref ref_2) ⟹
-		 (wf_instr (instr_subcase_4 REF_EQ)) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))) ⟹
+		 (wf_instr (instr_sc4 REF_EQ)) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))) ⟹
 		 (wf_ref REF_NULL_ADDR) ⟹
-		 Step_pure [(instr_ref ref_1), (instr_ref ref_2), (instr_subcase_4 REF_EQ)] [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))]"
+		 Step_pure [(instr_ref ref_1), (instr_ref ref_2), (instr_sc4 REF_EQ)] [(instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))]"
 	| ref_eq_true :
 		"((ref_1 ≠ REF_NULL_ADDR) ∨ (ref_2 ≠ REF_NULL_ADDR)) ⟹
 		 (ref_1 = ref_2) ⟹
 		 (wf_ref ref_1) ⟹
 		 (wf_ref ref_2) ⟹
-		 (wf_instr (instr_subcase_4 REF_EQ)) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))) ⟹
-		 Step_pure [(instr_ref ref_1), (instr_ref ref_2), (instr_subcase_4 REF_EQ)] [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))]"
+		 (wf_instr (instr_sc4 REF_EQ)) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))) ⟹
+		 Step_pure [(instr_ref ref_1), (instr_ref ref_2), (instr_sc4 REF_EQ)] [(instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))]"
 	| ref_eq_false :
 		"(ref_1 ≠ ref_2) ⟹
 		 ((ref_1 ≠ REF_NULL_ADDR) ∨ (ref_2 ≠ REF_NULL_ADDR)) ⟹
 		 (wf_ref ref_1) ⟹
 		 (wf_ref ref_2) ⟹
-		 (wf_instr (instr_subcase_4 REF_EQ)) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 0))))) ⟹
-		 Step_pure [(instr_ref ref_1), (instr_ref ref_2), (instr_subcase_4 REF_EQ)] [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 0))))]"
+		 (wf_instr (instr_sc4 REF_EQ)) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 0))))) ⟹
+		 Step_pure [(instr_ref ref_1), (instr_ref ref_2), (instr_sc4 REF_EQ)] [(instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 0))))]"
 	| i31_get_null :
-		"(wf_instr (instr_subcase_9 instr_subtype_9_REF_NULL_ADDR)) ⟹
-		 (wf_instr (instr_subcase_4 (I31_GET v_sx))) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_pure [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_4 (I31_GET v_sx))] [(instr_subcase_9 TRAP)]"
+		"(wf_instr (instr_sc9 instr_st9_REF_NULL_ADDR)) ⟹
+		 (wf_instr (instr_sc4 (I31_GET v_sx))) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_pure [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc4 (I31_GET v_sx))] [(instr_sc9 TRAP)]"
 	| i31_get_num :
-		"(wf_instr (instr_subcase_9 (instr_subtype_9_REF_I31_NUM i))) ⟹
-		 (wf_instr (instr_subcase_4 (I31_GET v_sx))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (extend__underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0))))))))))))))))))))))))))))))) (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) v_sx i))))) ⟹
-		 Step_pure [(instr_subcase_9 (instr_subtype_9_REF_I31_NUM i)), (instr_subcase_4 (I31_GET v_sx))] [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (extend__underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0))))))))))))))))))))))))))))))) (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) v_sx i))))]"
+		"(wf_instr (instr_sc9 (instr_st9_REF_I31_NUM i))) ⟹
+		 (wf_instr (instr_sc4 (I31_GET v_sx))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (extend__underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0))))))))))))))))))))))))))))))) (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) v_sx i))))) ⟹
+		 Step_pure [(instr_sc9 (instr_st9_REF_I31_NUM i)), (instr_sc4 (I31_GET v_sx))] [(instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (extend__underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0))))))))))))))))))))))))))))))) (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) v_sx i))))]"
 	| Step_pure__array_new :
 		"(wf_val v_val) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n))))) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_NEW x))) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_NEW_FIXED x (mk_uN v_n)))) ⟹
-		 Step_pure [(instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_5 (ARRAY_NEW x))] ((repeat v_n (instr_val v_val)) @ [(instr_subcase_5 (ARRAY_NEW_FIXED x (mk_uN v_n)))])"
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n))))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_NEW x))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_NEW_FIXED x (mk_uN v_n)))) ⟹
+		 Step_pure [(instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc5 (ARRAY_NEW x))] ((repeat v_n (instr_val v_val)) @ [(instr_sc5 (ARRAY_NEW_FIXED x (mk_uN v_n)))])"
 	| extern_convert_any_null :
 		"(v_ref = REF_NULL_ADDR) ⟹
 		 (wf_ref v_ref) ⟹
-		 (wf_instr (instr_subcase_6 EXTERN_CONVERT_ANY)) ⟹
-		 (wf_instr (instr_subcase_9 instr_subtype_9_REF_NULL_ADDR)) ⟹
-		 Step_pure [(instr_ref v_ref), (instr_subcase_6 EXTERN_CONVERT_ANY)] [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR)]"
+		 (wf_instr (instr_sc6 EXTERN_CONVERT_ANY)) ⟹
+		 (wf_instr (instr_sc9 instr_st9_REF_NULL_ADDR)) ⟹
+		 Step_pure [(instr_ref v_ref), (instr_sc6 EXTERN_CONVERT_ANY)] [(instr_sc9 instr_st9_REF_NULL_ADDR)]"
 	| extern_convert_any_addr :
 		"(v_ref ≠ REF_NULL_ADDR) ⟹
-		 (wf_instr (instr_subcase_6 EXTERN_CONVERT_ANY)) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_EXTERN v_ref))) ⟹
-		 Step_pure [(instr_ref v_ref), (instr_subcase_6 EXTERN_CONVERT_ANY)] [(instr_subcase_9 (instr_subtype_9_REF_EXTERN v_ref))]"
+		 (wf_instr (instr_sc6 EXTERN_CONVERT_ANY)) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_EXTERN v_ref))) ⟹
+		 Step_pure [(instr_ref v_ref), (instr_sc6 EXTERN_CONVERT_ANY)] [(instr_sc9 (instr_st9_REF_EXTERN v_ref))]"
 	| any_convert_extern_null :
-		"(wf_instr (instr_subcase_9 instr_subtype_9_REF_NULL_ADDR)) ⟹
-		 (wf_instr (instr_subcase_6 ANY_CONVERT_EXTERN)) ⟹
-		 Step_pure [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_6 ANY_CONVERT_EXTERN)] [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR)]"
+		"(wf_instr (instr_sc9 instr_st9_REF_NULL_ADDR)) ⟹
+		 (wf_instr (instr_sc6 ANY_CONVERT_EXTERN)) ⟹
+		 Step_pure [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc6 ANY_CONVERT_EXTERN)] [(instr_sc9 instr_st9_REF_NULL_ADDR)]"
 	| any_convert_extern_addr :
-		"(wf_instr (instr_subcase_9 (instr_subtype_9_REF_EXTERN v_ref))) ⟹
-		 (wf_instr (instr_subcase_6 ANY_CONVERT_EXTERN)) ⟹
-		 Step_pure [(instr_subcase_9 (instr_subtype_9_REF_EXTERN v_ref)), (instr_subcase_6 ANY_CONVERT_EXTERN)] [(instr_ref v_ref)]"
+		"(wf_instr (instr_sc9 (instr_st9_REF_EXTERN v_ref))) ⟹
+		 (wf_instr (instr_sc6 ANY_CONVERT_EXTERN)) ⟹
+		 Step_pure [(instr_sc9 (instr_st9_REF_EXTERN v_ref)), (instr_sc6 ANY_CONVERT_EXTERN)] [(instr_ref v_ref)]"
 	| unop_val :
 		"(fun_unop_underscore nt unop c_1 var_0) ⟹
 		 ((length var_0) > 0) ⟹
 		 (c ∈ set var_0) ⟹
 		 list_all (λ (iter :: num_underscore). (wf_num_underscore nt iter)) var_0 ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt c_1))) ⟹
-		 (wf_instr (instr_subcase_6 (UNOP nt unop))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt c))) ⟹
-		 Step_pure [(instr_subcase_6 (instr_subtype_6_CONST nt c_1)), (instr_subcase_6 (UNOP nt unop))] [(instr_subcase_6 (instr_subtype_6_CONST nt c))]"
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt c_1))) ⟹
+		 (wf_instr (instr_sc6 (UNOP nt unop))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt c))) ⟹
+		 Step_pure [(instr_sc6 (instr_st6_CONST nt c_1)), (instr_sc6 (UNOP nt unop))] [(instr_sc6 (instr_st6_CONST nt c))]"
 	| unop_trap :
 		"(fun_unop_underscore nt unop c_1 var_0) ⟹
 		 (var_0 = []) ⟹
 		 list_all (λ (iter :: num_underscore). (wf_num_underscore nt iter)) var_0 ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt c_1))) ⟹
-		 (wf_instr (instr_subcase_6 (UNOP nt unop))) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_pure [(instr_subcase_6 (instr_subtype_6_CONST nt c_1)), (instr_subcase_6 (UNOP nt unop))] [(instr_subcase_9 TRAP)]"
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt c_1))) ⟹
+		 (wf_instr (instr_sc6 (UNOP nt unop))) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_pure [(instr_sc6 (instr_st6_CONST nt c_1)), (instr_sc6 (UNOP nt unop))] [(instr_sc9 TRAP)]"
 	| binop_val :
 		"(fun_binop_underscore nt binop c_1 c_2 var_0) ⟹
 		 ((length var_0) > 0) ⟹
 		 (c ∈ set var_0) ⟹
 		 list_all (λ (iter :: num_underscore). (wf_num_underscore nt iter)) var_0 ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt c_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt c_2))) ⟹
-		 (wf_instr (instr_subcase_6 (BINOP nt binop))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt c))) ⟹
-		 Step_pure [(instr_subcase_6 (instr_subtype_6_CONST nt c_1)), (instr_subcase_6 (instr_subtype_6_CONST nt c_2)), (instr_subcase_6 (BINOP nt binop))] [(instr_subcase_6 (instr_subtype_6_CONST nt c))]"
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt c_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt c_2))) ⟹
+		 (wf_instr (instr_sc6 (BINOP nt binop))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt c))) ⟹
+		 Step_pure [(instr_sc6 (instr_st6_CONST nt c_1)), (instr_sc6 (instr_st6_CONST nt c_2)), (instr_sc6 (BINOP nt binop))] [(instr_sc6 (instr_st6_CONST nt c))]"
 	| binop_trap :
 		"(fun_binop_underscore nt binop c_1 c_2 var_0) ⟹
 		 (var_0 = []) ⟹
 		 list_all (λ (iter :: num_underscore). (wf_num_underscore nt iter)) var_0 ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt c_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt c_2))) ⟹
-		 (wf_instr (instr_subcase_6 (BINOP nt binop))) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_pure [(instr_subcase_6 (instr_subtype_6_CONST nt c_1)), (instr_subcase_6 (instr_subtype_6_CONST nt c_2)), (instr_subcase_6 (BINOP nt binop))] [(instr_subcase_9 TRAP)]"
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt c_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt c_2))) ⟹
+		 (wf_instr (instr_sc6 (BINOP nt binop))) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_pure [(instr_sc6 (instr_st6_CONST nt c_1)), (instr_sc6 (instr_st6_CONST nt c_2)), (instr_sc6 (BINOP nt binop))] [(instr_sc9 TRAP)]"
 	| Step_pure__testop :
 		"((proj_num__0 c) ≠ None) ⟹
 		 ((the ((proj_num__0 c))) = (fun_testop_underscore nt testop c_1)) ⟹
 		 (wf_uN 32 (fun_testop_underscore nt testop c_1)) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt c_1))) ⟹
-		 (wf_instr (instr_subcase_6 (TESTOP nt testop))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))) ⟹
-		 Step_pure [(instr_subcase_6 (instr_subtype_6_CONST nt c_1)), (instr_subcase_6 (TESTOP nt testop))] [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))]"
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt c_1))) ⟹
+		 (wf_instr (instr_sc6 (TESTOP nt testop))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 c))) ⟹
+		 Step_pure [(instr_sc6 (instr_st6_CONST nt c_1)), (instr_sc6 (TESTOP nt testop))] [(instr_sc6 (instr_st6_CONST numtype_I32 c))]"
 	| Step_pure__relop :
 		"((proj_num__0 c) ≠ None) ⟹
 		 ((the ((proj_num__0 c))) = (fun_relop_underscore nt relop c_1 c_2)) ⟹
 		 (wf_uN 32 (fun_relop_underscore nt relop c_1 c_2)) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt c_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt c_2))) ⟹
-		 (wf_instr (instr_subcase_6 (RELOP nt relop))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))) ⟹
-		 Step_pure [(instr_subcase_6 (instr_subtype_6_CONST nt c_1)), (instr_subcase_6 (instr_subtype_6_CONST nt c_2)), (instr_subcase_6 (RELOP nt relop))] [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))]"
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt c_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt c_2))) ⟹
+		 (wf_instr (instr_sc6 (RELOP nt relop))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 c))) ⟹
+		 Step_pure [(instr_sc6 (instr_st6_CONST nt c_1)), (instr_sc6 (instr_st6_CONST nt c_2)), (instr_sc6 (RELOP nt relop))] [(instr_sc6 (instr_st6_CONST numtype_I32 c))]"
 	| cvtop_val :
 		"(fun_cvtop__underscore nt_1 nt_2 cvtop c_1 var_0) ⟹
 		 ((length var_0) > 0) ⟹
 		 (c ∈ set var_0) ⟹
 		 list_all (λ (iter :: num_underscore). (wf_num_underscore nt_2 iter)) var_0 ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt_1 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (CVTOP nt_2 nt_1 cvtop))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt_2 c))) ⟹
-		 Step_pure [(instr_subcase_6 (instr_subtype_6_CONST nt_1 c_1)), (instr_subcase_7 (CVTOP nt_2 nt_1 cvtop))] [(instr_subcase_6 (instr_subtype_6_CONST nt_2 c))]"
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt_1 c_1))) ⟹
+		 (wf_instr (instr_sc7 (CVTOP nt_2 nt_1 cvtop))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt_2 c))) ⟹
+		 Step_pure [(instr_sc6 (instr_st6_CONST nt_1 c_1)), (instr_sc7 (CVTOP nt_2 nt_1 cvtop))] [(instr_sc6 (instr_st6_CONST nt_2 c))]"
 	| cvtop_trap :
 		"(fun_cvtop__underscore nt_1 nt_2 cvtop c_1 var_0) ⟹
 		 (var_0 = []) ⟹
 		 list_all (λ (iter :: num_underscore). (wf_num_underscore nt_2 iter)) var_0 ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt_1 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (CVTOP nt_2 nt_1 cvtop))) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_pure [(instr_subcase_6 (instr_subtype_6_CONST nt_1 c_1)), (instr_subcase_7 (CVTOP nt_2 nt_1 cvtop))] [(instr_subcase_9 TRAP)]"
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt_1 c_1))) ⟹
+		 (wf_instr (instr_sc7 (CVTOP nt_2 nt_1 cvtop))) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_pure [(instr_sc6 (instr_st6_CONST nt_1 c_1)), (instr_sc7 (CVTOP nt_2 nt_1 cvtop))] [(instr_sc9 TRAP)]"
 	| Step_pure__vvunop :
 		"((length (vvunop_underscore V128 v_vvunop c_1)) > 0) ⟹
 		 (c ∈ set (vvunop_underscore V128 v_vvunop c_1)) ⟹
 		 list_all (λ (iter :: vec_underscore). (wf_uN 128 iter)) (vvunop_underscore V128 v_vvunop c_1) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (VVUNOP V128 v_vvunop))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (VVUNOP V128 v_vvunop))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (VVUNOP V128 v_vvunop))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (VVUNOP V128 v_vvunop))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| Step_pure__vvbinop :
 		"((length (vvbinop_underscore V128 v_vvbinop c_1 c_2)) > 0) ⟹
 		 (c ∈ set (vvbinop_underscore V128 v_vvbinop c_1 c_2)) ⟹
 		 list_all (λ (iter :: vec_underscore). (wf_uN 128 iter)) (vvbinop_underscore V128 v_vvbinop c_1 c_2) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2))) ⟹
-		 (wf_instr (instr_subcase_7 (VVBINOP V128 v_vvbinop))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2)), (instr_subcase_7 (VVBINOP V128 v_vvbinop))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_2))) ⟹
+		 (wf_instr (instr_sc7 (VVBINOP V128 v_vvbinop))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (instr_st7_VCONST V128 c_2)), (instr_sc7 (VVBINOP V128 v_vvbinop))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| Step_pure__vvternop :
 		"((length (vvternop_underscore V128 v_vvternop c_1 c_2 c_3)) > 0) ⟹
 		 (c ∈ set (vvternop_underscore V128 v_vvternop c_1 c_2 c_3)) ⟹
 		 list_all (λ (iter :: vec_underscore). (wf_uN 128 iter)) (vvternop_underscore V128 v_vvternop c_1 c_2 c_3) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_3))) ⟹
-		 (wf_instr (instr_subcase_7 (VVTERNOP V128 v_vvternop))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_3)), (instr_subcase_7 (VVTERNOP V128 v_vvternop))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_2))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_3))) ⟹
+		 (wf_instr (instr_sc7 (VVTERNOP V128 v_vvternop))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (instr_st7_VCONST V128 c_2)), (instr_sc7 (instr_st7_VCONST V128 c_3)), (instr_sc7 (VVTERNOP V128 v_vvternop))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| Step_pure__vvtestop :
 		"((proj_num__0 c) ≠ None) ⟹
 		 ((the ((proj_num__0 c))) = (inez_underscore (vsize V128) c_1)) ⟹
 		 (wf_uN 32 (inez_underscore (vsize V128) c_1)) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (VVTESTOP V128 ANY_TRUE))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (VVTESTOP V128 ANY_TRUE))] [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (VVTESTOP V128 ANY_TRUE))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (VVTESTOP V128 ANY_TRUE))] [(instr_sc6 (instr_st6_CONST numtype_I32 c))]"
 	| vunop_val :
 		"(fun_vunop_underscore sh vunop c_1 var_0) ⟹
 		 ((length var_0) > 0) ⟹
 		 (c ∈ set var_0) ⟹
 		 list_all (λ (iter :: vec_underscore). (wf_uN 128 iter)) var_0 ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (VUNOP sh vunop))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (VUNOP sh vunop))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (VUNOP sh vunop))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (VUNOP sh vunop))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| vunop_trap :
 		"(fun_vunop_underscore sh vunop c_1 var_0) ⟹
 		 (var_0 = []) ⟹
 		 list_all (λ (iter :: vec_underscore). (wf_uN 128 iter)) var_0 ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (VUNOP sh vunop))) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (VUNOP sh vunop))] [(instr_subcase_9 TRAP)]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (VUNOP sh vunop))) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (VUNOP sh vunop))] [(instr_sc9 TRAP)]"
 	| vbinop_val :
 		"(fun_vbinop_underscore sh vbinop c_1 c_2 var_0) ⟹
 		 ((length var_0) > 0) ⟹
 		 (c ∈ set var_0) ⟹
 		 list_all (λ (iter :: vec_underscore). (wf_uN 128 iter)) var_0 ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2))) ⟹
-		 (wf_instr (instr_subcase_7 (VBINOP sh vbinop))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2)), (instr_subcase_7 (VBINOP sh vbinop))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_2))) ⟹
+		 (wf_instr (instr_sc7 (VBINOP sh vbinop))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (instr_st7_VCONST V128 c_2)), (instr_sc7 (VBINOP sh vbinop))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| vbinop_trap :
 		"(fun_vbinop_underscore sh vbinop c_1 c_2 var_0) ⟹
 		 (var_0 = []) ⟹
 		 list_all (λ (iter :: vec_underscore). (wf_uN 128 iter)) var_0 ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2))) ⟹
-		 (wf_instr (instr_subcase_7 (VBINOP sh vbinop))) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2)), (instr_subcase_7 (VBINOP sh vbinop))] [(instr_subcase_9 TRAP)]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_2))) ⟹
+		 (wf_instr (instr_sc7 (VBINOP sh vbinop))) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (instr_st7_VCONST V128 c_2)), (instr_sc7 (VBINOP sh vbinop))] [(instr_sc9 TRAP)]"
 	| vternop_val :
 		"(fun_vternop_underscore sh vternop c_1 c_2 c_3 var_0) ⟹
 		 ((length var_0) > 0) ⟹
 		 (c ∈ set var_0) ⟹
 		 list_all (λ (iter :: vec_underscore). (wf_uN 128 iter)) var_0 ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_3))) ⟹
-		 (wf_instr (instr_subcase_7 (VTERNOP sh vternop))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_3)), (instr_subcase_7 (VTERNOP sh vternop))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_2))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_3))) ⟹
+		 (wf_instr (instr_sc7 (VTERNOP sh vternop))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (instr_st7_VCONST V128 c_2)), (instr_sc7 (instr_st7_VCONST V128 c_3)), (instr_sc7 (VTERNOP sh vternop))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| vternop_trap :
 		"(fun_vternop_underscore sh vternop c_1 c_2 c_3 var_0) ⟹
 		 (var_0 = []) ⟹
 		 list_all (λ (iter :: vec_underscore). (wf_uN 128 iter)) var_0 ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_3))) ⟹
-		 (wf_instr (instr_subcase_7 (VTERNOP sh vternop))) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_3)), (instr_subcase_7 (VTERNOP sh vternop))] [(instr_subcase_9 TRAP)]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_2))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_3))) ⟹
+		 (wf_instr (instr_sc7 (VTERNOP sh vternop))) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (instr_st7_VCONST V128 c_2)), (instr_sc7 (instr_st7_VCONST V128 c_3)), (instr_sc7 (VTERNOP sh vternop))] [(instr_sc9 TRAP)]"
 	| Step_pure__vtestop :
 		"list_all (λ (i :: lane_underscore). ((proj_lane__2 i) ≠ None)) i_lst ⟹
 		 (fun_prod (map (λ (i :: lane_underscore). (proj_uN_0 (inez_underscore (jsizenn v_Jnn) (the ((proj_lane__2 i)))))) i_lst) var_0) ⟹
@@ -14004,76 +14181,76 @@ inductive Step_pure :: "(instr list) ⇒ (instr list) ⇒ bool" where
 		 list_all (λ (i :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) i)) i_lst ⟹
 		 list_all (λ (iter :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) iter)) (lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c_1) ⟹
 		 list_all (λ (i :: lane_underscore). (wf_uN 32 (inez_underscore (jsizenn v_Jnn) (the ((proj_lane__2 i)))))) i_lst ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) (mk_vtestop__0 v_Jnn v_M ALL_TRUE)))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) (mk_vtestop__0 v_Jnn v_M ALL_TRUE)))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 c))) ⟹
 		 (wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) (mk_vtestop__0 v_Jnn v_M ALL_TRUE)))] [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))]"
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) (mk_vtestop__0 v_Jnn v_M ALL_TRUE)))] [(instr_sc6 (instr_st6_CONST numtype_I32 c))]"
 	| Step_pure__vrelop :
 		"(fun_vrelop_underscore sh vrelop c_1 c_2 var_0) ⟹
 		 (c = var_0) ⟹
 		 (wf_uN 128 var_0) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2))) ⟹
-		 (wf_instr (instr_subcase_7 (VRELOP sh vrelop))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2)), (instr_subcase_7 (VRELOP sh vrelop))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_2))) ⟹
+		 (wf_instr (instr_sc7 (VRELOP sh vrelop))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (instr_st7_VCONST V128 c_2)), (instr_sc7 (VRELOP sh vrelop))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| Step_pure__vshiftop :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (fun_vshiftop_underscore sh vshiftop c_1 (the ((proj_num__0 i))) var_0) ⟹
 		 (c = var_0) ⟹
 		 (wf_uN 128 var_0) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i))) ⟹
-		 (wf_instr (instr_subcase_8 (VSHIFTOP sh vshiftop))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_8 (VSHIFTOP sh vshiftop))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 i))) ⟹
+		 (wf_instr (instr_sc8 (VSHIFTOP sh vshiftop))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc8 (VSHIFTOP sh vshiftop))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| Step_pure__vbitmask :
 		"(fun_vbitmaskop_underscore sh c_1 var_0) ⟹
 		 ((proj_num__0 c) ≠ None) ⟹
 		 ((the ((proj_num__0 c))) = var_0) ⟹
 		 (wf_uN 32 var_0) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_8 (VBITMASK sh))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_8 (VBITMASK sh))] [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c))]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc8 (VBITMASK sh))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc8 (VBITMASK sh))] [(instr_sc6 (instr_st6_CONST numtype_I32 c))]"
 	| Step_pure__vswizzlop :
 		"(fun_vswizzlop_underscore sh swizzlop c_1 c_2 var_0) ⟹
 		 (c = var_0) ⟹
 		 (wf_uN 128 var_0) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2))) ⟹
-		 (wf_instr (instr_subcase_8 (VSWIZZLOP sh swizzlop))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2)), (instr_subcase_8 (VSWIZZLOP sh swizzlop))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_2))) ⟹
+		 (wf_instr (instr_sc8 (VSWIZZLOP sh swizzlop))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (instr_st7_VCONST V128 c_2)), (instr_sc8 (VSWIZZLOP sh swizzlop))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| Step_pure__vshuffle :
-		"(fun_vshufflop_underscore sh i_lst c_1 c_2 var_0) ⟹
-		 (c = var_0) ⟹
-		 (wf_uN 128 var_0) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2))) ⟹
-		 (wf_instr (instr_subcase_8 (VSHUFFLE sh i_lst))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2)), (instr_subcase_8 (VSHUFFLE sh i_lst))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		"((vshufflop_underscore sh i_lst c_1 c_2) ≠ None) ⟹
+		 (c = (the ((vshufflop_underscore sh i_lst c_1 c_2)))) ⟹
+		 (wf_uN 128 (the ((vshufflop_underscore sh i_lst c_1 c_2)))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_2))) ⟹
+		 (wf_instr (instr_sc8 (VSHUFFLE sh i_lst))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (instr_st7_VCONST V128 c_2)), (instr_sc8 (VSHUFFLE sh i_lst))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| Step_pure__vsplat :
 		"(c = (inv_lanes_underscore (X v_Lnn (mk_dim v_M)) (repeat v_M (lpacknum_underscore v_Lnn c_1)))) ⟹
 		 (wf_uN 128 (inv_lanes_underscore (X v_Lnn (mk_dim v_M)) (repeat v_M (lpacknum_underscore v_Lnn c_1)))) ⟹
 		 (wf_lane_underscore (fun_lanetype (X v_Lnn (mk_dim v_M))) (lpacknum_underscore v_Lnn c_1)) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (lunpack v_Lnn) c_1))) ⟹
-		 (wf_instr (instr_subcase_8 (VSPLAT (X v_Lnn (mk_dim v_M))))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (lunpack v_Lnn) c_1))) ⟹
+		 (wf_instr (instr_sc8 (VSPLAT (X v_Lnn (mk_dim v_M))))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
 		 (wf_shape (X v_Lnn (mk_dim v_M))) ⟹
-		 Step_pure [(instr_subcase_6 (instr_subtype_6_CONST (lunpack v_Lnn) c_1)), (instr_subcase_8 (VSPLAT (X v_Lnn (mk_dim v_M))))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 Step_pure [(instr_sc6 (instr_st6_CONST (lunpack v_Lnn) c_1)), (instr_sc8 (VSPLAT (X v_Lnn (mk_dim v_M))))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| vextract_lane_num :
 		"((proj_uN_0 i) < (length (lanes_underscore (X (lanetype_numtype nt) (mk_dim v_M)) c_1))) ⟹
 		 ((mk_lane__0 nt c_2) = ((lanes_underscore (X (lanetype_numtype nt) (mk_dim v_M)) c_1) ! (proj_uN_0 i))) ⟹
 		 list_all (λ (iter :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_numtype nt) (mk_dim v_M))) iter)) (lanes_underscore (X (lanetype_numtype nt) (mk_dim v_M)) c_1) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_8 (VEXTRACT_LANE (X (lanetype_numtype nt) (mk_dim v_M)) None i))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt c_2))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc8 (VEXTRACT_LANE (X (lanetype_numtype nt) (mk_dim v_M)) None i))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt c_2))) ⟹
 		 (wf_lane_underscore (fun_lanetype (X (lanetype_numtype nt) (mk_dim v_M))) (mk_lane__0 nt c_2)) ⟹
 		 (wf_shape (X (lanetype_numtype nt) (mk_dim v_M))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_8 (VEXTRACT_LANE (X (lanetype_numtype nt) (mk_dim v_M)) None i))] [(instr_subcase_6 (instr_subtype_6_CONST nt c_2))]"
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc8 (VEXTRACT_LANE (X (lanetype_numtype nt) (mk_dim v_M)) None i))] [(instr_sc6 (instr_st6_CONST nt c_2))]"
 	| vextract_lane_pack :
 		"((proj_num__0 c_2) ≠ None) ⟹
 		 ((proj_lane__1 ((lanes_underscore (X (lanetype_packtype pt) (mk_dim v_M)) c_1) ! (proj_uN_0 i))) ≠ None) ⟹
@@ -14081,66 +14258,66 @@ inductive Step_pure :: "(instr list) ⇒ (instr list) ⇒ bool" where
 		 ((the ((proj_num__0 c_2))) = (extend__underscore (psize pt) (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) v_sx (the ((proj_lane__1 ((lanes_underscore (X (lanetype_packtype pt) (mk_dim v_M)) c_1) ! (proj_uN_0 i))))))) ⟹
 		 (wf_uN 32 (extend__underscore (psize pt) (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) v_sx (the ((proj_lane__1 ((lanes_underscore (X (lanetype_packtype pt) (mk_dim v_M)) c_1) ! (proj_uN_0 i))))))) ⟹
 		 list_all (λ (iter :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_packtype pt) (mk_dim v_M))) iter)) (lanes_underscore (X (lanetype_packtype pt) (mk_dim v_M)) c_1) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_8 (VEXTRACT_LANE (X (lanetype_packtype pt) (mk_dim v_M)) (Some v_sx) i))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c_2))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc8 (VEXTRACT_LANE (X (lanetype_packtype pt) (mk_dim v_M)) (Some v_sx) i))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 c_2))) ⟹
 		 (wf_shape (X (lanetype_packtype pt) (mk_dim v_M))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_8 (VEXTRACT_LANE (X (lanetype_packtype pt) (mk_dim v_M)) (Some v_sx) i))] [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 c_2))]"
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc8 (VEXTRACT_LANE (X (lanetype_packtype pt) (mk_dim v_M)) (Some v_sx) i))] [(instr_sc6 (instr_st6_CONST numtype_I32 c_2))]"
 	| Step_pure__vreplace_lane :
 		"(c = (inv_lanes_underscore (X v_Lnn (mk_dim v_M)) (list_update_func (lanes_underscore (X v_Lnn (mk_dim v_M)) c_1) (proj_uN_0 i) (λ (underscore_underscore :: lane_underscore). (lpacknum_underscore v_Lnn c_2))))) ⟹
 		 (wf_uN 128 (inv_lanes_underscore (X v_Lnn (mk_dim v_M)) (list_update_func (lanes_underscore (X v_Lnn (mk_dim v_M)) c_1) (proj_uN_0 i) (λ (underscore_underscore :: lane_underscore). (lpacknum_underscore v_Lnn c_2))))) ⟹
 		 list_all (λ (iter :: lane_underscore). (wf_lane_underscore (fun_lanetype (X v_Lnn (mk_dim v_M))) iter)) (lanes_underscore (X v_Lnn (mk_dim v_M)) c_1) ⟹
 		 (wf_lane_underscore (fun_lanetype (X v_Lnn (mk_dim v_M))) (lpacknum_underscore v_Lnn c_2)) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (lunpack v_Lnn) c_2))) ⟹
-		 (wf_instr (instr_subcase_9 (VREPLACE_LANE (X v_Lnn (mk_dim v_M)) i))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (lunpack v_Lnn) c_2))) ⟹
+		 (wf_instr (instr_sc9 (VREPLACE_LANE (X v_Lnn (mk_dim v_M)) i))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
 		 (wf_shape (X v_Lnn (mk_dim v_M))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_6 (instr_subtype_6_CONST (lunpack v_Lnn) c_2)), (instr_subcase_9 (VREPLACE_LANE (X v_Lnn (mk_dim v_M)) i))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc6 (instr_st6_CONST (lunpack v_Lnn) c_2)), (instr_sc9 (VREPLACE_LANE (X v_Lnn (mk_dim v_M)) i))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| Step_pure__vextunop :
 		"(fun_vextunop__underscore sh_1 sh_2 vextunop c_1 var_0) ⟹
 		 (var_0 = c) ⟹
 		 (wf_uN 128 var_0) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_8 (VEXTUNOP sh_2 sh_1 vextunop))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_8 (VEXTUNOP sh_2 sh_1 vextunop))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc8 (VEXTUNOP sh_2 sh_1 vextunop))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc8 (VEXTUNOP sh_2 sh_1 vextunop))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| Step_pure__vextbinop :
 		"(fun_vextbinop__underscore sh_1 sh_2 vextbinop c_1 c_2 var_0) ⟹
 		 (var_0 = c) ⟹
 		 (wf_uN 128 var_0) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2))) ⟹
-		 (wf_instr (instr_subcase_8 (VEXTBINOP sh_2 sh_1 vextbinop))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2)), (instr_subcase_8 (VEXTBINOP sh_2 sh_1 vextbinop))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_2))) ⟹
+		 (wf_instr (instr_sc8 (VEXTBINOP sh_2 sh_1 vextbinop))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (instr_st7_VCONST V128 c_2)), (instr_sc8 (VEXTBINOP sh_2 sh_1 vextbinop))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| Step_pure__vextternop :
 		"(fun_vextternop__underscore sh_1 sh_2 vextternop c_1 c_2 c_3 var_0) ⟹
 		 (var_0 = c) ⟹
 		 (wf_uN 128 var_0) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_3))) ⟹
-		 (wf_instr (instr_subcase_8 (VEXTTERNOP sh_2 sh_1 vextternop))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_3)), (instr_subcase_8 (VEXTTERNOP sh_2 sh_1 vextternop))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_2))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_3))) ⟹
+		 (wf_instr (instr_sc8 (VEXTTERNOP sh_2 sh_1 vextternop))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (instr_st7_VCONST V128 c_2)), (instr_sc7 (instr_st7_VCONST V128 c_3)), (instr_sc8 (VEXTTERNOP sh_2 sh_1 vextternop))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| Step_pure__vnarrow :
 		"(fun_vnarrowop__underscore (proj_ishape_0 sh_1) (proj_ishape_0 sh_2) v_sx c_1 c_2 var_0) ⟹
 		 (c = var_0) ⟹
 		 (wf_uN 128 var_0) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2))) ⟹
-		 (wf_instr (instr_subcase_8 (VNARROW sh_2 sh_1 v_sx))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_2)), (instr_subcase_8 (VNARROW sh_2 sh_1 v_sx))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_2))) ⟹
+		 (wf_instr (instr_sc8 (VNARROW sh_2 sh_1 v_sx))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc7 (instr_st7_VCONST V128 c_2)), (instr_sc8 (VNARROW sh_2 sh_1 v_sx))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| Step_pure__vcvtop :
 		"(fun_vcvtop__underscore sh_1 sh_2 vcvtop c_1 var_0) ⟹
 		 (c = var_0) ⟹
 		 (wf_uN 128 var_0) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1))) ⟹
-		 (wf_instr (instr_subcase_8 (VCVTOP sh_2 sh_1 vcvtop))) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_pure [(instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_8 (VCVTOP sh_2 sh_1 vcvtop))] [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c_1))) ⟹
+		 (wf_instr (instr_sc8 (VCVTOP sh_2 sh_1 vcvtop))) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_pure [(instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc8 (VCVTOP sh_2 sh_1 vcvtop))] [(instr_sc7 (instr_st7_VCONST V128 c))]"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:73.6-73.17 *)
 inductive fun_blocktype_underscore :: "state ⇒ blocktype ⇒ instrtype ⇒ bool" where
@@ -14166,9 +14343,9 @@ inductive Step_read_before_br_on_cast_fail :: "config ⇒ bool" where
 		"(fun_inst_reftype (MODULE f) rt_2 var_0) ⟹
 		 (Ref_ok s v_ref var_0) ⟹
 		 (wf_reftype var_0) ⟹
-		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_0 (BR_ON_CAST l rt_1 rt_2))])) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
-		 Step_read_before_br_on_cast_fail (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_0 (BR_ON_CAST l rt_1 rt_2))])"
+		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc0 (BR_ON_CAST l rt_1 rt_2))])) ⟹
+		 (wf_instr (instr_sc0 (BR l))) ⟹
+		 Step_read_before_br_on_cast_fail (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc0 (BR_ON_CAST l rt_1 rt_2))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:162.1-164.15 *)
 inductive Step_read_before_br_on_cast_fail_fail :: "config ⇒ bool" where
@@ -14176,20 +14353,20 @@ inductive Step_read_before_br_on_cast_fail_fail :: "config ⇒ bool" where
 		"(fun_inst_reftype (MODULE f) rt_2 var_0) ⟹
 		 (Ref_ok s v_ref var_0) ⟹
 		 (wf_reftype var_0) ⟹
-		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_0 (BR_ON_CAST_FAIL l rt_1 rt_2))])) ⟹
-		 Step_read_before_br_on_cast_fail_fail (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_0 (BR_ON_CAST_FAIL l rt_1 rt_2))])"
+		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc0 (BR_ON_CAST_FAIL l rt_1 rt_2))])) ⟹
+		 Step_read_before_br_on_cast_fail_fail (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc0 (BR_ON_CAST_FAIL l rt_1 rt_2))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:268.1-271.15 *)
 inductive Step_read_before_throw_ref_handler_next :: "config ⇒ bool" where
 	  throw_ref_handler_catch_all_ref_0 :
-		"(wf_config (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([(CATCH_ALL_REF l)] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a))) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
-		 Step_read_before_throw_ref_handler_next (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([(CATCH_ALL_REF l)] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))])"
+		"(wf_config (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([(CATCH_ALL_REF l)] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_EXN_ADDR a))) ⟹
+		 (wf_instr (instr_sc0 (BR l))) ⟹
+		 Step_read_before_throw_ref_handler_next (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([(CATCH_ALL_REF l)] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))])"
 	| throw_ref_handler_catch_all_0 :
-		"(wf_config (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([(CATCH_ALL l)] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))])) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
-		 Step_read_before_throw_ref_handler_next (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([(CATCH_ALL l)] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))])"
+		"(wf_config (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([(CATCH_ALL l)] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))])) ⟹
+		 (wf_instr (instr_sc0 (BR l))) ⟹
+		 Step_read_before_throw_ref_handler_next (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([(CATCH_ALL l)] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))])"
 	| throw_ref_handler_catch_ref_0 :
 		"(a < (length (fun_exninst z))) ⟹
 		 ((proj_uN_0 x) < (length (fun_tagaddr z))) ⟹
@@ -14197,10 +14374,10 @@ inductive Step_read_before_throw_ref_handler_next :: "config ⇒ bool" where
 		 (val_lst = (exninst_FIELDS ((fun_exninst z) ! a))) ⟹
 		 list_all (λ (v_val :: val). (wf_val v_val)) val_lst ⟹
 		 list_all (λ (iter :: exninst). (wf_exninst iter)) (fun_exninst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([(CATCH_REF x l)] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a))) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
-		 Step_read_before_throw_ref_handler_next (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([(CATCH_REF x l)] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))])"
+		 (wf_config (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([(CATCH_REF x l)] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_EXN_ADDR a))) ⟹
+		 (wf_instr (instr_sc0 (BR l))) ⟹
+		 Step_read_before_throw_ref_handler_next (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([(CATCH_REF x l)] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))])"
 	| throw_ref_handler_catch_0 :
 		"(a < (length (fun_exninst z))) ⟹
 		 ((proj_uN_0 x) < (length (fun_tagaddr z))) ⟹
@@ -14208,9 +14385,9 @@ inductive Step_read_before_throw_ref_handler_next :: "config ⇒ bool" where
 		 (val_lst = (exninst_FIELDS ((fun_exninst z) ! a))) ⟹
 		 list_all (λ (v_val :: val). (wf_val v_val)) val_lst ⟹
 		 list_all (λ (iter :: exninst). (wf_exninst iter)) (fun_exninst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([(CATCH x l)] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))])) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
-		 Step_read_before_throw_ref_handler_next (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([(CATCH x l)] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))])"
+		 (wf_config (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([(CATCH x l)] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))])) ⟹
+		 (wf_instr (instr_sc0 (BR l))) ⟹
+		 Step_read_before_throw_ref_handler_next (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([(CATCH x l)] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:360.1-363.14 *)
 inductive Step_read_before_table_fill_zero :: "config ⇒ bool" where
@@ -14218,9 +14395,9 @@ inductive Step_read_before_table_fill_zero :: "config ⇒ bool" where
 		"((proj_num__0 i) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (tableinst_REFS (fun_table z x)))) ⟹
 		 (wf_tableinst (fun_table z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_2 (TABLE_FILL x))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_table_fill_zero (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_2 (TABLE_FILL x))])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc2 (TABLE_FILL x))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_table_fill_zero (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc2 (TABLE_FILL x))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:377.1-380.14 *)
 inductive Step_read_before_table_copy_zero :: "config ⇒ bool" where
@@ -14230,58 +14407,58 @@ inductive Step_read_before_table_copy_zero :: "config ⇒ bool" where
 		 ((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) > (length (tableinst_REFS (fun_table z x_1)))) ∨ (((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) > (length (tableinst_REFS (fun_table z x_2))))) ⟹
 		 (wf_tableinst (fun_table z x_1)) ⟹
 		 (wf_tableinst (fun_table z x_2)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_table_copy_zero (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x_1 x_2))])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_table_copy_zero (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x_1 x_2))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:382.1-387.19 *)
 inductive Step_read_before_table_copy_le :: "config ⇒ bool" where
 	  table_copy_zero_0 :
-		"(~(Step_read_before_table_copy_zero (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))]))) ⟹
+		"(~(Step_read_before_table_copy_zero (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))]))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))])) ⟹
-		 Step_read_before_table_copy_le (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))])) ⟹
+		 Step_read_before_table_copy_le (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))])"
 	| table_copy_oob_1 :
 		"((proj_num__0 i_1) ≠ None) ⟹
 		 ((proj_num__0 i_2) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) > (length (tableinst_REFS (fun_table z x_1)))) ∨ (((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) > (length (tableinst_REFS (fun_table z x_2))))) ⟹
 		 (wf_tableinst (fun_table z x_1)) ⟹
 		 (wf_tableinst (fun_table z x_2)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_table_copy_le (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x_1 x_2))])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_table_copy_le (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x_1 x_2))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:389.1-393.15 *)
 inductive Step_read_before_table_copy_gt :: "config ⇒ bool" where
 	  table_copy_le_0 :
-		"(~(Step_read_before_table_copy_le (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))]))) ⟹
+		"(~(Step_read_before_table_copy_le (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))]))) ⟹
 		 ((proj_num__0 i_1) ≠ None) ⟹
 		 ((proj_num__0 i_2) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 i_1)))) ≤ (proj_uN_0 (the ((proj_num__0 i_2))))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2))) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_GET y))) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_SET x))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_1)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_2)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_COPY x y))) ⟹
-		 Step_read_before_table_copy_gt (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_GET y))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_SET x))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_1)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_2)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_COPY x y))) ⟹
+		 Step_read_before_table_copy_gt (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))])"
 	| table_copy_zero_1 :
-		"(~(Step_read_before_table_copy_zero (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))]))) ⟹
+		"(~(Step_read_before_table_copy_zero (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))]))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))])) ⟹
-		 Step_read_before_table_copy_gt (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))])) ⟹
+		 Step_read_before_table_copy_gt (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))])"
 	| table_copy_oob_2 :
 		"((proj_num__0 i_1) ≠ None) ⟹
 		 ((proj_num__0 i_2) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) > (length (tableinst_REFS (fun_table z x_1)))) ∨ (((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) > (length (tableinst_REFS (fun_table z x_2))))) ⟹
 		 (wf_tableinst (fun_table z x_1)) ⟹
 		 (wf_tableinst (fun_table z x_2)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_table_copy_gt (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x_1 x_2))])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_table_copy_gt (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x_1 x_2))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:401.1-404.14 *)
 inductive Step_read_before_table_init_zero :: "config ⇒ bool" where
@@ -14291,9 +14468,9 @@ inductive Step_read_before_table_init_zero :: "config ⇒ bool" where
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (tableinst_REFS (fun_table z x)))) ∨ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (eleminst_REFS (fun_elem z y))))) ⟹
 		 (wf_tableinst (fun_table z x)) ⟹
 		 (wf_eleminst (fun_elem z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_2 (TABLE_INIT x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_table_init_zero (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_2 (TABLE_INIT x y))])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc2 (TABLE_INIT x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_table_init_zero (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc2 (TABLE_INIT x y))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:562.1-565.14 *)
 inductive Step_read_before_memory_fill_zero :: "config ⇒ bool" where
@@ -14301,9 +14478,9 @@ inductive Step_read_before_memory_fill_zero :: "config ⇒ bool" where
 		"((proj_num__0 i) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (BYTES (fun_mem z x)))) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_3 (MEMORY_FILL x))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_memory_fill_zero (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_3 (MEMORY_FILL x))])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc3 (MEMORY_FILL x))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_memory_fill_zero (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc3 (MEMORY_FILL x))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:579.1-582.14 *)
 inductive Step_read_before_memory_copy_zero :: "config ⇒ bool" where
@@ -14313,26 +14490,26 @@ inductive Step_read_before_memory_copy_zero :: "config ⇒ bool" where
 		 ((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) > (length (BYTES (fun_mem z x_1)))) ∨ (((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) > (length (BYTES (fun_mem z x_2))))) ⟹
 		 (wf_meminst (fun_mem z x_1)) ⟹
 		 (wf_meminst (fun_mem z x_2)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_memory_copy_zero (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc3 (MEMORY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_memory_copy_zero (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc3 (MEMORY_COPY x_1 x_2))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:584.1-589.19 *)
 inductive Step_read_before_memory_copy_le :: "config ⇒ bool" where
 	  memory_copy_zero_0 :
-		"(~(Step_read_before_memory_copy_zero (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))]))) ⟹
+		"(~(Step_read_before_memory_copy_zero (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc3 (MEMORY_COPY x_1 x_2))]))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))])) ⟹
-		 Step_read_before_memory_copy_le (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc3 (MEMORY_COPY x_1 x_2))])) ⟹
+		 Step_read_before_memory_copy_le (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc3 (MEMORY_COPY x_1 x_2))])"
 	| memory_copy_oob_1 :
 		"((proj_num__0 i_1) ≠ None) ⟹
 		 ((proj_num__0 i_2) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) > (length (BYTES (fun_mem z x_1)))) ∨ (((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) > (length (BYTES (fun_mem z x_2))))) ⟹
 		 (wf_meminst (fun_mem z x_1)) ⟹
 		 (wf_meminst (fun_mem z x_2)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_memory_copy_le (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc3 (MEMORY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_memory_copy_le (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc3 (MEMORY_COPY x_1 x_2))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:603.1-606.14 *)
 inductive Step_read_before_memory_init_zero :: "config ⇒ bool" where
@@ -14342,9 +14519,9 @@ inductive Step_read_before_memory_init_zero :: "config ⇒ bool" where
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (BYTES (fun_mem z x)))) ∨ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (datainst_BYTES (fun_data z y))))) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
 		 (wf_datainst (fun_data z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_3 (MEMORY_INIT x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_memory_init_zero (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_3 (MEMORY_INIT x y))])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc3 (MEMORY_INIT x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_memory_init_zero (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc3 (MEMORY_INIT x y))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:667.1-669.15 *)
 inductive Step_read_before_ref_test_false :: "config ⇒ bool" where
@@ -14352,9 +14529,9 @@ inductive Step_read_before_ref_test_false :: "config ⇒ bool" where
 		"(fun_inst_reftype (MODULE f) rt var_0) ⟹
 		 (Ref_ok s v_ref var_0) ⟹
 		 (wf_reftype var_0) ⟹
-		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_4 (REF_TEST rt))])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))) ⟹
-		 Step_read_before_ref_test_false (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_4 (REF_TEST rt))])"
+		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc4 (REF_TEST rt))])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))) ⟹
+		 Step_read_before_ref_test_false (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc4 (REF_TEST rt))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:676.1-678.15 *)
 inductive Step_read_before_ref_cast_fail :: "config ⇒ bool" where
@@ -14362,8 +14539,8 @@ inductive Step_read_before_ref_cast_fail :: "config ⇒ bool" where
 		"(fun_inst_reftype (MODULE f) rt var_0) ⟹
 		 (Ref_ok s v_ref var_0) ⟹
 		 (wf_reftype var_0) ⟹
-		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_4 (REF_CAST rt))])) ⟹
-		 Step_read_before_ref_cast_fail (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_4 (REF_CAST rt))])"
+		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc4 (REF_CAST rt))])) ⟹
+		 Step_read_before_ref_cast_fail (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc4 (REF_CAST rt))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:804.1-807.14 *)
 inductive Step_read_before_array_fill_zero :: "config ⇒ bool" where
@@ -14372,25 +14549,25 @@ inductive Step_read_before_array_fill_zero :: "config ⇒ bool" where
 		 (a < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_array_fill_zero (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_array_fill_zero (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:809.1-813.15 *)
 inductive Step_read_before_array_fill_succ :: "config ⇒ bool" where
 	  array_fill_zero_0 :
-		"(~(Step_read_before_array_fill_zero (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))]))) ⟹
+		"(~(Step_read_before_array_fill_zero (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))]))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))])) ⟹
-		 Step_read_before_array_fill_succ (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))])) ⟹
+		 Step_read_before_array_fill_succ (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))])"
 	| array_fill_oob_1 :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (a < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_array_fill_succ (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_array_fill_succ (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:831.1-835.14 *)
 inductive Step_read_before_array_copy_zero :: "config ⇒ bool" where
@@ -14399,85 +14576,85 @@ inductive Step_read_before_array_copy_zero :: "config ⇒ bool" where
 		 (a_2 < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a_2)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_array_copy_zero (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_array_copy_zero (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])"
 	| array_copy_oob1_0 :
 		"((proj_num__0 i_1) ≠ None) ⟹
 		 (a_1 < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a_1)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_array_copy_zero (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_array_copy_zero (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:837.1-847.24 *)
 inductive Step_read_before_array_copy_le :: "config ⇒ bool" where
 	  array_copy_zero_0 :
-		"(~(Step_read_before_array_copy_zero (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))]))) ⟹
+		"(~(Step_read_before_array_copy_zero (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))]))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])) ⟹
-		 Step_read_before_array_copy_le (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])) ⟹
+		 Step_read_before_array_copy_le (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])"
 	| array_copy_oob2_1 :
 		"((proj_num__0 i_2) ≠ None) ⟹
 		 (a_2 < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a_2)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_array_copy_le (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_array_copy_le (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])"
 	| array_copy_oob1_1 :
 		"((proj_num__0 i_1) ≠ None) ⟹
 		 (a_1 < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a_1)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_array_copy_le (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_array_copy_le (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:849.1-858.24 *)
 inductive Step_read_before_array_copy_gt :: "config ⇒ bool" where
 	  array_copy_le_0 :
-		"(~(Step_read_before_array_copy_le (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))]))) ⟹
+		"(~(Step_read_before_array_copy_le (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))]))) ⟹
 		 (Expand (fun_type z x_2) (comptype_ARRAY (mk_fieldtype mut_opt zt_2))) ⟹
 		 ((proj_num__0 i_1) ≠ None) ⟹
 		 ((proj_num__0 i_2) ≠ None) ⟹
 		 ((fun_sx zt_2) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i_1)))) ≤ (proj_uN_0 (the ((proj_num__0 i_2))))) ∧ (sx_opt = (the ((fun_sx zt_2))))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1))) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2))) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_GET sx_opt x_2))) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_SET x_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_1)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_2)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_6 (ARRAY_COPY x_1 x_2))) ⟹
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 i_1))) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 i_2))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_GET sx_opt x_2))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_SET x_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_1)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_2)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc6 (ARRAY_COPY x_1 x_2))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt_2))) ⟹
-		 Step_read_before_array_copy_gt (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])"
+		 Step_read_before_array_copy_gt (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])"
 	| array_copy_zero_1 :
-		"(~(Step_read_before_array_copy_zero (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))]))) ⟹
+		"(~(Step_read_before_array_copy_zero (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))]))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])) ⟹
-		 Step_read_before_array_copy_gt (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])) ⟹
+		 Step_read_before_array_copy_gt (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])"
 	| array_copy_oob2_2 :
 		"((proj_num__0 i_2) ≠ None) ⟹
 		 (a_2 < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a_2)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_array_copy_gt (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_array_copy_gt (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])"
 	| array_copy_oob1_2 :
 		"((proj_num__0 i_1) ≠ None) ⟹
 		 (a_1 < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a_1)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_array_copy_gt (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_array_copy_gt (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:874.1-878.14 *)
 inductive Step_read_before_array_init_elem_zero :: "config ⇒ bool" where
@@ -14485,40 +14662,40 @@ inductive Step_read_before_array_init_elem_zero :: "config ⇒ bool" where
 		"((proj_num__0 j) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (eleminst_REFS (fun_elem z y)))) ⟹
 		 (wf_eleminst (fun_elem z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_array_init_elem_zero (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_array_init_elem_zero (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))])"
 	| array_init_elem_oob1_0 :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (a < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_array_init_elem_zero (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_array_init_elem_zero (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:880.1-886.34 *)
 inductive Step_read_before_array_init_elem_succ :: "config ⇒ bool" where
 	  array_init_elem_zero_0 :
-		"(~(Step_read_before_array_init_elem_zero (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))]))) ⟹
+		"(~(Step_read_before_array_init_elem_zero (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))]))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))])) ⟹
-		 Step_read_before_array_init_elem_succ (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))])) ⟹
+		 Step_read_before_array_init_elem_succ (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))])"
 	| array_init_elem_oob2_1 :
 		"((proj_num__0 j) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (eleminst_REFS (fun_elem z y)))) ⟹
 		 (wf_eleminst (fun_elem z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_array_init_elem_succ (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_array_init_elem_succ (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))])"
 	| array_init_elem_oob1_1 :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (a < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_array_init_elem_succ (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_array_init_elem_succ (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:903.1-907.14 *)
 inductive Step_read_before_array_init_data_zero :: "config ⇒ bool" where
@@ -14528,44 +14705,44 @@ inductive Step_read_before_array_init_data_zero :: "config ⇒ bool" where
 		 ((zsize zt) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 j)))) + ((((v_n * (the ((zsize zt)))) :: nat) div (8 :: nat)) :: nat)) > (length (datainst_BYTES (fun_data z y)))) ⟹
 		 (wf_datainst (fun_data z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
-		 Step_read_before_array_init_data_zero (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))])"
+		 Step_read_before_array_init_data_zero (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))])"
 	| array_init_data_oob1_0 :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (a < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_array_init_data_zero (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_array_init_data_zero (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:910.1-917.62 *)
 inductive Step_read_before_array_init_data_num :: "config ⇒ bool" where
 	  array_init_data_zero_0 :
-		"(~(Step_read_before_array_init_data_zero (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))]))) ⟹
+		"(~(Step_read_before_array_init_data_zero (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))]))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))])) ⟹
-		 Step_read_before_array_init_data_num (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))])) ⟹
+		 Step_read_before_array_init_data_num (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))])"
 	| array_init_data_oob2_1 :
 		"(Expand (fun_type z x) (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((zsize zt) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 j)))) + ((((v_n * (the ((zsize zt)))) :: nat) div (8 :: nat)) :: nat)) > (length (datainst_BYTES (fun_data z y)))) ⟹
 		 (wf_datainst (fun_data z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
-		 Step_read_before_array_init_data_num (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))])"
+		 Step_read_before_array_init_data_num (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))])"
 	| array_init_data_oob1_1 :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (a < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read_before_array_init_data_num (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read_before_array_init_data_num (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:7.1-7.88 *)
 inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
@@ -14573,59 +14750,59 @@ inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
 		"(fun_blocktype_underscore z bt var_0) ⟹
 		 (var_0 = (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_instrtype var_0) ⟹
-		 (wf_config (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_9 (BLOCK bt instr_lst))]))) ⟹
-		 (wf_instr (instr_subcase_10 (LABEL_underscore v_n [] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ instr_lst)))) ⟹
+		 (wf_config (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc9 (BLOCK bt instr_lst))]))) ⟹
+		 (wf_instr (instr_sc10 (LABEL_underscore v_n [] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ instr_lst)))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (v_m = (length val_lst)) ⟹
 		 (v_m = (length t_1_lst)) ⟹
 		 (v_n = (length t_2_lst)) ⟹
-		 Step_read (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_9 (BLOCK bt instr_lst))])) [(instr_subcase_10 (LABEL_underscore v_n [] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ instr_lst)))]"
+		 Step_read (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc9 (BLOCK bt instr_lst))])) [(instr_sc10 (LABEL_underscore v_n [] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ instr_lst)))]"
 	| Step_read__loop :
 		"(fun_blocktype_underscore z bt var_0) ⟹
 		 (var_0 = (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_instrtype var_0) ⟹
-		 (wf_config (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_10 (LOOP bt instr_lst))]))) ⟹
-		 (wf_instr (instr_subcase_10 (LABEL_underscore v_m [(instr_subcase_10 (LOOP bt instr_lst))] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ instr_lst)))) ⟹
+		 (wf_config (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc10 (LOOP bt instr_lst))]))) ⟹
+		 (wf_instr (instr_sc10 (LABEL_underscore v_m [(instr_sc10 (LOOP bt instr_lst))] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ instr_lst)))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (v_m = (length val_lst)) ⟹
 		 (v_m = (length t_1_lst)) ⟹
 		 (v_n = (length t_2_lst)) ⟹
-		 Step_read (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_10 (LOOP bt instr_lst))])) [(instr_subcase_10 (LABEL_underscore v_m [(instr_subcase_10 (LOOP bt instr_lst))] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ instr_lst)))]"
+		 Step_read (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc10 (LOOP bt instr_lst))])) [(instr_sc10 (LABEL_underscore v_m [(instr_sc10 (LOOP bt instr_lst))] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ instr_lst)))]"
 	| br_on_cast_succeed :
 		"(fun_inst_reftype (MODULE f) rt_2 var_0) ⟹
 		 (Ref_ok s v_ref var_0) ⟹
 		 (wf_reftype var_0) ⟹
-		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_0 (BR_ON_CAST l rt_1 rt_2))])) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
-		 Step_read (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_0 (BR_ON_CAST l rt_1 rt_2))]) [(instr_ref v_ref), (instr_subcase_0 (BR l))]"
+		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc0 (BR_ON_CAST l rt_1 rt_2))])) ⟹
+		 (wf_instr (instr_sc0 (BR l))) ⟹
+		 Step_read (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc0 (BR_ON_CAST l rt_1 rt_2))]) [(instr_ref v_ref), (instr_sc0 (BR l))]"
 	| Step_read__br_on_cast_fail :
-		"(~(Step_read_before_br_on_cast_fail (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_0 (BR_ON_CAST l rt_1 rt_2))]))) ⟹
-		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_0 (BR_ON_CAST l rt_1 rt_2))])) ⟹
-		 Step_read (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_0 (BR_ON_CAST l rt_1 rt_2))]) [(instr_ref v_ref)]"
+		"(~(Step_read_before_br_on_cast_fail (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc0 (BR_ON_CAST l rt_1 rt_2))]))) ⟹
+		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc0 (BR_ON_CAST l rt_1 rt_2))])) ⟹
+		 Step_read (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc0 (BR_ON_CAST l rt_1 rt_2))]) [(instr_ref v_ref)]"
 	| br_on_cast_fail_succeed :
 		"(fun_inst_reftype (MODULE f) rt_2 var_0) ⟹
 		 (Ref_ok s v_ref var_0) ⟹
 		 (wf_reftype var_0) ⟹
-		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_0 (BR_ON_CAST_FAIL l rt_1 rt_2))])) ⟹
-		 Step_read (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_0 (BR_ON_CAST_FAIL l rt_1 rt_2))]) [(instr_ref v_ref)]"
+		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc0 (BR_ON_CAST_FAIL l rt_1 rt_2))])) ⟹
+		 Step_read (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc0 (BR_ON_CAST_FAIL l rt_1 rt_2))]) [(instr_ref v_ref)]"
 	| br_on_cast_fail_fail :
-		"(~(Step_read_before_br_on_cast_fail_fail (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_0 (BR_ON_CAST_FAIL l rt_1 rt_2))]))) ⟹
-		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_0 (BR_ON_CAST_FAIL l rt_1 rt_2))])) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
-		 Step_read (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_0 (BR_ON_CAST_FAIL l rt_1 rt_2))]) [(instr_ref v_ref), (instr_subcase_0 (BR l))]"
+		"(~(Step_read_before_br_on_cast_fail_fail (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc0 (BR_ON_CAST_FAIL l rt_1 rt_2))]))) ⟹
+		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc0 (BR_ON_CAST_FAIL l rt_1 rt_2))])) ⟹
+		 (wf_instr (instr_sc0 (BR l))) ⟹
+		 Step_read (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc0 (BR_ON_CAST_FAIL l rt_1 rt_2))]) [(instr_ref v_ref), (instr_sc0 (BR l))]"
 	| Step_read__call :
 		"(a < (length (fun_funcinst z))) ⟹
 		 ((proj_uN_0 x) < (length (moduleinst_FUNCS (fun_moduleinst z)))) ⟹
 		 (((moduleinst_FUNCS (fun_moduleinst z)) ! (proj_uN_0 x)) = a) ⟹
 		 (wf_moduleinst (fun_moduleinst z)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_1 (CALL x))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_FUNC_ADDR a))) ⟹
-		 (wf_instr (instr_subcase_1 (CALL_REF (typeuse_deftype (funcinst_TYPE ((fun_funcinst z) ! a)))))) ⟹
-		 Step_read (mk_config z [(instr_subcase_1 (CALL x))]) [(instr_subcase_9 (instr_subtype_9_REF_FUNC_ADDR a)), (instr_subcase_1 (CALL_REF (typeuse_deftype (funcinst_TYPE ((fun_funcinst z) ! a)))))]"
+		 (wf_config (mk_config z [(instr_sc1 (CALL x))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_FUNC_ADDR a))) ⟹
+		 (wf_instr (instr_sc1 (CALL_REF (typeuse_deftype (funcinst_TYPE ((fun_funcinst z) ! a)))))) ⟹
+		 Step_read (mk_config z [(instr_sc1 (CALL x))]) [(instr_sc9 (instr_st9_REF_FUNC_ADDR a)), (instr_sc1 (CALL_REF (typeuse_deftype (funcinst_TYPE ((fun_funcinst z) ! a)))))]"
 	| call_ref_null :
-		"(wf_config (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_1 (CALL_REF yy))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_1 (CALL_REF yy))]) [(instr_subcase_9 TRAP)]"
+		"(wf_config (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc1 (CALL_REF yy))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc1 (CALL_REF yy))]) [(instr_sc9 TRAP)]"
 	| call_ref_func :
 		"(a < (length (fun_funcinst z))) ⟹
 		 (((fun_funcinst z) ! a) = fi) ⟹
@@ -14634,73 +14811,73 @@ inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
 		 list_all (λ (t :: valtype). ((default_underscore t) ≠ None)) t_lst ⟹
 		 (f = ⦇ frame_LOCALS = ((map (λ (v_val :: val). (Some v_val)) val_lst) @ (map (λ (t :: valtype). (the ((default_underscore t)))) t_lst)), MODULE = (funcinst_MODULE fi) ⦈) ⟹
 		 list_all (λ (iter :: funcinst). (wf_funcinst iter)) (fun_funcinst z) ⟹
-		 (wf_config (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_9 (instr_subtype_9_REF_FUNC_ADDR a)), (instr_subcase_1 (CALL_REF yy))]))) ⟹
-		 (wf_instr (instr_subcase_10 (FRAME_underscore v_m f [(instr_subcase_10 (LABEL_underscore v_m [] instr_lst))]))) ⟹
+		 (wf_config (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc9 (instr_st9_REF_FUNC_ADDR a)), (instr_sc1 (CALL_REF yy))]))) ⟹
+		 (wf_instr (instr_sc10 (FRAME_underscore v_m f [(instr_sc10 (LABEL_underscore v_m [] instr_lst))]))) ⟹
 		 (wf_comptype (comptype_FUNC (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (wf_funccode (funccode_FUNC x (map (λ (t :: valtype). (LOCAL t)) t_lst) instr_lst)) ⟹
 		 (wf_frame ⦇ frame_LOCALS = ((map (λ (v_val :: val). (Some v_val)) val_lst) @ (map (λ (t :: valtype). (the ((default_underscore t)))) t_lst)), MODULE = (funcinst_MODULE fi) ⦈) ⟹
 		 (v_n = (length val_lst)) ⟹
 		 (v_n = (length t_1_lst)) ⟹
 		 (v_m = (length t_2_lst)) ⟹
-		 Step_read (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_9 (instr_subtype_9_REF_FUNC_ADDR a)), (instr_subcase_1 (CALL_REF yy))])) [(instr_subcase_10 (FRAME_underscore v_m f [(instr_subcase_10 (LABEL_underscore v_m [] instr_lst))]))]"
+		 Step_read (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc9 (instr_st9_REF_FUNC_ADDR a)), (instr_sc1 (CALL_REF yy))])) [(instr_sc10 (FRAME_underscore v_m f [(instr_sc10 (LABEL_underscore v_m [] instr_lst))]))]"
 	| Step_read__return_call :
 		"(a < (length (fun_funcinst z))) ⟹
 		 ((proj_uN_0 x) < (length (moduleinst_FUNCS (fun_moduleinst z)))) ⟹
 		 (((moduleinst_FUNCS (fun_moduleinst z)) ! (proj_uN_0 x)) = a) ⟹
 		 (wf_moduleinst (fun_moduleinst z)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_1 (RETURN_CALL x))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_FUNC_ADDR a))) ⟹
-		 (wf_instr (instr_subcase_1 (RETURN_CALL_REF (typeuse_deftype (funcinst_TYPE ((fun_funcinst z) ! a)))))) ⟹
-		 Step_read (mk_config z [(instr_subcase_1 (RETURN_CALL x))]) [(instr_subcase_9 (instr_subtype_9_REF_FUNC_ADDR a)), (instr_subcase_1 (RETURN_CALL_REF (typeuse_deftype (funcinst_TYPE ((fun_funcinst z) ! a)))))]"
+		 (wf_config (mk_config z [(instr_sc1 (RETURN_CALL x))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_FUNC_ADDR a))) ⟹
+		 (wf_instr (instr_sc1 (RETURN_CALL_REF (typeuse_deftype (funcinst_TYPE ((fun_funcinst z) ! a)))))) ⟹
+		 Step_read (mk_config z [(instr_sc1 (RETURN_CALL x))]) [(instr_sc9 (instr_st9_REF_FUNC_ADDR a)), (instr_sc1 (RETURN_CALL_REF (typeuse_deftype (funcinst_TYPE ((fun_funcinst z) ! a)))))]"
 	| return_call_ref_label :
-		"(wf_config (mk_config z [(instr_subcase_10 (LABEL_underscore k instr'_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_1 (RETURN_CALL_REF yy))]) @ instr_lst)))])) ⟹
-		 (wf_instr (instr_subcase_1 (RETURN_CALL_REF yy))) ⟹
-		 Step_read (mk_config z [(instr_subcase_10 (LABEL_underscore k instr'_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_1 (RETURN_CALL_REF yy))]) @ instr_lst)))]) ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_1 (RETURN_CALL_REF yy))])"
+		"(wf_config (mk_config z [(instr_sc10 (LABEL_underscore k instr'_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc1 (RETURN_CALL_REF yy))]) @ instr_lst)))])) ⟹
+		 (wf_instr (instr_sc1 (RETURN_CALL_REF yy))) ⟹
+		 Step_read (mk_config z [(instr_sc10 (LABEL_underscore k instr'_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc1 (RETURN_CALL_REF yy))]) @ instr_lst)))]) ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc1 (RETURN_CALL_REF yy))])"
 	| return_call_ref_handler :
-		"(wf_config (mk_config z [(instr_subcase_10 (HANDLER_underscore k catch_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_1 (RETURN_CALL_REF yy))]) @ instr_lst)))])) ⟹
-		 (wf_instr (instr_subcase_1 (RETURN_CALL_REF yy))) ⟹
-		 Step_read (mk_config z [(instr_subcase_10 (HANDLER_underscore k catch_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_1 (RETURN_CALL_REF yy))]) @ instr_lst)))]) ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_1 (RETURN_CALL_REF yy))])"
+		"(wf_config (mk_config z [(instr_sc10 (HANDLER_underscore k catch_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc1 (RETURN_CALL_REF yy))]) @ instr_lst)))])) ⟹
+		 (wf_instr (instr_sc1 (RETURN_CALL_REF yy))) ⟹
+		 Step_read (mk_config z [(instr_sc10 (HANDLER_underscore k catch_lst (((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc1 (RETURN_CALL_REF yy))]) @ instr_lst)))]) ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc1 (RETURN_CALL_REF yy))])"
 	| return_call_ref_frame_null :
-		"(wf_config (mk_config z [(instr_subcase_10 (FRAME_underscore k f ((((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR)]) @ [(instr_subcase_1 (RETURN_CALL_REF yy))]) @ instr_lst)))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_10 (FRAME_underscore k f ((((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR)]) @ [(instr_subcase_1 (RETURN_CALL_REF yy))]) @ instr_lst)))]) [(instr_subcase_9 TRAP)]"
+		"(wf_config (mk_config z [(instr_sc10 (FRAME_underscore k f ((((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc9 instr_st9_REF_NULL_ADDR)]) @ [(instr_sc1 (RETURN_CALL_REF yy))]) @ instr_lst)))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc10 (FRAME_underscore k f ((((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc9 instr_st9_REF_NULL_ADDR)]) @ [(instr_sc1 (RETURN_CALL_REF yy))]) @ instr_lst)))]) [(instr_sc9 TRAP)]"
 	| return_call_ref_frame_addr :
 		"(a < (length (fun_funcinst z))) ⟹
 		 (Expand (funcinst_TYPE ((fun_funcinst z) ! a)) (comptype_FUNC (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 list_all (λ (iter :: funcinst). (wf_funcinst iter)) (fun_funcinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_10 (FRAME_underscore k f (((((map (λ (val' :: val). (instr_val val')) val'_lst) @ (map (λ (v_val :: val). (instr_val v_val)) val_lst)) @ [(instr_subcase_9 (instr_subtype_9_REF_FUNC_ADDR a))]) @ [(instr_subcase_1 (RETURN_CALL_REF yy))]) @ instr_lst)))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_FUNC_ADDR a))) ⟹
-		 (wf_instr (instr_subcase_1 (CALL_REF yy))) ⟹
+		 (wf_config (mk_config z [(instr_sc10 (FRAME_underscore k f (((((map (λ (val' :: val). (instr_val val')) val'_lst) @ (map (λ (v_val :: val). (instr_val v_val)) val_lst)) @ [(instr_sc9 (instr_st9_REF_FUNC_ADDR a))]) @ [(instr_sc1 (RETURN_CALL_REF yy))]) @ instr_lst)))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_FUNC_ADDR a))) ⟹
+		 (wf_instr (instr_sc1 (CALL_REF yy))) ⟹
 		 (wf_comptype (comptype_FUNC (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (v_n = (length val_lst)) ⟹
 		 (v_n = (length t_1_lst)) ⟹
 		 (v_m = (length t_2_lst)) ⟹
-		 Step_read (mk_config z [(instr_subcase_10 (FRAME_underscore k f (((((map (λ (val' :: val). (instr_val val')) val'_lst) @ (map (λ (v_val :: val). (instr_val v_val)) val_lst)) @ [(instr_subcase_9 (instr_subtype_9_REF_FUNC_ADDR a))]) @ [(instr_subcase_1 (RETURN_CALL_REF yy))]) @ instr_lst)))]) ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_9 (instr_subtype_9_REF_FUNC_ADDR a)), (instr_subcase_1 (CALL_REF yy))])"
+		 Step_read (mk_config z [(instr_sc10 (FRAME_underscore k f (((((map (λ (val' :: val). (instr_val val')) val'_lst) @ (map (λ (v_val :: val). (instr_val v_val)) val_lst)) @ [(instr_sc9 (instr_st9_REF_FUNC_ADDR a))]) @ [(instr_sc1 (RETURN_CALL_REF yy))]) @ instr_lst)))]) ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc9 (instr_st9_REF_FUNC_ADDR a)), (instr_sc1 (CALL_REF yy))])"
 	| throw_ref_null :
-		"(wf_config (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_1 THROW_REF)])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_1 THROW_REF)]) [(instr_subcase_9 TRAP)]"
+		"(wf_config (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc1 THROW_REF)])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc1 THROW_REF)]) [(instr_sc9 TRAP)]"
 	| throw_ref_instrs :
 		"((val_lst ≠ []) ∨ (instr_lst ≠ [])) ⟹
-		 (wf_config (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ ([(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a))] @ ([(instr_subcase_1 THROW_REF)] @ instr_lst))))) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a))) ⟹
-		 (wf_instr (instr_subcase_1 THROW_REF)) ⟹
-		 Step_read (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ ([(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a))] @ ([(instr_subcase_1 THROW_REF)] @ instr_lst)))) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]"
+		 (wf_config (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ ([(instr_sc9 (instr_st9_REF_EXN_ADDR a))] @ ([(instr_sc1 THROW_REF)] @ instr_lst))))) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_EXN_ADDR a))) ⟹
+		 (wf_instr (instr_sc1 THROW_REF)) ⟹
+		 Step_read (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ ([(instr_sc9 (instr_st9_REF_EXN_ADDR a))] @ ([(instr_sc1 THROW_REF)] @ instr_lst)))) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]"
 	| throw_ref_label :
-		"(wf_config (mk_config z [(instr_subcase_10 (LABEL_underscore v_n instr'_lst [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a))) ⟹
-		 (wf_instr (instr_subcase_1 THROW_REF)) ⟹
-		 Step_read (mk_config z [(instr_subcase_10 (LABEL_underscore v_n instr'_lst [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))]) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]"
+		"(wf_config (mk_config z [(instr_sc10 (LABEL_underscore v_n instr'_lst [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_EXN_ADDR a))) ⟹
+		 (wf_instr (instr_sc1 THROW_REF)) ⟹
+		 Step_read (mk_config z [(instr_sc10 (LABEL_underscore v_n instr'_lst [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))]) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]"
 	| throw_ref_frame :
-		"(wf_config (mk_config z [(instr_subcase_10 (FRAME_underscore v_n f [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a))) ⟹
-		 (wf_instr (instr_subcase_1 THROW_REF)) ⟹
-		 Step_read (mk_config z [(instr_subcase_10 (FRAME_underscore v_n f [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))]) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]"
+		"(wf_config (mk_config z [(instr_sc10 (FRAME_underscore v_n f [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_EXN_ADDR a))) ⟹
+		 (wf_instr (instr_sc1 THROW_REF)) ⟹
+		 Step_read (mk_config z [(instr_sc10 (FRAME_underscore v_n f [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))]) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]"
 	| throw_ref_handler_empty :
-		"(wf_config (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n [] [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a))) ⟹
-		 (wf_instr (instr_subcase_1 THROW_REF)) ⟹
-		 Step_read (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n [] [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))]) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]"
+		"(wf_config (mk_config z [(instr_sc10 (HANDLER_underscore v_n [] [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_EXN_ADDR a))) ⟹
+		 (wf_instr (instr_sc1 THROW_REF)) ⟹
+		 Step_read (mk_config z [(instr_sc10 (HANDLER_underscore v_n [] [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))]) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]"
 	| throw_ref_handler_catch :
 		"(a < (length (fun_exninst z))) ⟹
 		 ((proj_uN_0 x) < (length (fun_tagaddr z))) ⟹
@@ -14708,9 +14885,9 @@ inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
 		 (val_lst = (exninst_FIELDS ((fun_exninst z) ! a))) ⟹
 		 list_all (λ (v_val :: val). (wf_val v_val)) val_lst ⟹
 		 list_all (λ (iter :: exninst). (wf_exninst iter)) (fun_exninst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([(CATCH x l)] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))])) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
-		 Step_read (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([(CATCH x l)] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))]) ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_0 (BR l))])"
+		 (wf_config (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([(CATCH x l)] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))])) ⟹
+		 (wf_instr (instr_sc0 (BR l))) ⟹
+		 Step_read (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([(CATCH x l)] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))]) ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc0 (BR l))])"
 	| throw_ref_handler_catch_ref :
 		"(a < (length (fun_exninst z))) ⟹
 		 ((proj_uN_0 x) < (length (fun_tagaddr z))) ⟹
@@ -14718,151 +14895,151 @@ inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
 		 (val_lst = (exninst_FIELDS ((fun_exninst z) ! a))) ⟹
 		 list_all (λ (v_val :: val). (wf_val v_val)) val_lst ⟹
 		 list_all (λ (iter :: exninst). (wf_exninst iter)) (fun_exninst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([(CATCH_REF x l)] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a))) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
-		 Step_read (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([(CATCH_REF x l)] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))]) ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_0 (BR l))])"
+		 (wf_config (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([(CATCH_REF x l)] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_EXN_ADDR a))) ⟹
+		 (wf_instr (instr_sc0 (BR l))) ⟹
+		 Step_read (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([(CATCH_REF x l)] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))]) ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc0 (BR l))])"
 	| throw_ref_handler_catch_all :
-		"(wf_config (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([(CATCH_ALL l)] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))])) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
-		 Step_read (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([(CATCH_ALL l)] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))]) [(instr_subcase_0 (BR l))]"
+		"(wf_config (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([(CATCH_ALL l)] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))])) ⟹
+		 (wf_instr (instr_sc0 (BR l))) ⟹
+		 Step_read (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([(CATCH_ALL l)] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))]) [(instr_sc0 (BR l))]"
 	| throw_ref_handler_catch_all_ref :
-		"(wf_config (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([(CATCH_ALL_REF l)] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a))) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
-		 Step_read (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([(CATCH_ALL_REF l)] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))]) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_0 (BR l))]"
+		"(wf_config (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([(CATCH_ALL_REF l)] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_EXN_ADDR a))) ⟹
+		 (wf_instr (instr_sc0 (BR l))) ⟹
+		 Step_read (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([(CATCH_ALL_REF l)] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))]) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc0 (BR l))]"
 	| throw_ref_handler_next :
-		"(~(Step_read_before_throw_ref_handler_next (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([v_catch] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))]))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([v_catch] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))])) ⟹
-		 (wf_instr (instr_subcase_10 (HANDLER_underscore v_n catch'_lst [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))) ⟹
-		 Step_read (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n ([v_catch] @ catch'_lst) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))]) [(instr_subcase_10 (HANDLER_underscore v_n catch'_lst [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)]))]"
+		"(~(Step_read_before_throw_ref_handler_next (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([v_catch] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))]))) ⟹
+		 (wf_config (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([v_catch] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))])) ⟹
+		 (wf_instr (instr_sc10 (HANDLER_underscore v_n catch'_lst [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))) ⟹
+		 Step_read (mk_config z [(instr_sc10 (HANDLER_underscore v_n ([v_catch] @ catch'_lst) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))]) [(instr_sc10 (HANDLER_underscore v_n catch'_lst [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)]))]"
 	| Step_read__try_table :
 		"(fun_blocktype_underscore z bt var_0) ⟹
 		 (var_0 = (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_instrtype var_0) ⟹
-		 (wf_config (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_10 (TRY_TABLE bt (mk_list catch_lst) instr_lst))]))) ⟹
-		 (wf_instr (instr_subcase_10 (HANDLER_underscore v_n catch_lst [(instr_subcase_10 (LABEL_underscore v_n [] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ instr_lst)))]))) ⟹
+		 (wf_config (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc10 (TRY_TABLE bt (mk_list catch_lst) instr_lst))]))) ⟹
+		 (wf_instr (instr_sc10 (HANDLER_underscore v_n catch_lst [(instr_sc10 (LABEL_underscore v_n [] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ instr_lst)))]))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (v_m = (length val_lst)) ⟹
 		 (v_m = (length t_1_lst)) ⟹
 		 (v_n = (length t_2_lst)) ⟹
-		 Step_read (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_10 (TRY_TABLE bt (mk_list catch_lst) instr_lst))])) [(instr_subcase_10 (HANDLER_underscore v_n catch_lst [(instr_subcase_10 (LABEL_underscore v_n [] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ instr_lst)))]))]"
+		 Step_read (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc10 (TRY_TABLE bt (mk_list catch_lst) instr_lst))])) [(instr_sc10 (HANDLER_underscore v_n catch_lst [(instr_sc10 (LABEL_underscore v_n [] ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ instr_lst)))]))]"
 	| Step_read__local_get :
 		"((fun_local z x) = (Some v_val)) ⟹
 		 (wf_val v_val) ⟹
 		 list_all (λ (iter :: val). (wf_val iter)) (option_to_list (fun_local z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_1 (LOCAL_GET x))])) ⟹
-		 Step_read (mk_config z [(instr_subcase_1 (LOCAL_GET x))]) [(instr_val v_val)]"
+		 (wf_config (mk_config z [(instr_sc1 (LOCAL_GET x))])) ⟹
+		 Step_read (mk_config z [(instr_sc1 (LOCAL_GET x))]) [(instr_val v_val)]"
 	| Step_read__global_get :
 		"((VALUE (fun_global z x)) = v_val) ⟹
 		 (wf_val v_val) ⟹
 		 (wf_globalinst (fun_global z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_2 (GLOBAL_GET x))])) ⟹
-		 Step_read (mk_config z [(instr_subcase_2 (GLOBAL_GET x))]) [(instr_val v_val)]"
+		 (wf_config (mk_config z [(instr_sc2 (GLOBAL_GET x))])) ⟹
+		 Step_read (mk_config z [(instr_sc2 (GLOBAL_GET x))]) [(instr_val v_val)]"
 	| table_get_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 i)))) ≥ (length (tableinst_REFS (fun_table z x)))) ⟹
 		 (wf_tableinst (fun_table z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_2 (TABLE_GET x))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_2 (TABLE_GET x))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc2 (TABLE_GET x))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc2 (TABLE_GET x))]) [(instr_sc9 TRAP)]"
 	| table_get_val :
 		"((proj_uN_0 (the ((proj_num__0 i)))) < (length (tableinst_REFS (fun_table z x)))) ⟹
 		 ((proj_num__0 i) ≠ None) ⟹
 		 (wf_tableinst (fun_table z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_2 (TABLE_GET x))])) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_2 (TABLE_GET x))]) [(instr_ref ((tableinst_REFS (fun_table z x)) ! (proj_uN_0 (the ((proj_num__0 i))))))]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc2 (TABLE_GET x))])) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc2 (TABLE_GET x))]) [(instr_ref ((tableinst_REFS (fun_table z x)) ! (proj_uN_0 (the ((proj_num__0 i))))))]"
 	| Step_read__table_size :
 		"((length (tableinst_REFS (fun_table z x))) = v_n) ⟹
 		 ((tableinst_TYPE (fun_table z x)) = (mk_tabletype at lim rt)) ⟹
 		 (wf_tableinst (fun_table z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_2 (TABLE_SIZE x))])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n))))) ⟹
+		 (wf_config (mk_config z [(instr_sc2 (TABLE_SIZE x))])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n))))) ⟹
 		 (wf_tabletype (mk_tabletype at lim rt)) ⟹
-		 Step_read (mk_config z [(instr_subcase_2 (TABLE_SIZE x))]) [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n))))]"
+		 Step_read (mk_config z [(instr_sc2 (TABLE_SIZE x))]) [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n))))]"
 	| table_fill_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (tableinst_REFS (fun_table z x)))) ⟹
 		 (wf_tableinst (fun_table z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_2 (TABLE_FILL x))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_2 (TABLE_FILL x))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc2 (TABLE_FILL x))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc2 (TABLE_FILL x))]) [(instr_sc9 TRAP)]"
 	| table_fill_zero :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (tableinst_REFS (fun_table z x)))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_2 (TABLE_FILL x))])) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_2 (TABLE_FILL x))]) []"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc2 (TABLE_FILL x))])) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc2 (TABLE_FILL x))]) []"
 	| table_fill_succ :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (v_n ≠ 0) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (tableinst_REFS (fun_table z x)))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_2 (TABLE_FILL x))])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i))) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_SET x))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_FILL x))) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_2 (TABLE_FILL x))]) [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_2 (TABLE_SET x)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_2 (TABLE_FILL x))]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc2 (TABLE_FILL x))])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at) i))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_SET x))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_FILL x))) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc2 (TABLE_FILL x))]) [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc2 (TABLE_SET x)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_sc2 (TABLE_FILL x))]"
 	| table_copy_oob :
 		"((proj_num__0 i_1) ≠ None) ⟹
 		 ((proj_num__0 i_2) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) > (length (tableinst_REFS (fun_table z x_1)))) ∨ (((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) > (length (tableinst_REFS (fun_table z x_2))))) ⟹
 		 (wf_tableinst (fun_table z x_1)) ⟹
 		 (wf_tableinst (fun_table z x_2)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x_1 x_2))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x_1 x_2))]) [(instr_sc9 TRAP)]"
 	| table_copy_zero :
-		"(~(Step_read_before_table_copy_zero (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))]))) ⟹
+		"(~(Step_read_before_table_copy_zero (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))]))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))])) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))]) []"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))])) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))]) []"
 	| table_copy_le :
 		"((proj_num__0 i_1) ≠ None) ⟹
 		 ((proj_num__0 i_2) ≠ None) ⟹
-		 (~(Step_read_before_table_copy_le (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))]))) ⟹
+		 (~(Step_read_before_table_copy_le (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))]))) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 i_1)))) ≤ (proj_uN_0 (the ((proj_num__0 i_2))))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2))) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_GET y))) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_SET x))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_1)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_2)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_COPY x y))) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))]) [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_2 (TABLE_GET y)), (instr_subcase_2 (TABLE_SET x)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_1)))) + 1))))), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_2)))) + 1))))), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_2 (TABLE_COPY x y))]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_GET y))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_SET x))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_1)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_2)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_COPY x y))) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))]) [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc2 (TABLE_GET y)), (instr_sc2 (TABLE_SET x)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_1)))) + 1))))), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_2)))) + 1))))), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_sc2 (TABLE_COPY x y))]"
 	| table_copy_gt :
 		"((proj_num__0 i_1) ≠ None) ⟹
 		 ((proj_num__0 i_2) ≠ None) ⟹
-		 (~(Step_read_before_table_copy_gt (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))]))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_GET y))) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_SET x))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_COPY x y))) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_2 (TABLE_COPY x y))]) [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_2 (TABLE_GET y)), (instr_subcase_2 (TABLE_SET x)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_2 (TABLE_COPY x y))]"
+		 (~(Step_read_before_table_copy_gt (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))]))) ⟹
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_GET y))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_SET x))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_COPY x y))) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc2 (TABLE_COPY x y))]) [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (instr_sc2 (TABLE_GET y)), (instr_sc2 (TABLE_SET x)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_sc2 (TABLE_COPY x y))]"
 	| table_init_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (tableinst_REFS (fun_table z x)))) ∨ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (eleminst_REFS (fun_elem z y))))) ⟹
 		 (wf_tableinst (fun_table z x)) ⟹
 		 (wf_eleminst (fun_elem z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_2 (TABLE_INIT x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_2 (TABLE_INIT x y))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc2 (TABLE_INIT x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc2 (TABLE_INIT x y))]) [(instr_sc9 TRAP)]"
 	| table_init_zero :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (tableinst_REFS (fun_table z x)))) ∧ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) ≤ (length (eleminst_REFS (fun_elem z y))))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_2 (TABLE_INIT x y))])) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_2 (TABLE_INIT x y))]) []"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc2 (TABLE_INIT x y))])) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc2 (TABLE_INIT x y))]) []"
 	| table_init_succ :
 		"((proj_uN_0 (the ((proj_num__0 j)))) < (length (eleminst_REFS (fun_elem z y)))) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
@@ -14870,66 +15047,66 @@ inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
 		 (v_n ≠ 0) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (tableinst_REFS (fun_table z x)))) ∧ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) ≤ (length (eleminst_REFS (fun_elem z y))))) ⟹
 		 (wf_eleminst (fun_elem z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_2 (TABLE_INIT x y))])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i))) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_SET x))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_2 (TABLE_INIT x y))) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_2 (TABLE_INIT x y))]) [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_ref ((eleminst_REFS (fun_elem z y)) ! (proj_uN_0 (the ((proj_num__0 j)))))), (instr_subcase_2 (TABLE_SET x)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1))))), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_2 (TABLE_INIT x y))]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc2 (TABLE_INIT x y))])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at) i))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_SET x))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc2 (TABLE_INIT x y))) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc2 (TABLE_INIT x y))]) [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_ref ((eleminst_REFS (fun_elem z y)) ! (proj_uN_0 (the ((proj_num__0 j)))))), (instr_sc2 (TABLE_SET x)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1))))), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_sc2 (TABLE_INIT x y))]"
 	| load_num_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + ((((size nt) :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z x)))) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (LOAD nt None x ao))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (LOAD nt None x ao))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (LOAD nt None x ao))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (LOAD nt None x ao))]) [(instr_sc9 TRAP)]"
 	| load_num_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((nbytes_underscore nt c) = (list_slice (BYTES (fun_mem z x)) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) ((((size nt) :: nat) div (8 :: nat)) :: nat))) ⟹
 		 list_all (λ (iter :: byte). (wf_byte iter)) (nbytes_underscore nt c) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (LOAD nt None x ao))])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST nt c))) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (LOAD nt None x ao))]) [(instr_subcase_6 (instr_subtype_6_CONST nt c))]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (LOAD nt None x ao))])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST nt c))) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (LOAD nt None x ao))]) [(instr_sc6 (instr_st6_CONST nt c))]"
 	| load_pack_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + (((v_n :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z x)))) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (LOAD (numtype_addrtype v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_n) v_sx))) x ao))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (LOAD (numtype_addrtype v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_n) v_sx))) x ao))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (LOAD (numtype_addrtype v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_n) v_sx))) x ao))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (LOAD (numtype_addrtype v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_n) v_sx))) x ao))]) [(instr_sc9 TRAP)]"
 	| load_pack_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((ibytes_underscore v_n c) = (list_slice (BYTES (fun_mem z x)) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_n :: nat) div (8 :: nat)) :: nat))) ⟹
 		 list_all (λ (iter :: byte). (wf_byte iter)) (ibytes_underscore v_n c) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (LOAD (numtype_addrtype v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_n) v_sx))) x ao))])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype v_Inn) (mk_num__0 v_Inn (extend__underscore v_n (size (numtype_addrtype v_Inn)) v_sx c))))) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (LOAD (numtype_addrtype v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_n) v_sx))) x ao))]) [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype v_Inn) (mk_num__0 v_Inn (extend__underscore v_n (size (numtype_addrtype v_Inn)) v_sx c))))]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (LOAD (numtype_addrtype v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_n) v_sx))) x ao))])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype v_Inn) (mk_num__0 v_Inn (extend__underscore v_n (size (numtype_addrtype v_Inn)) v_sx c))))) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (LOAD (numtype_addrtype v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_n) v_sx))) x ao))]) [(instr_sc6 (instr_st6_CONST (numtype_addrtype v_Inn) (mk_num__0 v_Inn (extend__underscore v_n (size (numtype_addrtype v_Inn)) v_sx c))))]"
 	| vload_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + ((((vsize V128) :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z x)))) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 None x ao))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 None x ao))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (VLOAD V128 None x ao))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (VLOAD V128 None x ao))]) [(instr_sc9 TRAP)]"
 	| Step_read__vload_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((vbytes_underscore V128 c) = (list_slice (BYTES (fun_mem z x)) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) ((((vsize V128) :: nat) div (8 :: nat)) :: nat))) ⟹
 		 list_all (λ (iter :: byte). (wf_byte iter)) (vbytes_underscore V128 c) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 None x ao))])) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 None x ao))]) [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (VLOAD V128 None x ao))])) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (VLOAD V128 None x ao))]) [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| vload_pack_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + ((((v_M * v_K) :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z x)))) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 (Some (SHAPEX_underscore (mk_sz v_M) v_K v_sx)) x ao))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 (Some (SHAPEX_underscore (mk_sz v_M) v_K v_sx)) x ao))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (VLOAD V128 (Some (SHAPEX_underscore (mk_sz v_M) v_K v_sx)) x ao))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (VLOAD V128 (Some (SHAPEX_underscore (mk_sz v_M) v_K v_sx)) x ao))]) [(instr_sc9 TRAP)]"
 	| vload_pack_val :
 		"holds_upto (λ k. ((proj_num__0 i) ≠ None)) v_K ⟹
 		 list_alli (λ k (j :: iN). ((ibytes_underscore v_M j) = (list_slice (BYTES (fun_mem z x)) (((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + ((((k * v_M) :: nat) div (8 :: nat)) :: nat)) (((v_M :: nat) div (8 :: nat)) :: nat)))) j_lst ⟹
@@ -14937,19 +15114,19 @@ inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
 		 list_alli (λ k (j :: iN). list_all (λ (iter :: byte). (wf_byte iter)) (ibytes_underscore v_M j)) j_lst ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
 		 (wf_uN 128 (inv_lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_K)) (map (λ (j :: iN). (mk_lane__2 v_Jnn (extend__underscore v_M (jsizenn v_Jnn) v_sx j))) j_lst))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 (Some (SHAPEX_underscore (mk_sz v_M) v_K v_sx)) x ao))])) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (VLOAD V128 (Some (SHAPEX_underscore (mk_sz v_M) v_K v_sx)) x ao))])) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
 		 (wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_K))) ⟹
 		 list_all (λ (j :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_K))) (mk_lane__2 v_Jnn (extend__underscore v_M (jsizenn v_Jnn) v_sx j)))) j_lst ⟹
 		 (v_K = (length j_lst)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 (Some (SHAPEX_underscore (mk_sz v_M) v_K v_sx)) x ao))]) [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (VLOAD V128 (Some (SHAPEX_underscore (mk_sz v_M) v_K v_sx)) x ao))]) [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| vload_splat_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + (((v_N :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z x)))) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 (Some (SPLAT (mk_sz v_N))) x ao))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 (Some (SPLAT (mk_sz v_N))) x ao))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (VLOAD V128 (Some (SPLAT (mk_sz v_N))) x ao))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (VLOAD V128 (Some (SPLAT (mk_sz v_N))) x ao))]) [(instr_sc9 TRAP)]"
 	| vload_splat_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((ibytes_underscore v_N j) = (list_slice (BYTES (fun_mem z x)) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_N :: nat) div (8 :: nat)) :: nat))) ⟹
@@ -14959,18 +15136,18 @@ inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
 		 list_all (λ (iter :: byte). (wf_byte iter)) (ibytes_underscore v_N j) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
 		 (wf_uN 128 (inv_lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) (repeat v_M (mk_lane__2 v_Jnn (mk_uN (proj_uN_0 j)))))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 (Some (SPLAT (mk_sz v_N))) x ao))])) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (VLOAD V128 (Some (SPLAT (mk_sz v_N))) x ao))])) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
 		 (wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) ⟹
 		 (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) (mk_lane__2 v_Jnn (mk_uN (proj_uN_0 j)))) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 (Some (SPLAT (mk_sz v_N))) x ao))]) [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (VLOAD V128 (Some (SPLAT (mk_sz v_N))) x ao))]) [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| vload_zero_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + (((v_N :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z x)))) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 (Some (vloadop__ZERO (mk_sz v_N))) x ao))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 (Some (vloadop__ZERO (mk_sz v_N))) x ao))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (VLOAD V128 (Some (vloadop__ZERO (mk_sz v_N))) x ao))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (VLOAD V128 (Some (vloadop__ZERO (mk_sz v_N))) x ao))]) [(instr_sc9 TRAP)]"
 	| vload_zero_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((ibytes_underscore v_N j) = (list_slice (BYTES (fun_mem z x)) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_N :: nat) div (8 :: nat)) :: nat))) ⟹
@@ -14979,16 +15156,16 @@ inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
 		 list_all (λ (iter :: byte). (wf_byte iter)) (ibytes_underscore v_N j) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
 		 (wf_uN 128 (extend__underscore v_N (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) U j)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 (Some (vloadop__ZERO (mk_sz v_N))) x ao))])) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_3 (VLOAD V128 (Some (vloadop__ZERO (mk_sz v_N))) x ao))]) [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (VLOAD V128 (Some (vloadop__ZERO (mk_sz v_N))) x ao))])) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc3 (VLOAD V128 (Some (vloadop__ZERO (mk_sz v_N))) x ao))]) [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| vload_lane_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + (((v_N :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z x)))) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_3 (VLOAD_LANE V128 (mk_sz v_N) x ao j))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_3 (VLOAD_LANE V128 (mk_sz v_N) x ao j))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc3 (VLOAD_LANE V128 (mk_sz v_N) x ao j))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc3 (VLOAD_LANE V128 (mk_sz v_N) x ao j))]) [(instr_sc9 TRAP)]"
 	| vload_lane_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((ibytes_underscore v_N k) = (list_slice (BYTES (fun_mem z x)) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_N :: nat) div (8 :: nat)) :: nat))) ⟹
@@ -14999,154 +15176,154 @@ inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
 		 (wf_meminst (fun_mem z x)) ⟹
 		 (wf_uN 128 (inv_lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) (list_update_func (lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c_1) (proj_uN_0 j) (λ (underscore_underscore :: lane_underscore). (mk_lane__2 v_Jnn (mk_uN (proj_uN_0 k))))))) ⟹
 		 list_all (λ (iter :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) iter)) (lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c_1) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_3 (VLOAD_LANE V128 (mk_sz v_N) x ao j))])) ⟹
-		 (wf_instr (instr_subcase_7 (instr_subtype_7_VCONST V128 c))) ⟹
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc3 (VLOAD_LANE V128 (mk_sz v_N) x ao j))])) ⟹
+		 (wf_instr (instr_sc7 (instr_st7_VCONST V128 c))) ⟹
 		 (wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) ⟹
 		 (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) (mk_lane__2 v_Jnn (mk_uN (proj_uN_0 k)))) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c_1)), (instr_subcase_3 (VLOAD_LANE V128 (mk_sz v_N) x ao j))]) [(instr_subcase_7 (instr_subtype_7_VCONST V128 c))]"
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc7 (instr_st7_VCONST V128 c_1)), (instr_sc3 (VLOAD_LANE V128 (mk_sz v_N) x ao j))]) [(instr_sc7 (instr_st7_VCONST V128 c))]"
 	| Step_read__memory_size :
 		"((v_n * (64 * (Ki ))) = (length (BYTES (fun_mem z x)))) ⟹
 		 ((meminst_TYPE (fun_mem z x)) = (PAGE at lim)) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_3 (MEMORY_SIZE x))])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n))))) ⟹
+		 (wf_config (mk_config z [(instr_sc3 (MEMORY_SIZE x))])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n))))) ⟹
 		 (wf_memtype (PAGE at lim)) ⟹
-		 Step_read (mk_config z [(instr_subcase_3 (MEMORY_SIZE x))]) [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n))))]"
+		 Step_read (mk_config z [(instr_sc3 (MEMORY_SIZE x))]) [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n))))]"
 	| memory_fill_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (BYTES (fun_mem z x)))) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_3 (MEMORY_FILL x))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_3 (MEMORY_FILL x))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc3 (MEMORY_FILL x))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc3 (MEMORY_FILL x))]) [(instr_sc9 TRAP)]"
 	| memory_fill_zero :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (BYTES (fun_mem z x)))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_3 (MEMORY_FILL x))])) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_3 (MEMORY_FILL x))]) []"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc3 (MEMORY_FILL x))])) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc3 (MEMORY_FILL x))]) []"
 	| memory_fill_succ :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (v_n ≠ 0) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (BYTES (fun_mem z x)))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_3 (MEMORY_FILL x))])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i))) ⟹
-		 (wf_instr (instr_subcase_3 (STORE numtype_I32 (Some (mk_storeop__0 I32 (mk_storeop_Inn (mk_sz 8)))) x (memarg0 )))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_3 (MEMORY_FILL x))) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_3 (MEMORY_FILL x))]) [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_subcase_3 (STORE numtype_I32 (Some (mk_storeop__0 I32 (mk_storeop_Inn (mk_sz 8)))) x (memarg0 ))), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_3 (MEMORY_FILL x))]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc3 (MEMORY_FILL x))])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at) i))) ⟹
+		 (wf_instr (instr_sc3 (STORE numtype_I32 (Some (mk_storeop__0 I32 (mk_storeop_Inn (mk_sz 8)))) x (memarg0 )))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc3 (MEMORY_FILL x))) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc3 (MEMORY_FILL x))]) [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_val v_val), (instr_sc3 (STORE numtype_I32 (Some (mk_storeop__0 I32 (mk_storeop_Inn (mk_sz 8)))) x (memarg0 ))), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (instr_val v_val), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_sc3 (MEMORY_FILL x))]"
 	| memory_copy_oob :
 		"((proj_num__0 i_1) ≠ None) ⟹
 		 ((proj_num__0 i_2) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) > (length (BYTES (fun_mem z x_1)))) ∨ (((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) > (length (BYTES (fun_mem z x_2))))) ⟹
 		 (wf_meminst (fun_mem z x_1)) ⟹
 		 (wf_meminst (fun_mem z x_2)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc3 (MEMORY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc3 (MEMORY_COPY x_1 x_2))]) [(instr_sc9 TRAP)]"
 	| memory_copy_zero :
 		"((proj_num__0 i_1) ≠ None) ⟹
 		 ((proj_num__0 i_2) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) ≤ (length (BYTES (fun_mem z x_1)))) ∧ (((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) ≤ (length (BYTES (fun_mem z x_2))))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))])) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))]) []"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc3 (MEMORY_COPY x_1 x_2))])) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc3 (MEMORY_COPY x_1 x_2))]) []"
 	| memory_copy_le :
 		"((proj_num__0 i_1) ≠ None) ⟹
 		 ((proj_num__0 i_2) ≠ None) ⟹
 		 (v_n ≠ 0) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) ≤ (length (BYTES (fun_mem z x_1)))) ∧ (((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) ≤ (length (BYTES (fun_mem z x_2))))) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 i_1)))) ≤ (proj_uN_0 (the ((proj_num__0 i_2))))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2))) ⟹
-		 (wf_instr (instr_subcase_3 (LOAD numtype_I32 (Some (mk_loadop__0 I32 (mk_loadop_Inn (mk_sz 8) U))) x_2 (memarg0 )))) ⟹
-		 (wf_instr (instr_subcase_3 (STORE numtype_I32 (Some (mk_storeop__0 I32 (mk_storeop_Inn (mk_sz 8)))) x_1 (memarg0 )))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_1)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_2)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_3 (MEMORY_COPY x_1 x_2))) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))]) [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_3 (LOAD numtype_I32 (Some (mk_loadop__0 I32 (mk_loadop_Inn (mk_sz 8) U))) x_2 (memarg0 ))), (instr_subcase_3 (STORE numtype_I32 (Some (mk_storeop__0 I32 (mk_storeop_Inn (mk_sz 8)))) x_1 (memarg0 ))), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_1)))) + 1))))), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_2)))) + 1))))), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc3 (MEMORY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2))) ⟹
+		 (wf_instr (instr_sc3 (LOAD numtype_I32 (Some (mk_loadop__0 I32 (mk_loadop_Inn (mk_sz 8) U))) x_2 (memarg0 )))) ⟹
+		 (wf_instr (instr_sc3 (STORE numtype_I32 (Some (mk_storeop__0 I32 (mk_storeop_Inn (mk_sz 8)))) x_1 (memarg0 )))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_1)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_2)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc3 (MEMORY_COPY x_1 x_2))) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc3 (MEMORY_COPY x_1 x_2))]) [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc3 (LOAD numtype_I32 (Some (mk_loadop__0 I32 (mk_loadop_Inn (mk_sz 8) U))) x_2 (memarg0 ))), (instr_sc3 (STORE numtype_I32 (Some (mk_storeop__0 I32 (mk_storeop_Inn (mk_sz 8)))) x_1 (memarg0 ))), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_1)))) + 1))))), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_2)))) + 1))))), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_sc3 (MEMORY_COPY x_1 x_2))]"
 	| memory_copy_gt :
 		"((proj_num__0 i_1) ≠ None) ⟹
 		 ((proj_num__0 i_2) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 i_1)))) > (proj_uN_0 (the ((proj_num__0 i_2))))) ⟹
 		 (v_n ≠ 0) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) ≤ (length (BYTES (fun_mem z x_1)))) ∧ (((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) ≤ (length (BYTES (fun_mem z x_2))))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_3 (LOAD numtype_I32 (Some (mk_loadop__0 I32 (mk_loadop_Inn (mk_sz 8) U))) x_2 (memarg0 )))) ⟹
-		 (wf_instr (instr_subcase_3 (STORE numtype_I32 (Some (mk_storeop__0 I32 (mk_storeop_Inn (mk_sz 8)))) x_1 (memarg0 )))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_3 (MEMORY_COPY x_1 x_2))) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))]) [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_3 (LOAD numtype_I32 (Some (mk_loadop__0 I32 (mk_loadop_Inn (mk_sz 8) U))) x_2 (memarg0 ))), (instr_subcase_3 (STORE numtype_I32 (Some (mk_storeop__0 I32 (mk_storeop_Inn (mk_sz 8)))) x_1 (memarg0 ))), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_1) i_1)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at_2) i_2)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_3 (MEMORY_COPY x_1 x_2))]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc3 (MEMORY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc3 (LOAD numtype_I32 (Some (mk_loadop__0 I32 (mk_loadop_Inn (mk_sz 8) U))) x_2 (memarg0 )))) ⟹
+		 (wf_instr (instr_sc3 (STORE numtype_I32 (Some (mk_storeop__0 I32 (mk_storeop_Inn (mk_sz 8)))) x_1 (memarg0 )))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc3 (MEMORY_COPY x_1 x_2))) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN v_n)))), (instr_sc3 (MEMORY_COPY x_1 x_2))]) [(instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) (mk_num__0 at_1 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) (mk_num__0 at_2 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (instr_sc3 (LOAD numtype_I32 (Some (mk_loadop__0 I32 (mk_loadop_Inn (mk_sz 8) U))) x_2 (memarg0 ))), (instr_sc3 (STORE numtype_I32 (Some (mk_storeop__0 I32 (mk_storeop_Inn (mk_sz 8)))) x_1 (memarg0 ))), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_1) i_1)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at_2) i_2)), (instr_sc6 (instr_st6_CONST (numtype_addrtype at') (mk_num__0 at' (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_sc3 (MEMORY_COPY x_1 x_2))]"
 	| memory_init_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (BYTES (fun_mem z x)))) ∨ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (datainst_BYTES (fun_data z y))))) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
 		 (wf_datainst (fun_data z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_3 (MEMORY_INIT x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_3 (MEMORY_INIT x y))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc3 (MEMORY_INIT x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc3 (MEMORY_INIT x y))]) [(instr_sc9 TRAP)]"
 	| memory_init_zero :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (BYTES (fun_mem z x)))) ∧ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) ≤ (length (datainst_BYTES (fun_data z y))))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_3 (MEMORY_INIT x y))])) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_3 (MEMORY_INIT x y))]) []"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc3 (MEMORY_INIT x y))])) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc3 (MEMORY_INIT x y))]) []"
 	| memory_init_succ :
 		"((proj_uN_0 (the ((proj_num__0 j)))) < (length (datainst_BYTES (fun_data z y)))) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((proj_num__0 i) ≠ None) ⟹
 		 (v_n ≠ 0) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (BYTES (fun_mem z x)))) ∧ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) ≤ (length (datainst_BYTES (fun_data z y))))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_3 (MEMORY_INIT x y))])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (proj_byte_0 ((datainst_BYTES (fun_data z y)) ! (proj_uN_0 (the ((proj_num__0 j))))))))))) ⟹
-		 (wf_instr (instr_subcase_3 (STORE numtype_I32 (Some (mk_storeop__0 I32 (mk_storeop_Inn (mk_sz 8)))) x (memarg0 )))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_3 (MEMORY_INIT x y))) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_3 (MEMORY_INIT x y))]) [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (proj_byte_0 ((datainst_BYTES (fun_data z y)) ! (proj_uN_0 (the ((proj_num__0 j)))))))))), (instr_subcase_3 (STORE numtype_I32 (Some (mk_storeop__0 I32 (mk_storeop_Inn (mk_sz 8)))) x (memarg0 ))), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1))))), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_3 (MEMORY_INIT x y))]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc3 (MEMORY_INIT x y))])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at) i))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (proj_byte_0 ((datainst_BYTES (fun_data z y)) ! (proj_uN_0 (the ((proj_num__0 j))))))))))) ⟹
+		 (wf_instr (instr_sc3 (STORE numtype_I32 (Some (mk_storeop__0 I32 (mk_storeop_Inn (mk_sz 8)))) x (memarg0 )))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc3 (MEMORY_INIT x y))) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc3 (MEMORY_INIT x y))]) [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (proj_byte_0 ((datainst_BYTES (fun_data z y)) ! (proj_uN_0 (the ((proj_num__0 j)))))))))), (instr_sc3 (STORE numtype_I32 (Some (mk_storeop__0 I32 (mk_storeop_Inn (mk_sz 8)))) x (memarg0 ))), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1))))), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_sc3 (MEMORY_INIT x y))]"
 	| Step_read__ref_null :
-		"(wf_config (mk_config z [(instr_subcase_4 (REF_NULL ht))])) ⟹
-		 (wf_instr (instr_subcase_9 instr_subtype_9_REF_NULL_ADDR)) ⟹
-		 Step_read (mk_config z [(instr_subcase_4 (REF_NULL ht))]) [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR)]"
+		"(wf_config (mk_config z [(instr_sc4 (REF_NULL ht))])) ⟹
+		 (wf_instr (instr_sc9 instr_st9_REF_NULL_ADDR)) ⟹
+		 Step_read (mk_config z [(instr_sc4 (REF_NULL ht))]) [(instr_sc9 instr_st9_REF_NULL_ADDR)]"
 	| Step_read__ref_func :
 		"((proj_uN_0 x) < (length (moduleinst_FUNCS (fun_moduleinst z)))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_4 (REF_FUNC x))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_FUNC_ADDR ((moduleinst_FUNCS (fun_moduleinst z)) ! (proj_uN_0 x))))) ⟹
-		 Step_read (mk_config z [(instr_subcase_4 (REF_FUNC x))]) [(instr_subcase_9 (instr_subtype_9_REF_FUNC_ADDR ((moduleinst_FUNCS (fun_moduleinst z)) ! (proj_uN_0 x))))]"
+		 (wf_config (mk_config z [(instr_sc4 (REF_FUNC x))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_FUNC_ADDR ((moduleinst_FUNCS (fun_moduleinst z)) ! (proj_uN_0 x))))) ⟹
+		 Step_read (mk_config z [(instr_sc4 (REF_FUNC x))]) [(instr_sc9 (instr_st9_REF_FUNC_ADDR ((moduleinst_FUNCS (fun_moduleinst z)) ! (proj_uN_0 x))))]"
 	| ref_test_true :
 		"(fun_inst_reftype (MODULE f) rt var_0) ⟹
 		 (Ref_ok s v_ref var_0) ⟹
 		 (wf_reftype var_0) ⟹
-		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_4 (REF_TEST rt))])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))) ⟹
-		 Step_read (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_4 (REF_TEST rt))]) [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))]"
+		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc4 (REF_TEST rt))])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))) ⟹
+		 Step_read (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc4 (REF_TEST rt))]) [(instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 1))))]"
 	| ref_test_false :
-		"(~(Step_read_before_ref_test_false (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_4 (REF_TEST rt))]))) ⟹
-		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_4 (REF_TEST rt))])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 0))))) ⟹
-		 Step_read (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_4 (REF_TEST rt))]) [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 0))))]"
+		"(~(Step_read_before_ref_test_false (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc4 (REF_TEST rt))]))) ⟹
+		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc4 (REF_TEST rt))])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 0))))) ⟹
+		 Step_read (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc4 (REF_TEST rt))]) [(instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 0))))]"
 	| ref_cast_succeed :
 		"(fun_inst_reftype (MODULE f) rt var_0) ⟹
 		 (Ref_ok s v_ref var_0) ⟹
 		 (wf_reftype var_0) ⟹
-		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_4 (REF_CAST rt))])) ⟹
-		 Step_read (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_4 (REF_CAST rt))]) [(instr_ref v_ref)]"
+		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc4 (REF_CAST rt))])) ⟹
+		 Step_read (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc4 (REF_CAST rt))]) [(instr_ref v_ref)]"
 	| ref_cast_fail :
-		"(~(Step_read_before_ref_cast_fail (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_4 (REF_CAST rt))]))) ⟹
-		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_4 (REF_CAST rt))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config (mk_state s f) [(instr_ref v_ref), (instr_subcase_4 (REF_CAST rt))]) [(instr_subcase_9 TRAP)]"
+		"(~(Step_read_before_ref_cast_fail (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc4 (REF_CAST rt))]))) ⟹
+		 (wf_config (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc4 (REF_CAST rt))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config (mk_state s f) [(instr_ref v_ref), (instr_sc4 (REF_CAST rt))]) [(instr_sc9 TRAP)]"
 	| Step_read__struct_new_default :
 		"(Expand (fun_type z x) (comptype_STRUCT (mk_list (list_zipWith (λ (mut_opt :: (mut option)) (zt :: storagetype). (mk_fieldtype mut_opt zt)) mut_opt_lst zt_lst)))) ⟹
 		 ((length val_lst) = (length zt_lst)) ⟹
@@ -15155,14 +15332,14 @@ inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
 		 list_all (λ (v_val :: val). (wf_val v_val)) val_lst ⟹
 		 list_all (λ (zt :: storagetype). list_all (λ (iter :: val). (wf_val iter)) (option_to_list (the ((default_underscore (unpack zt)))))) zt_lst ⟹
 		 list_all (λ (zt :: storagetype). (wf_valtype (unpack zt))) zt_lst ⟹
-		 (wf_config (mk_config z [(instr_subcase_5 (STRUCT_NEW_DEFAULT x))])) ⟹
-		 (wf_instr (instr_subcase_4 (STRUCT_NEW x))) ⟹
+		 (wf_config (mk_config z [(instr_sc5 (STRUCT_NEW_DEFAULT x))])) ⟹
+		 (wf_instr (instr_sc4 (STRUCT_NEW x))) ⟹
 		 (wf_comptype (comptype_STRUCT (mk_list (list_zipWith (λ (mut_opt :: (mut option)) (zt :: storagetype). (mk_fieldtype mut_opt zt)) mut_opt_lst zt_lst)))) ⟹
-		 Step_read (mk_config z [(instr_subcase_5 (STRUCT_NEW_DEFAULT x))]) ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_4 (STRUCT_NEW x))])"
+		 Step_read (mk_config z [(instr_sc5 (STRUCT_NEW_DEFAULT x))]) ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc4 (STRUCT_NEW x))])"
 	| struct_get_null :
-		"(wf_config (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_5 (STRUCT_GET sx_opt x i))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_5 (STRUCT_GET sx_opt x i))]) [(instr_subcase_9 TRAP)]"
+		"(wf_config (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc5 (STRUCT_GET sx_opt x i))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc5 (STRUCT_GET sx_opt x i))]) [(instr_sc9 TRAP)]"
 	| struct_get_struct :
 		"((unpackfield_underscore (zt_lst ! (proj_uN_0 i)) sx_opt ((FIELDS ((fun_structinst z) ! a)) ! (proj_uN_0 i))) ≠ None) ⟹
 		 ((proj_uN_0 i) < (length zt_lst)) ⟹
@@ -15171,9 +15348,9 @@ inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
 		 (Expand (fun_type z x) (comptype_STRUCT (mk_list (list_zipWith (λ (mut_opt :: (mut option)) (zt :: storagetype). (mk_fieldtype mut_opt zt)) mut_opt_lst zt_lst)))) ⟹
 		 (wf_val (the ((unpackfield_underscore (zt_lst ! (proj_uN_0 i)) sx_opt ((FIELDS ((fun_structinst z) ! a)) ! (proj_uN_0 i)))))) ⟹
 		 list_all (λ (iter :: structinst). (wf_structinst iter)) (fun_structinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_STRUCT_ADDR a)), (instr_subcase_5 (STRUCT_GET sx_opt x i))])) ⟹
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_STRUCT_ADDR a)), (instr_sc5 (STRUCT_GET sx_opt x i))])) ⟹
 		 (wf_comptype (comptype_STRUCT (mk_list (list_zipWith (λ (mut_opt :: (mut option)) (zt :: storagetype). (mk_fieldtype mut_opt zt)) mut_opt_lst zt_lst)))) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_STRUCT_ADDR a)), (instr_subcase_5 (STRUCT_GET sx_opt x i))]) [(instr_val (the ((unpackfield_underscore (zt_lst ! (proj_uN_0 i)) sx_opt ((FIELDS ((fun_structinst z) ! a)) ! (proj_uN_0 i))))))]"
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_STRUCT_ADDR a)), (instr_sc5 (STRUCT_GET sx_opt x i))]) [(instr_val (the ((unpackfield_underscore (zt_lst ! (proj_uN_0 i)) sx_opt ((FIELDS ((fun_structinst z) ! a)) ! (proj_uN_0 i))))))]"
 	| Step_read__array_new_default :
 		"(Expand (fun_type z x) (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
 		 ((default_underscore (unpack zt)) ≠ None) ⟹
@@ -15181,36 +15358,36 @@ inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
 		 (wf_val v_val) ⟹
 		 list_all (λ (iter :: val). (wf_val iter)) (option_to_list (the ((default_underscore (unpack zt))))) ⟹
 		 (wf_valtype (unpack zt)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_5 (ARRAY_NEW_DEFAULT x))])) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_NEW_FIXED x (mk_uN v_n)))) ⟹
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc5 (ARRAY_NEW_DEFAULT x))])) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_NEW_FIXED x (mk_uN v_n)))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_5 (ARRAY_NEW_DEFAULT x))]) ((repeat v_n (instr_val v_val)) @ [(instr_subcase_5 (ARRAY_NEW_FIXED x (mk_uN v_n)))])"
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc5 (ARRAY_NEW_DEFAULT x))]) ((repeat v_n (instr_val v_val)) @ [(instr_sc5 (ARRAY_NEW_FIXED x (mk_uN v_n)))])"
 	| array_new_elem_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (eleminst_REFS (fun_elem z y)))) ⟹
 		 (wf_eleminst (fun_elem z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_5 (ARRAY_NEW_ELEM x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_5 (ARRAY_NEW_ELEM x y))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc5 (ARRAY_NEW_ELEM x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc5 (ARRAY_NEW_ELEM x y))]) [(instr_sc9 TRAP)]"
 	| array_new_elem_alloc :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (ref_lst = (list_slice (eleminst_REFS (fun_elem z y)) (proj_uN_0 (the ((proj_num__0 i)))) v_n)) ⟹
 		 list_all (λ (v_ref :: ref). (wf_ref v_ref)) ref_lst ⟹
 		 (wf_eleminst (fun_elem z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_5 (ARRAY_NEW_ELEM x y))])) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_NEW_FIXED x (mk_uN v_n)))) ⟹
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc5 (ARRAY_NEW_ELEM x y))])) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_NEW_FIXED x (mk_uN v_n)))) ⟹
 		 (v_n = (length ref_lst)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_5 (ARRAY_NEW_ELEM x y))]) ((map (λ (v_ref :: ref). (instr_ref v_ref)) ref_lst) @ [(instr_subcase_5 (ARRAY_NEW_FIXED x (mk_uN v_n)))])"
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc5 (ARRAY_NEW_ELEM x y))]) ((map (λ (v_ref :: ref). (instr_ref v_ref)) ref_lst) @ [(instr_sc5 (ARRAY_NEW_FIXED x (mk_uN v_n)))])"
 	| array_new_data_oob :
 		"(Expand (fun_type z x) (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
 		 ((proj_num__0 i) ≠ None) ⟹
 		 ((zsize zt) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + ((((v_n * (the ((zsize zt)))) :: nat) div (8 :: nat)) :: nat)) > (length (datainst_BYTES (fun_data z y)))) ⟹
 		 (wf_datainst (fun_data z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_5 (ARRAY_NEW_DATA x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc5 (ARRAY_NEW_DATA x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_5 (ARRAY_NEW_DATA x y))]) [(instr_subcase_9 TRAP)]"
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc5 (ARRAY_NEW_DATA x y))]) [(instr_sc9 TRAP)]"
 	| array_new_data_num :
 		"((cunpack zt) ≠ None) ⟹
 		 (Expand (fun_type z x) (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
@@ -15223,23 +15400,23 @@ inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
 		 list_all (λ (iter :: byte). (wf_byte iter)) (concatn_underscore  (map (λ (c :: lit_underscore). (zbytes_underscore zt c)) c_lst) ((((the ((zsize zt))) :: nat) div (8 :: nat)) :: nat)) ⟹
 		 list_all (λ (c :: lit_underscore). list_all (λ (iter :: byte). (wf_byte iter)) (zbytes_underscore zt c)) c_lst ⟹
 		 (wf_datainst (fun_data z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_5 (ARRAY_NEW_DATA x y))])) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_NEW_FIXED x (mk_uN v_n)))) ⟹
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc5 (ARRAY_NEW_DATA x y))])) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_NEW_FIXED x (mk_uN v_n)))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
 		 (v_n = (length c_lst)) ⟹
-		 Step_read (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_5 (ARRAY_NEW_DATA x y))]) ((map (λ (c :: lit_underscore). (const (the ((cunpack zt))) (cunpacknum_underscore zt c))) c_lst) @ [(instr_subcase_5 (ARRAY_NEW_FIXED x (mk_uN v_n)))])"
+		 Step_read (mk_config z [(instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc5 (ARRAY_NEW_DATA x y))]) ((map (λ (c :: lit_underscore). (const (the ((cunpack zt))) (cunpacknum_underscore zt c))) c_lst) @ [(instr_sc5 (ARRAY_NEW_FIXED x (mk_uN v_n)))])"
 	| array_get_null :
-		"(wf_config (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_5 (ARRAY_GET sx_opt x))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_5 (ARRAY_GET sx_opt x))]) [(instr_subcase_9 TRAP)]"
+		"(wf_config (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc5 (ARRAY_GET sx_opt x))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc5 (ARRAY_GET sx_opt x))]) [(instr_sc9 TRAP)]"
 	| array_get_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (a < (length (fun_arrayinst z))) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 i)))) ≥ (length (arrayinst_FIELDS ((fun_arrayinst z) ! a)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_5 (ARRAY_GET sx_opt x))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_5 (ARRAY_GET sx_opt x))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc5 (ARRAY_GET sx_opt x))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc5 (ARRAY_GET sx_opt x))]) [(instr_sc9 TRAP)]"
 	| array_get_array :
 		"((unpackfield_underscore zt sx_opt ((arrayinst_FIELDS ((fun_arrayinst z) ! a)) ! (proj_uN_0 (the ((proj_num__0 i)))))) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 i)))) < (length (arrayinst_FIELDS ((fun_arrayinst z) ! a)))) ⟹
@@ -15248,189 +15425,189 @@ inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
 		 (Expand (fun_type z x) (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
 		 (wf_val (the ((unpackfield_underscore zt sx_opt ((arrayinst_FIELDS ((fun_arrayinst z) ! a)) ! (proj_uN_0 (the ((proj_num__0 i))))))))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_5 (ARRAY_GET sx_opt x))])) ⟹
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc5 (ARRAY_GET sx_opt x))])) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_5 (ARRAY_GET sx_opt x))]) [(instr_val (the ((unpackfield_underscore zt sx_opt ((arrayinst_FIELDS ((fun_arrayinst z) ! a)) ! (proj_uN_0 (the ((proj_num__0 i)))))))))]"
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc5 (ARRAY_GET sx_opt x))]) [(instr_val (the ((unpackfield_underscore zt sx_opt ((arrayinst_FIELDS ((fun_arrayinst z) ! a)) ! (proj_uN_0 (the ((proj_num__0 i)))))))))]"
 	| array_len_null :
-		"(wf_config (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_5 ARRAY_LEN)])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_5 ARRAY_LEN)]) [(instr_subcase_9 TRAP)]"
+		"(wf_config (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc5 ARRAY_LEN)])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc5 ARRAY_LEN)]) [(instr_sc9 TRAP)]"
 	| array_len_array :
 		"(a < (length (fun_arrayinst z))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_5 ARRAY_LEN)])) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (length (arrayinst_FIELDS ((fun_arrayinst z) ! a)))))))) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_5 ARRAY_LEN)]) [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (length (arrayinst_FIELDS ((fun_arrayinst z) ! a)))))))]"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc5 ARRAY_LEN)])) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (length (arrayinst_FIELDS ((fun_arrayinst z) ! a)))))))) ⟹
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc5 ARRAY_LEN)]) [(instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (length (arrayinst_FIELDS ((fun_arrayinst z) ! a)))))))]"
 	| array_fill_null :
-		"(wf_config (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))]) [(instr_subcase_9 TRAP)]"
+		"(wf_config (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))]) [(instr_sc9 TRAP)]"
 	| array_fill_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (a < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))]) [(instr_sc9 TRAP)]"
 	| array_fill_zero :
-		"(~(Step_read_before_array_fill_zero (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))]))) ⟹
+		"(~(Step_read_before_array_fill_zero (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))]))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))])) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))]) []"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))])) ⟹
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))]) []"
 	| array_fill_succ :
 		"((proj_num__0 i) ≠ None) ⟹
-		 (~(Step_read_before_array_fill_succ (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))]))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i))) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_SET x))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_6 (ARRAY_FILL x))) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_FILL x))]) [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_5 (ARRAY_SET x)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (instr_val v_val), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_6 (ARRAY_FILL x))]"
+		 (~(Step_read_before_array_fill_succ (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))]))) ⟹
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_ARRAY_ADDR a))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 i))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_SET x))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc6 (ARRAY_FILL x))) ⟹
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_FILL x))]) [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc5 (ARRAY_SET x)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (instr_val v_val), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_sc6 (ARRAY_FILL x))]"
 	| array_copy_null1 :
-		"(wf_config (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_ref v_ref), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_ref v_ref), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))]) [(instr_subcase_9 TRAP)]"
+		"(wf_config (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_ref v_ref), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_ref v_ref), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))]) [(instr_sc9 TRAP)]"
 	| array_copy_null2 :
-		"(wf_config (mk_config z [(instr_ref v_ref), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_ref v_ref), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))]) [(instr_subcase_9 TRAP)]"
+		"(wf_config (mk_config z [(instr_ref v_ref), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_ref v_ref), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))]) [(instr_sc9 TRAP)]"
 	| array_copy_oob1 :
 		"((proj_num__0 i_1) ≠ None) ⟹
 		 (a_1 < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a_1)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))]) [(instr_sc9 TRAP)]"
 	| array_copy_oob2 :
 		"((proj_num__0 i_2) ≠ None) ⟹
 		 (a_2 < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a_2)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))]) [(instr_sc9 TRAP)]"
 	| array_copy_zero :
-		"(~(Step_read_before_array_copy_zero (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))]))) ⟹
+		"(~(Step_read_before_array_copy_zero (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))]))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))]) []"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])) ⟹
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))]) []"
 	| array_copy_le :
 		"((proj_num__0 i_1) ≠ None) ⟹
 		 ((proj_num__0 i_2) ≠ None) ⟹
-		 (~(Step_read_before_array_copy_le (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))]))) ⟹
+		 (~(Step_read_before_array_copy_le (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))]))) ⟹
 		 (Expand (fun_type z x_2) (comptype_ARRAY (mk_fieldtype mut_opt zt_2))) ⟹
 		 ((fun_sx zt_2) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i_1)))) ≤ (proj_uN_0 (the ((proj_num__0 i_2))))) ∧ (sx_opt = (the ((fun_sx zt_2))))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1))) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2))) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_GET sx_opt x_2))) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_SET x_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_1)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_2)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_6 (ARRAY_COPY x_1 x_2))) ⟹
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 i_1))) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 i_2))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_GET sx_opt x_2))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_SET x_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_1)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_2)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc6 (ARRAY_COPY x_1 x_2))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt_2))) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))]) [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_5 (ARRAY_GET sx_opt x_2)), (instr_subcase_5 (ARRAY_SET x_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_1)))) + 1))))), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_2)))) + 1))))), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))]"
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))]) [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc5 (ARRAY_GET sx_opt x_2)), (instr_sc5 (ARRAY_SET x_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_1)))) + 1))))), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i_2)))) + 1))))), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_sc6 (ARRAY_COPY x_1 x_2))]"
 	| array_copy_gt :
 		"((proj_num__0 i_1) ≠ None) ⟹
 		 ((proj_num__0 i_2) ≠ None) ⟹
-		 (~(Step_read_before_array_copy_gt (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))]))) ⟹
+		 (~(Step_read_before_array_copy_gt (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))]))) ⟹
 		 (Expand (fun_type z x_2) (comptype_ARRAY (mk_fieldtype mut_opt zt_2))) ⟹
 		 ((fun_sx zt_2) ≠ None) ⟹
 		 (sx_opt = (the ((fun_sx zt_2)))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_GET sx_opt x_2))) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_SET x_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_6 (ARRAY_COPY x_1 x_2))) ⟹
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_GET sx_opt x_2))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_SET x_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 i_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 i_2))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc6 (ARRAY_COPY x_1 x_2))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt_2))) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))]) [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_5 (ARRAY_GET sx_opt x_2)), (instr_subcase_5 (ARRAY_SET x_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_1)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_1)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i_2)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_6 (ARRAY_COPY x_1 x_2))]"
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_COPY x_1 x_2))]) [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_1)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i_2)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (instr_sc5 (ARRAY_GET sx_opt x_2)), (instr_sc5 (ARRAY_SET x_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_1)), (instr_sc6 (instr_st6_CONST numtype_I32 i_1)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a_2)), (instr_sc6 (instr_st6_CONST numtype_I32 i_2)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_sc6 (ARRAY_COPY x_1 x_2))]"
 	| array_init_elem_null :
-		"(wf_config (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))]) [(instr_subcase_9 TRAP)]"
+		"(wf_config (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))]) [(instr_sc9 TRAP)]"
 	| array_init_elem_oob1 :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (a < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))]) [(instr_sc9 TRAP)]"
 	| array_init_elem_oob2 :
 		"((proj_num__0 j) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (eleminst_REFS (fun_elem z y)))) ⟹
 		 (wf_eleminst (fun_elem z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))]) [(instr_sc9 TRAP)]"
 	| array_init_elem_zero :
-		"(~(Step_read_before_array_init_elem_zero (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))]))) ⟹
+		"(~(Step_read_before_array_init_elem_zero (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))]))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))])) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))]) []"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))])) ⟹
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))]) []"
 	| array_init_elem_succ :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
-		 (~(Step_read_before_array_init_elem_succ (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))]))) ⟹
+		 (~(Step_read_before_array_init_elem_succ (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))]))) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 j)))) < (length (eleminst_REFS (fun_elem z y)))) ⟹
 		 (v_ref = ((eleminst_REFS (fun_elem z y)) ! (proj_uN_0 (the ((proj_num__0 j)))))) ⟹
 		 (wf_ref v_ref) ⟹
 		 (wf_eleminst (fun_elem z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i))) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_SET x))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_6 (ARRAY_INIT_ELEM x y))) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))]) [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_ref v_ref), (instr_subcase_5 (ARRAY_SET x)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1))))), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_6 (ARRAY_INIT_ELEM x y))]"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_ARRAY_ADDR a))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 i))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_SET x))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc6 (ARRAY_INIT_ELEM x y))) ⟹
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_ELEM x y))]) [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_ref v_ref), (instr_sc5 (ARRAY_SET x)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1))))), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_sc6 (ARRAY_INIT_ELEM x y))]"
 	| array_init_data_null :
-		"(wf_config (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))]) [(instr_subcase_9 TRAP)]"
+		"(wf_config (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))]) [(instr_sc9 TRAP)]"
 	| array_init_data_oob1 :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (a < (length (fun_arrayinst z))) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (arrayinst_FIELDS ((fun_arrayinst z) ! a)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))]) [(instr_subcase_9 TRAP)]"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))]) [(instr_sc9 TRAP)]"
 	| array_init_data_oob2 :
 		"(Expand (fun_type z x) (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((zsize zt) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 j)))) + ((((v_n * (the ((zsize zt)))) :: nat) div (8 :: nat)) :: nat)) > (length (datainst_BYTES (fun_data z y)))) ⟹
 		 (wf_datainst (fun_data z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))])) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))])) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))]) [(instr_subcase_9 TRAP)]"
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))]) [(instr_sc9 TRAP)]"
 	| array_init_data_zero :
-		"(~(Step_read_before_array_init_data_zero (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))]))) ⟹
+		"(~(Step_read_before_array_init_data_zero (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))]))) ⟹
 		 (v_n = 0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))])) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))]) []"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))])) ⟹
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))]) []"
 	| array_init_data_num :
 		"((cunpack zt) ≠ None) ⟹
 		 ((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((zsize zt) ≠ None) ⟹
-		 (~(Step_read_before_array_init_data_num (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))]))) ⟹
+		 (~(Step_read_before_array_init_data_num (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))]))) ⟹
 		 (Expand (fun_type z x) (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
 		 ((zbytes_underscore zt c) = (list_slice (datainst_BYTES (fun_data z y)) (proj_uN_0 (the ((proj_num__0 j)))) ((((the ((zsize zt))) :: nat) div (8 :: nat)) :: nat))) ⟹
 		 (wf_lit_underscore zt c) ⟹
@@ -15438,16 +15615,16 @@ inductive Step_read :: "config ⇒ (instr list) ⇒ bool" where
 		 (wf_lit_underscore (storagetype_consttype (the ((cunpack zt)))) (cunpacknum_underscore zt c)) ⟹
 		 list_all (λ (iter :: byte). (wf_byte iter)) (zbytes_underscore zt c) ⟹
 		 (wf_datainst (fun_data z y)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))])) ⟹
-		 (wf_instr (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i))) ⟹
-		 (wf_instr (instr_subcase_5 (ARRAY_SET x))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1)))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + ((((the ((zsize zt))) :: nat) div (8 :: nat)) :: nat))))))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
-		 (wf_instr (instr_subcase_6 (ARRAY_INIT_DATA x y))) ⟹
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))])) ⟹
+		 (wf_instr (instr_sc9 (instr_st9_REF_ARRAY_ADDR a))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 i))) ⟹
+		 (wf_instr (instr_sc5 (ARRAY_SET x))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1)))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + ((((the ((zsize zt))) :: nat) div (8 :: nat)) :: nat))))))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat)))))) ⟹
+		 (wf_instr (instr_sc6 (ARRAY_INIT_DATA x y))) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
-		 Step_read (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 j)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_6 (ARRAY_INIT_DATA x y))]) [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (const (the ((cunpack zt))) (cunpacknum_underscore zt c)), (instr_subcase_5 (ARRAY_SET x)), (instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + ((((the ((zsize zt))) :: nat) div (8 :: nat)) :: nat)))))), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_subcase_6 (ARRAY_INIT_DATA x y))]"
+		 Step_read (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_sc6 (instr_st6_CONST numtype_I32 j)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc6 (ARRAY_INIT_DATA x y))]) [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (const (the ((cunpack zt))) (cunpacknum_underscore zt c)), (instr_sc5 (ARRAY_SET x)), (instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + ((((the ((zsize zt))) :: nat) div (8 :: nat)) :: nat)))))), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (instr_sc6 (ARRAY_INIT_DATA x y))]"
 
 (* Mutual Recursion at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:5.1-5.88 *)
 inductive Step :: "config ⇒ config ⇒ bool" where
@@ -15471,25 +15648,25 @@ inductive Step :: "config ⇒ config ⇒ bool" where
 		 Step (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ (instr_lst @ instr_1_lst))) (mk_config z' ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ (instr'_lst @ instr_1_lst)))"
 	| ctxt_label :
 		"(Step (mk_config z instr_lst) (mk_config z' instr'_lst)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_10 (LABEL_underscore v_n instr_0_lst instr_lst))])) ⟹
-		 (wf_config (mk_config z' [(instr_subcase_10 (LABEL_underscore v_n instr_0_lst instr'_lst))])) ⟹
+		 (wf_config (mk_config z [(instr_sc10 (LABEL_underscore v_n instr_0_lst instr_lst))])) ⟹
+		 (wf_config (mk_config z' [(instr_sc10 (LABEL_underscore v_n instr_0_lst instr'_lst))])) ⟹
 		 (wf_config (mk_config z instr_lst)) ⟹
 		 (wf_config (mk_config z' instr'_lst)) ⟹
-		 Step (mk_config z [(instr_subcase_10 (LABEL_underscore v_n instr_0_lst instr_lst))]) (mk_config z' [(instr_subcase_10 (LABEL_underscore v_n instr_0_lst instr'_lst))])"
+		 Step (mk_config z [(instr_sc10 (LABEL_underscore v_n instr_0_lst instr_lst))]) (mk_config z' [(instr_sc10 (LABEL_underscore v_n instr_0_lst instr'_lst))])"
 	| ctxt_handler :
 		"(Step (mk_config z instr_lst) (mk_config z' instr'_lst)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n catch_lst instr_lst))])) ⟹
-		 (wf_config (mk_config z' [(instr_subcase_10 (HANDLER_underscore v_n catch_lst instr'_lst))])) ⟹
+		 (wf_config (mk_config z [(instr_sc10 (HANDLER_underscore v_n catch_lst instr_lst))])) ⟹
+		 (wf_config (mk_config z' [(instr_sc10 (HANDLER_underscore v_n catch_lst instr'_lst))])) ⟹
 		 (wf_config (mk_config z instr_lst)) ⟹
 		 (wf_config (mk_config z' instr'_lst)) ⟹
-		 Step (mk_config z [(instr_subcase_10 (HANDLER_underscore v_n catch_lst instr_lst))]) (mk_config z' [(instr_subcase_10 (HANDLER_underscore v_n catch_lst instr'_lst))])"
+		 Step (mk_config z [(instr_sc10 (HANDLER_underscore v_n catch_lst instr_lst))]) (mk_config z' [(instr_sc10 (HANDLER_underscore v_n catch_lst instr'_lst))])"
 	| ctxt_frame :
 		"(Step (mk_config (mk_state s f') instr_lst) (mk_config (mk_state s' f'') instr'_lst)) ⟹
-		 (wf_config (mk_config (mk_state s f) [(instr_subcase_10 (FRAME_underscore v_n f' instr_lst))])) ⟹
-		 (wf_config (mk_config (mk_state s' f) [(instr_subcase_10 (FRAME_underscore v_n f'' instr'_lst))])) ⟹
+		 (wf_config (mk_config (mk_state s f) [(instr_sc10 (FRAME_underscore v_n f' instr_lst))])) ⟹
+		 (wf_config (mk_config (mk_state s' f) [(instr_sc10 (FRAME_underscore v_n f'' instr'_lst))])) ⟹
 		 (wf_config (mk_config (mk_state s f') instr_lst)) ⟹
 		 (wf_config (mk_config (mk_state s' f'') instr'_lst)) ⟹
-		 Step (mk_config (mk_state s f) [(instr_subcase_10 (FRAME_underscore v_n f' instr_lst))]) (mk_config (mk_state s' f) [(instr_subcase_10 (FRAME_underscore v_n f'' instr'_lst))])"
+		 Step (mk_config (mk_state s f) [(instr_sc10 (FRAME_underscore v_n f' instr_lst))]) (mk_config (mk_state s' f) [(instr_sc10 (FRAME_underscore v_n f'' instr'_lst))])"
 	| Step__throw :
 		"((as_deftype (taginst_TYPE (fun_tag z x))) ≠ None) ⟹
 		 (Expand (the ((as_deftype (taginst_TYPE (fun_tag z x))))) (comptype_FUNC (mk_list t_lst) (mk_list []))) ⟹
@@ -15498,104 +15675,104 @@ inductive Step :: "config ⇒ config ⇒ bool" where
 		 (exn = ⦇ exninst_TAG = ((fun_tagaddr z) ! (proj_uN_0 x)), exninst_FIELDS = val_lst ⦈) ⟹
 		 (wf_taginst (fun_tag z x)) ⟹
 		 list_all (λ (iter :: exninst). (wf_exninst iter)) (fun_exninst z) ⟹
-		 (wf_config (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_1 (THROW x))]))) ⟹
-		 (wf_config (mk_config (add_exninst z [exn]) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)])) ⟹
+		 (wf_config (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc1 (THROW x))]))) ⟹
+		 (wf_config (mk_config (add_exninst z [exn]) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)])) ⟹
 		 (wf_comptype (comptype_FUNC (mk_list t_lst) (mk_list []))) ⟹
 		 (wf_exninst ⦇ exninst_TAG = ((fun_tagaddr z) ! (proj_uN_0 x)), exninst_FIELDS = val_lst ⦈) ⟹
 		 (v_n = (length val_lst)) ⟹
 		 (v_n = (length t_lst)) ⟹
-		 Step (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_1 (THROW x))])) (mk_config (add_exninst z [exn]) [(instr_subcase_9 (instr_subtype_9_REF_EXN_ADDR a)), (instr_subcase_1 THROW_REF)])"
+		 Step (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc1 (THROW x))])) (mk_config (add_exninst z [exn]) [(instr_sc9 (instr_st9_REF_EXN_ADDR a)), (instr_sc1 THROW_REF)])"
 	| Step__local_set :
-		"(wf_config (mk_config z [(instr_val v_val), (instr_subcase_1 (LOCAL_SET x))])) ⟹
+		"(wf_config (mk_config z [(instr_val v_val), (instr_sc1 (LOCAL_SET x))])) ⟹
 		 (wf_config (mk_config (with_local z x v_val) [])) ⟹
-		 Step (mk_config z [(instr_val v_val), (instr_subcase_1 (LOCAL_SET x))]) (mk_config (with_local z x v_val) [])"
+		 Step (mk_config z [(instr_val v_val), (instr_sc1 (LOCAL_SET x))]) (mk_config (with_local z x v_val) [])"
 	| Step__global_set :
-		"(wf_config (mk_config z [(instr_val v_val), (instr_subcase_2 (GLOBAL_SET x))])) ⟹
+		"(wf_config (mk_config z [(instr_val v_val), (instr_sc2 (GLOBAL_SET x))])) ⟹
 		 (wf_config (mk_config (with_global z x v_val) [])) ⟹
-		 Step (mk_config z [(instr_val v_val), (instr_subcase_2 (GLOBAL_SET x))]) (mk_config (with_global z x v_val) [])"
+		 Step (mk_config z [(instr_val v_val), (instr_sc2 (GLOBAL_SET x))]) (mk_config (with_global z x v_val) [])"
 	| table_set_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 i)))) ≥ (length (tableinst_REFS (fun_table z x)))) ⟹
 		 (wf_tableinst (fun_table z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_ref v_ref), (instr_subcase_2 (TABLE_SET x))])) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 TRAP)])) ⟹
-		 Step (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_ref v_ref), (instr_subcase_2 (TABLE_SET x))]) (mk_config z [(instr_subcase_9 TRAP)])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_ref v_ref), (instr_sc2 (TABLE_SET x))])) ⟹
+		 (wf_config (mk_config z [(instr_sc9 TRAP)])) ⟹
+		 Step (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_ref v_ref), (instr_sc2 (TABLE_SET x))]) (mk_config z [(instr_sc9 TRAP)])"
 	| table_set_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 i)))) < (length (tableinst_REFS (fun_table z x)))) ⟹
 		 (wf_tableinst (fun_table z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_ref v_ref), (instr_subcase_2 (TABLE_SET x))])) ⟹
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_ref v_ref), (instr_sc2 (TABLE_SET x))])) ⟹
 		 (wf_config (mk_config (with_table z x (proj_uN_0 (the ((proj_num__0 i)))) v_ref) [])) ⟹
-		 Step (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_ref v_ref), (instr_subcase_2 (TABLE_SET x))]) (mk_config (with_table z x (proj_uN_0 (the ((proj_num__0 i)))) v_ref) [])"
+		 Step (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_ref v_ref), (instr_sc2 (TABLE_SET x))]) (mk_config (with_table z x (proj_uN_0 (the ((proj_num__0 i)))) v_ref) [])"
 	| table_grow_succeed :
 		"(fun_growtable (fun_table z x) v_n v_ref var_0) ⟹
 		 (var_0 ≠ None) ⟹
 		 (ti = (the (var_0))) ⟹
 		 (wf_tableinst (the (var_0))) ⟹
 		 (wf_tableinst (fun_table z x)) ⟹
-		 (wf_config (mk_config z [(instr_ref v_ref), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_2 (TABLE_GROW x))])) ⟹
-		 (wf_config (mk_config (with_tableinst z x ti) [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN (length (tableinst_REFS (fun_table z x)))))))])) ⟹
-		 Step (mk_config z [(instr_ref v_ref), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_2 (TABLE_GROW x))]) (mk_config (with_tableinst z x ti) [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN (length (tableinst_REFS (fun_table z x)))))))])"
+		 (wf_config (mk_config z [(instr_ref v_ref), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc2 (TABLE_GROW x))])) ⟹
+		 (wf_config (mk_config (with_tableinst z x ti) [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN (length (tableinst_REFS (fun_table z x)))))))])) ⟹
+		 Step (mk_config z [(instr_ref v_ref), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc2 (TABLE_GROW x))]) (mk_config (with_tableinst z x ti) [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN (length (tableinst_REFS (fun_table z x)))))))])"
 	| table_grow_fail :
 		"(fun_inv_signed_underscore (size (numtype_addrtype at)) (0 - (1 :: nat)) var_0) ⟹
-		 (wf_config (mk_config z [(instr_ref v_ref), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_2 (TABLE_GROW x))])) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN var_0))))])) ⟹
-		 Step (mk_config z [(instr_ref v_ref), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_2 (TABLE_GROW x))]) (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN var_0))))])"
+		 (wf_config (mk_config z [(instr_ref v_ref), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc2 (TABLE_GROW x))])) ⟹
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN var_0))))])) ⟹
+		 Step (mk_config z [(instr_ref v_ref), (instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc2 (TABLE_GROW x))]) (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN var_0))))])"
 	| Step__elem_drop :
-		"(wf_config (mk_config z [(instr_subcase_2 (ELEM_DROP x))])) ⟹
+		"(wf_config (mk_config z [(instr_sc2 (ELEM_DROP x))])) ⟹
 		 (wf_config (mk_config (with_elem z x []) [])) ⟹
-		 Step (mk_config z [(instr_subcase_2 (ELEM_DROP x))]) (mk_config (with_elem z x []) [])"
+		 Step (mk_config z [(instr_sc2 (ELEM_DROP x))]) (mk_config (with_elem z x []) [])"
 	| store_num_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + ((((size nt) :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z x)))) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST nt c)), (instr_subcase_3 (STORE nt None x ao))])) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 TRAP)])) ⟹
-		 Step (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST nt c)), (instr_subcase_3 (STORE nt None x ao))]) (mk_config z [(instr_subcase_9 TRAP)])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST nt c)), (instr_sc3 (STORE nt None x ao))])) ⟹
+		 (wf_config (mk_config z [(instr_sc9 TRAP)])) ⟹
+		 Step (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST nt c)), (instr_sc3 (STORE nt None x ao))]) (mk_config z [(instr_sc9 TRAP)])"
 	| store_num_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (b_lst = (nbytes_underscore nt c)) ⟹
 		 list_all (λ (iter :: byte). (wf_byte iter)) (nbytes_underscore nt c) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST nt c)), (instr_subcase_3 (STORE nt None x ao))])) ⟹
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST nt c)), (instr_sc3 (STORE nt None x ao))])) ⟹
 		 (wf_config (mk_config (with_mem z x ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) ((((size nt) :: nat) div (8 :: nat)) :: nat) b_lst) [])) ⟹
-		 Step (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST nt c)), (instr_subcase_3 (STORE nt None x ao))]) (mk_config (with_mem z x ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) ((((size nt) :: nat) div (8 :: nat)) :: nat) b_lst) [])"
+		 Step (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST nt c)), (instr_sc3 (STORE nt None x ao))]) (mk_config (with_mem z x ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) ((((size nt) :: nat) div (8 :: nat)) :: nat) b_lst) [])"
 	| store_pack_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + (((v_n :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z x)))) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype v_Inn) c)), (instr_subcase_3 (STORE (numtype_addrtype v_Inn) (Some (mk_storeop__0 v_Inn (mk_storeop_Inn (mk_sz v_n)))) x ao))])) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 TRAP)])) ⟹
-		 Step (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype v_Inn) c)), (instr_subcase_3 (STORE (numtype_addrtype v_Inn) (Some (mk_storeop__0 v_Inn (mk_storeop_Inn (mk_sz v_n)))) x ao))]) (mk_config z [(instr_subcase_9 TRAP)])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST (numtype_addrtype v_Inn) c)), (instr_sc3 (STORE (numtype_addrtype v_Inn) (Some (mk_storeop__0 v_Inn (mk_storeop_Inn (mk_sz v_n)))) x ao))])) ⟹
+		 (wf_config (mk_config z [(instr_sc9 TRAP)])) ⟹
+		 Step (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST (numtype_addrtype v_Inn) c)), (instr_sc3 (STORE (numtype_addrtype v_Inn) (Some (mk_storeop__0 v_Inn (mk_storeop_Inn (mk_sz v_n)))) x ao))]) (mk_config z [(instr_sc9 TRAP)])"
 	| store_pack_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 c) ≠ None) ⟹
 		 (b_lst = (ibytes_underscore v_n (wrap__underscore (size (numtype_addrtype v_Inn)) v_n (the ((proj_num__0 c)))))) ⟹
 		 list_all (λ (iter :: byte). (wf_byte iter)) (ibytes_underscore v_n (wrap__underscore (size (numtype_addrtype v_Inn)) v_n (the ((proj_num__0 c))))) ⟹
 		 (wf_uN v_n (wrap__underscore (size (numtype_addrtype v_Inn)) v_n (the ((proj_num__0 c))))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype v_Inn) c)), (instr_subcase_3 (STORE (numtype_addrtype v_Inn) (Some (mk_storeop__0 v_Inn (mk_storeop_Inn (mk_sz v_n)))) x ao))])) ⟹
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST (numtype_addrtype v_Inn) c)), (instr_sc3 (STORE (numtype_addrtype v_Inn) (Some (mk_storeop__0 v_Inn (mk_storeop_Inn (mk_sz v_n)))) x ao))])) ⟹
 		 (wf_config (mk_config (with_mem z x ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_n :: nat) div (8 :: nat)) :: nat) b_lst) [])) ⟹
-		 Step (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype v_Inn) c)), (instr_subcase_3 (STORE (numtype_addrtype v_Inn) (Some (mk_storeop__0 v_Inn (mk_storeop_Inn (mk_sz v_n)))) x ao))]) (mk_config (with_mem z x ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_n :: nat) div (8 :: nat)) :: nat) b_lst) [])"
+		 Step (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc6 (instr_st6_CONST (numtype_addrtype v_Inn) c)), (instr_sc3 (STORE (numtype_addrtype v_Inn) (Some (mk_storeop__0 v_Inn (mk_storeop_Inn (mk_sz v_n)))) x ao))]) (mk_config (with_mem z x ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_n :: nat) div (8 :: nat)) :: nat) b_lst) [])"
 	| vstore_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + ((((vsize V128) :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z x)))) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c)), (instr_subcase_3 (VSTORE V128 x ao))])) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 TRAP)])) ⟹
-		 Step (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c)), (instr_subcase_3 (VSTORE V128 x ao))]) (mk_config z [(instr_subcase_9 TRAP)])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc7 (instr_st7_VCONST V128 c)), (instr_sc3 (VSTORE V128 x ao))])) ⟹
+		 (wf_config (mk_config z [(instr_sc9 TRAP)])) ⟹
+		 Step (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc7 (instr_st7_VCONST V128 c)), (instr_sc3 (VSTORE V128 x ao))]) (mk_config z [(instr_sc9 TRAP)])"
 	| vstore_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (b_lst = (vbytes_underscore V128 c)) ⟹
 		 list_all (λ (iter :: byte). (wf_byte iter)) (vbytes_underscore V128 c) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c)), (instr_subcase_3 (VSTORE V128 x ao))])) ⟹
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc7 (instr_st7_VCONST V128 c)), (instr_sc3 (VSTORE V128 x ao))])) ⟹
 		 (wf_config (mk_config (with_mem z x ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) ((((vsize V128) :: nat) div (8 :: nat)) :: nat) b_lst) [])) ⟹
-		 Step (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c)), (instr_subcase_3 (VSTORE V128 x ao))]) (mk_config (with_mem z x ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) ((((vsize V128) :: nat) div (8 :: nat)) :: nat) b_lst) [])"
+		 Step (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc7 (instr_st7_VCONST V128 c)), (instr_sc3 (VSTORE V128 x ao))]) (mk_config (with_mem z x ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) ((((vsize V128) :: nat) div (8 :: nat)) :: nat) b_lst) [])"
 	| vstore_lane_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + v_N) > (length (BYTES (fun_mem z x)))) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c)), (instr_subcase_3 (VSTORE_LANE V128 (mk_sz v_N) x ao j))])) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 TRAP)])) ⟹
-		 Step (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c)), (instr_subcase_3 (VSTORE_LANE V128 (mk_sz v_N) x ao j))]) (mk_config z [(instr_subcase_9 TRAP)])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc7 (instr_st7_VCONST V128 c)), (instr_sc3 (VSTORE_LANE V128 (mk_sz v_N) x ao j))])) ⟹
+		 (wf_config (mk_config z [(instr_sc9 TRAP)])) ⟹
+		 Step (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc7 (instr_st7_VCONST V128 c)), (instr_sc3 (VSTORE_LANE V128 (mk_sz v_N) x ao j))]) (mk_config z [(instr_sc9 TRAP)])"
 	| vstore_lane_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (v_N = (jsize v_Jnn)) ⟹
@@ -15604,85 +15781,85 @@ inductive Step :: "config ⇒ config ⇒ bool" where
 		 ((proj_uN_0 j) < (length (lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c))) ⟹
 		 (b_lst = (ibytes_underscore v_N (mk_uN (proj_uN_0 (the ((proj_lane__2 ((lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c) ! (proj_uN_0 j))))))))) ⟹
 		 list_all (λ (iter :: byte). (wf_byte iter)) (ibytes_underscore v_N (mk_uN (proj_uN_0 (the ((proj_lane__2 ((lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c) ! (proj_uN_0 j)))))))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c)), (instr_subcase_3 (VSTORE_LANE V128 (mk_sz v_N) x ao j))])) ⟹
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc7 (instr_st7_VCONST V128 c)), (instr_sc3 (VSTORE_LANE V128 (mk_sz v_N) x ao j))])) ⟹
 		 (wf_config (mk_config (with_mem z x ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_N :: nat) div (8 :: nat)) :: nat) b_lst) [])) ⟹
 		 (wf_uN v_N (mk_uN (proj_uN_0 (the ((proj_lane__2 ((lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c) ! (proj_uN_0 j)))))))) ⟹
-		 Step (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) i)), (instr_subcase_7 (instr_subtype_7_VCONST V128 c)), (instr_subcase_3 (VSTORE_LANE V128 (mk_sz v_N) x ao j))]) (mk_config (with_mem z x ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_N :: nat) div (8 :: nat)) :: nat) b_lst) [])"
+		 Step (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) i)), (instr_sc7 (instr_st7_VCONST V128 c)), (instr_sc3 (VSTORE_LANE V128 (mk_sz v_N) x ao j))]) (mk_config (with_mem z x ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_N :: nat) div (8 :: nat)) :: nat) b_lst) [])"
 	| memory_grow_succeed :
 		"(fun_growmem (fun_mem z x) v_n var_0) ⟹
 		 (var_0 ≠ None) ⟹
 		 (mi = (the (var_0))) ⟹
 		 (wf_meminst (the (var_0))) ⟹
 		 (wf_meminst (fun_mem z x)) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_3 (MEMORY_GROW x))])) ⟹
-		 (wf_config (mk_config (with_meminst z x mi) [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((((length (BYTES (fun_mem z x))) :: nat) div ((64 * (Ki )) :: nat)) :: nat)))))])) ⟹
-		 Step (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_3 (MEMORY_GROW x))]) (mk_config (with_meminst z x mi) [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((((length (BYTES (fun_mem z x))) :: nat) div ((64 * (Ki )) :: nat)) :: nat)))))])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc3 (MEMORY_GROW x))])) ⟹
+		 (wf_config (mk_config (with_meminst z x mi) [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((((length (BYTES (fun_mem z x))) :: nat) div ((64 * (Ki )) :: nat)) :: nat)))))])) ⟹
+		 Step (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc3 (MEMORY_GROW x))]) (mk_config (with_meminst z x mi) [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN ((((length (BYTES (fun_mem z x))) :: nat) div ((64 * (Ki )) :: nat)) :: nat)))))])"
 	| memory_grow_fail :
 		"(fun_inv_signed_underscore (size (numtype_addrtype at)) (0 - (1 :: nat)) var_0) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_3 (MEMORY_GROW x))])) ⟹
-		 (wf_config (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN var_0))))])) ⟹
-		 Step (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_subcase_3 (MEMORY_GROW x))]) (mk_config z [(instr_subcase_6 (instr_subtype_6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN var_0))))])"
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc3 (MEMORY_GROW x))])) ⟹
+		 (wf_config (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN var_0))))])) ⟹
+		 Step (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN v_n)))), (instr_sc3 (MEMORY_GROW x))]) (mk_config z [(instr_sc6 (instr_st6_CONST (numtype_addrtype at) (mk_num__0 at (mk_uN var_0))))])"
 	| Step__data_drop :
-		"(wf_config (mk_config z [(instr_subcase_4 (DATA_DROP x))])) ⟹
+		"(wf_config (mk_config z [(instr_sc4 (DATA_DROP x))])) ⟹
 		 (wf_config (mk_config (with_data z x []) [])) ⟹
-		 Step (mk_config z [(instr_subcase_4 (DATA_DROP x))]) (mk_config (with_data z x []) [])"
+		 Step (mk_config z [(instr_sc4 (DATA_DROP x))]) (mk_config (with_data z x []) [])"
 	| Step__struct_new :
 		"(Expand (fun_type z x) (comptype_STRUCT (mk_list (list_zipWith (λ (mut_opt :: (mut option)) (zt :: storagetype). (mk_fieldtype mut_opt zt)) mut_opt_lst zt_lst)))) ⟹
 		 (a = (length (fun_structinst z))) ⟹
 		 list_all2 (λ (v_val :: val) (zt :: storagetype). ((packfield_underscore zt v_val) ≠ None)) val_lst zt_lst ⟹
 		 (si = ⦇ structinst_TYPE = (fun_type z x), FIELDS = (list_zipWith (λ (v_val :: val) (zt :: storagetype). (the ((packfield_underscore zt v_val)))) val_lst zt_lst) ⦈) ⟹
 		 list_all (λ (iter :: structinst). (wf_structinst iter)) (fun_structinst z) ⟹
-		 (wf_config (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_4 (STRUCT_NEW x))]))) ⟹
-		 (wf_config (mk_config (add_structinst z [si]) [(instr_subcase_9 (instr_subtype_9_REF_STRUCT_ADDR a))])) ⟹
+		 (wf_config (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc4 (STRUCT_NEW x))]))) ⟹
+		 (wf_config (mk_config (add_structinst z [si]) [(instr_sc9 (instr_st9_REF_STRUCT_ADDR a))])) ⟹
 		 (wf_comptype (comptype_STRUCT (mk_list (list_zipWith (λ (mut_opt :: (mut option)) (zt :: storagetype). (mk_fieldtype mut_opt zt)) mut_opt_lst zt_lst)))) ⟹
 		 (wf_structinst ⦇ structinst_TYPE = (fun_type z x), FIELDS = (list_zipWith (λ (v_val :: val) (zt :: storagetype). (the ((packfield_underscore zt v_val)))) val_lst zt_lst) ⦈) ⟹
 		 (v_n = (length val_lst)) ⟹
 		 (v_n = (length mut_opt_lst)) ⟹
 		 (v_n = (length zt_lst)) ⟹
-		 Step (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_4 (STRUCT_NEW x))])) (mk_config (add_structinst z [si]) [(instr_subcase_9 (instr_subtype_9_REF_STRUCT_ADDR a))])"
+		 Step (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc4 (STRUCT_NEW x))])) (mk_config (add_structinst z [si]) [(instr_sc9 (instr_st9_REF_STRUCT_ADDR a))])"
 	| struct_set_null :
-		"(wf_config (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_val v_val), (instr_subcase_5 (STRUCT_SET x i))])) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 TRAP)])) ⟹
-		 Step (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_val v_val), (instr_subcase_5 (STRUCT_SET x i))]) (mk_config z [(instr_subcase_9 TRAP)])"
+		"(wf_config (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_val v_val), (instr_sc5 (STRUCT_SET x i))])) ⟹
+		 (wf_config (mk_config z [(instr_sc9 TRAP)])) ⟹
+		 Step (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_val v_val), (instr_sc5 (STRUCT_SET x i))]) (mk_config z [(instr_sc9 TRAP)])"
 	| struct_set_struct :
 		"((packfield_underscore (zt_lst ! (proj_uN_0 i)) v_val) ≠ None) ⟹
 		 ((proj_uN_0 i) < (length zt_lst)) ⟹
 		 (Expand (fun_type z x) (comptype_STRUCT (mk_list (list_zipWith (λ (mut_opt :: (mut option)) (zt :: storagetype). (mk_fieldtype mut_opt zt)) mut_opt_lst zt_lst)))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_STRUCT_ADDR a)), (instr_val v_val), (instr_subcase_5 (STRUCT_SET x i))])) ⟹
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_STRUCT_ADDR a)), (instr_val v_val), (instr_sc5 (STRUCT_SET x i))])) ⟹
 		 (wf_config (mk_config (with_struct z a (proj_uN_0 i) (the ((packfield_underscore (zt_lst ! (proj_uN_0 i)) v_val)))) [])) ⟹
 		 (wf_comptype (comptype_STRUCT (mk_list (list_zipWith (λ (mut_opt :: (mut option)) (zt :: storagetype). (mk_fieldtype mut_opt zt)) mut_opt_lst zt_lst)))) ⟹
-		 Step (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_STRUCT_ADDR a)), (instr_val v_val), (instr_subcase_5 (STRUCT_SET x i))]) (mk_config (with_struct z a (proj_uN_0 i) (the ((packfield_underscore (zt_lst ! (proj_uN_0 i)) v_val)))) [])"
+		 Step (mk_config z [(instr_sc9 (instr_st9_REF_STRUCT_ADDR a)), (instr_val v_val), (instr_sc5 (STRUCT_SET x i))]) (mk_config (with_struct z a (proj_uN_0 i) (the ((packfield_underscore (zt_lst ! (proj_uN_0 i)) v_val)))) [])"
 	| Step__array_new_fixed :
 		"(Expand (fun_type z x) (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
 		 list_all (λ (v_val :: val). ((packfield_underscore zt v_val) ≠ None)) val_lst ⟹
 		 ((a = (length (fun_arrayinst z))) ∧ (ai = ⦇ arrayinst_TYPE = (fun_type z x), arrayinst_FIELDS = (map (λ (v_val :: val). (the ((packfield_underscore zt v_val)))) val_lst) ⦈)) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_5 (ARRAY_NEW_FIXED x (mk_uN v_n)))]))) ⟹
-		 (wf_config (mk_config (add_arrayinst z [ai]) [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a))])) ⟹
+		 (wf_config (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc5 (ARRAY_NEW_FIXED x (mk_uN v_n)))]))) ⟹
+		 (wf_config (mk_config (add_arrayinst z [ai]) [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a))])) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
 		 (wf_arrayinst ⦇ arrayinst_TYPE = (fun_type z x), arrayinst_FIELDS = (map (λ (v_val :: val). (the ((packfield_underscore zt v_val)))) val_lst) ⦈) ⟹
 		 (v_n = (length val_lst)) ⟹
-		 Step (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_5 (ARRAY_NEW_FIXED x (mk_uN v_n)))])) (mk_config (add_arrayinst z [ai]) [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a))])"
+		 Step (mk_config z ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc5 (ARRAY_NEW_FIXED x (mk_uN v_n)))])) (mk_config (add_arrayinst z [ai]) [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a))])"
 	| array_set_null :
-		"(wf_config (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_5 (ARRAY_SET x))])) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 TRAP)])) ⟹
-		 Step (mk_config z [(instr_subcase_9 instr_subtype_9_REF_NULL_ADDR), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_5 (ARRAY_SET x))]) (mk_config z [(instr_subcase_9 TRAP)])"
+		"(wf_config (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc5 (ARRAY_SET x))])) ⟹
+		 (wf_config (mk_config z [(instr_sc9 TRAP)])) ⟹
+		 Step (mk_config z [(instr_sc9 instr_st9_REF_NULL_ADDR), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc5 (ARRAY_SET x))]) (mk_config z [(instr_sc9 TRAP)])"
 	| array_set_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (a < (length (fun_arrayinst z))) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 i)))) ≥ (length (arrayinst_FIELDS ((fun_arrayinst z) ! a)))) ⟹
 		 list_all (λ (iter :: arrayinst). (wf_arrayinst iter)) (fun_arrayinst z) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_5 (ARRAY_SET x))])) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 TRAP)])) ⟹
-		 Step (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_5 (ARRAY_SET x))]) (mk_config z [(instr_subcase_9 TRAP)])"
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc5 (ARRAY_SET x))])) ⟹
+		 (wf_config (mk_config z [(instr_sc9 TRAP)])) ⟹
+		 Step (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc5 (ARRAY_SET x))]) (mk_config z [(instr_sc9 TRAP)])"
 	| array_set_array :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((packfield_underscore zt v_val) ≠ None) ⟹
 		 (Expand (fun_type z x) (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
-		 (wf_config (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_5 (ARRAY_SET x))])) ⟹
+		 (wf_config (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc5 (ARRAY_SET x))])) ⟹
 		 (wf_config (mk_config (with_array z a (proj_uN_0 (the ((proj_num__0 i)))) (the ((packfield_underscore zt v_val)))) [])) ⟹
 		 (wf_comptype (comptype_ARRAY (mk_fieldtype mut_opt zt))) ⟹
-		 Step (mk_config z [(instr_subcase_9 (instr_subtype_9_REF_ARRAY_ADDR a)), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 i)), (instr_val v_val), (instr_subcase_5 (ARRAY_SET x))]) (mk_config (with_array z a (proj_uN_0 (the ((proj_num__0 i)))) (the ((packfield_underscore zt v_val)))) [])"
+		 Step (mk_config z [(instr_sc9 (instr_st9_REF_ARRAY_ADDR a)), (instr_sc6 (instr_st6_CONST numtype_I32 i)), (instr_val v_val), (instr_sc5 (ARRAY_SET x))]) (mk_config (with_array z a (proj_uN_0 (the ((proj_num__0 i)))) (the ((packfield_underscore zt v_val)))) [])"
 
 (* Mutual Recursion at: ../specification/wasm-3.0/4.3-execution.instructions.spectec:8.1-8.92 *)
 inductive Steps :: "config ⇒ config ⇒ bool" where
@@ -16107,7 +16284,7 @@ inductive fun_rundata_underscore :: "dataidx ⇒ data ⇒ (instr list) ⇒ bool"
 		 fun_rundata_underscore x (DATA b_lst datamode_PASSIVE) []"
 	| fun_rundata__case_1 :
 		"(v_n = (length b_lst)) ⟹
-		 fun_rundata_underscore x (DATA b_lst (datamode_ACTIVE y instr_lst)) (instr_lst @ [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 0)))), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_3 (MEMORY_INIT y x)), (instr_subcase_4 (DATA_DROP x))])"
+		 fun_rundata_underscore x (DATA b_lst (datamode_ACTIVE y instr_lst)) (instr_lst @ [(instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 0)))), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc3 (MEMORY_INIT y x)), (instr_sc4 (DATA_DROP x))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.4-execution.modules.spectec:148.6-148.15 *)
 lemma rundata__is_wf :
@@ -16125,10 +16302,10 @@ inductive fun_runelem_underscore :: "elemidx ⇒ elem ⇒ (instr list) ⇒ bool"
 		 fun_runelem_underscore x (ELEM rt e_lst PASSIVE) []"
 	| fun_runelem__case_1 :
 		"(v_n = (length e_lst)) ⟹
-		 fun_runelem_underscore x (ELEM rt e_lst DECLARE) [(instr_subcase_2 (ELEM_DROP x))]"
+		 fun_runelem_underscore x (ELEM rt e_lst DECLARE) [(instr_sc2 (ELEM_DROP x))]"
 	| fun_runelem__case_2 :
 		"(v_n = (length e_lst)) ⟹
-		 fun_runelem_underscore x (ELEM rt e_lst (ACTIVE y instr_lst)) (instr_lst @ [(instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 0)))), (instr_subcase_6 (instr_subtype_6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_subcase_2 (TABLE_INIT y x)), (instr_subcase_2 (ELEM_DROP x))])"
+		 fun_runelem_underscore x (ELEM rt e_lst (ACTIVE y instr_lst)) (instr_lst @ [(instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN 0)))), (instr_sc6 (instr_st6_CONST numtype_I32 (mk_num__0 I32 (mk_uN v_n)))), (instr_sc2 (TABLE_INIT y x)), (instr_sc2 (ELEM_DROP x))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.4-execution.modules.spectec:153.6-153.15 *)
 lemma runelem__is_wf :
@@ -16246,7 +16423,7 @@ inductive fun_instantiate :: "store ⇒ module ⇒ (externaddr list) ⇒ config 
 		 ((s'''', v_moduleinst) = var_6) ⟹
 		 (instr_D_lst = (concat_underscore  var_7_lst)) ⟹
 		 (instr_E_lst = (concat_underscore  var_8_lst)) ⟹
-		 (instr_S_opt = (map_option (λ (x_7 :: idx). (instr_subcase_1 (CALL x_7))) x_opt)) ⟹
+		 (instr_S_opt = (map_option (λ (x_7 :: idx). (instr_sc1 (CALL x_7))) x_opt)) ⟹
 		 (wf_state z) ⟹
 		 (wf_moduletype (mk_moduletype xt_I_lst xt_E_lst)) ⟹
 		 (wf_module (module_MODULE (mk_list type_lst) (mk_list import_lst) (mk_list tag_lst) (mk_list global_lst) (mk_list mem_lst) (mk_list table_lst) (mk_list func_lst) (mk_list data_lst) (mk_list elem_lst) start_opt (mk_list export_lst))) ⟹
@@ -16265,7 +16442,7 @@ inductive fun_instantiate :: "store ⇒ module ⇒ (externaddr list) ⇒ config 
 		 (wf_state (mk_state s''' f)) ⟹
 		 holds_upto (λ i_D_2. (wf_uN 32 (mk_uN i_D_2))) (length data_lst) ⟹
 		 holds_upto (λ i_E_2. (wf_uN 32 (mk_uN i_E_2))) (length elem_lst) ⟹
-		 list_all (λ (x_9 :: idx). (wf_instr (instr_subcase_1 (CALL x_9)))) (option_to_list x_opt) ⟹
+		 list_all (λ (x_9 :: idx). (wf_instr (instr_sc1 (CALL x_9)))) (option_to_list x_opt) ⟹
 		 fun_instantiate s v_module externaddr_lst (mk_config (mk_state s'''' ⦇ frame_LOCALS = [], MODULE = v_moduleinst ⦈) (instr_E_lst @ (instr_D_lst @ (option_to_list instr_S_opt))))"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.4-execution.modules.spectec:183.6-183.18 *)
@@ -16285,7 +16462,7 @@ inductive fun_invoke :: "store ⇒ funcaddr ⇒ (val list) ⇒ config ⇒ bool" 
 		 ((length t_1_lst) = (length val_lst)) ⟹
 		 list_all2 (λ (t_1_5 :: valtype) (val_2 :: val). (Val_ok s val_2 t_1_5)) t_1_lst val_lst ⟹
 		 (wf_comptype (comptype_FUNC (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
-		 fun_invoke s v_funcaddr val_lst (mk_config (mk_state s ⦇ frame_LOCALS = [], MODULE = ⦇ moduleinst_TYPES = [], moduleinst_TAGS = [], moduleinst_GLOBALS = [], moduleinst_MEMS = [], moduleinst_TABLES = [], moduleinst_FUNCS = [], moduleinst_DATAS = [], moduleinst_ELEMS = [], EXPORTS = [] ⦈ ⦈) ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_subcase_9 (instr_subtype_9_REF_FUNC_ADDR v_funcaddr)), (instr_subcase_1 (CALL_REF (typeuse_deftype (funcinst_TYPE ((store_FUNCS s) ! v_funcaddr)))))]))"
+		 fun_invoke s v_funcaddr val_lst (mk_config (mk_state s ⦇ frame_LOCALS = [], MODULE = ⦇ moduleinst_TYPES = [], moduleinst_TAGS = [], moduleinst_GLOBALS = [], moduleinst_MEMS = [], moduleinst_TABLES = [], moduleinst_FUNCS = [], moduleinst_DATAS = [], moduleinst_ELEMS = [], EXPORTS = [] ⦈ ⦈) ((map (λ (v_val :: val). (instr_val v_val)) val_lst) @ [(instr_sc9 (instr_st9_REF_FUNC_ADDR v_funcaddr)), (instr_sc1 (CALL_REF (typeuse_deftype (funcinst_TYPE ((store_FUNCS s) ! v_funcaddr)))))]))"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/4.4-execution.modules.spectec:214.6-214.13 *)
 lemma invoke_is_wf :
@@ -16903,39 +17080,39 @@ and Expr_ok2 :: "store ⇒ res_context ⇒ expr ⇒ resulttype ⇒ bool" where
 		 (Instrs_ok2 s (append_res_context ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [(mk_list t'_lst)], context_RETURN = None, REFS = [], RECS = [] ⦈ C) instr_lst (mk_instrtype (mk_list []) x_lst (mk_list t_lst))) ⟹
 		 (wf_store s) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_10 (LABEL_underscore v_n instr'_lst instr_lst))) ⟹
+		 (wf_instr (instr_sc10 (LABEL_underscore v_n instr'_lst instr_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list t_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t'_lst) x'_lst (mk_list t_lst))) ⟹
 		 (wf_context ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [(mk_list t'_lst)], context_RETURN = None, REFS = [], RECS = [] ⦈) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) x_lst (mk_list t_lst))) ⟹
 		 (v_n = (length t'_lst)) ⟹
-		 Instr_ok2 s C (instr_subcase_10 (LABEL_underscore v_n instr'_lst instr_lst)) (mk_instrtype (mk_list []) [] (mk_list t_lst))"
+		 Instr_ok2 s C (instr_sc10 (LABEL_underscore v_n instr'_lst instr_lst)) (mk_instrtype (mk_list []) [] (mk_list t_lst))"
 	| Instr_ok2__frame :
 		"(Frame_ok s f C') ⟹
 		 (Expr_ok2 s C' instr_lst (mk_list t_lst)) ⟹
 		 (wf_store s) ⟹
 		 (wf_context C) ⟹
 		 (wf_context C') ⟹
-		 (wf_instr (instr_subcase_10 (FRAME_underscore v_n f instr_lst))) ⟹
+		 (wf_instr (instr_sc10 (FRAME_underscore v_n f instr_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list t_lst))) ⟹
 		 (v_n = (length t_lst)) ⟹
-		 Instr_ok2 s C (instr_subcase_10 (FRAME_underscore v_n f instr_lst)) (mk_instrtype (mk_list []) [] (mk_list t_lst))"
+		 Instr_ok2 s C (instr_sc10 (FRAME_underscore v_n f instr_lst)) (mk_instrtype (mk_list []) [] (mk_list t_lst))"
 	| handler :
 		"list_all (λ (v_catch :: catch). (Catch_ok C v_catch)) catch_lst ⟹
 		 (Instrs_ok2 s C instr_lst (mk_instrtype (mk_list t_1_lst) x_lst (mk_list t_2_lst))) ⟹
 		 (wf_store s) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_10 (HANDLER_underscore v_n catch_lst instr_lst))) ⟹
+		 (wf_instr (instr_sc10 (HANDLER_underscore v_n catch_lst instr_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) x_lst (mk_list t_2_lst))) ⟹
-		 Instr_ok2 s C (instr_subcase_10 (HANDLER_underscore v_n catch_lst instr_lst)) (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))"
+		 Instr_ok2 s C (instr_sc10 (HANDLER_underscore v_n catch_lst instr_lst)) (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))"
 	| trap :
 		"(Instrtype_ok C (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_store s) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_9 TRAP)) ⟹
+		 (wf_instr (instr_sc9 TRAP)) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
-		 Instr_ok2 s C (instr_subcase_9 TRAP) (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))"
+		 Instr_ok2 s C (instr_sc9 TRAP) (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))"
 	| Instrs_ok2__empty :
 		"(wf_store s) ⟹
 		 (wf_context C) ⟹
@@ -17011,25 +17188,25 @@ inductive Globalinst_ok :: "store ⇒ globalinst ⇒ globaltype ⇒ bool" where
 (* Inductive Relations Definition at: ../specification/wasm-3.0/7.1-soundness.configurations.spectec:69.1-69.48 *)
 inductive Meminst_ok :: "store ⇒ meminst ⇒ memtype ⇒ bool" where
 	  mk_Meminst_ok :
-		"(Memtype_ok ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [], context_RETURN = None, REFS = [], RECS = [] ⦈ (PAGE at (mk_limits (mk_uN v_n) (Some (mk_uN v_m))))) ⟹
+		"(Memtype_ok ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [], context_RETURN = None, REFS = [], RECS = [] ⦈ (PAGE at (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)))) ⟹
 		 ((length b_lst) = (v_n * (64 * (Ki )))) ⟹
 		 (wf_store s) ⟹
-		 (wf_meminst ⦇ meminst_TYPE = (PAGE at (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))), BYTES = b_lst ⦈) ⟹
-		 (wf_memtype (PAGE at (mk_limits (mk_uN v_n) (Some (mk_uN v_m))))) ⟹
+		 (wf_meminst ⦇ meminst_TYPE = (PAGE at (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt))), BYTES = b_lst ⦈) ⟹
+		 (wf_memtype (PAGE at (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)))) ⟹
 		 (wf_context ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [], context_RETURN = None, REFS = [], RECS = [] ⦈) ⟹
-		 Meminst_ok s ⦇ meminst_TYPE = (PAGE at (mk_limits (mk_uN v_n) (Some (mk_uN v_m)))), BYTES = b_lst ⦈ (PAGE at (mk_limits (mk_uN v_n) (Some (mk_uN v_m))))"
+		 Meminst_ok s ⦇ meminst_TYPE = (PAGE at (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt))), BYTES = b_lst ⦈ (PAGE at (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)))"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/7.1-soundness.configurations.spectec:70.1-70.54 *)
 inductive Tableinst_ok :: "store ⇒ tableinst ⇒ tabletype ⇒ bool" where
 	  mk_Tableinst_ok :
-		"(Tabletype_ok ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [], context_RETURN = None, REFS = [], RECS = [] ⦈ (mk_tabletype at (mk_limits (mk_uN v_n) (Some (mk_uN v_m))) rt)) ⟹
+		"(Tabletype_ok ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [], context_RETURN = None, REFS = [], RECS = [] ⦈ (mk_tabletype at (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)) rt)) ⟹
 		 ((length ref_lst) = v_n) ⟹
 		 list_all (λ (v_ref :: ref). (Ref_ok s v_ref rt)) ref_lst ⟹
 		 (wf_store s) ⟹
-		 (wf_tableinst ⦇ tableinst_TYPE = (mk_tabletype at (mk_limits (mk_uN v_n) (Some (mk_uN v_m))) rt), tableinst_REFS = ref_lst ⦈) ⟹
-		 (wf_tabletype (mk_tabletype at (mk_limits (mk_uN v_n) (Some (mk_uN v_m))) rt)) ⟹
+		 (wf_tableinst ⦇ tableinst_TYPE = (mk_tabletype at (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)) rt), tableinst_REFS = ref_lst ⦈) ⟹
+		 (wf_tabletype (mk_tabletype at (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)) rt)) ⟹
 		 (wf_context ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [], context_RETURN = None, REFS = [], RECS = [] ⦈) ⟹
-		 Tableinst_ok s ⦇ tableinst_TYPE = (mk_tabletype at (mk_limits (mk_uN v_n) (Some (mk_uN v_m))) rt), tableinst_REFS = ref_lst ⦈ (mk_tabletype at (mk_limits (mk_uN v_n) (Some (mk_uN v_m))) rt)"
+		 Tableinst_ok s ⦇ tableinst_TYPE = (mk_tabletype at (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)) rt), tableinst_REFS = ref_lst ⦈ (mk_tabletype at (mk_limits (mk_uN v_n) (map_option (λ (v_m :: m). (mk_uN v_m)) m_opt)) rt)"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/7.1-soundness.configurations.spectec:71.1-71.50 *)
 inductive Funcinst_ok :: "store ⇒ funcinst ⇒ deftype ⇒ bool" where
@@ -17381,43 +17558,43 @@ inductive NotationTypingScheme :: "nat ⇒ bool" where
 inductive NotationTypingInstrScheme :: "res_context ⇒ (instr list) ⇒ instrtype ⇒ bool" where
 	  i32_add :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_6 (BINOP numtype_I32 (mk_binop__0 I32 ADD)))) ⟹
+		 (wf_instr (instr_sc6 (BINOP numtype_I32 (mk_binop__0 I32 ADD)))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list [valtype_I32, valtype_I32]) [] (mk_list [valtype_I32]))) ⟹
-		 NotationTypingInstrScheme C [(instr_subcase_6 (BINOP numtype_I32 (mk_binop__0 I32 ADD)))] (mk_instrtype (mk_list [valtype_I32, valtype_I32]) [] (mk_list [valtype_I32]))"
+		 NotationTypingInstrScheme C [(instr_sc6 (BINOP numtype_I32 (mk_binop__0 I32 ADD)))] (mk_instrtype (mk_list [valtype_I32, valtype_I32]) [] (mk_list [valtype_I32]))"
 	| NotationTypingInstrScheme__global_get :
 		"((proj_uN_0 x) < (length (context_GLOBALS C))) ⟹
 		 (((context_GLOBALS C) ! (proj_uN_0 x)) = (mk_globaltype (Some v_mut) t)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (GLOBAL_GET x))) ⟹
+		 (wf_instr (instr_sc2 (GLOBAL_GET x))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list []) [] (mk_list [t]))) ⟹
 		 (wf_globaltype (mk_globaltype (Some v_mut) t)) ⟹
-		 NotationTypingInstrScheme C [(instr_subcase_2 (GLOBAL_GET x))] (mk_instrtype (mk_list []) [] (mk_list [t]))"
+		 NotationTypingInstrScheme C [(instr_sc2 (GLOBAL_GET x))] (mk_instrtype (mk_list []) [] (mk_list [t]))"
 	| NotationTypingInstrScheme__block :
 		"(Blocktype_ok C v_blocktype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (NotationTypingInstrScheme (append_res_context ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [(mk_list t_2_lst)], context_RETURN = None, REFS = [], RECS = [] ⦈ C) instr_lst (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_9 (BLOCK v_blocktype instr_lst))) ⟹
+		 (wf_instr (instr_sc9 (BLOCK v_blocktype instr_lst))) ⟹
 		 (wf_instrtype (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))) ⟹
 		 (wf_context ⦇ context_TYPES = [], context_TAGS = [], context_GLOBALS = [], context_MEMS = [], context_TABLES = [], context_FUNCS = [], context_DATAS = [], context_ELEMS = [], context_LOCALS = [], context_LABELS = [(mk_list t_2_lst)], context_RETURN = None, REFS = [], RECS = [] ⦈) ⟹
-		 NotationTypingInstrScheme C [(instr_subcase_9 (BLOCK v_blocktype instr_lst))] (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))"
+		 NotationTypingInstrScheme C [(instr_sc9 (BLOCK v_blocktype instr_lst))] (mk_instrtype (mk_list t_1_lst) [] (mk_list t_2_lst))"
 
 (* Inductive Relations Definition at: ../specification/wasm-3.0/X.3-notation.execution.spectec:7.1-7.49 *)
 inductive NotationReduct :: "(instr list) ⇒ bool" where
 	  r_2 :
-		"(wf_instr (instr_subcase_6 (instr_subtype_6_CONST F64 q_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST F64 q_4))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST F64 q_3))) ⟹
-		 (wf_instr (instr_subcase_6 (BINOP F64 (mk_binop__1 Fnn_F64 binop_Fnn_ADD)))) ⟹
-		 (wf_instr (instr_subcase_6 (BINOP F64 (mk_binop__1 Fnn_F64 binop_Fnn_MUL)))) ⟹
-		 NotationReduct [(instr_subcase_6 (instr_subtype_6_CONST F64 q_1)), (instr_subcase_6 (instr_subtype_6_CONST F64 q_4)), (instr_subcase_6 (instr_subtype_6_CONST F64 q_3)), (instr_subcase_6 (BINOP F64 (mk_binop__1 Fnn_F64 binop_Fnn_ADD))), (instr_subcase_6 (BINOP F64 (mk_binop__1 Fnn_F64 binop_Fnn_MUL)))]"
+		"(wf_instr (instr_sc6 (instr_st6_CONST F64 q_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST F64 q_4))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST F64 q_3))) ⟹
+		 (wf_instr (instr_sc6 (BINOP F64 (mk_binop__1 Fnn_F64 binop_Fnn_ADD)))) ⟹
+		 (wf_instr (instr_sc6 (BINOP F64 (mk_binop__1 Fnn_F64 binop_Fnn_MUL)))) ⟹
+		 NotationReduct [(instr_sc6 (instr_st6_CONST F64 q_1)), (instr_sc6 (instr_st6_CONST F64 q_4)), (instr_sc6 (instr_st6_CONST F64 q_3)), (instr_sc6 (BINOP F64 (mk_binop__1 Fnn_F64 binop_Fnn_ADD))), (instr_sc6 (BINOP F64 (mk_binop__1 Fnn_F64 binop_Fnn_MUL)))]"
 	| r_3 :
-		"(wf_instr (instr_subcase_6 (instr_subtype_6_CONST F64 q_1))) ⟹
-		 (wf_instr (instr_subcase_6 (instr_subtype_6_CONST F64 q_5))) ⟹
-		 (wf_instr (instr_subcase_6 (BINOP F64 (mk_binop__1 Fnn_F64 binop_Fnn_MUL)))) ⟹
-		 NotationReduct [(instr_subcase_6 (instr_subtype_6_CONST F64 q_1)), (instr_subcase_6 (instr_subtype_6_CONST F64 q_5)), (instr_subcase_6 (BINOP F64 (mk_binop__1 Fnn_F64 binop_Fnn_MUL)))]"
+		"(wf_instr (instr_sc6 (instr_st6_CONST F64 q_1))) ⟹
+		 (wf_instr (instr_sc6 (instr_st6_CONST F64 q_5))) ⟹
+		 (wf_instr (instr_sc6 (BINOP F64 (mk_binop__1 Fnn_F64 binop_Fnn_MUL)))) ⟹
+		 NotationReduct [(instr_sc6 (instr_st6_CONST F64 q_1)), (instr_sc6 (instr_st6_CONST F64 q_5)), (instr_sc6 (BINOP F64 (mk_binop__1 Fnn_F64 binop_Fnn_MUL)))]"
 	| r_4 :
-		"(wf_instr (instr_subcase_6 (instr_subtype_6_CONST F64 q_6))) ⟹
-		 NotationReduct [(instr_subcase_6 (instr_subtype_6_CONST F64 q_6))]"
+		"(wf_instr (instr_sc6 (instr_st6_CONST F64 q_6))) ⟹
+		 NotationReduct [(instr_sc6 (instr_st6_CONST F64 q_6))]"
 
 (* Axiom Definition at: ../specification/wasm-3.0/X.3-notation.execution.spectec:21.1-21.40 *)
 axiomatization instrdots :: "(instr list)"
@@ -17470,12 +17647,12 @@ function (sequential) allocXs :: "store ⇒ ('r_X list) ⇒ ('Y list) ⇒ (store
 	by pat_completeness auto
 
 (* Mutual Recursion at: ../specification/wasm-3.0/X.3-notation.execution.spectec:32.1-32.117 *)
-lemma allocXs_is_wf :
+inductive allocXs_is_wf :: "store ⇒ (r_X list) ⇒ (Y list) ⇒ (store * (addr list)) ⇒ bool" where
+	  allocXs_is_wf_0 :
 		"(wf_store v_store) ⟹
 		 (ret_val = (allocXs   v_store var_0_lst var_1_lst)) ⟹
 		 (wf_store (fst ret_val)) ⟹
 		 allocXs_is_wf v_store var_0_lst var_1_lst ret_val"
-	sorry
 
 (* Inductive Type Definition at: ../specification/wasm-3.0/X.4-notation.binary.spectec:7.1-7.52 *)
 datatype symdots =

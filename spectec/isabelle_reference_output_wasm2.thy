@@ -1,4 +1,4 @@
-theory isabelle_reference_output_wasm2
+theory reference_isabelle_output_wasm2
 (* Imported Code *)
 	imports Main
 begin
@@ -1547,7 +1547,7 @@ inductive wf_blocktype :: "blocktype ⇒ bool" where
 		 wf_blocktype (underscore_IDX v_typeidx)"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:519.1-520.22 *)
-datatype instr_subtype_6 =
+datatype instr_st6 =
 	  MEMORY_COPY
 	| MEMORY_FILL
 	| MEMORY_GROW
@@ -1559,7 +1559,7 @@ datatype instr_subtype_6 =
 	| STORE "numtype" "(sz option)" "memarg"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:519.1-520.22 *)
-datatype instr_subtype_5 =
+datatype instr_st5 =
 	  LOAD "numtype" "(loadop_underscore option)" "memarg"
 	| ELEM_DROP "elemidx"
 	| TABLE_INIT "tableidx" "elemidx"
@@ -1571,7 +1571,7 @@ datatype instr_subtype_5 =
 	| TABLE_GET "tableidx"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:519.1-520.22 *)
-datatype instr_subtype_4 =
+datatype instr_st4 =
 	  GLOBAL_SET "globalidx"
 	| GLOBAL_GET "globalidx"
 	| LOCAL_TEE "localidx"
@@ -1583,7 +1583,7 @@ datatype instr_subtype_4 =
 	| VCVTOP "shape" "shape" "vcvtop"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:519.1-520.22 *)
-datatype instr_subtype_3 =
+datatype instr_st3 =
 	  VNARROW "ishape" "ishape" "sx"
 	| VEXTBINOP "ishape" "ishape" "vextbinop_underscore"
 	| VEXTUNOP "ishape" "ishape" "vextunop_underscore"
@@ -1595,7 +1595,7 @@ datatype instr_subtype_3 =
 	| VBITMASK "ishape"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:519.1-520.22 *)
-datatype instr_subtype_2 =
+datatype instr_st2 =
 	  VSHIFTOP "ishape" "vshiftop_underscore"
 	| VRELOP "shape" "vrelop_underscore"
 	| VTESTOP "shape" "vtestop_underscore"
@@ -1607,9 +1607,9 @@ datatype instr_subtype_2 =
 	| VVUNOP "vectype" "vvunop"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:519.1-520.22 *)
-datatype instr_subtype_1 =
+datatype instr_st1 =
 	  VCONST "vectype" "vec_underscore"
-	| instr_subtype_1_EXTEND "numtype" "n"
+	| instr_st1_EXTEND "numtype" "n"
 	| CVTOP "numtype" "numtype" "cvtop"
 	| RELOP "numtype" "relop_underscore"
 	| TESTOP "numtype" "testop_underscore"
@@ -1619,7 +1619,7 @@ datatype instr_subtype_1 =
 	| RETURN
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:519.1-520.22 *)
-datatype instr_subtype_0 =
+datatype instr_st0 =
 	  CALL_INDIRECT "tableidx" "typeidx"
 	| CALL "funcidx"
 	| BR_TABLE "(labelidx list)" "labelidx"
@@ -1632,18 +1632,18 @@ datatype instr_subtype_0 =
 
 (* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:519.1-520.22 *)
 datatype instr =
-	  instr_subcase_0 "instr_subtype_0"
-	| instr_subcase_1 "instr_subtype_1"
-	| instr_subcase_2 "instr_subtype_2"
-	| instr_subcase_3 "instr_subtype_3"
-	| instr_subcase_4 "instr_subtype_4"
-	| instr_subcase_5 "instr_subtype_5"
-	| instr_subcase_6 "instr_subtype_6"
-	| instr_subcase_7 "instr_subtype_7"
+	  instr_sc0 "instr_st0"
+	| instr_sc1 "instr_st1"
+	| instr_sc2 "instr_st2"
+	| instr_sc3 "instr_st3"
+	| instr_sc4 "instr_st4"
+	| instr_sc5 "instr_st5"
+	| instr_sc6 "instr_st6"
+	| instr_sc7 "instr_st7"
 
 and
 
-instr_subtype_7 =
+instr_st7 =
 	  IFELSE "blocktype" "(instr list)" "(instr list)"
 	| LOOP "blocktype" "(instr list)"
 	| BLOCK "blocktype" "(instr list)"
@@ -1653,231 +1653,231 @@ instr_subtype_7 =
 (* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:519.1-520.22 *)
 inductive wf_instr :: "instr ⇒ bool" where
 	  instr_case_0 :
-		"wf_instr (instr_subcase_0 NOP)"
+		"wf_instr (instr_sc0 NOP)"
 	| instr_case_1 :
-		"wf_instr (instr_subcase_0 UNREACHABLE)"
+		"wf_instr (instr_sc0 UNREACHABLE)"
 	| instr_case_2 :
-		"wf_instr (instr_subcase_0 DROP)"
+		"wf_instr (instr_sc0 DROP)"
 	| instr_case_3 :
-		"wf_instr (instr_subcase_0 (SELECT valtype_lst_opt))"
+		"wf_instr (instr_sc0 (SELECT valtype_lst_opt))"
 	| instr_case_4 :
 		"(wf_blocktype v_blocktype) ⟹
 		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
-		 wf_instr (instr_subcase_7 (BLOCK v_blocktype instr_lst))"
+		 wf_instr (instr_sc7 (BLOCK v_blocktype instr_lst))"
 	| instr_case_5 :
 		"(wf_blocktype v_blocktype) ⟹
 		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
-		 wf_instr (instr_subcase_7 (LOOP v_blocktype instr_lst))"
+		 wf_instr (instr_sc7 (LOOP v_blocktype instr_lst))"
 	| instr_case_6 :
 		"(wf_blocktype v_blocktype) ⟹
 		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
 		 list_all (λ (instr_lst_0 :: instr). (wf_instr instr_lst_0)) instr_lst_0_lst ⟹
-		 wf_instr (instr_subcase_7 (IFELSE v_blocktype instr_lst instr_lst_0_lst))"
+		 wf_instr (instr_sc7 (IFELSE v_blocktype instr_lst instr_lst_0_lst))"
 	| instr_case_7 :
 		"(wf_uN 32 v_labelidx) ⟹
-		 wf_instr (instr_subcase_0 (BR v_labelidx))"
+		 wf_instr (instr_sc0 (BR v_labelidx))"
 	| instr_case_8 :
 		"(wf_uN 32 v_labelidx) ⟹
-		 wf_instr (instr_subcase_0 (BR_IF v_labelidx))"
+		 wf_instr (instr_sc0 (BR_IF v_labelidx))"
 	| instr_case_9 :
 		"list_all (λ (v_labelidx :: labelidx). (wf_uN 32 v_labelidx)) labelidx_lst ⟹
 		 (wf_uN 32 v_labelidx) ⟹
-		 wf_instr (instr_subcase_0 (BR_TABLE labelidx_lst v_labelidx))"
+		 wf_instr (instr_sc0 (BR_TABLE labelidx_lst v_labelidx))"
 	| instr_case_10 :
 		"(wf_uN 32 v_funcidx) ⟹
-		 wf_instr (instr_subcase_0 (CALL v_funcidx))"
+		 wf_instr (instr_sc0 (CALL v_funcidx))"
 	| instr_case_11 :
 		"(wf_uN 32 v_tableidx) ⟹
 		 (wf_uN 32 v_typeidx) ⟹
-		 wf_instr (instr_subcase_0 (CALL_INDIRECT v_tableidx v_typeidx))"
+		 wf_instr (instr_sc0 (CALL_INDIRECT v_tableidx v_typeidx))"
 	| instr_case_12 :
-		"wf_instr (instr_subcase_1 RETURN)"
+		"wf_instr (instr_sc1 RETURN)"
 	| instr_case_13 :
 		"(wf_num_underscore v_numtype var_0) ⟹
-		 wf_instr (instr_subcase_1 (res_CONST v_numtype var_0))"
+		 wf_instr (instr_sc1 (res_CONST v_numtype var_0))"
 	| instr_case_14 :
 		"(wf_unop_underscore v_numtype var_0) ⟹
-		 wf_instr (instr_subcase_1 (UNOP v_numtype var_0))"
+		 wf_instr (instr_sc1 (UNOP v_numtype var_0))"
 	| instr_case_15 :
 		"(wf_binop_underscore v_numtype var_0) ⟹
-		 wf_instr (instr_subcase_1 (BINOP v_numtype var_0))"
+		 wf_instr (instr_sc1 (BINOP v_numtype var_0))"
 	| instr_case_16 :
 		"(wf_testop_underscore v_numtype var_0) ⟹
-		 wf_instr (instr_subcase_1 (TESTOP v_numtype var_0))"
+		 wf_instr (instr_sc1 (TESTOP v_numtype var_0))"
 	| instr_case_17 :
 		"(wf_relop_underscore v_numtype var_0) ⟹
-		 wf_instr (instr_subcase_1 (RELOP v_numtype var_0))"
+		 wf_instr (instr_sc1 (RELOP v_numtype var_0))"
 	| instr_case_18 :
 		"(numtype_1 ≠ numtype_2) ⟹
-		 wf_instr (instr_subcase_1 (CVTOP numtype_1 numtype_2 v_cvtop))"
+		 wf_instr (instr_sc1 (CVTOP numtype_1 numtype_2 v_cvtop))"
 	| instr_case_19 :
-		"wf_instr (instr_subcase_1 (instr_subtype_1_EXTEND v_numtype v_n))"
+		"wf_instr (instr_sc1 (instr_st1_EXTEND v_numtype v_n))"
 	| instr_case_20 :
 		"((size (valtype_vectype v_vectype)) ≠ None) ⟹
 		 (wf_uN (the ((size (valtype_vectype v_vectype)))) var_0) ⟹
-		 wf_instr (instr_subcase_1 (VCONST v_vectype var_0))"
+		 wf_instr (instr_sc1 (VCONST v_vectype var_0))"
 	| instr_case_21 :
-		"wf_instr (instr_subcase_2 (VVUNOP v_vectype v_vvunop))"
+		"wf_instr (instr_sc2 (VVUNOP v_vectype v_vvunop))"
 	| instr_case_22 :
-		"wf_instr (instr_subcase_2 (VVBINOP v_vectype v_vvbinop))"
+		"wf_instr (instr_sc2 (VVBINOP v_vectype v_vvbinop))"
 	| instr_case_23 :
-		"wf_instr (instr_subcase_2 (VVTERNOP v_vectype v_vvternop))"
+		"wf_instr (instr_sc2 (VVTERNOP v_vectype v_vvternop))"
 	| instr_case_24 :
-		"wf_instr (instr_subcase_2 (VVTESTOP v_vectype v_vvtestop))"
+		"wf_instr (instr_sc2 (VVTESTOP v_vectype v_vvtestop))"
 	| instr_case_25 :
 		"(wf_shape v_shape) ⟹
 		 (wf_vunop_underscore v_shape var_0) ⟹
-		 wf_instr (instr_subcase_2 (VUNOP v_shape var_0))"
+		 wf_instr (instr_sc2 (VUNOP v_shape var_0))"
 	| instr_case_26 :
 		"(wf_shape v_shape) ⟹
 		 (wf_vbinop_underscore v_shape var_0) ⟹
-		 wf_instr (instr_subcase_2 (VBINOP v_shape var_0))"
+		 wf_instr (instr_sc2 (VBINOP v_shape var_0))"
 	| instr_case_27 :
 		"(wf_shape v_shape) ⟹
 		 (wf_vtestop_underscore v_shape var_0) ⟹
-		 wf_instr (instr_subcase_2 (VTESTOP v_shape var_0))"
+		 wf_instr (instr_sc2 (VTESTOP v_shape var_0))"
 	| instr_case_28 :
 		"(wf_shape v_shape) ⟹
 		 (wf_vrelop_underscore v_shape var_0) ⟹
-		 wf_instr (instr_subcase_2 (VRELOP v_shape var_0))"
+		 wf_instr (instr_sc2 (VRELOP v_shape var_0))"
 	| instr_case_29 :
 		"(wf_ishape v_ishape) ⟹
 		 (wf_vshiftop_underscore v_ishape var_0) ⟹
-		 wf_instr (instr_subcase_2 (VSHIFTOP v_ishape var_0))"
+		 wf_instr (instr_sc2 (VSHIFTOP v_ishape var_0))"
 	| instr_case_30 :
 		"(wf_ishape v_ishape) ⟹
-		 wf_instr (instr_subcase_3 (VBITMASK v_ishape))"
+		 wf_instr (instr_sc3 (VBITMASK v_ishape))"
 	| instr_case_31 :
 		"(wf_ishape v_ishape) ⟹
 		 (v_ishape = (ishape_X Jnn_I8 (mk_dim 16))) ⟹
-		 wf_instr (instr_subcase_3 (VSWIZZLE v_ishape))"
+		 wf_instr (instr_sc3 (VSWIZZLE v_ishape))"
 	| instr_case_32 :
 		"(wf_ishape v_ishape) ⟹
 		 list_all (λ (v_laneidx :: laneidx). (wf_uN 8 v_laneidx)) laneidx_lst ⟹
 		 ((v_ishape = (ishape_X Jnn_I8 (mk_dim 16))) ∧ ((length laneidx_lst) = 16)) ⟹
-		 wf_instr (instr_subcase_3 (VSHUFFLE v_ishape laneidx_lst))"
+		 wf_instr (instr_sc3 (VSHUFFLE v_ishape laneidx_lst))"
 	| instr_case_33 :
 		"(wf_shape v_shape) ⟹
-		 wf_instr (instr_subcase_3 (VSPLAT v_shape))"
+		 wf_instr (instr_sc3 (VSPLAT v_shape))"
 	| instr_case_34 :
 		"(wf_shape v_shape) ⟹
 		 (wf_uN 8 v_laneidx) ⟹
 		 (((fun_lanetype v_shape) = (lanetype_numtype v_numtype)) ⟷ (sx_opt = None)) ⟹
-		 wf_instr (instr_subcase_3 (VEXTRACT_LANE v_shape sx_opt v_laneidx))"
+		 wf_instr (instr_sc3 (VEXTRACT_LANE v_shape sx_opt v_laneidx))"
 	| instr_case_35 :
 		"(wf_shape v_shape) ⟹
 		 (wf_uN 8 v_laneidx) ⟹
-		 wf_instr (instr_subcase_3 (VREPLACE_LANE v_shape v_laneidx))"
+		 wf_instr (instr_sc3 (VREPLACE_LANE v_shape v_laneidx))"
 	| instr_case_36 :
 		"(wf_ishape ishape_1) ⟹
 		 (wf_ishape ishape_2) ⟹
 		 (wf_vextunop_underscore ishape_1 var_0) ⟹
 		 ((lsize (fun_lanetype (shape_ishape ishape_1))) = (2 * (lsize (fun_lanetype (shape_ishape ishape_2))))) ⟹
-		 wf_instr (instr_subcase_3 (VEXTUNOP ishape_1 ishape_2 var_0))"
+		 wf_instr (instr_sc3 (VEXTUNOP ishape_1 ishape_2 var_0))"
 	| instr_case_37 :
 		"(wf_ishape ishape_1) ⟹
 		 (wf_ishape ishape_2) ⟹
 		 (wf_vextbinop_underscore ishape_1 var_0) ⟹
 		 ((lsize (fun_lanetype (shape_ishape ishape_1))) = (2 * (lsize (fun_lanetype (shape_ishape ishape_2))))) ⟹
-		 wf_instr (instr_subcase_3 (VEXTBINOP ishape_1 ishape_2 var_0))"
+		 wf_instr (instr_sc3 (VEXTBINOP ishape_1 ishape_2 var_0))"
 	| instr_case_38 :
 		"(wf_ishape ishape_1) ⟹
 		 (wf_ishape ishape_2) ⟹
 		 (((lsize (fun_lanetype (shape_ishape ishape_2))) = (2 * (lsize (fun_lanetype (shape_ishape ishape_1))))) ∧ ((2 * (lsize (fun_lanetype (shape_ishape ishape_1)))) ≤ 32)) ⟹
-		 wf_instr (instr_subcase_3 (VNARROW ishape_1 ishape_2 v_sx))"
+		 wf_instr (instr_sc3 (VNARROW ishape_1 ishape_2 v_sx))"
 	| instr_case_39 :
 		"(wf_shape v_shape) ⟹
 		 (wf_shape shape_0) ⟹
-		 wf_instr (instr_subcase_4 (VCVTOP v_shape shape_0 v_vcvtop))"
+		 wf_instr (instr_sc4 (VCVTOP v_shape shape_0 v_vcvtop))"
 	| instr_case_40 :
-		"wf_instr (instr_subcase_4 (REF_NULL v_reftype))"
+		"wf_instr (instr_sc4 (REF_NULL v_reftype))"
 	| instr_case_41 :
 		"(wf_uN 32 v_funcidx) ⟹
-		 wf_instr (instr_subcase_4 (REF_FUNC v_funcidx))"
+		 wf_instr (instr_sc4 (REF_FUNC v_funcidx))"
 	| instr_case_42 :
-		"wf_instr (instr_subcase_4 REF_IS_NULL)"
+		"wf_instr (instr_sc4 REF_IS_NULL)"
 	| instr_case_43 :
 		"(wf_uN 32 v_localidx) ⟹
-		 wf_instr (instr_subcase_4 (LOCAL_GET v_localidx))"
+		 wf_instr (instr_sc4 (LOCAL_GET v_localidx))"
 	| instr_case_44 :
 		"(wf_uN 32 v_localidx) ⟹
-		 wf_instr (instr_subcase_4 (LOCAL_SET v_localidx))"
+		 wf_instr (instr_sc4 (LOCAL_SET v_localidx))"
 	| instr_case_45 :
 		"(wf_uN 32 v_localidx) ⟹
-		 wf_instr (instr_subcase_4 (LOCAL_TEE v_localidx))"
+		 wf_instr (instr_sc4 (LOCAL_TEE v_localidx))"
 	| instr_case_46 :
 		"(wf_uN 32 v_globalidx) ⟹
-		 wf_instr (instr_subcase_4 (GLOBAL_GET v_globalidx))"
+		 wf_instr (instr_sc4 (GLOBAL_GET v_globalidx))"
 	| instr_case_47 :
 		"(wf_uN 32 v_globalidx) ⟹
-		 wf_instr (instr_subcase_4 (GLOBAL_SET v_globalidx))"
+		 wf_instr (instr_sc4 (GLOBAL_SET v_globalidx))"
 	| instr_case_48 :
 		"(wf_uN 32 v_tableidx) ⟹
-		 wf_instr (instr_subcase_5 (TABLE_GET v_tableidx))"
+		 wf_instr (instr_sc5 (TABLE_GET v_tableidx))"
 	| instr_case_49 :
 		"(wf_uN 32 v_tableidx) ⟹
-		 wf_instr (instr_subcase_5 (TABLE_SET v_tableidx))"
+		 wf_instr (instr_sc5 (TABLE_SET v_tableidx))"
 	| instr_case_50 :
 		"(wf_uN 32 v_tableidx) ⟹
-		 wf_instr (instr_subcase_5 (TABLE_SIZE v_tableidx))"
+		 wf_instr (instr_sc5 (TABLE_SIZE v_tableidx))"
 	| instr_case_51 :
 		"(wf_uN 32 v_tableidx) ⟹
-		 wf_instr (instr_subcase_5 (TABLE_GROW v_tableidx))"
+		 wf_instr (instr_sc5 (TABLE_GROW v_tableidx))"
 	| instr_case_52 :
 		"(wf_uN 32 v_tableidx) ⟹
-		 wf_instr (instr_subcase_5 (TABLE_FILL v_tableidx))"
+		 wf_instr (instr_sc5 (TABLE_FILL v_tableidx))"
 	| instr_case_53 :
 		"(wf_uN 32 v_tableidx) ⟹
 		 (wf_uN 32 tableidx_0) ⟹
-		 wf_instr (instr_subcase_5 (TABLE_COPY v_tableidx tableidx_0))"
+		 wf_instr (instr_sc5 (TABLE_COPY v_tableidx tableidx_0))"
 	| instr_case_54 :
 		"(wf_uN 32 v_tableidx) ⟹
 		 (wf_uN 32 v_elemidx) ⟹
-		 wf_instr (instr_subcase_5 (TABLE_INIT v_tableidx v_elemidx))"
+		 wf_instr (instr_sc5 (TABLE_INIT v_tableidx v_elemidx))"
 	| instr_case_55 :
 		"(wf_uN 32 v_elemidx) ⟹
-		 wf_instr (instr_subcase_5 (ELEM_DROP v_elemidx))"
+		 wf_instr (instr_sc5 (ELEM_DROP v_elemidx))"
 	| instr_case_56 :
 		"list_all (λ (var_0 :: loadop_underscore). (wf_loadop_underscore v_numtype var_0)) (option_to_list var_0_opt) ⟹
 		 (wf_memarg v_memarg) ⟹
-		 wf_instr (instr_subcase_5 (LOAD v_numtype var_0_opt v_memarg))"
+		 wf_instr (instr_sc5 (LOAD v_numtype var_0_opt v_memarg))"
 	| instr_case_57 :
 		"list_all (λ (v_sz :: sz). (wf_sz v_sz)) (option_to_list sz_opt) ⟹
 		 (wf_memarg v_memarg) ⟹
 		 ((Inn_opt = None) ⟷ (numtype_opt = None)) ⟹
 		 ((Inn_opt = None) ⟷ (sz_opt = None)) ⟹
 		 list_all3 (λ (v_Inn :: Inn) (v_numtype :: numtype) (v_sz :: sz). ((v_numtype = (numtype_Inn v_Inn)) ∧ ((proj_sz_0 v_sz) < (sizenn (numtype_Inn v_Inn))))) (option_to_list Inn_opt) (option_to_list numtype_opt) (option_to_list sz_opt) ⟹
-		 wf_instr (instr_subcase_6 (STORE v_numtype sz_opt v_memarg))"
+		 wf_instr (instr_sc6 (STORE v_numtype sz_opt v_memarg))"
 	| instr_case_58 :
 		"(wf_memarg v_memarg) ⟹
-		 wf_instr (instr_subcase_6 (VLOAD v_vectype vloadop_opt v_memarg))"
+		 wf_instr (instr_sc6 (VLOAD v_vectype vloadop_opt v_memarg))"
 	| instr_case_59 :
 		"(wf_sz v_sz) ⟹
 		 (wf_memarg v_memarg) ⟹
 		 (wf_uN 8 v_laneidx) ⟹
-		 wf_instr (instr_subcase_6 (VLOAD_LANE v_vectype v_sz v_memarg v_laneidx))"
+		 wf_instr (instr_sc6 (VLOAD_LANE v_vectype v_sz v_memarg v_laneidx))"
 	| instr_case_60 :
 		"(wf_memarg v_memarg) ⟹
-		 wf_instr (instr_subcase_6 (VSTORE v_vectype v_memarg))"
+		 wf_instr (instr_sc6 (VSTORE v_vectype v_memarg))"
 	| instr_case_61 :
 		"(wf_sz v_sz) ⟹
 		 (wf_memarg v_memarg) ⟹
 		 (wf_uN 8 v_laneidx) ⟹
-		 wf_instr (instr_subcase_6 (VSTORE_LANE v_vectype v_sz v_memarg v_laneidx))"
+		 wf_instr (instr_sc6 (VSTORE_LANE v_vectype v_sz v_memarg v_laneidx))"
 	| instr_case_62 :
-		"wf_instr (instr_subcase_6 MEMORY_SIZE)"
+		"wf_instr (instr_sc6 MEMORY_SIZE)"
 	| instr_case_63 :
-		"wf_instr (instr_subcase_6 MEMORY_GROW)"
+		"wf_instr (instr_sc6 MEMORY_GROW)"
 	| instr_case_64 :
-		"wf_instr (instr_subcase_6 MEMORY_FILL)"
+		"wf_instr (instr_sc6 MEMORY_FILL)"
 	| instr_case_65 :
-		"wf_instr (instr_subcase_6 MEMORY_COPY)"
+		"wf_instr (instr_sc6 MEMORY_COPY)"
 	| instr_case_66 :
 		"(wf_uN 32 v_dataidx) ⟹
-		 wf_instr (instr_subcase_7 (MEMORY_INIT v_dataidx))"
+		 wf_instr (instr_sc7 (MEMORY_INIT v_dataidx))"
 	| instr_case_67 :
 		"(wf_uN 32 v_dataidx) ⟹
-		 wf_instr (instr_subcase_7 (DATA_DROP v_dataidx))"
+		 wf_instr (instr_sc7 (DATA_DROP v_dataidx))"
 
 (* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:523.1-524.9 *)
 type_synonym expr = "(instr list)"
@@ -2165,8 +2165,8 @@ inductive memsxt_is_wf :: "(externtype list) ⇒ (memtype list) ⇒ bool" where
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:80.1-80.61 *)
 function (sequential) dataidx_instr :: "instr ⇒ (dataidx list)" where
-		  "dataidx_instr (instr_subcase_7 (MEMORY_INIT x)) = [x]"
-		| "dataidx_instr (instr_subcase_7 (DATA_DROP x)) = [x]"
+		  "dataidx_instr (instr_sc7 (MEMORY_INIT x)) = [x]"
+		| "dataidx_instr (instr_sc7 (DATA_DROP x)) = [x]"
 		| "dataidx_instr res_in = []"
 	by pat_completeness auto
 
@@ -6425,451 +6425,451 @@ inductive wf_state :: "state ⇒ bool" where
 		 wf_state (mk_state v_store v_frame)"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
-datatype admininstr_subtype_7 =
-	  admininstr_subtype_7_TRAP
+datatype admininstr_st7 =
+	  admininstr_st7_TRAP
 	| CALL_ADDR "funcaddr"
-	| admininstr_subtype_7_REF_HOST_ADDR "hostaddr"
-	| admininstr_subtype_7_REF_FUNC_ADDR "funcaddr"
-	| admininstr_subtype_7_DATA_DROP "dataidx"
-	| admininstr_subtype_7_MEMORY_INIT "dataidx"
-	| admininstr_subtype_7_MEMORY_COPY
-	| admininstr_subtype_7_MEMORY_FILL
-	| admininstr_subtype_7_MEMORY_GROW
+	| admininstr_st7_REF_HOST_ADDR "hostaddr"
+	| admininstr_st7_REF_FUNC_ADDR "funcaddr"
+	| admininstr_st7_DATA_DROP "dataidx"
+	| admininstr_st7_MEMORY_INIT "dataidx"
+	| admininstr_st7_MEMORY_COPY
+	| admininstr_st7_MEMORY_FILL
+	| admininstr_st7_MEMORY_GROW
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
-datatype admininstr_subtype_6 =
-	  admininstr_subtype_6_MEMORY_SIZE
-	| admininstr_subtype_6_VSTORE_LANE "vectype" "sz" "memarg" "laneidx"
-	| admininstr_subtype_6_VSTORE "vectype" "memarg"
-	| admininstr_subtype_6_VLOAD_LANE "vectype" "sz" "memarg" "laneidx"
-	| admininstr_subtype_6_VLOAD "vectype" "(vloadop option)" "memarg"
-	| admininstr_subtype_6_STORE "numtype" "(sz option)" "memarg"
-	| admininstr_subtype_6_LOAD "numtype" "(loadop_underscore option)" "memarg"
-	| admininstr_subtype_6_ELEM_DROP "elemidx"
-	| admininstr_subtype_6_TABLE_INIT "tableidx" "elemidx"
+datatype admininstr_st6 =
+	  admininstr_st6_MEMORY_SIZE
+	| admininstr_st6_VSTORE_LANE "vectype" "sz" "memarg" "laneidx"
+	| admininstr_st6_VSTORE "vectype" "memarg"
+	| admininstr_st6_VLOAD_LANE "vectype" "sz" "memarg" "laneidx"
+	| admininstr_st6_VLOAD "vectype" "(vloadop option)" "memarg"
+	| admininstr_st6_STORE "numtype" "(sz option)" "memarg"
+	| admininstr_st6_LOAD "numtype" "(loadop_underscore option)" "memarg"
+	| admininstr_st6_ELEM_DROP "elemidx"
+	| admininstr_st6_TABLE_INIT "tableidx" "elemidx"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
-datatype admininstr_subtype_5 =
-	  admininstr_subtype_5_TABLE_COPY "tableidx" "tableidx"
-	| admininstr_subtype_5_TABLE_FILL "tableidx"
-	| admininstr_subtype_5_TABLE_GROW "tableidx"
-	| admininstr_subtype_5_TABLE_SIZE "tableidx"
-	| admininstr_subtype_5_TABLE_SET "tableidx"
-	| admininstr_subtype_5_TABLE_GET "tableidx"
-	| admininstr_subtype_5_GLOBAL_SET "globalidx"
-	| admininstr_subtype_5_GLOBAL_GET "globalidx"
-	| admininstr_subtype_5_LOCAL_TEE "localidx"
+datatype admininstr_st5 =
+	  admininstr_st5_TABLE_COPY "tableidx" "tableidx"
+	| admininstr_st5_TABLE_FILL "tableidx"
+	| admininstr_st5_TABLE_GROW "tableidx"
+	| admininstr_st5_TABLE_SIZE "tableidx"
+	| admininstr_st5_TABLE_SET "tableidx"
+	| admininstr_st5_TABLE_GET "tableidx"
+	| admininstr_st5_GLOBAL_SET "globalidx"
+	| admininstr_st5_GLOBAL_GET "globalidx"
+	| admininstr_st5_LOCAL_TEE "localidx"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
-datatype admininstr_subtype_4 =
-	  admininstr_subtype_4_LOCAL_SET "localidx"
-	| admininstr_subtype_4_LOCAL_GET "localidx"
-	| admininstr_subtype_4_REF_IS_NULL
-	| admininstr_subtype_4_REF_FUNC "funcidx"
-	| admininstr_subtype_4_REF_NULL "reftype"
-	| admininstr_subtype_4_VCVTOP "shape" "shape" "vcvtop"
-	| admininstr_subtype_4_VNARROW "ishape" "ishape" "sx"
-	| admininstr_subtype_4_VEXTBINOP "ishape" "ishape" "vextbinop_underscore"
-	| admininstr_subtype_4_VEXTUNOP "ishape" "ishape" "vextunop_underscore"
+datatype admininstr_st4 =
+	  admininstr_st4_LOCAL_SET "localidx"
+	| admininstr_st4_LOCAL_GET "localidx"
+	| admininstr_st4_REF_IS_NULL
+	| admininstr_st4_REF_FUNC "funcidx"
+	| admininstr_st4_REF_NULL "reftype"
+	| admininstr_st4_VCVTOP "shape" "shape" "vcvtop"
+	| admininstr_st4_VNARROW "ishape" "ishape" "sx"
+	| admininstr_st4_VEXTBINOP "ishape" "ishape" "vextbinop_underscore"
+	| admininstr_st4_VEXTUNOP "ishape" "ishape" "vextunop_underscore"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
-datatype admininstr_subtype_3 =
-	  admininstr_subtype_3_VREPLACE_LANE "shape" "laneidx"
-	| admininstr_subtype_3_VEXTRACT_LANE "shape" "(sx option)" "laneidx"
-	| admininstr_subtype_3_VSPLAT "shape"
-	| admininstr_subtype_3_VSHUFFLE "ishape" "(laneidx list)"
-	| admininstr_subtype_3_VSWIZZLE "ishape"
-	| admininstr_subtype_3_VBITMASK "ishape"
-	| admininstr_subtype_3_VSHIFTOP "ishape" "vshiftop_underscore"
-	| admininstr_subtype_3_VRELOP "shape" "vrelop_underscore"
-	| admininstr_subtype_3_VTESTOP "shape" "vtestop_underscore"
+datatype admininstr_st3 =
+	  admininstr_st3_VREPLACE_LANE "shape" "laneidx"
+	| admininstr_st3_VEXTRACT_LANE "shape" "(sx option)" "laneidx"
+	| admininstr_st3_VSPLAT "shape"
+	| admininstr_st3_VSHUFFLE "ishape" "(laneidx list)"
+	| admininstr_st3_VSWIZZLE "ishape"
+	| admininstr_st3_VBITMASK "ishape"
+	| admininstr_st3_VSHIFTOP "ishape" "vshiftop_underscore"
+	| admininstr_st3_VRELOP "shape" "vrelop_underscore"
+	| admininstr_st3_VTESTOP "shape" "vtestop_underscore"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
-datatype admininstr_subtype_2 =
-	  admininstr_subtype_2_VBINOP "shape" "vbinop_underscore"
-	| admininstr_subtype_2_VUNOP "shape" "vunop_underscore"
-	| admininstr_subtype_2_VVTESTOP "vectype" "vvtestop"
-	| admininstr_subtype_2_VVTERNOP "vectype" "vvternop"
-	| admininstr_subtype_2_VVBINOP "vectype" "vvbinop"
-	| admininstr_subtype_2_VVUNOP "vectype" "vvunop"
-	| admininstr_subtype_2_VCONST "vectype" "vec_underscore"
-	| admininstr_subtype_2_EXTEND "numtype" "n"
-	| admininstr_subtype_2_CVTOP "numtype" "numtype" "cvtop"
+datatype admininstr_st2 =
+	  admininstr_st2_VBINOP "shape" "vbinop_underscore"
+	| admininstr_st2_VUNOP "shape" "vunop_underscore"
+	| admininstr_st2_VVTESTOP "vectype" "vvtestop"
+	| admininstr_st2_VVTERNOP "vectype" "vvternop"
+	| admininstr_st2_VVBINOP "vectype" "vvbinop"
+	| admininstr_st2_VVUNOP "vectype" "vvunop"
+	| admininstr_st2_VCONST "vectype" "vec_underscore"
+	| admininstr_st2_EXTEND "numtype" "n"
+	| admininstr_st2_CVTOP "numtype" "numtype" "cvtop"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
-datatype admininstr_subtype_1 =
-	  admininstr_subtype_1_RELOP "numtype" "relop_underscore"
-	| admininstr_subtype_1_TESTOP "numtype" "testop_underscore"
-	| admininstr_subtype_1_BINOP "numtype" "binop_underscore"
-	| admininstr_subtype_1_UNOP "numtype" "unop_underscore"
-	| admininstr_subtype_1_CONST "numtype" "num_underscore"
-	| admininstr_subtype_1_RETURN
-	| admininstr_subtype_1_CALL_INDIRECT "tableidx" "typeidx"
-	| admininstr_subtype_1_CALL "funcidx"
-	| admininstr_subtype_1_BR_TABLE "(labelidx list)" "labelidx"
+datatype admininstr_st1 =
+	  admininstr_st1_RELOP "numtype" "relop_underscore"
+	| admininstr_st1_TESTOP "numtype" "testop_underscore"
+	| admininstr_st1_BINOP "numtype" "binop_underscore"
+	| admininstr_st1_UNOP "numtype" "unop_underscore"
+	| admininstr_st1_CONST "numtype" "num_underscore"
+	| admininstr_st1_RETURN
+	| admininstr_st1_CALL_INDIRECT "tableidx" "typeidx"
+	| admininstr_st1_CALL "funcidx"
+	| admininstr_st1_BR_TABLE "(labelidx list)" "labelidx"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
-datatype admininstr_subtype_0 =
-	  admininstr_subtype_0_BR_IF "labelidx"
-	| admininstr_subtype_0_BR "labelidx"
-	| admininstr_subtype_0_IFELSE "blocktype" "(instr list)" "(instr list)"
-	| admininstr_subtype_0_LOOP "blocktype" "(instr list)"
-	| admininstr_subtype_0_BLOCK "blocktype" "(instr list)"
-	| admininstr_subtype_0_SELECT "((valtype list) option)"
-	| admininstr_subtype_0_DROP
-	| admininstr_subtype_0_UNREACHABLE
-	| admininstr_subtype_0_NOP
+datatype admininstr_st0 =
+	  admininstr_st0_BR_IF "labelidx"
+	| admininstr_st0_BR "labelidx"
+	| admininstr_st0_IFELSE "blocktype" "(instr list)" "(instr list)"
+	| admininstr_st0_LOOP "blocktype" "(instr list)"
+	| admininstr_st0_BLOCK "blocktype" "(instr list)"
+	| admininstr_st0_SELECT "((valtype list) option)"
+	| admininstr_st0_DROP
+	| admininstr_st0_UNREACHABLE
+	| admininstr_st0_NOP
 
 (* Mutual Recursion at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
 datatype admininstr =
-	  admininstr_subcase_0 "admininstr_subtype_0"
-	| admininstr_subcase_1 "admininstr_subtype_1"
-	| admininstr_subcase_2 "admininstr_subtype_2"
-	| admininstr_subcase_3 "admininstr_subtype_3"
-	| admininstr_subcase_4 "admininstr_subtype_4"
-	| admininstr_subcase_5 "admininstr_subtype_5"
-	| admininstr_subcase_6 "admininstr_subtype_6"
-	| admininstr_subcase_7 "admininstr_subtype_7"
-	| admininstr_subcase_8 "admininstr_subtype_8"
+	  admininstr_sc0 "admininstr_st0"
+	| admininstr_sc1 "admininstr_st1"
+	| admininstr_sc2 "admininstr_st2"
+	| admininstr_sc3 "admininstr_st3"
+	| admininstr_sc4 "admininstr_st4"
+	| admininstr_sc5 "admininstr_st5"
+	| admininstr_sc6 "admininstr_st6"
+	| admininstr_sc7 "admininstr_st7"
+	| admininstr_sc8 "admininstr_st8"
 
 and
 
-admininstr_subtype_8 =
+admininstr_st8 =
 	  FRAME_underscore "n" "frame" "(admininstr list)"
 	| LABEL_underscore "n" "(instr list)" "(admininstr list)"
 
 (* Auxiliary Definition at:  *)
 function (sequential) admininstr_instr :: "instr ⇒ admininstr" where
-		  "admininstr_instr (instr_subcase_0 NOP) = (admininstr_subcase_0 admininstr_subtype_0_NOP)"
-		| "admininstr_instr (instr_subcase_0 UNREACHABLE) = (admininstr_subcase_0 admininstr_subtype_0_UNREACHABLE)"
-		| "admininstr_instr (instr_subcase_0 DROP) = (admininstr_subcase_0 admininstr_subtype_0_DROP)"
-		| "admininstr_instr (instr_subcase_0 (SELECT x0)) = (admininstr_subcase_0 (admininstr_subtype_0_SELECT x0))"
-		| "admininstr_instr (instr_subcase_7 (BLOCK x0 x1)) = (admininstr_subcase_0 (admininstr_subtype_0_BLOCK x0 x1))"
-		| "admininstr_instr (instr_subcase_7 (LOOP x0 x1)) = (admininstr_subcase_0 (admininstr_subtype_0_LOOP x0 x1))"
-		| "admininstr_instr (instr_subcase_7 (IFELSE x0 x1 x2)) = (admininstr_subcase_0 (admininstr_subtype_0_IFELSE x0 x1 x2))"
-		| "admininstr_instr (instr_subcase_0 (BR x0)) = (admininstr_subcase_0 (admininstr_subtype_0_BR x0))"
-		| "admininstr_instr (instr_subcase_0 (BR_IF x0)) = (admininstr_subcase_0 (admininstr_subtype_0_BR_IF x0))"
-		| "admininstr_instr (instr_subcase_0 (BR_TABLE x0 x1)) = (admininstr_subcase_1 (admininstr_subtype_1_BR_TABLE x0 x1))"
-		| "admininstr_instr (instr_subcase_0 (CALL x0)) = (admininstr_subcase_1 (admininstr_subtype_1_CALL x0))"
-		| "admininstr_instr (instr_subcase_0 (CALL_INDIRECT x0 x1)) = (admininstr_subcase_1 (admininstr_subtype_1_CALL_INDIRECT x0 x1))"
-		| "admininstr_instr (instr_subcase_1 RETURN) = (admininstr_subcase_1 admininstr_subtype_1_RETURN)"
-		| "admininstr_instr (instr_subcase_1 (res_CONST x0 x1)) = (admininstr_subcase_1 (admininstr_subtype_1_CONST x0 x1))"
-		| "admininstr_instr (instr_subcase_1 (UNOP x0 x1)) = (admininstr_subcase_1 (admininstr_subtype_1_UNOP x0 x1))"
-		| "admininstr_instr (instr_subcase_1 (BINOP x0 x1)) = (admininstr_subcase_1 (admininstr_subtype_1_BINOP x0 x1))"
-		| "admininstr_instr (instr_subcase_1 (TESTOP x0 x1)) = (admininstr_subcase_1 (admininstr_subtype_1_TESTOP x0 x1))"
-		| "admininstr_instr (instr_subcase_1 (RELOP x0 x1)) = (admininstr_subcase_1 (admininstr_subtype_1_RELOP x0 x1))"
-		| "admininstr_instr (instr_subcase_1 (CVTOP x0 x1 x2)) = (admininstr_subcase_2 (admininstr_subtype_2_CVTOP x0 x1 x2))"
-		| "admininstr_instr (instr_subcase_1 (instr_subtype_1_EXTEND x0 x1)) = (admininstr_subcase_2 (admininstr_subtype_2_EXTEND x0 x1))"
-		| "admininstr_instr (instr_subcase_1 (VCONST x0 x1)) = (admininstr_subcase_2 (admininstr_subtype_2_VCONST x0 x1))"
-		| "admininstr_instr (instr_subcase_2 (VVUNOP x0 x1)) = (admininstr_subcase_2 (admininstr_subtype_2_VVUNOP x0 x1))"
-		| "admininstr_instr (instr_subcase_2 (VVBINOP x0 x1)) = (admininstr_subcase_2 (admininstr_subtype_2_VVBINOP x0 x1))"
-		| "admininstr_instr (instr_subcase_2 (VVTERNOP x0 x1)) = (admininstr_subcase_2 (admininstr_subtype_2_VVTERNOP x0 x1))"
-		| "admininstr_instr (instr_subcase_2 (VVTESTOP x0 x1)) = (admininstr_subcase_2 (admininstr_subtype_2_VVTESTOP x0 x1))"
-		| "admininstr_instr (instr_subcase_2 (VUNOP x0 x1)) = (admininstr_subcase_2 (admininstr_subtype_2_VUNOP x0 x1))"
-		| "admininstr_instr (instr_subcase_2 (VBINOP x0 x1)) = (admininstr_subcase_2 (admininstr_subtype_2_VBINOP x0 x1))"
-		| "admininstr_instr (instr_subcase_2 (VTESTOP x0 x1)) = (admininstr_subcase_3 (admininstr_subtype_3_VTESTOP x0 x1))"
-		| "admininstr_instr (instr_subcase_2 (VRELOP x0 x1)) = (admininstr_subcase_3 (admininstr_subtype_3_VRELOP x0 x1))"
-		| "admininstr_instr (instr_subcase_2 (VSHIFTOP x0 x1)) = (admininstr_subcase_3 (admininstr_subtype_3_VSHIFTOP x0 x1))"
-		| "admininstr_instr (instr_subcase_3 (VBITMASK x0)) = (admininstr_subcase_3 (admininstr_subtype_3_VBITMASK x0))"
-		| "admininstr_instr (instr_subcase_3 (VSWIZZLE x0)) = (admininstr_subcase_3 (admininstr_subtype_3_VSWIZZLE x0))"
-		| "admininstr_instr (instr_subcase_3 (VSHUFFLE x0 x1)) = (admininstr_subcase_3 (admininstr_subtype_3_VSHUFFLE x0 x1))"
-		| "admininstr_instr (instr_subcase_3 (VSPLAT x0)) = (admininstr_subcase_3 (admininstr_subtype_3_VSPLAT x0))"
-		| "admininstr_instr (instr_subcase_3 (VEXTRACT_LANE x0 x1 x2)) = (admininstr_subcase_3 (admininstr_subtype_3_VEXTRACT_LANE x0 x1 x2))"
-		| "admininstr_instr (instr_subcase_3 (VREPLACE_LANE x0 x1)) = (admininstr_subcase_3 (admininstr_subtype_3_VREPLACE_LANE x0 x1))"
-		| "admininstr_instr (instr_subcase_3 (VEXTUNOP x0 x1 x2)) = (admininstr_subcase_4 (admininstr_subtype_4_VEXTUNOP x0 x1 x2))"
-		| "admininstr_instr (instr_subcase_3 (VEXTBINOP x0 x1 x2)) = (admininstr_subcase_4 (admininstr_subtype_4_VEXTBINOP x0 x1 x2))"
-		| "admininstr_instr (instr_subcase_3 (VNARROW x0 x1 x2)) = (admininstr_subcase_4 (admininstr_subtype_4_VNARROW x0 x1 x2))"
-		| "admininstr_instr (instr_subcase_4 (VCVTOP x0 x1 x2)) = (admininstr_subcase_4 (admininstr_subtype_4_VCVTOP x0 x1 x2))"
-		| "admininstr_instr (instr_subcase_4 (REF_NULL x0)) = (admininstr_subcase_4 (admininstr_subtype_4_REF_NULL x0))"
-		| "admininstr_instr (instr_subcase_4 (REF_FUNC x0)) = (admininstr_subcase_4 (admininstr_subtype_4_REF_FUNC x0))"
-		| "admininstr_instr (instr_subcase_4 REF_IS_NULL) = (admininstr_subcase_4 admininstr_subtype_4_REF_IS_NULL)"
-		| "admininstr_instr (instr_subcase_4 (LOCAL_GET x0)) = (admininstr_subcase_4 (admininstr_subtype_4_LOCAL_GET x0))"
-		| "admininstr_instr (instr_subcase_4 (LOCAL_SET x0)) = (admininstr_subcase_4 (admininstr_subtype_4_LOCAL_SET x0))"
-		| "admininstr_instr (instr_subcase_4 (LOCAL_TEE x0)) = (admininstr_subcase_5 (admininstr_subtype_5_LOCAL_TEE x0))"
-		| "admininstr_instr (instr_subcase_4 (GLOBAL_GET x0)) = (admininstr_subcase_5 (admininstr_subtype_5_GLOBAL_GET x0))"
-		| "admininstr_instr (instr_subcase_4 (GLOBAL_SET x0)) = (admininstr_subcase_5 (admininstr_subtype_5_GLOBAL_SET x0))"
-		| "admininstr_instr (instr_subcase_5 (TABLE_GET x0)) = (admininstr_subcase_5 (admininstr_subtype_5_TABLE_GET x0))"
-		| "admininstr_instr (instr_subcase_5 (TABLE_SET x0)) = (admininstr_subcase_5 (admininstr_subtype_5_TABLE_SET x0))"
-		| "admininstr_instr (instr_subcase_5 (TABLE_SIZE x0)) = (admininstr_subcase_5 (admininstr_subtype_5_TABLE_SIZE x0))"
-		| "admininstr_instr (instr_subcase_5 (TABLE_GROW x0)) = (admininstr_subcase_5 (admininstr_subtype_5_TABLE_GROW x0))"
-		| "admininstr_instr (instr_subcase_5 (TABLE_FILL x0)) = (admininstr_subcase_5 (admininstr_subtype_5_TABLE_FILL x0))"
-		| "admininstr_instr (instr_subcase_5 (TABLE_COPY x0 x1)) = (admininstr_subcase_5 (admininstr_subtype_5_TABLE_COPY x0 x1))"
-		| "admininstr_instr (instr_subcase_5 (TABLE_INIT x0 x1)) = (admininstr_subcase_6 (admininstr_subtype_6_TABLE_INIT x0 x1))"
-		| "admininstr_instr (instr_subcase_5 (ELEM_DROP x0)) = (admininstr_subcase_6 (admininstr_subtype_6_ELEM_DROP x0))"
-		| "admininstr_instr (instr_subcase_5 (LOAD x0 x1 x2)) = (admininstr_subcase_6 (admininstr_subtype_6_LOAD x0 x1 x2))"
-		| "admininstr_instr (instr_subcase_6 (STORE x0 x1 x2)) = (admininstr_subcase_6 (admininstr_subtype_6_STORE x0 x1 x2))"
-		| "admininstr_instr (instr_subcase_6 (VLOAD x0 x1 x2)) = (admininstr_subcase_6 (admininstr_subtype_6_VLOAD x0 x1 x2))"
-		| "admininstr_instr (instr_subcase_6 (VLOAD_LANE x0 x1 x2 x3)) = (admininstr_subcase_6 (admininstr_subtype_6_VLOAD_LANE x0 x1 x2 x3))"
-		| "admininstr_instr (instr_subcase_6 (VSTORE x0 x1)) = (admininstr_subcase_6 (admininstr_subtype_6_VSTORE x0 x1))"
-		| "admininstr_instr (instr_subcase_6 (VSTORE_LANE x0 x1 x2 x3)) = (admininstr_subcase_6 (admininstr_subtype_6_VSTORE_LANE x0 x1 x2 x3))"
-		| "admininstr_instr (instr_subcase_6 MEMORY_SIZE) = (admininstr_subcase_6 admininstr_subtype_6_MEMORY_SIZE)"
-		| "admininstr_instr (instr_subcase_6 MEMORY_GROW) = (admininstr_subcase_7 admininstr_subtype_7_MEMORY_GROW)"
-		| "admininstr_instr (instr_subcase_6 MEMORY_FILL) = (admininstr_subcase_7 admininstr_subtype_7_MEMORY_FILL)"
-		| "admininstr_instr (instr_subcase_6 MEMORY_COPY) = (admininstr_subcase_7 admininstr_subtype_7_MEMORY_COPY)"
-		| "admininstr_instr (instr_subcase_7 (MEMORY_INIT x0)) = (admininstr_subcase_7 (admininstr_subtype_7_MEMORY_INIT x0))"
-		| "admininstr_instr (instr_subcase_7 (DATA_DROP x0)) = (admininstr_subcase_7 (admininstr_subtype_7_DATA_DROP x0))"
+		  "admininstr_instr (instr_sc0 NOP) = (admininstr_sc0 admininstr_st0_NOP)"
+		| "admininstr_instr (instr_sc0 UNREACHABLE) = (admininstr_sc0 admininstr_st0_UNREACHABLE)"
+		| "admininstr_instr (instr_sc0 DROP) = (admininstr_sc0 admininstr_st0_DROP)"
+		| "admininstr_instr (instr_sc0 (SELECT x0)) = (admininstr_sc0 (admininstr_st0_SELECT x0))"
+		| "admininstr_instr (instr_sc7 (BLOCK x0 x1)) = (admininstr_sc0 (admininstr_st0_BLOCK x0 x1))"
+		| "admininstr_instr (instr_sc7 (LOOP x0 x1)) = (admininstr_sc0 (admininstr_st0_LOOP x0 x1))"
+		| "admininstr_instr (instr_sc7 (IFELSE x0 x1 x2)) = (admininstr_sc0 (admininstr_st0_IFELSE x0 x1 x2))"
+		| "admininstr_instr (instr_sc0 (BR x0)) = (admininstr_sc0 (admininstr_st0_BR x0))"
+		| "admininstr_instr (instr_sc0 (BR_IF x0)) = (admininstr_sc0 (admininstr_st0_BR_IF x0))"
+		| "admininstr_instr (instr_sc0 (BR_TABLE x0 x1)) = (admininstr_sc1 (admininstr_st1_BR_TABLE x0 x1))"
+		| "admininstr_instr (instr_sc0 (CALL x0)) = (admininstr_sc1 (admininstr_st1_CALL x0))"
+		| "admininstr_instr (instr_sc0 (CALL_INDIRECT x0 x1)) = (admininstr_sc1 (admininstr_st1_CALL_INDIRECT x0 x1))"
+		| "admininstr_instr (instr_sc1 RETURN) = (admininstr_sc1 admininstr_st1_RETURN)"
+		| "admininstr_instr (instr_sc1 (res_CONST x0 x1)) = (admininstr_sc1 (admininstr_st1_CONST x0 x1))"
+		| "admininstr_instr (instr_sc1 (UNOP x0 x1)) = (admininstr_sc1 (admininstr_st1_UNOP x0 x1))"
+		| "admininstr_instr (instr_sc1 (BINOP x0 x1)) = (admininstr_sc1 (admininstr_st1_BINOP x0 x1))"
+		| "admininstr_instr (instr_sc1 (TESTOP x0 x1)) = (admininstr_sc1 (admininstr_st1_TESTOP x0 x1))"
+		| "admininstr_instr (instr_sc1 (RELOP x0 x1)) = (admininstr_sc1 (admininstr_st1_RELOP x0 x1))"
+		| "admininstr_instr (instr_sc1 (CVTOP x0 x1 x2)) = (admininstr_sc2 (admininstr_st2_CVTOP x0 x1 x2))"
+		| "admininstr_instr (instr_sc1 (instr_st1_EXTEND x0 x1)) = (admininstr_sc2 (admininstr_st2_EXTEND x0 x1))"
+		| "admininstr_instr (instr_sc1 (VCONST x0 x1)) = (admininstr_sc2 (admininstr_st2_VCONST x0 x1))"
+		| "admininstr_instr (instr_sc2 (VVUNOP x0 x1)) = (admininstr_sc2 (admininstr_st2_VVUNOP x0 x1))"
+		| "admininstr_instr (instr_sc2 (VVBINOP x0 x1)) = (admininstr_sc2 (admininstr_st2_VVBINOP x0 x1))"
+		| "admininstr_instr (instr_sc2 (VVTERNOP x0 x1)) = (admininstr_sc2 (admininstr_st2_VVTERNOP x0 x1))"
+		| "admininstr_instr (instr_sc2 (VVTESTOP x0 x1)) = (admininstr_sc2 (admininstr_st2_VVTESTOP x0 x1))"
+		| "admininstr_instr (instr_sc2 (VUNOP x0 x1)) = (admininstr_sc2 (admininstr_st2_VUNOP x0 x1))"
+		| "admininstr_instr (instr_sc2 (VBINOP x0 x1)) = (admininstr_sc2 (admininstr_st2_VBINOP x0 x1))"
+		| "admininstr_instr (instr_sc2 (VTESTOP x0 x1)) = (admininstr_sc3 (admininstr_st3_VTESTOP x0 x1))"
+		| "admininstr_instr (instr_sc2 (VRELOP x0 x1)) = (admininstr_sc3 (admininstr_st3_VRELOP x0 x1))"
+		| "admininstr_instr (instr_sc2 (VSHIFTOP x0 x1)) = (admininstr_sc3 (admininstr_st3_VSHIFTOP x0 x1))"
+		| "admininstr_instr (instr_sc3 (VBITMASK x0)) = (admininstr_sc3 (admininstr_st3_VBITMASK x0))"
+		| "admininstr_instr (instr_sc3 (VSWIZZLE x0)) = (admininstr_sc3 (admininstr_st3_VSWIZZLE x0))"
+		| "admininstr_instr (instr_sc3 (VSHUFFLE x0 x1)) = (admininstr_sc3 (admininstr_st3_VSHUFFLE x0 x1))"
+		| "admininstr_instr (instr_sc3 (VSPLAT x0)) = (admininstr_sc3 (admininstr_st3_VSPLAT x0))"
+		| "admininstr_instr (instr_sc3 (VEXTRACT_LANE x0 x1 x2)) = (admininstr_sc3 (admininstr_st3_VEXTRACT_LANE x0 x1 x2))"
+		| "admininstr_instr (instr_sc3 (VREPLACE_LANE x0 x1)) = (admininstr_sc3 (admininstr_st3_VREPLACE_LANE x0 x1))"
+		| "admininstr_instr (instr_sc3 (VEXTUNOP x0 x1 x2)) = (admininstr_sc4 (admininstr_st4_VEXTUNOP x0 x1 x2))"
+		| "admininstr_instr (instr_sc3 (VEXTBINOP x0 x1 x2)) = (admininstr_sc4 (admininstr_st4_VEXTBINOP x0 x1 x2))"
+		| "admininstr_instr (instr_sc3 (VNARROW x0 x1 x2)) = (admininstr_sc4 (admininstr_st4_VNARROW x0 x1 x2))"
+		| "admininstr_instr (instr_sc4 (VCVTOP x0 x1 x2)) = (admininstr_sc4 (admininstr_st4_VCVTOP x0 x1 x2))"
+		| "admininstr_instr (instr_sc4 (REF_NULL x0)) = (admininstr_sc4 (admininstr_st4_REF_NULL x0))"
+		| "admininstr_instr (instr_sc4 (REF_FUNC x0)) = (admininstr_sc4 (admininstr_st4_REF_FUNC x0))"
+		| "admininstr_instr (instr_sc4 REF_IS_NULL) = (admininstr_sc4 admininstr_st4_REF_IS_NULL)"
+		| "admininstr_instr (instr_sc4 (LOCAL_GET x0)) = (admininstr_sc4 (admininstr_st4_LOCAL_GET x0))"
+		| "admininstr_instr (instr_sc4 (LOCAL_SET x0)) = (admininstr_sc4 (admininstr_st4_LOCAL_SET x0))"
+		| "admininstr_instr (instr_sc4 (LOCAL_TEE x0)) = (admininstr_sc5 (admininstr_st5_LOCAL_TEE x0))"
+		| "admininstr_instr (instr_sc4 (GLOBAL_GET x0)) = (admininstr_sc5 (admininstr_st5_GLOBAL_GET x0))"
+		| "admininstr_instr (instr_sc4 (GLOBAL_SET x0)) = (admininstr_sc5 (admininstr_st5_GLOBAL_SET x0))"
+		| "admininstr_instr (instr_sc5 (TABLE_GET x0)) = (admininstr_sc5 (admininstr_st5_TABLE_GET x0))"
+		| "admininstr_instr (instr_sc5 (TABLE_SET x0)) = (admininstr_sc5 (admininstr_st5_TABLE_SET x0))"
+		| "admininstr_instr (instr_sc5 (TABLE_SIZE x0)) = (admininstr_sc5 (admininstr_st5_TABLE_SIZE x0))"
+		| "admininstr_instr (instr_sc5 (TABLE_GROW x0)) = (admininstr_sc5 (admininstr_st5_TABLE_GROW x0))"
+		| "admininstr_instr (instr_sc5 (TABLE_FILL x0)) = (admininstr_sc5 (admininstr_st5_TABLE_FILL x0))"
+		| "admininstr_instr (instr_sc5 (TABLE_COPY x0 x1)) = (admininstr_sc5 (admininstr_st5_TABLE_COPY x0 x1))"
+		| "admininstr_instr (instr_sc5 (TABLE_INIT x0 x1)) = (admininstr_sc6 (admininstr_st6_TABLE_INIT x0 x1))"
+		| "admininstr_instr (instr_sc5 (ELEM_DROP x0)) = (admininstr_sc6 (admininstr_st6_ELEM_DROP x0))"
+		| "admininstr_instr (instr_sc5 (LOAD x0 x1 x2)) = (admininstr_sc6 (admininstr_st6_LOAD x0 x1 x2))"
+		| "admininstr_instr (instr_sc6 (STORE x0 x1 x2)) = (admininstr_sc6 (admininstr_st6_STORE x0 x1 x2))"
+		| "admininstr_instr (instr_sc6 (VLOAD x0 x1 x2)) = (admininstr_sc6 (admininstr_st6_VLOAD x0 x1 x2))"
+		| "admininstr_instr (instr_sc6 (VLOAD_LANE x0 x1 x2 x3)) = (admininstr_sc6 (admininstr_st6_VLOAD_LANE x0 x1 x2 x3))"
+		| "admininstr_instr (instr_sc6 (VSTORE x0 x1)) = (admininstr_sc6 (admininstr_st6_VSTORE x0 x1))"
+		| "admininstr_instr (instr_sc6 (VSTORE_LANE x0 x1 x2 x3)) = (admininstr_sc6 (admininstr_st6_VSTORE_LANE x0 x1 x2 x3))"
+		| "admininstr_instr (instr_sc6 MEMORY_SIZE) = (admininstr_sc6 admininstr_st6_MEMORY_SIZE)"
+		| "admininstr_instr (instr_sc6 MEMORY_GROW) = (admininstr_sc7 admininstr_st7_MEMORY_GROW)"
+		| "admininstr_instr (instr_sc6 MEMORY_FILL) = (admininstr_sc7 admininstr_st7_MEMORY_FILL)"
+		| "admininstr_instr (instr_sc6 MEMORY_COPY) = (admininstr_sc7 admininstr_st7_MEMORY_COPY)"
+		| "admininstr_instr (instr_sc7 (MEMORY_INIT x0)) = (admininstr_sc7 (admininstr_st7_MEMORY_INIT x0))"
+		| "admininstr_instr (instr_sc7 (DATA_DROP x0)) = (admininstr_sc7 (admininstr_st7_DATA_DROP x0))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at:  *)
 function (sequential) admininstr_ref :: "ref ⇒ admininstr" where
-		  "admininstr_ref (ref_REF_NULL x0) = (admininstr_subcase_4 (admininstr_subtype_4_REF_NULL x0))"
-		| "admininstr_ref (REF_FUNC_ADDR x0) = (admininstr_subcase_7 (admininstr_subtype_7_REF_FUNC_ADDR x0))"
-		| "admininstr_ref (REF_HOST_ADDR x0) = (admininstr_subcase_7 (admininstr_subtype_7_REF_HOST_ADDR x0))"
+		  "admininstr_ref (ref_REF_NULL x0) = (admininstr_sc4 (admininstr_st4_REF_NULL x0))"
+		| "admininstr_ref (REF_FUNC_ADDR x0) = (admininstr_sc7 (admininstr_st7_REF_FUNC_ADDR x0))"
+		| "admininstr_ref (REF_HOST_ADDR x0) = (admininstr_sc7 (admininstr_st7_REF_HOST_ADDR x0))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at:  *)
 function (sequential) admininstr_val :: "val ⇒ admininstr" where
-		  "admininstr_val (val_CONST x0 x1) = (admininstr_subcase_1 (admininstr_subtype_1_CONST x0 x1))"
-		| "admininstr_val (val_VCONST x0 x1) = (admininstr_subcase_2 (admininstr_subtype_2_VCONST x0 x1))"
-		| "admininstr_val (val_REF_NULL x0) = (admininstr_subcase_4 (admininstr_subtype_4_REF_NULL x0))"
-		| "admininstr_val (val_REF_FUNC_ADDR x0) = (admininstr_subcase_7 (admininstr_subtype_7_REF_FUNC_ADDR x0))"
-		| "admininstr_val (val_REF_HOST_ADDR x0) = (admininstr_subcase_7 (admininstr_subtype_7_REF_HOST_ADDR x0))"
+		  "admininstr_val (val_CONST x0 x1) = (admininstr_sc1 (admininstr_st1_CONST x0 x1))"
+		| "admininstr_val (val_VCONST x0 x1) = (admininstr_sc2 (admininstr_st2_VCONST x0 x1))"
+		| "admininstr_val (val_REF_NULL x0) = (admininstr_sc4 (admininstr_st4_REF_NULL x0))"
+		| "admininstr_val (val_REF_FUNC_ADDR x0) = (admininstr_sc7 (admininstr_st7_REF_FUNC_ADDR x0))"
+		| "admininstr_val (val_REF_HOST_ADDR x0) = (admininstr_sc7 (admininstr_st7_REF_HOST_ADDR x0))"
 	by pat_completeness auto
 
 (* Mutual Recursion at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
 inductive wf_admininstr :: "admininstr ⇒ bool" where
 	  admininstr_case_0 :
-		"wf_admininstr (admininstr_subcase_0 admininstr_subtype_0_NOP)"
+		"wf_admininstr (admininstr_sc0 admininstr_st0_NOP)"
 	| admininstr_case_1 :
-		"wf_admininstr (admininstr_subcase_0 admininstr_subtype_0_UNREACHABLE)"
+		"wf_admininstr (admininstr_sc0 admininstr_st0_UNREACHABLE)"
 	| admininstr_case_2 :
-		"wf_admininstr (admininstr_subcase_0 admininstr_subtype_0_DROP)"
+		"wf_admininstr (admininstr_sc0 admininstr_st0_DROP)"
 	| admininstr_case_3 :
-		"wf_admininstr (admininstr_subcase_0 (admininstr_subtype_0_SELECT valtype_lst_opt))"
+		"wf_admininstr (admininstr_sc0 (admininstr_st0_SELECT valtype_lst_opt))"
 	| admininstr_case_4 :
 		"(wf_blocktype v_blocktype) ⟹
 		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
-		 wf_admininstr (admininstr_subcase_0 (admininstr_subtype_0_BLOCK v_blocktype instr_lst))"
+		 wf_admininstr (admininstr_sc0 (admininstr_st0_BLOCK v_blocktype instr_lst))"
 	| admininstr_case_5 :
 		"(wf_blocktype v_blocktype) ⟹
 		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
-		 wf_admininstr (admininstr_subcase_0 (admininstr_subtype_0_LOOP v_blocktype instr_lst))"
+		 wf_admininstr (admininstr_sc0 (admininstr_st0_LOOP v_blocktype instr_lst))"
 	| admininstr_case_6 :
 		"(wf_blocktype v_blocktype) ⟹
 		 list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
 		 list_all (λ (instr_lst_0 :: instr). (wf_instr instr_lst_0)) instr_lst_0_lst ⟹
-		 wf_admininstr (admininstr_subcase_0 (admininstr_subtype_0_IFELSE v_blocktype instr_lst instr_lst_0_lst))"
+		 wf_admininstr (admininstr_sc0 (admininstr_st0_IFELSE v_blocktype instr_lst instr_lst_0_lst))"
 	| admininstr_case_7 :
 		"(wf_uN 32 v_labelidx) ⟹
-		 wf_admininstr (admininstr_subcase_0 (admininstr_subtype_0_BR v_labelidx))"
+		 wf_admininstr (admininstr_sc0 (admininstr_st0_BR v_labelidx))"
 	| admininstr_case_8 :
 		"(wf_uN 32 v_labelidx) ⟹
-		 wf_admininstr (admininstr_subcase_0 (admininstr_subtype_0_BR_IF v_labelidx))"
+		 wf_admininstr (admininstr_sc0 (admininstr_st0_BR_IF v_labelidx))"
 	| admininstr_case_9 :
 		"list_all (λ (v_labelidx :: labelidx). (wf_uN 32 v_labelidx)) labelidx_lst ⟹
 		 (wf_uN 32 v_labelidx) ⟹
-		 wf_admininstr (admininstr_subcase_1 (admininstr_subtype_1_BR_TABLE labelidx_lst v_labelidx))"
+		 wf_admininstr (admininstr_sc1 (admininstr_st1_BR_TABLE labelidx_lst v_labelidx))"
 	| admininstr_case_10 :
 		"(wf_uN 32 v_funcidx) ⟹
-		 wf_admininstr (admininstr_subcase_1 (admininstr_subtype_1_CALL v_funcidx))"
+		 wf_admininstr (admininstr_sc1 (admininstr_st1_CALL v_funcidx))"
 	| admininstr_case_11 :
 		"(wf_uN 32 v_tableidx) ⟹
 		 (wf_uN 32 v_typeidx) ⟹
-		 wf_admininstr (admininstr_subcase_1 (admininstr_subtype_1_CALL_INDIRECT v_tableidx v_typeidx))"
+		 wf_admininstr (admininstr_sc1 (admininstr_st1_CALL_INDIRECT v_tableidx v_typeidx))"
 	| admininstr_case_12 :
-		"wf_admininstr (admininstr_subcase_1 admininstr_subtype_1_RETURN)"
+		"wf_admininstr (admininstr_sc1 admininstr_st1_RETURN)"
 	| admininstr_case_13 :
 		"(wf_num_underscore v_numtype var_0) ⟹
-		 wf_admininstr (admininstr_subcase_1 (admininstr_subtype_1_CONST v_numtype var_0))"
+		 wf_admininstr (admininstr_sc1 (admininstr_st1_CONST v_numtype var_0))"
 	| admininstr_case_14 :
 		"(wf_unop_underscore v_numtype var_0) ⟹
-		 wf_admininstr (admininstr_subcase_1 (admininstr_subtype_1_UNOP v_numtype var_0))"
+		 wf_admininstr (admininstr_sc1 (admininstr_st1_UNOP v_numtype var_0))"
 	| admininstr_case_15 :
 		"(wf_binop_underscore v_numtype var_0) ⟹
-		 wf_admininstr (admininstr_subcase_1 (admininstr_subtype_1_BINOP v_numtype var_0))"
+		 wf_admininstr (admininstr_sc1 (admininstr_st1_BINOP v_numtype var_0))"
 	| admininstr_case_16 :
 		"(wf_testop_underscore v_numtype var_0) ⟹
-		 wf_admininstr (admininstr_subcase_1 (admininstr_subtype_1_TESTOP v_numtype var_0))"
+		 wf_admininstr (admininstr_sc1 (admininstr_st1_TESTOP v_numtype var_0))"
 	| admininstr_case_17 :
 		"(wf_relop_underscore v_numtype var_0) ⟹
-		 wf_admininstr (admininstr_subcase_1 (admininstr_subtype_1_RELOP v_numtype var_0))"
+		 wf_admininstr (admininstr_sc1 (admininstr_st1_RELOP v_numtype var_0))"
 	| admininstr_case_18 :
 		"(numtype_1 ≠ numtype_2) ⟹
-		 wf_admininstr (admininstr_subcase_2 (admininstr_subtype_2_CVTOP numtype_1 numtype_2 v_cvtop))"
+		 wf_admininstr (admininstr_sc2 (admininstr_st2_CVTOP numtype_1 numtype_2 v_cvtop))"
 	| admininstr_case_19 :
-		"wf_admininstr (admininstr_subcase_2 (admininstr_subtype_2_EXTEND v_numtype v_n))"
+		"wf_admininstr (admininstr_sc2 (admininstr_st2_EXTEND v_numtype v_n))"
 	| admininstr_case_20 :
 		"((size (valtype_vectype v_vectype)) ≠ None) ⟹
 		 (wf_uN (the ((size (valtype_vectype v_vectype)))) var_0) ⟹
-		 wf_admininstr (admininstr_subcase_2 (admininstr_subtype_2_VCONST v_vectype var_0))"
+		 wf_admininstr (admininstr_sc2 (admininstr_st2_VCONST v_vectype var_0))"
 	| admininstr_case_21 :
-		"wf_admininstr (admininstr_subcase_2 (admininstr_subtype_2_VVUNOP v_vectype v_vvunop))"
+		"wf_admininstr (admininstr_sc2 (admininstr_st2_VVUNOP v_vectype v_vvunop))"
 	| admininstr_case_22 :
-		"wf_admininstr (admininstr_subcase_2 (admininstr_subtype_2_VVBINOP v_vectype v_vvbinop))"
+		"wf_admininstr (admininstr_sc2 (admininstr_st2_VVBINOP v_vectype v_vvbinop))"
 	| admininstr_case_23 :
-		"wf_admininstr (admininstr_subcase_2 (admininstr_subtype_2_VVTERNOP v_vectype v_vvternop))"
+		"wf_admininstr (admininstr_sc2 (admininstr_st2_VVTERNOP v_vectype v_vvternop))"
 	| admininstr_case_24 :
-		"wf_admininstr (admininstr_subcase_2 (admininstr_subtype_2_VVTESTOP v_vectype v_vvtestop))"
+		"wf_admininstr (admininstr_sc2 (admininstr_st2_VVTESTOP v_vectype v_vvtestop))"
 	| admininstr_case_25 :
 		"(wf_shape v_shape) ⟹
 		 (wf_vunop_underscore v_shape var_0) ⟹
-		 wf_admininstr (admininstr_subcase_2 (admininstr_subtype_2_VUNOP v_shape var_0))"
+		 wf_admininstr (admininstr_sc2 (admininstr_st2_VUNOP v_shape var_0))"
 	| admininstr_case_26 :
 		"(wf_shape v_shape) ⟹
 		 (wf_vbinop_underscore v_shape var_0) ⟹
-		 wf_admininstr (admininstr_subcase_2 (admininstr_subtype_2_VBINOP v_shape var_0))"
+		 wf_admininstr (admininstr_sc2 (admininstr_st2_VBINOP v_shape var_0))"
 	| admininstr_case_27 :
 		"(wf_shape v_shape) ⟹
 		 (wf_vtestop_underscore v_shape var_0) ⟹
-		 wf_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VTESTOP v_shape var_0))"
+		 wf_admininstr (admininstr_sc3 (admininstr_st3_VTESTOP v_shape var_0))"
 	| admininstr_case_28 :
 		"(wf_shape v_shape) ⟹
 		 (wf_vrelop_underscore v_shape var_0) ⟹
-		 wf_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VRELOP v_shape var_0))"
+		 wf_admininstr (admininstr_sc3 (admininstr_st3_VRELOP v_shape var_0))"
 	| admininstr_case_29 :
 		"(wf_ishape v_ishape) ⟹
 		 (wf_vshiftop_underscore v_ishape var_0) ⟹
-		 wf_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VSHIFTOP v_ishape var_0))"
+		 wf_admininstr (admininstr_sc3 (admininstr_st3_VSHIFTOP v_ishape var_0))"
 	| admininstr_case_30 :
 		"(wf_ishape v_ishape) ⟹
-		 wf_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VBITMASK v_ishape))"
+		 wf_admininstr (admininstr_sc3 (admininstr_st3_VBITMASK v_ishape))"
 	| admininstr_case_31 :
 		"(wf_ishape v_ishape) ⟹
 		 (v_ishape = (ishape_X Jnn_I8 (mk_dim 16))) ⟹
-		 wf_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VSWIZZLE v_ishape))"
+		 wf_admininstr (admininstr_sc3 (admininstr_st3_VSWIZZLE v_ishape))"
 	| admininstr_case_32 :
 		"(wf_ishape v_ishape) ⟹
 		 list_all (λ (v_laneidx :: laneidx). (wf_uN 8 v_laneidx)) laneidx_lst ⟹
 		 ((v_ishape = (ishape_X Jnn_I8 (mk_dim 16))) ∧ ((length laneidx_lst) = 16)) ⟹
-		 wf_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VSHUFFLE v_ishape laneidx_lst))"
+		 wf_admininstr (admininstr_sc3 (admininstr_st3_VSHUFFLE v_ishape laneidx_lst))"
 	| admininstr_case_33 :
 		"(wf_shape v_shape) ⟹
-		 wf_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VSPLAT v_shape))"
+		 wf_admininstr (admininstr_sc3 (admininstr_st3_VSPLAT v_shape))"
 	| admininstr_case_34 :
 		"(wf_shape v_shape) ⟹
 		 (wf_uN 8 v_laneidx) ⟹
 		 (((fun_lanetype v_shape) = (lanetype_numtype v_numtype)) ⟷ (sx_opt = None)) ⟹
-		 wf_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VEXTRACT_LANE v_shape sx_opt v_laneidx))"
+		 wf_admininstr (admininstr_sc3 (admininstr_st3_VEXTRACT_LANE v_shape sx_opt v_laneidx))"
 	| admininstr_case_35 :
 		"(wf_shape v_shape) ⟹
 		 (wf_uN 8 v_laneidx) ⟹
-		 wf_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VREPLACE_LANE v_shape v_laneidx))"
+		 wf_admininstr (admininstr_sc3 (admininstr_st3_VREPLACE_LANE v_shape v_laneidx))"
 	| admininstr_case_36 :
 		"(wf_ishape ishape_1) ⟹
 		 (wf_ishape ishape_2) ⟹
 		 (wf_vextunop_underscore ishape_1 var_0) ⟹
 		 ((lsize (fun_lanetype (shape_ishape ishape_1))) = (2 * (lsize (fun_lanetype (shape_ishape ishape_2))))) ⟹
-		 wf_admininstr (admininstr_subcase_4 (admininstr_subtype_4_VEXTUNOP ishape_1 ishape_2 var_0))"
+		 wf_admininstr (admininstr_sc4 (admininstr_st4_VEXTUNOP ishape_1 ishape_2 var_0))"
 	| admininstr_case_37 :
 		"(wf_ishape ishape_1) ⟹
 		 (wf_ishape ishape_2) ⟹
 		 (wf_vextbinop_underscore ishape_1 var_0) ⟹
 		 ((lsize (fun_lanetype (shape_ishape ishape_1))) = (2 * (lsize (fun_lanetype (shape_ishape ishape_2))))) ⟹
-		 wf_admininstr (admininstr_subcase_4 (admininstr_subtype_4_VEXTBINOP ishape_1 ishape_2 var_0))"
+		 wf_admininstr (admininstr_sc4 (admininstr_st4_VEXTBINOP ishape_1 ishape_2 var_0))"
 	| admininstr_case_38 :
 		"(wf_ishape ishape_1) ⟹
 		 (wf_ishape ishape_2) ⟹
 		 (((lsize (fun_lanetype (shape_ishape ishape_2))) = (2 * (lsize (fun_lanetype (shape_ishape ishape_1))))) ∧ ((2 * (lsize (fun_lanetype (shape_ishape ishape_1)))) ≤ 32)) ⟹
-		 wf_admininstr (admininstr_subcase_4 (admininstr_subtype_4_VNARROW ishape_1 ishape_2 v_sx))"
+		 wf_admininstr (admininstr_sc4 (admininstr_st4_VNARROW ishape_1 ishape_2 v_sx))"
 	| admininstr_case_39 :
 		"(wf_shape v_shape) ⟹
 		 (wf_shape shape_0) ⟹
-		 wf_admininstr (admininstr_subcase_4 (admininstr_subtype_4_VCVTOP v_shape shape_0 v_vcvtop))"
+		 wf_admininstr (admininstr_sc4 (admininstr_st4_VCVTOP v_shape shape_0 v_vcvtop))"
 	| admininstr_case_40 :
-		"wf_admininstr (admininstr_subcase_4 (admininstr_subtype_4_REF_NULL v_reftype))"
+		"wf_admininstr (admininstr_sc4 (admininstr_st4_REF_NULL v_reftype))"
 	| admininstr_case_41 :
 		"(wf_uN 32 v_funcidx) ⟹
-		 wf_admininstr (admininstr_subcase_4 (admininstr_subtype_4_REF_FUNC v_funcidx))"
+		 wf_admininstr (admininstr_sc4 (admininstr_st4_REF_FUNC v_funcidx))"
 	| admininstr_case_42 :
-		"wf_admininstr (admininstr_subcase_4 admininstr_subtype_4_REF_IS_NULL)"
+		"wf_admininstr (admininstr_sc4 admininstr_st4_REF_IS_NULL)"
 	| admininstr_case_43 :
 		"(wf_uN 32 v_localidx) ⟹
-		 wf_admininstr (admininstr_subcase_4 (admininstr_subtype_4_LOCAL_GET v_localidx))"
+		 wf_admininstr (admininstr_sc4 (admininstr_st4_LOCAL_GET v_localidx))"
 	| admininstr_case_44 :
 		"(wf_uN 32 v_localidx) ⟹
-		 wf_admininstr (admininstr_subcase_4 (admininstr_subtype_4_LOCAL_SET v_localidx))"
+		 wf_admininstr (admininstr_sc4 (admininstr_st4_LOCAL_SET v_localidx))"
 	| admininstr_case_45 :
 		"(wf_uN 32 v_localidx) ⟹
-		 wf_admininstr (admininstr_subcase_5 (admininstr_subtype_5_LOCAL_TEE v_localidx))"
+		 wf_admininstr (admininstr_sc5 (admininstr_st5_LOCAL_TEE v_localidx))"
 	| admininstr_case_46 :
 		"(wf_uN 32 v_globalidx) ⟹
-		 wf_admininstr (admininstr_subcase_5 (admininstr_subtype_5_GLOBAL_GET v_globalidx))"
+		 wf_admininstr (admininstr_sc5 (admininstr_st5_GLOBAL_GET v_globalidx))"
 	| admininstr_case_47 :
 		"(wf_uN 32 v_globalidx) ⟹
-		 wf_admininstr (admininstr_subcase_5 (admininstr_subtype_5_GLOBAL_SET v_globalidx))"
+		 wf_admininstr (admininstr_sc5 (admininstr_st5_GLOBAL_SET v_globalidx))"
 	| admininstr_case_48 :
 		"(wf_uN 32 v_tableidx) ⟹
-		 wf_admininstr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_GET v_tableidx))"
+		 wf_admininstr (admininstr_sc5 (admininstr_st5_TABLE_GET v_tableidx))"
 	| admininstr_case_49 :
 		"(wf_uN 32 v_tableidx) ⟹
-		 wf_admininstr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_SET v_tableidx))"
+		 wf_admininstr (admininstr_sc5 (admininstr_st5_TABLE_SET v_tableidx))"
 	| admininstr_case_50 :
 		"(wf_uN 32 v_tableidx) ⟹
-		 wf_admininstr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_SIZE v_tableidx))"
+		 wf_admininstr (admininstr_sc5 (admininstr_st5_TABLE_SIZE v_tableidx))"
 	| admininstr_case_51 :
 		"(wf_uN 32 v_tableidx) ⟹
-		 wf_admininstr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_GROW v_tableidx))"
+		 wf_admininstr (admininstr_sc5 (admininstr_st5_TABLE_GROW v_tableidx))"
 	| admininstr_case_52 :
 		"(wf_uN 32 v_tableidx) ⟹
-		 wf_admininstr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_FILL v_tableidx))"
+		 wf_admininstr (admininstr_sc5 (admininstr_st5_TABLE_FILL v_tableidx))"
 	| admininstr_case_53 :
 		"(wf_uN 32 v_tableidx) ⟹
 		 (wf_uN 32 tableidx_0) ⟹
-		 wf_admininstr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_COPY v_tableidx tableidx_0))"
+		 wf_admininstr (admininstr_sc5 (admininstr_st5_TABLE_COPY v_tableidx tableidx_0))"
 	| admininstr_case_54 :
 		"(wf_uN 32 v_tableidx) ⟹
 		 (wf_uN 32 v_elemidx) ⟹
-		 wf_admininstr (admininstr_subcase_6 (admininstr_subtype_6_TABLE_INIT v_tableidx v_elemidx))"
+		 wf_admininstr (admininstr_sc6 (admininstr_st6_TABLE_INIT v_tableidx v_elemidx))"
 	| admininstr_case_55 :
 		"(wf_uN 32 v_elemidx) ⟹
-		 wf_admininstr (admininstr_subcase_6 (admininstr_subtype_6_ELEM_DROP v_elemidx))"
+		 wf_admininstr (admininstr_sc6 (admininstr_st6_ELEM_DROP v_elemidx))"
 	| admininstr_case_56 :
 		"list_all (λ (var_0 :: loadop_underscore). (wf_loadop_underscore v_numtype var_0)) (option_to_list var_0_opt) ⟹
 		 (wf_memarg v_memarg) ⟹
-		 wf_admininstr (admininstr_subcase_6 (admininstr_subtype_6_LOAD v_numtype var_0_opt v_memarg))"
+		 wf_admininstr (admininstr_sc6 (admininstr_st6_LOAD v_numtype var_0_opt v_memarg))"
 	| admininstr_case_57 :
 		"list_all (λ (v_sz :: sz). (wf_sz v_sz)) (option_to_list sz_opt) ⟹
 		 (wf_memarg v_memarg) ⟹
 		 ((Inn_opt = None) ⟷ (numtype_opt = None)) ⟹
 		 ((Inn_opt = None) ⟷ (sz_opt = None)) ⟹
 		 list_all3 (λ (v_Inn :: Inn) (v_numtype :: numtype) (v_sz :: sz). ((v_numtype = (numtype_Inn v_Inn)) ∧ ((proj_sz_0 v_sz) < (sizenn (numtype_Inn v_Inn))))) (option_to_list Inn_opt) (option_to_list numtype_opt) (option_to_list sz_opt) ⟹
-		 wf_admininstr (admininstr_subcase_6 (admininstr_subtype_6_STORE v_numtype sz_opt v_memarg))"
+		 wf_admininstr (admininstr_sc6 (admininstr_st6_STORE v_numtype sz_opt v_memarg))"
 	| admininstr_case_58 :
 		"(wf_memarg v_memarg) ⟹
-		 wf_admininstr (admininstr_subcase_6 (admininstr_subtype_6_VLOAD v_vectype vloadop_opt v_memarg))"
+		 wf_admininstr (admininstr_sc6 (admininstr_st6_VLOAD v_vectype vloadop_opt v_memarg))"
 	| admininstr_case_59 :
 		"(wf_sz v_sz) ⟹
 		 (wf_memarg v_memarg) ⟹
 		 (wf_uN 8 v_laneidx) ⟹
-		 wf_admininstr (admininstr_subcase_6 (admininstr_subtype_6_VLOAD_LANE v_vectype v_sz v_memarg v_laneidx))"
+		 wf_admininstr (admininstr_sc6 (admininstr_st6_VLOAD_LANE v_vectype v_sz v_memarg v_laneidx))"
 	| admininstr_case_60 :
 		"(wf_memarg v_memarg) ⟹
-		 wf_admininstr (admininstr_subcase_6 (admininstr_subtype_6_VSTORE v_vectype v_memarg))"
+		 wf_admininstr (admininstr_sc6 (admininstr_st6_VSTORE v_vectype v_memarg))"
 	| admininstr_case_61 :
 		"(wf_sz v_sz) ⟹
 		 (wf_memarg v_memarg) ⟹
 		 (wf_uN 8 v_laneidx) ⟹
-		 wf_admininstr (admininstr_subcase_6 (admininstr_subtype_6_VSTORE_LANE v_vectype v_sz v_memarg v_laneidx))"
+		 wf_admininstr (admininstr_sc6 (admininstr_st6_VSTORE_LANE v_vectype v_sz v_memarg v_laneidx))"
 	| admininstr_case_62 :
-		"wf_admininstr (admininstr_subcase_6 admininstr_subtype_6_MEMORY_SIZE)"
+		"wf_admininstr (admininstr_sc6 admininstr_st6_MEMORY_SIZE)"
 	| admininstr_case_63 :
-		"wf_admininstr (admininstr_subcase_7 admininstr_subtype_7_MEMORY_GROW)"
+		"wf_admininstr (admininstr_sc7 admininstr_st7_MEMORY_GROW)"
 	| admininstr_case_64 :
-		"wf_admininstr (admininstr_subcase_7 admininstr_subtype_7_MEMORY_FILL)"
+		"wf_admininstr (admininstr_sc7 admininstr_st7_MEMORY_FILL)"
 	| admininstr_case_65 :
-		"wf_admininstr (admininstr_subcase_7 admininstr_subtype_7_MEMORY_COPY)"
+		"wf_admininstr (admininstr_sc7 admininstr_st7_MEMORY_COPY)"
 	| admininstr_case_66 :
 		"(wf_uN 32 v_dataidx) ⟹
-		 wf_admininstr (admininstr_subcase_7 (admininstr_subtype_7_MEMORY_INIT v_dataidx))"
+		 wf_admininstr (admininstr_sc7 (admininstr_st7_MEMORY_INIT v_dataidx))"
 	| admininstr_case_67 :
 		"(wf_uN 32 v_dataidx) ⟹
-		 wf_admininstr (admininstr_subcase_7 (admininstr_subtype_7_DATA_DROP v_dataidx))"
+		 wf_admininstr (admininstr_sc7 (admininstr_st7_DATA_DROP v_dataidx))"
 	| admininstr_case_68 :
-		"wf_admininstr (admininstr_subcase_7 (admininstr_subtype_7_REF_FUNC_ADDR v_funcaddr))"
+		"wf_admininstr (admininstr_sc7 (admininstr_st7_REF_FUNC_ADDR v_funcaddr))"
 	| admininstr_case_69 :
-		"wf_admininstr (admininstr_subcase_7 (admininstr_subtype_7_REF_HOST_ADDR v_hostaddr))"
+		"wf_admininstr (admininstr_sc7 (admininstr_st7_REF_HOST_ADDR v_hostaddr))"
 	| admininstr_case_70 :
-		"wf_admininstr (admininstr_subcase_7 (CALL_ADDR v_funcaddr))"
+		"wf_admininstr (admininstr_sc7 (CALL_ADDR v_funcaddr))"
 	| admininstr_case_71 :
 		"list_all (λ (v_instr :: instr). (wf_instr v_instr)) instr_lst ⟹
 		 list_all (λ (v_admininstr :: admininstr). (wf_admininstr v_admininstr)) admininstr_lst ⟹
-		 wf_admininstr (admininstr_subcase_8 (LABEL_underscore v_n instr_lst admininstr_lst))"
+		 wf_admininstr (admininstr_sc8 (LABEL_underscore v_n instr_lst admininstr_lst))"
 	| admininstr_case_72 :
 		"(wf_frame v_frame) ⟹
 		 list_all (λ (v_admininstr :: admininstr). (wf_admininstr v_admininstr)) admininstr_lst ⟹
-		 wf_admininstr (admininstr_subcase_8 (FRAME_underscore v_n v_frame admininstr_lst))"
+		 wf_admininstr (admininstr_sc8 (FRAME_underscore v_n v_frame admininstr_lst))"
 	| admininstr_case_73 :
-		"wf_admininstr (admininstr_subcase_7 admininstr_subtype_7_TRAP)"
+		"wf_admininstr (admininstr_sc7 admininstr_st7_TRAP)"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:117.1-117.62 *)
 datatype config =
@@ -7495,337 +7495,337 @@ inductive Instr_ok :: "res_context ⇒ instr ⇒ functype ⇒ bool"
 and Instrs_ok :: "res_context ⇒ (instr list) ⇒ functype ⇒ bool" where
 	  nop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 NOP)) ⟹
-		 Instr_ok C (instr_subcase_0 NOP) (mk_functype (mk_list []) (mk_list []))"
+		 (wf_instr (instr_sc0 NOP)) ⟹
+		 Instr_ok C (instr_sc0 NOP) (mk_functype (mk_list []) (mk_list []))"
 	| unreachable :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 UNREACHABLE)) ⟹
-		 Instr_ok C (instr_subcase_0 UNREACHABLE) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
+		 (wf_instr (instr_sc0 UNREACHABLE)) ⟹
+		 Instr_ok C (instr_sc0 UNREACHABLE) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
 	| drop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 DROP)) ⟹
-		 Instr_ok C (instr_subcase_0 DROP) (mk_functype (mk_list [t]) (mk_list []))"
+		 (wf_instr (instr_sc0 DROP)) ⟹
+		 Instr_ok C (instr_sc0 DROP) (mk_functype (mk_list [t]) (mk_list []))"
 	| select_expl :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 (SELECT (Some [t])))) ⟹
-		 Instr_ok C (instr_subcase_0 (SELECT (Some [t]))) (mk_functype (mk_list [t, t, valtype_I32]) (mk_list [t]))"
+		 (wf_instr (instr_sc0 (SELECT (Some [t])))) ⟹
+		 Instr_ok C (instr_sc0 (SELECT (Some [t]))) (mk_functype (mk_list [t, t, valtype_I32]) (mk_list [t]))"
 	| select_impl :
 		"(Valtype_sub t t') ⟹
 		 ((t' = (valtype_numtype v_numtype)) ∨ (t' = (valtype_vectype v_vectype))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 (SELECT None))) ⟹
-		 Instr_ok C (instr_subcase_0 (SELECT None)) (mk_functype (mk_list [t, t, valtype_I32]) (mk_list [t]))"
+		 (wf_instr (instr_sc0 (SELECT None))) ⟹
+		 Instr_ok C (instr_sc0 (SELECT None)) (mk_functype (mk_list [t, t, valtype_I32]) (mk_list [t]))"
 	| block :
 		"(Blocktype_ok C bt (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (Instrs_ok (append_res_context ⦇ context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [(mk_list t_2_lst)], context_RETURN = None ⦈ C) instr_lst (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_7 (BLOCK bt instr_lst))) ⟹
+		 (wf_instr (instr_sc7 (BLOCK bt instr_lst))) ⟹
 		 (wf_context ⦇ context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [(mk_list t_2_lst)], context_RETURN = None ⦈) ⟹
-		 Instr_ok C (instr_subcase_7 (BLOCK bt instr_lst)) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc7 (BLOCK bt instr_lst)) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
 	| loop :
 		"(Blocktype_ok C bt (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (Instrs_ok (append_res_context ⦇ context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [(mk_list t_1_lst)], context_RETURN = None ⦈ C) instr_lst (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_7 (LOOP bt instr_lst))) ⟹
+		 (wf_instr (instr_sc7 (LOOP bt instr_lst))) ⟹
 		 (wf_context ⦇ context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [(mk_list t_1_lst)], context_RETURN = None ⦈) ⟹
-		 Instr_ok C (instr_subcase_7 (LOOP bt instr_lst)) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc7 (LOOP bt instr_lst)) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
 	| res_if :
 		"(Blocktype_ok C bt (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (Instrs_ok (append_res_context ⦇ context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [(mk_list t_2_lst)], context_RETURN = None ⦈ C) instr_1_lst (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (Instrs_ok (append_res_context ⦇ context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [(mk_list t_2_lst)], context_RETURN = None ⦈ C) instr_2_lst (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_7 (IFELSE bt instr_1_lst instr_2_lst))) ⟹
+		 (wf_instr (instr_sc7 (IFELSE bt instr_1_lst instr_2_lst))) ⟹
 		 (wf_context ⦇ context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [(mk_list t_2_lst)], context_RETURN = None ⦈) ⟹
-		 Instr_ok C (instr_subcase_7 (IFELSE bt instr_1_lst instr_2_lst)) (mk_functype (mk_list (t_1_lst @ [valtype_I32])) (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc7 (IFELSE bt instr_1_lst instr_2_lst)) (mk_functype (mk_list (t_1_lst @ [valtype_I32])) (mk_list t_2_lst))"
 	| br :
 		"((proj_uN_0 l) < (length (LABELS C))) ⟹
 		 ((proj_list_0  ((LABELS C) ! (proj_uN_0 l))) = t_lst) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 (BR l))) ⟹
-		 Instr_ok C (instr_subcase_0 (BR l)) (mk_functype (mk_list (t_1_lst @ t_lst)) (mk_list t_2_lst))"
+		 (wf_instr (instr_sc0 (BR l))) ⟹
+		 Instr_ok C (instr_sc0 (BR l)) (mk_functype (mk_list (t_1_lst @ t_lst)) (mk_list t_2_lst))"
 	| br_if :
 		"((proj_uN_0 l) < (length (LABELS C))) ⟹
 		 ((proj_list_0  ((LABELS C) ! (proj_uN_0 l))) = t_lst) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 (BR_IF l))) ⟹
-		 Instr_ok C (instr_subcase_0 (BR_IF l)) (mk_functype (mk_list (t_lst @ [valtype_I32])) (mk_list t_lst))"
+		 (wf_instr (instr_sc0 (BR_IF l))) ⟹
+		 Instr_ok C (instr_sc0 (BR_IF l)) (mk_functype (mk_list (t_lst @ [valtype_I32])) (mk_list t_lst))"
 	| br_table :
 		"list_all (λ (l :: labelidx). ((proj_uN_0 l) < (length (LABELS C)))) l_lst ⟹
 		 list_all (λ (l :: labelidx). (Resulttype_sub (mk_list t_lst) ((LABELS C) ! (proj_uN_0 l)))) l_lst ⟹
 		 ((proj_uN_0 l') < (length (LABELS C))) ⟹
 		 (Resulttype_sub (mk_list t_lst) ((LABELS C) ! (proj_uN_0 l'))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 (BR_TABLE l_lst l'))) ⟹
-		 Instr_ok C (instr_subcase_0 (BR_TABLE l_lst l')) (mk_functype (mk_list (t_1_lst @ (t_lst @ [valtype_I32]))) (mk_list t_2_lst))"
+		 (wf_instr (instr_sc0 (BR_TABLE l_lst l'))) ⟹
+		 Instr_ok C (instr_sc0 (BR_TABLE l_lst l')) (mk_functype (mk_list (t_1_lst @ (t_lst @ [valtype_I32]))) (mk_list t_2_lst))"
 	| call :
 		"((proj_uN_0 x) < (length (context_FUNCS C))) ⟹
 		 (((context_FUNCS C) ! (proj_uN_0 x)) = (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 (CALL x))) ⟹
-		 Instr_ok C (instr_subcase_0 (CALL x)) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
+		 (wf_instr (instr_sc0 (CALL x))) ⟹
+		 Instr_ok C (instr_sc0 (CALL x)) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
 	| call_indirect :
 		"((proj_uN_0 x) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype lim FUNCREF)) ⟹
 		 ((proj_uN_0 y) < (length (context_TYPES C))) ⟹
 		 (((context_TYPES C) ! (proj_uN_0 y)) = (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_0 (CALL_INDIRECT x y))) ⟹
+		 (wf_instr (instr_sc0 (CALL_INDIRECT x y))) ⟹
 		 (wf_tabletype (mk_tabletype lim FUNCREF)) ⟹
-		 Instr_ok C (instr_subcase_0 (CALL_INDIRECT x y)) (mk_functype (mk_list (t_1_lst @ [valtype_I32])) (mk_list t_2_lst))"
+		 Instr_ok C (instr_sc0 (CALL_INDIRECT x y)) (mk_functype (mk_list (t_1_lst @ [valtype_I32])) (mk_list t_2_lst))"
 	| return :
 		"((context_RETURN C) = (Some (mk_list t_lst))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 RETURN)) ⟹
-		 Instr_ok C (instr_subcase_1 RETURN) (mk_functype (mk_list (t_1_lst @ t_lst)) (mk_list t_2_lst))"
+		 (wf_instr (instr_sc1 RETURN)) ⟹
+		 Instr_ok C (instr_sc1 RETURN) (mk_functype (mk_list (t_1_lst @ t_lst)) (mk_list t_2_lst))"
 	| const :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 (res_CONST nt c_nt))) ⟹
-		 Instr_ok C (instr_subcase_1 (res_CONST nt c_nt)) (mk_functype (mk_list []) (mk_list [(valtype_numtype nt)]))"
+		 (wf_instr (instr_sc1 (res_CONST nt c_nt))) ⟹
+		 Instr_ok C (instr_sc1 (res_CONST nt c_nt)) (mk_functype (mk_list []) (mk_list [(valtype_numtype nt)]))"
 	| unop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 (UNOP nt unop_nt))) ⟹
-		 Instr_ok C (instr_subcase_1 (UNOP nt unop_nt)) (mk_functype (mk_list [(valtype_numtype nt)]) (mk_list [(valtype_numtype nt)]))"
+		 (wf_instr (instr_sc1 (UNOP nt unop_nt))) ⟹
+		 Instr_ok C (instr_sc1 (UNOP nt unop_nt)) (mk_functype (mk_list [(valtype_numtype nt)]) (mk_list [(valtype_numtype nt)]))"
 	| binop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 (BINOP nt binop_nt))) ⟹
-		 Instr_ok C (instr_subcase_1 (BINOP nt binop_nt)) (mk_functype (mk_list [(valtype_numtype nt), (valtype_numtype nt)]) (mk_list [(valtype_numtype nt)]))"
+		 (wf_instr (instr_sc1 (BINOP nt binop_nt))) ⟹
+		 Instr_ok C (instr_sc1 (BINOP nt binop_nt)) (mk_functype (mk_list [(valtype_numtype nt), (valtype_numtype nt)]) (mk_list [(valtype_numtype nt)]))"
 	| testop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 (TESTOP nt testop_nt))) ⟹
-		 Instr_ok C (instr_subcase_1 (TESTOP nt testop_nt)) (mk_functype (mk_list [(valtype_numtype nt)]) (mk_list [valtype_I32]))"
+		 (wf_instr (instr_sc1 (TESTOP nt testop_nt))) ⟹
+		 Instr_ok C (instr_sc1 (TESTOP nt testop_nt)) (mk_functype (mk_list [(valtype_numtype nt)]) (mk_list [valtype_I32]))"
 	| relop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 (RELOP nt relop_nt))) ⟹
-		 Instr_ok C (instr_subcase_1 (RELOP nt relop_nt)) (mk_functype (mk_list [(valtype_numtype nt), (valtype_numtype nt)]) (mk_list [valtype_I32]))"
+		 (wf_instr (instr_sc1 (RELOP nt relop_nt))) ⟹
+		 Instr_ok C (instr_sc1 (RELOP nt relop_nt)) (mk_functype (mk_list [(valtype_numtype nt), (valtype_numtype nt)]) (mk_list [valtype_I32]))"
 	| cvtop_reinterpret :
 		"((size (valtype_numtype nt_1)) ≠ None) ⟹
 		 ((size (valtype_numtype nt_2)) ≠ None) ⟹
 		 ((the ((size (valtype_numtype nt_1)))) = (the ((size (valtype_numtype nt_2))))) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 (CVTOP nt_1 nt_2 REINTERPRET))) ⟹
-		 Instr_ok C (instr_subcase_1 (CVTOP nt_1 nt_2 REINTERPRET)) (mk_functype (mk_list [(valtype_numtype nt_2)]) (mk_list [(valtype_numtype nt_1)]))"
+		 (wf_instr (instr_sc1 (CVTOP nt_1 nt_2 REINTERPRET))) ⟹
+		 Instr_ok C (instr_sc1 (CVTOP nt_1 nt_2 REINTERPRET)) (mk_functype (mk_list [(valtype_numtype nt_2)]) (mk_list [(valtype_numtype nt_1)]))"
 	| cvtop_convert :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 (CVTOP nt_1 nt_2 v_cvtop))) ⟹
-		 Instr_ok C (instr_subcase_1 (CVTOP nt_1 nt_2 v_cvtop)) (mk_functype (mk_list [(valtype_numtype nt_2)]) (mk_list [(valtype_numtype nt_1)]))"
+		 (wf_instr (instr_sc1 (CVTOP nt_1 nt_2 v_cvtop))) ⟹
+		 Instr_ok C (instr_sc1 (CVTOP nt_1 nt_2 v_cvtop)) (mk_functype (mk_list [(valtype_numtype nt_2)]) (mk_list [(valtype_numtype nt_1)]))"
 	| ref_null :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (REF_NULL rt))) ⟹
-		 Instr_ok C (instr_subcase_4 (REF_NULL rt)) (mk_functype (mk_list []) (mk_list [(valtype_reftype rt)]))"
+		 (wf_instr (instr_sc4 (REF_NULL rt))) ⟹
+		 Instr_ok C (instr_sc4 (REF_NULL rt)) (mk_functype (mk_list []) (mk_list [(valtype_reftype rt)]))"
 	| ref_func :
 		"((proj_uN_0 x) < (length (context_FUNCS C))) ⟹
 		 (((context_FUNCS C) ! (proj_uN_0 x)) = ft) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (REF_FUNC x))) ⟹
-		 Instr_ok C (instr_subcase_4 (REF_FUNC x)) (mk_functype (mk_list []) (mk_list [valtype_FUNCREF]))"
+		 (wf_instr (instr_sc4 (REF_FUNC x))) ⟹
+		 Instr_ok C (instr_sc4 (REF_FUNC x)) (mk_functype (mk_list []) (mk_list [valtype_FUNCREF]))"
 	| ref_is_null :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 REF_IS_NULL)) ⟹
-		 Instr_ok C (instr_subcase_4 REF_IS_NULL) (mk_functype (mk_list [(valtype_reftype rt)]) (mk_list [valtype_I32]))"
+		 (wf_instr (instr_sc4 REF_IS_NULL)) ⟹
+		 Instr_ok C (instr_sc4 REF_IS_NULL) (mk_functype (mk_list [(valtype_reftype rt)]) (mk_list [valtype_I32]))"
 	| vconst :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 (VCONST V128 c))) ⟹
-		 Instr_ok C (instr_subcase_1 (VCONST V128 c)) (mk_functype (mk_list []) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc1 (VCONST V128 c))) ⟹
+		 Instr_ok C (instr_sc1 (VCONST V128 c)) (mk_functype (mk_list []) (mk_list [valtype_V128]))"
 	| Instr_ok__vvunop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (VVUNOP V128 v_vvunop))) ⟹
-		 Instr_ok C (instr_subcase_2 (VVUNOP V128 v_vvunop)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc2 (VVUNOP V128 v_vvunop))) ⟹
+		 Instr_ok C (instr_sc2 (VVUNOP V128 v_vvunop)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128]))"
 	| Instr_ok__vvbinop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (VVBINOP V128 v_vvbinop))) ⟹
-		 Instr_ok C (instr_subcase_2 (VVBINOP V128 v_vvbinop)) (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc2 (VVBINOP V128 v_vvbinop))) ⟹
+		 Instr_ok C (instr_sc2 (VVBINOP V128 v_vvbinop)) (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
 	| Instr_ok__vvternop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (VVTERNOP V128 v_vvternop))) ⟹
-		 Instr_ok C (instr_subcase_2 (VVTERNOP V128 v_vvternop)) (mk_functype (mk_list [valtype_V128, valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc2 (VVTERNOP V128 v_vvternop))) ⟹
+		 Instr_ok C (instr_sc2 (VVTERNOP V128 v_vvternop)) (mk_functype (mk_list [valtype_V128, valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
 	| Instr_ok__vvtestop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (VVTESTOP V128 v_vvtestop))) ⟹
-		 Instr_ok C (instr_subcase_2 (VVTESTOP V128 v_vvtestop)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_I32]))"
+		 (wf_instr (instr_sc2 (VVTESTOP V128 v_vvtestop))) ⟹
+		 Instr_ok C (instr_sc2 (VVTESTOP V128 v_vvtestop)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_I32]))"
 	| vunop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (VUNOP sh vunop_sh))) ⟹
-		 Instr_ok C (instr_subcase_2 (VUNOP sh vunop_sh)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc2 (VUNOP sh vunop_sh))) ⟹
+		 Instr_ok C (instr_sc2 (VUNOP sh vunop_sh)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128]))"
 	| vbinop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (VBINOP sh vbinop_sh))) ⟹
-		 Instr_ok C (instr_subcase_2 (VBINOP sh vbinop_sh)) (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc2 (VBINOP sh vbinop_sh))) ⟹
+		 Instr_ok C (instr_sc2 (VBINOP sh vbinop_sh)) (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
 	| vtestop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (VTESTOP sh vtestop_sh))) ⟹
-		 Instr_ok C (instr_subcase_2 (VTESTOP sh vtestop_sh)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_I32]))"
+		 (wf_instr (instr_sc2 (VTESTOP sh vtestop_sh))) ⟹
+		 Instr_ok C (instr_sc2 (VTESTOP sh vtestop_sh)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_I32]))"
 	| vrelop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (VRELOP sh vrelop_sh))) ⟹
-		 Instr_ok C (instr_subcase_2 (VRELOP sh vrelop_sh)) (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc2 (VRELOP sh vrelop_sh))) ⟹
+		 Instr_ok C (instr_sc2 (VRELOP sh vrelop_sh)) (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
 	| vshiftop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_2 (VSHIFTOP sh vshiftop_sh))) ⟹
-		 Instr_ok C (instr_subcase_2 (VSHIFTOP sh vshiftop_sh)) (mk_functype (mk_list [valtype_V128, valtype_I32]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc2 (VSHIFTOP sh vshiftop_sh))) ⟹
+		 Instr_ok C (instr_sc2 (VSHIFTOP sh vshiftop_sh)) (mk_functype (mk_list [valtype_V128, valtype_I32]) (mk_list [valtype_V128]))"
 	| vbitmask :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (VBITMASK sh))) ⟹
-		 Instr_ok C (instr_subcase_3 (VBITMASK sh)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_I32]))"
+		 (wf_instr (instr_sc3 (VBITMASK sh))) ⟹
+		 Instr_ok C (instr_sc3 (VBITMASK sh)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_I32]))"
 	| vswizzle :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (VSWIZZLE sh))) ⟹
-		 Instr_ok C (instr_subcase_3 (VSWIZZLE sh)) (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc3 (VSWIZZLE sh))) ⟹
+		 Instr_ok C (instr_sc3 (VSWIZZLE sh)) (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
 	| vshuffle :
 		"list_all (λ (i :: laneidx). ((proj_uN_0 i) < (2 * (proj_dim_0 (fun_dim (shape_ishape sh)))))) i_lst ⟹
 		 (wf_context C) ⟹
 		 (wf_dim (fun_dim (shape_ishape sh))) ⟹
-		 (wf_instr (instr_subcase_3 (VSHUFFLE sh i_lst))) ⟹
-		 Instr_ok C (instr_subcase_3 (VSHUFFLE sh i_lst)) (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc3 (VSHUFFLE sh i_lst))) ⟹
+		 Instr_ok C (instr_sc3 (VSHUFFLE sh i_lst)) (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
 	| vsplat :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (VSPLAT sh))) ⟹
-		 Instr_ok C (instr_subcase_3 (VSPLAT sh)) (mk_functype (mk_list [(valtype_numtype (shunpack sh))]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc3 (VSPLAT sh))) ⟹
+		 Instr_ok C (instr_sc3 (VSPLAT sh)) (mk_functype (mk_list [(valtype_numtype (shunpack sh))]) (mk_list [valtype_V128]))"
 	| vextract_lane :
 		"((proj_uN_0 i) < (proj_dim_0 (fun_dim sh))) ⟹
 		 (wf_context C) ⟹
 		 (wf_dim (fun_dim sh)) ⟹
-		 (wf_instr (instr_subcase_3 (VEXTRACT_LANE sh sx_opt i))) ⟹
-		 Instr_ok C (instr_subcase_3 (VEXTRACT_LANE sh sx_opt i)) (mk_functype (mk_list [valtype_V128]) (mk_list [(valtype_numtype (shunpack sh))]))"
+		 (wf_instr (instr_sc3 (VEXTRACT_LANE sh sx_opt i))) ⟹
+		 Instr_ok C (instr_sc3 (VEXTRACT_LANE sh sx_opt i)) (mk_functype (mk_list [valtype_V128]) (mk_list [(valtype_numtype (shunpack sh))]))"
 	| vreplace_lane :
 		"((proj_uN_0 i) < (proj_dim_0 (fun_dim sh))) ⟹
 		 (wf_context C) ⟹
 		 (wf_dim (fun_dim sh)) ⟹
-		 (wf_instr (instr_subcase_3 (VREPLACE_LANE sh i))) ⟹
-		 Instr_ok C (instr_subcase_3 (VREPLACE_LANE sh i)) (mk_functype (mk_list [valtype_V128, (valtype_numtype (shunpack sh))]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc3 (VREPLACE_LANE sh i))) ⟹
+		 Instr_ok C (instr_sc3 (VREPLACE_LANE sh i)) (mk_functype (mk_list [valtype_V128, (valtype_numtype (shunpack sh))]) (mk_list [valtype_V128]))"
 	| vextunop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (VEXTUNOP sh_1 sh_2 vextunop))) ⟹
-		 Instr_ok C (instr_subcase_3 (VEXTUNOP sh_1 sh_2 vextunop)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc3 (VEXTUNOP sh_1 sh_2 vextunop))) ⟹
+		 Instr_ok C (instr_sc3 (VEXTUNOP sh_1 sh_2 vextunop)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128]))"
 	| vextbinop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (VEXTBINOP sh_1 sh_2 vextbinop))) ⟹
-		 Instr_ok C (instr_subcase_3 (VEXTBINOP sh_1 sh_2 vextbinop)) (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc3 (VEXTBINOP sh_1 sh_2 vextbinop))) ⟹
+		 Instr_ok C (instr_sc3 (VEXTBINOP sh_1 sh_2 vextbinop)) (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
 	| vnarrow :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_3 (VNARROW sh_1 sh_2 v_sx))) ⟹
-		 Instr_ok C (instr_subcase_3 (VNARROW sh_1 sh_2 v_sx)) (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc3 (VNARROW sh_1 sh_2 v_sx))) ⟹
+		 Instr_ok C (instr_sc3 (VNARROW sh_1 sh_2 v_sx)) (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
 	| Instr_ok__vcvtop :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (VCVTOP sh_1 sh_2 v_vcvtop))) ⟹
-		 Instr_ok C (instr_subcase_4 (VCVTOP sh_1 sh_2 v_vcvtop)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc4 (VCVTOP sh_1 sh_2 v_vcvtop))) ⟹
+		 Instr_ok C (instr_sc4 (VCVTOP sh_1 sh_2 v_vcvtop)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128]))"
 	| local_get :
 		"((proj_uN_0 x) < (length (context_LOCALS C))) ⟹
 		 (((context_LOCALS C) ! (proj_uN_0 x)) = t) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (LOCAL_GET x))) ⟹
-		 Instr_ok C (instr_subcase_4 (LOCAL_GET x)) (mk_functype (mk_list []) (mk_list [t]))"
+		 (wf_instr (instr_sc4 (LOCAL_GET x))) ⟹
+		 Instr_ok C (instr_sc4 (LOCAL_GET x)) (mk_functype (mk_list []) (mk_list [t]))"
 	| local_set :
 		"((proj_uN_0 x) < (length (context_LOCALS C))) ⟹
 		 (((context_LOCALS C) ! (proj_uN_0 x)) = t) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (LOCAL_SET x))) ⟹
-		 Instr_ok C (instr_subcase_4 (LOCAL_SET x)) (mk_functype (mk_list [t]) (mk_list []))"
+		 (wf_instr (instr_sc4 (LOCAL_SET x))) ⟹
+		 Instr_ok C (instr_sc4 (LOCAL_SET x)) (mk_functype (mk_list [t]) (mk_list []))"
 	| local_tee :
 		"((proj_uN_0 x) < (length (context_LOCALS C))) ⟹
 		 (((context_LOCALS C) ! (proj_uN_0 x)) = t) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (LOCAL_TEE x))) ⟹
-		 Instr_ok C (instr_subcase_4 (LOCAL_TEE x)) (mk_functype (mk_list [t]) (mk_list [t]))"
+		 (wf_instr (instr_sc4 (LOCAL_TEE x))) ⟹
+		 Instr_ok C (instr_sc4 (LOCAL_TEE x)) (mk_functype (mk_list [t]) (mk_list [t]))"
 	| global_get :
 		"((proj_uN_0 x) < (length (context_GLOBALS C))) ⟹
 		 (((context_GLOBALS C) ! (proj_uN_0 x)) = (mk_globaltype v_mut t)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (GLOBAL_GET x))) ⟹
-		 Instr_ok C (instr_subcase_4 (GLOBAL_GET x)) (mk_functype (mk_list []) (mk_list [t]))"
+		 (wf_instr (instr_sc4 (GLOBAL_GET x))) ⟹
+		 Instr_ok C (instr_sc4 (GLOBAL_GET x)) (mk_functype (mk_list []) (mk_list [t]))"
 	| global_set :
 		"((proj_uN_0 x) < (length (context_GLOBALS C))) ⟹
 		 (((context_GLOBALS C) ! (proj_uN_0 x)) = (mk_globaltype (Some MUT) t)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (GLOBAL_SET x))) ⟹
-		 Instr_ok C (instr_subcase_4 (GLOBAL_SET x)) (mk_functype (mk_list [t]) (mk_list []))"
+		 (wf_instr (instr_sc4 (GLOBAL_SET x))) ⟹
+		 Instr_ok C (instr_sc4 (GLOBAL_SET x)) (mk_functype (mk_list [t]) (mk_list []))"
 	| table_get :
 		"((proj_uN_0 x) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype lim rt)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (TABLE_GET x))) ⟹
+		 (wf_instr (instr_sc5 (TABLE_GET x))) ⟹
 		 (wf_tabletype (mk_tabletype lim rt)) ⟹
-		 Instr_ok C (instr_subcase_5 (TABLE_GET x)) (mk_functype (mk_list [valtype_I32]) (mk_list [(valtype_reftype rt)]))"
+		 Instr_ok C (instr_sc5 (TABLE_GET x)) (mk_functype (mk_list [valtype_I32]) (mk_list [(valtype_reftype rt)]))"
 	| table_set :
 		"((proj_uN_0 x) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype lim rt)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (TABLE_SET x))) ⟹
+		 (wf_instr (instr_sc5 (TABLE_SET x))) ⟹
 		 (wf_tabletype (mk_tabletype lim rt)) ⟹
-		 Instr_ok C (instr_subcase_5 (TABLE_SET x)) (mk_functype (mk_list [valtype_I32, (valtype_reftype rt)]) (mk_list []))"
+		 Instr_ok C (instr_sc5 (TABLE_SET x)) (mk_functype (mk_list [valtype_I32, (valtype_reftype rt)]) (mk_list []))"
 	| table_size :
 		"((proj_uN_0 x) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype lim rt)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (TABLE_SIZE x))) ⟹
+		 (wf_instr (instr_sc5 (TABLE_SIZE x))) ⟹
 		 (wf_tabletype (mk_tabletype lim rt)) ⟹
-		 Instr_ok C (instr_subcase_5 (TABLE_SIZE x)) (mk_functype (mk_list []) (mk_list [valtype_I32]))"
+		 Instr_ok C (instr_sc5 (TABLE_SIZE x)) (mk_functype (mk_list []) (mk_list [valtype_I32]))"
 	| table_grow :
 		"((proj_uN_0 x) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype lim rt)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (TABLE_GROW x))) ⟹
+		 (wf_instr (instr_sc5 (TABLE_GROW x))) ⟹
 		 (wf_tabletype (mk_tabletype lim rt)) ⟹
-		 Instr_ok C (instr_subcase_5 (TABLE_GROW x)) (mk_functype (mk_list [(valtype_reftype rt), valtype_I32]) (mk_list [valtype_I32]))"
+		 Instr_ok C (instr_sc5 (TABLE_GROW x)) (mk_functype (mk_list [(valtype_reftype rt), valtype_I32]) (mk_list [valtype_I32]))"
 	| table_fill :
 		"((proj_uN_0 x) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype lim rt)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (TABLE_FILL x))) ⟹
+		 (wf_instr (instr_sc5 (TABLE_FILL x))) ⟹
 		 (wf_tabletype (mk_tabletype lim rt)) ⟹
-		 Instr_ok C (instr_subcase_5 (TABLE_FILL x)) (mk_functype (mk_list [valtype_I32, (valtype_reftype rt), valtype_I32]) (mk_list []))"
+		 Instr_ok C (instr_sc5 (TABLE_FILL x)) (mk_functype (mk_list [valtype_I32, (valtype_reftype rt), valtype_I32]) (mk_list []))"
 	| table_copy :
 		"((proj_uN_0 x_1) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x_1)) = (mk_tabletype lim_1 rt)) ⟹
 		 ((proj_uN_0 x_2) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x_2)) = (mk_tabletype lim_2 rt)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (TABLE_COPY x_1 x_2))) ⟹
+		 (wf_instr (instr_sc5 (TABLE_COPY x_1 x_2))) ⟹
 		 (wf_tabletype (mk_tabletype lim_1 rt)) ⟹
 		 (wf_tabletype (mk_tabletype lim_2 rt)) ⟹
-		 Instr_ok C (instr_subcase_5 (TABLE_COPY x_1 x_2)) (mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
+		 Instr_ok C (instr_sc5 (TABLE_COPY x_1 x_2)) (mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
 	| table_init :
 		"((proj_uN_0 x_1) < (length (context_TABLES C))) ⟹
 		 (((context_TABLES C) ! (proj_uN_0 x_1)) = (mk_tabletype lim rt)) ⟹
 		 ((proj_uN_0 x_2) < (length (context_ELEMS C))) ⟹
 		 (((context_ELEMS C) ! (proj_uN_0 x_2)) = rt) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (TABLE_INIT x_1 x_2))) ⟹
+		 (wf_instr (instr_sc5 (TABLE_INIT x_1 x_2))) ⟹
 		 (wf_tabletype (mk_tabletype lim rt)) ⟹
-		 Instr_ok C (instr_subcase_5 (TABLE_INIT x_1 x_2)) (mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
+		 Instr_ok C (instr_sc5 (TABLE_INIT x_1 x_2)) (mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
 	| elem_drop :
 		"((proj_uN_0 x) < (length (context_ELEMS C))) ⟹
 		 (((context_ELEMS C) ! (proj_uN_0 x)) = rt) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_5 (ELEM_DROP x))) ⟹
-		 Instr_ok C (instr_subcase_5 (ELEM_DROP x)) (mk_functype (mk_list []) (mk_list []))"
+		 (wf_instr (instr_sc5 (ELEM_DROP x))) ⟹
+		 Instr_ok C (instr_sc5 (ELEM_DROP x)) (mk_functype (mk_list []) (mk_list []))"
 	| memory_size :
 		"(0 < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! 0) = mt) ⟹
 		 (wf_context C) ⟹
 		 (wf_memtype mt) ⟹
-		 (wf_instr (instr_subcase_6 MEMORY_SIZE)) ⟹
-		 Instr_ok C (instr_subcase_6 MEMORY_SIZE) (mk_functype (mk_list []) (mk_list [valtype_I32]))"
+		 (wf_instr (instr_sc6 MEMORY_SIZE)) ⟹
+		 Instr_ok C (instr_sc6 MEMORY_SIZE) (mk_functype (mk_list []) (mk_list [valtype_I32]))"
 	| memory_grow :
 		"(0 < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! 0) = mt) ⟹
 		 (wf_context C) ⟹
 		 (wf_memtype mt) ⟹
-		 (wf_instr (instr_subcase_6 MEMORY_GROW)) ⟹
-		 Instr_ok C (instr_subcase_6 MEMORY_GROW) (mk_functype (mk_list [valtype_I32]) (mk_list [valtype_I32]))"
+		 (wf_instr (instr_sc6 MEMORY_GROW)) ⟹
+		 Instr_ok C (instr_sc6 MEMORY_GROW) (mk_functype (mk_list [valtype_I32]) (mk_list [valtype_I32]))"
 	| memory_fill :
 		"(0 < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! 0) = mt) ⟹
 		 (wf_context C) ⟹
 		 (wf_memtype mt) ⟹
-		 (wf_instr (instr_subcase_6 MEMORY_FILL)) ⟹
-		 Instr_ok C (instr_subcase_6 MEMORY_FILL) (mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
+		 (wf_instr (instr_sc6 MEMORY_FILL)) ⟹
+		 Instr_ok C (instr_sc6 MEMORY_FILL) (mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
 	| memory_copy :
 		"(0 < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! 0) = mt) ⟹
 		 (wf_context C) ⟹
 		 (wf_memtype mt) ⟹
-		 (wf_instr (instr_subcase_6 MEMORY_COPY)) ⟹
-		 Instr_ok C (instr_subcase_6 MEMORY_COPY) (mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
+		 (wf_instr (instr_sc6 MEMORY_COPY)) ⟹
+		 Instr_ok C (instr_sc6 MEMORY_COPY) (mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
 	| memory_init :
 		"(0 < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! 0) = mt) ⟹
@@ -7833,14 +7833,14 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ functype ⇒ bool" where
 		 (((context_DATAS C) ! (proj_uN_0 x)) = OK) ⟹
 		 (wf_context C) ⟹
 		 (wf_memtype mt) ⟹
-		 (wf_instr (instr_subcase_7 (MEMORY_INIT x))) ⟹
-		 Instr_ok C (instr_subcase_7 (MEMORY_INIT x)) (mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
+		 (wf_instr (instr_sc7 (MEMORY_INIT x))) ⟹
+		 Instr_ok C (instr_sc7 (MEMORY_INIT x)) (mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
 	| data_drop :
 		"((proj_uN_0 x) < (length (context_DATAS C))) ⟹
 		 (((context_DATAS C) ! (proj_uN_0 x)) = OK) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_7 (DATA_DROP x))) ⟹
-		 Instr_ok C (instr_subcase_7 (DATA_DROP x)) (mk_functype (mk_list []) (mk_list []))"
+		 (wf_instr (instr_sc7 (DATA_DROP x))) ⟹
+		 Instr_ok C (instr_sc7 (DATA_DROP x)) (mk_functype (mk_list []) (mk_list []))"
 	| load_val :
 		"(0 < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! 0) = mt) ⟹
@@ -7848,16 +7848,16 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ functype ⇒ bool" where
 		 (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) ≤ (((the ((size (valtype_numtype nt)))) :: nat) div (8 :: nat))) ⟹
 		 (wf_context C) ⟹
 		 (wf_memtype mt) ⟹
-		 (wf_instr (instr_subcase_5 (LOAD nt None v_memarg))) ⟹
-		 Instr_ok C (instr_subcase_5 (LOAD nt None v_memarg)) (mk_functype (mk_list [valtype_I32]) (mk_list [(valtype_numtype nt)]))"
+		 (wf_instr (instr_sc5 (LOAD nt None v_memarg))) ⟹
+		 Instr_ok C (instr_sc5 (LOAD nt None v_memarg)) (mk_functype (mk_list [valtype_I32]) (mk_list [(valtype_numtype nt)]))"
 	| load_pack :
 		"(0 < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! 0) = mt) ⟹
 		 (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) ≤ ((v_M :: nat) div (8 :: nat))) ⟹
 		 (wf_context C) ⟹
 		 (wf_memtype mt) ⟹
-		 (wf_instr (instr_subcase_5 (LOAD (numtype_Inn v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_M) v_sx))) v_memarg))) ⟹
-		 Instr_ok C (instr_subcase_5 (LOAD (numtype_Inn v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_M) v_sx))) v_memarg)) (mk_functype (mk_list [valtype_I32]) (mk_list [(valtype_Inn v_Inn)]))"
+		 (wf_instr (instr_sc5 (LOAD (numtype_Inn v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_M) v_sx))) v_memarg))) ⟹
+		 Instr_ok C (instr_sc5 (LOAD (numtype_Inn v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_M) v_sx))) v_memarg)) (mk_functype (mk_list [valtype_I32]) (mk_list [(valtype_Inn v_Inn)]))"
 	| store_val :
 		"(0 < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! 0) = mt) ⟹
@@ -7865,40 +7865,40 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ functype ⇒ bool" where
 		 (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) ≤ (((the ((size (valtype_numtype nt)))) :: nat) div (8 :: nat))) ⟹
 		 (wf_context C) ⟹
 		 (wf_memtype mt) ⟹
-		 (wf_instr (instr_subcase_6 (STORE nt None v_memarg))) ⟹
-		 Instr_ok C (instr_subcase_6 (STORE nt None v_memarg)) (mk_functype (mk_list [valtype_I32, (valtype_numtype nt)]) (mk_list []))"
+		 (wf_instr (instr_sc6 (STORE nt None v_memarg))) ⟹
+		 Instr_ok C (instr_sc6 (STORE nt None v_memarg)) (mk_functype (mk_list [valtype_I32, (valtype_numtype nt)]) (mk_list []))"
 	| store_pack :
 		"(0 < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! 0) = mt) ⟹
 		 (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) ≤ ((v_M :: nat) div (8 :: nat))) ⟹
 		 (wf_context C) ⟹
 		 (wf_memtype mt) ⟹
-		 (wf_instr (instr_subcase_6 (STORE (numtype_Inn v_Inn) (Some (mk_sz v_M)) v_memarg))) ⟹
-		 Instr_ok C (instr_subcase_6 (STORE (numtype_Inn v_Inn) (Some (mk_sz v_M)) v_memarg)) (mk_functype (mk_list [valtype_I32, (valtype_Inn v_Inn)]) (mk_list []))"
+		 (wf_instr (instr_sc6 (STORE (numtype_Inn v_Inn) (Some (mk_sz v_M)) v_memarg))) ⟹
+		 Instr_ok C (instr_sc6 (STORE (numtype_Inn v_Inn) (Some (mk_sz v_M)) v_memarg)) (mk_functype (mk_list [valtype_I32, (valtype_Inn v_Inn)]) (mk_list []))"
 	| vload :
 		"(0 < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! 0) = mt) ⟹
 		 (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) ≤ (((v_M :: nat) div (8 :: nat)) * (v_N :: nat))) ⟹
 		 (wf_context C) ⟹
 		 (wf_memtype mt) ⟹
-		 (wf_instr (instr_subcase_6 (VLOAD V128 (Some (SHAPEX_underscore v_M v_N v_sx)) v_memarg))) ⟹
-		 Instr_ok C (instr_subcase_6 (VLOAD V128 (Some (SHAPEX_underscore v_M v_N v_sx)) v_memarg)) (mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc6 (VLOAD V128 (Some (SHAPEX_underscore v_M v_N v_sx)) v_memarg))) ⟹
+		 Instr_ok C (instr_sc6 (VLOAD V128 (Some (SHAPEX_underscore v_M v_N v_sx)) v_memarg)) (mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128]))"
 	| vload_splat :
 		"(0 < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! 0) = mt) ⟹
 		 (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) ≤ ((v_n :: nat) div (8 :: nat))) ⟹
 		 (wf_context C) ⟹
 		 (wf_memtype mt) ⟹
-		 (wf_instr (instr_subcase_6 (VLOAD V128 (Some (SPLAT v_n)) v_memarg))) ⟹
-		 Instr_ok C (instr_subcase_6 (VLOAD V128 (Some (SPLAT v_n)) v_memarg)) (mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc6 (VLOAD V128 (Some (SPLAT v_n)) v_memarg))) ⟹
+		 Instr_ok C (instr_sc6 (VLOAD V128 (Some (SPLAT v_n)) v_memarg)) (mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128]))"
 	| vload_zero :
 		"(0 < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! 0) = mt) ⟹
 		 (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) ≤ ((v_n :: nat) div (8 :: nat))) ⟹
 		 (wf_context C) ⟹
 		 (wf_memtype mt) ⟹
-		 (wf_instr (instr_subcase_6 (VLOAD V128 (Some (vloadop_ZERO v_n)) v_memarg))) ⟹
-		 Instr_ok C (instr_subcase_6 (VLOAD V128 (Some (vloadop_ZERO v_n)) v_memarg)) (mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc6 (VLOAD V128 (Some (vloadop_ZERO v_n)) v_memarg))) ⟹
+		 Instr_ok C (instr_sc6 (VLOAD V128 (Some (vloadop_ZERO v_n)) v_memarg)) (mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128]))"
 	| vload_lane :
 		"(0 < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! 0) = mt) ⟹
@@ -7906,8 +7906,8 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ functype ⇒ bool" where
 		 (((proj_uN_0 v_laneidx) :: nat) < ((128 :: nat) div (v_n :: nat))) ⟹
 		 (wf_context C) ⟹
 		 (wf_memtype mt) ⟹
-		 (wf_instr (instr_subcase_6 (VLOAD_LANE V128 (mk_sz v_n) v_memarg v_laneidx))) ⟹
-		 Instr_ok C (instr_subcase_6 (VLOAD_LANE V128 (mk_sz v_n) v_memarg v_laneidx)) (mk_functype (mk_list [valtype_I32, valtype_V128]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc6 (VLOAD_LANE V128 (mk_sz v_n) v_memarg v_laneidx))) ⟹
+		 Instr_ok C (instr_sc6 (VLOAD_LANE V128 (mk_sz v_n) v_memarg v_laneidx)) (mk_functype (mk_list [valtype_I32, valtype_V128]) (mk_list [valtype_V128]))"
 	| vstore :
 		"(0 < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! 0) = mt) ⟹
@@ -7915,8 +7915,8 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ functype ⇒ bool" where
 		 (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) ≤ (((the ((size valtype_V128))) :: nat) div (8 :: nat))) ⟹
 		 (wf_context C) ⟹
 		 (wf_memtype mt) ⟹
-		 (wf_instr (instr_subcase_6 (VSTORE V128 v_memarg))) ⟹
-		 Instr_ok C (instr_subcase_6 (VSTORE V128 v_memarg)) (mk_functype (mk_list [valtype_I32, valtype_V128]) (mk_list []))"
+		 (wf_instr (instr_sc6 (VSTORE V128 v_memarg))) ⟹
+		 Instr_ok C (instr_sc6 (VSTORE V128 v_memarg)) (mk_functype (mk_list [valtype_I32, valtype_V128]) (mk_list []))"
 	| vstore_lane :
 		"(0 < (length (context_MEMS C))) ⟹
 		 (((context_MEMS C) ! 0) = mt) ⟹
@@ -7924,8 +7924,8 @@ and Instrs_ok :: "res_context ⇒ (instr list) ⇒ functype ⇒ bool" where
 		 (((proj_uN_0 v_laneidx) :: nat) < ((128 :: nat) div (v_n :: nat))) ⟹
 		 (wf_context C) ⟹
 		 (wf_memtype mt) ⟹
-		 (wf_instr (instr_subcase_6 (VSTORE_LANE V128 (mk_sz v_n) v_memarg v_laneidx))) ⟹
-		 Instr_ok C (instr_subcase_6 (VSTORE_LANE V128 (mk_sz v_n) v_memarg v_laneidx)) (mk_functype (mk_list [valtype_I32, valtype_V128]) (mk_list []))"
+		 (wf_instr (instr_sc6 (VSTORE_LANE V128 (mk_sz v_n) v_memarg v_laneidx))) ⟹
+		 Instr_ok C (instr_sc6 (VSTORE_LANE V128 (mk_sz v_n) v_memarg v_laneidx)) (mk_functype (mk_list [valtype_I32, valtype_V128]) (mk_list []))"
 	| empty :
 		"(wf_context C) ⟹
 		 Instrs_ok C [] (mk_functype (mk_list []) (mk_list []))"
@@ -7961,26 +7961,26 @@ inductive Expr_ok :: "res_context ⇒ expr ⇒ resulttype ⇒ bool" where
 inductive Instr_const :: "res_context ⇒ instr ⇒ bool" where
 	  Instr_const__const :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 (res_CONST nt c))) ⟹
-		 Instr_const C (instr_subcase_1 (res_CONST nt c))"
+		 (wf_instr (instr_sc1 (res_CONST nt c))) ⟹
+		 Instr_const C (instr_sc1 (res_CONST nt c))"
 	| Instr_const__vconst :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_1 (VCONST vt vc))) ⟹
-		 Instr_const C (instr_subcase_1 (VCONST vt vc))"
+		 (wf_instr (instr_sc1 (VCONST vt vc))) ⟹
+		 Instr_const C (instr_sc1 (VCONST vt vc))"
 	| Instr_const__ref_null :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (REF_NULL rt))) ⟹
-		 Instr_const C (instr_subcase_4 (REF_NULL rt))"
+		 (wf_instr (instr_sc4 (REF_NULL rt))) ⟹
+		 Instr_const C (instr_sc4 (REF_NULL rt))"
 	| Instr_const__ref_func :
 		"(wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (REF_FUNC x))) ⟹
-		 Instr_const C (instr_subcase_4 (REF_FUNC x))"
+		 (wf_instr (instr_sc4 (REF_FUNC x))) ⟹
+		 Instr_const C (instr_sc4 (REF_FUNC x))"
 	| Instr_const__global_get :
 		"((proj_uN_0 x) < (length (context_GLOBALS C))) ⟹
 		 (((context_GLOBALS C) ! (proj_uN_0 x)) = (mk_globaltype None t)) ⟹
 		 (wf_context C) ⟹
-		 (wf_instr (instr_subcase_4 (GLOBAL_GET x))) ⟹
-		 Instr_const C (instr_subcase_4 (GLOBAL_GET x))"
+		 (wf_instr (instr_sc4 (GLOBAL_GET x))) ⟹
+		 Instr_const C (instr_sc4 (GLOBAL_GET x))"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:526.1-526.77 *)
 inductive Expr_const :: "res_context ⇒ expr ⇒ bool" where
@@ -8200,7 +8200,7 @@ inductive Module_ok :: "module ⇒ bool" where
 inductive Step_pure_before_ref_is_null_false :: "(admininstr list) ⇒ bool" where
 	  ref_is_null_true_0 :
 		"(v_ref = (ref_REF_NULL rt)) ⟹
-		 Step_pure_before_ref_is_null_false [(admininstr_ref v_ref), (admininstr_subcase_4 admininstr_subtype_4_REF_IS_NULL)]"
+		 Step_pure_before_ref_is_null_false [(admininstr_ref v_ref), (admininstr_sc4 admininstr_st4_REF_IS_NULL)]"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:276.1-278.15 *)
 inductive Step_pure_before_vtestop_false :: "(admininstr list) ⇒ bool" where
@@ -8210,155 +8210,155 @@ inductive Step_pure_before_vtestop_false :: "(admininstr list) ⇒ bool" where
 		 list_all (λ (ci_1 :: lane_underscore). ((proj_uN_0 (the ((proj_lane__2 ci_1)))) ≠ 0)) ci_1_lst ⟹
 		 list_all (λ (ci_1 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) ci_1)) ci_1_lst ⟹
 		 (wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) ⟹
-		 Step_pure_before_vtestop_false [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c)), (admininstr_subcase_3 (admininstr_subtype_3_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))]"
+		 Step_pure_before_vtestop_false [(admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc3 (admininstr_st3_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))]"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:6.1-6.109 *)
 inductive Step_pure :: "(admininstr list) ⇒ (admininstr list) ⇒ bool" where
 	  Step_pure__unreachable :
-		"Step_pure [(admininstr_subcase_0 admininstr_subtype_0_UNREACHABLE)] [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		"Step_pure [(admininstr_sc0 admininstr_st0_UNREACHABLE)] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| Step_pure__nop :
-		"Step_pure [(admininstr_subcase_0 admininstr_subtype_0_NOP)] []"
+		"Step_pure [(admininstr_sc0 admininstr_st0_NOP)] []"
 	| Step_pure__drop :
-		"Step_pure [(admininstr_val v_val), (admininstr_subcase_0 admininstr_subtype_0_DROP)] []"
+		"Step_pure [(admininstr_val v_val), (admininstr_sc0 admininstr_st0_DROP)] []"
 	| select_true :
 		"((proj_num__0 c) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 c)))) ≠ 0) ⟹
-		 Step_pure [(admininstr_val val_1), (admininstr_val val_2), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 c)), (admininstr_subcase_0 (admininstr_subtype_0_SELECT t_lst_opt))] [(admininstr_val val_1)]"
+		 Step_pure [(admininstr_val val_1), (admininstr_val val_2), (admininstr_sc1 (admininstr_st1_CONST I32 c)), (admininstr_sc0 (admininstr_st0_SELECT t_lst_opt))] [(admininstr_val val_1)]"
 	| select_false :
 		"((proj_num__0 c) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 c)))) = 0) ⟹
-		 Step_pure [(admininstr_val val_1), (admininstr_val val_2), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 c)), (admininstr_subcase_0 (admininstr_subtype_0_SELECT t_lst_opt))] [(admininstr_val val_2)]"
+		 Step_pure [(admininstr_val val_1), (admininstr_val val_2), (admininstr_sc1 (admininstr_st1_CONST I32 c)), (admininstr_sc0 (admininstr_st0_SELECT t_lst_opt))] [(admininstr_val val_2)]"
 	| if_true :
 		"((proj_num__0 c) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 c)))) ≠ 0) ⟹
-		 Step_pure [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 c)), (admininstr_subcase_0 (admininstr_subtype_0_IFELSE bt instr_1_lst instr_2_lst))] [(admininstr_subcase_0 (admininstr_subtype_0_BLOCK bt instr_1_lst))]"
+		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST I32 c)), (admininstr_sc0 (admininstr_st0_IFELSE bt instr_1_lst instr_2_lst))] [(admininstr_sc0 (admininstr_st0_BLOCK bt instr_1_lst))]"
 	| if_false :
 		"((proj_num__0 c) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 c)))) = 0) ⟹
-		 Step_pure [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 c)), (admininstr_subcase_0 (admininstr_subtype_0_IFELSE bt instr_1_lst instr_2_lst))] [(admininstr_subcase_0 (admininstr_subtype_0_BLOCK bt instr_2_lst))]"
+		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST I32 c)), (admininstr_sc0 (admininstr_st0_IFELSE bt instr_1_lst instr_2_lst))] [(admininstr_sc0 (admininstr_st0_BLOCK bt instr_2_lst))]"
 	| label_vals :
-		"Step_pure [(admininstr_subcase_8 (LABEL_underscore v_n instr_lst (map (λ (v_val :: val). (admininstr_val v_val)) val_lst)))] (map (λ (v_val :: val). (admininstr_val v_val)) val_lst)"
+		"Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr_lst (map (λ (v_val :: val). (admininstr_val v_val)) val_lst)))] (map (λ (v_val :: val). (admininstr_val v_val)) val_lst)"
 	| br_zero :
 		"(v_n = (length val_lst)) ⟹
-		 Step_pure [(admininstr_subcase_8 (LABEL_underscore v_n instr'_lst ((((map (λ (val' :: val). (admininstr_val val')) val'_lst) @ (map (λ (v_val :: val). (admininstr_val v_val)) val_lst)) @ [(admininstr_subcase_0 (admininstr_subtype_0_BR (mk_uN 0)))]) @ (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))] ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ (map (λ (instr' :: instr). (admininstr_instr instr')) instr'_lst))"
+		 Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr'_lst ((((map (λ (val' :: val). (admininstr_val val')) val'_lst) @ (map (λ (v_val :: val). (admininstr_val v_val)) val_lst)) @ [(admininstr_sc0 (admininstr_st0_BR (mk_uN 0)))]) @ (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))] ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ (map (λ (instr' :: instr). (admininstr_instr instr')) instr'_lst))"
 	| br_succ :
-		"Step_pure [(admininstr_subcase_8 (LABEL_underscore v_n instr'_lst (((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_subcase_0 (admininstr_subtype_0_BR (mk_uN ((proj_uN_0 l) + 1))))]) @ (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))] ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_subcase_0 (admininstr_subtype_0_BR l))])"
+		"Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr'_lst (((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc0 (admininstr_st0_BR (mk_uN ((proj_uN_0 l) + 1))))]) @ (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))] ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc0 (admininstr_st0_BR l))])"
 	| br_if_true :
 		"((proj_num__0 c) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 c)))) ≠ 0) ⟹
-		 Step_pure [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 c)), (admininstr_subcase_0 (admininstr_subtype_0_BR_IF l))] [(admininstr_subcase_0 (admininstr_subtype_0_BR l))]"
+		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST I32 c)), (admininstr_sc0 (admininstr_st0_BR_IF l))] [(admininstr_sc0 (admininstr_st0_BR l))]"
 	| br_if_false :
 		"((proj_num__0 c) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 c)))) = 0) ⟹
-		 Step_pure [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 c)), (admininstr_subcase_0 (admininstr_subtype_0_BR_IF l))] []"
+		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST I32 c)), (admininstr_sc0 (admininstr_st0_BR_IF l))] []"
 	| br_table_lt :
 		"((proj_uN_0 (the ((proj_num__0 i)))) < (length l_lst)) ⟹
 		 ((proj_num__0 i) ≠ None) ⟹
-		 Step_pure [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_BR_TABLE l_lst l'))] [(admininstr_subcase_0 (admininstr_subtype_0_BR (l_lst ! (proj_uN_0 (the ((proj_num__0 i)))))))]"
+		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_BR_TABLE l_lst l'))] [(admininstr_sc0 (admininstr_st0_BR (l_lst ! (proj_uN_0 (the ((proj_num__0 i)))))))]"
 	| br_table_ge :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 i)))) ≥ (length l_lst)) ⟹
-		 Step_pure [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_BR_TABLE l_lst l'))] [(admininstr_subcase_0 (admininstr_subtype_0_BR l'))]"
+		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_BR_TABLE l_lst l'))] [(admininstr_sc0 (admininstr_st0_BR l'))]"
 	| frame_vals :
 		"(v_n = (length val_lst)) ⟹
-		 Step_pure [(admininstr_subcase_8 (FRAME_underscore v_n f (map (λ (v_val :: val). (admininstr_val v_val)) val_lst)))] (map (λ (v_val :: val). (admininstr_val v_val)) val_lst)"
+		 Step_pure [(admininstr_sc8 (FRAME_underscore v_n f (map (λ (v_val :: val). (admininstr_val v_val)) val_lst)))] (map (λ (v_val :: val). (admininstr_val v_val)) val_lst)"
 	| return_frame :
 		"(v_n = (length val_lst)) ⟹
-		 Step_pure [(admininstr_subcase_8 (FRAME_underscore v_n f ((((map (λ (val' :: val). (admininstr_val val')) val'_lst) @ (map (λ (v_val :: val). (admininstr_val v_val)) val_lst)) @ [(admininstr_subcase_1 admininstr_subtype_1_RETURN)]) @ (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))] (map (λ (v_val :: val). (admininstr_val v_val)) val_lst)"
+		 Step_pure [(admininstr_sc8 (FRAME_underscore v_n f ((((map (λ (val' :: val). (admininstr_val val')) val'_lst) @ (map (λ (v_val :: val). (admininstr_val v_val)) val_lst)) @ [(admininstr_sc1 admininstr_st1_RETURN)]) @ (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))] (map (λ (v_val :: val). (admininstr_val v_val)) val_lst)"
 	| return_label :
-		"Step_pure [(admininstr_subcase_8 (LABEL_underscore v_n instr'_lst (((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_subcase_1 admininstr_subtype_1_RETURN)]) @ (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))] ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_subcase_1 admininstr_subtype_1_RETURN)])"
+		"Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr'_lst (((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc1 admininstr_st1_RETURN)]) @ (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))] ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc1 admininstr_st1_RETURN)])"
 	| trap_vals :
 		"((val_lst ≠ []) ∨ (instr_lst ≠ [])) ⟹
-		 Step_pure ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ ([(admininstr_subcase_7 admininstr_subtype_7_TRAP)] @ (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_pure ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ ([(admininstr_sc7 admininstr_st7_TRAP)] @ (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| trap_label :
-		"Step_pure [(admininstr_subcase_8 (LABEL_underscore v_n instr'_lst [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]))] [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		"Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr'_lst [(admininstr_sc7 admininstr_st7_TRAP)]))] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| trap_frame :
-		"Step_pure [(admininstr_subcase_8 (FRAME_underscore v_n f [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]))] [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		"Step_pure [(admininstr_sc8 (FRAME_underscore v_n f [(admininstr_sc7 admininstr_st7_TRAP)]))] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| unop_val :
 		"((length (fun_unop_underscore nt unop c_1)) > 0) ⟹
 		 (c ∈ set (fun_unop_underscore nt unop c_1)) ⟹
-		 Step_pure [(admininstr_subcase_1 (admininstr_subtype_1_CONST nt c_1)), (admininstr_subcase_1 (admininstr_subtype_1_UNOP nt unop))] [(admininstr_subcase_1 (admininstr_subtype_1_CONST nt c))]"
+		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST nt c_1)), (admininstr_sc1 (admininstr_st1_UNOP nt unop))] [(admininstr_sc1 (admininstr_st1_CONST nt c))]"
 	| unop_trap :
 		"((fun_unop_underscore nt unop c_1) = []) ⟹
-		 Step_pure [(admininstr_subcase_1 (admininstr_subtype_1_CONST nt c_1)), (admininstr_subcase_1 (admininstr_subtype_1_UNOP nt unop))] [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST nt c_1)), (admininstr_sc1 (admininstr_st1_UNOP nt unop))] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| binop_val :
 		"(fun_binop_underscore nt binop c_1 c_2 var_0) ⟹
 		 ((length var_0) > 0) ⟹
 		 (c ∈ set var_0) ⟹
-		 Step_pure [(admininstr_subcase_1 (admininstr_subtype_1_CONST nt c_1)), (admininstr_subcase_1 (admininstr_subtype_1_CONST nt c_2)), (admininstr_subcase_1 (admininstr_subtype_1_BINOP nt binop))] [(admininstr_subcase_1 (admininstr_subtype_1_CONST nt c))]"
+		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST nt c_1)), (admininstr_sc1 (admininstr_st1_CONST nt c_2)), (admininstr_sc1 (admininstr_st1_BINOP nt binop))] [(admininstr_sc1 (admininstr_st1_CONST nt c))]"
 	| binop_trap :
 		"(fun_binop_underscore nt binop c_1 c_2 var_0) ⟹
 		 (var_0 = []) ⟹
-		 Step_pure [(admininstr_subcase_1 (admininstr_subtype_1_CONST nt c_1)), (admininstr_subcase_1 (admininstr_subtype_1_CONST nt c_2)), (admininstr_subcase_1 (admininstr_subtype_1_BINOP nt binop))] [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST nt c_1)), (admininstr_sc1 (admininstr_st1_CONST nt c_2)), (admininstr_sc1 (admininstr_st1_BINOP nt binop))] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| Step_pure__testop :
 		"(c = (fun_testop_underscore nt testop c_1)) ⟹
-		 Step_pure [(admininstr_subcase_1 (admininstr_subtype_1_CONST nt c_1)), (admininstr_subcase_1 (admininstr_subtype_1_TESTOP nt testop))] [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 c))]"
+		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST nt c_1)), (admininstr_sc1 (admininstr_st1_TESTOP nt testop))] [(admininstr_sc1 (admininstr_st1_CONST I32 c))]"
 	| Step_pure__relop :
 		"(fun_relop_underscore nt relop c_1 c_2 var_0) ⟹
 		 (c = var_0) ⟹
-		 Step_pure [(admininstr_subcase_1 (admininstr_subtype_1_CONST nt c_1)), (admininstr_subcase_1 (admininstr_subtype_1_CONST nt c_2)), (admininstr_subcase_1 (admininstr_subtype_1_RELOP nt relop))] [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 c))]"
+		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST nt c_1)), (admininstr_sc1 (admininstr_st1_CONST nt c_2)), (admininstr_sc1 (admininstr_st1_RELOP nt relop))] [(admininstr_sc1 (admininstr_st1_CONST I32 c))]"
 	| cvtop_val :
 		"(fun_cvtop__underscore nt_1 nt_2 v_cvtop c_1 var_0) ⟹
 		 ((length var_0) > 0) ⟹
 		 (c ∈ set var_0) ⟹
-		 Step_pure [(admininstr_subcase_1 (admininstr_subtype_1_CONST nt_1 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_CVTOP nt_2 nt_1 v_cvtop))] [(admininstr_subcase_1 (admininstr_subtype_1_CONST nt_2 c))]"
+		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST nt_1 c_1)), (admininstr_sc2 (admininstr_st2_CVTOP nt_2 nt_1 v_cvtop))] [(admininstr_sc1 (admininstr_st1_CONST nt_2 c))]"
 	| cvtop_trap :
 		"(fun_cvtop__underscore nt_1 nt_2 v_cvtop c_1 var_0) ⟹
 		 (var_0 = []) ⟹
-		 Step_pure [(admininstr_subcase_1 (admininstr_subtype_1_CONST nt_1 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_CVTOP nt_2 nt_1 v_cvtop))] [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST nt_1 c_1)), (admininstr_sc2 (admininstr_st2_CVTOP nt_2 nt_1 v_cvtop))] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| ref_is_null_true :
 		"(v_ref = (ref_REF_NULL rt)) ⟹
-		 Step_pure [(admininstr_ref v_ref), (admininstr_subcase_4 admininstr_subtype_4_REF_IS_NULL)] [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN 1))))]"
+		 Step_pure [(admininstr_ref v_ref), (admininstr_sc4 admininstr_st4_REF_IS_NULL)] [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN 1))))]"
 	| ref_is_null_false :
-		"(~(Step_pure_before_ref_is_null_false [(admininstr_ref v_ref), (admininstr_subcase_4 admininstr_subtype_4_REF_IS_NULL)])) ⟹
-		 Step_pure [(admininstr_ref v_ref), (admininstr_subcase_4 admininstr_subtype_4_REF_IS_NULL)] [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN 0))))]"
+		"(~(Step_pure_before_ref_is_null_false [(admininstr_ref v_ref), (admininstr_sc4 admininstr_st4_REF_IS_NULL)])) ⟹
+		 Step_pure [(admininstr_ref v_ref), (admininstr_sc4 admininstr_st4_REF_IS_NULL)] [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN 0))))]"
 	| Step_pure__vvunop :
 		"(c = (vvunop_underscore V128 v_vvunop c_1)) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_VVUNOP V128 v_vvunop))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VVUNOP V128 v_vvunop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__vvbinop :
 		"(c = (vvbinop_underscore V128 v_vvbinop c_1 c_2)) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_2)), (admininstr_subcase_2 (admininstr_subtype_2_VVBINOP V128 v_vvbinop))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_2)), (admininstr_sc2 (admininstr_st2_VVBINOP V128 v_vvbinop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__vvternop :
 		"(c = (vvternop_underscore V128 v_vvternop c_1 c_2 c_3)) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_2)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_3)), (admininstr_subcase_2 (admininstr_subtype_2_VVTERNOP V128 v_vvternop))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_2)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_3)), (admininstr_sc2 (admininstr_st2_VVTERNOP V128 v_vvternop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__vvtestop :
 		"((proj_num__0 c) ≠ None) ⟹
 		 ((size valtype_V128) ≠ None) ⟹
 		 ((the ((proj_num__0 c))) = (ine_underscore (the ((size valtype_V128))) c_1 (mk_uN 0))) ⟹
 		 (wf_uN 128 (mk_uN 0)) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_VVTESTOP V128 ANY_TRUE))] [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VVTESTOP V128 ANY_TRUE))] [(admininstr_sc1 (admininstr_st1_CONST I32 c))]"
 	| Step_pure__vunop :
 		"(fun_vunop_underscore sh vunop c_1 var_0) ⟹
 		 ((length var_0) > 0) ⟹
 		 (c ∈ set var_0) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_VUNOP sh vunop))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VUNOP sh vunop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| vunop_trap :
 		"(fun_vunop_underscore sh vunop c_1 var_0) ⟹
 		 (var_0 = []) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_VUNOP sh vunop))] [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VUNOP sh vunop))] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| vbinop_val :
 		"(fun_vbinop_underscore sh vbinop c_1 c_2 var_0) ⟹
 		 ((length var_0) > 0) ⟹
 		 (c ∈ set var_0) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_2)), (admininstr_subcase_2 (admininstr_subtype_2_VBINOP sh vbinop))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_2)), (admininstr_sc2 (admininstr_st2_VBINOP sh vbinop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| vbinop_trap :
 		"(fun_vbinop_underscore sh vbinop c_1 c_2 var_0) ⟹
 		 (var_0 = []) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_2)), (admininstr_subcase_2 (admininstr_subtype_2_VBINOP sh vbinop))] [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_2)), (admininstr_sc2 (admininstr_st2_VBINOP sh vbinop))] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| vtestop_true :
 		"(ci_1_lst = (lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) c)) ⟹
 		 list_all (λ (ci_1 :: lane_underscore). ((proj_lane__2 ci_1) ≠ None)) ci_1_lst ⟹
 		 list_all (λ (ci_1 :: lane_underscore). ((proj_uN_0 (the ((proj_lane__2 ci_1)))) ≠ 0)) ci_1_lst ⟹
 		 list_all (λ (ci_1 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) ci_1)) ci_1_lst ⟹
 		 (wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c)), (admininstr_subcase_3 (admininstr_subtype_3_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))] [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN 1))))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc3 (admininstr_st3_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))] [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN 1))))]"
 	| vtestop_false :
-		"(~(Step_pure_before_vtestop_false [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c)), (admininstr_subcase_3 (admininstr_subtype_3_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))])) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c)), (admininstr_subcase_3 (admininstr_subtype_3_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))] [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN 0))))]"
+		"(~(Step_pure_before_vtestop_false [(admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc3 (admininstr_st3_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))])) ⟹
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc3 (admininstr_st3_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))] [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN 0))))]"
 	| Step_pure__vrelop :
 		"(fun_vrelop_underscore sh vrelop c_1 c_2 var_0) ⟹
 		 (var_0 = c) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_2)), (admininstr_subcase_3 (admininstr_subtype_3_VRELOP sh vrelop))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_2)), (admininstr_sc3 (admininstr_st3_VRELOP sh vrelop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__vshiftop :
 		"((length var_0_lst) = (length c'_lst)) ⟹
 		 list_all2 (λ (var_0 :: lane_underscore) (c' :: lane_underscore). (fun_vshiftop_underscore (ishape_X v_Jnn (mk_dim v_N)) vshiftop c' (mk_uN v_n) var_0)) var_0_lst c'_lst ⟹
@@ -8368,7 +8368,7 @@ inductive Step_pure :: "(admininstr list) ⇒ (admininstr list) ⇒ bool" where
 		 (wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) ⟹
 		 (wf_ishape (ishape_X v_Jnn (mk_dim v_N))) ⟹
 		 (wf_uN 32 (mk_uN v_n)) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_3 (admininstr_subtype_3_VSHIFTOP (ishape_X v_Jnn (mk_dim v_N)) vshiftop))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc3 (admininstr_st3_VSHIFTOP (ishape_X v_Jnn (mk_dim v_N)) vshiftop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__vbitmask :
 		"((length var_0_lst) = (length ci_1_lst)) ⟹
 		 list_all (λ (ci_1 :: lane_underscore). ((proj_lane__2 ci_1) ≠ None)) ci_1_lst ⟹
@@ -8378,7 +8378,7 @@ inductive Step_pure :: "(admininstr list) ⇒ (admininstr list) ⇒ bool" where
 		 (wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) ⟹
 		 list_all (λ (var_0 :: uN). (wf_bit (mk_bit (proj_uN_0 var_0)))) var_0_lst ⟹
 		 (wf_bit (mk_bit 0)) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c)), (admininstr_subcase_3 (admininstr_subtype_3_VBITMASK (ishape_X v_Jnn (mk_dim v_N))))] [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (irev_underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) ci))))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc3 (admininstr_st3_VBITMASK (ishape_X v_Jnn (mk_dim v_N))))] [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (irev_underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) ci))))]"
 	| Step_pure__vswizzle :
 		"(ci_lst = (lanes_underscore (X (lanetype_packtype v_Pnn) (mk_dim v_M)) c_2)) ⟹
 		 list_all (λ (iter_0 :: lane_underscore). ((proj_lane__1 iter_0) ≠ None)) (lanes_underscore (X (lanetype_packtype v_Pnn) (mk_dim v_M)) c_1) ⟹
@@ -8390,7 +8390,7 @@ inductive Step_pure :: "(admininstr list) ⇒ (admininstr list) ⇒ bool" where
 		 (wf_shape (X (lanetype_packtype v_Pnn) (mk_dim v_M))) ⟹
 		 (wf_uN (psize v_Pnn) (mk_uN 0)) ⟹
 		 holds_upto (λ k. (wf_lane_underscore (fun_lanetype (X (lanetype_packtype v_Pnn) (mk_dim v_M))) (mk_lane__1 v_Pnn (c'_lst ! (proj_uN_0 (the ((proj_lane__1 (ci_lst ! k))))))))) v_M ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_2)), (admininstr_subcase_3 (admininstr_subtype_3_VSWIZZLE (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_M))))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_2)), (admininstr_sc3 (admininstr_st3_VSWIZZLE (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_M))))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__vshuffle :
 		"((map (λ (c' :: iN). (mk_lane__1 v_Pnn c')) c'_lst) = ((lanes_underscore (X (lanetype_packtype v_Pnn) (mk_dim v_N)) c_1) @ (lanes_underscore (X (lanetype_packtype v_Pnn) (mk_dim v_N)) c_2))) ⟹
 		 holds_upto (λ k. ((proj_uN_0 (i_lst ! k)) < (length c'_lst))) v_N ⟹
@@ -8399,36 +8399,36 @@ inductive Step_pure :: "(admininstr list) ⇒ (admininstr list) ⇒ bool" where
 		 list_all (λ (c' :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_packtype v_Pnn) (mk_dim v_N))) (mk_lane__1 v_Pnn c'))) c'_lst ⟹
 		 (wf_shape (X (lanetype_packtype v_Pnn) (mk_dim v_N))) ⟹
 		 holds_upto (λ k. (wf_lane_underscore (fun_lanetype (X (lanetype_packtype v_Pnn) (mk_dim v_N))) (mk_lane__1 v_Pnn (c'_lst ! (proj_uN_0 (i_lst ! k)))))) v_N ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_2)), (admininstr_subcase_3 (admininstr_subtype_3_VSHUFFLE (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_N)) i_lst))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_2)), (admininstr_sc3 (admininstr_st3_VSHUFFLE (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_N)) i_lst))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__vsplat :
 		"(c = (inv_lanes_underscore (X v_Lnn (mk_dim v_N)) (repeat v_N (packnum_underscore v_Lnn c_1)))) ⟹
 		 (wf_shape (X v_Lnn (mk_dim v_N))) ⟹
-		 Step_pure [(admininstr_subcase_1 (admininstr_subtype_1_CONST (unpack v_Lnn) c_1)), (admininstr_subcase_3 (admininstr_subtype_3_VSPLAT (X v_Lnn (mk_dim v_N))))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST (unpack v_Lnn) c_1)), (admininstr_sc3 (admininstr_st3_VSPLAT (X v_Lnn (mk_dim v_N))))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| vextract_lane_num :
 		"((proj_uN_0 i) < (length (lanes_underscore (X (lanetype_numtype nt) (mk_dim v_N)) c_1))) ⟹
 		 ((mk_lane__0 nt c_2) = ((lanes_underscore (X (lanetype_numtype nt) (mk_dim v_N)) c_1) ! (proj_uN_0 i))) ⟹
 		 (wf_lane_underscore (fun_lanetype (X (lanetype_numtype nt) (mk_dim v_N))) (mk_lane__0 nt c_2)) ⟹
 		 (wf_shape (X (lanetype_numtype nt) (mk_dim v_N))) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_3 (admininstr_subtype_3_VEXTRACT_LANE (X (lanetype_numtype nt) (mk_dim v_N)) None i))] [(admininstr_subcase_1 (admininstr_subtype_1_CONST nt c_2))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc3 (admininstr_st3_VEXTRACT_LANE (X (lanetype_numtype nt) (mk_dim v_N)) None i))] [(admininstr_sc1 (admininstr_st1_CONST nt c_2))]"
 	| vextract_lane_pack :
 		"((proj_num__0 c_2) ≠ None) ⟹
 		 ((proj_lane__1 ((lanes_underscore (X (lanetype_packtype pt) (mk_dim v_N)) c_1) ! (proj_uN_0 i))) ≠ None) ⟹
 		 ((proj_uN_0 i) < (length (lanes_underscore (X (lanetype_packtype pt) (mk_dim v_N)) c_1))) ⟹
 		 ((the ((proj_num__0 c_2))) = (extend__underscore (psize pt) (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) v_sx (the ((proj_lane__1 ((lanes_underscore (X (lanetype_packtype pt) (mk_dim v_N)) c_1) ! (proj_uN_0 i))))))) ⟹
 		 (wf_shape (X (lanetype_packtype pt) (mk_dim v_N))) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_3 (admininstr_subtype_3_VEXTRACT_LANE (X (lanetype_packtype pt) (mk_dim v_N)) (Some v_sx) i))] [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 c_2))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc3 (admininstr_st3_VEXTRACT_LANE (X (lanetype_packtype pt) (mk_dim v_N)) (Some v_sx) i))] [(admininstr_sc1 (admininstr_st1_CONST I32 c_2))]"
 	| Step_pure__vreplace_lane :
 		"(c = (inv_lanes_underscore (X v_Lnn (mk_dim v_N)) (list_update_func (lanes_underscore (X v_Lnn (mk_dim v_N)) c_1) (proj_uN_0 i) (λ (underscore_underscore :: lane_underscore). (packnum_underscore v_Lnn c_2))))) ⟹
 		 (wf_shape (X v_Lnn (mk_dim v_N))) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_1 (admininstr_subtype_1_CONST (unpack v_Lnn) c_2)), (admininstr_subcase_3 (admininstr_subtype_3_VREPLACE_LANE (X v_Lnn (mk_dim v_N)) i))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc1 (admininstr_st1_CONST (unpack v_Lnn) c_2)), (admininstr_sc3 (admininstr_st3_VREPLACE_LANE (X v_Lnn (mk_dim v_N)) i))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__vextunop :
 		"(fun_vextunop__underscore sh_1 sh_2 vextunop c_1 var_0) ⟹
 		 (var_0 = c) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_4 (admininstr_subtype_4_VEXTUNOP sh_1 sh_2 vextunop))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc4 (admininstr_st4_VEXTUNOP sh_1 sh_2 vextunop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__vextbinop :
 		"(fun_vextbinop__underscore sh_1 sh_2 vextbinop c_1 c_2 var_0) ⟹
 		 (var_0 = c) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_2)), (admininstr_subcase_4 (admininstr_subtype_4_VEXTBINOP sh_1 sh_2 vextbinop))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_2)), (admininstr_sc4 (admininstr_st4_VEXTBINOP sh_1 sh_2 vextbinop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__vnarrow :
 		"(ci_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_1) (mk_dim N_1)) c_1)) ⟹
 		 (ci_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_1) (mk_dim N_1)) c_2)) ⟹
@@ -8443,7 +8443,7 @@ inductive Step_pure :: "(admininstr list) ⇒ (admininstr list) ⇒ bool" where
 		 (wf_shape (X (lanetype_Jnn Jnn_2) (mk_dim N_2))) ⟹
 		 list_all (λ (cj_1 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_2) (mk_dim N_2))) (mk_lane__2 Jnn_2 cj_1))) cj_1_lst ⟹
 		 list_all (λ (cj_2 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_2) (mk_dim N_2))) (mk_lane__2 Jnn_2 cj_2))) cj_2_lst ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_2)), (admininstr_subcase_4 (admininstr_subtype_4_VNARROW (ishape_X Jnn_2 (mk_dim N_2)) (ishape_X Jnn_1 (mk_dim N_1)) v_sx))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_2)), (admininstr_sc4 (admininstr_st4_VNARROW (ishape_X Jnn_2 (mk_dim N_2)) (ishape_X Jnn_1 (mk_dim N_1)) v_sx))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| vcvtop_full :
 		"(((halfop v_vcvtop) = None) ∧ ((zeroop v_vcvtop) = None)) ⟹
 		 (ci_lst = (lanes_underscore (X Lnn_1 (mk_dim v_M)) c_1)) ⟹
@@ -8454,7 +8454,7 @@ inductive Step_pure :: "(admininstr list) ⇒ (admininstr list) ⇒ bool" where
 		 list_all (λ (cj_lst :: (lane_underscore list)). list_all (λ (cj :: lane_underscore). (wf_lane_underscore Lnn_2 cj)) cj_lst) cj_lst_lst ⟹
 		 (wf_shape (X Lnn_1 (mk_dim v_M))) ⟹
 		 (wf_shape (X Lnn_2 (mk_dim v_M))) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_4 (admininstr_subtype_4_VCVTOP (X Lnn_2 (mk_dim v_M)) (X Lnn_1 (mk_dim v_M)) v_vcvtop))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc4 (admininstr_st4_VCVTOP (X Lnn_2 (mk_dim v_M)) (X Lnn_1 (mk_dim v_M)) v_vcvtop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| vcvtop_half :
 		"((halfop v_vcvtop) = (Some v_half)) ⟹
 		 (ci_lst = (list_slice (lanes_underscore (X Lnn_1 (mk_dim M_1)) c_1) (fun_half v_half 0 M_2) M_2)) ⟹
@@ -8465,7 +8465,7 @@ inductive Step_pure :: "(admininstr list) ⇒ (admininstr list) ⇒ bool" where
 		 list_all (λ (cj_lst :: (lane_underscore list)). list_all (λ (cj :: lane_underscore). (wf_lane_underscore Lnn_2 cj)) cj_lst) cj_lst_lst ⟹
 		 (wf_shape (X Lnn_1 (mk_dim M_1))) ⟹
 		 (wf_shape (X Lnn_2 (mk_dim M_2))) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_4 (admininstr_subtype_4_VCVTOP (X Lnn_2 (mk_dim M_2)) (X Lnn_1 (mk_dim M_1)) v_vcvtop))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc4 (admininstr_st4_VCVTOP (X Lnn_2 (mk_dim M_2)) (X Lnn_1 (mk_dim M_1)) v_vcvtop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| vcvtop_zero :
 		"((zeroop v_vcvtop) = (Some ZERO)) ⟹
 		 (ci_lst = (lanes_underscore (X (lanetype_numtype nt_1) (mk_dim M_1)) c_1)) ⟹
@@ -8477,9 +8477,9 @@ inductive Step_pure :: "(admininstr list) ⇒ (admininstr list) ⇒ bool" where
 		 (wf_shape (X (lanetype_numtype nt_1) (mk_dim M_1))) ⟹
 		 (wf_shape (X (lanetype_numtype nt_2) (mk_dim M_2))) ⟹
 		 (wf_lane_underscore (lanetype_numtype nt_2) (mk_lane__0 nt_2 (fun_zero nt_2))) ⟹
-		 Step_pure [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_4 (admininstr_subtype_4_VCVTOP (X (lanetype_numtype nt_2) (mk_dim M_2)) (X (lanetype_numtype nt_1) (mk_dim M_1)) v_vcvtop))] [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc4 (admininstr_st4_VCVTOP (X (lanetype_numtype nt_2) (mk_dim M_2)) (X (lanetype_numtype nt_1) (mk_dim M_1)) v_vcvtop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__local_tee :
-		"Step_pure [(admininstr_val v_val), (admininstr_subcase_5 (admininstr_subtype_5_LOCAL_TEE x))] [(admininstr_val v_val), (admininstr_val v_val), (admininstr_subcase_4 (admininstr_subtype_4_LOCAL_SET x))]"
+		"Step_pure [(admininstr_val v_val), (admininstr_sc5 (admininstr_st5_LOCAL_TEE x))] [(admininstr_val v_val), (admininstr_val v_val), (admininstr_sc4 (admininstr_st4_LOCAL_SET x))]"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:6.10-6.19 *)
 lemma Step_pure_is_wf :
@@ -8503,14 +8503,14 @@ inductive Step_read_before_call_indirect_trap :: "config ⇒ bool" where
 		 (((REFS (fun_table z x)) ! (proj_uN_0 (the ((proj_num__0 i))))) = (REF_FUNC_ADDR a)) ⟹
 		 (a < (length (fun_funcinst z))) ⟹
 		 ((fun_type z y) = (funcinst_TYPE ((fun_funcinst z) ! a))) ⟹
-		 Step_read_before_call_indirect_trap (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CALL_INDIRECT x y))])"
+		 Step_read_before_call_indirect_trap (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CALL_INDIRECT x y))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:436.1-439.14 *)
 inductive Step_read_before_table_fill_zero :: "config ⇒ bool" where
 	  table_fill_trap_0 :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (REFS (fun_table z x)))) ⟹
-		 Step_read_before_table_fill_zero (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_val v_val), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_FILL x))])"
+		 Step_read_before_table_fill_zero (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_val v_val), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_FILL x))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:452.1-455.14 *)
 inductive Step_read_before_table_copy_zero :: "config ⇒ bool" where
@@ -8518,19 +8518,19 @@ inductive Step_read_before_table_copy_zero :: "config ⇒ bool" where
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (REFS (fun_table z y)))) ∨ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (REFS (fun_table z x))))) ⟹
-		 Step_read_before_table_copy_zero (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_COPY x y))])"
+		 Step_read_before_table_copy_zero (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_COPY x y))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:457.1-462.15 *)
 inductive Step_read_before_table_copy_le :: "config ⇒ bool" where
 	  table_copy_zero_0 :
-		"(~(Step_read_before_table_copy_zero (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_COPY x y))]))) ⟹
+		"(~(Step_read_before_table_copy_zero (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_COPY x y))]))) ⟹
 		 (v_n = 0) ⟹
-		 Step_read_before_table_copy_le (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_COPY x y))])"
+		 Step_read_before_table_copy_le (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_COPY x y))])"
 	| table_copy_trap_1 :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (REFS (fun_table z y)))) ∨ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (REFS (fun_table z x))))) ⟹
-		 Step_read_before_table_copy_le (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_COPY x y))])"
+		 Step_read_before_table_copy_le (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_COPY x y))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:475.1-478.14 *)
 inductive Step_read_before_table_init_zero :: "config ⇒ bool" where
@@ -8538,7 +8538,7 @@ inductive Step_read_before_table_init_zero :: "config ⇒ bool" where
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (eleminst_REFS (fun_elem z y)))) ∨ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (REFS (fun_table z x))))) ⟹
-		 Step_read_before_table_init_zero (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_6 (admininstr_subtype_6_TABLE_INIT x y))])"
+		 Step_read_before_table_init_zero (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc6 (admininstr_st6_TABLE_INIT x y))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:616.1-619.14 *)
 inductive Step_read_before_memory_fill_zero :: "config ⇒ bool" where
@@ -8546,7 +8546,7 @@ inductive Step_read_before_memory_fill_zero :: "config ⇒ bool" where
 		"((proj_num__0 i) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (BYTES (fun_mem z (mk_uN 0))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read_before_memory_fill_zero (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_val v_val), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_FILL)])"
+		 Step_read_before_memory_fill_zero (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_val v_val), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_FILL)])"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:632.1-635.14 *)
 inductive Step_read_before_memory_copy_zero :: "config ⇒ bool" where
@@ -8555,20 +8555,20 @@ inductive Step_read_before_memory_copy_zero :: "config ⇒ bool" where
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (BYTES (fun_mem z (mk_uN 0))))) ∨ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (BYTES (fun_mem z (mk_uN 0)))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read_before_memory_copy_zero (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_COPY)])"
+		 Step_read_before_memory_copy_zero (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_COPY)])"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:637.1-642.15 *)
 inductive Step_read_before_memory_copy_le :: "config ⇒ bool" where
 	  memory_copy_zero_0 :
-		"(~(Step_read_before_memory_copy_zero (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_COPY)]))) ⟹
+		"(~(Step_read_before_memory_copy_zero (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_COPY)]))) ⟹
 		 (v_n = 0) ⟹
-		 Step_read_before_memory_copy_le (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_COPY)])"
+		 Step_read_before_memory_copy_le (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_COPY)])"
 	| memory_copy_trap_1 :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (BYTES (fun_mem z (mk_uN 0))))) ∨ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (BYTES (fun_mem z (mk_uN 0)))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read_before_memory_copy_le (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_COPY)])"
+		 Step_read_before_memory_copy_le (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_COPY)])"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:655.1-658.14 *)
 inductive Step_read_before_memory_init_zero :: "config ⇒ bool" where
@@ -8577,7 +8577,7 @@ inductive Step_read_before_memory_init_zero :: "config ⇒ bool" where
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (datainst_BYTES (fun_data z x)))) ∨ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (BYTES (fun_mem z (mk_uN 0)))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read_before_memory_init_zero (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 (admininstr_subtype_7_MEMORY_INIT x))])"
+		 Step_read_before_memory_init_zero (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 (admininstr_st7_MEMORY_INIT x))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:7.1-7.109 *)
 inductive Step_read :: "config ⇒ (admininstr list) ⇒ bool" where
@@ -8586,26 +8586,26 @@ inductive Step_read :: "config ⇒ (admininstr list) ⇒ bool" where
 		 (k = (length val_lst)) ⟹
 		 (k = (length t_1_lst)) ⟹
 		 (v_n = (length t_2_lst)) ⟹
-		 Step_read (mk_config z ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_subcase_0 (admininstr_subtype_0_BLOCK bt instr_lst))])) [(admininstr_subcase_8 (LABEL_underscore v_n [] ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))]"
+		 Step_read (mk_config z ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc0 (admininstr_st0_BLOCK bt instr_lst))])) [(admininstr_sc8 (LABEL_underscore v_n [] ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))]"
 	| Step_read__loop :
 		"((fun_blocktype z bt) = (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) ⟹
 		 (k = (length val_lst)) ⟹
 		 (k = (length t_1_lst)) ⟹
 		 (v_n = (length t_2_lst)) ⟹
-		 Step_read (mk_config z ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_subcase_0 (admininstr_subtype_0_LOOP bt instr_lst))])) [(admininstr_subcase_8 (LABEL_underscore k [(instr_subcase_7 (LOOP bt instr_lst))] ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))]"
+		 Step_read (mk_config z ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc0 (admininstr_st0_LOOP bt instr_lst))])) [(admininstr_sc8 (LABEL_underscore k [(instr_sc7 (LOOP bt instr_lst))] ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))]"
 	| Step_read__call :
 		"((proj_uN_0 x) < (length (fun_funcaddr z))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CALL x))]) [(admininstr_subcase_7 (CALL_ADDR ((fun_funcaddr z) ! (proj_uN_0 x))))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CALL x))]) [(admininstr_sc7 (CALL_ADDR ((fun_funcaddr z) ! (proj_uN_0 x))))]"
 	| call_indirect_call :
 		"((proj_uN_0 (the ((proj_num__0 i)))) < (length (REFS (fun_table z x)))) ⟹
 		 ((proj_num__0 i) ≠ None) ⟹
 		 (((REFS (fun_table z x)) ! (proj_uN_0 (the ((proj_num__0 i))))) = (REF_FUNC_ADDR a)) ⟹
 		 (a < (length (fun_funcinst z))) ⟹
 		 ((fun_type z y) = (funcinst_TYPE ((fun_funcinst z) ! a))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CALL_INDIRECT x y))]) [(admininstr_subcase_7 (CALL_ADDR a))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CALL_INDIRECT x y))]) [(admininstr_sc7 (CALL_ADDR a))]"
 	| call_indirect_trap :
-		"(~(Step_read_before_call_indirect_trap (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CALL_INDIRECT x y))]))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CALL_INDIRECT x y))]) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		"(~(Step_read_before_call_indirect_trap (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CALL_INDIRECT x y))]))) ⟹
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CALL_INDIRECT x y))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| call_addr :
 		"(a < (length (fun_funcinst z))) ⟹
 		 (((fun_funcinst z) ! a) = ⦇ funcinst_TYPE = (mk_functype (mk_list t_1_lst) (mk_list t_2_lst)), funcinst_MODULE = mm, CODE = v_func ⦈) ⟹
@@ -8618,122 +8618,122 @@ inductive Step_read :: "config ⇒ (admininstr list) ⇒ bool" where
 		 (k = (length val_lst)) ⟹
 		 (k = (length t_1_lst)) ⟹
 		 (v_n = (length t_2_lst)) ⟹
-		 Step_read (mk_config z ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_subcase_7 (CALL_ADDR a))])) [(admininstr_subcase_8 (FRAME_underscore v_n f [(admininstr_subcase_8 (LABEL_underscore v_n [] (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst)))]))]"
+		 Step_read (mk_config z ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc7 (CALL_ADDR a))])) [(admininstr_sc8 (FRAME_underscore v_n f [(admininstr_sc8 (LABEL_underscore v_n [] (map (λ (v_instr :: instr). (admininstr_instr v_instr)) instr_lst)))]))]"
 	| Step_read__ref_func :
 		"((proj_uN_0 x) < (length (fun_funcaddr z))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_4 (admininstr_subtype_4_REF_FUNC x))]) [(admininstr_subcase_7 (admininstr_subtype_7_REF_FUNC_ADDR ((fun_funcaddr z) ! (proj_uN_0 x))))]"
+		 Step_read (mk_config z [(admininstr_sc4 (admininstr_st4_REF_FUNC x))]) [(admininstr_sc7 (admininstr_st7_REF_FUNC_ADDR ((fun_funcaddr z) ! (proj_uN_0 x))))]"
 	| Step_read__local_get :
-		"Step_read (mk_config z [(admininstr_subcase_4 (admininstr_subtype_4_LOCAL_GET x))]) [(admininstr_val (fun_local z x))]"
+		"Step_read (mk_config z [(admininstr_sc4 (admininstr_st4_LOCAL_GET x))]) [(admininstr_val (fun_local z x))]"
 	| Step_read__global_get :
-		"Step_read (mk_config z [(admininstr_subcase_5 (admininstr_subtype_5_GLOBAL_GET x))]) [(admininstr_val (VALUE (fun_global z x)))]"
+		"Step_read (mk_config z [(admininstr_sc5 (admininstr_st5_GLOBAL_GET x))]) [(admininstr_val (VALUE (fun_global z x)))]"
 	| table_get_trap :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 i)))) ≥ (length (REFS (fun_table z x)))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_GET x))]) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc5 (admininstr_st5_TABLE_GET x))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| table_get_val :
 		"((proj_uN_0 (the ((proj_num__0 i)))) < (length (REFS (fun_table z x)))) ⟹
 		 ((proj_num__0 i) ≠ None) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_GET x))]) [(admininstr_ref ((REFS (fun_table z x)) ! (proj_uN_0 (the ((proj_num__0 i))))))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc5 (admininstr_st5_TABLE_GET x))]) [(admininstr_ref ((REFS (fun_table z x)) ! (proj_uN_0 (the ((proj_num__0 i))))))]"
 	| Step_read__table_size :
 		"((length (REFS (fun_table z x))) = v_n) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_5 (admininstr_subtype_5_TABLE_SIZE x))]) [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))))]"
+		 Step_read (mk_config z [(admininstr_sc5 (admininstr_st5_TABLE_SIZE x))]) [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))))]"
 	| table_fill_trap :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (REFS (fun_table z x)))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_val v_val), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_FILL x))]) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_val v_val), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_FILL x))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| table_fill_zero :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (REFS (fun_table z x)))) ⟹
 		 (v_n = 0) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_val v_val), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_FILL x))]) []"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_val v_val), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_FILL x))]) []"
 	| table_fill_succ :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (v_n ≠ 0) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (REFS (fun_table z x)))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_val v_val), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_FILL x))]) [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_val v_val), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_SET x)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (admininstr_val v_val), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_FILL x))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_val v_val), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_FILL x))]) [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_val v_val), (admininstr_sc5 (admininstr_st5_TABLE_SET x)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (admininstr_val v_val), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc5 (admininstr_st5_TABLE_FILL x))]"
 	| table_copy_trap :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (REFS (fun_table z y)))) ∨ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (REFS (fun_table z x))))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_COPY x y))]) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_COPY x y))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| table_copy_zero :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (REFS (fun_table z y)))) ∧ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) ≤ (length (REFS (fun_table z x))))) ⟹
 		 (v_n = 0) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_COPY x y))]) []"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_COPY x y))]) []"
 	| table_copy_le :
 		"((proj_num__0 j) ≠ None) ⟹
 		 ((proj_num__0 i) ≠ None) ⟹
 		 (v_n ≠ 0) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (REFS (fun_table z y)))) ∧ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) ≤ (length (REFS (fun_table z x))))) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 j)))) ≤ (proj_uN_0 (the ((proj_num__0 i))))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_COPY x y))]) [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_GET y)), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_SET x)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1))))), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_COPY x y))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_COPY x y))]) [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc5 (admininstr_st5_TABLE_GET y)), (admininstr_sc5 (admininstr_st5_TABLE_SET x)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc5 (admininstr_st5_TABLE_COPY x y))]"
 	| table_copy_gt :
 		"((proj_num__0 j) ≠ None) ⟹
 		 ((proj_num__0 i) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 j)))) > (proj_uN_0 (the ((proj_num__0 i))))) ⟹
 		 (v_n ≠ 0) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (REFS (fun_table z y)))) ∧ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) ≤ (length (REFS (fun_table z x))))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_COPY x y))]) [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((((proj_uN_0 (the ((proj_num__0 j)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_GET y)), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_SET x)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_COPY x y))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_COPY x y))]) [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((((proj_uN_0 (the ((proj_num__0 j)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc5 (admininstr_st5_TABLE_GET y)), (admininstr_sc5 (admininstr_st5_TABLE_SET x)), (admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc5 (admininstr_st5_TABLE_COPY x y))]"
 	| table_init_trap :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (eleminst_REFS (fun_elem z y)))) ∨ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (REFS (fun_table z x))))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_6 (admininstr_subtype_6_TABLE_INIT x y))]) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc6 (admininstr_st6_TABLE_INIT x y))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| table_init_zero :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (eleminst_REFS (fun_elem z y)))) ∧ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) ≤ (length (REFS (fun_table z x))))) ⟹
 		 (v_n = 0) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_6 (admininstr_subtype_6_TABLE_INIT x y))]) []"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc6 (admininstr_st6_TABLE_INIT x y))]) []"
 	| table_init_succ :
 		"((proj_uN_0 (the ((proj_num__0 i)))) < (length (eleminst_REFS (fun_elem z y)))) ⟹
 		 ((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 (v_n ≠ 0) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (eleminst_REFS (fun_elem z y)))) ∧ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) ≤ (length (REFS (fun_table z x))))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_6 (admininstr_subtype_6_TABLE_INIT x y))]) [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_ref ((eleminst_REFS (fun_elem z y)) ! (proj_uN_0 (the ((proj_num__0 i)))))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_SET x)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1))))), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_subcase_6 (admininstr_subtype_6_TABLE_INIT x y))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc6 (admininstr_st6_TABLE_INIT x y))]) [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_ref ((eleminst_REFS (fun_elem z y)) ! (proj_uN_0 (the ((proj_num__0 i)))))), (admininstr_sc5 (admininstr_st5_TABLE_SET x)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc6 (admininstr_st6_TABLE_INIT x y))]"
 	| load_num_trap :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((size (valtype_numtype nt)) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + ((((the ((size (valtype_numtype nt)))) :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z (mk_uN 0))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_6 (admininstr_subtype_6_LOAD nt None ao))]) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc6 (admininstr_st6_LOAD nt None ao))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| load_num_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((size (valtype_numtype nt)) ≠ None) ⟹
 		 ((nbytes_underscore nt c) = (list_slice (BYTES (fun_mem z (mk_uN 0))) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) ((((the ((size (valtype_numtype nt)))) :: nat) div (8 :: nat)) :: nat))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_6 (admininstr_subtype_6_LOAD nt None ao))]) [(admininstr_subcase_1 (admininstr_subtype_1_CONST nt c))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc6 (admininstr_st6_LOAD nt None ao))]) [(admininstr_sc1 (admininstr_st1_CONST nt c))]"
 	| load_pack_trap :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + (((v_n :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z (mk_uN 0))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_6 (admininstr_subtype_6_LOAD (numtype_Inn v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_n) v_sx))) ao))]) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc6 (admininstr_st6_LOAD (numtype_Inn v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_n) v_sx))) ao))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| load_pack_val :
 		"((size (valtype_Inn v_Inn)) ≠ None) ⟹
 		 ((proj_num__0 i) ≠ None) ⟹
 		 ((ibytes_underscore v_n c) = (list_slice (BYTES (fun_mem z (mk_uN 0))) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_n :: nat) div (8 :: nat)) :: nat))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_6 (admininstr_subtype_6_LOAD (numtype_Inn v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_n) v_sx))) ao))]) [(admininstr_subcase_1 (admininstr_subtype_1_CONST (numtype_Inn v_Inn) (mk_num__0 v_Inn (extend__underscore v_n (the ((size (valtype_Inn v_Inn)))) v_sx c))))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc6 (admininstr_st6_LOAD (numtype_Inn v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_n) v_sx))) ao))]) [(admininstr_sc1 (admininstr_st1_CONST (numtype_Inn v_Inn) (mk_num__0 v_Inn (extend__underscore v_n (the ((size (valtype_Inn v_Inn)))) v_sx c))))]"
 	| vload_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((size valtype_V128) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + ((((the ((size valtype_V128))) :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z (mk_uN 0))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_6 (admininstr_subtype_6_VLOAD V128 None ao))]) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc6 (admininstr_st6_VLOAD V128 None ao))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| vload_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((size valtype_V128) ≠ None) ⟹
 		 ((vbytes_underscore V128 c) = (list_slice (BYTES (fun_mem z (mk_uN 0))) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) ((((the ((size valtype_V128))) :: nat) div (8 :: nat)) :: nat))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_6 (admininstr_subtype_6_VLOAD V128 None ao))]) [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc6 (admininstr_st6_VLOAD V128 None ao))]) [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| vload_shape_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + ((((v_M * v_N) :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z (mk_uN 0))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_6 (admininstr_subtype_6_VLOAD V128 (Some (SHAPEX_underscore v_M v_N v_sx)) ao))]) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc6 (admininstr_st6_VLOAD V128 (Some (SHAPEX_underscore v_M v_N v_sx)) ao))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| vload_shape_val :
 		"holds_upto (λ k. ((proj_num__0 i) ≠ None)) v_N ⟹
 		 list_alli (λ k (j :: iN). ((ibytes_underscore v_M j) = (list_slice (BYTES (fun_mem z (mk_uN 0))) (((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + ((((k * v_M) :: nat) div (8 :: nat)) :: nat)) (((v_M :: nat) div (8 :: nat)) :: nat)))) j_lst ⟹
@@ -8743,12 +8743,12 @@ inductive Step_read :: "config ⇒ (admininstr list) ⇒ bool" where
 		 (wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) ⟹
 		 list_all (λ (j :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) (mk_lane__2 v_Jnn (extend__underscore v_M (jsize v_Jnn) v_sx j)))) j_lst ⟹
 		 (v_N = (length j_lst)) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_6 (admininstr_subtype_6_VLOAD V128 (Some (SHAPEX_underscore v_M v_N v_sx)) ao))]) [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc6 (admininstr_st6_VLOAD V128 (Some (SHAPEX_underscore v_M v_N v_sx)) ao))]) [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| vload_splat_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + (((v_N :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z (mk_uN 0))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_6 (admininstr_subtype_6_VLOAD V128 (Some (SPLAT v_N)) ao))]) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc6 (admininstr_st6_VLOAD V128 (Some (SPLAT v_N)) ao))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| vload_splat_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((ibytes_underscore v_N j) = (list_slice (BYTES (fun_mem z (mk_uN 0))) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_N :: nat) div (8 :: nat)) :: nat))) ⟹
@@ -8758,24 +8758,24 @@ inductive Step_read :: "config ⇒ (admininstr list) ⇒ bool" where
 		 (wf_uN 32 (mk_uN 0)) ⟹
 		 (wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) ⟹
 		 (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) (mk_lane__2 v_Jnn (mk_uN (proj_uN_0 j)))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_6 (admininstr_subtype_6_VLOAD V128 (Some (SPLAT v_N)) ao))]) [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc6 (admininstr_st6_VLOAD V128 (Some (SPLAT v_N)) ao))]) [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| vload_zero_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + (((v_N :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z (mk_uN 0))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_6 (admininstr_subtype_6_VLOAD V128 (Some (vloadop_ZERO v_N)) ao))]) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc6 (admininstr_st6_VLOAD V128 (Some (vloadop_ZERO v_N)) ao))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| vload_zero_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((ibytes_underscore v_N j) = (list_slice (BYTES (fun_mem z (mk_uN 0))) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_N :: nat) div (8 :: nat)) :: nat))) ⟹
 		 (c = (extend__underscore v_N (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) U j)) ⟹
 		 (wf_uN v_N j) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_6 (admininstr_subtype_6_VLOAD V128 (Some (vloadop_ZERO v_N)) ao))]) [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc6 (admininstr_st6_VLOAD V128 (Some (vloadop_ZERO v_N)) ao))]) [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| vload_lane_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + (((v_N :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z (mk_uN 0))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_6 (admininstr_subtype_6_VLOAD_LANE V128 (mk_sz v_N) ao j))]) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc6 (admininstr_st6_VLOAD_LANE V128 (mk_sz v_N) ao j))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| vload_lane_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((ibytes_underscore v_N k) = (list_slice (BYTES (fun_mem z (mk_uN 0))) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_N :: nat) div (8 :: nat)) :: nat))) ⟹
@@ -8785,71 +8785,71 @@ inductive Step_read :: "config ⇒ (admininstr list) ⇒ bool" where
 		 (wf_uN 32 (mk_uN 0)) ⟹
 		 (wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) ⟹
 		 (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) (mk_lane__2 v_Jnn (mk_uN (proj_uN_0 k)))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c_1)), (admininstr_subcase_6 (admininstr_subtype_6_VLOAD_LANE V128 (mk_sz v_N) ao j))]) [(admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc6 (admininstr_st6_VLOAD_LANE V128 (mk_sz v_N) ao j))]) [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_read__memory_size :
 		"(((v_n * 64) * (Ki )) = (length (BYTES (fun_mem z (mk_uN 0))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_6 admininstr_subtype_6_MEMORY_SIZE)]) [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))))]"
+		 Step_read (mk_config z [(admininstr_sc6 admininstr_st6_MEMORY_SIZE)]) [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))))]"
 	| memory_fill_trap :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (BYTES (fun_mem z (mk_uN 0))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_val v_val), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_FILL)]) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_val v_val), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_FILL)]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| memory_fill_zero :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (BYTES (fun_mem z (mk_uN 0))))) ⟹
 		 (v_n = 0) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_val v_val), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_FILL)]) []"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_val v_val), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_FILL)]) []"
 	| memory_fill_succ :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (v_n ≠ 0) ⟹
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (BYTES (fun_mem z (mk_uN 0))))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_val v_val), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_FILL)]) [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_val v_val), (admininstr_subcase_6 (admininstr_subtype_6_STORE I32 (Some (mk_sz 8)) (memarg0 ))), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (admininstr_val v_val), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_FILL)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_val v_val), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_FILL)]) [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_val v_val), (admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) (memarg0 ))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (admininstr_val v_val), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc7 admininstr_st7_MEMORY_FILL)]"
 	| memory_copy_trap :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (BYTES (fun_mem z (mk_uN 0))))) ∨ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (BYTES (fun_mem z (mk_uN 0)))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_COPY)]) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_COPY)]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| memory_copy_zero :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (BYTES (fun_mem z (mk_uN 0))))) ∧ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) ≤ (length (BYTES (fun_mem z (mk_uN 0)))))) ⟹
 		 (v_n = 0) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_COPY)]) []"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_COPY)]) []"
 	| memory_copy_le :
 		"((proj_num__0 j) ≠ None) ⟹
 		 ((proj_num__0 i) ≠ None) ⟹
 		 (v_n ≠ 0) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (BYTES (fun_mem z (mk_uN 0))))) ∧ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) ≤ (length (BYTES (fun_mem z (mk_uN 0)))))) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 j)))) ≤ (proj_uN_0 (the ((proj_num__0 i))))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_COPY)]) [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_6 (admininstr_subtype_6_LOAD I32 (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) (memarg0 ))), (admininstr_subcase_6 (admininstr_subtype_6_STORE I32 (Some (mk_sz 8)) (memarg0 ))), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1))))), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_COPY)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_COPY)]) [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc6 (admininstr_st6_LOAD I32 (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) (memarg0 ))), (admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) (memarg0 ))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc7 admininstr_st7_MEMORY_COPY)]"
 	| memory_copy_gt :
 		"((proj_num__0 j) ≠ None) ⟹
 		 ((proj_num__0 i) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 j)))) > (proj_uN_0 (the ((proj_num__0 i))))) ⟹
 		 (v_n ≠ 0) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (BYTES (fun_mem z (mk_uN 0))))) ∧ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) ≤ (length (BYTES (fun_mem z (mk_uN 0)))))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_COPY)]) [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((((proj_uN_0 (the ((proj_num__0 j)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (admininstr_subcase_6 (admininstr_subtype_6_LOAD I32 (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) (memarg0 ))), (admininstr_subcase_6 (admininstr_subtype_6_STORE I32 (Some (mk_sz 8)) (memarg0 ))), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_COPY)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_COPY)]) [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((((proj_uN_0 (the ((proj_num__0 j)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc6 (admininstr_st6_LOAD I32 (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) (memarg0 ))), (admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) (memarg0 ))), (admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc7 admininstr_st7_MEMORY_COPY)]"
 	| memory_init_trap :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (datainst_BYTES (fun_data z x)))) ∨ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (BYTES (fun_mem z (mk_uN 0)))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 (admininstr_subtype_7_MEMORY_INIT x))]) [(admininstr_subcase_7 admininstr_subtype_7_TRAP)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 (admininstr_st7_MEMORY_INIT x))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| memory_init_zero :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (datainst_BYTES (fun_data z x)))) ∧ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) ≤ (length (BYTES (fun_mem z (mk_uN 0)))))) ⟹
 		 (v_n = 0) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 (admininstr_subtype_7_MEMORY_INIT x))]) []"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 (admininstr_st7_MEMORY_INIT x))]) []"
 	| memory_init_succ :
 		"((proj_uN_0 (the ((proj_num__0 i)))) < (length (datainst_BYTES (fun_data z x)))) ⟹
 		 ((proj_num__0 i) ≠ None) ⟹
 		 ((proj_num__0 j) ≠ None) ⟹
 		 (v_n ≠ 0) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) ≤ (length (datainst_BYTES (fun_data z x)))) ∧ (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) ≤ (length (BYTES (fun_mem z (mk_uN 0)))))) ⟹
-		 Step_read (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 (admininstr_subtype_7_MEMORY_INIT x))]) [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 j)), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (proj_byte_0 ((datainst_BYTES (fun_data z x)) ! (proj_uN_0 (the ((proj_num__0 i)))))))))), (admininstr_subcase_6 (admininstr_subtype_6_STORE I32 (Some (mk_sz 8)) (memarg0 ))), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1))))), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_subcase_7 (admininstr_subtype_7_MEMORY_INIT x))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 (admininstr_st7_MEMORY_INIT x))]) [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (proj_byte_0 ((datainst_BYTES (fun_data z x)) ! (proj_uN_0 (the ((proj_num__0 i)))))))))), (admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) (memarg0 ))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc7 (admininstr_st7_MEMORY_INIT x))]"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:7.10-7.19 *)
 lemma Step_read_is_wf :
@@ -8870,12 +8870,12 @@ inductive Step :: "config ⇒ config ⇒ bool" where
 		"(Step (mk_config z admininstr_lst) (mk_config z' admininstr'_lst)) ⟹
 		 (wf_config (mk_config z admininstr_lst)) ⟹
 		 (wf_config (mk_config z' admininstr'_lst)) ⟹
-		 Step (mk_config z [(admininstr_subcase_8 (LABEL_underscore v_n instr_0_lst admininstr_lst))]) (mk_config z' [(admininstr_subcase_8 (LABEL_underscore v_n instr_0_lst admininstr'_lst))])"
+		 Step (mk_config z [(admininstr_sc8 (LABEL_underscore v_n instr_0_lst admininstr_lst))]) (mk_config z' [(admininstr_sc8 (LABEL_underscore v_n instr_0_lst admininstr'_lst))])"
 	| ctxt_frame :
 		"(Step (mk_config (mk_state s f') admininstr_lst) (mk_config (mk_state s' f'') admininstr'_lst)) ⟹
 		 (wf_config (mk_config (mk_state s f') admininstr_lst)) ⟹
 		 (wf_config (mk_config (mk_state s' f'') admininstr'_lst)) ⟹
-		 Step (mk_config (mk_state s f) [(admininstr_subcase_8 (FRAME_underscore v_n f' admininstr_lst))]) (mk_config (mk_state s' f) [(admininstr_subcase_8 (FRAME_underscore v_n f'' admininstr'_lst))])"
+		 Step (mk_config (mk_state s f) [(admininstr_sc8 (FRAME_underscore v_n f' admininstr_lst))]) (mk_config (mk_state s' f) [(admininstr_sc8 (FRAME_underscore v_n f'' admininstr'_lst))])"
 	| ctxt_instrs :
 		"(Step (mk_config z admininstr_lst) (mk_config z' admininstr'_lst)) ⟹
 		 ((val_lst ≠ []) ∨ (admininstr_1_lst ≠ [])) ⟹
@@ -8883,65 +8883,65 @@ inductive Step :: "config ⇒ config ⇒ bool" where
 		 (wf_config (mk_config z' admininstr'_lst)) ⟹
 		 Step (mk_config z ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ (admininstr_lst @ admininstr_1_lst))) (mk_config z' ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ (admininstr'_lst @ admininstr_1_lst)))"
 	| Step__local_set :
-		"Step (mk_config z [(admininstr_val v_val), (admininstr_subcase_4 (admininstr_subtype_4_LOCAL_SET x))]) (mk_config (with_local z x v_val) [])"
+		"Step (mk_config z [(admininstr_val v_val), (admininstr_sc4 (admininstr_st4_LOCAL_SET x))]) (mk_config (with_local z x v_val) [])"
 	| Step__global_set :
-		"Step (mk_config z [(admininstr_val v_val), (admininstr_subcase_5 (admininstr_subtype_5_GLOBAL_SET x))]) (mk_config (with_global z x v_val) [])"
+		"Step (mk_config z [(admininstr_val v_val), (admininstr_sc5 (admininstr_st5_GLOBAL_SET x))]) (mk_config (with_global z x v_val) [])"
 	| table_set_trap :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 i)))) ≥ (length (REFS (fun_table z x)))) ⟹
-		 Step (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_ref v_ref), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_SET x))]) (mk_config z [(admininstr_subcase_7 admininstr_subtype_7_TRAP)])"
+		 Step (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_ref v_ref), (admininstr_sc5 (admininstr_st5_TABLE_SET x))]) (mk_config z [(admininstr_sc7 admininstr_st7_TRAP)])"
 	| table_set_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((proj_uN_0 (the ((proj_num__0 i)))) < (length (REFS (fun_table z x)))) ⟹
-		 Step (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_ref v_ref), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_SET x))]) (mk_config (with_table z x (proj_uN_0 (the ((proj_num__0 i)))) v_ref) [])"
+		 Step (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_ref v_ref), (admininstr_sc5 (admininstr_st5_TABLE_SET x))]) (mk_config (with_table z x (proj_uN_0 (the ((proj_num__0 i)))) v_ref) [])"
 	| table_grow_succeed :
 		"(fun_growtable (fun_table z x) v_n v_ref var_0) ⟹
 		 (var_0 ≠ None) ⟹
 		 ((the (var_0)) = ti) ⟹
-		 Step (mk_config z [(admininstr_ref v_ref), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_GROW x))]) (mk_config (with_tableinst z x ti) [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (length (REFS (fun_table z x)))))))])"
+		 Step (mk_config z [(admininstr_ref v_ref), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_GROW x))]) (mk_config (with_tableinst z x ti) [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (length (REFS (fun_table z x)))))))])"
 	| table_grow_fail :
 		"(fun_inv_signed_underscore 32 (0 - (1 :: nat)) var_0) ⟹
-		 Step (mk_config z [(admininstr_ref v_ref), (admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_5 (admininstr_subtype_5_TABLE_GROW x))]) (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN var_0))))])"
+		 Step (mk_config z [(admininstr_ref v_ref), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_GROW x))]) (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN var_0))))])"
 	| Step__elem_drop :
-		"Step (mk_config z [(admininstr_subcase_6 (admininstr_subtype_6_ELEM_DROP x))]) (mk_config (with_elem z x []) [])"
+		"Step (mk_config z [(admininstr_sc6 (admininstr_st6_ELEM_DROP x))]) (mk_config (with_elem z x []) [])"
 	| store_num_trap :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((size (valtype_numtype nt)) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + ((((the ((size (valtype_numtype nt)))) :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z (mk_uN 0))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST nt c)), (admininstr_subcase_6 (admininstr_subtype_6_STORE nt None ao))]) (mk_config z [(admininstr_subcase_7 admininstr_subtype_7_TRAP)])"
+		 Step (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST nt c)), (admininstr_sc6 (admininstr_st6_STORE nt None ao))]) (mk_config z [(admininstr_sc7 admininstr_st7_TRAP)])"
 	| store_num_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((size (valtype_numtype nt)) ≠ None) ⟹
 		 (b_lst = (nbytes_underscore nt c)) ⟹
-		 Step (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST nt c)), (admininstr_subcase_6 (admininstr_subtype_6_STORE nt None ao))]) (mk_config (with_mem z (mk_uN 0) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) ((((the ((size (valtype_numtype nt)))) :: nat) div (8 :: nat)) :: nat) b_lst) [])"
+		 Step (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST nt c)), (admininstr_sc6 (admininstr_st6_STORE nt None ao))]) (mk_config (with_mem z (mk_uN 0) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) ((((the ((size (valtype_numtype nt)))) :: nat) div (8 :: nat)) :: nat) b_lst) [])"
 	| store_pack_trap :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + (((v_n :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z (mk_uN 0))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST (numtype_Inn v_Inn) c)), (admininstr_subcase_6 (admininstr_subtype_6_STORE (numtype_Inn v_Inn) (Some (mk_sz v_n)) ao))]) (mk_config z [(admininstr_subcase_7 admininstr_subtype_7_TRAP)])"
+		 Step (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST (numtype_Inn v_Inn) c)), (admininstr_sc6 (admininstr_st6_STORE (numtype_Inn v_Inn) (Some (mk_sz v_n)) ao))]) (mk_config z [(admininstr_sc7 admininstr_st7_TRAP)])"
 	| store_pack_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((size (valtype_Inn v_Inn)) ≠ None) ⟹
 		 ((proj_num__0 c) ≠ None) ⟹
 		 (b_lst = (ibytes_underscore v_n (wrap__underscore (the ((size (valtype_Inn v_Inn)))) v_n (the ((proj_num__0 c)))))) ⟹
-		 Step (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_1 (admininstr_subtype_1_CONST (numtype_Inn v_Inn) c)), (admininstr_subcase_6 (admininstr_subtype_6_STORE (numtype_Inn v_Inn) (Some (mk_sz v_n)) ao))]) (mk_config (with_mem z (mk_uN 0) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_n :: nat) div (8 :: nat)) :: nat) b_lst) [])"
+		 Step (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST (numtype_Inn v_Inn) c)), (admininstr_sc6 (admininstr_st6_STORE (numtype_Inn v_Inn) (Some (mk_sz v_n)) ao))]) (mk_config (with_mem z (mk_uN 0) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_n :: nat) div (8 :: nat)) :: nat) b_lst) [])"
 	| vstore_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((size valtype_V128) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + ((((the ((size valtype_V128))) :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z (mk_uN 0))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c)), (admininstr_subcase_6 (admininstr_subtype_6_VSTORE V128 ao))]) (mk_config z [(admininstr_subcase_7 admininstr_subtype_7_TRAP)])"
+		 Step (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc6 (admininstr_st6_VSTORE V128 ao))]) (mk_config z [(admininstr_sc7 admininstr_st7_TRAP)])"
 	| vstore_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((size valtype_V128) ≠ None) ⟹
 		 (b_lst = (vbytes_underscore V128 c)) ⟹
-		 Step (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c)), (admininstr_subcase_6 (admininstr_subtype_6_VSTORE V128 ao))]) (mk_config (with_mem z (mk_uN 0) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) ((((the ((size valtype_V128))) :: nat) div (8 :: nat)) :: nat) b_lst) [])"
+		 Step (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc6 (admininstr_st6_VSTORE V128 ao))]) (mk_config (with_mem z (mk_uN 0) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) ((((the ((size valtype_V128))) :: nat) div (8 :: nat)) :: nat) b_lst) [])"
 	| vstore_lane_oob :
 		"((proj_num__0 i) ≠ None) ⟹
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + v_N) > (length (BYTES (fun_mem z (mk_uN 0))))) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c)), (admininstr_subcase_6 (admininstr_subtype_6_VSTORE_LANE V128 (mk_sz v_N) ao j))]) (mk_config z [(admininstr_subcase_7 admininstr_subtype_7_TRAP)])"
+		 Step (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc6 (admininstr_st6_VSTORE_LANE V128 (mk_sz v_N) ao j))]) (mk_config z [(admininstr_sc7 admininstr_st7_TRAP)])"
 	| vstore_lane_val :
 		"((proj_num__0 i) ≠ None) ⟹
 		 (v_N = (jsize v_Jnn)) ⟹
@@ -8950,18 +8950,18 @@ inductive Step :: "config ⇒ config ⇒ bool" where
 		 ((proj_uN_0 j) < (length (lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c))) ⟹
 		 (b_lst = (ibytes_underscore v_N (mk_uN (proj_uN_0 (the ((proj_lane__2 ((lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c) ! (proj_uN_0 j))))))))) ⟹
 		 (wf_uN v_N (mk_uN (proj_uN_0 (the ((proj_lane__2 ((lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c) ! (proj_uN_0 j)))))))) ⟹
-		 Step (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 i)), (admininstr_subcase_2 (admininstr_subtype_2_VCONST V128 c)), (admininstr_subcase_6 (admininstr_subtype_6_VSTORE_LANE V128 (mk_sz v_N) ao j))]) (mk_config (with_mem z (mk_uN 0) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_N :: nat) div (8 :: nat)) :: nat) b_lst) [])"
+		 Step (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc6 (admininstr_st6_VSTORE_LANE V128 (mk_sz v_N) ao j))]) (mk_config (with_mem z (mk_uN 0) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) (((v_N :: nat) div (8 :: nat)) :: nat) b_lst) [])"
 	| memory_grow_succeed :
 		"(fun_growmemory (fun_mem z (mk_uN 0)) v_n var_0) ⟹
 		 (var_0 ≠ None) ⟹
 		 ((the (var_0)) = mi) ⟹
 		 (wf_uN 32 (mk_uN 0)) ⟹
-		 Step (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_GROW)]) (mk_config (with_meminst z (mk_uN 0) mi) [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((((length (BYTES (fun_mem z (mk_uN 0)))) :: nat) div ((64 * (Ki )) :: nat)) :: nat)))))])"
+		 Step (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_GROW)]) (mk_config (with_meminst z (mk_uN 0) mi) [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((((length (BYTES (fun_mem z (mk_uN 0)))) :: nat) div ((64 * (Ki )) :: nat)) :: nat)))))])"
 	| memory_grow_fail :
 		"(fun_inv_signed_underscore 32 (0 - (1 :: nat)) var_0) ⟹
-		 Step (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_subcase_7 admininstr_subtype_7_MEMORY_GROW)]) (mk_config z [(admininstr_subcase_1 (admininstr_subtype_1_CONST I32 (mk_num__0 Inn_I32 (mk_uN var_0))))])"
+		 Step (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_GROW)]) (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN var_0))))])"
 	| Step__data_drop :
-		"Step (mk_config z [(admininstr_subcase_7 (admininstr_subtype_7_DATA_DROP x))]) (mk_config (with_data z x []) [])"
+		"Step (mk_config z [(admininstr_sc7 (admininstr_st7_DATA_DROP x))]) (mk_config (with_data z x []) [])"
 
 (* Mutual Recursion at: ../specification/wasm-2.0/8-reduction.spectec:5.1-5.109 *)
 inductive Step_is_wf :: "config ⇒ config ⇒ bool" where
@@ -9330,10 +9330,10 @@ sorry
 (* Auxiliary Definition at: ../specification/wasm-2.0/9-module.spectec:154.1-154.33 *)
 function (sequential) runelem :: "elem ⇒ idx ⇒ (instr list)" where
 		  "runelem (ELEM v_reftype expr_lst PASSIVE) i = []"
-		| "runelem (ELEM v_reftype expr_lst DECLARE) i = [(instr_subcase_5 (ELEM_DROP i))]"
+		| "runelem (ELEM v_reftype expr_lst DECLARE) i = [(instr_sc5 (ELEM_DROP i))]"
 		| "runelem (ELEM v_reftype expr_lst (ACTIVE x instr_lst)) i = 
 			 (let v_n = (length expr_lst) in 
-			 (instr_lst @ [(instr_subcase_1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN 0)))), (instr_subcase_1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (instr_subcase_5 (TABLE_INIT x i)), (instr_subcase_5 (ELEM_DROP i))]))"
+			 (instr_lst @ [(instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN 0)))), (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (instr_sc5 (TABLE_INIT x i)), (instr_sc5 (ELEM_DROP i))]))"
 	by pat_completeness auto
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:154.6-154.14 *)
@@ -9349,7 +9349,7 @@ function (sequential) rundata :: "data ⇒ idx ⇒ ((instr list) option)" where
 		  "rundata (DATA byte_lst datamode_PASSIVE) i = (Some [])"
 		| "rundata (DATA byte_lst (datamode_ACTIVE (mk_uN 0) instr_lst)) i = 
 			 (let v_n = (length byte_lst) in 
-			 (Some (instr_lst @ [(instr_subcase_1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN 0)))), (instr_subcase_1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (instr_subcase_7 (MEMORY_INIT i)), (instr_subcase_7 (DATA_DROP i))])))"
+			 (Some (instr_lst @ [(instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN 0)))), (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (instr_sc7 (MEMORY_INIT i)), (instr_sc7 (DATA_DROP i))])))"
 		| "rundata x0 x1 = None"
 	by pat_completeness auto
 
@@ -9388,8 +9388,8 @@ inductive fun_instantiate :: "store ⇒ module ⇒ (externaddr list) ⇒ config 
 		 list_all2 (λ (expr_E_lst_2 :: (expr list)) (ref_lst_3 :: (ref list)). list_all2 (λ (expr_E_2 :: expr) (ref_7 :: ref). (Eval_expr z expr_E_2 z [(val_ref ref_7)])) expr_E_lst_2 ref_lst_3) expr_E_lst_lst ref_lst_lst ⟹
 		 ((s', v_moduleinst) = var_2) ⟹
 		 (f = ⦇ LOCALS = [], frame_MODULE = v_moduleinst ⦈) ⟹
-		 holds_upto (λ i_71298. (i_71298 < (length elem_lst))) n_E ⟹
-		 (instr_E_lst = (concat_underscore  (mkseq (λ i_71298. (runelem (elem_lst ! i_71298) (mk_uN i_71298))) n_E))) ⟹
+		 holds_upto (λ i_71285. (i_71285 < (length elem_lst))) n_E ⟹
+		 (instr_E_lst = (concat_underscore  (mkseq (λ i_71285. (runelem (elem_lst ! i_71285) (mk_uN i_71285))) n_E))) ⟹
 		 holds_upto (λ j_17. ((rundata (data_lst ! j_17) (mk_uN j_17)) ≠ None)) n_D ⟹
 		 holds_upto (λ j_17. (j_17 < (length data_lst))) n_D ⟹
 		 (instr_D_lst = (concat_underscore  (mkseq (λ j_17. (the ((rundata (data_lst ! j_17) (mk_uN j_17))))) n_D))) ⟹
@@ -9405,9 +9405,9 @@ inductive fun_instantiate :: "store ⇒ module ⇒ (externaddr list) ⇒ config 
 		 (wf_frame ⦇ LOCALS = [], frame_MODULE = moduleinst_init ⦈) ⟹
 		 (wf_state (mk_state s f_init)) ⟹
 		 (wf_frame ⦇ LOCALS = [], frame_MODULE = v_moduleinst ⦈) ⟹
-		 holds_upto (λ i_71301. (wf_uN 32 (mk_uN i_71301))) n_E ⟹
+		 holds_upto (λ i_71288. (wf_uN 32 (mk_uN i_71288))) n_E ⟹
 		 holds_upto (λ j_18. (wf_uN 32 (mk_uN j_18))) n_D ⟹
-		 fun_instantiate s v_module externaddr_lst (mk_config (mk_state s' f) ((map (λ (instr_E :: instr). (admininstr_instr instr_E)) instr_E_lst) @ ((map (λ (instr_D :: instr). (admininstr_instr instr_D)) instr_D_lst) @ (option_to_list (map_option (λ (x :: idx). (admininstr_subcase_1 (admininstr_subtype_1_CALL x))) x_opt)))))"
+		 fun_instantiate s v_module externaddr_lst (mk_config (mk_state s' f) ((map (λ (instr_E :: instr). (admininstr_instr instr_E)) instr_E_lst) @ ((map (λ (instr_D :: instr). (admininstr_instr instr_D)) instr_D_lst) @ (option_to_list (map_option (λ (x :: idx). (admininstr_sc1 (admininstr_st1_CALL x))) x_opt)))))"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:167.6-167.18 *)
 lemma instantiate_is_wf :
@@ -9427,7 +9427,7 @@ inductive fun_invoke :: "store ⇒ funcaddr ⇒ (val list) ⇒ config ⇒ bool" 
 		 (wf_frame ⦇ LOCALS = [], frame_MODULE = ⦇ TYPES = [], FUNCS = [], GLOBALS = [], TABLES = [], MEMS = [], ELEMS = [], DATAS = [], EXPORTS = [] ⦈ ⦈) ⟹
 		 (wf_state (mk_state s f)) ⟹
 		 (v_n = (length val_lst)) ⟹
-		 fun_invoke s fa val_lst (mk_config (mk_state s f) ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_subcase_7 (CALL_ADDR fa))]))"
+		 fun_invoke s fa val_lst (mk_config (mk_state s f) ((map (λ (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc7 (CALL_ADDR fa))]))"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:196.6-196.13 *)
 lemma invoke_is_wf :
@@ -9620,26 +9620,26 @@ and Expr_ok2 :: "store ⇒ res_context ⇒ adminexpr ⇒ resulttype ⇒ bool" wh
 		 (Instrs_ok2 s (append_res_context ⦇ context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [(mk_list t'_lst)], context_RETURN = None ⦈ C) admininstr_lst (mk_functype (mk_list []) (mk_list t_lst))) ⟹
 		 (wf_store s) ⟹
 		 (wf_context C) ⟹
-		 (wf_admininstr (admininstr_subcase_8 (LABEL_underscore v_n instr'_lst admininstr_lst))) ⟹
+		 (wf_admininstr (admininstr_sc8 (LABEL_underscore v_n instr'_lst admininstr_lst))) ⟹
 		 (wf_context ⦇ context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [(mk_list t'_lst)], context_RETURN = None ⦈) ⟹
 		 (v_n = (length t'_lst)) ⟹
-		 Instr_ok2 s C (admininstr_subcase_8 (LABEL_underscore v_n instr'_lst admininstr_lst)) (mk_functype (mk_list []) (mk_list t_lst))"
+		 Instr_ok2 s C (admininstr_sc8 (LABEL_underscore v_n instr'_lst admininstr_lst)) (mk_functype (mk_list []) (mk_list t_lst))"
 	| Instr_ok2__frame :
 		"(Frame_ok s f C') ⟹
 		 (Expr_ok2 s C' admininstr_lst (mk_list t_lst)) ⟹
 		 (wf_store s) ⟹
 		 (wf_context C) ⟹
 		 (wf_context C') ⟹
-		 (wf_admininstr (admininstr_subcase_8 (FRAME_underscore v_n f admininstr_lst))) ⟹
+		 (wf_admininstr (admininstr_sc8 (FRAME_underscore v_n f admininstr_lst))) ⟹
 		 (v_n = (length t_lst)) ⟹
-		 Instr_ok2 s C (admininstr_subcase_8 (FRAME_underscore v_n f admininstr_lst)) (mk_functype (mk_list []) (mk_list t_lst))"
+		 Instr_ok2 s C (admininstr_sc8 (FRAME_underscore v_n f admininstr_lst)) (mk_functype (mk_list []) (mk_list t_lst))"
 	| Instr_ok2__call_addr :
 		"(Externaddr_ok s (externaddr_FUNC v_funcaddr) (FUNC (mk_functype (mk_list t_1_lst) (mk_list t_2_lst)))) ⟹
 		 (wf_store s) ⟹
 		 (wf_context C) ⟹
-		 (wf_admininstr (admininstr_subcase_7 (CALL_ADDR v_funcaddr))) ⟹
+		 (wf_admininstr (admininstr_sc7 (CALL_ADDR v_funcaddr))) ⟹
 		 (wf_externtype (FUNC (mk_functype (mk_list t_1_lst) (mk_list t_2_lst)))) ⟹
-		 Instr_ok2 s C (admininstr_subcase_7 (CALL_ADDR v_funcaddr)) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
+		 Instr_ok2 s C (admininstr_sc7 (CALL_ADDR v_funcaddr)) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
 	| Instr_ok2__ref :
 		"(Ref_ok s v_ref rt) ⟹
 		 (wf_store s) ⟹
@@ -9648,8 +9648,8 @@ and Expr_ok2 :: "store ⇒ res_context ⇒ adminexpr ⇒ resulttype ⇒ bool" wh
 	| Instr_ok2__trap :
 		"(wf_store s) ⟹
 		 (wf_context C) ⟹
-		 (wf_admininstr (admininstr_subcase_7 admininstr_subtype_7_TRAP)) ⟹
-		 Instr_ok2 s C (admininstr_subcase_7 admininstr_subtype_7_TRAP) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
+		 (wf_admininstr (admininstr_sc7 admininstr_st7_TRAP)) ⟹
+		 Instr_ok2 s C (admininstr_sc7 admininstr_st7_TRAP) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
 	| Instrs_ok2__empty :
 		"(wf_store s) ⟹
 		 (wf_context C) ⟹
@@ -9835,192 +9835,5 @@ inductive Config_ok :: "config ⇒ resulttype ⇒ bool" where
 		 (wf_config (mk_config (mk_state s f) admininstr_lst)) ⟹
 		 (wf_state (mk_state s f)) ⟹
 		 Config_ok (mk_config (mk_state s f) admininstr_lst) (mk_list t_lst)"
-
-(* Auxiliary Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:1.1-1.31 *)
-function (sequential) is_val :: "admininstr ⇒ bool" where
-		  "is_val (admininstr_subcase_7 (admininstr_subtype_7_REF_HOST_ADDR v_hostaddr)) = True"
-		| "is_val (admininstr_subcase_7 (admininstr_subtype_7_REF_FUNC_ADDR v_funcaddr)) = True"
-		| "is_val (admininstr_subcase_4 (admininstr_subtype_4_REF_NULL v_reftype)) = True"
-		| "is_val (admininstr_subcase_2 (admininstr_subtype_2_VCONST v_vectype var_1)) = True"
-		| "is_val (admininstr_subcase_1 (admininstr_subtype_1_CONST v_numtype var_0)) = True"
-		| "is_val v_admininstr = False"
-	by pat_completeness auto
-
-(* Auxiliary Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:5.1-5.33 *)
-function (sequential) is_instr :: "admininstr ⇒ bool" where
-		  "is_instr (admininstr_subcase_7 (admininstr_subtype_7_DATA_DROP dataidx_0)) = True"
-		| "is_instr (admininstr_subcase_7 (admininstr_subtype_7_MEMORY_INIT v_dataidx)) = True"
-		| "is_instr (admininstr_subcase_7 admininstr_subtype_7_MEMORY_COPY) = True"
-		| "is_instr (admininstr_subcase_7 admininstr_subtype_7_MEMORY_FILL) = True"
-		| "is_instr (admininstr_subcase_7 admininstr_subtype_7_MEMORY_GROW) = True"
-		| "is_instr (admininstr_subcase_6 admininstr_subtype_6_MEMORY_SIZE) = True"
-		| "is_instr (admininstr_subcase_6 (admininstr_subtype_6_VSTORE_LANE vectype_7 sz_0 memarg_4 laneidx_2)) = True"
-		| "is_instr (admininstr_subcase_6 (admininstr_subtype_6_VSTORE vectype_6 memarg_3)) = True"
-		| "is_instr (admininstr_subcase_6 (admininstr_subtype_6_VLOAD_LANE vectype_5 v_sz memarg_2 laneidx_1)) = True"
-		| "is_instr (admininstr_subcase_6 (admininstr_subtype_6_VLOAD vectype_4 vloadop_opt memarg_1)) = True"
-		| "is_instr (admininstr_subcase_6 (admininstr_subtype_6_STORE numtype_6 sz_opt memarg_0)) = True"
-		| "is_instr (admininstr_subcase_6 (admininstr_subtype_6_LOAD numtype_5 var_13_opt v_memarg)) = True"
-		| "is_instr (admininstr_subcase_6 (admininstr_subtype_6_ELEM_DROP elemidx_0)) = True"
-		| "is_instr (admininstr_subcase_6 (admininstr_subtype_6_TABLE_INIT tableidx_7 v_elemidx)) = True"
-		| "is_instr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_COPY tableidx_5 tableidx_6)) = True"
-		| "is_instr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_FILL tableidx_4)) = True"
-		| "is_instr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_GROW tableidx_3)) = True"
-		| "is_instr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_SIZE tableidx_2)) = True"
-		| "is_instr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_SET tableidx_1)) = True"
-		| "is_instr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_GET tableidx_0)) = True"
-		| "is_instr (admininstr_subcase_5 (admininstr_subtype_5_GLOBAL_SET globalidx_0)) = True"
-		| "is_instr (admininstr_subcase_5 (admininstr_subtype_5_GLOBAL_GET v_globalidx)) = True"
-		| "is_instr (admininstr_subcase_5 (admininstr_subtype_5_LOCAL_TEE localidx_1)) = True"
-		| "is_instr (admininstr_subcase_4 (admininstr_subtype_4_LOCAL_SET localidx_0)) = True"
-		| "is_instr (admininstr_subcase_4 (admininstr_subtype_4_LOCAL_GET v_localidx)) = True"
-		| "is_instr (admininstr_subcase_4 admininstr_subtype_4_REF_IS_NULL) = True"
-		| "is_instr (admininstr_subcase_4 (admininstr_subtype_4_REF_FUNC funcidx_0)) = True"
-		| "is_instr (admininstr_subcase_4 (admininstr_subtype_4_REF_NULL v_reftype)) = True"
-		| "is_instr (admininstr_subcase_4 (admininstr_subtype_4_VCVTOP shape_6 shape_7 v_vcvtop)) = True"
-		| "is_instr (admininstr_subcase_4 (admininstr_subtype_4_VNARROW ishape_1_2 ishape_2_2 v_sx)) = True"
-		| "is_instr (admininstr_subcase_4 (admininstr_subtype_4_VEXTBINOP ishape_1_1 ishape_2_1 var_12)) = True"
-		| "is_instr (admininstr_subcase_4 (admininstr_subtype_4_VEXTUNOP ishape_1_0 ishape_2_0 var_11)) = True"
-		| "is_instr (admininstr_subcase_3 (admininstr_subtype_3_VREPLACE_LANE shape_5 laneidx_0)) = True"
-		| "is_instr (admininstr_subcase_3 (admininstr_subtype_3_VEXTRACT_LANE shape_4 sx_opt v_laneidx)) = True"
-		| "is_instr (admininstr_subcase_3 (admininstr_subtype_3_VSPLAT shape_3)) = True"
-		| "is_instr (admininstr_subcase_3 (admininstr_subtype_3_VSHUFFLE ishape_2 laneidx_lst)) = True"
-		| "is_instr (admininstr_subcase_3 (admininstr_subtype_3_VSWIZZLE ishape_1)) = True"
-		| "is_instr (admininstr_subcase_3 (admininstr_subtype_3_VBITMASK ishape_0)) = True"
-		| "is_instr (admininstr_subcase_3 (admininstr_subtype_3_VSHIFTOP v_ishape var_10)) = True"
-		| "is_instr (admininstr_subcase_3 (admininstr_subtype_3_VRELOP shape_2 var_9)) = True"
-		| "is_instr (admininstr_subcase_3 (admininstr_subtype_3_VTESTOP shape_1 var_8)) = True"
-		| "is_instr (admininstr_subcase_2 (admininstr_subtype_2_VBINOP shape_0 var_7)) = True"
-		| "is_instr (admininstr_subcase_2 (admininstr_subtype_2_VUNOP v_shape var_6)) = True"
-		| "is_instr (admininstr_subcase_2 (admininstr_subtype_2_VVTESTOP vectype_3 v_vvtestop)) = True"
-		| "is_instr (admininstr_subcase_2 (admininstr_subtype_2_VVTERNOP vectype_2 v_vvternop)) = True"
-		| "is_instr (admininstr_subcase_2 (admininstr_subtype_2_VVBINOP vectype_1 v_vvbinop)) = True"
-		| "is_instr (admininstr_subcase_2 (admininstr_subtype_2_VVUNOP vectype_0 v_vvunop)) = True"
-		| "is_instr (admininstr_subcase_2 (admininstr_subtype_2_VCONST v_vectype var_5)) = True"
-		| "is_instr (admininstr_subcase_2 (admininstr_subtype_2_EXTEND numtype_4 v_n)) = True"
-		| "is_instr (admininstr_subcase_2 (admininstr_subtype_2_CVTOP numtype_1_0 numtype_2_0 v_cvtop)) = True"
-		| "is_instr (admininstr_subcase_1 (admininstr_subtype_1_RELOP numtype_3 var_4)) = True"
-		| "is_instr (admininstr_subcase_1 (admininstr_subtype_1_TESTOP numtype_2 var_3)) = True"
-		| "is_instr (admininstr_subcase_1 (admininstr_subtype_1_BINOP numtype_1 var_2)) = True"
-		| "is_instr (admininstr_subcase_1 (admininstr_subtype_1_UNOP numtype_0 var_1)) = True"
-		| "is_instr (admininstr_subcase_1 (admininstr_subtype_1_CONST v_numtype var_0)) = True"
-		| "is_instr (admininstr_subcase_1 admininstr_subtype_1_RETURN) = True"
-		| "is_instr (admininstr_subcase_1 (admininstr_subtype_1_CALL_INDIRECT v_tableidx v_typeidx)) = True"
-		| "is_instr (admininstr_subcase_1 (admininstr_subtype_1_CALL v_funcidx)) = True"
-		| "is_instr (admininstr_subcase_1 (admininstr_subtype_1_BR_TABLE labelidx_lst labelidx_1)) = True"
-		| "is_instr (admininstr_subcase_0 (admininstr_subtype_0_BR_IF labelidx_0)) = True"
-		| "is_instr (admininstr_subcase_0 (admininstr_subtype_0_BR v_labelidx)) = True"
-		| "is_instr (admininstr_subcase_0 (admininstr_subtype_0_IFELSE blocktype_1 instr_lst_0_lst instr_lst_1_lst)) = True"
-		| "is_instr (admininstr_subcase_0 (admininstr_subtype_0_LOOP blocktype_0 instr_lst_0_lst)) = True"
-		| "is_instr (admininstr_subcase_0 (admininstr_subtype_0_BLOCK v_blocktype instr_lst)) = True"
-		| "is_instr (admininstr_subcase_0 (admininstr_subtype_0_SELECT valtype_lst_opt)) = True"
-		| "is_instr (admininstr_subcase_0 admininstr_subtype_0_DROP) = True"
-		| "is_instr (admininstr_subcase_0 admininstr_subtype_0_UNREACHABLE) = True"
-		| "is_instr (admininstr_subcase_0 admininstr_subtype_0_NOP) = True"
-		| "is_instr v_admininstr = False"
-	by pat_completeness auto
-
-(* Auxiliary Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:9.1-9.38 *)
-function (sequential) is_admininstr :: "admininstr ⇒ bool" where
-		  "is_admininstr (admininstr_subcase_7 (admininstr_subtype_7_DATA_DROP dataidx_0)) = False"
-		| "is_admininstr (admininstr_subcase_7 (admininstr_subtype_7_MEMORY_INIT v_dataidx)) = False"
-		| "is_admininstr (admininstr_subcase_7 admininstr_subtype_7_MEMORY_COPY) = False"
-		| "is_admininstr (admininstr_subcase_7 admininstr_subtype_7_MEMORY_FILL) = False"
-		| "is_admininstr (admininstr_subcase_7 admininstr_subtype_7_MEMORY_GROW) = False"
-		| "is_admininstr (admininstr_subcase_6 admininstr_subtype_6_MEMORY_SIZE) = False"
-		| "is_admininstr (admininstr_subcase_6 (admininstr_subtype_6_VSTORE_LANE vectype_7 sz_0 memarg_4 laneidx_2)) = False"
-		| "is_admininstr (admininstr_subcase_6 (admininstr_subtype_6_VSTORE vectype_6 memarg_3)) = False"
-		| "is_admininstr (admininstr_subcase_6 (admininstr_subtype_6_VLOAD_LANE vectype_5 v_sz memarg_2 laneidx_1)) = False"
-		| "is_admininstr (admininstr_subcase_6 (admininstr_subtype_6_VLOAD vectype_4 vloadop_opt memarg_1)) = False"
-		| "is_admininstr (admininstr_subcase_6 (admininstr_subtype_6_STORE numtype_6 sz_opt memarg_0)) = False"
-		| "is_admininstr (admininstr_subcase_6 (admininstr_subtype_6_LOAD numtype_5 var_13_opt v_memarg)) = False"
-		| "is_admininstr (admininstr_subcase_6 (admininstr_subtype_6_ELEM_DROP elemidx_0)) = False"
-		| "is_admininstr (admininstr_subcase_6 (admininstr_subtype_6_TABLE_INIT tableidx_7 v_elemidx)) = False"
-		| "is_admininstr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_COPY tableidx_5 tableidx_6)) = False"
-		| "is_admininstr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_FILL tableidx_4)) = False"
-		| "is_admininstr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_GROW tableidx_3)) = False"
-		| "is_admininstr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_SIZE tableidx_2)) = False"
-		| "is_admininstr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_SET tableidx_1)) = False"
-		| "is_admininstr (admininstr_subcase_5 (admininstr_subtype_5_TABLE_GET tableidx_0)) = False"
-		| "is_admininstr (admininstr_subcase_5 (admininstr_subtype_5_GLOBAL_SET globalidx_0)) = False"
-		| "is_admininstr (admininstr_subcase_5 (admininstr_subtype_5_GLOBAL_GET v_globalidx)) = False"
-		| "is_admininstr (admininstr_subcase_5 (admininstr_subtype_5_LOCAL_TEE localidx_1)) = False"
-		| "is_admininstr (admininstr_subcase_4 (admininstr_subtype_4_LOCAL_SET localidx_0)) = False"
-		| "is_admininstr (admininstr_subcase_4 (admininstr_subtype_4_LOCAL_GET v_localidx)) = False"
-		| "is_admininstr (admininstr_subcase_4 admininstr_subtype_4_REF_IS_NULL) = False"
-		| "is_admininstr (admininstr_subcase_4 (admininstr_subtype_4_REF_FUNC funcidx_0)) = False"
-		| "is_admininstr (admininstr_subcase_4 (admininstr_subtype_4_REF_NULL v_reftype)) = False"
-		| "is_admininstr (admininstr_subcase_4 (admininstr_subtype_4_VCVTOP shape_6 shape_7 v_vcvtop)) = False"
-		| "is_admininstr (admininstr_subcase_4 (admininstr_subtype_4_VNARROW ishape_1_2 ishape_2_2 v_sx)) = False"
-		| "is_admininstr (admininstr_subcase_4 (admininstr_subtype_4_VEXTBINOP ishape_1_1 ishape_2_1 var_12)) = False"
-		| "is_admininstr (admininstr_subcase_4 (admininstr_subtype_4_VEXTUNOP ishape_1_0 ishape_2_0 var_11)) = False"
-		| "is_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VREPLACE_LANE shape_5 laneidx_0)) = False"
-		| "is_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VEXTRACT_LANE shape_4 sx_opt v_laneidx)) = False"
-		| "is_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VSPLAT shape_3)) = False"
-		| "is_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VSHUFFLE ishape_2 laneidx_lst)) = False"
-		| "is_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VSWIZZLE ishape_1)) = False"
-		| "is_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VBITMASK ishape_0)) = False"
-		| "is_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VSHIFTOP v_ishape var_10)) = False"
-		| "is_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VRELOP shape_2 var_9)) = False"
-		| "is_admininstr (admininstr_subcase_3 (admininstr_subtype_3_VTESTOP shape_1 var_8)) = False"
-		| "is_admininstr (admininstr_subcase_2 (admininstr_subtype_2_VBINOP shape_0 var_7)) = False"
-		| "is_admininstr (admininstr_subcase_2 (admininstr_subtype_2_VUNOP v_shape var_6)) = False"
-		| "is_admininstr (admininstr_subcase_2 (admininstr_subtype_2_VVTESTOP vectype_3 v_vvtestop)) = False"
-		| "is_admininstr (admininstr_subcase_2 (admininstr_subtype_2_VVTERNOP vectype_2 v_vvternop)) = False"
-		| "is_admininstr (admininstr_subcase_2 (admininstr_subtype_2_VVBINOP vectype_1 v_vvbinop)) = False"
-		| "is_admininstr (admininstr_subcase_2 (admininstr_subtype_2_VVUNOP vectype_0 v_vvunop)) = False"
-		| "is_admininstr (admininstr_subcase_2 (admininstr_subtype_2_VCONST v_vectype var_5)) = False"
-		| "is_admininstr (admininstr_subcase_2 (admininstr_subtype_2_EXTEND numtype_4 v_n)) = False"
-		| "is_admininstr (admininstr_subcase_2 (admininstr_subtype_2_CVTOP numtype_1_0 numtype_2_0 v_cvtop)) = False"
-		| "is_admininstr (admininstr_subcase_1 (admininstr_subtype_1_RELOP numtype_3 var_4)) = False"
-		| "is_admininstr (admininstr_subcase_1 (admininstr_subtype_1_TESTOP numtype_2 var_3)) = False"
-		| "is_admininstr (admininstr_subcase_1 (admininstr_subtype_1_BINOP numtype_1 var_2)) = False"
-		| "is_admininstr (admininstr_subcase_1 (admininstr_subtype_1_UNOP numtype_0 var_1)) = False"
-		| "is_admininstr (admininstr_subcase_1 (admininstr_subtype_1_CONST v_numtype var_0)) = False"
-		| "is_admininstr (admininstr_subcase_1 admininstr_subtype_1_RETURN) = False"
-		| "is_admininstr (admininstr_subcase_1 (admininstr_subtype_1_CALL_INDIRECT v_tableidx v_typeidx)) = False"
-		| "is_admininstr (admininstr_subcase_1 (admininstr_subtype_1_CALL v_funcidx)) = False"
-		| "is_admininstr (admininstr_subcase_1 (admininstr_subtype_1_BR_TABLE labelidx_lst labelidx_1)) = False"
-		| "is_admininstr (admininstr_subcase_0 (admininstr_subtype_0_BR_IF labelidx_0)) = False"
-		| "is_admininstr (admininstr_subcase_0 (admininstr_subtype_0_BR v_labelidx)) = False"
-		| "is_admininstr (admininstr_subcase_0 (admininstr_subtype_0_IFELSE blocktype_1 instr_lst_0_lst instr_lst_1_lst)) = False"
-		| "is_admininstr (admininstr_subcase_0 (admininstr_subtype_0_LOOP blocktype_0 instr_lst_0_lst)) = False"
-		| "is_admininstr (admininstr_subcase_0 (admininstr_subtype_0_BLOCK v_blocktype instr_lst)) = False"
-		| "is_admininstr (admininstr_subcase_0 (admininstr_subtype_0_SELECT valtype_lst_opt)) = False"
-		| "is_admininstr (admininstr_subcase_0 admininstr_subtype_0_DROP) = False"
-		| "is_admininstr (admininstr_subcase_0 admininstr_subtype_0_UNREACHABLE) = False"
-		| "is_admininstr (admininstr_subcase_0 admininstr_subtype_0_NOP) = False"
-		| "is_admininstr v_admininstr = True"
-	by pat_completeness auto
-
-(* Inductive Type Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:13.1-13.44 *)
-datatype instrtype =
-	  mk_instrtype "resulttype" "resulttype"
-	
-
-(* Inductive Relations Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:15.1-15.50 *)
-inductive Instrtype_sub :: "instrtype ⇒ instrtype ⇒ bool" where
-	  mk_Instrtype_sub :
-		"(t_21_lst = (t_lst @ t_11'_lst)) ⟹
-		 (t_22_lst = (t'_lst @ t_12'_lst)) ⟹
-		 (Resulttype_sub (mk_list t_lst) (mk_list t'_lst)) ⟹
-		 (Resulttype_sub (mk_list t_11'_lst) (mk_list t_11_lst)) ⟹
-		 (Resulttype_sub (mk_list t_12_lst) (mk_list t_12'_lst)) ⟹
-		 Instrtype_sub (mk_instrtype (mk_list t_11_lst) (mk_list t_12_lst)) (mk_instrtype (mk_list t_21_lst) (mk_list t_22_lst))"
-
-(* Auxiliary Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:24.1-24.30 *)
-function (sequential) typeofval :: "val ⇒ valtype" where
-		  "typeofval (val_CONST v_numtype c) = (valtype_numtype v_numtype)"
-		| "typeofval (val_VCONST v_vectype c) = (valtype_vectype v_vectype)"
-		| "typeofval (val_REF_NULL v_reftype) = (valtype_reftype v_reftype)"
-		| "typeofval (val_REF_FUNC_ADDR v_funcaddr) = valtype_FUNCREF"
-		| "typeofval (val_REF_HOST_ADDR v_hostaddr) = valtype_EXTERNREF"
-	by pat_completeness auto
-
-(* Inductive Relations Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:31.6-31.18 *)
-inductive fun_typesofvals :: "(val list) ⇒ (valtype list) ⇒ bool" where
-	  fun_typesofvals_case_0 :
-		"((length val_lst) = (length valtype_lst)) ⟹
-		 list_all2 (λ (val_8 :: val) (valtype_215 :: valtype). ((typeofval val_8) = valtype_215)) val_lst valtype_lst ⟹
-		 fun_typesofvals val_lst valtype_lst"
 
 end
