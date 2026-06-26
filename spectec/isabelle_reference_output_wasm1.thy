@@ -1,4 +1,4 @@
-theory reference_isabelle_output_wasm1
+theory isabelle_reference_output_wasm1
 (* Imported Code *)
 	imports Main
 begin
