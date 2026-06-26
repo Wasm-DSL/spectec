@@ -96,7 +96,7 @@ definition Ki :: "nat" where
 	"Ki = 1024"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/0-aux.spectec:21.1-21.25 *)
-function (sequential) min :: "nat ⇒ nat ⇒ nat" where
+function (sequential, domintros) min :: "nat ⇒ nat ⇒ nat" where
 		  "min i j = (if (i ≤ j) then i else j)"
 	by pat_completeness auto
 
@@ -109,20 +109,20 @@ inductive fun_sum :: "(nat list) ⇒ nat ⇒ bool" where
 		 fun_sum ([v_n] @ n'_lst) (v_n + var_0)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/0-aux.spectec:32.1-32.58 *)
-function (sequential) opt_underscore :: "('X list) ⇒ (('X option) option)" where
+function (sequential, domintros) opt_underscore :: "('X list) ⇒ (('X option) option)" where
 		  "opt_underscore  [] = (Some None)"
 		| "opt_underscore  [w] = (Some (Some w))"
 		| "opt_underscore  x1 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/0-aux.spectec:36.1-36.45 *)
-function (sequential) list_underscore :: "('X option) ⇒ ('X list)" where
+function (sequential, domintros) list_underscore :: "('X option) ⇒ ('X list)" where
 		  "list_underscore  None = []"
 		| "list_underscore  (Some w) = [w]"
 	by pat_completeness auto
 
 (* Mutual Recursion at: ../specification/wasm-2.0/0-aux.spectec:40.1-40.86 *)
-function (sequential) concat_underscore :: "(('X list) list) ⇒ ('X list)" where
+function (sequential, domintros) concat_underscore :: "(('X list) list) ⇒ ('X list)" where
 		  "concat_underscore  [] = []"
 		| "concat_underscore  (w_lst # w'_lst_lst) = (w_lst @ (concat_underscore  w'_lst_lst))"
 	by pat_completeness auto
@@ -131,25 +131,25 @@ function (sequential) concat_underscore :: "(('X list) list) ⇒ ('X list)" wher
 axiomatization inv_concat_underscore :: "('X list) ⇒ (('X list) list)"
 
 (* Mutual Recursion at: ../specification/wasm-2.0/0-aux.spectec:51.1-51.46 *)
-function (sequential) setproduct2_underscore :: "'X ⇒ (('X list) list) ⇒ (('X list) list)" where
+function (sequential, domintros) setproduct2_underscore :: "'X ⇒ (('X list) list) ⇒ (('X list) list)" where
 		  "setproduct2_underscore  w_1 [] = []"
 		| "setproduct2_underscore  w_1 (w'_lst # w_lst_lst) = ([([w_1] @ w'_lst)] @ (setproduct2_underscore  w_1 w_lst_lst))"
 	by pat_completeness auto
 
 (* Mutual Recursion at: ../specification/wasm-2.0/0-aux.spectec:50.1-50.47 *)
-function (sequential) setproduct1_underscore :: "('X list) ⇒ (('X list) list) ⇒ (('X list) list)" where
+function (sequential, domintros) setproduct1_underscore :: "('X list) ⇒ (('X list) list) ⇒ (('X list) list)" where
 		  "setproduct1_underscore  [] w_lst_lst = []"
 		| "setproduct1_underscore  (w_1 # w'_lst) w_lst_lst = ((setproduct2_underscore  w_1 w_lst_lst) @ (setproduct1_underscore  w'_lst w_lst_lst))"
 	by pat_completeness auto
 
 (* Mutual Recursion at: ../specification/wasm-2.0/0-aux.spectec:49.1-49.84 *)
-function (sequential) setproduct_underscore :: "(('X list) list) ⇒ (('X list) list)" where
+function (sequential, domintros) setproduct_underscore :: "(('X list) list) ⇒ (('X list) list)" where
 		  "setproduct_underscore  [] = [[]]"
 		| "setproduct_underscore  (w_1_lst # w_lst_lst) = (setproduct1_underscore  w_1_lst (setproduct_underscore  w_lst_lst))"
 	by pat_completeness auto
 
 (* Mutual Recursion at: ../specification/wasm-2.0/0-aux.spectec:60.1-60.78 *)
-function (sequential) disjoint_underscore :: "('X list) ⇒ bool" where
+function (sequential, domintros) disjoint_underscore :: "('X list) ⇒ bool" where
 		  "disjoint_underscore  [] = True"
 		| "disjoint_underscore  (w # w'_lst) = ((~ (w ∈ set w'_lst)) ∧ (disjoint_underscore  w'_lst))"
 	by pat_completeness auto
@@ -160,7 +160,7 @@ datatype 'X res_list  =
 	
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:6.1-6.49 *)
-function (sequential) proj_list_0 :: "('X res_list) ⇒ (('X list))" where
+function (sequential, domintros) proj_list_0 :: "('X res_list) ⇒ (('X list))" where
 		  "proj_list_0  (mk_list v_X_list_0) = (v_X_list_0)"
 	by pat_completeness auto
 
@@ -181,7 +181,7 @@ datatype byte =
 	
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:16.1-16.50 *)
-function (sequential) proj_byte_0 :: "byte ⇒ (nat)" where
+function (sequential, domintros) proj_byte_0 :: "byte ⇒ (nat)" where
 		  "proj_byte_0 (mk_byte v_num_0) = (v_num_0)"
 	by pat_completeness auto
 
@@ -197,7 +197,7 @@ datatype uN =
 	
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:18.1-19.25 *)
-function (sequential) proj_uN_0 :: "uN ⇒ (nat)" where
+function (sequential, domintros) proj_uN_0 :: "uN ⇒ (nat)" where
 		  "proj_uN_0 (mk_uN v_num_0) = (v_num_0)"
 	by pat_completeness auto
 
@@ -213,7 +213,7 @@ datatype sN =
 	
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:20.1-21.49 *)
-function (sequential) proj_sN_0 :: "sN ⇒ (nat)" where
+function (sequential, domintros) proj_sN_0 :: "sN ⇒ (nat)" where
 		  "proj_sN_0 (mk_sN v_num_0) = (v_num_0)"
 	by pat_completeness auto
 
@@ -254,26 +254,26 @@ type_synonym i64 = "iN"
 type_synonym i128 = "iN"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:40.1-40.35 *)
-function (sequential) signif :: "N ⇒ (nat option)" where
+function (sequential, domintros) signif :: "N ⇒ (nat option)" where
 		  "signif (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) = (Some 23)"
 		| "signif (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) = (Some 52)"
 		| "signif x0 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:44.1-44.34 *)
-function (sequential) expon :: "N ⇒ (nat option)" where
+function (sequential, domintros) expon :: "N ⇒ (nat option)" where
 		  "expon (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) = (Some 8)"
 		| "expon (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) = (Some 11)"
 		| "expon x0 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:48.1-48.30 *)
-function (sequential) fun_M :: "N ⇒ nat" where
+function (sequential, domintros) fun_M :: "N ⇒ nat" where
 		  "fun_M v_N = (the ((signif v_N)))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:51.1-51.30 *)
-function (sequential) E :: "N ⇒ nat" where
+function (sequential, domintros) E :: "N ⇒ nat" where
 		  "E v_N = (the ((expon v_N)))"
 	by pat_completeness auto
 
@@ -322,7 +322,7 @@ type_synonym f32 = "fN"
 type_synonym f64 = "fN"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:68.1-68.39 *)
-function (sequential) fzero :: "N ⇒ fN" where
+function (sequential, domintros) fzero :: "N ⇒ fN" where
 		  "fzero v_N = (POS (SUBNORM 0))"
 	by pat_completeness auto
 
@@ -333,7 +333,7 @@ lemma fzero_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:71.1-71.39 *)
-function (sequential) fone :: "N ⇒ fN" where
+function (sequential, domintros) fone :: "N ⇒ fN" where
 		  "fone v_N = (POS (NORM 1 (0 :: nat)))"
 	by pat_completeness auto
 
@@ -344,7 +344,7 @@ lemma fone_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:74.1-74.21 *)
-function (sequential) canon_underscore :: "N ⇒ nat" where
+function (sequential, domintros) canon_underscore :: "N ⇒ nat" where
 		  "canon_underscore v_N = (2 ^ ((((the ((signif v_N))) :: nat) - (1 :: nat)) :: nat))"
 	by pat_completeness auto
 
@@ -357,7 +357,7 @@ datatype res_char =
 	
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:88.1-88.85 *)
-function (sequential) proj_char_0 :: "res_char ⇒ (nat)" where
+function (sequential, domintros) proj_char_0 :: "res_char ⇒ (nat)" where
 		  "proj_char_0 (mk_char v_num_0) = (v_num_0)"
 	by pat_completeness auto
 
@@ -402,7 +402,7 @@ datatype name =
 	
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:92.1-92.70 *)
-function (sequential) proj_name_0 :: "name ⇒ ((res_char list))" where
+function (sequential, domintros) proj_name_0 :: "name ⇒ ((res_char list))" where
 		  "proj_name_0 (mk_name v_char_list_0) = (v_char_list_0)"
 	by pat_completeness auto
 
@@ -484,7 +484,7 @@ datatype valtype =
 	| BOT
 
 (* Auxiliary Definition at:  *)
-function (sequential) valtype_numtype :: "numtype ⇒ valtype" where
+function (sequential, domintros) valtype_numtype :: "numtype ⇒ valtype" where
 		  "valtype_numtype I32 = valtype_I32"
 		| "valtype_numtype I64 = valtype_I64"
 		| "valtype_numtype F32 = valtype_F32"
@@ -492,13 +492,13 @@ function (sequential) valtype_numtype :: "numtype ⇒ valtype" where
 	by pat_completeness auto
 
 (* Auxiliary Definition at:  *)
-function (sequential) valtype_reftype :: "reftype ⇒ valtype" where
+function (sequential, domintros) valtype_reftype :: "reftype ⇒ valtype" where
 		  "valtype_reftype FUNCREF = valtype_FUNCREF"
 		| "valtype_reftype EXTERNREF = valtype_EXTERNREF"
 	by pat_completeness auto
 
 (* Auxiliary Definition at:  *)
-function (sequential) valtype_vectype :: "vectype ⇒ valtype" where
+function (sequential, domintros) valtype_vectype :: "vectype ⇒ valtype" where
 		  "valtype_vectype V128 = valtype_V128"
 	by pat_completeness auto
 
@@ -508,13 +508,13 @@ datatype Inn =
 	| Inn_I64
 
 (* Auxiliary Definition at:  *)
-function (sequential) numtype_Inn :: "Inn ⇒ numtype" where
+function (sequential, domintros) numtype_Inn :: "Inn ⇒ numtype" where
 		  "numtype_Inn Inn_I32 = I32"
 		| "numtype_Inn Inn_I64 = I64"
 	by pat_completeness auto
 
 (* Auxiliary Definition at:  *)
-function (sequential) valtype_Inn :: "Inn ⇒ valtype" where
+function (sequential, domintros) valtype_Inn :: "Inn ⇒ valtype" where
 		  "valtype_Inn Inn_I32 = valtype_I32"
 		| "valtype_Inn Inn_I64 = valtype_I64"
 	by pat_completeness auto
@@ -525,13 +525,13 @@ datatype Fnn =
 	| Fnn_F64
 
 (* Auxiliary Definition at:  *)
-function (sequential) numtype_Fnn :: "Fnn ⇒ numtype" where
+function (sequential, domintros) numtype_Fnn :: "Fnn ⇒ numtype" where
 		  "numtype_Fnn Fnn_F32 = F32"
 		| "numtype_Fnn Fnn_F64 = F64"
 	by pat_completeness auto
 
 (* Auxiliary Definition at:  *)
-function (sequential) valtype_Fnn :: "Fnn ⇒ valtype" where
+function (sequential, domintros) valtype_Fnn :: "Fnn ⇒ valtype" where
 		  "valtype_Fnn Fnn_F32 = valtype_F32"
 		| "valtype_Fnn Fnn_F64 = valtype_F64"
 	by pat_completeness auto
@@ -557,19 +557,19 @@ datatype lanetype =
 	| lanetype_I16
 
 (* Auxiliary Definition at:  *)
-function (sequential) lanetype_Fnn :: "Fnn ⇒ lanetype" where
+function (sequential, domintros) lanetype_Fnn :: "Fnn ⇒ lanetype" where
 		  "lanetype_Fnn Fnn_F32 = lanetype_F32"
 		| "lanetype_Fnn Fnn_F64 = lanetype_F64"
 	by pat_completeness auto
 
 (* Auxiliary Definition at:  *)
-function (sequential) lanetype_Inn :: "Inn ⇒ lanetype" where
+function (sequential, domintros) lanetype_Inn :: "Inn ⇒ lanetype" where
 		  "lanetype_Inn Inn_I32 = lanetype_I32"
 		| "lanetype_Inn Inn_I64 = lanetype_I64"
 	by pat_completeness auto
 
 (* Auxiliary Definition at:  *)
-function (sequential) lanetype_numtype :: "numtype ⇒ lanetype" where
+function (sequential, domintros) lanetype_numtype :: "numtype ⇒ lanetype" where
 		  "lanetype_numtype I32 = lanetype_I32"
 		| "lanetype_numtype I64 = lanetype_I64"
 		| "lanetype_numtype F32 = lanetype_F32"
@@ -577,7 +577,7 @@ function (sequential) lanetype_numtype :: "numtype ⇒ lanetype" where
 	by pat_completeness auto
 
 (* Auxiliary Definition at:  *)
-function (sequential) lanetype_packtype :: "packtype ⇒ lanetype" where
+function (sequential, domintros) lanetype_packtype :: "packtype ⇒ lanetype" where
 		  "lanetype_packtype I8 = lanetype_I8"
 		| "lanetype_packtype I16 = lanetype_I16"
 	by pat_completeness auto
@@ -593,7 +593,7 @@ datatype Jnn =
 	| Jnn_I16
 
 (* Auxiliary Definition at:  *)
-function (sequential) lanetype_Jnn :: "Jnn ⇒ lanetype" where
+function (sequential, domintros) lanetype_Jnn :: "Jnn ⇒ lanetype" where
 		  "lanetype_Jnn Jnn_I32 = lanetype_I32"
 		| "lanetype_Jnn Jnn_I64 = lanetype_I64"
 		| "lanetype_Jnn Jnn_I8 = lanetype_I8"
@@ -601,7 +601,7 @@ function (sequential) lanetype_Jnn :: "Jnn ⇒ lanetype" where
 	by pat_completeness auto
 
 (* Auxiliary Definition at:  *)
-function (sequential) Jnn_packtype :: "packtype ⇒ Jnn" where
+function (sequential, domintros) Jnn_packtype :: "packtype ⇒ Jnn" where
 		  "Jnn_packtype I8 = Jnn_I8"
 		| "Jnn_packtype I16 = Jnn_I16"
 	by pat_completeness auto
@@ -689,7 +689,7 @@ datatype dim =
 	
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:318.1-318.60 *)
-function (sequential) proj_dim_0 :: "dim ⇒ (nat)" where
+function (sequential, domintros) proj_dim_0 :: "dim ⇒ (nat)" where
 		  "proj_dim_0 (mk_dim v_num_0) = (v_num_0)"
 	by pat_completeness auto
 
@@ -711,12 +711,12 @@ inductive wf_shape :: "shape ⇒ bool" where
 		 wf_shape (X v_lanetype v_dim)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:206.1-206.32 *)
-function (sequential) fun_lanetype :: "shape ⇒ lanetype" where
+function (sequential, domintros) fun_lanetype :: "shape ⇒ lanetype" where
 		  "fun_lanetype (X v_Lnn (mk_dim v_N)) = v_Lnn"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:208.1-208.59 *)
-function (sequential) size :: "valtype ⇒ (nat option)" where
+function (sequential, domintros) size :: "valtype ⇒ (nat option)" where
 		  "size valtype_I32 = (Some 32)"
 		| "size valtype_I64 = (Some 64)"
 		| "size valtype_F32 = (Some 32)"
@@ -726,13 +726,13 @@ function (sequential) size :: "valtype ⇒ (nat option)" where
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:209.1-209.45 *)
-function (sequential) psize :: "packtype ⇒ nat" where
+function (sequential, domintros) psize :: "packtype ⇒ nat" where
 		  "psize I8 = 8"
 		| "psize I16 = 16"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:210.1-210.45 *)
-function (sequential) lsize :: "lanetype ⇒ nat" where
+function (sequential, domintros) lsize :: "lanetype ⇒ nat" where
 		  "lsize lanetype_I32 = (the ((size (valtype_numtype I32))))"
 		| "lsize lanetype_I64 = (the ((size (valtype_numtype I64))))"
 		| "lsize lanetype_F32 = (the ((size (valtype_numtype F32))))"
@@ -742,59 +742,59 @@ function (sequential) lsize :: "lanetype ⇒ nat" where
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:211.1-211.70 *)
-function (sequential) isize :: "Inn ⇒ nat" where
+function (sequential, domintros) isize :: "Inn ⇒ nat" where
 		  "isize v_Inn = (the ((size (valtype_Inn v_Inn))))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:212.1-212.70 *)
-function (sequential) jsize :: "Jnn ⇒ nat" where
+function (sequential, domintros) jsize :: "Jnn ⇒ nat" where
 		  "jsize v_Jnn = (lsize (lanetype_Jnn v_Jnn))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:213.1-213.70 *)
-function (sequential) fsize :: "Fnn ⇒ nat" where
+function (sequential, domintros) fsize :: "Fnn ⇒ nat" where
 		  "fsize v_Fnn = (the ((size (valtype_Fnn v_Fnn))))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:231.1-231.63 *)
-function (sequential) sizenn :: "numtype ⇒ nat" where
+function (sequential, domintros) sizenn :: "numtype ⇒ nat" where
 		  "sizenn nt = (the ((size (valtype_numtype nt))))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:232.1-232.63 *)
-function (sequential) sizenn1 :: "numtype ⇒ nat" where
+function (sequential, domintros) sizenn1 :: "numtype ⇒ nat" where
 		  "sizenn1 nt = (the ((size (valtype_numtype nt))))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:233.1-233.63 *)
-function (sequential) sizenn2 :: "numtype ⇒ nat" where
+function (sequential, domintros) sizenn2 :: "numtype ⇒ nat" where
 		  "sizenn2 nt = (the ((size (valtype_numtype nt))))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:238.1-238.63 *)
-function (sequential) lsizenn :: "lanetype ⇒ nat" where
+function (sequential, domintros) lsizenn :: "lanetype ⇒ nat" where
 		  "lsizenn lt = (lsize lt)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:239.1-239.63 *)
-function (sequential) lsizenn1 :: "lanetype ⇒ nat" where
+function (sequential, domintros) lsizenn1 :: "lanetype ⇒ nat" where
 		  "lsizenn1 lt = (lsize lt)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:240.1-240.63 *)
-function (sequential) lsizenn2 :: "lanetype ⇒ nat" where
+function (sequential, domintros) lsizenn2 :: "lanetype ⇒ nat" where
 		  "lsizenn2 lt = (lsize lt)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:245.1-245.40 *)
-function (sequential) inv_isize :: "nat ⇒ (Inn option)" where
+function (sequential, domintros) inv_isize :: "nat ⇒ (Inn option)" where
 		  "inv_isize (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) = (Some Inn_I32)"
 		| "inv_isize (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) = (Some Inn_I64)"
 		| "inv_isize x0 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:246.1-246.40 *)
-function (sequential) inv_jsize :: "nat ⇒ (Jnn option)" where
+function (sequential, domintros) inv_jsize :: "nat ⇒ (Jnn option)" where
 		  "inv_jsize (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))) = (Some Jnn_I8)"
 		| "inv_jsize (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))) = (Some Jnn_I16)"
 		| "inv_jsize (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) = (Some Jnn_I32)"
@@ -803,7 +803,7 @@ function (sequential) inv_jsize :: "nat ⇒ (Jnn option)" where
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:247.1-247.40 *)
-function (sequential) inv_fsize :: "nat ⇒ (Fnn option)" where
+function (sequential, domintros) inv_fsize :: "nat ⇒ (Fnn option)" where
 		  "inv_fsize (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) = (Some Fnn_F32)"
 		| "inv_fsize (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) = (Some Fnn_F64)"
 		| "inv_fsize x0 = None"
@@ -827,13 +827,13 @@ inductive wf_num_underscore :: "numtype ⇒ num_underscore ⇒ bool" where
 		 wf_num_underscore v_numtype (mk_num__1 v_Fnn var_x)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:259.1-259.21 *)
-function (sequential) proj_num__0 :: "num_underscore ⇒ (iN option)" where
+function (sequential, domintros) proj_num__0 :: "num_underscore ⇒ (iN option)" where
 		  "proj_num__0 (mk_num__0 v_Inn var_x) = (Some var_x)"
 		| "proj_num__0 var_x = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:259.1-259.21 *)
-function (sequential) proj_num__1 :: "num_underscore ⇒ (fN option)" where
+function (sequential, domintros) proj_num__1 :: "num_underscore ⇒ (fN option)" where
 		  "proj_num__1 (mk_num__1 v_Fnn var_x) = (Some var_x)"
 		| "proj_num__1 var_x = None"
 	by pat_completeness auto
@@ -863,19 +863,19 @@ inductive wf_lane_underscore :: "lanetype ⇒ lane_underscore ⇒ bool" where
 		 wf_lane_underscore v_lanetype (mk_lane__2 v_Jnn var_x)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:265.1-265.23 *)
-function (sequential) proj_lane__0 :: "lane_underscore ⇒ (num_underscore option)" where
+function (sequential, domintros) proj_lane__0 :: "lane_underscore ⇒ (num_underscore option)" where
 		  "proj_lane__0 (mk_lane__0 v_numtype var_x) = (Some var_x)"
 		| "proj_lane__0 var_x = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:265.1-265.23 *)
-function (sequential) proj_lane__1 :: "lane_underscore ⇒ (pack_underscore option)" where
+function (sequential, domintros) proj_lane__1 :: "lane_underscore ⇒ (pack_underscore option)" where
 		  "proj_lane__1 (mk_lane__1 v_packtype var_x) = (Some var_x)"
 		| "proj_lane__1 var_x = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:265.1-265.23 *)
-function (sequential) proj_lane__2 :: "lane_underscore ⇒ (iN option)" where
+function (sequential, domintros) proj_lane__2 :: "lane_underscore ⇒ (iN option)" where
 		  "proj_lane__2 (mk_lane__2 v_Jnn var_x) = (Some var_x)"
 		| "proj_lane__2 var_x = None"
 	by pat_completeness auto
@@ -884,7 +884,7 @@ function (sequential) proj_lane__2 :: "lane_underscore ⇒ (iN option)" where
 type_synonym vec_underscore = "vN"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:272.1-272.35 *)
-function (sequential) fun_zero :: "numtype ⇒ num_underscore" where
+function (sequential, domintros) fun_zero :: "numtype ⇒ num_underscore" where
 		  "fun_zero I32 = (mk_num__0 Inn_I32 (mk_uN 0))"
 		| "fun_zero I64 = (mk_num__0 Inn_I64 (mk_uN 0))"
 		| "fun_zero F32 = (mk_num__1 Fnn_F32 (fzero (the ((size (valtype_Fnn Fnn_F32))))))"
@@ -908,7 +908,7 @@ datatype sz =
 	
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:280.1-280.56 *)
-function (sequential) proj_sz_0 :: "sz ⇒ (nat)" where
+function (sequential, domintros) proj_sz_0 :: "sz ⇒ (nat)" where
 		  "proj_sz_0 (mk_sz v_num_0) = (v_num_0)"
 	by pat_completeness auto
 
@@ -950,13 +950,13 @@ inductive wf_unop_underscore :: "numtype ⇒ unop_underscore ⇒ bool" where
 		 wf_unop_underscore v_numtype (mk_unop__1 v_Fnn var_x)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:282.1-282.22 *)
-function (sequential) proj_unop__0 :: "unop_underscore ⇒ (unop_Inn option)" where
+function (sequential, domintros) proj_unop__0 :: "unop_underscore ⇒ (unop_Inn option)" where
 		  "proj_unop__0 (mk_unop__0 v_Inn var_x) = (Some var_x)"
 		| "proj_unop__0 var_x = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:282.1-282.22 *)
-function (sequential) proj_unop__1 :: "unop_underscore ⇒ (unop_Fnn option)" where
+function (sequential, domintros) proj_unop__1 :: "unop_underscore ⇒ (unop_Fnn option)" where
 		  "proj_unop__1 (mk_unop__1 v_Fnn var_x) = (Some var_x)"
 		| "proj_unop__1 var_x = None"
 	by pat_completeness auto
@@ -1001,13 +1001,13 @@ inductive wf_binop_underscore :: "numtype ⇒ binop_underscore ⇒ bool" where
 		 wf_binop_underscore v_numtype (mk_binop__1 v_Fnn var_x)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:286.1-286.23 *)
-function (sequential) proj_binop__0 :: "binop_underscore ⇒ (binop_Inn option)" where
+function (sequential, domintros) proj_binop__0 :: "binop_underscore ⇒ (binop_Inn option)" where
 		  "proj_binop__0 (mk_binop__0 v_Inn var_x) = (Some var_x)"
 		| "proj_binop__0 var_x = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:286.1-286.23 *)
-function (sequential) proj_binop__1 :: "binop_underscore ⇒ (binop_Fnn option)" where
+function (sequential, domintros) proj_binop__1 :: "binop_underscore ⇒ (binop_Fnn option)" where
 		  "proj_binop__1 (mk_binop__1 v_Fnn var_x) = (Some var_x)"
 		| "proj_binop__1 var_x = None"
 	by pat_completeness auto
@@ -1029,7 +1029,7 @@ inductive wf_testop_underscore :: "numtype ⇒ testop_underscore ⇒ bool" where
 		 wf_testop_underscore v_numtype (mk_testop__0 v_Inn var_x)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:293.1-293.24 *)
-function (sequential) proj_testop__0 :: "testop_underscore ⇒ testop_Inn" where
+function (sequential, domintros) proj_testop__0 :: "testop_underscore ⇒ testop_Inn" where
 		  "proj_testop__0 (mk_testop__0 v_Inn var_x) = var_x"
 	by pat_completeness auto
 
@@ -1066,13 +1066,13 @@ inductive wf_relop_underscore :: "numtype ⇒ relop_underscore ⇒ bool" where
 		 wf_relop_underscore v_numtype (mk_relop__1 v_Fnn var_x)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:297.1-297.23 *)
-function (sequential) proj_relop__0 :: "relop_underscore ⇒ (relop_Inn option)" where
+function (sequential, domintros) proj_relop__0 :: "relop_underscore ⇒ (relop_Inn option)" where
 		  "proj_relop__0 (mk_relop__0 v_Inn var_x) = (Some var_x)"
 		| "proj_relop__0 var_x = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:297.1-297.23 *)
-function (sequential) proj_relop__1 :: "relop_underscore ⇒ (relop_Fnn option)" where
+function (sequential, domintros) proj_relop__1 :: "relop_underscore ⇒ (relop_Fnn option)" where
 		  "proj_relop__1 (mk_relop__1 v_Fnn var_x) = (Some var_x)"
 		| "proj_relop__1 var_x = None"
 	by pat_completeness auto
@@ -1094,7 +1094,7 @@ datatype ishape =
 	
 
 (* Auxiliary Definition at:  *)
-function (sequential) shape_ishape :: "ishape ⇒ shape" where
+function (sequential, domintros) shape_ishape :: "ishape ⇒ shape" where
 		  "shape_ishape (ishape_X x0 x1) = (X (lanetype_Jnn x0) x1)"
 	by pat_completeness auto
 
@@ -1127,7 +1127,7 @@ inductive wf_pshape :: "pshape ⇒ bool" where
 		 wf_pshape (pshape_X v_Pnn v_dim)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:324.1-324.22 *)
-function (sequential) fun_dim :: "shape ⇒ dim" where
+function (sequential, domintros) fun_dim :: "shape ⇒ dim" where
 		  "fun_dim (X v_Lnn (mk_dim v_N)) = (mk_dim v_N)"
 	by pat_completeness auto
 
@@ -1139,7 +1139,7 @@ lemma dim_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:325.1-325.41 *)
-function (sequential) shsize :: "shape ⇒ nat" where
+function (sequential, domintros) shsize :: "shape ⇒ nat" where
 		  "shsize (X v_Lnn (mk_dim v_N)) = ((lsize v_Lnn) * v_N)"
 	by pat_completeness auto
 
@@ -1207,13 +1207,13 @@ inductive wf_vunop_underscore :: "shape ⇒ vunop_underscore ⇒ bool" where
 		 wf_vunop_underscore v_shape (mk_vunop__1 v_Fnn v_N var_x)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:332.1-332.21 *)
-function (sequential) proj_vunop__0 :: "vunop_underscore ⇒ (vunop_Jnn_N option)" where
+function (sequential, domintros) proj_vunop__0 :: "vunop_underscore ⇒ (vunop_Jnn_N option)" where
 		  "proj_vunop__0 (mk_vunop__0 v_Jnn v_N var_x) = (Some var_x)"
 		| "proj_vunop__0 var_x = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:332.1-332.21 *)
-function (sequential) proj_vunop__1 :: "vunop_underscore ⇒ (vunop_Fnn_N option)" where
+function (sequential, domintros) proj_vunop__1 :: "vunop_underscore ⇒ (vunop_Fnn_N option)" where
 		  "proj_vunop__1 (mk_vunop__1 v_Fnn v_N var_x) = (Some var_x)"
 		| "proj_vunop__1 var_x = None"
 	by pat_completeness auto
@@ -1285,13 +1285,13 @@ inductive wf_vbinop_underscore :: "shape ⇒ vbinop_underscore ⇒ bool" where
 		 wf_vbinop_underscore v_shape (mk_vbinop__1 v_Fnn v_N var_x)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:337.1-337.22 *)
-function (sequential) proj_vbinop__0 :: "vbinop_underscore ⇒ (vbinop_Jnn_N option)" where
+function (sequential, domintros) proj_vbinop__0 :: "vbinop_underscore ⇒ (vbinop_Jnn_N option)" where
 		  "proj_vbinop__0 (mk_vbinop__0 v_Jnn v_N var_x) = (Some var_x)"
 		| "proj_vbinop__0 var_x = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:337.1-337.22 *)
-function (sequential) proj_vbinop__1 :: "vbinop_underscore ⇒ (vbinop_Fnn_N option)" where
+function (sequential, domintros) proj_vbinop__1 :: "vbinop_underscore ⇒ (vbinop_Fnn_N option)" where
 		  "proj_vbinop__1 (mk_vbinop__1 v_Fnn v_N var_x) = (Some var_x)"
 		| "proj_vbinop__1 var_x = None"
 	by pat_completeness auto
@@ -1313,7 +1313,7 @@ inductive wf_vtestop_underscore :: "shape ⇒ vtestop_underscore ⇒ bool" where
 		 wf_vtestop_underscore v_shape (mk_vtestop__0 v_Jnn v_N var_x)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:350.1-350.23 *)
-function (sequential) proj_vtestop__0 :: "vtestop_underscore ⇒ vtestop_Jnn_N" where
+function (sequential, domintros) proj_vtestop__0 :: "vtestop_underscore ⇒ vtestop_Jnn_N" where
 		  "proj_vtestop__0 (mk_vtestop__0 v_Jnn v_N var_x) = var_x"
 	by pat_completeness auto
 
@@ -1370,13 +1370,13 @@ inductive wf_vrelop_underscore :: "shape ⇒ vrelop_underscore ⇒ bool" where
 		 wf_vrelop_underscore v_shape (mk_vrelop__1 v_Fnn v_N var_x)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:354.1-354.22 *)
-function (sequential) proj_vrelop__0 :: "vrelop_underscore ⇒ (vrelop_Jnn_N option)" where
+function (sequential, domintros) proj_vrelop__0 :: "vrelop_underscore ⇒ (vrelop_Jnn_N option)" where
 		  "proj_vrelop__0 (mk_vrelop__0 v_Jnn v_N var_x) = (Some var_x)"
 		| "proj_vrelop__0 var_x = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:354.1-354.22 *)
-function (sequential) proj_vrelop__1 :: "vrelop_underscore ⇒ (vrelop_Fnn_N option)" where
+function (sequential, domintros) proj_vrelop__1 :: "vrelop_underscore ⇒ (vrelop_Fnn_N option)" where
 		  "proj_vrelop__1 (mk_vrelop__1 v_Fnn v_N var_x) = (Some var_x)"
 		| "proj_vrelop__1 var_x = None"
 	by pat_completeness auto
@@ -1416,7 +1416,7 @@ inductive wf_vshiftop_underscore :: "ishape ⇒ vshiftop_underscore ⇒ bool" wh
 		 wf_vshiftop_underscore v_ishape (mk_vshiftop__0 v_Jnn v_N var_x)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:367.1-367.25 *)
-function (sequential) proj_vshiftop__0 :: "vshiftop_underscore ⇒ vshiftop_Jnn_N" where
+function (sequential, domintros) proj_vshiftop__0 :: "vshiftop_underscore ⇒ vshiftop_Jnn_N" where
 		  "proj_vshiftop__0 (mk_vshiftop__0 v_Jnn v_N var_x) = var_x"
 	by pat_completeness auto
 
@@ -1444,7 +1444,7 @@ inductive wf_vextunop_underscore :: "ishape ⇒ vextunop_underscore ⇒ bool" wh
 		 wf_vextunop_underscore v_ishape (mk_vextunop__0 v_Jnn v_N var_x)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:370.1-370.25 *)
-function (sequential) proj_vextunop__0 :: "vextunop_underscore ⇒ vextunop_Jnn_N" where
+function (sequential, domintros) proj_vextunop__0 :: "vextunop_underscore ⇒ vextunop_Jnn_N" where
 		  "proj_vextunop__0 (mk_vextunop__0 v_Jnn v_N var_x) = var_x"
 	by pat_completeness auto
 
@@ -1474,7 +1474,7 @@ inductive wf_vextbinop_underscore :: "ishape ⇒ vextbinop_underscore ⇒ bool" 
 		 wf_vextbinop_underscore v_ishape (mk_vextbinop__0 v_Jnn v_N var_x)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:373.1-373.26 *)
-function (sequential) proj_vextbinop__0 :: "vextbinop_underscore ⇒ vextbinop_Jnn_N" where
+function (sequential, domintros) proj_vextbinop__0 :: "vextbinop_underscore ⇒ vextbinop_Jnn_N" where
 		  "proj_vextbinop__0 (mk_vextbinop__0 v_Jnn v_N var_x) = var_x"
 	by pat_completeness auto
 
@@ -1523,7 +1523,7 @@ inductive wf_loadop_underscore :: "numtype ⇒ loadop_underscore ⇒ bool" where
 		 wf_loadop_underscore v_numtype (mk_loadop__0 v_Inn var_x)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:385.1-385.24 *)
-function (sequential) proj_loadop__0 :: "loadop_underscore ⇒ loadop_Inn" where
+function (sequential, domintros) proj_loadop__0 :: "loadop_underscore ⇒ loadop_Inn" where
 		  "proj_loadop__0 (mk_loadop__0 v_Inn var_x) = var_x"
 	by pat_completeness auto
 
@@ -2087,7 +2087,7 @@ inductive concat_bytes_is_wf :: "((byte list) list) ⇒ (byte list) ⇒ bool" wh
 		 concat_bytes_is_wf var_0_lst_lst ret_val_lst"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:28.1-28.32 *)
-function (sequential) unpack :: "lanetype ⇒ numtype" where
+function (sequential, domintros) unpack :: "lanetype ⇒ numtype" where
 		  "unpack lanetype_I32 = I32"
 		| "unpack lanetype_I64 = I64"
 		| "unpack lanetype_F32 = F32"
@@ -2097,7 +2097,7 @@ function (sequential) unpack :: "lanetype ⇒ numtype" where
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:44.1-44.54 *)
-function (sequential) shunpack :: "shape ⇒ numtype" where
+function (sequential, domintros) shunpack :: "shape ⇒ numtype" where
 		  "shunpack (X v_Lnn (mk_dim v_N)) = (unpack v_Lnn)"
 	by pat_completeness auto
 
@@ -2164,7 +2164,7 @@ inductive memsxt_is_wf :: "(externtype list) ⇒ (memtype list) ⇒ bool" where
 		 memsxt_is_wf var_0_lst ret_val_lst"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:80.1-80.61 *)
-function (sequential) dataidx_instr :: "instr ⇒ (dataidx list)" where
+function (sequential, domintros) dataidx_instr :: "instr ⇒ (dataidx list)" where
 		  "dataidx_instr (instr_sc7 (MEMORY_INIT x)) = [x]"
 		| "dataidx_instr (instr_sc7 (DATA_DROP x)) = [x]"
 		| "dataidx_instr res_in = []"
@@ -2261,7 +2261,7 @@ lemma s33_to_u32_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:9.1-9.22 *)
-function (sequential) res_bool :: "bool ⇒ nat" where
+function (sequential, domintros) res_bool :: "bool ⇒ nat" where
 		  "res_bool False = 0"
 		| "res_bool True = 1"
 	by pat_completeness auto
@@ -2288,12 +2288,12 @@ inductive fun_inv_signed_underscore :: "N ⇒ nat ⇒ nat ⇒ bool" where
 		 fun_inv_signed_underscore v_N i ((i + ((2 ^ v_N) :: nat)) :: nat)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:31.1-31.61 *)
-function (sequential) sat_u_underscore :: "N ⇒ nat ⇒ nat" where
+function (sequential, domintros) sat_u_underscore :: "N ⇒ nat ⇒ nat" where
 		  "sat_u_underscore v_N i = (if (i < (0 :: nat)) then 0 else (if (i > (((2 ^ v_N) :: nat) - (1 :: nat))) then ((((2 ^ v_N) :: nat) - (1 :: nat)) :: nat) else (i :: nat)))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:36.1-36.61 *)
-function (sequential) sat_s_underscore :: "N ⇒ nat ⇒ nat" where
+function (sequential, domintros) sat_s_underscore :: "N ⇒ nat ⇒ nat" where
 		  "sat_s_underscore v_N i = (if (i < (0 - ((2 ^ (((v_N :: nat) - (1 :: nat)) :: nat)) :: nat))) then (0 - ((2 ^ (((v_N :: nat) - (1 :: nat)) :: nat)) :: nat)) else (if (i > (((2 ^ (((v_N :: nat) - (1 :: nat)) :: nat)) :: nat) - (1 :: nat))) then (((2 ^ (((v_N :: nat) - (1 :: nat)) :: nat)) :: nat) - (1 :: nat)) else i))"
 	by pat_completeness auto
 
@@ -2418,7 +2418,7 @@ lemma wrap___is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.1-45.32 *)
-function (sequential) fun_unop__I64 :: "unop_underscore ⇒ num_underscore ⇒ (num_underscore list)" where
+function (sequential, domintros) fun_unop__I64 :: "unop_underscore ⇒ num_underscore ⇒ (num_underscore list)" where
 		  "fun_unop__I64 (mk_unop__0 Inn_I64 CLZ) (mk_num__0 Inn_I64 v_iN) = [(mk_num__0 Inn_I64 (iclz_underscore (sizenn (numtype_Inn Inn_I64)) v_iN))]"
 		| "fun_unop__I64 (mk_unop__0 Inn_I64 CTZ) (mk_num__0 Inn_I64 v_iN) = [(mk_num__0 Inn_I64 (ictz_underscore (sizenn (numtype_Inn Inn_I64)) v_iN))]"
 		| "fun_unop__I64 (mk_unop__0 Inn_I64 POPCNT) (mk_num__0 Inn_I64 v_iN) = [(mk_num__0 Inn_I64 (ipopcnt_underscore (sizenn (numtype_Inn Inn_I64)) v_iN))]"
@@ -2426,7 +2426,7 @@ function (sequential) fun_unop__I64 :: "unop_underscore ⇒ num_underscore ⇒ (
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.1-45.32 *)
-function (sequential) fun_unop__I32 :: "unop_underscore ⇒ num_underscore ⇒ (num_underscore list)" where
+function (sequential, domintros) fun_unop__I32 :: "unop_underscore ⇒ num_underscore ⇒ (num_underscore list)" where
 		  "fun_unop__I32 (mk_unop__0 Inn_I32 CLZ) (mk_num__0 Inn_I32 v_iN) = [(mk_num__0 Inn_I32 (iclz_underscore (sizenn (numtype_Inn Inn_I32)) v_iN))]"
 		| "fun_unop__I32 (mk_unop__0 Inn_I32 CTZ) (mk_num__0 Inn_I32 v_iN) = [(mk_num__0 Inn_I32 (ictz_underscore (sizenn (numtype_Inn Inn_I32)) v_iN))]"
 		| "fun_unop__I32 (mk_unop__0 Inn_I32 POPCNT) (mk_num__0 Inn_I32 v_iN) = [(mk_num__0 Inn_I32 (ipopcnt_underscore (sizenn (numtype_Inn Inn_I32)) v_iN))]"
@@ -2434,7 +2434,7 @@ function (sequential) fun_unop__I32 :: "unop_underscore ⇒ num_underscore ⇒ (
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.1-45.32 *)
-function (sequential) fun_unop__F64 :: "unop_underscore ⇒ num_underscore ⇒ (num_underscore list)" where
+function (sequential, domintros) fun_unop__F64 :: "unop_underscore ⇒ num_underscore ⇒ (num_underscore list)" where
 		  "fun_unop__F64 (mk_unop__1 Fnn_F64 ABS) (mk_num__1 Fnn_F64 v_fN) = (map (λ (iter_0_2 :: fN). (mk_num__1 Fnn_F64 iter_0_2)) (fabs_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN))"
 		| "fun_unop__F64 (mk_unop__1 Fnn_F64 unop_Fnn_NEG) (mk_num__1 Fnn_F64 v_fN) = (map (λ (iter_0_4 :: fN). (mk_num__1 Fnn_F64 iter_0_4)) (fneg_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN))"
 		| "fun_unop__F64 (mk_unop__1 Fnn_F64 SQRT) (mk_num__1 Fnn_F64 v_fN) = (map (λ (iter_0_6 :: fN). (mk_num__1 Fnn_F64 iter_0_6)) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN))"
@@ -2445,7 +2445,7 @@ function (sequential) fun_unop__F64 :: "unop_underscore ⇒ num_underscore ⇒ (
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.1-45.32 *)
-function (sequential) fun_unop__F32 :: "unop_underscore ⇒ num_underscore ⇒ (num_underscore list)" where
+function (sequential, domintros) fun_unop__F32 :: "unop_underscore ⇒ num_underscore ⇒ (num_underscore list)" where
 		  "fun_unop__F32 (mk_unop__1 Fnn_F32 ABS) (mk_num__1 Fnn_F32 v_fN) = (map (λ (iter_0_1 :: fN). (mk_num__1 Fnn_F32 iter_0_1)) (fabs_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN))"
 		| "fun_unop__F32 (mk_unop__1 Fnn_F32 unop_Fnn_NEG) (mk_num__1 Fnn_F32 v_fN) = (map (λ (iter_0_3 :: fN). (mk_num__1 Fnn_F32 iter_0_3)) (fneg_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN))"
 		| "fun_unop__F32 (mk_unop__1 Fnn_F32 SQRT) (mk_num__1 Fnn_F32 v_fN) = (map (λ (iter_0_5 :: fN). (mk_num__1 Fnn_F32 iter_0_5)) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN))"
@@ -2456,7 +2456,7 @@ function (sequential) fun_unop__F32 :: "unop_underscore ⇒ num_underscore ⇒ (
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.1-45.32 *)
-function (sequential) fun_unop_underscore :: "numtype ⇒ unop_underscore ⇒ num_underscore ⇒ (num_underscore list)" where
+function (sequential, domintros) fun_unop_underscore :: "numtype ⇒ unop_underscore ⇒ num_underscore ⇒ (num_underscore list)" where
 		  "fun_unop_underscore I64 v_unop_underscore v_num_underscore = (fun_unop__I64 v_unop_underscore v_num_underscore)"
 		| "fun_unop_underscore I32 v_unop_underscore v_num_underscore = (fun_unop__I32 v_unop_underscore v_num_underscore)"
 		| "fun_unop_underscore F64 v_unop_underscore v_num_underscore = (fun_unop__F64 v_unop_underscore v_num_underscore)"
@@ -2549,7 +2549,7 @@ lemma fsub__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:105.1-105.36 *)
-function (sequential) iadd_underscore :: "N ⇒ iN ⇒ iN ⇒ iN" where
+function (sequential, domintros) iadd_underscore :: "N ⇒ iN ⇒ iN ⇒ iN" where
 		  "iadd_underscore v_N i_1 i_2 = (mk_uN (((proj_uN_0 i_1) + (proj_uN_0 i_2)) mod (2 ^ v_N)))"
 	by pat_completeness auto
 
@@ -2601,7 +2601,7 @@ lemma idiv__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:107.1-107.36 *)
-function (sequential) imul_underscore :: "N ⇒ iN ⇒ iN ⇒ iN" where
+function (sequential, domintros) imul_underscore :: "N ⇒ iN ⇒ iN ⇒ iN" where
 		  "imul_underscore v_N i_1 i_2 = (mk_uN (((proj_uN_0 i_1) * (proj_uN_0 i_2)) mod (2 ^ v_N)))"
 	by pat_completeness auto
 
@@ -2693,7 +2693,7 @@ lemma ishr__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:106.1-106.36 *)
-function (sequential) isub_underscore :: "N ⇒ iN ⇒ iN ⇒ iN" where
+function (sequential, domintros) isub_underscore :: "N ⇒ iN ⇒ iN ⇒ iN" where
 		  "isub_underscore v_N i_1 i_2 = (mk_uN ((((((2 ^ v_N) + (proj_uN_0 i_1)) :: nat) - ((proj_uN_0 i_2) :: nat)) mod ((2 ^ v_N) :: nat)) :: nat))"
 	by pat_completeness auto
 
@@ -2810,7 +2810,7 @@ lemma binop__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:123.1-123.27 *)
-function (sequential) ieqz_underscore :: "N ⇒ iN ⇒ u32" where
+function (sequential, domintros) ieqz_underscore :: "N ⇒ iN ⇒ u32" where
 		  "ieqz_underscore v_N i_1 = (mk_uN (res_bool ((proj_uN_0 i_1) = 0)))"
 	by pat_completeness auto
 
@@ -2822,7 +2822,7 @@ lemma ieqz__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:48.1-49.32 *)
-function (sequential) fun_testop_underscore :: "numtype ⇒ testop_underscore ⇒ num_underscore ⇒ num_underscore" where
+function (sequential, domintros) fun_testop_underscore :: "numtype ⇒ testop_underscore ⇒ num_underscore ⇒ num_underscore" where
 		  "fun_testop_underscore I32 (mk_testop__0 Inn_I32 EQZ) (mk_num__0 Inn_I32 v_iN) = (mk_num__0 Inn_I32 (ieqz_underscore (sizenn (numtype_Inn Inn_I32)) v_iN))"
 		| "fun_testop_underscore I64 (mk_testop__0 Inn_I64 EQZ) (mk_num__0 Inn_I64 v_iN) = (mk_num__0 Inn_I32 (ieqz_underscore (sizenn (numtype_Inn Inn_I64)) v_iN))"
 	by pat_completeness auto
@@ -2902,7 +2902,7 @@ lemma fne__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:125.1-125.33 *)
-function (sequential) ieq_underscore :: "N ⇒ iN ⇒ iN ⇒ u32" where
+function (sequential, domintros) ieq_underscore :: "N ⇒ iN ⇒ iN ⇒ u32" where
 		  "ieq_underscore v_N i_1 i_2 = (mk_uN (res_bool (i_1 = i_2)))"
 	by pat_completeness auto
 
@@ -2987,7 +2987,7 @@ lemma ilt__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:126.1-126.33 *)
-function (sequential) ine_underscore :: "N ⇒ iN ⇒ iN ⇒ u32" where
+function (sequential, domintros) ine_underscore :: "N ⇒ iN ⇒ iN ⇒ u32" where
 		  "ine_underscore v_N i_1 i_2 = (mk_uN (res_bool (i_1 ≠ i_2)))"
 	by pat_completeness auto
 
@@ -3399,7 +3399,7 @@ lemma iandnot__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:124.1-124.27 *)
-function (sequential) inez_underscore :: "N ⇒ iN ⇒ u32" where
+function (sequential, domintros) inez_underscore :: "N ⇒ iN ⇒ u32" where
 		  "inez_underscore v_N i_1 = (mk_uN (res_bool ((proj_uN_0 i_1) ≠ 0)))"
 	by pat_completeness auto
 
@@ -3423,7 +3423,7 @@ lemma ibitselect__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:133.1-133.29 *)
-function (sequential) ineg_underscore :: "N ⇒ iN ⇒ iN" where
+function (sequential, domintros) ineg_underscore :: "N ⇒ iN ⇒ iN" where
 		  "ineg_underscore v_N i_1 = (mk_uN (((((2 ^ v_N) :: nat) - ((proj_uN_0 i_1) :: nat)) mod ((2 ^ v_N) :: nat)) :: nat))"
 	by pat_completeness auto
 
@@ -3575,7 +3575,7 @@ lemma fpmax__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:323.1-324.27 *)
-function (sequential) packnum_underscore :: "lanetype ⇒ num_underscore ⇒ lane_underscore" where
+function (sequential, domintros) packnum_underscore :: "lanetype ⇒ num_underscore ⇒ lane_underscore" where
 		  "packnum_underscore lanetype_I32 c = (mk_lane__0 I32 c)"
 		| "packnum_underscore lanetype_I64 c = (mk_lane__0 I64 c)"
 		| "packnum_underscore lanetype_F32 c = (mk_lane__0 F32 c)"
@@ -3592,7 +3592,7 @@ lemma packnum__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:328.1-329.29 *)
-function (sequential) unpacknum_underscore :: "lanetype ⇒ lane_underscore ⇒ num_underscore" where
+function (sequential, domintros) unpacknum_underscore :: "lanetype ⇒ lane_underscore ⇒ num_underscore" where
 		  "unpacknum_underscore lanetype_I32 (mk_lane__0 I32 c) = c"
 		| "unpacknum_underscore lanetype_I64 (mk_lane__0 I64 c) = c"
 		| "unpacknum_underscore lanetype_F32 (mk_lane__0 F32 c) = c"
@@ -3631,7 +3631,7 @@ lemma inv_lanes__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:343.1-343.28 *)
-function (sequential) zeroop :: "vcvtop ⇒ (zero option)" where
+function (sequential, domintros) zeroop :: "vcvtop ⇒ (zero option)" where
 		  "zeroop (vcvtop_EXTEND v_half v_sx) = None"
 		| "zeroop (vcvtop_CONVERT half_opt v_sx) = None"
 		| "zeroop (vcvtop_TRUNC_SAT v_sx zero_opt) = zero_opt"
@@ -3640,7 +3640,7 @@ function (sequential) zeroop :: "vcvtop ⇒ (zero option)" where
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:350.1-350.28 *)
-function (sequential) halfop :: "vcvtop ⇒ (half option)" where
+function (sequential, domintros) halfop :: "vcvtop ⇒ (half option)" where
 		  "halfop (vcvtop_EXTEND v_half v_sx) = (Some v_half)"
 		| "halfop (vcvtop_CONVERT half_opt v_sx) = half_opt"
 		| "halfop (vcvtop_TRUNC_SAT v_sx zero_opt) = None"
@@ -3649,13 +3649,13 @@ function (sequential) halfop :: "vcvtop ⇒ (half option)" where
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:357.1-357.32 *)
-function (sequential) fun_half :: "half ⇒ nat ⇒ nat ⇒ nat" where
+function (sequential, domintros) fun_half :: "half ⇒ nat ⇒ nat ⇒ nat" where
 		  "fun_half LOW i j = i"
 		| "fun_half HIGH i j = j"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:362.1-363.28 *)
-function (sequential) vvunop_underscore :: "vectype ⇒ vvunop ⇒ vec_underscore ⇒ vec_underscore" where
+function (sequential, domintros) vvunop_underscore :: "vectype ⇒ vvunop ⇒ vec_underscore ⇒ vec_underscore" where
 		  "vvunop_underscore V128 NOT v128 = (inot_underscore (the ((size valtype_V128))) v128)"
 	by pat_completeness auto
 
@@ -3668,7 +3668,7 @@ lemma vvunop__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:364.1-365.31 *)
-function (sequential) vvbinop_underscore :: "vectype ⇒ vvbinop ⇒ vec_underscore ⇒ vec_underscore ⇒ vec_underscore" where
+function (sequential, domintros) vvbinop_underscore :: "vectype ⇒ vvbinop ⇒ vec_underscore ⇒ vec_underscore ⇒ vec_underscore" where
 		  "vvbinop_underscore V128 vvbinop_AND v128_1 v128_2 = (iand_underscore (the ((size valtype_V128))) v128_1 v128_2)"
 		| "vvbinop_underscore V128 ANDNOT v128_1 v128_2 = (iandnot_underscore (the ((size valtype_V128))) v128_1 v128_2)"
 		| "vvbinop_underscore V128 vvbinop_OR v128_1 v128_2 = (ior_underscore (the ((size valtype_V128))) v128_1 v128_2)"
@@ -3685,7 +3685,7 @@ lemma vvbinop__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:366.1-367.34 *)
-function (sequential) vvternop_underscore :: "vectype ⇒ vvternop ⇒ vec_underscore ⇒ vec_underscore ⇒ vec_underscore ⇒ vec_underscore" where
+function (sequential, domintros) vvternop_underscore :: "vectype ⇒ vvternop ⇒ vec_underscore ⇒ vec_underscore ⇒ vec_underscore ⇒ vec_underscore" where
 		  "vvternop_underscore V128 BITSELECT v128_1 v128_2 v128_3 = (ibitselect_underscore (the ((size valtype_V128))) v128_1 v128_2 v128_3)"
 	by pat_completeness auto
 
@@ -5389,49 +5389,49 @@ lemma vrelop__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I8_mkdim_X_I8 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I8_mkdim_X_I8 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I8_mkdim_X_I8 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I8 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1) in 
 			 [(mk_lane__2 Jnn_I8 iN_2)])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I8_mkdim_X_I64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I8_mkdim_X_I64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I8_mkdim_X_I64 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I8 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1) in 
 			 [(mk_lane__2 Jnn_I64 iN_2)])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I8_mkdim_X_I32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I8_mkdim_X_I32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I8_mkdim_X_I32 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I8 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1) in 
 			 [(mk_lane__2 Jnn_I32 iN_2)])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I8_mkdim_X_I16 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I8_mkdim_X_I16 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I8_mkdim_X_I16 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I8 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1) in 
 			 [(mk_lane__2 Jnn_I16 iN_2)])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I8_mkdim_X_F64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I8_mkdim_X_F64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I8_mkdim_X_F64 M_1 (mk_dim M_2) (vcvtop_CONVERT half_opt v_sx) (mk_lane__2 Jnn_I8 iN_1) = 
 			 (let fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1) in 
 			 [(mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2))])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I8_mkdim_X_F32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I8_mkdim_X_F32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I8_mkdim_X_F32 M_1 (mk_dim M_2) (vcvtop_CONVERT half_opt v_sx) (mk_lane__2 Jnn_I8 iN_1) = 
 			 (let fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1) in 
 			 [(mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2))])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I8_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I8_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I8_mkdim_X mkdim_argument_0_0 lanetype_I8 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I8_mkdim_X_I8 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_I8_mkdim_X mkdim_argument_0_0 lanetype_I64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I8_mkdim_X_I64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_I8_mkdim_X mkdim_argument_0_0 lanetype_I32 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I8_mkdim_X_I32 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
@@ -5441,59 +5441,59 @@ function (sequential) vcvtop___X_I8_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vcv
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I8_mkdim :: "nat ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I8_mkdim :: "nat ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I8_mkdim mkdim_argument_0_0 (X constructor_parameter_0 constructor_parameter_1) v_vcvtop v_lane_underscore = (vcvtop___X_I8_mkdim_X mkdim_argument_0_0 constructor_parameter_0 constructor_parameter_1 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I8 :: "dim ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I8 :: "dim ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I8 (mk_dim constructor_parameter_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I8_mkdim constructor_parameter_0 shape_2 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I64_mkdim_X_I8 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I64_mkdim_X_I8 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I64_mkdim_X_I8 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I64 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1) in 
 			 [(mk_lane__2 Jnn_I8 iN_2)])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I64_mkdim_X_I64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I64_mkdim_X_I64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I64_mkdim_X_I64 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I64 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1) in 
 			 [(mk_lane__2 Jnn_I64 iN_2)])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I64_mkdim_X_I32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I64_mkdim_X_I32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I64_mkdim_X_I32 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I64 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1) in 
 			 [(mk_lane__2 Jnn_I32 iN_2)])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I64_mkdim_X_I16 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I64_mkdim_X_I16 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I64_mkdim_X_I16 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I64 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1) in 
 			 [(mk_lane__2 Jnn_I16 iN_2)])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I64_mkdim_X_F64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I64_mkdim_X_F64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I64_mkdim_X_F64 M_1 (mk_dim M_2) (vcvtop_CONVERT half_opt v_sx) (mk_lane__2 Jnn_I64 iN_1) = 
 			 (let fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1) in 
 			 [(mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2))])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I64_mkdim_X_F32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I64_mkdim_X_F32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I64_mkdim_X_F32 M_1 (mk_dim M_2) (vcvtop_CONVERT half_opt v_sx) (mk_lane__2 Jnn_I64 iN_1) = 
 			 (let fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1) in 
 			 [(mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2))])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I64_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I64_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I64_mkdim_X mkdim_argument_0_0 lanetype_I8 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I64_mkdim_X_I8 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_I64_mkdim_X mkdim_argument_0_0 lanetype_I64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I64_mkdim_X_I64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_I64_mkdim_X mkdim_argument_0_0 lanetype_I32 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I64_mkdim_X_I32 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
@@ -5503,59 +5503,59 @@ function (sequential) vcvtop___X_I64_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vc
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I64_mkdim :: "nat ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I64_mkdim :: "nat ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I64_mkdim mkdim_argument_0_0 (X constructor_parameter_0 constructor_parameter_1) v_vcvtop v_lane_underscore = (vcvtop___X_I64_mkdim_X mkdim_argument_0_0 constructor_parameter_0 constructor_parameter_1 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I64 :: "dim ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I64 :: "dim ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I64 (mk_dim constructor_parameter_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I64_mkdim constructor_parameter_0 shape_2 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I32_mkdim_X_I8 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I32_mkdim_X_I8 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I32_mkdim_X_I8 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I32 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1) in 
 			 [(mk_lane__2 Jnn_I8 iN_2)])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I32_mkdim_X_I64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I32_mkdim_X_I64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I32_mkdim_X_I64 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I32 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1) in 
 			 [(mk_lane__2 Jnn_I64 iN_2)])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I32_mkdim_X_I32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I32_mkdim_X_I32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I32_mkdim_X_I32 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I32 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1) in 
 			 [(mk_lane__2 Jnn_I32 iN_2)])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I32_mkdim_X_I16 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I32_mkdim_X_I16 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I32_mkdim_X_I16 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I32 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1) in 
 			 [(mk_lane__2 Jnn_I16 iN_2)])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I32_mkdim_X_F64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I32_mkdim_X_F64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I32_mkdim_X_F64 M_1 (mk_dim M_2) (vcvtop_CONVERT half_opt v_sx) (mk_lane__2 Jnn_I32 iN_1) = 
 			 (let fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1) in 
 			 [(mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2))])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I32_mkdim_X_F32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I32_mkdim_X_F32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I32_mkdim_X_F32 M_1 (mk_dim M_2) (vcvtop_CONVERT half_opt v_sx) (mk_lane__2 Jnn_I32 iN_1) = 
 			 (let fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1) in 
 			 [(mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2))])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I32_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I32_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I32_mkdim_X mkdim_argument_0_0 lanetype_I8 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I32_mkdim_X_I8 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_I32_mkdim_X mkdim_argument_0_0 lanetype_I64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I32_mkdim_X_I64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_I32_mkdim_X mkdim_argument_0_0 lanetype_I32 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I32_mkdim_X_I32 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
@@ -5565,59 +5565,59 @@ function (sequential) vcvtop___X_I32_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vc
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I32_mkdim :: "nat ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I32_mkdim :: "nat ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I32_mkdim mkdim_argument_0_0 (X constructor_parameter_0 constructor_parameter_1) v_vcvtop v_lane_underscore = (vcvtop___X_I32_mkdim_X mkdim_argument_0_0 constructor_parameter_0 constructor_parameter_1 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I32 :: "dim ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I32 :: "dim ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I32 (mk_dim constructor_parameter_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I32_mkdim constructor_parameter_0 shape_2 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I16_mkdim_X_I8 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I16_mkdim_X_I8 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I16_mkdim_X_I8 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I16 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1) in 
 			 [(mk_lane__2 Jnn_I8 iN_2)])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I16_mkdim_X_I64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I16_mkdim_X_I64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I16_mkdim_X_I64 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I16 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1) in 
 			 [(mk_lane__2 Jnn_I64 iN_2)])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I16_mkdim_X_I32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I16_mkdim_X_I32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I16_mkdim_X_I32 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I16 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1) in 
 			 [(mk_lane__2 Jnn_I32 iN_2)])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I16_mkdim_X_I16 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I16_mkdim_X_I16 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I16_mkdim_X_I16 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I16 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1) in 
 			 [(mk_lane__2 Jnn_I16 iN_2)])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I16_mkdim_X_F64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I16_mkdim_X_F64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I16_mkdim_X_F64 M_1 (mk_dim M_2) (vcvtop_CONVERT half_opt v_sx) (mk_lane__2 Jnn_I16 iN_1) = 
 			 (let fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1) in 
 			 [(mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2))])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I16_mkdim_X_F32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I16_mkdim_X_F32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I16_mkdim_X_F32 M_1 (mk_dim M_2) (vcvtop_CONVERT half_opt v_sx) (mk_lane__2 Jnn_I16 iN_1) = 
 			 (let fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1) in 
 			 [(mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2))])"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I16_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I16_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I16_mkdim_X mkdim_argument_0_0 lanetype_I8 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I16_mkdim_X_I8 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_I16_mkdim_X mkdim_argument_0_0 lanetype_I64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I16_mkdim_X_I64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_I16_mkdim_X mkdim_argument_0_0 lanetype_I32 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I16_mkdim_X_I32 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
@@ -5627,101 +5627,101 @@ function (sequential) vcvtop___X_I16_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vc
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I16_mkdim :: "nat ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I16_mkdim :: "nat ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I16_mkdim mkdim_argument_0_0 (X constructor_parameter_0 constructor_parameter_1) v_vcvtop v_lane_underscore = (vcvtop___X_I16_mkdim_X mkdim_argument_0_0 constructor_parameter_0 constructor_parameter_1 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_I16 :: "dim ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I16 :: "dim ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_I16 (mk_dim constructor_parameter_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I16_mkdim constructor_parameter_0 shape_2 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64_mkdim_X_I64_mkdim_TRUNCSAT :: "nat ⇒ nat ⇒ sx ⇒ (zero option) ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I64_mkdim_TRUNCSAT :: "nat ⇒ nat ⇒ sx ⇒ (zero option) ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64_mkdim_X_I64_mkdim_TRUNCSAT M_1 M_2 v_sx zero_opt (mk_lane__0 F64 (mk_num__1 Fnn_F64 fN_1)) = 
 			 (let iN_2_opt = (trunc_sat__underscore (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Inn Inn_I64)) v_sx fN_1) in 
 			 (list_underscore  (map_option (λ (iN_2_8 :: iN). (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 iN_2_8))) iN_2_opt)))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64_mkdim_X_I64_mkdim :: "nat ⇒ nat ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I64_mkdim :: "nat ⇒ nat ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64_mkdim_X_I64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_TRUNC_SAT constructor_parameter_0 constructor_parameter_1) v_lane_underscore = (vcvtop___X_F64_mkdim_X_I64_mkdim_TRUNCSAT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_0 constructor_parameter_1 v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64_mkdim_X_I64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64_mkdim_X_I64 mkdim_argument_0_0 (mk_dim constructor_parameter_0) v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_I64_mkdim mkdim_argument_0_0 constructor_parameter_0 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64_mkdim_X_I32_mkdim_TRUNCSAT :: "nat ⇒ nat ⇒ sx ⇒ (zero option) ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I32_mkdim_TRUNCSAT :: "nat ⇒ nat ⇒ sx ⇒ (zero option) ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64_mkdim_X_I32_mkdim_TRUNCSAT M_1 M_2 v_sx zero_opt (mk_lane__0 F64 (mk_num__1 Fnn_F64 fN_1)) = 
 			 (let iN_2_opt = (trunc_sat__underscore (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Inn Inn_I32)) v_sx fN_1) in 
 			 (list_underscore  (map_option (λ (iN_2_6 :: iN). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 iN_2_6))) iN_2_opt)))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64_mkdim_X_I32_mkdim :: "nat ⇒ nat ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I32_mkdim :: "nat ⇒ nat ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64_mkdim_X_I32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_TRUNC_SAT constructor_parameter_0 constructor_parameter_1) v_lane_underscore = (vcvtop___X_F64_mkdim_X_I32_mkdim_TRUNCSAT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_0 constructor_parameter_1 v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64_mkdim_X_I32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64_mkdim_X_I32 mkdim_argument_0_0 (mk_dim constructor_parameter_0) v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_I32_mkdim mkdim_argument_0_0 constructor_parameter_0 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64_mkdim_X_F64_mkdim_PROMOTELOW :: "nat ⇒ nat ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F64_mkdim_PROMOTELOW :: "nat ⇒ nat ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64_mkdim_X_F64_mkdim_PROMOTELOW M_1 M_2 (mk_lane__0 F64 (mk_num__1 Fnn_F64 fN_1)) = 
 			 (let fN_2_lst = (promote__underscore (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1) in 
 			 (map (λ (fN_2_16 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2_16))) fN_2_lst))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64_mkdim_X_F64_mkdim_DEMOTE :: "nat ⇒ nat ⇒ zero ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F64_mkdim_DEMOTE :: "nat ⇒ nat ⇒ zero ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64_mkdim_X_F64_mkdim_DEMOTE M_1 M_2 ZERO (mk_lane__0 F64 (mk_num__1 Fnn_F64 fN_1)) = 
 			 (let fN_2_lst = (demote__underscore (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1) in 
 			 (map (λ (fN_2_8 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2_8))) fN_2_lst))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64_mkdim_X_F64_mkdim :: "nat ⇒ nat ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F64_mkdim :: "nat ⇒ nat ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 PROMOTELOW v_lane_underscore = (vcvtop___X_F64_mkdim_X_F64_mkdim_PROMOTELOW mkdim_argument_0_0 mkdim_argument_1_0 v_lane_underscore)"
 		| "vcvtop___X_F64_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_DEMOTE constructor_parameter_0) v_lane_underscore = (vcvtop___X_F64_mkdim_X_F64_mkdim_DEMOTE mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_0 v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64_mkdim_X_F64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64_mkdim_X_F64 mkdim_argument_0_0 (mk_dim constructor_parameter_0) v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_F64_mkdim mkdim_argument_0_0 constructor_parameter_0 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64_mkdim_X_F32_mkdim_PROMOTELOW :: "nat ⇒ nat ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F32_mkdim_PROMOTELOW :: "nat ⇒ nat ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64_mkdim_X_F32_mkdim_PROMOTELOW M_1 M_2 (mk_lane__0 F64 (mk_num__1 Fnn_F64 fN_1)) = 
 			 (let fN_2_lst = (promote__underscore (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1) in 
 			 (map (λ (fN_2_14 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2_14))) fN_2_lst))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64_mkdim_X_F32_mkdim_DEMOTE :: "nat ⇒ nat ⇒ zero ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F32_mkdim_DEMOTE :: "nat ⇒ nat ⇒ zero ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64_mkdim_X_F32_mkdim_DEMOTE M_1 M_2 ZERO (mk_lane__0 F64 (mk_num__1 Fnn_F64 fN_1)) = 
 			 (let fN_2_lst = (demote__underscore (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1) in 
 			 (map (λ (fN_2_6 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2_6))) fN_2_lst))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64_mkdim_X_F32_mkdim :: "nat ⇒ nat ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F32_mkdim :: "nat ⇒ nat ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 PROMOTELOW v_lane_underscore = (vcvtop___X_F64_mkdim_X_F32_mkdim_PROMOTELOW mkdim_argument_0_0 mkdim_argument_1_0 v_lane_underscore)"
 		| "vcvtop___X_F64_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_DEMOTE constructor_parameter_0) v_lane_underscore = (vcvtop___X_F64_mkdim_X_F32_mkdim_DEMOTE mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_0 v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64_mkdim_X_F32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64_mkdim_X_F32 mkdim_argument_0_0 (mk_dim constructor_parameter_0) v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_F32_mkdim mkdim_argument_0_0 constructor_parameter_0 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64_mkdim_X mkdim_argument_0_0 lanetype_I64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_I64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_F64_mkdim_X mkdim_argument_0_0 lanetype_I32 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_I32 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_F64_mkdim_X mkdim_argument_0_0 lanetype_F64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_F64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
@@ -5729,101 +5729,101 @@ function (sequential) vcvtop___X_F64_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vc
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64_mkdim :: "nat ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim :: "nat ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64_mkdim mkdim_argument_0_0 (X constructor_parameter_0 constructor_parameter_1) v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X mkdim_argument_0_0 constructor_parameter_0 constructor_parameter_1 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F64 :: "dim ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64 :: "dim ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F64 (mk_dim constructor_parameter_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim constructor_parameter_0 shape_2 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32_mkdim_X_I64_mkdim_TRUNCSAT :: "nat ⇒ nat ⇒ sx ⇒ (zero option) ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I64_mkdim_TRUNCSAT :: "nat ⇒ nat ⇒ sx ⇒ (zero option) ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32_mkdim_X_I64_mkdim_TRUNCSAT M_1 M_2 v_sx zero_opt (mk_lane__0 F32 (mk_num__1 Fnn_F32 fN_1)) = 
 			 (let iN_2_opt = (trunc_sat__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Inn Inn_I64)) v_sx fN_1) in 
 			 (list_underscore  (map_option (λ (iN_2_4 :: iN). (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 iN_2_4))) iN_2_opt)))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32_mkdim_X_I64_mkdim :: "nat ⇒ nat ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I64_mkdim :: "nat ⇒ nat ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32_mkdim_X_I64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_TRUNC_SAT constructor_parameter_0 constructor_parameter_1) v_lane_underscore = (vcvtop___X_F32_mkdim_X_I64_mkdim_TRUNCSAT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_0 constructor_parameter_1 v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32_mkdim_X_I64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32_mkdim_X_I64 mkdim_argument_0_0 (mk_dim constructor_parameter_0) v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_I64_mkdim mkdim_argument_0_0 constructor_parameter_0 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32_mkdim_X_I32_mkdim_TRUNCSAT :: "nat ⇒ nat ⇒ sx ⇒ (zero option) ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I32_mkdim_TRUNCSAT :: "nat ⇒ nat ⇒ sx ⇒ (zero option) ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32_mkdim_X_I32_mkdim_TRUNCSAT M_1 M_2 v_sx zero_opt (mk_lane__0 F32 (mk_num__1 Fnn_F32 fN_1)) = 
 			 (let iN_2_opt = (trunc_sat__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Inn Inn_I32)) v_sx fN_1) in 
 			 (list_underscore  (map_option (λ (iN_2_2 :: iN). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 iN_2_2))) iN_2_opt)))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32_mkdim_X_I32_mkdim :: "nat ⇒ nat ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I32_mkdim :: "nat ⇒ nat ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32_mkdim_X_I32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_TRUNC_SAT constructor_parameter_0 constructor_parameter_1) v_lane_underscore = (vcvtop___X_F32_mkdim_X_I32_mkdim_TRUNCSAT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_0 constructor_parameter_1 v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32_mkdim_X_I32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32_mkdim_X_I32 mkdim_argument_0_0 (mk_dim constructor_parameter_0) v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_I32_mkdim mkdim_argument_0_0 constructor_parameter_0 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32_mkdim_X_F64_mkdim_PROMOTELOW :: "nat ⇒ nat ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F64_mkdim_PROMOTELOW :: "nat ⇒ nat ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32_mkdim_X_F64_mkdim_PROMOTELOW M_1 M_2 (mk_lane__0 F32 (mk_num__1 Fnn_F32 fN_1)) = 
 			 (let fN_2_lst = (promote__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1) in 
 			 (map (λ (fN_2_12 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2_12))) fN_2_lst))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32_mkdim_X_F64_mkdim_DEMOTE :: "nat ⇒ nat ⇒ zero ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F64_mkdim_DEMOTE :: "nat ⇒ nat ⇒ zero ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32_mkdim_X_F64_mkdim_DEMOTE M_1 M_2 ZERO (mk_lane__0 F32 (mk_num__1 Fnn_F32 fN_1)) = 
 			 (let fN_2_lst = (demote__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1) in 
 			 (map (λ (fN_2_4 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2_4))) fN_2_lst))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32_mkdim_X_F64_mkdim :: "nat ⇒ nat ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F64_mkdim :: "nat ⇒ nat ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 PROMOTELOW v_lane_underscore = (vcvtop___X_F32_mkdim_X_F64_mkdim_PROMOTELOW mkdim_argument_0_0 mkdim_argument_1_0 v_lane_underscore)"
 		| "vcvtop___X_F32_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_DEMOTE constructor_parameter_0) v_lane_underscore = (vcvtop___X_F32_mkdim_X_F64_mkdim_DEMOTE mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_0 v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32_mkdim_X_F64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F64 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32_mkdim_X_F64 mkdim_argument_0_0 (mk_dim constructor_parameter_0) v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_F64_mkdim mkdim_argument_0_0 constructor_parameter_0 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32_mkdim_X_F32_mkdim_PROMOTELOW :: "nat ⇒ nat ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F32_mkdim_PROMOTELOW :: "nat ⇒ nat ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32_mkdim_X_F32_mkdim_PROMOTELOW M_1 M_2 (mk_lane__0 F32 (mk_num__1 Fnn_F32 fN_1)) = 
 			 (let fN_2_lst = (promote__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1) in 
 			 (map (λ (fN_2_10 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2_10))) fN_2_lst))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32_mkdim_X_F32_mkdim_DEMOTE :: "nat ⇒ nat ⇒ zero ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F32_mkdim_DEMOTE :: "nat ⇒ nat ⇒ zero ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32_mkdim_X_F32_mkdim_DEMOTE M_1 M_2 ZERO (mk_lane__0 F32 (mk_num__1 Fnn_F32 fN_1)) = 
 			 (let fN_2_lst = (demote__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1) in 
 			 (map (λ (fN_2_2 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2_2))) fN_2_lst))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32_mkdim_X_F32_mkdim :: "nat ⇒ nat ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F32_mkdim :: "nat ⇒ nat ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 PROMOTELOW v_lane_underscore = (vcvtop___X_F32_mkdim_X_F32_mkdim_PROMOTELOW mkdim_argument_0_0 mkdim_argument_1_0 v_lane_underscore)"
 		| "vcvtop___X_F32_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_DEMOTE constructor_parameter_0) v_lane_underscore = (vcvtop___X_F32_mkdim_X_F32_mkdim_DEMOTE mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_0 v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32_mkdim_X_F32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F32 :: "nat ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32_mkdim_X_F32 mkdim_argument_0_0 (mk_dim constructor_parameter_0) v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_F32_mkdim mkdim_argument_0_0 constructor_parameter_0 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32_mkdim_X mkdim_argument_0_0 lanetype_I64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_I64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_F32_mkdim_X mkdim_argument_0_0 lanetype_I32 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_I32 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_F32_mkdim_X mkdim_argument_0_0 lanetype_F64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_F64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
@@ -5831,17 +5831,17 @@ function (sequential) vcvtop___X_F32_mkdim_X :: "nat ⇒ lanetype ⇒ dim ⇒ vc
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32_mkdim :: "nat ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim :: "nat ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32_mkdim mkdim_argument_0_0 (X constructor_parameter_0 constructor_parameter_1) v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X mkdim_argument_0_0 constructor_parameter_0 constructor_parameter_1 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X_F32 :: "dim ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32 :: "dim ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X_F32 (mk_dim constructor_parameter_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim constructor_parameter_0 shape_2 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop___X :: "lanetype ⇒ dim ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X :: "lanetype ⇒ dim ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop___X lanetype_I8 X_argument_0_1 shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I8 X_argument_0_1 shape_2 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X lanetype_I64 X_argument_0_1 shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I64 X_argument_0_1 shape_2 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X lanetype_I32 X_argument_0_1 shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I32 X_argument_0_1 shape_2 v_vcvtop v_lane_underscore)"
@@ -5851,7 +5851,7 @@ function (sequential) vcvtop___X :: "lanetype ⇒ dim ⇒ shape ⇒ vcvtop ⇒ l
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential) vcvtop__underscore :: "shape ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
+function (sequential, domintros) vcvtop__underscore :: "shape ⇒ shape ⇒ vcvtop ⇒ lane_underscore ⇒ (lane_underscore list)" where
 		  "vcvtop__underscore (X constructor_parameter_0 constructor_parameter_1) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X constructor_parameter_0 constructor_parameter_1 shape_2 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
@@ -6166,7 +6166,7 @@ datatype val =
 	| val_REF_HOST_ADDR "hostaddr"
 
 (* Auxiliary Definition at:  *)
-function (sequential) val_ref :: "ref ⇒ val" where
+function (sequential, domintros) val_ref :: "ref ⇒ val" where
 		  "val_ref (ref_REF_NULL x0) = (val_REF_NULL x0)"
 		| "val_ref (REF_FUNC_ADDR x0) = (val_REF_FUNC_ADDR x0)"
 		| "val_ref (REF_HOST_ADDR x0) = (val_REF_HOST_ADDR x0)"
@@ -6539,7 +6539,7 @@ admininstr_st8 =
 	| LABEL_underscore "n" "(instr list)" "(admininstr list)"
 
 (* Auxiliary Definition at:  *)
-function (sequential) admininstr_instr :: "instr ⇒ admininstr" where
+function (sequential, domintros) admininstr_instr :: "instr ⇒ admininstr" where
 		  "admininstr_instr (instr_sc0 NOP) = (admininstr_sc0 admininstr_st0_NOP)"
 		| "admininstr_instr (instr_sc0 UNREACHABLE) = (admininstr_sc0 admininstr_st0_UNREACHABLE)"
 		| "admininstr_instr (instr_sc0 DROP) = (admininstr_sc0 admininstr_st0_DROP)"
@@ -6611,14 +6611,14 @@ function (sequential) admininstr_instr :: "instr ⇒ admininstr" where
 	by pat_completeness auto
 
 (* Auxiliary Definition at:  *)
-function (sequential) admininstr_ref :: "ref ⇒ admininstr" where
+function (sequential, domintros) admininstr_ref :: "ref ⇒ admininstr" where
 		  "admininstr_ref (ref_REF_NULL x0) = (admininstr_sc4 (admininstr_st4_REF_NULL x0))"
 		| "admininstr_ref (REF_FUNC_ADDR x0) = (admininstr_sc7 (admininstr_st7_REF_FUNC_ADDR x0))"
 		| "admininstr_ref (REF_HOST_ADDR x0) = (admininstr_sc7 (admininstr_st7_REF_HOST_ADDR x0))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at:  *)
-function (sequential) admininstr_val :: "val ⇒ admininstr" where
+function (sequential, domintros) admininstr_val :: "val ⇒ admininstr" where
 		  "admininstr_val (val_CONST x0 x1) = (admininstr_sc1 (admininstr_st1_CONST x0 x1))"
 		| "admininstr_val (val_VCONST x0 x1) = (admininstr_sc2 (admininstr_st2_VCONST x0 x1))"
 		| "admininstr_val (val_REF_NULL x0) = (admininstr_sc4 (admininstr_st4_REF_NULL x0))"
@@ -6884,7 +6884,7 @@ inductive wf_config :: "config ⇒ bool" where
 		 wf_config (mk_config v_state admininstr_lst)"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:7.1-7.43 *)
-function (sequential) default_underscore :: "valtype ⇒ (val option)" where
+function (sequential, domintros) default_underscore :: "valtype ⇒ (val option)" where
 		  "default_underscore valtype_I32 = (Some (val_CONST I32 (mk_num__0 Inn_I32 (mk_uN 0))))"
 		| "default_underscore valtype_I64 = (Some (val_CONST I64 (mk_num__0 Inn_I64 (mk_uN 0))))"
 		| "default_underscore valtype_F32 = (Some (val_CONST F32 (mk_num__1 Fnn_F32 (fzero (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0))))))))))))))))))))))))))))))))))))"
@@ -6947,7 +6947,7 @@ inductive fun_memsxa :: "(externaddr list) ⇒ (memaddr list) ⇒ bool" where
 		 fun_memsxa ([v_externaddr] @ xv_lst) var_0"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:48.1-48.57 *)
-function (sequential) fun_store :: "state ⇒ store" where
+function (sequential, domintros) fun_store :: "state ⇒ store" where
 		  "fun_store (mk_state s f) = s"
 	by pat_completeness auto
 
@@ -6959,7 +6959,7 @@ lemma store_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:49.1-49.57 *)
-function (sequential) fun_frame :: "state ⇒ frame" where
+function (sequential, domintros) fun_frame :: "state ⇒ frame" where
 		  "fun_frame (mk_state s f) = f"
 	by pat_completeness auto
 
@@ -6971,12 +6971,12 @@ lemma frame_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:55.1-55.64 *)
-function (sequential) fun_funcaddr :: "state ⇒ (funcaddr list)" where
+function (sequential, domintros) fun_funcaddr :: "state ⇒ (funcaddr list)" where
 		  "fun_funcaddr (mk_state s f) = (FUNCS (frame_MODULE f))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:58.1-58.57 *)
-function (sequential) fun_funcinst :: "state ⇒ (funcinst list)" where
+function (sequential, domintros) fun_funcinst :: "state ⇒ (funcinst list)" where
 		  "fun_funcinst (mk_state s f) = (store_FUNCS s)"
 	by pat_completeness auto
 
@@ -6988,7 +6988,7 @@ lemma funcinst_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:59.1-59.59 *)
-function (sequential) fun_globalinst :: "state ⇒ (globalinst list)" where
+function (sequential, domintros) fun_globalinst :: "state ⇒ (globalinst list)" where
 		  "fun_globalinst (mk_state s f) = (store_GLOBALS s)"
 	by pat_completeness auto
 
@@ -7000,7 +7000,7 @@ lemma globalinst_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:60.1-60.58 *)
-function (sequential) fun_tableinst :: "state ⇒ (tableinst list)" where
+function (sequential, domintros) fun_tableinst :: "state ⇒ (tableinst list)" where
 		  "fun_tableinst (mk_state s f) = (store_TABLES s)"
 	by pat_completeness auto
 
@@ -7012,7 +7012,7 @@ lemma tableinst_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:61.1-61.56 *)
-function (sequential) fun_meminst :: "state ⇒ (meminst list)" where
+function (sequential, domintros) fun_meminst :: "state ⇒ (meminst list)" where
 		  "fun_meminst (mk_state s f) = (store_MEMS s)"
 	by pat_completeness auto
 
@@ -7024,12 +7024,12 @@ lemma meminst_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:62.1-62.57 *)
-function (sequential) fun_eleminst :: "state ⇒ (eleminst list)" where
+function (sequential, domintros) fun_eleminst :: "state ⇒ (eleminst list)" where
 		  "fun_eleminst (mk_state s f) = (store_ELEMS s)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:63.1-63.57 *)
-function (sequential) fun_datainst :: "state ⇒ (datainst list)" where
+function (sequential, domintros) fun_datainst :: "state ⇒ (datainst list)" where
 		  "fun_datainst (mk_state s f) = (store_DATAS s)"
 	by pat_completeness auto
 
@@ -7041,7 +7041,7 @@ lemma datainst_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:64.1-64.58 *)
-function (sequential) fun_moduleinst :: "state ⇒ moduleinst" where
+function (sequential, domintros) fun_moduleinst :: "state ⇒ moduleinst" where
 		  "fun_moduleinst (mk_state s f) = (frame_MODULE f)"
 	by pat_completeness auto
 
@@ -7053,12 +7053,12 @@ lemma moduleinst_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:74.1-74.66 *)
-function (sequential) fun_type :: "state ⇒ typeidx ⇒ functype" where
+function (sequential, domintros) fun_type :: "state ⇒ typeidx ⇒ functype" where
 		  "fun_type (mk_state s f) x = ((TYPES (frame_MODULE f)) ! (proj_uN_0 x))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:75.1-75.66 *)
-function (sequential) fun_func :: "state ⇒ funcidx ⇒ funcinst" where
+function (sequential, domintros) fun_func :: "state ⇒ funcidx ⇒ funcinst" where
 		  "fun_func (mk_state s f) x = ((store_FUNCS s) ! ((FUNCS (frame_MODULE f)) ! (proj_uN_0 x)))"
 	by pat_completeness auto
 
@@ -7071,7 +7071,7 @@ lemma func_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:76.1-76.68 *)
-function (sequential) fun_global :: "state ⇒ globalidx ⇒ globalinst" where
+function (sequential, domintros) fun_global :: "state ⇒ globalidx ⇒ globalinst" where
 		  "fun_global (mk_state s f) x = ((store_GLOBALS s) ! ((GLOBALS (frame_MODULE f)) ! (proj_uN_0 x)))"
 	by pat_completeness auto
 
@@ -7084,7 +7084,7 @@ lemma global_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:77.1-77.67 *)
-function (sequential) fun_table :: "state ⇒ tableidx ⇒ tableinst" where
+function (sequential, domintros) fun_table :: "state ⇒ tableidx ⇒ tableinst" where
 		  "fun_table (mk_state s f) x = ((store_TABLES s) ! ((TABLES (frame_MODULE f)) ! (proj_uN_0 x)))"
 	by pat_completeness auto
 
@@ -7097,7 +7097,7 @@ lemma table_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:78.1-78.65 *)
-function (sequential) fun_mem :: "state ⇒ memidx ⇒ meminst" where
+function (sequential, domintros) fun_mem :: "state ⇒ memidx ⇒ meminst" where
 		  "fun_mem (mk_state s f) x = ((store_MEMS s) ! ((MEMS (frame_MODULE f)) ! (proj_uN_0 x)))"
 	by pat_completeness auto
 
@@ -7110,12 +7110,12 @@ lemma mem_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:79.1-79.66 *)
-function (sequential) fun_elem :: "state ⇒ tableidx ⇒ eleminst" where
+function (sequential, domintros) fun_elem :: "state ⇒ tableidx ⇒ eleminst" where
 		  "fun_elem (mk_state s f) x = ((store_ELEMS s) ! ((ELEMS (frame_MODULE f)) ! (proj_uN_0 x)))"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:80.1-80.66 *)
-function (sequential) fun_data :: "state ⇒ dataidx ⇒ datainst" where
+function (sequential, domintros) fun_data :: "state ⇒ dataidx ⇒ datainst" where
 		  "fun_data (mk_state s f) x = ((store_DATAS s) ! ((DATAS (frame_MODULE f)) ! (proj_uN_0 x)))"
 	by pat_completeness auto
 
@@ -7128,7 +7128,7 @@ lemma data_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:81.1-81.67 *)
-function (sequential) fun_local :: "state ⇒ localidx ⇒ val" where
+function (sequential, domintros) fun_local :: "state ⇒ localidx ⇒ val" where
 		  "fun_local (mk_state s f) x = ((LOCALS f) ! (proj_uN_0 x))"
 	by pat_completeness auto
 
@@ -7141,7 +7141,7 @@ lemma local_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:95.1-95.89 *)
-function (sequential) with_local :: "state ⇒ localidx ⇒ val ⇒ state" where
+function (sequential, domintros) with_local :: "state ⇒ localidx ⇒ val ⇒ state" where
 		  "with_local (mk_state s f) x v = (mk_state s (f ⦇ LOCALS := (list_update_func (LOCALS f) (proj_uN_0 x) (λ (underscore_underscore :: val). v))  ⦈))"
 	by pat_completeness auto
 
@@ -7155,7 +7155,7 @@ lemma with_local_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:96.1-96.96 *)
-function (sequential) with_global :: "state ⇒ globalidx ⇒ val ⇒ state" where
+function (sequential, domintros) with_global :: "state ⇒ globalidx ⇒ val ⇒ state" where
 		  "with_global (mk_state s f) x v = (mk_state (s ⦇ store_GLOBALS := (list_update_func (store_GLOBALS s) ((GLOBALS (frame_MODULE f)) ! (proj_uN_0 x)) (λ (var_1 :: globalinst). (var_1 ⦇ VALUE := v  ⦈)))  ⦈) f)"
 	by pat_completeness auto
 
@@ -7169,7 +7169,7 @@ lemma with_global_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:97.1-97.97 *)
-function (sequential) with_table :: "state ⇒ tableidx ⇒ nat ⇒ ref ⇒ state" where
+function (sequential, domintros) with_table :: "state ⇒ tableidx ⇒ nat ⇒ ref ⇒ state" where
 		  "with_table (mk_state s f) x i r = (mk_state (s ⦇ store_TABLES := (list_update_func (store_TABLES s) ((TABLES (frame_MODULE f)) ! (proj_uN_0 x)) (λ (var_1 :: tableinst). (var_1 ⦇ REFS := (list_update_func (REFS var_1) i (λ (underscore_underscore :: ref). r))  ⦈)))  ⦈) f)"
 	by pat_completeness auto
 
@@ -7182,7 +7182,7 @@ lemma with_table_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:98.1-98.89 *)
-function (sequential) with_tableinst :: "state ⇒ tableidx ⇒ tableinst ⇒ state" where
+function (sequential, domintros) with_tableinst :: "state ⇒ tableidx ⇒ tableinst ⇒ state" where
 		  "with_tableinst (mk_state s f) x ti = (mk_state (s ⦇ store_TABLES := (list_update_func (store_TABLES s) ((TABLES (frame_MODULE f)) ! (proj_uN_0 x)) (λ (underscore_underscore :: tableinst). ti))  ⦈) f)"
 	by pat_completeness auto
 
@@ -7196,7 +7196,7 @@ lemma with_tableinst_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:99.1-99.100 *)
-function (sequential) with_mem :: "state ⇒ memidx ⇒ nat ⇒ nat ⇒ (byte list) ⇒ state" where
+function (sequential, domintros) with_mem :: "state ⇒ memidx ⇒ nat ⇒ nat ⇒ (byte list) ⇒ state" where
 		  "with_mem (mk_state s f) x i j b_lst = (mk_state (s ⦇ store_MEMS := (list_update_func (store_MEMS s) ((MEMS (frame_MODULE f)) ! (proj_uN_0 x)) (λ (var_1 :: meminst). (var_1 ⦇ BYTES := (list_slice_update (BYTES var_1) i j b_lst)  ⦈)))  ⦈) f)"
 	by pat_completeness auto
 
@@ -7210,7 +7210,7 @@ lemma with_mem_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:100.1-100.87 *)
-function (sequential) with_meminst :: "state ⇒ memidx ⇒ meminst ⇒ state" where
+function (sequential, domintros) with_meminst :: "state ⇒ memidx ⇒ meminst ⇒ state" where
 		  "with_meminst (mk_state s f) x mi = (mk_state (s ⦇ store_MEMS := (list_update_func (store_MEMS s) ((MEMS (frame_MODULE f)) ! (proj_uN_0 x)) (λ (underscore_underscore :: meminst). mi))  ⦈) f)"
 	by pat_completeness auto
 
@@ -7224,7 +7224,7 @@ lemma with_meminst_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:101.1-101.93 *)
-function (sequential) with_elem :: "state ⇒ elemidx ⇒ (ref list) ⇒ state" where
+function (sequential, domintros) with_elem :: "state ⇒ elemidx ⇒ (ref list) ⇒ state" where
 		  "with_elem (mk_state s f) x r_lst = (mk_state (s ⦇ store_ELEMS := (list_update_func (store_ELEMS s) ((ELEMS (frame_MODULE f)) ! (proj_uN_0 x)) (λ (var_1 :: eleminst). (var_1 ⦇ eleminst_REFS := r_lst  ⦈)))  ⦈) f)"
 	by pat_completeness auto
 
@@ -7237,7 +7237,7 @@ lemma with_elem_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:102.1-102.94 *)
-function (sequential) with_data :: "state ⇒ dataidx ⇒ (byte list) ⇒ state" where
+function (sequential, domintros) with_data :: "state ⇒ dataidx ⇒ (byte list) ⇒ state" where
 		  "with_data (mk_state s f) x b_lst = (mk_state (s ⦇ store_DATAS := (list_update_func (store_DATAS s) ((DATAS (frame_MODULE f)) ! (proj_uN_0 x)) (λ (var_1 :: datainst). (var_1 ⦇ datainst_BYTES := b_lst  ⦈)))  ⦈) f)"
 	by pat_completeness auto
 
@@ -8494,7 +8494,7 @@ lemma Step_pure_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/8-reduction.spectec:63.1-63.73 *)
-function (sequential) fun_blocktype :: "state ⇒ blocktype ⇒ functype" where
+function (sequential, domintros) fun_blocktype :: "state ⇒ blocktype ⇒ functype" where
 		  "fun_blocktype z (underscore_RESULT None) = (mk_functype (mk_list []) (mk_list []))"
 		| "fun_blocktype z (underscore_RESULT (Some t)) = (mk_functype (mk_list []) (mk_list [t]))"
 		| "fun_blocktype z (underscore_IDX x) = (fun_type z x)"
@@ -9266,7 +9266,7 @@ inductive allocdatas_is_wf :: "store ⇒ ((byte list) list) ⇒ (store * (dataad
 		 allocdatas_is_wf v_store var_0_lst_lst ret_val"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/9-module.spectec:100.1-100.83 *)
-function (sequential) instexport :: "(funcaddr list) ⇒ (globaladdr list) ⇒ (tableaddr list) ⇒ (memaddr list) ⇒ export ⇒ exportinst" where
+function (sequential, domintros) instexport :: "(funcaddr list) ⇒ (globaladdr list) ⇒ (tableaddr list) ⇒ (memaddr list) ⇒ export ⇒ exportinst" where
 		  "instexport fa_lst ga_lst ta_lst ma_lst (EXPORT v_name (externidx_FUNC x)) = ⦇ NAME = v_name, ADDR = (externaddr_FUNC (fa_lst ! (proj_uN_0 x))) ⦈"
 		| "instexport fa_lst ga_lst ta_lst ma_lst (EXPORT v_name (externidx_GLOBAL x)) = ⦇ NAME = v_name, ADDR = (externaddr_GLOBAL (ga_lst ! (proj_uN_0 x))) ⦈"
 		| "instexport fa_lst ga_lst ta_lst ma_lst (EXPORT v_name (externidx_TABLE x)) = ⦇ NAME = v_name, ADDR = (externaddr_TABLE (ta_lst ! (proj_uN_0 x))) ⦈"
@@ -9333,7 +9333,7 @@ lemma allocmodule_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/9-module.spectec:154.1-154.33 *)
-function (sequential) runelem :: "elem ⇒ idx ⇒ (instr list)" where
+function (sequential, domintros) runelem :: "elem ⇒ idx ⇒ (instr list)" where
 		  "runelem (ELEM v_reftype expr_lst PASSIVE) i = []"
 		| "runelem (ELEM v_reftype expr_lst DECLARE) i = [(instr_sc5 (ELEM_DROP i))]"
 		| "runelem (ELEM v_reftype expr_lst (ACTIVE x instr_lst)) i = 
@@ -9350,7 +9350,7 @@ lemma runelem_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/9-module.spectec:161.1-161.47 *)
-function (sequential) rundata :: "data ⇒ idx ⇒ ((instr list) option)" where
+function (sequential, domintros) rundata :: "data ⇒ idx ⇒ ((instr list) option)" where
 		  "rundata (DATA byte_lst datamode_PASSIVE) i = (Some [])"
 		| "rundata (DATA byte_lst (datamode_ACTIVE (mk_uN 0) instr_lst)) i = 
 			 (let v_n = (length byte_lst) in 
@@ -9842,7 +9842,7 @@ inductive Config_ok :: "config ⇒ resulttype ⇒ bool" where
 		 Config_ok (mk_config (mk_state s f) admininstr_lst) (mk_list t_lst)"
 
 (* Auxiliary Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:1.1-1.31 *)
-function (sequential) is_val :: "admininstr ⇒ bool" where
+function (sequential, domintros) is_val :: "admininstr ⇒ bool" where
 		  "is_val (admininstr_sc7 (admininstr_st7_REF_HOST_ADDR v_hostaddr)) = True"
 		| "is_val (admininstr_sc7 (admininstr_st7_REF_FUNC_ADDR v_funcaddr)) = True"
 		| "is_val (admininstr_sc4 (admininstr_st4_REF_NULL v_reftype)) = True"
@@ -9852,7 +9852,7 @@ function (sequential) is_val :: "admininstr ⇒ bool" where
 	by pat_completeness auto
 
 (* Auxiliary Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:5.1-5.33 *)
-function (sequential) is_instr :: "admininstr ⇒ bool" where
+function (sequential, domintros) is_instr :: "admininstr ⇒ bool" where
 		  "is_instr (admininstr_sc7 (admininstr_st7_DATA_DROP dataidx_0)) = True"
 		| "is_instr (admininstr_sc7 (admininstr_st7_MEMORY_INIT v_dataidx)) = True"
 		| "is_instr (admininstr_sc7 admininstr_st7_MEMORY_COPY) = True"
@@ -9925,7 +9925,7 @@ function (sequential) is_instr :: "admininstr ⇒ bool" where
 	by pat_completeness auto
 
 (* Auxiliary Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:9.1-9.38 *)
-function (sequential) is_admininstr :: "admininstr ⇒ bool" where
+function (sequential, domintros) is_admininstr :: "admininstr ⇒ bool" where
 		  "is_admininstr (admininstr_sc7 (admininstr_st7_DATA_DROP dataidx_0)) = False"
 		| "is_admininstr (admininstr_sc7 (admininstr_st7_MEMORY_INIT v_dataidx)) = False"
 		| "is_admininstr (admininstr_sc7 admininstr_st7_MEMORY_COPY) = False"
@@ -10013,7 +10013,7 @@ inductive Instrtype_sub :: "instrtype ⇒ instrtype ⇒ bool" where
 		 Instrtype_sub (mk_instrtype (mk_list t_11_lst) (mk_list t_12_lst)) (mk_instrtype (mk_list t_21_lst) (mk_list t_22_lst))"
 
 (* Auxiliary Definition at: isabelle/wasm-2.0/C-mech-aux.spectec:24.1-24.30 *)
-function (sequential) typeofval :: "val ⇒ valtype" where
+function (sequential, domintros) typeofval :: "val ⇒ valtype" where
 		  "typeofval (val_CONST v_numtype c) = (valtype_numtype v_numtype)"
 		| "typeofval (val_VCONST v_vectype c) = (valtype_vectype v_vectype)"
 		| "typeofval (val_REF_NULL v_reftype) = (valtype_reftype v_reftype)"
