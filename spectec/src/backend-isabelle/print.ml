@@ -877,7 +877,7 @@ let string_of_def def =
   | Ifun :: kwds, _ ->
      if List.for_all (function Ifun -> true | _ -> false) kwds
                      (*     then start ^ "fun " ^ String.concat "\nand " hdrs ^ " where\n\t\t  " ^ String.concat "\n\t\t| " clauses ^ "\n\n" *)
-     then start ^ "function (sequential) " ^ String.concat "\nand " hdrs ^ " where\n\t\t  " ^ String.concat "\n\t\t| " clauses ^ "\n\tby pat_completeness auto\n\n" 
+     then start ^ "function (sequential, domintros) " ^ String.concat "\nand " hdrs ^ " where\n\t\t  " ^ String.concat "\n\t\t| " clauses ^ "\n\tby pat_completeness auto\n\n" 
      else error def.at "function defined mutually recursively with something that is not a function"
   | Iind :: kwds, _ ->
      if List.for_all (function Iind -> true | _ -> false) kwds
