@@ -54,10 +54,10 @@ let is_let p =
   | _ -> false
 
 
-let iter_prem_rels_list = ["list_all"; "list_all2"; "list_all3"] 
-let iter_exp_lst_funcs = ["map"; "list_zipWith"; "list_map3"] 
+let iter_prem_rels_list = ["list_all"; "list_all2"; "list_all3"; "list_all4"] 
+let iter_exp_lst_funcs = ["map"; "list_zipWith"; "list_map3"; "list_map4"] 
 let sup_iter_prem_rels_list = ["list_alli"] 
-let iter_exp_opt_funcs = ["map_option"; "option_zipWith"; "option_map3"] 
+let iter_exp_opt_funcs = ["map_option"; "option_zipWith"; "option_map3"; "option_map4"] 
 let error at msg = Util.Error.error at "Isabelle translation" msg 
 
 
@@ -103,9 +103,9 @@ let reserved_ids =
    "fix"; "let"; "next";
    "by"; "apply"; "done";
    "sorry"; "passive"; "declare"; "syntax";
-   "list_all3"; "list_zipWith"; "list_map3";
+   "list_all3"; "list_all4"; "list_zipWith"; "list_map3"; "list_map4";
    "foralli_help"; "list_foralli"; "option_zipWith";
-   "option_map3"; "option_to_list"; "list_slice";
+   "option_map3"; "option_map4"; "option_to_list"; "list_slice";
    "mkseq"; "repeat"; "the";
    "locale"; "context"; "interpretation";
    "class"; "instance";
@@ -430,7 +430,7 @@ and render_exp exp_type typids exp =
     let lst = if iter = Opt then iter_exp_opt_funcs else iter_exp_lst_funcs in
     let pred_name = match (List.nth_opt lst n) with 
     | Some s -> s
-    | None -> error exp.at "Iteration exceeded the supported amount for isabelle translation"
+    | None -> error exp.at ("Iteration " ^ string_of_int n ^ " exceeded the supported amount for isabelle translation")
     in 
     parens (pred_name ^ " " ^ render_lambda quants (r_func e) ^ " " ^ 
     String.concat " " (List.map r_func iter_exps))
@@ -608,7 +608,7 @@ let rec render_prem typids prem =
     let n = List.length ps - 1 in
     let pred_name = match (List.nth_opt sup_iter_prem_rels_list n) with 
     | Some s -> s
-    | None -> error prem.at "Iteration exceeded the supported amount for isabelle translation"
+    | None -> error prem.at ("Iteration " ^ string_of_int n ^ " exceeded the supported amount for isabelle translation")
     in 
     pred_name ^ " " ^ render_lambda (i.it :: quants) (r_func p) ^ " " ^ 
     String.concat " " (List.map (render_exp REL typids) iter_exps)
@@ -619,7 +619,7 @@ let rec render_prem typids prem =
     let n = List.length ps - 1 in
     let pred_name = match (List.nth_opt iter_prem_rels_list n) with 
     | Some s -> s
-    | None -> error prem.at "Iteration exceeded the supported amount for isabelle translation"
+    | None -> error prem.at ("Iteration " ^ string_of_int n ^ " exceeded the supported amount for isabelle translation")
     in 
     pred_name ^ " " ^ render_lambda quants (r_func p) ^ " " ^ 
     String.concat " " (List.map (render_exp REL typids) iter_exps |> List.map option_conversion)
@@ -893,10 +893,15 @@ let exported_string =
   "inductive list_all3 :: \"('a " ^ ra ^ " 'b " ^ ra ^ " 'c " ^ ra ^ " bool) " ^ ra ^ " 'a list " ^ ra ^ " 'b list " ^ ra ^ " 'c list " ^ ra ^ " bool\" where\n" ^
   "\tlist_all3_nil : \"list_all3 R [] [] []\" |\n" ^
   "\tlist_all3_cons: \"R a b c " ^ lra ^ " list_all3 R as bs cs " ^ lra ^ " list_all3 R (a # as) (b # bs) (c # cs)\"\n\n" ^
+  "inductive list_all4 :: \"('a " ^ ra ^ " 'b " ^ ra ^ " 'c " ^ ra ^ " 'd " ^ ra ^ " bool) " ^ ra ^ " 'a list " ^ ra ^ " 'b list " ^ ra ^ " 'c list " ^ ra ^ " 'd list " ^ ra ^ " bool\" where\n" ^
+  "\tlist_all4_nil : \"list_all4 R [] [] [] []\" |\n" ^
+  "\tlist_all4_cons: \"R a b c d " ^ lra ^ " list_all4 R as bs cs ds " ^ lra ^ " list_all4 R (a # as) (b # bs) (c # cs) (d # ds)\"\n\n" ^
   "definition list_zipWith :: \"('a " ^ ra ^ " 'b " ^ ra ^ " 'c) " ^ ra ^ " 'a list " ^ ra ^ " 'b list " ^ ra ^ " 'c list\" where\n" ^
   "\t\"list_zipWith f xs ys = map (λ (x, y). f x y) (zip xs ys)\"\n\n" ^
   "definition list_map3 :: \"('a " ^ ra ^ " 'b " ^ ra ^ " 'c " ^ ra ^ " 'd) " ^ ra ^ " 'a list " ^ ra ^ " 'b list " ^ ra ^ " 'c list " ^ ra ^ " 'd list\" where\n" ^
   "\t\"list_map3 f xs ys zs = map (λ (x, (y, z)). f x y z) (zip xs (zip ys zs))\"\n\n" ^
+  "definition list_map4 :: \"('a " ^ ra ^ " 'b " ^ ra ^ " 'c " ^ ra ^ " 'd " ^ ra ^ " 'e) " ^ ra ^ " 'a list " ^ ra ^ " 'b list " ^ ra ^ " 'c list " ^ ra ^ " 'd list " ^ ra ^ " 'e list\" where\n" ^
+  "\t\"list_map4 f xs ys zs ws = map (λ (x, (y, (z, w))). f x y z w) (zip xs (zip ys (zip zs ws)))\"\n\n" ^
   "inductive foralli_help :: \"(nat " ^ ra ^ " 'a " ^ ra ^ " bool) " ^ ra ^ " nat " ^ ra ^ " 'a list " ^ ra ^ " bool\" where\n" ^
   "\tforalli_nil : \"foralli_help f n []\" |\n" ^
   "\tforalli_cons : \"f n x " ^ lra ^ " foralli_help f (n + 1) l " ^ lra ^ " foralli_help f n (x # l)\"\n\n" ^
@@ -908,6 +913,9 @@ let exported_string =
   "fun option_map3 :: \"('a " ^ ra ^ " 'b " ^ ra ^ " 'c " ^ ra ^ " 'd) " ^ ra ^ " 'a option " ^ ra ^ " 'b option " ^ ra ^ " 'c option " ^ ra ^ " 'd option\" where\n" ^
   "\t\"option_map3 f (Some x) (Some y) (Some z) = Some (f x y z)\" |\n" ^
   "\t\"option_map3 f _ _ _ = None\"\n\n" ^
+  "fun option_map4 :: \"('a " ^ ra ^ " 'b " ^ ra ^ " 'c " ^ ra ^ " 'd " ^ ra ^ " 'e) " ^ ra ^ " 'a option " ^ ra ^ " 'b option " ^ ra ^ " 'c option " ^ ra ^ " 'd option " ^ ra ^ " 'e option\" where\n" ^
+  "\t\"option_map4 f (Some x) (Some y) (Some z) (Some w) = Some (f x y z w)\" |\n" ^
+  "\t\"option_map4 f _ _ _ _ = None\"\n\n" ^
   "fun option_to_list :: \"'a option " ^ ra ^ "'a list\" where\n" ^
   "\t\"option_to_list None = []\" |\n" ^
   "\t\"option_to_list (Some a) = [a]\"\n\n" ^
