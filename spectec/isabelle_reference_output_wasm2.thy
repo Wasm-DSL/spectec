@@ -149,10 +149,7 @@ function (sequential, domintros) setproduct_underscore :: "(('X list) list) ⇒ 
 	by pat_completeness auto
 
 (* Mutual Recursion at: ../specification/wasm-2.0/0-aux.spectec:60.1-60.78 *)
-function (sequential, domintros) disjoint_underscore :: "('X list) ⇒ bool" where
-		  "disjoint_underscore  [] = True"
-		| "disjoint_underscore  (w # w'_lst) = ((~ (w ∈ set w'_lst)) ∧ (disjoint_underscore  w'_lst))"
-	by pat_completeness auto
+axiomatization disjoint_underscore :: "('X list) ⇒ bool"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:6.1-6.49 *)
 datatype 'X res_list  =
@@ -268,14 +265,10 @@ function (sequential, domintros) expon :: "N ⇒ (nat option)" where
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:48.1-48.30 *)
-function (sequential, domintros) fun_M :: "N ⇒ nat" where
-		  "fun_M v_N = (the ((signif v_N)))"
-	by pat_completeness auto
+axiomatization fun_M :: "N ⇒ nat"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:51.1-51.30 *)
-function (sequential, domintros) E :: "N ⇒ nat" where
-		  "E v_N = (the ((expon v_N)))"
-	by pat_completeness auto
+axiomatization E :: "N ⇒ nat"
 
 (* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:58.1-58.30 *)
 type_synonym exp = "nat"
@@ -344,9 +337,7 @@ lemma fone_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:74.1-74.21 *)
-function (sequential, domintros) canon_underscore :: "N ⇒ nat" where
-		  "canon_underscore v_N = (2 ^ ((((the ((signif v_N))) :: nat) - (1 :: nat)) :: nat))"
-	by pat_completeness auto
+axiomatization canon_underscore :: "N ⇒ nat"
 
 (* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:80.1-81.8 *)
 type_synonym vN = "iN"
@@ -732,19 +723,10 @@ function (sequential, domintros) psize :: "packtype ⇒ nat" where
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:210.1-210.45 *)
-function (sequential, domintros) lsize :: "lanetype ⇒ nat" where
-		  "lsize lanetype_I32 = (the ((size (valtype_numtype I32))))"
-		| "lsize lanetype_I64 = (the ((size (valtype_numtype I64))))"
-		| "lsize lanetype_F32 = (the ((size (valtype_numtype F32))))"
-		| "lsize lanetype_F64 = (the ((size (valtype_numtype F64))))"
-		| "lsize lanetype_I8 = (psize I8)"
-		| "lsize lanetype_I16 = (psize I16)"
-	by pat_completeness auto
+axiomatization lsize :: "lanetype ⇒ nat"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:211.1-211.70 *)
-function (sequential, domintros) isize :: "Inn ⇒ nat" where
-		  "isize v_Inn = (the ((size (valtype_Inn v_Inn))))"
-	by pat_completeness auto
+axiomatization isize :: "Inn ⇒ nat"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:212.1-212.70 *)
 function (sequential, domintros) jsize :: "Jnn ⇒ nat" where
@@ -752,24 +734,16 @@ function (sequential, domintros) jsize :: "Jnn ⇒ nat" where
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:213.1-213.70 *)
-function (sequential, domintros) fsize :: "Fnn ⇒ nat" where
-		  "fsize v_Fnn = (the ((size (valtype_Fnn v_Fnn))))"
-	by pat_completeness auto
+axiomatization fsize :: "Fnn ⇒ nat"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:231.1-231.63 *)
-function (sequential, domintros) sizenn :: "numtype ⇒ nat" where
-		  "sizenn nt = (the ((size (valtype_numtype nt))))"
-	by pat_completeness auto
+axiomatization sizenn :: "numtype ⇒ nat"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:232.1-232.63 *)
-function (sequential, domintros) sizenn1 :: "numtype ⇒ nat" where
-		  "sizenn1 nt = (the ((size (valtype_numtype nt))))"
-	by pat_completeness auto
+axiomatization sizenn1 :: "numtype ⇒ nat"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:233.1-233.63 *)
-function (sequential, domintros) sizenn2 :: "numtype ⇒ nat" where
-		  "sizenn2 nt = (the ((size (valtype_numtype nt))))"
-	by pat_completeness auto
+axiomatization sizenn2 :: "numtype ⇒ nat"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:238.1-238.63 *)
 function (sequential, domintros) lsizenn :: "lanetype ⇒ nat" where
@@ -884,12 +858,7 @@ function (sequential, domintros) proj_lane__2 :: "lane_underscore ⇒ (iN option
 type_synonym vec_underscore = "vN"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:272.1-272.35 *)
-function (sequential, domintros) fun_zero :: "numtype ⇒ num_underscore" where
-		  "fun_zero I32 = (mk_num__0 Inn_I32 (mk_uN 0))"
-		| "fun_zero I64 = (mk_num__0 Inn_I64 (mk_uN 0))"
-		| "fun_zero F32 = (mk_num__1 Fnn_F32 (fzero (the ((size (valtype_Fnn Fnn_F32))))))"
-		| "fun_zero F64 = (mk_num__1 Fnn_F64 (fzero (the ((size (valtype_Fnn Fnn_F64))))))"
-	by pat_completeness auto
+axiomatization fun_zero :: "numtype ⇒ num_underscore"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:272.6-272.11 *)
 lemma zero_is_wf :
@@ -3575,14 +3544,7 @@ lemma fpmax__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:323.1-324.27 *)
-function (sequential, domintros) packnum_underscore :: "lanetype ⇒ num_underscore ⇒ lane_underscore" where
-		  "packnum_underscore lanetype_I32 c = (mk_lane__0 I32 c)"
-		| "packnum_underscore lanetype_I64 c = (mk_lane__0 I64 c)"
-		| "packnum_underscore lanetype_F32 c = (mk_lane__0 F32 c)"
-		| "packnum_underscore lanetype_F64 c = (mk_lane__0 F64 c)"
-		| "packnum_underscore lanetype_I8 (mk_num__0 Inn_I32 c) = (mk_lane__1 I8 (wrap__underscore (the ((size (valtype_numtype (unpack (lanetype_packtype I8)))))) (psize I8) c))"
-		| "packnum_underscore lanetype_I16 (mk_num__0 Inn_I32 c) = (mk_lane__1 I16 (wrap__underscore (the ((size (valtype_numtype (unpack (lanetype_packtype I16)))))) (psize I16) c))"
-	by pat_completeness auto
+axiomatization packnum_underscore :: "lanetype ⇒ num_underscore ⇒ lane_underscore"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:323.6-323.15 *)
 lemma packnum__is_wf :
@@ -3592,14 +3554,7 @@ lemma packnum__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:328.1-329.29 *)
-function (sequential, domintros) unpacknum_underscore :: "lanetype ⇒ lane_underscore ⇒ num_underscore" where
-		  "unpacknum_underscore lanetype_I32 (mk_lane__0 I32 c) = c"
-		| "unpacknum_underscore lanetype_I64 (mk_lane__0 I64 c) = c"
-		| "unpacknum_underscore lanetype_F32 (mk_lane__0 F32 c) = c"
-		| "unpacknum_underscore lanetype_F64 (mk_lane__0 F64 c) = c"
-		| "unpacknum_underscore lanetype_I8 (mk_lane__1 I8 c) = (mk_num__0 Inn_I32 (extend__underscore (psize I8) (the ((size (valtype_numtype (unpack (lanetype_packtype I8)))))) U c))"
-		| "unpacknum_underscore lanetype_I16 (mk_lane__1 I16 c) = (mk_num__0 Inn_I32 (extend__underscore (psize I16) (the ((size (valtype_numtype (unpack (lanetype_packtype I16)))))) U c))"
-	by pat_completeness auto
+axiomatization unpacknum_underscore :: "lanetype ⇒ lane_underscore ⇒ num_underscore"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:328.6-328.17 *)
 lemma unpacknum__is_wf :
@@ -3655,9 +3610,7 @@ function (sequential, domintros) fun_half :: "half ⇒ nat ⇒ nat ⇒ nat" wher
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:362.1-363.28 *)
-function (sequential, domintros) vvunop_underscore :: "vectype ⇒ vvunop ⇒ vec_underscore ⇒ vec_underscore" where
-		  "vvunop_underscore V128 NOT v128 = (inot_underscore (the ((size valtype_V128))) v128)"
-	by pat_completeness auto
+axiomatization vvunop_underscore :: "vectype ⇒ vvunop ⇒ vec_underscore ⇒ vec_underscore"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:362.6-362.14 *)
 lemma vvunop__is_wf :
@@ -3668,12 +3621,7 @@ lemma vvunop__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:364.1-365.31 *)
-function (sequential, domintros) vvbinop_underscore :: "vectype ⇒ vvbinop ⇒ vec_underscore ⇒ vec_underscore ⇒ vec_underscore" where
-		  "vvbinop_underscore V128 vvbinop_AND v128_1 v128_2 = (iand_underscore (the ((size valtype_V128))) v128_1 v128_2)"
-		| "vvbinop_underscore V128 ANDNOT v128_1 v128_2 = (iandnot_underscore (the ((size valtype_V128))) v128_1 v128_2)"
-		| "vvbinop_underscore V128 vvbinop_OR v128_1 v128_2 = (ior_underscore (the ((size valtype_V128))) v128_1 v128_2)"
-		| "vvbinop_underscore V128 vvbinop_XOR v128_1 v128_2 = (ixor_underscore (the ((size valtype_V128))) v128_1 v128_2)"
-	by pat_completeness auto
+axiomatization vvbinop_underscore :: "vectype ⇒ vvbinop ⇒ vec_underscore ⇒ vec_underscore ⇒ vec_underscore"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:364.6-364.15 *)
 lemma vvbinop__is_wf :
@@ -3685,9 +3633,7 @@ lemma vvbinop__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:366.1-367.34 *)
-function (sequential, domintros) vvternop_underscore :: "vectype ⇒ vvternop ⇒ vec_underscore ⇒ vec_underscore ⇒ vec_underscore ⇒ vec_underscore" where
-		  "vvternop_underscore V128 BITSELECT v128_1 v128_2 v128_3 = (ibitselect_underscore (the ((size valtype_V128))) v128_1 v128_2 v128_3)"
-	by pat_completeness auto
+axiomatization vvternop_underscore :: "vectype ⇒ vvternop ⇒ vec_underscore ⇒ vec_underscore ⇒ vec_underscore ⇒ vec_underscore"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:366.6-366.16 *)
 lemma vvternop__is_wf :
@@ -7053,14 +6999,10 @@ lemma moduleinst_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:74.1-74.66 *)
-function (sequential, domintros) fun_type :: "state ⇒ typeidx ⇒ functype" where
-		  "fun_type (mk_state s f) x = ((TYPES (frame_MODULE f)) ! (proj_uN_0 x))"
-	by pat_completeness auto
+axiomatization fun_type :: "state ⇒ typeidx ⇒ functype"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:75.1-75.66 *)
-function (sequential, domintros) fun_func :: "state ⇒ funcidx ⇒ funcinst" where
-		  "fun_func (mk_state s f) x = ((store_FUNCS s) ! ((FUNCS (frame_MODULE f)) ! (proj_uN_0 x)))"
-	by pat_completeness auto
+axiomatization fun_func :: "state ⇒ funcidx ⇒ funcinst"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:75.6-75.11 *)
 lemma func_is_wf :
@@ -7071,9 +7013,7 @@ lemma func_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:76.1-76.68 *)
-function (sequential, domintros) fun_global :: "state ⇒ globalidx ⇒ globalinst" where
-		  "fun_global (mk_state s f) x = ((store_GLOBALS s) ! ((GLOBALS (frame_MODULE f)) ! (proj_uN_0 x)))"
-	by pat_completeness auto
+axiomatization fun_global :: "state ⇒ globalidx ⇒ globalinst"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:76.6-76.13 *)
 lemma global_is_wf :
@@ -7084,9 +7024,7 @@ lemma global_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:77.1-77.67 *)
-function (sequential, domintros) fun_table :: "state ⇒ tableidx ⇒ tableinst" where
-		  "fun_table (mk_state s f) x = ((store_TABLES s) ! ((TABLES (frame_MODULE f)) ! (proj_uN_0 x)))"
-	by pat_completeness auto
+axiomatization fun_table :: "state ⇒ tableidx ⇒ tableinst"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:77.6-77.12 *)
 lemma table_is_wf :
@@ -7097,9 +7035,7 @@ lemma table_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:78.1-78.65 *)
-function (sequential, domintros) fun_mem :: "state ⇒ memidx ⇒ meminst" where
-		  "fun_mem (mk_state s f) x = ((store_MEMS s) ! ((MEMS (frame_MODULE f)) ! (proj_uN_0 x)))"
-	by pat_completeness auto
+axiomatization fun_mem :: "state ⇒ memidx ⇒ meminst"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:78.6-78.10 *)
 lemma mem_is_wf :
@@ -7110,14 +7046,10 @@ lemma mem_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:79.1-79.66 *)
-function (sequential, domintros) fun_elem :: "state ⇒ tableidx ⇒ eleminst" where
-		  "fun_elem (mk_state s f) x = ((store_ELEMS s) ! ((ELEMS (frame_MODULE f)) ! (proj_uN_0 x)))"
-	by pat_completeness auto
+axiomatization fun_elem :: "state ⇒ tableidx ⇒ eleminst"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:80.1-80.66 *)
-function (sequential, domintros) fun_data :: "state ⇒ dataidx ⇒ datainst" where
-		  "fun_data (mk_state s f) x = ((store_DATAS s) ! ((DATAS (frame_MODULE f)) ! (proj_uN_0 x)))"
-	by pat_completeness auto
+axiomatization fun_data :: "state ⇒ dataidx ⇒ datainst"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:80.6-80.11 *)
 lemma data_is_wf :
@@ -7128,9 +7060,7 @@ lemma data_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:81.1-81.67 *)
-function (sequential, domintros) fun_local :: "state ⇒ localidx ⇒ val" where
-		  "fun_local (mk_state s f) x = ((LOCALS f) ! (proj_uN_0 x))"
-	by pat_completeness auto
+axiomatization fun_local :: "state ⇒ localidx ⇒ val"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:81.6-81.12 *)
 lemma local_is_wf :
@@ -7155,9 +7085,7 @@ lemma with_local_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:96.1-96.96 *)
-function (sequential, domintros) with_global :: "state ⇒ globalidx ⇒ val ⇒ state" where
-		  "with_global (mk_state s f) x v = (mk_state (s ⦇ store_GLOBALS := (list_update_func (store_GLOBALS s) ((GLOBALS (frame_MODULE f)) ! (proj_uN_0 x)) (λ (var_1 :: globalinst). (var_1 ⦇ VALUE := v  ⦈)))  ⦈) f)"
-	by pat_completeness auto
+axiomatization with_global :: "state ⇒ globalidx ⇒ val ⇒ state"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:96.6-96.18 *)
 lemma with_global_is_wf :
@@ -7169,9 +7097,7 @@ lemma with_global_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:97.1-97.97 *)
-function (sequential, domintros) with_table :: "state ⇒ tableidx ⇒ nat ⇒ ref ⇒ state" where
-		  "with_table (mk_state s f) x i r = (mk_state (s ⦇ store_TABLES := (list_update_func (store_TABLES s) ((TABLES (frame_MODULE f)) ! (proj_uN_0 x)) (λ (var_1 :: tableinst). (var_1 ⦇ REFS := (list_update_func (REFS var_1) i (λ (underscore_underscore :: ref). r))  ⦈)))  ⦈) f)"
-	by pat_completeness auto
+axiomatization with_table :: "state ⇒ tableidx ⇒ nat ⇒ ref ⇒ state"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:97.6-97.17 *)
 lemma with_table_is_wf :
@@ -7182,9 +7108,7 @@ lemma with_table_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:98.1-98.89 *)
-function (sequential, domintros) with_tableinst :: "state ⇒ tableidx ⇒ tableinst ⇒ state" where
-		  "with_tableinst (mk_state s f) x ti = (mk_state (s ⦇ store_TABLES := (list_update_func (store_TABLES s) ((TABLES (frame_MODULE f)) ! (proj_uN_0 x)) (λ (underscore_underscore :: tableinst). ti))  ⦈) f)"
-	by pat_completeness auto
+axiomatization with_tableinst :: "state ⇒ tableidx ⇒ tableinst ⇒ state"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:98.6-98.21 *)
 lemma with_tableinst_is_wf :
@@ -7196,9 +7120,7 @@ lemma with_tableinst_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:99.1-99.100 *)
-function (sequential, domintros) with_mem :: "state ⇒ memidx ⇒ nat ⇒ nat ⇒ (byte list) ⇒ state" where
-		  "with_mem (mk_state s f) x i j b_lst = (mk_state (s ⦇ store_MEMS := (list_update_func (store_MEMS s) ((MEMS (frame_MODULE f)) ! (proj_uN_0 x)) (λ (var_1 :: meminst). (var_1 ⦇ BYTES := (list_slice_update (BYTES var_1) i j b_lst)  ⦈)))  ⦈) f)"
-	by pat_completeness auto
+axiomatization with_mem :: "state ⇒ memidx ⇒ nat ⇒ nat ⇒ (byte list) ⇒ state"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:99.6-99.15 *)
 lemma with_mem_is_wf :
@@ -7210,9 +7132,7 @@ lemma with_mem_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:100.1-100.87 *)
-function (sequential, domintros) with_meminst :: "state ⇒ memidx ⇒ meminst ⇒ state" where
-		  "with_meminst (mk_state s f) x mi = (mk_state (s ⦇ store_MEMS := (list_update_func (store_MEMS s) ((MEMS (frame_MODULE f)) ! (proj_uN_0 x)) (λ (underscore_underscore :: meminst). mi))  ⦈) f)"
-	by pat_completeness auto
+axiomatization with_meminst :: "state ⇒ memidx ⇒ meminst ⇒ state"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:100.6-100.19 *)
 lemma with_meminst_is_wf :
@@ -7224,9 +7144,7 @@ lemma with_meminst_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:101.1-101.93 *)
-function (sequential, domintros) with_elem :: "state ⇒ elemidx ⇒ (ref list) ⇒ state" where
-		  "with_elem (mk_state s f) x r_lst = (mk_state (s ⦇ store_ELEMS := (list_update_func (store_ELEMS s) ((ELEMS (frame_MODULE f)) ! (proj_uN_0 x)) (λ (var_1 :: eleminst). (var_1 ⦇ eleminst_REFS := r_lst  ⦈)))  ⦈) f)"
-	by pat_completeness auto
+axiomatization with_elem :: "state ⇒ elemidx ⇒ (ref list) ⇒ state"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:101.6-101.16 *)
 lemma with_elem_is_wf :
@@ -7237,9 +7155,7 @@ lemma with_elem_is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:102.1-102.94 *)
-function (sequential, domintros) with_data :: "state ⇒ dataidx ⇒ (byte list) ⇒ state" where
-		  "with_data (mk_state s f) x b_lst = (mk_state (s ⦇ store_DATAS := (list_update_func (store_DATAS s) ((DATAS (frame_MODULE f)) ! (proj_uN_0 x)) (λ (var_1 :: datainst). (var_1 ⦇ datainst_BYTES := b_lst  ⦈)))  ⦈) f)"
-	by pat_completeness auto
+axiomatization with_data :: "state ⇒ dataidx ⇒ (byte list) ⇒ state"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:102.6-102.16 *)
 lemma with_data_is_wf :
@@ -9266,12 +9182,7 @@ inductive allocdatas_is_wf :: "store ⇒ ((byte list) list) ⇒ (store * (dataad
 		 allocdatas_is_wf v_store var_0_lst_lst ret_val"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/9-module.spectec:100.1-100.83 *)
-function (sequential, domintros) instexport :: "(funcaddr list) ⇒ (globaladdr list) ⇒ (tableaddr list) ⇒ (memaddr list) ⇒ export ⇒ exportinst" where
-		  "instexport fa_lst ga_lst ta_lst ma_lst (EXPORT v_name (externidx_FUNC x)) = ⦇ NAME = v_name, ADDR = (externaddr_FUNC (fa_lst ! (proj_uN_0 x))) ⦈"
-		| "instexport fa_lst ga_lst ta_lst ma_lst (EXPORT v_name (externidx_GLOBAL x)) = ⦇ NAME = v_name, ADDR = (externaddr_GLOBAL (ga_lst ! (proj_uN_0 x))) ⦈"
-		| "instexport fa_lst ga_lst ta_lst ma_lst (EXPORT v_name (externidx_TABLE x)) = ⦇ NAME = v_name, ADDR = (externaddr_TABLE (ta_lst ! (proj_uN_0 x))) ⦈"
-		| "instexport fa_lst ga_lst ta_lst ma_lst (EXPORT v_name (externidx_MEM x)) = ⦇ NAME = v_name, ADDR = (externaddr_MEM (ma_lst ! (proj_uN_0 x))) ⦈"
-	by pat_completeness auto
+axiomatization instexport :: "(funcaddr list) ⇒ (globaladdr list) ⇒ (tableaddr list) ⇒ (memaddr list) ⇒ export ⇒ exportinst"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:100.6-100.17 *)
 lemma instexport_is_wf :
