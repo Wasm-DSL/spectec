@@ -15,7 +15,7 @@ relation Steps: lconfig ~>*_(action*) lconfig     hint(name "E") hint(macro "ste
 
 ;; Structural
 rule Global_step/lift:
-  s; thread* (f; instr*; timestamp) thread_1* ~>_({ACTIONS act*, TIMEp timestamp, TIME timestamp'}) s; thread* (f'; instr'*; timestamp') thread_1*
+  s; thread* (f; instr*; timestamp) thread_1* ~>_({ACTIONS act*, TIMEP timestamp, TIME timestamp'}) s'; thread* (f'; instr'*; timestamp') thread_1*
   -- Step: s; f; instr* ~>_(act*) s'; f'; instr'*
   -- if $timestamphappensbefore(timestamp, timestamp')
   -- (if act =/= SPAWN)*

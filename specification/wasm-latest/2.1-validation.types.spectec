@@ -417,13 +417,13 @@ rule Suspensionsconsistentwith/wait:
   -- Suspensionsconsistentwith: i reg |- tr Suspensionsconsistentwith (evt.TIME time*)
 
 rule Suspensionsconsistentwith/timeout:
-  i reg |- evt tr Suspensionsconsistentwith (time1^a evt.TIMEp time2^b) 
+  i reg |- evt tr Suspensionsconsistentwith (time1^a evt.TIMEP time2^b) 
   -- if $access1_r(reg, evt, action, $id) = (TIMEOUT (reg i))
   -- --
   -- Suspensionsconsistentwith: i reg |- tr Suspensionsconsistentwith (evt.TIME time2^b)
 
 rule Suspensionsconsistentwith/notify:
-  i reg |- evt_N evt^n tr Suspensionsconsistentwith (time^m (evt.TIMEp)^n) 
+  i reg |- evt_N evt^n tr Suspensionsconsistentwith (time^m (evt.TIMEP)^n) 
   -- (if $access1_r(reg, evt, action, $id) = (WOKEN (reg i)))^n
   -- -- 
   -- if $access1_r(reg, evt_N, action, $id) = (NOTIFY location n k)

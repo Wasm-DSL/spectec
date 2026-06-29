@@ -645,7 +645,7 @@ syntax action =
 
 
 syntax event = 
-  { ACTIONS action*, TIMEp timestamp, TIME timestamp }
+  { ACTIONS action*, TIMEP timestamp, TIME timestamp }
 
 syntax trace = event*
 

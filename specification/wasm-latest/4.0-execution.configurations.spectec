@@ -353,7 +353,7 @@ def $time(event): timestamp
 def $time(ev) = ev.TIME
 
 def $timep(event): timestamp
-def $timep(ev) = ev.TIMEp
+def $timep(ev) = ev.TIMEP
 
 def $locationf(action): location
 def $locationf(RD ord location storeval) = location
@@ -423,7 +423,7 @@ def $reading_event_filter(event): event
 def $reading_event_filter(evt) = 
 {
   ACTIONS $readingactionfilter(evt.ACTIONS),
-  TIMEp evt.TIMEp,
+  TIMEP evt.TIMEP,
   TIME evt.TIME
 }
 

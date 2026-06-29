@@ -277,6 +277,9 @@
 .. |Lrbrack| mathdef:: \xref{syntax/types}{syntax-limits}{\]}
 .. |Ldotdot| mathdef:: \xref{syntax/types}{syntax-limits}{\,{..}\,}
 .. |PAGE| mathdef:: \xref{syntax/types}{syntax-memtype}{\K{page}}
+.. |share| mathdef:: \xref{syntax/types}{syntax-memtype}{\K{share}}
+.. |SHARED| mathdef:: \xref{syntax/types}{syntax-memtype}{\K{shared}}
+.. |UNSHARED| mathdef:: \xref{syntax/types}{syntax-memtype}{\K{unshared}}
 
 .. |XTFUNC| mathdef:: \xref{syntax/types}{syntax-externtype}{\K{func}}
 .. |XTTABLE| mathdef:: \xref{syntax/types}{syntax-externtype}{\K{table}}
@@ -1356,6 +1359,9 @@
 .. |INIT| mathdef:: \xref{exec/runtime}{syntax-ord}{\K{INIT}}
 .. |ord| mathdef:: \xref{exec/runtime}{syntax-ord}{\X{ord}}
 
+.. |notears| mathdef:: \xref{exec/runtime}{syntax-action}{\K{notears}}
+.. |NOTEAR| mathdef:: \xref{exec/runtime}{syntax-action}{\K{notear}}
+
 .. |RD| mathdef:: \xref{exec/runtime}{syntax-action}{\K{RD}}
 .. |WR| mathdef:: \xref{exec/runtime}{syntax-action}{\K{WR}}
 .. |RMW| mathdef:: \xref{exec/runtime}{syntax-action}{\K{RMW}}
@@ -1368,7 +1374,7 @@
 .. |HOSTACT| mathdef:: \xref{exec/runtime}{syntax-action}{\K{HOSTACT}}
 .. |action| mathdef:: \xref{exec/runtime}{syntax-action}{\X{action}}
 
-.. |TIMEp| mathdef:: \xref{exec/runtime}{syntax-event}{\K{TIMEp}}
+.. |TIMEP| mathdef:: \xref{exec/runtime}{syntax-event}{\K{TIMEP}}
 .. |TIME| mathdef:: \xref{exec/runtime}{syntax-event}{\K{TIME}}
 .. |timestamp| mathdef:: \xref{exec/runtime}{syntax-timestamp}{\X{timestamp}}
 .. |ACTIONS| mathdef:: \xref{exec/runtime}{syntax-event}{\K{actions}}
@@ -1382,13 +1388,10 @@
 .. |implies| mathdef:: \xref{exec/relaxed_memory_model}{op-implies}{\F{implies}}
 .. |impliesconsistentwith| mathdef:: \xref{exec/relaxed_memory_model}{op-implies-consistent-with}{\F{impliesconsistentwith}}
 .. |notinrange| mathdef:: \xref{exec/relaxed_memory_model}{op-not-in-range}{\F{notinrange}}
+.. |tearing| mathdef:: \xref{exec/relaxed_memory_model}{op-not-in-range}{\F{tearing}}
 
 .. |forall1| mathdef:: \xref{exec/relaxed_memory_model}{op-forall}{\F{forall1}}
 .. |forall2| mathdef:: \xref{exec/relaxed_memory_model}{op-forall}{\F{forall2}}
-.. |forall1and2| mathdef:: \xref{exec/relaxed_memory_model}{op-forall}{\F{forall1and2}}
-.. |forall1and3| mathdef:: \xref{exec/relaxed_memory_model}{op-forall}{\F{forall1and3}}
-.. |forall1and4| mathdef:: \xref{exec/relaxed_memory_model}{op-forall}{\F{forall1and4}}
-.. |forall1and5| mathdef:: \xref{exec/relaxed_memory_model}{op-forall}{\F{forall1and5}}
 
 .. |happensbefore| mathdef:: \xref{exec/relaxed_memory_model}{op-happens-before}{\F{happensbefore}}
 .. |tot| mathdef:: \xref{exec/relaxed_memory_model}{op-tot}{\F{tot}}
