@@ -101,9 +101,13 @@ rule Instr_ok2/trap:
 rule Instrs_ok2/empty:
   s; C |- eps : eps -> eps
 
+rule Instrs_ok2/instr:
+  s; C |- admininstr : t_1* -> t_2*
+  -- Instr_ok2: s; C |- admininstr : t_1* -> t_2*
+
 rule Instrs_ok2/seq:
-  s; C |- admininstr_1 admininstr_2* : t_1* -> t_3*
-  -- Instr_ok2: s; C |- admininstr_1 : t_1* -> t_2*
+  s; C |- admininstr_1* admininstr_2* : t_1* -> t_3*
+  -- Instrs_ok2: s; C |- admininstr_1* : t_1* -> t_2*
   -- Instrs_ok2: s; C |- admininstr_2* : t_2* -> t_3*
 
 rule Instrs_ok2/sub:
