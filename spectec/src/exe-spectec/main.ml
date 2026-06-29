@@ -95,6 +95,7 @@ module PS = Set.Make(struct type t = pass let compare = compare; end)
 let selected_passes = ref (PS.empty)
 let enable_pass pass = selected_passes := PS.add pass !selected_passes
 
+let sideconditions_on_defs = ref false
 
 let print_il il =
   Printf.printf "%s\n%!" (Il.Print.string_of_script ~suppress_pos:(!print_no_pos) il)
@@ -158,7 +159,7 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | Sub -> Middlend.Sub.transform
   | Totalize -> Middlend.Totalize.transform
   | Unthe -> Middlend.Unthe.transform
-  | Sideconditions -> Middlend.Sideconditions.transform
+  | Sideconditions -> Middlend.Sideconditions.transform ~on_defs:!sideconditions_on_defs
   | TypeFamilyRemoval -> Middlend.Typefamilyremoval.transform
   | Else -> Middlend.Else.transform
   | Undep -> Middlend.Undep.transform
