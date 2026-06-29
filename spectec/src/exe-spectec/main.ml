@@ -54,8 +54,8 @@ let all_passes = [
   SubExpansion;
   PatSimp;
   Sub;
-  Sideconditions;
   DefToRel;
+  Sideconditions;
   AliasDemut;
   ImproveIds;
   DatatypeDiet;
@@ -294,7 +294,7 @@ let () =
     | Prose _ | Splice _ | Interpreter _ ->
        enable_pass Sideconditions;
     | Isabelle -> 
-      sideconditions_on_defs := true;
+      (* sideconditions_on_defs := true; *)
       enable_pass Sideconditions;
       enable_pass Totalize;  
       enable_pass Else;
