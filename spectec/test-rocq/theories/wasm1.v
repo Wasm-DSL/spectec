@@ -5234,7 +5234,7 @@ Inductive Result_ok : result -> (seq valtype) -> Prop :=
 (* Type Alias Definition at: ../specification/wasm-1.0/B-soundness.spectec:44.1-44.31 *)
 Definition adminexpr : Type := (seq admininstr).
 
-(* Mutual Recursion at: ../specification/wasm-1.0/B-soundness.spectec:95.1-95.84 *)
+(* Mutual Recursion at: ../specification/wasm-1.0/B-soundness.spectec:99.1-99.84 *)
 Inductive Externaddr_ok : store -> externaddr -> externtype -> Prop :=
 	| Externaddr_ok__global : forall (s : store) (a : addr) (v_globalinst : globalinst), 
 		(a < (|(store_GLOBALS s)|))%N ->
@@ -5268,7 +5268,7 @@ Inductive Externaddr_ok : store -> externaddr -> externtype -> Prop :=
 		(wf_externtype xt') ->
 		Externaddr_ok s v_externaddr xt.
 
-(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:124.1-124.49 *)
+(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:128.1-128.49 *)
 Inductive Exportinst_ok : store -> exportinst -> Prop :=
 	| mk_Exportinst_ok : forall (s : store) (nm : name) (xa : externaddr) (xt : externtype), 
 		(Externaddr_ok s xa xt) ->
@@ -5277,7 +5277,7 @@ Inductive Exportinst_ok : store -> exportinst -> Prop :=
 		(wf_exportinst {| NAME := nm; ADDR := xa |}) ->
 		Exportinst_ok s {| NAME := nm; ADDR := xa |}.
 
-(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:155.1-155.54 *)
+(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:159.1-159.54 *)
 Inductive Moduleinst_ok : store -> moduleinst -> context -> Prop :=
 	| mk_Moduleinst_ok : forall (s : store) (functype_lst : (seq functype)) (funcaddr_lst : (seq funcaddr)) (globaladdr_lst : (seq globaladdr)) (tableaddr_lst : (seq tableaddr)) (memaddr_lst : (seq memaddr)) (exportinst_lst : (seq exportinst)) (functype_F_lst : (seq functype)) (globaltype_lst : (seq globaltype)) (tabletype_lst : (seq tabletype)) (memtype_lst : (seq memtype)), 
 		List.Forall (fun (v_functype : functype) => (Functype_ok v_functype)) functype_lst ->
@@ -5302,7 +5302,7 @@ Inductive Moduleinst_ok : store -> moduleinst -> context -> Prop :=
 		List.Forall (fun (v_tabletype : tabletype) => (wf_externtype (TABLE v_tabletype))) tabletype_lst ->
 		Moduleinst_ok s {| TYPES := functype_lst; FUNCS := funcaddr_lst; GLOBALS := globaladdr_lst; TABLES := tableaddr_lst; MEMS := memaddr_lst; EXPORTS := exportinst_lst |} {| context_TYPES := functype_lst; context_FUNCS := functype_F_lst; context_GLOBALS := globaltype_lst; context_TABLES := tabletype_lst; context_MEMS := memtype_lst; context_LOCALS := [:: ]; LABELS := [:: ]; context_RETURN := None |}.
 
-(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:228.1-228.44 *)
+(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:232.1-232.44 *)
 Inductive Frame_ok : store -> frame -> context -> Prop :=
 	| mk_Frame_ok : forall (s : store) (val_lst : (seq val)) (v_moduleinst : moduleinst) (C : context) (t_lst : (seq valtype)), 
 		(Moduleinst_ok s v_moduleinst C) ->
@@ -5360,14 +5360,20 @@ Instrs_ok2 : store -> context -> (seq admininstr) -> functype -> Prop :=
 		(wf_store s) ->
 		(wf_context C) ->
 		Instrs_ok2 s C [:: ] (mk_functype [:: ] [:: ])
-	| Instrs_ok2__seq : forall (s : store) (C : context) (admininstr_1 : admininstr) (admininstr_2_lst : (seq admininstr)) (t_1_lst : (seq valtype)) (t_3_lst : (seq valtype)) (t_2_lst : (seq valtype)), 
-		(Instr_ok2 s C admininstr_1 (mk_functype t_1_lst t_2_lst)) ->
+	| Instrs_ok2__instr : forall (s : store) (C : context) (v_admininstr : admininstr) (t_1_lst : (seq valtype)) (t_2_lst : (seq valtype)), 
+		(Instr_ok2 s C v_admininstr (mk_functype t_1_lst t_2_lst)) ->
+		(wf_store s) ->
+		(wf_context C) ->
+		(wf_admininstr v_admininstr) ->
+		Instrs_ok2 s C [::v_admininstr] (mk_functype t_1_lst t_2_lst)
+	| Instrs_ok2__seq : forall (s : store) (C : context) (admininstr_1_lst : (seq admininstr)) (admininstr_2_lst : (seq admininstr)) (t_1_lst : (seq valtype)) (t_3_lst : (seq valtype)) (t_2_lst : (seq valtype)), 
+		(Instrs_ok2 s C admininstr_1_lst (mk_functype t_1_lst t_2_lst)) ->
 		(Instrs_ok2 s C admininstr_2_lst (mk_functype t_2_lst t_3_lst)) ->
 		(wf_store s) ->
 		(wf_context C) ->
-		(wf_admininstr admininstr_1) ->
+		List.Forall (fun (admininstr_1 : admininstr) => (wf_admininstr admininstr_1)) admininstr_1_lst ->
 		List.Forall (fun (admininstr_2 : admininstr) => (wf_admininstr admininstr_2)) admininstr_2_lst ->
-		Instrs_ok2 s C ([::admininstr_1] ++ admininstr_2_lst) (mk_functype t_1_lst t_3_lst)
+		Instrs_ok2 s C (admininstr_1_lst ++ admininstr_2_lst) (mk_functype t_1_lst t_3_lst)
 	| Instrs_ok2__frame : forall (s : store) (C : context) (admininstr_lst : (seq admininstr)) (t_lst : (seq valtype)) (t_1_lst : (seq valtype)) (t_2_lst : (seq valtype)), 
 		(Instrs_ok2 s C admininstr_lst (mk_functype t_1_lst t_2_lst)) ->
 		(wf_store s) ->
@@ -5385,7 +5391,7 @@ Expr_ok2 : store -> context -> adminexpr -> resulttype -> Prop :=
 		List.Forall (fun (v_admininstr : admininstr) => (wf_admininstr v_admininstr)) admininstr_lst ->
 		Expr_ok2 s C admininstr_lst t_opt.
 
-(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:120.1-120.57 *)
+(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:124.1-124.57 *)
 Inductive Globalinst_ok : store -> globalinst -> globaltype -> Prop :=
 	| mk_Globalinst_ok : forall (s : store) (v_mut : mut) (t : valtype) (v_val : val), 
 		(Globaltype_ok (mk_globaltype v_mut t)) ->
@@ -5394,7 +5400,7 @@ Inductive Globalinst_ok : store -> globalinst -> globaltype -> Prop :=
 		(wf_globalinst {| globalinst_TYPE := (mk_globaltype v_mut t); VALUE := v_val |}) ->
 		Globalinst_ok s {| globalinst_TYPE := (mk_globaltype v_mut t); VALUE := v_val |} (mk_globaltype v_mut t).
 
-(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:121.1-121.48 *)
+(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:125.1-125.48 *)
 Inductive Meminst_ok : store -> meminst -> memtype -> Prop :=
 	| mk_Meminst_ok : forall (s : store) (v_n : n) (m_opt : (option m)) (b_lst : (seq byte)), 
 		(Memtype_ok (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt))) ->
@@ -5404,7 +5410,7 @@ Inductive Meminst_ok : store -> meminst -> memtype -> Prop :=
 		(wf_limits (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt))) ->
 		Meminst_ok s {| meminst_TYPE := (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)); BYTES := b_lst |} (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)).
 
-(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:122.1-122.54 *)
+(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:126.1-126.54 *)
 Inductive Tableinst_ok : store -> tableinst -> tabletype -> Prop :=
 	| mk_Tableinst_ok : forall (s : store) (v_n : n) (m_opt : (option m)) (fa_opt_lst : (seq (option funcaddr))) (ft_opt_lst : (seq (option functype))), 
 		(Tabletype_ok (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt))) ->
@@ -5418,7 +5424,7 @@ Inductive Tableinst_ok : store -> tableinst -> tabletype -> Prop :=
 		List.Forall (fun (ft_opt : (option functype)) => List.Forall (fun (ft : functype) => (wf_externtype (FUNC ft))) (option_to_list ft_opt)) ft_opt_lst ->
 		Tableinst_ok s {| tableinst_TYPE := (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)); REFS := fa_opt_lst |} (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)).
 
-(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:123.1-123.51 *)
+(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:127.1-127.51 *)
 Inductive Funcinst_ok : store -> funcinst -> functype -> Prop :=
 	| mk_Funcinst_ok : forall (s : store) (ft : functype) (v_moduleinst : moduleinst) (v_func : func) (C : context), 
 		(Functype_ok ft) ->
@@ -5429,7 +5435,7 @@ Inductive Funcinst_ok : store -> funcinst -> functype -> Prop :=
 		(wf_funcinst {| funcinst_TYPE := ft; funcinst_MODULE := v_moduleinst; CODE := v_func |}) ->
 		Funcinst_ok s {| funcinst_TYPE := ft; funcinst_MODULE := v_moduleinst; CODE := v_func |} ft.
 
-(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:183.1-183.33 *)
+(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:187.1-187.33 *)
 Inductive Store_ok : store -> Prop :=
 	| mk_Store_ok : forall (s : store) (globalinst_lst : (seq globalinst)) (globaltype_lst : (seq globaltype)) (meminst_lst : (seq meminst)) (memtype_lst : (seq memtype)) (tableinst_lst : (seq tableinst)) (tabletype_lst : (seq tabletype)) (funcinst_lst : (seq funcinst)) (functype_lst : (seq functype)), 
 		((|globalinst_lst|) == (|globaltype_lst|)) ->
@@ -5447,7 +5453,7 @@ Inductive Store_ok : store -> Prop :=
 		(wf_store {| store_FUNCS := funcinst_lst; store_GLOBALS := globalinst_lst; store_TABLES := tableinst_lst; store_MEMS := meminst_lst |}) ->
 		Store_ok s.
 
-(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:196.1-196.54 *)
+(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:200.1-200.54 *)
 Inductive Extend_globalinst : globalinst -> globalinst -> Prop :=
 	| mk_Extend_globalinst : forall (v_mut : mut) (t : valtype) (v_val : val) (val' : val), 
 		((v_mut == (Some MUT)) || (v_val == val')) ->
@@ -5455,7 +5461,7 @@ Inductive Extend_globalinst : globalinst -> globalinst -> Prop :=
 		(wf_globalinst {| globalinst_TYPE := (mk_globaltype v_mut t); VALUE := val' |}) ->
 		Extend_globalinst {| globalinst_TYPE := (mk_globaltype v_mut t); VALUE := v_val |} {| globalinst_TYPE := (mk_globaltype v_mut t); VALUE := val' |}.
 
-(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:197.1-197.45 *)
+(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:201.1-201.45 *)
 Inductive Extend_meminst : meminst -> meminst -> Prop :=
 	| mk_Extend_meminst : forall (v_n : n) (m_opt : (option m)) (b_lst : (seq byte)) (n' : n) (b'_lst : (seq byte)), 
 		(v_n <= n')%N ->
@@ -5464,7 +5470,7 @@ Inductive Extend_meminst : meminst -> meminst -> Prop :=
 		(wf_meminst {| meminst_TYPE := (mk_limits (mk_uN n') (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)); BYTES := b'_lst |}) ->
 		Extend_meminst {| meminst_TYPE := (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)); BYTES := b_lst |} {| meminst_TYPE := (mk_limits (mk_uN n') (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)); BYTES := b'_lst |}.
 
-(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:198.1-198.51 *)
+(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:202.1-202.51 *)
 Inductive Extend_tableinst : tableinst -> tableinst -> Prop :=
 	| mk_Extend_tableinst : forall (v_n : n) (m_opt : (option m)) (ref_lst : (seq funcaddr)) (n' : n) (ref'_lst : (seq funcaddr)), 
 		(v_n <= n')%N ->
@@ -5473,13 +5479,13 @@ Inductive Extend_tableinst : tableinst -> tableinst -> Prop :=
 		(wf_tableinst {| tableinst_TYPE := (mk_limits (mk_uN n') (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)); REFS := (seq.map (fun (ref' : funcaddr) => (Some ref')) ref'_lst) |}) ->
 		Extend_tableinst {| tableinst_TYPE := (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)); REFS := (seq.map (fun (ref : funcaddr) => (Some ref)) ref_lst) |} {| tableinst_TYPE := (mk_limits (mk_uN n') (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)); REFS := (seq.map (fun (ref' : funcaddr) => (Some ref')) ref'_lst) |}.
 
-(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:199.1-199.48 *)
+(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:203.1-203.48 *)
 Inductive Extend_funcinst : funcinst -> funcinst -> Prop :=
 	| mk_Extend_funcinst : forall (ft : functype) (mm : moduleinst) (fc : func), 
 		(wf_funcinst {| funcinst_TYPE := ft; funcinst_MODULE := mm; CODE := fc |}) ->
 		Extend_funcinst {| funcinst_TYPE := ft; funcinst_MODULE := mm; CODE := fc |} {| funcinst_TYPE := ft; funcinst_MODULE := mm; CODE := fc |}.
 
-(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:200.1-200.39 *)
+(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:204.1-204.39 *)
 Inductive Extend_store : store -> store -> Prop :=
 	| mk_Extend_store : forall (s : store) (s' : store), 
 		holds_upto (fun a => (a < (|(store_GLOBALS s)|))%N) (|(store_GLOBALS s)|) ->
@@ -5498,7 +5504,7 @@ Inductive Extend_store : store -> store -> Prop :=
 		(wf_store s') ->
 		Extend_store s s'.
 
-(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:229.1-229.38 *)
+(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:233.1-233.38 *)
 Inductive State_ok : state -> context -> Prop :=
 	| mk_State_ok : forall (s : store) (f : frame) (C : context), 
 		(Store_ok s) ->
@@ -5507,7 +5513,7 @@ Inductive State_ok : state -> context -> Prop :=
 		(wf_state (mk_state s f)) ->
 		State_ok (mk_state s f) C.
 
-(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:230.1-230.43 *)
+(* Inductive Relations Definition at: ../specification/wasm-1.0/B-soundness.spectec:234.1-234.43 *)
 Inductive Config_ok : config -> resulttype -> Prop :=
 	| mk_Config_ok : forall (s : store) (f : frame) (admininstr_lst : (seq admininstr)) (t_opt : (option valtype)) (C : context), 
 		(State_ok (mk_state s f) C) ->
