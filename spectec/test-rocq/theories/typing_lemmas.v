@@ -1677,14 +1677,14 @@ Ltac vals_typing_inversion H :=
   end.
 
 Lemma construct_ais_vals: forall v_S v_C (v_vals: list wasm.val) t1s t2s ts,
-	(([] :-> ts) <ti: (t1s :-> t2s)) ->
-	(Vals_ok v_S v_vals ts) ->
 	wf_context v_C ->
 	wf_store v_S ->
+	(([] :-> ts) <ti: (t1s :-> t2s)) ->
+	(Vals_ok v_S v_vals ts) ->
 	Instrs_ok2 v_S v_C (map admininstr_val v_vals) (t1s :-> t2s).
 Proof.
 
-	move => v_S v_C v_vals t1s t2s ts Hsub Hforall HWfC HWfS.
+	move => v_S v_C v_vals t1s t2s ts HWfC HWfS Hsub Hforall.
 	move: t1s t2s ts Hsub Hforall.
 	induction v_vals using last_ind.
 	{
@@ -1969,10 +1969,12 @@ Ltac construct_ais_typing :=
     | H1: (([] :-> ?tp2) <ti: (?ts1 :-> ?ts2)),
 	  H2: (Vals_ok ?v_S ?v_vals ?tp2)
 	  |- Instrs_ok2 _ _ (map admininstr_val ?v_vals) (?ts1 :-> ?ts2) =>
-        eapply (construct_ais_vals _ _ _ _ _ _ H1) in H2
+        eapply (construct_ais_vals _ _ _ _ _ _ _ _ H1) in H2
     | H: (_ <ti: ?ts) |- Instrs_ok2 _ _ [_] ?ts =>
-        eapply construct_ais_typing_single;
-		[ | eapply H]
+			destruct_functypes;
+      eapply construct_ais_subtyping;
+			[ | eapply H];
+			eapply construct_ais_typing_single 
     | H: _ |- Instrs_ok2 _ _ (_ ++ _) ?ts =>
         eapply construct_ais_compose
     | H: _ |- Instrs_ok2 _ _ (_ :: (_ :: _)) ?ts =>

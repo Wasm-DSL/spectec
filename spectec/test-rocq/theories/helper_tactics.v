@@ -364,13 +364,13 @@ Ltac inv_Forall H :=
   | Forall _ [] =>
       inversion H; subst; clear H
   | Forall _ [_] =>
-      let Ha := fresh "H" in
+      let Ha := fresh "HP" in
       let Hrest := fresh "Hrest" in
       inversion H as [ | ? ? Ha Hrest]; subst; clear H;
       clear Hrest
   | Forall _ [_; _] =>
-      let Ha := fresh "H" in
-      let Hb := fresh "H" in
+      let Ha := fresh "HP" in
+      let Hb := fresh "HP" in
       let Hrest := fresh "Hrest" in
       let Hrest' := fresh "Hrest'" in
       inversion H as [ | ? ? Ha Hrest]; subst; clear H;
@@ -401,5 +401,11 @@ Ltac inv_Forall H :=
     inversion Hrest' as [ | ? ? Hc Hrest'']; subst; clear Hrest';
     inversion Hrest'' as [ | ? ? Hd Hrest''']; subst; clear Hrest'';
     clear Hrest'''
+  | Forall _ (_ ++ _) =>
+    let HP1 := fresh "HP1" in
+    let HP2 := fresh "HP2" in 
+    apply Forall_app in H; destruct H as [HP1 HP2];
+    inv_Forall HP1;
+    inv_Forall HP2
   | _ => idtac
   end.
