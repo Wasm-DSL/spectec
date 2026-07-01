@@ -331,6 +331,21 @@ Proof.
   auto.
 Qed.
 
+Lemma resulttype_sub_split_sup': forall ts ts1 ts2,
+    (ts1 ++ ts2) <ts: ts ->
+    (ts1 <ts: (take (size ts1) ts)) /\ (ts2 <ts: (drop (size ts1) ts)).
+Proof.
+  move => ts ts1 ts2 Hsub.
+  assert (ts1 = take (size ts1) (ts1 ++ ts2)) as Htake.
+  { symmetry. by apply take_size_cat.  }
+  assert (ts2 = drop (size ts1) (ts1 ++ ts2)) as Hdrop.
+  { symmetry. by apply drop_size_cat. }
+  eapply resulttype_sub_split in Hsub.
+  rewrite <- Htake in Hsub.
+  rewrite <- Hdrop in Hsub.
+  auto.
+Qed.
+
 Lemma instrtype_sub_refl: forall tf, tf <ti: tf.
 Proof.
   move => [[ts1] [ts2]].
@@ -858,4 +873,43 @@ Proof.
   inversion H2; subst.
   split. auto.
   constructor; auto.
+Qed.
+
+Lemma instr_subtyping_strengthen2: forall tx1 ty1 tx2 ty2 ts,
+    ((tx1 :-> ty1) <ti: (tx2 :-> ty2)) ->
+    (ts <ts: tx2) ->
+    ((tx1 :-> ty1) <ti: (ts :-> ty2)).
+Proof.
+  move => tx1 ty1 tx2 ty2 ts H Hsub.
+  unfold instrtype_sub in *.
+  destruct H as [ts0 [ts' [ts1_s [ts2_s [Heq1 [Heq2 [Hsub1 [Hsub2 Hsub3]]]]]]]].
+  subst.
+  eapply resulttype_sub_split_sup in Hsub as [H1 H2].
+  exists (take (size ts0) ts), ts', (drop (size ts0) ts), ts2_s.
+  rewrite cat_take_drop.
+  split. reflexivity.
+  split. reflexivity.
+  split. eapply resulttype_sub_trans; eauto.
+  split. eapply resulttype_sub_trans; eauto.
+  apply Hsub3.
+Qed.
+  
+
+Lemma instr_subtyping_weaken2: forall tx1 ty1 tx2 ty2 ts,
+    ((tx1 :-> ty1) <ti: (tx2 :-> ty2)) ->
+    (ty2 <ts: ts) ->
+    ((tx1 :-> ty1) <ti: (tx2 :-> ts)).
+Proof.
+  move => tx1 ty1 tx2 ty2 ts H Hsub.
+  unfold instrtype_sub in *.
+  destruct H as [ts0 [ts' [ts1_s [ts2_s [Heq1 [Heq2 [Hsub1 [Hsub2 Hsub3]]]]]]]].
+  subst.
+  eapply resulttype_sub_split_sup' in Hsub as [H1 H2].
+  exists ts0, (take (size ts') ts), ts1_s, (drop (size ts') ts).
+  rewrite cat_take_drop.
+  split. reflexivity.
+  split. reflexivity.
+  split. eapply resulttype_sub_trans; eauto.
+  split. apply Hsub2.
+  eapply resulttype_sub_trans; eauto.
 Qed.

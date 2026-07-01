@@ -2,12 +2,12 @@ From Stdlib Require Import String List Unicode.Utf8 NArith Arith Logic.Eqdep.
 Require Import Stdlib.Program.Equality.
 From RecordUpdate Require Import RecordSet.
 
+From WasmSpectec Require Import wasm helper_lemmas helper_tactics subtyping.
+From mathcomp Require Import all_ssreflect all_algebra.
 Declare Scope wasm_scope.
 Open Scope wasm_scope.
 Import ListNotations.
 Import RecordSetNotations.
-From WasmSpectec Require Import wasm helper_lemmas helper_tactics subtyping.
-From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype.
 
 Definition fun_nat__u32 : nat -> u32 := mk_uN.
 Definition fun_u32__nat : u32 -> nat := fun x => match x with
@@ -156,8 +156,8 @@ Proof.
 Qed.
 
 Lemma upd_label_unchanged_typing: forall v_S v_C v_admininstrs v_funcontext_type,
-    Admin_instrs_ok v_S v_C v_admininstrs v_funcontext_type <->
-    Admin_instrs_ok v_S (upd_label v_C (LABELS v_C)) v_admininstrs v_funcontext_type.
+    Instrs_ok2 v_S v_C v_admininstrs v_funcontext_type <->
+    Instrs_ok2 v_S (upd_label v_C (LABELS v_C)) v_admininstrs v_funcontext_type.
 Proof.
 	move => s C es tf.
 	split.
@@ -244,38 +244,82 @@ match ai with
   | _ => None
   end.
 
+Lemma instr_ok_context_wf : forall v_C v_instr v_ft,
+	Instr_ok v_C v_instr v_ft ->
+	wf_context v_C /\ wf_instr v_instr.
+Proof.
+	move => v_C v_instr v_ft HType.
+	inversion HType; eauto.
+Qed.
+
+Lemma ainstr_ok_context_store_wf : forall v_S v_C v_ainstr v_ft,
+	Instr_ok2 v_S v_C v_ainstr v_ft ->
+	wf_context v_C /\ wf_store v_S /\ wf_admininstr v_ainstr.
+Proof. move => v_S v_C v_ainstr v_ft HType; inversion HType; subst; eauto. 
+	- split; eauto. split; auto. inversion H2; econstructor; eauto.
+	- split; auto. split; auto. destruct v_ref; econstructor.
+Qed.
+
+Lemma instrs_ok_context_wf : forall v_C v_instrs v_ft,
+	Instrs_ok v_C v_instrs v_ft ->
+	wf_context v_C /\ List.Forall (fun a => wf_instr a) v_instrs.
+Proof. move => v_C v_instrs v_ft HType; inversion HType; eauto.
+	split; eauto.
+	apply Forall_app; split; eauto.
+Qed.
+
+Lemma ainstrs_ok_context_store_wf : forall v_S v_C v_ainstrs v_ft,
+	Instrs_ok2 v_S v_C v_ainstrs v_ft ->
+	wf_context v_C /\ wf_store v_S /\ List.Forall (fun a => wf_admininstr a) v_ainstrs.
+Proof. move => v_S v_C v_ainstrs v_ft HType; inversion HType; eauto. 
+	split; eauto.
+	split; eauto.
+	apply Forall_app; split; eauto.
+Qed.
+
 Notation "tf1 :-> tf2" :=
 (mk_functype (mk_list _ tf1) (mk_list _ tf2)) (at level 40).
 
-Lemma instrs_composition_typing_single: forall v_C v_instrs v_instr t1s t2s,
+(* Lemma instrs_composition_typing_single: forall v_C v_instrs v_instr t1s t2s,
 	Instrs_ok v_C ([::v_instr] ++ v_instrs) ( t1s :-> t2s ) ->
 	exists t3s, Instrs_ok v_C v_instrs ( t3s :-> t2s ) /\
 				Instrs_ok v_C [v_instr] ( t1s :-> t3s ).
 Proof.
 	move => v_C v_instrs v_instr t1s t2s HType.
+	eapply (res_seq _ [v_instr] t1s t_2_lst t_2_lst); eauto.
 	dependent induction HType.
+	- (* Instr *)
+		exists t2s.
+		split.
+		+ rewrite -(cats0 t2s).
+		  eapply Instrs_ok__frame; eauto.
+		  eapply empty; eauto.
+			eapply Instrs_ok__instr; eauto.
 	-
 	  exists t_2_lst.
 	  split; auto.
-	  eapply (res_seq _ v_instr [] t1s t_2_lst t_2_lst); eauto.
+	  eapply (res_seq _ [v_instr] t1s t_2_lst t_2_lst); eauto.
 	  + rewrite -(cats0 t_2_lst).
-	    eapply (Instrs_ok__frame _ _ t_2_lst [] []).
-		apply empty.
-	- specialize (IHHType _ _ _ _ erefl erefl) as [t3s [H1 H2]].
+	    eapply (Instrs_ok__frame _ _ t_2_lst [] []); eauto.
+			apply empty.
+			apply H0.
+	- specialize (IHHType _ _ _ _ erefl erefl) as [t3s [H3 H4]].
 	  exists t3s.
+		apply Forall_app in H2; destruct H2.
 	  split;
 	  eapply sub; eauto;
     apply resulttype_sub_refl.
 	- specialize (IHHType _ _ _ _ erefl erefl) as [t3s [H1 H2]].
 	  exists (t_lst ++ t3s).
+		apply Forall_app in H0; destruct H0.
 	  split;
 	  eapply Instrs_ok__frame; eauto.
 Qed.
 
 Lemma ais_composition_typing_single: forall v_S v_C v_ais v_ai t1s t2s,
-	Admin_instrs_ok v_S v_C ([v_ai] ++ v_ais) ( t1s :-> t2s ) ->
-	exists t3s, Admin_instrs_ok v_S v_C v_ais ( t3s :-> t2s ) /\
-				Admin_instrs_ok v_S v_C [v_ai] ( t1s :-> t3s ).
+	Instrs_ok2 v_S v_C ([v_ai] ++ v_ais) ( t1s :-> t2s ) ->
+	exists t3s, Instrs_ok2 v_S v_C v_ais ( t3s :-> t2s ) /\
+				Instrs_ok2 v_S v_C [v_ai] ( t1s :-> t3s ).
 Proof.
 	move => v_S v_C v_ais v_ai t1s t2s HType.
 	dependent induction HType.
@@ -283,99 +327,99 @@ Proof.
 	  exists t_2_lst.
 	  split.
 		* auto.
-	  * eapply (Admin_instrs_ok__seq) with (t_2_lst := t_2_lst); eauto.
+	  * eapply (Instrs_ok2__seq) with (t_2_lst := t_2_lst); eauto.
 		  rewrite -(cats0 t_2_lst).
-		  eapply Admin_instrs_ok__frame.
-			by apply Admin_instrs_ok__empty.
+		  eapply Instrs_ok2__frame; eauto.
+			by apply Instrs_ok2__empty.
 	}
 	{ (* sub *)
-	  specialize (IHHType _ _ _ _ erefl erefl) as [t3s [H1 H2]].
+	  specialize (IHHType _ _ _ _ erefl erefl) as [t3s [H4 H5]].
 	  exists t3s.
-	  split; eapply Admin_instrs_ok__sub; eauto; by apply resulttype_sub_refl.
+		apply Forall_app in H3; destruct H3.
+	  split; eapply Instrs_ok2__sub; eauto; by apply resulttype_sub_refl.
 	}
 	{ (* frame *)
-	  specialize (IHHType _ _ _ _ erefl erefl) as [t3s [H1 H2]].
+	  specialize (IHHType _ _ _ _ erefl erefl) as [t3s [H2 H3]].
 	  exists (t_lst ++ t3s).
-	  split; by eapply Admin_instrs_ok__frame.
+		apply Forall_app in H1; destruct H1.
+	  split; by eapply Instrs_ok2__frame.
 	}
-	{ (* instrs *)
-	  move: v_ais v_ai x t1s t2s H.
-	  induction instr_lst;
-	  move => v_ais v_ai H t1s t2s Hinstr.
-	  + inversion H.
-	  + rewrite -> map_cons in H.
-		apply instrs_composition_typing_single in Hinstr as [t3s [H1 H2]].
-	  exists t3s.
-		injection H as H; subst.
-		split.
-		* eapply instrs; auto.
-		* assert ([ admininstr_instr a] =
-		  ListDef.map [eta admininstr_instr] [ a]).
-		  { auto. }
-		  rewrite H.
-		  eapply instrs.
-			apply H2.
-	}
-Qed.
+Qed. *)
 
 Lemma instrs_empty_typing : forall v_C t1s t2s,
 	Instrs_ok v_C ([]) ( t1s :-> t2s ) <->
-	( t1s <ts: t2s ).
+	( wf_context v_C /\ t1s <ts: t2s ).
 Proof.
   move => v_C t1s t2s.
   split.
   - move => Hempty.
-    dependent induction Hempty; subst.
-	+ apply resulttype_sub_refl.
-	+ destruct_list_eq x.
-	+ eapply resulttype_sub_trans.
-	apply H.
-	eapply resulttype_sub_trans.
-	apply IHHempty; auto.
-	apply H0.
-	eapply resulttype_sub_app.
-	apply resulttype_sub_refl.
-	apply IHHempty; auto.
-  - move: t1s.
-    move => t1s H.
-	eapply (sub _ _ _ _ t2s t2s).
-	+ rewrite -(cats0 t2s).
-	  apply Instrs_ok__frame.
-	  apply empty.
-	  apply H.
-	  apply resulttype_sub_refl.
+		
+    split; dependent induction Hempty; subst; eauto.
+		- apply resulttype_sub_refl.
+		- destruct_list_eq x; subst.
+			specialize (IHHempty1 t1s t_2_lst erefl erefl).
+			specialize (IHHempty2 t_2_lst t2s erefl erefl).
+			eapply resulttype_sub_trans; eauto.
+		- eapply resulttype_sub_trans; eauto.
+			eapply resulttype_sub_trans; eauto.
+
+		- eapply resulttype_sub_app.
+		  apply resulttype_sub_refl.
+		  apply IHHempty; eauto.
+		
+	- move: t1s.
+		move => t1s H.
+		destruct H as [Hwf H].
+		eapply (sub _ _ _ _ t2s t2s).
+		+ rewrite -(cats0 t2s).
+			apply Instrs_ok__frame; eauto.
+			apply empty; eauto.
+			apply H.
+			apply resulttype_sub_refl.
+			apply Hwf.
+			apply Forall_nil.
 Qed.
 
 Lemma ais_empty_typing : forall v_S v_C t1s t2s,
-	Admin_instrs_ok v_S v_C ([]) ( t1s :-> t2s ) <->
-	( t1s <ts: t2s ).
+	Instrs_ok2 v_S v_C ([]) ( t1s :-> t2s ) <->
+	( wf_context v_C /\ wf_store v_S /\ t1s <ts: t2s ).
 Proof.
   move => v_S v_C t1s t2s.
   split.
   {
 	move => Hempty.
 	dependent induction Hempty; subst.
-	+ apply resulttype_sub_refl.
-	+ destruct_list_eq x.
-	+ specialize (IHHempty _ _ erefl erefl). 
-	  eapply resulttype_sub_trans.
-	  eapply H.
-	  eapply resulttype_sub_trans.
-	  eapply IHHempty.
-	  eapply H0.
-	+ eapply resulttype_sub_app.
-	  apply resulttype_sub_refl.
-	  apply IHHempty; auto.
-	+ destruct instr_lst.
-	  * by apply instrs_empty_typing in H.
-	  * discriminate.
+	+ split; auto. split; auto. apply resulttype_sub_refl.
+	+ destruct_list_eq x; subst.
+		specialize (IHHempty1 t1s t_2_lst erefl erefl) as [HwfC [HWfS Hsub]].
+		specialize (IHHempty2 t_2_lst t2s erefl erefl) as [HwfC2 [HWfS2 Hsub2]].
+		split; auto. split; auto.
+		eapply resulttype_sub_trans; eauto.
+	+ split; auto. split; auto.
+		eapply resulttype_sub_trans; eauto.
+		eapply resulttype_sub_trans; eauto.
+	  specialize (IHHempty _ _ erefl erefl) as [HwfC [HWfS Hsub]].
+	 	apply Hsub.
+	+
+		split; auto.
+		split; auto.
+		eapply resulttype_sub_app.
+		apply resulttype_sub_refl.
+		specialize (IHHempty _ _ erefl erefl) as [HwfC [HWfS Hsub]].
+		apply Hsub.
   }
   {
-	move => Hsub.
-	assert ([] = (ListDef.map [eta admininstr_instr] [])). { auto. }
-	rewrite H.
-    apply instrs.
-	by apply instrs_empty_typing.
+		move: t1s.
+		move => t1s [HwfC [HwfS Hsub]].
+		eapply (Instrs_ok2__sub _ _ _ _ _ t2s t2s).
+		+ rewrite -(cats0 t2s).
+			apply Instrs_ok2__frame; eauto.
+			apply Instrs_ok2__empty; eauto.
+			apply Hsub.
+			apply resulttype_sub_refl.
+			apply HwfS.
+			apply HwfC.
+			apply Forall_nil.
   }
 Qed.
 
@@ -454,7 +498,8 @@ match v_ai with
 	  v_ft = ([valtype_numtype v_nt; valtype_numtype v_nt] :-> [valtype_I32])
 	| (admininstr_CVTOP v_nt_1 v_nt_2 _) =>
 	  v_ft = ([valtype_numtype v_nt_2] :-> [valtype_numtype v_nt_1])
-	| (admininstr_VCONST (v_vectype) _ ) =>
+	| (admininstr_VCONST (v_vectype) v) =>
+		wf_uN (the (res_size (valtype_vectype v_vectype))) v /\
 	  v_ft = ([] :-> [valtype_vectype v_vectype])
 	(*| (admininstr_VVUNOP v_0 v_1)
 	| (admininstr_VVBINOP v_0 v_1)
@@ -503,7 +548,7 @@ match v_ai with
 	| (admininstr_GLOBAL_SET v_x) =>
 	  exists t_lst, v_ft = ([t_lst] :-> []) /\
 	  	((proj_uN_0 v_x) < (List.length (context_GLOBALS v_C))) /\
-		((lookup_total (context_GLOBALS v_C) (proj_uN_0 v_x)) = (mk_globaltype (Some MUT_MUT) t_lst))
+		((lookup_total (context_GLOBALS v_C) (proj_uN_0 v_x)) = (mk_globaltype (Some MUT) t_lst))
 	| (admininstr_TABLE_GET v_x) =>
 	  exists (v_rt: reftype) v_lim, v_ft = ([valtype_I32] :-> [(valtype_reftype v_rt)]) /\
 	  	((proj_uN_0 v_x) < (List.length (context_TABLES v_C))) /\
@@ -545,17 +590,17 @@ match v_ai with
 	  	(0 < (List.length (context_MEMS v_C))) /\
 		((lookup_total (context_MEMS v_C) 0) = v_mt) /\
 		((res_size (valtype_numtype v_nt)) <> None) /\
-		(((2 ^ (proj_uN_0 (ALIGN v_memarg))) : nat) <= (((the (res_size (valtype_numtype v_nt))) : nat) / (8 : nat)))
+		(((2 ^ ((ALIGN v_memarg) :> nat))%N : rat)  <= (((the (res_size (valtype_numtype v_nt))) : rat) / (8 : rat))%Q)
 	| (admininstr_LOAD I32 (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz v_M) v_sx))) v_memarg) =>
 	  exists v_mt, v_ft = ([valtype_I32] :-> [(valtype_I32)]) /\
 	  	(0 < (List.length (context_MEMS v_C))) /\
 		((lookup_total (context_MEMS v_C) 0) = v_mt) /\
-		(((2 ^ (proj_uN_0 (ALIGN v_memarg))) : nat) <= ((v_M : nat) / (8 : nat)))
+		(((2 ^ ((ALIGN v_memarg) :> nat))%N : rat) <= ((v_M : rat) / (8 : rat))%Q)
 	| (admininstr_LOAD I64 (Some (mk_loadop__0 Inn_I64 (mk_loadop_Inn (mk_sz v_M) v_sx))) v_memarg) =>
 	  exists v_mt, v_ft = ([valtype_I32] :-> [valtype_I64]) /\
 	  	(0 < (List.length (context_MEMS v_C))) /\
 		((lookup_total (context_MEMS v_C) 0) = v_mt) /\
-		(((2 ^ (proj_uN_0 (ALIGN v_memarg))) : nat) <= ((v_M : nat) / (8 : nat)))
+		(((2 ^ ((ALIGN v_memarg) :> nat))%N : rat) <= ((v_M : rat) / (8 : rat))%Q)
 	| (admininstr_LOAD F32 (Some _) _) => False
 	| (admininstr_LOAD F64 (Some _) _) => False
 	| (admininstr_STORE v_nt None v_memarg) =>
@@ -563,14 +608,14 @@ match v_ai with
 	  	(0 < (List.length (context_MEMS v_C))) /\
 		((lookup_total (context_MEMS v_C) 0) = v_mt) /\
 		((res_size (valtype_numtype v_nt)) <> None) /\
-		(((2 ^ (proj_uN_0 (ALIGN v_memarg))) : nat) <= (((the (res_size (valtype_numtype v_nt))) : nat) / (8 : nat)))
+		(((2 ^ (proj_uN_0 (ALIGN v_memarg)))%N : rat) <= (((the (res_size (valtype_numtype v_nt))) : rat) / (8 : rat))%Q)
 	(* | (admininstr_STORE F32 (Some _) _) => False
 	| (admininstr_STORE F64 (Some _) _) => False *)
 	| (admininstr_STORE v_Inn (Some (mk_sz v_M)) v_memarg) =>
 	  exists v_mt, v_ft = ([valtype_I32; (valtype_numtype v_Inn)] :-> []) /\
 	  	(0 < (List.length (context_MEMS v_C))) /\
 		((lookup_total (context_MEMS v_C) 0) = v_mt) /\
-		(((2 ^ (proj_uN_0 (ALIGN v_memarg))) : nat) <= ((v_M : nat) / (8 : nat)))
+		(((2 ^ ((ALIGN v_memarg) :> nat))%N : rat) <= ((v_M : rat) / (8 : rat))%Q)
 	(*| (admininstr_VLOAD v_0 v_1 v_2)
 	| (admininstr_VLOAD_LANE v_0 v_1 v_2 v_3)
 	| (admininstr_VSTORE v_0 v_1)
@@ -604,22 +649,23 @@ match v_ai with
 	| (admininstr_REF_FUNC_ADDR v_funcaddr) =>
 	  exists v_functype,
 	  v_ft = ([] :-> [valtype_FUNCREF]) /\
-	  (Externaddrs_ok v_S (externaddr_FUNC v_funcaddr) (FUNC v_functype))
+	  (Externaddr_ok v_S (externaddr_FUNC v_funcaddr) (FUNC v_functype))
 	| (admininstr_REF_HOST_ADDR _) =>
 	  v_ft = ([] :-> [valtype_EXTERNREF])
 	| (CALL_ADDR v_funcaddr) =>
 		exists t t', v_ft = (t :-> t') /\
-		(Externaddrs_ok v_S (externaddr_FUNC v_funcaddr) (FUNC (t :-> t')))
+		(Externaddr_ok v_S (externaddr_FUNC v_funcaddr) (FUNC (t :-> t')))
 	| (LABEL_ v_n v_instrs v_ais) =>
 	  exists t t',
 	  v_ft = ([] :-> t') /\
-	  (Instrs_ok v_C v_instrs (t :-> t')) /\
-	  (Admin_instrs_ok v_S (prepend_label v_C t) v_ais ([] :-> t')) /\
+	  (Instrs_ok2 v_S v_C (map admininstr_instr v_instrs) (t :-> t')) /\
+	  (Instrs_ok2 v_S (prepend_label v_C t) v_ais ([] :-> t')) /\
 	  (v_n = (length t))
 	| (FRAME_ v_n v_F v_ais) =>
-	  exists t,
+	  exists t v_C',
 	    v_ft = ([] :-> t) /\
-	    (Thread_ok v_S (Some (mk_list _ t)) v_F v_ais (mk_list _ t)) /\
+			(Frame_ok v_S v_F v_C') /\
+	    (Expr_ok2 v_S v_C' v_ais (mk_list _ t)) /\
 		(v_n = (List.length t))
 	| admininstr_TRAP => True
 	| (admininstr_EXTEND v_0 v_1) => False
@@ -646,12 +692,17 @@ Proof.
 	  solve [eq_to_prop; destruct_disjunctions;
 	  repeat eexists; eauto].
 	}
-	{ (* CONST *)
-		inversion H2; eauto.
+	{
+	  (* CONST *)
+		inversion H4; eauto.
+	}
+	{
+		(* VCONST *)
+		inversion H4; eauto.
 	}
 	{
 		(* TABLE Init *)
-		rewrite H2. rewrite H6; reflexivity.
+		rewrite H2. rewrite H4; reflexivity.
 	}
 	{ (* LOAD None *)
 		destruct nt; repeat eexists; eauto.
@@ -659,10 +710,6 @@ Proof.
 	{ (* Load Some *)
 		destruct v_Inn; simpl; try repeat eexists; eauto.
 	}
-	(*
-	{ (* STORE None *)
-		destruct v_Inn; eauto.
-	}*)
 	{ (* STORE Some *)
 		destruct v_Inn; 
 		eexists; eauto.
@@ -671,7 +718,7 @@ Qed.
 
 
 Lemma ai_typing_inversion: forall (v_S: store) (v_C: context) v_ai t1s t2s,
-	Admin_instr_ok v_S v_C v_ai (t1s :-> t2s) ->
+	Instr_ok2 v_S v_C v_ai (t1s :-> t2s) ->
 	exists t1s' t2s',
 	ai_principal_typing v_S v_C v_ai (t1s' :-> t2s') /\
 	((t1s' :-> t2s') <ti: (t1s :-> t2s)).
@@ -738,36 +785,15 @@ Proof.
 			split; inversion H2; eauto.
 			apply instrtype_sub_refl.
 		}
+		{ (* VCONST *)
+			inversion H2; subst.
+			split; eauto. by apply instrtype_sub_refl.
+		}
 		{ (* TABLE INIT *)
 			split.
 			2: apply instrtype_sub_refl.
 			exists rt, lim; split; eauto.	
 		}
-	}
-	{ (* trap *)
-	  exists t1s, t2s.
-	  split.
-	  - unfold ai_principal_typing; exact.
-	  - apply instrtype_sub_refl.
-	}
-	{ (* ref_extern *)
-	  exists [], [valtype_EXTERNREF].
-	  split.
-	  - unfold ai_principal_typing; auto.
-	  - apply instrtype_sub_refl. 
-	}
-	{ (* ref *)
-	  exists [], [valtype_FUNCREF].
-	  split.
-	  - unfold ai_principal_typing;
-	    do 2 eexists; eauto.
-	  - apply instrtype_sub_refl.
-	}
-	{ (* call_addr *)
-	  eexists _, _.
-	  split.
-	  - unfold ai_principal_typing; repeat eexists; eauto.
-	  - apply instrtype_sub_refl.
 	}
 	{ (* label *)
 	  eexists _, _.
@@ -776,16 +802,38 @@ Proof.
 	  - unfold ai_principal_typing; repeat eexists; eauto.
 	  - apply instrtype_sub_refl.
 	}
-	{ (* frame *) (* TODO *)
+	{ (* frame *)
 	  eexists _, _.
 		eq_to_prop.
 	  split.
 	  - unfold ai_principal_typing.
 		eexists.
+		exists C'.
 		split; [ |split]; eauto.
 	  - apply instrtype_sub_refl.
 	}
-	{ (* weakening *)
+	{ (* call_addr *)
+	  eexists _, _.
+	  split.
+	  - unfold ai_principal_typing; repeat eexists; eauto.
+	  - apply instrtype_sub_refl.
+	}
+	{ (* ref *)
+	  exists [], [valtype_reftype rt].
+	  split.
+		2: apply instrtype_sub_refl.
+		inversion H; subst; unfold ai_principal_typing; simpl.
+		- reflexivity.
+		- do 2 eexists; eauto.
+	  - reflexivity.
+	}
+	{ (* trap *)
+	  exists t1s, t2s.
+	  split.
+	  - unfold ai_principal_typing; exact.
+	  - apply instrtype_sub_refl.
+	}
+	(* { weakening
 		specialize (IHHType _ _ erefl) as [t1' [t2' [Hpt His]]].
 		exists t1', t2'.
 		split. exact.
@@ -798,7 +846,18 @@ Proof.
 		(t'_1_lst),
 		(t'_2_lst).
 		split; [ |split; [ |split; [ |split]]]; auto.
-	}
+	} *)
+Qed.
+
+Lemma split_single_append {A : Type}: forall (l l' : list A) (x : A),
+	[x] = l ++ l' ->
+	(l = [x] /\ l' = []) \/ (l = [] /\ l' = [x]).
+Proof.
+	move => l l' x H.
+	destruct l; destruct l'; try discriminate.
+	- rewrite cat0s in H. destruct l'; try discriminate. injection H as ?; subst. right; split; reflexivity.	
+	- rewrite cats0 in H. destruct l; try discriminate. injection H as ?; subst. left; split; reflexivity.
+	- destruct l; try discriminate.
 Qed.
 
 Lemma instrs_single_typing_inversion: forall (v_C: context) v_instr t1s t2s,
@@ -809,18 +868,30 @@ exists t1s_sup t2s_sub,
 Proof.
 	move=> v_C v_instr t1s t2s HType.
 	dependent induction HType.
+	{
+		exists t1s, t2s.
+		split; eauto.
+		apply instrtype_sub_refl.
+	}
 	{ (* seq *)
-	  destruct_list_eq x; subst.
-	  apply instrs_empty_typing in HType.
-	  exists t1s, t_2_lst.
-	  split. auto.
-	  unfold instrtype_sub.
-	  exists [], [], t1s, t2s.
-	  split. auto.
-	  split. auto.
-	  split. by apply resulttype_sub_refl.
-	  split. by apply resulttype_sub_refl. 
-		auto.
+		symmetry in x.
+		apply split_single_append in x as H2.
+		destruct H2; destruct H2; subst.
+		- apply instrs_empty_typing in HType2; destruct HType2 as [HWfC HType].
+			specialize (IHHType1 _ _ _ erefl erefl) as [t1s_sup [t2s_sub [HOk Hsub]]].
+			exists t1s_sup, t2s_sub.
+			split. apply HOk.
+			eapply instr_subtyping_weaken2.
+			apply Hsub.
+			apply HType.
+		- 
+			apply instrs_empty_typing in HType1; destruct HType1 as [HWfC HType].
+			specialize (IHHType2 _ _ _ erefl erefl) as [t1s_sup [t2s_sub [HOk Hsub]]].
+			exists t1s_sup, t2s_sub.
+			split. auto.
+			eapply instr_subtyping_strengthen2. apply Hsub.
+			apply HType.
+
 	}
 	{ (* sub *)
 	  specialize (IHHType _ _ _ erefl erefl) as [t1s_sup [t2s_sub [Hpt Hsub]]].
@@ -852,62 +923,37 @@ Proof.
 Qed.
 
 Lemma ais_single_typing_inversion' : forall (v_S: store) (v_C: context) v_ai t1s t2s,
-	Admin_instrs_ok v_S v_C [v_ai] (t1s :-> t2s) ->
-	Admin_instr_ok v_S v_C v_ai (t1s :-> t2s).
-Proof.
-	move=> v_S v_C v_ai t1s t2s HType.
-	dependent induction HType.
-	- destruct_list_eq x; subst.
-	  eapply ais_empty_typing in HType.
-	  eapply (weakening _ _ _ [] _ []).
-	  eapply H.
-	  eapply resulttype_sub_refl.
-		eapply resulttype_sub_refl.
-	  eapply HType.
-	- eapply (weakening _ _ _ [] _ []); eauto.
-	  eapply resulttype_sub_refl.
-	- eapply (weakening _ _ _ t_lst _ t_lst); eauto;
-	  eapply resulttype_sub_refl.
-	- destruct instr_lst. discriminate.
-	  simpl in x.
-	  destruct_list_eq x; subst.
-	  destruct instr_lst. 2: discriminate.
-	  eapply instrs_single_typing_inversion in H
-	    as [t1s_sup [t2s_sub [Hi Hsub]]].
-	  unfold instrtype_sub in Hsub.
-	  destruct Hsub as [ts_sub [ts [ts1 [ts2 [
-		H1 [H2 [H3 [H4 H5]]]
-	  ]]]]]; subst.
-	  eapply (weakening _ _ _ ); eauto.
-	  eapply Admin_instr_ok__instr.
-	  eapply Hi.
-Qed.
-
-
-
-Lemma ais_single_typing_inversion: forall (v_S: store) (v_C: context) v_ai t1s t2s,
-Admin_instrs_ok v_S v_C [v_ai] (t1s :-> t2s) ->
-exists t1s_sup t2s_sub,
-	ai_principal_typing v_S v_C v_ai (t1s_sup :-> t2s_sub) /\
+	Instrs_ok2 v_S v_C [v_ai] (t1s :-> t2s) ->
+	exists t1s_sup t2s_sub,
+	Instr_ok2 v_S v_C v_ai (t1s_sup :-> t2s_sub) /\
 	(t1s_sup :-> t2s_sub) <ti: (t1s :-> t2s).
 Proof.
 	move=> v_S v_C v_ai t1s t2s HType.
 	dependent induction HType.
+	{ (* instr *)
+		exists t1s, t2s.
+		split. apply H.
+		apply instrtype_sub_refl.
+	}
 	{ (* seq *)
-	  destruct_list_eq x; subst.
-	  apply ais_empty_typing in HType.
-	  eapply ai_typing_inversion in H as [t1s' [t2s' [Hpt Hsub]]].
-	  exists (t1s'), (t2s').
-	  split. auto.
-	  eapply instrtype_sub_trans. eapply Hsub.
-	  unfold instrtype_sub.
-	  exists [], [], t1s, t2s.
-	  split. auto.
-	  split. auto.
-	  split. by apply resulttype_sub_refl.
-	  split. auto.
-	  by apply resulttype_sub_refl.
-		apply HType.
+	  symmetry in x.
+		apply split_single_append in x as HD.
+		destruct HD; destruct H3; subst.
+		-
+	  	apply ais_empty_typing in HType2; destruct HType2 as [HWfC [HWfS HType]].
+			specialize (IHHType1 _ _ _ erefl erefl) as [t1s_sup [t2s_sub [HOk Hsub]]].
+	  	exists t1s_sup, t2s_sub.
+			split. auto.
+			eapply instr_subtyping_weaken2.
+			apply Hsub.
+			apply HType.
+		-
+			apply ais_empty_typing in HType1; destruct HType1 as [HWfC [HWfS HType]].
+			specialize (IHHType2 _ _ _ erefl erefl) as [t1s_sup [t2s_sub [HOk Hsub]]].
+			exists t1s_sup, t2s_sub.
+			split. auto.
+			eapply instr_subtyping_strengthen2. apply Hsub.
+			apply HType.
 	}
 	{ (* sub *)
 	  specialize (IHHType _ _ _ erefl erefl) as [t1s_sup [t2s_sub [Hpt Hsub]]].
@@ -917,10 +963,11 @@ Proof.
 	  apply Hsub.
 	  unfold instrtype_sub.
 	  exists [], [], t1s, t2s.
-	  split; auto.
-	  split; auto.
-	  split; auto.
-	  by apply resulttype_sub_refl.
+	  split. auto.
+	  split. auto.
+	  split. by apply resulttype_sub_refl.
+	  split. by apply H.
+	  by apply H0.
 	}
 	{ (* frame *)
 	  specialize (IHHType _ _ _ erefl erefl) as [t1s_sup [t2s_sub [Hpt Hsub]]].
@@ -935,37 +982,37 @@ Proof.
 	  split. by apply resulttype_sub_refl.
 	  split; by apply resulttype_sub_refl.
 	}
-	{ (* instrs *)
-	  destruct instr_lst. discriminate x.
-	  simpl in x.
-	  destruct_list_eq x;
-	  apply map_eq_nil in x_body;
-	  subst.
+Qed.
 
-	  eapply instrs_single_typing_inversion in H
-	    as [t1s_sup [t2s_sub [Hi H1]]].
-	  eapply instr_typing_inversion in Hi.
-	  unfold instr_principal_typing in Hi.
-	  exists t1s_sup, t2s_sub.
-	  split. 2: auto.
-	  destruct i;
-	  auto.
-	}
+Lemma ais_single_typing_inversion: forall (v_S: store) (v_C: context) v_ai t1s t2s,
+Instrs_ok2 v_S v_C [v_ai] (t1s :-> t2s) ->
+exists t1s_sup t2s_sub,
+	ai_principal_typing v_S v_C v_ai (t1s_sup :-> t2s_sub) /\
+	(t1s_sup :-> t2s_sub) <ti: (t1s :-> t2s).
+Proof.
+	move=> v_S v_C v_ai t1s t2s HType.
+	apply ais_single_typing_inversion' in HType as [t1s_sup [t2s_sub [HType Hsub]]].
+	apply ai_typing_inversion in HType as [t1s' [t2s' [HType Hsub']]].
+	eapply instrtype_sub_trans in Hsub.
+	2: apply Hsub'.
+	exists t1s', t2s'.
+	split; auto.
 Qed.
 
 Lemma ais_single_ref_typing_inversion: forall v_S v_C (v_ref: wasm.ref) ts1 ts2,
-  Admin_instrs_ok v_S v_C [admininstr_ref v_ref] (ts1 :-> ts2) ->
+  Instrs_ok2 v_S v_C [admininstr_ref v_ref] (ts1 :-> ts2) ->
   exists (t: reftype), 
 	(([] :-> [valtype_reftype t]) <ti: (ts1 :-> ts2)) /\
    	Ref_ok v_S v_ref t.
 Proof.
 	move => v_S v_C v_ref ts1 ts2 HType.
-	eapply ais_single_typing_inversion in HType as [t1 [t2 [Hai Hsub]]].
+	eapply ainstrs_ok_context_store_wf in HType as HWf; destruct HWf as [HWfC [HWfS HWfAis]].
+	eapply ais_single_typing_inversion in HType as [t1 [t2 [Hai HSub]]].
 	destruct v_ref; unfold ai_principal_typing, admininstr_ref in Hai.
 	2: destruct Hai as [v_ft [Hai Heok]].
 	all: inversion Hai; subst.
-	- exists v_reftype. split; auto. by constructor.
-	- exists FUNCREF. split; auto. econstructor; eauto.
+	- exists v_reftype. split; auto. econstructor; eauto.
+	- exists FUNCREF. split; auto. econstructor; eauto. econstructor.
 	- exists EXTERNREF. split; auto. econstructor; eauto.
 Qed.
 
@@ -974,33 +1021,36 @@ Lemma val_ref_null_is_ref: forall rt,
 Proof. auto. Qed.
 
 Lemma ais_single_val_typing_inversion: forall v_S v_C (v_val: wasm.val) ts1 ts2,
-  Admin_instrs_ok v_S v_C [admininstr_val v_val] (ts1 :-> ts2) ->
+  Instrs_ok2 v_S v_C [admininstr_val v_val] (ts1 :-> ts2) ->
   exists t, 
 	(([] :-> [t]) <ti: (ts1 :-> ts2)) /\
    	Val_ok v_S v_val t.
 Proof.
 	move => v_S v_C v_val ts1 ts2 HType.
-	eapply ais_single_typing_inversion in HType as [t1 [t2 [Hai Hsub]]].
+	eapply ainstrs_ok_context_store_wf in HType as HWf; destruct HWf as [HWfC [HWfS HWfAis]].
+	eapply ais_single_typing_inversion in HType as [t1 [t2 [Hai HSub]]].
 	destruct v_val; unfold ai_principal_typing, admininstr_val in Hai.
 	4: destruct Hai as [v_ft [Hai Heok]].
 	1: destruct Hai as [Hwf Hai].
 	all: inversion Hai; subst.
-	- exists (valtype_numtype v_numtype). split; auto. by econstructor; econstructor.
-	- exists (valtype_vectype v_vectype). split; auto. by constructor.
+	- exists (valtype_numtype v_numtype). split; auto. econstructor; eauto. econstructor; eauto.
+	- exists (valtype_vectype v_vectype). 
+		destruct Hai as [Hwf Hai]; subst. rewrite Hai in HSub. 
+		split; auto. econstructor; eauto. econstructor; eauto. destruct v_vectype; eauto.
 	- exists (valtype_reftype v_reftype). split; auto.
 		rewrite val_ref_null_is_ref.
-	  eapply Val_ok__reftype.
-	  econstructor.
+	  eapply Val_ok__reftype; eauto.
+	  econstructor; eauto.
 	- exists (valtype_reftype FUNCREF). split; auto.
 		assert (val_REF_FUNC_ADDR v_funcaddr = val_ref (REF_FUNC_ADDR v_funcaddr)). { auto. }
 		rewrite H.
-	  eapply Val_ok__reftype.
-	  econstructor. eauto.
+	  eapply Val_ok__reftype; eauto.
+	  econstructor; eauto. econstructor; eauto.
 	- exists (valtype_reftype EXTERNREF). split; auto.
 		assert (val_REF_HOST_ADDR v_hostaddr = val_ref (REF_HOST_ADDR v_hostaddr)). { auto. }
 	  rewrite H.
-		eapply Val_ok__reftype.
-	  econstructor.
+		eapply Val_ok__reftype; eauto.
+	  econstructor; eauto.
 Qed.
 
 Lemma instrs_seq_typing_inversion: forall (v_C: context) v_instrs v_instr t1s t2s,
@@ -1010,76 +1060,131 @@ exists t3s, Instrs_ok v_C v_instrs (t3s :-> t2s) /\
 Proof.
 	move=> v_C v_instrs v_instr t1s t2s HType.
 	dependent induction HType.
+	{ (* instr *)
+		exists t2s.
+		split.
+		- rewrite -(cats0 t2s).
+			apply Instrs_ok__frame; eauto.
+			apply empty; eauto.
+		- apply Instrs_ok__instr; eauto.
+	}
 	{ (* seq *)
-	  exists t_2_lst.
-	  split. auto.
-	  eapply res_seq.
-		apply H.
-	  apply instrs_empty_typing.
-	  apply resulttype_sub_refl.
+		destruct instr_1_lst; destruct instr_2_lst; try discriminate.
+		- simpl in x; subst.
+			destruct_list_eq x; subst.
+			specialize (IHHType2 _ _ _ _ erefl erefl) as [t3s [H2 H3]].
+			exists t3s.
+			split; auto.
+			inversion H1.
+			eapply res_seq in H3; eauto.
+			by rewrite (cat0s [v_instr]) in H3.
+		-
+			rewrite (cats0 (i :: instr_1_lst)) in x.
+			destruct_list_eq x; subst.
+			specialize (IHHType1 _ _ _ _ erefl erefl) as [t3s [H2 H3]].
+			exists t3s.
+			inversion H0; subst.
+			split; auto.
+			eapply res_seq with (instr_2_lst := []) in H2; eauto.
+			by rewrite (cats0 v_instrs) in H2.
+		-
+			rewrite -(cat1s i) in x.
+			rewrite -catA in x.
+			destruct_list_eq x; subst.
+			inversion H0; inversion H1; subst.
+			specialize (IHHType1 _ _ _ _ erefl erefl) as [t3s [HType' HType2']].
+			specialize (IHHType2 _ _ _ _ erefl erefl) as [t3s' [HType3' HType4']].
+			exists t3s.
+			split; eauto.
+			eapply res_seq with (instr_2_lst := [i0]) in HType'; eauto.
+			eapply res_seq with (instr_2_lst := instr_2_lst) in HType'; eauto.
+			rewrite -(cat1s i0).
+			rewrite -catA in HType'; eauto.
+			apply Forall_app; split; eauto.
 	}
 	{ (* sub *)
-	  specialize (IHHType _ _ _ _ erefl erefl) as [t3s [H1 H2]].
+	  specialize (IHHType _ _ _ _ erefl erefl) as [t3s [H3 H4]].
+		apply Forall_app in H2; destruct H2.
 	  exists t3s. split.
-	  - eapply sub.
-	    eapply H1. apply resulttype_sub_refl. eauto.
-	  - eapply sub.
-	    eapply H2. eauto. apply resulttype_sub_refl.
+	  - eapply sub; eauto. apply resulttype_sub_refl.
+	  - eapply sub; eauto. apply resulttype_sub_refl.
 	}
 	{ (* frame *)
 	  specialize (IHHType _ _ _ _ erefl erefl) as [t3s [H1 H2]].
+		apply Forall_app in H0; destruct H0.
 	  exists (t_lst ++ t3s). split.
-	  - eapply Instrs_ok__frame. auto.
-	  - eapply Instrs_ok__frame. auto.
+	  - eapply Instrs_ok__frame; auto.
+	  - eapply Instrs_ok__frame; auto.
 	}
 Qed.
 
 Lemma ais_seq_typing_inversion: forall (v_S: store) (v_C: context) v_ais v_ai t1s t2s,
-Admin_instrs_ok v_S v_C ([v_ai] ++ v_ais) (t1s :-> t2s) ->
-exists t3s, Admin_instrs_ok v_S v_C v_ais (t3s :-> t2s) /\
-	Admin_instrs_ok v_S v_C [v_ai] (t1s :-> t3s).
+Instrs_ok2 v_S v_C ([v_ai] ++ v_ais) (t1s :-> t2s) ->
+exists t3s, Instrs_ok2 v_S v_C v_ais (t3s :-> t2s) /\
+	Instrs_ok2 v_S v_C [v_ai] (t1s :-> t3s).
 Proof.
 	move=> v_S v_C v_ais v_ai t1s t2s HType.
 	dependent induction HType.
+	{ (* instr *)
+		exists t2s.
+		split.
+		- rewrite -(cats0 t2s).
+			apply Instrs_ok2__frame; eauto.
+			apply Instrs_ok2__empty; eauto.
+		- apply Instrs_ok2__instr; eauto.
+	}
 	{ (* seq *)
-	  exists t_2_lst.
-	  split. auto.
-	  eapply Admin_instrs_ok__seq.
-		- apply H.
-	  - apply ais_empty_typing.
-	    apply resulttype_sub_refl.
+		destruct admininstr_1_lst; destruct admininstr_2_lst ; try discriminate.
+		- simpl in x; subst.
+			destruct_list_eq x; subst.
+			specialize (IHHType2 _ _ _ _ erefl erefl) as [t3s [H3 H4]].
+			exists t3s.
+			split; auto.
+			inversion H2; subst.
+			eapply Instrs_ok2__seq in H4; eauto.
+			by rewrite (cat0s [v_ai]) in H4.
+		-
+			rewrite (cats0 (a :: admininstr_1_lst )) in x.
+			destruct_list_eq x; subst.
+			specialize (IHHType1 _ _ _ _ erefl erefl) as [t3s [H3 H4]].
+			exists t3s.
+			inversion H1; subst.
+			split; auto.
+			eapply Instrs_ok2__seq with (admininstr_2_lst := []) in H3; eauto.
+			by rewrite (cats0 v_ais) in H3.
+		-
+			rewrite -(cat1s a) in x.
+			rewrite -catA in x.
+			destruct_list_eq x; subst.
+			inversion H1; inversion H2; subst.
+			specialize (IHHType1 _ _ _ _ erefl erefl) as [t3s [HType' HType2']].
+			specialize (IHHType2 _ _ _ _ erefl erefl) as [t3s' [HType3' HType4']].
+			exists t3s.
+			split; eauto.
+			eapply Instrs_ok2__seq with (admininstr_2_lst := [a0]) in HType'; eauto.
+			eapply Instrs_ok2__seq with (admininstr_2_lst := admininstr_2_lst) in HType'; eauto.
+			rewrite -(cat1s a0).
+			rewrite -catA in HType'; eauto.
+			apply Forall_app; split; eauto.
 	}
 	{ (* sub *)
-	  specialize (IHHType _ _ _ _ erefl erefl) as [t3s [H1 H2]].
+	  specialize (IHHType _ _ _ _ erefl erefl) as [t3s [H4 H5]].
+		apply Forall_app in H3; destruct H3.
 	  exists (t3s).
-	  split; eapply Admin_instrs_ok__sub; eauto; apply resulttype_sub_refl.
+	  split; eapply Instrs_ok2__sub; eauto; apply resulttype_sub_refl.
 	}
 	{ (* frame *)
-	  specialize (IHHType _ _ _ _ erefl erefl) as [t3s [H1 H2]].
+	  specialize (IHHType _ _ _ _ erefl erefl) as [t3s [H2 H3]].
+		apply Forall_app in H1; destruct H1.
 	  exists (t_lst ++ t3s).
-	  split; eapply Admin_instrs_ok__frame; auto.
-	}
-	{ (* instrs *)
-	  destruct instr_lst.
-	  - simpl in x. destruct_list_eq x.
-	  - rewrite map_cons in x.
-	    destruct_list_eq x; subst.
-		eapply instrs_seq_typing_inversion in H as [t3s [H1 H2]].
-		exists t3s. split.
-		- eapply instrs. auto.
-		- assert (ListDef.map [eta admininstr_instr] [i] =
-		  [admininstr_instr i]).
-		  { auto. }
-			rewrite -H.
-			eapply instrs.
-			auto.
+	  split; eapply Instrs_ok2__frame; auto.
 	}
 Qed.
 
 Lemma ais_composition_typing: forall (v_S: store) (v_C: context) v_ais1 v_ais2 t1s t2s,
-Admin_instrs_ok v_S v_C (v_ais1 ++ v_ais2) (t1s :-> t2s) ->
-exists t3s, Admin_instrs_ok v_S v_C v_ais1 (t1s :-> t3s) /\
-	Admin_instrs_ok v_S v_C v_ais2 (t3s :-> t2s).
+Instrs_ok2 v_S v_C (v_ais1 ++ v_ais2) (t1s :-> t2s) ->
+exists t3s, Instrs_ok2 v_S v_C v_ais1 (t1s :-> t3s) /\
+	Instrs_ok2 v_S v_C v_ais2 (t3s :-> t2s).
 Proof.
 	move=> v_S v_C v_ais1 v_ais2 t1s t2s HType.
 	move: v_ais2 t1s t2s HType.
@@ -1087,8 +1192,11 @@ Proof.
 	{
 		move=> v_ais2 t1s t2s HType.
 		exists t1s.
+		eapply ainstrs_ok_context_store_wf in HType as HWf; destruct HWf as [HWfC [HWfS HWais]].
 		split.
 		eapply ais_empty_typing.
+		split; eauto.
+		split; eauto.
 		eapply resulttype_sub_refl.
 		rewrite cat0s in HType. auto.
 	}
@@ -1098,14 +1206,14 @@ Proof.
 		rewrite -catA in HType.
 		eapply ais_seq_typing_inversion in HType as [t3s [H1 H2]].
 		eapply IHv_ais1 in H1 as [t3s' [H3 H4]].
+		apply ainstrs_ok_context_store_wf in H2 as Hwf; destruct Hwf as [HWfC [HWfS HWfais]].
+		inversion HWfais; subst.
+		apply ainstrs_ok_context_store_wf in H3 as Hwf; destruct Hwf as [HWfC2 [HWfS2 HWfais2]].
 		exists t3s'.
-		split. auto.
+		split.
 		rewrite -cat1s.
-		eapply Admin_instrs_ok__seq.
-		eapply ais_single_typing_inversion'.
+		eapply Instrs_ok2__seq in H3; eauto.
 		eauto.
-		apply H3.
-		apply H4.
 	}
 Qed.
 
@@ -1151,7 +1259,7 @@ Ltac do_instrs_typing_inversion H :=
 
 Ltac do_ai_typing_inversion H :=
   lazymatch type of H with
-  | Admin_instr_ok _ _ _ _ =>
+  | Instr_ok2 _ _ _ _ =>
     let Hpt := fresh "Hpt" in
 	let t1s' := fresh "t1s'" in
 	let t2s' := fresh "t2s'" in
@@ -1162,46 +1270,46 @@ Ltac do_ai_typing_inversion H :=
 
 Ltac do_ais_typing_inversion H :=
   lazymatch type of H with
-  | Admin_instrs_ok _ _ [] _ =>
+  | Instrs_ok2 _ _ [] _ =>
     eapply ais_empty_typing in H
-  | Admin_instrs_ok _ _ [map admininstr_val ?v_vals] ( ?t1s :-> ?t2s ) =>
+  | Instrs_ok2 _ _ [map admininstr_val ?v_vals] ( ?t1s :-> ?t2s ) =>
     let t1s_sup := fresh t1s "_sup" in
 		let t2s_sub := fresh t2s "_sub" in
 		let Hai := fresh "Hai" in
 		let Hsub := fresh "Hsub" in
     eapply ais_single_typing_inversion in H
 	  as [t1s_sup [t2s_sub [Hai Hsub]]]
-  | Admin_instrs_ok _ _ [admininstr_val ?v_val] ( ?t1s :-> ?t2s ) =>
+  | Instrs_ok2 _ _ [admininstr_val ?v_val] ( ?t1s :-> ?t2s ) =>
     let t := fresh "t" in
 		let HValok := fresh "HValok" in
 		let Hsub := fresh "Hsub" in
     eapply ais_single_val_typing_inversion in H
 	  as [t [Hsub HValok]]
-  | Admin_instrs_ok _ _ [?v_ai] ( ?t1s :-> ?t2s ) =>
+  | Instrs_ok2 _ _ [?v_ai] ( ?t1s :-> ?t2s ) =>
     let t1s_sup := fresh t1s "_sup" in
 		let t2s_sub := fresh t2s "_sub" in
 		let Hai := fresh "Hai" in
 		let Hsub := fresh "Hsub" in
     eapply ais_single_typing_inversion in H
 	  as [t1s_sup [t2s_sub [Hai Hsub]]]
-  | Admin_instrs_ok _ _ [?v_ai1; ?v_ai2] _ =>
+  | Instrs_ok2 _ _ [?v_ai1; ?v_ai2] _ =>
     let t3s := fresh "t3s" in
 		let H1 := fresh "H1" in
 		let H2 := fresh "H2" in
     eapply (ais_seq_typing_inversion _ _ [v_ai2] v_ai1) in H
 	  as [t3s [H2 H1]]
-  | Admin_instrs_ok _ _ ([?v_ai] ++ ?v_ais) _ =>
+  | Instrs_ok2 _ _ ([?v_ai] ++ ?v_ais) _ =>
     let t3s := fresh "t3s" in
 		let H1 := fresh "H1" in
 		let H2 := fresh "H2" in
     eapply (ais_seq_typing_inversion _ _ v_ais v_ai) in H
 	  as [t3s [H2 H1]];
 		do_ais_typing_inversion H2
-  | Admin_instrs_ok _ _ (_ :: (_ :: _)) _ =>
+  | Instrs_ok2 _ _ (_ :: (_ :: _)) _ =>
     repeat rewrite -(cat1s _ (_ :: _)) in H;
 		repeat rewrite !catA in H;
 		do_ais_typing_inversion H
-  | Admin_instrs_ok _ _ (_ ++ _) _ =>
+  | Instrs_ok2 _ _ (_ ++ _) _ =>
     let t3s := fresh "t3s" in
 		let H1 := fresh "H1" in
 		let H2 := fresh "H2" in
@@ -1213,9 +1321,9 @@ Ltac typing_inversion H :=
   destruct_functypes;
   try rewrite !app_cat in H;
   lazymatch type of H with
-  | Admin_instrs_ok _ _ _ _ =>
+  | Instrs_ok2 _ _ _ _ =>
     do_ais_typing_inversion H
-  | Admin_instr_ok _ _ _ _ =>
+  | Instr_ok2 _ _ _ _ =>
     do_ai_typing_inversion H
   | Instrs_ok _ _ _ =>
     do_instrs_typing_inversion H
@@ -1240,10 +1348,9 @@ Proof.
   ].
   all: unfold ai_principal_typing, admininstr_val in HType; 
   inversion HType; auto.
-	- destruct HType as [H1 H3].
-  	inversion H3; auto.
-	- destruct HType as [v_functype [H1 H3]].
-		inversion H1; auto. 
+	- inversion H0; auto.
+	- inversion H0; auto. 
+	- destruct H. inversion H; auto.
 Qed.
 
 
@@ -1272,61 +1379,38 @@ Proof.
 	destruct x1; destruct x2; try discriminate; inversion H; auto.
 Qed.
 
-Lemma construct_instrs_typing_single : forall v_C v_ai ts1 ts2 ts1' ts2',
+Lemma construct_instrs_typing_single : forall v_C v_ai ts1 ts2,
 	Instr_ok v_C v_ai (ts1 :-> ts2) ->
-	((ts1 :-> ts2) <ti: (ts1' :-> ts2')) ->
-	Instrs_ok v_C [v_ai] (ts1' :-> ts2').
+	Instrs_ok v_C [v_ai] (ts1 :-> ts2).
 Proof.
-	move=> v_C v_ai ts1 ts2 ts1' ts2' Hai Hsub.
-	unfold_instrtype_sub Hsub; subst.
-	eapply (sub).
-	2: { eapply resulttype_sub_app; eauto. }
-	2: {
-		eapply resulttype_sub_app.
-		eapply resulttype_sub_refl.
-		eauto.
-	}
-	{
-		eapply Instrs_ok__frame.
-		eapply (res_seq _ _ []).
-		2: {
-			eapply instrs_empty_typing.
-			eapply resulttype_sub_refl.
-		}
-		eauto.
-	}
+	move=> v_C v_ai ts1 ts2 Hai.
+	apply instr_ok_context_wf in Hai as Hwf; destruct Hwf.
+	eapply Instrs_ok__instr; eauto.
 Qed.
 
-Lemma construct_ais_typing_single : forall v_S v_C v_ai ts1 ts2 ts1' ts2',
-	Admin_instr_ok v_S v_C v_ai (ts1 :-> ts2) ->
-	((ts1 :-> ts2) <ti: (ts1' :-> ts2')) ->
-	Admin_instrs_ok v_S v_C [v_ai] (ts1' :-> ts2').
+Lemma construct_ais_typing_single : forall v_S v_C v_ai ts1 ts2,
+	Instr_ok2 v_S v_C v_ai (ts1 :-> ts2) ->
+	Instrs_ok2 v_S v_C [v_ai] (ts1 :-> ts2).
 Proof.
-	move=> v_S v_C v_ai ts1 ts2 ts1' ts2' Hai Hsub.
-	unfold_instrtype_sub Hsub; subst.
-	eapply (Admin_instrs_ok__sub _ _);
-	[
-		eapply (Admin_instrs_ok__frame) |
-		eapply resulttype_sub_app; eauto |
-		eapply resulttype_sub_refl
-	].
-	eapply (Admin_instrs_ok__seq _ _ _ []).
-	- eauto.
-	- apply ais_empty_typing. apply Hsub2.
+	move=> v_S v_C v_ai ts1 ts2 Hai.
+	apply ainstr_ok_context_store_wf in Hai as Hwf; destruct Hwf as [? [? ?]].
+	eapply Instrs_ok2__instr; eauto. 
 Qed.
 
 Lemma construct_ais_subtyping : forall v_S v_C v_ais ts1 ts2 ts1' ts2',
-	Admin_instrs_ok v_S v_C v_ais (ts1 :-> ts2) ->
+	Instrs_ok2 v_S v_C v_ais (ts1 :-> ts2) ->
 	((ts1 :-> ts2) <ti: (ts1' :-> ts2')) ->
-	Admin_instrs_ok v_S v_C v_ais (ts1' :-> ts2').
+	Instrs_ok2 v_S v_C v_ais (ts1' :-> ts2').
 Proof.
 	move=> v_S v_C v_ais ts1 ts2 ts1' ts2' Hai Hsub.
 	unfold_instrtype_sub Hsub; subst.
-	eapply (Admin_instrs_ok__sub _ _).
-	- eapply Admin_instrs_ok__frame. by eapply Hai.
+	apply ainstrs_ok_context_store_wf in Hai as Hwf; destruct Hwf as [? [? ?]].
+	eapply (Instrs_ok2__sub _ _).
+	- eapply Instrs_ok2__frame; eauto.
 	- eapply resulttype_sub_app; eauto.
 	- eapply resulttype_sub_app; eauto.
 	  by eapply resulttype_sub_refl.
+	all: auto.
 Qed.
 
 Ltac unfold_principal_typing H :=
@@ -1356,113 +1440,110 @@ Ltac valtype_discriminate_helper H :=
   first [discriminate H | subst].
 
 Lemma construct_ais_compose : forall v_S v_C v_ais1 v_ais2 t1s t2s t3s,
-	Admin_instrs_ok v_S v_C v_ais1 (t1s :-> t2s) ->
-	Admin_instrs_ok v_S v_C v_ais2 (t2s :-> t3s) ->
-	Admin_instrs_ok v_S v_C (v_ais1 ++ v_ais2) (t1s :-> t3s).
+	Instrs_ok2 v_S v_C v_ais1 (t1s :-> t2s) ->
+	Instrs_ok2 v_S v_C v_ais2 (t2s :-> t3s) ->
+	Instrs_ok2 v_S v_C (v_ais1 ++ v_ais2) (t1s :-> t3s).
 Proof.
 	move => v_S v_C v_ais1 v_ais2 t1s t2s t3s H1 H2.
-	move: v_ais2 t1s t2s t3s H1 H2.
-	induction v_ais1.
-	{
-		move=> v_ais2 t1s t2s t3s H1 H2.
-		rewrite cat0s.
-		eapply Admin_instrs_ok__sub.
-		eapply H2.
-		eapply ais_empty_typing in H1.
-		eapply H1. 
-		eapply resulttype_sub_refl.
-	}
-	{
-		move=> v_ais2 t1s t2s t3s H1 H2.
-		rewrite -cat1s.
-		rewrite -catA.
-		rewrite -cat1s in H1.
-		typing_inversion H1.
-
-		eapply Admin_instrs_ok__seq.
-		- eapply ais_single_typing_inversion' in H0.
-		  eapply H0.
-		- eapply IHv_ais1.
-			eapply H3.
-		  eapply H2.
-	}
+	apply ainstrs_ok_context_store_wf in H1 as Hwf; destruct Hwf as [? [? ?]].
+	eapply ainstrs_ok_context_store_wf in H2 as Hwf; destruct Hwf as [? [? ?]].
+	eapply Instrs_ok2__seq; eauto.
 Qed.
 
 Lemma construct_ai_const_I32 : forall v_S v_C v_num,
 	wf_num_ I32 v_num ->
-	Admin_instr_ok v_S v_C (admininstr_CONST I32 v_num) ([] :-> [valtype_I32]).
+	wf_context v_C ->
+	wf_store v_S ->
+	Instr_ok2 v_S v_C (admininstr_CONST I32 v_num) ([] :-> [valtype_I32]).
 Proof.
-	move => v_S v_C v_num Hwf.
-	eapply Admin_instr_ok__instr with (v_instr := CONST _ _).
-	by econstructor; econstructor.
+	move => v_S v_C v_num Hwf HwfC HwfS.
+	eapply plain with (v_instr := CONST _ _); eauto.
+	- econstructor; eauto.
+	  by econstructor.
+	- by econstructor.
 Qed.
 
 Lemma construct_ai_ref : forall v_S v_C (v_ref: wasm.ref) t_lst,
 	Ref_ok v_S v_ref t_lst ->
-	Admin_instr_ok v_S v_C (admininstr_ref v_ref) ([] :-> [valtype_reftype t_lst]).
+	wf_context v_C ->
+	wf_store v_S -> 
+	Instr_ok2 v_S v_C (admininstr_ref v_ref) ([] :-> [valtype_reftype t_lst]).
 Proof.
-	move => v_S v_C v_ref t_lst HRef.
+	move => v_S v_C v_ref t_lst HRef HwfC HwfS.
 	destruct HRef.
 	{
-		eapply Admin_instr_ok__instr with (v_instr := REF_NULL rt).
-		econstructor.
+		eapply plain with (v_instr := REF_NULL rt); eauto.
+		- econstructor; eauto.
+		  econstructor.
+		- econstructor.
 	}
 	{
-		eapply Admin_instr_ok__ref; eauto.
+		eapply Instr_ok2__ref; eauto.
+		econstructor; eauto.
 	}
 	{
-		eapply ref_extern.
+		eapply Instr_ok2__ref; eauto.
+		econstructor; eauto.
 	}
+Qed.
+
+Lemma adminval_val_ref: forall ref,
+	admininstr_val (val_ref ref) = admininstr_ref ref.
+Proof.
+	move => ref.
+	destruct ref; eauto.
 Qed.
 
 Lemma construct_ai_val : forall v_S v_C (v_val: wasm.val) t_lst,
 	Val_ok v_S v_val t_lst ->
-	Admin_instr_ok v_S v_C (admininstr_val v_val) ([] :-> [t_lst]).
+	wf_context v_C ->
+	wf_store v_S ->
+	Instr_ok2 v_S v_C (admininstr_val v_val) ([] :-> [t_lst]).
 Proof.
-	move => v_S v_C v_val t_lst HValok.
+	move => v_S v_C v_val t_lst HValok HwfC HwfS.
 	inversion HValok; subst.
-	- eapply Admin_instr_ok__instr with (v_instr := (CONST nt c_t)).
-	  econstructor. econstructor. by inversion H.
-	- eapply Admin_instr_ok__instr with (v_instr := (VCONST vt c_t)).
+	- eapply plain with (v_instr := (CONST nt c_t)); eauto.
+	  - econstructor; eauto. 
+		  econstructor. by inversion H0.
+		- econstructor. by inversion H0.
+	- eapply plain with (v_instr := (VCONST vt c_t)); eauto.
 	  destruct vt.
-	  by econstructor.
+	  - econstructor; eauto.
+		  econstructor; eauto. by inversion H0.
+		- econstructor; eauto; by inversion H0.
 	- inversion H; subst.
-	  + eapply Admin_instr_ok__instr with (v_instr := (REF_NULL rt)).
-	    by econstructor.
-	  + eapply Admin_instr_ok__ref. by eauto.
-	  + by eapply ref_extern.
+	  + eapply plain with (v_instr := (REF_NULL rt)); eauto.
+	    econstructor; eauto.
+			econstructor.
+			econstructor.
+	  + rewrite adminval_val_ref. eapply Instr_ok2__ref; eauto.
+	  + rewrite adminval_val_ref. eapply Instr_ok2__ref; eauto.
 Qed.
 
-Lemma construct_ai_weakening : forall v_S v_C ai tf1 tf2,
-	(tf1 <ti: tf2) ->
-	Admin_instr_ok v_S v_C ai tf1 ->
-	Admin_instr_ok v_S v_C ai tf2.
-Proof.
-	move => v_S v_C ai tf1 tf2 Hsub HType.
-	unfold_instrtype_sub Hsub; subst.
-	eapply weakening; eauto.
-Qed.
-
-Lemma construct_ai_maybe : forall v_S v_C ai tf,
+Lemma construct_ai_maybe : forall v_S v_C ai t1 t2,
 	((instr_of ai) <> None) ->
-	(Instr_ok v_C (the (instr_of ai)) tf) ->
-	Admin_instr_ok v_S v_C ai tf.
+	wf_store v_S ->
+	(Instr_ok v_C (the (instr_of ai)) (t1 :-> t2)) ->
+	Instr_ok2 v_S v_C ai (t1 :-> t2).
 Proof.
-	move => v_S v_C ai tf HSome HInstr.
+	move => v_S v_C ai t1 t2 HSome HWfS HInstr.
 	remember (the (instr_of ai)) as instr.
+	eapply instr_ok_context_wf in HInstr as HWf; destruct HWf as [HWfC HWfI].
 	destruct ai;
 	simpl in Heqinstr; subst;
 	rewrite /instr_of in HSome;
 	try contradiction;
-	eapply Admin_instr_ok__instr in HInstr;
+	eapply (plain _ _ _ _ _ HInstr HWfS HWfC) in HWfI;
 	by eauto.
 Qed.
 
 Lemma construct_ais_vals' : forall v_S v_C v_C' (v_vals: seq wasm.val) v_ft,
-	Admin_instrs_ok v_S v_C (map admininstr_val v_vals) v_ft ->
-	Admin_instrs_ok v_S v_C' (map admininstr_val v_vals) v_ft.
+	Instrs_ok2 v_S v_C (map admininstr_val v_vals) v_ft ->
+	wf_context v_C' ->
+	Instrs_ok2 v_S v_C' (map admininstr_val v_vals) v_ft.
 Proof.
-	move=> v_S v_C v_C' v_vals v_ft HType.
+	move=> v_S v_C v_C' v_vals v_ft HType HWfC'.
+	eapply ainstrs_ok_context_store_wf in HType as HWf; destruct HWf as [HWfC [HWfS HWfAI]].
 	generalize dependent v_ft.
 	induction v_vals.
 	{ (* v_vals = [] *)
@@ -1470,11 +1551,11 @@ Proof.
 	  unfold map.
 	  destruct_functypes.
 	  eapply ais_empty_typing.
-	  eapply ais_empty_typing in HType.
-	  auto.
+	  eapply ais_empty_typing in HType; destruct HType as [? [? ?]].
+	  split; auto.
 	}
-	{ (* v_vals = xs ++ [x] *)
-	  move=> v_ft HType.
+	{ (* v_vals = x :: xs *)
+	  move=> v_ft HType. 
 	  destruct_functypes.
 	  rewrite map_cons in HType.
 	  rewrite -cat1s in HType.
@@ -1482,31 +1563,41 @@ Proof.
 	  rewrite -cat1s.
 	  typing_inversion HType.
 	  typing_inversion H1.
+		inversion HWfAI; subst.
 
-	  eapply construct_ais_compose.
-		- eapply construct_ais_typing_single.
-	    eapply construct_ai_val; eauto.
-			eapply Hsub.
-	  - eapply IHv_vals. eauto.
+	  eapply construct_ais_compose with (t2s := t3s).
+		-
+			eapply construct_ais_subtyping.
+			2: apply Hsub.
+			eapply construct_ais_typing_single.
+			eapply construct_ai_val; eauto.
+	  - eapply IHv_vals; eauto.
 	}
 Qed.
 
 Lemma construct_ais_trap : forall v_S v_C v_ft,
-	Admin_instrs_ok v_S v_C [(admininstr_TRAP )] v_ft.
+	wf_context v_C ->
+	wf_store v_S ->
+	Instrs_ok2 v_S v_C [(admininstr_TRAP )] v_ft.
 Proof.
-	move=> v_S v_C v_ft.
+	move=> v_S v_C v_ft HWfC HWfS.
 	destruct_functypes.
-	eapply (Admin_instrs_ok__seq _ _ admininstr_TRAP []).
-	- eapply Admin_instr_ok__trap.
+	eapply (Instrs_ok2__seq _ _ [admininstr_TRAP] []); eauto.
+	- eapply construct_ais_typing_single.
+		eapply Instr_ok2__trap; eauto.
+		econstructor.
 	- eapply ais_empty_typing.
+		split; auto.
+		split; auto.
 		eapply resulttype_sub_refl.
+		econstructor; econstructor.
 Qed.
 
 
 Definition value_extra (v_S: store) (v_val: wasm.val) : Prop :=
   match v_val with
   | val_REF_FUNC_ADDR v_funcaddr => ∃ v_ft : functype, 
-    Externaddrs_ok v_S (externaddr_FUNC v_funcaddr) (FUNC v_ft)
+    Externaddr_ok v_S (externaddr_FUNC v_funcaddr) (FUNC v_ft)
   | _ => True
   end.
 
@@ -1526,7 +1617,7 @@ Qed.
 
 
 Lemma ais_vals_typing_inversion: forall v_S v_C v_vals t1s t2s,
-	Admin_instrs_ok v_S v_C (map admininstr_val v_vals) (t1s :-> t2s) ->
+	Instrs_ok2 v_S v_C (map admininstr_val v_vals) (t1s :-> t2s) ->
 	exists (v_ts: list valtype),
 	(([] :-> v_ts) <ti: (t1s :-> t2s)) /\
 	(Vals_ok v_S v_vals v_ts).
@@ -1539,7 +1630,7 @@ Proof.
 		move => t1s t2s HType.
 		exists [].
 		split.
-		- eapply ais_empty_typing in HType.
+		- eapply ais_empty_typing in HType as [? [? ?]].
 		  exists t1s, t2s, [], [].
 		  split. by rewrite cats0.
 		  split. by rewrite cats0.
@@ -1567,17 +1658,17 @@ Qed.
 
 Ltac vals_typing_inversion H :=
   match type of H with
-  | Admin_instrs_ok ?v_S ?v_C (map (fun x => admininstr_val x) ?v_vals) (?t1s :-> ?t2s) =>
+  | Instrs_ok2 ?v_S ?v_C (map (fun x => admininstr_val x) ?v_vals) (?t1s :-> ?t2s) =>
 	let v_ts := fresh "v_ts" in
 	let Hsub := fresh "Hsub" in
 	let Hforall := fresh "Hforall" in
 	eapply ais_vals_typing_inversion in H as [v_ts [Hsub Hforall]]
-	| Admin_instrs_ok ?v_S ?v_C (map admininstr_val ?v_vals) (?t1s :-> ?t2s) =>
+	| Instrs_ok2 ?v_S ?v_C (map admininstr_val ?v_vals) (?t1s :-> ?t2s) =>
 	let v_ts := fresh "v_ts" in
 	let Hsub := fresh "Hsub" in
 	let Hforall := fresh "Hforall" in
 	eapply ais_vals_typing_inversion in H as [v_ts [Hsub Hforall]]
-  | Admin_instrs_ok ?v_S ?v_C (ListDef.map (fun x => admininstr_val x) ?v_vals) (?t1s :-> ?t2s) =>
+  | Instrs_ok2 ?v_S ?v_C (ListDef.map (fun x => admininstr_val x) ?v_vals) (?t1s :-> ?t2s) =>
 	let v_ts := fresh "v_ts" in
 	let Hsub := fresh "Hsub" in
 	let Hforall := fresh "Hforall" in
@@ -1588,10 +1679,12 @@ Ltac vals_typing_inversion H :=
 Lemma construct_ais_vals: forall v_S v_C (v_vals: list wasm.val) t1s t2s ts,
 	(([] :-> ts) <ti: (t1s :-> t2s)) ->
 	(Vals_ok v_S v_vals ts) ->
-	Admin_instrs_ok v_S v_C (map admininstr_val v_vals) (t1s :-> t2s).
+	wf_context v_C ->
+	wf_store v_S ->
+	Instrs_ok2 v_S v_C (map admininstr_val v_vals) (t1s :-> t2s).
 Proof.
 
-	move => v_S v_C v_vals t1s t2s ts Hsub Hforall.
+	move => v_S v_C v_vals t1s t2s ts Hsub Hforall HWfC HWfS.
 	move: t1s t2s ts Hsub Hforall.
 	induction v_vals using last_ind.
 	{
@@ -1599,6 +1692,8 @@ Proof.
 		inversion Hforall; subst.
 		unfold_instrtype_sub Hsub; subst.
 		eapply ais_empty_typing.
+		split; eauto.
+		split; eauto.
 		eapply resulttype_sub_app; auto.
 		eapply resulttype_sub_trans; eauto.
 	}
@@ -1652,15 +1747,24 @@ Proof.
 			2: {
 				rewrite -cats1.
 				rewrite <-(cats0 t2s) at 1.
-				eapply Admin_instrs_ok__frame.
+				eapply Instrs_ok2__frame; eauto.
 				eapply construct_ais_typing_single.
-				2: by apply instrtype_sub_refl.
+				(* 2: by apply instrtype_sub_refl. *)
 				inversion H2; subst.
 				eapply Val_ok_non_bot in H5 as HNonbot.
 				inversion Hsub4; subst.
 				inversion H6; subst.
 				eapply valtype_sub_non_bot in H9; eauto; subst.
 				by eapply construct_ai_val.
+				inversion H2; subst.
+				econstructor; eauto.
+				destruct x; econstructor; inversion H5; subst; eauto.
+				- inversion H9; subst; eauto.
+				- destruct r; discriminate.
+				- inversion H9; subst; eauto.
+				- destruct r; discriminate.
+				- inversion H9; subst; eauto.
+				  destruct r; discriminate.
 			}
 			eapply (IHv_vals _ t2s ts); auto.
 			eexists ts0, ts0_sub, [], (drop (size ts0) t2s).
@@ -1711,20 +1815,20 @@ Proof.
 Qed.
 
 Lemma construct_ais_instrtype_sub: forall v_S v_C v_ais t1s t2s t1s' t2s',
-	Admin_instrs_ok v_S v_C v_ais (t1s :-> t2s) ->
+	Instrs_ok2 v_S v_C v_ais (t1s :-> t2s) ->
 	((t1s :-> t2s) <ti: (t1s' :-> t2s')) ->
-	Admin_instrs_ok v_S v_C v_ais (t1s' :-> t2s').
+	Instrs_ok2 v_S v_C v_ais (t1s' :-> t2s').
 Proof.
-	move => v_S v_C v_ais t1s t2s t1s' t2s' HType Hsub.
+	move=> v_S v_C v_ais ts1 ts2 ts1' ts2' Hai Hsub.
 	unfold_instrtype_sub Hsub; subst.
-	eapply (Admin_instrs_ok__sub _ _ _ _ _ (ts_sub ++ t1s) (ts_sub ++ t2s)).
-	- eapply Admin_instrs_ok__frame; eauto.
+	apply ainstrs_ok_context_store_wf in Hai as Hwf; destruct Hwf as [? [? ?]].
+	eapply (Instrs_ok2__sub _ _).
+	- eapply Instrs_ok2__frame; eauto.
 	- eapply resulttype_sub_app; eauto.
 	- eapply resulttype_sub_app; eauto.
-	  eapply resulttype_sub_refl.
+	  by eapply resulttype_sub_refl.
+	all: auto.
 Qed.
-
-
 
 Definition inst_match C C' : Prop :=
 	context_TYPES C = context_TYPES C' /\
@@ -1860,18 +1964,18 @@ Qed.
 Ltac construct_ais_typing :=
   repeat rewrite app_cat;
   repeat lazymatch goal with
-    | H: _ |- Admin_instrs_ok _ _ [] (_ :-> _) =>
+    | H: _ |- Instrs_ok2 _ _ [] (_ :-> _) =>
         eapply ais_empty_typing
     | H1: (([] :-> ?tp2) <ti: (?ts1 :-> ?ts2)),
 	  H2: (Vals_ok ?v_S ?v_vals ?tp2)
-	  |- Admin_instrs_ok _ _ (map admininstr_val ?v_vals) (?ts1 :-> ?ts2) =>
+	  |- Instrs_ok2 _ _ (map admininstr_val ?v_vals) (?ts1 :-> ?ts2) =>
         eapply (construct_ais_vals _ _ _ _ _ _ H1) in H2
-    | H: (_ <ti: ?ts) |- Admin_instrs_ok _ _ [_] ?ts =>
+    | H: (_ <ti: ?ts) |- Instrs_ok2 _ _ [_] ?ts =>
         eapply construct_ais_typing_single;
 		[ | eapply H]
-    | H: _ |- Admin_instrs_ok _ _ (_ ++ _) ?ts =>
+    | H: _ |- Instrs_ok2 _ _ (_ ++ _) ?ts =>
         eapply construct_ais_compose
-    | H: _ |- Admin_instrs_ok _ _ (_ :: (_ :: _)) ?ts =>
+    | H: _ |- Instrs_ok2 _ _ (_ :: (_ :: _)) ?ts =>
         rewrite -cat1s
 	| _ : _ |- _ => idtac
   end.
@@ -1938,23 +2042,23 @@ Ltac invert_ais_single_ref_typing H :=
 Ltac invert_ais_typing :=
   destruct_functypes;
   repeat match goal with
-  | H : Admin_instrs_ok _ _ (app _ _) _ |- _ => 
+  | H : Instrs_ok2 _ _ (app _ _) _ |- _ => 
 	repeat rewrite app_cat in H
   end;
   repeat lazymatch goal with
-  | H: Admin_instrs_ok _ _ [] _ |- _ =>
+  | H: Instrs_ok2 _ _ [] _ |- _ =>
     eapply ais_empty_typing in H;
 	idtac
-  | H: Admin_instrs_ok _ _ [admininstr_val _] ( _ :-> _ ) |- _ =>
+  | H: Instrs_ok2 _ _ [admininstr_val _] ( _ :-> _ ) |- _ =>
     invert_ais_single_val_typing H;
 	idtac
-  | H: Admin_instrs_ok _ _ [admininstr_ref _] ( _ :-> _ ) |- _ =>
+  | H: Instrs_ok2 _ _ [admininstr_ref _] ( _ :-> _ ) |- _ =>
     invert_ais_single_ref_typing H;
 	idtac
-  | H: Admin_instrs_ok _ _ (map admininstr_val _) ( _ :-> _ ) |- _ =>
+  | H: Instrs_ok2 _ _ (map admininstr_val _) ( _ :-> _ ) |- _ =>
     invert_ais_vals_typing H;
 	idtac
-  | H: Admin_instrs_ok _ _ [?v_ai] ( ?t1s :-> ?t2s ) |- _ =>
+  | H: Instrs_ok2 _ _ [?v_ai] ( ?t1s :-> ?t2s ) |- _ =>
     let t1s' := fresh "t1s'" in
 	let t2s' := fresh "t2s'" in
 	let Hai := fresh "Hai" in
@@ -1962,13 +2066,13 @@ Ltac invert_ais_typing :=
     eapply ais_single_typing_inversion in H
 	  as [t1s' [t2s' [Hai Hsub]]];
 	idtac
-  | H: Admin_instrs_ok _ _ (_ ++ _) _ |- _ =>
+  | H: Instrs_ok2 _ _ (_ ++ _) _ |- _ =>
     let t3s := fresh "t3s" in
 	let HType1 := fresh "HType1" in
 	let HType2 := fresh "HType2" in
 	eapply ais_composition_typing in H as [t3s [HType1 HType2]];
 	idtac
-  | H: Admin_instrs_ok _ _ (_ :: ( _ :: _)) _ |- _ =>
+  | H: Instrs_ok2 _ _ (_ :: ( _ :: _)) _ |- _ =>
     try rewrite -cat1s in H
   | _ => idtac
   end.

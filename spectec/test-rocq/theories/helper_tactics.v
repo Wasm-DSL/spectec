@@ -358,3 +358,48 @@ Ltac ineq_to_propH H :=
   | is_true (_ >= _) =>
     move/geP in H *)
   end.
+
+Ltac inv_Forall H :=
+  lazymatch type of H with
+  | Forall _ [] =>
+      inversion H; subst; clear H
+  | Forall _ [_] =>
+      let Ha := fresh "H" in
+      let Hrest := fresh "Hrest" in
+      inversion H as [ | ? ? Ha Hrest]; subst; clear H;
+      clear Hrest
+  | Forall _ [_; _] =>
+      let Ha := fresh "H" in
+      let Hb := fresh "H" in
+      let Hrest := fresh "Hrest" in
+      let Hrest' := fresh "Hrest'" in
+      inversion H as [ | ? ? Ha Hrest]; subst; clear H;
+      inversion Hrest as [ | ? ? Hb Hrest']; subst; clear Hrest;
+      clear Hrest'
+  | Forall _ [_; _; _] =>
+      let Ha := fresh "HP" in
+      let Hb := fresh "HP" in
+      let Hc := fresh "HP" in
+      let Hrest := fresh "Hrest" in
+      let Hrest' := fresh "Hrest'" in
+      let Hrest'' := fresh "Hrest''" in
+      inversion H as [ | ? ? Ha Hrest]; subst; clear H;
+      inversion Hrest as [ | ? ? Hb Hrest']; subst; clear Hrest;
+      inversion Hrest' as [ | ? ? Hc Hrest'']; subst; clear Hrest';
+      clear Hrest''
+  | Forall _ [_; _; _; _] =>
+    let Ha := fresh "HP" in
+    let Hb := fresh "HP" in
+    let Hc := fresh "HP" in
+    let Hd := fresh "HP" in
+    let Hrest := fresh "Hrest" in
+    let Hrest' := fresh "Hrest'" in
+    let Hrest'' := fresh "Hrest''" in
+    let Hrest''' := fresh "Hrest'''" in
+    inversion H as [ | ? ? Ha Hrest]; subst; clear H;
+    inversion Hrest as [ | ? ? Hb Hrest']; subst; clear Hrest;
+    inversion Hrest' as [ | ? ? Hc Hrest'']; subst; clear Hrest';
+    inversion Hrest'' as [ | ? ? Hd Hrest''']; subst; clear Hrest'';
+    clear Hrest'''
+  | _ => idtac
+  end.

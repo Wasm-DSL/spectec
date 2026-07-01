@@ -141,6 +141,15 @@ Proof.
 	- move/ltP in Hi; eauto.
 Qed.
 
+Lemma Forall_size {A : Type} {_ : Inhabited A} (l : list A) (R : A -> Prop) :
+      Forall R l -> (forall i, (i < seq.size l) -> R (nth default_val l i)).
+Proof.
+	move => H i Hi.
+	eapply Forall_nth in H.
+	- rewrite nth_is_same_as_seq_nth in H. eauto.
+	- move/ltP in Hi; eauto.
+Qed.
+
 Lemma Forall2_nth {A : Type} {B : Type} {_ : Inhabited A} {_ : Inhabited B} (l : list A) (l' : list B) (R : A -> B -> Prop) :
       Forall2 R l l' -> seq.size l = seq.size l' /\ (forall i, (i < seq.size l) -> R (List.nth i l default_val) (List.nth i l' default_val)).
 Proof.
@@ -195,6 +204,46 @@ Proof.
 			+ simpl in HLength. apply Nat.succ_lt_mono in HLength. apply IHForall2. apply HLength.
 Qed.
 
+Lemma in_same_as_In (X : eqType) : forall (c : X) (l : seq X),
+	c \in l <->
+	In c l.
+Proof.
+	move => c l.
+	split.
+	(* -> *)
+	- move=> Hin.
+		induction l.
+		- discriminate.
+		- simpl. simpl in Hin. 
+			rewrite -cat1s in Hin. 
+			rewrite mem_cat in Hin. 
+			move/orP in Hin.
+			destruct Hin.
+			- rewrite inE in H.
+				move/eqP in H.
+				left.
+				symmetry.
+				apply H.
+			- right.
+				by apply IHl.
+	(* <- *)
+	- move=> HIn.
+		induction l.
+		- unfold In in HIn. 
+			exfalso. 
+			apply HIn.
+		- rewrite -cat1s.
+			rewrite mem_cat.
+			apply/orP.
+			unfold In in HIn. destruct HIn.
+			- left.
+				rewrite inE.
+				apply/eqP.
+				symmetry.
+				apply H.
+			- right.
+				by apply IHl.
+Qed.
 
 Fixpoint In2 {A B : Type} (x : A) (y : B) (l : list A) (l' : list B) : Prop :=
     match l, l' with
@@ -747,7 +796,6 @@ Proof.
   rewrite take0.
   apply cats0.
 Qed.
-
 
 Lemma size_eq_cat: forall A (l1 l2 l1' l2': list A),
   size l1 = size l2 ->
