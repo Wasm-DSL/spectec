@@ -427,42 +427,23 @@ rule Step/elem.drop:
 
 ;; Memory instructions
 
+rule Step_read/load-num-val-unshared:
+  z; (CONST at i) (LOAD nt x ao)  ~>  (CONST nt c)
+  ---- ----
+  -- if ea = $(i + ao.OFFSET)
+  -- if ord = UNORD \/ $(ea \ $size(nt)/8) = 0
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $nbytes_(nt, c) = $mem(z, x).BYTES[ea : $size(nt)/8]
+
 rule Step_read/load-num-oob-unshared:
   z; (CONST at i) (LOAD nt x ao)  ~>  TRAP
   ---- ----
   -- otherwise
   -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
-rule Step_read/load-num-val-unshared:
-  z; (CONST at i) (LOAD nt x ao)  ~>  (CONST nt c)
-  ---- ----
-  -- if (
-          ord = UNORD 
-        )
-  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
-  -- if $nbytes_(nt, c) = $mem(z, x).BYTES[ea : $size(nt)/8]
-  -- if $(i + ao.OFFSET + $size(nt)/8 <= |$mem(z, x).BYTES|)
-
-rule Step_read/load-pack-oob-unshared:
-  z; (CONST at i) (LOAD Inn (n _ sx) x ao)  ~>  TRAP
-  ---- ----
-  -- otherwise
-  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
-
-rule Step_read/load-pack-val-unshared:
-  z; (CONST at i) (LOAD Inn (n _ sx) x ao)  ~>  (CONST Inn $extend__(n, $size(Inn), sx, c))
-  ---- ----
-  -- if (
-          ord = UNORD 
-        )
-  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
-  -- if $ibytes_(n, c) = $mem(z, x).BYTES[ea : n/8]
-  -- if $(i + ao.OFFSET + n/8 <= |$mem(z, x).BYTES|)
-
 rule Step_read/load-num-oob-shared:
   z; (CONST at i) (LOAD nt x ao) ~>_(action) TRAP
   ---- ----
-  -- otherwise
   -- if action = (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|)))
   -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
@@ -471,24 +452,36 @@ rule Step_read/load-num-val-shared:
   (CONST nt c)
   ---- ----
   -- if action* = 
-      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+      (RD ord ((REGLEN a) 0) (CONST I32 nlen)) 
       (RD ord ((REGDATA a) ea) (BYTES bytes) notears?)
   -- if a = $c_frame_mem_modules(z, 0) 
-  -- if ord = UNORD 
+  -- if ea = $(i + ao.OFFSET)
+  -- if ord = UNORD \/ $(ea \ $size(nt)/8) = 0
   -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
   -- if storemem = $mem(z, x) 
-  -- if ea = $(i + ao.OFFSET)
-  -- if nlen = |$mem(z, x).BYTES|
+  -- if nlen = |storemem.BYTES|
   -- if storemem.TYPE = addrtype limits SHARED PAGE
   -- if bytes = storemem.BYTES[ea : $size(nt)/8]
   -- if $nbytes_(nt, c) = bytes
-  -- if $(i + ao.OFFSET + $size(nt)/8 <= nlen)
+
+rule Step_read/load-pack-val-unshared:
+  z; (CONST at i) (LOAD Inn (n _ sx) x ao)  ~>  (CONST Inn $extend__(n, $size(Inn), sx, c))
+  ---- ----
+  -- if ea = $(i + ao.OFFSET)
+  -- if ord = UNORD \/ $(ea \ $size(nt)/8) = 0
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if $ibytes_(n, c) = $mem(z, x).BYTES[ea : n/8]
+
+rule Step_read/load-pack-oob-unshared:
+  z; (CONST at i) (LOAD Inn (n _ sx) x ao)  ~>  TRAP
+  ---- ----
+  -- otherwise
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step_read/load-pack-oob-shared:
   z; (CONST at i) (LOAD Inn (n _ sx) x ao)  ~>_(action)
   TRAP
   ---- ----
-  -- otherwise
   -- if action = RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
   -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
 
@@ -497,24 +490,17 @@ rule Step_read/load-pack-val-shared:
   (CONST Inn $extend__(n, $size(Inn), sx, c))
   ---- ----
   -- if action* = (
-      (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
-      (RD ord ((REGDATA a) ea) (BYTES bytes) notears?)) 
+      (RD SEQCST ((REGLEN a) 0) (CONST I32 nlen)) 
+      (RD SEQCST ((REGDATA a) ea) (BYTES bytes) notears?)) 
   -- if a = $c_frame_mem_modules(z, 0) 
-  -- if ord = UNORD 
   -- if notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
   -- if storemem = $mem(z, x) 
   -- if ea = $(i + ao.OFFSET)
+  -- if nlen = |storemem.BYTES|
   -- if storemem.TYPE = addrtype limits SHARED PAGE
   -- if bytes = storemem.BYTES[ea : n/8]
   -- if $ibytes_(n, c) = bytes
-  -- if $(ea + n/8 <= |$mem(z, x).BYTES|)
 
-
-rule Step_read/vload-oob-unshared:
-  z; (CONST at i) (VLOAD V128 x ao)  ~>  TRAP
-  ---- ----
-  -- otherwise
-  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step_read/vload-val-unshared:
   z; (CONST at i) (VLOAD V128 x ao)  ~>  (VCONST V128 c)
@@ -526,30 +512,16 @@ rule Step_read/vload-val-unshared:
   -- if $vbytes_(V128, c) = $mem(z, x).BYTES[i + ao.OFFSET : $vsize(V128)/8]
   -- if $(i + ao.OFFSET + $vsize(V128)/8 <= |$mem(z, x).BYTES|)
 
-rule Step_read/vload-pack-oob-unshared:
-  z; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao)  ~>  TRAP
+rule Step_read/vload-oob-unshared:
+  z; (CONST at i) (VLOAD V128 x ao)  ~>  TRAP
   ---- ----
   -- otherwise
   -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
-
-rule Step_read/vload-pack-val-unshared:
-  z; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao)  ~>  (VCONST V128 c)
-  ---- ----
-  -- if (
-          ord = UNORD 
-        )
-  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
-  -- (if $ibytes_(M, j) = $mem(z, x).BYTES[i + ao.OFFSET + k * M/8 : M/8])^(k<K)
-  -- if c = $inv_lanes_(Jnn X K, $extend__(M, $jsizenn(Jnn), sx, j)^K)
-     /\ $jsizenn(Jnn) = $(M * 2)
-  -- if $(i + ao.OFFSET + M * K/8) <= |$mem(z, x).BYTES|
-
 
 rule Step_read/vload-oob-shared:
   z; (CONST at i) (VLOAD V128 x ao)  ~>_(action*)
   TRAP
   ---- ----
-  -- otherwise
   -- if action* = (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|)))
   -- if a = $c_frame_mem_modules(z, 0) 
   -- if ord = UNORD 
@@ -572,11 +544,28 @@ rule Step_read/vload-val-shared:
   -- if $vbytes_(V128, c) = $mem(z, x).BYTES[i + ao.OFFSET : $vsize(V128)/8]
   -- if $(i + ao.OFFSET + $vsize(V128)/8 <= |$mem(z, x).BYTES|)
 
+rule Step_read/vload-pack-val-unshared:
+  z; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao)  ~>  (VCONST V128 c)
+  ---- ----
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
+  -- (if $ibytes_(M, j) = $mem(z, x).BYTES[i + ao.OFFSET + k * M/8 : M/8])^(k<K)
+  -- if c = $inv_lanes_(Jnn X K, $extend__(M, $jsizenn(Jnn), sx, j)^K)
+     /\ $jsizenn(Jnn) = $(M * 2)
+  -- if $(i + ao.OFFSET + M * K/8) <= |$mem(z, x).BYTES|
+
+rule Step_read/vload-pack-oob-unshared:
+  z; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao)  ~>  TRAP
+  ---- ----
+  -- otherwise
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
+
 rule Step_read/vload-pack-oob-shared:
   z; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao)  ~>_(action*)
   TRAP
   ---- ----
-  -- otherwise
   -- if action* = (
       RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
     )  
@@ -601,12 +590,6 @@ rule Step_read/vload-pack-val-shared:
      /\ $jsizenn(Jnn) = $(M * 2)
   -- if $(i + ao.OFFSET + M * K/8) <= |$mem(z, x).BYTES|
 
-rule Step_read/vload-splat-oob-unshared:
-  z; (CONST at i) (VLOAD V128 (SPLAT N) x ao)  ~>  TRAP
-  ---- ----
-  -- otherwise
-  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
-
 rule Step_read/vload-splat-val-unshared:
   z; (CONST at i) (VLOAD V128 (SPLAT N) x ao)  ~>  (VCONST V128 c)
   ---- ----
@@ -620,11 +603,16 @@ rule Step_read/vload-splat-val-unshared:
   -- if c = $inv_lanes_(Jnn X M, j^M)
   -- if $(i + ao.OFFSET + N/8) <= |$mem(z, x).BYTES|
 
+rule Step_read/vload-splat-oob-unshared:
+  z; (CONST at i) (VLOAD V128 (SPLAT N) x ao)  ~>  TRAP
+  ---- ----
+  -- otherwise
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
+
 rule Step_read/vload-splat-oob-shared:
   z; (CONST at i) (VLOAD V128 (SPLAT N) x ao)  ~>_(action*)
   TRAP
   ---- ----
-  -- otherwise
   -- if action* = ( 
     RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
     )  
@@ -650,12 +638,6 @@ rule Step_read/vload-splat-val-shared:
   -- if c = $inv_lanes_(Jnn X M, j^M)
   -- if $(i + ao.OFFSET + N/8) <= |$mem(z, x).BYTES|
 
-rule Step_read/vload-zero-oob-unshared:
-  z; (CONST at i) (VLOAD V128 (ZERO N) x ao)  ~>  TRAP
-  ---- ----
-  -- otherwise
-  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
-
 rule Step_read/vload-zero-val-unshared:
   z; (CONST at i) (VLOAD V128 (ZERO N) x ao)  ~>  (VCONST V128 c)
   ---- ----
@@ -667,11 +649,16 @@ rule Step_read/vload-zero-val-unshared:
   -- if c = $extend__(N, 128, U, j)
   -- if $(i + ao.OFFSET + N/8) <= |$mem(z, x).BYTES|
 
+rule Step_read/vload-zero-oob-unshared:
+  z; (CONST at i) (VLOAD V128 (ZERO N) x ao)  ~>  TRAP
+  ---- ----
+  -- otherwise
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
+
 rule Step_read/vload-zero-oob-shared:
   z; (CONST at i) (VLOAD V128 (ZERO N) x ao)  ~>_(action*)
   TRAP
   ---- ----
-  -- otherwise
   -- if action* = ( 
     RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
     )  
@@ -695,12 +682,6 @@ rule Step_read/vload-zero-val-shared:
   -- if c = $extend__(N, 128, U, j)
   -- if $(i + ao.OFFSET + N/8) <= |$mem(z, x).BYTES|
 
-rule Step_read/vload_lane-oob-unshared:
-  z; (CONST at i) (VCONST V128 c_1) (VLOAD_LANE V128 N x ao j)  ~>  TRAP
-  ---- ----
-  -- otherwise
-  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
-
 rule Step_read/vload_lane-val-unshared:
   z; (CONST at i) (VCONST V128 c_1) (VLOAD_LANE V128 N x ao j)  ~>  (VCONST V128 c)
   ---- ----
@@ -714,11 +695,16 @@ rule Step_read/vload_lane-val-unshared:
   -- if c = $inv_lanes_(Jnn X M, $lanes_(Jnn X M, c_1)[[j] = k])
   -- if $(i + ao.OFFSET + N/8) <= |$mem(z, x).BYTES|
 
+rule Step_read/vload_lane-oob-unshared:
+  z; (CONST at i) (VCONST V128 c_1) (VLOAD_LANE V128 N x ao j)  ~>  TRAP
+  ---- ----
+  -- otherwise
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
+
 rule Step_read/vload_lane-oob-shared:
   z; (CONST at i) (VCONST V128 c_1) (VLOAD_LANE V128 N x ao j)  ~>_(action*)
   TRAP
   ---- ----
-  -- otherwise
   -- if action* = ( 
     RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
     )  
@@ -744,12 +730,6 @@ rule Step_read/vload_lane-val-shared:
   -- if c = $inv_lanes_(Jnn X M, $lanes_(Jnn X M, c_1)[[j] = k])
   -- if $(i + ao.OFFSET + N/8) <= |$mem(z, x).BYTES|
 
-rule Step/store-num-oob-unshared:
-  z; (CONST at i) (CONST nt c) (STORE nt x ao)  ~>  z; TRAP
-  ---- ----
-  -- otherwise
-  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
-
 rule Step/store-num-val-unshared:
   z; (CONST at i) (CONST nt c) (STORE nt x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $($size(nt)/8), b*);  eps
   ---- ----
@@ -761,28 +741,16 @@ rule Step/store-num-val-unshared:
   -- if b* = $nbytes_(nt, c)
   -- if $(i + ao.OFFSET + $size(nt)/8) <= |$mem(z, x).BYTES|
 
-rule Step/store-pack-oob-unshared:
-  z; (CONST at i) (CONST Inn c) (STORE Inn n x ao)  ~>  z; TRAP
+rule Step/store-num-oob-unshared:
+  z; (CONST at i) (CONST nt c) (STORE nt x ao)  ~>  z; TRAP
   ---- ----
   -- otherwise
   -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
-
-rule Step/store-pack-val-unshared:
-  z; (CONST at i) (CONST Inn c) (STORE Inn n x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*);  eps
-  ---- ----
-  -- if (
-          ord = UNORD 
-        )
-  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
-  ;; TODO(3, rossberg): enable otherwise?
-  -- if b* = $ibytes_(n, $wrap__($size(Inn), n, c))
-  -- if $(i + ao.OFFSET + n/8) <= |$mem(z, x).BYTES|
 
 rule Step/store-num-oob-shared:
   z; (CONST at i) (CONST nt c) (STORE nt x ao)  ~>_(action*)
   z; TRAP
   ---- ----
-  -- otherwise
   -- if action* = ( 
     RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
     )  
@@ -812,11 +780,27 @@ rule Step/store-num-val-shared:
   -- if b* = $nbytes_(nt, c)
   -- if $(i + ao.OFFSET + $size(nt)/8) <= |$mem(z, x).BYTES|
 
+rule Step/store-pack-val-unshared:
+  z; (CONST at i) (CONST Inn c) (STORE Inn n x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $(n/8), b*);  eps
+  ---- ----
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
+  ;; TODO(3, rossberg): enable otherwise?
+  -- if b* = $ibytes_(n, $wrap__($size(Inn), n, c))
+  -- if $(i + ao.OFFSET + n/8) <= |$mem(z, x).BYTES|
+
+rule Step/store-pack-oob-unshared:
+  z; (CONST at i) (CONST Inn c) (STORE Inn n x ao)  ~>  z; TRAP
+  ---- ----
+  -- otherwise
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
+
 rule Step/store-pack-oob-shared:
   z; (CONST at i) (CONST Inn c) (STORE Inn n x ao)  ~>_(action*)
   z; TRAP
   ---- ----
-  -- otherwise
   -- if action* = ( 
     RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
     )  
@@ -846,12 +830,6 @@ rule Step/store-pack-val-shared:
   -- if b* = $ibytes_(n, $wrap__($size(Inn), n, c))
   -- if $(i + ao.OFFSET + n/8) <= |$mem(z, x).BYTES|
 
-rule Step/vstore-oob-unshared:
-  z; (CONST at i) (VCONST V128 c) (VSTORE V128 x ao)  ~>  z; TRAP
-  ---- ----
-  -- otherwise
-  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
-
 rule Step/vstore-val-unshared:
   z; (CONST at i) (VCONST V128 c) (VSTORE V128 x ao)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $($vsize(V128)/8), b*);  eps
   ---- ----
@@ -862,23 +840,26 @@ rule Step/vstore-val-unshared:
   -- if b* = $vbytes_(V128, c)
   -- if $(i + ao.OFFSET + $vsize(V128)/8) <= |$mem(z, x).BYTES|
 
-rule Step/vstore_lane-oob-unshared:
-  z; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j)  ~>  z; TRAP
+rule Step/vstore-oob-unshared:
+  z; (CONST at i) (VCONST V128 c) (VSTORE V128 x ao)  ~>  z; TRAP
   ---- ----
   -- otherwise
   -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
-rule Step/vstore_lane-val-unshared:
-  z; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $(N/8), b*);  eps
+rule Step/vstore-oob-shared:
+  z; (CONST at i) (CONST nt c) (STORE nt x ao)  ~>_(action*)
+  z; TRAP
   ---- ----
-  -- if (
-          ord = UNORD 
-        )
-  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
-  -- if N = $jsize(Jnn)  ;; TODO(2, rossberg): relate implicitly
-  -- if M = $(128/N)
-  -- if b* = $ibytes_(N, $lanes_(Jnn X M, c)[j])
-  -- if $(i + ao.OFFSET + N) <= |$mem(z, x).BYTES|
+  -- if action* = ( 
+    RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))
+    )  
+  -- if  a = $c_frame_mem_modules(z, 0) 
+  -- if  ord = UNORD 
+  -- if  notears? = $tearing(nt, $($size(nt)/8), ao.OFFSET) 
+  -- if  storemem = $mem(z, x) 
+  -- if  ea = $(i + ao.OFFSET) 
+  -- if  nlen = |storemem.BYTES|
+  -- if $mem(z, x).TYPE = addrtype limits shared PAGE
 
 rule Step/vstore-val-shared:
   z; (CONST at i) (VCONST V128 c) (VSTORE V128 x ao)  ~>_(action*)
@@ -895,6 +876,24 @@ rule Step/vstore-val-shared:
   -- if  nlen = |storemem.BYTES|
   -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
   -- if b* = $vbytes_(V128, c)
+
+rule Step/vstore_lane-val-unshared:
+  z; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $(N/8), b*);  eps
+  ---- ----
+  -- if (
+          ord = UNORD 
+        )
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
+  -- if N = $jsize(Jnn)  ;; TODO(2, rossberg): relate implicitly
+  -- if M = $(128/N)
+  -- if b* = $ibytes_(N, $lanes_(Jnn X M, c)[j])
+  -- if $(i + ao.OFFSET + N) <= |$mem(z, x).BYTES|
+
+rule Step/vstore_lane-oob-unshared:
+  z; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j)  ~>  z; TRAP
+  ---- ----
+  -- otherwise
+  -- if $mem(z, x).TYPE = addrtype limits UNSHARED PAGE
 
 rule Step/vstore_lane-oob-shared:
   z; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j)  ~>_(action*)
@@ -1186,7 +1185,7 @@ rule Step_read/atomic.load-pack-val-shared:
   (CONST inntype $extend__(n, $size(inntype), U, c))
   ---- ----
   -- if action* = ( 
-    (RD ord ((REGLEN a) 0) (CONST I32 $(|$mem(z, x).BYTES|))) 
+    (RD ord ((REGLEN a) 0) (CONST I32 nlen)) 
     (RD ord ((REGDATA a) ea) (BYTES bytes) notears?))
   -- if a = $c_frame_mem_modules(z, 0) 
   -- if ord = SEQCST 
@@ -1194,10 +1193,10 @@ rule Step_read/atomic.load-pack-val-shared:
   -- if storemem = $mem(z, x) 
   -- if ea = $(i + ao.OFFSET) 
   -- if nlen = |storemem.BYTES|
-  -- if $mem(z, x).TYPE = addrtype limits SHARED PAGE
-  -- if $ibytes_(n, c) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
+  -- if storemem.TYPE = addrtype limits SHARED PAGE
+  -- if $ibytes_(n, c) = storemem.BYTES[i + ao.OFFSET : n/8]
   -- if $((i + ao.OFFSET) \ n/8) = 0
-  -- if $(i + ao.OFFSET + n/8 <= |$mem(z, x).BYTES|)
+  -- if $(i + ao.OFFSET + n/8 <= |storemem.BYTES|)
 
 rule Step/atomic.store-num-oob-unshared:
   z; (CONST at i) (CONST inntype c) (ATOMIC.STORE inntype x ao)  ~>  z; TRAP
