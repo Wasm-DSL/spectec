@@ -108,10 +108,7 @@ let is_true prem = match prem.it with
   | _ -> false
 
 (* Does prem1 obviously imply prem2? *)
-let rec implies prem1 prem2 = Il.Eq.eq_prem prem1 prem2 ||
-  match prem2.it with
-  | IterPr (prem2', _) -> implies prem1 prem2'
-  | _ -> false
+let implies prem1 prem2 = Il.Eq.eq_prem prem1 prem2
 
 (* Remove empty premise iterators *)
 let rec flatten_empty_iter prem =
