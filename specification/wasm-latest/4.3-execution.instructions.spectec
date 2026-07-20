@@ -56,6 +56,20 @@ rule Step/ctxt-frame:
   -- Step: s; f'; instr* ~>_(act*) s'; f''; instr'*
 
 
+;; Concurrent Administrative 
+rule Step/admin-wake:
+  z; (WAIT' location signed_n) ~>_(WOKEN location) z';  (CONST I32 0)
+
+rule Step/admin-susp:
+  z; (WAIT' location signed_n) ~>_(WOKEN location) z';  (CONST I32 2)
+    -- if signed_n >= 0
+
+rule Step/admin-unchanged:
+  z; (WAIT' location signed_n) ~>_(WOKEN location) z; (WAIT' location signed_n)
+
+rule Step/perform:
+  z; PERFORM act* ~>_(act*) z; eps
+
 ;; Polymorphic instructions
 
 rule Step_pure/unreachable:

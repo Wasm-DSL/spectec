@@ -138,11 +138,13 @@ syntax instr/admin hint(desc "administrative instruction") =
   | FRAME_ n `{frame} instr*    hint(show FRAME_%#% %%)
   | HANDLER_ n `{catch*} instr* hint(show HANDLER_%#% %%)
   | TRAP
+  | WAIT' location s64
+  | PERFORM action*
 
 
 ;; Configurations
 syntax thread hint(desc "thread") = frame; instr*; timestamp
-syntax state hint(desc "state") = store; frame
+syntax state hint(desc "state") = store; frame?
 ;;syntax config hint(desc "configuration") = state; instr*
 syntax config hint(desc "configuration") = store; thread*
 syntax lconfig hint(desc "local configuration") = state; instr*
