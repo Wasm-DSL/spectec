@@ -558,7 +558,7 @@ $$
 
 $$
 \begin{array}[t]{@{}lrrl@{}l@{}}
-\mbox{(limits range)} & {\mathit{limits}} & ::= & {}[ {\mathit{u{\kern-0.1em\scriptstyle 64}}} .. {{\mathit{u{\kern-0.1em\scriptstyle 64}}}^?} ] \\
+\mbox{(limits range)} & {\mathit{limits}} & ::= & {}[ {\mathit{u{\kern-0.1em\scriptstyle 32}}} .. {{\mathit{u{\kern-0.1em\scriptstyle 32}}}^?} ] \\
 & {\mathit{share}} & ::= & \mathsf{shared} ~~|~~ \mathsf{unshared} \\
 \mbox{(tag type)} & {\mathit{tagtype}} & ::= & {\mathit{typeuse}} \\
 \mbox{(global type)} & {\mathit{globaltype}} & ::= & {\mathsf{mut}^?}~{\mathit{valtype}} \\
@@ -10511,20 +10511,30 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{allocmem}}(s, {\mathit{at}}~{}[ i .. {j^?} ]~{\mathit{share}}~\mathsf{page}) & = & (s \oplus \{ \mathsf{mems}~{\mathit{meminst}} \}, {|s{.}\mathsf{mems}|}) &  \\
+{\mathrm{allocmem}}(s, {\mathit{at}}~{}[ i .. {j^?} ]~{\mathit{share}}~\mathsf{page}) & = & (s \oplus \{ \mathsf{mems}~{\mathit{meminst}} \}, {|s{.}\mathsf{mems}|}, \epsilon) &  \\
  \multicolumn{4}{@{}l@{}}{\quad
-\quad \mbox{if}~ {\mathit{meminst}} = \{ \mathsf{type}~({\mathit{at}}~{}[ i .. {j^?} ]~{\mathit{share}}~\mathsf{page}),\;\allowbreak \mathsf{bytes}~{(\mathtt{0x00})^{i \cdot 64 \, {\mathrm{Ki}}}} \}
+\quad \mbox{if}~ {\mathit{meminst}} = \{ \mathsf{type}~({\mathit{at}}~{}[ i .. {j^?} ]~\mathsf{unshared}~\mathsf{page}),\;\allowbreak \mathsf{bytes}~{(\mathtt{0x00})^{i \cdot 64 \, {\mathrm{Ki}}}} \}
+} \\
+{\mathrm{allocmem}}(s, {\mathit{at}}~{}[ i .. {j^?} ]~{\mathit{share}}~\mathsf{page}) & = & (s \oplus \{ \mathsf{mems}~{\mathit{meminst}} \}, {|s{.}\mathsf{mems}|}, {{\mathit{action}}^\ast}) &  \\
+ \multicolumn{4}{@{}l@{}}{\quad
+\quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ {\mathit{meminst}} = \{ \mathsf{type}~({\mathit{at}}~{}[ i .. {j^?} ]~\mathsf{shared}~\mathsf{page}),\; \mathsf{bytes}~{(\mathtt{0x00})^{i \cdot 64 \, {\mathrm{Ki}}}} \} \\
+{\land}~ a = {|s{.}\mathsf{mems}|} \\
+{\land}~ {{\mathit{action}}^\ast} = (\begin{array}[t]{@{}l@{}} (\mathsf{wr}~\mathsf{seqcst}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i)) \\
+  (\mathsf{wr}~\mathsf{init}~((\mathsf{regdata}~a)~0)~(\mathsf{bytes}~{(\mathtt{0x00})^{i \cdot 64 \, {\mathrm{Ki}}}})) \end{array}) \\
+\end{array}
 } \\
 \end{array}
 $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{{{\mathrm{allocmem}}^\ast}}{(s, \epsilon)} & = & (s, \epsilon) \\
-{{{\mathrm{allocmem}}^\ast}}{(s, {\mathit{memtype}}~{{\mathit{memtype}'}^\ast})} & = & (s_2, {\mathit{ma}}~{{\mathit{ma}'}^\ast}) & \quad
+{{{\mathrm{allocmem}}^\ast}}{(s, \epsilon)} & = & (s, \epsilon, \epsilon) \\
+{{{\mathrm{allocmem}}^\ast}}{(s, {\mathit{memtype}}~{{\mathit{memtype}'}^\ast})} & = & (s_2, {\mathit{ma}}~{{\mathit{ma}'}^\ast}, {{\mathit{act{\kern-0.1em\scriptstyle 1}}}^\ast}~{{\mathit{act{\kern-0.1em\scriptstyle 2}}}^\ast}) & \quad
 \begin{array}[t]{@{}l@{}}
-\mbox{if}~ (s_1, {\mathit{ma}}) = {\mathrm{allocmem}}(s, {\mathit{memtype}}) \\
-{\land}~ (s_2, {{\mathit{ma}'}^\ast}) = {{{\mathrm{allocmem}}^\ast}}{(s_1, {{\mathit{memtype}'}^\ast})} \\
+\mbox{if}~ (s_1, {\mathit{ma}}, {{\mathit{act{\kern-0.1em\scriptstyle 1}}}^\ast}) = {\mathrm{allocmem}}(s, {\mathit{memtype}}) \\
+{\land}~ (s_2, {{\mathit{ma}'}^\ast}, {{\mathit{act{\kern-0.1em\scriptstyle 2}}}^\ast}) = {{{\mathrm{allocmem}}^\ast}}{(s_1, {{\mathit{memtype}'}^\ast})} \\
 \end{array} \\
 \end{array}
 $$
@@ -10629,7 +10639,7 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{allocmodule}}(s, {\mathit{module}}, {{\mathit{externaddr}}^\ast}, {{\mathit{val}}_{\mathsf{g}}^\ast}, {{\mathit{ref}}_{\mathsf{t}}^\ast}, {({{\mathit{ref}}_{\mathsf{e}}^\ast})^\ast}) & = & (s_7, {\mathit{moduleinst}}) &  \\
+{\mathrm{allocmodule}}(s, {\mathit{module}}, {{\mathit{externaddr}}^\ast}, {{\mathit{val}}_{\mathsf{g}}^\ast}, {{\mathit{ref}}_{\mathsf{t}}^\ast}, {({{\mathit{ref}}_{\mathsf{e}}^\ast})^\ast}) & = & (s_7, {\mathit{moduleinst}}, {{\mathit{action}}^\ast}) &  \\
  \multicolumn{4}{@{}l@{}}{\quad
 \quad
 \begin{array}[t]{@{}l@{}}
@@ -10650,7 +10660,7 @@ $$
 {\land}~ {{\mathit{fa}}^\ast} = {({|s{.}\mathsf{funcs}|} + i_{\mathsf{f}})^{i_{\mathsf{f}}<{|{{\mathit{func}}^\ast}|}}} \\
 {\land}~ (s_1, {{\mathit{aa}}^\ast}) = {{{\mathrm{alloctag}}^\ast}}{(s, {{{\mathit{tagtype}}}{{}[ {:=}\, {{\mathit{dt}}^\ast} ]}^\ast})} \\
 {\land}~ (s_2, {{\mathit{ga}}^\ast}) = {{{\mathrm{allocglobal}}^\ast}}{(s_1, {{{\mathit{globaltype}}}{{}[ {:=}\, {{\mathit{dt}}^\ast} ]}^\ast}, {{\mathit{val}}_{\mathsf{g}}^\ast})} \\
-{\land}~ (s_3, {{\mathit{ma}}^\ast}) = {{{\mathrm{allocmem}}^\ast}}{(s_2, {{{\mathit{memtype}}}{{}[ {:=}\, {{\mathit{dt}}^\ast} ]}^\ast})} \\
+{\land}~ (s_3, {{\mathit{ma}}^\ast}, {{\mathit{action}}^\ast}) = {{{\mathrm{allocmem}}^\ast}}{(s_2, {{{\mathit{memtype}}}{{}[ {:=}\, {{\mathit{dt}}^\ast} ]}^\ast})} \\
 {\land}~ (s_4, {{\mathit{ta}}^\ast}) = {{{\mathrm{alloctable}}^\ast}}{(s_3, {{{\mathit{tabletype}}}{{}[ {:=}\, {{\mathit{dt}}^\ast} ]}^\ast}, {{\mathit{ref}}_{\mathsf{t}}^\ast})} \\
 {\land}~ (s_5, {{\mathit{da}}^\ast}) = {{{\mathrm{allocdata}}^\ast}}{(s_4, {\mathsf{ok}^{{|{{\mathit{data}}^\ast}|}}}, {({{\mathit{byte}}^\ast})^\ast})} \\
 {\land}~ (s_6, {{\mathit{ea}}^\ast}) = {{{\mathrm{allocelem}}^\ast}}{(s_5, {{{\mathit{elemtype}}}{{}[ {:=}\, {{\mathit{dt}}^\ast} ]}^\ast}, {({{\mathit{ref}}_{\mathsf{e}}^\ast})^\ast})} \\
@@ -10742,7 +10752,8 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{instantiate}}(s, {\mathit{module}}, {{\mathit{externaddr}}^\ast}) & = & {s''''} ; \{ \mathsf{module}~{\mathit{moduleinst}} \} ; \begin{array}[t]{@{}l@{}} {(\mathsf{perform}~({{\mathit{act}}^?}))^{k}}~({\mathit{perform}}~{{\mathit{act}}_m^\ast}) \\
+{\mathrm{instantiate}}(s, {\mathit{module}}, {{\mathit{externaddr}}^\ast}) & = & {s''''} ; \{ \mathsf{module}~{\mathit{moduleinst}} \} ; \begin{array}[t]{@{}l@{}} {(\mathsf{perform}~({{\mathit{act}}^?}))^\ast} \\
+  (\mathsf{perform}~{{\mathit{action}}^\ast}) \\
   {{\mathit{instr}}_{\mathsf{e}}^\ast}~{{\mathit{instr}}_{\mathsf{d}}^\ast}~{{\mathit{instr}}_{\mathsf{s}}^?} \end{array} &  \\
  \multicolumn{4}{@{}l@{}}{\quad
 \quad
@@ -10764,7 +10775,7 @@ $$
 {\land}~ ({z''}, {{\mathit{ref}}_{\mathsf{t}}^\ast}) = {{{\mathrm{evalexpr}}^\ast}}{({z'}, {{\mathit{expr}}_{\mathsf{t}}^\ast})} \\
 {\land}~ ({z'''}, {{{\mathit{ref}}_{\mathsf{e}}^\ast}^\ast}) = {{{{\mathrm{evalexpr}}^\ast}^\ast}}{({z''}, {{{\mathit{expr}}_{\mathsf{e}}^\ast}^\ast})} \\
 {\land}~ {z'''} = {s'''} ; f \\
-{\land}~ ({s''''}, {\mathit{moduleinst}}) = {\mathrm{allocmodule}}({s'''}, {\mathit{module}}, {{\mathit{externaddr}}^\ast}, {{\mathit{val}}_{\mathsf{g}}^\ast}, {{\mathit{ref}}_{\mathsf{t}}^\ast}, {({{\mathit{ref}}_{\mathsf{e}}^\ast})^\ast}) \\
+{\land}~ ({s''''}, {\mathit{moduleinst}}, {{\mathit{action}}^\ast}) = {\mathrm{allocmodule}}({s'''}, {\mathit{module}}, {{\mathit{externaddr}}^\ast}, {{\mathit{val}}_{\mathsf{g}}^\ast}, {{\mathit{ref}}_{\mathsf{t}}^\ast}, {({{\mathit{ref}}_{\mathsf{e}}^\ast})^\ast}) \\
 {\land}~ {{\mathit{instr}}_{\mathsf{d}}^\ast} = {\bigoplus}\, {{{\mathrm{rundata}}}_{i_{\mathsf{d}}}({{\mathit{data}}^\ast}{}[i_{\mathsf{d}}])^{i_{\mathsf{d}}<{|{{\mathit{data}}^\ast}|}}} \\
 {\land}~ {{\mathit{instr}}_{\mathsf{e}}^\ast} = {\bigoplus}\, {{{\mathrm{runelem}}}_{i_{\mathsf{e}}}({{\mathit{elem}}^\ast}{}[i_{\mathsf{e}}])^{i_{\mathsf{e}}<{|{{\mathit{elem}}^\ast}|}}} \\
 {\land}~ {{\mathit{instr}}_{\mathsf{s}}^?} = {(\mathsf{call}~x)^?} \\
