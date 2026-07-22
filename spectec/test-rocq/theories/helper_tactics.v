@@ -23,6 +23,13 @@ repeat lazymatch goal with
 		destruct H
 end.
 
+Ltac decompH H :=
+match type of H with
+	| _ /\ _ => 
+		destruct H as [? H']; decompH H'
+  | _ => subst; idtac
+end.
+
 
 (** Similar to [set (name := term)], but introduce an equality instead of a local definition. **)
 Ltac set_eq name term :=
@@ -407,5 +414,10 @@ Ltac inv_Forall H :=
     apply Forall_app in H; destruct H as [HP1 HP2];
     inv_Forall HP1;
     inv_Forall HP2
+  | Forall _ (_ :: _) =>
+    let HP1 := fresh "HP" in
+    let Hrest := fresh "Hrest" in 
+    inversion H as [ | ? ? HP1 Hrest]; subst;
+    inv_Forall Hrest
   | _ => idtac
   end.

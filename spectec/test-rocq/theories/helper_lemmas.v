@@ -178,6 +178,34 @@ Proof.
 			+ simpl in HLength. apply Nat.succ_lt_mono in HLength. apply IHForall2. apply HLength.
 Qed.
 
+Lemma Forall2_size {A : Type} {B : Type} {_ : Inhabited A} {_ : Inhabited B} (l : list A) (l' : list B) (R : A -> B -> Prop) :
+      Forall2 R l l' -> seq.size l = seq.size l' /\ (forall i, (i < seq.size l) -> R (nth default_val l i) (nth default_val l' i)).
+Proof.
+	move => H.
+	split. apply (Forall2_length) in H. apply H.
+	move => i H'.
+	move/ltP in H'.
+	generalize dependent i. induction H; move => i HLength. 
+		+ apply Nat.nlt_0_r in HLength. exfalso. apply HLength.
+		+ destruct i. 
+			+ simpl. apply H.
+			+ simpl in HLength. apply Nat.succ_lt_mono in HLength. apply IHForall2. apply HLength.
+Qed.
+
+Lemma Forall2_size2 {A : Type} {B : Type} {_ : Inhabited A} {_ : Inhabited B} (l : list A) (l' : list B) (R : A -> B -> Prop) :
+      Forall2 R l l' -> seq.size l = seq.size l' /\ (forall i, (i < seq.size l') -> R (nth default_val l i) (nth default_val l' i)).
+Proof.
+	move => H.
+	split. apply (Forall2_length) in H. apply H.
+	move => i H'.
+	move/ltP in H'.
+	generalize dependent i. induction H; move => i HLength. 
+		+ apply Nat.nlt_0_r in HLength. exfalso. apply HLength.
+		+ destruct i. 
+			+ simpl. apply H.
+			+ simpl in HLength. apply Nat.succ_lt_mono in HLength. apply IHForall2. apply HLength.
+Qed.
+
 Lemma Forall2_lookup {A : Type} {X : Inhabited A} {B : Type} {Y : Inhabited B} (l : list A) (l' : list B) (R : A -> B -> Prop) :
       Forall2 R l l' -> seq.size l = seq.size l' /\ (forall i, (i < seq.size l)%coq_nat -> R (lookup_total l i) (lookup_total l' i)).
 Proof.
@@ -502,22 +530,12 @@ Proof.
 Qed.
 
 Lemma list_slice_update_length: forall {A : Type} (l l': list A) (i n: nat),
-	n = seq.size l' ->
 	seq.size (list_slice_update l i n l') = seq.size l.
 Proof.
-	move => A l l' i n HLength.
-	subst.
-	move : i l'.
-	induction l; move => i l'; auto.
-	destruct i; simpl.
-	{
-		destruct l'; simpl; auto.
-	}
-	destruct l'; simpl; auto.
-	f_equal.
-	assert (S (seq.size l') = seq.size (a0 :: l')). { auto. }
-	rewrite H.
-	eapply IHl.
+	move => A l l' i n.
+	move : n i l'.
+	induction l; move => n i l'; auto.
+	destruct i; destruct l'; destruct n; simpl; auto.
 Qed.
 
 Lemma split_append_last : forall {A : Type} (z : list A) (y : list A) (i : A) (j : A),
