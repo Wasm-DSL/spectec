@@ -2941,25 +2941,25 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{impliesconsistentwith}}({\mathit{evt\_init}}, {\mathit{evt}}) & = & {\mathrm{has}}_{\mathit{init}}({\mathit{evt}}_i) \land ({\mathit{evt}}_i \neq {\mathit{evt}}) \land {\mathrm{overlap}}_{\mathit{reg}}({\mathit{evt}}_i, {\mathit{evt}}) \Rightarrow {\mathit{evt}}_i \prec_{{\mathit{hb}}} {\mathit{evt}} \\
+{\mathrm{impliesconsistentwith}}({\mathit{evt\_init}}, {\mathit{evt}}) & = & {\mathrm{has}}_{\mathit{init}}({\mathit{evt}}_i) \land ({\mathit{evt}}_i \neq {\mathit{evt}}) \land {\mathrm{overlap}}_{\mathit{reg}}({\mathit{evt}}_i, {\mathit{evt}}) \Rightarrow {\mathit{evt}}_i \prec__{{\mathit{hb}}} {\mathit{evt}} \\
 \end{array}
 $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{impliestothappensbefore}}({\mathit{evt{\kern-0.1em\scriptstyle 1}}}, {\mathit{evt{\kern-0.1em\scriptstyle 2}}}) & = & {\mathit{evt{\kern-0.1em\scriptstyle 1}}} \prec_{{\mathit{tot}}} {\mathit{evt{\kern-0.1em\scriptstyle 2}}} \Rightarrow {\mathit{evt{\kern-0.1em\scriptstyle 1}}} \prec_{{\mathit{hb}}} {\mathit{evt{\kern-0.1em\scriptstyle 2}}} \\
+{\mathrm{impliestothappensbefore}}({\mathit{evt{\kern-0.1em\scriptstyle 1}}}, {\mathit{evt{\kern-0.1em\scriptstyle 2}}}) & = & {\mathit{evt{\kern-0.1em\scriptstyle 1}}} \prec__{{\mathit{tot}}} {\mathit{evt{\kern-0.1em\scriptstyle 2}}} \Rightarrow {\mathit{evt{\kern-0.1em\scriptstyle 1}}} \prec__{{\mathit{hb}}} {\mathit{evt{\kern-0.1em\scriptstyle 2}}} \\
 \end{array}
 $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\forall}\, {\mathit{evt}}_{\mathsf{i}}, {\mathit{evt}} \in {\mathit{tr}}, {\mathit{ord}}_{\mathit{reg}}({\mathit{evt}}_{\mathsf{i}}) = {\mathit{init}} \land {\mathit{evt}}_{\mathsf{i}} \neq {\mathit{evt}} \land {\mathit{overlap}}({\mathit{evt}}_{\mathsf{i}}, {\mathit{evt}}) \Rightarrow {\mathit{evt}}_{\mathsf{i}} \prec_{{\mathit{hb}}} {\mathit{evt}} & = & {\forall}\, x \in {{\mathit{evt\_init}}^{x}}, y \in {\mathit{tr}} {.} {{\mathrm{impliesconsistentwith}}}{(x, y)} \\
+{\forall}\, {\mathit{evt}}_{\mathsf{i}}, {\mathit{evt}} \in {\mathit{tr}}, {\mathit{ord}}_{\mathit{reg}}({\mathit{evt}}_{\mathsf{i}}) = {\mathit{init}} \land {\mathit{evt}}_{\mathsf{i}} \neq {\mathit{evt}} \land {\mathit{overlap}}({\mathit{evt}}_{\mathsf{i}}, {\mathit{evt}}) \Rightarrow {\mathit{evt}}_{\mathsf{i}} \prec__{{\mathit{hb}}} {\mathit{evt}} & = & {\forall}\, x \in {{\mathit{evt\_init}}^{x}}, y \in {\mathit{tr}} {.} {{\mathrm{impliesconsistentwith}}}{(x, y)} \\
 \end{array}
 $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\forall}\, {\mathit{evt}}, {\mathit{evt}'} \in {\mathit{tr}'}, {\mathit{evt}} \prec_{{\mathit{tot}}} {\mathit{evt}'} \Rightarrow {\mathit{evt}} \prec_{{\mathit{hb}}} {\mathit{evt}'} & = & {\forall}\, x \in {\mathit{tr}'}, y \in {\mathit{tr}'} {.} {{\mathrm{impliestothappensbefore}}}{(x, y)} \\
+{\forall}\, {\mathit{evt}}, {\mathit{evt}'} \in {\mathit{tr}'}, {\mathit{evt}} \prec__{{\mathit{tot}}} {\mathit{evt}'} \Rightarrow {\mathit{evt}} \prec__{{\mathit{hb}}} {\mathit{evt}'} & = & {\forall}\, x \in {\mathit{tr}'}, y \in {\mathit{tr}'} {.} {{\mathrm{impliestothappensbefore}}}{(x, y)} \\
 \end{array}
 $$
 
@@ -2992,7 +2992,7 @@ $$
  \\
 {{\mathit{evt\_init}}^{x}} = {\mathrm{initfilter}}({\mathit{tr}})
  \qquad
-{\forall}\, {\mathit{evt}}_{\mathsf{i}}, {\mathit{evt}} \in {\mathit{tr}}, {\mathit{ord}}_{\mathit{reg}}({\mathit{evt}}_{\mathsf{i}}) = {\mathit{init}} \land {\mathit{evt}}_{\mathsf{i}} \neq {\mathit{evt}} \land {\mathit{overlap}}({\mathit{evt}}_{\mathsf{i}}, {\mathit{evt}}) \Rightarrow {\mathit{evt}}_{\mathsf{i}} \prec_{{\mathit{hb}}} {\mathit{evt}}
+{\forall}\, {\mathit{evt}}_{\mathsf{i}}, {\mathit{evt}} \in {\mathit{tr}}, {\mathit{ord}}_{\mathit{reg}}({\mathit{evt}}_{\mathsf{i}}) = {\mathit{init}} \land {\mathit{evt}}_{\mathsf{i}} \neq {\mathit{evt}} \land {\mathit{overlap}}({\mathit{evt}}_{\mathsf{i}}, {\mathit{evt}}) \Rightarrow {\mathit{evt}}_{\mathsf{i}} \prec__{{\mathit{hb}}} {\mathit{evt}}
 \end{array}
 }{
 {\mathit{reg}} \vdash {\mathit{tr}}~\mathsf{consistentwith}
@@ -3068,13 +3068,13 @@ $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
 \begin{array}{@{}c@{}}
-{\neg{\mathit{evt}}_{\mathsf{r}} \prec_{{\mathit{hb}}} {\mathit{evt}}_{\mathsf{w}}}
+{\neg{\mathit{evt}}_{\mathsf{r}} \prec__{{\mathit{hb}}} {\mathit{evt}}_{\mathsf{w}}}
  \\
 {{\mathrm{sync}}}{\mathsf{\_}}{{\mathit{reg}}}~({\mathit{evt}}_{\mathsf{w}}, {\mathit{evt}}_{\mathsf{r}})
  \\
 {{\mathit{evt}}_{\mathsf{w}'}^\ast} = {\mathrm{writefilter}}({\mathit{trace}})
  \\
-({\mathit{evt}}_{\mathsf{w}} \prec_{{\mathit{hb}}} {\mathit{evt}}_{\mathsf{w}'} \land {\mathit{evt}}_{\mathsf{w}'} \prec_{{\mathit{hb}}} {\mathit{evt}}_{\mathsf{r}} \Rightarrow k \notin {{\mathrm{range}}}{\mathsf{\_}}{{\mathit{reg}}}~({\mathit{evt}}_{\mathsf{w}'}))^\ast
+({\mathit{evt}}_{\mathsf{w}} \prec__{{\mathit{hb}}} {\mathit{evt}}_{\mathsf{w}'} \land {\mathit{evt}}_{\mathsf{w}'} \prec__{{\mathit{hb}}} {\mathit{evt}}_{\mathsf{r}} \Rightarrow k \notin {{\mathrm{range}}}{\mathsf{\_}}{{\mathit{reg}}}~({\mathit{evt}}_{\mathsf{w}'}))^\ast
 \end{array}
 }{
 {\mathit{trace}}~{\mathit{reg}}~k \vdash {\mathit{evt}}_{\mathsf{r}}~\mathsf{hbconsistent}~{\mathit{evt}}_{\mathsf{w}}
@@ -3089,11 +3089,11 @@ $$
 \begin{array}{@{}c@{}}
 {{\mathit{evt}}_{\mathsf{w}'}^\ast} = {\mathrm{writefilter}}({\mathit{trace}})
  \\
-({\mathit{evt}}_{\mathsf{r}} \prec_{{\mathit{hb}}} {\mathit{evt}}_{\mathsf{w}} \Rightarrow {\mathit{evt}}_{\mathsf{w}} \prec_{{\mathit{tot}}} {\mathit{evt}}_{\mathsf{w}'} \land {\mathit{evt}}_{\mathsf{w}'} \prec_{{\mathit{tot}}} {\mathit{evt}}_{\mathsf{r}} \land {{\mathrm{sync}}}{\mathsf{\_}}{{\mathit{reg}}}~({\mathit{evt}}_{\mathsf{w}}, {\mathit{evt}}_{\mathsf{r}}) \Rightarrow {\neg{{\mathrm{sync}}}{\mathsf{\_}}{{\mathit{reg}}}~({\mathit{evt}}_{\mathsf{w}}, {\mathit{evt}}_{\mathsf{r}})})^\ast
+({\mathit{evt}}_{\mathsf{r}} \prec__{{\mathit{hb}}} {\mathit{evt}}_{\mathsf{w}} \Rightarrow {\mathit{evt}}_{\mathsf{w}} \prec__{{\mathit{tot}}} {\mathit{evt}}_{\mathsf{w}'} \land {\mathit{evt}}_{\mathsf{w}'} \prec__{{\mathit{tot}}} {\mathit{evt}}_{\mathsf{r}} \land {{\mathrm{sync}}}{\mathsf{\_}}{{\mathit{reg}}}~({\mathit{evt}}_{\mathsf{w}}, {\mathit{evt}}_{\mathsf{r}}) \Rightarrow {\neg{{\mathrm{sync}}}{\mathsf{\_}}{{\mathit{reg}}}~({\mathit{evt}}_{\mathsf{w}}, {\mathit{evt}}_{\mathsf{r}})})^\ast
  \\
-({\mathit{evt}}_{\mathsf{r}} \prec_{{\mathit{hb}}} {\mathit{evt}}_{\mathsf{w}} \Rightarrow {\mathit{evt}}_{\mathsf{w}} \prec_{{\mathit{hb}}} {\mathit{evt}}_{\mathsf{w}'} \land {\mathit{evt}}_{\mathsf{w}'} \prec_{{\mathit{tot}}} {\mathit{evt}}_{\mathsf{r}} \Rightarrow {\neg{{\mathrm{sync}}}{\mathsf{\_}}{{\mathit{reg}}}~({\mathit{evt}}_{\mathsf{w}}, {\mathit{evt}}_{\mathsf{r}})})^\ast
+({\mathit{evt}}_{\mathsf{r}} \prec__{{\mathit{hb}}} {\mathit{evt}}_{\mathsf{w}} \Rightarrow {\mathit{evt}}_{\mathsf{w}} \prec__{{\mathit{hb}}} {\mathit{evt}}_{\mathsf{w}'} \land {\mathit{evt}}_{\mathsf{w}'} \prec__{{\mathit{tot}}} {\mathit{evt}}_{\mathsf{r}} \Rightarrow {\neg{{\mathrm{sync}}}{\mathsf{\_}}{{\mathit{reg}}}~({\mathit{evt}}_{\mathsf{w}}, {\mathit{evt}}_{\mathsf{r}})})^\ast
  \\
-({\mathit{evt}}_{\mathsf{r}} \prec_{{\mathit{hb}}} {\mathit{evt}}_{\mathsf{w}} \Rightarrow {\mathit{evt}}_{\mathsf{w}} \prec_{{\mathit{tot}}} {\mathit{evt}}_{\mathsf{w}'} \land {\mathit{evt}}_{\mathsf{w}'} \prec_{{\mathit{hb}}} {\mathit{evt}}_{\mathsf{r}} \Rightarrow {\neg{{\mathrm{sync}}}{\mathsf{\_}}{{\mathit{reg}}}~({\mathit{evt}}_{\mathsf{w}}, {\mathit{evt}}_{\mathsf{r}})})^\ast
+({\mathit{evt}}_{\mathsf{r}} \prec__{{\mathit{hb}}} {\mathit{evt}}_{\mathsf{w}} \Rightarrow {\mathit{evt}}_{\mathsf{w}} \prec__{{\mathit{tot}}} {\mathit{evt}}_{\mathsf{w}'} \land {\mathit{evt}}_{\mathsf{w}'} \prec__{{\mathit{hb}}} {\mathit{evt}}_{\mathsf{r}} \Rightarrow {\neg{{\mathrm{sync}}}{\mathsf{\_}}{{\mathit{reg}}}~({\mathit{evt}}_{\mathsf{w}}, {\mathit{evt}}_{\mathsf{r}})})^\ast
 \end{array}
 }{
 {\mathit{trace}}~{\mathit{reg}} \vdash {\mathit{evt}}_{\mathsf{r}}~\mathsf{sclastvisible}~{\mathit{evt}}_{\mathsf{w}}
@@ -3123,7 +3123,7 @@ $$
  \qquad
 i~{\mathit{reg}} \vdash {\mathit{tr}'}~\mathsf{suspensionsconsistentwith}~\epsilon
  \\
-{\forall}\, {\mathit{evt}}, {\mathit{evt}'} \in {\mathit{tr}'}, {\mathit{evt}} \prec_{{\mathit{tot}}} {\mathit{evt}'} \Rightarrow {\mathit{evt}} \prec_{{\mathit{hb}}} {\mathit{evt}'}
+{\forall}\, {\mathit{evt}}, {\mathit{evt}'} \in {\mathit{tr}'}, {\mathit{evt}} \prec__{{\mathit{tot}}} {\mathit{evt}'} \Rightarrow {\mathit{evt}} \prec__{{\mathit{hb}}} {\mathit{evt}'}
 \end{array}
 }{
 i~{\mathit{reg}} \vdash {\mathit{tr}}~\mathsf{suspensionsconsistent}
@@ -8168,7 +8168,7 @@ $$
 {[\textsc{\scriptsize E{-}lift}]} \quad & s ; {{\mathit{thread}}^\ast}~(f ; {{\mathit{instr}}^\ast} ; {\mathit{timestamp}})~{{\mathit{thread}}_1^\ast} & {\hookrightarrow}_{(\{ \mathsf{actions}~{{\mathit{act}}^\ast},\;\allowbreak \mathsf{timep}~{\mathit{timestamp}},\;\allowbreak \mathsf{time}~{\mathit{timestamp}'} \})} {} & {s'} ; {{\mathit{thread}}^\ast}~({f'} ; {{\mathit{instr}'}^\ast} ; {\mathit{timestamp}'})~{{\mathit{thread}}_1^\ast} & \quad
 \begin{array}[t]{@{}l@{}}
 \mbox{if}~ s ; f ; {{\mathit{instr}}^\ast} \hookrightarrow_{{{\mathit{act}}^\ast}} {s'} ; {f'} ; {{\mathit{instr}'}^\ast} \\
-{\land}~ {\mathit{timestamp}} \prec_{{\mathit{hb}}} {\mathit{timestamp}'} \\
+{\land}~ {\mathit{timestamp}} \prec__{{\mathit{hb}}} {\mathit{timestamp}'} \\
 {\land}~ ({\mathit{act}} \neq \mathsf{spawn})^\ast \\
 \end{array} \\
 \end{array}
@@ -9265,10 +9265,6 @@ $$
 
 $$
 \begin{array}[t]{@{}lrcl@{}l@{}}
-{[\textsc{\scriptsize E{-}atomic.load{-}num{-}oob{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{load}~x~{\mathit{ao}}) & \hookrightarrow & \mathsf{trap} &  \\
-& \multicolumn{4}{@{}l@{}}{\quad
-\quad \mbox{otherwise, if}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page}
-} \\
 {[\textsc{\scriptsize E{-}atomic.load{-}num{-}val{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{load}~x~{\mathit{ao}}) & \hookrightarrow & ({\mathit{inntype}}{.}\mathsf{const}~c) &  \\
 & \multicolumn{4}{@{}l@{}}{\quad
 \quad
@@ -9285,31 +9281,15 @@ $$
 {\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
 \end{array}
 } \\
-{[\textsc{\scriptsize E{-}atomic.load{-}pack{-}oob{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{load}}{{n}{\mathsf{\_}}{\mathsf{u}}}~x~{\mathit{ao}}) & \hookrightarrow & \mathsf{trap} &  \\
+{[\textsc{\scriptsize E{-}atomic.load{-}num{-}oob{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{load}~x~{\mathit{ao}}) & \hookrightarrow & \mathsf{trap} &  \\
 & \multicolumn{4}{@{}l@{}}{\quad
 \quad \mbox{otherwise, if}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page}
 } \\
-{[\textsc{\scriptsize E{-}atomic.load{-}pack{-}val{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{load}}{{n}{\mathsf{\_}}{\mathsf{u}}}~x~{\mathit{ao}}) & \hookrightarrow & ({\mathit{inntype}}{.}\mathsf{const}~{{{{\mathrm{extend}}}_{n, {|{\mathit{inntype}}|}}^{\mathsf{u}}}}{(c)}) &  \\
+{[\textsc{\scriptsize E{-}atomic.load{-}num{-}oob{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{load}~x~{\mathit{ao}}) & {\hookrightarrow}_{({\mathit{action}})} {} & \mathsf{trap} &  \\
 & \multicolumn{4}{@{}l@{}}{\quad
 \quad
 \begin{array}[t]{@{}l@{}}
-\mbox{if}~ a = z~f{.}\mathsf{mems}{}[0] \\
-{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
-{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
-{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
-{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
-{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
-{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page} \\
-{\land}~ {{\mathrm{bytes}}}_{{\mathsf{i}}{n}}(c) = z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : n / 8] \\
-{\land}~ (i + {\mathit{ao}}{.}\mathsf{offset}) \mathbin{\mathrm{mod}} n / 8 = 0 \\
-{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + n / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
-\end{array}
-} \\
-{[\textsc{\scriptsize E{-}atomic.load{-}num{-}oob{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{load}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & \mathsf{trap} &  \\
-& \multicolumn{4}{@{}l@{}}{\quad
-\quad
-\begin{array}[t]{@{}l@{}}
-\mbox{otherwise, if}~ {{\mathit{action}}^\ast} = (\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|})) \\
+\mbox{otherwise, if}~ {\mathit{action}} = (\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|})) \\
 {\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
 {\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
 {\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
@@ -9335,6 +9315,26 @@ $$
 {\land}~ (i + {\mathit{ao}}{.}\mathsf{offset}) \mathbin{\mathrm{mod}} n / 8 = 0 \\
 {\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
 \end{array}
+} \\
+{[\textsc{\scriptsize E{-}atomic.load{-}pack{-}val{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{load}}{{n}{\mathsf{\_}}{\mathsf{u}}}~x~{\mathit{ao}}) & \hookrightarrow & ({\mathit{inntype}}{.}\mathsf{const}~{{{{\mathrm{extend}}}_{n, {|{\mathit{inntype}}|}}^{\mathsf{u}}}}{(c)}) &  \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ a = z~f{.}\mathsf{mems}{}[0] \\
+{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
+{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
+{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
+{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
+{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
+{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page} \\
+{\land}~ {{\mathrm{bytes}}}_{{\mathsf{i}}{n}}(c) = z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : n / 8] \\
+{\land}~ (i + {\mathit{ao}}{.}\mathsf{offset}) \mathbin{\mathrm{mod}} n / 8 = 0 \\
+{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + n / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
+\end{array}
+} \\
+{[\textsc{\scriptsize E{-}atomic.load{-}pack{-}oob{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{load}}{{n}{\mathsf{\_}}{\mathsf{u}}}~x~{\mathit{ao}}) & \hookrightarrow & \mathsf{trap} &  \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\quad \mbox{otherwise, if}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page}
 } \\
 {[\textsc{\scriptsize E{-}atomic.load{-}pack{-}oob{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{load}}{{n}{\mathsf{\_}}{\mathsf{u}}}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & \mathsf{trap} &  \\
 & \multicolumn{4}{@{}l@{}}{\quad
@@ -9370,12 +9370,10 @@ $$
 \end{array}
 $$
 
+\vspace{1ex}
+
 $$
 \begin{array}[t]{@{}lrcl@{}l@{}}
-{[\textsc{\scriptsize E{-}atomic.store{-}num{-}oob{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{store}~x~{\mathit{ao}}) & \hookrightarrow & z ; \mathsf{trap} &  \\
-& \multicolumn{4}{@{}l@{}}{\quad
-\quad \mbox{otherwise, if}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page}
-} \\
 {[\textsc{\scriptsize E{-}atomic.store{-}num{-}val{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{store}~x~{\mathit{ao}}) & \hookrightarrow & z{}[{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : {|{\mathit{inntype}}|} / 8] = {b^\ast}] ; \epsilon &  \\
 & \multicolumn{4}{@{}l@{}}{\quad
 \quad
@@ -9392,25 +9390,9 @@ $$
 {\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
 \end{array}
 } \\
-{[\textsc{\scriptsize E{-}atomic.store{-}pack{-}oob{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{store}}{n}~x~{\mathit{ao}}) & \hookrightarrow & z ; \mathsf{trap} &  \\
+{[\textsc{\scriptsize E{-}atomic.store{-}num{-}oob{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{store}~x~{\mathit{ao}}) & \hookrightarrow & z ; \mathsf{trap} &  \\
 & \multicolumn{4}{@{}l@{}}{\quad
 \quad \mbox{otherwise, if}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page}
-} \\
-{[\textsc{\scriptsize E{-}atomic.store{-}pack{-}val{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{store}}{n}~x~{\mathit{ao}}) & \hookrightarrow & z{}[{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : n / 8] = {b^\ast}] ; \epsilon &  \\
-& \multicolumn{4}{@{}l@{}}{\quad
-\quad
-\begin{array}[t]{@{}l@{}}
-\mbox{if}~ a = z~f{.}\mathsf{mems}{}[0] \\
-{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
-{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
-{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
-{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
-{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
-{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page} \\
-{\land}~ {b^\ast} = {{\mathrm{bytes}}}_{{\mathsf{i}}{n}}({{\mathrm{wrap}}}_{{|{\mathit{inntype}}|}, n}(c)) \\
-{\land}~ (i + {\mathit{ao}}{.}\mathsf{offset}) \mathbin{\mathrm{mod}} {|{\mathit{inntype}}|} / 8 = 0 \\
-{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + n / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
-\end{array}
 } \\
 {[\textsc{\scriptsize E{-}atomic.store{-}num{-}oob{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{store}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z ; \mathsf{trap} &  \\
 & \multicolumn{4}{@{}l@{}}{\quad
@@ -9442,11 +9424,31 @@ $$
 {\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
 \end{array}
 } \\
+{[\textsc{\scriptsize E{-}atomic.store{-}pack{-}val{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{store}}{n}~x~{\mathit{ao}}) & \hookrightarrow & z{}[{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : n / 8] = {b^\ast}] ; \epsilon &  \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ a = z~f{.}\mathsf{mems}{}[0] \\
+{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
+{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
+{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
+{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
+{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
+{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page} \\
+{\land}~ {b^\ast} = {{\mathrm{bytes}}}_{{\mathsf{i}}{n}}({{\mathrm{wrap}}}_{{|{\mathit{inntype}}|}, n}(c)) \\
+{\land}~ (i + {\mathit{ao}}{.}\mathsf{offset}) \mathbin{\mathrm{mod}} {|{\mathit{inntype}}|} / 8 = 0 \\
+{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + n / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
+\end{array}
+} \\
+{[\textsc{\scriptsize E{-}atomic.store{-}pack{-}oob{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{store}}{n}~x~{\mathit{ao}}) & \hookrightarrow & z ; \mathsf{trap} &  \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\quad \mbox{otherwise, if}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page}
+} \\
 {[\textsc{\scriptsize E{-}atomic.store{-}pack{-}oob{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{store}}{n}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z ; \mathsf{trap} &  \\
 & \multicolumn{4}{@{}l@{}}{\quad
 \quad
 \begin{array}[t]{@{}l@{}}
-\mbox{otherwise, if}~ {{\mathit{action}}^\ast} = (\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|})) \\
+\mbox{if}~ {{\mathit{action}}^\ast} = (\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|})) \\
 {\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
 {\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
 {\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
@@ -9470,17 +9472,6 @@ $$
 {\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
 {\land}~ {b^\ast} = {{\mathrm{bytes}}}_{{\mathsf{i}}{n}}({{\mathrm{wrap}}}_{{|{\mathit{inntype}}|}, n}(c)) \\
 {\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + n / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
-\end{array}
-} \\
-{[\textsc{\scriptsize E{-}atomic.rmw{-}num{-}oob{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}~{\mathit{rmwop}}~x~{\mathit{ao}}) & \hookrightarrow & & \\
-& \multicolumn{4}{@{}l@{}}{\quad
-\begin{array}[t]{@{}l@{}l@{}l@{}}
-z ; \mathsf{trap} & & \\
- \multicolumn{3}{@{}l@{}}{\quad
-\begin{array}[t]{@{}l@{}}
-\quad \mbox{otherwise, if}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page} \\
-\end{array}
-} \\
 \end{array}
 } \\
 {[\textsc{\scriptsize E{-}atomic.rmw{-}num{-}val{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}~{\mathit{rmwop}}~x~{\mathit{ao}}) & \hookrightarrow & & \\
@@ -9507,6 +9498,49 @@ z{}[{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset}
 } \\
 \end{array}
 } \\
+{[\textsc{\scriptsize E{-}atomic.rmw{-}num{-}oob{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}~{\mathit{rmwop}}~x~{\mathit{ao}}) & \hookrightarrow & & \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\begin{array}[t]{@{}l@{}l@{}l@{}}
+z ; \mathsf{trap} & & \\
+ \multicolumn{3}{@{}l@{}}{\quad
+\begin{array}[t]{@{}l@{}}
+\quad \mbox{if}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page} \\
+\end{array}
+} \\
+\end{array}
+} \\
+{[\textsc{\scriptsize E{-}atomic.rmw{-}num{-}val{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}~{\mathit{rmwop}}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z{}[{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : {|{\mathit{inntype}}|} / 8] = {b^\ast}] ; ({\mathit{inntype}}{.}\mathsf{const}~d) &  \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ {{\mathit{action}}^\ast} = ((\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|}))~(\mathsf{rmw}~((\mathsf{regdata}~a)~{\mathit{ea}})~(\mathsf{bytes}~z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes})~(\mathsf{bytes}~{b^\ast}))) \\
+{\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
+{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
+{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
+{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
+{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
+{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
+{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
+{\land}~ j = {{\mathit{rmwop}}}{{}_{{\mathit{inntype}}}(c, d)} \\
+{\land}~ {b^\ast} = {{\mathrm{bytes}}}_{{\mathsf{i}}{{|{\mathit{inntype}}|}}}(j) \\
+{\land}~ {{\mathrm{bytes}}}_{{\mathsf{i}}{{|{\mathit{inntype}}|}}}(d) = z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : {|{\mathit{inntype}}|} / 8] \\
+{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
+\end{array}
+} \\
+{[\textsc{\scriptsize E{-}atomic.rmw{-}num{-}oob{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}~{\mathit{rmwop}}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z ; \mathsf{trap} &  \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ {{\mathit{action}}^\ast} = (\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|})) \\
+{\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
+{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
+{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
+{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
+{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
+{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
+{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
+\end{array}
+} \\
 {[\textsc{\scriptsize E{-}atomic.rmw{-}num{-}pack{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}}{n}~{\mathit{rmwop}}~x~{\mathit{ao}}) & \hookrightarrow & & \\
 & \multicolumn{4}{@{}l@{}}{\quad
 \begin{array}[t]{@{}l@{}l@{}l@{}}
@@ -9528,6 +9562,49 @@ z{}[{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset}
 \end{array} \\
 \end{array}
 } \\
+\end{array}
+} \\
+{[\textsc{\scriptsize E{-}atomic.rmw{-}num{-}pack{-}oob{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}}{n}~{\mathit{rmwop}}~x~{\mathit{ao}}) & \hookrightarrow & & \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\begin{array}[t]{@{}l@{}l@{}l@{}}
+z ; \mathsf{trap} & & \\
+ \multicolumn{3}{@{}l@{}}{\quad
+\begin{array}[t]{@{}l@{}}
+\quad \mbox{if}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page} \\
+\end{array}
+} \\
+\end{array}
+} \\
+{[\textsc{\scriptsize E{-}atomic.rmw{-}num{-}pack{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}}{n}~{\mathit{rmwop}}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z{}[{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : n / 8] = {b^\ast}] ; ({\mathit{inntype}}{.}\mathsf{const}~d) &  \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ {{\mathit{action}}^\ast} = ((\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|}))~(\mathsf{rmw}~((\mathsf{regdata}~a)~{\mathit{ea}})~(\mathsf{bytes}~z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes})~(\mathsf{bytes}~{b^\ast}))) \\
+{\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
+{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
+{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
+{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
+{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
+{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
+{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
+{\land}~ j = {{\mathit{rmwop}}}{{}_{{\mathrm{inv}}_{\mathit{jsize}}(n)}({{\mathrm{wrap}}}_{{|{\mathit{inntype}}|}, n}(c), {{\mathrm{wrap}}}_{{|{\mathit{inntype}}|}, n}(d))} \\
+{\land}~ {b^\ast} = {{\mathrm{bytes}}}_{{\mathsf{i}}{n}}({{{{\mathrm{extend}}}_{n, {|{\mathit{inntype}}|}}^{\mathsf{u}}}}{(j)}) \\
+{\land}~ {{\mathrm{bytes}}}_{{\mathsf{i}}{n}}(d) = z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : n / 8] \\
+{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
+\end{array}
+} \\
+{[\textsc{\scriptsize E{-}atomic.rmw{-}num{-}pack{-}oob{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}}{n}~{\mathit{rmwop}}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z ; \mathsf{trap} &  \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ {{\mathit{action}}^\ast} = (\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|})) \\
+{\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
+{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
+{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
+{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
+{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
+{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
+{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
 \end{array}
 } \\
 {[\textsc{\scriptsize E{-}atomic.rmw.cmpxchg{-}num{-}oob{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{const}~g)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}{.}\mathsf{cmpxchg}~x~{\mathit{ao}}) & \hookrightarrow & & \\
@@ -9588,6 +9665,55 @@ z ; ({\mathit{inntype}}{.}\mathsf{const}~d) & & \\
 } \\
 \end{array}
 } \\
+{[\textsc{\scriptsize E{-}atomic.rmw.cmpxchg{-}num{-}equals{-}val{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{const}~g)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}{.}\mathsf{cmpxchg}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z{}[{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : {|{\mathit{inntype}}|} / 8] = {b^\ast}] ; ({\mathit{inntype}}{.}\mathsf{const}~d) &  \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ {{\mathit{action}}^\ast} = ((\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|}))~(\mathsf{rmw}~((\mathsf{regdata}~a)~{\mathit{ea}})~(\mathsf{bytes}~z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes})~(\mathsf{bytes}~{b^\ast}))) \\
+{\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
+{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
+{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
+{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
+{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
+{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
+{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
+{\land}~ d = c \\
+{\land}~ {{\mathrm{bytes}}}_{{\mathsf{i}}{{|{\mathit{inntype}}|}}}(d) = z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : {|{\mathit{inntype}}|} / 8] \\
+{\land}~ {b^\ast} = {{\mathrm{bytes}}}_{{\mathsf{i}}{{|{\mathit{inntype}}|}}}(g) \\
+{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
+\end{array}
+} \\
+{[\textsc{\scriptsize E{-}atomic.rmww.cmpxchg{-}num{-}notequals{-}val{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{const}~g)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}{.}\mathsf{cmpxchg}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z ; ({\mathit{inntype}}{.}\mathsf{const}~d) &  \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ {{\mathit{action}}^\ast} = ((\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|}))~(\mathsf{rmw}~((\mathsf{regdata}~a)~{\mathit{ea}})~(\mathsf{bytes}~z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes})~(\mathsf{bytes}~{b^\ast}))) \\
+{\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
+{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
+{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
+{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
+{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
+{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
+{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
+{\land}~ d \neq c \\
+{\land}~ {{\mathrm{bytes}}}_{{\mathsf{i}}{{|{\mathit{inntype}}|}}}(d) = z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : {|{\mathit{inntype}}|} / 8] \\
+{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
+\end{array}
+} \\
+{[\textsc{\scriptsize E{-}atomic.rmw.cmpxchg{-}num{-}oob{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{const}~g)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}{.}\mathsf{cmpxchg}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z ; \mathsf{trap} &  \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ {{\mathit{action}}^\ast} = (\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|})) \\
+{\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
+{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
+{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
+{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
+{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
+{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
+{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
+\end{array}
+} \\
 {[\textsc{\scriptsize E{-}atomic.rmw.cmpxchg{-}num{-}equals{-}pack{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{const}~g)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}{.}\mathsf{cmpxchg}}{n}~x~{\mathit{ao}}) & \hookrightarrow & & \\
 & \multicolumn{4}{@{}l@{}}{\quad
 \begin{array}[t]{@{}l@{}l@{}l@{}}
@@ -9635,132 +9761,6 @@ z ; ({\mathit{inntype}}{.}\mathsf{const}~d) & & \\
 } \\
 \end{array}
 } \\
-{[\textsc{\scriptsize E{-}memory.atomic.notify{-}oob{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{\mathit{count}})~({\mathsf{memory{.}atomic{.}notify}}{x}~{\mathit{ao}}) & \hookrightarrow & z ; \mathsf{trap} &  \\
-& \multicolumn{4}{@{}l@{}}{\quad
-\quad
-\begin{array}[t]{@{}l@{}}
-\mbox{otherwise, if}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page} \\
-{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|\mathsf{i{\scriptstyle 32}}|} / 8 > {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
-{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
-\end{array}
-} \\
-{[\textsc{\scriptsize E{-}memory.atomic.notify{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{\mathit{count}})~({\mathsf{memory{.}atomic{.}notify}}{x}~{\mathit{ao}}) & \hookrightarrow & z ; (\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~0) & \quad
-\begin{array}[t]{@{}l@{}}
-\mbox{if}~ a = z~f{.}\mathsf{mems}{}[0] \\
-{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
-{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
-{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
-{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
-{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
-{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page} \\
-{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
-\end{array} \\
-\end{array}
-$$
-
-\vspace{1ex}
-
-$$
-\begin{array}[t]{@{}lrcl@{}l@{}}
-{[\textsc{\scriptsize E{-}atomic.rmw{-}num{-}oob{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}~{\mathit{rmwop}}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z ; \mathsf{trap} &  \\
-& \multicolumn{4}{@{}l@{}}{\quad
-\quad
-\begin{array}[t]{@{}l@{}}
-\mbox{otherwise, if}~ {{\mathit{action}}^\ast} = (\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|})) \\
-{\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
-{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
-{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
-{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
-{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
-{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
-{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
-\end{array}
-} \\
-{[\textsc{\scriptsize E{-}atomic.rmw{-}num{-}val{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}~{\mathit{rmwop}}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z{}[{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : {|{\mathit{inntype}}|} / 8] = {b^\ast}] ; ({\mathit{inntype}}{.}\mathsf{const}~d) &  \\
-& \multicolumn{4}{@{}l@{}}{\quad
-\quad
-\begin{array}[t]{@{}l@{}}
-\mbox{if}~ {{\mathit{action}}^\ast} = ((\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|}))~(\mathsf{rmw}~((\mathsf{regdata}~a)~{\mathit{ea}})~(\mathsf{bytes}~z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes})~(\mathsf{bytes}~{b^\ast}))) \\
-{\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
-{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
-{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
-{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
-{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
-{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
-{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
-{\land}~ j = {{\mathit{rmwop}}}{{}_{{\mathit{inntype}}}(c, d)} \\
-{\land}~ {b^\ast} = {{\mathrm{bytes}}}_{{\mathsf{i}}{{|{\mathit{inntype}}|}}}(j) \\
-{\land}~ {{\mathrm{bytes}}}_{{\mathsf{i}}{{|{\mathit{inntype}}|}}}(d) = z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : {|{\mathit{inntype}}|} / 8] \\
-{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
-\end{array}
-} \\
-{[\textsc{\scriptsize E{-}atomic.rmw{-}num{-}pack{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}}{n}~{\mathit{rmwop}}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z{}[{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : n / 8] = {b^\ast}] ; ({\mathit{inntype}}{.}\mathsf{const}~d) &  \\
-& \multicolumn{4}{@{}l@{}}{\quad
-\quad
-\begin{array}[t]{@{}l@{}}
-\mbox{if}~ {{\mathit{action}}^\ast} = ((\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|}))~(\mathsf{rmw}~((\mathsf{regdata}~a)~{\mathit{ea}})~(\mathsf{bytes}~z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes})~(\mathsf{bytes}~{b^\ast}))) \\
-{\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
-{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
-{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
-{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
-{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
-{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
-{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
-{\land}~ j = {{\mathit{rmwop}}}{{}_{{\mathrm{inv}}_{\mathit{jsize}}(n)}({{\mathrm{wrap}}}_{{|{\mathit{inntype}}|}, n}(c), {{\mathrm{wrap}}}_{{|{\mathit{inntype}}|}, n}(d))} \\
-{\land}~ {b^\ast} = {{\mathrm{bytes}}}_{{\mathsf{i}}{n}}({{{{\mathrm{extend}}}_{n, {|{\mathit{inntype}}|}}^{\mathsf{u}}}}{(j)}) \\
-{\land}~ {{\mathrm{bytes}}}_{{\mathsf{i}}{n}}(d) = z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : n / 8] \\
-{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
-\end{array}
-} \\
-{[\textsc{\scriptsize E{-}atomic.rmw.cmpxchg{-}num{-}oob{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{const}~g)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}{.}\mathsf{cmpxchg}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z ; \mathsf{trap} &  \\
-& \multicolumn{4}{@{}l@{}}{\quad
-\quad
-\begin{array}[t]{@{}l@{}}
-\mbox{otherwise, if}~ {{\mathit{action}}^\ast} = (\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|})) \\
-{\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
-{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
-{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
-{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
-{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
-{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
-{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
-\end{array}
-} \\
-{[\textsc{\scriptsize E{-}atomic.rmw.cmpxchg{-}num{-}equals{-}val{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{const}~g)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}{.}\mathsf{cmpxchg}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z{}[{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : {|{\mathit{inntype}}|} / 8] = {b^\ast}] ; ({\mathit{inntype}}{.}\mathsf{const}~d) &  \\
-& \multicolumn{4}{@{}l@{}}{\quad
-\quad
-\begin{array}[t]{@{}l@{}}
-\mbox{if}~ {{\mathit{action}}^\ast} = ((\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|}))~(\mathsf{rmw}~((\mathsf{regdata}~a)~{\mathit{ea}})~(\mathsf{bytes}~z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes})~(\mathsf{bytes}~{b^\ast}))) \\
-{\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
-{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
-{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
-{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
-{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
-{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
-{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
-{\land}~ d = c \\
-{\land}~ {{\mathrm{bytes}}}_{{\mathsf{i}}{{|{\mathit{inntype}}|}}}(d) = z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : {|{\mathit{inntype}}|} / 8] \\
-{\land}~ {b^\ast} = {{\mathrm{bytes}}}_{{\mathsf{i}}{{|{\mathit{inntype}}|}}}(g) \\
-{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
-\end{array}
-} \\
-{[\textsc{\scriptsize E{-}atomic.rmww.cmpxchg{-}num{-}notequals{-}val{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{const}~g)~({\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}{.}\mathsf{cmpxchg}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z ; ({\mathit{inntype}}{.}\mathsf{const}~d) &  \\
-& \multicolumn{4}{@{}l@{}}{\quad
-\quad
-\begin{array}[t]{@{}l@{}}
-\mbox{if}~ {{\mathit{action}}^\ast} = ((\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|}))~(\mathsf{rmw}~((\mathsf{regdata}~a)~{\mathit{ea}})~(\mathsf{bytes}~z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes})~(\mathsf{bytes}~{b^\ast}))) \\
-{\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
-{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
-{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
-{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
-{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
-{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
-{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
-{\land}~ d \neq c \\
-{\land}~ {{\mathrm{bytes}}}_{{\mathsf{i}}{{|{\mathit{inntype}}|}}}(d) = z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : {|{\mathit{inntype}}|} / 8] \\
-{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
-\end{array}
-} \\
 {[\textsc{\scriptsize E{-}atomic.rmw.cmpxchg{-}num{-}equals{-}pack{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{const}~g)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}{.}\mathsf{cmpxchg}}{n}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z{}[{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} : n / 8] = {b^\ast}] ; ({\mathit{inntype}}{.}\mathsf{const}~d) &  \\
 & \multicolumn{4}{@{}l@{}}{\quad
 \quad
@@ -9796,43 +9796,56 @@ $$
 {\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
 \end{array}
 } \\
+{[\textsc{\scriptsize E{-}atomic.rmw.cmpxchg{-}num{-}pack{-}oob{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~c)~({\mathit{inntype}}{.}\mathsf{const}~g)~({{\mathit{inntype}}{.}\mathsf{atomic}{.}\mathsf{rmw}{.}\mathsf{cmpxchg}}{n}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z ; \mathsf{trap} &  \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ {{\mathit{action}}^\ast} = (\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|})) \\
+{\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
+{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
+{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
+{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
+{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
+{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
+{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
+\end{array}
+} \\
+{[\textsc{\scriptsize E{-}memory.atomic.notify{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{\mathit{count}})~({\mathsf{memory{.}atomic{.}notify}}{x}~{\mathit{ao}}) & \hookrightarrow & z ; (\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~0) & \quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ a = z~f{.}\mathsf{mems}{}[0] \\
+{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
+{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page} \\
+{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|\mathsf{i{\scriptstyle 32}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
+{\land}~ {\mathit{ea}} \mathbin{\mathrm{mod}} {|\mathsf{i{\scriptstyle 32}}|} / 8 = 0 \\
+\end{array} \\
+{[\textsc{\scriptsize E{-}memory.atomic.notify{-}oob{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{\mathit{count}})~({\mathsf{memory{.}atomic{.}notify}}{x}~{\mathit{ao}}) & \hookrightarrow & z ; \mathsf{trap} &  \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page} \\
+{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|\mathsf{i{\scriptstyle 32}}|} / 8 > {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \land i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
+\end{array}
+} \\
 {[\textsc{\scriptsize E{-}memory.atomic.notify{-}oob{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{\mathit{count}})~({\mathsf{memory{.}atomic{.}notify}}{x}~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z ; \mathsf{trap} &  \\
 & \multicolumn{4}{@{}l@{}}{\quad
 \quad
 \begin{array}[t]{@{}l@{}}
-\mbox{otherwise, if}~ {{\mathit{action}}^\ast} = (\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|})) \\
+\mbox{if}~ {{\mathit{action}}^\ast} = (\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|})) \\
 {\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
-{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
-{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
-{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
 {\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
-{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
 {\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
+{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|\mathsf{i{\scriptstyle 32}}|} / 8 > {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \land i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
 \end{array}
 } \\
-{[\textsc{\scriptsize E{-}memory.atomic.notify{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{\mathit{count}})~({\mathsf{memory{.}atomic{.}notify}}{x}~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z ; (\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~0) & \quad
+{[\textsc{\scriptsize E{-}memory.atomic.notify{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{\mathit{count}})~({\mathsf{memory{.}atomic{.}notify}}{x}~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z ; (\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~j) & \quad
 \begin{array}[t]{@{}l@{}}
-\mbox{if}~ {{\mathit{action}}^\ast} = ((\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|}))~(\mathsf{rd}~{\mathit{ord}}~((\mathsf{regdata}~a)~{\mathit{ea}})~(\mathsf{bytes}~{\mathit{bytes}}))) \\
+\mbox{if}~ {{\mathit{action}}^\ast} = ((\mathsf{rd}~{\mathit{ord}}~((\mathsf{reglen}~a)~0)~(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~{|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|}))~(\mathsf{notify}~((\mathsf{regdata}~a)~{\mathit{ea}})~j~{\mathit{count}})) \\
 {\land}~ a = z~f{.}\mathsf{mems}{}[0] \\
-{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
-{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
-{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
 {\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
-{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
 {\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
 {\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|\mathsf{i{\scriptstyle 32}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
+{\land}~ j \leq {\mathit{count}} \\
 \end{array} \\
-\end{array}
-$$
-
-\vspace{1ex}
-
-$$
-\begin{array}[t]{@{}lrcl@{}l@{}}
-{[\textsc{\scriptsize E{-}memory.atomic.wait{-}oob{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~{\mathit{expected}})~(\mathsf{i{\scriptstyle 64}}{.}\mathsf{const}~{\mathit{timeout}})~({\mathsf{memory{.}atomic{.}wait}}{{\mathit{inntype}}}~x~{\mathit{ao}}) & \hookrightarrow & z ; \mathsf{trap} &  \\
-& \multicolumn{4}{@{}l@{}}{\quad
-\quad \mbox{otherwise, if}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page}
-} \\
 {[\textsc{\scriptsize E{-}memory.atomic.wait{-}unshared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~{\mathit{expected}})~(\mathsf{i{\scriptstyle 64}}{.}\mathsf{const}~{\mathit{timeout}})~({\mathsf{memory{.}atomic{.}wait}}{{\mathit{inntype}}}~x~{\mathit{ao}}) & \hookrightarrow & z ; \mathsf{trap} & \quad
 \begin{array}[t]{@{}l@{}}
 \mbox{if}~ a = z~f{.}\mathsf{mems}{}[0] \\
@@ -9844,6 +9857,41 @@ $$
 {\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{unshared}~\mathsf{page} \\
 {\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
 \end{array} \\
+{[\textsc{\scriptsize E{-}memory.atomic.wait{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~{\mathit{expected}})~(\mathsf{i{\scriptstyle 64}}{.}\mathsf{const}~{\mathit{timeout}})~({\mathsf{memory{.}atomic{.}wait}}{{\mathit{inntype}}}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & & \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\begin{array}[t]{@{}l@{}l@{}}
+z ; \mathsf{wait'}~((\mathsf{regdata}~a)~{\mathit{ea}})~{\mathit{timeout}} & \quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ a = z~f{.}\mathsf{mems}{}[0] \\
+{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
+{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
+{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
+{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
+{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
+{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
+{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
+\end{array} \\
+\end{array}
+} \\
+{[\textsc{\scriptsize E{-}memory.atomic.wait{-}fail{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~{\mathit{expected}})~(\mathsf{i{\scriptstyle 64}}{.}\mathsf{const}~{\mathit{timeout}})~({\mathsf{memory{.}atomic{.}wait}}{{\mathit{inntype}}}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z ; (\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~1) & \quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ a = z~f{.}\mathsf{mems}{}[0] \\
+{\land}~ {\mathit{ord}} = \mathsf{seqcst} \\
+{\land}~ {{\mathit{notears}}^?} = {\mathrm{tearing}}({\mathit{nt}}, {|{\mathit{nt}}|} / 8, {\mathit{ao}}{.}\mathsf{offset}) \\
+{\land}~ {\mathit{storemem}} = z{.}\mathsf{mems}{}[x] \\
+{\land}~ {\mathit{ea}} = i + {\mathit{ao}}{.}\mathsf{offset} \\
+{\land}~ {\mathit{nlen}} = {|{\mathit{storemem}}{.}\mathsf{bytes}|} \\
+{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
+{\land}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 \leq {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
+\end{array} \\
+{[\textsc{\scriptsize E{-}memory.atomic.wait{-}oob{-}shared}]} \quad & z ; ({\mathit{at}}{.}\mathsf{const}~i)~({\mathit{inntype}}{.}\mathsf{const}~{\mathit{expected}})~(\mathsf{i{\scriptstyle 64}}{.}\mathsf{const}~{\mathit{timeout}})~({\mathsf{memory{.}atomic{.}wait}}{{\mathit{inntype}}}~x~{\mathit{ao}}) & {\hookrightarrow}_{({{\mathit{action}}^\ast})} {} & z ; \mathsf{trap} &  \\
+& \multicolumn{4}{@{}l@{}}{\quad
+\quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ i + {\mathit{ao}}{.}\mathsf{offset} + {|{\mathit{inntype}}|} / 8 > {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|} \\
+{\land}~ z{.}\mathsf{mems}{}[x]{.}\mathsf{type} = {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{shared}~\mathsf{page} \\
+\end{array}
+} \\
 {[\textsc{\scriptsize E{-}atomic.fence}]} \quad & z ; (\mathsf{atomic{.}fence}) & \hookrightarrow & z ; \epsilon \\
 \end{array}
 $$
