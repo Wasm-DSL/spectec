@@ -9573,7 +9573,7 @@ inductive Context_ok :: "res_context \<Rightarrow> bool" where
 		 (wf_context \<lparr> context_TYPES = ft_lst, context_FUNCS = ft_2_lst, context_GLOBALS = gt_lst, context_TABLES = tt_lst, context_MEMS = mt_lst, context_ELEMS = et_lst, context_DATAS = ok_lst, context_LOCALS = lct_lst, LABELS = [(mk_list (map (\<lambda> (rt :: reftype). (valtype_reftype rt)) rt_lst))], context_RETURN = (Some (mk_list (option_to_list (map_option (\<lambda> (rt' :: reftype). (valtype_reftype rt')) rt'_opt)))) \<rparr>) \<Longrightarrow>
 		 Context_ok C"
 
-(* Mutual Recursion at: ../specification/wasm-2.0/B-soundness.spectec:130.1-130.84 *)
+(* Mutual Recursion at: ../specification/wasm-2.0/B-soundness.spectec:129.1-129.84 *)
 inductive Externaddr_ok :: "store \<Rightarrow> externaddr \<Rightarrow> externtype \<Rightarrow> bool" where
 	  Externaddr_ok__global :
 		"(a < (length (store_GLOBALS s))) \<Longrightarrow>
@@ -9652,21 +9652,21 @@ inductive Result_ok :: "store \<Rightarrow> result \<Rightarrow> (valtype list) 
 (* Type Alias Definition at: ../specification/wasm-2.0/B-soundness.spectec:66.1-66.31 *)
 type_synonym adminexpr = "(admininstr list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:159.1-159.51 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:158.1-158.51 *)
 inductive Datainst_ok :: "store \<Rightarrow> datainst \<Rightarrow> res_datatype \<Rightarrow> bool" where
 	  mk_Datainst_ok :
 		"(wf_store s) \<Longrightarrow>
 		 (wf_datainst \<lparr> datainst_BYTES = b_lst \<rparr>) \<Longrightarrow>
 		 Datainst_ok s \<lparr> datainst_BYTES = b_lst \<rparr> OK"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:160.1-160.51 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:159.1-159.51 *)
 inductive Eleminst_ok :: "store \<Rightarrow> eleminst \<Rightarrow> elemtype \<Rightarrow> bool" where
 	  mk_Eleminst_ok :
 		"list_all (\<lambda> (v_ref :: ref). (Ref_ok s v_ref rt)) ref_lst \<Longrightarrow>
 		 (wf_store s) \<Longrightarrow>
 		 Eleminst_ok s \<lparr> eleminst_TYPE = rt, eleminst_REFS = ref_lst \<rparr> rt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:161.1-161.49 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:160.1-160.49 *)
 inductive Exportinst_ok :: "store \<Rightarrow> exportinst \<Rightarrow> bool" where
 	  mk_Exportinst_ok :
 		"(Externaddr_ok s xa xt) \<Longrightarrow>
@@ -9675,7 +9675,7 @@ inductive Exportinst_ok :: "store \<Rightarrow> exportinst \<Rightarrow> bool" w
 		 (wf_exportinst \<lparr> NAME = nm, ADDR = xa \<rparr>) \<Longrightarrow>
 		 Exportinst_ok s \<lparr> NAME = nm, ADDR = xa \<rparr>"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:199.1-199.54 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:198.1-198.54 *)
 inductive Moduleinst_ok :: "store \<Rightarrow> moduleinst \<Rightarrow> res_context \<Rightarrow> bool" where
 	  mk_Moduleinst_ok :
 		"list_all (\<lambda> (v_functype :: functype). (Functype_ok v_functype)) functype_lst \<Longrightarrow>
@@ -9706,7 +9706,7 @@ inductive Moduleinst_ok :: "store \<Rightarrow> moduleinst \<Rightarrow> res_con
 		 list_all (\<lambda> (v_tabletype :: tabletype). (wf_externtype (TABLE v_tabletype))) tabletype_lst \<Longrightarrow>
 		 Moduleinst_ok s \<lparr> TYPES = functype_lst, FUNCS = funcaddr_lst, GLOBALS = globaladdr_lst, TABLES = tableaddr_lst, MEMS = memaddr_lst, ELEMS = elemaddr_lst, DATAS = dataaddr_lst, EXPORTS = exportinst_lst \<rparr> \<lparr> context_TYPES = functype_lst, context_FUNCS = functype_F_lst, context_GLOBALS = globaltype_lst, context_TABLES = tabletype_lst, context_MEMS = memtype_lst, context_ELEMS = elemtype_lst, context_DATAS = datatype_lst, context_LOCALS = [], LABELS = [], context_RETURN = None \<rparr>"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:293.1-293.44 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:292.1-292.44 *)
 inductive Frame_ok :: "store \<Rightarrow> frame \<Rightarrow> res_context \<Rightarrow> bool" where
 	  mk_Frame_ok :
 		"(Moduleinst_ok s v_moduleinst C) \<Longrightarrow>
@@ -9739,8 +9739,7 @@ and Expr_ok2 :: "store \<Rightarrow> res_context \<Rightarrow> adminexpr \<Right
 		 Instr_ok2 s C (admininstr_sc8 (LABEL_underscore v_n instr'_lst admininstr_lst)) (mk_functype (mk_list []) (mk_list t_lst))"
 	| Instr_ok2__frame :
 		"(Frame_ok s f C') \<Longrightarrow>
-		 ((context_RETURN C') = (Some (mk_list t_lst))) \<Longrightarrow>
-		 (Expr_ok2 s C' admininstr_lst (mk_list t_lst)) \<Longrightarrow>
+		 (Expr_ok2 s (C' \<lparr> context_RETURN := (Some (mk_list t_lst))  \<rparr>) admininstr_lst (mk_list t_lst)) \<Longrightarrow>
 		 (wf_store s) \<Longrightarrow>
 		 (wf_context C) \<Longrightarrow>
 		 (wf_context C') \<Longrightarrow>
@@ -9803,7 +9802,7 @@ and Expr_ok2 :: "store \<Rightarrow> res_context \<Rightarrow> adminexpr \<Right
 		 list_all (\<lambda> (v_admininstr :: admininstr). (wf_admininstr v_admininstr)) admininstr_lst \<Longrightarrow>
 		 Expr_ok2 s C admininstr_lst (mk_list t_lst)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:155.1-155.57 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:154.1-154.57 *)
 inductive Globalinst_ok :: "store \<Rightarrow> globalinst \<Rightarrow> globaltype \<Rightarrow> bool" where
 	  mk_Globalinst_ok :
 		"(Globaltype_ok (mk_globaltype v_mut t)) \<Longrightarrow>
@@ -9812,7 +9811,7 @@ inductive Globalinst_ok :: "store \<Rightarrow> globalinst \<Rightarrow> globalt
 		 (wf_globalinst \<lparr> globalinst_TYPE = (mk_globaltype v_mut t), VALUE = v_val \<rparr>) \<Longrightarrow>
 		 Globalinst_ok s \<lparr> globalinst_TYPE = (mk_globaltype v_mut t), VALUE = v_val \<rparr> (mk_globaltype v_mut t)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:156.1-156.48 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:155.1-155.48 *)
 inductive Meminst_ok :: "store \<Rightarrow> meminst \<Rightarrow> memtype \<Rightarrow> bool" where
 	  mk_Meminst_ok :
 		"(Memtype_ok (PAGE (mk_limits (mk_uN v_n) (map_option (\<lambda> (v_m :: m). (mk_uN v_m)) m_opt)))) \<Longrightarrow>
@@ -9822,7 +9821,7 @@ inductive Meminst_ok :: "store \<Rightarrow> meminst \<Rightarrow> memtype \<Rig
 		 (wf_memtype (PAGE (mk_limits (mk_uN v_n) (map_option (\<lambda> (v_m :: m). (mk_uN v_m)) m_opt)))) \<Longrightarrow>
 		 Meminst_ok s \<lparr> meminst_TYPE = (PAGE (mk_limits (mk_uN v_n) (map_option (\<lambda> (v_m :: m). (mk_uN v_m)) m_opt))), BYTES = b_lst \<rparr> (PAGE (mk_limits (mk_uN v_n) (map_option (\<lambda> (v_m :: m). (mk_uN v_m)) m_opt)))"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:157.1-157.54 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:156.1-156.54 *)
 inductive Tableinst_ok :: "store \<Rightarrow> tableinst \<Rightarrow> tabletype \<Rightarrow> bool" where
 	  mk_Tableinst_ok :
 		"(Tabletype_ok (mk_tabletype (mk_limits (mk_uN v_n) (map_option (\<lambda> (v_m :: m). (mk_uN v_m)) m_opt)) rt)) \<Longrightarrow>
@@ -9833,7 +9832,7 @@ inductive Tableinst_ok :: "store \<Rightarrow> tableinst \<Rightarrow> tabletype
 		 (wf_tabletype (mk_tabletype (mk_limits (mk_uN v_n) (map_option (\<lambda> (v_m :: m). (mk_uN v_m)) m_opt)) rt)) \<Longrightarrow>
 		 Tableinst_ok s \<lparr> tableinst_TYPE = (mk_tabletype (mk_limits (mk_uN v_n) (map_option (\<lambda> (v_m :: m). (mk_uN v_m)) m_opt)) rt), REFS = ref_lst \<rparr> (mk_tabletype (mk_limits (mk_uN v_n) (map_option (\<lambda> (v_m :: m). (mk_uN v_m)) m_opt)) rt)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:158.1-158.51 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:157.1-157.51 *)
 inductive Funcinst_ok :: "store \<Rightarrow> funcinst \<Rightarrow> functype \<Rightarrow> bool" where
 	  mk_Funcinst_ok :
 		"(Functype_ok ft) \<Longrightarrow>
@@ -9844,7 +9843,7 @@ inductive Funcinst_ok :: "store \<Rightarrow> funcinst \<Rightarrow> functype \<
 		 (wf_funcinst \<lparr> funcinst_TYPE = ft, funcinst_MODULE = v_moduleinst, CODE = v_func \<rparr>) \<Longrightarrow>
 		 Funcinst_ok s \<lparr> funcinst_TYPE = ft, funcinst_MODULE = v_moduleinst, CODE = v_func \<rparr> ft"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:233.1-233.33 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:232.1-232.33 *)
 inductive Store_ok :: "store \<Rightarrow> bool" where
 	  mk_Store_ok :
 		"((length globalinst_lst) = (length globaltype_lst)) \<Longrightarrow>
@@ -9866,7 +9865,7 @@ inductive Store_ok :: "store \<Rightarrow> bool" where
 		 (wf_store \<lparr> store_FUNCS = funcinst_lst, store_GLOBALS = globalinst_lst, store_TABLES = tableinst_lst, store_MEMS = meminst_lst, store_ELEMS = eleminst_lst, store_DATAS = datainst_lst \<rparr>) \<Longrightarrow>
 		 Store_ok s"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:249.1-249.54 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:248.1-248.54 *)
 inductive Extend_globalinst :: "globalinst \<Rightarrow> globalinst \<Rightarrow> bool" where
 	  mk_Extend_globalinst :
 		"((v_mut = (Some MUT)) \<or> (v_val = val')) \<Longrightarrow>
@@ -9874,7 +9873,7 @@ inductive Extend_globalinst :: "globalinst \<Rightarrow> globalinst \<Rightarrow
 		 (wf_globalinst \<lparr> globalinst_TYPE = (mk_globaltype v_mut t), VALUE = val' \<rparr>) \<Longrightarrow>
 		 Extend_globalinst \<lparr> globalinst_TYPE = (mk_globaltype v_mut t), VALUE = v_val \<rparr> \<lparr> globalinst_TYPE = (mk_globaltype v_mut t), VALUE = val' \<rparr>"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:250.1-250.45 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:249.1-249.45 *)
 inductive Extend_meminst :: "meminst \<Rightarrow> meminst \<Rightarrow> bool" where
 	  mk_Extend_meminst :
 		"(v_n \<le> n') \<Longrightarrow>
@@ -9883,7 +9882,7 @@ inductive Extend_meminst :: "meminst \<Rightarrow> meminst \<Rightarrow> bool" w
 		 (wf_meminst \<lparr> meminst_TYPE = (PAGE (mk_limits (mk_uN n') (map_option (\<lambda> (v_m :: m). (mk_uN v_m)) m_opt))), BYTES = b'_lst \<rparr>) \<Longrightarrow>
 		 Extend_meminst \<lparr> meminst_TYPE = (PAGE (mk_limits (mk_uN v_n) (map_option (\<lambda> (v_m :: m). (mk_uN v_m)) m_opt))), BYTES = b_lst \<rparr> \<lparr> meminst_TYPE = (PAGE (mk_limits (mk_uN n') (map_option (\<lambda> (v_m :: m). (mk_uN v_m)) m_opt))), BYTES = b'_lst \<rparr>"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:251.1-251.51 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:250.1-250.51 *)
 inductive Extend_tableinst :: "tableinst \<Rightarrow> tableinst \<Rightarrow> bool" where
 	  mk_Extend_tableinst :
 		"(v_n \<le> n') \<Longrightarrow>
@@ -9892,13 +9891,13 @@ inductive Extend_tableinst :: "tableinst \<Rightarrow> tableinst \<Rightarrow> b
 		 (wf_tableinst \<lparr> tableinst_TYPE = (mk_tabletype (mk_limits (mk_uN n') (map_option (\<lambda> (v_m :: m). (mk_uN v_m)) m_opt)) rt), REFS = ref'_lst \<rparr>) \<Longrightarrow>
 		 Extend_tableinst \<lparr> tableinst_TYPE = (mk_tabletype (mk_limits (mk_uN v_n) (map_option (\<lambda> (v_m :: m). (mk_uN v_m)) m_opt)) rt), REFS = ref_lst \<rparr> \<lparr> tableinst_TYPE = (mk_tabletype (mk_limits (mk_uN n') (map_option (\<lambda> (v_m :: m). (mk_uN v_m)) m_opt)) rt), REFS = ref'_lst \<rparr>"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:252.1-252.48 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:251.1-251.48 *)
 inductive Extend_funcinst :: "funcinst \<Rightarrow> funcinst \<Rightarrow> bool" where
 	  mk_Extend_funcinst :
 		"(wf_funcinst \<lparr> funcinst_TYPE = ft, funcinst_MODULE = mm, CODE = fc \<rparr>) \<Longrightarrow>
 		 Extend_funcinst \<lparr> funcinst_TYPE = ft, funcinst_MODULE = mm, CODE = fc \<rparr> \<lparr> funcinst_TYPE = ft, funcinst_MODULE = mm, CODE = fc \<rparr>"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:253.1-253.48 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:252.1-252.48 *)
 inductive Extend_datainst :: "datainst \<Rightarrow> datainst \<Rightarrow> bool" where
 	  mk_Extend_datainst :
 		"((b_lst = b'_lst) \<or> (b'_lst = [])) \<Longrightarrow>
@@ -9906,13 +9905,13 @@ inductive Extend_datainst :: "datainst \<Rightarrow> datainst \<Rightarrow> bool
 		 (wf_datainst \<lparr> datainst_BYTES = b'_lst \<rparr>) \<Longrightarrow>
 		 Extend_datainst \<lparr> datainst_BYTES = b_lst \<rparr> \<lparr> datainst_BYTES = b'_lst \<rparr>"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:254.1-254.48 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:253.1-253.48 *)
 inductive Extend_eleminst :: "eleminst \<Rightarrow> eleminst \<Rightarrow> bool" where
 	  mk_Extend_eleminst :
 		"((ref_lst = ref'_lst) \<or> (ref'_lst = [])) \<Longrightarrow>
 		 Extend_eleminst \<lparr> eleminst_TYPE = rt, eleminst_REFS = ref_lst \<rparr> \<lparr> eleminst_TYPE = rt, eleminst_REFS = ref'_lst \<rparr>"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:255.1-255.39 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:254.1-254.39 *)
 inductive Extend_store :: "store \<Rightarrow> store \<Rightarrow> bool" where
 	  mk_Extend_store :
 		"holds_upto (\<lambda> a. (a < (length (store_GLOBALS s)))) (length (store_GLOBALS s)) \<Longrightarrow>
@@ -9937,7 +9936,7 @@ inductive Extend_store :: "store \<Rightarrow> store \<Rightarrow> bool" where
 		 (wf_store s') \<Longrightarrow>
 		 Extend_store s s'"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:294.1-294.38 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:293.1-293.38 *)
 inductive State_ok :: "state \<Rightarrow> res_context \<Rightarrow> bool" where
 	  mk_State_ok :
 		"(Store_ok s) \<Longrightarrow>
@@ -9946,7 +9945,7 @@ inductive State_ok :: "state \<Rightarrow> res_context \<Rightarrow> bool" where
 		 (wf_state (mk_state s f)) \<Longrightarrow>
 		 State_ok (mk_state s f) C"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:295.1-295.43 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:294.1-294.43 *)
 inductive Config_ok :: "config \<Rightarrow> resulttype \<Rightarrow> bool" where
 	  mk_Config_ok :
 		"(State_ok (mk_state s f) C) \<Longrightarrow>
