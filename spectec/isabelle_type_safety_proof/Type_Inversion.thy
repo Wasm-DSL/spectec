@@ -132,9 +132,8 @@ qed
 lemma inv_ref_func:
   assumes "Instr_ok C e tf"
           "e = (instr_sc4 (REF_FUNC x))"
-  shows"(\<exists> fta.
+  shows"(
         ((proj_uN_0 x) < (length (context_FUNCS C))) \<and>
-        (((context_FUNCS C) ! (proj_uN_0 x)) = fta) \<and>
         ((mk_functype (mk_list []) (mk_list [valtype_FUNCREF])) = tf))"
 proof -
   have

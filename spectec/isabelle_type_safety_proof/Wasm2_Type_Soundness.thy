@@ -3134,7 +3134,26 @@ next
    qed
   next
     case (Step_read__ref_func x)
-    then show ?case sorry
+    then obtain t1' t3' where 
+      "Instr_ok2 s C' (admininstr_sc4 (admininstr_st4_REF_FUNC x)) (mk_functype t1' t3')"
+      and subt: "mk_instrtype t1' t3' <ti: mk_instrtype t1 t3" 
+      using inv_one_admininstr by blast
+    then have "Instr_ok C' (instr_sc4 (REF_FUNC x)) (mk_functype t1' t3')"
+      using inv_plain admininstr_instr.psimps admininstr_instr.domintros by fastforce
+    then have hyps:
+      "proj_uN_0 x < length (context_FUNCS C')"
+     "mk_functype (mk_list []) (mk_list [valtype_FUNCREF]) = mk_functype t1' t3'" 
+      using inv_ref_func by auto
+    then have "Ref_ok s (REF_FUNC_ADDR (fun_funcaddr (mk_state s f) ! proj_uN_0 x)) FUNCREF"
+      using Ref_ok.intros(2) 
+        context_funcs_agree[of C' "proj_uN_0 x" "context_FUNCS C' ! proj_uN_0 x"
+            s f "fun_funcaddr (mk_state s f) ! proj_uN_0 x" C] 
+        Step_read__ref_func
+        Instrs_ok2_wf[OF Step_read__ref_func(10)] 
+      using externtype_case_0 by blast 
+    then show ?case using Instr_ok2__ref Instrs_ok2_wf[OF Step_read__ref_func(10)] 
+      instr_ok2_instrs_ok2 Instrs_ok2_subtyping subt valtype_reftype.psimps valtype_reftype.domintros
+      by (metis admininstr_ref.domintros(2) admininstr_ref.psimps(2) hyps(2) read.prems(9))
   next
     case (Step_read__local_get x)
     then show ?case sorry
