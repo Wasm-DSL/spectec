@@ -1,5 +1,5 @@
  theory Context_Store_Agreement
-	imports Main isabelle_reference_output_wasm2 
+	imports Main isabelle_reference_output_wasm2 Typing_Simplified
 begin
 
 definition t_inst_match :: "res_context \<Rightarrow> res_context \<Rightarrow> bool" where
@@ -183,6 +183,12 @@ lemma Blocktype_ok_replace_agree:
   qed
 qed
 
+
+(* Is the rest of the file still necessary? *)
+
+(*
+
+
 lemma Externaddr_ok_inj_func:
   assumes "Externaddr_ok s x (FUNC t)"
           "Externaddr_ok s x (FUNC t')"
@@ -262,6 +268,37 @@ next
    qed
  qed
 
+
+lemma Externaddr_ok_inj_table:
+  assumes "Externaddr_ok s x (TABLE (mk_tabletype lim rt))"
+          "Externaddr_ok s x (TABLE (mk_tabletype lim' rt'))"
+        shows "rt = rt'"
+  using assms proof (induction s x "TABLE (mk_tabletype lim rt)" arbitrary: lim)
+  case (Externaddr_ok__table a s v_funcinst)
+  show ?case using Externaddr_ok__table(6,1-5)
+  proof (induction s "externaddr_TABLE a" "TABLE (mk_tabletype lim' rt')" arbitrary: lim' 
+        rule:Externaddr_ok.induct)
+  case (Externaddr_ok__table s v_funcinst')
+  then show ?case by simp
+next
+  case (Externaddr_ok__sub s xt')
+  show ?case using Externaddr_ok__sub(3) Externaddr_ok__sub
+  proof (induction xt' "TABLE (mk_tabletype lim' rt')" rule:Externtype_sub.induct)
+     case (Externtype_sub__table ft_1)
+     then show ?case
+       using Tabletype_sub.simps by auto 
+   qed
+qed
+next
+  case (Externaddr_ok__sub s v_externaddr xt')
+   show ?case using Externaddr_ok__sub(3) Externaddr_ok__sub
+  proof (induction xt' "TABLE (mk_tabletype lim rt)" rule:Externtype_sub.induct)
+     case (Externtype_sub__table ft_1)
+     then show ?case 
+       using Tabletype_sub.simps by auto
+   qed
+ qed
+
 (* is this still useful? *)
 (*
 lemma Ref_ok_inj:
@@ -296,19 +333,19 @@ lemma Eleminst_ok_inj: assumes "Eleminst_ok s v t" "Eleminst_ok s v t'" shows "t
   qed
 qed
 
-(*
-lemma Datainst_ok_inj: assumes "Datainst_ok s v t" "Datainst_ok s v t'" shows "t = t'"
-  using assms proof(induction s v t rule:Datainst_ok.induct)
-  case (mk_Datainst_ok s b_lst)
-  show ?case using mk_Eleminst_ok(3,1,2) proof (induction s "\<lparr> eleminst_TYPE = rt, 
-           eleminst_REFS = ref_lst\<rparr>" t' rule:Eleminst_ok.induct)
-    case (mk_Eleminst_ok s rt' ref_lst')
-    then show ?case by simp 
-  qed
-qed *)
+lemma list_all_mono: assumes "list_all P l" "\<forall> x. P x \<longrightarrow> Q x" shows "list_all Q l" 
+  by (metis assms(1) assms(2) Ball_set)
+
+
+lemma list_all_mono2: assumes "list_all P l" "list_all Q l" 
+    "\<forall> x. P x \<longrightarrow> Q x \<longrightarrow> R x" shows "list_all R l"  
+  by (metis assms Ball_set)
+
 
 lemma res_datatype_inj: shows "(x :: res_datatype) = y"
   by (metis res_datatype.exhaust)
+
+
 
 lemma context_data_inj: 
   assumes "length (l :: res_datatype list) = length l'" 
@@ -366,13 +403,26 @@ next
     using wf_externtype.simps by blast 
 qed
 
+
+lemma Externaddr_ok__wf_tabletype: assumes "Externaddr_ok s v (TABLE t)" shows "wf_tabletype t"
+  using assms proof(induction s v "TABLE t" rule:Externaddr_ok.induct)
+  case (Externaddr_ok__table a s v_meminst)
+  then show ?case 
+    by (metis externtype.distinct(11) externtype.inject(3) externtype.simps(12,8)
+        wf_externtype.cases)
+next
+  case (Externaddr_ok__sub s v_externaddr xt')
+  then show ?case 
+    using wf_externtype.simps by blast 
+qed
+
 lemma Instr_ok_replace_agree:
   assumes "Moduleinst_ok s i Cemp" 
           "Moduleinst_ok s i Cemp'"
           "t_inst_match Cemp C" 
           "t_inst_match Cemp' C'"
           "context_LOCALS C = context_LOCALS C'"
-          "LABELS C = LABELS C'"
+          "(LABELS C) @ l = LABELS C'"
           "context_RETURN C = context_RETURN C'"
           "wf_context C'"
           "Instr_ok C e tf"   
@@ -390,9 +440,9 @@ lemma Instr_ok_replace_agree:
           functype_F_lst' memaddr_lst' memtype_lst' tableaddr_lst' tabletype_lst' exportinst_lst'
           dataaddr_lst' datatype_lst' elemaddr_lst' elemtype_lst')
     show ?case using mk_Moduleinst_ok(61) mk_Moduleinst_ok
-    proof (induction C e tf arbitrary:C'
+    proof (induction C e tf arbitrary:C' l
         rule:Instr_ok_Instrs_ok.inducts(1)[where ?P2.0 = "\<lambda> C es tf. 
-        (\<forall> C'.
+        (\<forall> C' l.
         Moduleinst_ok s'
      \<lparr>TYPES = functype_lst, FUNCS = funcaddr_lst, GLOBALS = globaladdr_lst, TABLES = tableaddr_lst,
         MEMS = memaddr_lst, ELEMS = elemaddr_lst, DATAS = dataaddr_lst, EXPORTS = exportinst_lst\<rparr>
@@ -415,7 +465,7 @@ lemma Instr_ok_replace_agree:
         context_DATAS = datatype_lst', context_LOCALS = [], LABELS = [], context_RETURN = None\<rparr> C' \<longrightarrow>
         wf_context C' \<longrightarrow>
         context_LOCALS C = context_LOCALS C' \<longrightarrow>
-          LABELS C = LABELS C' \<longrightarrow>
+          (LABELS C) @ l = LABELS C' \<longrightarrow>
           context_RETURN C = context_RETURN C' \<longrightarrow>
         Instrs_ok C' es tf)"])
       case (block C bt t_1_lst t_2_lst instr_lst)
@@ -444,33 +494,35 @@ lemma Instr_ok_replace_agree:
       case (call x C t_1_lst t_2_lst)
       then show ?case using Moduleinst_ok_partial_inj Instr_ok_Instrs_ok.intros 
         by (metis (no_types, lifting) t_inst_match_def)  
-
-(*      then have 1: "Externaddr_ok s' (externaddr_FUNC (funcaddr_lst ! proj_uN_0 x)) 
-                  (FUNC (functype_F_lst ! proj_uN_0 x))"
-        using list_all2_nth' t_inst_match_def
-        by (metis (no_types, lifting) res_context.select_convs(2)) 
-      have 2: "Externaddr_ok s' (externaddr_FUNC (funcaddr_lst' ! proj_uN_0 x)) 
-              (FUNC (functype_F_lst' ! proj_uN_0 x))"
-        using list_all2_nth' t_inst_match_def call 
-        res_context.select_convs(2) 
-        by (metis (no_types, lifting) moduleinst.ext_inject)       
-       then have "Externaddr_ok s' (externaddr_FUNC (funcaddr_lst ! proj_uN_0 x)) 
-                  (FUNC (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) \<and> 
-          Externaddr_ok s' (externaddr_FUNC (funcaddr_lst ! proj_uN_0 x)) 
-              (FUNC (context_FUNCS C' ! proj_uN_0 x))"
-        using 1 t_inst_match_def call by simp 
-      then have 
-        "proj_uN_0 x < length (context_FUNCS C') \<and>
-         context_FUNCS C' ! proj_uN_0 x = mk_functype (mk_list t_1_lst) (mk_list t_2_lst)"
-        using Externaddr_ok_inj_func 2 t_inst_match_def
-        using call.hyps(1) call.prems(55,56) mk_Moduleinst_ok.hyps(27,4) mk_Moduleinst_ok.prems(4)
-        by auto
-      then show ?case
-        using isabelle_reference_output_wasm2.call 
-        call by simp *)
     next
       case (call_indirect x C lim y t_1_lst t_2_lst)
-      then show ?case sorry
+      have "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x)) 
+              (TABLE (tabletype_lst ! proj_uN_0 x)) \<and> 
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst' ! proj_uN_0 x)) 
+              (TABLE (tabletype_lst' ! proj_uN_0 x))"
+        using list_all2_nth' t_inst_match_def call_indirect 
+        res_context.select_convs(4) 
+        by (metis (no_types, lifting) moduleinst.ext_inject)       
+       then have
+          res0: "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x)) 
+              (TABLE (mk_tabletype lim FUNCREF)) \<and>
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x))
+              (TABLE (context_TABLES C' ! proj_uN_0 x))"
+         using t_inst_match_def call_indirect by simp 
+      then have 
+        res: "proj_uN_0 x < length (context_TABLES C') \<and>
+         wf_tabletype (context_TABLES C' ! proj_uN_0 x)"
+        using Externaddr_ok__wf_tabletype 
+        using call_indirect
+          t_inst_match_def by force
+      then show ?case 
+      proof (cases "context_TABLES C' ! proj_uN_0 x")
+        case (mk_tabletype x1 x2)
+        then have "x2 = FUNCREF" using res0 Externaddr_ok_inj_table by auto
+        then show ?thesis
+        using res isabelle_reference_output_wasm2.call_indirect mk_tabletype
+        call_indirect Moduleinst_ok_partial_inj t_inst_match_def by simp
+    qed
     next
       case (ref_func x C ft)
       then show ?case using Moduleinst_ok_partial_inj Instr_ok_Instrs_ok.intros 
@@ -485,44 +537,338 @@ lemma Instr_ok_replace_agree:
         by (metis (no_types, lifting) t_inst_match_def)  
     next
       case (table_get x C lim rt)
-      then show ?case sorry
+      have "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x)) 
+              (TABLE (tabletype_lst ! proj_uN_0 x)) \<and> 
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst' ! proj_uN_0 x)) 
+              (TABLE (tabletype_lst' ! proj_uN_0 x))"
+        using list_all2_nth' t_inst_match_def table_get 
+        res_context.select_convs(4) 
+        by (metis (no_types, lifting) moduleinst.ext_inject)       
+       then have
+          res0: "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x)) 
+              (TABLE (mk_tabletype lim rt)) \<and>
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x))
+              (TABLE (context_TABLES C' ! proj_uN_0 x))"
+         using t_inst_match_def table_get by simp 
+      then have 
+        res: "proj_uN_0 x < length (context_TABLES C') \<and>
+         wf_tabletype (context_TABLES C' ! proj_uN_0 x)"
+        using Externaddr_ok__wf_tabletype 
+        using table_get
+          t_inst_match_def by force
+      then show ?case 
+      proof (cases "context_TABLES C' ! proj_uN_0 x")
+        case (mk_tabletype x1 x2)
+        then have "x2 = rt" using res0 Externaddr_ok_inj_table by auto
+        then show ?thesis
+        using res isabelle_reference_output_wasm2.table_get mk_tabletype
+        table_get by auto
+    qed
     next
       case (table_set x C lim rt)
-      then show ?case sorry
+      have "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x)) 
+              (TABLE (tabletype_lst ! proj_uN_0 x)) \<and> 
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst' ! proj_uN_0 x)) 
+              (TABLE (tabletype_lst' ! proj_uN_0 x))"
+        using list_all2_nth' t_inst_match_def table_set 
+        res_context.select_convs(4) 
+        by (metis (no_types, lifting) moduleinst.ext_inject)       
+       then have
+          res0: "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x)) 
+              (TABLE (mk_tabletype lim rt)) \<and>
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x))
+              (TABLE (context_TABLES C' ! proj_uN_0 x))"
+         using t_inst_match_def table_set by simp 
+      then have 
+        res: "proj_uN_0 x < length (context_TABLES C') \<and>
+         wf_tabletype (context_TABLES C' ! proj_uN_0 x)"
+        using Externaddr_ok__wf_tabletype 
+        using table_set
+          t_inst_match_def by force
+      then show ?case 
+      proof (cases "context_TABLES C' ! proj_uN_0 x")
+        case (mk_tabletype x1 x2)
+        then have "x2 = rt" using res0 Externaddr_ok_inj_table by auto
+        then show ?thesis
+        using res isabelle_reference_output_wasm2.table_set mk_tabletype
+        table_set by auto
+    qed
     next
       case (table_size x C lim rt)
-      then show ?case sorry
+      have "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x)) 
+              (TABLE (tabletype_lst ! proj_uN_0 x)) \<and> 
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst' ! proj_uN_0 x)) 
+              (TABLE (tabletype_lst' ! proj_uN_0 x))"
+        using list_all2_nth' t_inst_match_def table_size 
+        res_context.select_convs(4) 
+        by (metis (no_types, lifting) moduleinst.ext_inject)       
+       then have
+          res0: "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x)) 
+              (TABLE (mk_tabletype lim rt)) \<and>
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x))
+              (TABLE (context_TABLES C' ! proj_uN_0 x))"
+         using t_inst_match_def table_size by simp 
+      then have 
+        res: "proj_uN_0 x < length (context_TABLES C') \<and>
+         wf_tabletype (context_TABLES C' ! proj_uN_0 x)"
+        using Externaddr_ok__wf_tabletype 
+        using table_size
+          t_inst_match_def by force
+      then show ?case 
+      proof (cases "context_TABLES C' ! proj_uN_0 x")
+        case (mk_tabletype x1 x2)
+        then have "x2 = rt" using res0 Externaddr_ok_inj_table by auto
+        then show ?thesis
+        using res isabelle_reference_output_wasm2.table_size mk_tabletype
+        table_size by auto
+    qed
     next
       case (table_grow x C lim rt)
-      then show ?case sorry
+      have "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x)) 
+              (TABLE (tabletype_lst ! proj_uN_0 x)) \<and> 
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst' ! proj_uN_0 x)) 
+              (TABLE (tabletype_lst' ! proj_uN_0 x))"
+        using list_all2_nth' t_inst_match_def table_grow 
+        res_context.select_convs(4) 
+        by (metis (no_types, lifting) moduleinst.ext_inject)       
+       then have
+          res0: "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x)) 
+              (TABLE (mk_tabletype lim rt)) \<and>
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x))
+              (TABLE (context_TABLES C' ! proj_uN_0 x))"
+         using t_inst_match_def table_grow by simp 
+      then have 
+        res: "proj_uN_0 x < length (context_TABLES C') \<and>
+         wf_tabletype (context_TABLES C' ! proj_uN_0 x)"
+        using Externaddr_ok__wf_tabletype 
+        using table_grow
+          t_inst_match_def by force
+      then show ?case 
+      proof (cases "context_TABLES C' ! proj_uN_0 x")
+        case (mk_tabletype x1 x2)
+        then have "x2 = rt" using res0 Externaddr_ok_inj_table by auto
+        then show ?thesis
+        using res isabelle_reference_output_wasm2.table_grow mk_tabletype
+        table_grow by auto
+    qed
     next
       case (table_fill x C lim rt)
-      then show ?case sorry
+      have "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x)) 
+              (TABLE (tabletype_lst ! proj_uN_0 x)) \<and> 
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst' ! proj_uN_0 x)) 
+              (TABLE (tabletype_lst' ! proj_uN_0 x))"
+        using list_all2_nth' t_inst_match_def table_fill 
+        res_context.select_convs(4) 
+        by (metis (no_types, lifting) moduleinst.ext_inject)       
+       then have
+          res0: "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x)) 
+              (TABLE (mk_tabletype lim rt)) \<and>
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x))
+              (TABLE (context_TABLES C' ! proj_uN_0 x))"
+         using t_inst_match_def table_fill by simp 
+      then have 
+        res: "proj_uN_0 x < length (context_TABLES C') \<and>
+         wf_tabletype (context_TABLES C' ! proj_uN_0 x)"
+        using Externaddr_ok__wf_tabletype 
+        using table_fill
+          t_inst_match_def by force
+      then show ?case 
+      proof (cases "context_TABLES C' ! proj_uN_0 x")
+        case (mk_tabletype x1 x2)
+        then have "x2 = rt" using res0 Externaddr_ok_inj_table by auto
+        then show ?thesis
+        using res isabelle_reference_output_wasm2.table_fill mk_tabletype
+        table_fill by auto
+    qed
     next
       case (table_copy x_1 C lim_1 rt x_2 lim_2)
-      then show ?case sorry
+      have "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x_1)) 
+              (TABLE (tabletype_lst ! proj_uN_0 x_1)) \<and> 
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst' ! proj_uN_0 x_1)) 
+              (TABLE (tabletype_lst' ! proj_uN_0 x_1))"
+        using list_all2_nth' t_inst_match_def table_copy 
+        res_context.select_convs(4) 
+        by (metis (no_types, lifting) moduleinst.ext_inject)       
+       then have
+          res0: "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x_1)) 
+              (TABLE (mk_tabletype lim_1 rt)) \<and>
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x_1))
+              (TABLE (context_TABLES C' ! proj_uN_0 x_1))"
+         using t_inst_match_def table_copy by simp 
+      then have 
+        res: "proj_uN_0 x_1 < length (context_TABLES C') \<and>
+         wf_tabletype (context_TABLES C' ! proj_uN_0 x_1)"
+        using Externaddr_ok__wf_tabletype 
+        using table_copy
+          t_inst_match_def by force
+      have "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x_2)) 
+              (TABLE (tabletype_lst ! proj_uN_0 x_2)) \<and> 
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst' ! proj_uN_0 x_2)) 
+              (TABLE (tabletype_lst' ! proj_uN_0 x_2))"
+        using list_all2_nth' t_inst_match_def table_copy 
+        res_context.select_convs(4) 
+        by (metis (no_types, lifting) moduleinst.ext_inject)       
+       then have
+          res0': "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x_2)) 
+              (TABLE (mk_tabletype lim_2 rt)) \<and>
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x_2))
+              (TABLE (context_TABLES C' ! proj_uN_0 x_2))"
+         using t_inst_match_def table_copy by simp 
+      then have 
+        res': "proj_uN_0 x_2 < length (context_TABLES C') \<and>
+         wf_tabletype (context_TABLES C' ! proj_uN_0 x_2)"
+        using Externaddr_ok__wf_tabletype 
+        using table_copy
+          t_inst_match_def by force
+      then show ?case 
+      proof (cases "context_TABLES C' ! proj_uN_0 x_1")
+        case (mk_tabletype x1 x2)
+        note outer = mk_tabletype
+        then have outer': "x2 = rt" using res0 Externaddr_ok_inj_table by auto
+        show ?thesis
+        proof (cases "context_TABLES C' ! proj_uN_0 x_2")
+          case (mk_tabletype x1' x2')
+          then have "x2' = rt" using res0' Externaddr_ok_inj_table by auto
+          then show ?thesis
+        using res res' isabelle_reference_output_wasm2.table_copy mk_tabletype outer outer'
+        table_copy by auto
+    qed
+    qed
     next
       case (table_init x_1 C lim rt x_2)
-      then show ?case sorry
+      have "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x_1)) 
+              (TABLE (tabletype_lst ! proj_uN_0 x_1)) \<and> 
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst' ! proj_uN_0 x_1)) 
+              (TABLE (tabletype_lst' ! proj_uN_0 x_1))"
+        using list_all2_nth' t_inst_match_def table_init 
+        res_context.select_convs(4) 
+        by (metis (no_types, lifting) moduleinst.ext_inject)       
+       then have
+          res0: "Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x_1)) 
+              (TABLE (mk_tabletype lim rt)) \<and>
+            Externaddr_ok s' (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x_1))
+              (TABLE (context_TABLES C' ! proj_uN_0 x_1))"
+         using t_inst_match_def table_init by simp 
+      then have 
+        res: "proj_uN_0 x_1 < length (context_TABLES C') \<and>
+         wf_tabletype (context_TABLES C' ! proj_uN_0 x_1)"
+        using Externaddr_ok__wf_tabletype 
+        using table_init
+          t_inst_match_def by force
+      then show ?case 
+      proof (cases "context_TABLES C' ! proj_uN_0 x_1")
+        case (mk_tabletype x1 x2)
+        then have "x2 = rt" using res0 Externaddr_ok_inj_table by auto
+        then show ?thesis
+        using res isabelle_reference_output_wasm2.table_init mk_tabletype
+        table_init Moduleinst_ok_partial_inj
+        by (metis (no_types, lifting) t_inst_match_def)
+    qed
     next
       case (elem_drop x C rt)
       then show ?case using Moduleinst_ok_partial_inj Instr_ok_Instrs_ok.intros 
         by (metis (no_types, lifting) t_inst_match_def)  
     next
       case (memory_size C mt)
-      then show ?case sorry
+      have "Externaddr_ok s' (externaddr_MEM (memaddr_lst' ! 0)) 
+              (MEM (memtype_lst' ! 0))"
+        using list_all2_nth' t_inst_match_def memory_size 
+        res_context.select_convs(5) 
+        by (metis (no_types, lifting) moduleinst.ext_inject)       
+       then have
+          "Externaddr_ok s' (externaddr_MEM (memaddr_lst ! 0)) 
+              (MEM (context_MEMS C' ! 0))"
+         using t_inst_match_def memory_size by simp 
+      then have 
+        "0 < length (context_MEMS C') \<and>
+         wf_memtype (context_MEMS C' ! 0)"
+        using Externaddr_ok__wf_memtype 
+        using memory_size
+          t_inst_match_def by force
+      then show ?case
+        using isabelle_reference_output_wasm2.memory_size 
+        memory_size by simp
     next
       case (memory_grow C mt)
-      then show ?case sorry
+      have "Externaddr_ok s' (externaddr_MEM (memaddr_lst' ! 0)) 
+              (MEM (memtype_lst' ! 0))"
+        using list_all2_nth' t_inst_match_def memory_grow 
+        res_context.select_convs(5) 
+        by (metis (no_types, lifting) moduleinst.ext_inject)       
+       then have
+          "Externaddr_ok s' (externaddr_MEM (memaddr_lst ! 0)) 
+              (MEM (context_MEMS C' ! 0))"
+         using t_inst_match_def memory_grow by simp 
+      then have 
+        "0 < length (context_MEMS C') \<and>
+         wf_memtype (context_MEMS C' ! 0)"
+        using Externaddr_ok__wf_memtype 
+        using memory_grow
+          t_inst_match_def by force
+      then show ?case
+        using isabelle_reference_output_wasm2.memory_grow 
+        memory_grow by simp
     next
       case (memory_fill C mt)
-      then show ?case sorry
+      have "Externaddr_ok s' (externaddr_MEM (memaddr_lst' ! 0)) 
+              (MEM (memtype_lst' ! 0))"
+        using list_all2_nth' t_inst_match_def memory_fill 
+        res_context.select_convs(5) 
+        by (metis (no_types, lifting) moduleinst.ext_inject)       
+       then have
+          "Externaddr_ok s' (externaddr_MEM (memaddr_lst ! 0)) 
+              (MEM (context_MEMS C' ! 0))"
+         using t_inst_match_def memory_fill by simp 
+      then have 
+        "0 < length (context_MEMS C') \<and>
+         wf_memtype (context_MEMS C' ! 0)"
+        using Externaddr_ok__wf_memtype 
+        using memory_fill
+          t_inst_match_def by force
+      then show ?case
+        using isabelle_reference_output_wasm2.memory_fill 
+        memory_fill by simp
     next
       case (memory_copy C mt)
-      then show ?case sorry
+      have "Externaddr_ok s' (externaddr_MEM (memaddr_lst' ! 0)) 
+              (MEM (memtype_lst' ! 0))"
+        using list_all2_nth' t_inst_match_def memory_copy 
+        res_context.select_convs(5) 
+        by (metis (no_types, lifting) moduleinst.ext_inject)       
+       then have
+          "Externaddr_ok s' (externaddr_MEM (memaddr_lst ! 0)) 
+              (MEM (context_MEMS C' ! 0))"
+         using t_inst_match_def memory_copy by simp 
+      then have 
+        "0 < length (context_MEMS C') \<and>
+         wf_memtype (context_MEMS C' ! 0)"
+        using Externaddr_ok__wf_memtype 
+        using memory_copy
+          t_inst_match_def by force
+      then show ?case
+        using isabelle_reference_output_wasm2.memory_copy 
+        memory_copy by simp
     next
       case (memory_init C mt x)
-      then show ?case sorry
+      have "Externaddr_ok s' (externaddr_MEM (memaddr_lst' ! 0)) 
+              (MEM (memtype_lst' ! 0))"
+        using list_all2_nth' t_inst_match_def memory_init 
+        res_context.select_convs(5) 
+        by (metis (no_types, lifting) moduleinst.ext_inject)       
+       then have
+          "Externaddr_ok s' (externaddr_MEM (memaddr_lst ! 0)) 
+              (MEM (context_MEMS C' ! 0))"
+         using t_inst_match_def memory_init by simp 
+      then have 
+        "0 < length (context_MEMS C') \<and>
+         wf_memtype (context_MEMS C' ! 0)"
+        using Externaddr_ok__wf_memtype 
+        using memory_init
+          t_inst_match_def by force
+      then show ?case
+        using isabelle_reference_output_wasm2.memory_init Moduleinst_ok_partial_inj
+        memory_init 
+        by (metis (no_types, lifting) t_inst_match_def)
     next
       case (data_drop x C)
       then show ?case using Moduleinst_ok_partial_inj Instr_ok_Instrs_ok.intros 
@@ -733,10 +1079,195 @@ lemma Instr_ok_replace_agree:
         using mk_Moduleinst_ok.hyps(11,13,14,16,2,22,23,24,25,26,27,3,4,5,6,7,8,9)
           mk_Moduleinst_ok.prems(1,10,11,12,13,14,15,16,17,18,19,2,20,21,22,23,24,25,26,3,4,5,6,7,8,9)
         by blast
+    next
+      case (br la C ts) 
+      then have "length (LABELS C') = length (LABELS C) + length l" using List.length_append
+        by metis
+      then have "proj_uN_0 la < length (LABELS C')"
+        by (simp add: br.hyps(1) trans_less_add1)
+      then show ?case using 
+          isabelle_reference_output_wasm2.br
+          List.nth_append_left[OF br(1)] 
+          br 
+        by metis
+    next
+      case (br_if la C ts) 
+      then have "length (LABELS C') = length (LABELS C) + length l" using List.length_append
+        by metis
+      then have "proj_uN_0 la < length (LABELS C')"
+        by (simp add: br_if.hyps(1) trans_less_add1)
+      then show ?case using 
+          isabelle_reference_output_wasm2.br_if
+          List.nth_append_left[OF br_if(1)] 
+          br_if 
+        by metis
+  next
+      case (br_table C ls ts la) 
+      then have len: "length (LABELS C') = length (LABELS C) + length l" using List.length_append
+        by metis
+      then have 2: "proj_uN_0 la < length (LABELS C')" 
+        using br_table trans_less_add1 by simp
+      have monohyp: "\<forall> x. proj_uN_0 x < length (LABELS C) \<longrightarrow> 
+            Resulttype_sub (mk_list ts) (LABELS C ! proj_uN_0 x) \<longrightarrow>
+            Resulttype_sub (mk_list ts) (LABELS C' ! proj_uN_0 x)"
+        using List.nth_append_left[of _ "LABELS C" l] br_table(64) by auto
+       have 1: "list_all (\<lambda>l. Resulttype_sub (mk_list ts) (LABELS C' ! proj_uN_0 l)) ls" 
+        using br_table len list_all_mono2[OF _ _ monohyp] List.nth_append_left by blast
+      have "list_all (\<lambda> l. proj_uN_0 l < length (LABELS C')) ls"
+        using len br_table trans_less_add1 list_all_mono
+        by (metis (no_types, lifting))
+      
+      then show ?case using 
+          isabelle_reference_output_wasm2.br_table
+          List.nth_append_left
+          br_table 1 2
+        by (metis (no_types, lifting))
+    next 
+      case (seq C es1 ts1 ts2 es2 ts3) 
+      then show ?case using isabelle_reference_output_wasm2.seq by blast
+
+
+
+
+
+
+
+
           (* this next line can take a wee minute *)
     qed(auto simp add: Instr_ok_Instrs_ok.intros Moduleinst_ok_partial_inj)+
     
     qed
 qed
+
+
+lemma Instrs_ok_replace_agree:
+  assumes "Moduleinst_ok s i Cemp" 
+          "Moduleinst_ok s i Cemp'"
+          "t_inst_match Cemp C" 
+          "t_inst_match Cemp' C'"
+          "context_LOCALS C = context_LOCALS C'"
+          "(LABELS C) @ l = LABELS C'"
+          "context_RETURN C = context_RETURN C'"
+          "wf_context C'"
+          "Instrs_ok C e tf"   
+        shows "Instrs_ok C' e tf"
+  using assms(9,1-8) proof(induction C e tf rule:Instr_ok_Instrs_ok.inducts(2)[where ?P1.0 = 
+      "\<lambda> C e tf. True"])
+  case (empty C)
+  then show ?case using isabelle_reference_output_wasm2.empty by blast
+next
+  case (Instrs_ok__instr C v_instr t_1_lst t_2_lst)
+  then show ?case using instr_ok_instrs_ok Instr_ok_replace_agree
+    by blast
+next
+  case (seq C instr_1_lst t_1_lst t_2_lst instr_2_lst t_3_lst)
+  then show ?case using instrs_ok_seq by blast
+next
+  case (sub C instr_lst t_1_lst t_2_lst t'_1_lst t'_2_lst)
+  then show ?case using isabelle_reference_output_wasm2.sub by blast
+next
+  case (Instrs_ok__frame C instr_lst t_1_lst t_2_lst t_lst)
+  then show ?case using isabelle_reference_output_wasm2.Instrs_ok__frame by blast
+qed(simp_all)
+
+
+lemma Expr_ok_replace_agree:
+  assumes "Moduleinst_ok s i Cemp" 
+          "Moduleinst_ok s i Cemp'"
+          "t_inst_match Cemp C" 
+          "t_inst_match Cemp' C'"
+          "context_LOCALS C = context_LOCALS C'"
+          "(LABELS C) @ l = LABELS C'"
+          "context_RETURN C = context_RETURN C'"
+          "wf_context C'"
+          "Expr_ok C e tf"   
+        shows "Expr_ok C' e tf"
+  using assms(9,1-8) proof(induction C e tf)
+  case (mk_Expr_ok C instr_lst t_lst)
+  then show ?case using Instrs_ok_replace_agree[OF mk_Expr_ok(4,5,6,7,8,9,10,11,1)] 
+    Expr_ok.intros by simp
+qed
+
+
+
+(*
+lemma Instr_ok2_replace_agree:
+  assumes "Moduleinst_ok s i Cemp" 
+          "Moduleinst_ok s i Cemp'"
+          "t_inst_match Cemp C" 
+          "t_inst_match Cemp' C'"
+          "context_LOCALS C = context_LOCALS C'"
+          "LABELS C @ l = LABELS C'"
+          "context_RETURN C = context_RETURN C'"
+          "wf_context C'"
+          "Instr_ok2 s C e tf"   
+      shows "Instr_ok2 s C' e tf"
+  using assms assms(1) proof (induction s i Cemp rule:Moduleinst_ok.induct)
+  case (mk_Moduleinst_ok functype_lst globaladdr_lst globaltype_lst s funcaddr_lst functype_F_lst 
+          memaddr_lst memtype_lst tableaddr_lst tabletype_lst exportinst_lst dataaddr_lst 
+          datatype_lst elemaddr_lst elemtype_lst)
+  show ?case using mk_Moduleinst_ok(27) mk_Moduleinst_ok
+  proof (induction s " \<lparr>TYPES = functype_lst, FUNCS = funcaddr_lst, GLOBALS = globaladdr_lst, 
+        TABLES = tableaddr_lst,
+        MEMS = memaddr_lst, ELEMS = elemaddr_lst, DATAS = dataaddr_lst, EXPORTS = exportinst_lst\<rparr>"
+     Cemp' rule: Moduleinst_ok.induct)
+    case (mk_Moduleinst_ok functype_lst' globaladdr_lst' globaltype_lst' s' funcaddr_lst' 
+          functype_F_lst' memaddr_lst' memtype_lst' tableaddr_lst' tabletype_lst' exportinst_lst'
+          dataaddr_lst' datatype_lst' elemaddr_lst' elemtype_lst')
+    show ?case using mk_Moduleinst_ok(61) mk_Moduleinst_ok
+    proof (induction s' C e tf arbitrary:C'
+        rule:Instr_ok2_Instrs_ok2_Expr_ok2.inducts(1)[where ?P2.0 = "\<lambda> s' C es tf. 
+        (\<forall> C'.
+        Moduleinst_ok s'
+     \<lparr>TYPES = functype_lst, FUNCS = funcaddr_lst, GLOBALS = globaladdr_lst, TABLES = tableaddr_lst,
+        MEMS = memaddr_lst, ELEMS = elemaddr_lst, DATAS = dataaddr_lst, EXPORTS = exportinst_lst\<rparr>
+     \<lparr>context_TYPES = functype_lst, context_FUNCS = functype_F_lst, context_GLOBALS = globaltype_lst,
+        context_TABLES = tabletype_lst, context_MEMS = memtype_lst, context_ELEMS = elemtype_lst,
+        context_DATAS = datatype_lst, context_LOCALS = [], LABELS = [], context_RETURN = None\<rparr> \<longrightarrow>
+        Moduleinst_ok s'
+     \<lparr>TYPES = functype_lst, FUNCS = funcaddr_lst, GLOBALS = globaladdr_lst, TABLES = tableaddr_lst,
+        MEMS = memaddr_lst, ELEMS = elemaddr_lst, DATAS = dataaddr_lst, EXPORTS = exportinst_lst\<rparr>
+     \<lparr>context_TYPES = functype_lst', context_FUNCS = functype_F_lst', context_GLOBALS = globaltype_lst',
+        context_TABLES = tabletype_lst', context_MEMS = memtype_lst', context_ELEMS = elemtype_lst',
+        context_DATAS = datatype_lst', context_LOCALS = [], LABELS = [], context_RETURN = None\<rparr> \<longrightarrow>
+        t_inst_match \<lparr>context_TYPES = functype_lst, context_FUNCS = functype_F_lst, 
+        context_GLOBALS = globaltype_lst,
+        context_TABLES = tabletype_lst, context_MEMS = memtype_lst, context_ELEMS = elemtype_lst,
+        context_DATAS = datatype_lst, context_LOCALS = [], LABELS = [], context_RETURN = None\<rparr> C \<longrightarrow> 
+        t_inst_match  \<lparr>context_TYPES = functype_lst', context_FUNCS = functype_F_lst', 
+        context_GLOBALS = globaltype_lst',
+        context_TABLES = tabletype_lst', context_MEMS = memtype_lst', context_ELEMS = elemtype_lst',
+        context_DATAS = datatype_lst', context_LOCALS = [], LABELS = [], context_RETURN = None\<rparr> C' \<longrightarrow>
+        wf_context C' \<longrightarrow>
+        context_LOCALS C = context_LOCALS C' \<longrightarrow>
+          LABELS C @ l = LABELS C' \<longrightarrow>
+          context_RETURN C = context_RETURN C' \<longrightarrow>
+        Instrs_ok2 s' C' es tf)" and ?P3.0 = "\<lambda> s C e ts. True" ])
+      case (plain C v_instr t_1_lst t_2_lst s)
+      then show ?case using Instr_ok_replace_agree 
+        isabelle_reference_output_wasm2.plain by meson
+    next
+      case (label s C instr'_lst t'_lst t_lst admininstr_lst v_n)
+    have 2: "Instrs_ok2 s
+     (append_res_context
+       \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+          context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
+          LABELS = [mk_list t'_lst], context_RETURN = None\<rparr>
+       C')
+     admininstr_lst (mk_functype (mk_list []) (mk_list t_lst))"
+      using label sledgehammer
+      then show ?case using label 2
+          isabelle_reference_output_wasm2.label[of s C' instr'_lst t'_lst t_lst admininstr_lst v_n]
+        by simp
+    next
+      case (Instrs_ok2__instr s C v_admininstr t_1_lst t_2_lst) 
+      then show ?case using isabelle_reference_output_wasm2.Instrs_ok2__instr 
+        sorry
+    qed(auto simp add: Instr_ok2_Instrs_ok2_Expr_ok2.intros Moduleinst_ok_partial_inj)+
+  qed
+qed
+*)
+
+*)
 
 end
