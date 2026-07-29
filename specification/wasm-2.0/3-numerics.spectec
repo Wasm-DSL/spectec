@@ -49,7 +49,7 @@ def $testop_(numtype, testop_(numtype), num_(numtype)) : num_(I32)
     hint(show %2#$_(%1)#((%3)))
 def $relop_(numtype, relop_(numtype), num_(numtype), num_(numtype)) : num_(I32)
     hint(show %2#$_(%1)#(%3, %4))
-def $cvtop__(numtype_1, numtype_2, cvtop, num_(numtype_1)) : num_(numtype_2)*
+def $cvtop__(numtype_1, numtype_2, cvtop__(numtype_1, numtype_2), num_(numtype_1)) : num_(numtype_2)*
     hint(show %3#$__(%1,%2)#((%4)))
 
 def $wrap__(M, N, iN(M)) : iN(N)

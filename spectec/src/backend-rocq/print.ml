@@ -901,8 +901,8 @@ let exported_string =
 	"\tmatch l, i, j, update_l with\n" ^
 	"\t\t| nil, _, _, _ => nil\n" ^
 	"\t\t| l', _, _, nil => l'\n" ^
-	"\t\t| x :: l', O, O, _ => nil\n" ^
-	"\t\t| x :: l', S n, O, _ => nil\n" ^
+	"\t\t| l', O, O, _ => l'\n" ^
+	"\t\t| l', S n, O, _ => l'\n" ^
 	"\t\t| x :: l', O, S m, y :: u_l' => y :: list_slice_update l' 0 m u_l'\n" ^
 	"\t\t| x :: l', S n, m, _ => x :: list_slice_update l' n m update_l\n" ^
 	"\tend.\n\n" ^
