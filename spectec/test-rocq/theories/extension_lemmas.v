@@ -6,8 +6,9 @@ Declare Scope wasm_scope.
 Open Scope wasm_scope.
 Import RecordSetNotations.
 From WasmSpectec Require Import wasm helper_lemmas helper_tactics typing_lemmas subtyping type_preservation_pure.
-From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype.
+From mathcomp Require Import all_ssreflect all_algebra.
 Import ListNotations.
+
 
 Lemma invert_opt_map_some {T U : Type} : forall (f : T -> U) (i : T),
 	option_map f (Some i) = Some (f i).
@@ -16,6 +17,63 @@ Proof. move=> i; eauto. Qed.
 Lemma invert_opt_map_none {T U : Type} : forall (f : T -> U), 
 	option_map f None = None.
 Proof. eauto. Qed.
+
+Definition Bound16 := (2 ^ 16)%N.
+Arguments Bound16 : simpl never.
+
+Definition pages64 := (64 * Ki)%N.
+
+Arguments pages64 : simpl never.
+
+Definition pagediv {A : Type} (b_lst : list A) := 
+	rat.divq (ratz (ssrint.Posz (size b_lst))) (ratz (ssrint.Posz pages64)).
+
+Arguments pagediv : simpl never.
+
+Lemma mul_nat_to_ring (n m : nat) :
+	Posz (n * m)%N = (intRing.mulz n m).
+Proof. eauto. Qed.
+
+Lemma ratz_mul_posz (n m : nat) :
+  ratz ((Posz n) * (Posz m)) =
+  mulq (ratz (Posz n)) (ratz (Posz m)).
+Proof.
+  exact: ratzM.
+Qed.
+
+Lemma add_nat_to_ring (n m : nat) :
+	Posz (n + m)%N = (n + m)%R.
+Proof. eauto. Qed.
+
+Lemma ratz_add_posz (n m : nat) :
+	ratz ((Posz n) + (Posz m)) =
+	addq (ratz (Posz n)) (ratz (Posz m)).
+Proof.
+	exact: ratzD.
+Qed.
+
+Lemma rat_inv (n : nat) :
+	int_to_nat (rat_to_int (ratz (Posz n))) = n.
+Proof.
+	induction n.
+	- simpl.
+		rewrite div0n.
+		rewrite mul1n.
+		reflexivity.
+	- simpl.
+		rewrite divn1.
+		rewrite mul1n.
+		reflexivity.
+Qed.
+
+Lemma mul_div_cancel (n m : rat) :
+  m != 0%Q ->
+  divq (n * m)%Q m = n.
+Proof.
+  move=> Hm.
+	rat_to_ring.
+	rewrite GRing.Theory.mulrK; eauto.
+Qed.
 
 Lemma s_invert_funcs: forall s,
 	Store_ok s ->
@@ -89,7 +147,7 @@ Lemma s_invert_mems: forall s,
 		let l := option_map (fun m => mk_uN m) v_m in
 		(m = {| meminst_TYPE := t; BYTES := b_lst |}) /\
 		(t = (PAGE (mk_limits (mk_uN v_n) l))) /\
-		(v_n = (List.length b_lst) / (64 * Ki)) /\
+		(v_n = pagediv b_lst) /\
 		List.Forall (fun (m : nat) => (v_n <= m <= 2 ^ 16)) (option_to_list v_m)
 	) (store_MEMS s) mts.
 Proof.
@@ -105,6 +163,7 @@ Proof.
 	{
 		inversion HMok; subst; auto.
 	}
+	fold Bound16 in *.
 	destruct meminst_lst; inversion HMok; subst; auto.
 	econstructor.
 	{
@@ -116,27 +175,41 @@ Proof.
 			simpl in H11.
 			exists b_lst, v_n, (Some m0).
 			eq_to_prop.
+			fold pages64 in *.
+			
 			split; auto.
 			split; auto.
 			split; auto.
-			list_to_seq.
-			rewrite H0.
 
-			rewrite mulnE.
-			rewrite Nat.div_mul; auto.
-			rewrite /Ki -mulnE; discriminate.
+			apply f_equal with (f := Posz) in H0.
+			apply f_equal with (f := ratz) in H0.
+
+			unfold pagediv.
+			rewrite mul_nat_to_ring in H0.
+			rewrite ratz_mul_posz in H0.
+			rewrite H0.
+			rewrite mul_div_cancel.
+			rewrite rat_inv.
+			reflexivity.
+			subst; eauto.
 		-
 			exists b_lst, v_n, None.
 			eq_to_prop.
+			fold pages64 in *.
 			split; auto.
 			split; auto.
 			split; auto.
-			list_to_seq.
-			rewrite H0.
+			apply f_equal with (f := Posz) in H0.
+			apply f_equal with (f := ratz) in H0.
 
-			rewrite mulnE.
-			rewrite Nat.div_mul; auto.
-			rewrite /Ki -mulnE; discriminate.
+			unfold pagediv.
+			rewrite mul_nat_to_ring in H0.
+			rewrite ratz_mul_posz in H0.
+			rewrite H0.
+			rewrite mul_div_cancel.
+			rewrite rat_inv.
+			reflexivity.
+			subst; eauto.
 	}
 	by eapply IHmemtype_lst.
 Qed.
@@ -877,7 +950,7 @@ Proof.
 	econstructor.
 Qed.
 
-Lemma global_extension_refl_0: forall g,
+Lemma extend_globalinst_refl_0: forall g,
 	wf_globalinst g ->
 	Extend_globalinst g g.
 Proof.
@@ -944,8 +1017,7 @@ Proof.
 	by left.
 Qed.
 
-
-(* Lemma Extend_funcinst_refl0: forall f,
+Lemma extend_funcinst_refl_0: forall f,
 	wf_funcinst f ->
 	Extend_funcinst f f.
 Proof.
@@ -953,141 +1025,6 @@ Proof.
 	destruct f.
 	econstructor; eauto.
 Qed.
-
-Lemma Extend_funcinst_refl: forall f,
-	Forall2 (fun v s => Extend_funcinst v s) f f.
-Proof.
-	move => f.
-	induction f => //.
-	apply Forall2_cons_iff. split.
-	- econstructor.
-	- apply IHf.
-Qed.
-
-Lemma table_extension_refl0: forall t,
-	Extend_tableinst t t.
-Proof.
-	move => t.
-	destruct t => //.
-	destruct tableinst_TYPE, v_limits.
-	assert (exists n, option_map (mk_uN) n = u32_opt).
-	{
-		destruct u32_opt.
-		- destruct u. exists (Some i); eauto.
-		- exists None; eauto.
-	}
-	destruct H as [n H]; subst.
-	econstructor.
-	auto.
-Qed.
-
-Lemma table_extension_refl: forall t,
-	Forall2 (fun v s => Extend_tableinst v s) t t.
-Proof.
-	move => t.
-	induction t => //.
-	apply Forall2_cons_iff. split.
-	- eapply table_extension_refl0.
-	- apply IHt.
-Qed.
-
-
-
-Lemma Extend_meminst_refl: forall m,
-	Forall2 (fun v s => Extend_meminst v s) m m.
-Proof.
-	move => m.
-	induction m => //.
-	apply Forall2_cons_iff. split.
-	- by eapply Extend_meminst_refl0.
-	- apply IHm.
-Qed.
-
-
-Lemma global_extension_refl: forall g,
-	Forall2 (fun v s => Extend_globalinst v s) g g.
-Proof.
-	move => g.
-	induction g.
-	- econstructor.
-	- econstructor.
-	  + destruct a.
-	    destruct globalinst_TYPE.
-	  	econstructor.
-			eq_to_prop.
-			by right.
-	  + by eapply IHg.
-Qed.
-
-
-
-Lemma elem_extension_refl: forall g,
-	Forall2 (fun v s => Extend_eleminst v s) g g.
-Proof.
-	move => g.
-	induction g.
-	- econstructor.
-	- econstructor.
-	  + by eapply elem_extension_refl0.
-	  + by eapply IHg.
-Qed.
-
-Lemma data_extension_refl0: forall d,
-	Extend_datainst d d.
-Proof.
-	move => g.
-	destruct g.
-	econstructor.
-	eq_to_prop.
-	by left.
-Qed.
-
-Lemma data_extension_refl: forall d,
-	Forall2 (fun v s => Extend_datainst v s) d d.
-Proof.
-	move => g.
-	induction g.
-	- econstructor.
-	- econstructor.
-	  + by eapply data_extension_refl0.
-	  + by eapply IHg.
-Qed. *)
-
-(* Lemma Extend_store_refl: forall s,
-    Extend_store s s.
-Proof.
-  move => s.
-  eapply (mk_Extend_store s s
-  (store_FUNCS s) (store_GLOBALS s) (store_TABLES s) (store_MEMS s)  (store_ELEMS s) (store_DATAS s)
-  (store_FUNCS s) [] (store_GLOBALS s) [] (store_TABLES s) [] (store_MEMS s) []  (store_ELEMS s) [] (store_DATAS s) [] ); eauto;
-  repeat (try by rewrite -> cats0).
-	all: eq_to_prop.
-	+ destruct s; eauto.
-	+ repeat rewrite -> cats0. destruct s; eauto.
-  + by apply Extend_funcinst_refl.
-  + by apply table_extension_refl.
-  + by apply Extend_meminst_refl.
-  + by apply global_extension_refl.
-  + by apply elem_extension_refl.
-  + by apply data_extension_refl.
-Qed. *)
-
-(* Lemma holds_upto_test: forall (n : nat) (f : nat -> Prop),
-	holds_upto (fun i => i < n) n ->
-	n != 0.
-Proof.
-	move=> 
-
-Lemma holds_uptol: forall (n : nat) (f : nat -> Prop),
-	holds_upto f n ->
-	(exists n', f n').
-Proof.
-	move=> n f Hholds.
-	unfold holds_upto in Hholds.
-	induction n.
-	-
-		unfold holds_upto in Hholds. simpl in Hholds. *)
-
 
 Lemma holds_upto_lookup: forall (n : nat) (f : nat -> Prop) (i : nat),
 	i < n ->
@@ -1103,21 +1040,6 @@ Proof.
 		apply HHolds.
 	- rewrite size_iota; eauto.
 Qed.
-
-
-(* Lemma holds_upto_lt : forall (n n' : nat),
-	n != 0 ->
-	holds_upto (fun k => k < n') n ->
-	n < n'.
-Proof.
-  move=> n n' Hzero H.
-  rewrite /holds_upto in H.
-
-
-	induction n; eauto.
-
-
-Qed. *)
 
 Lemma Externaddr_invert_funcs: forall s exta ext,
 	Externaddr_ok s (externaddr_FUNC exta) (FUNC ext) ->
@@ -1439,6 +1361,103 @@ Proof.
 	- simpl. by rewrite IHl.
 Qed.
 
+Lemma holds_upto_lt_refl: forall n,
+	holds_upto (fun a => a < n) n.
+Proof.
+	move=> n.
+	eapply holds_upto_all_strong'.
+	move => n0 HHolds HBound; eauto.
+Qed.
+
+Lemma extend_global_refl: forall s,
+	Forall wf_globalinst (store_GLOBALS s) ->
+	holds_upto (fun n => Extend_globalinst ((store_GLOBALS s) [| n |]) ((store_GLOBALS s) [| n |])) (| store_GLOBALS s |).
+Proof.
+	move=> s HWfglobals.
+	eapply holds_upto_all_strong'.
+	move => n HHolds HHoldsBound.
+	eapply Forall_size in HWfglobals; eauto.
+	eapply extend_globalinst_refl_0; eauto.
+Qed.
+
+
+Lemma extend_table_refl: forall s,
+	Forall wf_tableinst (store_TABLES s) ->
+	holds_upto (fun n => Extend_tableinst ((store_TABLES s) [| n |]) ((store_TABLES s) [| n |])) (| store_TABLES s |).
+Proof.
+	move=> s HWftables.
+	eapply holds_upto_all_strong'.
+	move => n HHolds HHoldsBound.
+	eapply Forall_size in HWftables; eauto.
+	eapply extend_tableinst_refl_0; eauto.
+Qed.
+
+Lemma extend_mem_refl: forall s,
+	Forall wf_meminst (store_MEMS s) ->
+	holds_upto (fun n => Extend_meminst ((store_MEMS s) [| n |]) ((store_MEMS s) [| n |])) (| store_MEMS s |).
+Proof.
+	move=> s HWfmems.
+	eapply holds_upto_all_strong'.
+	move => n HHolds HHoldsBound.
+	eapply Forall_size in HWfmems; eauto.
+	eapply extend_meminst_refl_0; eauto.
+Qed.
+
+Lemma extend_elem_refl: forall s,
+	holds_upto (fun n => Extend_eleminst ((store_ELEMS s) [| n |]) ((store_ELEMS s) [| n |])) (| store_ELEMS s |).
+Proof.
+	move=> s.
+	eapply holds_upto_all_strong'.
+	move => n HHolds HHoldsBound.
+	eapply extend_eleminst_refl_0; eauto.
+Qed.
+
+Lemma extend_data_refl: forall s,
+	Forall wf_datainst (store_DATAS s) ->
+	holds_upto (fun n => Extend_datainst ((store_DATAS s) [| n |]) ((store_DATAS s) [| n |])) (| store_DATAS s |).
+Proof.
+	move=> s HWfdatas.
+	eapply holds_upto_all_strong'.
+	move => n HHolds HHoldsBound.
+	eapply Forall_size in HWfdatas; eauto.
+	eapply extend_datainst_refl_0; eauto.
+Qed.
+
+Lemma extend_func_refl: forall s,
+	Forall wf_funcinst (store_FUNCS s) ->
+	holds_upto (fun n => Extend_funcinst ((store_FUNCS s) [| n |]) ((store_FUNCS s) [| n |])) (| store_FUNCS s |).
+Proof.
+	move=> s HWffuncs.
+	eapply holds_upto_all_strong'.
+	move => n HHolds HHoldsBound.
+	eapply Forall_size in HWffuncs; eauto.
+	eapply extend_funcinst_refl_0; eauto.
+Qed.
+
+Lemma Extend_store_refl: forall s,
+	wf_store s ->
+  Extend_store s s.
+Proof.
+  move => s HWfStore.
+	inversion HWfStore; subst.
+	remember ({|
+		store_FUNCS := var_0_lst;
+		store_GLOBALS := var_1_lst;
+		store_TABLES := var_2_lst;
+		store_MEMS := var_3_lst;
+		store_ELEMS := var_4_lst;
+		store_DATAS := var_5_lst
+		|}) as s.
+
+	eapply (mk_Extend_store s s); try apply holds_upto_lt_refl; subst; eauto.
+	+ eapply extend_global_refl; eauto.
+	+ eapply extend_mem_refl; eauto.
+	+ eapply extend_table_refl; eauto.
+	+ eapply extend_func_refl; eauto.
+	+ eapply extend_data_refl; eauto.
+	+ eapply extend_elem_refl; eauto.
+Qed. 
+
 Lemma global_set_global_extension: forall v_g v_g' v_idx v_valtype v_val_0 v_val_1,
 	Forall wf_globalinst v_g ->
 	wf_val v_val_1 ->
@@ -1468,7 +1487,7 @@ Proof.
 		-
 			eapply list_update_func_unchanged with (i := v_i) (f := [eta set VALUE (fun=> v_val_1)]) in Heqe as HLookup'; eauto; subst.
 			rewrite HLookup'.
-			apply global_extension_refl_0.
+			apply extend_globalinst_refl_0.
 			eapply Forall_size in HWfglob; eauto.
 		- apply/eqP.
 			move/eqP in E.

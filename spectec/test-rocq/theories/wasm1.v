@@ -64,8 +64,8 @@ Fixpoint list_slice_update {α: Type} (l: seq α) (i: nat) (j: nat) (update_l: s
 	match l, i, j, update_l with
 		| nil, _, _, _ => nil
 		| l', _, _, nil => l'
-		| x :: l', O, O, _ => nil
-		| x :: l', S n, O, _ => nil
+		| l', O, O, _ => l'
+		| l', S n, O, _ => l'
 		| x :: l', O, S m, y :: u_l' => y :: list_slice_update l' 0 m u_l'
 		| x :: l', S n, m, _ => x :: list_slice_update l' n m update_l
 	end.
@@ -450,7 +450,7 @@ Definition E (v_N : res_N) : nat :=
 (* Type Alias Definition at: ../specification/wasm-1.0/1-syntax.spectec:54.1-54.30 *)
 Definition exp : Type := int.
 
-(* Inductive Type Definition at: ../specification/wasm-1.0/1-syntax.spectec:55.1-59.84 *)
+(* Inductive Type Definition at: ../specification/wasm-1.0/1-syntax.spectec:55.1-59.41 *)
 Inductive fNmag : Type :=
 	| NORM (v_m : m) (v_exp : exp) : fNmag
 	| SUBNORM (v_m : m) : fNmag
@@ -767,6 +767,7 @@ Hint Resolve limits_eq_dec : eq_dec_db.
 Inductive wf_limits : limits -> Prop :=
 	| limits_case_0 : forall (v_u32 : u32) (u32_opt : (option u32)), 
 		(wf_uN 32 v_u32) ->
+		List.Forall (fun (v_u32 : u32) => (wf_uN 32 v_u32)) (option_to_list u32_opt) ->
 		wf_limits (mk_limits v_u32 u32_opt).
 
 (* Inductive Type Definition at: ../specification/wasm-1.0/1-syntax.spectec:123.1-124.14 *)

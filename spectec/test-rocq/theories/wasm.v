@@ -64,8 +64,8 @@ Fixpoint list_slice_update {α: Type} (l: seq α) (i: nat) (j: nat) (update_l: s
 	match l, i, j, update_l with
 		| nil, _, _, _ => nil
 		| l', _, _, nil => l'
-		| x :: l', O, O, _ => nil
-		| x :: l', S n, O, _ => nil
+		| l', O, O, _ => l'
+		| l', S n, O, _ => l'
 		| x :: l', O, S m, y :: u_l' => y :: list_slice_update l' 0 m u_l'
 		| x :: l', S n, m, _ => x :: list_slice_update l' n m update_l
 	end.
@@ -1085,6 +1085,7 @@ Hint Resolve limits_eq_dec : eq_dec_db.
 Inductive wf_limits : limits -> Prop :=
 	| limits_case_0 : forall (v_u32 : u32) (u32_opt : (option u32)), 
 		(wf_uN 32 v_u32) ->
+		List.Forall (fun (v_u32 : u32) => (wf_uN 32 v_u32)) (option_to_list u32_opt) ->
 		wf_limits (mk_limits v_u32 u32_opt).
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:167.1-168.14 *)
@@ -8723,12 +8724,17 @@ Inductive Resulttype_sub : resulttype -> resulttype -> Prop :=
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:87.1-87.75 *)
 Inductive Limits_sub : limits -> limits -> Prop :=
-	| mk_Limits_sub : forall (n_11 : n) (n_12 : n) (n_21 : n) (n_22 : n), 
-		(n_11 >= n_21)%N ->
-		(n_12 <= n_22)%N ->
-		(wf_limits (mk_limits (mk_uN n_11) (Some (mk_uN n_12)))) ->
-		(wf_limits (mk_limits (mk_uN n_21) (Some (mk_uN n_22)))) ->
-		Limits_sub (mk_limits (mk_uN n_11) (Some (mk_uN n_12))) (mk_limits (mk_uN n_21) (Some (mk_uN n_22))).
+	| max : forall (n_1 : n) (m_1 : m) (n_2 : n) (m_2_opt : (option m)), 
+		(n_1 >= n_2)%N ->
+		List.Forall (fun (m_2 : nat) => (m_1 <= m_2)%N) (option_to_list m_2_opt) ->
+		(wf_limits (mk_limits (mk_uN n_1) (Some (mk_uN m_1)))) ->
+		(wf_limits (mk_limits (mk_uN n_2) (option_map (fun (m_2 : m) => (mk_uN m_2)) m_2_opt))) ->
+		Limits_sub (mk_limits (mk_uN n_1) (Some (mk_uN m_1))) (mk_limits (mk_uN n_2) (option_map (fun (m_2 : m) => (mk_uN m_2)) m_2_opt))
+	| eps : forall (n_1 : n) (n_2 : n), 
+		(n_1 >= n_2)%N ->
+		(wf_limits (mk_limits (mk_uN n_1) None)) ->
+		(wf_limits (mk_limits (mk_uN n_2) None)) ->
+		Limits_sub (mk_limits (mk_uN n_1) None) (mk_limits (mk_uN n_2) None).
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:88.1-88.73 *)
 Inductive Functype_sub : functype -> functype -> Prop :=
@@ -8777,7 +8783,7 @@ Inductive Externtype_sub : externtype -> externtype -> Prop :=
 		(wf_externtype (MEM mt_2)) ->
 		Externtype_sub (MEM mt_1) (MEM mt_2).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:198.1-198.76 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:202.1-202.76 *)
 Inductive Blocktype_ok : context -> blocktype -> functype -> Prop :=
 	| Blocktype_ok__valtype : forall (C : context) (valtype_opt : (option valtype)), 
 		(wf_context C) ->
@@ -8790,7 +8796,7 @@ Inductive Blocktype_ok : context -> blocktype -> functype -> Prop :=
 		(wf_blocktype (_IDX v_typeidx)) ->
 		Blocktype_ok C (_IDX v_typeidx) (mk_functype (mk_list _ t_1_lst) (mk_list _ t_2_lst)).
 
-(* Mutual Recursion at: ../specification/wasm-2.0/6-typing.spectec:137.1-138.65 *)
+(* Mutual Recursion at: ../specification/wasm-2.0/6-typing.spectec:141.1-142.65 *)
 Inductive Instr_ok : context -> instr -> functype -> Prop :=
 	| nop : forall (C : context), 
 		(wf_context C) ->
@@ -9257,7 +9263,7 @@ Instrs_ok : context -> (seq instr) -> functype -> Prop :=
 		List.Forall (fun (v_instr : instr) => (wf_instr v_instr)) instr_lst ->
 		Instrs_ok C instr_lst (mk_functype (mk_list _ (t_lst ++ t_1_lst)) (mk_list _ (t_lst ++ t_2_lst))).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:139.1-139.69 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:143.1-143.69 *)
 Inductive Expr_ok : context -> expr -> resulttype -> Prop :=
 	| mk_Expr_ok : forall (C : context) (instr_lst : (seq instr)) (t_lst : (seq valtype)), 
 		(Instrs_ok C instr_lst (mk_functype (mk_list _ [:: ]) (mk_list _ t_lst))) ->
@@ -9265,7 +9271,7 @@ Inductive Expr_ok : context -> expr -> resulttype -> Prop :=
 		List.Forall (fun (v_instr : instr) => (wf_instr v_instr)) instr_lst ->
 		Expr_ok C instr_lst (mk_list _ t_lst).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:529.1-529.78 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:533.1-533.78 *)
 Inductive Instr_const : context -> instr -> Prop :=
 	| Instr_const__const : forall (C : context) (nt : numtype) (c : num_), 
 		(wf_context C) ->
@@ -9290,7 +9296,7 @@ Inductive Instr_const : context -> instr -> Prop :=
 		(wf_instr (GLOBAL_GET x)) ->
 		Instr_const C (GLOBAL_GET x).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:530.1-530.77 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:534.1-534.77 *)
 Inductive Expr_const : context -> expr -> Prop :=
 	| mk_Expr_const : forall (C : context) (instr_lst : (seq instr)), 
 		List.Forall (fun (v_instr : instr) => (Instr_const C v_instr)) instr_lst ->
@@ -9298,7 +9304,7 @@ Inductive Expr_const : context -> expr -> Prop :=
 		List.Forall (fun (v_instr : instr) => (wf_instr v_instr)) instr_lst ->
 		Expr_const C instr_lst.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:531.1-531.78 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:535.1-535.78 *)
 Inductive Expr_ok_const : context -> expr -> valtype -> Prop :=
 	| mk_Expr_ok_const : forall (C : context) (v_expr : expr) (t : valtype), 
 		(Expr_ok C v_expr (mk_list _ [::t])) ->
@@ -9307,13 +9313,13 @@ Inductive Expr_ok_const : context -> expr -> valtype -> Prop :=
 		List.Forall (fun (v_expr : instr) => (wf_instr v_expr)) v_expr ->
 		Expr_ok_const C v_expr t.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:564.1-564.73 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:568.1-568.73 *)
 Inductive Type_ok : type -> functype -> Prop :=
 	| mk_Type_ok : forall (ft : functype), 
 		(Functype_ok ft) ->
 		Type_ok (TYPE ft) ft.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:565.1-565.73 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:569.1-569.73 *)
 Inductive Func_ok : context -> func -> functype -> Prop :=
 	| mk_Func_ok : forall (C : context) (x : idx) (t_lst : (seq valtype)) (v_expr : expr) (t_1_lst : (seq valtype)) (t_2_lst : (seq valtype)), 
 		((x :> nat) < (|(context_TYPES C)|))%N ->
@@ -9325,7 +9331,7 @@ Inductive Func_ok : context -> func -> functype -> Prop :=
 		(wf_context {| context_TYPES := [:: ]; context_FUNCS := [:: ]; context_GLOBALS := [:: ]; context_TABLES := [:: ]; context_MEMS := [:: ]; context_ELEMS := [:: ]; context_DATAS := [:: ]; context_LOCALS := (t_1_lst ++ t_lst); LABELS := [::(mk_list _ t_2_lst)]; context_RETURN := (Some (mk_list _ t_2_lst)) |}) ->
 		Func_ok C (func_FUNC x (seq.map (fun (t : valtype) => (LOCAL t)) t_lst) v_expr) (mk_functype (mk_list _ t_1_lst) (mk_list _ t_2_lst)).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:566.1-566.75 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:570.1-570.75 *)
 Inductive Global_ok : context -> global -> globaltype -> Prop :=
 	| mk_Global_ok : forall (C : context) (gt : globaltype) (v_expr : expr) (v_mut : mut) (t : valtype), 
 		(Globaltype_ok gt) ->
@@ -9335,7 +9341,7 @@ Inductive Global_ok : context -> global -> globaltype -> Prop :=
 		(wf_global (global_GLOBAL gt v_expr)) ->
 		Global_ok C (global_GLOBAL gt v_expr) gt.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:567.1-567.74 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:571.1-571.74 *)
 Inductive Table_ok : context -> table -> tabletype -> Prop :=
 	| mk_Table_ok : forall (C : context) (res_tt : tabletype), 
 		(Tabletype_ok res_tt) ->
@@ -9343,7 +9349,7 @@ Inductive Table_ok : context -> table -> tabletype -> Prop :=
 		(wf_table (table_TABLE res_tt)) ->
 		Table_ok C (table_TABLE res_tt) res_tt.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:568.1-568.72 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:572.1-572.72 *)
 Inductive Mem_ok : context -> mem -> memtype -> Prop :=
 	| mk_Mem_ok : forall (C : context) (mt : memtype), 
 		(Memtype_ok mt) ->
@@ -9351,7 +9357,7 @@ Inductive Mem_ok : context -> mem -> memtype -> Prop :=
 		(wf_mem (MEMORY mt)) ->
 		Mem_ok C (MEMORY mt) mt.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:571.1-571.77 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:575.1-575.77 *)
 Inductive Elemmode_ok : context -> elemmode -> reftype -> Prop :=
 	| active : forall (C : context) (x : idx) (v_expr : expr) (rt : reftype) (lim : limits), 
 		((x :> nat) < (|(context_TABLES C)|))%N ->
@@ -9370,7 +9376,7 @@ Inductive Elemmode_ok : context -> elemmode -> reftype -> Prop :=
 		(wf_elemmode DECLARE) ->
 		Elemmode_ok C DECLARE rt.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:569.1-569.73 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:573.1-573.73 *)
 Inductive Elem_ok : context -> elem -> reftype -> Prop :=
 	| mk_Elem_ok : forall (C : context) (rt : reftype) (expr_lst : (seq expr)) (v_elemmode : elemmode), 
 		List.Forall (fun (v_expr : expr) => (Expr_ok_const C v_expr (valtype_reftype rt))) expr_lst ->
@@ -9379,7 +9385,7 @@ Inductive Elem_ok : context -> elem -> reftype -> Prop :=
 		(wf_elem (ELEM rt expr_lst v_elemmode)) ->
 		Elem_ok C (ELEM rt expr_lst v_elemmode) rt.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:572.1-572.77 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:576.1-576.77 *)
 Inductive Datamode_ok : context -> datamode -> Prop :=
 	| Datamode_ok__active : forall (C : context) (v_expr : expr) (mt : memtype), 
 		(0 < (|(context_MEMS C)|))%N ->
@@ -9394,7 +9400,7 @@ Inductive Datamode_ok : context -> datamode -> Prop :=
 		(wf_datamode datamode_PASSIVE) ->
 		Datamode_ok C datamode_PASSIVE.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:570.1-570.73 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:574.1-574.73 *)
 Inductive Data_ok : context -> data -> Prop :=
 	| mk_Data_ok : forall (C : context) (b_lst : (seq byte)) (v_datamode : datamode), 
 		(Datamode_ok C v_datamode) ->
@@ -9402,7 +9408,7 @@ Inductive Data_ok : context -> data -> Prop :=
 		(wf_data (DATA b_lst v_datamode)) ->
 		Data_ok C (DATA b_lst v_datamode).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:573.1-573.74 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:577.1-577.74 *)
 Inductive Start_ok : context -> start -> Prop :=
 	| mk_Start_ok : forall (C : context) (x : idx), 
 		((x :> nat) < (|(context_FUNCS C)|))%N ->
@@ -9411,7 +9417,7 @@ Inductive Start_ok : context -> start -> Prop :=
 		(wf_start (START x)) ->
 		Start_ok C (START x).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:637.1-637.80 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:641.1-641.80 *)
 Inductive Import_ok : context -> import -> externtype -> Prop :=
 	| mk_Import_ok : forall (C : context) (name_1 : name) (name_2 : name) (xt : externtype), 
 		(Externtype_ok xt) ->
@@ -9419,7 +9425,7 @@ Inductive Import_ok : context -> import -> externtype -> Prop :=
 		(wf_import (IMPORT name_1 name_2 xt)) ->
 		Import_ok C (IMPORT name_1 name_2 xt) xt.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:639.1-639.83 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:643.1-643.83 *)
 Inductive Externidx_ok : context -> externidx -> externtype -> Prop :=
 	| Externidx_ok__func : forall (C : context) (x : idx) (ft : functype), 
 		((x :> nat) < (|(context_FUNCS C)|))%N ->
@@ -9450,7 +9456,7 @@ Inductive Externidx_ok : context -> externidx -> externtype -> Prop :=
 		(wf_externtype (MEM mt)) ->
 		Externidx_ok C (externidx_MEM x) (MEM mt).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:638.1-638.80 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:642.1-642.80 *)
 Inductive Export_ok : context -> export -> externtype -> Prop :=
 	| mk_Export_ok : forall (C : context) (v_name : name) (v_externidx : externidx) (xt : externtype), 
 		(Externidx_ok C v_externidx xt) ->
@@ -9459,7 +9465,7 @@ Inductive Export_ok : context -> export -> externtype -> Prop :=
 		(wf_export (EXPORT v_name v_externidx)) ->
 		Export_ok C (EXPORT v_name v_externidx) xt.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:669.1-669.62 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:673.1-673.62 *)
 Inductive Module_ok : module -> Prop :=
 	| mk_Module_ok : forall (type_lst : (seq type)) (import_lst : (seq import)) (func_lst : (seq func)) (global_lst : (seq global)) (table_lst : (seq table)) (mem_lst : (seq mem)) (elem_lst : (seq elem)) (v_n : n) (data_lst : (seq data)) (start_opt : (option start)) (export_lst : (seq export)) (ft'_lst : (seq functype)) (ixt_lst : (seq externtype)) (C' : context) (gt_lst : (seq globaltype)) (tt_lst : (seq tabletype)) (mt_lst : (seq memtype)) (rt_lst : (seq reftype)) (C : context) (ft_lst : (seq functype)) (xt_lst : (seq externtype)) (ift_lst : (seq functype)) (igt_lst : (seq globaltype)) (itt_lst : (seq tabletype)) (imt_lst : (seq memtype)) (var_3 : (seq memtype)) (var_2 : (seq tabletype)) (var_1 : (seq globaltype)) (var_0 : (seq functype)), 
 		(fun_memsxt ixt_lst var_3) ->
@@ -10668,8 +10674,8 @@ Inductive fun_instantiate : store -> module -> (seq externaddr) -> config -> Pro
 		List.Forall2 (fun (expr_E_lst_2 : (seq expr)) (ref_lst_3 : (seq ref)) => List.Forall2 (fun (expr_E_2 : expr) (ref_7 : ref) => (Eval_expr z expr_E_2 z [::(val_ref ref_7)])) expr_E_lst_2 ref_lst_3) expr_E_lst_lst ref_lst_lst ->
 		((s', v_moduleinst) == var_2) ->
 		(f == {| LOCALS := [:: ]; frame_MODULE := v_moduleinst |}) ->
-		holds_upto (fun i_71285 => (i_71285 < (|elem_lst|))%N) n_E ->
-		(instr_E_lst == (concat_ instr (seq.mkseq (fun i_71285 => (runelem (elem_lst[| i_71285 |]) (mk_uN i_71285))) n_E))) ->
+		holds_upto (fun i_71346 => (i_71346 < (|elem_lst|))%N) n_E ->
+		(instr_E_lst == (concat_ instr (seq.mkseq (fun i_71346 => (runelem (elem_lst[| i_71346 |]) (mk_uN i_71346))) n_E))) ->
 		holds_upto (fun j_17 => ((rundata (data_lst[| j_17 |]) (mk_uN j_17)) != None)) n_D ->
 		holds_upto (fun j_17 => (j_17 < (|data_lst|))%N) n_D ->
 		(instr_D_lst == (concat_ instr (seq.mkseq (fun j_17 => (!((rundata (data_lst[| j_17 |]) (mk_uN j_17))))) n_D))) ->
@@ -10685,7 +10691,7 @@ Inductive fun_instantiate : store -> module -> (seq externaddr) -> config -> Pro
 		(wf_frame {| LOCALS := [:: ]; frame_MODULE := moduleinst_init |}) ->
 		(wf_state (mk_state s f_init)) ->
 		(wf_frame {| LOCALS := [:: ]; frame_MODULE := v_moduleinst |}) ->
-		holds_upto (fun i_71288 => (wf_uN 32 (mk_uN i_71288))) n_E ->
+		holds_upto (fun i_71349 => (wf_uN 32 (mk_uN i_71349))) n_E ->
 		holds_upto (fun j_18 => (wf_uN 32 (mk_uN j_18))) n_D ->
 		fun_instantiate s v_module externaddr_lst (mk_config (mk_state s' f) ((seq.map (fun (instr_E : instr) => (admininstr_instr instr_E)) instr_E_lst) ++ ((seq.map (fun (instr_D : instr) => (admininstr_instr instr_D)) instr_D_lst) ++ (option_to_list (option_map (fun (x : idx) => (admininstr_CALL x)) x_opt))))).
 
