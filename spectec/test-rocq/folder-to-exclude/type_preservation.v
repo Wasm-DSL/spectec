@@ -7,7 +7,7 @@ Declare Scope wasm_scope.
 Open Scope wasm_scope.
 Import RecordSetNotations.
 From WasmSpectec Require Import wasm helper_lemmas helper_tactics typing_lemmas subtyping type_preservation_pure extension_lemmas axioms.
-From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype.
+From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype rat ssrint.
 Import ListNotations.
 
 Lemma zero_is_well_formed: 
@@ -24,7 +24,7 @@ Definition num_default (nt : numtype) : num_ :=
 		| F64 => mk_num__1 Fnn_F64 (fzero 64)
 	end
 .
-
+(* 
 Lemma num_default_is_well_formed: forall nt,
 	wf_num_ nt (num_default nt).
 Proof.
@@ -34,17 +34,17 @@ Proof.
 	- econstructor; eauto.
 	- econstructor. econstructor. unfold sizenn; unfold E. simpl. eauto.
 	- econstructor. econstructor. unfold sizenn; unfold E; simpl. eauto.
-Qed.
+Qed. *)
 
 Lemma inst_t_context_local_empty: forall s i C,
-	Module_instance_ok s i C ->
+	Moduleinst_ok s i C ->
   context_LOCALS C = [].
 Proof.
 	move => s i C HMInst. inversion HMInst => //=.
 Qed.
 
 Lemma inst_t_context_labels_empty: forall s i C,
-	Module_instance_ok s i C ->
+	Moduleinst_ok s i C ->
   LABELS C = [].
 Proof.
 	move => s i C HMInst. inversion HMInst => //=.
@@ -53,10 +53,10 @@ Qed.
 Lemma t_preservation_vs_type': forall s f ais s' f' ais' C C' t1s t2s,
 	Step (mk_config (mk_state s f) ais) (mk_config (mk_state s' f') ais') ->
 	Store_ok s -> 
-	Module_instance_ok s (frame_MODULE f) C ->
+	Moduleinst_ok s (frame_MODULE f) C ->
 	Vals_ok s (LOCALS f) (context_LOCALS C') ->
 	inst_match C C' ->
-	Admin_instrs_ok s C' ais (t1s :-> t2s) ->
+	Instrs_ok2 s C' ais (t1s :-> t2s) ->
 	Vals_ok s (LOCALS f') (context_LOCALS C').
 Proof.
 	move => s f ais s' f' ais' C C' t1s t2s HReduce HST HIT.
@@ -66,13 +66,13 @@ Proof.
 	generalize dependent ais.
 	generalize dependent ais'.
 
-	induction HReduce => //;
+	induction HReduce;
 	move => ais' Heqc1 ais Heqc2 C' t1s t2s HVals1 Hmatch HType;
 	eq_to_prop;
 	try (destruct z; subst);
 	try (destruct z'; subst);
 	try (apply config_same in Heqc1 as [Hbefore1 [Hbefore2 Hbefore3]];
-		apply config_same in Heqc2 as [Hafter1  [Hafter2  Hafter3]]);
+	apply config_same in Heqc2 as [Hafter1  [Hafter2  Hafter3]]);
 	try (specialize (IHHReduce _ erefl _ erefl));
 	subst; auto.
 
@@ -84,7 +84,7 @@ Proof.
 		{
 			destruct C'; auto.
 		}
-		rewrite H.
+		rewrite H3.
 		eapply IHHReduce; destruct C'; eauto.
 	}
 	{
@@ -105,83 +105,138 @@ Proof.
 Qed.
 
 Lemma t_preservation_vs_type: forall s f ais s' f' ais' C C' t1s t2s,
-    Step (mk_config (mk_state s f) ais) (mk_config (mk_state s' f') ais') ->
-    Store_ok s -> 
-	Store_extension s s' ->
-    Module_instance_ok s (frame_MODULE f) C ->
+  Step (mk_config (mk_state s f) ais) (mk_config (mk_state s' f') ais') ->
+  Store_ok s -> 
+	Extend_store s s' ->
+  Moduleinst_ok s (frame_MODULE f) C ->
 	Vals_ok s (LOCALS f) (context_LOCALS C') ->
 	inst_match C C' ->
-    Admin_instrs_ok s C' ais (t1s :-> t2s) ->
-    Vals_ok s' (LOCALS f') (context_LOCALS C').
+  Instrs_ok2 s C' ais (t1s :-> t2s) ->
+  Vals_ok s' (LOCALS f') (context_LOCALS C').
 Proof.
 	move => s f ais s' f' ais' C C' t1s t2s HReduce HST
 		HStoreExt HMInst HValOK Him HType.
 	eapply t_preservation_vs_type' in HValOK; eauto.
-	eapply store_extension_vals in HValOK; eauto.
+	eapply Extend_store_vals in HValOK; eauto.
 Qed.
 
+Lemma wf_tableinsts_preserves: forall s tbinsts tbts,
+	Forall2 (fun v t => Tableinst_ok s v t) tbinsts tbts ->
+	Forall wf_tableinst tbinsts ->
+	Forall wf_tabletype tbts.
+Proof.
+	move=> s tbints tbts HTbOK HWfTbinsts.
+	move: HWfTbinsts.
+	dependent induction HTbOK; eauto.
+	move=> HWfTbinsts.
+	eapply Forall_cons.
+	inversion H; eauto.
+	eapply IHHTbOK.
+	by inversion HWfTbinsts.
+Qed. 
+
+Lemma list_update_func_preserves_prop {A : Type} {_ : Inhabited A}: forall (l : seq A) (f : A -> A) (P : A -> Prop) (x : nat),
+	Forall P l ->
+	P (f (l [| x |])) ->
+	Forall P (list_update_func l x f).
+Proof.
+	move=> l f P x HForall HP.
+	move: x HP.
+	induction l; eauto.
+	move=> x HP.
+	inversion HForall; subst.
+	destruct x; simpl.
+	- econstructor; eauto.
+	- econstructor; eauto.
+Qed.
+
+Lemma list_update_func_forall_inv {A : Type} {_ : Inhabited A}: forall (l : seq A) (f : A -> A) (P : A -> Prop) (x : nat),
+	x < | l | ->
+	Forall P (list_update_func l x f) ->
+	P (f (l [| x |])).
+Proof.
+	move=> l f P x HBound HForall.
+	move: x HBound HForall.
+	induction l; eauto; try discriminate.
+	move=> x HBound HForall.
+	(* inversion HForall; subst. *)
+	destruct x; simpl.
+	- inversion HForall; subst; eauto.
+	- simpl in HForall. eapply IHl; eauto. inversion HForall; subst; eauto.
+Qed.
+	
+(* Lemma list_slice_update_inv {A : Type} {_ : Inhabited A}: forall (l l' : seq A) (i j : nat) (P : A -> Prop),
+	Forall P (list_slice_update l i j l') ->
+	 *)
 Lemma store_extension_reduce: forall s f ais s' f' ais' C C' tf,
+	wf_config (mk_config (mk_state s f) ais) ->
 	Step (mk_config (mk_state s f) ais) (mk_config (mk_state s' f') ais') ->
-	Module_instance_ok s (frame_MODULE f) C ->
-	Admin_instrs_ok s C' ais tf ->
+	Moduleinst_ok s (frame_MODULE f) C ->
+	Instrs_ok2 s C' ais tf ->
 	inst_match C C' ->
 	Store_ok s ->
-	Store_extension s s' /\ Store_ok s'.
+	Extend_store s s' /\ Store_ok s'.
 Proof.
-	move => s f ais s' f' ais' C C' tf HReduce HIT HType HMatch HStore.
+	move => s f ais s' f' ais' C C' tf HWfConfig HReduce HIT HType HMatch HStore.
+	eapply ainstrs_ok_context_store_wf in HType as HWf; destruct HWf as [HWfC [HWfS HWfAis]].
+	eapply Step_is_wf in HReduce as HWfConfig'; eauto.
+	clear HWfC HWfAis.
+
 	remember (mk_config (mk_state s f) ais) as c1.
 	remember (mk_config (mk_state s' f') ais') as c2.
+
+	assert (wf_store s') as HWfStore'. {
+		subst.
+		inversion HWfConfig'. inversion H1; subst; eauto. 
+	} 
 	generalize dependent C. generalize dependent C'.
 	generalize dependent tf.
 	generalize dependent ais. generalize dependent ais'. 
 	generalize dependent f. generalize dependent f'.
 
-	pose proof func_extension_refl as LemFuncSame.
-	pose proof mem_extension_refl as LemMemSame.
-	pose proof table_extension_refl as LemTableSame.
-	pose proof global_extension_refl as LemGlobalSame.
-	pose proof elem_extension_refl as LemElemSame.
-	pose proof data_extension_refl as LemDataSame.
-	pose proof store_extension_refl as LemStoreSame.
+	
+	pose proof extend_func_refl as LemFuncSame.
+	pose proof extend_mem_refl as LemMemSame.
+	pose proof extend_table_refl as LemTableSame.
+	pose proof extend_global_refl as LemGlobalSame.
+	pose proof extend_elem_refl as LemElemSame.
+	pose proof extend_data_refl as LemDataSame.
+	pose proof Extend_store_refl as LemStoreSame.
 
 	induction HReduce;
 	move => v_f' v_f ais' Heqc2 ais Heqc1 tf C' HType C HIT HMatch;
 	destruct tf as [[tf1] [tf2]].
 	all: eq_to_prop; try (destruct z; 
 	apply config_same in Heqc1; apply config_same in Heqc2; 
-	destruct Heqc1; destruct Heqc2;
-	subst; try (split => //; eapply store_extension_refl; eauto)).
+	destruct Heqc1 as [? [? ?]]; destruct Heqc2 as [? [? ?]];
+	subst; try (split; eauto; by eapply Extend_store_refl; eauto)).
 	{ (* Label Context *) 
-		injection Heqc1 as H1.
-		injection Heqc2 as H2.
-		rewrite <- H in HType.
+		injection Heqc1 as ?; subst.
+		injection Heqc2 as ?; subst.
 		typing_inversion HType.
-		Opaque admininstr_instr.
 		unfold_principal_typing Hai.
 		destruct_all.
-		inversion H3; subst; clear H3.
 		eapply IHHReduce; eauto.
 	}
 	{ (* Label Frame *)
-		injection Heqc1 as H1.
-		injection Heqc2 as H2.
-		rewrite <- H0 in HType.
+		injection Heqc1 as ?; subst.
+		injection Heqc2 as ?; subst.
 		typing_inversion HType.
-		Opaque admininstr_instr.
 		unfold_principal_typing Hai.
 		destruct_all.
-		inversion H5; subst; clear H5.
-		inversion H7; subst; clear H7.
-		inversion H0; subst; clear H0.
+		inversion H2; subst; clear H2.
+		inversion H3; subst; clear H3.
 		eapply IHHReduce; eauto.
-		resolve_inst_match.
+		resolve_inst_match;
+		rewrite /Append_List_;
+		rewrite cats0; eauto.
 	}
 	{ (* Label Seq *)
-		injection Heqc1 as H1.
-		injection Heqc2 as H2.
+		injection Heqc1 as ?; subst.
+		injection Heqc2 as ?; subst.
 		subst.
 		typing_inversion HType.
-		typing_inversion H2.
+		typing_inversion H3.
 		eapply IHHReduce; eauto.
 	}
 	{ (* Global Set *) 
@@ -193,49 +248,55 @@ Proof.
 		eapply valtype_sub_non_bot in Hsubv; eauto.
 		subst. clear Hsub Hsubi Hnonbot.
 
+		rewrite /lookup_total.
+
 		remember ((proj_uN_0 x)) as v_i.
-		remember ((lookup_total (GLOBALS (frame_MODULE v_f)) v_i)) as ga.
+		
+		remember (nth default_val (GLOBALS (frame_MODULE v_f)) v_i) as ga.
 		remember  (s <| store_GLOBALS :=
 			list_update_func (store_GLOBALS s) ga
 			[eta set VALUE (fun=> v_val)] |>) as s'.
 
 		assert (
-			ga < Datatypes.length (store_GLOBALS s) /\
+			ga < size (store_GLOBALS s) /\
 			exists v, lookup_total (store_GLOBALS s) ga =
-				{| globalinst_TYPE := mk_globaltype (Some MUT_MUT) t; VALUE := v |})
+				{| globalinst_TYPE := mk_globaltype (Some MUT) t; VALUE := v |})
 			as [HLen [v_old HLookup]].
 		{
 			eapply minst_invert_globals in HIT; eauto.
 
-			eapply Forall2_nth2 in HIT as [_ HIT].
+			eapply Forall2_size2 in HIT as [_ HIT].
 			eapply HIT in H1.
 			destruct_all.
 			rewrite /lookup_total in H0.
-			list_to_seq.
-			rewrite H0 in H3.
-			inversion H3; subst; clear H3.
-			rewrite /lookup_total in H4.
+			rewrite /lookup_total in H3.
+			
+			eapply externtype_global_eq in H4; subst.
 
+			rewrite H0 in H3.
 			split. auto.
-			by exists extr1.
+			by exists extr0.
 		}
 
-		assert (Store_extension s s').
+		assert (Extend_store s s').
 		{
-			destruct s; destruct s'.
-			eapply mk_Store_extension with
-				(funcinst_2_lst := [])
-				(tableinst_2_lst := [])
-				(meminst_2_lst := [])
-				(globalinst_2_lst := [])
-				(eleminst_2_lst := [])
-				(datainst_2_lst := [])
-				(globalinst_1'_lst := store_GLOBALS0)
-			; eq_to_prop; eauto.
-			all: injection Heqs' as ?; subst.
-			- by repeat rewrite cats0.
-			- by rewrite list_update_length_func.
-			- subst; eapply global_set_global_extension; eauto.
+			inversion HWfS; subst.
+			remember ({|
+				store_FUNCS := var_0_lst;
+				store_GLOBALS := var_1_lst;
+				store_TABLES := var_2_lst;
+				store_MEMS := var_3_lst;
+				store_ELEMS := var_4_lst;
+				store_DATAS := var_5_lst
+			|}) as s.
+			assert (wf_val v_val). { inversion HValok; subst; eauto. inversion H6; subst; econstructor. }
+			eapply mk_Extend_store; eq_to_prop; simpl; eauto; (try eapply holds_upto_lt_refl).
+			- rewrite list_update_length_func. eapply holds_upto_lt_refl.
+			- eapply global_set_global_extension; subst; eauto. 
+			- eapply LemMemSame; subst; eauto.
+			- eapply LemTableSame; subst; eauto.
+			- eapply LemFuncSame; subst; eauto.
+			- eapply LemDataSame; subst; eauto.
 		}
 		split; auto.
 		- by subst.
@@ -251,18 +312,24 @@ Proof.
 			(meminst_lst := meminst_lst)
 			(eleminst_lst := eleminst_lst)
 			(datainst_lst := datainst_lst)
+			(memtype_lst := memtype_lst)
+			(functype_lst := functype_lst)
+			(tabletype_lst := tabletype_lst)
+			(datatype_lst := datatype_lst)
+			(elemtype_lst := elemtype_lst)
+
 			; 
 			eq_to_prop; auto;
 			try solve [subst; auto];
 			try solve eauto;
 			subst;
 			first [
-				eapply store_extension_funcinsts; eauto |
-				eapply store_extension_tableinsts; eauto |
-				eapply store_extension_globalinsts; eauto |
-				eapply store_extension_meminsts; eauto |
-				eapply store_extension_eleminsts; eauto |
-				eapply store_extension_datainsts; eauto |
+				eapply Extend_store_funcinsts; eauto |
+				eapply Extend_store_tableinsts; eauto |
+				eapply Extend_store_globalinsts; eauto |
+				eapply Extend_store_meminsts; eauto |
+				eapply Extend_store_eleminsts; eauto |
+				eapply Extend_store_datainsts; eauto |
 				eauto].
 		- rewrite {1}list_update_length_func; eauto.
 		- {
@@ -270,11 +337,12 @@ Proof.
 		}
 	}
 	{ (* Table Set *)
-		rewrite /fun_table in H.
-		destruct_all; subst.
+		rewrite /fun_table in H0.
+		(* destruct_all; subst. *)
+		(* simpl in H0. *)
 		invert_ais_typing.
 		resolve_all_pt.
-		Opaque instrtype_sub.
+		(* Opaque instrtype_sub. *)
 		join_subtyping_ge Hsub Hsub0.
 		join_subtyping_eq Hsubi Hsub1.
 		eapply Ref_ok_non_bot in HRefok as Hnonbot.
@@ -283,11 +351,11 @@ Proof.
 		{
 			destruct t; destruct extr; auto; discriminate.
 		}
-		subst. clear Hsub Hsubi Hnonbot Hsubv Hsubv0.
+		subst. clear Hsub Hsubi Hnonbot Hsubv Hsubv0 Hsubi0.
 
 		remember (!( proj_num__0 i) :> nat) as v_i.
 		remember (x :> nat) as j.
-		remember ((lookup_total (TABLES (frame_MODULE v_f)) j)) as tba.
+		remember ((lookup_total (TABLES (frame_MODULE v_f)) (x :> nat))) as tba.
 		remember  (s <| store_TABLES :=
 			list_update_func (store_TABLES s) tba
 			(λ v_1 : tableinst, v_1
@@ -295,7 +363,7 @@ Proof.
 			|>) |>) as s'.
 
 		assert (
-			tba < Datatypes.length (store_TABLES s) /\
+			tba < size (store_TABLES s) /\
 			exists v_lim_1 tbr,
 				(Limits_sub v_lim_1 extr0) /\
 				((lookup_total (store_TABLES s) tba) =
@@ -304,36 +372,37 @@ Proof.
 		{
 			eapply minst_invert_tables in HIT; eauto.
 
-			eapply Forall2_nth2 in HIT as [_ HIT].
-			eapply HIT in H3.
-			destruct_all.
-			list_to_seq.
-			rewrite /lookup_total in H5.
-			rewrite H5 in H7.
-			inversion H7; subst; clear H7.
-			rewrite /lookup_total in H9.
-
+			eapply Forall2_size2 in HIT as [_ HIT].
+			eapply HIT in H1; clear HIT.
+			destruct H1 as [tbr [tbt' [HBound [HLookup Hext]]]].
+			rewrite /lookup_total in HLookup.
+			rewrite /lookup_total in H3.
+			rewrite H3 in Hext.
+			inversion Hext; subst.
+			inversion H5; subst.
 			split. auto.
-			by exists extr1, extr3.
+			exists lim_1, tbr; eauto.
 		}
 
-		assert (Store_extension s s').
+		assert (Extend_store s s').
 		{
-			destruct s; destruct s'.
-			eapply mk_Store_extension with
-				(funcinst_2_lst := [])
-				(tableinst_2_lst := [])
-				(meminst_2_lst := [])
-				(globalinst_2_lst := [])
-				(eleminst_2_lst := [])
-				(datainst_2_lst := [])
-				(tableinst_1'_lst := store_TABLES0)
-			; eq_to_prop; eauto.
-			all: inversion Heqs'; subst; clear Heqs'.
-			- by repeat rewrite cats0.
-			- by rewrite list_update_length_func.
+			inversion HWfS; subst.
+			remember ({|
+				store_FUNCS := var_0_lst;
+				store_GLOBALS := var_1_lst;
+				store_TABLES := var_2_lst;
+				store_MEMS := var_3_lst;
+				store_ELEMS := var_4_lst;
+				store_DATAS := var_5_lst
+			|}) as s.
+			eapply mk_Extend_store; eq_to_prop; simpl; eauto; (try eapply holds_upto_lt_refl).
+			- eapply LemGlobalSame; subst; eauto.
+			- eapply LemMemSame; subst; eauto.
+			- rewrite list_update_length_func. by eapply holds_upto_lt_refl.
 			- subst; rewrite {1}/set /=.
-				eapply table_set_table_extension; eauto.
+				eapply table_set_table_extension; eauto. reflexivity.
+			- eapply LemFuncSame; subst; eauto.
+			- eapply LemDataSame; subst; eauto.
 		}
 		split; auto.
 		- by subst.
@@ -349,6 +418,11 @@ Proof.
 			(meminst_lst := meminst_lst)
 			(eleminst_lst := eleminst_lst)
 			(datainst_lst := datainst_lst)
+			(memtype_lst := memtype_lst)
+			(functype_lst := functype_lst)
+			(tabletype_lst := tabletype_lst)
+			(datatype_lst := datatype_lst)
+			(elemtype_lst := elemtype_lst)
 			; 
 			eq_to_prop;
 			auto;
@@ -356,12 +430,12 @@ Proof.
 			try solve eauto;
 			subst;
 			first [
-				eapply store_extension_funcinsts; eauto |
-				eapply store_extension_tableinsts; eauto |
-				eapply store_extension_globalinsts; eauto |
-				eapply store_extension_meminsts; eauto |
-				eapply store_extension_eleminsts; eauto |
-				eapply store_extension_datainsts; eauto |
+				eapply Extend_store_funcinsts; eauto |
+				eapply Extend_store_tableinsts; eauto |
+				eapply Extend_store_globalinsts; eauto |
+				eapply Extend_store_meminsts; eauto |
+				eapply Extend_store_eleminsts; eauto |
+				eapply Extend_store_datainsts; eauto |
 				eauto
 			].
 		- rewrite {1}list_update_length_func; eauto.
@@ -370,13 +444,11 @@ Proof.
 		}
 	}
 	{ (* Table Grow *)
-		rename H0 into Hwfconfig.
-		destruct_all; subst.
+		rename H0 into HNotNone.
+		rename H into HGrow.
 		invert_ais_typing.
 		unfold_principal_typing Hai.
-		rename H1 into Hwfconfig2.
-		rename H2 into HNotNone.
-		destruct Hai as [extr [lim [HTemp [H1 H2]]]].
+		destruct Hai as [extr [lim [HTemp [HBound HLookup]]]].
 		rewrite HTemp in Hsub0; clear HTemp.
 		unfold_principal_typing Hai0.
 		destruct Hai0 as [Hwfn HTemp2].
@@ -391,14 +463,12 @@ Proof.
 			destruct extr, t; auto; discriminate.
 		}
 		subst. clear Hsub Hsubi Hnonbot Hsubv.
-		rewrite /fun_table in H.
-		inversion H; eq_to_prop; subst.
+		rewrite /fun_table in HGrow.
+		inversion HGrow as [????????? Heq Hadd Hlt HRes HWf1 HWf2| ]; eq_to_prop; subst.
 		2: 
 		{
 			destruct HNotNone. reflexivity.
 		}
-		rename H4 into Hopt.
-
 		remember ((proj_uN_0 x)) as v_i.
 		remember ((lookup_total (TABLES (frame_MODULE v_f)) v_i)) as tba.
 		remember ((mk_limits (mk_uN (Datatypes.length r'_lst + v_n)) j_opt))
@@ -409,68 +479,79 @@ Proof.
 					(fun=> v_ti) |>) as s'.
 
 		assert (
-			tba < Datatypes.length (store_TABLES s) /\
+			tba < size (store_TABLES s) /\
 			(Forall (λ j : u32, (| r'_lst |) + v_n <= (j :> nat)) j_opt) /\
 			(t = rt) /\
 			((lookup_total (store_TABLES s) tba) =
 				{| tableinst_TYPE := mk_tabletype
-					(mk_limits (mk_uN (Datatypes.length r'_lst)) j_opt)
+					(mk_limits (mk_uN (size r'_lst)) j_opt)
 					t;
 					REFS := r'_lst |}))
-			as [HLen [HRange [tbr HLookup]]].
+			as [HLen [HRange [tbr HLookup']]].
 		{
 			eapply minst_invert_tables in HIT; eauto.
 
-			eapply Forall2_nth2 in HIT as [_ HIT].
-			eapply HIT in H1.
-			destruct_all.
-			rewrite /lookup_total in H0.
-			rewrite /lookup_total in Heqtba.
+			eapply Forall2_size2 in HIT as [_ HIT].
 			list_to_seq.
-			rewrite -Heqtba in H1.
- 
-			rewrite /lookup_total in H2.
-			rewrite H2 in H4.
-			inversion H4; clear H4.
-			rewrite /lookup_total in H6.
-			rewrite Heqv_i in H6.
-			rewrite H6 in H0.
-			inversion H0; clear H0.
+			eapply HIT in HBound; clear HIT.
+			destruct HBound as [tbr [tbt' [HBound [HLookup' HSub]]]].
+			rewrite /lookup_total in HLookup'.
+			rewrite /lookup_total in HLookup.
+			rewrite /lookup_total in Heq.
 
-			split; auto.
-			split; auto.
-			split; auto.
+			rewrite HLookup in HSub.
 			
-			eapply s_invert_tables in HStore as [tbts HTable].
-			apply Forall2_nth in HTable as [HLen HTable].
-			subst.
-			apply HTable in H1.
-			destruct_all.
-			rewrite /lookup_total.
-			list_to_seq.
-			rewrite H4 in H1.
-			rewrite H1 in H6.
-			inversion H6; subst; clear H6.
-			rewrite H1; auto.
-		}
+			inversion HSub; subst; clear H2 H3.
+			inversion H1; subst; clear H4 H5 H1.
+			rename H2 into HLimits.
 
-		assert (Store_extension s s').
+			rewrite -Heq in HLookup'.
+			injection HLookup' as ?; subst.
+
+			split; auto.
+			split; auto.
+			split; auto.
+		
+			rewrite /lookup_total.
+			rewrite -Heq.
+
+			eapply s_invert_tables in HStore as [tbts HTable].
+			apply Forall2_size in HTable as [HLen HTable].
+			apply HTable in HBound; clear HTable.
+			destruct HBound as [ref_lst [v_m [rt [HLookup'' [HLookup''' [HTbtok HRefsOK]]]]]].
+			list_to_seq.
+
+			rewrite HLookup'' in Heq.
+			injection Heq as ?; subst.
+			rewrite -H in HLookup'''.
+			injection HLookup''' as ?; subst; eauto.
+		}
+		
+		assert (Extend_store s s').
 		{
-			destruct s; destruct s';
-			eapply mk_Store_extension with
-				(funcinst_2_lst := [])
-				(tableinst_2_lst := [])
-				(meminst_2_lst := [])
-				(globalinst_2_lst := [])
-				(eleminst_2_lst := [])
-				(datainst_2_lst := [])
-				(tableinst_1'_lst := store_TABLES0)
-			; eq_to_prop; eauto.
-			all: inversion Heqs'; subst; clear Heqs'.
-			- by repeat rewrite cats0.
-			- by rewrite list_update_length_func.
+			inversion HWfS; subst.
+			remember ({|
+				store_FUNCS := var_0_lst;
+				store_GLOBALS := var_1_lst;
+				store_TABLES := var_2_lst;
+				store_MEMS := var_3_lst;
+				store_ELEMS := var_4_lst;
+				store_DATAS := var_5_lst
+			|}) as s.
+			eapply mk_Extend_store; eq_to_prop; simpl; eauto; (try eapply holds_upto_lt_refl).
+			- eapply LemGlobalSame; subst; eauto.
+			- eapply LemMemSame; subst; eauto.
+			- rewrite list_update_length_func. by eapply holds_upto_lt_refl.
 			- subst.
-				eapply table_grow_table_extension; eauto.
+				eapply table_grow_table_extension; eauto. 
+				{
+					clear -HWfConfig' HStore.
+					inversion HWfConfig'; subst.
+					inversion H1; subst.
+					inversion H3; subst; eauto.
+				}
+			- eapply LemFuncSame; subst; eauto.
+			- eapply LemDataSame; subst; eauto.
 		}
 		split; auto.
 		- by subst.
@@ -488,26 +569,52 @@ Proof.
 				(mk_limits (mk_uN (size r'_lst + v_n)) j_opt)
 				rt
 			))
+			(memtype_lst := memtype_lst)
+			(functype_lst := functype_lst)
+			(datatype_lst := datatype_lst)
+			(elemtype_lst := elemtype_lst)
 			; eq_to_prop; auto;
 			try solve [subst; auto];
 			try solve eauto;
 			subst;
 			first [
-				eapply store_extension_funcinsts; eauto |
-				eapply store_extension_tableinsts; eauto |
-				eapply store_extension_globalinsts; eauto |
-				eapply store_extension_meminsts; eauto |
-				eapply store_extension_eleminsts; eauto |
-				eapply store_extension_datainsts; eauto |
+				eapply Extend_store_funcinsts; eauto |
+				eapply Extend_store_tableinsts; eauto |
+				eapply Extend_store_globalinsts; eauto |
+				eapply Extend_store_meminsts; eauto |
+				eapply Extend_store_eleminsts; eauto |
+				eapply Extend_store_datainsts; eauto |
 				eauto
 			].
 		- rewrite !list_update_length_func  /=; eauto.
 		- {
 			eapply construct_tableinsts_grow; subst; eauto.
+			{
+				clear -HWfConfig'.
+				inversion HWfConfig'; subst.
+				inversion H1; subst.
+				inversion H3; subst; eauto. 
+			}
 		}
+		- { 
+				clear -HWfConfig' H16 H5 HLen.
+				simpl in HLen.
+
+				inversion H16; subst.
+				
+				(* dependent induction H5; eauto. *)
+				inversion HWfConfig'; subst.
+				inversion H1; subst.
+				inversion H3; subst.
+				eapply (wf_tableinsts_preserves _ _ _ H5) in H8; eauto.
+				clear -H8 H5 H18 HLen.
+				eapply list_update_func_preserves_prop; eauto.
+				eapply list_update_func_forall_inv in H18; eauto.
+				inversion H18; subst; eauto.
+		  }
 	}
 	{ (* Elem Drop *)
-		destruct_all; subst.
+		(* destruct_all; subst. *)
 		invert_ais_typing.
 		resolve_all_pt.
 
@@ -526,33 +633,36 @@ Proof.
 		{
 			eapply minst_invert_elems in HIT; eauto.
 
-			eapply Forall2_nth2 in HIT as [_ HIT].
-			eapply HIT in H1.
-			destruct_all.
+			eapply Forall2_size2 in HIT as [_ HIT].
+			eapply HIT in H1; destruct H1 as [ref_lst [HBound [HRefOKs HLookup]]]; clear HIT.
 			rewrite /lookup_total in Heqea.
-			list_to_seq.
-			rewrite -Heqea in H1.
+			rewrite /lookup_total in HLookup.
+			rewrite -Heqea in HLookup.
+			rewrite -Heqea in HBound.
 			split; auto.
 
-			rewrite -Heqea in H4.
-			by exists (nth default_val (context_ELEMS C') i), extr0.
+			by exists (nth default_val (context_ELEMS C') i), ref_lst.
 		}
 
-		assert (Store_extension s s').
+				
+		assert (Extend_store s s').
 		{
-			destruct s; destruct s';
-			eapply mk_Store_extension with
-				(funcinst_2_lst := [])
-				(tableinst_2_lst := [])
-				(meminst_2_lst := [])
-				(globalinst_2_lst := [])
-				(eleminst_2_lst := [])
-				(datainst_2_lst := [])
-				(eleminst_1'_lst := store_ELEMS0)
-			; eq_to_prop; eauto.
-			all: inversion Heqs'; subst; clear Heqs'.
-			- by repeat rewrite cats0.
-			- by rewrite list_update_length_func.
+			inversion HWfS; subst.
+			remember ({|
+				store_FUNCS := var_0_lst;
+				store_GLOBALS := var_1_lst;
+				store_TABLES := var_2_lst;
+				store_MEMS := var_3_lst;
+				store_ELEMS := var_4_lst;
+				store_DATAS := var_5_lst
+			|}) as s.
+			eapply mk_Extend_store; eq_to_prop; simpl; eauto; (try eapply holds_upto_lt_refl).
+			- eapply LemGlobalSame; subst; eauto.
+			- eapply LemMemSame; subst; eauto.
+			- eapply LemTableSame; subst; eauto.
+			- eapply LemFuncSame; subst; eauto.
+			- eapply LemDataSame; subst; eauto.
+			- rewrite list_update_length_func; by eapply holds_upto_lt_refl.
 			- subst.
 				eapply elem_drop_elem_extension; eauto.
 		}
@@ -568,49 +678,53 @@ Proof.
 			(eleminst_lst := list_update_func (store_ELEMS s) ea
 				[eta set eleminst_REFS (fun=> [])])
 			(datainst_lst := datainst_lst)
+			(memtype_lst := memtype_lst)
+			(functype_lst := functype_lst)
+			(tabletype_lst := tabletype_lst)
+			(datatype_lst := datatype_lst)
+			(elemtype_lst := elemtype_lst)
 			; eq_to_prop; auto;
 			try solve [subst; auto];
 			try solve eauto;
 			subst;
 			first [
-				eapply store_extension_funcinsts; eauto |
-				eapply store_extension_tableinsts; eauto |
-				eapply store_extension_globalinsts; eauto |
-				eapply store_extension_meminsts; eauto |
-				eapply store_extension_eleminsts; eauto |
-				eapply store_extension_datainsts; eauto |
+				eapply Extend_store_funcinsts; eauto |
+				eapply Extend_store_tableinsts; eauto |
+				eapply Extend_store_globalinsts; eauto |
+				eapply Extend_store_meminsts; eauto |
+				eapply Extend_store_eleminsts; eauto |
+				eapply Extend_store_datainsts; eauto |
 				eauto
 			].
 		- rewrite {1}list_update_length_func; eauto.
 		- eapply construct_eleminsts; subst; eauto.
 	}
 	{ (* Store None *)
-		destruct_all; subst.
+		(* destruct_all; subst. *)
 		invert_ais_typing.
 		resolve_all_pt.
 
 		simpl.
 
-		assert (length (nbytes_ nt c) =
-    (Nat.divmod (the (res_size (valtype_numtype nt))) 7 0 7).1)
-			as Heqlen.
+		assert (size (nbytes_ nt c) = ratdiv8 (the (res_size (valtype_numtype nt)))) as Heqlen.
 		{
 			(* fun_nbytes_ not implemented *)
-			by eapply nbytes_len.
+			by eapply nbytes_len'.
 		}
 
 		remember ((proj_uN_0 (the (proj_num__0 i)))) as v_i.
 		remember (proj_uN_0 (OFFSET ao)) as v_ao.
 		remember ((lookup_total (MEMS (frame_MODULE v_f)) 0)) as ma.
 		remember  (s <| store_MEMS :=
-			list_update_func (store_MEMS s) ma
-				(λ v_1,
-				v_1 <| BYTES := list_slice_update (BYTES v_1) (v_i + v_ao) (Nat.divmod (the (res_size (valtype_numtype nt))) 7 0 7).1
-				(nbytes_ nt c) |>)	
-		|> ) as s'.
+			list_update_func (store_MEMS s) ((MEMS (frame_MODULE v_f)) [|mk_uN 0 :> nat|])
+			(λ var_1 : meminst,
+			var_1 <| BYTES :=
+			list_slice_update (BYTES var_1) ((!( proj_num__0 i) :> nat) + (OFFSET ao :> nat))
+			(ratdiv8 (the (res_size (valtype_numtype nt)))) (nbytes_ nt c) |>) |>
+		) as s'.
 
 		assert (
-			(ma < (List.length (store_MEMS s))) /\
+			(ma < (size (store_MEMS s))) /\
 			exists v_mt v_mt' v_b,
 				((lookup_total (store_MEMS s) ma) =
 					{| meminst_TYPE := v_mt; BYTES := v_b |}) /\
@@ -620,35 +734,36 @@ Proof.
 		{
 			eapply minst_invert_mems in HIT; eauto.
 
-			eapply Forall2_nth2 in HIT as [_ HIT].
-			eapply HIT in H4.
-			destruct_all.
+			eapply Forall2_size2 in HIT as [_ HIT].
+			eapply HIT in H2; destruct H2 as [v_mt [b_lst [HBound [HLookup HSub]]]]; clear HIT.
 			rewrite /lookup_total in Heqma.
-			list_to_seq.
-			rewrite -Heqma in H4.
+			rewrite -Heqma in HBound.
 			split; auto.
-			rewrite /lookup_total in H10.
+			rewrite /lookup_total in HLookup.
 
-			rewrite -Heqma in H10.
-			by exists extr, (nth default_val (context_MEMS C') 0), extr0.
+			rewrite -Heqma in HLookup.
+			inversion HSub; subst.
+			by exists v_mt, (nth default_val (context_MEMS C') 0), b_lst.
 		}
 
-		assert (Store_extension s s').
+		assert (Extend_store s s').
 		{
-			destruct s; destruct s';
-			eapply mk_Store_extension with
-				(funcinst_2_lst := [])
-				(tableinst_2_lst := [])
-				(meminst_2_lst := [])
-				(globalinst_2_lst := [])
-				(eleminst_2_lst := [])
-				(datainst_2_lst := [])
-				(meminst_1'_lst := store_MEMS0)
-			; eq_to_prop; eauto.
-			all: inversion Heqs'; subst; clear Heqs'.
-			- by repeat rewrite cats0.
-			- by rewrite list_update_length_func.
-			- eapply store_none_mem_extension; eauto.
+			inversion HWfS; subst.
+			remember ({|
+				store_FUNCS := var_0_lst;
+				store_GLOBALS := var_1_lst;
+				store_TABLES := var_2_lst;
+				store_MEMS := var_3_lst;
+				store_ELEMS := var_4_lst;
+				store_DATAS := var_5_lst
+			|}) as s.
+			eapply mk_Extend_store; eq_to_prop; simpl; eauto; (try eapply holds_upto_lt_refl).
+			- eapply LemGlobalSame; subst; eauto.
+			- rewrite list_update_length_func; by eapply holds_upto_lt_refl.
+			- eapply store_none_mem_extension with (v_nb := (nbytes_ nt c)); subst; eauto. eapply nbytes__is_wf; eauto.
+			- eapply LemTableSame; subst; eauto.
+			- eapply LemFuncSame; subst; eauto.
+			- eapply LemDataSame; subst; eauto.
 		}
 		split; auto.
 		- by subst.
@@ -658,29 +773,36 @@ Proof.
 			(funcinst_lst := funcinst_lst)
 			(globalinst_lst := globalinst_lst)
 			(tableinst_lst := tableinst_lst)
-			(meminst_lst := list_update_func (store_MEMS s) ma
-				(λ v_1 : meminst,
-				v_1 <| BYTES := list_slice_update (BYTES v_1) (v_i + v_ao) (Nat.divmod (the (res_size (valtype_numtype nt))) 7 0 7).1
-				(nbytes_ nt c) |>))
+			(meminst_lst := list_update_func (store_MEMS s) ((MEMS (frame_MODULE v_f)) [|mk_uN 0 :> nat|])
+			(λ var_1 : meminst,
+			var_1 <| BYTES :=
+			list_slice_update (BYTES var_1) ((!( proj_num__0 i) :> nat) + (OFFSET ao :> nat))
+			(ratdiv8 (the (res_size (valtype_numtype nt)))) (nbytes_ nt c) |>))
 			(eleminst_lst := eleminst_lst)
 			(datainst_lst := datainst_lst)
+			(memtype_lst := memtype_lst)
+			(functype_lst := functype_lst)
+			(tabletype_lst := tabletype_lst)
+			(datatype_lst := datatype_lst)
+			(elemtype_lst := elemtype_lst)
 			; eq_to_prop; auto;
 			try solve [subst; auto];
 			try solve eauto;
 			subst;
 			first [
-				eapply store_extension_funcinsts; eauto |
-				eapply store_extension_tableinsts; eauto |
-				eapply store_extension_globalinsts; eauto |
-				eapply store_extension_meminsts; eauto |
-				eapply store_extension_eleminsts; eauto |
-				eapply store_extension_datainsts; eauto |
+				eapply Extend_store_funcinsts; eauto |
+				eapply Extend_store_tableinsts; eauto |
+				eapply Extend_store_globalinsts; eauto |
+				eapply Extend_store_meminsts; eauto |
+				eapply Extend_store_eleminsts; eauto |
+				eapply Extend_store_datainsts; eauto |
 				eauto
 			].
 		- rewrite {1}list_update_length_func; eauto.
 		- {
 			rewrite -Heqlen.
 			eapply construct_meminsts; subst; eauto.
+			eapply nbytes__is_wf; eauto.
 		}
 	}
 	{ (* Store Some *)
@@ -690,12 +812,11 @@ Proof.
 
 		simpl.
 
-		assert (length (ibytes_ v_n (wrap__ (the (res_size (valtype_Inn v_Inn))) v_n (the (proj_num__0 c)))) = 
-			(Nat.divmod v_n 7 0 7).1 )
+		assert ( size (ibytes_ v_n (wrap__ (the (res_size (valtype_Inn v_Inn))) v_n (the (proj_num__0 c)))) = ratdiv8 v_n )
 			as Heqlen.
 		{
 			(* fun_ibytes_ wrap__ not implemented *)
-			by eapply ibytes_len.
+			by eapply ibytes_len'.
 		}
 
 		remember ((proj_uN_0 (the (proj_num__0 i)))) as v_i.
@@ -704,13 +825,13 @@ Proof.
 		remember  (s <| store_MEMS :=
 			list_update_func (store_MEMS s) ma
 				(λ v_1,
-				v_1 <| BYTES := list_slice_update (BYTES v_1) (v_i + v_ao) (Nat.divmod v_n 7 0 7).1
+				v_1 <| BYTES := list_slice_update (BYTES v_1) (v_i + v_ao) (ratdiv8 v_n)
 				(ibytes_ v_n (wrap__ (the (res_size (valtype_Inn v_Inn))) v_n (the (proj_num__0 c)))) |>)	
 		|> ) as s'.
 		rewrite -Heqlen in Heqs'.
 
 		assert (
-			(ma < (List.length (store_MEMS s))) /\
+			(ma < (size (store_MEMS s))) /\
 			exists v_mt v_mt' v_b,
 				((lookup_total (store_MEMS s) ma) =
 					{| meminst_TYPE := v_mt; BYTES := v_b |}) /\
@@ -720,34 +841,44 @@ Proof.
 		{
 			eapply minst_invert_mems in HIT; eauto.
 
-			eapply Forall2_nth2 in HIT as [_ HIT].
-			eapply HIT in H5.
-			destruct_all.
+			eapply Forall2_size2 in HIT as [_ HIT].
+			eapply HIT in H3; destruct H3 as [v_mt [b_lst [HBound [HLookup HSub]]]]; clear HIT.
 			rewrite /lookup_total in Heqma.
-			list_to_seq.
-			rewrite -Heqma in H5.
+			rewrite -Heqma in HBound.
 			split; auto.
+			rewrite /lookup_total in HLookup.
 
-			rewrite -Heqma in H10.
-			by exists extr, (nth default_val (context_MEMS C') 0), extr0.
+			rewrite -Heqma in HLookup.
+			inversion HSub; subst.
+			by exists v_mt, (nth default_val (context_MEMS C') 0), b_lst.
 		}
 
-		assert (Store_extension s s').
+		assert (Extend_store s s').
 		{
-			destruct s; destruct s';
-			eapply mk_Store_extension with
-				(funcinst_2_lst := [])
-				(tableinst_2_lst := [])
-				(meminst_2_lst := [])
-				(globalinst_2_lst := [])
-				(eleminst_2_lst := [])
-				(datainst_2_lst := [])
-				(meminst_1'_lst := store_MEMS0)
-			; eq_to_prop; eauto.
-			all: inversion Heqs'; subst; clear Heqs'.
-			- by repeat rewrite cats0.
-			- by rewrite list_update_length_func.
-			- eapply store_none_mem_extension; eauto.
+			inversion HWfS; subst.
+			remember ({|
+				store_FUNCS := var_0_lst;
+				store_GLOBALS := var_1_lst;
+				store_TABLES := var_2_lst;
+				store_MEMS := var_3_lst;
+				store_ELEMS := var_4_lst;
+				store_DATAS := var_5_lst
+			|}) as s.
+			eapply mk_Extend_store; eq_to_prop; simpl; eauto; (try eapply holds_upto_lt_refl).
+			- eapply LemGlobalSame; subst; eauto.
+			- rewrite list_update_length_func; by eapply holds_upto_lt_refl.
+			- eapply store_none_mem_extension with (v_nb := (ibytes_ v_n (wrap__ (!( res_size (valtype_Inn v_Inn))) v_n (!( proj_num__0 c))))); subst; eauto. 
+				{ 
+				eapply ibytes__is_wf; eauto.
+				eapply wrap___is_wf; eauto.
+				inversion H2; eq_to_prop; subst; eauto; try discriminate.
+				- destruct v_Inn; destruct v_Inn0; subst; try discriminate; eauto.
+				- destruct v_Inn; destruct v_Fnn; try discriminate.
+			}
+			- eapply LemTableSame; subst; eauto.
+			- eapply LemFuncSame; subst; eauto.
+			- eapply LemDataSame; subst; eauto.
+			- rewrite -Heqlen in HWfStore'; eauto. 
 		}
 		rewrite Heqlen in Heqs'.
 		split; auto.
@@ -763,39 +894,51 @@ Proof.
 				v_1 <| BYTES := list_slice_update
 					(BYTES v_1)
 					(v_i + v_ao)
-					(Nat.divmod v_n 7 0 7).1
+					(ratdiv8 v_n)
 					(ibytes_ v_n (wrap__ (the (res_size (valtype_Inn v_Inn))) v_n (the (proj_num__0 c)))) |>))
 			(eleminst_lst := eleminst_lst)
 			(datainst_lst := datainst_lst)
+			(memtype_lst := memtype_lst)
+			(functype_lst := functype_lst)
+			(tabletype_lst := tabletype_lst)
+			(datatype_lst := datatype_lst)
+			(elemtype_lst := elemtype_lst)
 			; eq_to_prop; auto;
 			try solve [subst; auto];
 			try solve eauto;
 			subst;
 			first [
-				eapply store_extension_funcinsts; eauto |
-				eapply store_extension_tableinsts; eauto |
-				eapply store_extension_globalinsts; eauto |
-				eapply store_extension_meminsts; eauto |
-				eapply store_extension_eleminsts; eauto |
-				eapply store_extension_datainsts; eauto |
+				eapply Extend_store_funcinsts; eauto |
+				eapply Extend_store_tableinsts; eauto |
+				eapply Extend_store_globalinsts; eauto |
+				eapply Extend_store_meminsts; eauto |
+				eapply Extend_store_eleminsts; eauto |
+				eapply Extend_store_datainsts; eauto |
 				eauto
 			].
 		- rewrite {1}list_update_length_func; eauto.
 		- {
 			rewrite -Heqlen.
 			eapply construct_meminsts; subst; eauto.
+			{ 
+				eapply ibytes__is_wf; eauto.
+				eapply wrap___is_wf; eauto.
+				inversion H2; eq_to_prop; subst; eauto; try discriminate.
+				- destruct v_Inn; destruct v_Inn0; subst; try discriminate; eauto.
+				- destruct v_Inn; destruct v_Fnn; try discriminate.
+			}
 		}
 	}
 	(* SIMD instructions *)
 	1-2: admit.
 	{ (* Memory Grow *)
-		rename H0 into Hwfconfig.
-		rename H1 into Hwfconfig2.
-		rename H2 into HNotNone.
-		destruct_all; subst.
+		rename H into HGrow.
+		(* rename H2 into Hwfconfig2. *)
+		rename H0 into HNotNone.
+		clear H2.
+		(* destruct_all; subst. *)
 		invert_ais_typing.
 		resolve_all_pt.
-		simpl.
 		remember (the (var_0)) as mi.
 
 		clear Hsub Hsub0.
@@ -804,57 +947,70 @@ Proof.
 		remember (s <| store_MEMS := list_update_func (store_MEMS s) ma (fun=> mi) |>) as s'.
 
 		assert (
-			(ma < (List.length (store_MEMS s))) /\
-			exists v_mt' lim_old v_j v_b,
-				((Memtype_sub (PAGE (mk_limits lim_old (Some v_j))) v_mt')) /\
+			(ma < (size (store_MEMS s))) /\
+			exists v_mt' (lim_old : rat) v_j v_b,
+				((Memtype_sub (PAGE (mk_limits lim_old v_j)) v_mt')) /\
 				(lookup_total (store_MEMS s) ma =
-					{| meminst_TYPE := PAGE (mk_limits lim_old (Some v_j)); BYTES := v_b |}) /\
+				{| meminst_TYPE := PAGE (mk_limits lim_old v_j); BYTES := v_b |}) /\
 				(mi =
-					{| meminst_TYPE := PAGE (mk_limits (lim_old + v_n) (Some v_j));
-					BYTES := v_b ++ repeat (mk_byte 0) (v_n * (64 * Ki)) |}) /\
-				(lim_old = (length v_b) / (64 * Ki)) /\
-				(lim_old + v_n <= v_j)
+				{| meminst_TYPE := PAGE (mk_limits (mk_uN (lim_old + v_n)%Q) v_j);
+				BYTES := v_b ++ repeat (mk_byte 0) (v_n * pages64) |}) /\
+				(lim_old = pagediv v_b) /\
+				Forall (fun j : u32 => (lim_old + v_n)%Q <= (j :> nat)) v_j
 				)
 			as [HLen [v_mt' [lim_old [v_j [v_b [HMemsub [HLookup [HNew [HLimold HRange]]]]]]]]].
 		{
 			eapply minst_invert_mems in HIT; eauto.
-			eapply Forall2_nth2 in HIT as [_ HIT].
-			eapply HIT in H0.
-			destruct_all.
+			eapply Forall2_size2 in HIT as [_ HIT].
+			eapply HIT in H0; destruct H0 as [v_mt [b_lst [HBound [HLookup HSub]]]]; clear HIT.
 			rewrite /lookup_total in Heqma.
-			list_to_seq.
-			rewrite -Heqma in H0 H5.
+			rewrite -Heqma in HBound HLookup.
 			split; auto.
-			clear HIT.
 
 			eapply s_invert_mems in HStore as [mts HMem].
-			eapply Forall2_nth in HMem as [_ HForall].
-			eapply HForall in H0.
-			destruct_all.
-			list_to_seq.
-			rewrite /lookup_total H0 in H5.
-			inversion H5; clear H5.
-			clear HForall.
+			eapply Forall2_size in HMem as [_ HForall].
+			eapply HForall in HBound; destruct HBound as [b_lst' [v_n' [v_m [HLookup' [HEq [HEq' HForall']]]]]]; clear HForall.
+			rewrite /lookup_total HLookup' in HLookup.
+			inversion HLookup; clear HLookup; subst.
+			(* clear HForall. *)
 			
 			rewrite /lookup_total.
 
-			rewrite /fun_mem in H; inversion H; eq_to_prop; subst; clear H.
+			rewrite /fun_mem in HGrow; inversion HGrow; eq_to_prop; subst; clear HGrow.
 			2: by destruct HNotNone.
-			rewrite H6 in H4.
-			rewrite H6 in H0.
+			Set Printing Coercions.
+			clear H4 H5.
+			rewrite /lookup_total in H.
+			rewrite -H in HLookup'.
 
-			rewrite /lookup_total /= H0 in H5.
-			inversion H5; subst; clear H5.
+			injection HLookup' as ?; subst.
+			fold (pagediv b_lst) in HNotNone.
 
 			exists (nth default_val (context_MEMS C') 0),
-				(mk_uN (Datatypes.length b_lst / (64 * Ki))),
-				(mk_uN extr4),
+				(pagediv b_lst),
+				(option_map [eta mk_uN] v_m),
 				(b_lst).
-			list_to_seq.
-			inversion H12; eauto.
+
+			rewrite -H0 in HEq.
+			
+			inversion HEq; subst.
+			inversion HSub; subst.
+			rewrite -H0 in H5.
+			(* remember (rat.addq (rat.divq (ssrint.Posz (| b_lst |)) (ssrint.Posz (64 * Ki))) (ssrint.Posz v_n)) as v. *)
+			split; auto.
+			split; auto.
+			fold (pagediv b_lst).
+			split; auto.
+			fold (pagediv b_lst) in H2.
+			split; auto.
+
+			destruct v_m; eauto.
+			eapply Forall_cons; eauto.
+			inversion H2; subst.
+
 		}
 
-		assert (Store_extension s s').
+		assert (Extend_store s s').
 		{
 			destruct s; destruct s';
 			eapply mk_Store_extension with
@@ -898,12 +1054,12 @@ Proof.
 			try solve eauto;
 			subst;
 			first [
-				eapply store_extension_funcinsts; eauto |
-				eapply store_extension_tableinsts; eauto |
-				eapply store_extension_globalinsts; eauto |
-				eapply store_extension_meminsts; eauto |
-				eapply store_extension_eleminsts; eauto |
-				eapply store_extension_datainsts; eauto |
+				eapply Extend_store_funcinsts; eauto |
+				eapply Extend_store_tableinsts; eauto |
+				eapply Extend_store_globalinsts; eauto |
+				eapply Extend_store_meminsts; eauto |
+				eapply Extend_store_eleminsts; eauto |
+				eapply Extend_store_datainsts; eauto |
 				eauto
 			].
 		- by rewrite HNew.
@@ -948,7 +1104,7 @@ Proof.
 			by rewrite Heqda.
 		}
 
-		assert (Store_extension s s').
+		assert (Extend_store s s').
 		{
 			destruct s; destruct s';
 			eapply mk_Store_extension with
@@ -982,12 +1138,12 @@ Proof.
 			try solve eauto;
 			subst;
 			first [
-				eapply store_extension_funcinsts; eauto |
-				eapply store_extension_tableinsts; eauto |
-				eapply store_extension_globalinsts; eauto |
-				eapply store_extension_meminsts; eauto |
-				eapply store_extension_eleminsts; eauto |
-				eapply store_extension_datainsts; eauto |
+				eapply Extend_store_funcinsts; eauto |
+				eapply Extend_store_tableinsts; eauto |
+				eapply Extend_store_globalinsts; eauto |
+				eapply Extend_store_meminsts; eauto |
+				eapply Extend_store_eleminsts; eauto |
+				eapply Extend_store_datainsts; eauto |
 				eauto
 			].
 		- eapply construct_datainsts; subst; eauto.
@@ -995,8 +1151,8 @@ Proof.
 Admitted.
 	
 Lemma reduce_inst_unchanged: forall s f ais s' f' ais',
-    Step (mk_config (mk_state s f) ais) (mk_config (mk_state s' f') ais') ->
-    frame_MODULE f = frame_MODULE f'.
+	Step (mk_config (mk_state s f) ais) (mk_config (mk_state s' f') ais') ->
+	frame_MODULE f = frame_MODULE f'.
 Proof.
 	move => s f ais s' f' ais' HReduce.
 	remember (mk_config (mk_state s f) ais) as c1.
@@ -1009,13 +1165,13 @@ Proof.
 Qed.
 
 Lemma t_read_preservation: forall v_s v_f v_ais v_ais' v_C v_C' t1s t2s,
-    Step_read (mk_config (mk_state v_s v_f) v_ais) v_ais' ->
-    Store_ok v_s ->
-    Module_instance_ok v_s (frame_MODULE v_f) v_C ->
+	Step_read (mk_config (mk_state v_s v_f) v_ais) v_ais' ->
+	Store_ok v_s ->
+	Moduleinst_ok v_s (frame_MODULE v_f) v_C ->
 	Forall2 (fun v_t v_val => Val_ok v_s v_val v_t) (context_LOCALS v_C') (LOCALS v_f) ->
 	inst_match v_C v_C' ->
-    Admin_instrs_ok v_s v_C' v_ais (t1s :-> t2s) ->
-    Admin_instrs_ok v_s v_C' v_ais' (t1s :-> t2s).
+	Instrs_ok2 v_s v_C' v_ais (t1s :-> t2s) ->
+	Instrs_ok2 v_s v_C' v_ais' (t1s :-> t2s).
 Proof.
 	move => v_s v_f v_ais v_ais' v_C v_C' t1s t2s HReduce HST.
 	move: v_C v_C' t1s t2s.
@@ -1198,10 +1354,10 @@ Proof.
 
 		eapply construct_ais_typing_single.
 		2: eapply Hsub0.
-		eapply Admin_instr_ok__frame.
+		eapply Instr_ok2__frame.
 		2: auto.
 
-		(* Thread_ok *)
+		(* Expr_ok2 *)
 		invert_funcs.
 		inversion HST; eq_to_prop; subst.
 		eapply Forall2_nth in H7 as [_ H7].
@@ -1212,7 +1368,7 @@ Proof.
 		rewrite H2 in Hfiok.
 		inversion Hfiok; subst.
 
-		eapply mk_Thread_ok with (C := ({|
+		eapply mk_Expr_ok2 with (C := ({|
 			context_TYPES := [];
 			context_FUNCS := [];
 			context_GLOBALS := [];
@@ -1320,7 +1476,7 @@ Proof.
 		{ (* CONST case *)
 			rewrite -H2;
 			rewrite -H.
-			eapply Admin_instr_ok__instr with (v_instr := (CONST nt c_t)).
+			eapply Instr_ok2__instr with (v_instr := (CONST nt c_t)).
 			econstructor; eauto.
 			econstructor; eauto.
 			by inversion H3.
@@ -1329,7 +1485,7 @@ Proof.
 			list_to_seq.
 			rewrite -H2;
 			rewrite -H3.
-			eapply Admin_instr_ok__instr with (v_instr := (VCONST vt c_t)).
+			eapply Instr_ok2__instr with (v_instr := (VCONST vt c_t)).
 			destruct vt.
 			econstructor.
 		}
@@ -1338,7 +1494,7 @@ Proof.
 		{ (* NULL case *)
 			simpl.
 			inversion H3; subst.
-			eapply Admin_instr_ok__instr with (v_instr := (REF_NULL rt)).
+			eapply Instr_ok2__instr with (v_instr := (REF_NULL rt)).
 			constructor.
 		}
 		(* Rest of vals *)
@@ -1421,7 +1577,7 @@ Proof.
 		eapply construct_ais_typing_single.
 		2: eapply Hsub.
 		
-		eapply Admin_instr_ok__instr with (v_instr := (CONST I32 (mk_num__0 Inn_I32 (mk_uN
+		eapply Instr_ok2__instr with (v_instr := (CONST I32 (mk_num__0 Inn_I32 (mk_uN
 		(Datatypes.length (REFS (fun_table (mk_state v_s v_f) x))))))).
 		econstructor.
 		list_to_seq.
@@ -1528,13 +1684,13 @@ Proof.
 				{
 					eapply construct_ais_typing_single.
 					2: eapply Hsub_0.
-					eapply Admin_instr_ok__instr with (v_instr := (CONST I32 i)).
+					eapply Instr_ok2__instr with (v_instr := (CONST I32 i)).
 					econstructor. econstructor; eauto.
 				}
 				eapply H8_0.
 			}
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr := (TABLE_SET x)).
+			eapply Instr_ok2__instr with (v_instr := (TABLE_SET x)).
 			econstructor; list_to_seq; eq_to_prop; eauto.
 			{
 				eapply instrtype_sub_trans with (tf2 := ([valtype_I32; t] :-> [])).
@@ -1559,7 +1715,7 @@ Proof.
 			(v_ais1 := [admininstr_CONST I32 c]).
 				{
 					eapply construct_ais_typing_single.
-					eapply Admin_instr_ok__instr with (v_instr := (CONST I32 c)).
+					eapply Instr_ok2__instr with (v_instr := (CONST I32 c)).
 					econstructor. econstructor.
 					- by inversion H4.
 					- by eapply instrtype_sub_add_same.
@@ -1571,7 +1727,7 @@ Proof.
 				by eapply instrtype_sub_add_same.
 			}
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr := (CONST I32
+			eapply Instr_ok2__instr with (v_instr := (CONST I32
 				n_const
 			)).
 			econstructor.
@@ -1580,7 +1736,7 @@ Proof.
 			by eapply instrtype_sub_add_same.
 		}
 		eapply construct_ais_typing_single.
-		eapply Admin_instr_ok__instr with (v_instr := (TABLE_FILL x)).
+		eapply Instr_ok2__instr with (v_instr := (TABLE_FILL x)).
 		econstructor; eq_to_prop; eauto.
 
 		eapply instrtype_sub_trans.
@@ -1652,7 +1808,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr := TABLE_GET y).
+			eapply Instr_ok2__instr with (v_instr := TABLE_GET y).
 			econstructor; eq_to_prop; eauto.
 			eexists [valtype_I32],[valtype_I32],[valtype_I32],[valtype_reftype extr].
 			split; auto.
@@ -1662,7 +1818,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr := TABLE_SET x).
+			eapply Instr_ok2__instr with (v_instr := TABLE_SET x).
 			econstructor; eq_to_prop; eauto.
 			simpl.
 			eapply instrtype_sub_refl.
@@ -1697,7 +1853,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr := TABLE_COPY x y).
+			eapply Instr_ok2__instr with (v_instr := TABLE_COPY x y).
 			econstructor; eq_to_prop; eauto.
 			simpl.
 			eapply instrtype_sub_refl.
@@ -1733,7 +1889,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr := TABLE_GET y).
+			eapply Instr_ok2__instr with (v_instr := TABLE_GET y).
 			econstructor; eq_to_prop; eauto.
 			eexists [valtype_I32],[valtype_I32],[valtype_I32],[valtype_reftype extr].
 			split; auto.
@@ -1743,7 +1899,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr := TABLE_SET x).
+			eapply Instr_ok2__instr with (v_instr := TABLE_SET x).
 			econstructor; eq_to_prop; eauto.
 			simpl.
 			eapply instrtype_sub_refl.
@@ -1778,7 +1934,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr := TABLE_COPY x y).
+			eapply Instr_ok2__instr with (v_instr := TABLE_COPY x y).
 			econstructor; eq_to_prop; eauto.
 			simpl.
 			eapply instrtype_sub_refl.
@@ -1872,12 +2028,12 @@ Proof.
 			{	
 				rewrite -Heqe_v in H23; rewrite -H23.
 				rewrite H22.
-				eapply Admin_instr_ok__instr with (v_instr := REF_NULL e_t).
+				eapply Instr_ok2__instr with (v_instr := REF_NULL e_t).
 				econstructor.
 			}
 			{
 				rewrite -Heqe_v in H20; rewrite -H20.
-				eapply Admin_instr_ok__ref; eauto.
+				eapply Instr_ok2__ref; eauto.
 			}
 			{
 				rewrite -Heqe_v in H23; rewrite -H23.
@@ -1886,7 +2042,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr := TABLE_SET x).
+			eapply Instr_ok2__instr with (v_instr := TABLE_SET x).
 			econstructor; eq_to_prop; eauto.
 			rewrite /lookup_total in H12.
 			rewrite H19 in H12.
@@ -1923,7 +2079,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr := TABLE_INIT x y).
+			eapply Instr_ok2__instr with (v_instr := TABLE_INIT x y).
 			econstructor; eq_to_prop; eauto.
 			- rewrite /lookup_total in H12.
 				rewrite H19 in H12.
@@ -1941,16 +2097,16 @@ Proof.
 		all: eapply (instrtype_sub_compose0 _ _ _ _ _ _ Hsub) in Hsub0.
 		
 		all: eapply construct_ais_typing_single; eauto.
-		- eapply Admin_instr_ok__instr with (v_instr := (CONST I32 c)). 
+		- eapply Instr_ok2__instr with (v_instr := (CONST I32 c)). 
 			econstructor. econstructor.
 			by inversion H0.
-		- eapply Admin_instr_ok__instr with (v_instr := (CONST I64 c)). 
+		- eapply Instr_ok2__instr with (v_instr := (CONST I64 c)). 
 			econstructor. econstructor.
 			by inversion H0.
-		- eapply Admin_instr_ok__instr with (v_instr := (CONST F32 c)). 
+		- eapply Instr_ok2__instr with (v_instr := (CONST F32 c)). 
 			econstructor. econstructor.
 			by inversion H0.
-		- eapply Admin_instr_ok__instr with (v_instr := (CONST F64 c)). 
+		- eapply Instr_ok2__instr with (v_instr := (CONST F64 c)). 
 			econstructor. econstructor.
 			by inversion H0.
 	}
@@ -1965,13 +2121,13 @@ Proof.
 			eapply (instrtype_sub_compose0 _ _ _ _ _ _ Hsub) in Hsub0;
 			eapply construct_ais_typing_single; eauto.
 		- (* I32 case *)
-			eapply Admin_instr_ok__instr with (v_instr := (CONST I32
+			eapply Instr_ok2__instr with (v_instr := (CONST I32
 				(mk_num__0 Inn_I32 (extend__ v_n 32 v_sx c)))).
 			econstructor.
 			econstructor.
 			by inversion H1.
 		- (* I64 case *)
-			eapply Admin_instr_ok__instr with (v_instr := (CONST I64
+			eapply Instr_ok2__instr with (v_instr := (CONST I64
 				(mk_num__0 Inn_I64 (extend__ v_n 64 v_sx c)))).
 			econstructor.
 			econstructor.
@@ -1985,7 +2141,7 @@ Proof.
 
 		eapply construct_ais_typing_single.
 		2: eapply Hsub.
-		eapply Admin_instr_ok__instr with
+		eapply Instr_ok2__instr with
 			(v_instr := (CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))).
 		econstructor.
 		econstructor.
@@ -2053,7 +2209,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr :=
+			eapply Instr_ok2__instr with (v_instr :=
 				STORE I32 (Some (mk_sz 8)) memarg0).
 			assert (I32 = numtype_Inn (Inn_I32)) as Hnti. { auto. } 
 			rewrite Hnti.
@@ -2089,7 +2245,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr := MEMORY_FILL).
+			eapply Instr_ok2__instr with (v_instr := MEMORY_FILL).
 			econstructor; eauto.
 			eapply instrtype_sub_refl.
 		}
@@ -2150,7 +2306,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr :=
+			eapply Instr_ok2__instr with (v_instr :=
 				LOAD I32 (Some (mk_loadop__0 Inn_I32
 					(mk_loadop_Inn (mk_sz 8) U))) memarg0).
 			assert (I32 = numtype_Inn (Inn_I32)) as Hnti. { auto. }
@@ -2173,7 +2329,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr :=
+			eapply Instr_ok2__instr with (v_instr :=
 				STORE I32 (Some (mk_sz 8)) memarg0).
 			assert (I32 = numtype_Inn (Inn_I32)) as Hnti. { auto. }
 			rewrite Hnti.
@@ -2210,7 +2366,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr := MEMORY_COPY).
+			eapply Instr_ok2__instr with (v_instr := MEMORY_COPY).
 			econstructor; eauto.
 			eapply instrtype_sub_refl.
 		}
@@ -2244,7 +2400,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr :=
+			eapply Instr_ok2__instr with (v_instr :=
 				LOAD I32 (Some (mk_loadop__0 Inn_I32 
 				(mk_loadop_Inn (mk_sz 8) U))) memarg0).
 			assert (I32 = numtype_Inn (Inn_I32)) as Hnti. { auto. }
@@ -2264,7 +2420,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr :=
+			eapply Instr_ok2__instr with (v_instr :=
 				STORE I32 (Some (mk_sz 8)) memarg0).
 			assert (I32 = numtype_Inn (Inn_I32)) as Hnti. { auto. }
 			rewrite Hnti.
@@ -2299,7 +2455,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr := MEMORY_COPY).
+			eapply Instr_ok2__instr with (v_instr := MEMORY_COPY).
 			econstructor; eauto.
 			eapply instrtype_sub_refl.
 		}
@@ -2361,7 +2517,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr :=
+			eapply Instr_ok2__instr with (v_instr :=
 				STORE I32 (Some (mk_sz 8)) memarg0).
 			assert (I32 = numtype_Inn (Inn_I32)) as Hnti. { auto. }
 			rewrite Hnti.
@@ -2398,7 +2554,7 @@ Proof.
 		}
 		{
 			eapply construct_ais_typing_single.
-			eapply Admin_instr_ok__instr with (v_instr :=
+			eapply Instr_ok2__instr with (v_instr :=
 				MEMORY_INIT x).
 			econstructor; eq_to_prop; eauto.
 			eapply instrtype_sub_refl.
@@ -2410,10 +2566,10 @@ Lemma step_moduleinst: forall v_s v_f v_ais v_s' v_f' v_ais' v_C v_C' v_tf,
 	Step (mk_config (mk_state v_s v_f) v_ais)
 		(mk_config (mk_state v_s' v_f') v_ais') ->
 	Store_ok v_s ->
-    Module_instance_ok v_s (frame_MODULE v_f) v_C ->
+    Moduleinst_ok v_s (frame_MODULE v_f) v_C ->
 	inst_match v_C v_C' ->
-	Admin_instrs_ok v_s v_C' v_ais v_tf ->
-	Module_instance_ok v_s' (frame_MODULE v_f') v_C.
+	Instrs_ok2 v_s v_C' v_ais v_tf ->
+	Moduleinst_ok v_s' (frame_MODULE v_f') v_C.
 Proof.
 	move => s f ais s' f' ais' C C' tf HReduce HStore HMi Him HType.
 	erewrite <- reduce_inst_unchanged; eauto.
@@ -2426,13 +2582,13 @@ Lemma t_preservation_type: forall v_s v_f v_ais v_s' v_f' v_ais' v_C v_C' t1s t2
   Step (mk_config (mk_state v_s v_f) v_ais) (mk_config (mk_state v_s' v_f') v_ais') ->
   Store_ok v_s ->
   Store_ok v_s' ->
-	Store_extension v_s v_s' -> 
-  Module_instance_ok v_s (frame_MODULE v_f) v_C ->
-  Module_instance_ok v_s' (frame_MODULE v_f) v_C ->
+	Extend_store v_s v_s' -> 
+  Moduleinst_ok v_s (frame_MODULE v_f) v_C ->
+  Moduleinst_ok v_s' (frame_MODULE v_f) v_C ->
 	Vals_ok v_s (LOCALS v_f) (context_LOCALS v_C')->
 	inst_match v_C v_C' ->
-  Admin_instrs_ok v_s v_C' v_ais (t1s :-> t2s) ->
-  Admin_instrs_ok v_s' v_C' v_ais' (t1s :-> t2s).
+  Instrs_ok2 v_s v_C' v_ais (t1s :-> t2s) ->
+  Instrs_ok2 v_s' v_C' v_ais' (t1s :-> t2s).
 Proof.
 	move => v_s v_f v_ais v_s' v_f' v_ais' v_C v_C' t1s t2s HReduce HST1 HST2 HSExt HIT1 HIT2 HValOK Him.
 	move: v_C v_C' HIT1 HIT2 HValOK Him t1s t2s.
@@ -2540,7 +2696,7 @@ Proof.
 			resolve_inst_match.
 		}
 
-		assert (Module_instance_ok v_s' (frame_MODULE f'') C0).
+		assert (Moduleinst_ok v_s' (frame_MODULE f'') C0).
 		{
 			eapply step_moduleinst; eauto.
 			subst; resolve_inst_match.
@@ -2548,7 +2704,7 @@ Proof.
 
 		construct_ais_typing.
 		econstructor; eauto.
-		eapply mk_Thread_ok with (C := C0_l).
+		eapply mk_Expr_ok2 with (C := C0_l).
 		{
 			destruct f''.
 			eapply reduce_inst_unchanged in HReduce.
@@ -2679,14 +2835,14 @@ Proof.
 	rename H4 into HThread1.
 	(* Store_ok store1 *)
 	inversion HStore1.
-	(* Thread_ok store1 None frame1 l (mk_list _ v_t) *)
+	(* Expr_ok2 store1 None frame1 l (mk_list _ v_t) *)
 	inversion HThread1; clear HThread1.
 	rename H17 into HFrame1.
 	(* Frame_ok store1 frame1 v_C *)
 	inversion HFrame1; clear HFrame1.
 	rename H17 into HModuleInst1.
 	rename H22 into HAIs1.
-	(* Module_instance_ok store1 v_moduleinst v_C0 *)
+	(* Moduleinst_ok store1 v_moduleinst v_C0 *)
 	inversion HModuleInst1.
 	eq_to_prop;
 	subst.
@@ -2722,7 +2878,7 @@ Proof.
 		context_RETURN := None
 	|} as v_C0.
 
-	assert (Store_extension store1 store2 /\ Store_ok store2) as
+	assert (Extend_store store1 store2 /\ Store_ok store2) as
 	[HStore_extension HStore2].
 	{
 		apply (store_extension_reduce 
@@ -2744,14 +2900,14 @@ Proof.
 	apply reduce_inst_unchanged in HReduce as HModuleInst.
 	destruct frame2 as [locals2 module2].
 	simpl in HModuleInst.
-	assert (Module_instance_ok store2 v_moduleinst v_C0). {
+	assert (Moduleinst_ok store2 v_moduleinst v_C0). {
 		apply (store_extension_moduleinst store1); eauto.
 	}
 
 	apply mk_Config_ok; auto.
 	rewrite Heqframe1 in HModuleInst; simpl in HModuleInst.
 	rewrite <- HModuleInst.
-	eapply mk_Thread_ok; auto.
+	eapply mk_Expr_ok2; auto.
 	{
 		assert (Vals_ok store2 locals2 t_lst1).
 		apply (t_preservation_vs_type) with

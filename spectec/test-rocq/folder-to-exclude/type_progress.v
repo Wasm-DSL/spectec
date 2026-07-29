@@ -332,37 +332,6 @@ Qed.
     case: vcs H Hwf => [ | v1 vcs1] H Hwf //= *)
   end. *)
 
-Ltac inv_Forall H :=
-  lazymatch type of H with
-  | Forall _ [] =>
-      inversion H; subst; clear H
-  | Forall _ [_] =>
-      let Ha := fresh "H" in
-      let Hrest := fresh "Hrest" in
-      inversion H as [ | ? ? Ha Hrest]; subst; clear H;
-      clear Hrest
-  | Forall _ [_; _] =>
-      let Ha := fresh "H" in
-      let Hb := fresh "H" in
-      let Hrest := fresh "Hrest" in
-      let Hrest' := fresh "Hrest'" in
-      inversion H as [ | ? ? Ha Hrest]; subst; clear H;
-      inversion Hrest as [ | ? ? Hb Hrest']; subst; clear Hrest;
-      clear Hrest'
-  | Forall _ [_; _; _] =>
-      let Ha := fresh "HP" in
-      let Hb := fresh "HP" in
-      let Hc := fresh "HP" in
-      let Hrest := fresh "Hrest" in
-      let Hrest' := fresh "Hrest'" in
-      let Hrest'' := fresh "Hrest''" in
-      inversion H as [ | ? ? Ha Hrest]; subst; clear H;
-      inversion Hrest as [ | ? ? Hb Hrest']; subst; clear Hrest;
-      inversion Hrest' as [ | ? ? Hc Hrest'']; subst; clear Hrest';
-      clear Hrest''
-  | _ => idtac
-  end.
-
 (* NOTE: Given Hts : [seq typeof i  | i <- vcs] = [t],
          generates equalities on elements of vcs like [v1] = [t] and typeof v1 = t *)
 Ltac invert_typeof_vcs H Hwf :=
@@ -805,7 +774,7 @@ Lemma Admin_instrs_ok_cons : forall s C es e ts1 ts2,
   exists ts ts1' ts2' ts3,
     ts1 = ts ++ ts1' /\
     ts2 = ts ++ ts2' /\
-    Admin_instr_ok s C e (ts1' :-> ts3) /\
+    Instr_ok2 s C e (ts1' :-> ts3) /\
     Admin_instrs_ok s C es (ts3 :-> ts2').
 Proof.
   move => s C es e ts1 ts2 Hadmin.
@@ -852,7 +821,7 @@ Qed.
 Lemma Admin_instrs_ok_all : forall s C es ts1 ts2,
   Admin_instrs_ok s C es (ts1 :-> ts2) -> 
   (* TODO: Rewrite with all *)
-  forall e, e \in es -> exists ts1' ts2', Admin_instr_ok s C e (ts1' :-> ts2').
+  forall e, e \in es -> exists ts1' ts2', Instr_ok2 s C e (ts1' :-> ts2').
 Proof.
   (* TODO: Make use of `+` elsewhere *)
   move => + + es.
@@ -875,7 +844,7 @@ Lemma s_typing_lf_br : forall s rs f es ts l,
   (* NOTE: Here rs should not be None unlike s_typing_lf_return
            because we not only use s_typing_lf_br in t_progress to reject top-level occurrences of br
            but also to reject occurrences of br directly within frame t_progress_e *)
-  Thread_ok s rs f es ts ->
+  Expr_ok2 s rs f es ts ->
   Forall (fun e => e <> admininstr_BR l) es.
 Proof.
   move => s rs f es ts l Hthread.
@@ -933,7 +902,7 @@ Proof.
 Qed.
 
 Lemma s_typing_lf_return : forall s f es ts,
-  Thread_ok s None f es ts ->
+  Expr_ok2 s None f es ts ->
   Forall (fun e => e <> admininstr_RETURN) es.
 Proof.
   move => s f es ts Hthread.
@@ -985,7 +954,7 @@ Proof.
 Qed.
 
 Lemma s_typing_not_lf_br : forall s rs f es ts,
-  Thread_ok s rs f es ts ->
+  Expr_ok2 s rs f es ts ->
   not_lf_br es.
 Proof.
   move => s rs f es ts Hthread.
@@ -1006,7 +975,7 @@ Proof.
 Qed.
 
 Lemma s_typing_not_lf_return : forall s f es ts,
-  Thread_ok s None f es ts ->
+  Expr_ok2 s None f es ts ->
   not_lf_return es.
 Proof.
   move => s f es ts Hthread.
@@ -2620,9 +2589,9 @@ Proof.
 Qed.
 
 (* NOTE: Mutual induction principle used in t_progress_e *)
-Scheme Admin_instr_ok_ind' := Induction for Admin_instr_ok Sort Prop
+Scheme Instr_ok2_ind' := Induction for Instr_ok2 Sort Prop
   with Admin_instrs_ok_ind' := Induction for Admin_instrs_ok Sort Prop
-  with Thread_ok_ind' := Induction for Thread_ok Sort Prop.
+  with Expr_ok2_ind' := Induction for Expr_ok2 Sort Prop.
 
 (* MEMO: admininstr_local -> Admininstr__FRAME_ *)
 (* MEMO: e_typing -> Admin_instrs_ok *)
@@ -2647,7 +2616,7 @@ Proof.
   move => s C C' f vcs es tf ts1 ts2 lab ret Hadmin.
   move: f C' vcs ts1 ts2 lab ret.
   apply Admin_instrs_ok_ind' with 
-    (P := fun s C e tf (Hadmin : Admin_instr_ok s C e tf) => 
+    (P := fun s C e tf (Hadmin : Instr_ok2 s C e tf) => 
       forall f C' vcs ts1 ts2 lab ret,
       tf = (ts1 :-> ts2) ->
       C = (upd_local_label_return C' (map typeof f.(LOCALS)) lab ret) ->
@@ -2669,7 +2638,7 @@ Proof.
       not_lf_return es ->
       terminal_form (map admininstr_val vcs ++ es) \/
       exists s' f' es', Step (mk_config (mk_state s f) (map admininstr_val vcs ++ es)) (mk_config (mk_state s' f') es'))
-    (P1 := fun s rs f es ts (Hthread : Thread_ok s rs f es ts) =>
+    (P1 := fun s rs f es ts (Hthread : Expr_ok2 s rs f es ts) =>
       Store_ok s ->
       not_lf_br es ->
       not_lf_return es ->
@@ -2677,7 +2646,7 @@ Proof.
       es = [admininstr_TRAP] \/
       exists s' f' es', Step (mk_config (mk_state s f) es) (mk_config (mk_state s' f') es')) 
     => // {s C es tf Hadmin}.
-  - (* Admin_instr_ok__instr *)
+  - (* Instr_ok2__instr *)
     move => s C be tf Hinstr.
     move => f C' vcs ts1 ts2 lab ret Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
     have Hinstrs: Instrs_ok C [be] tf by apply Instr_ok_Instrs_ok.
@@ -2687,7 +2656,7 @@ Proof.
       left. apply: const_list_concat => //=.
       by apply: v_to_e_const.
     + by right. 
-  - (* Admin_instr_ok__trap *)
+  - (* Instr_ok2__trap *)
     move => s C ts1 ts2.
     move => f C' vcs ts1' ts2' lab ret Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
     case: vcs Hts => [ | vc vcs] Hts //=.
@@ -2707,21 +2676,21 @@ Proof.
         (admininstr_lst := [])
         .
       by left. 
-  - (* Admin_instr_ok__ref_host_addr *)
+  - (* Instr_ok2__ref_host_addr *)
     move => s C addr.
     move => f C' vcs ts1' ts2' lab ret Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
     left.
     case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs.
     rewrite /terminal_form.
     by left.
-  - (* Admin_instr_ok__ref_func_addr *)
+  - (* Instr_ok2__ref_func_addr *)
     move => s C addr functype HEok.
     move => f C' vcs ts1' ts2' lab ret Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
     left.
     case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs.
     rewrite /terminal_form.
     by left.
-  - (* Admin_instr_ok__call_addr *)
+  - (* Instr_ok2__call_addr *)
     (* NOTE: admininstr_CALL_ADDR corresponds to invoke instruction *)
     move => s C addr ts1 ts2 Hext.
     move => f C' vcs ts1' ts2' lab ret Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
@@ -2759,7 +2728,7 @@ Proof.
     {
       by rewrite -Hts !length_size size_map.
     }
-  - (* Admin_instr_ok__label *)
+  - (* Instr_ok2__label *)
     move => s C n bes es t1 t2 Hinstrs Hadmin IH Hsize.
     move => f C' vcs ts1 ts2 lab ret Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
     case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs.
@@ -2836,7 +2805,7 @@ Proof.
         { right. move: Hprog => [s' [f' [es' IH]]].
           exists s', f', [LABEL_ n bes es'].
           by apply: step_ctxt_label. }
-  - (* Admin_instr_ok__frame *)
+  - (* Instr_ok2__frame *)
     move => s C n f es t Hthread IH Hsize.
     move => f' C' vcs ts1 ts2 lab ret Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
     case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs.
@@ -2886,7 +2855,7 @@ Proof.
       + right. move: Hprog => [s' [f'' [es' Hprog]]].
         exists s', f', [admininstr_FRAME_ n f'' es'].
         by apply: step_ctxt_frame.
-  - (* Admin_instr_ok__weakening *)
+  - (* Instr_ok2__weakening *)
     move => s C e ts' ts1'' ts ts2'' ts1 ts2 Hadmin IH HSub HSub1 HSub2.
     move => f C' vcs ts1' ts2' lab ret Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
     case: Htf => Htf1 _. subst ts1'.
@@ -3014,7 +2983,7 @@ Proof.
   - (* Admin_instrs_ok__frame *)
     move => s C es ts ts1 ts2 Hadmin IH.
     move => f C' vcs ts1' ts2' lab ret Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
-    (* NOTE: This is equivalent to Admin_instr_ok__weakening but for Admin_instrs_ok *)
+    (* NOTE: This is equivalent to Instr_ok2__weakening but for Admin_instrs_ok *)
     (* TODO: Get rid of duplicate proof *)
     have Heqtf : (ts1 :-> ts2) = (ts1 :-> ts2) by [].
     have Heqts : map typeof (drop (length ts) vcs) = ts1.
@@ -3051,7 +3020,7 @@ Proof.
         (admininstr_lst' := es')
         (admininstr_lst'' := []).
   - (* Admin_instrs_ok__instrs *)
-    (* NOTE: This is equivalent to Admin_instr_ok__instr but for Admin_instrs_ok *)
+    (* NOTE: This is equivalent to Instr_ok2__instr but for Admin_instrs_ok *)
     (* TODO: Get rid of duplicate proof *)
     move => s C bes tf Hinstrs.
     move => f C' vcs ts1 ts2 lab ret Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
@@ -3061,7 +3030,7 @@ Proof.
       left. apply: const_list_concat => //=.
       by apply: v_to_e_const.
     + by right. 
-  - (* Thread_ok__ *)
+  - (* Expr_ok2__ *)
     move => s rs f es ts C.
     move => Hframe Hadmin IH Hstore Hnotbr Hnotret.
     have Heqtf : ([] :-> ts) = ([] :-> ts) by [].
