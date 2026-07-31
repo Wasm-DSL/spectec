@@ -3156,10 +3156,106 @@ next
       by (metis admininstr_ref.domintros(2) admininstr_ref.psimps(2) hyps(2) read.prems(9))
   next
     case (Step_read__local_get x)
-    then show ?case sorry
+    then obtain t1' t3' where 
+      "Instr_ok2 s C' (admininstr_sc4 (admininstr_st4_LOCAL_GET x)) (mk_functype t1' t3')"
+      and subt: "mk_instrtype t1' t3' <ti: mk_instrtype t1 t3"
+      using inv_one_admininstr by blast
+    then have "Instr_ok C' (instr_sc4 (LOCAL_GET x)) (mk_functype t1' t3')" 
+      using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+    then obtain t where hyps:
+      "proj_uN_0 x < length (context_LOCALS C')"
+      "context_LOCALS C' ! proj_uN_0 x = t" 
+      "mk_functype (mk_list []) (mk_list [t]) = mk_functype t1' t3'"
+      using inv_local_get by auto
+    then show ?case using Step_read__local_get list_all2_nth fun_local.domintros fun_local.psimps
+        Instrs_ok2_wf instr_ok2__val subt Instrs_ok2_subtyping instr_ok2_instrs_ok2
+      by metis 
   next
     case (Step_read__global_get x)
-    then show ?case sorry
+    then obtain t1' t3' where 
+      "Instr_ok2 s C' (admininstr_sc5 (admininstr_st5_GLOBAL_GET x)) (mk_functype t1' t3')" 
+      and subt: "mk_instrtype t1' t3' <ti: mk_instrtype t1 t3" 
+      using inv_one_admininstr by blast
+    then have "Instr_ok C' (instr_sc4 (GLOBAL_GET x)) (mk_functype t1' t3')"
+      using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+    then obtain v_mut t where hyps:
+      "proj_uN_0 x < length (context_GLOBALS C')"
+      "context_GLOBALS C' ! proj_uN_0 x = mk_globaltype v_mut t"
+      "mk_functype (mk_list []) (mk_list [t]) = mk_functype t1' t3'"
+      using inv_global_get by blast
+    (* have "\<exists> t'. Val_ok s (VALUE (fun_global (mk_state s f) x)) t'" *)
+    show ?case
+      using Step_read__global_get(2) Step_read__global_get hyps 
+      proof (induction s)
+        case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst 
+            tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst 
+            elemtype_lst)
+      (*  have "(GLOBALS (frame_MODULE f) ! proj_uN_0 x) < length globalinst_lst" sorry
+        then have "Globalinst_ok s (fun_global (mk_state s f) x) 
+                  (globaltype_lst ! (GLOBALS (frame_MODULE f) ! proj_uN_0 x))"
+          using list_all2_nth fun_global.psimps fun_global.domintros mk_Store_ok 
+          by fastforce
+        then show ?case proof(induction s "fun_global (mk_state s f) x" 
+                "globaltype_lst ! (GLOBALS (frame_MODULE f) ! proj_uN_0 x)")
+          case (mk_Globalinst_ok v_mut t s v_val)
+          then show ?case using instr_ok2__val
+        qed
+
+      *)
+
+
+
+        show ?case using mk_Store_ok(22,1-30)
+        proof (induction s "frame_MODULE f" C)
+          case (mk_Moduleinst_ok functype_lst globaladdr_lst globaltype_lst' s funcaddr_lst 
+                  functype_F_lst memaddr_lst memtype_lst tableaddr_lst tabletype_lst 
+                  exportinst_lst dataaddr_lst datatype_lst elemaddr_lst elemtype_lst)
+      
+          then have gl3: "context_GLOBALS C' = globaltype_lst'" using t_inst_match_def by simp
+          then have "Externaddr_ok s (externaddr_GLOBAL (globaladdr_lst ! proj_uN_0 x)) 
+                (GLOBAL (globaltype_lst' ! proj_uN_0 x))"
+            using list_all2_nth mk_Moduleinst_ok 
+            by metis
+          then show ?case using mk_Moduleinst_ok gl3
+          proof(induction s "externaddr_GLOBAL (globaladdr_lst ! proj_uN_0 x)"
+                "GLOBAL (globaltype_lst' ! proj_uN_0 x)")
+            case (Externaddr_ok__global s v_globalinst)
+            then have gl1: "globaladdr_lst = GLOBALS (frame_MODULE f)" 
+              by (metis moduleinst.select_convs(3))
+            have gl2: "globalinst_lst = store_GLOBALS s" 
+              by (simp add: Externaddr_ok__global.prems(40))
+            then have "(GLOBALS (frame_MODULE f) ! proj_uN_0 x) < length globalinst_lst" 
+              using gl1 Externaddr_ok__global by force
+        then have "Globalinst_ok s (fun_global (mk_state s f) x) 
+                  (globaltype_lst ! (GLOBALS (frame_MODULE f) ! proj_uN_0 x))"
+          using list_all2_nth fun_global.psimps fun_global.domintros Externaddr_ok__global(34)
+            gl2 by metis
+        then show ?case using Externaddr_ok__global gl1 gl2
+        proof(induction s "fun_global (mk_state s f) x" 
+                "globaltype_lst ! (GLOBALS (frame_MODULE f) ! proj_uN_0 x)")
+          case (mk_Globalinst_ok v_mutv tv s v_val)
+          then have g: "v_globalinst = \<lparr>globalinst_TYPE = mk_globaltype v_mutv tv, VALUE = v_val\<rparr>" 
+            using fun_global.psimps fun_global.domintros by metis
+          have "globalinst_TYPE v_globalinst = mk_globaltype v_mut t" using mk_Globalinst_ok
+            by metis
+          then have "tv = t" using g by auto
+          then show ?case using instr_ok2__val mk_Globalinst_ok instr_ok2_instrs_ok2
+            Instrs_ok2_subtyping subt
+            by (metis Instrs_ok2_wf(1) globalinst.select_convs(2))
+        qed
+          next
+            case (Externaddr_ok__sub s xt')
+            have "xt' = GLOBAL (globaltype_lst' ! proj_uN_0 x)" using Externaddr_ok__sub(3)
+            proof (induction xt' "GLOBAL (globaltype_lst' ! proj_uN_0 x)")
+                case (Externtype_sub__global gt_1)
+                then show ?case 
+                proof (induction gt_1 "globaltype_lst' ! proj_uN_0 x")
+                qed(auto)
+              qed
+            then show ?case using Externaddr_ok__sub by fastforce
+          qed
+        qed
+      qed
   next
     case (table_get_trap i x)
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2

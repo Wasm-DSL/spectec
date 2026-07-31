@@ -1337,61 +1337,6 @@ proof(induction s C es ts rule:Instr_ok2_Instrs_ok2_Expr_ok2.inducts(3)[where ?P
     then show ?case using mk_Expr_ok2 by simp
   }
 qed(simp_all)
-  
-lemma wf_admininstr_val_inv:
-  assumes "wf_admininstr (admininstr_val v)"
-  shows "wf_val v"
-proof(cases v)
-  case (val_CONST nt val)
-  then have "wf_admininstr (admininstr_sc1 (admininstr_st1_CONST nt val))" 
-    using admininstr_val.domintros admininstr_val.psimps assms by simp
-  then show ?thesis proof (induction "admininstr_sc1 (admininstr_st1_CONST nt val)" 
-  rule: wf_admininstr.induct)
-    case admininstr_case_13
-    then show ?case
-      using val_CONST val_case_0 by blast
-  qed
-next
-  case (val_VCONST vt val)
-  then have "wf_admininstr (admininstr_sc2 (admininstr_st2_VCONST vt val))" 
-    using admininstr_val.domintros admininstr_val.psimps assms by simp
-  then show ?thesis proof (induction "admininstr_sc2 (admininstr_st2_VCONST vt val)" 
-  rule: wf_admininstr.induct)
-    case admininstr_case_20
-    then show ?case 
-      using val_VCONST val_case_1 by presburger
-  qed
-next
-  case (val_REF_NULL rt)
-  then have "wf_admininstr (admininstr_sc4 (admininstr_st4_REF_NULL rt))"
-    using admininstr_val.domintros admininstr_val.psimps assms by simp
-  then show ?thesis proof (induction "admininstr_sc4 (admininstr_st4_REF_NULL rt)" 
-  rule: wf_admininstr.induct)
-    case admininstr_case_40
-    then show ?case 
-      by (simp add: val_REF_NULL val_case_2)
-  qed
-next
-  case (val_REF_FUNC_ADDR addr)
-  then have "wf_admininstr (admininstr_sc7 (admininstr_st7_REF_FUNC_ADDR addr))"
-    using admininstr_val.domintros admininstr_val.psimps assms by simp
-  then show ?thesis proof (induction "admininstr_sc7 (admininstr_st7_REF_FUNC_ADDR addr)" 
-  rule: wf_admininstr.induct)
-    case admininstr_case_68
-    then show ?case 
-      by (simp add: val_REF_FUNC_ADDR val_case_3)
-  qed
-next
-  case (val_REF_HOST_ADDR addr)
-  then have "wf_admininstr (admininstr_sc7 (admininstr_st7_REF_HOST_ADDR addr))"
-    using admininstr_val.domintros admininstr_val.psimps assms by simp
-  then show ?thesis proof (induction "admininstr_sc7 (admininstr_st7_REF_HOST_ADDR addr)" 
-  rule: wf_admininstr.induct)
-    case admininstr_case_69
-    then show ?case 
-      by (simp add: val_REF_HOST_ADDR val_case_4)
-  qed
-qed
 
  
 lemma Instr_ok2_const_replace:

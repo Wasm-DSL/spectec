@@ -78,7 +78,66 @@ lemma wf_admininstr_instr_inv:
   apply(simp_all add:admininstr_instr.domintros admininstr_instr.psimps wf_instr.intros)
   done
 
-  
+lemma wf_admininstr_val:
+  assumes "wf_val v" shows "wf_admininstr (admininstr_val v)"
+  using assms proof(induction v)
+qed(auto simp add: wf_admininstr.intros admininstr_val.psimps admininstr_val.domintros)
+    
+lemma wf_admininstr_val_inv:
+  assumes "wf_admininstr (admininstr_val v)"
+  shows "wf_val v"
+proof(cases v)
+  case (val_CONST nt val)
+  then have "wf_admininstr (admininstr_sc1 (admininstr_st1_CONST nt val))" 
+    using admininstr_val.domintros admininstr_val.psimps assms by simp
+  then show ?thesis proof (induction "admininstr_sc1 (admininstr_st1_CONST nt val)" 
+  rule: wf_admininstr.induct)
+    case admininstr_case_13
+    then show ?case
+      using val_CONST val_case_0 by blast
+  qed
+next
+  case (val_VCONST vt val)
+  then have "wf_admininstr (admininstr_sc2 (admininstr_st2_VCONST vt val))" 
+    using admininstr_val.domintros admininstr_val.psimps assms by simp
+  then show ?thesis proof (induction "admininstr_sc2 (admininstr_st2_VCONST vt val)" 
+  rule: wf_admininstr.induct)
+    case admininstr_case_20
+    then show ?case 
+      using val_VCONST val_case_1 by presburger
+  qed
+next
+  case (val_REF_NULL rt)
+  then have "wf_admininstr (admininstr_sc4 (admininstr_st4_REF_NULL rt))"
+    using admininstr_val.domintros admininstr_val.psimps assms by simp
+  then show ?thesis proof (induction "admininstr_sc4 (admininstr_st4_REF_NULL rt)" 
+  rule: wf_admininstr.induct)
+    case admininstr_case_40
+    then show ?case 
+      by (simp add: val_REF_NULL val_case_2)
+  qed
+next
+  case (val_REF_FUNC_ADDR addr)
+  then have "wf_admininstr (admininstr_sc7 (admininstr_st7_REF_FUNC_ADDR addr))"
+    using admininstr_val.domintros admininstr_val.psimps assms by simp
+  then show ?thesis proof (induction "admininstr_sc7 (admininstr_st7_REF_FUNC_ADDR addr)" 
+  rule: wf_admininstr.induct)
+    case admininstr_case_68
+    then show ?case 
+      by (simp add: val_REF_FUNC_ADDR val_case_3)
+  qed
+next
+  case (val_REF_HOST_ADDR addr)
+  then have "wf_admininstr (admininstr_sc7 (admininstr_st7_REF_HOST_ADDR addr))"
+    using admininstr_val.domintros admininstr_val.psimps assms by simp
+  then show ?thesis proof (induction "admininstr_sc7 (admininstr_st7_REF_HOST_ADDR addr)" 
+  rule: wf_admininstr.induct)
+    case admininstr_case_69
+    then show ?case 
+      by (simp add: val_REF_HOST_ADDR val_case_4)
+  qed
+qed
+
 
 
 
@@ -258,5 +317,37 @@ next
   then show ?case using Instrs_ok2__frame Instrs_ok2_wf_instr by simp
 qed(simp_all)
 
+lemma admininstr_val_ref: shows "admininstr_val (val_ref r) = admininstr_ref r"
+proof(cases r)
+qed(auto simp add: val_ref.domintros val_ref.psimps admininstr_val.domintros admininstr_val.psimps
+    admininstr_ref.domintros admininstr_ref.psimps)
+
+lemma ref_ok_agree: 
+  assumes "Ref_ok s r rt" shows "typeofval (val_ref r) = valtype_reftype rt" 
+  using assms proof(induction s r rt)
+qed(auto simp add: typeofval.domintros typeofval.psimps val_ref.domintros val_ref.psimps 
+    valtype_reftype.domintros valtype_reftype.psimps)
+
+lemma instr_ok2__val:
+  assumes "Val_ok s v t" "wf_context C" 
+  shows "t = typeofval v \<and> Instr_ok2 s C (admininstr_val v) (mk_functype (mk_list []) (mk_list [t]))" 
+  using assms proof(induction s v t)
+  case (Val_ok__numtype s nt c_t)
+  then show ?case using const wf_admininstr_val wf_admininstr_instr_inv
+    admininstr_val.psimps admininstr_val.domintros admininstr_instr.domintros admininstr_instr.psimps
+    wf_instr.intros typeofval.psimps typeofval.domintros
+    by (metis (no_types, lifting) instr_ok_instr_ok2)
+next
+  case (Val_ok__vectype s vt c_t)
+  then show ?case using vconst wf_admininstr_val wf_admininstr_instr_inv typeofval.psimps typeofval.domintros
+    admininstr_val.psimps admininstr_val.domintros admininstr_instr.domintros admininstr_instr.psimps
+    wf_instr.intros instr_ok_instr_ok2 valtype_vectype.domintros valtype_vectype.psimps vectype.exhaust
+    by metis
+next
+  case (Val_ok__reftype s r rt)
+  then show ?case using Instr_ok2__ref admininstr_val_ref typeofval.psimps typeofval.domintros 
+    ref_ok_agree
+    by metis
+qed
 
 end
