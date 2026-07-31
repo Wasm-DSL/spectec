@@ -9739,11 +9739,12 @@ and Expr_ok2 :: "store \<Rightarrow> res_context \<Rightarrow> adminexpr \<Right
 		 Instr_ok2 s C (admininstr_sc8 (LABEL_underscore v_n instr'_lst admininstr_lst)) (mk_functype (mk_list []) (mk_list t_lst))"
 	| Instr_ok2__frame :
 		"(Frame_ok s f C') \<Longrightarrow>
-		 (Expr_ok2 s (C' \<lparr> context_RETURN := (Some (mk_list t_lst))  \<rparr>) admininstr_lst (mk_list t_lst)) \<Longrightarrow>
+		 (Expr_ok2 s (append_res_context \<lparr> context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [], context_RETURN = (Some (mk_list t_lst)) \<rparr> C') admininstr_lst (mk_list t_lst)) \<Longrightarrow>
 		 (wf_store s) \<Longrightarrow>
 		 (wf_context C) \<Longrightarrow>
 		 (wf_context C') \<Longrightarrow>
 		 (wf_admininstr (admininstr_sc8 (FRAME_underscore v_n f admininstr_lst))) \<Longrightarrow>
+		 (wf_context \<lparr> context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [], context_RETURN = (Some (mk_list t_lst)) \<rparr>) \<Longrightarrow>
 		 (v_n = (length t_lst)) \<Longrightarrow>
 		 Instr_ok2 s C (admininstr_sc8 (FRAME_underscore v_n f admininstr_lst)) (mk_functype (mk_list []) (mk_list t_lst))"
 	| Instr_ok2__call_addr :

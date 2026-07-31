@@ -122,7 +122,7 @@ lemma inv_store_pack:
         arbitrary: v_Inn rule: Instr_ok_Instrs_ok.inducts(1))
       case (store_pack C mt v_Innsa)
       have "v_Inn = v_Innsa"
-        by (metis store_pack.hyps(7) numtype_Inn.elims numtype.distinct(1))
+        by (metis(full_types) store_pack.hyps(7) numtype_Inn.elims numtype.distinct(1))
       then show ?case
         using store_pack.hyps
         by presburger  
@@ -665,7 +665,9 @@ assumes "Instr_ok2 s C a_e tf"
 shows "a_e = (admininstr_sc8 (FRAME_underscore v_n f admininstr_lst)) \<Longrightarrow>
       (\<exists> C' t_lst.
 		  (Frame_ok s f C') \<and> 
-		  (Expr_ok2 s (C' \<lparr> context_RETURN := (Some (mk_list t_lst)) \<rparr>) admininstr_lst (mk_list t_lst)) \<and>
+		  (Expr_ok2 s (append_res_context
+       \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [],
+        context_DATAS = [], context_LOCALS = [], LABELS = [], context_RETURN = Some (mk_list t_lst)\<rparr> C') admininstr_lst (mk_list t_lst)) \<and>
 		  (wf_context C') \<and>
 		  (v_n = (length t_lst)) \<and>
       ((mk_functype (mk_list []) (mk_list t_lst)) = tf))"
@@ -676,7 +678,7 @@ apply auto
 subgoal for v_instr t_1_lst t_2_lst
   apply (cases v_instr rule: admininstr_instr.cases)
   by (auto simp add: admininstr_instr.domintros admininstr_instr.psimps)
-subgoal for v_ref rt
+  subgoal for v_ref rt
   apply (cases v_ref rule: admininstr_ref.cases)
   by (auto simp add: admininstr_ref.domintros admininstr_ref.psimps)
 done
