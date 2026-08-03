@@ -706,6 +706,32 @@ lemma defaults_Val_ok:
   shows "list_all2 (\<lambda> t v. Val_ok s v t) ts (map (\<lambda> x. the (default_underscore x)) ts)"
   using assms proof(induction ts) qed(auto simp add:default_Val_ok)
 
+lemma externaddr_ok_table:
+  assumes "Externaddr_ok s (externaddr_TABLE addr) (TABLE t)" 
+  shows " \<exists> v rtv limv limup. 
+            addr < length (store_TABLES s) \<and> 
+            store_TABLES s ! addr = v \<and>
+            tableinst_TYPE v = mk_tabletype limv rtv \<and> 
+            t = mk_tabletype limup rtv"
+  using assms proof(induction s "externaddr_TABLE addr" "TABLE t" arbitrary: t)
+  case (Externaddr_ok__table s v_tableinst)
+  then show ?case proof(cases v_tableinst)
+    case (fields tableinst_TYPE REFS)
+    then show ?thesis proof(cases tableinst_TYPE)
+      case (mk_tabletype x1 x2)
+      then show ?thesis using fields Externaddr_ok__table by simp
+    qed
+  qed
+next
+  case (Externaddr_ok__sub s xt')
+  show ?case using Externaddr_ok__sub(3,1-6)
+  proof (induction xt' "TABLE t")
+    case (Externtype_sub__table tt_1)
+    then show ?case proof(induction tt_1 t)
+      case (mk_Tabletype_sub lim_1 lim_2 rt)
+      then show ?case by fast
+    qed
+qed qed
 
 
 lemma e_preservation:
@@ -3130,6 +3156,26 @@ next
             using mk_Frame_ok[OF mk_Func_ok(10), of "t_1_lst' @ t_lst'" 
                 "val_lst @ map (\<lambda>t. the (default_underscore t)) t_lst"] mk_Func_ok
             wf_context_trivial 1 2 by fastforce
+
+          have freq: " (append_res_context
+       \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+          context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+          context_RETURN = Some (mk_list t_2_lst')\<rparr>
+       (append_res_context Cf
+         \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+            context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = t_1_lst' @ t_lst',
+            LABELS = [], context_RETURN = None\<rparr>)) = append_res_context Cf
+       \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+          context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = t_1_lst' @ t_lst',
+          LABELS = [], context_RETURN = Some (mk_list t_2_lst')\<rparr>" 
+            using mk_Func_ok(10) append_res_context_def 
+          proof (induction s v_moduleinst Cf)
+            case (mk_Moduleinst_ok functype_lst globaladdr_lst globaltype_lst s funcaddr_lst 
+                functype_F_lst memaddr_lst memtype_lst tableaddr_lst tabletype_lst exportinst_lst 
+                dataaddr_lst datatype_lst elemaddr_lst elemtype_lst)
+            then show ?case 
+              by simp 
+          qed
           have "Instr_ok2 s C'
               (admininstr_sc8 (FRAME_underscore v_n f' 
             [admininstr_sc8 (LABEL_underscore v_n [] (map admininstr_instr instr_lst))]))
@@ -3137,12 +3183,12 @@ next
             using Instr_ok2__frame[of s f' "append_res_context Cf
        \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
           context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = t_1_lst' @ t_lst',
-          LABELS = [], context_RETURN = (Some (mk_list t_2_lst')) \<rparr>" t_2_lst' 
+          LABELS = [], context_RETURN = None \<rparr>" t_2_lst' 
                 "[admininstr_sc8 (LABEL_underscore v_n [] (map admininstr_instr instr_lst))]" C' v_n]
                mk_Func_ok eqt2 wfc admininstr_case_72 Instrs_ok2_wf_instr mk_Expr_ok2 ok frok
                 Instrs_ok2_wf
-append_res_context_wf context_case_underscore list.pred_inject(1) append_res_context_def
-            sorry
+append_res_context_wf context_case_underscore list.pred_inject(1) append_res_context_def freq
+            by metis 
             
           then show ?case 
             using subt instr_ok2_instrs_ok2 Instrs_ok2_subtyping call_addr(21) eqt2 by fastforce 
@@ -3200,28 +3246,12 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       "context_GLOBALS C' ! proj_uN_0 x = mk_globaltype v_mut t"
       "mk_functype (mk_list []) (mk_list [t]) = mk_functype t1' t3'"
       using inv_global_get by blast
-    (* have "\<exists> t'. Val_ok s (VALUE (fun_global (mk_state s f) x)) t'" *)
     show ?case
       using Step_read__global_get(2) Step_read__global_get hyps 
       proof (induction s)
         case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst 
             tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst 
             elemtype_lst)
-      (*  have "(GLOBALS (frame_MODULE f) ! proj_uN_0 x) < length globalinst_lst" sorry
-        then have "Globalinst_ok s (fun_global (mk_state s f) x) 
-                  (globaltype_lst ! (GLOBALS (frame_MODULE f) ! proj_uN_0 x))"
-          using list_all2_nth fun_global.psimps fun_global.domintros mk_Store_ok 
-          by fastforce
-        then show ?case proof(induction s "fun_global (mk_state s f) x" 
-                "globaltype_lst ! (GLOBALS (frame_MODULE f) ! proj_uN_0 x)")
-          case (mk_Globalinst_ok v_mut t s v_val)
-          then show ?case using instr_ok2__val
-        qed
-
-      *)
-
-
-
         show ?case using mk_Store_ok(22,1-30)
         proof (induction s "frame_MODULE f" C)
           case (mk_Moduleinst_ok functype_lst globaladdr_lst globaltype_lst' s funcaddr_lst 
@@ -3279,7 +3309,86 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       res_list.exhaust by metis
   next
     case (table_get_val i x)
-    then show ?case sorry
+    then obtain t2 where splitv:
+      "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)] (mk_functype t1 t2)" 
+      "Instrs_ok2 s C' [admininstr_sc5 (admininstr_st5_TABLE_GET x)] (mk_functype t2 t3)" 
+      using inv_seq[of s C' "[_,_]" t1 t3 "[_]" "[_]"] by fastforce
+    then have subv: "mk_instrtype (mk_list []) (mk_list [valtype_I32]) <ti: 
+                      mk_instrtype t1 t2" 
+      using inv_const_list[OF splitv(1), of "[val_CONST I32 _]"] 
+            admininstr_val.psimps admininstr_val.domintros typeofval.psimps typeofval.domintros
+      by fastforce
+    obtain t2' t3' where 
+      "Instr_ok2 s C' (admininstr_sc5 (admininstr_st5_TABLE_GET x)) (mk_functype t2' t3')" 
+      and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+      using inv_one_admininstr splitv by blast
+    then have "Instr_ok C' (instr_sc5 (TABLE_GET x)) (mk_functype t2' t3')"
+      using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+    then obtain lim rt where hyps: 
+      "proj_uN_0 x < length (context_TABLES C')"
+      "context_TABLES C' ! proj_uN_0 x = mk_tabletype lim rt"
+      "wf_tabletype (mk_tabletype lim rt)"
+      "mk_functype (mk_list [valtype_I32]) (mk_list [valtype_reftype rt]) = mk_functype t2' t3'"
+      using inv_table_get by blast
+    then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_reftype rt]) <ti: 
+        mk_instrtype t1 t3" using produce_consume subt subv by fastforce
+      show ?case
+      using table_get_val(4) table_get_val hyps 
+      proof (induction s)
+        case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst 
+            tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst 
+            elemtype_lst)
+        show ?case using mk_Store_ok(24,1-33)
+        proof (induction s "frame_MODULE f" C)
+          case (mk_Moduleinst_ok functype_lst globaladdr_lst globaltype_lst' s funcaddr_lst 
+                  functype_F_lst memaddr_lst memtype_lst tableaddr_lst tabletype_lst' 
+                  exportinst_lst dataaddr_lst datatype_lst elemaddr_lst elemtype_lst)
+      
+          then have gl3: "context_TABLES C' = tabletype_lst'" using t_inst_match_def by simp
+          then have "Externaddr_ok s (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x)) 
+                (TABLE (tabletype_lst' ! proj_uN_0 x))"
+            using list_all2_nth mk_Moduleinst_ok 
+            by metis 
+          then obtain v rtv limv limup where exthyps: 
+            "tableaddr_lst ! proj_uN_0 x < length (store_TABLES s)" 
+            "store_TABLES s ! (tableaddr_lst ! proj_uN_0 x) = v"
+            "tableinst_TYPE v = mk_tabletype limv rtv" 
+            "tabletype_lst' ! proj_uN_0 x = mk_tabletype limup rtv" 
+            using externaddr_ok_table by blast 
+          
+          (*  
+          then show ?case using mk_Moduleinst_ok gl3
+          proof(induction s "externaddr_TABLE (tableaddr_lst ! proj_uN_0 x)"
+                "TABLE (tabletype_lst' ! proj_uN_0 x)")
+            case (Externaddr_ok__table s v_globalinst) *)
+            then have gl1: "tableaddr_lst = TABLES (frame_MODULE f)" 
+              using mk_Moduleinst_ok moduleinst.select_convs(4) by metis
+            have gl2: "tableinst_lst = store_TABLES s" using mk_Moduleinst_ok by simp
+            then have "(TABLES (frame_MODULE f) ! proj_uN_0 x) < length tableinst_lst" 
+              using gl1 mk_Moduleinst_ok exthyps by force
+        then have "Tableinst_ok s (fun_table (mk_state s f) x) 
+                  (tabletype_lst ! (TABLES (frame_MODULE f) ! proj_uN_0 x))"
+          using list_all2_nth fun_table.psimps fun_table.domintros mk_Moduleinst_ok
+            gl2 by metis
+        then show ?case using mk_Moduleinst_ok exthyps gl1 gl2
+        proof(induction s "fun_table (mk_state s f) x" 
+                "tabletype_lst ! (TABLES (frame_MODULE f) ! proj_uN_0 x)")
+          case (mk_Tableinst_ok v_n m_opt rt' s ref_lst)
+          then have g: "v =  
+    \<lparr>tableinst_TYPE = mk_tabletype (mk_limits (mk_uN v_n) (map_option mk_uN m_opt)) rt', REFS = ref_lst\<rparr>" 
+            using fun_table.psimps fun_table.domintros by metis
+          then have "rt = rt'" using g 
+            using gl3 mk_Tableinst_ok.prems(58,63,64) by fastforce
+          then have "Ref_ok s (REFS (fun_table (mk_state s f) x) ! proj_uN_0 (the (proj_num__0 i))) rt"
+            using mk_Tableinst_ok list_all_nth 
+            by (metis tableinst.select_convs(2)) 
+          then show ?case using instr_ok2__val mk_Tableinst_ok instr_ok2_instrs_ok2
+            Instrs_ok2_subtyping subt  
+            Instrs_ok2_wf Val_ok.intros(3) admininstr_val_ref 
+            by metis
+        qed
+        qed
+      qed
   next
     case (Step_read__table_size x v_n)
     then show ?case sorry

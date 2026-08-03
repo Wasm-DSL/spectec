@@ -60,6 +60,22 @@ next
   qed
 qed
 
+
+lemma list_all_nth:
+  assumes "list_all P l" "l ! k = x" "k < length l"
+  shows "P x" 
+  using assms proof (induction l arbitrary: k)
+  case Nil
+  then show ?case
+    by auto
+next
+  case (Cons a l)
+  then show ?case 
+proof (cases k)
+qed(auto simp add:Cons)
+qed
+
+
 lemma list_all2_nth:
   assumes "list_all2 P l1 l2" "l1 ! k = x1" "l2 ! k = x2" "k < length l1"
   shows "P x1 x2" 
