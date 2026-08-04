@@ -3355,12 +3355,6 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
             "tableinst_TYPE v = mk_tabletype limv rtv" 
             "tabletype_lst' ! proj_uN_0 x = mk_tabletype limup rtv" 
             using externaddr_ok_table by blast 
-          
-          (*  
-          then show ?case using mk_Moduleinst_ok gl3
-          proof(induction s "externaddr_TABLE (tableaddr_lst ! proj_uN_0 x)"
-                "TABLE (tabletype_lst' ! proj_uN_0 x)")
-            case (Externaddr_ok__table s v_globalinst) *)
             then have gl1: "tableaddr_lst = TABLES (frame_MODULE f)" 
               using mk_Moduleinst_ok moduleinst.select_convs(4) by metis
             have gl2: "tableinst_lst = store_TABLES s" using mk_Moduleinst_ok by simp
@@ -3391,14 +3385,113 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       qed
   next
     case (Step_read__table_size x v_n)
-    then show ?case sorry
+    then obtain t1' t3' where 
+      "Instr_ok2 s C' (admininstr_sc5 (admininstr_st5_TABLE_SIZE x)) (mk_functype t1' t3')" 
+      and subt: "mk_instrtype t1' t3' <ti: mk_instrtype t1 t3" 
+      using inv_one_admininstr by blast
+    then have "Instr_ok C' (instr_sc5 (TABLE_SIZE x)) (mk_functype t1' t3')"
+      using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+    then obtain lim rt where hyps:
+      "proj_uN_0 x < length (context_TABLES C')"
+      "context_TABLES C' ! proj_uN_0 x = mk_tabletype lim rt"
+      "wf_tabletype (mk_tabletype lim rt)"
+      "mk_functype (mk_list []) (mk_list [valtype_I32]) = mk_functype t1' t3'"
+      using inv_table_size by blast
+     show ?case
+      using Step_read__table_size(4) Step_read__table_size hyps 
+      proof (induction s)
+        case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst 
+            tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst 
+            elemtype_lst)
+        show ?case using mk_Store_ok(24,1-32)
+        proof (induction s "frame_MODULE f" C)
+          case (mk_Moduleinst_ok functype_lst globaladdr_lst globaltype_lst' s funcaddr_lst 
+                  functype_F_lst memaddr_lst memtype_lst tableaddr_lst tabletype_lst' 
+                  exportinst_lst dataaddr_lst datatype_lst elemaddr_lst elemtype_lst)
+      
+          then have gl3: "context_TABLES C' = tabletype_lst'" using t_inst_match_def by simp
+          then have "Externaddr_ok s (externaddr_TABLE (tableaddr_lst ! proj_uN_0 x)) 
+                (TABLE (tabletype_lst' ! proj_uN_0 x))"
+            using list_all2_nth mk_Moduleinst_ok 
+            by metis 
+          then obtain v rtv limv limup where exthyps: 
+            "tableaddr_lst ! proj_uN_0 x < length (store_TABLES s)" 
+            "store_TABLES s ! (tableaddr_lst ! proj_uN_0 x) = v"
+            "tableinst_TYPE v = mk_tabletype limv rtv" 
+            "tabletype_lst' ! proj_uN_0 x = mk_tabletype limup rtv" 
+            using externaddr_ok_table by blast 
+            then have gl1: "tableaddr_lst = TABLES (frame_MODULE f)" 
+              using mk_Moduleinst_ok moduleinst.select_convs(4) by metis
+            have gl2: "tableinst_lst = store_TABLES s" using mk_Moduleinst_ok by simp
+            then have "(TABLES (frame_MODULE f) ! proj_uN_0 x) < length tableinst_lst" 
+              using gl1 mk_Moduleinst_ok exthyps by force
+        then have "Tableinst_ok s (fun_table (mk_state s f) x) 
+                  (tabletype_lst ! (TABLES (frame_MODULE f) ! proj_uN_0 x))"
+          using list_all2_nth fun_table.psimps fun_table.domintros mk_Moduleinst_ok
+            gl2 by metis
+        then show ?case using mk_Moduleinst_ok exthyps gl1 gl2 gl3
+        proof(induction s "fun_table (mk_state s f) x" 
+                "tabletype_lst ! (TABLES (frame_MODULE f) ! proj_uN_0 x)")
+          case (mk_Tableinst_ok v_n' m_opt rt' s ref_lst)
+          have veq: "v_n = v_n'" using mk_Tableinst_ok(53,3,7) 
+            by (metis tableinst.select_convs(2))
+          show ?case using mk_Tableinst_ok veq 
+          proof (induction "mk_tabletype (mk_limits (mk_uN v_n') (map_option mk_uN m_opt)) rt'")
+            case mk_Tabletype_ok
+            show ?case using mk_Tabletype_ok(2,1-76)
+            proof (induction "mk_tabletype (mk_limits (mk_uN v_n') (map_option mk_uN m_opt)) rt'")
+              case tabletype_case_0
+              then show ?case 
+              proof (induction "mk_limits (mk_uN v_n') (map_option mk_uN m_opt)")
+                case limits_case_0
+                have "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))))"
+                  using limits_case_0(1,78) instr_case_13 num__case_0 size.domintros 
+                    size.psimps numtype_Inn.domintros 
+                    numtype_Inn.psimps valtype_Inn.psimps valtype_Inn.domintros 
+                  by (metis option.distinct(1) option.sel)
+                then show ?case using const Instrs_ok2_wf instr_ok_instr_ok2
+                  instr_ok2_instrs_ok2 admininstr_instr.domintros admininstr_instr.psimps 
+                  valtype_numtype.domintros valtype_numtype.psimps 
+                  by (metis Instrs_ok2_subtyping subt tabletype_case_0.prems(63,64,68))
+              qed
+            qed
+          qed 
+        qed
+      qed
+    qed
   next
     case (table_fill_trap i v_n x v_val)
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
     case (table_fill_zero i v_n x v_val)
-    then show ?case sorry
+    then obtain t2 where splitv:
+      "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_val v_val,
+     admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))] 
+        (mk_functype t1 t2)" 
+      "Instrs_ok2 s C' [admininstr_sc5 (admininstr_st5_TABLE_FILL x)] (mk_functype t2 t3)" 
+      using inv_seq[of s C' "[_,_,_,_]" t1 t3 "[_,_,_]" "[_]"] by fastforce
+    then have subv:
+      "mk_instrtype (mk_list []) (mk_list [valtype_I32, typeofval v_val, valtype_I32]) <ti:
+        mk_instrtype t1 t2" 
+      using inv_const_list[of s C' "[_,_,_]" t1 t2 "[val_CONST I32 _, v_val, val_CONST I32 _]"]
+        admininstr_val.domintros admininstr_val.psimps valtype_numtype.domintros valtype_numtype.psimps
+      typeofval.domintros typeofval.psimps
+      by auto
+    obtain t2' t3' where 
+      "Instr_ok2 s C' (admininstr_sc5 (admininstr_st5_TABLE_FILL x)) (mk_functype t2' t3')"
+      and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3" 
+      using inv_one_admininstr splitv by blast
+    then have "Instr_ok C' (instr_sc5 (TABLE_FILL x)) (mk_functype t2' t3')"
+      using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+    then obtain rt where 
+        "mk_functype (mk_list [valtype_I32, valtype_reftype rt, valtype_I32]) (mk_list []) =
+        mk_functype t2' t3'" 
+      using inv_table_fill by blast
+    then have "mk_instrtype (mk_list []) (mk_list []) <ti: mk_instrtype t1 t3" 
+      using produce_consume subt subv by force
+    then show ?case using Instrs_ok2__empty Instrs_ok2_wf splitv Instrs_ok2_subtyping
+      table_fill_zero(13) by fast
   next
     case (table_fill_succ i v_n x v_val)
     then show ?case sorry
