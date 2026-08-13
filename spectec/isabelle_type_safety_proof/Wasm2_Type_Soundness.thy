@@ -778,6 +778,10 @@ next
   qed
 qed
 *)
+lemma valtype_numtype_Inn: shows "valtype_numtype (numtype_Inn v) = valtype_Inn v"
+proof(cases v)
+qed(auto simp add: valtype_numtype.psimps valtype_numtype.domintros numtype_Inn.psimps
+    numtype_Inn.domintros valtype_Inn.psimps valtype_Inn.domintros)
 
 
 lemma e_preservation:
@@ -5413,20 +5417,94 @@ next
     instr_ok2_instrs_ok2 Instrs_ok2_subtyping subt hyps(5) ctxt_frame(13) by simp
 next
   case (ctxt_instrs admininstr_lst admininstr'_lst val_lst admininstr_1_lst)
-  then show ?case sorry
+  then obtain t2 where split1:
+    "Instrs_ok2 s C' (map admininstr_val val_lst) (mk_functype t1 t2)"
+    "Instrs_ok2 s C' (admininstr_lst @ admininstr_1_lst) (mk_functype t2 t3)" 
+    using inv_seq by blast
+  then obtain t2' where split2:
+    "Instrs_ok2 s C' admininstr_lst (mk_functype t2 t2')" 
+    "Instrs_ok2 s C' admininstr_1_lst (mk_functype t2' t3)" 
+    using inv_seq by blast
+  then have "Instrs_ok2 s' C' admininstr'_lst (mk_functype t2 t2')" 
+    using ctxt_instrs by blast
+  then show ?case using split1(1) split2(2) instrs_ok2_seq ctxt_instrs(14)
+    by (meson ctxt_instrs.prems(3) store_extension_typing)
 next
   case (Step__local_set v_val x)
-  then show ?case sorry
+  then obtain t2 where splitv:
+    "Instrs_ok2 s C' [admininstr_val v_val] (mk_functype t1 t2)"
+    "Instrs_ok2 s C' [admininstr_sc4 (admininstr_st4_LOCAL_SET x)] (mk_functype t2 t3)" 
+    using inv_seq[of s C' "[_,_]" t1 t3 "[_]" "[_]"] by fastforce
+  then have subv: "mk_instrtype (mk_list []) (mk_list [typeofval v_val]) <ti:
+            mk_instrtype t1 t2" 
+    using inv_const_list[of s C' "[_]" t1 t2 "[_]"] by fastforce 
+  obtain t2' t3' where "Instr_ok2 s C' (admininstr_sc4 (admininstr_st4_LOCAL_SET x)) 
+      (mk_functype t2' t3')"
+    and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+    using inv_one_admininstr splitv by blast
+  then have "Instr_ok C' (instr_sc4 (LOCAL_SET x)) (mk_functype t2' t3')" 
+    using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+  then obtain t where 
+    "mk_functype (mk_list [t]) (mk_list []) = mk_functype t2' t3'"
+    using inv_local_set by blast
+  then have "mk_instrtype (mk_list []) (mk_list []) <ti: mk_instrtype t1 t3" 
+    using subv subt produce_consume 
+    by auto
+  then show ?case using Instrs_ok2__empty Instrs_ok2_subtyping Step__local_set
+    Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
   case (Step__global_set v_val x)
-  then show ?case sorry
+  then obtain t2 where splitv:
+    "Instrs_ok2 s C' [admininstr_val v_val] (mk_functype t1 t2)"
+    "Instrs_ok2 s C' [admininstr_sc5 (admininstr_st5_GLOBAL_SET x)] (mk_functype t2 t3)" 
+    using inv_seq[of s C' "[_,_]" t1 t3 "[_]" "[_]"] by fastforce
+  then have subv: "mk_instrtype (mk_list []) (mk_list [typeofval v_val]) <ti:
+            mk_instrtype t1 t2" 
+    using inv_const_list[of s C' "[_]" t1 t2 "[_]"] by fastforce 
+  obtain t2' t3' where "Instr_ok2 s C' (admininstr_sc5 (admininstr_st5_GLOBAL_SET x)) 
+      (mk_functype t2' t3')"
+    and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+    using inv_one_admininstr splitv by blast
+  then have "Instr_ok C' (instr_sc4 (GLOBAL_SET x)) (mk_functype t2' t3')" 
+    using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+  then obtain t where 
+    "mk_functype (mk_list [t]) (mk_list []) = mk_functype t2' t3'"
+    using inv_global_set by blast
+  then have "mk_instrtype (mk_list []) (mk_list []) <ti: mk_instrtype t1 t3" 
+    using subv subt produce_consume 
+    by auto
+  then show ?case using Instrs_ok2__empty Instrs_ok2_subtyping Step__global_set
+    Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
   case (table_set_trap i x v_ref)
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
 next
   case (table_set_val i x v_ref)
-  then show ?case sorry
+  then obtain t2 where splitv:
+    "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_ref v_ref] (mk_functype t1 t2)"
+    "Instrs_ok2 s C' [admininstr_sc5 (admininstr_st5_TABLE_SET x)] (mk_functype t2 t3)" 
+    using inv_seq[of s C' "[_,_,_]" t1 t3 "[_,_]" "[_]"] by fastforce
+  then have subv: "mk_instrtype (mk_list []) (mk_list [valtype_I32, typeofval (val_ref v_ref)]) <ti:
+            mk_instrtype t1 t2" 
+    using inv_const_list[of s C' "[_,_]" t1 t2 "[val_CONST I32 _, val_ref v_ref]"] 
+      admininstr_val.domintros admininstr_val.psimps 
+    admininstr_val_ref valtype_numtype.domintros valtype_numtype.psimps typeofval.domintros
+    typeofval.psimps by fastforce
+  obtain t2' t3' where "Instr_ok2 s C' (admininstr_sc5 (admininstr_st5_TABLE_SET x)) 
+      (mk_functype t2' t3')"
+    and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+    using inv_one_admininstr splitv by blast
+  then have "Instr_ok C' (instr_sc5 (TABLE_SET x)) (mk_functype t2' t3')" 
+    using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+  then obtain rt where 
+    "mk_functype (mk_list [valtype_I32, valtype_reftype rt]) (mk_list []) = mk_functype t2' t3'"
+    using inv_table_set by blast
+  then have "mk_instrtype (mk_list []) (mk_list []) <ti: mk_instrtype t1 t3" 
+    using subv subt produce_consume 
+    by auto
+  then show ?case using Instrs_ok2__empty Instrs_ok2_subtyping table_set_val
+    Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
   case (table_grow_succeed x v_n v_ref var_0 ti)
   then show ?case sorry
@@ -5435,34 +5513,142 @@ next
   then show ?case sorry
 next
   case (Step__elem_drop x)
-  then show ?case sorry
+  then obtain t1' t3' where 
+    "Instr_ok2 s C' (admininstr_sc6 (admininstr_st6_ELEM_DROP x)) (mk_functype t1' t3')" 
+    and subt: "mk_instrtype t1' t3' <ti: mk_instrtype t1 t3" 
+    using inv_one_admininstr by blast 
+  then have "Instr_ok C' (instr_sc5 (ELEM_DROP x)) (mk_functype t1' t3')" 
+    using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce 
+  then have "mk_functype (mk_list []) (mk_list []) = mk_functype t1' t3'" 
+    using inv_elem_drop by auto
+  then show ?case using Instrs_ok2__empty Instrs_ok2_wf Instrs_ok2_subtyping Step__elem_drop
+    subt store_extension_wf by blast
 next
   case (store_num_trap i nt ao c)
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
 next
   case (store_num_val i nt b_lst c ao)
-  then show ?case sorry
+  then obtain t2 where splitv:
+    "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), 
+                      admininstr_sc1 (admininstr_st1_CONST nt c)] (mk_functype t1 t2)"
+    "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_STORE nt None ao)] (mk_functype t2 t3)" 
+    using inv_seq[of s C' "[_,_,_]" t1 t3 "[_,_]" "[_]"] by fastforce
+  then have subv: "mk_instrtype (mk_list []) (mk_list [valtype_I32, valtype_numtype nt]) <ti:
+            mk_instrtype t1 t2" 
+    using inv_const_list[of s C' "[_,_]" t1 t2 "[val_CONST I32 _, val_CONST nt _]"] 
+      admininstr_val.domintros admininstr_val.psimps 
+    admininstr_val_ref valtype_numtype.domintros valtype_numtype.psimps typeofval.domintros
+    typeofval.psimps by fastforce
+  obtain t2' t3' where "Instr_ok2 s C' (admininstr_sc6 (admininstr_st6_STORE nt None ao)) 
+      (mk_functype t2' t3')"
+    and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+    using inv_one_admininstr splitv by blast
+  then have "Instr_ok C' (instr_sc6 (STORE nt None ao)) (mk_functype t2' t3')" 
+    using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+  then have 
+    "mk_functype (mk_list [valtype_I32, valtype_numtype nt]) (mk_list []) = mk_functype t2' t3'"
+    using inv_store_val by blast
+  then have "mk_instrtype (mk_list []) (mk_list []) <ti: mk_instrtype t1 t3" 
+    using subv subt produce_consume 
+    by auto
+  then show ?case using Instrs_ok2__empty Instrs_ok2_subtyping store_num_val
+    Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
   case (store_pack_trap i ao v_n v_Inn c)
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
 next
   case (store_pack_val i v_Inn c b_lst v_n ao)
-  then show ?case sorry
+  then obtain t2 where splitv:
+    "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), 
+                      admininstr_sc1 (admininstr_st1_CONST (numtype_Inn v_Inn) c)] (mk_functype t1 t2)"
+    "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_STORE (numtype_Inn v_Inn) (Some (mk_sz v_n)) ao)] (mk_functype t2 t3)" 
+    using inv_seq[of s C' "[_,_,_]" t1 t3 "[_,_]" "[_]"] by fastforce
+  then have subv: "mk_instrtype (mk_list []) (mk_list [valtype_I32, valtype_Inn v_Inn]) <ti:
+            mk_instrtype t1 t2" 
+    using inv_const_list[of s C' "[_,_]" t1 t2 "[val_CONST I32 _, val_CONST (numtype_Inn v_Inn) _]"] 
+      admininstr_val.domintros admininstr_val.psimps 
+    admininstr_val_ref valtype_numtype.domintros valtype_numtype.psimps typeofval.domintros
+    valtype_numtype_Inn
+    typeofval.psimps by fastforce
+  obtain t2' t3' where "Instr_ok2 s C' (admininstr_sc6 (admininstr_st6_STORE (numtype_Inn v_Inn) 
+      (Some (mk_sz v_n)) ao)) 
+      (mk_functype t2' t3')"
+    and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+    using inv_one_admininstr splitv by blast
+  then have "Instr_ok C' (instr_sc6 (STORE (numtype_Inn v_Inn) (Some (mk_sz v_n)) ao)) (mk_functype t2' t3')" 
+    using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+  then have 
+    "mk_functype (mk_list [valtype_I32, valtype_Inn v_Inn]) (mk_list []) = mk_functype t2' t3'"
+    using inv_store_pack by blast
+  then have "mk_instrtype (mk_list []) (mk_list []) <ti: mk_instrtype t1 t3" 
+    using subv subt produce_consume 
+    by auto
+  then show ?case using Instrs_ok2__empty Instrs_ok2_subtyping store_pack_val
+    Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
   case (vstore_oob i ao c)
-  then show ?case sorry
+  then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
+      res_list.exhaust by metis
 next
   case (vstore_val i b_lst c ao)
-  then show ?case sorry
+  then obtain t2 where splitv:
+    "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), 
+                       admininstr_sc2 (admininstr_st2_VCONST V128 c)] (mk_functype t1 t2)"
+    "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_VSTORE V128 ao)] (mk_functype t2 t3)" 
+    using inv_seq[of s C' "[_,_,_]" t1 t3 "[_,_]" "[_]"] by fastforce
+  then have subv: "mk_instrtype (mk_list []) (mk_list [valtype_I32, valtype_V128]) <ti:
+            mk_instrtype t1 t2" 
+    using inv_const_list[of s C' "[_,_]" t1 t2 "[val_CONST I32 _, val_VCONST V128 _]"] 
+      admininstr_val.domintros admininstr_val.psimps valtype_vectype.psimps valtype_vectype.domintros
+    admininstr_val_ref valtype_numtype.domintros valtype_numtype.psimps typeofval.domintros
+    typeofval.psimps by fastforce
+  obtain t2' t3' where "Instr_ok2 s C' (admininstr_sc6 (admininstr_st6_VSTORE V128 ao)) 
+      (mk_functype t2' t3')"
+    and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+    using inv_one_admininstr splitv by blast
+  then have "Instr_ok C' (instr_sc6 (VSTORE V128 ao)) (mk_functype t2' t3')" 
+    using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+  then have 
+    "mk_functype (mk_list [valtype_I32, valtype_V128]) (mk_list []) = mk_functype t2' t3'"
+    using inv_vstore by blast
+  then have "mk_instrtype (mk_list []) (mk_list []) <ti: mk_instrtype t1 t3" 
+    using subv subt produce_consume 
+    by auto
+  then show ?case using Instrs_ok2__empty Instrs_ok2_subtyping vstore_val
+    Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
   case (vstore_lane_oob i ao v_N c j)
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
 next
   case (vstore_lane_val i v_N v_Jnn v_M c j b_lst ao)
-  then show ?case sorry
+  then obtain t2 where splitv:
+    "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), 
+                       admininstr_sc2 (admininstr_st2_VCONST V128 c)] (mk_functype t1 t2)"
+    "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_VSTORE_LANE V128 (mk_sz v_N) ao j)] (mk_functype t2 t3)" 
+    using inv_seq[of s C' "[_,_,_]" t1 t3 "[_,_]" "[_]"] by fastforce
+  then have subv: "mk_instrtype (mk_list []) (mk_list [valtype_I32, valtype_V128]) <ti:
+            mk_instrtype t1 t2" 
+    using inv_const_list[of s C' "[_,_]" t1 t2 "[val_CONST I32 _, val_VCONST V128 _]"] 
+      admininstr_val.domintros admininstr_val.psimps valtype_vectype.psimps valtype_vectype.domintros
+    admininstr_val_ref valtype_numtype.domintros valtype_numtype.psimps typeofval.domintros
+    typeofval.psimps by fastforce
+  obtain t2' t3' where "Instr_ok2 s C' (admininstr_sc6 (admininstr_st6_VSTORE_LANE V128 (mk_sz v_N) ao j)) 
+      (mk_functype t2' t3')"
+    and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+    using inv_one_admininstr splitv by blast
+  then have "Instr_ok C' (instr_sc6 (VSTORE_LANE V128 (mk_sz v_N) ao j)) (mk_functype t2' t3')" 
+    using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+  then have 
+    "mk_functype (mk_list [valtype_I32, valtype_V128]) (mk_list []) = mk_functype t2' t3'"
+    using inv_vstore_lane by blast
+  then have "mk_instrtype (mk_list []) (mk_list []) <ti: mk_instrtype t1 t3" 
+    using subv subt produce_consume 
+    by auto
+  then show ?case using Instrs_ok2__empty Instrs_ok2_subtyping vstore_lane_val
+    Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
   case (memory_grow_succeed v_n var_0 mi)
   then show ?case sorry
@@ -5471,7 +5657,16 @@ next
   then show ?case sorry
 next
   case (Step__data_drop x)
-  then show ?case sorry
+  then obtain t1' t3' where 
+    "Instr_ok2 s C' (admininstr_sc7 (admininstr_st7_DATA_DROP x)) (mk_functype t1' t3')" 
+    and subt: "mk_instrtype t1' t3' <ti: mk_instrtype t1 t3" 
+    using inv_one_admininstr by blast 
+  then have "Instr_ok C' (instr_sc7 (DATA_DROP x)) (mk_functype t1' t3')" 
+    using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce 
+  then have "mk_functype (mk_list []) (mk_list []) = mk_functype t1' t3'" 
+    using inv_data_drop by auto
+  then show ?case using Instrs_ok2__empty Instrs_ok2_wf Instrs_ok2_subtyping Step__data_drop
+    subt store_extension_wf by blast
 qed
 qed 
 
