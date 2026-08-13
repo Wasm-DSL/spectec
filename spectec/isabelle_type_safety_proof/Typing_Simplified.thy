@@ -78,6 +78,19 @@ lemma wf_admininstr_instr_inv:
   apply(simp_all add:admininstr_instr.domintros admininstr_instr.psimps wf_instr.intros)
   done
 
+lemma wf_admininstr_instr_inv_list:
+  assumes "list_all wf_admininstr (map admininstr_instr es)"
+  shows "list_all wf_instr es"
+  using assms proof(induction es)
+  case Nil
+  then show ?case 
+    by simp
+next
+  case (Cons a es)
+  then show ?case using wf_admininstr_instr_inv 
+    by simp 
+qed
+
 lemma wf_admininstr_val:
   assumes "wf_val v" shows "wf_admininstr (admininstr_val v)"
   using assms proof(induction v)

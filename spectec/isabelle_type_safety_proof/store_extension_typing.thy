@@ -13,12 +13,7 @@ proof cases
   then show ?thesis by simp
 qed
 
-(* This lemma will probably be useful later: *)
-(* lemma store_extension_typing:
-  assumes "Instrs_ok2 s C es tf"
-          "Extend_store s s'"
-shows     "Instrs_ok2 s' C es tf"
-  sorry *)
+
 
 
 (* A few attempts at proving this lemma, MEM is the annoying case *)
@@ -217,5 +212,26 @@ next
   case (Val_ok__reftype r rt)
   then show ?thesis using store_extension_refok Val_ok.Val_ok__reftype assms(2,3) by blast
 qed
+
+ lemma store_extension_typing:
+  assumes "Instrs_ok2 s C es tf"
+          "Extend_store s s'"
+shows     "Instrs_ok2 s' C es tf"
+  sorry 
+
+(* Still useful? *)
+(*
+ lemma store_extension_Frame_ok:
+  assumes "Frame_ok s f ts"
+          "Extend_store s s'"
+shows     "Frame_ok s' f ts"
+  sorry 
+*)
+
+ lemma store_extension_Moduleinst_ok:
+  assumes "Moduleinst_ok s i ts"
+          "Extend_store s s'"
+shows     "Moduleinst_ok s' i ts"
+  sorry 
 
 end

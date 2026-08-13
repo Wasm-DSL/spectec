@@ -751,6 +751,35 @@ lemma wf_const_minus_one:
   qed
 qed
 
+lemma val_ok_wf: assumes "Val_ok s v t" shows "wf_val v"
+  using assms proof(induction s v t)
+  case (Val_ok__reftype s r rt)
+  then show ?case proof (induction s r rt) 
+  qed (auto simp add: wf_val.intros val_ref.domintros val_ref.psimps)
+qed(auto)
+
+(* Still useful? *)
+(*
+lemma list_all2_list_all: assumes "list_all2 P l1 l2" "\<forall> x y. P x y \<longrightarrow> Q y" 
+  shows "list_all Q l2" 
+  using assms proof(induction l2 arbitrary:l1)
+  case Nil
+  then show ?case by auto
+next
+  case (Cons a l1)
+  then show ?case 
+  proof (induction l1)
+    case Nil
+    then show ?case by auto
+  next
+    case (Cons a l1)
+    then show ?case
+      by simp
+  qed
+qed
+*)
+
+
 lemma e_preservation:
   assumes "Step (mk_config (mk_state s f) es) (mk_config (mk_state s' f') es')"
           "Store_ok s"
@@ -773,7 +802,7 @@ proof (cases tf)
   show ?thesis 
   using assms mk_functype
 proof (induction "mk_config (mk_state s f) es" "mk_config (mk_state s' f') es'" 
-    arbitrary: s f es s' f' es' tf t1 t3 rule:Step.induct)
+    arbitrary: s f es s' f' es' tf t1 t3 C C' rule:Step.induct)
   case (pure es0 es1)
   then have wfres: "list_all wf_admininstr es1" 
     using Instrs_ok2_wf_instr Step_pure_is_wf by blast 
@@ -5080,7 +5109,32 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       res_list.exhaust by metis
   next
     case (load_num_val i nt c ao)
-    then show ?case sorry
+    then obtain t2 where splitv:
+      "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)] (mk_functype t1 t2)"
+      "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_LOAD nt None ao)] (mk_functype t2 t3)"
+      using inv_seq[of s C' "[_,_]" t1 t3 "[_]" "[_]"] by fastforce
+    then have subv: "mk_instrtype (mk_list []) (mk_list [valtype_I32]) <ti: mk_instrtype t1 t2" 
+      using inv_const_list[of s C' "[_]" t1 t2 "[val_CONST I32 _]"] admininstr_val.psimps
+      admininstr_val.domintros typeofval.psimps typeofval.domintros valtype_numtype.psimps
+      valtype_numtype.domintros by fastforce
+    obtain t2' t3' where 
+      "Instr_ok2 s C' (admininstr_sc6 (admininstr_st6_LOAD nt None ao)) (mk_functype t2' t3')" 
+      and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+      using splitv inv_one_admininstr by blast
+    then have "Instr_ok C' (instr_sc5 (LOAD nt None ao)) (mk_functype t2' t3')"
+      using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+    then obtain mt where hyps:
+      "0 < length (context_MEMS C')"
+      "context_MEMS C' ! 0 = mt"
+      "isabelle_reference_output_wasm2.size (valtype_numtype nt) \<noteq> None"
+      "2 ^ proj_uN_0 (ALIGN ao)
+        \<le> the (isabelle_reference_output_wasm2.size (valtype_numtype nt)) div 8"
+      "wf_memtype mt" 
+      "mk_functype (mk_list [valtype_I32]) (mk_list [valtype_numtype nt]) = mk_functype t2' t3'" 
+      using inv_load_val by blast
+    then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_numtype nt]) <ti: mk_instrtype t1 t3"
+      using subv subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] by fastforce
+    then show ?case using hyps load_num_val sorry
   next
     case (load_pack_trap i ao v_n v_Inn v_sx)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
@@ -5162,10 +5216,201 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
   qed
 next
   case (ctxt_label admininstr_lst admininstr'_lst v_n instr_0_lst)
-  then show ?case sorry
+  then obtain t1' t3' where 
+    "Instr_ok2 s C' (admininstr_sc8 (LABEL_underscore v_n instr_0_lst admininstr_lst)) 
+        (mk_functype t1' t3')"
+    and subt: "mk_instrtype t1' t3' <ti: mk_instrtype t1 t3"
+    using inv_one_admininstr by blast
+  then obtain t'_lst t_lst where hyps:
+    "Instrs_ok2 s C' (map admininstr_instr instr_0_lst) (mk_functype (mk_list t'_lst) (mk_list t_lst))"
+   "Instrs_ok2 s
+    (append_res_context
+      \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+         context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
+         LABELS = [mk_list t'_lst], context_RETURN = None\<rparr>
+      C')
+    admininstr_lst (mk_functype (mk_list []) (mk_list t_lst))"
+   "wf_context
+    \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+       context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [mk_list t'_lst],
+       context_RETURN = None\<rparr>"
+   "v_n = length t'_lst" "mk_functype (mk_list []) (mk_list t_lst) = mk_functype t1' t3'" 
+    using inv_label by blast
+  have "t_inst_match C (append_res_context
+      \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+         context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
+         LABELS = [mk_list t'_lst], context_RETURN = None\<rparr>
+      C') \<and> context_LOCALS (append_res_context
+      \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+         context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
+         LABELS = [mk_list t'_lst], context_RETURN = None\<rparr>
+      C') = context_LOCALS C'" 
+  proof (cases C)
+    case (fields context_TYPES context_FUNCS context_GLOBALS context_TABLES context_MEMS 
+            context_ELEMS context_DATAS context_LOCALS LABELS context_RETURN)
+    then show ?thesis using t_inst_match_def append_res_context_def ctxt_label
+      by auto
+  qed
+  then have ok: "Instrs_ok2 s'
+    (append_res_context
+      \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+         context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
+         LABELS = [mk_list t'_lst], context_RETURN = None\<rparr>
+      C')
+    admininstr'_lst (mk_functype (mk_list []) (mk_list t_lst))"
+    using ctxt_label(2)[of C "(append_res_context
+      \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+         context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
+         LABELS = [mk_list t'_lst], context_RETURN = None\<rparr>
+      C')" "mk_functype (mk_list []) (mk_list t_lst)"] ctxt_label hyps 
+    by auto
+  have wf: "wf_admininstr (admininstr_sc8 (LABEL_underscore v_n instr_0_lst admininstr'_lst))"
+    using Instrs_ok2_wf_instr admininstr_case_71 Instrs_ok2_wf_instr hyps
+    wf_admininstr_instr_inv_list
+    by (meson ok)
+  show ?case using label[OF store_extension_typing[OF hyps(1) ctxt_label(7)] ok 
+        store_extension_wf[OF ctxt_label(7)]
+        Instrs_ok2_wf(1)[OF ctxt_label(12)] wf hyps(3,4)]   
+    ctxt_label Instrs_ok2_subtyping subt hyps(5)
+    using instr_ok2_instrs_ok2 by blast
 next
   case (ctxt_frame s f' admininstr_lst s' f'' admininstr'_lst f v_n)
-  then show ?case sorry
+  then obtain t1' t3' where 
+    "Instr_ok2 s C' (admininstr_sc8 (FRAME_underscore v_n f' admininstr_lst)) 
+        (mk_functype t1' t3')"
+    and subt: "mk_instrtype t1' t3' <ti: mk_instrtype t1 t3"
+    using inv_one_admininstr by blast
+  then obtain C'' t_lst where hyps:
+    "Frame_ok s f' C''"
+     "Expr_ok2 s
+        (append_res_context
+          \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+             context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+             context_RETURN = Some (mk_list t_lst)\<rparr>
+          C'')
+        admininstr_lst (mk_list t_lst)"
+       "wf_context C''" "v_n = length t_lst"
+ "mk_functype (mk_list []) (mk_list t_lst) = mk_functype t1' t3'" 
+    using inv_frame by blast
+  then have typeok:
+    "Instrs_ok2 s (append_res_context
+          \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+             context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+             context_RETURN = Some (mk_list t_lst)\<rparr>
+          C'')
+        admininstr_lst (mk_functype (mk_list []) (mk_list t_lst))"
+    using Expr_ok2.cases Instrs_ok2_wf ctxt_frame
+    by metis
+  have ok: "Expr_ok2 s'
+        (append_res_context
+          \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+             context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+             context_RETURN = Some (mk_list t_lst)\<rparr>
+          C'')
+        admininstr'_lst (mk_list t_lst)"
+    using hyps(1) ctxt_frame typeok 
+    proof (induction s f' C'')
+      case (mk_Frame_ok s_2 v_moduleinst C_2 t_lst' val_lst)
+       have match: "t_inst_match C_2 (append_res_context
+       \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+          context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+          context_RETURN = Some (mk_list t_lst)\<rparr>
+       (append_res_context C_2
+         \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+            context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = t_lst',
+            LABELS = [], context_RETURN = None\<rparr>))"  using t_inst_match_def append_res_context_def
+          by auto
+        have modok: "Moduleinst_ok s' v_moduleinst C_2" using store_extension_Moduleinst_ok 
+          mk_Frame_ok
+          by blast
+        have "context_LOCALS
+       (append_res_context
+         \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+            context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+            context_RETURN = Some (mk_list t_lst)\<rparr>
+         (append_res_context C_2
+           \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+              context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = t_lst',
+              LABELS = [], context_RETURN = None\<rparr>)) = t_lst'" 
+          using mk_Frame_ok(1) 
+        proof (induction s_2 v_moduleinst C_2)
+          case (mk_Moduleinst_ok functype_lst globaladdr_lst globaltype_lst s funcaddr_lst 
+                functype_F_lst memaddr_lst memtype_lst tableaddr_lst tabletype_lst 
+                exportinst_lst dataaddr_lst datatype_lst elemaddr_lst elemtype_lst)
+          show ?case using append_res_context_def by simp
+        qed
+      then show ?case 
+        using 
+          mk_Frame_ok(9)[OF mk_Frame_ok(12,13,14) _ _ match] modok
+          isabelle_reference_output_wasm2.mk_Expr_ok2 Instrs_ok2_wf Instrs_ok2_wf_instr
+          mk_Frame_ok(1,3,21)
+        by auto
+    qed 
+  have frok: "Frame_ok s' f'' C''" 
+    using hyps(1) ctxt_frame(1,5,6,7) typeok
+  proof (induction s f' C'')
+    case (mk_Frame_ok s v_moduleinst C t_lst' val_lst)
+    then have modok: "Moduleinst_ok s' v_moduleinst C" using store_extension_Moduleinst_ok by blast
+     have locs: "context_LOCALS
+       (append_res_context
+         \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+            context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+            context_RETURN = Some (mk_list t_lst)\<rparr>
+         (append_res_context C
+           \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+              context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = t_lst',
+              LABELS = [], context_RETURN = None\<rparr>)) = t_lst'" 
+          using mk_Frame_ok(1) 
+        proof (induction s v_moduleinst C)
+          case (mk_Moduleinst_ok functype_lst globaladdr_lst globaltype_lst s funcaddr_lst 
+                functype_F_lst memaddr_lst memtype_lst tableaddr_lst tabletype_lst 
+                exportinst_lst dataaddr_lst datatype_lst elemaddr_lst elemtype_lst)
+          show ?case using append_res_context_def by simp
+        qed
+    have "length (LOCALS \<lparr>LOCALS = val_lst, frame_MODULE = v_moduleinst\<rparr>) = length (LOCALS f'')"
+      "frame_MODULE \<lparr>LOCALS = val_lst, frame_MODULE = v_moduleinst\<rparr> = frame_MODULE f''"
+      " list_all2 (\<lambda>t v. Val_ok s' v t)
+     (context_LOCALS
+       (append_res_context
+         \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+            context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+            context_RETURN = Some (mk_list t_lst)\<rparr>
+         (append_res_context C
+           \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+              context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = t_lst',
+              LABELS = [], context_RETURN = None\<rparr>)))
+     (LOCALS f'')"
+      using e_preservation_locals[OF mk_Frame_ok(8-11) _ _ _ _ mk_Frame_ok(12)] modok
+         mk_Frame_ok(1,3) locs t_inst_match_def append_res_context_def
+      by auto
+    then have hyps: "length val_lst = length (LOCALS f'')"
+      "v_moduleinst = frame_MODULE f''"
+      "list_all2 (\<lambda>t v. Val_ok s' v t)
+     t_lst'
+     (LOCALS f'')" using locs
+      by auto
+    then  have etaexp: "f'' = \<lparr> LOCALS = LOCALS f'', frame_MODULE = v_moduleinst\<rparr>"
+    proof (cases f'') qed(auto)
+    have wffr: "wf_frame \<lparr>LOCALS = LOCALS f'', frame_MODULE = v_moduleinst\<rparr>" 
+      using mk_Frame_ok(6) hyps(3) val_ok_wf
+      by (metis config.inject ctxt_frame.hyps(4) etaexp state.inject wf_config.cases wf_state.cases)
+    show ?case 
+      using 
+        isabelle_reference_output_wasm2.mk_Frame_ok[OF modok _ hyps(3) 
+            store_extension_wf[OF mk_Frame_ok(11)] mk_Frame_ok(5) wffr]
+        wf_context_trivial locs hyps(1,2)
+        mk_Frame_ok(2,3) etaexp
+      by force
+  qed
+
+  then have "wf_frame f''" proof (induction s' f'' C'') qed(auto)
+  then have wf: "wf_admininstr (admininstr_sc8 (FRAME_underscore v_n f'' admininstr'_lst))"
+    using Instrs_ok2_wf_instr admininstr_case_72 Instrs_ok2_wf_instr 
+    by (meson Expr_ok2.cases ok)
+  show ?case using Instr_ok2__frame[OF frok ok
+    store_extension_wf[OF ctxt_frame(7)] Instrs_ok2_wf(1)[OF ctxt_frame(12)] hyps(3) wf _ hyps(4)
+    ] wf_context_trivial
+    instr_ok2_instrs_ok2 Instrs_ok2_subtyping subt hyps(5) ctxt_frame(13) by simp
 next
   case (ctxt_instrs admininstr_lst admininstr'_lst val_lst admininstr_1_lst)
   then show ?case sorry
