@@ -133,6 +133,14 @@ let op_parens optyp s =
   | `RealT -> parens s ^ "%nat" (* TODO *)
   | _ -> parens s
 
+let scope_nums optyp s = 
+  match optyp with
+  | `NatT -> s ^ "%N"
+  | `IntT -> s ^ "%Z"
+  | `RatT -> s ^ "%Q"
+  | `RealT -> s ^ "%nat" (* TODO *)
+  | _ -> s
+
 let family_type_suffix = "entry"
 
 let is_record_typ inst = 
@@ -206,10 +214,10 @@ let render_cmpop cmpop =
   match cmpop with
   | `EqOp -> " == "
   | `NeOp -> " != "
-  | `LtOp -> " < "
-  | `GtOp -> " > "
-  | `LeOp -> " <= "
-  | `GeOp -> " >= "
+  | `LtOp -> " <? "
+  | `GtOp -> " >? "
+  | `LeOp -> " <=? "
+  | `GeOp -> " >=? "
 
 let is_atomid a =
   match a.it with
@@ -247,9 +255,9 @@ let get_param_id b =
 
 let render_numtyp nt = 
   match nt with
-  | `NatT -> "nat"
-  | `IntT -> "int"
-  | `RatT -> "rat"
+  | `NatT -> "N"
+  | `IntT -> "Z"
+  | `RatT -> "Q"
   | `RealT -> "R"
 
 let transform_case_tup e = 
@@ -298,10 +306,10 @@ and render_exp exp_type exp =
   match exp.it with 
   | VarE id -> render_id id.it
   | BoolE b -> string_of_bool b
-  | NumE (`Nat n) -> Z.to_string n (* TODO fix nums *)
-  | NumE (`Int n) -> Z.to_string n (* TODO fix nums *)
-  | NumE (`Rat n) -> Q.to_string n (* TODO fix nums *)
-  | NumE (`Real n) -> string_of_float n (* TODO fix nums *)
+  | NumE (`Nat n) -> scope_nums `NatT (Z.to_string n)
+  | NumE (`Int n) -> scope_nums `IntT (Z.to_string n)
+  | NumE (`Rat n) -> scope_nums `RatT (Q.to_string n)
+  | NumE (`Real n) -> scope_nums `RealT (string_of_float n) (* TODO fix nums *)
   | TextE s -> "\"" ^ String.escaped s ^ "\""
   | UnE (unop, optyp, e1) -> op_parens optyp (render_unop unop ^ r_func e1)
   | BinE (binop, optyp, e1, e2) -> op_parens optyp (r_func e1 ^ render_binop binop ^ r_func e2)
@@ -364,8 +372,8 @@ and render_exp exp_type exp =
   | CallE (id, args) -> parens (render_id id.it ^ " " ^ String.concat " " (List.map (render_arg exp_type) args))
   (* Iter handling *)
   | IterE (e, (ListN (n, Some id), [])) -> 
-    parens ("seq.mkseq " ^ render_lambda [id.it] (r_func e) ^ " " ^ (r_func n)) 
-  | IterE (e, (ListN (n, None), [])) -> parens ("List.repeat " ^ (r_func e) ^ " " ^ (r_func n)) 
+    parens ("mkseqN " ^ render_lambda [id.it] (r_func e) ^ " " ^ (r_func n)) 
+  | IterE (e, (ListN (n, None), [])) -> parens ("list_repeat " ^ (r_func e) ^ " " ^ (r_func n)) 
   | IterE (e, (_, [])) -> r_func e
   | IterE (e, _) when exp_type = LHS -> r_func e
   | IterE (e, (iter, iter_quants)) ->
@@ -847,19 +855,21 @@ let rec string_of_def has_endline recursive def =
 
 let exported_string = 
   "(* Imported Code *)\n" ^
-  "From Stdlib Require Import String List Unicode.Utf8 Reals.\n" ^
-  "From mathcomp Require Import all_ssreflect all_algebra.\n" ^
+  "From Stdlib Require Import String List Unicode.Utf8 NArith QArith QArith.Qround.\n" ^
+  "From mathcomp Require Import ssreflect eqtype ssrbool ssrfun seq.\n" ^
   "From HB Require Import structures.\n" ^
   "From RecordUpdate Require Import RecordSet.\n" ^
   "Declare Scope wasm_scope.\n\n" ^
   "Class Inhabited (T: Type) := { default_val : T }.\n\n" ^
-  "Definition lookup_total {T: Type} {_: Inhabited T} (l: seq T) (n: nat) : T :=\n" ^
-  "\tseq.nth default_val l n.\n\n" ^
+  "Definition lookup_total {T: Type} {_: Inhabited T} (l: seq T) (n: N) : T :=\n" ^
+  "\tseq.nth default_val l (N.to_nat n).\n\n" ^
   "Definition the {T : Type} {_ : Inhabited T} (arg : option T) : T :=\n" ^
 	"\tmatch arg with\n" ^
 	"\t\t| None => default_val\n" ^
 	"\t\t| Some v => v\n" ^
 	"\tend.\n\n" ^
+  "Definition list_repeat {X : Type} (x : X) (n : N) : seq X :=\n" ^
+  "\tList.repeat x (N.to_nat n).\n\n" ^
   "Definition list_zipWith {X Y Z : Type} (f : X -> Y -> Z) (xs : seq X) (ys : seq Y) : seq Z :=\n" ^
   "\tseq.map (fun '(x, y) => f x y) (seq.zip xs ys).\n\n" ^
   "Definition option_zipWith {α β γ: Type} (f: α -> β -> γ) (x: option α) (y: option β): option γ := \n" ^
@@ -867,11 +877,11 @@ let exported_string =
   "\t\t| Some x, Some y => Some (f x y)\n" ^
   "\t\t| _, _ => None\n" ^
   "\tend.\n\n" ^
-  "Fixpoint list_update {α: Type} (l: seq α) (n: nat) (y: α): seq α :=\n" ^
+  "Fixpoint list_update {α: Type} (l: seq α) (n: N) (y: α): seq α :=\n" ^
   "\tmatch l, n with\n" ^
   "\t\t| nil, _ => nil\n" ^
-  "\t\t| x :: l', O => y :: l'\n" ^
-  "\t\t| x :: l', S n => x :: list_update l' n y\n" ^
+  "\t\t| x :: l', N0 => y :: l'\n" ^
+  "\t\t| x :: l', Npos _ => x :: list_update l' (N.pred n) y\n" ^
   "\tend.\n\n" ^
   "Definition option_append {α: Type} (x y: option α) : option α :=\n" ^
   "\tmatch x with\n" ^
@@ -883,28 +893,28 @@ let exported_string =
 	"\t\t| Some x => Some (f x)\n" ^
 	"\t\t| _ => None\n" ^
 	"\tend.\n\n" ^
-  "Fixpoint list_update_func {α: Type} (l: seq α) (n: nat) (y: α -> α): seq α :=\n" ^
+  "Fixpoint list_update_func {α: Type} (l: seq α) (n: N) (y: α -> α): seq α :=\n" ^
 	"\tmatch l, n with\n" ^
 	"\t\t| nil, _ => nil\n" ^
-	"\t\t| x :: l', O => (y x) :: l'\n" ^
-	"\t\t| x :: l', S n => x :: list_update_func l' n y\n" ^
+	"\t\t| x :: l', N0 => (y x) :: l'\n" ^
+	"\t\t| x :: l', Npos _ => x :: list_update_func l' (N.pred n) y\n" ^
 	"\tend.\n\n" ^
-  "Fixpoint list_slice {α: Type} (l: seq α) (i: nat) (j: nat): seq α :=\n" ^
+  "Fixpoint list_slice {α: Type} (l: seq α) (i: N) (j: N): seq α :=\n" ^
 	"\tmatch l, i, j with\n" ^
 	"\t\t| nil, _, _ => nil\n" ^
-	"\t\t| x :: l', O, O => nil\n" ^
-	"\t\t| x :: l', S n, O => nil\n" ^
-	"\t\t| x :: l', O, S m => x :: list_slice l' 0 m\n" ^
-	"\t\t| x :: l', S n, m => list_slice l' n m\n" ^
+	"\t\t| x :: l', N0, N0 => nil\n" ^
+	"\t\t| x :: l', Npos n, N0 => nil\n" ^
+	"\t\t| x :: l', N0, Npos m => x :: list_slice l' N0 (N.pred j)\n" ^
+	"\t\t| x :: l', Npos n, Npos m => list_slice l' (N.pred i) (N.pred j)\n" ^
 	"\tend.\n\n" ^
-  "Fixpoint list_slice_update {α: Type} (l: seq α) (i: nat) (j: nat) (update_l: seq α): seq α :=\n" ^
+  "Fixpoint list_slice_update {α: Type} (l: seq α) (i: N) (j: N) (update_l: seq α): seq α :=\n" ^
 	"\tmatch l, i, j, update_l with\n" ^
 	"\t\t| nil, _, _, _ => nil\n" ^
 	"\t\t| l', _, _, nil => l'\n" ^
-	"\t\t| l', O, O, _ => l'\n" ^
-	"\t\t| l', S n, O, _ => l'\n" ^
-	"\t\t| x :: l', O, S m, y :: u_l' => y :: list_slice_update l' 0 m u_l'\n" ^
-	"\t\t| x :: l', S n, m, _ => x :: list_slice_update l' n m update_l\n" ^
+	"\t\t| l', N0, N0, _ => l'\n" ^
+	"\t\t| l', Npos n, N0, _ => l'\n" ^
+	"\t\t| x :: l', N0, Npos m, y :: u_l' => y :: list_slice_update l' N0 (N.pred j) u_l'\n" ^
+	"\t\t| x :: l', Npos n, Npos m, _ => x :: list_slice_update l' (N.pred i) (N.pred j) update_l\n" ^
 	"\tend.\n\n" ^
   "Definition list_extend {α: Type} (l: seq α) (y: α): seq α :=\n" ^
   "\ty :: l.\n\n" ^
@@ -919,47 +929,60 @@ let exported_string =
   "\t| Forall3_nil : List_Forall3 R nil nil nil\n" ^ 
   "\t| Forall3_cons : forall x y z l l' l'',\n"^
   "\t\tR x y z -> List_Forall3 R l l' l'' -> List_Forall3 R (x :: l) (y :: l') (z :: l'').\n\n" ^
-  "Inductive Foralli_help {X : Type} (f : nat -> X -> Prop) : nat -> list X -> Prop :=\n" ^
+  "Inductive Foralli_help {X : Type} (f : N -> X -> Prop) : N -> list X -> Prop :=\n" ^
 	"\t| Foralli_nil : forall n, Foralli_help f n nil\n" ^
 	"\t| Foralli_cons : forall x l n,\n" ^
-	"\tf n x -> Foralli_help f (n + 1) l -> Foralli_help f n (x::l).\n\n" ^
-  "Definition List_Foralli {X : Type} (f : nat -> X -> Prop) (xs : list X) : Prop :=\n" ^ 
-	"\tForalli_help f 0 xs.\n\n" ^
-  "Definition holds_upto (P : nat -> Prop) (n : nat) :=\n" ^
-  "\tForall P (iota 0 n).\n\n" ^
+	"\tf n x -> Foralli_help f (N.succ n) l -> Foralli_help f n (x::l).\n\n" ^
+  "Definition List_Foralli {X : Type} (f : N -> X -> Prop) (xs : list X) : Prop :=\n" ^ 
+	"\tForalli_help f N0 xs.\n\n" ^
+  "Definition iotaN (m n : N) : seq N :=\n" ^
+  "\tmap N.of_nat (iota (N.to_nat m) (N.to_nat n)).\n\n" ^
+  "Definition mkseqN {T : Type} (f : N -> T) (n : N) : seq T :=\n" ^
+  "\tmkseq (fun i => f (N.of_nat i)) (N.to_nat n).\n\n" ^
+  "Definition holds_upto (P : N -> Prop) (n : N) :=\n" ^
+  "\tForall P (iotaN N0 n).\n\n" ^
   "Class Append (α: Type) := _append : α -> α -> α.\n\n" ^
   "Infix \"@@\" := _append (right associativity, at level 60) : wasm_scope.\n\n" ^
   "Global Instance Append_List_ {α: Type}: Append (seq α) := { _append l1 l2 := seq.cat l1 l2 }.\n\n" ^
   "Global Instance Append_Option {α: Type}: Append (option α) := { _append o1 o2 := option_append o1 o2 }.\n\n" ^
-  "Global Instance Append_nat : Append (nat) := { _append n1 n2 := n1 + n2}.\n\n" ^
+  "Global Instance Append_nat : Append N := { _append n1 n2 := (n1 + n2)%N}.\n\n" ^
   "Global Instance Inh_unit : Inhabited unit := { default_val := tt }.\n\n" ^
-  "Global Instance Inh_nat : Inhabited nat := { default_val := O }.\n\n" ^
+  "Global Instance Inh_nat : Inhabited N := { default_val := N0 }.\n\n" ^
   "Global Instance Inh_list {T: Type} : Inhabited (seq T) := { default_val := nil }.\n\n" ^
   "Global Instance Inh_option {T: Type} : Inhabited (option T) := { default_val := None }.\n\n" ^
-  "Global Instance Inh_int : Inhabited int := { default_val := 0 }.\n\n" ^
-  "Global Instance Inh_rat : Inhabited rat := { default_val := 0 }.\n\n" ^
+  "Global Instance Inh_int : Inhabited Z := { default_val := 0%Z }.\n\n" ^
+  "Global Instance Inh_rat : Inhabited Q := { default_val := 0%Q }.\n\n" ^
   "Global Instance Inh_prod {T1 T2: Type} {_: Inhabited T1} {_: Inhabited T2} : Inhabited (prod T1 T2) := { default_val := (default_val, default_val) }.\n\n" ^
   "Global Instance Inh_type : Inhabited Type := { default_val := nat }.\n\n" ^
+
+  "Definition N_geb (x y : N) : bool := N.leb y x.\n\n" ^
+  "Definition N_gtb (x y : N) : bool := N.ltb y x.\n\n" ^
+  "Definition Qge_bool (x y : Q) : bool :=\n" ^
+  "\tQle_bool y x.\n\n" ^
+  "Definition Qlt_bool (x y : Q) : bool :=\n" ^
+  "\tnegb (Qle_bool y x).\n\n" ^
+  "Definition Qgt_bool (x y : Q) : bool :=\n" ^
+  "\tnegb (Qle_bool x y).\n\n" ^
+
+  "Infix \">?\"  := N_gtb : N_scope. \n\n" ^ 
+  "Infix \">=?\" := N_geb : N_scope.\n\n" ^
+  "Infix \"<=?\" := Qle_bool : Q_scope.\n\n" ^
+  "Infix \">=?\" := Qge_bool : Q_scope.\n\n" ^
+  "Infix \"<?\" := Qlt_bool : Q_scope.\n\n" ^
+  "Infix \">?\" := Qgt_bool : Q_scope.\n\n" ^
+
   "Definition option_to_list {T: Type} (arg : option T) : seq T :=\n" ^
 	"\tmatch arg with\n" ^
 	"\t\t| None => nil\n" ^
   "\t\t| Some a => a :: nil\n" ^ 
 	"\tend.\n\n" ^
   "Coercion option_to_list: option >-> seq.\n\n" ^
-  "Definition int_to_nat (i : int) : nat :=\n" ^
-  "\tmatch i with\n" ^
-  "\t\t| Posz n => n\n" ^
-  "\t\t| Negz n => 0\n" ^
-  "\tend.\n\n" ^ 
-  "Definition rat_to_int (r : rat) : int :=\n" ^
-  "\t((numq r) %/ (denq r))%Z.\n\n" ^
-  "Definition rat_to_nat (r : rat) : nat :=\n" ^
-  "\tint_to_nat (rat_to_int r).\n\n" ^
-  
-  "Coercion int_to_nat : int >-> nat.\n\n" ^
-  "Coercion ratz : int >-> rat.\n\n" ^
-  "Coercion rat_to_int : rat >-> int.\n\n" ^
-  "Coercion rat_to_nat : rat >-> nat.\n\n" ^
+
+  "Coercion Z.to_N: Z >-> N.\n\n" ^
+  "Coercion Z.of_N: N >-> Z.\n\n" ^
+  "Coercion QArith_base.inject_Z: Z >-> Q.\n\n" ^
+  "Coercion Qfloor: Q >-> Z.\n\n" ^
+
   "Create HintDb eq_dec_db.\n\n" ^
   "Ltac decidable_equality_step :=\n" ^
   "  do [ by eauto with eq_dec_db | decide equality ].\n\n" ^
@@ -970,6 +993,40 @@ let exported_string =
   "  move=> T eq_dec eqb x y. rewrite /eqb.\n" ^
   "  case: (eq_dec x y); by [apply: ReflectT | apply: ReflectF].\n" ^
   "Qed.\n\n" ^
+
+  "Definition N_eq_dec : forall (v1 v2 : N),\n" ^
+  "\t{v1 = v2} + {v1 <> v2}.\n" ^
+  "Proof. do ? decidable_equality_step. Defined.\n\n" ^
+
+  "Definition N_eqb (v1 v2 : N) : bool :=\n" ^
+	"\tis_left(N_eq_dec v1 v2).\n" ^
+  "Definition eqNP : Equality.axiom (N_eqb) :=\n" ^
+	"\teq_dec_Equality_axiom (N) (N_eq_dec).\n\n" ^
+  "HB.instance Definition _ := hasDecEq.Build (N) (eqNP).\n" ^
+  "Hint Resolve N_eq_dec : eq_dec_db.\n\n" ^
+
+  "Definition Z_eq_dec : forall (v1 v2 : Z),\n" ^
+  "\t{v1 = v2} + {v1 <> v2}.\n" ^
+  "Proof. do ? decidable_equality_step. Defined.\n\n" ^
+
+  "Definition Z_eqb (v1 v2 : Z) : bool :=\n" ^
+	"\tis_left(Z_eq_dec v1 v2).\n" ^
+  "Definition eqZP : Equality.axiom (Z_eqb) :=\n" ^
+	"\teq_dec_Equality_axiom (Z) (Z_eq_dec).\n\n" ^
+  "HB.instance Definition _ := hasDecEq.Build (Z) (eqZP).\n" ^
+  "Hint Resolve Z_eq_dec : eq_dec_db.\n\n" ^
+
+  "Definition Q_eq_dec : forall (v1 v2 : Q),\n" ^
+  "\t{v1 = v2} + {v1 <> v2}.\n" ^
+  "Proof. do ? decidable_equality_step. Defined.\n\n" ^
+
+  "Definition Q_eqb (v1 v2 : Q) : bool :=\n" ^
+	"\tis_left(Q_eq_dec v1 v2).\n" ^
+  "Definition eqQP : Equality.axiom (Q_eqb) :=\n" ^
+	"\teq_dec_Equality_axiom (Q) (Q_eq_dec).\n\n" ^
+  "HB.instance Definition _ := hasDecEq.Build (Q) (eqQP).\n" ^
+  "Hint Resolve Q_eq_dec : eq_dec_db.\n\n" ^
+
   "Class Coercion (A B : Type) := { coerce : A -> B }.\n\n" ^
   "Notation \"x ':>' B\" := (coerce (A:=_) (B:=B) x)\n" ^
   "(at level 70, right associativity).\n\n" ^
@@ -990,7 +1047,7 @@ let exported_string =
   "Global Instance id_coercion (A : Type): Coercion A A := { coerce := id_coerce }.\n\n" ^
   "Global Instance transitive_coercion (A B C : Type) `{Coercion A B} `{Coercion B C}: Coercion A C := { coerce := transitive_coerce }.\n\n" ^
   "Global Instance total_coercion (A B : Type) `{Coercion A (option B)} {_ : Inhabited B}: Coercion A B := { coerce := total_coerce}.\n\n" ^
-  "Notation \"| x |\" := (seq.size x) (at level 60).\n" ^
+  "Notation \"| x |\" := (N.of_nat (seq.size x)) (at level 60).\n" ^
   "Notation \"!( x )\" := (the x) (at level 60).\n" ^
   "Notation \"x '[|' a '|]'\" := (lookup_total x a) (at level 10).\n\n" ^
   "Lemma eqb_eq {T : eqType} (x y : T) :\n" ^
