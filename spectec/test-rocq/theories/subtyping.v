@@ -1,4 +1,4 @@
-From Stdlib Require Import List Bool Nat Arith.
+From Stdlib Require Import List Bool Nat Arith NArith.
 Import ListNotations.
 From WasmSpectec Require Import wasm helper_lemmas helper_tactics.
 From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype.
@@ -11,6 +11,38 @@ Notation "tf1 :-> tf2" :=
 Notation "t1 <tv: t2" := (Valtype_sub t1 t2) (at level 30).
 Definition Resulttype_subtype ts1 ts2 := Resulttype_sub (mk_list _ ts1) (mk_list _ ts2).
 Notation "ts1 <ts: ts2" := (Resulttype_subtype ts1 ts2) (at level 60).
+
+Lemma cvt_N_to_ssrnat : forall n m,
+  (N.of_nat n <= N.of_nat m)%BN -> (n <= m)%N.
+Proof.
+  move => n m H.
+  apply/leP. 
+  move: m H.
+  induction n as [ | n IH]; move => m H.
+  - apply Nat.le_0_l.
+  - destruct m.
+    + rewrite Nat2N.inj_succ in H. simpl in H.
+      apply N.nle_succ_0 in H. exfalso. apply H.
+    + repeat rewrite Nat2N.inj_succ in H.
+      apply N.succ_le_mono in H.
+      rewrite <- Nat.succ_le_mono.
+      apply IH; eauto.
+Qed.
+
+Lemma cvt_ssrnat_to_N_le : forall n m,
+  (n <= m)%N -> (N.of_nat n <= N.of_nat m)%BN.
+Proof.
+  move => n m H.
+  (* apply/leP.  *)
+  move: m H.
+  induction n as [ | n IH]; move => m H.
+  - apply N.le_0_l.
+  - destruct m.
+    + rewrite ltn0 in H. done.
+    + repeat rewrite Nat2N.inj_succ.
+      rewrite <- N.succ_le_mono.
+      apply IH; eauto.
+Qed.
 
 Definition instrtype_sub tf tf' : Prop :=
   match tf, tf' with
@@ -74,6 +106,9 @@ Proof.
 	f_equal.
 	symmetry; eapply valtype_sub_non_bot; eauto.
 	eapply IHv_ts; eauto. econstructor; eauto.
+  simplNsizecons H3. 
+  eq_to_prop. 
+  by apply N.succ_inj in H3.
 Qed.
 
 Lemma resulttype_sub_refl : forall ts, ts <ts: ts.
@@ -87,7 +122,7 @@ Qed.
 
 Lemma resulttype_sub_size_eq: forall ts1 ts2,
     ts1 <ts: ts2 ->
-    size ts1 = size ts2.
+    |ts1| = |ts2|.
 Proof.
   move => ts1 ts2 H.
   inversion H; subst.
@@ -102,21 +137,23 @@ Proof.
   move => ts1 ts2 ts3 H12 H23.
   inversion H12; inversion H23; subst.
   constructor.
-  - eauto.
-  - move : ts2 ts3 H12 H23 H1 H2 H5 H6.
+  - eq_to_prop; rewrite H1. eauto.
+  - eq_to_prop.
+    move : ts2 ts3 H12 H23 H1 H2 H5 H6.
     induction ts1 as [ | t1 ts1 IH];
     destruct ts2 as [ | t2 ts2];
     destruct ts3 as [ | t3 ts3]; try discriminate;
     try constructor.
     + inversion H2; inversion H6; subst.
       eapply valtype_sub_trans; eauto.
-    + rewrite !size_cons in H1;
+    + apply sizeN_inj in H1; rewrite !size_cons in H1;
       inversion H1.
-      rewrite !size_cons in H5;
+      apply sizeN_inj in H5; rewrite !size_cons in H5;
       inversion H5.
       inversion H2; inversion H6; subst.
-      apply (IH ts2 ts3);
-      auto; constructor; auto.
+      apply (IH ts2 ts3); auto; constructor; auto.
+      - rewrite H0; eauto.
+      - rewrite H3; eauto.
 Qed.
 
 Lemma resulttype_sub_app_trans: forall ts_sub ts ts1 ts2,
@@ -129,7 +166,7 @@ Proof.
   - inversion H1; inversion H2; subst.
     eq_to_prop.
     rewrite -H7.
-    rewrite !size_cat.
+    rewrite !sizecat'.
     by rewrite H3.
   - move: ts ts1 ts2 H1 H2. 
     induction ts_sub as [ | t_sub ts_sub IH];
@@ -145,8 +182,16 @@ Proof.
     constructor.
     { eapply valtype_sub_trans; eauto. } 
     eapply IH.
-    + inversion H3. econstructor. apply H0. apply H6.
+    + eq_to_prop; apply sizeN_inj in H3; inversion H3. 
+      econstructor. 
+      eq_to_prop.
+      
+      eapply f_equal with (f := N.of_nat); eauto. 
+      apply H6.
     * econstructor; auto.
+      eq_to_prop.
+      simplNsizecons H7.
+      apply N.succ_inj in H7; eauto. 
 Qed.
 
 Lemma all2_cat' : forall A (f : A -> A -> bool) l1 l2 l3 l4,
@@ -185,6 +230,15 @@ Proof.
       * auto.
 Qed.
 
+Lemma size0nil' : forall {A: Type} (l: seq A),
+  |l| = N0 -> l = [].
+Proof.
+  move => A l H.
+  destruct l as [ | a l].
+  - auto.
+  - simpl in H. discriminate.
+Qed.
+
 Lemma resulttype_sub_app: forall ts1_sub ts2_sub ts1 ts2,
   (ts1_sub <ts: ts1) ->
   (ts2_sub <ts: ts2) ->
@@ -194,7 +248,7 @@ Proof.
   move=> ts2_sub ts1 ts2 H1 H2.
   - inversion H1; subst. eq_to_prop.
     simpl in H3; symmetry in H3.
-    rewrite length_zero_iff_nil in H3.
+    eapply size0nil' in H3.
     subst.
     by rewrite !cat0s.
   - destruct ts1 as [ | t1 ts1].
@@ -202,12 +256,24 @@ Proof.
     rewrite !cat_cons.
     inversion H1; subst; clear H1.
     constructor.
-    + simpl; f_equal.
+    + 
+      simplNsizeconsgoal.
+      eq_to_prop.
+      f_equal. f_equal.
       inversion H2; subst.
+      simplNsizecons H3.
+      apply N.succ_inj in H3.
       simpl in H3; inversion H3.
+      fold (size (ts1_sub ++ ts2_sub)).
+      fold (size (ts1 ++ ts2)).
       rewrite !size_cat.
       eq_to_prop.
-      rewrite H1. injection H3 as H3. rewrite <- H3. eauto.
+      eapply sizeN_inj in H1.
+      rewrite H1.
+      apply Nat2N.inj in H3. 
+      fold (size ts1_sub) in H3.
+      fold (size ts1) in H3. 
+      rewrite <- H3. eauto.
     + inversion H4; subst; clear H4.
       constructor; auto.
       simpl in H3; inversion H3; subst; clear H3.
@@ -218,15 +284,17 @@ Qed.
 
 Lemma Forall2_app': forall {A B : Type} (R : A -> B -> Prop)
   (l1 l2 : seq A) (l1' l2' : seq B),
-  size l1 = size l1' ->
+  | l1 | = | l1' | ->
   Forall2 R (l1 ++ l2) (l1' ++ l2') ->
   Forall2 R l1 l1' /\ Forall2 R l2 l2'.
 Proof.
   induction l1 as [ | x l1 IH];
   destruct l1' as [ | x' l1']; auto; try discriminate.
   move=> l2' Hsize H1.
+  apply sizeN_inj in Hsize.
   rewrite !cat_cons in H1.
   inversion Hsize; clear Hsize.
+  apply f_equal with (f := N.of_nat) in H0.
   eapply IH in H0 as [Hl1 Hl2].
   split.
   - constructor. by inversion H1.
@@ -236,7 +304,7 @@ Proof.
 Qed.
 
 Lemma resulttype_sub_app': forall ts1_sub ts2_sub ts1 ts2,
-  size ts1_sub = size ts1 ->
+  | ts1_sub | = | ts1 | ->
   (ts1_sub ++ ts2_sub) <ts: (ts1 ++ ts2) ->
   (ts1_sub <ts: ts1) /\
   (ts2_sub <ts: ts2).
@@ -246,9 +314,12 @@ Proof.
   split; constructor; auto; 
   eapply (Forall2_app' Valtype_sub) in H2 as [HF1 HF2]; eauto.
   - by apply/eqP.
+  eq_to_prop.
+  apply sizeN_inj in H1.
+  apply sizeN_inj in Hsize.
   rewrite !size_cat in H1.
   rewrite Hsize in H1.
-  eq_to_prop.
+  f_equal.
   by rewrite Nat.add_cancel_l in H1.
 Qed.
 
@@ -276,18 +347,18 @@ Lemma resulttype_sub_split: forall ts1 ts2 n,
     ((drop n ts1) <ts: (drop n ts2)).
 Proof.
   move => ts1 ts2 n Hsub.
-  have Hsize: size ts1 = size ts2 by apply resulttype_sub_size_eq.
+  have Hsize: | ts1 | = | ts2 | by apply resulttype_sub_size_eq.
   inversion Hsub; subst.
   split.
   - constructor.
     + apply/eqP.
-      eapply Forall2_length.
+      eapply Forall2_seq_size.
       eapply Forall2_take.
       eauto.
     + by eapply Forall2_take.
   - constructor.
     + apply/eqP.
-      eapply Forall2_length.
+      eapply Forall2_seq_size.
       eapply Forall2_drop.
       eauto.
     + by eapply Forall2_drop.
@@ -389,10 +460,10 @@ Proof.
   *)
 
   eexists
-    (ts_sub_H23 ++ take (List.length ts_H12) ts11_sub_H23),
-    (ts_H23  ++ take (List.length ts_H12) ts12_sup_H23),
-    (drop (List.length ts_H12) ts11_sub_H23),
-    (drop (List.length ts_H12) ts12_sup_H23).
+    (ts_sub_H23 ++ take (size ts_H12) ts11_sub_H23),
+    (ts_H23 ++ take (size ts_H12) ts12_sup_H23),
+    (drop (size ts_H12) ts11_sub_H23),
+    (drop (size ts_H12) ts12_sup_H23).
   split.
   - rewrite -catA.
     by rewrite cat_take_drop.
@@ -407,6 +478,7 @@ Proof.
         inversion H12_3; subst.
         eapply (resulttype_sub_split _ _ (length ts_H12)) in H23_4 as [H23_41 H23_42].
         eq_to_prop.
+        apply sizeN_inj in H1.
         rewrite <- H1 in H23_41 at 2.
         by rewrite take_size_cat in H23_41.
       }
@@ -422,6 +494,7 @@ Proof.
       eapply (resulttype_sub_split _ _ (length ts_H12)) in H23_4 as [H23_41 H23_42].
       inversion H12_3; subst.
       eq_to_prop.
+      apply sizeN_inj in H1.
       rewrite <- H1 in H23_42 at 2.
       rewrite drop_size_cat in H23_42;
       auto.
@@ -467,7 +540,7 @@ Proof.
   inversion H; subst.
   simpl in H2.
   eq_to_prop.
-  by apply size0nil in H2.
+  by apply size0nil' in H2.
 Qed.
 
 Lemma resulttype_empty_sub : forall ts,
@@ -479,7 +552,7 @@ Proof.
   simpl in H2.
   eq_to_prop.
   symmetry in H2.
-  by apply size0nil in H2.
+  by apply size0nil' in H2.
 Qed.
 
 Lemma instrtype_sub_compose : forall ts1 ts2 ts3 txs tys tzs,
@@ -497,9 +570,9 @@ Proof.
   rewrite H2e1 in H1s3.
   eapply (resulttype_sub_trans _ _ _ H1s3) in H2s2.
   inversion H2s2.
-  rewrite !size_cat in H1.
   eq_to_prop.
-  apply Nat.add_cancel_r in H1.
+  rewrite !sizecat' in H1.
+  apply N.add_cancel_r in H1.
   eapply (resulttype_sub_app' _ _ _ _ H1) in H2s2 as [H3 H4].
   subst.
 
@@ -510,7 +583,7 @@ Qed.
 Lemma instrtype_sub_compose_le : forall ts1 ts2' ts2 ts3 ts4 txs tys tzs,
   ((ts1 :-> ts2') <ti: (txs :-> tys)) ->
   (((ts3 ++ ts2) :-> ts4) <ti: (tys :-> tzs)) ->
-  (size ts2 = size ts2') ->
+  (|ts2| = |ts2'|) ->
   (((ts3 ++ ts1) :-> ts4) <ti: (txs :-> tzs)) /\ (ts2' <ts: ts2).
 Proof.
   move=> ts1 ts2' ts2 ts3 ts4 txs tys tzs H1 H2 Hsize.
@@ -526,21 +599,22 @@ Proof.
   rewrite catA in H2s2.
   inversion H2s2; subst.
   eq_to_prop.
-  rewrite size_cat in H1.
-  rewrite size_cat in H1.
+  rewrite sizecat' in H1.
+  rewrite sizecat' in H1.
   rewrite Hsize in H1.
-  apply Nat.add_cancel_r in H1.
+  apply N.add_cancel_r in H1.
   eapply (resulttype_sub_app' _ _ _ _ H1) in H2s2 as [H3 _].
 
   split.
   {
     unfold instrtype_sub.
     eexists (take (size tp2) tp1'), tp2, (drop (size tp2') tp1' ++ ts1'), ts4''.
-    assert (size tp2 = size tp2'). { by inversion H2s1; eq_to_prop. }
+    assert (|tp2| = |tp2'|). { by inversion H2s1; eq_to_prop. }
 
     split.
     {
       rewrite catA.
+      apply sizeN_inj in H.
       rewrite H.
       rewrite cat_take_drop.
       auto.
@@ -552,7 +626,9 @@ Proof.
     rewrite -(cat_take_drop (size tp2) tp1') in H3.
     eapply (resulttype_sub_app') in H3 as [H4 H5].
     2: {
+    f_equal.
     apply size_takel.
+    apply sizeN_inj in H1.
     rewrite H1.
     apply size_subseq.
     apply prefix_subseq.
@@ -560,7 +636,9 @@ Proof.
     split. auto.
     split.
     {
+      apply sizeN_inj in H.
       eapply resulttype_sub_app.
+
       rewrite -H.
       auto.
       auto.
@@ -569,16 +647,18 @@ Proof.
   }
   eapply (Forall2_drop _ _ _ (size tp1')) in H2.
   rewrite drop_size_cat in H2.
+  apply sizeN_inj in H1.
   rewrite H1 in H2.
   rewrite drop_size_cat in H2.
   unfold Resulttype_subtype.
-  by constructor; eq_to_prop.
+  constructor; eq_to_prop; f_equal; auto.
+  by apply sizeN_inj in Hsize.
 Qed.
 
 Lemma instrtype_sub_compose_ge : forall ts1 ts2 ts3' ts3 ts4 txs tys tzs,
   ((ts1 :-> (ts2 ++ ts3')) <ti: (txs :-> tys)) ->
   ((ts3 :-> ts4) <ti: (tys :-> tzs)) ->
-  (size ts3 = size ts3') ->
+  (|ts3| = |ts3'|) ->
   ((ts1 :-> (ts2 ++ ts4)) <ti: (txs :-> tzs) /\ (ts3' <ts: ts3)).
 Proof.
   move=> ts1 ts2 ts3' ts3 ts4 txs tys tzs H1 H2 Hsize.
@@ -593,18 +673,20 @@ Proof.
   eapply (resulttype_sub_trans _ _ _ H1s3) in H2s2.
   rewrite catA in H2s2.
   inversion H2s2; subst.
-  rewrite size_cat in H1.
-  rewrite (size_cat tp2) in H1.
-  rewrite Hsize in H1.
   eq_to_prop.
-  apply Nat.add_cancel_r in H1.
+  rewrite sizecat' in H1.
+  rewrite (sizecat' tp2) in H1.
+  rewrite Hsize in H1.
+  apply N.add_cancel_r in H1.
   eapply (resulttype_sub_app' _ _ _ _ H1) in H2s2 as [H3 _].
 
   split.
   {
     unfold instrtype_sub.
     eexists tp1', (take (size tp1') tp2), ts1', (drop (size tp1') tp2 ++ ts4'').
-    assert (size tp1 = size tp1'). { by inversion H1s1; eq_to_prop. }
+    assert (|tp1| = |tp1'|). { by inversion H1s1; eq_to_prop. }
+    apply sizeN_inj in H.
+    apply sizeN_inj in H1.
 
     split. auto.
     split.
@@ -616,6 +698,7 @@ Proof.
     eapply (resulttype_sub_app') in H3 as [H4 H5].
     2: {
       symmetry.
+      f_equal.
       apply size_takel.
       rewrite -H1.
       apply size_subseq.
@@ -627,16 +710,18 @@ Proof.
   }
   eapply (Forall2_drop _ _ _ (size tp2)) in H2.
   rewrite drop_size_cat in H2.
+  apply sizeN_inj in H1.
   rewrite -H1 in H2.
   rewrite drop_size_cat in H2.
   unfold Resulttype_subtype.
-  by constructor; eq_to_prop.
+  constructor; eq_to_prop; f_equal; auto.
+  by apply sizeN_inj in Hsize.
 Qed.
 
 Lemma instrtype_sub_compose_eq : forall ts1 ts2 ts2' ts3 txs tys tzs,
   ((ts1 :-> ts2) <ti: (txs :-> tys)) ->
   ((ts2' :-> ts3) <ti: (tys :-> tzs)) ->
-  (size ts2 = size ts2') ->
+  (|ts2| = |ts2'|) ->
   ((ts1 :-> ts3) <ti: (txs :-> tzs)) /\ (ts2 <ts: ts2').
 Proof.
   move=> ts1 ts2 ts2' ts3 txs tys tzs H1 H2 Hsize.
@@ -646,7 +731,7 @@ Qed.
 Lemma instrtype_sub_compose_le' : forall ts1 ts2 ts3 ts4 txs tys tzs,
   ((ts1 :-> ts2) <ti: (txs :-> tys)) ->
   ((ts3 :-> ts4) <ti: (tys :-> tzs)) ->
-  (size ts2 <= size ts3) ->
+  (|ts2| <= |ts3|)%BN ->
   ((take (size ts3 - size ts2) ts3 ++ ts1) :-> ts4) <ti: (txs :-> tzs) /\
     ((ts2 <ts: drop (size ts3 - size ts2) ts3)).
 Proof.
@@ -654,7 +739,9 @@ Proof.
   rewrite -(cat_take_drop (size ts3 - size ts2) ts3) in H2.
   eapply (instrtype_sub_compose_le _ _ _ _ _ _ _ _ H1) in H2 as [H3 Hs].
   split; auto.
+  f_equal.
   rewrite size_drop.
+  apply cvt_N_to_ssrnat in Hsize.
   eapply subKn in Hsize.
   auto.
 Qed.
@@ -662,7 +749,7 @@ Qed.
 Lemma instrtype_sub_compose_ge' : forall ts1 ts2 ts3 ts4 txs tys tzs,
   ((ts1 :-> ts2) <ti: (txs :-> tys)) ->
   ((ts3 :-> ts4) <ti: (tys :-> tzs)) ->
-  (size ts3 <= size ts2) ->
+  (|ts3| <= |ts2|)%BN ->
   ((ts1 :-> ((take (size ts2 - size ts3) ts2) ++ ts4)) <ti: (txs :-> tzs) /\
     ((drop (size ts2 - size ts3) ts2) <ts: ts3)).
 Proof.
@@ -670,7 +757,9 @@ Proof.
   rewrite -(cat_take_drop (size ts2 - size ts3) ts2) in H1.
   eapply (instrtype_sub_compose_ge _ _ _ _ _ _ _ _ H1) in H2 as [H3 Hs].
   split; auto.
+  f_equal.
   rewrite size_drop.
+  apply cvt_N_to_ssrnat in Hsize.
   eapply subKn in Hsize.
   auto.
 Qed.
@@ -793,12 +882,12 @@ Proof.
     destruct H as [tp1' [tp1 [ts1' [ts2'' [H1e1 [H1e2 [H1s1 [H1s2 H1s3]]]]]]]].
     subst.
     inversion H1s2; subst.
-    rewrite size_cat in H1.
-    rewrite -{1}(add0n (size ts1')) in H1.
+    rewrite sizecat' in H1.
+    rewrite -{1}(N.add_0_l (|ts1'|)) in H1.
     eq_to_prop.
-    rewrite Nat.add_cancel_r in H1.
+    rewrite N.add_cancel_r in H1.
     symmetry in H1.
-    eapply size0nil in H1; subst.
+    eapply size0nil' in H1; subst.
     eapply resulttype_empty_sub in H1s1; subst.
     auto.
   }
@@ -824,11 +913,11 @@ Proof.
     destruct H as [tp1' [tp1 [ts1' [ts2'' [H1e1 [H1e2 [H1s1 [H1s2 H1s3]]]]]]]].
     subst.
     inversion H1s3; subst.
-    rewrite size_cat in H1.
-    rewrite -{2}(add0n (size ts2'')) in H1.
+    rewrite sizecat' in H1.
+    rewrite -{2}(N.add_0_l (|ts2''|)) in H1.
     eq_to_prop.
-    rewrite Nat.add_cancel_r in H1.
-    eapply size0nil in H1; subst.
+    rewrite N.add_cancel_r in H1.
+    eapply size0nil' in H1; subst.
     eapply resulttype_sub_empty in H1s1; subst.
     auto.
   }
@@ -873,6 +962,9 @@ Proof.
   inversion H2; subst.
   split. auto.
   constructor; auto.
+  eq_to_prop.
+  simplNsizecons H1.
+  by apply N.succ_inj in H1.
 Qed.
 
 Lemma instr_subtyping_strengthen2: forall tx1 ty1 tx2 ty2 ts,

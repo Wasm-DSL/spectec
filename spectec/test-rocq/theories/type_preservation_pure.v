@@ -7,18 +7,11 @@ Declare Scope wasm_scope.
 Open Scope wasm_scope.
 Import RecordSetNotations.
 From WasmSpectec Require Import wasm helper_lemmas helper_tactics typing_lemmas subtyping.
-From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype.
+From mathcomp Require Import ssreflect ssrfun ssrbool seq eqtype ssrnat.
 Import ListNotations.
 Require Import Lia.
 
 Opaque instrtype_sub.
-
-Goal forall i : nat, i + 1 <= 2 ^ 32 - 1 -> i <= 2 ^ 32 - 1.
-Proof.
-  intros i H.
-	apply: (leq_trans _ H).
-  by rewrite leq_addr.
-Qed.
 
 Ltac resolve_wfness :=
 	lazymatch goal with
@@ -157,10 +150,8 @@ Proof.
 	inv_Forall HWfAI.
 	invert_ais_typing.
 	resolve_all_pt.
-
 	join_subtyping_le Hsub0 Hsub.
-	try rewrite sizecat_size2 in Hsubi.
-	inversion HP0.
+	inversion HP0; subst.
 	split;
 	construct_ais_typing;
 	eapply (plain) with (v_instr := BLOCK v_bt _); eauto;
@@ -239,12 +230,13 @@ Proof.
 Qed.
 
 Lemma Step_pure__br_succ_preserves : forall v_S v_C (v_n : n) (v_instr' : (list instr)) (v_val : (list wasm.val)) (v_l : labelidx) v_admininstr v_ft,
-	Instrs_ok2 v_S v_C [(LABEL_ v_n v_instr' (((map admininstr_val v_val) ++ [admininstr_BR (mk_uN ((v_l :> nat) + 1))]) ++ v_admininstr))] v_ft ->
-	Step_pure [(LABEL_ v_n v_instr' (((map admininstr_val v_val) ++ [admininstr_BR (mk_uN ((v_l :> nat) + 1))]) ++ v_admininstr))] ((map admininstr_val v_val) ++ [(admininstr_BR v_l)]) ->
+	Instrs_ok2 v_S v_C [(LABEL_ v_n v_instr' (((map admininstr_val v_val) ++ [admininstr_BR (mk_uN ((v_l :> N) + 1)%BN)]) ++ v_admininstr))] v_ft ->
+	Step_pure [(LABEL_ v_n v_instr' (((map admininstr_val v_val) ++ [admininstr_BR (mk_uN ((v_l :> N) + 1)%BN)]) ++ v_admininstr))] ((map admininstr_val v_val) ++ [(admininstr_BR v_l)]) ->
 	Instrs_ok2 v_S v_C ((map admininstr_val v_val) ++ [(admininstr_BR v_l)]) v_ft.
 Proof.
 	move => v_S v_C v_n v_instr' v_val v_l v_admininstr v_ft HType HReduce.
 	resolve_wfness.
+	apply Step_pure_is_wf in HReduce as HWfGoal; eauto.
 	repeat rewrite -catA in HType. 
 	typing_inversion HType;
 	simpl in Hai;
@@ -287,36 +279,19 @@ Proof.
 	rewrite catA.
 	constructor; eauto.
 	{
-		rewrite addn1 in H2.
-		move/ltP in H2.
-		apply/ltP.
-		eapply Nat.succ_lt_mono in H2.
+		apply/N.ltb_lt.
+		move/N.ltb_lt in H2.
+		rewrite cvt_succ' in H2.
+		rewrite N.add_1_r in H2.
+		eapply N.succ_lt_mono in H2.
 		by apply H2.
 	}
 
 	(* Wfness checks *)
-	-
-		inv_Forall HWfAI.
-		inversion HP; subst.
-		inv_Forall H8.
-		inversion HP1; subst.
-		econstructor.
-		destruct v_l; simpl in *.
-		inversion H4; subst.
-		econstructor.
-		apply: (leq_trans _ H8).
-		by rewrite leq_addr.
-	-
-		inv_Forall HWfAI.
-		inversion HP; subst.
-		inv_Forall H7.
-		inversion HP1; subst.
-		econstructor.
-		destruct v_l; simpl in *.
-		inversion H3; subst.
-		econstructor.
-		apply: (leq_trans _ H7).
-		by rewrite leq_addr.
+	all:
+		inv_Forall HWfGoal;
+		inversion HP; subst;
+		econstructor; eauto.
 Qed.
 
 Lemma Step_pure__br_if_true_preserves : forall v_S v_C (v_c : num_) (v_l : labelidx) v_ft,
@@ -388,9 +363,9 @@ Qed.
 
 Lemma Step_pure__br_table_lt_preserves : forall v_S v_C (v_i : num_) (v_l : (list labelidx)) (v_l' : labelidx) v_ft,
 	Instrs_ok2 v_S v_C [(admininstr_CONST I32 v_i);(admininstr_BR_TABLE v_l v_l')] v_ft ->
-	Step_pure [(admininstr_CONST I32 v_i);(admininstr_BR_TABLE v_l v_l')] [(admininstr_BR (lookup_total v_l ((!(proj_num__0 v_i)) :> nat)))] ->
-	((!(proj_num__0 v_i) :> nat) < Datatypes.length v_l) -> 
-	Instrs_ok2 v_S v_C [(admininstr_BR (lookup_total v_l (!(proj_num__0 v_i) :> nat)))] v_ft.
+	Step_pure [(admininstr_CONST I32 v_i);(admininstr_BR_TABLE v_l v_l')] [(admininstr_BR (lookup_total v_l ((!(proj_num__0 v_i)) :> N)))] ->
+	((!(proj_num__0 v_i) :> N) <? | v_l |)%BN -> 
+	Instrs_ok2 v_S v_C [(admininstr_BR (lookup_total v_l (!(proj_num__0 v_i) :> N)))] v_ft.
 Proof.
 	move => v_S v_C v_i v_l v_l' v_ft HType HReduce H.
 	resolve_wfness.
@@ -401,6 +376,7 @@ Proof.
 	typing_inversion H2.
 	unfold_principal_typing Hai.
 	typing_inversion H1.
+	ineq_to_propH H.
 
 	destruct Hai as [t [t' [v_t [H1 [H2 [H3 [H4 H5]]]]]]].
 	inversion H1; subst; clear H1.
@@ -421,10 +397,9 @@ Proof.
 	{
 		simpl.
 		unfold lookup_total.
-	  eapply Forall_nth in H2.
-		rewrite <- nth_is_same_as_seq_nth.
+	  eapply Forall_size in H2.
 	  eapply H2.
-	  by apply/ltP.
+		apply H.
 	}
 	{
 		inversion HP0; subst.
@@ -445,12 +420,11 @@ Proof.
 	  exists [], [], (t ++ v_t), t'.
 	  do 4 split; auto. 2: eapply resulttype_sub_refl.
 	  eapply resulttype_sub_app. eapply resulttype_sub_refl.
-	  eapply (Forall_nth) in H3.
+	  eapply (Forall_size) in H3.
 	  unfold Resulttype_subtype.
 	  rewrite proj_identity.
-		rewrite nth_is_same_as_seq_nth in H3.
 	  eapply H3.
-	  by apply/ltP.
+	  by apply H.
 	}
 	auto.
 Qed.
@@ -458,10 +432,9 @@ Qed.
 Lemma Step_pure__br_table_ge_preserves : forall v_S v_C (v_i : num_) (v_l : (list labelidx)) (v_l' : labelidx) v_ft,
 	Instrs_ok2 v_S v_C [(admininstr_CONST I32 v_i);(admininstr_BR_TABLE v_l v_l')] v_ft ->
 	Step_pure [(admininstr_CONST I32 v_i);(admininstr_BR_TABLE v_l v_l')] [(admininstr_BR v_l')] ->
-	(List.length v_l <= (!(proj_num__0 v_i) :> nat)) ->
 	Instrs_ok2 v_S v_C [(admininstr_BR v_l')] v_ft.
 Proof.
-	move => v_S v_C v_i v_l v_l' v_ft HType HReduce H.
+	move => v_S v_C v_i v_l v_l' v_ft HType HReduce.
 	resolve_wfness.
 	typing_inversion HType.
 
@@ -816,7 +789,7 @@ Qed.
 Lemma Step_pure__ref_is_null_helper : forall v_S v_C v_rt v_ft v_n,
 	Instrs_ok2 v_S v_C [(admininstr_instr (REF_NULL v_rt)); admininstr_REF_IS_NULL] v_ft ->
 	Step_pure [(admininstr_instr (REF_NULL v_rt)); admininstr_REF_IS_NULL] [admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))] ->
-	(v_n = 1) \/ (v_n = 0) ->
+	(v_n = 1%num) \/ (v_n = 0%num) ->
 	Instrs_ok2 v_S v_C [admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))] v_ft.
 Proof.
 	move => v_S v_C v_rt v_ft v_n HType HReduce HDisj.
@@ -851,7 +824,7 @@ Lemma Step_pure__ref_is_null_true_preserves : forall v_S v_C v_rt v_ft,
 	Instrs_ok2 v_S v_C [admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN 1))] v_ft.
 Proof.
 	intros.
-	apply Step_pure__ref_is_null_helper with (v_n := 1) in H; eauto.
+	apply Step_pure__ref_is_null_helper with (v_n := 1%num) in H; eauto.
 Qed.
 
 Lemma Step_pure__ref_is_null_false_preserves : forall v_S v_C v_rt v_ft,
@@ -864,7 +837,7 @@ Proof.
 	destruct v_rt; simpl in *.
 	- 
 		(* REF_NULL *)
-		apply Step_pure__ref_is_null_helper with (v_n := 0) in HType; eauto.
+		apply Step_pure__ref_is_null_helper with (v_n := 0%num) in HType; eauto.
 	- (* REF_FUNC_ADDR *)
 		typing_inversion HType.
 		typing_inversion H1.

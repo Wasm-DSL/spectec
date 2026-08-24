@@ -333,6 +333,26 @@ Ltac ineq_to_prop :=
     apply/ltnP
   | _ : _ |- is_true (_ <= _) =>
     apply/leP
+  | H : context[(_ <? _)%BN] |- _ =>
+    move/N.ltb_lt in H
+  | H : context[(_ <=? _)%BN] |- _ =>
+    move/N.leb_le in H
+  | H : context[(_ >? _)%BN] |- _ =>
+    unfold N_gtb in H;
+    move/N.ltb_lt in H
+  | H : context[(_ >=? _)%BN] |- _ =>
+    unfold N_geb in H;
+    move/N.leb_le in H
+  | _ : _ |- context[(_ <? _)%BN] =>
+    apply/N.ltb_lt
+  | _ : _ |- context[(_ <=? _)%BN] =>
+    apply/N.leb_le
+  | _ : _ |- context[(_ >? _)%BN] =>
+    unfold N_gtb;
+    apply/N.ltb_lt
+  | _ : _ |- context[(_ >=? _)%BN] =>
+    unfold N_geb;
+    apply/N.leb_le
   (* | _ : _ |- is_true (_ > _) =>
     apply/gtnP
   | _ : _ |- is_true (_ >= _) =>
@@ -360,6 +380,16 @@ Ltac ineq_to_propH H :=
     move/ltnP in H
   | is_true (_ <= _) =>
     move/leP in H
+  | context[(_ <? _)%BN] =>
+    move/N.ltb_lt in H
+  | context[(_ <=? _)%BN] =>
+    move/N.leb_le in H
+  | context[(_ >? _)%BN] =>
+    unfold N_gtb in H;
+    move/N.ltb_lt in H
+  | context[(_ >=? _)%BN] =>
+    unfold N_geb in H;
+    move/N.leb_le in H
   (* | is_true (_ > _) =>
     move/gtnP in H
   | is_true (_ >= _) =>

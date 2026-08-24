@@ -1,63 +1,13 @@
-From Stdlib Require Import String List Unicode.Utf8 NArith Arith Logic.Eqdep.
+From Stdlib Require Import String List Unicode.Utf8 NArith Arith Logic.Eqdep QArith.
 Require Import Stdlib.Program.Equality.
 From RecordUpdate Require Import RecordSet.
 
 From WasmSpectec Require Import wasm helper_lemmas helper_tactics subtyping.
-From mathcomp Require Import all_ssreflect all_algebra.
+From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype.
 Declare Scope wasm_scope.
 Open Scope wasm_scope.
 Import ListNotations.
 Import RecordSetNotations.
-
-Definition fun_nat__u32 : nat -> u32 := mk_uN.
-Definition fun_u32__nat : u32 -> nat := fun x => match x with
-    |  mk_uN v => v
-	end.
-Coercion fun_nat__u32 : nat >-> u32.
-Coercion fun_u32__nat : u32 >-> nat.
-
-Definition fun_nat__labelidx : nat -> labelidx := mk_uN.
-Definition fun_labelidx__nat : labelidx -> nat := fun x => match x with
-    |  mk_uN v => v
-	end.
-Coercion fun_nat__labelidx : nat >-> labelidx.
-Coercion fun_labelidx__nat : labelidx >-> nat.
-
-Definition fun_nat__localidx : nat -> localidx := mk_uN.
-Definition fun_localidx__nat : localidx -> nat := fun x => match x with
-    |  mk_uN v => v
-	end.
-Coercion fun_nat__localidx : nat >-> localidx.
-Coercion fun_localidx__nat : localidx >-> nat.
-
-Definition fun_nat__globalidx : nat -> globalidx := mk_uN.
-Definition fun_globalidx__nat : globalidx -> nat := fun x => match x with
-    |  mk_uN v => v
-	end.
-Coercion fun_nat__globalidx : nat >-> globalidx.
-Coercion fun_globalidx__nat : globalidx >-> nat.
-
-Definition fun_nat__memidx : nat -> memidx := mk_uN.
-Definition fun_memidx__nat : memidx -> nat := fun x => match x with
-    |  mk_uN v => v
-	end.
-Coercion fun_nat__memidx : nat >-> memidx.
-Coercion fun_memidx__nat : memidx >-> nat.
-
-
-Definition fun_nat__tableidx : nat -> tableidx := mk_uN.
-Definition fun_tableidx__nat : tableidx -> nat := fun x => match x with
-    |  mk_uN v => v
-	end.
-Coercion fun_nat__tableidx : nat >-> tableidx.
-Coercion fun_tableidx__nat : tableidx >-> nat.
-
-Definition fun_nat__idx : nat -> idx := mk_uN.
-Definition fun_idx__nat : idx -> nat := fun x => match x with
-    |  mk_uN v => v
-	end.
-Coercion fun_nat__idx : nat >-> idx.
-Coercion fun_idx__nat : idx >-> nat.
 
 Definition fun_res_list__list :
 forall T, res_list T -> list T := fun _ x => match x with
@@ -454,31 +404,31 @@ match v_ai with
 	| (admininstr_BR v_l) =>
 	    exists t t' t_lst,
 	    v_ft = (t ++ t_lst) :-> t' /\
-	    ((proj_uN_0 v_l) < (List.length (LABELS v_C))) /\
+	    ((proj_uN_0 v_l) <? (|(LABELS v_C)|))%BN /\
 		((proj_list_0 valtype (lookup_total (LABELS v_C) (proj_uN_0 v_l))) = t_lst)
-	| (admininstr_BR_IF v_l) =>
+	| (admininstr_BR_IF v_l) =>	
 	  exists t,
 	    v_ft = ((t ++ [valtype_I32]) :-> t) /\
-	    ((proj_uN_0 v_l) < (List.length (LABELS v_C))) /\
+	    ((proj_uN_0 v_l) <? (|(LABELS v_C)|))%BN /\
 		((proj_list_0 valtype (lookup_total (LABELS v_C) (proj_uN_0 v_l))) = t)
 	| (admininstr_BR_TABLE v_l v_l') =>
       exists t t' t_lst,
 	    v_ft = ((t ++ t_lst ++ [valtype_I32]) :-> t') /\
-	    List.Forall (fun (v_l : labelidx) => ((proj_uN_0 v_l) < (List.length (LABELS v_C)))) (v_l) /\
+	    List.Forall (fun (v_l : labelidx) => ((proj_uN_0 v_l) <? (|(LABELS v_C)|))%BN) (v_l) /\
 		List.Forall (fun (v_l : labelidx) => (Resulttype_sub (mk_list _ t_lst) (lookup_total (LABELS v_C) (proj_uN_0 v_l)))) (v_l) /\
-		((proj_uN_0 v_l') < (List.length (LABELS v_C))) /\
+		((proj_uN_0 v_l') <? (|(LABELS v_C)|))%BN /\
 		(Resulttype_sub (mk_list _ t_lst) (lookup_total (LABELS v_C) (proj_uN_0 v_l')))
 	| (admininstr_CALL v_x) =>
 		exists t t',
 		v_ft = (t :-> t') /\
-		((proj_uN_0 v_x) < (List.length (context_FUNCS v_C))) /\
+		((proj_uN_0 v_x) <? (|(context_FUNCS v_C)|))%BN /\
 		((lookup_total (context_FUNCS v_C) (proj_uN_0 v_x)) = (t :-> t'))
 	| (admininstr_CALL_INDIRECT v_x v_y) =>
 		exists t t' v_lim,
 		v_ft = ((t ++ [valtype_I32]) :-> t') /\
-		((proj_uN_0 v_x) < (List.length (context_TABLES v_C))) /\
+		((proj_uN_0 v_x) <? (|(context_TABLES v_C)|))%BN /\
 		((lookup_total (context_TABLES v_C) (proj_uN_0 v_x)) = (mk_tabletype v_lim FUNCREF)) /\
-		((proj_uN_0 v_y) < (List.length (context_TYPES v_C))) /\
+		((proj_uN_0 v_y) <? (|(context_TYPES v_C)|))%BN /\
 		((lookup_total (context_TYPES v_C) (proj_uN_0 v_y)) = (t :-> t'))
 	| admininstr_RETURN =>
 	  exists t t' t_lst,
@@ -524,127 +474,127 @@ match v_ai with
 	  v_ft = ([] :-> [valtype_reftype v_rt])
 	| (admininstr_REF_FUNC v_x) =>
 	  exists v_fty, v_ft = ([] :-> [valtype_FUNCREF]) /\
-		((proj_uN_0 v_x) < (List.length (context_FUNCS v_C))) /\
+		((proj_uN_0 v_x) <? (|(context_FUNCS v_C)|))%BN /\
 		((lookup_total (context_FUNCS v_C) (proj_uN_0 v_x)) = v_fty)
 	| admininstr_REF_IS_NULL =>
 	  exists v_rt: reftype,
 	  v_ft = ([valtype_reftype v_rt] :-> [valtype_I32])
 	| (admininstr_LOCAL_GET v_x) =>
 	  exists t_lst, v_ft = ([] :-> [t_lst]) /\
-	    ((proj_uN_0 v_x) < (List.length (context_LOCALS v_C))) /\
+	    ((proj_uN_0 v_x) <? (|(context_LOCALS v_C)|))%BN /\
 		((lookup_total (context_LOCALS v_C) (proj_uN_0 v_x)) = t_lst)
 	| (admininstr_LOCAL_SET v_x) =>
 	  exists t_lst, v_ft = ([t_lst] :-> []) /\
-	    ((proj_uN_0 v_x) < (List.length (context_LOCALS v_C))) /\
+	    ((proj_uN_0 v_x) <? (|(context_LOCALS v_C)|))%BN /\
 		((lookup_total (context_LOCALS v_C) (proj_uN_0 v_x)) = t_lst)
 	| (admininstr_LOCAL_TEE v_x) =>
 	  exists t_lst, v_ft = ([t_lst] :-> [t_lst]) /\
-	    ((proj_uN_0 v_x) < (List.length (context_LOCALS v_C))) /\
+	    ((proj_uN_0 v_x) <? (|(context_LOCALS v_C)|))%BN /\
 	    ((lookup_total (context_LOCALS v_C) (proj_uN_0 v_x)) = t_lst)
 	| (admininstr_GLOBAL_GET v_x) =>
 	  exists t_lst v_mut, v_ft = ([] :-> [t_lst]) /\
-	  	((proj_uN_0 v_x) < (List.length (context_GLOBALS v_C))) /\
+	  	((proj_uN_0 v_x) <? (|(context_GLOBALS v_C)|))%BN /\
 		((lookup_total (context_GLOBALS v_C) (proj_uN_0 v_x)) = (mk_globaltype v_mut t_lst))
 	| (admininstr_GLOBAL_SET v_x) =>
 	  exists t_lst, v_ft = ([t_lst] :-> []) /\
-	  	((proj_uN_0 v_x) < (List.length (context_GLOBALS v_C))) /\
+	  	((proj_uN_0 v_x) <? (|(context_GLOBALS v_C)|))%BN /\
 		((lookup_total (context_GLOBALS v_C) (proj_uN_0 v_x)) = (mk_globaltype (Some MUT) t_lst))
 	| (admininstr_TABLE_GET v_x) =>
 	  exists (v_rt: reftype) v_lim, v_ft = ([valtype_I32] :-> [(valtype_reftype v_rt)]) /\
-	  	((proj_uN_0 v_x) < (List.length (context_TABLES v_C))) /\
+	  	((proj_uN_0 v_x) <? (|(context_TABLES v_C)|))%BN /\
 		((lookup_total (context_TABLES v_C) (proj_uN_0 v_x)) = (mk_tabletype v_lim v_rt))
 	| (admininstr_TABLE_SET v_x) =>
 	  exists (v_rt: reftype) v_lim, v_ft = ([valtype_I32; valtype_reftype v_rt] :-> []) /\
-	  	((proj_uN_0 v_x) < (List.length (context_TABLES v_C))) /\
+	  	((proj_uN_0 v_x) <? (|(context_TABLES v_C)|))%BN /\
 		((lookup_total (context_TABLES v_C) (proj_uN_0 v_x)) = (mk_tabletype v_lim v_rt))
 	| (admininstr_TABLE_SIZE v_x) =>
 	  exists (v_rt: reftype) v_lim, v_ft = ([] :-> [valtype_I32]) /\
-	  	((proj_uN_0 v_x) < (List.length (context_TABLES v_C))) /\
+	  	((proj_uN_0 v_x) <? (|(context_TABLES v_C)|))%BN /\
 		((lookup_total (context_TABLES v_C) (proj_uN_0 v_x)) = (mk_tabletype v_lim v_rt))
 	| (admininstr_TABLE_GROW v_x) =>
 	  exists (v_rt: reftype) v_lim, v_ft = ([valtype_reftype v_rt; valtype_I32] :-> [valtype_I32]) /\
-	  	((proj_uN_0 v_x) < (List.length (context_TABLES v_C))) /\
+	  	((proj_uN_0 v_x) <? (|(context_TABLES v_C)|))%BN /\
 		((lookup_total (context_TABLES v_C) (proj_uN_0 v_x)) = (mk_tabletype v_lim v_rt))
 	| (admininstr_TABLE_FILL v_x) =>
 	  exists (v_rt: reftype) v_lim, v_ft = ([valtype_I32; valtype_reftype v_rt; valtype_I32] :-> []) /\
-	  	((proj_uN_0 v_x) < (List.length (context_TABLES v_C))) /\
+	  	((proj_uN_0 v_x) <? (|(context_TABLES v_C)|))%BN /\
 		((lookup_total (context_TABLES v_C) (proj_uN_0 v_x)) = (mk_tabletype v_lim v_rt))
 	| (admininstr_TABLE_COPY v_x_1 v_x_2) =>
 	  exists (v_rt: reftype) v_lim_1 v_lim_2, v_ft = ([valtype_I32; valtype_I32; valtype_I32] :-> []) /\
-	  	((proj_uN_0 v_x_1) < (List.length (context_TABLES v_C))) /\
+	  	((proj_uN_0 v_x_1) <? (|(context_TABLES v_C)|))%BN /\
 		((lookup_total (context_TABLES v_C) (proj_uN_0 v_x_1)) = (mk_tabletype v_lim_1 v_rt))/\
-	  	((proj_uN_0 v_x_2) < (List.length (context_TABLES v_C))) /\
+	  	((proj_uN_0 v_x_2) <? (|(context_TABLES v_C)|))%BN /\
 		((lookup_total (context_TABLES v_C) (proj_uN_0 v_x_2)) = (mk_tabletype v_lim_2 v_rt))
 	| (admininstr_TABLE_INIT v_x_1 v_x_2) =>
 	  exists (v_rt: reftype) v_lim, v_ft = ([valtype_I32; valtype_I32; valtype_I32] :-> []) /\
-	  	((proj_uN_0 v_x_1) < (List.length (context_TABLES v_C))) /\
+	  	((proj_uN_0 v_x_1) <? (|(context_TABLES v_C)|))%BN /\
 		((lookup_total (context_TABLES v_C) (proj_uN_0 v_x_1)) = (mk_tabletype v_lim v_rt))/\
-	  	((proj_uN_0 v_x_2) < (List.length (context_ELEMS v_C))) /\
+	  	((proj_uN_0 v_x_2) <? (|(context_ELEMS v_C)|))%BN /\
 		((lookup_total (context_ELEMS v_C) (proj_uN_0 v_x_2)) = v_rt)
 	| (admininstr_ELEM_DROP v_x) =>
 	  exists (v_rt: reftype), v_ft = ([] :-> []) /\
-	  	((proj_uN_0 v_x) < (List.length (context_ELEMS v_C))) /\
+	  	((proj_uN_0 v_x) <? (|(context_ELEMS v_C)|))%BN /\
 		((lookup_total (context_ELEMS v_C) (proj_uN_0 v_x)) = v_rt)
 	| (admininstr_LOAD v_nt None v_memarg) =>
 	  exists v_mt, v_ft = ([valtype_I32] :-> [(valtype_numtype v_nt)]) /\
-	  	(0 < (List.length (context_MEMS v_C))) /\
+	  	(0 <? (|(context_MEMS v_C)|))%BN /\
 		((lookup_total (context_MEMS v_C) 0) = v_mt) /\
 		((res_size (valtype_numtype v_nt)) <> None) /\
-		(((2 ^ ((ALIGN v_memarg) :> nat))%N : rat)  <= (((the (res_size (valtype_numtype v_nt))) : rat) / (8 : rat))%Q)
+		(((2 ^ ((ALIGN v_memarg) :> N))%BN : Q) <=? (((!((res_size (valtype_numtype v_nt)))) : Q) / (8 : Q))%Q)%Q
 	| (admininstr_LOAD I32 (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz v_M) v_sx))) v_memarg) =>
 	  exists v_mt, v_ft = ([valtype_I32] :-> [(valtype_I32)]) /\
-	  	(0 < (List.length (context_MEMS v_C))) /\
+	  	(0 <? (|(context_MEMS v_C)|))%BN /\
 		((lookup_total (context_MEMS v_C) 0) = v_mt) /\
-		(((2 ^ ((ALIGN v_memarg) :> nat))%N : rat) <= ((v_M : rat) / (8 : rat))%Q)
+		(((2 ^ ((ALIGN v_memarg) :> N))%BN : Q) <=? (v_M : Q) / (8 : Q))%Q
 	| (admininstr_LOAD I64 (Some (mk_loadop__0 Inn_I64 (mk_loadop_Inn (mk_sz v_M) v_sx))) v_memarg) =>
 	  exists v_mt, v_ft = ([valtype_I32] :-> [valtype_I64]) /\
-	  	(0 < (List.length (context_MEMS v_C))) /\
+	  	(0 <? (|(context_MEMS v_C)|))%BN /\
 		((lookup_total (context_MEMS v_C) 0) = v_mt) /\
-		(((2 ^ ((ALIGN v_memarg) :> nat))%N : rat) <= ((v_M : rat) / (8 : rat))%Q)
+		(((2 ^ ((ALIGN v_memarg) :> N))%BN : Q) <=? (v_M : Q) / (8 : Q))%Q
 	| (admininstr_LOAD F32 (Some _) _) => False
 	| (admininstr_LOAD F64 (Some _) _) => False
 	| (admininstr_STORE v_nt None v_memarg) =>
 	  exists v_mt, v_ft = ([valtype_I32; (valtype_numtype v_nt)] :-> []) /\
-	  	(0 < (List.length (context_MEMS v_C))) /\
+	  	(0 <? (|(context_MEMS v_C)|))%BN /\
 		((lookup_total (context_MEMS v_C) 0) = v_mt) /\
 		((res_size (valtype_numtype v_nt)) <> None) /\
-		(((2 ^ (proj_uN_0 (ALIGN v_memarg)))%N : rat) <= (((the (res_size (valtype_numtype v_nt))) : rat) / (8 : rat))%Q)
+		(((2 ^ ((ALIGN v_memarg) :> N))%BN : Q) <=? (((!((res_size (valtype_numtype v_nt)))) : Q) / (8 : Q))%Q)%Q
 	(* | (admininstr_STORE F32 (Some _) _) => False
 	| (admininstr_STORE F64 (Some _) _) => False *)
 	| (admininstr_STORE v_Inn (Some (mk_sz v_M)) v_memarg) =>
 	  exists v_mt, v_ft = ([valtype_I32; (valtype_numtype v_Inn)] :-> []) /\
-	  	(0 < (List.length (context_MEMS v_C))) /\
+	  	(0 <? (|(context_MEMS v_C)|))%BN /\
 		((lookup_total (context_MEMS v_C) 0) = v_mt) /\
-		(((2 ^ ((ALIGN v_memarg) :> nat))%N : rat) <= ((v_M : rat) / (8 : rat))%Q)
-	(*| (admininstr_VLOAD v_0 v_1 v_2)
+		(((2 ^ ((ALIGN v_memarg) :> N))%BN : Q) <=? (v_M : Q) / (8 : Q))%Q
+	(* | (admininstr_VLOAD v_0 v_1 v_2)
 	| (admininstr_VLOAD_LANE v_0 v_1 v_2 v_3)
 	| (admininstr_VSTORE v_0 v_1)
-	| (admininstr_VSTORE_LANE v_0 v_1 v_2 v_3)*)
+	| (admininstr_VSTORE_LANE v_0 v_1 v_2 v_3) *)
 	| admininstr_MEMORY_SIZE =>
 	  exists v_mt, v_ft = ([] :-> [valtype_I32]) /\
-	  	(0 < (List.length (context_MEMS v_C))) /\
+	  	(0 <? (|(context_MEMS v_C)|))%BN /\
 		((lookup_total (context_MEMS v_C) 0) = v_mt)
 	| admininstr_MEMORY_GROW =>
 	  exists v_mt, v_ft = ([valtype_I32] :-> [valtype_I32]) /\
-	  	(0 < (List.length (context_MEMS v_C))) /\
+	  	(0 <? (|(context_MEMS v_C)|))%BN /\
 		((lookup_total (context_MEMS v_C) 0) = v_mt)
 	| admininstr_MEMORY_FILL =>
 	  exists v_mt, v_ft = ([valtype_I32; valtype_I32; valtype_I32] :-> []) /\
-	  	(0 < (List.length (context_MEMS v_C))) /\
+	  	(0 <? (|(context_MEMS v_C)|))%BN /\
 		((lookup_total (context_MEMS v_C) 0) = v_mt)
 	| admininstr_MEMORY_COPY =>
 	  exists v_mt, v_ft = ([valtype_I32; valtype_I32; valtype_I32] :-> []) /\
-	  	(0 < (List.length (context_MEMS v_C))) /\
+	  	(0 <? (|(context_MEMS v_C)|))%BN /\
 		((lookup_total (context_MEMS v_C) 0) = v_mt)
 	| (admininstr_MEMORY_INIT v_x) =>
 	  exists v_mt, v_ft = ([valtype_I32; valtype_I32; valtype_I32] :-> []) /\
-		(0 < (List.length (context_MEMS v_C))) /\
+		(0 <? (|(context_MEMS v_C)|))%BN /\
 		((lookup_total (context_MEMS v_C) 0) = v_mt) /\
-		((proj_uN_0 v_x) < (List.length (context_DATAS v_C))) /\
+		((proj_uN_0 v_x) <? (|(context_DATAS v_C)|))%BN /\
 		((lookup_total (context_DATAS v_C) (proj_uN_0 v_x)) = OK)
 	| (admininstr_DATA_DROP v_x) =>
 	  v_ft = ([] :-> []) /\
-		((proj_uN_0 v_x) < (List.length (context_DATAS v_C))) /\
+		((proj_uN_0 v_x) <? (|(context_DATAS v_C)|))%BN /\
 		((lookup_total (context_DATAS v_C) (proj_uN_0 v_x)) = OK)
 	| (admininstr_REF_FUNC_ADDR v_funcaddr) =>
 	  exists v_functype,
@@ -660,13 +610,13 @@ match v_ai with
 	  v_ft = ([] :-> t') /\
 	  (Instrs_ok2 v_S v_C (map admininstr_instr v_instrs) (t :-> t')) /\
 	  (Instrs_ok2 v_S (prepend_label v_C t) v_ais ([] :-> t')) /\
-	  (v_n = (length t))
+	  (v_n = (|t|))
 	| (FRAME_ v_n v_F v_ais) =>
 	  exists t v_C',
 	    v_ft = ([] :-> t) /\
 			(Frame_ok v_S v_F v_C') /\
-	    (Expr_ok2 v_S v_C' v_ais (mk_list _ t)) /\
-		(v_n = (List.length t))
+	    (Expr_ok2 v_S (prepend_return v_C' t) v_ais (mk_list _ t)) /\
+		(v_n = (|t|))
 	| admininstr_TRAP => True
 	| (admininstr_EXTEND v_0 v_1) => False
 	| _ => True
@@ -710,12 +660,14 @@ Proof.
 	{ (* Load Some *)
 		destruct v_Inn; simpl; try repeat eexists; eauto.
 	}
+	(* { STORE None
+		destruct nt; repeat eexists; eauto.
+	} *)
 	{ (* STORE Some *)
 		destruct v_Inn; 
 		eexists; eauto.
 	}
 Qed.
-
 
 Lemma ai_typing_inversion: forall (v_S: store) (v_C: context) v_ai t1s t2s,
 	Instr_ok2 v_S v_C v_ai (t1s :-> t2s) ->
@@ -781,7 +733,7 @@ Proof.
 			exists t_1_lst, t2s, t_lst; split; eauto.
 			apply instrtype_sub_refl.
 		}
-		{
+		{ (* CONST *)
 			split; inversion H2; eauto.
 			apply instrtype_sub_refl.
 		}
@@ -833,20 +785,27 @@ Proof.
 	  - unfold ai_principal_typing; exact.
 	  - apply instrtype_sub_refl.
 	}
-	(* { weakening
-		specialize (IHHType _ _ erefl) as [t1' [t2' [Hpt His]]].
-		exists t1', t2'.
-		split. exact.
-		eapply instrtype_sub_trans.
-		eapply His.
-		unfold instrtype_sub.
-		eexists
-		(t'_lst),
-		(t_lst),
-		(t'_1_lst),
-		(t'_2_lst).
-		split; [ |split; [ |split; [ |split]]]; auto.
-	} *)
+Qed.
+
+Lemma ai_typing_inversion': forall (v_S: store) (v_C: context) v_instr t1s t2s,
+	Instr_ok2 v_S v_C (admininstr_instr v_instr) (t1s :-> t2s) ->
+	Instr_ok v_C v_instr (t1s :-> t2s).
+Proof.
+	move => v_S v_C v_instr t1s t2s.
+	move => HType.
+	inversion HType; subst.
+	{
+		destruct v_instr; destruct v_instr0; try discriminate; simpl in H; try (injection H as ?; subst); eauto.
+	}
+	4: {
+		destruct v_instr; destruct v_ref; try discriminate.
+		simpl in H.
+		injection H as ?; subst.
+		inversion H4; subst.
+		eapply ref_null; eauto.
+		econstructor.
+	}
+	all: destruct v_instr; discriminate.
 Qed.
 
 Lemma split_single_append {A : Type}: forall (l l' : list A) (x : A),
@@ -1333,8 +1292,8 @@ Ltac typing_inversion H :=
 end.
 
 Lemma ai_val_principal_typing_inversion: forall (v_S: store) (v_C: context) (v_val: wasm.val) t1s t2s,
-ai_principal_typing v_S v_C (admininstr_val v_val) (t1s :-> t2s) ->
-exists t_lst,
+	ai_principal_typing v_S v_C (admininstr_val v_val) (t1s :-> t2s) ->
+	exists t_lst,
 	([] = t1s) /\ ([t_lst] = t2s).
 Proof.
   move=> v_S v_C v_val t1s t2s HType.
@@ -1449,6 +1408,183 @@ Proof.
 	eapply ainstrs_ok_context_store_wf in H2 as Hwf; destruct Hwf as [? [? ?]].
 	eapply Instrs_ok2__seq; eauto.
 Qed.
+
+Lemma wf_admininstr_instr : forall i,
+	wf_instr i <->
+	(wf_admininstr (admininstr_instr i)).
+Proof.
+	move=> i.
+	split.
+	- move => H.
+		unfold admininstr_instr.
+		destruct i; simpl; try constructor; try (inversion H; subst; eauto).
+		- econstructor; eauto.
+		- econstructor; eauto.
+	- move => H.
+		unfold admininstr_instr.
+		destruct i; simpl; try constructor; try (inversion H; subst; eauto).
+		- econstructor; eauto.
+		- econstructor; eauto.
+Qed.
+
+Lemma seq_mid_not_null {A : Type}: forall (a : A) (l l' : seq A),
+	l ++ [a] ++ l' <> [].
+Proof.
+  move => a l.
+	move: a.
+	induction l; move => a' l'; discriminate.
+Qed.
+
+Lemma construct_instr_from_ai : forall v_S v_C v_instr ts1 ts2,
+	wf_store v_S ->
+	Instrs_ok v_C [v_instr] (ts1 :-> ts2) ->
+	Instrs_ok2 v_S v_C [admininstr_instr v_instr] (ts1 :-> ts2).
+Proof.
+	move => v_S v_C v_instrs ts1 ts2 HWfS HType.
+	apply instrs_ok_context_wf in HType as HWf; destruct HWf as [HWfC HWfinstrs].
+	dependent induction HType.
+	{ (* Instrs *)
+		eapply construct_ais_typing_single.
+		eapply plain; eauto.
+	}
+	{ (* Seq *)
+		destruct instr_1_lst; destruct instr_2_lst ; try discriminate.
+		- rewrite cat0s in x.
+			injection x as ?; subst.
+			specialize (IHHType2 _ t_2_lst ts2 HWfS erefl erefl HWfC HWfinstrs).
+			rewrite -(cat0s [admininstr_instr v_instrs]).
+			apply instrs_empty_typing in HType1; destruct HType1.
+			apply Instrs_ok2__seq with (t_2_lst := t_2_lst); eauto.
+			- by apply ais_empty_typing.
+			- econstructor; eauto. inv_Forall H1. apply wf_admininstr_instr; eauto.
+		- rewrite cats0 in x.
+			injection x as ?; subst.
+			specialize (IHHType1 _ ts1 t_2_lst HWfS erefl erefl HWfC HWfinstrs).
+			rewrite -(cats0 [admininstr_instr v_instrs]).
+			apply instrs_empty_typing in HType2; destruct HType2.
+			apply Instrs_ok2__seq with (t_2_lst := t_2_lst); eauto.
+			- by apply ais_empty_typing.
+			- econstructor; eauto. inv_Forall H0. apply wf_admininstr_instr; eauto.
+		- rewrite cat_cons in x.
+			injection x as ?.
+			apply seq_mid_not_null in H3.
+			by exfalso. 
+	}
+	{ (* Sub *)
+		specialize (IHHType v_instrs t_1_lst t_2_lst HWfS erefl erefl HWfC HWfinstrs).
+		eapply Instrs_ok2__sub; eauto.
+		econstructor; eauto. inv_Forall HWfinstrs. apply wf_admininstr_instr; eauto.
+	}
+	{ (* Frame *)
+		specialize (IHHType v_instrs t_1_lst t_2_lst HWfS erefl erefl HWfC HWfinstrs).
+		eapply Instrs_ok2__frame; eauto.
+		econstructor; eauto. inv_Forall HWfinstrs. apply wf_admininstr_instr; eauto.
+	}
+Qed.
+
+Lemma construct_instr_from_ai_single : forall v_S v_C v_instr ts1 ts2,
+	wf_store v_S ->
+	Instr_ok v_C v_instr (ts1 :-> ts2) ->
+	Instr_ok2 v_S v_C (admininstr_instr v_instr) (ts1 :-> ts2).
+Proof.
+	move => v_S v_C v_instr ts1 ts2 HWfS HType.
+	apply instr_ok_context_wf in HType as HWf; destruct HWf.
+	eapply plain; eauto.
+Qed.
+
+Lemma construct_instrs_from_ais : forall v_S v_C v_instrs ts1 ts2,
+	wf_store v_S ->
+	Instrs_ok v_C v_instrs (ts1 :-> ts2) ->
+	Instrs_ok2 v_S v_C (seq.map (fun i => admininstr_instr i) v_instrs) (ts1 :-> ts2).
+Proof.
+	move => v_S v_C v_instrs ts1 ts2 HWfS HType.
+	generalize dependent ts2. generalize dependent ts1. 
+	induction v_instrs; move=> ts1 ts2 HType. 
+	- simpl; eauto. apply ais_empty_typing. apply instrs_empty_typing in HType; destruct HType. auto.
+	- 
+		rewrite -cat1s in HType.
+		apply instrs_seq_typing_inversion in HType; destruct HType as [t3s [HT1 HT2]].
+		simpl.
+		rewrite -cat1s.
+		eapply construct_ais_compose with (t2s := t3s).
+		2: { apply IHv_instrs. apply HT1.
+		}
+		apply construct_instr_from_ai; eauto.
+Qed.
+
+Lemma revert_to_instr_from_ai: forall v_S v_C v_instr t1s t2s,
+	Instrs_ok2 v_S v_C [admininstr_instr v_instr] (t1s :-> t2s) ->
+	Instrs_ok v_C [v_instr] (t1s :-> t2s).
+Proof.
+	move=> v_S v_C v_instr t1s t2s HType.
+	apply ainstrs_ok_context_store_wf in HType as HWf; destruct HWf as [HWfC [HWfS HWfais]].
+	dependent induction HType.
+	{
+		apply ai_typing_inversion' in H.
+		apply construct_instrs_typing_single; eauto.
+	}
+	{ (* Seq *)
+		destruct admininstr_1_lst; destruct admininstr_2_lst ; try discriminate.
+		- rewrite cat0s in x.
+			injection x as ?; subst.
+			specialize (IHHType2 _ t_2_lst t2s erefl erefl HWfC HWfS HWfais).
+			rewrite -(cat0s [v_instr]).
+			apply ais_empty_typing in HType1; destruct HType1 as [? [? HSub]].
+			apply res_seq with (t_2_lst := t_2_lst); eauto.
+			- by apply instrs_empty_typing.
+			- econstructor; eauto. inv_Forall H2. apply wf_admininstr_instr; eauto.
+		- rewrite cats0 in x.
+			injection x as ?; subst.
+			specialize (IHHType1 _ t1s t_2_lst erefl erefl HWfC HWfS HWfais).
+			rewrite -(cats0 [v_instr]).
+			apply ais_empty_typing in HType2; destruct HType2 as [? [? ?]].
+			apply res_seq with (t_2_lst := t_2_lst); eauto.
+			- by apply instrs_empty_typing.
+			- econstructor; eauto. inv_Forall H1. apply wf_admininstr_instr; eauto.
+		- rewrite cat_cons in x.
+			injection x as ?.
+			apply seq_mid_not_null in H4.
+			by exfalso. 
+	}
+	{
+		specialize (IHHType v_instr t_1_lst t_2_lst erefl erefl HWfC HWfS HWfais).
+		eapply sub; eauto.
+		econstructor; eauto. inv_Forall HWfais. apply wf_admininstr_instr; eauto.
+	}
+	{
+		specialize (IHHType v_instr t_1_lst t_2_lst erefl erefl HWfC HWfS HWfais).
+		eapply Instrs_ok__frame; eauto.
+		econstructor; eauto. inv_Forall HWfais. apply wf_admininstr_instr; eauto.	
+	}
+Qed.
+
+Lemma revert_to_instrs_from_ais: forall v_S v_C v_instrs t1s t2s,
+	Instrs_ok2 v_S v_C (seq.map (fun i => admininstr_instr i) v_instrs) (t1s :-> t2s) ->
+	Instrs_ok v_C v_instrs (t1s :-> t2s).
+Proof. 
+	move=> v_S v_C v_instrs t1s t2s HType.
+	generalize dependent t2s. generalize dependent t1s. 
+	induction v_instrs; move=> ts1 ts2 HType.
+	- apply instrs_empty_typing. apply ais_empty_typing in HType. destruct HType as [? [? ?]]; eauto.
+	-
+		apply ainstrs_ok_context_store_wf in HType as HWf; destruct HWf as [HWfC [HWfS HWfais]].
+		simpl in HWfais.
+		inv_Forall HWfais.
+		apply ais_seq_typing_inversion in HType; destruct HType as [t3s [HT1 HT2]].
+	
+		simpl.
+		rewrite -cat1s.
+		eapply res_seq with (t_2_lst := t3s); eauto.
+		- eapply revert_to_instr_from_ai; eauto.
+		- inv_Forall HWfais. econstructor; eauto. apply wf_admininstr_instr; eauto.
+		- {
+			clear -Hrest.
+			induction v_instrs => //=.
+			inversion Hrest; subst.
+			econstructor; eauto.
+			apply wf_admininstr_instr; eauto.
+		}
+Qed. 
 
 Lemma construct_ai_const_I32 : forall v_S v_C v_num,
 	wf_num_ I32 v_num ->
@@ -1711,8 +1847,10 @@ Proof.
 			rewrite -!cats1 in Hforall.
 			eapply Forall2_app' in Hforall as [H1 H2].
 			2: {
-				apply Forall2_length in Hforall.
-				rewrite !last_length in Hforall.
+				apply Forall2_seq_size in Hforall.
+				apply sizeN_inj in Hforall.
+				repeat rewrite size_cat in Hforall.
+				repeat rewrite addn1 in Hforall.
 				by inversion Hforall.
 			} 
 			rewrite map_rcons.
@@ -1737,9 +1875,12 @@ Proof.
 			2: {
 				inversion Hsub2.
 				eq_to_prop.
-				rewrite -> last_length in H4.
-				rewrite -> last_length in H4.
-				by inversion H4.
+				apply sizeN_inj in H4.
+				repeat rewrite size_cat in H4.
+				repeat rewrite addn1 in H4.
+				f_equal.
+				inversion H4.
+				by rewrite size_cat.
 			}
 
 			rewrite cats0.
@@ -1779,6 +1920,7 @@ Proof.
 					eapply takel_cat.
 					inversion Hsub3.
 					eq_to_prop.
+					apply sizeN_inj in H4.
 					rewrite -H4.
 					rewrite size_cat.
 					eapply leq_addr.
@@ -1787,6 +1929,7 @@ Proof.
 				rewrite H0.
 				inversion Hsub0.
 				eq_to_prop.
+				apply sizeN_inj in H5.
 				by rewrite take_size_cat.
 			}
 			split. auto.
@@ -1797,6 +1940,7 @@ Proof.
 			rewrite size_takel; auto.
 			inversion Hsub3_0.
 			eq_to_prop.
+			apply sizeN_inj in H4.
 			rewrite -H4.
 			rewrite size_cat.
 			eapply leq_addr.
@@ -2115,6 +2259,8 @@ Ltac simplify_take_drop_size H :=
 	repeat (
 		autorewrite with take_drop_size_db in H;
 		repeat match goal with
+		| He : | ?l1 | = | ?l2 | |- _ =>
+			apply sizeN_inj in He
 		| He : length ?l1 = length ?l2 |- _ =>
 			rewrite -!size_length in He
 		| He : size ?l1 = size ?l2 |- _ =>
@@ -2163,19 +2309,35 @@ Ltac list_to_seq :=
 	| _ => auto
 	end.
 
+Ltac cvt_le :=
+	repeat match goal with
+	| _ : _ |- (N.of_nat _ <= N.of_nat _)%BN =>
+		apply cvt_ssrnat_to_N_le
+	| _ => idtac
+	end.
+
 Ltac construct_size_le :=
+	cvt_le;
   repeat rewrite take_size drop_size /=;
   repeat match goal with
+	| _ : _ |- context [ | (?l1 ++ ?l2) | ] =>
+		rewrite sizecat'
   | _ : _ |- context [ size (?l1 ++ ?l2) ] =>
-	rewrite !size_cat
+		rewrite !size_cat
   | H : length ?l1 = length ?l2 |- _ =>
-	rewrite -!size_length in H
+		rewrite -!size_length in H
   | H : size ?l1 = size ?l2 |- context [ size ?l1 ] =>
-	rewrite H
-  | _ : _ |- is_true (?a <= ?a + ?b) =>
-	by eapply leq_addr
-  | _ : _ |- is_true (?b <= ?a + ?b) =>
-	by eapply leq_addl
+		rewrite H
+	| H : | ?l1 | = | ?l2 | |- _ =>
+		apply sizeN_inj in H
+  | _ : _ |- context[(?a <= ?a + ?b)%N] =>
+		by eapply leq_addr
+  | _ : _ |- context[(?b <= ?a + ?b)%N] =>
+		by eapply leq_addl
+  | _ : _ |- (?a <= ?a + ?b)%BN =>
+		by eapply N.le_add_r
+  | _ : _ |- (?b <= ?a + ?b)%BN  =>
+		by eapply N.le_add_l
   | _ => auto
   end.
 

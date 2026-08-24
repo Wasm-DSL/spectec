@@ -1,9 +1,10 @@
-From Stdlib Require Import String List Unicode.Utf8 NArith Arith.
+From Stdlib Require Import String List Unicode.Utf8 NArith Arith QArith QArith.Qround.
 From RecordUpdate Require Import RecordSet.
 Import ListNotations.
 Import RecordSetNotations.
-From WasmSpectec Require Import wasm.
 From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype.
+From WasmSpectec Require Import wasm.
+
 
 (*** 
 
@@ -13,75 +14,8 @@ Forall and Forall2.
 ***)
 
 
-Lemma leadd: forall (i n : nat),
-	(i <= (i + n))%coq_nat.
-Proof.
-	move => i.
-	induction i; move => n.
-	- apply Nat.le_0_l.
-	- simpl. rewrite addSn.	 apply le_n_S. apply IHi.
-Qed.
-
-Lemma list_update_func_split : forall {A : Type} (x x' : list A) (idx : nat) (f : A -> A),
-	x' = list_update_func x idx f ->
-	(exists y, In (f y) x') \/ x = x'.
-Proof. 
-	move => A x x' idx f H.
-	generalize dependent idx.
-	generalize dependent x'.
-	induction x.
-	- right. rewrite H => //.
-	- move => x' idx H. destruct idx. 
-		- left. exists a. rewrite H. apply in_eq.
-		- destruct x'.
-			- discriminate.
-			- injection H as H2. apply IHx in H.
-				destruct H.
-				- destruct H. left. exists x0. apply List.in_cons => //.
-				- right. by f_equal.
-Qed.
-
-Lemma list_update_func_split_strong : forall {A : Type} (x x' : list A) (idx : nat) (f : A -> A),
-	x' = list_update_func x idx f -> 
-	(idx < seq.size x)%coq_nat ->
-	(exists y, In (f y) x').
-Proof. 
-	move => A x x' idx f H H2.
-	generalize dependent idx.
-	generalize dependent x'.
-	induction x; move => x' idx H H2. 
-	- apply Nat.nlt_0_r in H2. exfalso. apply H2.
-	- destruct idx. 
-		- simpl in H. destruct x' => //=.
-			injection H as ?; subst. exists a. by left.
-		- destruct x' => //=.
-			simpl in H. injection H as ?.
-			apply IHx in H0; destruct H0.
-			- exists x0. by right. 
-			- by apply Nat.succ_lt_mono.
-Qed.
-
-Lemma length_app_lt: forall {A : Type} (l l' l1' l2': list A),
-	seq.size l = seq.size l1' ->
-	l' = l1' ++ l2' -> 
-	(seq.size l <= seq.size l')%coq_nat.
-Proof.
-	move => A l l' l1' l2' HLength HApp.
-
-	apply f_equal with (f := fun t => seq.size t) in HApp.
-	rewrite seq.size_cat in HApp.
-	rewrite <- HLength in HApp.
-	symmetry in HApp.
-	generalize dependent l2'.
-	generalize dependent l'.
-	clear HLength.
-	induction l; move => l' l2' HApp.
-	- simpl. apply Nat.le_0_l.
-	- destruct l' => //. simpl in HApp. 
-		injection HApp as H.
-		apply IHl in H.
-		simpl. apply le_n_S. apply H.
-Qed.  
+Lemma id_succ_N : forall (i : nat), (N.of_nat (S i)) = N.succ (N.of_nat i).
+Proof. intros i. induction i; eauto. Qed.
 
 Lemma nth_is_same_as_seq_nth {T : Type} : forall (lst : list T) n x, List.nth n lst x = seq.nth x lst n.
 Proof.
@@ -90,9 +24,21 @@ Proof.
 	induction lst; move=> n; destruct n; eauto.
 Qed.
 
+(* Only use this if N.succ is in a match statement *)
+Ltac resolve_Nsucc :=
+	repeat match goal with
+	| H : context [N.succ _] |- _ =>
+		rewrite -N.succ_pos_spec in H;
+		rewrite N.succ_pos_spec in H;
+		rewrite N.pred_succ in H
+	| _ : _ |- context [N.succ _] =>
+		rewrite -N.succ_pos_spec;
+		rewrite N.succ_pos_spec;
+		rewrite N.pred_succ
+	end.
 
 Lemma length_same_split_zero: forall {A : Type} (l l2' : list A),
-	seq.size l = seq.size l + seq.size l2' ->
+	seq.size l = (seq.size l + seq.size l2')%N ->
 	seq.size l2' = 0.
 Proof.
 	move => A l l2' H.
@@ -130,106 +76,154 @@ Proof.
 	rewrite <- HLength in HApp.
 	apply length_same_split_zero in HApp.
 	rewrite <- List.length_zero_iff_nil => //=.
-Qed.  
-
-Lemma Forall_nth' {A : Type} {_ : Inhabited A} (l : list A) (R : A -> Prop) :
-      Forall R l -> (forall i, (i < seq.size l) -> R (List.nth i l default_val)).
-Proof.
-	move => H i Hi.
-	eapply Forall_nth in H.
-	- eauto.
-	- move/ltP in Hi; eauto.
 Qed.
+
+(* Lemma cvt_nat_N_lt {X : Type}: forall (i : N) (l : list X),  
+	(N.to_nat i < length l)%coq_nat = (i < | l |)%BN.
+Proof.
+	move => i l.
+	induction l.
+	- simpl. rewrite lt_irrefl.
+	eauto. *)
+
+Lemma cvt_succ : forall (i : nat),
+	N.of_nat (S i) = N.succ (N.of_nat i).
+Proof. intros i. induction i; eauto. Qed.
+
+Lemma cvt_succ' : forall (i : nat),
+	N.pos (Pos.of_succ_nat i) = N.succ (N.of_nat i).
+Proof. intros i. induction i; eauto. Qed.
+
+Ltac simplNsucc :=
+	repeat match goal with
+	| _: _ |- context[?l [| ?i |]] =>
+		rewrite /lookup_total;
+		repeat rewrite N2Nat.inj_succ;
+		simpl
+	| H : context[?l [| ?i |]] |- _ =>
+		rewrite /lookup_total in H;
+		repeat rewrite N2Nat.inj_succ in H;
+		simpl
+	| _ : _ |- context[ (N.succ ?i)] =>
+		repeat rewrite N2Nat.inj_succ;
+		simpl
+	| _ : _ |- _ => idtac
+	end.
+
+Ltac simplNsuccH H :=
+	match type of H with
+	| context[?l [| ?i |]] =>
+		rewrite /lookup_total in H;
+		repeat rewrite N2Nat.inj_succ in H;
+		simpl
+	| context[(N.succ ?i)] =>
+		repeat rewrite N2Nat.inj_succ;
+		simpl
+	end.
+
+
+Ltac simplNsizecons H :=
+	match type of H with
+	| context[(| cons ?x ?l |)] =>
+		rewrite /size in H;
+		repeat rewrite id_succ_N in H;
+		simpl
+	end.
+
+Ltac simplNsizeconsgoal :=
+	repeat match goal with
+	| _ : _ |- context[(| cons ?x ?l |)] =>
+		rewrite /size;
+		repeat rewrite id_succ_N
+	end.
+
 
 Lemma Forall_size {A : Type} {_ : Inhabited A} (l : list A) (R : A -> Prop) :
-      Forall R l -> (forall i, (i < seq.size l) -> R (nth default_val l i)).
+      Forall R l -> (forall i, (i < |l|)%BN -> R (l [|i|])).
 Proof.
 	move => H i Hi.
-	eapply Forall_nth in H.
-	- rewrite nth_is_same_as_seq_nth in H. eauto.
-	- move/ltP in Hi; eauto.
+	generalize dependent i.
+	induction H; move => i Hi.
+	- simpl in Hi. eapply N.nlt_0_r in Hi. exfalso. apply Hi.
+	- simpl.
+		destruct i using N.peano_ind.
+		+ apply H.
+		+ 
+			simplNsucc.
+			eapply IHForall.
+			simplNsizecons Hi.
+			apply N.succ_lt_mono in Hi. 
+			apply Hi.
 Qed.
 
-Lemma Forall2_nth {A : Type} {B : Type} {_ : Inhabited A} {_ : Inhabited B} (l : list A) (l' : list B) (R : A -> B -> Prop) :
-      Forall2 R l l' -> seq.size l = seq.size l' /\ (forall i, (i < seq.size l) -> R (List.nth i l default_val) (List.nth i l' default_val)).
+Lemma Forall2_seq_size {A : Type} {B : Type} {_ : Inhabited A} {_ : Inhabited B} (l : list A) (l' : list B) (R : A -> B -> Prop) :
+	Forall2 R l l' -> |l| = |l'|.
 Proof.
 	move => H.
-	split. apply (Forall2_length) in H. apply H.
-	move => i H'.
-	move/ltP in H'.
-	generalize dependent i. induction H; move => i HLength. 
-		+ apply Nat.nlt_0_r in HLength. exfalso. apply HLength.
-		+ destruct i. 
-			+ simpl. apply H.
-			+ simpl in HLength. apply Nat.succ_lt_mono in HLength. apply IHForall2. apply HLength.
-Qed.
-
-Lemma Forall2_nth2 {A : Type} {B : Type} {_ : Inhabited A} {_ : Inhabited B} (l : list A) (l' : list B) (R : A -> B -> Prop) :
-      Forall2 R l l' -> seq.size l = seq.size l' /\ (forall i, (i < seq.size l') -> R (List.nth i l default_val) (List.nth i l' default_val)).
-Proof.
-	move => H.
-	split. apply (Forall2_length) in H. apply H.
-	move => i H'.
-	move/ltP in H'.
-	generalize dependent i. induction H; move => i HLength. 
-		+ apply Nat.nlt_0_r in HLength. exfalso. apply HLength.
-		+ destruct i. 
-			+ simpl. apply H.
-			+ simpl in HLength. apply Nat.succ_lt_mono in HLength. apply IHForall2. apply HLength.
+	induction H.
+	- reflexivity.
+	- simplNsizeconsgoal.
+		f_equal.
+		apply IHForall2.
 Qed.
 
 Lemma Forall2_size {A : Type} {B : Type} {_ : Inhabited A} {_ : Inhabited B} (l : list A) (l' : list B) (R : A -> B -> Prop) :
-      Forall2 R l l' -> seq.size l = seq.size l' /\ (forall i, (i < seq.size l) -> R (nth default_val l i) (nth default_val l' i)).
+      Forall2 R l l' -> (forall (i : N), (i < | l |)%BN -> R (l [|i|]) (l' [|i|])).
 Proof.
 	move => H.
-	split. apply (Forall2_length) in H. apply H.
 	move => i H'.
-	move/ltP in H'.
 	generalize dependent i. induction H; move => i HLength. 
-		+ apply Nat.nlt_0_r in HLength. exfalso. apply HLength.
-		+ destruct i. 
-			+ simpl. apply H.
-			+ simpl in HLength. apply Nat.succ_lt_mono in HLength. apply IHForall2. apply HLength.
+	+ simpl in HLength. eapply N.nlt_0_r in HLength. exfalso. apply HLength.
+	+ destruct i using N.peano_ind.
+		+ apply H.
+		+ 
+			simplNsucc.
+			simplNsizecons HLength.
+			apply N.succ_lt_mono in HLength.
+			apply IHForall2. apply HLength.
 Qed.
 
 Lemma Forall2_size2 {A : Type} {B : Type} {_ : Inhabited A} {_ : Inhabited B} (l : list A) (l' : list B) (R : A -> B -> Prop) :
-      Forall2 R l l' -> seq.size l = seq.size l' /\ (forall i, (i < seq.size l') -> R (nth default_val l i) (nth default_val l' i)).
+      Forall2 R l l' -> (forall (i : N), (i < | l' |)%BN -> R (l [|i|]) (l' [|i|])).
 Proof.
 	move => H.
-	split. apply (Forall2_length) in H. apply H.
 	move => i H'.
-	move/ltP in H'.
 	generalize dependent i. induction H; move => i HLength. 
-		+ apply Nat.nlt_0_r in HLength. exfalso. apply HLength.
-		+ destruct i. 
-			+ simpl. apply H.
-			+ simpl in HLength. apply Nat.succ_lt_mono in HLength. apply IHForall2. apply HLength.
+	+ simpl in HLength. eapply N.nlt_0_r in HLength. exfalso. apply HLength.
+	+ destruct i using N.peano_ind.
+		+ apply H.
+		+ 
+			simplNsucc.
+			simplNsizecons HLength.
+			apply N.succ_lt_mono in HLength.
+			apply IHForall2. apply HLength.
 Qed.
 
-Lemma Forall2_lookup {A : Type} {X : Inhabited A} {B : Type} {Y : Inhabited B} (l : list A) (l' : list B) (R : A -> B -> Prop) :
-      Forall2 R l l' -> seq.size l = seq.size l' /\ (forall i, (i < seq.size l)%coq_nat -> R (lookup_total l i) (lookup_total l' i)).
+Lemma Forall2_list_update_func2 {A B : Type} {C : Inhabited A} {D : Inhabited B}
+	(l : list A) (l' : list B) (R : A -> B -> Prop) (i : N) (f : B -> B) (x : A) (y : B):
+	Forall2 R l l' ->
+	lookup_total l i = x -> 
+	lookup_total l' i = y -> 
+	R x (f y) -> Forall2 R l (list_update_func l' i f).
 Proof.
-	move => H.
-	split. apply (Forall2_length) in H. apply H.
-	move => i H'.
-	generalize dependent i. induction H; move => i HLength. 
-		+ apply Nat.nlt_0_r in HLength. exfalso. apply HLength.
-		+ destruct i. 
-			+ simpl. apply H.
-			+ simpl in HLength. apply Nat.succ_lt_mono in HLength. apply IHForall2. apply HLength.
-Qed.
-
-Lemma Forall2_lookup2 {A : Type} {X : Inhabited A} {B : Type} {Y : Inhabited B} (l : list A) (l' : list B) (R : A -> B -> Prop) :
-      Forall2 R l l' -> seq.size l = seq.size l' /\ (forall i, (i < seq.size l')%coq_nat -> R (lookup_total l i) (lookup_total l' i)).
-Proof.
-	move => H.
-	split. apply (Forall2_length) in H. apply H.
-	move => i H'.
-	generalize dependent i. induction H; move => i HLength. 
-		+ apply Nat.nlt_0_r in HLength. exfalso. apply HLength.
-		+ destruct i. 
-			+ simpl. apply H.
-			+ simpl in HLength. apply Nat.succ_lt_mono in HLength. apply IHForall2. apply HLength.
+	generalize dependent l'.
+	generalize dependent i.
+	generalize dependent x.
+	generalize dependent y.
+	generalize dependent f.
+	induction l; move => f0 y0 x0 i0 l0' HForall HLx HLy HR.
+	- inversion HForall. destruct i0 => //=.
+	- destruct l0' => //=; inversion HForall => //=; subst.
+		destruct i0 using N.peano_ind => //=.
+		- apply Forall2_cons_iff; split.
+			- by unfold lookup_total in HR.
+			- apply H4.
+		- resolve_Nsucc. 
+			apply Forall2_cons_iff; split.
+			- apply H2.
+			- rewrite /lookup_total in HR.
+				rewrite N2Nat.inj_succ in HR.
+				eapply IHl; eauto.
 Qed.
 
 Lemma in_same_as_In (X : eqType) : forall (c : X) (l : seq X),
@@ -281,20 +275,6 @@ Fixpoint In2 {A B : Type} (x : A) (y : B) (l : list A) (l' : list B) : Prop :=
       | a :: ns, b :: ms => (a = x /\ b = y) \/ In2 x y ns ms
     end.
 
-Lemma lookup_list_update_func: forall {A : Type} {B : Inhabited A} (x : A) (f : A -> A) (l : list A) (idx : nat),
-	(idx < seq.size l)%coq_nat ->
-	x = lookup_total (list_update_func l idx f) idx -> 
-	exists y, x = f y.
-Proof.
-	move => A B x f l idx.
-	move: x idx f.
-	induction l; move => x idx f HLength HLookup.
-	- apply Nat.nlt_0_r in HLength. exfalso. apply HLength.
-	- destruct idx.
-		- simpl in *. unfold lookup_total in HLookup. simpl in HLookup. by exists a.
-		- simpl in HLength. apply Nat.succ_lt_mono in HLength. eapply IHl; eauto.
-Qed.
-
 Lemma In2_split: forall {A B : Type} (x : A) (y : B) (l : list A) (l' : list B),
 	In2 x y l l' -> In x l /\ In y l'.
 Proof.
@@ -311,228 +291,42 @@ Proof.
 		- apply IHl in H. destruct H. split; by right.
 Qed.	
 
-Lemma Forall2_forall2 {A B : Type} (l : list A) (l' : list B) (R : A -> B -> Prop):
-	Forall2 R l l' <-> seq.size l = seq.size l' /\ (forall x y, In2 x y l l' -> R x y).
-Proof.
-	split.
-	- (* -> *)
-		move => H.
-		split. eapply Forall2_length; eauto.	
-		move => x y HIn.
-		generalize dependent x.
-		generalize dependent y.
-		induction H => //=; move => y0 x0 HIn; subst; simpl in *.
-		destruct HIn. 
-		- destruct H1. subst => //=.
-		- by eapply IHForall2.
-	- (* <- *)
-		move => H.
-		destruct H.
-		generalize dependent l'.
-		induction l => //=; move => l' H H1.
-		- destruct l' => //=.
-		- destruct l' => //=.
-			apply Forall2_cons_iff. split.
-			- apply H1. left; split => //=.
-			- apply IHl. simpl in H. injection H as ?. apply H.
-			- move => x y HIn. apply H1. right. apply HIn.
-Qed.
-
-Lemma Forall2_forall2weak {A B : Type} (l : list A) (l' : list B) (R : A -> B -> Prop):
-	Forall2 R l l' -> (forall x , In x l -> exists y, R x y).
-Proof.
-	
-	move => H x.
-	generalize dependent x.
-	induction H => //=; move => x0 HIn; subst; simpl in *.
-	destruct HIn. 
-	- subst. exists y. subst => //=.
-	- by apply IHForall2.
-Qed.
-
-Lemma Forall2_forall2weak2 {A B : Type} (l : list A) (l' : list B) (R : A -> B -> Prop):
-	Forall2 R l l' -> (forall y, In y l' -> exists x, R x y).
-Proof.
-	move => H y.
-	generalize dependent y.
-	induction H => //=; move => y0 HIn; subst; simpl in *.
-	destruct HIn. 
-	- subst. exists x. subst => //=.
-	- by apply IHForall2.
-Qed.
-
-Lemma Forall2_forall2weak3 {A B : Type} (l : list A) (l' : list B) (R : A -> B -> Prop):
-	(forall x y, In x l -> R x y) /\ seq.size l = seq.size l' -> Forall2 R l l'.
-Proof.
-	move => H.
-	destruct H.
-	generalize dependent l'.
-	induction l; move => l0' HLength; subst; simpl in * => //=.
-	- destruct l0' => //=.
-	- destruct l0' => //=.
-		apply Forall2_cons_iff. split.
-		- apply H. left => //=.
-		- apply IHl. move => x y HIn. apply H. by right.
-		- simpl in HLength. injection HLength as ?. apply H0.
-Qed.
-
-Lemma Forall2_forall2weak4 {A B : Type} (l : list A) (l' : list B) (R : A -> B -> Prop):
-	(forall x y, In y l' -> R x y) /\ seq.size l = seq.size l' -> Forall2 R l l'.
-Proof.
-	move => H.
-	destruct H.
-	generalize dependent l.
-	induction l'; move => l0 HLength; subst; simpl in * => //=.
-	- destruct l0 => //=.
-	- destruct l0 => //=.
-		apply Forall2_cons_iff. split.
-		- apply H. left => //=.
-		- apply IHl'. move => x y HIn. apply H. by right.
-		- simpl in HLength. injection HLength as ?. apply H0.
-Qed.
-
-Lemma Forall2_list_update_func {A B : Type} {C : Inhabited A} {D : Inhabited B}
-	(l : list A) (l' : list B) (R : A -> B -> Prop) (i : nat) (f : A -> A) (x : A) (y : B):
-	Forall2 R l l' ->
-	lookup_total l i = x -> 
-	lookup_total l' i = y -> 
-	R (f x) y -> Forall2 R (list_update_func l i f) l'.
-Proof.
-	generalize dependent l'.
-	generalize dependent i.
-	generalize dependent x.
-	generalize dependent y.
-	generalize dependent f.
-	induction l; move => f0 y0 x0 i0 l0' HForall HLx HLy HR.
-	- inversion HForall. destruct i0 => //=.
-	- destruct l0' => //=; inversion HForall => //=; subst.
-		destruct i0 => //=.
-		- apply Forall2_cons_iff; split.
-			- by unfold lookup_total in HR.
-			- apply H4.
-		- apply Forall2_cons_iff; split.
-			- apply H2.
-			- eapply IHl; eauto.
-Qed.
-
-Lemma Forall2_list_update_func2 {A B : Type} {C : Inhabited A} {D : Inhabited B}
-	(l : list A) (l' : list B) (R : A -> B -> Prop) (i : nat) (f : B -> B) (x : A) (y : B):
-	Forall2 R l l' ->
-	lookup_total l i = x -> 
-	lookup_total l' i = y -> 
-	R x (f y) -> Forall2 R l (list_update_func l' i f).
-Proof.
-	generalize dependent l'.
-	generalize dependent i.
-	generalize dependent x.
-	generalize dependent y.
-	generalize dependent f.
-	induction l; move => f0 y0 x0 i0 l0' HForall HLx HLy HR.
-	- inversion HForall. destruct i0 => //=.
-	- destruct l0' => //=; inversion HForall => //=; subst.
-		destruct i0 => //=.
-		- apply Forall2_cons_iff; split.
-			- by unfold lookup_total in HR.
-			- apply H4.
-		- apply Forall2_cons_iff; split.
-			- apply H2.
-			- eapply IHl; eauto.
-Qed.
-
-Lemma Forall2_list_update {A B : Type} {C : Inhabited A} {D : Inhabited B}
-	(l : list A) (l' : list B) (R : A -> B -> Prop) (i : nat) (x : A) (y : B):
-	Forall2 R l l' ->
-	lookup_total l' i = y -> 
-	R x y -> Forall2 R (list_update l i x) l'.
-Proof.
-	generalize dependent l'.
-	generalize dependent i.
-	generalize dependent x.
-	generalize dependent y.
-	induction l; move => y0 x0 i0 l0' HForall HLx HR.
-	- inversion HForall. destruct i0 => //=.
-	- destruct l0' => //=; inversion HForall => //=; subst.
-		destruct i0 => //=.
-		- apply Forall2_cons_iff; split.
-			- by unfold lookup_total in HR.
-			- apply H4.
-		- apply Forall2_cons_iff; split.
-			- apply H2.
-			- eapply IHl; eauto.
-Qed.
-
-Lemma Forall2_list_update2 {A B : Type} {C : Inhabited A} {D : Inhabited B}
-	(l : list A) (l' : list B) (R : A -> B -> Prop) (i : nat) (x : A) (y : B):
-	Forall2 R l l' ->
-	lookup_total l i = x -> 
-	R x y -> Forall2 R l (list_update l' i y).
-Proof.
-	generalize dependent l'.
-	generalize dependent i.
-	generalize dependent x.
-	generalize dependent y.
-	induction l; move => y0 x0 i0 l0' HForall HLx HR.
-	- inversion HForall. destruct i0 => //=.
-	- destruct l0' => //=; inversion HForall => //=; subst.
-		destruct i0 => //=.
-		- apply Forall2_cons_iff; split.
-			- by unfold lookup_total in HR.
-			- apply H4.
-		- apply Forall2_cons_iff; split.
-			- apply H2.
-			- eapply IHl; eauto.
-Qed.
-
-Lemma Forall2_list_update_both {A B : Type} {C : Inhabited A} {D : Inhabited B}
-	(l : list A) (l' : list B) (R : A -> B -> Prop) (i : nat) (x : A) (y : B):
-	Forall2 R l l' ->
-	R x y -> Forall2 R (list_update l i x) (list_update l' i y).
-Proof.
-	generalize dependent l'.
-	generalize dependent i.
-	generalize dependent x.
-	generalize dependent y.
-	induction l; move => y0 x0 i0 l0' HForall HR.
-	- inversion HForall. destruct i0 => //=.
-	- destruct l0' => //=; inversion HForall => //=; subst.
-		destruct i0 => //=.
-		- apply Forall2_cons_iff; split.
-			- by unfold lookup_total in HR.
-			- apply H4.
-		- apply Forall2_cons_iff; split.
-			- apply H2.
-			- eapply IHl; eauto.
-Qed.
-
-Lemma list_update_length: forall {A : Type} (l : list A) (i : nat) (x : A),
-	seq.size (list_update l i x) = seq.size l.
+Lemma list_update_length: forall {A : Type} (l : list A) (i : N) (x : A),
+	| (list_update l i x) | = | l |.
 Proof.
 	move => A l i x.
+	f_equal.
 	generalize dependent l.
 	generalize dependent x.
-	induction i; move => x l.
+	induction i using N.peano_ind.
 	- destruct l => //=.
-	- destruct l => //=.
-		f_equal. apply IHi.
+	- destruct l.
+		- eauto. 
+		- destruct i => //=.
+			- rewrite IHi; eauto.
+			- f_equal. rewrite Pos.pred_N_succ. apply IHi.
 Qed.
 
-
-Lemma list_update_length_func: forall {A : Type} (l : list A) (f : A -> A) (i : nat),
-	seq.size (list_update_func l i f) = seq.size l.
+Lemma list_update_length_func: forall {A : Type} (l : list A) (f : A -> A) (i : N),
+	| (list_update_func l i f) | = | l |.
 Proof.
 	move => A l f i.
+	f_equal.
 	generalize dependent l.
 	generalize dependent f.
-	induction i; move => f l.
+	induction i using N.peano_ind; move => f l.
 	- destruct l => //=.
 	- destruct l => //=.
-		f_equal. apply IHi.
+		destruct i => //=.
+		- rewrite IHi; eauto.
+		- f_equal. rewrite Pos.pred_N_succ. apply IHi.
 Qed.
 
-Lemma list_slice_update_length: forall {A : Type} (l l': list A) (i n: nat),
-	seq.size (list_slice_update l i n l') = seq.size l.
+Lemma list_slice_update_length: forall {A : Type} (l l': list A) (i n: N),
+	| (list_slice_update l i n l') | = | l |.
 Proof.
 	move => A l l' i n.
+	f_equal.
 	move : n i l'.
 	induction l; move => n i l'; auto.
 	destruct i; destruct l'; destruct n; simpl; auto.
@@ -597,17 +391,21 @@ Proof.
 		- discriminate.
 Qed. 
 
-Lemma lookup_app: forall {A : Type} {B : Inhabited A} (l l' : list A) (n : nat),
-	(n < seq.size l) ->
-	lookup_total l n = lookup_total (l ++ l') n.
+Lemma lookup_app: forall {A : Type} {B : Inhabited A} (l l' : list A) (n : N),
+	(n < |l|)%BN ->
+	l [| n |] = (l ++ l') [| n |].
 Proof.
 	move => A B l l' n.
 	move: l l'.
-	induction n; move => l l' H.
+	induction n using N.peano_ind; move => l l' H.
 	- destruct l => //=.
-	- destruct l => //=. 
-	  unfold lookup_total. simpl.
-	  apply IHn. apply H.
+	- destruct l => //=.
+		- eapply N.nlt_0_r in H. exfalso. apply H.
+	  - unfold lookup_total. 
+			simplNsucc.
+	  	apply IHn. 
+			simplNsizecons H.
+	  	apply N.succ_lt_mono in H. apply H.
 Qed.
 
 
@@ -640,66 +438,7 @@ Qed.
 Lemma _append_some_left: forall {A : Type} (b : A) (c : option A) ,
 	_append (Some b) c = (Some b).
 Proof. reflexivity. Qed.
-
-Lemma add_false: forall (n m : nat),
-	~ (n + (S m) = n).
-Proof.
-	move => n m H.
-	induction n. simpl in H.
-	- rewrite add0n in H. discriminate.
-	- apply IHn.
-		rewrite addSn in H.
-		by injection H.
-Qed.
-
-Lemma concat_cancel_last_n: forall (l1 l2 l3 l4: list valtype),
-    l1 ++ l2 = l3 ++ l4 ->
-    seq.size l2 = seq.size l4 ->
-    (l1 = l3) /\  (l2 = l4).
-Proof.
-	move => l1.
-	induction l1; move => l2 l3 l4 HApp HLength.
-	- destruct l3; destruct l2; destruct l4 => //=.
-		simpl in HApp. injection HApp as ?.
-		simpl in HLength. injection HLength as ?.
-		apply f_equal with (f := fun t => seq.size t) in H0 as ?.
-		rewrite seq.size_cat in H2. simpl in H2.
-		rewrite H2 in H1.
-		rewrite <- addnC in H1.
-		rewrite addSn in H1.
-		rewrite <- addnS in H1.
-		apply add_false in H1. exfalso. apply H1.
-	- destruct l3; destruct l2; destruct l4 => //=.
-		simpl in HApp. 
-		apply f_equal with (f := fun t => seq.size t) in HApp as ?.
-		simpl in H.
-		injection H as H.
-		rewrite seq.size_cat in H. simpl in H.
-		simpl in HLength. injection HLength as ?.
-		rewrite H0 in H.
-		rewrite <- addnC in H.
-		rewrite addSn in H.
-		rewrite <- addnS in H.
-		apply add_false in H. exfalso. apply H.
-	-
-		split => //=.
-		simpl in HApp.
-		repeat rewrite <- app_right_nil in HApp => //=.
-	-
-		repeat rewrite <- app_comm_cons in HApp.
-		injection HApp as ?; subst. 
-		assert (l1 = l3 /\ v0 :: l2 = v1 :: l4 -> v :: l1 = v :: l3 /\ v0 :: l2 = v1 :: l4).
-		{
-			move => H2.
-			destruct H2.
-			split.
-			- f_equal. apply H.
-			- apply H1.	
-		}
-		apply H.
-		eapply IHl1; eauto.
-Qed.
-
+(* 
 Lemma list_update_same_unchanged: forall {X : Type} {Y : Inhabited X} (l: list X) e i,
     (lookup_total l i) = e ->
 	(i < seq.size l)%coq_nat ->
@@ -712,9 +451,9 @@ Proof.
 	- destruct l => //=.
 		f_equal. apply IHi. unfold lookup_total. unfold lookup_total in HLookup. simpl in HLookup. apply HLookup.
 		by apply Nat.succ_lt_mono.
-Qed.
+Qed. *)
 
-Lemma list_update_map: forall {X Y:Type} (l:list X) i val {f: X -> Y},
+(* Lemma list_update_map: forall {X Y:Type} (l:list X) i val {f: X -> Y},
     (i < seq.size l)%coq_nat ->
     List.map f (list_update l i val) = list_update (List.map f l) i (f val).
 Proof.
@@ -726,23 +465,54 @@ Proof.
     	f_equal.
     	apply IHi.
 		simpl in HSize. by apply Nat.succ_lt_mono.
-Qed.
+Qed. *)
 
 
 Lemma app_cat : forall {A : Type} (xs ys: seq A),
   (xs ++ ys)%list = xs ++ ys.
 Proof. auto. Qed.
 
+Definition prepend_local (v_C : context) (t_lst : seq valtype) :=
+	({| context_TYPES := []; context_FUNCS := []; 
+	  context_GLOBALS := []; context_TABLES := []; context_MEMS := []; 
+		context_ELEMS := []; context_DATAS := []; 
+		context_LOCALS := t_lst; LABELS := []; context_RETURN := None|}) @@
+	v_C.
+
 Definition prepend_label (v_C: context) (v_t: resulttype) :=
 ({| context_TYPES := []; context_FUNCS := []; context_GLOBALS := []; context_TABLES := []; context_MEMS := []; context_ELEMS := []; context_DATAS := []; context_LOCALS := []; LABELS := [v_t]; context_RETURN := None |} @@ v_C).
 
+Definition prepend_return (v_C: context) (v_t: resulttype) :=
+({| context_TYPES := []; context_FUNCS := []; context_GLOBALS := []; context_TABLES := []; context_MEMS := []; context_ELEMS := []; context_DATAS := []; context_LOCALS := []; LABELS := []; context_RETURN := Some v_t |} @@ v_C).
+
+Definition append_local (v_C : context) (t_lst : seq valtype) :=
+	v_C @@
+	({| context_TYPES := []; context_FUNCS := []; 
+	  context_GLOBALS := []; context_TABLES := []; context_MEMS := []; 
+		context_ELEMS := []; context_DATAS := []; 
+		context_LOCALS := t_lst; LABELS := []; context_RETURN := None|}).
+
+Definition append_label (v_C : context) (t_lst : resulttype) :=
+	v_C @@
+	({| context_TYPES := []; context_FUNCS := []; 
+	  context_GLOBALS := []; context_TABLES := []; context_MEMS := []; 
+		context_ELEMS := []; context_DATAS := []; 
+		context_LOCALS := []; LABELS := [t_lst]; context_RETURN := None|}).
+
+Definition append_return (v_C : context) (v_t : resulttype) :=
+	v_C @@
+	({| context_TYPES := []; context_FUNCS := []; 
+	  context_GLOBALS := []; context_TABLES := []; context_MEMS := []; 
+		context_ELEMS := []; context_DATAS := []; 
+		context_LOCALS := []; LABELS := []; context_RETURN := Some v_t|}).
+		
 Lemma lookup_label_0: forall v_C (t: resulttype),
 lookup_total (LABELS (prepend_label v_C t)) 0 = t.
 Proof.
 	eauto.
 Qed.
 
-Lemma lookup_label_1: forall v_C (t: resulttype) n,
+Lemma lookup_label_1: forall v_C (t: resulttype) (n : N),
 lookup_total (LABELS (prepend_label v_C t)) (n + 1) =
 lookup_total (LABELS v_C) (n).
 Proof.
@@ -753,49 +523,72 @@ Proof.
 	unfold LABELS.
 	rewrite <- app_cat.
 	rewrite <- cat1s.
-	rewrite addn1.
+	rewrite N.add_1_r.
+	simplNsucc.
 	reflexivity.
 Qed.
 
 Lemma add_sub : forall a b,
-	a + b - b = a.
+	(a + b - b)%N = a.
 Proof.
 	move => a b.
+	Search (_ + _ - _).
 	by eapply Nat.add_sub.
 Qed.
 
 Lemma add_sub' : forall a b,
-	a + b - a = b.
+	(a + b - a)%N = b.
 Proof.
 	move => a b.
 	rewrite addnC.
 	by eapply Nat.add_sub.
 Qed.
 
-Lemma sizecat_le1: forall {A: Type} (l l': seq A),
-	size l <= size (l ++ l').
+Lemma add_subBN : forall a b,
+	(a + b - b)%BN = a.
+Proof.
+	move => a b.
+	by eapply N.add_sub.
+Qed.
+
+Lemma add_subBN' : forall a b,
+	(a + b - a)%BN = b.
+Proof.
+	move => a b.
+	rewrite N.add_comm.
+	by eapply N.add_sub.
+Qed.
+
+Lemma sizecat' : forall {A: Type} (l l': seq A),
+	(|l ++ l'| = (|l| + |l'|)%BN).
 Proof.
 	move => A l l'.
-	rewrite size_cat.
-	eapply leq_addr.
+	induction l.
+		- reflexivity.
+		- simplNsizeconsgoal. 
+			rewrite IHl.
+			rewrite N.add_succ_l.
+			reflexivity.
+Qed.
+
+Lemma sizecat_le1: forall {A: Type} (l l': seq A),
+	(|l| <= |l ++ l'|)%BN.
+Proof.
+	move => A l l'.
+	rewrite sizecat'.
+	eapply N.le_add_r.
 Qed.
 
 Lemma sizecat_le2: forall {A: Type} (l l': seq A),
-	size l' <= size (l ++ l').
+	(|l'| <= |l ++ l'|)%BN.
 Proof.
 	move => A l l'.
-	rewrite size_cat.
-	eapply leq_addl.
-Qed.
-
-Lemma lt_irrefl: forall x, x < x = false.
-Proof.
-  move => x.
-  induction x as [ | n IH]; simpl; auto.
+	rewrite sizecat'.
+	eapply N.le_add_l.
 Qed.
 
 Lemma drop_size_cat : forall {A: Type} (x y : seq A),
-  drop (size x) (x ++ y) = y.
+  seq.drop (size x) (x ++ y) = y.
 Proof.
   move => A x y.
   rewrite drop_cat.
@@ -805,7 +598,7 @@ Proof.
 Qed.
 
 Lemma take_size_cat : forall {A: Type} (x y : seq A),
-  take (size x) (x ++ y) = x.
+  seq.take (size x) (x ++ y) = x.
 Proof.
   move => A x y.
   rewrite take_cat.
@@ -815,33 +608,44 @@ Proof.
   apply cats0.
 Qed.
 
+Lemma sizeN_inj: forall {A: Type} {B: Type} (l: seq A) (l': seq B),
+	| l | = | l' | -> size l = size l'.
+Proof.
+	move => A B l l' H.
+	move: l' H.
+	induction l; move=> l' H; destruct l' => //=.
+	- simplNsizecons H.
+		apply N.succ_inj in H.
+		specialize (IHl l' H).
+		by rewrite IHl.
+Qed.	
+
 Lemma size_eq_cat: forall A (l1 l2 l1' l2': list A),
-  size l1 = size l2 ->
+  | l1 | = | l2 | ->
   l1' ++ l1 = l2' ++ l2 ->
   l1' = l2' /\ l1 = l2.
 Proof.
   move=> A l1 l2 l1' l2' Hsize Hcat.
   
-  have Hsize_cat: size (l1' ++ l1) = size (l2' ++ l2) by rewrite Hcat.
-  rewrite !size_cat in Hsize_cat.
+  have Hsize_cat: | (l1' ++ l1) | = | (l2' ++ l2) | by rewrite Hcat.
+  rewrite !sizecat' in Hsize_cat.
   
-  have Hsize': size l1' = size l2'.
+  have Hsize': |l1'|= |l2'|.
   {
-	rewrite Hsize in Hsize_cat.
-    move/eqP in Hsize_cat.
-	rewrite eqn_add2r in Hsize_cat.
-	by apply/eqP.
+		rewrite Hsize in Hsize_cat.
+		by apply N.add_cancel_r in Hsize_cat.
   }
   
   have Htake: take (size l1') (l1' ++ l1) = take (size l1') (l2' ++ l2).
   { by rewrite Hcat. }
   
   rewrite take_size_cat // in Htake.
+	eapply sizeN_inj in Hsize'.
   rewrite Hsize' take_size_cat // in Htake.
   
   split; first by exact Htake.
   
-  have Hdrop: drop (size l1') (l1' ++ l1) = drop (size l1') (l2' ++ l2).
+  have Hdrop: seq.drop (size l1') (l1' ++ l1) = seq.drop (size l1') (l2' ++ l2).
   { by rewrite Hcat. }
   
   rewrite drop_size_cat // in Hdrop.
@@ -851,19 +655,3 @@ Qed.
 Lemma size_cons {X : Type} : forall x (s : seq X), 
 	seq.size (x :: s) = S (seq.size s).
 Proof. eauto. Qed.
-
-Lemma ltsize {X : Type} : forall x (s s2 : seq X),
-	(x < | s |)%coq_nat ->
-	(x < | s ++ s2 |)%coq_nat.
-Proof.
-	move=> x s s2 Hsize.
-	generalize dependent x.
-	induction s; move=> x Hsize.
-	- apply Nat.nlt_0_r in Hsize. exfalso. apply Hsize.
-	- destruct x. apply Nat.lt_0_succ.
-	- simpl in Hsize. simpl. apply Arith_base.lt_n_S_stt. apply IHs. apply PeanoNat.lt_S_n in Hsize. apply Hsize.
-Qed. 
-
-Lemma repeat_size {A : Type} : forall (x : A) (n : nat), 
-	size (List.repeat x n) = n.
-Proof. intros. induction n; simpl; eauto. Qed.
