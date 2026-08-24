@@ -126,7 +126,7 @@ let line_parens spc s = "|" ^ spc ^ s ^ spc ^ "|"
 
 let op_parens optyp s = 
   match optyp with
-  | `NatT -> parens s ^ "%N"
+  | `NatT -> parens s ^ "%BN"
   | `IntT -> parens s ^ "%Z"
   | `RatT -> parens s ^ "%Q"
   | `RealT -> parens s ^ "%nat" (* TODO *)
@@ -955,15 +955,27 @@ let exported_string =
 
   "Definition N_geb (x y : N) : bool := N.leb y x.\n\n" ^
   "Definition N_gtb (x y : N) : bool := N.ltb y x.\n\n" ^
+  "Declare Scope binN_scope.\n" ^
+  "Delimit Scope binN_scope with BN.\n" ^
+  "Notation \"x + y\" := (N.add x y) : binN_scope.\n" ^
+  "Notation \"x - y\" := (N.sub x y) : binN_scope.\n" ^
+  "Notation \"x * y\" := (N.mul x y) : binN_scope.\n" ^
+  "Notation \"x ^ y\" := (N.pow x y) : binN_scope.\n" ^
+  "Infix \"mod\" := N.modulo (at level 40, no associativity) : binN_scope.\n" ^
+  "Notation \"x <? y\" := (N.ltb x y) : binN_scope.\n" ^
+  "Notation \"x <=? y\" := (N.leb x y) : binN_scope.\n" ^
+  "Notation \"x >? y\" := (N_gtb x y) : binN_scope.\n" ^
+  "Notation \"x >=? y\" := (N_geb x y) : binN_scope.\n" ^
+  "Notation \"x < y\" := (N.lt x y) : binN_scope.\n" ^
+  "Notation \"x <= y\" := (N.le x y) : binN_scope.\n" ^
+  "Notation \"x > y\" := (N.gt x y) : binN_scope.\n" ^
+  "Notation \"x >= y\" := (N.ge x y) : binN_scope.\n\n" ^
   "Definition Qge_bool (x y : Q) : bool :=\n" ^
   "\tQle_bool y x.\n\n" ^
   "Definition Qlt_bool (x y : Q) : bool :=\n" ^
   "\tnegb (Qle_bool y x).\n\n" ^
   "Definition Qgt_bool (x y : Q) : bool :=\n" ^
   "\tnegb (Qle_bool x y).\n\n" ^
-
-  "Infix \">?\"  := N_gtb : N_scope. \n\n" ^ 
-  "Infix \">=?\" := N_geb : N_scope.\n\n" ^
   "Infix \"<=?\" := Qle_bool : Q_scope.\n\n" ^
   "Infix \">=?\" := Qge_bool : Q_scope.\n\n" ^
   "Infix \"<?\" := Qlt_bool : Q_scope.\n\n" ^
