@@ -35,7 +35,8 @@ type transformer = {
   transform_def_id: id -> id;
   transform_gram_id: id -> id;
 
-  filter_exp : exp -> exp option
+  (* Adjusting traversal *)
+  transform_types_of_exp : bool
 }
 
 let id = Fun.id
@@ -55,7 +56,7 @@ let base_transformer = {
   transform_def_id = id;
   transform_gram_id = id;
 
-  filter_exp = op_id
+  transform_types_of_exp = true
 }
 
 let rec transform_typ t typ = 
@@ -72,7 +73,6 @@ let rec transform_typ t typ =
 
 and transform_exp t e =
   let f = t.transform_exp in
-  let g = t.filter_exp in
   let t_exp = transform_exp t in
   let it =
     match e.it with
@@ -107,13 +107,8 @@ and transform_exp t e =
     | SubE (e1, _t1, t2) -> SubE (t_exp e1, _t1, t2)
     | IfE (e1, e2, e3) -> IfE (t_exp e1, t_exp e2, t_exp e3)
   in
-
-  let e' = 
-    match g {e with it; note = transform_typ t e.note } with 
-    | Some e' -> f e'
-    | None -> e 
-  in
-  f e'
+  let typ' = if t.transform_types_of_exp then transform_typ t e.note else e.note in 
+  f { e with it; note = typ' }
 
 and transform_iter t iter =
   match iter with
@@ -226,6 +221,8 @@ type 'a collector = {
   default: 'a;
   compose: 'a -> 'a -> 'a;
   collect_exp: exp -> 'a * bool;
+  collect_path: path -> 'a * bool;
+  collect_quant: quant -> 'a * bool;
   collect_prem: prem -> 'a * bool;
   collect_iterexp: iterexp -> 'a * bool;
   collect_typ: typ -> 'a * bool;
@@ -238,6 +235,8 @@ let base_collector default compose = {
   default = default;
   compose = compose;
   collect_exp = no_collect default;
+  collect_path = no_collect default;
+  collect_quant = no_collect default;
   collect_prem = no_collect default;
   collect_iterexp = no_collect default;
   collect_typ = no_collect default;
@@ -301,11 +300,16 @@ and collect_iterexp c iterexp =
 
 and collect_path c p =
   let ( $@ ) = c.compose in
-  match p.it with
-  | RootP -> c.default
-  | DotP (p', _) -> collect_path c p'
-  | IdxP (p', e) -> collect_path c p' $@ collect_exp c e
-  | SliceP (p', e1, e2) -> collect_path c p' $@ collect_exp c e1 $@ collect_exp c e2
+  let f = c.collect_path in
+  let traverse_list = 
+    match p.it with
+    | RootP -> c.default
+    | DotP (p', _) -> collect_path c p'
+    | IdxP (p', e) -> collect_path c p' $@ collect_exp c e
+    | SliceP (p', e1, e2) -> collect_path c p' $@ collect_exp c e1 $@ collect_exp c e2
+  in
+  let (res, continue) = f p in
+  res $@ if continue then traverse_list else c.default
 
 and collect_arg c a =
   let f = c.collect_arg in
@@ -341,6 +345,13 @@ and collect_param c p =
   | TypP _ -> c.default
   | DefP (_, params, typ) -> compose_list c (collect_param c) params $@ collect_typ c typ
   | GramP (_, params, typ) -> compose_list c (collect_param c) params $@ collect_typ c typ
+
+and collect_quant c q =
+  let ( $@ ) = c.compose in
+  let f = c.collect_quant in
+  let traverse_list = collect_param c q in
+  let (res, continue) = f q in
+  res $@ if continue then traverse_list else c.default
 
 and collect_sym c s =
   let ( $@ ) = c.compose in
