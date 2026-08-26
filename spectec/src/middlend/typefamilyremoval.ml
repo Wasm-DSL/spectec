@@ -16,6 +16,8 @@ let projection_hint = { hintid = projection_hint_id $ no_region; hintexp = El.As
 let type_family_hint_id = "type_family"
 let type_family_hint = { hintid = type_family_hint_id $ no_region; hintexp = El.Ast.SeqE [] $ no_region }
 
+let totalize_hint = {hintid = Totalize.partial_hint_id $ no_region; hintexp = El.Ast.SeqE [] $ no_region}
+
 let quant_to_string quant = 
   match quant.it with
   | ExpP (id, _) -> id.it
@@ -554,20 +556,28 @@ let create_types idx id inst =
       [TypD (id.it ^ sub_type_name_quants quants idx $ id.at, quants, [inst])]
     )
 
+let is_type_family_param env p =
+  match p.it with
+  | ExpP (_, t) -> is_family_typ env t
+  | _ -> false
+
 let rec transform_def env def = 
   (match def.it with
   | TypD (id, params, insts) -> 
     let new_insts = List.concat_map (transform_inst env) insts in
-    TypD (id, List.map (transform_param env) params, new_insts)
-  | RecD defs -> RecD (List.map (transform_def env) defs)
+    [TypD (id, List.map (transform_param env) params, new_insts)]
+  | RecD defs -> [RecD (List.concat_map (transform_def env) defs)]
   | RelD (id, params, m, typ, rules) ->
-    RelD (id, List.map (transform_param env) params, m, transform_typ StringMap.empty env typ, List.map (transform_rule env) rules)
+    [RelD (id, List.map (transform_param env) params, m, transform_typ StringMap.empty env typ, List.map (transform_rule env) rules)]
+  | DecD (id, params, typ, clauses) when List.length params > 1 && List.exists (is_type_family_param env) params -> 
+    let totalize_hint = HintD (DecH (id, [totalize_hint]) $ def.at) in
+    [DecD (id, List.map (transform_param env) params, transform_typ StringMap.empty env typ, List.map (transform_clause id params env typ) clauses); totalize_hint]
   | DecD (id, params, typ, clauses) -> 
-    DecD (id, List.map (transform_param env) params, transform_typ StringMap.empty env typ, List.map (transform_clause id params env typ) clauses)
+    [DecD (id, List.map (transform_param env) params, transform_typ StringMap.empty env typ, List.map (transform_clause id params env typ) clauses)]
   | GramD (id, params, typ, prods) -> 
-    GramD (id, List.map (transform_param env) params, transform_typ StringMap.empty env typ, List.map (transform_prod env) prods)
-  | d -> d
-  ) $ def.at
+    [GramD (id, List.map (transform_param env) params, transform_typ StringMap.empty env typ, List.map (transform_prod env) prods)]
+  | d -> [d]
+  ) |> List.map (fun d -> d $ def.at)
 
 let gen_family_projections id has_one_inst case_num inst =
   match inst.it with
@@ -648,5 +658,5 @@ let rec transform_type_family def =
 let transform (il : script): script = 
   let il_transformed = List.concat_map create_types_from_instances il in
   let env = Env.env_of_script il_transformed in 
-  List.map (transform_def env) il_transformed |>
+  List.concat_map (transform_def env) il_transformed |>
   List.concat_map transform_type_family
