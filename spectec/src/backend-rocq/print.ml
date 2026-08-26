@@ -905,7 +905,7 @@ let exported_string =
 	"\t\t| x :: l', N0, N0 => nil\n" ^
 	"\t\t| x :: l', Npos n, N0 => nil\n" ^
 	"\t\t| x :: l', N0, Npos m => x :: list_slice l' N0 (N.pred j)\n" ^
-	"\t\t| x :: l', Npos n, Npos m => list_slice l' (N.pred i) (N.pred j)\n" ^
+	"\t\t| x :: l', Npos n, m => list_slice l' (N.pred i) j\n" ^
 	"\tend.\n\n" ^
   "Fixpoint list_slice_update {α: Type} (l: seq α) (i: N) (j: N) (update_l: seq α): seq α :=\n" ^
 	"\tmatch l, i, j, update_l with\n" ^
@@ -914,7 +914,7 @@ let exported_string =
 	"\t\t| l', N0, N0, _ => l'\n" ^
 	"\t\t| l', Npos n, N0, _ => l'\n" ^
 	"\t\t| x :: l', N0, Npos m, y :: u_l' => y :: list_slice_update l' N0 (N.pred j) u_l'\n" ^
-	"\t\t| x :: l', Npos n, Npos m, _ => x :: list_slice_update l' (N.pred i) (N.pred j) update_l\n" ^
+	"\t\t| x :: l', Npos n, m, _ => x :: list_slice_update l' (N.pred i) j update_l\n" ^
 	"\tend.\n\n" ^
   "Definition list_extend {α: Type} (l: seq α) (y: α): seq α :=\n" ^
   "\ty :: l.\n\n" ^
