@@ -60,7 +60,7 @@ Fixpoint list_slice {α: Type} (l: seq α) (i: N) (j: N): seq α :=
 		| x :: l', N0, N0 => nil
 		| x :: l', Npos n, N0 => nil
 		| x :: l', N0, Npos m => x :: list_slice l' N0 (N.pred j)
-		| x :: l', Npos n, Npos m => list_slice l' (N.pred i) (N.pred j)
+		| x :: l', Npos n, m => list_slice l' (N.pred i) j
 	end.
 
 Fixpoint list_slice_update {α: Type} (l: seq α) (i: N) (j: N) (update_l: seq α): seq α :=
@@ -70,7 +70,7 @@ Fixpoint list_slice_update {α: Type} (l: seq α) (i: N) (j: N) (update_l: seq �
 		| l', N0, N0, _ => l'
 		| l', Npos n, N0, _ => l'
 		| x :: l', N0, Npos m, y :: u_l' => y :: list_slice_update l' N0 (N.pred j) u_l'
-		| x :: l', Npos n, Npos m, _ => x :: list_slice_update l' (N.pred i) (N.pred j) update_l
+		| x :: l', Npos n, m, _ => x :: list_slice_update l' (N.pred i) j update_l
 	end.
 
 Definition list_extend {α: Type} (l: seq α) (y: α): seq α :=
@@ -10405,7 +10405,6 @@ Inductive Step : config -> config -> Prop :=
 		Step (mk_config (mk_state s f) [::(FRAME_ v_n f' admininstr_lst)]) (mk_config (mk_state s' f) [::(FRAME_ v_n f'' admininstr'_lst)])
 	| ctxt_instrs : forall (z : state) (val_lst : (seq val)) (admininstr_lst : (seq admininstr)) (admininstr_1_lst : (seq admininstr)) (z' : state) (admininstr'_lst : (seq admininstr)), 
 		(Step (mk_config z admininstr_lst) (mk_config z' admininstr'_lst)) ->
-		((val_lst != [:: ]) || (admininstr_1_lst != [:: ])) ->
 		(wf_config (mk_config z admininstr_lst)) ->
 		(wf_config (mk_config z' admininstr'_lst)) ->
 		Step (mk_config z ((seq.map (fun (v_val : val) => (admininstr_val v_val)) val_lst) ++ (admininstr_lst ++ admininstr_1_lst))) (mk_config z' ((seq.map (fun (v_val : val) => (admininstr_val v_val)) val_lst) ++ (admininstr'_lst ++ admininstr_1_lst)))

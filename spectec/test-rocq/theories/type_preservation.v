@@ -25,6 +25,19 @@ Definition num_default (nt : numtype) : num_ :=
 	end
 .
 
+Lemma Qfloor_add_Z (q : Q) (z : Z) :
+  Qround.Qfloor (q + inject_Z z) =
+  (Qround.Qfloor q + z)%Z.
+Proof.
+  destruct q as [n d].
+  simpl.
+	repeat rewrite Z.mul_1_r.
+	rewrite Pos.mul_1_r.
+  rewrite Zdiv.Z_div_plus_full.
+  reflexivity.
+  discriminate.
+Qed.
+
 Lemma wf_context_app : forall C C',
 	wf_context C ->
 	wf_context C' ->
@@ -289,7 +302,7 @@ Proof.
 		injection Heqc2 as ?; subst.
 		subst.
 		typing_inversion HType.
-		typing_inversion H3.
+		typing_inversion H2.
 		eapply IHHReduce; eauto.
 	}
 	{ (* Global Set *) 
@@ -993,7 +1006,7 @@ Proof.
 				(lookup_total (store_MEMS s) ma =
 				{| meminst_TYPE := PAGE (mk_limits (mk_uN lim_old) v_j); BYTES := v_b |}) /\
 				(mi =
-				{| meminst_TYPE := PAGE (mk_limits (mk_uN (lim_old + v_n)%Q) v_j);
+				{| meminst_TYPE := PAGE (mk_limits (mk_uN (lim_old + v_n)%BN) v_j);
 				BYTES := v_b ++ list_repeat (mk_byte 0) (v_n * (64 * Ki)%BN)%BN |}) /\
 				(lim_old = pagediv v_b) /\
 				Forall (fun j : u32 => ((lim_old + v_n)%Q <= (j :> N))%Q) v_j
@@ -1035,6 +1048,14 @@ Proof.
 			split; auto.
 			split; auto.
 			split; auto.
+			simpl.
+			repeat rewrite Z.mul_1_r.
+			rewrite Zdiv.Z_div_plus_full; try done.
+			fold (Z.of_N (65536)).
+			rewrite -Znat.N2Z.inj_div.
+			rewrite -Znat.N2Z.inj_add.
+			repeat rewrite Znat.N2Z.id.
+			reflexivity.
 			split; auto.
 
 			destruct v_m; eauto.
@@ -1070,6 +1091,14 @@ Proof.
 					apply H12.
 				}
 				+ apply pagediv_ge_0.
+				+ rewrite -(Znat.N2Z.id v_n).
+					rewrite -Znat.Z2N.inj_add.
+					rewrite Qfloor_add_Z.
+					rewrite (Znat.N2Z.id v_n).
+					reflexivity.
+					apply pagediv_ge_0_Z.
+					apply Znat.N2Z.is_nonneg.
+
 			- eapply LemTableSame; subst; eauto.
 			- eapply LemFuncSame; subst; eauto.
 			- eapply LemDataSame; subst; eauto.
@@ -1085,12 +1114,12 @@ Proof.
 			(tableinst_lst := tableinst_lst)
 			(meminst_lst := list_update_func (store_MEMS s) ma
 				(λ _,
-				{| meminst_TYPE := PAGE (mk_limits (mk_uN (lim_old + v_n)%Q) (v_j));
+				{| meminst_TYPE := PAGE (mk_limits (mk_uN (lim_old + v_n)%BN) (v_j));
 				BYTES := v_b ++ list_repeat (mk_byte 0) (v_n * (64 * Ki)%BN)%BN |}))
 			(eleminst_lst := eleminst_lst)
 			(datainst_lst := datainst_lst)
 			(memtype_lst := list_update_func memtype_lst ma
-				(λ _, PAGE (mk_limits (mk_uN (lim_old + v_n)%Q) (v_j))))
+				(λ _, PAGE (mk_limits (mk_uN (lim_old + v_n)%BN) (v_j))))
 			(functype_lst := functype_lst)
 			(tabletype_lst := tabletype_lst)
 			(datatype_lst := datatype_lst)
@@ -2873,8 +2902,8 @@ Proof.
 		invert_ais_typing.
 		eapply ais_vals_typing_inversion in HType1
 			as [v_ts [HSub HValsok]].
-		inversion H1; subst.
-		inversion H4; subst.
+		inversion H0; subst.
+		inversion H3; subst.
 
 		construct_ais_typing.
 		{
@@ -2885,8 +2914,7 @@ Proof.
 			eapply IHHReduce; eauto.
 		}
 		{
-			(* TODO - unsure about how to get something for admininstr1 *)
-			admit.
+			eapply Extend_store_ais; eauto.
 		}
 	}
 	{ (* Table grow *)

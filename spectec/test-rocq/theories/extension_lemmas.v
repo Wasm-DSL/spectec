@@ -1,4 +1,4 @@
-From Stdlib Require Import String List Unicode.Utf8 NArith Arith QArith.
+From Stdlib Require Import String List Unicode.Utf8 NArith Arith QArith Lia.
 From RecordUpdate Require Import RecordSet.
 Require Import Stdlib.Program.Equality.
 
@@ -2902,6 +2902,29 @@ Proof.
 	econstructor; auto.
 Qed.
 
+Lemma Qfloor_add_Z (q : Q) (z : Z) :
+  Qround.Qfloor (q + inject_Z z) =
+  (Qround.Qfloor q + z)%Z.
+Proof.
+  destruct q as [n d].
+  simpl.
+	repeat rewrite Z.mul_1_r.
+	rewrite Pos.mul_1_r.
+  rewrite Zdiv.Z_div_plus_full.
+  reflexivity.
+  discriminate.
+Qed.
+
+Lemma Zle_Nle : forall z z',
+	(z <= z')%Z ->
+	(Z.to_N z <= Z.to_N z')%BN.
+Proof.
+	intros.
+	lia.
+Qed.
+
+
+
 Lemma construct_meminsts_grow: forall s ts ma b_lst (lim_old : Q) (v_n : N) v_j_opt minsts,
 	Forall wf_meminst minsts ->
 	Forall2 (λ v t, Meminst_ok s v t) (store_MEMS s) ts ->
@@ -2911,11 +2934,11 @@ Lemma construct_meminsts_grow: forall s ts ma b_lst (lim_old : Q) (v_n : N) v_j_
 	lim_old = pagediv b_lst ->
 	Forall (fun (j : u32) => ((lim_old + v_n)%Q <= (j :> N))%Q) v_j_opt ->
 	minsts = (list_update_func (store_MEMS s) ma
-		(fun=> {| meminst_TYPE := PAGE (mk_limits (mk_uN (lim_old + v_n)%Q) v_j_opt);
+		(fun=> {| meminst_TYPE := PAGE (mk_limits (mk_uN (lim_old + v_n)%BN) v_j_opt);
 			BYTES := b_lst ++ list_repeat (mk_byte 0) (v_n * (64 * Ki)%BN)%BN |})) ->
 	Forall2 (λ (v : meminst) (t : memtype), Meminst_ok s v t)
 		minsts
-		(list_update_func ts ma (fun=> PAGE (mk_limits (mk_uN (lim_old + v_n)%Q) v_j_opt))).
+		(list_update_func ts ma (fun=> PAGE (mk_limits (mk_uN (lim_old + v_n)%BN) v_j_opt))).
 Proof.
 	move => s ts ma b_lst lim_old v_n v_j_opt minsts HWfminsts Hold HLookup HLim HRange HEq.
 	subst.
@@ -2941,16 +2964,65 @@ Proof.
 			rewrite sizecat'.
 			rewrite size_repeat.
 
-			(* TODO FIX THIS*)
-      (* 
-			rewrite H4.
 			unfold pagediv.
-			unfold Ki. simpl.
+			rewrite H4.
+			rewrite -Qround.Zdiv_Qdiv.
+			rewrite Z.mul_1_r.
+			simpl.
 			rewrite N.mul_add_distr_r.
-			reflexivity. *)
-			admit.
+			f_equal.
+			
+			fold (Z.to_N 65536).
+			repeat rewrite -Znat.Z2N.inj_mul; try done.
+			repeat rewrite (Z.mul_comm _ (Z.to_N 65536)).
+			rewrite Znat.Z2N.id.
+			remember (Z.of_N (Z.to_N (65536 * (Z.of_N (| b_lst |) / 65536)))).
+			rewrite -(Zdiv.Z_div_exact_2 z _).
+			- subst. rewrite Znat.N2Z.id. done.
+			- done.
+			- subst. rewrite Znat.Z2N.id.
+				+ rewrite Z.mul_comm. by rewrite Zdiv.Z_mod_mult.
+				+ apply Z.mul_nonneg_nonneg; try done.
+					apply Zdiv.Z_div_nonneg_nonneg; try done.
+					apply Znat.N2Z.is_nonneg.
+			- done.
+			all: apply Zdiv.Z_div_nonneg_nonneg; try done; apply Znat.N2Z.is_nonneg.
 		}
-		econstructor; eauto.
+		destruct m_opt; econstructor; eauto.
+		-
+			inversion H3; subst; clear H3.
+			inversion H1; subst.
+			inversion HRange; subst.
+			
+			unfold pagediv in H14.
+			apply Qround.Qfloor_resp_le in H14.
+			rewrite Qround.Qfloor_Z in H14.
+			rewrite Qfloor_add_Z in H14.
+			rewrite -Qround.Zdiv_Qdiv in H14.
+			apply Zle_Nle in H14.
+			destruct m_opt; try discriminate.
+			injection H3 as ?; subst.
+			inversion H11; subst; clear H16.
+			move/andP in H12; destruct H12.
+			
+			rewrite Znat.Z2N.inj_add in H14; try done.
+			repeat rewrite (Znat.N2Z.id) in H14.
+			unfold pagediv.
+			rewrite -Qround.Zdiv_Qdiv.
+			econstructor;  ineq_to_prop; eauto.
+			- eapply N.le_trans; eauto.
+			- econstructor; eauto. eq_to_prop; split; ineq_to_prop.
+				+ apply H14.
+				+ apply H3.
+			- inversion H2; subst. rewrite Z.mul_1_r in H16. simpl. apply H16.
+			- apply Zdiv.Z_div_nonneg_nonneg; try done; apply Znat.N2Z.is_nonneg.
+			- apply Znat.N2Z.is_nonneg.
+		- 
+			inversion H2; subst. rewrite Z.mul_1_r in H1.
+			unfold pagediv.
+			rewrite -Qround.Zdiv_Qdiv.
+			econstructor; eauto.
+			clear IHHold.
 		admit.
 		(* TODO - Find some way of showing lim_old + v_n <= 2 ^ 16 *)
 	}

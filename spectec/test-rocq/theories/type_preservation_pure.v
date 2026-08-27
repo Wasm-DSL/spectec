@@ -512,17 +512,18 @@ Proof.
 	typing_inversion H6.
 	simpl in Hai.
 	extract_premise.
-	(* inversion H10; subst; clear H10.
+	inversion H10; subst; clear H10.
 	(* simpl in H9. *)
 	(* rewrite H3 in H9. *)
 	eq_to_prop.
+	unfold prepend_return in H11. simpl in H11.
 	rewrite H6 in H11.
 	inversion H11; subst; clear H11.
 	eapply app_inv_tail in H; subst.
 	(* clear H6 *)
 	vals_typing_inversion H0.
-	(* unfold _append, Append_Option, option_append in H6. *)
-	(* inversion H3; subst; clear H3. *)
+	unfold _append, Append_Option, option_append in H6.
+	inversion H6; subst; clear H6.
 
 	eapply construct_ais_instrtype_sub.
 	eapply construct_ais_vals.
@@ -533,19 +534,17 @@ Proof.
 	eapply (instrtype_sub_compose_le _ _ _ _ _ _ _ _ Hsub1) in Hsub0
 	  as [Hsub0 Hsub2].
 	2: {
-		eapply Forall2_length in Hforall.
-		list_to_seq.
-		rewrite H0 in Hforall.
-		auto.
-		
+		eapply Forall2_seq_size in Hforall.
+		rewrite H3 in Hforall.
+		auto.	
 	}
 	eapply instrtype_sub_trans.
 	{
 		eapply instrtype_sub_iff_resulttype_sub in Hsub2.
 		eauto.
 	}
-	auto. *)
-Admitted.
+	apply instrtype_sub_refl.
+Qed.
 
 Lemma Step_pure__return_label_preserves : forall v_S v_C (v_n : n) (v_instr' : (list instr)) (v_val : (list wasm.val)) v_admininstr v_ft,
 	Instrs_ok2 v_S v_C [(LABEL_ v_n v_instr' (((map admininstr_val v_val) ++ [(admininstr_RETURN )]) ++ v_admininstr))] v_ft ->
