@@ -92,10 +92,14 @@ relation Memtype_sub: |- memtype <: memtype          hint(show "S-mem")
 relation Externtype_sub: |- externtype <: externtype hint(show "S-extern")
 
 
-rule Limits_sub:
-  |- `[n_11 .. n_12] <: `[n_21 .. n_22]
-  -- if n_11 >= n_21
-  -- if n_12 <= n_22
+rule Limits_sub/max:
+  |- `[n_1 .. m_1] <: `[n_2 .. m_2?]
+  -- if n_1 >= n_2
+  -- (if m_1 <= m_2)?
+
+rule Limits_sub/eps:
+  |- `[n_1 .. eps] <: `[n_2 .. eps]
+  -- if n_1 >= n_2
 
 rule Functype_sub:
   |- ft <: ft
@@ -151,9 +155,13 @@ rule Expr_ok:
 rule Instrs_ok/empty:
   C |- eps : eps -> eps
 
+rule Instrs_ok/instr:
+  C |- instr : t_1* -> t_2*
+  -- Instr_ok: C |- instr : t_1* -> t_2*
+
 rule Instrs_ok/seq:
-  C |- instr_1 instr_2* : t_1* -> t_3*
-  -- Instr_ok: C |- instr_1 : t_1* -> t_2*
+  C |- instr_1* instr_2* : t_1* -> t_3*
+  -- Instrs_ok: C |- instr_1* : t_1* -> t_2*
   -- Instrs_ok: C |- instr_2* : t_2* -> t_3*
 
 rule Instrs_ok/sub:
@@ -267,13 +275,7 @@ rule Instr_ok/testop:
 rule Instr_ok/relop:
   C |- RELOP nt relop_nt : nt nt -> I32
 
-
-;; TODO: move side conditions to syntax
-rule Instr_ok/cvtop-reinterpret:
-  C |- CVTOP nt_1 nt_2 REINTERPRET : nt_2 -> nt_1
-  -- if $size(nt_1) = $size(nt_2)
-
-rule Instr_ok/cvtop-convert:
+rule Instr_ok/cvtop:
   C |- CVTOP nt_1 nt_2 cvtop : nt_2 -> nt_1
 
 
@@ -579,7 +581,7 @@ rule Func_ok:
   C |- FUNC x (LOCAL t)* expr : t_1* -> t_2*
   -- if C.TYPES[x] = t_1* -> t_2*
   -- (if t =/= BOT)*
-  -- Expr_ok: C ++ {LOCALS t_1* t*, LABELS (t_2*), RETURN (t_2*)} |- expr : t_2*
+  -- Expr_ok: {LOCALS t_1* t*, LABELS (t_2*), RETURN (t_2*)} ++ C |- expr : t_2*
 
 rule Global_ok:
   C |- GLOBAL gt expr : gt
