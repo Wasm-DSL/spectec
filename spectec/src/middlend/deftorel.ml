@@ -669,9 +669,136 @@ let create_rec_func_set env (d : def) =
     env.rec_funcs <- StringSet.add id.it env.rec_funcs
   | _ -> ()
 
+let get_rel_arg env (i, arg) =
+  match arg.it with
+  | DefA id -> 
+    begin match (Env.find_opt_def env.il_env id) with
+    | Some (_, _, clauses) when must_be_relation env clauses -> 
+      Some (i, id)
+    | _ -> None
+    end
+  | _ -> None
+  
+let collect_fcalls_with_def_exp env e =
+  let lst = 
+    match e.it with
+    | CallE (id, args) -> 
+      let ids = List.filter_map (get_rel_arg env) (List.combine (List.init (List.length args) (fun i -> i)) args) in
+      if ids <> [] then 
+      [(id, ids)] else []
+    | _ -> []
+  in
+  (lst, true)
 
-let transform (il : script): script =
+let collect_fcalls_with_def env il =
+  let collector = base_collector [] (@) in
+  let c = { collector with collect_exp = collect_fcalls_with_def_exp env } in
+  List.concat_map (collect_def c) il |>
+  Lib.List.nub (fun (id, ids) (id', ids') -> 
+    Eq.eq_id id id' && Eq.eq_list (fun (idx, id'') (idx', id''') -> idx = idx' && Eq.eq_id id'' id''') ids ids'
+  )
+
+let create_subst subst id param = 
+  match param.it with
+  | DefP (id', _, _) -> Subst.add_defid subst id' id
+  | _ -> subst
+
+let create_rel_set (env : env) il =
+  let is_decD d =
+    match d.it with
+    | DecD _ -> true 
+    | _ -> false
+  in
+  List.iter (fun d -> match d.it with
+  | DecD (id, _, _, clauses) when must_be_relation env clauses -> 
+    env.rel_set <- StringSet.add id.it env.rel_set
+  | RecD defs when List.for_all is_decD defs -> 
+    List.iter (fun d' -> match d'.it with
+    | DecD (id', _, _, _) -> 
+      env.rel_set <- StringSet.add id'.it env.rel_set
+    | _ -> ()
+    ) defs
+  | _ -> ()
+  ) il
+
+let monomorphize_clause subst def_ids clause =
+  let DefD (quants, args, exp, prems) = clause.it in
+  let new_quants = List.filter (fun q -> 
+    match q.it with 
+    | DefP (id, _, _) -> not (Subst.mem_defid subst id)
+    | _ -> true
+  ) quants in
+  let new_args = List.filteri (fun i _ -> not (List.exists (fun (idx, _) -> idx = i) def_ids)) args in
+  let new_exp = Subst.subst_exp subst exp in
+  let new_prems = List.map (Subst.subst_prem subst) prems in
+  DefD (new_quants, new_args, new_exp, new_prems) $ clause.at
+
+(* TODO handle recursive case *)
+let monomorphize_def def_ids d =
+  match d.it with
+  | DecD (id, params, typ, clauses) -> 
+    let def_ids_lst = List.find_all (fun (id', _) -> Eq.eq_id id id') def_ids in
+    List.map (fun def_ids' -> 
+      let subst = List.fold_left (fun acc (idx, id') -> 
+        let p = List.nth params idx in
+        create_subst acc id' p
+        ) Subst.empty (snd def_ids') 
+      in
+      let new_id = {id with it = id.it ^ String.concat "_" (List.map (fun (_, id') -> id'.it) (snd def_ids'))} in
+      let new_params = List.filteri (fun i _ -> not (List.exists (fun (idx, _) -> idx = i) (snd def_ids'))) params in
+      let new_typ = Subst.subst_typ subst typ in
+      DecD (new_id, new_params, new_typ, List.map (monomorphize_clause subst (snd def_ids')) clauses) $ d.at
+    ) def_ids_lst
+  | _ -> []
+
+let transform_exp_fcall env exp =
+  match exp.it with
+  | CallE (id, args) -> 
+    let def_ids = List.filter_map (get_rel_arg env) (List.combine (List.init (List.length args) (fun i -> i)) args) in
+    let new_args = List.filteri (fun i _ -> not (List.exists (fun (idx, _) -> idx = i) def_ids)) args in
+    let new_id = {id with it = id.it ^ String.concat "_" (List.map (fun (_, id') -> id'.it) def_ids)} in
+    if def_ids <> [] then {exp with it = CallE (new_id, new_args)} else exp
+  | _ -> exp
+
+let exists_fcall id exp =
+  match exp.it with
+  | CallE (id', _) when Eq.eq_id id id' -> (true, false)
+  | _ -> (false, true)
+
+let reorder_new_defs new_defs d = 
+  match d.it with
+  | DecD (_, _, _, _) ->
+    let new_defs', rest = List.partition (fun d' -> match d'.it with
+    | DecD (id', _, _, _) ->
+      let exists_checker = { exists_base_checker with collect_exp = exists_fcall id' } in 
+      collect_def exists_checker d
+    | _ -> false) !new_defs
+    in
+    if new_defs' = [] then [d] else
+    (new_defs := rest;
+    new_defs' @ [d])
+  | _ -> [d]
+
+let monomorphization il =
   let env = empty_env in 
   env.il_env <- Il.Env.env_of_script il;
-  List.iter (create_rec_func_set env) il;
-  List.concat_map (transform_def env) il
+  create_rel_set env il;
+  
+  let def_ids = collect_fcalls_with_def env il in
+  print_endline ("Monomorphization: " ^ String.concat ", " (List.map (fun (id, ids) -> id.it ^ "(" ^ String.concat ", " (List.map (fun (_, id') -> id'.it) ids) ^ ")") def_ids));
+  let defs = ref (List.concat_map (monomorphize_def def_ids) il) in
+  print_endline ("Monomorphization: " ^ String.concat ", " (List.map (fun d -> match d.it with
+  | DecD (id, _, _, _) -> id.it
+  | _ -> "") !defs));
+  
+  let transformer = { base_transformer with transform_exp = transform_exp_fcall env } in
+  let il' = List.map (Walk.transform_def transformer) il in
+  List.concat_map (reorder_new_defs defs) il' 
+  
+let transform (il : script): script =
+  let il' = monomorphization il in
+
+  let env = empty_env in 
+  env.il_env <- Il.Env.env_of_script il';
+  List.iter (create_rec_func_set env) il';
+  List.concat_map (transform_def env) il'
