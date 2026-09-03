@@ -5582,7 +5582,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
                           have 5: "v_n \<noteq> 0"
                             using memory_fill_succ by simp
                           have "0 \<le> i' + 1 \<and> i' + 1 \<le> 2 ^ 32 - 1" using 1 2 3 4 5 
-                            sorry (* by force *)
+                            sorry (* by force *) (* check if Limits_ok needs a \<le> instead of < *)
                           then show ?case using proj_num__0.domintros proj_num__0.psimps
                              proj_uN_0.psimps proj_uN_0.domintros
                             by force 
@@ -5679,23 +5679,23 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       res_list.exhaust by metis
   next
     case (memory_copy_zero i j v_n)
-    then show ?case sorry
+    then show ?case sorry (* see memory_fill cases *)
   next
     case (memory_copy_le j i v_n)
-    then show ?case sorry
+    then show ?case sorry (* see memory_fill cases *)
   next
     case (memory_copy_gt j i v_n)
-    then show ?case sorry
+    then show ?case sorry (* see memory_fill cases *)
   next
     case (memory_init_trap i j v_n x)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
     case (memory_init_zero i j v_n x)
-    then show ?case sorry
+    then show ?case sorry (* see memory_fill cases *)
   next
     case (memory_init_succ i x j v_n)
-    then show ?case sorry
+    then show ?case sorry (* see memory_fill cases *)
   qed
 next
   case (ctxt_label admininstr_lst admininstr'_lst v_n instr_0_lst)
@@ -5986,10 +5986,10 @@ next
     Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
   case (table_grow_succeed x v_n v_ref var_0 ti)
-  then show ?case sorry
+  then show ?case sorry (* TODO *)
 next
   case (table_grow_fail var_0 v_ref v_n x)
-  then show ?case sorry
+  then show ?case sorry (* TODO *)
 next
   case (Step__elem_drop x)
   then obtain t1' t3' where 
@@ -6130,10 +6130,10 @@ next
     Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
   case (memory_grow_succeed v_n var_0 mi)
-  then show ?case sorry
+  then show ?case sorry (* TODO *)
 next
   case (memory_grow_fail var_0 v_n)
-  then show ?case sorry
+  then show ?case sorry (* TODO *)
 next
   case (Step__data_drop x)
   then obtain t1' t3' where 
