@@ -5464,10 +5464,10 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
        by (metis memarg0_def proj_uN_0.psimps proj_uN_0.domintros memarg.select_convs(1))
      then have arith: "2 ^ proj_uN_0 (ALIGN memarg0) \<le> (8 div 8 :: nat)" by simp
      have "wf_instr (instr_sc6 (STORE I32 (Some (mk_sz 8)) memarg0))"
-       using instr_case_57[of "Some (mk_sz 8)" memarg0 "Some Inn_I32" "Some I32" I32]
+       using instr_case_57 [of "Some (mk_sz 8)" memarg0 "Some Inn_I32" "I32"]
          wf_sz.intros wf_memarg.intros sizenn.domintros sizenn.psimps memarg0_def
           wf_uN.intros numtype_Inn.domintros numtype_Inn.psimps proj_sz_0.domintros proj_sz_0.psimps
-       sorry
+       by fastforce
      then have "Instrs_ok2 s C' [ admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0) ] 
           (mk_functype 
         (mk_list [valtype_I32, valtype_I32]) (mk_list []))"

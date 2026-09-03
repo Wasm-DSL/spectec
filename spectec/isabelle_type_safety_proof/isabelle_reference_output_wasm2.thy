@@ -1957,9 +1957,8 @@ inductive wf_instr :: "instr \<Rightarrow> bool" where
 	| instr_case_57 :
 		"list_all (\<lambda> (v_sz :: sz). (wf_sz v_sz)) (option_to_list sz_opt) \<Longrightarrow>
 		 (wf_memarg v_memarg) \<Longrightarrow>
-		 ((Inn_opt = None) \<longleftrightarrow> (numtype_opt = None)) \<Longrightarrow>
 		 ((Inn_opt = None) \<longleftrightarrow> (sz_opt = None)) \<Longrightarrow>
-		 list_all3 (\<lambda> (v_Inn :: Inn) (v_numtype :: numtype) (v_sz :: sz). ((v_numtype = (numtype_Inn v_Inn)) \<and> ((proj_sz_0 v_sz) < (sizenn (numtype_Inn v_Inn))))) (option_to_list Inn_opt) (option_to_list numtype_opt) (option_to_list sz_opt) \<Longrightarrow>
+		 list_all2 (\<lambda> (v_Inn :: Inn) (v_sz :: sz). ((v_numtype = (numtype_Inn v_Inn)) \<and> ((proj_sz_0 v_sz) < (sizenn (numtype_Inn v_Inn))))) (option_to_list Inn_opt) (option_to_list sz_opt) \<Longrightarrow>
 		 wf_instr (instr_sc6 (STORE v_numtype sz_opt v_memarg))"
 	| instr_case_58 :
 		"(wf_memarg v_memarg) \<Longrightarrow>
@@ -6935,9 +6934,8 @@ inductive wf_admininstr :: "admininstr \<Rightarrow> bool" where
 	| admininstr_case_57 :
 		"list_all (\<lambda> (v_sz :: sz). (wf_sz v_sz)) (option_to_list sz_opt) \<Longrightarrow>
 		 (wf_memarg v_memarg) \<Longrightarrow>
-		 ((Inn_opt = None) \<longleftrightarrow> (numtype_opt = None)) \<Longrightarrow>
 		 ((Inn_opt = None) \<longleftrightarrow> (sz_opt = None)) \<Longrightarrow>
-		 list_all3 (\<lambda> (v_Inn :: Inn) (v_numtype :: numtype) (v_sz :: sz). ((v_numtype = (numtype_Inn v_Inn)) \<and> ((proj_sz_0 v_sz) < (sizenn (numtype_Inn v_Inn))))) (option_to_list Inn_opt) (option_to_list numtype_opt) (option_to_list sz_opt) \<Longrightarrow>
+		 list_all2 (\<lambda> (v_Inn :: Inn) (v_sz :: sz). ((v_numtype = (numtype_Inn v_Inn)) \<and> ((proj_sz_0 v_sz) < (sizenn (numtype_Inn v_Inn))))) (option_to_list Inn_opt) (option_to_list sz_opt) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc6 (admininstr_st6_STORE v_numtype sz_opt v_memarg))"
 	| admininstr_case_58 :
 		"(wf_memarg v_memarg) \<Longrightarrow>
