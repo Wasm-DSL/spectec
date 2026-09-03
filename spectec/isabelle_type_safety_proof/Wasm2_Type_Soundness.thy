@@ -804,6 +804,21 @@ lemma val_ok_wf: assumes "Val_ok s v t" shows "wf_val v"
   qed (auto simp add: wf_val.intros val_ref.domintros val_ref.psimps)
 qed(auto)
 
+lemma Externaddr_ok_mem:
+  assumes "Externaddr_ok s (externaddr_MEM (MEMS l ! 0)) (MEM m)"
+  shows "MEMS l ! 0 < length (store_MEMS s)"
+  using assms proof (induction s "externaddr_MEM (MEMS l ! 0)" "MEM m" arbitrary:m)
+  case (Externaddr_ok__mem s v_meminst)
+  then show ?case by simp
+next
+  case (Externaddr_ok__sub s xt')
+  show ?case using Externaddr_ok__sub(3,1-)
+  proof (induction xt' "MEM m")
+  case (Externtype_sub__mem mt_1)
+  then show ?case by simp
+qed
+qed
+
 (* Still useful? *)
 (*
 lemma list_all2_list_all: assumes "list_all2 P l1 l2" "\<forall> x y. P x y \<longrightarrow> Q y" 
@@ -5184,52 +5199,169 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       using inv_load_val by blast
     then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_numtype nt]) <ti: mk_instrtype t1 t3"
       using subv subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] by fastforce
-    then show ?case using hyps load_num_val sorry
+    then show ?case using hyps load_num_val sorry (* fix definition of load (if not using 
+        deserialise function, need some guarantee that the read number is of the right type) *)
   next
     case (load_pack_trap i ao v_n v_Inn v_sx)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
     case (load_pack_val v_Inn i v_n c ao v_sx)
-    then show ?case sorry
+    then show ?case sorry (* see load_num_val *)
   next
     case (vload_oob i ao)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
     case (vload_val i c ao)
-    then show ?case sorry
+    then obtain t2 where splitv:
+      "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)] (mk_functype t1 t2)"
+      "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_VLOAD V128 None ao)] (mk_functype t2 t3)"
+      using inv_seq[of s C' "[_,_]" t1 t3 "[_]" "[_]"] by fastforce
+    then have subv: "mk_instrtype (mk_list []) (mk_list [valtype_I32]) <ti: mk_instrtype t1 t2" 
+      using inv_const_list[of s C' "[_]" t1 t2 "[val_CONST I32 _]"] admininstr_val.psimps
+      admininstr_val.domintros typeofval.psimps typeofval.domintros valtype_numtype.psimps
+      valtype_numtype.domintros by fastforce
+    obtain t2' t3' where 
+      "Instr_ok2 s C' (admininstr_sc6 (admininstr_st6_VLOAD V128 None ao)) (mk_functype t2' t3')" 
+      and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+      using splitv inv_one_admininstr by blast
+    then have "Instr_ok C' (instr_sc6 (VLOAD V128 None ao)) (mk_functype t2' t3')"
+      using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+    then show ?case sorry (* Fix typing rule for vload None *)
+(*    then obtain mt where hyps:
+      "0 < length (context_MEMS C')"
+      "context_MEMS C' ! 0 = mt"
+      "isabelle_reference_output_wasm2.size (valtype_numtype nt) \<noteq> None"
+      "2 ^ proj_uN_0 (ALIGN ao)
+        \<le> the (isabelle_reference_output_wasm2.size (valtype_numtype nt)) div 8"
+      "wf_memtype mt" 
+      "mk_functype (mk_list [valtype_I32]) (mk_list [valtype_numtype nt]) = mk_functype t2' t3'" 
+      using inv_vload by blast
+    then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_numtype nt]) <ti: mk_instrtype t1 t3"
+      using subv subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] by fastforce
+    then show ?case using hyps load_num_val *)
   next
     case (vload_shape_oob i ao v_M v_N v_sx)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
     case (vload_shape_val i v_N v_M ao j_lst v_Jnn c v_sx)
-    then show ?case sorry
+    then obtain t2 where splitv:
+      "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)] (mk_functype t1 t2)"
+      "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_VLOAD V128 (Some (SHAPEX_underscore v_M v_N v_sx)) 
+          ao)] (mk_functype t2 t3)"
+      using inv_seq[of s C' "[_,_]" t1 t3 "[_]" "[_]"] by fastforce
+    then have subv: "mk_instrtype (mk_list []) (mk_list [valtype_I32]) <ti: mk_instrtype t1 t2" 
+      using inv_const_list[of s C' "[_]" t1 t2 "[val_CONST I32 _]"] admininstr_val.psimps
+      admininstr_val.domintros typeofval.psimps typeofval.domintros valtype_numtype.psimps
+      valtype_numtype.domintros by fastforce
+    obtain t2' t3' where 
+      "Instr_ok2 s C' (admininstr_sc6 (admininstr_st6_VLOAD V128 (Some (SHAPEX_underscore v_M v_N v_sx))
+         ao)) (mk_functype t2' t3')" 
+      and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+      using splitv inv_one_admininstr by blast
+    then have "Instr_ok C' (instr_sc6 (VLOAD V128 (Some (SHAPEX_underscore v_M v_N v_sx))
+           ao)) (mk_functype t2' t3')"
+      using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+    then obtain mt where hyps:
+      "0 < length (context_MEMS C')"
+      "context_MEMS C' ! 0 = mt"
+      "2 ^ proj_uN_0 (ALIGN ao)
+        \<le> v_M div 8 * v_N"
+      "wf_memtype mt" 
+      "mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128]) = mk_functype t2' t3'" 
+      using inv_vload by blast
+    then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_V128]) <ti: mk_instrtype t1 t3"
+      using subv subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] by fastforce
+    then show ?case using hyps vload_shape_val admininstr_case_20 sorry 
+          (* use inv_lanes_underscore_vf unproven lemma *)
   next
     case (vload_splat_oob i ao v_N)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
     case (vload_splat_val i v_N j ao v_Jnn v_M c)
-    then show ?case sorry
+    then show ?case sorry (* see load_shape_val *)
   next
     case (vload_zero_oob i ao v_N)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
     case (vload_zero_val i v_N j ao c)
-    then show ?case sorry
+    then show ?case sorry (* see load_shape_val *)
   next
     case (vload_lane_oob i ao v_N c_1 j)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
     case (vload_lane_val i v_N k ao v_Jnn v_M c c_1 j)
-    then show ?case sorry
+    then show ?case sorry (* see load_shape_val *)
   next
     case (Step_read__memory_size v_n)
-    then show ?case sorry
+    then obtain t1' t3' where 
+      "Instr_ok2 s C' (admininstr_sc6 admininstr_st6_MEMORY_SIZE) (mk_functype t1' t3')"
+      and subt: "mk_instrtype t1' t3' <ti: mk_instrtype t1 t3"
+      using inv_one_admininstr by blast
+    then have "Instr_ok C' (instr_sc6 MEMORY_SIZE) (mk_functype t1' t3')"
+      using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+    then obtain mt where hyps:
+      "0 < length (context_MEMS C')"
+      "wf_memtype mt" 
+      "mk_functype (mk_list []) (mk_list [valtype_I32]) = mk_functype t1' t3'"
+      using inv_memory_size by blast
+    have "0 \<le> v_n \<and> v_n \<le> 2 ^ 32 - 1" 
+      using Step_read__memory_size(4,1,7,9) hyps(1)
+    proof (induction s)
+      case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst 
+              tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst 
+              eleminst_lst elemtype_lst)
+      show ?case using mk_Store_ok(19,3,4,13,18,20-)
+      proof (induction s "frame_MODULE f" C)
+        case (mk_Moduleinst_ok functype_lst globaladdr_lst globaltype_lst s funcaddr_lst 
+              functype_F_lst memaddr_lst memtype_lst' tableaddr_lst tabletype_lst exportinst_lst 
+              dataaddr_lst datatype_lst elemaddr_lst elemtype_lst)
+        have "0 < length memaddr_lst" using mk_Moduleinst_ok(6,32-)
+          using t_inst_match_def by force
+        then have "Externaddr_ok s (externaddr_MEM (MEMS (frame_MODULE f) ! 0)) (MEM (memtype_lst' ! 0))"
+          using mk_Moduleinst_ok(27) 
+            list_all2_nth[OF mk_Moduleinst_ok(7), of 0]
+          by (metis moduleinst.select_convs(5))
+        then have "MEMS (frame_MODULE f) ! 0 < length (store_MEMS s)"
+          using Externaddr_ok_mem by blast
+        then have "Meminst_ok s (fun_mem (mk_state s f) (mk_uN 0)) 
+                (memtype_lst ! ((MEMS (frame_MODULE f)) ! 0))" 
+          using list_all2_nth[OF mk_Moduleinst_ok(29), of "(MEMS (frame_MODULE f)) ! 0"] 
+           fun_mem.psimps fun_mem.domintros
+           proj_uN_0.psimps proj_uN_0.domintros
+           mk_Moduleinst_ok.prems(3) by fastforce 
+        then show ?case using mk_Moduleinst_ok(31)
+          proof (induction s "fun_mem (mk_state s f) (mk_uN 0)" "memtype_lst ! (MEMS (frame_MODULE f)! 0)")
+            case (mk_Meminst_ok v_len m_opt b_lst s)
+            then have veq: "v_n = v_len"
+              by (metis Ki_def meminst.select_convs(2) mult.assoc mult_cancel2 zero_neq_numeral)
+            show ?case using mk_Meminst_ok(1,2) veq 
+            proof(induction "PAGE (mk_limits (mk_uN v_len) (map_option mk_uN m_opt))")
+              case mk_Memtype_ok
+              then show ?case 
+              proof(induction "mk_limits (mk_uN v_len) (map_option mk_uN m_opt)" 
+                    "2 ^ 16 :: nat")
+                case (mk_Limits_ok m_opt')
+                then show ?case
+                  by simp
+              qed
+            qed
+          qed
+      qed
+    qed
+    then have "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))))" 
+      using instr_case_13 num__case_0 uN_case_0
+      by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
+          valtype_Inn.psimps(1))
+    then show ?case using const Instrs_ok2_wf hyps(3) subt instr_ok_instr_ok2 instr_ok2_instrs_ok2
+        Step_read__memory_size
+        by (metis Instrs_ok2_subtyping admininstr_instr.domintros(14) admininstr_instr.psimps(14)
+            valtype_numtype.simps(1))
   next
     case (memory_fill_trap i v_n v_val)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
