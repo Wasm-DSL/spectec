@@ -11,7 +11,10 @@ type family_data = (id * quant list * Subst.t * int * typ * typ)
 let error at msg = Error.error at "Type families removal" msg
 
 let projection_hint_id = "tf_projection_func"
-let projection_hint = { hintid = projection_hint_id $ no_region; hintexp = El.Ast.SeqE [] $ no_region}
+let projection_hint = { hintid = projection_hint_id $ no_region; hintexp = El.Ast.SeqE [] $ no_region }
+
+let type_family_hint_id = "type_family"
+let type_family_hint = { hintid = type_family_hint_id $ no_region; hintexp = El.Ast.SeqE [] $ no_region }
 
 let quant_to_string quant = 
   match quant.it with
@@ -27,7 +30,9 @@ let iter_var_name = "iter_"
 let name_prefix id = id.it ^ "_"
 
 let empty_info typ_id: region * Xl.Atom.info = (no_region, {def = typ_id; case = ""})
-let sub_type_name_quants quants = (String.concat "_" (List.map quant_to_string quants))
+let sub_type_name_quants quants i =
+  let s = (String.concat "_" (List.map quant_to_string quants)) in 
+  if s = "" then "_" ^ Int.to_string i else s
 let constructor_name' id case_num = make_prefix ^ name_prefix id ^ Int.to_string case_num
 let constructor_name_mixop id num_quants case_num: mixop = 
   Xl.Mixop.(Seq (Atom (Xl.Atom.Atom (constructor_name' id case_num) $$ empty_info id.it) 
@@ -125,15 +130,15 @@ let has_one_inst env family_typ =
     )
   | _ -> false
 
-let extend_quant_set set quants = 
-  List.fold_left (fun acc q -> 
+let extend_quant_set env set quants = 
+  List.fold_left (fun (env, quant_set) q -> 
     match q.it with 
-    | ExpP (id, typ) -> StringMap.add id.it typ acc
-    | DefP (id, _, typ) -> StringMap.add id.it typ acc
-    | _ -> acc  
-  ) set quants
+    | ExpP (id, typ) -> (env, StringMap.add id.it typ quant_set)
+    | DefP (id, params, typ) -> (Env.bind_def env id (params, typ, []), quant_set)
+    | _ -> (env, quant_set)  
+  ) (env, set) quants
 
-let make_quant_set quants = extend_quant_set StringMap.empty quants
+let make_quant_set env quants = extend_quant_set env StringMap.empty quants
 
 let rec check_type_equality env t t' = 
   let r_t = reduce_type_aliasing env t in 
@@ -162,10 +167,7 @@ let rec get_real_typ_from_exp quant_map env e =
       let s_typ = Subst.subst_typ subst typ in
       s_typ
     | None -> 
-      (match StringMap.find_opt id.it quant_map with
-      | Some typ -> typ
-      | None -> e.note
-      )
+      e.note
     )
   | CaseE (m, _) -> 
     let r_typ = Eval.reduce_typ env e.note in
@@ -454,7 +456,9 @@ let rec transform_prem quant_map env prem =
       RulePr (id, List.map (transform_arg quant_map env) args, m, transform_exp quant_map env e)
     | IfPr e -> quant_map, IfPr (transform_exp quant_map env e)
     | LetPr (quants, e1, e2) ->
-      let new_quant_map = extend_quant_set quant_map quants in
+      (* NOTE: for let since we only have expressions we cannot modify the env ever. *)
+      let env', new_quant_map = extend_quant_set env quant_map quants in
+      assert (env = env');
       new_quant_map,
       LetPr (List.map (transform_param env) quants, transform_exp new_quant_map env e1, transform_exp quant_map env e2)
     | ElsePr -> quant_map, ElsePr
@@ -477,12 +481,12 @@ let rec transform_prems quant_map env = function
 let transform_rule env rule = 
   match rule.it with
   | RuleD (id, quants, m, exp, prems) -> 
-    let quant_map = make_quant_set quants in
-    let new_quant_map, new_prems = transform_prems quant_map env prems in
+    let env', quant_map = make_quant_set env quants in
+    let new_quant_map, new_prems = transform_prems quant_map env' prems in
     RuleD (id,
-      List.map (transform_param env) quants,
+      List.map (transform_param env') quants,
       m,
-      transform_exp new_quant_map env exp,
+      transform_exp new_quant_map env' exp,
       new_prems
     ) $ rule.at
 
@@ -497,14 +501,14 @@ let transform_clause _id params env rt clause =
   | DefD (quants, args, exp, prems) -> 
     let subst = create_arg_param_subst args params in
     let reduced_quants = List.map (reduce_quant env) quants in 
-    let quant_map = make_quant_set reduced_quants in
-    let new_quant_map, new_prems = transform_prems quant_map env prems in
-    let t_exp = transform_exp new_quant_map env exp in
-    let real_typ = get_real_typ_from_exp new_quant_map env t_exp in
+    let env', quant_map = make_quant_set env reduced_quants in
+    let new_quant_map, new_prems = transform_prems quant_map env' prems in
+    let t_exp = transform_exp new_quant_map env' exp in
+    let real_typ = get_real_typ_from_exp new_quant_map env' t_exp in
     let s_rt = Subst.subst_typ subst rt in 
-    let new_exp = if check_type_equality env real_typ s_rt then t_exp else apply_conversion env t_exp real_typ s_rt in 
-    DefD ((List.map (transform_param env) reduced_quants), 
-      List.map (transform_arg quant_map env) args,
+    let new_exp = if check_type_equality env' real_typ s_rt then t_exp else apply_conversion env' t_exp real_typ s_rt in 
+    DefD ((List.map (transform_param env') reduced_quants), 
+      List.map (transform_arg quant_map env') args,
       new_exp,
       new_prems
     ) $ clause.at
@@ -512,11 +516,11 @@ let transform_clause _id params env rt clause =
 let transform_prod env prod = 
   (match prod.it with 
   | ProdD (quants, sym, exp, prems) -> 
-    let quant_map = make_quant_set quants in
-    let new_quant_map, new_prems = transform_prems quant_map env prems in
-    ProdD (List.map (transform_param env) quants,
-      transform_sym quant_map env sym,
-      transform_exp new_quant_map env exp,
+    let env', quant_map = make_quant_set env quants in
+    let new_quant_map, new_prems = transform_prems quant_map env' prems in
+    ProdD (List.map (transform_param env') quants,
+      transform_sym quant_map env' sym,
+      transform_exp new_quant_map env' exp,
       new_prems
     )
   ) $ prod.at
@@ -525,13 +529,13 @@ let transform_deftyp env deftyp =
   (match deftyp.it with
   | AliasT typ -> AliasT (transform_typ StringMap.empty env typ)
   | StructT typfields -> StructT (List.map (fun (a, (t, qs, prems), hints) -> 
-    let quant_map = make_quant_set qs in
-    let _, new_prems = transform_prems quant_map env prems in
-    (a, (transform_typ quant_map env t, List.map (transform_param env) qs, new_prems), hints)) typfields)
+    let env', quant_map = make_quant_set env qs in
+    let _, new_prems = transform_prems quant_map env' prems in
+    (a, (transform_typ quant_map env' t, List.map (transform_param env') qs, new_prems), hints)) typfields)
   | VariantT typcases -> VariantT (List.map (fun (m, (t, qs, prems), hints) -> 
-    let quant_map = make_quant_set qs in
-    let _, new_prems = transform_prems quant_map env prems in
-    (m, (transform_typ quant_map env t, List.map (transform_param env) qs, new_prems), hints)) typcases)
+    let env', quant_map = make_quant_set env qs in
+    let _, new_prems = transform_prems quant_map env' prems in
+    (m, (transform_typ quant_map env' t, List.map (transform_param env') qs, new_prems), hints)) typcases)
   ) $ deftyp.at
 
 let transform_inst env inst =
@@ -540,14 +544,14 @@ let transform_inst env inst =
     [InstD (List.map (transform_param env) quants, List.map (transform_arg StringMap.empty env) args, transform_deftyp env deftyp) $ inst.at]
  
 (* Creates new TypD's for each StructT and VariantT *)
-let create_types id inst = 
+let create_types idx id inst = 
   match inst.it with
   | InstD (quants, _, deftyp) -> 
     (match deftyp.it with 
     | AliasT _ -> []
     | StructT _ | VariantT _ ->
       let inst = InstD (quants, List.map make_arg quants, deftyp) $ inst.at in 
-      [TypD (id.it ^ sub_type_name_quants quants $ id.at, quants, [inst])]
+      [TypD (id.it ^ sub_type_name_quants quants idx $ id.at, quants, [inst])]
     )
 
 let rec transform_def env def = 
@@ -594,10 +598,10 @@ let gen_family_projections id has_one_inst case_num inst =
 let rec create_types_from_instances def =
   (match def.it with
   | TypD (id, params, [inst]) when check_normal_type_creation inst -> [TypD (id, params, [inst])]
-  | TypD (id, params, insts) -> let types = List.concat_map (create_types id) insts in
-    let transformed_instances = List.map (fun inst -> match inst.it with 
+  | TypD (id, params, insts) -> let types = List.mapi (fun i inst -> create_types i id inst) insts |> List.concat in
+    let transformed_instances = List.mapi (fun i inst -> match inst.it with 
       | InstD (quants, args, {it = StructT _; at; _}) | InstD (quants, args, {it = VariantT _; at; _}) -> 
-        InstD (quants, args, AliasT (VarT (id.it ^ sub_type_name_quants quants $ id.at, List.map make_arg quants) $ id.at) $ at) $ inst.at
+        InstD (quants, args, AliasT (VarT (id.it ^ sub_type_name_quants quants i $ id.at, List.map make_arg quants) $ id.at) $ at) $ inst.at
       | _ -> inst 
     ) insts in
     types @ [TypD(id, params, transformed_instances)]
@@ -634,7 +638,8 @@ let rec transform_type_family def =
     in
     let proj_ids, projections = List.split (List.mapi (gen_family_projections id one_inst) insts) in
 
-    let hintdefs = List.map (fun id -> HintD (DecH (id, [projection_hint]) $ def.at)) proj_ids in
+    let hintdefs = HintD (TypH (id, [type_family_hint]) $ def.at) :: 
+      List.map (fun id' -> HintD (DecH (id', [projection_hint]) $ def.at)) proj_ids in
     TypD (id, params, [inst]) :: projections @ hintdefs
   | RecD defs -> [RecD (List.concat_map transform_type_family defs)]
   | d -> [d]

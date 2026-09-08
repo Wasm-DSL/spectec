@@ -6,7 +6,10 @@ open Il.Walk
 
 (* Errors *)
 
-let error at msg = Error.error at "side condition" msg
+let _error at msg = Error.error at "side condition" msg
+
+let on_defs_ref = ref false
+
 
 module Env = Map.Make(String)
 
@@ -21,6 +24,7 @@ let iterPr (pr, (iter, vars)) =
   let vars' = List.filter (fun (id, _) ->
     Set.mem id.it frees.varid
   ) vars in
+  if iter <= List1 && vars' = [] then pr.it else 
   IterPr (pr, (iter, vars'))
 
 let is_null e = CmpE (`EqOp, `BoolT, e, OptE None $$ e.at % e.note) $$ e.at % (BoolT $ e.at)
@@ -45,7 +49,7 @@ let is_eq_exp e =
   match e.it with
   | CmpE (`EqOp, _,  _, _) -> true
   | _ -> false
-  
+
 (* Expr traversal *)
 let rec t_exp env e =
   match e.it with
@@ -68,24 +72,25 @@ let rec t_exp env e =
     collect_iter collector1 iter @ 
     List.map (fun pr -> iterPr (pr, iterexp) $ e.at) (collect_exp collector2 e1), false)
   | _ -> ([], true)
+
 and t_prem env prem =
   let res, continue = (match prem.it with
   | IterPr (prem', ((iter, _) as iterexp))
-  -> 
+  ->
     let env' = env_under_iter env iterexp in
     let collector1 = create_collector env in
     let collector2 = create_collector env' in
     (iter_side_conditions env iterexp @
     collect_iter collector1 iter @
     List.map (fun pr -> iterPr (pr, iterexp) $ prem'.at) (collect_prem collector2 prem' @ [prem']), false)
-  | NegPr _ -> 
+  | NegPr _ ->
     (* We do not want to infer anything from NegPr *)
     ([], false)
   | _ -> ([], true)
   ) in
   res, continue
 
-and create_collector env = 
+and create_collector env =
   let base_prem_collector: prem list collector = base_collector [] (@) in
   { base_prem_collector with collect_exp = t_exp env; collect_prem = t_prem env }
 
@@ -103,10 +108,7 @@ let is_true prem = match prem.it with
   | _ -> false
 
 (* Does prem1 obviously imply prem2? *)
-let rec implies prem1 prem2 = Il.Eq.eq_prem prem1 prem2 ||
-  match prem2.it with
-  | IterPr (prem2', _) -> implies prem1 prem2'
-  | _ -> false
+let implies prem1 prem2 = Il.Eq.eq_prem prem1 prem2
 
 (* Remove empty premise iterators *)
 let rec flatten_empty_iter prem =
@@ -127,7 +129,7 @@ let t_params env =
   List.fold_left (fun env param ->
     match param.it with
     | ExpP (v, t) -> Env.add v.it t env
-    | TypP _ | DefP _ | GramP _ -> error param.at "unexpected paramater or quantifier in rule"
+    | _ -> env
   ) env
 
 let t_rule' env = function
@@ -143,14 +145,31 @@ let t_rule env x = { x with it = t_rule' env x.it }
 
 let t_rules env = List.map (t_rule env)
 
+let t_clause' env = function
+  | DefD (quants, args, exp, prems) ->
+    let env' = t_params env quants in
+    let collector = create_collector env' in
+    let prems' = List.concat_map (fun prem -> collect_prem collector prem @ [prem]) prems in
+    let extra_prems = collect_exp collector exp in
+    let reduced_prems = reduce_prems (extra_prems @ prems') in
+    DefD (quants, args, exp, reduced_prems)
+
+let t_clause env x = { x with it = t_clause' env x.it }
+
+let t_clauses env = List.map (t_clause env)
+
 let rec t_def' = function
   | RecD defs -> RecD (List.map t_def defs)
   | RelD (id, params, mixop, typ, rules) ->
     let env = t_params Env.empty params in
     RelD (id, params, mixop, typ, t_rules env rules)
+  | DecD (id, params, typ, clauses) when !on_defs_ref ->
+    let env = t_params Env.empty params in
+    DecD (id, params, typ, t_clauses env clauses)
   | def -> def
 
 and t_def x = { x with it = t_def' x.it }
 
-let transform (defs : script) =
+let transform ?(on_defs = false) (defs : script) =
+  on_defs_ref := on_defs;
   List.map t_def defs
