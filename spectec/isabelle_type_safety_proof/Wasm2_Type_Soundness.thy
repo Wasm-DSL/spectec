@@ -4611,7 +4611,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (vload_val i c ao)
+    case (Step_read__vload_val i c ao)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)] (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_VLOAD V128 None ao)] (mk_functype t2 t3)"
@@ -4626,19 +4626,18 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       using splitv inv_one_admininstr by blast
     then have "Instr_ok C' (instr_sc6 (VLOAD V128 None ao)) (mk_functype t2' t3')"
       using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
-    then show ?case sorry (* Fix typing rule for vload None *)
-(*    then obtain mt where hyps:
+    then obtain mt where hyps:
       "0 < length (context_MEMS C')"
       "context_MEMS C' ! 0 = mt"
-      "isabelle_reference_output_wasm2.size (valtype_numtype nt) \<noteq> None"
+      "isabelle_reference_output_wasm2.size (valtype_vectype V128) \<noteq> None"
       "2 ^ proj_uN_0 (ALIGN ao)
-        \<le> the (isabelle_reference_output_wasm2.size (valtype_numtype nt)) div 8"
+        \<le> the (isabelle_reference_output_wasm2.size (valtype_vectype V128)) div 8"
       "wf_memtype mt" 
-      "mk_functype (mk_list [valtype_I32]) (mk_list [valtype_numtype nt]) = mk_functype t2' t3'" 
-      using inv_vload by blast
-    then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_numtype nt]) <ti: mk_instrtype t1 t3"
+      "mk_functype (mk_list [valtype_I32]) (mk_list [valtype_vectype V128]) = mk_functype t2' t3'"
+      using inv_vload_val valtype_vectype.psimps valtype_vectype.domintros by fastforce
+    then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_vectype V128]) <ti: mk_instrtype t1 t3"
       using subv subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] by fastforce
-    then show ?case using hyps load_num_val *)
+    then show ?case using hyps Step_read__vload_val sorry
   next
     case (vload_shape_oob i ao v_M v_N v_sx)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
@@ -4669,7 +4668,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
         \<le> v_M div 8 * v_N"
       "wf_memtype mt" 
       "mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128]) = mk_functype t2' t3'" 
-      using inv_vload by blast
+      using inv_vload_pack by blast
     then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_V128]) <ti: mk_instrtype t1 t3"
       using subv subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] by fastforce
     then show ?case using hyps vload_shape_val admininstr_case_20 sorry 

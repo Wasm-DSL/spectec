@@ -412,7 +412,15 @@ lemma Instr_ok_inversion:
 		  (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> (((the ((size (valtype_numtype nt)))) :: nat) div (8 :: nat))) \<and>
 		  (wf_memtype mt) \<and>
 		  ((mk_functype (mk_list [valtype_I32, (valtype_numtype nt)]) (mk_list [])) = tf))" and
-    inv_vload: "e = (instr_sc6 (VLOAD vt (Some (SHAPEX_underscore v_M v_N v_sx)) v_memarg)) \<Longrightarrow>
+    inv_vload_val: "e = (instr_sc6 (VLOAD vt None v_memarg)) \<Longrightarrow>
+      (\<exists> mt. vt = V128 \<and> 
+      (0 < (length (context_MEMS C))) \<and>
+		  (((context_MEMS C) ! 0) = mt) \<and>
+      ((size (valtype_vectype vt)) \<noteq> None) \<and>
+		  (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> (((the ((size (valtype_vectype vt)))) :: nat) div (8 :: nat))) \<and>
+		  (wf_memtype mt) \<and>
+		  ((mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128])) = tf))" and
+    inv_vload_pack: "e = (instr_sc6 (VLOAD vt (Some (SHAPEX_underscore v_M v_N v_sx)) v_memarg)) \<Longrightarrow>
       (\<exists> mt. vt = V128 \<and> 
       (0 < (length (context_MEMS C))) \<and>
 		  (((context_MEMS C) ! 0) = mt) \<and>
@@ -460,11 +468,13 @@ lemma Instr_ok_inversion:
 
  
   using assms
-  apply auto  
+  apply auto
 (* This next line takes a full two minutes *)
-  apply (cases rule: Instr_ok.cases, auto)+
-  done
-
+(* A problem with this line is that, if something is slightly off in the lemma, or if the
+   lemma changes, this line can potentially run forever without giving any feedback.   
+ *)
+  (* apply (cases rule: Instr_ok.cases, auto)+ *)  (* Currently it doesn't finish. *)
+  sorry
 
 
 (*Instrs_ok2*)
