@@ -7981,7 +7981,16 @@ and Instrs_ok :: "res_context \<Rightarrow> (instr list) \<Rightarrow> functype 
 		 (wf_memtype mt) \<Longrightarrow>
 		 (wf_instr (instr_sc6 (STORE (numtype_Inn v_Inn) (Some (mk_sz v_M)) v_memarg))) \<Longrightarrow>
 		 Instr_ok C (instr_sc6 (STORE (numtype_Inn v_Inn) (Some (mk_sz v_M)) v_memarg)) (mk_functype (mk_list [valtype_I32, (valtype_Inn v_Inn)]) (mk_list []))"
-	| vload :
+	| vload_val :
+		"(0 < (length (context_MEMS C))) \<Longrightarrow>
+		 (((context_MEMS C) ! 0) = mt) \<Longrightarrow>
+		 ((size valtype_V128) \<noteq> None) \<Longrightarrow>
+		 (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> (((the ((size valtype_V128))) :: nat) div (8 :: nat))) \<Longrightarrow>
+		 (wf_context C) \<Longrightarrow>
+		 (wf_memtype mt) \<Longrightarrow>
+		 (wf_instr (instr_sc6 (VLOAD V128 None v_memarg))) \<Longrightarrow>
+		 Instr_ok C (instr_sc6 (VLOAD V128 None v_memarg)) (mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128]))"
+	| vload_pack :
 		"(0 < (length (context_MEMS C))) \<Longrightarrow>
 		 (((context_MEMS C) ! 0) = mt) \<Longrightarrow>
 		 (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> (((v_M :: nat) div (8 :: nat)) * (v_N :: nat))) \<Longrightarrow>
@@ -8068,7 +8077,7 @@ inductive Expr_ok :: "res_context \<Rightarrow> expr \<Rightarrow> resulttype \<
 		 list_all (\<lambda> (v_instr :: instr). (wf_instr v_instr)) instr_lst \<Longrightarrow>
 		 Expr_ok C instr_lst (mk_list t_lst)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:523.1-523.78 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:528.1-528.78 *)
 inductive Instr_const :: "res_context \<Rightarrow> instr \<Rightarrow> bool" where
 	  Instr_const__const :
 		"(wf_context C) \<Longrightarrow>
@@ -8093,7 +8102,7 @@ inductive Instr_const :: "res_context \<Rightarrow> instr \<Rightarrow> bool" wh
 		 (wf_instr (instr_sc4 (GLOBAL_GET x))) \<Longrightarrow>
 		 Instr_const C (instr_sc4 (GLOBAL_GET x))"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:524.1-524.77 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:529.1-529.77 *)
 inductive Expr_const :: "res_context \<Rightarrow> expr \<Rightarrow> bool" where
 	  mk_Expr_const :
 		"list_all (\<lambda> (v_instr :: instr). (Instr_const C v_instr)) instr_lst \<Longrightarrow>
@@ -8101,7 +8110,7 @@ inductive Expr_const :: "res_context \<Rightarrow> expr \<Rightarrow> bool" wher
 		 list_all (\<lambda> (v_instr :: instr). (wf_instr v_instr)) instr_lst \<Longrightarrow>
 		 Expr_const C instr_lst"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:525.1-525.78 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:530.1-530.78 *)
 inductive Expr_ok_const :: "res_context \<Rightarrow> expr \<Rightarrow> valtype \<Rightarrow> bool" where
 	  mk_Expr_ok_const :
 		"(Expr_ok C v_expr (mk_list [t])) \<Longrightarrow>
@@ -8110,13 +8119,13 @@ inductive Expr_ok_const :: "res_context \<Rightarrow> expr \<Rightarrow> valtype
 		 list_all (\<lambda> (v_expr :: instr). (wf_instr v_expr)) v_expr \<Longrightarrow>
 		 Expr_ok_const C v_expr t"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:558.1-558.73 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:563.1-563.73 *)
 inductive Type_ok :: "type \<Rightarrow> functype \<Rightarrow> bool" where
 	  mk_Type_ok :
 		"(Functype_ok ft) \<Longrightarrow>
 		 Type_ok (res_TYPE ft) ft"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:559.1-559.73 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:564.1-564.73 *)
 inductive Func_ok :: "res_context \<Rightarrow> func \<Rightarrow> functype \<Rightarrow> bool" where
 	  mk_Func_ok :
 		"((proj_uN_0 x) < (length (context_TYPES C))) \<Longrightarrow>
@@ -8128,7 +8137,7 @@ inductive Func_ok :: "res_context \<Rightarrow> func \<Rightarrow> functype \<Ri
 		 (wf_context \<lparr> context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = (t_1_lst @ t_lst), LABELS = [(mk_list t_2_lst)], context_RETURN = (Some (mk_list t_2_lst)) \<rparr>) \<Longrightarrow>
 		 Func_ok C (func_FUNC x (map (\<lambda> (t :: valtype). (LOCAL t)) t_lst) v_expr) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:560.1-560.75 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:565.1-565.75 *)
 inductive Global_ok :: "res_context \<Rightarrow> global \<Rightarrow> globaltype \<Rightarrow> bool" where
 	  mk_Global_ok :
 		"(Globaltype_ok gt) \<Longrightarrow>
@@ -8138,7 +8147,7 @@ inductive Global_ok :: "res_context \<Rightarrow> global \<Rightarrow> globaltyp
 		 (wf_global (global_GLOBAL gt v_expr)) \<Longrightarrow>
 		 Global_ok C (global_GLOBAL gt v_expr) gt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:561.1-561.74 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:566.1-566.74 *)
 inductive Table_ok :: "res_context \<Rightarrow> table \<Rightarrow> tabletype \<Rightarrow> bool" where
 	  mk_Table_ok :
 		"(Tabletype_ok tt) \<Longrightarrow>
@@ -8146,7 +8155,7 @@ inductive Table_ok :: "res_context \<Rightarrow> table \<Rightarrow> tabletype \
 		 (wf_table (table_TABLE tt)) \<Longrightarrow>
 		 Table_ok C (table_TABLE tt) tt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:562.1-562.72 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:567.1-567.72 *)
 inductive Mem_ok :: "res_context \<Rightarrow> mem \<Rightarrow> memtype \<Rightarrow> bool" where
 	  mk_Mem_ok :
 		"(Memtype_ok mt) \<Longrightarrow>
@@ -8154,7 +8163,7 @@ inductive Mem_ok :: "res_context \<Rightarrow> mem \<Rightarrow> memtype \<Right
 		 (wf_mem (MEMORY mt)) \<Longrightarrow>
 		 Mem_ok C (MEMORY mt) mt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:565.1-565.77 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:570.1-570.77 *)
 inductive Elemmode_ok :: "res_context \<Rightarrow> elemmode \<Rightarrow> reftype \<Rightarrow> bool" where
 	  active :
 		"((proj_uN_0 x) < (length (context_TABLES C))) \<Longrightarrow>
@@ -8173,7 +8182,7 @@ inductive Elemmode_ok :: "res_context \<Rightarrow> elemmode \<Rightarrow> refty
 		 (wf_elemmode DECLARE) \<Longrightarrow>
 		 Elemmode_ok C DECLARE rt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:563.1-563.73 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:568.1-568.73 *)
 inductive Elem_ok :: "res_context \<Rightarrow> elem \<Rightarrow> reftype \<Rightarrow> bool" where
 	  mk_Elem_ok :
 		"list_all (\<lambda> (v_expr :: expr). (Expr_ok_const C v_expr (valtype_reftype rt))) expr_lst \<Longrightarrow>
@@ -8182,7 +8191,7 @@ inductive Elem_ok :: "res_context \<Rightarrow> elem \<Rightarrow> reftype \<Rig
 		 (wf_elem (ELEM rt expr_lst v_elemmode)) \<Longrightarrow>
 		 Elem_ok C (ELEM rt expr_lst v_elemmode) rt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:566.1-566.77 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:571.1-571.77 *)
 inductive Datamode_ok :: "res_context \<Rightarrow> datamode \<Rightarrow> bool" where
 	  Datamode_ok__active :
 		"(0 < (length (context_MEMS C))) \<Longrightarrow>
@@ -8197,7 +8206,7 @@ inductive Datamode_ok :: "res_context \<Rightarrow> datamode \<Rightarrow> bool"
 		 (wf_datamode datamode_PASSIVE) \<Longrightarrow>
 		 Datamode_ok C datamode_PASSIVE"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:564.1-564.73 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:569.1-569.73 *)
 inductive Data_ok :: "res_context \<Rightarrow> data \<Rightarrow> bool" where
 	  mk_Data_ok :
 		"(Datamode_ok C v_datamode) \<Longrightarrow>
@@ -8205,7 +8214,7 @@ inductive Data_ok :: "res_context \<Rightarrow> data \<Rightarrow> bool" where
 		 (wf_data (DATA b_lst v_datamode)) \<Longrightarrow>
 		 Data_ok C (DATA b_lst v_datamode)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:567.1-567.74 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:572.1-572.74 *)
 inductive Start_ok :: "res_context \<Rightarrow> start \<Rightarrow> bool" where
 	  mk_Start_ok :
 		"((proj_uN_0 x) < (length (context_FUNCS C))) \<Longrightarrow>
@@ -8214,7 +8223,7 @@ inductive Start_ok :: "res_context \<Rightarrow> start \<Rightarrow> bool" where
 		 (wf_start (START x)) \<Longrightarrow>
 		 Start_ok C (START x)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:631.1-631.80 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:636.1-636.80 *)
 inductive Import_ok :: "res_context \<Rightarrow> import \<Rightarrow> externtype \<Rightarrow> bool" where
 	  mk_Import_ok :
 		"(Externtype_ok xt) \<Longrightarrow>
@@ -8222,7 +8231,7 @@ inductive Import_ok :: "res_context \<Rightarrow> import \<Rightarrow> externtyp
 		 (wf_import (IMPORT name_1 name_2 xt)) \<Longrightarrow>
 		 Import_ok C (IMPORT name_1 name_2 xt) xt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:633.1-633.83 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:638.1-638.83 *)
 inductive Externidx_ok :: "res_context \<Rightarrow> externidx \<Rightarrow> externtype \<Rightarrow> bool" where
 	  Externidx_ok__func :
 		"((proj_uN_0 x) < (length (context_FUNCS C))) \<Longrightarrow>
@@ -8253,7 +8262,7 @@ inductive Externidx_ok :: "res_context \<Rightarrow> externidx \<Rightarrow> ext
 		 (wf_externtype (MEM mt)) \<Longrightarrow>
 		 Externidx_ok C (externidx_MEM x) (MEM mt)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:632.1-632.80 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:637.1-637.80 *)
 inductive Export_ok :: "res_context \<Rightarrow> export \<Rightarrow> externtype \<Rightarrow> bool" where
 	  mk_Export_ok :
 		"(Externidx_ok C v_externidx xt) \<Longrightarrow>
@@ -8262,7 +8271,7 @@ inductive Export_ok :: "res_context \<Rightarrow> export \<Rightarrow> externtyp
 		 (wf_export (EXPORT v_name v_externidx)) \<Longrightarrow>
 		 Export_ok C (EXPORT v_name v_externidx) xt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:663.1-663.62 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:668.1-668.62 *)
 inductive Module_ok :: "module \<Rightarrow> bool" where
 	  mk_Module_ok :
 		"(fun_memsxt ixt_lst var_3) \<Longrightarrow>
@@ -8834,7 +8843,7 @@ inductive Step_read :: "config \<Rightarrow> (admininstr list) \<Rightarrow> boo
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) + ((((the ((size valtype_V128))) :: nat) div (8 :: nat)) :: nat)) > (length (BYTES (fun_mem z (mk_uN 0))))) \<Longrightarrow>
 		 (wf_uN 32 (mk_uN 0)) \<Longrightarrow>
 		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc6 (admininstr_st6_VLOAD V128 None ao))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
-	| vload_val :
+	| Step_read__vload_val :
 		"((proj_num__0 i) \<noteq> None) \<Longrightarrow>
 		 ((size valtype_V128) \<noteq> None) \<Longrightarrow>
 		 ((vbytes_underscore V128 c) = (list_slice (BYTES (fun_mem z (mk_uN 0))) ((proj_uN_0 (the ((proj_num__0 i)))) + (proj_uN_0 (OFFSET ao))) ((((the ((size valtype_V128))) :: nat) div (8 :: nat)) :: nat))) \<Longrightarrow>
@@ -9499,8 +9508,8 @@ inductive fun_instantiate :: "store \<Rightarrow> module \<Rightarrow> (externad
 		 list_all2 (\<lambda> (expr_E_lst_2 :: (expr list)) (ref_lst_3 :: (ref list)). list_all2 (\<lambda> (expr_E_2 :: expr) (ref_7 :: ref). (Eval_expr z expr_E_2 z [(val_ref ref_7)])) expr_E_lst_2 ref_lst_3) expr_E_lst_lst ref_lst_lst \<Longrightarrow>
 		 ((s', v_moduleinst) = var_2) \<Longrightarrow>
 		 (f = \<lparr> LOCALS = [], frame_MODULE = v_moduleinst \<rparr>) \<Longrightarrow>
-		 holds_upto (\<lambda> i_71298. (i_71298 < (length elem_lst))) n_E \<Longrightarrow>
-		 (instr_E_lst = (concat_underscore  (mkseq (\<lambda> i_71298. (runelem (elem_lst ! i_71298) (mk_uN i_71298))) n_E))) \<Longrightarrow>
+		 holds_upto (\<lambda> i_71327. (i_71327 < (length elem_lst))) n_E \<Longrightarrow>
+		 (instr_E_lst = (concat_underscore  (mkseq (\<lambda> i_71327. (runelem (elem_lst ! i_71327) (mk_uN i_71327))) n_E))) \<Longrightarrow>
 		 holds_upto (\<lambda> j_17. ((rundata (data_lst ! j_17) (mk_uN j_17)) \<noteq> None)) n_D \<Longrightarrow>
 		 holds_upto (\<lambda> j_17. (j_17 < (length data_lst))) n_D \<Longrightarrow>
 		 (instr_D_lst = (concat_underscore  (mkseq (\<lambda> j_17. (the ((rundata (data_lst ! j_17) (mk_uN j_17))))) n_D))) \<Longrightarrow>
@@ -9516,7 +9525,7 @@ inductive fun_instantiate :: "store \<Rightarrow> module \<Rightarrow> (externad
 		 (wf_frame \<lparr> LOCALS = [], frame_MODULE = moduleinst_init \<rparr>) \<Longrightarrow>
 		 (wf_state (mk_state s f_init)) \<Longrightarrow>
 		 (wf_frame \<lparr> LOCALS = [], frame_MODULE = v_moduleinst \<rparr>) \<Longrightarrow>
-		 holds_upto (\<lambda> i_71301. (wf_uN 32 (mk_uN i_71301))) n_E \<Longrightarrow>
+		 holds_upto (\<lambda> i_71330. (wf_uN 32 (mk_uN i_71330))) n_E \<Longrightarrow>
 		 holds_upto (\<lambda> j_18. (wf_uN 32 (mk_uN j_18))) n_D \<Longrightarrow>
 		 fun_instantiate s v_module externaddr_lst (mk_config (mk_state s' f) ((map (\<lambda> (instr_E :: instr). (admininstr_instr instr_E)) instr_E_lst) @ ((map (\<lambda> (instr_D :: instr). (admininstr_instr instr_D)) instr_D_lst) @ (option_to_list (map_option (\<lambda> (x :: idx). (admininstr_sc1 (admininstr_st1_CALL x))) x_opt)))))"
 
