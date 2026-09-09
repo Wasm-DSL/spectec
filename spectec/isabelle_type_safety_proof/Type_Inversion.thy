@@ -142,6 +142,21 @@ proof -
     by (cases rule: Instr_ok.cases, auto)
 qed
 
+lemma  inv_vload_val: 
+  assumes "Instr_ok C (instr_sc6 (VLOAD vt None v_memarg)) tf"
+  shows   "\<exists> mt. vt = V128 \<and> 
+        (0 < (length (context_MEMS C))) \<and>
+	  	  (((context_MEMS C) ! 0) = mt) \<and>
+        ((size (valtype_vectype vt)) \<noteq> None) \<and>
+		    (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> (((the ((size (valtype_vectype vt)))) :: nat) div (8 :: nat))) \<and>
+		    (wf_memtype mt) \<and>
+		    ((mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128])) = tf)"
+	using assms proof(induction C "instr_sc6 (VLOAD vt None v_memarg)" tf)
+	case (vload_val C mt)
+  then show ?case using valtype_vectype.psimps valtype_vectype.domintros by simp
+qed(auto)
+
+
 termination isabelle_reference_output_wasm2.size
   by lexicographic_order
 
@@ -412,14 +427,7 @@ lemma Instr_ok_inversion:
 		  (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> (((the ((size (valtype_numtype nt)))) :: nat) div (8 :: nat))) \<and>
 		  (wf_memtype mt) \<and>
 		  ((mk_functype (mk_list [valtype_I32, (valtype_numtype nt)]) (mk_list [])) = tf))" and
-    inv_vload_val: "e = (instr_sc6 (VLOAD vt None v_memarg)) \<Longrightarrow>
-      (\<exists> mt. vt = V128 \<and> 
-      (0 < (length (context_MEMS C))) \<and>
-		  (((context_MEMS C) ! 0) = mt) \<and>
-      ((size (valtype_vectype vt)) \<noteq> None) \<and>
-		  (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> (((the ((size (valtype_vectype vt)))) :: nat) div (8 :: nat))) \<and>
-		  (wf_memtype mt) \<and>
-		  ((mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128])) = tf))" and
+ 
     inv_vload_pack: "e = (instr_sc6 (VLOAD vt (Some (SHAPEX_underscore v_M v_N v_sx)) v_memarg)) \<Longrightarrow>
       (\<exists> mt. vt = V128 \<and> 
       (0 < (length (context_MEMS C))) \<and>
@@ -473,8 +481,9 @@ lemma Instr_ok_inversion:
 (* A problem with this line is that, if something is slightly off in the lemma, or if the
    lemma changes, this line can potentially run forever without giving any feedback.   
  *)
-  (* apply (cases rule: Instr_ok.cases, auto)+ *)  (* Currently it doesn't finish. *)
-  sorry
+(* Agreed, that is awkward. This should be updated at some point *)
+   apply (cases rule: Instr_ok.cases, auto)+  
+  done
 
 
 (*Instrs_ok2*)

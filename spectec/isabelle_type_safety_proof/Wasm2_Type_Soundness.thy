@@ -69,6 +69,23 @@ next
 qed
 
 
+lemma list_all_repeat:
+  assumes "P x"
+  shows "list_all P (repeat n x)"
+  using assms proof(induction n)
+qed(simp)+
+
+lemma list_all_update:
+  assumes "list_all P l" "P x" 
+  shows "list_all P (list_update_func l k (\<lambda> _. x))"
+  using assms proof(induction l arbitrary: k)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons a l)
+  then show ?case proof (induction k)
+  qed(simp)+
+qed
 
 lemma e_preservation_locals:
   assumes "Step (mk_config (mk_state s f) es) (mk_config (mk_state s' f') es')"
@@ -4637,7 +4654,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       using inv_vload_val valtype_vectype.psimps valtype_vectype.domintros by fastforce
     then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_vectype V128]) <ti: mk_instrtype t1 t3"
       using subv subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] by fastforce
-    then show ?case using hyps Step_read__vload_val sorry
+    then show ?case using hyps Step_read__vload_val vload_val sorry (* see load *)
   next
     case (vload_shape_oob i ao v_M v_N v_sx)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
@@ -4671,29 +4688,170 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       using inv_vload_pack by blast
     then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_V128]) <ti: mk_instrtype t1 t3"
       using subv subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] by fastforce
-    then show ?case using hyps vload_shape_val admininstr_case_20 sorry 
-          (* use inv_lanes_underscore_vf unproven lemma *)
+    have "list_all (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_N))))
+     (map (\<lambda>j. mk_lane__2 v_Jnn (extend__underscore v_M (jsize v_Jnn) v_sx j)) j_lst)" 
+      using vload_shape_val(7) 
+    proof (induction j_lst)
+    qed(simp_all)
+    then have "wf_instr (instr_sc1 (VCONST V128 c))" 
+      using instr_case_20[of V128 c] 
+        inv_lanes__is_wf[OF vload_shape_val(6) _ vload_shape_val(4)]
+        fun_lanetype.psimps fun_lanetype.domintros
+        size.psimps size.domintros
+        valtype_vectype.psimps valtype_vectype.domintros
+      by auto
+    then show ?case using vconst Instrs_ok2_wf[OF splitv(1)] instr_ok_instr_ok2 instr_ok2_instrs_ok2
+        vload_shape_val(18) Instrs_ok2_subtyping subt admininstr_instr.domintros admininstr_instr.psimps
+        by metis
   next
     case (vload_splat_oob i ao v_N)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
     case (vload_splat_val i v_N j ao v_Jnn v_M c)
-    then show ?case sorry (* see load_shape_val *)
+    then obtain t2 where splitv:
+      "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)] (mk_functype t1 t2)"
+      "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_VLOAD V128 (Some (SPLAT v_N)) 
+          ao)] (mk_functype t2 t3)"
+      using inv_seq[of s C' "[_,_]" t1 t3 "[_]" "[_]"] by fastforce
+    then have subv: "mk_instrtype (mk_list []) (mk_list [valtype_I32]) <ti: mk_instrtype t1 t2" 
+      using inv_const_list[of s C' "[_]" t1 t2 "[val_CONST I32 _]"] admininstr_val.psimps
+      admininstr_val.domintros typeofval.psimps typeofval.domintros valtype_numtype.psimps
+      valtype_numtype.domintros by fastforce
+    obtain t2' t3' where 
+      "Instr_ok2 s C' (admininstr_sc6 (admininstr_st6_VLOAD V128 (Some (SPLAT v_N))
+         ao)) (mk_functype t2' t3')" 
+      and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+      using splitv inv_one_admininstr by blast
+    then have "Instr_ok C' (instr_sc6 (VLOAD V128 (Some (SPLAT v_N))
+           ao)) (mk_functype t2' t3')"
+      using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+    then obtain mt where hyps:
+      "0 < length (context_MEMS C')"
+      "context_MEMS C' ! 0 = mt"
+      "2 ^ proj_uN_0 (ALIGN ao)
+        \<le> v_N div 8"
+      "wf_memtype mt" 
+      "mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128]) = mk_functype t2' t3'" 
+      using inv_vload_splat by blast
+    then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_V128]) <ti: mk_instrtype t1 t3"
+      using subv subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] by fastforce
+    then have "wf_instr (instr_sc1 (VCONST V128 c))" 
+      using instr_case_20[of V128 c] 
+        inv_lanes__is_wf[OF vload_splat_val(7) _ vload_splat_val(5)]
+        vload_splat_val(8) list_all_repeat
+        size.psimps size.domintros 
+        valtype_vectype.psimps valtype_vectype.domintros
+      by fastforce
+    then show ?case using vconst Instrs_ok2_wf[OF splitv(1)] instr_ok_instr_ok2 instr_ok2_instrs_ok2
+        vload_splat_val(18) Instrs_ok2_subtyping subt admininstr_instr.domintros admininstr_instr.psimps
+        by metis
   next
     case (vload_zero_oob i ao v_N)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
     case (vload_zero_val i v_N j ao c)
-    then show ?case sorry (* see load_shape_val *)
+    then obtain t2 where splitv:
+      "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)] (mk_functype t1 t2)"
+      "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_VLOAD V128 (Some (vloadop_ZERO v_N)) 
+          ao)] (mk_functype t2 t3)"
+      using inv_seq[of s C' "[_,_]" t1 t3 "[_]" "[_]"] by fastforce
+    then have subv: "mk_instrtype (mk_list []) (mk_list [valtype_I32]) <ti: mk_instrtype t1 t2" 
+      using inv_const_list[of s C' "[_]" t1 t2 "[val_CONST I32 _]"] admininstr_val.psimps
+      admininstr_val.domintros typeofval.psimps typeofval.domintros valtype_numtype.psimps
+      valtype_numtype.domintros by fastforce
+    obtain t2' t3' where 
+      "Instr_ok2 s C' (admininstr_sc6 (admininstr_st6_VLOAD V128 (Some (vloadop_ZERO v_N))
+         ao)) (mk_functype t2' t3')" 
+      and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+      using splitv inv_one_admininstr by blast
+    then have "Instr_ok C' (instr_sc6 (VLOAD V128 (Some (vloadop_ZERO v_N))
+           ao)) (mk_functype t2' t3')"
+      using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+    then obtain mt where hyps:
+      "0 < length (context_MEMS C')"
+      "context_MEMS C' ! 0 = mt"
+      "2 ^ proj_uN_0 (ALIGN ao)
+        \<le> v_N div 8"
+      "wf_memtype mt" 
+      "mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128]) = mk_functype t2' t3'" 
+      using inv_vload_zero by blast
+    then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_V128]) <ti: mk_instrtype t1 t3"
+      using subv subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] by fastforce
+    have "(Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc
+   (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc
+ (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc
+    (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc
+  (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc
+(Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc
+   (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc
+ (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc
+    (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc
+  (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc
+(Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc
+   (Suc (Suc (Suc 0))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+ = 128" by simp
+    then have "wf_instr (instr_sc1 (VCONST V128 c))" 
+      using instr_case_20[of V128 c] 
+       extend___is_wf[OF vload_zero_val(4,3)] 
+        size.psimps size.domintros 
+        valtype_vectype.psimps valtype_vectype.domintros
+      by (metis option.distinct(1) option.sel)
+    then show ?case using vconst Instrs_ok2_wf[OF splitv(1)] instr_ok_instr_ok2 instr_ok2_instrs_ok2
+        vload_zero_val(15) Instrs_ok2_subtyping subt admininstr_instr.domintros admininstr_instr.psimps
+        by metis
   next
     case (vload_lane_oob i ao v_N c_1 j)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
     case (vload_lane_val i v_N k ao v_Jnn v_M c c_1 j)
-    then show ?case sorry (* see load_shape_val *)
+    then obtain t2 where splitv:
+      "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i),
+            admininstr_sc2 (admininstr_st2_VCONST V128 c_1)] (mk_functype t1 t2)"
+      "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_VLOAD_LANE V128 (mk_sz v_N) ao j)] 
+        (mk_functype t2 t3)"
+      using inv_seq[of s C' "[_,_,_]" t1 t3 "[_,_]" "[_]"] by fastforce
+    then have subv: "mk_instrtype (mk_list []) (mk_list [valtype_I32, valtype_V128]) 
+          <ti: mk_instrtype t1 t2" 
+      using inv_const_list[of s C' "[_,_]" t1 t2 "[val_CONST I32 _, val_VCONST V128 _]"] 
+        admininstr_val.psimps valtype_vectype.psimps valtype_vectype.domintros
+      admininstr_val.domintros typeofval.psimps typeofval.domintros valtype_numtype.psimps
+      valtype_numtype.domintros by fastforce
+    obtain t2' t3' where 
+      "Instr_ok2 s C' (admininstr_sc6 (admininstr_st6_VLOAD_LANE V128 (mk_sz v_N)
+         ao j)) (mk_functype t2' t3')" 
+      and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+      using splitv inv_one_admininstr by blast
+    then have "Instr_ok C' (instr_sc6 (VLOAD_LANE V128 (mk_sz v_N)
+           ao j)) (mk_functype t2' t3')"
+      using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+    then obtain mt where hyps:
+      "0 < length (context_MEMS C')"
+      "context_MEMS C' ! 0 = mt"
+      "2 ^ proj_uN_0 (ALIGN ao)
+        \<le> v_N div 8"
+      "wf_memtype mt" 
+      "mk_functype (mk_list [valtype_I32, valtype_V128]) (mk_list [valtype_V128]) = mk_functype t2' t3'" 
+      using inv_vload_lane by blast
+    then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_V128]) <ti: mk_instrtype t1 t3"
+      using subv subt produce_consume[of "[_,_]" t1 t2 "[]" "[_,_]" "[_]" t3] by fastforce
+    have "wf_uN 128 c_1" using vload_lane_val sorry (* missing premise in opsem rule *)
+    then have "list_all (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_M))))
+     (list_update_func (lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c_1) (proj_uN_0 j)
+       (\<lambda>underscore_underscore. mk_lane__2 v_Jnn (mk_uN (proj_uN_0 k))))" 
+      using vload_lane_val(8) lanes__is_wf[OF vload_lane_val(7)] list_all_update
+      by metis 
+    then have "wf_instr (instr_sc1 (VCONST V128 c))" 
+      using instr_case_20[of V128 c] 
+        inv_lanes__is_wf[OF vload_lane_val(7) _ vload_lane_val(5)]       
+        size.psimps size.domintros 
+        valtype_vectype.psimps valtype_vectype.domintros
+      by fastforce
+    then show ?case using vconst Instrs_ok2_wf[OF splitv(1)] instr_ok_instr_ok2 instr_ok2_instrs_ok2
+        vload_lane_val(18) Instrs_ok2_subtyping subt admininstr_instr.domintros admininstr_instr.psimps
+        by metis
   next
     case (Step_read__memory_size v_n)
     then obtain t1' t3' where 
