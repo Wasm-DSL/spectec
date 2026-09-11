@@ -228,6 +228,92 @@ shows     "Frame_ok s' f ts"
   sorry 
 *)
 
+lemma store_extension_Funcinst_ok:
+assumes "Funcinst_ok s i ts"
+        "Extend_store s s'"
+shows   "Funcinst_ok s' i ts"
+proof -
+  have s'_wf: "wf_store s'" using assms(2) store_extension_wf by simp
+  show ?thesis using assms(1)
+  proof (cases rule: Funcinst_ok.cases)
+    case (mk_Funcinst_ok v_moduleinst C v_func)
+    have "Moduleinst_ok s' v_moduleinst C" using mk_Funcinst_ok(3) assms(2) store_extension_Moduleinst_ok
+      by simp
+    then show ?thesis using mk_Funcinst_ok s'_wf
+      by (auto intro: Funcinst_ok.intros)
+  qed
+qed
+
+lemma store_extension_Globalinst_ok:
+  assumes "Globalinst_ok s i ts"
+          "Extend_store s s'"
+  shows   "Globalinst_ok s' i ts"
+proof -
+  have s'_wf: "wf_store s'" using assms(2) store_extension_wf by simp
+  from assms(1) show ?thesis
+  proof (cases rule: Globalinst_ok.cases)
+    case (mk_Globalinst_ok v_mut t v_val)
+    have "Val_ok s' v_val t"
+      using s'_wf assms(2) store_extension_valok local.mk_Globalinst_ok(4)
+      by blast
+    then show ?thesis
+      using mk_Globalinst_ok s'_wf
+      by (auto intro: Globalinst_ok.intros)
+  qed
+qed
+
+lemma store_extension_Tableinst_ok:
+assumes "Tableinst_ok s i ts"
+        "Extend_store s s'"
+shows   "Tableinst_ok s' i ts"
+proof -
+  have s'_wf: "wf_store s'" using assms(2) store_extension_wf by simp
+  show ?thesis using assms(1)
+  proof (cases rule: Tableinst_ok.cases)
+    case (mk_Tableinst_ok v_n m_opt rt ref_lst)
+    have "list_all (\<lambda>v_ref. Ref_ok s' v_ref rt) ref_lst" using assms(2) store_extension_refok mk_Tableinst_ok
+      by (simp add: list.pred_mono_strong)
+    then show ?thesis using mk_Tableinst_ok s'_wf
+      by (auto intro: Tableinst_ok.intros)
+  qed
+qed
+
+lemma store_extension_Meminst_ok:
+assumes "Meminst_ok s i ts"
+        "Extend_store s s'"
+shows   "Meminst_ok s' i ts"
+proof -
+  have s'_wf: "wf_store s'" using assms(2) store_extension_wf by simp
+  show ?thesis using assms(1) Meminst_ok.simps s'_wf
+    by auto
+qed
+
+lemma store_extension_Eleminst_ok:
+assumes "Eleminst_ok s i ts"
+        "Extend_store s s'"
+shows   "Eleminst_ok s' i ts"
+proof -
+  have s'_wf: "wf_store s'" using assms(2) store_extension_wf by simp
+  show ?thesis using assms(1)
+  proof (cases rule: Eleminst_ok.cases)
+    case (mk_Eleminst_ok ref_lst)
+    have "list_all (\<lambda>v_ref. Ref_ok s' v_ref ts) ref_lst" using assms(2) store_extension_refok mk_Eleminst_ok
+      by (simp add: list.pred_mono_strong)
+    then show ?thesis using mk_Eleminst_ok s'_wf
+      by (auto intro: Eleminst_ok.intros)
+  qed
+qed
+
+lemma store_extension_Datainst_ok:
+assumes "Datainst_ok s i ts"
+        "Extend_store s s'"
+shows   "Datainst_ok s' i ts"
+proof -
+  have s'_wf: "wf_store s'" using assms(2) store_extension_wf by simp
+  show ?thesis using assms(1) Datainst_ok.simps s'_wf
+    by auto
+qed
+
  lemma store_extension_Moduleinst_ok:
   assumes "Moduleinst_ok s i ts"
           "Extend_store s s'"

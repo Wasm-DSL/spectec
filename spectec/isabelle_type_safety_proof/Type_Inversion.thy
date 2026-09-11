@@ -720,6 +720,21 @@ subgoal for v_ref rt
   by (auto simp add: admininstr_ref.domintros admininstr_ref.psimps)
   using externtype_case_0 by blast
 
+lemma inv_Externaddr_ok:
+assumes "Externaddr_ok s v_externaddr xt"
+shows 
+inv_Externaddr_ok_global:
+      "v_externaddr = (externaddr_GLOBAL a) \<Longrightarrow> 
+      \<exists> t.
+      (a < (length (store_GLOBALS s))) \<and>
+      ((globalinst_TYPE ((store_GLOBALS s) ! a)) = t) \<and>
+      (wf_store s) \<and>
+      (wf_externtype (GLOBAL t)) \<and>
+      (GLOBAL t) = xt"
+using assms
+apply (induction rule: Externaddr_ok.induct)
+apply auto+
+by (auto elim: Externtype_sub.cases Globaltype_sub.cases)
 
 lemma inv_ref:
 assumes "Instr_ok2 s C a_e tf"
