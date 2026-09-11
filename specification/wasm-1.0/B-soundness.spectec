@@ -11,8 +11,8 @@ rule Context_ok:
       MEMS mt*,
       TABLES tt*,
       LOCALS lct*,
-      LABELS rst*,
-      RETURN rst'?,
+      LABELS (t*)*,
+      RETURN (t'*)?,
     }
   -- (Functype_ok: |- ft : OK)*
   -- (Globaltype_ok: |- gt : OK)*

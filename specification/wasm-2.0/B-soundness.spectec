@@ -13,8 +13,8 @@ rule Context_ok:
       LOCALS lct*,
       DATAS ok*,
       ELEMS et*,
-      LABELS rst*,
-      RETURN rst'?,
+      LABELS (t*)*,
+      RETURN (t'*)?,
     }
   -- (Functype_ok: |- ft : OK)*
   -- (Globaltype_ok: |- gt : OK)*
