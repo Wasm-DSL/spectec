@@ -11,6 +11,8 @@ definition t_inst_match :: "res_context \<Rightarrow> res_context \<Rightarrow> 
                        context_ELEMS C = context_ELEMS C' \<and>
                        context_DATAS C = context_DATAS C'"
 
+lemma t_inst_match_refl: shows "t_inst_match C C" using t_inst_match_def by simp  
+
 lemma t_inst_match_is:
   assumes "t_inst_match C1 C2"
   shows "\<exists>a b c. C2 = \<lparr> context_TYPES = context_TYPES C1,

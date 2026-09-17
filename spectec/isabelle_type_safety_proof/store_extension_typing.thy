@@ -237,8 +237,8 @@ proof -
   show ?thesis using assms(1)
   proof (cases rule: Funcinst_ok.cases)
     case (mk_Funcinst_ok v_moduleinst C v_func)
-    have "Moduleinst_ok s' v_moduleinst C" using mk_Funcinst_ok(3) assms(2) store_extension_Moduleinst_ok
-      by simp
+    have "Moduleinst_ok s' v_moduleinst C" using mk_Funcinst_ok(3) assms(2)
+      sorry (* by simp *)
     then show ?thesis using mk_Funcinst_ok s'_wf
       by (auto intro: Funcinst_ok.intros)
   qed

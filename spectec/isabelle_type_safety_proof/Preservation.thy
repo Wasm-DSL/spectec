@@ -1,4 +1,4 @@
-theory Wasm2_Type_Soundness
+theory Preservation
 (* Imported Code *)
 	imports isabelle_reference_output_wasm2 store_extension_typing Properties 
 	        Type_Inversion Subtyping_Theorem Context_Store_Agreement
@@ -6067,11 +6067,6 @@ proof -
     show ?thesis
       using "5" Config_ok.simps assms(1) b bc cfg_is(1,2,5) d step_wf by auto
 qed
-
-theorem progress:
-  assumes "Config_ok (mk_config s es) ts"
-  shows "\<exists>cfg'. Step (mk_config s es) cfg' \<or> es = [admininstr_sc7 admininstr_st7_TRAP] \<or> (\<exists>vs. es = map admininstr_val vs)"
-  sorry
 
 
 end
