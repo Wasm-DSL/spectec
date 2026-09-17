@@ -7,7 +7,7 @@ begin
 
 
 lemma reducible_left_v:
-  assumes "(Step (mk_config s es) c')" "wf_config (mk_config s es)" "wf_config c'"  
+  assumes "Ex (Step (mk_config s es))" "wf_config (mk_config s es)" (* "wf_config c'"  *)  
   shows "Ex (Step (mk_config s (map admininstr_val vs @ 
               es)))"
 proof (cases vs)
@@ -15,10 +15,14 @@ proof (cases vs)
   then show ?thesis using assms by auto
 next
   case (Cons a list)
+  then obtain c' where step: "Step (mk_config s es) c'" using assms
+    by auto
   then show ?thesis proof(cases c')
     case (mk_config x1 x2)
+    then have "wf_config c'" using assms step_wf step (* annonying to need to use step_wf but cannot work around it *)
+      by fast
     then show ?thesis 
-    using assms ctxt_instrs[of s es x1 x2 vs "[]"] Cons
+    using assms ctxt_instrs[of s es x1 x2 vs "[]"] mk_config step Cons
     by fastforce 
 qed qed
 
@@ -54,6 +58,7 @@ lemma list_all_app:
 (* SURELY THIS HAST TO EXIST ALREADY *)
   assumes "list_all P l1" "list_all P l2" shows "list_all P (l1 @ l2)"
   using assms proof(induction l1) qed(auto)
+
 
 
 lemma typeofval_is_i32: assumes "Valtype_sub (typeofval v) valtype_I32" 
@@ -171,10 +176,10 @@ theorem progress:
         by fastforce
     next 
       case (unreachable C')
-      then show ?case using reducible_left_v[OF Step.intros(1)[OF Step_pure.intros(1)], 
-            of "mk_state s' f" vs]
+      then show ?case using reducible_left_v[of "mk_state s' f" "[admininstr_instr (instr_sc0 UNREACHABLE)]" vs]  
+          Step.intros(1)[OF Step_pure.intros(1)]
         admininstr_case_73 config_case_0
-        using admininstr_case_1 by auto
+        admininstr_case_1 by auto
     next
       case (drop C t)
       then show ?case 
@@ -604,7 +609,24 @@ theorem progress:
                        by fast
                    next
                      case False
-                     have 1: "list_all2 Valtype_sub (map typeofval (vs @ vs1)) t_2_lst'" sorry
+                     have 1: "list_all2 Valtype_sub (map typeofval (vs @ vs1)) t_2_lst'"
+                       using mk_Instrtype_sub(3,1,2,4-6,15)
+                     proof(induction "mk_list t_lst" "mk_list t'_lst")
+                       case mk_Resulttype_sub
+                       show ?case using mk_Resulttype_sub(6,1-5,7-)
+                        proof(induction "mk_list (map typeofval vs1)" "mk_list t_12'_lst")
+                          case mk_Resulttype_sub
+                          have "emp = []" using mk_Resulttype_sub(7)
+                            by (simp add: Resulttype_sub.simps)
+                          then have "list_all2 Valtype_sub (map typeofval vs) t'_lst"
+                            using mk_Resulttype_sub Valtype_sub_trans 
+                              list_all2_trans[of Valtype_sub Valtype_sub Valtype_sub "map typeofval vs"
+                                  t_1_lst' t'_lst]
+                            by fastforce
+                          then show ?case using mk_Resulttype_sub(2,6)
+                            by (simp add: list_all2_appendI)
+                        qed
+                     qed
                      have 2: "list_all wf_val (vs @ vs1)" 
                        using mk_Instrtype_sub(6,12,16) wf_admininstr_instr wf_admininstr_val_inv 
                        list_all_map_impl[of wf_instr instr_1_lst wf_admininstr admininstr_instr]
@@ -625,11 +647,86 @@ theorem progress:
               qed
         qed done qed done
     next
-      case (sub C instr_lst t_1_lst t_2_lst t'_1_lst t'_2_lst)
-      then show ?case sorry
+      case (sub C' instr_lst t_1_lst' t_2_lst' t'_1_lst t'_2_lst)
+      then show ?case
+        apply(auto)
+        subgoal for vs
+        proof -
+          assume  assms:
+            "Instrs_ok C' instr_lst (mk_functype (mk_list t_1_lst') (mk_list t_2_lst'))"
+    "Resulttype_sub (mk_list t'_1_lst) (mk_list t_1_lst')"
+    "Resulttype_sub (mk_list t_2_lst') (mk_list t'_2_lst)"
+    "wf_context C'"
+    "list_all wf_instr instr_lst"
+    "wf_store s'"
+    "\<forall>vs. list_all2 Valtype_sub (map typeofval vs) t_1_lst' \<longrightarrow>
+         list_all wf_val vs \<longrightarrow>
+         (\<forall>x. \<not> Step (mk_config (mk_state s' f) (map admininstr_val vs @ map admininstr_instr instr_lst))
+                  x) \<longrightarrow>
+         (\<exists>vs. map admininstr_instr instr_lst = map admininstr_val vs)"
+    "list_all2 Valtype_sub (map typeofval vs) t'_1_lst"
+    "list_all wf_val vs"
+    "State_ok (mk_state s' f) C'"
+    "wf_config (mk_config (mk_state s' f) (map admininstr_instr instr_lst))"
+    "wf_state (mk_state s' f)"
+    "\<forall>x. \<not> Step (mk_config (mk_state s' f) (map admininstr_val vs @ map admininstr_instr instr_lst)) x"
+          have "list_all2 Valtype_sub (map typeofval vs) t_1_lst'" 
+            using assms(2,8) proof(induction "mk_list t'_1_lst" "mk_list t_1_lst'")
+            case mk_Resulttype_sub
+            then show ?case using Valtype_sub_trans list_all2_trans 
+              by blast 
+          qed
+          then show "\<exists>vs. map admininstr_instr instr_lst = map admininstr_val vs" 
+            using assms
+            by blast
+        qed done
     next
-      case (Instrs_ok__frame C instr_lst t_1_lst t_2_lst t_lst)
-      then show ?case sorry
+      case (Instrs_ok__frame C' instr_lst t_1_lst' t_2_lst' t_lst)
+      then show ?case 
+        apply(auto)
+        subgoal for vs
+        proof -
+          assume assms:
+  "Instrs_ok C' instr_lst (mk_functype (mk_list t_1_lst') (mk_list t_2_lst'))"
+    "wf_context C'"
+    "list_all wf_instr instr_lst"
+    "wf_store s'"
+    "\<forall>vs. list_all2 Valtype_sub (map typeofval vs) t_1_lst' \<longrightarrow>
+         list_all wf_val vs \<longrightarrow>
+         (\<forall>x. \<not> Step (mk_config (mk_state s' f) (map admininstr_val vs @ map admininstr_instr instr_lst))
+                  x) \<longrightarrow>
+         (\<exists>vs. map admininstr_instr instr_lst = map admininstr_val vs)"
+    "list_all2 Valtype_sub (map typeofval vs) (t_lst @ t_1_lst')"
+    "list_all wf_val vs"
+    "State_ok (mk_state s' f) C'"
+    "wf_config (mk_config (mk_state s' f) (map admininstr_instr instr_lst))"
+    "wf_state (mk_state s' f)"
+    "\<forall>x. \<not> Step (mk_config (mk_state s' f) (map admininstr_val vs @ map admininstr_instr instr_lst)) x"
+          then obtain ts1 ts2 where split1:
+            "map typeofval vs = ts1 @ ts2" "list_all2 Valtype_sub ts1 t_lst" 
+            "list_all2 Valtype_sub ts2 t_1_lst'" 
+            using list_all2_append2
+            by metis
+          then obtain vs1 vs2 where split2:
+            "vs = vs1 @ vs2" "ts1 = map typeofval vs1" "ts2 = map typeofval vs2" 
+            using map_is_app by blast
+          show "\<exists>vs. map admininstr_instr instr_lst = map admininstr_val vs" 
+          proof (cases "Ex (Step (mk_config (mk_state s' f) 
+              (map admininstr_val vs2 @ map admininstr_instr instr_lst)))")
+            case True
+            have "wf_config (mk_config (mk_state s' f) 
+                (map admininstr_val vs2 @ map admininstr_instr instr_lst))"
+              using assms split2
+              by (metis config.inject config_case_0 list_all_append list_all_map_impl wf_admininstr_val
+                  wf_config.cases)
+            then show ?thesis using assms split2 reducible_left_v[OF True, of vs1]
+              by auto
+          next
+            case False
+            then show ?thesis using assms
+              using split1(3) split2(1,3) by auto
+          qed
+        qed done
     qed
     then show ?thesis by simp
   qed done
@@ -647,25 +744,259 @@ theorem progress:
     then show ?case sorry
   next
     case (Instr_ok2__trap s C t_1_lst t_2_lst)
-    then show ?case sorry
+    then show ?case by auto
   next
     case (Instrs_ok2__empty s C)
-    then show ?case sorry
+    then show ?case by auto
   next
-    case (Instrs_ok2__instr s C v_admininstr t_1_lst t_2_lst)
-    then show ?case sorry
+    case (Instrs_ok2__instr s C v_instr' t_1_lst' t_2_lst') 
+    then show ?case
+        apply(auto)
+        subgoal for vs
+      proof -
+        assume assms:
+          "Instr_ok2 s C v_instr' (mk_functype (mk_list t_1_lst') (mk_list t_2_lst'))"
+          "\<forall>vs. list_all2 Valtype_sub (map typeofval vs) t_1_lst' \<longrightarrow>
+         list_all wf_val vs \<longrightarrow>
+         Ex (Step (mk_config (mk_state s f) (map admininstr_val vs @ [v_instr']))) \<or>
+         v_instr' = admininstr_sc7 admininstr_st7_TRAP \<or> (\<exists>v. v_instr' = admininstr_val v)"
+          "wf_store s"
+          "wf_context C"
+          "wf_admininstr v_instr'"
+          "list_all2 Valtype_sub (map typeofval vs) t_1_lst'"
+          "list_all wf_val vs"
+          "State_ok (mk_state s f) C"
+          "wf_config (mk_config (mk_state s f) [v_instr'])"
+          "wf_state (mk_state s f)"
+          "\<forall>x. \<not> Step (mk_config (mk_state s f) (map admininstr_val vs @ [v_instr'])) x"
+          "\<forall>vs. [v_instr'] \<noteq> map admininstr_val vs" 
+        have "\<forall> v. v_instr' \<noteq> admininstr_val v"
+          by (metis assms(12) list.distinct(1) opt_underscore.cases Cons_eq_map_conv)
+          then show "v_instr' = admininstr_sc7 admininstr_st7_TRAP" using assms
+            by blast
+      qed done
   next
-    case (Instrs_ok2__seq s C admininstr_1_lst t_1_lst t_2_lst admininstr_2_lst t_3_lst)
-    then show ?case sorry
+    case (Instrs_ok2__seq s' C' instr_1_lst t_1_lst' t_2_lst' instr_2_lst t_3_lst)
+      then show ?case  
+        apply(auto)
+        subgoal for vs
+        proof -
+          assume assms:
+          "Instrs_ok2 s' C' instr_1_lst (mk_functype (mk_list t_1_lst') (mk_list t_2_lst'))"
+          "(\<forall> vs.
+          list_all2 Valtype_sub (map typeofval vs) t_1_lst' \<longrightarrow>
+          list_all wf_val vs \<longrightarrow>
+          wf_config (mk_config (mk_state s' f) ( instr_1_lst)) \<longrightarrow>
+           Ex (Step (mk_config (mk_state s' f) (map admininstr_val vs @ instr_1_lst))) \<or>
+         instr_1_lst = [admininstr_sc7 admininstr_st7_TRAP] \<or>
+         (\<exists>vs. instr_1_lst = map admininstr_val vs))"
+          "Instrs_ok2 s' C' instr_2_lst (mk_functype (mk_list t_2_lst') (mk_list t_3_lst))"
+          "(\<forall> vs.
+          list_all2 Valtype_sub (map typeofval vs) t_2_lst' \<longrightarrow>
+          list_all wf_val vs \<longrightarrow>
+          wf_config (mk_config (mk_state s' f) ( instr_2_lst)) \<longrightarrow>
+         Ex (Step (mk_config (mk_state s' f) (map admininstr_val vs @ instr_2_lst))) \<or>
+         instr_2_lst = [admininstr_sc7 admininstr_st7_TRAP] \<or>
+         (\<exists>vs. instr_2_lst = map admininstr_val vs))"
+        "wf_store s'"
+          "wf_context C'"
+          "list_all wf_admininstr instr_1_lst"
+          "list_all wf_admininstr instr_2_lst"
+          "list_all2 Valtype_sub (map typeofval vs) t_1_lst'"
+          "list_all wf_val vs"
+          "State_ok (mk_state s' f) C'"
+          "wf_config
+       (mk_config (mk_state s' f) ( instr_1_lst @ instr_2_lst))"
+      "wf_state (mk_state s' f)"
+       " \<forall>x. \<not> Step (mk_config (mk_state s' f) (map admininstr_val vs @ instr_1_lst @ instr_2_lst)) x"
+   " \<forall>vs. instr_1_lst @ instr_2_lst \<noteq> map admininstr_val vs"
+          show " instr_1_lst @ instr_2_lst = [admininstr_sc7 admininstr_st7_TRAP]"
+       proof (cases "(Ex (Step (mk_config (mk_state s' f) 
+      (map admininstr_val vs @ instr_1_lst))))")
+                case True
+                then have "wf_config (
+                  mk_config (mk_state s' f) (map admininstr_val vs @ instr_1_lst))"
+                  using assms wf_admininstr_val wf_admininstr_instr
+                  config_case_0 
+                  list_all_map_impl[of wf_val vs wf_admininstr admininstr_val]
+                  list_all_app
+                  by force
+                then have "(Ex (Step (mk_config (mk_state s' f) 
+      (map admininstr_val vs @ instr_1_lst @ instr_2_lst))))"
+                  using True reducible_right assms 
+                  by fastforce
+                then show ?thesis using assms
+                  by blast
+              next
+                case False
+                note False' = False
+                then show ?thesis proof(cases "instr_1_lst = [admininstr_sc7 admininstr_st7_TRAP]")
+                  case True
+                  then show ?thesis 
+                  proof(cases instr_2_lst)
+                         case Nil
+                         then show ?thesis using True by simp
+                       next
+                         case (Cons a list)
+                         then show ?thesis using True trap_vals[of "vs"] 
+                              const assms(14)
+                              Step.intros(1) sorry (* need to allow admininstr on RHS of trap *)
+                          (* by auto *)
+                       qed
+                next
+                  case False
+                then obtain vs1 where const: "instr_1_lst = map admininstr_val vs1"
+                   using assms False'
+                   by (metis config_case_0)
+                 then have "mk_instrtype (mk_list []) (mk_list (map typeofval vs1)) <ti: 
+                      mk_instrtype (mk_list t_1_lst') (mk_list t_2_lst')"  
+                   using inv_const_list assms instrs_ok_instrs_ok2 by fastforce
+                 then show ?thesis
+                   using const assms
+                 proof(induction "mk_instrtype (mk_list []) (mk_list (map typeofval vs1))" 
+                    "mk_instrtype (mk_list t_1_lst') (mk_list t_2_lst')")
+                   case (mk_Instrtype_sub t_lst emp t'_lst t_12'_lst)
+                   then show ?case 
+                   proof(cases "Ex (Step
+                   (mk_config (mk_state s' f) (map admininstr_val vs @ instr_1_lst @
+                   instr_2_lst)))")
+                     case True
+                     then show ?thesis using mk_Instrtype_sub
+                       by fast
+                   next
+                     case False
+                     have 1: "list_all2 Valtype_sub (map typeofval (vs @ vs1)) t_2_lst'"
+                       using mk_Instrtype_sub(3,1,2,4-6,15)
+                     proof(induction "mk_list t_lst" "mk_list t'_lst")
+                       case mk_Resulttype_sub
+                       show ?case using mk_Resulttype_sub(6,1-5,7-)
+                        proof(induction "mk_list (map typeofval vs1)" "mk_list t_12'_lst")
+                          case mk_Resulttype_sub
+                          have "emp = []" using mk_Resulttype_sub(7)
+                            by (simp add: Resulttype_sub.simps)
+                          then have "list_all2 Valtype_sub (map typeofval vs) t'_lst"
+                            using mk_Resulttype_sub Valtype_sub_trans 
+                              list_all2_trans[of Valtype_sub Valtype_sub Valtype_sub "map typeofval vs"
+                                  t_1_lst' t'_lst]
+                            by fastforce
+                          then show ?case using mk_Resulttype_sub(2,6)
+                            by (simp add: list_all2_appendI)
+                        qed
+                     qed
+                     have 2: "list_all wf_val (vs @ vs1)" 
+                       using mk_Instrtype_sub wf_admininstr_val_inv 
+                       list_all_map_impl_inv[of wf_admininstr admininstr_val vs1 wf_val ]
+                       by simp
+                     have 3: "(\<forall>x. \<not> Step
+                   (mk_config (mk_state s' f) (map admininstr_val (vs @ vs1) @ instr_2_lst))
+                   x)" using False const
+                       by fastforce
+                     show ?thesis 
+                     proof (cases "instr_2_lst = [admininstr_sc7 admininstr_st7_TRAP]")
+                       case True
+                       then show ?thesis proof(cases vs1)
+                         case Nil
+                         then show ?thesis using True const by simp
+                       next
+                         case (Cons a list)
+                         then show ?thesis using True trap_vals[of "vs @ vs1" "[]"] const mk_Instrtype_sub(20)
+                    Step.intros(1)
+                           by auto
+                       qed
+                     next
+                       case False
+                     then obtain vs2 where "instr_2_lst = map admininstr_val vs2"
+                       using mk_Instrtype_sub 1 2 3 
+                       by (metis config_case_0)
+                     then show ?thesis using const
+                       by (metis \<open>instr_2_lst = map admininstr_val vs2\<close> 
+                            local.const mk_Instrtype_sub.prems(16) map_append)
+                   qed
+                 qed 
+              qed qed qed
+        qed done 
   next
-    case (Instrs_ok2__sub s C admininstr_lst t_1_lst t_2_lst t'_1_lst t'_2_lst)
-    then show ?case sorry
+    case (Instrs_ok2__sub s' C' instr_lst t_1_lst' t_2_lst' t'_1_lst t'_2_lst)
+      then show ?case
+        apply(auto)
+        subgoal for vs
+        proof -
+          assume  assms:
+            "Instrs_ok2 s' C' instr_lst (mk_functype (mk_list t_1_lst') (mk_list t_2_lst'))"
+    "Resulttype_sub (mk_list t'_1_lst) (mk_list t_1_lst')"
+    "Resulttype_sub (mk_list t_2_lst') (mk_list t'_2_lst)"
+    "wf_context C'"
+    "list_all wf_admininstr instr_lst"
+    "wf_store s'"
+    "\<forall>vs. list_all2 Valtype_sub (map typeofval vs) t_1_lst' \<longrightarrow>
+         list_all wf_val vs \<longrightarrow>
+        Ex (Step (mk_config (mk_state s' f) (map admininstr_val vs @ instr_lst))) \<or>
+         instr_lst = [admininstr_sc7 admininstr_st7_TRAP]"
+    "list_all2 Valtype_sub (map typeofval vs) t'_1_lst"
+    "list_all wf_val vs"
+    "State_ok (mk_state s' f) C'"
+    "wf_config (mk_config (mk_state s' f) ( instr_lst))"
+    "wf_state (mk_state s' f)"
+    "\<forall>x. \<not> Step (mk_config (mk_state s' f) (map admininstr_val vs @ instr_lst)) x"
+          have "list_all2 Valtype_sub (map typeofval vs) t_1_lst'" 
+            using assms(2,8) proof(induction "mk_list t'_1_lst" "mk_list t_1_lst'")
+            case mk_Resulttype_sub
+            then show ?case using Valtype_sub_trans list_all2_trans 
+              by blast 
+          qed
+          then show " instr_lst = [admininstr_sc7 admininstr_st7_TRAP]" 
+            using assms
+            by blast
+        qed done
   next
-    case (Instrs_ok2__frame s C admininstr_lst t_1_lst t_2_lst t_lst)
-    then show ?case sorry
+    case (Instrs_ok2__frame s' C' instr_lst t_1_lst' t_2_lst' t_lst)
+      then show ?case 
+        apply(auto)
+        subgoal for vs
+        proof -
+          assume assms:
+  "Instrs_ok2 s' C' instr_lst (mk_functype (mk_list t_1_lst') (mk_list t_2_lst'))"
+    "wf_context C'"
+    "list_all wf_admininstr instr_lst"
+    "wf_store s'"
+    "\<forall>vs. list_all2 Valtype_sub (map typeofval vs) t_1_lst' \<longrightarrow>
+         list_all wf_val vs \<longrightarrow>
+          Ex (Step (mk_config (mk_state s' f) (map admininstr_val vs @ instr_lst))) \<or>
+         instr_lst = [admininstr_sc7 admininstr_st7_TRAP]"
+    "list_all2 Valtype_sub (map typeofval vs) (t_lst @ t_1_lst')"
+    "list_all wf_val vs"
+    "State_ok (mk_state s' f) C'"
+    "wf_config (mk_config (mk_state s' f) ( instr_lst))"
+    "wf_state (mk_state s' f)"
+    "\<forall>x. \<not> Step (mk_config (mk_state s' f) (map admininstr_val vs @ instr_lst)) x"
+          then obtain ts1 ts2 where split1:
+            "map typeofval vs = ts1 @ ts2" "list_all2 Valtype_sub ts1 t_lst" 
+            "list_all2 Valtype_sub ts2 t_1_lst'" 
+            using list_all2_append2
+            by metis
+          then obtain vs1 vs2 where split2:
+            "vs = vs1 @ vs2" "ts1 = map typeofval vs1" "ts2 = map typeofval vs2" 
+            using map_is_app by blast
+          show "instr_lst = [admininstr_sc7 admininstr_st7_TRAP]" 
+          proof (cases "Ex (Step (mk_config (mk_state s' f) 
+              (map admininstr_val vs2 @ instr_lst)))")
+            case True
+            have "wf_config (mk_config (mk_state s' f) 
+                (map admininstr_val vs2 @  instr_lst))"
+              using assms split2
+              by (metis config_case_0 list_all_append list_all_map_impl wf_admininstr_val)
+            then show ?thesis using assms split2 reducible_left_v[OF True, of vs1]
+              by auto
+          next
+            case False
+            then show ?thesis using assms
+              using split1(3) split2(1,3) by auto
+          qed
+        qed done
   next
     case (mk_Expr_ok2 s C admininstr_lst)
-    then show ?case sorry
+    then show ?case
+      by auto
   qed
 qed
 
