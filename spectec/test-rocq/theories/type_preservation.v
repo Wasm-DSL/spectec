@@ -302,7 +302,7 @@ Proof.
 		injection Heqc2 as ?; subst.
 		subst.
 		typing_inversion HType.
-		typing_inversion H2.
+		typing_inversion H3.
 		eapply IHHReduce; eauto.
 	}
 	{ (* Global Set *) 
@@ -2902,8 +2902,8 @@ Proof.
 		invert_ais_typing.
 		eapply ais_vals_typing_inversion in HType1
 			as [v_ts [HSub HValsok]].
-		inversion H0; subst.
-		inversion H3; subst.
+		inversion H1; subst.
+		inversion H4; subst.
 
 		construct_ais_typing.
 		{
