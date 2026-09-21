@@ -38,6 +38,113 @@ lemma State_ok_strip: assumes "State_ok s C" shows "C = strip C"
   qed
 qed
 
+definition not_br_return :: "admininstr list \<Rightarrow> bool" where 
+  "not_br_return es = 
+      ((\<forall> vs l aft. es \<noteq> map admininstr_val vs @ [admininstr_sc0
+        (admininstr_st0_BR l)] @ aft) \<and> 
+      (\<forall> vs aft. es \<noteq> map admininstr_val vs @ [
+        admininstr_sc1 admininstr_st1_RETURN] @ aft))" 
+
+lemma br_type_not_strip: 
+  assumes 
+    "es = map admininstr_val vs @ [admininstr_sc0 (admininstr_st0_BR l)] @ aft"
+    "Expr_ok2 s C es ts" 
+  shows "C \<noteq> strip C" 
+proof - 
+  have "Instrs_ok2 s C es (mk_functype (mk_list []) ts)" using inv_expr[OF assms(2)] by simp
+  then obtain t1 where 
+     "Instrs_ok2 s C ([admininstr_sc0 (admininstr_st0_BR l)] @ aft) (mk_functype
+        t1 ts)" using inv_seq[OF _ assms(1)] by blast
+  then obtain t2 where 
+     "Instrs_ok2 s C [admininstr_sc0 (admininstr_st0_BR l)] (mk_functype t1 t2)" 
+    using inv_seq by blast
+  then obtain t1' t2' where "Instr_ok2 s C (admininstr_sc0 (admininstr_st0_BR l)) (mk_functype t1' t2')"
+    using inv_one_admininstr by blast
+  then have "Instr_ok C (instr_sc0 (BR l)) (mk_functype t1' t2')" 
+    using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+  then have "proj_uN_0 l < length (LABELS C)" using inv_br by auto
+  then have "LABELS C \<noteq> []" by auto
+  then show ?thesis proof(induction C) qed(auto simp add: strip_def) 
+qed
+
+lemma return_type_not_strip: 
+  assumes 
+    "es = map admininstr_val vs @ [admininstr_sc1 admininstr_st1_RETURN] @ aft"
+    "Expr_ok2 s C es ts" 
+  shows "C \<noteq> strip C" 
+proof - 
+  have "Instrs_ok2 s C es (mk_functype (mk_list []) ts)" using inv_expr[OF assms(2)] by simp
+  then obtain t1 where 
+     "Instrs_ok2 s C ([admininstr_sc1 admininstr_st1_RETURN] @ aft) (mk_functype
+        t1 ts)" using inv_seq[OF _ assms(1)] by blast
+  then obtain t2 where 
+     "Instrs_ok2 s C [admininstr_sc1 admininstr_st1_RETURN] (mk_functype t1 t2)" 
+    using inv_seq by blast
+  then obtain t1' t2' where "Instr_ok2 s C (admininstr_sc1 admininstr_st1_RETURN) (mk_functype t1' t2')"
+    using inv_one_admininstr by blast
+  then have "Instr_ok C (instr_sc1 RETURN) (mk_functype t1' t2')" 
+    using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+  then obtain t_lst where "context_RETURN C = Some (mk_list t_lst)" using inv_return by blast
+  then have "context_RETURN C \<noteq> None" by auto
+  then show ?thesis proof(induction C) qed(auto simp add: strip_def) 
+qed
+
+lemma typecheck_strip_not_return: 
+  assumes "Expr_ok2 s C es ts" "C = strip C"
+  shows "not_br_return es" 
+  using assms br_type_not_strip return_type_not_strip not_br_return_def
+  by metis
+
+lemma br_return_contaminate_left:
+  assumes "\<not> (not_br_return es)" 
+  shows "\<not> (not_br_return (map admininstr_val vs @ es))" 
+proof - 
+  have "((\<exists> vs l aft. es = map admininstr_val vs @ [admininstr_sc0
+        (admininstr_st0_BR l)] @ aft) \<or> 
+      (\<exists> vs aft. es = map admininstr_val vs @ [
+        admininstr_sc1 admininstr_st1_RETURN] @ aft))"
+    using assms not_br_return_def by simp
+  then show ?thesis proof
+    assume "\<exists>vs l aft. es = map admininstr_val vs @ [admininstr_sc0 (admininstr_st0_BR l)] @ aft"
+    then obtain vs' l aft where "es = map admininstr_val vs' @ 
+          [admininstr_sc0 (admininstr_st0_BR l)] @ aft" by blast
+    then show "\<not> not_br_return (map admininstr_val vs @ es)"
+      by (metis append.assoc map_append not_br_return_def)
+  next 
+    assume "\<exists>vs aft. es = map admininstr_val vs @ [admininstr_sc1 admininstr_st1_RETURN] @ aft"
+    then obtain vs' aft where 
+      "es = map admininstr_val vs' @ [admininstr_sc1 admininstr_st1_RETURN] @ aft" by blast
+    then show "\<not> not_br_return (map admininstr_val vs @ es)"
+      by (metis map_append not_br_return_def append.assoc)
+  qed
+qed
+
+
+lemma br_return_contaminate_right:
+  assumes "\<not> (not_br_return es)" 
+  shows "\<not> (not_br_return (es @ es'))" 
+proof - 
+  have "((\<exists> vs l aft. es = map admininstr_val vs @ [admininstr_sc0
+        (admininstr_st0_BR l)] @ aft) \<or> 
+      (\<exists> vs aft. es = map admininstr_val vs @ [
+        admininstr_sc1 admininstr_st1_RETURN] @ aft))"
+    using assms not_br_return_def by simp
+  then show ?thesis proof
+    assume "\<exists>vs l aft. es = map admininstr_val vs @ [admininstr_sc0 (admininstr_st0_BR l)] @ aft"
+    then obtain vs' l aft where "es = map admininstr_val vs' @ 
+          [admininstr_sc0 (admininstr_st0_BR l)] @ aft" by blast
+    then show "\<not> not_br_return (es @ es')"
+      by (metis append.assoc not_br_return_def)
+  next 
+    assume "\<exists>vs aft. es = map admininstr_val vs @ [admininstr_sc1 admininstr_st1_RETURN] @ aft"
+    then obtain vs' aft where 
+      "es = map admininstr_val vs' @ [admininstr_sc1 admininstr_st1_RETURN] @ aft" by blast
+    then show "\<not> not_br_return (es @ es')"
+      by (metis not_br_return_def append.assoc)
+  qed
+qed
+
+
 lemma default_not_bot: assumes "t \<noteq> BOT" shows "default_underscore t \<noteq> None" 
 proof(cases t) qed(auto simp add: assms default_underscore.domintros default_underscore.psimps)
 
@@ -165,22 +272,23 @@ theorem progress:
   shows "\<exists>cfg'. Step (mk_config s es) cfg' \<or> es = [admininstr_sc7 admininstr_st7_TRAP] \<or> (\<exists>vs. es = map admininstr_val vs)"
   using assms proof(induction "mk_config s es" ts)
   case (mk_Config_ok s' f C t_lst)
-  then have stok: "State_ok (mk_state s' f) (strip C)" using State_ok_strip by simp
-  show ?case using mk_Config_ok(2) stok mk_Config_ok(3-)
+  then have stok: "State_ok (mk_state s' f) (strip C)" "C = strip C" using State_ok_strip by auto
+  then have notbr: "not_br_return es" using typecheck_strip_not_return mk_Config_ok by auto
+  show ?case using mk_Config_ok(2) stok(1) notbr mk_Config_ok(3-)
   proof (induction s' C es "mk_list t_lst" 
           arbitrary: s t_lst f
         rule:Instr_ok2_Instrs_ok2_Expr_ok2.inducts(3)[where
       ?P1.0 = "\<lambda> s' C e t. (case t of mk_functype (mk_list t1) t2 \<Rightarrow> 
         (\<forall> vs f. ((list_all2 Valtype_sub (map typeofval vs) t1) \<longrightarrow> 
             (list_all wf_val vs) \<longrightarrow> 
-          (State_ok (mk_state s' f) (strip C)) \<longrightarrow> (wf_context C) \<longrightarrow>
+          (State_ok (mk_state s' f) (strip C)) \<longrightarrow> not_br_return [e] \<longrightarrow> (wf_context C) \<longrightarrow>
          wf_config (mk_config (mk_state s' f) [e]) \<longrightarrow>
            wf_state (mk_state s' f) \<longrightarrow> (\<exists> cfg'.
        Step (mk_config (mk_state s' f) (map admininstr_val vs @ [e])) cfg' \<or>
        e = admininstr_sc7 admininstr_st7_TRAP \<or> (\<exists>v. e = admininstr_val v)))))" and 
       ?P2.0 = "\<lambda> s' C es t. (case t of mk_functype (mk_list t1) t2 \<Rightarrow> 
         (\<forall> vs f. (list_all2 Valtype_sub (map typeofval vs) t1 \<longrightarrow> (list_all wf_val vs) \<longrightarrow> 
-        (State_ok (mk_state s' f) (strip C)) \<longrightarrow> (wf_context C) \<longrightarrow>
+        (State_ok (mk_state s' f) (strip C)) \<longrightarrow> not_br_return es \<longrightarrow> (wf_context C) \<longrightarrow>
          wf_config (mk_config (mk_state s' f) es) \<longrightarrow>
            wf_state (mk_state s' f) \<longrightarrow> (\<exists> cfg'.
        Step (mk_config (mk_state s' f) (map admininstr_val vs @ es)) cfg' \<or>
@@ -198,6 +306,7 @@ theorem progress:
           "list_all2 Valtype_sub (map typeofval vs) t_1_lst"
           "list_all wf_val vs"
           "State_ok (mk_state s' f) (strip C)"
+          "not_br_return [admininstr_instr v_instr]"
           "wf_config (mk_config (mk_state s' f) [admininstr_instr v_instr])"
           "wf_state (mk_state s' f)"
           "\<forall>x. \<not> Step (mk_config (mk_state s' f) (map admininstr_val vs @ [admininstr_instr v_instr])) x"
@@ -213,7 +322,7 @@ theorem progress:
     list_all wf_instr es \<longrightarrow>
     list_all2 Valtype_sub (map typeofval vs) t1 \<longrightarrow>
     list_all wf_val vs \<longrightarrow>
-    State_ok (mk_state s' f) (strip C) \<longrightarrow>
+    State_ok (mk_state s' f) (strip C) \<longrightarrow> not_br_return (map admininstr_instr es) \<longrightarrow>
     wf_config (mk_config (mk_state s' f) (map admininstr_instr es)) \<longrightarrow>
     wf_state (mk_state s' f) \<longrightarrow>
     (\<forall>x. \<not> Step (mk_config (mk_state s' f) (map admininstr_val vs @ map admininstr_instr es)) x) \<longrightarrow>
@@ -385,7 +494,7 @@ theorem progress:
       qed
       show ?case using block(10) list_all2_lengthD 
           Step_read__block[OF bt, of "length vs" vs "length t_2_lst" instr_lst] 
-         Step.intros(2) block(15)
+         Step.intros(2) block(16)
         by fastforce
     next
       case (loop C' bt t_1_lst t_2_lst instr_lst)
@@ -416,7 +525,7 @@ theorem progress:
       qed
       show ?case using loop(10) list_all2_lengthD 
           Step_read__loop[OF bt, of "length vs" vs "length t_2_lst" instr_lst] 
-         Step.intros(2) loop(15)
+         Step.intros(2) loop(16)
         by fastforce
     next
       case (res_if C' bt t_1_lst t_2_lst instr_1_lst instr_2_lst)
@@ -459,7 +568,7 @@ theorem progress:
                  have wfc: "wf_config
      (mk_config (mk_state s' f) [admininstr_sc1 (admininstr_st1_CONST I32 c), 
             admininstr_sc0 (admininstr_st0_IFELSE bt instr_1_lst instr_2_lst)])"
-                   using res_if(15) wfc
+                   using res_if(16) wfc
                  proof(induction "mk_config (mk_state s' f) [admininstr_instr 
                         (instr_sc7 (IFELSE bt instr_1_lst instr_2_lst))]")
                    case config_case_0
@@ -473,12 +582,12 @@ theorem progress:
                    by simp
                show ?case proof(cases "proj_uN_0 (the (proj_num__0 c))")
                  case 0
-                 show ?thesis using if_false[OF projc 0] res_if(17)
+                 show ?thesis using if_false[OF projc 0] res_if(18)
                      Step.intros(1) reducible_left_v[OF _ wfc] vs
                    by fastforce
                next
                  case (Suc nat)
-                 then show ?thesis using if_true[OF projc] res_if(17)
+                 then show ?thesis using if_true[OF projc] res_if(18)
                      Step.intros(1) reducible_left_v[OF _ wfc] vs
                    by fastforce
                qed
@@ -718,6 +827,7 @@ theorem progress:
           "wf_store s' \<longrightarrow> (\<forall>vs. list_all2 Valtype_sub (map typeofval vs) t_1_lst' \<longrightarrow>
           list_all wf_val vs \<longrightarrow>
           (\<forall>f. State_ok (mk_state s' f) (strip C') \<longrightarrow>
+               not_br_return (map admininstr_instr instr_1_lst) \<longrightarrow>
                wf_config (mk_config (mk_state s' f) (map admininstr_instr instr_1_lst)) \<longrightarrow>
                wf_state (mk_state s' f) \<longrightarrow>
                (\<forall>x. \<not> Step
@@ -729,6 +839,7 @@ theorem progress:
           "wf_store s' \<longrightarrow> (\<forall>vs. list_all2 Valtype_sub (map typeofval vs) t_2_lst' \<longrightarrow>
           list_all wf_val vs \<longrightarrow>
           (\<forall>f. State_ok (mk_state s' f) (strip C') \<longrightarrow>
+               not_br_return (map admininstr_instr instr_2_lst) \<longrightarrow>
                wf_config (mk_config (mk_state s' f) (map admininstr_instr instr_2_lst)) \<longrightarrow>
                wf_state (mk_state s' f) \<longrightarrow>
                (\<forall>x. \<not> Step
@@ -742,6 +853,7 @@ theorem progress:
           show "wf_store s' \<longrightarrow> (\<forall>vs. list_all2 Valtype_sub (map typeofval vs) t_1_lst' \<longrightarrow>
           list_all wf_val vs \<longrightarrow>
           (\<forall>f. State_ok (mk_state s' f) (strip C') \<longrightarrow>
+                not_br_return (map admininstr_instr instr_1_lst @ map admininstr_instr instr_2_lst) \<longrightarrow>
                wf_config
                 (mk_config (mk_state s' f)
                   (map admininstr_instr instr_1_lst @ map admininstr_instr instr_2_lst)) \<longrightarrow>
@@ -761,6 +873,7 @@ theorem progress:
     "list_all2 Valtype_sub (map typeofval vs) t_1_lst'"
     "list_all wf_val vs"
     "State_ok (mk_state s' f) (strip C')"
+    "not_br_return (map admininstr_instr instr_1_lst @ map admininstr_instr instr_2_lst)"
     "wf_config
      (mk_config (mk_state s' f) (map admininstr_instr instr_1_lst @ map admininstr_instr instr_2_lst))"
       "wf_state (mk_state s' f)"
@@ -776,7 +889,7 @@ theorem progress:
                 then have "wf_config (
                   mk_config (mk_state s' f) (map admininstr_val vs @ map admininstr_instr instr_1_lst))"
                   using assms(6) assms'(3) wf_admininstr_val wf_admininstr_instr
-                  config_case_0[OF assms'(6)] 
+                  config_case_0[OF assms'(7)] 
                   list_all_map_impl[of wf_val vs wf_admininstr admininstr_val]
                   list_all_map_impl[of wf_instr instr_1_lst wf_admininstr admininstr_instr]
                   list_all_app
@@ -787,13 +900,13 @@ theorem progress:
                   list_all_map_impl[of wf_instr instr_2_lst wf_admininstr admininstr_instr]
                   wf_admininstr_instr
                   by fastforce
-                then show ?thesis using assms'(7)
+                then show ?thesis using assms'(8)
                   by blast
               next
                 case False
                 then obtain vs1 where const: "map admininstr_instr instr_1_lst = map admininstr_val vs1"
-                   using assms assms'
-                   by (metis config.inject config_case_0 list_all_append wf_config.cases)
+                   using assms assms' br_return_contaminate_right
+                   by (metis config.inject list_all_append wf_config.simps) 
                  then have "mk_instrtype (mk_list []) (mk_list (map typeofval vs1)) <ti: 
                       mk_instrtype (mk_list t_1_lst') (mk_list t_2_lst')"  
                    using inv_const_list assms(1) instrs_ok_instrs_ok2 assms'(1) by fastforce
@@ -839,7 +952,7 @@ theorem progress:
                    x)" using False const
                        by fastforce
                      obtain vs2 where "map admininstr_instr instr_2_lst = map admininstr_val vs2"
-                       using mk_Instrtype_sub 1 2 3
+                       using mk_Instrtype_sub 1 2 3 br_return_contaminate_left
                        by (metis config.inject config_case_0 list_all_append wf_config.cases)
                      then show ?thesis using const
                        by (metis \<open>map admininstr_instr instr_2_lst = map admininstr_val vs2\<close> 
@@ -951,6 +1064,7 @@ theorem progress:
         "\<forall>vs. list_all2 Valtype_sub (map typeofval vs) t'_lst \<longrightarrow>
          list_all wf_val vs \<longrightarrow>
          (\<forall>f. State_ok (mk_state s f) (strip C) \<longrightarrow>
+              not_br_return (map admininstr_instr instr'_lst) \<longrightarrow>
               wf_config (mk_config (mk_state s f) (map admininstr_instr instr'_lst)) \<longrightarrow>
               wf_state (mk_state s f) \<longrightarrow>
               Ex (Step
@@ -970,6 +1084,7 @@ theorem progress:
           context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
           LABELS = [mk_list t'_lst], context_RETURN = None\<rparr>
        C)) \<longrightarrow>
+      not_br_return admininstr_lst \<longrightarrow>
     wf_context
      (append_res_context
        \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
@@ -990,6 +1105,7 @@ theorem progress:
         context_RETURN = None\<rparr>"
         "v_n = length t'_lst"
         show "\<forall> f. State_ok (mk_state s f) (strip C) \<longrightarrow>
+      not_br_return [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)] \<longrightarrow> 
     wf_config
      (mk_config (mk_state s f)
        [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]) \<longrightarrow>
@@ -1003,6 +1119,7 @@ theorem progress:
           proof -
             assume assms':
   "State_ok (mk_state s f) (strip C)"
+    "not_br_return [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]"
       "wf_config
      (mk_config (mk_state s f)
        [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)])"
@@ -1026,14 +1143,17 @@ assms(6) proof(induction "C")
        \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
           context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
           LABELS = [mk_list t'_lst], context_RETURN = None\<rparr>
-       C) = strip C" proof(cases C) qed(auto simp add: append_res_context_def strip_def) 
-            have "Ex (Step (mk_config (mk_state s f) admininstr_lst)) \<or>
-    admininstr_lst = [admininstr_sc7 admininstr_st7_TRAP] \<or> (\<exists>vs. admininstr_lst = map admininstr_val vs)"
-              using assms assms' 1 2
-              by (metis Instrs_ok2_wf_instr config_case_0)
+       C) = strip C" proof(cases C) qed(auto simp add: append_res_context_def strip_def)
             then show "Ex (Step
          (mk_config (mk_state s f)
            [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))"
+            proof (cases "not_br_return admininstr_lst")
+              case True
+            then have "Ex (Step (mk_config (mk_state s f) admininstr_lst)) \<or>
+    admininstr_lst = [admininstr_sc7 admininstr_st7_TRAP] \<or> (\<exists>vs. admininstr_lst = map admininstr_val vs)"
+              using assms assms' 1 2
+              by (metis Instrs_ok2_wf_instr config_case_0)
+            then show ?thesis
             proof 
               assume "Ex (Step (mk_config (mk_state s f) admininstr_lst))"
               then obtain c where step: "Step (mk_config (mk_state s f) admininstr_lst) c" by blast
@@ -1071,6 +1191,28 @@ assms(6) proof(induction "C")
                           using label_vals Step.intros(1)
                           by fast
                       qed qed
+                    next 
+                      case False 
+                      then have "((\<exists> vs l aft. admininstr_lst = map admininstr_val vs @ [admininstr_sc0
+        (admininstr_st0_BR l)] @ aft) \<or> 
+      (\<exists> vs aft. admininstr_lst = map admininstr_val vs @ [
+        admininstr_sc1 admininstr_st1_RETURN] @ aft))" using not_br_return_def by simp
+                      then show ?thesis proof
+                        assume "\<exists>vs l aft. admininstr_lst = map admininstr_val vs @ [admininstr_sc0 (admininstr_st0_BR l)] @ aft"
+                          then show "Ex (Step
+         (mk_config (mk_state s f)
+           [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))" sorry
+                        next 
+                          assume "\<exists>vs aft. admininstr_lst = map admininstr_val vs @ [admininstr_sc1 admininstr_st1_RETURN] @ aft"
+                          then obtain vs aft where "admininstr_lst = map admininstr_val vs @ [admininstr_sc1 admininstr_st1_RETURN] @ aft"
+                            by blast
+                          then show "Ex (Step
+         (mk_config (mk_state s f)
+           [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))" 
+                            using return_label[of "length t'_lst" instr'_lst vs] Step.intros(1)
+                            sorry (* fix return_label *)
+                          qed
+                    qed
           qed done
       qed done
   next
@@ -1095,6 +1237,7 @@ assms(6) proof(induction "C")
                     context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
                     LABELS = [], context_RETURN = Some (mk_list t_lst')\<rparr>
                  C')) \<Longrightarrow>
+            not_br_return admininstr_lst \<Longrightarrow>
             wf_context
              (append_res_context
                \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
@@ -1133,19 +1276,22 @@ assms(6) proof(induction "C")
           by (metis Frame_ok.cases State_ok.cases State_ok_strip mk_State_ok state.inject state_case_0)
         have 3: "wf_config (mk_config (mk_state s' f') admininstr_lst)" using assms 
           by (metis Expr_ok2.cases Frame_ok.cases config_case_0 state_case_0)
-        have "(strip
+        have 4:"(strip
        (append_res_context
          \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
             context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
             context_RETURN = Some (mk_list t_lst')\<rparr>
          C')) = strip C'" proof(cases C') qed(auto simp add: append_res_context_def strip_def)
+        show "Ex (Step
+         (mk_config (mk_state s' f) [admininstr_sc8 (FRAME_underscore (length t_lst') f' admininstr_lst)]))"
+        proof(cases "not_br_return admininstr_lst")
+          case True 
         then have "(\<exists>cfg'. Step (mk_config (mk_state s' f') admininstr_lst) cfg') \<or>
           admininstr_lst = [admininstr_sc7 admininstr_st7_TRAP] \<or>
           (\<exists>vs. admininstr_lst = map admininstr_val vs)"
-          using assms
+          using assms 4
           by (metis "1" "3" Expr_ok2.cases State_ok.cases)
-        then show "Ex (Step
-         (mk_config (mk_state s' f) [admininstr_sc8 (FRAME_underscore (length t_lst') f' admininstr_lst)]))"
+        then show ?thesis
         proof
           assume " \<exists>cfg'. Step (mk_config (mk_state s' f') admininstr_lst) cfg'"
           then obtain cfg' where step: "Step (mk_config (mk_state s' f') admininstr_lst) cfg'" 
@@ -1189,6 +1335,29 @@ assms(6) proof(induction "C")
          (mk_config (mk_state s' f) [admininstr_sc8 (FRAME_underscore (length t_lst') f' admininstr_lst)]))"
                     using frame_vals Step.intros(1) val
                     by metis
+                  qed
+                qed
+              next 
+                case False
+      then have "((\<exists> vs l aft. admininstr_lst = map admininstr_val vs @ [admininstr_sc0
+        (admininstr_st0_BR l)] @ aft) \<or> 
+      (\<exists> vs aft. admininstr_lst = map admininstr_val vs @ [
+        admininstr_sc1 admininstr_st1_RETURN] @ aft))" using not_br_return_def by simp
+                then show ?thesis
+                proof
+                  assume " \<exists>vs l aft. admininstr_lst = map admininstr_val vs @ [admininstr_sc0 (admininstr_st0_BR l)] @ aft"
+                  then obtain vs l aft where 
+      "admininstr_lst = map admininstr_val vs @ [admininstr_sc0 (admininstr_st0_BR l)] @ aft" by blast
+                  then show "Ex (Step
+         (mk_config (mk_state s' f) [admininstr_sc8 (FRAME_underscore (length t_lst') f' admininstr_lst)]))"
+                    sorry
+                next 
+                  assume " \<exists>vs aft. admininstr_lst = map admininstr_val vs @ [admininstr_sc1 admininstr_st1_RETURN] @ aft"
+                  then obtain vs aft where 
+  "admininstr_lst = map admininstr_val vs @ [admininstr_sc1 admininstr_st1_RETURN] @ aft" by blast
+                  then show "Ex (Step
+         (mk_config (mk_state s' f) [admininstr_sc8 (FRAME_underscore (length t_lst') f' admininstr_lst)]))"
+                    sorry
                   qed
               qed
         qed done 
@@ -1345,6 +1514,7 @@ assms(6) proof(induction "C")
          list_all2 Valtype_sub (map typeofval vs) t_1_lst' \<longrightarrow>
          list_all wf_val vs \<longrightarrow>
          (\<forall>f. State_ok (mk_state s' f) (strip C') \<longrightarrow>
+              not_br_return instr_1_lst \<longrightarrow>
               wf_config (mk_config (mk_state s' f) instr_1_lst) \<longrightarrow>
               wf_state (mk_state s' f) \<longrightarrow>
               Ex (Step (mk_config (mk_state s' f) (map admininstr_val vs @ instr_1_lst))) \<or>
@@ -1355,6 +1525,7 @@ assms(6) proof(induction "C")
           list_all2 Valtype_sub (map typeofval vs) t_2_lst' \<longrightarrow>
          list_all wf_val vs \<longrightarrow>
          (\<forall>f. State_ok (mk_state s' f) (strip C') \<longrightarrow>
+              not_br_return instr_2_lst \<longrightarrow>
               wf_config (mk_config (mk_state s' f) instr_2_lst) \<longrightarrow>
               wf_state (mk_state s' f) \<longrightarrow>
               Ex (Step (mk_config (mk_state s' f) (map admininstr_val vs @ instr_2_lst))) \<or>
@@ -1367,6 +1538,7 @@ assms(6) proof(induction "C")
           "list_all2 Valtype_sub (map typeofval vs) t_1_lst'"
           "list_all wf_val vs"
           "State_ok (mk_state s' f) (strip C')"
+          "not_br_return (instr_1_lst @ instr_2_lst)"
           "wf_config
        (mk_config (mk_state s' f) ( instr_1_lst @ instr_2_lst))"
       "wf_state (mk_state s' f)"
@@ -1408,7 +1580,7 @@ assms(6) proof(induction "C")
                 next
                   case False
                 then obtain vs1 where const: "instr_1_lst = map admininstr_val vs1"
-                   using assms False'
+                   using assms False' br_return_contaminate_right
                    by (metis config_case_0)
                  then have "mk_instrtype (mk_list []) (mk_list (map typeofval vs1)) <ti: 
                       mk_instrtype (mk_list t_1_lst') (mk_list t_2_lst')"  
@@ -1461,18 +1633,18 @@ assms(6) proof(induction "C")
                          then show ?thesis using True const by simp
                        next
                          case (Cons a list)
-                         then show ?thesis using True trap_vals[of "vs @ vs1" "[]"] const mk_Instrtype_sub(20)
+                         then show ?thesis using True trap_vals[of "vs @ vs1" "[]"] const mk_Instrtype_sub(21)
                     Step.intros(1)
                            by auto
                        qed
                      next
                        case False
                      then obtain vs2 where "instr_2_lst = map admininstr_val vs2"
-                       using mk_Instrtype_sub 1 2 3 
+                       using mk_Instrtype_sub 1 2 3 br_return_contaminate_left
                        by (metis config_case_0)
                      then show ?thesis using const
                        by (metis \<open>instr_2_lst = map admininstr_val vs2\<close> 
-                            local.const mk_Instrtype_sub.prems(16) map_append)
+                            local.const mk_Instrtype_sub.prems(17) map_append)
                    qed
                  qed 
               qed qed qed
