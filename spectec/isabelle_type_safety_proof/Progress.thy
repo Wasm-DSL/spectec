@@ -38,6 +38,9 @@ lemma State_ok_strip: assumes "State_ok s C" shows "C = strip C"
   qed
 qed
 
+lemma default_not_bot: assumes "t \<noteq> BOT" shows "default_underscore t \<noteq> None" 
+proof(cases t) qed(auto simp add: assms default_underscore.domintros default_underscore.psimps)
+
 lemma reducible_left_v:
   assumes "Ex (Step (mk_config s es))" "wf_config (mk_config s es)" (* "wf_config c'"  *)  
   shows "Ex (Step (mk_config s (map admininstr_val vs @ 
@@ -91,6 +94,18 @@ lemma list_all_app:
   assumes "list_all P l1" "list_all P l2" shows "list_all P (l1 @ l2)"
   using assms proof(induction l1) qed(auto)
 
+lemma local_list_is_local_list: shows "\<exists> tlocs. l = map LOCAL tlocs" 
+proof(induction l)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons a l)
+  then show ?case proof(cases a)
+    case (LOCAL x)
+    then show ?thesis using Cons
+      by (metis LOCAL list.simps(9))
+  qed
+qed
 
 
 lemma typeofval_is_i32: assumes "Valtype_sub (typeofval v) valtype_I32" 
@@ -1027,14 +1042,53 @@ assms(6) proof(induction "C")
     \<lparr>funcinst.funcinst_TYPE = mk_functype (mk_list t_1_lst) (mk_list t_2_lst), funcinst_MODULE = mm,
        CODE = v_func\<rparr>" using Externaddr_ok__func fields
                  using fun_funcinst.domintros fun_funcinst.psimps by force
-               obtain t_locs where 3: "v_func = func_FUNC x (map LOCAL t_locs) body" sorry
-               have 4: "list_all (\<lambda>t. default_underscore t \<noteq> None) t_locs" sorry
+               obtain t_locs where 3: "v_func = func_FUNC x (map LOCAL t_locs) body"
+                  using func_FUNC local_list_is_local_list by blast
+                have 4: "list_all (\<lambda>t. default_underscore t \<noteq> None) t_locs" 
+                  using Externaddr_ok__func(12,1,2) 3 fields
+                proof(induction "mk_state s f" "strip C")
+                  case mk_State_ok
+                  show ?case using mk_State_ok(1,5-) proof(induction s)
+                    case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst 
+                          tableinst_lst tabletype_lst funcinst_lst functype_lst datainst_lst 
+                          datatype_lst eleminst_lst elemtype_lst)
+                    have "Funcinst_ok s v_funcinst (functype_lst ! v_funcaddr)"
+                      using mk_Store_ok(8,13,18,19) list_all2_nth
+                      by fastforce
+                    then show ?case using mk_Store_ok(20-)
+    proof(induction s v_funcinst "functype_lst ! v_funcaddr")
+      case (mk_Funcinst_ok s v_moduleinst C v_func')
+      show ?case using mk_Funcinst_ok(3,7-) 
+      proof(induction C v_func' "functype_lst ! v_funcaddr")
+        case (mk_Func_ok x' C t_1_lst t_2_lst t_lst v_expr)
+        have "map LOCAL t_lst = map LOCAL t_locs" using mk_Func_ok(9,10)
+          by fast
+        then have "t_lst = t_locs"
+          using map_LOCAL_inj by presburger
+        then show ?case using default_not_bot
+          list_all_map_impl[OF mk_Func_ok(3), of "\<lambda> x. default_underscore x \<noteq> None" "\<lambda> x. x"]
+          by fastforce
+      qed
+    qed
+                  qed
+                qed
                have 5: "wf_funcinst
      \<lparr>funcinst.funcinst_TYPE = mk_functype (mk_list t_1_lst) (mk_list t_2_lst), funcinst_MODULE = mm,
-        CODE = v_func\<rparr>" sorry
-               have 6: "wf_func (func_FUNC x (map LOCAL t_locs) body)" sorry
+        CODE = v_func\<rparr>" using Externaddr_ok__func(3,1,2,5) fields 
+        proof(induction s)
+          case (store_case_underscore var_0_lst var_1_lst var_2_lst var_3_lst var_5_lst var_4_lst)
+          have "wf_funcinst v_funcinst" using store_case_underscore(1,6,7) list_all_nth
+            by fastforce
+          then show ?case using store_case_underscore(8-)
+            by simp 
+        qed
+               have 6: "wf_func (func_FUNC x (map LOCAL t_locs) body)" using 5 3
+                 by (simp add: wf_funcinst.simps)
                  have 7: "wf_frame \<lparr>LOCALS = vs @ map (\<lambda>t. the (default_underscore t)) t_locs, 
-                    frame_MODULE = mm\<rparr>" sorry
+                    frame_MODULE = mm\<rparr>" using Externaddr_ok__func(11) 5 default__is_wf
+                   by (metis (mono_tags, lifting) "4" frame_case_underscore funcinst.ext_inject 
+                       list_all_append
+                       list_all_map_impl wf_funcinst.simps)
                    have 8: "length t_1_lst = length vs"
                      by (metis assms(6) length_map list_all2_lengthD)
                then show ?thesis 
@@ -1054,7 +1108,13 @@ assms(6) proof(induction "C")
         qed qed done
   next
     case (Instr_ok2__ref s v_ref rt C)
-    then show ?case sorry
+    then show ?case apply auto subgoal 
+      proof -
+        assume "\<forall>v. admininstr_ref v_ref \<noteq> admininstr_val v"
+        then show "admininstr_ref v_ref = admininstr_sc7 admininstr_st7_TRAP"
+          using admininstr_val_ref[of v_ref]
+          by metis
+      qed done
   next
     case (Instr_ok2__trap s C t_1_lst t_2_lst)
     then show ?case by auto
