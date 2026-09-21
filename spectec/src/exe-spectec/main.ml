@@ -27,8 +27,12 @@ type pass =
   | AliasDemut
   | ImproveIds
   | Ite
+  | PatSimp
+  | DefToRel
   | ElseSimp
   | LetIntroMech
+  | DatatypeDiet
+  | SinglePatternMatch
 
 (* This list declares the intended order of passes.
 
@@ -46,11 +50,15 @@ let all_passes = [
   Else;
   ElseSimp;
   Uncaseremoval;
-  Sideconditions;
   SubExpansion;
+  PatSimp;
   Sub;
+  DefToRel;
+  Sideconditions;
   AliasDemut;
-  ImproveIds
+  ImproveIds;
+  DatatypeDiet;
+  SinglePatternMatch
 ]
 
 type file_kind =
@@ -86,6 +94,7 @@ module PS = Set.Make(struct type t = pass let compare = compare; end)
 let selected_passes = ref (PS.empty)
 let enable_pass pass = selected_passes := PS.add pass !selected_passes
 
+let sideconditions_on_defs = ref false
 
 let print_il il =
   Printf.printf "%s\n%!" (Il.Print.string_of_script ~suppress_pos:(!print_no_pos) il)
@@ -116,8 +125,13 @@ let pass_flag = function
   | Uncaseremoval -> "uncase-removal"
   | ImproveIds -> "improve-ids"
   | Ite -> "ite"
+  | PatSimp -> "pattern-simp"
+  | DefToRel -> "definition-to-relation"
   | ElseSimp -> "else-simplification"
   | LetIntroMech -> "let-intro-mech"
+  | DatatypeDiet -> "datatype-diet"
+  | SinglePatternMatch -> "single-pattern-match"
+
 
 let pass_desc = function
   | Sub -> "Synthesize explicit subtype coercions"
@@ -132,15 +146,19 @@ let pass_desc = function
   | AliasDemut -> "Lifts type aliases out of mutual groups"
   | ImproveIds -> "Disambiguates ids used from each other"
   | Ite -> "If-then-else introduction"
+  | PatSimp -> "Simplifies non-linear and definite iteration patterns"
+  | DefToRel -> "Transform specific function definitions into relations"
   | ElseSimp -> "Simplifies generated otherwise relations (after else pass)"
   | LetIntroMech -> "Let Premise introduction for mechanization backends"
+  | DatatypeDiet -> "Remove datatypes with over 50 constructors"
+  | SinglePatternMatch -> "Remove functions that pattern-match on several arguments"
 
 
 let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | Sub -> Middlend.Sub.transform
   | Totalize -> Middlend.Totalize.transform
   | Unthe -> Middlend.Unthe.transform
-  | Sideconditions -> Middlend.Sideconditions.transform
+  | Sideconditions -> Middlend.Sideconditions.transform ~on_defs:!sideconditions_on_defs
   | TypeFamilyRemoval -> Middlend.Typefamilyremoval.transform
   | Else -> Middlend.Else.transform
   | Undep -> Middlend.Undep.transform
@@ -149,8 +167,23 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | AliasDemut -> Middlend.AliasDemut.transform
   | ImproveIds -> Middlend.Improveids.transform
   | Ite -> Middlend.Ite.transform
+  | PatSimp -> Middlend.PatSimp.transform
+  | DefToRel -> Middlend.Deftorel.transform
   | LetIntroMech -> Middlend.Letintromech.transform
   | ElseSimp -> Middlend.Elsesimp.transform
+  | DatatypeDiet -> Middlend.Datatypediet.transform
+  | SinglePatternMatch -> Middlend.Singlepatternmatch.transform
+
+
+(* Argument parsing - Specific for undep pass *)
+let set_wf_state s =
+  Middlend.Undep.wf_state :=
+    match s with
+    | "minimal" -> Middlend.Undep.WfMinimal
+    | "all" -> Middlend.Undep.WfAll
+    | "none" -> Middlend.Undep.WfNone
+    | _ ->
+        raise (Arg.Bad "wf-state must be minimal, all, or none")
 
 (* Argument parsing *)
 
@@ -224,7 +257,11 @@ let argspec = Arg.align (
   "--all-passes", Arg.Unit (fun () -> List.iter enable_pass all_passes)," Run all passes";
 
   "--test-version", Arg.Int (fun i -> Backend_interpreter.Construct.version := i; Il2al.Translate.version := i), " Wasm version to assume for tests (default: 3)";
-
+  "--wf-state", Arg.String set_wf_state, " Denotes the placement of wfness relations for the remove-indexed-types pass 
+    (default: minimal):
+    minimal: Places wfness premises for terms that do not appear in the conclusion
+    all: Places wfness premises whenever it encounters a term that needs it
+    none: Does not place any wfness premises";
   "-help", Arg.Unit ignore, "";
   "--help", Arg.Unit ignore, "";
 ] )
