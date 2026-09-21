@@ -560,7 +560,7 @@ theorem progress:
                    qed
                    then show ?case by simp
                  qed
-               qed
+               qed      
                have wfc: "wf_admininstr (admininstr_sc1 (admininstr_st1_CONST I32 c))"
                    using res_if(13) vs c wf_admininstr_val admininstr_val.domintros 
         admininstr_val.psimps
@@ -593,29 +593,184 @@ theorem progress:
                qed
     next
       case (br l C t_lst t_1_lst)
-      thm br_zero
-      then show ?case sorry
+      show ?case using br(11) not_br_return_def
+        by force
     next
-      case (br_if l C)
-      then show ?case sorry
+      case (br_if l C t_lst)
+      obtain ts1 ts2 where ts: "map typeofval vs = ts1 @ ts2" "list_all2 Valtype_sub ts1 t_lst" 
+        "list_all2 Valtype_sub ts2 [valtype_I32]" 
+        using list_all2_append2 br_if(8)
+        by meson
+      then obtain vs1 vs2 where vs: "vs = vs1 @ vs2" "map typeofval vs1 = ts1" "map typeofval vs2 = ts2" 
+        using map_is_app by blast
+      obtain t where ts2: "ts2 = [t]" using ts(3)
+        by (metis ts(3) list.exhaust list_all2_Cons2 list.rel_distinct(2))
+      then obtain c where c: "vs2 = [val_CONST I32 c]" using ts(3) typeofval_is_i32 vs(3)
+        by blast
+      have "wf_val (val_CONST I32 c)" using br_if vs c by simp
+      then have projc: "proj_num__0 c \<noteq> None" using c proof(induction "val_CONST I32 c")
+                 case (val_case_0)
+                 then show ?case proof(induction I32 c)
+                   case (num__case_0 v_Inn var_x)
+                   then show ?case using proj_num__0.psimps proj_num__0.domintros
+                     by fast
+                 next
+                   case (num__case_1 v_Fnn var_x)
+                   then have "False"
+                   proof(cases v_Fnn)
+                     case Fnn_F32
+                     then show ?thesis using num__case_1(2)
+                        by (simp add: numtype_Fnn.domintros(1) numtype_Fnn.psimps(1)) 
+                   next
+                     case Fnn_F64
+                     then show ?thesis using num__case_1(2)
+                       by (simp add: numtype_Fnn.domintros(2) numtype_Fnn.psimps(2)) 
+                   qed
+                   then show ?case by simp
+                 qed
+               qed
+      have wfc: "wf_admininstr (admininstr_sc1 (admininstr_st1_CONST I32 c))"
+                   using br_if(9) vs c wf_admininstr_val admininstr_val.domintros 
+        admininstr_val.psimps
+                   by fastforce
+                 have wfc: "wf_config
+     (mk_config (mk_state s' f) [admininstr_sc1 (admininstr_st1_CONST I32 c), 
+            admininstr_sc0 (admininstr_st0_BR_IF l)])"
+                   using br_if(12) wfc
+                 proof(induction "mk_config (mk_state s' f) [admininstr_instr 
+                        (instr_sc0 (BR_IF l))]")
+                   case config_case_0
+                   then show ?case using isabelle_reference_output_wasm2.config_case_0
+                     by auto
+                 qed
+                 have vs: "map admininstr_val vs = map admininstr_val vs1 @ [admininstr_sc1 
+                      (admininstr_st1_CONST I32 c)]"
+                   using vs(1) c admininstr_val.domintros(1) 
+                      admininstr_val.psimps(1)
+                   by simp
+               show ?case proof(cases "proj_uN_0 (the (proj_num__0 c))")
+                 case 0
+                 show ?thesis using br_if_false[OF projc 0] br_if(14)
+                     Step.intros(1) reducible_left_v[OF _ wfc] vs
+                   by fastforce
+               next
+                 case (Suc nat)
+                 then show ?thesis using br_if_true[OF projc] br_if(14)
+                     Step.intros(1) reducible_left_v[OF _ wfc] vs
+                   by fastforce
+               qed
     next
       case (br_table C l_lst t_lst l' t_1_lst)
-      then show ?case sorry
+      obtain ts1 ts2 where ts: "map typeofval vs = ts1 @ ts2" "list_all2 Valtype_sub ts1 (t_1_lst @ t_lst)" 
+        "list_all2 Valtype_sub ts2 [valtype_I32]" 
+        using list_all2_append2 br_table(10) append_assoc
+        by metis
+      then obtain vs1 vs2 where vs: "vs = vs1 @ vs2" "map typeofval vs1 = ts1" "map typeofval vs2 = ts2" 
+        using map_is_app by blast
+      obtain t where ts2: "ts2 = [t]" using ts(3)
+        by (metis ts(3) list.exhaust list_all2_Cons2 list.rel_distinct(2))
+      then obtain c where c: "vs2 = [val_CONST I32 c]" using ts(3) typeofval_is_i32 vs(3)
+        by blast
+      have "wf_val (val_CONST I32 c)" using br_table vs c by simp
+      then have projc: "proj_num__0 c \<noteq> None" using c proof(induction "val_CONST I32 c")
+                 case (val_case_0)
+                 then show ?case proof(induction I32 c)
+                   case (num__case_0 v_Inn var_x)
+                   then show ?case using proj_num__0.psimps proj_num__0.domintros
+                     by fast
+                 next
+                   case (num__case_1 v_Fnn var_x)
+                   then have "False"
+                   proof(cases v_Fnn)
+                     case Fnn_F32
+                     then show ?thesis using num__case_1(2)
+                        by (simp add: numtype_Fnn.domintros(1) numtype_Fnn.psimps(1)) 
+                   next
+                     case Fnn_F64
+                     then show ?thesis using num__case_1(2)
+                       by (simp add: numtype_Fnn.domintros(2) numtype_Fnn.psimps(2)) 
+                   qed
+                   then show ?case by simp
+                 qed
+               qed
+      have wfc: "wf_admininstr (admininstr_sc1 (admininstr_st1_CONST I32 c))"
+                   using br_table(11) vs c wf_admininstr_val admininstr_val.domintros 
+        admininstr_val.psimps
+                   by fastforce
+                 have wfc: "wf_config
+     (mk_config (mk_state s' f) [admininstr_sc1 (admininstr_st1_CONST I32 c), 
+            admininstr_sc1 (admininstr_st1_BR_TABLE l_lst l')])"
+                   using br_table(14) wfc
+                 proof(induction "mk_config (mk_state s' f) [admininstr_instr 
+                        (instr_sc0 (BR_TABLE l_lst l'))]")
+                   case config_case_0
+                   then show ?case using isabelle_reference_output_wasm2.config_case_0
+                     by auto
+                 qed
+                 have vs: "map admininstr_val vs = map admininstr_val vs1 @ [admininstr_sc1 
+                      (admininstr_st1_CONST I32 c)]"
+                   using vs(1) c admininstr_val.domintros(1) 
+                      admininstr_val.psimps(1)
+                   by simp
+               show ?case proof(cases "proj_uN_0 (the (proj_num__0 c)) < length l_lst")
+                 case True
+                 show ?thesis using br_table_lt[OF True projc] br_table(16)
+                     Step.intros(1) reducible_left_v[OF _ wfc] vs
+                   by fastforce
+               next
+                 case False
+                 then have "length l_lst \<le> proj_uN_0 (the (proj_num__0 c))"
+                   by simp
+                 then show ?thesis using br_table_ge[OF projc] br_table(16)
+                     Step.intros(1) reducible_left_v[OF _ wfc] vs
+                   by fastforce
+               qed
     next
-      case (call x C)
-      then show ?case sorry
+      case (call x C' t_1_lst t_2_lst)
+      have "length (context_FUNCS C') = length (fun_funcaddr (mk_state s' f))"
+        using call(10) proof(induction "mk_state s' f" "strip C'")
+        case mk_State_ok
+        show ?case using mk_State_ok(2) proof(induction s' f "strip C'")
+          case (mk_Frame_ok s v_moduleinst C t_lst val_lst)
+          show ?case using mk_Frame_ok(1,8) proof(induction s v_moduleinst C)
+            case (mk_Moduleinst_ok functype_lst globaladdr_lst globaltype_lst s funcaddr_lst 
+                  functype_F_lst memaddr_lst memtype_lst tableaddr_lst tabletype_lst exportinst_lst 
+                  dataaddr_lst datatype_lst elemaddr_lst elemtype_lst)
+            show ?case using mk_Moduleinst_ok(4,27) append_res_context_def strip_def
+              fun_funcaddr.domintros fun_funcaddr.psimps
+              by simp 
+          qed
+        qed
+      qed
+      then show ?case using Step_read__call call(1,14) Step.intros(2) 
+          reducible_left_v[OF _ call(12)]
+        by fastforce
     next
       case (call_indirect x C lim y t_1_lst)
+      thm call_indirect_call call_indirect_trap
       then show ?case sorry
     next
       case (return C t_lst t_1_lst)
-      then show ?case sorry
+      then show ?case using not_br_return_def by fastforce
     next
       case (const C nt c_nt)
-      then show ?case sorry
+      then show ?case using admininstr_val.domintros(1) admininstr_val.psimps(1)[of nt c_nt]
+         by (metis admininstr_instr.simps(14))
     next
       case (unop C nt unop_nt)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a vs)
+        then show ?case proof(induction vs)
+          case Nil
+          show ?case using Nil(2-) sorry
+        next
+          case (Cons a vs)
+          then show ?case by simp
+        qed
+      qed
     next
       case (binop C nt binop_nt)
       then show ?case sorry
@@ -630,16 +785,35 @@ theorem progress:
       then show ?case sorry
     next
       case (ref_null C rt)
-      then show ?case sorry
+      then show ?case using admininstr_val.domintros(3) admininstr_val.psimps(3)[of rt]
+        by (metis admininstr_instr.simps(41))
     next
-      case (ref_func x C ft)
-      then show ?case sorry
+      case (ref_func x C' ft)
+      have "length (context_FUNCS C') = length (fun_funcaddr (mk_state s' f))"
+        using ref_func(10) proof(induction "mk_state s' f" "strip C'")
+        case mk_State_ok
+        show ?case using mk_State_ok(2) proof(induction s' f "strip C'")
+          case (mk_Frame_ok s v_moduleinst C t_lst val_lst)
+          show ?case using mk_Frame_ok(1,8) proof(induction s v_moduleinst C)
+            case (mk_Moduleinst_ok functype_lst globaladdr_lst globaltype_lst s funcaddr_lst 
+                  functype_F_lst memaddr_lst memtype_lst tableaddr_lst tabletype_lst exportinst_lst 
+                  dataaddr_lst datatype_lst elemaddr_lst elemtype_lst)
+            show ?case using mk_Moduleinst_ok(4,27) append_res_context_def strip_def
+              fun_funcaddr.domintros fun_funcaddr.psimps
+              by simp 
+          qed
+        qed
+      qed
+      then show ?case using Step_read__ref_func ref_func(1,14) Step.intros(2) 
+          reducible_left_v[OF _ ref_func(12)]
+        by fastforce
     next
       case (ref_is_null C rt)
       then show ?case sorry
     next
       case (vconst C c)
-      then show ?case sorry
+      then show ?case using admininstr_val.domintros(2) admininstr_val.psimps(2)[of V128 c]
+        by (metis admininstr_instr.simps(21))
     next
       case (Instr_ok__vvunop C v_vvunop)
       then show ?case sorry
@@ -699,30 +873,71 @@ theorem progress:
       then show ?case sorry
     next
       case (local_get x C t)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case using Step_read__local_get Step.intros(2)
+          by fastforce
+      next
+        case (Cons a vs)
+        then show ?case by simp
+      qed 
     next
       case (local_set x C t)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a vs)
+        then show ?case using Step__local_set
+          by fastforce
+      qed
     next
       case (local_tee x C t)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a vs)
+        then show ?case using Step_pure__local_tee Step.intros(1) by fastforce
+      qed
     next
       case (global_get x C v_mut t)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case using Step_read__global_get Step.intros(2) by fastforce
+      next
+        case (Cons a vs)
+        then show ?case by simp
+      qed
     next
       case (global_set x C t)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a vs)
+        then show ?case using Step__global_set by fastforce
+      qed
     next
       case (table_get x C lim rt)
+      thm table_get_val table_get_trap
       then show ?case sorry
     next
       case (table_set x C lim rt)
+      thm table_set_val table_set_trap
       then show ?case sorry
     next
       case (table_size x C lim rt)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case using Step_read__table_size Step.intros(2) by fastforce
+      next
+        case (Cons a vs)
+        then show ?case by simp
+      qed
     next
       case (table_grow x C lim rt)
+      thm table_grow_succeed
       then show ?case sorry
     next
       case (table_fill x C lim rt)
