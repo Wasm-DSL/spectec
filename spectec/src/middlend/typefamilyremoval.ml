@@ -569,7 +569,7 @@ let rec transform_def env def =
   | RecD defs -> [RecD (List.concat_map (transform_def env) defs)]
   | RelD (id, params, m, typ, rules) ->
     [RelD (id, List.map (transform_param env) params, m, transform_typ StringMap.empty env typ, List.map (transform_rule env) rules)]
-  | DecD (id, params, typ, clauses) when List.length params > 1 && List.exists (is_type_family_param env) params -> 
+  | DecD (id, params, typ, clauses) when List.length params > 1 && List.length clauses > 0 && List.exists (is_type_family_param env) params -> 
     let totalize_hint = HintD (DecH (id, [totalize_hint]) $ def.at) in
     [DecD (id, List.map (transform_param env) params, transform_typ StringMap.empty env typ, List.map (transform_clause id params env typ) clauses); totalize_hint]
   | DecD (id, params, typ, clauses) -> 
