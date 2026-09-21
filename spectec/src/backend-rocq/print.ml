@@ -713,7 +713,7 @@ let render_wfness_func_lemma id rule =
   "Proof. Admitted"
 
 let render_function_def prefix id at params r_typ clauses = 
-  let has_typ_fam = List.length params > 1 && List.exists is_type_family_param params in
+  (* let has_typ_fam = List.length params > 1 && List.exists is_type_family_param params in *)
   let is_proj_func = StringSet.mem id !env_ref.proj_set in
   let base_list_collector = base_collector [] (@) in
   let c = { base_list_collector with collect_exp = needs_inh_class; collect_path = needs_inh_class_path } in
@@ -732,7 +732,6 @@ let render_function_def prefix id at params r_typ clauses =
     let string_of_let = string_of_list "\n\t\t\t" "\n\t\t\t" "\n\t\t\t" render_prem let_prems in 
     "|" ^ render_match_args args ^ " => " ^ string_of_let ^ render_exp RHS exp) clauses
   ) ^
-  (if has_typ_fam then "\n\t\t" ^ render_extra_clause params else "") ^
   "\n\tend" ^
   if is_proj_func 
   then 
