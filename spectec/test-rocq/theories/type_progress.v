@@ -2826,7 +2826,7 @@ Proof.
     admit.
   }
     (* SIMD *)
-  1-6: admit.
+  1-7: admit.
   { (* Instrs_ok__empty *)
     move => C s.
     move => f C' vcs ts1 ts2 lab ret Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
