@@ -979,7 +979,9 @@ let exported_string =
   "Infix \">=?\" := Qge_bool : Q_scope.\n\n" ^
   "Infix \"<?\" := Qlt_bool : Q_scope.\n\n" ^
   "Infix \">?\" := Qgt_bool : Q_scope.\n\n" ^
-
+  "Infix \"==\" := Qeq_bool (at level 70, no associativity) : Q_scope.\n\n" ^
+  "Definition Qne_bool (x y : Q) : bool := negb (Qeq_bool x y).\n\n" ^
+  "Infix \"!=\" := Qne_bool (at level 70, no associativity) : Q_scope.\n\n" ^
   "Definition option_to_list {T: Type} (arg : option T) : seq T :=\n" ^
 	"\tmatch arg with\n" ^
 	"\t\t| None => nil\n" ^
@@ -1028,14 +1030,24 @@ let exported_string =
   "Definition Q_eq_dec : forall (v1 v2 : Q),\n" ^
   "\t{v1 = v2} + {v1 <> v2}.\n" ^
   "Proof. do ? decidable_equality_step. Defined.\n\n" ^
-
-  "Definition Q_eqb (v1 v2 : Q) : bool :=\n" ^
-	"\tis_left(Q_eq_dec v1 v2).\n" ^
-  "Definition eqQP : Equality.axiom (Q_eqb) :=\n" ^
-	"\teq_dec_Equality_axiom (Q) (Q_eq_dec).\n\n" ^
-  "HB.instance Definition _ := hasDecEq.Build (Q) (eqQP).\n" ^
   "Hint Resolve Q_eq_dec : eq_dec_db.\n\n" ^
-
+  "Lemma Qeq_bool_toZ : forall (q1 q2 : Q), Qeq_bool q1 q2 = true -> Qfloor q1 = Qfloor q2.\n" ^
+  "Proof. intros q1 q2 H. apply Qeq_bool_iff in H. now rewrite H. Qed.\n\n" ^
+  "Lemma Qeq_bool_toN : forall (q1 q2 : Q),\n" ^
+  "\tQeq_bool q1 q2 = true -> Z.to_N (Qfloor q1) = Z.to_N (Qfloor q2).\n" ^
+  "Proof. intros q1 q2 H. now rewrite (Qeq_bool_toZ _ _ H). Qed.\n\n" ^
+  "Lemma Forall_Qle_bool_Qeq : forall (q1 q2 : Q) (T : Type) (f : T -> Q) (l : seq T),\n" ^
+  "\tQeq_bool q1 q2 = true ->\n" ^
+  "\tList.Forall (fun x => Qle_bool q1 (f x) = true) l ->\n" ^
+  "\tList.Forall (fun x => Qle_bool q2 (f x) = true) l.\n" ^
+  "Proof.\n" ^
+  "\tintros q1 q2 T f l Hq Hall.\n" ^
+  "\tapply Qeq_bool_iff in Hq.\n" ^
+  "\teapply List.Forall_impl; [ | exact Hall ].\n" ^
+  "\tintros x Hx. apply Qle_bool_iff in Hx. apply Qle_bool_iff.\n" ^
+  "\tapply (Qle_trans q2 q1 (f x)); [ | exact Hx ].\n" ^
+  "\tapply Qle_lteq. right. now apply Qeq_sym.\n" ^
+  "Qed.\n\n" ^
   "Class Coercion (A B : Type) := { coerce : A -> B }.\n\n" ^
   "Notation \"x ':>' B\" := (coerce (A:=_) (B:=B) x)\n" ^
   "(at level 70, right associativity).\n\n" ^
