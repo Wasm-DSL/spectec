@@ -8,7 +8,8 @@ Import RecordSetNotations.
 (* TODO: Is Notation global? *)
 (* TODO: Is Coercion global? *)
 From WasmSpectec Require Import wasm.
-From WasmSpectec Require Import helper_lemmas helper_tactics typing_lemmas extension_lemmas subtyping.
+
+From WasmSpectec Require Import helper_lemmas helper_tactics typing_lemmas extension_lemmas subtyping axioms.
 From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype.
 
 (* NOTE: Naming conventions:
@@ -461,6 +462,37 @@ Proof.
   }
   - destruct v_vectype; destruct t; discriminate.
   - destruct v_reftype; destruct t; discriminate.
+Qed.
+
+Lemma invert_typeof_numtype_wf: forall v (t: numtype),
+  typeof v = (valtype_numtype t) ->
+  wf_val v ->
+  exists (n: num_),
+    admininstr_val v = (admininstr_CONST t n) /\ wf_num_ t n.
+Proof.
+  move => v t Ht Hwf.
+  destruct v; rewrite /typeof in Ht; try by destruct t; discriminate.
+  - destruct v_numtype; simpl in Ht; destruct t; try discriminate;
+      (exists n; split; first by []); by inversion Hwf.
+  - destruct v_vectype; destruct t; discriminate.
+  - destruct v_reftype; destruct t; discriminate.
+Qed.
+
+
+Lemma invert_typeof_V128: forall v,
+  typeof v = valtype_V128 ->
+  wf_val v ->
+  exists (c: vec_),
+    admininstr_val v = (admininstr_VCONST V128 c) /\
+    wf_uN (!(res_size (valtype_vectype V128))) c.
+Proof.
+  move => v Ht Hwf.
+  destruct v; rewrite /typeof in Ht; try discriminate.
+  - by destruct v_numtype; discriminate.
+  - destruct v_vectype; simpl in Ht.
+    exists v; split; first by [].
+    by inversion Hwf.
+  - by destruct v_reftype; discriminate.
 Qed.
 
 Lemma invert_typeof_reftype: forall v (t: reftype),
@@ -1311,13 +1343,310 @@ Proof.
   - destruct v_Fnn; destruct v_Fnn0; destruct var_x0; discriminate.
 Qed.
 
-Lemma invsigned_total: forall n z,
-    (exists ret, fun_inv_signed_ n z ret).
-Admitted.
+(* ---- helpers about 2^N, wf_uN and signed_ ---- *)
+
+Lemma two_pow_pos : forall (v_N : N), (0 < (2%num ^ v_N)%BN)%BN.
+Proof. move => v_N. apply/N.neq_0_lt_0. by apply: N.pow_nonzero. Qed.
+
+Lemma Zsub1_toN : forall (m : N), ((((m : Z) - (1%num : Z))%Z : N) = (m - 1)%BN).
+Proof.
+  case => [ |p] //.
+  by rewrite -Znat.N2Z.inj_sub ?Znat.N2Z.id //; apply/N.neq_0_le_1.
+Qed.
+
+Lemma wf_uN_lt : forall v_N i, wf_uN v_N (mk_uN i) -> (i < (2%num ^ v_N)%BN)%BN.
+Proof.
+  move => v_N i H.
+  inversion H; subst.
+  match goal with | [ Hb : is_true (_ && _) |- _ ] => move/andP: Hb => [_ Hle] end.
+  move/N.leb_spec0 in Hle.
+  rewrite Zsub1_toN in Hle.
+  have Hp := two_pow_pos v_N.
+  lia.
+Qed.
+
+Lemma two_pow_succ : forall m : N, m <> 0%num ->
+  ((2%num ^ m)%BN = (2 * (2%num ^ (m - 1)%BN))%BN).
+Proof.
+  move => m Hm.
+  rewrite -N.pow_succ_r'.
+  f_equal. lia.
+Qed.
+
+Lemma signed_total : forall (v_N : res_N) (i : N),
+  (i < (2%num ^ v_N)%BN)%BN ->
+  exists z, fun_signed_ v_N i z /\
+            ((0 - ((2%num ^ (v_N - 1)%BN)%BN : Z))%Z <= z)%Z /\
+            (z < ((2%num ^ (v_N - 1)%BN)%BN : Z))%Z.
+Proof.
+  move => v_N i Hlt.
+  have Hp := two_pow_pos v_N.
+  have Hp1 := two_pow_pos (v_N - 1)%BN.
+  case E: ((i <? (2%num ^ (((v_N : Z) - (1%num : Z))%Z : N))%BN)%BN).
+  - exists (i : Z).
+    rewrite Zsub1_toN in E.
+    move/N.ltb_spec0 in E.
+    split; first by apply: fun_signed__case_0; rewrite Zsub1_toN; apply/N.ltb_spec0.
+    split; lia.
+  - exists ((i : Z) - ((2%num ^ v_N)%BN : Z))%Z.
+    rewrite Zsub1_toN in E.
+    move/N.ltb_spec0 in E.
+    have Hge : ((2%num ^ (v_N - 1)%BN)%BN <= i)%BN by lia.
+    have HN0 : v_N <> 0%num.
+    { move => H0. rewrite H0 in Hlt Hge. simpl in Hlt, Hge. lia. }
+    have Hd := two_pow_succ v_N HN0.
+    split.
+    + apply: fun_signed__case_1. apply/andP; split.
+      * by apply/N.leb_spec0; rewrite Zsub1_toN.
+      * by apply/N.ltb_spec0.
+    + split; lia.
+Qed.
+
+Lemma invsigned_total: forall (v_N : res_N) z,
+    ((0 - ((2%num ^ (v_N - 1)%BN)%BN : Z))%Z <= z)%Z ->
+    (z < ((2%num ^ (v_N - 1)%BN)%BN : Z))%Z ->
+    (exists ret, fun_inv_signed_ v_N z ret).
+Proof.
+  move => v_N z Hlo Hhi.
+  case Ez: (0 <=? z)%Z.
+  - move/Z.leb_spec0 in Ez.
+    exists (z : N). apply: fun_inv_signed__case_0.
+    rewrite Zsub1_toN.
+    apply/andP; split; [by apply/Z.leb_spec0; lia | by apply/Z.ltb_spec0; lia].
+  - apply Z.leb_gt in Ez.
+    exists ((z + ((2%num ^ v_N)%BN : Z))%Z : N).
+    apply: fun_inv_signed__case_1.
+    rewrite Zsub1_toN.
+    apply/andP; split; [by apply/Z.leb_spec0; lia | by apply/Z.ltb_spec0; lia].
+Qed.
+
+(* ---- bounds on integer truncating division ---- *)
+
+Lemma Zquot_abs_le : forall a b p : Z, b <> 0%Z -> (0 <= p)%Z ->
+  (Z.abs a <= p)%Z -> (Z.abs (Z.quot a b) <= p)%Z.
+Proof.
+  move => a b p Hb Hp Ha.
+  rewrite -(Z.quot_abs a b Hb).
+  have H1 : (1 <= Z.abs b)%Z by lia.
+  have Hc := Z.quot_le_compat_l (Z.abs a) 1 (Z.abs b) (Z.abs_nonneg a) (conj Z.lt_0_1 H1).
+  rewrite Z.quot_1_r in Hc. lia.
+Qed.
+
+Lemma Zquot_ge_inv : forall a b p : Z, b <> 0%Z -> (1 <= p)%Z ->
+  (Z.abs a <= p)%Z -> (p <= Z.quot a b)%Z ->
+  (b = 1%Z /\ a = p) \/ (b = (-1)%Z /\ a = (- p)%Z).
+Proof.
+  move => a b p Hb Hp Ha Hge.
+  have Hcase : b = 1%Z \/ b = (-1)%Z \/ (2 <= Z.abs b)%Z by lia.
+  case: Hcase => [Hb1 | [Hbm1 | Hb2]].
+  - subst b. rewrite Z.quot_1_r in Hge. left. by split; lia.
+  - subst b. right; split; first by [].
+    have Hop : (Z.quot a (-1) = - (Z.quot a 1))%Z.
+    { by rewrite -Z.quot_opp_r. }
+    rewrite Hop Z.quot_1_r in Hge. lia.
+  - exfalso.
+    have Hb0 : (0 < Z.abs b)%Z by lia.
+    have H1 := Z.quot_abs a b Hb.
+    have H2 := Z.quot_le_compat_l (Z.abs a) 2 (Z.abs b) (Z.abs_nonneg a) (conj (ltac:(lia) : (0 < 2)%Z) Hb2).
+    have H3 := Z.quot_le_mono (Z.abs a) p 2 (ltac:(lia) : (0 < 2)%Z) Ha.
+    have H4 : (Z.quot p 2 < p)%Z by apply: Z.quot_lt; lia.
+    lia.
+Qed.
+
+Lemma wf_uN_lt' : forall v_N (u : uN), wf_uN v_N u -> ((u :> N) < (2%num ^ v_N)%BN)%BN.
+Proof. move => v_N [i] H. by apply: wf_uN_lt. Qed.
+
+Lemma signed_nonzero : forall v_N i z, fun_signed_ v_N i z -> i <> 0%num -> z <> 0%Z.
+Proof.
+  move => v_N i z H Hi.
+  inversion H; subst; first by lia.
+  match goal with | [ Hb : is_true (_ && _) |- _ ] => move/andP: Hb => [_ Hlt] end.
+  move/N.ltb_spec0 in Hlt. lia.
+Qed.
+
+Lemma idiv_total : forall (v_N : res_N) (v_sx : sx) (i1 i2 : uN),
+  wf_uN v_N i1 -> wf_uN v_N i2 ->
+  exists r, fun_idiv_ v_N v_sx i1 i2 r.
+Proof.
+  move => v_N v_sx i1 i2 Hw1 Hw2.
+  case: v_sx; first by (eexists; apply: fun_idiv__case_1).
+  destruct i2 as [n2].
+  destruct n2 as [ |p2]; first by (eexists; apply: fun_idiv__case_2).
+  have Hl1 := wf_uN_lt' _ _ Hw1.
+  have Hl2 := wf_uN_lt' _ _ Hw2.
+  destruct (signed_total v_N (i1 :> N) Hl1) as [z1 [Hs1 [Hlo1 Hhi1]]].
+  destruct (signed_total v_N (mk_uN (N.pos p2) :> N) Hl2) as [z2 [Hs2 [Hlo2 Hhi2]]].
+  have Hz2 : z2 <> 0%Z by apply: (signed_nonzero _ _ _ Hs2).
+  set P := (2%num ^ (v_N - 1)%BN)%BN.
+  have HPp := two_pow_pos (v_N - 1)%BN.
+  rewrite -/P in HPp Hlo1 Hhi1 Hlo2 Hhi2.
+  have HP1 : (1 <= (P : Z))%Z by lia.
+  have Ha1 : (Z.abs z1 <= (P : Z))%Z by lia.
+  case Hq: ((Z.quot z1 z2) <? (P : Z))%Z.
+  - move/Z.ltb_spec0 in Hq.
+    have Hab := Zquot_abs_le z1 z2 (P : Z) Hz2 (ltac:(lia)) Ha1.
+    have [r Hr] : exists ret, fun_inv_signed_ v_N (truncz (inject_Z z1 / inject_Z z2)%Q) ret.
+    { rewrite (truncz_quot _ _ Hz2). apply: invsigned_total; rewrite -/P; lia. }
+    exists (Some (mk_uN r)).
+    by eapply fun_idiv__case_4; eauto.
+  - move/Z.ltb_ge in Hq.
+    have Hinv := Zquot_ge_inv z1 z2 (P : Z) Hz2 HP1 Ha1 Hq.
+    exists None.
+    eapply fun_idiv__case_3; eauto.
+    rewrite Zsub1_toN -/P.
+    apply (proj2 (Qeq_bool_iff _ _)).
+    case: Hinv => [[Hb Ha] | [Hb Ha]]; subst;
+      by rewrite /Qeq /Qdiv /Qmult /Qinv /inject_Z /=; lia.
+Qed.
+
+Lemma irem_total : forall (v_N : res_N) (v_sx : sx) (i1 i2 : uN),
+  wf_uN v_N i1 -> wf_uN v_N i2 ->
+  exists r, fun_irem_ v_N v_sx i1 i2 r.
+Proof.
+  move => v_N v_sx i1 i2 Hw1 Hw2.
+  case: v_sx; first by (eexists; apply: fun_irem__case_1).
+  destruct i2 as [n2].
+  destruct n2 as [ |p2]; first by (eexists; apply: fun_irem__case_2).
+  have Hl1 := wf_uN_lt' _ _ Hw1.
+  have Hl2 := wf_uN_lt' _ _ Hw2.
+  destruct (signed_total v_N (i1 :> N) Hl1) as [z1 [Hs1 [Hlo1 Hhi1]]].
+  destruct (signed_total v_N (mk_uN (N.pos p2) :> N) Hl2) as [z2 [Hs2 [Hlo2 Hhi2]]].
+  have Hz2 : z2 <> 0%Z by apply: (signed_nonzero _ _ _ Hs2).
+  set P := (2%num ^ (v_N - 1)%BN)%BN.
+  have HPp := two_pow_pos (v_N - 1)%BN.
+  rewrite -/P in HPp Hlo1 Hhi1 Hlo2 Hhi2.
+  have Hrem : (z1 - (z2 * Z.quot z1 z2)%Z)%Z = Z.rem z1 z2.
+  { have Hqr := Z.quot_rem' z1 z2. lia. }
+  have Hbnd := Z.rem_bound_abs z1 z2 Hz2.
+  have [r Hr] : exists ret,
+      fun_inv_signed_ v_N (z1 - (z2 * (truncz (inject_Z z1 / inject_Z z2)%Q))%Z)%Z ret.
+  { rewrite (truncz_quot _ _ Hz2) Hrem. apply: invsigned_total; rewrite -/P; lia. }
+  exists (Some (mk_uN r)).
+  eapply fun_irem__case_3; eauto.
+  by apply/andP; split; apply/eqP.
+Qed.
+
+Lemma ilt_total : forall v_N v_sx i1 i2, wf_uN v_N i1 -> wf_uN v_N i2 ->
+  exists r, fun_ilt_ v_N v_sx i1 i2 r.
+Proof.
+  move => v_N v_sx i1 i2 Hw1 Hw2.
+  case: v_sx; first by (eexists; apply: fun_ilt__case_0).
+  have [z1 [Hs1 _]] := signed_total v_N (i1 :> N) (wf_uN_lt' _ _ Hw1).
+  have [z2 [Hs2 _]] := signed_total v_N (i2 :> N) (wf_uN_lt' _ _ Hw2).
+  by eexists; eapply fun_ilt__case_1; eauto.
+Qed.
+
+Lemma igt_total : forall v_N v_sx i1 i2, wf_uN v_N i1 -> wf_uN v_N i2 ->
+  exists r, fun_igt_ v_N v_sx i1 i2 r.
+Proof.
+  move => v_N v_sx i1 i2 Hw1 Hw2.
+  case: v_sx; first by (eexists; apply: fun_igt__case_0).
+  have [z1 [Hs1 _]] := signed_total v_N (i1 :> N) (wf_uN_lt' _ _ Hw1).
+  have [z2 [Hs2 _]] := signed_total v_N (i2 :> N) (wf_uN_lt' _ _ Hw2).
+  by eexists; eapply fun_igt__case_1; eauto.
+Qed.
+
+Lemma ile_total : forall v_N v_sx i1 i2, wf_uN v_N i1 -> wf_uN v_N i2 ->
+  exists r, fun_ile_ v_N v_sx i1 i2 r.
+Proof.
+  move => v_N v_sx i1 i2 Hw1 Hw2.
+  case: v_sx; first by (eexists; apply: fun_ile__case_0).
+  have [z1 [Hs1 _]] := signed_total v_N (i1 :> N) (wf_uN_lt' _ _ Hw1).
+  have [z2 [Hs2 _]] := signed_total v_N (i2 :> N) (wf_uN_lt' _ _ Hw2).
+  by eexists; eapply fun_ile__case_1; eauto.
+Qed.
+
+Lemma ige_total : forall v_N v_sx i1 i2, wf_uN v_N i1 -> wf_uN v_N i2 ->
+  exists r, fun_ige_ v_N v_sx i1 i2 r.
+Proof.
+  move => v_N v_sx i1 i2 Hw1 Hw2.
+  case: v_sx; first by (eexists; apply: fun_ige__case_0).
+  have [z1 [Hs1 _]] := signed_total v_N (i1 :> N) (wf_uN_lt' _ _ Hw1).
+  have [z2 [Hs2 _]] := signed_total v_N (i2 :> N) (wf_uN_lt' _ _ Hw2).
+  by eexists; eapply fun_ige__case_1; eauto.
+Qed.
+
+Ltac num_shapes Hb Hn1 Hn2 :=
+  inversion Hb; inversion Hn1; inversion Hn2; eq_to_prop; subst;
+  repeat match goal with
+  | [ i : Inn |- _ ] => destruct i
+  | [ i : Fnn |- _ ] => destruct i
+  end;
+  try discriminate.
 
 Lemma binop_total: forall nt b n1 n2,
+    wf_num_ nt n1 -> wf_num_ nt n2 -> wf_binop_ nt b ->
     (exists lst, fun_binop_ nt b n1 n2 lst).
-Admitted.
+Proof.
+  move => nt b n1 n2 Hn1 Hn2 Hb.
+  num_shapes Hb Hn1 Hn2.
+  all: match goal with | [ x : binop_Inn |- _ ] => destruct x | [ x : binop_Fnn |- _ ] => destruct x end.
+  all: try (by (eexists; econstructor)).
+  all: match goal with
+  | [ |- exists _, fun_binop_ _ (mk_binop__0 _ (DIV ?sx)) (mk_num__0 _ ?a) (mk_num__0 _ ?b) _ ] =>
+      have [r Hr] := idiv_total _ sx a b ltac:(eassumption) ltac:(eassumption);
+      eexists; econstructor; exact: Hr
+  | [ |- exists _, fun_binop_ _ (mk_binop__0 _ (REM ?sx)) (mk_num__0 _ ?a) (mk_num__0 _ ?b) _ ] =>
+      have [r Hr] := irem_total _ sx a b ltac:(eassumption) ltac:(eassumption);
+      eexists; econstructor; exact: Hr
+  end.
+Qed.
+
+Lemma relop_total: forall nt r n1 n2,
+    wf_num_ nt n1 -> wf_num_ nt n2 -> wf_relop_ nt r ->
+    (exists c, fun_relop_ nt r n1 n2 c).
+Proof.
+  move => nt r n1 n2 Hn1 Hn2 Hr.
+  num_shapes Hr Hn1 Hn2.
+  all: match goal with | [ x : relop_Inn |- _ ] => destruct x | [ x : relop_Fnn |- _ ] => destruct x end.
+  all: try (by (eexists; econstructor)).
+  all: match goal with
+  | [ |- exists _, fun_relop_ _ (mk_relop__0 _ (LT ?sx)) (mk_num__0 _ ?a) (mk_num__0 _ ?b) _ ] =>
+      have [c Hc] := ilt_total _ sx a b ltac:(eassumption) ltac:(eassumption);
+      eexists; econstructor; exact: Hc
+  | [ |- exists _, fun_relop_ _ (mk_relop__0 _ (GT ?sx)) (mk_num__0 _ ?a) (mk_num__0 _ ?b) _ ] =>
+      have [c Hc] := igt_total _ sx a b ltac:(eassumption) ltac:(eassumption);
+      eexists; econstructor; exact: Hc
+  | [ |- exists _, fun_relop_ _ (mk_relop__0 _ (LE ?sx)) (mk_num__0 _ ?a) (mk_num__0 _ ?b) _ ] =>
+      have [c Hc] := ile_total _ sx a b ltac:(eassumption) ltac:(eassumption);
+      eexists; econstructor; exact: Hc
+  | [ |- exists _, fun_relop_ _ (mk_relop__0 _ (GE ?sx)) (mk_num__0 _ ?a) (mk_num__0 _ ?b) _ ] =>
+      have [c Hc] := ige_total _ sx a b ltac:(eassumption) ltac:(eassumption);
+      eexists; econstructor; exact: Hc
+  end.
+Qed.
+
+Lemma cvtop_total: forall nt1 nt2 cvt c1,
+    wf_num_ nt1 c1 -> wf_cvtop__ nt1 nt2 cvt ->
+    (exists c2, fun_cvtop__ nt1 nt2 cvt c1 c2).
+Proof.
+  move => nt1 nt2 cvt c1 Hc1 Hcvt.
+  inversion Hcvt; inversion Hc1; eq_to_prop; subst.
+  all: repeat match goal with
+  | [ H : wf_cvtop__Inn_1_Inn_2 _ _ _ |- _ ] => inversion H; subst; clear H
+  | [ H : wf_cvtop__Inn_1_Fnn_2 _ _ _ |- _ ] => inversion H; subst; clear H
+  | [ H : wf_cvtop__Fnn_1_Inn_2 _ _ _ |- _ ] => inversion H; subst; clear H
+  | [ H : wf_cvtop__Fnn_1_Fnn_2 _ _ _ |- _ ] => inversion H; subst; clear H
+  end.
+  all: repeat match goal with
+  | [ i : Inn |- _ ] => destruct i
+  | [ i : Fnn |- _ ] => destruct i
+  end.
+  all: try discriminate.
+  all: try (by (eexists; econstructor)).
+Qed.
+
+Lemma binop_before : forall nt b n1 n2,
+    wf_num_ nt n1 -> wf_num_ nt n2 -> wf_binop_ nt b ->
+    fun_binop__before_fun_binop__case_38 nt b n1 n2.
+Proof.
+  move => nt b n1 n2 Hn1 Hn2 Hb.
+  num_shapes Hb Hn1 Hn2.
+  all: match goal with | [ x : binop_Inn |- _ ] => destruct x | [ x : binop_Fnn |- _ ] => destruct x end.
+  all: simpl.
+  all: econstructor.
+  all: exact: None.
+Qed.
 
 Lemma binop_not_none: forall nt b n1 n2 lst,
     wf_num_ nt n1 ->
@@ -1325,17 +1654,25 @@ Lemma binop_not_none: forall nt b n1 n2 lst,
     wf_binop_ nt b ->
     fun_binop_ nt b n1 n2 lst ->
     lst <> None.
-Admitted.
+Proof.
+  move => nt b n1 n2 lst Hn1 Hn2 Hb Hf.
+  inversion Hf; subst; try discriminate.
+  exfalso. match goal with | [ H : ~ _ |- _ ] => apply H end.
+  by apply: binop_before.
+Qed.
 
-Lemma testop_not_none: forall nt t n1,
-    wf_num_ nt n1 ->
-    wf_testop_ nt t ->
-    fun_testop_ nt t n1 <> None.
-Admitted.
-
-Lemma relop_total: forall nt r n1 n2,
-    (exists c, fun_relop_ nt r n1 n2 c).
-Admitted.
+Lemma relop_before : forall nt r n1 n2,
+    wf_num_ nt n1 -> wf_num_ nt n2 -> wf_relop_ nt r ->
+    fun_relop__before_fun_relop__case_24 nt r n1 n2.
+Proof.
+  move => nt r n1 n2 Hn1 Hn2 Hr.
+  num_shapes Hr Hn1 Hn2.
+  all: match goal with | [ x : relop_Inn |- _ ] => destruct x | [ x : relop_Fnn |- _ ] => destruct x end.
+  all: simpl.
+  all: econstructor.
+  all: try exact: None.
+  all: try exact: (mk_uN 0%num).
+Qed.
 
 Lemma relop_not_none: forall nt r n1 n2 c,
     wf_num_ nt n1 ->
@@ -1343,18 +1680,131 @@ Lemma relop_not_none: forall nt r n1 n2 c,
     wf_relop_ nt r ->
     fun_relop_ nt r n1 n2 c ->
     c <> None.
-Admitted.
+Proof.
+  move => nt r n1 n2 c Hn1 Hn2 Hr Hf.
+  inversion Hf; subst; try discriminate.
+  exfalso. match goal with | [ H : ~ _ |- _ ] => apply H end.
+  by apply: relop_before.
+Qed.
 
-Lemma cvtop_total: forall nt1 nt2 cvt c1,
-    (exists c2, fun_cvtop__ nt1 nt2 cvt c1 c2).
-Admitted.
+Lemma cvtop_before : forall nt1 nt2 cvt c1,
+    wf_num_ nt1 c1 -> wf_cvtop__ nt1 nt2 cvt ->
+    fun_cvtop___before_fun_cvtop___case_36 nt1 nt2 cvt c1.
+Proof.
+  move => nt1 nt2 cvt c1 Hc1 Hcvt.
+  inversion Hcvt; inversion Hc1; eq_to_prop; subst.
+  all: repeat match goal with
+  | [ H : wf_cvtop__Inn_1_Inn_2 _ _ _ |- _ ] => inversion H; subst; clear H
+  | [ H : wf_cvtop__Inn_1_Fnn_2 _ _ _ |- _ ] => inversion H; subst; clear H
+  | [ H : wf_cvtop__Fnn_1_Inn_2 _ _ _ |- _ ] => inversion H; subst; clear H
+  | [ H : wf_cvtop__Fnn_1_Fnn_2 _ _ _ |- _ ] => inversion H; subst; clear H
+  end.
+  all: repeat match goal with
+  | [ i : Inn |- _ ] => destruct i
+  | [ i : Fnn |- _ ] => destruct i
+  end.
+  all: try discriminate.
+  all: simpl.
+  all: econstructor.
+  all: try exact: None.
+  all: try exact: (mk_uN 0%num).
+  all: by [].
+Qed.
 
 Lemma cvtop_not_none: forall nt1 nt2 cvt c1 c2,
     wf_num_ nt1 c1 ->
     wf_cvtop__ nt1 nt2 cvt ->
     fun_cvtop__ nt1 nt2 cvt c1 c2 ->
     c2 <> None.
-Admitted.
+Proof.
+  move => nt1 nt2 cvt c1 c2 Hc1 Hcvt Hf.
+  inversion Hf; subst; try discriminate.
+  exfalso. match goal with | [ H : ~ _ |- _ ] => apply H end.
+  by apply: cvtop_before.
+Qed.
+
+Lemma testop_not_none: forall nt t n1,
+    wf_num_ nt n1 ->
+    wf_testop_ nt t ->
+    fun_testop_ nt t n1 <> None.
+Proof.
+  move => nt t n1 Hn1 Ht.
+  inversion Ht; inversion Hn1; eq_to_prop; subst.
+  all: repeat match goal with
+  | [ i : Inn |- _ ] => destruct i
+  | [ i : Fnn |- _ ] => destruct i
+  end.
+  all: try discriminate.
+  all: match goal with | [ x : testop_Inn |- _ ] => destruct x end.
+  all: by [].
+Qed.
+
+
+Lemma invsigned_total_32m1 : exists ret, fun_inv_signed_ 32 (0 - 1)%Z ret.
+Proof.
+  apply: invsigned_total; by vm_compute.
+Qed.
+
+Lemma Forall_list_slice : forall {T : Type} (P : T -> Prop) (l : seq T) (i j : N),
+  List.Forall P l -> List.Forall P (list_slice l i j).
+Proof.
+  move => T P l.
+  induction l; move => i j H; first by [].
+  inversion H; subst.
+  destruct i; destruct j; simpl; try by [].
+  - by econstructor; eauto.
+  - by apply: IHl.
+Qed.
+
+Lemma mem_bytes_wf : forall (ms : seq meminst) (k : N),
+  List.Forall wf_meminst ms -> List.Forall wf_byte (BYTES (ms [| k |])).
+Proof.
+  move => ms k Hall.
+  case E: ((k <? (|ms|))%BN).
+  - move/N.ltb_spec0 in E.
+    have H : wf_meminst (ms [|k|]) by (eapply Forall_size; eauto).
+    by inversion H.
+  - move/N.ltb_ge in E.
+    rewrite /lookup_total nth_default; first by [].
+    apply/leP. lia.
+Qed.
+
+Lemma wf_config_mem_bytes : forall s f ais (x : memidx),
+  wf_config (mk_config (mk_state s f) ais) ->
+  List.Forall wf_byte (BYTES (fun_mem (mk_state s f) x)).
+Proof.
+  move => s f ais x H.
+  inversion H; subst.
+  match goal with | [ Hs : wf_state _ |- _ ] => inversion Hs; subst end.
+  match goal with | [ Hs : wf_store _ |- _ ] => inversion Hs; subst end.
+  by apply: mem_bytes_wf.
+Qed.
+
+
+Lemma mk_uN_eta : forall (u : uN), mk_uN ((u :> N)) = u.
+Proof. by case. Qed.
+
+Lemma packnum_not_none : forall (lt : lanetype) (c : num_),
+  wf_num_ (unpack lt) c -> (packnum_ lt c) != None.
+Proof.
+  move => lt c Hwf.
+  destruct lt; simpl; try by [].
+  all: inversion Hwf; subst; eq_to_prop; subst.
+  all: try (by destruct v_Fnn).
+  all: by destruct v_Inn.
+Qed.
+
+Lemma lanes_nth_wf : forall (lt : lanetype) (v_N : N) (c : vec_) (k : N),
+  wf_shape (X lt (mk_dim v_N)) ->
+  wf_uN 128 c ->
+  (k < v_N)%BN ->
+  wf_lane_ lt ((lanes_ (X lt (mk_dim v_N)) c) [| k |]).
+Proof.
+  move => lt v_N c k Hsh Hc Hk.
+  have Hall := lanes__is_wf (X lt (mk_dim v_N)) c _ Hsh Hc (eqxx _).
+  have H := Forall_size _ _ Hall k.
+  rewrite lanes_len in H. by apply: H.
+Qed.
 
 Lemma add_sub_parens: forall n1 (n2 : N) n3,
     (n3 <= n2)%Z ->
@@ -1905,11 +2355,14 @@ Proof.
     move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
     right.
     case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
-    eapply invert_typeof_numtype in Ht1 as [n1 Heqv1].
+
+    inv_Forall HWfVals.
+    have [n1 [Heqv1 Hwf1]] := invert_typeof_numtype_wf _ _ Ht1 HP.
     rewrite Heqv1.
-    eapply invert_typeof_numtype in Ht2 as [n2 Heqv2].
+    have [n2 [Heqv2 Hwf2]] := invert_typeof_numtype_wf _ _ Ht2 HP0.
     rewrite Heqv2.
-    pose proof (binop_total t binop n1 n2) as [lst_opt HBinop].
+    have Hwfb : wf_binop_ t binop by inversion HWfinstr.
+    pose proof (binop_total t binop n1 n2 Hwf1 Hwf2 Hwfb) as [lst_opt HBinop].
     case Ebinop: lst_opt => [ a | ].
     + case Elst: a => [ | a' as'].
       + exists s, f, [admininstr_TRAP].
@@ -1924,13 +2377,8 @@ Proof.
         * rewrite Ebinop. rewrite Elst. done.
         * rewrite Ebinop; done.
         * rewrite Ebinop. rewrite Elst. by apply mem_head.
-      + inv_Forall HWfVals.
-        destruct v1; unfold admininstr_val in Heqv1; try discriminate.
-        destruct v2; unfold admininstr_val in Heqv2; try discriminate.
-        injection Heqv2 as ?; injection Heqv1 as ?; subst.
-        inversion HWfinstr; subst.
-        inversion HP; inversion HP0; subst.
-        eapply binop_not_none in HBinop; eauto.
+
+      + eapply binop_not_none in HBinop; eauto.
         done.
   }
   { (* Instr_ok__testop *)
@@ -1962,24 +2410,22 @@ Proof.
     move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
     right. 
     case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
-    eapply invert_typeof_numtype in Ht1 as [n1 Heqv1].
+
+    inv_Forall HWfVals.
+    have [n1 [Heqv1 Hwf1]] := invert_typeof_numtype_wf _ _ Ht1 HP.
     rewrite Heqv1.
-    eapply invert_typeof_numtype in Ht2 as [n2 Heqv2].
+    have [n2 [Heqv2 Hwf2]] := invert_typeof_numtype_wf _ _ Ht2 HP0.
     rewrite Heqv2.
-    pose proof (relop_total t relop n1 n2) as [c Hrelop].
+    have Hwfr : wf_relop_ t relop by inversion HWfinstr.
+    pose proof (relop_total t relop n1 n2 Hwf1 Hwf2 Hwfr) as [c Hrelop].
     case ENone: c => [ c' | ].
     - exists s, f, [admininstr_CONST I32 c'].
       apply: pure.
       apply: Step_pure__relop; eauto.
       - rewrite ENone. apply/eqP; discriminate.
       - rewrite ENone. done.
+
     - subst.
-      inversion HWfinstr; subst.
-      inv_Forall HWfVals.
-      destruct v1; unfold admininstr_val in Heqv1; try discriminate.
-      destruct v2; unfold admininstr_val in Heqv2; try discriminate.
-      injection Heqv1 as ?; injection Heqv2 as ?; subst.
-      inversion HP; inversion HP0; subst.
       eapply relop_not_none in Hrelop; eauto.
       done.
   }
@@ -1988,9 +2434,12 @@ Proof.
     move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
     right.
     case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
-    eapply invert_typeof_numtype in Ht1 as [n1 Heqv1].
+
+    inv_Forall HWfVals.
+    have [n1 [Heqv1 Hwf1]] := invert_typeof_numtype_wf _ _ Ht1 HP.
     rewrite Heqv1.
-    pose proof (cvtop_total t1' t2' cvtop n1) as [n2 Hcvtop].
+    have Hwfc : wf_cvtop__ t1' t2' cvtop by inversion HWfinstr.
+    pose proof (cvtop_total t1' t2' cvtop n1 Hwf1 Hwfc) as [n2 Hcvtop].
     case ENone: n2 => [ c' | ].
     - 
       case Ecvtop: c' => [ | c].
@@ -2003,12 +2452,8 @@ Proof.
         * rewrite ENone. by rewrite Ecvtop.
         * rewrite ENone; done.
         * rewrite ENone. rewrite Ecvtop. by apply mem_head.
+
     - subst.
-      inversion HWfinstr; subst.
-      inv_Forall HWfVals.
-      destruct v1; unfold admininstr_val in Heqv1; try discriminate.
-      injection Heqv1 as ?; subst.
-      inversion HP; subst.
       eapply cvtop_not_none in Hcvtop; eauto.
       done.
   }
@@ -2074,7 +2519,133 @@ Proof.
       }
   }
   (* SIMD *)
-  1-20: admit.
+
+  { (* Instr_ok__vconst *)
+    move => C c HWfC HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    by left.
+  }
+  { (* Instr_ok__vvunop *)
+    move => C v_vvunop HWfC HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    rewrite Heqv1.
+    exists s, f, [admininstr_VCONST V128 (vvunop_ V128 v_vvunop c1)].
+    apply: pure.
+    by apply: Step_pure__vvunop.
+  }
+  { (* Instr_ok__vvbinop *)
+    move => C v_vvbinop HWfC HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    have [c2 [Heqv2 Hwf2]] := invert_typeof_V128 _ Ht2 HP0.
+    rewrite Heqv1 Heqv2.
+    exists s, f, [admininstr_VCONST V128 (vvbinop_ V128 v_vvbinop c1 c2)].
+    apply: pure.
+    by apply: Step_pure__vvbinop.
+  }
+  { (* Instr_ok__vvternop *)
+    move => C v_vvternop HWfC HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    have [c2 [Heqv2 Hwf2]] := invert_typeof_V128 _ Ht2 HP0.
+    have [c3 [Heqv3 Hwf3]] := invert_typeof_V128 _ Ht3 HP1.
+    rewrite Heqv1 Heqv2 Heqv3.
+    exists s, f, [admininstr_VCONST V128 (vvternop_ V128 v_vvternop c1 c2 c3)].
+    apply: pure.
+    by apply: Step_pure__vvternop.
+  }
+  { (* Instr_ok__vvtestop *)
+    move => C v_vvtestop HWfC HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    rewrite Heqv1.
+    destruct v_vvtestop.
+    exists s, f, [admininstr_CONST I32
+      (mk_num__0 Inn_I32 (ine_ (!(res_size valtype_V128)) c1 (mk_uN 0)))].
+    apply: pure.
+    by apply: Step_pure__vvtestop.
+  }
+  (* VUNOP / VBINOP / VTESTOP / VRELOP / VSHIFTOP / VBITMASK / VSWIZZLE /
+     VSHUFFLE.
+
+     All eight reduce through `lanes_`, and every one of their Step_pure rules
+     needs the lanes of the operand in one *particular* injection of the
+     generated `lane_` union (`proj_lane__0` for numtype lanes, `proj_lane__1`
+     for packed lanes, `proj_lane__2` for `Jnn` lanes).  The only fact
+     available about `lanes_` (which is an Axiom) is `lanes__is_wf`, and
+     `wf_lane_ (lanetype_Jnn Jnn_I32) l` is satisfied both by
+     `mk_lane__0 I32 c` and by `mk_lane__2 Jnn_I32 c` - the spectec subtyping
+     between `num_`/`pack_`/`iN` and `lane_` is not preserved by the Coq
+     encoding.  So `proj_lane__2 l <> None` is not derivable, and no axiom can
+     repair it: `vextract_lane_num` wants the `mk_lane__0` form of the very
+     same list that `vtestop_true` wants in `mk_lane__2` form. *)
+  1-8: admit.
+  { (* Instr_ok__vsplat *)
+    move => C sh HWfC HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    destruct sh as [Lnn dm]; destruct dm as [Ndim].
+    have Hwfsh : wf_shape (X Lnn (mk_dim Ndim)) by inversion HWfinstr.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_numtype_wf _ _ Ht1 HP.
+    rewrite Heqv1.
+    have Hpk := packnum_not_none Lnn c1 Hwf1.
+    exists s, f, [admininstr_VCONST V128
+      (inv_lanes_ (X Lnn (mk_dim Ndim)) (list_repeat (!(packnum_ Lnn c1)) Ndim))].
+    apply: pure.
+    by apply: Step_pure__vsplat.
+  }
+
+  (* VEXTRACT_LANE.  Two independent obstacles:
+     - `wf_instr (VEXTRACT_LANE sh sx_opt i)` (instr_case_34) states
+       `(fun_lanetype sh == lanetype_numtype nt) <-> (sx_opt == None)` for a
+       *universally* quantified `nt`.  Taking `sh = X lanetype_I32 d`,
+       `sx_opt = Some U` and `nt = I64` satisfies it, yet neither
+       `vextract_lane_num` (needs `sx_opt = None`) nor `vextract_lane_pack`
+       (needs a packed shape) applies.
+     - even for `sx_opt = None` the rule needs the i-th lane in the
+       `mk_lane__0` injection, which `lanes__is_wf` does not give (see the
+       note on the previous eight cases). *)
+  1: admit.
+  { (* Instr_ok__vreplace_lane *)
+    move => C sh i Hrange HWfC HWfdim HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    destruct sh as [Lnn dm]; destruct dm as [Ndim].
+    have Hwfsh : wf_shape (X Lnn (mk_dim Ndim)) by inversion HWfinstr.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    have [c2 [Heqv2 Hwf2]] := invert_typeof_numtype_wf _ _ Ht2 HP0.
+    rewrite Heqv1 Heqv2.
+    have Hpk := packnum_not_none Lnn c2 Hwf2.
+    exists s, f, [admininstr_VCONST V128
+      (inv_lanes_ (X Lnn (mk_dim Ndim))
+        (list_update_func (lanes_ (X Lnn (mk_dim Ndim)) c1) (i :> N)
+          (fun _ : lane_ => (!(packnum_ Lnn c2)))))].
+    apply: pure.
+    by apply: Step_pure__vreplace_lane.
+  }
+
+  (* VEXTUNOP / VEXTBINOP / VNARROW / VCVTOP: same `lane_`-injection obstacle
+     as the eight cases above - `fun_vextunop__`, `fun_vextbinop__`,
+     `fun_vnarrow`-style rules and `vcvtop_*` all require
+     `proj_lane__2`/`proj_lane__1` of the operand's lanes to be `Some`. *)
+  1-4: admit.
   { (* Instr_ok__local_get *)
     move => C x t Hlen Hlookup HWfC HWfinstr.
     move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
@@ -2194,7 +2765,8 @@ Proof.
     inv_Forall HWfVals.
     eapply invert_typeof_I32 in Ht2 as [n2 Heqv2]; eauto.
     rewrite Heqv2.
-    pose proof (invsigned_total 32 (0 - 1%Z)%Z) as [r Hunsigned].
+
+    pose proof invsigned_total_32m1 as [r Hunsigned].
     exists s, f, [(admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN r)))].
     by eapply table_grow_fail.
   }
@@ -2498,7 +3070,8 @@ Proof.
     case Estate: (with_meminst (mk_state s f) (mk_uN 0) meminst2) => [s' f'].
     (* NOTE: We could just use step_memory_grow_fail but
               we assume we can alway grow memory when it does not exceed predefined maximum size *)
-    pose proof (invsigned_total 32 (0 - 1)%Z) as [r Hunsigned].
+
+    pose proof invsigned_total_32m1 as [r Hunsigned].
     exists s, f, [admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN r))].
     apply: memory_grow_fail; eauto.
   }
@@ -2752,8 +3325,14 @@ Proof.
       eapply read.
       eapply load_num_trap; eauto.
       econstructor; eauto.
-    + (* Need definition for fun_nbytes_ *)
-      admit.
+
+    + (* in bounds: read the value back out of the byte slice *)
+      do 3 eexists.
+      eapply read.
+      eapply load_num_val; try by [].
+      apply/eqP; apply: nbytes_inv.
+      apply: list_slice_size.
+      rewrite /N_gtb in Hs. move/N.ltb_ge in Hs. by apply: Hs.
     Unshelve.
     apply Inh_nat.  
   }
@@ -2770,8 +3349,15 @@ Proof.
       eapply read.
       eapply load_pack_trap; eauto.
       econstructor; eauto.
-    + (* Need definition for fun_ibytes_ *)
-      admit.
+
+    + (* in bounds: read the value back out of the byte slice *)
+      do 3 eexists.
+      eapply read.
+      eapply load_pack_val; try by [].
+      1: by destruct v_Inn.
+      apply/eqP; apply: ibytes_inv.
+      apply: list_slice_size.
+      rewrite /N_gtb in Hs. move/N.ltb_ge in Hs. by apply: Hs.
   }
   { (* Instr_ok__store None *)
     move => C nt memarg mt Hlen Hlookup Hfunsize HLim HWfC HWfMemType HWfinstr.
@@ -2787,8 +3373,9 @@ Proof.
       >? (|(BYTES (fun_mem (mk_state s f) (mk_uN 0)))|))%BN.
     + exists s, f, [admininstr_TRAP].
       by eapply store_num_trap; eauto.
-    + (* Need definition for fun_nbytes_ *)
-      admit.
+
+    + do 3 eexists.
+      eapply (store_num_val (mk_state s f)); eauto.
     Unshelve.
     apply Inh_nat.  
   }
@@ -2822,11 +3409,154 @@ Proof.
         econstructor; eauto.
       }
     }
-    (* Need definition for fun_ibytes_ *)
-    admit.
+
+    destruct Inn.
+    {
+      eapply invert_typeof_I32 in Ht2 as [n2 Heqv2]; eauto.
+      assert (I32 = numtype_Inn Inn_I32). { auto. }
+      rewrite H in Heqv2.
+      rewrite Heqv2.
+      do 3 eexists.
+      eapply (store_pack_val (mk_state s f)); eauto.
+    }
+    {
+      eapply invert_typeof_I64 in Ht2 as [n2 Heqv2]; eauto.
+      assert (I64 = numtype_Inn Inn_I64). { auto. }
+      rewrite H in Heqv2.
+      rewrite Heqv2.
+      do 3 eexists.
+      eapply (store_pack_val (mk_state s f)); eauto.
+    }
   }
     (* SIMD *)
-  1-7: admit.
+
+  { (* Instr_ok__vload None *)
+    move => C memarg mt Hlen Hlookup Hfunsize HLim HWfC HWfMemType HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfConfig HWfVals.
+    inv_Forall HWfVals.
+    eapply invert_typeof_I32 in Ht1 as [n1 Heqv1]; eauto.
+    rewrite Heqv1.
+    case Hs: (((n1 + (proj_uN_0 (OFFSET memarg))) +
+      ((((the (res_size valtype_V128))) / (8)) : Q)) >? (|(BYTES (fun_mem (mk_state s f) (mk_uN 0)))|))%BN.
+    + exists s, f, [admininstr_TRAP].
+      eapply read.
+      eapply vload_oob; eauto.
+      econstructor; eauto.
+    + do 3 eexists.
+      eapply read.
+      eapply Step_read__vload_val; try by [].
+      apply/eqP; apply: vbytes_inv.
+      apply: list_slice_size.
+      rewrite /N_gtb in Hs. move/N.ltb_ge in Hs. by apply: Hs.
+    Unshelve.
+    apply Inh_nat.
+  }
+
+
+  (* VLOAD (SHAPEX_ ...) and VLOAD (SPLAT ...).  Both need the width operand
+     of the load to be the size of some lane type - `jsize v_Jnn == v_M * 2`
+     for SHAPEX_, `v_N == jsize v_Jnn` for SPLAT - but `wf_instr` for VLOAD
+     (instr_case_58) constrains only the memarg, and neither typing rule
+     bounds the width, so e.g. `VLOAD V128 (Some (SPLAT 7)) ao` is well-formed
+     and typable with no reduction rule.  (Contrast VLOAD_LANE / VSTORE_LANE,
+     whose `wf_sz` premise does pin the width to 8/16/32/64.) *)
+  1-2: admit.
+  { (* Instr_ok__vload ZERO *)
+    move => C v_n memarg mt Hlen Hlookup HLim HWfC HWfMemType HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfConfig HWfVals.
+    inv_Forall HWfVals.
+    eapply invert_typeof_I32 in Ht1 as [n1 Heqv1]; eauto.
+    rewrite Heqv1.
+    case Hs: (((n1 + (proj_uN_0 (OFFSET memarg))) + ((v_n / (8)) : Q))
+      >? (|(BYTES (fun_mem (mk_state s f) (mk_uN 0)))|))%BN.
+    + exists s, f, [admininstr_TRAP].
+      eapply read.
+      eapply vload_zero_oob; eauto.
+      econstructor; eauto.
+    + have Hbnd : (((n1 + (proj_uN_0 (OFFSET memarg)))%BN + ((v_n / (8)) : Q))%BN
+        <= (|(BYTES (fun_mem (mk_state s f) (mk_uN 0)))|))%BN.
+      { rewrite /N_gtb in Hs. by move/N.ltb_ge in Hs. }
+      do 3 eexists.
+      eapply read.
+      eapply vload_zero_val; try by [].
+      * apply/eqP; apply: ibytes_inv. by apply: list_slice_size.
+      * eapply inv_ibytes__is_wf; last by apply: eqxx.
+        apply: Forall_list_slice.
+        by apply: (wf_config_mem_bytes _ _ _ _ HWfConfig).
+  }
+
+
+  { (* Instr_ok__vload_lane *)
+    move => C v_n memarg laneidx mt Hlen Hlookup HLim Hidx HWfC HWfMemType HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfConfig HWfVals.
+    inv_Forall HWfVals.
+    eapply invert_typeof_I32 in Ht1 as [n1 Heqv1]; eauto.
+    have [c1 [Heqv2 Hwf2]] := invert_typeof_V128 _ Ht2 HP0.
+    rewrite Heqv1 Heqv2.
+    case Hs: (((n1 + (proj_uN_0 (OFFSET memarg))) + ((v_n / (8)) : Q))
+      >? (|(BYTES (fun_mem (mk_state s f) (mk_uN 0)))|))%BN.
+    + exists s, f, [admininstr_TRAP].
+      eapply read.
+      eapply vload_lane_oob; eauto.
+      econstructor; eauto.
+    + have Hbnd : (((n1 + (proj_uN_0 (OFFSET memarg)))%BN + ((v_n / (8)) : Q))%BN
+        <= (|(BYTES (fun_mem (mk_state s f) (mk_uN 0)))|))%BN.
+      { rewrite /N_gtb in Hs. by move/N.ltb_ge in Hs. }
+      have Hwfk : wf_uN v_n (inv_ibytes_ v_n
+        (list_slice (BYTES (fun_mem (mk_state s f) (mk_uN 0)))
+          ((n1 + (proj_uN_0 (OFFSET memarg)))%BN) ((v_n / (8)) : Q))).
+      { eapply inv_ibytes__is_wf; last by apply: eqxx.
+        apply: Forall_list_slice.
+        by apply: (wf_config_mem_bytes _ _ _ _ HWfConfig). }
+      have Hsz : wf_sz (mk_sz v_n) by inversion HWfinstr.
+      have Hcases : v_n = 8%num \/ v_n = 16%num \/ v_n = 32%num \/ v_n = 64%num.
+      { inversion Hsz; subst.
+        match goal with
+        | [ H : is_true (((_ || _) || _) || _) |- _ ] =>
+          move/orP: H => [/orP [/orP [H|H]|H]|H]; move/eqP in H; auto
+        end. }
+      case: Hcases => [E | [E | [E | E]]]; subst v_n; do 3 eexists; eapply read;
+        [ eapply (vload_lane_val (mk_state s f) _ _ _ _ _ _ _ Jnn_I8 16)
+        | eapply (vload_lane_val (mk_state s f) _ _ _ _ _ _ _ Jnn_I16 8)
+        | eapply (vload_lane_val (mk_state s f) _ _ _ _ _ _ _ Jnn_I32 4)
+        | eapply (vload_lane_val (mk_state s f) _ _ _ _ _ _ _ Jnn_I64 2) ].
+      all: first
+        [ (apply/eqP; apply: ibytes_inv; apply: list_slice_size; by apply: Hbnd)
+        | (eapply lane__case_2; [ by rewrite mk_uN_eta; apply: Hwfk | by [] ])
+        | by []
+        | by apply: eqxx
+        | by (econstructor; vm_compute)
+        | by (do 2 econstructor) ].
+  }
+  { (* Instr_ok__vstore *)
+    move => C memarg mt Hlen Hlookup Hfunsize HLim HWfC HWfMemType HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfConfig HWfVals.
+    inv_Forall HWfVals.
+    eapply invert_typeof_I32 in Ht1 as [n1 Heqv1]; eauto.
+    rewrite Heqv1.
+    have [c2 [Heqv2 Hwf2]] := invert_typeof_V128 _ Ht2 HP0.
+    rewrite Heqv2.
+    do 3 eexists.
+
+    by eapply (vstore_val (mk_state s f)); eauto.
+  }
+
+  (* VSTORE_LANE: `vstore_lane_val` needs
+     `proj_lane__2 ((lanes_ (X (lanetype_Jnn J) (mk_dim M)) c) [|j|]) <> None`,
+     i.e. that lane in the `mk_lane__2` injection of the generated `lane_`
+     union.  `lanes__is_wf` only gives `wf_lane_ (lanetype_Jnn J) l`, which is
+     equally satisfied by `mk_lane__1`/`mk_lane__0`, so this is the same
+     `lane_`-injection obstacle as the instruction cases above.  Everything
+     else in the rule is now discharged (the Q premise reads as Qeq). *)
+  1: admit.
   { (* Instrs_ok__empty *)
     move => C s.
     move => f C' vcs ts1 ts2 lab ret Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.

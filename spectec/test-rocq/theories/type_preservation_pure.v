@@ -880,6 +880,647 @@ Proof.
 			econstructor; econstructor; eauto.
 Qed.
 
+(* ---------------------------------------------------------------------- *)
+(* Typing inversion for the SIMD administrative instructions.              *)
+(* ai_principal_typing has no case for them (it yields True), so we go     *)
+(* through Instr_ok directly instead.                                      *)
+(* ---------------------------------------------------------------------- *)
+
+Lemma ais_single_plain_typing_inversion : forall v_S v_C (v_instr : instr) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr v_instr)] (t1s :-> t2s) ->
+	exists t1s_sup t2s_sub,
+		Instr_ok v_C v_instr (t1s_sup :-> t2s_sub) /\
+		((t1s_sup :-> t2s_sub) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C v_instr t1s t2s HType.
+	apply ais_single_typing_inversion' in HType as [t1s_sup [t2s_sub [HType Hsub]]].
+	apply ai_typing_inversion' in HType.
+	by exists t1s_sup, t2s_sub.
+Qed.
+
+Lemma vconst_result_typing : forall v_S v_C c,
+	wf_store v_S -> wf_context v_C ->
+	wf_admininstr (admininstr_VCONST V128 c) ->
+	Instr_ok2 v_S v_C (admininstr_VCONST V128 c) ([] :-> [valtype_V128]).
+Proof.
+	move => v_S v_C c HS HC Hwf.
+	inversion Hwf; subst.
+	eapply (plain _ _ (VCONST V128 c)); eauto.
+	- by apply: vconst; eauto; econstructor; eauto.
+	- by econstructor; eauto.
+Qed.
+
+Lemma const_result_typing : forall v_S v_C nt c,
+	wf_store v_S -> wf_context v_C ->
+	wf_admininstr (admininstr_CONST nt c) ->
+	Instr_ok2 v_S v_C (admininstr_CONST nt c) ([] :-> [valtype_numtype nt]).
+Proof.
+	move => v_S v_C nt c HS HC Hwf.
+	inversion Hwf; subst.
+	eapply (plain _ _ (CONST nt c)); eauto.
+	- by apply: const; eauto; econstructor; eauto.
+	- by econstructor; eauto.
+Qed.
+
+Lemma ais_vconst_typing_inversion : forall v_S v_C c t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 c)] (t1s :-> t2s) ->
+	(([] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C c t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VCONST V128 c)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_const_typing_inversion : forall v_S v_C nt c t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_CONST nt c)] (t1s :-> t2s) ->
+	(([] :-> [valtype_numtype nt]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C nt c t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (CONST nt c)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+(* ---------------------------------------------------------------------- *)
+(* Typing inversion for each SIMD instruction *)
+(* ---------------------------------------------------------------------- *)
+
+Lemma ais_vvunop_typing_inversion : forall v_S v_C (v_op : wasm.vvunop) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VVUNOP V128 v_op))] (t1s :-> t2s) ->
+	(([valtype_V128] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C v_op t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VVUNOP V128 v_op)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vvbinop_typing_inversion : forall v_S v_C (v_op : wasm.vvbinop) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VVBINOP V128 v_op))] (t1s :-> t2s) ->
+	(([valtype_V128; valtype_V128] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C v_op t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VVBINOP V128 v_op)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vvternop_typing_inversion : forall v_S v_C (v_op : wasm.vvternop) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VVTERNOP V128 v_op))] (t1s :-> t2s) ->
+	(([valtype_V128; valtype_V128; valtype_V128] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C v_op t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VVTERNOP V128 v_op)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vvtestop_typing_inversion : forall v_S v_C (v_op : wasm.vvtestop) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VVTESTOP V128 v_op))] (t1s :-> t2s) ->
+	(([valtype_V128] :-> [valtype_I32]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C v_op t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VVTESTOP V128 v_op)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vunop_typing_inversion : forall v_S v_C (sh : wasm.shape) (v_op : wasm.vunop_) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VUNOP sh v_op))] (t1s :-> t2s) ->
+	(([valtype_V128] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C sh v_op t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VUNOP sh v_op)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vbinop_typing_inversion : forall v_S v_C (sh : wasm.shape) (v_op : wasm.vbinop_) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VBINOP sh v_op))] (t1s :-> t2s) ->
+	(([valtype_V128; valtype_V128] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C sh v_op t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VBINOP sh v_op)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vtestop_typing_inversion : forall v_S v_C (sh : wasm.shape) (v_op : wasm.vtestop_) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VTESTOP sh v_op))] (t1s :-> t2s) ->
+	(([valtype_V128] :-> [valtype_I32]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C sh v_op t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VTESTOP sh v_op)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vrelop_typing_inversion : forall v_S v_C (sh : wasm.shape) (v_op : wasm.vrelop_) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VRELOP sh v_op))] (t1s :-> t2s) ->
+	(([valtype_V128; valtype_V128] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C sh v_op t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VRELOP sh v_op)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vshiftop_typing_inversion : forall v_S v_C (sh : wasm.ishape) (v_op : wasm.vshiftop_) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VSHIFTOP sh v_op))] (t1s :-> t2s) ->
+	(([valtype_V128; valtype_I32] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C sh v_op t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VSHIFTOP sh v_op)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vbitmask_typing_inversion : forall v_S v_C (sh : wasm.ishape) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VBITMASK sh))] (t1s :-> t2s) ->
+	(([valtype_V128] :-> [valtype_I32]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C sh t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VBITMASK sh)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vswizzle_typing_inversion : forall v_S v_C (sh : wasm.ishape) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VSWIZZLE sh))] (t1s :-> t2s) ->
+	(([valtype_V128; valtype_V128] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C sh t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VSWIZZLE sh)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vshuffle_typing_inversion : forall v_S v_C (sh : wasm.ishape) (i_lst : seq wasm.laneidx) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VSHUFFLE sh i_lst))] (t1s :-> t2s) ->
+	(([valtype_V128; valtype_V128] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C sh i_lst t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VSHUFFLE sh i_lst)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vsplat_typing_inversion : forall v_S v_C (sh : wasm.shape) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VSPLAT sh))] (t1s :-> t2s) ->
+	(([(valtype_numtype (shunpack sh))] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C sh t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VSPLAT sh)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vextract_lane_typing_inversion : forall v_S v_C (sh : wasm.shape) (sx_opt : option wasm.sx) (i : wasm.laneidx) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VEXTRACT_LANE sh sx_opt i))] (t1s :-> t2s) ->
+	(([valtype_V128] :-> [(valtype_numtype (shunpack sh))]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C sh sx_opt i t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VEXTRACT_LANE sh sx_opt i)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vreplace_lane_typing_inversion : forall v_S v_C (sh : wasm.shape) (i : wasm.laneidx) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VREPLACE_LANE sh i))] (t1s :-> t2s) ->
+	(([valtype_V128; (valtype_numtype (shunpack sh))] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C sh i t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VREPLACE_LANE sh i)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vextunop_typing_inversion : forall v_S v_C (sh_1 sh_2 : wasm.ishape) (v_op : wasm.vextunop_) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VEXTUNOP sh_1 sh_2 v_op))] (t1s :-> t2s) ->
+	(([valtype_V128] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C sh_1 sh_2 v_op t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VEXTUNOP sh_1 sh_2 v_op)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vextbinop_typing_inversion : forall v_S v_C (sh_1 sh_2 : wasm.ishape) (v_op : wasm.vextbinop_) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VEXTBINOP sh_1 sh_2 v_op))] (t1s :-> t2s) ->
+	(([valtype_V128; valtype_V128] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C sh_1 sh_2 v_op t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VEXTBINOP sh_1 sh_2 v_op)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vnarrow_typing_inversion : forall v_S v_C (sh_1 sh_2 : wasm.ishape) (v_sx : wasm.sx) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VNARROW sh_1 sh_2 v_sx))] (t1s :-> t2s) ->
+	(([valtype_V128; valtype_V128] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C sh_1 sh_2 v_sx t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VNARROW sh_1 sh_2 v_sx)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vcvtop_typing_inversion : forall v_S v_C (sh_1 sh_2 : wasm.shape) (v_op : wasm.vcvtop) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_instr (VCVTOP sh_1 sh_2 v_op))] (t1s :-> t2s) ->
+	(([valtype_V128] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C sh_1 sh_2 v_op t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VCVTOP sh_1 sh_2 v_op)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+(* ---------------------------------------------------------------------- *)
+(* Generic preservation lemmas for `n operands + one operator' *)
+(* ---------------------------------------------------------------------- *)
+
+Lemma vec_preserves_1 : forall v_S v_C (a op res : admininstr) t_a t_out v_ft,
+	Instrs_ok2 v_S v_C [a; op] v_ft ->
+	(forall t1s t2s, Instrs_ok2 v_S v_C [a] (t1s :-> t2s) ->
+		(([] :-> [t_a]) <ti: (t1s :-> t2s))) ->
+	(forall t1s t2s, Instrs_ok2 v_S v_C [op] (t1s :-> t2s) ->
+		(([t_a] :-> [t_out]) <ti: (t1s :-> t2s))) ->
+	Instr_ok2 v_S v_C res ([] :-> [t_out]) ->
+	Instrs_ok2 v_S v_C [res] v_ft.
+Proof.
+	move => v_S v_C a op res t_a t_out v_ft HType Hinva Hinvop Hres.
+	destruct_functypes.
+	typing_inversion HType.
+	apply Hinva in H1. apply Hinvop in H2.
+	eapply construct_ais_subtyping.
+	- by apply: construct_ais_typing_single; exact Hres.
+	- by eapply instrtype_sub_compose; eauto.
+Qed.
+
+Lemma vec_preserves_2 : forall v_S v_C (a b op res : admininstr) t_a t_b t_out v_ft,
+	Instrs_ok2 v_S v_C [a; b; op] v_ft ->
+	(forall t1s t2s, Instrs_ok2 v_S v_C [a] (t1s :-> t2s) ->
+		(([] :-> [t_a]) <ti: (t1s :-> t2s))) ->
+	(forall t1s t2s, Instrs_ok2 v_S v_C [b] (t1s :-> t2s) ->
+		(([] :-> [t_b]) <ti: (t1s :-> t2s))) ->
+	(forall t1s t2s, Instrs_ok2 v_S v_C [op] (t1s :-> t2s) ->
+		(([t_a; t_b] :-> [t_out]) <ti: (t1s :-> t2s))) ->
+	Instr_ok2 v_S v_C res ([] :-> [t_out]) ->
+	Instrs_ok2 v_S v_C [res] v_ft.
+Proof.
+	move => v_S v_C a b op res t_a t_b t_out v_ft HType Hinva Hinvb Hinvop Hres.
+	destruct_functypes.
+	apply (ais_seq_typing_inversion _ _ [b; op] a) in HType as [t3s [HT1 Ha]].
+	apply (ais_seq_typing_inversion _ _ [op] b) in HT1 as [t4s [Hop Hb]].
+	apply Hinva in Ha. apply Hinvb in Hb. apply Hinvop in Hop.
+	eapply (instrtype_sub_compose1 _ _ [t_a] _ _ _ _ Hb) in Hop.
+	rewrite cats0 in Hop.
+	eapply construct_ais_subtyping.
+	- by apply: construct_ais_typing_single; exact Hres.
+	- by eapply instrtype_sub_compose; eauto.
+Qed.
+
+Lemma vec_preserves_3 : forall v_S v_C (a b c op res : admininstr) t_a t_b t_c t_out v_ft,
+	Instrs_ok2 v_S v_C [a; b; c; op] v_ft ->
+	(forall t1s t2s, Instrs_ok2 v_S v_C [a] (t1s :-> t2s) ->
+		(([] :-> [t_a]) <ti: (t1s :-> t2s))) ->
+	(forall t1s t2s, Instrs_ok2 v_S v_C [b] (t1s :-> t2s) ->
+		(([] :-> [t_b]) <ti: (t1s :-> t2s))) ->
+	(forall t1s t2s, Instrs_ok2 v_S v_C [c] (t1s :-> t2s) ->
+		(([] :-> [t_c]) <ti: (t1s :-> t2s))) ->
+	(forall t1s t2s, Instrs_ok2 v_S v_C [op] (t1s :-> t2s) ->
+		(([t_a; t_b; t_c] :-> [t_out]) <ti: (t1s :-> t2s))) ->
+	Instr_ok2 v_S v_C res ([] :-> [t_out]) ->
+	Instrs_ok2 v_S v_C [res] v_ft.
+Proof.
+	move => v_S v_C a b c op res t_a t_b t_c t_out v_ft
+		HType Hinva Hinvb Hinvc Hinvop Hres.
+	destruct_functypes.
+	apply (ais_seq_typing_inversion _ _ [b; c; op] a) in HType as [t3s [HT1 Ha]].
+	apply (ais_seq_typing_inversion _ _ [c; op] b) in HT1 as [t4s [HT2 Hb]].
+	apply (ais_seq_typing_inversion _ _ [op] c) in HT2 as [t5s [Hop Hc]].
+	apply Hinva in Ha. apply Hinvb in Hb. apply Hinvc in Hc. apply Hinvop in Hop.
+	eapply (instrtype_sub_compose1 _ _ [t_a; t_b] _ _ _ _ Hc) in Hop.
+	rewrite cats0 in Hop.
+	eapply (instrtype_sub_compose1 _ _ [t_a] _ _ _ _ Hb) in Hop.
+	rewrite cats0 in Hop.
+	eapply construct_ais_subtyping.
+	- by apply: construct_ais_typing_single; exact Hres.
+	- by eapply instrtype_sub_compose; eauto.
+Qed.
+
+(* ---------------------------------------------------------------------- *)
+(* Preservation for each SIMD reduction rule *)
+(* ---------------------------------------------------------------------- *)
+
+Lemma Step_pure__vvunop_preserves : forall v_S v_C (v_c_1 : wasm.vec_) (v_op : wasm.vvunop) (v_c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VVUNOP V128 v_op)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VVUNOP V128 v_op)] [(admininstr_VCONST V128 v_c)] ->
+	wf_admininstr (admininstr_VCONST V128 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 v_op v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_1 _ _ _ _ _ valtype_V128 valtype_V128 _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_vvunop_typing_inversion _ _ v_op).
+	- by apply: vconst_result_typing.
+Qed.
+
+Lemma Step_pure__vvbinop_preserves : forall v_S v_C (v_c_1 v_c_2 : wasm.vec_) (v_op : wasm.vvbinop) (v_c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VVBINOP V128 v_op)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VVBINOP V128 v_op)] [(admininstr_VCONST V128 v_c)] ->
+	wf_admininstr (admininstr_VCONST V128 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 v_c_2 v_op v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_2 _ _ _ _ _ _ valtype_V128 valtype_V128 valtype_V128 _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_2).
+	- exact: (ais_vvbinop_typing_inversion _ _ v_op).
+	- by apply: vconst_result_typing.
+Qed.
+
+Lemma Step_pure__vvternop_preserves : forall v_S v_C (v_c_1 v_c_2 v_c_3 : wasm.vec_) (v_op : wasm.vvternop) (v_c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VCONST V128 v_c_3); (admininstr_VVTERNOP V128 v_op)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VCONST V128 v_c_3); (admininstr_VVTERNOP V128 v_op)] [(admininstr_VCONST V128 v_c)] ->
+	wf_admininstr (admininstr_VCONST V128 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 v_c_2 v_c_3 v_op v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_3 _ _ _ _ _ _ _ valtype_V128 valtype_V128 valtype_V128 valtype_V128 _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_2).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_3).
+	- exact: (ais_vvternop_typing_inversion _ _ v_op).
+	- by apply: vconst_result_typing.
+Qed.
+
+Lemma Step_pure__vvtestop_preserves : forall v_S v_C (v_c_1 : wasm.vec_) (v_op : wasm.vvtestop) (v_c : wasm.num_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VVTESTOP V128 v_op)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VVTESTOP V128 v_op)] [(admininstr_CONST I32 v_c)] ->
+	wf_admininstr (admininstr_CONST I32 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_CONST I32 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 v_op v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_1 _ _ _ _ _ valtype_V128 (valtype_numtype I32) _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_vvtestop_typing_inversion _ _ v_op).
+	- by apply: const_result_typing.
+Qed.
+
+Lemma Step_pure__vunop_preserves : forall v_S v_C (v_c_1 : wasm.vec_) (sh : wasm.shape) (v_op : wasm.vunop_) (v_c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VUNOP sh v_op)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VUNOP sh v_op)] [(admininstr_VCONST V128 v_c)] ->
+	wf_admininstr (admininstr_VCONST V128 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 sh v_op v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_1 _ _ _ _ _ valtype_V128 valtype_V128 _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_vunop_typing_inversion _ _ sh v_op).
+	- by apply: vconst_result_typing.
+Qed.
+
+Lemma Step_pure__vbinop_val_preserves : forall v_S v_C (v_c_1 v_c_2 : wasm.vec_) (sh : wasm.shape) (v_op : wasm.vbinop_) (v_c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VBINOP sh v_op)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VBINOP sh v_op)] [(admininstr_VCONST V128 v_c)] ->
+	wf_admininstr (admininstr_VCONST V128 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 v_c_2 sh v_op v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_2 _ _ _ _ _ _ valtype_V128 valtype_V128 valtype_V128 _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_2).
+	- exact: (ais_vbinop_typing_inversion _ _ sh v_op).
+	- by apply: vconst_result_typing.
+Qed.
+
+Lemma Step_pure__vtestop_preserves : forall v_S v_C (v_c_1 : wasm.vec_) (sh : wasm.shape) (v_op : wasm.vtestop_) (v_c : wasm.num_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VTESTOP sh v_op)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VTESTOP sh v_op)] [(admininstr_CONST I32 v_c)] ->
+	wf_admininstr (admininstr_CONST I32 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_CONST I32 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 sh v_op v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_1 _ _ _ _ _ valtype_V128 (valtype_numtype I32) _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_vtestop_typing_inversion _ _ sh v_op).
+	- by apply: const_result_typing.
+Qed.
+
+Lemma Step_pure__vrelop_preserves : forall v_S v_C (v_c_1 v_c_2 : wasm.vec_) (sh : wasm.shape) (v_op : wasm.vrelop_) (v_c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VRELOP sh v_op)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VRELOP sh v_op)] [(admininstr_VCONST V128 v_c)] ->
+	wf_admininstr (admininstr_VCONST V128 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 v_c_2 sh v_op v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_2 _ _ _ _ _ _ valtype_V128 valtype_V128 valtype_V128 _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_2).
+	- exact: (ais_vrelop_typing_inversion _ _ sh v_op).
+	- by apply: vconst_result_typing.
+Qed.
+
+Lemma Step_pure__vshiftop_preserves : forall v_S v_C (v_c_1 : wasm.vec_) (v_c_2 : wasm.num_) (sh : wasm.ishape) (v_op : wasm.vshiftop_) (v_c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_CONST I32 v_c_2); (admininstr_VSHIFTOP sh v_op)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_CONST I32 v_c_2); (admininstr_VSHIFTOP sh v_op)] [(admininstr_VCONST V128 v_c)] ->
+	wf_admininstr (admininstr_VCONST V128 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 v_c_2 sh v_op v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_2 _ _ _ _ _ _ valtype_V128 (valtype_numtype I32) valtype_V128 _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_const_typing_inversion _ _ I32 v_c_2).
+	- exact: (ais_vshiftop_typing_inversion _ _ sh v_op).
+	- by apply: vconst_result_typing.
+Qed.
+
+Lemma Step_pure__vbitmask_preserves : forall v_S v_C (v_c_1 : wasm.vec_) (sh : wasm.ishape) (v_c : wasm.num_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VBITMASK sh)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VBITMASK sh)] [(admininstr_CONST I32 v_c)] ->
+	wf_admininstr (admininstr_CONST I32 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_CONST I32 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 sh v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_1 _ _ _ _ _ valtype_V128 (valtype_numtype I32) _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_vbitmask_typing_inversion _ _ sh).
+	- by apply: const_result_typing.
+Qed.
+
+Lemma Step_pure__vswizzle_preserves : forall v_S v_C (v_c_1 v_c_2 : wasm.vec_) (sh : wasm.ishape) (v_c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VSWIZZLE sh)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VSWIZZLE sh)] [(admininstr_VCONST V128 v_c)] ->
+	wf_admininstr (admininstr_VCONST V128 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 v_c_2 sh v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_2 _ _ _ _ _ _ valtype_V128 valtype_V128 valtype_V128 _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_2).
+	- exact: (ais_vswizzle_typing_inversion _ _ sh).
+	- by apply: vconst_result_typing.
+Qed.
+
+Lemma Step_pure__vshuffle_preserves : forall v_S v_C (v_c_1 v_c_2 : wasm.vec_) (sh : wasm.ishape) (i_lst : seq wasm.laneidx) (v_c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VSHUFFLE sh i_lst)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VSHUFFLE sh i_lst)] [(admininstr_VCONST V128 v_c)] ->
+	wf_admininstr (admininstr_VCONST V128 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 v_c_2 sh i_lst v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_2 _ _ _ _ _ _ valtype_V128 valtype_V128 valtype_V128 _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_2).
+	- exact: (ais_vshuffle_typing_inversion _ _ sh i_lst).
+	- by apply: vconst_result_typing.
+Qed.
+
+Lemma Step_pure__vsplat_preserves : forall v_S v_C (v_Lnn : wasm.Lnn) (v_c_1 : wasm.num_) (v_N : wasm.res_N) (v_c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_CONST (unpack v_Lnn) v_c_1); (admininstr_VSPLAT (X v_Lnn (mk_dim v_N)))] v_ft ->
+	Step_pure [(admininstr_CONST (unpack v_Lnn) v_c_1); (admininstr_VSPLAT (X v_Lnn (mk_dim v_N)))] [(admininstr_VCONST V128 v_c)] ->
+	wf_admininstr (admininstr_VCONST V128 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_Lnn v_c_1 v_N v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_1 _ _ _ _ _ (valtype_numtype (unpack v_Lnn)) valtype_V128 _ HType).
+	- exact: (ais_const_typing_inversion _ _ (unpack v_Lnn) v_c_1).
+	- exact: (ais_vsplat_typing_inversion _ _ (X v_Lnn (mk_dim v_N))).
+	- by apply: vconst_result_typing.
+Qed.
+
+Lemma Step_pure__vreplace_lane_preserves : forall v_S v_C (v_c_1 : wasm.vec_) (v_Lnn : wasm.Lnn) (v_c_2 : wasm.num_) (v_N : wasm.res_N) (i : wasm.laneidx) (v_c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_CONST (unpack v_Lnn) v_c_2); (admininstr_VREPLACE_LANE (X v_Lnn (mk_dim v_N)) i)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_CONST (unpack v_Lnn) v_c_2); (admininstr_VREPLACE_LANE (X v_Lnn (mk_dim v_N)) i)] [(admininstr_VCONST V128 v_c)] ->
+	wf_admininstr (admininstr_VCONST V128 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 v_Lnn v_c_2 v_N i v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_2 _ _ _ _ _ _ valtype_V128 (valtype_numtype (unpack v_Lnn)) valtype_V128 _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_const_typing_inversion _ _ (unpack v_Lnn) v_c_2).
+	- exact: (ais_vreplace_lane_typing_inversion _ _ (X v_Lnn (mk_dim v_N)) i).
+	- by apply: vconst_result_typing.
+Qed.
+
+Lemma Step_pure__vextunop_preserves : forall v_S v_C (v_c_1 : wasm.vec_) (sh_1 sh_2 : wasm.ishape) (v_op : wasm.vextunop_) (v_c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VEXTUNOP sh_1 sh_2 v_op)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VEXTUNOP sh_1 sh_2 v_op)] [(admininstr_VCONST V128 v_c)] ->
+	wf_admininstr (admininstr_VCONST V128 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 sh_1 sh_2 v_op v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_1 _ _ _ _ _ valtype_V128 valtype_V128 _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_vextunop_typing_inversion _ _ sh_1 sh_2 v_op).
+	- by apply: vconst_result_typing.
+Qed.
+
+Lemma Step_pure__vextbinop_preserves : forall v_S v_C (v_c_1 v_c_2 : wasm.vec_) (sh_1 sh_2 : wasm.ishape) (v_op : wasm.vextbinop_) (v_c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VEXTBINOP sh_1 sh_2 v_op)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VEXTBINOP sh_1 sh_2 v_op)] [(admininstr_VCONST V128 v_c)] ->
+	wf_admininstr (admininstr_VCONST V128 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 v_c_2 sh_1 sh_2 v_op v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_2 _ _ _ _ _ _ valtype_V128 valtype_V128 valtype_V128 _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_2).
+	- exact: (ais_vextbinop_typing_inversion _ _ sh_1 sh_2 v_op).
+	- by apply: vconst_result_typing.
+Qed.
+
+Lemma Step_pure__vnarrow_preserves : forall v_S v_C (v_c_1 v_c_2 : wasm.vec_) (sh_1 sh_2 : wasm.ishape) (v_sx : wasm.sx) (v_c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VNARROW sh_1 sh_2 v_sx)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VNARROW sh_1 sh_2 v_sx)] [(admininstr_VCONST V128 v_c)] ->
+	wf_admininstr (admininstr_VCONST V128 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 v_c_2 sh_1 sh_2 v_sx v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_2 _ _ _ _ _ _ valtype_V128 valtype_V128 valtype_V128 _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_2).
+	- exact: (ais_vnarrow_typing_inversion _ _ sh_1 sh_2 v_sx).
+	- by apply: vconst_result_typing.
+Qed.
+
+Lemma Step_pure__vcvtop_preserves : forall v_S v_C (v_c_1 : wasm.vec_) (sh_1 sh_2 : wasm.shape) (v_op : wasm.vcvtop) (v_c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VCVTOP sh_1 sh_2 v_op)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VCVTOP sh_1 sh_2 v_op)] [(admininstr_VCONST V128 v_c)] ->
+	wf_admininstr (admininstr_VCONST V128 v_c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 sh_1 sh_2 v_op v_c v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_1 _ _ _ _ _ valtype_V128 valtype_V128 _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- exact: (ais_vcvtop_typing_inversion _ _ sh_1 sh_2 v_op).
+	- by apply: vconst_result_typing.
+Qed.
+
+Lemma Step_pure__vextract_lane_num_preserves :
+	forall v_S v_C (v_c_1 : wasm.vec_) (nt : wasm.numtype) (v_N : wasm.res_N)
+		(i : wasm.laneidx) (v_c_2 : wasm.num_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1);
+		(admininstr_VEXTRACT_LANE (X (lanetype_numtype nt) (mk_dim v_N)) None i)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1);
+		(admininstr_VEXTRACT_LANE (X (lanetype_numtype nt) (mk_dim v_N)) None i)]
+		[(admininstr_CONST nt v_c_2)] ->
+	wf_admininstr (admininstr_CONST nt v_c_2) ->
+	Instrs_ok2 v_S v_C [(admininstr_CONST nt v_c_2)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 nt v_N i v_c_2 v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_1 _ _ _ _ _ valtype_V128 (valtype_numtype nt) _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- (* (shunpack (X (lanetype_numtype nt) _)) = (unpack (lanetype_numtype nt)) = nt *)
+		destruct nt;
+		exact: (ais_vextract_lane_typing_inversion _ _
+			(X (lanetype_numtype _) (mk_dim v_N)) None i).
+	- by apply: const_result_typing.
+Qed.
+
+Lemma Step_pure__vextract_lane_pack_preserves :
+	forall v_S v_C (v_c_1 : wasm.vec_) (pt : wasm.packtype) (v_N : wasm.res_N)
+		(v_sx : wasm.sx) (i : wasm.laneidx) (v_c_2 : wasm.num_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1);
+		(admininstr_VEXTRACT_LANE (X (lanetype_packtype pt) (mk_dim v_N)) (Some v_sx) i)] v_ft ->
+	Step_pure [(admininstr_VCONST V128 v_c_1);
+		(admininstr_VEXTRACT_LANE (X (lanetype_packtype pt) (mk_dim v_N)) (Some v_sx) i)]
+		[(admininstr_CONST I32 v_c_2)] ->
+	wf_admininstr (admininstr_CONST I32 v_c_2) ->
+	Instrs_ok2 v_S v_C [(admininstr_CONST I32 v_c_2)] v_ft.
+Proof.
+	move => v_S v_C v_c_1 pt v_N v_sx i v_c_2 v_ft HType HReduce Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_1 _ _ _ _ _ valtype_V128 (valtype_numtype I32) _ HType).
+	- exact: (ais_vconst_typing_inversion _ _ v_c_1).
+	- (* (shunpack (X (lanetype_packtype pt) _)) = (unpack (lanetype_packtype pt)) = I32 *)
+		destruct pt;
+		exact: (ais_vextract_lane_typing_inversion _ _
+			(X (lanetype_packtype _) (mk_dim v_N)) (Some v_sx) i).
+	- by apply: const_result_typing.
+Qed.
+
 (* Preservation of Instrs_ok2 under pure steps *)
 
 Theorem t_pure_preservation: forall v_s v_ais v_ais' v_C tf,
@@ -917,4 +1558,27 @@ Proof.
 	- eapply Step_pure__ref_is_null_false_preserves; eauto.
 	24: eapply Step_pure__local_tee_preserves; eauto.
 	(* The rest are all simd instructions *)
-Admitted.
+	- eapply Step_pure__vvunop_preserves; eauto.
+	- eapply Step_pure__vvbinop_preserves; eauto.
+	- eapply Step_pure__vvternop_preserves; eauto.
+	- eapply Step_pure__vvtestop_preserves; eauto.
+	- eapply Step_pure__vunop_preserves; eauto.
+	- eapply Step_pure__vbinop_val_preserves; eauto.
+	- eapply Step_pure__vtestop_preserves; eauto.
+	- eapply Step_pure__vtestop_preserves; eauto.
+	- eapply Step_pure__vrelop_preserves; eauto.
+	- eapply Step_pure__vshiftop_preserves; eauto.
+	- eapply Step_pure__vbitmask_preserves; eauto.
+	- eapply Step_pure__vswizzle_preserves; eauto.
+	- eapply Step_pure__vshuffle_preserves; eauto.
+	- eapply Step_pure__vsplat_preserves; eauto.
+	- eapply Step_pure__vextract_lane_num_preserves; eauto.
+	- eapply Step_pure__vextract_lane_pack_preserves; eauto.
+	- eapply Step_pure__vreplace_lane_preserves; eauto.
+	- eapply Step_pure__vextunop_preserves; eauto.
+	- eapply Step_pure__vextbinop_preserves; eauto.
+	- eapply Step_pure__vnarrow_preserves; eauto.
+	- eapply Step_pure__vcvtop_preserves; eauto.
+	- eapply Step_pure__vcvtop_preserves; eauto.
+	- eapply Step_pure__vcvtop_preserves; eauto.
+Qed.

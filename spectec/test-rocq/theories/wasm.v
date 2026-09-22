@@ -170,6 +170,19 @@ Infix "<?" := Qlt_bool : Q_scope.
 
 Infix ">?" := Qgt_bool : Q_scope.
 
+(* Equality of rationals is equality of *values*: `Q`'s eqType instance
+   (declared below) decides Leibniz equality of the numerator/denominator
+   pair, under which `16` and `128/8` are different terms - and premises such
+   as `(M : Q) == (128 : Q) / (8 : Q)` would then be satisfied by no `M` at
+   all.  So, exactly like <=? / >=? / <? / >? just above, == and != on
+   rationals live in Q_scope and denote the Qeq-reflecting booleans; a
+   rational (dis)equality is emitted inside the %Q delimiter. *)
+Infix "==" := Qeq_bool (at level 70, no associativity) : Q_scope.
+
+Definition Qne_bool (x y : Q) : bool := negb (Qeq_bool x y).
+
+Infix "!=" := Qne_bool (at level 70, no associativity) : Q_scope.
+
 Definition option_to_list {T: Type} (arg : option T) : seq T :=
 	match arg with
 		| None => nil
@@ -232,8 +245,39 @@ Definition Q_eqb (v1 v2 : Q) : bool :=
 Definition eqQP : Equality.axiom (Q_eqb) :=
 	eq_dec_Equality_axiom (Q) (Q_eq_dec).
 
-HB.instance Definition _ := hasDecEq.Build (Q) (eqQP).
+(* No eqType instance for Q on purpose: mathcomp's `==` would then decide
+   Leibniz equality of the num/den pair, and a rational comparison that forgot
+   its %Q delimiter would silently get the wrong (and often unsatisfiable)
+   meaning while still type checking.  Without the instance such a slip is a
+   type error.  Q_eq_dec is still exported for the derived decidable equality
+   of records that happen to contain a rational. *)
 Hint Resolve Q_eq_dec : eq_dec_db.
+
+(* NOTE: this instance decides Leibniz equality; rational (dis)equality in the
+   specification goes through the Q_scope == / != declared near the top of this
+   file.  See the comment there. *)
+
+(* Two Qeq-equal rationals have the same floor, hence the same N projection. *)
+Lemma Qeq_bool_toZ : forall (q1 q2 : Q), Qeq_bool q1 q2 = true -> Qfloor q1 = Qfloor q2.
+Proof. intros q1 q2 H. apply Qeq_bool_iff in H. now rewrite H. Qed.
+
+Lemma Qeq_bool_toN : forall (q1 q2 : Q),
+  Qeq_bool q1 q2 = true -> Z.to_N (Qfloor q1) = Z.to_N (Qfloor q2).
+Proof. intros q1 q2 H. now rewrite (Qeq_bool_toZ _ _ H). Qed.
+
+(* ... and can be exchanged under a rational <= . *)
+Lemma Forall_Qle_bool_Qeq : forall (q1 q2 : Q) (T : Type) (f : T -> Q) (l : seq T),
+  Qeq_bool q1 q2 = true ->
+  List.Forall (fun x => Qle_bool q1 (f x) = true) l ->
+  List.Forall (fun x => Qle_bool q2 (f x) = true) l.
+Proof.
+  intros q1 q2 T f l Hq Hall.
+  apply Qeq_bool_iff in Hq.
+  eapply List.Forall_impl; [ | exact Hall ].
+  intros x Hx. apply Qle_bool_iff in Hx. apply Qle_bool_iff.
+  apply (Qle_trans q2 q1 (f x)); [ | exact Hx ].
+  apply Qle_lteq. right. now apply Qeq_sym.
+Qed.
 
 Class Coercion (A B : Type) := { coerce : A -> B }.
 
@@ -666,7 +710,12 @@ Definition fzero (v_N : res_N) : fN :=
 Lemma fzero_is_wf : forall (v_N : res_N) (ret_val : fN),
 	(ret_val == (fzero v_N)) ->
 	(wf_fN v_N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N ret_val /eqP ->.
+	apply: fN_case_0. eapply fNmag_case_1.
+	apply/andP; split; last by apply/eqP.
+	by apply/N.ltb_spec0; apply/N.neq_0_lt_0; apply: N.pow_nonzero.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:71.1-71.39 *)
 Definition fone (v_N : res_N) : fN :=
@@ -678,7 +727,12 @@ Definition fone (v_N : res_N) : fN :=
 Lemma fone_is_wf : forall (v_N : res_N) (ret_val : fN),
 	(ret_val == (fone v_N)) ->
 	(wf_fN v_N ret_val).
-Proof. Admitted.
+Proof.
+	(* Not provable as stated: for v_N outside {32, 64} both (signif v_N) and
+	   (expon v_N) are None, so (fun_M v_N) and (E v_N) default to 0 and the side
+	   condition of fNmag_case_0 for (NORM 1 0) reduces to false.  v_N = 7 is a
+	   counterexample. *)
+Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:74.1-74.21 *)
 Definition canon_ (v_N : res_N) : N :=
@@ -747,7 +801,24 @@ Lemma utf8_is_wf : forall (var_0_lst : (seq char)) (ret_val_lst : (seq byte)) (v
 	List.Forall (fun (var_0 : char) => (wf_char var_0)) var_0_lst ->
 	(ret_val_lst == var_0) ->
 	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => var_0_lst ret_val_lst var_0 H Hall /eqP ->.
+	move: Hall. elim: H.
+	- move => ch b /andP [Hlt /eqP <-] Hb _.
+		by apply: List.Forall_cons; [ | apply: List.Forall_nil ].
+	- (* The multi-byte cases are not provable: the premises only constrain the
+		 arithmetic value encoded by the bytes, not the individual bytes.  E.g. for
+		 the two-byte case, ch = 172, b_1 = 0 and b_2 = 300 satisfies the side
+		 condition (the truncated subtraction (b_1 - 192) in N yields 0), yet
+		 (wf_byte (mk_byte 300)) is false. *)
+		move => *. admit.
+	- move => *. admit.
+	- move => *. admit.
+	- (* The last case concatenates the per-character encodings, but the premise
+		 is a List.Forall2 of fun_utf8, under which Rocq's generated induction
+		 principle provides no induction hypothesis. *)
+		move => *. admit.
+Admitted.
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:92.1-92.70 *)
 Inductive name : Type :=
@@ -1586,7 +1657,18 @@ Definition fun_zero (v_numtype : numtype) : num_ :=
 Lemma zero_is_wf : forall (v_numtype : numtype) (ret_val : num_),
 	(ret_val == (fun_zero v_numtype)) ->
 	(wf_num_ v_numtype ret_val).
-Proof. Admitted.
+Proof.
+	move => v_numtype ret_val /eqP ->.
+	destruct v_numtype; simpl.
+	- by eapply num__case_0.
+	- by eapply num__case_0.
+	- eapply num__case_1; last by [].
+		apply: fN_case_0. eapply fNmag_case_1.
+		by apply/andP; split; [ | apply/eqP].
+	- eapply num__case_1; last by [].
+		apply: fN_case_0. eapply fNmag_case_1.
+		by apply/andP; split; [ | apply/eqP].
+Qed.
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:279.1-279.42 *)
 Inductive sx : Type :=
@@ -2228,7 +2310,10 @@ Lemma dim_is_wf : forall (v_shape : shape) (ret_val : dim),
 	(wf_shape v_shape) ->
 	(ret_val == (fun_dim v_shape)) ->
 	(wf_dim ret_val).
-Proof. Admitted.
+Proof.
+	move => v_shape ret_val Hwf /eqP ->.
+	case: Hwf => lt d Hd. by case: d Hd => i Hd.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:330.1-330.41 *)
 Definition shsize (v_shape : shape) : N :=
@@ -3738,7 +3823,12 @@ Lemma concat_bytes_is_wf : forall (var_0_lst_lst : (seq (seq byte))) (ret_val_ls
 	List.Forall (fun (var_0_lst : (seq byte)) => List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst) var_0_lst_lst ->
 	(ret_val_lst == var_0) ->
 	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => var_0_lst_lst ret_val_lst var_0 H Hall /eqP ->.
+	move: Hall. elim: H => //= b_lst b'_lst_lst v H IH Hall.
+	move: Hall => /List.Forall_cons_iff [H1 H2].
+	by apply/List.Forall_app; split; [ exact: H1 | exact: IH ].
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:28.1-28.32 *)
 Definition unpack (v_lanetype : lanetype) : numtype :=
@@ -3793,7 +3883,14 @@ Lemma tablesxt_is_wf : forall (var_0_lst : (seq externtype)) (ret_val_lst : (seq
 	List.Forall (fun (var_0 : externtype) => (wf_externtype var_0)) var_0_lst ->
 	(ret_val_lst == var_0) ->
 	List.Forall (fun (ret_val : tabletype) => (wf_tabletype ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => var_0_lst ret_val_lst var_0 H Hall /eqP ->.
+	move: Hall. elim: H => //=.
+	- move => tt xt_lst v H IH /List.Forall_cons_iff [H1 H2].
+		apply: List.Forall_cons; last by apply: IH.
+		by inversion H1.
+	- move => xt xt_lst v H IH /List.Forall_cons_iff [H1 H2]. by apply: IH.
+Qed.
 
 (* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:54.1-54.63 *)
 Inductive fun_memsxt : (seq externtype) -> (seq memtype) -> Prop :=
@@ -3811,7 +3908,14 @@ Lemma memsxt_is_wf : forall (var_0_lst : (seq externtype)) (ret_val_lst : (seq m
 	List.Forall (fun (var_0 : externtype) => (wf_externtype var_0)) var_0_lst ->
 	(ret_val_lst == var_0) ->
 	List.Forall (fun (ret_val : memtype) => (wf_memtype ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => var_0_lst ret_val_lst var_0 H Hall /eqP ->.
+	move: Hall. elim: H => //=.
+	- move => mt xt_lst v H IH /List.Forall_cons_iff [H1 H2].
+		apply: List.Forall_cons; last by apply: IH.
+		by inversion H1.
+	- move => xt xt_lst v H IH /List.Forall_cons_iff [H1 H2]. by apply: IH.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:80.1-80.61 *)
 Definition dataidx_instr (v_instr : instr) : (seq dataidx) :=
@@ -3826,7 +3930,12 @@ Lemma dataidx_instr_is_wf : forall (v_instr : instr) (ret_val_lst : (seq dataidx
 	(wf_instr v_instr) ->
 	(ret_val_lst == (dataidx_instr v_instr)) ->
 	List.Forall (fun (ret_val : dataidx) => (wf_uN 32%N ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => v_instr ret_val_lst Hwf /eqP ->.
+	case: Hwf; simpl; intros;
+		first [ by apply: List.Forall_nil
+			| by apply: List.Forall_cons; [ eassumption | apply: List.Forall_nil ] ].
+Qed.
 
 (* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:85.1-85.63 *)
 Inductive fun_dataidx_instrs : (seq instr) -> (seq dataidx) -> Prop :=
@@ -3841,7 +3950,12 @@ Lemma dataidx_instrs_is_wf : forall (var_0_lst : (seq instr)) (ret_val_lst : (se
 	List.Forall (fun (var_0 : instr) => (wf_instr var_0)) var_0_lst ->
 	(ret_val_lst == var_0) ->
 	List.Forall (fun (ret_val : dataidx) => (wf_uN 32%N ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => var_0_lst ret_val_lst var_0 H Hall /eqP ->.
+	move: Hall. elim: H => //= v_instr instr'_lst v H IH /List.Forall_cons_iff [H1 H2].
+	apply/List.Forall_app; split; last by apply: IH.
+	by apply: (dataidx_instr_is_wf v_instr _ H1).
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:89.6-89.19 *)
 Inductive fun_dataidx_expr : expr -> (seq dataidx) -> Prop :=
@@ -3855,7 +3969,11 @@ Lemma dataidx_expr_is_wf : forall (v_expr : expr) (ret_val_lst : (seq dataidx)) 
 	List.Forall (fun (v_expr : instr) => (wf_instr v_expr)) v_expr ->
 	(ret_val_lst == var_0) ->
 	List.Forall (fun (ret_val : dataidx) => (wf_uN 32%N ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => v_expr ret_val_lst var_0 H Hall /eqP ->.
+	move: Hall. case: H => in_lst v H Hall.
+	by apply: (dataidx_instrs_is_wf in_lst _ _ H Hall).
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:92.6-92.19 *)
 Inductive fun_dataidx_func : func -> (seq dataidx) -> Prop :=
@@ -3869,7 +3987,12 @@ Lemma dataidx_func_is_wf : forall (v_func : func) (ret_val_lst : (seq dataidx)) 
 	(wf_func v_func) ->
 	(ret_val_lst == var_0) ->
 	List.Forall (fun (ret_val : dataidx) => (wf_uN 32%N ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => v_func ret_val_lst var_0 H Hwf /eqP ->.
+	move: Hwf. case: H => x loc_lst e v H Hwf.
+	inversion Hwf; subst.
+	by apply: (dataidx_expr_is_wf e _ _ H _).
+Qed.
 
 (* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:95.1-95.61 *)
 Inductive fun_dataidx_funcs : (seq func) -> (seq dataidx) -> Prop :=
@@ -3885,7 +4008,12 @@ Lemma dataidx_funcs_is_wf : forall (var_0_lst : (seq func)) (ret_val_lst : (seq 
 	List.Forall (fun (var_0 : func) => (wf_func var_0)) var_0_lst ->
 	(ret_val_lst == var_0) ->
 	List.Forall (fun (ret_val : dataidx) => (wf_uN 32%N ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => var_0_lst ret_val_lst var_0 H Hall /eqP ->.
+	move: Hall. elim: H => //= v_func func'_lst v1 v H IH H2 /List.Forall_cons_iff [Hf Hr].
+	apply/List.Forall_app; split; last by apply: IH.
+	by apply: (dataidx_func_is_wf v_func _ _ H2 Hf).
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:106.1-106.35 *)
 Definition memarg0 : memarg := {| ALIGN := (mk_uN 0%N); OFFSET := (mk_uN 0%N) |}.
@@ -3894,7 +4022,10 @@ Definition memarg0 : memarg := {| ALIGN := (mk_uN 0%N); OFFSET := (mk_uN 0%N) |}
 Lemma memarg0_is_wf : forall (ret_val : memarg),
 	(ret_val == (memarg0 )) ->
 	(wf_memarg ret_val).
-Proof. Admitted.
+Proof.
+	move => ret_val /eqP ->.
+	by apply: memarg_case_; apply: uN_case_0.
+Qed.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:7.1-7.41 *)
 Axiom s33_to_u32 : forall (v_s33 : s33), u32.
@@ -4101,7 +4232,41 @@ Lemma unop__is_wf : forall (v_numtype : numtype) (v_unop_ : unop_) (v_num_ : num
 	((fun_unop_ v_numtype v_unop_ v_num_) != None) ->
 	(ret_val_lst == (!((fun_unop_ v_numtype v_unop_ v_num_)))) ->
 	List.Forall (fun (ret_val : num_) => (wf_num_ v_numtype ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => nt op n ret H1 H2 Hne /eqP ->.
+	have Hmap : forall (F : Fnn) (v_nt : numtype) (l : seq fN),
+		(v_nt == (numtype_Fnn F)) ->
+		List.Forall (fun x => wf_fN (sizenn (numtype_Fnn F)) x) l ->
+		List.Forall (fun x => wf_num_ v_nt x) (seq.map (fun y => mk_num__1 F y) l).
+	{ move => F v_nt l Hnt. elim: l => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ apply: num__case_1 | apply: IH ]. }
+	destruct nt; destruct op as [inn oi|fnn ofn];
+		try (destruct inn; destruct oi); try (destruct fnn; destruct ofn);
+		destruct n as [inn2 i|fnn2 f]; try destruct inn2; try destruct fnn2; simpl.
+	all: first
+		[ by apply: List.Forall_nil
+		| (inversion H2; subst;
+			apply: List.Forall_cons;
+			[ apply: num__case_0;
+				[ by []
+				| first [ (eapply iclz__is_wf; [ eassumption | by apply: eqxx ])
+					| (eapply ictz__is_wf; [ eassumption | by apply: eqxx ])
+					| (eapply ipopcnt__is_wf; [ eassumption | by apply: eqxx ])
+					| (eapply extend___is_wf;
+						[ eapply wrap___is_wf; [ eassumption | by apply: eqxx ]
+						| by apply: eqxx ]) ]
+				| by [] ]
+			| by apply: List.Forall_nil ])
+		| (inversion H2; subst; apply: Hmap;
+			[ by []
+			| first [ (eapply fabs__is_wf; [ eassumption | by apply: eqxx ])
+				| (eapply fneg__is_wf; [ eassumption | by apply: eqxx ])
+				| (eapply fsqrt__is_wf; [ eassumption | by apply: eqxx ])
+				| (eapply fceil__is_wf; [ eassumption | by apply: eqxx ])
+				| (eapply ffloor__is_wf; [ eassumption | by apply: eqxx ])
+				| (eapply ftrunc__is_wf; [ eassumption | by apply: eqxx ])
+				| (eapply fnearest__is_wf; [ eassumption | by apply: eqxx ]) ] ]) ].
+Qed.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:215.1-215.37 *)
 Axiom fadd_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), (seq fN).
@@ -4192,7 +4357,16 @@ Lemma iadd__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N iN_0) ->
 	(ret_val == (iadd_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_iN iN_0 ret_val H1 H2 /eqP ->.
+	have Hnz : ((2%N ^ v_N)%BN <> 0%N) by apply: N.pow_nonzero.
+	have Hpow : (1 <= (2%N ^ v_N)%BN)%BN by apply: N.pow_lower_bound.
+	apply: uN_case_0.
+	rewrite /N_geb -Znat.N2Z.inj_sub // Znat.N2Z.id.
+	apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+	apply/N.leb_spec0. rewrite N.sub_1_r. apply: N.lt_le_pred.
+	by apply: N.mod_lt.
+Qed.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:112.1-112.36 *)
 Axiom iand_ : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN), iN.
@@ -4213,7 +4387,7 @@ Inductive fun_idiv_ : res_N -> sx -> iN -> iN -> (option iN) -> Prop :=
 	| fun_idiv__case_3 : forall (v_N : N) (i_1 : uN) (i_2 : uN) (var_1 : Z) (var_0 : Z), 
 		(fun_signed_ v_N (i_2 :> N) var_1) ->
 		(fun_signed_ v_N (i_1 :> N) var_0) ->
-		(((var_0 : Q) / (var_1 : Q))%Q == ((2%N ^ (((v_N : Z) - (1%N : Z))%Z : N))%BN : Q)) ->
+		((((var_0 : Q) / (var_1 : Q))%Q == ((2%N ^ (((v_N : Z) - (1%N : Z))%Z : N))%BN : Q))%Q) ->
 		fun_idiv_ v_N res_S i_1 i_2 None
 	| fun_idiv__case_4 : forall (v_N : N) (i_1 : uN) (i_2 : uN) (var_2 : Z) (var_1 : Z) (var_0 : N), 
 		(fun_signed_ v_N (i_2 :> N) var_2) ->
@@ -4228,7 +4402,41 @@ Lemma idiv__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (re
 	(wf_uN v_N iN_0) ->
 	(ret_val_opt == var_0) ->
 	List.Forall (fun (ret_val : iN) => (wf_uN v_N ret_val)) (option_to_list ret_val_opt).
-Proof. Admitted.
+Proof.
+	move => v_N v_sx v_iN iN_0 ret_val_opt var_0 H Hw1 Hw2 /eqP ->.
+	have Hto : forall m : N, ((((m : Z) - (1%N : Z))%Z : N) = (m - 1)%BN).
+	{ case => [ |p] //. by rewrite -Znat.N2Z.inj_sub ?Znat.N2Z.id //; apply/N.neq_0_le_1. }
+	have Hp : forall (vN : res_N), (0 < (2%N ^ vN)%BN)%BN.
+	{ by move => vN; apply/N.neq_0_lt_0; apply: N.pow_nonzero. }
+	have HtoN : forall (vN : res_N) (z2 : Z),
+		(z2 < ((2%N ^ vN)%BN : Z))%Z -> (((z2 : N)) < (2%N ^ vN)%BN)%BN.
+	{ move => vN; case => [ |q|q] Hz //=; try exact: Hp.
+		have Hnn : (0 <= Z.pos q)%Z by [].
+		have := (proj1 (Znat.Z2N.inj_lt (Z.pos q) _ Hnn (Znat.N2Z.is_nonneg _)) Hz).
+		by rewrite Znat.N2Z.id. }
+	have Hbnd : forall (vN : res_N) (x : N), (x < (2%N ^ vN)%BN)%BN -> wf_uN vN (mk_uN x).
+	{ move => vN x Hx. apply: uN_case_0. rewrite Hto /N_geb.
+		apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+		by apply/N.leb_spec0; rewrite N.sub_1_r; apply: N.lt_le_pred. }
+	have Hle : forall (vN : res_N),
+		((2%N ^ ((((vN : Z) - (1%N : Z))%Z : N)))%BN <= (2%N ^ vN)%BN)%BN.
+	{ move => vN. apply: N.pow_le_mono_r => //. rewrite Hto. exact: N.le_sub_l. }
+	have Hinv : forall (vN : res_N) (z : Z) (m : N), fun_inv_signed_ vN z m -> wf_uN vN (mk_uN m).
+	{ move => vN0 z m Hi. case: Hi => vN i /andP [Ha Hb]; apply: Hbnd; apply: HtoN.
+		- have Hlt2 : (i < ((2%N ^ ((((vN : Z) - (1%N : Z))%Z : N)))%BN : Z))%Z
+				by apply: (proj1 (Z.ltb_lt _ _) Hb).
+			apply: (Z.lt_le_trans _ _ _ Hlt2). by apply/Znat.N2Z.inj_le; apply: Hle.
+		- rewrite -{2}(Z.add_0_l ((2%N ^ vN)%BN : Z)).
+			by apply: (proj1 (Z.add_lt_mono_r _ _ _) (proj1 (Z.ltb_lt _ _) Hb)). }
+	case: H Hw1 Hw2 => *; simpl.
+	all: try by apply: List.Forall_nil.
+	all: try (by apply: List.Forall_cons;
+		[ apply: Hinv; eassumption | apply: List.Forall_nil ]).
+	(* The remaining case is the unsigned one, whose result is built from
+	   truncz, an axiom without any specification, so no bound on the result
+	   is available. *)
+	all: admit.
+Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:107.1-107.36 *)
 Definition imul_ (v_N : res_N) (v_iN : iN) (iN_0 : iN) : iN :=
@@ -4242,7 +4450,16 @@ Lemma imul__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N iN_0) ->
 	(ret_val == (imul_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_iN iN_0 ret_val H1 H2 /eqP ->.
+	have Hnz : ((2%N ^ v_N)%BN <> 0%N) by apply: N.pow_nonzero.
+	have Hpow : (1 <= (2%N ^ v_N)%BN)%BN by apply: N.pow_lower_bound.
+	apply: uN_case_0.
+	rewrite /N_geb -Znat.N2Z.inj_sub // Znat.N2Z.id.
+	apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+	apply/N.leb_spec0. rewrite N.sub_1_r. apply: N.lt_le_pred.
+	by apply: N.mod_lt.
+Qed.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:114.1-114.35 *)
 Axiom ior_ : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN), iN.
@@ -4274,7 +4491,41 @@ Lemma irem__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (re
 	(wf_uN v_N iN_0) ->
 	(ret_val_opt == var_0) ->
 	List.Forall (fun (ret_val : iN) => (wf_uN v_N ret_val)) (option_to_list ret_val_opt).
-Proof. Admitted.
+Proof.
+	move => v_N v_sx v_iN iN_0 ret_val_opt var_0 H Hw1 Hw2 /eqP ->.
+	have Hto : forall m : N, ((((m : Z) - (1%N : Z))%Z : N) = (m - 1)%BN).
+	{ case => [ |p] //. by rewrite -Znat.N2Z.inj_sub ?Znat.N2Z.id //; apply/N.neq_0_le_1. }
+	have Hp : forall (vN : res_N), (0 < (2%N ^ vN)%BN)%BN.
+	{ by move => vN; apply/N.neq_0_lt_0; apply: N.pow_nonzero. }
+	have HtoN : forall (vN : res_N) (z2 : Z),
+		(z2 < ((2%N ^ vN)%BN : Z))%Z -> (((z2 : N)) < (2%N ^ vN)%BN)%BN.
+	{ move => vN; case => [ |q|q] Hz //=; try exact: Hp.
+		have Hnn : (0 <= Z.pos q)%Z by [].
+		have := (proj1 (Znat.Z2N.inj_lt (Z.pos q) _ Hnn (Znat.N2Z.is_nonneg _)) Hz).
+		by rewrite Znat.N2Z.id. }
+	have Hbnd : forall (vN : res_N) (x : N), (x < (2%N ^ vN)%BN)%BN -> wf_uN vN (mk_uN x).
+	{ move => vN x Hx. apply: uN_case_0. rewrite Hto /N_geb.
+		apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+		by apply/N.leb_spec0; rewrite N.sub_1_r; apply: N.lt_le_pred. }
+	have Hle : forall (vN : res_N),
+		((2%N ^ ((((vN : Z) - (1%N : Z))%Z : N)))%BN <= (2%N ^ vN)%BN)%BN.
+	{ move => vN. apply: N.pow_le_mono_r => //. rewrite Hto. exact: N.le_sub_l. }
+	have Hinv : forall (vN : res_N) (z : Z) (m : N), fun_inv_signed_ vN z m -> wf_uN vN (mk_uN m).
+	{ move => vN0 z m Hi. case: Hi => vN i /andP [Ha Hb]; apply: Hbnd; apply: HtoN.
+		- have Hlt2 : (i < ((2%N ^ ((((vN : Z) - (1%N : Z))%Z : N)))%BN : Z))%Z
+				by apply: (proj1 (Z.ltb_lt _ _) Hb).
+			apply: (Z.lt_le_trans _ _ _ Hlt2). by apply/Znat.N2Z.inj_le; apply: Hle.
+		- rewrite -{2}(Z.add_0_l ((2%N ^ vN)%BN : Z)).
+			by apply: (proj1 (Z.add_lt_mono_r _ _ _) (proj1 (Z.ltb_lt _ _) Hb)). }
+	case: H Hw1 Hw2 => *; simpl.
+	all: try by apply: List.Forall_nil.
+	all: try (by apply: List.Forall_cons;
+		[ apply: Hinv; eassumption | apply: List.Forall_nil ]).
+	(* The remaining case is the unsigned one, whose result is built from
+	   truncz, an axiom without any specification, so no bound on the result
+	   is available. *)
+	all: admit.
+Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:118.1-118.37 *)
 Axiom irotl_ : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN), iN.
@@ -4332,7 +4583,22 @@ Lemma isub__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N iN_0) ->
 	(ret_val == (isub_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_iN iN_0 ret_val H1 H2 /eqP ->.
+	have Hpow : (1 <= (2%N ^ v_N)%BN)%BN by apply: N.pow_lower_bound.
+	have Hsub : (((((2%N ^ v_N)%BN : Z) - (1%N : Z))%Z : N)) = ((2%N ^ v_N)%BN - 1%N)%BN
+		by rewrite -Znat.N2Z.inj_sub // Znat.N2Z.id.
+	have HposZ : (0 < ((2%N ^ v_N)%BN : Z))%Z.
+	{ have Hp : (0 < (2%N ^ v_N)%BN)%BN by apply/N.neq_0_lt_0; apply: N.pow_nonzero.
+		by move/Znat.N2Z.inj_lt: Hp. }
+	apply: uN_case_0.
+	rewrite Hsub /N_geb.
+	apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+	apply/N.leb_spec0. rewrite N.sub_1_r. apply: N.lt_le_pred.
+	have [Hlo Hhi] := Z.mod_pos_bound ((((2%N ^ v_N)%BN + (v_iN :> N))%BN : Z) - ((iN_0 :> N) : Z))%Z _ HposZ.
+	have Hres := (proj1 (Znat.Z2N.inj_lt _ _ Hlo (Z.lt_le_incl _ _ HposZ)) Hhi).
+	by rewrite Znat.N2Z.id in Hres.
+Qed.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:115.1-115.36 *)
 Axiom ixor_ : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN), iN.
@@ -4447,7 +4713,62 @@ Lemma binop__is_wf : forall (v_numtype : numtype) (v_binop_ : binop_) (v_num_ : 
 	(var_0 != None) ->
 	(ret_val_lst == (!(var_0))) ->
 	List.Forall (fun (ret_val : num_) => (wf_num_ v_numtype ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => nt bop n1 n2 ret var0 H Hb H1 H2 Hne /eqP ->.
+	have Huu : forall (v_N : res_N) (x : uN), wf_uN v_N x -> wf_uN v_N (mk_uN (x :> N)).
+	{ by move => v_N [i] Hx. }
+	have Hmap : forall (F : Fnn) (v_nt : numtype) (l : seq fN),
+		(v_nt == (numtype_Fnn F)) ->
+		List.Forall (fun x => wf_fN (sizenn (numtype_Fnn F)) x) l ->
+		List.Forall (fun x => wf_num_ v_nt x) (seq.map (fun y => mk_num__1 F y) l).
+	{ move => F v_nt l Hnt. elim: l => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ apply: num__case_1 | apply: IH ]. }
+	have Hmapo : forall (I : Inn) (v_nt : numtype) (o : (option iN)),
+		(v_nt == (numtype_Inn I)) ->
+		((res_size (valtype_Inn I)) != None) ->
+		List.Forall (fun x => wf_uN (!((res_size (valtype_Inn I)))) x) (option_to_list o) ->
+		List.Forall (fun x => wf_num_ v_nt x) (list_ num_ (option_map (fun y => mk_num__0 I y) o)).
+	{ move => I v_nt o Hnt Hs Ho. case: o Ho => [x| ] Ho; last by apply: List.Forall_nil.
+		inversion Ho; subst.
+		by apply: List.Forall_cons; [ apply: num__case_0 | apply: List.Forall_nil ]. }
+	case: H Hb H1 H2 Hne => *; simpl.
+	all: repeat match goal with | [ Hx : wf_num_ _ _ |- _ ] => inversion Hx; subst; clear Hx end.
+	all: try (by apply: List.Forall_nil).
+	all: try (apply: List.Forall_cons;
+		[ apply: num__case_0;
+			[ by []
+			| first [ ((eapply iadd__is_wf; only 3: by apply: eqxx); eassumption)
+				| ((eapply isub__is_wf; only 3: by apply: eqxx); eassumption)
+				| ((eapply imul__is_wf; only 3: by apply: eqxx); eassumption)
+				| ((eapply iand__is_wf; only 3: by apply: eqxx); eassumption)
+				| ((eapply ior__is_wf; only 3: by apply: eqxx); eassumption)
+				| ((eapply ixor__is_wf; only 3: by apply: eqxx); eassumption)
+				| ((eapply irotl__is_wf; only 3: by apply: eqxx); eassumption)
+				| ((eapply irotr__is_wf; only 3: by apply: eqxx); eassumption)
+				| ((eapply ishl__is_wf; only 3: by apply: eqxx);
+					first [ eassumption | (apply: Huu; eassumption) ])
+				| ((eapply ishr__is_wf; only 3: by apply: eqxx);
+					first [ eassumption | (apply: Huu; eassumption) ]) ]
+			| by [] ]
+		| by apply: List.Forall_nil ]).
+	all: try (apply: Hmap;
+		[ by []
+		| first [ ((eapply fadd__is_wf; only 3: by apply: eqxx); eassumption)
+			| ((eapply fsub__is_wf; only 3: by apply: eqxx); eassumption)
+			| ((eapply fmul__is_wf; only 3: by apply: eqxx); eassumption)
+			| ((eapply fdiv__is_wf; only 3: by apply: eqxx); eassumption)
+			| ((eapply fmin__is_wf; only 3: by apply: eqxx); eassumption)
+			| ((eapply fmax__is_wf; only 3: by apply: eqxx); eassumption)
+			| ((eapply fcopysign__is_wf; only 3: by apply: eqxx); eassumption) ] ]).
+	all: try (apply: Hmapo;
+		[ by [] | by []
+		| first [ ((eapply idiv__is_wf; only 4: by apply: eqxx); eassumption)
+			| ((eapply irem__is_wf; only 4: by apply: eqxx); eassumption) ] ]).
+	(* Remaining: the I64 SHL / SHR cases. They need (wf_uN 32 (mk_uN (iN_2 :> N))),
+	   but the hypotheses only provide (wf_uN 64 iN_2): nothing bounds the shift
+	   amount by 2 ^ 32, so these two cases are not provable as stated. *)
+	all: admit.
+Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:123.1-123.27 *)
 Definition ieqz_ (v_N : res_N) (v_iN : iN) : u32 :=
@@ -4460,7 +4781,10 @@ Lemma ieqz__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : u32),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (ieqz_ v_N v_iN)) ->
 	(wf_uN 32%N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_iN ret_val H /eqP ->.
+	apply: uN_case_0. by case: ((v_iN :> N) == 0%N).
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:48.1-49.32 *)
 Definition fun_testop_ (v_numtype : numtype) (v_testop_ : testop_) (v_num_ : num_) : (option num_) :=
@@ -4477,7 +4801,14 @@ Lemma testop__is_wf : forall (v_numtype : numtype) (v_testop_ : testop_) (v_num_
 	((fun_testop_ v_numtype v_testop_ v_num_) != None) ->
 	(ret_val == (!((fun_testop_ v_numtype v_testop_ v_num_)))) ->
 	(wf_num_ I32 ret_val).
-Proof. Admitted.
+Proof.
+	move => nt top n ret H1 H2 Hne /eqP ->.
+	destruct nt; destruct top as [inn t]; destruct inn; destruct t;
+		destruct n as [inn2 i|fnn f]; try destruct inn2; try destruct fnn; simpl.
+	all: first [ by apply: num__case_0
+		| (inversion H2; subst; apply: num__case_0 => //;
+			eapply ieqz__is_wf; [ eassumption | by apply: eqxx ]) ].
+Qed.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:231.1-231.33 *)
 Axiom feq_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), u32.
@@ -4557,7 +4888,10 @@ Lemma ieq__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : u32),
 	(wf_uN v_N iN_0) ->
 	(ret_val == (ieq_ v_N v_iN iN_0)) ->
 	(wf_uN 32%N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_iN iN_0 ret_val H1 H2 /eqP ->.
+	apply: uN_case_0. by case: (v_iN == iN_0).
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:130.6-130.11 *)
 Inductive fun_ige_ : res_N -> sx -> iN -> iN -> u32 -> Prop :=
@@ -4574,7 +4908,12 @@ Lemma ige__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret
 	(wf_uN v_N iN_0) ->
 	(ret_val == var_0) ->
 	(wf_uN 32%N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_sx v_iN iN_0 ret_val var_0 H H1 H2 /eqP ->.
+	have Hb : forall b : bool, (wf_uN 32%N (mk_uN (res_bool b))).
+	{ by move => b; apply: uN_case_0; case: b. }
+	by case: H => *; apply: Hb.
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:128.6-128.11 *)
 Inductive fun_igt_ : res_N -> sx -> iN -> iN -> u32 -> Prop :=
@@ -4591,7 +4930,12 @@ Lemma igt__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret
 	(wf_uN v_N iN_0) ->
 	(ret_val == var_0) ->
 	(wf_uN 32%N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_sx v_iN iN_0 ret_val var_0 H H1 H2 /eqP ->.
+	have Hb : forall b : bool, (wf_uN 32%N (mk_uN (res_bool b))).
+	{ by move => b; apply: uN_case_0; case: b. }
+	by case: H => *; apply: Hb.
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:129.6-129.11 *)
 Inductive fun_ile_ : res_N -> sx -> iN -> iN -> u32 -> Prop :=
@@ -4608,7 +4952,12 @@ Lemma ile__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret
 	(wf_uN v_N iN_0) ->
 	(ret_val == var_0) ->
 	(wf_uN 32%N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_sx v_iN iN_0 ret_val var_0 H H1 H2 /eqP ->.
+	have Hb : forall b : bool, (wf_uN 32%N (mk_uN (res_bool b))).
+	{ by move => b; apply: uN_case_0; case: b. }
+	by case: H => *; apply: Hb.
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:127.6-127.11 *)
 Inductive fun_ilt_ : res_N -> sx -> iN -> iN -> u32 -> Prop :=
@@ -4625,7 +4974,12 @@ Lemma ilt__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret
 	(wf_uN v_N iN_0) ->
 	(ret_val == var_0) ->
 	(wf_uN 32%N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_sx v_iN iN_0 ret_val var_0 H H1 H2 /eqP ->.
+	have Hb : forall b : bool, (wf_uN 32%N (mk_uN (res_bool b))).
+	{ by move => b; apply: uN_case_0; case: b. }
+	by case: H => *; apply: Hb.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:126.1-126.33 *)
 Definition ine_ (v_N : res_N) (v_iN : iN) (iN_0 : iN) : u32 :=
@@ -4639,7 +4993,10 @@ Lemma ine__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : u32),
 	(wf_uN v_N iN_0) ->
 	(ret_val == (ine_ v_N v_iN iN_0)) ->
 	(wf_uN 32%N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_iN iN_0 ret_val H1 H2 /eqP ->.
+	apply: uN_case_0. by case: (v_iN != iN_0).
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:50.6-50.13 *)
 Inductive fun_relop__before_fun_relop__case_24 : numtype -> relop_ -> num_ -> num_ -> Prop :=
@@ -4723,7 +5080,28 @@ Lemma relop__is_wf : forall (v_numtype : numtype) (v_relop_ : relop_) (v_num_ : 
 	(var_0 != None) ->
 	(ret_val == (!(var_0))) ->
 	(wf_num_ I32 ret_val).
-Proof. Admitted.
+Proof.
+	move => nt rop n1 n2 ret var0 H Hr H1 H2 Hne /eqP ->.
+	case: H Hr H1 H2 Hne => *; simpl.
+	all: repeat match goal with | [ Hx : wf_num_ _ _ |- _ ] => inversion Hx; subst; clear Hx end.
+	all: first
+		[ by apply: num__case_0
+		| (apply: num__case_0;
+			[ by []
+			| first [ ((eapply ieq__is_wf; only 3: by apply: eqxx); eassumption)
+				| ((eapply ine__is_wf; only 3: by apply: eqxx); eassumption)
+				| ((eapply feq__is_wf; only 3: by apply: eqxx); eassumption)
+				| ((eapply fne__is_wf; only 3: by apply: eqxx); eassumption)
+				| ((eapply flt__is_wf; only 3: by apply: eqxx); eassumption)
+				| ((eapply fgt__is_wf; only 3: by apply: eqxx); eassumption)
+				| ((eapply fle__is_wf; only 3: by apply: eqxx); eassumption)
+				| ((eapply fge__is_wf; only 3: by apply: eqxx); eassumption)
+				| ((eapply ilt__is_wf; only 4: by apply: eqxx); eassumption)
+				| ((eapply igt__is_wf; only 4: by apply: eqxx); eassumption)
+				| ((eapply ile__is_wf; only 4: by apply: eqxx); eassumption)
+				| ((eapply ige__is_wf; only 4: by apply: eqxx); eassumption) ]
+			| by [] ]) ].
+Qed.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:61.1-61.90 *)
 Axiom convert__ : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_iN : iN), fN.
@@ -4938,7 +5316,46 @@ Lemma cvtop___is_wf : forall (numtype_1 : numtype) (numtype_2 : numtype) (v_cvto
 	(var_0 != None) ->
 	(ret_val_lst == (!(var_0))) ->
 	List.Forall (fun (ret_val : num_) => (wf_num_ numtype_2 ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => nt1 nt2 cop n ret var0 H Hc H1 Hne /eqP ->.
+	have Hmap : forall (F : Fnn) (v_nt : numtype) (l : seq fN),
+		(v_nt == (numtype_Fnn F)) ->
+		List.Forall (fun x => wf_fN (sizenn (numtype_Fnn F)) x) l ->
+		List.Forall (fun x => wf_num_ v_nt x) (seq.map (fun y => mk_num__1 F y) l).
+	{ move => F v_nt l Hnt. elim: l => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ apply: num__case_1 | apply: IH ]. }
+	have Hmapo : forall (I : Inn) (v_nt : numtype) (o : (option iN)),
+		(v_nt == (numtype_Inn I)) ->
+		((res_size (valtype_Inn I)) != None) ->
+		List.Forall (fun x => wf_uN (!((res_size (valtype_Inn I)))) x) (option_to_list o) ->
+		List.Forall (fun x => wf_num_ v_nt x) (list_ num_ (option_map (fun y => mk_num__0 I y) o)).
+	{ move => I v_nt o Hnt Hs Ho. case: o Ho => [x| ] Ho; last by apply: List.Forall_nil.
+		inversion Ho; subst.
+		by apply: List.Forall_cons; [ apply: num__case_0 | apply: List.Forall_nil ]. }
+	case: H Hc H1 Hne => *; simpl.
+	all: repeat match goal with | [ Hx : wf_num_ _ _ |- _ ] => inversion Hx; subst; clear Hx end.
+	all: try (by apply: List.Forall_nil).
+	all: try (apply: List.Forall_cons;
+		[ first [ (apply: num__case_0;
+				[ by []
+				| first [ ((eapply extend___is_wf; only 2: by apply: eqxx); eassumption)
+					| ((eapply wrap___is_wf; only 2: by apply: eqxx); eassumption) ]
+				| by [] ])
+			| (apply: num__case_1;
+				[ ((eapply convert___is_wf; only 2: by apply: eqxx); eassumption)
+				| by [] ])
+			| ((eapply reinterpret___is_wf; only 2: by apply: eqxx);
+				first [ by apply: num__case_0 | by apply: num__case_1 ]) ]
+		| by apply: List.Forall_nil ]).
+	all: try (apply: Hmap;
+		[ by []
+		| first [ ((eapply promote___is_wf; only 2: by apply: eqxx); eassumption)
+			| ((eapply demote___is_wf; only 2: by apply: eqxx); eassumption) ] ]).
+	all: try (apply: Hmapo;
+		[ by [] | by []
+		| first [ ((eapply trunc___is_wf; only 2: by apply: eqxx); eassumption)
+			| ((eapply trunc_sat___is_wf; only 2: by apply: eqxx); eassumption) ] ]).
+Qed.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:62.1-62.87 *)
 Axiom narrow__ : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_iN : iN), iN.
@@ -5114,7 +5531,10 @@ Lemma inez__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : u32),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (inez_ v_N v_iN)) ->
 	(wf_uN 32%N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_iN ret_val H /eqP ->.
+	apply: uN_case_0. by case: ((v_iN :> N) == 0%N).
+Qed.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:131.1-131.49 *)
 Axiom ibitselect_ : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (iN_1 : iN), iN.
@@ -5139,7 +5559,22 @@ Lemma ineg__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (ineg_ v_N v_iN)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_iN ret_val H /eqP ->.
+	have Hpow : (1 <= (2%N ^ v_N)%BN)%BN by apply: N.pow_lower_bound.
+	have Hsub : (((((2%N ^ v_N)%BN : Z) - (1%N : Z))%Z : N)) = ((2%N ^ v_N)%BN - 1%N)%BN
+		by rewrite -Znat.N2Z.inj_sub // Znat.N2Z.id.
+	have HposZ : (0 < ((2%N ^ v_N)%BN : Z))%Z.
+	{ have Hp : (0 < (2%N ^ v_N)%BN)%BN by apply/N.neq_0_lt_0; apply: N.pow_nonzero.
+		by move/Znat.N2Z.inj_lt: Hp. }
+	apply: uN_case_0.
+	rewrite Hsub /N_geb.
+	apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+	apply/N.leb_spec0. rewrite N.sub_1_r. apply: N.lt_le_pred.
+	have [Hlo Hhi] := Z.mod_pos_bound ((((2%N ^ v_N)%BN : Z) - ((v_iN :> N) : Z))%Z) _ HposZ.
+	have Hres := (proj1 (Znat.Z2N.inj_lt _ _ Hlo (Z.lt_le_incl _ _ HposZ)) Hhi).
+	by rewrite Znat.N2Z.id in Hres.
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:132.6-132.12 *)
 Inductive fun_iabs_ : res_N -> iN -> iN -> Prop :=
@@ -5153,7 +5588,12 @@ Lemma iabs__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN) (var_0 : iN)
 	(wf_uN v_N v_iN) ->
 	(ret_val == var_0) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_iN ret_val var_0 H H1 /eqP ->.
+	case: H H1 => v_N0 i_1 z Hsig H1.
+	case: ifP => _ //.
+	by apply: (ineg__is_wf v_N0 i_1).
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:134.6-134.12 *)
 Inductive fun_imin_ : res_N -> sx -> iN -> iN -> iN -> Prop :=
@@ -5175,7 +5615,11 @@ Lemma imin__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (re
 	(wf_uN v_N iN_0) ->
 	(ret_val == var_0) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_sx v_iN iN_0 ret_val var_0 H H1 H2 /eqP ->.
+	case: H H1 H2 => * //.
+	by case: ifP.
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:135.6-135.12 *)
 Inductive fun_imax_ : res_N -> sx -> iN -> iN -> iN -> Prop :=
@@ -5197,7 +5641,11 @@ Lemma imax__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (re
 	(wf_uN v_N iN_0) ->
 	(ret_val == var_0) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_sx v_iN iN_0 ret_val var_0 H H1 H2 /eqP ->.
+	case: H H1 H2 => * //.
+	by case: ifP.
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:136.6-136.16 *)
 Inductive fun_iadd_sat_ : res_N -> sx -> iN -> iN -> iN -> Prop :=
@@ -5215,7 +5663,44 @@ Lemma iadd_sat__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN)
 	(wf_uN v_N iN_0) ->
 	(ret_val == var_0) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_sx v_iN iN_0 ret_val var_0 H Hw1 Hw2 /eqP ->.
+	have Hto : forall m : N, ((((m : Z) - (1%N : Z))%Z : N) = (m - 1)%BN).
+	{ case => [ |p] //. by rewrite -Znat.N2Z.inj_sub ?Znat.N2Z.id //; apply/N.neq_0_le_1. }
+	have Hp : forall (vN : res_N), (0 < (2%N ^ vN)%BN)%BN.
+	{ by move => vN; apply/N.neq_0_lt_0; apply: N.pow_nonzero. }
+	have HtoN : forall (vN : res_N) (z2 : Z),
+		(z2 < ((2%N ^ vN)%BN : Z))%Z -> (((z2 : N)) < (2%N ^ vN)%BN)%BN.
+	{ move => vN; case => [ |q|q] Hz //=; try exact: Hp.
+		have Hnn : (0 <= Z.pos q)%Z by [].
+		have := (proj1 (Znat.Z2N.inj_lt (Z.pos q) _ Hnn (Znat.N2Z.is_nonneg _)) Hz).
+		by rewrite Znat.N2Z.id. }
+	have Hbnd : forall (vN : res_N) (x : N), (x < (2%N ^ vN)%BN)%BN -> wf_uN vN (mk_uN x).
+	{ move => vN x Hx. apply: uN_case_0. rewrite Hto /N_geb.
+		apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+		by apply/N.leb_spec0; rewrite N.sub_1_r; apply: N.lt_le_pred. }
+	have Hle : forall (vN : res_N),
+		((2%N ^ ((((vN : Z) - (1%N : Z))%Z : N)))%BN <= (2%N ^ vN)%BN)%BN.
+	{ move => vN. apply: N.pow_le_mono_r => //. rewrite Hto. exact: N.le_sub_l. }
+	have Hinv : forall (vN : res_N) (z : Z) (m : N), fun_inv_signed_ vN z m -> wf_uN vN (mk_uN m).
+	{ move => vN0 z m Hi. case: Hi => vN i /andP [Ha Hb]; apply: Hbnd; apply: HtoN.
+		- have Hlt2 : (i < ((2%N ^ ((((vN : Z) - (1%N : Z))%Z : N)))%BN : Z))%Z
+				by apply: (proj1 (Z.ltb_lt _ _) Hb).
+			apply: (Z.lt_le_trans _ _ _ Hlt2). by apply/Znat.N2Z.inj_le; apply: Hle.
+		- rewrite -{2}(Z.add_0_l ((2%N ^ vN)%BN : Z)).
+			by apply: (proj1 (Z.add_lt_mono_r _ _ _) (proj1 (Z.ltb_lt _ _) Hb)). }
+	have Hsatu : forall (vN : res_N) (z : Z), wf_uN vN (mk_uN (sat_u_ vN z)).
+	{ move => vN z. rewrite /sat_u_. apply: Hbnd.
+		case: ifP => Hlt; first exact: Hp.
+		case: ifP => Hgt.
+		- rewrite Hto. apply: N.sub_lt; last by []. by apply: N.pow_lower_bound.
+		- apply: HtoN.
+			have H1 : (z <= (((2%N ^ vN)%BN : Z) - (1%N : Z))%Z)%Z
+				by move: Hgt; rewrite Z.gtb_ltb => /Z.ltb_ge.
+			apply: (Z.le_lt_trans _ _ _ H1). by apply: (proj1 (Z.lt_sub_pos _ _)). }
+	case: H Hw1 Hw2 => *; first by apply: Hsatu.
+	by apply: Hinv; eassumption.
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:137.6-137.16 *)
 Inductive fun_isub_sat_ : res_N -> sx -> iN -> iN -> iN -> Prop :=
@@ -5233,7 +5718,44 @@ Lemma isub_sat__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN)
 	(wf_uN v_N iN_0) ->
 	(ret_val == var_0) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_N v_sx v_iN iN_0 ret_val var_0 H Hw1 Hw2 /eqP ->.
+	have Hto : forall m : N, ((((m : Z) - (1%N : Z))%Z : N) = (m - 1)%BN).
+	{ case => [ |p] //. by rewrite -Znat.N2Z.inj_sub ?Znat.N2Z.id //; apply/N.neq_0_le_1. }
+	have Hp : forall (vN : res_N), (0 < (2%N ^ vN)%BN)%BN.
+	{ by move => vN; apply/N.neq_0_lt_0; apply: N.pow_nonzero. }
+	have HtoN : forall (vN : res_N) (z2 : Z),
+		(z2 < ((2%N ^ vN)%BN : Z))%Z -> (((z2 : N)) < (2%N ^ vN)%BN)%BN.
+	{ move => vN; case => [ |q|q] Hz //=; try exact: Hp.
+		have Hnn : (0 <= Z.pos q)%Z by [].
+		have := (proj1 (Znat.Z2N.inj_lt (Z.pos q) _ Hnn (Znat.N2Z.is_nonneg _)) Hz).
+		by rewrite Znat.N2Z.id. }
+	have Hbnd : forall (vN : res_N) (x : N), (x < (2%N ^ vN)%BN)%BN -> wf_uN vN (mk_uN x).
+	{ move => vN x Hx. apply: uN_case_0. rewrite Hto /N_geb.
+		apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+		by apply/N.leb_spec0; rewrite N.sub_1_r; apply: N.lt_le_pred. }
+	have Hle : forall (vN : res_N),
+		((2%N ^ ((((vN : Z) - (1%N : Z))%Z : N)))%BN <= (2%N ^ vN)%BN)%BN.
+	{ move => vN. apply: N.pow_le_mono_r => //. rewrite Hto. exact: N.le_sub_l. }
+	have Hinv : forall (vN : res_N) (z : Z) (m : N), fun_inv_signed_ vN z m -> wf_uN vN (mk_uN m).
+	{ move => vN0 z m Hi. case: Hi => vN i /andP [Ha Hb]; apply: Hbnd; apply: HtoN.
+		- have Hlt2 : (i < ((2%N ^ ((((vN : Z) - (1%N : Z))%Z : N)))%BN : Z))%Z
+				by apply: (proj1 (Z.ltb_lt _ _) Hb).
+			apply: (Z.lt_le_trans _ _ _ Hlt2). by apply/Znat.N2Z.inj_le; apply: Hle.
+		- rewrite -{2}(Z.add_0_l ((2%N ^ vN)%BN : Z)).
+			by apply: (proj1 (Z.add_lt_mono_r _ _ _) (proj1 (Z.ltb_lt _ _) Hb)). }
+	have Hsatu : forall (vN : res_N) (z : Z), wf_uN vN (mk_uN (sat_u_ vN z)).
+	{ move => vN z. rewrite /sat_u_. apply: Hbnd.
+		case: ifP => Hlt; first exact: Hp.
+		case: ifP => Hgt.
+		- rewrite Hto. apply: N.sub_lt; last by []. by apply: N.pow_lower_bound.
+		- apply: HtoN.
+			have H1 : (z <= (((2%N ^ vN)%BN : Z) - (1%N : Z))%Z)%Z
+				by move: Hgt; rewrite Z.gtb_ltb => /Z.ltb_ge.
+			apply: (Z.le_lt_trans _ _ _ H1). by apply: (proj1 (Z.lt_sub_pos _ _)). }
+	case: H Hw1 Hw2 => *; first by apply: Hsatu.
+	by apply: Hinv; eassumption.
+Qed.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:138.1-138.82 *)
 Axiom iavgr_ : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN), iN.
@@ -5297,7 +5819,16 @@ Lemma packnum__is_wf : forall (v_lanetype : lanetype) (v_num_ : num_) (ret_val :
 	((packnum_ v_lanetype v_num_) != None) ->
 	(ret_val == (!((packnum_ v_lanetype v_num_)))) ->
 	(wf_lane_ v_lanetype ret_val).
-Proof. Admitted.
+Proof.
+	move => lt n ret H Hne /eqP ->.
+	case: lt H Hne => H Hne; simpl.
+	all: try (by apply: lane__case_0).
+	all: destruct n as [inn i|fnn f]; try destruct inn; try destruct fnn; simpl.
+	all: try (by apply: lane__case_0).
+	all: repeat match goal with | [ Hx : wf_num_ _ _ |- _ ] => inversion Hx; subst; clear Hx end.
+	all: apply: lane__case_1; last by [].
+	all: by (eapply wrap___is_wf; only 2: by apply: eqxx); eassumption.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:328.1-329.29 *)
 Definition unpacknum_ (v_lanetype : lanetype) (v_lane_ : lane_) : (option num_) :=
@@ -5317,7 +5848,17 @@ Lemma unpacknum__is_wf : forall (v_lanetype : lanetype) (v_lane_ : lane_) (ret_v
 	((unpacknum_ v_lanetype v_lane_) != None) ->
 	(ret_val == (!((unpacknum_ v_lanetype v_lane_)))) ->
 	(wf_num_ (unpack v_lanetype) ret_val).
-Proof. Admitted.
+Proof.
+	move => lt l ret H Hne /eqP ->.
+	case: lt H Hne => H Hne;
+		destruct l as [nt c|pt c|jn c]; try destruct nt; try destruct pt; try destruct jn;
+		simpl in H, Hne |- *.
+	all: try (by move: Hne; rewrite eqxx).
+	all: repeat match goal with | [ Hx : wf_lane_ _ _ |- _ ] => inversion Hx; subst; clear Hx end.
+	all: try by [].
+	all: apply: num__case_0; [ by [] | | by [] ].
+	all: by (eapply extend___is_wf; only 2: by apply: eqxx); eassumption.
+Qed.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:336.1-336.84 *)
 Axiom lanes_ : forall (v_shape : shape) (v_vec_ : vec_), (seq lane_).
@@ -5380,7 +5921,11 @@ Lemma vvunop__is_wf : forall (v_vectype : vectype) (v_vvunop : vvunop) (v_vec_ :
 	(wf_uN (!((res_size (valtype_vectype v_vectype)))) v_vec_) ->
 	(ret_val == (vvunop_ v_vectype v_vvunop v_vec_)) ->
 	(wf_uN (!((res_size (valtype_vectype v_vectype)))) ret_val).
-Proof. Admitted.
+Proof.
+	move => v_vectype v_vvunop v_vec_ ret_val Hs Hv /eqP ->.
+	case: v_vectype Hs Hv => Hs Hv. case: v_vvunop => /=.
+	by (eapply inot__is_wf; only 2: by apply: eqxx); eassumption.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:364.1-365.31 *)
 Definition vvbinop_ (v_vectype : vectype) (v_vvbinop : vvbinop) (v_vec_ : vec_) (vec__0 : vec_) : vec_ :=
@@ -5398,7 +5943,14 @@ Lemma vvbinop__is_wf : forall (v_vectype : vectype) (v_vvbinop : vvbinop) (v_vec
 	(wf_uN (!((res_size (valtype_vectype v_vectype)))) vec__0) ->
 	(ret_val == (vvbinop_ v_vectype v_vvbinop v_vec_ vec__0)) ->
 	(wf_uN (!((res_size (valtype_vectype v_vectype)))) ret_val).
-Proof. Admitted.
+Proof.
+	move => v_vectype v_vvbinop v_vec_ vec__0 ret_val Hs H1 H2 /eqP ->.
+	case: v_vectype Hs H1 H2 => Hs H1 H2. case: v_vvbinop => /=.
+	all: first [ ((eapply iand__is_wf; only 3: by apply: eqxx); eassumption)
+		| ((eapply iandnot__is_wf; only 3: by apply: eqxx); eassumption)
+		| ((eapply ior__is_wf; only 3: by apply: eqxx); eassumption)
+		| ((eapply ixor__is_wf; only 3: by apply: eqxx); eassumption) ].
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:366.1-367.34 *)
 Definition vvternop_ (v_vectype : vectype) (v_vvternop : vvternop) (v_vec_ : vec_) (vec__0 : vec_) (vec__1 : vec_) : vec_ :=
@@ -5414,7 +5966,11 @@ Lemma vvternop__is_wf : forall (v_vectype : vectype) (v_vvternop : vvternop) (v_
 	(wf_uN (!((res_size (valtype_vectype v_vectype)))) vec__1) ->
 	(ret_val == (vvternop_ v_vectype v_vvternop v_vec_ vec__0 vec__1)) ->
 	(wf_uN (!((res_size (valtype_vectype v_vectype)))) ret_val).
-Proof. Admitted.
+Proof.
+	move => v_vectype v_vvternop v_vec_ vec__0 vec__1 ret_val Hs H1 H2 H3 /eqP ->.
+	case: v_vectype Hs H1 H2 H3 => Hs H1 H2 H3. case: v_vvternop => /=.
+	by (eapply ibitselect__is_wf; only 4: by apply: eqxx); eassumption.
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:377.6-377.13 *)
 Inductive fun_vunop__before_fun_vunop__case_26 : shape -> vunop_ -> vec_ -> Prop :=
@@ -5906,7 +6462,97 @@ Lemma vunop__is_wf : forall (v_shape : shape) (v_vunop_ : vunop_) (v_vec_ : vec_
 	(var_0 != None) ->
 	(ret_val_lst == (!(var_0))) ->
 	List.Forall (fun (ret_val : vec_) => (wf_uN 128%N ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => v_shape v_vunop_ v_vec_ ret_val_lst var_0 H Hsh Hop Hvec Hne /eqP ->.
+	have Hmono : forall (T : Type) (P Q : T -> Prop) (l : seq T),
+		List.Forall P l -> (forall x, P x -> Q x) -> List.Forall Q l.
+	{ move => T P Q. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl] Hpq.
+		by apply: List.Forall_cons; [ apply: Hpq | apply: IH ]. }
+	have Hfmap : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
+		List.Forall (fun x => P (f x)) l -> List.Forall P (seq.map f l).
+	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ | apply: IH ]. }
+	have Hsp2 : forall (X : eqType) (P : X -> Prop) (w : X) (lls : seq (seq X)),
+		P w -> List.Forall (fun l => List.Forall P l) lls ->
+		List.Forall (fun l => List.Forall P l) (setproduct2_ X w lls).
+	{ move => X P w. elim => [ |l lls IH] //= Hw /List.Forall_cons_iff [Hl Hlls].
+		by apply: List.Forall_cons; [ apply: List.Forall_cons | apply: IH ]. }
+	have Hsp1 : forall (X : eqType) (P : X -> Prop) (l : seq X) (lls : seq (seq X)),
+		List.Forall P l -> List.Forall (fun l => List.Forall P l) lls ->
+		List.Forall (fun l => List.Forall P l) (setproduct1_ X l lls).
+	{ move => X P. elim => [ |w l IH] lls //= /List.Forall_cons_iff [Hw Hl] Hlls.
+		by apply/List.Forall_app; split; [ apply: Hsp2 | apply: IH ]. }
+	have Hsp : forall (X : eqType) (P : X -> Prop) (lls : seq (seq X)),
+		List.Forall (fun l => List.Forall P l) lls ->
+		List.Forall (fun l => List.Forall P l) (setproduct_ X lls).
+	{ move => X P. elim => [ |l lls IH] /=.
+		- by move => _; apply: List.Forall_cons; apply: List.Forall_nil.
+		- move => /List.Forall_cons_iff [Hl Hlls]. by apply: Hsp1; [ | apply: IH ]. }
+	have Hfin : forall (sh : shape) (lls : seq (seq lane_)),
+		wf_shape sh ->
+		List.Forall (fun l => List.Forall (fun x => wf_lane_ (fun_lanetype sh) x) l) lls ->
+		List.Forall (fun v => wf_uN 128%N v) (seq.map (fun l => inv_lanes_ sh l) lls).
+	{ move => sh lls Hsh0. elim: lls => [ |l lls IH] //= /List.Forall_cons_iff [Hl Hlls].
+		apply: List.Forall_cons; last by apply: IH.
+		by apply: (inv_lanes__is_wf sh l). }
+	have Hf2 : forall (T U : Type) (R : T -> U -> Prop) (ll : seq U) (l1 l2 : seq T),
+		List.Forall2 R l1 ll -> List.Forall2 R l2 ll ->
+		(forall a b u, R a u -> R b u -> a = b) -> l1 = l2.
+	{ move => T U R ll l1 l2 H1. elim: H1 l2 => [ |x y l l' Hxy H1' IH] l2 H2 Hfun.
+		- by inversion H2.
+		- inversion H2 as [ |x2 y2 l2' ll2 Hxy2 H2' E1 E2]; subst.
+			by rewrite (Hfun _ _ _ Hxy Hxy2) (IH _ H2' Hfun). }
+	have Hsig : forall (vN : res_N) (i : N) (a b : Z),
+		fun_signed_ vN i a -> fun_signed_ vN i b -> a = b.
+	{ move => vN i a b Ha Hb. inversion Ha; inversion Hb; subst => //.
+		all: exfalso;
+			match goal with
+			| [ Hx : is_true (N.ltb ?u ?X), Hy : is_true (andb (N.leb ?X ?u) _) |- _ ] =>
+				move: Hy => /andP [Hy _];
+				move: (N.lt_le_trans _ _ _ (proj1 (N.ltb_lt _ _) Hx) (proj1 (N.leb_le _ _) Hy));
+				apply: N.lt_irrefl
+			end. }
+	have Hinvsig : forall (vN : res_N) (z : Z) (a b : N),
+		fun_inv_signed_ vN z a -> fun_inv_signed_ vN z b -> a = b.
+	{ move => vN z a b Ha Hb. inversion Ha; inversion Hb; subst => //.
+		all: exfalso;
+			match goal with
+			| [ Hx : is_true (andb (Z.leb _ ?u) _), Hy : is_true (andb _ (Z.ltb ?u _)) |- _ ] =>
+				move: (Hx) => /andP [Hx1 _]; move: (Hy) => /andP [_ Hy1];
+				move: (Z.le_lt_trans _ _ _ (proj1 (Z.leb_le _ _) Hx1) (proj1 (Z.ltb_lt _ _) Hy1));
+				apply: Z.lt_irrefl
+			end. }
+	have Hiabs : forall (vN : res_N) (i a b : iN),
+		fun_iabs_ vN i a -> fun_iabs_ vN i b -> a = b.
+	{ move => vN i a b Ha Hb. inversion Ha; inversion Hb; subst.
+		by match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				rewrite (Hsig _ _ _ _ Hx Hy) end. }
+	case: H Hsh Hop Hvec Hne => *.
+	all: try by apply: List.Forall_nil.
+	all: repeat match goal with
+		| [ Ha : List.Forall2 ?R ?l1 ?ll, Hb : List.Forall2 ?R ?l2 ?ll |- _ ] =>
+			tryif constr_eq l1 l2 then fail else
+			(have Heq : l1 = l2;
+				[ apply: (Hf2 _ _ R ll l1 l2 Ha Hb); move => x y u Hx Hy;
+					exact: (Hiabs _ _ _ _ Hx Hy)
+				| subst ])
+		end.
+	all: repeat match goal with | [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end.
+	all: subst.
+	all: first
+		[ (apply: List.Forall_cons;
+			[ ((eapply inv_lanes__is_wf; only 3: by apply: eqxx);
+				[ eassumption | (apply Hfmap; eassumption) ])
+			| by apply: List.Forall_nil ])
+		| (apply Hfin;
+			[ eassumption
+			| (apply Hsp; apply Hfmap;
+				match goal with
+				| [ Hh : List.Forall _ _ |- _ ] =>
+					(eapply Hmono; [ exact: Hh | move => x Hx; apply Hfmap; exact: Hx ])
+				end) ]) ].
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.14 *)
 Inductive fun_vbinop__before_fun_vbinop__case_52 : shape -> vbinop_ -> vec_ -> vec_ -> Prop :=
@@ -7343,7 +7989,167 @@ Lemma vbinop__is_wf : forall (v_shape : shape) (v_vbinop_ : vbinop_) (v_vec_ : v
 	(var_0 != None) ->
 	(ret_val_lst == (!(var_0))) ->
 	List.Forall (fun (ret_val : vec_) => (wf_uN 128%N ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => v_shape v_vbinop_ v_vec_ vec__0 ret_val_lst var_0 H Hsh Hop Hvec1 Hvec2 Hne /eqP ->.
+	have Hmono : forall (T : Type) (P Q : T -> Prop) (l : seq T),
+		List.Forall P l -> (forall x, P x -> Q x) -> List.Forall Q l.
+	{ move => T P Q. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl] Hpq.
+		by apply: List.Forall_cons; [ apply: Hpq | apply: IH ]. }
+	have Hfmap : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
+		List.Forall (fun x => P (f x)) l -> List.Forall P (seq.map f l).
+	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ | apply: IH ]. }
+	have Hsp2 : forall (X : eqType) (P : X -> Prop) (w : X) (lls : seq (seq X)),
+		P w -> List.Forall (fun l => List.Forall P l) lls ->
+		List.Forall (fun l => List.Forall P l) (setproduct2_ X w lls).
+	{ move => X P w. elim => [ |l lls IH] //= Hw /List.Forall_cons_iff [Hl Hlls].
+		by apply: List.Forall_cons; [ apply: List.Forall_cons | apply: IH ]. }
+	have Hsp1 : forall (X : eqType) (P : X -> Prop) (l : seq X) (lls : seq (seq X)),
+		List.Forall P l -> List.Forall (fun l => List.Forall P l) lls ->
+		List.Forall (fun l => List.Forall P l) (setproduct1_ X l lls).
+	{ move => X P. elim => [ |w l IH] lls //= /List.Forall_cons_iff [Hw Hl] Hlls.
+		by apply/List.Forall_app; split; [ apply: Hsp2 | apply: IH ]. }
+	have Hsp : forall (X : eqType) (P : X -> Prop) (lls : seq (seq X)),
+		List.Forall (fun l => List.Forall P l) lls ->
+		List.Forall (fun l => List.Forall P l) (setproduct_ X lls).
+	{ move => X P. elim => [ |l lls IH] /=.
+		- by move => _; apply: List.Forall_cons; apply: List.Forall_nil.
+		- move => /List.Forall_cons_iff [Hl Hlls]. by apply: Hsp1; [ | apply: IH ]. }
+	have Hfin : forall (sh : shape) (lls : seq (seq lane_)),
+		wf_shape sh ->
+		List.Forall (fun l => List.Forall (fun x => wf_lane_ (fun_lanetype sh) x) l) lls ->
+		List.Forall (fun v => wf_uN 128%N v) (seq.map (fun l => inv_lanes_ sh l) lls).
+	{ move => sh lls Hsh0. elim: lls => [ |l lls IH] //= /List.Forall_cons_iff [Hl Hlls].
+		apply: List.Forall_cons; last by apply: IH.
+		by apply: (inv_lanes__is_wf sh l). }
+	have Hf2 : forall (T U : Type) (R : T -> U -> Prop) (ll : seq U) (l1 l2 : seq T),
+		List.Forall2 R l1 ll -> List.Forall2 R l2 ll ->
+		(forall a b u, R a u -> R b u -> a = b) -> l1 = l2.
+	{ move => T U R ll l1 l2 H1. elim: H1 l2 => [ |x y l l' Hxy H1' IH] l2 H2 Hfun.
+		- by inversion H2.
+		- inversion H2 as [ |x2 y2 l2' ll2 Hxy2 H2' E1 E2]; subst.
+			by rewrite (Hfun _ _ _ Hxy Hxy2) (IH _ H2' Hfun). }
+	have Hsig : forall (vN : res_N) (i : N) (a b : Z),
+		fun_signed_ vN i a -> fun_signed_ vN i b -> a = b.
+	{ move => vN i a b Ha Hb. inversion Ha; inversion Hb; subst => //.
+		all: exfalso;
+			match goal with
+			| [ Hx : is_true (N.ltb ?u ?X), Hy : is_true (andb (N.leb ?X ?u) _) |- _ ] =>
+				move: Hy => /andP [Hy _];
+				move: (N.lt_le_trans _ _ _ (proj1 (N.ltb_lt _ _) Hx) (proj1 (N.leb_le _ _) Hy));
+				apply: N.lt_irrefl
+			end. }
+	have Hinvsig : forall (vN : res_N) (z : Z) (a b : N),
+		fun_inv_signed_ vN z a -> fun_inv_signed_ vN z b -> a = b.
+	{ move => vN z a b Ha Hb. inversion Ha; inversion Hb; subst => //.
+		all: exfalso;
+			match goal with
+			| [ Hx : is_true (andb (Z.leb _ ?u) _), Hy : is_true (andb _ (Z.ltb ?u _)) |- _ ] =>
+				move: (Hx) => /andP [Hx1 _]; move: (Hy) => /andP [_ Hy1];
+				move: (Z.le_lt_trans _ _ _ (proj1 (Z.leb_le _ _) Hx1) (proj1 (Z.ltb_lt _ _) Hy1));
+				apply: Z.lt_irrefl
+			end. }
+	have Hzip : forall (T U V : Type) (P : V -> Prop) (f : T -> U -> V)
+		(l1 : seq T) (l2 : seq U),
+		List.Forall2 (fun a b => P (f a b)) l1 l2 -> List.Forall P (list_zipWith f l1 l2).
+	{ move => T U V P f l1 l2 Hz. rewrite /list_zipWith.
+		elim: Hz => [ |x y l l' Hxy Hz IH] //=. by apply: List.Forall_cons. }
+	have Hmono2 : forall (T U : Type) (P Q : T -> U -> Prop) (l1 : seq T) (l2 : seq U),
+		List.Forall2 P l1 l2 -> (forall x y, P x y -> Q x y) -> List.Forall2 Q l1 l2.
+	{ move => T U P Q l1 l2 Hz Hpq. elim: Hz => [ |x y l l' Hxy Hz IH].
+		- by apply: List.Forall2_nil.
+		- by apply: List.Forall2_cons; [ apply: Hpq | ]. }
+	have Hf3 : forall (T U V : Type) (R : T -> U -> V -> Prop) (lu : seq U) (lv : seq V)
+		(l1 l2 : seq T),
+		List_Forall3 R l1 lu lv -> List_Forall3 R l2 lu lv ->
+		(forall a b u v, R a u v -> R b u v -> a = b) -> l1 = l2.
+	{ move => T U V R lu lv l1 l2 H1. elim: H1 l2 => [ |x y z l l' l'' Hxyz H1' IH] l2 H2 Hfun.
+		- by inversion H2.
+		- inversion H2 as [ |x2 y2 z2 l2' lu2 lv2 Hxyz2 H2' E1 E2 E3]; subst.
+			by rewrite (Hfun _ _ _ _ Hxyz Hxyz2) (IH _ H2' Hfun). }
+	have Hordfun : forall (n0 : res_N) (s0 : sx) (p q r1 r2 : iN),
+		fun_imin_ n0 s0 p q r1 -> fun_imin_ n0 s0 p q r2 -> r1 = r2.
+	{ move => n0 s0 p q r1 r2 HA HB. inversion HA; inversion HB; subst => //.
+		all: try (exfalso;
+			match goal with
+			| [ Hx : is_true (N.leb ?u ?v), Hy : is_true (N_gtb ?u ?v) |- _ ] =>
+				rewrite /N_gtb in Hy;
+				move: (N.lt_le_trans _ _ _ (proj1 (N.ltb_lt _ _) Hy) (proj1 (N.leb_le _ _) Hx));
+				apply: N.lt_irrefl
+			end).
+		all: repeat match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: by []. }
+	have Hmaxfun : forall (n0 : res_N) (s0 : sx) (p q r1 r2 : iN),
+		fun_imax_ n0 s0 p q r1 -> fun_imax_ n0 s0 p q r2 -> r1 = r2.
+	{ move => n0 s0 p q r1 r2 HA HB. inversion HA; inversion HB; subst => //.
+		all: try (exfalso;
+			match goal with
+			| [ Hx : is_true (N_geb ?u ?v), Hy : is_true (N.ltb ?u ?v) |- _ ] =>
+				rewrite /N_geb in Hx;
+				move: (N.lt_le_trans _ _ _ (proj1 (N.ltb_lt _ _) Hy) (proj1 (N.leb_le _ _) Hx));
+				apply: N.lt_irrefl
+			end).
+		all: repeat match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: by []. }
+	have Haddsat : forall (n0 : res_N) (s0 : sx) (p q r1 r2 : iN),
+		fun_iadd_sat_ n0 s0 p q r1 -> fun_iadd_sat_ n0 s0 p q r2 -> r1 = r2.
+	{ move => n0 s0 p q r1 r2 HA HB. inversion HA; inversion HB; subst => //.
+		all: repeat match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: repeat match goal with
+			| [ Hx : fun_inv_signed_ ?n ?k ?u, Hy : fun_inv_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hinvsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: by []. }
+	have Hsubsat : forall (n0 : res_N) (s0 : sx) (p q r1 r2 : iN),
+		fun_isub_sat_ n0 s0 p q r1 -> fun_isub_sat_ n0 s0 p q r2 -> r1 = r2.
+	{ move => n0 s0 p q r1 r2 HA HB. inversion HA; inversion HB; subst => //.
+		all: repeat match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: repeat match goal with
+			| [ Hx : fun_inv_signed_ ?n ?k ?u, Hy : fun_inv_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hinvsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: by []. }
+	case: H Hsh Hop Hvec1 Hvec2 Hne => *.
+	all: try by apply: List.Forall_nil.
+	all: repeat match goal with
+		| [ Ha : List_Forall3 ?R ?l1 ?lu ?lv, Hb : List_Forall3 ?R ?l2 ?lu ?lv |- _ ] =>
+			tryif constr_eq l1 l2 then fail else
+			(have Heq : l1 = l2;
+				[ apply: (Hf3 _ _ _ R lu lv l1 l2 Ha Hb); move => a b u v Hx Hy;
+					first [ exact: (Hordfun _ _ _ _ _ _ Hx Hy)
+						| exact: (Hmaxfun _ _ _ _ _ _ Hx Hy)
+						| exact: (Haddsat _ _ _ _ _ _ Hx Hy)
+						| exact: (Hsubsat _ _ _ _ _ _ Hx Hy) ]
+				| subst ])
+		end.
+	all: repeat match goal with | [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end.
+	all: subst.
+	all: first
+		[ (apply: List.Forall_cons;
+			[ ((eapply inv_lanes__is_wf; only 3: by apply: eqxx);
+				[ eassumption
+				| first [ (apply Hfmap; eassumption) | (apply Hzip; eassumption) ] ])
+			| by apply: List.Forall_nil ])
+		| (apply Hfin;
+			[ eassumption
+			| (apply Hsp; apply Hzip;
+				match goal with
+				| [ Hh : List.Forall2 _ _ _ |- _ ] =>
+					(eapply Hmono2; [ exact: Hh | move => x y Hxy; apply Hfmap; exact: Hxy ])
+				end) ]) ].
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:381.6-381.14 *)
 Inductive fun_vrelop__before_fun_vrelop__case_36 : shape -> vrelop_ -> vec_ -> vec_ -> Prop :=
@@ -8772,7 +9578,165 @@ Lemma vrelop__is_wf : forall (v_shape : shape) (v_vrelop_ : vrelop_) (v_vec_ : v
 	(var_0 != None) ->
 	(ret_val == (!(var_0))) ->
 	(wf_uN 128%N ret_val).
-Proof. Admitted.
+Proof.
+	move => v_shape v_vrelop_ v_vec_ vec__0 ret_val var_0 H Hsh Hop Hvec1 Hvec2 Hne /eqP ->.
+	have Hmono : forall (T : Type) (P Q : T -> Prop) (l : seq T),
+		List.Forall P l -> (forall x, P x -> Q x) -> List.Forall Q l.
+	{ move => T P Q. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl] Hpq.
+		by apply: List.Forall_cons; [ apply: Hpq | apply: IH ]. }
+	have Hfmap : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
+		List.Forall (fun x => P (f x)) l -> List.Forall P (seq.map f l).
+	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ | apply: IH ]. }
+	have Hsp2 : forall (X : eqType) (P : X -> Prop) (w : X) (lls : seq (seq X)),
+		P w -> List.Forall (fun l => List.Forall P l) lls ->
+		List.Forall (fun l => List.Forall P l) (setproduct2_ X w lls).
+	{ move => X P w. elim => [ |l lls IH] //= Hw /List.Forall_cons_iff [Hl Hlls].
+		by apply: List.Forall_cons; [ apply: List.Forall_cons | apply: IH ]. }
+	have Hsp1 : forall (X : eqType) (P : X -> Prop) (l : seq X) (lls : seq (seq X)),
+		List.Forall P l -> List.Forall (fun l => List.Forall P l) lls ->
+		List.Forall (fun l => List.Forall P l) (setproduct1_ X l lls).
+	{ move => X P. elim => [ |w l IH] lls //= /List.Forall_cons_iff [Hw Hl] Hlls.
+		by apply/List.Forall_app; split; [ apply: Hsp2 | apply: IH ]. }
+	have Hsp : forall (X : eqType) (P : X -> Prop) (lls : seq (seq X)),
+		List.Forall (fun l => List.Forall P l) lls ->
+		List.Forall (fun l => List.Forall P l) (setproduct_ X lls).
+	{ move => X P. elim => [ |l lls IH] /=.
+		- by move => _; apply: List.Forall_cons; apply: List.Forall_nil.
+		- move => /List.Forall_cons_iff [Hl Hlls]. by apply: Hsp1; [ | apply: IH ]. }
+	have Hfin : forall (sh : shape) (lls : seq (seq lane_)),
+		wf_shape sh ->
+		List.Forall (fun l => List.Forall (fun x => wf_lane_ (fun_lanetype sh) x) l) lls ->
+		List.Forall (fun v => wf_uN 128%N v) (seq.map (fun l => inv_lanes_ sh l) lls).
+	{ move => sh lls Hsh0. elim: lls => [ |l lls IH] //= /List.Forall_cons_iff [Hl Hlls].
+		apply: List.Forall_cons; last by apply: IH.
+		by apply: (inv_lanes__is_wf sh l). }
+	have Hf2 : forall (T U : Type) (R : T -> U -> Prop) (ll : seq U) (l1 l2 : seq T),
+		List.Forall2 R l1 ll -> List.Forall2 R l2 ll ->
+		(forall a b u, R a u -> R b u -> a = b) -> l1 = l2.
+	{ move => T U R ll l1 l2 H1. elim: H1 l2 => [ |x y l l' Hxy H1' IH] l2 H2 Hfun.
+		- by inversion H2.
+		- inversion H2 as [ |x2 y2 l2' ll2 Hxy2 H2' E1 E2]; subst.
+			by rewrite (Hfun _ _ _ Hxy Hxy2) (IH _ H2' Hfun). }
+	have Hsig : forall (vN : res_N) (i : N) (a b : Z),
+		fun_signed_ vN i a -> fun_signed_ vN i b -> a = b.
+	{ move => vN i a b Ha Hb. inversion Ha; inversion Hb; subst => //.
+		all: exfalso;
+			match goal with
+			| [ Hx : is_true (N.ltb ?u ?X), Hy : is_true (andb (N.leb ?X ?u) _) |- _ ] =>
+				move: Hy => /andP [Hy _];
+				move: (N.lt_le_trans _ _ _ (proj1 (N.ltb_lt _ _) Hx) (proj1 (N.leb_le _ _) Hy));
+				apply: N.lt_irrefl
+			end. }
+	have Hinvsig : forall (vN : res_N) (z : Z) (a b : N),
+		fun_inv_signed_ vN z a -> fun_inv_signed_ vN z b -> a = b.
+	{ move => vN z a b Ha Hb. inversion Ha; inversion Hb; subst => //.
+		all: exfalso;
+			match goal with
+			| [ Hx : is_true (andb (Z.leb _ ?u) _), Hy : is_true (andb _ (Z.ltb ?u _)) |- _ ] =>
+				move: (Hx) => /andP [Hx1 _]; move: (Hy) => /andP [_ Hy1];
+				move: (Z.le_lt_trans _ _ _ (proj1 (Z.leb_le _ _) Hx1) (proj1 (Z.ltb_lt _ _) Hy1));
+				apply: Z.lt_irrefl
+			end. }
+	have Hzip : forall (T U V : Type) (P : V -> Prop) (f : T -> U -> V)
+		(l1 : seq T) (l2 : seq U),
+		List.Forall2 (fun a b => P (f a b)) l1 l2 -> List.Forall P (list_zipWith f l1 l2).
+	{ move => T U V P f l1 l2 Hz. rewrite /list_zipWith.
+		elim: Hz => [ |x y l l' Hxy Hz IH] //=. by apply: List.Forall_cons. }
+	have Hmono2 : forall (T U : Type) (P Q : T -> U -> Prop) (l1 : seq T) (l2 : seq U),
+		List.Forall2 P l1 l2 -> (forall x y, P x y -> Q x y) -> List.Forall2 Q l1 l2.
+	{ move => T U P Q l1 l2 Hz Hpq. elim: Hz => [ |x y l l' Hxy Hz IH].
+		- by apply: List.Forall2_nil.
+		- by apply: List.Forall2_cons; [ apply: Hpq | ]. }
+	have Hf3 : forall (T U V : Type) (R : T -> U -> V -> Prop) (lu : seq U) (lv : seq V)
+		(l1 l2 : seq T),
+		List_Forall3 R l1 lu lv -> List_Forall3 R l2 lu lv ->
+		(forall a b u v, R a u v -> R b u v -> a = b) -> l1 = l2.
+	{ move => T U V R lu lv l1 l2 H1. elim: H1 l2 => [ |x y z l l' l'' Hxyz H1' IH] l2 H2 Hfun.
+		- by inversion H2.
+		- inversion H2 as [ |x2 y2 z2 l2' lu2 lv2 Hxyz2 H2' E1 E2 E3]; subst.
+			by rewrite (Hfun _ _ _ _ Hxyz Hxyz2) (IH _ H2' Hfun). }
+	have Hordfun : forall (n0 : res_N) (s0 : sx) (p q r1 r2 : iN),
+		fun_imin_ n0 s0 p q r1 -> fun_imin_ n0 s0 p q r2 -> r1 = r2.
+	{ move => n0 s0 p q r1 r2 HA HB. inversion HA; inversion HB; subst => //.
+		all: try (exfalso;
+			match goal with
+			| [ Hx : is_true (N.leb ?u ?v), Hy : is_true (N_gtb ?u ?v) |- _ ] =>
+				rewrite /N_gtb in Hy;
+				move: (N.lt_le_trans _ _ _ (proj1 (N.ltb_lt _ _) Hy) (proj1 (N.leb_le _ _) Hx));
+				apply: N.lt_irrefl
+			end).
+		all: repeat match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: by []. }
+	have Hmaxfun : forall (n0 : res_N) (s0 : sx) (p q r1 r2 : iN),
+		fun_imax_ n0 s0 p q r1 -> fun_imax_ n0 s0 p q r2 -> r1 = r2.
+	{ move => n0 s0 p q r1 r2 HA HB. inversion HA; inversion HB; subst => //.
+		all: try (exfalso;
+			match goal with
+			| [ Hx : is_true (N_geb ?u ?v), Hy : is_true (N.ltb ?u ?v) |- _ ] =>
+				rewrite /N_geb in Hx;
+				move: (N.lt_le_trans _ _ _ (proj1 (N.ltb_lt _ _) Hy) (proj1 (N.leb_le _ _) Hx));
+				apply: N.lt_irrefl
+			end).
+		all: repeat match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: by []. }
+	have Haddsat : forall (n0 : res_N) (s0 : sx) (p q r1 r2 : iN),
+		fun_iadd_sat_ n0 s0 p q r1 -> fun_iadd_sat_ n0 s0 p q r2 -> r1 = r2.
+	{ move => n0 s0 p q r1 r2 HA HB. inversion HA; inversion HB; subst => //.
+		all: repeat match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: repeat match goal with
+			| [ Hx : fun_inv_signed_ ?n ?k ?u, Hy : fun_inv_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hinvsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: by []. }
+	have Hsubsat : forall (n0 : res_N) (s0 : sx) (p q r1 r2 : iN),
+		fun_isub_sat_ n0 s0 p q r1 -> fun_isub_sat_ n0 s0 p q r2 -> r1 = r2.
+	{ move => n0 s0 p q r1 r2 HA HB. inversion HA; inversion HB; subst => //.
+		all: repeat match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: repeat match goal with
+			| [ Hx : fun_inv_signed_ ?n ?k ?u, Hy : fun_inv_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hinvsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: by []. }
+	case: H Hsh Hop Hvec1 Hvec2 Hne => *.
+	all: repeat match goal with
+		| [ Ha : List_Forall3 ?R ?l1 ?lu ?lv, Hb : List_Forall3 ?R ?l2 ?lu ?lv |- _ ] =>
+			tryif constr_eq l1 l2 then fail else
+			(have Heq : l1 = l2;
+				[ apply: (Hf3 _ _ _ R lu lv l1 l2 Ha Hb); move => a b u v Hx Hy;
+					first [ exact: (Hordfun _ _ _ _ _ _ Hx Hy)
+						| exact: (Hmaxfun _ _ _ _ _ _ Hx Hy)
+						| exact: (Haddsat _ _ _ _ _ _ Hx Hy)
+						| exact: (Hsubsat _ _ _ _ _ _ Hx Hy) ]
+				| subst ])
+		end.
+	all: repeat match goal with | [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end.
+	all: subst.
+	all: first
+		[ by apply: uN_case_0
+		| ((eapply inv_lanes__is_wf; only 3: by apply: eqxx);
+			[ eassumption
+			| first [ (apply Hfmap; eassumption)
+				| (apply Hzip; eassumption)
+				| (apply Hfmap; apply Hzip; eassumption)
+				| (apply Hfmap; apply Hzip;
+					match goal with
+					| [ Hh : List.Forall2 _ _ _ |- _ ] =>
+						(eapply Hmono2; [ exact: Hh | move => x y Hxy; apply Hfmap; exact: Hxy ])
+					end) ] ]) ].
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
 Definition vcvtop__ (shape_1 : shape) (shape_2 : shape) (v_vcvtop : vcvtop) (v_lane_ : lane_) : (option (seq lane_)) :=
@@ -8896,7 +9860,51 @@ Lemma vcvtop___is_wf : forall (shape_1 : shape) (shape_2 : shape) (v_vcvtop : vc
 	((vcvtop__ shape_1 shape_2 v_vcvtop v_lane_) != None) ->
 	(ret_val_lst == (!((vcvtop__ shape_1 shape_2 v_vcvtop v_lane_)))) ->
 	List.Forall (fun (ret_val : lane_) => (wf_lane_ (fun_lanetype shape_2) ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => shape_1 shape_2 v_vcvtop v_lane_ ret_val_lst Hs1 Hs2 Hln Hne /eqP ->.
+	have HmapoL : forall (nt : numtype) (I : Inn) (lt : lanetype) (o : (option iN)),
+		(lt == (lanetype_numtype nt)) -> (nt == (numtype_Inn I)) ->
+		((res_size (valtype_Inn I)) != None) ->
+		List.Forall (fun x => wf_uN (!((res_size (valtype_Inn I)))) x) (option_to_list o) ->
+		List.Forall (fun x => wf_lane_ lt x)
+			(list_ lane_ (option_map (fun x => mk_lane__0 nt (mk_num__0 I x)) o)).
+	{ move => nt I lt o H1 H2 H3 Ho. case: o Ho => [x| ] Ho; last by apply: List.Forall_nil.
+		inversion Ho; subst. apply: List.Forall_cons; last by apply: List.Forall_nil.
+		by apply: lane__case_0; [ apply: num__case_0 | ]. }
+	have HmapL : forall (nt : numtype) (F : Fnn) (lt : lanetype) (l : seq fN),
+		(lt == (lanetype_numtype nt)) -> (nt == (numtype_Fnn F)) ->
+		List.Forall (fun x => wf_fN (sizenn (numtype_Fnn F)) x) l ->
+		List.Forall (fun x => wf_lane_ lt x) (seq.map (fun x => mk_lane__0 nt (mk_num__1 F x)) l).
+	{ move => nt F lt l H1 H2. elim: l => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ apply: lane__case_0; [ apply: num__case_1 | ] | apply: IH ]. }
+	destruct shape_1 as [lt1 d1]; destruct shape_2 as [lt2 d2];
+		destruct d1 as [M1]; destruct d2 as [M2];
+		destruct lt1; destruct lt2; destruct v_vcvtop as [hf sx|sx zo|ho sx|z| ];
+		try destruct z; try (destruct zo as [zz| ]; try destruct zz);
+		try (destruct ho as [hh| ]; try destruct hh); try destruct hf;
+		destruct v_lane_ as [nt c|pt c|jn c];
+		try destruct nt; try destruct pt; try destruct jn;
+		try (destruct c as [i1 c1|f1 c1]; try destruct i1; try destruct f1); simpl.
+	all: try by apply: List.Forall_nil.
+	all: repeat match goal with
+		| [ Hx : wf_lane_ _ _ |- _ ] => inversion Hx; subst; clear Hx
+		| [ Hx : wf_num_ _ _ |- _ ] => inversion Hx; subst; clear Hx end.
+	all: first
+		[ (apply: List.Forall_cons;
+			[ first [ (apply: lane__case_2;
+					[ ((eapply extend___is_wf; only 2: by apply: eqxx); eassumption) | by [] ])
+				| (apply: lane__case_0;
+					[ (apply: num__case_1;
+						[ ((eapply convert___is_wf; only 2: by apply: eqxx); eassumption) | by [] ])
+					| by [] ]) ]
+			| by apply: List.Forall_nil ])
+		| (apply: HmapoL; [ by [] | by [] | by []
+			| first [ ((eapply trunc_sat___is_wf; only 2: by apply: eqxx); eassumption)
+				| ((eapply trunc___is_wf; only 2: by apply: eqxx); eassumption) ] ])
+		| (apply: HmapL; [ by [] | by []
+			| first [ ((eapply demote___is_wf; only 2: by apply: eqxx); eassumption)
+				| ((eapply promote___is_wf; only 2: by apply: eqxx); eassumption) ] ]) ].
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:583.6-583.17 *)
 Inductive fun_vextunop___before_fun_vextunop___case_4 : ishape -> ishape -> vextunop_ -> vec_ -> Prop :=
@@ -9013,7 +10021,165 @@ Lemma vextunop___is_wf : forall (ishape_1 : ishape) (ishape_2 : ishape) (v_vextu
 	(var_0 != None) ->
 	(ret_val == (!(var_0))) ->
 	(wf_uN 128%N ret_val).
-Proof. Admitted.
+Proof.
+	move => ishape_1 ishape_2 v_vextunop_ v_vec_ ret_val var_0 H Hs1 Hs2 Hop Hvec Hne /eqP ->.
+	have Hmono : forall (T : Type) (P Q : T -> Prop) (l : seq T),
+		List.Forall P l -> (forall x, P x -> Q x) -> List.Forall Q l.
+	{ move => T P Q. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl] Hpq.
+		by apply: List.Forall_cons; [ apply: Hpq | apply: IH ]. }
+	have Hfmap : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
+		List.Forall (fun x => P (f x)) l -> List.Forall P (seq.map f l).
+	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ | apply: IH ]. }
+	have Hsp2 : forall (X : eqType) (P : X -> Prop) (w : X) (lls : seq (seq X)),
+		P w -> List.Forall (fun l => List.Forall P l) lls ->
+		List.Forall (fun l => List.Forall P l) (setproduct2_ X w lls).
+	{ move => X P w. elim => [ |l lls IH] //= Hw /List.Forall_cons_iff [Hl Hlls].
+		by apply: List.Forall_cons; [ apply: List.Forall_cons | apply: IH ]. }
+	have Hsp1 : forall (X : eqType) (P : X -> Prop) (l : seq X) (lls : seq (seq X)),
+		List.Forall P l -> List.Forall (fun l => List.Forall P l) lls ->
+		List.Forall (fun l => List.Forall P l) (setproduct1_ X l lls).
+	{ move => X P. elim => [ |w l IH] lls //= /List.Forall_cons_iff [Hw Hl] Hlls.
+		by apply/List.Forall_app; split; [ apply: Hsp2 | apply: IH ]. }
+	have Hsp : forall (X : eqType) (P : X -> Prop) (lls : seq (seq X)),
+		List.Forall (fun l => List.Forall P l) lls ->
+		List.Forall (fun l => List.Forall P l) (setproduct_ X lls).
+	{ move => X P. elim => [ |l lls IH] /=.
+		- by move => _; apply: List.Forall_cons; apply: List.Forall_nil.
+		- move => /List.Forall_cons_iff [Hl Hlls]. by apply: Hsp1; [ | apply: IH ]. }
+	have Hfin : forall (sh : shape) (lls : seq (seq lane_)),
+		wf_shape sh ->
+		List.Forall (fun l => List.Forall (fun x => wf_lane_ (fun_lanetype sh) x) l) lls ->
+		List.Forall (fun v => wf_uN 128%N v) (seq.map (fun l => inv_lanes_ sh l) lls).
+	{ move => sh lls Hsh0. elim: lls => [ |l lls IH] //= /List.Forall_cons_iff [Hl Hlls].
+		apply: List.Forall_cons; last by apply: IH.
+		by apply: (inv_lanes__is_wf sh l). }
+	have Hf2 : forall (T U : Type) (R : T -> U -> Prop) (ll : seq U) (l1 l2 : seq T),
+		List.Forall2 R l1 ll -> List.Forall2 R l2 ll ->
+		(forall a b u, R a u -> R b u -> a = b) -> l1 = l2.
+	{ move => T U R ll l1 l2 H1. elim: H1 l2 => [ |x y l l' Hxy H1' IH] l2 H2 Hfun.
+		- by inversion H2.
+		- inversion H2 as [ |x2 y2 l2' ll2 Hxy2 H2' E1 E2]; subst.
+			by rewrite (Hfun _ _ _ Hxy Hxy2) (IH _ H2' Hfun). }
+	have Hsig : forall (vN : res_N) (i : N) (a b : Z),
+		fun_signed_ vN i a -> fun_signed_ vN i b -> a = b.
+	{ move => vN i a b Ha Hb. inversion Ha; inversion Hb; subst => //.
+		all: exfalso;
+			match goal with
+			| [ Hx : is_true (N.ltb ?u ?X), Hy : is_true (andb (N.leb ?X ?u) _) |- _ ] =>
+				move: Hy => /andP [Hy _];
+				move: (N.lt_le_trans _ _ _ (proj1 (N.ltb_lt _ _) Hx) (proj1 (N.leb_le _ _) Hy));
+				apply: N.lt_irrefl
+			end. }
+	have Hinvsig : forall (vN : res_N) (z : Z) (a b : N),
+		fun_inv_signed_ vN z a -> fun_inv_signed_ vN z b -> a = b.
+	{ move => vN z a b Ha Hb. inversion Ha; inversion Hb; subst => //.
+		all: exfalso;
+			match goal with
+			| [ Hx : is_true (andb (Z.leb _ ?u) _), Hy : is_true (andb _ (Z.ltb ?u _)) |- _ ] =>
+				move: (Hx) => /andP [Hx1 _]; move: (Hy) => /andP [_ Hy1];
+				move: (Z.le_lt_trans _ _ _ (proj1 (Z.leb_le _ _) Hx1) (proj1 (Z.ltb_lt _ _) Hy1));
+				apply: Z.lt_irrefl
+			end. }
+	have Hzip : forall (T U V : Type) (P : V -> Prop) (f : T -> U -> V)
+		(l1 : seq T) (l2 : seq U),
+		List.Forall2 (fun a b => P (f a b)) l1 l2 -> List.Forall P (list_zipWith f l1 l2).
+	{ move => T U V P f l1 l2 Hz. rewrite /list_zipWith.
+		elim: Hz => [ |x y l l' Hxy Hz IH] //=. by apply: List.Forall_cons. }
+	have Hmono2 : forall (T U : Type) (P Q : T -> U -> Prop) (l1 : seq T) (l2 : seq U),
+		List.Forall2 P l1 l2 -> (forall x y, P x y -> Q x y) -> List.Forall2 Q l1 l2.
+	{ move => T U P Q l1 l2 Hz Hpq. elim: Hz => [ |x y l l' Hxy Hz IH].
+		- by apply: List.Forall2_nil.
+		- by apply: List.Forall2_cons; [ apply: Hpq | ]. }
+	have Hf3 : forall (T U V : Type) (R : T -> U -> V -> Prop) (lu : seq U) (lv : seq V)
+		(l1 l2 : seq T),
+		List_Forall3 R l1 lu lv -> List_Forall3 R l2 lu lv ->
+		(forall a b u v, R a u v -> R b u v -> a = b) -> l1 = l2.
+	{ move => T U V R lu lv l1 l2 H1. elim: H1 l2 => [ |x y z l l' l'' Hxyz H1' IH] l2 H2 Hfun.
+		- by inversion H2.
+		- inversion H2 as [ |x2 y2 z2 l2' lu2 lv2 Hxyz2 H2' E1 E2 E3]; subst.
+			by rewrite (Hfun _ _ _ _ Hxyz Hxyz2) (IH _ H2' Hfun). }
+	have Hordfun : forall (n0 : res_N) (s0 : sx) (p q r1 r2 : iN),
+		fun_imin_ n0 s0 p q r1 -> fun_imin_ n0 s0 p q r2 -> r1 = r2.
+	{ move => n0 s0 p q r1 r2 HA HB. inversion HA; inversion HB; subst => //.
+		all: try (exfalso;
+			match goal with
+			| [ Hx : is_true (N.leb ?u ?v), Hy : is_true (N_gtb ?u ?v) |- _ ] =>
+				rewrite /N_gtb in Hy;
+				move: (N.lt_le_trans _ _ _ (proj1 (N.ltb_lt _ _) Hy) (proj1 (N.leb_le _ _) Hx));
+				apply: N.lt_irrefl
+			end).
+		all: repeat match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: by []. }
+	have Hmaxfun : forall (n0 : res_N) (s0 : sx) (p q r1 r2 : iN),
+		fun_imax_ n0 s0 p q r1 -> fun_imax_ n0 s0 p q r2 -> r1 = r2.
+	{ move => n0 s0 p q r1 r2 HA HB. inversion HA; inversion HB; subst => //.
+		all: try (exfalso;
+			match goal with
+			| [ Hx : is_true (N_geb ?u ?v), Hy : is_true (N.ltb ?u ?v) |- _ ] =>
+				rewrite /N_geb in Hx;
+				move: (N.lt_le_trans _ _ _ (proj1 (N.ltb_lt _ _) Hy) (proj1 (N.leb_le _ _) Hx));
+				apply: N.lt_irrefl
+			end).
+		all: repeat match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: by []. }
+	have Haddsat : forall (n0 : res_N) (s0 : sx) (p q r1 r2 : iN),
+		fun_iadd_sat_ n0 s0 p q r1 -> fun_iadd_sat_ n0 s0 p q r2 -> r1 = r2.
+	{ move => n0 s0 p q r1 r2 HA HB. inversion HA; inversion HB; subst => //.
+		all: repeat match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: repeat match goal with
+			| [ Hx : fun_inv_signed_ ?n ?k ?u, Hy : fun_inv_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hinvsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: by []. }
+	have Hsubsat : forall (n0 : res_N) (s0 : sx) (p q r1 r2 : iN),
+		fun_isub_sat_ n0 s0 p q r1 -> fun_isub_sat_ n0 s0 p q r2 -> r1 = r2.
+	{ move => n0 s0 p q r1 r2 HA HB. inversion HA; inversion HB; subst => //.
+		all: repeat match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: repeat match goal with
+			| [ Hx : fun_inv_signed_ ?n ?k ?u, Hy : fun_inv_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hinvsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: by []. }
+	case: H Hs1 Hs2 Hop Hvec Hne => *.
+	all: repeat match goal with
+		| [ Ha : List_Forall3 ?R ?l1 ?lu ?lv, Hb : List_Forall3 ?R ?l2 ?lu ?lv |- _ ] =>
+			tryif constr_eq l1 l2 then fail else
+			(have Heq : l1 = l2;
+				[ apply: (Hf3 _ _ _ R lu lv l1 l2 Ha Hb); move => a b u v Hx Hy;
+					first [ exact: (Hordfun _ _ _ _ _ _ Hx Hy)
+						| exact: (Hmaxfun _ _ _ _ _ _ Hx Hy)
+						| exact: (Haddsat _ _ _ _ _ _ Hx Hy)
+						| exact: (Hsubsat _ _ _ _ _ _ Hx Hy) ]
+				| subst ])
+		end.
+	all: repeat match goal with | [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end.
+	all: subst.
+	all: first
+		[ by apply: uN_case_0
+		| ((eapply inv_lanes__is_wf; only 3: by apply: eqxx);
+			[ eassumption
+			| first [ (apply Hfmap; eassumption)
+				| (apply Hzip; eassumption)
+				| (apply Hfmap; apply Hzip; eassumption)
+				| (apply Hfmap; apply Hzip;
+					match goal with
+					| [ Hh : List.Forall2 _ _ _ |- _ ] =>
+						(eapply Hmono2; [ exact: Hh | move => x y Hxy; apply Hfmap; exact: Hxy ])
+					end) ] ]) ].
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:585.6-585.18 *)
 Inductive fun_vextbinop___before_fun_vextbinop___case_8 : ishape -> ishape -> vextbinop_ -> vec_ -> vec_ -> Prop :=
@@ -9299,7 +10465,165 @@ Lemma vextbinop___is_wf : forall (ishape_1 : ishape) (ishape_2 : ishape) (v_vext
 	(var_0 != None) ->
 	(ret_val == (!(var_0))) ->
 	(wf_uN 128%N ret_val).
-Proof. Admitted.
+Proof.
+	move => ishape_1 ishape_2 v_vextbinop_ v_vec_ vec__0 ret_val var_0 H Hs1 Hs2 Hop Hvec1 Hvec2 Hne /eqP ->.
+	have Hmono : forall (T : Type) (P Q : T -> Prop) (l : seq T),
+		List.Forall P l -> (forall x, P x -> Q x) -> List.Forall Q l.
+	{ move => T P Q. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl] Hpq.
+		by apply: List.Forall_cons; [ apply: Hpq | apply: IH ]. }
+	have Hfmap : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
+		List.Forall (fun x => P (f x)) l -> List.Forall P (seq.map f l).
+	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ | apply: IH ]. }
+	have Hsp2 : forall (X : eqType) (P : X -> Prop) (w : X) (lls : seq (seq X)),
+		P w -> List.Forall (fun l => List.Forall P l) lls ->
+		List.Forall (fun l => List.Forall P l) (setproduct2_ X w lls).
+	{ move => X P w. elim => [ |l lls IH] //= Hw /List.Forall_cons_iff [Hl Hlls].
+		by apply: List.Forall_cons; [ apply: List.Forall_cons | apply: IH ]. }
+	have Hsp1 : forall (X : eqType) (P : X -> Prop) (l : seq X) (lls : seq (seq X)),
+		List.Forall P l -> List.Forall (fun l => List.Forall P l) lls ->
+		List.Forall (fun l => List.Forall P l) (setproduct1_ X l lls).
+	{ move => X P. elim => [ |w l IH] lls //= /List.Forall_cons_iff [Hw Hl] Hlls.
+		by apply/List.Forall_app; split; [ apply: Hsp2 | apply: IH ]. }
+	have Hsp : forall (X : eqType) (P : X -> Prop) (lls : seq (seq X)),
+		List.Forall (fun l => List.Forall P l) lls ->
+		List.Forall (fun l => List.Forall P l) (setproduct_ X lls).
+	{ move => X P. elim => [ |l lls IH] /=.
+		- by move => _; apply: List.Forall_cons; apply: List.Forall_nil.
+		- move => /List.Forall_cons_iff [Hl Hlls]. by apply: Hsp1; [ | apply: IH ]. }
+	have Hfin : forall (sh : shape) (lls : seq (seq lane_)),
+		wf_shape sh ->
+		List.Forall (fun l => List.Forall (fun x => wf_lane_ (fun_lanetype sh) x) l) lls ->
+		List.Forall (fun v => wf_uN 128%N v) (seq.map (fun l => inv_lanes_ sh l) lls).
+	{ move => sh lls Hsh0. elim: lls => [ |l lls IH] //= /List.Forall_cons_iff [Hl Hlls].
+		apply: List.Forall_cons; last by apply: IH.
+		by apply: (inv_lanes__is_wf sh l). }
+	have Hf2 : forall (T U : Type) (R : T -> U -> Prop) (ll : seq U) (l1 l2 : seq T),
+		List.Forall2 R l1 ll -> List.Forall2 R l2 ll ->
+		(forall a b u, R a u -> R b u -> a = b) -> l1 = l2.
+	{ move => T U R ll l1 l2 H1. elim: H1 l2 => [ |x y l l' Hxy H1' IH] l2 H2 Hfun.
+		- by inversion H2.
+		- inversion H2 as [ |x2 y2 l2' ll2 Hxy2 H2' E1 E2]; subst.
+			by rewrite (Hfun _ _ _ Hxy Hxy2) (IH _ H2' Hfun). }
+	have Hsig : forall (vN : res_N) (i : N) (a b : Z),
+		fun_signed_ vN i a -> fun_signed_ vN i b -> a = b.
+	{ move => vN i a b Ha Hb. inversion Ha; inversion Hb; subst => //.
+		all: exfalso;
+			match goal with
+			| [ Hx : is_true (N.ltb ?u ?X), Hy : is_true (andb (N.leb ?X ?u) _) |- _ ] =>
+				move: Hy => /andP [Hy _];
+				move: (N.lt_le_trans _ _ _ (proj1 (N.ltb_lt _ _) Hx) (proj1 (N.leb_le _ _) Hy));
+				apply: N.lt_irrefl
+			end. }
+	have Hinvsig : forall (vN : res_N) (z : Z) (a b : N),
+		fun_inv_signed_ vN z a -> fun_inv_signed_ vN z b -> a = b.
+	{ move => vN z a b Ha Hb. inversion Ha; inversion Hb; subst => //.
+		all: exfalso;
+			match goal with
+			| [ Hx : is_true (andb (Z.leb _ ?u) _), Hy : is_true (andb _ (Z.ltb ?u _)) |- _ ] =>
+				move: (Hx) => /andP [Hx1 _]; move: (Hy) => /andP [_ Hy1];
+				move: (Z.le_lt_trans _ _ _ (proj1 (Z.leb_le _ _) Hx1) (proj1 (Z.ltb_lt _ _) Hy1));
+				apply: Z.lt_irrefl
+			end. }
+	have Hzip : forall (T U V : Type) (P : V -> Prop) (f : T -> U -> V)
+		(l1 : seq T) (l2 : seq U),
+		List.Forall2 (fun a b => P (f a b)) l1 l2 -> List.Forall P (list_zipWith f l1 l2).
+	{ move => T U V P f l1 l2 Hz. rewrite /list_zipWith.
+		elim: Hz => [ |x y l l' Hxy Hz IH] //=. by apply: List.Forall_cons. }
+	have Hmono2 : forall (T U : Type) (P Q : T -> U -> Prop) (l1 : seq T) (l2 : seq U),
+		List.Forall2 P l1 l2 -> (forall x y, P x y -> Q x y) -> List.Forall2 Q l1 l2.
+	{ move => T U P Q l1 l2 Hz Hpq. elim: Hz => [ |x y l l' Hxy Hz IH].
+		- by apply: List.Forall2_nil.
+		- by apply: List.Forall2_cons; [ apply: Hpq | ]. }
+	have Hf3 : forall (T U V : Type) (R : T -> U -> V -> Prop) (lu : seq U) (lv : seq V)
+		(l1 l2 : seq T),
+		List_Forall3 R l1 lu lv -> List_Forall3 R l2 lu lv ->
+		(forall a b u v, R a u v -> R b u v -> a = b) -> l1 = l2.
+	{ move => T U V R lu lv l1 l2 H1. elim: H1 l2 => [ |x y z l l' l'' Hxyz H1' IH] l2 H2 Hfun.
+		- by inversion H2.
+		- inversion H2 as [ |x2 y2 z2 l2' lu2 lv2 Hxyz2 H2' E1 E2 E3]; subst.
+			by rewrite (Hfun _ _ _ _ Hxyz Hxyz2) (IH _ H2' Hfun). }
+	have Hordfun : forall (n0 : res_N) (s0 : sx) (p q r1 r2 : iN),
+		fun_imin_ n0 s0 p q r1 -> fun_imin_ n0 s0 p q r2 -> r1 = r2.
+	{ move => n0 s0 p q r1 r2 HA HB. inversion HA; inversion HB; subst => //.
+		all: try (exfalso;
+			match goal with
+			| [ Hx : is_true (N.leb ?u ?v), Hy : is_true (N_gtb ?u ?v) |- _ ] =>
+				rewrite /N_gtb in Hy;
+				move: (N.lt_le_trans _ _ _ (proj1 (N.ltb_lt _ _) Hy) (proj1 (N.leb_le _ _) Hx));
+				apply: N.lt_irrefl
+			end).
+		all: repeat match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: by []. }
+	have Hmaxfun : forall (n0 : res_N) (s0 : sx) (p q r1 r2 : iN),
+		fun_imax_ n0 s0 p q r1 -> fun_imax_ n0 s0 p q r2 -> r1 = r2.
+	{ move => n0 s0 p q r1 r2 HA HB. inversion HA; inversion HB; subst => //.
+		all: try (exfalso;
+			match goal with
+			| [ Hx : is_true (N_geb ?u ?v), Hy : is_true (N.ltb ?u ?v) |- _ ] =>
+				rewrite /N_geb in Hx;
+				move: (N.lt_le_trans _ _ _ (proj1 (N.ltb_lt _ _) Hy) (proj1 (N.leb_le _ _) Hx));
+				apply: N.lt_irrefl
+			end).
+		all: repeat match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: by []. }
+	have Haddsat : forall (n0 : res_N) (s0 : sx) (p q r1 r2 : iN),
+		fun_iadd_sat_ n0 s0 p q r1 -> fun_iadd_sat_ n0 s0 p q r2 -> r1 = r2.
+	{ move => n0 s0 p q r1 r2 HA HB. inversion HA; inversion HB; subst => //.
+		all: repeat match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: repeat match goal with
+			| [ Hx : fun_inv_signed_ ?n ?k ?u, Hy : fun_inv_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hinvsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: by []. }
+	have Hsubsat : forall (n0 : res_N) (s0 : sx) (p q r1 r2 : iN),
+		fun_isub_sat_ n0 s0 p q r1 -> fun_isub_sat_ n0 s0 p q r2 -> r1 = r2.
+	{ move => n0 s0 p q r1 r2 HA HB. inversion HA; inversion HB; subst => //.
+		all: repeat match goal with
+			| [ Hx : fun_signed_ ?n ?k ?u, Hy : fun_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: repeat match goal with
+			| [ Hx : fun_inv_signed_ ?n ?k ?u, Hy : fun_inv_signed_ ?n ?k ?v |- _ ] =>
+				tryif constr_eq u v then fail else (have Heq := Hinvsig _ _ _ _ Hx Hy; subst)
+			end.
+		all: by []. }
+	case: H Hs1 Hs2 Hop Hvec1 Hvec2 Hne => *.
+	all: repeat match goal with
+		| [ Ha : List_Forall3 ?R ?l1 ?lu ?lv, Hb : List_Forall3 ?R ?l2 ?lu ?lv |- _ ] =>
+			tryif constr_eq l1 l2 then fail else
+			(have Heq : l1 = l2;
+				[ apply: (Hf3 _ _ _ R lu lv l1 l2 Ha Hb); move => a b u v Hx Hy;
+					first [ exact: (Hordfun _ _ _ _ _ _ Hx Hy)
+						| exact: (Hmaxfun _ _ _ _ _ _ Hx Hy)
+						| exact: (Haddsat _ _ _ _ _ _ Hx Hy)
+						| exact: (Hsubsat _ _ _ _ _ _ Hx Hy) ]
+				| subst ])
+		end.
+	all: repeat match goal with | [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end.
+	all: subst.
+	all: first
+		[ by apply: uN_case_0
+		| ((eapply inv_lanes__is_wf; only 3: by apply: eqxx);
+			[ eassumption
+			| first [ (apply Hfmap; eassumption)
+				| (apply Hzip; eassumption)
+				| (apply Hfmap; apply Hzip; eassumption)
+				| (apply Hfmap; apply Hzip;
+					match goal with
+					| [ Hh : List.Forall2 _ _ _ |- _ ] =>
+						(eapply Hmono2; [ exact: Hh | move => x y Hxy; apply Hfmap; exact: Hxy ])
+					end) ] ]) ].
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:608.6-608.16 *)
 Inductive fun_vshiftop__before_fun_vshiftop__case_2 : ishape -> vshiftop_ -> lane_ -> u32 -> Prop :=
@@ -9340,7 +10664,18 @@ Lemma vshiftop__is_wf : forall (v_ishape : ishape) (v_vshiftop_ : vshiftop_) (v_
 	(var_0 != None) ->
 	(ret_val == (!(var_0))) ->
 	(wf_lane_ (fun_lanetype (shape_ishape v_ishape)) ret_val).
-Proof. Admitted.
+Proof.
+	move => v_ishape v_vshiftop_ v_lane_ v_u32 ret_val var_0 H Hsh Hop Hl Hu Hne /eqP ->.
+	case: H Hsh Hop Hl Hu Hne => *.
+	all: try (by match goal with | [ Hn : is_true (_ != _) |- _ ] => move: Hn; rewrite eqxx end).
+	all: repeat match goal with | [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end.
+	all: subst.
+	all: repeat match goal with
+		| [ Hx : wf_lane_ _ (mk_lane__2 _ _) |- _ ] => inversion Hx; subst; clear Hx end.
+	all: apply: lane__case_2; last by [].
+	all: first [ ((eapply ishl__is_wf; only 3: by apply: eqxx); eassumption)
+		| ((eapply ishr__is_wf; only 3: by apply: eqxx); eassumption) ].
+Qed.
 
 (* Type Alias Definition at: ../specification/wasm-2.0/4-runtime.spectec:5.1-5.39 *)
 Definition addr : Type := N.
@@ -10421,7 +11756,17 @@ Lemma default__is_wf : forall (v_valtype : valtype) (ret_val : val),
 	((default_ v_valtype) != None) ->
 	(ret_val == (!((default_ v_valtype)))) ->
 	(wf_val ret_val).
-Proof. Admitted.
+Proof.
+	move => v_valtype ret_val Hne /eqP ->.
+	case: v_valtype Hne => //= _.
+	- by apply: val_case_0; apply: num__case_0.
+	- by apply: val_case_0; apply: num__case_0.
+	- by apply: val_case_0; apply: num__case_1 => //; apply: (fzero_is_wf 32%N).
+	- by apply: val_case_0; apply: num__case_1 => //; apply: (fzero_is_wf 64%N).
+	- by apply: val_case_1.
+	- by apply: val_case_2.
+	- by apply: val_case_2.
+Qed.
 
 (* Mutual Recursion at: ../specification/wasm-2.0/5-runtime-aux.spectec:20.1-20.63 *)
 Inductive fun_funcsxa : (seq externaddr) -> (seq funcaddr) -> Prop :=
@@ -10474,7 +11819,10 @@ Lemma store_is_wf : forall (v_state : state) (ret_val : store),
 	(wf_state v_state) ->
 	(ret_val == (fun_store v_state)) ->
 	(wf_store ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state ret_val Hwf /eqP ->.
+	by case: Hwf.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:49.1-49.57 *)
 Definition fun_frame (v_state : state) : frame :=
@@ -10487,7 +11835,10 @@ Lemma frame_is_wf : forall (v_state : state) (ret_val : frame),
 	(wf_state v_state) ->
 	(ret_val == (fun_frame v_state)) ->
 	(wf_frame ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state ret_val Hwf /eqP ->.
+	by case: Hwf.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:55.1-55.64 *)
 Definition fun_funcaddr (v_state : state) : (seq funcaddr) :=
@@ -10506,7 +11857,10 @@ Lemma funcinst_is_wf : forall (v_state : state) (ret_val_lst : (seq funcinst)),
 	(wf_state v_state) ->
 	(ret_val_lst == (fun_funcinst v_state)) ->
 	List.Forall (fun (ret_val : funcinst) => (wf_funcinst ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => v_state ret_val_lst Hwf /eqP ->.
+	case: Hwf => s f Hs Hf. by case: Hs.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:59.1-59.59 *)
 Definition fun_globalinst (v_state : state) : (seq globalinst) :=
@@ -10519,7 +11873,10 @@ Lemma globalinst_is_wf : forall (v_state : state) (ret_val_lst : (seq globalinst
 	(wf_state v_state) ->
 	(ret_val_lst == (fun_globalinst v_state)) ->
 	List.Forall (fun (ret_val : globalinst) => (wf_globalinst ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => v_state ret_val_lst Hwf /eqP ->.
+	case: Hwf => s f Hs Hf. by case: Hs.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:60.1-60.58 *)
 Definition fun_tableinst (v_state : state) : (seq tableinst) :=
@@ -10532,7 +11889,10 @@ Lemma tableinst_is_wf : forall (v_state : state) (ret_val_lst : (seq tableinst))
 	(wf_state v_state) ->
 	(ret_val_lst == (fun_tableinst v_state)) ->
 	List.Forall (fun (ret_val : tableinst) => (wf_tableinst ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => v_state ret_val_lst Hwf /eqP ->.
+	case: Hwf => s f Hs Hf. by case: Hs.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:61.1-61.56 *)
 Definition fun_meminst (v_state : state) : (seq meminst) :=
@@ -10545,7 +11905,10 @@ Lemma meminst_is_wf : forall (v_state : state) (ret_val_lst : (seq meminst)),
 	(wf_state v_state) ->
 	(ret_val_lst == (fun_meminst v_state)) ->
 	List.Forall (fun (ret_val : meminst) => (wf_meminst ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => v_state ret_val_lst Hwf /eqP ->.
+	case: Hwf => s f Hs Hf. by case: Hs.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:62.1-62.57 *)
 Definition fun_eleminst (v_state : state) : (seq eleminst) :=
@@ -10564,7 +11927,10 @@ Lemma datainst_is_wf : forall (v_state : state) (ret_val_lst : (seq datainst)),
 	(wf_state v_state) ->
 	(ret_val_lst == (fun_datainst v_state)) ->
 	List.Forall (fun (ret_val : datainst) => (wf_datainst ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => v_state ret_val_lst Hwf /eqP ->.
+	case: Hwf => s f Hs Hf. by case: Hs.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:64.1-64.58 *)
 Definition fun_moduleinst (v_state : state) : moduleinst :=
@@ -10577,7 +11943,10 @@ Lemma moduleinst_is_wf : forall (v_state : state) (ret_val : moduleinst),
 	(wf_state v_state) ->
 	(ret_val == (fun_moduleinst v_state)) ->
 	(wf_moduleinst ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state ret_val Hwf /eqP ->.
+	case: Hwf => s f Hs Hf. by case: Hf.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:74.1-74.66 *)
 Definition fun_type (v_state : state) (v_typeidx : typeidx) : functype :=
@@ -10597,7 +11966,18 @@ Lemma func_is_wf : forall (v_state : state) (v_funcidx : funcidx) (ret_val : fun
 	(wf_uN 32%N v_funcidx) ->
 	(ret_val == (fun_func v_state v_funcidx)) ->
 	(wf_funcinst ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state v_funcidx ret_val Hwf Hidx /eqP ->.
+	have Hnth : forall (T : Type) (P : T -> Prop) (d : T) (s : seq T) (n : nat),
+		List.Forall P s -> P d -> P (seq.nth d s n).
+	{ move => T P d s. elim: s => [ |x s IH] n Hall Hd; first by rewrite seq.nth_nil.
+		inversion Hall; subst. case: n => [ |n] //=. by apply: IH. }
+	have Hdef : wf_funcinst default_val.
+	{ apply: funcinst_case_; first by apply: moduleinst_case_; apply: List.Forall_nil.
+		by apply: func_case_0; [ apply: uN_case_0 | apply: List.Forall_nil ]. }
+	case: Hwf => s f Hs Hf. rewrite /fun_func /lookup_total.
+	apply: Hnth => //. by case: Hs.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:76.1-76.68 *)
 Definition fun_global (v_state : state) (v_globalidx : globalidx) : globalinst :=
@@ -10611,7 +11991,17 @@ Lemma global_is_wf : forall (v_state : state) (v_globalidx : globalidx) (ret_val
 	(wf_uN 32%N v_globalidx) ->
 	(ret_val == (fun_global v_state v_globalidx)) ->
 	(wf_globalinst ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state v_globalidx ret_val Hwf Hidx /eqP ->.
+	have Hnth : forall (T : Type) (P : T -> Prop) (d : T) (s : seq T) (n : nat),
+		List.Forall P s -> P d -> P (seq.nth d s n).
+	{ move => T P d s. elim: s => [ |x s IH] n Hall Hd; first by rewrite seq.nth_nil.
+		inversion Hall; subst. case: n => [ |n] //=. by apply: IH. }
+	have Hdef : wf_globalinst default_val.
+	{ by apply: globalinst_case_; apply: val_case_0; apply: num__case_0. }
+	case: Hwf => s f Hs Hf. rewrite /fun_global /lookup_total.
+	apply: Hnth => //. by case: Hs.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:77.1-77.67 *)
 Definition fun_table (v_state : state) (v_tableidx : tableidx) : tableinst :=
@@ -10625,7 +12015,17 @@ Lemma table_is_wf : forall (v_state : state) (v_tableidx : tableidx) (ret_val : 
 	(wf_uN 32%N v_tableidx) ->
 	(ret_val == (fun_table v_state v_tableidx)) ->
 	(wf_tableinst ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state v_tableidx ret_val Hwf Hidx /eqP ->.
+	have Hnth : forall (T : Type) (P : T -> Prop) (d : T) (s : seq T) (n : nat),
+		List.Forall P s -> P d -> P (seq.nth d s n).
+	{ move => T P d s. elim: s => [ |x s IH] n Hall Hd; first by rewrite seq.nth_nil.
+		inversion Hall; subst. case: n => [ |n] //=. by apply: IH. }
+	have Hdef : wf_tableinst default_val.
+	{ by apply: tableinst_case_; apply: tabletype_case_0; apply: limits_case_0. }
+	case: Hwf => s f Hs Hf. rewrite /fun_table /lookup_total.
+	apply: Hnth => //. by case: Hs.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:78.1-78.65 *)
 Definition fun_mem (v_state : state) (v_memidx : memidx) : meminst :=
@@ -10639,7 +12039,17 @@ Lemma mem_is_wf : forall (v_state : state) (v_memidx : memidx) (ret_val : memins
 	(wf_uN 32%N v_memidx) ->
 	(ret_val == (fun_mem v_state v_memidx)) ->
 	(wf_meminst ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state v_memidx ret_val Hwf Hidx /eqP ->.
+	have Hnth : forall (T : Type) (P : T -> Prop) (d : T) (s : seq T) (n : nat),
+		List.Forall P s -> P d -> P (seq.nth d s n).
+	{ move => T P d s. elim: s => [ |x s IH] n Hall Hd; first by rewrite seq.nth_nil.
+		inversion Hall; subst. case: n => [ |n] //=. by apply: IH. }
+	have Hdef : wf_meminst default_val.
+	{ by apply: meminst_case_; [apply: memtype_case_0; apply: limits_case_0 | apply: List.Forall_nil]. }
+	case: Hwf => s f Hs Hf. rewrite /fun_mem /lookup_total.
+	apply: Hnth => //. by case: Hs.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:79.1-79.66 *)
 Definition fun_elem (v_state : state) (v_tableidx : tableidx) : eleminst :=
@@ -10659,7 +12069,17 @@ Lemma data_is_wf : forall (v_state : state) (v_dataidx : dataidx) (ret_val : dat
 	(wf_uN 32%N v_dataidx) ->
 	(ret_val == (fun_data v_state v_dataidx)) ->
 	(wf_datainst ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state v_dataidx ret_val Hwf Hidx /eqP ->.
+	have Hnth : forall (T : Type) (P : T -> Prop) (d : T) (s : seq T) (n : nat),
+		List.Forall P s -> P d -> P (seq.nth d s n).
+	{ move => T P d s. elim: s => [ |x s IH] n Hall Hd; first by rewrite seq.nth_nil.
+		inversion Hall; subst. case: n => [ |n] //=. by apply: IH. }
+	have Hdef : wf_datainst default_val.
+	{ by apply: datainst_case_; apply: List.Forall_nil. }
+	case: Hwf => s f Hs Hf. rewrite /fun_data /lookup_total.
+	apply: Hnth => //. by case: Hs.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:81.1-81.67 *)
 Definition fun_local (v_state : state) (v_localidx : localidx) : val :=
@@ -10673,7 +12093,17 @@ Lemma local_is_wf : forall (v_state : state) (v_localidx : localidx) (ret_val : 
 	(wf_uN 32%N v_localidx) ->
 	(ret_val == (fun_local v_state v_localidx)) ->
 	(wf_val ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state v_localidx ret_val Hwf Hidx /eqP ->.
+	have Hnth : forall (T : Type) (P : T -> Prop) (d : T) (s : seq T) (n : nat),
+		List.Forall P s -> P d -> P (seq.nth d s n).
+	{ move => T P d s. elim: s => [ |x s IH] n Hall Hd; first by rewrite seq.nth_nil.
+		inversion Hall; subst. case: n => [ |n] //=. by apply: IH. }
+	have Hdef : wf_val default_val.
+	{ by apply: val_case_0; apply: num__case_0. }
+	case: Hwf => s f Hs Hf. rewrite /fun_local /lookup_total.
+	apply: Hnth => //. by case: Hf.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:95.1-95.89 *)
 Definition with_local (v_state : state) (v_localidx : localidx) (v_val : val) : state :=
@@ -10688,7 +12118,19 @@ Lemma with_local_is_wf : forall (v_state : state) (v_localidx : localidx) (v_val
 	(wf_val v_val) ->
 	(ret_val == (with_local v_state v_localidx v_val)) ->
 	(wf_state ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state v_localidx v_val ret_val Hwf Hidx Hv /eqP ->.
+	have Hupd : forall (T : Type) (P : T -> Prop) (l : seq T) (n : N) (g : T -> T),
+		List.Forall P l -> (forall x, P x -> P (g x)) -> List.Forall P (list_update_func l n g).
+	{ move => T P l. elim: l => [ |x l IH] n g Hall Hg //=.
+		inversion Hall; subst. case: n => [ |p]; apply: List.Forall_cons => //.
+		- by apply: Hg.
+		- by apply: IH. }
+	case: Hwf => s f Hs Hf. rewrite /with_local /=.
+	apply: state_case_0 => //.
+	case: Hf => ls m Hls Hm. apply: frame_case_ => //.
+	by apply: Hupd.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:96.1-96.96 *)
 Definition with_global (v_state : state) (v_globalidx : globalidx) (v_val : val) : state :=
@@ -10703,7 +12145,21 @@ Lemma with_global_is_wf : forall (v_state : state) (v_globalidx : globalidx) (v_
 	(wf_val v_val) ->
 	(ret_val == (with_global v_state v_globalidx v_val)) ->
 	(wf_state ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state v_globalidx v_val ret_val Hwf Hidx Hv /eqP ->.
+	have Hupd : forall (T : Type) (P : T -> Prop) (l : seq T) (n : N) (g : T -> T),
+		List.Forall P l -> (forall x, P x -> P (g x)) -> List.Forall P (list_update_func l n g).
+	{ move => T P l. elim: l => [ |x l IH] n g Hall Hg //=.
+		inversion Hall; subst. case: n => [ |p]; apply: List.Forall_cons => //.
+		- by apply: Hg.
+		- by apply: IH. }
+	case: Hwf => s f Hs Hf. rewrite /with_global /=.
+	apply: state_case_0 => //.
+	case: Hs => fl gl tl ml el dl Hfl Hgl Htl Hml Hdl.
+	apply: store_case_ => //.
+	apply: Hupd; first by [].
+	move => x Hx. case: Hx => t v0 Hv0. by apply: globalinst_case_.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:97.1-97.97 *)
 Definition with_table (v_state : state) (v_tableidx : tableidx) (res_nat : N) (v_ref : ref) : state :=
@@ -10717,7 +12173,21 @@ Lemma with_table_is_wf : forall (v_state : state) (v_tableidx : tableidx) (res_n
 	(wf_uN 32%N v_tableidx) ->
 	(ret_val == (with_table v_state v_tableidx res_nat v_ref)) ->
 	(wf_state ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state v_tableidx res_nat v_ref ret_val Hwf Hidx /eqP ->.
+	have Hupd : forall (T : Type) (P : T -> Prop) (l : seq T) (n : N) (g : T -> T),
+		List.Forall P l -> (forall x, P x -> P (g x)) -> List.Forall P (list_update_func l n g).
+	{ move => T P l. elim: l => [ |x l IH] n g Hall Hg //=.
+		inversion Hall; subst. case: n => [ |p]; apply: List.Forall_cons => //.
+		- by apply: Hg.
+		- by apply: IH. }
+	case: Hwf => s f Hs Hf. rewrite /with_table /=.
+	apply: state_case_0 => //.
+	case: Hs => fl gl tl ml el dl Hfl Hgl Htl Hml Hdl.
+	apply: store_case_ => //.
+	apply: Hupd; first by [].
+	move => x Hx. case: Hx => t rl Ht. by apply: tableinst_case_.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:98.1-98.89 *)
 Definition with_tableinst (v_state : state) (v_tableidx : tableidx) (v_tableinst : tableinst) : state :=
@@ -10732,7 +12202,21 @@ Lemma with_tableinst_is_wf : forall (v_state : state) (v_tableidx : tableidx) (v
 	(wf_tableinst v_tableinst) ->
 	(ret_val == (with_tableinst v_state v_tableidx v_tableinst)) ->
 	(wf_state ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state v_tableidx v_tableinst ret_val Hwf Hidx Hti /eqP ->.
+	have Hupd : forall (T : Type) (P : T -> Prop) (l : seq T) (n : N) (g : T -> T),
+		List.Forall P l -> (forall x, P x -> P (g x)) -> List.Forall P (list_update_func l n g).
+	{ move => T P l. elim: l => [ |x l IH] n g Hall Hg //=.
+		inversion Hall; subst. case: n => [ |p]; apply: List.Forall_cons => //.
+		- by apply: Hg.
+		- by apply: IH. }
+	case: Hwf => s f Hs Hf. rewrite /with_tableinst /=.
+	apply: state_case_0 => //.
+	case: Hs => fl gl tl ml el dl Hfl Hgl Htl Hml Hdl.
+	apply: store_case_ => //.
+	apply: Hupd; first by [].
+	by move => x _.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:99.1-99.100 *)
 Definition with_mem (v_state : state) (v_memidx : memidx) (res_nat : N) (nat_0 : N) (var_0_lst : (seq byte)) : state :=
@@ -10747,7 +12231,27 @@ Lemma with_mem_is_wf : forall (v_state : state) (v_memidx : memidx) (res_nat : N
 	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst ->
 	(ret_val == (with_mem v_state v_memidx res_nat nat_0 var_0_lst)) ->
 	(wf_state ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state v_memidx res_nat nat_0 var_0_lst ret_val Hwf Hidx Hb /eqP ->.
+	have Hupd : forall (T : Type) (P : T -> Prop) (l : seq T) (n : N) (g : T -> T),
+		List.Forall P l -> (forall x, P x -> P (g x)) -> List.Forall P (list_update_func l n g).
+	{ move => T P l. elim: l => [ |x l IH] n g Hall Hg //=.
+		inversion Hall; subst. case: n => [ |p]; apply: List.Forall_cons => //.
+		- by apply: Hg.
+		- by apply: IH. }
+	have Hslice : forall (T : Type) (P : T -> Prop) (l : seq T) (i j : N) (u : seq T),
+		List.Forall P l -> List.Forall P u -> List.Forall P (list_slice_update l i j u).
+	{ move => T P l. elim: l => [ |x l IH] i j u Hl Hu //=.
+		case: i => [ |pi]; case: j => [ |pj]; case: u Hu => [ |y u] Hu //=;
+			inversion Hl; inversion Hu; subst; apply: List.Forall_cons => //; by apply: IH. }
+	case: Hwf => s f Hs Hf. rewrite /with_mem /=.
+	apply: state_case_0 => //.
+	case: Hs => fl gl tl ml el dl Hfl Hgl Htl Hml Hdl.
+	apply: store_case_ => //.
+	apply: Hupd; first by [].
+	move => x Hx. case: Hx => t bl Ht Hbl. apply: meminst_case_ => //.
+	by apply: Hslice.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:100.1-100.87 *)
 Definition with_meminst (v_state : state) (v_memidx : memidx) (v_meminst : meminst) : state :=
@@ -10762,7 +12266,21 @@ Lemma with_meminst_is_wf : forall (v_state : state) (v_memidx : memidx) (v_memin
 	(wf_meminst v_meminst) ->
 	(ret_val == (with_meminst v_state v_memidx v_meminst)) ->
 	(wf_state ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state v_memidx v_meminst ret_val Hwf Hidx Hmi /eqP ->.
+	have Hupd : forall (T : Type) (P : T -> Prop) (l : seq T) (n : N) (g : T -> T),
+		List.Forall P l -> (forall x, P x -> P (g x)) -> List.Forall P (list_update_func l n g).
+	{ move => T P l. elim: l => [ |x l IH] n g Hall Hg //=.
+		inversion Hall; subst. case: n => [ |p]; apply: List.Forall_cons => //.
+		- by apply: Hg.
+		- by apply: IH. }
+	case: Hwf => s f Hs Hf. rewrite /with_meminst /=.
+	apply: state_case_0 => //.
+	case: Hs => fl gl tl ml el dl Hfl Hgl Htl Hml Hdl.
+	apply: store_case_ => //.
+	apply: Hupd; first by [].
+	by move => x _.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:101.1-101.93 *)
 Definition with_elem (v_state : state) (v_elemidx : elemidx) (var_0_lst : (seq ref)) : state :=
@@ -10776,7 +12294,13 @@ Lemma with_elem_is_wf : forall (v_state : state) (v_elemidx : elemidx) (var_0_ls
 	(wf_uN 32%N v_elemidx) ->
 	(ret_val == (with_elem v_state v_elemidx var_0_lst)) ->
 	(wf_state ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state v_elemidx var_0_lst ret_val Hwf Hidx /eqP ->.
+	case: Hwf => s f Hs Hf. rewrite /with_elem /=.
+	apply: state_case_0 => //.
+	case: Hs => fl gl tl ml el dl Hfl Hgl Htl Hml Hdl.
+	by apply: store_case_.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:102.1-102.94 *)
 Definition with_data (v_state : state) (v_dataidx : dataidx) (var_0_lst : (seq byte)) : state :=
@@ -10791,7 +12315,21 @@ Lemma with_data_is_wf : forall (v_state : state) (v_dataidx : dataidx) (var_0_ls
 	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst ->
 	(ret_val == (with_data v_state v_dataidx var_0_lst)) ->
 	(wf_state ret_val).
-Proof. Admitted.
+Proof.
+	move => v_state v_dataidx var_0_lst ret_val Hwf Hidx Hb /eqP ->.
+	have Hupd : forall (T : Type) (P : T -> Prop) (l : seq T) (n : N) (g : T -> T),
+		List.Forall P l -> (forall x, P x -> P (g x)) -> List.Forall P (list_update_func l n g).
+	{ move => T P l. elim: l => [ |x l IH] n g Hall Hg //=.
+		inversion Hall; subst. case: n => [ |p]; apply: List.Forall_cons => //.
+		- by apply: Hg.
+		- by apply: IH. }
+	case: Hwf => s f Hs Hf. rewrite /with_data /=.
+	apply: state_case_0 => //.
+	case: Hs => fl gl tl ml el dl Hfl Hgl Htl Hml Hdl.
+	apply: store_case_ => //.
+	apply: Hupd; first by [].
+	move => x Hx. case: Hx => bl Hbl. by apply: datainst_case_.
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 *)
 Inductive fun_growtable_before_fun_growtable_case_1 : tableinst -> N -> ref -> Prop :=
@@ -10825,13 +12363,16 @@ Lemma growtable_is_wf : forall (v_tableinst : tableinst) (res_nat : N) (v_ref : 
 	(var_0 != None) ->
 	(ret_val == (!(var_0))) ->
 	(wf_tableinst ret_val).
-Proof. Admitted.
+Proof.
+	move => v_tableinst res_nat v_ref ret_val var_0 H Hwf Hne /eqP ->.
+	by case: H Hne => [ti v_n r ti' i j_opt rt r'_lst i' _ _ _ /eqP -> _ Hwf2 _ | x0 x1 x2 _ ].
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 *)
 Inductive fun_growmemory_before_fun_growmemory_case_1 : meminst -> N -> Prop :=
 	| fun_growmemory_case_0 : forall (mi : meminst) (v_n : N) (mi' : meminst) (i : u32) (j_opt : (option u32)) (b_lst : (seq byte)) (i' : Q), 
 		({| meminst_TYPE := (PAGE (mk_limits i j_opt)); BYTES := b_lst |} == mi) ->
-		(i' == ((((|b_lst|) : Q) / ((64%N * (Ki ))%BN : Q))%Q + (v_n : Q))%Q) ->
+		((i' == ((((|b_lst|) : Q) / ((64%N * (Ki ))%BN : Q))%Q + (v_n : Q))%Q)%Q) ->
 		List.Forall (fun (j_7 : u32) => (i' <=? ((j_7 :> N) : Q))%Q) (option_to_list j_opt) ->
 		(mi' == {| meminst_TYPE := (PAGE (mk_limits (mk_uN (i' : N)) j_opt)); BYTES := (b_lst ++ (list_repeat (mk_byte 0%N) (v_n * (64%N * (Ki ))%BN)%BN)) |}) ->
 		(wf_meminst {| meminst_TYPE := (PAGE (mk_limits i j_opt)); BYTES := b_lst |}) ->
@@ -10842,7 +12383,7 @@ Inductive fun_growmemory_before_fun_growmemory_case_1 : meminst -> N -> Prop :=
 Inductive fun_growmemory : meminst -> N -> (option meminst) -> Prop :=
 	| fun_growmemory__fun_growmemory_case_0 : forall (mi : meminst) (v_n : N) (mi' : meminst) (i : u32) (j_opt : (option u32)) (b_lst : (seq byte)) (i' : Q), 
 		({| meminst_TYPE := (PAGE (mk_limits i j_opt)); BYTES := b_lst |} == mi) ->
-		(i' == ((((|b_lst|) : Q) / ((64%N * (Ki ))%BN : Q))%Q + (v_n : Q))%Q) ->
+		((i' == ((((|b_lst|) : Q) / ((64%N * (Ki ))%BN : Q))%Q + (v_n : Q))%Q)%Q) ->
 		List.Forall (fun (j_7 : u32) => (i' <=? ((j_7 :> N) : Q))%Q) (option_to_list j_opt) ->
 		(mi' == {| meminst_TYPE := (PAGE (mk_limits (mk_uN (i' : N)) j_opt)); BYTES := (b_lst ++ (list_repeat (mk_byte 0%N) (v_n * (64%N * (Ki ))%BN)%BN)) |}) ->
 		(wf_meminst {| meminst_TYPE := (PAGE (mk_limits i j_opt)); BYTES := b_lst |}) ->
@@ -10859,7 +12400,10 @@ Lemma growmemory_is_wf : forall (v_meminst : meminst) (res_nat : N) (ret_val : m
 	(var_0 != None) ->
 	(ret_val == (!(var_0))) ->
 	(wf_meminst ret_val).
-Proof. Admitted.
+Proof.
+	move => v_meminst res_nat ret_val var_0 H Hwf Hne /eqP ->.
+	by case: H Hne => [mi v_n mi' i j_opt b_lst i' _ _ _ /eqP -> _ Hwf2 _ | x0 x1 _ ].
+Qed.
 
 (* Record Creation Definition at: ../specification/wasm-2.0/6-typing.spectec:5.1-9.62 *)
 Record context := MKcontext
@@ -12078,7 +13622,168 @@ Lemma Step_pure_is_wf : forall (var_0 : (seq admininstr)) (var_1 : (seq adminins
 	List.Forall (fun (var_0 : admininstr) => (wf_admininstr var_0)) var_0 ->
 	(Step_pure var_0 var_1) ->
 	List.Forall (fun (var_1 : admininstr) => (wf_admininstr var_1)) var_1.
-Proof. Admitted.
+Proof.
+	move => var_0 var_1 Hall H.
+	have Hmono : forall (T : Type) (P Q : T -> Prop) (l : seq T),
+		List.Forall P l -> (forall x, P x -> Q x) -> List.Forall Q l.
+	{ move => T P Q. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl] Hpq.
+		by apply: List.Forall_cons; [ apply: Hpq | apply: IH ]. }
+	have Hav : forall v, wf_val v -> wf_admininstr (admininstr_val v).
+	{ by move => v Hv; case: Hv => *; constructor. }
+	have Hai : forall i, wf_instr i -> wf_admininstr (admininstr_instr i).
+	{ move => i Hi. case: Hi => *; simpl;
+		solve [ constructor | (econstructor; eassumption) ]. }
+	have Hfmap : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
+		List.Forall (fun x => P (f x)) l -> List.Forall P (seq.map f l).
+	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ | apply: IH ]. }
+	have Hfmapinv : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
+		List.Forall P (seq.map f l) -> List.Forall (fun x => P (f x)) l.
+	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ | apply: IH ]. }
+	have Hmapi : forall l, List.Forall (fun x => wf_instr x) l ->
+		List.Forall wf_admininstr (seq.map (fun x => admininstr_instr x) l).
+	{ move => l Hl. apply: Hfmap. by apply: (Hmono _ _ _ _ Hl). }
+	have Hin : forall (T : eqType) (P : T -> Prop) (l : seq T) (x : T),
+		List.Forall P l -> (x \in l) -> P x.
+	{ move => T P. elim => [ |y l IH] x //= /List.Forall_cons_iff [Hy Hl].
+		rewrite in_cons => /orP [ /eqP -> // | Hx]. by apply: IH. }
+	have Hnth : forall (T : Type) (P : T -> Prop) (d : T) (s : seq T) (n : nat),
+		List.Forall P s -> P d -> P (seq.nth d s n).
+	{ move => T P d s. elim: s => [ |x s IH] n Hs Hd; first by rewrite seq.nth_nil.
+		inversion Hs; subst. case: n => [ |n] //=. by apply: IH. }
+	have Har : forall r, wf_admininstr (admininstr_ref r).
+	{ by case => *; constructor. }
+	have Hrep : forall (T : Type) (P : T -> Prop) (x : T) (n : N),
+		P x -> List.Forall P (list_repeat x n).
+	{ move => T P x n Hx. rewrite /list_repeat. elim: (N.to_nat n) => [ |m IH] //=.
+		by apply: List.Forall_cons. }
+	have Hmkseq : forall (T : Type) (P : T -> Prop) (f : N -> T) (n : N),
+		holds_upto (fun k => P (f k)) n -> List.Forall P (mkseqN f n).
+	{ move => T P f n. rewrite /holds_upto /iotaN /mkseqN /mkseq => Hh.
+		apply: Hfmap. by apply: (Hfmapinv _ _ (fun k => P (f k)) N.of_nat). }
+	have Hupd : forall (T : Type) (P : T -> Prop) (l : seq T) (n : N) (g : T -> T),
+		List.Forall P l -> (forall x, P x -> P (g x)) -> List.Forall P (list_update_func l n g).
+	{ move => T P l. elim: l => [ |x l IH] n g Hl0 Hg //=.
+		inversion Hl0; subst. case: n => [ |p]; apply: List.Forall_cons => //.
+		- by apply: Hg.
+		- by apply: IH. }
+	have Hfin : forall (sh : shape) (lls : seq (seq lane_)),
+		wf_shape sh ->
+		List.Forall (fun l => List.Forall (fun x => wf_lane_ (fun_lanetype sh) x) l) lls ->
+		List.Forall (fun v => wf_uN 128%N v) (seq.map (fun l => inv_lanes_ sh l) lls).
+	{ move => sh lls Hsh0. elim: lls => [ |l lls IH] //= /List.Forall_cons_iff [Hl Hlls].
+		apply: List.Forall_cons; last by apply: IH.
+		by apply: (inv_lanes__is_wf sh l). }
+	have Hcomb : forall (T U : Type) (P P1 : T -> Prop) (Q : U -> Prop) (R : T -> U -> Prop)
+		(l1 : seq T) (l2 : seq U),
+		List.Forall2 R l1 l2 -> List.Forall P1 l1 -> List.Forall Q l2 ->
+		(forall a b, R a b -> P1 a -> Q b -> P a) -> List.Forall P l1.
+	{ move => T U P P1 Q R l1 l2 H12 H1 H2 Hstep.
+		elim: H12 H1 H2 => [ |x y l l' Hxy H12 IH] H1 H2.
+		- by apply: List.Forall_nil.
+		- move: H1 => /List.Forall_cons_iff [Hx H1]. move: H2 => /List.Forall_cons_iff [Hy H2].
+			by apply: List.Forall_cons; [ apply: (Hstep _ _ Hxy Hx Hy) | apply: IH ]. }
+	have Hbr : forall (l : uN), wf_uN 32%N (mk_uN (((l :> N) + 1%N)%BN)) -> wf_uN 32%N l.
+	{ move => [i] Hw. apply: uN_case_0. inversion Hw; subst.
+		match goal with | [ Hb : is_true (andb _ _) |- _ ] => move: Hb => /andP [_ Hle] end.
+		rewrite /N_geb. apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+		apply/N.leb_spec0. apply: (N.le_trans i (i + 1)%BN); first by apply: N.le_add_r.
+		by apply/N.leb_spec0. }
+	case: H Hall => *.
+	all: do 3 (
+		repeat match goal with
+			| [ Hx : List.Forall _ (_ :: _) |- _ ] => move: Hx => /List.Forall_cons_iff [? ?]
+			| [ Hx : List.Forall _ (_ ++ _) |- _ ] => move: Hx => /List.Forall_app [? ?]
+			end;
+		repeat match goal with
+			| [ Hx : wf_admininstr (admininstr_val _) |- _ ] => move: Hx
+			| [ Hx : wf_admininstr (admininstr_instr _) |- _ ] => move: Hx
+			| [ Hx : wf_admininstr (admininstr_ref _) |- _ ] => move: Hx
+			end;
+		repeat match goal with
+			| [ Hx : wf_admininstr _ |- _ ] => inversion Hx; subst; clear Hx
+			| [ Hx : wf_lane_ _ (mk_lane__0 _ _) |- _ ] => inversion Hx; subst; clear Hx
+			| [ Hx : wf_lane_ _ (mk_lane__1 _ _) |- _ ] => inversion Hx; subst; clear Hx
+			| [ Hx : wf_lane_ _ (mk_lane__2 _ _) |- _ ] => inversion Hx; subst; clear Hx
+			end;
+		move => * ).
+	all: try (by repeat first [ apply: List.Forall_nil | (apply/List.Forall_app; split)
+		| apply: List.Forall_cons | eassumption | (apply: Har)
+		| (apply: Hav; first [ eassumption
+			| (eapply local_is_wf; first [ by apply: eqxx | eassumption | by [] ]) ])
+		| (apply: Hai; eassumption) | (apply: Hmapi; eassumption)
+		| (apply Hbr; eassumption)
+		| (apply: Hnth; last by constructor) | constructor ]).
+	all: try (apply: List.Forall_cons;
+		[ (constructor;
+			first [ by []
+				| ( first [ (match goal with | [ Hc : is_true (?c == _) |- wf_num_ _ ?c ] =>
+							move/eqP: Hc => -> end)
+						| (match goal with | [ Hc : is_true (?c == _) |- wf_uN _ ?c ] =>
+							move/eqP: Hc => -> end)
+						| (match goal with | [ Hc : is_true (_ == ?c) |- wf_num_ _ ?c ] =>
+							move/eqP: Hc => <- end)
+						| (match goal with | [ Hc : is_true (_ == ?c) |- wf_uN _ ?c ] =>
+							move/eqP: Hc => <- end)
+						| (match goal with | [ Hc : is_true (?c \in _) |- wf_num_ _ ?c ] =>
+							eapply Hin; last exact: Hc end)
+						| (match goal with | [ Hc : is_true (?c \in _) |- wf_uN _ ?c ] =>
+							eapply Hin; last exact: Hc end)
+						| idtac ];
+					solve [ (((eapply inv_lanes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption
+							| (apply Hfmap; eassumption)
+							| (apply Hmkseq; eassumption)
+							| (apply Hrep; ((eapply packnum__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+							| ((apply/List.Forall_app; split); apply Hfmap; eassumption)
+							| (apply Hupd;
+								[ (((eapply lanes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+								| (move => ? ?; ((eapply packnum__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+							| (apply Hfmap; (eapply Hcomb;
+								[ eassumption | eassumption | eassumption
+								| (move => ? ? Hr Hp Hq; cbv beta in Hr, Hp, Hq;
+									match type of Hr with
+									| fun_vshiftop_ ?ish ?op ?cc ?uu _ =>
+										((eapply (vshiftop__is_wf ish op cc uu); cycle -1);
+											first (by apply: eqxx));
+										first [ eassumption | by [] ]
+									end) ])) ])
+					| (apply Hfin; first [ eassumption | by [] ])
+					| (((eapply unop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply binop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply testop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply relop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply cvtop___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vvunop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vvbinop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vvternop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vunop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vbinop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vrelop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vshiftop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vcvtop___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vextunop___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vextbinop___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply narrow___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply lanes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply packnum__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply unpacknum__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply ieqz__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply irev__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply inez__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ] ) ])
+		| by apply: List.Forall_nil ]).
+	(* 53 of the 56 reduction cases are discharged above.  The three that remain
+	   are not derivable as stated:
+	   - vvtestop and vextract_lane_pack produce (admininstr_CONST I32 c), but
+	     their premises constrain c only through (proj_num__0 c), which does not
+	     pin down the Inn tag: taking c = (mk_num__0 Inn_I64 ...) satisfies every
+	     premise while (wf_num_ I32 c) is false.
+	   - vbitmask produces (CONST I32 (mk_num__0 Inn_I32 (irev_ 32 ci))) and so
+	     needs (wf_uN 32 ci), but the rule relates ci to a bit list only through
+	     (ibits_ 32 ci), and no axiom connects ibits_ with inv_ibits_, so nothing
+	     bounds ci. *)
+	all: admit.
+Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/8-reduction.spectec:63.1-63.73 *)
 Definition fun_blocktype (v_state : state) (v_blocktype : blocktype) : functype :=
@@ -12344,7 +14049,7 @@ Inductive Step_read : config -> (seq admininstr) -> Prop :=
 		((proj_num__0 i) != None) ->
 		((ibytes_ v_N j) == (list_slice (BYTES (fun_mem z (mk_uN 0%N))) (((!((proj_num__0 i))) :> N) + ((OFFSET ao) :> N))%BN (((v_N : Q) / (8%N : Q))%Q : N))) ->
 		(v_N == (jsize v_Jnn)) ->
-		((v_M : Q) == ((128%N : Q) / (v_N : Q))%Q) ->
+		(((v_M : Q) == ((128%N : Q) / (v_N : Q))%Q)%Q) ->
 		(c == (inv_lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) (list_repeat (mk_lane__2 v_Jnn (mk_uN (j :> (N)))) v_M))) ->
 		(wf_uN 32%N (mk_uN 0%N)) ->
 		(wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) ->
@@ -12371,7 +14076,7 @@ Inductive Step_read : config -> (seq admininstr) -> Prop :=
 		((proj_num__0 i) != None) ->
 		((ibytes_ v_N k) == (list_slice (BYTES (fun_mem z (mk_uN 0%N))) (((!((proj_num__0 i))) :> N) + ((OFFSET ao) :> N))%BN (((v_N : Q) / (8%N : Q))%Q : N))) ->
 		(v_N == (jsize v_Jnn)) ->
-		((v_M : Q) == ((128%N : Q) / (v_N : Q))%Q) ->
+		(((v_M : Q) == ((128%N : Q) / (v_N : Q))%Q)%Q) ->
 		(c == (inv_lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) (list_update_func (lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c_1) (j :> N) (fun (_ : lane_) => (mk_lane__2 v_Jnn (mk_uN (k :> (N)))))))) ->
 		(wf_uN 32%N (mk_uN 0%N)) ->
 		(wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) ->
@@ -12447,7 +14152,188 @@ Lemma Step_read_is_wf : forall (var_0 : config) (var_1 : (seq admininstr)),
 	(wf_config var_0) ->
 	(Step_read var_0 var_1) ->
 	List.Forall (fun (var_1 : admininstr) => (wf_admininstr var_1)) var_1.
-Proof. Admitted.
+Proof.
+	move => var_0 var_1 Hcfg H.
+	have Hmono : forall (T : Type) (P Q : T -> Prop) (l : seq T),
+		List.Forall P l -> (forall x, P x -> Q x) -> List.Forall Q l.
+	{ move => T P Q. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl] Hpq.
+		by apply: List.Forall_cons; [ apply: Hpq | apply: IH ]. }
+	have Hav : forall v, wf_val v -> wf_admininstr (admininstr_val v).
+	{ by move => v Hv; case: Hv => *; constructor. }
+	have Hai : forall i, wf_instr i -> wf_admininstr (admininstr_instr i).
+	{ move => i Hi. case: Hi => *; simpl;
+		solve [ constructor | (econstructor; eassumption) ]. }
+	have Hfmap : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
+		List.Forall (fun x => P (f x)) l -> List.Forall P (seq.map f l).
+	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ | apply: IH ]. }
+	have Hfmapinv : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
+		List.Forall P (seq.map f l) -> List.Forall (fun x => P (f x)) l.
+	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ | apply: IH ]. }
+	have Hmapi : forall l, List.Forall (fun x => wf_instr x) l ->
+		List.Forall wf_admininstr (seq.map (fun x => admininstr_instr x) l).
+	{ move => l Hl. apply: Hfmap. by apply: (Hmono _ _ _ _ Hl). }
+	have Hin : forall (T : eqType) (P : T -> Prop) (l : seq T) (x : T),
+		List.Forall P l -> (x \in l) -> P x.
+	{ move => T P. elim => [ |y l IH] x //= /List.Forall_cons_iff [Hy Hl].
+		rewrite in_cons => /orP [ /eqP -> // | Hx]. by apply: IH. }
+	have Hnth : forall (T : Type) (P : T -> Prop) (d : T) (s : seq T) (n : nat),
+		List.Forall P s -> P d -> P (seq.nth d s n).
+	{ move => T P d s. elim: s => [ |x s IH] n Hs Hd; first by rewrite seq.nth_nil.
+		inversion Hs; subst. case: n => [ |n] //=. by apply: IH. }
+	have Har : forall r, wf_admininstr (admininstr_ref r).
+	{ by case => *; constructor. }
+	have Hrep : forall (T : Type) (P : T -> Prop) (x : T) (n : N),
+		P x -> List.Forall P (list_repeat x n).
+	{ move => T P x n Hx. rewrite /list_repeat. elim: (N.to_nat n) => [ |m IH] //=.
+		by apply: List.Forall_cons. }
+	have Hmkseq : forall (T : Type) (P : T -> Prop) (f : N -> T) (n : N),
+		holds_upto (fun k => P (f k)) n -> List.Forall P (mkseqN f n).
+	{ move => T P f n. rewrite /holds_upto /iotaN /mkseqN /mkseq => Hh.
+		apply: Hfmap. by apply: (Hfmapinv _ _ (fun k => P (f k)) N.of_nat). }
+	have Hupd : forall (T : Type) (P : T -> Prop) (l : seq T) (n : N) (g : T -> T),
+		List.Forall P l -> (forall x, P x -> P (g x)) -> List.Forall P (list_update_func l n g).
+	{ move => T P l. elim: l => [ |x l IH] n g Hl0 Hg //=.
+		inversion Hl0; subst. case: n => [ |p]; apply: List.Forall_cons => //.
+		- by apply: Hg.
+		- by apply: IH. }
+	have Hfin : forall (sh : shape) (lls : seq (seq lane_)),
+		wf_shape sh ->
+		List.Forall (fun l => List.Forall (fun x => wf_lane_ (fun_lanetype sh) x) l) lls ->
+		List.Forall (fun v => wf_uN 128%N v) (seq.map (fun l => inv_lanes_ sh l) lls).
+	{ move => sh lls Hsh0. elim: lls => [ |l lls IH] //= /List.Forall_cons_iff [Hl Hlls].
+		apply: List.Forall_cons; last by apply: IH.
+		by apply: (inv_lanes__is_wf sh l). }
+	have Hcomb : forall (T U : Type) (P P1 : T -> Prop) (Q : U -> Prop) (R : T -> U -> Prop)
+		(l1 : seq T) (l2 : seq U),
+		List.Forall2 R l1 l2 -> List.Forall P1 l1 -> List.Forall Q l2 ->
+		(forall a b, R a b -> P1 a -> Q b -> P a) -> List.Forall P l1.
+	{ move => T U P P1 Q R l1 l2 H12 H1 H2 Hstep.
+		elim: H12 H1 H2 => [ |x y l l' Hxy H12 IH] H1 H2.
+		- by apply: List.Forall_nil.
+		- move: H1 => /List.Forall_cons_iff [Hx H1]. move: H2 => /List.Forall_cons_iff [Hy H2].
+			by apply: List.Forall_cons; [ apply: (Hstep _ _ Hxy Hx Hy) | apply: IH ]. }
+	have Hbr : forall (l : uN), wf_uN 32%N (mk_uN (((l :> N) + 1%N)%BN)) -> wf_uN 32%N l.
+	{ move => [i] Hw. apply: uN_case_0. inversion Hw; subst.
+		match goal with | [ Hb : is_true (andb _ _) |- _ ] => move: Hb => /andP [_ Hle] end.
+		rewrite /N_geb. apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+		apply/N.leb_spec0. apply: (N.le_trans i (i + 1)%BN); first by apply: N.le_add_r.
+		by apply/N.leb_spec0. }
+	have Hgv : forall (z : state) (x : globalidx),
+		wf_state z -> wf_uN 32%N x -> wf_val (VALUE (fun_global z x)).
+	{ move => z x Hz Hx. have Hg := global_is_wf z x (fun_global z x) Hz Hx (eqxx _).
+		by inversion Hg. }
+	case: H Hcfg => *.
+	all: repeat match goal with | [ Hx : wf_config _ |- _ ] => inversion Hx; subst; clear Hx end.
+
+	all: do 3 (
+		repeat match goal with
+			| [ Hx : List.Forall _ (_ :: _) |- _ ] => move: Hx => /List.Forall_cons_iff [? ?]
+			| [ Hx : List.Forall _ (_ ++ _) |- _ ] => move: Hx => /List.Forall_app [? ?]
+			end;
+		repeat match goal with
+			| [ Hx : wf_admininstr (admininstr_val _) |- _ ] => move: Hx
+			| [ Hx : wf_admininstr (admininstr_instr _) |- _ ] => move: Hx
+			| [ Hx : wf_admininstr (admininstr_ref _) |- _ ] => move: Hx
+			end;
+		repeat match goal with
+			| [ Hx : wf_admininstr _ |- _ ] => inversion Hx; subst; clear Hx
+			| [ Hx : wf_lane_ _ (mk_lane__0 _ _) |- _ ] => inversion Hx; subst; clear Hx
+			| [ Hx : wf_lane_ _ (mk_lane__1 _ _) |- _ ] => inversion Hx; subst; clear Hx
+			| [ Hx : wf_lane_ _ (mk_lane__2 _ _) |- _ ] => inversion Hx; subst; clear Hx
+			end;
+		move => * ).
+	all: try (by repeat first [ apply: List.Forall_nil | (apply/List.Forall_app; split)
+		| apply: List.Forall_cons | eassumption | (apply: Har)
+		| (apply: Hav; first [ eassumption | (apply Hgv; first [ eassumption | by [] ])
+			| (eapply local_is_wf; first [ by apply: eqxx | eassumption | by [] ]) ])
+		| (apply: Hai; eassumption) | (apply: Hmapi; eassumption)
+		| (apply Hbr; eassumption)
+		| (apply: Hnth; last by constructor) | constructor ]).
+	all: try (apply: List.Forall_cons;
+		[ (constructor;
+			first [ by []
+				| ( first [ (match goal with | [ Hc : is_true (?c == _) |- wf_num_ _ ?c ] =>
+							move/eqP: Hc => -> end)
+						| (match goal with | [ Hc : is_true (?c == _) |- wf_uN _ ?c ] =>
+							move/eqP: Hc => -> end)
+						| (match goal with | [ Hc : is_true (_ == ?c) |- wf_num_ _ ?c ] =>
+							move/eqP: Hc => <- end)
+						| (match goal with | [ Hc : is_true (_ == ?c) |- wf_uN _ ?c ] =>
+							move/eqP: Hc => <- end)
+						| (match goal with | [ Hc : is_true (?c \in _) |- wf_num_ _ ?c ] =>
+							eapply Hin; last exact: Hc end)
+						| (match goal with | [ Hc : is_true (?c \in _) |- wf_uN _ ?c ] =>
+							eapply Hin; last exact: Hc end)
+						| idtac ];
+					solve [ (((eapply inv_lanes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption
+							| (apply Hfmap; eassumption)
+							| (apply Hmkseq; eassumption)
+							| (apply Hrep; ((eapply packnum__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+							| ((apply/List.Forall_app; split); apply Hfmap; eassumption)
+							| (apply Hupd;
+								[ (((eapply lanes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+								| (move => ? ?; ((eapply packnum__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+							| (apply Hfmap; (eapply Hcomb;
+								[ eassumption | eassumption | eassumption
+								| (move => ? ? Hr Hp Hq; cbv beta in Hr, Hp, Hq;
+									match type of Hr with
+									| fun_vshiftop_ ?ish ?op ?cc ?uu _ =>
+										((eapply (vshiftop__is_wf ish op cc uu); cycle -1);
+											first (by apply: eqxx));
+										first [ eassumption | by [] ]
+									end) ])) ])
+					| (apply Hfin; first [ eassumption | by [] ])
+					| (((eapply unop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply binop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply testop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply relop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply cvtop___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vvunop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vvbinop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vvternop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vunop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vbinop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vrelop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vshiftop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vcvtop___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vextunop___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vextbinop___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply narrow___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply lanes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply packnum__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply unpacknum__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply ieqz__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply irev__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply inez__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ] ) ])
+		| by apply: List.Forall_nil ]).
+	all: try (repeat match goal with
+			| [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end;
+		subst;
+		do 2 (repeat match goal with
+			| [ Hx : wf_funcinst _ |- _ ] => inversion Hx; subst; clear Hx
+			| [ Hx : wf_func _ |- _ ] => inversion Hx; subst; clear Hx
+			end);
+		by repeat first [ apply: List.Forall_nil | (apply/List.Forall_app; split)
+			| apply: List.Forall_cons | eassumption | (apply: Har)
+			| (apply: Hav; first [ eassumption | (apply Hgv; first [ eassumption | by [] ])
+				| (eapply local_is_wf; first [ by apply: eqxx | eassumption | by [] ]) ])
+			| (apply: Hai; eassumption) | (apply: Hmapi; eassumption)
+			| (apply Hbr; eassumption)
+			| (apply: Hnth; last by constructor) | constructor ]).
+	(* 31 of the 47 read-reduction cases are discharged above.  The 16 that remain
+	   are not derivable as stated:
+	   - table.size / memory.size and the bulk table/memory rules produce
+	     (CONST I32 (mk_uN k)) where k is a store length (or a store length plus
+	     one).  Nothing in the model bounds a table's or memory's length by 2 ^ 32,
+	     so (wf_uN 32 (mk_uN k)) does not follow.
+	   - the load rules constrain the loaded value c only through
+	     (nbytes_ nt c) / (ibytes_ n c) / (vbytes_ V128 c) being a slice of memory.
+	     Those are axioms and no law relates them to inv_nbytes_ / inv_ibytes_ /
+	     inv_vbytes_, so no bound on c is available. *)
+	all: admit.
+Admitted.
 
 (* Mutual Recursion at: ../specification/wasm-2.0/8-reduction.spectec:5.1-5.109 *)
 Inductive Step : config -> config -> Prop :=
@@ -12533,7 +14419,7 @@ Inductive Step : config -> config -> Prop :=
 	| vstore_lane_val : forall (z : state) (i : num_) (c : vec_) (v_N : res_N) (ao : memarg) (j : laneidx) (b_lst : (seq byte)) (v_Jnn : Jnn) (v_M : M), 
 		((proj_num__0 i) != None) ->
 		(v_N == (jsize v_Jnn)) ->
-		((v_M : Q) == ((128%N : Q) / (v_N : Q))%Q) ->
+		(((v_M : Q) == ((128%N : Q) / (v_N : Q))%Q)%Q) ->
 		((proj_lane__2 ((lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c)[| (j :> N) |])) != None) ->
 		((j :> N) <? (|(lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c)|))%BN ->
 		(b_lst == (ibytes_ v_N (mk_uN ((!((proj_lane__2 ((lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c)[| (j :> N) |])))) :> (N))))) ->
@@ -12555,7 +14441,445 @@ Lemma Step_is_wf : forall (var_0 : config) (var_1 : config),
 	(wf_config var_0) ->
 	(Step var_0 var_1) ->
 	(wf_config var_1).
-Proof. Admitted.
+Proof.
+	move => var_0 var_1 Hcfg H.
+	have Hmono : forall (T : Type) (P Q : T -> Prop) (l : seq T),
+		List.Forall P l -> (forall x, P x -> Q x) -> List.Forall Q l.
+	{ move => T P Q. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl] Hpq.
+		by apply: List.Forall_cons; [ apply: Hpq | apply: IH ]. }
+	have Hav : forall v, wf_val v -> wf_admininstr (admininstr_val v).
+	{ by move => v Hv; case: Hv => *; constructor. }
+	have Hai : forall i, wf_instr i -> wf_admininstr (admininstr_instr i).
+	{ move => i Hi. case: Hi => *; simpl;
+		solve [ constructor | (econstructor; eassumption) ]. }
+	have Hfmap : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
+		List.Forall (fun x => P (f x)) l -> List.Forall P (seq.map f l).
+	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ | apply: IH ]. }
+	have Hfmapinv : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
+		List.Forall P (seq.map f l) -> List.Forall (fun x => P (f x)) l.
+	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ | apply: IH ]. }
+	have Hmapi : forall l, List.Forall (fun x => wf_instr x) l ->
+		List.Forall wf_admininstr (seq.map (fun x => admininstr_instr x) l).
+	{ move => l Hl. apply: Hfmap. by apply: (Hmono _ _ _ _ Hl). }
+	have Hin : forall (T : eqType) (P : T -> Prop) (l : seq T) (x : T),
+		List.Forall P l -> (x \in l) -> P x.
+	{ move => T P. elim => [ |y l IH] x //= /List.Forall_cons_iff [Hy Hl].
+		rewrite in_cons => /orP [ /eqP -> // | Hx]. by apply: IH. }
+	have Hnth : forall (T : Type) (P : T -> Prop) (d : T) (s : seq T) (n : nat),
+		List.Forall P s -> P d -> P (seq.nth d s n).
+	{ move => T P d s. elim: s => [ |x s IH] n Hs Hd; first by rewrite seq.nth_nil.
+		inversion Hs; subst. case: n => [ |n] //=. by apply: IH. }
+	have Har : forall r, wf_admininstr (admininstr_ref r).
+	{ by case => *; constructor. }
+	have Hrep : forall (T : Type) (P : T -> Prop) (x : T) (n : N),
+		P x -> List.Forall P (list_repeat x n).
+	{ move => T P x n Hx. rewrite /list_repeat. elim: (N.to_nat n) => [ |m IH] //=.
+		by apply: List.Forall_cons. }
+	have Hmkseq : forall (T : Type) (P : T -> Prop) (f : N -> T) (n : N),
+		holds_upto (fun k => P (f k)) n -> List.Forall P (mkseqN f n).
+	{ move => T P f n. rewrite /holds_upto /iotaN /mkseqN /mkseq => Hh.
+		apply: Hfmap. by apply: (Hfmapinv _ _ (fun k => P (f k)) N.of_nat). }
+	have Hupd : forall (T : Type) (P : T -> Prop) (l : seq T) (n : N) (g : T -> T),
+		List.Forall P l -> (forall x, P x -> P (g x)) -> List.Forall P (list_update_func l n g).
+	{ move => T P l. elim: l => [ |x l IH] n g Hl0 Hg //=.
+		inversion Hl0; subst. case: n => [ |p]; apply: List.Forall_cons => //.
+		- by apply: Hg.
+		- by apply: IH. }
+	have Hfin : forall (sh : shape) (lls : seq (seq lane_)),
+		wf_shape sh ->
+		List.Forall (fun l => List.Forall (fun x => wf_lane_ (fun_lanetype sh) x) l) lls ->
+		List.Forall (fun v => wf_uN 128%N v) (seq.map (fun l => inv_lanes_ sh l) lls).
+	{ move => sh lls Hsh0. elim: lls => [ |l lls IH] //= /List.Forall_cons_iff [Hl Hlls].
+		apply: List.Forall_cons; last by apply: IH.
+		by apply: (inv_lanes__is_wf sh l). }
+	have Hcomb : forall (T U : Type) (P P1 : T -> Prop) (Q : U -> Prop) (R : T -> U -> Prop)
+		(l1 : seq T) (l2 : seq U),
+		List.Forall2 R l1 l2 -> List.Forall P1 l1 -> List.Forall Q l2 ->
+		(forall a b, R a b -> P1 a -> Q b -> P a) -> List.Forall P l1.
+	{ move => T U P P1 Q R l1 l2 H12 H1 H2 Hstep.
+		elim: H12 H1 H2 => [ |x y l l' Hxy H12 IH] H1 H2.
+		- by apply: List.Forall_nil.
+		- move: H1 => /List.Forall_cons_iff [Hx H1]. move: H2 => /List.Forall_cons_iff [Hy H2].
+			by apply: List.Forall_cons; [ apply: (Hstep _ _ Hxy Hx Hy) | apply: IH ]. }
+	have Hbr : forall (l : uN), wf_uN 32%N (mk_uN (((l :> N) + 1%N)%BN)) -> wf_uN 32%N l.
+	{ move => [i] Hw. apply: uN_case_0. inversion Hw; subst.
+		match goal with | [ Hb : is_true (andb _ _) |- _ ] => move: Hb => /andP [_ Hle] end.
+		rewrite /N_geb. apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+		apply/N.leb_spec0. apply: (N.le_trans i (i + 1)%BN); first by apply: N.le_add_r.
+		by apply/N.leb_spec0. }
+	have Hmono32 : forall (a b : N), (a <= b)%BN -> wf_uN 32%N (mk_uN b) -> wf_uN 32%N (mk_uN a).
+	{ move => a b Hab Hb0. apply: uN_case_0. inversion Hb0; subst.
+		match goal with | [ Hc : is_true (andb _ _) |- _ ] => move: Hc => /andP [_ Hle0] end.
+		rewrite /N_geb. apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+		apply/N.leb_spec0. apply: (N.le_trans _ _ _ Hab). by apply/N.leb_spec0. }
+	have HtoNmono : forall (a b : Z), (a <= b)%Z -> (Z.to_N a <= Z.to_N b)%BN.
+	{ move => a b Hab. case: (Z.le_gt_cases 0 a) => Ha.
+		- by apply: (proj1 (Znat.Z2N.inj_le a b Ha (Z.le_trans _ _ _ Ha Hab)) Hab).
+		- have Hz : (Z.to_N a = 0%N) by case: a Ha Hab => [ |p|p] //=.
+			rewrite Hz. by apply: N.le_0_l. }
+	have HQnn : forall (m : N), (0 <= (m : Q))%Q.
+	{ move => m. rewrite -(Qle_bool_iff 0 (m : Q)). by case: m. }
+	have HQle : forall (q : Q) (m : N), (((q : N)) <= (((q + (m : Q))%Q : N)))%BN.
+	{ move => q m. apply: HtoNmono. apply: Qfloor_resp_le.
+		rewrite -{1}(Qplus_0_r q). by apply/Qplus_le_r; apply: HQnn. }
+	have HinnInj : forall a b : Inn, numtype_Inn a = numtype_Inn b -> a = b.
+	{ by move => [] []. }
+	have Hva : forall v, wf_admininstr (admininstr_val v) -> wf_val v.
+	{ move => v Hx. case: v Hx => *; simpl in *;
+		match goal with | [ Hy : wf_admininstr _ |- _ ] => inversion Hy; subst end;
+		solve [ (constructor; eassumption) | constructor ]. }
+	have Hfr : forall s f, wf_state (mk_state s f) -> wf_frame f.
+	{ move => s f Hs0. by inversion Hs0. }
+	have Hst : forall s f s' f', wf_state (mk_state s f) -> wf_state (mk_state s' f') ->
+		wf_state (mk_state s f').
+	{ move => s f s' f' H1 H2. inversion H1; inversion H2; subst. by apply: state_case_0. }
+	have Hto : forall m : N, ((((m : Z) - (1%N : Z))%Z : N) = (m - 1)%BN).
+	{ case => [ |p] //. by rewrite -Znat.N2Z.inj_sub ?Znat.N2Z.id //; apply/N.neq_0_le_1. }
+	have Hp : forall (vN : res_N), (0 < (2%N ^ vN)%BN)%BN.
+	{ by move => vN; apply/N.neq_0_lt_0; apply: N.pow_nonzero. }
+	have HtoN : forall (vN : res_N) (z2 : Z),
+		(z2 < ((2%N ^ vN)%BN : Z))%Z -> (((z2 : N)) < (2%N ^ vN)%BN)%BN.
+	{ move => vN; case => [ |q|q] Hz //=; try exact: Hp.
+		have Hnn : (0 <= Z.pos q)%Z by [].
+		have := (proj1 (Znat.Z2N.inj_lt (Z.pos q) _ Hnn (Znat.N2Z.is_nonneg _)) Hz).
+		by rewrite Znat.N2Z.id. }
+	have Hbnd : forall (vN : res_N) (x : N), (x < (2%N ^ vN)%BN)%BN -> wf_uN vN (mk_uN x).
+	{ move => vN x Hx. apply: uN_case_0. rewrite Hto /N_geb.
+		apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+		by apply/N.leb_spec0; rewrite N.sub_1_r; apply: N.lt_le_pred. }
+	have Hle : forall (vN : res_N),
+		((2%N ^ ((((vN : Z) - (1%N : Z))%Z : N)))%BN <= (2%N ^ vN)%BN)%BN.
+	{ move => vN. apply: N.pow_le_mono_r => //. rewrite Hto. exact: N.le_sub_l. }
+	have Hinv : forall (vN : res_N) (z : Z) (m : N), fun_inv_signed_ vN z m -> wf_uN vN (mk_uN m).
+	{ move => vN0 z m Hi. case: Hi => vN i /andP [Ha Hb]; apply: Hbnd; apply: HtoN.
+		- have Hlt2 : (i < ((2%N ^ ((((vN : Z) - (1%N : Z))%Z : N)))%BN : Z))%Z
+				by apply: (proj1 (Z.ltb_lt _ _) Hb).
+			apply: (Z.lt_le_trans _ _ _ Hlt2). by apply/Znat.N2Z.inj_le; apply: Hle.
+		- rewrite -{2}(Z.add_0_l ((2%N ^ vN)%BN : Z)).
+			by apply: (proj1 (Z.add_lt_mono_r _ _ _) (proj1 (Z.ltb_lt _ _) Hb)). }
+	case: H Hcfg => *.
+	all: try by eassumption.
+	all: repeat match goal with | [ Hx : wf_config _ |- _ ] => inversion Hx; subst; clear Hx end.
+	all: do 2 (
+		repeat match goal with
+			| [ Hx : List.Forall _ (_ :: _) |- _ ] => move: Hx => /List.Forall_cons_iff [? ?]
+			| [ Hx : List.Forall _ (_ ++ _) |- _ ] => move: Hx => /List.Forall_app [? ?]
+			end;
+		repeat match goal with
+			| [ Hx : wf_admininstr (admininstr_val _) |- _ ] => move: Hx
+			| [ Hx : wf_admininstr (admininstr_instr _) |- _ ] => move: Hx
+			| [ Hx : wf_admininstr (admininstr_ref _) |- _ ] => move: Hx
+			end;
+		repeat match goal with
+			| [ Hx : wf_admininstr _ |- _ ] => inversion Hx; subst; clear Hx
+			| [ Hx : wf_num_ _ (mk_num__0 _ _) |- _ ] => inversion Hx; subst; clear Hx
+			end;
+		move => * ).
+	all: repeat match goal with | [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end.
+	all: subst.
+	all: try (apply: config_case_0;
+		[ solve [ eassumption | (apply: state_case_0; eassumption)
+			| (eapply Hst; eassumption)
+			| (((eapply with_local_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_global_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_tableinst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_meminst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_elem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_data_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) ]
+		| solve [ ((eapply Step_pure_is_wf; only 2: eassumption); eassumption)
+			| ((eapply Step_read_is_wf; only 2: eassumption);
+				(apply: config_case_0; eassumption))
+			| repeat first [ apply: List.Forall_nil | (apply/List.Forall_app; split)
+				| apply: List.Forall_cons | eassumption | (apply: Har)
+				| (apply: Hav; eassumption) | (apply: Hai; eassumption)
+				| (apply: Hmapi; eassumption) | (eapply Hinv; eassumption)
+				| (eapply Hfr; eassumption) | constructor ] ] ]).
+	all: try (apply: config_case_0;
+		[ solve [ eassumption | (apply: state_case_0; eassumption)
+			| (eapply Hst; eassumption)
+			| (((eapply with_local_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_global_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_tableinst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_meminst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_elem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_data_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])  ]
+		| ( match goal with
+				| [ Hg : fun_growtable _ _ _ _ |- _ ] => inversion Hg; subst
+				| [ Hg : fun_growmemory _ _ _ |- _ ] => inversion Hg; subst
+				end;
+			first
+			[ (by match goal with
+					| [ Hn : is_true (_ != _) |- _ ] => move: Hn; rewrite eqxx end)
+			| ( repeat match goal with
+						| [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end;
+				match goal with
+					| [ Het : _ = fun_table _ _ |- _ ] => rewrite -Het
+					| [ Het : _ = fun_mem _ _ |- _ ] => rewrite -Het
+					end; simpl; subst;
+				repeat match goal with
+					| [ Hx : wf_tableinst _ |- _ ] => inversion Hx; subst; clear Hx
+					| [ Hx : wf_tabletype _ |- _ ] => inversion Hx; subst; clear Hx
+					| [ Hx : wf_meminst _ |- _ ] => inversion Hx; subst; clear Hx
+					| [ Hx : wf_memtype _ |- _ ] => inversion Hx; subst; clear Hx
+					| [ Hx : wf_limits _ |- _ ] => inversion Hx; subst; clear Hx
+					end;
+				apply: List.Forall_cons; [ | by apply: List.Forall_nil ];
+				(* `i'` is now only pinned up to Qeq, so replace it by its definition
+				   under the (Qeq-invariant) N projection instead of by subst. *)
+				try (match goal with
+					| [ Hq : is_true (Qeq_bool _ _) |- _ ] =>
+						let Hn := fresh "Hn" in
+						move: (Qeq_bool_toN _ _ Hq) => Hn;
+						match goal with
+						| [ Hw : wf_uN 32%N (mk_uN (Z.to_N (Qfloor _))) |- _ ] => rewrite Hn in Hw
+						end
+					end);
+				constructor; constructor;
+				first [ by []
+					| ((eapply Hmono32; last (by eassumption)); by apply: N.le_add_r)
+					| ((eapply Hmono32; last (by eassumption)); by apply: HQle) ] ) ] ) ]).
+	all: try (apply: config_case_0;
+		[ solve [ eassumption | (apply: state_case_0; eassumption)
+			| (eapply Hst; eassumption)
+			| (((eapply with_local_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_global_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_tableinst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_meminst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_elem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_data_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])  ]
+		| ( match goal with
+				| [ Hg : fun_growtable _ _ _ _ |- _ ] => inversion Hg; subst
+				| [ Hg : fun_growmemory _ _ _ |- _ ] => inversion Hg; subst
+				end;
+			first
+			[ (by match goal with
+					| [ Hn : is_true (_ != _) |- _ ] => move: Hn; rewrite eqxx end)
+			| ( repeat match goal with
+						| [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end;
+				match goal with
+					| [ Het : _ = fun_table _ _ |- _ ] => rewrite -Het
+					| [ Het : _ = fun_mem _ _ |- _ ] => rewrite -Het
+					end; cbn [REFS BYTES]; subst;
+				repeat match goal with
+					| [ Hx : wf_tableinst _ |- _ ] => inversion Hx; subst; clear Hx
+					| [ Hx : wf_tabletype _ |- _ ] => inversion Hx; subst; clear Hx
+					| [ Hx : wf_meminst _ |- _ ] => inversion Hx; subst; clear Hx
+					| [ Hx : wf_memtype _ |- _ ] => inversion Hx; subst; clear Hx
+					| [ Hx : wf_limits _ |- _ ] => inversion Hx; subst; clear Hx
+					end;
+				apply: List.Forall_cons; [ | by apply: List.Forall_nil ];
+				(* `i'` is now only pinned up to Qeq, so replace it by its definition
+				   under the (Qeq-invariant) N projection instead of by subst. *)
+				try (match goal with
+					| [ Hq : is_true (Qeq_bool _ _) |- _ ] =>
+						let Hn := fresh "Hn" in
+						move: (Qeq_bool_toN _ _ Hq) => Hn;
+						match goal with
+						| [ Hw : wf_uN 32%N (mk_uN (Z.to_N (Qfloor _))) |- _ ] => rewrite Hn in Hw
+						end
+					end);
+				constructor; constructor;
+				first [ by []
+					| ((eapply Hmono32; last (by eassumption)); by apply: N.le_add_r)
+					| ((eapply Hmono32; last (by eassumption)); by apply: HQle) ] ) ] ) ]).
+	all: (
+		match goal with
+			| [ Hn : wf_num_ (numtype_Inn _) _ |- _ ] => inversion Hn; subst
+			end;
+		first
+		[ (by match goal with
+				| [ Hq : is_true (_ != _) |- _ ] => move: Hq; rewrite eqxx end)
+		| ( repeat match goal with
+					| [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end;
+			repeat match goal with
+				| [ He : numtype_Inn ?a = numtype_Inn ?b |- _ ] =>
+					tryif constr_eq a b then fail else (have Hab := HinnInj _ _ He; subst)
+				end;
+			apply: config_case_0;
+			[ solve [ eassumption | (apply: state_case_0; eassumption)
+				| (eapply Hst; eassumption)
+				| (((eapply with_local_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_global_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_tableinst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_meminst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_elem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_data_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])  ]
+			| solve [ repeat first [ apply: List.Forall_nil | (apply/List.Forall_app; split)
+				| apply: List.Forall_cons | eassumption | (apply: Har)
+				| (apply: Hav; eassumption) | (apply: Hai; eassumption)
+				| (apply: Hmapi; eassumption) | (eapply Hinv; eassumption)
+				| (eapply Hfr; eassumption) | constructor ] ] ] ) ]).
+Qed.
 
 (* Mutual Recursion at: ../specification/wasm-2.0/8-reduction.spectec:8.1-8.77 *)
 Inductive Steps : config -> config -> Prop :=
@@ -12636,7 +14960,13 @@ Lemma allocfunc_is_wf : forall (v_store : store) (v_moduleinst : moduleinst) (v_
 	(wf_func v_func) ->
 	(ret_val == var_0) ->
 	(wf_store ret_val.1).
-Proof. Admitted.
+Proof.
+	move => v_store v_moduleinst v_func ret_val var_0 H Hs Hm Hf /eqP ->.
+	case: H Hs => /= s mi fn fi x loc e H1 /eqP -> H3 H4 H5 Hs.
+	case: Hs => fl gl tl ml el dl Hfl Hgl Htl Hml Hdl.
+	apply: store_case_ => //=.
+	by apply/List.Forall_app; split; [ | apply: List.Forall_cons ].
+Qed.
 
 (* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:41.1-41.63 *)
 Inductive fun_allocfuncs : store -> moduleinst -> (seq func) -> (store * (seq funcaddr)) -> Prop :=
@@ -12656,7 +14986,16 @@ Lemma allocfuncs_is_wf : forall (v_store : store) (v_moduleinst : moduleinst) (v
 	List.Forall (fun (var_0 : func) => (wf_func var_0)) var_0_lst ->
 	(ret_val == var_0) ->
 	(wf_store ret_val.1).
-Proof. Admitted.
+Proof.
+	move => v_store v_moduleinst var_0_lst ret_val var_0 H Hs Hm Hall /eqP ->.
+	elim: H Hs Hm Hall.
+	- by move => s mi Hs _ _.
+	- move => s mi fn fl fa s1 s2 fal var1 var0 Hfs IH Hfa /eqP E1 /eqP E2 Hs Hm
+			/List.Forall_cons_iff [Hf Hfl].
+		rewrite -E2 /= in IH. rewrite /=. apply: IH => //.
+		have Hs1 := allocfunc_is_wf s mi fn var0 var0 Hfa Hs Hm Hf (eqxx var0).
+		by rewrite -E1 /= in Hs1.
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:47.6-47.18 *)
 Inductive fun_allocglobal : store -> globaltype -> val -> (store * globaladdr) -> Prop :=
@@ -12672,7 +15011,13 @@ Lemma allocglobal_is_wf : forall (v_store : store) (v_globaltype : globaltype) (
 	(wf_val v_val) ->
 	(ret_val == var_0) ->
 	(wf_store ret_val.1).
-Proof. Admitted.
+Proof.
+	move => v_store v_globaltype v_val ret_val var_0 H Hs Hv /eqP ->.
+	case: H Hs => /= s gt v gi /eqP -> Hgi Hs.
+	case: Hs => fl gl tl ml el dl Hfl Hgl Htl Hml Hdl.
+	apply: store_case_ => //=.
+	by apply/List.Forall_app; split; [ | apply: List.Forall_cons ].
+Qed.
 
 (* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:51.1-51.67 *)
 Inductive fun_allocglobals : store -> (seq globaltype) -> (seq val) -> (store * (seq globaladdr)) -> Prop :=
@@ -12691,7 +15036,16 @@ Lemma allocglobals_is_wf : forall (v_store : store) (var_0_lst : (seq globaltype
 	List.Forall (fun (var_1 : val) => (wf_val var_1)) var_1_lst ->
 	(ret_val == var_0) ->
 	(wf_store ret_val.1).
-Proof. Admitted.
+Proof.
+	move => v_store var_0_lst var_1_lst ret_val var_0 H Hs Hall /eqP ->.
+	elim: H Hs Hall.
+	- by move => s Hs _.
+	- move => s gt gtl v vl ga s1 s2 gal var1 var0 Hgs IH Hga /eqP E1 /eqP E2 Hs
+			/List.Forall_cons_iff [Hv Hvl].
+		rewrite -E2 /= in IH. rewrite /=. apply: IH => //.
+		have Hs1 := allocglobal_is_wf s gt v var0 var0 Hga Hs Hv (eqxx var0).
+		by rewrite -E1 /= in Hs1.
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:57.6-57.17 *)
 Inductive fun_alloctable : store -> tabletype -> (store * tableaddr) -> Prop :=
@@ -12707,7 +15061,13 @@ Lemma alloctable_is_wf : forall (v_store : store) (v_tabletype : tabletype) (ret
 	(wf_tabletype v_tabletype) ->
 	(ret_val == var_0) ->
 	(wf_store ret_val.1).
-Proof. Admitted.
+Proof.
+	move => v_store v_tabletype ret_val var_0 H Hs Ht /eqP ->.
+	case: H Hs Ht => /= s i j_opt rt ti /eqP -> Hti Hs Ht.
+	case: Hs => fl gl tl ml el dl Hfl Hgl Htl Hml Hdl.
+	apply: store_case_ => //=.
+	by apply/List.Forall_app; split; [ | apply: List.Forall_cons ].
+Qed.
 
 (* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:61.1-61.58 *)
 Inductive fun_alloctables : store -> (seq tabletype) -> (store * (seq tableaddr)) -> Prop :=
@@ -12726,7 +15086,16 @@ Lemma alloctables_is_wf : forall (v_store : store) (var_0_lst : (seq tabletype))
 	List.Forall (fun (var_0 : tabletype) => (wf_tabletype var_0)) var_0_lst ->
 	(ret_val == var_0) ->
 	(wf_store ret_val.1).
-Proof. Admitted.
+Proof.
+	move => v_store var_0_lst ret_val var_0 H Hs Hall /eqP ->.
+	elim: H Hs Hall.
+	- by move => s Hs _.
+	- move => s tt ttl ta s1 s2 tal var1 var0 Hts IH Hta /eqP E1 /eqP E2 Hs
+			/List.Forall_cons_iff [Ht Htl].
+		rewrite -E2 /= in IH. rewrite /=. apply: IH => //.
+		have Hs1 := alloctable_is_wf s tt var0 var0 Hta Hs Ht (eqxx var0).
+		by rewrite -E1 /= in Hs1.
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:67.6-67.15 *)
 Inductive fun_allocmem : store -> memtype -> (store * memaddr) -> Prop :=
@@ -12742,7 +15111,13 @@ Lemma allocmem_is_wf : forall (v_store : store) (v_memtype : memtype) (ret_val :
 	(wf_memtype v_memtype) ->
 	(ret_val == var_0) ->
 	(wf_store ret_val.1).
-Proof. Admitted.
+Proof.
+	move => v_store v_memtype ret_val var_0 H Hs Hm /eqP ->.
+	case: H Hs Hm => /= s i j_opt mi /eqP -> Hmi Hs Hm.
+	case: Hs => fl gl tl ml el dl Hfl Hgl Htl Hml Hdl.
+	apply: store_case_ => //=.
+	by apply/List.Forall_app; split; [ | apply: List.Forall_cons ].
+Qed.
 
 (* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:71.1-71.52 *)
 Inductive fun_allocmems : store -> (seq memtype) -> (store * (seq memaddr)) -> Prop :=
@@ -12761,7 +15136,16 @@ Lemma allocmems_is_wf : forall (v_store : store) (var_0_lst : (seq memtype)) (re
 	List.Forall (fun (var_0 : memtype) => (wf_memtype var_0)) var_0_lst ->
 	(ret_val == var_0) ->
 	(wf_store ret_val.1).
-Proof. Admitted.
+Proof.
+	move => v_store var_0_lst ret_val var_0 H Hs Hall /eqP ->.
+	elim: H Hs Hall.
+	- by move => s Hs _.
+	- move => s mt mtl ma s1 s2 mal var1 var0 Hms IH Hma /eqP E1 /eqP E2 Hs
+			/List.Forall_cons_iff [Hm Hml].
+		rewrite -E2 /= in IH. rewrite /=. apply: IH => //.
+		have Hs1 := allocmem_is_wf s mt var0 var0 Hma Hs Hm (eqxx var0).
+		by rewrite -E1 /= in Hs1.
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:77.6-77.16 *)
 Inductive fun_allocelem : store -> reftype -> (seq ref) -> (store * elemaddr) -> Prop :=
@@ -12775,7 +15159,12 @@ Lemma allocelem_is_wf : forall (v_store : store) (v_reftype : reftype) (var_0_ls
 	(wf_store v_store) ->
 	(ret_val == var_0) ->
 	(wf_store ret_val.1).
-Proof. Admitted.
+Proof.
+	move => v_store v_reftype var_0_lst ret_val var_0 H Hs /eqP ->.
+	case: H Hs => /= s rt rl ei /eqP -> Hs.
+	case: Hs => fl gl tl ml el dl Hfl Hgl Htl Hml Hdl.
+	by apply: store_case_.
+Qed.
 
 (* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:81.1-81.63 *)
 Inductive fun_allocelems : store -> (seq reftype) -> (seq (seq ref)) -> (store * (seq elemaddr)) -> Prop :=
@@ -12793,7 +15182,15 @@ Lemma allocelems_is_wf : forall (v_store : store) (var_0_lst : (seq reftype)) (v
 	(wf_store v_store) ->
 	(ret_val == var_0) ->
 	(wf_store ret_val.1).
-Proof. Admitted.
+Proof.
+	move => v_store var_0_lst var_1_lst_lst ret_val var_0 H Hs /eqP ->.
+	elim: H Hs.
+	- by move => s Hs.
+	- move => s rt rtl rl rll ea s1 s2 eal var1 var0 Hes IH Hea /eqP E1 /eqP E2 Hs.
+		rewrite -E2 /= in IH. rewrite /=. apply: IH.
+		have Hs1 := allocelem_is_wf s rt rl var0 var0 Hea Hs (eqxx var0).
+		by rewrite -E1 /= in Hs1.
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:87.6-87.16 *)
 Inductive fun_allocdata : store -> (seq byte) -> (store * dataaddr) -> Prop :=
@@ -12809,7 +15206,13 @@ Lemma allocdata_is_wf : forall (v_store : store) (var_0_lst : (seq byte)) (ret_v
 	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst ->
 	(ret_val == var_0) ->
 	(wf_store ret_val.1).
-Proof. Admitted.
+Proof.
+	move => v_store var_0_lst ret_val var_0 H Hs Hb /eqP ->.
+	case: H Hs Hb => /= s bl di /eqP -> Hdi Hs Hb.
+	case: Hs => fl gl tl ml el dl Hfl Hgl Htl Hml Hdl.
+	apply: store_case_ => //=.
+	by apply/List.Forall_app; split; [ | apply: List.Forall_cons ].
+Qed.
 
 (* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:91.1-91.54 *)
 Inductive fun_allocdatas : store -> (seq (seq byte)) -> (store * (seq dataaddr)) -> Prop :=
@@ -12828,7 +15231,16 @@ Lemma allocdatas_is_wf : forall (v_store : store) (var_0_lst_lst : (seq (seq byt
 	List.Forall (fun (var_0_lst : (seq byte)) => List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst) var_0_lst_lst ->
 	(ret_val == var_0) ->
 	(wf_store ret_val.1).
-Proof. Admitted.
+Proof.
+	move => v_store var_0_lst_lst ret_val var_0 H Hs Hall /eqP ->.
+	elim: H Hs Hall.
+	- by move => s Hs _.
+	- move => s bl bll da s1 s2 dal var1 var0 Hds IH Hda /eqP E1 /eqP E2 Hs
+			/List.Forall_cons_iff [Hb Hbl].
+		rewrite -E2 /= in IH. rewrite /=. apply: IH => //.
+		have Hs1 := allocdata_is_wf s bl var0 var0 Hda Hs Hb (eqxx var0).
+		by rewrite -E1 /= in Hs1.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/9-module.spectec:100.1-100.83 *)
 Definition instexport (var_0_lst : (seq funcaddr)) (var_1_lst : (seq globaladdr)) (var_2_lst : (seq tableaddr)) (var_3_lst : (seq memaddr)) (v_export : export) : exportinst :=
@@ -12844,7 +15256,11 @@ Lemma instexport_is_wf : forall (var_0_lst : (seq funcaddr)) (var_1_lst : (seq g
 	(wf_export v_export) ->
 	(ret_val == (instexport var_0_lst var_1_lst var_2_lst var_3_lst v_export)) ->
 	(wf_exportinst ret_val).
-Proof. Admitted.
+Proof.
+	move => var_0_lst var_1_lst var_2_lst var_3_lst v_export ret_val Hwf /eqP ->.
+	case: Hwf => nm xi Hn Hx.
+	by case: xi Hx => x Hx /=; apply: exportinst_case_.
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:107.6-107.18 *)
 Inductive fun_allocmodule : store -> module -> (seq externaddr) -> (seq val) -> (seq (seq ref)) -> (store * moduleinst) -> Prop :=
@@ -12896,7 +15312,12 @@ Lemma allocmodule_is_wf : forall (v_store : store) (v_module : module) (var_0_ls
 	(ret_val == var_0) ->
 	(wf_store ret_val.1) ->
 	(wf_moduleinst ret_val.2).
-Proof. Admitted.
+Proof.
+	move => v_store v_module var_0_lst var_1_lst var_2_lst_lst ret_val var_0 H Hs Hm Hall /eqP -> _.
+	case: H => *; simpl.
+	repeat match goal with | [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end.
+	by subst.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/9-module.spectec:154.1-154.33 *)
 Definition runelem (v_elem : elem) (v_idx : idx) : (seq instr) :=
@@ -12914,7 +15335,22 @@ Lemma runelem_is_wf : forall (v_elem : elem) (v_idx : idx) (ret_val_lst : (seq i
 	(wf_uN 32%N v_idx) ->
 	(ret_val_lst == (runelem v_elem v_idx)) ->
 	List.Forall (fun (ret_val : instr) => (wf_instr ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => v_elem v_idx ret_val_lst Hwf Hidx /eqP ->.
+	case: Hwf => rt el em Hel Hem.
+	case: em Hem => [x e Hem | Hem | Hem ] /=.
+	- inversion Hem; subst.
+		apply/List.Forall_app; split => //.
+		apply: List.Forall_cons; first by apply: instr_case_13; apply: num__case_0.
+		apply: List.Forall_cons.
+		+ (* wf_instr (CONST I32 (mk_uN (|expr_lst|))) requires (|expr_lst|) < 2 ^ 32,
+			 which does not follow from the hypotheses. *)
+			admit.
+		+ apply: List.Forall_cons; first by apply: instr_case_54.
+			by apply: List.Forall_cons; [ apply: instr_case_55 | apply: List.Forall_nil ].
+	- by apply: List.Forall_nil.
+	- by apply: List.Forall_cons; [ apply: instr_case_55 | apply: List.Forall_nil ].
+Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/9-module.spectec:161.1-161.47 *)
 Definition rundata (v_data : data) (v_idx : idx) : (option (seq instr)) :=
@@ -12933,7 +15369,21 @@ Lemma rundata_is_wf : forall (v_data : data) (v_idx : idx) (ret_val_lst : (seq i
 	((rundata v_data v_idx) != None) ->
 	(ret_val_lst == (!((rundata v_data v_idx)))) ->
 	List.Forall (fun (ret_val : instr) => (wf_instr ret_val)) ret_val_lst.
-Proof. Admitted.
+Proof.
+	move => v_data v_idx ret_val_lst Hwf Hidx Hne /eqP ->.
+	case: Hwf Hne => bl dm Hb Hdm.
+	case: dm Hdm => [ mi e Hdm | Hdm ] /=; last by move => _; apply: List.Forall_nil.
+	case: mi Hdm => [ [ |p] ] Hdm /=; last by [].
+	move => _. inversion Hdm; subst.
+	apply/List.Forall_app; split => //.
+	apply: List.Forall_cons; first by apply: instr_case_13; apply: num__case_0.
+	apply: List.Forall_cons.
+	+ (* wf_instr (CONST I32 (mk_uN (|byte_lst|))) requires (|byte_lst|) < 2 ^ 32,
+		 which does not follow from the hypotheses. *)
+		admit.
+	+ apply: List.Forall_cons; first by apply: instr_case_66.
+		by apply: List.Forall_cons; [ apply: instr_case_67 | apply: List.Forall_nil ].
+Admitted.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:167.6-167.18 *)
 Inductive fun_instantiate : store -> module -> (seq externaddr) -> config -> Prop :=
@@ -12989,7 +15439,31 @@ Lemma instantiate_is_wf : forall (v_store : store) (v_module : module) (var_0_ls
 	(wf_module v_module) ->
 	(ret_val == var_0) ->
 	(wf_config ret_val).
-Proof. Admitted.
+Proof.
+	move => v_store v_module var_0_lst ret_val var_0 H Hs Hm /eqP ->.
+	have Hopt : forall (o : (option idx)),
+		List.Forall (fun x => wf_start (START x)) (option_to_list o) ->
+		List.Forall wf_admininstr (option_to_list (option_map (fun x => admininstr_CALL x) o)).
+	{ case => [y| ] Hy /=; last by apply: List.Forall_nil.
+		inversion Hy; subst. apply: List.Forall_cons; last by apply: List.Forall_nil.
+		match goal with | [ Hz : wf_start _ |- _ ] => inversion Hz end. by constructor. }
+	case: H => *; simpl.
+	repeat match goal with | [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end.
+	subst.
+	apply: config_case_0.
+	- apply: state_case_0; last by [].
+		(* wf_store for the store produced by fun_allocmodule is not available:
+		   allocmodule_is_wf takes it as a hypothesis rather than establishing it. *)
+		admit.
+	- apply/List.Forall_app; split.
+		+ (* Forall wf_instr of the concatenated element-initialisation code;
+			 this relies on runelem_is_wf, which is itself only partially proved. *)
+			admit.
+		+ apply/List.Forall_app; split.
+			* (* likewise for the data-initialisation code, via rundata_is_wf. *)
+				admit.
+			* by apply: Hopt; eassumption.
+Admitted.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:196.6-196.13 *)
 Inductive fun_invoke : store -> funcaddr -> (seq val) -> config -> Prop :=
@@ -13009,7 +15483,17 @@ Lemma invoke_is_wf : forall (v_store : store) (v_funcaddr : funcaddr) (var_0_lst
 	List.Forall (fun (var_0 : val) => (wf_val var_0)) var_0_lst ->
 	(ret_val == var_0) ->
 	(wf_config ret_val).
-Proof. Admitted.
+Proof.
+	move => v_store v_funcaddr var_0_lst ret_val var_0 H Hs Hall /eqP ->.
+	have Hav : forall v, wf_val v -> wf_admininstr (admininstr_val v).
+	{ by move => v Hv; case: Hv => *; constructor. }
+	case: H Hall => s fa v_n vl f t_1_lst t_2_lst _ _ _ _ Hst _ Hall.
+	apply: config_case_0 => //.
+	apply/List.Forall_app; split; last first.
+	- by apply: List.Forall_cons; [ apply: admininstr_case_70 | apply: List.Forall_nil ].
+	- elim: vl Hall => [ |v vl IH] //= /List.Forall_cons_iff [Hv Hvl].
+		by apply: List.Forall_cons; [ apply: Hav | apply: IH ].
+Qed.
 
 (* Type Alias Definition at: ../specification/wasm-2.0/A-binary.spectec:849.1-849.43 *)
 Definition startopt : Type := (seq start).

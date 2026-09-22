@@ -234,6 +234,206 @@ Proof.
 			inversion HForall; subst; eauto.
 Qed.
 	
+(* ---------------------------------------------------------------------- *)
+(* Storing a well-formed byte sequence into memory 0 extends the store.    *)
+(* Byte-list agnostic core of the `Store' cases of store_extension_reduce. *)
+(* ---------------------------------------------------------------------- *)
+
+Lemma Forall_list_update_func : forall {A : Type} (P : A -> Prop) (l : seq A) n f,
+	List.Forall P l ->
+	(forall x, P x -> P (f x)) ->
+	List.Forall P (list_update_func l n f).
+Proof.
+	move => A P l.
+	induction l; move => n f HAll Hf; first by [].
+	inversion HAll; subst.
+	by destruct n; simpl; econstructor; eauto.
+Qed.
+
+Lemma wf_store_mem_update : forall s idx off len b_lst,
+	wf_store s ->
+	List.Forall (fun b => wf_byte b) b_lst ->
+	wf_store (s <| store_MEMS := list_update_func (store_MEMS s) idx
+		(fun m : meminst => m <| BYTES :=
+			list_slice_update (BYTES m) off len b_lst |>) |>).
+Proof.
+	move => s idx off len b_lst HWf HWfB.
+	inversion HWf; subst; simpl.
+	econstructor; eauto.
+	eapply Forall_list_update_func; eauto.
+	move => m Hm.
+	inversion Hm; subst; simpl.
+	econstructor; eauto.
+	by eapply forall_preserved_bytes.
+Qed.
+
+Lemma wf_store_mem_update' : forall fs gs ts ms es ds idx off len b_lst,
+	wf_store {| store_FUNCS := fs; store_GLOBALS := gs; store_TABLES := ts;
+		store_MEMS := ms; store_ELEMS := es; store_DATAS := ds |} ->
+	List.Forall (fun b => wf_byte b) b_lst ->
+	wf_store {| store_FUNCS := fs; store_GLOBALS := gs; store_TABLES := ts;
+		store_MEMS := list_update_func ms idx
+			(fun m : meminst => m <| BYTES :=
+				list_slice_update (BYTES m) off len b_lst |>);
+		store_ELEMS := es; store_DATAS := ds |}.
+Proof.
+	move => fs gs ts ms es ds idx off len b_lst HWf HWfB.
+	by apply: (wf_store_mem_update
+		{| store_FUNCS := fs; store_GLOBALS := gs; store_TABLES := ts;
+			store_MEMS := ms; store_ELEMS := es; store_DATAS := ds |}
+		idx off len b_lst).
+Qed.
+
+Lemma mem_store_extension : forall s v_f C C' (off : N) (b_lst : seq byte) (len : Q),
+	Store_ok s ->
+	wf_store s ->
+	Moduleinst_ok s (frame_MODULE v_f) C ->
+	inst_match C C' ->
+	(0 <? (|(context_MEMS C')|))%BN ->
+	List.Forall (fun b => wf_byte b) b_lst ->
+	((|b_lst|) = len) ->
+	Extend_store s (s <| store_MEMS :=
+		list_update_func (store_MEMS s) ((MEMS (frame_MODULE v_f)) [|mk_uN 0 :> N|])
+			(fun var_1 : meminst => var_1 <| BYTES :=
+				list_slice_update (BYTES var_1) off len b_lst |>) |>)
+	/\ Store_ok (s <| store_MEMS :=
+		list_update_func (store_MEMS s) ((MEMS (frame_MODULE v_f)) [|mk_uN 0 :> N|])
+			(fun var_1 : meminst => var_1 <| BYTES :=
+				list_slice_update (BYTES var_1) off len b_lst |>) |>).
+Proof.
+	move => s v_f C C' off b_lst len HStore HWfS HIT HMatch HMemIdx HWfB Heqlen.
+	pose proof extend_func_refl as LemFuncSame.
+	pose proof extend_mem_refl as LemMemSame.
+	pose proof extend_table_refl as LemTableSame.
+	pose proof extend_global_refl as LemGlobalSame.
+	pose proof extend_elem_refl as LemElemSame.
+	pose proof extend_data_refl as LemDataSame.
+
+	remember (((MEMS (frame_MODULE v_f)) [| mk_uN 0 :> N |])) as ma.
+	remember (s <| store_MEMS :=
+		list_update_func (store_MEMS s) ((MEMS (frame_MODULE v_f)) [|mk_uN 0 :> N|])
+			(fun var_1 : meminst => var_1 <| BYTES :=
+				list_slice_update (BYTES var_1) off len b_lst |>) |>) as s'.
+
+	assert (
+		(ma < (|(store_MEMS s)|))%BN /\
+		exists v_mt v_mt' v_b,
+			((lookup_total (store_MEMS s) ma) =
+				{| meminst_TYPE := v_mt; BYTES := v_b |}) /\
+			((Memtype_sub v_mt v_mt'))
+			)
+		as [HLen [v_mt [v_mt' [v_b [HLookup HRefok]]]]].
+	{
+		eapply minst_invert_mems in HIT; eauto.
+		eapply Forall2_size2 in HIT.
+		2: ineq_to_propH HMemIdx; apply HMemIdx.
+		destruct HIT as [v_mt [b_lst0 [HBound [HLookup HSub]]]].
+		rewrite -Heqma in HBound.
+		split; auto.
+		rewrite -Heqma in HLookup.
+		inversion HSub; subst.
+		by exists v_mt, (nth default_val (context_MEMS C') 0), b_lst0.
+	}
+
+	assert (HExt : Extend_store s s').
+	{
+		inversion HWfS; subst.
+		remember ({|
+			store_FUNCS := var_0_lst;
+			store_GLOBALS := var_1_lst;
+			store_TABLES := var_2_lst;
+			store_MEMS := var_3_lst;
+			store_ELEMS := var_4_lst;
+			store_DATAS := var_5_lst
+		|}) as s.
+		eapply mk_Extend_store; eq_to_prop; simpl; eauto;
+			(try (rewrite update_holds_upto_lt; eapply holds_upto_lt_refl)).
+		- eapply LemGlobalSame; subst; eauto.
+		- rewrite list_update_length_func; rewrite update_holds_upto_lt;
+			by eapply holds_upto_lt_refl.
+		- eapply store_none_mem_extension with (v_nb := b_lst); subst; eauto.
+		- eapply LemTableSame; subst; eauto.
+		- eapply LemFuncSame; subst; eauto.
+		- eapply LemDataSame; subst; eauto.
+		- subst; eapply wf_store_mem_update; eauto; econstructor; eauto.
+	}
+	split; first by subst.
+
+	subst s'.
+	inversion HStore.
+	eapply mk_Store_ok with
+		(funcinst_lst := funcinst_lst)
+		(globalinst_lst := globalinst_lst)
+		(tableinst_lst := tableinst_lst)
+		(meminst_lst := list_update_func (store_MEMS s)
+			((MEMS (frame_MODULE v_f)) [|mk_uN 0 :> N|])
+			(fun var_1 : meminst => var_1 <| BYTES :=
+				list_slice_update (BYTES var_1) off len b_lst |>))
+		(eleminst_lst := eleminst_lst)
+		(datainst_lst := datainst_lst)
+		(memtype_lst := memtype_lst)
+		(functype_lst := functype_lst)
+		(tabletype_lst := tabletype_lst)
+		(datatype_lst := datatype_lst)
+		(elemtype_lst := elemtype_lst)
+		; eq_to_prop; auto;
+		try solve [subst; auto];
+		try solve eauto;
+		subst;
+		first [
+			eapply Extend_store_funcinsts; eauto |
+			eapply Extend_store_tableinsts; eauto |
+			eapply Extend_store_globalinsts; eauto |
+			eapply Extend_store_meminsts; eauto |
+			eapply Extend_store_eleminsts; eauto |
+			eapply Extend_store_datainsts; eauto |
+			eauto
+		].
+	- rewrite {1}list_update_length_func; eauto.
+	- {
+		rewrite -Heqlen.
+		by eapply construct_meminsts; subst; eauto.
+	}
+	all: by first [ eapply wf_store_mem_update; eauto
+		| eapply wf_store_mem_update'; eauto ].
+Qed.
+
+(* Peel off the typing of the last of three administrative instructions. *)
+Lemma ais_seq3_last_typing : forall v_S v_C (a b op : admininstr) v_ft,
+	Instrs_ok2 v_S v_C [a; b; op] v_ft ->
+	exists t1s t2s, Instrs_ok2 v_S v_C [op] (t1s :-> t2s).
+Proof.
+	move => v_S v_C a b op v_ft HType.
+	destruct_functypes.
+	apply (ais_seq_typing_inversion _ _ [b; op] a) in HType as [t3s [HT1 Ha]].
+	apply (ais_seq_typing_inversion _ _ [op] b) in HT1 as [t4s [Hop Hb]].
+	by do 2 eexists; exact: Hop.
+Qed.
+
+(* Both SIMD stores require memory 0 to exist in the context. *)
+Lemma ais_vstore_mems_inversion : forall v_S v_C (ao : memarg) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_VSTORE V128 ao)] (t1s :-> t2s) ->
+	(0 <? (|(context_MEMS v_C)|))%BN.
+Proof.
+	move => v_S v_C ao t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VSTORE V128 ao)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vstore_lane_mems_inversion : forall v_S v_C (v_n : n) (ao : memarg)
+		(v_laneidx : laneidx) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_VSTORE_LANE V128 (mk_sz v_n) ao v_laneidx)]
+		(t1s :-> t2s) ->
+	(0 <? (|(context_MEMS v_C)|))%BN.
+Proof.
+	move => v_S v_C v_n ao v_laneidx t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _
+		(VSTORE_LANE V128 (mk_sz v_n) ao v_laneidx)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
 Lemma store_extension_reduce: forall s f ais s' f' ais' C C' tf,
 	wf_config (mk_config (mk_state s f) ais) ->
 	Step (mk_config (mk_state s f) ais) (mk_config (mk_state s' f') ais') ->
@@ -982,8 +1182,31 @@ Proof.
 			}
 		}
 	}
-	(* SIMD instructions *)
-	1-2: admit.
+
+	{ (* VSTORE *)
+		match goal with
+		| [ H : Instrs_ok2 _ _ [_; _; _] _ |- _ ] => pose proof H as HT3
+		end.
+		eapply ais_seq3_last_typing in HT3 as [ts1 [ts2 HOp]].
+		eapply ais_vstore_mems_inversion in HOp.
+		invert_ais_typing.
+		resolve_all_pt.
+		eapply mem_store_extension; eauto.
+		2: by apply: vbytes_len'.
+		eapply vbytes__is_wf; last (by apply: eqxx).
+		all: by eauto.
+	}
+	{ (* VSTORE_LANE *)
+		match goal with
+		| [ H : Instrs_ok2 _ _ [_; _; _] _ |- _ ] => pose proof H as HT3
+		end.
+		eapply ais_seq3_last_typing in HT3 as [ts1 [ts2 HOp]].
+		eapply ais_vstore_lane_mems_inversion in HOp.
+		eapply mem_store_extension; eauto.
+		2: by apply: ibytes_len''.
+		eapply ibytes__is_wf; last (by apply: eqxx).
+		all: by eauto.
+	}
 	{ (* Memory Grow *)
 		rename H into HGrow.
 		(* rename H2 into Hwfconfig2. *)
@@ -1031,6 +1254,15 @@ Proof.
 			rewrite /fun_mem in HGrow; inversion HGrow; eq_to_prop; subst; clear HGrow.
 			2: by destruct HNotNone.
 			clear H5 H6.
+			(* `i'` is only pinned up to Qeq now, so substitute its definition under
+			   the Qeq-invariant projections that consume it and then drop the
+			   equation, so that the rest of the (subst-based) script still fits. *)
+			match goal with
+			| [ HQ : is_true (Qeq_bool _ _) |- _ ] =>
+				rewrite (Qeq_bool_toN _ _ HQ);
+				move: (Forall_Qle_bool_Qeq _ _ _ _ _ HQ H3) => {}H3;
+				clear HQ
+			end.
 			rewrite -H in HLookup'.
 
 			injection HLookup' as ?; subst.
@@ -1257,9 +1489,10 @@ Proof.
 				eauto
 			].
 		- by rewrite list_update_length_func.
+
 		- eapply construct_datainsts; subst; eauto.
 	}
-Admitted.
+Qed.
 
 Lemma reduce_inst_unchanged: forall s f ais s' f' ais',
 	Step (mk_config (mk_state s f) ais) (mk_config (mk_state s' f') ais') ->
@@ -1273,6 +1506,149 @@ Proof.
 	apply config_same in Heqc2; destruct Heqc1 as [? [? ?]];
 	destruct Heqc2 as [? [? ?]]; subst => //);
 	eapply IHHReduce; eauto.
+Qed.
+
+(* ---------------------------------------------------------------------- *)
+(* SIMD loads and stores: typing inversion                                 *)
+(* ---------------------------------------------------------------------- *)
+
+Lemma ais_vload_typing_inversion : forall v_S v_C (vlo : option wasm.vloadop)
+		(ao : wasm.memarg) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_VLOAD V128 vlo ao)] (t1s :-> t2s) ->
+	(([valtype_I32] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C vlo ao t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VLOAD V128 vlo ao)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vload_lane_typing_inversion : forall v_S v_C (v_sz : wasm.sz)
+		(ao : wasm.memarg) (l : wasm.laneidx) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_VLOAD_LANE V128 v_sz ao l)] (t1s :-> t2s) ->
+	(([valtype_I32; valtype_V128] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C v_sz ao l t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VLOAD_LANE V128 v_sz ao l)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vstore_typing_inversion : forall v_S v_C (ao : wasm.memarg) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_VSTORE V128 ao)] (t1s :-> t2s) ->
+	(([valtype_I32; valtype_V128] :-> []) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C ao t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VSTORE V128 ao)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+Lemma ais_vstore_lane_typing_inversion : forall v_S v_C (v_sz : wasm.sz)
+		(ao : wasm.memarg) (l : wasm.laneidx) t1s t2s,
+	Instrs_ok2 v_S v_C [(admininstr_VSTORE_LANE V128 v_sz ao l)] (t1s :-> t2s) ->
+	(([valtype_I32; valtype_V128] :-> []) <ti: (t1s :-> t2s)).
+Proof.
+	move => v_S v_C v_sz ao l t1s t2s HType.
+	apply (ais_single_plain_typing_inversion _ _ (VSTORE_LANE V128 v_sz ao l)) in HType
+		as [t1s_sup [t2s_sub [HI Hsub]]].
+	by inversion HI; subst.
+Qed.
+
+(* ---------------------------------------------------------------------- *)
+(* Preservation for the SIMD load rules                                    *)
+(* ---------------------------------------------------------------------- *)
+
+Lemma Step_read__vload_preserves : forall v_S v_C (i : wasm.num_)
+		(vlo : option wasm.vloadop) (ao : wasm.memarg) (c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_CONST I32 i); (admininstr_VLOAD V128 vlo ao)] v_ft ->
+	wf_admininstr (admininstr_VCONST V128 c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 c)] v_ft.
+Proof.
+	move => v_S v_C i vlo ao c v_ft HType Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_1 _ _ _ _ _ (valtype_numtype I32) valtype_V128 _ HType).
+	- exact: (ais_const_typing_inversion _ _ I32 i).
+	- exact: (ais_vload_typing_inversion _ _ vlo ao).
+	- by apply: vconst_result_typing.
+Qed.
+
+Lemma Step_read__vload_lane_preserves : forall v_S v_C (i : wasm.num_)
+		(c_1 : wasm.vec_) (v_sz : wasm.sz) (ao : wasm.memarg) (l : wasm.laneidx)
+		(c : wasm.vec_) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_CONST I32 i); (admininstr_VCONST V128 c_1);
+		(admininstr_VLOAD_LANE V128 v_sz ao l)] v_ft ->
+	wf_admininstr (admininstr_VCONST V128 c) ->
+	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 c)] v_ft.
+Proof.
+	move => v_S v_C i c_1 v_sz ao l c v_ft HType Hwfc.
+	resolve_wfness.
+	eapply (vec_preserves_2 _ _ _ _ _ _ (valtype_numtype I32) valtype_V128
+		valtype_V128 _ HType).
+	- exact: (ais_const_typing_inversion _ _ I32 i).
+	- exact: (ais_vconst_typing_inversion _ _ c_1).
+	- exact: (ais_vload_lane_typing_inversion _ _ v_sz ao l).
+	- by apply: vconst_result_typing.
+Qed.
+
+(* ---------------------------------------------------------------------- *)
+(* Preservation for the SIMD store rules.  A store consumes its two        *)
+(* operands and leaves nothing behind, so the result is typed by           *)
+(* Instrs_ok2__empty over the *updated* store.                             *)
+(* ---------------------------------------------------------------------- *)
+
+Lemma vec_store_preserves_2 : forall v_S v_S' v_C (a b op : admininstr) t_a t_b v_ft,
+	Instrs_ok2 v_S v_C [a; b; op] v_ft ->
+	(forall t1s t2s, Instrs_ok2 v_S v_C [a] (t1s :-> t2s) ->
+		(([] :-> [t_a]) <ti: (t1s :-> t2s))) ->
+	(forall t1s t2s, Instrs_ok2 v_S v_C [b] (t1s :-> t2s) ->
+		(([] :-> [t_b]) <ti: (t1s :-> t2s))) ->
+	(forall t1s t2s, Instrs_ok2 v_S v_C [op] (t1s :-> t2s) ->
+		(([t_a; t_b] :-> []) <ti: (t1s :-> t2s))) ->
+	wf_store v_S' ->
+	Instrs_ok2 v_S' v_C [] v_ft.
+Proof.
+	move => v_S v_S' v_C a b op t_a t_b v_ft HType Hinva Hinvb Hinvop HWfS'.
+	resolve_wfness.
+	destruct_functypes.
+	apply (ais_seq_typing_inversion _ _ [b; op] a) in HType as [t3s [HT1 Ha]].
+	apply (ais_seq_typing_inversion _ _ [op] b) in HT1 as [t4s [Hop Hb]].
+	apply Hinva in Ha. apply Hinvb in Hb. apply Hinvop in Hop.
+	eapply (instrtype_sub_compose1 _ _ [t_a] _ _ _ _ Hb) in Hop.
+	rewrite cats0 in Hop.
+	eapply construct_ais_subtyping.
+	- by apply: Instrs_ok2__empty.
+	- by eapply instrtype_sub_compose; eauto.
+Qed.
+
+Lemma Step__vstore_preserves : forall v_S v_S' v_C (i : wasm.num_) (c : wasm.vec_)
+		(ao : wasm.memarg) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_CONST I32 i); (admininstr_VCONST V128 c);
+		(admininstr_VSTORE V128 ao)] v_ft ->
+	wf_store v_S' ->
+	Instrs_ok2 v_S' v_C [] v_ft.
+Proof.
+	move => v_S v_S' v_C i c ao v_ft HType HWfS'.
+	eapply (vec_store_preserves_2 _ _ _ _ _ _ (valtype_numtype I32) valtype_V128
+		_ HType); eauto.
+	- exact: (ais_const_typing_inversion _ _ I32 i).
+	- exact: (ais_vconst_typing_inversion _ _ c).
+	- exact: (ais_vstore_typing_inversion _ _ ao).
+Qed.
+
+Lemma Step__vstore_lane_preserves : forall v_S v_S' v_C (i : wasm.num_) (c : wasm.vec_)
+		(v_sz : wasm.sz) (ao : wasm.memarg) (l : wasm.laneidx) v_ft,
+	Instrs_ok2 v_S v_C [(admininstr_CONST I32 i); (admininstr_VCONST V128 c);
+		(admininstr_VSTORE_LANE V128 v_sz ao l)] v_ft ->
+	wf_store v_S' ->
+	Instrs_ok2 v_S' v_C [] v_ft.
+Proof.
+	move => v_S v_S' v_C i c v_sz ao l v_ft HType HWfS'.
+	eapply (vec_store_preserves_2 _ _ _ _ _ _ (valtype_numtype I32) valtype_V128
+		_ HType); eauto.
+	- exact: (ais_const_typing_inversion _ _ I32 i).
+	- exact: (ais_vconst_typing_inversion _ _ c).
+	- exact: (ais_vstore_lane_typing_inversion _ _ v_sz ao l).
 Qed.
 
 Lemma t_read_preservation: forall v_s v_f v_ais v_ais' v_C v_C' t1s t2s,
@@ -2287,8 +2663,13 @@ Proof.
 			econstructor; eauto.
 			by inversion HP; econstructor.
 	}
-	(* SIMD instructions *) 
-	1-5: admit.
+	(* SIMD instructions *)
+	- eapply Step_read__vload_preserves; eauto.
+	- eapply Step_read__vload_preserves; eauto.
+	- eapply Step_read__vload_preserves; eauto.
+	- eapply Step_read__vload_preserves; eauto.
+	- eapply Step_read__vload_lane_preserves; eauto.
+
 	{ (* Memory_size *)
 		typing_inversion HType.
 		simpl in Hai; extract_premise.
@@ -2726,7 +3107,8 @@ Proof.
 			- by inversion HP5; econstructor.
 		}
 	}
-Admitted.
+Qed.
+
 
 Lemma step_moduleinst: forall v_s v_f v_ais v_s' v_f' v_ais' v_C v_C' v_tf,
 	wf_config (mk_config (mk_state v_s v_f) v_ais) ->
@@ -2979,7 +3361,9 @@ Proof.
 			econstructor; eauto.
 	}
 	(* The rest are all SIMD instructions *)
-	1-2: admit.
+	- eapply Step__vstore_preserves; eauto.
+	- eapply Step__vstore_lane_preserves; eauto.
+
 	{ (* Memory grow *)
 		invert_ais_typing.
 		resolve_all_pt.
@@ -3013,7 +3397,8 @@ Proof.
 		+ econstructor; eauto.
 			econstructor; eauto.
 	}
-Admitted.
+Qed.
+
 
 
 (* Ultimate goal of project *)				
