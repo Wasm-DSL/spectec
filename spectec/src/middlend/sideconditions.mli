@@ -10,4 +10,4 @@ of terms in premises and conclusions:
 variable x and require e=?x. Maybe later.)
 *)
 
-val transform : Il.Ast.script -> Il.Ast.script
+val transform : ?on_defs: bool -> Il.Ast.script -> Il.Ast.script
