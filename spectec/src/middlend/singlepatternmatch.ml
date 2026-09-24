@@ -351,9 +351,9 @@ let rec replace_nth i l = function
      end
   | _ -> newclauses, [] *)
 
-let generate_dummy_exps typs at =
+let generate_dummy_exps str typs at =
   List.mapi (fun i t ->
-                 VarE ("constructor_parameter_" ^ string_of_int i $ at) $$ (at, t)) typs 
+                 VarE (str ^ "_" ^ string_of_int i $ at) $$ (at, t)) typs 
 
 let rec generate_args params : arg list =
   List.map (fun param ->
@@ -365,17 +365,17 @@ let rec generate_args params : arg list =
       | GramP (id, params, _) -> (GramA (VarG (id, generate_args params) $ at) $ at) 
     ) params 
 
-let generate_dummy_args l at =
-  List.map (fun e -> ExpA e $ at) (generate_dummy_exps l at)
-let generate_dummy_params l at =
-  let es = generate_dummy_exps l at in
+let generate_dummy_args str l at =
+  List.map (fun e -> ExpA e $ at) (generate_dummy_exps str l at)
+let generate_dummy_params str l at =
+  let es = generate_dummy_exps str l at in
   List.map (fun e ->
       match e.it with
       | VarE id -> ExpP (id, e.note) $ e.at
       | _ -> error e.at "dummy exps are always vars") es
         
 
-let generate_split_clauses clauses casei op paramtyps packagedparamtyps =
+let generate_split_clauses str clauses casei op paramtyps packagedparamtyps =
   List.filter_map (fun clause ->
       match clause.it with
       | DefD (quants, args, exp, prems) ->
@@ -384,9 +384,9 @@ let generate_split_clauses clauses casei op paramtyps packagedparamtyps =
          | ExpA e ->
             begin match e.it with 
             | VarE x ->
-               Some (DefD (generate_dummy_params paramtyps clause.at @ quants,
-                           replace_nth casei (generate_dummy_args paramtyps clause.at) args,
-                           subst_exp x.it ((CaseE (op, package_case_tup (generate_dummy_exps paramtyps clause.at) e.at packagedparamtyps) $$ (e.at, e.note))) exp,
+               Some (DefD (generate_dummy_params str paramtyps clause.at @ quants,
+                           replace_nth casei (generate_dummy_args str paramtyps clause.at) args,
+                           subst_exp x.it ((CaseE (op, package_case_tup (generate_dummy_exps str paramtyps clause.at) e.at packagedparamtyps) $$ (e.at, e.note))) exp,
                            prems) $ clause.at)
             | CaseE (op', e) when to_string op = to_string op' ->
                let es = transform_case_tup e in
@@ -421,6 +421,10 @@ let rec stop_at_first_catchall = function
   | [] -> []
   | cl :: _ when is_catchall cl -> [cl]
   | t :: q -> t :: stop_at_first_catchall q
+
+let dummy_name =
+  let i = ref 0 in
+  fun () -> incr i; "constructor_parameter_" ^ string_of_int !i
 
 let rec transform_def (datatypes : datatypes) rec_names def =
   match def.it with
@@ -458,7 +462,8 @@ let rec transform_def (datatypes : datatypes) rec_names def =
         let splittypparams = StringMap.find splittypid datatypes in
         let new_defs, toplevelclauses =
           MixopMap.fold (fun op (paramtyps, packaged_paramtyps) (new_defs, toplevelclauses) ->
-              let split_clauses = generate_split_clauses clauses casei op paramtyps packaged_paramtyps in
+              let str = dummy_name () in
+              let split_clauses = generate_split_clauses str clauses casei op paramtyps packaged_paramtyps in
               let split_clauses = stop_at_first_catchall split_clauses in
               match split_clauses with
               | [] -> new_defs, toplevelclauses
@@ -467,17 +472,17 @@ let rec transform_def (datatypes : datatypes) rec_names def =
                               (List.mapi (fun i t -> ExpP (sanitise_string op ^ "_argument_" ^ string_of_int casei ^ "_" ^ string_of_int i $ id.at, t) $ id.at) paramtyps) params,
                             typ,
                             split_clauses) $ def.at) :: new_defs,
-                     (DefD (replace_nth casei (generate_dummy_params paramtyps id.at) params,
+                     (DefD (replace_nth casei (generate_dummy_params str paramtyps id.at) params,
                             replace_nth casei
                               [ExpA
                                  (CaseE
                                     (op,
                                      package_case_tup (
-                                         generate_dummy_exps paramtyps id.at) id.at packaged_paramtyps) $$ (id.at, splittyp)) $ id.at]
+                                         generate_dummy_exps str paramtyps id.at) id.at packaged_paramtyps) $$ (id.at, splittyp)) $ id.at]
                               (generate_args params),
                             CallE ({id with it = id.it ^ "_" ^ sanitise_string op},
                                    replace_nth casei
-                                     (generate_dummy_args paramtyps id.at)
+                                     (generate_dummy_args str paramtyps id.at)
                                      (generate_args params)) $$ (id.at, typ),
                             []) $ id.at) :: toplevelclauses
             ) splittypparams ([], []) in
