@@ -731,7 +731,8 @@ Proof.
 	(* Not provable as stated: for v_N outside {32, 64} both (signif v_N) and
 	   (expon v_N) are None, so (fun_M v_N) and (E v_N) default to 0 and the side
 	   condition of fNmag_case_0 for (NORM 1 0) reduces to false.  v_N = 7 is a
-	   counterexample. *)
+	   counterexample. 
+	   (Mechanised: fone_is_wf_false in wf_counterexamples.v.) *)
 Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:74.1-74.21 *)
@@ -810,7 +811,8 @@ Proof.
 		 arithmetic value encoded by the bytes, not the individual bytes.  E.g. for
 		 the two-byte case, ch = 172, b_1 = 0 and b_2 = 300 satisfies the side
 		 condition (the truncated subtraction (b_1 - 192) in N yields 0), yet
-		 (wf_byte (mk_byte 300)) is false. *)
+		 (wf_byte (mk_byte 300)) is false. 
+	   (Mechanised: utf8_is_wf_false in wf_counterexamples.v.) *)
 		move => *. admit.
 	- move => *. admit.
 	- move => *. admit.
@@ -4517,15 +4519,22 @@ Proof.
 			apply: (Z.lt_le_trans _ _ _ Hlt2). by apply/Znat.N2Z.inj_le; apply: Hle.
 		- rewrite -{2}(Z.add_0_l ((2%N ^ vN)%BN : Z)).
 			by apply: (proj1 (Z.add_lt_mono_r _ _ _) (proj1 (Z.ltb_lt _ _) Hb)). }
+	(* The unsigned remainder is (i_1 - X) truncated to N for some X : N, which
+	   is at most i_1 whatever truncz returns. *)
+	have Hrem : forall (vN : res_N) (a : uN) (X : N),
+		wf_uN vN a -> wf_uN vN (mk_uN ((((proj_uN_0 a) : Z) - (X : Z))%Z : N)).
+	{ move => vN [a] X Hw. inversion Hw as [vN' a' Hb]; subst. apply: Hbnd.
+		move/andP: Hb => [_ Hub]. move/N.leb_spec0 in Hub. rewrite Hto in Hub.
+		rewrite /= Znat.Z2N.inj_sub ?Znat.N2Z.id; last exact: Znat.N2Z.is_nonneg.
+		apply: (N.le_lt_trans _ a); first exact: N.le_sub_l.
+		apply: (N.le_lt_trans _ _ _ Hub). apply: N.sub_lt => //.
+		exact: (proj2 (N.le_succ_l 0 _) (Hp vN)). }
 	case: H Hw1 Hw2 => *; simpl.
 	all: try by apply: List.Forall_nil.
 	all: try (by apply: List.Forall_cons;
 		[ apply: Hinv; eassumption | apply: List.Forall_nil ]).
-	(* The remaining case is the unsigned one, whose result is built from
-	   truncz, an axiom without any specification, so no bound on the result
-	   is available. *)
-	all: admit.
-Admitted.
+	all: by apply: List.Forall_cons; [ apply: Hrem; eassumption | apply: List.Forall_nil ].
+Qed.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:118.1-118.37 *)
 Axiom irotl_ : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN), iN.
@@ -13781,7 +13790,8 @@ Proof.
 	   - vbitmask produces (CONST I32 (mk_num__0 Inn_I32 (irev_ 32 ci))) and so
 	     needs (wf_uN 32 ci), but the rule relates ci to a bit list only through
 	     (ibits_ 32 ci), and no axiom connects ibits_ with inv_ibits_, so nothing
-	     bounds ci. *)
+	     bounds ci. 
+	   (Mechanised: Step_pure_is_wf_false in wf_counterexamples.v.) *)
 	all: admit.
 Admitted.
 
@@ -14331,7 +14341,8 @@ Proof.
 	   - the load rules constrain the loaded value c only through
 	     (nbytes_ nt c) / (ibytes_ n c) / (vbytes_ V128 c) being a slice of memory.
 	     Those are axioms and no law relates them to inv_nbytes_ / inv_ibytes_ /
-	     inv_vbytes_, so no bound on c is available. *)
+	     inv_vbytes_, so no bound on c is available. 
+	   (Mechanised: Step_read_is_wf_false in wf_counterexamples.v.) *)
 	all: admit.
 Admitted.
 
@@ -15344,7 +15355,8 @@ Proof.
 		apply: List.Forall_cons; first by apply: instr_case_13; apply: num__case_0.
 		apply: List.Forall_cons.
 		+ (* wf_instr (CONST I32 (mk_uN (|expr_lst|))) requires (|expr_lst|) < 2 ^ 32,
-			 which does not follow from the hypotheses. *)
+			 which does not follow from the hypotheses. 
+	   (Mechanised: runelem_is_wf_false in wf_counterexamples.v.) *)
 			admit.
 		+ apply: List.Forall_cons; first by apply: instr_case_54.
 			by apply: List.Forall_cons; [ apply: instr_case_55 | apply: List.Forall_nil ].
@@ -15379,7 +15391,8 @@ Proof.
 	apply: List.Forall_cons; first by apply: instr_case_13; apply: num__case_0.
 	apply: List.Forall_cons.
 	+ (* wf_instr (CONST I32 (mk_uN (|byte_lst|))) requires (|byte_lst|) < 2 ^ 32,
-		 which does not follow from the hypotheses. *)
+		 which does not follow from the hypotheses. 
+	   (Mechanised: rundata_is_wf_false in wf_counterexamples.v.) *)
 		admit.
 	+ apply: List.Forall_cons; first by apply: instr_case_66.
 		by apply: List.Forall_cons; [ apply: instr_case_67 | apply: List.Forall_nil ].
@@ -15456,8 +15469,12 @@ Proof.
 		   allocmodule_is_wf takes it as a hypothesis rather than establishing it. *)
 		admit.
 	- apply/List.Forall_app; split.
-		+ (* Forall wf_instr of the concatenated element-initialisation code;
-			 this relies on runelem_is_wf, which is itself only partially proved. *)
+		+ (* Forall wf_instr of the concatenated element-initialisation code.
+			 This is runelem's output, and runelem_is_wf is false (see
+			 runelem_is_wf_false in wf_counterexamples.v): a module with one active
+			 element segment of 2^32 entries makes this statement false as well.
+			 That counterexample is not mechanised, since it needs a complete
+			 fun_instantiate / fun_allocmodule derivation. *)
 			admit.
 		+ apply/List.Forall_app; split.
 			* (* likewise for the data-initialisation code, via rundata_is_wf. *)

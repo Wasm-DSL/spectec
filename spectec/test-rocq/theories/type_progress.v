@@ -1739,6 +1739,235 @@ Proof.
   all: by [].
 Qed.
 
+(* ---- lane-wise vector operators ---- *)
+
+Lemma Forall_all : forall (T : Type) (P : T -> bool) (l : seq T),
+  List.Forall (fun x => P x) l -> all P l.
+Proof. move => T P l H. elim: H => //= x l' Hx _ IH. by rewrite Hx IH. Qed.
+
+Lemma all_Forall : forall (T : Type) (P : T -> bool) (l : seq T),
+  all P l -> List.Forall (fun x => P x) l.
+Proof.
+  move => T P l. elim: l => [ |x l IH] //= /andP [Hx Hl].
+  by constructor; [ exact Hx | exact: IH ].
+Qed.
+
+Lemma Forall_exists_Forall2 : forall (A B : Type) (R : A -> B -> Prop) (P : A -> Prop) (l : seq B),
+  List.Forall (fun b => exists a, R a b /\ P a) l ->
+  exists la, List.Forall2 R la l /\ List.Forall P la.
+Proof.
+  move => A B R P l H. elim: H => [ |b l' Hb _ IH]; first by exists [::].
+  case: Hb => [a [Hr Hp]]. case: IH => [la [H2 Hp']].
+  exists (a :: la). by split; constructor.
+Qed.
+
+Lemma Forall2_size_eq : forall (A B : Type) (R : A -> B -> Prop) la lb,
+  List.Forall2 R la lb -> (|la|) = (|lb|).
+Proof.
+  move => A B R la lb H.
+  have Hs : size la = size lb by elim: H => //= a b la' lb' _ _ ->.
+  by rewrite Hs.
+Qed.
+
+(* A well-formed integer lane that projects as a Jnn lane is in the Jnn
+   injection and in range. *)
+Lemma wf_lane_Jnn_inv : forall (J : Jnn) (l : lane_),
+  wf_lane_ (lanetype_Jnn J) l -> proj_lane__2 l != None ->
+  exists x, l = mk_lane__2 J x /\ wf_uN (lsize (lanetype_Jnn J)) x.
+Proof.
+  move => J l Hw Hs.
+  inversion Hw as [lt nt c Hc Heq | lt pt c Hc Heq | lt J' c Hc Heq]; subst; try by move: Hs.
+  move/eqP: Heq => Heq.
+  have HJ : J' = J by destruct J, J'; try discriminate.
+  subst. by exists c.
+Qed.
+
+(* A well-formed float lane is necessarily in the numtype injection. *)
+Lemma wf_lane_Fnn_inv : forall (F : Fnn) (l : lane_),
+  wf_lane_ (lanetype_Fnn F) l ->
+  exists x, l = mk_lane__0 (numtype_Fnn F) (mk_num__1 F x) /\ wf_fN (sizenn (numtype_Fnn F)) x.
+Proof.
+  move => F l Hw.
+  inversion Hw as [lt nt c Hc Heq | lt pt c Hc Heq | lt J c Hc Heq]; subst; move/eqP: Heq => Heq.
+  - have HnF : nt = numtype_Fnn F by destruct F, nt; try discriminate.
+    subst.
+    inversion Hc as [nt' I x Hr Hx Hn | nt' F' x Hx Hn]; subst; move/eqP: Hn => Hn.
+    + by destruct F, I.
+    + have HF : F' = F by destruct F, F'; try discriminate.
+      subst. by exists x.
+  - by destruct F, pt.
+  - by destruct F, J.
+Qed.
+
+Lemma Forall_lane_Jnn : forall (J : Jnn) (ls : seq lane_),
+  List.Forall (fun l => wf_lane_ (lanetype_Jnn J) l) ls ->
+  List.Forall (fun l => proj_lane__2 l != None) ls ->
+  List.Forall (fun l => exists x, l = mk_lane__2 J x /\ wf_uN (lsize (lanetype_Jnn J)) x) ls.
+Proof.
+  move => J ls Hw. elim: Hw => [ |l ls' Hl _ IH] Hs //.
+  inversion Hs as [ |? ? Hs1 Hs2]; subst.
+  constructor; [ exact: wf_lane_Jnn_inv | exact: IH ].
+Qed.
+
+(* Mapping a range-preserving operation over Jnn lanes gives well-formed lanes. *)
+Lemma Forall_lane_map_wf : forall (J : Jnn) (f : iN -> iN) (ls : seq lane_),
+  (forall x, wf_uN (lsize (lanetype_Jnn J)) x -> wf_uN (lsize (lanetype_Jnn J)) (f x)) ->
+  List.Forall (fun l => exists x, l = mk_lane__2 J x /\ wf_uN (lsize (lanetype_Jnn J)) x) ls ->
+  List.Forall (fun l => wf_lane_ (lanetype_Jnn J) (mk_lane__2 J (f (!(proj_lane__2 l))))) ls.
+Proof.
+  move => J f ls Hf H. elim: H => [ |l ls' [x [-> Hx]] _ IH] //.
+  constructor; last exact IH.
+  by apply: lane__case_2; [ exact: Hf | apply: eqxx ].
+Qed.
+
+(* ...and likewise for a (set-valued) float operation over Fnn lanes. *)
+Lemma Forall_lane_fop_wf : forall (F : Fnn) (fop : res_N -> fN -> seq fN) (ls : seq lane_),
+  (forall x, wf_fN (sizenn (numtype_Fnn F)) x ->
+     List.Forall (fun r => wf_fN (sizenn (numtype_Fnn F)) r) (fop (sizenn (numtype_Fnn F)) x)) ->
+  List.Forall (fun l => wf_lane_ (lanetype_Fnn F) l) ls ->
+  List.Forall (fun l => List.Forall (fun it =>
+      wf_lane_ (lanetype_Fnn F) (mk_lane__0 (numtype_Fnn F) (mk_num__1 F it)))
+    (fop (sizenn (numtype_Fnn F)) (!(proj_num__1 (!(proj_lane__0 l)))))) ls.
+Proof.
+  move => F fop ls Hf H. elim: H => [ |l ls' Hl _ IH] //.
+  constructor; last exact IH.
+  have [x [-> Hx]] := wf_lane_Fnn_inv _ _ Hl.
+  apply: List.Forall_impl (Hf x Hx) => r Hr.
+  apply: lane__case_0; last by destruct F.
+  by apply: num__case_1; [ exact Hr | apply: eqxx ].
+Qed.
+
+Lemma iabs_lane_total : forall (J : Jnn) (x : iN),
+  wf_uN (lsize (lanetype_Jnn J)) x ->
+  exists v, fun_iabs_ (lsizenn (lanetype_Jnn J)) x v /\
+            wf_lane_ (lanetype_Jnn J) (mk_lane__2 J v).
+Proof.
+  move => J x Hx.
+  have [z [Hz _]] := signed_total (lsize (lanetype_Jnn J)) (x :> N) (wf_uN_lt' _ _ Hx).
+  have Ha : fun_iabs_ (lsizenn (lanetype_Jnn J)) x
+              (if (z >=? (0%num : Z))%Z then x else (ineg_ (lsizenn (lanetype_Jnn J)) x))
+    by apply: fun_iabs__case_0; exact Hz.
+  eexists; split; first exact Ha.
+  apply: lane__case_2; last by apply: eqxx.
+  by eapply iabs__is_wf; [ exact Ha | exact Hx | apply: eqxx ].
+Qed.
+
+Lemma Forall_iabs_total : forall (J : Jnn) (ls : seq lane_),
+  List.Forall (fun l => exists x, l = mk_lane__2 J x /\ wf_uN (lsize (lanetype_Jnn J)) x) ls ->
+  exists vs, List.Forall2 (fun v l => fun_iabs_ (lsizenn (lanetype_Jnn J)) (!(proj_lane__2 l)) v) vs ls /\
+             List.Forall (fun v => wf_lane_ (lanetype_Jnn J) (mk_lane__2 J v)) vs.
+Proof.
+  move => J ls H. apply: Forall_exists_Forall2.
+  apply: List.Forall_impl H => l [x [-> Hx]].
+  exact: iabs_lane_total.
+Qed.
+
+(* Discharges the premises of one real case of fun_vunop_ (or of its `before`
+   predicate) from the lane facts established in vunop_real below. *)
+Ltac vunop_case Hsh Hl Hlx Hsome H2 Hvw :=
+  do 2 (try (by apply: eqxx)); try (exact H2); try (exact Hsome); try (exact Hsh); try (exact Hvw);
+  try (by apply/eqP; exact: (Forall2_size_eq _ _ _ _ _ H2));
+  try (by apply: Forall_lane_map_wf;
+        [ let x := fresh in let Hx := fresh in intros x Hx;
+          first [ (eapply ineg__is_wf; [ exact Hx | apply: eqxx ])
+                | (eapply ipopcnt__is_wf; [ exact Hx | apply: eqxx ]) ]
+        | exact Hlx ]);
+  try (by apply: Forall_lane_fop_wf;
+        [ let x := fresh in let Hx := fresh in intros x Hx;
+          first [ (eapply fabs__is_wf; [ exact Hx | apply: eqxx ])
+                | (eapply fneg__is_wf; [ exact Hx | apply: eqxx ])
+                | (eapply fsqrt__is_wf; [ exact Hx | apply: eqxx ])
+                | (eapply fceil__is_wf; [ exact Hx | apply: eqxx ])
+                | (eapply ffloor__is_wf; [ exact Hx | apply: eqxx ])
+                | (eapply ftrunc__is_wf; [ exact Hx | apply: eqxx ])
+                | (eapply fnearest__is_wf; [ exact Hx | apply: eqxx ]) ]
+        | exact Hl ]).
+
+(* On well-formed arguments a real case of fun_vunop_ applies - and hence its
+   `before` predicate holds - unless the shape is an integer shape whose lanes
+   are not all in the Jnn injection.  Both conclusions are built directly, so
+   that neither needs an inversion over all 27 constructors. *)
+Lemma vunop_real : forall sh vunop val,
+    wf_vunop_ sh vunop ->
+    wf_uN 128 val ->
+    wf_shape sh ->
+    (forall J M, sh = X (lanetype_Jnn J) (mk_dim M) ->
+       all (fun l : lane_ => proj_lane__2 l != None) (lanes_ sh val)) ->
+    (exists vs, fun_vunop_ sh vunop val (Some vs)) /\
+    fun_vunop__before_fun_vunop__case_26 sh vunop val.
+Proof.
+  move => sh op v Hop Hv Hsh Hall.
+  have Hl := lanes__is_wf _ _ _ Hsh Hv (eqxx _).
+  inversion Hop as [sh' J M o Ho Hs | sh' F M o Hs]; subst; move/eqP: Hs => Hs; subst.
+  { have Hsome : List.Forall (fun l => proj_lane__2 l != None)
+                   (lanes_ (X (lanetype_Jnn J) (mk_dim M)) v)
+      by apply: all_Forall; apply: (Hall J M).
+    have Hlx := Forall_lane_Jnn _ _ Hl Hsome.
+    have [vs [H2 Hvw]] := Forall_iabs_total _ _ Hlx.
+    destruct J, o; inversion Ho; subst; simpl.
+    all: try (match goal with | [ He : is_true (_ == _) |- _ ] => by move: He end).
+    all: split; [ eexists | ]; econstructor.
+    all: vunop_case Hsh Hl Hlx Hsome H2 Hvw. }
+  { destruct F, o; simpl.
+    all: split; [ eexists | ]; econstructor.
+    all: vunop_case Hsh Hl Hl Hl Hl Hl. }
+Qed.
+
+(* Whatever injection `lanes_` uses, fun_vunop_ relates well-formed arguments
+   to some result: either a real case applies, or its catch-all (`~ before`)
+   does. *)
+Lemma vunop_total : forall sh vunop val,
+    wf_vunop_ sh vunop ->
+    wf_uN 128 val ->
+    wf_shape sh ->
+    (exists ret, fun_vunop_ sh vunop val ret).
+Proof.
+  move => sh op v Hop Hv Hsh.
+  inversion Hop as [sh' J M o Ho Hs | sh' F M o Hs]; move/eqP: Hs => Hs; subst.
+  { case E: (all (fun l : lane_ => proj_lane__2 l != None)
+                 (lanes_ (X (lanetype_Jnn J) (mk_dim M)) v)).
+    { have [[vs Hvs] _] := vunop_real _ _ _ Hop Hv Hsh (fun _ _ _ => E).
+      by exists (Some vs). }
+    { exists None. apply: fun_vunop__case_26 => Hb.
+      destruct J; inversion Hb; subst.
+      all: repeat match goal with
+           | [ H : is_true (_ == lanes_ _ _) |- _ ] => move/eqP: H => H; subst
+           end.
+      all: match goal with
+           | [ HF : List.Forall _ _ |- _ ] => by rewrite (Forall_all _ _ _ HF) in E
+           end. } }
+  { have Hno : forall J M', X (lanetype_Fnn F) (mk_dim M) = X (lanetype_Jnn J) (mk_dim M') ->
+                 all (fun l : lane_ => proj_lane__2 l != None) (lanes_ (X (lanetype_Fnn F) (mk_dim M)) v)
+      by move => J M' Heq; destruct F, J.
+    have [[vs Hvs] _] := vunop_real _ _ _ Hop Hv Hsh Hno.
+    by exists (Some vs). }
+Qed.
+
+Lemma vunop_not_none : forall sh vunop val ret,
+    wf_vunop_ sh vunop ->
+    wf_uN 128 val ->
+    wf_shape sh ->
+    fun_vunop_ sh vunop val ret ->
+    ret <> None.
+Proof.
+  move => sh op v ret Hop Hv Hsh Hf Hn. subst ret.
+  inversion Hop as [sh' J M o Ho Hs | sh' F M o Hs]; move/eqP: Hs => Hs; subst.
+  { (* Integer shapes.  Only the catch-all yields None, and it is excluded
+       exactly when every lane of `lanes_ (X (lanetype_Jnn J) _) v` is in the
+       `mk_lane__2` injection.  `lanes__is_wf` only gives
+       `wf_lane_ (lanetype_Jnn J)`, which a `mk_lane__0` lane (I32/I64) or a
+       `mk_lane__1` lane (I8/I16) satisfies just as well - and for such lanes
+       the result genuinely is None - so this is not derivable as stated. *)
+    admit. }
+  { (* Float shapes: a real case applies, so its `before` predicate holds and
+       the catch-all cannot. *)
+    have Hno : forall J M', X (lanetype_Fnn F) (mk_dim M) = X (lanetype_Jnn J) (mk_dim M') ->
+                 all (fun l : lane_ => proj_lane__2 l != None) (lanes_ (X (lanetype_Fnn F) (mk_dim M)) v)
+      by move => J M' Heq; destruct F, J.
+    have [_ Hb] := vunop_real _ _ _ Hop Hv Hsh Hno.
+    destruct F, o; inversion Hf as [ | | | | | | | | | | | | | | | | | | | | | | | | | | x0 x1 x2 Hnb ]; subst.
+    all: by apply: Hnb. }
+Admitted.
 
 Lemma invsigned_total_32m1 : exists ret, fun_inv_signed_ 32 (0 - 1)%Z ret.
 Proof.
@@ -1754,7 +1983,7 @@ Proof.
   destruct i; destruct j; simpl; try by [].
   - by econstructor; eauto.
   - by apply: IHl.
-Qed.
+Qed. 
 
 Lemma mem_bytes_wf : forall (ms : seq meminst) (k : N),
   List.Forall wf_meminst ms -> List.Forall wf_byte (BYTES (ms [| k |])).
@@ -1781,8 +2010,27 @@ Proof.
 Qed.
 
 
+
 Lemma mk_uN_eta : forall (u : uN), mk_uN ((u :> N)) = u.
 Proof. by case. Qed.
+
+(* Moving between a boolean `all` over a conjunction and two List.Foralls. *)
+Lemma all_and_Forall : forall (T : Type) (P Q : T -> bool) (l : seq T),
+  all (fun x => P x && Q x) l ->
+  List.Forall (fun x => P x) l /\ List.Forall (fun x => Q x) l.
+Proof.
+  move => T P Q l. elim: l => [ |x l IH] /=; first by split.
+  move/andP => [/andP [Hp Hq] /IH [H1 H2]]. by split; constructor.
+Qed.
+
+Lemma Forall_and_all : forall (T : Type) (P Q : T -> bool) (l : seq T),
+  List.Forall (fun x => P x) l -> List.Forall (fun x => Q x) l ->
+  all (fun x => P x && Q x) l.
+Proof.
+  move => T P Q l HP. elim: HP => [ |x l' Hx _ IH] HQ //=.
+  inversion HQ as [ |? ? Hqx Hql]; subst.
+  by rewrite Hx Hqx (IH Hql).
+Qed.
 
 Lemma packnum_not_none : forall (lt : lanetype) (c : num_),
   wf_num_ (unpack lt) c -> (packnum_ lt c) != None.
@@ -2578,10 +2826,37 @@ Proof.
     apply: pure.
     by apply: Step_pure__vvtestop.
   }
-  (* VUNOP / VBINOP / VTESTOP / VRELOP / VSHIFTOP / VBITMASK / VSWIZZLE /
-     VSHUFFLE.
+  {
+    move => C sh vunop HWfC HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    rewrite Heqv1.
+    have Hwfsh : wf_shape sh by inversion HWfinstr.
+    have Hwfop : wf_vunop_ sh vunop by inversion HWfinstr.
+    pose proof (vunop_total sh vunop c1 Hwfop Hwf1 Hwfsh) as [lst_opt Hvunop].
+    case ENone: lst_opt => [ lst | ].
+    - case Elst: lst => [ | v' vs ] .
+      + exists s, f, [admininstr_TRAP].
+        eapply pure.
+        eapply vunop_trap; eauto.
+        * rewrite ENone. done.
+        * rewrite ENone. rewrite Elst. reflexivity.
+      + exists s, f, [admininstr_VCONST V128 v'].
+        apply: pure.
+        eapply Step_pure__vunop; ineq_to_prop; subst; eauto; try done.
+        * apply mem_head.
+    - inversion HWfinstr; subst.
+      eapply vunop_not_none in Hvunop; eauto.
+      done.
+  }
+  (* VUNOP / VBINOP / VRELOP / VSHIFTOP / VBITMASK / VSWIZZLE / VSHUFFLE
+     (VTESTOP, in the middle of this group, is proved below: it has a
+     catch-all rule, so it steps whichever injection `lanes_` uses).
 
-     All eight reduce through `lanes_`, and every one of their Step_pure rules
+     All seven reduce through `lanes_`, and every one of their Step_pure rules
      needs the lanes of the operand in one *particular* injection of the
      generated `lane_` union (`proj_lane__0` for numtype lanes, `proj_lane__1`
      for packed lanes, `proj_lane__2` for `Jnn` lanes).  The only fact
@@ -2592,7 +2867,40 @@ Proof.
      encoding.  So `proj_lane__2 l <> None` is not derivable, and no axiom can
      repair it: `vextract_lane_num` wants the `mk_lane__0` form of the very
      same list that `vtestop_true` wants in `mk_lane__2` form. *)
-  1-8: admit.
+
+  1: admit.
+  { (* Instr_ok__vtestop.  Whatever injection `lanes_` uses, one of
+       vtestop_true / vtestop_false applies: the latter is the catch-all
+       `~ Step_pure_before_vtestop_false`, and the side condition of the former
+       is a decidable test on the lanes. *)
+    move => C sh vtestop_sh HWfC HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    rewrite Heqv1.
+    have Hwfsh : wf_shape sh by inversion HWfinstr.
+    have Hwfop : wf_vtestop_ sh vtestop_sh by inversion HWfinstr.
+    inversion Hwfop; subst; eq_to_prop; subst.
+    destruct var_x.
+    have Hlall := lanes__is_wf _ _ _ Hwfsh Hwf1 (eqxx _).
+    case E: (all (fun ci : lane_ => (proj_lane__2 ci != None) &&
+                          (((!(proj_lane__2 ci)) :> N) != 0%num))
+               (lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) c1)).
+    - have [Hsome Hnz] := all_and_Forall _ _ _ _ E.
+      exists s, f, [admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN 1))].
+      apply: pure.
+      by eapply vtestop_true; [ apply: eqxx | exact Hsome | exact Hnz | exact Hlall | exact Hwfsh ].
+    - exists s, f, [admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN 0))].
+      apply: pure.
+      apply: vtestop_false => Hb.
+      inversion Hb as [c' J' N' ls Hls Hsome Hnz Hwl Hsh]; subst.
+      move/eqP: Hls => Hls; subst.
+      by rewrite (Forall_and_all _ _ _ _ Hsome Hnz) in E.
+    Unshelve. all: by move => _; exact _.
+  }
+  1-5: admit.
   { (* Instr_ok__vsplat *)
     move => C sh HWfC HWfinstr.
     move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
