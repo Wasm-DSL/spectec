@@ -2530,45 +2530,49 @@ lemma wrap___is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.1-45.32 *)
-function (sequential, domintros) fun_unop__I64 :: "unop_underscore \<Rightarrow> num_underscore \<Rightarrow> (num_underscore list)" where
-		  "fun_unop__I64 (mk_unop__0 Inn_I64 CLZ) (mk_num__0 Inn_I64 v_iN) = [(mk_num__0 Inn_I64 (iclz_underscore (sizenn (numtype_Inn Inn_I64)) v_iN))]"
-		| "fun_unop__I64 (mk_unop__0 Inn_I64 CTZ) (mk_num__0 Inn_I64 v_iN) = [(mk_num__0 Inn_I64 (ictz_underscore (sizenn (numtype_Inn Inn_I64)) v_iN))]"
-		| "fun_unop__I64 (mk_unop__0 Inn_I64 POPCNT) (mk_num__0 Inn_I64 v_iN) = [(mk_num__0 Inn_I64 (ipopcnt_underscore (sizenn (numtype_Inn Inn_I64)) v_iN))]"
-		| "fun_unop__I64 (mk_unop__0 Inn_I64 (EXTEND v_M)) (mk_num__0 Inn_I64 v_iN) = [(mk_num__0 Inn_I64 (extend__underscore v_M (sizenn (numtype_Inn Inn_I64)) S (wrap__underscore (sizenn (numtype_Inn Inn_I64)) v_M v_iN)))]"
+function (sequential, domintros) fun_unop__I64 :: "unop_underscore \<Rightarrow> num_underscore \<Rightarrow> ((num_underscore list) option)" where
+		  "fun_unop__I64 (mk_unop__0 Inn_I64 CLZ) (mk_num__0 Inn_I64 v_iN) = (Some [(mk_num__0 Inn_I64 (iclz_underscore (sizenn (numtype_Inn Inn_I64)) v_iN))])"
+		| "fun_unop__I64 (mk_unop__0 Inn_I64 CTZ) (mk_num__0 Inn_I64 v_iN) = (Some [(mk_num__0 Inn_I64 (ictz_underscore (sizenn (numtype_Inn Inn_I64)) v_iN))])"
+		| "fun_unop__I64 (mk_unop__0 Inn_I64 POPCNT) (mk_num__0 Inn_I64 v_iN) = (Some [(mk_num__0 Inn_I64 (ipopcnt_underscore (sizenn (numtype_Inn Inn_I64)) v_iN))])"
+		| "fun_unop__I64 (mk_unop__0 Inn_I64 (EXTEND v_M)) (mk_num__0 Inn_I64 v_iN) = (Some [(mk_num__0 Inn_I64 (extend__underscore v_M (sizenn (numtype_Inn Inn_I64)) S (wrap__underscore (sizenn (numtype_Inn Inn_I64)) v_M v_iN)))])"
+		| "fun_unop__I64 x1 x2 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.1-45.32 *)
-function (sequential, domintros) fun_unop__I32 :: "unop_underscore \<Rightarrow> num_underscore \<Rightarrow> (num_underscore list)" where
-		  "fun_unop__I32 (mk_unop__0 Inn_I32 CLZ) (mk_num__0 Inn_I32 v_iN) = [(mk_num__0 Inn_I32 (iclz_underscore (sizenn (numtype_Inn Inn_I32)) v_iN))]"
-		| "fun_unop__I32 (mk_unop__0 Inn_I32 CTZ) (mk_num__0 Inn_I32 v_iN) = [(mk_num__0 Inn_I32 (ictz_underscore (sizenn (numtype_Inn Inn_I32)) v_iN))]"
-		| "fun_unop__I32 (mk_unop__0 Inn_I32 POPCNT) (mk_num__0 Inn_I32 v_iN) = [(mk_num__0 Inn_I32 (ipopcnt_underscore (sizenn (numtype_Inn Inn_I32)) v_iN))]"
-		| "fun_unop__I32 (mk_unop__0 Inn_I32 (EXTEND v_M)) (mk_num__0 Inn_I32 v_iN) = [(mk_num__0 Inn_I32 (extend__underscore v_M (sizenn (numtype_Inn Inn_I32)) S (wrap__underscore (sizenn (numtype_Inn Inn_I32)) v_M v_iN)))]"
+function (sequential, domintros) fun_unop__I32 :: "unop_underscore \<Rightarrow> num_underscore \<Rightarrow> ((num_underscore list) option)" where
+		  "fun_unop__I32 (mk_unop__0 Inn_I32 CLZ) (mk_num__0 Inn_I32 v_iN) = (Some [(mk_num__0 Inn_I32 (iclz_underscore (sizenn (numtype_Inn Inn_I32)) v_iN))])"
+		| "fun_unop__I32 (mk_unop__0 Inn_I32 CTZ) (mk_num__0 Inn_I32 v_iN) = (Some [(mk_num__0 Inn_I32 (ictz_underscore (sizenn (numtype_Inn Inn_I32)) v_iN))])"
+		| "fun_unop__I32 (mk_unop__0 Inn_I32 POPCNT) (mk_num__0 Inn_I32 v_iN) = (Some [(mk_num__0 Inn_I32 (ipopcnt_underscore (sizenn (numtype_Inn Inn_I32)) v_iN))])"
+		| "fun_unop__I32 (mk_unop__0 Inn_I32 (EXTEND v_M)) (mk_num__0 Inn_I32 v_iN) = (Some [(mk_num__0 Inn_I32 (extend__underscore v_M (sizenn (numtype_Inn Inn_I32)) S (wrap__underscore (sizenn (numtype_Inn Inn_I32)) v_M v_iN)))])"
+		| "fun_unop__I32 x1 x2 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.1-45.32 *)
-function (sequential, domintros) fun_unop__F64 :: "unop_underscore \<Rightarrow> num_underscore \<Rightarrow> (num_underscore list)" where
-		  "fun_unop__F64 (mk_unop__1 Fnn_F64 ABS) (mk_num__1 Fnn_F64 v_fN) = (map (\<lambda> (iter_0_2 :: fN). (mk_num__1 Fnn_F64 iter_0_2)) (fabs_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN))"
-		| "fun_unop__F64 (mk_unop__1 Fnn_F64 unop_Fnn_NEG) (mk_num__1 Fnn_F64 v_fN) = (map (\<lambda> (iter_0_4 :: fN). (mk_num__1 Fnn_F64 iter_0_4)) (fneg_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN))"
-		| "fun_unop__F64 (mk_unop__1 Fnn_F64 SQRT) (mk_num__1 Fnn_F64 v_fN) = (map (\<lambda> (iter_0_6 :: fN). (mk_num__1 Fnn_F64 iter_0_6)) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN))"
-		| "fun_unop__F64 (mk_unop__1 Fnn_F64 CEIL) (mk_num__1 Fnn_F64 v_fN) = (map (\<lambda> (iter_0_8 :: fN). (mk_num__1 Fnn_F64 iter_0_8)) (fceil_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN))"
-		| "fun_unop__F64 (mk_unop__1 Fnn_F64 FLOOR) (mk_num__1 Fnn_F64 v_fN) = (map (\<lambda> (iter_0_10 :: fN). (mk_num__1 Fnn_F64 iter_0_10)) (ffloor_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN))"
-		| "fun_unop__F64 (mk_unop__1 Fnn_F64 TRUNC) (mk_num__1 Fnn_F64 v_fN) = (map (\<lambda> (iter_0_12 :: fN). (mk_num__1 Fnn_F64 iter_0_12)) (ftrunc_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN))"
-		| "fun_unop__F64 (mk_unop__1 Fnn_F64 NEAREST) (mk_num__1 Fnn_F64 v_fN) = (map (\<lambda> (iter_0_14 :: fN). (mk_num__1 Fnn_F64 iter_0_14)) (fnearest_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN))"
+function (sequential, domintros) fun_unop__F64 :: "unop_underscore \<Rightarrow> num_underscore \<Rightarrow> ((num_underscore list) option)" where
+		  "fun_unop__F64 (mk_unop__1 Fnn_F64 ABS) (mk_num__1 Fnn_F64 v_fN) = (Some (map (\<lambda> (iter_0_2 :: fN). (mk_num__1 Fnn_F64 iter_0_2)) (fabs_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN)))"
+		| "fun_unop__F64 (mk_unop__1 Fnn_F64 unop_Fnn_NEG) (mk_num__1 Fnn_F64 v_fN) = (Some (map (\<lambda> (iter_0_4 :: fN). (mk_num__1 Fnn_F64 iter_0_4)) (fneg_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN)))"
+		| "fun_unop__F64 (mk_unop__1 Fnn_F64 SQRT) (mk_num__1 Fnn_F64 v_fN) = (Some (map (\<lambda> (iter_0_6 :: fN). (mk_num__1 Fnn_F64 iter_0_6)) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN)))"
+		| "fun_unop__F64 (mk_unop__1 Fnn_F64 CEIL) (mk_num__1 Fnn_F64 v_fN) = (Some (map (\<lambda> (iter_0_8 :: fN). (mk_num__1 Fnn_F64 iter_0_8)) (fceil_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN)))"
+		| "fun_unop__F64 (mk_unop__1 Fnn_F64 FLOOR) (mk_num__1 Fnn_F64 v_fN) = (Some (map (\<lambda> (iter_0_10 :: fN). (mk_num__1 Fnn_F64 iter_0_10)) (ffloor_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN)))"
+		| "fun_unop__F64 (mk_unop__1 Fnn_F64 TRUNC) (mk_num__1 Fnn_F64 v_fN) = (Some (map (\<lambda> (iter_0_12 :: fN). (mk_num__1 Fnn_F64 iter_0_12)) (ftrunc_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN)))"
+		| "fun_unop__F64 (mk_unop__1 Fnn_F64 NEAREST) (mk_num__1 Fnn_F64 v_fN) = (Some (map (\<lambda> (iter_0_14 :: fN). (mk_num__1 Fnn_F64 iter_0_14)) (fnearest_underscore (sizenn (numtype_Fnn Fnn_F64)) v_fN)))"
+		| "fun_unop__F64 x1 x2 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.1-45.32 *)
-function (sequential, domintros) fun_unop__F32 :: "unop_underscore \<Rightarrow> num_underscore \<Rightarrow> (num_underscore list)" where
-		  "fun_unop__F32 (mk_unop__1 Fnn_F32 ABS) (mk_num__1 Fnn_F32 v_fN) = (map (\<lambda> (iter_0_1 :: fN). (mk_num__1 Fnn_F32 iter_0_1)) (fabs_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN))"
-		| "fun_unop__F32 (mk_unop__1 Fnn_F32 unop_Fnn_NEG) (mk_num__1 Fnn_F32 v_fN) = (map (\<lambda> (iter_0_3 :: fN). (mk_num__1 Fnn_F32 iter_0_3)) (fneg_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN))"
-		| "fun_unop__F32 (mk_unop__1 Fnn_F32 SQRT) (mk_num__1 Fnn_F32 v_fN) = (map (\<lambda> (iter_0_5 :: fN). (mk_num__1 Fnn_F32 iter_0_5)) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN))"
-		| "fun_unop__F32 (mk_unop__1 Fnn_F32 CEIL) (mk_num__1 Fnn_F32 v_fN) = (map (\<lambda> (iter_0_7 :: fN). (mk_num__1 Fnn_F32 iter_0_7)) (fceil_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN))"
-		| "fun_unop__F32 (mk_unop__1 Fnn_F32 FLOOR) (mk_num__1 Fnn_F32 v_fN) = (map (\<lambda> (iter_0_9 :: fN). (mk_num__1 Fnn_F32 iter_0_9)) (ffloor_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN))"
-		| "fun_unop__F32 (mk_unop__1 Fnn_F32 TRUNC) (mk_num__1 Fnn_F32 v_fN) = (map (\<lambda> (iter_0_11 :: fN). (mk_num__1 Fnn_F32 iter_0_11)) (ftrunc_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN))"
-		| "fun_unop__F32 (mk_unop__1 Fnn_F32 NEAREST) (mk_num__1 Fnn_F32 v_fN) = (map (\<lambda> (iter_0_13 :: fN). (mk_num__1 Fnn_F32 iter_0_13)) (fnearest_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN))"
+function (sequential, domintros) fun_unop__F32 :: "unop_underscore \<Rightarrow> num_underscore \<Rightarrow> ((num_underscore list) option)" where
+		  "fun_unop__F32 (mk_unop__1 Fnn_F32 ABS) (mk_num__1 Fnn_F32 v_fN) = (Some (map (\<lambda> (iter_0_1 :: fN). (mk_num__1 Fnn_F32 iter_0_1)) (fabs_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN)))"
+		| "fun_unop__F32 (mk_unop__1 Fnn_F32 unop_Fnn_NEG) (mk_num__1 Fnn_F32 v_fN) = (Some (map (\<lambda> (iter_0_3 :: fN). (mk_num__1 Fnn_F32 iter_0_3)) (fneg_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN)))"
+		| "fun_unop__F32 (mk_unop__1 Fnn_F32 SQRT) (mk_num__1 Fnn_F32 v_fN) = (Some (map (\<lambda> (iter_0_5 :: fN). (mk_num__1 Fnn_F32 iter_0_5)) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN)))"
+		| "fun_unop__F32 (mk_unop__1 Fnn_F32 CEIL) (mk_num__1 Fnn_F32 v_fN) = (Some (map (\<lambda> (iter_0_7 :: fN). (mk_num__1 Fnn_F32 iter_0_7)) (fceil_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN)))"
+		| "fun_unop__F32 (mk_unop__1 Fnn_F32 FLOOR) (mk_num__1 Fnn_F32 v_fN) = (Some (map (\<lambda> (iter_0_9 :: fN). (mk_num__1 Fnn_F32 iter_0_9)) (ffloor_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN)))"
+		| "fun_unop__F32 (mk_unop__1 Fnn_F32 TRUNC) (mk_num__1 Fnn_F32 v_fN) = (Some (map (\<lambda> (iter_0_11 :: fN). (mk_num__1 Fnn_F32 iter_0_11)) (ftrunc_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN)))"
+		| "fun_unop__F32 (mk_unop__1 Fnn_F32 NEAREST) (mk_num__1 Fnn_F32 v_fN) = (Some (map (\<lambda> (iter_0_13 :: fN). (mk_num__1 Fnn_F32 iter_0_13)) (fnearest_underscore (sizenn (numtype_Fnn Fnn_F32)) v_fN)))"
+		| "fun_unop__F32 x1 x2 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.1-45.32 *)
-function (sequential, domintros) fun_unop_underscore :: "numtype \<Rightarrow> unop_underscore \<Rightarrow> num_underscore \<Rightarrow> (num_underscore list)" where
+function (sequential, domintros) fun_unop_underscore :: "numtype \<Rightarrow> unop_underscore \<Rightarrow> num_underscore \<Rightarrow> ((num_underscore list) option)" where
 		  "fun_unop_underscore I64 v_unop_underscore v_num_underscore = (fun_unop__I64 v_unop_underscore v_num_underscore)"
 		| "fun_unop_underscore I32 v_unop_underscore v_num_underscore = (fun_unop__I32 v_unop_underscore v_num_underscore)"
 		| "fun_unop_underscore F64 v_unop_underscore v_num_underscore = (fun_unop__F64 v_unop_underscore v_num_underscore)"
@@ -2579,7 +2583,8 @@ function (sequential, domintros) fun_unop_underscore :: "numtype \<Rightarrow> u
 lemma unop__is_wf :
 	"(wf_unop_underscore v_numtype v_unop_underscore) \<Longrightarrow>
 	 (wf_num_underscore v_numtype v_num_underscore) \<Longrightarrow>
-	 (ret_val_lst = (fun_unop_underscore v_numtype v_unop_underscore v_num_underscore)) \<Longrightarrow>
+	 ((fun_unop_underscore v_numtype v_unop_underscore v_num_underscore) \<noteq> None) \<Longrightarrow>
+	 (ret_val_lst = (the ((fun_unop_underscore v_numtype v_unop_underscore v_num_underscore)))) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: num_underscore). (wf_num_underscore v_numtype ret_val)) ret_val_lst"
 sorry
 
@@ -2829,87 +2834,169 @@ lemma ixor__is_wf :
 sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:46.6-46.13 *)
-inductive fun_binop_underscore :: "numtype \<Rightarrow> binop_underscore \<Rightarrow> num_underscore \<Rightarrow> num_underscore \<Rightarrow> (num_underscore list) \<Rightarrow> bool" where
-	  fun_binop__case_0 :
-		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 ADD) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) [(mk_num__0 Inn_I32 (iadd_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))]"
-	| fun_binop__case_1 :
-		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 ADD) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) [(mk_num__0 Inn_I64 (iadd_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))]"
-	| fun_binop__case_2 :
-		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 SUB) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) [(mk_num__0 Inn_I32 (isub_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))]"
-	| fun_binop__case_3 :
-		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 SUB) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) [(mk_num__0 Inn_I64 (isub_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))]"
-	| fun_binop__case_4 :
-		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 MUL) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) [(mk_num__0 Inn_I32 (imul_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))]"
-	| fun_binop__case_5 :
-		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 MUL) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) [(mk_num__0 Inn_I64 (imul_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))]"
-	| fun_binop__case_6 :
-		"(fun_idiv_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
-		 fun_binop_underscore I32 (mk_binop__0 Inn_I32 (DIV v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (list_underscore  (map_option (\<lambda> (iter_0_15 :: iN). (mk_num__0 Inn_I32 iter_0_15)) var_0))"
-	| fun_binop__case_7 :
-		"(fun_idiv_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
-		 fun_binop_underscore I64 (mk_binop__0 Inn_I64 (DIV v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (list_underscore  (map_option (\<lambda> (iter_0_16 :: iN). (mk_num__0 Inn_I64 iter_0_16)) var_0))"
-	| fun_binop__case_8 :
-		"(fun_irem_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
-		 fun_binop_underscore I32 (mk_binop__0 Inn_I32 (REM v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (list_underscore  (map_option (\<lambda> (iter_0_17 :: iN). (mk_num__0 Inn_I32 iter_0_17)) var_0))"
-	| fun_binop__case_9 :
-		"(fun_irem_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
-		 fun_binop_underscore I64 (mk_binop__0 Inn_I64 (REM v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (list_underscore  (map_option (\<lambda> (iter_0_18 :: iN). (mk_num__0 Inn_I64 iter_0_18)) var_0))"
-	| fun_binop__case_10 :
-		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 AND) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) [(mk_num__0 Inn_I32 (iand_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))]"
-	| fun_binop__case_11 :
-		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 AND) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) [(mk_num__0 Inn_I64 (iand_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))]"
-	| fun_binop__case_12 :
-		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 OR) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) [(mk_num__0 Inn_I32 (ior_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))]"
-	| fun_binop__case_13 :
-		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 OR) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) [(mk_num__0 Inn_I64 (ior_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))]"
-	| fun_binop__case_14 :
-		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 XOR) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) [(mk_num__0 Inn_I32 (ixor_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))]"
-	| fun_binop__case_15 :
-		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 XOR) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) [(mk_num__0 Inn_I64 (ixor_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))]"
-	| fun_binop__case_16 :
-		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 SHL) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) [(mk_num__0 Inn_I32 (ishl_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 (mk_uN (proj_uN_0 iN_2))))]"
-	| fun_binop__case_17 :
-		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 SHL) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) [(mk_num__0 Inn_I64 (ishl_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 (mk_uN (proj_uN_0 iN_2))))]"
-	| fun_binop__case_18 :
-		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 (SHR v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) [(mk_num__0 Inn_I32 (ishr_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 (mk_uN (proj_uN_0 iN_2))))]"
-	| fun_binop__case_19 :
-		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 (SHR v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) [(mk_num__0 Inn_I64 (ishr_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 (mk_uN (proj_uN_0 iN_2))))]"
-	| fun_binop__case_20 :
-		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 ROTL) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) [(mk_num__0 Inn_I32 (irotl_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))]"
-	| fun_binop__case_21 :
-		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 ROTL) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) [(mk_num__0 Inn_I64 (irotl_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))]"
-	| fun_binop__case_22 :
-		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 ROTR) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) [(mk_num__0 Inn_I32 (irotr_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))]"
-	| fun_binop__case_23 :
-		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 ROTR) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) [(mk_num__0 Inn_I64 (irotr_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))]"
-	| fun_binop__case_24 :
-		"fun_binop_underscore F32 (mk_binop__1 Fnn_F32 binop_Fnn_ADD) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (map (\<lambda> (iter_0_19 :: fN). (mk_num__1 Fnn_F32 iter_0_19)) (fadd_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2))"
-	| fun_binop__case_25 :
-		"fun_binop_underscore F64 (mk_binop__1 Fnn_F64 binop_Fnn_ADD) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (map (\<lambda> (iter_0_20 :: fN). (mk_num__1 Fnn_F64 iter_0_20)) (fadd_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2))"
-	| fun_binop__case_26 :
-		"fun_binop_underscore F32 (mk_binop__1 Fnn_F32 binop_Fnn_SUB) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (map (\<lambda> (iter_0_21 :: fN). (mk_num__1 Fnn_F32 iter_0_21)) (fsub_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2))"
-	| fun_binop__case_27 :
-		"fun_binop_underscore F64 (mk_binop__1 Fnn_F64 binop_Fnn_SUB) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (map (\<lambda> (iter_0_22 :: fN). (mk_num__1 Fnn_F64 iter_0_22)) (fsub_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2))"
-	| fun_binop__case_28 :
-		"fun_binop_underscore F32 (mk_binop__1 Fnn_F32 binop_Fnn_MUL) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (map (\<lambda> (iter_0_23 :: fN). (mk_num__1 Fnn_F32 iter_0_23)) (fmul_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2))"
-	| fun_binop__case_29 :
-		"fun_binop_underscore F64 (mk_binop__1 Fnn_F64 binop_Fnn_MUL) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (map (\<lambda> (iter_0_24 :: fN). (mk_num__1 Fnn_F64 iter_0_24)) (fmul_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2))"
-	| fun_binop__case_30 :
-		"fun_binop_underscore F32 (mk_binop__1 Fnn_F32 binop_Fnn_DIV) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (map (\<lambda> (iter_0_25 :: fN). (mk_num__1 Fnn_F32 iter_0_25)) (fdiv_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2))"
-	| fun_binop__case_31 :
-		"fun_binop_underscore F64 (mk_binop__1 Fnn_F64 binop_Fnn_DIV) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (map (\<lambda> (iter_0_26 :: fN). (mk_num__1 Fnn_F64 iter_0_26)) (fdiv_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2))"
-	| fun_binop__case_32 :
-		"fun_binop_underscore F32 (mk_binop__1 Fnn_F32 res_MIN) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (map (\<lambda> (iter_0_27 :: fN). (mk_num__1 Fnn_F32 iter_0_27)) (fmin_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2))"
-	| fun_binop__case_33 :
-		"fun_binop_underscore F64 (mk_binop__1 Fnn_F64 res_MIN) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (map (\<lambda> (iter_0_28 :: fN). (mk_num__1 Fnn_F64 iter_0_28)) (fmin_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2))"
-	| fun_binop__case_34 :
-		"fun_binop_underscore F32 (mk_binop__1 Fnn_F32 res_MAX) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (map (\<lambda> (iter_0_29 :: fN). (mk_num__1 Fnn_F32 iter_0_29)) (fmax_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2))"
-	| fun_binop__case_35 :
-		"fun_binop_underscore F64 (mk_binop__1 Fnn_F64 res_MAX) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (map (\<lambda> (iter_0_30 :: fN). (mk_num__1 Fnn_F64 iter_0_30)) (fmax_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2))"
+inductive fun_binop__before_fun_binop__case_38 :: "numtype \<Rightarrow> binop_underscore \<Rightarrow> num_underscore \<Rightarrow> num_underscore \<Rightarrow> bool" where
+	  fun_binop__case_37 :
+		"fun_binop__before_fun_binop__case_38 F64 (mk_binop__1 Fnn_F64 COPYSIGN) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2)"
 	| fun_binop__case_36 :
-		"fun_binop_underscore F32 (mk_binop__1 Fnn_F32 COPYSIGN) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (map (\<lambda> (iter_0_31 :: fN). (mk_num__1 Fnn_F32 iter_0_31)) (fcopysign_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2))"
-	| fun_binop__case_37 :
-		"fun_binop_underscore F64 (mk_binop__1 Fnn_F64 COPYSIGN) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (map (\<lambda> (iter_0_32 :: fN). (mk_num__1 Fnn_F64 iter_0_32)) (fcopysign_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2))"
+		"fun_binop__before_fun_binop__case_38 F32 (mk_binop__1 Fnn_F32 COPYSIGN) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2)"
+	| fun_binop__case_35 :
+		"fun_binop__before_fun_binop__case_38 F64 (mk_binop__1 Fnn_F64 res_MAX) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2)"
+	| fun_binop__case_34 :
+		"fun_binop__before_fun_binop__case_38 F32 (mk_binop__1 Fnn_F32 res_MAX) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2)"
+	| fun_binop__case_33 :
+		"fun_binop__before_fun_binop__case_38 F64 (mk_binop__1 Fnn_F64 res_MIN) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2)"
+	| fun_binop__case_32 :
+		"fun_binop__before_fun_binop__case_38 F32 (mk_binop__1 Fnn_F32 res_MIN) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2)"
+	| fun_binop__case_31 :
+		"fun_binop__before_fun_binop__case_38 F64 (mk_binop__1 Fnn_F64 binop_Fnn_DIV) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2)"
+	| fun_binop__case_30 :
+		"fun_binop__before_fun_binop__case_38 F32 (mk_binop__1 Fnn_F32 binop_Fnn_DIV) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2)"
+	| fun_binop__case_29 :
+		"fun_binop__before_fun_binop__case_38 F64 (mk_binop__1 Fnn_F64 binop_Fnn_MUL) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2)"
+	| fun_binop__case_28 :
+		"fun_binop__before_fun_binop__case_38 F32 (mk_binop__1 Fnn_F32 binop_Fnn_MUL) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2)"
+	| fun_binop__case_27 :
+		"fun_binop__before_fun_binop__case_38 F64 (mk_binop__1 Fnn_F64 binop_Fnn_SUB) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2)"
+	| fun_binop__case_26 :
+		"fun_binop__before_fun_binop__case_38 F32 (mk_binop__1 Fnn_F32 binop_Fnn_SUB) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2)"
+	| fun_binop__case_25 :
+		"fun_binop__before_fun_binop__case_38 F64 (mk_binop__1 Fnn_F64 binop_Fnn_ADD) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2)"
+	| fun_binop__case_24 :
+		"fun_binop__before_fun_binop__case_38 F32 (mk_binop__1 Fnn_F32 binop_Fnn_ADD) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2)"
+	| fun_binop__case_23 :
+		"fun_binop__before_fun_binop__case_38 I64 (mk_binop__0 Inn_I64 ROTR) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_binop__case_22 :
+		"fun_binop__before_fun_binop__case_38 I32 (mk_binop__0 Inn_I32 ROTR) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+	| fun_binop__case_21 :
+		"fun_binop__before_fun_binop__case_38 I64 (mk_binop__0 Inn_I64 ROTL) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_binop__case_20 :
+		"fun_binop__before_fun_binop__case_38 I32 (mk_binop__0 Inn_I32 ROTL) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+	| fun_binop__case_19 :
+		"fun_binop__before_fun_binop__case_38 I64 (mk_binop__0 Inn_I64 (SHR v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_binop__case_18 :
+		"fun_binop__before_fun_binop__case_38 I32 (mk_binop__0 Inn_I32 (SHR v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+	| fun_binop__case_17 :
+		"fun_binop__before_fun_binop__case_38 I64 (mk_binop__0 Inn_I64 SHL) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_binop__case_16 :
+		"fun_binop__before_fun_binop__case_38 I32 (mk_binop__0 Inn_I32 SHL) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+	| fun_binop__case_15 :
+		"fun_binop__before_fun_binop__case_38 I64 (mk_binop__0 Inn_I64 XOR) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_binop__case_14 :
+		"fun_binop__before_fun_binop__case_38 I32 (mk_binop__0 Inn_I32 XOR) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+	| fun_binop__case_13 :
+		"fun_binop__before_fun_binop__case_38 I64 (mk_binop__0 Inn_I64 OR) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_binop__case_12 :
+		"fun_binop__before_fun_binop__case_38 I32 (mk_binop__0 Inn_I32 OR) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+	| fun_binop__case_11 :
+		"fun_binop__before_fun_binop__case_38 I64 (mk_binop__0 Inn_I64 AND) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_binop__case_10 :
+		"fun_binop__before_fun_binop__case_38 I32 (mk_binop__0 Inn_I32 AND) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+	| fun_binop__case_9 :
+		"fun_binop__before_fun_binop__case_38 I64 (mk_binop__0 Inn_I64 (REM v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_binop__case_8 :
+		"fun_binop__before_fun_binop__case_38 I32 (mk_binop__0 Inn_I32 (REM v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+	| fun_binop__case_7 :
+		"fun_binop__before_fun_binop__case_38 I64 (mk_binop__0 Inn_I64 (DIV v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_binop__case_6 :
+		"fun_binop__before_fun_binop__case_38 I32 (mk_binop__0 Inn_I32 (DIV v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+	| fun_binop__case_5 :
+		"fun_binop__before_fun_binop__case_38 I64 (mk_binop__0 Inn_I64 MUL) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_binop__case_4 :
+		"fun_binop__before_fun_binop__case_38 I32 (mk_binop__0 Inn_I32 MUL) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+	| fun_binop__case_3 :
+		"fun_binop__before_fun_binop__case_38 I64 (mk_binop__0 Inn_I64 SUB) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_binop__case_2 :
+		"fun_binop__before_fun_binop__case_38 I32 (mk_binop__0 Inn_I32 SUB) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+	| fun_binop__case_1 :
+		"fun_binop__before_fun_binop__case_38 I64 (mk_binop__0 Inn_I64 ADD) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_binop__case_0 :
+		"fun_binop__before_fun_binop__case_38 I32 (mk_binop__0 Inn_I32 ADD) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:46.6-46.13 *)
+inductive fun_binop_underscore :: "numtype \<Rightarrow> binop_underscore \<Rightarrow> num_underscore \<Rightarrow> num_underscore \<Rightarrow> ((num_underscore list) option) \<Rightarrow> bool" where
+	  fun_binop___fun_binop__case_0 :
+		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 ADD) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some [(mk_num__0 Inn_I32 (iadd_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))])"
+	| fun_binop___fun_binop__case_1 :
+		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 ADD) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some [(mk_num__0 Inn_I64 (iadd_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))])"
+	| fun_binop___fun_binop__case_2 :
+		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 SUB) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some [(mk_num__0 Inn_I32 (isub_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))])"
+	| fun_binop___fun_binop__case_3 :
+		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 SUB) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some [(mk_num__0 Inn_I64 (isub_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))])"
+	| fun_binop___fun_binop__case_4 :
+		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 MUL) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some [(mk_num__0 Inn_I32 (imul_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))])"
+	| fun_binop___fun_binop__case_5 :
+		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 MUL) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some [(mk_num__0 Inn_I64 (imul_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))])"
+	| fun_binop___fun_binop__case_6 :
+		"(fun_idiv_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
+		 fun_binop_underscore I32 (mk_binop__0 Inn_I32 (DIV v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some (list_underscore  (map_option (\<lambda> (iter_0_15 :: iN). (mk_num__0 Inn_I32 iter_0_15)) var_0)))"
+	| fun_binop___fun_binop__case_7 :
+		"(fun_idiv_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
+		 fun_binop_underscore I64 (mk_binop__0 Inn_I64 (DIV v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some (list_underscore  (map_option (\<lambda> (iter_0_16 :: iN). (mk_num__0 Inn_I64 iter_0_16)) var_0)))"
+	| fun_binop___fun_binop__case_8 :
+		"(fun_irem_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
+		 fun_binop_underscore I32 (mk_binop__0 Inn_I32 (REM v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some (list_underscore  (map_option (\<lambda> (iter_0_17 :: iN). (mk_num__0 Inn_I32 iter_0_17)) var_0)))"
+	| fun_binop___fun_binop__case_9 :
+		"(fun_irem_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
+		 fun_binop_underscore I64 (mk_binop__0 Inn_I64 (REM v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some (list_underscore  (map_option (\<lambda> (iter_0_18 :: iN). (mk_num__0 Inn_I64 iter_0_18)) var_0)))"
+	| fun_binop___fun_binop__case_10 :
+		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 AND) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some [(mk_num__0 Inn_I32 (iand_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))])"
+	| fun_binop___fun_binop__case_11 :
+		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 AND) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some [(mk_num__0 Inn_I64 (iand_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))])"
+	| fun_binop___fun_binop__case_12 :
+		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 OR) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some [(mk_num__0 Inn_I32 (ior_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))])"
+	| fun_binop___fun_binop__case_13 :
+		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 OR) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some [(mk_num__0 Inn_I64 (ior_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))])"
+	| fun_binop___fun_binop__case_14 :
+		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 XOR) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some [(mk_num__0 Inn_I32 (ixor_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))])"
+	| fun_binop___fun_binop__case_15 :
+		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 XOR) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some [(mk_num__0 Inn_I64 (ixor_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))])"
+	| fun_binop___fun_binop__case_16 :
+		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 SHL) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some [(mk_num__0 Inn_I32 (ishl_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 (mk_uN (proj_uN_0 iN_2))))])"
+	| fun_binop___fun_binop__case_17 :
+		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 SHL) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some [(mk_num__0 Inn_I64 (ishl_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 (mk_uN (proj_uN_0 iN_2))))])"
+	| fun_binop___fun_binop__case_18 :
+		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 (SHR v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some [(mk_num__0 Inn_I32 (ishr_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 (mk_uN (proj_uN_0 iN_2))))])"
+	| fun_binop___fun_binop__case_19 :
+		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 (SHR v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some [(mk_num__0 Inn_I64 (ishr_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 (mk_uN (proj_uN_0 iN_2))))])"
+	| fun_binop___fun_binop__case_20 :
+		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 ROTL) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some [(mk_num__0 Inn_I32 (irotl_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))])"
+	| fun_binop___fun_binop__case_21 :
+		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 ROTL) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some [(mk_num__0 Inn_I64 (irotl_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))])"
+	| fun_binop___fun_binop__case_22 :
+		"fun_binop_underscore I32 (mk_binop__0 Inn_I32 ROTR) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some [(mk_num__0 Inn_I32 (irotr_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))])"
+	| fun_binop___fun_binop__case_23 :
+		"fun_binop_underscore I64 (mk_binop__0 Inn_I64 ROTR) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some [(mk_num__0 Inn_I64 (irotr_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))])"
+	| fun_binop___fun_binop__case_24 :
+		"fun_binop_underscore F32 (mk_binop__1 Fnn_F32 binop_Fnn_ADD) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (Some (map (\<lambda> (iter_0_19 :: fN). (mk_num__1 Fnn_F32 iter_0_19)) (fadd_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2)))"
+	| fun_binop___fun_binop__case_25 :
+		"fun_binop_underscore F64 (mk_binop__1 Fnn_F64 binop_Fnn_ADD) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (Some (map (\<lambda> (iter_0_20 :: fN). (mk_num__1 Fnn_F64 iter_0_20)) (fadd_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2)))"
+	| fun_binop___fun_binop__case_26 :
+		"fun_binop_underscore F32 (mk_binop__1 Fnn_F32 binop_Fnn_SUB) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (Some (map (\<lambda> (iter_0_21 :: fN). (mk_num__1 Fnn_F32 iter_0_21)) (fsub_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2)))"
+	| fun_binop___fun_binop__case_27 :
+		"fun_binop_underscore F64 (mk_binop__1 Fnn_F64 binop_Fnn_SUB) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (Some (map (\<lambda> (iter_0_22 :: fN). (mk_num__1 Fnn_F64 iter_0_22)) (fsub_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2)))"
+	| fun_binop___fun_binop__case_28 :
+		"fun_binop_underscore F32 (mk_binop__1 Fnn_F32 binop_Fnn_MUL) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (Some (map (\<lambda> (iter_0_23 :: fN). (mk_num__1 Fnn_F32 iter_0_23)) (fmul_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2)))"
+	| fun_binop___fun_binop__case_29 :
+		"fun_binop_underscore F64 (mk_binop__1 Fnn_F64 binop_Fnn_MUL) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (Some (map (\<lambda> (iter_0_24 :: fN). (mk_num__1 Fnn_F64 iter_0_24)) (fmul_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2)))"
+	| fun_binop___fun_binop__case_30 :
+		"fun_binop_underscore F32 (mk_binop__1 Fnn_F32 binop_Fnn_DIV) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (Some (map (\<lambda> (iter_0_25 :: fN). (mk_num__1 Fnn_F32 iter_0_25)) (fdiv_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2)))"
+	| fun_binop___fun_binop__case_31 :
+		"fun_binop_underscore F64 (mk_binop__1 Fnn_F64 binop_Fnn_DIV) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (Some (map (\<lambda> (iter_0_26 :: fN). (mk_num__1 Fnn_F64 iter_0_26)) (fdiv_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2)))"
+	| fun_binop___fun_binop__case_32 :
+		"fun_binop_underscore F32 (mk_binop__1 Fnn_F32 res_MIN) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (Some (map (\<lambda> (iter_0_27 :: fN). (mk_num__1 Fnn_F32 iter_0_27)) (fmin_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2)))"
+	| fun_binop___fun_binop__case_33 :
+		"fun_binop_underscore F64 (mk_binop__1 Fnn_F64 res_MIN) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (Some (map (\<lambda> (iter_0_28 :: fN). (mk_num__1 Fnn_F64 iter_0_28)) (fmin_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2)))"
+	| fun_binop___fun_binop__case_34 :
+		"fun_binop_underscore F32 (mk_binop__1 Fnn_F32 res_MAX) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (Some (map (\<lambda> (iter_0_29 :: fN). (mk_num__1 Fnn_F32 iter_0_29)) (fmax_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2)))"
+	| fun_binop___fun_binop__case_35 :
+		"fun_binop_underscore F64 (mk_binop__1 Fnn_F64 res_MAX) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (Some (map (\<lambda> (iter_0_30 :: fN). (mk_num__1 Fnn_F64 iter_0_30)) (fmax_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2)))"
+	| fun_binop___fun_binop__case_36 :
+		"fun_binop_underscore F32 (mk_binop__1 Fnn_F32 COPYSIGN) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (Some (map (\<lambda> (iter_0_31 :: fN). (mk_num__1 Fnn_F32 iter_0_31)) (fcopysign_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2)))"
+	| fun_binop___fun_binop__case_37 :
+		"fun_binop_underscore F64 (mk_binop__1 Fnn_F64 COPYSIGN) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (Some (map (\<lambda> (iter_0_32 :: fN). (mk_num__1 Fnn_F64 iter_0_32)) (fcopysign_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2)))"
+	| fun_binop__case_38 :
+		"(~(fun_binop__before_fun_binop__case_38 x0 x1 x2 x3)) \<Longrightarrow>
+		 fun_binop_underscore x0 x1 x2 x3 None"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:46.6-46.13 *)
 lemma binop__is_wf :
@@ -2917,7 +3004,8 @@ lemma binop__is_wf :
 	 (wf_binop_underscore v_numtype v_binop_underscore) \<Longrightarrow>
 	 (wf_num_underscore v_numtype v_num_underscore) \<Longrightarrow>
 	 (wf_num_underscore v_numtype num__0) \<Longrightarrow>
-	 (ret_val_lst = var_0) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: num_underscore). (wf_num_underscore v_numtype ret_val)) ret_val_lst"
 sorry
 
@@ -2934,16 +3022,18 @@ lemma ieqz__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:48.1-49.32 *)
-function (sequential, domintros) fun_testop_underscore :: "numtype \<Rightarrow> testop_underscore \<Rightarrow> num_underscore \<Rightarrow> num_underscore" where
-		  "fun_testop_underscore I32 (mk_testop__0 Inn_I32 EQZ) (mk_num__0 Inn_I32 v_iN) = (mk_num__0 Inn_I32 (ieqz_underscore (sizenn (numtype_Inn Inn_I32)) v_iN))"
-		| "fun_testop_underscore I64 (mk_testop__0 Inn_I64 EQZ) (mk_num__0 Inn_I64 v_iN) = (mk_num__0 Inn_I32 (ieqz_underscore (sizenn (numtype_Inn Inn_I64)) v_iN))"
+function (sequential, domintros) fun_testop_underscore :: "numtype \<Rightarrow> testop_underscore \<Rightarrow> num_underscore \<Rightarrow> (num_underscore option)" where
+		  "fun_testop_underscore I32 (mk_testop__0 Inn_I32 EQZ) (mk_num__0 Inn_I32 v_iN) = (Some (mk_num__0 Inn_I32 (ieqz_underscore (sizenn (numtype_Inn Inn_I32)) v_iN)))"
+		| "fun_testop_underscore I64 (mk_testop__0 Inn_I64 EQZ) (mk_num__0 Inn_I64 v_iN) = (Some (mk_num__0 Inn_I32 (ieqz_underscore (sizenn (numtype_Inn Inn_I64)) v_iN)))"
+		| "fun_testop_underscore x0 x1 x2 = None"
 	by pat_completeness auto
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:48.6-48.14 *)
 lemma testop__is_wf :
 	"(wf_testop_underscore v_numtype v_testop_underscore) \<Longrightarrow>
 	 (wf_num_underscore v_numtype v_num_underscore) \<Longrightarrow>
-	 (ret_val = (fun_testop_underscore v_numtype v_testop_underscore v_num_underscore)) \<Longrightarrow>
+	 ((fun_testop_underscore v_numtype v_testop_underscore v_num_underscore) \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the ((fun_testop_underscore v_numtype v_testop_underscore v_num_underscore)))) \<Longrightarrow>
 	 (wf_num_underscore I32 ret_val)"
 sorry
 
@@ -3112,63 +3202,117 @@ lemma ine__is_wf :
 sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:50.6-50.13 *)
-inductive fun_relop_underscore :: "numtype \<Rightarrow> relop_underscore \<Rightarrow> num_underscore \<Rightarrow> num_underscore \<Rightarrow> num_underscore \<Rightarrow> bool" where
-	  fun_relop__case_0 :
-		"fun_relop_underscore I32 (mk_relop__0 Inn_I32 EQ) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (mk_num__0 Inn_I32 (ieq_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))"
-	| fun_relop__case_1 :
-		"fun_relop_underscore I64 (mk_relop__0 Inn_I64 EQ) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (mk_num__0 Inn_I32 (ieq_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))"
-	| fun_relop__case_2 :
-		"fun_relop_underscore I32 (mk_relop__0 Inn_I32 NE) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (mk_num__0 Inn_I32 (ine_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))"
-	| fun_relop__case_3 :
-		"fun_relop_underscore I64 (mk_relop__0 Inn_I64 NE) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (mk_num__0 Inn_I32 (ine_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))"
-	| fun_relop__case_4 :
-		"(fun_ilt_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
-		 fun_relop_underscore I32 (mk_relop__0 Inn_I32 (LT v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (mk_num__0 Inn_I32 var_0)"
-	| fun_relop__case_5 :
-		"(fun_ilt_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
-		 fun_relop_underscore I64 (mk_relop__0 Inn_I64 (LT v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (mk_num__0 Inn_I32 var_0)"
-	| fun_relop__case_6 :
-		"(fun_igt_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
-		 fun_relop_underscore I32 (mk_relop__0 Inn_I32 (GT v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (mk_num__0 Inn_I32 var_0)"
-	| fun_relop__case_7 :
-		"(fun_igt_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
-		 fun_relop_underscore I64 (mk_relop__0 Inn_I64 (GT v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (mk_num__0 Inn_I32 var_0)"
-	| fun_relop__case_8 :
-		"(fun_ile_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
-		 fun_relop_underscore I32 (mk_relop__0 Inn_I32 (LE v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (mk_num__0 Inn_I32 var_0)"
-	| fun_relop__case_9 :
-		"(fun_ile_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
-		 fun_relop_underscore I64 (mk_relop__0 Inn_I64 (LE v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (mk_num__0 Inn_I32 var_0)"
-	| fun_relop__case_10 :
-		"(fun_ige_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
-		 fun_relop_underscore I32 (mk_relop__0 Inn_I32 (GE v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (mk_num__0 Inn_I32 var_0)"
-	| fun_relop__case_11 :
-		"(fun_ige_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
-		 fun_relop_underscore I64 (mk_relop__0 Inn_I64 (GE v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (mk_num__0 Inn_I32 var_0)"
-	| fun_relop__case_12 :
-		"fun_relop_underscore F32 (mk_relop__1 Fnn_F32 relop_Fnn_EQ) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (mk_num__0 Inn_I32 (feq_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2))"
-	| fun_relop__case_13 :
-		"fun_relop_underscore F64 (mk_relop__1 Fnn_F64 relop_Fnn_EQ) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (mk_num__0 Inn_I32 (feq_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2))"
-	| fun_relop__case_14 :
-		"fun_relop_underscore F32 (mk_relop__1 Fnn_F32 relop_Fnn_NE) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (mk_num__0 Inn_I32 (fne_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2))"
-	| fun_relop__case_15 :
-		"fun_relop_underscore F64 (mk_relop__1 Fnn_F64 relop_Fnn_NE) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (mk_num__0 Inn_I32 (fne_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2))"
-	| fun_relop__case_16 :
-		"fun_relop_underscore F32 (mk_relop__1 Fnn_F32 relop_Fnn_LT) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (mk_num__0 Inn_I32 (flt_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2))"
-	| fun_relop__case_17 :
-		"fun_relop_underscore F64 (mk_relop__1 Fnn_F64 relop_Fnn_LT) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (mk_num__0 Inn_I32 (flt_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2))"
-	| fun_relop__case_18 :
-		"fun_relop_underscore F32 (mk_relop__1 Fnn_F32 relop_Fnn_GT) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (mk_num__0 Inn_I32 (fgt_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2))"
-	| fun_relop__case_19 :
-		"fun_relop_underscore F64 (mk_relop__1 Fnn_F64 relop_Fnn_GT) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (mk_num__0 Inn_I32 (fgt_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2))"
-	| fun_relop__case_20 :
-		"fun_relop_underscore F32 (mk_relop__1 Fnn_F32 relop_Fnn_LE) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (mk_num__0 Inn_I32 (fle_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2))"
-	| fun_relop__case_21 :
-		"fun_relop_underscore F64 (mk_relop__1 Fnn_F64 relop_Fnn_LE) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (mk_num__0 Inn_I32 (fle_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2))"
+inductive fun_relop__before_fun_relop__case_24 :: "numtype \<Rightarrow> relop_underscore \<Rightarrow> num_underscore \<Rightarrow> num_underscore \<Rightarrow> bool" where
+	  fun_relop__case_23 :
+		"fun_relop__before_fun_relop__case_24 F64 (mk_relop__1 Fnn_F64 relop_Fnn_GE) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2)"
 	| fun_relop__case_22 :
-		"fun_relop_underscore F32 (mk_relop__1 Fnn_F32 relop_Fnn_GE) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (mk_num__0 Inn_I32 (fge_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2))"
-	| fun_relop__case_23 :
-		"fun_relop_underscore F64 (mk_relop__1 Fnn_F64 relop_Fnn_GE) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (mk_num__0 Inn_I32 (fge_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2))"
+		"fun_relop__before_fun_relop__case_24 F32 (mk_relop__1 Fnn_F32 relop_Fnn_GE) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2)"
+	| fun_relop__case_21 :
+		"fun_relop__before_fun_relop__case_24 F64 (mk_relop__1 Fnn_F64 relop_Fnn_LE) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2)"
+	| fun_relop__case_20 :
+		"fun_relop__before_fun_relop__case_24 F32 (mk_relop__1 Fnn_F32 relop_Fnn_LE) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2)"
+	| fun_relop__case_19 :
+		"fun_relop__before_fun_relop__case_24 F64 (mk_relop__1 Fnn_F64 relop_Fnn_GT) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2)"
+	| fun_relop__case_18 :
+		"fun_relop__before_fun_relop__case_24 F32 (mk_relop__1 Fnn_F32 relop_Fnn_GT) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2)"
+	| fun_relop__case_17 :
+		"fun_relop__before_fun_relop__case_24 F64 (mk_relop__1 Fnn_F64 relop_Fnn_LT) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2)"
+	| fun_relop__case_16 :
+		"fun_relop__before_fun_relop__case_24 F32 (mk_relop__1 Fnn_F32 relop_Fnn_LT) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2)"
+	| fun_relop__case_15 :
+		"fun_relop__before_fun_relop__case_24 F64 (mk_relop__1 Fnn_F64 relop_Fnn_NE) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2)"
+	| fun_relop__case_14 :
+		"fun_relop__before_fun_relop__case_24 F32 (mk_relop__1 Fnn_F32 relop_Fnn_NE) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2)"
+	| fun_relop__case_13 :
+		"fun_relop__before_fun_relop__case_24 F64 (mk_relop__1 Fnn_F64 relop_Fnn_EQ) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2)"
+	| fun_relop__case_12 :
+		"fun_relop__before_fun_relop__case_24 F32 (mk_relop__1 Fnn_F32 relop_Fnn_EQ) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2)"
+	| fun_relop__case_11 :
+		"fun_relop__before_fun_relop__case_24 I64 (mk_relop__0 Inn_I64 (GE v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_relop__case_10 :
+		"fun_relop__before_fun_relop__case_24 I32 (mk_relop__0 Inn_I32 (GE v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+	| fun_relop__case_9 :
+		"fun_relop__before_fun_relop__case_24 I64 (mk_relop__0 Inn_I64 (LE v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_relop__case_8 :
+		"fun_relop__before_fun_relop__case_24 I32 (mk_relop__0 Inn_I32 (LE v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+	| fun_relop__case_7 :
+		"fun_relop__before_fun_relop__case_24 I64 (mk_relop__0 Inn_I64 (GT v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_relop__case_6 :
+		"fun_relop__before_fun_relop__case_24 I32 (mk_relop__0 Inn_I32 (GT v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+	| fun_relop__case_5 :
+		"fun_relop__before_fun_relop__case_24 I64 (mk_relop__0 Inn_I64 (LT v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_relop__case_4 :
+		"fun_relop__before_fun_relop__case_24 I32 (mk_relop__0 Inn_I32 (LT v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+	| fun_relop__case_3 :
+		"fun_relop__before_fun_relop__case_24 I64 (mk_relop__0 Inn_I64 NE) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_relop__case_2 :
+		"fun_relop__before_fun_relop__case_24 I32 (mk_relop__0 Inn_I32 NE) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+	| fun_relop__case_1 :
+		"fun_relop__before_fun_relop__case_24 I64 (mk_relop__0 Inn_I64 EQ) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
+	| fun_relop__case_0 :
+		"fun_relop__before_fun_relop__case_24 I32 (mk_relop__0 Inn_I32 EQ) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:50.6-50.13 *)
+inductive fun_relop_underscore :: "numtype \<Rightarrow> relop_underscore \<Rightarrow> num_underscore \<Rightarrow> num_underscore \<Rightarrow> (num_underscore option) \<Rightarrow> bool" where
+	  fun_relop___fun_relop__case_0 :
+		"fun_relop_underscore I32 (mk_relop__0 Inn_I32 EQ) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some (mk_num__0 Inn_I32 (ieq_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2)))"
+	| fun_relop___fun_relop__case_1 :
+		"fun_relop_underscore I64 (mk_relop__0 Inn_I64 EQ) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some (mk_num__0 Inn_I32 (ieq_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2)))"
+	| fun_relop___fun_relop__case_2 :
+		"fun_relop_underscore I32 (mk_relop__0 Inn_I32 NE) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some (mk_num__0 Inn_I32 (ine_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2)))"
+	| fun_relop___fun_relop__case_3 :
+		"fun_relop_underscore I64 (mk_relop__0 Inn_I64 NE) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some (mk_num__0 Inn_I32 (ine_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2)))"
+	| fun_relop___fun_relop__case_4 :
+		"(fun_ilt_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
+		 fun_relop_underscore I32 (mk_relop__0 Inn_I32 (LT v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some (mk_num__0 Inn_I32 var_0))"
+	| fun_relop___fun_relop__case_5 :
+		"(fun_ilt_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
+		 fun_relop_underscore I64 (mk_relop__0 Inn_I64 (LT v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some (mk_num__0 Inn_I32 var_0))"
+	| fun_relop___fun_relop__case_6 :
+		"(fun_igt_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
+		 fun_relop_underscore I32 (mk_relop__0 Inn_I32 (GT v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some (mk_num__0 Inn_I32 var_0))"
+	| fun_relop___fun_relop__case_7 :
+		"(fun_igt_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
+		 fun_relop_underscore I64 (mk_relop__0 Inn_I64 (GT v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some (mk_num__0 Inn_I32 var_0))"
+	| fun_relop___fun_relop__case_8 :
+		"(fun_ile_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
+		 fun_relop_underscore I32 (mk_relop__0 Inn_I32 (LE v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some (mk_num__0 Inn_I32 var_0))"
+	| fun_relop___fun_relop__case_9 :
+		"(fun_ile_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
+		 fun_relop_underscore I64 (mk_relop__0 Inn_I64 (LE v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some (mk_num__0 Inn_I32 var_0))"
+	| fun_relop___fun_relop__case_10 :
+		"(fun_ige_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
+		 fun_relop_underscore I32 (mk_relop__0 Inn_I32 (GE v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some (mk_num__0 Inn_I32 var_0))"
+	| fun_relop___fun_relop__case_11 :
+		"(fun_ige_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 iN_2 var_0) \<Longrightarrow>
+		 fun_relop_underscore I64 (mk_relop__0 Inn_I64 (GE v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some (mk_num__0 Inn_I32 var_0))"
+	| fun_relop___fun_relop__case_12 :
+		"fun_relop_underscore F32 (mk_relop__1 Fnn_F32 relop_Fnn_EQ) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (Some (mk_num__0 Inn_I32 (feq_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2)))"
+	| fun_relop___fun_relop__case_13 :
+		"fun_relop_underscore F64 (mk_relop__1 Fnn_F64 relop_Fnn_EQ) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (Some (mk_num__0 Inn_I32 (feq_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2)))"
+	| fun_relop___fun_relop__case_14 :
+		"fun_relop_underscore F32 (mk_relop__1 Fnn_F32 relop_Fnn_NE) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (Some (mk_num__0 Inn_I32 (fne_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2)))"
+	| fun_relop___fun_relop__case_15 :
+		"fun_relop_underscore F64 (mk_relop__1 Fnn_F64 relop_Fnn_NE) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (Some (mk_num__0 Inn_I32 (fne_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2)))"
+	| fun_relop___fun_relop__case_16 :
+		"fun_relop_underscore F32 (mk_relop__1 Fnn_F32 relop_Fnn_LT) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (Some (mk_num__0 Inn_I32 (flt_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2)))"
+	| fun_relop___fun_relop__case_17 :
+		"fun_relop_underscore F64 (mk_relop__1 Fnn_F64 relop_Fnn_LT) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (Some (mk_num__0 Inn_I32 (flt_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2)))"
+	| fun_relop___fun_relop__case_18 :
+		"fun_relop_underscore F32 (mk_relop__1 Fnn_F32 relop_Fnn_GT) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (Some (mk_num__0 Inn_I32 (fgt_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2)))"
+	| fun_relop___fun_relop__case_19 :
+		"fun_relop_underscore F64 (mk_relop__1 Fnn_F64 relop_Fnn_GT) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (Some (mk_num__0 Inn_I32 (fgt_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2)))"
+	| fun_relop___fun_relop__case_20 :
+		"fun_relop_underscore F32 (mk_relop__1 Fnn_F32 relop_Fnn_LE) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (Some (mk_num__0 Inn_I32 (fle_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2)))"
+	| fun_relop___fun_relop__case_21 :
+		"fun_relop_underscore F64 (mk_relop__1 Fnn_F64 relop_Fnn_LE) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (Some (mk_num__0 Inn_I32 (fle_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2)))"
+	| fun_relop___fun_relop__case_22 :
+		"fun_relop_underscore F32 (mk_relop__1 Fnn_F32 relop_Fnn_GE) (mk_num__1 Fnn_F32 fN_1) (mk_num__1 Fnn_F32 fN_2) (Some (mk_num__0 Inn_I32 (fge_underscore (sizenn (numtype_Fnn Fnn_F32)) fN_1 fN_2)))"
+	| fun_relop___fun_relop__case_23 :
+		"fun_relop_underscore F64 (mk_relop__1 Fnn_F64 relop_Fnn_GE) (mk_num__1 Fnn_F64 fN_1) (mk_num__1 Fnn_F64 fN_2) (Some (mk_num__0 Inn_I32 (fge_underscore (sizenn (numtype_Fnn Fnn_F64)) fN_1 fN_2)))"
+	| fun_relop__case_24 :
+		"(~(fun_relop__before_fun_relop__case_24 x0 x1 x2 x3)) \<Longrightarrow>
+		 fun_relop_underscore x0 x1 x2 x3 None"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:50.6-50.13 *)
 lemma relop__is_wf :
@@ -3176,7 +3320,8 @@ lemma relop__is_wf :
 	 (wf_relop_underscore v_numtype v_relop_underscore) \<Longrightarrow>
 	 (wf_num_underscore v_numtype v_num_underscore) \<Longrightarrow>
 	 (wf_num_underscore v_numtype num__0) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the (var_0))) \<Longrightarrow>
 	 (wf_num_underscore I32 ret_val)"
 sorry
 
@@ -3241,110 +3386,213 @@ lemma trunc_sat___is_wf :
 sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:52.6-52.14 *)
-inductive fun_cvtop__underscore :: "numtype \<Rightarrow> numtype \<Rightarrow> cvtop__underscore \<Rightarrow> num_underscore \<Rightarrow> (num_underscore list) \<Rightarrow> bool" where
-	  fun_cvtop___case_0 :
-		"fun_cvtop__underscore I32 I32 (mk_cvtop___0 Inn_I32 Inn_I32 (cvtop__Inn_1_Inn_2_EXTEND v_sx)) (mk_num__0 Inn_I32 iN_1) [(mk_num__0 Inn_I32 (extend__underscore (sizenn1 (numtype_Inn Inn_I32)) (sizenn2 (numtype_Inn Inn_I32)) v_sx iN_1))]"
-	| fun_cvtop___case_1 :
-		"fun_cvtop__underscore I64 I32 (mk_cvtop___0 Inn_I64 Inn_I32 (cvtop__Inn_1_Inn_2_EXTEND v_sx)) (mk_num__0 Inn_I64 iN_1) [(mk_num__0 Inn_I32 (extend__underscore (sizenn1 (numtype_Inn Inn_I64)) (sizenn2 (numtype_Inn Inn_I32)) v_sx iN_1))]"
-	| fun_cvtop___case_2 :
-		"fun_cvtop__underscore I32 I64 (mk_cvtop___0 Inn_I32 Inn_I64 (cvtop__Inn_1_Inn_2_EXTEND v_sx)) (mk_num__0 Inn_I32 iN_1) [(mk_num__0 Inn_I64 (extend__underscore (sizenn1 (numtype_Inn Inn_I32)) (sizenn2 (numtype_Inn Inn_I64)) v_sx iN_1))]"
-	| fun_cvtop___case_3 :
-		"fun_cvtop__underscore I64 I64 (mk_cvtop___0 Inn_I64 Inn_I64 (cvtop__Inn_1_Inn_2_EXTEND v_sx)) (mk_num__0 Inn_I64 iN_1) [(mk_num__0 Inn_I64 (extend__underscore (sizenn1 (numtype_Inn Inn_I64)) (sizenn2 (numtype_Inn Inn_I64)) v_sx iN_1))]"
-	| fun_cvtop___case_4 :
-		"fun_cvtop__underscore I32 I32 (mk_cvtop___0 Inn_I32 Inn_I32 WRAP) (mk_num__0 Inn_I32 iN_1) [(mk_num__0 Inn_I32 (wrap__underscore (sizenn1 (numtype_Inn Inn_I32)) (sizenn2 (numtype_Inn Inn_I32)) iN_1))]"
-	| fun_cvtop___case_5 :
-		"fun_cvtop__underscore I64 I32 (mk_cvtop___0 Inn_I64 Inn_I32 WRAP) (mk_num__0 Inn_I64 iN_1) [(mk_num__0 Inn_I32 (wrap__underscore (sizenn1 (numtype_Inn Inn_I64)) (sizenn2 (numtype_Inn Inn_I32)) iN_1))]"
-	| fun_cvtop___case_6 :
-		"fun_cvtop__underscore I32 I64 (mk_cvtop___0 Inn_I32 Inn_I64 WRAP) (mk_num__0 Inn_I32 iN_1) [(mk_num__0 Inn_I64 (wrap__underscore (sizenn1 (numtype_Inn Inn_I32)) (sizenn2 (numtype_Inn Inn_I64)) iN_1))]"
-	| fun_cvtop___case_7 :
-		"fun_cvtop__underscore I64 I64 (mk_cvtop___0 Inn_I64 Inn_I64 WRAP) (mk_num__0 Inn_I64 iN_1) [(mk_num__0 Inn_I64 (wrap__underscore (sizenn1 (numtype_Inn Inn_I64)) (sizenn2 (numtype_Inn Inn_I64)) iN_1))]"
-	| fun_cvtop___case_8 :
-		"fun_cvtop__underscore F32 I32 (mk_cvtop___2 Fnn_F32 Inn_I32 (cvtop__Fnn_1_Inn_2_TRUNC v_sx)) (mk_num__1 Fnn_F32 fN_1) (list_underscore  (map_option (\<lambda> (iter_0_33 :: iN). (mk_num__0 Inn_I32 iter_0_33)) (trunc__underscore (sizenn1 (numtype_Fnn Fnn_F32)) (sizenn2 (numtype_Inn Inn_I32)) v_sx fN_1)))"
-	| fun_cvtop___case_9 :
-		"fun_cvtop__underscore F64 I32 (mk_cvtop___2 Fnn_F64 Inn_I32 (cvtop__Fnn_1_Inn_2_TRUNC v_sx)) (mk_num__1 Fnn_F64 fN_1) (list_underscore  (map_option (\<lambda> (iter_0_34 :: iN). (mk_num__0 Inn_I32 iter_0_34)) (trunc__underscore (sizenn1 (numtype_Fnn Fnn_F64)) (sizenn2 (numtype_Inn Inn_I32)) v_sx fN_1)))"
-	| fun_cvtop___case_10 :
-		"fun_cvtop__underscore F32 I64 (mk_cvtop___2 Fnn_F32 Inn_I64 (cvtop__Fnn_1_Inn_2_TRUNC v_sx)) (mk_num__1 Fnn_F32 fN_1) (list_underscore  (map_option (\<lambda> (iter_0_35 :: iN). (mk_num__0 Inn_I64 iter_0_35)) (trunc__underscore (sizenn1 (numtype_Fnn Fnn_F32)) (sizenn2 (numtype_Inn Inn_I64)) v_sx fN_1)))"
-	| fun_cvtop___case_11 :
-		"fun_cvtop__underscore F64 I64 (mk_cvtop___2 Fnn_F64 Inn_I64 (cvtop__Fnn_1_Inn_2_TRUNC v_sx)) (mk_num__1 Fnn_F64 fN_1) (list_underscore  (map_option (\<lambda> (iter_0_36 :: iN). (mk_num__0 Inn_I64 iter_0_36)) (trunc__underscore (sizenn1 (numtype_Fnn Fnn_F64)) (sizenn2 (numtype_Inn Inn_I64)) v_sx fN_1)))"
-	| fun_cvtop___case_12 :
-		"fun_cvtop__underscore F32 I32 (mk_cvtop___2 Fnn_F32 Inn_I32 (TRUNC_SAT v_sx)) (mk_num__1 Fnn_F32 fN_1) (list_underscore  (map_option (\<lambda> (iter_0_37 :: iN). (mk_num__0 Inn_I32 iter_0_37)) (trunc_sat__underscore (sizenn1 (numtype_Fnn Fnn_F32)) (sizenn2 (numtype_Inn Inn_I32)) v_sx fN_1)))"
-	| fun_cvtop___case_13 :
-		"fun_cvtop__underscore F64 I32 (mk_cvtop___2 Fnn_F64 Inn_I32 (TRUNC_SAT v_sx)) (mk_num__1 Fnn_F64 fN_1) (list_underscore  (map_option (\<lambda> (iter_0_38 :: iN). (mk_num__0 Inn_I32 iter_0_38)) (trunc_sat__underscore (sizenn1 (numtype_Fnn Fnn_F64)) (sizenn2 (numtype_Inn Inn_I32)) v_sx fN_1)))"
-	| fun_cvtop___case_14 :
-		"fun_cvtop__underscore F32 I64 (mk_cvtop___2 Fnn_F32 Inn_I64 (TRUNC_SAT v_sx)) (mk_num__1 Fnn_F32 fN_1) (list_underscore  (map_option (\<lambda> (iter_0_39 :: iN). (mk_num__0 Inn_I64 iter_0_39)) (trunc_sat__underscore (sizenn1 (numtype_Fnn Fnn_F32)) (sizenn2 (numtype_Inn Inn_I64)) v_sx fN_1)))"
-	| fun_cvtop___case_15 :
-		"fun_cvtop__underscore F64 I64 (mk_cvtop___2 Fnn_F64 Inn_I64 (TRUNC_SAT v_sx)) (mk_num__1 Fnn_F64 fN_1) (list_underscore  (map_option (\<lambda> (iter_0_40 :: iN). (mk_num__0 Inn_I64 iter_0_40)) (trunc_sat__underscore (sizenn1 (numtype_Fnn Fnn_F64)) (sizenn2 (numtype_Inn Inn_I64)) v_sx fN_1)))"
-	| fun_cvtop___case_16 :
-		"fun_cvtop__underscore I32 F32 (mk_cvtop___1 Inn_I32 Fnn_F32 (CONVERT v_sx)) (mk_num__0 Inn_I32 iN_1) [(mk_num__1 Fnn_F32 (convert__underscore (sizenn1 (numtype_Inn Inn_I32)) (sizenn2 (numtype_Fnn Fnn_F32)) v_sx iN_1))]"
-	| fun_cvtop___case_17 :
-		"fun_cvtop__underscore I64 F32 (mk_cvtop___1 Inn_I64 Fnn_F32 (CONVERT v_sx)) (mk_num__0 Inn_I64 iN_1) [(mk_num__1 Fnn_F32 (convert__underscore (sizenn1 (numtype_Inn Inn_I64)) (sizenn2 (numtype_Fnn Fnn_F32)) v_sx iN_1))]"
-	| fun_cvtop___case_18 :
-		"fun_cvtop__underscore I32 F64 (mk_cvtop___1 Inn_I32 Fnn_F64 (CONVERT v_sx)) (mk_num__0 Inn_I32 iN_1) [(mk_num__1 Fnn_F64 (convert__underscore (sizenn1 (numtype_Inn Inn_I32)) (sizenn2 (numtype_Fnn Fnn_F64)) v_sx iN_1))]"
-	| fun_cvtop___case_19 :
-		"fun_cvtop__underscore I64 F64 (mk_cvtop___1 Inn_I64 Fnn_F64 (CONVERT v_sx)) (mk_num__0 Inn_I64 iN_1) [(mk_num__1 Fnn_F64 (convert__underscore (sizenn1 (numtype_Inn Inn_I64)) (sizenn2 (numtype_Fnn Fnn_F64)) v_sx iN_1))]"
-	| fun_cvtop___case_20 :
-		"fun_cvtop__underscore F32 F32 (mk_cvtop___3 Fnn_F32 Fnn_F32 PROMOTE) (mk_num__1 Fnn_F32 fN_1) (map (\<lambda> (iter_0_41 :: fN). (mk_num__1 Fnn_F32 iter_0_41)) (promote__underscore (sizenn1 (numtype_Fnn Fnn_F32)) (sizenn2 (numtype_Fnn Fnn_F32)) fN_1))"
-	| fun_cvtop___case_21 :
-		"fun_cvtop__underscore F64 F32 (mk_cvtop___3 Fnn_F64 Fnn_F32 PROMOTE) (mk_num__1 Fnn_F64 fN_1) (map (\<lambda> (iter_0_42 :: fN). (mk_num__1 Fnn_F32 iter_0_42)) (promote__underscore (sizenn1 (numtype_Fnn Fnn_F64)) (sizenn2 (numtype_Fnn Fnn_F32)) fN_1))"
-	| fun_cvtop___case_22 :
-		"fun_cvtop__underscore F32 F64 (mk_cvtop___3 Fnn_F32 Fnn_F64 PROMOTE) (mk_num__1 Fnn_F32 fN_1) (map (\<lambda> (iter_0_43 :: fN). (mk_num__1 Fnn_F64 iter_0_43)) (promote__underscore (sizenn1 (numtype_Fnn Fnn_F32)) (sizenn2 (numtype_Fnn Fnn_F64)) fN_1))"
-	| fun_cvtop___case_23 :
-		"fun_cvtop__underscore F64 F64 (mk_cvtop___3 Fnn_F64 Fnn_F64 PROMOTE) (mk_num__1 Fnn_F64 fN_1) (map (\<lambda> (iter_0_44 :: fN). (mk_num__1 Fnn_F64 iter_0_44)) (promote__underscore (sizenn1 (numtype_Fnn Fnn_F64)) (sizenn2 (numtype_Fnn Fnn_F64)) fN_1))"
-	| fun_cvtop___case_24 :
-		"fun_cvtop__underscore F32 F32 (mk_cvtop___3 Fnn_F32 Fnn_F32 DEMOTE) (mk_num__1 Fnn_F32 fN_1) (map (\<lambda> (iter_0_45 :: fN). (mk_num__1 Fnn_F32 iter_0_45)) (demote__underscore (sizenn1 (numtype_Fnn Fnn_F32)) (sizenn2 (numtype_Fnn Fnn_F32)) fN_1))"
-	| fun_cvtop___case_25 :
-		"fun_cvtop__underscore F64 F32 (mk_cvtop___3 Fnn_F64 Fnn_F32 DEMOTE) (mk_num__1 Fnn_F64 fN_1) (map (\<lambda> (iter_0_46 :: fN). (mk_num__1 Fnn_F32 iter_0_46)) (demote__underscore (sizenn1 (numtype_Fnn Fnn_F64)) (sizenn2 (numtype_Fnn Fnn_F32)) fN_1))"
-	| fun_cvtop___case_26 :
-		"fun_cvtop__underscore F32 F64 (mk_cvtop___3 Fnn_F32 Fnn_F64 DEMOTE) (mk_num__1 Fnn_F32 fN_1) (map (\<lambda> (iter_0_47 :: fN). (mk_num__1 Fnn_F64 iter_0_47)) (demote__underscore (sizenn1 (numtype_Fnn Fnn_F32)) (sizenn2 (numtype_Fnn Fnn_F64)) fN_1))"
-	| fun_cvtop___case_27 :
-		"fun_cvtop__underscore F64 F64 (mk_cvtop___3 Fnn_F64 Fnn_F64 DEMOTE) (mk_num__1 Fnn_F64 fN_1) (map (\<lambda> (iter_0_48 :: fN). (mk_num__1 Fnn_F64 iter_0_48)) (demote__underscore (sizenn1 (numtype_Fnn Fnn_F64)) (sizenn2 (numtype_Fnn Fnn_F64)) fN_1))"
-	| fun_cvtop___case_28 :
-		"((size (valtype_Inn Inn_I32)) \<noteq> None) \<Longrightarrow>
-		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
-		 ((the ((size (valtype_Inn Inn_I32)))) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
-		 fun_cvtop__underscore I32 F32 (mk_cvtop___1 Inn_I32 Fnn_F32 REINTERPRET) (mk_num__0 Inn_I32 iN_1) [(reinterpret__underscore (numtype_Inn Inn_I32) (numtype_Fnn Fnn_F32) (mk_num__0 Inn_I32 iN_1))]"
-	| fun_cvtop___case_29 :
-		"((size (valtype_Inn Inn_I64)) \<noteq> None) \<Longrightarrow>
-		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
-		 ((the ((size (valtype_Inn Inn_I64)))) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
-		 fun_cvtop__underscore I64 F32 (mk_cvtop___1 Inn_I64 Fnn_F32 REINTERPRET) (mk_num__0 Inn_I64 iN_1) [(reinterpret__underscore (numtype_Inn Inn_I64) (numtype_Fnn Fnn_F32) (mk_num__0 Inn_I64 iN_1))]"
-	| fun_cvtop___case_30 :
-		"((size (valtype_Inn Inn_I32)) \<noteq> None) \<Longrightarrow>
-		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
-		 ((the ((size (valtype_Inn Inn_I32)))) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
-		 fun_cvtop__underscore I32 F64 (mk_cvtop___1 Inn_I32 Fnn_F64 REINTERPRET) (mk_num__0 Inn_I32 iN_1) [(reinterpret__underscore (numtype_Inn Inn_I32) (numtype_Fnn Fnn_F64) (mk_num__0 Inn_I32 iN_1))]"
-	| fun_cvtop___case_31 :
-		"((size (valtype_Inn Inn_I64)) \<noteq> None) \<Longrightarrow>
-		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
-		 ((the ((size (valtype_Inn Inn_I64)))) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
-		 fun_cvtop__underscore I64 F64 (mk_cvtop___1 Inn_I64 Fnn_F64 REINTERPRET) (mk_num__0 Inn_I64 iN_1) [(reinterpret__underscore (numtype_Inn Inn_I64) (numtype_Fnn Fnn_F64) (mk_num__0 Inn_I64 iN_1))]"
-	| fun_cvtop___case_32 :
-		"((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
-		 ((size (valtype_Inn Inn_I32)) \<noteq> None) \<Longrightarrow>
-		 ((the ((size (valtype_Fnn Fnn_F32)))) = (the ((size (valtype_Inn Inn_I32))))) \<Longrightarrow>
-		 fun_cvtop__underscore F32 I32 (mk_cvtop___2 Fnn_F32 Inn_I32 cvtop__Fnn_1_Inn_2_REINTERPRET) (mk_num__1 Fnn_F32 fN_1) [(reinterpret__underscore (numtype_Fnn Fnn_F32) (numtype_Inn Inn_I32) (mk_num__1 Fnn_F32 fN_1))]"
-	| fun_cvtop___case_33 :
+inductive fun_cvtop___before_fun_cvtop___case_36 :: "numtype \<Rightarrow> numtype \<Rightarrow> cvtop__underscore \<Rightarrow> num_underscore \<Rightarrow> bool" where
+	  fun_cvtop___case_35 :
 		"((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
-		 ((size (valtype_Inn Inn_I32)) \<noteq> None) \<Longrightarrow>
-		 ((the ((size (valtype_Fnn Fnn_F64)))) = (the ((size (valtype_Inn Inn_I32))))) \<Longrightarrow>
-		 fun_cvtop__underscore F64 I32 (mk_cvtop___2 Fnn_F64 Inn_I32 cvtop__Fnn_1_Inn_2_REINTERPRET) (mk_num__1 Fnn_F64 fN_1) [(reinterpret__underscore (numtype_Fnn Fnn_F64) (numtype_Inn Inn_I32) (mk_num__1 Fnn_F64 fN_1))]"
+		 ((size (valtype_Inn Inn_I64)) \<noteq> None) \<Longrightarrow>
+		 ((the ((size (valtype_Fnn Fnn_F64)))) = (the ((size (valtype_Inn Inn_I64))))) \<Longrightarrow>
+		 fun_cvtop___before_fun_cvtop___case_36 F64 I64 (mk_cvtop___2 Fnn_F64 Inn_I64 cvtop__Fnn_1_Inn_2_REINTERPRET) (mk_num__1 Fnn_F64 fN_1)"
 	| fun_cvtop___case_34 :
 		"((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
 		 ((size (valtype_Inn Inn_I64)) \<noteq> None) \<Longrightarrow>
 		 ((the ((size (valtype_Fnn Fnn_F32)))) = (the ((size (valtype_Inn Inn_I64))))) \<Longrightarrow>
-		 fun_cvtop__underscore F32 I64 (mk_cvtop___2 Fnn_F32 Inn_I64 cvtop__Fnn_1_Inn_2_REINTERPRET) (mk_num__1 Fnn_F32 fN_1) [(reinterpret__underscore (numtype_Fnn Fnn_F32) (numtype_Inn Inn_I64) (mk_num__1 Fnn_F32 fN_1))]"
-	| fun_cvtop___case_35 :
+		 fun_cvtop___before_fun_cvtop___case_36 F32 I64 (mk_cvtop___2 Fnn_F32 Inn_I64 cvtop__Fnn_1_Inn_2_REINTERPRET) (mk_num__1 Fnn_F32 fN_1)"
+	| fun_cvtop___case_33 :
+		"((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 ((size (valtype_Inn Inn_I32)) \<noteq> None) \<Longrightarrow>
+		 ((the ((size (valtype_Fnn Fnn_F64)))) = (the ((size (valtype_Inn Inn_I32))))) \<Longrightarrow>
+		 fun_cvtop___before_fun_cvtop___case_36 F64 I32 (mk_cvtop___2 Fnn_F64 Inn_I32 cvtop__Fnn_1_Inn_2_REINTERPRET) (mk_num__1 Fnn_F64 fN_1)"
+	| fun_cvtop___case_32 :
+		"((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((size (valtype_Inn Inn_I32)) \<noteq> None) \<Longrightarrow>
+		 ((the ((size (valtype_Fnn Fnn_F32)))) = (the ((size (valtype_Inn Inn_I32))))) \<Longrightarrow>
+		 fun_cvtop___before_fun_cvtop___case_36 F32 I32 (mk_cvtop___2 Fnn_F32 Inn_I32 cvtop__Fnn_1_Inn_2_REINTERPRET) (mk_num__1 Fnn_F32 fN_1)"
+	| fun_cvtop___case_31 :
+		"((size (valtype_Inn Inn_I64)) \<noteq> None) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 ((the ((size (valtype_Inn Inn_I64)))) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
+		 fun_cvtop___before_fun_cvtop___case_36 I64 F64 (mk_cvtop___1 Inn_I64 Fnn_F64 REINTERPRET) (mk_num__0 Inn_I64 iN_1)"
+	| fun_cvtop___case_30 :
+		"((size (valtype_Inn Inn_I32)) \<noteq> None) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 ((the ((size (valtype_Inn Inn_I32)))) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
+		 fun_cvtop___before_fun_cvtop___case_36 I32 F64 (mk_cvtop___1 Inn_I32 Fnn_F64 REINTERPRET) (mk_num__0 Inn_I32 iN_1)"
+	| fun_cvtop___case_29 :
+		"((size (valtype_Inn Inn_I64)) \<noteq> None) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((the ((size (valtype_Inn Inn_I64)))) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
+		 fun_cvtop___before_fun_cvtop___case_36 I64 F32 (mk_cvtop___1 Inn_I64 Fnn_F32 REINTERPRET) (mk_num__0 Inn_I64 iN_1)"
+	| fun_cvtop___case_28 :
+		"((size (valtype_Inn Inn_I32)) \<noteq> None) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((the ((size (valtype_Inn Inn_I32)))) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
+		 fun_cvtop___before_fun_cvtop___case_36 I32 F32 (mk_cvtop___1 Inn_I32 Fnn_F32 REINTERPRET) (mk_num__0 Inn_I32 iN_1)"
+	| fun_cvtop___case_27 :
+		"fun_cvtop___before_fun_cvtop___case_36 F64 F64 (mk_cvtop___3 Fnn_F64 Fnn_F64 DEMOTE) (mk_num__1 Fnn_F64 fN_1)"
+	| fun_cvtop___case_26 :
+		"fun_cvtop___before_fun_cvtop___case_36 F32 F64 (mk_cvtop___3 Fnn_F32 Fnn_F64 DEMOTE) (mk_num__1 Fnn_F32 fN_1)"
+	| fun_cvtop___case_25 :
+		"fun_cvtop___before_fun_cvtop___case_36 F64 F32 (mk_cvtop___3 Fnn_F64 Fnn_F32 DEMOTE) (mk_num__1 Fnn_F64 fN_1)"
+	| fun_cvtop___case_24 :
+		"fun_cvtop___before_fun_cvtop___case_36 F32 F32 (mk_cvtop___3 Fnn_F32 Fnn_F32 DEMOTE) (mk_num__1 Fnn_F32 fN_1)"
+	| fun_cvtop___case_23 :
+		"fun_cvtop___before_fun_cvtop___case_36 F64 F64 (mk_cvtop___3 Fnn_F64 Fnn_F64 PROMOTE) (mk_num__1 Fnn_F64 fN_1)"
+	| fun_cvtop___case_22 :
+		"fun_cvtop___before_fun_cvtop___case_36 F32 F64 (mk_cvtop___3 Fnn_F32 Fnn_F64 PROMOTE) (mk_num__1 Fnn_F32 fN_1)"
+	| fun_cvtop___case_21 :
+		"fun_cvtop___before_fun_cvtop___case_36 F64 F32 (mk_cvtop___3 Fnn_F64 Fnn_F32 PROMOTE) (mk_num__1 Fnn_F64 fN_1)"
+	| fun_cvtop___case_20 :
+		"fun_cvtop___before_fun_cvtop___case_36 F32 F32 (mk_cvtop___3 Fnn_F32 Fnn_F32 PROMOTE) (mk_num__1 Fnn_F32 fN_1)"
+	| fun_cvtop___case_19 :
+		"fun_cvtop___before_fun_cvtop___case_36 I64 F64 (mk_cvtop___1 Inn_I64 Fnn_F64 (CONVERT v_sx)) (mk_num__0 Inn_I64 iN_1)"
+	| fun_cvtop___case_18 :
+		"fun_cvtop___before_fun_cvtop___case_36 I32 F64 (mk_cvtop___1 Inn_I32 Fnn_F64 (CONVERT v_sx)) (mk_num__0 Inn_I32 iN_1)"
+	| fun_cvtop___case_17 :
+		"fun_cvtop___before_fun_cvtop___case_36 I64 F32 (mk_cvtop___1 Inn_I64 Fnn_F32 (CONVERT v_sx)) (mk_num__0 Inn_I64 iN_1)"
+	| fun_cvtop___case_16 :
+		"fun_cvtop___before_fun_cvtop___case_36 I32 F32 (mk_cvtop___1 Inn_I32 Fnn_F32 (CONVERT v_sx)) (mk_num__0 Inn_I32 iN_1)"
+	| fun_cvtop___case_15 :
+		"fun_cvtop___before_fun_cvtop___case_36 F64 I64 (mk_cvtop___2 Fnn_F64 Inn_I64 (TRUNC_SAT v_sx)) (mk_num__1 Fnn_F64 fN_1)"
+	| fun_cvtop___case_14 :
+		"fun_cvtop___before_fun_cvtop___case_36 F32 I64 (mk_cvtop___2 Fnn_F32 Inn_I64 (TRUNC_SAT v_sx)) (mk_num__1 Fnn_F32 fN_1)"
+	| fun_cvtop___case_13 :
+		"fun_cvtop___before_fun_cvtop___case_36 F64 I32 (mk_cvtop___2 Fnn_F64 Inn_I32 (TRUNC_SAT v_sx)) (mk_num__1 Fnn_F64 fN_1)"
+	| fun_cvtop___case_12 :
+		"fun_cvtop___before_fun_cvtop___case_36 F32 I32 (mk_cvtop___2 Fnn_F32 Inn_I32 (TRUNC_SAT v_sx)) (mk_num__1 Fnn_F32 fN_1)"
+	| fun_cvtop___case_11 :
+		"fun_cvtop___before_fun_cvtop___case_36 F64 I64 (mk_cvtop___2 Fnn_F64 Inn_I64 (cvtop__Fnn_1_Inn_2_TRUNC v_sx)) (mk_num__1 Fnn_F64 fN_1)"
+	| fun_cvtop___case_10 :
+		"fun_cvtop___before_fun_cvtop___case_36 F32 I64 (mk_cvtop___2 Fnn_F32 Inn_I64 (cvtop__Fnn_1_Inn_2_TRUNC v_sx)) (mk_num__1 Fnn_F32 fN_1)"
+	| fun_cvtop___case_9 :
+		"fun_cvtop___before_fun_cvtop___case_36 F64 I32 (mk_cvtop___2 Fnn_F64 Inn_I32 (cvtop__Fnn_1_Inn_2_TRUNC v_sx)) (mk_num__1 Fnn_F64 fN_1)"
+	| fun_cvtop___case_8 :
+		"fun_cvtop___before_fun_cvtop___case_36 F32 I32 (mk_cvtop___2 Fnn_F32 Inn_I32 (cvtop__Fnn_1_Inn_2_TRUNC v_sx)) (mk_num__1 Fnn_F32 fN_1)"
+	| fun_cvtop___case_7 :
+		"fun_cvtop___before_fun_cvtop___case_36 I64 I64 (mk_cvtop___0 Inn_I64 Inn_I64 WRAP) (mk_num__0 Inn_I64 iN_1)"
+	| fun_cvtop___case_6 :
+		"fun_cvtop___before_fun_cvtop___case_36 I32 I64 (mk_cvtop___0 Inn_I32 Inn_I64 WRAP) (mk_num__0 Inn_I32 iN_1)"
+	| fun_cvtop___case_5 :
+		"fun_cvtop___before_fun_cvtop___case_36 I64 I32 (mk_cvtop___0 Inn_I64 Inn_I32 WRAP) (mk_num__0 Inn_I64 iN_1)"
+	| fun_cvtop___case_4 :
+		"fun_cvtop___before_fun_cvtop___case_36 I32 I32 (mk_cvtop___0 Inn_I32 Inn_I32 WRAP) (mk_num__0 Inn_I32 iN_1)"
+	| fun_cvtop___case_3 :
+		"fun_cvtop___before_fun_cvtop___case_36 I64 I64 (mk_cvtop___0 Inn_I64 Inn_I64 (cvtop__Inn_1_Inn_2_EXTEND v_sx)) (mk_num__0 Inn_I64 iN_1)"
+	| fun_cvtop___case_2 :
+		"fun_cvtop___before_fun_cvtop___case_36 I32 I64 (mk_cvtop___0 Inn_I32 Inn_I64 (cvtop__Inn_1_Inn_2_EXTEND v_sx)) (mk_num__0 Inn_I32 iN_1)"
+	| fun_cvtop___case_1 :
+		"fun_cvtop___before_fun_cvtop___case_36 I64 I32 (mk_cvtop___0 Inn_I64 Inn_I32 (cvtop__Inn_1_Inn_2_EXTEND v_sx)) (mk_num__0 Inn_I64 iN_1)"
+	| fun_cvtop___case_0 :
+		"fun_cvtop___before_fun_cvtop___case_36 I32 I32 (mk_cvtop___0 Inn_I32 Inn_I32 (cvtop__Inn_1_Inn_2_EXTEND v_sx)) (mk_num__0 Inn_I32 iN_1)"
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:52.6-52.14 *)
+inductive fun_cvtop__underscore :: "numtype \<Rightarrow> numtype \<Rightarrow> cvtop__underscore \<Rightarrow> num_underscore \<Rightarrow> ((num_underscore list) option) \<Rightarrow> bool" where
+	  fun_cvtop____fun_cvtop___case_0 :
+		"fun_cvtop__underscore I32 I32 (mk_cvtop___0 Inn_I32 Inn_I32 (cvtop__Inn_1_Inn_2_EXTEND v_sx)) (mk_num__0 Inn_I32 iN_1) (Some [(mk_num__0 Inn_I32 (extend__underscore (sizenn1 (numtype_Inn Inn_I32)) (sizenn2 (numtype_Inn Inn_I32)) v_sx iN_1))])"
+	| fun_cvtop____fun_cvtop___case_1 :
+		"fun_cvtop__underscore I64 I32 (mk_cvtop___0 Inn_I64 Inn_I32 (cvtop__Inn_1_Inn_2_EXTEND v_sx)) (mk_num__0 Inn_I64 iN_1) (Some [(mk_num__0 Inn_I32 (extend__underscore (sizenn1 (numtype_Inn Inn_I64)) (sizenn2 (numtype_Inn Inn_I32)) v_sx iN_1))])"
+	| fun_cvtop____fun_cvtop___case_2 :
+		"fun_cvtop__underscore I32 I64 (mk_cvtop___0 Inn_I32 Inn_I64 (cvtop__Inn_1_Inn_2_EXTEND v_sx)) (mk_num__0 Inn_I32 iN_1) (Some [(mk_num__0 Inn_I64 (extend__underscore (sizenn1 (numtype_Inn Inn_I32)) (sizenn2 (numtype_Inn Inn_I64)) v_sx iN_1))])"
+	| fun_cvtop____fun_cvtop___case_3 :
+		"fun_cvtop__underscore I64 I64 (mk_cvtop___0 Inn_I64 Inn_I64 (cvtop__Inn_1_Inn_2_EXTEND v_sx)) (mk_num__0 Inn_I64 iN_1) (Some [(mk_num__0 Inn_I64 (extend__underscore (sizenn1 (numtype_Inn Inn_I64)) (sizenn2 (numtype_Inn Inn_I64)) v_sx iN_1))])"
+	| fun_cvtop____fun_cvtop___case_4 :
+		"fun_cvtop__underscore I32 I32 (mk_cvtop___0 Inn_I32 Inn_I32 WRAP) (mk_num__0 Inn_I32 iN_1) (Some [(mk_num__0 Inn_I32 (wrap__underscore (sizenn1 (numtype_Inn Inn_I32)) (sizenn2 (numtype_Inn Inn_I32)) iN_1))])"
+	| fun_cvtop____fun_cvtop___case_5 :
+		"fun_cvtop__underscore I64 I32 (mk_cvtop___0 Inn_I64 Inn_I32 WRAP) (mk_num__0 Inn_I64 iN_1) (Some [(mk_num__0 Inn_I32 (wrap__underscore (sizenn1 (numtype_Inn Inn_I64)) (sizenn2 (numtype_Inn Inn_I32)) iN_1))])"
+	| fun_cvtop____fun_cvtop___case_6 :
+		"fun_cvtop__underscore I32 I64 (mk_cvtop___0 Inn_I32 Inn_I64 WRAP) (mk_num__0 Inn_I32 iN_1) (Some [(mk_num__0 Inn_I64 (wrap__underscore (sizenn1 (numtype_Inn Inn_I32)) (sizenn2 (numtype_Inn Inn_I64)) iN_1))])"
+	| fun_cvtop____fun_cvtop___case_7 :
+		"fun_cvtop__underscore I64 I64 (mk_cvtop___0 Inn_I64 Inn_I64 WRAP) (mk_num__0 Inn_I64 iN_1) (Some [(mk_num__0 Inn_I64 (wrap__underscore (sizenn1 (numtype_Inn Inn_I64)) (sizenn2 (numtype_Inn Inn_I64)) iN_1))])"
+	| fun_cvtop____fun_cvtop___case_8 :
+		"fun_cvtop__underscore F32 I32 (mk_cvtop___2 Fnn_F32 Inn_I32 (cvtop__Fnn_1_Inn_2_TRUNC v_sx)) (mk_num__1 Fnn_F32 fN_1) (Some (list_underscore  (map_option (\<lambda> (iter_0_33 :: iN). (mk_num__0 Inn_I32 iter_0_33)) (trunc__underscore (sizenn1 (numtype_Fnn Fnn_F32)) (sizenn2 (numtype_Inn Inn_I32)) v_sx fN_1))))"
+	| fun_cvtop____fun_cvtop___case_9 :
+		"fun_cvtop__underscore F64 I32 (mk_cvtop___2 Fnn_F64 Inn_I32 (cvtop__Fnn_1_Inn_2_TRUNC v_sx)) (mk_num__1 Fnn_F64 fN_1) (Some (list_underscore  (map_option (\<lambda> (iter_0_34 :: iN). (mk_num__0 Inn_I32 iter_0_34)) (trunc__underscore (sizenn1 (numtype_Fnn Fnn_F64)) (sizenn2 (numtype_Inn Inn_I32)) v_sx fN_1))))"
+	| fun_cvtop____fun_cvtop___case_10 :
+		"fun_cvtop__underscore F32 I64 (mk_cvtop___2 Fnn_F32 Inn_I64 (cvtop__Fnn_1_Inn_2_TRUNC v_sx)) (mk_num__1 Fnn_F32 fN_1) (Some (list_underscore  (map_option (\<lambda> (iter_0_35 :: iN). (mk_num__0 Inn_I64 iter_0_35)) (trunc__underscore (sizenn1 (numtype_Fnn Fnn_F32)) (sizenn2 (numtype_Inn Inn_I64)) v_sx fN_1))))"
+	| fun_cvtop____fun_cvtop___case_11 :
+		"fun_cvtop__underscore F64 I64 (mk_cvtop___2 Fnn_F64 Inn_I64 (cvtop__Fnn_1_Inn_2_TRUNC v_sx)) (mk_num__1 Fnn_F64 fN_1) (Some (list_underscore  (map_option (\<lambda> (iter_0_36 :: iN). (mk_num__0 Inn_I64 iter_0_36)) (trunc__underscore (sizenn1 (numtype_Fnn Fnn_F64)) (sizenn2 (numtype_Inn Inn_I64)) v_sx fN_1))))"
+	| fun_cvtop____fun_cvtop___case_12 :
+		"fun_cvtop__underscore F32 I32 (mk_cvtop___2 Fnn_F32 Inn_I32 (TRUNC_SAT v_sx)) (mk_num__1 Fnn_F32 fN_1) (Some (list_underscore  (map_option (\<lambda> (iter_0_37 :: iN). (mk_num__0 Inn_I32 iter_0_37)) (trunc_sat__underscore (sizenn1 (numtype_Fnn Fnn_F32)) (sizenn2 (numtype_Inn Inn_I32)) v_sx fN_1))))"
+	| fun_cvtop____fun_cvtop___case_13 :
+		"fun_cvtop__underscore F64 I32 (mk_cvtop___2 Fnn_F64 Inn_I32 (TRUNC_SAT v_sx)) (mk_num__1 Fnn_F64 fN_1) (Some (list_underscore  (map_option (\<lambda> (iter_0_38 :: iN). (mk_num__0 Inn_I32 iter_0_38)) (trunc_sat__underscore (sizenn1 (numtype_Fnn Fnn_F64)) (sizenn2 (numtype_Inn Inn_I32)) v_sx fN_1))))"
+	| fun_cvtop____fun_cvtop___case_14 :
+		"fun_cvtop__underscore F32 I64 (mk_cvtop___2 Fnn_F32 Inn_I64 (TRUNC_SAT v_sx)) (mk_num__1 Fnn_F32 fN_1) (Some (list_underscore  (map_option (\<lambda> (iter_0_39 :: iN). (mk_num__0 Inn_I64 iter_0_39)) (trunc_sat__underscore (sizenn1 (numtype_Fnn Fnn_F32)) (sizenn2 (numtype_Inn Inn_I64)) v_sx fN_1))))"
+	| fun_cvtop____fun_cvtop___case_15 :
+		"fun_cvtop__underscore F64 I64 (mk_cvtop___2 Fnn_F64 Inn_I64 (TRUNC_SAT v_sx)) (mk_num__1 Fnn_F64 fN_1) (Some (list_underscore  (map_option (\<lambda> (iter_0_40 :: iN). (mk_num__0 Inn_I64 iter_0_40)) (trunc_sat__underscore (sizenn1 (numtype_Fnn Fnn_F64)) (sizenn2 (numtype_Inn Inn_I64)) v_sx fN_1))))"
+	| fun_cvtop____fun_cvtop___case_16 :
+		"fun_cvtop__underscore I32 F32 (mk_cvtop___1 Inn_I32 Fnn_F32 (CONVERT v_sx)) (mk_num__0 Inn_I32 iN_1) (Some [(mk_num__1 Fnn_F32 (convert__underscore (sizenn1 (numtype_Inn Inn_I32)) (sizenn2 (numtype_Fnn Fnn_F32)) v_sx iN_1))])"
+	| fun_cvtop____fun_cvtop___case_17 :
+		"fun_cvtop__underscore I64 F32 (mk_cvtop___1 Inn_I64 Fnn_F32 (CONVERT v_sx)) (mk_num__0 Inn_I64 iN_1) (Some [(mk_num__1 Fnn_F32 (convert__underscore (sizenn1 (numtype_Inn Inn_I64)) (sizenn2 (numtype_Fnn Fnn_F32)) v_sx iN_1))])"
+	| fun_cvtop____fun_cvtop___case_18 :
+		"fun_cvtop__underscore I32 F64 (mk_cvtop___1 Inn_I32 Fnn_F64 (CONVERT v_sx)) (mk_num__0 Inn_I32 iN_1) (Some [(mk_num__1 Fnn_F64 (convert__underscore (sizenn1 (numtype_Inn Inn_I32)) (sizenn2 (numtype_Fnn Fnn_F64)) v_sx iN_1))])"
+	| fun_cvtop____fun_cvtop___case_19 :
+		"fun_cvtop__underscore I64 F64 (mk_cvtop___1 Inn_I64 Fnn_F64 (CONVERT v_sx)) (mk_num__0 Inn_I64 iN_1) (Some [(mk_num__1 Fnn_F64 (convert__underscore (sizenn1 (numtype_Inn Inn_I64)) (sizenn2 (numtype_Fnn Fnn_F64)) v_sx iN_1))])"
+	| fun_cvtop____fun_cvtop___case_20 :
+		"fun_cvtop__underscore F32 F32 (mk_cvtop___3 Fnn_F32 Fnn_F32 PROMOTE) (mk_num__1 Fnn_F32 fN_1) (Some (map (\<lambda> (iter_0_41 :: fN). (mk_num__1 Fnn_F32 iter_0_41)) (promote__underscore (sizenn1 (numtype_Fnn Fnn_F32)) (sizenn2 (numtype_Fnn Fnn_F32)) fN_1)))"
+	| fun_cvtop____fun_cvtop___case_21 :
+		"fun_cvtop__underscore F64 F32 (mk_cvtop___3 Fnn_F64 Fnn_F32 PROMOTE) (mk_num__1 Fnn_F64 fN_1) (Some (map (\<lambda> (iter_0_42 :: fN). (mk_num__1 Fnn_F32 iter_0_42)) (promote__underscore (sizenn1 (numtype_Fnn Fnn_F64)) (sizenn2 (numtype_Fnn Fnn_F32)) fN_1)))"
+	| fun_cvtop____fun_cvtop___case_22 :
+		"fun_cvtop__underscore F32 F64 (mk_cvtop___3 Fnn_F32 Fnn_F64 PROMOTE) (mk_num__1 Fnn_F32 fN_1) (Some (map (\<lambda> (iter_0_43 :: fN). (mk_num__1 Fnn_F64 iter_0_43)) (promote__underscore (sizenn1 (numtype_Fnn Fnn_F32)) (sizenn2 (numtype_Fnn Fnn_F64)) fN_1)))"
+	| fun_cvtop____fun_cvtop___case_23 :
+		"fun_cvtop__underscore F64 F64 (mk_cvtop___3 Fnn_F64 Fnn_F64 PROMOTE) (mk_num__1 Fnn_F64 fN_1) (Some (map (\<lambda> (iter_0_44 :: fN). (mk_num__1 Fnn_F64 iter_0_44)) (promote__underscore (sizenn1 (numtype_Fnn Fnn_F64)) (sizenn2 (numtype_Fnn Fnn_F64)) fN_1)))"
+	| fun_cvtop____fun_cvtop___case_24 :
+		"fun_cvtop__underscore F32 F32 (mk_cvtop___3 Fnn_F32 Fnn_F32 DEMOTE) (mk_num__1 Fnn_F32 fN_1) (Some (map (\<lambda> (iter_0_45 :: fN). (mk_num__1 Fnn_F32 iter_0_45)) (demote__underscore (sizenn1 (numtype_Fnn Fnn_F32)) (sizenn2 (numtype_Fnn Fnn_F32)) fN_1)))"
+	| fun_cvtop____fun_cvtop___case_25 :
+		"fun_cvtop__underscore F64 F32 (mk_cvtop___3 Fnn_F64 Fnn_F32 DEMOTE) (mk_num__1 Fnn_F64 fN_1) (Some (map (\<lambda> (iter_0_46 :: fN). (mk_num__1 Fnn_F32 iter_0_46)) (demote__underscore (sizenn1 (numtype_Fnn Fnn_F64)) (sizenn2 (numtype_Fnn Fnn_F32)) fN_1)))"
+	| fun_cvtop____fun_cvtop___case_26 :
+		"fun_cvtop__underscore F32 F64 (mk_cvtop___3 Fnn_F32 Fnn_F64 DEMOTE) (mk_num__1 Fnn_F32 fN_1) (Some (map (\<lambda> (iter_0_47 :: fN). (mk_num__1 Fnn_F64 iter_0_47)) (demote__underscore (sizenn1 (numtype_Fnn Fnn_F32)) (sizenn2 (numtype_Fnn Fnn_F64)) fN_1)))"
+	| fun_cvtop____fun_cvtop___case_27 :
+		"fun_cvtop__underscore F64 F64 (mk_cvtop___3 Fnn_F64 Fnn_F64 DEMOTE) (mk_num__1 Fnn_F64 fN_1) (Some (map (\<lambda> (iter_0_48 :: fN). (mk_num__1 Fnn_F64 iter_0_48)) (demote__underscore (sizenn1 (numtype_Fnn Fnn_F64)) (sizenn2 (numtype_Fnn Fnn_F64)) fN_1)))"
+	| fun_cvtop____fun_cvtop___case_28 :
+		"((size (valtype_Inn Inn_I32)) \<noteq> None) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((the ((size (valtype_Inn Inn_I32)))) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
+		 fun_cvtop__underscore I32 F32 (mk_cvtop___1 Inn_I32 Fnn_F32 REINTERPRET) (mk_num__0 Inn_I32 iN_1) (Some [(reinterpret__underscore (numtype_Inn Inn_I32) (numtype_Fnn Fnn_F32) (mk_num__0 Inn_I32 iN_1))])"
+	| fun_cvtop____fun_cvtop___case_29 :
+		"((size (valtype_Inn Inn_I64)) \<noteq> None) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((the ((size (valtype_Inn Inn_I64)))) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
+		 fun_cvtop__underscore I64 F32 (mk_cvtop___1 Inn_I64 Fnn_F32 REINTERPRET) (mk_num__0 Inn_I64 iN_1) (Some [(reinterpret__underscore (numtype_Inn Inn_I64) (numtype_Fnn Fnn_F32) (mk_num__0 Inn_I64 iN_1))])"
+	| fun_cvtop____fun_cvtop___case_30 :
+		"((size (valtype_Inn Inn_I32)) \<noteq> None) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 ((the ((size (valtype_Inn Inn_I32)))) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
+		 fun_cvtop__underscore I32 F64 (mk_cvtop___1 Inn_I32 Fnn_F64 REINTERPRET) (mk_num__0 Inn_I32 iN_1) (Some [(reinterpret__underscore (numtype_Inn Inn_I32) (numtype_Fnn Fnn_F64) (mk_num__0 Inn_I32 iN_1))])"
+	| fun_cvtop____fun_cvtop___case_31 :
+		"((size (valtype_Inn Inn_I64)) \<noteq> None) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 ((the ((size (valtype_Inn Inn_I64)))) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
+		 fun_cvtop__underscore I64 F64 (mk_cvtop___1 Inn_I64 Fnn_F64 REINTERPRET) (mk_num__0 Inn_I64 iN_1) (Some [(reinterpret__underscore (numtype_Inn Inn_I64) (numtype_Fnn Fnn_F64) (mk_num__0 Inn_I64 iN_1))])"
+	| fun_cvtop____fun_cvtop___case_32 :
+		"((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((size (valtype_Inn Inn_I32)) \<noteq> None) \<Longrightarrow>
+		 ((the ((size (valtype_Fnn Fnn_F32)))) = (the ((size (valtype_Inn Inn_I32))))) \<Longrightarrow>
+		 fun_cvtop__underscore F32 I32 (mk_cvtop___2 Fnn_F32 Inn_I32 cvtop__Fnn_1_Inn_2_REINTERPRET) (mk_num__1 Fnn_F32 fN_1) (Some [(reinterpret__underscore (numtype_Fnn Fnn_F32) (numtype_Inn Inn_I32) (mk_num__1 Fnn_F32 fN_1))])"
+	| fun_cvtop____fun_cvtop___case_33 :
+		"((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 ((size (valtype_Inn Inn_I32)) \<noteq> None) \<Longrightarrow>
+		 ((the ((size (valtype_Fnn Fnn_F64)))) = (the ((size (valtype_Inn Inn_I32))))) \<Longrightarrow>
+		 fun_cvtop__underscore F64 I32 (mk_cvtop___2 Fnn_F64 Inn_I32 cvtop__Fnn_1_Inn_2_REINTERPRET) (mk_num__1 Fnn_F64 fN_1) (Some [(reinterpret__underscore (numtype_Fnn Fnn_F64) (numtype_Inn Inn_I32) (mk_num__1 Fnn_F64 fN_1))])"
+	| fun_cvtop____fun_cvtop___case_34 :
+		"((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((size (valtype_Inn Inn_I64)) \<noteq> None) \<Longrightarrow>
+		 ((the ((size (valtype_Fnn Fnn_F32)))) = (the ((size (valtype_Inn Inn_I64))))) \<Longrightarrow>
+		 fun_cvtop__underscore F32 I64 (mk_cvtop___2 Fnn_F32 Inn_I64 cvtop__Fnn_1_Inn_2_REINTERPRET) (mk_num__1 Fnn_F32 fN_1) (Some [(reinterpret__underscore (numtype_Fnn Fnn_F32) (numtype_Inn Inn_I64) (mk_num__1 Fnn_F32 fN_1))])"
+	| fun_cvtop____fun_cvtop___case_35 :
 		"((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
 		 ((size (valtype_Inn Inn_I64)) \<noteq> None) \<Longrightarrow>
 		 ((the ((size (valtype_Fnn Fnn_F64)))) = (the ((size (valtype_Inn Inn_I64))))) \<Longrightarrow>
-		 fun_cvtop__underscore F64 I64 (mk_cvtop___2 Fnn_F64 Inn_I64 cvtop__Fnn_1_Inn_2_REINTERPRET) (mk_num__1 Fnn_F64 fN_1) [(reinterpret__underscore (numtype_Fnn Fnn_F64) (numtype_Inn Inn_I64) (mk_num__1 Fnn_F64 fN_1))]"
+		 fun_cvtop__underscore F64 I64 (mk_cvtop___2 Fnn_F64 Inn_I64 cvtop__Fnn_1_Inn_2_REINTERPRET) (mk_num__1 Fnn_F64 fN_1) (Some [(reinterpret__underscore (numtype_Fnn Fnn_F64) (numtype_Inn Inn_I64) (mk_num__1 Fnn_F64 fN_1))])"
+	| fun_cvtop___case_36 :
+		"(~(fun_cvtop___before_fun_cvtop___case_36 x0 x1 x2 x3)) \<Longrightarrow>
+		 fun_cvtop__underscore x0 x1 x2 x3 None"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:52.6-52.14 *)
 lemma cvtop___is_wf :
 	"(fun_cvtop__underscore numtype_1 numtype_2 v_cvtop__underscore v_num_underscore var_0) \<Longrightarrow>
 	 (wf_cvtop__underscore numtype_1 numtype_2 v_cvtop__underscore) \<Longrightarrow>
 	 (wf_num_underscore numtype_1 v_num_underscore) \<Longrightarrow>
-	 (ret_val_lst = var_0) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: num_underscore). (wf_num_underscore numtype_2 ret_val)) ret_val_lst"
 sorry
 
@@ -3688,36 +3936,40 @@ lemma fpmax__is_wf :
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:323.1-324.27 *)
-function (sequential, domintros) packnum_underscore :: "lanetype \<Rightarrow> num_underscore \<Rightarrow> lane_underscore" where
-		  "packnum_underscore lanetype_I32 c = (mk_lane__0 I32 c)"
-		| "packnum_underscore lanetype_I64 c = (mk_lane__0 I64 c)"
-		| "packnum_underscore lanetype_F32 c = (mk_lane__0 F32 c)"
-		| "packnum_underscore lanetype_F64 c = (mk_lane__0 F64 c)"
-		| "packnum_underscore lanetype_I8 (mk_num__0 Inn_I32 c) = (mk_lane__1 I8 (wrap__underscore (the ((size (valtype_numtype (unpack (lanetype_packtype I8)))))) (psize I8) c))"
-		| "packnum_underscore lanetype_I16 (mk_num__0 Inn_I32 c) = (mk_lane__1 I16 (wrap__underscore (the ((size (valtype_numtype (unpack (lanetype_packtype I16)))))) (psize I16) c))"
+function (sequential, domintros) packnum_underscore :: "lanetype \<Rightarrow> num_underscore \<Rightarrow> (lane_underscore option)" where
+		  "packnum_underscore lanetype_I32 c = (Some (mk_lane__0 I32 c))"
+		| "packnum_underscore lanetype_I64 c = (Some (mk_lane__0 I64 c))"
+		| "packnum_underscore lanetype_F32 c = (Some (mk_lane__0 F32 c))"
+		| "packnum_underscore lanetype_F64 c = (Some (mk_lane__0 F64 c))"
+		| "packnum_underscore lanetype_I8 (mk_num__0 Inn_I32 c) = (map_option (\<lambda> (iter_val_3 :: M). (mk_lane__1 I8 (wrap__underscore iter_val_3 (psize I8) c))) (size (valtype_numtype (unpack (lanetype_packtype I8)))))"
+		| "packnum_underscore lanetype_I16 (mk_num__0 Inn_I32 c) = (map_option (\<lambda> (iter_val_4 :: M). (mk_lane__1 I16 (wrap__underscore iter_val_4 (psize I16) c))) (size (valtype_numtype (unpack (lanetype_packtype I16)))))"
+		| "packnum_underscore x0 x1 = None"
 	by pat_completeness auto
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:323.6-323.15 *)
 lemma packnum__is_wf :
 	"(wf_num_underscore (unpack v_lanetype) v_num_underscore) \<Longrightarrow>
-	 (ret_val = (packnum_underscore v_lanetype v_num_underscore)) \<Longrightarrow>
+	 ((packnum_underscore v_lanetype v_num_underscore) \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the ((packnum_underscore v_lanetype v_num_underscore)))) \<Longrightarrow>
 	 (wf_lane_underscore v_lanetype ret_val)"
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:328.1-329.29 *)
-function (sequential, domintros) unpacknum_underscore :: "lanetype \<Rightarrow> lane_underscore \<Rightarrow> num_underscore" where
-		  "unpacknum_underscore lanetype_I32 (mk_lane__0 I32 c) = c"
-		| "unpacknum_underscore lanetype_I64 (mk_lane__0 I64 c) = c"
-		| "unpacknum_underscore lanetype_F32 (mk_lane__0 F32 c) = c"
-		| "unpacknum_underscore lanetype_F64 (mk_lane__0 F64 c) = c"
-		| "unpacknum_underscore lanetype_I8 (mk_lane__1 I8 c) = (mk_num__0 Inn_I32 (extend__underscore (psize I8) (the ((size (valtype_numtype (unpack (lanetype_packtype I8)))))) U c))"
-		| "unpacknum_underscore lanetype_I16 (mk_lane__1 I16 c) = (mk_num__0 Inn_I32 (extend__underscore (psize I16) (the ((size (valtype_numtype (unpack (lanetype_packtype I16)))))) U c))"
+function (sequential, domintros) unpacknum_underscore :: "lanetype \<Rightarrow> lane_underscore \<Rightarrow> (num_underscore option)" where
+		  "unpacknum_underscore lanetype_I32 (mk_lane__0 I32 c) = (Some c)"
+		| "unpacknum_underscore lanetype_I64 (mk_lane__0 I64 c) = (Some c)"
+		| "unpacknum_underscore lanetype_F32 (mk_lane__0 F32 c) = (Some c)"
+		| "unpacknum_underscore lanetype_F64 (mk_lane__0 F64 c) = (Some c)"
+		| "unpacknum_underscore lanetype_I8 (mk_lane__1 I8 c) = (map_option (\<lambda> (iter_val_5 :: N). (mk_num__0 Inn_I32 (extend__underscore (psize I8) iter_val_5 U c))) (size (valtype_numtype (unpack (lanetype_packtype I8)))))"
+		| "unpacknum_underscore lanetype_I16 (mk_lane__1 I16 c) = (map_option (\<lambda> (iter_val_6 :: N). (mk_num__0 Inn_I32 (extend__underscore (psize I16) iter_val_6 U c))) (size (valtype_numtype (unpack (lanetype_packtype I16)))))"
+		| "unpacknum_underscore x0 x1 = None"
 	by pat_completeness auto
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:328.6-328.17 *)
 lemma unpacknum__is_wf :
 	"(wf_lane_underscore v_lanetype v_lane_underscore) \<Longrightarrow>
-	 (ret_val = (unpacknum_underscore v_lanetype v_lane_underscore)) \<Longrightarrow>
+	 ((unpacknum_underscore v_lanetype v_lane_underscore) \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the ((unpacknum_underscore v_lanetype v_lane_underscore)))) \<Longrightarrow>
 	 (wf_num_underscore (unpack v_lanetype) ret_val)"
 sorry
 
@@ -3813,46 +4065,191 @@ lemma vvternop__is_wf :
 sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:377.6-377.13 *)
-inductive fun_vunop_underscore :: "shape \<Rightarrow> vunop_underscore \<Rightarrow> vec_underscore \<Rightarrow> (vec_underscore list) \<Rightarrow> bool" where
-	  fun_vunop__case_0 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_3 :: lane_underscore). ((proj_lane__2 lane_1_3) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (var_1 :: uN) (lane_1_3 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_3))) var_1)) var_1_lst lane_1_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_2 :: lane_underscore). ((proj_lane__2 lane_1_2) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (var_0 :: uN) (lane_1_2 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_2))) var_0)) var_0_lst lane_1_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I32 var_0)) var_0_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 var_1))) var_1_lst \<Longrightarrow>
+inductive fun_vunop__before_fun_vunop__case_26 :: "shape \<Rightarrow> vunop_underscore \<Rightarrow> vec_underscore \<Rightarrow> bool" where
+	  fun_vunop__case_25 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_77 :: lane_underscore). (map (\<lambda> (iter_0_75 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_75))) (fnearest_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_77))))))))) lane_1_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_28 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_28)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_78 :: lane_underscore). list_all (\<lambda> (iter_0_76 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_76)))) (fnearest_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_78)))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 M_0 vunop_Jnn_N_ABS) v128_1 [v128]"
-	| fun_vunop__case_1 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_6 :: lane_underscore). ((proj_lane__2 lane_1_6) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (var_1 :: uN) (lane_1_6 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_6))) var_1)) var_1_lst lane_1_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_5 :: lane_underscore). ((proj_lane__2 lane_1_5) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (var_0 :: uN) (lane_1_5 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_5))) var_0)) var_0_lst lane_1_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I64 var_0)) var_0_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 var_1))) var_1_lst \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_NEAREST) v128_1"
+	| fun_vunop__case_24 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_74 :: lane_underscore). (map (\<lambda> (iter_0_73 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_73))) (fnearest_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_74))))))))) lane_1_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_26 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_26)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_75 :: lane_underscore). list_all (\<lambda> (iter_0_74 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_74)))) (fnearest_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_75)))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 M_0 vunop_Jnn_N_ABS) v128_1 [v128]"
-	| fun_vunop__case_2 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_9 :: lane_underscore). ((proj_lane__2 lane_1_9) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (var_1 :: uN) (lane_1_9 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_9))) var_1)) var_1_lst lane_1_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_8 :: lane_underscore). ((proj_lane__2 lane_1_8) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (var_0 :: uN) (lane_1_8 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_8))) var_0)) var_0_lst lane_1_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I8 var_0)) var_0_lst))) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_NEAREST) v128_1"
+	| fun_vunop__case_23 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_71 :: lane_underscore). (map (\<lambda> (iter_0_71 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_71))) (ftrunc_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_71))))))))) lane_1_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_24 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_24)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_72 :: lane_underscore). list_all (\<lambda> (iter_0_72 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_72)))) (ftrunc_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_72)))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_TRUNC) v128_1"
+	| fun_vunop__case_22 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_68 :: lane_underscore). (map (\<lambda> (iter_0_69 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_69))) (ftrunc_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_68))))))))) lane_1_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_22 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_22)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_69 :: lane_underscore). list_all (\<lambda> (iter_0_70 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_70)))) (ftrunc_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_69)))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_TRUNC) v128_1"
+	| fun_vunop__case_21 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_65 :: lane_underscore). (map (\<lambda> (iter_0_67 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_67))) (ffloor_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_65))))))))) lane_1_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_20 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_20)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_66 :: lane_underscore). list_all (\<lambda> (iter_0_68 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_68)))) (ffloor_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_66)))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_FLOOR) v128_1"
+	| fun_vunop__case_20 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_62 :: lane_underscore). (map (\<lambda> (iter_0_65 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_65))) (ffloor_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_62))))))))) lane_1_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_18 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_18)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_63 :: lane_underscore). list_all (\<lambda> (iter_0_66 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_66)))) (ffloor_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_63)))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_FLOOR) v128_1"
+	| fun_vunop__case_19 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_59 :: lane_underscore). (map (\<lambda> (iter_0_63 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_63))) (fceil_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_59))))))))) lane_1_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_16 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_16)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_60 :: lane_underscore). list_all (\<lambda> (iter_0_64 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_64)))) (fceil_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_60)))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_CEIL) v128_1"
+	| fun_vunop__case_18 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_56 :: lane_underscore). (map (\<lambda> (iter_0_61 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_61))) (fceil_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_56))))))))) lane_1_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_14 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_14)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_57 :: lane_underscore). list_all (\<lambda> (iter_0_62 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_62)))) (fceil_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_57)))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_CEIL) v128_1"
+	| fun_vunop__case_17 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_53 :: lane_underscore). (map (\<lambda> (iter_0_59 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_59))) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_53))))))))) lane_1_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_12 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_12)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_54 :: lane_underscore). list_all (\<lambda> (iter_0_60 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_60)))) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_54)))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_SQRT) v128_1"
+	| fun_vunop__case_16 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_50 :: lane_underscore). (map (\<lambda> (iter_0_57 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_57))) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_50))))))))) lane_1_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_10 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_10)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_51 :: lane_underscore). list_all (\<lambda> (iter_0_58 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_58)))) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_51)))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_SQRT) v128_1"
+	| fun_vunop__case_15 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_47 :: lane_underscore). (map (\<lambda> (iter_0_55 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_55))) (fneg_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_47))))))))) lane_1_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_8 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_8)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_48 :: lane_underscore). list_all (\<lambda> (iter_0_56 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_56)))) (fneg_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_48)))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_NEG) v128_1"
+	| fun_vunop__case_14 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_44 :: lane_underscore). (map (\<lambda> (iter_0_53 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_53))) (fneg_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_44))))))))) lane_1_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_6 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_6)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_45 :: lane_underscore). list_all (\<lambda> (iter_0_54 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_54)))) (fneg_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_45)))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_NEG) v128_1"
+	| fun_vunop__case_13 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_41 :: lane_underscore). (map (\<lambda> (iter_0_51 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_51))) (fabs_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_41))))))))) lane_1_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_4 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_4)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_42 :: lane_underscore). list_all (\<lambda> (iter_0_52 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_52)))) (fabs_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_42)))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_ABS) v128_1"
+	| fun_vunop__case_12 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_38 :: lane_underscore). (map (\<lambda> (iter_0_49 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_49))) (fabs_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_38))))))))) lane_1_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_2 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_2)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_39 :: lane_underscore). list_all (\<lambda> (iter_0_50 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_50)))) (fabs_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_39)))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_ABS) v128_1"
+	| fun_vunop__case_11 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_35 :: lane_underscore). ((proj_lane__2 lane_1_35) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_1_35 :: lane_underscore). (mk_lane__2 Jnn_I16 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_35)))))) lane_1_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_36 :: lane_underscore). ((proj_lane__2 lane_1_36) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_36 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_36))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 M_0 vunop_Jnn_N_POPCNT) v128_1"
+	| fun_vunop__case_10 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_32 :: lane_underscore). ((proj_lane__2 lane_1_32) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_1_32 :: lane_underscore). (mk_lane__2 Jnn_I8 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_32)))))) lane_1_lst))) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 var_1))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_33 :: lane_underscore). ((proj_lane__2 lane_1_33) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_33 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_33))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 M_0 vunop_Jnn_N_ABS) v128_1 [v128]"
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 M_0 vunop_Jnn_N_POPCNT) v128_1"
+	| fun_vunop__case_9 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_29 :: lane_underscore). ((proj_lane__2 lane_1_29) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_1_29 :: lane_underscore). (mk_lane__2 Jnn_I64 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_29)))))) lane_1_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_30 :: lane_underscore). ((proj_lane__2 lane_1_30) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_30 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_30))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 M_0 vunop_Jnn_N_POPCNT) v128_1"
+	| fun_vunop__case_8 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_26 :: lane_underscore). ((proj_lane__2 lane_1_26) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_1_26 :: lane_underscore). (mk_lane__2 Jnn_I32 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_26)))))) lane_1_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_27 :: lane_underscore). ((proj_lane__2 lane_1_27) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_27 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_27))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 M_0 vunop_Jnn_N_POPCNT) v128_1"
+	| fun_vunop__case_7 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_23 :: lane_underscore). ((proj_lane__2 lane_1_23) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_1_23 :: lane_underscore). (mk_lane__2 Jnn_I16 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_23)))))) lane_1_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_24 :: lane_underscore). ((proj_lane__2 lane_1_24) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_24 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_24))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 M_0 vunop_Jnn_N_NEG) v128_1"
+	| fun_vunop__case_6 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_20 :: lane_underscore). ((proj_lane__2 lane_1_20) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_1_20 :: lane_underscore). (mk_lane__2 Jnn_I8 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_20)))))) lane_1_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_21 :: lane_underscore). ((proj_lane__2 lane_1_21) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_21 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_21))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 M_0 vunop_Jnn_N_NEG) v128_1"
+	| fun_vunop__case_5 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_17 :: lane_underscore). ((proj_lane__2 lane_1_17) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_1_17 :: lane_underscore). (mk_lane__2 Jnn_I64 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_17)))))) lane_1_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_18 :: lane_underscore). ((proj_lane__2 lane_1_18) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_18 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_18))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 M_0 vunop_Jnn_N_NEG) v128_1"
+	| fun_vunop__case_4 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_14 :: lane_underscore). ((proj_lane__2 lane_1_14) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_1_14 :: lane_underscore). (mk_lane__2 Jnn_I32 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_14)))))) lane_1_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_15 :: lane_underscore). ((proj_lane__2 lane_1_15) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_15 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_15))))))) lane_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 M_0 vunop_Jnn_N_NEG) v128_1"
 	| fun_vunop__case_3 :
 		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_12 :: lane_underscore). ((proj_lane__2 lane_1_12) \<noteq> None)) lane_1_lst \<Longrightarrow>
@@ -3865,8 +4262,102 @@ inductive fun_vunop_underscore :: "shape \<Rightarrow> vunop_underscore \<Righta
 		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 var_1))) var_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 M_0 vunop_Jnn_N_ABS) v128_1 [v128]"
-	| fun_vunop__case_4 :
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 M_0 vunop_Jnn_N_ABS) v128_1"
+	| fun_vunop__case_2 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_9 :: lane_underscore). ((proj_lane__2 lane_1_9) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (var_1 :: uN) (lane_1_9 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_9))) var_1)) var_1_lst lane_1_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_8 :: lane_underscore). ((proj_lane__2 lane_1_8) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (var_0 :: uN) (lane_1_8 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_8))) var_0)) var_0_lst lane_1_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I8 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 M_0 vunop_Jnn_N_ABS) v128_1"
+	| fun_vunop__case_1 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_6 :: lane_underscore). ((proj_lane__2 lane_1_6) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (var_1 :: uN) (lane_1_6 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_6))) var_1)) var_1_lst lane_1_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_5 :: lane_underscore). ((proj_lane__2 lane_1_5) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (var_0 :: uN) (lane_1_5 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_5))) var_0)) var_0_lst lane_1_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I64 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 M_0 vunop_Jnn_N_ABS) v128_1"
+	| fun_vunop__case_0 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_3 :: lane_underscore). ((proj_lane__2 lane_1_3) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (var_1 :: uN) (lane_1_3 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_3))) var_1)) var_1_lst lane_1_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_2 :: lane_underscore). ((proj_lane__2 lane_1_2) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (var_0 :: uN) (lane_1_2 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_2))) var_0)) var_0_lst lane_1_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I32 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop__before_fun_vunop__case_26 (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 M_0 vunop_Jnn_N_ABS) v128_1"
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:377.6-377.13 *)
+inductive fun_vunop_underscore :: "shape \<Rightarrow> vunop_underscore \<Rightarrow> vec_underscore \<Rightarrow> ((vec_underscore list) option) \<Rightarrow> bool" where
+	  fun_vunop___fun_vunop__case_0 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_3 :: lane_underscore). ((proj_lane__2 lane_1_3) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (var_1 :: uN) (lane_1_3 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_3))) var_1)) var_1_lst lane_1_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_2 :: lane_underscore). ((proj_lane__2 lane_1_2) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (var_0 :: uN) (lane_1_2 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_2))) var_0)) var_0_lst lane_1_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I32 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 M_0 vunop_Jnn_N_ABS) v128_1 (Some [v128])"
+	| fun_vunop___fun_vunop__case_1 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_6 :: lane_underscore). ((proj_lane__2 lane_1_6) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (var_1 :: uN) (lane_1_6 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_6))) var_1)) var_1_lst lane_1_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_5 :: lane_underscore). ((proj_lane__2 lane_1_5) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (var_0 :: uN) (lane_1_5 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_5))) var_0)) var_0_lst lane_1_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I64 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 M_0 vunop_Jnn_N_ABS) v128_1 (Some [v128])"
+	| fun_vunop___fun_vunop__case_2 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_9 :: lane_underscore). ((proj_lane__2 lane_1_9) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (var_1 :: uN) (lane_1_9 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_9))) var_1)) var_1_lst lane_1_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_8 :: lane_underscore). ((proj_lane__2 lane_1_8) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (var_0 :: uN) (lane_1_8 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_8))) var_0)) var_0_lst lane_1_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I8 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 M_0 vunop_Jnn_N_ABS) v128_1 (Some [v128])"
+	| fun_vunop___fun_vunop__case_3 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_12 :: lane_underscore). ((proj_lane__2 lane_1_12) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (var_1 :: uN) (lane_1_12 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_12))) var_1)) var_1_lst lane_1_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_11 :: lane_underscore). ((proj_lane__2 lane_1_11) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (var_0 :: uN) (lane_1_11 :: lane_underscore). (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_11))) var_0)) var_0_lst lane_1_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I16 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vunop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 M_0 vunop_Jnn_N_ABS) v128_1 (Some [v128])"
+	| fun_vunop___fun_vunop__case_4 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_14 :: lane_underscore). ((proj_lane__2 lane_1_14) \<noteq> None)) lane_1_lst \<Longrightarrow>
 		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_1_14 :: lane_underscore). (mk_lane__2 Jnn_I32 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_14)))))) lane_1_lst))) \<Longrightarrow>
@@ -3874,8 +4365,8 @@ inductive fun_vunop_underscore :: "shape \<Rightarrow> vunop_underscore \<Righta
 		 list_all (\<lambda> (lane_1_15 :: lane_underscore). ((proj_lane__2 lane_1_15) \<noteq> None)) lane_1_lst \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_15 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_15))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 M_0 vunop_Jnn_N_NEG) v128_1 [v128]"
-	| fun_vunop__case_5 :
+		 fun_vunop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 M_0 vunop_Jnn_N_NEG) v128_1 (Some [v128])"
+	| fun_vunop___fun_vunop__case_5 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_17 :: lane_underscore). ((proj_lane__2 lane_1_17) \<noteq> None)) lane_1_lst \<Longrightarrow>
 		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_1_17 :: lane_underscore). (mk_lane__2 Jnn_I64 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_17)))))) lane_1_lst))) \<Longrightarrow>
@@ -3883,8 +4374,8 @@ inductive fun_vunop_underscore :: "shape \<Rightarrow> vunop_underscore \<Righta
 		 list_all (\<lambda> (lane_1_18 :: lane_underscore). ((proj_lane__2 lane_1_18) \<noteq> None)) lane_1_lst \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_18 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_18))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 M_0 vunop_Jnn_N_NEG) v128_1 [v128]"
-	| fun_vunop__case_6 :
+		 fun_vunop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 M_0 vunop_Jnn_N_NEG) v128_1 (Some [v128])"
+	| fun_vunop___fun_vunop__case_6 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_20 :: lane_underscore). ((proj_lane__2 lane_1_20) \<noteq> None)) lane_1_lst \<Longrightarrow>
 		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_1_20 :: lane_underscore). (mk_lane__2 Jnn_I8 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_20)))))) lane_1_lst))) \<Longrightarrow>
@@ -3892,8 +4383,8 @@ inductive fun_vunop_underscore :: "shape \<Rightarrow> vunop_underscore \<Righta
 		 list_all (\<lambda> (lane_1_21 :: lane_underscore). ((proj_lane__2 lane_1_21) \<noteq> None)) lane_1_lst \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_21 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_21))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 M_0 vunop_Jnn_N_NEG) v128_1 [v128]"
-	| fun_vunop__case_7 :
+		 fun_vunop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 M_0 vunop_Jnn_N_NEG) v128_1 (Some [v128])"
+	| fun_vunop___fun_vunop__case_7 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_23 :: lane_underscore). ((proj_lane__2 lane_1_23) \<noteq> None)) lane_1_lst \<Longrightarrow>
 		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_1_23 :: lane_underscore). (mk_lane__2 Jnn_I16 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_23)))))) lane_1_lst))) \<Longrightarrow>
@@ -3901,8 +4392,8 @@ inductive fun_vunop_underscore :: "shape \<Rightarrow> vunop_underscore \<Righta
 		 list_all (\<lambda> (lane_1_24 :: lane_underscore). ((proj_lane__2 lane_1_24) \<noteq> None)) lane_1_lst \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_24 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_24))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 M_0 vunop_Jnn_N_NEG) v128_1 [v128]"
-	| fun_vunop__case_8 :
+		 fun_vunop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 M_0 vunop_Jnn_N_NEG) v128_1 (Some [v128])"
+	| fun_vunop___fun_vunop__case_8 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_26 :: lane_underscore). ((proj_lane__2 lane_1_26) \<noteq> None)) lane_1_lst \<Longrightarrow>
 		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_1_26 :: lane_underscore). (mk_lane__2 Jnn_I32 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_26)))))) lane_1_lst))) \<Longrightarrow>
@@ -3910,8 +4401,8 @@ inductive fun_vunop_underscore :: "shape \<Rightarrow> vunop_underscore \<Righta
 		 list_all (\<lambda> (lane_1_27 :: lane_underscore). ((proj_lane__2 lane_1_27) \<noteq> None)) lane_1_lst \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_27 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_27))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 M_0 vunop_Jnn_N_POPCNT) v128_1 [v128]"
-	| fun_vunop__case_9 :
+		 fun_vunop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 M_0 vunop_Jnn_N_POPCNT) v128_1 (Some [v128])"
+	| fun_vunop___fun_vunop__case_9 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_29 :: lane_underscore). ((proj_lane__2 lane_1_29) \<noteq> None)) lane_1_lst \<Longrightarrow>
 		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_1_29 :: lane_underscore). (mk_lane__2 Jnn_I64 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_29)))))) lane_1_lst))) \<Longrightarrow>
@@ -3919,8 +4410,8 @@ inductive fun_vunop_underscore :: "shape \<Rightarrow> vunop_underscore \<Righta
 		 list_all (\<lambda> (lane_1_30 :: lane_underscore). ((proj_lane__2 lane_1_30) \<noteq> None)) lane_1_lst \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_30 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_30))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 M_0 vunop_Jnn_N_POPCNT) v128_1 [v128]"
-	| fun_vunop__case_10 :
+		 fun_vunop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 M_0 vunop_Jnn_N_POPCNT) v128_1 (Some [v128])"
+	| fun_vunop___fun_vunop__case_10 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_32 :: lane_underscore). ((proj_lane__2 lane_1_32) \<noteq> None)) lane_1_lst \<Longrightarrow>
 		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_1_32 :: lane_underscore). (mk_lane__2 Jnn_I8 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_32)))))) lane_1_lst))) \<Longrightarrow>
@@ -3928,8 +4419,8 @@ inductive fun_vunop_underscore :: "shape \<Rightarrow> vunop_underscore \<Righta
 		 list_all (\<lambda> (lane_1_33 :: lane_underscore). ((proj_lane__2 lane_1_33) \<noteq> None)) lane_1_lst \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_33 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_33))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 M_0 vunop_Jnn_N_POPCNT) v128_1 [v128]"
-	| fun_vunop__case_11 :
+		 fun_vunop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 M_0 vunop_Jnn_N_POPCNT) v128_1 (Some [v128])"
+	| fun_vunop___fun_vunop__case_11 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_35 :: lane_underscore). ((proj_lane__2 lane_1_35) \<noteq> None)) lane_1_lst \<Longrightarrow>
 		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_1_35 :: lane_underscore). (mk_lane__2 Jnn_I16 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_35)))))) lane_1_lst))) \<Longrightarrow>
@@ -3937,119 +4428,122 @@ inductive fun_vunop_underscore :: "shape \<Rightarrow> vunop_underscore \<Righta
 		 list_all (\<lambda> (lane_1_36 :: lane_underscore). ((proj_lane__2 lane_1_36) \<noteq> None)) lane_1_lst \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_36 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_36))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 M_0 vunop_Jnn_N_POPCNT) v128_1 [v128]"
-	| fun_vunop__case_12 :
+		 fun_vunop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 M_0 vunop_Jnn_N_POPCNT) v128_1 (Some [v128])"
+	| fun_vunop___fun_vunop__case_12 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_38 :: lane_underscore). (map (\<lambda> (iter_0_49 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_49))) (fabs_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_38))))))))) lane_1_lst))) \<Longrightarrow>
 		 (v128_lst = (map (\<lambda> (lane_lst_2 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_2)) lane_lst_lst)) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_39 :: lane_underscore). list_all (\<lambda> (iter_0_50 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_50)))) (fabs_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_39)))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_ABS) v128_1 v128_lst"
-	| fun_vunop__case_13 :
+		 fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_ABS) v128_1 (Some v128_lst)"
+	| fun_vunop___fun_vunop__case_13 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_41 :: lane_underscore). (map (\<lambda> (iter_0_51 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_51))) (fabs_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_41))))))))) lane_1_lst))) \<Longrightarrow>
 		 (v128_lst = (map (\<lambda> (lane_lst_4 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_4)) lane_lst_lst)) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_42 :: lane_underscore). list_all (\<lambda> (iter_0_52 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_52)))) (fabs_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_42)))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_ABS) v128_1 v128_lst"
-	| fun_vunop__case_14 :
+		 fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_ABS) v128_1 (Some v128_lst)"
+	| fun_vunop___fun_vunop__case_14 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_44 :: lane_underscore). (map (\<lambda> (iter_0_53 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_53))) (fneg_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_44))))))))) lane_1_lst))) \<Longrightarrow>
 		 (v128_lst = (map (\<lambda> (lane_lst_6 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_6)) lane_lst_lst)) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_45 :: lane_underscore). list_all (\<lambda> (iter_0_54 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_54)))) (fneg_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_45)))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_NEG) v128_1 v128_lst"
-	| fun_vunop__case_15 :
+		 fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_NEG) v128_1 (Some v128_lst)"
+	| fun_vunop___fun_vunop__case_15 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_47 :: lane_underscore). (map (\<lambda> (iter_0_55 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_55))) (fneg_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_47))))))))) lane_1_lst))) \<Longrightarrow>
 		 (v128_lst = (map (\<lambda> (lane_lst_8 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_8)) lane_lst_lst)) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_48 :: lane_underscore). list_all (\<lambda> (iter_0_56 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_56)))) (fneg_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_48)))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_NEG) v128_1 v128_lst"
-	| fun_vunop__case_16 :
+		 fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_NEG) v128_1 (Some v128_lst)"
+	| fun_vunop___fun_vunop__case_16 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_50 :: lane_underscore). (map (\<lambda> (iter_0_57 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_57))) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_50))))))))) lane_1_lst))) \<Longrightarrow>
 		 (v128_lst = (map (\<lambda> (lane_lst_10 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_10)) lane_lst_lst)) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_51 :: lane_underscore). list_all (\<lambda> (iter_0_58 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_58)))) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_51)))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_SQRT) v128_1 v128_lst"
-	| fun_vunop__case_17 :
+		 fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_SQRT) v128_1 (Some v128_lst)"
+	| fun_vunop___fun_vunop__case_17 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_53 :: lane_underscore). (map (\<lambda> (iter_0_59 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_59))) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_53))))))))) lane_1_lst))) \<Longrightarrow>
 		 (v128_lst = (map (\<lambda> (lane_lst_12 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_12)) lane_lst_lst)) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_54 :: lane_underscore). list_all (\<lambda> (iter_0_60 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_60)))) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_54)))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_SQRT) v128_1 v128_lst"
-	| fun_vunop__case_18 :
+		 fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_SQRT) v128_1 (Some v128_lst)"
+	| fun_vunop___fun_vunop__case_18 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_56 :: lane_underscore). (map (\<lambda> (iter_0_61 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_61))) (fceil_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_56))))))))) lane_1_lst))) \<Longrightarrow>
 		 (v128_lst = (map (\<lambda> (lane_lst_14 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_14)) lane_lst_lst)) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_57 :: lane_underscore). list_all (\<lambda> (iter_0_62 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_62)))) (fceil_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_57)))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_CEIL) v128_1 v128_lst"
-	| fun_vunop__case_19 :
+		 fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_CEIL) v128_1 (Some v128_lst)"
+	| fun_vunop___fun_vunop__case_19 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_59 :: lane_underscore). (map (\<lambda> (iter_0_63 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_63))) (fceil_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_59))))))))) lane_1_lst))) \<Longrightarrow>
 		 (v128_lst = (map (\<lambda> (lane_lst_16 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_16)) lane_lst_lst)) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_60 :: lane_underscore). list_all (\<lambda> (iter_0_64 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_64)))) (fceil_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_60)))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_CEIL) v128_1 v128_lst"
-	| fun_vunop__case_20 :
+		 fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_CEIL) v128_1 (Some v128_lst)"
+	| fun_vunop___fun_vunop__case_20 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_62 :: lane_underscore). (map (\<lambda> (iter_0_65 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_65))) (ffloor_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_62))))))))) lane_1_lst))) \<Longrightarrow>
 		 (v128_lst = (map (\<lambda> (lane_lst_18 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_18)) lane_lst_lst)) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_63 :: lane_underscore). list_all (\<lambda> (iter_0_66 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_66)))) (ffloor_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_63)))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_FLOOR) v128_1 v128_lst"
-	| fun_vunop__case_21 :
+		 fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_FLOOR) v128_1 (Some v128_lst)"
+	| fun_vunop___fun_vunop__case_21 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_65 :: lane_underscore). (map (\<lambda> (iter_0_67 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_67))) (ffloor_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_65))))))))) lane_1_lst))) \<Longrightarrow>
 		 (v128_lst = (map (\<lambda> (lane_lst_20 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_20)) lane_lst_lst)) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_66 :: lane_underscore). list_all (\<lambda> (iter_0_68 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_68)))) (ffloor_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_66)))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_FLOOR) v128_1 v128_lst"
-	| fun_vunop__case_22 :
+		 fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_FLOOR) v128_1 (Some v128_lst)"
+	| fun_vunop___fun_vunop__case_22 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_68 :: lane_underscore). (map (\<lambda> (iter_0_69 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_69))) (ftrunc_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_68))))))))) lane_1_lst))) \<Longrightarrow>
 		 (v128_lst = (map (\<lambda> (lane_lst_22 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_22)) lane_lst_lst)) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_69 :: lane_underscore). list_all (\<lambda> (iter_0_70 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_70)))) (ftrunc_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_69)))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_TRUNC) v128_1 v128_lst"
-	| fun_vunop__case_23 :
+		 fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_TRUNC) v128_1 (Some v128_lst)"
+	| fun_vunop___fun_vunop__case_23 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_71 :: lane_underscore). (map (\<lambda> (iter_0_71 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_71))) (ftrunc_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_71))))))))) lane_1_lst))) \<Longrightarrow>
 		 (v128_lst = (map (\<lambda> (lane_lst_24 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_24)) lane_lst_lst)) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_72 :: lane_underscore). list_all (\<lambda> (iter_0_72 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_72)))) (ftrunc_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_72)))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_TRUNC) v128_1 v128_lst"
-	| fun_vunop__case_24 :
+		 fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_TRUNC) v128_1 (Some v128_lst)"
+	| fun_vunop___fun_vunop__case_24 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_74 :: lane_underscore). (map (\<lambda> (iter_0_73 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_73))) (fnearest_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_74))))))))) lane_1_lst))) \<Longrightarrow>
 		 (v128_lst = (map (\<lambda> (lane_lst_26 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_26)) lane_lst_lst)) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_75 :: lane_underscore). list_all (\<lambda> (iter_0_74 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_74)))) (fnearest_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_75)))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_NEAREST) v128_1 v128_lst"
-	| fun_vunop__case_25 :
+		 fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 M_0 vunop_Fnn_N_NEAREST) v128_1 (Some v128_lst)"
+	| fun_vunop___fun_vunop__case_25 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (map (\<lambda> (lane_1_77 :: lane_underscore). (map (\<lambda> (iter_0_75 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_75))) (fnearest_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_77))))))))) lane_1_lst))) \<Longrightarrow>
 		 (v128_lst = (map (\<lambda> (lane_lst_28 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_28)) lane_lst_lst)) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_78 :: lane_underscore). list_all (\<lambda> (iter_0_76 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_76)))) (fnearest_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_78)))))))) lane_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_NEAREST) v128_1 v128_lst"
+		 fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 M_0 vunop_Fnn_N_NEAREST) v128_1 (Some v128_lst)"
+	| fun_vunop__case_26 :
+		"(~(fun_vunop__before_fun_vunop__case_26 x0 x1 x2)) \<Longrightarrow>
+		 fun_vunop_underscore x0 x1 x2 None"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:377.6-377.13 *)
 lemma vunop__is_wf :
@@ -4057,386 +4551,329 @@ lemma vunop__is_wf :
 	 (wf_shape v_shape) \<Longrightarrow>
 	 (wf_vunop_underscore v_shape v_vunop_underscore) \<Longrightarrow>
 	 (wf_uN 128 v_vec_underscore) \<Longrightarrow>
-	 (ret_val_lst = var_0) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: vec_underscore). (wf_uN 128 ret_val)) ret_val_lst"
 sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.14 *)
-inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> (vec_underscore list) \<Rightarrow> bool" where
-	  fun_vbinop__case_0 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_80 :: lane_underscore). ((proj_lane__2 lane_1_80) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_2 :: lane_underscore). ((proj_lane__2 lane_2_2) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_80 :: lane_underscore) (lane_2_2 :: lane_underscore). (mk_lane__2 Jnn_I32 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_80))) (the ((proj_lane__2 lane_2_2)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+inductive fun_vbinop__before_fun_vbinop__case_52 :: "shape \<Rightarrow> vbinop_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> bool" where
+	  fun_vbinop__case_51 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_233 :: lane_underscore) (lane_2_155 :: lane_underscore). (map (\<lambda> (iter_0_107 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_107))) (fpmax_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_233)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_155))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_60 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_60)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_81 :: lane_underscore). ((proj_lane__2 lane_1_81) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_3 :: lane_underscore). ((proj_lane__2 lane_2_3) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_81 :: lane_underscore) (lane_2_3 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_81))) (the ((proj_lane__2 lane_2_3))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_234 :: lane_underscore) (lane_2_156 :: lane_underscore). list_all (\<lambda> (iter_0_108 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_108)))) (fpmax_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_234)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_156)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 vbinop_Jnn_N_ADD) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_1 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_83 :: lane_underscore). ((proj_lane__2 lane_1_83) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_5 :: lane_underscore). ((proj_lane__2 lane_2_5) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_83 :: lane_underscore) (lane_2_5 :: lane_underscore). (mk_lane__2 Jnn_I64 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_83))) (the ((proj_lane__2 lane_2_5)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 PMAX) v128_1 v128_2"
+	| fun_vbinop__case_50 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_230 :: lane_underscore) (lane_2_152 :: lane_underscore). (map (\<lambda> (iter_0_105 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_105))) (fpmax_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_230)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_152))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_58 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_58)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_84 :: lane_underscore). ((proj_lane__2 lane_1_84) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_6 :: lane_underscore). ((proj_lane__2 lane_2_6) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_84 :: lane_underscore) (lane_2_6 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_84))) (the ((proj_lane__2 lane_2_6))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_231 :: lane_underscore) (lane_2_153 :: lane_underscore). list_all (\<lambda> (iter_0_106 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_106)))) (fpmax_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_231)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_153)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 vbinop_Jnn_N_ADD) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_2 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_86 :: lane_underscore). ((proj_lane__2 lane_1_86) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_8 :: lane_underscore). ((proj_lane__2 lane_2_8) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_86 :: lane_underscore) (lane_2_8 :: lane_underscore). (mk_lane__2 Jnn_I8 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_86))) (the ((proj_lane__2 lane_2_8)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 PMAX) v128_1 v128_2"
+	| fun_vbinop__case_49 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_227 :: lane_underscore) (lane_2_149 :: lane_underscore). (map (\<lambda> (iter_0_103 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_103))) (fpmin_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_227)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_149))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_56 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_56)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_87 :: lane_underscore). ((proj_lane__2 lane_1_87) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_9 :: lane_underscore). ((proj_lane__2 lane_2_9) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_87 :: lane_underscore) (lane_2_9 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_87))) (the ((proj_lane__2 lane_2_9))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_228 :: lane_underscore) (lane_2_150 :: lane_underscore). list_all (\<lambda> (iter_0_104 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_104)))) (fpmin_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_228)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_150)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 vbinop_Jnn_N_ADD) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_3 :
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 PMIN) v128_1 v128_2"
+	| fun_vbinop__case_48 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_224 :: lane_underscore) (lane_2_146 :: lane_underscore). (map (\<lambda> (iter_0_101 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_101))) (fpmin_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_224)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_146))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_54 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_54)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_225 :: lane_underscore) (lane_2_147 :: lane_underscore). list_all (\<lambda> (iter_0_102 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_102)))) (fpmin_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_225)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_147)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 PMIN) v128_1 v128_2"
+	| fun_vbinop__case_47 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_221 :: lane_underscore) (lane_2_143 :: lane_underscore). (map (\<lambda> (iter_0_99 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_99))) (fmax_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_221)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_143))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_52 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_52)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_222 :: lane_underscore) (lane_2_144 :: lane_underscore). list_all (\<lambda> (iter_0_100 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_100)))) (fmax_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_222)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_144)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_MAX) v128_1 v128_2"
+	| fun_vbinop__case_46 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_218 :: lane_underscore) (lane_2_140 :: lane_underscore). (map (\<lambda> (iter_0_97 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_97))) (fmax_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_218)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_140))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_50 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_50)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_219 :: lane_underscore) (lane_2_141 :: lane_underscore). list_all (\<lambda> (iter_0_98 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_98)))) (fmax_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_219)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_141)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_MAX) v128_1 v128_2"
+	| fun_vbinop__case_45 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_215 :: lane_underscore) (lane_2_137 :: lane_underscore). (map (\<lambda> (iter_0_95 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_95))) (fmin_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_215)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_137))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_48 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_48)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_216 :: lane_underscore) (lane_2_138 :: lane_underscore). list_all (\<lambda> (iter_0_96 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_96)))) (fmin_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_216)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_138)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_MIN) v128_1 v128_2"
+	| fun_vbinop__case_44 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_212 :: lane_underscore) (lane_2_134 :: lane_underscore). (map (\<lambda> (iter_0_93 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_93))) (fmin_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_212)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_134))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_46 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_46)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_213 :: lane_underscore) (lane_2_135 :: lane_underscore). list_all (\<lambda> (iter_0_94 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_94)))) (fmin_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_213)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_135)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_MIN) v128_1 v128_2"
+	| fun_vbinop__case_43 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_209 :: lane_underscore) (lane_2_131 :: lane_underscore). (map (\<lambda> (iter_0_91 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_91))) (fdiv_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_209)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_131))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_44 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_44)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_210 :: lane_underscore) (lane_2_132 :: lane_underscore). list_all (\<lambda> (iter_0_92 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_92)))) (fdiv_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_210)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_132)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_DIV) v128_1 v128_2"
+	| fun_vbinop__case_42 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_206 :: lane_underscore) (lane_2_128 :: lane_underscore). (map (\<lambda> (iter_0_89 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_89))) (fdiv_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_206)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_128))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_42 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_42)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_207 :: lane_underscore) (lane_2_129 :: lane_underscore). list_all (\<lambda> (iter_0_90 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_90)))) (fdiv_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_207)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_129)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_DIV) v128_1 v128_2"
+	| fun_vbinop__case_41 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_203 :: lane_underscore) (lane_2_125 :: lane_underscore). (map (\<lambda> (iter_0_87 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_87))) (fmul_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_203)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_125))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_40 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_40)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_204 :: lane_underscore) (lane_2_126 :: lane_underscore). list_all (\<lambda> (iter_0_88 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_88)))) (fmul_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_204)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_126)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_MUL) v128_1 v128_2"
+	| fun_vbinop__case_40 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_200 :: lane_underscore) (lane_2_122 :: lane_underscore). (map (\<lambda> (iter_0_85 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_85))) (fmul_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_200)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_122))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_38 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_38)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_201 :: lane_underscore) (lane_2_123 :: lane_underscore). list_all (\<lambda> (iter_0_86 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_86)))) (fmul_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_201)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_123)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_MUL) v128_1 v128_2"
+	| fun_vbinop__case_39 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_197 :: lane_underscore) (lane_2_119 :: lane_underscore). (map (\<lambda> (iter_0_83 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_83))) (fsub_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_197)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_119))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_36 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_36)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_198 :: lane_underscore) (lane_2_120 :: lane_underscore). list_all (\<lambda> (iter_0_84 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_84)))) (fsub_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_198)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_120)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_SUB) v128_1 v128_2"
+	| fun_vbinop__case_38 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_194 :: lane_underscore) (lane_2_116 :: lane_underscore). (map (\<lambda> (iter_0_81 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_81))) (fsub_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_194)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_116))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_34 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_34)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_195 :: lane_underscore) (lane_2_117 :: lane_underscore). list_all (\<lambda> (iter_0_82 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_82)))) (fsub_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_195)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_117)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_SUB) v128_1 v128_2"
+	| fun_vbinop__case_37 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_191 :: lane_underscore) (lane_2_113 :: lane_underscore). (map (\<lambda> (iter_0_79 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_79))) (fadd_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_191)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_113))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_32 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_32)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_192 :: lane_underscore) (lane_2_114 :: lane_underscore). list_all (\<lambda> (iter_0_80 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_80)))) (fadd_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_192)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_114)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_ADD) v128_1 v128_2"
+	| fun_vbinop__case_36 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_188 :: lane_underscore) (lane_2_110 :: lane_underscore). (map (\<lambda> (iter_0_77 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_77))) (fadd_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_188)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_110))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (v128_lst = (map (\<lambda> (lane_lst_30 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_30)) lane_lst_lst)) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_189 :: lane_underscore) (lane_2_111 :: lane_underscore). list_all (\<lambda> (iter_0_78 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_78)))) (fadd_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_189)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_111)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_ADD) v128_1 v128_2"
+	| fun_vbinop__case_35 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_89 :: lane_underscore). ((proj_lane__2 lane_1_89) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_11 :: lane_underscore). ((proj_lane__2 lane_2_11) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_89 :: lane_underscore) (lane_2_11 :: lane_underscore). (mk_lane__2 Jnn_I16 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_89))) (the ((proj_lane__2 lane_2_11)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_185 :: lane_underscore). ((proj_lane__2 lane_1_185) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_107 :: lane_underscore). ((proj_lane__2 lane_2_107) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_185 :: lane_underscore) (lane_2_107 :: lane_underscore). (mk_lane__2 Jnn_I16 (iq15mulr_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) S (the ((proj_lane__2 lane_1_185))) (the ((proj_lane__2 lane_2_107)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_90 :: lane_underscore). ((proj_lane__2 lane_1_90) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_12 :: lane_underscore). ((proj_lane__2 lane_2_12) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_90 :: lane_underscore) (lane_2_12 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_90))) (the ((proj_lane__2 lane_2_12))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_186 :: lane_underscore). ((proj_lane__2 lane_1_186) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_108 :: lane_underscore). ((proj_lane__2 lane_2_108) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_186 :: lane_underscore) (lane_2_108 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 (iq15mulr_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) S (the ((proj_lane__2 lane_1_186))) (the ((proj_lane__2 lane_2_108))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 vbinop_Jnn_N_ADD) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_4 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_92 :: lane_underscore). ((proj_lane__2 lane_1_92) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_14 :: lane_underscore). ((proj_lane__2 lane_2_14) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_92 :: lane_underscore) (lane_2_14 :: lane_underscore). (mk_lane__2 Jnn_I32 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_92))) (the ((proj_lane__2 lane_2_14)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_93 :: lane_underscore). ((proj_lane__2 lane_1_93) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_15 :: lane_underscore). ((proj_lane__2 lane_2_15) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_93 :: lane_underscore) (lane_2_15 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_93))) (the ((proj_lane__2 lane_2_15))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 vbinop_Jnn_N_SUB) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_5 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_95 :: lane_underscore). ((proj_lane__2 lane_1_95) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_17 :: lane_underscore). ((proj_lane__2 lane_2_17) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_95 :: lane_underscore) (lane_2_17 :: lane_underscore). (mk_lane__2 Jnn_I64 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_95))) (the ((proj_lane__2 lane_2_17)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_96 :: lane_underscore). ((proj_lane__2 lane_1_96) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_18 :: lane_underscore). ((proj_lane__2 lane_2_18) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_96 :: lane_underscore) (lane_2_18 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_96))) (the ((proj_lane__2 lane_2_18))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 vbinop_Jnn_N_SUB) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_6 :
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 Q15MULR_SATS) v128_1 v128_2"
+	| fun_vbinop__case_34 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_98 :: lane_underscore). ((proj_lane__2 lane_1_98) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_20 :: lane_underscore). ((proj_lane__2 lane_2_20) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_98 :: lane_underscore) (lane_2_20 :: lane_underscore). (mk_lane__2 Jnn_I8 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_98))) (the ((proj_lane__2 lane_2_20)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_182 :: lane_underscore). ((proj_lane__2 lane_1_182) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_104 :: lane_underscore). ((proj_lane__2 lane_2_104) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_182 :: lane_underscore) (lane_2_104 :: lane_underscore). (mk_lane__2 Jnn_I8 (iq15mulr_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) S (the ((proj_lane__2 lane_1_182))) (the ((proj_lane__2 lane_2_104)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_99 :: lane_underscore). ((proj_lane__2 lane_1_99) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_21 :: lane_underscore). ((proj_lane__2 lane_2_21) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_99 :: lane_underscore) (lane_2_21 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_99))) (the ((proj_lane__2 lane_2_21))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_183 :: lane_underscore). ((proj_lane__2 lane_1_183) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_105 :: lane_underscore). ((proj_lane__2 lane_2_105) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_183 :: lane_underscore) (lane_2_105 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 (iq15mulr_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) S (the ((proj_lane__2 lane_1_183))) (the ((proj_lane__2 lane_2_105))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 vbinop_Jnn_N_SUB) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_7 :
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 Q15MULR_SATS) v128_1 v128_2"
+	| fun_vbinop__case_33 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_179 :: lane_underscore). ((proj_lane__2 lane_1_179) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_101 :: lane_underscore). ((proj_lane__2 lane_2_101) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_179 :: lane_underscore) (lane_2_101 :: lane_underscore). (mk_lane__2 Jnn_I64 (iq15mulr_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) S (the ((proj_lane__2 lane_1_179))) (the ((proj_lane__2 lane_2_101)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_180 :: lane_underscore). ((proj_lane__2 lane_1_180) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_102 :: lane_underscore). ((proj_lane__2 lane_2_102) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_180 :: lane_underscore) (lane_2_102 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 (iq15mulr_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) S (the ((proj_lane__2 lane_1_180))) (the ((proj_lane__2 lane_2_102))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 Q15MULR_SATS) v128_1 v128_2"
+	| fun_vbinop__case_32 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_176 :: lane_underscore). ((proj_lane__2 lane_1_176) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_98 :: lane_underscore). ((proj_lane__2 lane_2_98) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_176 :: lane_underscore) (lane_2_98 :: lane_underscore). (mk_lane__2 Jnn_I32 (iq15mulr_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) S (the ((proj_lane__2 lane_1_176))) (the ((proj_lane__2 lane_2_98)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_177 :: lane_underscore). ((proj_lane__2 lane_1_177) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_99 :: lane_underscore). ((proj_lane__2 lane_2_99) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_177 :: lane_underscore) (lane_2_99 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 (iq15mulr_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) S (the ((proj_lane__2 lane_1_177))) (the ((proj_lane__2 lane_2_99))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 Q15MULR_SATS) v128_1 v128_2"
+	| fun_vbinop__case_31 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_101 :: lane_underscore). ((proj_lane__2 lane_1_101) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_23 :: lane_underscore). ((proj_lane__2 lane_2_23) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_101 :: lane_underscore) (lane_2_23 :: lane_underscore). (mk_lane__2 Jnn_I16 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_101))) (the ((proj_lane__2 lane_2_23)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_173 :: lane_underscore). ((proj_lane__2 lane_1_173) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_95 :: lane_underscore). ((proj_lane__2 lane_2_95) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_173 :: lane_underscore) (lane_2_95 :: lane_underscore). (mk_lane__2 Jnn_I16 (iavgr_underscore (lsizenn (lanetype_Jnn Jnn_I16)) U (the ((proj_lane__2 lane_1_173))) (the ((proj_lane__2 lane_2_95)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_102 :: lane_underscore). ((proj_lane__2 lane_1_102) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_24 :: lane_underscore). ((proj_lane__2 lane_2_24) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_102 :: lane_underscore) (lane_2_24 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_102))) (the ((proj_lane__2 lane_2_24))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_174 :: lane_underscore). ((proj_lane__2 lane_1_174) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_96 :: lane_underscore). ((proj_lane__2 lane_2_96) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_174 :: lane_underscore) (lane_2_96 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 (iavgr_underscore (lsizenn (lanetype_Jnn Jnn_I16)) U (the ((proj_lane__2 lane_1_174))) (the ((proj_lane__2 lane_2_96))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 vbinop_Jnn_N_SUB) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_8 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_105 :: lane_underscore). ((proj_lane__2 lane_1_105) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_27 :: lane_underscore). ((proj_lane__2 lane_2_27) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_105 :: lane_underscore) (lane_2_27 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_105))) (the ((proj_lane__2 lane_2_27))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_104 :: lane_underscore). ((proj_lane__2 lane_1_104) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_26 :: lane_underscore). ((proj_lane__2 lane_2_26) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_104 :: lane_underscore) (lane_2_26 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_104))) (the ((proj_lane__2 lane_2_26))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I32 var_0)) var_0_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 var_1))) var_1_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (vbinop_Jnn_N_MIN v_sx)) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_9 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_108 :: lane_underscore). ((proj_lane__2 lane_1_108) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_30 :: lane_underscore). ((proj_lane__2 lane_2_30) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_108 :: lane_underscore) (lane_2_30 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_108))) (the ((proj_lane__2 lane_2_30))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_107 :: lane_underscore). ((proj_lane__2 lane_1_107) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_29 :: lane_underscore). ((proj_lane__2 lane_2_29) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_107 :: lane_underscore) (lane_2_29 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_107))) (the ((proj_lane__2 lane_2_29))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I64 var_0)) var_0_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 var_1))) var_1_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (vbinop_Jnn_N_MIN v_sx)) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_10 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_111 :: lane_underscore). ((proj_lane__2 lane_1_111) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_33 :: lane_underscore). ((proj_lane__2 lane_2_33) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_111 :: lane_underscore) (lane_2_33 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_111))) (the ((proj_lane__2 lane_2_33))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_110 :: lane_underscore). ((proj_lane__2 lane_1_110) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_32 :: lane_underscore). ((proj_lane__2 lane_2_32) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_110 :: lane_underscore) (lane_2_32 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_110))) (the ((proj_lane__2 lane_2_32))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 AVGRU) v128_1 v128_2"
+	| fun_vbinop__case_30 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I8 var_0)) var_0_lst))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_170 :: lane_underscore). ((proj_lane__2 lane_1_170) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_92 :: lane_underscore). ((proj_lane__2 lane_2_92) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_170 :: lane_underscore) (lane_2_92 :: lane_underscore). (mk_lane__2 Jnn_I8 (iavgr_underscore (lsizenn (lanetype_Jnn Jnn_I8)) U (the ((proj_lane__2 lane_1_170))) (the ((proj_lane__2 lane_2_92)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 var_1))) var_1_lst \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_171 :: lane_underscore). ((proj_lane__2 lane_1_171) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_93 :: lane_underscore). ((proj_lane__2 lane_2_93) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_171 :: lane_underscore) (lane_2_93 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 (iavgr_underscore (lsizenn (lanetype_Jnn Jnn_I8)) U (the ((proj_lane__2 lane_1_171))) (the ((proj_lane__2 lane_2_93))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (vbinop_Jnn_N_MIN v_sx)) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_11 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_114 :: lane_underscore). ((proj_lane__2 lane_1_114) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_36 :: lane_underscore). ((proj_lane__2 lane_2_36) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_114 :: lane_underscore) (lane_2_36 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_114))) (the ((proj_lane__2 lane_2_36))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_113 :: lane_underscore). ((proj_lane__2 lane_1_113) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_35 :: lane_underscore). ((proj_lane__2 lane_2_35) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_113 :: lane_underscore) (lane_2_35 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_113))) (the ((proj_lane__2 lane_2_35))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 AVGRU) v128_1 v128_2"
+	| fun_vbinop__case_29 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_167 :: lane_underscore). ((proj_lane__2 lane_1_167) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_89 :: lane_underscore). ((proj_lane__2 lane_2_89) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_167 :: lane_underscore) (lane_2_89 :: lane_underscore). (mk_lane__2 Jnn_I64 (iavgr_underscore (lsizenn (lanetype_Jnn Jnn_I64)) U (the ((proj_lane__2 lane_1_167))) (the ((proj_lane__2 lane_2_89)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_168 :: lane_underscore). ((proj_lane__2 lane_1_168) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_90 :: lane_underscore). ((proj_lane__2 lane_2_90) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_168 :: lane_underscore) (lane_2_90 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 (iavgr_underscore (lsizenn (lanetype_Jnn Jnn_I64)) U (the ((proj_lane__2 lane_1_168))) (the ((proj_lane__2 lane_2_90))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 AVGRU) v128_1 v128_2"
+	| fun_vbinop__case_28 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_164 :: lane_underscore). ((proj_lane__2 lane_1_164) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_86 :: lane_underscore). ((proj_lane__2 lane_2_86) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_164 :: lane_underscore) (lane_2_86 :: lane_underscore). (mk_lane__2 Jnn_I32 (iavgr_underscore (lsizenn (lanetype_Jnn Jnn_I32)) U (the ((proj_lane__2 lane_1_164))) (the ((proj_lane__2 lane_2_86)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_165 :: lane_underscore). ((proj_lane__2 lane_1_165) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_87 :: lane_underscore). ((proj_lane__2 lane_2_87) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_165 :: lane_underscore) (lane_2_87 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 (iavgr_underscore (lsizenn (lanetype_Jnn Jnn_I32)) U (the ((proj_lane__2 lane_1_165))) (the ((proj_lane__2 lane_2_87))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 AVGRU) v128_1 v128_2"
+	| fun_vbinop__case_27 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I16 var_0)) var_0_lst))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_161 :: lane_underscore). ((proj_lane__2 lane_1_161) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_83 :: lane_underscore). ((proj_lane__2 lane_2_83) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_161 :: lane_underscore) (lane_2_83 :: lane_underscore). (mk_lane__2 Jnn_I16 (imul_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_161))) (the ((proj_lane__2 lane_2_83)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 var_1))) var_1_lst \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_162 :: lane_underscore). ((proj_lane__2 lane_1_162) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_84 :: lane_underscore). ((proj_lane__2 lane_2_84) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_162 :: lane_underscore) (lane_2_84 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 (imul_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_162))) (the ((proj_lane__2 lane_2_84))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (vbinop_Jnn_N_MIN v_sx)) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_12 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_117 :: lane_underscore). ((proj_lane__2 lane_1_117) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_39 :: lane_underscore). ((proj_lane__2 lane_2_39) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_117 :: lane_underscore) (lane_2_39 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_117))) (the ((proj_lane__2 lane_2_39))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_116 :: lane_underscore). ((proj_lane__2 lane_1_116) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_38 :: lane_underscore). ((proj_lane__2 lane_2_38) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_116 :: lane_underscore) (lane_2_38 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_116))) (the ((proj_lane__2 lane_2_38))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I32 var_0)) var_0_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 var_1))) var_1_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (vbinop_Jnn_N_MAX v_sx)) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_13 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_120 :: lane_underscore). ((proj_lane__2 lane_1_120) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_42 :: lane_underscore). ((proj_lane__2 lane_2_42) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_120 :: lane_underscore) (lane_2_42 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_120))) (the ((proj_lane__2 lane_2_42))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_119 :: lane_underscore). ((proj_lane__2 lane_1_119) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_41 :: lane_underscore). ((proj_lane__2 lane_2_41) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_119 :: lane_underscore) (lane_2_41 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_119))) (the ((proj_lane__2 lane_2_41))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I64 var_0)) var_0_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 var_1))) var_1_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (vbinop_Jnn_N_MAX v_sx)) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_14 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_123 :: lane_underscore). ((proj_lane__2 lane_1_123) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_45 :: lane_underscore). ((proj_lane__2 lane_2_45) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_123 :: lane_underscore) (lane_2_45 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_123))) (the ((proj_lane__2 lane_2_45))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_122 :: lane_underscore). ((proj_lane__2 lane_1_122) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_44 :: lane_underscore). ((proj_lane__2 lane_2_44) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_122 :: lane_underscore) (lane_2_44 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_122))) (the ((proj_lane__2 lane_2_44))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 vbinop_Jnn_N_MUL) v128_1 v128_2"
+	| fun_vbinop__case_26 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I8 var_0)) var_0_lst))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_158 :: lane_underscore). ((proj_lane__2 lane_1_158) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_80 :: lane_underscore). ((proj_lane__2 lane_2_80) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_158 :: lane_underscore) (lane_2_80 :: lane_underscore). (mk_lane__2 Jnn_I8 (imul_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_158))) (the ((proj_lane__2 lane_2_80)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 var_1))) var_1_lst \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_159 :: lane_underscore). ((proj_lane__2 lane_1_159) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_81 :: lane_underscore). ((proj_lane__2 lane_2_81) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_159 :: lane_underscore) (lane_2_81 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 (imul_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_159))) (the ((proj_lane__2 lane_2_81))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (vbinop_Jnn_N_MAX v_sx)) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_15 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_126 :: lane_underscore). ((proj_lane__2 lane_1_126) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_48 :: lane_underscore). ((proj_lane__2 lane_2_48) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_126 :: lane_underscore) (lane_2_48 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_126))) (the ((proj_lane__2 lane_2_48))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_125 :: lane_underscore). ((proj_lane__2 lane_1_125) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_47 :: lane_underscore). ((proj_lane__2 lane_2_47) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_125 :: lane_underscore) (lane_2_47 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_125))) (the ((proj_lane__2 lane_2_47))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I16 var_0)) var_0_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 var_1))) var_1_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (vbinop_Jnn_N_MAX v_sx)) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_16 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_129 :: lane_underscore). ((proj_lane__2 lane_1_129) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_51 :: lane_underscore). ((proj_lane__2 lane_2_51) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_129 :: lane_underscore) (lane_2_51 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_129))) (the ((proj_lane__2 lane_2_51))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_128 :: lane_underscore). ((proj_lane__2 lane_1_128) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_50 :: lane_underscore). ((proj_lane__2 lane_2_50) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_128 :: lane_underscore) (lane_2_50 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_128))) (the ((proj_lane__2 lane_2_50))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I32 var_0)) var_0_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 var_1))) var_1_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (ADD_SAT v_sx)) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_17 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_132 :: lane_underscore). ((proj_lane__2 lane_1_132) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_54 :: lane_underscore). ((proj_lane__2 lane_2_54) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_132 :: lane_underscore) (lane_2_54 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_132))) (the ((proj_lane__2 lane_2_54))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_131 :: lane_underscore). ((proj_lane__2 lane_1_131) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_53 :: lane_underscore). ((proj_lane__2 lane_2_53) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_131 :: lane_underscore) (lane_2_53 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_131))) (the ((proj_lane__2 lane_2_53))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 vbinop_Jnn_N_MUL) v128_1 v128_2"
+	| fun_vbinop__case_25 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I64 var_0)) var_0_lst))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_155 :: lane_underscore). ((proj_lane__2 lane_1_155) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_77 :: lane_underscore). ((proj_lane__2 lane_2_77) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_155 :: lane_underscore) (lane_2_77 :: lane_underscore). (mk_lane__2 Jnn_I64 (imul_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_155))) (the ((proj_lane__2 lane_2_77)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 var_1))) var_1_lst \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_156 :: lane_underscore). ((proj_lane__2 lane_1_156) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_78 :: lane_underscore). ((proj_lane__2 lane_2_78) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_156 :: lane_underscore) (lane_2_78 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 (imul_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_156))) (the ((proj_lane__2 lane_2_78))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (ADD_SAT v_sx)) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_18 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_135 :: lane_underscore). ((proj_lane__2 lane_1_135) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_57 :: lane_underscore). ((proj_lane__2 lane_2_57) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_135 :: lane_underscore) (lane_2_57 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_135))) (the ((proj_lane__2 lane_2_57))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_134 :: lane_underscore). ((proj_lane__2 lane_1_134) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_56 :: lane_underscore). ((proj_lane__2 lane_2_56) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_134 :: lane_underscore) (lane_2_56 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_134))) (the ((proj_lane__2 lane_2_56))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I8 var_0)) var_0_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 var_1))) var_1_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (ADD_SAT v_sx)) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_19 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_138 :: lane_underscore). ((proj_lane__2 lane_1_138) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_60 :: lane_underscore). ((proj_lane__2 lane_2_60) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_138 :: lane_underscore) (lane_2_60 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_138))) (the ((proj_lane__2 lane_2_60))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_137 :: lane_underscore). ((proj_lane__2 lane_1_137) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_59 :: lane_underscore). ((proj_lane__2 lane_2_59) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_137 :: lane_underscore) (lane_2_59 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_137))) (the ((proj_lane__2 lane_2_59))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I16 var_0)) var_0_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 var_1))) var_1_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (ADD_SAT v_sx)) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_20 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_141 :: lane_underscore). ((proj_lane__2 lane_1_141) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_63 :: lane_underscore). ((proj_lane__2 lane_2_63) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_141 :: lane_underscore) (lane_2_63 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_141))) (the ((proj_lane__2 lane_2_63))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_140 :: lane_underscore). ((proj_lane__2 lane_1_140) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_62 :: lane_underscore). ((proj_lane__2 lane_2_62) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_140 :: lane_underscore) (lane_2_62 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_140))) (the ((proj_lane__2 lane_2_62))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 vbinop_Jnn_N_MUL) v128_1 v128_2"
+	| fun_vbinop__case_24 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I32 var_0)) var_0_lst))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_152 :: lane_underscore). ((proj_lane__2 lane_1_152) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_74 :: lane_underscore). ((proj_lane__2 lane_2_74) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_152 :: lane_underscore) (lane_2_74 :: lane_underscore). (mk_lane__2 Jnn_I32 (imul_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_152))) (the ((proj_lane__2 lane_2_74)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 var_1))) var_1_lst \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_153 :: lane_underscore). ((proj_lane__2 lane_1_153) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_75 :: lane_underscore). ((proj_lane__2 lane_2_75) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_153 :: lane_underscore) (lane_2_75 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 (imul_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_153))) (the ((proj_lane__2 lane_2_75))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (SUB_SAT v_sx)) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_21 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_144 :: lane_underscore). ((proj_lane__2 lane_1_144) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_66 :: lane_underscore). ((proj_lane__2 lane_2_66) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_144 :: lane_underscore) (lane_2_66 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_144))) (the ((proj_lane__2 lane_2_66))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_143 :: lane_underscore). ((proj_lane__2 lane_1_143) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_65 :: lane_underscore). ((proj_lane__2 lane_2_65) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_143 :: lane_underscore) (lane_2_65 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_143))) (the ((proj_lane__2 lane_2_65))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I64 var_0)) var_0_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 var_1))) var_1_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (SUB_SAT v_sx)) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_22 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_147 :: lane_underscore). ((proj_lane__2 lane_1_147) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_69 :: lane_underscore). ((proj_lane__2 lane_2_69) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_147 :: lane_underscore) (lane_2_69 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_147))) (the ((proj_lane__2 lane_2_69))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_146 :: lane_underscore). ((proj_lane__2 lane_1_146) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_68 :: lane_underscore). ((proj_lane__2 lane_2_68) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_146 :: lane_underscore) (lane_2_68 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_146))) (the ((proj_lane__2 lane_2_68))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I8 var_0)) var_0_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 var_1))) var_1_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (SUB_SAT v_sx)) v128_1 v128_2 [v128]"
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 vbinop_Jnn_N_MUL) v128_1 v128_2"
 	| fun_vbinop__case_23 :
 		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
 		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
@@ -4454,8 +4891,777 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 var_1))) var_1_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (SUB_SAT v_sx)) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_24 :
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (SUB_SAT v_sx)) v128_1 v128_2"
+	| fun_vbinop__case_22 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_147 :: lane_underscore). ((proj_lane__2 lane_1_147) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_69 :: lane_underscore). ((proj_lane__2 lane_2_69) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_147 :: lane_underscore) (lane_2_69 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_147))) (the ((proj_lane__2 lane_2_69))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_146 :: lane_underscore). ((proj_lane__2 lane_1_146) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_68 :: lane_underscore). ((proj_lane__2 lane_2_68) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_146 :: lane_underscore) (lane_2_68 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_146))) (the ((proj_lane__2 lane_2_68))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I8 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (SUB_SAT v_sx)) v128_1 v128_2"
+	| fun_vbinop__case_21 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_144 :: lane_underscore). ((proj_lane__2 lane_1_144) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_66 :: lane_underscore). ((proj_lane__2 lane_2_66) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_144 :: lane_underscore) (lane_2_66 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_144))) (the ((proj_lane__2 lane_2_66))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_143 :: lane_underscore). ((proj_lane__2 lane_1_143) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_65 :: lane_underscore). ((proj_lane__2 lane_2_65) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_143 :: lane_underscore) (lane_2_65 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_143))) (the ((proj_lane__2 lane_2_65))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I64 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (SUB_SAT v_sx)) v128_1 v128_2"
+	| fun_vbinop__case_20 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_141 :: lane_underscore). ((proj_lane__2 lane_1_141) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_63 :: lane_underscore). ((proj_lane__2 lane_2_63) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_141 :: lane_underscore) (lane_2_63 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_141))) (the ((proj_lane__2 lane_2_63))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_140 :: lane_underscore). ((proj_lane__2 lane_1_140) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_62 :: lane_underscore). ((proj_lane__2 lane_2_62) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_140 :: lane_underscore) (lane_2_62 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_140))) (the ((proj_lane__2 lane_2_62))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I32 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (SUB_SAT v_sx)) v128_1 v128_2"
+	| fun_vbinop__case_19 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_138 :: lane_underscore). ((proj_lane__2 lane_1_138) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_60 :: lane_underscore). ((proj_lane__2 lane_2_60) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_138 :: lane_underscore) (lane_2_60 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_138))) (the ((proj_lane__2 lane_2_60))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_137 :: lane_underscore). ((proj_lane__2 lane_1_137) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_59 :: lane_underscore). ((proj_lane__2 lane_2_59) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_137 :: lane_underscore) (lane_2_59 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_137))) (the ((proj_lane__2 lane_2_59))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I16 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (ADD_SAT v_sx)) v128_1 v128_2"
+	| fun_vbinop__case_18 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_135 :: lane_underscore). ((proj_lane__2 lane_1_135) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_57 :: lane_underscore). ((proj_lane__2 lane_2_57) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_135 :: lane_underscore) (lane_2_57 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_135))) (the ((proj_lane__2 lane_2_57))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_134 :: lane_underscore). ((proj_lane__2 lane_1_134) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_56 :: lane_underscore). ((proj_lane__2 lane_2_56) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_134 :: lane_underscore) (lane_2_56 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_134))) (the ((proj_lane__2 lane_2_56))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I8 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (ADD_SAT v_sx)) v128_1 v128_2"
+	| fun_vbinop__case_17 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_132 :: lane_underscore). ((proj_lane__2 lane_1_132) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_54 :: lane_underscore). ((proj_lane__2 lane_2_54) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_132 :: lane_underscore) (lane_2_54 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_132))) (the ((proj_lane__2 lane_2_54))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_131 :: lane_underscore). ((proj_lane__2 lane_1_131) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_53 :: lane_underscore). ((proj_lane__2 lane_2_53) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_131 :: lane_underscore) (lane_2_53 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_131))) (the ((proj_lane__2 lane_2_53))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I64 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (ADD_SAT v_sx)) v128_1 v128_2"
+	| fun_vbinop__case_16 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_129 :: lane_underscore). ((proj_lane__2 lane_1_129) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_51 :: lane_underscore). ((proj_lane__2 lane_2_51) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_129 :: lane_underscore) (lane_2_51 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_129))) (the ((proj_lane__2 lane_2_51))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_128 :: lane_underscore). ((proj_lane__2 lane_1_128) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_50 :: lane_underscore). ((proj_lane__2 lane_2_50) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_128 :: lane_underscore) (lane_2_50 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_128))) (the ((proj_lane__2 lane_2_50))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I32 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (ADD_SAT v_sx)) v128_1 v128_2"
+	| fun_vbinop__case_15 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_126 :: lane_underscore). ((proj_lane__2 lane_1_126) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_48 :: lane_underscore). ((proj_lane__2 lane_2_48) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_126 :: lane_underscore) (lane_2_48 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_126))) (the ((proj_lane__2 lane_2_48))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_125 :: lane_underscore). ((proj_lane__2 lane_1_125) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_47 :: lane_underscore). ((proj_lane__2 lane_2_47) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_125 :: lane_underscore) (lane_2_47 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_125))) (the ((proj_lane__2 lane_2_47))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I16 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (vbinop_Jnn_N_MAX v_sx)) v128_1 v128_2"
+	| fun_vbinop__case_14 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_123 :: lane_underscore). ((proj_lane__2 lane_1_123) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_45 :: lane_underscore). ((proj_lane__2 lane_2_45) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_123 :: lane_underscore) (lane_2_45 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_123))) (the ((proj_lane__2 lane_2_45))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_122 :: lane_underscore). ((proj_lane__2 lane_1_122) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_44 :: lane_underscore). ((proj_lane__2 lane_2_44) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_122 :: lane_underscore) (lane_2_44 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_122))) (the ((proj_lane__2 lane_2_44))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I8 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (vbinop_Jnn_N_MAX v_sx)) v128_1 v128_2"
+	| fun_vbinop__case_13 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_120 :: lane_underscore). ((proj_lane__2 lane_1_120) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_42 :: lane_underscore). ((proj_lane__2 lane_2_42) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_120 :: lane_underscore) (lane_2_42 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_120))) (the ((proj_lane__2 lane_2_42))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_119 :: lane_underscore). ((proj_lane__2 lane_1_119) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_41 :: lane_underscore). ((proj_lane__2 lane_2_41) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_119 :: lane_underscore) (lane_2_41 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_119))) (the ((proj_lane__2 lane_2_41))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I64 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (vbinop_Jnn_N_MAX v_sx)) v128_1 v128_2"
+	| fun_vbinop__case_12 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_117 :: lane_underscore). ((proj_lane__2 lane_1_117) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_39 :: lane_underscore). ((proj_lane__2 lane_2_39) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_117 :: lane_underscore) (lane_2_39 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_117))) (the ((proj_lane__2 lane_2_39))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_116 :: lane_underscore). ((proj_lane__2 lane_1_116) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_38 :: lane_underscore). ((proj_lane__2 lane_2_38) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_116 :: lane_underscore) (lane_2_38 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_116))) (the ((proj_lane__2 lane_2_38))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I32 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (vbinop_Jnn_N_MAX v_sx)) v128_1 v128_2"
+	| fun_vbinop__case_11 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_114 :: lane_underscore). ((proj_lane__2 lane_1_114) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_36 :: lane_underscore). ((proj_lane__2 lane_2_36) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_114 :: lane_underscore) (lane_2_36 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_114))) (the ((proj_lane__2 lane_2_36))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_113 :: lane_underscore). ((proj_lane__2 lane_1_113) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_35 :: lane_underscore). ((proj_lane__2 lane_2_35) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_113 :: lane_underscore) (lane_2_35 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_113))) (the ((proj_lane__2 lane_2_35))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I16 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (vbinop_Jnn_N_MIN v_sx)) v128_1 v128_2"
+	| fun_vbinop__case_10 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_111 :: lane_underscore). ((proj_lane__2 lane_1_111) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_33 :: lane_underscore). ((proj_lane__2 lane_2_33) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_111 :: lane_underscore) (lane_2_33 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_111))) (the ((proj_lane__2 lane_2_33))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_110 :: lane_underscore). ((proj_lane__2 lane_1_110) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_32 :: lane_underscore). ((proj_lane__2 lane_2_32) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_110 :: lane_underscore) (lane_2_32 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_110))) (the ((proj_lane__2 lane_2_32))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I8 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (vbinop_Jnn_N_MIN v_sx)) v128_1 v128_2"
+	| fun_vbinop__case_9 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_108 :: lane_underscore). ((proj_lane__2 lane_1_108) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_30 :: lane_underscore). ((proj_lane__2 lane_2_30) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_108 :: lane_underscore) (lane_2_30 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_108))) (the ((proj_lane__2 lane_2_30))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_107 :: lane_underscore). ((proj_lane__2 lane_1_107) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_29 :: lane_underscore). ((proj_lane__2 lane_2_29) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_107 :: lane_underscore) (lane_2_29 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_107))) (the ((proj_lane__2 lane_2_29))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I64 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (vbinop_Jnn_N_MIN v_sx)) v128_1 v128_2"
+	| fun_vbinop__case_8 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_105 :: lane_underscore). ((proj_lane__2 lane_1_105) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_27 :: lane_underscore). ((proj_lane__2 lane_2_27) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_105 :: lane_underscore) (lane_2_27 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_105))) (the ((proj_lane__2 lane_2_27))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_104 :: lane_underscore). ((proj_lane__2 lane_1_104) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_26 :: lane_underscore). ((proj_lane__2 lane_2_26) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_104 :: lane_underscore) (lane_2_26 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_104))) (the ((proj_lane__2 lane_2_26))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I32 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (vbinop_Jnn_N_MIN v_sx)) v128_1 v128_2"
+	| fun_vbinop__case_7 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_101 :: lane_underscore). ((proj_lane__2 lane_1_101) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_23 :: lane_underscore). ((proj_lane__2 lane_2_23) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_101 :: lane_underscore) (lane_2_23 :: lane_underscore). (mk_lane__2 Jnn_I16 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_101))) (the ((proj_lane__2 lane_2_23)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_102 :: lane_underscore). ((proj_lane__2 lane_1_102) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_24 :: lane_underscore). ((proj_lane__2 lane_2_24) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_102 :: lane_underscore) (lane_2_24 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_102))) (the ((proj_lane__2 lane_2_24))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 vbinop_Jnn_N_SUB) v128_1 v128_2"
+	| fun_vbinop__case_6 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_98 :: lane_underscore). ((proj_lane__2 lane_1_98) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_20 :: lane_underscore). ((proj_lane__2 lane_2_20) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_98 :: lane_underscore) (lane_2_20 :: lane_underscore). (mk_lane__2 Jnn_I8 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_98))) (the ((proj_lane__2 lane_2_20)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_99 :: lane_underscore). ((proj_lane__2 lane_1_99) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_21 :: lane_underscore). ((proj_lane__2 lane_2_21) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_99 :: lane_underscore) (lane_2_21 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_99))) (the ((proj_lane__2 lane_2_21))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 vbinop_Jnn_N_SUB) v128_1 v128_2"
+	| fun_vbinop__case_5 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_95 :: lane_underscore). ((proj_lane__2 lane_1_95) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_17 :: lane_underscore). ((proj_lane__2 lane_2_17) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_95 :: lane_underscore) (lane_2_17 :: lane_underscore). (mk_lane__2 Jnn_I64 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_95))) (the ((proj_lane__2 lane_2_17)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_96 :: lane_underscore). ((proj_lane__2 lane_1_96) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_18 :: lane_underscore). ((proj_lane__2 lane_2_18) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_96 :: lane_underscore) (lane_2_18 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_96))) (the ((proj_lane__2 lane_2_18))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 vbinop_Jnn_N_SUB) v128_1 v128_2"
+	| fun_vbinop__case_4 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_92 :: lane_underscore). ((proj_lane__2 lane_1_92) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_14 :: lane_underscore). ((proj_lane__2 lane_2_14) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_92 :: lane_underscore) (lane_2_14 :: lane_underscore). (mk_lane__2 Jnn_I32 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_92))) (the ((proj_lane__2 lane_2_14)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_93 :: lane_underscore). ((proj_lane__2 lane_1_93) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_15 :: lane_underscore). ((proj_lane__2 lane_2_15) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_93 :: lane_underscore) (lane_2_15 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_93))) (the ((proj_lane__2 lane_2_15))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 vbinop_Jnn_N_SUB) v128_1 v128_2"
+	| fun_vbinop__case_3 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_89 :: lane_underscore). ((proj_lane__2 lane_1_89) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_11 :: lane_underscore). ((proj_lane__2 lane_2_11) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_89 :: lane_underscore) (lane_2_11 :: lane_underscore). (mk_lane__2 Jnn_I16 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_89))) (the ((proj_lane__2 lane_2_11)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_90 :: lane_underscore). ((proj_lane__2 lane_1_90) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_12 :: lane_underscore). ((proj_lane__2 lane_2_12) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_90 :: lane_underscore) (lane_2_12 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_90))) (the ((proj_lane__2 lane_2_12))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 vbinop_Jnn_N_ADD) v128_1 v128_2"
+	| fun_vbinop__case_2 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_86 :: lane_underscore). ((proj_lane__2 lane_1_86) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_8 :: lane_underscore). ((proj_lane__2 lane_2_8) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_86 :: lane_underscore) (lane_2_8 :: lane_underscore). (mk_lane__2 Jnn_I8 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_86))) (the ((proj_lane__2 lane_2_8)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_87 :: lane_underscore). ((proj_lane__2 lane_1_87) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_9 :: lane_underscore). ((proj_lane__2 lane_2_9) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_87 :: lane_underscore) (lane_2_9 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_87))) (the ((proj_lane__2 lane_2_9))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 vbinop_Jnn_N_ADD) v128_1 v128_2"
+	| fun_vbinop__case_1 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_83 :: lane_underscore). ((proj_lane__2 lane_1_83) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_5 :: lane_underscore). ((proj_lane__2 lane_2_5) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_83 :: lane_underscore) (lane_2_5 :: lane_underscore). (mk_lane__2 Jnn_I64 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_83))) (the ((proj_lane__2 lane_2_5)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_84 :: lane_underscore). ((proj_lane__2 lane_1_84) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_6 :: lane_underscore). ((proj_lane__2 lane_2_6) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_84 :: lane_underscore) (lane_2_6 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_84))) (the ((proj_lane__2 lane_2_6))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 vbinop_Jnn_N_ADD) v128_1 v128_2"
+	| fun_vbinop__case_0 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_80 :: lane_underscore). ((proj_lane__2 lane_1_80) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_2 :: lane_underscore). ((proj_lane__2 lane_2_2) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_80 :: lane_underscore) (lane_2_2 :: lane_underscore). (mk_lane__2 Jnn_I32 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_80))) (the ((proj_lane__2 lane_2_2)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_81 :: lane_underscore). ((proj_lane__2 lane_1_81) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_3 :: lane_underscore). ((proj_lane__2 lane_2_3) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_81 :: lane_underscore) (lane_2_3 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_81))) (the ((proj_lane__2 lane_2_3))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop__before_fun_vbinop__case_52 (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 vbinop_Jnn_N_ADD) v128_1 v128_2"
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.14 *)
+inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> ((vec_underscore list) option) \<Rightarrow> bool" where
+	  fun_vbinop___fun_vbinop__case_0 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_80 :: lane_underscore). ((proj_lane__2 lane_1_80) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_2 :: lane_underscore). ((proj_lane__2 lane_2_2) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_80 :: lane_underscore) (lane_2_2 :: lane_underscore). (mk_lane__2 Jnn_I32 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_80))) (the ((proj_lane__2 lane_2_2)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_81 :: lane_underscore). ((proj_lane__2 lane_1_81) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_3 :: lane_underscore). ((proj_lane__2 lane_2_3) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_81 :: lane_underscore) (lane_2_3 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_81))) (the ((proj_lane__2 lane_2_3))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 vbinop_Jnn_N_ADD) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_1 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_83 :: lane_underscore). ((proj_lane__2 lane_1_83) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_5 :: lane_underscore). ((proj_lane__2 lane_2_5) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_83 :: lane_underscore) (lane_2_5 :: lane_underscore). (mk_lane__2 Jnn_I64 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_83))) (the ((proj_lane__2 lane_2_5)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_84 :: lane_underscore). ((proj_lane__2 lane_1_84) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_6 :: lane_underscore). ((proj_lane__2 lane_2_6) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_84 :: lane_underscore) (lane_2_6 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_84))) (the ((proj_lane__2 lane_2_6))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 vbinop_Jnn_N_ADD) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_2 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_86 :: lane_underscore). ((proj_lane__2 lane_1_86) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_8 :: lane_underscore). ((proj_lane__2 lane_2_8) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_86 :: lane_underscore) (lane_2_8 :: lane_underscore). (mk_lane__2 Jnn_I8 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_86))) (the ((proj_lane__2 lane_2_8)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_87 :: lane_underscore). ((proj_lane__2 lane_1_87) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_9 :: lane_underscore). ((proj_lane__2 lane_2_9) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_87 :: lane_underscore) (lane_2_9 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_87))) (the ((proj_lane__2 lane_2_9))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 vbinop_Jnn_N_ADD) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_3 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_89 :: lane_underscore). ((proj_lane__2 lane_1_89) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_11 :: lane_underscore). ((proj_lane__2 lane_2_11) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_89 :: lane_underscore) (lane_2_11 :: lane_underscore). (mk_lane__2 Jnn_I16 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_89))) (the ((proj_lane__2 lane_2_11)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_90 :: lane_underscore). ((proj_lane__2 lane_1_90) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_12 :: lane_underscore). ((proj_lane__2 lane_2_12) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_90 :: lane_underscore) (lane_2_12 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_90))) (the ((proj_lane__2 lane_2_12))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 vbinop_Jnn_N_ADD) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_4 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_92 :: lane_underscore). ((proj_lane__2 lane_1_92) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_14 :: lane_underscore). ((proj_lane__2 lane_2_14) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_92 :: lane_underscore) (lane_2_14 :: lane_underscore). (mk_lane__2 Jnn_I32 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_92))) (the ((proj_lane__2 lane_2_14)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_93 :: lane_underscore). ((proj_lane__2 lane_1_93) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_15 :: lane_underscore). ((proj_lane__2 lane_2_15) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_93 :: lane_underscore) (lane_2_15 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_93))) (the ((proj_lane__2 lane_2_15))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 vbinop_Jnn_N_SUB) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_5 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_95 :: lane_underscore). ((proj_lane__2 lane_1_95) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_17 :: lane_underscore). ((proj_lane__2 lane_2_17) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_95 :: lane_underscore) (lane_2_17 :: lane_underscore). (mk_lane__2 Jnn_I64 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_95))) (the ((proj_lane__2 lane_2_17)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_96 :: lane_underscore). ((proj_lane__2 lane_1_96) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_18 :: lane_underscore). ((proj_lane__2 lane_2_18) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_96 :: lane_underscore) (lane_2_18 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_96))) (the ((proj_lane__2 lane_2_18))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 vbinop_Jnn_N_SUB) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_6 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_98 :: lane_underscore). ((proj_lane__2 lane_1_98) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_20 :: lane_underscore). ((proj_lane__2 lane_2_20) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_98 :: lane_underscore) (lane_2_20 :: lane_underscore). (mk_lane__2 Jnn_I8 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_98))) (the ((proj_lane__2 lane_2_20)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_99 :: lane_underscore). ((proj_lane__2 lane_1_99) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_21 :: lane_underscore). ((proj_lane__2 lane_2_21) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_99 :: lane_underscore) (lane_2_21 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_99))) (the ((proj_lane__2 lane_2_21))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 vbinop_Jnn_N_SUB) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_7 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_101 :: lane_underscore). ((proj_lane__2 lane_1_101) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_23 :: lane_underscore). ((proj_lane__2 lane_2_23) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_101 :: lane_underscore) (lane_2_23 :: lane_underscore). (mk_lane__2 Jnn_I16 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_101))) (the ((proj_lane__2 lane_2_23)))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_102 :: lane_underscore). ((proj_lane__2 lane_1_102) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_24 :: lane_underscore). ((proj_lane__2 lane_2_24) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_102 :: lane_underscore) (lane_2_24 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_102))) (the ((proj_lane__2 lane_2_24))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 vbinop_Jnn_N_SUB) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_8 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_105 :: lane_underscore). ((proj_lane__2 lane_1_105) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_27 :: lane_underscore). ((proj_lane__2 lane_2_27) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_105 :: lane_underscore) (lane_2_27 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_105))) (the ((proj_lane__2 lane_2_27))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_104 :: lane_underscore). ((proj_lane__2 lane_1_104) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_26 :: lane_underscore). ((proj_lane__2 lane_2_26) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_104 :: lane_underscore) (lane_2_26 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_104))) (the ((proj_lane__2 lane_2_26))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I32 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (vbinop_Jnn_N_MIN v_sx)) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_9 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_108 :: lane_underscore). ((proj_lane__2 lane_1_108) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_30 :: lane_underscore). ((proj_lane__2 lane_2_30) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_108 :: lane_underscore) (lane_2_30 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_108))) (the ((proj_lane__2 lane_2_30))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_107 :: lane_underscore). ((proj_lane__2 lane_1_107) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_29 :: lane_underscore). ((proj_lane__2 lane_2_29) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_107 :: lane_underscore) (lane_2_29 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_107))) (the ((proj_lane__2 lane_2_29))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I64 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (vbinop_Jnn_N_MIN v_sx)) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_10 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_111 :: lane_underscore). ((proj_lane__2 lane_1_111) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_33 :: lane_underscore). ((proj_lane__2 lane_2_33) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_111 :: lane_underscore) (lane_2_33 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_111))) (the ((proj_lane__2 lane_2_33))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_110 :: lane_underscore). ((proj_lane__2 lane_1_110) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_32 :: lane_underscore). ((proj_lane__2 lane_2_32) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_110 :: lane_underscore) (lane_2_32 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_110))) (the ((proj_lane__2 lane_2_32))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I8 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (vbinop_Jnn_N_MIN v_sx)) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_11 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_114 :: lane_underscore). ((proj_lane__2 lane_1_114) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_36 :: lane_underscore). ((proj_lane__2 lane_2_36) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_114 :: lane_underscore) (lane_2_36 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_114))) (the ((proj_lane__2 lane_2_36))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_113 :: lane_underscore). ((proj_lane__2 lane_1_113) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_35 :: lane_underscore). ((proj_lane__2 lane_2_35) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_113 :: lane_underscore) (lane_2_35 :: lane_underscore). (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_113))) (the ((proj_lane__2 lane_2_35))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I16 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (vbinop_Jnn_N_MIN v_sx)) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_12 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_117 :: lane_underscore). ((proj_lane__2 lane_1_117) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_39 :: lane_underscore). ((proj_lane__2 lane_2_39) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_117 :: lane_underscore) (lane_2_39 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_117))) (the ((proj_lane__2 lane_2_39))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_116 :: lane_underscore). ((proj_lane__2 lane_1_116) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_38 :: lane_underscore). ((proj_lane__2 lane_2_38) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_116 :: lane_underscore) (lane_2_38 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_116))) (the ((proj_lane__2 lane_2_38))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I32 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (vbinop_Jnn_N_MAX v_sx)) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_13 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_120 :: lane_underscore). ((proj_lane__2 lane_1_120) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_42 :: lane_underscore). ((proj_lane__2 lane_2_42) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_120 :: lane_underscore) (lane_2_42 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_120))) (the ((proj_lane__2 lane_2_42))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_119 :: lane_underscore). ((proj_lane__2 lane_1_119) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_41 :: lane_underscore). ((proj_lane__2 lane_2_41) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_119 :: lane_underscore) (lane_2_41 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_119))) (the ((proj_lane__2 lane_2_41))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I64 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (vbinop_Jnn_N_MAX v_sx)) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_14 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_123 :: lane_underscore). ((proj_lane__2 lane_1_123) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_45 :: lane_underscore). ((proj_lane__2 lane_2_45) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_123 :: lane_underscore) (lane_2_45 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_123))) (the ((proj_lane__2 lane_2_45))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_122 :: lane_underscore). ((proj_lane__2 lane_1_122) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_44 :: lane_underscore). ((proj_lane__2 lane_2_44) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_122 :: lane_underscore) (lane_2_44 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_122))) (the ((proj_lane__2 lane_2_44))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I8 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (vbinop_Jnn_N_MAX v_sx)) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_15 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_126 :: lane_underscore). ((proj_lane__2 lane_1_126) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_48 :: lane_underscore). ((proj_lane__2 lane_2_48) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_126 :: lane_underscore) (lane_2_48 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_126))) (the ((proj_lane__2 lane_2_48))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_125 :: lane_underscore). ((proj_lane__2 lane_1_125) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_47 :: lane_underscore). ((proj_lane__2 lane_2_47) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_125 :: lane_underscore) (lane_2_47 :: lane_underscore). (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_125))) (the ((proj_lane__2 lane_2_47))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I16 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (vbinop_Jnn_N_MAX v_sx)) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_16 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_129 :: lane_underscore). ((proj_lane__2 lane_1_129) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_51 :: lane_underscore). ((proj_lane__2 lane_2_51) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_129 :: lane_underscore) (lane_2_51 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_129))) (the ((proj_lane__2 lane_2_51))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_128 :: lane_underscore). ((proj_lane__2 lane_1_128) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_50 :: lane_underscore). ((proj_lane__2 lane_2_50) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_128 :: lane_underscore) (lane_2_50 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_128))) (the ((proj_lane__2 lane_2_50))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I32 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (ADD_SAT v_sx)) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_17 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_132 :: lane_underscore). ((proj_lane__2 lane_1_132) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_54 :: lane_underscore). ((proj_lane__2 lane_2_54) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_132 :: lane_underscore) (lane_2_54 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_132))) (the ((proj_lane__2 lane_2_54))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_131 :: lane_underscore). ((proj_lane__2 lane_1_131) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_53 :: lane_underscore). ((proj_lane__2 lane_2_53) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_131 :: lane_underscore) (lane_2_53 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_131))) (the ((proj_lane__2 lane_2_53))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I64 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (ADD_SAT v_sx)) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_18 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_135 :: lane_underscore). ((proj_lane__2 lane_1_135) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_57 :: lane_underscore). ((proj_lane__2 lane_2_57) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_135 :: lane_underscore) (lane_2_57 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_135))) (the ((proj_lane__2 lane_2_57))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_134 :: lane_underscore). ((proj_lane__2 lane_1_134) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_56 :: lane_underscore). ((proj_lane__2 lane_2_56) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_134 :: lane_underscore) (lane_2_56 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_134))) (the ((proj_lane__2 lane_2_56))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I8 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (ADD_SAT v_sx)) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_19 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_138 :: lane_underscore). ((proj_lane__2 lane_1_138) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_60 :: lane_underscore). ((proj_lane__2 lane_2_60) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_138 :: lane_underscore) (lane_2_60 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_138))) (the ((proj_lane__2 lane_2_60))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_137 :: lane_underscore). ((proj_lane__2 lane_1_137) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_59 :: lane_underscore). ((proj_lane__2 lane_2_59) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_137 :: lane_underscore) (lane_2_59 :: lane_underscore). (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_137))) (the ((proj_lane__2 lane_2_59))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I16 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (ADD_SAT v_sx)) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_20 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_141 :: lane_underscore). ((proj_lane__2 lane_1_141) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_63 :: lane_underscore). ((proj_lane__2 lane_2_63) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_141 :: lane_underscore) (lane_2_63 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_141))) (the ((proj_lane__2 lane_2_63))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_140 :: lane_underscore). ((proj_lane__2 lane_1_140) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_62 :: lane_underscore). ((proj_lane__2 lane_2_62) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_140 :: lane_underscore) (lane_2_62 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_140))) (the ((proj_lane__2 lane_2_62))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I32 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 (SUB_SAT v_sx)) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_21 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_144 :: lane_underscore). ((proj_lane__2 lane_1_144) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_66 :: lane_underscore). ((proj_lane__2 lane_2_66) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_144 :: lane_underscore) (lane_2_66 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_144))) (the ((proj_lane__2 lane_2_66))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_143 :: lane_underscore). ((proj_lane__2 lane_1_143) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_65 :: lane_underscore). ((proj_lane__2 lane_2_65) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_143 :: lane_underscore) (lane_2_65 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_143))) (the ((proj_lane__2 lane_2_65))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I64 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 (SUB_SAT v_sx)) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_22 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_147 :: lane_underscore). ((proj_lane__2 lane_1_147) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_69 :: lane_underscore). ((proj_lane__2 lane_2_69) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_147 :: lane_underscore) (lane_2_69 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_147))) (the ((proj_lane__2 lane_2_69))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_146 :: lane_underscore). ((proj_lane__2 lane_1_146) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_68 :: lane_underscore). ((proj_lane__2 lane_2_68) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_146 :: lane_underscore) (lane_2_68 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_146))) (the ((proj_lane__2 lane_2_68))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I8 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 (SUB_SAT v_sx)) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_23 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_150 :: lane_underscore). ((proj_lane__2 lane_1_150) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_72 :: lane_underscore). ((proj_lane__2 lane_2_72) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_150 :: lane_underscore) (lane_2_72 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_150))) (the ((proj_lane__2 lane_2_72))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_149 :: lane_underscore). ((proj_lane__2 lane_1_149) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_71 :: lane_underscore). ((proj_lane__2 lane_2_71) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_149 :: lane_underscore) (lane_2_71 :: lane_underscore). (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_149))) (the ((proj_lane__2 lane_2_71))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__2 Jnn_I16 var_0)) var_0_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 var_1))) var_1_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 (SUB_SAT v_sx)) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_24 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_152 :: lane_underscore). ((proj_lane__2 lane_1_152) \<noteq> None)) lane_1_lst \<Longrightarrow>
@@ -4467,8 +5673,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 list_all (\<lambda> (lane_2_75 :: lane_underscore). ((proj_lane__2 lane_2_75) \<noteq> None)) lane_2_lst \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_153 :: lane_underscore) (lane_2_75 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 (imul_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_153))) (the ((proj_lane__2 lane_2_75))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 vbinop_Jnn_N_MUL) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_25 :
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 vbinop_Jnn_N_MUL) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_25 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_155 :: lane_underscore). ((proj_lane__2 lane_1_155) \<noteq> None)) lane_1_lst \<Longrightarrow>
@@ -4480,8 +5686,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 list_all (\<lambda> (lane_2_78 :: lane_underscore). ((proj_lane__2 lane_2_78) \<noteq> None)) lane_2_lst \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_156 :: lane_underscore) (lane_2_78 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 (imul_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_156))) (the ((proj_lane__2 lane_2_78))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 vbinop_Jnn_N_MUL) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_26 :
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 vbinop_Jnn_N_MUL) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_26 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_158 :: lane_underscore). ((proj_lane__2 lane_1_158) \<noteq> None)) lane_1_lst \<Longrightarrow>
@@ -4493,8 +5699,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 list_all (\<lambda> (lane_2_81 :: lane_underscore). ((proj_lane__2 lane_2_81) \<noteq> None)) lane_2_lst \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_159 :: lane_underscore) (lane_2_81 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 (imul_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_159))) (the ((proj_lane__2 lane_2_81))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 vbinop_Jnn_N_MUL) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_27 :
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 vbinop_Jnn_N_MUL) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_27 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_161 :: lane_underscore). ((proj_lane__2 lane_1_161) \<noteq> None)) lane_1_lst \<Longrightarrow>
@@ -4506,8 +5712,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 list_all (\<lambda> (lane_2_84 :: lane_underscore). ((proj_lane__2 lane_2_84) \<noteq> None)) lane_2_lst \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_162 :: lane_underscore) (lane_2_84 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 (imul_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_162))) (the ((proj_lane__2 lane_2_84))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 vbinop_Jnn_N_MUL) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_28 :
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 vbinop_Jnn_N_MUL) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_28 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_164 :: lane_underscore). ((proj_lane__2 lane_1_164) \<noteq> None)) lane_1_lst \<Longrightarrow>
@@ -4519,8 +5725,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 list_all (\<lambda> (lane_2_87 :: lane_underscore). ((proj_lane__2 lane_2_87) \<noteq> None)) lane_2_lst \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_165 :: lane_underscore) (lane_2_87 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 (iavgr_underscore (lsizenn (lanetype_Jnn Jnn_I32)) U (the ((proj_lane__2 lane_1_165))) (the ((proj_lane__2 lane_2_87))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 AVGRU) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_29 :
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 AVGRU) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_29 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_167 :: lane_underscore). ((proj_lane__2 lane_1_167) \<noteq> None)) lane_1_lst \<Longrightarrow>
@@ -4532,8 +5738,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 list_all (\<lambda> (lane_2_90 :: lane_underscore). ((proj_lane__2 lane_2_90) \<noteq> None)) lane_2_lst \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_168 :: lane_underscore) (lane_2_90 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 (iavgr_underscore (lsizenn (lanetype_Jnn Jnn_I64)) U (the ((proj_lane__2 lane_1_168))) (the ((proj_lane__2 lane_2_90))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 AVGRU) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_30 :
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 AVGRU) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_30 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_170 :: lane_underscore). ((proj_lane__2 lane_1_170) \<noteq> None)) lane_1_lst \<Longrightarrow>
@@ -4545,8 +5751,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 list_all (\<lambda> (lane_2_93 :: lane_underscore). ((proj_lane__2 lane_2_93) \<noteq> None)) lane_2_lst \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_171 :: lane_underscore) (lane_2_93 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 (iavgr_underscore (lsizenn (lanetype_Jnn Jnn_I8)) U (the ((proj_lane__2 lane_1_171))) (the ((proj_lane__2 lane_2_93))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 AVGRU) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_31 :
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 AVGRU) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_31 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_173 :: lane_underscore). ((proj_lane__2 lane_1_173) \<noteq> None)) lane_1_lst \<Longrightarrow>
@@ -4558,8 +5764,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 list_all (\<lambda> (lane_2_96 :: lane_underscore). ((proj_lane__2 lane_2_96) \<noteq> None)) lane_2_lst \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_174 :: lane_underscore) (lane_2_96 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 (iavgr_underscore (lsizenn (lanetype_Jnn Jnn_I16)) U (the ((proj_lane__2 lane_1_174))) (the ((proj_lane__2 lane_2_96))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 AVGRU) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_32 :
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 AVGRU) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_32 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_176 :: lane_underscore). ((proj_lane__2 lane_1_176) \<noteq> None)) lane_1_lst \<Longrightarrow>
@@ -4571,8 +5777,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 list_all (\<lambda> (lane_2_99 :: lane_underscore). ((proj_lane__2 lane_2_99) \<noteq> None)) lane_2_lst \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_177 :: lane_underscore) (lane_2_99 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 (iq15mulr_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) S (the ((proj_lane__2 lane_1_177))) (the ((proj_lane__2 lane_2_99))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 Q15MULR_SATS) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_33 :
+		 fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 M_0 Q15MULR_SATS) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_33 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_179 :: lane_underscore). ((proj_lane__2 lane_1_179) \<noteq> None)) lane_1_lst \<Longrightarrow>
@@ -4584,8 +5790,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 list_all (\<lambda> (lane_2_102 :: lane_underscore). ((proj_lane__2 lane_2_102) \<noteq> None)) lane_2_lst \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_180 :: lane_underscore) (lane_2_102 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 (iq15mulr_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) S (the ((proj_lane__2 lane_1_180))) (the ((proj_lane__2 lane_2_102))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 Q15MULR_SATS) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_34 :
+		 fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 M_0 Q15MULR_SATS) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_34 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_182 :: lane_underscore). ((proj_lane__2 lane_1_182) \<noteq> None)) lane_1_lst \<Longrightarrow>
@@ -4597,8 +5803,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 list_all (\<lambda> (lane_2_105 :: lane_underscore). ((proj_lane__2 lane_2_105) \<noteq> None)) lane_2_lst \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_183 :: lane_underscore) (lane_2_105 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 (iq15mulr_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) S (the ((proj_lane__2 lane_1_183))) (the ((proj_lane__2 lane_2_105))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 Q15MULR_SATS) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_35 :
+		 fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 M_0 Q15MULR_SATS) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_35 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_185 :: lane_underscore). ((proj_lane__2 lane_1_185) \<noteq> None)) lane_1_lst \<Longrightarrow>
@@ -4610,8 +5816,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 list_all (\<lambda> (lane_2_108 :: lane_underscore). ((proj_lane__2 lane_2_108) \<noteq> None)) lane_2_lst \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_186 :: lane_underscore) (lane_2_108 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 (iq15mulr_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) S (the ((proj_lane__2 lane_1_186))) (the ((proj_lane__2 lane_2_108))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 Q15MULR_SATS) v128_1 v128_2 [v128]"
-	| fun_vbinop__case_36 :
+		 fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 M_0 Q15MULR_SATS) v128_1 v128_2 (Some [v128])"
+	| fun_vbinop___fun_vbinop__case_36 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_188 :: lane_underscore) (lane_2_110 :: lane_underscore). (map (\<lambda> (iter_0_77 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_77))) (fadd_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_188)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_110))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
@@ -4620,8 +5826,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_189 :: lane_underscore) (lane_2_111 :: lane_underscore). list_all (\<lambda> (iter_0_78 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_78)))) (fadd_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_189)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_111)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_ADD) v128_1 v128_2 v128_lst"
-	| fun_vbinop__case_37 :
+		 fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_ADD) v128_1 v128_2 (Some v128_lst)"
+	| fun_vbinop___fun_vbinop__case_37 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_191 :: lane_underscore) (lane_2_113 :: lane_underscore). (map (\<lambda> (iter_0_79 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_79))) (fadd_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_191)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_113))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
@@ -4630,8 +5836,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_192 :: lane_underscore) (lane_2_114 :: lane_underscore). list_all (\<lambda> (iter_0_80 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_80)))) (fadd_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_192)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_114)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_ADD) v128_1 v128_2 v128_lst"
-	| fun_vbinop__case_38 :
+		 fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_ADD) v128_1 v128_2 (Some v128_lst)"
+	| fun_vbinop___fun_vbinop__case_38 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_194 :: lane_underscore) (lane_2_116 :: lane_underscore). (map (\<lambda> (iter_0_81 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_81))) (fsub_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_194)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_116))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
@@ -4640,8 +5846,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_195 :: lane_underscore) (lane_2_117 :: lane_underscore). list_all (\<lambda> (iter_0_82 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_82)))) (fsub_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_195)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_117)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_SUB) v128_1 v128_2 v128_lst"
-	| fun_vbinop__case_39 :
+		 fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_SUB) v128_1 v128_2 (Some v128_lst)"
+	| fun_vbinop___fun_vbinop__case_39 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_197 :: lane_underscore) (lane_2_119 :: lane_underscore). (map (\<lambda> (iter_0_83 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_83))) (fsub_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_197)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_119))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
@@ -4650,8 +5856,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_198 :: lane_underscore) (lane_2_120 :: lane_underscore). list_all (\<lambda> (iter_0_84 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_84)))) (fsub_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_198)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_120)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_SUB) v128_1 v128_2 v128_lst"
-	| fun_vbinop__case_40 :
+		 fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_SUB) v128_1 v128_2 (Some v128_lst)"
+	| fun_vbinop___fun_vbinop__case_40 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_200 :: lane_underscore) (lane_2_122 :: lane_underscore). (map (\<lambda> (iter_0_85 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_85))) (fmul_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_200)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_122))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
@@ -4660,8 +5866,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_201 :: lane_underscore) (lane_2_123 :: lane_underscore). list_all (\<lambda> (iter_0_86 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_86)))) (fmul_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_201)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_123)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_MUL) v128_1 v128_2 v128_lst"
-	| fun_vbinop__case_41 :
+		 fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_MUL) v128_1 v128_2 (Some v128_lst)"
+	| fun_vbinop___fun_vbinop__case_41 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_203 :: lane_underscore) (lane_2_125 :: lane_underscore). (map (\<lambda> (iter_0_87 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_87))) (fmul_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_203)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_125))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
@@ -4670,8 +5876,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_204 :: lane_underscore) (lane_2_126 :: lane_underscore). list_all (\<lambda> (iter_0_88 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_88)))) (fmul_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_204)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_126)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_MUL) v128_1 v128_2 v128_lst"
-	| fun_vbinop__case_42 :
+		 fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_MUL) v128_1 v128_2 (Some v128_lst)"
+	| fun_vbinop___fun_vbinop__case_42 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_206 :: lane_underscore) (lane_2_128 :: lane_underscore). (map (\<lambda> (iter_0_89 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_89))) (fdiv_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_206)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_128))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
@@ -4680,8 +5886,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_207 :: lane_underscore) (lane_2_129 :: lane_underscore). list_all (\<lambda> (iter_0_90 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_90)))) (fdiv_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_207)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_129)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_DIV) v128_1 v128_2 v128_lst"
-	| fun_vbinop__case_43 :
+		 fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_DIV) v128_1 v128_2 (Some v128_lst)"
+	| fun_vbinop___fun_vbinop__case_43 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_209 :: lane_underscore) (lane_2_131 :: lane_underscore). (map (\<lambda> (iter_0_91 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_91))) (fdiv_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_209)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_131))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
@@ -4690,8 +5896,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_210 :: lane_underscore) (lane_2_132 :: lane_underscore). list_all (\<lambda> (iter_0_92 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_92)))) (fdiv_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_210)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_132)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_DIV) v128_1 v128_2 v128_lst"
-	| fun_vbinop__case_44 :
+		 fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_DIV) v128_1 v128_2 (Some v128_lst)"
+	| fun_vbinop___fun_vbinop__case_44 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_212 :: lane_underscore) (lane_2_134 :: lane_underscore). (map (\<lambda> (iter_0_93 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_93))) (fmin_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_212)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_134))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
@@ -4700,8 +5906,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_213 :: lane_underscore) (lane_2_135 :: lane_underscore). list_all (\<lambda> (iter_0_94 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_94)))) (fmin_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_213)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_135)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_MIN) v128_1 v128_2 v128_lst"
-	| fun_vbinop__case_45 :
+		 fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_MIN) v128_1 v128_2 (Some v128_lst)"
+	| fun_vbinop___fun_vbinop__case_45 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_215 :: lane_underscore) (lane_2_137 :: lane_underscore). (map (\<lambda> (iter_0_95 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_95))) (fmin_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_215)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_137))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
@@ -4710,8 +5916,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_216 :: lane_underscore) (lane_2_138 :: lane_underscore). list_all (\<lambda> (iter_0_96 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_96)))) (fmin_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_216)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_138)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_MIN) v128_1 v128_2 v128_lst"
-	| fun_vbinop__case_46 :
+		 fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_MIN) v128_1 v128_2 (Some v128_lst)"
+	| fun_vbinop___fun_vbinop__case_46 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_218 :: lane_underscore) (lane_2_140 :: lane_underscore). (map (\<lambda> (iter_0_97 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_97))) (fmax_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_218)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_140))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
@@ -4720,8 +5926,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_219 :: lane_underscore) (lane_2_141 :: lane_underscore). list_all (\<lambda> (iter_0_98 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_98)))) (fmax_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_219)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_141)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_MAX) v128_1 v128_2 v128_lst"
-	| fun_vbinop__case_47 :
+		 fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 vbinop_Fnn_N_MAX) v128_1 v128_2 (Some v128_lst)"
+	| fun_vbinop___fun_vbinop__case_47 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_221 :: lane_underscore) (lane_2_143 :: lane_underscore). (map (\<lambda> (iter_0_99 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_99))) (fmax_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_221)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_143))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
@@ -4730,8 +5936,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_222 :: lane_underscore) (lane_2_144 :: lane_underscore). list_all (\<lambda> (iter_0_100 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_100)))) (fmax_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_222)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_144)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_MAX) v128_1 v128_2 v128_lst"
-	| fun_vbinop__case_48 :
+		 fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 vbinop_Fnn_N_MAX) v128_1 v128_2 (Some v128_lst)"
+	| fun_vbinop___fun_vbinop__case_48 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_224 :: lane_underscore) (lane_2_146 :: lane_underscore). (map (\<lambda> (iter_0_101 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_101))) (fpmin_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_224)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_146))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
@@ -4740,8 +5946,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_225 :: lane_underscore) (lane_2_147 :: lane_underscore). list_all (\<lambda> (iter_0_102 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_102)))) (fpmin_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_225)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_147)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 PMIN) v128_1 v128_2 v128_lst"
-	| fun_vbinop__case_49 :
+		 fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 PMIN) v128_1 v128_2 (Some v128_lst)"
+	| fun_vbinop___fun_vbinop__case_49 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_227 :: lane_underscore) (lane_2_149 :: lane_underscore). (map (\<lambda> (iter_0_103 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_103))) (fpmin_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_227)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_149))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
@@ -4750,8 +5956,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_228 :: lane_underscore) (lane_2_150 :: lane_underscore). list_all (\<lambda> (iter_0_104 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_104)))) (fpmin_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_228)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_150)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 PMIN) v128_1 v128_2 v128_lst"
-	| fun_vbinop__case_50 :
+		 fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 PMIN) v128_1 v128_2 (Some v128_lst)"
+	| fun_vbinop___fun_vbinop__case_50 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_230 :: lane_underscore) (lane_2_152 :: lane_underscore). (map (\<lambda> (iter_0_105 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_105))) (fpmax_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_230)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_152))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
@@ -4760,8 +5966,8 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_231 :: lane_underscore) (lane_2_153 :: lane_underscore). list_all (\<lambda> (iter_0_106 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F32) (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 iter_0_106)))) (fpmax_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_231)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_153)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 PMAX) v128_1 v128_2 v128_lst"
-	| fun_vbinop__case_51 :
+		 fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 M_0 PMAX) v128_1 v128_2 (Some v128_lst)"
+	| fun_vbinop___fun_vbinop__case_51 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 (lane_lst_lst = (setproduct_underscore  (list_zipWith (\<lambda> (lane_1_233 :: lane_underscore) (lane_2_155 :: lane_underscore). (map (\<lambda> (iter_0_107 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_107))) (fpmax_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_233)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_155))))))))) lane_1_lst lane_2_lst))) \<Longrightarrow>
@@ -4770,7 +5976,10 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (lane_1_234 :: lane_underscore) (lane_2_156 :: lane_underscore). list_all (\<lambda> (iter_0_108 :: fN). (wf_lane_underscore (lanetype_Fnn Fnn_F64) (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 iter_0_108)))) (fpmax_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_234)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_156)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 PMAX) v128_1 v128_2 v128_lst"
+		 fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 M_0 PMAX) v128_1 v128_2 (Some v128_lst)"
+	| fun_vbinop__case_52 :
+		"(~(fun_vbinop__before_fun_vbinop__case_52 x0 x1 x2 x3)) \<Longrightarrow>
+		 fun_vbinop_underscore x0 x1 x2 x3 None"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.14 *)
 lemma vbinop__is_wf :
@@ -4779,672 +5988,35 @@ lemma vbinop__is_wf :
 	 (wf_vbinop_underscore v_shape v_vbinop_underscore) \<Longrightarrow>
 	 (wf_uN 128 v_vec_underscore) \<Longrightarrow>
 	 (wf_uN 128 vec__0) \<Longrightarrow>
-	 (ret_val_lst = var_0) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: vec_underscore). (wf_uN 128 ret_val)) ret_val_lst"
 sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:381.6-381.14 *)
-inductive fun_vrelop_underscore :: "shape \<Rightarrow> vrelop_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> bool" where
-	  fun_vrelop__case_0 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_236 :: lane_underscore). ((proj_lane__2 lane_1_236) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_158 :: lane_underscore). ((proj_lane__2 lane_2_158) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_236 :: lane_underscore) (lane_2_158 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_236))) (the ((proj_lane__2 lane_2_158)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_2 :: iN). (mk_lane__2 Jnn_I32 lane_3_2)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_237 :: lane_underscore). ((proj_lane__2 lane_1_237) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_159 :: lane_underscore). ((proj_lane__2 lane_2_159) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_237 :: lane_underscore) (lane_2_159 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_237))) (the ((proj_lane__2 lane_2_159)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_3 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_3))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 vrelop_Jnn_N_EQ) v128_1 v128_2 v128"
-	| fun_vrelop__case_1 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_239 :: lane_underscore). ((proj_lane__2 lane_1_239) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_161 :: lane_underscore). ((proj_lane__2 lane_2_161) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_239 :: lane_underscore) (lane_2_161 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_239))) (the ((proj_lane__2 lane_2_161)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_5 :: iN). (mk_lane__2 Jnn_I64 lane_3_5)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_240 :: lane_underscore). ((proj_lane__2 lane_1_240) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_162 :: lane_underscore). ((proj_lane__2 lane_2_162) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_240 :: lane_underscore) (lane_2_162 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_240))) (the ((proj_lane__2 lane_2_162)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_6 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_6))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 vrelop_Jnn_N_EQ) v128_1 v128_2 v128"
-	| fun_vrelop__case_2 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_242 :: lane_underscore). ((proj_lane__2 lane_1_242) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_164 :: lane_underscore). ((proj_lane__2 lane_2_164) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_242 :: lane_underscore) (lane_2_164 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_242))) (the ((proj_lane__2 lane_2_164)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_8 :: iN). (mk_lane__2 Jnn_I8 lane_3_8)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_243 :: lane_underscore). ((proj_lane__2 lane_1_243) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_165 :: lane_underscore). ((proj_lane__2 lane_2_165) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_243 :: lane_underscore) (lane_2_165 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_243))) (the ((proj_lane__2 lane_2_165)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_9 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_9))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 vrelop_Jnn_N_EQ) v128_1 v128_2 v128"
-	| fun_vrelop__case_3 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_245 :: lane_underscore). ((proj_lane__2 lane_1_245) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_167 :: lane_underscore). ((proj_lane__2 lane_2_167) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_245 :: lane_underscore) (lane_2_167 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_245))) (the ((proj_lane__2 lane_2_167)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_11 :: iN). (mk_lane__2 Jnn_I16 lane_3_11)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_246 :: lane_underscore). ((proj_lane__2 lane_1_246) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_168 :: lane_underscore). ((proj_lane__2 lane_2_168) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_246 :: lane_underscore) (lane_2_168 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_246))) (the ((proj_lane__2 lane_2_168)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_12 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_12))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 vrelop_Jnn_N_EQ) v128_1 v128_2 v128"
-	| fun_vrelop__case_4 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_248 :: lane_underscore). ((proj_lane__2 lane_1_248) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_170 :: lane_underscore). ((proj_lane__2 lane_2_170) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_248 :: lane_underscore) (lane_2_170 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_248))) (the ((proj_lane__2 lane_2_170)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_14 :: iN). (mk_lane__2 Jnn_I32 lane_3_14)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_249 :: lane_underscore). ((proj_lane__2 lane_1_249) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_171 :: lane_underscore). ((proj_lane__2 lane_2_171) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_249 :: lane_underscore) (lane_2_171 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_249))) (the ((proj_lane__2 lane_2_171)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_15 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_15))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 vrelop_Jnn_N_NE) v128_1 v128_2 v128"
-	| fun_vrelop__case_5 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_251 :: lane_underscore). ((proj_lane__2 lane_1_251) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_173 :: lane_underscore). ((proj_lane__2 lane_2_173) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_251 :: lane_underscore) (lane_2_173 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_251))) (the ((proj_lane__2 lane_2_173)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_17 :: iN). (mk_lane__2 Jnn_I64 lane_3_17)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_252 :: lane_underscore). ((proj_lane__2 lane_1_252) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_174 :: lane_underscore). ((proj_lane__2 lane_2_174) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_252 :: lane_underscore) (lane_2_174 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_252))) (the ((proj_lane__2 lane_2_174)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_18 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_18))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 vrelop_Jnn_N_NE) v128_1 v128_2 v128"
-	| fun_vrelop__case_6 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_254 :: lane_underscore). ((proj_lane__2 lane_1_254) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_176 :: lane_underscore). ((proj_lane__2 lane_2_176) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_254 :: lane_underscore) (lane_2_176 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_254))) (the ((proj_lane__2 lane_2_176)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_20 :: iN). (mk_lane__2 Jnn_I8 lane_3_20)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_255 :: lane_underscore). ((proj_lane__2 lane_1_255) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_177 :: lane_underscore). ((proj_lane__2 lane_2_177) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_255 :: lane_underscore) (lane_2_177 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_255))) (the ((proj_lane__2 lane_2_177)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_21 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_21))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 vrelop_Jnn_N_NE) v128_1 v128_2 v128"
-	| fun_vrelop__case_7 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_257 :: lane_underscore). ((proj_lane__2 lane_1_257) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_179 :: lane_underscore). ((proj_lane__2 lane_2_179) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_257 :: lane_underscore) (lane_2_179 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_257))) (the ((proj_lane__2 lane_2_179)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_23 :: iN). (mk_lane__2 Jnn_I16 lane_3_23)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_258 :: lane_underscore). ((proj_lane__2 lane_1_258) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_180 :: lane_underscore). ((proj_lane__2 lane_2_180) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_258 :: lane_underscore) (lane_2_180 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_258))) (the ((proj_lane__2 lane_2_180)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_24 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_24))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 vrelop_Jnn_N_NE) v128_1 v128_2 v128"
-	| fun_vrelop__case_8 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_261 :: lane_underscore). ((proj_lane__2 lane_1_261) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_183 :: lane_underscore). ((proj_lane__2 lane_2_183) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_261 :: lane_underscore) (lane_2_183 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_261))) (the ((proj_lane__2 lane_2_183))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_260 :: lane_underscore). ((proj_lane__2 lane_1_260) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_182 :: lane_underscore). ((proj_lane__2 lane_2_182) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_260 :: lane_underscore) (lane_2_182 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_260))) (the ((proj_lane__2 lane_2_182))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_26 :: iN). (mk_lane__2 Jnn_I32 lane_3_26)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_27 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_27))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 (vrelop_Jnn_N_LT v_sx)) v128_1 v128_2 v128"
-	| fun_vrelop__case_9 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_264 :: lane_underscore). ((proj_lane__2 lane_1_264) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_186 :: lane_underscore). ((proj_lane__2 lane_2_186) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_264 :: lane_underscore) (lane_2_186 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_264))) (the ((proj_lane__2 lane_2_186))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_263 :: lane_underscore). ((proj_lane__2 lane_1_263) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_185 :: lane_underscore). ((proj_lane__2 lane_2_185) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_263 :: lane_underscore) (lane_2_185 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_263))) (the ((proj_lane__2 lane_2_185))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_29 :: iN). (mk_lane__2 Jnn_I64 lane_3_29)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_30 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_30))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 (vrelop_Jnn_N_LT v_sx)) v128_1 v128_2 v128"
-	| fun_vrelop__case_10 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_267 :: lane_underscore). ((proj_lane__2 lane_1_267) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_189 :: lane_underscore). ((proj_lane__2 lane_2_189) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_267 :: lane_underscore) (lane_2_189 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_267))) (the ((proj_lane__2 lane_2_189))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_266 :: lane_underscore). ((proj_lane__2 lane_1_266) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_188 :: lane_underscore). ((proj_lane__2 lane_2_188) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_266 :: lane_underscore) (lane_2_188 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_266))) (the ((proj_lane__2 lane_2_188))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_32 :: iN). (mk_lane__2 Jnn_I8 lane_3_32)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_33 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_33))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 (vrelop_Jnn_N_LT v_sx)) v128_1 v128_2 v128"
-	| fun_vrelop__case_11 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_270 :: lane_underscore). ((proj_lane__2 lane_1_270) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_192 :: lane_underscore). ((proj_lane__2 lane_2_192) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_270 :: lane_underscore) (lane_2_192 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_270))) (the ((proj_lane__2 lane_2_192))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_269 :: lane_underscore). ((proj_lane__2 lane_1_269) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_191 :: lane_underscore). ((proj_lane__2 lane_2_191) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_269 :: lane_underscore) (lane_2_191 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_269))) (the ((proj_lane__2 lane_2_191))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_35 :: iN). (mk_lane__2 Jnn_I16 lane_3_35)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_36 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_36))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 (vrelop_Jnn_N_LT v_sx)) v128_1 v128_2 v128"
-	| fun_vrelop__case_12 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_273 :: lane_underscore). ((proj_lane__2 lane_1_273) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_195 :: lane_underscore). ((proj_lane__2 lane_2_195) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_273 :: lane_underscore) (lane_2_195 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_273))) (the ((proj_lane__2 lane_2_195))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_272 :: lane_underscore). ((proj_lane__2 lane_1_272) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_194 :: lane_underscore). ((proj_lane__2 lane_2_194) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_272 :: lane_underscore) (lane_2_194 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_272))) (the ((proj_lane__2 lane_2_194))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_38 :: iN). (mk_lane__2 Jnn_I32 lane_3_38)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_39 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_39))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 (vrelop_Jnn_N_GT v_sx)) v128_1 v128_2 v128"
-	| fun_vrelop__case_13 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_276 :: lane_underscore). ((proj_lane__2 lane_1_276) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_198 :: lane_underscore). ((proj_lane__2 lane_2_198) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_276 :: lane_underscore) (lane_2_198 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_276))) (the ((proj_lane__2 lane_2_198))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_275 :: lane_underscore). ((proj_lane__2 lane_1_275) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_197 :: lane_underscore). ((proj_lane__2 lane_2_197) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_275 :: lane_underscore) (lane_2_197 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_275))) (the ((proj_lane__2 lane_2_197))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_41 :: iN). (mk_lane__2 Jnn_I64 lane_3_41)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_42 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_42))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 (vrelop_Jnn_N_GT v_sx)) v128_1 v128_2 v128"
-	| fun_vrelop__case_14 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_279 :: lane_underscore). ((proj_lane__2 lane_1_279) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_201 :: lane_underscore). ((proj_lane__2 lane_2_201) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_279 :: lane_underscore) (lane_2_201 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_279))) (the ((proj_lane__2 lane_2_201))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_278 :: lane_underscore). ((proj_lane__2 lane_1_278) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_200 :: lane_underscore). ((proj_lane__2 lane_2_200) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_278 :: lane_underscore) (lane_2_200 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_278))) (the ((proj_lane__2 lane_2_200))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_44 :: iN). (mk_lane__2 Jnn_I8 lane_3_44)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_45 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_45))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 (vrelop_Jnn_N_GT v_sx)) v128_1 v128_2 v128"
-	| fun_vrelop__case_15 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_282 :: lane_underscore). ((proj_lane__2 lane_1_282) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_204 :: lane_underscore). ((proj_lane__2 lane_2_204) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_282 :: lane_underscore) (lane_2_204 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_282))) (the ((proj_lane__2 lane_2_204))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_281 :: lane_underscore). ((proj_lane__2 lane_1_281) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_203 :: lane_underscore). ((proj_lane__2 lane_2_203) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_281 :: lane_underscore) (lane_2_203 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_281))) (the ((proj_lane__2 lane_2_203))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_47 :: iN). (mk_lane__2 Jnn_I16 lane_3_47)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_48 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_48))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 (vrelop_Jnn_N_GT v_sx)) v128_1 v128_2 v128"
-	| fun_vrelop__case_16 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_285 :: lane_underscore). ((proj_lane__2 lane_1_285) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_207 :: lane_underscore). ((proj_lane__2 lane_2_207) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_285 :: lane_underscore) (lane_2_207 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_285))) (the ((proj_lane__2 lane_2_207))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_284 :: lane_underscore). ((proj_lane__2 lane_1_284) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_206 :: lane_underscore). ((proj_lane__2 lane_2_206) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_284 :: lane_underscore) (lane_2_206 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_284))) (the ((proj_lane__2 lane_2_206))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_50 :: iN). (mk_lane__2 Jnn_I32 lane_3_50)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_51 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_51))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 (vrelop_Jnn_N_LE v_sx)) v128_1 v128_2 v128"
-	| fun_vrelop__case_17 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_288 :: lane_underscore). ((proj_lane__2 lane_1_288) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_210 :: lane_underscore). ((proj_lane__2 lane_2_210) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_288 :: lane_underscore) (lane_2_210 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_288))) (the ((proj_lane__2 lane_2_210))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_287 :: lane_underscore). ((proj_lane__2 lane_1_287) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_209 :: lane_underscore). ((proj_lane__2 lane_2_209) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_287 :: lane_underscore) (lane_2_209 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_287))) (the ((proj_lane__2 lane_2_209))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_53 :: iN). (mk_lane__2 Jnn_I64 lane_3_53)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_54 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_54))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 (vrelop_Jnn_N_LE v_sx)) v128_1 v128_2 v128"
-	| fun_vrelop__case_18 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_291 :: lane_underscore). ((proj_lane__2 lane_1_291) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_213 :: lane_underscore). ((proj_lane__2 lane_2_213) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_291 :: lane_underscore) (lane_2_213 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_291))) (the ((proj_lane__2 lane_2_213))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_290 :: lane_underscore). ((proj_lane__2 lane_1_290) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_212 :: lane_underscore). ((proj_lane__2 lane_2_212) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_290 :: lane_underscore) (lane_2_212 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_290))) (the ((proj_lane__2 lane_2_212))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_56 :: iN). (mk_lane__2 Jnn_I8 lane_3_56)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_57 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_57))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 (vrelop_Jnn_N_LE v_sx)) v128_1 v128_2 v128"
-	| fun_vrelop__case_19 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_294 :: lane_underscore). ((proj_lane__2 lane_1_294) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_216 :: lane_underscore). ((proj_lane__2 lane_2_216) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_294 :: lane_underscore) (lane_2_216 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_294))) (the ((proj_lane__2 lane_2_216))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_293 :: lane_underscore). ((proj_lane__2 lane_1_293) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_215 :: lane_underscore). ((proj_lane__2 lane_2_215) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_293 :: lane_underscore) (lane_2_215 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_293))) (the ((proj_lane__2 lane_2_215))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_59 :: iN). (mk_lane__2 Jnn_I16 lane_3_59)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_60 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_60))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 (vrelop_Jnn_N_LE v_sx)) v128_1 v128_2 v128"
-	| fun_vrelop__case_20 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_297 :: lane_underscore). ((proj_lane__2 lane_1_297) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_219 :: lane_underscore). ((proj_lane__2 lane_2_219) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_297 :: lane_underscore) (lane_2_219 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_297))) (the ((proj_lane__2 lane_2_219))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_296 :: lane_underscore). ((proj_lane__2 lane_1_296) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_218 :: lane_underscore). ((proj_lane__2 lane_2_218) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_296 :: lane_underscore) (lane_2_218 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_296))) (the ((proj_lane__2 lane_2_218))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_62 :: iN). (mk_lane__2 Jnn_I32 lane_3_62)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_63 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_63))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 (vrelop_Jnn_N_GE v_sx)) v128_1 v128_2 v128"
-	| fun_vrelop__case_21 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_300 :: lane_underscore). ((proj_lane__2 lane_1_300) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_222 :: lane_underscore). ((proj_lane__2 lane_2_222) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_300 :: lane_underscore) (lane_2_222 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_300))) (the ((proj_lane__2 lane_2_222))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_299 :: lane_underscore). ((proj_lane__2 lane_1_299) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_221 :: lane_underscore). ((proj_lane__2 lane_2_221) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_299 :: lane_underscore) (lane_2_221 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_299))) (the ((proj_lane__2 lane_2_221))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_65 :: iN). (mk_lane__2 Jnn_I64 lane_3_65)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_66 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_66))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 (vrelop_Jnn_N_GE v_sx)) v128_1 v128_2 v128"
-	| fun_vrelop__case_22 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_303 :: lane_underscore). ((proj_lane__2 lane_1_303) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_225 :: lane_underscore). ((proj_lane__2 lane_2_225) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_303 :: lane_underscore) (lane_2_225 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_303))) (the ((proj_lane__2 lane_2_225))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_302 :: lane_underscore). ((proj_lane__2 lane_1_302) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_224 :: lane_underscore). ((proj_lane__2 lane_2_224) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_302 :: lane_underscore) (lane_2_224 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_302))) (the ((proj_lane__2 lane_2_224))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_68 :: iN). (mk_lane__2 Jnn_I8 lane_3_68)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_69 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_69))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 (vrelop_Jnn_N_GE v_sx)) v128_1 v128_2 v128"
-	| fun_vrelop__case_23 :
-		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_306 :: lane_underscore). ((proj_lane__2 lane_1_306) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_228 :: lane_underscore). ((proj_lane__2 lane_2_228) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_306 :: lane_underscore) (lane_2_228 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_306))) (the ((proj_lane__2 lane_2_228))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
-		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_305 :: lane_underscore). ((proj_lane__2 lane_1_305) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_227 :: lane_underscore). ((proj_lane__2 lane_2_227) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_305 :: lane_underscore) (lane_2_227 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_305))) (the ((proj_lane__2 lane_2_227))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
-		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_71 :: iN). (mk_lane__2 Jnn_I16 lane_3_71)) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_72 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_72))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 (vrelop_Jnn_N_GE v_sx)) v128_1 v128_2 v128"
-	| fun_vrelop__case_24 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_308 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_308)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_308 :: lane_underscore). ((proj_lane__0 lane_1_308) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_230 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_230)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_230 :: lane_underscore). ((proj_lane__0 lane_2_230) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_308 :: lane_underscore) (lane_2_230 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (feq_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_308)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_230))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
-		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_74 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_74))))) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_309 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_309)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_309 :: lane_underscore). ((proj_lane__0 lane_1_309) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_231 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_231)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_231 :: lane_underscore). ((proj_lane__0 lane_2_231) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_309 :: lane_underscore) (lane_2_231 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (feq_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_309)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_231))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_75 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_75)))))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_EQ) v128_1 v128_2 v128"
-	| fun_vrelop__case_25 :
+inductive fun_vrelop__before_fun_vrelop__case_36 :: "shape \<Rightarrow> vrelop_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> bool" where
+	  fun_vrelop__case_35 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_311 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_311)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_311 :: lane_underscore). ((proj_lane__0 lane_1_311) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_233 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_233)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_233 :: lane_underscore). ((proj_lane__0 lane_2_233) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_311 :: lane_underscore) (lane_2_233 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (feq_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_311)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_233))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_341 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_341)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_341 :: lane_underscore). ((proj_lane__0 lane_1_341) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_263 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_263)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_263 :: lane_underscore). ((proj_lane__0 lane_2_263) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_341 :: lane_underscore) (lane_2_263 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fge_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_341)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_263))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
 		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
 		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_77 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_77))))) lane_3_lst))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_107 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_107))))) lane_3_lst))) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
 		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_312 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_312)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_312 :: lane_underscore). ((proj_lane__0 lane_1_312) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_234 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_234)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_234 :: lane_underscore). ((proj_lane__0 lane_2_234) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_312 :: lane_underscore) (lane_2_234 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (feq_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_312)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_234))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_342 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_342)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_342 :: lane_underscore). ((proj_lane__0 lane_1_342) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_264 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_264)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_264 :: lane_underscore). ((proj_lane__0 lane_2_264) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_342 :: lane_underscore) (lane_2_264 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fge_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_342)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_264))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
 		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_78 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_78)))))) lane_3_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_108 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_108)))))) lane_3_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_EQ) v128_1 v128_2 v128"
-	| fun_vrelop__case_26 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_314 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_314)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_314 :: lane_underscore). ((proj_lane__0 lane_1_314) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_236 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_236)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_236 :: lane_underscore). ((proj_lane__0 lane_2_236) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_314 :: lane_underscore) (lane_2_236 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fne_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_314)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_236))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
-		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_80 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_80))))) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_315 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_315)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_315 :: lane_underscore). ((proj_lane__0 lane_1_315) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_237 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_237)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_237 :: lane_underscore). ((proj_lane__0 lane_2_237) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_315 :: lane_underscore) (lane_2_237 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fne_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_315)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_237))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_81 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_81)))))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_NE) v128_1 v128_2 v128"
-	| fun_vrelop__case_27 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_317 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_317)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_317 :: lane_underscore). ((proj_lane__0 lane_1_317) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_239 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_239)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_239 :: lane_underscore). ((proj_lane__0 lane_2_239) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_317 :: lane_underscore) (lane_2_239 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fne_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_317)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_239))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
-		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_83 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_83))))) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_318 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_318)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_318 :: lane_underscore). ((proj_lane__0 lane_1_318) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_240 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_240)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_240 :: lane_underscore). ((proj_lane__0 lane_2_240) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_318 :: lane_underscore) (lane_2_240 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fne_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_318)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_240))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_84 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_84)))))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_NE) v128_1 v128_2 v128"
-	| fun_vrelop__case_28 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_320 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_320)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_320 :: lane_underscore). ((proj_lane__0 lane_1_320) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_242 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_242)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_242 :: lane_underscore). ((proj_lane__0 lane_2_242) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_320 :: lane_underscore) (lane_2_242 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (flt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_320)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_242))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
-		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_86 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_86))))) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_321 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_321)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_321 :: lane_underscore). ((proj_lane__0 lane_1_321) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_243 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_243)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_243 :: lane_underscore). ((proj_lane__0 lane_2_243) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_321 :: lane_underscore) (lane_2_243 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (flt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_321)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_243))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_87 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_87)))))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_LT) v128_1 v128_2 v128"
-	| fun_vrelop__case_29 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_323 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_323)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_323 :: lane_underscore). ((proj_lane__0 lane_1_323) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_245 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_245)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_245 :: lane_underscore). ((proj_lane__0 lane_2_245) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_323 :: lane_underscore) (lane_2_245 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (flt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_323)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_245))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
-		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_89 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_89))))) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_324 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_324)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_324 :: lane_underscore). ((proj_lane__0 lane_1_324) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_246 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_246)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_246 :: lane_underscore). ((proj_lane__0 lane_2_246) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_324 :: lane_underscore) (lane_2_246 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (flt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_324)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_246))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_90 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_90)))))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_LT) v128_1 v128_2 v128"
-	| fun_vrelop__case_30 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_326 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_326)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_326 :: lane_underscore). ((proj_lane__0 lane_1_326) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_248 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_248)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_248 :: lane_underscore). ((proj_lane__0 lane_2_248) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_326 :: lane_underscore) (lane_2_248 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fgt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_326)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_248))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
-		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_92 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_92))))) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_327 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_327)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_327 :: lane_underscore). ((proj_lane__0 lane_1_327) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_249 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_249)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_249 :: lane_underscore). ((proj_lane__0 lane_2_249) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_327 :: lane_underscore) (lane_2_249 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fgt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_327)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_249))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_93 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_93)))))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_GT) v128_1 v128_2 v128"
-	| fun_vrelop__case_31 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_329 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_329)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_329 :: lane_underscore). ((proj_lane__0 lane_1_329) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_251 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_251)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_251 :: lane_underscore). ((proj_lane__0 lane_2_251) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_329 :: lane_underscore) (lane_2_251 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fgt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_329)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_251))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
-		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_95 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_95))))) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_330 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_330)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_330 :: lane_underscore). ((proj_lane__0 lane_1_330) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_252 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_252)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_252 :: lane_underscore). ((proj_lane__0 lane_2_252) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_330 :: lane_underscore) (lane_2_252 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fgt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_330)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_252))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_96 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_96)))))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_GT) v128_1 v128_2 v128"
-	| fun_vrelop__case_32 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_332 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_332)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_332 :: lane_underscore). ((proj_lane__0 lane_1_332) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_254 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_254)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_254 :: lane_underscore). ((proj_lane__0 lane_2_254) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_332 :: lane_underscore) (lane_2_254 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fle_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_332)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_254))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
-		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_98 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_98))))) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_333 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_333)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_333 :: lane_underscore). ((proj_lane__0 lane_1_333) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_255 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_255)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_255 :: lane_underscore). ((proj_lane__0 lane_2_255) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_333 :: lane_underscore) (lane_2_255 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fle_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_333)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_255))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_99 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_99)))))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_LE) v128_1 v128_2 v128"
-	| fun_vrelop__case_33 :
-		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
-		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_335 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_335)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_335 :: lane_underscore). ((proj_lane__0 lane_1_335) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_257 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_257)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_257 :: lane_underscore). ((proj_lane__0 lane_2_257) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_335 :: lane_underscore) (lane_2_257 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fle_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_335)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_257))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
-		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
-		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
-		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_101 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_101))))) lane_3_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
-		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_336 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_336)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_1_336 :: lane_underscore). ((proj_lane__0 lane_1_336) \<noteq> None)) lane_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_258 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_258)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (lane_2_258 :: lane_underscore). ((proj_lane__0 lane_2_258) \<noteq> None)) lane_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (lane_1_336 :: lane_underscore) (lane_2_258 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fle_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_336)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_258))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
-		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
-		 list_all (\<lambda> (lane_3_102 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_102)))))) lane_3_lst \<Longrightarrow>
-		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_LE) v128_1 v128_2 v128"
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_GE) v128_1 v128_2"
 	| fun_vrelop__case_34 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
@@ -5466,8 +6038,1353 @@ inductive fun_vrelop_underscore :: "shape \<Rightarrow> vrelop_underscore \<Righ
 		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (lane_3_105 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_105)))))) lane_3_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_GE) v128_1 v128_2 v128"
-	| fun_vrelop__case_35 :
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_GE) v128_1 v128_2"
+	| fun_vrelop__case_33 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_335 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_335)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_335 :: lane_underscore). ((proj_lane__0 lane_1_335) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_257 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_257)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_257 :: lane_underscore). ((proj_lane__0 lane_2_257) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_335 :: lane_underscore) (lane_2_257 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fle_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_335)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_257))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_101 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_101))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_336 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_336)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_336 :: lane_underscore). ((proj_lane__0 lane_1_336) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_258 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_258)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_258 :: lane_underscore). ((proj_lane__0 lane_2_258) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_336 :: lane_underscore) (lane_2_258 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fle_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_336)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_258))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_102 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_102)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_LE) v128_1 v128_2"
+	| fun_vrelop__case_32 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_332 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_332)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_332 :: lane_underscore). ((proj_lane__0 lane_1_332) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_254 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_254)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_254 :: lane_underscore). ((proj_lane__0 lane_2_254) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_332 :: lane_underscore) (lane_2_254 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fle_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_332)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_254))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_98 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_98))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_333 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_333)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_333 :: lane_underscore). ((proj_lane__0 lane_1_333) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_255 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_255)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_255 :: lane_underscore). ((proj_lane__0 lane_2_255) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_333 :: lane_underscore) (lane_2_255 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fle_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_333)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_255))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_99 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_99)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_LE) v128_1 v128_2"
+	| fun_vrelop__case_31 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_329 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_329)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_329 :: lane_underscore). ((proj_lane__0 lane_1_329) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_251 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_251)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_251 :: lane_underscore). ((proj_lane__0 lane_2_251) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_329 :: lane_underscore) (lane_2_251 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fgt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_329)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_251))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_95 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_95))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_330 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_330)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_330 :: lane_underscore). ((proj_lane__0 lane_1_330) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_252 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_252)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_252 :: lane_underscore). ((proj_lane__0 lane_2_252) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_330 :: lane_underscore) (lane_2_252 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fgt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_330)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_252))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_96 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_96)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_GT) v128_1 v128_2"
+	| fun_vrelop__case_30 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_326 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_326)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_326 :: lane_underscore). ((proj_lane__0 lane_1_326) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_248 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_248)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_248 :: lane_underscore). ((proj_lane__0 lane_2_248) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_326 :: lane_underscore) (lane_2_248 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fgt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_326)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_248))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_92 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_92))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_327 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_327)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_327 :: lane_underscore). ((proj_lane__0 lane_1_327) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_249 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_249)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_249 :: lane_underscore). ((proj_lane__0 lane_2_249) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_327 :: lane_underscore) (lane_2_249 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fgt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_327)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_249))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_93 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_93)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_GT) v128_1 v128_2"
+	| fun_vrelop__case_29 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_323 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_323)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_323 :: lane_underscore). ((proj_lane__0 lane_1_323) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_245 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_245)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_245 :: lane_underscore). ((proj_lane__0 lane_2_245) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_323 :: lane_underscore) (lane_2_245 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (flt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_323)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_245))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_89 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_89))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_324 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_324)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_324 :: lane_underscore). ((proj_lane__0 lane_1_324) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_246 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_246)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_246 :: lane_underscore). ((proj_lane__0 lane_2_246) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_324 :: lane_underscore) (lane_2_246 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (flt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_324)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_246))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_90 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_90)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_LT) v128_1 v128_2"
+	| fun_vrelop__case_28 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_320 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_320)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_320 :: lane_underscore). ((proj_lane__0 lane_1_320) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_242 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_242)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_242 :: lane_underscore). ((proj_lane__0 lane_2_242) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_320 :: lane_underscore) (lane_2_242 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (flt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_320)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_242))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_86 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_86))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_321 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_321)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_321 :: lane_underscore). ((proj_lane__0 lane_1_321) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_243 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_243)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_243 :: lane_underscore). ((proj_lane__0 lane_2_243) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_321 :: lane_underscore) (lane_2_243 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (flt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_321)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_243))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_87 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_87)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_LT) v128_1 v128_2"
+	| fun_vrelop__case_27 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_317 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_317)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_317 :: lane_underscore). ((proj_lane__0 lane_1_317) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_239 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_239)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_239 :: lane_underscore). ((proj_lane__0 lane_2_239) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_317 :: lane_underscore) (lane_2_239 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fne_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_317)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_239))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_83 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_83))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_318 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_318)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_318 :: lane_underscore). ((proj_lane__0 lane_1_318) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_240 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_240)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_240 :: lane_underscore). ((proj_lane__0 lane_2_240) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_318 :: lane_underscore) (lane_2_240 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fne_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_318)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_240))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_84 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_84)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_NE) v128_1 v128_2"
+	| fun_vrelop__case_26 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_314 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_314)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_314 :: lane_underscore). ((proj_lane__0 lane_1_314) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_236 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_236)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_236 :: lane_underscore). ((proj_lane__0 lane_2_236) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_314 :: lane_underscore) (lane_2_236 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fne_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_314)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_236))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_80 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_80))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_315 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_315)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_315 :: lane_underscore). ((proj_lane__0 lane_1_315) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_237 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_237)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_237 :: lane_underscore). ((proj_lane__0 lane_2_237) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_315 :: lane_underscore) (lane_2_237 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fne_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_315)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_237))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_81 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_81)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_NE) v128_1 v128_2"
+	| fun_vrelop__case_25 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_311 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_311)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_311 :: lane_underscore). ((proj_lane__0 lane_1_311) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_233 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_233)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_233 :: lane_underscore). ((proj_lane__0 lane_2_233) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_311 :: lane_underscore) (lane_2_233 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (feq_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_311)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_233))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_77 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_77))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_312 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_312)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_312 :: lane_underscore). ((proj_lane__0 lane_1_312) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_234 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_234)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_234 :: lane_underscore). ((proj_lane__0 lane_2_234) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_312 :: lane_underscore) (lane_2_234 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (feq_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_312)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_234))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_78 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_78)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_EQ) v128_1 v128_2"
+	| fun_vrelop__case_24 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_308 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_308)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_308 :: lane_underscore). ((proj_lane__0 lane_1_308) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_230 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_230)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_230 :: lane_underscore). ((proj_lane__0 lane_2_230) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_308 :: lane_underscore) (lane_2_230 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (feq_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_308)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_230))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_74 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_74))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_309 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_309)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_309 :: lane_underscore). ((proj_lane__0 lane_1_309) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_231 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_231)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_231 :: lane_underscore). ((proj_lane__0 lane_2_231) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_309 :: lane_underscore) (lane_2_231 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (feq_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_309)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_231))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_75 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_75)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_EQ) v128_1 v128_2"
+	| fun_vrelop__case_23 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_306 :: lane_underscore). ((proj_lane__2 lane_1_306) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_228 :: lane_underscore). ((proj_lane__2 lane_2_228) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_306 :: lane_underscore) (lane_2_228 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_306))) (the ((proj_lane__2 lane_2_228))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_305 :: lane_underscore). ((proj_lane__2 lane_1_305) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_227 :: lane_underscore). ((proj_lane__2 lane_2_227) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_305 :: lane_underscore) (lane_2_227 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_305))) (the ((proj_lane__2 lane_2_227))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_71 :: iN). (mk_lane__2 Jnn_I16 lane_3_71)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_72 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_72))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 (vrelop_Jnn_N_GE v_sx)) v128_1 v128_2"
+	| fun_vrelop__case_22 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_303 :: lane_underscore). ((proj_lane__2 lane_1_303) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_225 :: lane_underscore). ((proj_lane__2 lane_2_225) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_303 :: lane_underscore) (lane_2_225 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_303))) (the ((proj_lane__2 lane_2_225))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_302 :: lane_underscore). ((proj_lane__2 lane_1_302) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_224 :: lane_underscore). ((proj_lane__2 lane_2_224) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_302 :: lane_underscore) (lane_2_224 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_302))) (the ((proj_lane__2 lane_2_224))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_68 :: iN). (mk_lane__2 Jnn_I8 lane_3_68)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_69 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_69))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 (vrelop_Jnn_N_GE v_sx)) v128_1 v128_2"
+	| fun_vrelop__case_21 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_300 :: lane_underscore). ((proj_lane__2 lane_1_300) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_222 :: lane_underscore). ((proj_lane__2 lane_2_222) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_300 :: lane_underscore) (lane_2_222 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_300))) (the ((proj_lane__2 lane_2_222))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_299 :: lane_underscore). ((proj_lane__2 lane_1_299) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_221 :: lane_underscore). ((proj_lane__2 lane_2_221) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_299 :: lane_underscore) (lane_2_221 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_299))) (the ((proj_lane__2 lane_2_221))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_65 :: iN). (mk_lane__2 Jnn_I64 lane_3_65)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_66 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_66))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 (vrelop_Jnn_N_GE v_sx)) v128_1 v128_2"
+	| fun_vrelop__case_20 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_297 :: lane_underscore). ((proj_lane__2 lane_1_297) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_219 :: lane_underscore). ((proj_lane__2 lane_2_219) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_297 :: lane_underscore) (lane_2_219 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_297))) (the ((proj_lane__2 lane_2_219))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_296 :: lane_underscore). ((proj_lane__2 lane_1_296) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_218 :: lane_underscore). ((proj_lane__2 lane_2_218) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_296 :: lane_underscore) (lane_2_218 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_296))) (the ((proj_lane__2 lane_2_218))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_62 :: iN). (mk_lane__2 Jnn_I32 lane_3_62)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_63 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_63))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 (vrelop_Jnn_N_GE v_sx)) v128_1 v128_2"
+	| fun_vrelop__case_19 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_294 :: lane_underscore). ((proj_lane__2 lane_1_294) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_216 :: lane_underscore). ((proj_lane__2 lane_2_216) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_294 :: lane_underscore) (lane_2_216 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_294))) (the ((proj_lane__2 lane_2_216))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_293 :: lane_underscore). ((proj_lane__2 lane_1_293) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_215 :: lane_underscore). ((proj_lane__2 lane_2_215) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_293 :: lane_underscore) (lane_2_215 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_293))) (the ((proj_lane__2 lane_2_215))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_59 :: iN). (mk_lane__2 Jnn_I16 lane_3_59)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_60 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_60))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 (vrelop_Jnn_N_LE v_sx)) v128_1 v128_2"
+	| fun_vrelop__case_18 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_291 :: lane_underscore). ((proj_lane__2 lane_1_291) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_213 :: lane_underscore). ((proj_lane__2 lane_2_213) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_291 :: lane_underscore) (lane_2_213 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_291))) (the ((proj_lane__2 lane_2_213))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_290 :: lane_underscore). ((proj_lane__2 lane_1_290) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_212 :: lane_underscore). ((proj_lane__2 lane_2_212) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_290 :: lane_underscore) (lane_2_212 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_290))) (the ((proj_lane__2 lane_2_212))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_56 :: iN). (mk_lane__2 Jnn_I8 lane_3_56)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_57 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_57))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 (vrelop_Jnn_N_LE v_sx)) v128_1 v128_2"
+	| fun_vrelop__case_17 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_288 :: lane_underscore). ((proj_lane__2 lane_1_288) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_210 :: lane_underscore). ((proj_lane__2 lane_2_210) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_288 :: lane_underscore) (lane_2_210 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_288))) (the ((proj_lane__2 lane_2_210))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_287 :: lane_underscore). ((proj_lane__2 lane_1_287) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_209 :: lane_underscore). ((proj_lane__2 lane_2_209) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_287 :: lane_underscore) (lane_2_209 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_287))) (the ((proj_lane__2 lane_2_209))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_53 :: iN). (mk_lane__2 Jnn_I64 lane_3_53)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_54 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_54))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 (vrelop_Jnn_N_LE v_sx)) v128_1 v128_2"
+	| fun_vrelop__case_16 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_285 :: lane_underscore). ((proj_lane__2 lane_1_285) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_207 :: lane_underscore). ((proj_lane__2 lane_2_207) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_285 :: lane_underscore) (lane_2_207 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_285))) (the ((proj_lane__2 lane_2_207))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_284 :: lane_underscore). ((proj_lane__2 lane_1_284) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_206 :: lane_underscore). ((proj_lane__2 lane_2_206) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_284 :: lane_underscore) (lane_2_206 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_284))) (the ((proj_lane__2 lane_2_206))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_50 :: iN). (mk_lane__2 Jnn_I32 lane_3_50)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_51 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_51))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 (vrelop_Jnn_N_LE v_sx)) v128_1 v128_2"
+	| fun_vrelop__case_15 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_282 :: lane_underscore). ((proj_lane__2 lane_1_282) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_204 :: lane_underscore). ((proj_lane__2 lane_2_204) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_282 :: lane_underscore) (lane_2_204 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_282))) (the ((proj_lane__2 lane_2_204))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_281 :: lane_underscore). ((proj_lane__2 lane_1_281) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_203 :: lane_underscore). ((proj_lane__2 lane_2_203) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_281 :: lane_underscore) (lane_2_203 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_281))) (the ((proj_lane__2 lane_2_203))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_47 :: iN). (mk_lane__2 Jnn_I16 lane_3_47)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_48 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_48))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 (vrelop_Jnn_N_GT v_sx)) v128_1 v128_2"
+	| fun_vrelop__case_14 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_279 :: lane_underscore). ((proj_lane__2 lane_1_279) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_201 :: lane_underscore). ((proj_lane__2 lane_2_201) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_279 :: lane_underscore) (lane_2_201 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_279))) (the ((proj_lane__2 lane_2_201))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_278 :: lane_underscore). ((proj_lane__2 lane_1_278) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_200 :: lane_underscore). ((proj_lane__2 lane_2_200) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_278 :: lane_underscore) (lane_2_200 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_278))) (the ((proj_lane__2 lane_2_200))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_44 :: iN). (mk_lane__2 Jnn_I8 lane_3_44)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_45 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_45))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 (vrelop_Jnn_N_GT v_sx)) v128_1 v128_2"
+	| fun_vrelop__case_13 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_276 :: lane_underscore). ((proj_lane__2 lane_1_276) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_198 :: lane_underscore). ((proj_lane__2 lane_2_198) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_276 :: lane_underscore) (lane_2_198 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_276))) (the ((proj_lane__2 lane_2_198))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_275 :: lane_underscore). ((proj_lane__2 lane_1_275) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_197 :: lane_underscore). ((proj_lane__2 lane_2_197) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_275 :: lane_underscore) (lane_2_197 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_275))) (the ((proj_lane__2 lane_2_197))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_41 :: iN). (mk_lane__2 Jnn_I64 lane_3_41)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_42 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_42))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 (vrelop_Jnn_N_GT v_sx)) v128_1 v128_2"
+	| fun_vrelop__case_12 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_273 :: lane_underscore). ((proj_lane__2 lane_1_273) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_195 :: lane_underscore). ((proj_lane__2 lane_2_195) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_273 :: lane_underscore) (lane_2_195 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_273))) (the ((proj_lane__2 lane_2_195))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_272 :: lane_underscore). ((proj_lane__2 lane_1_272) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_194 :: lane_underscore). ((proj_lane__2 lane_2_194) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_272 :: lane_underscore) (lane_2_194 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_272))) (the ((proj_lane__2 lane_2_194))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_38 :: iN). (mk_lane__2 Jnn_I32 lane_3_38)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_39 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_39))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 (vrelop_Jnn_N_GT v_sx)) v128_1 v128_2"
+	| fun_vrelop__case_11 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_270 :: lane_underscore). ((proj_lane__2 lane_1_270) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_192 :: lane_underscore). ((proj_lane__2 lane_2_192) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_270 :: lane_underscore) (lane_2_192 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_270))) (the ((proj_lane__2 lane_2_192))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_269 :: lane_underscore). ((proj_lane__2 lane_1_269) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_191 :: lane_underscore). ((proj_lane__2 lane_2_191) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_269 :: lane_underscore) (lane_2_191 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_269))) (the ((proj_lane__2 lane_2_191))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_35 :: iN). (mk_lane__2 Jnn_I16 lane_3_35)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_36 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_36))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 (vrelop_Jnn_N_LT v_sx)) v128_1 v128_2"
+	| fun_vrelop__case_10 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_267 :: lane_underscore). ((proj_lane__2 lane_1_267) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_189 :: lane_underscore). ((proj_lane__2 lane_2_189) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_267 :: lane_underscore) (lane_2_189 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_267))) (the ((proj_lane__2 lane_2_189))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_266 :: lane_underscore). ((proj_lane__2 lane_1_266) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_188 :: lane_underscore). ((proj_lane__2 lane_2_188) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_266 :: lane_underscore) (lane_2_188 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_266))) (the ((proj_lane__2 lane_2_188))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_32 :: iN). (mk_lane__2 Jnn_I8 lane_3_32)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_33 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_33))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 (vrelop_Jnn_N_LT v_sx)) v128_1 v128_2"
+	| fun_vrelop__case_9 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_264 :: lane_underscore). ((proj_lane__2 lane_1_264) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_186 :: lane_underscore). ((proj_lane__2 lane_2_186) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_264 :: lane_underscore) (lane_2_186 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_264))) (the ((proj_lane__2 lane_2_186))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_263 :: lane_underscore). ((proj_lane__2 lane_1_263) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_185 :: lane_underscore). ((proj_lane__2 lane_2_185) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_263 :: lane_underscore) (lane_2_185 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_263))) (the ((proj_lane__2 lane_2_185))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_29 :: iN). (mk_lane__2 Jnn_I64 lane_3_29)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_30 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_30))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 (vrelop_Jnn_N_LT v_sx)) v128_1 v128_2"
+	| fun_vrelop__case_8 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_261 :: lane_underscore). ((proj_lane__2 lane_1_261) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_183 :: lane_underscore). ((proj_lane__2 lane_2_183) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_261 :: lane_underscore) (lane_2_183 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_261))) (the ((proj_lane__2 lane_2_183))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_260 :: lane_underscore). ((proj_lane__2 lane_1_260) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_182 :: lane_underscore). ((proj_lane__2 lane_2_182) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_260 :: lane_underscore) (lane_2_182 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_260))) (the ((proj_lane__2 lane_2_182))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_26 :: iN). (mk_lane__2 Jnn_I32 lane_3_26)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_27 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_27))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 (vrelop_Jnn_N_LT v_sx)) v128_1 v128_2"
+	| fun_vrelop__case_7 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_257 :: lane_underscore). ((proj_lane__2 lane_1_257) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_179 :: lane_underscore). ((proj_lane__2 lane_2_179) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_257 :: lane_underscore) (lane_2_179 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_257))) (the ((proj_lane__2 lane_2_179)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_23 :: iN). (mk_lane__2 Jnn_I16 lane_3_23)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_258 :: lane_underscore). ((proj_lane__2 lane_1_258) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_180 :: lane_underscore). ((proj_lane__2 lane_2_180) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_258 :: lane_underscore) (lane_2_180 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_258))) (the ((proj_lane__2 lane_2_180)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_24 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_24))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 vrelop_Jnn_N_NE) v128_1 v128_2"
+	| fun_vrelop__case_6 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_254 :: lane_underscore). ((proj_lane__2 lane_1_254) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_176 :: lane_underscore). ((proj_lane__2 lane_2_176) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_254 :: lane_underscore) (lane_2_176 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_254))) (the ((proj_lane__2 lane_2_176)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_20 :: iN). (mk_lane__2 Jnn_I8 lane_3_20)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_255 :: lane_underscore). ((proj_lane__2 lane_1_255) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_177 :: lane_underscore). ((proj_lane__2 lane_2_177) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_255 :: lane_underscore) (lane_2_177 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_255))) (the ((proj_lane__2 lane_2_177)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_21 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_21))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 vrelop_Jnn_N_NE) v128_1 v128_2"
+	| fun_vrelop__case_5 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_251 :: lane_underscore). ((proj_lane__2 lane_1_251) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_173 :: lane_underscore). ((proj_lane__2 lane_2_173) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_251 :: lane_underscore) (lane_2_173 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_251))) (the ((proj_lane__2 lane_2_173)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_17 :: iN). (mk_lane__2 Jnn_I64 lane_3_17)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_252 :: lane_underscore). ((proj_lane__2 lane_1_252) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_174 :: lane_underscore). ((proj_lane__2 lane_2_174) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_252 :: lane_underscore) (lane_2_174 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_252))) (the ((proj_lane__2 lane_2_174)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_18 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_18))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 vrelop_Jnn_N_NE) v128_1 v128_2"
+	| fun_vrelop__case_4 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_248 :: lane_underscore). ((proj_lane__2 lane_1_248) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_170 :: lane_underscore). ((proj_lane__2 lane_2_170) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_248 :: lane_underscore) (lane_2_170 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_248))) (the ((proj_lane__2 lane_2_170)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_14 :: iN). (mk_lane__2 Jnn_I32 lane_3_14)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_249 :: lane_underscore). ((proj_lane__2 lane_1_249) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_171 :: lane_underscore). ((proj_lane__2 lane_2_171) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_249 :: lane_underscore) (lane_2_171 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_249))) (the ((proj_lane__2 lane_2_171)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_15 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_15))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 vrelop_Jnn_N_NE) v128_1 v128_2"
+	| fun_vrelop__case_3 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_245 :: lane_underscore). ((proj_lane__2 lane_1_245) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_167 :: lane_underscore). ((proj_lane__2 lane_2_167) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_245 :: lane_underscore) (lane_2_167 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_245))) (the ((proj_lane__2 lane_2_167)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_11 :: iN). (mk_lane__2 Jnn_I16 lane_3_11)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_246 :: lane_underscore). ((proj_lane__2 lane_1_246) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_168 :: lane_underscore). ((proj_lane__2 lane_2_168) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_246 :: lane_underscore) (lane_2_168 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_246))) (the ((proj_lane__2 lane_2_168)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_12 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_12))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 vrelop_Jnn_N_EQ) v128_1 v128_2"
+	| fun_vrelop__case_2 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_242 :: lane_underscore). ((proj_lane__2 lane_1_242) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_164 :: lane_underscore). ((proj_lane__2 lane_2_164) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_242 :: lane_underscore) (lane_2_164 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_242))) (the ((proj_lane__2 lane_2_164)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_8 :: iN). (mk_lane__2 Jnn_I8 lane_3_8)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_243 :: lane_underscore). ((proj_lane__2 lane_1_243) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_165 :: lane_underscore). ((proj_lane__2 lane_2_165) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_243 :: lane_underscore) (lane_2_165 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_243))) (the ((proj_lane__2 lane_2_165)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_9 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_9))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 vrelop_Jnn_N_EQ) v128_1 v128_2"
+	| fun_vrelop__case_1 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_239 :: lane_underscore). ((proj_lane__2 lane_1_239) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_161 :: lane_underscore). ((proj_lane__2 lane_2_161) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_239 :: lane_underscore) (lane_2_161 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_239))) (the ((proj_lane__2 lane_2_161)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_5 :: iN). (mk_lane__2 Jnn_I64 lane_3_5)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_240 :: lane_underscore). ((proj_lane__2 lane_1_240) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_162 :: lane_underscore). ((proj_lane__2 lane_2_162) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_240 :: lane_underscore) (lane_2_162 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_240))) (the ((proj_lane__2 lane_2_162)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_6 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_6))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 vrelop_Jnn_N_EQ) v128_1 v128_2"
+	| fun_vrelop__case_0 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_236 :: lane_underscore). ((proj_lane__2 lane_1_236) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_158 :: lane_underscore). ((proj_lane__2 lane_2_158) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_236 :: lane_underscore) (lane_2_158 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_236))) (the ((proj_lane__2 lane_2_158)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_2 :: iN). (mk_lane__2 Jnn_I32 lane_3_2)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_237 :: lane_underscore). ((proj_lane__2 lane_1_237) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_159 :: lane_underscore). ((proj_lane__2 lane_2_159) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_237 :: lane_underscore) (lane_2_159 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_237))) (the ((proj_lane__2 lane_2_159)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_3 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_3))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop__before_fun_vrelop__case_36 (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 vrelop_Jnn_N_EQ) v128_1 v128_2"
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:381.6-381.14 *)
+inductive fun_vrelop_underscore :: "shape \<Rightarrow> vrelop_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> (vec_underscore option) \<Rightarrow> bool" where
+	  fun_vrelop___fun_vrelop__case_0 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_236 :: lane_underscore). ((proj_lane__2 lane_1_236) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_158 :: lane_underscore). ((proj_lane__2 lane_2_158) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_236 :: lane_underscore) (lane_2_158 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_236))) (the ((proj_lane__2 lane_2_158)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_2 :: iN). (mk_lane__2 Jnn_I32 lane_3_2)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_237 :: lane_underscore). ((proj_lane__2 lane_1_237) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_159 :: lane_underscore). ((proj_lane__2 lane_2_159) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_237 :: lane_underscore) (lane_2_159 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_237))) (the ((proj_lane__2 lane_2_159)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_3 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_3))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 vrelop_Jnn_N_EQ) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_1 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_239 :: lane_underscore). ((proj_lane__2 lane_1_239) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_161 :: lane_underscore). ((proj_lane__2 lane_2_161) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_239 :: lane_underscore) (lane_2_161 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_239))) (the ((proj_lane__2 lane_2_161)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_5 :: iN). (mk_lane__2 Jnn_I64 lane_3_5)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_240 :: lane_underscore). ((proj_lane__2 lane_1_240) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_162 :: lane_underscore). ((proj_lane__2 lane_2_162) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_240 :: lane_underscore) (lane_2_162 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_240))) (the ((proj_lane__2 lane_2_162)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_6 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_6))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 vrelop_Jnn_N_EQ) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_2 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_242 :: lane_underscore). ((proj_lane__2 lane_1_242) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_164 :: lane_underscore). ((proj_lane__2 lane_2_164) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_242 :: lane_underscore) (lane_2_164 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_242))) (the ((proj_lane__2 lane_2_164)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_8 :: iN). (mk_lane__2 Jnn_I8 lane_3_8)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_243 :: lane_underscore). ((proj_lane__2 lane_1_243) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_165 :: lane_underscore). ((proj_lane__2 lane_2_165) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_243 :: lane_underscore) (lane_2_165 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_243))) (the ((proj_lane__2 lane_2_165)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_9 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_9))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 vrelop_Jnn_N_EQ) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_3 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_245 :: lane_underscore). ((proj_lane__2 lane_1_245) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_167 :: lane_underscore). ((proj_lane__2 lane_2_167) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_245 :: lane_underscore) (lane_2_167 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_245))) (the ((proj_lane__2 lane_2_167)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_11 :: iN). (mk_lane__2 Jnn_I16 lane_3_11)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_246 :: lane_underscore). ((proj_lane__2 lane_1_246) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_168 :: lane_underscore). ((proj_lane__2 lane_2_168) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_246 :: lane_underscore) (lane_2_168 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_246))) (the ((proj_lane__2 lane_2_168)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_12 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_12))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 vrelop_Jnn_N_EQ) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_4 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_248 :: lane_underscore). ((proj_lane__2 lane_1_248) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_170 :: lane_underscore). ((proj_lane__2 lane_2_170) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_248 :: lane_underscore) (lane_2_170 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_248))) (the ((proj_lane__2 lane_2_170)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_14 :: iN). (mk_lane__2 Jnn_I32 lane_3_14)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_249 :: lane_underscore). ((proj_lane__2 lane_1_249) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_171 :: lane_underscore). ((proj_lane__2 lane_2_171) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_249 :: lane_underscore) (lane_2_171 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__2 lane_1_249))) (the ((proj_lane__2 lane_2_171)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_15 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_15))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 vrelop_Jnn_N_NE) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_5 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_251 :: lane_underscore). ((proj_lane__2 lane_1_251) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_173 :: lane_underscore). ((proj_lane__2 lane_2_173) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_251 :: lane_underscore) (lane_2_173 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_251))) (the ((proj_lane__2 lane_2_173)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_17 :: iN). (mk_lane__2 Jnn_I64 lane_3_17)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_252 :: lane_underscore). ((proj_lane__2 lane_1_252) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_174 :: lane_underscore). ((proj_lane__2 lane_2_174) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_252 :: lane_underscore) (lane_2_174 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__2 lane_1_252))) (the ((proj_lane__2 lane_2_174)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_18 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_18))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 vrelop_Jnn_N_NE) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_6 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_254 :: lane_underscore). ((proj_lane__2 lane_1_254) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_176 :: lane_underscore). ((proj_lane__2 lane_2_176) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_254 :: lane_underscore) (lane_2_176 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_254))) (the ((proj_lane__2 lane_2_176)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_20 :: iN). (mk_lane__2 Jnn_I8 lane_3_20)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_255 :: lane_underscore). ((proj_lane__2 lane_1_255) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_177 :: lane_underscore). ((proj_lane__2 lane_2_177) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_255 :: lane_underscore) (lane_2_177 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__2 lane_1_255))) (the ((proj_lane__2 lane_2_177)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_21 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_21))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 vrelop_Jnn_N_NE) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_7 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_257 :: lane_underscore). ((proj_lane__2 lane_1_257) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_179 :: lane_underscore). ((proj_lane__2 lane_2_179) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_257 :: lane_underscore) (lane_2_179 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_257))) (the ((proj_lane__2 lane_2_179)))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_23 :: iN). (mk_lane__2 Jnn_I16 lane_3_23)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_258 :: lane_underscore). ((proj_lane__2 lane_1_258) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_180 :: lane_underscore). ((proj_lane__2 lane_2_180) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_258 :: lane_underscore) (lane_2_180 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__2 lane_1_258))) (the ((proj_lane__2 lane_2_180)))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_24 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_24))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 vrelop_Jnn_N_NE) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_8 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_261 :: lane_underscore). ((proj_lane__2 lane_1_261) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_183 :: lane_underscore). ((proj_lane__2 lane_2_183) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_261 :: lane_underscore) (lane_2_183 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_261))) (the ((proj_lane__2 lane_2_183))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_260 :: lane_underscore). ((proj_lane__2 lane_1_260) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_182 :: lane_underscore). ((proj_lane__2 lane_2_182) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_260 :: lane_underscore) (lane_2_182 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_260))) (the ((proj_lane__2 lane_2_182))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_26 :: iN). (mk_lane__2 Jnn_I32 lane_3_26)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_27 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_27))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 (vrelop_Jnn_N_LT v_sx)) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_9 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_264 :: lane_underscore). ((proj_lane__2 lane_1_264) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_186 :: lane_underscore). ((proj_lane__2 lane_2_186) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_264 :: lane_underscore) (lane_2_186 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_264))) (the ((proj_lane__2 lane_2_186))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_263 :: lane_underscore). ((proj_lane__2 lane_1_263) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_185 :: lane_underscore). ((proj_lane__2 lane_2_185) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_263 :: lane_underscore) (lane_2_185 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_263))) (the ((proj_lane__2 lane_2_185))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_29 :: iN). (mk_lane__2 Jnn_I64 lane_3_29)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_30 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_30))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 (vrelop_Jnn_N_LT v_sx)) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_10 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_267 :: lane_underscore). ((proj_lane__2 lane_1_267) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_189 :: lane_underscore). ((proj_lane__2 lane_2_189) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_267 :: lane_underscore) (lane_2_189 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_267))) (the ((proj_lane__2 lane_2_189))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_266 :: lane_underscore). ((proj_lane__2 lane_1_266) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_188 :: lane_underscore). ((proj_lane__2 lane_2_188) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_266 :: lane_underscore) (lane_2_188 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_266))) (the ((proj_lane__2 lane_2_188))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_32 :: iN). (mk_lane__2 Jnn_I8 lane_3_32)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_33 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_33))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 (vrelop_Jnn_N_LT v_sx)) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_11 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_270 :: lane_underscore). ((proj_lane__2 lane_1_270) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_192 :: lane_underscore). ((proj_lane__2 lane_2_192) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_270 :: lane_underscore) (lane_2_192 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_270))) (the ((proj_lane__2 lane_2_192))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_269 :: lane_underscore). ((proj_lane__2 lane_1_269) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_191 :: lane_underscore). ((proj_lane__2 lane_2_191) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_269 :: lane_underscore) (lane_2_191 :: lane_underscore). (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_269))) (the ((proj_lane__2 lane_2_191))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_35 :: iN). (mk_lane__2 Jnn_I16 lane_3_35)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_36 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_36))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 (vrelop_Jnn_N_LT v_sx)) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_12 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_273 :: lane_underscore). ((proj_lane__2 lane_1_273) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_195 :: lane_underscore). ((proj_lane__2 lane_2_195) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_273 :: lane_underscore) (lane_2_195 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_273))) (the ((proj_lane__2 lane_2_195))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_272 :: lane_underscore). ((proj_lane__2 lane_1_272) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_194 :: lane_underscore). ((proj_lane__2 lane_2_194) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_272 :: lane_underscore) (lane_2_194 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_272))) (the ((proj_lane__2 lane_2_194))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_38 :: iN). (mk_lane__2 Jnn_I32 lane_3_38)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_39 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_39))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 (vrelop_Jnn_N_GT v_sx)) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_13 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_276 :: lane_underscore). ((proj_lane__2 lane_1_276) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_198 :: lane_underscore). ((proj_lane__2 lane_2_198) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_276 :: lane_underscore) (lane_2_198 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_276))) (the ((proj_lane__2 lane_2_198))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_275 :: lane_underscore). ((proj_lane__2 lane_1_275) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_197 :: lane_underscore). ((proj_lane__2 lane_2_197) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_275 :: lane_underscore) (lane_2_197 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_275))) (the ((proj_lane__2 lane_2_197))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_41 :: iN). (mk_lane__2 Jnn_I64 lane_3_41)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_42 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_42))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 (vrelop_Jnn_N_GT v_sx)) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_14 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_279 :: lane_underscore). ((proj_lane__2 lane_1_279) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_201 :: lane_underscore). ((proj_lane__2 lane_2_201) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_279 :: lane_underscore) (lane_2_201 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_279))) (the ((proj_lane__2 lane_2_201))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_278 :: lane_underscore). ((proj_lane__2 lane_1_278) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_200 :: lane_underscore). ((proj_lane__2 lane_2_200) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_278 :: lane_underscore) (lane_2_200 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_278))) (the ((proj_lane__2 lane_2_200))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_44 :: iN). (mk_lane__2 Jnn_I8 lane_3_44)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_45 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_45))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 (vrelop_Jnn_N_GT v_sx)) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_15 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_282 :: lane_underscore). ((proj_lane__2 lane_1_282) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_204 :: lane_underscore). ((proj_lane__2 lane_2_204) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_282 :: lane_underscore) (lane_2_204 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_282))) (the ((proj_lane__2 lane_2_204))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_281 :: lane_underscore). ((proj_lane__2 lane_1_281) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_203 :: lane_underscore). ((proj_lane__2 lane_2_203) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_281 :: lane_underscore) (lane_2_203 :: lane_underscore). (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_281))) (the ((proj_lane__2 lane_2_203))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_47 :: iN). (mk_lane__2 Jnn_I16 lane_3_47)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_48 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_48))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 (vrelop_Jnn_N_GT v_sx)) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_16 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_285 :: lane_underscore). ((proj_lane__2 lane_1_285) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_207 :: lane_underscore). ((proj_lane__2 lane_2_207) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_285 :: lane_underscore) (lane_2_207 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_285))) (the ((proj_lane__2 lane_2_207))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_284 :: lane_underscore). ((proj_lane__2 lane_1_284) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_206 :: lane_underscore). ((proj_lane__2 lane_2_206) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_284 :: lane_underscore) (lane_2_206 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_284))) (the ((proj_lane__2 lane_2_206))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_50 :: iN). (mk_lane__2 Jnn_I32 lane_3_50)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_51 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_51))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 (vrelop_Jnn_N_LE v_sx)) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_17 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_288 :: lane_underscore). ((proj_lane__2 lane_1_288) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_210 :: lane_underscore). ((proj_lane__2 lane_2_210) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_288 :: lane_underscore) (lane_2_210 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_288))) (the ((proj_lane__2 lane_2_210))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_287 :: lane_underscore). ((proj_lane__2 lane_1_287) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_209 :: lane_underscore). ((proj_lane__2 lane_2_209) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_287 :: lane_underscore) (lane_2_209 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_287))) (the ((proj_lane__2 lane_2_209))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_53 :: iN). (mk_lane__2 Jnn_I64 lane_3_53)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_54 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_54))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 (vrelop_Jnn_N_LE v_sx)) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_18 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_291 :: lane_underscore). ((proj_lane__2 lane_1_291) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_213 :: lane_underscore). ((proj_lane__2 lane_2_213) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_291 :: lane_underscore) (lane_2_213 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_291))) (the ((proj_lane__2 lane_2_213))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_290 :: lane_underscore). ((proj_lane__2 lane_1_290) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_212 :: lane_underscore). ((proj_lane__2 lane_2_212) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_290 :: lane_underscore) (lane_2_212 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_290))) (the ((proj_lane__2 lane_2_212))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_56 :: iN). (mk_lane__2 Jnn_I8 lane_3_56)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_57 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_57))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 (vrelop_Jnn_N_LE v_sx)) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_19 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_294 :: lane_underscore). ((proj_lane__2 lane_1_294) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_216 :: lane_underscore). ((proj_lane__2 lane_2_216) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_294 :: lane_underscore) (lane_2_216 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_294))) (the ((proj_lane__2 lane_2_216))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_293 :: lane_underscore). ((proj_lane__2 lane_1_293) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_215 :: lane_underscore). ((proj_lane__2 lane_2_215) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_293 :: lane_underscore) (lane_2_215 :: lane_underscore). (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_293))) (the ((proj_lane__2 lane_2_215))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_59 :: iN). (mk_lane__2 Jnn_I16 lane_3_59)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_60 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_60))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 (vrelop_Jnn_N_LE v_sx)) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_20 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_297 :: lane_underscore). ((proj_lane__2 lane_1_297) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_219 :: lane_underscore). ((proj_lane__2 lane_2_219) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_297 :: lane_underscore) (lane_2_219 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_297))) (the ((proj_lane__2 lane_2_219))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_296 :: lane_underscore). ((proj_lane__2 lane_1_296) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_218 :: lane_underscore). ((proj_lane__2 lane_2_218) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_296 :: lane_underscore) (lane_2_218 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__2 lane_1_296))) (the ((proj_lane__2 lane_2_218))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_62 :: iN). (mk_lane__2 Jnn_I32 lane_3_62)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_63 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))) (mk_lane__2 Jnn_I32 lane_3_63))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 M_0 (vrelop_Jnn_N_GE v_sx)) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_21 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_300 :: lane_underscore). ((proj_lane__2 lane_1_300) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_222 :: lane_underscore). ((proj_lane__2 lane_2_222) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_300 :: lane_underscore) (lane_2_222 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_300))) (the ((proj_lane__2 lane_2_222))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_299 :: lane_underscore). ((proj_lane__2 lane_1_299) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_221 :: lane_underscore). ((proj_lane__2 lane_2_221) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_299 :: lane_underscore) (lane_2_221 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__2 lane_1_299))) (the ((proj_lane__2 lane_2_221))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_65 :: iN). (mk_lane__2 Jnn_I64 lane_3_65)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_66 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))) (mk_lane__2 Jnn_I64 lane_3_66))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 M_0 (vrelop_Jnn_N_GE v_sx)) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_22 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_303 :: lane_underscore). ((proj_lane__2 lane_1_303) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_225 :: lane_underscore). ((proj_lane__2 lane_2_225) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_303 :: lane_underscore) (lane_2_225 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_303))) (the ((proj_lane__2 lane_2_225))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_302 :: lane_underscore). ((proj_lane__2 lane_1_302) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_224 :: lane_underscore). ((proj_lane__2 lane_2_224) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_302 :: lane_underscore) (lane_2_224 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__2 lane_1_302))) (the ((proj_lane__2 lane_2_224))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_68 :: iN). (mk_lane__2 Jnn_I8 lane_3_68)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_69 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))) (mk_lane__2 Jnn_I8 lane_3_69))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 M_0 (vrelop_Jnn_N_GE v_sx)) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_23 :
+		"((length var_1_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_306 :: lane_underscore). ((proj_lane__2 lane_1_306) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_228 :: lane_underscore). ((proj_lane__2 lane_2_228) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_1 :: uN) (lane_1_306 :: lane_underscore) (lane_2_228 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_306))) (the ((proj_lane__2 lane_2_228))) var_1)) var_1_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_1_lst)) \<Longrightarrow>
+		 ((length var_0_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_305 :: lane_underscore). ((proj_lane__2 lane_1_305) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_227 :: lane_underscore). ((proj_lane__2 lane_2_227) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all3 (\<lambda> (var_0 :: uN) (lane_1_305 :: lane_underscore) (lane_2_227 :: lane_underscore). (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__2 lane_1_305))) (the ((proj_lane__2 lane_2_227))) var_0)) var_0_lst lane_1_lst lane_2_lst \<Longrightarrow>
+		 (lane_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 (lane_3_lst = (map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) var_0_lst)) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_71 :: iN). (mk_lane__2 Jnn_I16 lane_3_71)) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (var_1 :: uN). (wf_uN 1 (mk_uN (proj_uN_0 var_1)))) var_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_72 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))) (mk_lane__2 Jnn_I16 lane_3_72))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 M_0 (vrelop_Jnn_N_GE v_sx)) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_24 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_308 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_308)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_308 :: lane_underscore). ((proj_lane__0 lane_1_308) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_230 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_230)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_230 :: lane_underscore). ((proj_lane__0 lane_2_230) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_308 :: lane_underscore) (lane_2_230 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (feq_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_308)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_230))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_74 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_74))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_309 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_309)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_309 :: lane_underscore). ((proj_lane__0 lane_1_309) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_231 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_231)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_231 :: lane_underscore). ((proj_lane__0 lane_2_231) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_309 :: lane_underscore) (lane_2_231 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (feq_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_309)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_231))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_75 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_75)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_EQ) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_25 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_311 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_311)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_311 :: lane_underscore). ((proj_lane__0 lane_1_311) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_233 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_233)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_233 :: lane_underscore). ((proj_lane__0 lane_2_233) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_311 :: lane_underscore) (lane_2_233 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (feq_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_311)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_233))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_77 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_77))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_312 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_312)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_312 :: lane_underscore). ((proj_lane__0 lane_1_312) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_234 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_234)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_234 :: lane_underscore). ((proj_lane__0 lane_2_234) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_312 :: lane_underscore) (lane_2_234 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (feq_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_312)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_234))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_78 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_78)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_EQ) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_26 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_314 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_314)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_314 :: lane_underscore). ((proj_lane__0 lane_1_314) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_236 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_236)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_236 :: lane_underscore). ((proj_lane__0 lane_2_236) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_314 :: lane_underscore) (lane_2_236 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fne_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_314)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_236))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_80 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_80))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_315 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_315)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_315 :: lane_underscore). ((proj_lane__0 lane_1_315) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_237 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_237)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_237 :: lane_underscore). ((proj_lane__0 lane_2_237) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_315 :: lane_underscore) (lane_2_237 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fne_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_315)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_237))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_81 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_81)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_NE) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_27 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_317 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_317)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_317 :: lane_underscore). ((proj_lane__0 lane_1_317) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_239 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_239)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_239 :: lane_underscore). ((proj_lane__0 lane_2_239) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_317 :: lane_underscore) (lane_2_239 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fne_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_317)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_239))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_83 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_83))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_318 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_318)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_318 :: lane_underscore). ((proj_lane__0 lane_1_318) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_240 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_240)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_240 :: lane_underscore). ((proj_lane__0 lane_2_240) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_318 :: lane_underscore) (lane_2_240 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fne_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_318)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_240))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_84 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_84)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_NE) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_28 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_320 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_320)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_320 :: lane_underscore). ((proj_lane__0 lane_1_320) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_242 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_242)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_242 :: lane_underscore). ((proj_lane__0 lane_2_242) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_320 :: lane_underscore) (lane_2_242 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (flt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_320)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_242))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_86 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_86))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_321 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_321)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_321 :: lane_underscore). ((proj_lane__0 lane_1_321) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_243 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_243)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_243 :: lane_underscore). ((proj_lane__0 lane_2_243) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_321 :: lane_underscore) (lane_2_243 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (flt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_321)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_243))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_87 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_87)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_LT) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_29 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_323 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_323)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_323 :: lane_underscore). ((proj_lane__0 lane_1_323) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_245 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_245)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_245 :: lane_underscore). ((proj_lane__0 lane_2_245) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_323 :: lane_underscore) (lane_2_245 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (flt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_323)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_245))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_89 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_89))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_324 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_324)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_324 :: lane_underscore). ((proj_lane__0 lane_1_324) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_246 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_246)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_246 :: lane_underscore). ((proj_lane__0 lane_2_246) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_324 :: lane_underscore) (lane_2_246 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (flt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_324)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_246))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_90 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_90)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_LT) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_30 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_326 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_326)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_326 :: lane_underscore). ((proj_lane__0 lane_1_326) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_248 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_248)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_248 :: lane_underscore). ((proj_lane__0 lane_2_248) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_326 :: lane_underscore) (lane_2_248 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fgt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_326)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_248))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_92 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_92))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_327 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_327)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_327 :: lane_underscore). ((proj_lane__0 lane_1_327) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_249 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_249)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_249 :: lane_underscore). ((proj_lane__0 lane_2_249) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_327 :: lane_underscore) (lane_2_249 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fgt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_327)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_249))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_93 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_93)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_GT) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_31 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_329 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_329)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_329 :: lane_underscore). ((proj_lane__0 lane_1_329) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_251 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_251)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_251 :: lane_underscore). ((proj_lane__0 lane_2_251) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_329 :: lane_underscore) (lane_2_251 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fgt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_329)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_251))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_95 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_95))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_330 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_330)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_330 :: lane_underscore). ((proj_lane__0 lane_1_330) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_252 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_252)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_252 :: lane_underscore). ((proj_lane__0 lane_2_252) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_330 :: lane_underscore) (lane_2_252 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fgt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_330)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_252))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_96 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_96)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_GT) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_32 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_332 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_332)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_332 :: lane_underscore). ((proj_lane__0 lane_1_332) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_254 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_254)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_254 :: lane_underscore). ((proj_lane__0 lane_2_254) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_332 :: lane_underscore) (lane_2_254 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fle_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_332)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_254))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_98 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_98))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_333 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_333)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_333 :: lane_underscore). ((proj_lane__0 lane_1_333) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_255 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_255)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_255 :: lane_underscore). ((proj_lane__0 lane_2_255) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_333 :: lane_underscore) (lane_2_255 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fle_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_333)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_255))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_99 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_99)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_LE) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_33 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_335 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_335)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_335 :: lane_underscore). ((proj_lane__0 lane_1_335) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_257 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_257)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_257 :: lane_underscore). ((proj_lane__0 lane_2_257) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_335 :: lane_underscore) (lane_2_257 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fle_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_335)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_257))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F64))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_101 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_101))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_336 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_336)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_336 :: lane_underscore). ((proj_lane__0 lane_1_336) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_258 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_258)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_258 :: lane_underscore). ((proj_lane__0 lane_2_258) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_336 :: lane_underscore) (lane_2_258 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fle_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_336)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_258))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_102 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_102)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_LE) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_34 :
+		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) \<Longrightarrow>
+		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_338 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_338)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_338 :: lane_underscore). ((proj_lane__0 lane_1_338) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_260 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_260)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_260 :: lane_underscore). ((proj_lane__0 lane_2_260) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 (lane_3_lst = (list_zipWith (\<lambda> (lane_1_338 :: lane_underscore) (lane_2_260 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fge_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_338)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_260))))))))))) lane_1_lst lane_2_lst)) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 ((isize v_Inn) = (the ((size (valtype_Fnn Fnn_F32))))) \<Longrightarrow>
+		 (v128 = (inv_lanes_underscore (X (lanetype_Inn v_Inn) (mk_dim v_M)) (map (\<lambda> (lane_3_104 :: iN). (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_104))))) lane_3_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))) \<Longrightarrow>
+		 ((length lane_1_lst) = (length lane_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_339 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_339)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_1_339 :: lane_underscore). ((proj_lane__0 lane_1_339) \<noteq> None)) lane_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_261 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_2_261)))) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (lane_2_261 :: lane_underscore). ((proj_lane__0 lane_2_261) \<noteq> None)) lane_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (lane_1_339 :: lane_underscore) (lane_2_261 :: lane_underscore). (wf_uN 1 (mk_uN (proj_uN_0 (fge_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_num__1 (the ((proj_lane__0 lane_1_339)))))) (the ((proj_num__1 (the ((proj_lane__0 lane_2_261))))))))))) lane_1_lst lane_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
+		 list_all (\<lambda> (lane_3_105 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_105)))))) lane_3_lst \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 M_0 vrelop_Fnn_N_GE) v128_1 v128_2 (Some v128)"
+	| fun_vrelop___fun_vrelop__case_35 :
 		"(lane_1_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) \<Longrightarrow>
 		 (lane_2_lst = (lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)) \<Longrightarrow>
 		 list_all (\<lambda> (lane_1_341 :: lane_underscore). ((proj_num__1 (the ((proj_lane__0 lane_1_341)))) \<noteq> None)) lane_1_lst \<Longrightarrow>
@@ -5488,7 +7405,10 @@ inductive fun_vrelop_underscore :: "shape \<Rightarrow> vrelop_underscore \<Righ
 		 (wf_shape (X (lanetype_Inn v_Inn) (mk_dim v_M))) \<Longrightarrow>
 		 list_all (\<lambda> (lane_3_108 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn v_Inn) (mk_dim v_M))) (mk_lane__0 (numtype_Inn v_Inn) (mk_num__0 v_Inn (mk_uN (proj_uN_0 lane_3_108)))))) lane_3_lst \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_GE) v128_1 v128_2 v128"
+		 fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 M_0 vrelop_Fnn_N_GE) v128_1 v128_2 (Some v128)"
+	| fun_vrelop__case_36 :
+		"(~(fun_vrelop__before_fun_vrelop__case_36 x0 x1 x2 x3)) \<Longrightarrow>
+		 fun_vrelop_underscore x0 x1 x2 x3 None"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:381.6-381.14 *)
 lemma vrelop__is_wf :
@@ -5497,54 +7417,61 @@ lemma vrelop__is_wf :
 	 (wf_vrelop_underscore v_shape v_vrelop_underscore) \<Longrightarrow>
 	 (wf_uN 128 v_vec_underscore) \<Longrightarrow>
 	 (wf_uN 128 vec__0) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the (var_0))) \<Longrightarrow>
 	 (wf_uN 128 ret_val)"
 sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I8_mkdim_X_I8 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I8_mkdim_X_I8 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I8_mkdim_X_I8 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I8 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1) in 
-			 [(mk_lane__2 Jnn_I8 iN_2)])"
+			 (Some [(mk_lane__2 Jnn_I8 iN_2)]))"
+		| "vcvtop___X_I8_mkdim_X_I8 constructor_parameter_12_0 constructor_parameter_13_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I8_mkdim_X_I64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I8_mkdim_X_I64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I8_mkdim_X_I64 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I8 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1) in 
-			 [(mk_lane__2 Jnn_I64 iN_2)])"
+			 (Some [(mk_lane__2 Jnn_I64 iN_2)]))"
+		| "vcvtop___X_I8_mkdim_X_I64 constructor_parameter_12_0 constructor_parameter_13_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I8_mkdim_X_I32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I8_mkdim_X_I32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I8_mkdim_X_I32 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I8 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1) in 
-			 [(mk_lane__2 Jnn_I32 iN_2)])"
+			 (Some [(mk_lane__2 Jnn_I32 iN_2)]))"
+		| "vcvtop___X_I8_mkdim_X_I32 constructor_parameter_12_0 constructor_parameter_13_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I8_mkdim_X_I16 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I8_mkdim_X_I16 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I8_mkdim_X_I16 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I8 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1) in 
-			 [(mk_lane__2 Jnn_I16 iN_2)])"
+			 (Some [(mk_lane__2 Jnn_I16 iN_2)]))"
+		| "vcvtop___X_I8_mkdim_X_I16 constructor_parameter_12_0 constructor_parameter_13_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I8_mkdim_X_F64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I8_mkdim_X_F64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I8_mkdim_X_F64 M_1 (mk_dim M_2) (vcvtop_CONVERT half_opt v_sx) (mk_lane__2 Jnn_I8 iN_1) = 
 			 (let fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1) in 
-			 [(mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2))])"
+			 (Some [(mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2))]))"
+		| "vcvtop___X_I8_mkdim_X_F64 constructor_parameter_12_0 constructor_parameter_13_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I8_mkdim_X_F32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I8_mkdim_X_F32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I8_mkdim_X_F32 M_1 (mk_dim M_2) (vcvtop_CONVERT half_opt v_sx) (mk_lane__2 Jnn_I8 iN_1) = 
 			 (let fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1) in 
-			 [(mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2))])"
+			 (Some [(mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2))]))"
+		| "vcvtop___X_I8_mkdim_X_F32 constructor_parameter_12_0 constructor_parameter_13_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I8_mkdim_X :: "nat \<Rightarrow> lanetype \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I8_mkdim_X :: "nat \<Rightarrow> lanetype \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I8_mkdim_X mkdim_argument_0_0 lanetype_I8 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I8_mkdim_X_I8 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_I8_mkdim_X mkdim_argument_0_0 lanetype_I64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I8_mkdim_X_I64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_I8_mkdim_X mkdim_argument_0_0 lanetype_I32 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I8_mkdim_X_I32 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
@@ -5554,59 +7481,65 @@ function (sequential, domintros) vcvtop___X_I8_mkdim_X :: "nat \<Rightarrow> lan
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I8_mkdim :: "nat \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_I8_mkdim mkdim_argument_0_0 (X constructor_parameter_0 constructor_parameter_1) v_vcvtop v_lane_underscore = (vcvtop___X_I8_mkdim_X mkdim_argument_0_0 constructor_parameter_0 constructor_parameter_1 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_I8_mkdim :: "nat \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_I8_mkdim mkdim_argument_0_0 (X constructor_parameter_13_0 constructor_parameter_13_1) v_vcvtop v_lane_underscore = (vcvtop___X_I8_mkdim_X mkdim_argument_0_0 constructor_parameter_13_0 constructor_parameter_13_1 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I8 :: "dim \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_I8 (mk_dim constructor_parameter_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I8_mkdim constructor_parameter_0 shape_2 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_I8 :: "dim \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_I8 (mk_dim constructor_parameter_12_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I8_mkdim constructor_parameter_12_0 shape_2 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I64_mkdim_X_I8 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I64_mkdim_X_I8 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I64_mkdim_X_I8 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I64 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1) in 
-			 [(mk_lane__2 Jnn_I8 iN_2)])"
+			 (Some [(mk_lane__2 Jnn_I8 iN_2)]))"
+		| "vcvtop___X_I64_mkdim_X_I8 constructor_parameter_20_0 constructor_parameter_21_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I64_mkdim_X_I64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I64_mkdim_X_I64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I64_mkdim_X_I64 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I64 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1) in 
-			 [(mk_lane__2 Jnn_I64 iN_2)])"
+			 (Some [(mk_lane__2 Jnn_I64 iN_2)]))"
+		| "vcvtop___X_I64_mkdim_X_I64 constructor_parameter_20_0 constructor_parameter_21_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I64_mkdim_X_I32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I64_mkdim_X_I32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I64_mkdim_X_I32 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I64 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1) in 
-			 [(mk_lane__2 Jnn_I32 iN_2)])"
+			 (Some [(mk_lane__2 Jnn_I32 iN_2)]))"
+		| "vcvtop___X_I64_mkdim_X_I32 constructor_parameter_20_0 constructor_parameter_21_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I64_mkdim_X_I16 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I64_mkdim_X_I16 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I64_mkdim_X_I16 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I64 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1) in 
-			 [(mk_lane__2 Jnn_I16 iN_2)])"
+			 (Some [(mk_lane__2 Jnn_I16 iN_2)]))"
+		| "vcvtop___X_I64_mkdim_X_I16 constructor_parameter_20_0 constructor_parameter_21_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I64_mkdim_X_F64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I64_mkdim_X_F64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I64_mkdim_X_F64 M_1 (mk_dim M_2) (vcvtop_CONVERT half_opt v_sx) (mk_lane__2 Jnn_I64 iN_1) = 
 			 (let fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1) in 
-			 [(mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2))])"
+			 (Some [(mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2))]))"
+		| "vcvtop___X_I64_mkdim_X_F64 constructor_parameter_20_0 constructor_parameter_21_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I64_mkdim_X_F32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I64_mkdim_X_F32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I64_mkdim_X_F32 M_1 (mk_dim M_2) (vcvtop_CONVERT half_opt v_sx) (mk_lane__2 Jnn_I64 iN_1) = 
 			 (let fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1) in 
-			 [(mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2))])"
+			 (Some [(mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2))]))"
+		| "vcvtop___X_I64_mkdim_X_F32 constructor_parameter_20_0 constructor_parameter_21_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I64_mkdim_X :: "nat \<Rightarrow> lanetype \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I64_mkdim_X :: "nat \<Rightarrow> lanetype \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I64_mkdim_X mkdim_argument_0_0 lanetype_I8 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I64_mkdim_X_I8 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_I64_mkdim_X mkdim_argument_0_0 lanetype_I64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I64_mkdim_X_I64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_I64_mkdim_X mkdim_argument_0_0 lanetype_I32 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I64_mkdim_X_I32 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
@@ -5616,59 +7549,65 @@ function (sequential, domintros) vcvtop___X_I64_mkdim_X :: "nat \<Rightarrow> la
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I64_mkdim :: "nat \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_I64_mkdim mkdim_argument_0_0 (X constructor_parameter_0 constructor_parameter_1) v_vcvtop v_lane_underscore = (vcvtop___X_I64_mkdim_X mkdim_argument_0_0 constructor_parameter_0 constructor_parameter_1 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_I64_mkdim :: "nat \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_I64_mkdim mkdim_argument_0_0 (X constructor_parameter_21_0 constructor_parameter_21_1) v_vcvtop v_lane_underscore = (vcvtop___X_I64_mkdim_X mkdim_argument_0_0 constructor_parameter_21_0 constructor_parameter_21_1 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I64 :: "dim \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_I64 (mk_dim constructor_parameter_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I64_mkdim constructor_parameter_0 shape_2 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_I64 :: "dim \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_I64 (mk_dim constructor_parameter_20_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I64_mkdim constructor_parameter_20_0 shape_2 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I32_mkdim_X_I8 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I32_mkdim_X_I8 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I32_mkdim_X_I8 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I32 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1) in 
-			 [(mk_lane__2 Jnn_I8 iN_2)])"
+			 (Some [(mk_lane__2 Jnn_I8 iN_2)]))"
+		| "vcvtop___X_I32_mkdim_X_I8 constructor_parameter_28_0 constructor_parameter_29_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I32_mkdim_X_I64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I32_mkdim_X_I64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I32_mkdim_X_I64 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I32 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1) in 
-			 [(mk_lane__2 Jnn_I64 iN_2)])"
+			 (Some [(mk_lane__2 Jnn_I64 iN_2)]))"
+		| "vcvtop___X_I32_mkdim_X_I64 constructor_parameter_28_0 constructor_parameter_29_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I32_mkdim_X_I32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I32_mkdim_X_I32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I32_mkdim_X_I32 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I32 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1) in 
-			 [(mk_lane__2 Jnn_I32 iN_2)])"
+			 (Some [(mk_lane__2 Jnn_I32 iN_2)]))"
+		| "vcvtop___X_I32_mkdim_X_I32 constructor_parameter_28_0 constructor_parameter_29_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I32_mkdim_X_I16 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I32_mkdim_X_I16 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I32_mkdim_X_I16 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I32 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1) in 
-			 [(mk_lane__2 Jnn_I16 iN_2)])"
+			 (Some [(mk_lane__2 Jnn_I16 iN_2)]))"
+		| "vcvtop___X_I32_mkdim_X_I16 constructor_parameter_28_0 constructor_parameter_29_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I32_mkdim_X_F64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I32_mkdim_X_F64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I32_mkdim_X_F64 M_1 (mk_dim M_2) (vcvtop_CONVERT half_opt v_sx) (mk_lane__2 Jnn_I32 iN_1) = 
 			 (let fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1) in 
-			 [(mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2))])"
+			 (Some [(mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2))]))"
+		| "vcvtop___X_I32_mkdim_X_F64 constructor_parameter_28_0 constructor_parameter_29_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I32_mkdim_X_F32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I32_mkdim_X_F32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I32_mkdim_X_F32 M_1 (mk_dim M_2) (vcvtop_CONVERT half_opt v_sx) (mk_lane__2 Jnn_I32 iN_1) = 
 			 (let fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1) in 
-			 [(mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2))])"
+			 (Some [(mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2))]))"
+		| "vcvtop___X_I32_mkdim_X_F32 constructor_parameter_28_0 constructor_parameter_29_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I32_mkdim_X :: "nat \<Rightarrow> lanetype \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I32_mkdim_X :: "nat \<Rightarrow> lanetype \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I32_mkdim_X mkdim_argument_0_0 lanetype_I8 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I32_mkdim_X_I8 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_I32_mkdim_X mkdim_argument_0_0 lanetype_I64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I32_mkdim_X_I64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_I32_mkdim_X mkdim_argument_0_0 lanetype_I32 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I32_mkdim_X_I32 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
@@ -5678,59 +7617,65 @@ function (sequential, domintros) vcvtop___X_I32_mkdim_X :: "nat \<Rightarrow> la
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I32_mkdim :: "nat \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_I32_mkdim mkdim_argument_0_0 (X constructor_parameter_0 constructor_parameter_1) v_vcvtop v_lane_underscore = (vcvtop___X_I32_mkdim_X mkdim_argument_0_0 constructor_parameter_0 constructor_parameter_1 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_I32_mkdim :: "nat \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_I32_mkdim mkdim_argument_0_0 (X constructor_parameter_29_0 constructor_parameter_29_1) v_vcvtop v_lane_underscore = (vcvtop___X_I32_mkdim_X mkdim_argument_0_0 constructor_parameter_29_0 constructor_parameter_29_1 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I32 :: "dim \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_I32 (mk_dim constructor_parameter_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I32_mkdim constructor_parameter_0 shape_2 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_I32 :: "dim \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_I32 (mk_dim constructor_parameter_28_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I32_mkdim constructor_parameter_28_0 shape_2 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I16_mkdim_X_I8 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I16_mkdim_X_I8 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I16_mkdim_X_I8 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I16 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1) in 
-			 [(mk_lane__2 Jnn_I8 iN_2)])"
+			 (Some [(mk_lane__2 Jnn_I8 iN_2)]))"
+		| "vcvtop___X_I16_mkdim_X_I8 constructor_parameter_36_0 constructor_parameter_37_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I16_mkdim_X_I64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I16_mkdim_X_I64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I16_mkdim_X_I64 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I16 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1) in 
-			 [(mk_lane__2 Jnn_I64 iN_2)])"
+			 (Some [(mk_lane__2 Jnn_I64 iN_2)]))"
+		| "vcvtop___X_I16_mkdim_X_I64 constructor_parameter_36_0 constructor_parameter_37_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I16_mkdim_X_I32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I16_mkdim_X_I32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I16_mkdim_X_I32 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I16 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1) in 
-			 [(mk_lane__2 Jnn_I32 iN_2)])"
+			 (Some [(mk_lane__2 Jnn_I32 iN_2)]))"
+		| "vcvtop___X_I16_mkdim_X_I32 constructor_parameter_36_0 constructor_parameter_37_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I16_mkdim_X_I16 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I16_mkdim_X_I16 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I16_mkdim_X_I16 M_1 (mk_dim M_2) (vcvtop_EXTEND v_half v_sx) (mk_lane__2 Jnn_I16 iN_1) = 
 			 (let iN_2 = (extend__underscore (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1) in 
-			 [(mk_lane__2 Jnn_I16 iN_2)])"
+			 (Some [(mk_lane__2 Jnn_I16 iN_2)]))"
+		| "vcvtop___X_I16_mkdim_X_I16 constructor_parameter_36_0 constructor_parameter_37_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I16_mkdim_X_F64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I16_mkdim_X_F64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I16_mkdim_X_F64 M_1 (mk_dim M_2) (vcvtop_CONVERT half_opt v_sx) (mk_lane__2 Jnn_I16 iN_1) = 
 			 (let fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1) in 
-			 [(mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2))])"
+			 (Some [(mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2))]))"
+		| "vcvtop___X_I16_mkdim_X_F64 constructor_parameter_36_0 constructor_parameter_37_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I16_mkdim_X_F32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I16_mkdim_X_F32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I16_mkdim_X_F32 M_1 (mk_dim M_2) (vcvtop_CONVERT half_opt v_sx) (mk_lane__2 Jnn_I16 iN_1) = 
 			 (let fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1) in 
-			 [(mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2))])"
+			 (Some [(mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2))]))"
+		| "vcvtop___X_I16_mkdim_X_F32 constructor_parameter_36_0 constructor_parameter_37_1 x2 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I16_mkdim_X :: "nat \<Rightarrow> lanetype \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_I16_mkdim_X :: "nat \<Rightarrow> lanetype \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_I16_mkdim_X mkdim_argument_0_0 lanetype_I8 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I16_mkdim_X_I8 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_I16_mkdim_X mkdim_argument_0_0 lanetype_I64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I16_mkdim_X_I64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_I16_mkdim_X mkdim_argument_0_0 lanetype_I32 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_I16_mkdim_X_I32 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
@@ -5740,221 +7685,425 @@ function (sequential, domintros) vcvtop___X_I16_mkdim_X :: "nat \<Rightarrow> la
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I16_mkdim :: "nat \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_I16_mkdim mkdim_argument_0_0 (X constructor_parameter_0 constructor_parameter_1) v_vcvtop v_lane_underscore = (vcvtop___X_I16_mkdim_X mkdim_argument_0_0 constructor_parameter_0 constructor_parameter_1 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_I16_mkdim :: "nat \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_I16_mkdim mkdim_argument_0_0 (X constructor_parameter_37_0 constructor_parameter_37_1) v_vcvtop v_lane_underscore = (vcvtop___X_I16_mkdim_X mkdim_argument_0_0 constructor_parameter_37_0 constructor_parameter_37_1 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_I16 :: "dim \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_I16 (mk_dim constructor_parameter_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I16_mkdim constructor_parameter_0 shape_2 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_I16 :: "dim \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_I16 (mk_dim constructor_parameter_36_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I16_mkdim constructor_parameter_36_0 shape_2 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64_mkdim_X_I64_mkdim_TRUNCSAT :: "nat \<Rightarrow> nat \<Rightarrow> sx \<Rightarrow> (zero option) \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I8 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_I8 constructor_parameter_44_0 constructor_parameter_45_1 x2 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I64_mkdim_TRUNCSAT :: "nat \<Rightarrow> nat \<Rightarrow> sx \<Rightarrow> (zero option) \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_F64_mkdim_X_I64_mkdim_TRUNCSAT M_1 M_2 v_sx zero_opt (mk_lane__0 F64 (mk_num__1 Fnn_F64 fN_1)) = 
 			 (let iN_2_opt = (trunc_sat__underscore (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Inn Inn_I64)) v_sx fN_1) in 
-			 (list_underscore  (map_option (\<lambda> (iN_2_8 :: iN). (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 iN_2_8))) iN_2_opt)))"
+			 (Some (list_underscore  (map_option (\<lambda> (iN_2_8 :: iN). (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 iN_2_8))) iN_2_opt))))"
+		| "vcvtop___X_F64_mkdim_X_I64_mkdim_TRUNCSAT constructor_parameter_44_0 constructor_parameter_52_0 constructor_parameter_57_0 constructor_parameter_57_1 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64_mkdim_X_I64_mkdim :: "nat \<Rightarrow> nat \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F64_mkdim_X_I64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_TRUNC_SAT constructor_parameter_0 constructor_parameter_1) v_lane_underscore = (vcvtop___X_F64_mkdim_X_I64_mkdim_TRUNCSAT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_0 constructor_parameter_1 v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I64_mkdim_PROMOTELOW :: "nat \<Rightarrow> nat \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_I64_mkdim_PROMOTELOW constructor_parameter_44_0 constructor_parameter_52_0 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64_mkdim_X_I64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F64_mkdim_X_I64 mkdim_argument_0_0 (mk_dim constructor_parameter_0) v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_I64_mkdim mkdim_argument_0_0 constructor_parameter_0 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I64_mkdim_EXTEND :: "nat \<Rightarrow> nat \<Rightarrow> half \<Rightarrow> sx \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_I64_mkdim_EXTEND constructor_parameter_44_0 constructor_parameter_52_0 constructor_parameter_55_0 constructor_parameter_55_1 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64_mkdim_X_I32_mkdim_TRUNCSAT :: "nat \<Rightarrow> nat \<Rightarrow> sx \<Rightarrow> (zero option) \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I64_mkdim_DEMOTE :: "nat \<Rightarrow> nat \<Rightarrow> zero \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_I64_mkdim_DEMOTE constructor_parameter_44_0 constructor_parameter_52_0 constructor_parameter_54_0 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I64_mkdim_CONVERT :: "nat \<Rightarrow> nat \<Rightarrow> (half option) \<Rightarrow> sx \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_I64_mkdim_CONVERT constructor_parameter_44_0 constructor_parameter_52_0 constructor_parameter_53_0 constructor_parameter_53_1 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I64_mkdim :: "nat \<Rightarrow> nat \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_I64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_TRUNC_SAT constructor_parameter_57_0 constructor_parameter_57_1) v_lane_underscore = (vcvtop___X_F64_mkdim_X_I64_mkdim_TRUNCSAT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_57_0 constructor_parameter_57_1 v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X_I64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 PROMOTELOW v_lane_underscore = (vcvtop___X_F64_mkdim_X_I64_mkdim_PROMOTELOW mkdim_argument_0_0 mkdim_argument_1_0 v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X_I64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_EXTEND constructor_parameter_55_0 constructor_parameter_55_1) v_lane_underscore = (vcvtop___X_F64_mkdim_X_I64_mkdim_EXTEND mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_55_0 constructor_parameter_55_1 v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X_I64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_DEMOTE constructor_parameter_54_0) v_lane_underscore = (vcvtop___X_F64_mkdim_X_I64_mkdim_DEMOTE mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_54_0 v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X_I64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_CONVERT constructor_parameter_53_0 constructor_parameter_53_1) v_lane_underscore = (vcvtop___X_F64_mkdim_X_I64_mkdim_CONVERT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_53_0 constructor_parameter_53_1 v_lane_underscore)"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_I64 mkdim_argument_0_0 (mk_dim constructor_parameter_52_0) v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_I64_mkdim mkdim_argument_0_0 constructor_parameter_52_0 v_vcvtop v_lane_underscore)"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I32_mkdim_TRUNCSAT :: "nat \<Rightarrow> nat \<Rightarrow> sx \<Rightarrow> (zero option) \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_F64_mkdim_X_I32_mkdim_TRUNCSAT M_1 M_2 v_sx zero_opt (mk_lane__0 F64 (mk_num__1 Fnn_F64 fN_1)) = 
 			 (let iN_2_opt = (trunc_sat__underscore (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Inn Inn_I32)) v_sx fN_1) in 
-			 (list_underscore  (map_option (\<lambda> (iN_2_6 :: iN). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 iN_2_6))) iN_2_opt)))"
+			 (Some (list_underscore  (map_option (\<lambda> (iN_2_6 :: iN). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 iN_2_6))) iN_2_opt))))"
+		| "vcvtop___X_F64_mkdim_X_I32_mkdim_TRUNCSAT constructor_parameter_44_0 constructor_parameter_58_0 constructor_parameter_63_0 constructor_parameter_63_1 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64_mkdim_X_I32_mkdim :: "nat \<Rightarrow> nat \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F64_mkdim_X_I32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_TRUNC_SAT constructor_parameter_0 constructor_parameter_1) v_lane_underscore = (vcvtop___X_F64_mkdim_X_I32_mkdim_TRUNCSAT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_0 constructor_parameter_1 v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I32_mkdim_PROMOTELOW :: "nat \<Rightarrow> nat \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_I32_mkdim_PROMOTELOW constructor_parameter_44_0 constructor_parameter_58_0 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64_mkdim_X_I32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F64_mkdim_X_I32 mkdim_argument_0_0 (mk_dim constructor_parameter_0) v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_I32_mkdim mkdim_argument_0_0 constructor_parameter_0 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I32_mkdim_EXTEND :: "nat \<Rightarrow> nat \<Rightarrow> half \<Rightarrow> sx \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_I32_mkdim_EXTEND constructor_parameter_44_0 constructor_parameter_58_0 constructor_parameter_61_0 constructor_parameter_61_1 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64_mkdim_X_F64_mkdim_PROMOTELOW :: "nat \<Rightarrow> nat \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I32_mkdim_DEMOTE :: "nat \<Rightarrow> nat \<Rightarrow> zero \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_I32_mkdim_DEMOTE constructor_parameter_44_0 constructor_parameter_58_0 constructor_parameter_60_0 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I32_mkdim_CONVERT :: "nat \<Rightarrow> nat \<Rightarrow> (half option) \<Rightarrow> sx \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_I32_mkdim_CONVERT constructor_parameter_44_0 constructor_parameter_58_0 constructor_parameter_59_0 constructor_parameter_59_1 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I32_mkdim :: "nat \<Rightarrow> nat \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_I32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_TRUNC_SAT constructor_parameter_63_0 constructor_parameter_63_1) v_lane_underscore = (vcvtop___X_F64_mkdim_X_I32_mkdim_TRUNCSAT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_63_0 constructor_parameter_63_1 v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X_I32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 PROMOTELOW v_lane_underscore = (vcvtop___X_F64_mkdim_X_I32_mkdim_PROMOTELOW mkdim_argument_0_0 mkdim_argument_1_0 v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X_I32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_EXTEND constructor_parameter_61_0 constructor_parameter_61_1) v_lane_underscore = (vcvtop___X_F64_mkdim_X_I32_mkdim_EXTEND mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_61_0 constructor_parameter_61_1 v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X_I32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_DEMOTE constructor_parameter_60_0) v_lane_underscore = (vcvtop___X_F64_mkdim_X_I32_mkdim_DEMOTE mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_60_0 v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X_I32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_CONVERT constructor_parameter_59_0 constructor_parameter_59_1) v_lane_underscore = (vcvtop___X_F64_mkdim_X_I32_mkdim_CONVERT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_59_0 constructor_parameter_59_1 v_lane_underscore)"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_I32 mkdim_argument_0_0 (mk_dim constructor_parameter_58_0) v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_I32_mkdim mkdim_argument_0_0 constructor_parameter_58_0 v_vcvtop v_lane_underscore)"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_I16 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_I16 constructor_parameter_44_0 constructor_parameter_45_1 x2 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F64_mkdim_TRUNCSAT :: "nat \<Rightarrow> nat \<Rightarrow> sx \<Rightarrow> (zero option) \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_F64_mkdim_TRUNCSAT constructor_parameter_44_0 constructor_parameter_64_0 constructor_parameter_69_0 constructor_parameter_69_1 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F64_mkdim_PROMOTELOW :: "nat \<Rightarrow> nat \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_F64_mkdim_X_F64_mkdim_PROMOTELOW M_1 M_2 (mk_lane__0 F64 (mk_num__1 Fnn_F64 fN_1)) = 
 			 (let fN_2_lst = (promote__underscore (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1) in 
-			 (map (\<lambda> (fN_2_16 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2_16))) fN_2_lst))"
+			 (Some (map (\<lambda> (fN_2_16 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2_16))) fN_2_lst)))"
+		| "vcvtop___X_F64_mkdim_X_F64_mkdim_PROMOTELOW constructor_parameter_44_0 constructor_parameter_64_0 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64_mkdim_X_F64_mkdim_DEMOTE :: "nat \<Rightarrow> nat \<Rightarrow> zero \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F64_mkdim_EXTEND :: "nat \<Rightarrow> nat \<Rightarrow> half \<Rightarrow> sx \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_F64_mkdim_EXTEND constructor_parameter_44_0 constructor_parameter_64_0 constructor_parameter_67_0 constructor_parameter_67_1 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F64_mkdim_DEMOTE :: "nat \<Rightarrow> nat \<Rightarrow> zero \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_F64_mkdim_X_F64_mkdim_DEMOTE M_1 M_2 ZERO (mk_lane__0 F64 (mk_num__1 Fnn_F64 fN_1)) = 
 			 (let fN_2_lst = (demote__underscore (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1) in 
-			 (map (\<lambda> (fN_2_8 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2_8))) fN_2_lst))"
+			 (Some (map (\<lambda> (fN_2_8 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2_8))) fN_2_lst)))"
+		| "vcvtop___X_F64_mkdim_X_F64_mkdim_DEMOTE constructor_parameter_44_0 constructor_parameter_64_0 constructor_parameter_66_0 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64_mkdim_X_F64_mkdim :: "nat \<Rightarrow> nat \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F64_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 PROMOTELOW v_lane_underscore = (vcvtop___X_F64_mkdim_X_F64_mkdim_PROMOTELOW mkdim_argument_0_0 mkdim_argument_1_0 v_lane_underscore)"
-		| "vcvtop___X_F64_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_DEMOTE constructor_parameter_0) v_lane_underscore = (vcvtop___X_F64_mkdim_X_F64_mkdim_DEMOTE mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_0 v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F64_mkdim_CONVERT :: "nat \<Rightarrow> nat \<Rightarrow> (half option) \<Rightarrow> sx \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_F64_mkdim_CONVERT constructor_parameter_44_0 constructor_parameter_64_0 constructor_parameter_65_0 constructor_parameter_65_1 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64_mkdim_X_F64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F64_mkdim_X_F64 mkdim_argument_0_0 (mk_dim constructor_parameter_0) v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_F64_mkdim mkdim_argument_0_0 constructor_parameter_0 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F64_mkdim :: "nat \<Rightarrow> nat \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_TRUNC_SAT constructor_parameter_69_0 constructor_parameter_69_1) v_lane_underscore = (vcvtop___X_F64_mkdim_X_F64_mkdim_TRUNCSAT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_69_0 constructor_parameter_69_1 v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 PROMOTELOW v_lane_underscore = (vcvtop___X_F64_mkdim_X_F64_mkdim_PROMOTELOW mkdim_argument_0_0 mkdim_argument_1_0 v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_EXTEND constructor_parameter_67_0 constructor_parameter_67_1) v_lane_underscore = (vcvtop___X_F64_mkdim_X_F64_mkdim_EXTEND mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_67_0 constructor_parameter_67_1 v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_DEMOTE constructor_parameter_66_0) v_lane_underscore = (vcvtop___X_F64_mkdim_X_F64_mkdim_DEMOTE mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_66_0 v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_CONVERT constructor_parameter_65_0 constructor_parameter_65_1) v_lane_underscore = (vcvtop___X_F64_mkdim_X_F64_mkdim_CONVERT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_65_0 constructor_parameter_65_1 v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64_mkdim_X_F32_mkdim_PROMOTELOW :: "nat \<Rightarrow> nat \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_F64 mkdim_argument_0_0 (mk_dim constructor_parameter_64_0) v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_F64_mkdim mkdim_argument_0_0 constructor_parameter_64_0 v_vcvtop v_lane_underscore)"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F32_mkdim_TRUNCSAT :: "nat \<Rightarrow> nat \<Rightarrow> sx \<Rightarrow> (zero option) \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_F32_mkdim_TRUNCSAT constructor_parameter_44_0 constructor_parameter_70_0 constructor_parameter_75_0 constructor_parameter_75_1 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F32_mkdim_PROMOTELOW :: "nat \<Rightarrow> nat \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_F64_mkdim_X_F32_mkdim_PROMOTELOW M_1 M_2 (mk_lane__0 F64 (mk_num__1 Fnn_F64 fN_1)) = 
 			 (let fN_2_lst = (promote__underscore (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1) in 
-			 (map (\<lambda> (fN_2_14 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2_14))) fN_2_lst))"
+			 (Some (map (\<lambda> (fN_2_14 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2_14))) fN_2_lst)))"
+		| "vcvtop___X_F64_mkdim_X_F32_mkdim_PROMOTELOW constructor_parameter_44_0 constructor_parameter_70_0 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64_mkdim_X_F32_mkdim_DEMOTE :: "nat \<Rightarrow> nat \<Rightarrow> zero \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F32_mkdim_EXTEND :: "nat \<Rightarrow> nat \<Rightarrow> half \<Rightarrow> sx \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_F32_mkdim_EXTEND constructor_parameter_44_0 constructor_parameter_70_0 constructor_parameter_73_0 constructor_parameter_73_1 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F32_mkdim_DEMOTE :: "nat \<Rightarrow> nat \<Rightarrow> zero \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_F64_mkdim_X_F32_mkdim_DEMOTE M_1 M_2 ZERO (mk_lane__0 F64 (mk_num__1 Fnn_F64 fN_1)) = 
 			 (let fN_2_lst = (demote__underscore (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1) in 
-			 (map (\<lambda> (fN_2_6 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2_6))) fN_2_lst))"
+			 (Some (map (\<lambda> (fN_2_6 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2_6))) fN_2_lst)))"
+		| "vcvtop___X_F64_mkdim_X_F32_mkdim_DEMOTE constructor_parameter_44_0 constructor_parameter_70_0 constructor_parameter_72_0 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64_mkdim_X_F32_mkdim :: "nat \<Rightarrow> nat \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F64_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 PROMOTELOW v_lane_underscore = (vcvtop___X_F64_mkdim_X_F32_mkdim_PROMOTELOW mkdim_argument_0_0 mkdim_argument_1_0 v_lane_underscore)"
-		| "vcvtop___X_F64_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_DEMOTE constructor_parameter_0) v_lane_underscore = (vcvtop___X_F64_mkdim_X_F32_mkdim_DEMOTE mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_0 v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F32_mkdim_CONVERT :: "nat \<Rightarrow> nat \<Rightarrow> (half option) \<Rightarrow> sx \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_F32_mkdim_CONVERT constructor_parameter_44_0 constructor_parameter_70_0 constructor_parameter_71_0 constructor_parameter_71_1 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64_mkdim_X_F32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F64_mkdim_X_F32 mkdim_argument_0_0 (mk_dim constructor_parameter_0) v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_F32_mkdim mkdim_argument_0_0 constructor_parameter_0 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F32_mkdim :: "nat \<Rightarrow> nat \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_TRUNC_SAT constructor_parameter_75_0 constructor_parameter_75_1) v_lane_underscore = (vcvtop___X_F64_mkdim_X_F32_mkdim_TRUNCSAT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_75_0 constructor_parameter_75_1 v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 PROMOTELOW v_lane_underscore = (vcvtop___X_F64_mkdim_X_F32_mkdim_PROMOTELOW mkdim_argument_0_0 mkdim_argument_1_0 v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_EXTEND constructor_parameter_73_0 constructor_parameter_73_1) v_lane_underscore = (vcvtop___X_F64_mkdim_X_F32_mkdim_EXTEND mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_73_0 constructor_parameter_73_1 v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_DEMOTE constructor_parameter_72_0) v_lane_underscore = (vcvtop___X_F64_mkdim_X_F32_mkdim_DEMOTE mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_72_0 v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_CONVERT constructor_parameter_71_0 constructor_parameter_71_1) v_lane_underscore = (vcvtop___X_F64_mkdim_X_F32_mkdim_CONVERT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_71_0 constructor_parameter_71_1 v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64_mkdim_X :: "nat \<Rightarrow> lanetype \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F64_mkdim_X mkdim_argument_0_0 lanetype_I64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_I64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F64_mkdim_X_F32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X_F32 mkdim_argument_0_0 (mk_dim constructor_parameter_70_0) v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_F32_mkdim mkdim_argument_0_0 constructor_parameter_70_0 v_vcvtop v_lane_underscore)"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F64_mkdim_X :: "nat \<Rightarrow> lanetype \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim_X mkdim_argument_0_0 lanetype_I8 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_I8 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X mkdim_argument_0_0 lanetype_I64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_I64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_F64_mkdim_X mkdim_argument_0_0 lanetype_I32 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_I32 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
+		| "vcvtop___X_F64_mkdim_X mkdim_argument_0_0 lanetype_I16 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_I16 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_F64_mkdim_X mkdim_argument_0_0 lanetype_F64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_F64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_F64_mkdim_X mkdim_argument_0_0 lanetype_F32 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X_F32 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64_mkdim :: "nat \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F64_mkdim mkdim_argument_0_0 (X constructor_parameter_0 constructor_parameter_1) v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X mkdim_argument_0_0 constructor_parameter_0 constructor_parameter_1 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F64_mkdim :: "nat \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64_mkdim mkdim_argument_0_0 (X constructor_parameter_45_0 constructor_parameter_45_1) v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim_X mkdim_argument_0_0 constructor_parameter_45_0 constructor_parameter_45_1 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F64 :: "dim \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F64 (mk_dim constructor_parameter_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim constructor_parameter_0 shape_2 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F64 :: "dim \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F64 (mk_dim constructor_parameter_44_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_F64_mkdim constructor_parameter_44_0 shape_2 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32_mkdim_X_I64_mkdim_TRUNCSAT :: "nat \<Rightarrow> nat \<Rightarrow> sx \<Rightarrow> (zero option) \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I8 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_I8 constructor_parameter_76_0 constructor_parameter_77_1 x2 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I64_mkdim_TRUNCSAT :: "nat \<Rightarrow> nat \<Rightarrow> sx \<Rightarrow> (zero option) \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_F32_mkdim_X_I64_mkdim_TRUNCSAT M_1 M_2 v_sx zero_opt (mk_lane__0 F32 (mk_num__1 Fnn_F32 fN_1)) = 
 			 (let iN_2_opt = (trunc_sat__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Inn Inn_I64)) v_sx fN_1) in 
-			 (list_underscore  (map_option (\<lambda> (iN_2_4 :: iN). (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 iN_2_4))) iN_2_opt)))"
+			 (Some (list_underscore  (map_option (\<lambda> (iN_2_4 :: iN). (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 iN_2_4))) iN_2_opt))))"
+		| "vcvtop___X_F32_mkdim_X_I64_mkdim_TRUNCSAT constructor_parameter_76_0 constructor_parameter_84_0 constructor_parameter_89_0 constructor_parameter_89_1 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32_mkdim_X_I64_mkdim :: "nat \<Rightarrow> nat \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F32_mkdim_X_I64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_TRUNC_SAT constructor_parameter_0 constructor_parameter_1) v_lane_underscore = (vcvtop___X_F32_mkdim_X_I64_mkdim_TRUNCSAT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_0 constructor_parameter_1 v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I64_mkdim_PROMOTELOW :: "nat \<Rightarrow> nat \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_I64_mkdim_PROMOTELOW constructor_parameter_76_0 constructor_parameter_84_0 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32_mkdim_X_I64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F32_mkdim_X_I64 mkdim_argument_0_0 (mk_dim constructor_parameter_0) v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_I64_mkdim mkdim_argument_0_0 constructor_parameter_0 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I64_mkdim_EXTEND :: "nat \<Rightarrow> nat \<Rightarrow> half \<Rightarrow> sx \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_I64_mkdim_EXTEND constructor_parameter_76_0 constructor_parameter_84_0 constructor_parameter_87_0 constructor_parameter_87_1 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32_mkdim_X_I32_mkdim_TRUNCSAT :: "nat \<Rightarrow> nat \<Rightarrow> sx \<Rightarrow> (zero option) \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I64_mkdim_DEMOTE :: "nat \<Rightarrow> nat \<Rightarrow> zero \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_I64_mkdim_DEMOTE constructor_parameter_76_0 constructor_parameter_84_0 constructor_parameter_86_0 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I64_mkdim_CONVERT :: "nat \<Rightarrow> nat \<Rightarrow> (half option) \<Rightarrow> sx \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_I64_mkdim_CONVERT constructor_parameter_76_0 constructor_parameter_84_0 constructor_parameter_85_0 constructor_parameter_85_1 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I64_mkdim :: "nat \<Rightarrow> nat \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_I64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_TRUNC_SAT constructor_parameter_89_0 constructor_parameter_89_1) v_lane_underscore = (vcvtop___X_F32_mkdim_X_I64_mkdim_TRUNCSAT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_89_0 constructor_parameter_89_1 v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X_I64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 PROMOTELOW v_lane_underscore = (vcvtop___X_F32_mkdim_X_I64_mkdim_PROMOTELOW mkdim_argument_0_0 mkdim_argument_1_0 v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X_I64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_EXTEND constructor_parameter_87_0 constructor_parameter_87_1) v_lane_underscore = (vcvtop___X_F32_mkdim_X_I64_mkdim_EXTEND mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_87_0 constructor_parameter_87_1 v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X_I64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_DEMOTE constructor_parameter_86_0) v_lane_underscore = (vcvtop___X_F32_mkdim_X_I64_mkdim_DEMOTE mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_86_0 v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X_I64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_CONVERT constructor_parameter_85_0 constructor_parameter_85_1) v_lane_underscore = (vcvtop___X_F32_mkdim_X_I64_mkdim_CONVERT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_85_0 constructor_parameter_85_1 v_lane_underscore)"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_I64 mkdim_argument_0_0 (mk_dim constructor_parameter_84_0) v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_I64_mkdim mkdim_argument_0_0 constructor_parameter_84_0 v_vcvtop v_lane_underscore)"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I32_mkdim_TRUNCSAT :: "nat \<Rightarrow> nat \<Rightarrow> sx \<Rightarrow> (zero option) \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_F32_mkdim_X_I32_mkdim_TRUNCSAT M_1 M_2 v_sx zero_opt (mk_lane__0 F32 (mk_num__1 Fnn_F32 fN_1)) = 
 			 (let iN_2_opt = (trunc_sat__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Inn Inn_I32)) v_sx fN_1) in 
-			 (list_underscore  (map_option (\<lambda> (iN_2_2 :: iN). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 iN_2_2))) iN_2_opt)))"
+			 (Some (list_underscore  (map_option (\<lambda> (iN_2_2 :: iN). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 iN_2_2))) iN_2_opt))))"
+		| "vcvtop___X_F32_mkdim_X_I32_mkdim_TRUNCSAT constructor_parameter_76_0 constructor_parameter_90_0 constructor_parameter_95_0 constructor_parameter_95_1 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32_mkdim_X_I32_mkdim :: "nat \<Rightarrow> nat \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F32_mkdim_X_I32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_TRUNC_SAT constructor_parameter_0 constructor_parameter_1) v_lane_underscore = (vcvtop___X_F32_mkdim_X_I32_mkdim_TRUNCSAT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_0 constructor_parameter_1 v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I32_mkdim_PROMOTELOW :: "nat \<Rightarrow> nat \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_I32_mkdim_PROMOTELOW constructor_parameter_76_0 constructor_parameter_90_0 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32_mkdim_X_I32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F32_mkdim_X_I32 mkdim_argument_0_0 (mk_dim constructor_parameter_0) v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_I32_mkdim mkdim_argument_0_0 constructor_parameter_0 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I32_mkdim_EXTEND :: "nat \<Rightarrow> nat \<Rightarrow> half \<Rightarrow> sx \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_I32_mkdim_EXTEND constructor_parameter_76_0 constructor_parameter_90_0 constructor_parameter_93_0 constructor_parameter_93_1 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32_mkdim_X_F64_mkdim_PROMOTELOW :: "nat \<Rightarrow> nat \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I32_mkdim_DEMOTE :: "nat \<Rightarrow> nat \<Rightarrow> zero \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_I32_mkdim_DEMOTE constructor_parameter_76_0 constructor_parameter_90_0 constructor_parameter_92_0 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I32_mkdim_CONVERT :: "nat \<Rightarrow> nat \<Rightarrow> (half option) \<Rightarrow> sx \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_I32_mkdim_CONVERT constructor_parameter_76_0 constructor_parameter_90_0 constructor_parameter_91_0 constructor_parameter_91_1 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I32_mkdim :: "nat \<Rightarrow> nat \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_I32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_TRUNC_SAT constructor_parameter_95_0 constructor_parameter_95_1) v_lane_underscore = (vcvtop___X_F32_mkdim_X_I32_mkdim_TRUNCSAT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_95_0 constructor_parameter_95_1 v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X_I32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 PROMOTELOW v_lane_underscore = (vcvtop___X_F32_mkdim_X_I32_mkdim_PROMOTELOW mkdim_argument_0_0 mkdim_argument_1_0 v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X_I32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_EXTEND constructor_parameter_93_0 constructor_parameter_93_1) v_lane_underscore = (vcvtop___X_F32_mkdim_X_I32_mkdim_EXTEND mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_93_0 constructor_parameter_93_1 v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X_I32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_DEMOTE constructor_parameter_92_0) v_lane_underscore = (vcvtop___X_F32_mkdim_X_I32_mkdim_DEMOTE mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_92_0 v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X_I32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_CONVERT constructor_parameter_91_0 constructor_parameter_91_1) v_lane_underscore = (vcvtop___X_F32_mkdim_X_I32_mkdim_CONVERT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_91_0 constructor_parameter_91_1 v_lane_underscore)"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_I32 mkdim_argument_0_0 (mk_dim constructor_parameter_90_0) v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_I32_mkdim mkdim_argument_0_0 constructor_parameter_90_0 v_vcvtop v_lane_underscore)"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_I16 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_I16 constructor_parameter_76_0 constructor_parameter_77_1 x2 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F64_mkdim_TRUNCSAT :: "nat \<Rightarrow> nat \<Rightarrow> sx \<Rightarrow> (zero option) \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_F64_mkdim_TRUNCSAT constructor_parameter_76_0 constructor_parameter_96_0 constructor_parameter_101_0 constructor_parameter_101_1 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F64_mkdim_PROMOTELOW :: "nat \<Rightarrow> nat \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_F32_mkdim_X_F64_mkdim_PROMOTELOW M_1 M_2 (mk_lane__0 F32 (mk_num__1 Fnn_F32 fN_1)) = 
 			 (let fN_2_lst = (promote__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1) in 
-			 (map (\<lambda> (fN_2_12 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2_12))) fN_2_lst))"
+			 (Some (map (\<lambda> (fN_2_12 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2_12))) fN_2_lst)))"
+		| "vcvtop___X_F32_mkdim_X_F64_mkdim_PROMOTELOW constructor_parameter_76_0 constructor_parameter_96_0 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32_mkdim_X_F64_mkdim_DEMOTE :: "nat \<Rightarrow> nat \<Rightarrow> zero \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F64_mkdim_EXTEND :: "nat \<Rightarrow> nat \<Rightarrow> half \<Rightarrow> sx \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_F64_mkdim_EXTEND constructor_parameter_76_0 constructor_parameter_96_0 constructor_parameter_99_0 constructor_parameter_99_1 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F64_mkdim_DEMOTE :: "nat \<Rightarrow> nat \<Rightarrow> zero \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_F32_mkdim_X_F64_mkdim_DEMOTE M_1 M_2 ZERO (mk_lane__0 F32 (mk_num__1 Fnn_F32 fN_1)) = 
 			 (let fN_2_lst = (demote__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1) in 
-			 (map (\<lambda> (fN_2_4 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2_4))) fN_2_lst))"
+			 (Some (map (\<lambda> (fN_2_4 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F64) (mk_num__1 Fnn_F64 fN_2_4))) fN_2_lst)))"
+		| "vcvtop___X_F32_mkdim_X_F64_mkdim_DEMOTE constructor_parameter_76_0 constructor_parameter_96_0 constructor_parameter_98_0 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32_mkdim_X_F64_mkdim :: "nat \<Rightarrow> nat \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F32_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 PROMOTELOW v_lane_underscore = (vcvtop___X_F32_mkdim_X_F64_mkdim_PROMOTELOW mkdim_argument_0_0 mkdim_argument_1_0 v_lane_underscore)"
-		| "vcvtop___X_F32_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_DEMOTE constructor_parameter_0) v_lane_underscore = (vcvtop___X_F32_mkdim_X_F64_mkdim_DEMOTE mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_0 v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F64_mkdim_CONVERT :: "nat \<Rightarrow> nat \<Rightarrow> (half option) \<Rightarrow> sx \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_F64_mkdim_CONVERT constructor_parameter_76_0 constructor_parameter_96_0 constructor_parameter_97_0 constructor_parameter_97_1 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32_mkdim_X_F64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F32_mkdim_X_F64 mkdim_argument_0_0 (mk_dim constructor_parameter_0) v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_F64_mkdim mkdim_argument_0_0 constructor_parameter_0 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F64_mkdim :: "nat \<Rightarrow> nat \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_TRUNC_SAT constructor_parameter_101_0 constructor_parameter_101_1) v_lane_underscore = (vcvtop___X_F32_mkdim_X_F64_mkdim_TRUNCSAT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_101_0 constructor_parameter_101_1 v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 PROMOTELOW v_lane_underscore = (vcvtop___X_F32_mkdim_X_F64_mkdim_PROMOTELOW mkdim_argument_0_0 mkdim_argument_1_0 v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_EXTEND constructor_parameter_99_0 constructor_parameter_99_1) v_lane_underscore = (vcvtop___X_F32_mkdim_X_F64_mkdim_EXTEND mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_99_0 constructor_parameter_99_1 v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_DEMOTE constructor_parameter_98_0) v_lane_underscore = (vcvtop___X_F32_mkdim_X_F64_mkdim_DEMOTE mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_98_0 v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X_F64_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_CONVERT constructor_parameter_97_0 constructor_parameter_97_1) v_lane_underscore = (vcvtop___X_F32_mkdim_X_F64_mkdim_CONVERT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_97_0 constructor_parameter_97_1 v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32_mkdim_X_F32_mkdim_PROMOTELOW :: "nat \<Rightarrow> nat \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F64 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_F64 mkdim_argument_0_0 (mk_dim constructor_parameter_96_0) v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_F64_mkdim mkdim_argument_0_0 constructor_parameter_96_0 v_vcvtop v_lane_underscore)"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F32_mkdim_TRUNCSAT :: "nat \<Rightarrow> nat \<Rightarrow> sx \<Rightarrow> (zero option) \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_F32_mkdim_TRUNCSAT constructor_parameter_76_0 constructor_parameter_102_0 constructor_parameter_107_0 constructor_parameter_107_1 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F32_mkdim_PROMOTELOW :: "nat \<Rightarrow> nat \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_F32_mkdim_X_F32_mkdim_PROMOTELOW M_1 M_2 (mk_lane__0 F32 (mk_num__1 Fnn_F32 fN_1)) = 
 			 (let fN_2_lst = (promote__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1) in 
-			 (map (\<lambda> (fN_2_10 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2_10))) fN_2_lst))"
+			 (Some (map (\<lambda> (fN_2_10 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2_10))) fN_2_lst)))"
+		| "vcvtop___X_F32_mkdim_X_F32_mkdim_PROMOTELOW constructor_parameter_76_0 constructor_parameter_102_0 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32_mkdim_X_F32_mkdim_DEMOTE :: "nat \<Rightarrow> nat \<Rightarrow> zero \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F32_mkdim_EXTEND :: "nat \<Rightarrow> nat \<Rightarrow> half \<Rightarrow> sx \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_F32_mkdim_EXTEND constructor_parameter_76_0 constructor_parameter_102_0 constructor_parameter_105_0 constructor_parameter_105_1 x3 = None"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F32_mkdim_DEMOTE :: "nat \<Rightarrow> nat \<Rightarrow> zero \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X_F32_mkdim_X_F32_mkdim_DEMOTE M_1 M_2 ZERO (mk_lane__0 F32 (mk_num__1 Fnn_F32 fN_1)) = 
 			 (let fN_2_lst = (demote__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1) in 
-			 (map (\<lambda> (fN_2_2 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2_2))) fN_2_lst))"
+			 (Some (map (\<lambda> (fN_2_2 :: fN). (mk_lane__0 (numtype_Fnn Fnn_F32) (mk_num__1 Fnn_F32 fN_2_2))) fN_2_lst)))"
+		| "vcvtop___X_F32_mkdim_X_F32_mkdim_DEMOTE constructor_parameter_76_0 constructor_parameter_102_0 constructor_parameter_104_0 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32_mkdim_X_F32_mkdim :: "nat \<Rightarrow> nat \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F32_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 PROMOTELOW v_lane_underscore = (vcvtop___X_F32_mkdim_X_F32_mkdim_PROMOTELOW mkdim_argument_0_0 mkdim_argument_1_0 v_lane_underscore)"
-		| "vcvtop___X_F32_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_DEMOTE constructor_parameter_0) v_lane_underscore = (vcvtop___X_F32_mkdim_X_F32_mkdim_DEMOTE mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_0 v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F32_mkdim_CONVERT :: "nat \<Rightarrow> nat \<Rightarrow> (half option) \<Rightarrow> sx \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_F32_mkdim_CONVERT constructor_parameter_76_0 constructor_parameter_102_0 constructor_parameter_103_0 constructor_parameter_103_1 x3 = None"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32_mkdim_X_F32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F32_mkdim_X_F32 mkdim_argument_0_0 (mk_dim constructor_parameter_0) v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_F32_mkdim mkdim_argument_0_0 constructor_parameter_0 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F32_mkdim :: "nat \<Rightarrow> nat \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_TRUNC_SAT constructor_parameter_107_0 constructor_parameter_107_1) v_lane_underscore = (vcvtop___X_F32_mkdim_X_F32_mkdim_TRUNCSAT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_107_0 constructor_parameter_107_1 v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 PROMOTELOW v_lane_underscore = (vcvtop___X_F32_mkdim_X_F32_mkdim_PROMOTELOW mkdim_argument_0_0 mkdim_argument_1_0 v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_EXTEND constructor_parameter_105_0 constructor_parameter_105_1) v_lane_underscore = (vcvtop___X_F32_mkdim_X_F32_mkdim_EXTEND mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_105_0 constructor_parameter_105_1 v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_DEMOTE constructor_parameter_104_0) v_lane_underscore = (vcvtop___X_F32_mkdim_X_F32_mkdim_DEMOTE mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_104_0 v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X_F32_mkdim mkdim_argument_0_0 mkdim_argument_1_0 (vcvtop_CONVERT constructor_parameter_103_0 constructor_parameter_103_1) v_lane_underscore = (vcvtop___X_F32_mkdim_X_F32_mkdim_CONVERT mkdim_argument_0_0 mkdim_argument_1_0 constructor_parameter_103_0 constructor_parameter_103_1 v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32_mkdim_X :: "nat \<Rightarrow> lanetype \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F32_mkdim_X mkdim_argument_0_0 lanetype_I64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_I64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F32_mkdim_X_F32 :: "nat \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X_F32 mkdim_argument_0_0 (mk_dim constructor_parameter_102_0) v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_F32_mkdim mkdim_argument_0_0 constructor_parameter_102_0 v_vcvtop v_lane_underscore)"
+	by pat_completeness auto
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
+function (sequential, domintros) vcvtop___X_F32_mkdim_X :: "nat \<Rightarrow> lanetype \<Rightarrow> dim \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim_X mkdim_argument_0_0 lanetype_I8 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_I8 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X mkdim_argument_0_0 lanetype_I64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_I64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_F32_mkdim_X mkdim_argument_0_0 lanetype_I32 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_I32 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
+		| "vcvtop___X_F32_mkdim_X mkdim_argument_0_0 lanetype_I16 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_I16 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_F32_mkdim_X mkdim_argument_0_0 lanetype_F64 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_F64 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X_F32_mkdim_X mkdim_argument_0_0 lanetype_F32 X_argument_1_1 v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X_F32 mkdim_argument_0_0 X_argument_1_1 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32_mkdim :: "nat \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F32_mkdim mkdim_argument_0_0 (X constructor_parameter_0 constructor_parameter_1) v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X mkdim_argument_0_0 constructor_parameter_0 constructor_parameter_1 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F32_mkdim :: "nat \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32_mkdim mkdim_argument_0_0 (X constructor_parameter_77_0 constructor_parameter_77_1) v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim_X mkdim_argument_0_0 constructor_parameter_77_0 constructor_parameter_77_1 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X_F32 :: "dim \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop___X_F32 (mk_dim constructor_parameter_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim constructor_parameter_0 shape_2 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop___X_F32 :: "dim \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop___X_F32 (mk_dim constructor_parameter_76_0) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_F32_mkdim constructor_parameter_76_0 shape_2 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop___X :: "lanetype \<Rightarrow> dim \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
+function (sequential, domintros) vcvtop___X :: "lanetype \<Rightarrow> dim \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
 		  "vcvtop___X lanetype_I8 X_argument_0_1 shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I8 X_argument_0_1 shape_2 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X lanetype_I64 X_argument_0_1 shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I64 X_argument_0_1 shape_2 v_vcvtop v_lane_underscore)"
 		| "vcvtop___X lanetype_I32 X_argument_0_1 shape_2 v_vcvtop v_lane_underscore = (vcvtop___X_I32 X_argument_0_1 shape_2 v_vcvtop v_lane_underscore)"
@@ -5964,8 +8113,8 @@ function (sequential, domintros) vcvtop___X :: "lanetype \<Rightarrow> dim \<Rig
 	by pat_completeness auto
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.1-384.41 *)
-function (sequential, domintros) vcvtop__underscore :: "shape \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> (lane_underscore list)" where
-		  "vcvtop__underscore (X constructor_parameter_0 constructor_parameter_1) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X constructor_parameter_0 constructor_parameter_1 shape_2 v_vcvtop v_lane_underscore)"
+function (sequential, domintros) vcvtop__underscore :: "shape \<Rightarrow> shape \<Rightarrow> vcvtop \<Rightarrow> lane_underscore \<Rightarrow> ((lane_underscore list) option)" where
+		  "vcvtop__underscore (X constructor_parameter_5_0 constructor_parameter_5_1) shape_2 v_vcvtop v_lane_underscore = (vcvtop___X constructor_parameter_5_0 constructor_parameter_5_1 shape_2 v_vcvtop v_lane_underscore)"
 	by pat_completeness auto
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.6-383.15 *)
@@ -5973,36 +8122,25 @@ lemma vcvtop___is_wf :
 	"(wf_shape shape_1) \<Longrightarrow>
 	 (wf_shape shape_2) \<Longrightarrow>
 	 (wf_lane_underscore (fun_lanetype shape_1) v_lane_underscore) \<Longrightarrow>
-	 (ret_val_lst = (vcvtop__underscore shape_1 shape_2 v_vcvtop v_lane_underscore)) \<Longrightarrow>
+	 ((vcvtop__underscore shape_1 shape_2 v_vcvtop v_lane_underscore) \<noteq> None) \<Longrightarrow>
+	 (ret_val_lst = (the ((vcvtop__underscore shape_1 shape_2 v_vcvtop v_lane_underscore)))) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: lane_underscore). (wf_lane_underscore (fun_lanetype shape_2) ret_val)) ret_val_lst"
 sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:583.6-583.17 *)
-inductive fun_vextunop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow> vextunop_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> bool" where
-	  fun_vextunop___case_0 :
-		"(ci_lst = (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) \<Longrightarrow>
-		 list_all (\<lambda> (ci_2 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2)))) \<noteq> None)) ci_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_2 :: lane_underscore). ((proj_lane__0 ci_2) \<noteq> None)) ci_lst \<Longrightarrow>
-		 ((concat_underscore  (list_zipWith (\<lambda> (cj_1_1 :: iN) (cj_2_1 :: iN). [cj_1_1, cj_2_1]) cj_1_lst cj_2_lst)) = (map (\<lambda> (ci_2 :: lane_underscore). (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2)))))))) ci_lst)) \<Longrightarrow>
-		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (\<lambda> (cj_1_2 :: iN) (cj_2_2 :: iN). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_2 cj_2_2)))) cj_1_lst cj_2_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) \<Longrightarrow>
-		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
-		 list_all2 (\<lambda> (cj_1_3 :: iN) (cj_2_3 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_3 cj_2_3))))) cj_1_lst cj_2_lst \<Longrightarrow>
-		 (M_1 = M_1_0) \<Longrightarrow>
-		 fun_vextunop__underscore (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextunop__0 Jnn_I32 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1 c"
-	| fun_vextunop___case_1 :
+inductive fun_vextunop___before_fun_vextunop___case_4 :: "ishape \<Rightarrow> ishape \<Rightarrow> vextunop_underscore \<Rightarrow> vec_underscore \<Rightarrow> bool" where
+	  fun_vextunop___case_3 :
 		"(ci_lst = (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1)) \<Longrightarrow>
-		 list_all (\<lambda> (ci_4 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_4)))) \<noteq> None)) ci_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_4 :: lane_underscore). ((proj_lane__0 ci_4) \<noteq> None)) ci_lst \<Longrightarrow>
-		 ((concat_underscore  (list_zipWith (\<lambda> (cj_1_4 :: iN) (cj_2_4 :: iN). [cj_1_4, cj_2_4]) cj_1_lst cj_2_lst)) = (map (\<lambda> (ci_4 :: lane_underscore). (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_4)))))))) ci_lst)) \<Longrightarrow>
-		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (\<lambda> (cj_1_5 :: iN) (cj_2_5 :: iN). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_5 cj_2_5)))) cj_1_lst cj_2_lst))) \<Longrightarrow>
+		 list_all (\<lambda> (ci_8 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_8)))) \<noteq> None)) ci_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_8 :: lane_underscore). ((proj_lane__0 ci_8) \<noteq> None)) ci_lst \<Longrightarrow>
+		 ((concat_underscore  (list_zipWith (\<lambda> (cj_1_10 :: iN) (cj_2_10 :: iN). [cj_1_10, cj_2_10]) cj_1_lst cj_2_lst)) = (map (\<lambda> (ci_8 :: lane_underscore). (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_8)))))))) ci_lst)) \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (\<lambda> (cj_1_11 :: iN) (cj_2_11 :: iN). (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_11 cj_2_11)))) cj_1_lst cj_2_lst))) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) \<Longrightarrow>
 		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
-		 list_all2 (\<lambda> (cj_1_6 :: iN) (cj_2_6 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_6 cj_2_6))))) cj_1_lst cj_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (cj_1_12 :: iN) (cj_2_12 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_12 cj_2_12))))) cj_1_lst cj_2_lst \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
-		 fun_vextunop__underscore (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextunop__0 Jnn_I32 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1 c"
+		 fun_vextunop___before_fun_vextunop___case_4 (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextunop__0 Jnn_I64 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1"
 	| fun_vextunop___case_2 :
 		"(ci_lst = (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) \<Longrightarrow>
 		 list_all (\<lambda> (ci_6 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_6)))) \<noteq> None)) ci_lst \<Longrightarrow>
@@ -6014,8 +8152,71 @@ inductive fun_vextunop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow>
 		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (cj_1_9 :: iN) (cj_2_9 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_9 cj_2_9))))) cj_1_lst cj_2_lst \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
-		 fun_vextunop__underscore (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextunop__0 Jnn_I64 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1 c"
-	| fun_vextunop___case_3 :
+		 fun_vextunop___before_fun_vextunop___case_4 (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextunop__0 Jnn_I64 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1"
+	| fun_vextunop___case_1 :
+		"(ci_lst = (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_4 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_4)))) \<noteq> None)) ci_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_4 :: lane_underscore). ((proj_lane__0 ci_4) \<noteq> None)) ci_lst \<Longrightarrow>
+		 ((concat_underscore  (list_zipWith (\<lambda> (cj_1_4 :: iN) (cj_2_4 :: iN). [cj_1_4, cj_2_4]) cj_1_lst cj_2_lst)) = (map (\<lambda> (ci_4 :: lane_underscore). (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_4)))))))) ci_lst)) \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (\<lambda> (cj_1_5 :: iN) (cj_2_5 :: iN). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_5 cj_2_5)))) cj_1_lst cj_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) \<Longrightarrow>
+		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (cj_1_6 :: iN) (cj_2_6 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_6 cj_2_6))))) cj_1_lst cj_2_lst \<Longrightarrow>
+		 (M_1 = M_1_0) \<Longrightarrow>
+		 fun_vextunop___before_fun_vextunop___case_4 (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextunop__0 Jnn_I32 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1"
+	| fun_vextunop___case_0 :
+		"(ci_lst = (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_2 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2)))) \<noteq> None)) ci_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2 :: lane_underscore). ((proj_lane__0 ci_2) \<noteq> None)) ci_lst \<Longrightarrow>
+		 ((concat_underscore  (list_zipWith (\<lambda> (cj_1_1 :: iN) (cj_2_1 :: iN). [cj_1_1, cj_2_1]) cj_1_lst cj_2_lst)) = (map (\<lambda> (ci_2 :: lane_underscore). (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2)))))))) ci_lst)) \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (\<lambda> (cj_1_2 :: iN) (cj_2_2 :: iN). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_2 cj_2_2)))) cj_1_lst cj_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) \<Longrightarrow>
+		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (cj_1_3 :: iN) (cj_2_3 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_3 cj_2_3))))) cj_1_lst cj_2_lst \<Longrightarrow>
+		 (M_1 = M_1_0) \<Longrightarrow>
+		 fun_vextunop___before_fun_vextunop___case_4 (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextunop__0 Jnn_I32 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1"
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:583.6-583.17 *)
+inductive fun_vextunop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow> vextunop_underscore \<Rightarrow> vec_underscore \<Rightarrow> (vec_underscore option) \<Rightarrow> bool" where
+	  fun_vextunop____fun_vextunop___case_0 :
+		"(ci_lst = (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_2 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2)))) \<noteq> None)) ci_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2 :: lane_underscore). ((proj_lane__0 ci_2) \<noteq> None)) ci_lst \<Longrightarrow>
+		 ((concat_underscore  (list_zipWith (\<lambda> (cj_1_1 :: iN) (cj_2_1 :: iN). [cj_1_1, cj_2_1]) cj_1_lst cj_2_lst)) = (map (\<lambda> (ci_2 :: lane_underscore). (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2)))))))) ci_lst)) \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (\<lambda> (cj_1_2 :: iN) (cj_2_2 :: iN). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_2 cj_2_2)))) cj_1_lst cj_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) \<Longrightarrow>
+		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (cj_1_3 :: iN) (cj_2_3 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_3 cj_2_3))))) cj_1_lst cj_2_lst \<Longrightarrow>
+		 (M_1 = M_1_0) \<Longrightarrow>
+		 fun_vextunop__underscore (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextunop__0 Jnn_I32 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)"
+	| fun_vextunop____fun_vextunop___case_1 :
+		"(ci_lst = (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_4 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_4)))) \<noteq> None)) ci_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_4 :: lane_underscore). ((proj_lane__0 ci_4) \<noteq> None)) ci_lst \<Longrightarrow>
+		 ((concat_underscore  (list_zipWith (\<lambda> (cj_1_4 :: iN) (cj_2_4 :: iN). [cj_1_4, cj_2_4]) cj_1_lst cj_2_lst)) = (map (\<lambda> (ci_4 :: lane_underscore). (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_4)))))))) ci_lst)) \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (\<lambda> (cj_1_5 :: iN) (cj_2_5 :: iN). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_5 cj_2_5)))) cj_1_lst cj_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) \<Longrightarrow>
+		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (cj_1_6 :: iN) (cj_2_6 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_6 cj_2_6))))) cj_1_lst cj_2_lst \<Longrightarrow>
+		 (M_1 = M_1_0) \<Longrightarrow>
+		 fun_vextunop__underscore (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextunop__0 Jnn_I32 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)"
+	| fun_vextunop____fun_vextunop___case_2 :
+		"(ci_lst = (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_6 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_6)))) \<noteq> None)) ci_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_6 :: lane_underscore). ((proj_lane__0 ci_6) \<noteq> None)) ci_lst \<Longrightarrow>
+		 ((concat_underscore  (list_zipWith (\<lambda> (cj_1_7 :: iN) (cj_2_7 :: iN). [cj_1_7, cj_2_7]) cj_1_lst cj_2_lst)) = (map (\<lambda> (ci_6 :: lane_underscore). (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_6)))))))) ci_lst)) \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (\<lambda> (cj_1_8 :: iN) (cj_2_8 :: iN). (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_8 cj_2_8)))) cj_1_lst cj_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) \<Longrightarrow>
+		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (cj_1_9 :: iN) (cj_2_9 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_9 cj_2_9))))) cj_1_lst cj_2_lst \<Longrightarrow>
+		 (M_1 = M_1_0) \<Longrightarrow>
+		 fun_vextunop__underscore (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextunop__0 Jnn_I64 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)"
+	| fun_vextunop____fun_vextunop___case_3 :
 		"(ci_lst = (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1)) \<Longrightarrow>
 		 list_all (\<lambda> (ci_8 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_8)))) \<noteq> None)) ci_lst \<Longrightarrow>
 		 list_all (\<lambda> (ci_8 :: lane_underscore). ((proj_lane__0 ci_8) \<noteq> None)) ci_lst \<Longrightarrow>
@@ -6026,7 +8227,10 @@ inductive fun_vextunop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow>
 		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (cj_1_12 :: iN) (cj_2_12 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_12 cj_2_12))))) cj_1_lst cj_2_lst \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
-		 fun_vextunop__underscore (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextunop__0 Jnn_I64 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1 c"
+		 fun_vextunop__underscore (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextunop__0 Jnn_I64 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)"
+	| fun_vextunop___case_4 :
+		"(~(fun_vextunop___before_fun_vextunop___case_4 x0 x1 x2 x3)) \<Longrightarrow>
+		 fun_vextunop__underscore x0 x1 x2 x3 None"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:583.6-583.17 *)
 lemma vextunop___is_wf :
@@ -6035,66 +8239,73 @@ lemma vextunop___is_wf :
 	 (wf_ishape ishape_2) \<Longrightarrow>
 	 (wf_vextunop_underscore ishape_1 v_vextunop_underscore) \<Longrightarrow>
 	 (wf_uN 128 v_vec_underscore) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the (var_0))) \<Longrightarrow>
 	 (wf_uN 128 ret_val)"
 sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:585.6-585.18 *)
-inductive fun_vextbinop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow> vextbinop_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> bool" where
-	  fun_vextbinop___case_0 :
-		"(ci_1_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
-		 (ci_2_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
-		 list_all (\<lambda> (ci_1_2 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_2)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_1_2 :: lane_underscore). ((proj_lane__0 ci_1_2) \<noteq> None)) ci_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_2_2 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_2)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_2_2 :: lane_underscore). ((proj_lane__0 ci_2_2) \<noteq> None)) ci_2_lst \<Longrightarrow>
-		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (\<lambda> (ci_1_2 :: lane_underscore) (ci_2_2 :: lane_underscore). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I32)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_2))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_2))))))))))) ci_1_lst ci_2_lst))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) \<Longrightarrow>
-		 ((length ci_1_lst) = (length ci_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (ci_1_3 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_3)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_1_3 :: lane_underscore). ((proj_lane__0 ci_1_3) \<noteq> None)) ci_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_2_3 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_3)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_2_3 :: lane_underscore). ((proj_lane__0 ci_2_3) \<noteq> None)) ci_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (ci_1_3 :: lane_underscore) (ci_2_3 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I32)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_3))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_3)))))))))))) ci_1_lst ci_2_lst \<Longrightarrow>
-		 (M_1 = M_1_0) \<Longrightarrow>
-		 fun_vextbinop__underscore (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2 c"
-	| fun_vextbinop___case_1 :
-		"(ci_1_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
-		 (ci_2_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
-		 list_all (\<lambda> (ci_1_5 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_5)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_1_5 :: lane_underscore). ((proj_lane__0 ci_1_5) \<noteq> None)) ci_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_2_5 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_5)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_2_5 :: lane_underscore). ((proj_lane__0 ci_2_5) \<noteq> None)) ci_2_lst \<Longrightarrow>
-		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (\<lambda> (ci_1_5 :: lane_underscore) (ci_2_5 :: lane_underscore). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I32)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_5))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_5))))))))))) ci_1_lst ci_2_lst))) \<Longrightarrow>
+inductive fun_vextbinop___before_fun_vextbinop___case_8 :: "ishape \<Rightarrow> ishape \<Rightarrow> vextbinop_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> bool" where
+	  fun_vextbinop___case_7 :
+		"(ci_1_lst = (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1)) \<Longrightarrow>
+		 (ci_2_lst = (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_20 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_20)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_20 :: lane_underscore). ((proj_lane__0 ci_1_20) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_20 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_20)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_20 :: lane_underscore). ((proj_lane__0 ci_2_20) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 ((concat_underscore  (list_zipWith (\<lambda> (cj_1_22 :: iN) (cj_2_22 :: iN). [cj_1_22, cj_2_22]) cj_1_lst cj_2_lst)) = (list_zipWith (\<lambda> (ci_1_20 :: lane_underscore) (ci_2_20 :: lane_underscore). (imul_underscore (lsizenn1 (lanetype_Inn Inn_I64)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) S (the ((proj_num__0 (the ((proj_lane__0 ci_1_20))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) S (the ((proj_num__0 (the ((proj_lane__0 ci_2_20))))))))) ci_1_lst ci_2_lst)) \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (\<lambda> (cj_1_23 :: iN) (cj_2_23 :: iN). (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_23 cj_2_23)))) cj_1_lst cj_2_lst))) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) \<Longrightarrow>
-		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) \<Longrightarrow>
-		 ((length ci_1_lst) = (length ci_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (ci_1_6 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_6)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_1_6 :: lane_underscore). ((proj_lane__0 ci_1_6) \<noteq> None)) ci_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_2_6 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_6)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_2_6 :: lane_underscore). ((proj_lane__0 ci_2_6) \<noteq> None)) ci_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (ci_1_6 :: lane_underscore) (ci_2_6 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I32)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_6))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_6)))))))))))) ci_1_lst ci_2_lst \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) \<Longrightarrow>
+		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (cj_1_24 :: iN) (cj_2_24 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_24 cj_2_24))))) cj_1_lst cj_2_lst \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
-		 fun_vextbinop__underscore (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2 c"
-	| fun_vextbinop___case_2 :
-		"(ci_1_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
-		 (ci_2_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
-		 list_all (\<lambda> (ci_1_8 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_8)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_1_8 :: lane_underscore). ((proj_lane__0 ci_1_8) \<noteq> None)) ci_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_2_8 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_8)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_2_8 :: lane_underscore). ((proj_lane__0 ci_2_8) \<noteq> None)) ci_2_lst \<Longrightarrow>
-		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (\<lambda> (ci_1_8 :: lane_underscore) (ci_2_8 :: lane_underscore). (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I64)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_8))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_8))))))))))) ci_1_lst ci_2_lst))) \<Longrightarrow>
+		 fun_vextbinop___before_fun_vextbinop___case_8 (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 DOTS) c_1 c_2"
+	| fun_vextbinop___case_6 :
+		"(ci_1_lst = (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) \<Longrightarrow>
+		 (ci_2_lst = (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_18 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_18)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_18 :: lane_underscore). ((proj_lane__0 ci_1_18) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_18 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_18)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_18 :: lane_underscore). ((proj_lane__0 ci_2_18) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 ((concat_underscore  (list_zipWith (\<lambda> (cj_1_19 :: iN) (cj_2_19 :: iN). [cj_1_19, cj_2_19]) cj_1_lst cj_2_lst)) = (list_zipWith (\<lambda> (ci_1_18 :: lane_underscore) (ci_2_18 :: lane_underscore). (imul_underscore (lsizenn1 (lanetype_Inn Inn_I64)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) S (the ((proj_num__0 (the ((proj_lane__0 ci_1_18))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) S (the ((proj_num__0 (the ((proj_lane__0 ci_2_18))))))))) ci_1_lst ci_2_lst)) \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (\<lambda> (cj_1_20 :: iN) (cj_2_20 :: iN). (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_20 cj_2_20)))) cj_1_lst cj_2_lst))) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) \<Longrightarrow>
 		 (wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) \<Longrightarrow>
-		 ((length ci_1_lst) = (length ci_2_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (ci_1_9 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_9)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_1_9 :: lane_underscore). ((proj_lane__0 ci_1_9) \<noteq> None)) ci_1_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_2_9 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_9)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
-		 list_all (\<lambda> (ci_2_9 :: lane_underscore). ((proj_lane__0 ci_2_9) \<noteq> None)) ci_2_lst \<Longrightarrow>
-		 list_all2 (\<lambda> (ci_1_9 :: lane_underscore) (ci_2_9 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I64)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_9))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_9)))))))))))) ci_1_lst ci_2_lst \<Longrightarrow>
+		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (cj_1_21 :: iN) (cj_2_21 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_21 cj_2_21))))) cj_1_lst cj_2_lst \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
-		 fun_vextbinop__underscore (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2 c"
+		 fun_vextbinop___before_fun_vextbinop___case_8 (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 DOTS) c_1 c_2"
+	| fun_vextbinop___case_5 :
+		"(ci_1_lst = (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1)) \<Longrightarrow>
+		 (ci_2_lst = (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_16 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_16)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_16 :: lane_underscore). ((proj_lane__0 ci_1_16) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_16 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_16)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_16 :: lane_underscore). ((proj_lane__0 ci_2_16) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 ((concat_underscore  (list_zipWith (\<lambda> (cj_1_16 :: iN) (cj_2_16 :: iN). [cj_1_16, cj_2_16]) cj_1_lst cj_2_lst)) = (list_zipWith (\<lambda> (ci_1_16 :: lane_underscore) (ci_2_16 :: lane_underscore). (imul_underscore (lsizenn1 (lanetype_Inn Inn_I32)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) S (the ((proj_num__0 (the ((proj_lane__0 ci_1_16))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) S (the ((proj_num__0 (the ((proj_lane__0 ci_2_16))))))))) ci_1_lst ci_2_lst)) \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (\<lambda> (cj_1_17 :: iN) (cj_2_17 :: iN). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_17 cj_2_17)))) cj_1_lst cj_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) \<Longrightarrow>
+		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (cj_1_18 :: iN) (cj_2_18 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_18 cj_2_18))))) cj_1_lst cj_2_lst \<Longrightarrow>
+		 (M_1 = M_1_0) \<Longrightarrow>
+		 fun_vextbinop___before_fun_vextbinop___case_8 (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 DOTS) c_1 c_2"
+	| fun_vextbinop___case_4 :
+		"(ci_1_lst = (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) \<Longrightarrow>
+		 (ci_2_lst = (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_14 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_14)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_14 :: lane_underscore). ((proj_lane__0 ci_1_14) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_14 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_14)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_14 :: lane_underscore). ((proj_lane__0 ci_2_14) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 ((concat_underscore  (list_zipWith (\<lambda> (cj_1_13 :: iN) (cj_2_13 :: iN). [cj_1_13, cj_2_13]) cj_1_lst cj_2_lst)) = (list_zipWith (\<lambda> (ci_1_14 :: lane_underscore) (ci_2_14 :: lane_underscore). (imul_underscore (lsizenn1 (lanetype_Inn Inn_I32)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) S (the ((proj_num__0 (the ((proj_lane__0 ci_1_14))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) S (the ((proj_num__0 (the ((proj_lane__0 ci_2_14))))))))) ci_1_lst ci_2_lst)) \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (\<lambda> (cj_1_14 :: iN) (cj_2_14 :: iN). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_14 cj_2_14)))) cj_1_lst cj_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) \<Longrightarrow>
+		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
+		 list_all2 (\<lambda> (cj_1_15 :: iN) (cj_2_15 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_15 cj_2_15))))) cj_1_lst cj_2_lst \<Longrightarrow>
+		 (M_1 = M_1_0) \<Longrightarrow>
+		 fun_vextbinop___before_fun_vextbinop___case_8 (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 DOTS) c_1 c_2"
 	| fun_vextbinop___case_3 :
 		"(ci_1_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
 		 (ci_2_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
@@ -6112,8 +8323,137 @@ inductive fun_vextbinop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow
 		 list_all (\<lambda> (ci_2_12 :: lane_underscore). ((proj_lane__0 ci_2_12) \<noteq> None)) ci_2_lst \<Longrightarrow>
 		 list_all2 (\<lambda> (ci_1_12 :: lane_underscore) (ci_2_12 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I64)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_12))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_12)))))))))))) ci_1_lst ci_2_lst \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
-		 fun_vextbinop__underscore (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2 c"
-	| fun_vextbinop___case_4 :
+		 fun_vextbinop___before_fun_vextbinop___case_8 (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2"
+	| fun_vextbinop___case_2 :
+		"(ci_1_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
+		 (ci_2_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_8 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_8)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_8 :: lane_underscore). ((proj_lane__0 ci_1_8) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_8 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_8)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_8 :: lane_underscore). ((proj_lane__0 ci_2_8) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (\<lambda> (ci_1_8 :: lane_underscore) (ci_2_8 :: lane_underscore). (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I64)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_8))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_8))))))))))) ci_1_lst ci_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) \<Longrightarrow>
+		 ((length ci_1_lst) = (length ci_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_9 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_9)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_9 :: lane_underscore). ((proj_lane__0 ci_1_9) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_9 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_9)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_9 :: lane_underscore). ((proj_lane__0 ci_2_9) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (ci_1_9 :: lane_underscore) (ci_2_9 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I64)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_9))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_9)))))))))))) ci_1_lst ci_2_lst \<Longrightarrow>
+		 (M_1 = M_1_0) \<Longrightarrow>
+		 fun_vextbinop___before_fun_vextbinop___case_8 (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2"
+	| fun_vextbinop___case_1 :
+		"(ci_1_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
+		 (ci_2_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_5 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_5)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_5 :: lane_underscore). ((proj_lane__0 ci_1_5) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_5 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_5)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_5 :: lane_underscore). ((proj_lane__0 ci_2_5) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (\<lambda> (ci_1_5 :: lane_underscore) (ci_2_5 :: lane_underscore). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I32)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_5))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_5))))))))))) ci_1_lst ci_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) \<Longrightarrow>
+		 ((length ci_1_lst) = (length ci_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_6 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_6)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_6 :: lane_underscore). ((proj_lane__0 ci_1_6) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_6 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_6)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_6 :: lane_underscore). ((proj_lane__0 ci_2_6) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (ci_1_6 :: lane_underscore) (ci_2_6 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I32)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_6))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_6)))))))))))) ci_1_lst ci_2_lst \<Longrightarrow>
+		 (M_1 = M_1_0) \<Longrightarrow>
+		 fun_vextbinop___before_fun_vextbinop___case_8 (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2"
+	| fun_vextbinop___case_0 :
+		"(ci_1_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
+		 (ci_2_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_2 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_2)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_2 :: lane_underscore). ((proj_lane__0 ci_1_2) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_2 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_2)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_2 :: lane_underscore). ((proj_lane__0 ci_2_2) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (\<lambda> (ci_1_2 :: lane_underscore) (ci_2_2 :: lane_underscore). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I32)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_2))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_2))))))))))) ci_1_lst ci_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) \<Longrightarrow>
+		 ((length ci_1_lst) = (length ci_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_3 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_3)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_3 :: lane_underscore). ((proj_lane__0 ci_1_3) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_3 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_3)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_3 :: lane_underscore). ((proj_lane__0 ci_2_3) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (ci_1_3 :: lane_underscore) (ci_2_3 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I32)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_3))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_3)))))))))))) ci_1_lst ci_2_lst \<Longrightarrow>
+		 (M_1 = M_1_0) \<Longrightarrow>
+		 fun_vextbinop___before_fun_vextbinop___case_8 (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2"
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:585.6-585.18 *)
+inductive fun_vextbinop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow> vextbinop_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> (vec_underscore option) \<Rightarrow> bool" where
+	  fun_vextbinop____fun_vextbinop___case_0 :
+		"(ci_1_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
+		 (ci_2_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_2 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_2)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_2 :: lane_underscore). ((proj_lane__0 ci_1_2) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_2 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_2)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_2 :: lane_underscore). ((proj_lane__0 ci_2_2) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (\<lambda> (ci_1_2 :: lane_underscore) (ci_2_2 :: lane_underscore). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I32)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_2))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_2))))))))))) ci_1_lst ci_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) \<Longrightarrow>
+		 ((length ci_1_lst) = (length ci_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_3 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_3)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_3 :: lane_underscore). ((proj_lane__0 ci_1_3) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_3 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_3)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_3 :: lane_underscore). ((proj_lane__0 ci_2_3) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (ci_1_3 :: lane_underscore) (ci_2_3 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I32)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_3))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_3)))))))))))) ci_1_lst ci_2_lst \<Longrightarrow>
+		 (M_1 = M_1_0) \<Longrightarrow>
+		 fun_vextbinop__underscore (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)"
+	| fun_vextbinop____fun_vextbinop___case_1 :
+		"(ci_1_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
+		 (ci_2_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_5 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_5)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_5 :: lane_underscore). ((proj_lane__0 ci_1_5) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_5 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_5)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_5 :: lane_underscore). ((proj_lane__0 ci_2_5) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (\<lambda> (ci_1_5 :: lane_underscore) (ci_2_5 :: lane_underscore). (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I32)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_5))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_5))))))))))) ci_1_lst ci_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) \<Longrightarrow>
+		 ((length ci_1_lst) = (length ci_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_6 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_6)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_6 :: lane_underscore). ((proj_lane__0 ci_1_6) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_6 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_6)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_6 :: lane_underscore). ((proj_lane__0 ci_2_6) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (ci_1_6 :: lane_underscore) (ci_2_6 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I32)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_6))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_6)))))))))))) ci_1_lst ci_2_lst \<Longrightarrow>
+		 (M_1 = M_1_0) \<Longrightarrow>
+		 fun_vextbinop__underscore (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)"
+	| fun_vextbinop____fun_vextbinop___case_2 :
+		"(ci_1_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
+		 (ci_2_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_8 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_8)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_8 :: lane_underscore). ((proj_lane__0 ci_1_8) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_8 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_8)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_8 :: lane_underscore). ((proj_lane__0 ci_2_8) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (\<lambda> (ci_1_8 :: lane_underscore) (ci_2_8 :: lane_underscore). (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I64)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_8))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_8))))))))))) ci_1_lst ci_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) \<Longrightarrow>
+		 ((length ci_1_lst) = (length ci_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_9 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_9)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_9 :: lane_underscore). ((proj_lane__0 ci_1_9) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_9 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_9)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_9 :: lane_underscore). ((proj_lane__0 ci_2_9) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (ci_1_9 :: lane_underscore) (ci_2_9 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I64)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_9))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_9)))))))))))) ci_1_lst ci_2_lst \<Longrightarrow>
+		 (M_1 = M_1_0) \<Longrightarrow>
+		 fun_vextbinop__underscore (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)"
+	| fun_vextbinop____fun_vextbinop___case_3 :
+		"(ci_1_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
+		 (ci_2_lst = (list_slice (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2) (fun_half v_half 0 M_1) M_1)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_11 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_11)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_11 :: lane_underscore). ((proj_lane__0 ci_1_11) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_11 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_11)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_11 :: lane_underscore). ((proj_lane__0 ci_2_11) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (\<lambda> (ci_1_11 :: lane_underscore) (ci_2_11 :: lane_underscore). (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I64)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_11))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_11))))))))))) ci_1_lst ci_2_lst))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) \<Longrightarrow>
+		 (wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) \<Longrightarrow>
+		 ((length ci_1_lst) = (length ci_2_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_12 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_12)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_1_12 :: lane_underscore). ((proj_lane__0 ci_1_12) \<noteq> None)) ci_1_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_12 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_2_12)))) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all (\<lambda> (ci_2_12 :: lane_underscore). ((proj_lane__0 ci_2_12) \<noteq> None)) ci_2_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (ci_1_12 :: lane_underscore) (ci_2_12 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (imul_underscore (lsizenn1 (lanetype_Inn Inn_I64)) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_1_12))))))) (extend__underscore (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (the ((proj_num__0 (the ((proj_lane__0 ci_2_12)))))))))))) ci_1_lst ci_2_lst \<Longrightarrow>
+		 (M_1 = M_1_0) \<Longrightarrow>
+		 fun_vextbinop__underscore (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)"
+	| fun_vextbinop____fun_vextbinop___case_4 :
 		"(ci_1_lst = (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) \<Longrightarrow>
 		 (ci_2_lst = (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2)) \<Longrightarrow>
 		 list_all (\<lambda> (ci_1_14 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_14)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
@@ -6127,8 +8467,8 @@ inductive fun_vextbinop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow
 		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (cj_1_15 :: iN) (cj_2_15 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_15 cj_2_15))))) cj_1_lst cj_2_lst \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
-		 fun_vextbinop__underscore (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 DOTS) c_1 c_2 c"
-	| fun_vextbinop___case_5 :
+		 fun_vextbinop__underscore (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 DOTS) c_1 c_2 (Some c)"
+	| fun_vextbinop____fun_vextbinop___case_5 :
 		"(ci_1_lst = (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1)) \<Longrightarrow>
 		 (ci_2_lst = (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2)) \<Longrightarrow>
 		 list_all (\<lambda> (ci_1_16 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_16)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
@@ -6142,8 +8482,8 @@ inductive fun_vextbinop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow
 		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (cj_1_18 :: iN) (cj_2_18 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_18 cj_2_18))))) cj_1_lst cj_2_lst \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
-		 fun_vextbinop__underscore (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 DOTS) c_1 c_2 c"
-	| fun_vextbinop___case_6 :
+		 fun_vextbinop__underscore (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 DOTS) c_1 c_2 (Some c)"
+	| fun_vextbinop____fun_vextbinop___case_6 :
 		"(ci_1_lst = (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) \<Longrightarrow>
 		 (ci_2_lst = (lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2)) \<Longrightarrow>
 		 list_all (\<lambda> (ci_1_18 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_18)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
@@ -6157,8 +8497,8 @@ inductive fun_vextbinop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow
 		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (cj_1_21 :: iN) (cj_2_21 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_21 cj_2_21))))) cj_1_lst cj_2_lst \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
-		 fun_vextbinop__underscore (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 DOTS) c_1 c_2 c"
-	| fun_vextbinop___case_7 :
+		 fun_vextbinop__underscore (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 DOTS) c_1 c_2 (Some c)"
+	| fun_vextbinop____fun_vextbinop___case_7 :
 		"(ci_1_lst = (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1)) \<Longrightarrow>
 		 (ci_2_lst = (lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2)) \<Longrightarrow>
 		 list_all (\<lambda> (ci_1_20 :: lane_underscore). ((proj_num__0 (the ((proj_lane__0 ci_1_20)))) \<noteq> None)) ci_1_lst \<Longrightarrow>
@@ -6172,7 +8512,10 @@ inductive fun_vextbinop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow
 		 ((length cj_1_lst) = (length cj_2_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (cj_1_24 :: iN) (cj_2_24 :: iN). (wf_lane_underscore (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (iadd_underscore (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_24 cj_2_24))))) cj_1_lst cj_2_lst \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
-		 fun_vextbinop__underscore (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 DOTS) c_1 c_2 c"
+		 fun_vextbinop__underscore (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 DOTS) c_1 c_2 (Some c)"
+	| fun_vextbinop___case_8 :
+		"(~(fun_vextbinop___before_fun_vextbinop___case_8 x0 x1 x2 x3 x4)) \<Longrightarrow>
+		 fun_vextbinop__underscore x0 x1 x2 x3 x4 None"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:585.6-585.18 *)
 lemma vextbinop___is_wf :
@@ -6182,22 +8525,39 @@ lemma vextbinop___is_wf :
 	 (wf_vextbinop_underscore ishape_1 v_vextbinop_underscore) \<Longrightarrow>
 	 (wf_uN 128 v_vec_underscore) \<Longrightarrow>
 	 (wf_uN 128 vec__0) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the (var_0))) \<Longrightarrow>
 	 (wf_uN 128 ret_val)"
 sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:608.6-608.16 *)
-inductive fun_vshiftop_underscore :: "ishape \<Rightarrow> vshiftop_underscore \<Rightarrow> lane_underscore \<Rightarrow> u32 \<Rightarrow> lane_underscore \<Rightarrow> bool" where
-	  fun_vshiftop__case_0 :
+inductive fun_vshiftop__before_fun_vshiftop__case_2 :: "ishape \<Rightarrow> vshiftop_underscore \<Rightarrow> lane_underscore \<Rightarrow> u32 \<Rightarrow> bool" where
+	  fun_vshiftop__case_1 :
 		"(v_Jnn = Jnn_1) \<Longrightarrow>
 		 (v_Jnn = Jnn_0) \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vshiftop_underscore (ishape_X v_Jnn (mk_dim v_M)) (mk_vshiftop__0 Jnn_0 M_0 vshiftop_Jnn_N_SHL) (mk_lane__2 Jnn_1 lane) (mk_uN v_n) (mk_lane__2 v_Jnn (ishl_underscore (lsizenn (lanetype_Jnn v_Jnn)) lane (mk_uN v_n)))"
-	| fun_vshiftop__case_1 :
+		 fun_vshiftop__before_fun_vshiftop__case_2 (ishape_X v_Jnn (mk_dim v_M)) (mk_vshiftop__0 Jnn_0 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__2 Jnn_1 lane) (mk_uN v_n)"
+	| fun_vshiftop__case_0 :
 		"(v_Jnn = Jnn_1) \<Longrightarrow>
 		 (v_Jnn = Jnn_0) \<Longrightarrow>
 		 (v_M = M_0) \<Longrightarrow>
-		 fun_vshiftop_underscore (ishape_X v_Jnn (mk_dim v_M)) (mk_vshiftop__0 Jnn_0 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__2 Jnn_1 lane) (mk_uN v_n) (mk_lane__2 v_Jnn (ishr_underscore (lsizenn (lanetype_Jnn v_Jnn)) v_sx lane (mk_uN v_n)))"
+		 fun_vshiftop__before_fun_vshiftop__case_2 (ishape_X v_Jnn (mk_dim v_M)) (mk_vshiftop__0 Jnn_0 M_0 vshiftop_Jnn_N_SHL) (mk_lane__2 Jnn_1 lane) (mk_uN v_n)"
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:608.6-608.16 *)
+inductive fun_vshiftop_underscore :: "ishape \<Rightarrow> vshiftop_underscore \<Rightarrow> lane_underscore \<Rightarrow> u32 \<Rightarrow> (lane_underscore option) \<Rightarrow> bool" where
+	  fun_vshiftop___fun_vshiftop__case_0 :
+		"(v_Jnn = Jnn_1) \<Longrightarrow>
+		 (v_Jnn = Jnn_0) \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vshiftop_underscore (ishape_X v_Jnn (mk_dim v_M)) (mk_vshiftop__0 Jnn_0 M_0 vshiftop_Jnn_N_SHL) (mk_lane__2 Jnn_1 lane) (mk_uN v_n) (Some (mk_lane__2 v_Jnn (ishl_underscore (lsizenn (lanetype_Jnn v_Jnn)) lane (mk_uN v_n))))"
+	| fun_vshiftop___fun_vshiftop__case_1 :
+		"(v_Jnn = Jnn_1) \<Longrightarrow>
+		 (v_Jnn = Jnn_0) \<Longrightarrow>
+		 (v_M = M_0) \<Longrightarrow>
+		 fun_vshiftop_underscore (ishape_X v_Jnn (mk_dim v_M)) (mk_vshiftop__0 Jnn_0 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__2 Jnn_1 lane) (mk_uN v_n) (Some (mk_lane__2 v_Jnn (ishr_underscore (lsizenn (lanetype_Jnn v_Jnn)) v_sx lane (mk_uN v_n))))"
+	| fun_vshiftop__case_2 :
+		"(~(fun_vshiftop__before_fun_vshiftop__case_2 x0 x1 x2 x3)) \<Longrightarrow>
+		 fun_vshiftop_underscore x0 x1 x2 x3 None"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:608.6-608.16 *)
 lemma vshiftop__is_wf :
@@ -6206,7 +8566,8 @@ lemma vshiftop__is_wf :
 	 (wf_vshiftop_underscore v_ishape v_vshiftop_underscore) \<Longrightarrow>
 	 (wf_lane_underscore (fun_lanetype (shape_ishape v_ishape)) v_lane_underscore) \<Longrightarrow>
 	 (wf_uN 32 v_u32) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the (var_0))) \<Longrightarrow>
 	 (wf_lane_underscore (fun_lanetype (shape_ishape v_ishape)) ret_val)"
 sorry
 
@@ -7534,12 +9895,17 @@ inductive Resulttype_sub :: "resulttype \<Rightarrow> resulttype \<Rightarrow> b
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:87.1-87.75 *)
 inductive Limits_sub :: "limits \<Rightarrow> limits \<Rightarrow> bool" where
-	  mk_Limits_sub :
-		"(n_11 \<ge> n_21) \<Longrightarrow>
-		 (n_12 \<le> n_22) \<Longrightarrow>
-		 (wf_limits (mk_limits (mk_uN n_11) (Some (mk_uN n_12)))) \<Longrightarrow>
-		 (wf_limits (mk_limits (mk_uN n_21) (Some (mk_uN n_22)))) \<Longrightarrow>
-		 Limits_sub (mk_limits (mk_uN n_11) (Some (mk_uN n_12))) (mk_limits (mk_uN n_21) (Some (mk_uN n_22)))"
+	  max :
+		"(n_1 \<ge> n_2) \<Longrightarrow>
+		 list_all (\<lambda> (m_2 :: nat). (m_1 \<le> m_2)) (option_to_list m_2_opt) \<Longrightarrow>
+		 (wf_limits (mk_limits (mk_uN n_1) (Some (mk_uN m_1)))) \<Longrightarrow>
+		 (wf_limits (mk_limits (mk_uN n_2) (map_option (\<lambda> (m_2 :: m). (mk_uN m_2)) m_2_opt))) \<Longrightarrow>
+		 Limits_sub (mk_limits (mk_uN n_1) (Some (mk_uN m_1))) (mk_limits (mk_uN n_2) (map_option (\<lambda> (m_2 :: m). (mk_uN m_2)) m_2_opt))"
+	| eps :
+		"(n_1 \<ge> n_2) \<Longrightarrow>
+		 (wf_limits (mk_limits (mk_uN n_1) None)) \<Longrightarrow>
+		 (wf_limits (mk_limits (mk_uN n_2) None)) \<Longrightarrow>
+		 Limits_sub (mk_limits (mk_uN n_1) None) (mk_limits (mk_uN n_2) None)"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:88.1-88.73 *)
 inductive Functype_sub :: "functype \<Rightarrow> functype \<Rightarrow> bool" where
@@ -7590,7 +9956,7 @@ inductive Externtype_sub :: "externtype \<Rightarrow> externtype \<Rightarrow> b
 		 (wf_externtype (MEM mt_2)) \<Longrightarrow>
 		 Externtype_sub (MEM mt_1) (MEM mt_2)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:198.1-198.76 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:202.1-202.76 *)
 inductive Blocktype_ok :: "res_context \<Rightarrow> blocktype \<Rightarrow> functype \<Rightarrow> bool" where
 	  Blocktype_ok__valtype :
 		"(wf_context C) \<Longrightarrow>
@@ -7603,7 +9969,7 @@ inductive Blocktype_ok :: "res_context \<Rightarrow> blocktype \<Rightarrow> fun
 		 (wf_blocktype (underscore_IDX v_typeidx)) \<Longrightarrow>
 		 Blocktype_ok C (underscore_IDX v_typeidx) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
 
-(* Mutual Recursion at: ../specification/wasm-2.0/6-typing.spectec:137.1-138.65 *)
+(* Mutual Recursion at: ../specification/wasm-2.0/6-typing.spectec:141.1-142.65 *)
 inductive Instr_ok :: "res_context \<Rightarrow> instr \<Rightarrow> functype \<Rightarrow> bool"
 and Instrs_ok :: "res_context \<Rightarrow> (instr list) \<Rightarrow> functype \<Rightarrow> bool" where
 	  nop :
@@ -8069,7 +10435,7 @@ and Instrs_ok :: "res_context \<Rightarrow> (instr list) \<Rightarrow> functype 
 		 list_all (\<lambda> (v_instr :: instr). (wf_instr v_instr)) instr_lst \<Longrightarrow>
 		 Instrs_ok C instr_lst (mk_functype (mk_list (t_lst @ t_1_lst)) (mk_list (t_lst @ t_2_lst)))"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:139.1-139.69 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:143.1-143.69 *)
 inductive Expr_ok :: "res_context \<Rightarrow> expr \<Rightarrow> resulttype \<Rightarrow> bool" where
 	  mk_Expr_ok :
 		"(Instrs_ok C instr_lst (mk_functype (mk_list []) (mk_list t_lst))) \<Longrightarrow>
@@ -8077,7 +10443,7 @@ inductive Expr_ok :: "res_context \<Rightarrow> expr \<Rightarrow> resulttype \<
 		 list_all (\<lambda> (v_instr :: instr). (wf_instr v_instr)) instr_lst \<Longrightarrow>
 		 Expr_ok C instr_lst (mk_list t_lst)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:528.1-528.78 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:532.1-532.78 *)
 inductive Instr_const :: "res_context \<Rightarrow> instr \<Rightarrow> bool" where
 	  Instr_const__const :
 		"(wf_context C) \<Longrightarrow>
@@ -8102,7 +10468,7 @@ inductive Instr_const :: "res_context \<Rightarrow> instr \<Rightarrow> bool" wh
 		 (wf_instr (instr_sc4 (GLOBAL_GET x))) \<Longrightarrow>
 		 Instr_const C (instr_sc4 (GLOBAL_GET x))"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:529.1-529.77 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:533.1-533.77 *)
 inductive Expr_const :: "res_context \<Rightarrow> expr \<Rightarrow> bool" where
 	  mk_Expr_const :
 		"list_all (\<lambda> (v_instr :: instr). (Instr_const C v_instr)) instr_lst \<Longrightarrow>
@@ -8110,7 +10476,7 @@ inductive Expr_const :: "res_context \<Rightarrow> expr \<Rightarrow> bool" wher
 		 list_all (\<lambda> (v_instr :: instr). (wf_instr v_instr)) instr_lst \<Longrightarrow>
 		 Expr_const C instr_lst"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:530.1-530.78 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:534.1-534.78 *)
 inductive Expr_ok_const :: "res_context \<Rightarrow> expr \<Rightarrow> valtype \<Rightarrow> bool" where
 	  mk_Expr_ok_const :
 		"(Expr_ok C v_expr (mk_list [t])) \<Longrightarrow>
@@ -8119,25 +10485,25 @@ inductive Expr_ok_const :: "res_context \<Rightarrow> expr \<Rightarrow> valtype
 		 list_all (\<lambda> (v_expr :: instr). (wf_instr v_expr)) v_expr \<Longrightarrow>
 		 Expr_ok_const C v_expr t"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:563.1-563.73 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:567.1-567.73 *)
 inductive Type_ok :: "type \<Rightarrow> functype \<Rightarrow> bool" where
 	  mk_Type_ok :
 		"(Functype_ok ft) \<Longrightarrow>
 		 Type_ok (res_TYPE ft) ft"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:564.1-564.73 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:568.1-568.73 *)
 inductive Func_ok :: "res_context \<Rightarrow> func \<Rightarrow> functype \<Rightarrow> bool" where
 	  mk_Func_ok :
 		"((proj_uN_0 x) < (length (context_TYPES C))) \<Longrightarrow>
 		 (((context_TYPES C) ! (proj_uN_0 x)) = (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) \<Longrightarrow>
 		 list_all (\<lambda> (t :: valtype). (t \<noteq> BOT)) t_lst \<Longrightarrow>
-		 (Expr_ok (append_res_context C \<lparr> context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = (t_1_lst @ t_lst), LABELS = [(mk_list t_2_lst)], context_RETURN = (Some (mk_list t_2_lst)) \<rparr>) v_expr (mk_list t_2_lst)) \<Longrightarrow>
+		 (Expr_ok (append_res_context \<lparr> context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = (t_1_lst @ t_lst), LABELS = [(mk_list t_2_lst)], context_RETURN = (Some (mk_list t_2_lst)) \<rparr> C) v_expr (mk_list t_2_lst)) \<Longrightarrow>
 		 (wf_context C) \<Longrightarrow>
 		 (wf_func (func_FUNC x (map (\<lambda> (t :: valtype). (LOCAL t)) t_lst) v_expr)) \<Longrightarrow>
 		 (wf_context \<lparr> context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = (t_1_lst @ t_lst), LABELS = [(mk_list t_2_lst)], context_RETURN = (Some (mk_list t_2_lst)) \<rparr>) \<Longrightarrow>
 		 Func_ok C (func_FUNC x (map (\<lambda> (t :: valtype). (LOCAL t)) t_lst) v_expr) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:565.1-565.75 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:569.1-569.75 *)
 inductive Global_ok :: "res_context \<Rightarrow> global \<Rightarrow> globaltype \<Rightarrow> bool" where
 	  mk_Global_ok :
 		"(Globaltype_ok gt) \<Longrightarrow>
@@ -8147,7 +10513,7 @@ inductive Global_ok :: "res_context \<Rightarrow> global \<Rightarrow> globaltyp
 		 (wf_global (global_GLOBAL gt v_expr)) \<Longrightarrow>
 		 Global_ok C (global_GLOBAL gt v_expr) gt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:566.1-566.74 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:570.1-570.74 *)
 inductive Table_ok :: "res_context \<Rightarrow> table \<Rightarrow> tabletype \<Rightarrow> bool" where
 	  mk_Table_ok :
 		"(Tabletype_ok tt) \<Longrightarrow>
@@ -8155,7 +10521,7 @@ inductive Table_ok :: "res_context \<Rightarrow> table \<Rightarrow> tabletype \
 		 (wf_table (table_TABLE tt)) \<Longrightarrow>
 		 Table_ok C (table_TABLE tt) tt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:567.1-567.72 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:571.1-571.72 *)
 inductive Mem_ok :: "res_context \<Rightarrow> mem \<Rightarrow> memtype \<Rightarrow> bool" where
 	  mk_Mem_ok :
 		"(Memtype_ok mt) \<Longrightarrow>
@@ -8163,7 +10529,7 @@ inductive Mem_ok :: "res_context \<Rightarrow> mem \<Rightarrow> memtype \<Right
 		 (wf_mem (MEMORY mt)) \<Longrightarrow>
 		 Mem_ok C (MEMORY mt) mt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:570.1-570.77 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:574.1-574.77 *)
 inductive Elemmode_ok :: "res_context \<Rightarrow> elemmode \<Rightarrow> reftype \<Rightarrow> bool" where
 	  active :
 		"((proj_uN_0 x) < (length (context_TABLES C))) \<Longrightarrow>
@@ -8182,7 +10548,7 @@ inductive Elemmode_ok :: "res_context \<Rightarrow> elemmode \<Rightarrow> refty
 		 (wf_elemmode DECLARE) \<Longrightarrow>
 		 Elemmode_ok C DECLARE rt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:568.1-568.73 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:572.1-572.73 *)
 inductive Elem_ok :: "res_context \<Rightarrow> elem \<Rightarrow> reftype \<Rightarrow> bool" where
 	  mk_Elem_ok :
 		"list_all (\<lambda> (v_expr :: expr). (Expr_ok_const C v_expr (valtype_reftype rt))) expr_lst \<Longrightarrow>
@@ -8191,7 +10557,7 @@ inductive Elem_ok :: "res_context \<Rightarrow> elem \<Rightarrow> reftype \<Rig
 		 (wf_elem (ELEM rt expr_lst v_elemmode)) \<Longrightarrow>
 		 Elem_ok C (ELEM rt expr_lst v_elemmode) rt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:571.1-571.77 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:575.1-575.77 *)
 inductive Datamode_ok :: "res_context \<Rightarrow> datamode \<Rightarrow> bool" where
 	  Datamode_ok__active :
 		"(0 < (length (context_MEMS C))) \<Longrightarrow>
@@ -8206,7 +10572,7 @@ inductive Datamode_ok :: "res_context \<Rightarrow> datamode \<Rightarrow> bool"
 		 (wf_datamode datamode_PASSIVE) \<Longrightarrow>
 		 Datamode_ok C datamode_PASSIVE"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:569.1-569.73 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:573.1-573.73 *)
 inductive Data_ok :: "res_context \<Rightarrow> data \<Rightarrow> bool" where
 	  mk_Data_ok :
 		"(Datamode_ok C v_datamode) \<Longrightarrow>
@@ -8214,7 +10580,7 @@ inductive Data_ok :: "res_context \<Rightarrow> data \<Rightarrow> bool" where
 		 (wf_data (DATA b_lst v_datamode)) \<Longrightarrow>
 		 Data_ok C (DATA b_lst v_datamode)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:572.1-572.74 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:576.1-576.74 *)
 inductive Start_ok :: "res_context \<Rightarrow> start \<Rightarrow> bool" where
 	  mk_Start_ok :
 		"((proj_uN_0 x) < (length (context_FUNCS C))) \<Longrightarrow>
@@ -8223,7 +10589,7 @@ inductive Start_ok :: "res_context \<Rightarrow> start \<Rightarrow> bool" where
 		 (wf_start (START x)) \<Longrightarrow>
 		 Start_ok C (START x)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:636.1-636.80 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:640.1-640.80 *)
 inductive Import_ok :: "res_context \<Rightarrow> import \<Rightarrow> externtype \<Rightarrow> bool" where
 	  mk_Import_ok :
 		"(Externtype_ok xt) \<Longrightarrow>
@@ -8231,7 +10597,7 @@ inductive Import_ok :: "res_context \<Rightarrow> import \<Rightarrow> externtyp
 		 (wf_import (IMPORT name_1 name_2 xt)) \<Longrightarrow>
 		 Import_ok C (IMPORT name_1 name_2 xt) xt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:638.1-638.83 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:642.1-642.83 *)
 inductive Externidx_ok :: "res_context \<Rightarrow> externidx \<Rightarrow> externtype \<Rightarrow> bool" where
 	  Externidx_ok__func :
 		"((proj_uN_0 x) < (length (context_FUNCS C))) \<Longrightarrow>
@@ -8262,7 +10628,7 @@ inductive Externidx_ok :: "res_context \<Rightarrow> externidx \<Rightarrow> ext
 		 (wf_externtype (MEM mt)) \<Longrightarrow>
 		 Externidx_ok C (externidx_MEM x) (MEM mt)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:637.1-637.80 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:641.1-641.80 *)
 inductive Export_ok :: "res_context \<Rightarrow> export \<Rightarrow> externtype \<Rightarrow> bool" where
 	  mk_Export_ok :
 		"(Externidx_ok C v_externidx xt) \<Longrightarrow>
@@ -8271,7 +10637,7 @@ inductive Export_ok :: "res_context \<Rightarrow> export \<Rightarrow> externtyp
 		 (wf_export (EXPORT v_name v_externidx)) \<Longrightarrow>
 		 Export_ok C (EXPORT v_name v_externidx) xt"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:668.1-668.62 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:672.1-672.62 *)
 inductive Module_ok :: "module \<Rightarrow> bool" where
 	  mk_Module_ok :
 		"(fun_memsxt ixt_lst var_3) \<Longrightarrow>
@@ -8360,9 +10726,9 @@ inductive Step_pure :: "(admininstr list) \<Rightarrow> (admininstr list) \<Righ
 		"Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr_lst (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)))] (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)"
 	| br_zero :
 		"(v_n = (length val_lst)) \<Longrightarrow>
-		 Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr'_lst ((((map (\<lambda> (val' :: val). (admininstr_val val')) val'_lst) @ (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)) @ [(admininstr_sc0 (admininstr_st0_BR (mk_uN 0)))]) @ (map (\<lambda> (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))] ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ (map (\<lambda> (instr' :: instr). (admininstr_instr instr')) instr'_lst))"
+		 Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr'_lst ((((map (\<lambda> (val' :: val). (admininstr_val val')) val'_lst) @ (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)) @ [(admininstr_sc0 (admininstr_st0_BR (mk_uN 0)))]) @ admininstr_lst)))] ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ (map (\<lambda> (instr' :: instr). (admininstr_instr instr')) instr'_lst))"
 	| br_succ :
-		"Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr'_lst (((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc0 (admininstr_st0_BR (mk_uN ((proj_uN_0 l) + 1))))]) @ (map (\<lambda> (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))] ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc0 (admininstr_st0_BR l))])"
+		"Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr'_lst (((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc0 (admininstr_st0_BR (mk_uN ((proj_uN_0 l) + 1))))]) @ admininstr_lst)))] ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc0 (admininstr_st0_BR l))])"
 	| br_if_true :
 		"((proj_num__0 c) \<noteq> None) \<Longrightarrow>
 		 ((proj_uN_0 (the ((proj_num__0 c)))) \<noteq> 0) \<Longrightarrow>
@@ -8384,47 +10750,55 @@ inductive Step_pure :: "(admininstr list) \<Rightarrow> (admininstr list) \<Righ
 		 Step_pure [(admininstr_sc8 (FRAME_underscore v_n f (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)))] (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)"
 	| return_frame :
 		"(v_n = (length val_lst)) \<Longrightarrow>
-		 Step_pure [(admininstr_sc8 (FRAME_underscore v_n f ((((map (\<lambda> (val' :: val). (admininstr_val val')) val'_lst) @ (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)) @ [(admininstr_sc1 admininstr_st1_RETURN)]) @ (map (\<lambda> (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))] (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)"
+		 Step_pure [(admininstr_sc8 (FRAME_underscore v_n f ((((map (\<lambda> (val' :: val). (admininstr_val val')) val'_lst) @ (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)) @ [(admininstr_sc1 admininstr_st1_RETURN)]) @ admininstr_lst)))] (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)"
 	| return_label :
-		"Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr'_lst (((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc1 admininstr_st1_RETURN)]) @ (map (\<lambda> (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))] ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc1 admininstr_st1_RETURN)])"
+		"Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr'_lst (((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc1 admininstr_st1_RETURN)]) @ admininstr_lst)))] ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc1 admininstr_st1_RETURN)])"
 	| trap_vals :
-		"((val_lst \<noteq> []) \<or> (instr_lst \<noteq> [])) \<Longrightarrow>
-		 Step_pure ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ ([(admininstr_sc7 admininstr_st7_TRAP)] @ (map (\<lambda> (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))) [(admininstr_sc7 admininstr_st7_TRAP)]"
+		"((val_lst \<noteq> []) \<or> (admininstr_lst \<noteq> [])) \<Longrightarrow>
+		 Step_pure ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ ([(admininstr_sc7 admininstr_st7_TRAP)] @ admininstr_lst)) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| trap_label :
 		"Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr'_lst [(admininstr_sc7 admininstr_st7_TRAP)]))] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| trap_frame :
 		"Step_pure [(admininstr_sc8 (FRAME_underscore v_n f [(admininstr_sc7 admininstr_st7_TRAP)]))] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| unop_val :
-		"((length (fun_unop_underscore nt unop c_1)) > 0) \<Longrightarrow>
-		 (c \<in> set (fun_unop_underscore nt unop c_1)) \<Longrightarrow>
+		"((length (the ((fun_unop_underscore nt unop c_1)))) > 0) \<Longrightarrow>
+		 ((fun_unop_underscore nt unop c_1) \<noteq> None) \<Longrightarrow>
+		 (c \<in> set (the ((fun_unop_underscore nt unop c_1)))) \<Longrightarrow>
 		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST nt c_1)), (admininstr_sc1 (admininstr_st1_UNOP nt unop))] [(admininstr_sc1 (admininstr_st1_CONST nt c))]"
 	| unop_trap :
-		"((fun_unop_underscore nt unop c_1) = []) \<Longrightarrow>
+		"((fun_unop_underscore nt unop c_1) \<noteq> None) \<Longrightarrow>
+		 ((the ((fun_unop_underscore nt unop c_1))) = []) \<Longrightarrow>
 		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST nt c_1)), (admininstr_sc1 (admininstr_st1_UNOP nt unop))] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| binop_val :
 		"(fun_binop_underscore nt binop c_1 c_2 var_0) \<Longrightarrow>
-		 ((length var_0) > 0) \<Longrightarrow>
-		 (c \<in> set var_0) \<Longrightarrow>
+		 ((length (the (var_0))) > 0) \<Longrightarrow>
+		 (var_0 \<noteq> None) \<Longrightarrow>
+		 (c \<in> set (the (var_0))) \<Longrightarrow>
 		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST nt c_1)), (admininstr_sc1 (admininstr_st1_CONST nt c_2)), (admininstr_sc1 (admininstr_st1_BINOP nt binop))] [(admininstr_sc1 (admininstr_st1_CONST nt c))]"
 	| binop_trap :
 		"(fun_binop_underscore nt binop c_1 c_2 var_0) \<Longrightarrow>
-		 (var_0 = []) \<Longrightarrow>
+		 (var_0 \<noteq> None) \<Longrightarrow>
+		 ((the (var_0)) = []) \<Longrightarrow>
 		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST nt c_1)), (admininstr_sc1 (admininstr_st1_CONST nt c_2)), (admininstr_sc1 (admininstr_st1_BINOP nt binop))] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| Step_pure__testop :
-		"(c = (fun_testop_underscore nt testop c_1)) \<Longrightarrow>
+		"((fun_testop_underscore nt testop c_1) \<noteq> None) \<Longrightarrow>
+		 (c = (the ((fun_testop_underscore nt testop c_1)))) \<Longrightarrow>
 		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST nt c_1)), (admininstr_sc1 (admininstr_st1_TESTOP nt testop))] [(admininstr_sc1 (admininstr_st1_CONST I32 c))]"
 	| Step_pure__relop :
 		"(fun_relop_underscore nt relop c_1 c_2 var_0) \<Longrightarrow>
-		 (c = var_0) \<Longrightarrow>
+		 (var_0 \<noteq> None) \<Longrightarrow>
+		 (c = (the (var_0))) \<Longrightarrow>
 		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST nt c_1)), (admininstr_sc1 (admininstr_st1_CONST nt c_2)), (admininstr_sc1 (admininstr_st1_RELOP nt relop))] [(admininstr_sc1 (admininstr_st1_CONST I32 c))]"
 	| cvtop_val :
 		"(fun_cvtop__underscore nt_1 nt_2 cvtop c_1 var_0) \<Longrightarrow>
-		 ((length var_0) > 0) \<Longrightarrow>
-		 (c \<in> set var_0) \<Longrightarrow>
+		 ((length (the (var_0))) > 0) \<Longrightarrow>
+		 (var_0 \<noteq> None) \<Longrightarrow>
+		 (c \<in> set (the (var_0))) \<Longrightarrow>
 		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST nt_1 c_1)), (admininstr_sc2 (admininstr_st2_CVTOP nt_2 nt_1 cvtop))] [(admininstr_sc1 (admininstr_st1_CONST nt_2 c))]"
 	| cvtop_trap :
 		"(fun_cvtop__underscore nt_1 nt_2 cvtop c_1 var_0) \<Longrightarrow>
-		 (var_0 = []) \<Longrightarrow>
+		 (var_0 \<noteq> None) \<Longrightarrow>
+		 ((the (var_0)) = []) \<Longrightarrow>
 		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST nt_1 c_1)), (admininstr_sc2 (admininstr_st2_CVTOP nt_2 nt_1 cvtop))] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| ref_is_null_true :
 		"(v_ref = (ref_REF_NULL rt)) \<Longrightarrow>
@@ -8449,21 +10823,25 @@ inductive Step_pure :: "(admininstr list) \<Rightarrow> (admininstr list) \<Righ
 		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VVTESTOP V128 ANY_TRUE))] [(admininstr_sc1 (admininstr_st1_CONST I32 c))]"
 	| Step_pure__vunop :
 		"(fun_vunop_underscore sh vunop c_1 var_0) \<Longrightarrow>
-		 ((length var_0) > 0) \<Longrightarrow>
-		 (c \<in> set var_0) \<Longrightarrow>
+		 ((length (the (var_0))) > 0) \<Longrightarrow>
+		 (var_0 \<noteq> None) \<Longrightarrow>
+		 (c \<in> set (the (var_0))) \<Longrightarrow>
 		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VUNOP sh vunop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| vunop_trap :
 		"(fun_vunop_underscore sh vunop c_1 var_0) \<Longrightarrow>
-		 (var_0 = []) \<Longrightarrow>
+		 (var_0 \<noteq> None) \<Longrightarrow>
+		 ((the (var_0)) = []) \<Longrightarrow>
 		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VUNOP sh vunop))] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| vbinop_val :
 		"(fun_vbinop_underscore sh vbinop c_1 c_2 var_0) \<Longrightarrow>
-		 ((length var_0) > 0) \<Longrightarrow>
-		 (c \<in> set var_0) \<Longrightarrow>
+		 ((length (the (var_0))) > 0) \<Longrightarrow>
+		 (var_0 \<noteq> None) \<Longrightarrow>
+		 (c \<in> set (the (var_0))) \<Longrightarrow>
 		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_2)), (admininstr_sc2 (admininstr_st2_VBINOP sh vbinop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| vbinop_trap :
 		"(fun_vbinop_underscore sh vbinop c_1 c_2 var_0) \<Longrightarrow>
-		 (var_0 = []) \<Longrightarrow>
+		 (var_0 \<noteq> None) \<Longrightarrow>
+		 ((the (var_0)) = []) \<Longrightarrow>
 		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_2)), (admininstr_sc2 (admininstr_st2_VBINOP sh vbinop))] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| vtestop_true :
 		"(ci_1_lst = (lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) c)) \<Longrightarrow>
@@ -8477,13 +10855,15 @@ inductive Step_pure :: "(admininstr list) \<Rightarrow> (admininstr list) \<Righ
 		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc3 (admininstr_st3_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))] [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN 0))))]"
 	| Step_pure__vrelop :
 		"(fun_vrelop_underscore sh vrelop c_1 c_2 var_0) \<Longrightarrow>
-		 (var_0 = c) \<Longrightarrow>
+		 (var_0 \<noteq> None) \<Longrightarrow>
+		 ((the (var_0)) = c) \<Longrightarrow>
 		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_2)), (admininstr_sc3 (admininstr_st3_VRELOP sh vrelop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__vshiftop :
 		"((length var_0_lst) = (length c'_lst)) \<Longrightarrow>
-		 list_all2 (\<lambda> (var_0 :: lane_underscore) (c' :: lane_underscore). (fun_vshiftop_underscore (ishape_X v_Jnn (mk_dim v_N)) vshiftop c' (mk_uN v_n) var_0)) var_0_lst c'_lst \<Longrightarrow>
+		 list_all2 (\<lambda> (var_0 :: (lane_underscore option)) (c' :: lane_underscore). (fun_vshiftop_underscore (ishape_X v_Jnn (mk_dim v_N)) vshiftop c' (mk_uN v_n) var_0)) var_0_lst c'_lst \<Longrightarrow>
 		 (c'_lst = (lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) c_1)) \<Longrightarrow>
-		 (c = (inv_lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) var_0_lst)) \<Longrightarrow>
+		 list_all (\<lambda> (var_0 :: (lane_underscore option)). (var_0 \<noteq> None)) var_0_lst \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (map (\<lambda> (var_0 :: (lane_underscore option)). (the (var_0))) var_0_lst))) \<Longrightarrow>
 		 list_all (\<lambda> (c' :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) c')) c'_lst \<Longrightarrow>
 		 (wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) \<Longrightarrow>
 		 (wf_ishape (ishape_X v_Jnn (mk_dim v_N))) \<Longrightarrow>
@@ -8521,7 +10901,8 @@ inductive Step_pure :: "(admininstr list) \<Rightarrow> (admininstr list) \<Righ
 		 holds_upto (\<lambda> k. (wf_lane_underscore (fun_lanetype (X (lanetype_packtype v_Pnn) (mk_dim v_N))) (mk_lane__1 v_Pnn (c'_lst ! (proj_uN_0 (i_lst ! k)))))) v_N \<Longrightarrow>
 		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_2)), (admininstr_sc3 (admininstr_st3_VSHUFFLE (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_N)) i_lst))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__vsplat :
-		"(c = (inv_lanes_underscore (X v_Lnn (mk_dim v_N)) (repeat v_N (packnum_underscore v_Lnn c_1)))) \<Longrightarrow>
+		"((packnum_underscore v_Lnn c_1) \<noteq> None) \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X v_Lnn (mk_dim v_N)) (repeat v_N (the ((packnum_underscore v_Lnn c_1)))))) \<Longrightarrow>
 		 (wf_shape (X v_Lnn (mk_dim v_N))) \<Longrightarrow>
 		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST (unpack v_Lnn) c_1)), (admininstr_sc3 (admininstr_st3_VSPLAT (X v_Lnn (mk_dim v_N))))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| vextract_lane_num :
@@ -8538,16 +10919,19 @@ inductive Step_pure :: "(admininstr list) \<Rightarrow> (admininstr list) \<Righ
 		 (wf_shape (X (lanetype_packtype pt) (mk_dim v_N))) \<Longrightarrow>
 		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc3 (admininstr_st3_VEXTRACT_LANE (X (lanetype_packtype pt) (mk_dim v_N)) (Some v_sx) i))] [(admininstr_sc1 (admininstr_st1_CONST I32 c_2))]"
 	| Step_pure__vreplace_lane :
-		"(c = (inv_lanes_underscore (X v_Lnn (mk_dim v_N)) (list_update_func (lanes_underscore (X v_Lnn (mk_dim v_N)) c_1) (proj_uN_0 i) (\<lambda> (underscore_underscore :: lane_underscore). (packnum_underscore v_Lnn c_2))))) \<Longrightarrow>
+		"((packnum_underscore v_Lnn c_2) \<noteq> None) \<Longrightarrow>
+		 (c = (inv_lanes_underscore (X v_Lnn (mk_dim v_N)) (list_update_func (lanes_underscore (X v_Lnn (mk_dim v_N)) c_1) (proj_uN_0 i) (\<lambda> (underscore_underscore :: lane_underscore). (the ((packnum_underscore v_Lnn c_2))))))) \<Longrightarrow>
 		 (wf_shape (X v_Lnn (mk_dim v_N))) \<Longrightarrow>
 		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc1 (admininstr_st1_CONST (unpack v_Lnn) c_2)), (admininstr_sc3 (admininstr_st3_VREPLACE_LANE (X v_Lnn (mk_dim v_N)) i))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__vextunop :
 		"(fun_vextunop__underscore sh_1 sh_2 vextunop c_1 var_0) \<Longrightarrow>
-		 (var_0 = c) \<Longrightarrow>
+		 (var_0 \<noteq> None) \<Longrightarrow>
+		 ((the (var_0)) = c) \<Longrightarrow>
 		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc4 (admininstr_st4_VEXTUNOP sh_1 sh_2 vextunop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__vextbinop :
 		"(fun_vextbinop__underscore sh_1 sh_2 vextbinop c_1 c_2 var_0) \<Longrightarrow>
-		 (var_0 = c) \<Longrightarrow>
+		 (var_0 \<noteq> None) \<Longrightarrow>
+		 ((the (var_0)) = c) \<Longrightarrow>
 		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc2 (admininstr_st2_VCONST V128 c_2)), (admininstr_sc4 (admininstr_st4_VEXTBINOP sh_1 sh_2 vextbinop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__vnarrow :
 		"(ci_1_lst = (lanes_underscore (X (lanetype_Jnn Jnn_1) (mk_dim N_1)) c_1)) \<Longrightarrow>
@@ -8567,7 +10951,8 @@ inductive Step_pure :: "(admininstr list) \<Rightarrow> (admininstr list) \<Righ
 	| vcvtop_full :
 		"(((halfop v_vcvtop) = None) \<and> ((zeroop v_vcvtop) = None)) \<Longrightarrow>
 		 (ci_lst = (lanes_underscore (X Lnn_1 (mk_dim v_M)) c_1)) \<Longrightarrow>
-		 (cj_lst_lst = (setproduct_underscore  (map (\<lambda> (ci :: lane_underscore). (vcvtop__underscore (X Lnn_1 (mk_dim v_M)) (X Lnn_2 (mk_dim v_M)) v_vcvtop ci)) ci_lst))) \<Longrightarrow>
+		 list_all (\<lambda> (ci :: lane_underscore). ((vcvtop__underscore (X Lnn_1 (mk_dim v_M)) (X Lnn_2 (mk_dim v_M)) v_vcvtop ci) \<noteq> None)) ci_lst \<Longrightarrow>
+		 (cj_lst_lst = (setproduct_underscore  (map (\<lambda> (ci :: lane_underscore). (the ((vcvtop__underscore (X Lnn_1 (mk_dim v_M)) (X Lnn_2 (mk_dim v_M)) v_vcvtop ci)))) ci_lst))) \<Longrightarrow>
 		 ((length (map (\<lambda> (cj_lst :: (lane_underscore list)). (inv_lanes_underscore (X Lnn_2 (mk_dim v_M)) cj_lst)) cj_lst_lst)) > 0) \<Longrightarrow>
 		 (c \<in> set (map (\<lambda> (cj_lst :: (lane_underscore list)). (inv_lanes_underscore (X Lnn_2 (mk_dim v_M)) cj_lst)) cj_lst_lst)) \<Longrightarrow>
 		 list_all (\<lambda> (ci :: lane_underscore). (wf_lane_underscore (fun_lanetype (X Lnn_1 (mk_dim v_M))) ci)) ci_lst \<Longrightarrow>
@@ -8578,7 +10963,8 @@ inductive Step_pure :: "(admininstr list) \<Rightarrow> (admininstr list) \<Righ
 	| vcvtop_half :
 		"((halfop v_vcvtop) = (Some v_half)) \<Longrightarrow>
 		 (ci_lst = (list_slice (lanes_underscore (X Lnn_1 (mk_dim M_1)) c_1) (fun_half v_half 0 M_2) M_2)) \<Longrightarrow>
-		 (cj_lst_lst = (setproduct_underscore  (map (\<lambda> (ci :: lane_underscore). (vcvtop__underscore (X Lnn_1 (mk_dim M_1)) (X Lnn_2 (mk_dim M_2)) v_vcvtop ci)) ci_lst))) \<Longrightarrow>
+		 list_all (\<lambda> (ci :: lane_underscore). ((vcvtop__underscore (X Lnn_1 (mk_dim M_1)) (X Lnn_2 (mk_dim M_2)) v_vcvtop ci) \<noteq> None)) ci_lst \<Longrightarrow>
+		 (cj_lst_lst = (setproduct_underscore  (map (\<lambda> (ci :: lane_underscore). (the ((vcvtop__underscore (X Lnn_1 (mk_dim M_1)) (X Lnn_2 (mk_dim M_2)) v_vcvtop ci)))) ci_lst))) \<Longrightarrow>
 		 ((length (map (\<lambda> (cj_lst :: (lane_underscore list)). (inv_lanes_underscore (X Lnn_2 (mk_dim M_2)) cj_lst)) cj_lst_lst)) > 0) \<Longrightarrow>
 		 (c \<in> set (map (\<lambda> (cj_lst :: (lane_underscore list)). (inv_lanes_underscore (X Lnn_2 (mk_dim M_2)) cj_lst)) cj_lst_lst)) \<Longrightarrow>
 		 list_all (\<lambda> (ci :: lane_underscore). (wf_lane_underscore (fun_lanetype (X Lnn_1 (mk_dim M_1))) ci)) ci_lst \<Longrightarrow>
@@ -8589,7 +10975,8 @@ inductive Step_pure :: "(admininstr list) \<Rightarrow> (admininstr list) \<Righ
 	| vcvtop_zero :
 		"((zeroop v_vcvtop) = (Some ZERO)) \<Longrightarrow>
 		 (ci_lst = (lanes_underscore (X (lanetype_numtype nt_1) (mk_dim M_1)) c_1)) \<Longrightarrow>
-		 (cj_lst_lst = (setproduct_underscore  ((map (\<lambda> (ci :: lane_underscore). (vcvtop__underscore (X (lanetype_numtype nt_1) (mk_dim M_1)) (X (lanetype_numtype nt_2) (mk_dim M_2)) v_vcvtop ci)) ci_lst) @ (repeat M_1 [(mk_lane__0 nt_2 (fun_zero nt_2))])))) \<Longrightarrow>
+		 list_all (\<lambda> (ci :: lane_underscore). ((vcvtop__underscore (X (lanetype_numtype nt_1) (mk_dim M_1)) (X (lanetype_numtype nt_2) (mk_dim M_2)) v_vcvtop ci) \<noteq> None)) ci_lst \<Longrightarrow>
+		 (cj_lst_lst = (setproduct_underscore  ((map (\<lambda> (ci :: lane_underscore). (the ((vcvtop__underscore (X (lanetype_numtype nt_1) (mk_dim M_1)) (X (lanetype_numtype nt_2) (mk_dim M_2)) v_vcvtop ci)))) ci_lst) @ (repeat M_1 [(mk_lane__0 nt_2 (fun_zero nt_2))])))) \<Longrightarrow>
 		 ((length (map (\<lambda> (cj_lst :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_numtype nt_2) (mk_dim M_2)) cj_lst)) cj_lst_lst)) > 0) \<Longrightarrow>
 		 (c \<in> set (map (\<lambda> (cj_lst :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_numtype nt_2) (mk_dim M_2)) cj_lst)) cj_lst_lst)) \<Longrightarrow>
 		 list_all (\<lambda> (ci :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_numtype nt_1) (mk_dim M_1))) ci)) ci_lst \<Longrightarrow>
@@ -9508,8 +11895,8 @@ inductive fun_instantiate :: "store \<Rightarrow> module \<Rightarrow> (externad
 		 list_all2 (\<lambda> (expr_E_lst_2 :: (expr list)) (ref_lst_3 :: (ref list)). list_all2 (\<lambda> (expr_E_2 :: expr) (ref_7 :: ref). (Eval_expr z expr_E_2 z [(val_ref ref_7)])) expr_E_lst_2 ref_lst_3) expr_E_lst_lst ref_lst_lst \<Longrightarrow>
 		 ((s', v_moduleinst) = var_2) \<Longrightarrow>
 		 (f = \<lparr> LOCALS = [], frame_MODULE = v_moduleinst \<rparr>) \<Longrightarrow>
-		 holds_upto (\<lambda> i_71327. (i_71327 < (length elem_lst))) n_E \<Longrightarrow>
-		 (instr_E_lst = (concat_underscore  (mkseq (\<lambda> i_71327. (runelem (elem_lst ! i_71327) (mk_uN i_71327))) n_E))) \<Longrightarrow>
+		 holds_upto (\<lambda> i_71388. (i_71388 < (length elem_lst))) n_E \<Longrightarrow>
+		 (instr_E_lst = (concat_underscore  (mkseq (\<lambda> i_71388. (runelem (elem_lst ! i_71388) (mk_uN i_71388))) n_E))) \<Longrightarrow>
 		 holds_upto (\<lambda> j_17. ((rundata (data_lst ! j_17) (mk_uN j_17)) \<noteq> None)) n_D \<Longrightarrow>
 		 holds_upto (\<lambda> j_17. (j_17 < (length data_lst))) n_D \<Longrightarrow>
 		 (instr_D_lst = (concat_underscore  (mkseq (\<lambda> j_17. (the ((rundata (data_lst ! j_17) (mk_uN j_17))))) n_D))) \<Longrightarrow>
@@ -9525,7 +11912,7 @@ inductive fun_instantiate :: "store \<Rightarrow> module \<Rightarrow> (externad
 		 (wf_frame \<lparr> LOCALS = [], frame_MODULE = moduleinst_init \<rparr>) \<Longrightarrow>
 		 (wf_state (mk_state s f_init)) \<Longrightarrow>
 		 (wf_frame \<lparr> LOCALS = [], frame_MODULE = v_moduleinst \<rparr>) \<Longrightarrow>
-		 holds_upto (\<lambda> i_71330. (wf_uN 32 (mk_uN i_71330))) n_E \<Longrightarrow>
+		 holds_upto (\<lambda> i_71391. (wf_uN 32 (mk_uN i_71391))) n_E \<Longrightarrow>
 		 holds_upto (\<lambda> j_18. (wf_uN 32 (mk_uN j_18))) n_D \<Longrightarrow>
 		 fun_instantiate s v_module externaddr_lst (mk_config (mk_state s' f) ((map (\<lambda> (instr_E :: instr). (admininstr_instr instr_E)) instr_E_lst) @ ((map (\<lambda> (instr_D :: instr). (admininstr_instr instr_D)) instr_D_lst) @ (option_to_list (map_option (\<lambda> (x :: idx). (admininstr_sc1 (admininstr_st1_CALL x))) x_opt)))))"
 
@@ -9723,7 +12110,7 @@ inductive Frame_ok :: "store \<Rightarrow> frame \<Rightarrow> res_context \<Rig
 		 (wf_context C) \<Longrightarrow>
 		 (wf_frame \<lparr> LOCALS = val_lst, frame_MODULE = v_moduleinst \<rparr>) \<Longrightarrow>
 		 (wf_context \<lparr> context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = t_lst, LABELS = [], context_RETURN = None \<rparr>) \<Longrightarrow>
-		 Frame_ok s \<lparr> LOCALS = val_lst, frame_MODULE = v_moduleinst \<rparr> (append_res_context C \<lparr> context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = t_lst, LABELS = [], context_RETURN = None \<rparr>)"
+		 Frame_ok s \<lparr> LOCALS = val_lst, frame_MODULE = v_moduleinst \<rparr> (append_res_context \<lparr> context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = t_lst, LABELS = [], context_RETURN = None \<rparr> C)"
 
 (* Mutual Recursion at: ../specification/wasm-2.0/B-soundness.spectec:68.1-73.36 *)
 inductive Instr_ok2 :: "store \<Rightarrow> res_context \<Rightarrow> admininstr \<Rightarrow> functype \<Rightarrow> bool"

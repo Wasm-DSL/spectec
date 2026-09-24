@@ -475,10 +475,10 @@ theorem progress:
         show ?case using mk_State_ok(2,1,3-) proof(induction s' f "strip C'")
           case (mk_Frame_ok s v_moduleinst C''' t_lst val_lst)
           have "t_inst_match C'''
-     (append_res_context C'''
+     (append_res_context
        \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
           context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = t_lst, LABELS = [],
-          context_RETURN = None\<rparr>)" proof(cases C''')
+          context_RETURN = None\<rparr> C''')" proof(cases C''')
             case (fields context_TYPES context_FUNCS context_GLOBALS context_TABLES 
                 context_MEMS context_ELEMS context_DATAS context_LOCALS LABELS context_RETURN)
             then show ?thesis using t_inst_match_def append_res_context_def
@@ -506,10 +506,10 @@ theorem progress:
         show ?case using mk_State_ok(2,1,3-) proof(induction s' f "strip C'")
           case (mk_Frame_ok s v_moduleinst C''' t_lst val_lst)
           have "t_inst_match C'''
-     (append_res_context C'''
+     (append_res_context
        \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
           context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = t_lst, LABELS = [],
-          context_RETURN = None\<rparr>)" proof(cases C''')
+          context_RETURN = None\<rparr> C''')" proof(cases C''')
             case (fields context_TYPES context_FUNCS context_GLOBALS context_TABLES 
                 context_MEMS context_ELEMS context_DATAS context_LOCALS LABELS context_RETURN)
             then show ?thesis using t_inst_match_def append_res_context_def
