@@ -144,6 +144,9 @@ proof -
   qed
 qed
 
+lemma list_splitable: assumes "length l \<ge> n" shows "\<exists> l1 l2. l = l1 @ l2 \<and> length l2 = n" 
+  using assms 
+  by (metis append_take_drop_id diff_diff_cancel length_drop)
 
 lemma default_not_bot: assumes "t \<noteq> BOT" shows "default_underscore t \<noteq> None" 
 proof(cases t) qed(auto simp add: assms default_underscore.domintros default_underscore.psimps)
@@ -187,9 +190,16 @@ next
   qed
 qed
 
+lemma Resulttype_sub_length: assumes "Resulttype_sub (mk_list l1) (mk_list l2)" 
+  shows "length l1 = length l2" using assms
+  by (simp add: Resulttype_sub.simps)
+
+
 lemma list_all_map_impl:
   assumes "list_all P l" "\<forall> x. P x \<longrightarrow> Q (f x)" shows "list_all Q (map f l)"
   using assms proof(induction l) qed(auto)
+
+
 
 
 lemma list_all_map_impl_inv:
@@ -1414,9 +1424,126 @@ assms(6) proof(induction "C")
         admininstr_sc1 admininstr_st1_RETURN] @ aft))" using not_br_return_def by simp
                       then show ?thesis proof
                         assume "\<exists>vs l aft. admininstr_lst = map admininstr_val vs @ [admininstr_sc0 (admininstr_st0_BR l)] @ aft"
-                          then show "Ex (Step
+                        then obtain vs l aft where eq: "admininstr_lst = map admininstr_val vs @ [admininstr_sc0 (admininstr_st0_BR l)] @ aft"
+                          by blast 
+                        then show "Ex (Step
          (mk_config (mk_state s f)
-           [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))" sorry
+           [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))" 
+                        proof(cases l)
+                          case (mk_uN x)
+                          then show ?thesis proof(cases x)
+                            case 0
+                            obtain t2 where split:
+    " Instrs_ok2 s
+     (append_res_context
+       \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+          context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
+          LABELS = [mk_list t'_lst], context_RETURN = None\<rparr>
+       C)
+     (map admininstr_val vs) (mk_functype (mk_list []) t2)"
+  "Instrs_ok2 s
+     (append_res_context
+       \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+          context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
+          LABELS = [mk_list t'_lst], context_RETURN = None\<rparr>
+       C)
+     ([admininstr_sc0 (admininstr_st0_BR l)] @ aft) (mk_functype t2 (mk_list t_lst))"
+                              using assms(3) eq inv_seq by blast
+                            then obtain t3 where 
+  "Instrs_ok2 s
+     (append_res_context
+       \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+          context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
+          LABELS = [mk_list t'_lst], context_RETURN = None\<rparr>
+       C)
+     ([admininstr_sc0 (admininstr_st0_BR l)]) (mk_functype t2 t3)"
+"Instrs_ok2 s
+     (append_res_context
+       \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+          context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
+          LABELS = [mk_list t'_lst], context_RETURN = None\<rparr>
+       C)
+     (aft) (mk_functype t3 (mk_list t_lst))"
+                              using inv_seq by blast
+                            then obtain t2' t3' where 
+  "Instr_ok2 s
+     (append_res_context
+       \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+          context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
+          LABELS = [mk_list t'_lst], context_RETURN = None\<rparr>
+       C)
+     (admininstr_sc0 (admininstr_st0_BR l)) (mk_functype t2' t3')" 
+                              and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+                              using inv_one_admininstr by blast
+                            then have "Instr_ok
+     (append_res_context
+       \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+          context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
+          LABELS = [mk_list t'_lst], context_RETURN = None\<rparr>
+       C)
+     (instr_sc0 (BR l)) (mk_functype t2' t3')" using inv_plain admininstr_instr.domintros 
+    admininstr_instr.psimps by fastforce
+                            then obtain t_lst t_1_lst t_2_lst where hyps:
+                              "proj_uN_0 l < length (LABELS (append_res_context
+       \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+          context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
+          LABELS = [mk_list t'_lst], context_RETURN = None\<rparr>
+       C))"
+   "proj_list_0 (LABELS (append_res_context
+       \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
+          context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [],
+          LABELS = [mk_list t'_lst], context_RETURN = None\<rparr>
+       C) ! proj_uN_0 l) = t_lst"
+  "mk_functype (mk_list (t_1_lst @ t_lst)) (mk_list t_2_lst) = mk_functype t2' t3'"
+                              using inv_br by blast
+                            have eqt: "t_lst = t'_lst" proof(cases C)
+                              case (fields context_TYPES context_FUNCS context_GLOBALS context_TABLES context_MEMS context_ELEMS context_DATAS context_LOCALS LABELS context_RETURN)
+                              then show ?thesis using hyps(2) 0 mk_uN proj_uN_0.domintros
+    proj_uN_0.psimps append_res_context_def proj_list_0.domintros proj_list_0.psimps
+                                by fastforce
+                            qed 
+                            have "mk_instrtype (mk_list []) (mk_list (map typeofval vs)) <ti: 
+          mk_instrtype (mk_list []) t2" using split(1) inv_const_list
+                              by auto
+                            
+                              
+                              then have "length vs \<ge> length t'_lst"
+                                using subt eqt hyps(3) proof(induction "mk_instrtype (mk_list [])
+                                  (mk_list (map typeofval vs))" "mk_instrtype (mk_list []) t2")
+                                case (mk_Instrtype_sub t_lst2 t_11'_lst t_22_lst t'_lst' t_12'_lst)
+                                show ?case using mk_Instrtype_sub(7,1-6,8-)
+                                proof(induction "mk_instrtype t2' t3'" "mk_instrtype t2 t3")
+                                  case (mk_Instrtype_sub t_21_lst' t_lst'' t_11'_lst' t_22_lst'
+                                      t'_lst'' t_12'_lst' t_11_lst' t_12_lst')
+                                  then show ?case using Resulttype_sub_length
+                                    by (metis
+                                        Instrtype_sub.mk_Instrtype_sub[of "t_lst'' @ t_11'_lst'" t_lst'' t_11'_lst' "t_lst'' @ t_11'_lst'"
+                                          t_lst'' t_11'_lst' t_11'_lst' t_11'_lst']
+                                        Instrtype_sub.mk_Instrtype_sub[of "t_1_lst @ t'_lst" t_1_lst t'_lst "t_1_lst @ t'_lst" t_1_lst t'_lst
+                                          t'_lst t'_lst]
+                                        Nil_is_append_conv[of t_lst2 t_11'_lst] Resulttype_sub_refl[of "mk_list t_lst''"]
+                                        Resulttype_sub_refl[of "mk_list t_11'_lst'"] Resulttype_sub_refl[of "mk_list t_1_lst"]
+                                        Resulttype_sub_refl[of "mk_list t'_lst"]
+                                        functype.inject[of t2' t3' "mk_list (t_1_lst @ t'_lst)" "mk_list t_2_lst"] label.hyps(9)
+                                        le_trans[of v_n "length t_11'_lst'" "length vs"] length_0_conv[of t'_lst'] length_map[of typeofval vs]
+                                        list.size(3) self_append_conv2[of t_12'_lst "t_lst2 @ t_11'_lst"]
+                                        subtyping_length_r[of t_11'_lst' t_11'_lst' "t_lst'' @ t_11'_lst'" "t_lst'' @ t_11'_lst'"]
+                                        subtyping_length_r[of t'_lst t'_lst "t_1_lst @ t'_lst" "t_1_lst @ t'_lst"])
+                                qed
+                              qed
+                            then obtain vs1 vs2 where "vs = vs1 @ vs2" "length vs2 = length t'_lst"
+                              using list_splitable by blast
+                            then show ?thesis 
+                              using eq br_zero[of "length t'_lst" vs2 instr'_lst vs1]
+                                Step.intros(1) mk_uN 0 by fastforce
+                          next
+                            case (Suc nat)
+                            then show ?thesis 
+                              using eq br_succ[of "length t'_lst" instr'_lst vs "mk_uN nat"] 
+                                Step.intros(1) mk_uN proj_uN_0.domintros proj_uN_0.psimps
+                              by fastforce 
+                          qed
+                        qed
                         next 
                           assume "\<exists>vs aft. admininstr_lst = map admininstr_val vs @ [admininstr_sc1 admininstr_st1_RETURN] @ aft"
                           then obtain vs aft where "admininstr_lst = map admininstr_val vs @ [admininstr_sc1 admininstr_st1_RETURN] @ aft"
@@ -1425,7 +1552,7 @@ assms(6) proof(induction "C")
          (mk_config (mk_state s f)
            [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))" 
                             using return_label[of "length t'_lst" instr'_lst vs] Step.intros(1)
-                            sorry (* fix return_label *)
+                            by fastforce
                           qed
                     qed
           qed done
@@ -1561,18 +1688,197 @@ assms(6) proof(induction "C")
                 then show ?thesis
                 proof
                   assume " \<exists>vs l aft. admininstr_lst = map admininstr_val vs @ [admininstr_sc0 (admininstr_st0_BR l)] @ aft"
-                  then obtain vs l aft where 
+                  then obtain vs l aft where eq:
       "admininstr_lst = map admininstr_val vs @ [admininstr_sc0 (admininstr_st0_BR l)] @ aft" by blast
+                   have "Instrs_ok2 s'
+ (append_res_context
+   \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+      context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+      context_RETURN = Some (mk_list t_lst')\<rparr>
+   C')
+ admininstr_lst (mk_functype (mk_list []) (mk_list t_lst'))"
+                    using assms(2) inv_expr by simp
+           then obtain t2 where split:
+    " Instrs_ok2 s'
+     (append_res_context
+   \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+      context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+      context_RETURN = Some (mk_list t_lst')\<rparr>
+   C')
+     (map admininstr_val vs) (mk_functype (mk_list []) t2)"
+  "Instrs_ok2 s'
+     (append_res_context
+   \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+      context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+      context_RETURN = Some (mk_list t_lst')\<rparr>
+   C')
+     ([admininstr_sc0 (admininstr_st0_BR l)] @ aft) (mk_functype t2 (mk_list t_lst'))"
+                                using eq inv_seq by blast
+                            then obtain t3 where 
+  "Instrs_ok2 s'
+      (append_res_context
+   \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+      context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+      context_RETURN = Some (mk_list t_lst')\<rparr>
+   C')
+     ([admininstr_sc0 (admininstr_st0_BR l)]) (mk_functype t2 t3)"
+"Instrs_ok2 s'
+      (append_res_context
+   \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+      context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+      context_RETURN = Some (mk_list t_lst')\<rparr>
+   C')
+     (aft) (mk_functype t3 (mk_list t_lst'))"
+                              using inv_seq by blast
+                            then obtain t2' t3' where 
+  "Instr_ok2 s'
+     (append_res_context
+   \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+      context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+      context_RETURN = Some (mk_list t_lst')\<rparr>
+   C')
+     (admininstr_sc0 (admininstr_st0_BR l)) (mk_functype t2' t3')" 
+                              and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+                              using inv_one_admininstr by blast
+                            then have "Instr_ok
+      (append_res_context
+   \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+      context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+      context_RETURN = Some (mk_list t_lst')\<rparr>
+   C')
+     (instr_sc0 (BR l)) (mk_functype t2' t3')" using inv_plain admininstr_instr.domintros 
+    admininstr_instr.psimps by fastforce
+                            then have hyp: "proj_uN_0 l < length (LABELS  (append_res_context
+   \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+      context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+      context_RETURN = Some (mk_list t_lst')\<rparr>
+   C'))" 
+                              using inv_br by blast
+                  have "False" using assms(1) hyp proof(induction s' f' C')
+                    case (mk_Frame_ok s v_moduleinst C t_lst val_lst)
+                    show ?case using mk_Frame_ok(1,8) 
+                    proof(induction s v_moduleinst C)
+                      case (mk_Moduleinst_ok functype_lst globaladdr_lst globaltype_lst s 
+                            funcaddr_lst functype_F_lst memaddr_lst memtype_lst tableaddr_lst 
+                            tabletype_lst exportinst_lst dataaddr_lst datatype_lst elemaddr_lst 
+                            elemtype_lst)
+                      show ?case using mk_Moduleinst_ok(27) append_res_context_def by simp
+                    qed
+                  qed
                   then show "Ex (Step
          (mk_config (mk_state s' f) [admininstr_sc8 (FRAME_underscore (length t_lst') f' admininstr_lst)]))"
-                    sorry
+                    by simp
                 next 
                   assume " \<exists>vs aft. admininstr_lst = map admininstr_val vs @ [admininstr_sc1 admininstr_st1_RETURN] @ aft"
                   then obtain vs aft where 
-  "admininstr_lst = map admininstr_val vs @ [admininstr_sc1 admininstr_st1_RETURN] @ aft" by blast
+  eq: "admininstr_lst = map admininstr_val vs @ [admininstr_sc1 admininstr_st1_RETURN] @ aft" by blast
+                  have "Instrs_ok2 s'
+ (append_res_context
+   \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+      context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+      context_RETURN = Some (mk_list t_lst')\<rparr>
+   C')
+ admininstr_lst (mk_functype (mk_list []) (mk_list t_lst'))"
+                    using assms(2) inv_expr by simp
+           then obtain t2 where split:
+    " Instrs_ok2 s'
+     (append_res_context
+   \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+      context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+      context_RETURN = Some (mk_list t_lst')\<rparr>
+   C')
+     (map admininstr_val vs) (mk_functype (mk_list []) t2)"
+  "Instrs_ok2 s'
+     (append_res_context
+   \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+      context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+      context_RETURN = Some (mk_list t_lst')\<rparr>
+   C')
+     ([admininstr_sc1 admininstr_st1_RETURN] @ aft) (mk_functype t2 (mk_list t_lst'))"
+                                using eq inv_seq by blast
+                            then obtain t3 where 
+  "Instrs_ok2 s'
+      (append_res_context
+   \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+      context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+      context_RETURN = Some (mk_list t_lst')\<rparr>
+   C')
+     ([admininstr_sc1 admininstr_st1_RETURN]) (mk_functype t2 t3)"
+"Instrs_ok2 s'
+      (append_res_context
+   \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+      context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+      context_RETURN = Some (mk_list t_lst')\<rparr>
+   C')
+     (aft) (mk_functype t3 (mk_list t_lst'))"
+                              using inv_seq by blast
+                            then obtain t2' t3' where 
+  "Instr_ok2 s'
+     (append_res_context
+   \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+      context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+      context_RETURN = Some (mk_list t_lst')\<rparr>
+   C')
+     (admininstr_sc1 admininstr_st1_RETURN) (mk_functype t2' t3')" 
+                              and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+                              using inv_one_admininstr by blast
+                            then have "Instr_ok
+      (append_res_context
+   \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+      context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+      context_RETURN = Some (mk_list t_lst')\<rparr>
+   C')
+     (instr_sc1 RETURN) (mk_functype t2' t3')" using inv_plain admininstr_instr.domintros 
+    admininstr_instr.psimps by fastforce
+                            then obtain t_lst t_1_lst t_2_lst where hyps:
+                              "context_RETURN  (append_res_context
+   \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
+      context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [],
+      context_RETURN = Some (mk_list t_lst')\<rparr>
+   C') = Some (mk_list t_lst)"
+                              "mk_functype (mk_list (t_1_lst @ t_lst)) (mk_list t_2_lst) = mk_functype t2' t3'"
+                              using inv_return by blast
+                            have eqt: "t_lst = t_lst'" proof(cases C)
+                              case (fields context_TYPES context_FUNCS context_GLOBALS context_TABLES context_MEMS context_ELEMS context_DATAS context_LOCALS LABELS context_RETURN)
+                              then show ?thesis using hyps(1) proj_uN_0.domintros
+    proj_uN_0.psimps append_res_context_def proj_list_0.domintros proj_list_0.psimps
+                                by fastforce
+                            qed 
+                            have "mk_instrtype (mk_list []) (mk_list (map typeofval vs)) <ti: 
+          mk_instrtype (mk_list []) t2" using split(1) inv_const_list
+                              by auto
+                            
+                              
+                              then have "length vs \<ge> length t_lst'"
+                                using subt eqt hyps(2) proof(induction "mk_instrtype (mk_list [])
+                                  (mk_list (map typeofval vs))" "mk_instrtype (mk_list []) t2")
+                                case (mk_Instrtype_sub t_lst2 t_11'_lst t_22_lst t'_lst' t_12'_lst)
+                                show ?case using mk_Instrtype_sub(7,1-6,8-)
+                                proof(induction "mk_instrtype t2' t3'" "mk_instrtype t2 t3")
+                                  case (mk_Instrtype_sub t_21_lst' t_lst'' t_11'_lst' t_22_lst'
+                                      t'_lst'' t_12'_lst' t_11_lst' t_12_lst')
+                                  then show ?case using Resulttype_sub_length 
+                                    by (metis
+                                        Instrtype_sub.mk_Instrtype_sub[of "t_lst'' @ t_11'_lst'" t_lst'' t_11'_lst' "t_lst'' @ t_11'_lst'"
+                                          t_lst'' t_11'_lst' t_11'_lst' t_11'_lst']
+                                        Instrtype_sub.mk_Instrtype_sub[of "t_1_lst @ t_lst'" t_1_lst t_lst' "t_1_lst @ t_lst'" t_1_lst t_lst'
+                                          t_lst' t_lst']
+                                        Nil_is_append_conv[of t_lst2 t_11'_lst] Resulttype_sub_refl[of "mk_list t_lst''"]
+                                        Resulttype_sub_refl[of "mk_list t_11'_lst'"] Resulttype_sub_refl[of "mk_list t_1_lst"]
+                                        Resulttype_sub_refl[of "mk_list t_lst'"]
+                                        functype.inject[of t2' t3' "mk_list (t_1_lst @ t_lst')" "mk_list t_2_lst"] Instr_ok2__frame.hyps(9)
+                                        le_trans[of v_n "length t_11'_lst'" "length vs"] length_0_conv[of t'_lst'] length_map[of typeofval vs]
+                                        list.size(3) self_append_conv2[of t_12'_lst "t_lst2 @ t_11'_lst"]
+                                        subtyping_length_r[of t_11'_lst' t_11'_lst' "t_lst'' @ t_11'_lst'" "t_lst'' @ t_11'_lst'"]
+                                        subtyping_length_r[of t_lst' t_lst' "t_1_lst @ t_lst'" "t_1_lst @ t_lst'"]) qed
+                              qed
+                            then obtain vs1 vs2 where "vs = vs1 @ vs2" "length vs2 = length t_lst'"
+                              using list_splitable by blast
+
                   then show "Ex (Step
          (mk_config (mk_state s' f) [admininstr_sc8 (FRAME_underscore (length t_lst') f' admininstr_lst)]))"
-                    sorry
+                    using return_frame[of "length t_lst'" vs2 f' vs1 aft] Step.intros(1) eq
+                    by fastforce
                   qed
               qed
         qed done 
@@ -1789,8 +2095,8 @@ assms(6) proof(induction "C")
                          case (Cons a list)
                          then show ?thesis using True trap_vals[of "vs"] 
                               const assms(14)
-                              Step.intros(1) sorry (* need to allow admininstr on RHS of trap *)
-                          (* by auto *)
+                              Step.intros(1) assms(15)
+                           by fastforce 
                        qed
                 next
                   case False
