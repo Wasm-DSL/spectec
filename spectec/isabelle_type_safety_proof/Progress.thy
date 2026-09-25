@@ -151,6 +151,69 @@ lemma list_splitable: assumes "length l \<ge> n" shows "\<exists> l1 l2. l = l1 
 lemma default_not_bot: assumes "t \<noteq> BOT" shows "default_underscore t \<noteq> None" 
 proof(cases t) qed(auto simp add: assms default_underscore.domintros default_underscore.psimps)
 
+lemma Inn_Fnn_diff: "numtype_Inn x \<noteq> numtype_Fnn y" 
+proof(induction x)
+  case Inn_I32
+  then show ?case proof(induction y) qed(auto simp add: numtype_Inn.domintros numtype_Inn.psimps
+numtype_Fnn.domintros numtype_Fnn.psimps)
+next
+  case Inn_I64
+  then show ?case proof(induction y) qed(auto simp add: numtype_Inn.domintros numtype_Inn.psimps
+numtype_Fnn.domintros numtype_Fnn.psimps)
+qed
+
+lemma fun_unop_underscore_total:
+  assumes "wf_val (val_CONST nt c)" "wf_unop_underscore nt op"
+  shows "fun_unop_underscore nt op c \<noteq> None"
+  using assms proof(induction "val_CONST nt c")
+  case val_case_0
+  then show ?case proof(induction nt c)
+    case (num__case_0 v_Inn var_x v_numtype)
+    show ?case using num__case_0(4,1-3) proof(induction v_numtype op)
+      case (unop__case_0 v_numtype v_Inn' var_x')
+      then have eqv: "v_Inn = v_Inn'"
+        by (metis numtype.simps(2) numtype_Inn.elims)
+      then show ?case using unop__case_0 proof(induction v_Inn)
+        case Inn_I32
+        then show ?case using numtype_Inn.domintros numtype_Inn.psimps 
+fun_unop_underscore.domintros fun_unop_underscore.psimps fun_unop__I32.domintros
+fun_unop__I32.psimps proof(induction var_x') qed(auto)
+      next
+        case Inn_I64
+        then show ?case using numtype_Inn.domintros numtype_Inn.psimps 
+fun_unop_underscore.domintros fun_unop_underscore.psimps fun_unop__I64.domintros
+fun_unop__I64.psimps proof(induction var_x') qed(auto)
+      qed
+    next
+      case (unop__case_1 v_numtype v_Fnn var_x)
+      then show ?case using Inn_Fnn_diff by simp
+    qed
+  next
+    case (num__case_1 v_Fnn var_x v_numtype)
+    show ?case using num__case_1(3,1-2) proof(induction v_numtype op)
+      case (unop__case_0 v_numtype v_Inn var_x')
+      then show ?case using Inn_Fnn_diff
+        by blast
+    next
+      case (unop__case_1 v_numtype v_Fnn' var_x')
+      then have eqv: "v_Fnn = v_Fnn'"
+        by (metis Fnn.exhaust numtype.distinct(11) numtype_Fnn.domintros(1,2) numtype_Fnn.psimps(1,2))
+      then show ?case using unop__case_1 proof(induction v_Fnn)
+        case Fnn_F32
+        then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps 
+fun_unop_underscore.domintros fun_unop_underscore.psimps fun_unop__F32.domintros
+fun_unop__F32.psimps proof(induction var_x') qed(auto)
+      next
+        case Fnn_F64
+        then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps 
+fun_unop_underscore.domintros fun_unop_underscore.psimps fun_unop__F64.domintros
+fun_unop__F64.psimps proof(induction var_x') qed(auto)
+      qed
+    qed
+  qed
+qed
+
+
 lemma reducible_left_v:
   assumes "Ex (Step (mk_config s es))" "wf_config (mk_config s es)" (* "wf_config c'"  *)  
   shows "Ex (Step (mk_config s (map admininstr_val vs @ 
@@ -224,40 +287,47 @@ next
   qed
 qed
 
-lemma typeofval_is_i32: assumes "Valtype_sub (typeofval v) valtype_I32" 
-  shows "\<exists> c. v = val_CONST I32 c"
-  using assms proof(induction "typeofval v" valtype_I32)
+
+
+lemma typeofval_is_nt: assumes "Valtype_sub (typeofval v) (valtype_numtype nt)" 
+  shows "\<exists> c. v = val_CONST nt c"
+  using assms proof(induction "typeofval v" "valtype_numtype nt")
   case refl
   then show ?case proof(cases v)
   case (val_CONST x11 x12)
   then show ?thesis using assms typeofval.psimps typeofval.domintros valtype_numtype.domintros 
       valtype_numtype.psimps refl
-    by (metis lanetype_numtype.cases valtype.distinct(1,3,5))
+    by (metis (full_types) lanetype_numtype.cases valtype.distinct(1,15,17,27,3,5))
 next
   case (val_VCONST x21 x22)
   then show ?thesis proof(cases x21)
     case V128
     then show ?thesis using val_VCONST assms typeofval.psimps typeofval.domintros 
       valtype_vectype.domintros valtype_vectype.psimps refl
-      by simp
+      by (metis valtype.distinct(19,29,37,7) valtype_numtype.elims)
   qed
 next
   case (val_REF_NULL x3)
   then show ?thesis using assms typeofval.psimps typeofval.domintros valtype_reftype.domintros
-    valtype_reftype.psimps refl proof(induction x3) qed(simp_all)
+    valtype_reftype.psimps refl
+    by (metis valtype.distinct(11,21,23,31,33,39,41,9) valtype_numtype.elims[of nt valtype_FUNCREF]
+        valtype_numtype.elims[of nt "typeofval (val_REF_HOST_ADDR undefined)"]
+        valtype_reftype.cases[of x3]) 
 next
   case (val_REF_FUNC_ADDR x4)
-  then show ?thesis using assms refl typeofval.psimps typeofval.domintros by simp
+  then show ?thesis using assms refl typeofval.psimps typeofval.domintros
+    by (metis valtype.distinct(21,31,39,9) valtype_numtype.elims) 
 next
   case (val_REF_HOST_ADDR x5)
-  then show ?thesis using assms refl typeofval.psimps typeofval.domintros by simp
+  then show ?thesis using assms refl typeofval.psimps typeofval.domintros
+    by (metis valtype.distinct(11,23,33,41) valtype_numtype.elims)
 qed
 next
   case bot
   then show ?case proof(induction v)
     case (val_CONST x1 x2)
     then show ?case using typeofval.domintros typeofval.psimps
-      by (metis lanetype_numtype.cases valtype.distinct(25,35,43) valtype_numtype.simps(2,3,4))
+      by (metis lanetype_numtype.cases valtype.distinct(13,25,35,43) valtype_numtype.simps(1,2,3,4))
   next
     case (val_VCONST x1 x2)
     then show ?case using typeofval.domintros typeofval.psimps
@@ -276,6 +346,10 @@ next
   qed
 qed
 
+
+lemma typeofval_is_i32: assumes "Valtype_sub (typeofval v) valtype_I32" 
+  shows "\<exists> c. v = val_CONST I32 c"
+  using assms typeofval_is_nt[of v I32] valtype_numtype.domintros valtype_numtype.psimps by auto
 
 theorem progress:
   assumes "Config_ok (mk_config s es) ts"
@@ -757,8 +831,77 @@ theorem progress:
         by fastforce
     next
       case (call_indirect x C lim y t_1_lst)
-      thm call_indirect_call call_indirect_trap
-      then show ?case sorry
+      obtain ts1 ts2 where ts: "map typeofval vs = ts1 @ ts2" "list_all2 Valtype_sub ts1 t_1_lst" 
+        "list_all2 Valtype_sub ts2 [valtype_I32]" 
+        using list_all2_append2 call_indirect(11)
+        by meson
+      then obtain vs1 vs2 where vs: "vs = vs1 @ vs2" "map typeofval vs1 = ts1" "map typeofval vs2 = ts2" 
+        using map_is_app by blast
+      obtain t where ts2: "ts2 = [t]" using ts(3)
+        by (metis ts(3) list.exhaust list_all2_Cons2 list.rel_distinct(2))
+      then obtain c where c: "vs2 = [val_CONST I32 c]" using ts(3) typeofval_is_i32 vs(3)
+        by blast
+      have "wf_val (val_CONST I32 c)" using call_indirect vs c by simp
+      then have projc: "proj_num__0 c \<noteq> None" using c proof(induction "val_CONST I32 c")
+                 case (val_case_0)
+                 then show ?case proof(induction I32 c)
+                   case (num__case_0 v_Inn var_x)
+                   then show ?case using proj_num__0.psimps proj_num__0.domintros
+                     by fast
+                 next
+                   case (num__case_1 v_Fnn var_x)
+                   then have "False"
+                   proof(cases v_Fnn)
+                     case Fnn_F32
+                     then show ?thesis using num__case_1(2)
+                        by (simp add: numtype_Fnn.domintros(1) numtype_Fnn.psimps(1)) 
+                   next
+                     case Fnn_F64
+                     then show ?thesis using num__case_1(2)
+                       by (simp add: numtype_Fnn.domintros(2) numtype_Fnn.psimps(2)) 
+                   qed
+                   then show ?case by simp
+                 qed
+               qed  
+               have wfc: "wf_admininstr (admininstr_sc1 (admininstr_st1_CONST I32 c))"
+                   using call_indirect(12) vs c wf_admininstr_val admininstr_val.domintros 
+        admininstr_val.psimps
+                   by fastforce
+                 have wfc: "wf_config
+     (mk_config (mk_state s' f) [admininstr_sc1 (admininstr_st1_CONST I32 c), 
+            admininstr_sc1 (admininstr_st1_CALL_INDIRECT x y)])"
+                   using call_indirect(15) wfc
+                 proof(induction "mk_config (mk_state s' f) [admininstr_instr 
+                        (instr_sc0 (CALL_INDIRECT x y))]")
+                   case config_case_0
+                   then show ?case using isabelle_reference_output_wasm2.config_case_0
+                     by auto
+                 qed
+                 have vs: "map admininstr_val vs = map admininstr_val vs1 @ [admininstr_sc1 
+                      (admininstr_st1_CONST I32 c)]"
+                   using vs(1) c admininstr_val.domintros(1) 
+                      admininstr_val.psimps(1)
+                   by simp
+      show ?case proof(cases "Step_read_before_call_indirect_trap
+      (mk_config (mk_state s' f)
+        [admininstr_sc1 (admininstr_st1_CONST I32 c),
+         admininstr_sc1 (admininstr_st1_CALL_INDIRECT x y)])")
+        case True
+        then show ?thesis proof(induction "mk_config
+          (mk_state s' f)
+       [admininstr_sc1 (admininstr_st1_CONST I32 c), admininstr_sc1 (admininstr_st1_CALL_INDIRECT x y)]")
+          case (call_indirect_call_0 a)
+          show ?case using Step.intros(2)[OF call_indirect_call[OF call_indirect_call_0(1-5)]] 
+              reducible_left_v[of "mk_state s' f" "[_,_]" vs1] wfc
+            call_indirect(17) vs
+            by auto
+        qed
+      next
+        case False
+        show ?thesis using Step.intros(2)[OF call_indirect_trap[OF False]] call_indirect(17)  
+          vs reducible_left_v[of "mk_state s' f" "[_,_]" vs1] wfc
+          by auto
+      qed
     next
       case (return C t_lst t_1_lst)
       then show ?case using not_br_return_def by fastforce
@@ -773,9 +916,32 @@ theorem progress:
         then show ?case by simp
       next
         case (Cons a vs)
-        then show ?case proof(induction vs)
+        show ?case using Cons(2-) proof(induction vs)
           case Nil
-          show ?case using Nil(2-) sorry
+          note outer = Nil
+          then obtain c where c: "a = val_CONST nt c" using typeofval_is_nt
+            by fastforce 
+          then have wfv:"wf_val (val_CONST nt c)" using outer(7) by simp
+          have "wf_unop_underscore nt unop_nt" using outer(10)
+          proof(induction "mk_config (mk_state s' f) [admininstr_instr (instr_sc1 (UNOP nt unop_nt))]")
+            case config_case_0
+            then have "wf_instr (instr_sc1 (UNOP nt unop_nt))" using wf_admininstr_instr_inv by simp
+            then show ?case proof(induction "instr_sc1 (UNOP nt unop_nt)")
+            qed(auto)
+          qed
+          then have notnone: "fun_unop_underscore nt unop_nt c \<noteq> None" 
+            using wfv fun_unop_underscore_total by simp
+          then show ?case proof(cases "the (fun_unop_underscore nt unop_nt c)")
+            case Nil
+            then show ?thesis using notnone unop_trap Step.intros(1) c outer(12) 
+                admininstr_val.domintros admininstr_val.psimps by fastforce
+          next
+            case (Cons a' list)
+            then have 1: "a' \<in> set (the (fun_unop_underscore nt unop_nt c))" by simp
+            have 2: "0 < length (the (fun_unop_underscore nt unop_nt c))" using Cons by simp
+            show ?thesis using unop_val[OF 2 notnone 1] Step.intros(1) c outer(12)
+                admininstr_val.domintros admininstr_val.psimps by fastforce
+          qed
         next
           case (Cons a vs)
           then show ?case by simp
