@@ -41,10 +41,6 @@ type wfstate =
   | WfAll     (* Places wf premises whenever it encounters a term/variable that needs well-formedness check*)
   | WfMinimal (* Places only wf premises in terms in relations and functions that do not appear in the conclusion *)
   | WfNone    (* Does not place any wf premises in relations/functions *)
-
-type wfdef = 
-  | Rel of id
-  | Func
   
 (* State that indicates what the placement algorithm should do *)
 let wf_state : wfstate ref = ref WfMinimal
@@ -99,10 +95,8 @@ let check_iter free_set iter =
 
 let has_wf_opt env rid = StringSet.mem rid.it env.wfopt_set
 
-let can_optimize wfdef env = 
-  match wfdef with
-  | Func -> true (* Functions can always be optimized because mode is always known *)
-  | Rel id -> has_wf_opt env id (* Relations need wf opt hint *) 
+let can_optimize id env = 
+  has_wf_opt env id
 
 let filter_iter_quants exp iter_quants = 
   let free_vars = (Free.free_exp exp).varid in
@@ -382,9 +376,9 @@ let type_family_reduces env typ =
     end 
   | _ -> false
 
-let get_extra_prems wfdef env quants exp prems = 
-  let cl = create_collector wfdef env [] in 
-  let unique_call_terms, unique_constr_terms = get_wf_terms wfdef env cl exp prems in  
+let get_extra_prems fid env quants exp prems = 
+  let cl = create_collector fid env [] in 
+  let unique_call_terms, unique_constr_terms = get_wf_terms fid env cl exp prems in  
   let wf_creation_func = List.concat_map (fun (pair, iterexps) -> 
     List.map (fun prem' -> List.fold_left (fun acc iterexp ->
       IterPr (acc, iterexp) $ acc.at   
@@ -397,7 +391,7 @@ let get_extra_prems wfdef env quants exp prems =
 
   let quants_filtered = Lib.List.filter_not (fun b -> 
     match b.it, !wf_state with 
-    | ExpP (id, _typ), WfMinimal when can_optimize wfdef env -> 
+    | ExpP (id, _typ), WfMinimal when can_optimize fid env -> 
       (Free.Set.mem id.it free_vars || Free.Set.mem id.it free_vars_exp)
     | ExpP (id, _typ), WfMinimal
     | ExpP (id, _typ), WfAll -> Free.Set.mem id.it free_vars
@@ -482,9 +476,9 @@ let rec defined_by_prems env known prems =
   ) known prems in
   if Free.Set.equal new_defined known then known else defined_by_prems env new_defined prems
 
-let get_extra_prems_rel modemap wfdef env quants exp prems =
-  let cl = create_collector wfdef env [] in 
-  let unique_call_terms, unique_constr_terms = get_wf_terms wfdef env cl exp prems in  
+let get_extra_prems_rel modemap rid env quants exp prems =
+  let cl = create_collector rid env [] in 
+  let unique_call_terms, unique_constr_terms = get_wf_terms rid env cl exp prems in  
   let wf_creation_func = List.concat_map (fun (pair, iterexps) -> 
     List.map (fun prem' -> List.fold_left (fun acc iterexp ->
       IterPr (acc, iterexp) $ acc.at   
@@ -506,7 +500,7 @@ let get_extra_prems_rel modemap wfdef env quants exp prems =
 
   let quants_filtered = Lib.List.filter_not (fun b ->
     match b.it, !wf_state with
-    | ExpP (id, typ), WfMinimal when can_optimize wfdef env ->
+    | ExpP (id, typ), WfMinimal when can_optimize rid env ->
       (Free.Set.mem id.it free_vars || Free.Set.mem id.it free_vars_exp) && Free.Set.mem id.it defined && not (is_tf_output id typ)
     | ExpP (id, typ), WfMinimal
     | ExpP (id, typ), WfAll -> Free.Set.mem id.it free_vars && not (is_tf_output id typ)
@@ -519,7 +513,7 @@ let t_rule modemap rid env rule =
   let tf = { base_transformer with transform_exp = t_exp env; transform_typ = t_typ} in
   (match rule.it with
   | RuleD (id, quants, m, exp, prems) -> 
-    let extra_prems = get_extra_prems_rel modemap (Rel rid) env quants exp prems in 
+    let extra_prems = get_extra_prems_rel modemap rid env quants exp prems in 
     RuleD (id, 
       List.map (transform_param tf) quants, 
       m, 
@@ -528,14 +522,14 @@ let t_rule modemap rid env rule =
     )
   ) $ rule.at
 
-let t_clause env clause =
+let t_clause id env clause =
   let tf = { base_transformer with transform_exp = t_exp env; transform_typ = t_typ} in
   (match clause.it with 
   | DefD (quants, args, exp, prems) -> 
     let free_args = Free.free_list Free.free_arg args in 
     (* Only focus on generating wf preds for variables not in the arguments *)
     let filtered_quants = Lib.List.filter_not (is_part_of_quant free_args) quants in
-    let extra_prems = get_extra_prems Func env filtered_quants exp prems in 
+    let extra_prems = get_extra_prems id env filtered_quants exp prems in 
     DefD (List.map (transform_param tf) quants, 
       List.map (transform_arg tf) args,
       transform_exp tf exp, 
@@ -680,12 +674,12 @@ let rec t_def env def =
     let d = DecD (id, 
       List.map (transform_param tf) params, 
       transform_typ tf typ, 
-      List.map (t_clause env) clauses
+      List.map (t_clause id env) clauses
       ) $ def.at 
     in
     let is_proj_func = StringSet.mem id.it env.proj_set in
     let t_d = if StringSet.mem id.it env.proj_set then remove_unused_params d else d in
-    let wf_lemma = if !wf_state = WfMinimal && return_type_needs_wfness env typ && not is_proj_func
+    let wf_lemma = if !wf_state = WfMinimal && can_optimize id env && return_type_needs_wfness env typ && not is_proj_func 
       then generate_wf_lemma_func env tf id params typ 
       else [] 
     in
@@ -712,6 +706,8 @@ let create_hints env (d : def) =
     env.tf_set <- StringSet.add id.it env.tf_set
   | HintD {it = RelH (id, hints); _} when List.exists has_wfopt_hint hints ->
     env.wfopt_set <- StringSet.add id.it env.wfopt_set
+  | HintD {it = DecH (id, hints); _} when List.exists has_wfopt_hint hints ->
+  env.wfopt_set <- StringSet.add id.it env.wfopt_set
   | _ -> ()
 
 let transform (il : script): script =
