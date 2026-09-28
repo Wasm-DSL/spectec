@@ -2620,9 +2620,9 @@ Proof.
 	}
 	{ (* Load None *)
 		typing_inversion HType.
-		typing_inversion H3.
-		simpl in Hai; extract_premise.
 		typing_inversion H4.
+		simpl in Hai; extract_premise.
+		typing_inversion H5.
 		destruct nt;
 		simpl in Hai; extract_premise.
 		all: eapply (instrtype_sub_compose0 _ _ _ _ _ _ Hsub) in Hsub0.
@@ -2643,9 +2643,9 @@ Proof.
 	}
 	{ (* Load Inn *)
 		typing_inversion HType.
-		typing_inversion H3.
-		simpl in Hai; extract_premise.
 		typing_inversion H4.
+		simpl in Hai; extract_premise.
+		typing_inversion H5.
 		destruct v_Inn;
 		simpl in Hai; extract_premise.
 		all: 

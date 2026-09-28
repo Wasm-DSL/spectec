@@ -3639,6 +3639,10 @@ Proof.
       apply/eqP; apply: nbytes_inv.
       apply: list_slice_size.
       rewrite /N_gtb in Hs. move/N.ltb_ge in Hs. by apply: Hs.
+      (* the loaded value is well-formed, since memory bytes are *)
+      eapply inv_nbytes__is_wf; last by apply: eqxx.
+      apply: Forall_list_slice.
+      by apply: (wf_config_mem_bytes _ _ _ _ HWfConfig).
     Unshelve.
     apply Inh_nat.  
   }
@@ -3664,6 +3668,10 @@ Proof.
       apply/eqP; apply: ibytes_inv.
       apply: list_slice_size.
       rewrite /N_gtb in Hs. move/N.ltb_ge in Hs. by apply: Hs.
+      (* the loaded value is well-formed, since memory bytes are *)
+      eapply inv_ibytes__is_wf; last by apply: eqxx.
+      apply: Forall_list_slice.
+      by apply: (wf_config_mem_bytes _ _ _ _ HWfConfig).
   }
   { (* Instr_ok__store None *)
     move => C nt memarg mt Hlen Hlookup Hfunsize HLim HWfC HWfMemType HWfinstr.
@@ -3756,6 +3764,10 @@ Proof.
       apply/eqP; apply: vbytes_inv.
       apply: list_slice_size.
       rewrite /N_gtb in Hs. move/N.ltb_ge in Hs. by apply: Hs.
+      (* the loaded value is well-formed, since memory bytes are *)
+      eapply (inv_vbytes__is_wf V128); [ | by apply: eqxx | by [] ].
+      apply: Forall_list_slice.
+      by apply: (wf_config_mem_bytes _ _ _ _ HWfConfig).
     Unshelve.
     apply Inh_nat.
   }

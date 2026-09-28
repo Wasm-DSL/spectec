@@ -13512,6 +13512,7 @@ Inductive Step_pure : (seq admininstr) -> (seq admininstr) -> Prop :=
 		List.Forall2 (fun (var_0 : uN) (ci_1 : lane_) => (fun_ilt_ (lsize (lanetype_Jnn v_Jnn)) res_S (!((proj_lane__2 ci_1))) (mk_uN 0%N) var_0)) var_0_lst ci_1_lst ->
 		(ci_1_lst == (lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) c)) ->
 		((ibits_ 32%N ci) == ((seq.map (fun (var_0 : uN) => (mk_bit (var_0 :> (N)))) var_0_lst) ++ (list_repeat (mk_bit 0%N) (((32%N : Z) - (v_N : Z))%Z : N)))) ->
+		(wf_uN 32%N ci) ->
 		(wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) ->
 		List.Forall (fun (var_0 : uN) => (wf_bit (mk_bit (var_0 :> (N))))) var_0_lst ->
 		(wf_bit (mk_bit 0%N)) ->
@@ -13780,15 +13781,13 @@ Proof.
 					| (((eapply irev__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
 					| (((eapply inez__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ] ) ])
 		| by apply: List.Forall_nil ]).
-	(* 55 of the 56 reduction cases are discharged above (testop, relop,
-	   vvtestop and vextract_lane_pack now carry a (wf_num_ I32 _) premise on
-	   their result).  The one that remains, vbitmask, is not derivable as
-	   stated: it produces (CONST I32 (mk_num__0 Inn_I32 (irev_ 32 ci))) and so
-	   needs (wf_uN 32 ci), but the rule relates ci to a bit list only through
-	   (ibits_ 32 ci), and ibits_ is an uninterpreted Axiom, so nothing bounds
-	   ci.  A (wf_uN 32%N ci) premise on the rule would close it. *)
-	all: admit.
-Admitted.
+	(* vbitmask: ci is only related to a bit list through the ibits_ axiom, so
+	   the rule carries a (wf_uN 32 ci) premise. *)
+	all: apply: List.Forall_cons; last (by apply: List.Forall_nil).
+	all: constructor; apply: num__case_0; [ by [] | | by [] ].
+	all: match goal with | [ Hc : wf_uN 32%N ?ci |- wf_uN _ (irev_ 32%N ?ci) ] =>
+			exact: (irev__is_wf 32%N ci _ Hc (eqxx _)) end.
+Qed.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/8-reduction.spectec:63.1-63.73 *)
 Definition fun_blocktype (v_state : state) (v_blocktype : blocktype) : functype :=
@@ -14005,6 +14004,7 @@ Inductive Step_read : config -> (seq admininstr) -> Prop :=
 		((proj_num__0 i) != None) ->
 		((res_size (valtype_numtype nt)) != None) ->
 		((nbytes_ nt c) == (list_slice (BYTES (fun_mem z (mk_uN 0%N))) (((!((proj_num__0 i))) :> N) + ((OFFSET ao) :> N))%BN ((((!((res_size (valtype_numtype nt)))) : Q) / (8%N : Q))%Q : N))) ->
+		(wf_num_ nt c) ->
 		(wf_uN 32%N (mk_uN 0%N)) ->
 		Step_read (mk_config z [::(admininstr_CONST I32 i); (admininstr_LOAD nt None ao)]) [::(admininstr_CONST nt c)]
 	| load_pack_trap : forall (z : state) (i : num_) (v_Inn : Inn) (v_n : n) (v_sx : sx) (ao : memarg), 
@@ -14016,6 +14016,7 @@ Inductive Step_read : config -> (seq admininstr) -> Prop :=
 		((res_size (valtype_Inn v_Inn)) != None) ->
 		((proj_num__0 i) != None) ->
 		((ibytes_ v_n c) == (list_slice (BYTES (fun_mem z (mk_uN 0%N))) (((!((proj_num__0 i))) :> N) + ((OFFSET ao) :> N))%BN (((v_n : Q) / (8%N : Q))%Q : N))) ->
+		(wf_uN v_n c) ->
 		(wf_uN 32%N (mk_uN 0%N)) ->
 		Step_read (mk_config z [::(admininstr_CONST I32 i); (admininstr_LOAD (numtype_Inn v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_n) v_sx))) ao)]) [::(admininstr_CONST (numtype_Inn v_Inn) (mk_num__0 v_Inn (extend__ v_n (!((res_size (valtype_Inn v_Inn)))) v_sx c)))]
 	| vload_oob : forall (z : state) (i : num_) (ao : memarg), 
@@ -14028,6 +14029,7 @@ Inductive Step_read : config -> (seq admininstr) -> Prop :=
 		((proj_num__0 i) != None) ->
 		((res_size valtype_V128) != None) ->
 		((vbytes_ V128 c) == (list_slice (BYTES (fun_mem z (mk_uN 0%N))) (((!((proj_num__0 i))) :> N) + ((OFFSET ao) :> N))%BN ((((!((res_size valtype_V128))) : Q) / (8%N : Q))%Q : N))) ->
+		(wf_uN 128%N c) ->
 		(wf_uN 32%N (mk_uN 0%N)) ->
 		Step_read (mk_config z [::(admininstr_CONST I32 i); (admininstr_VLOAD V128 None ao)]) [::(admininstr_VCONST V128 c)]
 	| vload_shape_oob : forall (z : state) (i : num_) (v_M : M) (v_N : res_N) (v_sx : sx) (ao : memarg), 
@@ -15532,18 +15534,19 @@ Proof.
 		| (solve [ apply: (admininstr_case_57 (Some Inn_I32));
 			[ by repeat constructor | exact: (memarg0_is_wf memarg0 (eqxx _)) | by split
 			| by repeat constructor ] ]) ]).
-	(* 41 of the 47 read-reduction cases are discharged.  The 6 that remain
-	   (7 goals) are not derivable, even under Store_ok:
+	(* load-pack-val: the loaded value c carries a (wf_uN n c) premise, and the
+	   result is (extend__ n (size Inn) sx c). *)
+	all: try (match goal with |- context [ mk_num__0 ?v (extend__ _ _ _ _) ] => is_var v; destruct v end;
+		constructor; apply: num__case_0 => //;
+		(eapply extend___is_wf; last by apply: eqxx); eassumption).
+	(* 44 of the 47 read-reduction cases are discharged.  The 3 that remain
+	   (4 goals) are not derivable, even under Store_ok:
 	   - memory.fill-succ, memory.copy-le and memory.init-succ push
 	     (CONST I32 (i + 1)) for a memory offset i with i + n <= |mem| and
 	     n <> 0.  Memtype_ok allows exactly 2^16 pages = 2^32 bytes, so
 	     i = 2^32 - 1, n = 1 satisfies every premise, yet i + 1 = 2^32 is not
 	     a u32.  (The segment-side offsets of table.init / memory.init are
-	     fine: Eleminst_ok / Datainst_ok bound segments by 2^32 - 1.)
-	   - load-num-val, load-pack-val and vload-val constrain the loaded value c
-	     only through (nbytes_ nt c) / (ibytes_ n c) / (vbytes_ V128 c) being a
-	     slice of memory.  Those are axioms, and the rules carry no (wf_num_ nt c)
-	     / (wf_uN n c) / (wf_uN 128 c) premise, so no bound on c is available. *)
+	     fine: Eleminst_ok / Datainst_ok bound segments by 2^32 - 1.) *)
 	all: admit.
 Admitted.
 
