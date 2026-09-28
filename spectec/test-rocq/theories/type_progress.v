@@ -1464,12 +1464,44 @@ Proof.
   move/N.ltb_spec0 in Hlt. lia.
 Qed.
 
+Lemma lt_wf_uN : forall v_N i, (i < (2%num ^ v_N)%BN)%BN -> wf_uN v_N (mk_uN i).
+Proof.
+  move => v_N i H. apply: uN_case_0. rewrite /N_geb Zsub1_toN.
+  have Hp := two_pow_pos v_N.
+  apply/andP; split; apply/N.leb_spec0; lia.
+Qed.
+
+(* The result of inv_signed_ is a valid iN(N). *)
+Lemma inv_signed_wf : forall v_N z m, fun_inv_signed_ v_N z m -> wf_uN v_N (mk_uN m).
+Proof.
+  move => v_N z m H. apply: lt_wf_uN.
+  case: H => vN i /andP [/Z.leb_spec0 Ha /Z.ltb_spec0 Hb];
+    rewrite ?Zsub1_toN in Ha Hb;
+    have Hp := two_pow_pos vN;
+    have Hle : ((2%num ^ (vN - 1)%BN)%BN <= (2%num ^ vN)%BN)%BN by apply: N.pow_le_mono_r; lia.
+  all: lia.
+Qed.
+
 Lemma idiv_total : forall (v_N : res_N) (v_sx : sx) (i1 i2 : uN),
   wf_uN v_N i1 -> wf_uN v_N i2 ->
   exists r, fun_idiv_ v_N v_sx i1 i2 r.
 Proof.
   move => v_N v_sx i1 i2 Hw1 Hw2.
-  case: v_sx; first by (eexists; apply: fun_idiv__case_1).
+  case: v_sx.
+  { (* unsigned: the quotient is bounded by the dividend, via truncz_quot *)
+    destruct i2 as [n2].
+    destruct n2 as [ |p2]; first by (eexists; apply: fun_idiv__case_0).
+    eexists; apply: fun_idiv__case_1. apply: lt_wf_uN.
+    have Hl1 := wf_uN_lt' _ _ Hw1.
+    change ((mk_uN (N.pos p2) :> N)) with (N.pos p2).
+    rewrite truncz_quot; last by lia.
+    change (Z.of_N (N.pos p2)) with (Z.pos p2).
+    have T1 : (Z.pos p2 <> 0)%Z by lia.
+    have T2 : (0 <= ((i1 :> N) : Z))%Z by lia.
+    have T3 : (Z.abs ((i1 :> N) : Z) <= ((i1 :> N) : Z))%Z by lia.
+    have Hq := Zquot_abs_le _ _ _ T1 T2 T3.
+    have Hq0 := Z.quot_pos ((i1 :> N) : Z) (Z.pos p2) T2 ltac:(lia).
+    lia. }
   destruct i2 as [n2].
   destruct n2 as [ |p2]; first by (eexists; apply: fun_idiv__case_2).
   have Hl1 := wf_uN_lt' _ _ Hw1.
@@ -1488,7 +1520,8 @@ Proof.
     have [r Hr] : exists ret, fun_inv_signed_ v_N (truncz (inject_Z z1 / inject_Z z2)%Q) ret.
     { rewrite (truncz_quot _ _ Hz2). apply: invsigned_total; rewrite -/P; lia. }
     exists (Some (mk_uN r)).
-    by eapply fun_idiv__case_4; eauto.
+    eapply fun_idiv__case_4; eauto.
+    by apply: (inv_signed_wf _ _ _ Hr).
   - move/Z.ltb_ge in Hq.
     have Hinv := Zquot_ge_inv z1 z2 (P : Z) Hz2 HP1 Ha1 Hq.
     exists None.
@@ -1574,6 +1607,59 @@ Ltac num_shapes Hb Hn1 Hn2 :=
   end;
   try discriminate.
 
+(* idiv_ has no wf lemma (no hint(wfopt)): its clauses carry the wf premises
+   of their results instead. *)
+Lemma idiv_wf : forall v_N v_sx a b r,
+  fun_idiv_ v_N v_sx a b r -> List.Forall (fun x => wf_uN v_N x) (option_to_list r).
+Proof.
+  move => v_N v_sx a b r H.
+  by case: H => * /=; repeat first [ assumption | apply: List.Forall_cons | apply: List.Forall_nil ].
+Qed.
+
+(* binop_ has no hint(wfopt), so each of its clauses carries a wf premise on
+   its result; these are discharged with the _is_wf lemmas of the operators. *)
+Lemma wf_uN_mk_proj : forall (v_N : res_N) (x : uN), wf_uN v_N x -> wf_uN v_N (mk_uN (x :> N)).
+Proof. by move => v_N [i]. Qed.
+
+Lemma wf_fN_num_ : forall (F : Fnn) (l : seq fN),
+  List.Forall (fun x => wf_fN (sizenn (numtype_Fnn F)) x) l ->
+  List.Forall (fun x => wf_num_ (numtype_Fnn F) (mk_num__1 F x)) l.
+Proof. move => F l Hl. apply: (List.Forall_impl _ _ Hl) => x Hx. by apply: num__case_1. Qed.
+
+Lemma wf_opt_num_ : forall (I : Inn) (o : option iN),
+  List.Forall (fun x => wf_uN (sizenn (numtype_Inn I)) x) (option_to_list o) ->
+  List.Forall (fun x => wf_num_ (numtype_Inn I) (mk_num__0 I x)) (option_to_list o) /\
+  List.Forall (fun x => wf_num_ (numtype_Inn I) x) (list_ num_ (option_map (fun y => mk_num__0 I y) o)).
+Proof.
+  move => I [x| ] Ho /=; last by split; apply: List.Forall_nil.
+  inversion Ho; subst.
+  have Hx : wf_num_ (numtype_Inn I) (mk_num__0 I x) by apply: num__case_0 => //; destruct I.
+  by split; apply: List.Forall_cons => //; apply: List.Forall_nil.
+Qed.
+
+(* Discharges a result wf premise of a (non DIV / REM) binop_ clause. *)
+Ltac binop_wf :=
+  first
+  [ (apply: num__case_0 => //;
+    first [ ((eapply iadd__is_wf; last by apply: eqxx); eassumption)
+      | ((eapply isub__is_wf; last by apply: eqxx); eassumption)
+      | ((eapply imul__is_wf; last by apply: eqxx); eassumption)
+      | ((eapply iand__is_wf; last by apply: eqxx); eassumption)
+      | ((eapply ior__is_wf; last by apply: eqxx); eassumption)
+      | ((eapply ixor__is_wf; last by apply: eqxx); eassumption)
+      | ((eapply irotl__is_wf; last by apply: eqxx); eassumption)
+      | ((eapply irotr__is_wf; last by apply: eqxx); eassumption)
+      | ((eapply ishl__is_wf; last by apply: eqxx); first [ eassumption | (apply: wf_uN_mk_proj; eassumption) ])
+      | ((eapply ishr__is_wf; last by apply: eqxx); first [ eassumption | (apply: wf_uN_mk_proj; eassumption) ]) ])
+  | (first [ apply: wf_fN_num_ | idtac ];
+    first [ ((eapply fadd__is_wf; last by apply: eqxx); eassumption)
+      | ((eapply fsub__is_wf; last by apply: eqxx); eassumption)
+      | ((eapply fmul__is_wf; last by apply: eqxx); eassumption)
+      | ((eapply fdiv__is_wf; last by apply: eqxx); eassumption)
+      | ((eapply fmin__is_wf; last by apply: eqxx); eassumption)
+      | ((eapply fmax__is_wf; last by apply: eqxx); eassumption)
+      | ((eapply fcopysign__is_wf; last by apply: eqxx); eassumption) ]) ].
+
 Lemma binop_total: forall nt b n1 n2,
     wf_num_ nt n1 -> wf_num_ nt n2 -> wf_binop_ nt b ->
     (exists lst, fun_binop_ nt b n1 n2 lst).
@@ -1581,16 +1667,26 @@ Proof.
   move => nt b n1 n2 Hn1 Hn2 Hb.
   num_shapes Hb Hn1 Hn2.
   all: match goal with | [ x : binop_Inn |- _ ] => destruct x | [ x : binop_Fnn |- _ ] => destruct x end.
-  all: try (by (eexists; econstructor)).
   all: match goal with
-  | [ |- exists _, fun_binop_ _ (mk_binop__0 _ (DIV ?sx)) (mk_num__0 _ ?a) (mk_num__0 _ ?b) _ ] =>
+  | [ |- exists _, fun_binop_ _ (mk_binop__0 ?I (DIV ?sx)) (mk_num__0 _ ?a) (mk_num__0 _ ?b) _ ] =>
       have [r Hr] := idiv_total _ sx a b ltac:(eassumption) ltac:(eassumption);
-      eexists; econstructor; exact: Hr
-  | [ |- exists _, fun_binop_ _ (mk_binop__0 _ (REM ?sx)) (mk_num__0 _ ?a) (mk_num__0 _ ?b) _ ] =>
+      have Hw := idiv_wf _ _ _ _ _ Hr;
+      have [Ho1 Ho2] := wf_opt_num_ I r Hw;
+      eexists; econstructor; solve [ exact: Hr | exact: Hw | exact: Ho1 | exact: Ho2 | by [] ]
+  | [ |- exists _, fun_binop_ _ (mk_binop__0 ?I (REM ?sx)) (mk_num__0 _ ?a) (mk_num__0 _ ?b) _ ] =>
       have [r Hr] := irem_total _ sx a b ltac:(eassumption) ltac:(eassumption);
-      eexists; econstructor; exact: Hr
+      have Hw := irem__is_wf _ _ _ _ _ _ Hr ltac:(eassumption) ltac:(eassumption) (eqxx _);
+      have [Ho1 Ho2] := wf_opt_num_ I r Hw;
+      eexists; econstructor; solve [ exact: Hr | exact: Hw | exact: Ho1 | exact: Ho2 | by [] ]
+  | _ => eexists; econstructor
   end.
-Qed.
+  all: try binop_wf.
+  (* The two remaining goals are the I64 SHL / SHR cases: ishl_ / ishr_ take
+     their shift amount as a u32, but binop_ passes the 64-bit operand
+     (mk_uN (iN_2 :> N)), so ishl__is_wf / ishr__is_wf cannot be applied.  This
+     needs the DSL fix of passing $(iN_2 \ $sizenn(Inn)) to $ishl_ / $ishr_. *)
+  all: admit.
+Admitted.
 
 Lemma relop_total: forall nt r n1 n2,
     wf_num_ nt n1 -> wf_num_ nt n2 -> wf_relop_ nt r ->
@@ -1644,9 +1740,23 @@ Proof.
   num_shapes Hb Hn1 Hn2.
   all: match goal with | [ x : binop_Inn |- _ ] => destruct x | [ x : binop_Fnn |- _ ] => destruct x end.
   all: simpl.
-  all: econstructor.
-  all: exact: None.
-Qed.
+  all: match goal with
+  | [ |- fun_binop__before_fun_binop__case_38 _ (mk_binop__0 ?I (DIV ?sx)) (mk_num__0 _ ?a) (mk_num__0 _ ?b) ] =>
+      have [r Hr] := idiv_total _ sx a b ltac:(eassumption) ltac:(eassumption);
+      have Hw := idiv_wf _ _ _ _ _ Hr;
+      have [Ho1 Ho2] := wf_opt_num_ I r Hw;
+      econstructor; solve [ exact: Hr | exact: Hw | exact: Ho1 | exact: Ho2 | by [] ]
+  | [ |- fun_binop__before_fun_binop__case_38 _ (mk_binop__0 ?I (REM ?sx)) (mk_num__0 _ ?a) (mk_num__0 _ ?b) ] =>
+      have [r Hr] := irem_total _ sx a b ltac:(eassumption) ltac:(eassumption);
+      have Hw := irem__is_wf _ _ _ _ _ _ Hr ltac:(eassumption) ltac:(eassumption) (eqxx _);
+      have [Ho1 Ho2] := wf_opt_num_ I r Hw;
+      econstructor; solve [ exact: Hr | exact: Hw | exact: Ho1 | exact: Ho2 | by [] ]
+  | _ => econstructor
+  end.
+  all: try binop_wf.
+  (* As in binop_total: the I64 SHL / SHR cases need the u32 shift-amount fix. *)
+  all: admit.
+Admitted.
 
 Lemma binop_not_none: forall nt b n1 n2 lst,
     wf_num_ nt n1 ->
