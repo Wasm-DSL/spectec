@@ -3883,14 +3883,120 @@ Proof.
   }
 
 
-  (* VLOAD (SHAPEX_ ...) and VLOAD (SPLAT ...).  Both need the width operand
-     of the load to be the size of some lane type - `jsize v_Jnn == v_M * 2`
-     for SHAPEX_, `v_N == jsize v_Jnn` for SPLAT - but `wf_instr` for VLOAD
-     (instr_case_58) constrains only the memarg, and neither typing rule
-     bounds the width, so e.g. `VLOAD V128 (Some (SPLAT 7)) ao` is well-formed
-     and typable with no reduction rule.  (Contrast VLOAD_LANE / VSTORE_LANE,
-     whose `wf_sz` premise does pin the width to 8/16/32/64.) *)
-  1-2: admit.
+  { (* Instr_ok__vload SHAPE: wf_vloadop_ gives sz in {8, 16, 32, 64} and
+       sz * N = 64; the rule loads N lanes of sz bits into lanes of 2 * sz bits. *)
+    move => C v_M v_N v_sx memarg mt Hlen Hlookup HLim HWfC HWfMemType HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfConfig HWfVals.
+    inv_Forall HWfVals.
+    eapply invert_typeof_I32 in Ht1 as [n1 Heqv1]; eauto.
+    rewrite Heqv1.
+    case Hs: (((n1 + (proj_uN_0 (OFFSET memarg)))%BN + ((((v_M * v_N)%BN : Q) / (8%num : Q))%Q : N))%BN
+      >? (|(BYTES (fun_mem (mk_state s f) (mk_uN 0)))|))%BN.
+    + exists s, f, [admininstr_TRAP].
+      eapply read.
+      eapply vload_shape_oob; eauto.
+      econstructor; eauto.
+    + have Hbnd : (((n1 + (proj_uN_0 (OFFSET memarg)))%BN + ((((v_M * v_N)%BN : Q) / (8%num : Q))%Q : N))%BN
+        <= (|(BYTES (fun_mem (mk_state s f) (mk_uN 0)))|))%BN.
+      { rewrite /N_gtb in Hs. by move/N.ltb_ge in Hs. }
+      have Hsl : forall (base a b t l : N), (a + b <= t)%BN -> (base + t <= l)%BN -> ((base + a) + b <= l)%BN.
+      { move => *. lia. }
+      have Hwv : wf_vloadop_ V128 (SHAPEX_ (mk_sz v_M) v_N v_sx).
+      { inversion HWfinstr; subst.
+        match goal with
+        | [ Hv : List.Forall _ (option_to_list (Some _)) |- _ ] => by inversion Hv end. }
+      inversion Hwv as [? ? ? ? Hsz HMN | | ]; subst.
+      have HMN' : (v_M * v_N)%BN = 64%num.
+      { move: HMN => /Qeq_bool_toN. rewrite /inject_Z Qround.Qfloor_Z Znat.N2Z.id => H.
+        change ((mk_sz v_M :> N) * v_N)%num with (v_M * v_N)%num in H.
+        rewrite H. by vm_compute. }
+      have Hcases : v_M = 8%num \/ v_M = 16%num \/ v_M = 32%num \/ v_M = 64%num.
+      { inversion Hsz; subst.
+        match goal with
+        | [ H : is_true (((_ || _) || _) || _) |- _ ] =>
+          move/orP: H => [/orP [/orP [H|H]|H]|H]; move/eqP in H; auto
+        end. }
+      pose J := fun k : N => inv_ibytes_ v_M (list_slice (BYTES (fun_mem (mk_state s f) (mk_uN 0)))
+        ((n1 + (proj_uN_0 (OFFSET memarg)))%BN + ((((k * v_M)%BN : Q) / (8%num : Q))%Q : N))%BN
+        (((v_M : Q) / (8%num : Q))%Q : N)).
+      have HJ : forall k, wf_uN v_M (J k).
+      { move => k. eapply inv_ibytes__is_wf; last by apply: eqxx.
+        apply: Forall_list_slice.
+        by apply: (wf_config_mem_bytes _ _ _ _ HWfConfig). }
+      case: Hcases => [E | [E | [E | E]]]; subst v_M.
+      4: { (* SHAPE 64 X 1 is well-formed (64 * 1 = 64), but the rule needs a
+              Jnn of size 128, which does not exist: no reduction applies. *)
+           admit. }
+      1: have EN : v_N = 8%num by lia.
+      2: have EN : v_N = 4%num by lia.
+      3: have EN : v_N = 2%num by lia.
+      all: subst v_N; do 3 eexists; eapply read.
+      (* in reverse order, so that the premises of one rule do not shift the
+         indices of the remaining goals *)
+      3: eapply (vload_shape_val (mk_state s f) _ _ _ _ _ _ (mkseqN J 2) Jnn_I64).
+      2: eapply (vload_shape_val (mk_state s f) _ _ _ _ _ _ (mkseqN J 4) Jnn_I32).
+      1: eapply (vload_shape_val (mk_state s f) _ _ _ _ _ _ (mkseqN J 8) Jnn_I16).
+      all: rewrite /mkseqN /mkseq /holds_upto /iotaN /=.
+      all: repeat first [ apply: List.Forall_nil | apply: List.Forall_cons | apply: Foralli_nil | apply: Foralli_cons ].
+      all: first
+        [ by []
+        | by apply: eqxx
+        | (apply/eqP; apply: ibytes_inv; apply: list_slice_size;
+           apply: (Hsl _ _ _ _ _ _ Hbnd); by vm_compute; discriminate)
+        | (eapply lane__case_2; [ (eapply extend___is_wf; last by apply: eqxx); apply: HJ | by [] ])
+        | by (econstructor; vm_compute) ].
+  }
+  { (* Instr_ok__vload SPLAT: wf_vloadop_ pins the width to 8/16/32/64, i.e. to
+       the size of some Jnn, with 128/N lanes. *)
+    move => C v_n memarg mt Hlen Hlookup HLim HWfC HWfMemType HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfConfig HWfVals.
+    inv_Forall HWfVals.
+    eapply invert_typeof_I32 in Ht1 as [n1 Heqv1]; eauto.
+    rewrite Heqv1.
+    case Hs: (((n1 + (proj_uN_0 (OFFSET memarg))) + ((v_n / (8)) : Q))
+      >? (|(BYTES (fun_mem (mk_state s f) (mk_uN 0)))|))%BN.
+    + exists s, f, [admininstr_TRAP].
+      eapply read.
+      eapply vload_splat_oob; eauto.
+      econstructor; eauto.
+    + have Hbnd : (((n1 + (proj_uN_0 (OFFSET memarg)))%BN + ((v_n / (8)) : Q))%BN
+        <= (|(BYTES (fun_mem (mk_state s f) (mk_uN 0)))|))%BN.
+      { rewrite /N_gtb in Hs. by move/N.ltb_ge in Hs. }
+      have Hwfk : wf_uN v_n (inv_ibytes_ v_n
+        (list_slice (BYTES (fun_mem (mk_state s f) (mk_uN 0)))
+          ((n1 + (proj_uN_0 (OFFSET memarg)))%BN) ((v_n / (8)) : Q))).
+      { eapply inv_ibytes__is_wf; last by apply: eqxx.
+        apply: Forall_list_slice.
+        by apply: (wf_config_mem_bytes _ _ _ _ HWfConfig). }
+      have Hsz : wf_sz (mk_sz v_n).
+      { inversion HWfinstr; subst.
+        match goal with
+        | [ Hv : List.Forall _ (option_to_list (Some _)) |- _ ] => inversion Hv; subst end.
+        match goal with
+        | [ Hv : wf_vloadop_ _ _ |- _ ] => by inversion Hv end. }
+      have Hcases : v_n = 8%num \/ v_n = 16%num \/ v_n = 32%num \/ v_n = 64%num.
+      { inversion Hsz; subst.
+        match goal with
+        | [ H : is_true (((_ || _) || _) || _) |- _ ] =>
+          move/orP: H => [/orP [/orP [H|H]|H]|H]; move/eqP in H; auto
+        end. }
+      case: Hcases => [E | [E | [E | E]]]; subst v_n; do 3 eexists; eapply read;
+        [ eapply (vload_splat_val (mk_state s f) _ _ _ _ _ Jnn_I8 16)
+        | eapply (vload_splat_val (mk_state s f) _ _ _ _ _ Jnn_I16 8)
+        | eapply (vload_splat_val (mk_state s f) _ _ _ _ _ Jnn_I32 4)
+        | eapply (vload_splat_val (mk_state s f) _ _ _ _ _ Jnn_I64 2) ].
+      all: first
+        [ (apply/eqP; apply: ibytes_inv; apply: list_slice_size; by apply: Hbnd)
+        | (eapply lane__case_2; [ by rewrite mk_uN_eta; apply: Hwfk | by [] ])
+        | by []
+        | by apply: eqxx
+        | by (econstructor; vm_compute)
+        | by (do 2 econstructor) ].
+  }
   { (* Instr_ok__vload ZERO *)
     move => C v_n memarg mt Hlen Hlookup HLim HWfC HWfMemType HWfinstr.
     move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.

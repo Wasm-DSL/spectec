@@ -57,3 +57,11 @@ Axiom ibytes_inv : forall (v_N : res_N) (bs : seq byte),
 Axiom vbytes_inv : forall (vt : vectype) (bs : seq byte),
   (|bs|) = ((((!(res_size (valtype_vectype vt))) : Q) / (8%num : Q))%Q : N) ->
   vbytes_ vt (inv_vbytes_ vt bs) = bs.
+
+(* Likewise `ibits_` and `inv_ibits_` are mutually inverse between iN(N) and
+   bit sequences of length N.  The bits must be well-formed (0 or 1), since
+   `ibits_` only ever produces such bits. *)
+Axiom ibits_inv : forall (v_N : res_N) (bs : seq bit),
+  (|bs|) = v_N ->
+  List.Forall (fun b => wf_bit b) bs ->
+  ibits_ v_N (inv_ibits_ v_N bs) = bs.

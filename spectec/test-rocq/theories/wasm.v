@@ -1341,7 +1341,7 @@ Inductive wf_externtype : externtype -> Prop :=
 		(wf_memtype v_memtype) ->
 		wf_externtype (MEM v_memtype).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:323.1-323.60 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:326.1-326.60 *)
 Inductive dim : Type :=
 	| mk_dim (i : N) : dim.
 
@@ -1359,7 +1359,7 @@ Definition eqdimP : Equality.axiom (dim_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (dim) (eqdimP).
 Hint Resolve dim_eq_dec : eq_dec_db.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:323.1-323.60 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:326.1-326.60 *)
 Definition proj_dim_0 (x : dim) : (N) :=
 	match x return (N) with
 		| (mk_dim v_num_0) => (v_num_0)
@@ -1367,13 +1367,13 @@ Definition proj_dim_0 (x : dim) : (N) :=
 
 Global Instance proj_dim_0_coercion : Coercion dim (N) := { coerce := proj_dim_0 }.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:323.8-323.11 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:326.8-326.11 *)
 Inductive wf_dim : dim -> Prop :=
 	| dim_case_0 : forall (i : N), 
 		(((((i == 1%N) || (i == 2%N)) || (i == 4%N)) || (i == 8%N)) || (i == 16%N)) ->
 		wf_dim (mk_dim i).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:324.1-324.69 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:327.1-327.69 *)
 Inductive shape : Type :=
 	| X (v_lanetype : lanetype) (v_dim : dim) : shape.
 
@@ -1391,7 +1391,7 @@ Definition eqshapeP : Equality.axiom (shape_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (shape) (eqshapeP).
 Hint Resolve shape_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:324.8-324.13 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:327.8-327.13 *)
 Inductive wf_shape : shape -> Prop :=
 	| shape_case_0 : forall (v_lanetype : lanetype) (v_dim : dim), 
 		(wf_dim v_dim) ->
@@ -1414,14 +1414,20 @@ Definition res_size (v_valtype : valtype) : (option N) :=
 		| x0 => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:209.1-209.45 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:209.1-209.46 *)
+Definition vsize (v_vectype : vectype) : N :=
+	match v_vectype return N with
+		| V128 => 128%N
+	end.
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:210.1-210.45 *)
 Definition psize (v_packtype : packtype) : N :=
 	match v_packtype return N with
 		| I8 => 8%N
 		| I16 => 16%N
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:210.1-210.45 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:211.1-211.45 *)
 Definition lsize (v_lanetype : lanetype) : N :=
 	match v_lanetype return N with
 		| lanetype_I32 => (!((res_size (valtype_numtype I32))))
@@ -1432,61 +1438,61 @@ Definition lsize (v_lanetype : lanetype) : N :=
 		| lanetype_I16 => (psize I16)
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:211.1-211.70 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:212.1-212.70 *)
 Definition isize (v_Inn : Inn) : N :=
 	match v_Inn return N with
 		| v_Inn => (!((res_size (valtype_Inn v_Inn))))
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:212.1-212.70 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:213.1-213.70 *)
 Definition jsize (v_Jnn : Jnn) : N :=
 	match v_Jnn return N with
 		| v_Jnn => (lsize (lanetype_Jnn v_Jnn))
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:213.1-213.70 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:214.1-214.70 *)
 Definition fsize (v_Fnn : Fnn) : N :=
 	match v_Fnn return N with
 		| v_Fnn => (!((res_size (valtype_Fnn v_Fnn))))
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:231.1-231.63 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:234.1-234.63 *)
 Definition sizenn (v_numtype : numtype) : N :=
 	match v_numtype return N with
 		| nt => (!((res_size (valtype_numtype nt))))
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:232.1-232.63 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:235.1-235.63 *)
 Definition sizenn1 (v_numtype : numtype) : N :=
 	match v_numtype return N with
 		| nt => (!((res_size (valtype_numtype nt))))
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:233.1-233.63 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:236.1-236.63 *)
 Definition sizenn2 (v_numtype : numtype) : N :=
 	match v_numtype return N with
 		| nt => (!((res_size (valtype_numtype nt))))
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:238.1-238.63 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:241.1-241.63 *)
 Definition lsizenn (v_lanetype : lanetype) : N :=
 	match v_lanetype return N with
 		| lt => (lsize lt)
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:239.1-239.63 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:242.1-242.63 *)
 Definition lsizenn1 (v_lanetype : lanetype) : N :=
 	match v_lanetype return N with
 		| lt => (lsize lt)
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:240.1-240.63 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:243.1-243.63 *)
 Definition lsizenn2 (v_lanetype : lanetype) : N :=
 	match v_lanetype return N with
 		| lt => (lsize lt)
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:245.1-245.40 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:248.1-248.40 *)
 Definition inv_isize (res_nat : N) : (option Inn) :=
 	match res_nat return (option Inn) with
 		| 32%N => (Some Inn_I32)
@@ -1494,7 +1500,7 @@ Definition inv_isize (res_nat : N) : (option Inn) :=
 		| x0 => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:246.1-246.40 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:249.1-249.40 *)
 Definition inv_jsize (res_nat : N) : (option Jnn) :=
 	match res_nat return (option Jnn) with
 		| 8%N => (Some Jnn_I8)
@@ -1504,7 +1510,7 @@ Definition inv_jsize (res_nat : N) : (option Jnn) :=
 		| x0 => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:247.1-247.40 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:250.1-250.40 *)
 Definition inv_fsize (res_nat : N) : (option Fnn) :=
 	match res_nat return (option Fnn) with
 		| 32%N => (Some Fnn_F32)
@@ -1512,7 +1518,7 @@ Definition inv_fsize (res_nat : N) : (option Fnn) :=
 		| x0 => None
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:259.1-259.21 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:262.1-262.21 *)
 Inductive num_ : Type :=
 	| mk_num__0 (v_Inn : Inn) (var_x : iN) : num_
 	| mk_num__1 (v_Fnn : Fnn) (var_x : fN) : num_.
@@ -1531,7 +1537,7 @@ Definition eqnum_P : Equality.axiom (num__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (num_) (eqnum_P).
 Hint Resolve num__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:259.8-259.13 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:262.8-262.13 *)
 Inductive wf_num_ : numtype -> num_ -> Prop :=
 	| num__case_0 : forall (v_numtype : numtype) (v_Inn : Inn) (var_x : iN), 
 		((res_size (valtype_Inn v_Inn)) != None) ->
@@ -1543,24 +1549,24 @@ Inductive wf_num_ : numtype -> num_ -> Prop :=
 		(v_numtype == (numtype_Fnn v_Fnn)) ->
 		wf_num_ v_numtype (mk_num__1 v_Fnn var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:259.1-259.21 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:262.1-262.21 *)
 Definition proj_num__0 (var_x : num_) : (option iN) :=
 	match var_x return (option iN) with
 		| (mk_num__0 v_Inn var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:259.1-259.21 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:262.1-262.21 *)
 Definition proj_num__1 (var_x : num_) : (option fN) :=
 	match var_x return (option fN) with
 		| (mk_num__1 v_Fnn var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:263.1-263.36 *)
+(* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:266.1-266.36 *)
 Definition pack_ : Type := iN.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:265.1-265.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:268.1-268.23 *)
 Inductive lane_ : Type :=
 	| mk_lane__0 (v_numtype : numtype) (var_x : num_) : lane_
 	| mk_lane__1 (v_packtype : packtype) (var_x : pack_) : lane_
@@ -1580,7 +1586,7 @@ Definition eqlane_P : Equality.axiom (lane__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (lane_) (eqlane_P).
 Hint Resolve lane__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:265.8-265.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:268.8-268.14 *)
 Inductive wf_lane_ : lanetype -> lane_ -> Prop :=
 	| lane__case_0 : forall (v_lanetype : lanetype) (v_numtype : numtype) (var_x : num_), 
 		(wf_num_ v_numtype var_x) ->
@@ -1595,31 +1601,31 @@ Inductive wf_lane_ : lanetype -> lane_ -> Prop :=
 		(v_lanetype == (lanetype_Jnn v_Jnn)) ->
 		wf_lane_ v_lanetype (mk_lane__2 v_Jnn var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:265.1-265.23 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:268.1-268.23 *)
 Definition proj_lane__0 (var_x : lane_) : (option num_) :=
 	match var_x return (option num_) with
 		| (mk_lane__0 v_numtype var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:265.1-265.23 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:268.1-268.23 *)
 Definition proj_lane__1 (var_x : lane_) : (option pack_) :=
 	match var_x return (option pack_) with
 		| (mk_lane__1 v_packtype var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:265.1-265.23 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:268.1-268.23 *)
 Definition proj_lane__2 (var_x : lane_) : (option iN) :=
 	match var_x return (option iN) with
 		| (mk_lane__2 v_Jnn var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:270.1-270.34 *)
+(* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:273.1-273.34 *)
 Definition vec_ : Type := vN.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:272.1-272.35 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:275.1-275.35 *)
 Definition fun_zero (v_numtype : numtype) : num_ :=
 	match v_numtype return num_ with
 		| I32 => (mk_num__0 Inn_I32 (mk_uN 0%N))
@@ -1628,7 +1634,7 @@ Definition fun_zero (v_numtype : numtype) : num_ :=
 		| F64 => (mk_num__1 Fnn_F64 (fzero (!((res_size (valtype_Fnn Fnn_F64))))))
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:272.6-272.11 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:275.6-275.11 *)
 Lemma zero_is_wf : forall (v_numtype : numtype) (ret_val : num_),
 	(ret_val == (fun_zero v_numtype)) ->
 	(wf_num_ v_numtype ret_val).
@@ -1645,7 +1651,7 @@ Proof.
 		by apply/andP; split; [ | apply/eqP].
 Qed.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:279.1-279.42 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:282.1-282.42 *)
 Inductive sx : Type :=
 	| U : sx
 	| res_S : sx.
@@ -1664,7 +1670,7 @@ Definition eqsxP : Equality.axiom (sx_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (sx) (eqsxP).
 Hint Resolve sx_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:280.1-280.56 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:283.1-283.56 *)
 Inductive sz : Type :=
 	| mk_sz (i : N) : sz.
 
@@ -1682,7 +1688,7 @@ Definition eqszP : Equality.axiom (sz_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (sz) (eqszP).
 Hint Resolve sz_eq_dec : eq_dec_db.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:280.1-280.56 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:283.1-283.56 *)
 Definition proj_sz_0 (x : sz) : (N) :=
 	match x return (N) with
 		| (mk_sz v_num_0) => (v_num_0)
@@ -1690,13 +1696,13 @@ Definition proj_sz_0 (x : sz) : (N) :=
 
 Global Instance proj_sz_0_coercion : Coercion sz (N) := { coerce := proj_sz_0 }.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:280.8-280.10 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:283.8-283.10 *)
 Inductive wf_sz : sz -> Prop :=
 	| sz_case_0 : forall (i : N), 
 		((((i == 8%N) || (i == 16%N)) || (i == 32%N)) || (i == 64%N)) ->
 		wf_sz (mk_sz i).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:282.1-282.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:285.1-285.22 *)
 Inductive unop_Inn : Type :=
 	| CLZ : unop_Inn
 	| CTZ : unop_Inn
@@ -1717,7 +1723,7 @@ Definition equnop_InnP : Equality.axiom (unop_Inn_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (unop_Inn) (equnop_InnP).
 Hint Resolve unop_Inn_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:282.1-282.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:285.1-285.22 *)
 Inductive unop_Fnn : Type :=
 	| ABS : unop_Fnn
 	| unop_Fnn_NEG : unop_Fnn
@@ -1741,7 +1747,7 @@ Definition equnop_FnnP : Equality.axiom (unop_Fnn_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (unop_Fnn) (equnop_FnnP).
 Hint Resolve unop_Fnn_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:282.1-282.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:285.1-285.22 *)
 Inductive unop_ : Type :=
 	| mk_unop__0 (v_Inn : Inn) (var_x : unop_Inn) : unop_
 	| mk_unop__1 (v_Fnn : Fnn) (var_x : unop_Fnn) : unop_.
@@ -1760,7 +1766,7 @@ Definition equnop_P : Equality.axiom (unop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (unop_) (equnop_P).
 Hint Resolve unop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:282.8-282.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:285.8-285.14 *)
 Inductive wf_unop_ : numtype -> unop_ -> Prop :=
 	| unop__case_0 : forall (v_numtype : numtype) (v_Inn : Inn) (var_x : unop_Inn), 
 		(v_numtype == (numtype_Inn v_Inn)) ->
@@ -1769,21 +1775,21 @@ Inductive wf_unop_ : numtype -> unop_ -> Prop :=
 		(v_numtype == (numtype_Fnn v_Fnn)) ->
 		wf_unop_ v_numtype (mk_unop__1 v_Fnn var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:282.1-282.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:285.1-285.22 *)
 Definition proj_unop__0 (var_x : unop_) : (option unop_Inn) :=
 	match var_x return (option unop_Inn) with
 		| (mk_unop__0 v_Inn var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:282.1-282.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:285.1-285.22 *)
 Definition proj_unop__1 (var_x : unop_) : (option unop_Fnn) :=
 	match var_x return (option unop_Fnn) with
 		| (mk_unop__1 v_Fnn var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:286.1-286.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:289.1-289.23 *)
 Inductive binop_Inn : Type :=
 	| ADD : binop_Inn
 	| SUB : binop_Inn
@@ -1812,7 +1818,7 @@ Definition eqbinop_InnP : Equality.axiom (binop_Inn_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (binop_Inn) (eqbinop_InnP).
 Hint Resolve binop_Inn_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:286.1-286.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:289.1-289.23 *)
 Inductive binop_Fnn : Type :=
 	| binop_Fnn_ADD : binop_Fnn
 	| binop_Fnn_SUB : binop_Fnn
@@ -1836,7 +1842,7 @@ Definition eqbinop_FnnP : Equality.axiom (binop_Fnn_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (binop_Fnn) (eqbinop_FnnP).
 Hint Resolve binop_Fnn_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:286.1-286.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:289.1-289.23 *)
 Inductive binop_ : Type :=
 	| mk_binop__0 (v_Inn : Inn) (var_x : binop_Inn) : binop_
 	| mk_binop__1 (v_Fnn : Fnn) (var_x : binop_Fnn) : binop_.
@@ -1855,7 +1861,7 @@ Definition eqbinop_P : Equality.axiom (binop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (binop_) (eqbinop_P).
 Hint Resolve binop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:286.8-286.15 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:289.8-289.15 *)
 Inductive wf_binop_ : numtype -> binop_ -> Prop :=
 	| binop__case_0 : forall (v_numtype : numtype) (v_Inn : Inn) (var_x : binop_Inn), 
 		(v_numtype == (numtype_Inn v_Inn)) ->
@@ -1864,21 +1870,21 @@ Inductive wf_binop_ : numtype -> binop_ -> Prop :=
 		(v_numtype == (numtype_Fnn v_Fnn)) ->
 		wf_binop_ v_numtype (mk_binop__1 v_Fnn var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:286.1-286.23 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:289.1-289.23 *)
 Definition proj_binop__0 (var_x : binop_) : (option binop_Inn) :=
 	match var_x return (option binop_Inn) with
 		| (mk_binop__0 v_Inn var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:286.1-286.23 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:289.1-289.23 *)
 Definition proj_binop__1 (var_x : binop_) : (option binop_Fnn) :=
 	match var_x return (option binop_Fnn) with
 		| (mk_binop__1 v_Fnn var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:293.1-293.24 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:296.1-296.24 *)
 Inductive testop_Inn : Type :=
 	| EQZ : testop_Inn.
 
@@ -1896,7 +1902,7 @@ Definition eqtestop_InnP : Equality.axiom (testop_Inn_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (testop_Inn) (eqtestop_InnP).
 Hint Resolve testop_Inn_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:293.1-293.24 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:296.1-296.24 *)
 Inductive testop_ : Type :=
 	| mk_testop__0 (v_Inn : Inn) (var_x : testop_Inn) : testop_.
 
@@ -1914,19 +1920,19 @@ Definition eqtestop_P : Equality.axiom (testop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (testop_) (eqtestop_P).
 Hint Resolve testop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:293.8-293.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:296.8-296.16 *)
 Inductive wf_testop_ : numtype -> testop_ -> Prop :=
 	| testop__case_0 : forall (v_numtype : numtype) (v_Inn : Inn) (var_x : testop_Inn), 
 		(v_numtype == (numtype_Inn v_Inn)) ->
 		wf_testop_ v_numtype (mk_testop__0 v_Inn var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:293.1-293.24 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:296.1-296.24 *)
 Definition proj_testop__0 (var_x : testop_) : testop_Inn :=
 	match var_x return testop_Inn with
 		| (mk_testop__0 v_Inn var_x) => var_x
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:297.1-297.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:300.1-300.23 *)
 Inductive relop_Inn : Type :=
 	| EQ : relop_Inn
 	| NE : relop_Inn
@@ -1949,7 +1955,7 @@ Definition eqrelop_InnP : Equality.axiom (relop_Inn_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (relop_Inn) (eqrelop_InnP).
 Hint Resolve relop_Inn_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:297.1-297.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:300.1-300.23 *)
 Inductive relop_Fnn : Type :=
 	| relop_Fnn_EQ : relop_Fnn
 	| relop_Fnn_NE : relop_Fnn
@@ -1972,7 +1978,7 @@ Definition eqrelop_FnnP : Equality.axiom (relop_Fnn_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (relop_Fnn) (eqrelop_FnnP).
 Hint Resolve relop_Fnn_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:297.1-297.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:300.1-300.23 *)
 Inductive relop_ : Type :=
 	| mk_relop__0 (v_Inn : Inn) (var_x : relop_Inn) : relop_
 	| mk_relop__1 (v_Fnn : Fnn) (var_x : relop_Fnn) : relop_.
@@ -1991,7 +1997,7 @@ Definition eqrelop_P : Equality.axiom (relop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (relop_) (eqrelop_P).
 Hint Resolve relop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:297.8-297.15 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:300.8-300.15 *)
 Inductive wf_relop_ : numtype -> relop_ -> Prop :=
 	| relop__case_0 : forall (v_numtype : numtype) (v_Inn : Inn) (var_x : relop_Inn), 
 		(v_numtype == (numtype_Inn v_Inn)) ->
@@ -2000,21 +2006,21 @@ Inductive wf_relop_ : numtype -> relop_ -> Prop :=
 		(v_numtype == (numtype_Fnn v_Fnn)) ->
 		wf_relop_ v_numtype (mk_relop__1 v_Fnn var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:297.1-297.23 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:300.1-300.23 *)
 Definition proj_relop__0 (var_x : relop_) : (option relop_Inn) :=
 	match var_x return (option relop_Inn) with
 		| (mk_relop__0 v_Inn var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:297.1-297.23 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:300.1-300.23 *)
 Definition proj_relop__1 (var_x : relop_) : (option relop_Fnn) :=
 	match var_x return (option relop_Fnn) with
 		| (mk_relop__1 v_Fnn var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:305.1-305.37 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:308.1-308.37 *)
 Inductive cvtop__Inn_1_Inn_2 : Type :=
 	| cvtop__Inn_1_Inn_2_EXTEND (v_sx : sx) : cvtop__Inn_1_Inn_2
 	| WRAP : cvtop__Inn_1_Inn_2.
@@ -2033,7 +2039,7 @@ Definition eqcvtop__Inn_1_Inn_2P : Equality.axiom (cvtop__Inn_1_Inn_2_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (cvtop__Inn_1_Inn_2) (eqcvtop__Inn_1_Inn_2P).
 Hint Resolve cvtop__Inn_1_Inn_2_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:305.8-305.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:308.8-308.16 *)
 Inductive wf_cvtop__Inn_1_Inn_2 : Inn -> Inn -> cvtop__Inn_1_Inn_2 -> Prop :=
 	| cvtop__Inn_1_Inn_2_case_0 : forall (Inn_1 : Inn) (Inn_2 : Inn) (v_sx : sx), 
 		((sizenn1 (numtype_Inn Inn_1)) <? (sizenn2 (numtype_Inn Inn_2)))%BN ->
@@ -2042,7 +2048,7 @@ Inductive wf_cvtop__Inn_1_Inn_2 : Inn -> Inn -> cvtop__Inn_1_Inn_2 -> Prop :=
 		((sizenn1 (numtype_Inn Inn_1)) >? (sizenn2 (numtype_Inn Inn_2)))%BN ->
 		wf_cvtop__Inn_1_Inn_2 Inn_1 Inn_2 WRAP.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:305.1-305.37 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:308.1-308.37 *)
 Inductive cvtop__Inn_1_Fnn_2 : Type :=
 	| CONVERT (v_sx : sx) : cvtop__Inn_1_Fnn_2
 	| REINTERPRET : cvtop__Inn_1_Fnn_2.
@@ -2061,14 +2067,14 @@ Definition eqcvtop__Inn_1_Fnn_2P : Equality.axiom (cvtop__Inn_1_Fnn_2_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (cvtop__Inn_1_Fnn_2) (eqcvtop__Inn_1_Fnn_2P).
 Hint Resolve cvtop__Inn_1_Fnn_2_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:305.8-305.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:308.8-308.16 *)
 Inductive wf_cvtop__Inn_1_Fnn_2 : Inn -> Fnn -> cvtop__Inn_1_Fnn_2 -> Prop :=
 	| cvtop__Inn_1_Fnn_2_case_0 : forall (Inn_1 : Inn) (Fnn_2 : Fnn) (v_sx : sx), wf_cvtop__Inn_1_Fnn_2 Inn_1 Fnn_2 (CONVERT v_sx)
 	| cvtop__Inn_1_Fnn_2_case_1 : forall (Inn_1 : Inn) (Fnn_2 : Fnn), 
 		((sizenn1 (numtype_Inn Inn_1)) == (sizenn2 (numtype_Fnn Fnn_2))) ->
 		wf_cvtop__Inn_1_Fnn_2 Inn_1 Fnn_2 REINTERPRET.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:305.1-305.37 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:308.1-308.37 *)
 Inductive cvtop__Fnn_1_Inn_2 : Type :=
 	| cvtop__Fnn_1_Inn_2_TRUNC (v_sx : sx) : cvtop__Fnn_1_Inn_2
 	| TRUNC_SAT (v_sx : sx) : cvtop__Fnn_1_Inn_2
@@ -2088,7 +2094,7 @@ Definition eqcvtop__Fnn_1_Inn_2P : Equality.axiom (cvtop__Fnn_1_Inn_2_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (cvtop__Fnn_1_Inn_2) (eqcvtop__Fnn_1_Inn_2P).
 Hint Resolve cvtop__Fnn_1_Inn_2_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:305.8-305.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:308.8-308.16 *)
 Inductive wf_cvtop__Fnn_1_Inn_2 : Fnn -> Inn -> cvtop__Fnn_1_Inn_2 -> Prop :=
 	| cvtop__Fnn_1_Inn_2_case_0 : forall (Fnn_1 : Fnn) (Inn_2 : Inn) (v_sx : sx), wf_cvtop__Fnn_1_Inn_2 Fnn_1 Inn_2 (cvtop__Fnn_1_Inn_2_TRUNC v_sx)
 	| cvtop__Fnn_1_Inn_2_case_1 : forall (Fnn_1 : Fnn) (Inn_2 : Inn) (v_sx : sx), wf_cvtop__Fnn_1_Inn_2 Fnn_1 Inn_2 (TRUNC_SAT v_sx)
@@ -2096,7 +2102,7 @@ Inductive wf_cvtop__Fnn_1_Inn_2 : Fnn -> Inn -> cvtop__Fnn_1_Inn_2 -> Prop :=
 		((sizenn1 (numtype_Fnn Fnn_1)) == (sizenn2 (numtype_Inn Inn_2))) ->
 		wf_cvtop__Fnn_1_Inn_2 Fnn_1 Inn_2 cvtop__Fnn_1_Inn_2_REINTERPRET.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:305.1-305.37 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:308.1-308.37 *)
 Inductive cvtop__Fnn_1_Fnn_2 : Type :=
 	| PROMOTE : cvtop__Fnn_1_Fnn_2
 	| DEMOTE : cvtop__Fnn_1_Fnn_2.
@@ -2115,7 +2121,7 @@ Definition eqcvtop__Fnn_1_Fnn_2P : Equality.axiom (cvtop__Fnn_1_Fnn_2_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (cvtop__Fnn_1_Fnn_2) (eqcvtop__Fnn_1_Fnn_2P).
 Hint Resolve cvtop__Fnn_1_Fnn_2_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:305.8-305.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:308.8-308.16 *)
 Inductive wf_cvtop__Fnn_1_Fnn_2 : Fnn -> Fnn -> cvtop__Fnn_1_Fnn_2 -> Prop :=
 	| cvtop__Fnn_1_Fnn_2_case_0 : forall (Fnn_1 : Fnn) (Fnn_2 : Fnn), 
 		((sizenn1 (numtype_Fnn Fnn_1)) <? (sizenn2 (numtype_Fnn Fnn_2)))%BN ->
@@ -2124,7 +2130,7 @@ Inductive wf_cvtop__Fnn_1_Fnn_2 : Fnn -> Fnn -> cvtop__Fnn_1_Fnn_2 -> Prop :=
 		((sizenn1 (numtype_Fnn Fnn_1)) >? (sizenn2 (numtype_Fnn Fnn_2)))%BN ->
 		wf_cvtop__Fnn_1_Fnn_2 Fnn_1 Fnn_2 DEMOTE.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:305.1-305.37 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:308.1-308.37 *)
 Inductive cvtop__ : Type :=
 	| mk_cvtop___0 (Inn_1 : Inn) (Inn_2 : Inn) (var_x : cvtop__Inn_1_Inn_2) : cvtop__
 	| mk_cvtop___1 (Inn_1 : Inn) (Fnn_2 : Fnn) (var_x : cvtop__Inn_1_Fnn_2) : cvtop__
@@ -2145,7 +2151,7 @@ Definition eqcvtop__P : Equality.axiom (cvtop___eqb) :=
 HB.instance Definition _ := hasDecEq.Build (cvtop__) (eqcvtop__P).
 Hint Resolve cvtop___eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:305.8-305.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:308.8-308.16 *)
 Inductive wf_cvtop__ : numtype -> numtype -> cvtop__ -> Prop :=
 	| cvtop___case_0 : forall (numtype_1 : numtype) (numtype_2 : numtype) (Inn_1 : Inn) (Inn_2 : Inn) (var_x : cvtop__Inn_1_Inn_2), 
 		(wf_cvtop__Inn_1_Inn_2 Inn_1 Inn_2 var_x) ->
@@ -2168,35 +2174,35 @@ Inductive wf_cvtop__ : numtype -> numtype -> cvtop__ -> Prop :=
 		(numtype_2 == (numtype_Fnn Fnn_2)) ->
 		wf_cvtop__ numtype_1 numtype_2 (mk_cvtop___3 Fnn_1 Fnn_2 var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:305.1-305.37 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:308.1-308.37 *)
 Definition proj_cvtop___0 (var_x : cvtop__) : (option cvtop__Inn_1_Inn_2) :=
 	match var_x return (option cvtop__Inn_1_Inn_2) with
 		| (mk_cvtop___0 Inn_1 Inn_2 var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:305.1-305.37 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:308.1-308.37 *)
 Definition proj_cvtop___1 (var_x : cvtop__) : (option cvtop__Inn_1_Fnn_2) :=
 	match var_x return (option cvtop__Inn_1_Fnn_2) with
 		| (mk_cvtop___1 Inn_1 Fnn_2 var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:305.1-305.37 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:308.1-308.37 *)
 Definition proj_cvtop___2 (var_x : cvtop__) : (option cvtop__Fnn_1_Inn_2) :=
 	match var_x return (option cvtop__Fnn_1_Inn_2) with
 		| (mk_cvtop___2 Fnn_1 Inn_2 var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:305.1-305.37 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:308.1-308.37 *)
 Definition proj_cvtop___3 (var_x : cvtop__) : (option cvtop__Fnn_1_Fnn_2) :=
 	match var_x return (option cvtop__Fnn_1_Fnn_2) with
 		| (mk_cvtop___3 Fnn_1 Fnn_2 var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:325.1-325.69 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:328.1-328.69 *)
 Inductive ishape : Type :=
 	| ishape_X (v_Jnn : Jnn) (v_dim : dim) : ishape.
 
@@ -2220,13 +2226,13 @@ Definition shape_ishape (var_0 : ishape) : shape :=
 		| (ishape_X x0 x1) => (X (lanetype_Jnn x0) x1)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:325.8-325.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:328.8-328.14 *)
 Inductive wf_ishape : ishape -> Prop :=
 	| ishape_case_0 : forall (v_Jnn : Jnn) (v_dim : dim), 
 		(wf_dim v_dim) ->
 		wf_ishape (ishape_X v_Jnn v_dim).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:326.1-326.69 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:329.1-329.69 *)
 Inductive fshape : Type :=
 	| fshape_X (v_Fnn : Fnn) (v_dim : dim) : fshape.
 
@@ -2244,13 +2250,13 @@ Definition eqfshapeP : Equality.axiom (fshape_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (fshape) (eqfshapeP).
 Hint Resolve fshape_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:326.8-326.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:329.8-329.14 *)
 Inductive wf_fshape : fshape -> Prop :=
 	| fshape_case_0 : forall (v_Fnn : Fnn) (v_dim : dim), 
 		(wf_dim v_dim) ->
 		wf_fshape (fshape_X v_Fnn v_dim).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:327.1-327.69 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:330.1-330.69 *)
 Inductive pshape : Type :=
 	| pshape_X (v_Pnn : Pnn) (v_dim : dim) : pshape.
 
@@ -2268,19 +2274,19 @@ Definition eqpshapeP : Equality.axiom (pshape_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (pshape) (eqpshapeP).
 Hint Resolve pshape_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:327.8-327.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:330.8-330.14 *)
 Inductive wf_pshape : pshape -> Prop :=
 	| pshape_case_0 : forall (v_Pnn : Pnn) (v_dim : dim), 
 		(wf_dim v_dim) ->
 		wf_pshape (pshape_X v_Pnn v_dim).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:329.1-329.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:332.1-332.22 *)
 Definition fun_dim (v_shape : shape) : dim :=
 	match v_shape return dim with
 		| (X v_Lnn (mk_dim v_N)) => (mk_dim v_N)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:329.6-329.10 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:332.6-332.10 *)
 Lemma dim_is_wf : forall (v_shape : shape) (ret_val : dim),
 	(wf_shape v_shape) ->
 	(ret_val == (fun_dim v_shape)) ->
@@ -2290,13 +2296,13 @@ Proof.
 	case: Hwf => lt d Hd. by case: d Hd => i Hd.
 Qed.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:330.1-330.41 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:333.1-333.41 *)
 Definition shsize (v_shape : shape) : N :=
 	match v_shape return N with
 		| (X v_Lnn (mk_dim v_N)) => ((lsize v_Lnn) * v_N)%BN
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:332.1-332.20 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:335.1-335.20 *)
 Inductive vvunop : Type :=
 	| NOT : vvunop.
 
@@ -2314,7 +2320,7 @@ Definition eqvvunopP : Equality.axiom (vvunop_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vvunop) (eqvvunopP).
 Hint Resolve vvunop_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:333.1-333.41 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:336.1-336.41 *)
 Inductive vvbinop : Type :=
 	| vvbinop_AND : vvbinop
 	| ANDNOT : vvbinop
@@ -2335,7 +2341,7 @@ Definition eqvvbinopP : Equality.axiom (vvbinop_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vvbinop) (eqvvbinopP).
 Hint Resolve vvbinop_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:334.1-334.28 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:337.1-337.28 *)
 Inductive vvternop : Type :=
 	| BITSELECT : vvternop.
 
@@ -2353,7 +2359,7 @@ Definition eqvvternopP : Equality.axiom (vvternop_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vvternop) (eqvvternopP).
 Hint Resolve vvternop_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:335.1-335.27 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:338.1-338.27 *)
 Inductive vvtestop : Type :=
 	| ANY_TRUE : vvtestop.
 
@@ -2371,7 +2377,7 @@ Definition eqvvtestopP : Equality.axiom (vvtestop_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vvtestop) (eqvvtestopP).
 Hint Resolve vvtestop_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:337.1-337.21 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:340.1-340.21 *)
 Inductive vunop_Jnn_N : Type :=
 	| vunop_Jnn_N_ABS : vunop_Jnn_N
 	| vunop_Jnn_N_NEG : vunop_Jnn_N
@@ -2391,7 +2397,7 @@ Definition eqvunop_Jnn_NP : Equality.axiom (vunop_Jnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vunop_Jnn_N) (eqvunop_Jnn_NP).
 Hint Resolve vunop_Jnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:337.8-337.15 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:340.8-340.15 *)
 Inductive wf_vunop_Jnn_N : Jnn -> res_N -> vunop_Jnn_N -> Prop :=
 	| vunop_Jnn_N_case_0 : forall (v_Jnn : Jnn) (v_N : res_N), wf_vunop_Jnn_N v_Jnn v_N vunop_Jnn_N_ABS
 	| vunop_Jnn_N_case_1 : forall (v_Jnn : Jnn) (v_N : res_N), wf_vunop_Jnn_N v_Jnn v_N vunop_Jnn_N_NEG
@@ -2399,7 +2405,7 @@ Inductive wf_vunop_Jnn_N : Jnn -> res_N -> vunop_Jnn_N -> Prop :=
 		(v_Jnn == Jnn_I8) ->
 		wf_vunop_Jnn_N v_Jnn v_N vunop_Jnn_N_POPCNT.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:337.1-337.21 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:340.1-340.21 *)
 Inductive vunop_Fnn_N : Type :=
 	| vunop_Fnn_N_ABS : vunop_Fnn_N
 	| vunop_Fnn_N_NEG : vunop_Fnn_N
@@ -2423,7 +2429,7 @@ Definition eqvunop_Fnn_NP : Equality.axiom (vunop_Fnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vunop_Fnn_N) (eqvunop_Fnn_NP).
 Hint Resolve vunop_Fnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:337.1-337.21 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:340.1-340.21 *)
 Inductive vunop_ : Type :=
 	| mk_vunop__0 (v_Jnn : Jnn) (v_N : res_N) (var_x : vunop_Jnn_N) : vunop_
 	| mk_vunop__1 (v_Fnn : Fnn) (v_N : res_N) (var_x : vunop_Fnn_N) : vunop_.
@@ -2442,7 +2448,7 @@ Definition eqvunop_P : Equality.axiom (vunop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vunop_) (eqvunop_P).
 Hint Resolve vunop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:337.8-337.15 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:340.8-340.15 *)
 Inductive wf_vunop_ : shape -> vunop_ -> Prop :=
 	| vunop__case_0 : forall (v_shape : shape) (v_Jnn : Jnn) (v_N : res_N) (var_x : vunop_Jnn_N), 
 		(wf_vunop_Jnn_N v_Jnn v_N var_x) ->
@@ -2452,21 +2458,21 @@ Inductive wf_vunop_ : shape -> vunop_ -> Prop :=
 		(v_shape == (X (lanetype_Fnn v_Fnn) (mk_dim v_N))) ->
 		wf_vunop_ v_shape (mk_vunop__1 v_Fnn v_N var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:337.1-337.21 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:340.1-340.21 *)
 Definition proj_vunop__0 (var_x : vunop_) : (option vunop_Jnn_N) :=
 	match var_x return (option vunop_Jnn_N) with
 		| (mk_vunop__0 v_Jnn v_N var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:337.1-337.21 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:340.1-340.21 *)
 Definition proj_vunop__1 (var_x : vunop_) : (option vunop_Fnn_N) :=
 	match var_x return (option vunop_Fnn_N) with
 		| (mk_vunop__1 v_Fnn v_N var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.1-342.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:345.1-345.22 *)
 Inductive vbinop_Jnn_N : Type :=
 	| vbinop_Jnn_N_ADD : vbinop_Jnn_N
 	| vbinop_Jnn_N_SUB : vbinop_Jnn_N
@@ -2492,7 +2498,7 @@ Definition eqvbinop_Jnn_NP : Equality.axiom (vbinop_Jnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vbinop_Jnn_N) (eqvbinop_Jnn_NP).
 Hint Resolve vbinop_Jnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.8-342.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:345.8-345.16 *)
 Inductive wf_vbinop_Jnn_N : Jnn -> res_N -> vbinop_Jnn_N -> Prop :=
 	| vbinop_Jnn_N_case_0 : forall (v_Jnn : Jnn) (v_N : res_N), wf_vbinop_Jnn_N v_Jnn v_N vbinop_Jnn_N_ADD
 	| vbinop_Jnn_N_case_1 : forall (v_Jnn : Jnn) (v_N : res_N), wf_vbinop_Jnn_N v_Jnn v_N vbinop_Jnn_N_SUB
@@ -2518,7 +2524,7 @@ Inductive wf_vbinop_Jnn_N : Jnn -> res_N -> vbinop_Jnn_N -> Prop :=
 		((lsizenn (lanetype_Jnn v_Jnn)) <=? 32%N)%BN ->
 		wf_vbinop_Jnn_N v_Jnn v_N (vbinop_Jnn_N_MAX v_sx).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.1-342.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:345.1-345.22 *)
 Inductive vbinop_Fnn_N : Type :=
 	| vbinop_Fnn_N_ADD : vbinop_Fnn_N
 	| vbinop_Fnn_N_SUB : vbinop_Fnn_N
@@ -2543,7 +2549,7 @@ Definition eqvbinop_Fnn_NP : Equality.axiom (vbinop_Fnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vbinop_Fnn_N) (eqvbinop_Fnn_NP).
 Hint Resolve vbinop_Fnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.1-342.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:345.1-345.22 *)
 Inductive vbinop_ : Type :=
 	| mk_vbinop__0 (v_Jnn : Jnn) (v_N : res_N) (var_x : vbinop_Jnn_N) : vbinop_
 	| mk_vbinop__1 (v_Fnn : Fnn) (v_N : res_N) (var_x : vbinop_Fnn_N) : vbinop_.
@@ -2562,7 +2568,7 @@ Definition eqvbinop_P : Equality.axiom (vbinop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vbinop_) (eqvbinop_P).
 Hint Resolve vbinop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.8-342.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:345.8-345.16 *)
 Inductive wf_vbinop_ : shape -> vbinop_ -> Prop :=
 	| vbinop__case_0 : forall (v_shape : shape) (v_Jnn : Jnn) (v_N : res_N) (var_x : vbinop_Jnn_N), 
 		(wf_vbinop_Jnn_N v_Jnn v_N var_x) ->
@@ -2572,21 +2578,21 @@ Inductive wf_vbinop_ : shape -> vbinop_ -> Prop :=
 		(v_shape == (X (lanetype_Fnn v_Fnn) (mk_dim v_N))) ->
 		wf_vbinop_ v_shape (mk_vbinop__1 v_Fnn v_N var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.1-342.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:345.1-345.22 *)
 Definition proj_vbinop__0 (var_x : vbinop_) : (option vbinop_Jnn_N) :=
 	match var_x return (option vbinop_Jnn_N) with
 		| (mk_vbinop__0 v_Jnn v_N var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.1-342.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:345.1-345.22 *)
 Definition proj_vbinop__1 (var_x : vbinop_) : (option vbinop_Fnn_N) :=
 	match var_x return (option vbinop_Fnn_N) with
 		| (mk_vbinop__1 v_Fnn v_N var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.1-355.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:358.1-358.23 *)
 Inductive vtestop_Jnn_N : Type :=
 	| ALL_TRUE : vtestop_Jnn_N.
 
@@ -2604,7 +2610,7 @@ Definition eqvtestop_Jnn_NP : Equality.axiom (vtestop_Jnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vtestop_Jnn_N) (eqvtestop_Jnn_NP).
 Hint Resolve vtestop_Jnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.1-355.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:358.1-358.23 *)
 Inductive vtestop_ : Type :=
 	| mk_vtestop__0 (v_Jnn : Jnn) (v_N : res_N) (var_x : vtestop_Jnn_N) : vtestop_.
 
@@ -2622,19 +2628,19 @@ Definition eqvtestop_P : Equality.axiom (vtestop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vtestop_) (eqvtestop_P).
 Hint Resolve vtestop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.8-355.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:358.8-358.17 *)
 Inductive wf_vtestop_ : shape -> vtestop_ -> Prop :=
 	| vtestop__case_0 : forall (v_shape : shape) (v_Jnn : Jnn) (v_N : res_N) (var_x : vtestop_Jnn_N), 
 		(v_shape == (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) ->
 		wf_vtestop_ v_shape (mk_vtestop__0 v_Jnn v_N var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.1-355.23 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:358.1-358.23 *)
 Definition proj_vtestop__0 (var_x : vtestop_) : vtestop_Jnn_N :=
 	match var_x return vtestop_Jnn_N with
 		| (mk_vtestop__0 v_Jnn v_N var_x) => var_x
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:359.1-359.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:362.1-362.22 *)
 Inductive vrelop_Jnn_N : Type :=
 	| vrelop_Jnn_N_EQ : vrelop_Jnn_N
 	| vrelop_Jnn_N_NE : vrelop_Jnn_N
@@ -2657,7 +2663,7 @@ Definition eqvrelop_Jnn_NP : Equality.axiom (vrelop_Jnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vrelop_Jnn_N) (eqvrelop_Jnn_NP).
 Hint Resolve vrelop_Jnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:359.8-359.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:362.8-362.16 *)
 Inductive wf_vrelop_Jnn_N : Jnn -> res_N -> vrelop_Jnn_N -> Prop :=
 	| vrelop_Jnn_N_case_0 : forall (v_Jnn : Jnn) (v_N : res_N), wf_vrelop_Jnn_N v_Jnn v_N vrelop_Jnn_N_EQ
 	| vrelop_Jnn_N_case_1 : forall (v_Jnn : Jnn) (v_N : res_N), wf_vrelop_Jnn_N v_Jnn v_N vrelop_Jnn_N_NE
@@ -2674,7 +2680,7 @@ Inductive wf_vrelop_Jnn_N : Jnn -> res_N -> vrelop_Jnn_N -> Prop :=
 		(((lsizenn (lanetype_Jnn v_Jnn)) != 64%N) || (v_sx == res_S)) ->
 		wf_vrelop_Jnn_N v_Jnn v_N (vrelop_Jnn_N_GE v_sx).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:359.1-359.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:362.1-362.22 *)
 Inductive vrelop_Fnn_N : Type :=
 	| vrelop_Fnn_N_EQ : vrelop_Fnn_N
 	| vrelop_Fnn_N_NE : vrelop_Fnn_N
@@ -2697,7 +2703,7 @@ Definition eqvrelop_Fnn_NP : Equality.axiom (vrelop_Fnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vrelop_Fnn_N) (eqvrelop_Fnn_NP).
 Hint Resolve vrelop_Fnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:359.1-359.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:362.1-362.22 *)
 Inductive vrelop_ : Type :=
 	| mk_vrelop__0 (v_Jnn : Jnn) (v_N : res_N) (var_x : vrelop_Jnn_N) : vrelop_
 	| mk_vrelop__1 (v_Fnn : Fnn) (v_N : res_N) (var_x : vrelop_Fnn_N) : vrelop_.
@@ -2716,7 +2722,7 @@ Definition eqvrelop_P : Equality.axiom (vrelop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vrelop_) (eqvrelop_P).
 Hint Resolve vrelop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:359.8-359.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:362.8-362.16 *)
 Inductive wf_vrelop_ : shape -> vrelop_ -> Prop :=
 	| vrelop__case_0 : forall (v_shape : shape) (v_Jnn : Jnn) (v_N : res_N) (var_x : vrelop_Jnn_N), 
 		(wf_vrelop_Jnn_N v_Jnn v_N var_x) ->
@@ -2726,21 +2732,21 @@ Inductive wf_vrelop_ : shape -> vrelop_ -> Prop :=
 		(v_shape == (X (lanetype_Fnn v_Fnn) (mk_dim v_N))) ->
 		wf_vrelop_ v_shape (mk_vrelop__1 v_Fnn v_N var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:359.1-359.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:362.1-362.22 *)
 Definition proj_vrelop__0 (var_x : vrelop_) : (option vrelop_Jnn_N) :=
 	match var_x return (option vrelop_Jnn_N) with
 		| (mk_vrelop__0 v_Jnn v_N var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:359.1-359.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:362.1-362.22 *)
 Definition proj_vrelop__1 (var_x : vrelop_) : (option vrelop_Fnn_N) :=
 	match var_x return (option vrelop_Fnn_N) with
 		| (mk_vrelop__1 v_Fnn v_N var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:367.1-367.48 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:370.1-370.48 *)
 Inductive half : Type :=
 	| LOW : half
 	| HIGH : half.
@@ -2759,7 +2765,7 @@ Definition eqhalfP : Equality.axiom (half_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (half) (eqhalfP).
 Hint Resolve half_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:368.1-368.19 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:371.1-371.19 *)
 Inductive zero : Type :=
 	| ZERO : zero.
 
@@ -2777,7 +2783,7 @@ Definition eqzeroP : Equality.axiom (zero_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (zero) (eqzeroP).
 Hint Resolve zero_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:370.1-370.99 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:373.1-373.99 *)
 Inductive vcvtop : Type :=
 	| vcvtop_EXTEND (v_half : half) (v_sx : sx) : vcvtop
 	| vcvtop_TRUNC_SAT (v_sx : sx) (zero_opt : (option zero)) : vcvtop
@@ -2799,7 +2805,7 @@ Definition eqvcvtopP : Equality.axiom (vcvtop_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vcvtop) (eqvcvtopP).
 Hint Resolve vcvtop_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.1-372.25 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:375.1-375.25 *)
 Inductive vshiftop_Jnn_N : Type :=
 	| vshiftop_Jnn_N_SHL : vshiftop_Jnn_N
 	| vshiftop_Jnn_N_SHR (v_sx : sx) : vshiftop_Jnn_N.
@@ -2818,7 +2824,7 @@ Definition eqvshiftop_Jnn_NP : Equality.axiom (vshiftop_Jnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vshiftop_Jnn_N) (eqvshiftop_Jnn_NP).
 Hint Resolve vshiftop_Jnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.1-372.25 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:375.1-375.25 *)
 Inductive vshiftop_ : Type :=
 	| mk_vshiftop__0 (v_Jnn : Jnn) (v_N : res_N) (var_x : vshiftop_Jnn_N) : vshiftop_.
 
@@ -2836,19 +2842,19 @@ Definition eqvshiftop_P : Equality.axiom (vshiftop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vshiftop_) (eqvshiftop_P).
 Hint Resolve vshiftop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.8-372.18 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:375.8-375.18 *)
 Inductive wf_vshiftop_ : ishape -> vshiftop_ -> Prop :=
 	| vshiftop__case_0 : forall (v_ishape : ishape) (v_Jnn : Jnn) (v_N : res_N) (var_x : vshiftop_Jnn_N), 
 		(v_ishape == (ishape_X v_Jnn (mk_dim v_N))) ->
 		wf_vshiftop_ v_ishape (mk_vshiftop__0 v_Jnn v_N var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.1-372.25 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:375.1-375.25 *)
 Definition proj_vshiftop__0 (var_x : vshiftop_) : vshiftop_Jnn_N :=
 	match var_x return vshiftop_Jnn_N with
 		| (mk_vshiftop__0 v_Jnn v_N var_x) => var_x
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:375.1-375.25 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:378.1-378.25 *)
 Inductive vextunop_Jnn_N : Type :=
 	| EXTADD_PAIRWISE (v_sx : sx) : vextunop_Jnn_N.
 
@@ -2866,13 +2872,13 @@ Definition eqvextunop_Jnn_NP : Equality.axiom (vextunop_Jnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vextunop_Jnn_N) (eqvextunop_Jnn_NP).
 Hint Resolve vextunop_Jnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:375.8-375.18 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:378.8-378.18 *)
 Inductive wf_vextunop_Jnn_N : Jnn -> res_N -> vextunop_Jnn_N -> Prop :=
 	| vextunop_Jnn_N_case_0 : forall (v_Jnn : Jnn) (v_N : res_N) (v_sx : sx), 
 		((16%N <=? (lsizenn (lanetype_Jnn v_Jnn)))%BN && ((lsizenn (lanetype_Jnn v_Jnn)) <=? 32%N)%BN) ->
 		wf_vextunop_Jnn_N v_Jnn v_N (EXTADD_PAIRWISE v_sx).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:375.1-375.25 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:378.1-378.25 *)
 Inductive vextunop_ : Type :=
 	| mk_vextunop__0 (v_Jnn : Jnn) (v_N : res_N) (var_x : vextunop_Jnn_N) : vextunop_.
 
@@ -2890,20 +2896,20 @@ Definition eqvextunop_P : Equality.axiom (vextunop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vextunop_) (eqvextunop_P).
 Hint Resolve vextunop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:375.8-375.18 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:378.8-378.18 *)
 Inductive wf_vextunop_ : ishape -> vextunop_ -> Prop :=
 	| vextunop__case_0 : forall (v_ishape : ishape) (v_Jnn : Jnn) (v_N : res_N) (var_x : vextunop_Jnn_N), 
 		(wf_vextunop_Jnn_N v_Jnn v_N var_x) ->
 		(v_ishape == (ishape_X v_Jnn (mk_dim v_N))) ->
 		wf_vextunop_ v_ishape (mk_vextunop__0 v_Jnn v_N var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:375.1-375.25 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:378.1-378.25 *)
 Definition proj_vextunop__0 (var_x : vextunop_) : vextunop_Jnn_N :=
 	match var_x return vextunop_Jnn_N with
 		| (mk_vextunop__0 v_Jnn v_N var_x) => var_x
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:378.1-378.26 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:381.1-381.26 *)
 Inductive vextbinop_Jnn_N : Type :=
 	| EXTMUL (v_half : half) (v_sx : sx) : vextbinop_Jnn_N
 	| DOTS : vextbinop_Jnn_N.
@@ -2922,14 +2928,14 @@ Definition eqvextbinop_Jnn_NP : Equality.axiom (vextbinop_Jnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vextbinop_Jnn_N) (eqvextbinop_Jnn_NP).
 Hint Resolve vextbinop_Jnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:378.8-378.19 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:381.8-381.19 *)
 Inductive wf_vextbinop_Jnn_N : Jnn -> res_N -> vextbinop_Jnn_N -> Prop :=
 	| vextbinop_Jnn_N_case_0 : forall (v_Jnn : Jnn) (v_N : res_N) (v_half : half) (v_sx : sx), wf_vextbinop_Jnn_N v_Jnn v_N (EXTMUL v_half v_sx)
 	| vextbinop_Jnn_N_case_1 : forall (v_Jnn : Jnn) (v_N : res_N), 
 		((lsizenn (lanetype_Jnn v_Jnn)) == 32%N) ->
 		wf_vextbinop_Jnn_N v_Jnn v_N DOTS.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:378.1-378.26 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:381.1-381.26 *)
 Inductive vextbinop_ : Type :=
 	| mk_vextbinop__0 (v_Jnn : Jnn) (v_N : res_N) (var_x : vextbinop_Jnn_N) : vextbinop_.
 
@@ -2947,20 +2953,20 @@ Definition eqvextbinop_P : Equality.axiom (vextbinop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vextbinop_) (eqvextbinop_P).
 Hint Resolve vextbinop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:378.8-378.19 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:381.8-381.19 *)
 Inductive wf_vextbinop_ : ishape -> vextbinop_ -> Prop :=
 	| vextbinop__case_0 : forall (v_ishape : ishape) (v_Jnn : Jnn) (v_N : res_N) (var_x : vextbinop_Jnn_N), 
 		(wf_vextbinop_Jnn_N v_Jnn v_N var_x) ->
 		(v_ishape == (ishape_X v_Jnn (mk_dim v_N))) ->
 		wf_vextbinop_ v_ishape (mk_vextbinop__0 v_Jnn v_N var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:378.1-378.26 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:381.1-381.26 *)
 Definition proj_vextbinop__0 (var_x : vextbinop_) : vextbinop_Jnn_N :=
 	match var_x return vextbinop_Jnn_N with
 		| (mk_vextbinop__0 v_Jnn v_N var_x) => var_x
 	end.
 
-(* Record Creation Definition at: ../specification/wasm-2.0/1-syntax.spectec:386.1-386.69 *)
+(* Record Creation Definition at: ../specification/wasm-2.0/1-syntax.spectec:389.1-389.69 *)
 Record memarg := MKmemarg
 {	ALIGN : u32
 ;	OFFSET : u32
@@ -2993,14 +2999,14 @@ Definition eqmemargP : Equality.axiom (memarg_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (memarg) (eqmemargP).
 Hint Resolve memarg_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:386.8-386.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:389.8-389.14 *)
 Inductive wf_memarg : memarg -> Prop :=
 	| memarg_case_ : forall (var_0 : u32) (var_1 : u32), 
 		(wf_uN 32%N var_0) ->
 		(wf_uN 32%N var_1) ->
 		wf_memarg {| ALIGN := var_0; OFFSET := var_1 |}.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:390.1-390.24 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:393.1-393.24 *)
 Inductive loadop_Inn : Type :=
 	| mk_loadop_Inn (v_sz : sz) (v_sx : sx) : loadop_Inn.
 
@@ -3018,14 +3024,14 @@ Definition eqloadop_InnP : Equality.axiom (loadop_Inn_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (loadop_Inn) (eqloadop_InnP).
 Hint Resolve loadop_Inn_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:390.8-390.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:393.8-393.16 *)
 Inductive wf_loadop_Inn : Inn -> loadop_Inn -> Prop :=
 	| loadop_Inn_case_0 : forall (v_Inn : Inn) (v_sz : sz) (v_sx : sx), 
 		(wf_sz v_sz) ->
 		((v_sz :> N) <? (sizenn (numtype_Inn v_Inn)))%BN ->
 		wf_loadop_Inn v_Inn (mk_loadop_Inn v_sz v_sx).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:390.1-390.24 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:393.1-393.24 *)
 Inductive loadop_ : Type :=
 	| mk_loadop__0 (v_Inn : Inn) (var_x : loadop_Inn) : loadop_.
 
@@ -3043,40 +3049,54 @@ Definition eqloadop_P : Equality.axiom (loadop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (loadop_) (eqloadop_P).
 Hint Resolve loadop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:390.8-390.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:393.8-393.16 *)
 Inductive wf_loadop_ : numtype -> loadop_ -> Prop :=
 	| loadop__case_0 : forall (v_numtype : numtype) (v_Inn : Inn) (var_x : loadop_Inn), 
 		(wf_loadop_Inn v_Inn var_x) ->
 		(v_numtype == (numtype_Inn v_Inn)) ->
 		wf_loadop_ v_numtype (mk_loadop__0 v_Inn var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:390.1-390.24 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:393.1-393.24 *)
 Definition proj_loadop__0 (var_x : loadop_) : loadop_Inn :=
 	match var_x return loadop_Inn with
 		| (mk_loadop__0 v_Inn var_x) => var_x
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:393.1-396.46 *)
-Inductive vloadop : Type :=
-	| SHAPEX_ (_ : N) (_ : N) (v_sx : sx) : vloadop
-	| SPLAT (_ : N) : vloadop
-	| vloadop_ZERO (_ : N) : vloadop.
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:396.1-399.61 *)
+Inductive vloadop_ : Type :=
+	| SHAPEX_ (v_sz : sz) (v_M : M) (v_sx : sx) : vloadop_
+	| SPLAT (v_sz : sz) : vloadop_
+	| vloadop__ZERO (v_sz : sz) : vloadop_.
 
-Global Instance Inhabited__vloadop : Inhabited (vloadop) := { default_val := SHAPEX_ default_val default_val default_val }.
+Global Instance Inhabited__vloadop_ : Inhabited (vloadop_) := { default_val := SHAPEX_ default_val default_val default_val }.
 
-Definition vloadop_eq_dec : forall (v1 v2 : vloadop),
+Definition vloadop__eq_dec : forall (v1 v2 : vloadop_),
   {v1 = v2} + {v1 <> v2}.
 Proof. do ? decidable_equality_step. Defined.
 
-Definition vloadop_eqb (v1 v2 : vloadop) : bool :=
-	is_left(vloadop_eq_dec v1 v2).
-Definition eqvloadopP : Equality.axiom (vloadop_eqb) :=
-	eq_dec_Equality_axiom (vloadop) (vloadop_eq_dec).
+Definition vloadop__eqb (v1 v2 : vloadop_) : bool :=
+	is_left(vloadop__eq_dec v1 v2).
+Definition eqvloadop_P : Equality.axiom (vloadop__eqb) :=
+	eq_dec_Equality_axiom (vloadop_) (vloadop__eq_dec).
 
-HB.instance Definition _ := hasDecEq.Build (vloadop) (eqvloadopP).
-Hint Resolve vloadop_eq_dec : eq_dec_db.
+HB.instance Definition _ := hasDecEq.Build (vloadop_) (eqvloadop_P).
+Hint Resolve vloadop__eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:403.1-405.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:396.8-396.17 *)
+Inductive wf_vloadop_ : vectype -> vloadop_ -> Prop :=
+	| vloadop__case_0 : forall (v_vectype : vectype) (v_sz : sz) (v_M : M) (v_sx : sx), 
+		(wf_sz v_sz) ->
+		((((v_sz :> N) * v_M)%BN : Q) == (((vsize v_vectype) : Q) / (2%N : Q))%Q)%Q ->
+		wf_vloadop_ v_vectype (SHAPEX_ v_sz v_M v_sx)
+	| vloadop__case_1 : forall (v_vectype : vectype) (v_sz : sz), 
+		(wf_sz v_sz) ->
+		wf_vloadop_ v_vectype (SPLAT v_sz)
+	| vloadop__case_2 : forall (v_vectype : vectype) (v_sz : sz), 
+		(wf_sz v_sz) ->
+		((v_sz :> N) >=? 32%N)%BN ->
+		wf_vloadop_ v_vectype (vloadop__ZERO v_sz).
+
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:406.1-408.17 *)
 Inductive blocktype : Type :=
 	| _RESULT (valtype_opt : (option valtype)) : blocktype
 	| _IDX (v_typeidx : typeidx) : blocktype.
@@ -3095,14 +3115,14 @@ Definition eqblocktypeP : Equality.axiom (blocktype_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (blocktype) (eqblocktypeP).
 Hint Resolve blocktype_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:403.8-403.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:406.8-406.17 *)
 Inductive wf_blocktype : blocktype -> Prop :=
 	| blocktype_case_0 : forall (valtype_opt : (option valtype)), wf_blocktype (_RESULT valtype_opt)
 	| blocktype_case_1 : forall (v_typeidx : typeidx), 
 		(wf_uN 32%N v_typeidx) ->
 		wf_blocktype (_IDX v_typeidx).
 
-(* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:524.1-525.22 *)
+(* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:527.1-528.22 *)
 Inductive instr : Type :=
 	| NOP : instr
 	| UNREACHABLE : instr
@@ -3162,7 +3182,7 @@ Inductive instr : Type :=
 	| ELEM_DROP (v_elemidx : elemidx) : instr
 	| LOAD (v_numtype : numtype) (_ : (option loadop_)) (v_memarg : memarg) : instr
 	| STORE (v_numtype : numtype) (sz_opt : (option sz)) (v_memarg : memarg) : instr
-	| VLOAD (v_vectype : vectype) (vloadop_opt : (option vloadop)) (v_memarg : memarg) : instr
+	| VLOAD (v_vectype : vectype) (_ : (option vloadop_)) (v_memarg : memarg) : instr
 	| VLOAD_LANE (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) : instr
 	| VSTORE (v_vectype : vectype) (v_memarg : memarg) : instr
 	| VSTORE_LANE (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) : instr
@@ -3187,7 +3207,7 @@ Definition eqinstrP : Equality.axiom (instr_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (instr) (eqinstrP).
 Hint Resolve instr_eq_dec : eq_dec_db.
 
-(* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:524.1-525.22 *)
+(* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:527.1-528.22 *)
 Inductive wf_instr : instr -> Prop :=
 	| instr_case_0 : wf_instr NOP
 	| instr_case_1 : wf_instr UNREACHABLE
@@ -3373,9 +3393,10 @@ Inductive wf_instr : instr -> Prop :=
 		((Inn_opt == None) <-> (sz_opt == None)) ->
 		List.Forall2 (fun (v_Inn : Inn) (v_sz : sz) => ((v_numtype == (numtype_Inn v_Inn)) && ((v_sz :> N) <? (sizenn (numtype_Inn v_Inn)))%BN)) (option_to_list Inn_opt) (option_to_list sz_opt) ->
 		wf_instr (STORE v_numtype sz_opt v_memarg)
-	| instr_case_58 : forall (v_vectype : vectype) (vloadop_opt : (option vloadop)) (v_memarg : memarg), 
+	| instr_case_58 : forall (v_vectype : vectype) (var_0_opt : (option vloadop_)) (v_memarg : memarg), 
+		List.Forall (fun (var_0 : vloadop_) => (wf_vloadop_ v_vectype var_0)) (option_to_list var_0_opt) ->
 		(wf_memarg v_memarg) ->
-		wf_instr (VLOAD v_vectype vloadop_opt v_memarg)
+		wf_instr (VLOAD v_vectype var_0_opt v_memarg)
 	| instr_case_59 : forall (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx), 
 		(wf_sz v_sz) ->
 		(wf_memarg v_memarg) ->
@@ -3400,10 +3421,10 @@ Inductive wf_instr : instr -> Prop :=
 		(wf_uN 32%N v_dataidx) ->
 		wf_instr (DATA_DROP v_dataidx).
 
-(* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:528.1-529.9 *)
+(* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:531.1-532.9 *)
 Definition expr : Type := (seq instr).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:541.1-541.59 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:544.1-544.59 *)
 Inductive elemmode : Type :=
 	| ACTIVE (v_tableidx : tableidx) (v_expr : expr) : elemmode
 	| PASSIVE : elemmode
@@ -3423,7 +3444,7 @@ Definition eqelemmodeP : Equality.axiom (elemmode_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (elemmode) (eqelemmodeP).
 Hint Resolve elemmode_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:541.8-541.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:544.8-544.16 *)
 Inductive wf_elemmode : elemmode -> Prop :=
 	| elemmode_case_0 : forall (v_tableidx : tableidx) (v_expr : expr), 
 		(wf_uN 32%N v_tableidx) ->
@@ -3432,7 +3453,7 @@ Inductive wf_elemmode : elemmode -> Prop :=
 	| elemmode_case_1 : wf_elemmode PASSIVE
 	| elemmode_case_2 : wf_elemmode DECLARE.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:542.1-542.47 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:545.1-545.47 *)
 Inductive datamode : Type :=
 	| datamode_ACTIVE (v_memidx : memidx) (v_expr : expr) : datamode
 	| datamode_PASSIVE : datamode.
@@ -3451,7 +3472,7 @@ Definition eqdatamodeP : Equality.axiom (datamode_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (datamode) (eqdatamodeP).
 Hint Resolve datamode_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:542.8-542.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:545.8-545.16 *)
 Inductive wf_datamode : datamode -> Prop :=
 	| datamode_case_0 : forall (v_memidx : memidx) (v_expr : expr), 
 		(wf_uN 32%N v_memidx) ->
@@ -3459,7 +3480,7 @@ Inductive wf_datamode : datamode -> Prop :=
 		wf_datamode (datamode_ACTIVE v_memidx v_expr)
 	| datamode_case_1 : wf_datamode datamode_PASSIVE.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:544.1-545.16 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:547.1-548.16 *)
 Inductive type : Type :=
 	| TYPE (v_functype : functype) : type.
 
@@ -3477,7 +3498,7 @@ Definition eqtypeP : Equality.axiom (type_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (type) (eqtypeP).
 Hint Resolve type_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:546.1-547.16 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:549.1-550.16 *)
 Inductive local : Type :=
 	| LOCAL (v_valtype : valtype) : local.
 
@@ -3495,7 +3516,7 @@ Definition eqlocalP : Equality.axiom (local_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (local) (eqlocalP).
 Hint Resolve local_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:548.1-549.27 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.1-552.27 *)
 Inductive func : Type :=
 	| func_FUNC (v_typeidx : typeidx) (local_lst : (seq local)) (v_expr : expr) : func.
 
@@ -3513,14 +3534,14 @@ Definition eqfuncP : Equality.axiom (func_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (func) (eqfuncP).
 Hint Resolve func_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:548.8-548.12 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.8-551.12 *)
 Inductive wf_func : func -> Prop :=
 	| func_case_0 : forall (v_typeidx : typeidx) (local_lst : (seq local)) (v_expr : expr), 
 		(wf_uN 32%N v_typeidx) ->
 		List.Forall (fun (v_expr : instr) => (wf_instr v_expr)) v_expr ->
 		wf_func (func_FUNC v_typeidx local_lst v_expr).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:550.1-551.25 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:553.1-554.25 *)
 Inductive global : Type :=
 	| global_GLOBAL (v_globaltype : globaltype) (v_expr : expr) : global.
 
@@ -3538,13 +3559,13 @@ Definition eqglobalP : Equality.axiom (global_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (global) (eqglobalP).
 Hint Resolve global_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:550.8-550.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:553.8-553.14 *)
 Inductive wf_global : global -> Prop :=
 	| global_case_0 : forall (v_globaltype : globaltype) (v_expr : expr), 
 		List.Forall (fun (v_expr : instr) => (wf_instr v_expr)) v_expr ->
 		wf_global (global_GLOBAL v_globaltype v_expr).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.18 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:555.1-556.18 *)
 Inductive table : Type :=
 	| table_TABLE (v_tabletype : tabletype) : table.
 
@@ -3562,13 +3583,13 @@ Definition eqtableP : Equality.axiom (table_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (table) (eqtableP).
 Hint Resolve table_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.8-552.13 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:555.8-555.13 *)
 Inductive wf_table : table -> Prop :=
 	| table_case_0 : forall (v_tabletype : tabletype), 
 		(wf_tabletype v_tabletype) ->
 		wf_table (table_TABLE v_tabletype).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:554.1-555.17 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:557.1-558.17 *)
 Inductive mem : Type :=
 	| MEMORY (v_memtype : memtype) : mem.
 
@@ -3586,13 +3607,13 @@ Definition eqmemP : Equality.axiom (mem_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (mem) (eqmemP).
 Hint Resolve mem_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:554.8-554.11 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:557.8-557.11 *)
 Inductive wf_mem : mem -> Prop :=
 	| mem_case_0 : forall (v_memtype : memtype), 
 		(wf_memtype v_memtype) ->
 		wf_mem (MEMORY v_memtype).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:556.1-557.30 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:559.1-560.30 *)
 Inductive elem : Type :=
 	| ELEM (v_reftype : reftype) (expr_lst : (seq expr)) (v_elemmode : elemmode) : elem.
 
@@ -3610,14 +3631,14 @@ Definition eqelemP : Equality.axiom (elem_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (elem) (eqelemP).
 Hint Resolve elem_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:556.8-556.12 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:559.8-559.12 *)
 Inductive wf_elem : elem -> Prop :=
 	| elem_case_0 : forall (v_reftype : reftype) (expr_lst : (seq expr)) (v_elemmode : elemmode), 
 		List.Forall (fun (v_expr : expr) => List.Forall (fun (v_expr : instr) => (wf_instr v_expr)) v_expr) expr_lst ->
 		(wf_elemmode v_elemmode) ->
 		wf_elem (ELEM v_reftype expr_lst v_elemmode).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:558.1-559.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:561.1-562.22 *)
 Inductive data : Type :=
 	| DATA (byte_lst : (seq byte)) (v_datamode : datamode) : data.
 
@@ -3635,14 +3656,14 @@ Definition eqdataP : Equality.axiom (data_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (data) (eqdataP).
 Hint Resolve data_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:558.8-558.12 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:561.8-561.12 *)
 Inductive wf_data : data -> Prop :=
 	| data_case_0 : forall (byte_lst : (seq byte)) (v_datamode : datamode), 
 		List.Forall (fun (v_byte : byte) => (wf_byte v_byte)) byte_lst ->
 		(wf_datamode v_datamode) ->
 		wf_data (DATA byte_lst v_datamode).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:560.1-561.16 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:563.1-564.16 *)
 Inductive start : Type :=
 	| START (v_funcidx : funcidx) : start.
 
@@ -3660,13 +3681,13 @@ Definition eqstartP : Equality.axiom (start_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (start) (eqstartP).
 Hint Resolve start_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:560.8-560.13 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:563.8-563.13 *)
 Inductive wf_start : start -> Prop :=
 	| start_case_0 : forall (v_funcidx : funcidx), 
 		(wf_uN 32%N v_funcidx) ->
 		wf_start (START v_funcidx).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:563.1-564.66 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:566.1-567.66 *)
 Inductive externidx : Type :=
 	| externidx_FUNC (v_funcidx : funcidx) : externidx
 	| externidx_GLOBAL (v_globalidx : globalidx) : externidx
@@ -3687,7 +3708,7 @@ Definition eqexternidxP : Equality.axiom (externidx_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (externidx) (eqexternidxP).
 Hint Resolve externidx_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:563.8-563.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:566.8-566.17 *)
 Inductive wf_externidx : externidx -> Prop :=
 	| externidx_case_0 : forall (v_funcidx : funcidx), 
 		(wf_uN 32%N v_funcidx) ->
@@ -3702,7 +3723,7 @@ Inductive wf_externidx : externidx -> Prop :=
 		(wf_uN 32%N v_memidx) ->
 		wf_externidx (externidx_MEM v_memidx).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:565.1-566.24 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:568.1-569.24 *)
 Inductive export : Type :=
 	| EXPORT (v_name : name) (v_externidx : externidx) : export.
 
@@ -3720,14 +3741,14 @@ Definition eqexportP : Equality.axiom (export_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (export) (eqexportP).
 Hint Resolve export_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:565.8-565.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:568.8-568.14 *)
 Inductive wf_export : export -> Prop :=
 	| export_case_0 : forall (v_name : name) (v_externidx : externidx), 
 		(wf_name v_name) ->
 		(wf_externidx v_externidx) ->
 		wf_export (EXPORT v_name v_externidx).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:567.1-568.30 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:570.1-571.30 *)
 Inductive import : Type :=
 	| IMPORT (v_name : name) (v_name : name) (v_externtype : externtype) : import.
 
@@ -3745,7 +3766,7 @@ Definition eqimportP : Equality.axiom (import_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (import) (eqimportP).
 Hint Resolve import_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:567.8-567.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:570.8-570.14 *)
 Inductive wf_import : import -> Prop :=
 	| import_case_0 : forall (v_name : name) (name_0 : name) (v_externtype : externtype), 
 		(wf_name v_name) ->
@@ -3753,7 +3774,7 @@ Inductive wf_import : import -> Prop :=
 		(wf_externtype v_externtype) ->
 		wf_import (IMPORT v_name name_0 v_externtype).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:570.1-571.76 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:573.1-574.76 *)
 Inductive module : Type :=
 	| MODULE (type_lst : (seq type)) (import_lst : (seq import)) (func_lst : (seq func)) (global_lst : (seq global)) (table_lst : (seq table)) (mem_lst : (seq mem)) (elem_lst : (seq elem)) (data_lst : (seq data)) (start_opt : (option start)) (export_lst : (seq export)) : module.
 
@@ -3771,7 +3792,7 @@ Definition eqmoduleP : Equality.axiom (module_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (module) (eqmoduleP).
 Hint Resolve module_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:570.8-570.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:573.8-573.14 *)
 Inductive wf_module : module -> Prop :=
 	| module_case_0 : forall (type_lst : (seq type)) (import_lst : (seq import)) (func_lst : (seq func)) (global_lst : (seq global)) (table_lst : (seq table)) (mem_lst : (seq mem)) (elem_lst : (seq elem)) (data_lst : (seq data)) (start_opt : (option start)) (export_lst : (seq export)), 
 		List.Forall (fun (v_import : import) => (wf_import v_import)) import_lst ->
@@ -11446,7 +11467,7 @@ Inductive admininstr : Type :=
 	| admininstr_ELEM_DROP (v_elemidx : elemidx) : admininstr
 	| admininstr_LOAD (v_numtype : numtype) (_ : (option loadop_)) (v_memarg : memarg) : admininstr
 	| admininstr_STORE (v_numtype : numtype) (sz_opt : (option sz)) (v_memarg : memarg) : admininstr
-	| admininstr_VLOAD (v_vectype : vectype) (vloadop_opt : (option vloadop)) (v_memarg : memarg) : admininstr
+	| admininstr_VLOAD (v_vectype : vectype) (_ : (option vloadop_)) (v_memarg : memarg) : admininstr
 	| admininstr_VLOAD_LANE (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) : admininstr
 	| admininstr_VSTORE (v_vectype : vectype) (v_memarg : memarg) : admininstr
 	| admininstr_VSTORE_LANE (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) : admininstr
@@ -11754,9 +11775,10 @@ Inductive wf_admininstr : admininstr -> Prop :=
 		((Inn_opt == None) <-> (sz_opt == None)) ->
 		List.Forall2 (fun (v_Inn : Inn) (v_sz : sz) => ((v_numtype == (numtype_Inn v_Inn)) && ((v_sz :> N) <? (sizenn (numtype_Inn v_Inn)))%BN)) (option_to_list Inn_opt) (option_to_list sz_opt) ->
 		wf_admininstr (admininstr_STORE v_numtype sz_opt v_memarg)
-	| admininstr_case_58 : forall (v_vectype : vectype) (vloadop_opt : (option vloadop)) (v_memarg : memarg), 
+	| admininstr_case_58 : forall (v_vectype : vectype) (var_0_opt : (option vloadop_)) (v_memarg : memarg), 
+		List.Forall (fun (var_0 : vloadop_) => (wf_vloadop_ v_vectype var_0)) (option_to_list var_0_opt) ->
 		(wf_memarg v_memarg) ->
-		wf_admininstr (admininstr_VLOAD v_vectype vloadop_opt v_memarg)
+		wf_admininstr (admininstr_VLOAD v_vectype var_0_opt v_memarg)
 	| admininstr_case_59 : forall (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx), 
 		(wf_sz v_sz) ->
 		(wf_memarg v_memarg) ->
@@ -13076,24 +13098,24 @@ Inductive Instr_ok : context -> instr -> functype -> Prop :=
 		(((2%N ^ ((ALIGN v_memarg) :> N))%BN : Q) <=? (((v_M : Q) / (8%N : Q))%Q * (v_N : Q))%Q)%Q ->
 		(wf_context C) ->
 		(wf_memtype mt) ->
-		(wf_instr (VLOAD V128 (Some (SHAPEX_ v_M v_N v_sx)) v_memarg)) ->
-		Instr_ok C (VLOAD V128 (Some (SHAPEX_ v_M v_N v_sx)) v_memarg) (mk_functype (mk_list _ [::valtype_I32]) (mk_list _ [::valtype_V128]))
+		(wf_instr (VLOAD V128 (Some (SHAPEX_ (mk_sz v_M) v_N v_sx)) v_memarg)) ->
+		Instr_ok C (VLOAD V128 (Some (SHAPEX_ (mk_sz v_M) v_N v_sx)) v_memarg) (mk_functype (mk_list _ [::valtype_I32]) (mk_list _ [::valtype_V128]))
 	| vload_splat : forall (C : context) (v_n : n) (v_memarg : memarg) (mt : memtype), 
 		(0%N <? (|(context_MEMS C)|))%BN ->
 		(((context_MEMS C)[| 0%N |]) == mt) ->
 		(((2%N ^ ((ALIGN v_memarg) :> N))%BN : Q) <=? ((v_n : Q) / (8%N : Q))%Q)%Q ->
 		(wf_context C) ->
 		(wf_memtype mt) ->
-		(wf_instr (VLOAD V128 (Some (SPLAT v_n)) v_memarg)) ->
-		Instr_ok C (VLOAD V128 (Some (SPLAT v_n)) v_memarg) (mk_functype (mk_list _ [::valtype_I32]) (mk_list _ [::valtype_V128]))
+		(wf_instr (VLOAD V128 (Some (SPLAT (mk_sz v_n))) v_memarg)) ->
+		Instr_ok C (VLOAD V128 (Some (SPLAT (mk_sz v_n))) v_memarg) (mk_functype (mk_list _ [::valtype_I32]) (mk_list _ [::valtype_V128]))
 	| vload_zero : forall (C : context) (v_n : n) (v_memarg : memarg) (mt : memtype), 
 		(0%N <? (|(context_MEMS C)|))%BN ->
 		(((context_MEMS C)[| 0%N |]) == mt) ->
 		(((2%N ^ ((ALIGN v_memarg) :> N))%BN : Q) <=? ((v_n : Q) / (8%N : Q))%Q)%Q ->
 		(wf_context C) ->
 		(wf_memtype mt) ->
-		(wf_instr (VLOAD V128 (Some (vloadop_ZERO v_n)) v_memarg)) ->
-		Instr_ok C (VLOAD V128 (Some (vloadop_ZERO v_n)) v_memarg) (mk_functype (mk_list _ [::valtype_I32]) (mk_list _ [::valtype_V128]))
+		(wf_instr (VLOAD V128 (Some (vloadop__ZERO (mk_sz v_n))) v_memarg)) ->
+		Instr_ok C (VLOAD V128 (Some (vloadop__ZERO (mk_sz v_n))) v_memarg) (mk_functype (mk_list _ [::valtype_I32]) (mk_list _ [::valtype_V128]))
 	| vload_lane : forall (C : context) (v_n : n) (v_memarg : memarg) (v_laneidx : laneidx) (mt : memtype), 
 		(0%N <? (|(context_MEMS C)|))%BN ->
 		(((context_MEMS C)[| 0%N |]) == mt) ->
@@ -14124,7 +14146,7 @@ Inductive Step_read : config -> (seq admininstr) -> Prop :=
 		((proj_num__0 i) != None) ->
 		(((((!((proj_num__0 i))) :> N) + ((OFFSET ao) :> N))%BN + ((((v_M * v_N)%BN : Q) / (8%N : Q))%Q : N))%BN >? (|(BYTES (fun_mem z (mk_uN 0%N)))|))%BN ->
 		(wf_uN 32%N (mk_uN 0%N)) ->
-		Step_read (mk_config z [::(admininstr_CONST I32 i); (admininstr_VLOAD V128 (Some (SHAPEX_ v_M v_N v_sx)) ao)]) [::admininstr_TRAP]
+		Step_read (mk_config z [::(admininstr_CONST I32 i); (admininstr_VLOAD V128 (Some (SHAPEX_ (mk_sz v_M) v_N v_sx)) ao)]) [::admininstr_TRAP]
 	| vload_shape_val : forall (z : state) (i : num_) (v_M : M) (v_N : res_N) (v_sx : sx) (ao : memarg) (c : vec_) (j_lst : (seq iN)) (v_Jnn : Jnn), 
 		holds_upto (fun k => ((proj_num__0 i) != None)) v_N ->
 		List_Foralli (fun k (j : iN) => ((ibytes_ v_M j) == (list_slice (BYTES (fun_mem z (mk_uN 0%N))) ((((!((proj_num__0 i))) :> N) + ((OFFSET ao) :> N))%BN + ((((k * v_M)%BN : Q) / (8%N : Q))%Q : N))%BN (((v_M : Q) / (8%N : Q))%Q : N)))) j_lst ->
@@ -14134,12 +14156,12 @@ Inductive Step_read : config -> (seq admininstr) -> Prop :=
 		(wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) ->
 		List.Forall (fun (j : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) (mk_lane__2 v_Jnn (extend__ v_M (jsize v_Jnn) v_sx j)))) j_lst ->
 		(v_N == (|j_lst|)) ->
-		Step_read (mk_config z [::(admininstr_CONST I32 i); (admininstr_VLOAD V128 (Some (SHAPEX_ v_M v_N v_sx)) ao)]) [::(admininstr_VCONST V128 c)]
+		Step_read (mk_config z [::(admininstr_CONST I32 i); (admininstr_VLOAD V128 (Some (SHAPEX_ (mk_sz v_M) v_N v_sx)) ao)]) [::(admininstr_VCONST V128 c)]
 	| vload_splat_oob : forall (z : state) (i : num_) (v_N : res_N) (ao : memarg), 
 		((proj_num__0 i) != None) ->
 		(((((!((proj_num__0 i))) :> N) + ((OFFSET ao) :> N))%BN + (((v_N : Q) / (8%N : Q))%Q : N))%BN >? (|(BYTES (fun_mem z (mk_uN 0%N)))|))%BN ->
 		(wf_uN 32%N (mk_uN 0%N)) ->
-		Step_read (mk_config z [::(admininstr_CONST I32 i); (admininstr_VLOAD V128 (Some (SPLAT v_N)) ao)]) [::admininstr_TRAP]
+		Step_read (mk_config z [::(admininstr_CONST I32 i); (admininstr_VLOAD V128 (Some (SPLAT (mk_sz v_N))) ao)]) [::admininstr_TRAP]
 	| vload_splat_val : forall (z : state) (i : num_) (v_N : res_N) (ao : memarg) (c : vec_) (j : iN) (v_Jnn : Jnn) (v_M : M), 
 		((proj_num__0 i) != None) ->
 		((ibytes_ v_N j) == (list_slice (BYTES (fun_mem z (mk_uN 0%N))) (((!((proj_num__0 i))) :> N) + ((OFFSET ao) :> N))%BN (((v_N : Q) / (8%N : Q))%Q : N))) ->
@@ -14149,19 +14171,19 @@ Inductive Step_read : config -> (seq admininstr) -> Prop :=
 		(wf_uN 32%N (mk_uN 0%N)) ->
 		(wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) ->
 		(wf_lane_ (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) (mk_lane__2 v_Jnn (mk_uN (j :> (N))))) ->
-		Step_read (mk_config z [::(admininstr_CONST I32 i); (admininstr_VLOAD V128 (Some (SPLAT v_N)) ao)]) [::(admininstr_VCONST V128 c)]
+		Step_read (mk_config z [::(admininstr_CONST I32 i); (admininstr_VLOAD V128 (Some (SPLAT (mk_sz v_N))) ao)]) [::(admininstr_VCONST V128 c)]
 	| vload_zero_oob : forall (z : state) (i : num_) (v_N : res_N) (ao : memarg), 
 		((proj_num__0 i) != None) ->
 		(((((!((proj_num__0 i))) :> N) + ((OFFSET ao) :> N))%BN + (((v_N : Q) / (8%N : Q))%Q : N))%BN >? (|(BYTES (fun_mem z (mk_uN 0%N)))|))%BN ->
 		(wf_uN 32%N (mk_uN 0%N)) ->
-		Step_read (mk_config z [::(admininstr_CONST I32 i); (admininstr_VLOAD V128 (Some (vloadop_ZERO v_N)) ao)]) [::admininstr_TRAP]
+		Step_read (mk_config z [::(admininstr_CONST I32 i); (admininstr_VLOAD V128 (Some (vloadop__ZERO (mk_sz v_N))) ao)]) [::admininstr_TRAP]
 	| vload_zero_val : forall (z : state) (i : num_) (v_N : res_N) (ao : memarg) (c : vec_) (j : iN), 
 		((proj_num__0 i) != None) ->
 		((ibytes_ v_N j) == (list_slice (BYTES (fun_mem z (mk_uN 0%N))) (((!((proj_num__0 i))) :> N) + ((OFFSET ao) :> N))%BN (((v_N : Q) / (8%N : Q))%Q : N))) ->
 		(c == (extend__ v_N 128%N U j)) ->
 		(wf_uN v_N j) ->
 		(wf_uN 32%N (mk_uN 0%N)) ->
-		Step_read (mk_config z [::(admininstr_CONST I32 i); (admininstr_VLOAD V128 (Some (vloadop_ZERO v_N)) ao)]) [::(admininstr_VCONST V128 c)]
+		Step_read (mk_config z [::(admininstr_CONST I32 i); (admininstr_VLOAD V128 (Some (vloadop__ZERO (mk_sz v_N))) ao)]) [::(admininstr_VCONST V128 c)]
 	| vload_lane_oob : forall (z : state) (i : num_) (c_1 : vec_) (v_N : res_N) (ao : memarg) (j : laneidx), 
 		((proj_num__0 i) != None) ->
 		(((((!((proj_num__0 i))) :> N) + ((OFFSET ao) :> N))%BN + (((v_N : Q) / (8%N : Q))%Q : N))%BN >? (|(BYTES (fun_mem z (mk_uN 0%N)))|))%BN ->
@@ -14829,16 +14851,16 @@ Inductive fun_instantiate : store -> module -> (seq externaddr) -> config -> Pro
 		List_Foralli (fun j_19 (var_10 : (option (seq instr))) => (fun_rundata (data_lst[| j_19 |]) (mk_uN j_19) var_10)) var_10_lst ->
 		holds_upto (fun j_18 => (j_18 <? (|data_lst|))%BN) n_D ->
 		List_Foralli (fun j_18 (var_9 : (option (seq instr))) => (fun_rundata (data_lst[| j_18 |]) (mk_uN j_18) var_9)) var_9_lst ->
-		holds_upto (fun i_71390 => (i_71390 <? (|elem_lst|))%BN) n_E ->
-		List_Foralli (fun i_71390 (var_8 : (seq instr)) => (fun_runelem (elem_lst[| i_71390 |]) (mk_uN i_71390) var_8)) var_8_lst ->
-		holds_upto (fun i_71388 => (i_71388 <? (|elem_lst|))%BN) n_E ->
-		List_Foralli (fun i_71388 (var_7 : (seq instr)) => (fun_runelem (elem_lst[| i_71388 |]) (mk_uN i_71388) var_7)) var_7_lst ->
+		holds_upto (fun i_71432 => (i_71432 <? (|elem_lst|))%BN) n_E ->
+		List_Foralli (fun i_71432 (var_8 : (seq instr)) => (fun_runelem (elem_lst[| i_71432 |]) (mk_uN i_71432) var_8)) var_8_lst ->
+		holds_upto (fun i_71430 => (i_71430 <? (|elem_lst|))%BN) n_E ->
+		List_Foralli (fun i_71430 (var_7 : (seq instr)) => (fun_runelem (elem_lst[| i_71430 |]) (mk_uN i_71430) var_7)) var_7_lst ->
 		(fun_allocmodule s v_module externaddr_lst val_lst ref_lst_lst var_6) ->
 		(fun_allocmodule s v_module externaddr_lst val_lst ref_lst_lst var_5) ->
 		holds_upto (fun j_17 => (j_17 <? (|data_lst|))%BN) n_D ->
 		List_Foralli (fun j_17 (var_4 : (option (seq instr))) => (fun_rundata (data_lst[| j_17 |]) (mk_uN j_17) var_4)) var_4_lst ->
-		holds_upto (fun i_71385 => (i_71385 <? (|elem_lst|))%BN) n_E ->
-		List_Foralli (fun i_71385 (var_3 : (seq instr)) => (fun_runelem (elem_lst[| i_71385 |]) (mk_uN i_71385) var_3)) var_3_lst ->
+		holds_upto (fun i_71427 => (i_71427 <? (|elem_lst|))%BN) n_E ->
+		List_Foralli (fun i_71427 (var_3 : (seq instr)) => (fun_runelem (elem_lst[| i_71427 |]) (mk_uN i_71427) var_3)) var_3_lst ->
 		(fun_allocmodule s v_module externaddr_lst val_lst ref_lst_lst var_2) ->
 		(fun_globals externaddr_lst var_1) ->
 		(fun_funcs externaddr_lst var_0) ->
@@ -14867,7 +14889,7 @@ Inductive fun_instantiate : store -> module -> (seq externaddr) -> config -> Pro
 		(wf_store var_5.1) ->
 		(wf_moduleinst var_6.2) ->
 		List.Forall (fun (iter_25 : instr) => (wf_instr iter_25)) (concat_ instr var_7_lst) ->
-		List_Foralli (fun i_71390 (var_8 : (seq instr)) => List.Forall (fun (iter_26 : instr) => (wf_instr iter_26)) var_8) var_8_lst ->
+		List_Foralli (fun i_71432 (var_8 : (seq instr)) => List.Forall (fun (iter_26 : instr) => (wf_instr iter_26)) var_8) var_8_lst ->
 		List.Forall (fun (iter_27 : instr) => (wf_instr iter_27)) (concat_ instr (seq.map (fun (var_9 : (option (seq instr))) => (!(var_9))) var_9_lst)) ->
 		List_Foralli (fun j_19 (var_10 : (option (seq instr))) => List.Forall (fun (iter_28 : instr) => (wf_instr iter_28)) (!(var_10))) var_10_lst ->
 		(wf_config (mk_config (mk_state s' f) ((seq.map (fun (instr_E_2 : instr) => (admininstr_instr instr_E_2)) instr_E_lst) ++ ((seq.map (fun (instr_D_2 : instr) => (admininstr_instr instr_D_2)) instr_D_lst) ++ (option_to_list (option_map (fun (x_2 : idx) => (admininstr_CALL x_2)) x_opt)))))) ->
@@ -14882,7 +14904,7 @@ Inductive fun_instantiate : store -> module -> (seq externaddr) -> config -> Pro
 		(wf_frame {| LOCALS := [:: ]; frame_MODULE := moduleinst_init |}) ->
 		(wf_state (mk_state s f_init)) ->
 		(wf_frame {| LOCALS := [:: ]; frame_MODULE := v_moduleinst |}) ->
-		holds_upto (fun i_71394 => (wf_uN 32%N (mk_uN i_71394))) n_E ->
+		holds_upto (fun i_71436 => (wf_uN 32%N (mk_uN i_71436))) n_E ->
 		holds_upto (fun j_20 => (wf_uN 32%N (mk_uN j_20))) n_D ->
 		fun_instantiate s v_module externaddr_lst (mk_config (mk_state s' f) ((seq.map (fun (instr_E : instr) => (admininstr_instr instr_E)) instr_E_lst) ++ ((seq.map (fun (instr_D : instr) => (admininstr_instr instr_D)) instr_D_lst) ++ (option_to_list (option_map (fun (x : idx) => (admininstr_CALL x)) x_opt))))).
 

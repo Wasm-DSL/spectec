@@ -1512,7 +1512,7 @@ Qed.
 (* SIMD loads and stores: typing inversion                                 *)
 (* ---------------------------------------------------------------------- *)
 
-Lemma ais_vload_typing_inversion : forall v_S v_C (vlo : option wasm.vloadop)
+Lemma ais_vload_typing_inversion : forall v_S v_C (vlo : option wasm.vloadop_)
 		(ao : wasm.memarg) t1s t2s,
 	Instrs_ok2 v_S v_C [(admininstr_VLOAD V128 vlo ao)] (t1s :-> t2s) ->
 	(([valtype_I32] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
@@ -1560,7 +1560,7 @@ Qed.
 (* ---------------------------------------------------------------------- *)
 
 Lemma Step_read__vload_preserves : forall v_S v_C (i : wasm.num_)
-		(vlo : option wasm.vloadop) (ao : wasm.memarg) (c : wasm.vec_) v_ft,
+		(vlo : option wasm.vloadop_) (ao : wasm.memarg) (c : wasm.vec_) v_ft,
 	Instrs_ok2 v_S v_C [(admininstr_CONST I32 i); (admininstr_VLOAD V128 vlo ao)] v_ft ->
 	wf_admininstr (admininstr_VCONST V128 c) ->
 	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 c)] v_ft.
