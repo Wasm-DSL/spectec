@@ -133,6 +133,16 @@ let op_parens optyp s =
   | `RealT -> parens s ^ "%nat" (* TODO *)
   | _ -> parens s
 
+let cmp_parens typ optyp s = 
+  match typ.it, optyp with
+  | NumT (`RatT), `BoolT -> parens s ^ "%Q" (* This is to cover the case where we want == to be Qeq instead of ssreflect's equality. *)
+  | _, `NatT -> parens s ^ "%BN"
+  | _, `IntT -> parens s ^ "%Z"
+  | _, `RatT -> parens s ^ "%Q"
+  | _, `RealT -> parens s ^ "%nat" (* TODO *)
+  | _ -> parens s
+
+
 let scope_nums optyp s = 
   match optyp with
   | `NatT -> s ^ "%N"
@@ -313,7 +323,7 @@ and render_exp exp_type exp =
   | TextE s -> "\"" ^ String.escaped s ^ "\""
   | UnE (unop, optyp, e1) -> op_parens optyp (render_unop unop ^ r_func e1)
   | BinE (binop, optyp, e1, e2) -> op_parens optyp (r_func e1 ^ render_binop binop ^ r_func e2)
-  | CmpE (cmpop, optyp, e1, e2) -> op_parens optyp (r_func e1 ^ render_cmpop cmpop ^ r_func e2)
+  | CmpE (cmpop, optyp, e1, e2) -> cmp_parens e1.note optyp (r_func e1 ^ render_cmpop cmpop ^ r_func e2)
   | TupE [] -> "()"
   | TupE exps -> parens (String.concat ", " (List.map r_func exps))
   | ProjE (e, i) -> 
