@@ -206,6 +206,7 @@ var xt : externtype
 def $lanetype(shape) : lanetype
 
 def $size(valtype) : nat      hint(show |%|) hint(partial)
+def $vsize(vectype) : nat      hint(show |%|)
 def $psize(packtype) : nat    hint(show |%|)
 def $lsize(lanetype) : nat    hint(show |%|)
 def $isize(Inn) : nat         hint(show |%|) hint(inverse $inv_isize)
@@ -217,6 +218,8 @@ def $size(I64) = 64
 def $size(F32) = 32
 def $size(F64) = 64
 def $size(V128) = 128
+
+def $vsize(V128) = 128
 
 def $psize(I8) = 8
 def $psize(I16) = 16
@@ -390,10 +393,10 @@ var ao : memarg
 syntax loadop_(numtype)
 syntax loadop_(Inn) = sz _ sx hint(show %0#_#%2) -- if sz < $sizenn(Inn)
 
-syntax vloadop =
-  | SHAPE nat X nat _ sx  hint(show %1#X#%3#_#%5)
-  | SPLAT nat             hint(show %#_#SPLAT)
-  | ZERO nat              hint(show %#_#ZERO)
+syntax vloadop_(vectype) =
+  | SHAPE sz X M _ sx    hint(show %1#X#%3#_#%5) -- if $(sz * M = $vsize(vectype)/2)
+  | SPLAT sz             hint(show %#_#SPLAT)
+  | ZERO sz              hint(show %#_#ZERO) -- if sz >= `32
 
 
 ;;
@@ -510,7 +513,7 @@ syntax instr/memory hint(desc "memory instruction") = ...
   | LOAD numtype loadop_(numtype)? memarg      hint(show %.LOAD %) hint(show %.LOAD# ##% %)
   | STORE numtype sz? memarg                   hint(show %.STORE %)   hint(show %.STORE#% %)
     -- (if numtype = Inn /\ sz < $sizenn(Inn))?
-  | VLOAD vectype vloadop? memarg              hint(show %.LOAD %) hint(show %.LOAD#% %)
+  | VLOAD vectype vloadop_(vectype)? memarg    hint(show %.LOAD %) hint(show %.LOAD#% %)
   | VLOAD_LANE vectype sz memarg laneidx       hint(show %.LOAD#%#_#LANE % %)
   | VSTORE vectype memarg                      hint(show %.STORE %)
   | VSTORE_LANE vectype sz memarg laneidx      hint(show %.STORE#%#_#LANE % %)
