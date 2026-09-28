@@ -183,10 +183,12 @@ rule Funcinst_ok:
 
 rule Datainst_ok:
   s |- {BYTES b*} : OK
+  -- if |b*| < $(2 ^ 32)
 
 rule Eleminst_ok:
   s |- {TYPE rt, REFS ref*} : rt
   -- (Ref_ok: s |- ref : rt)*
+  -- if |ref*| < $(2 ^ 32)
 
 rule Exportinst_ok:
   s |- {NAME nm, ADDR xa} : OK
