@@ -2295,19 +2295,10 @@ Lemma Extend_store_eleminst: forall v_S v_S' a t,
 	Eleminst_ok v_S' a t.
 Proof.
 	move => s s' x t HSt Het.
-
-	inversion Het; subst.
-	econstructor.
-
-	induction ref_lst; auto.
-	inversion H; subst; auto.
-	econstructor.
-	{
-		eapply Extend_store_ref; eauto.
-	}
-	2: by inversion HSt.
-	eapply IHref_lst; eauto.
-	by inversion Het.
+	inversion Het as [s0 rt refs HRefs Hlen Hws]; subst.
+	apply: mk_Eleminst_ok; [ | exact: Hlen | by inversion HSt ].
+	elim: HRefs {Het Hlen} => [ |r rs Hr _ IH]; constructor => //.
+	by eapply Extend_store_ref; eauto.
 Qed.
 
 Lemma Extend_store_eleminsts': forall v_S v_S' aa ts,
@@ -2341,16 +2332,15 @@ Proof.
 		inversion HElemsExtend as [? ? ? Href Heq1 Heq2]; subst.
 
 		remember (store_ELEMS0 [|a|]) as inst.
-		inversion H2 as [? ? ? HRefOks HWfstore Heq3 Heq4]; subst.
+		inversion H2 as [? ? ? HRefOks HBound HWfstore Heq3 Heq4]; subst.
 
 		rewrite -Heq4 in Heq1.
 		injection Heq1 as ?; subst.
 
-		econstructor; eauto.
 		eq_to_propH Href.
 		destruct Href; move/eqP in H; subst.
-		- eapply Extend_store_refs'; eauto.
-		- econstructor.	
+		- econstructor; eauto. eapply Extend_store_refs'; eauto.
+		- econstructor; [ constructor | by [] | eauto ].
 	}
 	eapply IHaa; auto.
 	by inversion HLen.
@@ -2364,14 +2354,7 @@ Proof.
 	move => s s' aa ts HS He.
 	induction He; auto.
 	econstructor; auto.
-	invert_elems.
-	inversion H; subst.
-	econstructor.
-	induction H0; auto.
-	econstructor.
-	- eapply Extend_store_ref; eauto.
-	- eapply IHForall. by inversion H.
-	- by inversion HS.
+	by eapply Extend_store_eleminst; eauto.
 Qed.
 
 Lemma Extend_store_datainsts': forall v_S v_S' aa ts,
@@ -2409,6 +2392,13 @@ Proof.
 		eapply holds_upto_lookup with (i := a) in HDatasExtend; eauto.
 		inversion HDatasExtend; subst.
 		econstructor; eauto.
+		(* Extend_datainst either keeps the bytes or drops them. *)
+		match goal with | [ Hb : is_true ((_ == ?b') || (?b' == [::])) |- _ ] =>
+			move/orP: Hb => [/eqP <- | /eqP -> //] end.
+		match goal with
+		| [ Ha : {| datainst_BYTES := ?x |} = ?l, Hc : {| datainst_BYTES := ?y |} = ?l |- _ ] =>
+			rewrite -Hc in Ha; injection Ha as ?; subst end.
+		assumption.
 	}
 
 	eapply IHaa; eauto.

@@ -35,8 +35,8 @@ Axiom ibytes_len'': forall v_n v_c,
 (* `truncz` (truncation of a rational towards zero) is an uninterpreted Axiom
    in wasm.v.  On a quotient of two integers - the only way the integer
    operators of the spec ever use it - it coincides with Z.quot. *)
-Axiom truncz_quot : forall (a b : Z), b <> 0%Z ->
-  truncz (inject_Z a / inject_Z b)%Q = Z.quot a b.
+  Axiom truncz_quot : forall (a b : Z), b <> 0%Z ->
+    truncz (inject_Z a / inject_Z b)%Q = Z.quot a b.
 
 (* `lanes_` is an uninterpreted Axiom in wasm.v.  By its definition in the
    specification it splits a 128-bit vector into exactly `dim` lanes. *)

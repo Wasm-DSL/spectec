@@ -2634,24 +2634,18 @@ Proof.
     move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
     right.
     case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
-    eapply invert_typeof_numtype in Ht1 as [n1 Heqv1].
+    inv_Forall HWfVals.
+    have [n1 [Heqv1 Hwf1]] := invert_typeof_numtype_wf _ _ Ht1 HP.
     rewrite Heqv1.
-    move Etestop: (fun_testop_ t testop n1) => c.
-    case ENone: c => [ c' | ].
-    -
-      exists s, f, [admininstr_CONST I32 c'].
+    have Hwft : wf_testop_ t testop by inversion HWfinstr.
+    case ENone: (fun_testop_ t testop n1) => [ c' | ].
+    - exists s, f, [admininstr_CONST I32 c'].
       apply: pure.
       apply: Step_pure__testop.
-      + subst. rewrite ENone. apply/eqP. discriminate.
-      + subst. rewrite ENone. done.
-    - subst.
-      inversion HWfinstr; subst.
-      inv_Forall HWfVals.
-      destruct v1; unfold admininstr_val in Heqv1; try discriminate.
-      injection Heqv1 as ?; subst.
-      inversion HP; subst.
-      eapply testop_not_none in H0; eauto.
-      done.
+      + by rewrite ENone.
+      + by rewrite ENone.
+      + apply: (testop__is_wf t testop n1); try done; by rewrite ENone.
+    - by have := testop_not_none _ _ _ Hwf1 Hwft.
   }
   { (* Instr_ok__relop *)
     move => C t relop HWfC HWfinstr.
@@ -2672,6 +2666,7 @@ Proof.
       apply: Step_pure__relop; eauto.
       - rewrite ENone. apply/eqP; discriminate.
       - rewrite ENone. done.
+      - apply: (relop__is_wf t relop n1 n2 c' c); try done; by rewrite ENone.
 
     - subst.
       eapply relop_not_none in Hrelop; eauto.
@@ -2824,7 +2819,10 @@ Proof.
     exists s, f, [admininstr_CONST I32
       (mk_num__0 Inn_I32 (ine_ (!(res_size valtype_V128)) c1 (mk_uN 0)))].
     apply: pure.
-    by apply: Step_pure__vvtestop.
+    apply: Step_pure__vvtestop => //.
+    apply: num__case_0 => //.
+    apply: (ine__is_wf _ c1 (mk_uN 0)) => //.
+    all: first [ exact: Hwf1 | by constructor ].
   }
   {
     move => C sh vunop HWfC HWfinstr.
@@ -4144,7 +4142,7 @@ Proof.
         move/not_return_reduce_not_lf_return: Hnotretred => Hnotret'.
         apply wf_config_label in HWfConfig as [HWfCL1 HWfCL2].
         move/(_ f C' [] [] (t1) ((mk_list _ t2) :: lab) ret HWfCL1 HWfVals Heqtf Heqc Hmod Heqts Hstore Hnotbr' Hnotret'): IH' => IH'.
-        move => {Heqtf Heqc Hmod Heqts Hstore}.
+        move => {Heqtf Heqc Hmod Heqts}.
         case: IH' => [Hterm | Hprog].
         { right. exists s, f, es.
           case: Hterm => /= [Hconst | Htrap].

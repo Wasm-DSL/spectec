@@ -240,11 +240,6 @@ Definition Q_eq_dec : forall (v1 v2 : Q),
 	{v1 = v2} + {v1 <> v2}.
 Proof. do ? decidable_equality_step. Defined.
 
-Definition Q_eqb (v1 v2 : Q) : bool :=
-	is_left(Q_eq_dec v1 v2).
-Definition eqQP : Equality.axiom (Q_eqb) :=
-	eq_dec_Equality_axiom (Q) (Q_eq_dec).
-
 (* No eqType instance for Q on purpose: mathcomp's `==` would then decide
    Leibniz equality of the num/den pair, and a rational comparison that forgot
    its %Q delimiter would silently get the wrong (and often unsatisfiable)
@@ -4389,7 +4384,7 @@ Inductive fun_idiv_ : res_N -> sx -> iN -> iN -> (option iN) -> Prop :=
 	| fun_idiv__case_3 : forall (v_N : N) (i_1 : uN) (i_2 : uN) (var_1 : Z) (var_0 : Z), 
 		(fun_signed_ v_N (i_2 :> N) var_1) ->
 		(fun_signed_ v_N (i_1 :> N) var_0) ->
-		((((var_0 : Q) / (var_1 : Q))%Q == ((2%N ^ (((v_N : Z) - (1%N : Z))%Z : N))%BN : Q))%Q) ->
+		(((var_0 : Q) / (var_1 : Q))%Q == ((2%N ^ (((v_N : Z) - (1%N : Z))%Z : N))%BN : Q))%Q ->
 		fun_idiv_ v_N res_S i_1 i_2 None
 	| fun_idiv__case_4 : forall (v_N : N) (i_1 : uN) (i_2 : uN) (var_2 : Z) (var_1 : Z) (var_0 : N), 
 		(fun_signed_ v_N (i_2 :> N) var_2) ->
@@ -12381,7 +12376,7 @@ Qed.
 Inductive fun_growmemory_before_fun_growmemory_case_1 : meminst -> N -> Prop :=
 	| fun_growmemory_case_0 : forall (mi : meminst) (v_n : N) (mi' : meminst) (i : u32) (j_opt : (option u32)) (b_lst : (seq byte)) (i' : Q), 
 		({| meminst_TYPE := (PAGE (mk_limits i j_opt)); BYTES := b_lst |} == mi) ->
-		((i' == ((((|b_lst|) : Q) / ((64%N * (Ki ))%BN : Q))%Q + (v_n : Q))%Q)%Q) ->
+		(i' == ((((|b_lst|) : Q) / ((64%N * (Ki ))%BN : Q))%Q + (v_n : Q))%Q)%Q ->
 		List.Forall (fun (j_7 : u32) => (i' <=? ((j_7 :> N) : Q))%Q) (option_to_list j_opt) ->
 		(mi' == {| meminst_TYPE := (PAGE (mk_limits (mk_uN (i' : N)) j_opt)); BYTES := (b_lst ++ (list_repeat (mk_byte 0%N) (v_n * (64%N * (Ki ))%BN)%BN)) |}) ->
 		(wf_meminst {| meminst_TYPE := (PAGE (mk_limits i j_opt)); BYTES := b_lst |}) ->
@@ -12392,7 +12387,7 @@ Inductive fun_growmemory_before_fun_growmemory_case_1 : meminst -> N -> Prop :=
 Inductive fun_growmemory : meminst -> N -> (option meminst) -> Prop :=
 	| fun_growmemory__fun_growmemory_case_0 : forall (mi : meminst) (v_n : N) (mi' : meminst) (i : u32) (j_opt : (option u32)) (b_lst : (seq byte)) (i' : Q), 
 		({| meminst_TYPE := (PAGE (mk_limits i j_opt)); BYTES := b_lst |} == mi) ->
-		((i' == ((((|b_lst|) : Q) / ((64%N * (Ki ))%BN : Q))%Q + (v_n : Q))%Q)%Q) ->
+		(i' == ((((|b_lst|) : Q) / ((64%N * (Ki ))%BN : Q))%Q + (v_n : Q))%Q)%Q ->
 		List.Forall (fun (j_7 : u32) => (i' <=? ((j_7 :> N) : Q))%Q) (option_to_list j_opt) ->
 		(mi' == {| meminst_TYPE := (PAGE (mk_limits (mk_uN (i' : N)) j_opt)); BYTES := (b_lst ++ (list_repeat (mk_byte 0%N) (v_n * (64%N * (Ki ))%BN)%BN)) |}) ->
 		(wf_meminst {| meminst_TYPE := (PAGE (mk_limits i j_opt)); BYTES := b_lst |}) ->
@@ -13422,11 +13417,13 @@ Inductive Step_pure : (seq admininstr) -> (seq admininstr) -> Prop :=
 	| Step_pure__testop : forall (nt : numtype) (c_1 : num_) (testop : testop_) (c : num_), 
 		((fun_testop_ nt testop c_1) != None) ->
 		(c == (!((fun_testop_ nt testop c_1)))) ->
+		(wf_num_ I32 c) ->
 		Step_pure [::(admininstr_CONST nt c_1); (admininstr_TESTOP nt testop)] [::(admininstr_CONST I32 c)]
 	| Step_pure__relop : forall (nt : numtype) (c_1 : num_) (c_2 : num_) (relop : relop_) (c : num_) (var_0 : (option num_)), 
 		(fun_relop_ nt relop c_1 c_2 var_0) ->
 		(var_0 != None) ->
 		(c == (!(var_0))) ->
+		(wf_num_ I32 c) ->
 		Step_pure [::(admininstr_CONST nt c_1); (admininstr_CONST nt c_2); (admininstr_RELOP nt relop)] [::(admininstr_CONST I32 c)]
 	| cvtop_val : forall (nt_1 : numtype) (c_1 : num_) (nt_2 : numtype) (cvtop : cvtop__) (c : num_) (var_0 : (option (seq num_))), 
 		(fun_cvtop__ nt_1 nt_2 cvtop c_1 var_0) ->
@@ -13458,6 +13455,7 @@ Inductive Step_pure : (seq admininstr) -> (seq admininstr) -> Prop :=
 		((proj_num__0 c) != None) ->
 		((res_size valtype_V128) != None) ->
 		((!((proj_num__0 c))) == (ine_ (!((res_size valtype_V128))) c_1 (mk_uN 0%N))) ->
+		(wf_num_ I32 c) ->
 		(wf_uN 128%N (mk_uN 0%N)) ->
 		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VVTESTOP V128 ANY_TRUE)] [::(admininstr_CONST I32 c)]
 	| Step_pure__vunop : forall (c_1 : vec_) (sh : shape) (vunop : vunop_) (c : vec_) (var_0 : (option (seq vec_))), 
@@ -13555,6 +13553,7 @@ Inductive Step_pure : (seq admininstr) -> (seq admininstr) -> Prop :=
 		((proj_lane__1 ((lanes_ (X (lanetype_packtype pt) (mk_dim v_N)) c_1)[| (i :> N) |])) != None) ->
 		((i :> N) <? (|(lanes_ (X (lanetype_packtype pt) (mk_dim v_N)) c_1)|))%BN ->
 		((!((proj_num__0 c_2))) == (extend__ (psize pt) 32%N v_sx (!((proj_lane__1 ((lanes_ (X (lanetype_packtype pt) (mk_dim v_N)) c_1)[| (i :> N) |])))))) ->
+		(wf_num_ I32 c_2) ->
 		(wf_shape (X (lanetype_packtype pt) (mk_dim v_N))) ->
 		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VEXTRACT_LANE (X (lanetype_packtype pt) (mk_dim v_N)) (Some v_sx) i)] [::(admininstr_CONST I32 c_2)]
 	| Step_pure__vreplace_lane : forall (c_1 : vec_) (v_Lnn : Lnn) (c_2 : num_) (v_N : res_N) (i : laneidx) (c : vec_), 
@@ -13781,17 +13780,13 @@ Proof.
 					| (((eapply irev__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
 					| (((eapply inez__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ] ) ])
 		| by apply: List.Forall_nil ]).
-	(* 53 of the 56 reduction cases are discharged above.  The three that remain
-	   are not derivable as stated:
-	   - vvtestop and vextract_lane_pack produce (admininstr_CONST I32 c), but
-	     their premises constrain c only through (proj_num__0 c), which does not
-	     pin down the Inn tag: taking c = (mk_num__0 Inn_I64 ...) satisfies every
-	     premise while (wf_num_ I32 c) is false.
-	   - vbitmask produces (CONST I32 (mk_num__0 Inn_I32 (irev_ 32 ci))) and so
-	     needs (wf_uN 32 ci), but the rule relates ci to a bit list only through
-	     (ibits_ 32 ci), and no axiom connects ibits_ with inv_ibits_, so nothing
-	     bounds ci. 
-	   (Mechanised: Step_pure_is_wf_false in wf_counterexamples.v.) *)
+	(* 55 of the 56 reduction cases are discharged above (testop, relop,
+	   vvtestop and vextract_lane_pack now carry a (wf_num_ I32 _) premise on
+	   their result).  The one that remains, vbitmask, is not derivable as
+	   stated: it produces (CONST I32 (mk_num__0 Inn_I32 (irev_ 32 ci))) and so
+	   needs (wf_uN 32 ci), but the rule relates ci to a bit list only through
+	   (ibits_ 32 ci), and ibits_ is an uninterpreted Axiom, so nothing bounds
+	   ci.  A (wf_uN 32%N ci) premise on the rule would close it. *)
 	all: admit.
 Admitted.
 
@@ -14059,7 +14054,7 @@ Inductive Step_read : config -> (seq admininstr) -> Prop :=
 		((proj_num__0 i) != None) ->
 		((ibytes_ v_N j) == (list_slice (BYTES (fun_mem z (mk_uN 0%N))) (((!((proj_num__0 i))) :> N) + ((OFFSET ao) :> N))%BN (((v_N : Q) / (8%N : Q))%Q : N))) ->
 		(v_N == (jsize v_Jnn)) ->
-		(((v_M : Q) == ((128%N : Q) / (v_N : Q))%Q)%Q) ->
+		((v_M : Q) == ((128%N : Q) / (v_N : Q))%Q)%Q ->
 		(c == (inv_lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) (list_repeat (mk_lane__2 v_Jnn (mk_uN (j :> (N)))) v_M))) ->
 		(wf_uN 32%N (mk_uN 0%N)) ->
 		(wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) ->
@@ -14086,7 +14081,7 @@ Inductive Step_read : config -> (seq admininstr) -> Prop :=
 		((proj_num__0 i) != None) ->
 		((ibytes_ v_N k) == (list_slice (BYTES (fun_mem z (mk_uN 0%N))) (((!((proj_num__0 i))) :> N) + ((OFFSET ao) :> N))%BN (((v_N : Q) / (8%N : Q))%Q : N))) ->
 		(v_N == (jsize v_Jnn)) ->
-		(((v_M : Q) == ((128%N : Q) / (v_N : Q))%Q)%Q) ->
+		((v_M : Q) == ((128%N : Q) / (v_N : Q))%Q)%Q ->
 		(c == (inv_lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) (list_update_func (lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c_1) (j :> N) (fun (_ : lane_) => (mk_lane__2 v_Jnn (mk_uN (k :> (N)))))))) ->
 		(wf_uN 32%N (mk_uN 0%N)) ->
 		(wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_M))) ->
@@ -14157,194 +14152,6 @@ Inductive Step_read : config -> (seq admininstr) -> Prop :=
 		(((((!((proj_num__0 i))) :> N) + v_n)%BN <=? (|(datainst_BYTES (fun_data z x))|))%BN && ((((!((proj_num__0 j))) :> N) + v_n)%BN <=? (|(BYTES (fun_mem z (mk_uN 0%N)))|))%BN) ->
 		Step_read (mk_config z [::(admininstr_CONST I32 j); (admininstr_CONST I32 i); (admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))); (admininstr_MEMORY_INIT x)]) [::(admininstr_CONST I32 j); (admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((datainst_BYTES (fun_data z x))[| ((!((proj_num__0 i))) :> N) |]) :> (N))))); (admininstr_STORE I32 (Some (mk_sz 8%N)) (memarg0 )); (admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((!((proj_num__0 j))) :> N) + 1%N)%BN))); (admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((!((proj_num__0 i))) :> N) + 1%N)%BN))); (admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n : Z) - (1%N : Z))%Z : N)))); (admininstr_MEMORY_INIT x)].
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:7.10-7.19 *)
-Lemma Step_read_is_wf : forall (var_0 : config) (var_1 : (seq admininstr)),
-	(wf_config var_0) ->
-	(Step_read var_0 var_1) ->
-	List.Forall (fun (var_1 : admininstr) => (wf_admininstr var_1)) var_1.
-Proof.
-	move => var_0 var_1 Hcfg H.
-	have Hmono : forall (T : Type) (P Q : T -> Prop) (l : seq T),
-		List.Forall P l -> (forall x, P x -> Q x) -> List.Forall Q l.
-	{ move => T P Q. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl] Hpq.
-		by apply: List.Forall_cons; [ apply: Hpq | apply: IH ]. }
-	have Hav : forall v, wf_val v -> wf_admininstr (admininstr_val v).
-	{ by move => v Hv; case: Hv => *; constructor. }
-	have Hai : forall i, wf_instr i -> wf_admininstr (admininstr_instr i).
-	{ move => i Hi. case: Hi => *; simpl;
-		solve [ constructor | (econstructor; eassumption) ]. }
-	have Hfmap : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
-		List.Forall (fun x => P (f x)) l -> List.Forall P (seq.map f l).
-	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
-		by apply: List.Forall_cons; [ | apply: IH ]. }
-	have Hfmapinv : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
-		List.Forall P (seq.map f l) -> List.Forall (fun x => P (f x)) l.
-	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
-		by apply: List.Forall_cons; [ | apply: IH ]. }
-	have Hmapi : forall l, List.Forall (fun x => wf_instr x) l ->
-		List.Forall wf_admininstr (seq.map (fun x => admininstr_instr x) l).
-	{ move => l Hl. apply: Hfmap. by apply: (Hmono _ _ _ _ Hl). }
-	have Hin : forall (T : eqType) (P : T -> Prop) (l : seq T) (x : T),
-		List.Forall P l -> (x \in l) -> P x.
-	{ move => T P. elim => [ |y l IH] x //= /List.Forall_cons_iff [Hy Hl].
-		rewrite in_cons => /orP [ /eqP -> // | Hx]. by apply: IH. }
-	have Hnth : forall (T : Type) (P : T -> Prop) (d : T) (s : seq T) (n : nat),
-		List.Forall P s -> P d -> P (seq.nth d s n).
-	{ move => T P d s. elim: s => [ |x s IH] n Hs Hd; first by rewrite seq.nth_nil.
-		inversion Hs; subst. case: n => [ |n] //=. by apply: IH. }
-	have Har : forall r, wf_admininstr (admininstr_ref r).
-	{ by case => *; constructor. }
-	have Hrep : forall (T : Type) (P : T -> Prop) (x : T) (n : N),
-		P x -> List.Forall P (list_repeat x n).
-	{ move => T P x n Hx. rewrite /list_repeat. elim: (N.to_nat n) => [ |m IH] //=.
-		by apply: List.Forall_cons. }
-	have Hmkseq : forall (T : Type) (P : T -> Prop) (f : N -> T) (n : N),
-		holds_upto (fun k => P (f k)) n -> List.Forall P (mkseqN f n).
-	{ move => T P f n. rewrite /holds_upto /iotaN /mkseqN /mkseq => Hh.
-		apply: Hfmap. by apply: (Hfmapinv _ _ (fun k => P (f k)) N.of_nat). }
-	have Hupd : forall (T : Type) (P : T -> Prop) (l : seq T) (n : N) (g : T -> T),
-		List.Forall P l -> (forall x, P x -> P (g x)) -> List.Forall P (list_update_func l n g).
-	{ move => T P l. elim: l => [ |x l IH] n g Hl0 Hg //=.
-		inversion Hl0; subst. case: n => [ |p]; apply: List.Forall_cons => //.
-		- by apply: Hg.
-		- by apply: IH. }
-	have Hfin : forall (sh : shape) (lls : seq (seq lane_)),
-		wf_shape sh ->
-		List.Forall (fun l => List.Forall (fun x => wf_lane_ (fun_lanetype sh) x) l) lls ->
-		List.Forall (fun v => wf_uN 128%N v) (seq.map (fun l => inv_lanes_ sh l) lls).
-	{ move => sh lls Hsh0. elim: lls => [ |l lls IH] //= /List.Forall_cons_iff [Hl Hlls].
-		apply: List.Forall_cons; last by apply: IH.
-		by apply: (inv_lanes__is_wf sh l). }
-	have Hcomb : forall (T U : Type) (P P1 : T -> Prop) (Q : U -> Prop) (R : T -> U -> Prop)
-		(l1 : seq T) (l2 : seq U),
-		List.Forall2 R l1 l2 -> List.Forall P1 l1 -> List.Forall Q l2 ->
-		(forall a b, R a b -> P1 a -> Q b -> P a) -> List.Forall P l1.
-	{ move => T U P P1 Q R l1 l2 H12 H1 H2 Hstep.
-		elim: H12 H1 H2 => [ |x y l l' Hxy H12 IH] H1 H2.
-		- by apply: List.Forall_nil.
-		- move: H1 => /List.Forall_cons_iff [Hx H1]. move: H2 => /List.Forall_cons_iff [Hy H2].
-			by apply: List.Forall_cons; [ apply: (Hstep _ _ Hxy Hx Hy) | apply: IH ]. }
-	have Hbr : forall (l : uN), wf_uN 32%N (mk_uN (((l :> N) + 1%N)%BN)) -> wf_uN 32%N l.
-	{ move => [i] Hw. apply: uN_case_0. inversion Hw; subst.
-		match goal with | [ Hb : is_true (andb _ _) |- _ ] => move: Hb => /andP [_ Hle] end.
-		rewrite /N_geb. apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
-		apply/N.leb_spec0. apply: (N.le_trans i (i + 1)%BN); first by apply: N.le_add_r.
-		by apply/N.leb_spec0. }
-	have Hgv : forall (z : state) (x : globalidx),
-		wf_state z -> wf_uN 32%N x -> wf_val (VALUE (fun_global z x)).
-	{ move => z x Hz Hx. have Hg := global_is_wf z x (fun_global z x) Hz Hx (eqxx _).
-		by inversion Hg. }
-	case: H Hcfg => *.
-	all: repeat match goal with | [ Hx : wf_config _ |- _ ] => inversion Hx; subst; clear Hx end.
-
-	all: do 3 (
-		repeat match goal with
-			| [ Hx : List.Forall _ (_ :: _) |- _ ] => move: Hx => /List.Forall_cons_iff [? ?]
-			| [ Hx : List.Forall _ (_ ++ _) |- _ ] => move: Hx => /List.Forall_app [? ?]
-			end;
-		repeat match goal with
-			| [ Hx : wf_admininstr (admininstr_val _) |- _ ] => move: Hx
-			| [ Hx : wf_admininstr (admininstr_instr _) |- _ ] => move: Hx
-			| [ Hx : wf_admininstr (admininstr_ref _) |- _ ] => move: Hx
-			end;
-		repeat match goal with
-			| [ Hx : wf_admininstr _ |- _ ] => inversion Hx; subst; clear Hx
-			| [ Hx : wf_lane_ _ (mk_lane__0 _ _) |- _ ] => inversion Hx; subst; clear Hx
-			| [ Hx : wf_lane_ _ (mk_lane__1 _ _) |- _ ] => inversion Hx; subst; clear Hx
-			| [ Hx : wf_lane_ _ (mk_lane__2 _ _) |- _ ] => inversion Hx; subst; clear Hx
-			end;
-		move => * ).
-	all: try (by repeat first [ apply: List.Forall_nil | (apply/List.Forall_app; split)
-		| apply: List.Forall_cons | eassumption | (apply: Har)
-		| (apply: Hav; first [ eassumption | (apply Hgv; first [ eassumption | by [] ])
-			| (eapply local_is_wf; first [ by apply: eqxx | eassumption | by [] ]) ])
-		| (apply: Hai; eassumption) | (apply: Hmapi; eassumption)
-		| (apply Hbr; eassumption)
-		| (apply: Hnth; last by constructor) | constructor ]).
-	all: try (apply: List.Forall_cons;
-		[ (constructor;
-			first [ by []
-				| ( first [ (match goal with | [ Hc : is_true (?c == _) |- wf_num_ _ ?c ] =>
-							move/eqP: Hc => -> end)
-						| (match goal with | [ Hc : is_true (?c == _) |- wf_uN _ ?c ] =>
-							move/eqP: Hc => -> end)
-						| (match goal with | [ Hc : is_true (_ == ?c) |- wf_num_ _ ?c ] =>
-							move/eqP: Hc => <- end)
-						| (match goal with | [ Hc : is_true (_ == ?c) |- wf_uN _ ?c ] =>
-							move/eqP: Hc => <- end)
-						| (match goal with | [ Hc : is_true (?c \in _) |- wf_num_ _ ?c ] =>
-							eapply Hin; last exact: Hc end)
-						| (match goal with | [ Hc : is_true (?c \in _) |- wf_uN _ ?c ] =>
-							eapply Hin; last exact: Hc end)
-						| idtac ];
-					solve [ (((eapply inv_lanes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption
-							| (apply Hfmap; eassumption)
-							| (apply Hmkseq; eassumption)
-							| (apply Hrep; ((eapply packnum__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-							| ((apply/List.Forall_app; split); apply Hfmap; eassumption)
-							| (apply Hupd;
-								[ (((eapply lanes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-								| (move => ? ?; ((eapply packnum__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-							| (apply Hfmap; (eapply Hcomb;
-								[ eassumption | eassumption | eassumption
-								| (move => ? ? Hr Hp Hq; cbv beta in Hr, Hp, Hq;
-									match type of Hr with
-									| fun_vshiftop_ ?ish ?op ?cc ?uu _ =>
-										((eapply (vshiftop__is_wf ish op cc uu); cycle -1);
-											first (by apply: eqxx));
-										first [ eassumption | by [] ]
-									end) ])) ])
-					| (apply Hfin; first [ eassumption | by [] ])
-					| (((eapply unop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply binop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply testop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply relop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply cvtop___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply vvunop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply vvbinop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply vvternop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply vunop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply vbinop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply vrelop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply vshiftop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply vcvtop___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply vextunop___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply vextbinop___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply narrow___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply lanes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply packnum__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply unpacknum__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply ieqz__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply irev__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
-					| (((eapply inez__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ] ) ])
-		| by apply: List.Forall_nil ]).
-	all: try (repeat match goal with
-			| [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end;
-		subst;
-		do 2 (repeat match goal with
-			| [ Hx : wf_funcinst _ |- _ ] => inversion Hx; subst; clear Hx
-			| [ Hx : wf_func _ |- _ ] => inversion Hx; subst; clear Hx
-			end);
-		by repeat first [ apply: List.Forall_nil | (apply/List.Forall_app; split)
-			| apply: List.Forall_cons | eassumption | (apply: Har)
-			| (apply: Hav; first [ eassumption | (apply Hgv; first [ eassumption | by [] ])
-				| (eapply local_is_wf; first [ by apply: eqxx | eassumption | by [] ]) ])
-			| (apply: Hai; eassumption) | (apply: Hmapi; eassumption)
-			| (apply Hbr; eassumption)
-			| (apply: Hnth; last by constructor) | constructor ]).
-	(* 31 of the 47 read-reduction cases are discharged above.  The 16 that remain
-	   are not derivable as stated:
-	   - table.size / memory.size and the bulk table/memory rules produce
-	     (CONST I32 (mk_uN k)) where k is a store length (or a store length plus
-	     one).  Nothing in the model bounds a table's or memory's length by 2 ^ 32,
-	     so (wf_uN 32 (mk_uN k)) does not follow.
-	   - the load rules constrain the loaded value c only through
-	     (nbytes_ nt c) / (ibytes_ n c) / (vbytes_ V128 c) being a slice of memory.
-	     Those are axioms and no law relates them to inv_nbytes_ / inv_ibytes_ /
-	     inv_vbytes_, so no bound on c is available. 
-	   (Mechanised: Step_read_is_wf_false in wf_counterexamples.v.) *)
-	all: admit.
-Admitted.
 
 (* Mutual Recursion at: ../specification/wasm-2.0/8-reduction.spectec:5.1-5.109 *)
 Inductive Step : config -> config -> Prop :=
@@ -14430,7 +14237,7 @@ Inductive Step : config -> config -> Prop :=
 	| vstore_lane_val : forall (z : state) (i : num_) (c : vec_) (v_N : res_N) (ao : memarg) (j : laneidx) (b_lst : (seq byte)) (v_Jnn : Jnn) (v_M : M), 
 		((proj_num__0 i) != None) ->
 		(v_N == (jsize v_Jnn)) ->
-		(((v_M : Q) == ((128%N : Q) / (v_N : Q))%Q)%Q) ->
+		((v_M : Q) == ((128%N : Q) / (v_N : Q))%Q)%Q ->
 		((proj_lane__2 ((lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c)[| (j :> N) |])) != None) ->
 		((j :> N) <? (|(lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c)|))%BN ->
 		(b_lst == (ibytes_ v_N (mk_uN ((!((proj_lane__2 ((lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c)[| (j :> N) |])))) :> (N))))) ->
@@ -14447,450 +14254,6 @@ Inductive Step : config -> config -> Prop :=
 		Step (mk_config z [::(admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))); admininstr_MEMORY_GROW]) (mk_config z [::(admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN var_0)))])
 	| Step__data_drop : forall (z : state) (x : idx), Step (mk_config z [::(admininstr_DATA_DROP x)]) (mk_config (with_data z x [:: ]) [:: ]).
 
-(* Mutual Recursion at: ../specification/wasm-2.0/8-reduction.spectec:5.1-5.109 *)
-Lemma Step_is_wf : forall (var_0 : config) (var_1 : config),
-	(wf_config var_0) ->
-	(Step var_0 var_1) ->
-	(wf_config var_1).
-Proof.
-	move => var_0 var_1 Hcfg H.
-	have Hmono : forall (T : Type) (P Q : T -> Prop) (l : seq T),
-		List.Forall P l -> (forall x, P x -> Q x) -> List.Forall Q l.
-	{ move => T P Q. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl] Hpq.
-		by apply: List.Forall_cons; [ apply: Hpq | apply: IH ]. }
-	have Hav : forall v, wf_val v -> wf_admininstr (admininstr_val v).
-	{ by move => v Hv; case: Hv => *; constructor. }
-	have Hai : forall i, wf_instr i -> wf_admininstr (admininstr_instr i).
-	{ move => i Hi. case: Hi => *; simpl;
-		solve [ constructor | (econstructor; eassumption) ]. }
-	have Hfmap : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
-		List.Forall (fun x => P (f x)) l -> List.Forall P (seq.map f l).
-	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
-		by apply: List.Forall_cons; [ | apply: IH ]. }
-	have Hfmapinv : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
-		List.Forall P (seq.map f l) -> List.Forall (fun x => P (f x)) l.
-	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
-		by apply: List.Forall_cons; [ | apply: IH ]. }
-	have Hmapi : forall l, List.Forall (fun x => wf_instr x) l ->
-		List.Forall wf_admininstr (seq.map (fun x => admininstr_instr x) l).
-	{ move => l Hl. apply: Hfmap. by apply: (Hmono _ _ _ _ Hl). }
-	have Hin : forall (T : eqType) (P : T -> Prop) (l : seq T) (x : T),
-		List.Forall P l -> (x \in l) -> P x.
-	{ move => T P. elim => [ |y l IH] x //= /List.Forall_cons_iff [Hy Hl].
-		rewrite in_cons => /orP [ /eqP -> // | Hx]. by apply: IH. }
-	have Hnth : forall (T : Type) (P : T -> Prop) (d : T) (s : seq T) (n : nat),
-		List.Forall P s -> P d -> P (seq.nth d s n).
-	{ move => T P d s. elim: s => [ |x s IH] n Hs Hd; first by rewrite seq.nth_nil.
-		inversion Hs; subst. case: n => [ |n] //=. by apply: IH. }
-	have Har : forall r, wf_admininstr (admininstr_ref r).
-	{ by case => *; constructor. }
-	have Hrep : forall (T : Type) (P : T -> Prop) (x : T) (n : N),
-		P x -> List.Forall P (list_repeat x n).
-	{ move => T P x n Hx. rewrite /list_repeat. elim: (N.to_nat n) => [ |m IH] //=.
-		by apply: List.Forall_cons. }
-	have Hmkseq : forall (T : Type) (P : T -> Prop) (f : N -> T) (n : N),
-		holds_upto (fun k => P (f k)) n -> List.Forall P (mkseqN f n).
-	{ move => T P f n. rewrite /holds_upto /iotaN /mkseqN /mkseq => Hh.
-		apply: Hfmap. by apply: (Hfmapinv _ _ (fun k => P (f k)) N.of_nat). }
-	have Hupd : forall (T : Type) (P : T -> Prop) (l : seq T) (n : N) (g : T -> T),
-		List.Forall P l -> (forall x, P x -> P (g x)) -> List.Forall P (list_update_func l n g).
-	{ move => T P l. elim: l => [ |x l IH] n g Hl0 Hg //=.
-		inversion Hl0; subst. case: n => [ |p]; apply: List.Forall_cons => //.
-		- by apply: Hg.
-		- by apply: IH. }
-	have Hfin : forall (sh : shape) (lls : seq (seq lane_)),
-		wf_shape sh ->
-		List.Forall (fun l => List.Forall (fun x => wf_lane_ (fun_lanetype sh) x) l) lls ->
-		List.Forall (fun v => wf_uN 128%N v) (seq.map (fun l => inv_lanes_ sh l) lls).
-	{ move => sh lls Hsh0. elim: lls => [ |l lls IH] //= /List.Forall_cons_iff [Hl Hlls].
-		apply: List.Forall_cons; last by apply: IH.
-		by apply: (inv_lanes__is_wf sh l). }
-	have Hcomb : forall (T U : Type) (P P1 : T -> Prop) (Q : U -> Prop) (R : T -> U -> Prop)
-		(l1 : seq T) (l2 : seq U),
-		List.Forall2 R l1 l2 -> List.Forall P1 l1 -> List.Forall Q l2 ->
-		(forall a b, R a b -> P1 a -> Q b -> P a) -> List.Forall P l1.
-	{ move => T U P P1 Q R l1 l2 H12 H1 H2 Hstep.
-		elim: H12 H1 H2 => [ |x y l l' Hxy H12 IH] H1 H2.
-		- by apply: List.Forall_nil.
-		- move: H1 => /List.Forall_cons_iff [Hx H1]. move: H2 => /List.Forall_cons_iff [Hy H2].
-			by apply: List.Forall_cons; [ apply: (Hstep _ _ Hxy Hx Hy) | apply: IH ]. }
-	have Hbr : forall (l : uN), wf_uN 32%N (mk_uN (((l :> N) + 1%N)%BN)) -> wf_uN 32%N l.
-	{ move => [i] Hw. apply: uN_case_0. inversion Hw; subst.
-		match goal with | [ Hb : is_true (andb _ _) |- _ ] => move: Hb => /andP [_ Hle] end.
-		rewrite /N_geb. apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
-		apply/N.leb_spec0. apply: (N.le_trans i (i + 1)%BN); first by apply: N.le_add_r.
-		by apply/N.leb_spec0. }
-	have Hmono32 : forall (a b : N), (a <= b)%BN -> wf_uN 32%N (mk_uN b) -> wf_uN 32%N (mk_uN a).
-	{ move => a b Hab Hb0. apply: uN_case_0. inversion Hb0; subst.
-		match goal with | [ Hc : is_true (andb _ _) |- _ ] => move: Hc => /andP [_ Hle0] end.
-		rewrite /N_geb. apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
-		apply/N.leb_spec0. apply: (N.le_trans _ _ _ Hab). by apply/N.leb_spec0. }
-	have HtoNmono : forall (a b : Z), (a <= b)%Z -> (Z.to_N a <= Z.to_N b)%BN.
-	{ move => a b Hab. case: (Z.le_gt_cases 0 a) => Ha.
-		- by apply: (proj1 (Znat.Z2N.inj_le a b Ha (Z.le_trans _ _ _ Ha Hab)) Hab).
-		- have Hz : (Z.to_N a = 0%N) by case: a Ha Hab => [ |p|p] //=.
-			rewrite Hz. by apply: N.le_0_l. }
-	have HQnn : forall (m : N), (0 <= (m : Q))%Q.
-	{ move => m. rewrite -(Qle_bool_iff 0 (m : Q)). by case: m. }
-	have HQle : forall (q : Q) (m : N), (((q : N)) <= (((q + (m : Q))%Q : N)))%BN.
-	{ move => q m. apply: HtoNmono. apply: Qfloor_resp_le.
-		rewrite -{1}(Qplus_0_r q). by apply/Qplus_le_r; apply: HQnn. }
-	have HinnInj : forall a b : Inn, numtype_Inn a = numtype_Inn b -> a = b.
-	{ by move => [] []. }
-	have Hva : forall v, wf_admininstr (admininstr_val v) -> wf_val v.
-	{ move => v Hx. case: v Hx => *; simpl in *;
-		match goal with | [ Hy : wf_admininstr _ |- _ ] => inversion Hy; subst end;
-		solve [ (constructor; eassumption) | constructor ]. }
-	have Hfr : forall s f, wf_state (mk_state s f) -> wf_frame f.
-	{ move => s f Hs0. by inversion Hs0. }
-	have Hst : forall s f s' f', wf_state (mk_state s f) -> wf_state (mk_state s' f') ->
-		wf_state (mk_state s f').
-	{ move => s f s' f' H1 H2. inversion H1; inversion H2; subst. by apply: state_case_0. }
-	have Hto : forall m : N, ((((m : Z) - (1%N : Z))%Z : N) = (m - 1)%BN).
-	{ case => [ |p] //. by rewrite -Znat.N2Z.inj_sub ?Znat.N2Z.id //; apply/N.neq_0_le_1. }
-	have Hp : forall (vN : res_N), (0 < (2%N ^ vN)%BN)%BN.
-	{ by move => vN; apply/N.neq_0_lt_0; apply: N.pow_nonzero. }
-	have HtoN : forall (vN : res_N) (z2 : Z),
-		(z2 < ((2%N ^ vN)%BN : Z))%Z -> (((z2 : N)) < (2%N ^ vN)%BN)%BN.
-	{ move => vN; case => [ |q|q] Hz //=; try exact: Hp.
-		have Hnn : (0 <= Z.pos q)%Z by [].
-		have := (proj1 (Znat.Z2N.inj_lt (Z.pos q) _ Hnn (Znat.N2Z.is_nonneg _)) Hz).
-		by rewrite Znat.N2Z.id. }
-	have Hbnd : forall (vN : res_N) (x : N), (x < (2%N ^ vN)%BN)%BN -> wf_uN vN (mk_uN x).
-	{ move => vN x Hx. apply: uN_case_0. rewrite Hto /N_geb.
-		apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
-		by apply/N.leb_spec0; rewrite N.sub_1_r; apply: N.lt_le_pred. }
-	have Hle : forall (vN : res_N),
-		((2%N ^ ((((vN : Z) - (1%N : Z))%Z : N)))%BN <= (2%N ^ vN)%BN)%BN.
-	{ move => vN. apply: N.pow_le_mono_r => //. rewrite Hto. exact: N.le_sub_l. }
-	have Hinv : forall (vN : res_N) (z : Z) (m : N), fun_inv_signed_ vN z m -> wf_uN vN (mk_uN m).
-	{ move => vN0 z m Hi. case: Hi => vN i /andP [Ha Hb]; apply: Hbnd; apply: HtoN.
-		- have Hlt2 : (i < ((2%N ^ ((((vN : Z) - (1%N : Z))%Z : N)))%BN : Z))%Z
-				by apply: (proj1 (Z.ltb_lt _ _) Hb).
-			apply: (Z.lt_le_trans _ _ _ Hlt2). by apply/Znat.N2Z.inj_le; apply: Hle.
-		- rewrite -{2}(Z.add_0_l ((2%N ^ vN)%BN : Z)).
-			by apply: (proj1 (Z.add_lt_mono_r _ _ _) (proj1 (Z.ltb_lt _ _) Hb)). }
-	case: H Hcfg => *.
-	all: try by eassumption.
-	all: repeat match goal with | [ Hx : wf_config _ |- _ ] => inversion Hx; subst; clear Hx end.
-	all: do 2 (
-		repeat match goal with
-			| [ Hx : List.Forall _ (_ :: _) |- _ ] => move: Hx => /List.Forall_cons_iff [? ?]
-			| [ Hx : List.Forall _ (_ ++ _) |- _ ] => move: Hx => /List.Forall_app [? ?]
-			end;
-		repeat match goal with
-			| [ Hx : wf_admininstr (admininstr_val _) |- _ ] => move: Hx
-			| [ Hx : wf_admininstr (admininstr_instr _) |- _ ] => move: Hx
-			| [ Hx : wf_admininstr (admininstr_ref _) |- _ ] => move: Hx
-			end;
-		repeat match goal with
-			| [ Hx : wf_admininstr _ |- _ ] => inversion Hx; subst; clear Hx
-			| [ Hx : wf_num_ _ (mk_num__0 _ _) |- _ ] => inversion Hx; subst; clear Hx
-			end;
-		move => * ).
-	all: repeat match goal with | [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end.
-	all: subst.
-	all: try (apply: config_case_0;
-		[ solve [ eassumption | (apply: state_case_0; eassumption)
-			| (eapply Hst; eassumption)
-			| (((eapply with_local_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_global_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_tableinst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_meminst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_elem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_data_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) ]
-		| solve [ ((eapply Step_pure_is_wf; only 2: eassumption); eassumption)
-			| ((eapply Step_read_is_wf; only 2: eassumption);
-				(apply: config_case_0; eassumption))
-			| repeat first [ apply: List.Forall_nil | (apply/List.Forall_app; split)
-				| apply: List.Forall_cons | eassumption | (apply: Har)
-				| (apply: Hav; eassumption) | (apply: Hai; eassumption)
-				| (apply: Hmapi; eassumption) | (eapply Hinv; eassumption)
-				| (eapply Hfr; eassumption) | constructor ] ] ]).
-	all: try (apply: config_case_0;
-		[ solve [ eassumption | (apply: state_case_0; eassumption)
-			| (eapply Hst; eassumption)
-			| (((eapply with_local_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_global_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_tableinst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_meminst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_elem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_data_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])  ]
-		| ( match goal with
-				| [ Hg : fun_growtable _ _ _ _ |- _ ] => inversion Hg; subst
-				| [ Hg : fun_growmemory _ _ _ |- _ ] => inversion Hg; subst
-				end;
-			first
-			[ (by match goal with
-					| [ Hn : is_true (_ != _) |- _ ] => move: Hn; rewrite eqxx end)
-			| ( repeat match goal with
-						| [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end;
-				match goal with
-					| [ Het : _ = fun_table _ _ |- _ ] => rewrite -Het
-					| [ Het : _ = fun_mem _ _ |- _ ] => rewrite -Het
-					end; simpl; subst;
-				repeat match goal with
-					| [ Hx : wf_tableinst _ |- _ ] => inversion Hx; subst; clear Hx
-					| [ Hx : wf_tabletype _ |- _ ] => inversion Hx; subst; clear Hx
-					| [ Hx : wf_meminst _ |- _ ] => inversion Hx; subst; clear Hx
-					| [ Hx : wf_memtype _ |- _ ] => inversion Hx; subst; clear Hx
-					| [ Hx : wf_limits _ |- _ ] => inversion Hx; subst; clear Hx
-					end;
-				apply: List.Forall_cons; [ | by apply: List.Forall_nil ];
-				(* `i'` is now only pinned up to Qeq, so replace it by its definition
-				   under the (Qeq-invariant) N projection instead of by subst. *)
-				try (match goal with
-					| [ Hq : is_true (Qeq_bool _ _) |- _ ] =>
-						let Hn := fresh "Hn" in
-						move: (Qeq_bool_toN _ _ Hq) => Hn;
-						match goal with
-						| [ Hw : wf_uN 32%N (mk_uN (Z.to_N (Qfloor _))) |- _ ] => rewrite Hn in Hw
-						end
-					end);
-				constructor; constructor;
-				first [ by []
-					| ((eapply Hmono32; last (by eassumption)); by apply: N.le_add_r)
-					| ((eapply Hmono32; last (by eassumption)); by apply: HQle) ] ) ] ) ]).
-	all: try (apply: config_case_0;
-		[ solve [ eassumption | (apply: state_case_0; eassumption)
-			| (eapply Hst; eassumption)
-			| (((eapply with_local_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_global_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_tableinst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_meminst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_elem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_data_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])  ]
-		| ( match goal with
-				| [ Hg : fun_growtable _ _ _ _ |- _ ] => inversion Hg; subst
-				| [ Hg : fun_growmemory _ _ _ |- _ ] => inversion Hg; subst
-				end;
-			first
-			[ (by match goal with
-					| [ Hn : is_true (_ != _) |- _ ] => move: Hn; rewrite eqxx end)
-			| ( repeat match goal with
-						| [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end;
-				match goal with
-					| [ Het : _ = fun_table _ _ |- _ ] => rewrite -Het
-					| [ Het : _ = fun_mem _ _ |- _ ] => rewrite -Het
-					end; cbn [REFS BYTES]; subst;
-				repeat match goal with
-					| [ Hx : wf_tableinst _ |- _ ] => inversion Hx; subst; clear Hx
-					| [ Hx : wf_tabletype _ |- _ ] => inversion Hx; subst; clear Hx
-					| [ Hx : wf_meminst _ |- _ ] => inversion Hx; subst; clear Hx
-					| [ Hx : wf_memtype _ |- _ ] => inversion Hx; subst; clear Hx
-					| [ Hx : wf_limits _ |- _ ] => inversion Hx; subst; clear Hx
-					end;
-				apply: List.Forall_cons; [ | by apply: List.Forall_nil ];
-				(* `i'` is now only pinned up to Qeq, so replace it by its definition
-				   under the (Qeq-invariant) N projection instead of by subst. *)
-				try (match goal with
-					| [ Hq : is_true (Qeq_bool _ _) |- _ ] =>
-						let Hn := fresh "Hn" in
-						move: (Qeq_bool_toN _ _ Hq) => Hn;
-						match goal with
-						| [ Hw : wf_uN 32%N (mk_uN (Z.to_N (Qfloor _))) |- _ ] => rewrite Hn in Hw
-						end
-					end);
-				constructor; constructor;
-				first [ by []
-					| ((eapply Hmono32; last (by eassumption)); by apply: N.le_add_r)
-					| ((eapply Hmono32; last (by eassumption)); by apply: HQle) ] ) ] ) ]).
-	all: (
-		match goal with
-			| [ Hn : wf_num_ (numtype_Inn _) _ |- _ ] => inversion Hn; subst
-			end;
-		first
-		[ (by match goal with
-				| [ Hq : is_true (_ != _) |- _ ] => move: Hq; rewrite eqxx end)
-		| ( repeat match goal with
-					| [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end;
-			repeat match goal with
-				| [ He : numtype_Inn ?a = numtype_Inn ?b |- _ ] =>
-					tryif constr_eq a b then fail else (have Hab := HinnInj _ _ He; subst)
-				end;
-			apply: config_case_0;
-			[ solve [ eassumption | (apply: state_case_0; eassumption)
-				| (eapply Hst; eassumption)
-				| (((eapply with_local_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_global_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_tableinst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_meminst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_elem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-			| (((eapply with_data_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
-				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
-					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
-				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])  ]
-			| solve [ repeat first [ apply: List.Forall_nil | (apply/List.Forall_app; split)
-				| apply: List.Forall_cons | eassumption | (apply: Har)
-				| (apply: Hav; eassumption) | (apply: Hai; eassumption)
-				| (apply: Hmapi; eassumption) | (eapply Hinv; eassumption)
-				| (eapply Hfr; eassumption) | constructor ] ] ] ) ]).
-Qed.
 
 (* Mutual Recursion at: ../specification/wasm-2.0/8-reduction.spectec:8.1-8.77 *)
 Inductive Steps : config -> config -> Prop :=
@@ -15616,6 +14979,7 @@ Definition adminexpr : Type := (seq admininstr).
 (* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:158.1-158.51 *)
 Inductive Datainst_ok : store -> datainst -> datatype -> Prop :=
 	| mk_Datainst_ok : forall (s : store) (b_lst : (seq byte)), 
+		((|b_lst|) <? (2%N ^ 32%N)%BN)%BN ->
 		(wf_store s) ->
 		(wf_datainst {| datainst_BYTES := b_lst |}) ->
 		Datainst_ok s {| datainst_BYTES := b_lst |} OK.
@@ -15624,6 +14988,7 @@ Inductive Datainst_ok : store -> datainst -> datatype -> Prop :=
 Inductive Eleminst_ok : store -> eleminst -> elemtype -> Prop :=
 	| mk_Eleminst_ok : forall (s : store) (rt : reftype) (ref_lst : (seq ref)), 
 		List.Forall (fun (v_ref : ref) => (Ref_ok s v_ref rt)) ref_lst ->
+		((|ref_lst|) <? (2%N ^ 32%N)%BN)%BN ->
 		(wf_store s) ->
 		Eleminst_ok s {| eleminst_TYPE := rt; eleminst_REFS := ref_lst |} rt.
 
@@ -15832,6 +15197,804 @@ Inductive Store_ok : store -> Prop :=
 		List.Forall (fun (v_tabletype : tabletype) => (wf_tabletype v_tabletype)) tabletype_lst ->
 		(wf_store {| store_FUNCS := funcinst_lst; store_GLOBALS := globalinst_lst; store_TABLES := tableinst_lst; store_MEMS := meminst_lst; store_ELEMS := eleminst_lst; store_DATAS := datainst_lst |}) ->
 		Store_ok s.
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:7.10-7.19 *)
+(* Placed after Store_ok, and taking (Store_ok (fun_store z)) as a hypothesis:
+   the store bounds are needed for table.size, memory.size and the bulk rules. *)
+Lemma Step_read_is_wf : forall (z : state) (admininstr_lst : (seq admininstr)) (var_1 : (seq admininstr)),
+	(wf_config (mk_config z admininstr_lst)) ->
+	(Store_ok (fun_store z)) ->
+	(Step_read (mk_config z admininstr_lst) var_1) ->
+	List.Forall (fun (var_1 : admininstr) => (wf_admininstr var_1)) var_1.
+Proof.
+	move => z0 ais0 var_1 Hcfg Hst0 H.
+	remember (mk_config z0 ais0) as var_0 eqn:Heq0.
+	have Hmono : forall (T : Type) (P Q : T -> Prop) (l : seq T),
+		List.Forall P l -> (forall x, P x -> Q x) -> List.Forall Q l.
+	{ move => T P Q. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl] Hpq.
+		by apply: List.Forall_cons; [ apply: Hpq | apply: IH ]. }
+	have Hav : forall v, wf_val v -> wf_admininstr (admininstr_val v).
+	{ by move => v Hv; case: Hv => *; constructor. }
+	have Hai : forall i, wf_instr i -> wf_admininstr (admininstr_instr i).
+	{ move => i Hi. case: Hi => *; simpl;
+		solve [ constructor | (econstructor; eassumption) ]. }
+	have Hfmap : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
+		List.Forall (fun x => P (f x)) l -> List.Forall P (seq.map f l).
+	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ | apply: IH ]. }
+	have Hfmapinv : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
+		List.Forall P (seq.map f l) -> List.Forall (fun x => P (f x)) l.
+	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ | apply: IH ]. }
+	have Hmapi : forall l, List.Forall (fun x => wf_instr x) l ->
+		List.Forall wf_admininstr (seq.map (fun x => admininstr_instr x) l).
+	{ move => l Hl. apply: Hfmap. by apply: (Hmono _ _ _ _ Hl). }
+	have Hin : forall (T : eqType) (P : T -> Prop) (l : seq T) (x : T),
+		List.Forall P l -> (x \in l) -> P x.
+	{ move => T P. elim => [ |y l IH] x //= /List.Forall_cons_iff [Hy Hl].
+		rewrite in_cons => /orP [ /eqP -> // | Hx]. by apply: IH. }
+	have Hnth : forall (T : Type) (P : T -> Prop) (d : T) (s : seq T) (n : nat),
+		List.Forall P s -> P d -> P (seq.nth d s n).
+	{ move => T P d s. elim: s => [ |x s IH] n Hs Hd; first by rewrite seq.nth_nil.
+		inversion Hs; subst. case: n => [ |n] //=. by apply: IH. }
+	have Har : forall r, wf_admininstr (admininstr_ref r).
+	{ by case => *; constructor. }
+	have Hrep : forall (T : Type) (P : T -> Prop) (x : T) (n : N),
+		P x -> List.Forall P (list_repeat x n).
+	{ move => T P x n Hx. rewrite /list_repeat. elim: (N.to_nat n) => [ |m IH] //=.
+		by apply: List.Forall_cons. }
+	have Hmkseq : forall (T : Type) (P : T -> Prop) (f : N -> T) (n : N),
+		holds_upto (fun k => P (f k)) n -> List.Forall P (mkseqN f n).
+	{ move => T P f n. rewrite /holds_upto /iotaN /mkseqN /mkseq => Hh.
+		apply: Hfmap. by apply: (Hfmapinv _ _ (fun k => P (f k)) N.of_nat). }
+	have Hupd : forall (T : Type) (P : T -> Prop) (l : seq T) (n : N) (g : T -> T),
+		List.Forall P l -> (forall x, P x -> P (g x)) -> List.Forall P (list_update_func l n g).
+	{ move => T P l. elim: l => [ |x l IH] n g Hl0 Hg //=.
+		inversion Hl0; subst. case: n => [ |p]; apply: List.Forall_cons => //.
+		- by apply: Hg.
+		- by apply: IH. }
+	have Hfin : forall (sh : shape) (lls : seq (seq lane_)),
+		wf_shape sh ->
+		List.Forall (fun l => List.Forall (fun x => wf_lane_ (fun_lanetype sh) x) l) lls ->
+		List.Forall (fun v => wf_uN 128%N v) (seq.map (fun l => inv_lanes_ sh l) lls).
+	{ move => sh lls Hsh0. elim: lls => [ |l lls IH] //= /List.Forall_cons_iff [Hl Hlls].
+		apply: List.Forall_cons; last by apply: IH.
+		by apply: (inv_lanes__is_wf sh l). }
+	have Hcomb : forall (T U : Type) (P P1 : T -> Prop) (Q : U -> Prop) (R : T -> U -> Prop)
+		(l1 : seq T) (l2 : seq U),
+		List.Forall2 R l1 l2 -> List.Forall P1 l1 -> List.Forall Q l2 ->
+		(forall a b, R a b -> P1 a -> Q b -> P a) -> List.Forall P l1.
+	{ move => T U P P1 Q R l1 l2 H12 H1 H2 Hstep.
+		elim: H12 H1 H2 => [ |x y l l' Hxy H12 IH] H1 H2.
+		- by apply: List.Forall_nil.
+		- move: H1 => /List.Forall_cons_iff [Hx H1]. move: H2 => /List.Forall_cons_iff [Hy H2].
+			by apply: List.Forall_cons; [ apply: (Hstep _ _ Hxy Hx Hy) | apply: IH ]. }
+	have Hbr : forall (l : uN), wf_uN 32%N (mk_uN (((l :> N) + 1%N)%BN)) -> wf_uN 32%N l.
+	{ move => [i] Hw. apply: uN_case_0. inversion Hw; subst.
+		match goal with | [ Hb : is_true (andb _ _) |- _ ] => move: Hb => /andP [_ Hle] end.
+		rewrite /N_geb. apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+		apply/N.leb_spec0. apply: (N.le_trans i (i + 1)%BN); first by apply: N.le_add_r.
+		by apply/N.leb_spec0. }
+	have Hgv : forall (z : state) (x : globalidx),
+		wf_state z -> wf_uN 32%N x -> wf_val (VALUE (fun_global z x)).
+	{ move => z x Hz Hx. have Hg := global_is_wf z x (fun_global z x) Hz Hx (eqxx _).
+		by inversion Hg. }
+	have Hl2 : forall (J : Jnn) (d : dim) (x : iN),
+		wf_uN (lsize (lanetype_Jnn J)) x -> wf_lane_ (fun_lanetype (X (lanetype_Jnn J) d)) (mk_lane__2 J x).
+	{ move => J [dn] x Hx. apply: lane__case_2; [ exact: Hx | exact: eqxx ]. }
+	(* Bounds that Store_ok gives on the store looked up through a frame.
+	   Out-of-range indices return default_val, whose lists are empty. *)
+	have Hsnth : forall (T U : Type) (iT : Inhabited T) (R : T -> U -> Prop) (Q : T -> Prop)
+		(l1 : seq T) (l2 : seq U) (k : N),
+		List.Forall2 R l1 l2 -> (forall a b, R a b -> Q a) -> Q default_val -> Q (l1 [| k |]).
+	{ move => T U iT R Q l1 l2 k H12 HRQ Hd. rewrite /lookup_total.
+		elim: H12 (N.to_nat k) => [ |a b l1' l2' Hab _ IH] [ |n] //=.
+		by apply: HRQ Hab. }
+	have Hlim : forall (v_n : n) (m_opt : option m) (k : N),
+		Limits_ok (mk_limits (mk_uN v_n) (option_map (fun (v_m : m) => (mk_uN v_m)) m_opt)) k ->
+		(v_n <= k)%N.
+	{ move => v_n m_opt k Hl. inversion Hl; subst.
+		match goal with | [ Hb0 : is_true (N.leb v_n _) |- _ ] => by move/N.leb_spec0: Hb0 end. }
+	have Htlen : forall (s : store) (f : frame) (x : tableidx),
+		Store_ok s -> (|REFS (fun_table (mk_state s f) x)| < 4294967296)%N.
+	{ move => s f x Hs.
+		case: Hs => {}s gis gts mis mts tis tts fis fts dis dts eis ets
+			_ _ _ _ _ Htab _ _ _ _ _ _ /eqP Hs _ _ _ _. subst s => /=.
+		apply: (Hsnth _ _ _ _ (fun ti => (|REFS ti| < 4294967296)%N) _ _ _ Htab); last by [].
+		move => a b Hab. inversion Hab as [s0 v_n m_opt rt refs Htt _ Hlen]; subst => /=.
+		move/eqP: Hlen => ->. inversion Htt; subst.
+		by apply: (N.le_lt_trans _ 4294967295); first by apply: (Hlim _ m_opt). }
+	have Hmlen : forall (s : store) (f : frame) (x : memidx),
+		Store_ok s -> exists (v_n : N),
+			(|BYTES (fun_mem (mk_state s f) x)| = v_n * (64 * Ki))%N /\ (v_n <= 65536)%N /\
+			(|BYTES (fun_mem (mk_state s f) x)| <= 4294967296)%N.
+	{ move => s f x Hs.
+		case: Hs => {}s gis gts mis mts tis tts fis fts dis dts eis ets
+			_ _ _ Hmem _ _ _ _ _ _ _ _ /eqP Hs _ _ _ _. subst s => /=.
+		apply: (Hsnth _ _ _ _ (fun mi => exists v_n : N,
+			(|BYTES mi| = v_n * (64 * Ki))%N /\ (v_n <= 65536)%N /\ (|BYTES mi| <= 4294967296)%N) _ _ _ Hmem);
+			last by exists 0%N; split; [ | split; vm_compute; discriminate ].
+		move => a b Hab. inversion Hab as [s0 v_n m_opt bs Hmt Hlen]; subst => /=.
+		move/eqP: Hlen => Hlen. inversion Hmt; subst.
+		have Hv : (v_n <= 65536)%N by apply: (Hlim _ m_opt).
+		exists v_n. split; first by []. split; first by [].
+		rewrite Hlen. apply: (N.le_trans _ (65536 * (64 * Ki))); first by apply/N.mul_le_mono_r.
+		by vm_compute; discriminate. }
+	have Helen : forall (s : store) (f : frame) (y : tableidx),
+		Store_ok s -> (|eleminst_REFS (fun_elem (mk_state s f) y)| < 4294967296)%N.
+	{ move => s f y Hs.
+		case: Hs => {}s gis gts mis mts tis tts fis fts dis dts eis ets
+			_ _ _ _ _ _ _ _ _ _ _ Hel /eqP Hs _ _ _ _. subst s => /=.
+		apply: (Hsnth _ _ _ _ (fun ei => (|eleminst_REFS ei| < 4294967296)%N) _ _ _ Hel);
+			last by [].
+		move => a b Hab. inversion Hab as [s0 rt refs _ Hlen]; subst => /=.
+		by move/N.ltb_spec0: Hlen. }
+	have Hdlen : forall (s : store) (f : frame) (y : dataidx),
+		Store_ok s -> (|datainst_BYTES (fun_data (mk_state s f) y)| < 4294967296)%N.
+	{ move => s f y Hs.
+		case: Hs => {}s gis gts mis mts tis tts fis fts dis dts eis ets
+			_ _ _ _ _ _ _ _ _ Hdat _ _ /eqP Hs _ _ _ _. subst s => /=.
+		apply: (Hsnth _ _ _ _ (fun di => (|datainst_BYTES di| < 4294967296)%N) _ _ _ Hdat);
+			last by [].
+		move => a b Hab. inversion Hab as [s0 bs Hlen]; subst => /=.
+		by move/N.ltb_spec0: Hlen. }
+	have Hdbyte : forall (s : store) (f : frame) (x : dataidx) (j : N),
+		wf_state (mk_state s f) ->
+		(proj_byte_0 ((datainst_BYTES (fun_data (mk_state s f) x))[| j |]) < 4294967296)%N.
+	{ move => s f x j Hz. inversion Hz as [? ? Hs _]; subst.
+		inversion Hs as [? ? ? ? ? dis _ _ _ _ Hd]; subst => /=. rewrite /lookup_total.
+		have Hdi : wf_datainst (seq.nth default_val dis (N.to_nat ((DATAS (frame_MODULE f))[| (x :> N) |]))).
+		{ apply: Hnth => //; by constructor. }
+		case: Hdi Hd => bs Hbs _ /=.
+		have : wf_byte (seq.nth default_val bs (N.to_nat j)) by apply: Hnth => //; by constructor.
+		case => i /andP [_ /N.leb_spec0 Hi] /=.
+		by apply: (N.le_lt_trans _ 255). }
+	(* Arithmetic on u32 results, without lia. *)
+	have Hc32 : forall (x : N), (x < 4294967296)%N ->
+		wf_admininstr (admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN x))).
+	{ move => x Hx. constructor. apply: num__case_0 => //. apply: uN_case_0.
+		rewrite /N_geb. apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+		apply/N.leb_spec0. by apply/N.lt_succ_r. }
+	have Hwn : forall (x : N), wf_num_ I32 (mk_num__0 Inn_I32 (mk_uN x)) -> (x < 4294967296)%N.
+	{ move => x Hw. inversion Hw as [? ? ? _ Hu | ]; subst. inversion Hu; subst.
+		match goal with | [ Hb : is_true (andb _ _) |- _ ] => move: Hb => /andP [_ /N.leb_spec0 Hle] end.
+		by apply: (N.le_lt_trans _ _ _ Hle). }
+	have Hp1 : forall (x v_n L : N), (x + v_n <= L)%N -> v_n <> 0%N -> (L < 4294967296)%N ->
+		(x + 1 < 4294967296)%N.
+	{ move => x v_n L H1 H2 H3. apply: (N.le_lt_trans _ L) => //.
+		apply: (N.le_trans _ (x + v_n)) => //. apply: (proj1 (N.add_le_mono_l 1 v_n x)).
+		case: v_n {H1 H3} H2 => [ |p] Hnz; first by case: Hnz. clear Hnz. by case: p. }
+	have Hm1 : forall (a : N), (a <= 4294967296)%N -> ((((a : Z) - (1%N : Z))%Z : N) < 4294967296)%N.
+	{ case => [ |p] Ha //.
+		have H1p : (1 <= N.pos p)%N by case: p {Ha}.
+		rewrite -Znat.N2Z.inj_sub ?Znat.N2Z.id //.
+		apply: (N.lt_le_trans _ (N.pos p)) => //. by apply: N.sub_lt. }
+	have Hmsz : forall (v x L : N), is_true ((((v * 64)%N * Ki)%N) == L) -> L = (x * (64 * Ki))%N ->
+		(x <= 65536)%N -> (v < 4294967296)%N.
+	{ move => v x L /eqP H1 H2 H3. rewrite H2 -N.mul_assoc in H1.
+		have Hnz : (64 * Ki)%N <> 0%N by vm_compute; discriminate.
+		have Hv := proj1 (N.mul_cancel_r v x (64 * Ki) Hnz) H1. subst v.
+		by apply: (N.le_lt_trans _ 65536). }
+	case: H Hcfg Heq0 => *.
+	all: match goal with | [ He : mk_config _ _ = mk_config _ _ |- _ ] => case: He => ? ?; subst end.
+	all: repeat match goal with | [ Hx : wf_config _ |- _ ] => inversion Hx; subst; clear Hx end.
+
+	all: do 3 (
+		repeat match goal with
+			| [ Hx : List.Forall _ (_ :: _) |- _ ] => move: Hx => /List.Forall_cons_iff [? ?]
+			| [ Hx : List.Forall _ (_ ++ _) |- _ ] => move: Hx => /List.Forall_app [? ?]
+			end;
+		repeat match goal with
+			| [ Hx : wf_admininstr (admininstr_val _) |- _ ] => move: Hx
+			| [ Hx : wf_admininstr (admininstr_instr _) |- _ ] => move: Hx
+			| [ Hx : wf_admininstr (admininstr_ref _) |- _ ] => move: Hx
+			end;
+		repeat match goal with
+			| [ Hx : wf_admininstr _ |- _ ] => inversion Hx; subst; clear Hx
+			| [ Hx : wf_lane_ _ (mk_lane__0 _ _) |- _ ] => inversion Hx; subst; clear Hx
+			| [ Hx : wf_lane_ _ (mk_lane__1 _ _) |- _ ] => inversion Hx; subst; clear Hx
+			| [ Hx : wf_lane_ _ (mk_lane__2 _ _) |- _ ] => inversion Hx; subst; clear Hx
+			end;
+		move => * ).
+	all: try (by repeat first [ apply: List.Forall_nil | (apply/List.Forall_app; split)
+		| apply: List.Forall_cons | eassumption | (apply: Har)
+		| (apply: Hav; first [ eassumption | (apply Hgv; first [ eassumption | by [] ])
+			| (eapply local_is_wf; first [ by apply: eqxx | eassumption | by [] ]) ])
+		| (apply: Hai; eassumption) | (apply: Hmapi; eassumption)
+		| (apply Hbr; eassumption)
+		| (apply: Hnth; last by constructor) | constructor ]).
+	all: try (apply: List.Forall_cons;
+		[ (constructor;
+			first [ by []
+				| ( first [ (match goal with | [ Hc : is_true (?c == _) |- wf_num_ _ ?c ] =>
+							move/eqP: Hc => -> end)
+						| (match goal with | [ Hc : is_true (?c == _) |- wf_uN _ ?c ] =>
+							move/eqP: Hc => -> end)
+						| (match goal with | [ Hc : is_true (_ == ?c) |- wf_num_ _ ?c ] =>
+							move/eqP: Hc => <- end)
+						| (match goal with | [ Hc : is_true (_ == ?c) |- wf_uN _ ?c ] =>
+							move/eqP: Hc => <- end)
+						| (match goal with | [ Hc : is_true (?c \in _) |- wf_num_ _ ?c ] =>
+							eapply Hin; last exact: Hc end)
+						| (match goal with | [ Hc : is_true (?c \in _) |- wf_uN _ ?c ] =>
+							eapply Hin; last exact: Hc end)
+						| idtac ];
+					solve [ (((eapply inv_lanes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption
+							| (apply Hfmap; eassumption)
+							| (apply Hmkseq; eassumption)
+							| (apply Hrep; ((eapply packnum__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+							| ((apply/List.Forall_app; split); apply Hfmap; eassumption)
+							| (apply Hupd;
+								[ (((eapply lanes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+								| (move => ? ?; ((eapply packnum__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+							| (apply Hfmap; (eapply Hcomb;
+								[ eassumption | eassumption | eassumption
+								| (move => ? ? Hr Hp Hq; cbv beta in Hr, Hp, Hq;
+									match type of Hr with
+									| fun_vshiftop_ ?ish ?op ?cc ?uu _ =>
+										((eapply (vshiftop__is_wf ish op cc uu); cycle -1);
+											first (by apply: eqxx));
+										first [ eassumption | by [] ]
+									end) ])) ])
+					| (apply Hfin; first [ eassumption | by [] ])
+					| (((eapply unop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply binop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply testop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply relop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply cvtop___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vvunop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vvbinop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vvternop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vunop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vbinop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vrelop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vshiftop__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vcvtop___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vextunop___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply vextbinop___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply narrow___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply lanes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply packnum__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply unpacknum__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply ieqz__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply irev__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ])
+					| (((eapply inez__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ] ) ])
+		| by apply: List.Forall_nil ]).
+	all: try (repeat match goal with
+			| [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end;
+		subst;
+		do 2 (repeat match goal with
+			| [ Hx : wf_funcinst _ |- _ ] => inversion Hx; subst; clear Hx
+			| [ Hx : wf_func _ |- _ ] => inversion Hx; subst; clear Hx
+			end);
+		by repeat first [ apply: List.Forall_nil | (apply/List.Forall_app; split)
+			| apply: List.Forall_cons | eassumption | (apply: Har)
+			| (apply: Hav; first [ eassumption | (apply Hgv; first [ eassumption | by [] ])
+				| (eapply local_is_wf; first [ by apply: eqxx | eassumption | by [] ]) ])
+			| (apply: Hai; eassumption) | (apply: Hmapi; eassumption)
+			| (apply Hbr; eassumption)
+			| (apply: Hnth; last by constructor) | constructor ]).
+	(* vload shape / splat / lane: the result is built by inv_lanes_ from lanes
+	   whose well-formedness is a premise (or, for vload_lane, follows from
+	   lanes__is_wf on the input vector). *)
+	all: try (apply: List.Forall_cons; last (by apply: List.Forall_nil);
+		apply: admininstr_case_20; first (by []);
+		match goal with | [ Hc : is_true (?c == inv_lanes_ ?sh ?l) |- _ ] =>
+			apply: (inv_lanes__is_wf sh l); [ assumption | | exact Hc ] end;
+		first [ assumption
+			| (apply: Hrep; apply: Hl2; eassumption)
+			| (apply: Hupd; [ (eapply lanes__is_wf; [ eassumption | eassumption | by apply: eqxx ])
+				| (move => _ _; apply: Hl2; eassumption) ]) ]).
+	(* vload zero: the result is (extend__ N 128 U j) with (wf_uN N j) a premise. *)
+	all: try (apply: List.Forall_cons; last (by apply: List.Forall_nil);
+		apply: admininstr_case_20; first (by []);
+		match goal with | [ Hc : is_true (?c == extend__ ?m ?n ?sx ?j) |- _ ] =>
+			apply: (extend___is_wf m n sx j); [ assumption | exact Hc ] end).
+	(* With Store_ok: Tabletype_ok bounds every table by 2^32 - 1 entries,
+	   Memtype_ok every memory by 2^16 pages, and Eleminst_ok / Datainst_ok
+	   every segment instance by 2^32 - 1 entries. *)
+	all: try (match goal with | [ Hs : Store_ok (fun_store ?z) |- _ ] =>
+			is_var z; destruct z as [s0 f0]; simpl in Hs end).
+	all: do 6 try match goal with
+			| [ Hs : Store_ok ?s, H : context [ N.of_nat (seq.size (REFS (fun_table (mk_state ?s ?f) ?x))) ] |- _ ] =>
+				have := Htlen s f x Hs; move => ?;
+				let L := fresh "L" in set (L := N.of_nat (seq.size (REFS (fun_table (mk_state s f) x)))) in *; clearbody L
+			| [ Hs : Store_ok ?s, H : context [ N.of_nat (seq.size (BYTES (fun_mem (mk_state ?s ?f) ?x))) ] |- _ ] =>
+				have [? [? [? ?]]] := Hmlen s f x Hs;
+				let L := fresh "L" in set (L := N.of_nat (seq.size (BYTES (fun_mem (mk_state s f) x)))) in *; clearbody L
+			| [ Hs : Store_ok ?s, H : context [ N.of_nat (seq.size (eleminst_REFS (fun_elem (mk_state ?s ?f) ?x))) ] |- _ ] =>
+				have := Helen s f x Hs; move => ?;
+				let L := fresh "L" in set (L := N.of_nat (seq.size (eleminst_REFS (fun_elem (mk_state s f) x)))) in *; clearbody L
+			| [ Hs : Store_ok ?s, H : context [ N.of_nat (seq.size (datainst_BYTES (fun_data (mk_state ?s ?f) ?x))) ] |- _ ] =>
+				have := Hdlen s f x Hs; move => ?;
+				let L := fresh "L" in set (L := N.of_nat (seq.size (datainst_BYTES (fun_data (mk_state s f) x)))) in *; clearbody L
+			end.
+	all: repeat match goal with
+			| [ H : is_true (_ && _) |- _ ] => move/andP: H => [? ?]
+			end.
+	all: repeat match goal with
+			| [ H : is_true (N.leb _ _) |- _ ] => move/N.leb_spec0: H => ?
+			| [ H : is_true (_ != 0%N) |- _ ] => move/eqP: H => ?
+			| [ H : wf_num_ I32 (mk_num__0 Inn_I32 (mk_uN ?a)) |- _ ] => have := Hwn a H; clear H; move => ?
+			end.
+	all: repeat first [ apply: List.Forall_nil | apply: List.Forall_cons ].
+	all: try (apply: Hc32; first
+		[ (apply: Hp1; eassumption)
+		| (apply: Hm1; apply: N.lt_le_incl; eassumption)
+		| (apply: Hm1; eapply N.le_trans; [ eassumption | apply: N.lt_le_incl; eassumption ])
+		| (apply: Hm1; eapply N.le_trans; eassumption)
+		| (match goal with | [ H : is_true (?L == ?v) |- (?v < _)%N ] => move/eqP: H => <-; assumption end)
+		| (eapply Hmsz; eassumption)
+		| (apply: Hdbyte; eassumption) ]).
+	all: try (first [ assumption | apply: Har | (apply: Hav; eassumption)
+		| (by constructor) | (by constructor; eassumption)
+		| (solve [ constructor; try exact: (memarg0_is_wf memarg0 (eqxx _)); repeat constructor ])
+		| (solve [ apply: (admininstr_case_57 (Some Inn_I32));
+			[ by repeat constructor | exact: (memarg0_is_wf memarg0 (eqxx _)) | by split
+			| by repeat constructor ] ]) ]).
+	(* 41 of the 47 read-reduction cases are discharged.  The 6 that remain
+	   (7 goals) are not derivable, even under Store_ok:
+	   - memory.fill-succ, memory.copy-le and memory.init-succ push
+	     (CONST I32 (i + 1)) for a memory offset i with i + n <= |mem| and
+	     n <> 0.  Memtype_ok allows exactly 2^16 pages = 2^32 bytes, so
+	     i = 2^32 - 1, n = 1 satisfies every premise, yet i + 1 = 2^32 is not
+	     a u32.  (The segment-side offsets of table.init / memory.init are
+	     fine: Eleminst_ok / Datainst_ok bound segments by 2^32 - 1.)
+	   - load-num-val, load-pack-val and vload-val constrain the loaded value c
+	     only through (nbytes_ nt c) / (ibytes_ n c) / (vbytes_ V128 c) being a
+	     slice of memory.  Those are axioms, and the rules carry no (wf_num_ nt c)
+	     / (wf_uN n c) / (wf_uN 128 c) premise, so no bound on c is available. *)
+	all: admit.
+Admitted.
+
+(* Mutual Recursion at: ../specification/wasm-2.0/8-reduction.spectec:5.1-5.109 *)
+(* Placed after Store_ok: its read case goes through Step_read_is_wf. *)
+Lemma Step_is_wf : forall (z : state) (admininstr_lst : (seq admininstr)) (var_1 : config),
+	(wf_config (mk_config z admininstr_lst)) ->
+	(Store_ok (fun_store z)) ->
+	(Step (mk_config z admininstr_lst) var_1) ->
+	(wf_config var_1).
+Proof.
+	move => z0 ais0 var_1 Hcfg Hst0 H.
+	remember (mk_config z0 ais0) as var_0 eqn:Heq0.
+	have Hmono : forall (T : Type) (P Q : T -> Prop) (l : seq T),
+		List.Forall P l -> (forall x, P x -> Q x) -> List.Forall Q l.
+	{ move => T P Q. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl] Hpq.
+		by apply: List.Forall_cons; [ apply: Hpq | apply: IH ]. }
+	have Hav : forall v, wf_val v -> wf_admininstr (admininstr_val v).
+	{ by move => v Hv; case: Hv => *; constructor. }
+	have Hai : forall i, wf_instr i -> wf_admininstr (admininstr_instr i).
+	{ move => i Hi. case: Hi => *; simpl;
+		solve [ constructor | (econstructor; eassumption) ]. }
+	have Hfmap : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
+		List.Forall (fun x => P (f x)) l -> List.Forall P (seq.map f l).
+	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ | apply: IH ]. }
+	have Hfmapinv : forall (T U : Type) (P : U -> Prop) (f : T -> U) (l : seq T),
+		List.Forall P (seq.map f l) -> List.Forall (fun x => P (f x)) l.
+	{ move => T U P f. elim => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
+		by apply: List.Forall_cons; [ | apply: IH ]. }
+	have Hmapi : forall l, List.Forall (fun x => wf_instr x) l ->
+		List.Forall wf_admininstr (seq.map (fun x => admininstr_instr x) l).
+	{ move => l Hl. apply: Hfmap. by apply: (Hmono _ _ _ _ Hl). }
+	have Hin : forall (T : eqType) (P : T -> Prop) (l : seq T) (x : T),
+		List.Forall P l -> (x \in l) -> P x.
+	{ move => T P. elim => [ |y l IH] x //= /List.Forall_cons_iff [Hy Hl].
+		rewrite in_cons => /orP [ /eqP -> // | Hx]. by apply: IH. }
+	have Hnth : forall (T : Type) (P : T -> Prop) (d : T) (s : seq T) (n : nat),
+		List.Forall P s -> P d -> P (seq.nth d s n).
+	{ move => T P d s. elim: s => [ |x s IH] n Hs Hd; first by rewrite seq.nth_nil.
+		inversion Hs; subst. case: n => [ |n] //=. by apply: IH. }
+	have Har : forall r, wf_admininstr (admininstr_ref r).
+	{ by case => *; constructor. }
+	have Hrep : forall (T : Type) (P : T -> Prop) (x : T) (n : N),
+		P x -> List.Forall P (list_repeat x n).
+	{ move => T P x n Hx. rewrite /list_repeat. elim: (N.to_nat n) => [ |m IH] //=.
+		by apply: List.Forall_cons. }
+	have Hmkseq : forall (T : Type) (P : T -> Prop) (f : N -> T) (n : N),
+		holds_upto (fun k => P (f k)) n -> List.Forall P (mkseqN f n).
+	{ move => T P f n. rewrite /holds_upto /iotaN /mkseqN /mkseq => Hh.
+		apply: Hfmap. by apply: (Hfmapinv _ _ (fun k => P (f k)) N.of_nat). }
+	have Hupd : forall (T : Type) (P : T -> Prop) (l : seq T) (n : N) (g : T -> T),
+		List.Forall P l -> (forall x, P x -> P (g x)) -> List.Forall P (list_update_func l n g).
+	{ move => T P l. elim: l => [ |x l IH] n g Hl0 Hg //=.
+		inversion Hl0; subst. case: n => [ |p]; apply: List.Forall_cons => //.
+		- by apply: Hg.
+		- by apply: IH. }
+	have Hfin : forall (sh : shape) (lls : seq (seq lane_)),
+		wf_shape sh ->
+		List.Forall (fun l => List.Forall (fun x => wf_lane_ (fun_lanetype sh) x) l) lls ->
+		List.Forall (fun v => wf_uN 128%N v) (seq.map (fun l => inv_lanes_ sh l) lls).
+	{ move => sh lls Hsh0. elim: lls => [ |l lls IH] //= /List.Forall_cons_iff [Hl Hlls].
+		apply: List.Forall_cons; last by apply: IH.
+		by apply: (inv_lanes__is_wf sh l). }
+	have Hcomb : forall (T U : Type) (P P1 : T -> Prop) (Q : U -> Prop) (R : T -> U -> Prop)
+		(l1 : seq T) (l2 : seq U),
+		List.Forall2 R l1 l2 -> List.Forall P1 l1 -> List.Forall Q l2 ->
+		(forall a b, R a b -> P1 a -> Q b -> P a) -> List.Forall P l1.
+	{ move => T U P P1 Q R l1 l2 H12 H1 H2 Hstep.
+		elim: H12 H1 H2 => [ |x y l l' Hxy H12 IH] H1 H2.
+		- by apply: List.Forall_nil.
+		- move: H1 => /List.Forall_cons_iff [Hx H1]. move: H2 => /List.Forall_cons_iff [Hy H2].
+			by apply: List.Forall_cons; [ apply: (Hstep _ _ Hxy Hx Hy) | apply: IH ]. }
+	have Hbr : forall (l : uN), wf_uN 32%N (mk_uN (((l :> N) + 1%N)%BN)) -> wf_uN 32%N l.
+	{ move => [i] Hw. apply: uN_case_0. inversion Hw; subst.
+		match goal with | [ Hb : is_true (andb _ _) |- _ ] => move: Hb => /andP [_ Hle] end.
+		rewrite /N_geb. apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+		apply/N.leb_spec0. apply: (N.le_trans i (i + 1)%BN); first by apply: N.le_add_r.
+		by apply/N.leb_spec0. }
+	have Hmono32 : forall (a b : N), (a <= b)%BN -> wf_uN 32%N (mk_uN b) -> wf_uN 32%N (mk_uN a).
+	{ move => a b Hab Hb0. apply: uN_case_0. inversion Hb0; subst.
+		match goal with | [ Hc : is_true (andb _ _) |- _ ] => move: Hc => /andP [_ Hle0] end.
+		rewrite /N_geb. apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+		apply/N.leb_spec0. apply: (N.le_trans _ _ _ Hab). by apply/N.leb_spec0. }
+	have HtoNmono : forall (a b : Z), (a <= b)%Z -> (Z.to_N a <= Z.to_N b)%BN.
+	{ move => a b Hab. case: (Z.le_gt_cases 0 a) => Ha.
+		- by apply: (proj1 (Znat.Z2N.inj_le a b Ha (Z.le_trans _ _ _ Ha Hab)) Hab).
+		- have Hz : (Z.to_N a = 0%N) by case: a Ha Hab => [ |p|p] //=.
+			rewrite Hz. by apply: N.le_0_l. }
+	have HQnn : forall (m : N), (0 <= (m : Q))%Q.
+	{ move => m. rewrite -(Qle_bool_iff 0 (m : Q)). by case: m. }
+	have HQle : forall (q : Q) (m : N), (((q : N)) <= (((q + (m : Q))%Q : N)))%BN.
+	{ move => q m. apply: HtoNmono. apply: Qfloor_resp_le.
+		rewrite -{1}(Qplus_0_r q). by apply/Qplus_le_r; apply: HQnn. }
+	have HinnInj : forall a b : Inn, numtype_Inn a = numtype_Inn b -> a = b.
+	{ by move => [] []. }
+	have Hva : forall v, wf_admininstr (admininstr_val v) -> wf_val v.
+	{ move => v Hx. case: v Hx => *; simpl in *;
+		match goal with | [ Hy : wf_admininstr _ |- _ ] => inversion Hy; subst end;
+		solve [ (constructor; eassumption) | constructor ]. }
+	have Hfr : forall s f, wf_state (mk_state s f) -> wf_frame f.
+	{ move => s f Hs0. by inversion Hs0. }
+	have Hst : forall s f s' f', wf_state (mk_state s f) -> wf_state (mk_state s' f') ->
+		wf_state (mk_state s f').
+	{ move => s f s' f' H1 H2. inversion H1; inversion H2; subst. by apply: state_case_0. }
+	have Hto : forall m : N, ((((m : Z) - (1%N : Z))%Z : N) = (m - 1)%BN).
+	{ case => [ |p] //. by rewrite -Znat.N2Z.inj_sub ?Znat.N2Z.id //; apply/N.neq_0_le_1. }
+	have Hp : forall (vN : res_N), (0 < (2%N ^ vN)%BN)%BN.
+	{ by move => vN; apply/N.neq_0_lt_0; apply: N.pow_nonzero. }
+	have HtoN : forall (vN : res_N) (z2 : Z),
+		(z2 < ((2%N ^ vN)%BN : Z))%Z -> (((z2 : N)) < (2%N ^ vN)%BN)%BN.
+	{ move => vN; case => [ |q|q] Hz //=; try exact: Hp.
+		have Hnn : (0 <= Z.pos q)%Z by [].
+		have := (proj1 (Znat.Z2N.inj_lt (Z.pos q) _ Hnn (Znat.N2Z.is_nonneg _)) Hz).
+		by rewrite Znat.N2Z.id. }
+	have Hbnd : forall (vN : res_N) (x : N), (x < (2%N ^ vN)%BN)%BN -> wf_uN vN (mk_uN x).
+	{ move => vN x Hx. apply: uN_case_0. rewrite Hto /N_geb.
+		apply/andP; split; first by apply/N.leb_spec0; apply: N.le_0_l.
+		by apply/N.leb_spec0; rewrite N.sub_1_r; apply: N.lt_le_pred. }
+	have Hle : forall (vN : res_N),
+		((2%N ^ ((((vN : Z) - (1%N : Z))%Z : N)))%BN <= (2%N ^ vN)%BN)%BN.
+	{ move => vN. apply: N.pow_le_mono_r => //. rewrite Hto. exact: N.le_sub_l. }
+	have Hinv : forall (vN : res_N) (z : Z) (m : N), fun_inv_signed_ vN z m -> wf_uN vN (mk_uN m).
+	{ move => vN0 z m Hi. case: Hi => vN i /andP [Ha Hb]; apply: Hbnd; apply: HtoN.
+		- have Hlt2 : (i < ((2%N ^ ((((vN : Z) - (1%N : Z))%Z : N)))%BN : Z))%Z
+				by apply: (proj1 (Z.ltb_lt _ _) Hb).
+			apply: (Z.lt_le_trans _ _ _ Hlt2). by apply/Znat.N2Z.inj_le; apply: Hle.
+		- rewrite -{2}(Z.add_0_l ((2%N ^ vN)%BN : Z)).
+			by apply: (proj1 (Z.add_lt_mono_r _ _ _) (proj1 (Z.ltb_lt _ _) Hb)). }
+	case: H Hcfg Heq0 => *.
+	all: match goal with | [ He : mk_config _ _ = mk_config _ _ |- _ ] => case: He => ? ?; subst end.
+	all: try by eassumption.
+	all: repeat match goal with | [ Hx : wf_config _ |- _ ] => inversion Hx; subst; clear Hx end.
+	all: do 2 (
+		repeat match goal with
+			| [ Hx : List.Forall _ (_ :: _) |- _ ] => move: Hx => /List.Forall_cons_iff [? ?]
+			| [ Hx : List.Forall _ (_ ++ _) |- _ ] => move: Hx => /List.Forall_app [? ?]
+			end;
+		repeat match goal with
+			| [ Hx : wf_admininstr (admininstr_val _) |- _ ] => move: Hx
+			| [ Hx : wf_admininstr (admininstr_instr _) |- _ ] => move: Hx
+			| [ Hx : wf_admininstr (admininstr_ref _) |- _ ] => move: Hx
+			end;
+		repeat match goal with
+			| [ Hx : wf_admininstr _ |- _ ] => inversion Hx; subst; clear Hx
+			| [ Hx : wf_num_ _ (mk_num__0 _ _) |- _ ] => inversion Hx; subst; clear Hx
+			end;
+		move => * ).
+	all: repeat match goal with | [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end.
+	all: subst.
+	all: try (apply: config_case_0;
+		[ solve [ eassumption | (apply: state_case_0; eassumption)
+			| (eapply Hst; eassumption)
+			| (((eapply with_local_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_global_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_tableinst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_meminst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_elem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_data_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) ]
+		| solve [ ((eapply Step_pure_is_wf; only 2: eassumption); eassumption)
+			| ((eapply Step_read_is_wf; only 3: eassumption);
+				first [ eassumption | (apply: config_case_0; eassumption) ])
+			| repeat first [ apply: List.Forall_nil | (apply/List.Forall_app; split)
+				| apply: List.Forall_cons | eassumption | (apply: Har)
+				| (apply: Hav; eassumption) | (apply: Hai; eassumption)
+				| (apply: Hmapi; eassumption) | (eapply Hinv; eassumption)
+				| (eapply Hfr; eassumption) | constructor ] ] ]).
+	all: try (apply: config_case_0;
+		[ solve [ eassumption | (apply: state_case_0; eassumption)
+			| (eapply Hst; eassumption)
+			| (((eapply with_local_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_global_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_tableinst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_meminst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_elem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_data_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])  ]
+		| ( match goal with
+				| [ Hg : fun_growtable _ _ _ _ |- _ ] => inversion Hg; subst
+				| [ Hg : fun_growmemory _ _ _ |- _ ] => inversion Hg; subst
+				end;
+			first
+			[ (by match goal with
+					| [ Hn : is_true (_ != _) |- _ ] => move: Hn; rewrite eqxx end)
+			| ( repeat match goal with
+						| [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end;
+				match goal with
+					| [ Het : _ = fun_table _ _ |- _ ] => rewrite -Het
+					| [ Het : _ = fun_mem _ _ |- _ ] => rewrite -Het
+					end; simpl; subst;
+				repeat match goal with
+					| [ Hx : wf_tableinst _ |- _ ] => inversion Hx; subst; clear Hx
+					| [ Hx : wf_tabletype _ |- _ ] => inversion Hx; subst; clear Hx
+					| [ Hx : wf_meminst _ |- _ ] => inversion Hx; subst; clear Hx
+					| [ Hx : wf_memtype _ |- _ ] => inversion Hx; subst; clear Hx
+					| [ Hx : wf_limits _ |- _ ] => inversion Hx; subst; clear Hx
+					end;
+				apply: List.Forall_cons; [ | by apply: List.Forall_nil ];
+				(* `i'` is now only pinned up to Qeq, so replace it by its definition
+				   under the (Qeq-invariant) N projection instead of by subst. *)
+				try (match goal with
+					| [ Hq : is_true (Qeq_bool _ _) |- _ ] =>
+						let Hn := fresh "Hn" in
+						move: (Qeq_bool_toN _ _ Hq) => Hn;
+						match goal with
+						| [ Hw : wf_uN 32%N (mk_uN (Z.to_N (Qfloor _))) |- _ ] => rewrite Hn in Hw
+						end
+					end);
+				constructor; constructor;
+				first [ by []
+					| ((eapply Hmono32; last (by eassumption)); by apply: N.le_add_r)
+					| ((eapply Hmono32; last (by eassumption)); by apply: HQle) ] ) ] ) ]).
+	all: try (apply: config_case_0;
+		[ solve [ eassumption | (apply: state_case_0; eassumption)
+			| (eapply Hst; eassumption)
+			| (((eapply with_local_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_global_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_tableinst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_meminst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_elem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_data_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])  ]
+		| ( match goal with
+				| [ Hg : fun_growtable _ _ _ _ |- _ ] => inversion Hg; subst
+				| [ Hg : fun_growmemory _ _ _ |- _ ] => inversion Hg; subst
+				end;
+			first
+			[ (by match goal with
+					| [ Hn : is_true (_ != _) |- _ ] => move: Hn; rewrite eqxx end)
+			| ( repeat match goal with
+						| [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end;
+				match goal with
+					| [ Het : _ = fun_table _ _ |- _ ] => rewrite -Het
+					| [ Het : _ = fun_mem _ _ |- _ ] => rewrite -Het
+					end; cbn [REFS BYTES]; subst;
+				repeat match goal with
+					| [ Hx : wf_tableinst _ |- _ ] => inversion Hx; subst; clear Hx
+					| [ Hx : wf_tabletype _ |- _ ] => inversion Hx; subst; clear Hx
+					| [ Hx : wf_meminst _ |- _ ] => inversion Hx; subst; clear Hx
+					| [ Hx : wf_memtype _ |- _ ] => inversion Hx; subst; clear Hx
+					| [ Hx : wf_limits _ |- _ ] => inversion Hx; subst; clear Hx
+					end;
+				apply: List.Forall_cons; [ | by apply: List.Forall_nil ];
+				(* `i'` is now only pinned up to Qeq, so replace it by its definition
+				   under the (Qeq-invariant) N projection instead of by subst. *)
+				try (match goal with
+					| [ Hq : is_true (Qeq_bool _ _) |- _ ] =>
+						let Hn := fresh "Hn" in
+						move: (Qeq_bool_toN _ _ Hq) => Hn;
+						match goal with
+						| [ Hw : wf_uN 32%N (mk_uN (Z.to_N (Qfloor _))) |- _ ] => rewrite Hn in Hw
+						end
+					end);
+				constructor; constructor;
+				first [ by []
+					| ((eapply Hmono32; last (by eassumption)); by apply: N.le_add_r)
+					| ((eapply Hmono32; last (by eassumption)); by apply: HQle) ] ) ] ) ]).
+	all: (
+		match goal with
+			| [ Hn : wf_num_ (numtype_Inn _) _ |- _ ] => inversion Hn; subst
+			end;
+		first
+		[ (by match goal with
+				| [ Hq : is_true (_ != _) |- _ ] => move: Hq; rewrite eqxx end)
+		| ( repeat match goal with
+					| [ Hq : is_true (_ == _) |- _ ] => move/eqP: Hq => Hq end;
+			repeat match goal with
+				| [ He : numtype_Inn ?a = numtype_Inn ?b |- _ ] =>
+					tryif constr_eq a b then fail else (have Hab := HinnInj _ _ He; subst)
+				end;
+			apply: config_case_0;
+			[ solve [ eassumption | (apply: state_case_0; eassumption)
+				| (eapply Hst; eassumption)
+				| (((eapply with_local_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_global_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_tableinst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_meminst_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_elem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+			| (((eapply with_data_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (apply: Hva; eassumption)
+				| (((eapply growtable_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ]) | (((eapply growmemory_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by []
+					| (((eapply table_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply mem_is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply ibytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] | (((eapply wrap___is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])
+				| (((eapply nbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) | (((eapply vbytes__is_wf; cycle -1); first (by apply: eqxx)); first [ eassumption | by [] ]) ])  ]
+			| solve [ repeat first [ apply: List.Forall_nil | (apply/List.Forall_app; split)
+				| apply: List.Forall_cons | eassumption | (apply: Har)
+				| (apply: Hav; eassumption) | (apply: Hai; eassumption)
+				| (apply: Hmapi; eassumption) | (eapply Hinv; eassumption)
+				| (eapply Hfr; eassumption) | constructor ] ] ] ) ]).
+Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:248.1-248.54 *)
 Inductive Extend_globalinst : globalinst -> globalinst -> Prop :=
