@@ -322,12 +322,14 @@ def $cvtop__(Fnn_1, Inn_2, REINTERPRET, fN_1) = $reinterpret__(Fnn_1, Inn_2, fN_
 
 def $packnum_(lanetype, num_($unpack(lanetype))) : lane_(lanetype)
     hint(show $pack_(%,%))
-def $packnum_(numtype, c) = c
+def $packnum_(Inn, c) = c
+def $packnum_(Fnn, c) = c
 def $packnum_(packtype, c) = $wrap__($size($unpack(packtype)), $psize(packtype), c)
 
 def $unpacknum_(lanetype, lane_(lanetype)) : num_($unpack(lanetype))
     hint(show $unpack_(%,%))
-def $unpacknum_(numtype, c) = c
+def $unpacknum_(Inn, c) = c
+def $unpacknum_(Fnn, c) = c
 def $unpacknum_(packtype, c) = $extend__($psize(packtype), $size($unpack(packtype)), U, c)
 
 

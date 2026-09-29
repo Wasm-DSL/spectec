@@ -322,7 +322,7 @@ rule Step_pure/vsplat:
 
 rule Step_pure/vextract_lane-num:
   (VCONST V128 c_1) (VEXTRACT_LANE (nt X N) i) ~> (CONST nt c_2)
-  -- if c_2 = $lanes_(nt X N, c_1)[i]
+  -- if c_2 = $unpacknum_(nt, $lanes_(nt X N, c_1)[i])
 
 ;; TODO : fshape
 rule Step_pure/vextract_lane-pack:
@@ -372,7 +372,7 @@ rule Step_pure/vcvtop-zero:
   (VCONST V128 c_1) (VCVTOP (nt_2 X M_2) (nt_1 X M_1) vcvtop) ~> (VCONST V128 c)
   -- if $zeroop(vcvtop) = ZERO
   -- if ci* = $lanes_(nt_1 X M_1, c_1)
-  -- if cj** = $setproduct_(lane_(nt_2), ($vcvtop__(nt_1 X M_1, nt_2 X M_2, vcvtop, ci)* ++ [$zero(nt_2)]^M_1))
+  -- if cj** = $setproduct_(lane_(nt_2), ($vcvtop__(nt_1 X M_1, nt_2 X M_2, vcvtop, ci)* ++ [$packnum_(nt_2, $zero(nt_2))]^M_1))
   -- if c <- $inv_lanes_(nt_2 X M_2, cj*)*
 
 
