@@ -2807,8 +2807,7 @@ Qed.
 
 (* The one well-formed conversion without a reduction: TRUNC_SAT from F32 to
    I16 lanes (with ZERO) satisfies the side condition of vcvtop__ (32 = 2 * 16),
-   but $vcvtop__ only defines TRUNC_SAT for Inn destinations, and vcvtop-zero
-   needs numtype lanes (see vcvtop_trunc_sat_i16_stuck). *)
+   but $lcvtop__ only defines TRUNC_SAT for Inn destinations (see vcvtop_trunc_sat_i16_stuck). *)
 Definition vcvtop_trunc_sat_i16 (op : vcvtop__) : bool :=
   match op with
   | mk_vcvtop___2 Fnn_F32 _ Jnn_I16 _ (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT _ _) => true
@@ -2817,7 +2816,7 @@ Definition vcvtop_trunc_sat_i16 (op : vcvtop__) : bool :=
 
 Lemma vcvtop_lane_total : forall sh_1 sh_2 op ci,
   wf_vcvtop__ sh_1 sh_2 op -> ~~ vcvtop_trunc_sat_i16 op -> wf_lane_ (fun_lanetype sh_1) ci ->
-  exists r, fun_vcvtop__ sh_1 sh_2 op ci (Some r) /\ r != [::].
+  exists r, fun_lcvtop__ sh_1 sh_2 op ci (Some r) /\ r != [::].
 Proof.
   move => sh_1 sh_2 op ci Hop Hts Hl.
   inversion Hop as [? ? J1 M1 J2 M2 o Ho E1 E2 | ? ? J1 M1 F2 M2 o Ho E1 E2
@@ -2851,18 +2850,18 @@ Lemma vcvtop_lanes_total : forall sh_1 sh_2 op (L : seq lane_),
   wf_shape sh_1 -> wf_shape sh_2 ->
   wf_vcvtop__ sh_1 sh_2 op -> ~~ vcvtop_trunc_sat_i16 op ->
   List.Forall (wf_lane_ (fun_lanetype sh_1)) L ->
-  exists vs, List.Forall2 (fun v ci => fun_vcvtop__ sh_1 sh_2 op ci v) vs L /\
+  exists vs, List.Forall2 (fun v ci => fun_lcvtop__ sh_1 sh_2 op ci v) vs L /\
              List.Forall (fun v => v != None) vs /\
              List.Forall (fun r => r != [::]) (seq.map (fun v => !(v)) vs) /\
              List.Forall (List.Forall (wf_lane_ (fun_lanetype sh_2))) (seq.map (fun v => !(v)) vs).
 Proof.
   move => sh_1 sh_2 op L Hs1 Hs2 Hop Hts HL.
-  have [vs [H2 HP]] : exists vs, List.Forall2 (fun v ci => fun_vcvtop__ sh_1 sh_2 op ci v) vs L /\
+  have [vs [H2 HP]] : exists vs, List.Forall2 (fun v ci => fun_lcvtop__ sh_1 sh_2 op ci v) vs L /\
       List.Forall (fun v => v != None /\ (!(v)) != [::] /\ List.Forall (wf_lane_ (fun_lanetype sh_2)) (!(v))) vs.
   { apply: Forall_exists_Forall2. apply: (List.Forall_impl _ _ HL) => ci Hci.
     have [r [Hr Hne]] := vcvtop_lane_total _ _ _ _ Hop Hts Hci.
     exists (Some r). split; first exact Hr. split; first by []. split; first exact Hne.
-    exact: (vcvtop___is_wf _ _ _ _ _ _ Hr Hs1 Hs2 Hop Hci isT (eqxx _)). }
+    exact: (lcvtop___is_wf _ _ _ _ _ _ Hr Hs1 Hs2 Hop Hci isT (eqxx _)). }
   exists vs. split; first exact H2.
   split; first by apply: (List.Forall_impl _ _ HP) => v [? _].
   split; [ apply: (Forall_map_P _ _ _ _ _ _ _ HP) => v [_ [? _]] //
@@ -2981,7 +2980,8 @@ Proof.
   have [c [Hgt [Hin Hsw]]] := setproduct_pick L2 M _ Hne Hw.
   have Hhalf := halfop_total _ _ _ Hop Hts. have Hzero := zeroop_total _ _ _ Hop Hts.
   rewrite Hh in Hhalf. rewrite Hz in Hzero.
-  exists c. eapply (vcvtop_full c1 L2 M L1 op c _ _ vs (Some None) (Some None)).
+  exists c. apply: (Step_pure__vcvtop c1 _ _ op c (Some c)); last by [].
+  eapply (fun_vcvtop____fun_vcvtop___case_0 L1 M L2 op c1 c M _ _ vs (Some None) (Some None)).
   all: first
     [ exact: H2 | exact: Hzero | exact: Hhalf | by [] | by apply: eqxx | exact: Hn
     | exact: Hgt | exact: Hin | exact: Hl | exact: Hsw | exact: Hs1 | exact: Hs2
@@ -3001,7 +3001,8 @@ Proof.
   have [vs [H2 [Hn [Hne Hw]]]] := vcvtop_lanes_total _ _ _ _ Hs1 Hs2 Hop Hts Hl.
   have [c [Hgt [Hin Hsw]]] := setproduct_pick L2 M2 _ Hne Hw.
   have Hhalf := halfop_total _ _ _ Hop Hts. rewrite Hh in Hhalf.
-  exists c. eapply (vcvtop_half c1 L2 M2 L1 M1 op c h _ _ vs (Some (Some h))).
+  exists c. apply: (Step_pure__vcvtop c1 _ _ op c (Some c)); last by [].
+  eapply (fun_vcvtop____fun_vcvtop___case_1 L1 M1 L2 M2 op c1 c h _ _ vs (Some (Some h))).
   all: first
     [ exact: H2 | exact: Hhalf | by [] | by apply: eqxx | exact: Hn
     | exact: Hgt | exact: Hin | exact: Hl | exact: Hsw | exact: Hs1 | exact: Hs2
@@ -3031,7 +3032,11 @@ Proof.
     apply: Forall_list_repeat. by constructor. }
   have [c [Hgt [Hin Hsw]]] := setproduct_pick (lanetype_numtype nt2) M2 _ Hne' Hw'.
   have Hzero := zeroop_total _ _ _ Hop Hts. rewrite Hz in Hzero.
-  exists c. eapply (vcvtop_zero c1 nt2 M2 nt1 M1 op c _ _ vs (Some (Some ZERO))).
+  have Hu : forall nt, unpack (lanetype_numtype nt) = nt by case.
+  rewrite /zs in Hgt Hin.
+  exists c. apply: (Step_pure__vcvtop c1 _ _ op c (Some c)); last by [].
+  eapply (fun_vcvtop____fun_vcvtop___case_2 (lanetype_numtype nt1) M1 (lanetype_numtype nt2) M2 op c1 c _ _ vs (Some (Some ZERO))).
+  all: rewrite ?Hu.
   all: first
     [ exact: H2 | exact: Hzero | by [] | by apply: eqxx | exact: Hn | exact: Hpz
     | exact: Hgt | exact: Hin | exact: Hl | exact: Hsw | exact: Hs1 | exact: Hs2
@@ -6114,8 +6119,8 @@ Qed.
 
 (* VCVTOP (I16 X 8) (F32 X 4) (TRUNC_SAT sx ZERO): the side condition of
    vcvtop__ allows it ($sizenn1(F32) = 2 * $lsizenn2(I16)), as in Wasm 3.0, but
-   $vcvtop__ only defines TRUNC_SAT for Inn destinations, and vcvtop-zero needs a
-   numtype destination lane.  So it is well formed, yet no rule reduces it. *)
+   $lcvtop__ only defines TRUNC_SAT for Inn destinations, so $vcvtop__ has no
+   result for it.  So it is well formed, yet no rule reduces it. *)
 Lemma vcvtop_trunc_sat_i16_wf_instr : forall sx,
   wf_instr (VCVTOP (X lanetype_I16 (mk_dim 8)) (X lanetype_F32 (mk_dim 4))
               (mk_vcvtop___2 Fnn_F32 4 Jnn_I16 8 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT sx (Some ZERO)))).
@@ -6132,9 +6137,23 @@ Proof.
   move => sx c es H. inversion H; subst; try discriminate.
   1: { clear H1; move: H0; case: val_lst => [ | v [ | v' vl]] //= H0.
          inversion H0 as [[Hv Hv' Hnil]]. move: Hnil. by case: (seq.map _ vl). }
-  all: try (match goal with [ nt : numtype |- _ ] => destruct nt; discriminate end).
-  all: match goal with
-  | [ Hh : fun_halfop _ _ _ ?v, Hv : is_true (!(?v) == Some _) |- _ ] =>
-      inversion Hh; subst; by move: Hv
-  end.
+  match goal with [ Hf : fun_vcvtop__ _ _ _ _ ?v, Hn : is_true (?v != None) |- _ ] =>
+    inversion Hf; subst; last by move: Hn end.
+  - (* full: the lane counts differ *)
+    match goal with [ Hm : is_true (4%num == 8%num) |- _ ] => by move: Hm end.
+  - (* half: TRUNC_SAT has no half *)
+    match goal with
+    | [ Hh : fun_halfop _ _ _ ?v, Hv : is_true (!(?v) == Some _) |- _ ] =>
+        inversion Hh; subst; by move: Hv
+    end.
+  - (* zero: no lane-wise TRUNC_SAT to I16 *)
+    match goal with
+    | [ Hf2 : List.Forall2 _ ?vl ?cl, Hc : is_true (?cl == lanes_ _ _),
+        Hn : List.Forall _ ?vl |- _ ] =>
+        move/eqP: Hc => Hc; move: (lanes_len lanetype_F32 4 c); rewrite -Hc;
+        move: Hn; case: Hf2
+    end.
+    + move => _ /= Hlen. by inversion Hlen.
+    + move => v ci vl' cl' Hl _ /List.Forall_cons_iff [Hv _] _.
+      inversion Hl; subst => //.
 Qed.

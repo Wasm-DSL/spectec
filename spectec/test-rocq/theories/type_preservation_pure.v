@@ -1556,7 +1556,7 @@ Proof.
 	- eapply Step_pure__cvtop_val_preserves; eauto.
 	- eapply Step_pure__ref_is_null_true_preserves; eauto.
 	- eapply Step_pure__ref_is_null_false_preserves; eauto.
-	24: eapply Step_pure__local_tee_preserves; eauto.
+	22: eapply Step_pure__local_tee_preserves; eauto.
 	(* The rest are all simd instructions *)
 	- eapply Step_pure__vvunop_preserves; eauto.
 	- eapply Step_pure__vvbinop_preserves; eauto.
@@ -1578,7 +1578,5 @@ Proof.
 	- eapply Step_pure__vextunop_preserves; eauto.
 	- eapply Step_pure__vextbinop_preserves; eauto.
 	- eapply Step_pure__vnarrow_preserves; eauto.
-	- eapply Step_pure__vcvtop_preserves; eauto.
-	- eapply Step_pure__vcvtop_preserves; eauto.
 	- eapply Step_pure__vcvtop_preserves; eauto.
 Qed.
