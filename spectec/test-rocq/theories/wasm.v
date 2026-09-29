@@ -1380,7 +1380,36 @@ Inductive wf_dim : dim -> Prop :=
 		(((((i == 1%N) || (i == 2%N)) || (i == 4%N)) || (i == 8%N)) || (i == 16%N)) ->
 		wf_dim (mk_dim i).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:326.1-326.69 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:210.1-210.45 *)
+Definition psize (v_packtype : packtype) : N :=
+	match v_packtype return N with
+		| I8 => 8%N
+		| I16 => 16%N
+	end.
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:208.1-208.59 *)
+Definition res_size (v_valtype : valtype) : (option N) :=
+	match v_valtype return (option N) with
+		| valtype_I32 => (Some 32%N)
+		| valtype_I64 => (Some 64%N)
+		| valtype_F32 => (Some 32%N)
+		| valtype_F64 => (Some 64%N)
+		| valtype_V128 => (Some 128%N)
+		| x0 => None
+	end.
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:211.1-211.45 *)
+Definition lsize (v_lanetype : lanetype) : N :=
+	match v_lanetype return N with
+		| lanetype_I32 => (!((res_size (valtype_numtype I32))))
+		| lanetype_I64 => (!((res_size (valtype_numtype I64))))
+		| lanetype_F32 => (!((res_size (valtype_numtype F32))))
+		| lanetype_F64 => (!((res_size (valtype_numtype F64))))
+		| lanetype_I8 => (psize I8)
+		| lanetype_I16 => (psize I16)
+	end.
+
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:326.1-327.40 *)
 Inductive shape : Type :=
 	| X (v_lanetype : lanetype) (v_dim : dim) : shape.
 
@@ -1402,6 +1431,7 @@ Hint Resolve shape_eq_dec : eq_dec_db.
 Inductive wf_shape : shape -> Prop :=
 	| shape_case_0 : forall (v_lanetype : lanetype) (v_dim : dim), 
 		(wf_dim v_dim) ->
+		(((lsize v_lanetype) * (v_dim :> N))%BN == 128%N) ->
 		wf_shape (X v_lanetype v_dim).
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:206.1-206.32 *)
@@ -1410,39 +1440,10 @@ Definition fun_lanetype (v_shape : shape) : lanetype :=
 		| (X v_Lnn (mk_dim v_N)) => v_Lnn
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:208.1-208.59 *)
-Definition res_size (v_valtype : valtype) : (option N) :=
-	match v_valtype return (option N) with
-		| valtype_I32 => (Some 32%N)
-		| valtype_I64 => (Some 64%N)
-		| valtype_F32 => (Some 32%N)
-		| valtype_F64 => (Some 64%N)
-		| valtype_V128 => (Some 128%N)
-		| x0 => None
-	end.
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:209.1-209.46 *)
 Definition vsize (v_vectype : vectype) : N :=
 	match v_vectype return N with
 		| V128 => 128%N
-	end.
-
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:210.1-210.45 *)
-Definition psize (v_packtype : packtype) : N :=
-	match v_packtype return N with
-		| I8 => 8%N
-		| I16 => 16%N
-	end.
-
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:211.1-211.45 *)
-Definition lsize (v_lanetype : lanetype) : N :=
-	match v_lanetype return N with
-		| lanetype_I32 => (!((res_size (valtype_numtype I32))))
-		| lanetype_I64 => (!((res_size (valtype_numtype I64))))
-		| lanetype_F32 => (!((res_size (valtype_numtype F32))))
-		| lanetype_F64 => (!((res_size (valtype_numtype F64))))
-		| lanetype_I8 => (psize I8)
-		| lanetype_I16 => (psize I16)
 	end.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:212.1-212.70 *)
@@ -2197,11 +2198,11 @@ Definition proj_cvtop___3 (var_x : cvtop__) : (option cvtop__Fnn_1_Fnn_2) :=
 		| var_x => None
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:327.1-327.69 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:328.1-329.31 *)
 Inductive ishape : Type :=
-	| ishape_X (v_Jnn : Jnn) (v_dim : dim) : ishape.
+	| mk_ishape (v_shape : shape) : ishape.
 
-Global Instance Inhabited__ishape : Inhabited (ishape) := { default_val := ishape_X default_val default_val }.
+Global Instance Inhabited__ishape : Inhabited (ishape) := { default_val := mk_ishape default_val }.
 
 Definition ishape_eq_dec : forall (v1 v2 : ishape),
   {v1 = v2} + {v1 <> v2}.
@@ -2215,23 +2216,26 @@ Definition eqishapeP : Equality.axiom (ishape_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (ishape) (eqishapeP).
 Hint Resolve ishape_eq_dec : eq_dec_db.
 
-(* Auxiliary Definition at:  *)
-Definition shape_ishape (var_0 : ishape) : shape :=
-	match var_0 return shape with
-		| (ishape_X x0 x1) => (X (lanetype_Jnn x0) x1)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:328.1-329.31 *)
+Definition proj_ishape_0 (x : ishape) : (shape) :=
+	match x return (shape) with
+		| (mk_ishape v_shape_0) => (v_shape_0)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:327.8-327.14 *)
+Global Instance proj_ishape_0_coercion : Coercion ishape (shape) := { coerce := proj_ishape_0 }.
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:328.8-328.14 *)
 Inductive wf_ishape : ishape -> Prop :=
-	| ishape_case_0 : forall (v_Jnn : Jnn) (v_dim : dim), 
-		(wf_dim v_dim) ->
-		wf_ishape (ishape_X v_Jnn v_dim).
+	| ishape_case_0 : forall (v_Jnn : Jnn) (v_shape : shape), 
+		(wf_shape v_shape) ->
+		((fun_lanetype v_shape) == (lanetype_Jnn v_Jnn)) ->
+		wf_ishape (mk_ishape v_shape).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:328.1-328.69 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:330.1-331.31 *)
 Inductive fshape : Type :=
-	| fshape_X (v_Fnn : Fnn) (v_dim : dim) : fshape.
+	| mk_fshape (v_shape : shape) : fshape.
 
-Global Instance Inhabited__fshape : Inhabited (fshape) := { default_val := fshape_X default_val default_val }.
+Global Instance Inhabited__fshape : Inhabited (fshape) := { default_val := mk_fshape default_val }.
 
 Definition fshape_eq_dec : forall (v1 v2 : fshape),
   {v1 = v2} + {v1 <> v2}.
@@ -2245,17 +2249,18 @@ Definition eqfshapeP : Equality.axiom (fshape_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (fshape) (eqfshapeP).
 Hint Resolve fshape_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:328.8-328.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:330.8-330.14 *)
 Inductive wf_fshape : fshape -> Prop :=
-	| fshape_case_0 : forall (v_Fnn : Fnn) (v_dim : dim), 
-		(wf_dim v_dim) ->
-		wf_fshape (fshape_X v_Fnn v_dim).
+	| fshape_case_0 : forall (v_Fnn : Fnn) (v_shape : shape), 
+		(wf_shape v_shape) ->
+		((fun_lanetype v_shape) == (lanetype_Fnn v_Fnn)) ->
+		wf_fshape (mk_fshape v_shape).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:329.1-329.69 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:332.1-333.31 *)
 Inductive pshape : Type :=
-	| pshape_X (v_Pnn : Pnn) (v_dim : dim) : pshape.
+	| mk_pshape (v_shape : shape) : pshape.
 
-Global Instance Inhabited__pshape : Inhabited (pshape) := { default_val := pshape_X default_val default_val }.
+Global Instance Inhabited__pshape : Inhabited (pshape) := { default_val := mk_pshape default_val }.
 
 Definition pshape_eq_dec : forall (v1 v2 : pshape),
   {v1 = v2} + {v1 <> v2}.
@@ -2269,19 +2274,20 @@ Definition eqpshapeP : Equality.axiom (pshape_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (pshape) (eqpshapeP).
 Hint Resolve pshape_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:329.8-329.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:332.8-332.14 *)
 Inductive wf_pshape : pshape -> Prop :=
-	| pshape_case_0 : forall (v_Pnn : Pnn) (v_dim : dim), 
-		(wf_dim v_dim) ->
-		wf_pshape (pshape_X v_Pnn v_dim).
+	| pshape_case_0 : forall (v_Pnn : Pnn) (v_shape : shape), 
+		(wf_shape v_shape) ->
+		((fun_lanetype v_shape) == (lanetype_packtype v_Pnn)) ->
+		wf_pshape (mk_pshape v_shape).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:331.1-331.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:335.1-335.22 *)
 Definition fun_dim (v_shape : shape) : dim :=
 	match v_shape return dim with
 		| (X v_Lnn (mk_dim v_N)) => (mk_dim v_N)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:331.6-331.10 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:335.6-335.10 *)
 Lemma dim_is_wf : forall (v_shape : shape) (ret_val : dim),
 	(wf_shape v_shape) ->
 	(ret_val == (fun_dim v_shape)) ->
@@ -2291,13 +2297,13 @@ Proof.
 	case: Hwf => lt d Hd. by case: d Hd => i Hd.
 Qed.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:332.1-332.41 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:336.1-336.41 *)
 Definition shsize (v_shape : shape) : N :=
 	match v_shape return N with
 		| (X v_Lnn (mk_dim v_N)) => ((lsize v_Lnn) * v_N)%BN
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:334.1-334.20 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:338.1-338.20 *)
 Inductive vvunop : Type :=
 	| NOT : vvunop.
 
@@ -2315,7 +2321,7 @@ Definition eqvvunopP : Equality.axiom (vvunop_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vvunop) (eqvvunopP).
 Hint Resolve vvunop_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:335.1-335.41 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:339.1-339.41 *)
 Inductive vvbinop : Type :=
 	| vvbinop_AND : vvbinop
 	| ANDNOT : vvbinop
@@ -2336,7 +2342,7 @@ Definition eqvvbinopP : Equality.axiom (vvbinop_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vvbinop) (eqvvbinopP).
 Hint Resolve vvbinop_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:336.1-336.28 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:340.1-340.28 *)
 Inductive vvternop : Type :=
 	| BITSELECT : vvternop.
 
@@ -2354,7 +2360,7 @@ Definition eqvvternopP : Equality.axiom (vvternop_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vvternop) (eqvvternopP).
 Hint Resolve vvternop_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:337.1-337.27 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:341.1-341.27 *)
 Inductive vvtestop : Type :=
 	| ANY_TRUE : vvtestop.
 
@@ -2372,7 +2378,7 @@ Definition eqvvtestopP : Equality.axiom (vvtestop_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vvtestop) (eqvvtestopP).
 Hint Resolve vvtestop_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:339.1-339.21 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.1-343.21 *)
 Inductive vunop_Jnn_N : Type :=
 	| vunop_Jnn_N_ABS : vunop_Jnn_N
 	| vunop_Jnn_N_NEG : vunop_Jnn_N
@@ -2392,7 +2398,7 @@ Definition eqvunop_Jnn_NP : Equality.axiom (vunop_Jnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vunop_Jnn_N) (eqvunop_Jnn_NP).
 Hint Resolve vunop_Jnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:339.8-339.15 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.8-343.15 *)
 Inductive wf_vunop_Jnn_N : Jnn -> res_N -> vunop_Jnn_N -> Prop :=
 	| vunop_Jnn_N_case_0 : forall (v_Jnn : Jnn) (v_N : res_N), wf_vunop_Jnn_N v_Jnn v_N vunop_Jnn_N_ABS
 	| vunop_Jnn_N_case_1 : forall (v_Jnn : Jnn) (v_N : res_N), wf_vunop_Jnn_N v_Jnn v_N vunop_Jnn_N_NEG
@@ -2400,7 +2406,7 @@ Inductive wf_vunop_Jnn_N : Jnn -> res_N -> vunop_Jnn_N -> Prop :=
 		(v_Jnn == Jnn_I8) ->
 		wf_vunop_Jnn_N v_Jnn v_N vunop_Jnn_N_POPCNT.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:339.1-339.21 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.1-343.21 *)
 Inductive vunop_Fnn_N : Type :=
 	| vunop_Fnn_N_ABS : vunop_Fnn_N
 	| vunop_Fnn_N_NEG : vunop_Fnn_N
@@ -2424,7 +2430,7 @@ Definition eqvunop_Fnn_NP : Equality.axiom (vunop_Fnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vunop_Fnn_N) (eqvunop_Fnn_NP).
 Hint Resolve vunop_Fnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:339.1-339.21 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.1-343.21 *)
 Inductive vunop_ : Type :=
 	| mk_vunop__0 (v_Jnn : Jnn) (v_N : res_N) (var_x : vunop_Jnn_N) : vunop_
 	| mk_vunop__1 (v_Fnn : Fnn) (v_N : res_N) (var_x : vunop_Fnn_N) : vunop_.
@@ -2443,7 +2449,7 @@ Definition eqvunop_P : Equality.axiom (vunop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vunop_) (eqvunop_P).
 Hint Resolve vunop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:339.8-339.15 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.8-343.15 *)
 Inductive wf_vunop_ : shape -> vunop_ -> Prop :=
 	| vunop__case_0 : forall (v_shape : shape) (v_Jnn : Jnn) (v_N : res_N) (var_x : vunop_Jnn_N), 
 		(wf_vunop_Jnn_N v_Jnn v_N var_x) ->
@@ -2453,21 +2459,21 @@ Inductive wf_vunop_ : shape -> vunop_ -> Prop :=
 		(v_shape == (X (lanetype_Fnn v_Fnn) (mk_dim v_N))) ->
 		wf_vunop_ v_shape (mk_vunop__1 v_Fnn v_N var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:339.1-339.21 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.1-343.21 *)
 Definition proj_vunop__0 (var_x : vunop_) : (option vunop_Jnn_N) :=
 	match var_x return (option vunop_Jnn_N) with
 		| (mk_vunop__0 v_Jnn v_N var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:339.1-339.21 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.1-343.21 *)
 Definition proj_vunop__1 (var_x : vunop_) : (option vunop_Fnn_N) :=
 	match var_x return (option vunop_Fnn_N) with
 		| (mk_vunop__1 v_Fnn v_N var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:344.1-344.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:348.1-348.22 *)
 Inductive vbinop_Jnn_N : Type :=
 	| vbinop_Jnn_N_ADD : vbinop_Jnn_N
 	| vbinop_Jnn_N_SUB : vbinop_Jnn_N
@@ -2493,7 +2499,7 @@ Definition eqvbinop_Jnn_NP : Equality.axiom (vbinop_Jnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vbinop_Jnn_N) (eqvbinop_Jnn_NP).
 Hint Resolve vbinop_Jnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:344.8-344.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:348.8-348.16 *)
 Inductive wf_vbinop_Jnn_N : Jnn -> res_N -> vbinop_Jnn_N -> Prop :=
 	| vbinop_Jnn_N_case_0 : forall (v_Jnn : Jnn) (v_N : res_N), wf_vbinop_Jnn_N v_Jnn v_N vbinop_Jnn_N_ADD
 	| vbinop_Jnn_N_case_1 : forall (v_Jnn : Jnn) (v_N : res_N), wf_vbinop_Jnn_N v_Jnn v_N vbinop_Jnn_N_SUB
@@ -2519,7 +2525,7 @@ Inductive wf_vbinop_Jnn_N : Jnn -> res_N -> vbinop_Jnn_N -> Prop :=
 		((lsizenn (lanetype_Jnn v_Jnn)) <=? 32%N)%BN ->
 		wf_vbinop_Jnn_N v_Jnn v_N (vbinop_Jnn_N_MAX v_sx).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:344.1-344.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:348.1-348.22 *)
 Inductive vbinop_Fnn_N : Type :=
 	| vbinop_Fnn_N_ADD : vbinop_Fnn_N
 	| vbinop_Fnn_N_SUB : vbinop_Fnn_N
@@ -2544,7 +2550,7 @@ Definition eqvbinop_Fnn_NP : Equality.axiom (vbinop_Fnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vbinop_Fnn_N) (eqvbinop_Fnn_NP).
 Hint Resolve vbinop_Fnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:344.1-344.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:348.1-348.22 *)
 Inductive vbinop_ : Type :=
 	| mk_vbinop__0 (v_Jnn : Jnn) (v_N : res_N) (var_x : vbinop_Jnn_N) : vbinop_
 	| mk_vbinop__1 (v_Fnn : Fnn) (v_N : res_N) (var_x : vbinop_Fnn_N) : vbinop_.
@@ -2563,7 +2569,7 @@ Definition eqvbinop_P : Equality.axiom (vbinop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vbinop_) (eqvbinop_P).
 Hint Resolve vbinop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:344.8-344.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:348.8-348.16 *)
 Inductive wf_vbinop_ : shape -> vbinop_ -> Prop :=
 	| vbinop__case_0 : forall (v_shape : shape) (v_Jnn : Jnn) (v_N : res_N) (var_x : vbinop_Jnn_N), 
 		(wf_vbinop_Jnn_N v_Jnn v_N var_x) ->
@@ -2573,21 +2579,21 @@ Inductive wf_vbinop_ : shape -> vbinop_ -> Prop :=
 		(v_shape == (X (lanetype_Fnn v_Fnn) (mk_dim v_N))) ->
 		wf_vbinop_ v_shape (mk_vbinop__1 v_Fnn v_N var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:344.1-344.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:348.1-348.22 *)
 Definition proj_vbinop__0 (var_x : vbinop_) : (option vbinop_Jnn_N) :=
 	match var_x return (option vbinop_Jnn_N) with
 		| (mk_vbinop__0 v_Jnn v_N var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:344.1-344.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:348.1-348.22 *)
 Definition proj_vbinop__1 (var_x : vbinop_) : (option vbinop_Fnn_N) :=
 	match var_x return (option vbinop_Fnn_N) with
 		| (mk_vbinop__1 v_Fnn v_N var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:357.1-357.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:361.1-361.23 *)
 Inductive vtestop_Jnn_N : Type :=
 	| ALL_TRUE : vtestop_Jnn_N.
 
@@ -2605,7 +2611,7 @@ Definition eqvtestop_Jnn_NP : Equality.axiom (vtestop_Jnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vtestop_Jnn_N) (eqvtestop_Jnn_NP).
 Hint Resolve vtestop_Jnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:357.1-357.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:361.1-361.23 *)
 Inductive vtestop_ : Type :=
 	| mk_vtestop__0 (v_Jnn : Jnn) (v_N : res_N) (var_x : vtestop_Jnn_N) : vtestop_.
 
@@ -2623,19 +2629,19 @@ Definition eqvtestop_P : Equality.axiom (vtestop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vtestop_) (eqvtestop_P).
 Hint Resolve vtestop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:357.8-357.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:361.8-361.17 *)
 Inductive wf_vtestop_ : shape -> vtestop_ -> Prop :=
 	| vtestop__case_0 : forall (v_shape : shape) (v_Jnn : Jnn) (v_N : res_N) (var_x : vtestop_Jnn_N), 
 		(v_shape == (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) ->
 		wf_vtestop_ v_shape (mk_vtestop__0 v_Jnn v_N var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:357.1-357.23 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:361.1-361.23 *)
 Definition proj_vtestop__0 (var_x : vtestop_) : vtestop_Jnn_N :=
 	match var_x return vtestop_Jnn_N with
 		| (mk_vtestop__0 v_Jnn v_N var_x) => var_x
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:361.1-361.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:365.1-365.22 *)
 Inductive vrelop_Jnn_N : Type :=
 	| vrelop_Jnn_N_EQ : vrelop_Jnn_N
 	| vrelop_Jnn_N_NE : vrelop_Jnn_N
@@ -2658,7 +2664,7 @@ Definition eqvrelop_Jnn_NP : Equality.axiom (vrelop_Jnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vrelop_Jnn_N) (eqvrelop_Jnn_NP).
 Hint Resolve vrelop_Jnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:361.8-361.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:365.8-365.16 *)
 Inductive wf_vrelop_Jnn_N : Jnn -> res_N -> vrelop_Jnn_N -> Prop :=
 	| vrelop_Jnn_N_case_0 : forall (v_Jnn : Jnn) (v_N : res_N), wf_vrelop_Jnn_N v_Jnn v_N vrelop_Jnn_N_EQ
 	| vrelop_Jnn_N_case_1 : forall (v_Jnn : Jnn) (v_N : res_N), wf_vrelop_Jnn_N v_Jnn v_N vrelop_Jnn_N_NE
@@ -2675,7 +2681,7 @@ Inductive wf_vrelop_Jnn_N : Jnn -> res_N -> vrelop_Jnn_N -> Prop :=
 		(((lsizenn (lanetype_Jnn v_Jnn)) != 64%N) || (v_sx == res_S)) ->
 		wf_vrelop_Jnn_N v_Jnn v_N (vrelop_Jnn_N_GE v_sx).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:361.1-361.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:365.1-365.22 *)
 Inductive vrelop_Fnn_N : Type :=
 	| vrelop_Fnn_N_EQ : vrelop_Fnn_N
 	| vrelop_Fnn_N_NE : vrelop_Fnn_N
@@ -2698,7 +2704,7 @@ Definition eqvrelop_Fnn_NP : Equality.axiom (vrelop_Fnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vrelop_Fnn_N) (eqvrelop_Fnn_NP).
 Hint Resolve vrelop_Fnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:361.1-361.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:365.1-365.22 *)
 Inductive vrelop_ : Type :=
 	| mk_vrelop__0 (v_Jnn : Jnn) (v_N : res_N) (var_x : vrelop_Jnn_N) : vrelop_
 	| mk_vrelop__1 (v_Fnn : Fnn) (v_N : res_N) (var_x : vrelop_Fnn_N) : vrelop_.
@@ -2717,7 +2723,7 @@ Definition eqvrelop_P : Equality.axiom (vrelop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vrelop_) (eqvrelop_P).
 Hint Resolve vrelop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:361.8-361.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:365.8-365.16 *)
 Inductive wf_vrelop_ : shape -> vrelop_ -> Prop :=
 	| vrelop__case_0 : forall (v_shape : shape) (v_Jnn : Jnn) (v_N : res_N) (var_x : vrelop_Jnn_N), 
 		(wf_vrelop_Jnn_N v_Jnn v_N var_x) ->
@@ -2727,21 +2733,21 @@ Inductive wf_vrelop_ : shape -> vrelop_ -> Prop :=
 		(v_shape == (X (lanetype_Fnn v_Fnn) (mk_dim v_N))) ->
 		wf_vrelop_ v_shape (mk_vrelop__1 v_Fnn v_N var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:361.1-361.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:365.1-365.22 *)
 Definition proj_vrelop__0 (var_x : vrelop_) : (option vrelop_Jnn_N) :=
 	match var_x return (option vrelop_Jnn_N) with
 		| (mk_vrelop__0 v_Jnn v_N var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:361.1-361.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:365.1-365.22 *)
 Definition proj_vrelop__1 (var_x : vrelop_) : (option vrelop_Fnn_N) :=
 	match var_x return (option vrelop_Fnn_N) with
 		| (mk_vrelop__1 v_Fnn v_N var_x) => (Some var_x)
 		| var_x => None
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:369.1-369.48 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:373.1-373.48 *)
 Inductive half : Type :=
 	| LOW : half
 	| HIGH : half.
@@ -2760,7 +2766,7 @@ Definition eqhalfP : Equality.axiom (half_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (half) (eqhalfP).
 Hint Resolve half_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:370.1-370.19 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:374.1-374.19 *)
 Inductive zero : Type :=
 	| ZERO : zero.
 
@@ -2778,29 +2784,179 @@ Definition eqzeroP : Equality.axiom (zero_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (zero) (eqzeroP).
 Hint Resolve zero_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.1-372.99 *)
-Inductive vcvtop : Type :=
-	| vcvtop_EXTEND (v_half : half) (v_sx : sx) : vcvtop
-	| vcvtop_TRUNC_SAT (v_sx : sx) (zero_opt : (option zero)) : vcvtop
-	| vcvtop_CONVERT (half_opt : (option half)) (v_sx : sx) : vcvtop
-	| vcvtop_DEMOTE (v_zero : zero) : vcvtop
-	| PROMOTELOW : vcvtop.
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
+Inductive vcvtop__Jnn_1_M_1_Jnn_2_M_2 : Type :=
+	| vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND (v_half : half) (v_sx : sx) : vcvtop__Jnn_1_M_1_Jnn_2_M_2.
 
-Global Instance Inhabited__vcvtop : Inhabited (vcvtop) := { default_val := vcvtop_EXTEND default_val default_val }.
+Global Instance Inhabited__vcvtop__Jnn_1_M_1_Jnn_2_M_2 : Inhabited (vcvtop__Jnn_1_M_1_Jnn_2_M_2) := { default_val := vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND default_val default_val }.
 
-Definition vcvtop_eq_dec : forall (v1 v2 : vcvtop),
+Definition vcvtop__Jnn_1_M_1_Jnn_2_M_2_eq_dec : forall (v1 v2 : vcvtop__Jnn_1_M_1_Jnn_2_M_2),
   {v1 = v2} + {v1 <> v2}.
 Proof. do ? decidable_equality_step. Defined.
 
-Definition vcvtop_eqb (v1 v2 : vcvtop) : bool :=
-	is_left(vcvtop_eq_dec v1 v2).
-Definition eqvcvtopP : Equality.axiom (vcvtop_eqb) :=
-	eq_dec_Equality_axiom (vcvtop) (vcvtop_eq_dec).
+Definition vcvtop__Jnn_1_M_1_Jnn_2_M_2_eqb (v1 v2 : vcvtop__Jnn_1_M_1_Jnn_2_M_2) : bool :=
+	is_left(vcvtop__Jnn_1_M_1_Jnn_2_M_2_eq_dec v1 v2).
+Definition eqvcvtop__Jnn_1_M_1_Jnn_2_M_2P : Equality.axiom (vcvtop__Jnn_1_M_1_Jnn_2_M_2_eqb) :=
+	eq_dec_Equality_axiom (vcvtop__Jnn_1_M_1_Jnn_2_M_2) (vcvtop__Jnn_1_M_1_Jnn_2_M_2_eq_dec).
 
-HB.instance Definition _ := hasDecEq.Build (vcvtop) (eqvcvtopP).
-Hint Resolve vcvtop_eq_dec : eq_dec_db.
+HB.instance Definition _ := hasDecEq.Build (vcvtop__Jnn_1_M_1_Jnn_2_M_2) (eqvcvtop__Jnn_1_M_1_Jnn_2_M_2P).
+Hint Resolve vcvtop__Jnn_1_M_1_Jnn_2_M_2_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:374.1-374.25 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.8-376.17 *)
+Inductive wf_vcvtop__Jnn_1_M_1_Jnn_2_M_2 : Jnn -> M -> Jnn -> M -> vcvtop__Jnn_1_M_1_Jnn_2_M_2 -> Prop :=
+	| vcvtop__Jnn_1_M_1_Jnn_2_M_2_case_0 : forall (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (v_half : half) (v_sx : sx), 
+		((lsizenn2 (lanetype_Jnn Jnn_2)) == (2%N * (lsizenn1 (lanetype_Jnn Jnn_1)))%BN) ->
+		wf_vcvtop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx).
+
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
+Inductive vcvtop__Jnn_1_M_1_Fnn_2_M_2 : Type :=
+	| vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT (half_opt : (option half)) (v_sx : sx) : vcvtop__Jnn_1_M_1_Fnn_2_M_2.
+
+Global Instance Inhabited__vcvtop__Jnn_1_M_1_Fnn_2_M_2 : Inhabited (vcvtop__Jnn_1_M_1_Fnn_2_M_2) := { default_val := vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT default_val default_val }.
+
+Definition vcvtop__Jnn_1_M_1_Fnn_2_M_2_eq_dec : forall (v1 v2 : vcvtop__Jnn_1_M_1_Fnn_2_M_2),
+  {v1 = v2} + {v1 <> v2}.
+Proof. do ? decidable_equality_step. Defined.
+
+Definition vcvtop__Jnn_1_M_1_Fnn_2_M_2_eqb (v1 v2 : vcvtop__Jnn_1_M_1_Fnn_2_M_2) : bool :=
+	is_left(vcvtop__Jnn_1_M_1_Fnn_2_M_2_eq_dec v1 v2).
+Definition eqvcvtop__Jnn_1_M_1_Fnn_2_M_2P : Equality.axiom (vcvtop__Jnn_1_M_1_Fnn_2_M_2_eqb) :=
+	eq_dec_Equality_axiom (vcvtop__Jnn_1_M_1_Fnn_2_M_2) (vcvtop__Jnn_1_M_1_Fnn_2_M_2_eq_dec).
+
+HB.instance Definition _ := hasDecEq.Build (vcvtop__Jnn_1_M_1_Fnn_2_M_2) (eqvcvtop__Jnn_1_M_1_Fnn_2_M_2P).
+Hint Resolve vcvtop__Jnn_1_M_1_Fnn_2_M_2_eq_dec : eq_dec_db.
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.8-376.17 *)
+Inductive wf_vcvtop__Jnn_1_M_1_Fnn_2_M_2 : Jnn -> M -> Fnn -> M -> vcvtop__Jnn_1_M_1_Fnn_2_M_2 -> Prop :=
+	| vcvtop__Jnn_1_M_1_Fnn_2_M_2_case_0 : forall (Jnn_1 : Jnn) (M_1 : M) (Fnn_2 : Fnn) (M_2 : M) (half_opt : (option half)) (v_sx : sx), 
+		(((((sizenn2 (numtype_Fnn Fnn_2)) == (lsizenn1 (lanetype_Jnn Jnn_1))) && ((lsizenn1 (lanetype_Jnn Jnn_1)) == 32%N)) && (half_opt == None)) || (((sizenn2 (numtype_Fnn Fnn_2)) == (2%N * (lsizenn1 (lanetype_Jnn Jnn_1)))%BN) && (half_opt == (Some LOW)))) ->
+		wf_vcvtop__Jnn_1_M_1_Fnn_2_M_2 Jnn_1 M_1 Fnn_2 M_2 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx).
+
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
+Inductive vcvtop__Fnn_1_M_1_Jnn_2_M_2 : Type :=
+	| vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT (v_sx : sx) (zero_opt : (option zero)) : vcvtop__Fnn_1_M_1_Jnn_2_M_2.
+
+Global Instance Inhabited__vcvtop__Fnn_1_M_1_Jnn_2_M_2 : Inhabited (vcvtop__Fnn_1_M_1_Jnn_2_M_2) := { default_val := vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT default_val default_val }.
+
+Definition vcvtop__Fnn_1_M_1_Jnn_2_M_2_eq_dec : forall (v1 v2 : vcvtop__Fnn_1_M_1_Jnn_2_M_2),
+  {v1 = v2} + {v1 <> v2}.
+Proof. do ? decidable_equality_step. Defined.
+
+Definition vcvtop__Fnn_1_M_1_Jnn_2_M_2_eqb (v1 v2 : vcvtop__Fnn_1_M_1_Jnn_2_M_2) : bool :=
+	is_left(vcvtop__Fnn_1_M_1_Jnn_2_M_2_eq_dec v1 v2).
+Definition eqvcvtop__Fnn_1_M_1_Jnn_2_M_2P : Equality.axiom (vcvtop__Fnn_1_M_1_Jnn_2_M_2_eqb) :=
+	eq_dec_Equality_axiom (vcvtop__Fnn_1_M_1_Jnn_2_M_2) (vcvtop__Fnn_1_M_1_Jnn_2_M_2_eq_dec).
+
+HB.instance Definition _ := hasDecEq.Build (vcvtop__Fnn_1_M_1_Jnn_2_M_2) (eqvcvtop__Fnn_1_M_1_Jnn_2_M_2P).
+Hint Resolve vcvtop__Fnn_1_M_1_Jnn_2_M_2_eq_dec : eq_dec_db.
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.8-376.17 *)
+Inductive wf_vcvtop__Fnn_1_M_1_Jnn_2_M_2 : Fnn -> M -> Jnn -> M -> vcvtop__Fnn_1_M_1_Jnn_2_M_2 -> Prop :=
+	| vcvtop__Fnn_1_M_1_Jnn_2_M_2_case_0 : forall (Fnn_1 : Fnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (v_sx : sx) (zero_opt : (option zero)), 
+		(((((sizenn1 (numtype_Fnn Fnn_1)) == (lsizenn2 (lanetype_Jnn Jnn_2))) && ((lsizenn2 (lanetype_Jnn Jnn_2)) == 32%N)) && (zero_opt == None)) || (((sizenn1 (numtype_Fnn Fnn_1)) == (2%N * (lsizenn2 (lanetype_Jnn Jnn_2)))%BN) && (zero_opt == (Some ZERO)))) ->
+		wf_vcvtop__Fnn_1_M_1_Jnn_2_M_2 Fnn_1 M_1 Jnn_2 M_2 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt).
+
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
+Inductive vcvtop__Fnn_1_M_1_Fnn_2_M_2 : Type :=
+	| vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE (v_zero : zero) : vcvtop__Fnn_1_M_1_Fnn_2_M_2
+	| PROMOTELOW : vcvtop__Fnn_1_M_1_Fnn_2_M_2.
+
+Global Instance Inhabited__vcvtop__Fnn_1_M_1_Fnn_2_M_2 : Inhabited (vcvtop__Fnn_1_M_1_Fnn_2_M_2) := { default_val := vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE default_val }.
+
+Definition vcvtop__Fnn_1_M_1_Fnn_2_M_2_eq_dec : forall (v1 v2 : vcvtop__Fnn_1_M_1_Fnn_2_M_2),
+  {v1 = v2} + {v1 <> v2}.
+Proof. do ? decidable_equality_step. Defined.
+
+Definition vcvtop__Fnn_1_M_1_Fnn_2_M_2_eqb (v1 v2 : vcvtop__Fnn_1_M_1_Fnn_2_M_2) : bool :=
+	is_left(vcvtop__Fnn_1_M_1_Fnn_2_M_2_eq_dec v1 v2).
+Definition eqvcvtop__Fnn_1_M_1_Fnn_2_M_2P : Equality.axiom (vcvtop__Fnn_1_M_1_Fnn_2_M_2_eqb) :=
+	eq_dec_Equality_axiom (vcvtop__Fnn_1_M_1_Fnn_2_M_2) (vcvtop__Fnn_1_M_1_Fnn_2_M_2_eq_dec).
+
+HB.instance Definition _ := hasDecEq.Build (vcvtop__Fnn_1_M_1_Fnn_2_M_2) (eqvcvtop__Fnn_1_M_1_Fnn_2_M_2P).
+Hint Resolve vcvtop__Fnn_1_M_1_Fnn_2_M_2_eq_dec : eq_dec_db.
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.8-376.17 *)
+Inductive wf_vcvtop__Fnn_1_M_1_Fnn_2_M_2 : Fnn -> M -> Fnn -> M -> vcvtop__Fnn_1_M_1_Fnn_2_M_2 -> Prop :=
+	| vcvtop__Fnn_1_M_1_Fnn_2_M_2_case_0 : forall (Fnn_1 : Fnn) (M_1 : M) (Fnn_2 : Fnn) (M_2 : M) (v_zero : zero), 
+		((sizenn1 (numtype_Fnn Fnn_1)) == (2%N * (sizenn2 (numtype_Fnn Fnn_2)))%BN) ->
+		wf_vcvtop__Fnn_1_M_1_Fnn_2_M_2 Fnn_1 M_1 Fnn_2 M_2 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)
+	| vcvtop__Fnn_1_M_1_Fnn_2_M_2_case_1 : forall (Fnn_1 : Fnn) (M_1 : M) (Fnn_2 : Fnn) (M_2 : M), 
+		((2%N * (sizenn1 (numtype_Fnn Fnn_1)))%BN == (sizenn2 (numtype_Fnn Fnn_2))) ->
+		wf_vcvtop__Fnn_1_M_1_Fnn_2_M_2 Fnn_1 M_1 Fnn_2 M_2 PROMOTELOW.
+
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
+Inductive vcvtop__ : Type :=
+	| mk_vcvtop___0 (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (var_x : vcvtop__Jnn_1_M_1_Jnn_2_M_2) : vcvtop__
+	| mk_vcvtop___1 (Jnn_1 : Jnn) (M_1 : M) (Fnn_2 : Fnn) (M_2 : M) (var_x : vcvtop__Jnn_1_M_1_Fnn_2_M_2) : vcvtop__
+	| mk_vcvtop___2 (Fnn_1 : Fnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (var_x : vcvtop__Fnn_1_M_1_Jnn_2_M_2) : vcvtop__
+	| mk_vcvtop___3 (Fnn_1 : Fnn) (M_1 : M) (Fnn_2 : Fnn) (M_2 : M) (var_x : vcvtop__Fnn_1_M_1_Fnn_2_M_2) : vcvtop__.
+
+Global Instance Inhabited__vcvtop__ : Inhabited (vcvtop__) := { default_val := mk_vcvtop___0 default_val default_val default_val default_val default_val }.
+
+Definition vcvtop___eq_dec : forall (v1 v2 : vcvtop__),
+  {v1 = v2} + {v1 <> v2}.
+Proof. do ? decidable_equality_step. Defined.
+
+Definition vcvtop___eqb (v1 v2 : vcvtop__) : bool :=
+	is_left(vcvtop___eq_dec v1 v2).
+Definition eqvcvtop__P : Equality.axiom (vcvtop___eqb) :=
+	eq_dec_Equality_axiom (vcvtop__) (vcvtop___eq_dec).
+
+HB.instance Definition _ := hasDecEq.Build (vcvtop__) (eqvcvtop__P).
+Hint Resolve vcvtop___eq_dec : eq_dec_db.
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.8-376.17 *)
+Inductive wf_vcvtop__ : shape -> shape -> vcvtop__ -> Prop :=
+	| vcvtop___case_0 : forall (shape_1 : shape) (shape_2 : shape) (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (var_x : vcvtop__Jnn_1_M_1_Jnn_2_M_2), 
+		(wf_vcvtop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 var_x) ->
+		(shape_1 == (X (lanetype_Jnn Jnn_1) (mk_dim M_1))) ->
+		(shape_2 == (X (lanetype_Jnn Jnn_2) (mk_dim M_2))) ->
+		wf_vcvtop__ shape_1 shape_2 (mk_vcvtop___0 Jnn_1 M_1 Jnn_2 M_2 var_x)
+	| vcvtop___case_1 : forall (shape_1 : shape) (shape_2 : shape) (Jnn_1 : Jnn) (M_1 : M) (Fnn_2 : Fnn) (M_2 : M) (var_x : vcvtop__Jnn_1_M_1_Fnn_2_M_2), 
+		(wf_vcvtop__Jnn_1_M_1_Fnn_2_M_2 Jnn_1 M_1 Fnn_2 M_2 var_x) ->
+		(shape_1 == (X (lanetype_Jnn Jnn_1) (mk_dim M_1))) ->
+		(shape_2 == (X (lanetype_Fnn Fnn_2) (mk_dim M_2))) ->
+		wf_vcvtop__ shape_1 shape_2 (mk_vcvtop___1 Jnn_1 M_1 Fnn_2 M_2 var_x)
+	| vcvtop___case_2 : forall (shape_1 : shape) (shape_2 : shape) (Fnn_1 : Fnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (var_x : vcvtop__Fnn_1_M_1_Jnn_2_M_2), 
+		(wf_vcvtop__Fnn_1_M_1_Jnn_2_M_2 Fnn_1 M_1 Jnn_2 M_2 var_x) ->
+		(shape_1 == (X (lanetype_Fnn Fnn_1) (mk_dim M_1))) ->
+		(shape_2 == (X (lanetype_Jnn Jnn_2) (mk_dim M_2))) ->
+		wf_vcvtop__ shape_1 shape_2 (mk_vcvtop___2 Fnn_1 M_1 Jnn_2 M_2 var_x)
+	| vcvtop___case_3 : forall (shape_1 : shape) (shape_2 : shape) (Fnn_1 : Fnn) (M_1 : M) (Fnn_2 : Fnn) (M_2 : M) (var_x : vcvtop__Fnn_1_M_1_Fnn_2_M_2), 
+		(wf_vcvtop__Fnn_1_M_1_Fnn_2_M_2 Fnn_1 M_1 Fnn_2 M_2 var_x) ->
+		(shape_1 == (X (lanetype_Fnn Fnn_1) (mk_dim M_1))) ->
+		(shape_2 == (X (lanetype_Fnn Fnn_2) (mk_dim M_2))) ->
+		wf_vcvtop__ shape_1 shape_2 (mk_vcvtop___3 Fnn_1 M_1 Fnn_2 M_2 var_x).
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
+Definition proj_vcvtop___0 (var_x : vcvtop__) : (option vcvtop__Jnn_1_M_1_Jnn_2_M_2) :=
+	match var_x return (option vcvtop__Jnn_1_M_1_Jnn_2_M_2) with
+		| (mk_vcvtop___0 Jnn_1 M_1 Jnn_2 M_2 var_x) => (Some var_x)
+		| var_x => None
+	end.
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
+Definition proj_vcvtop___1 (var_x : vcvtop__) : (option vcvtop__Jnn_1_M_1_Fnn_2_M_2) :=
+	match var_x return (option vcvtop__Jnn_1_M_1_Fnn_2_M_2) with
+		| (mk_vcvtop___1 Jnn_1 M_1 Fnn_2 M_2 var_x) => (Some var_x)
+		| var_x => None
+	end.
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
+Definition proj_vcvtop___2 (var_x : vcvtop__) : (option vcvtop__Fnn_1_M_1_Jnn_2_M_2) :=
+	match var_x return (option vcvtop__Fnn_1_M_1_Jnn_2_M_2) with
+		| (mk_vcvtop___2 Fnn_1 M_1 Jnn_2 M_2 var_x) => (Some var_x)
+		| var_x => None
+	end.
+
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
+Definition proj_vcvtop___3 (var_x : vcvtop__) : (option vcvtop__Fnn_1_M_1_Fnn_2_M_2) :=
+	match var_x return (option vcvtop__Fnn_1_M_1_Fnn_2_M_2) with
+		| (mk_vcvtop___3 Fnn_1 M_1 Fnn_2 M_2 var_x) => (Some var_x)
+		| var_x => None
+	end.
+
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:394.1-394.25 *)
 Inductive vshiftop_Jnn_N : Type :=
 	| vshiftop_Jnn_N_SHL : vshiftop_Jnn_N
 	| vshiftop_Jnn_N_SHR (v_sx : sx) : vshiftop_Jnn_N.
@@ -2819,7 +2975,7 @@ Definition eqvshiftop_Jnn_NP : Equality.axiom (vshiftop_Jnn_N_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vshiftop_Jnn_N) (eqvshiftop_Jnn_NP).
 Hint Resolve vshiftop_Jnn_N_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:374.1-374.25 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:394.1-394.25 *)
 Inductive vshiftop_ : Type :=
 	| mk_vshiftop__0 (v_Jnn : Jnn) (v_N : res_N) (var_x : vshiftop_Jnn_N) : vshiftop_.
 
@@ -2837,131 +2993,135 @@ Definition eqvshiftop_P : Equality.axiom (vshiftop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vshiftop_) (eqvshiftop_P).
 Hint Resolve vshiftop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:374.8-374.18 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:394.8-394.18 *)
 Inductive wf_vshiftop_ : ishape -> vshiftop_ -> Prop :=
 	| vshiftop__case_0 : forall (v_ishape : ishape) (v_Jnn : Jnn) (v_N : res_N) (var_x : vshiftop_Jnn_N), 
-		(v_ishape == (ishape_X v_Jnn (mk_dim v_N))) ->
+		(v_ishape == (mk_ishape (X (lanetype_Jnn v_Jnn) (mk_dim v_N)))) ->
 		wf_vshiftop_ v_ishape (mk_vshiftop__0 v_Jnn v_N var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:374.1-374.25 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:394.1-394.25 *)
 Definition proj_vshiftop__0 (var_x : vshiftop_) : vshiftop_Jnn_N :=
 	match var_x return vshiftop_Jnn_N with
 		| (mk_vshiftop__0 v_Jnn v_N var_x) => var_x
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:377.1-377.25 *)
-Inductive vextunop_Jnn_N : Type :=
-	| EXTADD_PAIRWISE (v_sx : sx) : vextunop_Jnn_N.
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:397.1-397.59 *)
+Inductive vextunop__Jnn_1_M_1_Jnn_2_M_2 : Type :=
+	| EXTADD_PAIRWISE (v_sx : sx) : vextunop__Jnn_1_M_1_Jnn_2_M_2.
 
-Global Instance Inhabited__vextunop_Jnn_N : Inhabited (vextunop_Jnn_N) := { default_val := EXTADD_PAIRWISE default_val }.
+Global Instance Inhabited__vextunop__Jnn_1_M_1_Jnn_2_M_2 : Inhabited (vextunop__Jnn_1_M_1_Jnn_2_M_2) := { default_val := EXTADD_PAIRWISE default_val }.
 
-Definition vextunop_Jnn_N_eq_dec : forall (v1 v2 : vextunop_Jnn_N),
+Definition vextunop__Jnn_1_M_1_Jnn_2_M_2_eq_dec : forall (v1 v2 : vextunop__Jnn_1_M_1_Jnn_2_M_2),
   {v1 = v2} + {v1 <> v2}.
 Proof. do ? decidable_equality_step. Defined.
 
-Definition vextunop_Jnn_N_eqb (v1 v2 : vextunop_Jnn_N) : bool :=
-	is_left(vextunop_Jnn_N_eq_dec v1 v2).
-Definition eqvextunop_Jnn_NP : Equality.axiom (vextunop_Jnn_N_eqb) :=
-	eq_dec_Equality_axiom (vextunop_Jnn_N) (vextunop_Jnn_N_eq_dec).
+Definition vextunop__Jnn_1_M_1_Jnn_2_M_2_eqb (v1 v2 : vextunop__Jnn_1_M_1_Jnn_2_M_2) : bool :=
+	is_left(vextunop__Jnn_1_M_1_Jnn_2_M_2_eq_dec v1 v2).
+Definition eqvextunop__Jnn_1_M_1_Jnn_2_M_2P : Equality.axiom (vextunop__Jnn_1_M_1_Jnn_2_M_2_eqb) :=
+	eq_dec_Equality_axiom (vextunop__Jnn_1_M_1_Jnn_2_M_2) (vextunop__Jnn_1_M_1_Jnn_2_M_2_eq_dec).
 
-HB.instance Definition _ := hasDecEq.Build (vextunop_Jnn_N) (eqvextunop_Jnn_NP).
-Hint Resolve vextunop_Jnn_N_eq_dec : eq_dec_db.
+HB.instance Definition _ := hasDecEq.Build (vextunop__Jnn_1_M_1_Jnn_2_M_2) (eqvextunop__Jnn_1_M_1_Jnn_2_M_2P).
+Hint Resolve vextunop__Jnn_1_M_1_Jnn_2_M_2_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:377.8-377.18 *)
-Inductive wf_vextunop_Jnn_N : Jnn -> res_N -> vextunop_Jnn_N -> Prop :=
-	| vextunop_Jnn_N_case_0 : forall (v_Jnn : Jnn) (v_N : res_N) (v_sx : sx), 
-		((16%N <=? (lsizenn (lanetype_Jnn v_Jnn)))%BN && ((lsizenn (lanetype_Jnn v_Jnn)) <=? 32%N)%BN) ->
-		wf_vextunop_Jnn_N v_Jnn v_N (EXTADD_PAIRWISE v_sx).
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:397.8-397.19 *)
+Inductive wf_vextunop__Jnn_1_M_1_Jnn_2_M_2 : Jnn -> M -> Jnn -> M -> vextunop__Jnn_1_M_1_Jnn_2_M_2 -> Prop :=
+	| vextunop__Jnn_1_M_1_Jnn_2_M_2_case_0 : forall (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (v_sx : sx), 
+		((16%N <=? (2%N * (lsizenn1 (lanetype_Jnn Jnn_1)))%BN)%BN && (((2%N * (lsizenn1 (lanetype_Jnn Jnn_1)))%BN == (lsizenn2 (lanetype_Jnn Jnn_2))) && ((lsizenn2 (lanetype_Jnn Jnn_2)) <=? 32%N)%BN)) ->
+		wf_vextunop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 (EXTADD_PAIRWISE v_sx).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:377.1-377.25 *)
-Inductive vextunop_ : Type :=
-	| mk_vextunop__0 (v_Jnn : Jnn) (v_N : res_N) (var_x : vextunop_Jnn_N) : vextunop_.
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:397.1-397.59 *)
+Inductive vextunop__ : Type :=
+	| mk_vextunop___0 (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (var_x : vextunop__Jnn_1_M_1_Jnn_2_M_2) : vextunop__.
 
-Global Instance Inhabited__vextunop_ : Inhabited (vextunop_) := { default_val := mk_vextunop__0 default_val default_val default_val }.
+Global Instance Inhabited__vextunop__ : Inhabited (vextunop__) := { default_val := mk_vextunop___0 default_val default_val default_val default_val default_val }.
 
-Definition vextunop__eq_dec : forall (v1 v2 : vextunop_),
+Definition vextunop___eq_dec : forall (v1 v2 : vextunop__),
   {v1 = v2} + {v1 <> v2}.
 Proof. do ? decidable_equality_step. Defined.
 
-Definition vextunop__eqb (v1 v2 : vextunop_) : bool :=
-	is_left(vextunop__eq_dec v1 v2).
-Definition eqvextunop_P : Equality.axiom (vextunop__eqb) :=
-	eq_dec_Equality_axiom (vextunop_) (vextunop__eq_dec).
+Definition vextunop___eqb (v1 v2 : vextunop__) : bool :=
+	is_left(vextunop___eq_dec v1 v2).
+Definition eqvextunop__P : Equality.axiom (vextunop___eqb) :=
+	eq_dec_Equality_axiom (vextunop__) (vextunop___eq_dec).
 
-HB.instance Definition _ := hasDecEq.Build (vextunop_) (eqvextunop_P).
-Hint Resolve vextunop__eq_dec : eq_dec_db.
+HB.instance Definition _ := hasDecEq.Build (vextunop__) (eqvextunop__P).
+Hint Resolve vextunop___eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:377.8-377.18 *)
-Inductive wf_vextunop_ : ishape -> vextunop_ -> Prop :=
-	| vextunop__case_0 : forall (v_ishape : ishape) (v_Jnn : Jnn) (v_N : res_N) (var_x : vextunop_Jnn_N), 
-		(wf_vextunop_Jnn_N v_Jnn v_N var_x) ->
-		(v_ishape == (ishape_X v_Jnn (mk_dim v_N))) ->
-		wf_vextunop_ v_ishape (mk_vextunop__0 v_Jnn v_N var_x).
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:397.8-397.19 *)
+Inductive wf_vextunop__ : ishape -> ishape -> vextunop__ -> Prop :=
+	| vextunop___case_0 : forall (ishape_1 : ishape) (ishape_2 : ishape) (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (var_x : vextunop__Jnn_1_M_1_Jnn_2_M_2), 
+		(wf_vextunop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 var_x) ->
+		(ishape_1 == (mk_ishape (X (lanetype_Jnn Jnn_1) (mk_dim M_1)))) ->
+		(ishape_2 == (mk_ishape (X (lanetype_Jnn Jnn_2) (mk_dim M_2)))) ->
+		wf_vextunop__ ishape_1 ishape_2 (mk_vextunop___0 Jnn_1 M_1 Jnn_2 M_2 var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:377.1-377.25 *)
-Definition proj_vextunop__0 (var_x : vextunop_) : vextunop_Jnn_N :=
-	match var_x return vextunop_Jnn_N with
-		| (mk_vextunop__0 v_Jnn v_N var_x) => var_x
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:397.1-397.59 *)
+Definition proj_vextunop___0 (var_x : vextunop__) : vextunop__Jnn_1_M_1_Jnn_2_M_2 :=
+	match var_x return vextunop__Jnn_1_M_1_Jnn_2_M_2 with
+		| (mk_vextunop___0 Jnn_1 M_1 Jnn_2 M_2 var_x) => var_x
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:380.1-380.26 *)
-Inductive vextbinop_Jnn_N : Type :=
-	| EXTMUL (v_half : half) (v_sx : sx) : vextbinop_Jnn_N
-	| DOTS : vextbinop_Jnn_N.
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.1-401.60 *)
+Inductive vextbinop__Jnn_1_M_1_Jnn_2_M_2 : Type :=
+	| EXTMUL (v_half : half) (v_sx : sx) : vextbinop__Jnn_1_M_1_Jnn_2_M_2
+	| DOTS : vextbinop__Jnn_1_M_1_Jnn_2_M_2.
 
-Global Instance Inhabited__vextbinop_Jnn_N : Inhabited (vextbinop_Jnn_N) := { default_val := EXTMUL default_val default_val }.
+Global Instance Inhabited__vextbinop__Jnn_1_M_1_Jnn_2_M_2 : Inhabited (vextbinop__Jnn_1_M_1_Jnn_2_M_2) := { default_val := EXTMUL default_val default_val }.
 
-Definition vextbinop_Jnn_N_eq_dec : forall (v1 v2 : vextbinop_Jnn_N),
+Definition vextbinop__Jnn_1_M_1_Jnn_2_M_2_eq_dec : forall (v1 v2 : vextbinop__Jnn_1_M_1_Jnn_2_M_2),
   {v1 = v2} + {v1 <> v2}.
 Proof. do ? decidable_equality_step. Defined.
 
-Definition vextbinop_Jnn_N_eqb (v1 v2 : vextbinop_Jnn_N) : bool :=
-	is_left(vextbinop_Jnn_N_eq_dec v1 v2).
-Definition eqvextbinop_Jnn_NP : Equality.axiom (vextbinop_Jnn_N_eqb) :=
-	eq_dec_Equality_axiom (vextbinop_Jnn_N) (vextbinop_Jnn_N_eq_dec).
+Definition vextbinop__Jnn_1_M_1_Jnn_2_M_2_eqb (v1 v2 : vextbinop__Jnn_1_M_1_Jnn_2_M_2) : bool :=
+	is_left(vextbinop__Jnn_1_M_1_Jnn_2_M_2_eq_dec v1 v2).
+Definition eqvextbinop__Jnn_1_M_1_Jnn_2_M_2P : Equality.axiom (vextbinop__Jnn_1_M_1_Jnn_2_M_2_eqb) :=
+	eq_dec_Equality_axiom (vextbinop__Jnn_1_M_1_Jnn_2_M_2) (vextbinop__Jnn_1_M_1_Jnn_2_M_2_eq_dec).
 
-HB.instance Definition _ := hasDecEq.Build (vextbinop_Jnn_N) (eqvextbinop_Jnn_NP).
-Hint Resolve vextbinop_Jnn_N_eq_dec : eq_dec_db.
+HB.instance Definition _ := hasDecEq.Build (vextbinop__Jnn_1_M_1_Jnn_2_M_2) (eqvextbinop__Jnn_1_M_1_Jnn_2_M_2P).
+Hint Resolve vextbinop__Jnn_1_M_1_Jnn_2_M_2_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:380.8-380.19 *)
-Inductive wf_vextbinop_Jnn_N : Jnn -> res_N -> vextbinop_Jnn_N -> Prop :=
-	| vextbinop_Jnn_N_case_0 : forall (v_Jnn : Jnn) (v_N : res_N) (v_half : half) (v_sx : sx), wf_vextbinop_Jnn_N v_Jnn v_N (EXTMUL v_half v_sx)
-	| vextbinop_Jnn_N_case_1 : forall (v_Jnn : Jnn) (v_N : res_N), 
-		((lsizenn (lanetype_Jnn v_Jnn)) == 32%N) ->
-		wf_vextbinop_Jnn_N v_Jnn v_N DOTS.
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.8-401.20 *)
+Inductive wf_vextbinop__Jnn_1_M_1_Jnn_2_M_2 : Jnn -> M -> Jnn -> M -> vextbinop__Jnn_1_M_1_Jnn_2_M_2 -> Prop :=
+	| vextbinop__Jnn_1_M_1_Jnn_2_M_2_case_0 : forall (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (v_half : half) (v_sx : sx), 
+		(((2%N * (lsizenn1 (lanetype_Jnn Jnn_1)))%BN == (lsizenn2 (lanetype_Jnn Jnn_2))) && ((lsizenn2 (lanetype_Jnn Jnn_2)) >=? 16%N)%BN) ->
+		wf_vextbinop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 (EXTMUL v_half v_sx)
+	| vextbinop__Jnn_1_M_1_Jnn_2_M_2_case_1 : forall (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M), 
+		(((2%N * (lsizenn1 (lanetype_Jnn Jnn_1)))%BN == (lsizenn2 (lanetype_Jnn Jnn_2))) && ((lsizenn2 (lanetype_Jnn Jnn_2)) == 32%N)) ->
+		wf_vextbinop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 DOTS.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:380.1-380.26 *)
-Inductive vextbinop_ : Type :=
-	| mk_vextbinop__0 (v_Jnn : Jnn) (v_N : res_N) (var_x : vextbinop_Jnn_N) : vextbinop_.
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.1-401.60 *)
+Inductive vextbinop__ : Type :=
+	| mk_vextbinop___0 (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (var_x : vextbinop__Jnn_1_M_1_Jnn_2_M_2) : vextbinop__.
 
-Global Instance Inhabited__vextbinop_ : Inhabited (vextbinop_) := { default_val := mk_vextbinop__0 default_val default_val default_val }.
+Global Instance Inhabited__vextbinop__ : Inhabited (vextbinop__) := { default_val := mk_vextbinop___0 default_val default_val default_val default_val default_val }.
 
-Definition vextbinop__eq_dec : forall (v1 v2 : vextbinop_),
+Definition vextbinop___eq_dec : forall (v1 v2 : vextbinop__),
   {v1 = v2} + {v1 <> v2}.
 Proof. do ? decidable_equality_step. Defined.
 
-Definition vextbinop__eqb (v1 v2 : vextbinop_) : bool :=
-	is_left(vextbinop__eq_dec v1 v2).
-Definition eqvextbinop_P : Equality.axiom (vextbinop__eqb) :=
-	eq_dec_Equality_axiom (vextbinop_) (vextbinop__eq_dec).
+Definition vextbinop___eqb (v1 v2 : vextbinop__) : bool :=
+	is_left(vextbinop___eq_dec v1 v2).
+Definition eqvextbinop__P : Equality.axiom (vextbinop___eqb) :=
+	eq_dec_Equality_axiom (vextbinop__) (vextbinop___eq_dec).
 
-HB.instance Definition _ := hasDecEq.Build (vextbinop_) (eqvextbinop_P).
-Hint Resolve vextbinop__eq_dec : eq_dec_db.
+HB.instance Definition _ := hasDecEq.Build (vextbinop__) (eqvextbinop__P).
+Hint Resolve vextbinop___eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:380.8-380.19 *)
-Inductive wf_vextbinop_ : ishape -> vextbinop_ -> Prop :=
-	| vextbinop__case_0 : forall (v_ishape : ishape) (v_Jnn : Jnn) (v_N : res_N) (var_x : vextbinop_Jnn_N), 
-		(wf_vextbinop_Jnn_N v_Jnn v_N var_x) ->
-		(v_ishape == (ishape_X v_Jnn (mk_dim v_N))) ->
-		wf_vextbinop_ v_ishape (mk_vextbinop__0 v_Jnn v_N var_x).
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.8-401.20 *)
+Inductive wf_vextbinop__ : ishape -> ishape -> vextbinop__ -> Prop :=
+	| vextbinop___case_0 : forall (ishape_1 : ishape) (ishape_2 : ishape) (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (var_x : vextbinop__Jnn_1_M_1_Jnn_2_M_2), 
+		(wf_vextbinop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 var_x) ->
+		(ishape_1 == (mk_ishape (X (lanetype_Jnn Jnn_1) (mk_dim M_1)))) ->
+		(ishape_2 == (mk_ishape (X (lanetype_Jnn Jnn_2) (mk_dim M_2)))) ->
+		wf_vextbinop__ ishape_1 ishape_2 (mk_vextbinop___0 Jnn_1 M_1 Jnn_2 M_2 var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:380.1-380.26 *)
-Definition proj_vextbinop__0 (var_x : vextbinop_) : vextbinop_Jnn_N :=
-	match var_x return vextbinop_Jnn_N with
-		| (mk_vextbinop__0 v_Jnn v_N var_x) => var_x
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.1-401.60 *)
+Definition proj_vextbinop___0 (var_x : vextbinop__) : vextbinop__Jnn_1_M_1_Jnn_2_M_2 :=
+	match var_x return vextbinop__Jnn_1_M_1_Jnn_2_M_2 with
+		| (mk_vextbinop___0 Jnn_1 M_1 Jnn_2 M_2 var_x) => var_x
 	end.
 
-(* Record Creation Definition at: ../specification/wasm-2.0/1-syntax.spectec:388.1-388.69 *)
+(* Record Creation Definition at: ../specification/wasm-2.0/1-syntax.spectec:411.1-411.69 *)
 Record memarg := MKmemarg
 {	ALIGN : u32
 ;	OFFSET : u32
@@ -2994,14 +3154,14 @@ Definition eqmemargP : Equality.axiom (memarg_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (memarg) (eqmemargP).
 Hint Resolve memarg_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:388.8-388.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:411.8-411.14 *)
 Inductive wf_memarg : memarg -> Prop :=
 	| memarg_case_ : forall (var_0 : u32) (var_1 : u32), 
 		(wf_uN 32%N var_0) ->
 		(wf_uN 32%N var_1) ->
 		wf_memarg {| ALIGN := var_0; OFFSET := var_1 |}.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:392.1-392.24 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:415.1-415.24 *)
 Inductive loadop_Inn : Type :=
 	| mk_loadop_Inn (v_sz : sz) (v_sx : sx) : loadop_Inn.
 
@@ -3019,14 +3179,14 @@ Definition eqloadop_InnP : Equality.axiom (loadop_Inn_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (loadop_Inn) (eqloadop_InnP).
 Hint Resolve loadop_Inn_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:392.8-392.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:415.8-415.16 *)
 Inductive wf_loadop_Inn : Inn -> loadop_Inn -> Prop :=
 	| loadop_Inn_case_0 : forall (v_Inn : Inn) (v_sz : sz) (v_sx : sx), 
 		(wf_sz v_sz) ->
 		((v_sz :> N) <? (sizenn (numtype_Inn v_Inn)))%BN ->
 		wf_loadop_Inn v_Inn (mk_loadop_Inn v_sz v_sx).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:392.1-392.24 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:415.1-415.24 *)
 Inductive loadop_ : Type :=
 	| mk_loadop__0 (v_Inn : Inn) (var_x : loadop_Inn) : loadop_.
 
@@ -3044,20 +3204,20 @@ Definition eqloadop_P : Equality.axiom (loadop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (loadop_) (eqloadop_P).
 Hint Resolve loadop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:392.8-392.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:415.8-415.16 *)
 Inductive wf_loadop_ : numtype -> loadop_ -> Prop :=
 	| loadop__case_0 : forall (v_numtype : numtype) (v_Inn : Inn) (var_x : loadop_Inn), 
 		(wf_loadop_Inn v_Inn var_x) ->
 		(v_numtype == (numtype_Inn v_Inn)) ->
 		wf_loadop_ v_numtype (mk_loadop__0 v_Inn var_x).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:392.1-392.24 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:415.1-415.24 *)
 Definition proj_loadop__0 (var_x : loadop_) : loadop_Inn :=
 	match var_x return loadop_Inn with
 		| (mk_loadop__0 v_Inn var_x) => var_x
 	end.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:395.1-398.61 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:418.1-421.61 *)
 Inductive vloadop_ : Type :=
 	| SHAPEX_ (v_sz : sz) (v_M : M) (v_sx : sx) : vloadop_
 	| SPLAT (v_sz : sz) : vloadop_
@@ -3077,7 +3237,7 @@ Definition eqvloadop_P : Equality.axiom (vloadop__eqb) :=
 HB.instance Definition _ := hasDecEq.Build (vloadop_) (eqvloadop_P).
 Hint Resolve vloadop__eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:395.8-395.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:418.8-418.17 *)
 Inductive wf_vloadop_ : vectype -> vloadop_ -> Prop :=
 	| vloadop__case_0 : forall (v_vectype : vectype) (v_sz : sz) (v_M : M) (v_sx : sx), 
 		(wf_sz v_sz) ->
@@ -3091,7 +3251,7 @@ Inductive wf_vloadop_ : vectype -> vloadop_ -> Prop :=
 		((v_sz :> N) >=? 32%N)%BN ->
 		wf_vloadop_ v_vectype (vloadop__ZERO v_sz).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:405.1-407.17 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:428.1-430.17 *)
 Inductive blocktype : Type :=
 	| _RESULT (valtype_opt : (option valtype)) : blocktype
 	| _IDX (v_typeidx : typeidx) : blocktype.
@@ -3110,14 +3270,14 @@ Definition eqblocktypeP : Equality.axiom (blocktype_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (blocktype) (eqblocktypeP).
 Hint Resolve blocktype_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:405.8-405.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:428.8-428.17 *)
 Inductive wf_blocktype : blocktype -> Prop :=
 	| blocktype_case_0 : forall (valtype_opt : (option valtype)), wf_blocktype (_RESULT valtype_opt)
 	| blocktype_case_1 : forall (v_typeidx : typeidx), 
 		(wf_uN 32%N v_typeidx) ->
 		wf_blocktype (_IDX v_typeidx).
 
-(* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:526.1-527.22 *)
+(* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:545.1-546.22 *)
 Inductive instr : Type :=
 	| NOP : instr
 	| UNREACHABLE : instr
@@ -3155,10 +3315,10 @@ Inductive instr : Type :=
 	| VSPLAT (v_shape : shape) : instr
 	| VEXTRACT_LANE (v_shape : shape) (sx_opt : (option sx)) (v_laneidx : laneidx) : instr
 	| VREPLACE_LANE (v_shape : shape) (v_laneidx : laneidx) : instr
-	| VEXTUNOP (ishape_1 : ishape) (ishape_2 : ishape) (_ : vextunop_) : instr
-	| VEXTBINOP (ishape_1 : ishape) (ishape_2 : ishape) (_ : vextbinop_) : instr
+	| VEXTUNOP (ishape_1 : ishape) (ishape_2 : ishape) (_ : vextunop__) : instr
+	| VEXTBINOP (ishape_1 : ishape) (ishape_2 : ishape) (_ : vextbinop__) : instr
 	| VNARROW (ishape_1 : ishape) (ishape_2 : ishape) (v_sx : sx) : instr
-	| VCVTOP (v_shape : shape) (v_shape : shape) (v_vcvtop : vcvtop) : instr
+	| VCVTOP (shape_1 : shape) (shape_2 : shape) (_ : vcvtop__) : instr
 	| REF_NULL (v_reftype : reftype) : instr
 	| REF_FUNC (v_funcidx : funcidx) : instr
 	| REF_IS_NULL : instr
@@ -3202,7 +3362,7 @@ Definition eqinstrP : Equality.axiom (instr_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (instr) (eqinstrP).
 Hint Resolve instr_eq_dec : eq_dec_db.
 
-(* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:526.1-527.22 *)
+(* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:545.1-546.22 *)
 Inductive wf_instr : instr -> Prop :=
 	| instr_case_0 : wf_instr NOP
 	| instr_case_1 : wf_instr UNREACHABLE
@@ -3292,46 +3452,46 @@ Inductive wf_instr : instr -> Prop :=
 		wf_instr (VBITMASK v_ishape)
 	| instr_case_31 : forall (v_ishape : ishape), 
 		(wf_ishape v_ishape) ->
-		(v_ishape == (ishape_X Jnn_I8 (mk_dim 16%N))) ->
+		(v_ishape == (mk_ishape (X lanetype_I8 (mk_dim 16%N)))) ->
 		wf_instr (VSWIZZLE v_ishape)
 	| instr_case_32 : forall (v_ishape : ishape) (laneidx_lst : (seq laneidx)), 
 		(wf_ishape v_ishape) ->
 		List.Forall (fun (v_laneidx : laneidx) => (wf_uN 8%N v_laneidx)) laneidx_lst ->
-		((v_ishape == (ishape_X Jnn_I8 (mk_dim 16%N))) && ((|laneidx_lst|) == 16%N)) ->
+		((v_ishape == (mk_ishape (X lanetype_I8 (mk_dim 16%N)))) && ((|laneidx_lst|) == 16%N)) ->
 		wf_instr (VSHUFFLE v_ishape laneidx_lst)
 	| instr_case_33 : forall (v_shape : shape), 
 		(wf_shape v_shape) ->
 		wf_instr (VSPLAT v_shape)
-	| instr_case_34 : forall (v_numtype : numtype) (v_shape : shape) (sx_opt : (option sx)) (v_laneidx : laneidx), 
+	| instr_case_34 : forall (v_shape : shape) (sx_opt : (option sx)) (v_laneidx : laneidx), 
 		(wf_shape v_shape) ->
 		(wf_uN 8%N v_laneidx) ->
-		(((fun_lanetype v_shape) == (lanetype_numtype v_numtype)) <-> (sx_opt == None)) ->
+		((|[::lanetype_I32; lanetype_I64; lanetype_F32; lanetype_F64]|) >? 0%N)%BN ->
+		(((fun_lanetype v_shape) \in [::lanetype_I32; lanetype_I64; lanetype_F32; lanetype_F64]) <-> (sx_opt == None)) ->
 		wf_instr (VEXTRACT_LANE v_shape sx_opt v_laneidx)
 	| instr_case_35 : forall (v_shape : shape) (v_laneidx : laneidx), 
 		(wf_shape v_shape) ->
 		(wf_uN 8%N v_laneidx) ->
 		wf_instr (VREPLACE_LANE v_shape v_laneidx)
-	| instr_case_36 : forall (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextunop_), 
+	| instr_case_36 : forall (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextunop__), 
 		(wf_ishape ishape_1) ->
 		(wf_ishape ishape_2) ->
-		(wf_vextunop_ ishape_1 var_0) ->
-		((lsize (fun_lanetype (shape_ishape ishape_1))) == (2%N * (lsize (fun_lanetype (shape_ishape ishape_2))))%BN) ->
+		(wf_vextunop__ ishape_2 ishape_1 var_0) ->
 		wf_instr (VEXTUNOP ishape_1 ishape_2 var_0)
-	| instr_case_37 : forall (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextbinop_), 
+	| instr_case_37 : forall (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextbinop__), 
 		(wf_ishape ishape_1) ->
 		(wf_ishape ishape_2) ->
-		(wf_vextbinop_ ishape_1 var_0) ->
-		((lsize (fun_lanetype (shape_ishape ishape_1))) == (2%N * (lsize (fun_lanetype (shape_ishape ishape_2))))%BN) ->
+		(wf_vextbinop__ ishape_2 ishape_1 var_0) ->
 		wf_instr (VEXTBINOP ishape_1 ishape_2 var_0)
 	| instr_case_38 : forall (ishape_1 : ishape) (ishape_2 : ishape) (v_sx : sx), 
 		(wf_ishape ishape_1) ->
 		(wf_ishape ishape_2) ->
-		(((lsize (fun_lanetype (shape_ishape ishape_2))) == (2%N * (lsize (fun_lanetype (shape_ishape ishape_1))))%BN) && ((2%N * (lsize (fun_lanetype (shape_ishape ishape_1))))%BN <=? 32%N)%BN) ->
+		(((lsize (fun_lanetype (ishape_2 :> shape))) == (2%N * (lsize (fun_lanetype (ishape_1 :> shape))))%BN) && ((2%N * (lsize (fun_lanetype (ishape_1 :> shape))))%BN <=? 32%N)%BN) ->
 		wf_instr (VNARROW ishape_1 ishape_2 v_sx)
-	| instr_case_39 : forall (v_shape : shape) (shape_0 : shape) (v_vcvtop : vcvtop), 
-		(wf_shape v_shape) ->
-		(wf_shape shape_0) ->
-		wf_instr (VCVTOP v_shape shape_0 v_vcvtop)
+	| instr_case_39 : forall (shape_1 : shape) (shape_2 : shape) (var_0 : vcvtop__), 
+		(wf_shape shape_1) ->
+		(wf_shape shape_2) ->
+		(wf_vcvtop__ shape_2 shape_1 var_0) ->
+		wf_instr (VCVTOP shape_1 shape_2 var_0)
 	| instr_case_40 : forall (v_reftype : reftype), wf_instr (REF_NULL v_reftype)
 	| instr_case_41 : forall (v_funcidx : funcidx), 
 		(wf_uN 32%N v_funcidx) ->
@@ -3416,10 +3576,10 @@ Inductive wf_instr : instr -> Prop :=
 		(wf_uN 32%N v_dataidx) ->
 		wf_instr (DATA_DROP v_dataidx).
 
-(* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:530.1-531.9 *)
+(* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:549.1-550.9 *)
 Definition expr : Type := (seq instr).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:543.1-543.59 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:562.1-562.59 *)
 Inductive elemmode : Type :=
 	| ACTIVE (v_tableidx : tableidx) (v_expr : expr) : elemmode
 	| PASSIVE : elemmode
@@ -3439,7 +3599,7 @@ Definition eqelemmodeP : Equality.axiom (elemmode_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (elemmode) (eqelemmodeP).
 Hint Resolve elemmode_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:543.8-543.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:562.8-562.16 *)
 Inductive wf_elemmode : elemmode -> Prop :=
 	| elemmode_case_0 : forall (v_tableidx : tableidx) (v_expr : expr), 
 		(wf_uN 32%N v_tableidx) ->
@@ -3448,7 +3608,7 @@ Inductive wf_elemmode : elemmode -> Prop :=
 	| elemmode_case_1 : wf_elemmode PASSIVE
 	| elemmode_case_2 : wf_elemmode DECLARE.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:544.1-544.47 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:563.1-563.47 *)
 Inductive datamode : Type :=
 	| datamode_ACTIVE (v_memidx : memidx) (v_expr : expr) : datamode
 	| datamode_PASSIVE : datamode.
@@ -3467,7 +3627,7 @@ Definition eqdatamodeP : Equality.axiom (datamode_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (datamode) (eqdatamodeP).
 Hint Resolve datamode_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:544.8-544.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:563.8-563.16 *)
 Inductive wf_datamode : datamode -> Prop :=
 	| datamode_case_0 : forall (v_memidx : memidx) (v_expr : expr), 
 		(wf_uN 32%N v_memidx) ->
@@ -3475,7 +3635,7 @@ Inductive wf_datamode : datamode -> Prop :=
 		wf_datamode (datamode_ACTIVE v_memidx v_expr)
 	| datamode_case_1 : wf_datamode datamode_PASSIVE.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:546.1-547.16 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:565.1-566.16 *)
 Inductive type : Type :=
 	| TYPE (v_functype : functype) : type.
 
@@ -3493,7 +3653,7 @@ Definition eqtypeP : Equality.axiom (type_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (type) (eqtypeP).
 Hint Resolve type_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:548.1-549.16 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:567.1-568.16 *)
 Inductive local : Type :=
 	| LOCAL (v_valtype : valtype) : local.
 
@@ -3511,7 +3671,7 @@ Definition eqlocalP : Equality.axiom (local_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (local) (eqlocalP).
 Hint Resolve local_eq_dec : eq_dec_db.
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:550.1-551.27 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.1-570.27 *)
 Inductive func : Type :=
 	| func_FUNC (v_typeidx : typeidx) (local_lst : (seq local)) (v_expr : expr) : func.
 
@@ -3529,14 +3689,14 @@ Definition eqfuncP : Equality.axiom (func_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (func) (eqfuncP).
 Hint Resolve func_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:550.8-550.12 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.8-569.12 *)
 Inductive wf_func : func -> Prop :=
 	| func_case_0 : forall (v_typeidx : typeidx) (local_lst : (seq local)) (v_expr : expr), 
 		(wf_uN 32%N v_typeidx) ->
 		List.Forall (fun (v_expr : instr) => (wf_instr v_expr)) v_expr ->
 		wf_func (func_FUNC v_typeidx local_lst v_expr).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.25 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:571.1-572.25 *)
 Inductive global : Type :=
 	| global_GLOBAL (v_globaltype : globaltype) (v_expr : expr) : global.
 
@@ -3554,13 +3714,13 @@ Definition eqglobalP : Equality.axiom (global_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (global) (eqglobalP).
 Hint Resolve global_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.8-552.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:571.8-571.14 *)
 Inductive wf_global : global -> Prop :=
 	| global_case_0 : forall (v_globaltype : globaltype) (v_expr : expr), 
 		List.Forall (fun (v_expr : instr) => (wf_instr v_expr)) v_expr ->
 		wf_global (global_GLOBAL v_globaltype v_expr).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:554.1-555.18 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:573.1-574.18 *)
 Inductive table : Type :=
 	| table_TABLE (v_tabletype : tabletype) : table.
 
@@ -3578,13 +3738,13 @@ Definition eqtableP : Equality.axiom (table_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (table) (eqtableP).
 Hint Resolve table_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:554.8-554.13 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:573.8-573.13 *)
 Inductive wf_table : table -> Prop :=
 	| table_case_0 : forall (v_tabletype : tabletype), 
 		(wf_tabletype v_tabletype) ->
 		wf_table (table_TABLE v_tabletype).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:556.1-557.17 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:575.1-576.17 *)
 Inductive mem : Type :=
 	| MEMORY (v_memtype : memtype) : mem.
 
@@ -3602,13 +3762,13 @@ Definition eqmemP : Equality.axiom (mem_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (mem) (eqmemP).
 Hint Resolve mem_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:556.8-556.11 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:575.8-575.11 *)
 Inductive wf_mem : mem -> Prop :=
 	| mem_case_0 : forall (v_memtype : memtype), 
 		(wf_memtype v_memtype) ->
 		wf_mem (MEMORY v_memtype).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:558.1-559.30 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:577.1-578.30 *)
 Inductive elem : Type :=
 	| ELEM (v_reftype : reftype) (expr_lst : (seq expr)) (v_elemmode : elemmode) : elem.
 
@@ -3626,14 +3786,14 @@ Definition eqelemP : Equality.axiom (elem_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (elem) (eqelemP).
 Hint Resolve elem_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:558.8-558.12 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:577.8-577.12 *)
 Inductive wf_elem : elem -> Prop :=
 	| elem_case_0 : forall (v_reftype : reftype) (expr_lst : (seq expr)) (v_elemmode : elemmode), 
 		List.Forall (fun (v_expr : expr) => List.Forall (fun (v_expr : instr) => (wf_instr v_expr)) v_expr) expr_lst ->
 		(wf_elemmode v_elemmode) ->
 		wf_elem (ELEM v_reftype expr_lst v_elemmode).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:560.1-561.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:579.1-580.22 *)
 Inductive data : Type :=
 	| DATA (byte_lst : (seq byte)) (v_datamode : datamode) : data.
 
@@ -3651,14 +3811,14 @@ Definition eqdataP : Equality.axiom (data_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (data) (eqdataP).
 Hint Resolve data_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:560.8-560.12 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:579.8-579.12 *)
 Inductive wf_data : data -> Prop :=
 	| data_case_0 : forall (byte_lst : (seq byte)) (v_datamode : datamode), 
 		List.Forall (fun (v_byte : byte) => (wf_byte v_byte)) byte_lst ->
 		(wf_datamode v_datamode) ->
 		wf_data (DATA byte_lst v_datamode).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:562.1-563.16 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:581.1-582.16 *)
 Inductive start : Type :=
 	| START (v_funcidx : funcidx) : start.
 
@@ -3676,13 +3836,13 @@ Definition eqstartP : Equality.axiom (start_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (start) (eqstartP).
 Hint Resolve start_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:562.8-562.13 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:581.8-581.13 *)
 Inductive wf_start : start -> Prop :=
 	| start_case_0 : forall (v_funcidx : funcidx), 
 		(wf_uN 32%N v_funcidx) ->
 		wf_start (START v_funcidx).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:565.1-566.66 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:584.1-585.66 *)
 Inductive externidx : Type :=
 	| externidx_FUNC (v_funcidx : funcidx) : externidx
 	| externidx_GLOBAL (v_globalidx : globalidx) : externidx
@@ -3703,7 +3863,7 @@ Definition eqexternidxP : Equality.axiom (externidx_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (externidx) (eqexternidxP).
 Hint Resolve externidx_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:565.8-565.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:584.8-584.17 *)
 Inductive wf_externidx : externidx -> Prop :=
 	| externidx_case_0 : forall (v_funcidx : funcidx), 
 		(wf_uN 32%N v_funcidx) ->
@@ -3718,7 +3878,7 @@ Inductive wf_externidx : externidx -> Prop :=
 		(wf_uN 32%N v_memidx) ->
 		wf_externidx (externidx_MEM v_memidx).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:567.1-568.24 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:586.1-587.24 *)
 Inductive export : Type :=
 	| EXPORT (v_name : name) (v_externidx : externidx) : export.
 
@@ -3736,14 +3896,14 @@ Definition eqexportP : Equality.axiom (export_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (export) (eqexportP).
 Hint Resolve export_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:567.8-567.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:586.8-586.14 *)
 Inductive wf_export : export -> Prop :=
 	| export_case_0 : forall (v_name : name) (v_externidx : externidx), 
 		(wf_name v_name) ->
 		(wf_externidx v_externidx) ->
 		wf_export (EXPORT v_name v_externidx).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.1-570.30 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:588.1-589.30 *)
 Inductive import : Type :=
 	| IMPORT (v_name : name) (v_name : name) (v_externtype : externtype) : import.
 
@@ -3761,7 +3921,7 @@ Definition eqimportP : Equality.axiom (import_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (import) (eqimportP).
 Hint Resolve import_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.8-569.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:588.8-588.14 *)
 Inductive wf_import : import -> Prop :=
 	| import_case_0 : forall (v_name : name) (name_0 : name) (v_externtype : externtype), 
 		(wf_name v_name) ->
@@ -3769,7 +3929,7 @@ Inductive wf_import : import -> Prop :=
 		(wf_externtype v_externtype) ->
 		wf_import (IMPORT v_name name_0 v_externtype).
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:572.1-573.76 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:591.1-592.76 *)
 Inductive module : Type :=
 	| MODULE (type_lst : (seq type)) (import_lst : (seq import)) (func_lst : (seq func)) (global_lst : (seq global)) (table_lst : (seq table)) (mem_lst : (seq mem)) (elem_lst : (seq elem)) (data_lst : (seq data)) (start_opt : (option start)) (export_lst : (seq export)) : module.
 
@@ -3787,7 +3947,7 @@ Definition eqmoduleP : Equality.axiom (module_eqb) :=
 HB.instance Definition _ := hasDecEq.Build (module) (eqmoduleP).
 Hint Resolve module_eq_dec : eq_dec_db.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:572.8-572.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:591.8-591.14 *)
 Inductive wf_module : module -> Prop :=
 	| module_case_0 : forall (type_lst : (seq type)) (import_lst : (seq import)) (func_lst : (seq func)) (global_lst : (seq global)) (table_lst : (seq table)) (mem_lst : (seq mem)) (elem_lst : (seq elem)) (data_lst : (seq data)) (start_opt : (option start)) (export_lst : (seq export)), 
 		List.Forall (fun (v_import : import) => (wf_import v_import)) import_lst ->
@@ -5975,25 +6135,663 @@ Lemma inv_lanes__is_wf : forall (v_shape : shape) (var_0_lst : (seq lane_)) (ret
 	(wf_uN 128%N ret_val).
 Proof. Admitted.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:345.1-345.28 *)
-Definition zeroop (v_vcvtop : vcvtop) : (option zero) :=
-	match v_vcvtop return (option zero) with
-		| (vcvtop_EXTEND v_half v_sx) => None
-		| (vcvtop_CONVERT half_opt v_sx) => None
-		| (vcvtop_TRUNC_SAT v_sx zero_opt) => zero_opt
-		| (vcvtop_DEMOTE v_zero) => (Some v_zero)
-		| PROMOTELOW => None
-	end.
+(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:345.6-345.13 *)
+Inductive fun_zeroop_before_fun_zeroop_case_40 : shape -> shape -> vcvtop__ -> Prop :=
+	| fun_zeroop_case_39 : forall (M_1 : N) (M_2 : N) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 PROMOTELOW)
+	| fun_zeroop_case_38 : forall (M_1 : N) (M_2 : N) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 PROMOTELOW)
+	| fun_zeroop_case_37 : forall (M_1 : N) (M_2 : N) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 PROMOTELOW)
+	| fun_zeroop_case_36 : forall (M_1 : N) (M_2 : N) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 PROMOTELOW)
+	| fun_zeroop_case_35 : forall (M_1 : N) (M_2 : N) (v_zero : zero) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))
+	| fun_zeroop_case_34 : forall (M_1 : N) (M_2 : N) (v_zero : zero) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))
+	| fun_zeroop_case_33 : forall (M_1 : N) (M_2 : N) (v_zero : zero) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))
+	| fun_zeroop_case_32 : forall (M_1 : N) (M_2 : N) (v_zero : zero) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))
+	| fun_zeroop_case_31 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))
+	| fun_zeroop_case_30 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))
+	| fun_zeroop_case_29 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))
+	| fun_zeroop_case_28 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))
+	| fun_zeroop_case_27 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))
+	| fun_zeroop_case_26 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))
+	| fun_zeroop_case_25 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))
+	| fun_zeroop_case_24 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))
+	| fun_zeroop_case_23 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))
+	| fun_zeroop_case_22 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))
+	| fun_zeroop_case_21 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))
+	| fun_zeroop_case_20 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))
+	| fun_zeroop_case_19 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))
+	| fun_zeroop_case_18 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))
+	| fun_zeroop_case_17 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))
+	| fun_zeroop_case_16 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))
+	| fun_zeroop_case_15 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_zeroop_case_14 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_zeroop_case_13 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_zeroop_case_12 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_zeroop_case_11 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_zeroop_case_10 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_zeroop_case_9 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_zeroop_case_8 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_zeroop_case_7 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_zeroop_case_6 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_zeroop_case_5 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_zeroop_case_4 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_zeroop_case_3 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_zeroop_case_2 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_zeroop_case_1 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_zeroop_case_0 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)).
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:352.1-352.28 *)
-Definition halfop (v_vcvtop : vcvtop) : (option half) :=
-	match v_vcvtop return (option half) with
-		| (vcvtop_EXTEND v_half v_sx) => (Some v_half)
-		| (vcvtop_CONVERT half_opt v_sx) => half_opt
-		| (vcvtop_TRUNC_SAT v_sx zero_opt) => None
-		| (vcvtop_DEMOTE v_zero) => None
-		| PROMOTELOW => (Some LOW)
-	end.
+(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:345.6-345.13 *)
+Inductive fun_zeroop : shape -> shape -> vcvtop__ -> (option (option zero)) -> Prop :=
+	| fun_zeroop__fun_zeroop_case_0 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_1 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_2 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I8 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_3 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I16 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_4 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_5 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_6 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I8 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_7 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I16 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_8 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_9 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_10 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I8 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_11 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I16 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_12 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_13 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_14 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I8 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_15 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I16 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_16 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_17 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_18 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I8 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_19 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I16 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_20 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_21 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_22 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I8 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_23 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_I16 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (Some None)
+	| fun_zeroop__fun_zeroop_case_24 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)
+	| fun_zeroop__fun_zeroop_case_25 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)
+	| fun_zeroop__fun_zeroop_case_26 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)
+	| fun_zeroop__fun_zeroop_case_27 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)
+	| fun_zeroop__fun_zeroop_case_28 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)
+	| fun_zeroop__fun_zeroop_case_29 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)
+	| fun_zeroop__fun_zeroop_case_30 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)
+	| fun_zeroop__fun_zeroop_case_31 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)
+	| fun_zeroop__fun_zeroop_case_32 : forall (M_1 : N) (M_2 : N) (v_zero : zero) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some (Some v_zero))
+	| fun_zeroop__fun_zeroop_case_33 : forall (M_1 : N) (M_2 : N) (v_zero : zero) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some (Some v_zero))
+	| fun_zeroop__fun_zeroop_case_34 : forall (M_1 : N) (M_2 : N) (v_zero : zero) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some (Some v_zero))
+	| fun_zeroop__fun_zeroop_case_35 : forall (M_1 : N) (M_2 : N) (v_zero : zero) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some (Some v_zero))
+	| fun_zeroop__fun_zeroop_case_36 : forall (M_1 : N) (M_2 : N) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 PROMOTELOW) (Some None)
+	| fun_zeroop__fun_zeroop_case_37 : forall (M_1 : N) (M_2 : N) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 PROMOTELOW) (Some None)
+	| fun_zeroop__fun_zeroop_case_38 : forall (M_1 : N) (M_2 : N) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 PROMOTELOW) (Some None)
+	| fun_zeroop__fun_zeroop_case_39 : forall (M_1 : N) (M_2 : N) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 PROMOTELOW) (Some None)
+	| fun_zeroop_case_40 : forall (x0 : shape) (x1 : shape) (x2 : vcvtop__), 
+		(~(fun_zeroop_before_fun_zeroop_case_40 x0 x1 x2)) ->
+		fun_zeroop x0 x1 x2 None.
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:352.6-352.13 *)
+Inductive fun_halfop_before_fun_halfop_case_40 : shape -> shape -> vcvtop__ -> Prop :=
+	| fun_halfop_case_39 : forall (M_1 : N) (M_2 : N) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 PROMOTELOW)
+	| fun_halfop_case_38 : forall (M_1 : N) (M_2 : N) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 PROMOTELOW)
+	| fun_halfop_case_37 : forall (M_1 : N) (M_2 : N) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 PROMOTELOW)
+	| fun_halfop_case_36 : forall (M_1 : N) (M_2 : N) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 PROMOTELOW)
+	| fun_halfop_case_35 : forall (M_1 : N) (M_2 : N) (v_zero : zero) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))
+	| fun_halfop_case_34 : forall (M_1 : N) (M_2 : N) (v_zero : zero) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))
+	| fun_halfop_case_33 : forall (M_1 : N) (M_2 : N) (v_zero : zero) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))
+	| fun_halfop_case_32 : forall (M_1 : N) (M_2 : N) (v_zero : zero) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))
+	| fun_halfop_case_31 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))
+	| fun_halfop_case_30 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))
+	| fun_halfop_case_29 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))
+	| fun_halfop_case_28 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))
+	| fun_halfop_case_27 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))
+	| fun_halfop_case_26 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))
+	| fun_halfop_case_25 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))
+	| fun_halfop_case_24 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))
+	| fun_halfop_case_23 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))
+	| fun_halfop_case_22 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))
+	| fun_halfop_case_21 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))
+	| fun_halfop_case_20 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))
+	| fun_halfop_case_19 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))
+	| fun_halfop_case_18 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))
+	| fun_halfop_case_17 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))
+	| fun_halfop_case_16 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))
+	| fun_halfop_case_15 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_halfop_case_14 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_halfop_case_13 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_halfop_case_12 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_halfop_case_11 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_halfop_case_10 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_halfop_case_9 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_halfop_case_8 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_halfop_case_7 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_halfop_case_6 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_halfop_case_5 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_halfop_case_4 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_halfop_case_3 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_halfop_case_2 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_halfop_case_1 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))
+	| fun_halfop_case_0 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop_before_fun_halfop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)).
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:352.6-352.13 *)
+Inductive fun_halfop : shape -> shape -> vcvtop__ -> (option (option half)) -> Prop :=
+	| fun_halfop__fun_halfop_case_0 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some (Some v_half))
+	| fun_halfop__fun_halfop_case_1 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some (Some v_half))
+	| fun_halfop__fun_halfop_case_2 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I8 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some (Some v_half))
+	| fun_halfop__fun_halfop_case_3 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I16 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some (Some v_half))
+	| fun_halfop__fun_halfop_case_4 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some (Some v_half))
+	| fun_halfop__fun_halfop_case_5 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some (Some v_half))
+	| fun_halfop__fun_halfop_case_6 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I8 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some (Some v_half))
+	| fun_halfop__fun_halfop_case_7 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I16 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some (Some v_half))
+	| fun_halfop__fun_halfop_case_8 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some (Some v_half))
+	| fun_halfop__fun_halfop_case_9 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some (Some v_half))
+	| fun_halfop__fun_halfop_case_10 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I8 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some (Some v_half))
+	| fun_halfop__fun_halfop_case_11 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I16 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some (Some v_half))
+	| fun_halfop__fun_halfop_case_12 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some (Some v_half))
+	| fun_halfop__fun_halfop_case_13 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some (Some v_half))
+	| fun_halfop__fun_halfop_case_14 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I8 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some (Some v_half))
+	| fun_halfop__fun_halfop_case_15 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I16 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (Some (Some v_half))
+	| fun_halfop__fun_halfop_case_16 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (Some half_opt)
+	| fun_halfop__fun_halfop_case_17 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (Some half_opt)
+	| fun_halfop__fun_halfop_case_18 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I8 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (Some half_opt)
+	| fun_halfop__fun_halfop_case_19 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I16 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (Some half_opt)
+	| fun_halfop__fun_halfop_case_20 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (Some half_opt)
+	| fun_halfop__fun_halfop_case_21 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (Some half_opt)
+	| fun_halfop__fun_halfop_case_22 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I8 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (Some half_opt)
+	| fun_halfop__fun_halfop_case_23 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_I16 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (Some half_opt)
+	| fun_halfop__fun_halfop_case_24 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)
+	| fun_halfop__fun_halfop_case_25 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)
+	| fun_halfop__fun_halfop_case_26 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)
+	| fun_halfop__fun_halfop_case_27 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)
+	| fun_halfop__fun_halfop_case_28 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)
+	| fun_halfop__fun_halfop_case_29 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)
+	| fun_halfop__fun_halfop_case_30 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)
+	| fun_halfop__fun_halfop_case_31 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)
+	| fun_halfop__fun_halfop_case_32 : forall (M_1 : N) (M_2 : N) (v_zero : zero) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some None)
+	| fun_halfop__fun_halfop_case_33 : forall (M_1 : N) (M_2 : N) (v_zero : zero) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some None)
+	| fun_halfop__fun_halfop_case_34 : forall (M_1 : N) (M_2 : N) (v_zero : zero) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some None)
+	| fun_halfop__fun_halfop_case_35 : forall (M_1 : N) (M_2 : N) (v_zero : zero) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some None)
+	| fun_halfop__fun_halfop_case_36 : forall (M_1 : N) (M_2 : N) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 PROMOTELOW) (Some (Some LOW))
+	| fun_halfop__fun_halfop_case_37 : forall (M_1 : N) (M_2 : N) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 PROMOTELOW) (Some (Some LOW))
+	| fun_halfop__fun_halfop_case_38 : forall (M_1 : N) (M_2 : N) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 PROMOTELOW) (Some (Some LOW))
+	| fun_halfop__fun_halfop_case_39 : forall (M_1 : N) (M_2 : N) (M_1_0 : N) (M_2_0 : N), 
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 PROMOTELOW) (Some (Some LOW))
+	| fun_halfop_case_40 : forall (x0 : shape) (x1 : shape) (x2 : vcvtop__), 
+		(~(fun_halfop_before_fun_halfop_case_40 x0 x1 x2)) ->
+		fun_halfop x0 x1 x2 None.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:359.1-359.32 *)
 Definition fun_half (v_half : half) (res_nat : N) (nat_0 : N) : N :=
@@ -9735,130 +10533,387 @@ Proof.
 					end) ] ]) ].
 Qed.
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:385.1-386.41 *)
-Definition vcvtop__ (shape_1 : shape) (shape_2 : shape) (v_vcvtop : vcvtop) (v_lane_ : lane_) : (option (seq lane_)) :=
-	match shape_1, shape_2, v_vcvtop, v_lane_ return (option (seq lane_)) with
-		| (X lanetype_I32 (mk_dim M_1)), (X lanetype_I32 (mk_dim M_2)), (vcvtop_EXTEND v_half v_sx), (mk_lane__0 Jnn_I32 iN_1) => 
-			let iN_2 := (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1) in 
-			(Some [::(mk_lane__0 Jnn_I32 iN_2)])
-		| (X lanetype_I64 (mk_dim M_1)), (X lanetype_I32 (mk_dim M_2)), (vcvtop_EXTEND v_half v_sx), (mk_lane__0 Jnn_I64 iN_1) => 
-			let iN_2 := (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1) in 
-			(Some [::(mk_lane__0 Jnn_I32 iN_2)])
-		| (X lanetype_I8 (mk_dim M_1)), (X lanetype_I32 (mk_dim M_2)), (vcvtop_EXTEND v_half v_sx), (mk_lane__0 Jnn_I8 iN_1) => 
-			let iN_2 := (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1) in 
-			(Some [::(mk_lane__0 Jnn_I32 iN_2)])
-		| (X lanetype_I16 (mk_dim M_1)), (X lanetype_I32 (mk_dim M_2)), (vcvtop_EXTEND v_half v_sx), (mk_lane__0 Jnn_I16 iN_1) => 
-			let iN_2 := (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1) in 
-			(Some [::(mk_lane__0 Jnn_I32 iN_2)])
-		| (X lanetype_I32 (mk_dim M_1)), (X lanetype_I64 (mk_dim M_2)), (vcvtop_EXTEND v_half v_sx), (mk_lane__0 Jnn_I32 iN_1) => 
-			let iN_2 := (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1) in 
-			(Some [::(mk_lane__0 Jnn_I64 iN_2)])
-		| (X lanetype_I64 (mk_dim M_1)), (X lanetype_I64 (mk_dim M_2)), (vcvtop_EXTEND v_half v_sx), (mk_lane__0 Jnn_I64 iN_1) => 
-			let iN_2 := (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1) in 
-			(Some [::(mk_lane__0 Jnn_I64 iN_2)])
-		| (X lanetype_I8 (mk_dim M_1)), (X lanetype_I64 (mk_dim M_2)), (vcvtop_EXTEND v_half v_sx), (mk_lane__0 Jnn_I8 iN_1) => 
-			let iN_2 := (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1) in 
-			(Some [::(mk_lane__0 Jnn_I64 iN_2)])
-		| (X lanetype_I16 (mk_dim M_1)), (X lanetype_I64 (mk_dim M_2)), (vcvtop_EXTEND v_half v_sx), (mk_lane__0 Jnn_I16 iN_1) => 
-			let iN_2 := (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1) in 
-			(Some [::(mk_lane__0 Jnn_I64 iN_2)])
-		| (X lanetype_I32 (mk_dim M_1)), (X lanetype_I8 (mk_dim M_2)), (vcvtop_EXTEND v_half v_sx), (mk_lane__0 Jnn_I32 iN_1) => 
-			let iN_2 := (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1) in 
-			(Some [::(mk_lane__0 Jnn_I8 iN_2)])
-		| (X lanetype_I64 (mk_dim M_1)), (X lanetype_I8 (mk_dim M_2)), (vcvtop_EXTEND v_half v_sx), (mk_lane__0 Jnn_I64 iN_1) => 
-			let iN_2 := (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1) in 
-			(Some [::(mk_lane__0 Jnn_I8 iN_2)])
-		| (X lanetype_I8 (mk_dim M_1)), (X lanetype_I8 (mk_dim M_2)), (vcvtop_EXTEND v_half v_sx), (mk_lane__0 Jnn_I8 iN_1) => 
-			let iN_2 := (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1) in 
-			(Some [::(mk_lane__0 Jnn_I8 iN_2)])
-		| (X lanetype_I16 (mk_dim M_1)), (X lanetype_I8 (mk_dim M_2)), (vcvtop_EXTEND v_half v_sx), (mk_lane__0 Jnn_I16 iN_1) => 
-			let iN_2 := (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1) in 
-			(Some [::(mk_lane__0 Jnn_I8 iN_2)])
-		| (X lanetype_I32 (mk_dim M_1)), (X lanetype_I16 (mk_dim M_2)), (vcvtop_EXTEND v_half v_sx), (mk_lane__0 Jnn_I32 iN_1) => 
-			let iN_2 := (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1) in 
-			(Some [::(mk_lane__0 Jnn_I16 iN_2)])
-		| (X lanetype_I64 (mk_dim M_1)), (X lanetype_I16 (mk_dim M_2)), (vcvtop_EXTEND v_half v_sx), (mk_lane__0 Jnn_I64 iN_1) => 
-			let iN_2 := (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1) in 
-			(Some [::(mk_lane__0 Jnn_I16 iN_2)])
-		| (X lanetype_I8 (mk_dim M_1)), (X lanetype_I16 (mk_dim M_2)), (vcvtop_EXTEND v_half v_sx), (mk_lane__0 Jnn_I8 iN_1) => 
-			let iN_2 := (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1) in 
-			(Some [::(mk_lane__0 Jnn_I16 iN_2)])
-		| (X lanetype_I16 (mk_dim M_1)), (X lanetype_I16 (mk_dim M_2)), (vcvtop_EXTEND v_half v_sx), (mk_lane__0 Jnn_I16 iN_1) => 
-			let iN_2 := (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1) in 
-			(Some [::(mk_lane__0 Jnn_I16 iN_2)])
-		| (X lanetype_I32 (mk_dim M_1)), (X lanetype_F32 (mk_dim M_2)), (vcvtop_CONVERT half_opt v_sx), (mk_lane__0 Jnn_I32 iN_1) => 
-			let fN_2 := (convert__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1) in 
-			(Some [::(mk_lane__1 Fnn_F32 fN_2)])
-		| (X lanetype_I64 (mk_dim M_1)), (X lanetype_F32 (mk_dim M_2)), (vcvtop_CONVERT half_opt v_sx), (mk_lane__0 Jnn_I64 iN_1) => 
-			let fN_2 := (convert__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1) in 
-			(Some [::(mk_lane__1 Fnn_F32 fN_2)])
-		| (X lanetype_I8 (mk_dim M_1)), (X lanetype_F32 (mk_dim M_2)), (vcvtop_CONVERT half_opt v_sx), (mk_lane__0 Jnn_I8 iN_1) => 
-			let fN_2 := (convert__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1) in 
-			(Some [::(mk_lane__1 Fnn_F32 fN_2)])
-		| (X lanetype_I16 (mk_dim M_1)), (X lanetype_F32 (mk_dim M_2)), (vcvtop_CONVERT half_opt v_sx), (mk_lane__0 Jnn_I16 iN_1) => 
-			let fN_2 := (convert__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1) in 
-			(Some [::(mk_lane__1 Fnn_F32 fN_2)])
-		| (X lanetype_I32 (mk_dim M_1)), (X lanetype_F64 (mk_dim M_2)), (vcvtop_CONVERT half_opt v_sx), (mk_lane__0 Jnn_I32 iN_1) => 
-			let fN_2 := (convert__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1) in 
-			(Some [::(mk_lane__1 Fnn_F64 fN_2)])
-		| (X lanetype_I64 (mk_dim M_1)), (X lanetype_F64 (mk_dim M_2)), (vcvtop_CONVERT half_opt v_sx), (mk_lane__0 Jnn_I64 iN_1) => 
-			let fN_2 := (convert__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1) in 
-			(Some [::(mk_lane__1 Fnn_F64 fN_2)])
-		| (X lanetype_I8 (mk_dim M_1)), (X lanetype_F64 (mk_dim M_2)), (vcvtop_CONVERT half_opt v_sx), (mk_lane__0 Jnn_I8 iN_1) => 
-			let fN_2 := (convert__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1) in 
-			(Some [::(mk_lane__1 Fnn_F64 fN_2)])
-		| (X lanetype_I16 (mk_dim M_1)), (X lanetype_F64 (mk_dim M_2)), (vcvtop_CONVERT half_opt v_sx), (mk_lane__0 Jnn_I16 iN_1) => 
-			let fN_2 := (convert__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1) in 
-			(Some [::(mk_lane__1 Fnn_F64 fN_2)])
-		| (X lanetype_F32 (mk_dim M_1)), (X lanetype_I32 (mk_dim M_2)), (vcvtop_TRUNC_SAT v_sx zero_opt), (mk_lane__1 Fnn_F32 fN_1) => 
-			let iN_2_opt := (trunc_sat__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Inn Inn_I32)) v_sx fN_1) in 
-			(Some (list_ lane_ (option_map (fun (iN_2_2 : iN) => (mk_lane__0 (Jnn_Inn Inn_I32) iN_2_2)) iN_2_opt)))
-		| (X lanetype_F64 (mk_dim M_1)), (X lanetype_I32 (mk_dim M_2)), (vcvtop_TRUNC_SAT v_sx zero_opt), (mk_lane__1 Fnn_F64 fN_1) => 
-			let iN_2_opt := (trunc_sat__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Inn Inn_I32)) v_sx fN_1) in 
-			(Some (list_ lane_ (option_map (fun (iN_2_4 : iN) => (mk_lane__0 (Jnn_Inn Inn_I32) iN_2_4)) iN_2_opt)))
-		| (X lanetype_F32 (mk_dim M_1)), (X lanetype_I64 (mk_dim M_2)), (vcvtop_TRUNC_SAT v_sx zero_opt), (mk_lane__1 Fnn_F32 fN_1) => 
-			let iN_2_opt := (trunc_sat__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Inn Inn_I64)) v_sx fN_1) in 
-			(Some (list_ lane_ (option_map (fun (iN_2_6 : iN) => (mk_lane__0 (Jnn_Inn Inn_I64) iN_2_6)) iN_2_opt)))
-		| (X lanetype_F64 (mk_dim M_1)), (X lanetype_I64 (mk_dim M_2)), (vcvtop_TRUNC_SAT v_sx zero_opt), (mk_lane__1 Fnn_F64 fN_1) => 
-			let iN_2_opt := (trunc_sat__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Inn Inn_I64)) v_sx fN_1) in 
-			(Some (list_ lane_ (option_map (fun (iN_2_8 : iN) => (mk_lane__0 (Jnn_Inn Inn_I64) iN_2_8)) iN_2_opt)))
-		| (X lanetype_F32 (mk_dim M_1)), (X lanetype_F32 (mk_dim M_2)), (vcvtop_DEMOTE ZERO), (mk_lane__1 Fnn_F32 fN_1) => 
-			let fN_2_lst := (demote__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1) in 
-			(Some (seq.map (fun (fN_2_2 : fN) => (mk_lane__1 Fnn_F32 fN_2_2)) fN_2_lst))
-		| (X lanetype_F64 (mk_dim M_1)), (X lanetype_F32 (mk_dim M_2)), (vcvtop_DEMOTE ZERO), (mk_lane__1 Fnn_F64 fN_1) => 
-			let fN_2_lst := (demote__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1) in 
-			(Some (seq.map (fun (fN_2_4 : fN) => (mk_lane__1 Fnn_F32 fN_2_4)) fN_2_lst))
-		| (X lanetype_F32 (mk_dim M_1)), (X lanetype_F64 (mk_dim M_2)), (vcvtop_DEMOTE ZERO), (mk_lane__1 Fnn_F32 fN_1) => 
-			let fN_2_lst := (demote__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1) in 
-			(Some (seq.map (fun (fN_2_6 : fN) => (mk_lane__1 Fnn_F64 fN_2_6)) fN_2_lst))
-		| (X lanetype_F64 (mk_dim M_1)), (X lanetype_F64 (mk_dim M_2)), (vcvtop_DEMOTE ZERO), (mk_lane__1 Fnn_F64 fN_1) => 
-			let fN_2_lst := (demote__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1) in 
-			(Some (seq.map (fun (fN_2_8 : fN) => (mk_lane__1 Fnn_F64 fN_2_8)) fN_2_lst))
-		| (X lanetype_F32 (mk_dim M_1)), (X lanetype_F32 (mk_dim M_2)), PROMOTELOW, (mk_lane__1 Fnn_F32 fN_1) => 
-			let fN_2_lst := (promote__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1) in 
-			(Some (seq.map (fun (fN_2_10 : fN) => (mk_lane__1 Fnn_F32 fN_2_10)) fN_2_lst))
-		| (X lanetype_F64 (mk_dim M_1)), (X lanetype_F32 (mk_dim M_2)), PROMOTELOW, (mk_lane__1 Fnn_F64 fN_1) => 
-			let fN_2_lst := (promote__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1) in 
-			(Some (seq.map (fun (fN_2_12 : fN) => (mk_lane__1 Fnn_F32 fN_2_12)) fN_2_lst))
-		| (X lanetype_F32 (mk_dim M_1)), (X lanetype_F64 (mk_dim M_2)), PROMOTELOW, (mk_lane__1 Fnn_F32 fN_1) => 
-			let fN_2_lst := (promote__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1) in 
-			(Some (seq.map (fun (fN_2_14 : fN) => (mk_lane__1 Fnn_F64 fN_2_14)) fN_2_lst))
-		| (X lanetype_F64 (mk_dim M_1)), (X lanetype_F64 (mk_dim M_2)), PROMOTELOW, (mk_lane__1 Fnn_F64 fN_1) => 
-			let fN_2_lst := (promote__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1) in 
-			(Some (seq.map (fun (fN_2_16 : fN) => (mk_lane__1 Fnn_F64 fN_2_16)) fN_2_lst))
-		| x0, x1, x2, x3 => None
-	end.
+(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:385.6-385.15 *)
+Inductive fun_vcvtop___before_fun_vcvtop___case_36 : shape -> shape -> vcvtop__ -> lane_ -> Prop :=
+	| fun_vcvtop___case_35 : forall (M_1 : N) (M_2 : N) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (fN_2_lst : (seq fN)), 
+		(fN_2_lst == (promote__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 PROMOTELOW) (mk_lane__1 Fnn_F64 fN_1)
+	| fun_vcvtop___case_34 : forall (M_1 : N) (M_2 : N) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (fN_2_lst : (seq fN)), 
+		(fN_2_lst == (promote__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 PROMOTELOW) (mk_lane__1 Fnn_F32 fN_1)
+	| fun_vcvtop___case_33 : forall (M_1 : N) (M_2 : N) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (fN_2_lst : (seq fN)), 
+		(fN_2_lst == (promote__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 PROMOTELOW) (mk_lane__1 Fnn_F64 fN_1)
+	| fun_vcvtop___case_32 : forall (M_1 : N) (M_2 : N) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (fN_2_lst : (seq fN)), 
+		(fN_2_lst == (promote__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 PROMOTELOW) (mk_lane__1 Fnn_F32 fN_1)
+	| fun_vcvtop___case_31 : forall (M_1 : N) (M_2 : N) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (fN_2_lst : (seq fN)), 
+		(fN_2_lst == (demote__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE ZERO)) (mk_lane__1 Fnn_F64 fN_1)
+	| fun_vcvtop___case_30 : forall (M_1 : N) (M_2 : N) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (fN_2_lst : (seq fN)), 
+		(fN_2_lst == (demote__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE ZERO)) (mk_lane__1 Fnn_F32 fN_1)
+	| fun_vcvtop___case_29 : forall (M_1 : N) (M_2 : N) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (fN_2_lst : (seq fN)), 
+		(fN_2_lst == (demote__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE ZERO)) (mk_lane__1 Fnn_F64 fN_1)
+	| fun_vcvtop___case_28 : forall (M_1 : N) (M_2 : N) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (fN_2_lst : (seq fN)), 
+		(fN_2_lst == (demote__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE ZERO)) (mk_lane__1 Fnn_F32 fN_1)
+	| fun_vcvtop___case_27 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (iN_2_opt : (option iN)), 
+		(iN_2_opt == (trunc_sat__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Inn Inn_I64)) v_sx fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F64 fN_1)
+	| fun_vcvtop___case_26 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (iN_2_opt : (option iN)), 
+		(iN_2_opt == (trunc_sat__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Inn Inn_I64)) v_sx fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F32 fN_1)
+	| fun_vcvtop___case_25 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (iN_2_opt : (option iN)), 
+		(iN_2_opt == (trunc_sat__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Inn Inn_I32)) v_sx fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F64 fN_1)
+	| fun_vcvtop___case_24 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (iN_2_opt : (option iN)), 
+		(iN_2_opt == (trunc_sat__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Inn Inn_I32)) v_sx fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F32 fN_1)
+	| fun_vcvtop___case_23 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (fN_2 : fN), 
+		(fN_2 == (convert__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (mk_lane__0 Jnn_I16 iN_1)
+	| fun_vcvtop___case_22 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (fN_2 : fN), 
+		(fN_2 == (convert__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (mk_lane__0 Jnn_I8 iN_1)
+	| fun_vcvtop___case_21 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (fN_2 : fN), 
+		(fN_2 == (convert__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (mk_lane__0 Jnn_I64 iN_1)
+	| fun_vcvtop___case_20 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (fN_2 : fN), 
+		(fN_2 == (convert__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (mk_lane__0 Jnn_I32 iN_1)
+	| fun_vcvtop___case_19 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (fN_2 : fN), 
+		(fN_2 == (convert__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (mk_lane__0 Jnn_I16 iN_1)
+	| fun_vcvtop___case_18 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (fN_2 : fN), 
+		(fN_2 == (convert__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (mk_lane__0 Jnn_I8 iN_1)
+	| fun_vcvtop___case_17 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (fN_2 : fN), 
+		(fN_2 == (convert__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (mk_lane__0 Jnn_I64 iN_1)
+	| fun_vcvtop___case_16 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (fN_2 : fN), 
+		(fN_2 == (convert__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (mk_lane__0 Jnn_I32 iN_1)
+	| fun_vcvtop___case_15 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I16 iN_1)
+	| fun_vcvtop___case_14 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I8 iN_1)
+	| fun_vcvtop___case_13 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I64 iN_1)
+	| fun_vcvtop___case_12 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I32 iN_1)
+	| fun_vcvtop___case_11 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I16 iN_1)
+	| fun_vcvtop___case_10 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I8 iN_1)
+	| fun_vcvtop___case_9 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I64 iN_1)
+	| fun_vcvtop___case_8 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I32 iN_1)
+	| fun_vcvtop___case_7 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I16 iN_1)
+	| fun_vcvtop___case_6 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I8 iN_1)
+	| fun_vcvtop___case_5 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I64 iN_1)
+	| fun_vcvtop___case_4 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I32 iN_1)
+	| fun_vcvtop___case_3 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I16 iN_1)
+	| fun_vcvtop___case_2 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I8 iN_1)
+	| fun_vcvtop___case_1 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I64 iN_1)
+	| fun_vcvtop___case_0 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop___before_fun_vcvtop___case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I32 iN_1).
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:385.6-385.15 *)
-Lemma vcvtop___is_wf : forall (shape_1 : shape) (shape_2 : shape) (v_vcvtop : vcvtop) (v_lane_ : lane_) (ret_val_lst : (seq lane_)),
+Inductive fun_vcvtop__ : shape -> shape -> vcvtop__ -> lane_ -> (option (seq lane_)) -> Prop :=
+	| fun_vcvtop____fun_vcvtop___case_0 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I32 iN_1) (Some [::(mk_lane__0 Jnn_I32 iN_2)])
+	| fun_vcvtop____fun_vcvtop___case_1 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I64 iN_1) (Some [::(mk_lane__0 Jnn_I32 iN_2)])
+	| fun_vcvtop____fun_vcvtop___case_2 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I8 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I8 iN_1) (Some [::(mk_lane__0 Jnn_I32 iN_2)])
+	| fun_vcvtop____fun_vcvtop___case_3 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I16 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I16 iN_1) (Some [::(mk_lane__0 Jnn_I32 iN_2)])
+	| fun_vcvtop____fun_vcvtop___case_4 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I32 iN_1) (Some [::(mk_lane__0 Jnn_I64 iN_2)])
+	| fun_vcvtop____fun_vcvtop___case_5 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I64 iN_1) (Some [::(mk_lane__0 Jnn_I64 iN_2)])
+	| fun_vcvtop____fun_vcvtop___case_6 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I8 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I8 iN_1) (Some [::(mk_lane__0 Jnn_I64 iN_2)])
+	| fun_vcvtop____fun_vcvtop___case_7 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I16 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I16 iN_1) (Some [::(mk_lane__0 Jnn_I64 iN_2)])
+	| fun_vcvtop____fun_vcvtop___case_8 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I32 iN_1) (Some [::(mk_lane__0 Jnn_I8 iN_2)])
+	| fun_vcvtop____fun_vcvtop___case_9 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I64 iN_1) (Some [::(mk_lane__0 Jnn_I8 iN_2)])
+	| fun_vcvtop____fun_vcvtop___case_10 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I8 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I8 iN_1) (Some [::(mk_lane__0 Jnn_I8 iN_2)])
+	| fun_vcvtop____fun_vcvtop___case_11 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I16 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I16 iN_1) (Some [::(mk_lane__0 Jnn_I8 iN_2)])
+	| fun_vcvtop____fun_vcvtop___case_12 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I32 iN_1) (Some [::(mk_lane__0 Jnn_I16 iN_2)])
+	| fun_vcvtop____fun_vcvtop___case_13 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I64 iN_1) (Some [::(mk_lane__0 Jnn_I16 iN_2)])
+	| fun_vcvtop____fun_vcvtop___case_14 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I8 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I8 iN_1) (Some [::(mk_lane__0 Jnn_I16 iN_2)])
+	| fun_vcvtop____fun_vcvtop___case_15 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (iN_2 : iN), 
+		(iN_2 == (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I16 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)) (mk_lane__0 Jnn_I16 iN_1) (Some [::(mk_lane__0 Jnn_I16 iN_2)])
+	| fun_vcvtop____fun_vcvtop___case_16 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (fN_2 : fN), 
+		(fN_2 == (convert__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (mk_lane__0 Jnn_I32 iN_1) (Some [::(mk_lane__1 Fnn_F32 fN_2)])
+	| fun_vcvtop____fun_vcvtop___case_17 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (fN_2 : fN), 
+		(fN_2 == (convert__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (mk_lane__0 Jnn_I64 iN_1) (Some [::(mk_lane__1 Fnn_F32 fN_2)])
+	| fun_vcvtop____fun_vcvtop___case_18 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (fN_2 : fN), 
+		(fN_2 == (convert__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I8 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (mk_lane__0 Jnn_I8 iN_1) (Some [::(mk_lane__1 Fnn_F32 fN_2)])
+	| fun_vcvtop____fun_vcvtop___case_19 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (fN_2 : fN), 
+		(fN_2 == (convert__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Fnn Fnn_F32)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I16 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (mk_lane__0 Jnn_I16 iN_1) (Some [::(mk_lane__1 Fnn_F32 fN_2)])
+	| fun_vcvtop____fun_vcvtop___case_20 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (fN_2 : fN), 
+		(fN_2 == (convert__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (mk_lane__0 Jnn_I32 iN_1) (Some [::(mk_lane__1 Fnn_F64 fN_2)])
+	| fun_vcvtop____fun_vcvtop___case_21 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (fN_2 : fN), 
+		(fN_2 == (convert__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (mk_lane__0 Jnn_I64 iN_1) (Some [::(mk_lane__1 Fnn_F64 fN_2)])
+	| fun_vcvtop____fun_vcvtop___case_22 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (fN_2 : fN), 
+		(fN_2 == (convert__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I8 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (mk_lane__0 Jnn_I8 iN_1) (Some [::(mk_lane__1 Fnn_F64 fN_2)])
+	| fun_vcvtop____fun_vcvtop___case_23 : forall (M_1 : N) (M_2 : N) (half_opt : (option half)) (v_sx : sx) (iN_1 : uN) (M_1_0 : N) (M_2_0 : N) (fN_2 : fN), 
+		(fN_2 == (convert__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_I16 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)) (mk_lane__0 Jnn_I16 iN_1) (Some [::(mk_lane__1 Fnn_F64 fN_2)])
+	| fun_vcvtop____fun_vcvtop___case_24 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (iN_2_opt : (option iN)), 
+		(iN_2_opt == (trunc_sat__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Inn Inn_I32)) v_sx fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F32 fN_1) (Some (list_ lane_ (option_map (fun (iN_2_2 : iN) => (mk_lane__0 (Jnn_Inn Inn_I32) iN_2_2)) iN_2_opt)))
+	| fun_vcvtop____fun_vcvtop___case_25 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (iN_2_opt : (option iN)), 
+		(iN_2_opt == (trunc_sat__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Inn Inn_I32)) v_sx fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F64 fN_1) (Some (list_ lane_ (option_map (fun (iN_2_4 : iN) => (mk_lane__0 (Jnn_Inn Inn_I32) iN_2_4)) iN_2_opt)))
+	| fun_vcvtop____fun_vcvtop___case_26 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (iN_2_opt : (option iN)), 
+		(iN_2_opt == (trunc_sat__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Inn Inn_I64)) v_sx fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F32 fN_1) (Some (list_ lane_ (option_map (fun (iN_2_6 : iN) => (mk_lane__0 (Jnn_Inn Inn_I64) iN_2_6)) iN_2_opt)))
+	| fun_vcvtop____fun_vcvtop___case_27 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (zero_opt : (option zero)) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (iN_2_opt : (option iN)), 
+		(iN_2_opt == (trunc_sat__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Inn Inn_I64)) v_sx fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F64 fN_1) (Some (list_ lane_ (option_map (fun (iN_2_8 : iN) => (mk_lane__0 (Jnn_Inn Inn_I64) iN_2_8)) iN_2_opt)))
+	| fun_vcvtop____fun_vcvtop___case_28 : forall (M_1 : N) (M_2 : N) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (fN_2_lst : (seq fN)), 
+		(fN_2_lst == (demote__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE ZERO)) (mk_lane__1 Fnn_F32 fN_1) (Some (seq.map (fun (fN_2_2 : fN) => (mk_lane__1 Fnn_F32 fN_2_2)) fN_2_lst))
+	| fun_vcvtop____fun_vcvtop___case_29 : forall (M_1 : N) (M_2 : N) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (fN_2_lst : (seq fN)), 
+		(fN_2_lst == (demote__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE ZERO)) (mk_lane__1 Fnn_F64 fN_1) (Some (seq.map (fun (fN_2_4 : fN) => (mk_lane__1 Fnn_F32 fN_2_4)) fN_2_lst))
+	| fun_vcvtop____fun_vcvtop___case_30 : forall (M_1 : N) (M_2 : N) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (fN_2_lst : (seq fN)), 
+		(fN_2_lst == (demote__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE ZERO)) (mk_lane__1 Fnn_F32 fN_1) (Some (seq.map (fun (fN_2_6 : fN) => (mk_lane__1 Fnn_F64 fN_2_6)) fN_2_lst))
+	| fun_vcvtop____fun_vcvtop___case_31 : forall (M_1 : N) (M_2 : N) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (fN_2_lst : (seq fN)), 
+		(fN_2_lst == (demote__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE ZERO)) (mk_lane__1 Fnn_F64 fN_1) (Some (seq.map (fun (fN_2_8 : fN) => (mk_lane__1 Fnn_F64 fN_2_8)) fN_2_lst))
+	| fun_vcvtop____fun_vcvtop___case_32 : forall (M_1 : N) (M_2 : N) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (fN_2_lst : (seq fN)), 
+		(fN_2_lst == (promote__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 PROMOTELOW) (mk_lane__1 Fnn_F32 fN_1) (Some (seq.map (fun (fN_2_10 : fN) => (mk_lane__1 Fnn_F32 fN_2_10)) fN_2_lst))
+	| fun_vcvtop____fun_vcvtop___case_33 : forall (M_1 : N) (M_2 : N) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (fN_2_lst : (seq fN)), 
+		(fN_2_lst == (promote__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 PROMOTELOW) (mk_lane__1 Fnn_F64 fN_1) (Some (seq.map (fun (fN_2_12 : fN) => (mk_lane__1 Fnn_F32 fN_2_12)) fN_2_lst))
+	| fun_vcvtop____fun_vcvtop___case_34 : forall (M_1 : N) (M_2 : N) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (fN_2_lst : (seq fN)), 
+		(fN_2_lst == (promote__ (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 PROMOTELOW) (mk_lane__1 Fnn_F32 fN_1) (Some (seq.map (fun (fN_2_14 : fN) => (mk_lane__1 Fnn_F64 fN_2_14)) fN_2_lst))
+	| fun_vcvtop____fun_vcvtop___case_35 : forall (M_1 : N) (M_2 : N) (fN_1 : fN) (M_1_0 : N) (M_2_0 : N) (fN_2_lst : (seq fN)), 
+		(fN_2_lst == (promote__ (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Fnn Fnn_F64)) fN_1)) ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vcvtop__ (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 PROMOTELOW) (mk_lane__1 Fnn_F64 fN_1) (Some (seq.map (fun (fN_2_16 : fN) => (mk_lane__1 Fnn_F64 fN_2_16)) fN_2_lst))
+	| fun_vcvtop___case_36 : forall (x0 : shape) (x1 : shape) (x2 : vcvtop__) (x3 : lane_), 
+		(~(fun_vcvtop___before_fun_vcvtop___case_36 x0 x1 x2 x3)) ->
+		fun_vcvtop__ x0 x1 x2 x3 None.
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:385.6-385.15 *)
+Lemma vcvtop___is_wf : forall (shape_1 : shape) (shape_2 : shape) (v_vcvtop__ : vcvtop__) (v_lane_ : lane_) (ret_val_lst : (seq lane_)) (var_0 : (option (seq lane_))),
+	(fun_vcvtop__ shape_1 shape_2 v_vcvtop__ v_lane_ var_0) ->
 	(wf_shape shape_1) ->
 	(wf_shape shape_2) ->
+	(wf_vcvtop__ shape_1 shape_2 v_vcvtop__) ->
 	(wf_lane_ (fun_lanetype shape_1) v_lane_) ->
-	((vcvtop__ shape_1 shape_2 v_vcvtop v_lane_) != None) ->
-	(ret_val_lst == (!((vcvtop__ shape_1 shape_2 v_vcvtop v_lane_)))) ->
+	(var_0 != None) ->
+	(ret_val_lst == (!(var_0))) ->
 	List.Forall (fun (ret_val : lane_) => (wf_lane_ (fun_lanetype shape_2) ret_val)) ret_val_lst.
 Proof.
-	move => shape_1 shape_2 v_vcvtop v_lane_ ret_val_lst Hs1 Hs2 Hln Hne /eqP ->.
+	move => shape_1 shape_2 v_vcvtop v_lane_ ret_val_lst var_0 Hf Hs1 Hs2 Hop Hln Hne /eqP ->.
 	have Hmapo : forall (J : Jnn) (lt : lanetype) (o : (option iN)),
 		(lt == (lanetype_Jnn J)) ->
 		List.Forall (fun x => wf_uN (lsize (lanetype_Jnn J)) x) (option_to_list o) ->
@@ -9872,13 +10927,8 @@ Proof.
 		List.Forall (fun x => wf_lane_ lt x) (seq.map (fun x => mk_lane__1 F x) l).
 	{ move => F lt l H1. elim: l => [ |x l IH] //= /List.Forall_cons_iff [Hx Hl].
 		by apply: List.Forall_cons; [ apply: lane__case_1 | apply: IH ]. }
-	destruct shape_1 as [lt1 d1]; destruct shape_2 as [lt2 d2];
-		destruct d1 as [M1]; destruct d2 as [M2];
-		destruct lt1; destruct lt2; destruct v_vcvtop as [hf sx|sx zo|ho sx|z| ];
-		try destruct z; try (destruct zo as [zz| ]; try destruct zz);
-		try (destruct ho as [hh| ]; try destruct hh); try destruct hf;
-		destruct v_lane_ as [jn c|fn c]; try destruct jn; try destruct fn; simpl.
-	all: try by apply: List.Forall_nil.
+	inversion Hf; subst; simpl; last by move: Hne.
+	all: repeat match goal with | [ H : is_true (?x == _) |- _ ] => is_var x; move/eqP: H => H; subst x end.
 	all: repeat match goal with | [ Hx : wf_lane_ _ _ |- _ ] => inversion Hx; subst; clear Hx end.
 	all: first
 		[ (apply: List.Forall_cons;
@@ -9896,108 +10946,404 @@ Proof.
 Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:585.6-585.17 *)
-Inductive fun_vextunop___before_fun_vextunop___case_4 : ishape -> ishape -> vextunop_ -> vec_ -> Prop :=
-	| fun_vextunop___case_3 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
-		(ci_lst == (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1)) ->
+Inductive fun_vextunop___before_fun_vextunop___case_16 : ishape -> ishape -> vextunop__ -> vec_ -> Prop :=
+	| fun_vextunop___case_15 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_32 : lane_) => ((proj_lane__0 ci_32) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_46 : iN) (cj_2_46 : iN) => [::cj_1_46; cj_2_46]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_32 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_32))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (cj_1_47 : iN) (cj_2_47 : iN) => (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_47 cj_2_47))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_48 : iN) (cj_2_48 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_48 cj_2_48)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop___before_fun_vextunop___case_16 (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextunop___0 Jnn_I16 M_1_0 Jnn_I16 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1
+	| fun_vextunop___case_14 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_30 : lane_) => ((proj_lane__0 ci_30) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_43 : iN) (cj_2_43 : iN) => [::cj_1_43; cj_2_43]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_30 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_30))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (cj_1_44 : iN) (cj_2_44 : iN) => (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_44 cj_2_44))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_45 : iN) (cj_2_45 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_45 cj_2_45)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop___before_fun_vextunop___case_16 (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextunop___0 Jnn_I8 M_1_0 Jnn_I16 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1
+	| fun_vextunop___case_13 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_28 : lane_) => ((proj_lane__0 ci_28) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_40 : iN) (cj_2_40 : iN) => [::cj_1_40; cj_2_40]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_28 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_28))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (cj_1_41 : iN) (cj_2_41 : iN) => (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_41 cj_2_41))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_42 : iN) (cj_2_42 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_42 cj_2_42)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop___before_fun_vextunop___case_16 (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextunop___0 Jnn_I64 M_1_0 Jnn_I16 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1
+	| fun_vextunop___case_12 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_26 : lane_) => ((proj_lane__0 ci_26) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_37 : iN) (cj_2_37 : iN) => [::cj_1_37; cj_2_37]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_26 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_26))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (cj_1_38 : iN) (cj_2_38 : iN) => (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_38 cj_2_38))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_39 : iN) (cj_2_39 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_39 cj_2_39)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop___before_fun_vextunop___case_16 (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextunop___0 Jnn_I32 M_1_0 Jnn_I16 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1
+	| fun_vextunop___case_11 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_24 : lane_) => ((proj_lane__0 ci_24) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_34 : iN) (cj_2_34 : iN) => [::cj_1_34; cj_2_34]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_24 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_24))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (cj_1_35 : iN) (cj_2_35 : iN) => (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_35 cj_2_35))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_36 : iN) (cj_2_36 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_36 cj_2_36)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop___before_fun_vextunop___case_16 (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextunop___0 Jnn_I16 M_1_0 Jnn_I8 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1
+	| fun_vextunop___case_10 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_22 : lane_) => ((proj_lane__0 ci_22) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_31 : iN) (cj_2_31 : iN) => [::cj_1_31; cj_2_31]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_22 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_22))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (cj_1_32 : iN) (cj_2_32 : iN) => (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_32 cj_2_32))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_33 : iN) (cj_2_33 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_33 cj_2_33)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop___before_fun_vextunop___case_16 (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextunop___0 Jnn_I8 M_1_0 Jnn_I8 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1
+	| fun_vextunop___case_9 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_20 : lane_) => ((proj_lane__0 ci_20) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_28 : iN) (cj_2_28 : iN) => [::cj_1_28; cj_2_28]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_20 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_20))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (cj_1_29 : iN) (cj_2_29 : iN) => (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_29 cj_2_29))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_30 : iN) (cj_2_30 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_30 cj_2_30)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop___before_fun_vextunop___case_16 (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextunop___0 Jnn_I64 M_1_0 Jnn_I8 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1
+	| fun_vextunop___case_8 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_18 : lane_) => ((proj_lane__0 ci_18) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_25 : iN) (cj_2_25 : iN) => [::cj_1_25; cj_2_25]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_18 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_18))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (cj_1_26 : iN) (cj_2_26 : iN) => (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_26 cj_2_26))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_27 : iN) (cj_2_27 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_27 cj_2_27)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop___before_fun_vextunop___case_16 (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextunop___0 Jnn_I32 M_1_0 Jnn_I8 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1
+	| fun_vextunop___case_7 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_16 : lane_) => ((proj_lane__0 ci_16) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_22 : iN) (cj_2_22 : iN) => [::cj_1_22; cj_2_22]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_16 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_16))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (cj_1_23 : iN) (cj_2_23 : iN) => (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_23 cj_2_23))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_24 : iN) (cj_2_24 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_24 cj_2_24)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop___before_fun_vextunop___case_16 (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextunop___0 Jnn_I16 M_1_0 Jnn_I64 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1
+	| fun_vextunop___case_6 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_14 : lane_) => ((proj_lane__0 ci_14) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_19 : iN) (cj_2_19 : iN) => [::cj_1_19; cj_2_19]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_14 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_14))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (cj_1_20 : iN) (cj_2_20 : iN) => (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_20 cj_2_20))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_21 : iN) (cj_2_21 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_21 cj_2_21)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop___before_fun_vextunop___case_16 (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextunop___0 Jnn_I8 M_1_0 Jnn_I64 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1
+	| fun_vextunop___case_5 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_12 : lane_) => ((proj_lane__0 ci_12) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_16 : iN) (cj_2_16 : iN) => [::cj_1_16; cj_2_16]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_12 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_12))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (cj_1_17 : iN) (cj_2_17 : iN) => (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_17 cj_2_17))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_18 : iN) (cj_2_18 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_18 cj_2_18)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop___before_fun_vextunop___case_16 (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextunop___0 Jnn_I64 M_1_0 Jnn_I64 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1
+	| fun_vextunop___case_4 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_10 : lane_) => ((proj_lane__0 ci_10) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_13 : iN) (cj_2_13 : iN) => [::cj_1_13; cj_2_13]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_10 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_10))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (cj_1_14 : iN) (cj_2_14 : iN) => (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_14 cj_2_14))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_15 : iN) (cj_2_15 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_15 cj_2_15)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop___before_fun_vextunop___case_16 (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextunop___0 Jnn_I32 M_1_0 Jnn_I64 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1
+	| fun_vextunop___case_3 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1)) ->
 		List.Forall (fun (ci_8 : lane_) => ((proj_lane__0 ci_8) != None)) ci_lst ->
-		((concat_ iN (list_zipWith (fun (cj_1_10 : iN) (cj_2_10 : iN) => [::cj_1_10; cj_2_10]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_8 : lane_) => (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_8))))) ci_lst)) ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (fun (cj_1_11 : iN) (cj_2_11 : iN) => (mk_lane__0 (Jnn_Inn Inn_I64) (iadd_ (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_11 cj_2_11))) cj_1_lst cj_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) ->
+		((concat_ iN (list_zipWith (fun (cj_1_10 : iN) (cj_2_10 : iN) => [::cj_1_10; cj_2_10]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_8 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_8))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (cj_1_11 : iN) (cj_2_11 : iN) => (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_11 cj_2_11))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
 		((|cj_1_lst|) == (|cj_2_lst|)) ->
-		List.Forall2 (fun (cj_1_12 : iN) (cj_2_12 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I64) (iadd_ (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_12 cj_2_12)))) cj_1_lst cj_2_lst ->
+		List.Forall2 (fun (cj_1_12 : iN) (cj_2_12 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_12 cj_2_12)))) cj_1_lst cj_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextunop___before_fun_vextunop___case_4 (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextunop__0 Jnn_I64 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1
-	| fun_vextunop___case_2 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
-		(ci_lst == (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop___before_fun_vextunop___case_16 (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextunop___0 Jnn_I16 M_1_0 Jnn_I32 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1
+	| fun_vextunop___case_2 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1)) ->
 		List.Forall (fun (ci_6 : lane_) => ((proj_lane__0 ci_6) != None)) ci_lst ->
-		((concat_ iN (list_zipWith (fun (cj_1_7 : iN) (cj_2_7 : iN) => [::cj_1_7; cj_2_7]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_6 : lane_) => (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_6))))) ci_lst)) ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (fun (cj_1_8 : iN) (cj_2_8 : iN) => (mk_lane__0 (Jnn_Inn Inn_I64) (iadd_ (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_8 cj_2_8))) cj_1_lst cj_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) ->
+		((concat_ iN (list_zipWith (fun (cj_1_7 : iN) (cj_2_7 : iN) => [::cj_1_7; cj_2_7]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_6 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_6))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (cj_1_8 : iN) (cj_2_8 : iN) => (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_8 cj_2_8))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
 		((|cj_1_lst|) == (|cj_2_lst|)) ->
-		List.Forall2 (fun (cj_1_9 : iN) (cj_2_9 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I64) (iadd_ (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_9 cj_2_9)))) cj_1_lst cj_2_lst ->
+		List.Forall2 (fun (cj_1_9 : iN) (cj_2_9 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_9 cj_2_9)))) cj_1_lst cj_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextunop___before_fun_vextunop___case_4 (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextunop__0 Jnn_I64 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1
-	| fun_vextunop___case_1 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
-		(ci_lst == (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1)) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop___before_fun_vextunop___case_16 (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextunop___0 Jnn_I8 M_1_0 Jnn_I32 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1
+	| fun_vextunop___case_1 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1)) ->
 		List.Forall (fun (ci_4 : lane_) => ((proj_lane__0 ci_4) != None)) ci_lst ->
-		((concat_ iN (list_zipWith (fun (cj_1_4 : iN) (cj_2_4 : iN) => [::cj_1_4; cj_2_4]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_4 : lane_) => (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_4))))) ci_lst)) ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (fun (cj_1_5 : iN) (cj_2_5 : iN) => (mk_lane__0 (Jnn_Inn Inn_I32) (iadd_ (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_5 cj_2_5))) cj_1_lst cj_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) ->
+		((concat_ iN (list_zipWith (fun (cj_1_4 : iN) (cj_2_4 : iN) => [::cj_1_4; cj_2_4]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_4 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_4))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (cj_1_5 : iN) (cj_2_5 : iN) => (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_5 cj_2_5))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
 		((|cj_1_lst|) == (|cj_2_lst|)) ->
-		List.Forall2 (fun (cj_1_6 : iN) (cj_2_6 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I32) (iadd_ (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_6 cj_2_6)))) cj_1_lst cj_2_lst ->
+		List.Forall2 (fun (cj_1_6 : iN) (cj_2_6 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_6 cj_2_6)))) cj_1_lst cj_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextunop___before_fun_vextunop___case_4 (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextunop__0 Jnn_I32 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1
-	| fun_vextunop___case_0 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
-		(ci_lst == (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop___before_fun_vextunop___case_16 (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextunop___0 Jnn_I64 M_1_0 Jnn_I32 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1
+	| fun_vextunop___case_0 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1)) ->
 		List.Forall (fun (ci_2 : lane_) => ((proj_lane__0 ci_2) != None)) ci_lst ->
-		((concat_ iN (list_zipWith (fun (cj_1_1 : iN) (cj_2_1 : iN) => [::cj_1_1; cj_2_1]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_2 : lane_) => (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_2))))) ci_lst)) ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (fun (cj_1_2 : iN) (cj_2_2 : iN) => (mk_lane__0 (Jnn_Inn Inn_I32) (iadd_ (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_2 cj_2_2))) cj_1_lst cj_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) ->
+		((concat_ iN (list_zipWith (fun (cj_1_1 : iN) (cj_2_1 : iN) => [::cj_1_1; cj_2_1]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_2 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (cj_1_2 : iN) (cj_2_2 : iN) => (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_2 cj_2_2))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
 		((|cj_1_lst|) == (|cj_2_lst|)) ->
-		List.Forall2 (fun (cj_1_3 : iN) (cj_2_3 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I32) (iadd_ (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_3 cj_2_3)))) cj_1_lst cj_2_lst ->
+		List.Forall2 (fun (cj_1_3 : iN) (cj_2_3 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_3 cj_2_3)))) cj_1_lst cj_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextunop___before_fun_vextunop___case_4 (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextunop__0 Jnn_I32 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1.
+		(M_2 == M_2_0) ->
+		fun_vextunop___before_fun_vextunop___case_16 (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextunop___0 Jnn_I32 M_1_0 Jnn_I32 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:585.6-585.17 *)
-Inductive fun_vextunop__ : ishape -> ishape -> vextunop_ -> vec_ -> (option vec_) -> Prop :=
-	| fun_vextunop____fun_vextunop___case_0 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
-		(ci_lst == (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) ->
+Inductive fun_vextunop__ : ishape -> ishape -> vextunop__ -> vec_ -> (option vec_) -> Prop :=
+	| fun_vextunop____fun_vextunop___case_0 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1)) ->
 		List.Forall (fun (ci_2 : lane_) => ((proj_lane__0 ci_2) != None)) ci_lst ->
-		((concat_ iN (list_zipWith (fun (cj_1_1 : iN) (cj_2_1 : iN) => [::cj_1_1; cj_2_1]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_2 : lane_) => (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_2))))) ci_lst)) ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (fun (cj_1_2 : iN) (cj_2_2 : iN) => (mk_lane__0 (Jnn_Inn Inn_I32) (iadd_ (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_2 cj_2_2))) cj_1_lst cj_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) ->
+		((concat_ iN (list_zipWith (fun (cj_1_1 : iN) (cj_2_1 : iN) => [::cj_1_1; cj_2_1]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_2 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (cj_1_2 : iN) (cj_2_2 : iN) => (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_2 cj_2_2))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
 		((|cj_1_lst|) == (|cj_2_lst|)) ->
-		List.Forall2 (fun (cj_1_3 : iN) (cj_2_3 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I32) (iadd_ (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_3 cj_2_3)))) cj_1_lst cj_2_lst ->
+		List.Forall2 (fun (cj_1_3 : iN) (cj_2_3 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_3 cj_2_3)))) cj_1_lst cj_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextunop__ (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextunop__0 Jnn_I32 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
-	| fun_vextunop____fun_vextunop___case_1 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
-		(ci_lst == (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1)) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop__ (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextunop___0 Jnn_I32 M_1_0 Jnn_I32 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
+	| fun_vextunop____fun_vextunop___case_1 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1)) ->
 		List.Forall (fun (ci_4 : lane_) => ((proj_lane__0 ci_4) != None)) ci_lst ->
-		((concat_ iN (list_zipWith (fun (cj_1_4 : iN) (cj_2_4 : iN) => [::cj_1_4; cj_2_4]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_4 : lane_) => (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_4))))) ci_lst)) ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (fun (cj_1_5 : iN) (cj_2_5 : iN) => (mk_lane__0 (Jnn_Inn Inn_I32) (iadd_ (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_5 cj_2_5))) cj_1_lst cj_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) ->
+		((concat_ iN (list_zipWith (fun (cj_1_4 : iN) (cj_2_4 : iN) => [::cj_1_4; cj_2_4]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_4 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_4))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (cj_1_5 : iN) (cj_2_5 : iN) => (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_5 cj_2_5))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
 		((|cj_1_lst|) == (|cj_2_lst|)) ->
-		List.Forall2 (fun (cj_1_6 : iN) (cj_2_6 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I32) (iadd_ (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_6 cj_2_6)))) cj_1_lst cj_2_lst ->
+		List.Forall2 (fun (cj_1_6 : iN) (cj_2_6 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_6 cj_2_6)))) cj_1_lst cj_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextunop__ (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextunop__0 Jnn_I32 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
-	| fun_vextunop____fun_vextunop___case_2 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
-		(ci_lst == (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop__ (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextunop___0 Jnn_I64 M_1_0 Jnn_I32 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
+	| fun_vextunop____fun_vextunop___case_2 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1)) ->
 		List.Forall (fun (ci_6 : lane_) => ((proj_lane__0 ci_6) != None)) ci_lst ->
-		((concat_ iN (list_zipWith (fun (cj_1_7 : iN) (cj_2_7 : iN) => [::cj_1_7; cj_2_7]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_6 : lane_) => (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_6))))) ci_lst)) ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (fun (cj_1_8 : iN) (cj_2_8 : iN) => (mk_lane__0 (Jnn_Inn Inn_I64) (iadd_ (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_8 cj_2_8))) cj_1_lst cj_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) ->
+		((concat_ iN (list_zipWith (fun (cj_1_7 : iN) (cj_2_7 : iN) => [::cj_1_7; cj_2_7]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_6 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_6))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (cj_1_8 : iN) (cj_2_8 : iN) => (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_8 cj_2_8))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
 		((|cj_1_lst|) == (|cj_2_lst|)) ->
-		List.Forall2 (fun (cj_1_9 : iN) (cj_2_9 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I64) (iadd_ (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_9 cj_2_9)))) cj_1_lst cj_2_lst ->
+		List.Forall2 (fun (cj_1_9 : iN) (cj_2_9 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_9 cj_2_9)))) cj_1_lst cj_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextunop__ (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextunop__0 Jnn_I64 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
-	| fun_vextunop____fun_vextunop___case_3 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
-		(ci_lst == (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1)) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop__ (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextunop___0 Jnn_I8 M_1_0 Jnn_I32 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
+	| fun_vextunop____fun_vextunop___case_3 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1)) ->
 		List.Forall (fun (ci_8 : lane_) => ((proj_lane__0 ci_8) != None)) ci_lst ->
-		((concat_ iN (list_zipWith (fun (cj_1_10 : iN) (cj_2_10 : iN) => [::cj_1_10; cj_2_10]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_8 : lane_) => (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_8))))) ci_lst)) ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (fun (cj_1_11 : iN) (cj_2_11 : iN) => (mk_lane__0 (Jnn_Inn Inn_I64) (iadd_ (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_11 cj_2_11))) cj_1_lst cj_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) ->
+		((concat_ iN (list_zipWith (fun (cj_1_10 : iN) (cj_2_10 : iN) => [::cj_1_10; cj_2_10]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_8 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_8))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (cj_1_11 : iN) (cj_2_11 : iN) => (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_11 cj_2_11))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
 		((|cj_1_lst|) == (|cj_2_lst|)) ->
-		List.Forall2 (fun (cj_1_12 : iN) (cj_2_12 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I64) (iadd_ (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_12 cj_2_12)))) cj_1_lst cj_2_lst ->
+		List.Forall2 (fun (cj_1_12 : iN) (cj_2_12 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_12 cj_2_12)))) cj_1_lst cj_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextunop__ (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextunop__0 Jnn_I64 M_1_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
-	| fun_vextunop___case_4 : forall (x0 : ishape) (x1 : ishape) (x2 : vextunop_) (x3 : vec_), 
-		(~(fun_vextunop___before_fun_vextunop___case_4 x0 x1 x2 x3)) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop__ (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextunop___0 Jnn_I16 M_1_0 Jnn_I32 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
+	| fun_vextunop____fun_vextunop___case_4 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_10 : lane_) => ((proj_lane__0 ci_10) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_13 : iN) (cj_2_13 : iN) => [::cj_1_13; cj_2_13]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_10 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_10))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (cj_1_14 : iN) (cj_2_14 : iN) => (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_14 cj_2_14))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_15 : iN) (cj_2_15 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_15 cj_2_15)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop__ (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextunop___0 Jnn_I32 M_1_0 Jnn_I64 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
+	| fun_vextunop____fun_vextunop___case_5 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_12 : lane_) => ((proj_lane__0 ci_12) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_16 : iN) (cj_2_16 : iN) => [::cj_1_16; cj_2_16]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_12 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_12))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (cj_1_17 : iN) (cj_2_17 : iN) => (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_17 cj_2_17))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_18 : iN) (cj_2_18 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_18 cj_2_18)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop__ (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextunop___0 Jnn_I64 M_1_0 Jnn_I64 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
+	| fun_vextunop____fun_vextunop___case_6 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_14 : lane_) => ((proj_lane__0 ci_14) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_19 : iN) (cj_2_19 : iN) => [::cj_1_19; cj_2_19]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_14 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_14))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (cj_1_20 : iN) (cj_2_20 : iN) => (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_20 cj_2_20))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_21 : iN) (cj_2_21 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_21 cj_2_21)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop__ (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextunop___0 Jnn_I8 M_1_0 Jnn_I64 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
+	| fun_vextunop____fun_vextunop___case_7 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_16 : lane_) => ((proj_lane__0 ci_16) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_22 : iN) (cj_2_22 : iN) => [::cj_1_22; cj_2_22]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_16 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_16))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (cj_1_23 : iN) (cj_2_23 : iN) => (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_23 cj_2_23))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_24 : iN) (cj_2_24 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_24 cj_2_24)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop__ (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextunop___0 Jnn_I16 M_1_0 Jnn_I64 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
+	| fun_vextunop____fun_vextunop___case_8 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_18 : lane_) => ((proj_lane__0 ci_18) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_25 : iN) (cj_2_25 : iN) => [::cj_1_25; cj_2_25]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_18 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_18))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (cj_1_26 : iN) (cj_2_26 : iN) => (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_26 cj_2_26))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_27 : iN) (cj_2_27 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_27 cj_2_27)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop__ (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextunop___0 Jnn_I32 M_1_0 Jnn_I8 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
+	| fun_vextunop____fun_vextunop___case_9 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_20 : lane_) => ((proj_lane__0 ci_20) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_28 : iN) (cj_2_28 : iN) => [::cj_1_28; cj_2_28]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_20 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_20))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (cj_1_29 : iN) (cj_2_29 : iN) => (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_29 cj_2_29))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_30 : iN) (cj_2_30 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_30 cj_2_30)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop__ (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextunop___0 Jnn_I64 M_1_0 Jnn_I8 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
+	| fun_vextunop____fun_vextunop___case_10 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_22 : lane_) => ((proj_lane__0 ci_22) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_31 : iN) (cj_2_31 : iN) => [::cj_1_31; cj_2_31]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_22 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_22))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (cj_1_32 : iN) (cj_2_32 : iN) => (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_32 cj_2_32))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_33 : iN) (cj_2_33 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_33 cj_2_33)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop__ (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextunop___0 Jnn_I8 M_1_0 Jnn_I8 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
+	| fun_vextunop____fun_vextunop___case_11 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_24 : lane_) => ((proj_lane__0 ci_24) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_34 : iN) (cj_2_34 : iN) => [::cj_1_34; cj_2_34]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_24 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_24))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (cj_1_35 : iN) (cj_2_35 : iN) => (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_35 cj_2_35))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_36 : iN) (cj_2_36 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_36 cj_2_36)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop__ (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextunop___0 Jnn_I16 M_1_0 Jnn_I8 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
+	| fun_vextunop____fun_vextunop___case_12 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_26 : lane_) => ((proj_lane__0 ci_26) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_37 : iN) (cj_2_37 : iN) => [::cj_1_37; cj_2_37]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_26 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_26))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (cj_1_38 : iN) (cj_2_38 : iN) => (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_38 cj_2_38))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_39 : iN) (cj_2_39 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_39 cj_2_39)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop__ (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextunop___0 Jnn_I32 M_1_0 Jnn_I16 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
+	| fun_vextunop____fun_vextunop___case_13 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_28 : lane_) => ((proj_lane__0 ci_28) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_40 : iN) (cj_2_40 : iN) => [::cj_1_40; cj_2_40]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_28 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_28))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (cj_1_41 : iN) (cj_2_41 : iN) => (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_41 cj_2_41))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_42 : iN) (cj_2_42 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_42 cj_2_42)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop__ (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextunop___0 Jnn_I64 M_1_0 Jnn_I16 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
+	| fun_vextunop____fun_vextunop___case_14 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_30 : lane_) => ((proj_lane__0 ci_30) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_43 : iN) (cj_2_43 : iN) => [::cj_1_43; cj_2_43]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_30 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_30))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (cj_1_44 : iN) (cj_2_44 : iN) => (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_44 cj_2_44))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_45 : iN) (cj_2_45 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_45 cj_2_45)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop__ (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextunop___0 Jnn_I8 M_1_0 Jnn_I16 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
+	| fun_vextunop____fun_vextunop___case_15 : forall (M_1 : N) (M_2 : N) (v_sx : sx) (c_1 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_lst : (seq lane_)) (c : vec_), 
+		(ci_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1)) ->
+		List.Forall (fun (ci_32 : lane_) => ((proj_lane__0 ci_32) != None)) ci_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_46 : iN) (cj_2_46 : iN) => [::cj_1_46; cj_2_46]) cj_1_lst cj_2_lst)) == (seq.map (fun (ci_32 : lane_) => (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_32))))) ci_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (cj_1_47 : iN) (cj_2_47 : iN) => (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_47 cj_2_47))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_48 : iN) (cj_2_48 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_48 cj_2_48)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextunop__ (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextunop___0 Jnn_I16 M_1_0 Jnn_I16 M_2_0 (EXTADD_PAIRWISE v_sx)) c_1 (Some c)
+	| fun_vextunop___case_16 : forall (x0 : ishape) (x1 : ishape) (x2 : vextunop__) (x3 : vec_), 
+		(~(fun_vextunop___before_fun_vextunop___case_16 x0 x1 x2 x3)) ->
 		fun_vextunop__ x0 x1 x2 x3 None.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:585.6-585.17 *)
-Lemma vextunop___is_wf : forall (ishape_1 : ishape) (ishape_2 : ishape) (v_vextunop_ : vextunop_) (v_vec_ : vec_) (ret_val : vec_) (var_0 : (option vec_)),
-	(fun_vextunop__ ishape_1 ishape_2 v_vextunop_ v_vec_ var_0) ->
+Lemma vextunop___is_wf : forall (ishape_1 : ishape) (ishape_2 : ishape) (v_vextunop__ : vextunop__) (v_vec_ : vec_) (ret_val : vec_) (var_0 : (option vec_)),
+	(fun_vextunop__ ishape_1 ishape_2 v_vextunop__ v_vec_ var_0) ->
 	(wf_ishape ishape_1) ->
 	(wf_ishape ishape_2) ->
-	(wf_vextunop_ ishape_1 v_vextunop_) ->
+	(wf_vextunop__ ishape_1 ishape_2 v_vextunop__) ->
 	(wf_uN 128%N v_vec_) ->
 	(var_0 != None) ->
 	(ret_val == (!(var_0))) ->
@@ -10163,236 +11509,948 @@ Proof.
 Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:587.6-587.18 *)
-Inductive fun_vextbinop___before_fun_vextbinop___case_8 : ishape -> ishape -> vextbinop_ -> vec_ -> vec_ -> Prop :=
-	| fun_vextbinop___case_7 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
-		(ci_1_lst == (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1)) ->
-		(ci_2_lst == (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2)) ->
+Inductive fun_vextbinop___before_fun_vextbinop___case_32 : ishape -> ishape -> vextbinop__ -> vec_ -> vec_ -> Prop :=
+	| fun_vextbinop___case_31 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_80 : lane_) => ((proj_lane__0 ci_1_80) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_80 : lane_) => ((proj_lane__0 ci_2_80) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_94 : iN) (cj_2_94 : iN) => [::cj_1_94; cj_2_94]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_80 : lane_) (ci_2_80 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) res_S (!((proj_lane__0 ci_1_80)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) res_S (!((proj_lane__0 ci_2_80)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (cj_1_95 : iN) (cj_2_95 : iN) => (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_95 cj_2_95))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_96 : iN) (cj_2_96 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_96 cj_2_96)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I16 M_1_0 Jnn_I16 M_2_0 DOTS) c_1 c_2
+	| fun_vextbinop___case_30 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_78 : lane_) => ((proj_lane__0 ci_1_78) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_78 : lane_) => ((proj_lane__0 ci_2_78) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_91 : iN) (cj_2_91 : iN) => [::cj_1_91; cj_2_91]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_78 : lane_) (ci_2_78 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) res_S (!((proj_lane__0 ci_1_78)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) res_S (!((proj_lane__0 ci_2_78)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (cj_1_92 : iN) (cj_2_92 : iN) => (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_92 cj_2_92))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_93 : iN) (cj_2_93 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_93 cj_2_93)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I8 M_1_0 Jnn_I16 M_2_0 DOTS) c_1 c_2
+	| fun_vextbinop___case_29 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_76 : lane_) => ((proj_lane__0 ci_1_76) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_76 : lane_) => ((proj_lane__0 ci_2_76) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_88 : iN) (cj_2_88 : iN) => [::cj_1_88; cj_2_88]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_76 : lane_) (ci_2_76 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) res_S (!((proj_lane__0 ci_1_76)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) res_S (!((proj_lane__0 ci_2_76)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (cj_1_89 : iN) (cj_2_89 : iN) => (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_89 cj_2_89))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_90 : iN) (cj_2_90 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_90 cj_2_90)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I64 M_1_0 Jnn_I16 M_2_0 DOTS) c_1 c_2
+	| fun_vextbinop___case_28 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_74 : lane_) => ((proj_lane__0 ci_1_74) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_74 : lane_) => ((proj_lane__0 ci_2_74) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_85 : iN) (cj_2_85 : iN) => [::cj_1_85; cj_2_85]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_74 : lane_) (ci_2_74 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) res_S (!((proj_lane__0 ci_1_74)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) res_S (!((proj_lane__0 ci_2_74)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (cj_1_86 : iN) (cj_2_86 : iN) => (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_86 cj_2_86))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_87 : iN) (cj_2_87 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_87 cj_2_87)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I32 M_1_0 Jnn_I16 M_2_0 DOTS) c_1 c_2
+	| fun_vextbinop___case_27 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_72 : lane_) => ((proj_lane__0 ci_1_72) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_72 : lane_) => ((proj_lane__0 ci_2_72) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_82 : iN) (cj_2_82 : iN) => [::cj_1_82; cj_2_82]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_72 : lane_) (ci_2_72 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) res_S (!((proj_lane__0 ci_1_72)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) res_S (!((proj_lane__0 ci_2_72)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (cj_1_83 : iN) (cj_2_83 : iN) => (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_83 cj_2_83))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_84 : iN) (cj_2_84 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_84 cj_2_84)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I16 M_1_0 Jnn_I8 M_2_0 DOTS) c_1 c_2
+	| fun_vextbinop___case_26 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_70 : lane_) => ((proj_lane__0 ci_1_70) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_70 : lane_) => ((proj_lane__0 ci_2_70) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_79 : iN) (cj_2_79 : iN) => [::cj_1_79; cj_2_79]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_70 : lane_) (ci_2_70 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) res_S (!((proj_lane__0 ci_1_70)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) res_S (!((proj_lane__0 ci_2_70)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (cj_1_80 : iN) (cj_2_80 : iN) => (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_80 cj_2_80))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_81 : iN) (cj_2_81 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_81 cj_2_81)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I8 M_1_0 Jnn_I8 M_2_0 DOTS) c_1 c_2
+	| fun_vextbinop___case_25 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_68 : lane_) => ((proj_lane__0 ci_1_68) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_68 : lane_) => ((proj_lane__0 ci_2_68) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_76 : iN) (cj_2_76 : iN) => [::cj_1_76; cj_2_76]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_68 : lane_) (ci_2_68 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) res_S (!((proj_lane__0 ci_1_68)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) res_S (!((proj_lane__0 ci_2_68)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (cj_1_77 : iN) (cj_2_77 : iN) => (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_77 cj_2_77))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_78 : iN) (cj_2_78 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_78 cj_2_78)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I64 M_1_0 Jnn_I8 M_2_0 DOTS) c_1 c_2
+	| fun_vextbinop___case_24 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_66 : lane_) => ((proj_lane__0 ci_1_66) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_66 : lane_) => ((proj_lane__0 ci_2_66) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_73 : iN) (cj_2_73 : iN) => [::cj_1_73; cj_2_73]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_66 : lane_) (ci_2_66 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) res_S (!((proj_lane__0 ci_1_66)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) res_S (!((proj_lane__0 ci_2_66)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (cj_1_74 : iN) (cj_2_74 : iN) => (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_74 cj_2_74))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_75 : iN) (cj_2_75 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_75 cj_2_75)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I32 M_1_0 Jnn_I8 M_2_0 DOTS) c_1 c_2
+	| fun_vextbinop___case_23 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_64 : lane_) => ((proj_lane__0 ci_1_64) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_64 : lane_) => ((proj_lane__0 ci_2_64) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_70 : iN) (cj_2_70 : iN) => [::cj_1_70; cj_2_70]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_64 : lane_) (ci_2_64 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) res_S (!((proj_lane__0 ci_1_64)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) res_S (!((proj_lane__0 ci_2_64)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (cj_1_71 : iN) (cj_2_71 : iN) => (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_71 cj_2_71))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_72 : iN) (cj_2_72 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_72 cj_2_72)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I16 M_1_0 Jnn_I64 M_2_0 DOTS) c_1 c_2
+	| fun_vextbinop___case_22 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_62 : lane_) => ((proj_lane__0 ci_1_62) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_62 : lane_) => ((proj_lane__0 ci_2_62) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_67 : iN) (cj_2_67 : iN) => [::cj_1_67; cj_2_67]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_62 : lane_) (ci_2_62 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) res_S (!((proj_lane__0 ci_1_62)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) res_S (!((proj_lane__0 ci_2_62)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (cj_1_68 : iN) (cj_2_68 : iN) => (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_68 cj_2_68))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_69 : iN) (cj_2_69 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_69 cj_2_69)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I8 M_1_0 Jnn_I64 M_2_0 DOTS) c_1 c_2
+	| fun_vextbinop___case_21 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_60 : lane_) => ((proj_lane__0 ci_1_60) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_60 : lane_) => ((proj_lane__0 ci_2_60) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_64 : iN) (cj_2_64 : iN) => [::cj_1_64; cj_2_64]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_60 : lane_) (ci_2_60 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) res_S (!((proj_lane__0 ci_1_60)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) res_S (!((proj_lane__0 ci_2_60)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (cj_1_65 : iN) (cj_2_65 : iN) => (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_65 cj_2_65))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_66 : iN) (cj_2_66 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_66 cj_2_66)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I64 M_1_0 Jnn_I64 M_2_0 DOTS) c_1 c_2
+	| fun_vextbinop___case_20 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_58 : lane_) => ((proj_lane__0 ci_1_58) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_58 : lane_) => ((proj_lane__0 ci_2_58) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_61 : iN) (cj_2_61 : iN) => [::cj_1_61; cj_2_61]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_58 : lane_) (ci_2_58 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) res_S (!((proj_lane__0 ci_1_58)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) res_S (!((proj_lane__0 ci_2_58)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (cj_1_62 : iN) (cj_2_62 : iN) => (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_62 cj_2_62))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_63 : iN) (cj_2_63 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_63 cj_2_63)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I32 M_1_0 Jnn_I64 M_2_0 DOTS) c_1 c_2
+	| fun_vextbinop___case_19 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_56 : lane_) => ((proj_lane__0 ci_1_56) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_56 : lane_) => ((proj_lane__0 ci_2_56) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_58 : iN) (cj_2_58 : iN) => [::cj_1_58; cj_2_58]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_56 : lane_) (ci_2_56 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) res_S (!((proj_lane__0 ci_1_56)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) res_S (!((proj_lane__0 ci_2_56)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (cj_1_59 : iN) (cj_2_59 : iN) => (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_59 cj_2_59))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_60 : iN) (cj_2_60 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_60 cj_2_60)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I16 M_1_0 Jnn_I32 M_2_0 DOTS) c_1 c_2
+	| fun_vextbinop___case_18 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_54 : lane_) => ((proj_lane__0 ci_1_54) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_54 : lane_) => ((proj_lane__0 ci_2_54) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_55 : iN) (cj_2_55 : iN) => [::cj_1_55; cj_2_55]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_54 : lane_) (ci_2_54 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) res_S (!((proj_lane__0 ci_1_54)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) res_S (!((proj_lane__0 ci_2_54)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (cj_1_56 : iN) (cj_2_56 : iN) => (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_56 cj_2_56))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_57 : iN) (cj_2_57 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_57 cj_2_57)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I8 M_1_0 Jnn_I32 M_2_0 DOTS) c_1 c_2
+	| fun_vextbinop___case_17 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_52 : lane_) => ((proj_lane__0 ci_1_52) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_52 : lane_) => ((proj_lane__0 ci_2_52) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_52 : iN) (cj_2_52 : iN) => [::cj_1_52; cj_2_52]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_52 : lane_) (ci_2_52 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) res_S (!((proj_lane__0 ci_1_52)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) res_S (!((proj_lane__0 ci_2_52)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (cj_1_53 : iN) (cj_2_53 : iN) => (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_53 cj_2_53))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_54 : iN) (cj_2_54 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_54 cj_2_54)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I64 M_1_0 Jnn_I32 M_2_0 DOTS) c_1 c_2
+	| fun_vextbinop___case_16 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_50 : lane_) => ((proj_lane__0 ci_1_50) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_50 : lane_) => ((proj_lane__0 ci_2_50) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_49 : iN) (cj_2_49 : iN) => [::cj_1_49; cj_2_49]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_50 : lane_) (ci_2_50 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) res_S (!((proj_lane__0 ci_1_50)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) res_S (!((proj_lane__0 ci_2_50)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (cj_1_50 : iN) (cj_2_50 : iN) => (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_50 cj_2_50))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_51 : iN) (cj_2_51 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_51 cj_2_51)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I32 M_1_0 Jnn_I32 M_2_0 DOTS) c_1 c_2
+	| fun_vextbinop___case_15 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_47 : lane_) => ((proj_lane__0 ci_1_47) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_47 : lane_) => ((proj_lane__0 ci_2_47) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (ci_1_47 : lane_) (ci_2_47 : lane_) => (mk_lane__0 Jnn_I16 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_1_47)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_2_47))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_48 : lane_) => ((proj_lane__0 ci_1_48) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_48 : lane_) => ((proj_lane__0 ci_2_48) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_48 : lane_) (ci_2_48 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_1_48)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_2_48)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I16 M_1_0 Jnn_I16 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2
+	| fun_vextbinop___case_14 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_44 : lane_) => ((proj_lane__0 ci_1_44) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_44 : lane_) => ((proj_lane__0 ci_2_44) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (ci_1_44 : lane_) (ci_2_44 : lane_) => (mk_lane__0 Jnn_I16 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_1_44)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_2_44))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_45 : lane_) => ((proj_lane__0 ci_1_45) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_45 : lane_) => ((proj_lane__0 ci_2_45) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_45 : lane_) (ci_2_45 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_1_45)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_2_45)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I8 M_1_0 Jnn_I16 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2
+	| fun_vextbinop___case_13 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_41 : lane_) => ((proj_lane__0 ci_1_41) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_41 : lane_) => ((proj_lane__0 ci_2_41) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (ci_1_41 : lane_) (ci_2_41 : lane_) => (mk_lane__0 Jnn_I16 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_1_41)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_2_41))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_42 : lane_) => ((proj_lane__0 ci_1_42) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_42 : lane_) => ((proj_lane__0 ci_2_42) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_42 : lane_) (ci_2_42 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_1_42)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_2_42)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I64 M_1_0 Jnn_I16 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2
+	| fun_vextbinop___case_12 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_38 : lane_) => ((proj_lane__0 ci_1_38) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_38 : lane_) => ((proj_lane__0 ci_2_38) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (ci_1_38 : lane_) (ci_2_38 : lane_) => (mk_lane__0 Jnn_I16 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_1_38)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_2_38))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_39 : lane_) => ((proj_lane__0 ci_1_39) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_39 : lane_) => ((proj_lane__0 ci_2_39) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_39 : lane_) (ci_2_39 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_1_39)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_2_39)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I32 M_1_0 Jnn_I16 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2
+	| fun_vextbinop___case_11 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_35 : lane_) => ((proj_lane__0 ci_1_35) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_35 : lane_) => ((proj_lane__0 ci_2_35) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (ci_1_35 : lane_) (ci_2_35 : lane_) => (mk_lane__0 Jnn_I8 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_1_35)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_2_35))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_36 : lane_) => ((proj_lane__0 ci_1_36) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_36 : lane_) => ((proj_lane__0 ci_2_36) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_36 : lane_) (ci_2_36 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_1_36)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_2_36)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I16 M_1_0 Jnn_I8 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2
+	| fun_vextbinop___case_10 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_32 : lane_) => ((proj_lane__0 ci_1_32) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_32 : lane_) => ((proj_lane__0 ci_2_32) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (ci_1_32 : lane_) (ci_2_32 : lane_) => (mk_lane__0 Jnn_I8 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_1_32)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_2_32))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_33 : lane_) => ((proj_lane__0 ci_1_33) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_33 : lane_) => ((proj_lane__0 ci_2_33) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_33 : lane_) (ci_2_33 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_1_33)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_2_33)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I8 M_1_0 Jnn_I8 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2
+	| fun_vextbinop___case_9 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_29 : lane_) => ((proj_lane__0 ci_1_29) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_29 : lane_) => ((proj_lane__0 ci_2_29) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (ci_1_29 : lane_) (ci_2_29 : lane_) => (mk_lane__0 Jnn_I8 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_1_29)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_2_29))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_30 : lane_) => ((proj_lane__0 ci_1_30) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_30 : lane_) => ((proj_lane__0 ci_2_30) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_30 : lane_) (ci_2_30 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_1_30)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_2_30)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I64 M_1_0 Jnn_I8 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2
+	| fun_vextbinop___case_8 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_26 : lane_) => ((proj_lane__0 ci_1_26) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_26 : lane_) => ((proj_lane__0 ci_2_26) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (ci_1_26 : lane_) (ci_2_26 : lane_) => (mk_lane__0 Jnn_I8 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_1_26)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_2_26))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_27 : lane_) => ((proj_lane__0 ci_1_27) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_27 : lane_) => ((proj_lane__0 ci_2_27) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_27 : lane_) (ci_2_27 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_1_27)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_2_27)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I32 M_1_0 Jnn_I8 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2
+	| fun_vextbinop___case_7 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_23 : lane_) => ((proj_lane__0 ci_1_23) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_23 : lane_) => ((proj_lane__0 ci_2_23) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (ci_1_23 : lane_) (ci_2_23 : lane_) => (mk_lane__0 Jnn_I64 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_1_23)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_2_23))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_24 : lane_) => ((proj_lane__0 ci_1_24) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_24 : lane_) => ((proj_lane__0 ci_2_24) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_24 : lane_) (ci_2_24 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_1_24)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_2_24)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I16 M_1_0 Jnn_I64 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2
+	| fun_vextbinop___case_6 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
 		List.Forall (fun (ci_1_20 : lane_) => ((proj_lane__0 ci_1_20) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_20 : lane_) => ((proj_lane__0 ci_2_20) != None)) ci_2_lst ->
-		((concat_ iN (list_zipWith (fun (cj_1_22 : iN) (cj_2_22 : iN) => [::cj_1_22; cj_2_22]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_20 : lane_) (ci_2_20 : lane_) => (imul_ (lsizenn1 (lanetype_Inn Inn_I64)) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) res_S (!((proj_lane__0 ci_1_20)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) res_S (!((proj_lane__0 ci_2_20)))))) ci_1_lst ci_2_lst)) ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (fun (cj_1_23 : iN) (cj_2_23 : iN) => (mk_lane__0 (Jnn_Inn Inn_I64) (iadd_ (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_23 cj_2_23))) cj_1_lst cj_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) ->
-		((|cj_1_lst|) == (|cj_2_lst|)) ->
-		List.Forall2 (fun (cj_1_24 : iN) (cj_2_24 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I64) (iadd_ (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_24 cj_2_24)))) cj_1_lst cj_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (ci_1_20 : lane_) (ci_2_20 : lane_) => (mk_lane__0 Jnn_I64 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_1_20)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_2_20))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_21 : lane_) => ((proj_lane__0 ci_1_21) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_21 : lane_) => ((proj_lane__0 ci_2_21) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_21 : lane_) (ci_2_21 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_1_21)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_2_21)))))))) ci_1_lst ci_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextbinop___before_fun_vextbinop___case_8 (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 DOTS) c_1 c_2
-	| fun_vextbinop___case_6 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
-		(ci_1_lst == (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) ->
-		(ci_2_lst == (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2)) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I8 M_1_0 Jnn_I64 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2
+	| fun_vextbinop___case_5 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_17 : lane_) => ((proj_lane__0 ci_1_17) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_17 : lane_) => ((proj_lane__0 ci_2_17) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (ci_1_17 : lane_) (ci_2_17 : lane_) => (mk_lane__0 Jnn_I64 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_1_17)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_2_17))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
 		List.Forall (fun (ci_1_18 : lane_) => ((proj_lane__0 ci_1_18) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_18 : lane_) => ((proj_lane__0 ci_2_18) != None)) ci_2_lst ->
-		((concat_ iN (list_zipWith (fun (cj_1_19 : iN) (cj_2_19 : iN) => [::cj_1_19; cj_2_19]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_18 : lane_) (ci_2_18 : lane_) => (imul_ (lsizenn1 (lanetype_Inn Inn_I64)) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) res_S (!((proj_lane__0 ci_1_18)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) res_S (!((proj_lane__0 ci_2_18)))))) ci_1_lst ci_2_lst)) ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (fun (cj_1_20 : iN) (cj_2_20 : iN) => (mk_lane__0 (Jnn_Inn Inn_I64) (iadd_ (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_20 cj_2_20))) cj_1_lst cj_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) ->
-		((|cj_1_lst|) == (|cj_2_lst|)) ->
-		List.Forall2 (fun (cj_1_21 : iN) (cj_2_21 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I64) (iadd_ (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_21 cj_2_21)))) cj_1_lst cj_2_lst ->
+		List.Forall2 (fun (ci_1_18 : lane_) (ci_2_18 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_1_18)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_2_18)))))))) ci_1_lst ci_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextbinop___before_fun_vextbinop___case_8 (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 DOTS) c_1 c_2
-	| fun_vextbinop___case_5 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
-		(ci_1_lst == (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1)) ->
-		(ci_2_lst == (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2)) ->
-		List.Forall (fun (ci_1_16 : lane_) => ((proj_lane__0 ci_1_16) != None)) ci_1_lst ->
-		List.Forall (fun (ci_2_16 : lane_) => ((proj_lane__0 ci_2_16) != None)) ci_2_lst ->
-		((concat_ iN (list_zipWith (fun (cj_1_16 : iN) (cj_2_16 : iN) => [::cj_1_16; cj_2_16]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_16 : lane_) (ci_2_16 : lane_) => (imul_ (lsizenn1 (lanetype_Inn Inn_I32)) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) res_S (!((proj_lane__0 ci_1_16)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) res_S (!((proj_lane__0 ci_2_16)))))) ci_1_lst ci_2_lst)) ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (fun (cj_1_17 : iN) (cj_2_17 : iN) => (mk_lane__0 (Jnn_Inn Inn_I32) (iadd_ (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_17 cj_2_17))) cj_1_lst cj_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) ->
-		((|cj_1_lst|) == (|cj_2_lst|)) ->
-		List.Forall2 (fun (cj_1_18 : iN) (cj_2_18 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I32) (iadd_ (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_18 cj_2_18)))) cj_1_lst cj_2_lst ->
-		(M_1 == M_1_0) ->
-		fun_vextbinop___before_fun_vextbinop___case_8 (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 DOTS) c_1 c_2
-	| fun_vextbinop___case_4 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
-		(ci_1_lst == (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) ->
-		(ci_2_lst == (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2)) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I64 M_1_0 Jnn_I64 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2
+	| fun_vextbinop___case_4 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
 		List.Forall (fun (ci_1_14 : lane_) => ((proj_lane__0 ci_1_14) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_14 : lane_) => ((proj_lane__0 ci_2_14) != None)) ci_2_lst ->
-		((concat_ iN (list_zipWith (fun (cj_1_13 : iN) (cj_2_13 : iN) => [::cj_1_13; cj_2_13]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_14 : lane_) (ci_2_14 : lane_) => (imul_ (lsizenn1 (lanetype_Inn Inn_I32)) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) res_S (!((proj_lane__0 ci_1_14)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) res_S (!((proj_lane__0 ci_2_14)))))) ci_1_lst ci_2_lst)) ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (fun (cj_1_14 : iN) (cj_2_14 : iN) => (mk_lane__0 (Jnn_Inn Inn_I32) (iadd_ (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_14 cj_2_14))) cj_1_lst cj_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) ->
-		((|cj_1_lst|) == (|cj_2_lst|)) ->
-		List.Forall2 (fun (cj_1_15 : iN) (cj_2_15 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I32) (iadd_ (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_15 cj_2_15)))) cj_1_lst cj_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (ci_1_14 : lane_) (ci_2_14 : lane_) => (mk_lane__0 Jnn_I64 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_1_14)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_2_14))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_15 : lane_) => ((proj_lane__0 ci_1_15) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_15 : lane_) => ((proj_lane__0 ci_2_15) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_15 : lane_) (ci_2_15 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_1_15)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_2_15)))))))) ci_1_lst ci_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextbinop___before_fun_vextbinop___case_8 (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 DOTS) c_1 c_2
-	| fun_vextbinop___case_3 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
-		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1) (fun_half v_half 0%N M_1) M_1)) ->
-		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2) (fun_half v_half 0%N M_1) M_1)) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I32 M_1_0 Jnn_I64 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2
+	| fun_vextbinop___case_3 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
 		List.Forall (fun (ci_1_11 : lane_) => ((proj_lane__0 ci_1_11) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_11 : lane_) => ((proj_lane__0 ci_2_11) != None)) ci_2_lst ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (fun (ci_1_11 : lane_) (ci_2_11 : lane_) => (mk_lane__0 (Jnn_Inn Inn_I64) (imul_ (lsizenn1 (lanetype_Inn Inn_I64)) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_1_11)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_2_11))))))) ci_1_lst ci_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (ci_1_11 : lane_) (ci_2_11 : lane_) => (mk_lane__0 Jnn_I32 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_1_11)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2_11))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
 		((|ci_1_lst|) == (|ci_2_lst|)) ->
 		List.Forall (fun (ci_1_12 : lane_) => ((proj_lane__0 ci_1_12) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_12 : lane_) => ((proj_lane__0 ci_2_12) != None)) ci_2_lst ->
-		List.Forall2 (fun (ci_1_12 : lane_) (ci_2_12 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I64) (imul_ (lsizenn1 (lanetype_Inn Inn_I64)) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_1_12)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_2_12)))))))) ci_1_lst ci_2_lst ->
+		List.Forall2 (fun (ci_1_12 : lane_) (ci_2_12 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_1_12)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2_12)))))))) ci_1_lst ci_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextbinop___before_fun_vextbinop___case_8 (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2
-	| fun_vextbinop___case_2 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
-		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1) (fun_half v_half 0%N M_1) M_1)) ->
-		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2) (fun_half v_half 0%N M_1) M_1)) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I16 M_1_0 Jnn_I32 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2
+	| fun_vextbinop___case_2 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
 		List.Forall (fun (ci_1_8 : lane_) => ((proj_lane__0 ci_1_8) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_8 : lane_) => ((proj_lane__0 ci_2_8) != None)) ci_2_lst ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (fun (ci_1_8 : lane_) (ci_2_8 : lane_) => (mk_lane__0 (Jnn_Inn Inn_I64) (imul_ (lsizenn1 (lanetype_Inn Inn_I64)) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_1_8)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_2_8))))))) ci_1_lst ci_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (ci_1_8 : lane_) (ci_2_8 : lane_) => (mk_lane__0 Jnn_I32 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_1_8)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2_8))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
 		((|ci_1_lst|) == (|ci_2_lst|)) ->
 		List.Forall (fun (ci_1_9 : lane_) => ((proj_lane__0 ci_1_9) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_9 : lane_) => ((proj_lane__0 ci_2_9) != None)) ci_2_lst ->
-		List.Forall2 (fun (ci_1_9 : lane_) (ci_2_9 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I64) (imul_ (lsizenn1 (lanetype_Inn Inn_I64)) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_1_9)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_2_9)))))))) ci_1_lst ci_2_lst ->
+		List.Forall2 (fun (ci_1_9 : lane_) (ci_2_9 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_1_9)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2_9)))))))) ci_1_lst ci_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextbinop___before_fun_vextbinop___case_8 (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2
-	| fun_vextbinop___case_1 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
-		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1) (fun_half v_half 0%N M_1) M_1)) ->
-		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2) (fun_half v_half 0%N M_1) M_1)) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I8 M_1_0 Jnn_I32 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2
+	| fun_vextbinop___case_1 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
 		List.Forall (fun (ci_1_5 : lane_) => ((proj_lane__0 ci_1_5) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_5 : lane_) => ((proj_lane__0 ci_2_5) != None)) ci_2_lst ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (fun (ci_1_5 : lane_) (ci_2_5 : lane_) => (mk_lane__0 (Jnn_Inn Inn_I32) (imul_ (lsizenn1 (lanetype_Inn Inn_I32)) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_1_5)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_2_5))))))) ci_1_lst ci_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (ci_1_5 : lane_) (ci_2_5 : lane_) => (mk_lane__0 Jnn_I32 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_1_5)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2_5))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
 		((|ci_1_lst|) == (|ci_2_lst|)) ->
 		List.Forall (fun (ci_1_6 : lane_) => ((proj_lane__0 ci_1_6) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_6 : lane_) => ((proj_lane__0 ci_2_6) != None)) ci_2_lst ->
-		List.Forall2 (fun (ci_1_6 : lane_) (ci_2_6 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I32) (imul_ (lsizenn1 (lanetype_Inn Inn_I32)) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_1_6)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_2_6)))))))) ci_1_lst ci_2_lst ->
+		List.Forall2 (fun (ci_1_6 : lane_) (ci_2_6 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_1_6)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2_6)))))))) ci_1_lst ci_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextbinop___before_fun_vextbinop___case_8 (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2
-	| fun_vextbinop___case_0 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
-		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1) (fun_half v_half 0%N M_1) M_1)) ->
-		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2) (fun_half v_half 0%N M_1) M_1)) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I64 M_1_0 Jnn_I32 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2
+	| fun_vextbinop___case_0 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
 		List.Forall (fun (ci_1_2 : lane_) => ((proj_lane__0 ci_1_2) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_2 : lane_) => ((proj_lane__0 ci_2_2) != None)) ci_2_lst ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (fun (ci_1_2 : lane_) (ci_2_2 : lane_) => (mk_lane__0 (Jnn_Inn Inn_I32) (imul_ (lsizenn1 (lanetype_Inn Inn_I32)) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_1_2)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_2_2))))))) ci_1_lst ci_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (ci_1_2 : lane_) (ci_2_2 : lane_) => (mk_lane__0 Jnn_I32 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_1_2)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2_2))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
 		((|ci_1_lst|) == (|ci_2_lst|)) ->
 		List.Forall (fun (ci_1_3 : lane_) => ((proj_lane__0 ci_1_3) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_3 : lane_) => ((proj_lane__0 ci_2_3) != None)) ci_2_lst ->
-		List.Forall2 (fun (ci_1_3 : lane_) (ci_2_3 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I32) (imul_ (lsizenn1 (lanetype_Inn Inn_I32)) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_1_3)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_2_3)))))))) ci_1_lst ci_2_lst ->
+		List.Forall2 (fun (ci_1_3 : lane_) (ci_2_3 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_1_3)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2_3)))))))) ci_1_lst ci_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextbinop___before_fun_vextbinop___case_8 (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2.
+		(M_2 == M_2_0) ->
+		fun_vextbinop___before_fun_vextbinop___case_32 (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I32 M_1_0 Jnn_I32 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:587.6-587.18 *)
-Inductive fun_vextbinop__ : ishape -> ishape -> vextbinop_ -> vec_ -> vec_ -> (option vec_) -> Prop :=
-	| fun_vextbinop____fun_vextbinop___case_0 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
-		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1) (fun_half v_half 0%N M_1) M_1)) ->
-		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2) (fun_half v_half 0%N M_1) M_1)) ->
+Inductive fun_vextbinop__ : ishape -> ishape -> vextbinop__ -> vec_ -> vec_ -> (option vec_) -> Prop :=
+	| fun_vextbinop____fun_vextbinop___case_0 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
 		List.Forall (fun (ci_1_2 : lane_) => ((proj_lane__0 ci_1_2) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_2 : lane_) => ((proj_lane__0 ci_2_2) != None)) ci_2_lst ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (fun (ci_1_2 : lane_) (ci_2_2 : lane_) => (mk_lane__0 (Jnn_Inn Inn_I32) (imul_ (lsizenn1 (lanetype_Inn Inn_I32)) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_1_2)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_2_2))))))) ci_1_lst ci_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (ci_1_2 : lane_) (ci_2_2 : lane_) => (mk_lane__0 Jnn_I32 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_1_2)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2_2))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
 		((|ci_1_lst|) == (|ci_2_lst|)) ->
 		List.Forall (fun (ci_1_3 : lane_) => ((proj_lane__0 ci_1_3) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_3 : lane_) => ((proj_lane__0 ci_2_3) != None)) ci_2_lst ->
-		List.Forall2 (fun (ci_1_3 : lane_) (ci_2_3 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I32) (imul_ (lsizenn1 (lanetype_Inn Inn_I32)) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_1_3)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_2_3)))))))) ci_1_lst ci_2_lst ->
+		List.Forall2 (fun (ci_1_3 : lane_) (ci_2_3 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_1_3)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2_3)))))))) ci_1_lst ci_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextbinop__ (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
-	| fun_vextbinop____fun_vextbinop___case_1 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
-		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1) (fun_half v_half 0%N M_1) M_1)) ->
-		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2) (fun_half v_half 0%N M_1) M_1)) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I32 M_1_0 Jnn_I32 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_1 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
 		List.Forall (fun (ci_1_5 : lane_) => ((proj_lane__0 ci_1_5) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_5 : lane_) => ((proj_lane__0 ci_2_5) != None)) ci_2_lst ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (fun (ci_1_5 : lane_) (ci_2_5 : lane_) => (mk_lane__0 (Jnn_Inn Inn_I32) (imul_ (lsizenn1 (lanetype_Inn Inn_I32)) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_1_5)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_2_5))))))) ci_1_lst ci_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (ci_1_5 : lane_) (ci_2_5 : lane_) => (mk_lane__0 Jnn_I32 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_1_5)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2_5))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
 		((|ci_1_lst|) == (|ci_2_lst|)) ->
 		List.Forall (fun (ci_1_6 : lane_) => ((proj_lane__0 ci_1_6) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_6 : lane_) => ((proj_lane__0 ci_2_6) != None)) ci_2_lst ->
-		List.Forall2 (fun (ci_1_6 : lane_) (ci_2_6 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I32) (imul_ (lsizenn1 (lanetype_Inn Inn_I32)) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_1_6)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) v_sx (!((proj_lane__0 ci_2_6)))))))) ci_1_lst ci_2_lst ->
+		List.Forall2 (fun (ci_1_6 : lane_) (ci_2_6 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_1_6)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2_6)))))))) ci_1_lst ci_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextbinop__ (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
-	| fun_vextbinop____fun_vextbinop___case_2 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
-		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1) (fun_half v_half 0%N M_1) M_1)) ->
-		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2) (fun_half v_half 0%N M_1) M_1)) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I64 M_1_0 Jnn_I32 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_2 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
 		List.Forall (fun (ci_1_8 : lane_) => ((proj_lane__0 ci_1_8) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_8 : lane_) => ((proj_lane__0 ci_2_8) != None)) ci_2_lst ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (fun (ci_1_8 : lane_) (ci_2_8 : lane_) => (mk_lane__0 (Jnn_Inn Inn_I64) (imul_ (lsizenn1 (lanetype_Inn Inn_I64)) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_1_8)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_2_8))))))) ci_1_lst ci_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (ci_1_8 : lane_) (ci_2_8 : lane_) => (mk_lane__0 Jnn_I32 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_1_8)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2_8))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
 		((|ci_1_lst|) == (|ci_2_lst|)) ->
 		List.Forall (fun (ci_1_9 : lane_) => ((proj_lane__0 ci_1_9) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_9 : lane_) => ((proj_lane__0 ci_2_9) != None)) ci_2_lst ->
-		List.Forall2 (fun (ci_1_9 : lane_) (ci_2_9 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I64) (imul_ (lsizenn1 (lanetype_Inn Inn_I64)) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_1_9)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_2_9)))))))) ci_1_lst ci_2_lst ->
+		List.Forall2 (fun (ci_1_9 : lane_) (ci_2_9 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_1_9)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2_9)))))))) ci_1_lst ci_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextbinop__ (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
-	| fun_vextbinop____fun_vextbinop___case_3 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
-		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1) (fun_half v_half 0%N M_1) M_1)) ->
-		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2) (fun_half v_half 0%N M_1) M_1)) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I8 M_1_0 Jnn_I32 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_3 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
 		List.Forall (fun (ci_1_11 : lane_) => ((proj_lane__0 ci_1_11) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_11 : lane_) => ((proj_lane__0 ci_2_11) != None)) ci_2_lst ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (fun (ci_1_11 : lane_) (ci_2_11 : lane_) => (mk_lane__0 (Jnn_Inn Inn_I64) (imul_ (lsizenn1 (lanetype_Inn Inn_I64)) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_1_11)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_2_11))))))) ci_1_lst ci_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (ci_1_11 : lane_) (ci_2_11 : lane_) => (mk_lane__0 Jnn_I32 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_1_11)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2_11))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
 		((|ci_1_lst|) == (|ci_2_lst|)) ->
 		List.Forall (fun (ci_1_12 : lane_) => ((proj_lane__0 ci_1_12) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_12 : lane_) => ((proj_lane__0 ci_2_12) != None)) ci_2_lst ->
-		List.Forall2 (fun (ci_1_12 : lane_) (ci_2_12 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I64) (imul_ (lsizenn1 (lanetype_Inn Inn_I64)) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_1_12)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) v_sx (!((proj_lane__0 ci_2_12)))))))) ci_1_lst ci_2_lst ->
+		List.Forall2 (fun (ci_1_12 : lane_) (ci_2_12 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_1_12)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) v_sx (!((proj_lane__0 ci_2_12)))))))) ci_1_lst ci_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextbinop__ (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
-	| fun_vextbinop____fun_vextbinop___case_4 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
-		(ci_1_lst == (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) ->
-		(ci_2_lst == (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2)) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I16 M_1_0 Jnn_I32 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_4 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
 		List.Forall (fun (ci_1_14 : lane_) => ((proj_lane__0 ci_1_14) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_14 : lane_) => ((proj_lane__0 ci_2_14) != None)) ci_2_lst ->
-		((concat_ iN (list_zipWith (fun (cj_1_13 : iN) (cj_2_13 : iN) => [::cj_1_13; cj_2_13]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_14 : lane_) (ci_2_14 : lane_) => (imul_ (lsizenn1 (lanetype_Inn Inn_I32)) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) res_S (!((proj_lane__0 ci_1_14)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I32)) res_S (!((proj_lane__0 ci_2_14)))))) ci_1_lst ci_2_lst)) ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (fun (cj_1_14 : iN) (cj_2_14 : iN) => (mk_lane__0 (Jnn_Inn Inn_I32) (iadd_ (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_14 cj_2_14))) cj_1_lst cj_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) ->
-		((|cj_1_lst|) == (|cj_2_lst|)) ->
-		List.Forall2 (fun (cj_1_15 : iN) (cj_2_15 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I32) (iadd_ (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_15 cj_2_15)))) cj_1_lst cj_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (ci_1_14 : lane_) (ci_2_14 : lane_) => (mk_lane__0 Jnn_I64 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_1_14)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_2_14))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_15 : lane_) => ((proj_lane__0 ci_1_15) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_15 : lane_) => ((proj_lane__0 ci_2_15) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_15 : lane_) (ci_2_15 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_1_15)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_2_15)))))))) ci_1_lst ci_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextbinop__ (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 DOTS) c_1 c_2 (Some c)
-	| fun_vextbinop____fun_vextbinop___case_5 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
-		(ci_1_lst == (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1)) ->
-		(ci_2_lst == (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2)) ->
-		List.Forall (fun (ci_1_16 : lane_) => ((proj_lane__0 ci_1_16) != None)) ci_1_lst ->
-		List.Forall (fun (ci_2_16 : lane_) => ((proj_lane__0 ci_2_16) != None)) ci_2_lst ->
-		((concat_ iN (list_zipWith (fun (cj_1_16 : iN) (cj_2_16 : iN) => [::cj_1_16; cj_2_16]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_16 : lane_) (ci_2_16 : lane_) => (imul_ (lsizenn1 (lanetype_Inn Inn_I32)) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) res_S (!((proj_lane__0 ci_1_16)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I32)) res_S (!((proj_lane__0 ci_2_16)))))) ci_1_lst ci_2_lst)) ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_1)) (list_zipWith (fun (cj_1_17 : iN) (cj_2_17 : iN) => (mk_lane__0 (Jnn_Inn Inn_I32) (iadd_ (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_17 cj_2_17))) cj_1_lst cj_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_1))) ->
-		((|cj_1_lst|) == (|cj_2_lst|)) ->
-		List.Forall2 (fun (cj_1_18 : iN) (cj_2_18 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I32) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I32) (iadd_ (lsizenn1 (lanetype_Inn Inn_I32)) cj_1_18 cj_2_18)))) cj_1_lst cj_2_lst ->
-		(M_1 == M_1_0) ->
-		fun_vextbinop__ (ishape_X Jnn_I32 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I32 M_1_0 DOTS) c_1 c_2 (Some c)
-	| fun_vextbinop____fun_vextbinop___case_6 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
-		(ci_1_lst == (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_1)) ->
-		(ci_2_lst == (lanes_ (X (lanetype_Inn Inn_I32) (mk_dim M_2)) c_2)) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I32 M_1_0 Jnn_I64 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_5 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_17 : lane_) => ((proj_lane__0 ci_1_17) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_17 : lane_) => ((proj_lane__0 ci_2_17) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (ci_1_17 : lane_) (ci_2_17 : lane_) => (mk_lane__0 Jnn_I64 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_1_17)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_2_17))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
 		List.Forall (fun (ci_1_18 : lane_) => ((proj_lane__0 ci_1_18) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_18 : lane_) => ((proj_lane__0 ci_2_18) != None)) ci_2_lst ->
-		((concat_ iN (list_zipWith (fun (cj_1_19 : iN) (cj_2_19 : iN) => [::cj_1_19; cj_2_19]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_18 : lane_) (ci_2_18 : lane_) => (imul_ (lsizenn1 (lanetype_Inn Inn_I64)) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) res_S (!((proj_lane__0 ci_1_18)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I32)) (lsizenn1 (lanetype_Inn Inn_I64)) res_S (!((proj_lane__0 ci_2_18)))))) ci_1_lst ci_2_lst)) ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (fun (cj_1_20 : iN) (cj_2_20 : iN) => (mk_lane__0 (Jnn_Inn Inn_I64) (iadd_ (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_20 cj_2_20))) cj_1_lst cj_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I32) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) ->
-		((|cj_1_lst|) == (|cj_2_lst|)) ->
-		List.Forall2 (fun (cj_1_21 : iN) (cj_2_21 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I64) (iadd_ (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_21 cj_2_21)))) cj_1_lst cj_2_lst ->
+		List.Forall2 (fun (ci_1_18 : lane_) (ci_2_18 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_1_18)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_2_18)))))))) ci_1_lst ci_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextbinop__ (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I32 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 DOTS) c_1 c_2 (Some c)
-	| fun_vextbinop____fun_vextbinop___case_7 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
-		(ci_1_lst == (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_1)) ->
-		(ci_2_lst == (lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_2)) c_2)) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I64 M_1_0 Jnn_I64 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_6 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
 		List.Forall (fun (ci_1_20 : lane_) => ((proj_lane__0 ci_1_20) != None)) ci_1_lst ->
 		List.Forall (fun (ci_2_20 : lane_) => ((proj_lane__0 ci_2_20) != None)) ci_2_lst ->
-		((concat_ iN (list_zipWith (fun (cj_1_22 : iN) (cj_2_22 : iN) => [::cj_1_22; cj_2_22]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_20 : lane_) (ci_2_20 : lane_) => (imul_ (lsizenn1 (lanetype_Inn Inn_I64)) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) res_S (!((proj_lane__0 ci_1_20)))) (extend__ (lsizenn2 (lanetype_Inn Inn_I64)) (lsizenn1 (lanetype_Inn Inn_I64)) res_S (!((proj_lane__0 ci_2_20)))))) ci_1_lst ci_2_lst)) ->
-		(c == (inv_lanes_ (X (lanetype_Inn Inn_I64) (mk_dim M_1)) (list_zipWith (fun (cj_1_23 : iN) (cj_2_23 : iN) => (mk_lane__0 (Jnn_Inn Inn_I64) (iadd_ (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_23 cj_2_23))) cj_1_lst cj_2_lst))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_2))) ->
-		(wf_shape (X (lanetype_Inn Inn_I64) (mk_dim M_1))) ->
-		((|cj_1_lst|) == (|cj_2_lst|)) ->
-		List.Forall2 (fun (cj_1_24 : iN) (cj_2_24 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Inn Inn_I64) (mk_dim M_1))) (mk_lane__0 (Jnn_Inn Inn_I64) (iadd_ (lsizenn1 (lanetype_Inn Inn_I64)) cj_1_24 cj_2_24)))) cj_1_lst cj_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (ci_1_20 : lane_) (ci_2_20 : lane_) => (mk_lane__0 Jnn_I64 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_1_20)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_2_20))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_21 : lane_) => ((proj_lane__0 ci_1_21) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_21 : lane_) => ((proj_lane__0 ci_2_21) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_21 : lane_) (ci_2_21 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_1_21)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_2_21)))))))) ci_1_lst ci_2_lst ->
 		(M_1 == M_1_0) ->
-		fun_vextbinop__ (ishape_X Jnn_I64 (mk_dim M_1)) (ishape_X Jnn_I64 (mk_dim M_2)) (mk_vextbinop__0 Jnn_I64 M_1_0 DOTS) c_1 c_2 (Some c)
-	| fun_vextbinop___case_8 : forall (x0 : ishape) (x1 : ishape) (x2 : vextbinop_) (x3 : vec_) (x4 : vec_), 
-		(~(fun_vextbinop___before_fun_vextbinop___case_8 x0 x1 x2 x3 x4)) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I8 M_1_0 Jnn_I64 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_7 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_23 : lane_) => ((proj_lane__0 ci_1_23) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_23 : lane_) => ((proj_lane__0 ci_2_23) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (ci_1_23 : lane_) (ci_2_23 : lane_) => (mk_lane__0 Jnn_I64 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_1_23)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_2_23))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_24 : lane_) => ((proj_lane__0 ci_1_24) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_24 : lane_) => ((proj_lane__0 ci_2_24) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_24 : lane_) (ci_2_24 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_1_24)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) v_sx (!((proj_lane__0 ci_2_24)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I16 M_1_0 Jnn_I64 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_8 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_26 : lane_) => ((proj_lane__0 ci_1_26) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_26 : lane_) => ((proj_lane__0 ci_2_26) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (ci_1_26 : lane_) (ci_2_26 : lane_) => (mk_lane__0 Jnn_I8 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_1_26)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_2_26))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_27 : lane_) => ((proj_lane__0 ci_1_27) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_27 : lane_) => ((proj_lane__0 ci_2_27) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_27 : lane_) (ci_2_27 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_1_27)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_2_27)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I32 M_1_0 Jnn_I8 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_9 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_29 : lane_) => ((proj_lane__0 ci_1_29) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_29 : lane_) => ((proj_lane__0 ci_2_29) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (ci_1_29 : lane_) (ci_2_29 : lane_) => (mk_lane__0 Jnn_I8 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_1_29)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_2_29))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_30 : lane_) => ((proj_lane__0 ci_1_30) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_30 : lane_) => ((proj_lane__0 ci_2_30) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_30 : lane_) (ci_2_30 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_1_30)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_2_30)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I64 M_1_0 Jnn_I8 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_10 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_32 : lane_) => ((proj_lane__0 ci_1_32) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_32 : lane_) => ((proj_lane__0 ci_2_32) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (ci_1_32 : lane_) (ci_2_32 : lane_) => (mk_lane__0 Jnn_I8 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_1_32)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_2_32))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_33 : lane_) => ((proj_lane__0 ci_1_33) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_33 : lane_) => ((proj_lane__0 ci_2_33) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_33 : lane_) (ci_2_33 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_1_33)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_2_33)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I8 M_1_0 Jnn_I8 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_11 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_35 : lane_) => ((proj_lane__0 ci_1_35) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_35 : lane_) => ((proj_lane__0 ci_2_35) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (ci_1_35 : lane_) (ci_2_35 : lane_) => (mk_lane__0 Jnn_I8 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_1_35)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_2_35))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_36 : lane_) => ((proj_lane__0 ci_1_36) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_36 : lane_) => ((proj_lane__0 ci_2_36) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_36 : lane_) (ci_2_36 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_1_36)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) v_sx (!((proj_lane__0 ci_2_36)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I16 M_1_0 Jnn_I8 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_12 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_38 : lane_) => ((proj_lane__0 ci_1_38) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_38 : lane_) => ((proj_lane__0 ci_2_38) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (ci_1_38 : lane_) (ci_2_38 : lane_) => (mk_lane__0 Jnn_I16 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_1_38)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_2_38))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_39 : lane_) => ((proj_lane__0 ci_1_39) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_39 : lane_) => ((proj_lane__0 ci_2_39) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_39 : lane_) (ci_2_39 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_1_39)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_2_39)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I32 M_1_0 Jnn_I16 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_13 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_41 : lane_) => ((proj_lane__0 ci_1_41) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_41 : lane_) => ((proj_lane__0 ci_2_41) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (ci_1_41 : lane_) (ci_2_41 : lane_) => (mk_lane__0 Jnn_I16 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_1_41)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_2_41))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_42 : lane_) => ((proj_lane__0 ci_1_42) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_42 : lane_) => ((proj_lane__0 ci_2_42) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_42 : lane_) (ci_2_42 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_1_42)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_2_42)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I64 M_1_0 Jnn_I16 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_14 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_44 : lane_) => ((proj_lane__0 ci_1_44) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_44 : lane_) => ((proj_lane__0 ci_2_44) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (ci_1_44 : lane_) (ci_2_44 : lane_) => (mk_lane__0 Jnn_I16 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_1_44)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_2_44))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_45 : lane_) => ((proj_lane__0 ci_1_45) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_45 : lane_) => ((proj_lane__0 ci_2_45) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_45 : lane_) (ci_2_45 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_1_45)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_2_45)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I8 M_1_0 Jnn_I16 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_15 : forall (M_1 : N) (M_2 : N) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
+		(ci_2_lst == (list_slice (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_2) (fun_half v_half 0%N M_2) M_2)) ->
+		List.Forall (fun (ci_1_47 : lane_) => ((proj_lane__0 ci_1_47) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_47 : lane_) => ((proj_lane__0 ci_2_47) != None)) ci_2_lst ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (ci_1_47 : lane_) (ci_2_47 : lane_) => (mk_lane__0 Jnn_I16 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_1_47)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_2_47))))))) ci_1_lst ci_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|ci_1_lst|) == (|ci_2_lst|)) ->
+		List.Forall (fun (ci_1_48 : lane_) => ((proj_lane__0 ci_1_48) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_48 : lane_) => ((proj_lane__0 ci_2_48) != None)) ci_2_lst ->
+		List.Forall2 (fun (ci_1_48 : lane_) (ci_2_48 : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_1_48)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) v_sx (!((proj_lane__0 ci_2_48)))))))) ci_1_lst ci_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I16 M_1_0 Jnn_I16 M_2_0 (EXTMUL v_half v_sx)) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_16 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_50 : lane_) => ((proj_lane__0 ci_1_50) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_50 : lane_) => ((proj_lane__0 ci_2_50) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_49 : iN) (cj_2_49 : iN) => [::cj_1_49; cj_2_49]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_50 : lane_) (ci_2_50 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) res_S (!((proj_lane__0 ci_1_50)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I32)) res_S (!((proj_lane__0 ci_2_50)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (cj_1_50 : iN) (cj_2_50 : iN) => (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_50 cj_2_50))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_51 : iN) (cj_2_51 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_51 cj_2_51)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I32 M_1_0 Jnn_I32 M_2_0 DOTS) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_17 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_52 : lane_) => ((proj_lane__0 ci_1_52) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_52 : lane_) => ((proj_lane__0 ci_2_52) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_52 : iN) (cj_2_52 : iN) => [::cj_1_52; cj_2_52]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_52 : lane_) (ci_2_52 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) res_S (!((proj_lane__0 ci_1_52)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I32)) res_S (!((proj_lane__0 ci_2_52)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (cj_1_53 : iN) (cj_2_53 : iN) => (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_53 cj_2_53))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_54 : iN) (cj_2_54 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_54 cj_2_54)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I64 M_1_0 Jnn_I32 M_2_0 DOTS) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_18 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_54 : lane_) => ((proj_lane__0 ci_1_54) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_54 : lane_) => ((proj_lane__0 ci_2_54) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_55 : iN) (cj_2_55 : iN) => [::cj_1_55; cj_2_55]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_54 : lane_) (ci_2_54 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) res_S (!((proj_lane__0 ci_1_54)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I32)) res_S (!((proj_lane__0 ci_2_54)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (cj_1_56 : iN) (cj_2_56 : iN) => (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_56 cj_2_56))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_57 : iN) (cj_2_57 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_57 cj_2_57)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I8 M_1_0 Jnn_I32 M_2_0 DOTS) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_19 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_56 : lane_) => ((proj_lane__0 ci_1_56) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_56 : lane_) => ((proj_lane__0 ci_2_56) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_58 : iN) (cj_2_58 : iN) => [::cj_1_58; cj_2_58]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_56 : lane_) (ci_2_56 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I32)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) res_S (!((proj_lane__0 ci_1_56)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I32)) res_S (!((proj_lane__0 ci_2_56)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_2)) (list_zipWith (fun (cj_1_59 : iN) (cj_2_59 : iN) => (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_59 cj_2_59))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_60 : iN) (cj_2_60 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim M_2))) (mk_lane__0 Jnn_I32 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I32)) cj_1_60 cj_2_60)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I32 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I16 M_1_0 Jnn_I32 M_2_0 DOTS) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_20 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_58 : lane_) => ((proj_lane__0 ci_1_58) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_58 : lane_) => ((proj_lane__0 ci_2_58) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_61 : iN) (cj_2_61 : iN) => [::cj_1_61; cj_2_61]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_58 : lane_) (ci_2_58 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) res_S (!((proj_lane__0 ci_1_58)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I64)) res_S (!((proj_lane__0 ci_2_58)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (cj_1_62 : iN) (cj_2_62 : iN) => (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_62 cj_2_62))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_63 : iN) (cj_2_63 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_63 cj_2_63)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I32 M_1_0 Jnn_I64 M_2_0 DOTS) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_21 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_60 : lane_) => ((proj_lane__0 ci_1_60) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_60 : lane_) => ((proj_lane__0 ci_2_60) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_64 : iN) (cj_2_64 : iN) => [::cj_1_64; cj_2_64]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_60 : lane_) (ci_2_60 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) res_S (!((proj_lane__0 ci_1_60)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I64)) res_S (!((proj_lane__0 ci_2_60)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (cj_1_65 : iN) (cj_2_65 : iN) => (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_65 cj_2_65))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_66 : iN) (cj_2_66 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_66 cj_2_66)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I64 M_1_0 Jnn_I64 M_2_0 DOTS) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_22 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_62 : lane_) => ((proj_lane__0 ci_1_62) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_62 : lane_) => ((proj_lane__0 ci_2_62) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_67 : iN) (cj_2_67 : iN) => [::cj_1_67; cj_2_67]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_62 : lane_) (ci_2_62 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) res_S (!((proj_lane__0 ci_1_62)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I64)) res_S (!((proj_lane__0 ci_2_62)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (cj_1_68 : iN) (cj_2_68 : iN) => (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_68 cj_2_68))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_69 : iN) (cj_2_69 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_69 cj_2_69)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I8 M_1_0 Jnn_I64 M_2_0 DOTS) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_23 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_64 : lane_) => ((proj_lane__0 ci_1_64) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_64 : lane_) => ((proj_lane__0 ci_2_64) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_70 : iN) (cj_2_70 : iN) => [::cj_1_70; cj_2_70]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_64 : lane_) (ci_2_64 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I64)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) res_S (!((proj_lane__0 ci_1_64)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I64)) res_S (!((proj_lane__0 ci_2_64)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_2)) (list_zipWith (fun (cj_1_71 : iN) (cj_2_71 : iN) => (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_71 cj_2_71))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_72 : iN) (cj_2_72 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim M_2))) (mk_lane__0 Jnn_I64 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I64)) cj_1_72 cj_2_72)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I64 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I16 M_1_0 Jnn_I64 M_2_0 DOTS) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_24 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_66 : lane_) => ((proj_lane__0 ci_1_66) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_66 : lane_) => ((proj_lane__0 ci_2_66) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_73 : iN) (cj_2_73 : iN) => [::cj_1_73; cj_2_73]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_66 : lane_) (ci_2_66 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) res_S (!((proj_lane__0 ci_1_66)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I8)) res_S (!((proj_lane__0 ci_2_66)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (cj_1_74 : iN) (cj_2_74 : iN) => (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_74 cj_2_74))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_75 : iN) (cj_2_75 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_75 cj_2_75)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I32 M_1_0 Jnn_I8 M_2_0 DOTS) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_25 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_68 : lane_) => ((proj_lane__0 ci_1_68) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_68 : lane_) => ((proj_lane__0 ci_2_68) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_76 : iN) (cj_2_76 : iN) => [::cj_1_76; cj_2_76]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_68 : lane_) (ci_2_68 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) res_S (!((proj_lane__0 ci_1_68)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I8)) res_S (!((proj_lane__0 ci_2_68)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (cj_1_77 : iN) (cj_2_77 : iN) => (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_77 cj_2_77))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_78 : iN) (cj_2_78 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_78 cj_2_78)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I64 M_1_0 Jnn_I8 M_2_0 DOTS) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_26 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_70 : lane_) => ((proj_lane__0 ci_1_70) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_70 : lane_) => ((proj_lane__0 ci_2_70) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_79 : iN) (cj_2_79 : iN) => [::cj_1_79; cj_2_79]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_70 : lane_) (ci_2_70 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) res_S (!((proj_lane__0 ci_1_70)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I8)) res_S (!((proj_lane__0 ci_2_70)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (cj_1_80 : iN) (cj_2_80 : iN) => (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_80 cj_2_80))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_81 : iN) (cj_2_81 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_81 cj_2_81)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I8 M_1_0 Jnn_I8 M_2_0 DOTS) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_27 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_72 : lane_) => ((proj_lane__0 ci_1_72) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_72 : lane_) => ((proj_lane__0 ci_2_72) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_82 : iN) (cj_2_82 : iN) => [::cj_1_82; cj_2_82]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_72 : lane_) (ci_2_72 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I8)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) res_S (!((proj_lane__0 ci_1_72)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I8)) res_S (!((proj_lane__0 ci_2_72)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_2)) (list_zipWith (fun (cj_1_83 : iN) (cj_2_83 : iN) => (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_83 cj_2_83))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_84 : iN) (cj_2_84 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim M_2))) (mk_lane__0 Jnn_I8 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I8)) cj_1_84 cj_2_84)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I8 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I16 M_1_0 Jnn_I8 M_2_0 DOTS) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_28 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I32) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_74 : lane_) => ((proj_lane__0 ci_1_74) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_74 : lane_) => ((proj_lane__0 ci_2_74) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_85 : iN) (cj_2_85 : iN) => [::cj_1_85; cj_2_85]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_74 : lane_) (ci_2_74 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) res_S (!((proj_lane__0 ci_1_74)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I32)) (lsizenn2 (lanetype_Jnn Jnn_I16)) res_S (!((proj_lane__0 ci_2_74)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (cj_1_86 : iN) (cj_2_86 : iN) => (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_86 cj_2_86))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_87 : iN) (cj_2_87 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_87 cj_2_87)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I32 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I32 M_1_0 Jnn_I16 M_2_0 DOTS) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_29 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I64) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_76 : lane_) => ((proj_lane__0 ci_1_76) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_76 : lane_) => ((proj_lane__0 ci_2_76) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_88 : iN) (cj_2_88 : iN) => [::cj_1_88; cj_2_88]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_76 : lane_) (ci_2_76 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) res_S (!((proj_lane__0 ci_1_76)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I64)) (lsizenn2 (lanetype_Jnn Jnn_I16)) res_S (!((proj_lane__0 ci_2_76)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (cj_1_89 : iN) (cj_2_89 : iN) => (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_89 cj_2_89))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_90 : iN) (cj_2_90 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_90 cj_2_90)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I64 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I64 M_1_0 Jnn_I16 M_2_0 DOTS) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_30 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_78 : lane_) => ((proj_lane__0 ci_1_78) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_78 : lane_) => ((proj_lane__0 ci_2_78) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_91 : iN) (cj_2_91 : iN) => [::cj_1_91; cj_2_91]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_78 : lane_) (ci_2_78 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) res_S (!((proj_lane__0 ci_1_78)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I8)) (lsizenn2 (lanetype_Jnn Jnn_I16)) res_S (!((proj_lane__0 ci_2_78)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (cj_1_92 : iN) (cj_2_92 : iN) => (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_92 cj_2_92))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_93 : iN) (cj_2_93 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_93 cj_2_93)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I8 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I8 M_1_0 Jnn_I16 M_2_0 DOTS) c_1 c_2 (Some c)
+	| fun_vextbinop____fun_vextbinop___case_31 : forall (M_1 : N) (M_2 : N) (c_1 : uN) (c_2 : uN) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)) (M_1_0 : N) (M_2_0 : N) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (c : vec_), 
+		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_1)) ->
+		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_1)) c_2)) ->
+		List.Forall (fun (ci_1_80 : lane_) => ((proj_lane__0 ci_1_80) != None)) ci_1_lst ->
+		List.Forall (fun (ci_2_80 : lane_) => ((proj_lane__0 ci_2_80) != None)) ci_2_lst ->
+		((concat_ iN (list_zipWith (fun (cj_1_94 : iN) (cj_2_94 : iN) => [::cj_1_94; cj_2_94]) cj_1_lst cj_2_lst)) == (list_zipWith (fun (ci_1_80 : lane_) (ci_2_80 : lane_) => (imul_ (lsizenn2 (lanetype_Jnn Jnn_I16)) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) res_S (!((proj_lane__0 ci_1_80)))) (extend__ (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Jnn Jnn_I16)) res_S (!((proj_lane__0 ci_2_80)))))) ci_1_lst ci_2_lst)) ->
+		(c == (inv_lanes_ (X (lanetype_Jnn Jnn_I16) (mk_dim M_2)) (list_zipWith (fun (cj_1_95 : iN) (cj_2_95 : iN) => (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_95 cj_2_95))) cj_1_lst cj_2_lst))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_1))) ->
+		(wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) ->
+		((|cj_1_lst|) == (|cj_2_lst|)) ->
+		List.Forall2 (fun (cj_1_96 : iN) (cj_2_96 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim M_2))) (mk_lane__0 Jnn_I16 (iadd_ (lsizenn2 (lanetype_Jnn Jnn_I16)) cj_1_96 cj_2_96)))) cj_1_lst cj_2_lst ->
+		(M_1 == M_1_0) ->
+		(M_2 == M_2_0) ->
+		fun_vextbinop__ (mk_ishape (X lanetype_I16 (mk_dim M_1))) (mk_ishape (X lanetype_I16 (mk_dim M_2))) (mk_vextbinop___0 Jnn_I16 M_1_0 Jnn_I16 M_2_0 DOTS) c_1 c_2 (Some c)
+	| fun_vextbinop___case_32 : forall (x0 : ishape) (x1 : ishape) (x2 : vextbinop__) (x3 : vec_) (x4 : vec_), 
+		(~(fun_vextbinop___before_fun_vextbinop___case_32 x0 x1 x2 x3 x4)) ->
 		fun_vextbinop__ x0 x1 x2 x3 x4 None.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:587.6-587.18 *)
-Lemma vextbinop___is_wf : forall (ishape_1 : ishape) (ishape_2 : ishape) (v_vextbinop_ : vextbinop_) (v_vec_ : vec_) (vec__0 : vec_) (ret_val : vec_) (var_0 : (option vec_)),
-	(fun_vextbinop__ ishape_1 ishape_2 v_vextbinop_ v_vec_ vec__0 var_0) ->
+Lemma vextbinop___is_wf : forall (ishape_1 : ishape) (ishape_2 : ishape) (v_vextbinop__ : vextbinop__) (v_vec_ : vec_) (vec__0 : vec_) (ret_val : vec_) (var_0 : (option vec_)),
+	(fun_vextbinop__ ishape_1 ishape_2 v_vextbinop__ v_vec_ vec__0 var_0) ->
 	(wf_ishape ishape_1) ->
 	(wf_ishape ishape_2) ->
-	(wf_vextbinop_ ishape_1 v_vextbinop_) ->
+	(wf_vextbinop__ ishape_1 ishape_2 v_vextbinop__) ->
 	(wf_uN 128%N v_vec_) ->
 	(wf_uN 128%N vec__0) ->
 	(var_0 != None) ->
@@ -10559,32 +12617,60 @@ Proof.
 Qed.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:610.6-610.16 *)
-Inductive fun_vshiftop__before_fun_vshiftop__case_2 : ishape -> vshiftop_ -> lane_ -> u32 -> Prop :=
-	| fun_vshiftop__case_1 : forall (v_Jnn : Jnn) (v_M : N) (v_sx : sx) (lane : uN) (v_n : N) (Jnn_1 : Jnn) (Jnn_0 : Jnn) (M_0 : N), 
-		(v_Jnn == Jnn_1) ->
-		(v_Jnn == Jnn_0) ->
+Inductive fun_vshiftop__before_fun_vshiftop__case_8 : ishape -> vshiftop_ -> lane_ -> u32 -> Prop :=
+	| fun_vshiftop__case_7 : forall (v_M : N) (v_sx : sx) (lane : uN) (v_n : N) (M_0 : N), 
 		(v_M == M_0) ->
-		fun_vshiftop__before_fun_vshiftop__case_2 (ishape_X v_Jnn (mk_dim v_M)) (mk_vshiftop__0 Jnn_0 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_1 lane) (mk_uN v_n)
-	| fun_vshiftop__case_0 : forall (v_Jnn : Jnn) (v_M : N) (lane : uN) (v_n : N) (Jnn_1 : Jnn) (Jnn_0 : Jnn) (M_0 : N), 
-		(v_Jnn == Jnn_1) ->
-		(v_Jnn == Jnn_0) ->
+		fun_vshiftop__before_fun_vshiftop__case_8 (mk_ishape (X lanetype_I16 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I16 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_I16 lane) (mk_uN v_n)
+	| fun_vshiftop__case_6 : forall (v_M : N) (v_sx : sx) (lane : uN) (v_n : N) (M_0 : N), 
 		(v_M == M_0) ->
-		fun_vshiftop__before_fun_vshiftop__case_2 (ishape_X v_Jnn (mk_dim v_M)) (mk_vshiftop__0 Jnn_0 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_1 lane) (mk_uN v_n).
+		fun_vshiftop__before_fun_vshiftop__case_8 (mk_ishape (X lanetype_I8 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I8 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_I8 lane) (mk_uN v_n)
+	| fun_vshiftop__case_5 : forall (v_M : N) (v_sx : sx) (lane : uN) (v_n : N) (M_0 : N), 
+		(v_M == M_0) ->
+		fun_vshiftop__before_fun_vshiftop__case_8 (mk_ishape (X lanetype_I64 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I64 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_I64 lane) (mk_uN v_n)
+	| fun_vshiftop__case_4 : forall (v_M : N) (v_sx : sx) (lane : uN) (v_n : N) (M_0 : N), 
+		(v_M == M_0) ->
+		fun_vshiftop__before_fun_vshiftop__case_8 (mk_ishape (X lanetype_I32 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I32 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_I32 lane) (mk_uN v_n)
+	| fun_vshiftop__case_3 : forall (v_M : N) (lane : uN) (v_n : N) (M_0 : N), 
+		(v_M == M_0) ->
+		fun_vshiftop__before_fun_vshiftop__case_8 (mk_ishape (X lanetype_I16 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I16 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_I16 lane) (mk_uN v_n)
+	| fun_vshiftop__case_2 : forall (v_M : N) (lane : uN) (v_n : N) (M_0 : N), 
+		(v_M == M_0) ->
+		fun_vshiftop__before_fun_vshiftop__case_8 (mk_ishape (X lanetype_I8 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I8 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_I8 lane) (mk_uN v_n)
+	| fun_vshiftop__case_1 : forall (v_M : N) (lane : uN) (v_n : N) (M_0 : N), 
+		(v_M == M_0) ->
+		fun_vshiftop__before_fun_vshiftop__case_8 (mk_ishape (X lanetype_I64 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I64 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_I64 lane) (mk_uN v_n)
+	| fun_vshiftop__case_0 : forall (v_M : N) (lane : uN) (v_n : N) (M_0 : N), 
+		(v_M == M_0) ->
+		fun_vshiftop__before_fun_vshiftop__case_8 (mk_ishape (X lanetype_I32 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I32 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_I32 lane) (mk_uN v_n).
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:610.6-610.16 *)
 Inductive fun_vshiftop_ : ishape -> vshiftop_ -> lane_ -> u32 -> (option lane_) -> Prop :=
-	| fun_vshiftop___fun_vshiftop__case_0 : forall (v_Jnn : Jnn) (v_M : N) (lane : uN) (v_n : N) (Jnn_1 : Jnn) (Jnn_0 : Jnn) (M_0 : N), 
-		(v_Jnn == Jnn_1) ->
-		(v_Jnn == Jnn_0) ->
+	| fun_vshiftop___fun_vshiftop__case_0 : forall (v_M : N) (lane : uN) (v_n : N) (M_0 : N), 
 		(v_M == M_0) ->
-		fun_vshiftop_ (ishape_X v_Jnn (mk_dim v_M)) (mk_vshiftop__0 Jnn_0 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_1 lane) (mk_uN v_n) (Some (mk_lane__0 v_Jnn (ishl_ (lsizenn (lanetype_Jnn v_Jnn)) lane (mk_uN v_n))))
-	| fun_vshiftop___fun_vshiftop__case_1 : forall (v_Jnn : Jnn) (v_M : N) (v_sx : sx) (lane : uN) (v_n : N) (Jnn_1 : Jnn) (Jnn_0 : Jnn) (M_0 : N), 
-		(v_Jnn == Jnn_1) ->
-		(v_Jnn == Jnn_0) ->
+		fun_vshiftop_ (mk_ishape (X lanetype_I32 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I32 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_I32 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I32 (ishl_ (lsizenn (lanetype_Jnn Jnn_I32)) lane (mk_uN v_n))))
+	| fun_vshiftop___fun_vshiftop__case_1 : forall (v_M : N) (lane : uN) (v_n : N) (M_0 : N), 
 		(v_M == M_0) ->
-		fun_vshiftop_ (ishape_X v_Jnn (mk_dim v_M)) (mk_vshiftop__0 Jnn_0 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_1 lane) (mk_uN v_n) (Some (mk_lane__0 v_Jnn (ishr_ (lsizenn (lanetype_Jnn v_Jnn)) v_sx lane (mk_uN v_n))))
-	| fun_vshiftop__case_2 : forall (x0 : ishape) (x1 : vshiftop_) (x2 : lane_) (x3 : u32), 
-		(~(fun_vshiftop__before_fun_vshiftop__case_2 x0 x1 x2 x3)) ->
+		fun_vshiftop_ (mk_ishape (X lanetype_I64 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I64 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_I64 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I64 (ishl_ (lsizenn (lanetype_Jnn Jnn_I64)) lane (mk_uN v_n))))
+	| fun_vshiftop___fun_vshiftop__case_2 : forall (v_M : N) (lane : uN) (v_n : N) (M_0 : N), 
+		(v_M == M_0) ->
+		fun_vshiftop_ (mk_ishape (X lanetype_I8 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I8 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_I8 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I8 (ishl_ (lsizenn (lanetype_Jnn Jnn_I8)) lane (mk_uN v_n))))
+	| fun_vshiftop___fun_vshiftop__case_3 : forall (v_M : N) (lane : uN) (v_n : N) (M_0 : N), 
+		(v_M == M_0) ->
+		fun_vshiftop_ (mk_ishape (X lanetype_I16 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I16 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_I16 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I16 (ishl_ (lsizenn (lanetype_Jnn Jnn_I16)) lane (mk_uN v_n))))
+	| fun_vshiftop___fun_vshiftop__case_4 : forall (v_M : N) (v_sx : sx) (lane : uN) (v_n : N) (M_0 : N), 
+		(v_M == M_0) ->
+		fun_vshiftop_ (mk_ishape (X lanetype_I32 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I32 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_I32 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I32 (ishr_ (lsizenn (lanetype_Jnn Jnn_I32)) v_sx lane (mk_uN v_n))))
+	| fun_vshiftop___fun_vshiftop__case_5 : forall (v_M : N) (v_sx : sx) (lane : uN) (v_n : N) (M_0 : N), 
+		(v_M == M_0) ->
+		fun_vshiftop_ (mk_ishape (X lanetype_I64 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I64 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_I64 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I64 (ishr_ (lsizenn (lanetype_Jnn Jnn_I64)) v_sx lane (mk_uN v_n))))
+	| fun_vshiftop___fun_vshiftop__case_6 : forall (v_M : N) (v_sx : sx) (lane : uN) (v_n : N) (M_0 : N), 
+		(v_M == M_0) ->
+		fun_vshiftop_ (mk_ishape (X lanetype_I8 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I8 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_I8 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I8 (ishr_ (lsizenn (lanetype_Jnn Jnn_I8)) v_sx lane (mk_uN v_n))))
+	| fun_vshiftop___fun_vshiftop__case_7 : forall (v_M : N) (v_sx : sx) (lane : uN) (v_n : N) (M_0 : N), 
+		(v_M == M_0) ->
+		fun_vshiftop_ (mk_ishape (X lanetype_I16 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I16 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_I16 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I16 (ishr_ (lsizenn (lanetype_Jnn Jnn_I16)) v_sx lane (mk_uN v_n))))
+	| fun_vshiftop__case_8 : forall (x0 : ishape) (x1 : vshiftop_) (x2 : lane_) (x3 : u32), 
+		(~(fun_vshiftop__before_fun_vshiftop__case_8 x0 x1 x2 x3)) ->
 		fun_vshiftop_ x0 x1 x2 x3 None.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:610.6-610.16 *)
@@ -10592,11 +12678,11 @@ Lemma vshiftop__is_wf : forall (v_ishape : ishape) (v_vshiftop_ : vshiftop_) (v_
 	(fun_vshiftop_ v_ishape v_vshiftop_ v_lane_ v_u32 var_0) ->
 	(wf_ishape v_ishape) ->
 	(wf_vshiftop_ v_ishape v_vshiftop_) ->
-	(wf_lane_ (fun_lanetype (shape_ishape v_ishape)) v_lane_) ->
+	(wf_lane_ (fun_lanetype (v_ishape :> shape)) v_lane_) ->
 	(wf_uN 32%N v_u32) ->
 	(var_0 != None) ->
 	(ret_val == (!(var_0))) ->
-	(wf_lane_ (fun_lanetype (shape_ishape v_ishape)) ret_val).
+	(wf_lane_ (fun_lanetype (v_ishape :> shape)) ret_val).
 Proof.
 	move => v_ishape v_vshiftop_ v_lane_ v_u32 ret_val var_0 H Hsh Hop Hl Hu Hne /eqP ->.
 	case: H Hsh Hop Hl Hu Hne => *.
@@ -11277,10 +13363,10 @@ Inductive admininstr : Type :=
 	| admininstr_VSPLAT (v_shape : shape) : admininstr
 	| admininstr_VEXTRACT_LANE (v_shape : shape) (sx_opt : (option sx)) (v_laneidx : laneidx) : admininstr
 	| admininstr_VREPLACE_LANE (v_shape : shape) (v_laneidx : laneidx) : admininstr
-	| admininstr_VEXTUNOP (ishape_1 : ishape) (ishape_2 : ishape) (_ : vextunop_) : admininstr
-	| admininstr_VEXTBINOP (ishape_1 : ishape) (ishape_2 : ishape) (_ : vextbinop_) : admininstr
+	| admininstr_VEXTUNOP (ishape_1 : ishape) (ishape_2 : ishape) (_ : vextunop__) : admininstr
+	| admininstr_VEXTBINOP (ishape_1 : ishape) (ishape_2 : ishape) (_ : vextbinop__) : admininstr
 	| admininstr_VNARROW (ishape_1 : ishape) (ishape_2 : ishape) (v_sx : sx) : admininstr
-	| admininstr_VCVTOP (v_shape : shape) (v_shape : shape) (v_vcvtop : vcvtop) : admininstr
+	| admininstr_VCVTOP (shape_1 : shape) (shape_2 : shape) (_ : vcvtop__) : admininstr
 	| admininstr_REF_NULL (v_reftype : reftype) : admininstr
 	| admininstr_REF_FUNC (v_funcidx : funcidx) : admininstr
 	| admininstr_REF_IS_NULL : admininstr
@@ -11511,46 +13597,46 @@ Inductive wf_admininstr : admininstr -> Prop :=
 		wf_admininstr (admininstr_VBITMASK v_ishape)
 	| admininstr_case_31 : forall (v_ishape : ishape), 
 		(wf_ishape v_ishape) ->
-		(v_ishape == (ishape_X Jnn_I8 (mk_dim 16%N))) ->
+		(v_ishape == (mk_ishape (X lanetype_I8 (mk_dim 16%N)))) ->
 		wf_admininstr (admininstr_VSWIZZLE v_ishape)
 	| admininstr_case_32 : forall (v_ishape : ishape) (laneidx_lst : (seq laneidx)), 
 		(wf_ishape v_ishape) ->
 		List.Forall (fun (v_laneidx : laneidx) => (wf_uN 8%N v_laneidx)) laneidx_lst ->
-		((v_ishape == (ishape_X Jnn_I8 (mk_dim 16%N))) && ((|laneidx_lst|) == 16%N)) ->
+		((v_ishape == (mk_ishape (X lanetype_I8 (mk_dim 16%N)))) && ((|laneidx_lst|) == 16%N)) ->
 		wf_admininstr (admininstr_VSHUFFLE v_ishape laneidx_lst)
 	| admininstr_case_33 : forall (v_shape : shape), 
 		(wf_shape v_shape) ->
 		wf_admininstr (admininstr_VSPLAT v_shape)
-	| admininstr_case_34 : forall (v_numtype : numtype) (v_shape : shape) (sx_opt : (option sx)) (v_laneidx : laneidx), 
+	| admininstr_case_34 : forall (v_shape : shape) (sx_opt : (option sx)) (v_laneidx : laneidx), 
 		(wf_shape v_shape) ->
 		(wf_uN 8%N v_laneidx) ->
-		(((fun_lanetype v_shape) == (lanetype_numtype v_numtype)) <-> (sx_opt == None)) ->
+		((|[::lanetype_I32; lanetype_I64; lanetype_F32; lanetype_F64]|) >? 0%N)%BN ->
+		(((fun_lanetype v_shape) \in [::lanetype_I32; lanetype_I64; lanetype_F32; lanetype_F64]) <-> (sx_opt == None)) ->
 		wf_admininstr (admininstr_VEXTRACT_LANE v_shape sx_opt v_laneidx)
 	| admininstr_case_35 : forall (v_shape : shape) (v_laneidx : laneidx), 
 		(wf_shape v_shape) ->
 		(wf_uN 8%N v_laneidx) ->
 		wf_admininstr (admininstr_VREPLACE_LANE v_shape v_laneidx)
-	| admininstr_case_36 : forall (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextunop_), 
+	| admininstr_case_36 : forall (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextunop__), 
 		(wf_ishape ishape_1) ->
 		(wf_ishape ishape_2) ->
-		(wf_vextunop_ ishape_1 var_0) ->
-		((lsize (fun_lanetype (shape_ishape ishape_1))) == (2%N * (lsize (fun_lanetype (shape_ishape ishape_2))))%BN) ->
+		(wf_vextunop__ ishape_2 ishape_1 var_0) ->
 		wf_admininstr (admininstr_VEXTUNOP ishape_1 ishape_2 var_0)
-	| admininstr_case_37 : forall (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextbinop_), 
+	| admininstr_case_37 : forall (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextbinop__), 
 		(wf_ishape ishape_1) ->
 		(wf_ishape ishape_2) ->
-		(wf_vextbinop_ ishape_1 var_0) ->
-		((lsize (fun_lanetype (shape_ishape ishape_1))) == (2%N * (lsize (fun_lanetype (shape_ishape ishape_2))))%BN) ->
+		(wf_vextbinop__ ishape_2 ishape_1 var_0) ->
 		wf_admininstr (admininstr_VEXTBINOP ishape_1 ishape_2 var_0)
 	| admininstr_case_38 : forall (ishape_1 : ishape) (ishape_2 : ishape) (v_sx : sx), 
 		(wf_ishape ishape_1) ->
 		(wf_ishape ishape_2) ->
-		(((lsize (fun_lanetype (shape_ishape ishape_2))) == (2%N * (lsize (fun_lanetype (shape_ishape ishape_1))))%BN) && ((2%N * (lsize (fun_lanetype (shape_ishape ishape_1))))%BN <=? 32%N)%BN) ->
+		(((lsize (fun_lanetype (ishape_2 :> shape))) == (2%N * (lsize (fun_lanetype (ishape_1 :> shape))))%BN) && ((2%N * (lsize (fun_lanetype (ishape_1 :> shape))))%BN <=? 32%N)%BN) ->
 		wf_admininstr (admininstr_VNARROW ishape_1 ishape_2 v_sx)
-	| admininstr_case_39 : forall (v_shape : shape) (shape_0 : shape) (v_vcvtop : vcvtop), 
-		(wf_shape v_shape) ->
-		(wf_shape shape_0) ->
-		wf_admininstr (admininstr_VCVTOP v_shape shape_0 v_vcvtop)
+	| admininstr_case_39 : forall (shape_1 : shape) (shape_2 : shape) (var_0 : vcvtop__), 
+		(wf_shape shape_1) ->
+		(wf_shape shape_2) ->
+		(wf_vcvtop__ shape_2 shape_1 var_0) ->
+		wf_admininstr (admininstr_VCVTOP shape_1 shape_2 var_0)
 	| admininstr_case_40 : forall (v_reftype : reftype), wf_admininstr (admininstr_REF_NULL v_reftype)
 	| admininstr_case_41 : forall (v_funcidx : funcidx), 
 		(wf_uN 32%N v_funcidx) ->
@@ -12711,9 +14797,9 @@ Inductive Instr_ok : context -> instr -> functype -> Prop :=
 		(wf_instr (VSWIZZLE sh)) ->
 		Instr_ok C (VSWIZZLE sh) (mk_functype (mk_list _ [::valtype_V128; valtype_V128]) (mk_list _ [::valtype_V128]))
 	| vshuffle : forall (C : context) (sh : ishape) (i_lst : (seq laneidx)), 
-		List.Forall (fun (i : laneidx) => ((i :> N) <? (2%N * ((fun_dim (shape_ishape sh)) :> N))%BN)%BN) i_lst ->
+		List.Forall (fun (i : laneidx) => ((i :> N) <? (2%N * ((fun_dim (sh :> shape)) :> N))%BN)%BN) i_lst ->
 		(wf_context C) ->
-		(wf_dim (fun_dim (shape_ishape sh))) ->
+		(wf_dim (fun_dim (sh :> shape))) ->
 		(wf_instr (VSHUFFLE sh i_lst)) ->
 		Instr_ok C (VSHUFFLE sh i_lst) (mk_functype (mk_list _ [::valtype_V128; valtype_V128]) (mk_list _ [::valtype_V128]))
 	| vsplat : forall (C : context) (sh : shape), 
@@ -12732,11 +14818,11 @@ Inductive Instr_ok : context -> instr -> functype -> Prop :=
 		(wf_dim (fun_dim sh)) ->
 		(wf_instr (VREPLACE_LANE sh i)) ->
 		Instr_ok C (VREPLACE_LANE sh i) (mk_functype (mk_list _ [::valtype_V128; (valtype_numtype (shunpack sh))]) (mk_list _ [::valtype_V128]))
-	| vextunop : forall (C : context) (sh_1 : ishape) (sh_2 : ishape) (vextunop : vextunop_), 
+	| vextunop : forall (C : context) (sh_1 : ishape) (sh_2 : ishape) (vextunop : vextunop__), 
 		(wf_context C) ->
 		(wf_instr (VEXTUNOP sh_1 sh_2 vextunop)) ->
 		Instr_ok C (VEXTUNOP sh_1 sh_2 vextunop) (mk_functype (mk_list _ [::valtype_V128]) (mk_list _ [::valtype_V128]))
-	| vextbinop : forall (C : context) (sh_1 : ishape) (sh_2 : ishape) (vextbinop : vextbinop_), 
+	| vextbinop : forall (C : context) (sh_1 : ishape) (sh_2 : ishape) (vextbinop : vextbinop__), 
 		(wf_context C) ->
 		(wf_instr (VEXTBINOP sh_1 sh_2 vextbinop)) ->
 		Instr_ok C (VEXTBINOP sh_1 sh_2 vextbinop) (mk_functype (mk_list _ [::valtype_V128; valtype_V128]) (mk_list _ [::valtype_V128]))
@@ -12744,10 +14830,10 @@ Inductive Instr_ok : context -> instr -> functype -> Prop :=
 		(wf_context C) ->
 		(wf_instr (VNARROW sh_1 sh_2 v_sx)) ->
 		Instr_ok C (VNARROW sh_1 sh_2 v_sx) (mk_functype (mk_list _ [::valtype_V128; valtype_V128]) (mk_list _ [::valtype_V128]))
-	| Instr_ok__vcvtop : forall (C : context) (sh_1 : shape) (sh_2 : shape) (v_vcvtop : vcvtop), 
+	| vcvtop : forall (C : context) (sh_1 : shape) (sh_2 : shape) (vcvtop : vcvtop__), 
 		(wf_context C) ->
-		(wf_instr (VCVTOP sh_1 sh_2 v_vcvtop)) ->
-		Instr_ok C (VCVTOP sh_1 sh_2 v_vcvtop) (mk_functype (mk_list _ [::valtype_V128]) (mk_list _ [::valtype_V128]))
+		(wf_instr (VCVTOP sh_1 sh_2 vcvtop)) ->
+		Instr_ok C (VCVTOP sh_1 sh_2 vcvtop) (mk_functype (mk_list _ [::valtype_V128]) (mk_list _ [::valtype_V128]))
 	| local_get : forall (C : context) (x : idx) (t : valtype), 
 		((x :> N) <? (|(context_LOCALS C)|))%BN ->
 		(((context_LOCALS C)[| (x :> N) |]) == t) ->
@@ -13427,15 +15513,15 @@ Inductive Step_pure : (seq admininstr) -> (seq admininstr) -> Prop :=
 		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VCONST V128 c_2); (admininstr_VRELOP sh vrelop)] [::(admininstr_VCONST V128 c)]
 	| Step_pure__vshiftop : forall (c_1 : vec_) (v_n : n) (v_Jnn : Jnn) (v_N : res_N) (vshiftop : vshiftop_) (c : vec_) (c'_lst : (seq lane_)) (var_0_lst : (seq (option lane_))), 
 		((|var_0_lst|) == (|c'_lst|)) ->
-		List.Forall2 (fun (var_0 : (option lane_)) (c' : lane_) => (fun_vshiftop_ (ishape_X v_Jnn (mk_dim v_N)) vshiftop c' (mk_uN v_n) var_0)) var_0_lst c'_lst ->
+		List.Forall2 (fun (var_0 : (option lane_)) (c' : lane_) => (fun_vshiftop_ (mk_ishape (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) vshiftop c' (mk_uN v_n) var_0)) var_0_lst c'_lst ->
 		(c'_lst == (lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) c_1)) ->
 		List.Forall (fun (var_0 : (option lane_)) => (var_0 != None)) var_0_lst ->
 		(c == (inv_lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (seq.map (fun (var_0 : (option lane_)) => (!(var_0))) var_0_lst))) ->
 		List.Forall (fun (c' : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) c')) c'_lst ->
 		(wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) ->
-		(wf_ishape (ishape_X v_Jnn (mk_dim v_N))) ->
+		(wf_ishape (mk_ishape (X (lanetype_Jnn v_Jnn) (mk_dim v_N)))) ->
 		(wf_uN 32%N (mk_uN v_n)) ->
-		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))); (admininstr_VSHIFTOP (ishape_X v_Jnn (mk_dim v_N)) vshiftop)] [::(admininstr_VCONST V128 c)]
+		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))); (admininstr_VSHIFTOP (mk_ishape (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) vshiftop)] [::(admininstr_VCONST V128 c)]
 	| Step_pure__vbitmask : forall (c : vec_) (v_Jnn : Jnn) (v_N : res_N) (ci : iN) (ci_1_lst : (seq lane_)) (var_0_lst : (seq uN)), 
 		((|var_0_lst|) == (|ci_1_lst|)) ->
 		List.Forall (fun (ci_1 : lane_) => ((proj_lane__0 ci_1) != None)) ci_1_lst ->
@@ -13446,7 +15532,7 @@ Inductive Step_pure : (seq admininstr) -> (seq admininstr) -> Prop :=
 		(wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) ->
 		List.Forall (fun (var_0 : uN) => (wf_bit (mk_bit (var_0 :> (N))))) var_0_lst ->
 		(wf_bit (mk_bit 0%N)) ->
-		Step_pure [::(admininstr_VCONST V128 c); (admininstr_VBITMASK (ishape_X v_Jnn (mk_dim v_N)))] [::(admininstr_CONST I32 (mk_num__0 Inn_I32 (irev_ 32%N ci)))]
+		Step_pure [::(admininstr_VCONST V128 c); (admininstr_VBITMASK (mk_ishape (X (lanetype_Jnn v_Jnn) (mk_dim v_N))))] [::(admininstr_CONST I32 (mk_num__0 Inn_I32 (irev_ 32%N ci)))]
 	| Step_pure__vswizzle : forall (c_1 : vec_) (c_2 : vec_) (v_Pnn : Pnn) (v_M : M) (c : vec_) (ci_lst : (seq lane_)) (c'_lst : (seq iN)) (k : N), 
 		(ci_lst == (lanes_ (X (lanetype_packtype v_Pnn) (mk_dim v_M)) c_2)) ->
 		List.Forall (fun (iter_0 : lane_) => ((proj_lane__0 iter_0) != None)) (lanes_ (X (lanetype_packtype v_Pnn) (mk_dim v_M)) c_1) ->
@@ -13458,7 +15544,7 @@ Inductive Step_pure : (seq admininstr) -> (seq admininstr) -> Prop :=
 		(wf_shape (X (lanetype_packtype v_Pnn) (mk_dim v_M))) ->
 		(wf_uN (psize v_Pnn) (mk_uN 0%N)) ->
 		holds_upto (fun k => (wf_lane_ (fun_lanetype (X (lanetype_packtype v_Pnn) (mk_dim v_M))) (mk_lane__0 (Jnn_packtype v_Pnn) (c'_lst[| ((!((proj_lane__0 (ci_lst[| k |])))) :> N) |])))) v_M ->
-		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VCONST V128 c_2); (admininstr_VSWIZZLE (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_M)))] [::(admininstr_VCONST V128 c)]
+		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VCONST V128 c_2); (admininstr_VSWIZZLE (mk_ishape (X (lanetype_packtype v_Pnn) (mk_dim v_M))))] [::(admininstr_VCONST V128 c)]
 	| Step_pure__vshuffle : forall (c_1 : vec_) (c_2 : vec_) (v_Pnn : Pnn) (v_N : res_N) (i_lst : (seq laneidx)) (c : vec_) (c'_lst : (seq iN)) (k : N), 
 		((seq.map (fun (c' : iN) => (mk_lane__0 (Jnn_packtype v_Pnn) c')) c'_lst) == ((lanes_ (X (lanetype_packtype v_Pnn) (mk_dim v_N)) c_1) ++ (lanes_ (X (lanetype_packtype v_Pnn) (mk_dim v_N)) c_2))) ->
 		holds_upto (fun k => (((i_lst[| k |]) :> N) <? (|c'_lst|))%BN) v_N ->
@@ -13467,7 +15553,7 @@ Inductive Step_pure : (seq admininstr) -> (seq admininstr) -> Prop :=
 		List.Forall (fun (c' : iN) => (wf_lane_ (fun_lanetype (X (lanetype_packtype v_Pnn) (mk_dim v_N))) (mk_lane__0 (Jnn_packtype v_Pnn) c'))) c'_lst ->
 		(wf_shape (X (lanetype_packtype v_Pnn) (mk_dim v_N))) ->
 		holds_upto (fun k => (wf_lane_ (fun_lanetype (X (lanetype_packtype v_Pnn) (mk_dim v_N))) (mk_lane__0 (Jnn_packtype v_Pnn) (c'_lst[| ((i_lst[| k |]) :> N) |])))) v_N ->
-		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VCONST V128 c_2); (admininstr_VSHUFFLE (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_N)) i_lst)] [::(admininstr_VCONST V128 c)]
+		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VCONST V128 c_2); (admininstr_VSHUFFLE (mk_ishape (X (lanetype_packtype v_Pnn) (mk_dim v_N))) i_lst)] [::(admininstr_VCONST V128 c)]
 	| Step_pure__vsplat : forall (v_Lnn : Lnn) (c_1 : num_) (v_N : res_N) (c : vec_), 
 		((packnum_ v_Lnn c_1) != None) ->
 		(c == (inv_lanes_ (X v_Lnn (mk_dim v_N)) (list_repeat (!((packnum_ v_Lnn c_1))) v_N))) ->
@@ -13492,16 +15578,16 @@ Inductive Step_pure : (seq admininstr) -> (seq admininstr) -> Prop :=
 		(c == (inv_lanes_ (X v_Lnn (mk_dim v_N)) (list_update_func (lanes_ (X v_Lnn (mk_dim v_N)) c_1) (i :> N) (fun (_ : lane_) => (!((packnum_ v_Lnn c_2))))))) ->
 		(wf_shape (X v_Lnn (mk_dim v_N))) ->
 		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_CONST (unpack v_Lnn) c_2); (admininstr_VREPLACE_LANE (X v_Lnn (mk_dim v_N)) i)] [::(admininstr_VCONST V128 c)]
-	| Step_pure__vextunop : forall (c_1 : vec_) (sh_1 : ishape) (sh_2 : ishape) (vextunop : vextunop_) (c : vec_) (var_0 : (option vec_)), 
+	| Step_pure__vextunop : forall (c_1 : vec_) (sh_2 : ishape) (sh_1 : ishape) (vextunop : vextunop__) (c : vec_) (var_0 : (option vec_)), 
 		(fun_vextunop__ sh_1 sh_2 vextunop c_1 var_0) ->
 		(var_0 != None) ->
 		((!(var_0)) == c) ->
-		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VEXTUNOP sh_1 sh_2 vextunop)] [::(admininstr_VCONST V128 c)]
-	| Step_pure__vextbinop : forall (c_1 : vec_) (c_2 : vec_) (sh_1 : ishape) (sh_2 : ishape) (vextbinop : vextbinop_) (c : vec_) (var_0 : (option vec_)), 
+		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VEXTUNOP sh_2 sh_1 vextunop)] [::(admininstr_VCONST V128 c)]
+	| Step_pure__vextbinop : forall (c_1 : vec_) (c_2 : vec_) (sh_2 : ishape) (sh_1 : ishape) (vextbinop : vextbinop__) (c : vec_) (var_0 : (option vec_)), 
 		(fun_vextbinop__ sh_1 sh_2 vextbinop c_1 c_2 var_0) ->
 		(var_0 != None) ->
 		((!(var_0)) == c) ->
-		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VCONST V128 c_2); (admininstr_VEXTBINOP sh_1 sh_2 vextbinop)] [::(admininstr_VCONST V128 c)]
+		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VCONST V128 c_2); (admininstr_VEXTBINOP sh_2 sh_1 vextbinop)] [::(admininstr_VCONST V128 c)]
 	| Step_pure__vnarrow : forall (c_1 : vec_) (c_2 : vec_) (Jnn_2 : Jnn) (N_2 : res_N) (Jnn_1 : Jnn) (N_1 : res_N) (v_sx : sx) (c : vec_) (ci_1_lst : (seq lane_)) (ci_2_lst : (seq lane_)) (cj_1_lst : (seq iN)) (cj_2_lst : (seq iN)), 
 		(ci_1_lst == (lanes_ (X (lanetype_Jnn Jnn_1) (mk_dim N_1)) c_1)) ->
 		(ci_2_lst == (lanes_ (X (lanetype_Jnn Jnn_1) (mk_dim N_1)) c_2)) ->
@@ -13516,44 +15602,58 @@ Inductive Step_pure : (seq admininstr) -> (seq admininstr) -> Prop :=
 		(wf_shape (X (lanetype_Jnn Jnn_2) (mk_dim N_2))) ->
 		List.Forall (fun (cj_1 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_2) (mk_dim N_2))) (mk_lane__0 Jnn_2 cj_1))) cj_1_lst ->
 		List.Forall (fun (cj_2 : iN) => (wf_lane_ (fun_lanetype (X (lanetype_Jnn Jnn_2) (mk_dim N_2))) (mk_lane__0 Jnn_2 cj_2))) cj_2_lst ->
-		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VCONST V128 c_2); (admininstr_VNARROW (ishape_X Jnn_2 (mk_dim N_2)) (ishape_X Jnn_1 (mk_dim N_1)) v_sx)] [::(admininstr_VCONST V128 c)]
-	| vcvtop_full : forall (c_1 : vec_) (Lnn_2 : Lnn) (v_M : M) (Lnn_1 : Lnn) (v_vcvtop : vcvtop) (c : vec_) (ci_lst : (seq lane_)) (cj_lst_lst : (seq (seq lane_))), 
-		(((halfop v_vcvtop) == None) && ((zeroop v_vcvtop) == None)) ->
+		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VCONST V128 c_2); (admininstr_VNARROW (mk_ishape (X (lanetype_Jnn Jnn_2) (mk_dim N_2))) (mk_ishape (X (lanetype_Jnn Jnn_1) (mk_dim N_1))) v_sx)] [::(admininstr_VCONST V128 c)]
+	| vcvtop_full : forall (c_1 : vec_) (Lnn_2 : Lnn) (v_M : M) (Lnn_1 : Lnn) (vcvtop : vcvtop__) (c : vec_) (ci_lst : (seq lane_)) (cj_lst_lst : (seq (seq lane_))) (var_2_lst : (seq (option (seq lane_)))) (var_1 : (option (option zero))) (var_0 : (option (option half))), 
+		((|var_2_lst|) == (|ci_lst|)) ->
+		List.Forall2 (fun (var_2 : (option (seq lane_))) (ci : lane_) => (fun_vcvtop__ (X Lnn_1 (mk_dim v_M)) (X Lnn_2 (mk_dim v_M)) vcvtop ci var_2)) var_2_lst ci_lst ->
+		(fun_zeroop (X Lnn_1 (mk_dim v_M)) (X Lnn_2 (mk_dim v_M)) vcvtop var_1) ->
+		(fun_halfop (X Lnn_1 (mk_dim v_M)) (X Lnn_2 (mk_dim v_M)) vcvtop var_0) ->
+		(var_0 != None) ->
+		(var_1 != None) ->
+		(((!(var_0)) == None) && ((!(var_1)) == None)) ->
 		(ci_lst == (lanes_ (X Lnn_1 (mk_dim v_M)) c_1)) ->
-		List.Forall (fun (ci : lane_) => ((vcvtop__ (X Lnn_1 (mk_dim v_M)) (X Lnn_2 (mk_dim v_M)) v_vcvtop ci) != None)) ci_lst ->
-		(cj_lst_lst == (setproduct_ lane_ (seq.map (fun (ci : lane_) => (!((vcvtop__ (X Lnn_1 (mk_dim v_M)) (X Lnn_2 (mk_dim v_M)) v_vcvtop ci)))) ci_lst))) ->
+		List.Forall (fun (var_2 : (option (seq lane_))) => (var_2 != None)) var_2_lst ->
+		(cj_lst_lst == (setproduct_ lane_ (seq.map (fun (var_2 : (option (seq lane_))) => (!(var_2))) var_2_lst))) ->
 		((|(seq.map (fun (cj_lst : (seq lane_)) => (inv_lanes_ (X Lnn_2 (mk_dim v_M)) cj_lst)) cj_lst_lst)|) >? 0%N)%BN ->
 		(c \in (seq.map (fun (cj_lst : (seq lane_)) => (inv_lanes_ (X Lnn_2 (mk_dim v_M)) cj_lst)) cj_lst_lst)) ->
 		List.Forall (fun (ci : lane_) => (wf_lane_ (fun_lanetype (X Lnn_1 (mk_dim v_M))) ci)) ci_lst ->
 		List.Forall (fun (cj_lst : (seq lane_)) => List.Forall (fun (cj : lane_) => (wf_lane_ Lnn_2 cj)) cj_lst) cj_lst_lst ->
 		(wf_shape (X Lnn_1 (mk_dim v_M))) ->
 		(wf_shape (X Lnn_2 (mk_dim v_M))) ->
-		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VCVTOP (X Lnn_2 (mk_dim v_M)) (X Lnn_1 (mk_dim v_M)) v_vcvtop)] [::(admininstr_VCONST V128 c)]
-	| vcvtop_half : forall (c_1 : vec_) (Lnn_2 : Lnn) (M_2 : M) (Lnn_1 : Lnn) (M_1 : M) (v_vcvtop : vcvtop) (c : vec_) (v_half : half) (ci_lst : (seq lane_)) (cj_lst_lst : (seq (seq lane_))), 
-		((halfop v_vcvtop) == (Some v_half)) ->
+		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VCVTOP (X Lnn_2 (mk_dim v_M)) (X Lnn_1 (mk_dim v_M)) vcvtop)] [::(admininstr_VCONST V128 c)]
+	| vcvtop_half : forall (c_1 : vec_) (Lnn_2 : Lnn) (M_2 : M) (Lnn_1 : Lnn) (M_1 : M) (vcvtop : vcvtop__) (c : vec_) (v_half : half) (ci_lst : (seq lane_)) (cj_lst_lst : (seq (seq lane_))) (var_1_lst : (seq (option (seq lane_)))) (var_0 : (option (option half))), 
+		((|var_1_lst|) == (|ci_lst|)) ->
+		List.Forall2 (fun (var_1 : (option (seq lane_))) (ci : lane_) => (fun_vcvtop__ (X Lnn_1 (mk_dim M_1)) (X Lnn_2 (mk_dim M_2)) vcvtop ci var_1)) var_1_lst ci_lst ->
+		(fun_halfop (X Lnn_1 (mk_dim M_1)) (X Lnn_2 (mk_dim M_2)) vcvtop var_0) ->
+		(var_0 != None) ->
+		((!(var_0)) == (Some v_half)) ->
 		(ci_lst == (list_slice (lanes_ (X Lnn_1 (mk_dim M_1)) c_1) (fun_half v_half 0%N M_2) M_2)) ->
-		List.Forall (fun (ci : lane_) => ((vcvtop__ (X Lnn_1 (mk_dim M_1)) (X Lnn_2 (mk_dim M_2)) v_vcvtop ci) != None)) ci_lst ->
-		(cj_lst_lst == (setproduct_ lane_ (seq.map (fun (ci : lane_) => (!((vcvtop__ (X Lnn_1 (mk_dim M_1)) (X Lnn_2 (mk_dim M_2)) v_vcvtop ci)))) ci_lst))) ->
+		List.Forall (fun (var_1 : (option (seq lane_))) => (var_1 != None)) var_1_lst ->
+		(cj_lst_lst == (setproduct_ lane_ (seq.map (fun (var_1 : (option (seq lane_))) => (!(var_1))) var_1_lst))) ->
 		((|(seq.map (fun (cj_lst : (seq lane_)) => (inv_lanes_ (X Lnn_2 (mk_dim M_2)) cj_lst)) cj_lst_lst)|) >? 0%N)%BN ->
 		(c \in (seq.map (fun (cj_lst : (seq lane_)) => (inv_lanes_ (X Lnn_2 (mk_dim M_2)) cj_lst)) cj_lst_lst)) ->
 		List.Forall (fun (ci : lane_) => (wf_lane_ (fun_lanetype (X Lnn_1 (mk_dim M_1))) ci)) ci_lst ->
 		List.Forall (fun (cj_lst : (seq lane_)) => List.Forall (fun (cj : lane_) => (wf_lane_ Lnn_2 cj)) cj_lst) cj_lst_lst ->
 		(wf_shape (X Lnn_1 (mk_dim M_1))) ->
 		(wf_shape (X Lnn_2 (mk_dim M_2))) ->
-		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VCVTOP (X Lnn_2 (mk_dim M_2)) (X Lnn_1 (mk_dim M_1)) v_vcvtop)] [::(admininstr_VCONST V128 c)]
-	| vcvtop_zero : forall (c_1 : vec_) (nt_2 : numtype) (M_2 : M) (nt_1 : numtype) (M_1 : M) (v_vcvtop : vcvtop) (c : vec_) (ci_lst : (seq lane_)) (cj_lst_lst : (seq (seq lane_))), 
-		((zeroop v_vcvtop) == (Some ZERO)) ->
+		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VCVTOP (X Lnn_2 (mk_dim M_2)) (X Lnn_1 (mk_dim M_1)) vcvtop)] [::(admininstr_VCONST V128 c)]
+	| vcvtop_zero : forall (c_1 : vec_) (nt_2 : numtype) (M_2 : M) (nt_1 : numtype) (M_1 : M) (vcvtop : vcvtop__) (c : vec_) (ci_lst : (seq lane_)) (cj_lst_lst : (seq (seq lane_))) (var_1_lst : (seq (option (seq lane_)))) (var_0 : (option (option zero))), 
+		((|var_1_lst|) == (|ci_lst|)) ->
+		List.Forall2 (fun (var_1 : (option (seq lane_))) (ci : lane_) => (fun_vcvtop__ (X (lanetype_numtype nt_1) (mk_dim M_1)) (X (lanetype_numtype nt_2) (mk_dim M_2)) vcvtop ci var_1)) var_1_lst ci_lst ->
+		(fun_zeroop (X (lanetype_numtype nt_1) (mk_dim M_1)) (X (lanetype_numtype nt_2) (mk_dim M_2)) vcvtop var_0) ->
+		(var_0 != None) ->
+		((!(var_0)) == (Some ZERO)) ->
 		(ci_lst == (lanes_ (X (lanetype_numtype nt_1) (mk_dim M_1)) c_1)) ->
-		List.Forall (fun (ci : lane_) => ((vcvtop__ (X (lanetype_numtype nt_1) (mk_dim M_1)) (X (lanetype_numtype nt_2) (mk_dim M_2)) v_vcvtop ci) != None)) ci_lst ->
+		List.Forall (fun (var_1 : (option (seq lane_))) => (var_1 != None)) var_1_lst ->
 		((packnum_ (lanetype_numtype nt_2) (fun_zero nt_2)) != None) ->
-		(cj_lst_lst == (setproduct_ lane_ ((seq.map (fun (ci : lane_) => (!((vcvtop__ (X (lanetype_numtype nt_1) (mk_dim M_1)) (X (lanetype_numtype nt_2) (mk_dim M_2)) v_vcvtop ci)))) ci_lst) ++ (list_repeat [::(!((packnum_ (lanetype_numtype nt_2) (fun_zero nt_2))))] M_1)))) ->
+		(cj_lst_lst == (setproduct_ lane_ ((seq.map (fun (var_1 : (option (seq lane_))) => (!(var_1))) var_1_lst) ++ (list_repeat [::(!((packnum_ (lanetype_numtype nt_2) (fun_zero nt_2))))] M_1)))) ->
 		((|(seq.map (fun (cj_lst : (seq lane_)) => (inv_lanes_ (X (lanetype_numtype nt_2) (mk_dim M_2)) cj_lst)) cj_lst_lst)|) >? 0%N)%BN ->
 		(c \in (seq.map (fun (cj_lst : (seq lane_)) => (inv_lanes_ (X (lanetype_numtype nt_2) (mk_dim M_2)) cj_lst)) cj_lst_lst)) ->
 		List.Forall (fun (ci : lane_) => (wf_lane_ (fun_lanetype (X (lanetype_numtype nt_1) (mk_dim M_1))) ci)) ci_lst ->
 		List.Forall (fun (cj_lst : (seq lane_)) => List.Forall (fun (cj : lane_) => (wf_lane_ (lanetype_numtype nt_2) cj)) cj_lst) cj_lst_lst ->
 		(wf_shape (X (lanetype_numtype nt_1) (mk_dim M_1))) ->
 		(wf_shape (X (lanetype_numtype nt_2) (mk_dim M_2))) ->
-		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VCVTOP (X (lanetype_numtype nt_2) (mk_dim M_2)) (X (lanetype_numtype nt_1) (mk_dim M_1)) v_vcvtop)] [::(admininstr_VCONST V128 c)]
+		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VCVTOP (X (lanetype_numtype nt_2) (mk_dim M_2)) (X (lanetype_numtype nt_1) (mk_dim M_1)) vcvtop)] [::(admininstr_VCONST V128 c)]
 	| Step_pure__local_tee : forall (v_val : val) (x : idx), Step_pure [::(admininstr_val v_val); (admininstr_LOCAL_TEE x)] [::(admininstr_val v_val); (admininstr_val v_val); (admininstr_LOCAL_SET x)].
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:6.10-6.19 *)
@@ -14703,16 +16803,16 @@ Inductive fun_instantiate : store -> module -> (seq externaddr) -> config -> Pro
 		List_Foralli (fun j_19 (var_10 : (option (seq instr))) => (fun_rundata (data_lst[| j_19 |]) (mk_uN j_19) var_10)) var_10_lst ->
 		holds_upto (fun j_18 => (j_18 <? (|data_lst|))%BN) n_D ->
 		List_Foralli (fun j_18 (var_9 : (option (seq instr))) => (fun_rundata (data_lst[| j_18 |]) (mk_uN j_18) var_9)) var_9_lst ->
-		holds_upto (fun i_71256 => (i_71256 <? (|elem_lst|))%BN) n_E ->
-		List_Foralli (fun i_71256 (var_8 : (seq instr)) => (fun_runelem (elem_lst[| i_71256 |]) (mk_uN i_71256) var_8)) var_8_lst ->
-		holds_upto (fun i_71254 => (i_71254 <? (|elem_lst|))%BN) n_E ->
-		List_Foralli (fun i_71254 (var_7 : (seq instr)) => (fun_runelem (elem_lst[| i_71254 |]) (mk_uN i_71254) var_7)) var_7_lst ->
+		holds_upto (fun i_82815 => (i_82815 <? (|elem_lst|))%BN) n_E ->
+		List_Foralli (fun i_82815 (var_8 : (seq instr)) => (fun_runelem (elem_lst[| i_82815 |]) (mk_uN i_82815) var_8)) var_8_lst ->
+		holds_upto (fun i_82813 => (i_82813 <? (|elem_lst|))%BN) n_E ->
+		List_Foralli (fun i_82813 (var_7 : (seq instr)) => (fun_runelem (elem_lst[| i_82813 |]) (mk_uN i_82813) var_7)) var_7_lst ->
 		(fun_allocmodule s v_module externaddr_lst val_lst ref_lst_lst var_6) ->
 		(fun_allocmodule s v_module externaddr_lst val_lst ref_lst_lst var_5) ->
 		holds_upto (fun j_17 => (j_17 <? (|data_lst|))%BN) n_D ->
 		List_Foralli (fun j_17 (var_4 : (option (seq instr))) => (fun_rundata (data_lst[| j_17 |]) (mk_uN j_17) var_4)) var_4_lst ->
-		holds_upto (fun i_71251 => (i_71251 <? (|elem_lst|))%BN) n_E ->
-		List_Foralli (fun i_71251 (var_3 : (seq instr)) => (fun_runelem (elem_lst[| i_71251 |]) (mk_uN i_71251) var_3)) var_3_lst ->
+		holds_upto (fun i_82810 => (i_82810 <? (|elem_lst|))%BN) n_E ->
+		List_Foralli (fun i_82810 (var_3 : (seq instr)) => (fun_runelem (elem_lst[| i_82810 |]) (mk_uN i_82810) var_3)) var_3_lst ->
 		(fun_allocmodule s v_module externaddr_lst val_lst ref_lst_lst var_2) ->
 		(fun_globals externaddr_lst var_1) ->
 		(fun_funcs externaddr_lst var_0) ->
@@ -14741,7 +16841,7 @@ Inductive fun_instantiate : store -> module -> (seq externaddr) -> config -> Pro
 		(wf_store var_5.1) ->
 		(wf_moduleinst var_6.2) ->
 		List.Forall (fun (iter_25 : instr) => (wf_instr iter_25)) (concat_ instr var_7_lst) ->
-		List_Foralli (fun i_71256 (var_8 : (seq instr)) => List.Forall (fun (iter_26 : instr) => (wf_instr iter_26)) var_8) var_8_lst ->
+		List_Foralli (fun i_82815 (var_8 : (seq instr)) => List.Forall (fun (iter_26 : instr) => (wf_instr iter_26)) var_8) var_8_lst ->
 		List.Forall (fun (iter_27 : instr) => (wf_instr iter_27)) (concat_ instr (seq.map (fun (var_9 : (option (seq instr))) => (!(var_9))) var_9_lst)) ->
 		List_Foralli (fun j_19 (var_10 : (option (seq instr))) => List.Forall (fun (iter_28 : instr) => (wf_instr iter_28)) (!(var_10))) var_10_lst ->
 		(wf_config (mk_config (mk_state s' f) ((seq.map (fun (instr_E_2 : instr) => (admininstr_instr instr_E_2)) instr_E_lst) ++ ((seq.map (fun (instr_D_2 : instr) => (admininstr_instr instr_D_2)) instr_D_lst) ++ (option_to_list (option_map (fun (x_2 : idx) => (admininstr_CALL x_2)) x_opt)))))) ->
@@ -14756,7 +16856,7 @@ Inductive fun_instantiate : store -> module -> (seq externaddr) -> config -> Pro
 		(wf_frame {| LOCALS := [:: ]; frame_MODULE := moduleinst_init |}) ->
 		(wf_state (mk_state s f_init)) ->
 		(wf_frame {| LOCALS := [:: ]; frame_MODULE := v_moduleinst |}) ->
-		holds_upto (fun i_71260 => (wf_uN 32%N (mk_uN i_71260))) n_E ->
+		holds_upto (fun i_82819 => (wf_uN 32%N (mk_uN i_82819))) n_E ->
 		holds_upto (fun j_20 => (wf_uN 32%N (mk_uN j_20))) n_D ->
 		fun_instantiate s v_module externaddr_lst (mk_config (mk_state s' f) ((seq.map (fun (instr_E : instr) => (admininstr_instr instr_E)) instr_E_lst) ++ ((seq.map (fun (instr_D : instr) => (admininstr_instr instr_D)) instr_D_lst) ++ (option_to_list (option_map (fun (x : idx) => (admininstr_CALL x)) x_opt))))).
 

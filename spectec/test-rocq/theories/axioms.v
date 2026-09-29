@@ -84,3 +84,17 @@ Axiom ishl_wf : forall (v_N : res_N) (i : iN) (k : u32),
   wf_uN v_N i -> wf_uN v_N (ishl_ v_N i k).
 Axiom ishr_wf : forall (v_N : res_N) (v_sx : sx) (i : iN) (k : u32),
   wf_uN v_N i -> wf_uN v_N (ishr_ v_N v_sx i k).
+
+(* `trunc_sat__`, `demote__` and `promote__` are uninterpreted Axioms in wasm.v.
+   In the specification trunc_sat is total (it saturates, and maps NaN to 0),
+   and demote / promote return a non-empty set of results (a single value, or
+   the admissible NaNs).  So each always produces a result - which the vcvtop
+   rules need, since they pick one lane from each set of results.  (These are
+   consistent with the admitted _is_wf lemmas: INF is a well-formed fN of every
+   size.) *)
+Axiom trunc_sat_total : forall (v_M : M) (v_N : res_N) (v_sx : sx) (x : fN),
+  trunc_sat__ v_M v_N v_sx x != None.
+Axiom demote_nonempty : forall (v_M : M) (v_N : res_N) (x : fN),
+  demote__ v_M v_N x != [::].
+Axiom promote_nonempty : forall (v_M : M) (v_N : res_N) (x : fN),
+  promote__ v_M v_N x != [::].

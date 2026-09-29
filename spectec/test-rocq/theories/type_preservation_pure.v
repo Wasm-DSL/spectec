@@ -1096,7 +1096,7 @@ Proof.
 	by inversion HI; subst.
 Qed.
 
-Lemma ais_vextunop_typing_inversion : forall v_S v_C (sh_1 sh_2 : wasm.ishape) (v_op : wasm.vextunop_) t1s t2s,
+Lemma ais_vextunop_typing_inversion : forall v_S v_C (sh_1 sh_2 : wasm.ishape) (v_op : wasm.vextunop__) t1s t2s,
 	Instrs_ok2 v_S v_C [(admininstr_instr (VEXTUNOP sh_1 sh_2 v_op))] (t1s :-> t2s) ->
 	(([valtype_V128] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
 Proof.
@@ -1106,7 +1106,7 @@ Proof.
 	by inversion HI; subst.
 Qed.
 
-Lemma ais_vextbinop_typing_inversion : forall v_S v_C (sh_1 sh_2 : wasm.ishape) (v_op : wasm.vextbinop_) t1s t2s,
+Lemma ais_vextbinop_typing_inversion : forall v_S v_C (sh_1 sh_2 : wasm.ishape) (v_op : wasm.vextbinop__) t1s t2s,
 	Instrs_ok2 v_S v_C [(admininstr_instr (VEXTBINOP sh_1 sh_2 v_op))] (t1s :-> t2s) ->
 	(([valtype_V128; valtype_V128] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
 Proof.
@@ -1126,7 +1126,7 @@ Proof.
 	by inversion HI; subst.
 Qed.
 
-Lemma ais_vcvtop_typing_inversion : forall v_S v_C (sh_1 sh_2 : wasm.shape) (v_op : wasm.vcvtop) t1s t2s,
+Lemma ais_vcvtop_typing_inversion : forall v_S v_C (sh_1 sh_2 : wasm.shape) (v_op : wasm.vcvtop__) t1s t2s,
 	Instrs_ok2 v_S v_C [(admininstr_instr (VCVTOP sh_1 sh_2 v_op))] (t1s :-> t2s) ->
 	(([valtype_V128] :-> [valtype_V128]) <ti: (t1s :-> t2s)).
 Proof.
@@ -1419,7 +1419,7 @@ Proof.
 	- by apply: vconst_result_typing.
 Qed.
 
-Lemma Step_pure__vextunop_preserves : forall v_S v_C (v_c_1 : wasm.vec_) (sh_1 sh_2 : wasm.ishape) (v_op : wasm.vextunop_) (v_c : wasm.vec_) v_ft,
+Lemma Step_pure__vextunop_preserves : forall v_S v_C (v_c_1 : wasm.vec_) (sh_1 sh_2 : wasm.ishape) (v_op : wasm.vextunop__) (v_c : wasm.vec_) v_ft,
 	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VEXTUNOP sh_1 sh_2 v_op)] v_ft ->
 	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VEXTUNOP sh_1 sh_2 v_op)] [(admininstr_VCONST V128 v_c)] ->
 	wf_admininstr (admininstr_VCONST V128 v_c) ->
@@ -1433,7 +1433,7 @@ Proof.
 	- by apply: vconst_result_typing.
 Qed.
 
-Lemma Step_pure__vextbinop_preserves : forall v_S v_C (v_c_1 v_c_2 : wasm.vec_) (sh_1 sh_2 : wasm.ishape) (v_op : wasm.vextbinop_) (v_c : wasm.vec_) v_ft,
+Lemma Step_pure__vextbinop_preserves : forall v_S v_C (v_c_1 v_c_2 : wasm.vec_) (sh_1 sh_2 : wasm.ishape) (v_op : wasm.vextbinop__) (v_c : wasm.vec_) v_ft,
 	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VEXTBINOP sh_1 sh_2 v_op)] v_ft ->
 	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VCONST V128 v_c_2); (admininstr_VEXTBINOP sh_1 sh_2 v_op)] [(admininstr_VCONST V128 v_c)] ->
 	wf_admininstr (admininstr_VCONST V128 v_c) ->
@@ -1463,7 +1463,7 @@ Proof.
 	- by apply: vconst_result_typing.
 Qed.
 
-Lemma Step_pure__vcvtop_preserves : forall v_S v_C (v_c_1 : wasm.vec_) (sh_1 sh_2 : wasm.shape) (v_op : wasm.vcvtop) (v_c : wasm.vec_) v_ft,
+Lemma Step_pure__vcvtop_preserves : forall v_S v_C (v_c_1 : wasm.vec_) (sh_1 sh_2 : wasm.shape) (v_op : wasm.vcvtop__) (v_c : wasm.vec_) v_ft,
 	Instrs_ok2 v_S v_C [(admininstr_VCONST V128 v_c_1); (admininstr_VCVTOP sh_1 sh_2 v_op)] v_ft ->
 	Step_pure [(admininstr_VCONST V128 v_c_1); (admininstr_VCVTOP sh_1 sh_2 v_op)] [(admininstr_VCONST V128 v_c)] ->
 	wf_admininstr (admininstr_VCONST V128 v_c) ->
