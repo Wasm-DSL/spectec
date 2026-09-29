@@ -336,12 +336,12 @@ rule Step_pure/vreplace_lane:
 
 
 rule Step_pure/vextunop:
-  (VCONST V128 c_1) (VEXTUNOP sh_1 sh_2 vextunop) ~> (VCONST V128 c)
+  (VCONST V128 c_1) (VEXTUNOP sh_2 sh_1 vextunop) ~> (VCONST V128 c)
   -- if $vextunop__(sh_1, sh_2, vextunop, c_1) = c
 
 
 rule Step_pure/vextbinop:
-  (VCONST V128 c_1) (VCONST V128 c_2) (VEXTBINOP sh_1 sh_2 vextbinop) ~> (VCONST V128 c)
+  (VCONST V128 c_1) (VCONST V128 c_2) (VEXTBINOP sh_2 sh_1 vextbinop) ~> (VCONST V128 c)
   -- if $vextbinop__(sh_1, sh_2, vextbinop, c_1, c_2) = c
 
 
@@ -356,21 +356,21 @@ rule Step_pure/vnarrow:
 
 rule Step_pure/vcvtop-full:
   (VCONST V128 c_1) (VCVTOP (Lnn_2 X M) (Lnn_1 X M) vcvtop) ~> (VCONST V128 c)
-  -- if $halfop(vcvtop) = eps /\ $zeroop(vcvtop) = eps
+  -- if $halfop((Lnn_1 X M), (Lnn_2 X M), vcvtop) = eps /\ $zeroop((Lnn_1 X M), (Lnn_2 X M), vcvtop) = eps
   -- if ci* = $lanes_(Lnn_1 X M, c_1)
   -- if cj** = $setproduct_(lane_(Lnn_2), $vcvtop__(Lnn_1 X M, Lnn_2 X M, vcvtop, ci)*)
   -- if c <- $inv_lanes_(Lnn_2 X M, cj*)*
 
 rule Step_pure/vcvtop-half:
   (VCONST V128 c_1) (VCVTOP (Lnn_2 X M_2) (Lnn_1 X M_1) vcvtop) ~> (VCONST V128 c)
-  -- if $halfop(vcvtop) = half
+  -- if $halfop((Lnn_1 X M_1), (Lnn_2 X M_2), vcvtop) = half
   -- if ci* = $lanes_(Lnn_1 X M_1, c_1)[$half(half, 0, M_2) : M_2]
   -- if cj** = $setproduct_(lane_(Lnn_2), $vcvtop__(Lnn_1 X M_1, Lnn_2 X M_2, vcvtop, ci)*)
   -- if c <- $inv_lanes_(Lnn_2 X M_2, cj*)*
 
 rule Step_pure/vcvtop-zero:
   (VCONST V128 c_1) (VCVTOP (nt_2 X M_2) (nt_1 X M_1) vcvtop) ~> (VCONST V128 c)
-  -- if $zeroop(vcvtop) = ZERO
+  -- if $zeroop((nt_1 X M_1), (nt_2 X M_2), vcvtop) = ZERO
   -- if ci* = $lanes_(nt_1 X M_1, c_1)
   -- if cj** = $setproduct_(lane_(nt_2), ($vcvtop__(nt_1 X M_1, nt_2 X M_2, vcvtop, ci)* ++ [$packnum_(nt_2, $zero(nt_2))]^M_1))
   -- if c <- $inv_lanes_(nt_2 X M_2, cj*)*
