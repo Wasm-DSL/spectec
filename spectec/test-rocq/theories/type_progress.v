@@ -1683,10 +1683,10 @@ Proof.
   all: try binop_wf.
   (* The two remaining goals are the I64 SHL / SHR cases: ishl_ / ishr_ take
      their shift amount as a u32, but binop_ passes the 64-bit operand
-     (mk_uN (iN_2 :> N)), so ishl__is_wf / ishr__is_wf cannot be applied.  This
-     needs the DSL fix of passing $(iN_2 \ $sizenn(Inn)) to $ishl_ / $ishr_. *)
-  all: admit.
-Admitted.
+     (mk_uN (iN_2 :> N)), so ishl__is_wf / ishr__is_wf cannot be applied; the
+     axioms ishl_wf / ishr_wf (any shift amount) are used instead. *)
+  all: by apply: num__case_0 => //; first [ apply: ishl_wf | apply: ishr_wf ]; eassumption.
+Qed.
 
 Lemma relop_total: forall nt r n1 n2,
     wf_num_ nt n1 -> wf_num_ nt n2 -> wf_relop_ nt r ->
@@ -1754,9 +1754,9 @@ Proof.
   | _ => econstructor
   end.
   all: try binop_wf.
-  (* As in binop_total: the I64 SHL / SHR cases need the u32 shift-amount fix. *)
-  all: admit.
-Admitted.
+  (* As in binop_total: the I64 SHL / SHR cases use ishl_wf / ishr_wf. *)
+  all: by apply: num__case_0 => //; first [ apply: ishl_wf | apply: ishr_wf ]; eassumption.
+Qed.
 
 Lemma binop_not_none: forall nt b n1 n2 lst,
     wf_num_ nt n1 ->
@@ -1882,37 +1882,41 @@ Qed.
 (* A well-formed integer lane that projects as a Jnn lane is in the Jnn
    injection and in range. *)
 Lemma wf_lane_Jnn_inv : forall (J : Jnn) (l : lane_),
-  wf_lane_ (lanetype_Jnn J) l -> proj_lane__2 l != None ->
-  exists x, l = mk_lane__2 J x /\ wf_uN (lsize (lanetype_Jnn J)) x.
+  wf_lane_ (lanetype_Jnn J) l -> proj_lane__0 l != None ->
+  exists x, l = mk_lane__0 J x /\ wf_uN (lsize (lanetype_Jnn J)) x.
 Proof.
-  move => J l Hw Hs.
-  inversion Hw as [lt nt c Hc Heq | lt pt c Hc Heq | lt J' c Hc Heq]; subst; try by move: Hs.
-  move/eqP: Heq => Heq.
-  have HJ : J' = J by destruct J, J'; try discriminate.
-  subst. by exists c.
+  move => J l Hw _.
+  inversion Hw as [lt J' c Hc Heq | lt F c Hc Heq]; subst; move/eqP: Heq => Heq.
+  - have HJ : J' = J by destruct J, J'; try discriminate.
+    subst. by exists c.
+  - by destruct F, J.
 Qed.
 
-(* A well-formed float lane is necessarily in the numtype injection. *)
+(* lane_ has disjoint integer / float cases, so every well-formed integer lane
+   is in the Jnn injection. *)
+Lemma wf_lane_Jnn_some : forall (J : Jnn) (l : lane_),
+  wf_lane_ (lanetype_Jnn J) l -> proj_lane__0 l != None.
+Proof.
+  move => J l Hw. inversion Hw as [lt J' c Hc Heq | lt F c Hc Heq]; subst => //.
+  move/eqP: Heq => Heq. by destruct F, J.
+Qed.
+
+(* A well-formed float lane is necessarily in the Fnn injection. *)
 Lemma wf_lane_Fnn_inv : forall (F : Fnn) (l : lane_),
   wf_lane_ (lanetype_Fnn F) l ->
-  exists x, l = mk_lane__0 (numtype_Fnn F) (mk_num__1 F x) /\ wf_fN (sizenn (numtype_Fnn F)) x.
+  exists x, l = mk_lane__1 F x /\ wf_fN (sizenn (numtype_Fnn F)) x.
 Proof.
   move => F l Hw.
-  inversion Hw as [lt nt c Hc Heq | lt pt c Hc Heq | lt J c Hc Heq]; subst; move/eqP: Heq => Heq.
-  - have HnF : nt = numtype_Fnn F by destruct F, nt; try discriminate.
-    subst.
-    inversion Hc as [nt' I x Hr Hx Hn | nt' F' x Hx Hn]; subst; move/eqP: Hn => Hn.
-    + by destruct F, I.
-    + have HF : F' = F by destruct F, F'; try discriminate.
-      subst. by exists x.
-  - by destruct F, pt.
+  inversion Hw as [lt J c Hc Heq | lt F' c Hc Heq]; subst; move/eqP: Heq => Heq.
   - by destruct F, J.
+  - have HF : F' = F by destruct F, F'; try discriminate.
+    subst. by exists c.
 Qed.
 
 Lemma Forall_lane_Jnn : forall (J : Jnn) (ls : seq lane_),
   List.Forall (fun l => wf_lane_ (lanetype_Jnn J) l) ls ->
-  List.Forall (fun l => proj_lane__2 l != None) ls ->
-  List.Forall (fun l => exists x, l = mk_lane__2 J x /\ wf_uN (lsize (lanetype_Jnn J)) x) ls.
+  List.Forall (fun l => proj_lane__0 l != None) ls ->
+  List.Forall (fun l => exists x, l = mk_lane__0 J x /\ wf_uN (lsize (lanetype_Jnn J)) x) ls.
 Proof.
   move => J ls Hw. elim: Hw => [ |l ls' Hl _ IH] Hs //.
   inversion Hs as [ |? ? Hs1 Hs2]; subst.
@@ -1922,12 +1926,12 @@ Qed.
 (* Mapping a range-preserving operation over Jnn lanes gives well-formed lanes. *)
 Lemma Forall_lane_map_wf : forall (J : Jnn) (f : iN -> iN) (ls : seq lane_),
   (forall x, wf_uN (lsize (lanetype_Jnn J)) x -> wf_uN (lsize (lanetype_Jnn J)) (f x)) ->
-  List.Forall (fun l => exists x, l = mk_lane__2 J x /\ wf_uN (lsize (lanetype_Jnn J)) x) ls ->
-  List.Forall (fun l => wf_lane_ (lanetype_Jnn J) (mk_lane__2 J (f (!(proj_lane__2 l))))) ls.
+  List.Forall (fun l => exists x, l = mk_lane__0 J x /\ wf_uN (lsize (lanetype_Jnn J)) x) ls ->
+  List.Forall (fun l => wf_lane_ (lanetype_Jnn J) (mk_lane__0 J (f (!(proj_lane__0 l))))) ls.
 Proof.
   move => J f ls Hf H. elim: H => [ |l ls' [x [-> Hx]] _ IH] //.
   constructor; last exact IH.
-  by apply: lane__case_2; [ exact: Hf | apply: eqxx ].
+  by apply: lane__case_0; [ exact: Hf | apply: eqxx ].
 Qed.
 
 (* ...and likewise for a (set-valued) float operation over Fnn lanes. *)
@@ -1936,21 +1940,20 @@ Lemma Forall_lane_fop_wf : forall (F : Fnn) (fop : res_N -> fN -> seq fN) (ls : 
      List.Forall (fun r => wf_fN (sizenn (numtype_Fnn F)) r) (fop (sizenn (numtype_Fnn F)) x)) ->
   List.Forall (fun l => wf_lane_ (lanetype_Fnn F) l) ls ->
   List.Forall (fun l => List.Forall (fun it =>
-      wf_lane_ (lanetype_Fnn F) (mk_lane__0 (numtype_Fnn F) (mk_num__1 F it)))
-    (fop (sizenn (numtype_Fnn F)) (!(proj_num__1 (!(proj_lane__0 l)))))) ls.
+      wf_lane_ (lanetype_Fnn F) (mk_lane__1 F it))
+    (fop (sizenn (numtype_Fnn F)) (!(proj_lane__1 l)))) ls.
 Proof.
   move => F fop ls Hf H. elim: H => [ |l ls' Hl _ IH] //.
   constructor; last exact IH.
   have [x [-> Hx]] := wf_lane_Fnn_inv _ _ Hl.
   apply: List.Forall_impl (Hf x Hx) => r Hr.
-  apply: lane__case_0; last by destruct F.
-  by apply: num__case_1; [ exact Hr | apply: eqxx ].
+  by apply: lane__case_1; [ exact Hr | apply: eqxx ].
 Qed.
 
 Lemma iabs_lane_total : forall (J : Jnn) (x : iN),
   wf_uN (lsize (lanetype_Jnn J)) x ->
   exists v, fun_iabs_ (lsizenn (lanetype_Jnn J)) x v /\
-            wf_lane_ (lanetype_Jnn J) (mk_lane__2 J v).
+            wf_lane_ (lanetype_Jnn J) (mk_lane__0 J v).
 Proof.
   move => J x Hx.
   have [z [Hz _]] := signed_total (lsize (lanetype_Jnn J)) (x :> N) (wf_uN_lt' _ _ Hx).
@@ -1958,14 +1961,14 @@ Proof.
               (if (z >=? (0%num : Z))%Z then x else (ineg_ (lsizenn (lanetype_Jnn J)) x))
     by apply: fun_iabs__case_0; exact Hz.
   eexists; split; first exact Ha.
-  apply: lane__case_2; last by apply: eqxx.
+  apply: lane__case_0; last by apply: eqxx.
   by eapply iabs__is_wf; [ exact Ha | exact Hx | apply: eqxx ].
 Qed.
 
 Lemma Forall_iabs_total : forall (J : Jnn) (ls : seq lane_),
-  List.Forall (fun l => exists x, l = mk_lane__2 J x /\ wf_uN (lsize (lanetype_Jnn J)) x) ls ->
-  exists vs, List.Forall2 (fun v l => fun_iabs_ (lsizenn (lanetype_Jnn J)) (!(proj_lane__2 l)) v) vs ls /\
-             List.Forall (fun v => wf_lane_ (lanetype_Jnn J) (mk_lane__2 J v)) vs.
+  List.Forall (fun l => exists x, l = mk_lane__0 J x /\ wf_uN (lsize (lanetype_Jnn J)) x) ls ->
+  exists vs, List.Forall2 (fun v l => fun_iabs_ (lsizenn (lanetype_Jnn J)) (!(proj_lane__0 l)) v) vs ls /\
+             List.Forall (fun v => wf_lane_ (lanetype_Jnn J) (mk_lane__0 J v)) vs.
 Proof.
   move => J ls H. apply: Forall_exists_Forall2.
   apply: List.Forall_impl H => l [x [-> Hx]].
@@ -1994,22 +1997,23 @@ Ltac vunop_case Hsh Hl Hlx Hsome H2 Hvw :=
         | exact Hl ]).
 
 (* On well-formed arguments a real case of fun_vunop_ applies - and hence its
-   `before` predicate holds - unless the shape is an integer shape whose lanes
-   are not all in the Jnn injection.  Both conclusions are built directly, so
-   that neither needs an inversion over all 27 constructors. *)
+   `before` predicate holds - provided the lanes of an integer shape project
+   (which, now that lane_ has disjoint Jnn / Fnn cases, always holds: see
+   wf_lane_Jnn_some).  Both conclusions are built directly, so that neither
+   needs an inversion over all 27 constructors. *)
 Lemma vunop_real : forall sh vunop val,
     wf_vunop_ sh vunop ->
     wf_uN 128 val ->
     wf_shape sh ->
     (forall J M, sh = X (lanetype_Jnn J) (mk_dim M) ->
-       all (fun l : lane_ => proj_lane__2 l != None) (lanes_ sh val)) ->
+       all (fun l : lane_ => proj_lane__0 l != None) (lanes_ sh val)) ->
     (exists vs, fun_vunop_ sh vunop val (Some vs)) /\
     fun_vunop__before_fun_vunop__case_26 sh vunop val.
 Proof.
   move => sh op v Hop Hv Hsh Hall.
   have Hl := lanes__is_wf _ _ _ Hsh Hv (eqxx _).
   inversion Hop as [sh' J M o Ho Hs | sh' F M o Hs]; subst; move/eqP: Hs => Hs; subst.
-  { have Hsome : List.Forall (fun l => proj_lane__2 l != None)
+  { have Hsome : List.Forall (fun l => proj_lane__0 l != None)
                    (lanes_ (X (lanetype_Jnn J) (mk_dim M)) v)
       by apply: all_Forall; apply: (Hall J M).
     have Hlx := Forall_lane_Jnn _ _ Hl Hsome.
@@ -2023,9 +2027,8 @@ Proof.
     all: vunop_case Hsh Hl Hl Hl Hl Hl. }
 Qed.
 
-(* Whatever injection `lanes_` uses, fun_vunop_ relates well-formed arguments
-   to some result: either a real case applies, or its catch-all (`~ before`)
-   does. *)
+(* fun_vunop_ relates well-formed arguments to some result: either a real case
+   applies, or its catch-all (`~ before`) does. *)
 Lemma vunop_total : forall sh vunop val,
     wf_vunop_ sh vunop ->
     wf_uN 128 val ->
@@ -2034,7 +2037,7 @@ Lemma vunop_total : forall sh vunop val,
 Proof.
   move => sh op v Hop Hv Hsh.
   inversion Hop as [sh' J M o Ho Hs | sh' F M o Hs]; move/eqP: Hs => Hs; subst.
-  { case E: (all (fun l : lane_ => proj_lane__2 l != None)
+  { case E: (all (fun l : lane_ => proj_lane__0 l != None)
                  (lanes_ (X (lanetype_Jnn J) (mk_dim M)) v)).
     { have [[vs Hvs] _] := vunop_real _ _ _ Hop Hv Hsh (fun _ _ _ => E).
       by exists (Some vs). }
@@ -2047,7 +2050,7 @@ Proof.
            | [ HF : List.Forall _ _ |- _ ] => by rewrite (Forall_all _ _ _ HF) in E
            end. } }
   { have Hno : forall J M', X (lanetype_Fnn F) (mk_dim M) = X (lanetype_Jnn J) (mk_dim M') ->
-                 all (fun l : lane_ => proj_lane__2 l != None) (lanes_ (X (lanetype_Fnn F) (mk_dim M)) v)
+                 all (fun l : lane_ => proj_lane__0 l != None) (lanes_ (X (lanetype_Fnn F) (mk_dim M)) v)
       by move => J M' Heq; destruct F, J.
     have [[vs Hvs] _] := vunop_real _ _ _ Hop Hv Hsh Hno.
     by exists (Some vs). }
@@ -2062,22 +2065,379 @@ Lemma vunop_not_none : forall sh vunop val ret,
 Proof.
   move => sh op v ret Hop Hv Hsh Hf Hn. subst ret.
   inversion Hop as [sh' J M o Ho Hs | sh' F M o Hs]; move/eqP: Hs => Hs; subst.
-  { (* Integer shapes.  Only the catch-all yields None, and it is excluded
-       exactly when every lane of `lanes_ (X (lanetype_Jnn J) _) v` is in the
-       `mk_lane__2` injection.  `lanes__is_wf` only gives
-       `wf_lane_ (lanetype_Jnn J)`, which a `mk_lane__0` lane (I32/I64) or a
-       `mk_lane__1` lane (I8/I16) satisfies just as well - and for such lanes
-       the result genuinely is None - so this is not derivable as stated. *)
-    admit. }
+  { (* Integer shapes: every well-formed lane is in the Jnn injection, so a
+       real case applies and the catch-all cannot. *)
+    have Hl := lanes__is_wf _ _ _ Hsh Hv (eqxx _).
+    have Hall : forall J' M', X (lanetype_Jnn J) (mk_dim M) = X (lanetype_Jnn J') (mk_dim M') ->
+                 all (fun l : lane_ => proj_lane__0 l != None) (lanes_ (X (lanetype_Jnn J) (mk_dim M)) v).
+    { move => J' M' _. apply: Forall_all.
+      apply: (List.Forall_impl _ _ Hl) => l Hw. exact: (wf_lane_Jnn_some J). }
+    have [_ Hb] := vunop_real _ _ _ Hop Hv Hsh Hall.
+    destruct J, o; inversion Ho; subst.
+    all: try (match goal with | [ He : is_true (_ == _) |- _ ] => by move: He end).
+    all: inversion Hf as [ | | | | | | | | | | | | | | | | | | | | | | | | | | x0 x1 x2 Hnb ]; subst.
+    all: by apply: Hnb. }
   { (* Float shapes: a real case applies, so its `before` predicate holds and
        the catch-all cannot. *)
     have Hno : forall J M', X (lanetype_Fnn F) (mk_dim M) = X (lanetype_Jnn J) (mk_dim M') ->
-                 all (fun l : lane_ => proj_lane__2 l != None) (lanes_ (X (lanetype_Fnn F) (mk_dim M)) v)
+                 all (fun l : lane_ => proj_lane__0 l != None) (lanes_ (X (lanetype_Fnn F) (mk_dim M)) v)
       by move => J M' Heq; destruct F, J.
     have [_ Hb] := vunop_real _ _ _ Hop Hv Hsh Hno.
     destruct F, o; inversion Hf as [ | | | | | | | | | | | | | | | | | | | | | | | | | | x0 x1 x2 Hnb ]; subst.
     all: by apply: Hnb. }
-Admitted.
+Qed.
+
+(* ---- lane-wise vector operations ---- *)
+
+Lemma sat_s_range : forall (v_N : N) (z : Z),
+  ((0 - ((2%num ^ (v_N - 1)%BN)%BN : Z))%Z <= sat_s_ v_N z)%Z /\
+  (sat_s_ v_N z < ((2%num ^ (v_N - 1)%BN)%BN : Z))%Z.
+Proof.
+  move => v_N z. rewrite /sat_s_ Zsub1_toN.
+  have Hp := two_pow_pos (v_N - 1)%BN.
+  case: (Z.ltb_spec z (0 - ((2%num ^ (v_N - 1)%BN)%BN : Z))) => H1 /=; first lia.
+  rewrite Z.gtb_ltb.
+  case: (Z.ltb_spec (((2%num ^ (v_N - 1)%BN)%BN : Z) - 1) z) => H2 /=; lia.
+Qed.
+
+Lemma imin_total_wf : forall v_N v_sx i1 i2, wf_uN v_N i1 -> wf_uN v_N i2 ->
+  exists r, fun_imin_ v_N v_sx i1 i2 r /\ wf_uN v_N r.
+Proof.
+  move => v_N v_sx i1 i2 H1 H2.
+  have [r Hr] : exists r, fun_imin_ v_N v_sx i1 i2 r.
+  { case: v_sx.
+    { case E: ((proj_uN_0 i1) <=? (proj_uN_0 i2))%BN.
+      { exists i1. by apply: fun_imin__case_0. }
+      { exists i2. apply: fun_imin__case_1. rewrite /N_gtb. apply/N.ltb_spec0.
+        move/negbT/N.leb_spec0: E => E. simpl in *. lia. } }
+    { have [z1 [Hs1 _]] := signed_total v_N (i1 :> N) (wf_uN_lt' _ _ H1).
+      have [z2 [Hs2 _]] := signed_total v_N (i2 :> N) (wf_uN_lt' _ _ H2).
+      eexists. exact: (fun_imin__case_2 v_N i1 i2 z2 z1 Hs2 Hs1). } }
+  exists r. split; first exact Hr. exact: (imin__is_wf _ _ _ _ _ _ Hr H1 H2 (eqxx _)).
+Qed.
+
+Lemma imax_total_wf : forall v_N v_sx i1 i2, wf_uN v_N i1 -> wf_uN v_N i2 ->
+  exists r, fun_imax_ v_N v_sx i1 i2 r /\ wf_uN v_N r.
+Proof.
+  move => v_N v_sx i1 i2 H1 H2.
+  have [r Hr] : exists r, fun_imax_ v_N v_sx i1 i2 r.
+  { case: v_sx.
+    { case E: ((proj_uN_0 i1) <? (proj_uN_0 i2))%BN.
+      { exists i2. by apply: fun_imax__case_1. }
+      { exists i1. apply: fun_imax__case_0. rewrite /N_geb. apply/N.leb_spec0.
+        move/negbT/N.ltb_spec0: E => E. simpl in *. lia. } }
+    { have [z1 [Hs1 _]] := signed_total v_N (i1 :> N) (wf_uN_lt' _ _ H1).
+      have [z2 [Hs2 _]] := signed_total v_N (i2 :> N) (wf_uN_lt' _ _ H2).
+      eexists. exact: (fun_imax__case_2 v_N i1 i2 z2 z1 Hs2 Hs1). } }
+  exists r. split; first exact Hr. exact: (imax__is_wf _ _ _ _ _ _ Hr H1 H2 (eqxx _)).
+Qed.
+
+Lemma iadd_sat_total_wf : forall v_N v_sx i1 i2, wf_uN v_N i1 -> wf_uN v_N i2 ->
+  exists r, fun_iadd_sat_ v_N v_sx i1 i2 r /\ wf_uN v_N r.
+Proof.
+  move => v_N v_sx i1 i2 H1 H2.
+  have [r Hr] : exists r, fun_iadd_sat_ v_N v_sx i1 i2 r.
+  { case: v_sx; first by (eexists; apply: fun_iadd_sat__case_0).
+    have [z1 [Hs1 _]] := signed_total v_N (i1 :> N) (wf_uN_lt' _ _ H1).
+    have [z2 [Hs2 _]] := signed_total v_N (i2 :> N) (wf_uN_lt' _ _ H2).
+    have [Hlo Hhi] := sat_s_range v_N (z1 + z2)%Z.
+    have [m Hm] := invsigned_total v_N (sat_s_ v_N (z1 + z2)%Z) Hlo Hhi.
+    eexists. exact: (fun_iadd_sat__case_1 v_N i1 i2 z2 z1 m Hs2 Hs1 Hm). }
+  exists r. split; first exact Hr. exact: (iadd_sat__is_wf _ _ _ _ _ _ Hr H1 H2 (eqxx _)).
+Qed.
+
+Lemma isub_sat_total_wf : forall v_N v_sx i1 i2, wf_uN v_N i1 -> wf_uN v_N i2 ->
+  exists r, fun_isub_sat_ v_N v_sx i1 i2 r /\ wf_uN v_N r.
+Proof.
+  move => v_N v_sx i1 i2 H1 H2.
+  have [r Hr] : exists r, fun_isub_sat_ v_N v_sx i1 i2 r.
+  { case: v_sx; first by (eexists; apply: fun_isub_sat__case_0).
+    have [z1 [Hs1 _]] := signed_total v_N (i1 :> N) (wf_uN_lt' _ _ H1).
+    have [z2 [Hs2 _]] := signed_total v_N (i2 :> N) (wf_uN_lt' _ _ H2).
+    have [Hlo Hhi] := sat_s_range v_N (z1 - z2)%Z.
+    have [m Hm] := invsigned_total v_N (sat_s_ v_N (z1 - z2)%Z) Hlo Hhi.
+    eexists. exact: (fun_isub_sat__case_1 v_N i1 i2 z2 z1 m Hs2 Hs1 Hm). }
+  exists r. split; first exact Hr. exact: (isub_sat__is_wf _ _ _ _ _ _ Hr H1 H2 (eqxx _)).
+Qed.
+
+(* The lanes of a well-formed integer / float vector are in the Jnn / Fnn
+   injection (lane_ has disjoint cases). *)
+Definition jlane (J : Jnn) (l : lane_) : Prop :=
+  exists x, l = mk_lane__0 J x /\ wf_uN (lsize (lanetype_Jnn J)) x.
+Definition flane (F : Fnn) (l : lane_) : Prop :=
+  exists x, l = mk_lane__1 F x /\ wf_fN (sizenn (numtype_Fnn F)) x.
+
+Lemma lanes_Jnn_form : forall (J : Jnn) (M : N) (c : vec_),
+  wf_shape (X (lanetype_Jnn J) (mk_dim M)) -> wf_uN 128 c ->
+  List.Forall (jlane J) (lanes_ (X (lanetype_Jnn J) (mk_dim M)) c).
+Proof.
+  move => J M c Hsh Hc. have Hl := lanes__is_wf _ _ _ Hsh Hc (eqxx _).
+  apply: (List.Forall_impl _ _ Hl) => l Hw.
+  exact: (wf_lane_Jnn_inv J l Hw (wf_lane_Jnn_some J l Hw)).
+Qed.
+
+Lemma lanes_Fnn_form : forall (F : Fnn) (M : N) (c : vec_),
+  wf_shape (X (lanetype_Fnn F) (mk_dim M)) -> wf_uN 128 c ->
+  List.Forall (flane F) (lanes_ (X (lanetype_Fnn F) (mk_dim M)) c).
+Proof.
+  move => F M c Hsh Hc. have Hl := lanes__is_wf _ _ _ Hsh Hc (eqxx _).
+  apply: (List.Forall_impl _ _ Hl) => l Hw. exact: (wf_lane_Fnn_inv F l Hw).
+Qed.
+
+Lemma jlane_some : forall J L, List.Forall (jlane J) L -> List.Forall (fun l => proj_lane__0 l != None) L.
+Proof. move => J L H. apply: (List.Forall_impl _ _ H) => l [x [-> _]]. by []. Qed.
+
+Lemma flane_some : forall F L, List.Forall (flane F) L -> List.Forall (fun l => proj_lane__1 l != None) L.
+Proof. move => F L H. apply: (List.Forall_impl _ _ H) => l [x [-> _]]. by []. Qed.
+
+Lemma lanes_size_eq : forall (lt : lanetype) (M : N) (c1 c2 : vec_),
+  size (lanes_ (X lt (mk_dim M)) c1) = size (lanes_ (X lt (mk_dim M)) c2).
+Proof.
+  move => lt M c1 c2. apply: Nnat.Nat2N.inj. by rewrite !lanes_len.
+Qed.
+
+(* Lane-wise application of a range-preserving binary operation. *)
+Lemma zip_lane_wf : forall (J : Jnn) (lt : lanetype) (f : iN -> iN -> iN) (L1 L2 : seq lane_),
+  lt = lanetype_Jnn J ->
+  (forall a b, wf_uN (lsize (lanetype_Jnn J)) a -> wf_uN (lsize (lanetype_Jnn J)) b ->
+     wf_uN (lsize (lanetype_Jnn J)) (f a b)) ->
+  List.Forall (jlane J) L1 -> List.Forall (jlane J) L2 -> size L1 = size L2 ->
+  List.Forall2 (fun l1 l2 => wf_lane_ lt (mk_lane__0 J (f (!(proj_lane__0 l1)) (!(proj_lane__0 l2))))) L1 L2.
+Proof.
+  move => J lt f L1 L2 -> Hf H1. elim: H1 L2 => [ |l1 L1' [x1 [-> Hx1]] _ IH] [ |l2 L2'] H2 //= Hsz; try discriminate.
+  all: try by constructor.
+  { inversion H2 as [ | ? ? [x2 [-> Hx2]] H2']; subst.
+    constructor; last by apply: IH => //; case: Hsz.
+    by apply: lane__case_0; [ exact: Hf | apply: eqxx ]. }
+Qed.
+
+Lemma zip_flane_wf : forall (F : Fnn) (fop : res_N -> fN -> fN -> seq fN) (L1 L2 : seq lane_),
+  (forall a b, wf_fN (sizenn (numtype_Fnn F)) a -> wf_fN (sizenn (numtype_Fnn F)) b ->
+     List.Forall (fun r => wf_fN (sizenn (numtype_Fnn F)) r) (fop (sizenn (numtype_Fnn F)) a b)) ->
+  List.Forall (flane F) L1 -> List.Forall (flane F) L2 -> size L1 = size L2 ->
+  List.Forall2 (fun l1 l2 => List.Forall (fun it => wf_lane_ (lanetype_Fnn F) (mk_lane__1 F it))
+    (fop (sizenn (numtype_Fnn F)) (!(proj_lane__1 l1)) (!(proj_lane__1 l2)))) L1 L2.
+Proof.
+  move => F fop L1 L2 Hf H1. elim: H1 L2 => [ |l1 L1' [x1 [-> Hx1]] _ IH] [ |l2 L2'] H2 //= Hsz; try discriminate.
+  all: try by constructor.
+  { inversion H2 as [ | ? ? [x2 [-> Hx2]] H2']; subst.
+    constructor; last by apply: IH => //; case: Hsz.
+    apply: (List.Forall_impl _ _ (Hf x1 x2 Hx1 Hx2)) => r Hr.
+    by apply: lane__case_1; [ exact Hr | apply: eqxx ]. }
+Qed.
+
+(* Lane-wise application of a total relation whose results satisfy W. *)
+Lemma zip_lane_rel : forall (J : Jnn) (R : iN -> iN -> iN -> Prop) (W : iN -> Prop) (L1 L2 : seq lane_),
+  (forall a b, wf_uN (lsize (lanetype_Jnn J)) a -> wf_uN (lsize (lanetype_Jnn J)) b ->
+     exists r, R a b r /\ W r) ->
+  List.Forall (jlane J) L1 -> List.Forall (jlane J) L2 -> size L1 = size L2 ->
+  exists vs, List_Forall3 (fun v l1 l2 => R (!(proj_lane__0 l1)) (!(proj_lane__0 l2)) v) vs L1 L2 /\
+             List.Forall W vs /\ size vs = size L1.
+Proof.
+  move => J R W L1 L2 HR H1. elim: H1 L2 => [ |l1 L1' [x1 [-> Hx1]] _ IH] [ |l2 L2'] H2 //= Hsz; try discriminate.
+  all: try (by exists [::]; split; [ constructor | by split ]).
+  { inversion H2 as [ | ? ? [x2 [-> Hx2]] H2']; subst.
+    have [vs [H3 [Hw Hs]]] := IH L2' H2' ltac:(by case: Hsz).
+    have [r [Hr Hwr]] := HR x1 x2 Hx1 Hx2.
+    exists (r :: vs). split; first by constructor.
+    split; first by constructor. by rewrite /= Hs. }
+Qed.
+
+
+
+
+(* Discharges the premises of one real case of a lane-wise vector relation,
+   given the lane facts HL1 / HL2 (jlane / flane), HS1 / HS2 (projections),
+   Hsz (equal sizes), and optionally relational witnesses H3 / Hw / Hsv. *)
+Ltac vlane_close :=
+  first
+  [ by apply: eqxx
+  | assumption
+  | (apply/eqP; congr N.of_nat; first [ assumption | (symmetry; assumption)
+      | (match goal with | [ Hsv : size ?v = size ?a, Hsz : size ?a = size ?b |- size ?v = size ?b ] =>
+           by rewrite Hsv Hsz end) ])
+  | (apply: zip_lane_wf; [ by [] | let a := fresh in let b := fresh in let Ha := fresh in let Hb := fresh in
+       intros a b Ha Hb;
+       first [ (eapply iadd__is_wf; [ exact Ha | exact Hb | apply: eqxx ])
+             | (eapply isub__is_wf; [ exact Ha | exact Hb | apply: eqxx ])
+             | (eapply imul__is_wf; [ exact Ha | exact Hb | apply: eqxx ])
+             | (eapply iavgr__is_wf; [ exact Ha | exact Hb | apply: eqxx ])
+             | (eapply iq15mulr_sat__is_wf; [ exact Ha | exact Hb | apply: eqxx ]) ]
+     | assumption | assumption | assumption ])
+  | (apply: zip_flane_wf; [ let a := fresh in let b := fresh in let Ha := fresh in let Hb := fresh in
+       intros a b Ha Hb;
+       first [ (eapply fadd__is_wf; [ exact Ha | exact Hb | apply: eqxx ])
+             | (eapply fsub__is_wf; [ exact Ha | exact Hb | apply: eqxx ])
+             | (eapply fmul__is_wf; [ exact Ha | exact Hb | apply: eqxx ])
+             | (eapply fdiv__is_wf; [ exact Ha | exact Hb | apply: eqxx ])
+             | (eapply fmin__is_wf; [ exact Ha | exact Hb | apply: eqxx ])
+             | (eapply fmax__is_wf; [ exact Ha | exact Hb | apply: eqxx ])
+             | (eapply fpmin__is_wf; [ exact Ha | exact Hb | apply: eqxx ])
+             | (eapply fpmax__is_wf; [ exact Ha | exact Hb | apply: eqxx ]) ]
+     | assumption | assumption | assumption ])
+  | (match goal with | [ Hw : List.Forall _ ?vs |- List.Forall _ ?vs ] =>
+       apply: (List.Forall_impl _ _ Hw) => ? ?; by apply: lane__case_0; [ assumption | apply: eqxx ] end) ].
+
+(* On well-formed arguments some real case of fun_vbinop_ applies. *)
+Lemma vbinop_some : forall sh op c1 c2,
+  wf_shape sh -> wf_vbinop_ sh op -> wf_uN 128 c1 -> wf_uN 128 c2 ->
+  exists r, fun_vbinop_ sh op c1 c2 (Some r).
+Proof.
+  move => sh op c1 c2 Hsh Hop H1 H2.
+  inversion Hop as [sh' J M o Ho Hs | sh' F M o Hs]; subst; move/eqP: Hs => Hs; subst.
+  { have HL1 := lanes_Jnn_form J M c1 Hsh H1.
+    have HL2 := lanes_Jnn_form J M c2 Hsh H2.
+    have HS1 := jlane_some _ _ HL1.
+    have HS2 := jlane_some _ _ HL2.
+    have Hsz := lanes_size_eq (lanetype_Jnn J) M c1 c2.
+    destruct o as [ | | sx | sx | | | | sx | sx ].
+    all: try (match goal with
+      | [ |- context [ ADD_SAT ?sx ] ] =>
+          have [vs [H3 [Hw Hsv]]] := zip_lane_rel J (fun a b r => fun_iadd_sat_ (lsizenn (lanetype_Jnn J)) sx a b r)
+            _ _ _ (fun a b => iadd_sat_total_wf _ sx a b) HL1 HL2 Hsz
+      | [ |- context [ SUB_SAT ?sx ] ] =>
+          have [vs [H3 [Hw Hsv]]] := zip_lane_rel J (fun a b r => fun_isub_sat_ (lsizenn (lanetype_Jnn J)) sx a b r)
+            _ _ _ (fun a b => isub_sat_total_wf _ sx a b) HL1 HL2 Hsz
+      | [ |- context [ vbinop_Jnn_N_MIN ?sx ] ] =>
+          have [vs [H3 [Hw Hsv]]] := zip_lane_rel J (fun a b r => fun_imin_ (lsizenn (lanetype_Jnn J)) sx a b r)
+            _ _ _ (fun a b => imin_total_wf _ sx a b) HL1 HL2 Hsz
+      | [ |- context [ vbinop_Jnn_N_MAX ?sx ] ] =>
+          have [vs [H3 [Hw Hsv]]] := zip_lane_rel J (fun a b r => fun_imax_ (lsizenn (lanetype_Jnn J)) sx a b r)
+            _ _ _ (fun a b => imax_total_wf _ sx a b) HL1 HL2 Hsz
+      end).
+    all: destruct J; inversion Ho; subst.
+    all: try (match goal with | [ He : is_true (_ == _) |- _ ] => by move: He end).
+    all: try (match goal with | [ He : is_true (_ <=? _)%BN |- _ ] => by move: He end).
+    all: try (match goal with | [ He : is_true (_ >=? _)%BN |- _ ] => by move: He end).
+    all: eexists; econstructor.
+    all: try (by apply: eqxx).
+    all: try (match goal with | [ H3 : List_Forall3 _ _ _ _ |- List_Forall3 _ _ _ _ ] => exact: H3 end).
+    all: vlane_close. }
+  { have HL1 := lanes_Fnn_form F M c1 Hsh H1.
+    have HL2 := lanes_Fnn_form F M c2 Hsh H2.
+    have HS1 := flane_some _ _ HL1.
+    have HS2 := flane_some _ _ HL2.
+    have Hsz := lanes_size_eq (lanetype_Fnn F) M c1 c2.
+    destruct F, o.
+    all: eexists; econstructor.
+    all: try (by apply: eqxx).
+    all: vlane_close. }
+Qed.
+
+Lemma mk_uN_eta : forall (u : uN), mk_uN ((u :> N)) = u.
+Proof. by case. Qed.
+
+(* ---- comparisons: every result is a single bit ---- *)
+
+Lemma res_bool_bit : forall b, wf_uN 1 (mk_uN (res_bool b)).
+Proof. by case; apply: uN_case_0. Qed.
+
+Lemma ieq_bit : forall v_N a b, wf_uN 1 (mk_uN ((ieq_ v_N a b) :> N)).
+Proof. move => *. exact: res_bool_bit. Qed.
+
+Lemma ine_bit : forall v_N a b, wf_uN 1 (mk_uN ((ine_ v_N a b) :> N)).
+Proof. move => *. exact: res_bool_bit. Qed.
+
+Lemma icmp_total_bit : forall v_N v_sx i1 i2, wf_uN v_N i1 -> wf_uN v_N i2 ->
+  (exists r, fun_ilt_ v_N v_sx i1 i2 r /\ wf_uN 1 (mk_uN (r :> N))) /\
+  (exists r, fun_igt_ v_N v_sx i1 i2 r /\ wf_uN 1 (mk_uN (r :> N))) /\
+  (exists r, fun_ile_ v_N v_sx i1 i2 r /\ wf_uN 1 (mk_uN (r :> N))) /\
+  (exists r, fun_ige_ v_N v_sx i1 i2 r /\ wf_uN 1 (mk_uN (r :> N))).
+Proof.
+  move => v_N v_sx i1 i2 H1 H2.
+  have [r1 Hr1] := ilt_total v_N v_sx i1 i2 H1 H2.
+  have [r2 Hr2] := igt_total v_N v_sx i1 i2 H1 H2.
+  have [r3 Hr3] := ile_total v_N v_sx i1 i2 H1 H2.
+  have [r4 Hr4] := ige_total v_N v_sx i1 i2 H1 H2.
+  split; [ exists r1 | split; [ exists r2 | split; [ exists r3 | exists r4 ] ] ].
+  all: split; first assumption.
+  { by case: Hr1 => * /=; apply: res_bool_bit. }
+  { by case: Hr2 => * /=; apply: res_bool_bit. }
+  { by case: Hr3 => * /=; apply: res_bool_bit. }
+  { by case: Hr4 => * /=; apply: res_bool_bit. }
+Qed.
+
+Lemma Forall_zipWith : forall (A B C : Type) (P : C -> Prop) (f : A -> B -> C) (l1 : seq A) (l2 : seq B),
+  (forall a b, P (f a b)) -> List.Forall P (list_zipWith f l1 l2).
+Proof.
+  move => A B C P f l1 l2 H. rewrite /list_zipWith.
+  elim: l1 l2 => [ |a l1 IH] [ |b l2] /=; by constructor.
+Qed.
+
+Lemma Forall2_all : forall (A B : Type) (P : A -> B -> Prop) (l1 : seq A) (l2 : seq B),
+  (forall a b, P a b) -> size l1 = size l2 -> List.Forall2 P l1 l2.
+Proof.
+  move => A B P l1 l2 H. elim: l1 l2 => [ |a l1 IH] [ |b l2] //= Hs; try discriminate.
+  all: try by constructor.
+  constructor; first exact: H. apply: IH. by case: Hs.
+Qed.
+
+Lemma Forall_map_P : forall (A B : Type) (P : B -> Prop) (Q : A -> Prop) (f : A -> B) (l : seq A),
+  (forall a, Q a -> P (f a)) -> List.Forall Q l -> List.Forall P (seq.map f l).
+Proof. move => A B P Q f l H Hl. elim: Hl => [ |a l' Ha _ IH] /=; constructor => //. exact: H. Qed.
+
+(* Closes a bit premise of a comparison result. *)
+Ltac bit_close :=
+  first [ exact: ieq_bit | exact: ine_bit
+        | (rewrite mk_uN_eta; first [ exact: feq_bit | exact: fne_bit | exact: flt_bit
+            | exact: fgt_bit | exact: fle_bit | exact: fge_bit ]) ].
+
+(* Discharges the premises of one real case of fun_vrelop_. *)
+Ltac vrelop_close :=
+  first
+  [ exact: (eqxx (isize Inn_I32)) | exact: (eqxx (isize Inn_I64))
+  | (match goal with | [ Hs : wf_shape (X _ ?d) |- wf_shape (X _ ?d) ] => by inversion Hs; constructor end)
+  | vlane_close
+  | (apply: Forall2_all; [ let a := fresh in let b := fresh in intros a b; bit_close | assumption ])
+  | (apply: Forall_zipWith => ? ?; apply: lane__case_0; [ (eapply extend___is_wf; last by apply: eqxx); bit_close | by [] ])
+  | (match goal with | [ Hw : List.Forall _ ?vs |- List.Forall _ (seq.map _ ?vs) ] =>
+       apply: (Forall_map_P _ _ _ _ _ _ _ Hw) => ? ?;
+       apply: lane__case_0; [ (eapply extend___is_wf; last by apply: eqxx); assumption | by [] ] end)
+  | (apply: Forall_zipWith => ? ?; apply: lane__case_0;
+       [ rewrite mk_uN_eta; (eapply extend___is_wf; last by apply: eqxx); bit_close | by [] ]) ].
+
+(* On well-formed arguments some real case of fun_vrelop_ applies. *)
+Lemma vrelop_some : forall sh op c1 c2,
+  wf_shape sh -> wf_vrelop_ sh op -> wf_uN 128 c1 -> wf_uN 128 c2 ->
+  exists r, fun_vrelop_ sh op c1 c2 (Some r).
+Proof.
+  move => sh op c1 c2 Hsh Hop H1 H2.
+  inversion Hop as [sh' J M o Ho Hs | sh' F M o Hs]; subst; move/eqP: Hs => Hs; subst.
+  { have HL1 := lanes_Jnn_form J M c1 Hsh H1.
+    have HL2 := lanes_Jnn_form J M c2 Hsh H2.
+    have HS1 := jlane_some _ _ HL1.
+    have HS2 := jlane_some _ _ HL2.
+    have Hsz := lanes_size_eq (lanetype_Jnn J) M c1 c2.
+    destruct o as [ | | sx | sx | sx | sx ].
+    all: try (match goal with
+      | [ |- context [ vrelop_Jnn_N_LT ?sx ] ] =>
+          have [vs [H3 [Hw Hsv]]] := zip_lane_rel J (fun a b r => fun_ilt_ (lsizenn (lanetype_Jnn J)) sx a b r) _
+            _ _ (fun a b Ha Hb => proj1 (icmp_total_bit _ sx a b Ha Hb)) HL1 HL2 Hsz
+      | [ |- context [ vrelop_Jnn_N_GT ?sx ] ] =>
+          have [vs [H3 [Hw Hsv]]] := zip_lane_rel J (fun a b r => fun_igt_ (lsizenn (lanetype_Jnn J)) sx a b r) _
+            _ _ (fun a b Ha Hb => proj1 (proj2 (icmp_total_bit _ sx a b Ha Hb))) HL1 HL2 Hsz
+      | [ |- context [ vrelop_Jnn_N_LE ?sx ] ] =>
+          have [vs [H3 [Hw Hsv]]] := zip_lane_rel J (fun a b r => fun_ile_ (lsizenn (lanetype_Jnn J)) sx a b r) _
+            _ _ (fun a b Ha Hb => proj1 (proj2 (proj2 (icmp_total_bit _ sx a b Ha Hb)))) HL1 HL2 Hsz
+      | [ |- context [ vrelop_Jnn_N_GE ?sx ] ] =>
+          have [vs [H3 [Hw Hsv]]] := zip_lane_rel J (fun a b r => fun_ige_ (lsizenn (lanetype_Jnn J)) sx a b r) _
+            _ _ (fun a b Ha Hb => proj2 (proj2 (proj2 (icmp_total_bit _ sx a b Ha Hb)))) HL1 HL2 Hsz
+      end).
+    all: destruct J; inversion Ho; subst.
+    all: try (match goal with | [ He : is_true (_ || _) |- _ ] => by move: He end).
+    all: eexists; econstructor.
+    all: try (by apply: eqxx).
+    all: try (match goal with | [ H3 : List_Forall3 _ _ _ _ |- List_Forall3 _ _ _ _ ] => exact: H3 end).
+    all: vrelop_close. }
+  { have HL1 := lanes_Fnn_form F M c1 Hsh H1.
+    have HL2 := lanes_Fnn_form F M c2 Hsh H2.
+    have HS1 := flane_some _ _ HL1.
+    have HS2 := flane_some _ _ HL2.
+    have Hsz := lanes_size_eq (lanetype_Fnn F) M c1 c2.
+    destruct F, o.
+    all: eexists; econstructor.
+    all: vrelop_close. }
+Qed.
 
 Lemma invsigned_total_32m1 : exists ret, fun_inv_signed_ 32 (0 - 1)%Z ret.
 Proof.
@@ -2121,8 +2481,6 @@ Qed.
 
 
 
-Lemma mk_uN_eta : forall (u : uN), mk_uN ((u :> N)) = u.
-Proof. by case. Qed.
 
 (* Moving between a boolean `all` over a conjunction and two List.Foralls. *)
 Lemma all_and_Forall : forall (T : Type) (P Q : T -> bool) (l : seq T),
@@ -2162,6 +2520,197 @@ Proof.
   have Hall := lanes__is_wf (X lt (mk_dim v_N)) c _ Hsh Hc (eqxx _).
   have H := Forall_size _ _ Hall k.
   rewrite lanes_len in H. by apply: H.
+Qed.
+
+(* VSTORE_LANE on a lane type J with M lanes: the stored lane is well-formed
+   (lanes_nth_wf), hence in the Jnn injection now that lane_ is disjoint. *)
+Lemma vstore_lane_progress : forall s f n1 memarg laneidx c1 (J : Jnn) (M : N),
+  wf_uN 128 c1 ->
+  wf_shape (X (lanetype_Jnn J) (mk_dim M)) ->
+  ((laneidx :> N) < M)%BN ->
+  Qeq_bool (M : Q) ((128%num : Q) / ((jsize J) : Q))%Q = true ->
+  exists s' f' es', Step
+    (mk_config (mk_state s f) [:: admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN n1));
+      admininstr_VCONST V128 c1; admininstr_VSTORE_LANE V128 (mk_sz (jsize J)) memarg laneidx])
+    (mk_config (mk_state s' f') es').
+Proof.
+  move => s f n1 memarg laneidx c1 J M Hc Hsh Hk HM.
+  have Hl := lanes_nth_wf _ _ _ _ Hsh Hc Hk.
+  have [x [Hx Hwx]] := wf_lane_Jnn_inv J _ Hl (wf_lane_Jnn_some J _ Hl).
+  do 3 eexists.
+  eapply (vstore_lane_val (mk_state s f) _ _ _ _ _ _ J M).
+  - by [].
+  - by apply: eqxx.
+  - exact: HM.
+  - by rewrite Hx.
+  - rewrite lanes_len. by apply/N.ltb_spec0.
+  - by apply: eqxx.
+  - rewrite Hx /=. by rewrite mk_uN_eta.
+Qed.
+
+Lemma Forall2_map_l : forall (A B : Type) (R : B -> A -> Prop) (f : A -> B) (l : seq A),
+  List.Forall (fun a => R (f a) a) l -> List.Forall2 R (seq.map f l) l.
+Proof. move => A B R f l H. elim: H => [ |a l' Ha _ IH] /=; by constructor. Qed.
+
+(* A well-formed I32 operand is a CONST I32 of an in-range integer. *)
+Lemma invert_typeof_I32_wf : forall v,
+  typeof v = valtype_I32 -> wf_val v ->
+  exists k, admininstr_val v = admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN k)) /\
+            wf_uN 32%num (mk_uN k).
+Proof.
+  move => v Ht Hwf.
+  have [n [Heqv Hwfn]] := invert_typeof_numtype_wf v I32 Ht Hwf.
+  inversion Hwfn as [nt I x Hr Hx Hnt | nt F x Hx Hnt]; subst; move/eqP: Hnt => Hnt.
+  - destruct I; try discriminate. destruct x as [k]. by exists k.
+  - by destruct F.
+Qed.
+
+Lemma size_list_repeat : forall (X : Type) (x : X) (n : N), (|list_repeat x n|) = n.
+Proof.
+  move => X x n. rewrite /list_repeat.
+  have Hs : forall m, size (List.repeat x m) = m by elim => //= m ->.
+  by rewrite Hs Nnat.N2Nat.id.
+Qed.
+
+Lemma Forall_list_repeat : forall (X : Type) (P : X -> Prop) (x : X) (n : N),
+  P x -> List.Forall P (list_repeat x n).
+Proof. move => X P x n Hx. rewrite /list_repeat. elim: (N.to_nat n) => //= m IH. by constructor. Qed.
+
+Lemma bit_of_wf1 : forall i, wf_uN 1 (mk_uN i) -> wf_bit (mk_bit i).
+Proof.
+  move => i H. inversion H as [? ? Hb]; subst.
+  move: Hb => /andP [_ /N.leb_spec0 Hle]. apply: bit_case_0.
+  have Hi : (i = 0 \/ i = 1)%num by simpl in Hle; lia.
+  by case: Hi => ->.
+Qed.
+
+Lemma wf_dim_le16 : forall M, wf_dim (mk_dim M) -> (M <= 16)%num.
+Proof.
+  move => M H. inversion H as [i Hi]; subst.
+  move: Hi => /orP [/orP [/orP [/orP [/eqP -> | /eqP ->] | /eqP ->] | /eqP ->] | /eqP ->]; lia.
+Qed.
+
+Lemma holds_upto_intro : forall (P : N -> Prop) (n : N),
+  (forall k, (k < n)%num -> P k) -> holds_upto P n.
+Proof.
+  move => P n H. rewrite /holds_upto /iotaN.
+  have HQ : List.Forall (fun i : nat => is_true (ssrnat.ltn i (N.to_nat n))) (iota (N.to_nat 0) (N.to_nat n)).
+  { apply: all_Forall. apply/allP => i. by rewrite mem_iota. }
+  apply: (Forall_map_P _ _ _ _ _ _ _ HQ) => i Hi. apply: H.
+  move/ssrnat.ltP: Hi => Hi. lia.
+Qed.
+
+Lemma jlane_proj_wf : forall (J : Jnn) (L : seq lane_),
+  List.Forall (jlane J) L ->
+  List.Forall (fun x => wf_uN (lsize (lanetype_Jnn J)) x) (seq.map (fun l => !(proj_lane__0 l)) L).
+Proof. move => J L H. apply: (Forall_map_P _ _ _ _ _ _ _ H) => l [x [-> Hx]]. exact Hx. Qed.
+
+Lemma jlane_map_proj : forall (J : Jnn) (L : seq lane_),
+  List.Forall (jlane J) L ->
+  seq.map (fun c => mk_lane__0 J c) (seq.map (fun l => !(proj_lane__0 l)) L) = L.
+Proof. move => J L H. elim: H => [ |l L' [x [-> _]] _ IH] //=. by rewrite IH. Qed.
+
+(* Splitting an even-length list into its elements at even / odd positions. *)
+Fixpoint evens {T : Type} (l : seq T) : seq T :=
+  match l with
+  | a :: _ :: l' => a :: evens l'
+  | _ => [::]
+  end.
+Fixpoint odds {T : Type} (l : seq T) : seq T :=
+  match l with
+  | _ :: b :: l' => b :: odds l'
+  | _ => [::]
+  end.
+
+Lemma evens_odds_ind : forall (T : Type) (P : seq T -> Prop),
+  P [::] -> (forall a, P [:: a]) -> (forall a b l, P l -> P (a :: b :: l)) -> forall l, P l.
+Proof.
+  move => T P H0 H1 H2.
+  have H : forall n l, ssrnat.leq (size l) n -> P l.
+  { elim => [ |n IH] [ |a [ |b l]] //= Hn. apply: H2. apply: IH. rewrite ltnS in Hn. exact: (ltnW Hn). }
+  move => l. exact: (H (size l) l (leqnn _)).
+Qed.
+
+Lemma evens_odds_concat : forall (T : eqType) (l : seq T), ~~ odd (size l) ->
+  concat_ T (list_zipWith (fun a b => [:: a; b]) (evens l) (odds l)) = l.
+Proof.
+  move => T. apply: evens_odds_ind => //= a b l IH Hl.
+  rewrite negbK in Hl. by rewrite IH.
+Qed.
+
+Lemma evens_odds_size : forall (T : Type) (l : seq T), ~~ odd (size l) -> size (evens l) = size (odds l).
+Proof.
+  move => T. apply: evens_odds_ind => //= a b l IH Hl.
+  rewrite negbK in Hl. by rewrite IH.
+Qed.
+
+Lemma Forall_evens : forall (T : Type) (P : T -> Prop) (l : seq T), List.Forall P l -> List.Forall P (evens l).
+Proof.
+  move => T P. apply: (evens_odds_ind _ (fun l => List.Forall P l -> List.Forall P (evens l))) => //=.
+  move => a b l IH H. inversion H as [ | ? ? Ha H']; subst. inversion H'; subst. constructor => //. by apply: IH.
+Qed.
+
+Lemma Forall_odds : forall (T : Type) (P : T -> Prop) (l : seq T), List.Forall P l -> List.Forall P (odds l).
+Proof.
+  move => T P. apply: (evens_odds_ind _ (fun l => List.Forall P l -> List.Forall P (odds l))) => //=.
+  move => a b l IH H. inversion H as [ | ? ? Ha H']; subst. inversion H'; subst. constructor => //. by apply: IH.
+Qed.
+
+Lemma Forall2_of_Forall : forall (A : Type) (W : A -> Prop) (Q : A -> A -> Prop) (l1 l2 : seq A),
+  (forall a b, W a -> W b -> Q a b) -> List.Forall W l1 -> List.Forall W l2 -> size l1 = size l2 ->
+  List.Forall2 Q l1 l2.
+Proof.
+  move => A W Q l1 l2 HQ H1. elim: H1 l2 => [ |a l1' Ha _ IH] [ |b l2'] H2 //= Hs; try discriminate.
+  all: try by constructor.
+  inversion H2; subst. constructor; first exact: HQ. apply: IH => //. by case: Hs.
+Qed.
+
+Lemma list_slice_size_eq : forall (A B : Type) (l1 : seq A) (l2 : seq B) (i j : N),
+  size l1 = size l2 -> size (list_slice l1 i j) = size (list_slice l2 i j).
+Proof.
+  move => A B l1. elim: l1 => [ |x l1 IH] [ |y l2] i j //= Hs; try discriminate.
+  case: Hs => Hs. case: i => [ |n]; case: j => [ |m] //=.
+  all: by rewrite (IH l2).
+Qed.
+
+Lemma zip_lane_wf2 : forall (Ji Jo : Jnn) (lt : lanetype) (f : iN -> iN -> iN) (L1 L2 : seq lane_),
+  lt = lanetype_Jnn Jo ->
+  (forall a b, wf_uN (lsize (lanetype_Jnn Ji)) a -> wf_uN (lsize (lanetype_Jnn Ji)) b ->
+     wf_uN (lsize (lanetype_Jnn Jo)) (f a b)) ->
+  List.Forall (jlane Ji) L1 -> List.Forall (jlane Ji) L2 -> size L1 = size L2 ->
+  List.Forall2 (fun l1 l2 => wf_lane_ lt (mk_lane__0 Jo (f (!(proj_lane__0 l1)) (!(proj_lane__0 l2))))) L1 L2.
+Proof.
+  move => Ji Jo lt f L1 L2 -> Hf H1. elim: H1 L2 => [ |l1 L1' [x1 [-> Hx1]] _ IH] [ |l2 L2'] H2 //= Hsz; try discriminate.
+  all: try by constructor.
+  inversion H2 as [ | ? ? [x2 [-> Hx2]] H2']; subst.
+  constructor; last by apply: IH => //; case: Hsz.
+  by apply: lane__case_0; [ exact: Hf | apply: eqxx ].
+Qed.
+
+Lemma zip_wf : forall (J : Jnn) (P : iN -> Prop) (f : lane_ -> lane_ -> iN) (L1 L2 : seq lane_),
+  (forall a b, jlane J a -> jlane J b -> P (f a b)) ->
+  List.Forall (jlane J) L1 -> List.Forall (jlane J) L2 -> List.Forall P (list_zipWith f L1 L2).
+Proof.
+  move => J P f L1 L2 Hf H1. rewrite /list_zipWith.
+  elim: H1 L2 => [ |l1 L1' Hl1 _ IH] [ |l2 L2'] H2 /=; try by constructor.
+  inversion H2; subst. constructor; first exact: Hf. exact: IH.
+Qed.
+
+Lemma size_zipWith_eq : forall (A B C : Type) (f : A -> B -> C) (l1 : seq A) (l2 : seq B),
+  size l1 = size l2 -> size (list_zipWith f l1 l2) = size l1.
+Proof. move => A B C f l1 l2 H. by rewrite /list_zipWith size_map size_zip H minnn. Qed.
+
+(* A full-width integer shape J X M (lsize J * M = 128) has an even number of lanes. *)
+Lemma shape_lanes_even : forall (J : Jnn) (M : N) (c : vec_),
+  ((lsize (lanetype_Jnn J)) * M = 128)%num ->
+  ~~ odd (size (lanes_ (X (lanetype_Jnn J) (mk_dim M)) c)).
+Proof.
+  move => J M c H.
+  have Hs : size (lanes_ (X (lanetype_Jnn J) (mk_dim M)) c) = N.to_nat M.
+  { apply: Nnat.Nat2N.inj. by rewrite lanes_len Nnat.N2Nat.id. }
+  rewrite Hs. destruct J; move: H; rewrite [lsize _]/= => H.
+  all: first [ (have -> : M = 16%num by lia) | (have -> : M = 8%num by lia)
+             | (have -> : M = 4%num by lia) | (have -> : M = 2%num by lia) ]; by [].
 Qed.
 
 Lemma add_sub_parens: forall n1 (n2 : N) n3,
@@ -2960,23 +3509,24 @@ Proof.
       eapply vunop_not_none in Hvunop; eauto.
       done.
   }
-  (* VUNOP / VBINOP / VRELOP / VSHIFTOP / VBITMASK / VSWIZZLE / VSHUFFLE
-     (VTESTOP, in the middle of this group, is proved below: it has a
-     catch-all rule, so it steps whichever injection `lanes_` uses).
-
-     All seven reduce through `lanes_`, and every one of their Step_pure rules
-     needs the lanes of the operand in one *particular* injection of the
-     generated `lane_` union (`proj_lane__0` for numtype lanes, `proj_lane__1`
-     for packed lanes, `proj_lane__2` for `Jnn` lanes).  The only fact
-     available about `lanes_` (which is an Axiom) is `lanes__is_wf`, and
-     `wf_lane_ (lanetype_Jnn Jnn_I32) l` is satisfied both by
-     `mk_lane__0 I32 c` and by `mk_lane__2 Jnn_I32 c` - the spectec subtyping
-     between `num_`/`pack_`/`iN` and `lane_` is not preserved by the Coq
-     encoding.  So `proj_lane__2 l <> None` is not derivable, and no axiom can
-     repair it: `vextract_lane_num` wants the `mk_lane__0` form of the very
-     same list that `vtestop_true` wants in `mk_lane__2` form. *)
-
-  1: admit.
+  { (* Instr_ok__vbinop: some real case of fun_vbinop_ applies (vbinop_some). *)
+    move => C sh vbinop HWfC HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    have [c2 [Heqv2 Hwf2]] := invert_typeof_V128 _ Ht2 HP0.
+    rewrite Heqv1 Heqv2.
+    have Hwfsh : wf_shape sh by inversion HWfinstr.
+    have Hwfop : wf_vbinop_ sh vbinop by inversion HWfinstr.
+    have [r Hr] := vbinop_some sh vbinop c1 c2 Hwfsh Hwfop Hwf1 Hwf2.
+    case: r Hr => [ | v vs] Hr.
+    { exists s, f, [admininstr_TRAP]. apply: pure.
+      by eapply vbinop_trap; [ exact Hr | by [] | by [] ]. }
+    { exists s, f, [admininstr_VCONST V128 v]. apply: pure.
+      by eapply vbinop_val; [ exact Hr | by [] | by [] | by rewrite /= mem_head ]. }
+  }
   { (* Instr_ok__vtestop.  Whatever injection `lanes_` uses, one of
        vtestop_true / vtestop_false applies: the latter is the catch-all
        `~ Step_pure_before_vtestop_false`, and the side condition of the former
@@ -2993,8 +3543,8 @@ Proof.
     inversion Hwfop; subst; eq_to_prop; subst.
     destruct var_x.
     have Hlall := lanes__is_wf _ _ _ Hwfsh Hwf1 (eqxx _).
-    case E: (all (fun ci : lane_ => (proj_lane__2 ci != None) &&
-                          (((!(proj_lane__2 ci)) :> N) != 0%num))
+    case E: (all (fun ci : lane_ => (proj_lane__0 ci != None) &&
+                          (((!(proj_lane__0 ci)) :> N) != 0%num))
                (lanes_ (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) c1)).
     - have [Hsome Hnz] := all_and_Forall _ _ _ _ E.
       exists s, f, [admininstr_CONST I32 (mk_num__0 Inn_I32 (mk_uN 1))].
@@ -3008,7 +3558,205 @@ Proof.
       by rewrite (Forall_and_all _ _ _ _ Hsome Hnz) in E.
     Unshelve. all: by move => _; exact _.
   }
-  1-5: admit.
+  { (* Instr_ok__vrelop: some real case of fun_vrelop_ applies (vrelop_some). *)
+    move => C sh vrelop HWfC HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    have [c2 [Heqv2 Hwf2]] := invert_typeof_V128 _ Ht2 HP0.
+    rewrite Heqv1 Heqv2.
+    have Hwfsh : wf_shape sh by inversion HWfinstr.
+    have Hwfop : wf_vrelop_ sh vrelop by inversion HWfinstr.
+    have [r Hr] := vrelop_some sh vrelop c1 c2 Hwfsh Hwfop Hwf1 Hwf2.
+    exists s, f, [admininstr_VCONST V128 r]. apply: pure.
+    by eapply Step_pure__vrelop; [ exact Hr | by [] | by apply: eqxx ].
+  }
+  { (* Instr_ok__vshiftop: every lane of an integer shape is a mk_lane__0 lane,
+       on which the SHL / SHR case of fun_vshiftop_ applies. *)
+    move => C sh op HWfC HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    have [k [Heqv2 Hwfk]] := invert_typeof_I32_wf _ Ht2 HP0.
+    rewrite Heqv1 Heqv2.
+    have Hwish : wf_ishape sh by inversion HWfinstr.
+    have Hwop : wf_vshiftop_ sh op by inversion HWfinstr.
+    inversion Hwop as [sh' J M o Hsh]; subst; move/eqP: Hsh => Hsh; subst.
+    have Hwsh : wf_shape (X (lanetype_Jnn J) (mk_dim M)) by inversion Hwish; constructor.
+    have Hl := lanes__is_wf _ _ _ Hwsh Hwf1 (eqxx _).
+    have Hlx : List.Forall (fun l => exists x, l = mk_lane__0 J x /\ wf_uN (lsize (lanetype_Jnn J)) x)
+                 (lanes_ (X (lanetype_Jnn J) (mk_dim M)) c1).
+    { apply: (List.Forall_impl _ _ Hl) => l Hw. exact: (wf_lane_Jnn_inv J l Hw (wf_lane_Jnn_some J l Hw)). }
+    destruct o as [ | sx].
+    { exists s, f, [admininstr_VCONST V128 (inv_lanes_ (X (lanetype_Jnn J) (mk_dim M))
+        (seq.map (fun l => mk_lane__0 J (ishl_ (lsizenn (lanetype_Jnn J)) (!(proj_lane__0 l)) (mk_uN k)))
+          (lanes_ (X (lanetype_Jnn J) (mk_dim M)) c1)))].
+      apply: pure.
+      eapply (Step_pure__vshiftop _ _ _ _ _ _ (lanes_ (X (lanetype_Jnn J) (mk_dim M)) c1)
+        (seq.map (fun l => Some (mk_lane__0 J (ishl_ (lsizenn (lanetype_Jnn J)) (!(proj_lane__0 l)) (mk_uN k))))
+          (lanes_ (X (lanetype_Jnn J) (mk_dim M)) c1))).
+      1: (apply/eqP; by rewrite size_map).
+      1: (apply: Forall2_map_l; apply: (List.Forall_impl _ _ Hlx) => l [x [-> _]] /=;
+           by apply: fun_vshiftop___fun_vshiftop__case_0; apply: eqxx).
+      1: by apply: eqxx.
+      1: (elim: (lanes_ (X (lanetype_Jnn J) (mk_dim M)) c1) => [ |l ls IH] /=; by constructor).
+      1: (rewrite -map_comp; by apply: eqxx).
+      all: first [ exact: Hl | exact: Hwsh | exact: Hwish | exact: Hwfk ]. }
+    { exists s, f, [admininstr_VCONST V128 (inv_lanes_ (X (lanetype_Jnn J) (mk_dim M))
+        (seq.map (fun l => mk_lane__0 J (ishr_ (lsizenn (lanetype_Jnn J)) sx (!(proj_lane__0 l)) (mk_uN k)))
+          (lanes_ (X (lanetype_Jnn J) (mk_dim M)) c1)))].
+      apply: pure.
+      eapply (Step_pure__vshiftop _ _ _ _ _ _ (lanes_ (X (lanetype_Jnn J) (mk_dim M)) c1)
+        (seq.map (fun l => Some (mk_lane__0 J (ishr_ (lsizenn (lanetype_Jnn J)) sx (!(proj_lane__0 l)) (mk_uN k))))
+          (lanes_ (X (lanetype_Jnn J) (mk_dim M)) c1))).
+      1: (apply/eqP; by rewrite size_map).
+      1: (apply: Forall2_map_l; apply: (List.Forall_impl _ _ Hlx) => l [x [-> _]] /=;
+           by apply: fun_vshiftop___fun_vshiftop__case_1; apply: eqxx).
+      1: by apply: eqxx.
+      1: (elim: (lanes_ (X (lanetype_Jnn J) (mk_dim M)) c1) => [ |l ls IH] /=; by constructor).
+      1: (rewrite -map_comp; by apply: eqxx).
+      all: first [ exact: Hl | exact: Hwsh | exact: Hwish | exact: Hwfk ]. }
+  }
+  { (* Instr_ok__vbitmask: the lane signs are computed with fun_ilt_; the mask is
+       inv_ibits_ of the resulting bits, which ibits_inv turns back into them. *)
+    move => C sh HWfC HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    rewrite Heqv1.
+    have Hwish : wf_ishape sh by inversion HWfinstr.
+    destruct sh as [J [M]].
+    have Hwsh : wf_shape (X (lanetype_Jnn J) (mk_dim M)) by inversion Hwish; constructor.
+    have HM : (M <= 16)%num by inversion Hwish; apply: wf_dim_le16.
+    have HL := lanes_Jnn_form J M c1 Hwsh Hwf1.
+    have Hz0 : wf_uN (lsize (lanetype_Jnn J)) (mk_uN 0).
+    { apply: uN_case_0. rewrite /N_geb Zsub1_toN.
+      have Hp := two_pow_pos (lsize (lanetype_Jnn J)).
+      apply/andP; split; apply/N.leb_spec0; lia. }
+    have [vs [H2 Hb]] : exists vs,
+      List.Forall2 (fun v l => fun_ilt_ (lsize (lanetype_Jnn J)) res_S (!(proj_lane__0 l)) (mk_uN 0) v)
+        vs (lanes_ (X (lanetype_Jnn J) (mk_dim M)) c1) /\
+      List.Forall (fun v => wf_bit (mk_bit (v :> N))) vs.
+    { apply: Forall_exists_Forall2. apply: (List.Forall_impl _ _ HL) => l [x [-> Hx]] /=.
+      have [r [Hr Hrb]] := proj1 (icmp_total_bit _ res_S x (mk_uN 0) Hx Hz0).
+      exists r. split; first exact Hr. exact: bit_of_wf1. }
+    have Hsvs : size vs = size (lanes_ (X (lanetype_Jnn J) (mk_dim M)) c1)
+      by apply: Nnat.Nat2N.inj; apply: (Forall2_size_eq _ _ _ _ _ H2).
+    pose bits := seq.map (fun v => mk_bit (proj_uN_0 v)) vs ++
+      list_repeat (mk_bit 0%num) (((32%num : Z) - (M : Z))%Z : N).
+    have Hbw : List.Forall (fun b => wf_bit b) bits.
+    { apply/List.Forall_app; split.
+      { apply: (Forall_map_P _ _ _ _ _ _ _ Hb) => v Hv. exact Hv. }
+      { apply: Forall_list_repeat. by apply: bit_case_0. } }
+    have Hbl : (|bits|) = 32%num.
+    { rewrite /bits size_cat size_map Nnat.Nat2N.inj_add size_list_repeat Hsvs lanes_len. lia. }
+    exists s, f, [admininstr_CONST I32 (mk_num__0 Inn_I32 (irev_ 32 (inv_ibits_ 32 bits)))].
+    apply: pure.
+    eapply (Step_pure__vbitmask c1 J M (inv_ibits_ 32 bits) (lanes_ (X (lanetype_Jnn J) (mk_dim M)) c1) vs).
+    { apply/eqP. by rewrite Hsvs. }
+    { exact: jlane_some HL. }
+    { exact: H2. }
+    { by apply: eqxx. }
+    { apply/eqP. exact: (ibits_inv 32 bits Hbl Hbw). }
+    { exact: (inv_ibits__is_wf 32 bits _ Hbw (eqxx _)). }
+    { exact: Hwsh. }
+    { exact: Hb. }
+    { by apply: bit_case_0. }
+  }
+  { (* Instr_ok__vswizzle: the shape is I8 X 16; every entry of the padded
+       lane list is a byte, so every selected lane is well-formed. *)
+    move => C sh HWfC HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    have [c2 [Heqv2 Hwf2]] := invert_typeof_V128 _ Ht2 HP0.
+    rewrite Heqv1 Heqv2.
+    have Hsh : sh = ishape_X Jnn_I8 (mk_dim 16) by inversion HWfinstr; subst; apply/eqP.
+    subst sh.
+    have Hwsh : wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim 16)) by do 2 constructor.
+    have HL1 := lanes_Jnn_form Jnn_I8 16 c1 Hwsh Hwf1.
+    have HL2 := lanes_Jnn_form Jnn_I8 16 c2 Hwsh Hwf2.
+    pose cs : seq iN := seq.map (fun l => @the iN Inhabited__uN (proj_lane__0 l)) (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim 16)) c1) ++
+      list_repeat (mk_uN 0%num) (((256%num : Z) - (16%num : Z))%Z : N).
+    have Hcsw : List.Forall (fun x => wf_uN 8 x) cs.
+    { apply/List.Forall_app; split; first exact: (jlane_proj_wf _ _ HL1).
+      apply: Forall_list_repeat. apply: uN_case_0. by []. }
+    have Hcsl : (|cs|) = 256%num.
+    { rewrite /cs size_cat size_map Nnat.Nat2N.inj_add size_list_repeat lanes_len. by []. }
+    have Hidx : forall k, (k < 16)%num ->
+      exists x, (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim 16)) c2)[| k |] = mk_lane__0 Jnn_I8 x /\
+                wf_uN 8 x.
+    { move => k Hk. apply: (Forall_size _ _ HL2). by rewrite lanes_len. }
+    have Hx256 : forall x, wf_uN 8 x -> ((x :> N) < 256)%num.
+    { move => [x] Hx. have := wf_uN_lt' _ _ Hx. by []. }
+    exists s, f, [admininstr_VCONST V128 (inv_lanes_ (X (lanetype_packtype I8) (mk_dim 16))
+      (mkseqN (fun k => mk_lane__0 (Jnn_packtype I8)
+        (cs [| ((!(proj_lane__0 ((lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim 16)) c2) [| k |]))) :> N) |])) 16))].
+    apply: pure.
+    eapply (Step_pure__vswizzle c1 c2 I8 16 _ (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim 16)) c2) cs 0%num).
+    { by apply: eqxx. }
+    { exact: (jlane_some _ _ HL1). }
+    { by apply: eqxx. }
+    { apply: holds_upto_intro => k Hk. have [x [-> Hx]] := Hidx k Hk.
+      rewrite Hcsl /=. apply/N.ltb_spec0. exact: Hx256. }
+    { apply: holds_upto_intro => k Hk. have [x [-> Hx]] := Hidx k Hk. by []. }
+    { apply: holds_upto_intro => k Hk. rewrite lanes_len. by apply/N.ltb_spec0. }
+    { by apply: eqxx. }
+    { exact: Hwsh. }
+    { apply: uN_case_0. by []. }
+    { apply: holds_upto_intro => k Hk. have [x [-> Hx]] := Hidx k Hk.
+      apply: lane__case_0; last by []. apply: (Forall_size _ _ Hcsw). rewrite Hcsl. exact: Hx256. }
+  }
+  { (* Instr_ok__vshuffle: the shape is I8 X 16 and every index is below 32,
+       the number of lanes of the two operands together. *)
+    move => C sh i_lst Hilt HWfC HWfdim HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    have [c2 [Heqv2 Hwf2]] := invert_typeof_V128 _ Ht2 HP0.
+    rewrite Heqv1 Heqv2.
+    have [Hsh Hlen] : sh = ishape_X Jnn_I8 (mk_dim 16) /\ (|i_lst|) = 16%num.
+    { inversion HWfinstr; subst.
+      match goal with | [ Hb : is_true ((_ == _) && _) |- _ ] =>
+        move: Hb => /andP [/eqP -> /eqP ->]; by [] end. }
+    subst sh.
+    have Hwsh : wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim 16)) by do 2 constructor.
+    have HL1 := lanes_Jnn_form Jnn_I8 16 c1 Hwsh Hwf1.
+    have HL2 := lanes_Jnn_form Jnn_I8 16 c2 Hwsh Hwf2.
+    have HL : List.Forall (jlane Jnn_I8)
+      (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim 16)) c1 ++ lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim 16)) c2)
+      by apply/List.Forall_app.
+    pose cs : seq iN := seq.map (fun l => @the iN Inhabited__uN (proj_lane__0 l))
+      (lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim 16)) c1 ++ lanes_ (X (lanetype_Jnn Jnn_I8) (mk_dim 16)) c2).
+    have Hcsw : List.Forall (fun x => wf_uN 8 x) cs := jlane_proj_wf _ _ HL.
+    have Hcsl : (|cs|) = 32%num.
+    { rewrite /cs size_map size_cat Nnat.Nat2N.inj_add !lanes_len. by []. }
+    have Hi32 : forall k, (k < 16)%num -> (((i_lst [| k |]) :> N) < 32)%num.
+    { move => k Hk. have := @Forall_size _ Inhabited__uN _ _ Hilt k ltac:(by rewrite Hlen).
+      move => /= /N.ltb_spec0 H. exact H. }
+    exists s, f, [admininstr_VCONST V128 (inv_lanes_ (X (lanetype_packtype I8) (mk_dim 16))
+      (mkseqN (fun k => mk_lane__0 (Jnn_packtype I8) (cs [| ((i_lst [| k |]) :> N) |])) 16))].
+    apply: pure.
+    eapply (Step_pure__vshuffle c1 c2 I8 16 i_lst _ cs 0%num).
+    { apply/eqP. exact: (jlane_map_proj _ _ HL). }
+    { apply: holds_upto_intro => k Hk. rewrite Hcsl. apply/N.ltb_spec0. exact: Hi32. }
+    { apply: holds_upto_intro => k Hk. rewrite Hlen. by apply/N.ltb_spec0. }
+    { by apply: eqxx. }
+    { apply: (List.Forall_impl _ _ Hcsw) => x Hx. by apply: lane__case_0. }
+    { exact: Hwsh. }
+    { apply: holds_upto_intro => k Hk. apply: lane__case_0; last by [].
+      apply: (Forall_size _ _ Hcsw). rewrite Hcsl. exact: Hi32. }
+  }
   { (* Instr_ok__vsplat *)
     move => C sh HWfC HWfinstr.
     move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
@@ -3026,17 +3774,56 @@ Proof.
     by apply: Step_pure__vsplat.
   }
 
-  (* VEXTRACT_LANE.  Two independent obstacles:
-     - `wf_instr (VEXTRACT_LANE sh sx_opt i)` (instr_case_34) states
-       `(fun_lanetype sh == lanetype_numtype nt) <-> (sx_opt == None)` for a
-       *universally* quantified `nt`.  Taking `sh = X lanetype_I32 d`,
-       `sx_opt = Some U` and `nt = I64` satisfies it, yet neither
-       `vextract_lane_num` (needs `sx_opt = None`) nor `vextract_lane_pack`
-       (needs a packed shape) applies.
-     - even for `sx_opt = None` the rule needs the i-th lane in the
-       `mk_lane__0` injection, which `lanes__is_wf` does not give (see the
-       note on the previous eight cases). *)
-  1: admit.
+  { (* Instr_ok__vextract_lane: the i-th lane is well-formed (lanes_nth_wf); the
+       side condition of wf_instr selects vextract_lane_num or vextract_lane_pack,
+       except for the four cases admitted below. *)
+    move => C sh sx_opt i Hi HWfC HWfdim HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    rewrite Heqv1.
+    destruct sh as [lt [M]].
+    have Hwsh : wf_shape (X lt (mk_dim M)) by inversion HWfinstr.
+    have [nt Hiff] : exists nt, ((lt == lanetype_numtype nt) <-> (sx_opt == None))
+      by inversion HWfinstr; eexists; eassumption.
+    move/N.ltb_spec0: Hi => /= Hi.
+    have Hl := lanes_nth_wf _ _ _ _ Hwsh Hwf1 Hi.
+    have Hlen : is_true (((i :> N) <? (|lanes_ (X lt (mk_dim M)) c1|))%BN)
+      by rewrite lanes_len; apply/N.ltb_spec0.
+    destruct sx_opt as [sx| ]; destruct lt.
+    (* sx = Some with a numtype lane: instr_case_34 quantifies its numtype
+       existentially, so e.g. sh = I32 X 4, sx = Some U, nt = I64 satisfies
+       the side condition (false <-> false), yet neither vextract_lane_num nor
+       vextract_lane_pack applies.  Not provable without the spec constraint
+       `sx? = eps <=> $lanetype(shape) <- I32 I64 F32 F64` (as in Wasm 3.0).
+       Mechanised counterexample: vextract_lane_wf_instr / vextract_lane_stuck. *)
+    1-4: admit.
+    (* sx = None with a packed lane contradicts the side condition. *)
+    all: try (by move: (proj2 Hiff isT); destruct nt).
+    (* numtype lanes, no sign extension *)
+    { have [x [Hx Hwx]] := wf_lane_Jnn_inv Jnn_I8 _ Hl (wf_lane_Jnn_some Jnn_I8 _ Hl).
+      exists s, f, [admininstr_CONST I32 (mk_num__0 Inn_I32 (extend__ 8 32 sx x))].
+      apply: pure. apply: (vextract_lane_pack _ I8) => //=; rewrite ?Hx //.
+      apply: num__case_0 => //. by (eapply extend___is_wf; last by apply: eqxx). }
+    { have [x [Hx Hwx]] := wf_lane_Jnn_inv Jnn_I16 _ Hl (wf_lane_Jnn_some Jnn_I16 _ Hl).
+      exists s, f, [admininstr_CONST I32 (mk_num__0 Inn_I32 (extend__ 16 32 sx x))].
+      apply: pure. apply: (vextract_lane_pack _ I16) => //=; rewrite ?Hx //.
+      apply: num__case_0 => //. by (eapply extend___is_wf; last by apply: eqxx). }
+    { have [x [Hx Hwx]] := wf_lane_Jnn_inv Jnn_I32 _ Hl (wf_lane_Jnn_some Jnn_I32 _ Hl).
+      exists s, f, [admininstr_CONST I32 (mk_num__0 Inn_I32 x)].
+      apply: pure. apply: (vextract_lane_num _ I32) => //=; by rewrite ?Hx. }
+    { have [x [Hx Hwx]] := wf_lane_Jnn_inv Jnn_I64 _ Hl (wf_lane_Jnn_some Jnn_I64 _ Hl).
+      exists s, f, [admininstr_CONST I64 (mk_num__0 Inn_I64 x)].
+      apply: pure. apply: (vextract_lane_num _ I64) => //=; by rewrite ?Hx. }
+    { have [x [Hx Hwx]] := wf_lane_Fnn_inv Fnn_F32 _ Hl.
+      exists s, f, [admininstr_CONST F32 (mk_num__1 Fnn_F32 x)].
+      apply: pure. apply: (vextract_lane_num _ F32) => //=; by rewrite ?Hx. }
+    { have [x [Hx Hwx]] := wf_lane_Fnn_inv Fnn_F64 _ Hl.
+      exists s, f, [admininstr_CONST F64 (mk_num__1 Fnn_F64 x)].
+      apply: pure. apply: (vextract_lane_num _ F64) => //=; by rewrite ?Hx. }
+  }
   { (* Instr_ok__vreplace_lane *)
     move => C sh i Hrange HWfC HWfdim HWfinstr.
     move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
@@ -3057,11 +3844,185 @@ Proof.
     by apply: Step_pure__vreplace_lane.
   }
 
-  (* VEXTUNOP / VEXTBINOP / VNARROW / VCVTOP: same `lane_`-injection obstacle
-     as the eight cases above - `fun_vextunop__`, `fun_vextbinop__`,
-     `fun_vnarrow`-style rules and `vcvtop_*` all require
-     `proj_lane__2`/`proj_lane__1` of the operand's lanes to be `Some`. *)
-  1-4: admit.
+  (* VEXTUNOP: not provable against the current spec.  $vextunop__ is only
+     defined for Inn_1 X M_1 / Inn_2 X M_2 (3-numerics.spectec), while the valid
+     instructions (i16x8 / i32x4 extadd_pairwise) have I8 / I16 source lanes, and
+     ishape does not force lsize * dim = 128, so the lane count may be odd.
+     Mechanised counterexample: vextunop_wf_instr / vextunop_stuck
+     (i16x8.extadd_pairwise_i8x16_s).
+     With $vextunop__ / $vextbinop__ over Jnn_1 / Jnn_2 (as in Wasm 3.0) and a
+     full-width shape constraint, the following proof goes through:
+  { ( * Instr_ok__vextunop: the extended lanes (an even number of them) are split
+       into the pairs that are added. * )
+    move => C sh_1 sh_2 op HWfC HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    rewrite Heqv1.
+    have Hw1 : wf_ishape sh_1 by inversion HWfinstr.
+    have Hw2 : wf_ishape sh_2 by inversion HWfinstr.
+    have Hop : wf_vextunop_ sh_1 op by inversion HWfinstr.
+    have Hsz : ((shsize (shape_ishape sh_1)) == 128%num) && ((shsize (shape_ishape sh_2)) == 128%num)
+      by inversion HWfinstr.
+    destruct sh_1 as [J1 [M1]]; destruct sh_2 as [J2 [M2]].
+    inversion Hop as [? J1' M1' o Ho Hs]; subst; move/eqP: Hs => Hs; injection Hs => ? ?; subst.
+    destruct o as [sx].
+    move: Hsz => /andP [/eqP Hsz1 /eqP Hsz2]. simpl in Hsz1, Hsz2.
+    have Hs1 : wf_shape (X (lanetype_Jnn J1') (mk_dim M1')) by inversion Hw1; constructor.
+    have Hs2 : wf_shape (X (lanetype_Jnn J2) (mk_dim M2)) by inversion Hw2; constructor.
+    have HL := lanes_Jnn_form J2 M2 c1 Hs2 Hwf1.
+    pose E : seq iN := seq.map (fun l => extend__ (lsizenn2 (lanetype_Jnn J2)) (lsizenn1 (lanetype_Jnn J1')) sx
+      (@the iN Inhabited__uN (proj_lane__0 l))) (lanes_ (X (lanetype_Jnn J2) (mk_dim M2)) c1).
+    have HEw : List.Forall (fun x => wf_uN (lsize (lanetype_Jnn J1')) x) E.
+    { apply: (Forall_map_P _ _ _ _ _ _ _ HL) => l [x [-> Hx]].
+      by eapply extend___is_wf; [ exact Hx | apply: eqxx ]. }
+    have HEe : ~~ odd (size E) by rewrite size_map; exact: shape_lanes_even.
+    exists s, f, [admininstr_VCONST V128 (inv_lanes_ (X (lanetype_Jnn J1') (mk_dim M1'))
+      (list_zipWith (fun a b => mk_lane__0 J1' (iadd_ (lsizenn1 (lanetype_Jnn J1')) a b)) (evens E) (odds E)))].
+    apply: pure.
+    eapply Step_pure__vextunop.
+    { eapply (fun_vextunop____fun_vextunop___case_0 J1' M1' J2 M2 sx c1 (evens E) (odds E) J1' M1'
+        (lanes_ (X (lanetype_Jnn J2) (mk_dim M2)) c1)).
+    all: first
+      [ by apply: eqxx
+      | exact: (jlane_some _ _ HL)
+      | (apply/eqP; exact: (evens_odds_concat _ _ HEe))
+      | exact: Hs1 | exact: Hs2
+      | (apply/eqP; congr N.of_nat; exact: (evens_odds_size _ _ HEe))
+      | (apply: (Forall2_of_Forall _ _ _ _ _ _ (Forall_evens _ _ _ HEw) (Forall_odds _ _ _ HEw)
+           (evens_odds_size _ _ HEe)) => a b Ha Hb;
+         apply: lane__case_0; [ by eapply iadd__is_wf; [ exact Ha | exact Hb | apply: eqxx ] | by [] ]) ]. }
+    all: first [ by [] | by apply: eqxx ].
+  }
+  *)
+  1: admit.
+  (* VEXTBINOP: not provable against the current spec, for the same reason as
+     VEXTUNOP ($vextbinop__ only defined for Inn lanes; odd lane counts for DOT).
+     Mechanised counterexample: vextbinop_wf_instr / vextbinop_stuck
+     (i16x8.extmul_low_i8x16_s).
+     Proof under the same spec changes:
+  { ( * Instr_ok__vextbinop: EXTMUL multiplies the extended lanes of a half of the
+       operands; DOT adds pairs of products. * )
+    move => C sh_1 sh_2 op HWfC HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    have [c2 [Heqv2 Hwf2]] := invert_typeof_V128 _ Ht2 HP0.
+    rewrite Heqv1 Heqv2.
+    have Hw1 : wf_ishape sh_1 by inversion HWfinstr.
+    have Hw2 : wf_ishape sh_2 by inversion HWfinstr.
+    have Hop : wf_vextbinop_ sh_1 op by inversion HWfinstr.
+    have Hsz : ((shsize (shape_ishape sh_1)) == 128%num) && ((shsize (shape_ishape sh_2)) == 128%num)
+      by inversion HWfinstr.
+    destruct sh_1 as [J1 [M1]]; destruct sh_2 as [J2 [M2]].
+    inversion Hop as [? J1' M1' o Ho Hs]; subst; move/eqP: Hs => Hs; injection Hs => ? ?; subst.
+    move: Hsz => /andP [/eqP Hsz1 /eqP Hsz2]. simpl in Hsz1, Hsz2.
+    have Hs1 : wf_shape (X (lanetype_Jnn J1') (mk_dim M1')) by inversion Hw1; constructor.
+    have Hs2 : wf_shape (X (lanetype_Jnn J2) (mk_dim M2)) by inversion Hw2; constructor.
+    have HL1 := lanes_Jnn_form J2 M2 c1 Hs2 Hwf1.
+    have HL2 := lanes_Jnn_form J2 M2 c2 Hs2 Hwf2.
+    have HLs := lanes_size_eq (lanetype_Jnn J2) M2 c1 c2.
+    pose ext := fun (sx : sx) l => extend__ (lsizenn2 (lanetype_Jnn J2)) (lsizenn1 (lanetype_Jnn J1')) sx
+      (@the iN Inhabited__uN (proj_lane__0 l)).
+    have Hext : forall sx l, jlane J2 l -> wf_uN (lsize (lanetype_Jnn J1')) (ext sx l).
+    { move => sx l [x [-> Hx]]. by eapply extend___is_wf; [ exact Hx | apply: eqxx ]. }
+    destruct o as [hf sx | ].
+    { ( * EXTMUL * )
+      pose S1 := list_slice (lanes_ (X (lanetype_Jnn J2) (mk_dim M2)) c1) (fun_half hf 0 M1') M1'.
+      pose S2 := list_slice (lanes_ (X (lanetype_Jnn J2) (mk_dim M2)) c2) (fun_half hf 0 M1') M1'.
+      have HS1 : List.Forall (jlane J2) S1 := Forall_list_slice _ _ _ _ HL1.
+      have HS2 : List.Forall (jlane J2) S2 := Forall_list_slice _ _ _ _ HL2.
+      have HSs : size S1 = size S2 := list_slice_size_eq _ _ _ _ _ _ HLs.
+      exists s, f, [admininstr_VCONST V128 (inv_lanes_ (X (lanetype_Jnn J1') (mk_dim M1'))
+        (list_zipWith (fun a b => mk_lane__0 J1' (imul_ (lsizenn1 (lanetype_Jnn J1')) (ext sx a) (ext sx b))) S1 S2))].
+      apply: pure.
+      eapply Step_pure__vextbinop.
+      { eapply (fun_vextbinop____fun_vextbinop___case_0 J1' M1' J2 M2 hf sx c1 c2 J1' M1' S1 S2).
+        all: first
+          [ by apply: eqxx
+          | exact: (jlane_some _ _ HS1) | exact: (jlane_some _ _ HS2)
+          | exact: Hs1 | exact: Hs2
+          | (apply/eqP; congr N.of_nat; exact: HSs)
+          | (apply: (zip_lane_wf2 J2 J1' _ (fun a b => imul_ (lsizenn1 (lanetype_Jnn J1'))
+                (extend__ (lsizenn2 (lanetype_Jnn J2)) (lsizenn1 (lanetype_Jnn J1')) sx a)
+                (extend__ (lsizenn2 (lanetype_Jnn J2)) (lsizenn1 (lanetype_Jnn J1')) sx b))) => //;
+             move => a b Ha Hb;
+             by eapply imul__is_wf; [ (eapply extend___is_wf; [ exact Ha | apply: eqxx ])
+               | (eapply extend___is_wf; [ exact Hb | apply: eqxx ]) | apply: eqxx ]) ]. }
+      all: first [ by [] | by apply: eqxx ]. }
+    { ( * DOT: lsize J1 = 32, so there are 8 products to pair up * )
+      pose P := list_zipWith (fun a b => imul_ (lsizenn1 (lanetype_Jnn J1')) (ext res_S a) (ext res_S b))
+        (lanes_ (X (lanetype_Jnn J2) (mk_dim M2)) c1) (lanes_ (X (lanetype_Jnn J2) (mk_dim M2)) c2).
+      have HPw : List.Forall (fun x => wf_uN (lsize (lanetype_Jnn J1')) x) P.
+      { apply: (zip_wf J2 _ _ _ _ _ HL1 HL2) => a b Ha Hb /=.
+        exact: (imul__is_wf _ _ _ _ (Hext _ _ Ha) (Hext _ _ Hb) (eqxx _)). }
+      have HPe : ~~ odd (size P).
+      { rewrite /P size_zipWith_eq //. exact: shape_lanes_even. }
+      exists s, f, [admininstr_VCONST V128 (inv_lanes_ (X (lanetype_Jnn J1') (mk_dim M1'))
+        (list_zipWith (fun a b => mk_lane__0 J1' (iadd_ (lsizenn1 (lanetype_Jnn J1')) a b)) (evens P) (odds P)))].
+      apply: pure.
+      eapply Step_pure__vextbinop.
+      { eapply (fun_vextbinop____fun_vextbinop___case_1 J1' M1' J2 M2 c1 c2 (evens P) (odds P) J1' M1'
+          (lanes_ (X (lanetype_Jnn J2) (mk_dim M2)) c1) (lanes_ (X (lanetype_Jnn J2) (mk_dim M2)) c2)).
+        all: first
+          [ by apply: eqxx
+          | exact: (jlane_some _ _ HL1) | exact: (jlane_some _ _ HL2)
+          | (apply/eqP; exact: (evens_odds_concat _ _ HPe))
+          | exact: Hs1 | exact: Hs2
+          | (apply/eqP; congr N.of_nat; exact: (evens_odds_size _ _ HPe))
+          | (apply: (Forall2_of_Forall _ _ _ _ _ _ (Forall_evens _ _ _ HPw) (Forall_odds _ _ _ HPw)
+               (evens_odds_size _ _ HPe)) => a b Ha Hb;
+             apply: lane__case_0; [ by eapply iadd__is_wf; [ exact Ha | exact Hb | apply: eqxx ] | by [] ]) ]. }
+      all: first [ by [] | by apply: eqxx ]. }
+  }
+  *)
+  1: admit.
+  { (* Instr_ok__vnarrow: lane-wise narrowing of the lanes of both operands. *)
+    move => C sh_1 sh_2 sx HWfC HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfVals HWfConfig.
+    inv_Forall HWfVals.
+    have [c1 [Heqv1 Hwf1]] := invert_typeof_V128 _ Ht1 HP.
+    have [c2 [Heqv2 Hwf2]] := invert_typeof_V128 _ Ht2 HP0.
+    rewrite Heqv1 Heqv2.
+    have Hw1 : wf_ishape sh_1 by inversion HWfinstr.
+    have Hw2 : wf_ishape sh_2 by inversion HWfinstr.
+    destruct sh_1 as [J2 [N2]]; destruct sh_2 as [J1 [N1]].
+    have Hs1 : wf_shape (X (lanetype_Jnn J1) (mk_dim N1)) by inversion Hw2; constructor.
+    have Hs2 : wf_shape (X (lanetype_Jnn J2) (mk_dim N2)) by inversion Hw1; constructor.
+    have HL1 := lanes_Jnn_form J1 N1 c1 Hs1 Hwf1.
+    have HL2 := lanes_Jnn_form J1 N1 c2 Hs1 Hwf2.
+    pose nar := fun l => narrow__ (lsize (lanetype_Jnn J1)) (lsize (lanetype_Jnn J2)) sx (@the iN Inhabited__uN (proj_lane__0 l)).
+    have Hnar : forall L, List.Forall (jlane J1) L ->
+      List.Forall (fun cj => wf_lane_ (fun_lanetype (X (lanetype_Jnn J2) (mk_dim N2))) (mk_lane__0 J2 cj))
+        (seq.map nar L).
+    { move => L HL. apply: (Forall_map_P _ _ _ _ _ _ _ HL) => l [x [-> Hx]].
+      apply: lane__case_0; last by [].
+      by eapply narrow___is_wf; [ exact Hx | apply: eqxx ]. }
+    exists s, f, [admininstr_VCONST V128 (inv_lanes_ (X (lanetype_Jnn J2) (mk_dim N2))
+      (seq.map (fun cj => mk_lane__0 J2 cj) (seq.map nar (lanes_ (X (lanetype_Jnn J1) (mk_dim N1)) c1)) ++
+       seq.map (fun cj => mk_lane__0 J2 cj) (seq.map nar (lanes_ (X (lanetype_Jnn J1) (mk_dim N1)) c2))))].
+    apply: pure.
+    eapply (Step_pure__vnarrow c1 c2 J2 N2 J1 N1 sx _
+      (lanes_ (X (lanetype_Jnn J1) (mk_dim N1)) c1) (lanes_ (X (lanetype_Jnn J1) (mk_dim N1)) c2)
+      (seq.map nar (lanes_ (X (lanetype_Jnn J1) (mk_dim N1)) c1))
+      (seq.map nar (lanes_ (X (lanetype_Jnn J1) (mk_dim N1)) c2))).
+    all: first
+      [ by apply: eqxx
+      | exact: (jlane_some _ _ HL1) | exact: (jlane_some _ _ HL2)
+      | exact: (lanes__is_wf _ _ _ Hs1 Hwf1 (eqxx _)) | exact: (lanes__is_wf _ _ _ Hs1 Hwf2 (eqxx _))
+      | exact: Hs1 | exact: Hs2
+      | exact: (Hnar _ HL1) | exact: (Hnar _ HL2) ].
+  }
+  (* VCVTOP: not provable against the current spec (Instr_ok/vcvtop has no
+     constraints relating the shapes and the operator).  Mechanised
+     counterexample: vcvtop_stuck. *)
+  1: admit.
   { (* Instr_ok__local_get *)
     move => C x t Hlen Hlookup HWfC HWfinstr.
     move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
@@ -3927,7 +4888,9 @@ Proof.
         by apply: (wf_config_mem_bytes _ _ _ _ HWfConfig). }
       case: Hcases => [E | [E | [E | E]]]; subst v_M.
       4: { (* SHAPE 64 X 1 is well-formed (64 * 1 = 64), but the rule needs a
-              Jnn of size 128, which does not exist: no reduction applies. *)
+              Jnn of size 128, which does not exist: no reduction applies.
+              (A `sz < 64` side condition on SHAPE in the spec would exclude it.)
+              Mechanised counterexample: vload_shape64_wf / vload_shape64_stuck. *)
            admit. }
       1: have EN : v_N = 8%num by lia.
       2: have EN : v_N = 4%num by lia.
@@ -3945,7 +4908,7 @@ Proof.
         | by apply: eqxx
         | (apply/eqP; apply: ibytes_inv; apply: list_slice_size;
            apply: (Hsl _ _ _ _ _ _ Hbnd); by vm_compute; discriminate)
-        | (eapply lane__case_2; [ (eapply extend___is_wf; last by apply: eqxx); apply: HJ | by [] ])
+        | (eapply lane__case_0; [ (eapply extend___is_wf; last by apply: eqxx); apply: HJ | by [] ])
         | by (econstructor; vm_compute) ].
   }
   { (* Instr_ok__vload SPLAT: wf_vloadop_ pins the width to 8/16/32/64, i.e. to
@@ -3991,7 +4954,7 @@ Proof.
         | eapply (vload_splat_val (mk_state s f) _ _ _ _ _ Jnn_I64 2) ].
       all: first
         [ (apply/eqP; apply: ibytes_inv; apply: list_slice_size; by apply: Hbnd)
-        | (eapply lane__case_2; [ by rewrite mk_uN_eta; apply: Hwfk | by [] ])
+        | (eapply lane__case_0; [ by rewrite mk_uN_eta; apply: Hwfk | by [] ])
         | by []
         | by apply: eqxx
         | by (econstructor; vm_compute)
@@ -4062,7 +5025,7 @@ Proof.
         | eapply (vload_lane_val (mk_state s f) _ _ _ _ _ _ _ Jnn_I64 2) ].
       all: first
         [ (apply/eqP; apply: ibytes_inv; apply: list_slice_size; by apply: Hbnd)
-        | (eapply lane__case_2; [ by rewrite mk_uN_eta; apply: Hwfk | by [] ])
+        | (eapply lane__case_0; [ by rewrite mk_uN_eta; apply: Hwfk | by [] ])
         | by []
         | by apply: eqxx
         | by (econstructor; vm_compute)
@@ -4083,14 +5046,37 @@ Proof.
     by eapply (vstore_val (mk_state s f)); eauto.
   }
 
-  (* VSTORE_LANE: `vstore_lane_val` needs
-     `proj_lane__2 ((lanes_ (X (lanetype_Jnn J) (mk_dim M)) c) [|j|]) <> None`,
-     i.e. that lane in the `mk_lane__2` injection of the generated `lane_`
-     union.  `lanes__is_wf` only gives `wf_lane_ (lanetype_Jnn J) l`, which is
-     equally satisfied by `mk_lane__1`/`mk_lane__0`, so this is the same
-     `lane_`-injection obstacle as the instruction cases above.  Everything
-     else in the rule is now discharged (the Q premise reads as Qeq). *)
-  1: admit.
+  { (* Instr_ok__vstore_lane *)
+    move => C v_n memarg laneidx mt Hlen Hlookup HLim Hidx HWfC HWfMemType HWfinstr.
+    move => s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
+    right.
+    case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfConfig HWfVals.
+    inv_Forall HWfVals.
+    eapply invert_typeof_I32 in Ht1 as [n1 Heqv1]; eauto.
+    have [c1 [Heqv2 Hwf2]] := invert_typeof_V128 _ Ht2 HP0.
+    rewrite Heqv1 Heqv2.
+    case Hs: (((n1 + (proj_uN_0 (OFFSET memarg)))%BN + v_n)%BN
+      >? (|(BYTES (fun_mem (mk_state s f) (mk_uN 0)))|))%BN.
+    + exists s, f, [admininstr_TRAP].
+      eapply vstore_lane_oob; eauto.
+      econstructor; eauto.
+    + have Hsz : wf_sz (mk_sz v_n) by inversion HWfinstr.
+      have Hcases : v_n = 8%num \/ v_n = 16%num \/ v_n = 32%num \/ v_n = 64%num.
+      { inversion Hsz; subst.
+        match goal with
+        | [ H : is_true (((_ || _) || _) || _) |- _ ] =>
+          move/orP: H => [/orP [/orP [H|H]|H]|H]; move/eqP in H; auto
+        end. }
+      move: Hidx; rewrite /Qlt_bool => /negP Hn.
+      have Hq : ~ Qle ((128%num : Q) / (v_n : Q)) ((laneidx :> N) : Q).
+      { move => H. apply: Hn. by apply/Qle_bool_iff. }
+      case: Hcases => [E | [E | [E | E]]]; subst v_n;
+        move: Hq; rewrite /Qle /Qdiv /Qmult /Qinv /inject_Z /= => Hidx.
+      * apply: (vstore_lane_progress _ _ _ _ _ _ Jnn_I8 16) => //; first [ by (econstructor; vm_compute) | (simpl in Hidx |- *; lia) | by [] ].
+      * apply: (vstore_lane_progress _ _ _ _ _ _ Jnn_I16 8) => //; first [ by (econstructor; vm_compute) | (simpl in Hidx |- *; lia) | by [] ].
+      * apply: (vstore_lane_progress _ _ _ _ _ _ Jnn_I32 4) => //; first [ by (econstructor; vm_compute) | (simpl in Hidx |- *; lia) | by [] ].
+      * apply: (vstore_lane_progress _ _ _ _ _ _ Jnn_I64 2) => //; first [ by (econstructor; vm_compute) | (simpl in Hidx |- *; lia) | by [] ].
+  }
   { (* Instrs_ok__empty *)
     move => C s.
     move => f C' vcs ts1 ts2 lab ret Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret.
@@ -4791,4 +5777,120 @@ Proof.
     by inversion Hmod.
   - by apply (s_typing_not_lf_br' _ _ _ _ _ _ HFrame) in Hadmin.
   - by apply (s_typing_not_lf_return _ _ _ _ _ _ HFrame) in Hadmin.
+Qed.
+
+(* Instr_ok/vcvtop places no constraint relating the two shapes and the
+   conversion operator, so progress for VCVTOP is false as the spec stands:
+   the instruction below is well typed (V128 -> V128) for any context, but
+   no Step_pure rule reduces it.  This is why the VCVTOP case of
+   t_progress_be is admitted. *)
+Lemma vcvtop_stuck : forall (c : vec_) (es : seq admininstr),
+  wf_uN 128 c ->
+  ~ Step_pure [:: admininstr_VCONST V128 c;
+                  admininstr_VCVTOP (X lanetype_I8 (mk_dim 16)) (X lanetype_I8 (mk_dim 16))
+                    (vcvtop_CONVERT None U)] es.
+Proof.
+  move => c es Hc H. inversion H; subst; try discriminate.
+  1: { clear H1; move: H0; case: val_lst => [ | v [ | v' vl]] //= H0.
+         inversion H0 as [[Hv Hv' Hnil]]. move: Hnil. by case: (seq.map _ vl). }
+  have Hs : wf_shape (X lanetype_I8 (mk_dim 16)) by do 2 constructor.
+  have HL := lanes_Jnn_form Jnn_I8 16 c Hs Hc.
+  have Hsz : size (lanes_ (X lanetype_I8 (mk_dim 16)) c) = 16.
+  { apply: Nnat.Nat2N.inj. by rewrite lanes_len. }
+  match goal with
+  | [ Heq : is_true (?l == lanes_ _ _) |- _ ] => move/eqP: Heq => ?; subst l
+  end.
+  case E: (lanes_ (X lanetype_I8 (mk_dim 16)) c) => [ | l L]; first by rewrite E in Hsz.
+  rewrite E in HL. inversion HL as [ | ? ? [x [-> _]] _]; subst.
+  match goal with
+  | [ Hf : List.Forall (fun ci => is_true (vcvtop__ _ _ _ ci != None)) (lanes_ _ _) |- _ ] =>
+      rewrite E in Hf; inversion Hf as [ | ? ? Hn _]
+  end.
+  by move: Hn; rewrite /vcvtop__.
+Qed.
+
+(* The remaining admitted cases of t_progress_be are likewise false as the spec
+   stands.  For each, a well-formed (wf_instr / wf_vloadop_) instruction whose
+   Instr_ok rule has no further premises, with no reduction. *)
+
+(* VEXTRACT_LANE: instr_case_34 quantifies the numtype of its side condition
+   existentially, so I32 X 4 with sx = Some U is accepted (choosing I64), but
+   neither vextract_lane-num (needs sx = None) nor vextract_lane-pack (needs a
+   packtype lane) applies. *)
+Lemma vextract_lane_wf_instr :
+  wf_instr (VEXTRACT_LANE (X lanetype_I32 (mk_dim 4)) (Some U) (mk_uN 0)).
+Proof. apply: (instr_case_34 I64); [ by do 2 constructor | by [] | by [] ]. Qed.
+
+Lemma vextract_lane_stuck : forall (c : vec_) (es : seq admininstr),
+  ~ Step_pure [:: admininstr_VCONST V128 c;
+                  admininstr_VEXTRACT_LANE (X lanetype_I32 (mk_dim 4)) (Some U) (mk_uN 0)] es.
+Proof.
+  move => c es H. inversion H; subst; try discriminate.
+  1: { clear H1; move: H0; case: val_lst => [ | v [ | v' vl]] //= H0.
+         inversion H0 as [[Hv Hv' Hnil]]. move: Hnil. by case: (seq.map _ vl). }
+  match goal with | [ pt : packtype |- _ ] => by destruct pt end.
+Qed.
+
+(* VEXTUNOP: $vextunop__ is only defined for Inn_1 X M_1 / Inn_2 X M_2, but a
+   valid EXTADD_PAIRWISE always has an I8 or I16 source shape.  So the real
+   instruction i16x8.extadd_pairwise_i8x16_s is stuck (and likewise
+   i32x4.extadd_pairwise_i16x8_s). *)
+Lemma vextunop_wf_instr :
+  wf_instr (VEXTUNOP (ishape_X Jnn_I16 (mk_dim 8)) (ishape_X Jnn_I8 (mk_dim 16))
+              (mk_vextunop__0 Jnn_I16 8 (EXTADD_PAIRWISE res_S))).
+Proof. by constructor; do 2 constructor. Qed.
+
+Lemma vextunop_stuck : forall (c : vec_) (es : seq admininstr),
+  ~ Step_pure [:: admininstr_VCONST V128 c;
+                  admininstr_VEXTUNOP (ishape_X Jnn_I16 (mk_dim 8)) (ishape_X Jnn_I8 (mk_dim 16))
+                    (mk_vextunop__0 Jnn_I16 8 (EXTADD_PAIRWISE res_S))] es.
+Proof.
+  move => c es H. inversion H; subst; try discriminate.
+  1: { clear H1; move: H0; case: val_lst => [ | v [ | v' vl]] //= H0.
+         inversion H0 as [[Hv Hv' Hnil]]. move: Hnil. by case: (seq.map _ vl). }
+  match goal with
+  | [ Hf : fun_vextunop__ _ _ _ _ _, Hn : is_true (_ != None) |- _ ] =>
+      inversion Hf; subst; by move: Hn
+  end.
+Qed.
+
+(* VEXTBINOP: likewise $vextbinop__ is only defined for Inn lanes, so the real
+   instruction i16x8.extmul_low_i8x16_s is stuck. *)
+Lemma vextbinop_wf_instr :
+  wf_instr (VEXTBINOP (ishape_X Jnn_I16 (mk_dim 8)) (ishape_X Jnn_I8 (mk_dim 16))
+              (mk_vextbinop__0 Jnn_I16 8 (EXTMUL LOW res_S))).
+Proof. by constructor; do 2 constructor. Qed.
+
+Lemma vextbinop_stuck : forall (c1 c2 : vec_) (es : seq admininstr),
+  ~ Step_pure [:: admininstr_VCONST V128 c1; admininstr_VCONST V128 c2;
+                  admininstr_VEXTBINOP (ishape_X Jnn_I16 (mk_dim 8)) (ishape_X Jnn_I8 (mk_dim 16))
+                    (mk_vextbinop__0 Jnn_I16 8 (EXTMUL LOW res_S))] es.
+Proof.
+  move => c1 c2 es H. inversion H; subst; try discriminate.
+  1: { clear H1; move: H0; case: val_lst => [ | v [ | v' [ | v'' vl]]] //= H0.
+         inversion H0 as [[Hv Hv' Hv'' Hnil]]. move: Hnil. by case: (seq.map _ vl). }
+  match goal with
+  | [ Hf : fun_vextbinop__ _ _ _ _ _ _, Hn : is_true (_ != None) |- _ ] =>
+      inversion Hf; subst; by move: Hn
+  end.
+Qed.
+
+(* VLOAD (SHAPE 64 X 1): well-formed (64 * 1 = 128 / 2), but vload-shape-val
+   needs a Jnn of size 128.  An in-bounds access therefore does not reduce
+   (vload-shape-oob needs it out of bounds). *)
+Lemma vload_shape64_wf : forall sx,
+  wf_vloadop_ V128 (SHAPEX_ (mk_sz 64) 1%num sx).
+Proof. move => sx. constructor; first by constructor. by vm_compute. Qed.
+
+Lemma vload_shape64_stuck : forall z (i : iN) sx ao es,
+  (((i :> N) + (OFFSET ao :> N))%BN + 8 <= (|BYTES (fun_mem z (mk_uN 0))|))%BN ->
+  ~ Step_read (mk_config z [:: admininstr_CONST I32 (mk_num__0 Inn_I32 i);
+                               admininstr_VLOAD V128 (Some (SHAPEX_ (mk_sz 64) 1%num sx)) ao]) es.
+Proof.
+  move => z i sx ao es Hb H. inversion H; subst; try discriminate.
+  all: try (destruct val_lst as [ | v [ | v' vl]]; simpl in H1; inversion H1 as [[Hv Hv' Hnil]];
+             move: Hnil; by case: (seq.map _ vl)).
+  { match goal with [ Hg : is_true (N_gtb _ _) |- _ ] => move: Hg end.
+    rewrite /N_gtb. move/N.ltb_spec0. simpl in Hb |- *. lia. }
+  match goal with [ J : Jnn |- _ ] => by destruct J end.
 Qed.

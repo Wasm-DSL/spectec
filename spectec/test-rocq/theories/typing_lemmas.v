@@ -1418,13 +1418,11 @@ Proof.
 	- move => H.
 		unfold admininstr_instr.
 		destruct i; simpl; try constructor; try (inversion H; subst; eauto).
-		- econstructor; eauto.
-		- econstructor; eauto.
+		all: try (econstructor; eauto).
 	- move => H.
 		unfold admininstr_instr.
 		destruct i; simpl; try constructor; try (inversion H; subst; eauto).
-		- econstructor; eauto.
-		- econstructor; eauto.
+		all: try (econstructor; eauto).
 Qed.
 
 Lemma seq_mid_not_null {A : Type}: forall (a : A) (l l' : seq A),
