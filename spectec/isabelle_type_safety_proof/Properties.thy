@@ -1,7 +1,7 @@
 theory Properties
 	imports Main isabelle_reference_output_wasm2 Type_Inversion
           Context_Store_Agreement store_extension_typing
-          helper_lemmas
+          helper_lemmas Typing_Simplified
 begin
 
 lemma func_extension_refl:
@@ -82,6 +82,7 @@ lemma store_extension_refl:
   by (metis list_all_length)
 
 (*Store extension reduction*)
+(*global_set*)
 lemma store_typing_imp_glob_agree:
 assumes "Moduleinst_ok s i C"
         "j < length (context_GLOBALS C)"
@@ -360,13 +361,426 @@ proof (cases ft)
       using list_all2_nth[of _ globaladdr_lst globaltype_lst "(proj_uN_0 x)"] glob_set_inv(1) ctx len_globals_eq by auto
   then have
     "(context_GLOBALS C) ! (proj_uN_0 x) = globalinst_TYPE (store_GLOBALS s ! ((GLOBALS (frame_MODULE f)) ! (proj_uN_0 x)))"
-      using inv_Externaddr_ok frame_module ctx by fastforce
+      using inv_Externaddr_ok_global frame_module ctx by fastforce
   then have store_glob_mut:
   "globalinst_TYPE ((store_GLOBALS s ! ((GLOBALS (frame_MODULE f)) ! (proj_uN_0 x)))) = mk_globaltype (Some MUT) t"
       using glob_set_inv(2) r_MUT.exhaust by metis
 
   show ?thesis using update_glob_store_extension[OF assms(2) assms(1) _ _ store_glob_mut val_wf val_ok_principal] store_typing_imp_glob_agree[OF assms(3), of "(proj_uN_0 x)"] glob_set_inv(1) ctx ctx'
     by simp
+qed
+
+(*table_set*)
+lemma inst_typing_imp_tabi_agree:
+assumes "Moduleinst_ok s (frame_MODULE f) C"
+        "frame_MODULE f = \<lparr> TYPES = functype_lst, FUNCS = funcaddr_lst, GLOBALS = globaladdr_lst, TABLES = tableaddr_lst, MEMS = memaddr_lst, ELEMS = elemaddr_lst, DATAS = dataaddr_lst, EXPORTS = exportinst_lst \<rparr>"
+        "C = \<lparr> context_TYPES = functype_lst, context_FUNCS = functype_F_lst, context_GLOBALS = globaltype_lst, context_TABLES = tabletype_lst, context_MEMS = memtype_lst, context_ELEMS = elemtype_lst, context_DATAS = datatype_lst, context_LOCALS = ctx_LOCALS, LABELS = lbls, context_RETURN = rtn \<rparr>"
+        "proj_uN_0 x < length tabletype_lst"
+shows "Externaddr_ok s (externaddr_TABLE (tableaddr_lst ! (proj_uN_0 x))) (TABLE (tabletype_lst ! (proj_uN_0 x)))"
+proof -
+  obtain functype_lst' funcaddr_lst' globaladdr_lst' tableaddr_lst' memaddr_lst' elemaddr_lst' dataaddr_lst' exportinst_lst' functype_F_lst' globaltype_lst' tabletype_lst' memtype_lst' elemtype_lst' datatype_lst' where
+    f_eq: "frame_MODULE f = \<lparr> TYPES = functype_lst', FUNCS = funcaddr_lst', GLOBALS = globaladdr_lst', TABLES = tableaddr_lst', MEMS = memaddr_lst', ELEMS = elemaddr_lst', DATAS = dataaddr_lst', EXPORTS = exportinst_lst' \<rparr>" and
+    C_eq: "C = \<lparr> context_TYPES = functype_lst', context_FUNCS = functype_F_lst', context_GLOBALS = globaltype_lst', context_TABLES = tabletype_lst', context_MEMS = memtype_lst', context_ELEMS = elemtype_lst', context_DATAS = datatype_lst', context_LOCALS = [], LABELS = [], context_RETURN = None \<rparr>" and
+    tables_ok': "list_all2 (\<lambda>ta tt. Externaddr_ok s (externaddr_TABLE ta) (TABLE tt)) tableaddr_lst' tabletype_lst'" and
+    len_tables_eq: "length tableaddr_lst' = length tabletype_lst'"
+    using assms(1) by (cases rule: Moduleinst_ok.cases) auto
+
+  have tableaddr_eq: "tableaddr_lst = tableaddr_lst'"
+    using assms(2) f_eq by simp
+  have tabletype_eq: "tabletype_lst = tabletype_lst'"
+    using assms(3) C_eq by simp
+
+  have x_len: "proj_uN_0 x < length tableaddr_lst'"
+    using assms(4) len_tables_eq tabletype_eq by auto
+
+  have tables_ok: "list_all2 (\<lambda>ta tt. Externaddr_ok s (externaddr_TABLE ta) (TABLE tt)) tableaddr_lst tabletype_lst"
+    using tables_ok' tableaddr_eq tabletype_eq by simp
+
+  show ?thesis
+    by (metis list_all2_nthD x_len tables_ok tableaddr_eq)
+qed
+
+lemma types_preserved_table_set_aux:
+assumes "Instrs_ok2 s C [
+          admininstr_sc1 (admininstr_st1_CONST I32 i), 
+          admininstr_ref v_ref, 
+          admininstr_sc5 (admininstr_st5_TABLE_SET x)
+        ] ft"
+shows "\<exists>lim rt.
+         proj_uN_0 x < length (context_TABLES C) \<and>
+         (context_TABLES C) ! (proj_uN_0 x) = mk_tabletype lim rt \<and>
+         wf_tabletype (mk_tabletype lim rt) \<and>
+         Ref_ok s v_ref rt \<and>
+         typeofval (val_ref v_ref) = valtype_reftype rt \<and>
+         Instr_ok C (instr_sc5 (TABLE_SET x)) 
+           (mk_functype (mk_list [valtype_I32, valtype_reftype rt]) (mk_list []))"
+proof (cases ft)
+  case (mk_functype t1 t3)
+  obtain t2 where
+    admin_const_ref: "Instrs_ok2 s C [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_ref v_ref] (mk_functype t1 t2)" and
+    admin_table_set: "Instrs_ok2 s C [admininstr_sc5 (admininstr_st5_TABLE_SET x)] (mk_functype t2 t3)"
+    using assms inv_seq[of s C _ t1 t3 "[admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_ref v_ref]" "[admininstr_sc5 (admininstr_st5_TABLE_SET x)]"] mk_functype
+    by fastforce
+
+  from admin_table_set obtain t_1_lst t_2_lst where
+    ok_ts2: "Instr_ok2 s C (admininstr_sc5 (admininstr_st5_TABLE_SET x)) (mk_functype t_1_lst t_2_lst)" and
+    st: "mk_instrtype t_1_lst t_2_lst <ti: mk_instrtype t2 t3"
+    using inv_one_admininstr by fast
+
+  then have ok_ts_plain: "Instr_ok C (instr_sc5 (TABLE_SET x)) (mk_functype t_1_lst t_2_lst)"
+    using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+  then obtain lim rt where
+    x_lt: "proj_uN_0 x < length (context_TABLES C)" and
+    tab_C: "(context_TABLES C) ! (proj_uN_0 x) = mk_tabletype lim rt" and
+    wf_tab: "wf_tabletype (mk_tabletype lim rt)" and
+    ft_eq: "mk_functype (mk_list [valtype_I32, valtype_reftype rt]) (mk_list []) = mk_functype t_1_lst t_2_lst"
+    using inv_table_set by blast
+
+  have ok_ts: "Instr_ok C (instr_sc5 (TABLE_SET x)) (mk_functype (mk_list [valtype_I32, valtype_reftype rt]) (mk_list []))"
+    using ok_ts_plain ft_eq by simp
+
+  have subv: "mk_instrtype (mk_list []) (mk_list [valtype_I32, typeofval (val_ref v_ref)]) <ti: mk_instrtype t1 t2"
+    using inv_const_list[of s C "[_,_]" t1 t2 "[val_CONST I32 i, val_ref v_ref]"] admin_const_ref
+      admininstr_val.domintros admininstr_val.psimps admininstr_val_ref
+      valtype_numtype.domintros valtype_numtype.psimps typeofval.domintros typeofval.psimps
+    by fastforce
+
+  have "Resulttype_sub (mk_list [valtype_I32, typeofval (val_ref v_ref)]) (mk_list [valtype_I32, valtype_reftype rt])"
+    using st ft_eq produce_consume[of "[valtype_I32, typeofval (val_ref v_ref)]" t1 t2 "[]" "[valtype_I32, valtype_reftype rt]" "[]" t3] subv
+    by auto
+  then have "Valtype_sub (typeofval (val_ref v_ref)) (valtype_reftype rt)"
+    by (induction "mk_list [valtype_I32, typeofval (val_ref v_ref)]" "mk_list [valtype_I32, valtype_reftype rt]" rule: Resulttype_sub.induct) auto
+  then have val_ty: "typeofval (val_ref v_ref) = valtype_reftype rt"
+  proof (cases rule: Valtype_sub.cases)
+    case refl
+    then show ?thesis by simp
+  next
+    case bot
+    then have "typeofval (val_ref v_ref) = BOT" by simp
+    then show ?thesis
+    proof (cases v_ref)
+      case (ref_REF_NULL rt0)
+      then show ?thesis using `typeofval (val_ref v_ref) = BOT`
+        by (cases rt0) (auto simp add: typeofval.psimps typeofval.domintros val_ref.psimps val_ref.domintros valtype_reftype.psimps valtype_reftype.domintros)
+    next
+      case (REF_FUNC_ADDR fa)
+      then show ?thesis using `typeofval (val_ref v_ref) = BOT`
+        by (auto simp add: typeofval.psimps typeofval.domintros val_ref.psimps val_ref.domintros)
+    next
+      case (REF_HOST_ADDR ha)
+      then show ?thesis using `typeofval (val_ref v_ref) = BOT`
+        by (auto simp add: typeofval.psimps typeofval.domintros val_ref.psimps val_ref.domintros)
+    qed
+  qed
+
+  obtain t_ref_in where
+    admin_ref: "Instrs_ok2 s C [admininstr_ref v_ref] (mk_functype t_ref_in t2)"
+    using inv_seq[of s C _ t1 t2 "[admininstr_sc1 (admininstr_st1_CONST I32 i)]" "[admininstr_ref v_ref]"] admin_const_ref
+    by fastforce
+  then obtain tr1 tr2 where
+    ok_ref: "Instr_ok2 s C (admininstr_ref v_ref) (mk_functype tr1 tr2)"
+    using inv_one_admininstr by fast
+  then obtain rt' where ref_ok: "Ref_ok s v_ref rt'"
+    using inv_ref by blast
+  then have "typeofval (val_ref v_ref) = valtype_reftype rt'"
+    using ref_ok_agree by simp
+  then have "valtype_reftype rt' = valtype_reftype rt"
+    using val_ty by simp
+  then have "rt' = rt"
+    by (cases rt; cases rt') (auto simp add: valtype_reftype.psimps valtype_reftype.domintros)
+  then have ref_ok_rt: "Ref_ok s v_ref rt"
+    using ref_ok by simp
+
+   show ?thesis using x_lt tab_C wf_tab ref_ok_rt val_ty ok_ts by blast
+qed
+
+lemma store_tabs1_store_extension:
+assumes "proj_uN_0 (the (proj_num__0 i)) < length (REFS (fun_table (mk_state s f) x))"
+        "(TABLES (frame_MODULE f) ! proj_uN_0 x) < length (store.store_TABLES s)"
+        "with_table (mk_state s f) x (proj_uN_0 (the (proj_num__0 i))) v_ref = mk_state s' f'"
+        "Store_ok s"
+        "Ref_ok s v_ref ref_type"
+        "tableinst_TYPE (fun_table (mk_state s f) x) = mk_tabletype (mk_limits (mk_uN lm) (map_option mk_uN u32_opt)) ref_type"
+shows "Extend_store s s' \<and> Store_ok s'"
+proof (cases s)
+  case (fields store_FUNCS store_GLOBALS store_TABLES store_MEMS store_ELEMS store_DATAS)
+  let ?i = "(proj_uN_0 (the (proj_num__0 i)))"
+  let ?x = "(TABLES (frame_MODULE f) ! proj_uN_0 x)"
+
+  let ?with_ref = "(\<lambda>tbl. tbl \<lparr> REFS := list_update_func (REFS tbl) (proj_uN_0 (the (proj_num__0 i))) (\<lambda>_. v_ref) \<rparr>)"
+
+  have s_eq: "s = \<lparr>
+    store_FUNCS   = store_FUNCS,
+    store_GLOBALS = store_GLOBALS,
+    store_TABLES  = store_TABLES,
+    store_MEMS    = store_MEMS,
+    store_ELEMS   = store_ELEMS,
+    store_DATAS   = store_DATAS\<rparr>" using fields
+    by simp
+  have s'_eq: "s' = \<lparr>
+    store_FUNCS   = store_FUNCS,
+    store_GLOBALS = store_GLOBALS,
+    store_TABLES  = list_update_func store_TABLES ?x ?with_ref,
+    store_MEMS    = store_MEMS,
+    store_ELEMS   = store_ELEMS,
+    store_DATAS   = store_DATAS\<rparr>" using with_table.domintros with_table.psimps assms(3) fields
+    by auto
+
+  have s_tables:  "store.store_TABLES s  = store_TABLES" using fields by simp
+  have s'_tables: "store.store_TABLES s' = list_update_func store_TABLES ?x ?with_ref" using s'_eq by simp
+
+  let ?tbl  = "store_TABLES          ! ?x"
+  let ?tbl' = "store.store_TABLES s' ! ?x"
+
+  have
+  wf_s: "wf_store s" using assms(4) by (cases rule: Store_ok.cases)
+  then have
+  wf_insts:
+    "list_all wf_funcinst   store_FUNCS \<and>
+     list_all wf_globalinst store_GLOBALS \<and>
+     list_all wf_tableinst  store_TABLES \<and>
+     list_all wf_meminst    store_MEMS \<and>
+     list_all wf_datainst   store_DATAS" using fields wf_store.cases by force
+
+  have
+  x_lt: "?x < length store_TABLES" using assms(2) s_tables by simp
+  
+  have
+  s_table_wf: "wf_tableinst ?tbl" using list_all_nth wf_insts x_lt by meson
+
+  let ?old_lst = "REFS (fun_table (mk_state s f) x)"
+  have
+  s_table: "?tbl = \<lparr> 
+    tableinst_TYPE = (mk_tabletype (mk_limits (mk_uN lm) (map_option mk_uN u32_opt)) ref_type),
+    REFS           = ?old_lst \<rparr>"
+    using assms(6) fun_table.domintros fun_table.psimps s_tables by force
+
+  have tbl'_eq: "?tbl' = ?with_ref ?tbl" using s'_eq list_update_func_nth[OF x_lt] by simp
+  then have
+  s'_table: "?tbl' = \<lparr> 
+      tableinst_TYPE = (mk_tabletype (mk_limits (mk_uN lm)  (map_option mk_uN u32_opt)) ref_type),
+      REFS = (list_update_func ?old_lst ?i (\<lambda>_. v_ref)) \<rparr>"  using s_table by auto 
+
+  have
+  s'_table_wf: "wf_tableinst ?tbl'"
+  proof -
+    have "wf_tabletype (tableinst_TYPE ?tbl')" using s_table_wf wf_tableinst.simps s'_table s_table by simp
+    then show ?thesis using s'_table tableinst_case_underscore by simp
+  qed
+
+  have extend_store: "Extend_store s s'"
+    apply (rule Extend_store.mk_Extend_store)
+    using holds_upto_def apply simp_all
+    using s_eq s'_eq     apply simp_all
+    using wf_insts elem_extension_refl global_extension_refl func_extension_refl data_extension_refl mem_extension_refl   apply (simp_all add: list_all_length)
+    using list_update_func_length apply metis
+    subgoal proof -
+      have at_x: "Extend_tableinst ?tbl ?tbl'" using list_update_func_length le_refl mk_Extend_tableinst s_table_wf s'_table_wf s_table s'_table by metis
+    
+      show ?thesis
+      proof (intro allI impI)
+        fix ia
+        assume "ia < length store_TABLES"
+        then show "Extend_tableinst (store_TABLES ! ia) ((list_update_func store_TABLES ?x ?with_ref) ! ia)"
+          using at_x list_update_func_nth_neq[OF x_lt] wf_insts list_all_length tab_extension_refl s'_tables by (metis (no_types, lifting))
+      qed qed
+    using wf_s apply simp
+    using wf_store.simps list_all_list_update_func list_update_func_nth s'_table_wf s'_tables wf_insts x_lt by (metis (mono_tags, lifting))
+  
+  moreover have "Store_ok s'" proof -
+    obtain globaltype_lst memtype_lst tabletype_lst functype_lst elemtype_lst datatype_lst where
+      len_globals: "length store_GLOBALS = length globaltype_lst" and
+      len_mems:    "length store_MEMS    = length memtype_lst"    and
+      len_tables:  "length store_TABLES  = length tabletype_lst"  and
+      len_funcs:   "length store_FUNCS   = length functype_lst"   and
+      len_datas:   "length store_DATAS   = length datatype_lst"   and
+      len_elems:   "length store_ELEMS   = length elemtype_lst"   and
+  
+      globals_ok:  "list_all2 (Globalinst_ok s) store_GLOBALS globaltype_lst" and
+      mems_ok:     "list_all2 (Meminst_ok s)    store_MEMS   memtype_lst"     and
+      tables_ok:   "list_all2 (Tableinst_ok s) store_TABLES tabletype_lst"    and
+      funcs_ok:    "list_all2 (Funcinst_ok s)   store_FUNCS  functype_lst"    and
+      datas_ok:    "list_all2 (Datainst_ok s)   store_DATAS  datatype_lst"    and
+      elems_ok:    "list_all2 (Eleminst_ok s)   store_ELEMS  elemtype_lst"    and
+  
+      wf_memtypes:   "list_all wf_memtype memtype_lst" and
+      wf_tabletypes: "list_all wf_tabletype tabletype_lst" using assms(4) Store_ok.simps s_eq wf_s by auto
+
+    moreover then have
+      globals_ok': "list_all2 (Globalinst_ok s') store_GLOBALS globaltype_lst" and
+      mems_ok':    "list_all2 (Meminst_ok s')    store_MEMS    memtype_lst" and
+      funcs_ok':   "list_all2 (Funcinst_ok s')   store_FUNCS   functype_lst" and 
+      datas_ok':   "list_all2 (Datainst_ok s')   store_DATAS   datatype_lst" and
+      elems_ok':   "list_all2 (Eleminst_ok s')   store_ELEMS   elemtype_lst" using 
+        extend_store list_all2_mono 
+        store_extension_Globalinst_ok[of s _ _ s']
+        store_extension_Meminst_ok[of s _ _ s']
+        store_extension_Funcinst_ok[of s _ _ s']
+        store_extension_Datainst_ok[of s _ _ s']
+        store_extension_Eleminst_ok[of s _ _ s']
+      by metis+
+
+    moreover have len_tables':
+      "((length (store.store_TABLES s')) = (length tabletype_lst))" using list_update_func_length[of store_TABLES ?i] len_tables s'_eq 
+      by (simp add: list_update_func_length)
+    moreover have wf_s': "wf_store s'" using extend_store store_extension_wf
+      by simp
+    moreover have tables_ok': "list_all2 (Tableinst_ok s') (store.store_TABLES s') tabletype_lst" proof -
+      have at_x: "Tableinst_ok s' ?tbl' (tabletype_lst ! ?x)"
+      proof -
+        have tbl_cases: "
+          (tabletype_lst ! ?x) = (tableinst_TYPE ?tbl) \<and>
+          Tabletype_ok (tableinst_TYPE ?tbl) \<and>
+          list_all (\<lambda>v_ref. Ref_ok s v_ref ref_type) ?old_lst \<and>
+          length ?old_lst = lm \<and>
+          wf_tabletype (tableinst_TYPE ?tbl)" using list_all2_nthD[OF tables_ok] x_lt Tableinst_ok.simps s_table by force
+
+        have 2: "list_all (\<lambda>v_ref. Ref_ok s' v_ref ref_type) (REFS ?tbl')"
+        proof -
+          have old_ref_ok: "list_all (\<lambda>v_ref. Ref_ok s' v_ref ref_type) ?old_lst"
+            using tbl_cases extend_store store_extension_refok list.pred_mono_strong by metis
+
+          have at_x: "Ref_ok s' v_ref ref_type"
+            using assms(5) extend_store store_extension_refok by simp
+
+          show ?thesis
+            using list_all_list_update_func[OF old_ref_ok assms(1) at_x] s'_table by simp
+        qed
+
+        have 3: "length (REFS ?tbl') = lm" using list_update_func_length tbl_cases s'_table by auto
+
+        show ?thesis using mk_Tableinst_ok[OF _ 2 3 wf_s'] s'_table s_table tbl_cases s'_table_wf by simp
+      qed 
+
+      have untouched: "Tableinst_ok s x y \<Longrightarrow> Tableinst_ok s' x y" for x y using extend_store store_extension_Tableinst_ok by simp
+
+      show ?thesis using list_all2_list_update_func[OF x_lt, of _ _ "store.store_TABLES s'" "?with_ref" "Tableinst_ok s'", OF tables_ok] s'_tables tbl'_eq untouched at_x
+        by auto
+    qed
+
+    show ?thesis using mk_Store_ok[OF len_globals globals_ok' len_mems mems_ok' len_tables' tables_ok' len_funcs funcs_ok' len_datas datas_ok' len_elems elems_ok' _ wf_s' wf_memtypes wf_tabletypes _] s'_eq s'_tables wf_s' by simp
+  qed
+
+  ultimately show ?thesis by simp
+qed
+
+lemma table_set_store_extension:
+assumes "proj_num__0 i \<noteq> None"
+        "proj_uN_0 (the (proj_num__0 i)) < length (REFS (fun_table (mk_state s f) x))"
+        "with_table (mk_state s f) x (proj_uN_0 (the (proj_num__0 i))) v_ref = mk_state s' f'"
+        "Store_ok s"
+        "Moduleinst_ok s (frame_MODULE f) C'"
+        "C' = append_res_context \<lparr>
+         context_TYPES = [], context_FUNCS = [],
+         context_GLOBALS = [], context_TABLES = [],
+         context_MEMS = [], context_ELEMS = [],
+         context_DATAS = [],
+         context_LOCALS = map typeofval (LOCALS f),
+         LABELS = lbl, context_RETURN = rtn\<rparr> C"
+        "Instrs_ok2 s C [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_ref v_ref, admininstr_sc5 (admininstr_st5_TABLE_SET x)] (mk_functype t_1_lst t_2_lst)"
+        "t_inst_match C C'"
+shows "Extend_store s s' \<and> Store_ok s'"
+proof -
+  let ?x = "proj_uN_0 x"
+  have ctx_table_eq: "(context_TABLES C) = (context_TABLES C')" using assms(8) t_inst_match_def by auto
+
+  obtain functype_lst functype_F_lst globaltype_lst tabletype_lst memtype_lst elemtype_lst datatype_lst
+  globaladdr_lst funcaddr_lst memaddr_lst tableaddr_lst exportinst_lst dataaddr_lst elemaddr_lst where
+    ctx: "C' = \<lparr>
+      context_TYPES   = functype_lst,
+      context_FUNCS   = functype_F_lst,
+      context_GLOBALS = globaltype_lst,
+      context_TABLES  = tabletype_lst,
+      context_MEMS    = memtype_lst,
+      context_ELEMS   = elemtype_lst,
+      context_DATAS   = datatype_lst,
+      context_LOCALS  = [],
+      LABELS          = [],
+      context_RETURN  = None \<rparr>" and
+    frame_module: "(frame_MODULE f) = \<lparr>
+        TYPES   = functype_lst,
+        FUNCS   = funcaddr_lst,
+        GLOBALS = globaladdr_lst,
+        TABLES  = tableaddr_lst,
+        MEMS    = memaddr_lst,
+        ELEMS   = elemaddr_lst,
+        DATAS   = dataaddr_lst,
+        EXPORTS = exportinst_lst \<rparr>"
+    using assms(5) by (cases rule: Moduleinst_ok.cases) auto 
+
+  obtain lm u32_opt rt where 
+  tab_type: "(context_TABLES C) ! ?x = mk_tabletype (mk_limits (mk_uN lm) (map_option mk_uN u32_opt)) rt"
+  proof -
+    obtain lim rt where 1: "(context_TABLES C) ! ?x = mk_tabletype lim rt"
+      by (cases "(context_TABLES C) ! (proj_uN_0 x)")
+    obtain lim2 u32 where "lim = mk_limits lim2 u32" by (cases lim)
+    then obtain lm u32_opt where 2: "lim = mk_limits (mk_uN lm) (map_option mk_uN u32_opt)"
+      apply (cases lim2; cases u32)
+      using  None_eq_map_option_iff apply simp
+      using  map_option_eq_Some uN.exhaust by metis
+
+    show ?thesis using that 1 2 by simp
+  qed
+
+  have 
+                 "?x < length (context_TABLES C)" and
+    refOk:       "Ref_ok s v_ref rt" and
+    mk_functype: "Instr_ok C (instr_sc5 (TABLE_SET x)) (mk_functype (mk_list [valtype_I32, (valtype_reftype rt)]) (mk_list []))"
+    using types_preserved_table_set_aux[OF assms(7)] tab_type by simp+
+  then have x_lt: "?x < length (context_TABLES C')" using ctx_table_eq by simp
+ 
+  obtain v limv limup rtv where
+     1:      "(TABLES (frame_MODULE f) ! ?x) < length (store_TABLES s)" and
+     tab_v:  "store_TABLES s ! (TABLES (frame_MODULE f) ! ?x) = v" and
+     v_ty:   "tableinst_TYPE v = mk_tabletype limv rtv" and
+     tab_up: "TABLE (mk_tabletype limup rtv) = TABLE (tabletype_lst ! ?x)"
+  proof -
+    have x_lt_tab: "?x < length tabletype_lst"
+      using x_lt ctx by simp
+    have ext: "Externaddr_ok s (externaddr_TABLE (tableaddr_lst ! ?x)) (TABLE (tabletype_lst ! ?x))" using inst_typing_imp_tabi_agree[OF assms(5) frame_module ctx x_lt_tab] by simp
+    then obtain v' limv' limup' rtv' where 
+              "tableaddr_lst ! ?x < length (store_TABLES s)" and 
+              "store_TABLES s ! (tableaddr_lst ! ?x) = v'" and
+      v_ty:   "tableinst_TYPE v' = mk_tabletype limv' rtv'" and
+      tab_up: "TABLE (mk_tabletype limup' rtv') =  (TABLE (tabletype_lst !  ?x))"
+      using inv_Externaddr_ok_table by blast
+    then have "(TABLES (frame_MODULE f) ! ?x) < length (store_TABLES s)" and "store_TABLES s !(TABLES (frame_MODULE f) ! ?x) = v'" using frame_module by auto
+
+    then show ?thesis using inv_Externaddr_ok_table[OF ext] that[OF _ _ v_ty tab_up]
+      by blast
+  qed
+
+  obtain lm' u32_opt' where 2: "tableinst_TYPE (fun_table (mk_state s f) x) = mk_tabletype (mk_limits (mk_uN lm') (map_option mk_uN u32_opt')) rt"
+  proof -
+    have "fun_table (mk_state s f) x = v"
+      using tab_v fun_table.psimps fun_table.domintros by auto
+    then have fun_ty: "tableinst_TYPE (fun_table (mk_state s f) x) = mk_tabletype limv rtv"
+      using tab_v v_ty by auto
+
+    have tab_ctx_eq: "tabletype_lst ! ?x = (context_TABLES C) ! ?x"
+      using ctx ctx_table_eq by auto
+    have rtv_eq: "rtv = rt"
+      using tab_up tab_ctx_eq tab_type by auto
+
+    then have fun_ty_rt: "tableinst_TYPE (fun_table (mk_state s f) x) = mk_tabletype limv rt"
+      using fun_ty by simp
+
+    obtain lim2 u32 where "limv = mk_limits lim2 u32"
+      by (cases limv)
+    then obtain lm' u32_opt' where limv_eq: "limv = mk_limits (mk_uN lm') (map_option mk_uN u32_opt')"
+      apply (cases lim2; cases u32)
+      using None_eq_map_option_iff apply simp
+      using map_option_eq_Some uN.exhaust by metis
+
+    have "tableinst_TYPE (fun_table (mk_state s f) x) = mk_tabletype (mk_limits (mk_uN lm') (map_option mk_uN u32_opt')) rt"
+      using fun_ty_rt limv_eq by simp
+    then show ?thesis
+      using that by blast
+  qed
+
+  show ?thesis
+    using store_tabs1_store_extension[OF assms(2) 1 assms(3) assms(4) refOk 2]  
+    by blast
 qed
 
 lemma reduce_store_extension:
@@ -384,7 +798,7 @@ proof (induction "(mk_config (mk_state s f) admininstr_lst)" "(mk_config (mk_sta
   then show ?case using global_set_store_extension by simp
 next
   case (table_set_val i x v_ref)
-  then show ?case sorry
+  then show ?case using table_set_store_extension by simp    
 next
   case (table_grow_succeed x v_n v_ref var_0 ti)
   then show ?case sorry
