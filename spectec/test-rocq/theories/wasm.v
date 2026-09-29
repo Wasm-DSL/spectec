@@ -14572,6 +14572,7 @@ Inductive fun_growmemory_before_fun_growmemory_case_1 : meminst -> N -> Prop :=
 		({| meminst_TYPE := (PAGE (mk_limits i j_opt)); BYTES := b_lst |} == mi) ->
 		(i' == ((((|b_lst|) : Q) / ((64%N * (Ki ))%BN : Q))%Q + (v_n : Q))%Q)%Q ->
 		List.Forall (fun (j_7 : u32) => (i' <=? ((j_7 :> N) : Q))%Q) (option_to_list j_opt) ->
+		(i' <=? ((2%N ^ 16%N)%BN : Q))%Q ->
 		(mi' == {| meminst_TYPE := (PAGE (mk_limits (mk_uN (i' : N)) j_opt)); BYTES := (b_lst ++ (list_repeat (mk_byte 0%N) (v_n * (64%N * (Ki ))%BN)%BN)) |}) ->
 		(wf_meminst {| meminst_TYPE := (PAGE (mk_limits i j_opt)); BYTES := b_lst |}) ->
 		(wf_meminst {| meminst_TYPE := (PAGE (mk_limits (mk_uN (i' : N)) j_opt)); BYTES := (b_lst ++ (list_repeat (mk_byte 0%N) (v_n * (64%N * (Ki ))%BN)%BN)) |}) ->
@@ -14583,6 +14584,7 @@ Inductive fun_growmemory : meminst -> N -> (option meminst) -> Prop :=
 		({| meminst_TYPE := (PAGE (mk_limits i j_opt)); BYTES := b_lst |} == mi) ->
 		(i' == ((((|b_lst|) : Q) / ((64%N * (Ki ))%BN : Q))%Q + (v_n : Q))%Q)%Q ->
 		List.Forall (fun (j_7 : u32) => (i' <=? ((j_7 :> N) : Q))%Q) (option_to_list j_opt) ->
+		(i' <=? ((2%N ^ 16%N)%BN : Q))%Q ->
 		(mi' == {| meminst_TYPE := (PAGE (mk_limits (mk_uN (i' : N)) j_opt)); BYTES := (b_lst ++ (list_repeat (mk_byte 0%N) (v_n * (64%N * (Ki ))%BN)%BN)) |}) ->
 		(wf_meminst {| meminst_TYPE := (PAGE (mk_limits i j_opt)); BYTES := b_lst |}) ->
 		(wf_meminst {| meminst_TYPE := (PAGE (mk_limits (mk_uN (i' : N)) j_opt)); BYTES := (b_lst ++ (list_repeat (mk_byte 0%N) (v_n * (64%N * (Ki ))%BN)%BN)) |}) ->
@@ -14600,7 +14602,7 @@ Lemma growmemory_is_wf : forall (v_meminst : meminst) (res_nat : N) (ret_val : m
 	(wf_meminst ret_val).
 Proof.
 	move => v_meminst res_nat ret_val var_0 H Hwf Hne /eqP ->.
-	by case: H Hne => [mi v_n mi' i j_opt b_lst i' _ _ _ /eqP -> _ Hwf2 _ | x0 x1 _ ].
+	by case: H Hne => [mi v_n mi' i j_opt b_lst i' _ _ _ _ /eqP -> _ Hwf2 _ | x0 x1 _ ].
 Qed.
 
 (* Record Creation Definition at: ../specification/wasm-2.0/6-typing.spectec:5.1-9.62 *)

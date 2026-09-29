@@ -1232,9 +1232,10 @@ Proof.
 				{| meminst_TYPE := PAGE (mk_limits (mk_uN (lim_old + v_n)%BN) v_j);
 				BYTES := v_b ++ list_repeat (mk_byte 0) (v_n * (64 * Ki)%BN)%BN |}) /\
 				(lim_old = pagediv v_b) /\
-				Forall (fun j : u32 => ((lim_old + v_n)%Q <= (j :> N))%Q) v_j
+				Forall (fun j : u32 => ((lim_old + v_n)%Q <= (j :> N))%Q) v_j /\
+				((lim_old + v_n)%Q <= (((2 ^ 16)%BN : N) : Q))%Q
 				)
-			as [HLen [v_mt' [lim_old [v_j [v_b [HMemsub [HLookup [HNew [HLimold HRange]]]]]]]]].
+			as [HLen [v_mt' [lim_old [v_j [v_b [HMemsub [HLookup [HNew [HLimold [HRange HBound]]]]]]]]]].
 		{
 			eapply minst_invert_mems in HIT; eauto.
 			eapply Forall2_size2 in HIT.
@@ -1253,7 +1254,8 @@ Proof.
 
 			rewrite /fun_mem in HGrow; inversion HGrow; eq_to_prop; subst; clear HGrow.
 			2: by destruct HNotNone.
-			clear H5 H6.
+			rename H4 into HB.
+			clear H6 H7.
 			(* `i'` is only pinned up to Qeq now, so substitute its definition under
 			   the Qeq-invariant projections that consume it and then drop the
 			   equation, so that the rest of the (subst-based) script still fits. *)
@@ -1261,6 +1263,9 @@ Proof.
 			| [ HQ : is_true (Qeq_bool _ _) |- _ ] =>
 				rewrite (Qeq_bool_toN _ _ HQ);
 				move: (Forall_Qle_bool_Qeq _ _ _ _ _ HQ H3) => {}H3;
+				move/Qle_bool_iff: HB => HB;
+				have {}HB := Qle_trans _ _ _
+					(proj2 (Qle_lteq _ _) (or_intror (Qeq_sym _ _ (proj1 (Qeq_bool_iff _ _) HQ)))) HB;
 				clear HQ
 			end.
 			rewrite -H in HLookup'.
@@ -1289,6 +1294,8 @@ Proof.
 			repeat rewrite Znat.N2Z.id.
 			reflexivity.
 			split; auto.
+			split; last first.
+			{ unfold pagediv. apply HB. }
 
 			destruct v_m; eauto.
 			eapply Forall_cons; eauto.

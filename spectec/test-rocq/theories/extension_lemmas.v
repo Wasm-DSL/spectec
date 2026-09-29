@@ -2923,6 +2923,7 @@ Lemma construct_meminsts_grow: forall s ts ma b_lst (lim_old : Q) (v_n : N) v_j_
 		BYTES := b_lst |} ->
 	lim_old = pagediv b_lst ->
 	Forall (fun (j : u32) => ((lim_old + v_n)%Q <= (j :> N))%Q) v_j_opt ->
+	((lim_old + v_n)%Q <= (((2 ^ 16)%BN : N) : Q))%Q ->
 	minsts = (list_update_func (store_MEMS s) ma
 		(fun=> {| meminst_TYPE := PAGE (mk_limits (mk_uN (lim_old + v_n)%BN) v_j_opt);
 			BYTES := b_lst ++ list_repeat (mk_byte 0) (v_n * (64 * Ki)%BN)%BN |})) ->
@@ -2930,7 +2931,7 @@ Lemma construct_meminsts_grow: forall s ts ma b_lst (lim_old : Q) (v_n : N) v_j_
 		minsts
 		(list_update_func ts ma (fun=> PAGE (mk_limits (mk_uN (lim_old + v_n)%BN) v_j_opt))).
 Proof.
-	move => s ts ma b_lst lim_old v_n v_j_opt minsts HWfminsts Hold HLookup HLim HRange HEq.
+	move => s ts ma b_lst lim_old v_n v_j_opt minsts HWfminsts Hold HLookup HLim HRange HBound HEq.
 	subst.
 	move : ma HLookup HRange HWfminsts.
 	induction Hold; auto; move => ma HLookup HRange HWfminsts.
@@ -3013,8 +3014,18 @@ Proof.
 			rewrite -Qround.Zdiv_Qdiv.
 			econstructor; eauto.
 			clear IHHold.
-		admit.
-		(* TODO - Find some way of showing lim_old + v_n <= 2 ^ 16 *)
+		(* The bound comes from the `i' <= 2^16` premise of $growmemory. *)
+		unfold pagediv in HBound.
+		apply Qround.Qfloor_resp_le in HBound.
+		rewrite Qround.Qfloor_Z in HBound.
+		rewrite Qfloor_add_Z in HBound.
+		rewrite -Qround.Zdiv_Qdiv in HBound.
+		apply Zle_Nle in HBound.
+		rewrite Znat.Z2N.inj_add in HBound; try done.
+		+ repeat rewrite (Znat.N2Z.id) in HBound.
+			by apply/N.leb_spec0.
+		+ apply Zdiv.Z_div_nonneg_nonneg; try done; apply Znat.N2Z.is_nonneg.
+		+ apply Znat.N2Z.is_nonneg.
 	}
 	simpl.
 	resolve_Nsucc.
@@ -3025,7 +3036,7 @@ Proof.
 	simpl in HWfminsts.
 	resolve_Nsucc.
 	inv_Forall HWfminsts; eauto.
-Admitted.
+Qed.
 
 Lemma construct_datainsts: forall s da dt b_lst,
 	Forall2 (fun v t => Datainst_ok s v t) (store_DATAS s) dt ->
