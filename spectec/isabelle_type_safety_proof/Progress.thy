@@ -213,6 +213,47 @@ fun_unop__F64.psimps proof(induction var_x') qed(auto)
   qed
 qed
 
+
+lemma fun_testop_underscore_total:
+  assumes "wf_val (val_CONST nt c)" "wf_testop_underscore nt op"
+  shows "fun_testop_underscore nt op c \<noteq> None"
+  using assms proof(induction "val_CONST nt c")
+  case val_case_0
+  then show ?case proof(induction nt c)
+    case (num__case_0 v_Inn var_x v_numtype)
+    show ?case using num__case_0(4,1-3) proof(induction v_numtype op)
+      case (testop__case_0 v_numtype v_Inn' var_x')
+      then have eqv: "v_Inn = v_Inn'"
+        by (metis numtype.simps(2) numtype_Inn.elims)
+      then show ?case using unop__case_0 proof(induction v_Inn)
+        case Inn_I32
+        then show ?case using numtype_Inn.domintros numtype_Inn.psimps 
+fun_testop_underscore.domintros fun_testop_underscore.psimps proof(induction var_x')
+          case EQZ
+          then show ?case
+            by (metis option.distinct(1) testop__case_0.hyps)
+        qed
+      next
+        case Inn_I64
+        then show ?case using numtype_Inn.domintros numtype_Inn.psimps 
+fun_testop_underscore.domintros fun_testop_underscore.psimps 
+        proof(induction var_x')
+          case EQZ
+          then show ?case
+            by (simp add: testop__case_0.hyps)
+        qed 
+      qed
+    qed
+  next
+    case (num__case_1 v_Fnn var_x v_numtype)
+    show ?case using num__case_1(3,1-2) proof(induction v_numtype op)
+      case (testop__case_0 v_numtype v_Inn var_x')
+      then show ?case using Inn_Fnn_diff
+        by blast
+      qed
+    qed
+  qed
+
 lemma fun_signed_underscore_total:
   assumes "0 \<le> c \<and> c \<le> 2 ^ sz - 1" 
   shows "\<exists> res. fun_signed_underscore sz c res \<and> (0 - (2 ^ (sz - 1)) \<le> res) \<and> 
@@ -244,7 +285,10 @@ next
   then show ?thesis using assms fun_inv_signed_underscore.intros(2)
     by blast
 qed
-  
+
+lemma truncz_spec:
+  shows "truncz x = x"
+  sorry
 
 lemma fun_idiv_underscore_total:
   assumes "0 \<le> c1 \<and> c1 \<le> 2 ^ sz - 1" "0 \<le> c2 \<and> c2 \<le> 2 ^ sz - 1"
@@ -272,7 +316,9 @@ next
       show ?thesis using fun_idiv_underscore.intros(4)[OF c2(1) c1(1) True] by blast
     next
       case False
-      then have "0 - 2 ^ (sz - 1) \<le> truncz (c1' div c2') \<and> truncz (c1' div c2') \<le> 2 ^ (sz - 1) - 1" sorry
+      then have "0 - 2 ^ (sz - 1) \<le> truncz (c1' div c2') \<and> truncz (c1' div c2') \<le> 2 ^ (sz - 1) - 1" 
+        using truncz_spec
+        by (metis bot_nat_0.extremum c1(2) div_le_dividend le_trans zero_diff)
       then obtain res where 1: "fun_inv_signed_underscore sz (truncz (c1' div c2')) res" 
         using fun_inv_signed_underscore_total[of sz "truncz (c1' div c2')"] by blast
       show ?thesis using fun_idiv_underscore.intros(5)[OF c2(1) c1(1) 1] by blast
@@ -301,7 +347,9 @@ next
       "0 - 2 ^ (sz - 1) \<le> c2' \<and> c2' \<le> 2 ^ (sz - 1) - 1" 
       using fun_signed_underscore_total assms proj_uN_0.domintros proj_uN_0.psimps
       by metis
-    have "0 - 2 ^ (sz - 1) \<le> c1' - c2' * truncz (c1' div c2') \<and> c1' - c2' * truncz (c1' div c2') \<le> 2 ^ (sz - 1) - 1" sorry
+    have "0 - 2 ^ (sz - 1) \<le> c1' - c2' * truncz (c1' div c2') \<and> c1' - c2' * truncz (c1' div c2') \<le> 2 ^ (sz - 1) - 1" 
+      using truncz_spec
+      using c1(2) diff_le_self le_trans by blast
     then obtain res where 1: "fun_inv_signed_underscore sz (c1' - c2' * truncz (c1' div c2')) res" 
       using fun_inv_signed_underscore_total by blast
     show ?thesis using fun_irem_underscore.intros(4)[OF c2(1) c1(1) 1] S by blast
@@ -521,6 +569,357 @@ case (fN_case_1 i)
 qed
 qed qed qed qed
 
+lemma fun_ilt_underscore_total:
+  assumes "0 \<le> c1 \<and> c1 \<le> 2 ^ sz - 1" "0 \<le> c2 \<and> c2 \<le> 2 ^ sz - 1" 
+  shows "\<exists> res. fun_ilt_underscore sz sg (mk_uN c1) (mk_uN c2) res"
+proof(cases sg)
+  case U
+  then show ?thesis using fun_ilt_underscore.intros(1) by blast
+next
+  case S
+  obtain c1' where c1: "fun_signed_underscore sz (proj_uN_0 (mk_uN c1)) c1'" 
+    using fun_signed_underscore_total assms proj_uN_0.domintros proj_uN_0.psimps by fastforce
+  obtain c2' where c2: "fun_signed_underscore sz (proj_uN_0 (mk_uN c2)) c2'" 
+    using fun_signed_underscore_total assms proj_uN_0.domintros proj_uN_0.psimps by fastforce
+  show ?thesis using S c1 c2 fun_ilt_underscore.intros(2) by blast
+qed
+
+lemma fun_igt_underscore_total:
+  assumes "0 \<le> c1 \<and> c1 \<le> 2 ^ sz - 1" "0 \<le> c2 \<and> c2 \<le> 2 ^ sz - 1" 
+  shows "\<exists> res. fun_igt_underscore sz sg (mk_uN c1) (mk_uN c2) res"
+proof(cases sg)
+  case U
+  then show ?thesis using fun_igt_underscore.intros(1) by blast
+next
+  case S
+  obtain c1' where c1: "fun_signed_underscore sz (proj_uN_0 (mk_uN c1)) c1'" 
+    using fun_signed_underscore_total assms proj_uN_0.domintros proj_uN_0.psimps by fastforce
+  obtain c2' where c2: "fun_signed_underscore sz (proj_uN_0 (mk_uN c2)) c2'" 
+    using fun_signed_underscore_total assms proj_uN_0.domintros proj_uN_0.psimps by fastforce
+  show ?thesis using S c1 c2 fun_igt_underscore.intros(2) by blast
+qed
+
+lemma fun_ile_underscore_total:
+  assumes "0 \<le> c1 \<and> c1 \<le> 2 ^ sz - 1" "0 \<le> c2 \<and> c2 \<le> 2 ^ sz - 1" 
+  shows "\<exists> res. fun_ile_underscore sz sg (mk_uN c1) (mk_uN c2) res"
+proof(cases sg)
+  case U
+  then show ?thesis using fun_ile_underscore.intros(1) by blast
+next
+  case S
+  obtain c1' where c1: "fun_signed_underscore sz (proj_uN_0 (mk_uN c1)) c1'" 
+    using fun_signed_underscore_total assms proj_uN_0.domintros proj_uN_0.psimps by fastforce
+  obtain c2' where c2: "fun_signed_underscore sz (proj_uN_0 (mk_uN c2)) c2'" 
+    using fun_signed_underscore_total assms proj_uN_0.domintros proj_uN_0.psimps by fastforce
+  show ?thesis using S c1 c2 fun_ile_underscore.intros(2) by blast
+qed
+
+lemma fun_ige_underscore_total:
+  assumes "0 \<le> c1 \<and> c1 \<le> 2 ^ sz - 1" "0 \<le> c2 \<and> c2 \<le> 2 ^ sz - 1" 
+  shows "\<exists> res. fun_ige_underscore sz sg (mk_uN c1) (mk_uN c2) res"
+proof(cases sg)
+  case U
+  then show ?thesis using fun_ige_underscore.intros(1) by blast
+next
+  case S
+  obtain c1' where c1: "fun_signed_underscore sz (proj_uN_0 (mk_uN c1)) c1'" 
+    using fun_signed_underscore_total assms proj_uN_0.domintros proj_uN_0.psimps by fastforce
+  obtain c2' where c2: "fun_signed_underscore sz (proj_uN_0 (mk_uN c2)) c2'" 
+    using fun_signed_underscore_total assms proj_uN_0.domintros proj_uN_0.psimps by fastforce
+  show ?thesis using S c1 c2 fun_ige_underscore.intros(2) by blast
+qed
+
+lemma fun_relop_underscore_total:
+  assumes "wf_val (val_CONST nt c1)" "wf_val (val_CONST nt c2)" "wf_relop_underscore nt op"
+  shows "\<exists> res. fun_relop_underscore nt op c1 c2 (Some res)"
+  using assms proof(induction "val_CONST nt c1")
+  case val_case_0
+  then show ?case proof(induction nt c1)
+    case (num__case_0 v_Inn var_x v_numtype)
+    show ?case using num__case_0(2,1,3-)
+    proof(induction "the (size (valtype_Inn v_Inn))" var_x)
+      case (uN_case_0 i)
+    show ?case using uN_case_0(4,1-3,5-)
+    proof(induction "val_CONST v_numtype c2")
+      case val_case_0
+      then show ?case proof(induction v_numtype c2)
+        case (num__case_0 v_Inn' var_y v_numtype)
+        then have eqv: "v_Inn = v_Inn'" by (metis numtype.simps(2) numtype_Inn.elims)
+        show ?case using num__case_0(2,1,3-) eqv 
+        proof(induction "the (size (valtype_Inn v_Inn'))" var_y)
+          case (uN_case_0 i')
+        show ?case using uN_case_0(7,1-6,8-)
+    proof(induction v_numtype op)
+      case (relop__case_0 v_numtype v_Inn'' var_x')
+      then have eqv: "v_Inn = v_Inn''"
+        by (metis numtype.simps(2) numtype_Inn.elims)
+      show ?case using relop__case_0 eqv proof(induction v_Inn)
+        case Inn_I32
+        then show ?case using numtype_Inn.domintros numtype_Inn.psimps fun_relop_underscore.intros
+        proof(induction var_x')
+          case (LT x)
+          have 1: "0 \<le> i' \<and> i' \<le> 2 ^ 32 - 1" using LT size.domintros size.psimps 
+            valtype_Inn.domintros valtype_Inn.psimps 
+            by simp
+          have 2: "0 \<le> i \<and> i \<le> 2 ^ 32 - 1" using LT size.domintros size.psimps 
+            valtype_Inn.domintros valtype_Inn.psimps 
+            by simp
+          obtain res where 
+            res: "fun_ilt_underscore (sizenn (numtype_Inn Inn_I32)) x (mk_uN i) (mk_uN i') res"
+            using fun_ilt_underscore_total[OF 2 1]
+            sizenn.domintros sizenn.psimps
+            by fastforce
+          show ?case using LT(18)[OF res]
+            using LT.prems(7,8,9) by auto
+        next
+          case (GT x)
+          have 1: "0 \<le> i' \<and> i' \<le> 2 ^ 32 - 1" using GT size.domintros size.psimps 
+            valtype_Inn.domintros valtype_Inn.psimps 
+            by simp
+          have 2: "0 \<le> i \<and> i \<le> 2 ^ 32 - 1" using GT size.domintros size.psimps 
+            valtype_Inn.domintros valtype_Inn.psimps 
+            by simp
+          obtain res where 
+            res: "fun_igt_underscore (sizenn (numtype_Inn Inn_I32)) x (mk_uN i) (mk_uN i') res"
+            using fun_igt_underscore_total[OF 2 1]
+            sizenn.domintros sizenn.psimps
+            by fastforce
+          show ?case using GT(20)[OF res]
+            using GT.prems(7,8,9) by auto
+        next
+          case (LE x)
+          have 1: "0 \<le> i' \<and> i' \<le> 2 ^ 32 - 1" using LE size.domintros size.psimps 
+            valtype_Inn.domintros valtype_Inn.psimps 
+            by simp
+          have 2: "0 \<le> i \<and> i \<le> 2 ^ 32 - 1" using LE size.domintros size.psimps 
+            valtype_Inn.domintros valtype_Inn.psimps 
+            by simp
+          obtain res where 
+            res: "fun_ile_underscore (sizenn (numtype_Inn Inn_I32)) x (mk_uN i) (mk_uN i') res"
+            using fun_ile_underscore_total[OF 2 1]
+            sizenn.domintros sizenn.psimps
+            by fastforce
+          show ?case using LE(22)[OF res]
+            using LE.prems(7,8,9) by auto
+        next
+          case (GE x)
+          have 1: "0 \<le> i' \<and> i' \<le> 2 ^ 32 - 1" using GE size.domintros size.psimps 
+            valtype_Inn.domintros valtype_Inn.psimps 
+            by simp
+          have 2: "0 \<le> i \<and> i \<le> 2 ^ 32 - 1" using GE size.domintros size.psimps 
+            valtype_Inn.domintros valtype_Inn.psimps 
+            by simp
+          obtain res where 
+            res: "fun_ige_underscore (sizenn (numtype_Inn Inn_I32)) x (mk_uN i) (mk_uN i') res"
+            using fun_ige_underscore_total[OF 2 1]
+            sizenn.domintros sizenn.psimps
+            by fastforce
+          show ?case using GE(24)[OF res]
+            using GE.prems(7,8,9) by auto
+        qed(metis)+
+      next
+        case Inn_I64
+        then show ?case using numtype_Inn.domintros numtype_Inn.psimps fun_relop_underscore.intros
+        proof(induction var_x')
+          case (LT x)
+          have 1: "0 \<le> i' \<and> i' \<le> 2 ^ 64 - 1" using LT size.domintros size.psimps 
+            valtype_Inn.domintros valtype_Inn.psimps 
+            by simp
+          have 2: "0 \<le> i \<and> i \<le> 2 ^ 64 - 1" using LT size.domintros size.psimps 
+            valtype_Inn.domintros valtype_Inn.psimps 
+            by simp
+          obtain res where 
+            res: "fun_ilt_underscore (sizenn (numtype_Inn Inn_I64)) x (mk_uN i) (mk_uN i') res"
+            using fun_ilt_underscore_total[OF 2 1]
+            sizenn.domintros sizenn.psimps
+            by fastforce
+          show ?case using LT(19)[OF res]
+            using LT.prems(7,8,9) by auto
+        next
+          case (GT x)
+          have 1: "0 \<le> i' \<and> i' \<le> 2 ^ 64 - 1" using GT size.domintros size.psimps 
+            valtype_Inn.domintros valtype_Inn.psimps 
+            by simp
+          have 2: "0 \<le> i \<and> i \<le> 2 ^ 64 - 1" using GT size.domintros size.psimps 
+            valtype_Inn.domintros valtype_Inn.psimps 
+            by simp
+          obtain res where 
+            res: "fun_igt_underscore (sizenn (numtype_Inn Inn_I64)) x (mk_uN i) (mk_uN i') res"
+            using fun_igt_underscore_total[OF 2 1]
+            sizenn.domintros sizenn.psimps
+            by fastforce
+          show ?case using GT(21)[OF res]
+            using GT.prems(7,8,9) by auto
+        next
+          case (LE x)
+          have 1: "0 \<le> i' \<and> i' \<le> 2 ^ 64 - 1" using LE size.domintros size.psimps 
+            valtype_Inn.domintros valtype_Inn.psimps 
+            by simp
+          have 2: "0 \<le> i \<and> i \<le> 2 ^ 64 - 1" using LE size.domintros size.psimps 
+            valtype_Inn.domintros valtype_Inn.psimps 
+            by simp
+          obtain res where 
+            res: "fun_ile_underscore (sizenn (numtype_Inn Inn_I64)) x (mk_uN i) (mk_uN i') res"
+            using fun_ile_underscore_total[OF 2 1]
+            sizenn.domintros sizenn.psimps
+            by fastforce
+          show ?case using LE(23)[OF res]
+            using LE.prems(7,8,9) by auto
+        next
+          case (GE x)
+          have 1: "0 \<le> i' \<and> i' \<le> 2 ^ 64 - 1" using GE size.domintros size.psimps 
+            valtype_Inn.domintros valtype_Inn.psimps 
+            by simp
+          have 2: "0 \<le> i \<and> i \<le> 2 ^ 64 - 1" using GE size.domintros size.psimps 
+            valtype_Inn.domintros valtype_Inn.psimps 
+            by simp
+          obtain res where 
+            res: "fun_ige_underscore (sizenn (numtype_Inn Inn_I64)) x (mk_uN i) (mk_uN i') res"
+            using fun_ige_underscore_total[OF 2 1]
+            sizenn.domintros sizenn.psimps
+            by fastforce
+          show ?case using GE(25)[OF res]
+            using GE.prems(7,8,9) by auto
+        qed(metis)+
+      qed
+    next
+      case (relop__case_1 v_numtype v_Inn'' var_x')
+      then show ?case using Inn_Fnn_diff by simp
+    qed qed
+  next
+      case (num__case_1 v_Fnn var_y v_numtype)
+      then show ?case using Inn_Fnn_diff by simp
+    qed qed qed
+  next
+    case (num__case_1 v_Fnn var_x v_numtype)
+    show ?case using num__case_1
+    proof(induction "sizenn (numtype_Fnn v_Fnn)" var_x)
+      case (fN_case_0 i)
+    show ?case using fN_case_0(3,1-2,4-)
+    proof(induction "val_CONST v_numtype c2")
+      case val_case_0
+      then show ?case proof(induction v_numtype c2)
+        case (num__case_0 v_Inn' var_y v_numtype)
+        then show ?case using Inn_Fnn_diff by blast
+      next
+        case (num__case_1 v_Fnn' var_y v_numtype)
+        then have eqv: "v_Fnn = v_Fnn'"
+          by (metis (full_types) Fnn.exhaust fun_zero.domintros(3,4) fun_zero.psimps(3,4)
+              num_underscore.distinct(1) numtype.distinct(11) wf_num_underscore.simps zero_is_wf)
+        show ?case using num__case_1 eqv 
+        proof(induction "sizenn (numtype_Fnn v_Fnn')" var_y)
+          case (fN_case_0 i')
+        show ?case using fN_case_0(5,1-4,6-)
+    proof(induction v_numtype op)
+      case (relop__case_0 v_numtype v_Inn'' var_x')
+      then show ?case using Inn_Fnn_diff by blast
+    next
+      case (relop__case_1 v_numtype v_Fnn'' var_x')
+      then have eqv: "v_Fnn = v_Fnn''"
+        by (metis Fnn.exhaust numtype.distinct(11) numtype_Fnn.domintros(1,2) numtype_Fnn.psimps(1,2))
+      show ?case using relop__case_1 eqv proof(induction v_Fnn)
+        case Fnn_F32
+        then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps fun_relop_underscore.intros
+        proof(induction var_x')
+        qed(metis)+
+      next
+        case Fnn_F64
+        then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps fun_relop_underscore.intros
+        proof(induction var_x')
+        qed(metis)+
+      qed 
+    qed
+  next
+    case (fN_case_1 i')
+    show ?case using fN_case_1(5,1-4,6-)
+    proof(induction v_numtype op)
+      case (relop__case_0 v_numtype v_Inn'' var_x')
+      then show ?case using Inn_Fnn_diff by blast
+    next
+      case (relop__case_1 v_numtype v_Fnn'' var_x')
+      then have eqv: "v_Fnn = v_Fnn''"
+        by (metis Fnn.exhaust numtype.distinct(11) numtype_Fnn.domintros(1,2) numtype_Fnn.psimps(1,2))
+      show ?case using relop__case_1 eqv proof(induction v_Fnn)
+        case Fnn_F32
+        then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps fun_relop_underscore.intros
+        proof(induction var_x') qed(metis)+
+      next
+        case Fnn_F64
+        then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps fun_relop_underscore.intros
+        proof(induction var_x')
+        qed(metis)+
+      qed 
+    qed
+  qed
+qed
+qed
+next
+case (fN_case_1 i)
+    show ?case using fN_case_1(3,1-2,4-)
+    proof(induction "val_CONST v_numtype c2")
+      case val_case_0
+      then show ?case proof(induction v_numtype c2)
+        case (num__case_0 v_Inn' var_y v_numtype)
+        then show ?case using Inn_Fnn_diff by blast
+      next
+        case (num__case_1 v_Fnn' var_y v_numtype)
+        then have eqv: "v_Fnn = v_Fnn'"
+          by (metis (full_types) Fnn.exhaust fun_zero.domintros(3,4) fun_zero.psimps(3,4)
+              num_underscore.distinct(1) numtype.distinct(11) wf_num_underscore.simps zero_is_wf)
+        show ?case using num__case_1 eqv 
+        proof(induction "sizenn (numtype_Fnn v_Fnn')" var_y)
+          case (fN_case_0 i')
+        show ?case using fN_case_0(5,1-4,6-)
+    proof(induction v_numtype op)
+      case (relop__case_0 v_numtype v_Inn'' var_x')
+      then show ?case using Inn_Fnn_diff by blast
+    next
+      case (relop__case_1 v_numtype v_Fnn'' var_x')
+      then have eqv: "v_Fnn = v_Fnn''"
+        by (metis Fnn.exhaust numtype.distinct(11) numtype_Fnn.domintros(1,2) numtype_Fnn.psimps(1,2))
+      show ?case using relop__case_1 eqv proof(induction v_Fnn)
+        case Fnn_F32
+        then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps fun_relop_underscore.intros
+        proof(induction var_x')
+        qed(metis)+
+      next
+        case Fnn_F64
+        then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps fun_relop_underscore.intros
+        proof(induction var_x')
+        qed(metis)+
+      qed 
+    qed
+  next
+    case (fN_case_1 i')
+    show ?case using fN_case_1(5,1-4,6-)
+    proof(induction v_numtype op)
+      case (relop__case_0 v_numtype v_Inn'' var_x')
+      then show ?case using Inn_Fnn_diff by blast
+    next
+      case (relop__case_1 v_numtype v_Fnn'' var_x')
+      then have eqv: "v_Fnn = v_Fnn''"
+        by (metis Fnn.exhaust numtype.distinct(11) numtype_Fnn.domintros(1,2) numtype_Fnn.psimps(1,2))
+      show ?case using relop__case_1 eqv proof(induction v_Fnn)
+        case Fnn_F32
+        then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps fun_relop_underscore.intros
+        proof(induction var_x')
+        qed(metis)+
+      next
+        case Fnn_F64
+        then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps fun_relop_underscore.intros
+        proof(induction var_x')
+        qed(metis)+
+      qed 
+    qed
+  qed
+qed
+qed qed qed qed
+
+lemma valtype_sub_reftype:
+  assumes "Valtype_sub t (valtype_reftype rt)" 
+  shows "t = BOT \<or> t = valtype_reftype rt" 
+  using assms proof(induction t "valtype_reftype rt")
+qed(auto)
 
 lemma reducible_left_v:
   assumes "Ex (Step (mk_config s es))" "wf_config (mk_config s es)" (* "wf_config c'"  *)  
@@ -658,6 +1057,61 @@ qed
 lemma typeofval_is_i32: assumes "Valtype_sub (typeofval v) valtype_I32" 
   shows "\<exists> c. v = val_CONST I32 c"
   using assms typeofval_is_nt[of v I32] valtype_numtype.domintros valtype_numtype.psimps by auto
+
+
+lemma typeofval_is_rt: assumes "Valtype_sub (typeofval v) (valtype_reftype rt)" 
+  shows "\<exists> ref. v = val_ref ref"
+  using assms proof(induction "typeofval v" "valtype_reftype rt")
+  case refl
+  then show ?case proof(cases v)
+  case (val_CONST x11 x12)
+  then show ?thesis using assms typeofval.psimps typeofval.domintros valtype_numtype.domintros 
+      valtype_numtype.psimps refl 
+    by (metis val_CONST typeofval_is_nt val.distinct(3))
+next
+  case (val_VCONST x21 x22)
+  then show ?thesis proof(cases x21)
+    case V128
+    then show ?thesis using val_VCONST assms typeofval.psimps typeofval.domintros 
+      valtype_vectype.domintros valtype_vectype.psimps refl
+      by (metis valtype.distinct(45,47) valtype_reftype.cases valtype_reftype.domintros(1,2)
+          valtype_reftype.psimps(1,2))
+  qed
+next
+  case (val_REF_NULL x3)
+  then show ?thesis using val_ref.domintros val_ref.psimps(1)[of x3] 
+    by metis
+next
+  case (val_REF_FUNC_ADDR x4)
+  then show ?thesis using val_ref.domintros val_ref.psimps(2)[of x4] by metis 
+next
+  case (val_REF_HOST_ADDR x5)
+  then show ?thesis using val_ref.domintros val_ref.psimps(3)[of x5] by metis
+qed
+next
+  case bot
+  then show ?case proof(induction v)
+    case (val_CONST x1 x2)
+    then show ?case using typeofval.domintros typeofval.psimps
+      by (metis lanetype_numtype.cases valtype.distinct(13,25,35,43) valtype_numtype.simps(1,2,3,4))
+  next
+    case (val_VCONST x1 x2)
+    then show ?case using typeofval.domintros typeofval.psimps
+      by (metis valtype.distinct(49) valtype_vectype.domintros valtype_vectype.psimps vectype.exhaust)
+  next
+    case (val_REF_NULL x)
+    then show ?case using typeofval.domintros typeofval.psimps
+      by (metis valtype.distinct(53,55) valtype_reftype.cases valtype_reftype.domintros(1,2)
+          valtype_reftype.psimps(1,2))
+  next
+    case (val_REF_FUNC_ADDR x)
+    then show ?case using typeofval.domintros typeofval.psimps by simp
+  next
+    case (val_REF_HOST_ADDR x)
+    then show ?case using typeofval.domintros typeofval.psimps by simp
+  qed
+qed
+
 
 theorem progress:
   assumes "Config_ok (mk_config s es) ts"
@@ -1278,7 +1732,6 @@ theorem progress:
               have "wf_instr (instr_sc1 (BINOP nt binop_nt))" 
                 using config_case_0(2) wf_admininstr_instr_inv by simp
               then show ?case proof(induction "instr_sc1 (BINOP nt binop_nt)")
-                case instr_case_15 then show ?case by simp
               qed
             qed
             then obtain res where res: "fun_binop_underscore nt binop_nt c1 c2 (Some res)" 
@@ -1303,10 +1756,71 @@ theorem progress:
       qed
     next
       case (testop C nt testop_nt)
-      then show ?case sorry
+        then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          note outer = Nil
+          then obtain c where c: "a = val_CONST nt c" using typeofval_is_nt
+            by fastforce 
+          then have wfv:"wf_val (val_CONST nt c)" using outer(7) by simp
+          have "wf_testop_underscore nt testop_nt" using outer(10)
+          proof(induction "mk_config (mk_state s' f) [admininstr_instr (instr_sc1 (TESTOP nt testop_nt))]")
+            case config_case_0
+            then have "wf_instr (instr_sc1 (TESTOP nt testop_nt))" using wf_admininstr_instr_inv by simp
+            then show ?case proof(induction "instr_sc1 (TESTOP nt testop_nt)")
+            qed(auto)
+          qed
+          then have notnone: "fun_testop_underscore nt testop_nt c \<noteq> None" 
+            using wfv fun_testop_underscore_total by simp
+          then show ?case 
+          using Step_pure__testop Step.intros(1) c outer(12)
+                admininstr_val.domintros admininstr_val.psimps by fastforce
+        next
+          case (Cons a vs)
+          then show ?case by simp
+        qed
+      qed
     next
       case (relop C nt relop_nt)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons(2-) proof(induction vs)
+            case Nil
+            note outer = Nil
+            then obtain c1 where c1: "a1 = val_CONST nt c1" using typeofval_is_nt by fastforce
+            obtain c2 where c2: "a2 = val_CONST nt c2" using typeofval_is_nt Nil by fastforce
+            have "wf_relop_underscore nt relop_nt" using Nil(10)
+            proof(induction "mk_config (mk_state s' f) [admininstr_instr (instr_sc1 (RELOP nt relop_nt))]")
+              case config_case_0
+              have "wf_instr (instr_sc1 (RELOP nt relop_nt))" 
+                using config_case_0(2) wf_admininstr_instr_inv by simp
+              then show ?case proof(induction "instr_sc1 (RELOP nt relop_nt)")
+              qed
+            qed
+            then obtain res where res: "fun_relop_underscore nt relop_nt c1 c2 (Some res)" 
+              using fun_relop_underscore_total Nil(7) c1 c2
+              by fastforce
+              then show ?thesis using Step_pure__relop[OF res] outer(12) Step.intros(1) c1 c2
+                admininstr_val.domintros(1) admininstr_val.psimps(1)
+                by fastforce
+          next
+            case (Cons a vs)
+            then show ?case by simp
+          qed
+        qed
+      qed
     next
       case (cvtop C nt_1 nt_2 cvtop)
       then show ?case sorry
@@ -1336,7 +1850,67 @@ theorem progress:
         by fastforce
     next
       case (ref_is_null C rt)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then have "typeofval a = BOT \<or> typeofval a = valtype_reftype rt" 
+            using valtype_sub_reftype
+            by auto
+          then show ?case using Nil proof(induction a)
+            case (val_CONST x1 x2)
+            show ?case using val_CONST(1) typeofval.domintros(1) typeofval.psimps(1)
+              by (metis Valtype_sub_refl lanetype_numtype.cases typeofval.domintros(3) typeofval.psimps(3)
+                  typeofval_is_nt val.distinct(3) valtype.distinct(13,25,35,43) valtype_numtype.simps(1,2,3,4))
+          next
+            case (val_VCONST x1 x2)
+            show ?case using val_VCONST(1) typeofval.domintros(2) typeofval.psimps(2) 
+            proof(induction x1)
+              case V128
+              then show ?case using valtype_reftype.domintros valtype_reftype.psimps 
+                valtype_vectype.domintros valtype_vectype.psimps
+              proof(induction rt) qed(auto)
+            qed
+          next
+            case (val_REF_NULL x)
+            then show ?case using ref_is_null_true[of "ref_REF_NULL x" x]
+                  Step.intros(1) admininstr_val.domintros 
+                  admininstr_val.psimps admininstr_instr.domintros admininstr_instr.psimps
+                  admininstr_ref.psimps admininstr_ref.domintros
+              by fastforce
+          next
+            case (val_REF_FUNC_ADDR x)
+            have "\<not> Step_pure_before_ref_is_null_false
+                [admininstr_ref (REF_FUNC_ADDR x), admininstr_sc4 admininstr_st4_REF_IS_NULL]" 
+              using Step_pure_before_ref_is_null_false.cases admininstr_ref.domintros(1,2) 
+                admininstr_ref.psimps(1,2)
+              by auto
+            then show ?case using val_REF_FUNC_ADDR(13) ref_is_null_false[of "REF_FUNC_ADDR x"]
+                  Step.intros(1) admininstr_val.domintros 
+                  admininstr_val.psimps admininstr_instr.domintros admininstr_instr.psimps
+                  admininstr_ref.psimps admininstr_ref.domintros
+               by auto
+          next
+            case (val_REF_HOST_ADDR x)
+            have "\<not> Step_pure_before_ref_is_null_false
+                [admininstr_ref (REF_HOST_ADDR x), admininstr_sc4 admininstr_st4_REF_IS_NULL]" 
+              using Step_pure_before_ref_is_null_false.cases admininstr_ref.domintros 
+                admininstr_ref.psimps
+              by auto
+            then show ?case using val_REF_HOST_ADDR(13) ref_is_null_false[of "REF_HOST_ADDR x"]
+                  Step.intros(1) admininstr_val.domintros 
+                  admininstr_val.psimps admininstr_instr.domintros admininstr_instr.psimps
+                  admininstr_ref.psimps admininstr_ref.domintros
+               by auto
+          qed
+        next
+          case (Cons a vs)
+          then show ?case by simp
+        qed 
+      qed
     next
       case (vconst C c)
       then show ?case using admininstr_val.domintros(2) admininstr_val.psimps(2)[of V128 c]
@@ -1447,12 +2021,91 @@ theorem progress:
       qed
     next
       case (table_get x C lim rt)
-      thm table_get_val table_get_trap
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then obtain c where c: "a = val_CONST I32 c" using typeofval_is_i32
+            by fastforce
+          have "wf_val a" using Nil(10) by simp
+          then have projc: "proj_num__0 c \<noteq> None" using c proof(induction a)
+            case (val_case_0 v_numtype var_0)
+            then show ?case proof(induction v_numtype var_0)
+              case (num__case_0 v_Inn var_x v_numtype)
+              then show ?case using proj_num__0.domintros proj_num__0.psimps by auto
+            next
+              case (num__case_1 v_Fnn var_x v_numtype)
+              then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps 
+              proof(induction v_Fnn) qed(auto)
+            qed 
+          qed(auto)
+          then show ?case proof(cases "proj_uN_0 (the (proj_num__0 c)) < 
+                  length (REFS (fun_table (mk_state s' f) x))")
+            case True
+            show ?thesis using table_get_val[OF True projc] Step.intros(2) Nil(15)
+              c admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros
+              admininstr_instr.psimps by fastforce
+          next
+            case False
+            then show ?thesis using table_get_trap[OF projc, of "mk_state s' f" x]
+               Step.intros(2) Nil(15) c admininstr_val.domintros admininstr_val.psimps 
+               admininstr_instr.domintros admininstr_instr.psimps by fastforce
+          qed
+        next
+          case (Cons a vs)
+          then show ?case by simp
+        qed
+      qed
     next
       case (table_set x C lim rt)
-      thm table_set_val table_set_trap
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons(2-) proof(induction vs)
+            case Nil
+            then obtain c where c: "a1 = val_CONST I32 c" using typeofval_is_i32
+              by fastforce
+            obtain ref where ref: "a2 = val_ref ref" using typeofval_is_rt Nil by fastforce 
+          have "wf_val a1" using Nil(10) by simp
+          then have projc: "proj_num__0 c \<noteq> None" using c proof(induction a1)
+            case (val_case_0 v_numtype var_0)
+            then show ?case proof(induction v_numtype var_0)
+              case (num__case_0 v_Inn var_x v_numtype)
+              then show ?case using proj_num__0.domintros proj_num__0.psimps by auto
+            next
+              case (num__case_1 v_Fnn var_x v_numtype)
+              then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps 
+              proof(induction v_Fnn) qed(auto)
+            qed 
+          qed(auto)
+          then show ?case proof(cases "proj_uN_0 (the (proj_num__0 c)) < 
+                  length (REFS (fun_table (mk_state s' f) x))")
+            case True
+            show ?thesis using table_set_val[OF projc True] Nil(15)
+              c admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros
+              admininstr_instr.psimps ref admininstr_val_ref by fastforce
+          next
+            case False
+            then show ?thesis using table_set_trap[OF projc, of "mk_state s' f" x]
+               Nil(15) c admininstr_val.domintros admininstr_val.psimps 
+               admininstr_instr.domintros admininstr_instr.psimps ref admininstr_val_ref by fastforce
+          qed
+          next
+            case (Cons a vs)
+            then show ?case by simp
+          qed
+        qed
+      qed
     next
       case (table_size x C lim rt)
       then show ?case proof(induction vs)
