@@ -354,26 +354,9 @@ rule Step_pure/vnarrow:
   -- if c = $inv_lanes_(Jnn_2 X N_2, cj_1* cj_2*)
 
 
-rule Step_pure/vcvtop-full:
-  (VCONST V128 c_1) (VCVTOP (Lnn_2 X M) (Lnn_1 X M) vcvtop) ~> (VCONST V128 c)
-  -- if $halfop((Lnn_1 X M), (Lnn_2 X M), vcvtop) = eps /\ $zeroop((Lnn_1 X M), (Lnn_2 X M), vcvtop) = eps
-  -- if ci* = $lanes_(Lnn_1 X M, c_1)
-  -- if cj** = $setproduct_(lane_(Lnn_2), $vcvtop__(Lnn_1 X M, Lnn_2 X M, vcvtop, ci)*)
-  -- if c <- $inv_lanes_(Lnn_2 X M, cj*)*
-
-rule Step_pure/vcvtop-half:
-  (VCONST V128 c_1) (VCVTOP (Lnn_2 X M_2) (Lnn_1 X M_1) vcvtop) ~> (VCONST V128 c)
-  -- if $halfop((Lnn_1 X M_1), (Lnn_2 X M_2), vcvtop) = half
-  -- if ci* = $lanes_(Lnn_1 X M_1, c_1)[$half(half, 0, M_2) : M_2]
-  -- if cj** = $setproduct_(lane_(Lnn_2), $vcvtop__(Lnn_1 X M_1, Lnn_2 X M_2, vcvtop, ci)*)
-  -- if c <- $inv_lanes_(Lnn_2 X M_2, cj*)*
-
-rule Step_pure/vcvtop-zero:
-  (VCONST V128 c_1) (VCVTOP (nt_2 X M_2) (nt_1 X M_1) vcvtop) ~> (VCONST V128 c)
-  -- if $zeroop((nt_1 X M_1), (nt_2 X M_2), vcvtop) = ZERO
-  -- if ci* = $lanes_(nt_1 X M_1, c_1)
-  -- if cj** = $setproduct_(lane_(nt_2), ($vcvtop__(nt_1 X M_1, nt_2 X M_2, vcvtop, ci)* ++ [$packnum_(nt_2, $zero(nt_2))]^M_1))
-  -- if c <- $inv_lanes_(nt_2 X M_2, cj*)*
+rule Step_pure/vcvtop:
+  (VCONST V128 c_1) (VCVTOP sh_2 sh_1 vcvtop) ~> (VCONST V128 c)
+  -- if c = $vcvtop__(sh_1, sh_2, vcvtop, c_1)
 
 
 ;; Local instructions
