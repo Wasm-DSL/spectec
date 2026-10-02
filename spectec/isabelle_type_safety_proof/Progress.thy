@@ -2117,38 +2117,701 @@ theorem progress:
       qed
     next
       case (table_grow x C lim rt)
-      thm table_grow_succeed
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons(2-) proof(induction vs)
+            case Nil
+            obtain ref where ref: "a1 = val_ref ref" using Nil(9) typeofval_is_rt by fastforce
+            obtain c where c: "a2 = val_CONST I32 c" using Nil(9) typeofval_is_i32 by fastforce
+            have "wf_val a2" using Nil(10) by simp
+            then obtain n where n: "c = mk_num__0 Inn_I32 (mk_uN n)" using c proof(induction a2)
+              case (val_case_0 v_numtype var_0)
+              then show ?case proof(induction v_numtype var_0)
+                case (num__case_0 v_Inn var_x v_numtype)
+                show ?case using num__case_0(2-) 
+                proof(induction "the (isabelle_reference_output_wasm2.size (valtype_Inn v_Inn))"
+                      var_x)
+                  case (uN_case_0 i)
+                  then show ?case using numtype_Inn.domintros numtype_Inn.psimps 
+                  proof(induction v_Inn) qed(auto)
+                qed
+              next
+                case (num__case_1 v_Fnn var_x v_numtype)
+                then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps
+                proof(induction v_Fnn) qed(auto)
+              qed
+            qed(auto)
+            obtain res where res: "fun_inv_signed_underscore 32 (0 - 1) res" 
+              using fun_inv_signed_underscore_total by fastforce
+            show ?case using Nil(15) table_grow_fail[OF res] ref c n 
+               admininstr_val.domintros admininstr_val.psimps admininstr_val_ref
+               admininstr_instr.domintros admininstr_instr.psimps by fastforce
+          next
+            case (Cons a vs)
+            then show ?case by simp
+          qed
+        qed
+      qed
     next
       case (table_fill x C lim rt)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons (2-) proof(induction vs)
+            case Nil
+            then show ?case by simp
+          next
+            case (Cons a3 vs)
+            show ?case using Cons(2-) proof(induction vs)
+              case Nil
+              obtain i where a1: "a1 = val_CONST I32 i" using Nil(9) typeofval_is_i32 by fastforce
+              have "wf_val a1" using Nil(10) by simp
+              then have proji: "proj_num__0 i \<noteq> None" using a1 proof(induction a1)
+                case (val_case_0 v_numtype var_0)
+                then show ?case proof(induction v_numtype var_0)
+                  case (num__case_0 v_Inn var_x v_numtype)
+                  then show ?case using proj_num__0.domintros proj_num__0.psimps by auto
+                next
+                  case (num__case_1 v_Fnn var_x v_numtype)
+                  then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps
+                  proof(induction v_Fnn) qed(auto)
+                qed
+              qed(auto)
+              obtain c where a3: "a3 = val_CONST I32 c" using Nil(9) typeofval_is_i32 by fastforce
+              have "wf_val a3" using Nil(10) by simp
+              then obtain n where c: "c = mk_num__0 Inn_I32 (mk_uN n)" using a3 proof(induction a3)
+                case (val_case_0 v_numtype var_0)
+                then show ?case proof(induction v_numtype var_0)
+                  case (num__case_0 v_Inn var_x v_numtype)
+                  show ?case using num__case_0(2-) 
+                  proof(induction "the (isabelle_reference_output_wasm2.size (valtype_Inn v_Inn))" var_x)
+                    case (uN_case_0 i)
+                    then show ?case using numtype_Inn.domintros numtype_Inn.psimps 
+                    proof(induction v_Inn) qed(auto)
+                  qed
+                next
+                  case (num__case_1 v_Fnn var_x v_numtype)
+                  then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps 
+                  proof(induction v_Fnn) qed(auto)
+                qed
+              qed(auto)
+              then show ?case proof(cases "length (REFS (fun_table (mk_state s' f) x)) < proj_uN_0 (the (proj_num__0 i)) + n")
+                case True
+                then show ?thesis using table_fill_trap[of i "mk_state s' f" x n a2] proji Nil(15)
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros 
+                  admininstr_instr.psimps Step.intros(2) a1 a3 c by fastforce
+              next
+                case False
+                then show ?thesis proof(cases n)
+                  case 0
+                  then show ?thesis using table_fill_zero[of i n "mk_state s' f" x a2] proji Nil(15)
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros False
+                  admininstr_instr.psimps Step.intros(2) a1 a3 c by fastforce
+                next
+                  case (Suc nat)
+                  then show ?thesis using table_fill_succ[of i n "mk_state s' f" x a2] proji Nil(15)
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros False
+                  admininstr_instr.psimps Step.intros(2) a1 a3 c by fastforce
+                qed
+              qed
+            next
+              case (Cons a vs)
+              then show ?case by simp
+            qed
+          qed
+        qed
+      qed
     next
       case (table_copy x_1 C lim_1 rt x_2 lim_2)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons (2-) proof(induction vs)
+            case Nil
+            then show ?case by simp
+          next
+            case (Cons a3 vs)
+            show ?case using Cons(2-) proof(induction vs)
+              case Nil
+              obtain j where a1: "a1 = val_CONST I32 j" using Nil(12) typeofval_is_i32 by fastforce
+              have "wf_val a1" using Nil(13) by simp
+              then have projj: "proj_num__0 j \<noteq> None" using a1 proof(induction a1)
+                case (val_case_0 v_numtype var_0)
+                then show ?case proof(induction v_numtype var_0)
+                  case (num__case_0 v_Inn var_x v_numtype)
+                  then show ?case using proj_num__0.domintros proj_num__0.psimps by auto
+                next
+                  case (num__case_1 v_Fnn var_x v_numtype)
+                  then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps
+                  proof(induction v_Fnn) qed(auto)
+                qed
+              qed(auto)
+              obtain i where a2: "a2 = val_CONST I32 i" using Nil(12) typeofval_is_i32 by fastforce
+              have "wf_val a2" using Nil(13) by simp
+              then have proji: "proj_num__0 i \<noteq> None" using a2 proof(induction a2)
+                case (val_case_0 v_numtype var_0)
+                then show ?case proof(induction v_numtype var_0)
+                  case (num__case_0 v_Inn var_x v_numtype)
+                  then show ?case using proj_num__0.domintros proj_num__0.psimps by auto
+                next
+                  case (num__case_1 v_Fnn var_x v_numtype)
+                  then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps
+                  proof(induction v_Fnn) qed(auto)
+                qed
+              qed(auto)
+              obtain c where a3: "a3 = val_CONST I32 c" using Nil(12) typeofval_is_i32 by fastforce
+              have "wf_val a3" using Nil(13) by simp
+              then obtain n where c: "c = mk_num__0 Inn_I32 (mk_uN n)" using a3 proof(induction a3)
+                case (val_case_0 v_numtype var_0)
+                then show ?case proof(induction v_numtype var_0)
+                  case (num__case_0 v_Inn var_x v_numtype)
+                  show ?case using num__case_0(2-) 
+                  proof(induction "the (isabelle_reference_output_wasm2.size (valtype_Inn v_Inn))" var_x)
+                    case (uN_case_0 i)
+                    then show ?case using numtype_Inn.domintros numtype_Inn.psimps 
+                    proof(induction v_Inn) qed(auto)
+                  qed
+                next
+                  case (num__case_1 v_Fnn var_x v_numtype)
+                  then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps 
+                  proof(induction v_Fnn) qed(auto)
+                qed
+              qed(auto)
+              then show ?case proof(cases 
+                  "length (REFS (fun_table (mk_state s' f) x_2)) < proj_uN_0 (the (proj_num__0 i)) + n \<or>
+                  length (REFS (fun_table (mk_state s' f) x_1)) < proj_uN_0 (the (proj_num__0 j)) + n")
+                case True
+                then show ?thesis using table_copy_trap[of i j "mk_state s' f" x_2 n x_1] proji 
+                  projj Nil(18)
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros 
+                  admininstr_instr.psimps Step.intros(2) a1 a2 a3 c by fastforce
+              next
+                case False
+                note outer = False
+                then show ?thesis proof(cases n)
+                  case 0
+                  then show ?thesis using table_copy_zero[of i j n "mk_state s' f" x_2 x_1] proji 
+                      projj Nil(18)
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros False
+                  admininstr_instr.psimps Step.intros(2) a1 a2 a3 c by fastforce
+                next
+                  case (Suc nat) 
+                  then show ?thesis proof(cases "proj_uN_0 (the (proj_num__0 j)) \<le> proj_uN_0 (the (proj_num__0 i))")
+                    case True
+                    then show ?thesis using table_copy_le[of j i n "mk_state s' f" x_2 x_1] proji 
+                      projj Nil(18) Suc
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros outer
+                  admininstr_instr.psimps Step.intros(2) a1 a2 a3 c by fastforce
+                  next
+                    case False
+                    then show ?thesis using table_copy_gt[of j i n "mk_state s' f" x_2 x_1] proji 
+                      projj Nil(18) Suc
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros outer
+                  admininstr_instr.psimps Step.intros(2) a1 a2 a3 c by fastforce
+                  qed     
+                qed
+              qed
+            next
+              case (Cons a vs)
+              then show ?case by simp
+            qed
+          qed
+        qed
+      qed
     next
       case (table_init x_1 C lim rt x_2)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons (2-) proof(induction vs)
+            case Nil
+            then show ?case by simp
+          next
+            case (Cons a3 vs)
+            show ?case using Cons(2-) proof(induction vs)
+              case Nil
+              obtain j where a1: "a1 = val_CONST I32 j" using Nil(11) typeofval_is_i32 by fastforce
+              have "wf_val a1" using Nil(12) by simp
+              then have projj: "proj_num__0 j \<noteq> None" using a1 proof(induction a1)
+                case (val_case_0 v_numtype var_0)
+                then show ?case proof(induction v_numtype var_0)
+                  case (num__case_0 v_Inn var_x v_numtype)
+                  then show ?case using proj_num__0.domintros proj_num__0.psimps by auto
+                next
+                  case (num__case_1 v_Fnn var_x v_numtype)
+                  then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps
+                  proof(induction v_Fnn) qed(auto)
+                qed
+              qed(auto) 
+              obtain i where a2: "a2 = val_CONST I32 i" using Nil(11) typeofval_is_i32 by fastforce
+              have "wf_val a2" using Nil(12) by simp
+              then have proji: "proj_num__0 i \<noteq> None" using a2 proof(induction a2)
+                case (val_case_0 v_numtype var_0)
+                then show ?case proof(induction v_numtype var_0)
+                  case (num__case_0 v_Inn var_x v_numtype)
+                  then show ?case using proj_num__0.domintros proj_num__0.psimps by auto
+                next
+                  case (num__case_1 v_Fnn var_x v_numtype)
+                  then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps
+                  proof(induction v_Fnn) qed(auto)
+                qed
+              qed(auto) 
+              obtain c where a3: "a3 = val_CONST I32 c" using Nil(11) typeofval_is_i32 by fastforce
+              have "wf_val a3" using Nil(12) by simp
+              then obtain n where c: "c = mk_num__0 Inn_I32 (mk_uN n)" using a3 proof(induction a3)
+                case (val_case_0 v_numtype var_0)
+                then show ?case proof(induction v_numtype var_0)
+                  case (num__case_0 v_Inn var_x v_numtype)
+                  show ?case using num__case_0(2-) 
+                  proof(induction "the (isabelle_reference_output_wasm2.size (valtype_Inn v_Inn))" var_x)
+                    case (uN_case_0 i)
+                    then show ?case using numtype_Inn.domintros numtype_Inn.psimps 
+                    proof(induction v_Inn) qed(auto)
+                  qed
+                next
+                  case (num__case_1 v_Fnn var_x v_numtype)
+                  then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps 
+                  proof(induction v_Fnn) qed(auto)
+                qed
+              qed(auto)
+              then show ?case 
+              proof(cases "length (eleminst_REFS (fun_elem (mk_state s' f) x_2)) < proj_uN_0 (the (proj_num__0 i)) + n \<or>
+    length (REFS (fun_table (mk_state s' f) x_1)) < proj_uN_0 (the (proj_num__0 j)) + n")
+                case True
+                then show ?thesis using table_init_trap[of i j "mk_state s' f" x_2 n x_1] proji projj Nil(17)
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros 
+                  admininstr_instr.psimps Step.intros(2) a1 a2 a3 c by fastforce
+              next
+                case False
+                then show ?thesis proof(cases n)
+                  case 0
+                  then show ?thesis using table_init_zero[of i j n "mk_state s' f" x_2 x_1] proji projj Nil(17)
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros False
+                  admininstr_instr.psimps Step.intros(2) a1 a2 a3 c by fastforce
+                next
+                  case (Suc nat)
+                  then show ?thesis using table_init_succ[of i "mk_state s' f" x_2 j n x_1] proji projj Nil(17)
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros False
+                  admininstr_instr.psimps Step.intros(2) a1 a2 a3 c by fastforce
+                qed
+              qed
+            next
+              case (Cons a vs)
+              then show ?case by simp
+            qed
+          qed
+        qed
+      qed
     next
       case (elem_drop x C rt)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case using Step__elem_drop admininstr_instr.domintros admininstr_instr.psimps
+          by fastforce
+      next
+        case (Cons a vs)
+        then show ?case by simp
+      qed
     next
-      case (memory_size C mt)
-      then show ?case sorry
+      case (memory_size C mt) 
+      obtain v_n where vn: "v_n * 64 * Ki = length (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))"
+        using memory_size(11,1) proof(induction "mk_state s' f" "strip C")
+        case mk_State_ok
+        then show ?case proof(induction s')
+          case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst 
+                tableinst_lst tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst 
+                eleminst_lst elemtype_lst)
+          have "(MEMS (frame_MODULE f) ! proj_uN_0 (mk_uN 0)) < length (store_MEMS s)" 
+            using mk_Store_ok(18,22) proof(induction s f "strip C")
+            case (mk_Frame_ok s v_moduleinst C' t_lst val_lst)
+            then show ?case proof(induction s v_moduleinst C')
+              case (mk_Moduleinst_ok functype_lst globaladdr_lst globaltype_lst s funcaddr_lst 
+                    functype_F_lst memaddr_lst memtype_lst tableaddr_lst tabletype_lst 
+                    exportinst_lst dataaddr_lst datatype_lst elemaddr_lst elemtype_lst)
+              then have "0 < length memtype_lst" sorry
+              then have "Externaddr_ok s (externaddr_MEM (memaddr_lst ! 0)) (MEM (memtype_lst ! 0))"
+                using list_all2_nth' mk_Moduleinst_ok
+                by metis
+              then show ?case 
+                using Externaddr_ok_mem
+                by (simp add: proj_uN_0.domintros proj_uN_0.psimps)
+            qed
+          qed
+          then have "Meminst_ok s (fun_mem (mk_state s f) (mk_uN 0)) 
+                  (memtype_lst ! (MEMS (frame_MODULE f) ! proj_uN_0 (mk_uN 0)))"
+            using list_all2_nth[OF mk_Store_ok(4)] fun_mem.domintros fun_mem.psimps
+            by (simp add: mk_Store_ok.hyps(13))
+          then show ?case using mk_Store_ok(13,21) proof(induction s "fun_mem (mk_state s f) (mk_uN 0)" 
+              "memtype_lst ! (MEMS (frame_MODULE f) ! proj_uN_0 (mk_uN 0))")
+            case (mk_Meminst_ok v_n m_opt b_lst s)
+            then show ?case
+              by (metis meminst.select_convs(2) mult.assoc)
+          qed
+        qed
+      qed
+      have wfz: "wf_uN 32 (mk_uN 0)"
+        using uN_case_0 by blast
+      show ?case using memory_size proof(induction vs)
+        case Nil
+        then show ?case using Step_read__memory_size[OF vn wfz] Step.intros(2) by fastforce
+      next
+        case (Cons a vs)
+        then show ?case by simp
+      qed
     next
       case (memory_grow C mt)
-      then show ?case sorry
+       then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a2 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+            obtain c where c: "a2 = val_CONST I32 c" using Nil(9) typeofval_is_i32 by fastforce
+            have "wf_val a2" using Nil(10) by simp
+            then obtain n where n: "c = mk_num__0 Inn_I32 (mk_uN n)" using c proof(induction a2)
+              case (val_case_0 v_numtype var_0)
+              then show ?case proof(induction v_numtype var_0)
+                case (num__case_0 v_Inn var_x v_numtype)
+                show ?case using num__case_0(2-) 
+                proof(induction "the (isabelle_reference_output_wasm2.size (valtype_Inn v_Inn))"
+                      var_x)
+                  case (uN_case_0 i)
+                  then show ?case using numtype_Inn.domintros numtype_Inn.psimps 
+                  proof(induction v_Inn) qed(auto)
+                qed
+              next
+                case (num__case_1 v_Fnn var_x v_numtype)
+                then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps
+                proof(induction v_Fnn) qed(auto)
+              qed
+            qed(auto)
+            obtain res where res: "fun_inv_signed_underscore 32 (0 - 1) res" 
+              using fun_inv_signed_underscore_total by fastforce
+            show ?case using Nil(15) memory_grow_fail[OF res] c n 
+               admininstr_val.domintros admininstr_val.psimps admininstr_val_ref
+               admininstr_instr.domintros admininstr_instr.psimps by fastforce
+          next
+            case (Cons a vs)
+            then show ?case by simp
+          qed
+        qed
     next
-      case (memory_fill C mt)
-      then show ?case sorry
+      case (memory_fill C mt) 
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons (2-) proof(induction vs)
+            case Nil
+            then show ?case by simp
+          next
+            case (Cons a3 vs)
+            show ?case using Cons(2-) proof(induction vs)
+              case Nil
+               have wfz: "wf_uN 32 (mk_uN 0)"
+        using uN_case_0 by blast
+              obtain i where a1: "a1 = val_CONST I32 i" using Nil(9) typeofval_is_i32 by fastforce
+              have "wf_val a1" using Nil(10) by simp
+              then have proji: "proj_num__0 i \<noteq> None" using a1 proof(induction a1)
+                case (val_case_0 v_numtype var_0)
+                then show ?case proof(induction v_numtype var_0)
+                  case (num__case_0 v_Inn var_x v_numtype)
+                  then show ?case using proj_num__0.domintros proj_num__0.psimps by auto
+                next
+                  case (num__case_1 v_Fnn var_x v_numtype)
+                  then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps
+                  proof(induction v_Fnn) qed(auto)
+                qed
+              qed(auto)
+              obtain c where a3: "a3 = val_CONST I32 c" using Nil(9) typeofval_is_i32 by fastforce
+              have "wf_val a3" using Nil(10) by simp
+              then obtain n where c: "c = mk_num__0 Inn_I32 (mk_uN n)" using a3 proof(induction a3)
+                case (val_case_0 v_numtype var_0)
+                then show ?case proof(induction v_numtype var_0)
+                  case (num__case_0 v_Inn var_x v_numtype)
+                  show ?case using num__case_0(2-) 
+                  proof(induction "the (isabelle_reference_output_wasm2.size (valtype_Inn v_Inn))" var_x)
+                    case (uN_case_0 i)
+                    then show ?case using numtype_Inn.domintros numtype_Inn.psimps 
+                    proof(induction v_Inn) qed(auto)
+                  qed
+                next
+                  case (num__case_1 v_Fnn var_x v_numtype)
+                  then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps 
+                  proof(induction v_Fnn) qed(auto)
+                qed
+              qed(auto)
+              then show ?case proof(cases "length (BYTES (fun_mem (mk_state s' f) (mk_uN 0))) < proj_uN_0 (the (proj_num__0 i)) + n")
+                case True
+                then show ?thesis using memory_fill_trap[of i "mk_state s' f" n a2] proji Nil(15)
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros 
+                  admininstr_instr.psimps Step.intros(2) a1 a3 c wfz by fastforce
+              next
+                case False
+                then show ?thesis proof(cases n)
+                  case 0
+                  then show ?thesis using memory_fill_zero[of i n "mk_state s' f" a2] wfz proji Nil(15)
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros False
+                  admininstr_instr.psimps Step.intros(2) a1 a3 c by fastforce
+                next
+                  case (Suc nat)
+                  then show ?thesis using memory_fill_succ[of i n "mk_state s' f" a2] wfz proji Nil(15)
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros False
+                  admininstr_instr.psimps Step.intros(2) a1 a3 c by fastforce
+                qed
+              qed
+            next
+              case (Cons a vs)
+              then show ?case by simp
+            qed
+          qed
+        qed
+      qed
     next
       case (memory_copy C mt)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons (2-) proof(induction vs)
+            case Nil
+            then show ?case by simp
+          next
+            case (Cons a3 vs)
+            show ?case using Cons(2-) proof(induction vs)
+              case Nil
+               have wfz: "wf_uN 32 (mk_uN 0)"
+        using uN_case_0 by blast
+              obtain j where a1: "a1 = val_CONST I32 j" using Nil(9) typeofval_is_i32 by fastforce
+              have "wf_val a1" using Nil(10) by simp
+              then have projj: "proj_num__0 j \<noteq> None" using a1 proof(induction a1)
+                case (val_case_0 v_numtype var_0)
+                then show ?case proof(induction v_numtype var_0)
+                  case (num__case_0 v_Inn var_x v_numtype)
+                  then show ?case using proj_num__0.domintros proj_num__0.psimps by auto
+                next
+                  case (num__case_1 v_Fnn var_x v_numtype)
+                  then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps
+                  proof(induction v_Fnn) qed(auto)
+                qed
+              qed(auto)
+              obtain i where a2: "a2 = val_CONST I32 i" using Nil(9) typeofval_is_i32 by fastforce
+              have "wf_val a2" using Nil(10) by simp
+              then have proji: "proj_num__0 i \<noteq> None" using a2 proof(induction a2)
+                case (val_case_0 v_numtype var_0)
+                then show ?case proof(induction v_numtype var_0)
+                  case (num__case_0 v_Inn var_x v_numtype)
+                  then show ?case using proj_num__0.domintros proj_num__0.psimps by auto
+                next
+                  case (num__case_1 v_Fnn var_x v_numtype)
+                  then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps
+                  proof(induction v_Fnn) qed(auto)
+                qed
+              qed(auto)
+              obtain c where a3: "a3 = val_CONST I32 c" using Nil(9) typeofval_is_i32 by fastforce
+              have "wf_val a3" using Nil(10) by simp
+              then obtain n where c: "c = mk_num__0 Inn_I32 (mk_uN n)" using a3 proof(induction a3)
+                case (val_case_0 v_numtype var_0)
+                then show ?case proof(induction v_numtype var_0)
+                  case (num__case_0 v_Inn var_x v_numtype)
+                  show ?case using num__case_0(2-) 
+                  proof(induction "the (isabelle_reference_output_wasm2.size (valtype_Inn v_Inn))" var_x)
+                    case (uN_case_0 i)
+                    then show ?case using numtype_Inn.domintros numtype_Inn.psimps 
+                    proof(induction v_Inn) qed(auto)
+                  qed
+                next
+                  case (num__case_1 v_Fnn var_x v_numtype)
+                  then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps 
+                  proof(induction v_Fnn) qed(auto)
+                qed
+              qed(auto)
+              then show ?case proof(cases 
+                  "length (BYTES (fun_mem (mk_state s' f) (mk_uN 0))) < proj_uN_0 (the (proj_num__0 i)) + n \<or>
+                  length (BYTES (fun_mem (mk_state s' f) (mk_uN 0))) < proj_uN_0 (the (proj_num__0 j)) + n")
+                case True
+                then show ?thesis using memory_copy_trap[of i j "mk_state s' f" n] proji 
+                  projj Nil(15)
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros 
+                  admininstr_instr.psimps Step.intros(2) a1 a2 a3 c wfz by fastforce
+              next
+                case False
+                note outer = False
+                then show ?thesis proof(cases n)
+                  case 0
+                  then show ?thesis using memory_copy_zero[of i j n "mk_state s' f"] proji 
+                      projj Nil(15) wfz
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros False
+                  admininstr_instr.psimps Step.intros(2) a1 a2 a3 c by fastforce
+                next
+                  case (Suc nat) 
+                  then show ?thesis proof(cases "proj_uN_0 (the (proj_num__0 j)) \<le> proj_uN_0 (the (proj_num__0 i))")
+                    case True
+                    then show ?thesis using memory_copy_le[of j i n "mk_state s' f"] proji 
+                      projj Nil(15) wfz Suc
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros outer
+                  admininstr_instr.psimps Step.intros(2) a1 a2 a3 c by fastforce
+                  next
+                    case False
+                    then show ?thesis using memory_copy_gt[of j i n "mk_state s' f"] proji 
+                      projj Nil(15) wfz Suc
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros outer
+                  admininstr_instr.psimps Step.intros(2) a1 a2 a3 c by fastforce
+                  qed     
+                qed
+              qed
+            next
+              case (Cons a vs)
+              then show ?case by simp
+            qed
+          qed
+        qed
+      qed
     next
       case (memory_init C mt x)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons (2-) proof(induction vs)
+            case Nil
+            then show ?case by simp
+          next
+            case (Cons a3 vs)
+            show ?case using Cons(2-) proof(induction vs)
+              case Nil
+              obtain j where a1: "a1 = val_CONST I32 j" using Nil(11) typeofval_is_i32 by fastforce
+              have "wf_val a1" using Nil(12) by simp
+              then have projj: "proj_num__0 j \<noteq> None" using a1 proof(induction a1)
+                case (val_case_0 v_numtype var_0)
+                then show ?case proof(induction v_numtype var_0)
+                  case (num__case_0 v_Inn var_x v_numtype)
+                  then show ?case using proj_num__0.domintros proj_num__0.psimps by auto
+                next
+                  case (num__case_1 v_Fnn var_x v_numtype)
+                  then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps
+                  proof(induction v_Fnn) qed(auto)
+                qed
+              qed(auto) 
+              obtain i where a2: "a2 = val_CONST I32 i" using Nil(11) typeofval_is_i32 by fastforce
+              have "wf_val a2" using Nil(12) by simp
+              then have proji: "proj_num__0 i \<noteq> None" using a2 proof(induction a2)
+                case (val_case_0 v_numtype var_0)
+                then show ?case proof(induction v_numtype var_0)
+                  case (num__case_0 v_Inn var_x v_numtype)
+                  then show ?case using proj_num__0.domintros proj_num__0.psimps by auto
+                next
+                  case (num__case_1 v_Fnn var_x v_numtype)
+                  then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps
+                  proof(induction v_Fnn) qed(auto)
+                qed
+              qed(auto) 
+               have wfz: "wf_uN 32 (mk_uN 0)"
+        using uN_case_0 by blast
+              obtain c where a3: "a3 = val_CONST I32 c" using Nil(11) typeofval_is_i32 by fastforce
+              have "wf_val a3" using Nil(12) by simp
+              then obtain n where c: "c = mk_num__0 Inn_I32 (mk_uN n)" using a3 proof(induction a3)
+                case (val_case_0 v_numtype var_0)
+                then show ?case proof(induction v_numtype var_0)
+                  case (num__case_0 v_Inn var_x v_numtype)
+                  show ?case using num__case_0(2-) 
+                  proof(induction "the (isabelle_reference_output_wasm2.size (valtype_Inn v_Inn))" var_x)
+                    case (uN_case_0 i)
+                    then show ?case using numtype_Inn.domintros numtype_Inn.psimps 
+                    proof(induction v_Inn) qed(auto)
+                  qed
+                next
+                  case (num__case_1 v_Fnn var_x v_numtype)
+                  then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps 
+                  proof(induction v_Fnn) qed(auto)
+                qed
+              qed(auto)
+              then show ?case 
+              proof(cases "length (datainst_BYTES (fun_data (mk_state s' f) x)) < proj_uN_0 (the (proj_num__0 i)) + n \<or>
+    length (BYTES (fun_mem (mk_state s' f) (mk_uN 0))) < proj_uN_0 (the (proj_num__0 j)) + n")
+                case True
+                then show ?thesis using memory_init_trap[of i j "mk_state s' f" x n] proji projj Nil(17)
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros 
+                  admininstr_instr.psimps Step.intros(2) wfz a1 a2 a3 c by fastforce
+              next
+                case False
+                then show ?thesis proof(cases n)
+                  case 0
+                  then show ?thesis using memory_init_zero[of i j n "mk_state s' f" x] wfz proji projj Nil(17)
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros False
+                  admininstr_instr.psimps Step.intros(2) a1 a2 a3 c by fastforce
+                next
+                  case (Suc nat)
+                  then show ?thesis using memory_init_succ[of i "mk_state s' f" x j n] proji projj Nil(17)
+                  admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros False
+                  admininstr_instr.psimps Step.intros(2) a1 a2 a3 c wfz by fastforce
+                qed
+              qed
+            next
+              case (Cons a vs)
+              then show ?case by simp
+            qed
+          qed
+        qed
+      qed
     next
       case (data_drop x C)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case using Step__data_drop admininstr_instr.domintros admininstr_instr.psimps
+          by fastforce
+      next
+        case (Cons a vs)
+        then show ?case by simp
+      qed
     next
       case (load_val C mt nt v_memarg)
       then show ?case sorry
