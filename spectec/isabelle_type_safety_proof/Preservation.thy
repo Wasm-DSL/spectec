@@ -2119,12 +2119,14 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
                 mk_instrtype t1 t3" using subv subt produce_consume by auto
     have "wf_instr (instr_sc1 (res_CONST I32 c))" 
        using Step_pure__testop(12) wf_admininstr_instr_inv
-      admininstr_instr.domintros admininstr_instr.psimps by simp
+      admininstr_instr.domintros admininstr_instr.psimps
+       by (meson Step_pure__testop.hyps(3) instr_case_13)
     
     then show ?case using Step_pure__testop(11) const instr_ok_instr_ok2 instr_ok2_instrs_ok2
-      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__testop(10)] subt valtype_numtype.domintros
+      Instrs_ok2_subtyping Instrs_ok2_wf subt valtype_numtype.domintros
       valtype_numtype.psimps
-      by (metis admininstr_instr.domintros(14) admininstr_instr.psimps(14))
+      admininstr_instr.domintros(14) admininstr_instr.psimps(14)
+      by (metis Instrs_ok2_wf(1) Instrs_ok2_wf(2) valtype_numtype.domintros(1) Instrs_ok2_subtyping valtype_numtype.psimps(1) instr_ok2_instrs_ok2 \<open>wf_instr (instr_sc1 (res_CONST I32 c))\<close> pure.prems(9))
   next
     case (Step_pure__relop nt relop c_1 c_2 var_0 c)
     then obtain t2 where splitunop:
@@ -2148,11 +2150,13 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
                 mk_instrtype t1 t3" using subv subt produce_consume by auto
     have "wf_instr (instr_sc1 (res_CONST I32 c))" 
        using Step_pure__relop(13) wf_admininstr_instr_inv
-      admininstr_instr.domintros admininstr_instr.psimps by simp
+      admininstr_instr.domintros admininstr_instr.psimps
+       by (metis Step_pure__relop.hyps(4) instr_case_13)
     then show ?case using Step_pure__relop(12) const instr_ok_instr_ok2 instr_ok2_instrs_ok2
-      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__relop(11)] subt valtype_numtype.domintros
+      Instrs_ok2_subtyping Instrs_ok2_wf subt valtype_numtype.domintros
       valtype_numtype.psimps
-      by (metis admininstr_instr.domintros(14) admininstr_instr.psimps(14))
+      admininstr_instr.domintros(14) admininstr_instr.psimps(14)
+      by (metis Instrs_ok2_wf(1) Instrs_ok2_wf(2) valtype_numtype.domintros(1) Instrs_ok2_subtyping valtype_numtype.psimps(1) instr_ok2_instrs_ok2 \<open>wf_instr (instr_sc1 (res_CONST I32 c))\<close> pure.prems(9))
   next
     case (cvtop_val nt_1 nt_2 v_cvtop c_1 var_0 c)
       then obtain t2 where splitunop:
@@ -2368,11 +2372,13 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
                 mk_instrtype t1 t3" using subv subt produce_consume by auto
     have "wf_instr (instr_sc1 (res_CONST I32 c))" 
        using Step_pure__vvtestop(14) wf_admininstr_instr_inv
-      admininstr_instr.domintros admininstr_instr.psimps by simp
+      admininstr_instr.domintros admininstr_instr.psimps
+       by (meson Step_pure__vvtestop.hyps(4) instr_case_13)
     then show ?case using Step_pure__vvtestop(13) const instr_ok_instr_ok2 instr_ok2_instrs_ok2
-      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__vvtestop(12)] subt
+      Instrs_ok2_subtyping Instrs_ok2_wf subt
       admininstr_instr.domintros(14) admininstr_instr.psimps(14) valtype_numtype.domintros(1)
-      valtype_numtype.psimps(1) by metis
+      valtype_numtype.psimps(1)
+      by (metis Instrs_ok2_wf(1) Instrs_ok2_wf(2) valtype_numtype.domintros(1) Instrs_ok2_subtyping valtype_numtype.psimps(1) instr_ok2_instrs_ok2 \<open>wf_instr (instr_sc1 (res_CONST I32 c))\<close> pure.prems(9))
   next
     case (Step_pure__vunop sh unop c_1 var_0 c) 
     then obtain t2 where splitunop:
@@ -2585,9 +2591,10 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
        using Step_pure__vbitmask(18) wf_admininstr_instr_inv
       admininstr_instr.domintros admininstr_instr.psimps by simp
     then show ?case using Step_pure__vbitmask(17) const instr_ok_instr_ok2 instr_ok2_instrs_ok2
-      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__vbitmask(16)] subt
+      Instrs_ok2_subtyping Instrs_ok2_wf subt
       admininstr_instr.domintros admininstr_instr.psimps valtype_numtype.domintros 
-          valtype_numtype.psimps by metis
+          valtype_numtype.psimps
+      by (metis Instrs_ok2_wf(1) Instrs_ok2_wf(2) valtype_numtype.domintros(1) Instrs_ok2_subtyping valtype_numtype.psimps(1) instr_ok2_instrs_ok2 pure.prems(9))
   next
     case (Step_pure__vswizzle ci_lst v_Pnn v_M c_2 c_1 c'_lst c)
     then obtain t2 where splitunop:
@@ -2634,9 +2641,9 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
     then have "Instr_ok C' (instr_sc3 (VSHUFFLE (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_M)) i_lst)) (mk_functype t2' t3')" 
       using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
     then have shuffhyps:
-        "list_all (\<lambda>i. proj_uN_0 i < 2 * proj_dim_0 (fun_dim (shape_ishape 
+        "list_all (\<lambda>i. proj_uN_0 i < 2 * proj_dim_0 (fun_dim (proj_ishape_0 
             (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_M))))) i_lst"
-        "wf_dim (fun_dim (shape_ishape (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_M))))"
+        "wf_dim (fun_dim (proj_ishape_0 (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_M))))"
         "mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]) =
         mk_functype t2' t3'" using inv_vshuffle by auto
     then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_V128]) <ti: 
