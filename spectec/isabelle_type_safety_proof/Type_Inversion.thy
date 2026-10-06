@@ -276,8 +276,8 @@ lemma Instr_ok_inversion:
     inv_vswizzle: "e = (instr_sc3 (VSWIZZLE ish)) \<Longrightarrow> (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128])) = tf" and
     inv_vshuffle: "e = (instr_sc3 (VSHUFFLE ish i_lst)) \<Longrightarrow>
       (
-      (list_all (\<lambda> (i :: laneidx). ((proj_uN_0 i) < (2 * (proj_dim_0 (fun_dim (shape_ishape ish)))))) i_lst) \<and>
-		  ((wf_dim (fun_dim (shape_ishape ish)))) \<and>
+      (list_all (\<lambda> (i :: laneidx). ((proj_uN_0 i) < (2 * (proj_dim_0 (fun_dim (proj_ishape_0 ish)))))) i_lst) \<and>
+		  ((wf_dim (fun_dim (proj_ishape_0 ish)))) \<and>
       ((mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128])) = tf))" and
     inv_vsplat: "e = (instr_sc3 (VSPLAT sh)) \<Longrightarrow> (mk_functype (mk_list [(valtype_numtype (shunpack sh))]) (mk_list [valtype_V128])) = tf" and
     inv_vextract_lane: "e = (instr_sc3 (VEXTRACT_LANE sh sx_opt i)) \<Longrightarrow>
@@ -427,22 +427,21 @@ lemma Instr_ok_inversion:
 		  (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> (((the ((size (valtype_numtype nt)))) :: nat) div (8 :: nat))) \<and>
 		  (wf_memtype mt) \<and>
 		  ((mk_functype (mk_list [valtype_I32, (valtype_numtype nt)]) (mk_list [])) = tf))" and
- 
-    inv_vload_pack: "e = (instr_sc6 (VLOAD vt (Some (SHAPEX_underscore v_M v_N v_sx)) v_memarg)) \<Longrightarrow>
+    inv_vload_pack: "e = (instr_sc6 (VLOAD vt (Some (SHAPEX_underscore (mk_sz v_M) v_N v_sx)) v_memarg)) \<Longrightarrow>
       (\<exists> mt. vt = V128 \<and> 
       (0 < (length (context_MEMS C))) \<and>
 		  (((context_MEMS C) ! 0) = mt) \<and>
 		  (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> ((v_M :: nat) div (8 :: nat)) * (v_N :: nat)) \<and>
 		  (wf_memtype mt) \<and>
 		  ((mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128])) = tf))" and
-    inv_vload_splat: "e = (instr_sc6 (VLOAD vt (Some (SPLAT v_n)) v_memarg)) \<Longrightarrow>
+    inv_vload_splat: "e = (instr_sc6 (VLOAD vt (Some (SPLAT (mk_sz v_n))) v_memarg)) \<Longrightarrow>
       (\<exists> mt. vt = V128 \<and> 
       (0 < (length (context_MEMS C))) \<and>
 		  (((context_MEMS C) ! 0) = mt) \<and>
 		  (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> ((v_n :: nat) div (8 :: nat))) \<and>
 		  (wf_memtype mt) \<and>
 		  ((mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128])) = tf))" and
-    inv_vload_zero: "e = (instr_sc6 (VLOAD vt (Some (vloadop_ZERO v_n)) v_memarg)) \<Longrightarrow>
+    inv_vload_zero: "e = (instr_sc6 (VLOAD vt (Some (vloadop__ZERO (mk_sz v_n))) v_memarg)) \<Longrightarrow>
       (\<exists> mt. vt = V128 \<and>
       (0 < (length (context_MEMS C))) \<and>
 		  (((context_MEMS C) ! 0) = mt) \<and>
