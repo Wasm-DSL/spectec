@@ -736,33 +736,6 @@ lemma defaults_Val_ok:
   shows "list_all2 (\<lambda> t v. Val_ok s v t) ts (map (\<lambda> x. the (default_underscore x)) ts)"
   using assms proof(induction ts) qed(auto simp add:default_Val_ok)
 
-lemma Externaddr_ok_table:
-  assumes "Externaddr_ok s (externaddr_TABLE addr) (TABLE t)" 
-  shows " \<exists> v rtv limv limup. 
-            addr < length (store_TABLES s) \<and> 
-            store_TABLES s ! addr = v \<and>
-            tableinst_TYPE v = mk_tabletype limv rtv \<and> 
-            t = mk_tabletype limup rtv"
-  using assms proof(induction s "externaddr_TABLE addr" "TABLE t" arbitrary: t)
-  case (Externaddr_ok__table s v_tableinst)
-  then show ?case proof(cases v_tableinst)
-    case (fields tableinst_TYPE REFS)
-    then show ?thesis proof(cases tableinst_TYPE)
-      case (mk_tabletype x1 x2)
-      then show ?thesis using fields Externaddr_ok__table by simp
-    qed
-  qed
-next
-  case (Externaddr_ok__sub s xt')
-  show ?case using Externaddr_ok__sub(3,1-6)
-  proof (induction xt' "TABLE t")
-    case (Externtype_sub__table tt_1)
-    then show ?case proof(induction tt_1 t)
-      case (mk_Tabletype_sub lim_1 lim_2 rt)
-      then show ?case by fast
-    qed
-  qed qed
-
 lemma Limits_sub_refl: assumes "wf_limits lim" shows "Limits_sub lim lim" 
   using assms proof(induction lim)
   case (limits_case_0 v_u32 u32_opt)
@@ -938,7 +911,7 @@ shows "length (REFS (fun_table (mk_state s f) (mk_uN n))) \<le> (2 ^ 32 - 1 :: n
             list_all2_nth[OF mk_Moduleinst_ok(9), of n]
           by (metis moduleinst.select_convs(4))
         then have "TABLES (frame_MODULE f) ! n < length (store_TABLES s)"
-          using Externaddr_ok_table by blast
+          using inv_Externaddr_ok_table by blast
         then have "Tableinst_ok s (fun_table (mk_state s f) (mk_uN n)) 
                 (tabletype_lst ! ((TABLES (frame_MODULE f)) ! n))" 
           using list_all2_nth[OF mk_Moduleinst_ok(29), of "(TABLES (frame_MODULE f)) ! n"] 
@@ -3583,7 +3556,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
             "store_TABLES s ! (tableaddr_lst ! proj_uN_0 x) = v"
             "tableinst_TYPE v = mk_tabletype limv rtv" 
             "tabletype_lst' ! proj_uN_0 x = mk_tabletype limup rtv" 
-            using Externaddr_ok_table by blast 
+            using inv_Externaddr_ok_table by (metis externtype.inject(3))
             then have gl1: "tableaddr_lst = TABLES (frame_MODULE f)" 
               using mk_Moduleinst_ok moduleinst.select_convs(4) by metis
             have gl2: "tableinst_lst = store_TABLES s" using mk_Moduleinst_ok by simp
@@ -4435,7 +4408,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
             "store_TABLES s ! (tableaddr_lst ! proj_uN_0 y) = v"
             "tableinst_TYPE v = mk_tabletype limv rtv" 
             "tabletype_lst' ! proj_uN_0 y = mk_tabletype limup rtv" 
-            using externaddr_ok_table by blast  *)
+            using inv_Externaddr_ok_table by blast  *)
             then have gl1: "elemaddr_lst = ELEMS (frame_MODULE f)" 
               using mk_Eleminst_ok moduleinst.select_convs(6) by metis
             have gl2: "eleminst_lst = store_ELEMS s" using mk_Eleminst_ok by simp

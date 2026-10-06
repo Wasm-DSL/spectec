@@ -729,11 +729,38 @@ inv_Externaddr_ok_global:
       ((globalinst_TYPE ((store_GLOBALS s) ! a)) = t) \<and>
       (wf_store s) \<and>
       (wf_externtype (GLOBAL t)) \<and>
-      (GLOBAL t) = xt"
+      (GLOBAL t) = xt" and
+inv_Externaddr_ok_table:
+      "v_externaddr = (externaddr_TABLE a) \<Longrightarrow> 
+      \<exists>v rtv limv limup. 
+      a < length (store_TABLES s) \<and> 
+      (store_TABLES s ! a) = v \<and>
+      tableinst_TYPE v = mk_tabletype limv rtv \<and>
+      TABLE (mk_tabletype limup rtv) = xt"
 using assms
 apply (induction rule: Externaddr_ok.induct)
-apply auto+
+apply auto
+apply (metis tabletype.exhaust)
+subgoal
 by (auto elim: Externtype_sub.cases Globaltype_sub.cases)
+subgoal for s xt rtv limv limup
+proof -
+assume assms:
+"Externaddr_ok s (externaddr_TABLE a) (TABLE (mk_tabletype limup rtv))"
+"Externtype_sub (TABLE (mk_tabletype limup rtv)) xt"
+"wf_store s"
+"wf_externtype xt"
+"wf_externtype (TABLE (mk_tabletype limup rtv))"
+"a < length (store_TABLES s)"
+"tableinst_TYPE (store_TABLES s ! a) = mk_tabletype limv rtv"
+show "\<exists>limup. TABLE (mk_tabletype limup rtv) = xt"
+  using assms(2)
+  apply (cases rule: Externtype_sub.cases)
+  apply auto
+  apply (erule Tabletype_sub.cases)
+  by (auto simp add: Tabletype_sub.simps)
+qed
+done
 
 lemma inv_ref:
 assumes "Instr_ok2 s C a_e tf"
