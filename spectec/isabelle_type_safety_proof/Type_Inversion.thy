@@ -405,7 +405,7 @@ lemma Instr_ok_inversion:
 		  (((context_DATAS C) ! (proj_uN_0 x)) = OK) \<and>
       ((mk_functype (mk_list []) (mk_list [])) = tf)" and
     inv_load_val: "e = (instr_sc5 (LOAD nt None v_memarg)) \<Longrightarrow>
-      (\<exists> mt.
+      (\<exists> mt. 
       (0 < (length (context_MEMS C))) \<and>
 		  (((context_MEMS C) ! 0) = mt) \<and>
 		  ((size (valtype_numtype nt)) \<noteq> None) \<and>
