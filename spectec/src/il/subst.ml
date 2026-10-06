@@ -240,7 +240,11 @@ and subst_prem s prem =
     IterPr (prem1', it')
   | LetPr (qs, e1, e2) ->
     let s' = remove_varids s (Free.bound_quants qs).Free.varid in
-    LetPr (qs, subst_exp s' e1, subst_exp s e2)
+    (* bound var types may mention substituted outer vars *)
+    let qs' = List.map (fun q -> match q.it with
+      | ExpP (id, t) -> {q with it = ExpP (id, subst_typ s' t)}
+      | _ -> q) qs in
+    LetPr (qs', subst_exp s' e1, subst_exp s e2)
   | NegPr prem1 -> NegPr (subst_prem s prem1)
   ) $ prem.at
 

@@ -33,6 +33,21 @@ let force_func_hint_id = "recfunc"
 
 let has_rec_hint  hint = hint.hintid.it = force_func_hint_id
 
+(* When set, DefToRel converts ONLY definitions carrying hint(partial) to
+   relations, leaving every other function as-is. Used by the Agda target,
+   which keeps total functions computational and only needs the genuinely
+   partial ones (e.g. $growmemory, $growtable) rendered from their spec
+   definition instead of postulated. *)
+let partial_only = ref false
+let partial_ids = ref StringSet.empty
+let is_partial_hint hint = hint.hintid.it = "partial"
+let create_partial_set (d : def) =
+  match d.it with
+  | HintD {it = DecH (id, hints); _} when List.exists is_partial_hint hints ->
+    partial_ids := StringSet.add id.it !partial_ids
+  | _ -> ()
+let convertible id = not !partial_only || StringSet.mem id.it !partial_ids
+
 let apply_iter_to_var id iter =
   match iter with
   | Opt -> id ^ Il.Print.string_of_iter Opt
@@ -638,7 +653,7 @@ let rec transform_def (env : env) def =
   (match def.it with
   | RelD (id, qs, m, typ, rules) -> 
     [{ def with it =RelD (id, qs, m, typ, List.map (transform_rule env) rules) }]
-  | DecD (id, params, typ, clauses) when must_be_relation env id params clauses -> 
+  | DecD (id, params, typ, clauses) when must_be_relation env id params clauses && convertible id ->
     env.rel_set <- StringSet.add id.it env.rel_set;
     cvt_def_to_rel env id params typ clauses
   | DecD (id, params, typ, clauses) -> 
@@ -647,7 +662,11 @@ let rec transform_def (env : env) def =
     StringSet.mem id.it env.rec_funcs && not (must_be_relation env id params clauses) ->
     let def' = DecD (id, params, typ, List.map (transform_clause env) clauses) $ at in
     [{ def with it = RecD [def'] }]
-  | RecD defs when List.for_all has_exp_params defs -> 
+  | RecD defs when List.for_all has_exp_params defs
+      && (not !partial_only ||
+          List.exists (fun d -> match d.it with
+            | DecD (id, _, _, _) -> StringSet.mem id.it !partial_ids
+            | _ -> false) defs) ->
     let ids_ref = ref StringSet.empty in
     List.iter (fun d -> match d.it with
     | DecD (id, _, _, _) -> 
@@ -691,5 +710,7 @@ let transform (il : script): script =
   let module Acc = Iter.Make(Arg) in
   List.iter Acc.def il;
   List.iter (create_rec_func_set env) il;
+  partial_ids := StringSet.empty;
+  List.iter create_partial_set il;
   env.def_arg_set <- !acc;
   List.concat_map (transform_def env) il
