@@ -276,8 +276,8 @@ lemma Instr_ok_inversion:
     inv_vswizzle: "e = (instr_sc3 (VSWIZZLE ish)) \<Longrightarrow> (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128])) = tf" and
     inv_vshuffle: "e = (instr_sc3 (VSHUFFLE ish i_lst)) \<Longrightarrow>
       (
-      (list_all (\<lambda> (i :: laneidx). ((proj_uN_0 i) < (2 * (proj_dim_0 (fun_dim (shape_ishape ish)))))) i_lst) \<and>
-		  ((wf_dim (fun_dim (shape_ishape ish)))) \<and>
+      (list_all (\<lambda> (i :: laneidx). ((proj_uN_0 i) < (2 * (proj_dim_0 (fun_dim (proj_ishape_0 ish)))))) i_lst) \<and>
+		  ((wf_dim (fun_dim (proj_ishape_0 ish)))) \<and>
       ((mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128])) = tf))" and
     inv_vsplat: "e = (instr_sc3 (VSPLAT sh)) \<Longrightarrow> (mk_functype (mk_list [(valtype_numtype (shunpack sh))]) (mk_list [valtype_V128])) = tf" and
     inv_vextract_lane: "e = (instr_sc3 (VEXTRACT_LANE sh sx_opt i)) \<Longrightarrow>
@@ -427,22 +427,21 @@ lemma Instr_ok_inversion:
 		  (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> (((the ((size (valtype_numtype nt)))) :: nat) div (8 :: nat))) \<and>
 		  (wf_memtype mt) \<and>
 		  ((mk_functype (mk_list [valtype_I32, (valtype_numtype nt)]) (mk_list [])) = tf))" and
- 
-    inv_vload_pack: "e = (instr_sc6 (VLOAD vt (Some (SHAPEX_underscore v_M v_N v_sx)) v_memarg)) \<Longrightarrow>
+    inv_vload_pack: "e = (instr_sc6 (VLOAD vt (Some (SHAPEX_underscore (mk_sz v_M) v_N v_sx)) v_memarg)) \<Longrightarrow>
       (\<exists> mt. vt = V128 \<and> 
       (0 < (length (context_MEMS C))) \<and>
 		  (((context_MEMS C) ! 0) = mt) \<and>
 		  (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> ((v_M :: nat) div (8 :: nat)) * (v_N :: nat)) \<and>
 		  (wf_memtype mt) \<and>
 		  ((mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128])) = tf))" and
-    inv_vload_splat: "e = (instr_sc6 (VLOAD vt (Some (SPLAT v_n)) v_memarg)) \<Longrightarrow>
+    inv_vload_splat: "e = (instr_sc6 (VLOAD vt (Some (SPLAT (mk_sz v_n))) v_memarg)) \<Longrightarrow>
       (\<exists> mt. vt = V128 \<and> 
       (0 < (length (context_MEMS C))) \<and>
 		  (((context_MEMS C) ! 0) = mt) \<and>
 		  (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> ((v_n :: nat) div (8 :: nat))) \<and>
 		  (wf_memtype mt) \<and>
 		  ((mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128])) = tf))" and
-    inv_vload_zero: "e = (instr_sc6 (VLOAD vt (Some (vloadop_ZERO v_n)) v_memarg)) \<Longrightarrow>
+    inv_vload_zero: "e = (instr_sc6 (VLOAD vt (Some (vloadop__ZERO (mk_sz v_n))) v_memarg)) \<Longrightarrow>
       (\<exists> mt. vt = V128 \<and>
       (0 < (length (context_MEMS C))) \<and>
 		  (((context_MEMS C) ! 0) = mt) \<and>
@@ -730,11 +729,38 @@ inv_Externaddr_ok_global:
       ((globalinst_TYPE ((store_GLOBALS s) ! a)) = t) \<and>
       (wf_store s) \<and>
       (wf_externtype (GLOBAL t)) \<and>
-      (GLOBAL t) = xt"
+      (GLOBAL t) = xt" and
+inv_Externaddr_ok_table:
+      "v_externaddr = (externaddr_TABLE a) \<Longrightarrow> 
+      \<exists>v rtv limv limup. 
+      a < length (store_TABLES s) \<and> 
+      (store_TABLES s ! a) = v \<and>
+      tableinst_TYPE v = mk_tabletype limv rtv \<and>
+      TABLE (mk_tabletype limup rtv) = xt"
 using assms
 apply (induction rule: Externaddr_ok.induct)
-apply auto+
+apply auto
+apply (metis tabletype.exhaust)
+subgoal
 by (auto elim: Externtype_sub.cases Globaltype_sub.cases)
+subgoal for s xt rtv limv limup
+proof -
+assume assms:
+"Externaddr_ok s (externaddr_TABLE a) (TABLE (mk_tabletype limup rtv))"
+"Externtype_sub (TABLE (mk_tabletype limup rtv)) xt"
+"wf_store s"
+"wf_externtype xt"
+"wf_externtype (TABLE (mk_tabletype limup rtv))"
+"a < length (store_TABLES s)"
+"tableinst_TYPE (store_TABLES s ! a) = mk_tabletype limv rtv"
+show "\<exists>limup. TABLE (mk_tabletype limup rtv) = xt"
+  using assms(2)
+  apply (cases rule: Externtype_sub.cases)
+  apply auto
+  apply (erule Tabletype_sub.cases)
+  by (auto simp add: Tabletype_sub.simps)
+qed
+done
 
 lemma inv_ref:
 assumes "Instr_ok2 s C a_e tf"

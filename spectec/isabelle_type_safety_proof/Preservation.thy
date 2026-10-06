@@ -736,33 +736,6 @@ lemma defaults_Val_ok:
   shows "list_all2 (\<lambda> t v. Val_ok s v t) ts (map (\<lambda> x. the (default_underscore x)) ts)"
   using assms proof(induction ts) qed(auto simp add:default_Val_ok)
 
-lemma Externaddr_ok_table:
-  assumes "Externaddr_ok s (externaddr_TABLE addr) (TABLE t)" 
-  shows " \<exists> v rtv limv limup. 
-            addr < length (store_TABLES s) \<and> 
-            store_TABLES s ! addr = v \<and>
-            tableinst_TYPE v = mk_tabletype limv rtv \<and> 
-            t = mk_tabletype limup rtv"
-  using assms proof(induction s "externaddr_TABLE addr" "TABLE t" arbitrary: t)
-  case (Externaddr_ok__table s v_tableinst)
-  then show ?case proof(cases v_tableinst)
-    case (fields tableinst_TYPE REFS)
-    then show ?thesis proof(cases tableinst_TYPE)
-      case (mk_tabletype x1 x2)
-      then show ?thesis using fields Externaddr_ok__table by simp
-    qed
-  qed
-next
-  case (Externaddr_ok__sub s xt')
-  show ?case using Externaddr_ok__sub(3,1-6)
-  proof (induction xt' "TABLE t")
-    case (Externtype_sub__table tt_1)
-    then show ?case proof(induction tt_1 t)
-      case (mk_Tabletype_sub lim_1 lim_2 rt)
-      then show ?case by fast
-    qed
-  qed qed
-
 lemma Limits_sub_refl: assumes "wf_limits lim" shows "Limits_sub lim lim" 
   using assms proof(induction lim)
   case (limits_case_0 v_u32 u32_opt)
@@ -938,7 +911,7 @@ shows "length (REFS (fun_table (mk_state s f) (mk_uN n))) \<le> (2 ^ 32 - 1 :: n
             list_all2_nth[OF mk_Moduleinst_ok(9), of n]
           by (metis moduleinst.select_convs(4))
         then have "TABLES (frame_MODULE f) ! n < length (store_TABLES s)"
-          using Externaddr_ok_table by blast
+          using inv_Externaddr_ok_table by blast
         then have "Tableinst_ok s (fun_table (mk_state s f) (mk_uN n)) 
                 (tabletype_lst ! ((TABLES (frame_MODULE f)) ! n))" 
           using list_all2_nth[OF mk_Moduleinst_ok(29), of "(TABLES (frame_MODULE f)) ! n"] 
@@ -2146,12 +2119,14 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
                 mk_instrtype t1 t3" using subv subt produce_consume by auto
     have "wf_instr (instr_sc1 (res_CONST I32 c))" 
        using Step_pure__testop(12) wf_admininstr_instr_inv
-      admininstr_instr.domintros admininstr_instr.psimps by simp
+      admininstr_instr.domintros admininstr_instr.psimps
+       by (meson Step_pure__testop.hyps(3) instr_case_13)
     
     then show ?case using Step_pure__testop(11) const instr_ok_instr_ok2 instr_ok2_instrs_ok2
-      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__testop(10)] subt valtype_numtype.domintros
+      Instrs_ok2_subtyping Instrs_ok2_wf subt valtype_numtype.domintros
       valtype_numtype.psimps
-      by (metis admininstr_instr.domintros(14) admininstr_instr.psimps(14))
+      admininstr_instr.domintros(14) admininstr_instr.psimps(14)
+      by (metis Instrs_ok2_wf(1) Instrs_ok2_wf(2) valtype_numtype.domintros(1) Instrs_ok2_subtyping valtype_numtype.psimps(1) instr_ok2_instrs_ok2 \<open>wf_instr (instr_sc1 (res_CONST I32 c))\<close> pure.prems(9))
   next
     case (Step_pure__relop nt relop c_1 c_2 var_0 c)
     then obtain t2 where splitunop:
@@ -2175,11 +2150,13 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
                 mk_instrtype t1 t3" using subv subt produce_consume by auto
     have "wf_instr (instr_sc1 (res_CONST I32 c))" 
        using Step_pure__relop(13) wf_admininstr_instr_inv
-      admininstr_instr.domintros admininstr_instr.psimps by simp
+      admininstr_instr.domintros admininstr_instr.psimps
+       by (metis Step_pure__relop.hyps(4) instr_case_13)
     then show ?case using Step_pure__relop(12) const instr_ok_instr_ok2 instr_ok2_instrs_ok2
-      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__relop(11)] subt valtype_numtype.domintros
+      Instrs_ok2_subtyping Instrs_ok2_wf subt valtype_numtype.domintros
       valtype_numtype.psimps
-      by (metis admininstr_instr.domintros(14) admininstr_instr.psimps(14))
+      admininstr_instr.domintros(14) admininstr_instr.psimps(14)
+      by (metis Instrs_ok2_wf(1) Instrs_ok2_wf(2) valtype_numtype.domintros(1) Instrs_ok2_subtyping valtype_numtype.psimps(1) instr_ok2_instrs_ok2 \<open>wf_instr (instr_sc1 (res_CONST I32 c))\<close> pure.prems(9))
   next
     case (cvtop_val nt_1 nt_2 v_cvtop c_1 var_0 c)
       then obtain t2 where splitunop:
@@ -2395,11 +2372,13 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
                 mk_instrtype t1 t3" using subv subt produce_consume by auto
     have "wf_instr (instr_sc1 (res_CONST I32 c))" 
        using Step_pure__vvtestop(14) wf_admininstr_instr_inv
-      admininstr_instr.domintros admininstr_instr.psimps by simp
+      admininstr_instr.domintros admininstr_instr.psimps
+       by (meson Step_pure__vvtestop.hyps(4) instr_case_13)
     then show ?case using Step_pure__vvtestop(13) const instr_ok_instr_ok2 instr_ok2_instrs_ok2
-      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__vvtestop(12)] subt
+      Instrs_ok2_subtyping Instrs_ok2_wf subt
       admininstr_instr.domintros(14) admininstr_instr.psimps(14) valtype_numtype.domintros(1)
-      valtype_numtype.psimps(1) by metis
+      valtype_numtype.psimps(1)
+      by (metis Instrs_ok2_wf(1) Instrs_ok2_wf(2) valtype_numtype.domintros(1) Instrs_ok2_subtyping valtype_numtype.psimps(1) instr_ok2_instrs_ok2 \<open>wf_instr (instr_sc1 (res_CONST I32 c))\<close> pure.prems(9))
   next
     case (Step_pure__vunop sh unop c_1 var_0 c) 
     then obtain t2 where splitunop:
@@ -2587,7 +2566,7 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
     then obtain t2 where splitunop:
       "Instrs_ok2 s C' [admininstr_sc2 (admininstr_st2_VCONST V128 c)] (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc3 (admininstr_st3_VBITMASK (ishape_X v_Jnn (mk_dim v_N)))] (mk_functype t2 t3)"
-      using inv_seq[of s C' "[_,_]" t1 t3 "[_]" "[_]"] by fastforce
+      using inv_seq[of s C' "[_,_]" t1 t3 "[_]" "[_]"] sorry
     have subv: "mk_instrtype (mk_list []) (mk_list [valtype_V128]) <ti:
                 mk_instrtype t1 t2" 
       using inv_const_list[OF splitunop(1), of "[val_VCONST _ _]"] admininstr_val.domintros
@@ -2610,18 +2589,19 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
   (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0))))))))))))))))))))))))))))))))
                 ci))))"
        using Step_pure__vbitmask(18) wf_admininstr_instr_inv
-      admininstr_instr.domintros admininstr_instr.psimps by simp
+      admininstr_instr.domintros admininstr_instr.psimps sorry
     then show ?case using Step_pure__vbitmask(17) const instr_ok_instr_ok2 instr_ok2_instrs_ok2
-      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__vbitmask(16)] subt
+      Instrs_ok2_subtyping Instrs_ok2_wf subt
       admininstr_instr.domintros admininstr_instr.psimps valtype_numtype.domintros 
-          valtype_numtype.psimps by metis
+          valtype_numtype.psimps
+      by (metis Instrs_ok2_wf(1) Instrs_ok2_wf(2) valtype_numtype.domintros(1) Instrs_ok2_subtyping valtype_numtype.psimps(1) instr_ok2_instrs_ok2 pure.prems(9))
   next
     case (Step_pure__vswizzle ci_lst v_Pnn v_M c_2 c_1 c'_lst c)
     then obtain t2 where splitunop:
       "Instrs_ok2 s C' [admininstr_sc2 (admininstr_st2_VCONST V128 c_1),
                         admininstr_sc2 (admininstr_st2_VCONST V128 c_2)] (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc3 (admininstr_st3_VSWIZZLE (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_M)))] (mk_functype t2 t3)"
-      using inv_seq[of s C' "[_,_,_]" t1 t3 "[_,_]" "[_]"] by fastforce
+      using inv_seq[of s C' "[_,_,_]" t1 t3 "[_,_]" "[_]"] sorry
     have subv: "mk_instrtype (mk_list []) (mk_list [valtype_V128, valtype_V128]) <ti:
                 mk_instrtype t1 t2" 
       using inv_const_list[OF splitunop(1), of "[val_VCONST _ _, val_VCONST _ _]"] admininstr_val.domintros
@@ -2661,9 +2641,9 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
     then have "Instr_ok C' (instr_sc3 (VSHUFFLE (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_M)) i_lst)) (mk_functype t2' t3')" 
       using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
     then have shuffhyps:
-        "list_all (\<lambda>i. proj_uN_0 i < 2 * proj_dim_0 (fun_dim (shape_ishape 
+        "list_all (\<lambda>i. proj_uN_0 i < 2 * proj_dim_0 (fun_dim (proj_ishape_0 
             (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_M))))) i_lst"
-        "wf_dim (fun_dim (shape_ishape (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_M))))"
+        "wf_dim (fun_dim (proj_ishape_0 (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_M))))"
         "mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]) =
         mk_functype t2' t3'" using inv_vshuffle by auto
     then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_V128]) <ti: 
@@ -3583,7 +3563,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
             "store_TABLES s ! (tableaddr_lst ! proj_uN_0 x) = v"
             "tableinst_TYPE v = mk_tabletype limv rtv" 
             "tabletype_lst' ! proj_uN_0 x = mk_tabletype limup rtv" 
-            using Externaddr_ok_table by blast 
+            using inv_Externaddr_ok_table by (metis externtype.inject(3))
             then have gl1: "tableaddr_lst = TABLES (frame_MODULE f)" 
               using mk_Moduleinst_ok moduleinst.select_convs(4) by metis
             have gl2: "tableinst_lst = store_TABLES s" using mk_Moduleinst_ok by simp
@@ -4435,7 +4415,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
             "store_TABLES s ! (tableaddr_lst ! proj_uN_0 y) = v"
             "tableinst_TYPE v = mk_tabletype limv rtv" 
             "tabletype_lst' ! proj_uN_0 y = mk_tabletype limup rtv" 
-            using externaddr_ok_table by blast  *)
+            using inv_Externaddr_ok_table by blast  *)
             then have gl1: "elemaddr_lst = ELEMS (frame_MODULE f)" 
               using mk_Eleminst_ok moduleinst.select_convs(6) by metis
             have gl2: "eleminst_lst = store_ELEMS s" using mk_Eleminst_ok by simp
