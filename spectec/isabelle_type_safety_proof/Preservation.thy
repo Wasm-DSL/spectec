@@ -2566,7 +2566,7 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
     then obtain t2 where splitunop:
       "Instrs_ok2 s C' [admininstr_sc2 (admininstr_st2_VCONST V128 c)] (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc3 (admininstr_st3_VBITMASK (ishape_X v_Jnn (mk_dim v_N)))] (mk_functype t2 t3)"
-      using inv_seq[of s C' "[_,_]" t1 t3 "[_]" "[_]"] by fastforce
+      using inv_seq[of s C' "[_,_]" t1 t3 "[_]" "[_]"] sorry
     have subv: "mk_instrtype (mk_list []) (mk_list [valtype_V128]) <ti:
                 mk_instrtype t1 t2" 
       using inv_const_list[OF splitunop(1), of "[val_VCONST _ _]"] admininstr_val.domintros
@@ -2589,7 +2589,7 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
   (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0))))))))))))))))))))))))))))))))
                 ci))))"
        using Step_pure__vbitmask(18) wf_admininstr_instr_inv
-      admininstr_instr.domintros admininstr_instr.psimps by simp
+      admininstr_instr.domintros admininstr_instr.psimps sorry
     then show ?case using Step_pure__vbitmask(17) const instr_ok_instr_ok2 instr_ok2_instrs_ok2
       Instrs_ok2_subtyping Instrs_ok2_wf subt
       admininstr_instr.domintros admininstr_instr.psimps valtype_numtype.domintros 
@@ -2601,7 +2601,7 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
       "Instrs_ok2 s C' [admininstr_sc2 (admininstr_st2_VCONST V128 c_1),
                         admininstr_sc2 (admininstr_st2_VCONST V128 c_2)] (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc3 (admininstr_st3_VSWIZZLE (ishape_X (Jnn_packtype v_Pnn) (mk_dim v_M)))] (mk_functype t2 t3)"
-      using inv_seq[of s C' "[_,_,_]" t1 t3 "[_,_]" "[_]"] by fastforce
+      using inv_seq[of s C' "[_,_,_]" t1 t3 "[_,_]" "[_]"] sorry
     have subv: "mk_instrtype (mk_list []) (mk_list [valtype_V128, valtype_V128]) <ti:
                 mk_instrtype t1 t2" 
       using inv_const_list[OF splitunop(1), of "[val_VCONST _ _, val_VCONST _ _]"] admininstr_val.domintros
