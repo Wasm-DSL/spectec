@@ -295,7 +295,9 @@ lemma fun_idiv_underscore_total:
   shows "\<exists> res. fun_idiv_underscore sz sg (mk_uN c1) (mk_uN c2) res"
   using assms proof(induction sg)
   case U
-  then show ?case using fun_idiv_underscore.intros(1,2) by blast
+  then show ?case using fun_idiv_underscore.intros(1,2) wf_uN.intros truncz_spec
+    by (metis fun_idiv__case_1 assms(1) truncz_spec uN_case_0 proj_uN_0.psimps 
+        proj_uN_0.domintros div_le_dividend bot_nat_0.extremum le_trans)
 next
   case S
   then show ?case proof(cases c2)
@@ -321,7 +323,8 @@ next
         by (metis bot_nat_0.extremum c1(2) div_le_dividend le_trans zero_diff)
       then obtain res where 1: "fun_inv_signed_underscore sz (truncz (c1' div c2')) res" 
         using fun_inv_signed_underscore_total[of sz "truncz (c1' div c2')"] by blast
-      show ?thesis using fun_idiv_underscore.intros(5)[OF c2(1) c1(1) 1] by blast
+      show ?thesis using fun_idiv_underscore.intros(5)[OF c2(1) c1(1) 1] wf_uN.intros
+        by (meson "1" fun_inv_signed_wf)
     qed
   qed
 qed
@@ -384,8 +387,21 @@ lemma fun_binop_underscore_total:
         by (metis numtype.simps(2) numtype_Inn.elims)
       show ?case using binop__case_0 eqv proof(induction v_Inn)
         case Inn_I32
-        then show ?case using numtype_Inn.domintros numtype_Inn.psimps fun_binop_underscore.intros
+        then show ?case 
         proof(induction var_x')
+          case ADD
+          then have "wf_num_underscore (numtype_Inn Inn_I32)
+     (mk_num__0 Inn_I32 (iadd_underscore (sizenn (numtype_Inn Inn_I32)) (mk_uN i) (mk_uN i')))"
+            using numtype_Inn.domintros(1) numtype_Inn.psimps(1) 
+               wf_num_underscore.intros(1) wf_uN.intros iadd_underscore.domintros iadd_underscore.psimps
+            valtype_Inn.domintros valtype_Inn.psimps size.domintros size.psimps 
+            by (metis iadd__is_wf (* hmm can we do with this lemma? *) sizenn.domintros sizenn.psimps valtype_numtype.simps(1))
+          then show ?case using numtype_Inn.domintros(1) numtype_Inn.psimps(1) 
+              fun_binop_underscore.intros(1)
+          wf_num_underscore.intros(1) wf_uN.intros iadd_underscore.domintros iadd_underscore.psimps
+            valtype_Inn.domintros valtype_Inn.psimps size.domintros size.psimps 
+
+        next
           case (DIV x)
           then have 1: "0 \<le> i \<and> i \<le> 2 ^ 32 - 1" using size.domintros size.psimps
             by (metis option.sel valtype_Inn.domintros(1) valtype_Inn.psimps(1))
@@ -395,7 +411,7 @@ lemma fun_binop_underscore_total:
               fun_idiv_underscore_total[OF 1 2] 
               sizenn.domintros sizenn.psimps size.domintros
               size.psimps
-            by fastforce
+            sorry
         next
           case (REM x)
           then have 1: "0 \<le> i \<and> i \<le> 2 ^ 32 - 1" using size.domintros size.psimps
@@ -406,7 +422,7 @@ lemma fun_binop_underscore_total:
               fun_irem_underscore_total[OF 1 2] 
               sizenn.domintros sizenn.psimps size.domintros
               size.psimps
-            by fastforce
+            sorry
         qed(metis)+
       next
         case Inn_I64
