@@ -86,6 +86,7 @@ let reserved_ids =
   "()"; "tt"; 
   "Import"; "Export";
   "seq"; 
+  "size";
   "List"; "String"; 
   "Type"; "list"; "nat"; "int"; "rat";
   "cons"] |> StringSet.of_list
@@ -131,6 +132,16 @@ let op_parens optyp s =
   | `RatT -> parens s ^ "%Q"
   | `RealT -> parens s ^ "%nat" (* TODO *)
   | _ -> parens s
+
+let cmp_parens typ optyp s = 
+  match typ.it, optyp with
+  | NumT (`RatT), `BoolT -> parens s ^ "%Q" (* This is to cover the case where we want == to be Qeq instead of ssreflect's equality. *)
+  | _, `NatT -> parens s ^ "%BN"
+  | _, `IntT -> parens s ^ "%Z"
+  | _, `RatT -> parens s ^ "%Q"
+  | _, `RealT -> parens s ^ "%nat" (* TODO *)
+  | _ -> parens s
+
 
 let scope_nums optyp s = 
   match optyp with
@@ -236,6 +247,7 @@ let render_atom ?(in_mixop = false) a =
 
 let render_mixop typ_id (m : mixop) = 
   let s = (match m with
+    | Xl.Mixop.Atom a -> render_atom a
     (* | [{it = Atom a; _}] :: tail when List.for_all ((=) []) tail -> render_id a *)
     | mixop -> String.concat "" (List.map (
       fun atoms -> String.concat "" (List.filter is_atomid atoms |> List.map (render_atom ~in_mixop:true))) (Xl.Mixop.flatten mixop)
@@ -311,7 +323,7 @@ and render_exp exp_type exp =
   | TextE s -> "\"" ^ String.escaped s ^ "\""
   | UnE (unop, optyp, e1) -> op_parens optyp (render_unop unop ^ r_func e1)
   | BinE (binop, optyp, e1, e2) -> op_parens optyp (r_func e1 ^ render_binop binop ^ r_func e2)
-  | CmpE (cmpop, optyp, e1, e2) -> op_parens optyp (r_func e1 ^ render_cmpop cmpop ^ r_func e2)
+  | CmpE (cmpop, optyp, e1, e2) -> cmp_parens e1.note optyp (r_func e1 ^ render_cmpop cmpop ^ r_func e2)
   | TupE [] -> "()"
   | TupE exps -> parens (String.concat ", " (List.map r_func exps))
   | ProjE (e, i) -> 
@@ -1070,7 +1082,11 @@ let exported_string =
   "Global Instance total_coercion (A B : Type) `{Coercion A (option B)} {_ : Inhabited B}: Coercion A B := { coerce := total_coerce}.\n\n" ^
   "Notation \"| x |\" := (N.of_nat (seq.size x)) (at level 60).\n" ^
   "Notation \"!( x )\" := (the x) (at level 60).\n" ^
-  "Notation \"x '[|' a '|]'\" := (lookup_total x a) (at level 10).\n" ^
+  "Notation \"x '[|' a '|]'\" := (lookup_total x a) (at level 10).\n\n" ^
+  "Lemma eqb_eq {T : eqType} (x y : T) :\n" ^
+  "\tx == y -> x = y.\n" ^
+  "Proof. by move/eqP. Qed.\n\n" ^
+  "Hint Resolve eqb_eq : core.\n" ^
   "Open Scope wasm_scope.\n" ^
   "Import ListNotations.\n" ^
   "Import RecordSetNotations.\n\n"
