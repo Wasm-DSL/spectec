@@ -75,16 +75,6 @@ Axiom flt_bit : forall (v_N : res_N) (a b : fN), wf_uN 1 (flt_ v_N a b).
 Axiom fgt_bit : forall (v_N : res_N) (a b : fN), wf_uN 1 (fgt_ v_N a b).
 Axiom fle_bit : forall (v_N : res_N) (a b : fN), wf_uN 1 (fle_ v_N a b).
 Axiom fge_bit : forall (v_N : res_N) (a b : fN), wf_uN 1 (fge_ v_N a b).
-(* `ishl_` / `ishr_` are uninterpreted builtins in wasm.v, typed as taking a
-   u32 shift amount.  $binop_ however passes them the full operand (a 64-bit
-   value for I64 SHL / SHR; Wasm 3.0 does the same), for which ishl__is_wf /
-   ishr__is_wf do not apply.  By the specification the shift amount is taken
-   modulo N, so the result is in iN(N) whatever the shift amount. *)
-Axiom ishl_wf : forall (v_N : res_N) (i : iN) (k : u32),
-  wf_uN v_N i -> wf_uN v_N (ishl_ v_N i k).
-Axiom ishr_wf : forall (v_N : res_N) (v_sx : sx) (i : iN) (k : u32),
-  wf_uN v_N i -> wf_uN v_N (ishr_ v_N v_sx i k).
-
 (* `trunc_sat__`, `demote__` and `promote__` are uninterpreted Axioms in wasm.v.
    In the specification trunc_sat is total (it saturates, and maps NaN to 0),
    and demote / promote return a non-empty set of results (a single value, or
