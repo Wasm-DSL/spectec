@@ -113,8 +113,8 @@ def $iand_(N, iN(N), iN(N)) : iN(N)
 def $iandnot_(N, iN(N), iN(N)) : iN(N)
 def $ior_(N, iN(N), iN(N)) : iN(N)
 def $ixor_(N, iN(N), iN(N)) : iN(N)
-def $ishl_(N, iN(N), u32) : iN(N)
-def $ishr_(N, sx, iN(N), u32) : iN(N)    hint(show $ishr_(%)^(%)#((%,%)))
+def $ishl_(N, iN(N), iN(N)) : iN(N)
+def $ishr_(N, sx, iN(N), iN(N)) : iN(N)    hint(show $ishr_(%)^(%)#((%,%)))
 def $irotl_(N, iN(N), iN(N)) : iN(N)
 def $irotr_(N, iN(N), iN(N)) : iN(N)
 def $iclz_(N, iN(N)) : iN(N)
@@ -345,14 +345,14 @@ def $inv_lanes_ hint(builtin)
 def $zeroop(shape_1, shape_2, vcvtop__(shape_1, shape_2)) : zero?
 def $zeroop(Jnn_1 X M_1, Jnn_2 X M_2, EXTEND half sx) = eps
 def $zeroop(Jnn_1 X M_1, Fnn_2 X M_2, CONVERT half? sx) = eps
-def $zeroop(Fnn_1 X M_1, Jnn_2 X M_2, TRUNC_SAT sx zero?) = zero?
+def $zeroop(Fnn_1 X M_1, Inn_2 X M_2, TRUNC_SAT sx zero?) = zero?
 def $zeroop(Fnn_1 X M_1, Fnn_2 X M_2, DEMOTE zero) = zero
 def $zeroop(Fnn_1 X M_1, Fnn_2 X M_2, PROMOTE LOW) = eps
 
 def $halfop(shape_1, shape_2, vcvtop__(shape_1, shape_2)) : half?
 def $halfop(Jnn_1 X M_1, Jnn_2 X M_2, EXTEND half sx) = half
 def $halfop(Jnn_1 X M_1, Fnn_2 X M_2, CONVERT half? sx) = half?
-def $halfop(Fnn_1 X M_1, Jnn_2 X M_2, TRUNC_SAT sx zero?) = eps
+def $halfop(Fnn_1 X M_1, Inn_2 X M_2, TRUNC_SAT sx zero?) = eps
 def $halfop(Fnn_1 X M_1, Fnn_2 X M_2, DEMOTE zero) = eps
 def $halfop(Fnn_1 X M_1, Fnn_2 X M_2, PROMOTE LOW) = LOW
 
@@ -628,5 +628,5 @@ def $vextbinop__(Jnn_1 X M_1, Jnn_2 X M_2, DOT S, c_1, c_2) = c
 def $vshiftop_(ishape, vshiftop_(ishape), lane_($lanetype(ishape)), u32) : lane_($lanetype(ishape))
     hint(show %2#_%1#(%3, %4))
 
-def $vshiftop_(Jnn X M, SHL, lane, n) = $ishl_($lsizenn(Jnn), lane, n)
-def $vshiftop_(Jnn X M, SHR sx, lane, n) = $ishr_($lsizenn(Jnn), sx, lane, n)
+def $vshiftop_(Jnn X M, SHL, lane, n) = $ishl_($lsizenn(Jnn), lane, $(n \ $lsizenn(Jnn)))
+def $vshiftop_(Jnn X M, SHR sx, lane, n) = $ishr_($lsizenn(Jnn), sx, lane, $(n \ $lsizenn(Jnn)))
