@@ -176,14 +176,14 @@ let insert_injections env (def : def) : def list =
         in
         let xe is_lhs = TupE (xes is_lhs) $$ no_region % arg_typ in
         DefD (quants,
-          [ExpA (CaseE (m, xe true) $$ no_region % real_ty) $ no_region],
-          t_exp env (CaseE (m, xe false) $$ no_region % sup_ty), []) $ no_region
+          [ExpA (CaseE (m, xe true, Unchecked) $$ no_region % real_ty) $ no_region],
+          t_exp env (CaseE (m, xe false, Unchecked) $$ no_region % sup_ty), []) $ no_region
       | _ ->
         let x = "x" $ no_region in
         let xe = VarE x $$ no_region % arg_typ in
         DefD ([ExpP (x, arg_typ) $ x.at],
-          [ExpA (CaseE (m, xe) $$ no_region % real_ty) $ no_region],
-          CaseE (m, xe) $$ no_region % sup_ty, []) $ no_region
+          [ExpA (CaseE (m, xe, Unchecked) $$ no_region % real_ty) $ no_region],
+          CaseE (m, xe, Unchecked) $$ no_region % sup_ty, []) $ no_region
       ) cases_sub in
     DecD (name, params_sub @ params_sup' @ [ExpP ("_" $ no_region, sub_ty) $ no_region], sup_ty, clauses) $ no_region
   ) pairs

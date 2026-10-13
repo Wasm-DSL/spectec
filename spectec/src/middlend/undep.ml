@@ -230,7 +230,7 @@ let create_well_formed_predicate env id inst =
       let extra_quants, t_pairs = Utils.improve_ids_quants [] true id.at exp_typ_pairs in
       let new_quants = case_quants @ extra_quants in 
       let exp = TupE (List.map (fun (id, t) -> VarE id $$ id.at % t) t_pairs) $$ at % (TupT t_pairs $ at) in 
-      let case_exp = CaseE (m, exp) $$ at % user_typ in
+      let case_exp = CaseE (m, exp, Unchecked) $$ at % user_typ in
       let tuple_exp = TupE (List.map (fun (id, t) -> VarE id $$ id.at % t) dep_exp_typ_pairs @ [case_exp]) $$ at % tupt pairs_without_names in
       let extra_prems = List.filter_map get_exp_typ new_quants |> List.concat_map (get_wf_pred env) in
       RuleD (id.it ^ "_" ^ rule_prefix ^ Int.to_string i $ at, 
@@ -268,7 +268,7 @@ let create_well_formed_predicate env id inst =
       let tupe = TupE [VarE id $$ id.at % t] $$ at % tupt in 
       if wrapped then (a, tupe) else 
       (a, VarE id $$ id.at % t)
-    ) atoms (List.combine pairs' is_wrapped)) $$ at % user_typ in 
+    ) atoms (List.combine pairs' is_wrapped), Unchecked) $$ at % user_typ in 
     let tupe = TupE (List.map (fun (id, t) -> VarE id $$ id.at % t) dep_exp_typ_pairs @ [str_exp]) $$ at % tupt pairs_without_names in
     let rule = RuleD (id.it ^ "_" ^ rule_prefix $ id.at, 
       List.map (transform_param tf) (quants @ rule_quants), 
