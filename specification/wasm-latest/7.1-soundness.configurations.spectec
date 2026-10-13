@@ -335,7 +335,7 @@ rule Localval_ok/unset:
   s |- eps : UNSET BOT
 
 rule Frame_ok:
-  s |- {LOCALS (val?)*, MODULE moduleinst} : {LOCALS lct*} ++ C
+  s |- {LOCALS (val?)*, MODULE moduleinst} : C ++ {LOCALS lct*}
   -- Moduleinst_ok: s |- moduleinst : C
   -- (Localval_ok: s |- val? : lct)*
 
