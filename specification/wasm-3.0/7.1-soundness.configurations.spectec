@@ -39,8 +39,8 @@ rule Instrs_ok2/empty:
   s; C |- eps : eps -> eps
 
 rule Instrs_ok2/instr:
-  s; C |- instr : t_1* -> t_2*
-  -- Instr_ok2: s; C |- instr : t_1* -> t_2*
+  s; C |- instr : t_1* ->_(x*) t_2*
+  -- Instr_ok2: s; C |- instr : t_1* ->_(x*) t_2*
 
 rule Instrs_ok2/seq:
   s; C |- instr_1* instr_2* : t_1* ->_(x_1* x_2*) t_3*
@@ -110,11 +110,13 @@ rule Funcinst_ok:
 
 rule Datainst_ok:
   s |- {BYTES b*} : OK
+  -- if |b*| < $(2^32)
 
 rule Eleminst_ok:
   s |- {TYPE rt, REFS ref*} : rt
   -- Reftype_ok: {} |- rt : OK
   -- (Ref_ok: s |- ref : rt)*
+  -- if |ref*| < $(2^32)
 
 rule Exportinst_ok:
   s |- {NAME nm, ADDR xa} : OK
@@ -333,7 +335,7 @@ rule Localval_ok/unset:
   s |- eps : UNSET BOT
 
 rule Frame_ok:
-  s |- {LOCALS (val?)*, MODULE moduleinst} : C ++ {LOCALS lct*}
+  s |- {LOCALS (val?)*, MODULE moduleinst} : {LOCALS lct*} ++ C
   -- Moduleinst_ok: s |- moduleinst : C
   -- (Localval_ok: s |- val? : lct)*
 
