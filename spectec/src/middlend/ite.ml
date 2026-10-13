@@ -85,12 +85,15 @@ let rec t_clause_group_to_expr (clauses : clause list) : exp option =
         | Some else_exp -> Some (mk_if cond rhs else_exp)
 
 let t_clause_group (clauses : clause list) : clause list =
-  match t_clause_group_to_expr clauses with
-  | None -> clauses
-  | Some exp -> 
-    let rep = List.hd clauses in
-    let DefD (quants, args, _rhs, _prems) = rep.it in
-    [{ rep with it = DefD (quants, args, exp, []) }]
+  match clauses with
+  | [clause] -> [clause]
+  | _ ->
+    match t_clause_group_to_expr clauses with
+    | None -> clauses
+    | Some exp -> 
+      let rep = List.hd clauses in
+      let DefD (quants, args, _rhs, _prems) = rep.it in
+      [{ rep with it = DefD (quants, args, exp, []) }]
 
 
 let t_clauses clauses =
