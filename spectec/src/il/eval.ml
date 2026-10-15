@@ -1366,7 +1366,9 @@ and disj_tup env s xts1 xts2 =
 
 let reduce_exp = reduce_exp false
 let reduce_arg = reduce_arg false
+let match_argstatic = match_arg true
 
 let match_iter = match_iter false
 let match_exp = match_exp false
 let match_arg = match_arg false
+

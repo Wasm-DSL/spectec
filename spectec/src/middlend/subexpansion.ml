@@ -66,7 +66,12 @@ let collect_all_instances case_typ ids at inst =
         let typs = get_case_typ t in
         let new_quants, typs' = Utils.improve_ids_quants ids' true t.at typs in
         let exps = List.map (fun (id, t) -> VarE id $$ id.at % t) typs' in 
-        let tup_exp = TupE exps $$ at % t in
+        let tup_exp = match t.it, exps with
+          | TupT _, _ -> TupE exps $$ at % t
+          (* Non-tuple case type, the argument is not wrapped *)
+          | _, [e] -> e
+          | _ -> error at "Non-tuple case type should have exactly one argument"
+        in
         let case_exp = CaseE (m, tup_exp, Unchecked) $$ at % case_typ in
         let new_ids = List.map get_quant_id new_quants in 
         (new_ids @ ids', (new_quants, case_exp) :: acc)  

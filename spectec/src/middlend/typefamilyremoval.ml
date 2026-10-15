@@ -6,7 +6,8 @@ open Xl
 
 module StringMap = Map.Make(String)
 
-type family_data = (id * quant list * Subst.t * int * typ * typ)
+(* (family id, instance quants, subst, case number, family type, substituted sub type, original sub type) *)
+type family_data = (id * quant list * Subst.t * int * typ * typ * typ)
 
 let error at msg = Error.error at "Type families removal" msg
 
@@ -43,8 +44,8 @@ let construct_tuple_typ typ quants at =
   ) quants in
   TupT (extra_case_args @ [(name, typ)]) $ typ.at 
 
-let construct_tuple_exp at e t quants args =
-  let tupt = construct_tuple_typ t quants at in 
+let construct_tuple_exp at e t tup_t quants args =
+  let tupt = construct_tuple_typ tup_t quants at in
   let extra_tup_exps = List.map (fun a -> match a.it with 
     | ExpA exp -> exp
     | _ -> error at "Removal of other arguments is not supported yet"
@@ -73,7 +74,7 @@ let rec reduce_type_aliasing env t =
 and reduce_inst_alias env args inst base_typ = 
   match inst.it with
   | InstD (_, args', {it = AliasT typ; _}) ->
-    let subst_opt = Eval.match_list Eval.match_arg env Subst.empty args args' in
+    let subst_opt = Eval.match_list Eval.match_argstatic env Subst.empty args args' in
     (match subst_opt with
     | Ok (Some subst) -> reduce_type_aliasing env (Subst.subst_typ subst typ)
     | Ok None | Error _ -> reduce_type_aliasing env typ
@@ -128,8 +129,8 @@ let has_one_inst env family_typ =
 let extend_quant_set set quants = 
   List.fold_left (fun acc q -> 
     match q.it with 
-    | ExpP (id, typ) -> StringMap.add id.it typ acc
-    | DefP (id, _, typ) -> StringMap.add id.it typ acc
+    | ExpP (id, typ) -> StringMap.add id.it ([], typ) acc
+    | DefP (id, params, typ) -> StringMap.add id.it (params, typ) acc
     | _ -> acc  
   ) set quants
 
@@ -157,7 +158,7 @@ let rec check_type_equality env t t' =
 let rec get_real_typ_from_exp quant_map env e =  
   match e.it with
   | VarE id -> (match StringMap.find_opt id.it quant_map with
-    | Some typ -> typ 
+    | Some (_, typ) -> typ 
     | None -> e.note
   )
   | CallE (id, args) -> 
@@ -168,7 +169,9 @@ let rec get_real_typ_from_exp quant_map env e =
       s_typ
     | None -> 
       (match StringMap.find_opt id.it quant_map with
-      | Some typ -> typ
+      | Some (params, typ) -> 
+        let subst = create_arg_param_subst args params in 
+        Subst.subst_typ subst typ
       | None -> e.note
       )
     )
@@ -252,10 +255,10 @@ let rec get_chain_from_inst id env family_typ args insts =
     match insts with
     | [] -> []
     | {it = InstD (quants, args', {it = AliasT sub_typ; _}); _}::insts' ->
-      (match (Eval.match_list Eval.match_arg env Subst.empty args args') with 
+      (match (Eval.match_list Eval.match_argstatic env Subst.empty args args') with 
         | Ok (Some subst) ->
           let subst_typ = reduce_type_aliasing env (Il.Subst.subst_typ subst sub_typ) in
-          (id, quants, subst, num, family_typ, subst_typ) :: get_type_family_conversion_chain env subst_typ 
+          (id, quants, subst, num, family_typ, subst_typ, sub_typ) :: get_type_family_conversion_chain env subst_typ
         | Ok None | Error _ -> helper insts' (num + 1)
       )
     | _ -> [] in
@@ -273,7 +276,7 @@ and get_type_family_conversion_chain env family_typ =
   | _ -> []
 
 let make_projection_family_data env (lst : family_data list) (base_exp : exp) = 
-  List.fold_right (fun (id, quants, subst, case_num, family_typ, sub_typ) exp ->
+  List.fold_right (fun (id, quants, subst, case_num, family_typ, sub_typ, _) exp ->
     let proj_id = proj_name id case_num in 
     let new_args = List.map make_arg_from_param quants |> Subst.subst_list Subst.subst_arg subst in
     let sub_typ' = Subst.subst_typ subst sub_typ in 
@@ -283,10 +286,10 @@ let make_projection_family_data env (lst : family_data list) (base_exp : exp) =
   ) lst base_exp  
 
 let make_constructor_family_data (lst : family_data list) (base_exp : exp) = 
-  List.fold_left (fun exp (id, quants, subst, case_num, family_typ, sub_typ) ->
+  List.fold_left (fun exp (id, quants, subst, case_num, family_typ, sub_typ, orig_sub_typ) ->
     let new_args = List.map make_arg_from_param quants |> Subst.subst_list Subst.subst_arg subst in
-    let tupe = construct_tuple_exp base_exp.at exp sub_typ quants new_args in
-    CaseE (constructor_name_mixop id (List.length quants + 1) case_num, tupe, Unchecked) $$ id.at % family_typ
+    let tupe = construct_tuple_exp base_exp.at exp sub_typ orig_sub_typ quants new_args in
+    CaseE (constructor_name_mixop id (List.length quants + 1) case_num, tupe, Unchecked) $$ base_exp.at % family_typ
   ) base_exp lst
 
 let handle_iter_typ base_exp real_typ expected_typ = 
@@ -305,24 +308,27 @@ let handle_iter_typ base_exp real_typ expected_typ =
 
 let apply_iteration iters (base_exp : exp) converted_exp real_typ =
   let length = List.length iters in
-  let rec go iters num = 
+  (* The iterated variables keep the real type, while the iteration itself has the converted type *)
+  let rec go iters num =
     match iters with
-    | [] -> (real_typ, converted_exp)
-    | iter :: iters' -> 
-      let (r_typ, iter_e) = go iters' (num - 1) in
+    | [] -> (real_typ, converted_exp.note, converted_exp)
+    | iter :: iters' ->
+      let (r_typ, c_typ, iter_e) = go iters' (num - 1) in
       let old_id = iter_var_name ^ Int.to_string num $ converted_exp.at in
       let new_id = iter_var_name ^ Int.to_string (num - 1) $ converted_exp.at in
-      let iter_typ = IterT (r_typ, iter) $ converted_exp.at in 
-      let new_exp = if num = length then base_exp else VarE old_id $$ converted_exp.at % iter_typ in
-      iter_typ, IterE (iter_e, (iter, [new_id, new_exp])) $$ converted_exp.at % iter_typ 
+      let r_iter_typ = IterT (r_typ, iter) $ converted_exp.at in
+      let c_iter_typ = IterT (c_typ, iter) $ converted_exp.at in
+      let new_exp = if num = length then base_exp else VarE old_id $$ converted_exp.at % r_iter_typ in
+      r_iter_typ, c_iter_typ, IterE (iter_e, (iter, [new_id, new_exp])) $$ converted_exp.at % c_iter_typ
   in
-  snd (go iters length)
+  let (_, _, e) = go iters length in
+  e
 
 let rec simplify_conversions proj_list constructor_list = 
   match proj_list, constructor_list with
   | [], cs -> ([], cs)
   | ps, [] -> (ps, [])
-  | (id, _, _, n1, family_typ, sub_typ) :: ps, (id', _, _, n2, family_typ', sub_typ'):: cs when
+  | (id, _, _, n1, family_typ, sub_typ, _) :: ps, (id', _, _, n2, family_typ', sub_typ', _):: cs when
     Eq.eq_id id id' && 
     Eq.eq_typ family_typ family_typ' &&
     Eq.eq_typ sub_typ sub_typ' && 
@@ -341,6 +347,7 @@ let apply_conversion env exp real_typ expected_typ =
       let proj_list = get_type_family_conversion_chain env r_typ in
       let constructor_list = get_type_family_conversion_chain env e_typ in
       let p_list, c_list = simplify_conversions (List.rev proj_list) (List.rev constructor_list) in
+      if p_list = [] && c_list = [] then exp else
       let real_exp = { iter_exp with note = r_typ } in
       let real_base_exp = { exp with note = reduced_r_typ } in
       let converted_exp = make_constructor_family_data c_list (make_projection_family_data env p_list real_exp) in
@@ -356,7 +363,7 @@ let add_iter_ids_to_map env id_exp_pairs quant_map =
       reduce_type_aliasing env |>
       remove_iter_from_type
     in 
-    StringMap.add id.it r_typ acc
+    StringMap.add id.it ([], r_typ) acc
   ) quant_map id_exp_pairs
 
 let rec transform_iter quant_map env i =
@@ -581,7 +588,7 @@ let gen_family_projections id has_one_inst case_num inst =
       let var_exp = VarE (var_typ_fam $ id.at) $$ id.at % typ in
       let opt_exp = OptE (Some (var_exp)) $$ id.at % return_type in
       let new_args = List.map make_arg_from_param quants in
-      let new_case = CaseE(constructor_name_mixop id (List.length quants + 1) case_num, construct_tuple_exp deftyp.at var_exp typ quants new_args, Unchecked) $$ id.at % family_typ in
+      let new_case = CaseE(constructor_name_mixop id (List.length quants + 1) case_num, construct_tuple_exp deftyp.at var_exp typ typ quants new_args, Unchecked) $$ id.at % family_typ in
 
       let return_exp = if has_one_inst then var_exp else opt_exp in
       let new_clause = DefD (quants @ [new_quant], new_args @ [ExpA new_case $ id.at], return_exp, []) $ id.at in
