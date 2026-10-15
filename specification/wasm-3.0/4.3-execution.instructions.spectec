@@ -170,17 +170,32 @@ rule Step_read/call:
   z; (CALL x)  ~>  (REF.FUNC_ADDR a) (CALL_REF $funcinst(z)[a].TYPE)
   -- if $moduleinst(z).FUNCS[x] = a
 
-rule Step_read/call_ref-null:
-  z; (REF.NULL_ADDR) (CALL_REF yy)  ~>  TRAP
+rule Step/call_ref-null:
+  z; (REF.NULL_ADDR) (CALL_REF yy)  ~>  z; TRAP
 
-rule Step_read/call_ref-func:
-  z; val^n (REF.FUNC_ADDR a) (CALL_REF yy)  ~>  (FRAME_ m `{f} (LABEL_ m `{eps} instr*))
+rule Step/call_ref-func:
+  z; val^n (REF.FUNC_ADDR a) (CALL_REF yy)  ~>  z; (FRAME_ m `{f} (LABEL_ m `{eps} instr*))
   ----
   -- if $funcinst(z)[a] = fi
   -- Expand: fi.TYPE ~~ FUNC t_1^n -> t_2^m
   -- if fi.CODE = FUNC x (LOCAL t)* (instr*)
   -- if f = {LOCALS val^n ($default_(t))*, MODULE fi.MODULE}
 
+rule Step/call_ref-hostfunc-res:
+  s; f; val^n (REF.FUNC_ADDR a) (CALL_REF yy)  ~>  s'; f; $lift_result(result)
+  ----
+  -- if $funcinst((s; f))[a] = fi
+  -- Expand: fi.TYPE ~~ FUNC t_1^n -> t_2^m
+  -- if fi.CODE = _HOSTFUNC hf
+  -- if RES s' result <- $hostcall(_HOSTFUNC hf, s, val^n)
+
+rule Step/call_ref-hostfunc-div:
+  s; f; val^n (REF.FUNC_ADDR a) (CALL_REF yy)  ~>  s; f; val^n (REF.FUNC_ADDR a) (CALL_REF yy)
+  ----
+  -- if $funcinst((s; f))[a] = fi
+  -- Expand: fi.TYPE ~~ FUNC t_1^n -> t_2^m
+  -- if fi.CODE = _HOSTFUNC hf
+  -- if BOT <- $hostcall(_HOSTFUNC hf, s, val^n)
 
 rule Step_read/return_call:
   z; (RETURN_CALL x)  ~>  (REF.FUNC_ADDR a) (RETURN_CALL_REF $funcinst(z)[a].TYPE)
@@ -436,25 +451,25 @@ rule Step_read/load-pack-val:
   ----
   -- if $ibytes_(n, c) = $mem(z, x).BYTES[i + ao.OFFSET : n/8]
 
-rule Step_read/vload-oob:
+rule Step_read/vload-num-oob:
   z; (CONST at i) (VLOAD V128 x ao)  ~>  TRAP
   -- if $(i + ao.OFFSET + $vsize(V128)/8 > |$mem(z, x).BYTES|)
 
-rule Step_read/vload-val:
+rule Step_read/vload-num-val:
   z; (CONST at i) (VLOAD V128 x ao)  ~>  (VCONST V128 c)
   -- if $vbytes_(V128, c) = $mem(z, x).BYTES[i + ao.OFFSET : $vsize(V128)/8]
 
 
 rule Step_read/vload-pack-oob:
-  z; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao)  ~>  TRAP
-  -- if $(i + ao.OFFSET + M * K/8) > |$mem(z, x).BYTES|
+  z; (CONST at i) (VLOAD V128 (SHAPE K X M _ sx) x ao)  ~>  TRAP
+  -- if $(i + ao.OFFSET + K * M/8) > |$mem(z, x).BYTES|
 
 rule Step_read/vload-pack-val:
-  z; (CONST at i) (VLOAD V128 (SHAPE M X K _ sx) x ao)  ~>  (VCONST V128 c)
+  z; (CONST at i) (VLOAD V128 (SHAPE K X M _ sx) x ao)  ~>  (VCONST V128 c)
   ---- ----
-  -- (if $ibytes_(M, j) = $mem(z, x).BYTES[i + ao.OFFSET + k * M/8 : M/8])^(k<K)
-  -- if c = $inv_lanes_(Jnn X K, $extend__(M, $jsizenn(Jnn), sx, j)^K)
-     /\ $jsizenn(Jnn) = $(M * 2)
+  -- (if $ibytes_(K, j) = $mem(z, x).BYTES[i + ao.OFFSET + k * K/8 : K/8])^(k<M)
+  -- if c = $inv_lanes_(Jnn X M, $extend__(K, $jsizenn(Jnn), sx, j)^M)
+     /\ $jsizenn(Jnn) = $(K * 2)
 
 
 rule Step_read/vload-splat-oob:
@@ -530,7 +545,7 @@ rule Step/vstore-val:
 rule Step/vstore_lane-oob:
   z; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j)  ~>  z; TRAP
   ----
-  -- if $(i + ao.OFFSET + N) > |$mem(z, x).BYTES|
+  -- if $(i + ao.OFFSET + N/8) > |$mem(z, x).BYTES|
 
 rule Step/vstore_lane-val:
   z; (CONST at i) (VCONST V128 c) (VSTORE_LANE V128 N x ao j)  ~>  $with_mem(z, x, $(i + ao.OFFSET), $(N/8), b*); eps
