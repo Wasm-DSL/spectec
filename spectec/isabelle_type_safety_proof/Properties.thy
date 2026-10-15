@@ -383,52 +383,28 @@ proof (induction "(mk_config (mk_state s f) admininstr_lst)" "(mk_config (mk_sta
   case (Step__global_set v_val x)
   then show ?case using global_set_store_extension by simp
 next
-  case (Step__local_set v_val x)
-  then show ?case sorry      
-next
   case (table_set_val i x v_ref)
-  then show ?case sorry    
-next
-  case (table_set_trap i x v_ref)
   then show ?case sorry
 next
   case (table_grow_succeed x v_n v_ref var_0 ti)
   then show ?case sorry
 next
-  case (table_grow_fail var_0 v_ref v_n x)
-  then show ?case sorry
-next
   case (Step__elem_drop x)
-  then show ?case sorry
-next
-  case (store_num_trap i nt ao c)
   then show ?case sorry
 next
   case (store_num_val i nt b_lst c ao)
   then show ?case sorry
 next
-  case (store_pack_trap i ao v_n v_Inn c)
-  then show ?case sorry
-next
   case (store_pack_val i v_Inn c b_lst v_n ao)
   then show ?case sorry
 next
-  case (vstore_oob i ao c)
-  then show ?case sorry
-next
   case (vstore_val i b_lst c ao)
-  then show ?case sorry
-next
-  case (vstore_lane_oob i ao v_N c j)
   then show ?case sorry
 next
   case (vstore_lane_val i v_N v_Jnn v_M c j b_lst ao)
   then show ?case sorry
 next
   case (memory_grow_succeed v_n var_0 mi)
-  then show ?case sorry
-next
-  case (memory_grow_fail var_0 v_n)
   then show ?case sorry
 next
   case (Step__data_drop x)
@@ -452,6 +428,32 @@ next
   have "wf_store s" using Instrs_ok2_wf(2) assms(5) by auto
   then show ?case using store_extension_refl read(2,4)
     by blast
+next
+  case (Step__local_set v_val x)
+  have "s = s'" using with_local.psimps with_local.domintros Step__local_set(1) by auto
+  then show ?case using assms(2) store_extension_refl Instrs_ok2_wf(2) Step__local_set(5)
+    by metis
+next
+  case (table_set_trap i x v_ref)
+  then show ?case using store_extension_refl Instrs_ok2_wf(2) by simp 
+next
+  case (table_grow_fail var_0 v_ref v_n x)
+  then show ?case using store_extension_refl Instrs_ok2_wf(2) by simp
+next
+  case (store_num_trap i nt ao c)
+  then show ?case using store_extension_refl Instrs_ok2_wf(2) by simp
+next
+  case (store_pack_trap i ao v_n v_Inn c)
+  then show ?case using store_extension_refl Instrs_ok2_wf(2) by simp
+next
+  case (vstore_oob i ao c)
+  then show ?case using store_extension_refl Instrs_ok2_wf(2) by simp
+next
+  case (vstore_lane_oob i ao v_N c j)
+  then show ?case using store_extension_refl Instrs_ok2_wf(2) by simp
+next
+  case (memory_grow_fail var_0 v_n)
+  then show ?case using store_extension_refl Instrs_ok2_wf(2) by simp
 qed
 
 end
