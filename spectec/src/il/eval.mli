@@ -23,7 +23,7 @@ val match_iter : env -> subst -> iter -> iter -> subst option result
 val match_exp : env -> subst -> exp -> exp -> subst option result
 val match_typ : env -> subst -> typ -> typ -> subst option result
 val match_arg : env -> subst -> arg -> arg -> subst option result
-val match_argstatic : env -> subst -> arg -> arg -> subst option result
+val match_arg_static : env -> subst -> arg -> arg -> subst option result
 
 val match_list :
   (env -> subst -> 'a -> 'a -> subst option result) ->

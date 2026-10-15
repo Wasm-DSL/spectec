@@ -74,7 +74,7 @@ let rec reduce_type_aliasing env t =
 and reduce_inst_alias env args inst base_typ = 
   match inst.it with
   | InstD (_, args', {it = AliasT typ; _}) ->
-    let subst_opt = Eval.match_list Eval.match_argstatic env Subst.empty args args' in
+    let subst_opt = Eval.match_list Eval.match_arg_static env Subst.empty args args' in
     (match subst_opt with
     | Ok (Some subst) -> reduce_type_aliasing env (Subst.subst_typ subst typ)
     | Ok None | Error _ -> reduce_type_aliasing env typ
@@ -255,7 +255,7 @@ let rec get_chain_from_inst id env family_typ args insts =
     match insts with
     | [] -> []
     | {it = InstD (quants, args', {it = AliasT sub_typ; _}); _}::insts' ->
-      (match (Eval.match_list Eval.match_argstatic env Subst.empty args args') with 
+      (match (Eval.match_list Eval.match_arg_static env Subst.empty args args') with 
         | Ok (Some subst) ->
           let subst_typ = reduce_type_aliasing env (Il.Subst.subst_typ subst sub_typ) in
           (id, quants, subst, num, family_typ, subst_typ, sub_typ) :: get_type_family_conversion_chain env subst_typ
