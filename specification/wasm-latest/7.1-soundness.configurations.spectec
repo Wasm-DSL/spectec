@@ -23,8 +23,7 @@ rule Instr_ok2/label:
 rule Instr_ok2/frame:
   s; C |- FRAME_ n `{f} instr* : eps -> t^n
   -- Frame_ok: s |- f : C'
-  -- if C'.RETURN = t^n
-  -- Expr_ok2: s; C' |- instr* : t^n
+  -- Expr_ok2: s; {RETURN t^n} ++ C' |- instr* : t^n
 
 rule Instr_ok2/handler:
   s; C |- HANDLER_ n `{catch*} instr* : t_1* -> t_2*
@@ -40,8 +39,8 @@ rule Instrs_ok2/empty:
   s; C |- eps : eps -> eps
 
 rule Instrs_ok2/instr:
-  s; C |- instr : t_1* -> t_2*
-  -- Instr_ok2: s; C |- instr : t_1* -> t_2*
+  s; C |- instr : t_1* ->_(x*) t_2*
+  -- Instr_ok2: s; C |- instr : t_1* ->_(x*) t_2*
 
 rule Instrs_ok2/seq:
   s; C |- instr_1* instr_2* : t_1* ->_(x_1* x_2*) t_3*
@@ -111,11 +110,13 @@ rule Funcinst_ok:
 
 rule Datainst_ok:
   s |- {BYTES b*} : OK
+  -- if |b*| < $(2^32)
 
 rule Eleminst_ok:
   s |- {TYPE rt, REFS ref*} : rt
   -- Reftype_ok: {} |- rt : OK
   -- (Ref_ok: s |- ref : rt)*
+  -- if |ref*| < $(2^32)
 
 rule Exportinst_ok:
   s |- {NAME nm, ADDR xa} : OK
