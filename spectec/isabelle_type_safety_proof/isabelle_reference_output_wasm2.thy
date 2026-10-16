@@ -3,6 +3,7 @@ theory isabelle_reference_output_wasm2
 	imports Main
 begin
 
+
 inductive list_all3 :: "('a \<Rightarrow> 'b \<Rightarrow> 'c \<Rightarrow> bool) \<Rightarrow> 'a list \<Rightarrow> 'b list \<Rightarrow> 'c list \<Rightarrow> bool" where
 	list_all3_nil : "list_all3 R [] [] []" |
 	list_all3_cons: "R a b c \<Longrightarrow> list_all3 R as bs cs \<Longrightarrow> list_all3 R (a # as) (b # bs) (c # cs)"
@@ -703,17 +704,17 @@ inductive wf_externtype :: "externtype \<Rightarrow> bool" where
 		"(wf_memtype v_memtype) \<Longrightarrow>
 		 wf_externtype (MEM v_memtype)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:325.1-325.60 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:332.1-332.60 *)
 datatype dim =
 	  mk_dim "nat"
 	
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:325.1-325.60 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:332.1-332.60 *)
 function (sequential, domintros) proj_dim_0 :: "dim \<Rightarrow> (nat)" where
 		  "proj_dim_0 (mk_dim v_num_0) = (v_num_0)"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:325.8-325.11 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:332.8-332.11 *)
 inductive wf_dim :: "dim \<Rightarrow> bool" where
 	  dim_case_0 :
 		"(((((i = 1) \<or> (i = 2)) \<or> (i = 4)) \<or> (i = 8)) \<or> (i = 16)) \<Longrightarrow>
@@ -745,12 +746,12 @@ function (sequential, domintros) lsize :: "lanetype \<Rightarrow> nat" where
 		| "lsize lanetype_I16 = (psize I16)"
 	by pat_completeness auto
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:326.1-327.40 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:333.1-334.40 *)
 datatype shape =
 	  X "lanetype" "dim"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:326.8-326.13 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:333.8-333.13 *)
 inductive wf_shape :: "shape \<Rightarrow> bool" where
 	  shape_case_0 :
 		"(wf_dim v_dim) \<Longrightarrow>
@@ -867,12 +868,12 @@ function (sequential, domintros) proj_num__1 :: "num_underscore \<Rightarrow> (f
 (* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:266.1-266.36 *)
 type_synonym pack_underscore = "iN"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:268.1-268.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:275.1-275.23 *)
 datatype lane_underscore =
 	  mk_lane__0 "Jnn" "iN"
 	| mk_lane__1 "Fnn" "fN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:268.8-268.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:275.8-275.14 *)
 inductive wf_lane_underscore :: "lanetype \<Rightarrow> lane_underscore \<Rightarrow> bool" where
 	  lane__case_0 :
 		"(wf_uN (lsize (lanetype_Jnn v_Jnn)) var_x) \<Longrightarrow>
@@ -883,22 +884,22 @@ inductive wf_lane_underscore :: "lanetype \<Rightarrow> lane_underscore \<Righta
 		 (v_lanetype = (lanetype_Fnn v_Fnn)) \<Longrightarrow>
 		 wf_lane_underscore v_lanetype (mk_lane__1 v_Fnn var_x)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:268.1-268.23 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:275.1-275.23 *)
 function (sequential, domintros) proj_lane__0 :: "lane_underscore \<Rightarrow> (iN option)" where
 		  "proj_lane__0 (mk_lane__0 v_Jnn var_x) = (Some var_x)"
 		| "proj_lane__0 var_x = None"
 	by pat_completeness auto
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:268.1-268.23 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:275.1-275.23 *)
 function (sequential, domintros) proj_lane__1 :: "lane_underscore \<Rightarrow> (fN option)" where
 		  "proj_lane__1 (mk_lane__1 v_Fnn var_x) = (Some var_x)"
 		| "proj_lane__1 var_x = None"
 	by pat_completeness auto
 
-(* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:272.1-272.34 *)
+(* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:279.1-279.34 *)
 type_synonym vec_underscore = "vN"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:274.1-274.35 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:281.1-281.35 *)
 function (sequential, domintros) fun_zero :: "numtype \<Rightarrow> num_underscore" where
 		  "fun_zero I32 = (mk_num__0 Inn_I32 (mk_uN 0))"
 		| "fun_zero I64 = (mk_num__0 Inn_I64 (mk_uN 0))"
@@ -906,41 +907,41 @@ function (sequential, domintros) fun_zero :: "numtype \<Rightarrow> num_undersco
 		| "fun_zero F64 = (mk_num__1 Fnn_F64 (fzero (the ((size (valtype_Fnn Fnn_F64))))))"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:274.6-274.11 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:281.6-281.11 *)
 lemma zero_is_wf :
 	"(ret_val = (fun_zero v_numtype)) \<Longrightarrow>
 	 (wf_num_underscore v_numtype ret_val)"
 sorry
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:281.1-281.42 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:288.1-288.42 *)
 datatype sx =
 	  U
 	| S
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:282.1-282.56 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:289.1-289.56 *)
 datatype sz =
 	  mk_sz "nat"
 	
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:282.1-282.56 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:289.1-289.56 *)
 function (sequential, domintros) proj_sz_0 :: "sz \<Rightarrow> (nat)" where
 		  "proj_sz_0 (mk_sz v_num_0) = (v_num_0)"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:282.8-282.10 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:289.8-289.10 *)
 inductive wf_sz :: "sz \<Rightarrow> bool" where
 	  sz_case_0 :
 		"((((i = 8) \<or> (i = 16)) \<or> (i = 32)) \<or> (i = 64)) \<Longrightarrow>
 		 wf_sz (mk_sz i)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:284.1-284.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:291.1-291.22 *)
 datatype unop_Inn =
 	  CLZ
 	| CTZ
 	| POPCNT
 	| EXTEND "n"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:284.1-284.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:291.1-291.22 *)
 datatype unop_Fnn =
 	  ABS
 	| unop_Fnn_NEG
@@ -950,12 +951,12 @@ datatype unop_Fnn =
 	| TRUNC
 	| NEAREST
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:284.1-284.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:291.1-291.22 *)
 datatype unop_underscore =
 	  mk_unop__0 "Inn" "unop_Inn"
 	| mk_unop__1 "Fnn" "unop_Fnn"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:284.8-284.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:291.8-291.14 *)
 inductive wf_unop_underscore :: "numtype \<Rightarrow> unop_underscore \<Rightarrow> bool" where
 	  unop__case_0 :
 		"(v_numtype = (numtype_Inn v_Inn)) \<Longrightarrow>
@@ -964,19 +965,19 @@ inductive wf_unop_underscore :: "numtype \<Rightarrow> unop_underscore \<Rightar
 		"(v_numtype = (numtype_Fnn v_Fnn)) \<Longrightarrow>
 		 wf_unop_underscore v_numtype (mk_unop__1 v_Fnn var_x)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:284.1-284.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:291.1-291.22 *)
 function (sequential, domintros) proj_unop__0 :: "unop_underscore \<Rightarrow> (unop_Inn option)" where
 		  "proj_unop__0 (mk_unop__0 v_Inn var_x) = (Some var_x)"
 		| "proj_unop__0 var_x = None"
 	by pat_completeness auto
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:284.1-284.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:291.1-291.22 *)
 function (sequential, domintros) proj_unop__1 :: "unop_underscore \<Rightarrow> (unop_Fnn option)" where
 		  "proj_unop__1 (mk_unop__1 v_Fnn var_x) = (Some var_x)"
 		| "proj_unop__1 var_x = None"
 	by pat_completeness auto
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:288.1-288.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:295.1-295.23 *)
 datatype binop_Inn =
 	  ADD
 	| SUB
@@ -991,7 +992,7 @@ datatype binop_Inn =
 	| ROTL
 	| ROTR
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:288.1-288.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:295.1-295.23 *)
 datatype binop_Fnn =
 	  binop_Fnn_ADD
 	| binop_Fnn_SUB
@@ -1001,12 +1002,12 @@ datatype binop_Fnn =
 	| res_MAX
 	| COPYSIGN
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:288.1-288.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:295.1-295.23 *)
 datatype binop_underscore =
 	  mk_binop__0 "Inn" "binop_Inn"
 	| mk_binop__1 "Fnn" "binop_Fnn"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:288.8-288.15 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:295.8-295.15 *)
 inductive wf_binop_underscore :: "numtype \<Rightarrow> binop_underscore \<Rightarrow> bool" where
 	  binop__case_0 :
 		"(v_numtype = (numtype_Inn v_Inn)) \<Longrightarrow>
@@ -1015,40 +1016,40 @@ inductive wf_binop_underscore :: "numtype \<Rightarrow> binop_underscore \<Right
 		"(v_numtype = (numtype_Fnn v_Fnn)) \<Longrightarrow>
 		 wf_binop_underscore v_numtype (mk_binop__1 v_Fnn var_x)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:288.1-288.23 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:295.1-295.23 *)
 function (sequential, domintros) proj_binop__0 :: "binop_underscore \<Rightarrow> (binop_Inn option)" where
 		  "proj_binop__0 (mk_binop__0 v_Inn var_x) = (Some var_x)"
 		| "proj_binop__0 var_x = None"
 	by pat_completeness auto
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:288.1-288.23 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:295.1-295.23 *)
 function (sequential, domintros) proj_binop__1 :: "binop_underscore \<Rightarrow> (binop_Fnn option)" where
 		  "proj_binop__1 (mk_binop__1 v_Fnn var_x) = (Some var_x)"
 		| "proj_binop__1 var_x = None"
 	by pat_completeness auto
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:295.1-295.24 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:302.1-302.24 *)
 datatype testop_Inn =
 	  EQZ
 	
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:295.1-295.24 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:302.1-302.24 *)
 datatype testop_underscore =
 	  mk_testop__0 "Inn" "testop_Inn"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:295.8-295.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:302.8-302.16 *)
 inductive wf_testop_underscore :: "numtype \<Rightarrow> testop_underscore \<Rightarrow> bool" where
 	  testop__case_0 :
 		"(v_numtype = (numtype_Inn v_Inn)) \<Longrightarrow>
 		 wf_testop_underscore v_numtype (mk_testop__0 v_Inn var_x)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:295.1-295.24 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:302.1-302.24 *)
 function (sequential, domintros) proj_testop__0 :: "testop_underscore \<Rightarrow> testop_Inn" where
 		  "proj_testop__0 (mk_testop__0 v_Inn var_x) = var_x"
 	by pat_completeness auto
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:299.1-299.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:306.1-306.23 *)
 datatype relop_Inn =
 	  EQ
 	| NE
@@ -1057,7 +1058,7 @@ datatype relop_Inn =
 	| LE "sx"
 	| GE "sx"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:299.1-299.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:306.1-306.23 *)
 datatype relop_Fnn =
 	  relop_Fnn_EQ
 	| relop_Fnn_NE
@@ -1066,12 +1067,12 @@ datatype relop_Fnn =
 	| relop_Fnn_LE
 	| relop_Fnn_GE
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:299.1-299.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:306.1-306.23 *)
 datatype relop_underscore =
 	  mk_relop__0 "Inn" "relop_Inn"
 	| mk_relop__1 "Fnn" "relop_Fnn"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:299.8-299.15 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:306.8-306.15 *)
 inductive wf_relop_underscore :: "numtype \<Rightarrow> relop_underscore \<Rightarrow> bool" where
 	  relop__case_0 :
 		"(v_numtype = (numtype_Inn v_Inn)) \<Longrightarrow>
@@ -1080,24 +1081,24 @@ inductive wf_relop_underscore :: "numtype \<Rightarrow> relop_underscore \<Right
 		"(v_numtype = (numtype_Fnn v_Fnn)) \<Longrightarrow>
 		 wf_relop_underscore v_numtype (mk_relop__1 v_Fnn var_x)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:299.1-299.23 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:306.1-306.23 *)
 function (sequential, domintros) proj_relop__0 :: "relop_underscore \<Rightarrow> (relop_Inn option)" where
 		  "proj_relop__0 (mk_relop__0 v_Inn var_x) = (Some var_x)"
 		| "proj_relop__0 var_x = None"
 	by pat_completeness auto
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:299.1-299.23 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:306.1-306.23 *)
 function (sequential, domintros) proj_relop__1 :: "relop_underscore \<Rightarrow> (relop_Fnn option)" where
 		  "proj_relop__1 (mk_relop__1 v_Fnn var_x) = (Some var_x)"
 		| "proj_relop__1 var_x = None"
 	by pat_completeness auto
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:307.1-307.37 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 *)
 datatype cvtop__Inn_1_Inn_2 =
 	  cvtop__Inn_1_Inn_2_EXTEND "sx"
 	| WRAP
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:307.8-307.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.8-314.16 *)
 inductive wf_cvtop__Inn_1_Inn_2 :: "Inn \<Rightarrow> Inn \<Rightarrow> cvtop__Inn_1_Inn_2 \<Rightarrow> bool" where
 	  cvtop__Inn_1_Inn_2_case_0 :
 		"((sizenn1 (numtype_Inn Inn_1)) < (sizenn2 (numtype_Inn Inn_2))) \<Longrightarrow>
@@ -1106,12 +1107,12 @@ inductive wf_cvtop__Inn_1_Inn_2 :: "Inn \<Rightarrow> Inn \<Rightarrow> cvtop__I
 		"((sizenn1 (numtype_Inn Inn_1)) > (sizenn2 (numtype_Inn Inn_2))) \<Longrightarrow>
 		 wf_cvtop__Inn_1_Inn_2 Inn_1 Inn_2 WRAP"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:307.1-307.37 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 *)
 datatype cvtop__Inn_1_Fnn_2 =
 	  CONVERT "sx"
 	| REINTERPRET
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:307.8-307.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.8-314.16 *)
 inductive wf_cvtop__Inn_1_Fnn_2 :: "Inn \<Rightarrow> Fnn \<Rightarrow> cvtop__Inn_1_Fnn_2 \<Rightarrow> bool" where
 	  cvtop__Inn_1_Fnn_2_case_0 :
 		"wf_cvtop__Inn_1_Fnn_2 Inn_1 Fnn_2 (CONVERT v_sx)"
@@ -1119,13 +1120,13 @@ inductive wf_cvtop__Inn_1_Fnn_2 :: "Inn \<Rightarrow> Fnn \<Rightarrow> cvtop__I
 		"((sizenn1 (numtype_Inn Inn_1)) = (sizenn2 (numtype_Fnn Fnn_2))) \<Longrightarrow>
 		 wf_cvtop__Inn_1_Fnn_2 Inn_1 Fnn_2 REINTERPRET"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:307.1-307.37 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 *)
 datatype cvtop__Fnn_1_Inn_2 =
 	  cvtop__Fnn_1_Inn_2_TRUNC "sx"
 	| TRUNC_SAT "sx"
 	| cvtop__Fnn_1_Inn_2_REINTERPRET
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:307.8-307.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.8-314.16 *)
 inductive wf_cvtop__Fnn_1_Inn_2 :: "Fnn \<Rightarrow> Inn \<Rightarrow> cvtop__Fnn_1_Inn_2 \<Rightarrow> bool" where
 	  cvtop__Fnn_1_Inn_2_case_0 :
 		"wf_cvtop__Fnn_1_Inn_2 Fnn_1 Inn_2 (cvtop__Fnn_1_Inn_2_TRUNC v_sx)"
@@ -1135,12 +1136,12 @@ inductive wf_cvtop__Fnn_1_Inn_2 :: "Fnn \<Rightarrow> Inn \<Rightarrow> cvtop__F
 		"((sizenn1 (numtype_Fnn Fnn_1)) = (sizenn2 (numtype_Inn Inn_2))) \<Longrightarrow>
 		 wf_cvtop__Fnn_1_Inn_2 Fnn_1 Inn_2 cvtop__Fnn_1_Inn_2_REINTERPRET"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:307.1-307.37 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 *)
 datatype cvtop__Fnn_1_Fnn_2 =
 	  PROMOTE
 	| DEMOTE
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:307.8-307.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.8-314.16 *)
 inductive wf_cvtop__Fnn_1_Fnn_2 :: "Fnn \<Rightarrow> Fnn \<Rightarrow> cvtop__Fnn_1_Fnn_2 \<Rightarrow> bool" where
 	  cvtop__Fnn_1_Fnn_2_case_0 :
 		"((sizenn1 (numtype_Fnn Fnn_1)) < (sizenn2 (numtype_Fnn Fnn_2))) \<Longrightarrow>
@@ -1149,14 +1150,14 @@ inductive wf_cvtop__Fnn_1_Fnn_2 :: "Fnn \<Rightarrow> Fnn \<Rightarrow> cvtop__F
 		"((sizenn1 (numtype_Fnn Fnn_1)) > (sizenn2 (numtype_Fnn Fnn_2))) \<Longrightarrow>
 		 wf_cvtop__Fnn_1_Fnn_2 Fnn_1 Fnn_2 DEMOTE"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:307.1-307.37 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 *)
 datatype cvtop__underscore =
 	  mk_cvtop___0 "Inn" "Inn" "cvtop__Inn_1_Inn_2"
 	| mk_cvtop___1 "Inn" "Fnn" "cvtop__Inn_1_Fnn_2"
 	| mk_cvtop___2 "Fnn" "Inn" "cvtop__Fnn_1_Inn_2"
 	| mk_cvtop___3 "Fnn" "Fnn" "cvtop__Fnn_1_Fnn_2"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:307.8-307.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.8-314.16 *)
 inductive wf_cvtop__underscore :: "numtype \<Rightarrow> numtype \<Rightarrow> cvtop__underscore \<Rightarrow> bool" where
 	  cvtop___case_0 :
 		"(wf_cvtop__Inn_1_Inn_2 Inn_1 Inn_2 var_x) \<Longrightarrow>
@@ -1179,117 +1180,117 @@ inductive wf_cvtop__underscore :: "numtype \<Rightarrow> numtype \<Rightarrow> c
 		 (numtype_2 = (numtype_Fnn Fnn_2)) \<Longrightarrow>
 		 wf_cvtop__underscore numtype_1 numtype_2 (mk_cvtop___3 Fnn_1 Fnn_2 var_x)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:307.1-307.37 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 *)
 function (sequential, domintros) proj_cvtop___0 :: "cvtop__underscore \<Rightarrow> (cvtop__Inn_1_Inn_2 option)" where
 		  "proj_cvtop___0 (mk_cvtop___0 Inn_1 Inn_2 var_x) = (Some var_x)"
 		| "proj_cvtop___0 var_x = None"
 	by pat_completeness auto
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:307.1-307.37 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 *)
 function (sequential, domintros) proj_cvtop___1 :: "cvtop__underscore \<Rightarrow> (cvtop__Inn_1_Fnn_2 option)" where
 		  "proj_cvtop___1 (mk_cvtop___1 Inn_1 Fnn_2 var_x) = (Some var_x)"
 		| "proj_cvtop___1 var_x = None"
 	by pat_completeness auto
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:307.1-307.37 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 *)
 function (sequential, domintros) proj_cvtop___2 :: "cvtop__underscore \<Rightarrow> (cvtop__Fnn_1_Inn_2 option)" where
 		  "proj_cvtop___2 (mk_cvtop___2 Fnn_1 Inn_2 var_x) = (Some var_x)"
 		| "proj_cvtop___2 var_x = None"
 	by pat_completeness auto
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:307.1-307.37 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 *)
 function (sequential, domintros) proj_cvtop___3 :: "cvtop__underscore \<Rightarrow> (cvtop__Fnn_1_Fnn_2 option)" where
 		  "proj_cvtop___3 (mk_cvtop___3 Fnn_1 Fnn_2 var_x) = (Some var_x)"
 		| "proj_cvtop___3 var_x = None"
 	by pat_completeness auto
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:328.1-329.31 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:335.1-336.31 *)
 datatype ishape =
 	  mk_ishape "shape"
 	
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:328.1-329.31 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:335.1-336.31 *)
 function (sequential, domintros) proj_ishape_0 :: "ishape \<Rightarrow> (shape)" where
 		  "proj_ishape_0 (mk_ishape v_shape_0) = (v_shape_0)"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:328.8-328.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:335.8-335.14 *)
 inductive wf_ishape :: "ishape \<Rightarrow> bool" where
 	  ishape_case_0 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 ((fun_lanetype v_shape) = (lanetype_Jnn v_Jnn)) \<Longrightarrow>
 		 wf_ishape (mk_ishape v_shape)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:330.1-331.31 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:337.1-338.31 *)
 datatype fshape =
 	  mk_fshape "shape"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:330.8-330.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:337.8-337.14 *)
 inductive wf_fshape :: "fshape \<Rightarrow> bool" where
 	  fshape_case_0 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 ((fun_lanetype v_shape) = (lanetype_Fnn v_Fnn)) \<Longrightarrow>
 		 wf_fshape (mk_fshape v_shape)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:332.1-333.31 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:339.1-340.31 *)
 datatype pshape =
 	  mk_pshape "shape"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:332.8-332.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:339.8-339.14 *)
 inductive wf_pshape :: "pshape \<Rightarrow> bool" where
 	  pshape_case_0 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 ((fun_lanetype v_shape) = (lanetype_packtype v_Pnn)) \<Longrightarrow>
 		 wf_pshape (mk_pshape v_shape)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:335.1-335.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.1-342.22 *)
 function (sequential, domintros) fun_dim :: "shape \<Rightarrow> dim" where
 		  "fun_dim (X v_Lnn (mk_dim v_N)) = (mk_dim v_N)"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:335.6-335.10 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.6-342.10 *)
 lemma dim_is_wf :
 	"(wf_shape v_shape) \<Longrightarrow>
 	 (ret_val = (fun_dim v_shape)) \<Longrightarrow>
 	 (wf_dim ret_val)"
 sorry
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:336.1-336.41 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.1-343.41 *)
 function (sequential, domintros) shsize :: "shape \<Rightarrow> nat" where
 		  "shsize (X v_Lnn (mk_dim v_N)) = ((lsize v_Lnn) * v_N)"
 	by pat_completeness auto
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:338.1-338.20 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:345.1-345.20 *)
 datatype vvunop =
 	  NOT
 	
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:339.1-339.41 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:346.1-346.41 *)
 datatype vvbinop =
 	  vvbinop_AND
 	| ANDNOT
 	| vvbinop_OR
 	| vvbinop_XOR
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:340.1-340.28 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:347.1-347.28 *)
 datatype vvternop =
 	  BITSELECT
 	
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:341.1-341.27 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:348.1-348.27 *)
 datatype vvtestop =
 	  ANY_TRUE
 	
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.1-343.21 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:350.1-350.21 *)
 datatype vunop_Jnn_N =
 	  vunop_Jnn_N_ABS
 	| vunop_Jnn_N_NEG
 	| vunop_Jnn_N_POPCNT
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.8-343.15 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:350.8-350.15 *)
 inductive wf_vunop_Jnn_N :: "Jnn \<Rightarrow> N \<Rightarrow> vunop_Jnn_N \<Rightarrow> bool" where
 	  vunop_Jnn_N_case_0 :
 		"wf_vunop_Jnn_N v_Jnn v_N vunop_Jnn_N_ABS"
@@ -1299,7 +1300,7 @@ inductive wf_vunop_Jnn_N :: "Jnn \<Rightarrow> N \<Rightarrow> vunop_Jnn_N \<Rig
 		"(v_Jnn = Jnn_I8) \<Longrightarrow>
 		 wf_vunop_Jnn_N v_Jnn v_N vunop_Jnn_N_POPCNT"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.1-343.21 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:350.1-350.21 *)
 datatype vunop_Fnn_N =
 	  vunop_Fnn_N_ABS
 	| vunop_Fnn_N_NEG
@@ -1309,12 +1310,12 @@ datatype vunop_Fnn_N =
 	| vunop_Fnn_N_TRUNC
 	| vunop_Fnn_N_NEAREST
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.1-343.21 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:350.1-350.21 *)
 datatype vunop_underscore =
 	  mk_vunop__0 "Jnn" "N" "vunop_Jnn_N"
 	| mk_vunop__1 "Fnn" "N" "vunop_Fnn_N"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.8-343.15 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:350.8-350.15 *)
 inductive wf_vunop_underscore :: "shape \<Rightarrow> vunop_underscore \<Rightarrow> bool" where
 	  vunop__case_0 :
 		"(wf_vunop_Jnn_N v_Jnn v_N var_x) \<Longrightarrow>
@@ -1324,19 +1325,19 @@ inductive wf_vunop_underscore :: "shape \<Rightarrow> vunop_underscore \<Rightar
 		"(v_shape = (X (lanetype_Fnn v_Fnn) (mk_dim v_N))) \<Longrightarrow>
 		 wf_vunop_underscore v_shape (mk_vunop__1 v_Fnn v_N var_x)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.1-343.21 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:350.1-350.21 *)
 function (sequential, domintros) proj_vunop__0 :: "vunop_underscore \<Rightarrow> (vunop_Jnn_N option)" where
 		  "proj_vunop__0 (mk_vunop__0 v_Jnn v_N var_x) = (Some var_x)"
 		| "proj_vunop__0 var_x = None"
 	by pat_completeness auto
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.1-343.21 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:350.1-350.21 *)
 function (sequential, domintros) proj_vunop__1 :: "vunop_underscore \<Rightarrow> (vunop_Fnn_N option)" where
 		  "proj_vunop__1 (mk_vunop__1 v_Fnn v_N var_x) = (Some var_x)"
 		| "proj_vunop__1 var_x = None"
 	by pat_completeness auto
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:348.1-348.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.1-355.22 *)
 datatype vbinop_Jnn_N =
 	  vbinop_Jnn_N_ADD
 	| vbinop_Jnn_N_SUB
@@ -1348,7 +1349,7 @@ datatype vbinop_Jnn_N =
 	| vbinop_Jnn_N_MIN "sx"
 	| vbinop_Jnn_N_MAX "sx"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:348.8-348.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.8-355.16 *)
 inductive wf_vbinop_Jnn_N :: "Jnn \<Rightarrow> N \<Rightarrow> vbinop_Jnn_N \<Rightarrow> bool" where
 	  vbinop_Jnn_N_case_0 :
 		"wf_vbinop_Jnn_N v_Jnn v_N vbinop_Jnn_N_ADD"
@@ -1376,7 +1377,7 @@ inductive wf_vbinop_Jnn_N :: "Jnn \<Rightarrow> N \<Rightarrow> vbinop_Jnn_N \<R
 		"((lsizenn (lanetype_Jnn v_Jnn)) \<le> 32) \<Longrightarrow>
 		 wf_vbinop_Jnn_N v_Jnn v_N (vbinop_Jnn_N_MAX v_sx)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:348.1-348.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.1-355.22 *)
 datatype vbinop_Fnn_N =
 	  vbinop_Fnn_N_ADD
 	| vbinop_Fnn_N_SUB
@@ -1387,12 +1388,12 @@ datatype vbinop_Fnn_N =
 	| PMIN
 	| PMAX
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:348.1-348.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.1-355.22 *)
 datatype vbinop_underscore =
 	  mk_vbinop__0 "Jnn" "N" "vbinop_Jnn_N"
 	| mk_vbinop__1 "Fnn" "N" "vbinop_Fnn_N"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:348.8-348.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.8-355.16 *)
 inductive wf_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Rightarrow> bool" where
 	  vbinop__case_0 :
 		"(wf_vbinop_Jnn_N v_Jnn v_N var_x) \<Longrightarrow>
@@ -1402,40 +1403,40 @@ inductive wf_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Right
 		"(v_shape = (X (lanetype_Fnn v_Fnn) (mk_dim v_N))) \<Longrightarrow>
 		 wf_vbinop_underscore v_shape (mk_vbinop__1 v_Fnn v_N var_x)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:348.1-348.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.1-355.22 *)
 function (sequential, domintros) proj_vbinop__0 :: "vbinop_underscore \<Rightarrow> (vbinop_Jnn_N option)" where
 		  "proj_vbinop__0 (mk_vbinop__0 v_Jnn v_N var_x) = (Some var_x)"
 		| "proj_vbinop__0 var_x = None"
 	by pat_completeness auto
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:348.1-348.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.1-355.22 *)
 function (sequential, domintros) proj_vbinop__1 :: "vbinop_underscore \<Rightarrow> (vbinop_Fnn_N option)" where
 		  "proj_vbinop__1 (mk_vbinop__1 v_Fnn v_N var_x) = (Some var_x)"
 		| "proj_vbinop__1 var_x = None"
 	by pat_completeness auto
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:361.1-361.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:368.1-368.23 *)
 datatype vtestop_Jnn_N =
 	  ALL_TRUE
 	
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:361.1-361.23 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:368.1-368.23 *)
 datatype vtestop_underscore =
 	  mk_vtestop__0 "Jnn" "N" "vtestop_Jnn_N"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:361.8-361.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:368.8-368.17 *)
 inductive wf_vtestop_underscore :: "shape \<Rightarrow> vtestop_underscore \<Rightarrow> bool" where
 	  vtestop__case_0 :
 		"(v_shape = (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) \<Longrightarrow>
 		 wf_vtestop_underscore v_shape (mk_vtestop__0 v_Jnn v_N var_x)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:361.1-361.23 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:368.1-368.23 *)
 function (sequential, domintros) proj_vtestop__0 :: "vtestop_underscore \<Rightarrow> vtestop_Jnn_N" where
 		  "proj_vtestop__0 (mk_vtestop__0 v_Jnn v_N var_x) = var_x"
 	by pat_completeness auto
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:365.1-365.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.1-372.22 *)
 datatype vrelop_Jnn_N =
 	  vrelop_Jnn_N_EQ
 	| vrelop_Jnn_N_NE
@@ -1444,7 +1445,7 @@ datatype vrelop_Jnn_N =
 	| vrelop_Jnn_N_LE "sx"
 	| vrelop_Jnn_N_GE "sx"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:365.8-365.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.8-372.16 *)
 inductive wf_vrelop_Jnn_N :: "Jnn \<Rightarrow> N \<Rightarrow> vrelop_Jnn_N \<Rightarrow> bool" where
 	  vrelop_Jnn_N_case_0 :
 		"wf_vrelop_Jnn_N v_Jnn v_N vrelop_Jnn_N_EQ"
@@ -1463,7 +1464,7 @@ inductive wf_vrelop_Jnn_N :: "Jnn \<Rightarrow> N \<Rightarrow> vrelop_Jnn_N \<R
 		"(((lsizenn (lanetype_Jnn v_Jnn)) \<noteq> 64) \<or> (v_sx = S)) \<Longrightarrow>
 		 wf_vrelop_Jnn_N v_Jnn v_N (vrelop_Jnn_N_GE v_sx)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:365.1-365.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.1-372.22 *)
 datatype vrelop_Fnn_N =
 	  vrelop_Fnn_N_EQ
 	| vrelop_Fnn_N_NE
@@ -1472,12 +1473,12 @@ datatype vrelop_Fnn_N =
 	| vrelop_Fnn_N_LE
 	| vrelop_Fnn_N_GE
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:365.1-365.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.1-372.22 *)
 datatype vrelop_underscore =
 	  mk_vrelop__0 "Jnn" "N" "vrelop_Jnn_N"
 	| mk_vrelop__1 "Fnn" "N" "vrelop_Fnn_N"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:365.8-365.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.8-372.16 *)
 inductive wf_vrelop_underscore :: "shape \<Rightarrow> vrelop_underscore \<Rightarrow> bool" where
 	  vrelop__case_0 :
 		"(wf_vrelop_Jnn_N v_Jnn v_N var_x) \<Longrightarrow>
@@ -1487,67 +1488,67 @@ inductive wf_vrelop_underscore :: "shape \<Rightarrow> vrelop_underscore \<Right
 		"(v_shape = (X (lanetype_Fnn v_Fnn) (mk_dim v_N))) \<Longrightarrow>
 		 wf_vrelop_underscore v_shape (mk_vrelop__1 v_Fnn v_N var_x)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:365.1-365.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.1-372.22 *)
 function (sequential, domintros) proj_vrelop__0 :: "vrelop_underscore \<Rightarrow> (vrelop_Jnn_N option)" where
 		  "proj_vrelop__0 (mk_vrelop__0 v_Jnn v_N var_x) = (Some var_x)"
 		| "proj_vrelop__0 var_x = None"
 	by pat_completeness auto
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:365.1-365.22 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.1-372.22 *)
 function (sequential, domintros) proj_vrelop__1 :: "vrelop_underscore \<Rightarrow> (vrelop_Fnn_N option)" where
 		  "proj_vrelop__1 (mk_vrelop__1 v_Fnn v_N var_x) = (Some var_x)"
 		| "proj_vrelop__1 var_x = None"
 	by pat_completeness auto
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:373.1-373.48 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:380.1-380.48 *)
 datatype half =
 	  LOW
 	| HIGH
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:374.1-374.19 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:381.1-381.19 *)
 datatype zero =
 	  ZERO
 	
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 *)
 datatype vcvtop__Jnn_1_M_1_Jnn_2_M_2 =
 	  vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND "half" "sx"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.8-376.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.8-383.17 *)
 inductive wf_vcvtop__Jnn_1_M_1_Jnn_2_M_2 :: "Jnn \<Rightarrow> M \<Rightarrow> Jnn \<Rightarrow> M \<Rightarrow> vcvtop__Jnn_1_M_1_Jnn_2_M_2 \<Rightarrow> bool" where
 	  vcvtop__Jnn_1_M_1_Jnn_2_M_2_case_0 :
 		"((lsizenn2 (lanetype_Jnn Jnn_2)) = (2 * (lsizenn1 (lanetype_Jnn Jnn_1)))) \<Longrightarrow>
 		 wf_vcvtop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 *)
 datatype vcvtop__Jnn_1_M_1_Fnn_2_M_2 =
 	  vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT "(half option)" "sx"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.8-376.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.8-383.17 *)
 inductive wf_vcvtop__Jnn_1_M_1_Fnn_2_M_2 :: "Jnn \<Rightarrow> M \<Rightarrow> Fnn \<Rightarrow> M \<Rightarrow> vcvtop__Jnn_1_M_1_Fnn_2_M_2 \<Rightarrow> bool" where
 	  vcvtop__Jnn_1_M_1_Fnn_2_M_2_case_0 :
 		"(((((sizenn2 (numtype_Fnn Fnn_2)) = (lsizenn1 (lanetype_Jnn Jnn_1))) \<and> ((lsizenn1 (lanetype_Jnn Jnn_1)) = 32)) \<and> (half_opt = None)) \<or> (((sizenn2 (numtype_Fnn Fnn_2)) = (2 * (lsizenn1 (lanetype_Jnn Jnn_1)))) \<and> (half_opt = (Some LOW)))) \<Longrightarrow>
 		 wf_vcvtop__Jnn_1_M_1_Fnn_2_M_2 Jnn_1 M_1 Fnn_2 M_2 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
-datatype vcvtop__Fnn_1_M_1_Jnn_2_M_2 =
-	  vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT "sx" "(zero option)"
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 *)
+datatype vcvtop__Fnn_1_M_1_Inn_2_M_2 =
+	  vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT "sx" "(zero option)"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.8-376.17 *)
-inductive wf_vcvtop__Fnn_1_M_1_Jnn_2_M_2 :: "Fnn \<Rightarrow> M \<Rightarrow> Jnn \<Rightarrow> M \<Rightarrow> vcvtop__Fnn_1_M_1_Jnn_2_M_2 \<Rightarrow> bool" where
-	  vcvtop__Fnn_1_M_1_Jnn_2_M_2_case_0 :
-		"(((((sizenn1 (numtype_Fnn Fnn_1)) = (lsizenn2 (lanetype_Jnn Jnn_2))) \<and> ((lsizenn2 (lanetype_Jnn Jnn_2)) = 32)) \<and> (zero_opt = None)) \<or> (((sizenn1 (numtype_Fnn Fnn_1)) = (2 * (lsizenn2 (lanetype_Jnn Jnn_2)))) \<and> (zero_opt = (Some ZERO)))) \<Longrightarrow>
-		 wf_vcvtop__Fnn_1_M_1_Jnn_2_M_2 Fnn_1 M_1 Jnn_2 M_2 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)"
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.8-383.17 *)
+inductive wf_vcvtop__Fnn_1_M_1_Inn_2_M_2 :: "Fnn \<Rightarrow> M \<Rightarrow> Inn \<Rightarrow> M \<Rightarrow> vcvtop__Fnn_1_M_1_Inn_2_M_2 \<Rightarrow> bool" where
+	  vcvtop__Fnn_1_M_1_Inn_2_M_2_case_0 :
+		"(((((sizenn1 (numtype_Fnn Fnn_1)) = (lsizenn2 (lanetype_Inn Inn_2))) \<and> ((lsizenn2 (lanetype_Inn Inn_2)) = 32)) \<and> (zero_opt = None)) \<or> (((sizenn1 (numtype_Fnn Fnn_1)) = (2 * (lsizenn2 (lanetype_Inn Inn_2)))) \<and> (zero_opt = (Some ZERO)))) \<Longrightarrow>
+		 wf_vcvtop__Fnn_1_M_1_Inn_2_M_2 Fnn_1 M_1 Inn_2 M_2 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 *)
 datatype vcvtop__Fnn_1_M_1_Fnn_2_M_2 =
 	  vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE "zero"
 	| PROMOTELOW
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.8-376.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.8-383.17 *)
 inductive wf_vcvtop__Fnn_1_M_1_Fnn_2_M_2 :: "Fnn \<Rightarrow> M \<Rightarrow> Fnn \<Rightarrow> M \<Rightarrow> vcvtop__Fnn_1_M_1_Fnn_2_M_2 \<Rightarrow> bool" where
 	  vcvtop__Fnn_1_M_1_Fnn_2_M_2_case_0 :
 		"((sizenn1 (numtype_Fnn Fnn_1)) = (2 * (sizenn2 (numtype_Fnn Fnn_2)))) \<Longrightarrow>
@@ -1556,14 +1557,14 @@ inductive wf_vcvtop__Fnn_1_M_1_Fnn_2_M_2 :: "Fnn \<Rightarrow> M \<Rightarrow> F
 		"((2 * (sizenn1 (numtype_Fnn Fnn_1))) = (sizenn2 (numtype_Fnn Fnn_2))) \<Longrightarrow>
 		 wf_vcvtop__Fnn_1_M_1_Fnn_2_M_2 Fnn_1 M_1 Fnn_2 M_2 PROMOTELOW"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 *)
 datatype vcvtop__underscore =
 	  mk_vcvtop___0 "Jnn" "M" "Jnn" "M" "vcvtop__Jnn_1_M_1_Jnn_2_M_2"
 	| mk_vcvtop___1 "Jnn" "M" "Fnn" "M" "vcvtop__Jnn_1_M_1_Fnn_2_M_2"
-	| mk_vcvtop___2 "Fnn" "M" "Jnn" "M" "vcvtop__Fnn_1_M_1_Jnn_2_M_2"
+	| mk_vcvtop___2 "Fnn" "M" "Inn" "M" "vcvtop__Fnn_1_M_1_Inn_2_M_2"
 	| mk_vcvtop___3 "Fnn" "M" "Fnn" "M" "vcvtop__Fnn_1_M_1_Fnn_2_M_2"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.8-376.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.8-383.17 *)
 inductive wf_vcvtop__underscore :: "shape \<Rightarrow> shape \<Rightarrow> vcvtop__underscore \<Rightarrow> bool" where
 	  vcvtop___case_0 :
 		"(wf_vcvtop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 var_x) \<Longrightarrow>
@@ -1576,78 +1577,78 @@ inductive wf_vcvtop__underscore :: "shape \<Rightarrow> shape \<Rightarrow> vcvt
 		 (shape_2 = (X (lanetype_Fnn Fnn_2) (mk_dim M_2))) \<Longrightarrow>
 		 wf_vcvtop__underscore shape_1 shape_2 (mk_vcvtop___1 Jnn_1 M_1 Fnn_2 M_2 var_x)"
 	| vcvtop___case_2 :
-		"(wf_vcvtop__Fnn_1_M_1_Jnn_2_M_2 Fnn_1 M_1 Jnn_2 M_2 var_x) \<Longrightarrow>
+		"(wf_vcvtop__Fnn_1_M_1_Inn_2_M_2 Fnn_1 M_1 Inn_2 M_2 var_x) \<Longrightarrow>
 		 (shape_1 = (X (lanetype_Fnn Fnn_1) (mk_dim M_1))) \<Longrightarrow>
-		 (shape_2 = (X (lanetype_Jnn Jnn_2) (mk_dim M_2))) \<Longrightarrow>
-		 wf_vcvtop__underscore shape_1 shape_2 (mk_vcvtop___2 Fnn_1 M_1 Jnn_2 M_2 var_x)"
+		 (shape_2 = (X (lanetype_Inn Inn_2) (mk_dim M_2))) \<Longrightarrow>
+		 wf_vcvtop__underscore shape_1 shape_2 (mk_vcvtop___2 Fnn_1 M_1 Inn_2 M_2 var_x)"
 	| vcvtop___case_3 :
 		"(wf_vcvtop__Fnn_1_M_1_Fnn_2_M_2 Fnn_1 M_1 Fnn_2 M_2 var_x) \<Longrightarrow>
 		 (shape_1 = (X (lanetype_Fnn Fnn_1) (mk_dim M_1))) \<Longrightarrow>
 		 (shape_2 = (X (lanetype_Fnn Fnn_2) (mk_dim M_2))) \<Longrightarrow>
 		 wf_vcvtop__underscore shape_1 shape_2 (mk_vcvtop___3 Fnn_1 M_1 Fnn_2 M_2 var_x)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 *)
 function (sequential, domintros) proj_vcvtop___0 :: "vcvtop__underscore \<Rightarrow> (vcvtop__Jnn_1_M_1_Jnn_2_M_2 option)" where
 		  "proj_vcvtop___0 (mk_vcvtop___0 Jnn_1 M_1 Jnn_2 M_2 var_x) = (Some var_x)"
 		| "proj_vcvtop___0 var_x = None"
 	by pat_completeness auto
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 *)
 function (sequential, domintros) proj_vcvtop___1 :: "vcvtop__underscore \<Rightarrow> (vcvtop__Jnn_1_M_1_Fnn_2_M_2 option)" where
 		  "proj_vcvtop___1 (mk_vcvtop___1 Jnn_1 M_1 Fnn_2 M_2 var_x) = (Some var_x)"
 		| "proj_vcvtop___1 var_x = None"
 	by pat_completeness auto
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
-function (sequential, domintros) proj_vcvtop___2 :: "vcvtop__underscore \<Rightarrow> (vcvtop__Fnn_1_M_1_Jnn_2_M_2 option)" where
-		  "proj_vcvtop___2 (mk_vcvtop___2 Fnn_1 M_1 Jnn_2 M_2 var_x) = (Some var_x)"
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 *)
+function (sequential, domintros) proj_vcvtop___2 :: "vcvtop__underscore \<Rightarrow> (vcvtop__Fnn_1_M_1_Inn_2_M_2 option)" where
+		  "proj_vcvtop___2 (mk_vcvtop___2 Fnn_1 M_1 Inn_2 M_2 var_x) = (Some var_x)"
 		| "proj_vcvtop___2 var_x = None"
 	by pat_completeness auto
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:376.1-376.55 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 *)
 function (sequential, domintros) proj_vcvtop___3 :: "vcvtop__underscore \<Rightarrow> (vcvtop__Fnn_1_M_1_Fnn_2_M_2 option)" where
 		  "proj_vcvtop___3 (mk_vcvtop___3 Fnn_1 M_1 Fnn_2 M_2 var_x) = (Some var_x)"
 		| "proj_vcvtop___3 var_x = None"
 	by pat_completeness auto
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:394.1-394.25 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.1-401.25 *)
 datatype vshiftop_Jnn_N =
 	  vshiftop_Jnn_N_SHL
 	| vshiftop_Jnn_N_SHR "sx"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:394.1-394.25 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.1-401.25 *)
 datatype vshiftop_underscore =
 	  mk_vshiftop__0 "Jnn" "N" "vshiftop_Jnn_N"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:394.8-394.18 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.8-401.18 *)
 inductive wf_vshiftop_underscore :: "ishape \<Rightarrow> vshiftop_underscore \<Rightarrow> bool" where
 	  vshiftop__case_0 :
 		"(v_ishape = (mk_ishape (X (lanetype_Jnn v_Jnn) (mk_dim v_N)))) \<Longrightarrow>
 		 wf_vshiftop_underscore v_ishape (mk_vshiftop__0 v_Jnn v_N var_x)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:394.1-394.25 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.1-401.25 *)
 function (sequential, domintros) proj_vshiftop__0 :: "vshiftop_underscore \<Rightarrow> vshiftop_Jnn_N" where
 		  "proj_vshiftop__0 (mk_vshiftop__0 v_Jnn v_N var_x) = var_x"
 	by pat_completeness auto
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:397.1-397.59 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:404.1-404.59 *)
 datatype vextunop__Jnn_1_M_1_Jnn_2_M_2 =
 	  EXTADD_PAIRWISE "sx"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:397.8-397.19 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:404.8-404.19 *)
 inductive wf_vextunop__Jnn_1_M_1_Jnn_2_M_2 :: "Jnn \<Rightarrow> M \<Rightarrow> Jnn \<Rightarrow> M \<Rightarrow> vextunop__Jnn_1_M_1_Jnn_2_M_2 \<Rightarrow> bool" where
 	  vextunop__Jnn_1_M_1_Jnn_2_M_2_case_0 :
 		"((16 \<le> (2 * (lsizenn1 (lanetype_Jnn Jnn_1)))) \<and> (((2 * (lsizenn1 (lanetype_Jnn Jnn_1))) = (lsizenn2 (lanetype_Jnn Jnn_2))) \<and> ((lsizenn2 (lanetype_Jnn Jnn_2)) \<le> 32))) \<Longrightarrow>
 		 wf_vextunop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 (EXTADD_PAIRWISE v_sx)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:397.1-397.59 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:404.1-404.59 *)
 datatype vextunop__underscore =
 	  mk_vextunop___0 "Jnn" "M" "Jnn" "M" "vextunop__Jnn_1_M_1_Jnn_2_M_2"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:397.8-397.19 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:404.8-404.19 *)
 inductive wf_vextunop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow> vextunop__underscore \<Rightarrow> bool" where
 	  vextunop___case_0 :
 		"(wf_vextunop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 var_x) \<Longrightarrow>
@@ -1655,17 +1656,17 @@ inductive wf_vextunop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow> 
 		 (ishape_2 = (mk_ishape (X (lanetype_Jnn Jnn_2) (mk_dim M_2)))) \<Longrightarrow>
 		 wf_vextunop__underscore ishape_1 ishape_2 (mk_vextunop___0 Jnn_1 M_1 Jnn_2 M_2 var_x)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:397.1-397.59 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:404.1-404.59 *)
 function (sequential, domintros) proj_vextunop___0 :: "vextunop__underscore \<Rightarrow> vextunop__Jnn_1_M_1_Jnn_2_M_2" where
 		  "proj_vextunop___0 (mk_vextunop___0 Jnn_1 M_1 Jnn_2 M_2 var_x) = var_x"
 	by pat_completeness auto
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.1-401.60 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:408.1-408.60 *)
 datatype vextbinop__Jnn_1_M_1_Jnn_2_M_2 =
 	  EXTMUL "half" "sx"
 	| DOTS
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.8-401.20 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:408.8-408.20 *)
 inductive wf_vextbinop__Jnn_1_M_1_Jnn_2_M_2 :: "Jnn \<Rightarrow> M \<Rightarrow> Jnn \<Rightarrow> M \<Rightarrow> vextbinop__Jnn_1_M_1_Jnn_2_M_2 \<Rightarrow> bool" where
 	  vextbinop__Jnn_1_M_1_Jnn_2_M_2_case_0 :
 		"(((2 * (lsizenn1 (lanetype_Jnn Jnn_1))) = (lsizenn2 (lanetype_Jnn Jnn_2))) \<and> ((lsizenn2 (lanetype_Jnn Jnn_2)) \<ge> 16)) \<Longrightarrow>
@@ -1674,12 +1675,12 @@ inductive wf_vextbinop__Jnn_1_M_1_Jnn_2_M_2 :: "Jnn \<Rightarrow> M \<Rightarrow
 		"(((2 * (lsizenn1 (lanetype_Jnn Jnn_1))) = (lsizenn2 (lanetype_Jnn Jnn_2))) \<and> ((lsizenn2 (lanetype_Jnn Jnn_2)) = 32)) \<Longrightarrow>
 		 wf_vextbinop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 DOTS"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.1-401.60 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:408.1-408.60 *)
 datatype vextbinop__underscore =
 	  mk_vextbinop___0 "Jnn" "M" "Jnn" "M" "vextbinop__Jnn_1_M_1_Jnn_2_M_2"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.8-401.20 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:408.8-408.20 *)
 inductive wf_vextbinop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow> vextbinop__underscore \<Rightarrow> bool" where
 	  vextbinop___case_0 :
 		"(wf_vextbinop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 var_x) \<Longrightarrow>
@@ -1687,12 +1688,12 @@ inductive wf_vextbinop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow>
 		 (ishape_2 = (mk_ishape (X (lanetype_Jnn Jnn_2) (mk_dim M_2)))) \<Longrightarrow>
 		 wf_vextbinop__underscore ishape_1 ishape_2 (mk_vextbinop___0 Jnn_1 M_1 Jnn_2 M_2 var_x)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.1-401.60 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:408.1-408.60 *)
 function (sequential, domintros) proj_vextbinop___0 :: "vextbinop__underscore \<Rightarrow> vextbinop__Jnn_1_M_1_Jnn_2_M_2" where
 		  "proj_vextbinop___0 (mk_vextbinop___0 Jnn_1 M_1 Jnn_2 M_2 var_x) = var_x"
 	by pat_completeness auto
 
-(* Record Creation Definition at: ../specification/wasm-2.0/1-syntax.spectec:411.1-411.69 *)
+(* Record Creation Definition at: ../specification/wasm-2.0/1-syntax.spectec:418.1-418.69 *)
 record memarg =
 	ALIGN :: "u32"
 	OFFSET :: "u32"
@@ -1705,53 +1706,53 @@ definition append_memarg :: "memarg \<Rightarrow> memarg \<Rightarrow> memarg" w
 
 
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:411.8-411.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:418.8-418.14 *)
 inductive wf_memarg :: "memarg \<Rightarrow> bool" where
 	  memarg_case_underscore :
 		"(wf_uN 32 var_0) \<Longrightarrow>
 		 (wf_uN 32 var_1) \<Longrightarrow>
 		 wf_memarg \<lparr> ALIGN = var_0, OFFSET = var_1 \<rparr>"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:415.1-415.24 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:422.1-422.24 *)
 datatype loadop_Inn =
 	  mk_loadop_Inn "sz" "sx"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:415.8-415.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:422.8-422.16 *)
 inductive wf_loadop_Inn :: "Inn \<Rightarrow> loadop_Inn \<Rightarrow> bool" where
 	  loadop_Inn_case_0 :
 		"(wf_sz v_sz) \<Longrightarrow>
 		 ((proj_sz_0 v_sz) < (sizenn (numtype_Inn v_Inn))) \<Longrightarrow>
 		 wf_loadop_Inn v_Inn (mk_loadop_Inn v_sz v_sx)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:415.1-415.24 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:422.1-422.24 *)
 datatype loadop_underscore =
 	  mk_loadop__0 "Inn" "loadop_Inn"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:415.8-415.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:422.8-422.16 *)
 inductive wf_loadop_underscore :: "numtype \<Rightarrow> loadop_underscore \<Rightarrow> bool" where
 	  loadop__case_0 :
 		"(wf_loadop_Inn v_Inn var_x) \<Longrightarrow>
 		 (v_numtype = (numtype_Inn v_Inn)) \<Longrightarrow>
 		 wf_loadop_underscore v_numtype (mk_loadop__0 v_Inn var_x)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:415.1-415.24 *)
+(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:422.1-422.24 *)
 function (sequential, domintros) proj_loadop__0 :: "loadop_underscore \<Rightarrow> loadop_Inn" where
 		  "proj_loadop__0 (mk_loadop__0 v_Inn var_x) = var_x"
 	by pat_completeness auto
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:418.1-421.61 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:425.1-428.61 *)
 datatype vloadop_underscore =
 	  SHAPEX_underscore "sz" "M" "sx"
 	| SPLAT "sz"
 	| vloadop__ZERO "sz"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:418.8-418.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:425.8-425.17 *)
 inductive wf_vloadop_underscore :: "vectype \<Rightarrow> vloadop_underscore \<Rightarrow> bool" where
 	  vloadop__case_0 :
 		"(wf_sz v_sz) \<Longrightarrow>
-		 ((((proj_sz_0 v_sz) * v_M) :: nat) = (((vsize v_vectype) :: nat) div (2 :: nat))) \<Longrightarrow>
+		 (((((proj_sz_0 v_sz) * v_M) :: nat) = (((vsize v_vectype) :: nat) div (2 :: nat))) \<and> (v_M > 1)) \<Longrightarrow>
 		 wf_vloadop_underscore v_vectype (SHAPEX_underscore v_sz v_M v_sx)"
 	| vloadop__case_1 :
 		"(wf_sz v_sz) \<Longrightarrow>
@@ -1761,12 +1762,12 @@ inductive wf_vloadop_underscore :: "vectype \<Rightarrow> vloadop_underscore \<R
 		 ((proj_sz_0 v_sz) \<ge> 32) \<Longrightarrow>
 		 wf_vloadop_underscore v_vectype (vloadop__ZERO v_sz)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:428.1-430.17 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:435.1-437.17 *)
 datatype blocktype =
 	  underscore_RESULT "(valtype option)"
 	| underscore_IDX "typeidx"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:428.8-428.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:435.8-435.17 *)
 inductive wf_blocktype :: "blocktype \<Rightarrow> bool" where
 	  blocktype_case_0 :
 		"wf_blocktype (underscore_RESULT valtype_opt)"
@@ -1774,7 +1775,7 @@ inductive wf_blocktype :: "blocktype \<Rightarrow> bool" where
 		"(wf_uN 32 v_typeidx) \<Longrightarrow>
 		 wf_blocktype (underscore_IDX v_typeidx)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:545.1-546.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
 datatype instr_st6 =
 	  MEMORY_COPY
 	| MEMORY_FILL
@@ -1786,7 +1787,7 @@ datatype instr_st6 =
 	| VLOAD "vectype" "(vloadop_underscore option)" "memarg"
 	| STORE "numtype" "(sz option)" "memarg"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:545.1-546.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
 datatype instr_st5 =
 	  LOAD "numtype" "(loadop_underscore option)" "memarg"
 	| ELEM_DROP "elemidx"
@@ -1798,7 +1799,7 @@ datatype instr_st5 =
 	| TABLE_SET "tableidx"
 	| TABLE_GET "tableidx"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:545.1-546.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
 datatype instr_st4 =
 	  GLOBAL_SET "globalidx"
 	| GLOBAL_GET "globalidx"
@@ -1810,7 +1811,7 @@ datatype instr_st4 =
 	| REF_NULL "reftype"
 	| VCVTOP "shape" "shape" "vcvtop__underscore"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:545.1-546.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
 datatype instr_st3 =
 	  VNARROW "ishape" "ishape" "sx"
 	| VEXTBINOP "ishape" "ishape" "vextbinop__underscore"
@@ -1822,7 +1823,7 @@ datatype instr_st3 =
 	| VSWIZZLE "ishape"
 	| VBITMASK "ishape"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:545.1-546.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
 datatype instr_st2 =
 	  VSHIFTOP "ishape" "vshiftop_underscore"
 	| VRELOP "shape" "vrelop_underscore"
@@ -1834,7 +1835,7 @@ datatype instr_st2 =
 	| VVBINOP "vectype" "vvbinop"
 	| VVUNOP "vectype" "vvunop"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:545.1-546.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
 datatype instr_st1 =
 	  VCONST "vectype" "vec_underscore"
 	| instr_st1_EXTEND "numtype" "n"
@@ -1846,7 +1847,7 @@ datatype instr_st1 =
 	| res_CONST "numtype" "num_underscore"
 	| RETURN
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:545.1-546.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
 datatype instr_st0 =
 	  CALL_INDIRECT "tableidx" "typeidx"
 	| CALL "funcidx"
@@ -1858,7 +1859,7 @@ datatype instr_st0 =
 	| UNREACHABLE
 	| NOP
 
-(* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:545.1-546.22 *)
+(* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
 datatype instr =
 	  instr_sc0 "instr_st0"
 	| instr_sc1 "instr_st1"
@@ -1878,7 +1879,7 @@ instr_st7 =
 	| DATA_DROP "dataidx"
 	| MEMORY_INIT "dataidx"
 
-(* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:545.1-546.22 *)
+(* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
 inductive wf_instr :: "instr \<Rightarrow> bool" where
 	  instr_case_0 :
 		"wf_instr (instr_sc0 NOP)"
@@ -2108,16 +2109,16 @@ inductive wf_instr :: "instr \<Rightarrow> bool" where
 		"(wf_uN 32 v_dataidx) \<Longrightarrow>
 		 wf_instr (instr_sc7 (DATA_DROP v_dataidx))"
 
-(* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:549.1-550.9 *)
+(* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:556.1-557.9 *)
 type_synonym expr = "(instr list)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:562.1-562.59 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.1-569.59 *)
 datatype elemmode =
 	  ACTIVE "tableidx" "expr"
 	| PASSIVE
 	| DECLARE
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:562.8-562.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.8-569.16 *)
 inductive wf_elemmode :: "elemmode \<Rightarrow> bool" where
 	  elemmode_case_0 :
 		"(wf_uN 32 v_tableidx) \<Longrightarrow>
@@ -2128,12 +2129,12 @@ inductive wf_elemmode :: "elemmode \<Rightarrow> bool" where
 	| elemmode_case_2 :
 		"wf_elemmode DECLARE"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:563.1-563.47 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:570.1-570.47 *)
 datatype datamode =
 	  datamode_ACTIVE "memidx" "expr"
 	| datamode_PASSIVE
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:563.8-563.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:570.8-570.16 *)
 inductive wf_datamode :: "datamode \<Rightarrow> bool" where
 	  datamode_case_0 :
 		"(wf_uN 32 v_memidx) \<Longrightarrow>
@@ -2142,104 +2143,104 @@ inductive wf_datamode :: "datamode \<Rightarrow> bool" where
 	| datamode_case_1 :
 		"wf_datamode datamode_PASSIVE"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:565.1-566.16 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:572.1-573.16 *)
 datatype type =
 	  res_TYPE "functype"
 	
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:567.1-568.16 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:574.1-575.16 *)
 datatype local =
 	  LOCAL "valtype"
 	
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.1-570.27 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:576.1-577.27 *)
 datatype func =
 	  func_FUNC "typeidx" "(local list)" "expr"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.8-569.12 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:576.8-576.12 *)
 inductive wf_func :: "func \<Rightarrow> bool" where
 	  func_case_0 :
 		"(wf_uN 32 v_typeidx) \<Longrightarrow>
 		 list_all (\<lambda> (v_expr :: instr). (wf_instr v_expr)) v_expr \<Longrightarrow>
 		 wf_func (func_FUNC v_typeidx local_lst v_expr)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:571.1-572.25 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:578.1-579.25 *)
 datatype global =
 	  global_GLOBAL "globaltype" "expr"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:571.8-571.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:578.8-578.14 *)
 inductive wf_global :: "global \<Rightarrow> bool" where
 	  global_case_0 :
 		"list_all (\<lambda> (v_expr :: instr). (wf_instr v_expr)) v_expr \<Longrightarrow>
 		 wf_global (global_GLOBAL v_globaltype v_expr)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:573.1-574.18 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:580.1-581.18 *)
 datatype table =
 	  table_TABLE "tabletype"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:573.8-573.13 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:580.8-580.13 *)
 inductive wf_table :: "table \<Rightarrow> bool" where
 	  table_case_0 :
 		"(wf_tabletype v_tabletype) \<Longrightarrow>
 		 wf_table (table_TABLE v_tabletype)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:575.1-576.17 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:582.1-583.17 *)
 datatype mem =
 	  MEMORY "memtype"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:575.8-575.11 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:582.8-582.11 *)
 inductive wf_mem :: "mem \<Rightarrow> bool" where
 	  mem_case_0 :
 		"(wf_memtype v_memtype) \<Longrightarrow>
 		 wf_mem (MEMORY v_memtype)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:577.1-578.30 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:584.1-585.30 *)
 datatype elem =
 	  ELEM "reftype" "(expr list)" "elemmode"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:577.8-577.12 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:584.8-584.12 *)
 inductive wf_elem :: "elem \<Rightarrow> bool" where
 	  elem_case_0 :
 		"list_all (\<lambda> (v_expr :: expr). list_all (\<lambda> (v_expr :: instr). (wf_instr v_expr)) v_expr) expr_lst \<Longrightarrow>
 		 (wf_elemmode v_elemmode) \<Longrightarrow>
 		 wf_elem (ELEM v_reftype expr_lst v_elemmode)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:579.1-580.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:586.1-587.22 *)
 datatype data =
 	  DATA "(byte list)" "datamode"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:579.8-579.12 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:586.8-586.12 *)
 inductive wf_data :: "data \<Rightarrow> bool" where
 	  data_case_0 :
 		"list_all (\<lambda> (v_byte :: byte). (wf_byte v_byte)) byte_lst \<Longrightarrow>
 		 (wf_datamode v_datamode) \<Longrightarrow>
 		 wf_data (DATA byte_lst v_datamode)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:581.1-582.16 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:588.1-589.16 *)
 datatype start =
 	  START "funcidx"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:581.8-581.13 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:588.8-588.13 *)
 inductive wf_start :: "start \<Rightarrow> bool" where
 	  start_case_0 :
 		"(wf_uN 32 v_funcidx) \<Longrightarrow>
 		 wf_start (START v_funcidx)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:584.1-585.66 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:591.1-592.66 *)
 datatype externidx =
 	  externidx_FUNC "funcidx"
 	| externidx_GLOBAL "globalidx"
 	| externidx_TABLE "tableidx"
 	| externidx_MEM "memidx"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:584.8-584.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:591.8-591.17 *)
 inductive wf_externidx :: "externidx \<Rightarrow> bool" where
 	  externidx_case_0 :
 		"(wf_uN 32 v_funcidx) \<Longrightarrow>
@@ -2254,24 +2255,24 @@ inductive wf_externidx :: "externidx \<Rightarrow> bool" where
 		"(wf_uN 32 v_memidx) \<Longrightarrow>
 		 wf_externidx (externidx_MEM v_memidx)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:586.1-587.24 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:593.1-594.24 *)
 datatype export =
 	  EXPORT "name" "externidx"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:586.8-586.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:593.8-593.14 *)
 inductive wf_export :: "export \<Rightarrow> bool" where
 	  export_case_0 :
 		"(wf_name v_name) \<Longrightarrow>
 		 (wf_externidx v_externidx) \<Longrightarrow>
 		 wf_export (EXPORT v_name v_externidx)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:588.1-589.30 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:595.1-596.30 *)
 datatype import =
 	  IMPORT "name" "name" "externtype"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:588.8-588.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:595.8-595.14 *)
 inductive wf_import :: "import \<Rightarrow> bool" where
 	  import_case_0 :
 		"(wf_name v_name) \<Longrightarrow>
@@ -2279,12 +2280,12 @@ inductive wf_import :: "import \<Rightarrow> bool" where
 		 (wf_externtype v_externtype) \<Longrightarrow>
 		 wf_import (IMPORT v_name name_0 v_externtype)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:591.1-592.76 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:598.1-599.76 *)
 datatype module =
 	  MODULE "(type list)" "(import list)" "(func list)" "(global list)" "(table list)" "(mem list)" "(elem list)" "(data list)" "(start option)" "(export list)"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:591.8-591.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:598.8-598.14 *)
 inductive wf_module :: "module \<Rightarrow> bool" where
 	  module_case_0 :
 		"list_all (\<lambda> (v_import :: import). (wf_import v_import)) import_lst \<Longrightarrow>
@@ -2897,25 +2898,25 @@ lemma irotr__is_wf :
 	 (wf_uN v_N ret_val)"
 sorry
 
-(* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:116.1-116.34 *)
-axiomatization ishl_underscore :: "N \<Rightarrow> iN \<Rightarrow> u32 \<Rightarrow> iN"
+(* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:116.1-116.36 *)
+axiomatization ishl_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:116.6-116.12 *)
 lemma ishl__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
-	 (wf_uN 32 v_u32) \<Longrightarrow>
-	 (ret_val = (ishl_underscore v_N v_iN v_u32)) \<Longrightarrow>
+	 (wf_uN v_N iN_0) \<Longrightarrow>
+	 (ret_val = (ishl_underscore v_N v_iN iN_0)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
 sorry
 
-(* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:117.1-117.74 *)
-axiomatization ishr_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> u32 \<Rightarrow> iN"
+(* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:117.1-117.76 *)
+axiomatization ishr_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:117.6-117.12 *)
 lemma ishr__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
-	 (wf_uN 32 v_u32) \<Longrightarrow>
-	 (ret_val = (ishr_underscore v_N v_sx v_iN v_u32)) \<Longrightarrow>
+	 (wf_uN v_N iN_0) \<Longrightarrow>
+	 (ret_val = (ishr_underscore v_N v_sx v_iN iN_0)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
 sorry
 
@@ -3014,16 +3015,16 @@ inductive fun_binop__before_fun_binop__case_38 :: "numtype \<Rightarrow> binop_u
 		"(wf_num_underscore (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (irotl_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))) \<Longrightarrow>
 		 fun_binop__before_fun_binop__case_38 I32 (mk_binop__0 Inn_I32 ROTL) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
 	| fun_binop__case_19 :
-		"(wf_num_underscore (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (ishr_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 (mk_uN (proj_uN_0 iN_2))))) \<Longrightarrow>
+		"(wf_num_underscore (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (ishr_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 iN_2))) \<Longrightarrow>
 		 fun_binop__before_fun_binop__case_38 I64 (mk_binop__0 Inn_I64 (SHR v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
 	| fun_binop__case_18 :
-		"(wf_num_underscore (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (ishr_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 (mk_uN (proj_uN_0 iN_2))))) \<Longrightarrow>
+		"(wf_num_underscore (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (ishr_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 iN_2))) \<Longrightarrow>
 		 fun_binop__before_fun_binop__case_38 I32 (mk_binop__0 Inn_I32 (SHR v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
 	| fun_binop__case_17 :
-		"(wf_num_underscore (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (ishl_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 (mk_uN (proj_uN_0 iN_2))))) \<Longrightarrow>
+		"(wf_num_underscore (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (ishl_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))) \<Longrightarrow>
 		 fun_binop__before_fun_binop__case_38 I64 (mk_binop__0 Inn_I64 SHL) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2)"
 	| fun_binop__case_16 :
-		"(wf_num_underscore (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (ishl_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 (mk_uN (proj_uN_0 iN_2))))) \<Longrightarrow>
+		"(wf_num_underscore (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (ishl_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))) \<Longrightarrow>
 		 fun_binop__before_fun_binop__case_38 I32 (mk_binop__0 Inn_I32 SHL) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2)"
 	| fun_binop__case_15 :
 		"(wf_num_underscore (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (ixor_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))) \<Longrightarrow>
@@ -3157,17 +3158,17 @@ inductive fun_binop_underscore :: "numtype \<Rightarrow> binop_underscore \<Righ
 		"(wf_num_underscore (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (ixor_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))) \<Longrightarrow>
 		 fun_binop_underscore I64 (mk_binop__0 Inn_I64 XOR) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some [(mk_num__0 Inn_I64 (ixor_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))])"
 	| fun_binop___fun_binop__case_16 :
-		"(wf_num_underscore (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (ishl_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 (mk_uN (proj_uN_0 iN_2))))) \<Longrightarrow>
-		 fun_binop_underscore I32 (mk_binop__0 Inn_I32 SHL) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some [(mk_num__0 Inn_I32 (ishl_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 (mk_uN (proj_uN_0 iN_2))))])"
+		"(wf_num_underscore (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (ishl_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))) \<Longrightarrow>
+		 fun_binop_underscore I32 (mk_binop__0 Inn_I32 SHL) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some [(mk_num__0 Inn_I32 (ishl_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))])"
 	| fun_binop___fun_binop__case_17 :
-		"(wf_num_underscore (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (ishl_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 (mk_uN (proj_uN_0 iN_2))))) \<Longrightarrow>
-		 fun_binop_underscore I64 (mk_binop__0 Inn_I64 SHL) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some [(mk_num__0 Inn_I64 (ishl_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 (mk_uN (proj_uN_0 iN_2))))])"
+		"(wf_num_underscore (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (ishl_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))) \<Longrightarrow>
+		 fun_binop_underscore I64 (mk_binop__0 Inn_I64 SHL) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some [(mk_num__0 Inn_I64 (ishl_underscore (sizenn (numtype_Inn Inn_I64)) iN_1 iN_2))])"
 	| fun_binop___fun_binop__case_18 :
-		"(wf_num_underscore (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (ishr_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 (mk_uN (proj_uN_0 iN_2))))) \<Longrightarrow>
-		 fun_binop_underscore I32 (mk_binop__0 Inn_I32 (SHR v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some [(mk_num__0 Inn_I32 (ishr_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 (mk_uN (proj_uN_0 iN_2))))])"
+		"(wf_num_underscore (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (ishr_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 iN_2))) \<Longrightarrow>
+		 fun_binop_underscore I32 (mk_binop__0 Inn_I32 (SHR v_sx)) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some [(mk_num__0 Inn_I32 (ishr_underscore (sizenn (numtype_Inn Inn_I32)) v_sx iN_1 iN_2))])"
 	| fun_binop___fun_binop__case_19 :
-		"(wf_num_underscore (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (ishr_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 (mk_uN (proj_uN_0 iN_2))))) \<Longrightarrow>
-		 fun_binop_underscore I64 (mk_binop__0 Inn_I64 (SHR v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some [(mk_num__0 Inn_I64 (ishr_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 (mk_uN (proj_uN_0 iN_2))))])"
+		"(wf_num_underscore (numtype_Inn Inn_I64) (mk_num__0 Inn_I64 (ishr_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 iN_2))) \<Longrightarrow>
+		 fun_binop_underscore I64 (mk_binop__0 Inn_I64 (SHR v_sx)) (mk_num__0 Inn_I64 iN_1) (mk_num__0 Inn_I64 iN_2) (Some [(mk_num__0 Inn_I64 (ishr_underscore (sizenn (numtype_Inn Inn_I64)) v_sx iN_1 iN_2))])"
 	| fun_binop___fun_binop__case_20 :
 		"(wf_num_underscore (numtype_Inn Inn_I32) (mk_num__0 Inn_I32 (irotl_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))) \<Longrightarrow>
 		 fun_binop_underscore I32 (mk_binop__0 Inn_I32 ROTL) (mk_num__0 Inn_I32 iN_1) (mk_num__0 Inn_I32 iN_2) (Some [(mk_num__0 Inn_I32 (irotl_underscore (sizenn (numtype_Inn Inn_I32)) iN_1 iN_2))])"
@@ -4227,167 +4228,151 @@ lemma inv_lanes__is_wf :
 sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:345.6-345.13 *)
-inductive fun_zeroop_before_fun_zeroop_case_40 :: "shape \<Rightarrow> shape \<Rightarrow> vcvtop__underscore \<Rightarrow> bool" where
-	  fun_zeroop_case_39 :
+inductive fun_zeroop_before_fun_zeroop_case_36 :: "shape \<Rightarrow> shape \<Rightarrow> vcvtop__underscore \<Rightarrow> bool" where
+	  fun_zeroop_case_35 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 PROMOTELOW)"
-	| fun_zeroop_case_38 :
-		"(M_1 = M_1_0) \<Longrightarrow>
-		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 PROMOTELOW)"
-	| fun_zeroop_case_37 :
-		"(M_1 = M_1_0) \<Longrightarrow>
-		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 PROMOTELOW)"
-	| fun_zeroop_case_36 :
-		"(M_1 = M_1_0) \<Longrightarrow>
-		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 PROMOTELOW)"
-	| fun_zeroop_case_35 :
-		"(M_1 = M_1_0) \<Longrightarrow>
-		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 PROMOTELOW)"
 	| fun_zeroop_case_34 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 PROMOTELOW)"
 	| fun_zeroop_case_33 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 PROMOTELOW)"
 	| fun_zeroop_case_32 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 PROMOTELOW)"
 	| fun_zeroop_case_31 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))"
 	| fun_zeroop_case_30 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))"
 	| fun_zeroop_case_29 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))"
 	| fun_zeroop_case_28 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))"
 	| fun_zeroop_case_27 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Inn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt))"
 	| fun_zeroop_case_26 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Inn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt))"
 	| fun_zeroop_case_25 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Inn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt))"
 	| fun_zeroop_case_24 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Inn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt))"
 	| fun_zeroop_case_23 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
 	| fun_zeroop_case_22 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
 	| fun_zeroop_case_21 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
 	| fun_zeroop_case_20 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
 	| fun_zeroop_case_19 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
 	| fun_zeroop_case_18 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
 	| fun_zeroop_case_17 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
 	| fun_zeroop_case_16 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
 	| fun_zeroop_case_15 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_zeroop_case_14 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_zeroop_case_13 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_zeroop_case_12 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_zeroop_case_11 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_zeroop_case_10 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_zeroop_case_9 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_zeroop_case_8 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_zeroop_case_7 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_zeroop_case_6 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_zeroop_case_5 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_zeroop_case_4 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_zeroop_case_3 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_zeroop_case_2 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_zeroop_case_1 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_zeroop_case_0 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop_before_fun_zeroop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_zeroop_before_fun_zeroop_case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:345.6-345.13 *)
 inductive fun_zeroop :: "shape \<Rightarrow> shape \<Rightarrow> vcvtop__underscore \<Rightarrow> ((zero option) option) \<Rightarrow> bool" where
@@ -4490,233 +4475,201 @@ inductive fun_zeroop :: "shape \<Rightarrow> shape \<Rightarrow> vcvtop__undersc
 	| fun_zeroop__fun_zeroop_case_24 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)"
+		 fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Inn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)"
 	| fun_zeroop__fun_zeroop_case_25 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)"
+		 fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Inn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)"
 	| fun_zeroop__fun_zeroop_case_26 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)"
+		 fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Inn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)"
 	| fun_zeroop__fun_zeroop_case_27 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)"
+		 fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Inn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)"
 	| fun_zeroop__fun_zeroop_case_28 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)"
+		 fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some (Some v_zero))"
 	| fun_zeroop__fun_zeroop_case_29 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)"
+		 fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some (Some v_zero))"
 	| fun_zeroop__fun_zeroop_case_30 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)"
+		 fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some (Some v_zero))"
 	| fun_zeroop__fun_zeroop_case_31 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some zero_opt)"
+		 fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some (Some v_zero))"
 	| fun_zeroop__fun_zeroop_case_32 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some (Some v_zero))"
+		 fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 PROMOTELOW) (Some None)"
 	| fun_zeroop__fun_zeroop_case_33 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some (Some v_zero))"
+		 fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 PROMOTELOW) (Some None)"
 	| fun_zeroop__fun_zeroop_case_34 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some (Some v_zero))"
+		 fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 PROMOTELOW) (Some None)"
 	| fun_zeroop__fun_zeroop_case_35 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some (Some v_zero))"
-	| fun_zeroop__fun_zeroop_case_36 :
-		"(M_1 = M_1_0) \<Longrightarrow>
-		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 PROMOTELOW) (Some None)"
-	| fun_zeroop__fun_zeroop_case_37 :
-		"(M_1 = M_1_0) \<Longrightarrow>
-		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 PROMOTELOW) (Some None)"
-	| fun_zeroop__fun_zeroop_case_38 :
-		"(M_1 = M_1_0) \<Longrightarrow>
-		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_zeroop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 PROMOTELOW) (Some None)"
-	| fun_zeroop__fun_zeroop_case_39 :
-		"(M_1 = M_1_0) \<Longrightarrow>
-		 (M_2 = M_2_0) \<Longrightarrow>
 		 fun_zeroop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 PROMOTELOW) (Some None)"
-	| fun_zeroop_case_40 :
-		"(~(fun_zeroop_before_fun_zeroop_case_40 x0 x1 x2)) \<Longrightarrow>
+	| fun_zeroop_case_36 :
+		"(~(fun_zeroop_before_fun_zeroop_case_36 x0 x1 x2)) \<Longrightarrow>
 		 fun_zeroop x0 x1 x2 None"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:352.6-352.13 *)
-inductive fun_halfop_before_fun_halfop_case_40 :: "shape \<Rightarrow> shape \<Rightarrow> vcvtop__underscore \<Rightarrow> bool" where
-	  fun_halfop_case_39 :
+inductive fun_halfop_before_fun_halfop_case_36 :: "shape \<Rightarrow> shape \<Rightarrow> vcvtop__underscore \<Rightarrow> bool" where
+	  fun_halfop_case_35 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 PROMOTELOW)"
-	| fun_halfop_case_38 :
-		"(M_1 = M_1_0) \<Longrightarrow>
-		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 PROMOTELOW)"
-	| fun_halfop_case_37 :
-		"(M_1 = M_1_0) \<Longrightarrow>
-		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 PROMOTELOW)"
-	| fun_halfop_case_36 :
-		"(M_1 = M_1_0) \<Longrightarrow>
-		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 PROMOTELOW)"
-	| fun_halfop_case_35 :
-		"(M_1 = M_1_0) \<Longrightarrow>
-		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 PROMOTELOW)"
 	| fun_halfop_case_34 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 PROMOTELOW)"
 	| fun_halfop_case_33 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 PROMOTELOW)"
 	| fun_halfop_case_32 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 PROMOTELOW)"
 	| fun_halfop_case_31 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))"
 	| fun_halfop_case_30 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))"
 	| fun_halfop_case_29 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))"
 	| fun_halfop_case_28 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero))"
 	| fun_halfop_case_27 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Inn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt))"
 	| fun_halfop_case_26 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Inn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt))"
 	| fun_halfop_case_25 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Inn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt))"
 	| fun_halfop_case_24 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Inn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt))"
 	| fun_halfop_case_23 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
 	| fun_halfop_case_22 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
 	| fun_halfop_case_21 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
 	| fun_halfop_case_20 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
 	| fun_halfop_case_19 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I16 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
 	| fun_halfop_case_18 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I8 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
 	| fun_halfop_case_17 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
 	| fun_halfop_case_16 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___1 Jnn_I32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT half_opt v_sx))"
 	| fun_halfop_case_15 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_halfop_case_14 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_halfop_case_13 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_halfop_case_12 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_halfop_case_11 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_halfop_case_10 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_halfop_case_9 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_halfop_case_8 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_halfop_case_7 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_halfop_case_6 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_halfop_case_5 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_halfop_case_4 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_halfop_case_3 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I16 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I16 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_halfop_case_2 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I8 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I8 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_halfop_case_1 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 	| fun_halfop_case_0 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop_before_fun_halfop_case_40 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
+		 fun_halfop_before_fun_halfop_case_36 (X lanetype_I32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___0 Jnn_I32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2_EXTEND v_half v_sx))"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:352.6-352.13 *)
 inductive fun_halfop :: "shape \<Rightarrow> shape \<Rightarrow> vcvtop__underscore \<Rightarrow> ((half option) option) \<Rightarrow> bool" where
@@ -4819,69 +4772,53 @@ inductive fun_halfop :: "shape \<Rightarrow> shape \<Rightarrow> vcvtop__undersc
 	| fun_halfop__fun_halfop_case_24 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)"
+		 fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Inn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)"
 	| fun_halfop__fun_halfop_case_25 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)"
+		 fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Inn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)"
 	| fun_halfop__fun_halfop_case_26 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)"
+		 fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Inn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)"
 	| fun_halfop__fun_halfop_case_27 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)"
+		 fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Inn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)"
 	| fun_halfop__fun_halfop_case_28 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I8 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)"
+		 fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some None)"
 	| fun_halfop__fun_halfop_case_29 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I8 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I8 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)"
+		 fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some None)"
 	| fun_halfop__fun_halfop_case_30 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I16 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)"
+		 fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some None)"
 	| fun_halfop__fun_halfop_case_31 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_I16 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I16 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (Some None)"
+		 fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some None)"
 	| fun_halfop__fun_halfop_case_32 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some None)"
+		 fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 PROMOTELOW) (Some (Some LOW))"
 	| fun_halfop__fun_halfop_case_33 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some None)"
+		 fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 PROMOTELOW) (Some (Some LOW))"
 	| fun_halfop__fun_halfop_case_34 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some None)"
+		 fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 PROMOTELOW) (Some (Some LOW))"
 	| fun_halfop__fun_halfop_case_35 :
 		"(M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 (vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE v_zero)) (Some None)"
-	| fun_halfop__fun_halfop_case_36 :
-		"(M_1 = M_1_0) \<Longrightarrow>
-		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F32 M_2_0 PROMOTELOW) (Some (Some LOW))"
-	| fun_halfop__fun_halfop_case_37 :
-		"(M_1 = M_1_0) \<Longrightarrow>
-		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F32 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F32 M_2_0 PROMOTELOW) (Some (Some LOW))"
-	| fun_halfop__fun_halfop_case_38 :
-		"(M_1 = M_1_0) \<Longrightarrow>
-		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_halfop (X lanetype_F32 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F32 M_1_0 Fnn_F64 M_2_0 PROMOTELOW) (Some (Some LOW))"
-	| fun_halfop__fun_halfop_case_39 :
-		"(M_1 = M_1_0) \<Longrightarrow>
-		 (M_2 = M_2_0) \<Longrightarrow>
 		 fun_halfop (X lanetype_F64 (mk_dim M_1)) (X lanetype_F64 (mk_dim M_2)) (mk_vcvtop___3 Fnn_F64 M_1_0 Fnn_F64 M_2_0 PROMOTELOW) (Some (Some LOW))"
-	| fun_halfop_case_40 :
-		"(~(fun_halfop_before_fun_halfop_case_40 x0 x1 x2)) \<Longrightarrow>
+	| fun_halfop_case_36 :
+		"(~(fun_halfop_before_fun_halfop_case_36 x0 x1 x2)) \<Longrightarrow>
 		 fun_halfop x0 x1 x2 None"
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:359.1-359.32 *)
@@ -8243,22 +8180,22 @@ inductive fun_lcvtop___before_fun_lcvtop___case_36 :: "shape \<Rightarrow> shape
 		"(iN_2_opt = (trunc_sat__underscore (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Inn Inn_I64)) v_sx fN_1)) \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_lcvtop___before_fun_lcvtop___case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F64 fN_1)"
+		 fun_lcvtop___before_fun_lcvtop___case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Inn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F64 fN_1)"
 	| fun_lcvtop___case_26 :
 		"(iN_2_opt = (trunc_sat__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Inn Inn_I64)) v_sx fN_1)) \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_lcvtop___before_fun_lcvtop___case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F32 fN_1)"
+		 fun_lcvtop___before_fun_lcvtop___case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Inn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F32 fN_1)"
 	| fun_lcvtop___case_25 :
 		"(iN_2_opt = (trunc_sat__underscore (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Inn Inn_I32)) v_sx fN_1)) \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_lcvtop___before_fun_lcvtop___case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F64 fN_1)"
+		 fun_lcvtop___before_fun_lcvtop___case_36 (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Inn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F64 fN_1)"
 	| fun_lcvtop___case_24 :
 		"(iN_2_opt = (trunc_sat__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Inn Inn_I32)) v_sx fN_1)) \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_lcvtop___before_fun_lcvtop___case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F32 fN_1)"
+		 fun_lcvtop___before_fun_lcvtop___case_36 (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Inn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F32 fN_1)"
 	| fun_lcvtop___case_23 :
 		"(fN_2 = (convert__underscore (lsizenn1 (lanetype_Jnn Jnn_I16)) (lsizenn2 (lanetype_Fnn Fnn_F64)) v_sx iN_1)) \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
@@ -8506,22 +8443,22 @@ inductive fun_lcvtop__underscore :: "shape \<Rightarrow> shape \<Rightarrow> vcv
 		"(iN_2_opt = (trunc_sat__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Inn Inn_I32)) v_sx fN_1)) \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_lcvtop__underscore (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F32 fN_1) (Some (list_underscore  (map_option (\<lambda> (iN_2_2 :: iN). (mk_lane__0 (Jnn_Inn Inn_I32) iN_2_2)) iN_2_opt)))"
+		 fun_lcvtop__underscore (X lanetype_F32 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Inn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F32 fN_1) (Some (list_underscore  (map_option (\<lambda> (iN_2_2 :: iN). (mk_lane__0 (Jnn_Inn Inn_I32) iN_2_2)) iN_2_opt)))"
 	| fun_lcvtop____fun_lcvtop___case_25 :
 		"(iN_2_opt = (trunc_sat__underscore (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Inn Inn_I32)) v_sx fN_1)) \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_lcvtop__underscore (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F64 fN_1) (Some (list_underscore  (map_option (\<lambda> (iN_2_4 :: iN). (mk_lane__0 (Jnn_Inn Inn_I32) iN_2_4)) iN_2_opt)))"
+		 fun_lcvtop__underscore (X lanetype_F64 (mk_dim M_1)) (X lanetype_I32 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Inn_I32 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F64 fN_1) (Some (list_underscore  (map_option (\<lambda> (iN_2_4 :: iN). (mk_lane__0 (Jnn_Inn Inn_I32) iN_2_4)) iN_2_opt)))"
 	| fun_lcvtop____fun_lcvtop___case_26 :
 		"(iN_2_opt = (trunc_sat__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Inn Inn_I64)) v_sx fN_1)) \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_lcvtop__underscore (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F32 fN_1) (Some (list_underscore  (map_option (\<lambda> (iN_2_6 :: iN). (mk_lane__0 (Jnn_Inn Inn_I64) iN_2_6)) iN_2_opt)))"
+		 fun_lcvtop__underscore (X lanetype_F32 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F32 M_1_0 Inn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F32 fN_1) (Some (list_underscore  (map_option (\<lambda> (iN_2_6 :: iN). (mk_lane__0 (Jnn_Inn Inn_I64) iN_2_6)) iN_2_opt)))"
 	| fun_lcvtop____fun_lcvtop___case_27 :
 		"(iN_2_opt = (trunc_sat__underscore (lsizenn1 (lanetype_Fnn Fnn_F64)) (lsizenn2 (lanetype_Inn Inn_I64)) v_sx fN_1)) \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
 		 (M_2 = M_2_0) \<Longrightarrow>
-		 fun_lcvtop__underscore (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Jnn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Jnn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F64 fN_1) (Some (list_underscore  (map_option (\<lambda> (iN_2_8 :: iN). (mk_lane__0 (Jnn_Inn Inn_I64) iN_2_8)) iN_2_opt)))"
+		 fun_lcvtop__underscore (X lanetype_F64 (mk_dim M_1)) (X lanetype_I64 (mk_dim M_2)) (mk_vcvtop___2 Fnn_F64 M_1_0 Inn_I64 M_2_0 (vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT v_sx zero_opt)) (mk_lane__1 Fnn_F64 fN_1) (Some (list_underscore  (map_option (\<lambda> (iN_2_8 :: iN). (mk_lane__0 (Jnn_Inn Inn_I64) iN_2_8)) iN_2_opt)))"
 	| fun_lcvtop____fun_lcvtop___case_28 :
 		"(fN_2_lst = (demote__underscore (lsizenn1 (lanetype_Fnn Fnn_F32)) (lsizenn2 (lanetype_Fnn Fnn_F32)) fN_1)) \<Longrightarrow>
 		 (M_1 = M_1_0) \<Longrightarrow>
@@ -10077,28 +10014,28 @@ inductive fun_vshiftop__before_fun_vshiftop__case_8 :: "ishape \<Rightarrow> vsh
 inductive fun_vshiftop_underscore :: "ishape \<Rightarrow> vshiftop_underscore \<Rightarrow> lane_underscore \<Rightarrow> u32 \<Rightarrow> (lane_underscore option) \<Rightarrow> bool" where
 	  fun_vshiftop___fun_vshiftop__case_0 :
 		"(v_M = M_0) \<Longrightarrow>
-		 fun_vshiftop_underscore (mk_ishape (X lanetype_I32 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I32 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_I32 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I32 (ishl_underscore (lsizenn (lanetype_Jnn Jnn_I32)) lane (mk_uN v_n))))"
+		 fun_vshiftop_underscore (mk_ishape (X lanetype_I32 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I32 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_I32 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I32 (ishl_underscore (lsizenn (lanetype_Jnn Jnn_I32)) lane (mk_uN (v_n mod (lsizenn (lanetype_Jnn Jnn_I32)))))))"
 	| fun_vshiftop___fun_vshiftop__case_1 :
 		"(v_M = M_0) \<Longrightarrow>
-		 fun_vshiftop_underscore (mk_ishape (X lanetype_I64 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I64 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_I64 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I64 (ishl_underscore (lsizenn (lanetype_Jnn Jnn_I64)) lane (mk_uN v_n))))"
+		 fun_vshiftop_underscore (mk_ishape (X lanetype_I64 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I64 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_I64 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I64 (ishl_underscore (lsizenn (lanetype_Jnn Jnn_I64)) lane (mk_uN (v_n mod (lsizenn (lanetype_Jnn Jnn_I64)))))))"
 	| fun_vshiftop___fun_vshiftop__case_2 :
 		"(v_M = M_0) \<Longrightarrow>
-		 fun_vshiftop_underscore (mk_ishape (X lanetype_I8 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I8 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_I8 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I8 (ishl_underscore (lsizenn (lanetype_Jnn Jnn_I8)) lane (mk_uN v_n))))"
+		 fun_vshiftop_underscore (mk_ishape (X lanetype_I8 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I8 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_I8 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I8 (ishl_underscore (lsizenn (lanetype_Jnn Jnn_I8)) lane (mk_uN (v_n mod (lsizenn (lanetype_Jnn Jnn_I8)))))))"
 	| fun_vshiftop___fun_vshiftop__case_3 :
 		"(v_M = M_0) \<Longrightarrow>
-		 fun_vshiftop_underscore (mk_ishape (X lanetype_I16 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I16 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_I16 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I16 (ishl_underscore (lsizenn (lanetype_Jnn Jnn_I16)) lane (mk_uN v_n))))"
+		 fun_vshiftop_underscore (mk_ishape (X lanetype_I16 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I16 M_0 vshiftop_Jnn_N_SHL) (mk_lane__0 Jnn_I16 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I16 (ishl_underscore (lsizenn (lanetype_Jnn Jnn_I16)) lane (mk_uN (v_n mod (lsizenn (lanetype_Jnn Jnn_I16)))))))"
 	| fun_vshiftop___fun_vshiftop__case_4 :
 		"(v_M = M_0) \<Longrightarrow>
-		 fun_vshiftop_underscore (mk_ishape (X lanetype_I32 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I32 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_I32 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I32 (ishr_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx lane (mk_uN v_n))))"
+		 fun_vshiftop_underscore (mk_ishape (X lanetype_I32 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I32 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_I32 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I32 (ishr_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx lane (mk_uN (v_n mod (lsizenn (lanetype_Jnn Jnn_I32)))))))"
 	| fun_vshiftop___fun_vshiftop__case_5 :
 		"(v_M = M_0) \<Longrightarrow>
-		 fun_vshiftop_underscore (mk_ishape (X lanetype_I64 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I64 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_I64 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I64 (ishr_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx lane (mk_uN v_n))))"
+		 fun_vshiftop_underscore (mk_ishape (X lanetype_I64 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I64 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_I64 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I64 (ishr_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx lane (mk_uN (v_n mod (lsizenn (lanetype_Jnn Jnn_I64)))))))"
 	| fun_vshiftop___fun_vshiftop__case_6 :
 		"(v_M = M_0) \<Longrightarrow>
-		 fun_vshiftop_underscore (mk_ishape (X lanetype_I8 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I8 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_I8 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I8 (ishr_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx lane (mk_uN v_n))))"
+		 fun_vshiftop_underscore (mk_ishape (X lanetype_I8 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I8 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_I8 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I8 (ishr_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx lane (mk_uN (v_n mod (lsizenn (lanetype_Jnn Jnn_I8)))))))"
 	| fun_vshiftop___fun_vshiftop__case_7 :
 		"(v_M = M_0) \<Longrightarrow>
-		 fun_vshiftop_underscore (mk_ishape (X lanetype_I16 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I16 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_I16 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I16 (ishr_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx lane (mk_uN v_n))))"
+		 fun_vshiftop_underscore (mk_ishape (X lanetype_I16 (mk_dim v_M))) (mk_vshiftop__0 Jnn_I16 M_0 (vshiftop_Jnn_N_SHR v_sx)) (mk_lane__0 Jnn_I16 lane) (mk_uN v_n) (Some (mk_lane__0 Jnn_I16 (ishr_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx lane (mk_uN (v_n mod (lsizenn (lanetype_Jnn Jnn_I16)))))))"
 	| fun_vshiftop__case_8 :
 		"(~(fun_vshiftop__before_fun_vshiftop__case_8 x0 x1 x2 x3)) \<Longrightarrow>
 		 fun_vshiftop_underscore x0 x1 x2 x3 None"
@@ -12834,7 +12771,7 @@ inductive Step_read :: "config \<Rightarrow> (admininstr list) \<Rightarrow> boo
 		"((proj_num__0 i) \<noteq> None) \<Longrightarrow>
 		 (v_n \<noteq> 0) \<Longrightarrow>
 		 (((proj_uN_0 (the ((proj_num__0 i)))) + v_n) \<le> (length (BYTES (fun_mem z (mk_uN 0))))) \<Longrightarrow>
-		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_val v_val), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_FILL)]) [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_val v_val), (admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) (memarg0 ))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (admininstr_val v_val), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc7 admininstr_st7_MEMORY_FILL)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_val v_val), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_FILL)]) [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_val v_val), (admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) (memarg0 ))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (iadd_underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) (the ((proj_num__0 i))) (mk_uN 1))))), (admininstr_val v_val), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc7 admininstr_st7_MEMORY_FILL)]"
 	| memory_copy_trap :
 		"((proj_num__0 i) \<noteq> None) \<Longrightarrow>
 		 ((proj_num__0 j) \<noteq> None) \<Longrightarrow>
@@ -12853,7 +12790,7 @@ inductive Step_read :: "config \<Rightarrow> (admininstr list) \<Rightarrow> boo
 		 (v_n \<noteq> 0) \<Longrightarrow>
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) \<le> (length (BYTES (fun_mem z (mk_uN 0))))) \<and> (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) \<le> (length (BYTES (fun_mem z (mk_uN 0)))))) \<Longrightarrow>
 		 ((proj_uN_0 (the ((proj_num__0 j)))) \<le> (proj_uN_0 (the ((proj_num__0 i))))) \<Longrightarrow>
-		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_COPY)]) [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc6 (admininstr_st6_LOAD I32 (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) (memarg0 ))), (admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) (memarg0 ))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc7 admininstr_st7_MEMORY_COPY)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_COPY)]) [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc6 (admininstr_st6_LOAD I32 (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) (memarg0 ))), (admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) (memarg0 ))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (iadd_underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) (the ((proj_num__0 j))) (mk_uN 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (iadd_underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) (the ((proj_num__0 i))) (mk_uN 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc7 admininstr_st7_MEMORY_COPY)]"
 	| memory_copy_gt :
 		"((proj_num__0 j) \<noteq> None) \<Longrightarrow>
 		 ((proj_num__0 i) \<noteq> None) \<Longrightarrow>
@@ -12879,7 +12816,7 @@ inductive Step_read :: "config \<Rightarrow> (admininstr list) \<Rightarrow> boo
 		 ((proj_num__0 j) \<noteq> None) \<Longrightarrow>
 		 (v_n \<noteq> 0) \<Longrightarrow>
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) \<le> (length (datainst_BYTES (fun_data z x)))) \<and> (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) \<le> (length (BYTES (fun_mem z (mk_uN 0)))))) \<Longrightarrow>
-		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 (admininstr_st7_MEMORY_INIT x))]) [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (proj_byte_0 ((datainst_BYTES (fun_data z x)) ! (proj_uN_0 (the ((proj_num__0 i)))))))))), (admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) (memarg0 ))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc7 (admininstr_st7_MEMORY_INIT x))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 (admininstr_st7_MEMORY_INIT x))]) [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (proj_byte_0 ((datainst_BYTES (fun_data z x)) ! (proj_uN_0 (the ((proj_num__0 i)))))))))), (admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) (memarg0 ))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (iadd_underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) (the ((proj_num__0 j))) (mk_uN 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (iadd_underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) (the ((proj_num__0 i))) (mk_uN 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc7 (admininstr_st7_MEMORY_INIT x))]"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:7.10-7.19 *)
 lemma Step_read_is_wf :
@@ -13399,6 +13336,7 @@ inductive fun_rundata :: "data \<Rightarrow> idx \<Rightarrow> ((instr list) opt
 		"(~(fun_rundata_before_fun_rundata_case_2 x0 x1)) \<Longrightarrow>
 		 fun_rundata x0 x1 None"
 
+(*
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:167.6-167.18 *)
 inductive fun_instantiate :: "store \<Rightarrow> module \<Rightarrow> (externaddr list) \<Rightarrow> config \<Rightarrow> bool" where
 	  fun_instantiate_case_0 :
@@ -13408,16 +13346,16 @@ inductive fun_instantiate :: "store \<Rightarrow> module \<Rightarrow> (externad
 		 list_alli (\<lambda> j_19 (var_10 :: ((instr list) option)). (fun_rundata (data_lst ! j_19) (mk_uN j_19) var_10)) var_10_lst \<Longrightarrow>
 		 holds_upto (\<lambda> j_18. (j_18 < (length data_lst))) n_D \<Longrightarrow>
 		 list_alli (\<lambda> j_18 (var_9 :: ((instr list) option)). (fun_rundata (data_lst ! j_18) (mk_uN j_18) var_9)) var_9_lst \<Longrightarrow>
-		 holds_upto (\<lambda> i_82922. (i_82922 < (length elem_lst))) n_E \<Longrightarrow>
-		 list_alli (\<lambda> i_82922 (var_8 :: (instr list)). (fun_runelem (elem_lst ! i_82922) (mk_uN i_82922) var_8)) var_8_lst \<Longrightarrow>
-		 holds_upto (\<lambda> i_82920. (i_82920 < (length elem_lst))) n_E \<Longrightarrow>
-		 list_alli (\<lambda> i_82920 (var_7 :: (instr list)). (fun_runelem (elem_lst ! i_82920) (mk_uN i_82920) var_7)) var_7_lst \<Longrightarrow>
+		 holds_upto (\<lambda> i_82793. (i_82793 < (length elem_lst))) n_E \<Longrightarrow>
+		 list_alli (\<lambda> i_82793 (var_8 :: (instr list)). (fun_runelem (elem_lst ! i_82793) (mk_uN i_82793) var_8)) var_8_lst \<Longrightarrow>
+		 holds_upto (\<lambda> i_82791. (i_82791 < (length elem_lst))) n_E \<Longrightarrow>
+		 list_alli (\<lambda> i_82791 (var_7 :: (instr list)). (fun_runelem (elem_lst ! i_82791) (mk_uN i_82791) var_7)) var_7_lst \<Longrightarrow>
 		 (fun_allocmodule s v_module externaddr_lst val_lst ref_lst_lst var_6) \<Longrightarrow>
 		 (fun_allocmodule s v_module externaddr_lst val_lst ref_lst_lst var_5) \<Longrightarrow>
 		 holds_upto (\<lambda> j_17. (j_17 < (length data_lst))) n_D \<Longrightarrow>
 		 list_alli (\<lambda> j_17 (var_4 :: ((instr list) option)). (fun_rundata (data_lst ! j_17) (mk_uN j_17) var_4)) var_4_lst \<Longrightarrow>
-		 holds_upto (\<lambda> i_82917. (i_82917 < (length elem_lst))) n_E \<Longrightarrow>
-		 list_alli (\<lambda> i_82917 (var_3 :: (instr list)). (fun_runelem (elem_lst ! i_82917) (mk_uN i_82917) var_3)) var_3_lst \<Longrightarrow>
+		 holds_upto (\<lambda> i_82788. (i_82788 < (length elem_lst))) n_E \<Longrightarrow>
+		 list_alli (\<lambda> i_82788 (var_3 :: (instr list)). (fun_runelem (elem_lst ! i_82788) (mk_uN i_82788) var_3)) var_3_lst \<Longrightarrow>
 		 (fun_allocmodule s v_module externaddr_lst val_lst ref_lst_lst var_2) \<Longrightarrow>
 		 (fun_globals externaddr_lst var_1) \<Longrightarrow>
 		 (fun_funcs externaddr_lst var_0) \<Longrightarrow>
@@ -13446,7 +13384,7 @@ inductive fun_instantiate :: "store \<Rightarrow> module \<Rightarrow> (externad
 		 (wf_store (fst var_5)) \<Longrightarrow>
 		 (wf_moduleinst (snd var_6)) \<Longrightarrow>
 		 list_all (\<lambda> (iter_25 :: instr). (wf_instr iter_25)) (concat_underscore  var_7_lst) \<Longrightarrow>
-		 list_alli (\<lambda> i_82922 (var_8 :: (instr list)). list_all (\<lambda> (iter_26 :: instr). (wf_instr iter_26)) var_8) var_8_lst \<Longrightarrow>
+		 list_alli (\<lambda> i_82793 (var_8 :: (instr list)). list_all (\<lambda> (iter_26 :: instr). (wf_instr iter_26)) var_8) var_8_lst \<Longrightarrow>
 		 list_all (\<lambda> (iter_27 :: instr). (wf_instr iter_27)) (concat_underscore  (map (\<lambda> (var_9 :: ((instr list) option)). (the (var_9))) var_9_lst)) \<Longrightarrow>
 		 list_alli (\<lambda> j_19 (var_10 :: ((instr list) option)). list_all (\<lambda> (iter_28 :: instr). (wf_instr iter_28)) (the (var_10))) var_10_lst \<Longrightarrow>
 		 (wf_config (mk_config (mk_state s' f) ((map (\<lambda> (instr_E_2 :: instr). (admininstr_instr instr_E_2)) instr_E_lst) @ ((map (\<lambda> (instr_D_2 :: instr). (admininstr_instr instr_D_2)) instr_D_lst) @ (option_to_list (map_option (\<lambda> (x_2 :: idx). (admininstr_sc1 (admininstr_st1_CALL x_2))) x_opt)))))) \<Longrightarrow>
@@ -13461,9 +13399,10 @@ inductive fun_instantiate :: "store \<Rightarrow> module \<Rightarrow> (externad
 		 (wf_frame \<lparr> LOCALS = [], frame_MODULE = moduleinst_init \<rparr>) \<Longrightarrow>
 		 (wf_state (mk_state s f_init)) \<Longrightarrow>
 		 (wf_frame \<lparr> LOCALS = [], frame_MODULE = v_moduleinst \<rparr>) \<Longrightarrow>
-		 holds_upto (\<lambda> i_82926. (wf_uN 32 (mk_uN i_82926))) n_E \<Longrightarrow>
+		 holds_upto (\<lambda> i_82797. (wf_uN 32 (mk_uN i_82797))) n_E \<Longrightarrow>
 		 holds_upto (\<lambda> j_20. (wf_uN 32 (mk_uN j_20))) n_D \<Longrightarrow>
 		 fun_instantiate s v_module externaddr_lst (mk_config (mk_state s' f) ((map (\<lambda> (instr_E :: instr). (admininstr_instr instr_E)) instr_E_lst) @ ((map (\<lambda> (instr_D :: instr). (admininstr_instr instr_D)) instr_D_lst) @ (option_to_list (map_option (\<lambda> (x :: idx). (admininstr_sc1 (admininstr_st1_CALL x))) x_opt)))))"
+*)
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:196.6-196.13 *)
 inductive fun_invoke :: "store \<Rightarrow> funcaddr \<Rightarrow> (val list) \<Rightarrow> config \<Rightarrow> bool" where

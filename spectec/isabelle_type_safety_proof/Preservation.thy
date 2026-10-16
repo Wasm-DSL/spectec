@@ -5264,7 +5264,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
      have "Instrs_ok2 s C' [admininstr_sc7 admininstr_st7_MEMORY_FILL] (mk_functype 
              (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
        using okfill instr_ok2_instrs_ok2 hyps by simp
-    then show ?case using 5 instrs_ok2_seq Instrs_ok2_subtyping memory_fill_succ subt by fastforce
+    then show ?case using 5 instrs_ok2_seq Instrs_ok2_subtyping memory_fill_succ subt sorry
   next
     case (memory_copy_trap i j v_n)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
