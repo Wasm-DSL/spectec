@@ -15,7 +15,11 @@
     aliasDemut
     improveids
     ite
+    patSimp
+    deftorel
     elsesimp
     letintromech
+    datatypediet
+    singlepatternmatch
   )
 )
