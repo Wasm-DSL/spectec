@@ -682,7 +682,7 @@ Definition fzero (v_N : res_N) : fN :=
 		| v_N => (POS (SUBNORM 0%N))
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:68.6-68.12 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/1-syntax.spectec:68.6-68.12 *)
 Lemma fzero_is_wf : forall (v_N : res_N) (ret_val : fN),
 	(ret_val == (fzero v_N)) ->
 	(wf_fN v_N ret_val).
@@ -1611,7 +1611,7 @@ Definition fun_zero (v_numtype : numtype) : num_ :=
 		| F64 => (mk_num__1 Fnn_F64 (fzero (!((res_size (valtype_Fnn Fnn_F64))))))
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:281.6-281.11 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/1-syntax.spectec:281.6-281.11 *)
 Lemma zero_is_wf : forall (v_numtype : numtype) (ret_val : num_),
 	(ret_val == (fun_zero v_numtype)) ->
 	(wf_num_ v_numtype ret_val).
@@ -2268,7 +2268,7 @@ Definition fun_dim (v_shape : shape) : dim :=
 		| (X v_Lnn (mk_dim v_N)) => (mk_dim v_N)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.6-342.10 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.6-342.10 *)
 Lemma dim_is_wf : forall (v_shape : shape) (ret_val : dim),
 	(wf_shape v_shape) ->
 	(ret_val == (fun_dim v_shape)) ->
@@ -4057,7 +4057,7 @@ Definition dataidx_instr (v_instr : instr) : (seq dataidx) :=
 		| res_in => [:: ]
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:80.6-80.20 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:80.6-80.20 *)
 Lemma dataidx_instr_is_wf : forall (v_instr : instr) (ret_val_lst : (seq dataidx)),
 	(wf_instr v_instr) ->
 	(ret_val_lst == (dataidx_instr v_instr)) ->
@@ -4095,7 +4095,7 @@ Inductive fun_dataidx_expr : expr -> (seq dataidx) -> Prop :=
 		(fun_dataidx_instrs in_lst var_0) ->
 		fun_dataidx_expr in_lst var_0.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:89.6-89.19 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:89.6-89.19 *)
 Lemma dataidx_expr_is_wf : forall (v_expr : expr) (ret_val_lst : (seq dataidx)) (var_0 : (seq dataidx)),
 	(fun_dataidx_expr v_expr var_0) ->
 	List.Forall (fun (v_expr : instr) => (wf_instr v_expr)) v_expr ->
@@ -4113,7 +4113,7 @@ Inductive fun_dataidx_func : func -> (seq dataidx) -> Prop :=
 		(fun_dataidx_expr e var_0) ->
 		fun_dataidx_func (func_FUNC x loc_lst e) var_0.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:92.6-92.19 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:92.6-92.19 *)
 Lemma dataidx_func_is_wf : forall (v_func : func) (ret_val_lst : (seq dataidx)) (var_0 : (seq dataidx)),
 	(fun_dataidx_func v_func var_0) ->
 	(wf_func v_func) ->
@@ -4150,7 +4150,7 @@ Qed.
 (* Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:106.1-106.35 *)
 Definition memarg0 : memarg := {| ALIGN := (mk_uN 0%N); OFFSET := (mk_uN 0%N) |}.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:106.6-106.13 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:106.6-106.13 *)
 Lemma memarg0_is_wf : forall (ret_val : memarg),
 	(ret_val == (memarg0 )) ->
 	(wf_memarg ret_val).
@@ -4162,12 +4162,11 @@ Qed.
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:7.1-7.41 *)
 Axiom s33_to_u32 : forall (v_s33 : s33), u32.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:7.6-7.17 *)
-Lemma s33_to_u32_is_wf : forall (v_s33 : s33) (ret_val : u32),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:7.6-7.17 *)
+Axiom s33_to_u32_is_wf : forall (v_s33 : s33) (ret_val : u32),
 	(wf_sN 33%N v_s33) ->
 	(ret_val == (s33_to_u32 v_s33)) ->
 	(wf_uN 32%N ret_val).
-Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:9.1-9.22 *)
 Definition res_bool (v_bool : bool) : N :=
@@ -4212,122 +4211,110 @@ Definition sat_s_ (v_N : res_N) (res_int : Z) : Z :=
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:56.1-56.89 *)
 Axiom extend__ : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_iN : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:56.6-56.15 *)
-Lemma extend___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_iN : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:56.6-56.15 *)
+Axiom extend___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_M v_iN) ->
 	(ret_val == (extend__ v_M v_N v_sx v_iN)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:224.1-224.30 *)
 Axiom fabs_ : forall (v_N : res_N) (v_fN : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:224.6-224.12 *)
-Lemma fabs__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:224.6-224.12 *)
+Axiom fabs__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (fabs_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:227.1-227.31 *)
 Axiom fceil_ : forall (v_N : res_N) (v_fN : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:227.6-227.13 *)
-Lemma fceil__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:227.6-227.13 *)
+Axiom fceil__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (fceil_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:228.1-228.32 *)
 Axiom ffloor_ : forall (v_N : res_N) (v_fN : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:228.6-228.14 *)
-Lemma ffloor__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:228.6-228.14 *)
+Axiom ffloor__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (ffloor_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:230.1-230.34 *)
 Axiom fnearest_ : forall (v_N : res_N) (v_fN : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:230.6-230.16 *)
-Lemma fnearest__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:230.6-230.16 *)
+Axiom fnearest__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (fnearest_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:225.1-225.30 *)
 Axiom fneg_ : forall (v_N : res_N) (v_fN : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:225.6-225.12 *)
-Lemma fneg__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:225.6-225.12 *)
+Axiom fneg__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (fneg_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:226.1-226.31 *)
 Axiom fsqrt_ : forall (v_N : res_N) (v_fN : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:226.6-226.13 *)
-Lemma fsqrt__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:226.6-226.13 *)
+Axiom fsqrt__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (fsqrt_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:229.1-229.32 *)
 Axiom ftrunc_ : forall (v_N : res_N) (v_fN : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:229.6-229.14 *)
-Lemma ftrunc__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:229.6-229.14 *)
+Axiom ftrunc__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (ftrunc_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:120.1-120.29 *)
 Axiom iclz_ : forall (v_N : res_N) (v_iN : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:120.6-120.12 *)
-Lemma iclz__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:120.6-120.12 *)
+Axiom iclz__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (iclz_ v_N v_iN)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:121.1-121.29 *)
 Axiom ictz_ : forall (v_N : res_N) (v_iN : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:121.6-121.12 *)
-Lemma ictz__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:121.6-121.12 *)
+Axiom ictz__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (ictz_ v_N v_iN)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:122.1-122.32 *)
 Axiom ipopcnt_ : forall (v_N : res_N) (v_iN : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:122.6-122.15 *)
-Lemma ipopcnt__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:122.6-122.15 *)
+Axiom ipopcnt__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (ipopcnt_ v_N v_iN)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:55.1-55.33 *)
 Axiom wrap__ : forall (v_M : M) (v_N : res_N) (v_iN : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:55.6-55.13 *)
-Lemma wrap___is_wf : forall (v_M : M) (v_N : res_N) (v_iN : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:55.6-55.13 *)
+Axiom wrap___is_wf : forall (v_M : M) (v_N : res_N) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_M v_iN) ->
 	(ret_val == (wrap__ v_M v_N v_iN)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.1-45.32 *)
 Definition fun_unop_ (v_numtype : numtype) (v_unop_ : unop_) (v_num_ : num_) : (option (seq num_)) :=
@@ -4357,7 +4344,7 @@ Definition fun_unop_ (v_numtype : numtype) (v_unop_ : unop_) (v_num_ : num_) : (
 		| x0, x1, x2 => None
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.6-44.12 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.6-44.12 *)
 Lemma unop__is_wf : forall (v_numtype : numtype) (v_unop_ : unop_) (v_num_ : num_) (ret_val_lst : (seq num_)),
 	(wf_unop_ v_numtype v_unop_) ->
 	(wf_num_ v_numtype v_num_) ->
@@ -4403,79 +4390,72 @@ Qed.
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:215.1-215.37 *)
 Axiom fadd_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:215.6-215.12 *)
-Lemma fadd__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:215.6-215.12 *)
+Axiom fadd__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fadd_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:223.1-223.42 *)
 Axiom fcopysign_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:223.6-223.17 *)
-Lemma fcopysign__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:223.6-223.17 *)
+Axiom fcopysign__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fcopysign_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:218.1-218.37 *)
 Axiom fdiv_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:218.6-218.12 *)
-Lemma fdiv__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:218.6-218.12 *)
+Axiom fdiv__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fdiv_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:220.1-220.37 *)
 Axiom fmax_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:220.6-220.12 *)
-Lemma fmax__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:220.6-220.12 *)
+Axiom fmax__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fmax_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:219.1-219.37 *)
 Axiom fmin_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:219.6-219.12 *)
-Lemma fmin__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:219.6-219.12 *)
+Axiom fmin__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fmin_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:217.1-217.37 *)
 Axiom fmul_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:217.6-217.12 *)
-Lemma fmul__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:217.6-217.12 *)
+Axiom fmul__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fmul_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:216.1-216.37 *)
 Axiom fsub_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:216.6-216.12 *)
-Lemma fsub__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:216.6-216.12 *)
+Axiom fsub__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fsub_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:105.1-105.36 *)
 Definition iadd_ (v_N : res_N) (v_iN : iN) (iN_0 : iN) : iN :=
@@ -4483,7 +4463,7 @@ Definition iadd_ (v_N : res_N) (v_iN : iN) (iN_0 : iN) : iN :=
 		| v_N, i_1, i_2 => (mk_uN (((i_1 :> N) + (i_2 :> N))%BN mod (2%N ^ v_N)%BN)%BN)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:105.6-105.12 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:105.6-105.12 *)
 Lemma iadd__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
@@ -4503,13 +4483,12 @@ Qed.
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:112.1-112.36 *)
 Axiom iand_ : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:112.6-112.12 *)
-Lemma iand__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:112.6-112.12 *)
+Axiom iand__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (iand_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:108.6-108.12 *)
 Inductive fun_idiv_ : res_N -> sx -> iN -> iN -> (option iN) -> Prop :=
@@ -4536,7 +4515,7 @@ Definition imul_ (v_N : res_N) (v_iN : iN) (iN_0 : iN) : iN :=
 		| v_N, i_1, i_2 => (mk_uN (((i_1 :> N) * (i_2 :> N))%BN mod (2%N ^ v_N)%BN)%BN)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:107.6-107.12 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:107.6-107.12 *)
 Lemma imul__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
@@ -4556,13 +4535,12 @@ Qed.
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:114.1-114.35 *)
 Axiom ior_ : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:114.6-114.11 *)
-Lemma ior__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:114.6-114.11 *)
+Axiom ior__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (ior_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:109.6-109.12 *)
 Inductive fun_irem_ : res_N -> sx -> iN -> iN -> (option iN) -> Prop :=
@@ -4576,7 +4554,7 @@ Inductive fun_irem_ : res_N -> sx -> iN -> iN -> (option iN) -> Prop :=
 		((j_1 == var_1) && (j_2 == var_2)) ->
 		fun_irem_ v_N res_S i_1 i_2 (Some (mk_uN var_0)).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:109.6-109.12 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:109.6-109.12 *)
 Lemma irem__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val_opt : (option iN)) (var_0 : (option iN)),
 	(fun_irem_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -4629,46 +4607,42 @@ Qed.
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:118.1-118.37 *)
 Axiom irotl_ : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:118.6-118.13 *)
-Lemma irotl__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:118.6-118.13 *)
+Axiom irotl__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (irotl_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:119.1-119.37 *)
 Axiom irotr_ : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:119.6-119.13 *)
-Lemma irotr__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:119.6-119.13 *)
+Axiom irotr__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (irotr_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:116.1-116.36 *)
 Axiom ishl_ : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:116.6-116.12 *)
-Lemma ishl__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:116.6-116.12 *)
+Axiom ishl__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (ishl_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:117.1-117.76 *)
 Axiom ishr_ : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:117.6-117.12 *)
-Lemma ishr__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:117.6-117.12 *)
+Axiom ishr__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (ishr_ v_N v_sx v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:106.1-106.36 *)
 Definition isub_ (v_N : res_N) (v_iN : iN) (iN_0 : iN) : iN :=
@@ -4676,7 +4650,7 @@ Definition isub_ (v_N : res_N) (v_iN : iN) (iN_0 : iN) : iN :=
 		| v_N, i_1, i_2 => (mk_uN ((((((2%N ^ v_N)%BN + (i_1 :> N))%BN : Z) - ((i_2 :> N) : Z))%Z mod ((2%N ^ v_N)%BN : Z))%Z : N))
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:106.6-106.12 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:106.6-106.12 *)
 Lemma isub__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
@@ -4702,13 +4676,12 @@ Qed.
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:115.1-115.36 *)
 Axiom ixor_ : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:115.6-115.12 *)
-Lemma ixor__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:115.6-115.12 *)
+Axiom ixor__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (ixor_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:46.6-46.13 *)
 Inductive fun_binop__before_fun_binop__case_38 : numtype -> binop_ -> num_ -> num_ -> Prop :=
@@ -5013,7 +4986,7 @@ Definition ieqz_ (v_N : res_N) (v_iN : iN) : u32 :=
 		| v_N, i_1 => (mk_uN (res_bool ((i_1 :> N) == 0%N)))
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:123.6-123.12 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:123.6-123.12 *)
 Lemma ieqz__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : u32),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (ieqz_ v_N v_iN)) ->
@@ -5031,7 +5004,7 @@ Definition fun_testop_ (v_numtype : numtype) (v_testop_ : testop_) (v_num_ : num
 		| x0, x1, x2 => None
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:48.6-48.14 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:48.6-48.14 *)
 Lemma testop__is_wf : forall (v_numtype : numtype) (v_testop_ : testop_) (v_num_ : num_) (ret_val : num_),
 	(wf_testop_ v_numtype v_testop_) ->
 	(wf_num_ v_numtype v_num_) ->
@@ -5050,68 +5023,62 @@ Qed.
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:231.1-231.33 *)
 Axiom feq_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), u32.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:231.6-231.11 *)
-Lemma feq__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:231.6-231.11 *)
+Axiom feq__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val == (feq_ v_N v_fN fN_0)) ->
 	(wf_uN 32%N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:236.1-236.33 *)
 Axiom fge_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), u32.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:236.6-236.11 *)
-Lemma fge__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:236.6-236.11 *)
+Axiom fge__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val == (fge_ v_N v_fN fN_0)) ->
 	(wf_uN 32%N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:234.1-234.33 *)
 Axiom fgt_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), u32.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:234.6-234.11 *)
-Lemma fgt__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:234.6-234.11 *)
+Axiom fgt__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val == (fgt_ v_N v_fN fN_0)) ->
 	(wf_uN 32%N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:235.1-235.33 *)
 Axiom fle_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), u32.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:235.6-235.11 *)
-Lemma fle__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:235.6-235.11 *)
+Axiom fle__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val == (fle_ v_N v_fN fN_0)) ->
 	(wf_uN 32%N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:233.1-233.33 *)
 Axiom flt_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), u32.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:233.6-233.11 *)
-Lemma flt__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:233.6-233.11 *)
+Axiom flt__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val == (flt_ v_N v_fN fN_0)) ->
 	(wf_uN 32%N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:232.1-232.33 *)
 Axiom fne_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), u32.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:232.6-232.11 *)
-Lemma fne__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:232.6-232.11 *)
+Axiom fne__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val == (fne_ v_N v_fN fN_0)) ->
 	(wf_uN 32%N ret_val).
-Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:125.1-125.33 *)
 Definition ieq_ (v_N : res_N) (v_iN : iN) (iN_0 : iN) : u32 :=
@@ -5119,7 +5086,7 @@ Definition ieq_ (v_N : res_N) (v_iN : iN) (iN_0 : iN) : u32 :=
 		| v_N, i_1, i_2 => (mk_uN (res_bool (i_1 == i_2)))
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:125.6-125.11 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:125.6-125.11 *)
 Lemma ieq__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : u32),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
@@ -5138,7 +5105,7 @@ Inductive fun_ige_ : res_N -> sx -> iN -> iN -> u32 -> Prop :=
 		(fun_signed_ v_N (i_1 :> N) var_0) ->
 		fun_ige_ v_N res_S i_1 i_2 (mk_uN (res_bool (var_0 >=? var_1)%Z)).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:130.6-130.11 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:130.6-130.11 *)
 Lemma ige__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32) (var_0 : u32),
 	(fun_ige_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -5160,7 +5127,7 @@ Inductive fun_igt_ : res_N -> sx -> iN -> iN -> u32 -> Prop :=
 		(fun_signed_ v_N (i_1 :> N) var_0) ->
 		fun_igt_ v_N res_S i_1 i_2 (mk_uN (res_bool (var_0 >? var_1)%Z)).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:128.6-128.11 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:128.6-128.11 *)
 Lemma igt__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32) (var_0 : u32),
 	(fun_igt_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -5182,7 +5149,7 @@ Inductive fun_ile_ : res_N -> sx -> iN -> iN -> u32 -> Prop :=
 		(fun_signed_ v_N (i_1 :> N) var_0) ->
 		fun_ile_ v_N res_S i_1 i_2 (mk_uN (res_bool (var_0 <=? var_1)%Z)).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:129.6-129.11 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:129.6-129.11 *)
 Lemma ile__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32) (var_0 : u32),
 	(fun_ile_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -5204,7 +5171,7 @@ Inductive fun_ilt_ : res_N -> sx -> iN -> iN -> u32 -> Prop :=
 		(fun_signed_ v_N (i_1 :> N) var_0) ->
 		fun_ilt_ v_N res_S i_1 i_2 (mk_uN (res_bool (var_0 <? var_1)%Z)).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:127.6-127.11 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:127.6-127.11 *)
 Lemma ilt__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32) (var_0 : u32),
 	(fun_ilt_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -5224,7 +5191,7 @@ Definition ine_ (v_N : res_N) (v_iN : iN) (iN_0 : iN) : u32 :=
 		| v_N, i_1, i_2 => (mk_uN (res_bool (i_1 != i_2)))
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:126.6-126.11 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:126.6-126.11 *)
 Lemma ine__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : u32),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
@@ -5308,7 +5275,7 @@ Inductive fun_relop_ : numtype -> relop_ -> num_ -> num_ -> (option num_) -> Pro
 		(~(fun_relop__before_fun_relop__case_24 x0 x1 x2 x3)) ->
 		fun_relop_ x0 x1 x2 x3 None.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:50.6-50.13 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:50.6-50.13 *)
 Lemma relop__is_wf : forall (v_numtype : numtype) (v_relop_ : relop_) (v_num_ : num_) (num__0 : num_) (ret_val : num_) (var_0 : (option num_)),
 	(fun_relop_ v_numtype v_relop_ v_num_ num__0 var_0) ->
 	(wf_relop_ v_numtype v_relop_) ->
@@ -5343,62 +5310,56 @@ Qed.
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:61.1-61.90 *)
 Axiom convert__ : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_iN : iN), fN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:61.6-61.16 *)
-Lemma convert___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_iN : iN) (ret_val : fN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:61.6-61.16 *)
+Axiom convert___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_iN : iN) (ret_val : fN),
 	(wf_uN v_M v_iN) ->
 	(ret_val == (convert__ v_M v_N v_sx v_iN)) ->
 	(wf_fN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:59.1-59.36 *)
 Axiom demote__ : forall (v_M : M) (v_N : res_N) (v_fN : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:59.6-59.15 *)
-Lemma demote___is_wf : forall (v_M : M) (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:59.6-59.15 *)
+Axiom demote___is_wf : forall (v_M : M) (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_M v_fN) ->
 	(ret_val_lst == (demote__ v_M v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:60.1-60.37 *)
 Axiom promote__ : forall (v_M : M) (v_N : res_N) (v_fN : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:60.6-60.16 *)
-Lemma promote___is_wf : forall (v_M : M) (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:60.6-60.16 *)
+Axiom promote___is_wf : forall (v_M : M) (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_M v_fN) ->
 	(ret_val_lst == (promote__ v_M v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:63.1-63.76 *)
 Axiom reinterpret__ : forall (numtype_1 : numtype) (numtype_2 : numtype) (v_num_ : num_), num_.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:63.6-63.20 *)
-Lemma reinterpret___is_wf : forall (numtype_1 : numtype) (numtype_2 : numtype) (v_num_ : num_) (ret_val : num_),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:63.6-63.20 *)
+Axiom reinterpret___is_wf : forall (numtype_1 : numtype) (numtype_2 : numtype) (v_num_ : num_) (ret_val : num_),
 	(wf_num_ numtype_1 v_num_) ->
 	(ret_val == (reinterpret__ numtype_1 numtype_2 v_num_)) ->
 	(wf_num_ numtype_2 ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:57.1-57.88 *)
 Axiom trunc__ : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_fN : fN), (option iN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:57.6-57.14 *)
-Lemma trunc___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_fN : fN) (ret_val_opt : (option iN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:57.6-57.14 *)
+Axiom trunc___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_fN : fN) (ret_val_opt : (option iN)),
 	(wf_fN v_M v_fN) ->
 	(ret_val_opt == (trunc__ v_M v_N v_sx v_fN)) ->
 	List.Forall (fun (ret_val : iN) => (wf_uN v_N ret_val)) (option_to_list ret_val_opt).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:58.1-58.93 *)
 Axiom trunc_sat__ : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_fN : fN), (option iN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:58.6-58.18 *)
-Lemma trunc_sat___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_fN : fN) (ret_val_opt : (option iN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:58.6-58.18 *)
+Axiom trunc_sat___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_fN : fN) (ret_val_opt : (option iN)),
 	(wf_fN v_M v_fN) ->
 	(ret_val_opt == (trunc_sat__ v_M v_N v_sx v_fN)) ->
 	List.Forall (fun (ret_val : iN) => (wf_uN v_N ret_val)) (option_to_list ret_val_opt).
-Proof. Admitted.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:52.6-52.14 *)
 Inductive fun_cvtop___before_fun_cvtop___case_36 : numtype -> numtype -> cvtop__ -> num_ -> Prop :=
@@ -5545,7 +5506,7 @@ Inductive fun_cvtop__ : numtype -> numtype -> cvtop__ -> num_ -> (option (seq nu
 		(~(fun_cvtop___before_fun_cvtop___case_36 x0 x1 x2 x3)) ->
 		fun_cvtop__ x0 x1 x2 x3 None.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:52.6-52.14 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:52.6-52.14 *)
 Lemma cvtop___is_wf : forall (numtype_1 : numtype) (numtype_2 : numtype) (v_cvtop__ : cvtop__) (v_num_ : num_) (ret_val_lst : (seq num_)) (var_0 : (option (seq num_))),
 	(fun_cvtop__ numtype_1 numtype_2 v_cvtop__ v_num_ var_0) ->
 	(wf_cvtop__ numtype_1 numtype_2 v_cvtop__) ->
@@ -5597,165 +5558,149 @@ Qed.
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:62.1-62.87 *)
 Axiom narrow__ : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_iN : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:62.6-62.15 *)
-Lemma narrow___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_iN : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:62.6-62.15 *)
+Axiom narrow___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_M v_iN) ->
 	(ret_val == (narrow__ v_M v_N v_sx v_iN)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:76.1-76.102 *)
 Axiom ibits_ : forall (v_N : res_N) (v_iN : iN), (seq bit).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:76.6-76.13 *)
-Lemma ibits__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val_lst : (seq bit)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:76.6-76.13 *)
+Axiom ibits__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val_lst : (seq bit)),
 	(wf_uN v_N v_iN) ->
 	(ret_val_lst == (ibits_ v_N v_iN)) ->
 	List.Forall (fun (ret_val : bit) => (wf_bit ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:77.1-77.102 *)
 Axiom fbits_ : forall (v_N : res_N) (v_fN : fN), (seq bit).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:77.6-77.13 *)
-Lemma fbits__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq bit)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:77.6-77.13 *)
+Axiom fbits__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq bit)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (fbits_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : bit) => (wf_bit ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:78.1-78.103 *)
 Axiom ibytes_ : forall (v_N : res_N) (v_iN : iN), (seq byte).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:78.6-78.14 *)
-Lemma ibytes__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val_lst : (seq byte)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:78.6-78.14 *)
+Axiom ibytes__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val_lst : (seq byte)),
 	(wf_uN v_N v_iN) ->
 	(ret_val_lst == (ibytes_ v_N v_iN)) ->
 	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:79.1-79.103 *)
 Axiom fbytes_ : forall (v_N : res_N) (v_fN : fN), (seq byte).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:79.6-79.14 *)
-Lemma fbytes__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq byte)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:79.6-79.14 *)
+Axiom fbytes__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq byte)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (fbytes_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:80.1-80.103 *)
 Axiom nbytes_ : forall (v_numtype : numtype) (v_num_ : num_), (seq byte).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:80.6-80.14 *)
-Lemma nbytes__is_wf : forall (v_numtype : numtype) (v_num_ : num_) (ret_val_lst : (seq byte)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:80.6-80.14 *)
+Axiom nbytes__is_wf : forall (v_numtype : numtype) (v_num_ : num_) (ret_val_lst : (seq byte)),
 	(wf_num_ v_numtype v_num_) ->
 	(ret_val_lst == (nbytes_ v_numtype v_num_)) ->
 	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:81.1-81.103 *)
 Axiom vbytes_ : forall (v_vectype : vectype) (v_vec_ : vec_), (seq byte).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:81.6-81.14 *)
-Lemma vbytes__is_wf : forall (v_vectype : vectype) (v_vec_ : vec_) (ret_val_lst : (seq byte)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:81.6-81.14 *)
+Axiom vbytes__is_wf : forall (v_vectype : vectype) (v_vec_ : vec_) (ret_val_lst : (seq byte)),
 	((res_size (valtype_vectype v_vectype)) != None) ->
 	(wf_uN (!((res_size (valtype_vectype v_vectype)))) v_vec_) ->
 	(ret_val_lst == (vbytes_ v_vectype v_vec_)) ->
 	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:83.1-83.85 *)
 Axiom inv_ibits_ : forall (v_N : res_N) (var_0_lst : (seq bit)), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:83.6-83.17 *)
-Lemma inv_ibits__is_wf : forall (v_N : res_N) (var_0_lst : (seq bit)) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:83.6-83.17 *)
+Axiom inv_ibits__is_wf : forall (v_N : res_N) (var_0_lst : (seq bit)) (ret_val : iN),
 	List.Forall (fun (var_0 : bit) => (wf_bit var_0)) var_0_lst ->
 	(ret_val == (inv_ibits_ v_N var_0_lst)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:84.1-84.85 *)
 Axiom inv_fbits_ : forall (v_N : res_N) (var_0_lst : (seq bit)), fN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:84.6-84.17 *)
-Lemma inv_fbits__is_wf : forall (v_N : res_N) (var_0_lst : (seq bit)) (ret_val : fN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:84.6-84.17 *)
+Axiom inv_fbits__is_wf : forall (v_N : res_N) (var_0_lst : (seq bit)) (ret_val : fN),
 	List.Forall (fun (var_0 : bit) => (wf_bit var_0)) var_0_lst ->
 	(ret_val == (inv_fbits_ v_N var_0_lst)) ->
 	(wf_fN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:85.1-85.86 *)
 Axiom inv_ibytes_ : forall (v_N : res_N) (var_0_lst : (seq byte)), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:85.6-85.18 *)
-Lemma inv_ibytes__is_wf : forall (v_N : res_N) (var_0_lst : (seq byte)) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:85.6-85.18 *)
+Axiom inv_ibytes__is_wf : forall (v_N : res_N) (var_0_lst : (seq byte)) (ret_val : iN),
 	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst ->
 	(ret_val == (inv_ibytes_ v_N var_0_lst)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:86.1-86.86 *)
 Axiom inv_fbytes_ : forall (v_N : res_N) (var_0_lst : (seq byte)), fN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:86.6-86.18 *)
-Lemma inv_fbytes__is_wf : forall (v_N : res_N) (var_0_lst : (seq byte)) (ret_val : fN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:86.6-86.18 *)
+Axiom inv_fbytes__is_wf : forall (v_N : res_N) (var_0_lst : (seq byte)) (ret_val : fN),
 	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst ->
 	(ret_val == (inv_fbytes_ v_N var_0_lst)) ->
 	(wf_fN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:87.1-87.84 *)
 Axiom inv_nbytes_ : forall (v_numtype : numtype) (var_0_lst : (seq byte)), num_.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:87.6-87.18 *)
-Lemma inv_nbytes__is_wf : forall (v_numtype : numtype) (var_0_lst : (seq byte)) (ret_val : num_),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:87.6-87.18 *)
+Axiom inv_nbytes__is_wf : forall (v_numtype : numtype) (var_0_lst : (seq byte)) (ret_val : num_),
 	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst ->
 	(ret_val == (inv_nbytes_ v_numtype var_0_lst)) ->
 	(wf_num_ v_numtype ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:88.1-88.84 *)
 Axiom inv_vbytes_ : forall (v_vectype : vectype) (var_0_lst : (seq byte)), vec_.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:88.6-88.18 *)
-Lemma inv_vbytes__is_wf : forall (v_vectype : vectype) (var_0_lst : (seq byte)) (ret_val : vec_),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:88.6-88.18 *)
+Axiom inv_vbytes__is_wf : forall (v_vectype : vectype) (var_0_lst : (seq byte)) (ret_val : vec_),
 	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst ->
 	(ret_val == (inv_vbytes_ v_vectype var_0_lst)) ->
 	((res_size (valtype_vectype v_vectype)) != None) ->
 	(wf_uN (!((res_size (valtype_vectype v_vectype)))) ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:110.1-110.29 *)
 Axiom inot_ : forall (v_N : res_N) (v_iN : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:110.6-110.12 *)
-Lemma inot__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:110.6-110.12 *)
+Axiom inot__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (inot_ v_N v_iN)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:111.1-111.29 *)
 Axiom irev_ : forall (v_N : res_N) (v_iN : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:111.6-111.12 *)
-Lemma irev__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:111.6-111.12 *)
+Axiom irev__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (irev_ v_N v_iN)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:113.1-113.39 *)
 Axiom iandnot_ : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:113.6-113.15 *)
-Lemma iandnot__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:113.6-113.15 *)
+Axiom iandnot__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (iandnot_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:124.1-124.27 *)
 Definition inez_ (v_N : res_N) (v_iN : iN) : u32 :=
@@ -5763,7 +5708,7 @@ Definition inez_ (v_N : res_N) (v_iN : iN) : u32 :=
 		| v_N, i_1 => (mk_uN (res_bool ((i_1 :> N) != 0%N)))
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:124.6-124.12 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:124.6-124.12 *)
 Lemma inez__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : u32),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (inez_ v_N v_iN)) ->
@@ -5776,14 +5721,13 @@ Qed.
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:131.1-131.49 *)
 Axiom ibitselect_ : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (iN_1 : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:131.6-131.18 *)
-Lemma ibitselect__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (iN_1 : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:131.6-131.18 *)
+Axiom ibitselect__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (iN_1 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(wf_uN v_N iN_1) ->
 	(ret_val == (ibitselect_ v_N v_iN iN_0 iN_1)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:133.1-133.29 *)
 Definition ineg_ (v_N : res_N) (v_iN : iN) : iN :=
@@ -5791,7 +5735,7 @@ Definition ineg_ (v_N : res_N) (v_iN : iN) : iN :=
 		| v_N, i_1 => (mk_uN (((((2%N ^ v_N)%BN : Z) - ((i_1 :> N) : Z))%Z mod ((2%N ^ v_N)%BN : Z))%Z : N))
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:133.6-133.12 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:133.6-133.12 *)
 Lemma ineg__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (ineg_ v_N v_iN)) ->
@@ -5819,7 +5763,7 @@ Inductive fun_iabs_ : res_N -> iN -> iN -> Prop :=
 		(fun_signed_ v_N (i_1 :> N) var_0) ->
 		fun_iabs_ v_N i_1 (if (var_0 >=? (0%N : Z))%Z then i_1 else (ineg_ v_N i_1)).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:132.6-132.12 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:132.6-132.12 *)
 Lemma iabs__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN) (var_0 : iN),
 	(fun_iabs_ v_N v_iN var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -5845,7 +5789,7 @@ Inductive fun_imin_ : res_N -> sx -> iN -> iN -> iN -> Prop :=
 		(fun_signed_ v_N (i_1 :> N) var_0) ->
 		fun_imin_ v_N res_S i_1 i_2 (if (var_0 <=? var_1)%Z then i_1 else i_2).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:134.6-134.12 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:134.6-134.12 *)
 Lemma imin__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN) (var_0 : iN),
 	(fun_imin_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -5871,7 +5815,7 @@ Inductive fun_imax_ : res_N -> sx -> iN -> iN -> iN -> Prop :=
 		(fun_signed_ v_N (i_1 :> N) var_0) ->
 		fun_imax_ v_N res_S i_1 i_2 (if (var_0 >=? var_1)%Z then i_1 else i_2).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:135.6-135.12 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:135.6-135.12 *)
 Lemma imax__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN) (var_0 : iN),
 	(fun_imax_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -5893,7 +5837,7 @@ Inductive fun_iadd_sat_ : res_N -> sx -> iN -> iN -> iN -> Prop :=
 		(fun_inv_signed_ v_N (sat_s_ v_N (var_1 + var_2)%Z) var_0) ->
 		fun_iadd_sat_ v_N res_S i_1 i_2 (mk_uN var_0).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:136.6-136.16 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:136.6-136.16 *)
 Lemma iadd_sat__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN) (var_0 : iN),
 	(fun_iadd_sat_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -5948,7 +5892,7 @@ Inductive fun_isub_sat_ : res_N -> sx -> iN -> iN -> iN -> Prop :=
 		(fun_inv_signed_ v_N (sat_s_ v_N (var_1 - var_2)%Z) var_0) ->
 		fun_isub_sat_ v_N res_S i_1 i_2 (mk_uN var_0).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:137.6-137.16 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:137.6-137.16 *)
 Lemma isub_sat__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN) (var_0 : iN),
 	(fun_isub_sat_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -5997,46 +5941,42 @@ Qed.
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:138.1-138.82 *)
 Axiom iavgr_ : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:138.6-138.13 *)
-Lemma iavgr__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:138.6-138.13 *)
+Axiom iavgr__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (iavgr_ v_N v_sx v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:139.1-139.90 *)
 Axiom iq15mulr_sat_ : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN), iN.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:139.6-139.20 *)
-Lemma iq15mulr_sat__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:139.6-139.20 *)
+Axiom iq15mulr_sat__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (iq15mulr_sat_ v_N v_sx v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:221.1-221.38 *)
 Axiom fpmin_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:221.6-221.13 *)
-Lemma fpmin__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:221.6-221.13 *)
+Axiom fpmin__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fpmin_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:222.1-222.38 *)
 Axiom fpmax_ : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN), (seq fN).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:222.6-222.13 *)
-Lemma fpmax__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:222.6-222.13 *)
+Axiom fpmax__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fpmax_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:323.1-324.27 *)
 Definition packnum_ (v_lanetype : lanetype) (v_num_ : num_) : (option lane_) :=
@@ -6050,7 +5990,7 @@ Definition packnum_ (v_lanetype : lanetype) (v_num_ : num_) : (option lane_) :=
 		| x0, x1 => None
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:323.6-323.15 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:323.6-323.15 *)
 Lemma packnum__is_wf : forall (v_lanetype : lanetype) (v_num_ : num_) (ret_val : lane_),
 	(wf_num_ (unpack v_lanetype) v_num_) ->
 	((packnum_ v_lanetype v_num_) != None) ->
@@ -6077,7 +6017,7 @@ Definition unpacknum_ (v_lanetype : lanetype) (v_lane_ : lane_) : (option num_) 
 		| x0, x1 => None
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:329.6-329.17 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:329.6-329.17 *)
 Lemma unpacknum__is_wf : forall (v_lanetype : lanetype) (v_lane_ : lane_) (ret_val : num_),
 	(wf_lane_ v_lanetype v_lane_) ->
 	((unpacknum_ v_lanetype v_lane_) != None) ->
@@ -6097,24 +6037,22 @@ Qed.
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:338.1-338.84 *)
 Axiom lanes_ : forall (v_shape : shape) (v_vec_ : vec_), (seq lane_).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:338.6-338.13 *)
-Lemma lanes__is_wf : forall (v_shape : shape) (v_vec_ : vec_) (ret_val_lst : (seq lane_)),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:338.6-338.13 *)
+Axiom lanes__is_wf : forall (v_shape : shape) (v_vec_ : vec_) (ret_val_lst : (seq lane_)),
 	(wf_shape v_shape) ->
 	(wf_uN 128%N v_vec_) ->
 	(ret_val_lst == (lanes_ v_shape v_vec_)) ->
 	List.Forall (fun (ret_val : lane_) => (wf_lane_ (fun_lanetype v_shape) ret_val)) ret_val_lst.
-Proof. Admitted.
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:341.1-342.36 *)
 Axiom inv_lanes_ : forall (v_shape : shape) (var_0_lst : (seq lane_)), vec_.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:341.6-341.17 *)
-Lemma inv_lanes__is_wf : forall (v_shape : shape) (var_0_lst : (seq lane_)) (ret_val : vec_),
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:341.6-341.17 *)
+Axiom inv_lanes__is_wf : forall (v_shape : shape) (var_0_lst : (seq lane_)) (ret_val : vec_),
 	(wf_shape v_shape) ->
 	List.Forall (fun (var_0 : lane_) => (wf_lane_ (fun_lanetype v_shape) var_0)) var_0_lst ->
 	(ret_val == (inv_lanes_ v_shape var_0_lst)) ->
 	(wf_uN 128%N ret_val).
-Proof. Admitted.
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:345.6-345.13 *)
 Inductive fun_zeroop_before_fun_zeroop_case_36 : shape -> shape -> vcvtop__ -> Prop :=
@@ -6723,7 +6661,7 @@ Definition vvunop_ (v_vectype : vectype) (v_vvunop : vvunop) (v_vec_ : vec_) : v
 		| V128, NOT, v128 => (inot_ (!((res_size valtype_V128))) v128)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:364.6-364.14 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:364.6-364.14 *)
 Lemma vvunop__is_wf : forall (v_vectype : vectype) (v_vvunop : vvunop) (v_vec_ : vec_) (ret_val : vec_),
 	((res_size (valtype_vectype v_vectype)) != None) ->
 	(wf_uN (!((res_size (valtype_vectype v_vectype)))) v_vec_) ->
@@ -6744,7 +6682,7 @@ Definition vvbinop_ (v_vectype : vectype) (v_vvbinop : vvbinop) (v_vec_ : vec_) 
 		| V128, vvbinop_XOR, v128_1, v128_2 => (ixor_ (!((res_size valtype_V128))) v128_1 v128_2)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:366.6-366.15 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:366.6-366.15 *)
 Lemma vvbinop__is_wf : forall (v_vectype : vectype) (v_vvbinop : vvbinop) (v_vec_ : vec_) (vec__0 : vec_) (ret_val : vec_),
 	((res_size (valtype_vectype v_vectype)) != None) ->
 	(wf_uN (!((res_size (valtype_vectype v_vectype)))) v_vec_) ->
@@ -6766,7 +6704,7 @@ Definition vvternop_ (v_vectype : vectype) (v_vvternop : vvternop) (v_vec_ : vec
 		| V128, BITSELECT, v128_1, v128_2, v128_3 => (ibitselect_ (!((res_size valtype_V128))) v128_1 v128_2 v128_3)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:368.6-368.16 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:368.6-368.16 *)
 Lemma vvternop__is_wf : forall (v_vectype : vectype) (v_vvternop : vvternop) (v_vec_ : vec_) (vec__0 : vec_) (vec__1 : vec_) (ret_val : vec_),
 	((res_size (valtype_vectype v_vectype)) != None) ->
 	(wf_uN (!((res_size (valtype_vectype v_vectype)))) v_vec_) ->
@@ -7261,7 +7199,7 @@ Inductive fun_vunop_ : shape -> vunop_ -> vec_ -> (option (seq vec_)) -> Prop :=
 		(~(fun_vunop__before_fun_vunop__case_26 x0 x1 x2)) ->
 		fun_vunop_ x0 x1 x2 None.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.13 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.13 *)
 Lemma vunop__is_wf : forall (v_shape : shape) (v_vunop_ : vunop_) (v_vec_ : vec_) (ret_val_lst : (seq vec_)) (var_0 : (option (seq vec_))),
 	(fun_vunop_ v_shape v_vunop_ v_vec_ var_0) ->
 	(wf_shape v_shape) ->
@@ -8787,7 +8725,7 @@ Inductive fun_vbinop_ : shape -> vbinop_ -> vec_ -> vec_ -> (option (seq vec_)) 
 		(~(fun_vbinop__before_fun_vbinop__case_52 x0 x1 x2 x3)) ->
 		fun_vbinop_ x0 x1 x2 x3 None.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:381.6-381.14 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:381.6-381.14 *)
 Lemma vbinop__is_wf : forall (v_shape : shape) (v_vbinop_ : vbinop_) (v_vec_ : vec_) (vec__0 : vec_) (ret_val_lst : (seq vec_)) (var_0 : (option (seq vec_))),
 	(fun_vbinop_ v_shape v_vbinop_ v_vec_ vec__0 var_0) ->
 	(wf_shape v_shape) ->
@@ -10280,7 +10218,7 @@ Inductive fun_vrelop_ : shape -> vrelop_ -> vec_ -> vec_ -> (option vec_) -> Pro
 		(~(fun_vrelop__before_fun_vrelop__case_36 x0 x1 x2 x3)) ->
 		fun_vrelop_ x0 x1 x2 x3 None.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.6-383.14 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.6-383.14 *)
 Lemma vrelop__is_wf : forall (v_shape : shape) (v_vrelop_ : vrelop_) (v_vec_ : vec_) (vec__0 : vec_) (ret_val : vec_) (var_0 : (option vec_)),
 	(fun_vrelop_ v_shape v_vrelop_ v_vec_ vec__0 var_0) ->
 	(wf_shape v_shape) ->
@@ -10819,7 +10757,7 @@ Inductive fun_lcvtop__ : shape -> shape -> vcvtop__ -> lane_ -> (option (seq lan
 		(~(fun_lcvtop___before_fun_lcvtop___case_36 x0 x1 x2 x3)) ->
 		fun_lcvtop__ x0 x1 x2 x3 None.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:385.6-385.15 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:385.6-385.15 *)
 Lemma lcvtop___is_wf : forall (shape_1 : shape) (shape_2 : shape) (v_vcvtop__ : vcvtop__) (v_lane_ : lane_) (ret_val_lst : (seq lane_)) (var_0 : (option (seq lane_))),
 	(fun_lcvtop__ shape_1 shape_2 v_vcvtop__ v_lane_ var_0) ->
 	(wf_shape shape_1) ->
@@ -10963,7 +10901,7 @@ Inductive fun_vcvtop__ : shape -> shape -> vcvtop__ -> vec_ -> (option vec_) -> 
 		(~(fun_vcvtop___before_fun_vcvtop___case_3 x0 x1 x2 x3)) ->
 		fun_vcvtop__ x0 x1 x2 x3 None.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:387.6-387.15 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:387.6-387.15 *)
 Lemma vcvtop___is_wf : forall (shape_1 : shape) (shape_2 : shape) (v_vcvtop__ : vcvtop__) (v_vec_ : vec_) (ret_val : vec_) (var_0 : (option vec_)),
 	(fun_vcvtop__ shape_1 shape_2 v_vcvtop__ v_vec_ var_0) ->
 	(wf_shape shape_1) ->
@@ -11433,7 +11371,7 @@ Inductive fun_vextunop__ : ishape -> ishape -> vextunop__ -> vec_ -> (option vec
 		(~(fun_vextunop___before_fun_vextunop___case_16 x0 x1 x2 x3)) ->
 		fun_vextunop__ x0 x1 x2 x3 None.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:603.6-603.17 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:603.6-603.17 *)
 Lemma vextunop___is_wf : forall (ishape_1 : ishape) (ishape_2 : ishape) (v_vextunop__ : vextunop__) (v_vec_ : vec_) (ret_val : vec_) (var_0 : (option vec_)),
 	(fun_vextunop__ ishape_1 ishape_2 v_vextunop__ v_vec_ var_0) ->
 	(wf_ishape ishape_1) ->
@@ -12540,7 +12478,7 @@ Inductive fun_vextbinop__ : ishape -> ishape -> vextbinop__ -> vec_ -> vec_ -> (
 		(~(fun_vextbinop___before_fun_vextbinop___case_32 x0 x1 x2 x3 x4)) ->
 		fun_vextbinop__ x0 x1 x2 x3 x4 None.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:605.6-605.18 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:605.6-605.18 *)
 Lemma vextbinop___is_wf : forall (ishape_1 : ishape) (ishape_2 : ishape) (v_vextbinop__ : vextbinop__) (v_vec_ : vec_) (vec__0 : vec_) (ret_val : vec_) (var_0 : (option vec_)),
 	(fun_vextbinop__ ishape_1 ishape_2 v_vextbinop__ v_vec_ vec__0 var_0) ->
 	(wf_ishape ishape_1) ->
@@ -12768,7 +12706,7 @@ Inductive fun_vshiftop_ : ishape -> vshiftop_ -> lane_ -> u32 -> (option lane_) 
 		(~(fun_vshiftop__before_fun_vshiftop__case_8 x0 x1 x2 x3)) ->
 		fun_vshiftop_ x0 x1 x2 x3 None.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:628.6-628.16 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:628.6-628.16 *)
 Lemma vshiftop__is_wf : forall (v_ishape : ishape) (v_vshiftop_ : vshiftop_) (v_lane_ : lane_) (v_u32 : u32) (ret_val : lane_) (var_0 : (option lane_)),
 	(fun_vshiftop_ v_ishape v_vshiftop_ v_lane_ v_u32 var_0) ->
 	(wf_ishape v_ishape) ->
@@ -13871,7 +13809,7 @@ Definition default_ (v_valtype : valtype) : (option val) :=
 		| x0 => None
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 *)
 Lemma default__is_wf : forall (v_valtype : valtype) (ret_val : val),
 	((default_ v_valtype) != None) ->
 	(ret_val == (!((default_ v_valtype)))) ->
@@ -13934,7 +13872,7 @@ Definition fun_store (v_state : state) : store :=
 		| (mk_state s f) => s
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:48.6-48.12 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:48.6-48.12 *)
 Lemma store_is_wf : forall (v_state : state) (ret_val : store),
 	(wf_state v_state) ->
 	(ret_val == (fun_store v_state)) ->
@@ -13950,7 +13888,7 @@ Definition fun_frame (v_state : state) : frame :=
 		| (mk_state s f) => f
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:49.6-49.12 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:49.6-49.12 *)
 Lemma frame_is_wf : forall (v_state : state) (ret_val : frame),
 	(wf_state v_state) ->
 	(ret_val == (fun_frame v_state)) ->
@@ -13972,7 +13910,7 @@ Definition fun_funcinst (v_state : state) : (seq funcinst) :=
 		| (mk_state s f) => (store_FUNCS s)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:58.6-58.15 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:58.6-58.15 *)
 Lemma funcinst_is_wf : forall (v_state : state) (ret_val_lst : (seq funcinst)),
 	(wf_state v_state) ->
 	(ret_val_lst == (fun_funcinst v_state)) ->
@@ -13988,7 +13926,7 @@ Definition fun_globalinst (v_state : state) : (seq globalinst) :=
 		| (mk_state s f) => (store_GLOBALS s)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:59.6-59.17 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:59.6-59.17 *)
 Lemma globalinst_is_wf : forall (v_state : state) (ret_val_lst : (seq globalinst)),
 	(wf_state v_state) ->
 	(ret_val_lst == (fun_globalinst v_state)) ->
@@ -14004,7 +13942,7 @@ Definition fun_tableinst (v_state : state) : (seq tableinst) :=
 		| (mk_state s f) => (store_TABLES s)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:60.6-60.16 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:60.6-60.16 *)
 Lemma tableinst_is_wf : forall (v_state : state) (ret_val_lst : (seq tableinst)),
 	(wf_state v_state) ->
 	(ret_val_lst == (fun_tableinst v_state)) ->
@@ -14020,7 +13958,7 @@ Definition fun_meminst (v_state : state) : (seq meminst) :=
 		| (mk_state s f) => (store_MEMS s)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:61.6-61.14 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:61.6-61.14 *)
 Lemma meminst_is_wf : forall (v_state : state) (ret_val_lst : (seq meminst)),
 	(wf_state v_state) ->
 	(ret_val_lst == (fun_meminst v_state)) ->
@@ -14042,7 +13980,7 @@ Definition fun_datainst (v_state : state) : (seq datainst) :=
 		| (mk_state s f) => (store_DATAS s)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:63.6-63.15 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:63.6-63.15 *)
 Lemma datainst_is_wf : forall (v_state : state) (ret_val_lst : (seq datainst)),
 	(wf_state v_state) ->
 	(ret_val_lst == (fun_datainst v_state)) ->
@@ -14058,7 +13996,7 @@ Definition fun_moduleinst (v_state : state) : moduleinst :=
 		| (mk_state s f) => (frame_MODULE f)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:64.6-64.17 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:64.6-64.17 *)
 Lemma moduleinst_is_wf : forall (v_state : state) (ret_val : moduleinst),
 	(wf_state v_state) ->
 	(ret_val == (fun_moduleinst v_state)) ->
@@ -14080,7 +14018,7 @@ Definition fun_func (v_state : state) (v_funcidx : funcidx) : funcinst :=
 		| (mk_state s f), x => ((store_FUNCS s)[| ((FUNCS (frame_MODULE f))[| (x :> N) |]) |])
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:75.6-75.11 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:75.6-75.11 *)
 Lemma func_is_wf : forall (v_state : state) (v_funcidx : funcidx) (ret_val : funcinst),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_funcidx) ->
@@ -14105,7 +14043,7 @@ Definition fun_global (v_state : state) (v_globalidx : globalidx) : globalinst :
 		| (mk_state s f), x => ((store_GLOBALS s)[| ((GLOBALS (frame_MODULE f))[| (x :> N) |]) |])
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:76.6-76.13 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:76.6-76.13 *)
 Lemma global_is_wf : forall (v_state : state) (v_globalidx : globalidx) (ret_val : globalinst),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_globalidx) ->
@@ -14129,7 +14067,7 @@ Definition fun_table (v_state : state) (v_tableidx : tableidx) : tableinst :=
 		| (mk_state s f), x => ((store_TABLES s)[| ((TABLES (frame_MODULE f))[| (x :> N) |]) |])
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:77.6-77.12 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:77.6-77.12 *)
 Lemma table_is_wf : forall (v_state : state) (v_tableidx : tableidx) (ret_val : tableinst),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_tableidx) ->
@@ -14153,7 +14091,7 @@ Definition fun_mem (v_state : state) (v_memidx : memidx) : meminst :=
 		| (mk_state s f), x => ((store_MEMS s)[| ((MEMS (frame_MODULE f))[| (x :> N) |]) |])
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:78.6-78.10 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:78.6-78.10 *)
 Lemma mem_is_wf : forall (v_state : state) (v_memidx : memidx) (ret_val : meminst),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_memidx) ->
@@ -14183,7 +14121,7 @@ Definition fun_data (v_state : state) (v_dataidx : dataidx) : datainst :=
 		| (mk_state s f), x => ((store_DATAS s)[| ((DATAS (frame_MODULE f))[| (x :> N) |]) |])
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:80.6-80.11 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:80.6-80.11 *)
 Lemma data_is_wf : forall (v_state : state) (v_dataidx : dataidx) (ret_val : datainst),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_dataidx) ->
@@ -14207,7 +14145,7 @@ Definition fun_local (v_state : state) (v_localidx : localidx) : val :=
 		| (mk_state s f), x => ((LOCALS f)[| (x :> N) |])
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:81.6-81.12 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:81.6-81.12 *)
 Lemma local_is_wf : forall (v_state : state) (v_localidx : localidx) (ret_val : val),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_localidx) ->
@@ -14231,7 +14169,7 @@ Definition with_local (v_state : state) (v_localidx : localidx) (v_val : val) : 
 		| (mk_state s f), x, v => (mk_state s (f <| LOCALS := (list_update_func (LOCALS f) (x :> N) (fun (_ : val) => v)) |>))
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:95.6-95.17 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:95.6-95.17 *)
 Lemma with_local_is_wf : forall (v_state : state) (v_localidx : localidx) (v_val : val) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_localidx) ->
@@ -14258,7 +14196,7 @@ Definition with_global (v_state : state) (v_globalidx : globalidx) (v_val : val)
 		| (mk_state s f), x, v => (mk_state (s <| store_GLOBALS := (list_update_func (store_GLOBALS s) ((GLOBALS (frame_MODULE f))[| (x :> N) |]) (fun (var_1 : globalinst) => (var_1 <| VALUE := v |>))) |>) f)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:96.6-96.18 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:96.6-96.18 *)
 Lemma with_global_is_wf : forall (v_state : state) (v_globalidx : globalidx) (v_val : val) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_globalidx) ->
@@ -14287,7 +14225,7 @@ Definition with_table (v_state : state) (v_tableidx : tableidx) (res_nat : N) (v
 		| (mk_state s f), x, i, r => (mk_state (s <| store_TABLES := (list_update_func (store_TABLES s) ((TABLES (frame_MODULE f))[| (x :> N) |]) (fun (var_1 : tableinst) => (var_1 <| REFS := (list_update_func (REFS var_1) i (fun (_ : ref) => r)) |>))) |>) f)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:97.6-97.17 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:97.6-97.17 *)
 Lemma with_table_is_wf : forall (v_state : state) (v_tableidx : tableidx) (res_nat : N) (v_ref : ref) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_tableidx) ->
@@ -14315,7 +14253,7 @@ Definition with_tableinst (v_state : state) (v_tableidx : tableidx) (v_tableinst
 		| (mk_state s f), x, ti => (mk_state (s <| store_TABLES := (list_update_func (store_TABLES s) ((TABLES (frame_MODULE f))[| (x :> N) |]) (fun (_ : tableinst) => ti)) |>) f)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:98.6-98.21 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:98.6-98.21 *)
 Lemma with_tableinst_is_wf : forall (v_state : state) (v_tableidx : tableidx) (v_tableinst : tableinst) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_tableidx) ->
@@ -14344,7 +14282,7 @@ Definition with_mem (v_state : state) (v_memidx : memidx) (res_nat : N) (nat_0 :
 		| (mk_state s f), x, i, j, b_lst => (mk_state (s <| store_MEMS := (list_update_func (store_MEMS s) ((MEMS (frame_MODULE f))[| (x :> N) |]) (fun (var_1 : meminst) => (var_1 <| BYTES := (list_slice_update (BYTES var_1) i j b_lst) |>))) |>) f)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:99.6-99.15 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:99.6-99.15 *)
 Lemma with_mem_is_wf : forall (v_state : state) (v_memidx : memidx) (res_nat : N) (nat_0 : N) (var_0_lst : (seq byte)) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_memidx) ->
@@ -14379,7 +14317,7 @@ Definition with_meminst (v_state : state) (v_memidx : memidx) (v_meminst : memin
 		| (mk_state s f), x, mi => (mk_state (s <| store_MEMS := (list_update_func (store_MEMS s) ((MEMS (frame_MODULE f))[| (x :> N) |]) (fun (_ : meminst) => mi)) |>) f)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:100.6-100.19 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:100.6-100.19 *)
 Lemma with_meminst_is_wf : forall (v_state : state) (v_memidx : memidx) (v_meminst : meminst) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_memidx) ->
@@ -14408,7 +14346,7 @@ Definition with_elem (v_state : state) (v_elemidx : elemidx) (var_0_lst : (seq r
 		| (mk_state s f), x, r_lst => (mk_state (s <| store_ELEMS := (list_update_func (store_ELEMS s) ((ELEMS (frame_MODULE f))[| (x :> N) |]) (fun (var_1 : eleminst) => (var_1 <| eleminst_REFS := r_lst |>))) |>) f)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:101.6-101.16 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:101.6-101.16 *)
 Lemma with_elem_is_wf : forall (v_state : state) (v_elemidx : elemidx) (var_0_lst : (seq ref)) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_elemidx) ->
@@ -14428,7 +14366,7 @@ Definition with_data (v_state : state) (v_dataidx : dataidx) (var_0_lst : (seq b
 		| (mk_state s f), x, b_lst => (mk_state (s <| store_DATAS := (list_update_func (store_DATAS s) ((DATAS (frame_MODULE f))[| (x :> N) |]) (fun (var_1 : datainst) => (var_1 <| datainst_BYTES := b_lst |>))) |>) f)
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:102.6-102.16 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:102.6-102.16 *)
 Lemma with_data_is_wf : forall (v_state : state) (v_dataidx : dataidx) (var_0_lst : (seq byte)) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_dataidx) ->
@@ -14476,7 +14414,7 @@ Inductive fun_growtable : tableinst -> N -> ref -> (option tableinst) -> Prop :=
 		(~(fun_growtable_before_fun_growtable_case_1 x0 x1 x2)) ->
 		fun_growtable x0 x1 x2 None.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 *)
 Lemma growtable_is_wf : forall (v_tableinst : tableinst) (res_nat : N) (v_ref : ref) (ret_val : tableinst) (var_0 : (option tableinst)),
 	(fun_growtable v_tableinst res_nat v_ref var_0) ->
 	(wf_tableinst v_tableinst) ->
@@ -14515,7 +14453,7 @@ Inductive fun_growmemory : meminst -> N -> (option meminst) -> Prop :=
 		(~(fun_growmemory_before_fun_growmemory_case_1 x0 x1)) ->
 		fun_growmemory x0 x1 None.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 *)
 Lemma growmemory_is_wf : forall (v_meminst : meminst) (res_nat : N) (ret_val : meminst) (var_0 : (option meminst)),
 	(fun_growmemory v_meminst res_nat var_0) ->
 	(wf_meminst v_meminst) ->
@@ -15712,7 +15650,7 @@ Inductive Step_pure : (seq admininstr) -> (seq admininstr) -> Prop :=
 		Step_pure [::(admininstr_VCONST V128 c_1); (admininstr_VCVTOP sh_2 sh_1 vcvtop)] [::(admininstr_VCONST V128 c)]
 	| Step_pure__local_tee : forall (v_val : val) (x : idx), Step_pure [::(admininstr_val v_val); (admininstr_LOCAL_TEE x)] [::(admininstr_val v_val); (admininstr_val v_val); (admininstr_LOCAL_SET x)].
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:6.10-6.19 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/8-reduction.spectec:6.10-6.19 *)
 Lemma Step_pure_is_wf : forall (var_0 : (seq admininstr)) (var_1 : (seq admininstr)),
 	List.Forall (fun (var_0 : admininstr) => (wf_admininstr var_0)) var_0 ->
 	(Step_pure var_0 var_1) ->
@@ -16447,7 +16385,7 @@ Inductive fun_allocfunc : store -> moduleinst -> func -> (store * funcaddr) -> P
 		(wf_func (func_FUNC x local_lst v_expr)) ->
 		fun_allocfunc s v_moduleinst v_func ((s <| store_FUNCS := ((store_FUNCS s) ++ [::fi]) |>), (|(store_FUNCS s)|)).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:36.6-36.16 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:36.6-36.16 *)
 Lemma allocfunc_is_wf : forall (v_store : store) (v_moduleinst : moduleinst) (v_func : func) (ret_val : (store * funcaddr)) (var_0 : (store * funcaddr)),
 	(fun_allocfunc v_store v_moduleinst v_func var_0) ->
 	(wf_store v_store) ->
@@ -16499,7 +16437,7 @@ Inductive fun_allocglobal : store -> globaltype -> val -> (store * globaladdr) -
 		(wf_globalinst {| globalinst_TYPE := v_globaltype; VALUE := v_val |}) ->
 		fun_allocglobal s v_globaltype v_val ((s <| store_GLOBALS := ((store_GLOBALS s) ++ [::gi]) |>), (|(store_GLOBALS s)|)).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:47.6-47.18 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:47.6-47.18 *)
 Lemma allocglobal_is_wf : forall (v_store : store) (v_globaltype : globaltype) (v_val : val) (ret_val : (store * globaladdr)) (var_0 : (store * globaladdr)),
 	(fun_allocglobal v_store v_globaltype v_val var_0) ->
 	(wf_store v_store) ->
@@ -16549,7 +16487,7 @@ Inductive fun_alloctable : store -> tabletype -> (store * tableaddr) -> Prop :=
 		(wf_tableinst {| tableinst_TYPE := (mk_tabletype (mk_limits i j_opt) rt); REFS := (list_repeat (ref_REF_NULL rt) (i :> N)) |}) ->
 		fun_alloctable s (mk_tabletype (mk_limits i j_opt) rt) ((s <| store_TABLES := ((store_TABLES s) ++ [::ti]) |>), (|(store_TABLES s)|)).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:57.6-57.17 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:57.6-57.17 *)
 Lemma alloctable_is_wf : forall (v_store : store) (v_tabletype : tabletype) (ret_val : (store * tableaddr)) (var_0 : (store * tableaddr)),
 	(fun_alloctable v_store v_tabletype var_0) ->
 	(wf_store v_store) ->
@@ -16599,7 +16537,7 @@ Inductive fun_allocmem : store -> memtype -> (store * memaddr) -> Prop :=
 		(wf_meminst {| meminst_TYPE := (PAGE (mk_limits i j_opt)); BYTES := (list_repeat (mk_byte 0%N) ((i :> N) * (64%N * (Ki ))%BN)%BN) |}) ->
 		fun_allocmem s (PAGE (mk_limits i j_opt)) ((s <| store_MEMS := ((store_MEMS s) ++ [::mi]) |>), (|(store_MEMS s)|)).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:67.6-67.15 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:67.6-67.15 *)
 Lemma allocmem_is_wf : forall (v_store : store) (v_memtype : memtype) (ret_val : (store * memaddr)) (var_0 : (store * memaddr)),
 	(fun_allocmem v_store v_memtype var_0) ->
 	(wf_store v_store) ->
@@ -16648,7 +16586,7 @@ Inductive fun_allocelem : store -> reftype -> (seq ref) -> (store * elemaddr) ->
 		(ei == {| eleminst_TYPE := rt; eleminst_REFS := ref_lst |}) ->
 		fun_allocelem s rt ref_lst ((s <| store_ELEMS := ((store_ELEMS s) ++ [::ei]) |>), (|(store_ELEMS s)|)).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:77.6-77.16 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:77.6-77.16 *)
 Lemma allocelem_is_wf : forall (v_store : store) (v_reftype : reftype) (var_0_lst : (seq ref)) (ret_val : (store * elemaddr)) (var_0 : (store * elemaddr)),
 	(fun_allocelem v_store v_reftype var_0_lst var_0) ->
 	(wf_store v_store) ->
@@ -16694,7 +16632,7 @@ Inductive fun_allocdata : store -> (seq byte) -> (store * dataaddr) -> Prop :=
 		(wf_datainst {| datainst_BYTES := byte_lst |}) ->
 		fun_allocdata s byte_lst ((s <| store_DATAS := ((store_DATAS s) ++ [::di]) |>), (|(store_DATAS s)|)).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:87.6-87.16 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:87.6-87.16 *)
 Lemma allocdata_is_wf : forall (v_store : store) (var_0_lst : (seq byte)) (ret_val : (store * dataaddr)) (var_0 : (store * dataaddr)),
 	(fun_allocdata v_store var_0_lst var_0) ->
 	(wf_store v_store) ->
@@ -16746,7 +16684,7 @@ Definition instexport (var_0_lst : (seq funcaddr)) (var_1_lst : (seq globaladdr)
 		| fa_lst, ga_lst, ta_lst, ma_lst, (EXPORT v_name (externidx_MEM x)) => {| NAME := v_name; ADDR := (externaddr_MEM (ma_lst[| (x :> N) |])) |}
 	end.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:100.6-100.17 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:100.6-100.17 *)
 Lemma instexport_is_wf : forall (var_0_lst : (seq funcaddr)) (var_1_lst : (seq globaladdr)) (var_2_lst : (seq tableaddr)) (var_3_lst : (seq memaddr)) (v_export : export) (ret_val : exportinst),
 	(wf_export v_export) ->
 	(ret_val == (instexport var_0_lst var_1_lst var_2_lst var_3_lst v_export)) ->
@@ -16798,7 +16736,7 @@ Inductive fun_allocmodule : store -> module -> (seq externaddr) -> (seq val) -> 
 		(wf_moduleinst {| TYPES := ft_lst; FUNCS := (fa_ex_lst ++ fa_lst); GLOBALS := (ga_ex_lst ++ ga_lst); TABLES := (ta_ex_lst ++ ta_lst); MEMS := (ma_ex_lst ++ ma_lst); ELEMS := ea_lst; DATAS := da_lst; EXPORTS := xi_lst |}) ->
 		fun_allocmodule s v_module externaddr_lst val_lst ref_lst_lst (s_6, v_moduleinst).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:107.6-107.18 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:107.6-107.18 *)
 Lemma allocmodule_is_wf : forall (v_store : store) (v_module : module) (var_0_lst : (seq externaddr)) (var_1_lst : (seq val)) (var_2_lst_lst : (seq (seq ref))) (ret_val : (store * moduleinst)) (var_0 : (store * moduleinst)),
 	(fun_allocmodule v_store v_module var_0_lst var_1_lst var_2_lst_lst var_0) ->
 	(wf_store v_store) ->
@@ -16930,7 +16868,7 @@ Inductive fun_invoke : store -> funcaddr -> (seq val) -> config -> Prop :=
 		(v_n == (|val_lst|)) ->
 		fun_invoke s fa val_lst (mk_config (mk_state s f) ((seq.map (fun (v_val : val) => (admininstr_val v_val)) val_lst) ++ [::(CALL_ADDR fa)])).
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:196.6-196.13 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:196.6-196.13 *)
 Lemma invoke_is_wf : forall (v_store : store) (v_funcaddr : funcaddr) (var_0_lst : (seq val)) (ret_val : config) (var_0 : config),
 	(fun_invoke v_store v_funcaddr var_0_lst var_0) ->
 	(wf_store v_store) ->
@@ -17272,7 +17210,7 @@ Inductive Store_ok : store -> Prop :=
 		(wf_store {| store_FUNCS := funcinst_lst; store_GLOBALS := globalinst_lst; store_TABLES := tableinst_lst; store_MEMS := meminst_lst; store_ELEMS := eleminst_lst; store_DATAS := datainst_lst |}) ->
 		Store_ok s.
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:7.10-7.19 *)
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/8-reduction.spectec:7.10-7.19 *)
 (* Placed after Store_ok, and taking (Store_ok (fun_store z)) as a hypothesis:
    the store bounds are needed for table.size, memory.size and the bulk rules. *)
 Lemma Step_read_is_wf : forall (z : state) (admininstr_lst : (seq admininstr)) (var_1 : (seq admininstr)),
