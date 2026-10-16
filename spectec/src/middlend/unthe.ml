@@ -26,9 +26,10 @@ drop some variables from the iterexp *)
 let update_iterexp_vars (sets : Il.Free.sets) ((iter, vs) : iterexp) : iterexp =
   let vs' = List.filter (fun (v, _) -> Il.Free.Set.mem v.it sets.varid) vs in
   let vs'' = if vs' <> [] then vs' else
-    match iter with
-    | ListN _ -> vs'
-    | _ -> [List.hd vs]  (* prevent empty iterator list *)
+    match iter, vs with
+    | ListN _, _ -> vs'
+    | _, v :: _ -> [v]  (* prevent empty iterator list *)
+    | _, [] -> vs'      (* dependent IL, annotation-style iters have no binders *)
   in (iter, vs'')
 
 (* If a param and premise is generated under an iteration, wrap them accordingly *)
@@ -85,6 +86,15 @@ let rec t_exp n e : eqns * exp =
   (* Descend first using t_exp2, and then see if we have to pull out the current expression *)
   let eqns, e' = t_exp2 n e in
   match e.it with
+  (* On dependent IL, a scalar !(e) may flow into a type index, where replacing
+     it by a fresh variable breaks definitional equality. Keep options of
+     numeric or plain named type uneliminated; data projections still get
+     pulled out below. *)
+  | TheE exp when (match exp.note.it with
+      | IterT ({it = NumT _; _}, Opt) -> true
+      | IterT ({it = VarT (_, []); _}, Opt) -> true
+      | _ -> false) ->
+    eqns, e'
   | TheE exp ->
     let ot = exp.note in
     let t = match ot.it with

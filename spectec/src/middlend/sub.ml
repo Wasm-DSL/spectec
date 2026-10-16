@@ -164,15 +164,29 @@ let insert_injections transformer env (def : def) : def list =
       let arg_typ2 = lookup_arg_typ cases_sub2 m in
       match arg_typ.it, arg_typ2 with
       | TupT ts, Some {it = TupT ts'; _} ->
-        let quants = List.mapi (fun i (_, arg_typ_i) -> ExpP ("x" ^ string_of_int i $ no_region, arg_typ_i) $ no_region) ts in
-        let xes is_lhs = List.map2 (fun quant (_, arg_typ_i2) ->
-          match quant.it with
-          | ExpP (x, arg_typ_i) -> 
-            let base_exp = VarE x $$ no_region % arg_typ_i in
-            if is_lhs || Il.Eq.eq_typ arg_typ_i arg_typ_i2
-            then base_exp
-            else SubE (base_exp, arg_typ_i, arg_typ_i2) $$ no_region % arg_typ_i2
-          | TypP _ | DefP _ | GramP _ -> assert false) quants ts'
+        (* tuples may be dependent, substitute fresh xi vars through *)
+        let quants, _ = List.fold_left (fun (quants, s) (id_i, arg_typ_i) ->
+          let x = ("x" ^ string_of_int (List.length quants)) $ no_region in
+          let arg_typ_i' = Il.Subst.subst_typ s arg_typ_i in
+          let s' = Il.Subst.add_varid s id_i (VarE x $$ no_region % arg_typ_i') in
+          (quants @ [ExpP (x, arg_typ_i') $ no_region], s')
+        ) ([], Il.Subst.empty) ts in
+        let xes is_lhs =
+          let rev_exps, _ = List.fold_left2 (fun (acc, s2) quant (id_i2, arg_typ_i2) ->
+            match quant.it with
+            | ExpP (x, arg_typ_i) ->
+              let arg_typ_i2' = Il.Subst.subst_typ s2 arg_typ_i2 in
+              let base_exp = VarE x $$ no_region % arg_typ_i in
+              let e =
+                if is_lhs || Il.Eq.eq_typ arg_typ_i arg_typ_i2'
+                then base_exp
+                else SubE (base_exp, arg_typ_i, arg_typ_i2') $$ no_region % arg_typ_i2'
+              in
+              let s2' = Il.Subst.add_varid s2 id_i2 (VarE x $$ no_region % arg_typ_i2') in
+              (e :: acc, s2')
+            | TypP _ | DefP _ | GramP _ -> assert false) ([], Il.Subst.empty) quants ts'
+          in
+          List.rev rev_exps
         in
         let xe is_lhs = TupE (xes is_lhs) $$ no_region % arg_typ in
         DefD (quants,
