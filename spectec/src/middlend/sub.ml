@@ -95,7 +95,7 @@ let rec t_exp env exp =
       let new_iterid = Il.Fresh.fresh_varid "iter_val" in
       let new_exp = VarE (new_iterid $ e.at) $$ e.at % t1 in
       let new_iterexp = (iter1, [(new_iterid $ e.at, e)]) in
-      IterE (SubE (new_exp, t1, t2) $$ e.at % t2, new_iterexp) $$ e.at % sup_ty
+      IterE (t_exp env (SubE (new_exp, t1, t2) $$ e.at % t2), new_iterexp) $$ e.at % sup_ty
     | _, _ ->
 (* Printf.eprintf "[sub @ %s REMAINS] %s  <:  %s\n%!" (string_of_region exp'.at) (Il.Print.string_of_typ sub_ty) (Il.Print.string_of_typ sup_ty); *)
       error sub_ty.at ("Non-variable or number type expression not supported `" ^ Il.Print.string_of_typ sub_ty ^ "`")
@@ -148,7 +148,7 @@ let rec rename_params s = function
 let lookup_arg_typ typcases m = 
   List.find_map (fun (m', (arg_typ, _, _), _) -> if Il.Eq.eq_mixop m m' then Some arg_typ else None) typcases
 
-let insert_injections env (def : def) : def list =
+let insert_injections transformer env (def : def) : def list =
   add_type_info env def;
   let pairs = ready_pairs env in
   [ def ] @
@@ -177,7 +177,7 @@ let insert_injections env (def : def) : def list =
         let xe is_lhs = TupE (xes is_lhs) $$ no_region % arg_typ in
         DefD (quants,
           [ExpA (CaseE (m, xe true) $$ no_region % real_ty) $ no_region],
-          t_exp env (CaseE (m, xe false) $$ no_region % sup_ty), []) $ no_region
+          transform_exp transformer (CaseE (m, xe false) $$ no_region % sup_ty), []) $ no_region
       | _ ->
         let x = "x" $ no_region in
         let xe = VarE x $$ no_region % arg_typ in
@@ -194,6 +194,6 @@ let transform (defs : script) =
   let transformer = { base_transformer with transform_exp = t_exp env } in
   let defs' = List.map (transform_def transformer) defs in
   env.pairs_mutable <- false;
-  let defs'' =  List.concat_map (insert_injections env) defs' in
+  let defs'' =  List.concat_map (insert_injections transformer env) defs' in
   S.iter (fun (sub, sup) -> error sup.at ("left-over subtype coercion `" ^ sub.it ^ "` <: `" ^ sup.it ^ "`")) env.pairs;
   defs''  

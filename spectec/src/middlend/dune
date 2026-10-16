@@ -10,12 +10,17 @@
     else
     undep
     utils
+    deftorel
     subexpansion
     uncaseremoval
     aliasDemut
     improveids
     ite
+    patSimp
+    deftorel
     elsesimp
     letintromech
+    datatypediet
+    singlepatternmatch
   )
 )
