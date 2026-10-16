@@ -8,7 +8,7 @@ type rocq_env = {
   mutable tf_set : StringSet.t;
   mutable il_env : Il.Env.t;
   mutable proj_set : StringSet.t;
-  mutable wf_lemma_set : StringSet.t;
+  mutable wf_lemma_map : bool StringMap.t;
   mutable typ_to_wf_map : text StringMap.t
 }
 
@@ -16,7 +16,7 @@ let new_env () = {
   tf_set = StringSet.empty;
   il_env = Il.Env.empty;
   proj_set = StringSet.empty;
-  wf_lemma_set = StringSet.empty;
+  wf_lemma_map = StringMap.empty;
   typ_to_wf_map = StringMap.empty
 }
 
@@ -189,6 +189,12 @@ let is_inductive d =
   | TypD(_, _, [inst]) when is_variant_typ inst || is_alias_typ inst -> true
   | _ -> false
     
+let is_wf_lemma d = 
+  match d.it with
+  | RelD (id, _, _, _, _) when StringMap.mem id.it !env_ref.wf_lemma_map ->
+    true
+  | _ -> false
+
 let comment_desc_def d = 
   match d.it with
   | TypD (_, _, [inst]) when is_alias_typ inst -> "Type Alias Definition"
@@ -198,6 +204,7 @@ let comment_desc_def d =
   | RecD _ -> "Mutual Recursion"
   | DecD (_, _, _, []) -> "Axiom Definition"
   | DecD _ -> "Auxiliary Definition"
+  | RelD _ when is_wf_lemma d -> "Well-Formedness Lemma Definition"
   | RelD _ -> "Inductive Relations Definition"
   | HintD _ -> "Hint Definition"
   | GramD _ -> "Grammar Production Definition"
@@ -715,14 +722,15 @@ let render_single_type id at params =
   | {it = ExpP (_, typ); _} :: ps when List.for_all is_typ_param ps -> (render_type RHS typ, ps)
   | _ -> error at ("Given projection function: " ^ id ^ " has invalid parameters!")
 
-let render_wfness_func_lemma id rule = 
+let render_wfness_func_lemma id rule is_axiom = 
   let RuleD (_, quants, _, _, prems) = rule.it in
   let forall_quantifiers = string_of_list "forall " ",\n\t" " " (render_param RHS) quants in
   let letprems, others = List.partition is_let prems in
   let string_lets = string_of_list "" "" "\n\t" render_prem letprems in
   let string_prems = string_of_list "" "" " ->\n\t" render_prem others in
-  "Lemma " ^ id ^ " : " ^ forall_quantifiers ^ string_lets ^ string_prems ^ ".\n" ^
-  "Proof. Admitted"
+  let starting_prefix = if is_axiom then "Axiom " else "Lemma " in
+  starting_prefix ^ id ^ " : " ^ forall_quantifiers ^ string_lets ^ string_prems ^
+  (if is_axiom then "" else ".\nProof. Admitted")
 
 let render_function_def prefix id at params r_typ clauses = 
   (* let has_typ_fam = List.length params > 1 && List.exists is_type_family_param params in *)
@@ -788,12 +796,6 @@ let has_prems c =
   match c.it with
   | DefD (_, _, _, prems) -> prems <> [] && not (only_otherwise_or_let prems)
 
-let is_wf_lemma d = 
-  match d.it with
-  | RelD (id, _, _, _, _) when StringSet.mem id.it !env_ref.wf_lemma_set ->
-    true
-  | _ -> false
-
 let start_prefix def = 
   match def.it with
   | _ when is_wf_lemma def -> ""
@@ -827,12 +829,12 @@ let rec string_of_def has_endline recursive def =
     start ^ render_axiom prefix (render_id id.it) params typ ^ end_newline
   | DecD (id, params, typ, clauses) -> 
     let prefix = if recursive then "" else "Definition " in
-    start ^ render_function_def prefix (render_id id.it) id.at params typ (clauses) ^ end_newline
+    start ^ render_function_def prefix (render_id id.it) id.at params typ clauses ^ end_newline
   | RelD (id, _, _, typ, []) -> 
     let prefix = if recursive then "" else "Axiom " in
     start ^ render_rel_axiom prefix (render_id id.it) typ ^ end_newline
   | RelD (id, _, _, _, [rule]) when is_wf_lemma def ->
-    start ^ render_wfness_func_lemma id.it rule ^ end_newline
+    start ^ render_wfness_func_lemma id.it rule (StringMap.find id.it !env_ref.wf_lemma_map) ^ end_newline
   | RelD (id, _, _, typ, rules) -> 
     let prefix = if recursive then "" else "Inductive " in
     start ^ render_relation prefix (render_id id.it) typ rules ^ end_newline
@@ -1110,9 +1112,17 @@ let rec register_hints env def =
   | HintD { it = DecH (id, hints); _} when List.exists is_proj_hint hints ->
     env.proj_set <- StringSet.add id.it env.proj_set
   | HintD { it = RelH (id, hints); _} when List.exists is_wf_func_hint hints -> 
-    env.wf_lemma_set <- StringSet.add id.it env.wf_lemma_set
+    begin match (List.find_opt is_wf_func_hint hints) with
+    | Some {hintexp = { it = El.Ast.BoolE is_axiom; _}; _} ->
+      env.wf_lemma_map <- StringMap.add id.it is_axiom env.wf_lemma_map
+    | _ -> ()
+    end 
   | HintD { it = RelH (id, hints); _} when List.exists is_wf_rel_hint hints -> 
-    env.wf_lemma_set <- StringSet.add id.it env.wf_lemma_set
+    begin match (List.find_opt is_wf_rel_hint hints) with
+    | Some {hintexp = { it = El.Ast.BoolE is_axiom; _}; _} ->
+      env.wf_lemma_map <- StringMap.add id.it is_axiom env.wf_lemma_map
+    | _ -> ()
+    end 
   | HintD { it = RelH (rel_id, hints); _} when List.exists is_wf_hint hints ->
     begin match (List.find_opt is_wf_hint hints) with
     | Some {hintexp = { it = El.Ast.VarE (typ_id, _); _}; _} ->
