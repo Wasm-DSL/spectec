@@ -1456,6 +1456,115 @@ proof -
   qed
 qed
 
+(*memory stores*)
+(*The byte encoders are uninterpreted in the generated theory, so nothing fixes the
+  length of their output. These axioms mirror `nbytes_len'`, `ibytes_len''` and
+  `vbytes_len'` in rocq/axioms.v (`ibytes_len''` also covers Rocq's `ibytes_len'`).*)
+axiomatization where
+  nbytes_length: "length (nbytes_underscore nt c) = the (size (valtype_numtype nt)) div 8" and
+  ibytes_length: "length (ibytes_underscore v_N x) = v_N div 8" and
+  vbytes_length: "length (vbytes_underscore vt v) = the (size (valtype_vectype vt)) div 8"
+
+lemma list_slice_update_length:
+  "length u \<le> j \<Longrightarrow> length (list_slice_update l i j u) = length l"
+  by (induction l i j u rule: list_slice_update.induct) auto
+
+lemma list_slice_update_set:
+  "set (list_slice_update l i j u) \<subseteq> set l \<union> set u"
+  by (induction l i j u rule: list_slice_update.induct) auto
+
+lemma list_all_list_slice_update:
+  "list_all P l \<Longrightarrow> list_all P u \<Longrightarrow> list_all P (list_slice_update l i j u)"
+  using list_slice_update_set by (fastforce simp: list_all_iff)
+
+lemma wf_admininstr_CONST_inv:
+  "wf_admininstr (admininstr_sc1 (admininstr_st1_CONST nt c)) \<Longrightarrow> wf_num_underscore nt c"
+  by (cases rule: wf_admininstr.cases) auto
+
+lemma wf_admininstr_VCONST_inv:
+  "wf_admininstr (admininstr_sc2 (admininstr_st2_VCONST vt c)) \<Longrightarrow>
+   size (valtype_vectype vt) \<noteq> None \<and> wf_uN (the (size (valtype_vectype vt))) c"
+  by (cases rule: wf_admininstr.cases) auto
+
+lemma wf_num_Inn:
+  assumes "wf_num_underscore (numtype_Inn v_Inn) c" "proj_num__0 c \<noteq> None"
+  shows "wf_uN (the (size (valtype_Inn v_Inn))) (the (proj_num__0 c))"
+  using assms
+proof (cases rule: wf_num_underscore.cases)
+  case (num__case_0 v_Inn' x)
+  then have "v_Inn' = v_Inn"
+    by (cases v_Inn; cases v_Inn') (auto simp: numtype_Inn.psimps numtype_Inn.domintros)
+  then show ?thesis
+    using num__case_0 by (simp add: proj_num__0.psimps proj_num__0.domintros)
+next
+  case (num__case_1 v_Fnn x)
+  then show ?thesis
+    using assms(2) by (simp add: proj_num__0.psimps proj_num__0.domintros)
+qed
+
+lemma mem_store_store_extension:
+  assumes "with_mem (mk_state s f) (mk_uN 0) off n bs = mk_state s' f'"
+          "Store_ok s"
+          "list_all wf_byte bs"
+          "length bs \<le> n"
+  shows "Extend_store s s' \<and> Store_ok s'"
+proof -
+  let ?a = "MEMS (frame_MODULE f) ! 0"
+  let ?g = "\<lambda>m. m\<lparr>BYTES := list_slice_update (BYTES m) off n bs\<rparr>"
+  have s'_eq: "s' = s\<lparr>store_MEMS := list_update_func (store_MEMS s) ?a ?g\<rparr>"
+    using assms(1) with_mem.psimps with_mem.domintros by auto
+  have old_ok: "\<exists>k mo b. store_MEMS s ! ?a = \<lparr>meminst_TYPE = PAGE (mk_limits (mk_uN k) (map_option mk_uN mo)), BYTES = b\<rparr> \<and>
+                  mt = PAGE (mk_limits (mk_uN k) (map_option mk_uN mo)) \<and>
+                  length b = k * (64 * Ki) \<and>
+                  Memtype_ok (PAGE (mk_limits (mk_uN k) (map_option mk_uN mo))) \<and>
+                  wf_memtype (PAGE (mk_limits (mk_uN k) (map_option mk_uN mo))) \<and>
+                  wf_meminst (store_MEMS s ! ?a)"
+    if "Meminst_ok s (store_MEMS s ! ?a) mt" for mt
+    using that by (cases rule: Meminst_ok.cases) auto
+  have new_facts: "length (list_slice_update b off n bs) = length b \<and>
+                   wf_meminst \<lparr>meminst_TYPE = mty, BYTES = list_slice_update b off n bs\<rparr>"
+    if "wf_meminst \<lparr>meminst_TYPE = mty, BYTES = b\<rparr>" for mty b
+    using that assms(3,4) list_slice_update_length list_all_list_slice_update
+    by (auto elim!: wf_meminst.cases intro!: meminst_case_underscore)
+  show ?thesis
+  proof (rule mems_update_store_extension[OF assms(2) s'_eq])
+    fix mt
+    assume "Meminst_ok s (store_MEMS s ! ?a) mt"
+    then obtain k mo b where
+      old: "store_MEMS s ! ?a = \<lparr>meminst_TYPE = PAGE (mk_limits (mk_uN k) (map_option mk_uN mo)), BYTES = b\<rparr>" and
+      wf_old: "wf_meminst (store_MEMS s ! ?a)"
+      using old_ok by blast
+    have wf_old': "wf_meminst \<lparr>meminst_TYPE = PAGE (mk_limits (mk_uN k) (map_option mk_uN mo)), BYTES = b\<rparr>"
+      using wf_old old by simp
+    note new = new_facts[OF wf_old']
+    have "Extend_meminst
+      \<lparr>meminst_TYPE = PAGE (mk_limits (mk_uN k) (map_option mk_uN mo)), BYTES = b\<rparr>
+      \<lparr>meminst_TYPE = PAGE (mk_limits (mk_uN k) (map_option mk_uN mo)), BYTES = list_slice_update b off n bs\<rparr>"
+      using new by (intro mk_Extend_meminst[OF le_refl _ wf_old']) simp_all
+    then show "Extend_meminst (store_MEMS s ! ?a) (?g (store_MEMS s ! ?a))"
+      using old by simp
+  next
+    fix mt
+    assume ext: "Extend_store s s'" and "Meminst_ok s (store_MEMS s ! ?a) mt"
+    then obtain k mo b where
+      old: "store_MEMS s ! ?a = \<lparr>meminst_TYPE = PAGE (mk_limits (mk_uN k) (map_option mk_uN mo)), BYTES = b\<rparr>" and
+      len: "length b = k * (64 * Ki)" and
+      mt_ok: "Memtype_ok (PAGE (mk_limits (mk_uN k) (map_option mk_uN mo)))" and
+      wf_mt: "wf_memtype (PAGE (mk_limits (mk_uN k) (map_option mk_uN mo)))" and
+      wf_old: "wf_meminst (store_MEMS s ! ?a)"
+      using old_ok by blast
+    have wf_old': "wf_meminst \<lparr>meminst_TYPE = PAGE (mk_limits (mk_uN k) (map_option mk_uN mo)), BYTES = b\<rparr>"
+      using wf_old old by simp
+    note new = new_facts[OF wf_old']
+    have "Meminst_ok s'
+      \<lparr>meminst_TYPE = PAGE (mk_limits (mk_uN k) (map_option mk_uN mo)), BYTES = list_slice_update b off n bs\<rparr>
+      (PAGE (mk_limits (mk_uN k) (map_option mk_uN mo)))"
+      using new len by (intro mk_Meminst_ok[OF mt_ok _ store_extension_wf[OF ext] _ wf_mt]) simp_all
+    then show "\<exists>mt'. Meminst_ok s' (?g (store_MEMS s ! ?a)) mt'"
+      using old by auto
+  qed
+qed
+
 lemma t_inst_match_trans:
   "t_inst_match C1 C2 \<Longrightarrow> t_inst_match C2 C3 \<Longrightarrow> t_inst_match C1 C3"
   by (simp add: t_inst_match_def)
@@ -1559,17 +1668,69 @@ next
   then have "with_elem (mk_state s f) x [] = mk_state s' f'" by auto
   then show ?case using elem_drop_store_extension Step__elem_drop.prems(3) by blast
 next
-  case (store_num_val i nt b_lst z c ao)
-  then show ?case sorry
+  case (store_num_val i nt b_lst c z ao)
+  have es: "admininstr_lst = [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_sc1 (admininstr_st1_CONST nt c), admininstr_sc6 (admininstr_st6_STORE nt None ao)]"
+    using store_num_val.prems(1) by simp
+  have upd: "with_mem (mk_state s f) (mk_uN 0) (proj_uN_0 (the (proj_num__0 i)) + proj_uN_0 (OFFSET ao))
+               (the (size (valtype_numtype nt)) div 8) b_lst = mk_state s' f'"
+    using store_num_val by auto
+  have "wf_num_underscore nt c"
+    using Instrs_ok2_wf_instr[OF store_num_val.prems(5)] es wf_admininstr_CONST_inv by simp
+  then have "list_all wf_byte b_lst"
+    using nbytes__is_wf store_num_val.hyps(3) by blast
+  moreover have "length b_lst \<le> the (size (valtype_numtype nt)) div 8"
+    using nbytes_length store_num_val.hyps(3) by simp
+  ultimately show ?case
+    using mem_store_store_extension[OF upd store_num_val.prems(3)] by blast
 next
   case (store_pack_val i v_Inn c b_lst v_n z ao)
-  then show ?case sorry
+  have es: "admininstr_lst = [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_sc1 (admininstr_st1_CONST (numtype_Inn v_Inn) c), admininstr_sc6 (admininstr_st6_STORE (numtype_Inn v_Inn) (Some (mk_sz v_n)) ao)]"
+    using store_pack_val.prems(1) by simp
+  have upd: "with_mem (mk_state s f) (mk_uN 0) (proj_uN_0 (the (proj_num__0 i)) + proj_uN_0 (OFFSET ao))
+               (v_n div 8) b_lst = mk_state s' f'"
+    using store_pack_val by auto
+  have "wf_num_underscore (numtype_Inn v_Inn) c"
+    using Instrs_ok2_wf_instr[OF store_pack_val.prems(5)] es wf_admininstr_CONST_inv by simp
+  then have "wf_uN (the (size (valtype_Inn v_Inn))) (the (proj_num__0 c))"
+    using wf_num_Inn store_pack_val.hyps(3) by blast
+  then have "wf_uN v_n (wrap__underscore (the (size (valtype_Inn v_Inn))) v_n (the (proj_num__0 c)))"
+    using wrap___is_wf by blast
+  then have "list_all wf_byte b_lst"
+    using ibytes__is_wf store_pack_val.hyps(4) by blast
+  moreover have "length b_lst \<le> v_n div 8"
+    using ibytes_length store_pack_val.hyps(4) by simp
+  ultimately show ?case
+    using mem_store_store_extension[OF upd store_pack_val.prems(3)] by blast
 next
   case (vstore_val i b_lst c z ao)
-  then show ?case sorry
+  have es: "admininstr_lst = [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_sc2 (admininstr_st2_VCONST V128 c), admininstr_sc6 (admininstr_st6_VSTORE V128 ao)]"
+    using vstore_val.prems(1) by simp
+  have upd: "with_mem (mk_state s f) (mk_uN 0) (proj_uN_0 (the (proj_num__0 i)) + proj_uN_0 (OFFSET ao))
+               (the (size valtype_V128) div 8) b_lst = mk_state s' f'"
+    using vstore_val by auto
+  have v128: "valtype_vectype V128 = valtype_V128"
+    by (simp add: valtype_vectype.psimps valtype_vectype.domintros)
+  have "wf_admininstr (admininstr_sc2 (admininstr_st2_VCONST V128 c))"
+    using Instrs_ok2_wf_instr[OF vstore_val.prems(5)] es by simp
+  then have "size (valtype_vectype V128) \<noteq> None \<and> wf_uN (the (size (valtype_vectype V128))) c"
+    by (rule wf_admininstr_VCONST_inv)
+  then have "list_all wf_byte b_lst"
+    using vbytes__is_wf vstore_val.hyps(3) by blast
+  moreover have "length b_lst \<le> the (size valtype_V128) div 8"
+    using vbytes_length[of V128 c] v128 vstore_val.hyps(3) by simp
+  ultimately show ?case
+    using mem_store_store_extension[OF upd vstore_val.prems(3)] by blast
 next
   case (vstore_lane_val i v_N v_Jnn v_M c j b_lst z ao)
-  then show ?case sorry
+  have upd: "with_mem (mk_state s f) (mk_uN 0) (proj_uN_0 (the (proj_num__0 i)) + proj_uN_0 (OFFSET ao))
+               (v_N div 8) b_lst = mk_state s' f'"
+    using vstore_lane_val by auto
+  have "list_all wf_byte b_lst"
+    using ibytes__is_wf vstore_lane_val.hyps(6,7) by blast
+  moreover have "length b_lst \<le> v_N div 8"
+    using ibytes_length vstore_lane_val.hyps(6) by simp
+  ultimately show ?case
+    using mem_store_store_extension[OF upd vstore_lane_val.prems(3)] by blast
 next
   case (memory_grow_succeed z v_n var_0 mi)
   from memory_grow_succeed have "with_meminst (mk_state s f) (mk_uN 0) mi = mk_state s' f'"
