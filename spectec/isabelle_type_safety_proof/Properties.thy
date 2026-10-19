@@ -279,8 +279,6 @@ lemma global_set_store_extension:
 assumes "with_global (mk_state s f) x v_val = mk_state s' f'"
         "Store_ok s"
         "Moduleinst_ok s (frame_MODULE f) C'"
-        "C' = (append_res_context \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [],
-        context_LOCALS = map typeofval (LOCALS f), LABELS = lbl, context_RETURN = rtn\<rparr> C)"
         "Instrs_ok2 s C [admininstr_val v_val, admininstr_sc5 (admininstr_st5_GLOBAL_SET x)] ft"
         "t_inst_match C C'"
 shows "Extend_store s s' \<and> Store_ok s'"
@@ -298,6 +296,10 @@ proof (cases ft)
       context_LOCALS  = ctx_LOCALS,
       LABELS          = labels,
       context_RETURN  = return \<rparr>" using old.unit.exhaust res_context.surjective by (metis)
+  have ctx_agree: "context_TYPES C' = functype_lst" "context_FUNCS C' = functype_F_lst"
+    "context_GLOBALS C' = globaltype_lst" "context_TABLES C' = tabletype_lst" "context_MEMS C' = memtype_lst"
+    "context_ELEMS C' = elemtype_lst" "context_DATAS C' = datatype_lst"
+    using assms(5) ctx unfolding t_inst_match_def by simp_all
   from Moduleinst_ok.simps[of s "(frame_MODULE f)" C'] obtain globaladdr_lst funcaddr_lst memaddr_lst tableaddr_lst exportinst_lst dataaddr_lst elemaddr_lst where
     len_globals_eq:    "((length globaladdr_lst) = (length globaltype_lst))" and
     extern_globals_ok: "list_all2 (\<lambda>g_addr g_type. Externaddr_ok s (externaddr_GLOBAL g_addr) (GLOBAL g_type)) globaladdr_lst globaltype_lst" and
@@ -320,12 +322,12 @@ proof (cases ft)
       MEMS    = memaddr_lst,
       ELEMS   = elemaddr_lst,
       DATAS   = dataaddr_lst,
-      EXPORTS = exportinst_lst \<rparr>" using assms(3) t_inst_match_is[of C C'] append_res_context_def assms(4) ctx by force
+      EXPORTS = exportinst_lst \<rparr>" using assms(3) ctx_agree by force
 
   from mk_functype obtain t2 where
     admin_val:      "Instrs_ok2 s C [admininstr_val v_val] (mk_functype t1 t2)" and
     admin_glob_set: "Instrs_ok2 s C [admininstr_sc5 (admininstr_st5_GLOBAL_SET x)] (mk_functype t2 t3)"
-      using assms(5) inv_seq[of s C _ t1 t3 "[admininstr_val v_val]" "[admininstr_sc5 (admininstr_st5_GLOBAL_SET x)]"] by fastforce
+      using assms(4) inv_seq[of s C _ t1 t3 "[admininstr_val v_val]" "[admininstr_sc5 (admininstr_st5_GLOBAL_SET x)]"] by fastforce
 
   from admin_val have val_wf: 
   "wf_val v_val" using Instrs_ok2_wf_instr wf_admininstr_val_inv by fastforce
@@ -670,19 +672,12 @@ assumes "proj_num__0 i \<noteq> None"
         "with_table (mk_state s f) x (proj_uN_0 (the (proj_num__0 i))) v_ref = mk_state s' f'"
         "Store_ok s"
         "Moduleinst_ok s (frame_MODULE f) C'"
-        "C' = append_res_context \<lparr>
-         context_TYPES = [], context_FUNCS = [],
-         context_GLOBALS = [], context_TABLES = [],
-         context_MEMS = [], context_ELEMS = [],
-         context_DATAS = [],
-         context_LOCALS = map typeofval (LOCALS f),
-         LABELS = lbl, context_RETURN = rtn\<rparr> C"
         "Instrs_ok2 s C [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_ref v_ref, admininstr_sc5 (admininstr_st5_TABLE_SET x)] (mk_functype t_1_lst t_2_lst)"
         "t_inst_match C C'"
 shows "Extend_store s s' \<and> Store_ok s'"
 proof -
   let ?x = "proj_uN_0 x"
-  have ctx_table_eq: "(context_TABLES C) = (context_TABLES C')" using assms(8) t_inst_match_def by auto
+  have ctx_table_eq: "(context_TABLES C) = (context_TABLES C')" using assms(7) t_inst_match_def by auto
 
   obtain functype_lst functype_F_lst globaltype_lst tabletype_lst memtype_lst elemtype_lst datatype_lst
   globaladdr_lst funcaddr_lst memaddr_lst tableaddr_lst exportinst_lst dataaddr_lst elemaddr_lst where
@@ -726,7 +721,7 @@ proof -
                  "?x < length (context_TABLES C)" and
     refOk:       "Ref_ok s v_ref rt" and
     mk_functype: "Instr_ok C (instr_sc5 (TABLE_SET x)) (mk_functype (mk_list [valtype_I32, (valtype_reftype rt)]) (mk_list []))"
-    using types_preserved_table_set_aux[OF assms(7)] tab_type by simp+
+    using types_preserved_table_set_aux[OF assms(6)] tab_type by simp+
   then have x_lt: "?x < length (context_TABLES C')" using ctx_table_eq by simp
  
   obtain v limv limup rtv where
@@ -783,6 +778,810 @@ proof -
     by blast
 qed
 
+(*Generic lemmas: updating a single store slot*)
+lemma list_update_func_out_of_range:
+  assumes "length xs \<le> i"
+  shows "list_update_func xs i g = xs"
+  using assms
+proof (induction xs arbitrary: i)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons a xs)
+  then show ?case by (cases i) auto
+qed
+
+lemma list_all_list_update_func_gen:
+  assumes "list_all P xs"
+          "i < length xs \<Longrightarrow> P (g (xs ! i))"
+  shows "list_all P (list_update_func xs i g)"
+  using assms list_all_list_update_func list_update_func_out_of_range
+  by (metis not_le)
+
+lemma list_all2_list_update_func_gen:
+  assumes "list_all2 P xs ys"
+          "\<And>x y. P x y \<Longrightarrow> Q x y"
+          "i < length xs \<Longrightarrow> Q (g (xs ! i)) y'"
+  shows "list_all2 Q (list_update_func xs i g) (ys[i := y'])"
+proof (cases "i < length xs")
+  case True
+  have len: "length xs = length ys" using assms(1) list_all2_lengthD by blast
+  show ?thesis
+    unfolding list_all2_conv_all_nth
+  proof (intro conjI allI impI)
+    show "length (list_update_func xs i g) = length (ys[i := y'])"
+      using len list_update_func_length[of xs i g] by simp
+  next
+    fix k assume "k < length (list_update_func xs i g)"
+    then have k: "k < length xs" using list_update_func_length by metis
+    show "Q (list_update_func xs i g ! k) (ys[i := y'] ! k)"
+    proof (cases "k = i")
+      case True
+      then show ?thesis using assms(3) \<open>i < length xs\<close> list_update_func_nth[of i xs g] len by simp
+    next
+      case False
+      then have "list_update_func xs i g ! k = xs ! k" "ys[i := y'] ! k = ys ! k"
+        using \<open>i < length xs\<close> list_update_func_nth_neq by auto
+      then show ?thesis using assms(1,2) k list_all2_nthD by metis
+    qed
+  qed
+next
+  case False
+  then have "length ys \<le> i" using assms(1) list_all2_lengthD by fastforce
+  then show ?thesis using False assms(1,2) list_update_func_out_of_range list_all2_mono
+    by (metis list_update_beyond not_le)
+qed
+
+lemma holds_upto_list_update_func:
+  assumes "list_all P xs"
+          "\<And>x. P x \<Longrightarrow> Ext x x"
+          "i < length xs \<Longrightarrow> Ext (xs ! i) (g (xs ! i))"
+  shows "holds_upto (\<lambda>k. Ext (xs ! k) (list_update_func xs i g ! k)) (length xs)"
+  unfolding holds_upto_def
+proof (intro allI impI)
+  fix k assume k: "k < length xs"
+  show "Ext (xs ! k) (list_update_func xs i g ! k)"
+  proof (cases "i < length xs")
+    case True
+    show ?thesis
+    proof (cases "k = i")
+      case True
+      then show ?thesis using assms(3) \<open>i < length xs\<close> list_update_func_nth[of i xs g] by simp
+    next
+      case False
+      then show ?thesis
+        using assms(1,2) k \<open>i < length xs\<close> list_update_func_nth_neq list_all_length by metis
+    qed
+  next
+    case False
+    then show ?thesis
+      using assms(1,2) k list_update_func_out_of_range list_all_length by (metis not_le)
+  qed
+qed
+
+lemma holds_upto_refl:
+  assumes "list_all P xs" "\<And>x. P x \<Longrightarrow> Ext x x"
+  shows "holds_upto (\<lambda>k. Ext (xs ! k) (xs ! k)) (length xs)"
+  using assms by (simp add: holds_upto_def list_all_length)
+
+lemma list_all_True: "list_all (\<lambda>_. True) xs"
+  by (simp add: list_all_iff)
+
+lemma elem_extension_refl': "True \<Longrightarrow> Extend_eleminst e e"
+  by (rule elem_extension_refl)
+
+lemma Store_ok_wf: "Store_ok s \<Longrightarrow> wf_store s"
+  by (auto elim: Store_ok.cases)
+
+lemma wf_store_parts:
+  assumes "wf_store s"
+  shows "list_all wf_funcinst (store_FUNCS s)" "list_all wf_globalinst (store_GLOBALS s)"
+        "list_all wf_tableinst (store_TABLES s)" "list_all wf_meminst (store_MEMS s)"
+        "list_all wf_datainst (store_DATAS s)"
+  using assms by (auto elim: wf_store.cases)
+
+lemma wf_store_intro:
+  assumes "list_all wf_funcinst (store_FUNCS s)" "list_all wf_globalinst (store_GLOBALS s)"
+          "list_all wf_tableinst (store_TABLES s)" "list_all wf_meminst (store_MEMS s)"
+          "list_all wf_datainst (store_DATAS s)"
+  shows "wf_store s"
+  using assms by (cases s) (auto intro!: store_case_underscore)
+
+lemma Extend_tableinst_wf: "Extend_tableinst t t' \<Longrightarrow> wf_tableinst t'"
+  by (auto elim: Extend_tableinst.cases)
+
+lemma Extend_meminst_wf: "Extend_meminst m m' \<Longrightarrow> wf_meminst m'"
+  by (auto elim: Extend_meminst.cases)
+
+lemma Extend_datainst_wf: "Extend_datainst d d' \<Longrightarrow> wf_datainst d'"
+  by (auto elim: Extend_datainst.cases)
+
+lemma Meminst_ok_wf_memtype: "Meminst_ok s m mt \<Longrightarrow> wf_memtype mt"
+  by (auto elim: Meminst_ok.cases)
+
+lemma Tableinst_ok_wf_tabletype: "Tableinst_ok s t tt \<Longrightarrow> wf_tabletype tt"
+  by (auto elim: Tableinst_ok.cases)
+
+lemma Store_ok_intro:
+  assumes "wf_store s"
+    "list_all2 (Globalinst_ok s) (store_GLOBALS s) gts"
+    "list_all2 (Meminst_ok s) (store_MEMS s) mts"
+    "list_all2 (Tableinst_ok s) (store_TABLES s) tts"
+    "list_all2 (Funcinst_ok s) (store_FUNCS s) fts"
+    "list_all2 (Datainst_ok s) (store_DATAS s) dts"
+    "list_all2 (Eleminst_ok s) (store_ELEMS s) ets"
+  shows "Store_ok s"
+proof -
+  have "list_all wf_memtype mts"
+    using assms(3) Meminst_ok_wf_memtype by (induction rule: list_all2_induct) auto
+  moreover have "list_all wf_tabletype tts"
+    using assms(4) Tableinst_ok_wf_tabletype by (induction rule: list_all2_induct) auto
+  ultimately show ?thesis
+    using assms
+  proof (cases s)
+    case (fields fs gs ts ms es ds)
+    show ?thesis
+      apply (rule mk_Store_ok[where globaltype_lst = gts and memtype_lst = mts and tabletype_lst = tts
+          and functype_lst = fts and datatype_lst = dts and elemtype_lst = ets])
+      using assms \<open>list_all wf_memtype mts\<close> \<open>list_all wf_tabletype tts\<close> fields
+      by (auto simp: list_all2_lengthD)
+  qed
+qed
+
+lemma Store_ok_lists_extend:
+  assumes "Store_ok s" "Extend_store s s'"
+  obtains gts mts tts fts dts ets where
+    "list_all2 (Globalinst_ok s') (store_GLOBALS s) gts"
+    "list_all2 (Meminst_ok s')    (store_MEMS s)    mts"
+    "list_all2 (Tableinst_ok s')  (store_TABLES s)  tts"
+    "list_all2 (Funcinst_ok s')   (store_FUNCS s)   fts"
+    "list_all2 (Datainst_ok s')   (store_DATAS s)   dts"
+    "list_all2 (Eleminst_ok s')   (store_ELEMS s)   ets"
+    "list_all2 (Globalinst_ok s)  (store_GLOBALS s) gts"
+    "list_all2 (Meminst_ok s)     (store_MEMS s)    mts"
+    "list_all2 (Tableinst_ok s)   (store_TABLES s)  tts"
+    "list_all2 (Funcinst_ok s)    (store_FUNCS s)   fts"
+    "list_all2 (Datainst_ok s)    (store_DATAS s)   dts"
+    "list_all2 (Eleminst_ok s)    (store_ELEMS s)   ets"
+proof -
+  obtain gts mts tts fts dts ets where L:
+    "list_all2 (Globalinst_ok s)  (store_GLOBALS s) gts"
+    "list_all2 (Meminst_ok s)     (store_MEMS s)    mts"
+    "list_all2 (Tableinst_ok s)   (store_TABLES s)  tts"
+    "list_all2 (Funcinst_ok s)    (store_FUNCS s)   fts"
+    "list_all2 (Datainst_ok s)    (store_DATAS s)   dts"
+    "list_all2 (Eleminst_ok s)    (store_ELEMS s)   ets"
+    using assms(1) by (cases rule: Store_ok.cases) auto
+  show ?thesis
+    by (rule that[OF
+          list_all2_mono[OF L(1) store_extension_Globalinst_ok[OF _ assms(2)]]
+          list_all2_mono[OF L(2) store_extension_Meminst_ok[OF _ assms(2)]]
+          list_all2_mono[OF L(3) store_extension_Tableinst_ok[OF _ assms(2)]]
+          list_all2_mono[OF L(4) store_extension_Funcinst_ok[OF _ assms(2)]]
+          list_all2_mono[OF L(5) store_extension_Datainst_ok[OF _ assms(2)]]
+          list_all2_mono[OF L(6) store_extension_Eleminst_ok[OF _ assms(2)]]
+          L])
+qed
+
+lemma tables_update_store_extension:
+  assumes "Store_ok s"
+          "s' = s\<lparr>store_TABLES := list_update_func (store_TABLES s) a g\<rparr>"
+          "\<And>tt. a < length (store_TABLES s) \<Longrightarrow> Tableinst_ok s (store_TABLES s ! a) tt \<Longrightarrow>
+                 Extend_tableinst (store_TABLES s ! a) (g (store_TABLES s ! a))"
+          "\<And>tt. a < length (store_TABLES s) \<Longrightarrow> Extend_store s s' \<Longrightarrow> Tableinst_ok s (store_TABLES s ! a) tt \<Longrightarrow>
+                 \<exists>tt'. Tableinst_ok s' (g (store_TABLES s ! a)) tt'"
+  shows "Extend_store s s' \<and> Store_ok s'"
+proof -
+  let ?xs = "store_TABLES s"
+  have wf_s: "wf_store s" using assms(1) Store_ok_wf by simp
+  note wf = wf_store_parts[OF wf_s]
+  obtain tts0 where tts0: "list_all2 (Tableinst_ok s) ?xs tts0"
+    using assms(1) by (cases rule: Store_ok.cases) auto
+  have ext_a: "a < length ?xs \<Longrightarrow> Extend_tableinst (?xs ! a) (g (?xs ! a))"
+    using assms(3) tts0 list_all2_nthD by blast
+  have wf_s': "wf_store s'"
+    using wf assms(2) ext_a Extend_tableinst_wf
+    by (auto intro!: wf_store_intro list_all_list_update_func_gen)
+  have ext: "Extend_store s s'"
+    apply (rule mk_Extend_store)
+    using assms(2) wf_s wf_s'
+      holds_upto_list_update_func[where Ext = Extend_tableinst and i = a and g = g, OF wf(3) tab_extension_refl ext_a]
+      holds_upto_refl[where Ext = Extend_funcinst, OF wf(1) func_extension_refl] holds_upto_refl[where Ext = Extend_globalinst, OF wf(2) global_extension_refl]
+      holds_upto_refl[where Ext = Extend_meminst, OF wf(4) mem_extension_refl] holds_upto_refl[where Ext = Extend_datainst, OF wf(5) data_extension_refl]
+    by (simp_all add: holds_upto_def list_update_func_length elem_extension_refl)
+  obtain gts mts tts fts dts ets where L:
+    "list_all2 (Globalinst_ok s') (store_GLOBALS s) gts"
+    "list_all2 (Meminst_ok s')    (store_MEMS s)    mts"
+    "list_all2 (Tableinst_ok s')  (store_TABLES s)  tts"
+    "list_all2 (Funcinst_ok s')   (store_FUNCS s)   fts"
+    "list_all2 (Datainst_ok s')   (store_DATAS s)   dts"
+    "list_all2 (Eleminst_ok s')   (store_ELEMS s)   ets"
+    "list_all2 (Tableinst_ok s)   (store_TABLES s)  tts"
+    using Store_ok_lists_extend[OF assms(1) ext] by metis
+  obtain tt' where tt': "a < length ?xs \<Longrightarrow> Tableinst_ok s' (g (?xs ! a)) tt'"
+    using assms(4) ext L(7) list_all2_nthD by blast
+  have "list_all2 (Tableinst_ok s') (store_TABLES s') (tts[a := tt'])"
+    using list_all2_list_update_func_gen[where Q = "Tableinst_ok s'" and i = a and g = g, OF L(7) store_extension_Tableinst_ok[OF _ ext] tt'] assms(2) by simp
+  then have "Store_ok s'"
+    using Store_ok_intro[OF wf_s', of gts mts "tts[a := tt']" fts dts ets] L(1,2,4,5,6) assms(2) by simp
+  then show ?thesis using ext by simp
+qed
+
+lemma mems_update_store_extension:
+  assumes "Store_ok s"
+          "s' = s\<lparr>store_MEMS := list_update_func (store_MEMS s) a g\<rparr>"
+          "\<And>mt. a < length (store_MEMS s) \<Longrightarrow> Meminst_ok s (store_MEMS s ! a) mt \<Longrightarrow>
+                 Extend_meminst (store_MEMS s ! a) (g (store_MEMS s ! a))"
+          "\<And>mt. a < length (store_MEMS s) \<Longrightarrow> Extend_store s s' \<Longrightarrow> Meminst_ok s (store_MEMS s ! a) mt \<Longrightarrow>
+                 \<exists>mt'. Meminst_ok s' (g (store_MEMS s ! a)) mt'"
+  shows "Extend_store s s' \<and> Store_ok s'"
+proof -
+  let ?xs = "store_MEMS s"
+  have wf_s: "wf_store s" using assms(1) Store_ok_wf by simp
+  note wf = wf_store_parts[OF wf_s]
+  obtain mts0 where mts0: "list_all2 (Meminst_ok s) ?xs mts0"
+    using assms(1) by (cases rule: Store_ok.cases) auto
+  have ext_a: "a < length ?xs \<Longrightarrow> Extend_meminst (?xs ! a) (g (?xs ! a))"
+    using assms(3) mts0 list_all2_nthD by blast
+  have wf_s': "wf_store s'"
+    using wf assms(2) ext_a Extend_meminst_wf
+    by (auto intro!: wf_store_intro list_all_list_update_func_gen)
+  have ext: "Extend_store s s'"
+    apply (rule mk_Extend_store)
+    using assms(2) wf_s wf_s'
+      holds_upto_list_update_func[where Ext = Extend_meminst and i = a and g = g, OF wf(4) mem_extension_refl ext_a]
+      holds_upto_refl[where Ext = Extend_funcinst, OF wf(1) func_extension_refl] holds_upto_refl[where Ext = Extend_globalinst, OF wf(2) global_extension_refl]
+      holds_upto_refl[where Ext = Extend_tableinst, OF wf(3) tab_extension_refl] holds_upto_refl[where Ext = Extend_datainst, OF wf(5) data_extension_refl]
+    by (simp_all add: holds_upto_def list_update_func_length elem_extension_refl)
+  obtain gts mts tts fts dts ets where L:
+    "list_all2 (Globalinst_ok s') (store_GLOBALS s) gts"
+    "list_all2 (Meminst_ok s')    (store_MEMS s)    mts"
+    "list_all2 (Tableinst_ok s')  (store_TABLES s)  tts"
+    "list_all2 (Funcinst_ok s')   (store_FUNCS s)   fts"
+    "list_all2 (Datainst_ok s')   (store_DATAS s)   dts"
+    "list_all2 (Eleminst_ok s')   (store_ELEMS s)   ets"
+    "list_all2 (Meminst_ok s)     (store_MEMS s)    mts"
+    using Store_ok_lists_extend[OF assms(1) ext] by metis
+  obtain mt' where mt': "a < length ?xs \<Longrightarrow> Meminst_ok s' (g (?xs ! a)) mt'"
+    using assms(4) ext L(7) list_all2_nthD by blast
+  have "list_all2 (Meminst_ok s') (store_MEMS s') (mts[a := mt'])"
+    using list_all2_list_update_func_gen[where Q = "Meminst_ok s'" and i = a and g = g, OF L(7) store_extension_Meminst_ok[OF _ ext] mt'] assms(2) by simp
+  then have "Store_ok s'"
+    using Store_ok_intro[OF wf_s', of gts "mts[a := mt']" tts fts dts ets] L(1,3,4,5,6) assms(2) by simp
+  then show ?thesis using ext by simp
+qed
+
+lemma elems_update_store_extension:
+  assumes "Store_ok s"
+          "s' = s\<lparr>store_ELEMS := list_update_func (store_ELEMS s) a g\<rparr>"
+          "a < length (store_ELEMS s) \<Longrightarrow> Extend_eleminst (store_ELEMS s ! a) (g (store_ELEMS s ! a))"
+          "\<And>et. a < length (store_ELEMS s) \<Longrightarrow> Extend_store s s' \<Longrightarrow> Eleminst_ok s (store_ELEMS s ! a) et \<Longrightarrow>
+                 \<exists>et'. Eleminst_ok s' (g (store_ELEMS s ! a)) et'"
+  shows "Extend_store s s' \<and> Store_ok s'"
+proof -
+  let ?xs = "store_ELEMS s"
+  have wf_s: "wf_store s" using assms(1) Store_ok_wf by simp
+  note wf = wf_store_parts[OF wf_s]
+  have wf_s': "wf_store s'"
+    using wf assms(2) by (auto intro!: wf_store_intro)
+  have ext: "Extend_store s s'"
+    apply (rule mk_Extend_store)
+    using assms(2) wf_s wf_s'
+      holds_upto_list_update_func[where P = "\<lambda>_. True" and Ext = Extend_eleminst and i = a and g = g, OF list_all_True elem_extension_refl' assms(3)]
+      holds_upto_refl[where Ext = Extend_funcinst, OF wf(1) func_extension_refl] holds_upto_refl[where Ext = Extend_globalinst, OF wf(2) global_extension_refl]
+      holds_upto_refl[where Ext = Extend_tableinst, OF wf(3) tab_extension_refl] holds_upto_refl[where Ext = Extend_meminst, OF wf(4) mem_extension_refl]
+      holds_upto_refl[where Ext = Extend_datainst, OF wf(5) data_extension_refl]
+    by (simp_all add: holds_upto_def list_update_func_length list_all_iff)
+  obtain gts mts tts fts dts ets where L:
+    "list_all2 (Globalinst_ok s') (store_GLOBALS s) gts"
+    "list_all2 (Meminst_ok s')    (store_MEMS s)    mts"
+    "list_all2 (Tableinst_ok s')  (store_TABLES s)  tts"
+    "list_all2 (Funcinst_ok s')   (store_FUNCS s)   fts"
+    "list_all2 (Datainst_ok s')   (store_DATAS s)   dts"
+    "list_all2 (Eleminst_ok s')   (store_ELEMS s)   ets"
+    "list_all2 (Eleminst_ok s)    (store_ELEMS s)   ets"
+    using Store_ok_lists_extend[OF assms(1) ext] by metis
+  obtain et' where et': "a < length ?xs \<Longrightarrow> Eleminst_ok s' (g (?xs ! a)) et'"
+    using assms(4) ext L(7) list_all2_nthD by blast
+  have "list_all2 (Eleminst_ok s') (store_ELEMS s') (ets[a := et'])"
+    using list_all2_list_update_func_gen[where Q = "Eleminst_ok s'" and i = a and g = g, OF L(7) store_extension_Eleminst_ok[OF _ ext] et'] assms(2) by simp
+  then have "Store_ok s'"
+    using Store_ok_intro[OF wf_s', of gts mts tts fts dts "ets[a := et']"] L(1,2,3,4,5) assms(2) by simp
+  then show ?thesis using ext by simp
+qed
+
+lemma datas_update_store_extension:
+  assumes "Store_ok s"
+          "s' = s\<lparr>store_DATAS := list_update_func (store_DATAS s) a g\<rparr>"
+          "a < length (store_DATAS s) \<Longrightarrow> Extend_datainst (store_DATAS s ! a) (g (store_DATAS s ! a))"
+          "\<And>dt. a < length (store_DATAS s) \<Longrightarrow> Extend_store s s' \<Longrightarrow> Datainst_ok s (store_DATAS s ! a) dt \<Longrightarrow>
+                 \<exists>dt'. Datainst_ok s' (g (store_DATAS s ! a)) dt'"
+  shows "Extend_store s s' \<and> Store_ok s'"
+proof -
+  let ?xs = "store_DATAS s"
+  have wf_s: "wf_store s" using assms(1) Store_ok_wf by simp
+  note wf = wf_store_parts[OF wf_s]
+  have wf_s': "wf_store s'"
+    using wf assms(2,3) Extend_datainst_wf
+    by (auto intro!: wf_store_intro list_all_list_update_func_gen)
+  have ext: "Extend_store s s'"
+    apply (rule mk_Extend_store)
+    using assms(2) wf_s wf_s'
+      holds_upto_list_update_func[where Ext = Extend_datainst and i = a and g = g, OF wf(5) data_extension_refl assms(3)]
+      holds_upto_refl[where Ext = Extend_funcinst, OF wf(1) func_extension_refl] holds_upto_refl[where Ext = Extend_globalinst, OF wf(2) global_extension_refl]
+      holds_upto_refl[where Ext = Extend_tableinst, OF wf(3) tab_extension_refl] holds_upto_refl[where Ext = Extend_meminst, OF wf(4) mem_extension_refl]
+    by (simp_all add: holds_upto_def list_update_func_length elem_extension_refl)
+  obtain gts mts tts fts dts ets where L:
+    "list_all2 (Globalinst_ok s') (store_GLOBALS s) gts"
+    "list_all2 (Meminst_ok s')    (store_MEMS s)    mts"
+    "list_all2 (Tableinst_ok s')  (store_TABLES s)  tts"
+    "list_all2 (Funcinst_ok s')   (store_FUNCS s)   fts"
+    "list_all2 (Datainst_ok s')   (store_DATAS s)   dts"
+    "list_all2 (Eleminst_ok s')   (store_ELEMS s)   ets"
+    "list_all2 (Datainst_ok s)    (store_DATAS s)   dts"
+    using Store_ok_lists_extend[OF assms(1) ext] by metis
+  obtain dt' where dt': "a < length ?xs \<Longrightarrow> Datainst_ok s' (g (?xs ! a)) dt'"
+    using assms(4) ext L(7) list_all2_nthD by blast
+  have "list_all2 (Datainst_ok s') (store_DATAS s') (dts[a := dt'])"
+    using list_all2_list_update_func_gen[where Q = "Datainst_ok s'" and i = a and g = g, OF L(7) store_extension_Datainst_ok[OF _ ext] dt'] assms(2) by simp
+  then have "Store_ok s'"
+    using Store_ok_intro[OF wf_s', of gts mts tts fts "dts[a := dt']" ets] L(1,2,3,4,6) assms(2) by simp
+  then show ?thesis using ext by simp
+qed
+
+(*elem_drop*)
+lemma elem_drop_store_extension:
+  assumes "with_elem (mk_state s f) x [] = mk_state s' f'"
+          "Store_ok s"
+  shows "Extend_store s s' \<and> Store_ok s'"
+proof -
+  let ?a = "ELEMS (frame_MODULE f) ! proj_uN_0 x"
+  have s'_eq: "s' = s\<lparr>store_ELEMS := list_update_func (store_ELEMS s) ?a (\<lambda>e. e\<lparr>eleminst_REFS := []\<rparr>)\<rparr>"
+    using assms(1) with_elem.psimps with_elem.domintros by auto
+  show ?thesis
+  proof (rule elems_update_store_extension[OF assms(2) s'_eq])
+    show "Extend_eleminst (store_ELEMS s ! ?a) ((store_ELEMS s ! ?a)\<lparr>eleminst_REFS := []\<rparr>)"
+      by (cases "store_ELEMS s ! ?a") (auto intro: mk_Extend_eleminst)
+  next
+    fix et
+    assume "Extend_store s s'"
+    then have wf': "wf_store s'" using store_extension_wf by blast
+    show "\<exists>et'. Eleminst_ok s' ((store_ELEMS s ! ?a)\<lparr>eleminst_REFS := []\<rparr>) et'"
+    proof (cases "store_ELEMS s ! ?a")
+      case (fields rt refs)
+      then show ?thesis
+        using wf' mk_Eleminst_ok[where s = s' and ref_lst = "[]" and rt = rt] by auto
+    qed
+  qed
+qed
+
+(*data_drop*)
+lemma data_drop_store_extension:
+  assumes "with_data (mk_state s f) x [] = mk_state s' f'"
+          "Store_ok s"
+  shows "Extend_store s s' \<and> Store_ok s'"
+proof -
+  let ?a = "DATAS (frame_MODULE f) ! proj_uN_0 x"
+  have s'_eq: "s' = s\<lparr>store_DATAS := list_update_func (store_DATAS s) ?a (\<lambda>d. d\<lparr>datainst_BYTES := []\<rparr>)\<rparr>"
+    using assms(1) with_data.psimps with_data.domintros by auto
+  have wf_empty: "wf_datainst \<lparr>datainst_BYTES = []\<rparr>"
+    by (auto intro: datainst_case_underscore)
+  show ?thesis
+  proof (rule datas_update_store_extension[OF assms(2) s'_eq])
+    assume "?a < length (store_DATAS s)"
+    then have "wf_datainst (store_DATAS s ! ?a)"
+      using wf_store_parts(5)[OF Store_ok_wf[OF assms(2)]] list_all_length by blast
+    then show "Extend_datainst (store_DATAS s ! ?a) ((store_DATAS s ! ?a)\<lparr>datainst_BYTES := []\<rparr>)"
+      using wf_empty by (cases "store_DATAS s ! ?a") (auto intro!: mk_Extend_datainst datainst_case_underscore)
+  next
+    fix dt
+    assume "Extend_store s s'"
+    then show "\<exists>dt'. Datainst_ok s' ((store_DATAS s ! ?a)\<lparr>datainst_BYTES := []\<rparr>) dt'"
+      using store_extension_wf wf_empty mk_Datainst_ok[where s = s' and b_lst = "[]"]
+      by (cases "store_DATAS s ! ?a") auto
+  qed
+qed
+
+lemma length_repeat: "length (repeat n x) = n"
+  by (induction n) auto
+
+lemma list_all_repeat: "P x \<Longrightarrow> list_all P (repeat n x)"
+  by (induction n) auto
+
+lemma map_option_mk_uN_inj: "map_option mk_uN x = map_option mk_uN y \<Longrightarrow> x = y"
+  by (cases x; cases y) auto
+
+lemma proj_uN_0_mk_uN[simp]: "proj_uN_0 (mk_uN n) = n"
+  by (simp add: proj_uN_0.psimps proj_uN_0.domintros)
+
+(*memory_grow*)
+lemma memory_grow_store_extension:
+  assumes "fun_growmemory (fun_mem (mk_state s f) (mk_uN 0)) v_n (Some mi)"
+          "with_meminst (mk_state s f) (mk_uN 0) mi = mk_state s' f'"
+          "Store_ok s"
+  shows "Extend_store s s' \<and> Store_ok s'"
+proof -
+  let ?a = "MEMS (frame_MODULE f) ! 0"
+  have s'_eq: "s' = s\<lparr>store_MEMS := list_update_func (store_MEMS s) ?a (\<lambda>_. mi)\<rparr>"
+    using assms(2) with_meminst.psimps with_meminst.domintros by auto
+  have mem_eq: "fun_mem (mk_state s f) (mk_uN 0) = store_MEMS s ! ?a"
+    using fun_mem.psimps fun_mem.domintros by auto
+  obtain i j_opt b_lst i' where
+    old: "store_MEMS s ! ?a = \<lparr>meminst_TYPE = PAGE (mk_limits i j_opt), BYTES = b_lst\<rparr>" and
+    i': "i' = length b_lst div (64 * Ki) + v_n" and
+    j_bound: "list_all (\<lambda>j. i' \<le> proj_uN_0 j) (option_to_list j_opt)" and
+    i'_bound: "i' \<le> 2 ^ 16" and
+    new: "mi = \<lparr>meminst_TYPE = PAGE (mk_limits (mk_uN i') j_opt), BYTES = b_lst @ repeat (v_n * (64 * Ki)) (mk_byte 0)\<rparr>" and
+    wf_old: "wf_meminst (store_MEMS s ! ?a)" and
+    wf_new: "wf_meminst mi"
+    using assms(1) mem_eq by (cases rule: fun_growmemory.cases) (rule that[OF sym], auto)
+
+  have old_ok: "\<exists>n m_opt. i = mk_uN n \<and> j_opt = map_option mk_uN m_opt \<and> length b_lst = n * (64 * Ki) \<and>
+                  Memtype_ok (PAGE (mk_limits (mk_uN n) (map_option mk_uN m_opt)))"
+    if "Meminst_ok s (store_MEMS s ! ?a) mt" for mt
+    using that old by (cases rule: Meminst_ok.cases) auto
+
+  show ?thesis
+  proof (rule mems_update_store_extension[OF assms(3) s'_eq])
+    fix mt
+    assume "Meminst_ok s (store_MEMS s ! ?a) mt"
+    then obtain n m_opt where
+      i_eq: "i = mk_uN n" and j_eq: "j_opt = map_option mk_uN m_opt" and len: "length b_lst = n * (64 * Ki)"
+      using old_ok by blast
+    have "i' = n + v_n" using i' len by (simp add: Ki_def)
+    then show "Extend_meminst (store_MEMS s ! ?a) mi"
+      using old new wf_old wf_new i_eq j_eq mk_Extend_meminst[of n i' b_lst "b_lst @ repeat (v_n * (64 * Ki)) (mk_byte 0)" m_opt]
+      by simp
+  next
+    fix mt
+    assume ext: "Extend_store s s'" and ok: "Meminst_ok s (store_MEMS s ! ?a) mt"
+    then obtain n m_opt where
+      i_eq: "i = mk_uN n" and j_eq: "j_opt = map_option mk_uN m_opt" and len: "length b_lst = n * (64 * Ki)" and
+      mt_ok: "Memtype_ok (PAGE (mk_limits (mk_uN n) (map_option mk_uN m_opt)))"
+      using old_ok by blast
+    have i'_eq: "i' = n + v_n" using i' len by (simp add: Ki_def)
+    have m_le: "list_all (\<lambda>m. m \<le> 2 ^ 16) (option_to_list m_opt)"
+      using mt_ok
+      by (auto elim!: Memtype_ok.cases Limits_ok.cases dest!: map_option_mk_uN_inj simp: list_all_iff)
+    have i'_le: "list_all (\<lambda>m. i' \<le> m) (option_to_list m_opt)"
+      using j_bound j_eq by (cases m_opt) auto
+    have wf_lim: "wf_limits (mk_limits (mk_uN i') (map_option mk_uN m_opt))"
+      using wf_new new j_eq by (auto elim!: wf_meminst.cases wf_memtype.cases)
+    have lim_ok: "Limits_ok (mk_limits (mk_uN i') (map_option mk_uN m_opt)) (2 ^ 16)"
+      using i'_bound m_le i'_le wf_lim
+      by (intro mk_Limits_ok) (auto simp: list_all_iff)
+    have wf_mt: "wf_memtype (PAGE (mk_limits (mk_uN i') (map_option mk_uN m_opt)))"
+      using wf_lim by (rule memtype_case_0)
+    have "length (b_lst @ repeat (v_n * (64 * Ki)) (mk_byte 0)) = i' * (64 * Ki)"
+      using len i'_eq by (simp add: length_repeat algebra_simps)
+    then have "Meminst_ok s' mi (PAGE (mk_limits (mk_uN i') (map_option mk_uN m_opt)))"
+      using new j_eq wf_new wf_mt lim_ok store_extension_wf[OF ext]
+      by (auto intro!: mk_Meminst_ok mk_Memtype_ok)
+    then show "\<exists>mt'. Meminst_ok s' mi mt'" by blast
+  qed
+qed
+
+(*table_grow*)
+lemma types_preserved_table_grow_aux:
+assumes "Instrs_ok2 s C [
+          admininstr_ref v_ref,
+          admininstr_sc1 (admininstr_st1_CONST I32 c),
+          admininstr_sc5 (admininstr_st5_TABLE_GROW x)
+        ] ft"
+shows "\<exists>lim rt.
+         proj_uN_0 x < length (context_TABLES C) \<and>
+         (context_TABLES C) ! (proj_uN_0 x) = mk_tabletype lim rt \<and>
+         Ref_ok s v_ref rt"
+proof (cases ft)
+  case (mk_functype t1 t3)
+  obtain t2 where
+    admin_ref_const: "Instrs_ok2 s C [admininstr_ref v_ref, admininstr_sc1 (admininstr_st1_CONST I32 c)] (mk_functype t1 t2)" and
+    admin_table_grow: "Instrs_ok2 s C [admininstr_sc5 (admininstr_st5_TABLE_GROW x)] (mk_functype t2 t3)"
+    using assms inv_seq[of s C _ t1 t3 "[admininstr_ref v_ref, admininstr_sc1 (admininstr_st1_CONST I32 c)]" "[admininstr_sc5 (admininstr_st5_TABLE_GROW x)]"] mk_functype
+    by fastforce
+
+  from admin_table_grow obtain t_1_lst t_2_lst where
+    ok_tg2: "Instr_ok2 s C (admininstr_sc5 (admininstr_st5_TABLE_GROW x)) (mk_functype t_1_lst t_2_lst)" and
+    st: "mk_instrtype t_1_lst t_2_lst <ti: mk_instrtype t2 t3"
+    using inv_one_admininstr by fast
+
+  then have "Instr_ok C (instr_sc5 (TABLE_GROW x)) (mk_functype t_1_lst t_2_lst)"
+    using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+  then obtain lim rt where
+    x_lt: "proj_uN_0 x < length (context_TABLES C)" and
+    tab_C: "(context_TABLES C) ! (proj_uN_0 x) = mk_tabletype lim rt" and
+    ft_eq: "mk_functype (mk_list [valtype_reftype rt, valtype_I32]) (mk_list [valtype_I32]) = mk_functype t_1_lst t_2_lst"
+    using inv_table_grow by blast
+
+  have subv: "mk_instrtype (mk_list []) (mk_list [typeofval (val_ref v_ref), valtype_I32]) <ti: mk_instrtype t1 t2"
+    using inv_const_list[of s C "[_,_]" t1 t2 "[val_ref v_ref, val_CONST I32 c]"] admin_ref_const
+      admininstr_val.domintros admininstr_val.psimps admininstr_val_ref
+      valtype_numtype.domintros valtype_numtype.psimps typeofval.domintros typeofval.psimps
+    by fastforce
+
+  have "Resulttype_sub (mk_list [typeofval (val_ref v_ref), valtype_I32]) (mk_list [valtype_reftype rt, valtype_I32])"
+    using st ft_eq produce_consume[of "[typeofval (val_ref v_ref), valtype_I32]" t1 t2 "[]" "[valtype_reftype rt, valtype_I32]" "[valtype_I32]" t3] subv
+    by auto
+  then have val_sub: "Valtype_sub (typeofval (val_ref v_ref)) (valtype_reftype rt)"
+    by (induction "mk_list [typeofval (val_ref v_ref), valtype_I32]" "mk_list [valtype_reftype rt, valtype_I32]" rule: Resulttype_sub.induct) auto
+
+  obtain t_ref_out where
+    "Instrs_ok2 s C [admininstr_ref v_ref] (mk_functype t1 t_ref_out)"
+    using inv_seq[of s C _ t1 t2 "[admininstr_ref v_ref]" "[admininstr_sc1 (admininstr_st1_CONST I32 c)]"] admin_ref_const
+    by fastforce
+  then obtain tr1 tr2 where
+    "Instr_ok2 s C (admininstr_ref v_ref) (mk_functype tr1 tr2)"
+    using inv_one_admininstr by fast
+  then obtain rt' where ref_ok: "Ref_ok s v_ref rt'"
+    using inv_ref by blast
+  then have "typeofval (val_ref v_ref) = valtype_reftype rt'"
+    using ref_ok_agree by simp
+  then have "Valtype_sub (valtype_reftype rt') (valtype_reftype rt)"
+    using val_sub by simp
+  then have "valtype_reftype rt' = valtype_reftype rt"
+  proof (cases rule: Valtype_sub.cases)
+    case refl
+    then show ?thesis by simp
+  next
+    case bot
+    then show ?thesis
+      by (cases rt') (auto simp add: valtype_reftype.psimps valtype_reftype.domintros)
+  qed
+  then have "rt' = rt"
+    by (cases rt; cases rt') (auto simp add: valtype_reftype.psimps valtype_reftype.domintros)
+  then show ?thesis using x_lt tab_C ref_ok by blast
+qed
+
+lemma table_grow_store_extension:
+assumes "fun_growtable (fun_table (mk_state s f) x) v_n v_ref (Some ti)"
+        "with_tableinst (mk_state s f) x ti = mk_state s' f'"
+        "Store_ok s"
+        "Moduleinst_ok s (frame_MODULE f) C'"
+        "Instrs_ok2 s C [admininstr_ref v_ref, admininstr_sc1 (admininstr_st1_CONST I32 c), admininstr_sc5 (admininstr_st5_TABLE_GROW x)] ft"
+        "t_inst_match C C'"
+shows "Extend_store s s' \<and> Store_ok s'"
+proof -
+  let ?x = "proj_uN_0 x"
+  let ?a = "TABLES (frame_MODULE f) ! ?x"
+  obtain lim rt where
+    x_lt: "?x < length (context_TABLES C)" and
+    tab_C: "context_TABLES C ! ?x = mk_tabletype lim rt" and
+    ref_ok: "Ref_ok s v_ref rt"
+    using types_preserved_table_grow_aux[OF assms(5)] by blast
+  have ctx_eq: "context_TABLES C' = context_TABLES C" using assms(6) t_inst_match_def by auto
+  obtain tableaddr_lst tabletype_lst where
+     tabs_mod: "TABLES (frame_MODULE f) = tableaddr_lst" and
+     tabs_ctx: "context_TABLES C' = tabletype_lst" and
+     tabs_ok: "list_all2 (\<lambda>ta tt. Externaddr_ok s (externaddr_TABLE ta) (TABLE tt)) tableaddr_lst tabletype_lst"
+    using assms(4) by (cases rule: Moduleinst_ok.cases) auto
+  have "Externaddr_ok s (externaddr_TABLE (tableaddr_lst ! ?x)) (TABLE (tabletype_lst ! ?x))"
+    using list_all2_nthD[OF tabs_ok] list_all2_lengthD[OF tabs_ok] x_lt ctx_eq tabs_ctx by simp
+  then have ext_ok: "Externaddr_ok s (externaddr_TABLE ?a) (TABLE (mk_tabletype lim rt))"
+    using tabs_mod tabs_ctx ctx_eq tab_C by simp
+  obtain v rtv limv limup where
+    "store_TABLES s ! ?a = v" and v_ty: "tableinst_TYPE v = mk_tabletype limv rtv" and
+    up: "TABLE (mk_tabletype limup rtv) = TABLE (mk_tabletype lim rt)"
+    using inv_Externaddr_ok_table[OF ext_ok HOL.refl] by blast
+  then have a_ty: "tableinst_TYPE (store_TABLES s ! ?a) = mk_tabletype limv rt"
+    by simp
+
+  have tab_eq: "fun_table (mk_state s f) x = store_TABLES s ! ?a"
+    using fun_table.psimps fun_table.domintros by auto
+  have s'_eq: "s' = s\<lparr>store_TABLES := list_update_func (store_TABLES s) ?a (\<lambda>_. ti)\<rparr>"
+    using assms(2) with_tableinst.psimps with_tableinst.domintros by auto
+  obtain i j_opt rt0 r_lst i' where
+    old: "store_TABLES s ! ?a = \<lparr>tableinst_TYPE = mk_tabletype (mk_limits i j_opt) rt0, REFS = r_lst\<rparr>" and
+    i': "i' = length r_lst + v_n" and
+    j_bound: "list_all (\<lambda>j. i' \<le> proj_uN_0 j) (option_to_list j_opt)" and
+    new: "ti = \<lparr>tableinst_TYPE = mk_tabletype (mk_limits (mk_uN i') j_opt) rt0, REFS = r_lst @ repeat v_n v_ref\<rparr>" and
+    wf_old: "wf_tableinst (store_TABLES s ! ?a)" and
+    wf_new: "wf_tableinst ti"
+    using assms(1) tab_eq by (cases rule: fun_growtable.cases) (rule that[OF sym], auto)
+  have rt0: "rt0 = rt" using a_ty old by simp
+
+  have old_ok: "\<exists>n m_opt. i = mk_uN n \<and> j_opt = map_option mk_uN m_opt \<and> length r_lst = n \<and>
+                  list_all (\<lambda>r. Ref_ok s r rt0) r_lst"
+    if "Tableinst_ok s (store_TABLES s ! ?a) tt" for tt
+    using that old by (cases rule: Tableinst_ok.cases) auto
+
+  show ?thesis
+  proof (rule tables_update_store_extension[OF assms(3) s'_eq])
+    fix tt
+    assume "Tableinst_ok s (store_TABLES s ! ?a) tt"
+    then obtain n m_opt where
+      i_eq: "i = mk_uN n" and j_eq: "j_opt = map_option mk_uN m_opt" and len: "length r_lst = n"
+      using old_ok by blast
+    have wf_old': "wf_tableinst \<lparr>tableinst_TYPE = mk_tabletype (mk_limits (mk_uN n) (map_option mk_uN m_opt)) rt0, REFS = r_lst\<rparr>"
+      using wf_old old i_eq j_eq by simp
+    have wf_new': "wf_tableinst \<lparr>tableinst_TYPE = mk_tabletype (mk_limits (mk_uN i') (map_option mk_uN m_opt)) rt0, REFS = r_lst @ repeat v_n v_ref\<rparr>"
+      using wf_new new j_eq by simp
+    have "n \<le> i'" "length r_lst \<le> length (r_lst @ repeat v_n v_ref)"
+      using i' len by simp_all
+    then have "Extend_tableinst
+      \<lparr>tableinst_TYPE = mk_tabletype (mk_limits (mk_uN n) (map_option mk_uN m_opt)) rt0, REFS = r_lst\<rparr>
+      \<lparr>tableinst_TYPE = mk_tabletype (mk_limits (mk_uN i') (map_option mk_uN m_opt)) rt0, REFS = r_lst @ repeat v_n v_ref\<rparr>"
+      by (rule mk_Extend_tableinst[OF _ _ wf_old' wf_new'])
+    then show "Extend_tableinst (store_TABLES s ! ?a) ti"
+      using old new i_eq j_eq by simp
+  next
+    fix tt
+    assume ext: "Extend_store s s'" and ok: "Tableinst_ok s (store_TABLES s ! ?a) tt"
+    then obtain n m_opt where
+      i_eq: "i = mk_uN n" and j_eq: "j_opt = map_option mk_uN m_opt" and len: "length r_lst = n" and
+      refs_ok: "list_all (\<lambda>r. Ref_ok s r rt0) r_lst"
+      using old_ok by blast
+    have wf_new': "wf_tableinst \<lparr>tableinst_TYPE = mk_tabletype (mk_limits (mk_uN i') (map_option mk_uN m_opt)) rt0, REFS = r_lst @ repeat v_n v_ref\<rparr>"
+      using wf_new new j_eq by simp
+    have wf_tt: "wf_tabletype (mk_tabletype (mk_limits (mk_uN i') (map_option mk_uN m_opt)) rt0)"
+      using wf_new' by (cases rule: wf_tableinst.cases) simp
+    have wf_lim: "wf_limits (mk_limits (mk_uN i') (map_option mk_uN m_opt))"
+      using wf_tt by (cases rule: wf_tabletype.cases) simp
+    have wf_i': "wf_uN 32 (mk_uN i')" and wf_m: "list_all (wf_uN 32) (option_to_list (map_option mk_uN m_opt))"
+      using wf_lim by (cases rule: wf_limits.cases, simp)+
+    have i'_bound: "i' \<le> 2 ^ 32 - 1"
+      using wf_i' by (cases rule: wf_uN.cases) simp
+    have m_bound: "list_all (\<lambda>m. m \<le> 2 ^ 32 - 1) (option_to_list m_opt)"
+    proof (cases m_opt)
+      case None
+      then show ?thesis by simp
+    next
+      case (Some m)
+      then have "wf_uN 32 (mk_uN m)" using wf_m by simp
+      then show ?thesis using Some by (cases rule: wf_uN.cases) simp
+    qed
+    have i'_le: "list_all (\<lambda>m. i' \<le> m) (option_to_list m_opt)"
+      using j_bound j_eq by (cases m_opt) auto
+    have "list_all (\<lambda>m. i' \<le> m \<and> m \<le> 2 ^ 32 - 1) (option_to_list m_opt)"
+      using m_bound i'_le by (auto simp: list_all_iff)
+    then have lim_ok: "Limits_ok (mk_limits (mk_uN i') (map_option mk_uN m_opt)) (2 ^ 32 - 1)"
+      using mk_Limits_ok[OF i'_bound _ wf_lim] by blast
+    have tt_ok: "Tabletype_ok (mk_tabletype (mk_limits (mk_uN i') (map_option mk_uN m_opt)) rt0)"
+      by (rule mk_Tabletype_ok[OF lim_ok wf_tt])
+    have refs_ok': "list_all (\<lambda>r. Ref_ok s' r rt0) (r_lst @ repeat v_n v_ref)"
+    proof -
+      have "list_all (\<lambda>r. Ref_ok s' r rt0) r_lst"
+        using refs_ok store_extension_refok[OF _ ext] by (simp add: list.pred_mono_strong)
+      moreover have "list_all (\<lambda>r. Ref_ok s' r rt0) (repeat v_n v_ref)"
+        using list_all_repeat[of "\<lambda>r. Ref_ok s' r rt", OF store_extension_refok[OF ref_ok ext]] rt0 by simp
+      ultimately show ?thesis by simp
+    qed
+    have len': "length (r_lst @ repeat v_n v_ref) = i'"
+      using i' by (simp add: length_repeat)
+    have "Tableinst_ok s'
+      \<lparr>tableinst_TYPE = mk_tabletype (mk_limits (mk_uN i') (map_option mk_uN m_opt)) rt0, REFS = r_lst @ repeat v_n v_ref\<rparr>
+      (mk_tabletype (mk_limits (mk_uN i') (map_option mk_uN m_opt)) rt0)"
+      by (rule mk_Tableinst_ok[OF tt_ok refs_ok' len' store_extension_wf[OF ext] wf_new' wf_tt])
+    then show "\<exists>tt'. Tableinst_ok s' ti tt'"
+      unfolding new j_eq by (rule exI)
+  qed
+qed
+
+lemma t_inst_match_trans:
+  "t_inst_match C1 C2 \<Longrightarrow> t_inst_match C2 C3 \<Longrightarrow> t_inst_match C1 C3"
+  by (simp add: t_inst_match_def)
+
+(*Store extension reduction, general form (cf. Rocq `store_extension_reduce`)*)
+lemma reduce_store_extension_gen:
+assumes "Step c c'"
+        "c  = mk_config (mk_state s f) admininstr_lst"
+        "c' = mk_config (mk_state s' f') admininstr'_lst"
+        "Store_ok s"
+        "Moduleinst_ok s (frame_MODULE f) C'"
+        "Instrs_ok2 s C admininstr_lst tf"
+        "t_inst_match C C'"
+shows "Extend_store s s' \<and> Store_ok s'"
+using assms
+proof (induction c c' arbitrary: s f s' f' admininstr_lst admininstr'_lst C C' tf rule: Step.induct)
+  case (pure admininstr_lst admininstr'_lst z)
+  then show ?case using store_extension_refl Store_ok_wf by auto
+next
+  case (read z admininstr_lst admininstr'_lst)
+  then show ?case using store_extension_refl Store_ok_wf by auto
+next
+  case (ctxt_label z ais z' ais' v_n instr_0_lst)
+  have z: "z = mk_state s f" "z' = mk_state s' f'"
+    and es: "admininstr_lst = [admininstr_sc8 (LABEL_underscore v_n instr_0_lst ais)]"
+    using ctxt_label.prems(1,2) by auto
+  obtain t1 t2 where tf: "tf = mk_functype t1 t2" by (cases tf)
+  obtain tp1 tp2 where lab_ok: "Instr_ok2 s C (admininstr_sc8 (LABEL_underscore v_n instr_0_lst ais)) (mk_functype tp1 tp2)"
+    using inv_one_admininstr ctxt_label.prems(5) es tf by blast
+  obtain C_in tf_in where inner: "Instrs_ok2 s C_in ais tf_in" and match_in: "t_inst_match C_in C"
+    using inv_label[OF lab_ok HOL.refl] by (fastforce simp: t_inst_match_def append_res_context_def)
+  show ?case
+    using ctxt_label.IH[OF _ _ ctxt_label.prems(3,4) inner t_inst_match_trans[OF match_in ctxt_label.prems(6)]] z
+    by simp
+next
+  case (ctxt_frame s0 f0 ais s0' f0' ais' fr v_n)
+  have s: "s0 = s" "fr = f" "s0' = s'"
+    and es: "admininstr_lst = [admininstr_sc8 (FRAME_underscore v_n f0 ais)]"
+    using ctxt_frame.prems(1,2) by auto
+  obtain t1 t2 where tf: "tf = mk_functype t1 t2" by (cases tf)
+  obtain tp1 tp2 where fr_ok: "Instr_ok2 s C (admininstr_sc8 (FRAME_underscore v_n f0 ais)) (mk_functype tp1 tp2)"
+    using inv_one_admininstr ctxt_frame.prems(5) es tf by blast
+  obtain C_f t_lst where
+    frame_ok: "Frame_ok s f0 C_f" and
+    expr_ok: "Expr_ok2 s (append_res_context
+       \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [],
+        context_DATAS = [], context_LOCALS = [], LABELS = [], context_RETURN = Some (mk_list t_lst)\<rparr> C_f) ais (mk_list t_lst)"
+    using inv_frame[OF fr_ok HOL.refl] by blast
+  obtain C_m where
+    mod_ok: "Moduleinst_ok s (frame_MODULE f0) C_m" and
+    match_f: "t_inst_match (append_res_context
+       \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [],
+        context_DATAS = [], context_LOCALS = [], LABELS = [], context_RETURN = Some (mk_list t_lst)\<rparr> C_f) C_m"
+    using frame_ok by (cases rule: Frame_ok.cases) (auto simp: t_inst_match_def append_res_context_def)
+  show ?case
+    using ctxt_frame.IH[OF _ _ ctxt_frame.prems(3) mod_ok inv_expr(1)[OF expr_ok] match_f] s
+    by simp
+next
+  case (ctxt_instrs z ais z' ais' val_lst admininstr_1_lst)
+  have z: "z = mk_state s f" "z' = mk_state s' f'"
+    and es: "admininstr_lst = map admininstr_val val_lst @ ais @ admininstr_1_lst"
+    using ctxt_instrs.prems(1,2) by auto
+  obtain t1 t3 where tf: "tf = mk_functype t1 t3" by (cases tf)
+  obtain t2 where "Instrs_ok2 s C (ais @ admininstr_1_lst) (mk_functype t2 t3)"
+    using inv_seq[OF _ es] ctxt_instrs.prems(5) tf by blast
+  then obtain t2' where inner: "Instrs_ok2 s C ais (mk_functype t2 t2')"
+    using inv_seq[OF _ HOL.refl] by blast
+  show ?case
+    using ctxt_instrs.IH[OF _ _ ctxt_instrs.prems(3,4) inner ctxt_instrs.prems(6)] z
+    by simp
+next
+  case (Step__local_set z v_val x)
+  then have "s' = s" using with_local.psimps with_local.domintros by auto
+  then show ?case using Step__local_set.prems(3) store_extension_refl Store_ok_wf by auto
+next
+  case (Step__global_set z v_val x)
+  then have "with_global (mk_state s f) x v_val = mk_state s' f'"
+        and "admininstr_lst = [admininstr_val v_val, admininstr_sc5 (admininstr_st5_GLOBAL_SET x)]"
+    by auto
+  then show ?case
+    using global_set_store_extension Step__global_set.prems(3-6) by metis
+next
+  case (table_set_val i z x v_ref)
+  obtain t1 t2 where tf: "tf = mk_functype t1 t2" by (cases tf)
+  from table_set_val have "with_table (mk_state s f) x (proj_uN_0 (the (proj_num__0 i))) v_ref = mk_state s' f'"
+        and "z = mk_state s f"
+        and "admininstr_lst = [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_ref v_ref, admininstr_sc5 (admininstr_st5_TABLE_SET x)]"
+    by auto
+  then show ?case
+    using table_set_store_extension table_set_val.hyps table_set_val.prems(3-6) tf by metis
+next
+  case (table_grow_succeed z x v_n v_ref var_0 ti)
+  from table_grow_succeed have "with_tableinst (mk_state s f) x ti = mk_state s' f'"
+        and "fun_growtable (fun_table (mk_state s f) x) v_n v_ref (Some ti)"
+        and "admininstr_lst = [admininstr_ref v_ref, admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))), admininstr_sc5 (admininstr_st5_TABLE_GROW x)]"
+    by auto
+  then show ?case
+    using table_grow_store_extension table_grow_succeed.prems(3-6) by metis
+next
+  case (Step__elem_drop z x)
+  then have "with_elem (mk_state s f) x [] = mk_state s' f'" by auto
+  then show ?case using elem_drop_store_extension Step__elem_drop.prems(3) by blast
+next
+  case (store_num_val i nt b_lst z c ao)
+  then show ?case sorry
+next
+  case (store_pack_val i v_Inn c b_lst v_n z ao)
+  then show ?case sorry
+next
+  case (vstore_val i b_lst c z ao)
+  then show ?case sorry
+next
+  case (vstore_lane_val i v_N v_Jnn v_M c j b_lst z ao)
+  then show ?case sorry
+next
+  case (memory_grow_succeed z v_n var_0 mi)
+  from memory_grow_succeed have "with_meminst (mk_state s f) (mk_uN 0) mi = mk_state s' f'"
+        and "fun_growmemory (fun_mem (mk_state s f) (mk_uN 0)) v_n (Some mi)"
+    by auto
+  then show ?case using memory_grow_store_extension memory_grow_succeed.prems(3) by blast
+next
+  case (Step__data_drop z x)
+  then have "with_data (mk_state s f) x [] = mk_state s' f'" by auto
+  then show ?case using data_drop_store_extension Step__data_drop.prems(3) by blast
+qed (auto intro: store_extension_refl Store_ok_wf)
+
 lemma reduce_store_extension:
 assumes "Step (mk_config (mk_state s f) admininstr_lst) (mk_config (mk_state s' f') admininstr'_lst)"
         "Store_ok s"
@@ -792,82 +1591,6 @@ assumes "Step (mk_config (mk_state s f) admininstr_lst) (mk_config (mk_state s' 
         "Instrs_ok2 s C admininstr_lst (mk_functype t_1_lst t_2_lst)"
         "t_inst_match C C'"
 shows "Extend_store s s' \<and> Store_ok s'"
-using assms
-proof (induction "(mk_config (mk_state s f) admininstr_lst)" "(mk_config (mk_state s' f') admininstr'_lst)" arbitrary: C lbl rtn admininstr_lst  admininstr'_lst rule: Step.induct)
-  case (Step__global_set v_val x)
-  then show ?case using global_set_store_extension by simp
-next
-  case (table_set_val i x v_ref)
-  then show ?case using table_set_store_extension by simp    
-next
-  case (table_grow_succeed x v_n v_ref var_0 ti)
-  then show ?case sorry
-next
-  case (Step__elem_drop x)
-  then show ?case sorry
-next
-  case (store_num_val i nt b_lst c ao)
-  then show ?case sorry
-next
-  case (store_pack_val i v_Inn c b_lst v_n ao)
-  then show ?case sorry
-next
-  case (vstore_val i b_lst c ao)
-  then show ?case sorry
-next
-  case (vstore_lane_val i v_N v_Jnn v_M c j b_lst ao)
-  then show ?case sorry
-next
-  case (memory_grow_succeed v_n var_0 mi)
-  then show ?case sorry
-next
-  case (Step__data_drop x)
-  then show ?case sorry
-next
-  case (ctxt_label admininstr_lst admininstr'_lst v_n instr_0_lst)
-  then show ?case sorry     
-next
-  case (ctxt_frame f' admininstr_lst f'' admininstr'_lst v_n)
-  then show ?case sorry
-next
-  case (ctxt_instrs admininstr_lst admininstr'_lst val_lst admininstr_1_lst)
-  then show ?case sorry  
-next
-  case (pure admininstr_lst admininstr'_lst)
-  have "wf_store s" using Instrs_ok2.simps pure.prems(4) by blast
-  then show ?case using store_extension_refl pure(2,4)
-    by blast
-next
-  case (read admininstr_lst admininstr'_lst)
-  have "wf_store s" using Instrs_ok2_wf(2) assms(5) by auto
-  then show ?case using store_extension_refl read(2,4)
-    by blast
-next
-  case (Step__local_set v_val x)
-  have "s = s'" using with_local.psimps with_local.domintros Step__local_set(1) by auto
-  then show ?case using assms(2) store_extension_refl Instrs_ok2_wf(2) Step__local_set(5)
-    by metis
-next
-  case (table_set_trap i x v_ref)
-  then show ?case using store_extension_refl Instrs_ok2_wf(2) by simp 
-next
-  case (table_grow_fail var_0 v_ref v_n x)
-  then show ?case using store_extension_refl Instrs_ok2_wf(2) by simp
-next
-  case (store_num_trap i nt ao c)
-  then show ?case using store_extension_refl Instrs_ok2_wf(2) by simp
-next
-  case (store_pack_trap i ao v_n v_Inn c)
-  then show ?case using store_extension_refl Instrs_ok2_wf(2) by simp
-next
-  case (vstore_oob i ao c)
-  then show ?case using store_extension_refl Instrs_ok2_wf(2) by simp
-next
-  case (vstore_lane_oob i ao v_N c j)
-  then show ?case using store_extension_refl Instrs_ok2_wf(2) by simp
-next
-  case (memory_grow_fail var_0 v_n)
-  then show ?case using store_extension_refl Instrs_ok2_wf(2) by simp
-qed
+  using reduce_store_extension_gen[OF assms(1) HOL.refl HOL.refl assms(2,3,5,6)] .
 
 end
