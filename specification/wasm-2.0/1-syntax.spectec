@@ -265,6 +265,13 @@ syntax num_(Fnn) = fN($sizenn(Fnn))
 
 syntax pack_(Pnn) = iN($psize(Pnn))
 
+;; TODO: HACK! lane_ should reuse num_ and pack_.
+;; Original definition:
+;; syntax lane_(lanetype)
+;; syntax lane_(numtype) = num_(numtype)
+;; syntax lane_(packtype) = pack_(packtype)
+;; syntax lane_(Jnn) = iN($lsize(Jnn))  ;; HACK
+
 syntax lane_(lanetype)
 syntax lane_(Jnn) = iN($lsize(Jnn))
 syntax lane_(Fnn) = fN($sizenn(Fnn))
@@ -381,10 +388,10 @@ syntax vcvtop__(Jnn_1 X M_1, Fnn_2 X M_2) =
   | CONVERT half? sx hint(show CONVERT#_#%) hint(show CONVERT#_#%#_#%)
     -- if $sizenn2(Fnn_2) = $lsizenn1(Jnn_1) = `32 /\ half? = eps
        \/ $sizenn2(Fnn_2) = $(2 * $lsizenn1(Jnn_1)) /\ half? = LOW
-syntax vcvtop__(Fnn_1 X M_1, Jnn_2 X M_2) =
+syntax vcvtop__(Fnn_1 X M_1, Inn_2 X M_2) =
   | TRUNC_SAT sx zero? hint(show TRUNC_SAT#_#%) hint(show TRUNC_SAT#_#%#_#%)
-    -- if $sizenn1(Fnn_1) = $lsizenn2(Jnn_2) = `32 /\ zero? = eps
-       \/ $sizenn1(Fnn_1) = $(2 * $lsizenn2(Jnn_2)) /\ zero? = ZERO
+    -- if $sizenn1(Fnn_1) = $lsizenn2(Inn_2) = `32 /\ zero? = eps
+       \/ $sizenn1(Fnn_1) = $(2 * $lsizenn2(Inn_2)) /\ zero? = ZERO
 syntax vcvtop__(Fnn_1 X M_1, Fnn_2 X M_2) =
   | DEMOTE zero hint(show DEMOTE#_#ZERO)
     -- if $sizenn1(Fnn_1) = $(2 * $sizenn2(Fnn_2))
@@ -416,7 +423,7 @@ syntax loadop_(numtype)
 syntax loadop_(Inn) = sz _ sx hint(show %0#_#%2) -- if sz < $sizenn(Inn)
 
 syntax vloadop_(vectype) =
-  | SHAPE sz X M _ sx    hint(show %1#X#%3#_#%5) -- if $(sz * M = $vsize(vectype)/2)
+  | SHAPE sz X M _ sx    hint(show %1#X#%3#_#%5) -- if $(sz * M = $vsize(vectype)/2) /\ M > `1
   | SPLAT sz             hint(show %#_#SPLAT)
   | ZERO sz              hint(show %#_#ZERO) -- if sz >= `32
 
