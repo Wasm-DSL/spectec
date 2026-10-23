@@ -1829,20 +1829,25 @@ theorem progress:
             note outer = Nil
             then obtain c1 where c1: "a1 = val_CONST nt c1" using typeofval_is_nt by fastforce
             obtain c2 where c2: "a2 = val_CONST nt c2" using typeofval_is_nt Nil by fastforce
-            have "wf_relop_underscore nt relop_nt" using Nil(10)
+            have wfop: "wf_relop_underscore nt relop_nt" using Nil(10)
             proof(induction "mk_config (mk_state s' f) [admininstr_instr (instr_sc1 (RELOP nt relop_nt))]")
               case config_case_0
-              have "wf_instr (instr_sc1 (RELOP nt relop_nt))" 
+              have "wf_instr (instr_sc1 (RELOP nt relop_nt))"
                 using config_case_0(2) wf_admininstr_instr_inv by simp
               then show ?case proof(induction "instr_sc1 (RELOP nt relop_nt)")
               qed
             qed
-            then obtain res where res: "fun_relop_underscore nt relop_nt c1 c2 (Some res)" 
+            then obtain res where res: "fun_relop_underscore nt relop_nt c1 c2 (Some res)"
               using fun_relop_underscore_total Nil(7) c1 c2
               by fastforce
-              then show ?thesis using Step_pure__relop[OF res] outer(12) Step.intros(1) c1 c2
+            have wfc1: "wf_num_underscore nt c1" and wfc2: "wf_num_underscore nt c2"
+              using outer(7) c1 c2 wf_val.simps by auto
+            have nn: "Some res \<noteq> None" by simp
+            have wfres: "wf_num_underscore I32 (the (Some res))"
+              using relop__is_wf[OF res wfop wfc1 wfc2 nn HOL.refl] .
+            show ?case using Step_pure__relop[OF res nn HOL.refl wfres] outer(12) Step.intros(1) c1 c2
                 admininstr_val.domintros(1) admininstr_val.psimps(1)
-                sorry
+                by fastforce
           next
             case (Cons a vs)
             then show ?case by simp
