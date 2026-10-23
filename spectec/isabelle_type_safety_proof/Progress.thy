@@ -2044,16 +2044,107 @@ theorem progress:
         by (metis admininstr_instr.simps(21))
     next
       case (Instr_ok__vvunop C v_vvunop)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then obtain vec where vec: "a = val_VCONST V128 vec" using typeofval_is_v128 by fastforce
+          show ?case using Nil Step_pure__vvunop[OF HOL.refl] Step.intros(1) vec
+              admininstr_val.domintros(2) admininstr_val.psimps(2)
+            by fastforce
+        next
+          case (Cons a vs)
+          then show ?case by simp
+        qed
+      qed
     next
       case (Instr_ok__vvbinop C v_vvbinop)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons(2-) proof(induction vs)
+            case Nil
+            then obtain vec1 where vec1: "a1 = val_VCONST V128 vec1" using typeofval_is_v128 by fastforce
+            obtain vec2 where vec2: "a2 = val_VCONST V128 vec2" using typeofval_is_v128 Nil by fastforce
+            show ?case using Nil Step_pure__vvbinop[OF HOL.refl] Step.intros(1) vec1 vec2
+                admininstr_val.domintros(2) admininstr_val.psimps(2)
+              by fastforce
+          next
+            case (Cons a vs)
+            then show ?case by simp
+          qed
+        qed
+      qed
     next
       case (Instr_ok__vvternop C v_vvternop)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons(2-) proof(induction vs)
+            case Nil
+            then show ?case by simp
+          next
+            case (Cons a3 vs)
+            show ?case using Cons(2-) proof(induction vs)
+              case Nil
+              then obtain vec1 where vec1: "a1 = val_VCONST V128 vec1" using typeofval_is_v128 by fastforce
+              obtain vec2 where vec2: "a2 = val_VCONST V128 vec2" using typeofval_is_v128 Nil by fastforce
+              obtain vec3 where vec3: "a3 = val_VCONST V128 vec3" using typeofval_is_v128 Nil by fastforce
+              show ?case using Nil Step_pure__vvternop[OF HOL.refl] Step.intros(1) vec1 vec2 vec3
+                  admininstr_val.domintros(2) admininstr_val.psimps(2)
+                by fastforce
+            next
+              case (Cons a vs)
+              then show ?case by simp
+            qed
+          qed
+        qed
+      qed
     next
       case (Instr_ok__vvtestop C v_vvtestop)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then obtain vec where vec: "a = val_VCONST V128 vec" using typeofval_is_v128 by fastforce
+          define r where "r = ine_underscore (the (size valtype_V128)) vec (mk_uN 0)"
+          have wfr: "wf_uN 32 r" unfolding r_def
+            by (cases "vec = mk_uN 0") (auto simp: ine_underscore.psimps ine_underscore.domintros
+                res_bool.psimps res_bool.domintros intro: wf_uN.intros)
+          have step: "Step_pure [admininstr_sc2 (admininstr_st2_VCONST V128 vec),
+              admininstr_sc2 (admininstr_st2_VVTESTOP V128 ANY_TRUE)]
+              [admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 r))]"
+            using wfr by (intro Step_pure__vvtestop)
+              (auto simp: r_def numtype_size_simps proj_num__0.psimps proj_num__0.domintros
+                size.psimps size.domintros intro!: num__case_0 wf_uN.intros)
+          show ?case using Nil step Step.intros(1) vec
+              admininstr_val.domintros(2) admininstr_val.psimps(2)
+            by (cases v_vvtestop) fastforce
+        next
+          case (Cons a vs)
+          then show ?case by simp
+        qed
+      qed
     next
       case (vunop C sh vunop_sh)
       then show ?case sorry
