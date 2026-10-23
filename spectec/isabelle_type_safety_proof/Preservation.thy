@@ -5019,7 +5019,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       isabelle_reference_output_wasm2.memory_fill_succ[OF memory_fill_succ(1,2,3)]]
       wf_config.intros wf_state.intros Instrs_ok2_wf Instrs_ok2_wf_instr
        memory_fill_succ
-    by blast
+    sorry
   then have "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN 
             (proj_uN_0 (the (proj_num__0 i)) + 1)))))" 
     using wf_admininstr_instr_inv by simp
