@@ -4,6 +4,14 @@ theory Axioms
 
 begin
 
+(*The byte encoders are uninterpreted in the generated theory, so nothing fixes the
+  length of their output. These axioms mirror `nbytes_len'`, `ibytes_len''` and
+  `vbytes_len'` in rocq/axioms.v (`ibytes_len''` also covers Rocq's `ibytes_len'`).*)
+axiomatization where
+  nbytes_length: "length (nbytes_underscore nt c) = the (size (valtype_numtype nt)) div 8" and
+  ibytes_length: "length (ibytes_underscore v_N x) = v_N div 8" and
+  vbytes_length: "length (vbytes_underscore vt v) = the (size (valtype_vectype vt)) div 8"
+
 lemma truncz_spec:
   shows "truncz x = x"
   sorry

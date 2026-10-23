@@ -1,7 +1,7 @@
 theory Properties
 	imports Main isabelle_reference_output_wasm2 Type_Inversion
           Context_Store_Agreement store_extension_typing
-          helper_lemmas Typing_Simplified
+          helper_lemmas Typing_Simplified Axioms
 begin
 
 lemma func_extension_refl:
@@ -1457,14 +1457,6 @@ proof -
 qed
 
 (*memory stores*)
-(*The byte encoders are uninterpreted in the generated theory, so nothing fixes the
-  length of their output. These axioms mirror `nbytes_len'`, `ibytes_len''` and
-  `vbytes_len'` in rocq/axioms.v (`ibytes_len''` also covers Rocq's `ibytes_len'`).*)
-axiomatization where
-  nbytes_length: "length (nbytes_underscore nt c) = the (size (valtype_numtype nt)) div 8" and
-  ibytes_length: "length (ibytes_underscore v_N x) = v_N div 8" and
-  vbytes_length: "length (vbytes_underscore vt v) = the (size (valtype_vectype vt)) div 8"
-
 lemma list_slice_update_length:
   "length u \<le> j \<Longrightarrow> length (list_slice_update l i j u) = length l"
   by (induction l i j u rule: list_slice_update.induct) auto
