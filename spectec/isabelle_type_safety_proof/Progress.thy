@@ -359,23 +359,33 @@ qed
 
 
 
+lemma numtype_size_simps:
+  "numtype_Inn Inn_I32 = I32" "numtype_Inn Inn_I64 = I64"
+  "numtype_Fnn Fnn_F32 = F32" "numtype_Fnn Fnn_F64 = F64"
+  "valtype_Inn Inn_I32 = valtype_I32" "valtype_Inn Inn_I64 = valtype_I64"
+  "valtype_Fnn Fnn_F32 = valtype_F32" "valtype_Fnn Fnn_F64 = valtype_F64"
+  "size valtype_I32 = Some 32" "size valtype_I64 = Some 64"
+  "size valtype_F32 = Some 32" "size valtype_F64 = Some 64"
+  "sizenn I32 = 32" "sizenn I64 = 64" "sizenn F32 = 32" "sizenn F64 = 64"
+  "sizenn1 I32 = 32" "sizenn1 I64 = 64" "sizenn1 F32 = 32" "sizenn1 F64 = 64"
+  "sizenn2 I32 = 32" "sizenn2 I64 = 64" "sizenn2 F32 = 32" "sizenn2 F64 = 64"
+  by (simp_all add: numtype_Inn.psimps numtype_Inn.domintros numtype_Fnn.psimps
+      numtype_Fnn.domintros valtype_Inn.psimps valtype_Inn.domintros valtype_Fnn.psimps
+      valtype_Fnn.domintros size.psimps size.domintros sizenn.psimps sizenn.domintros
+      sizenn1.psimps sizenn1.domintros sizenn2.psimps sizenn2.domintros
+      valtype_numtype.psimps valtype_numtype.domintros)
+
+lemma Inn_inj: "numtype_Inn a = numtype_Inn b \<Longrightarrow> a = b"
+  by (cases a; cases b) (simp_all add: numtype_size_simps)
+
+lemma Fnn_inj: "numtype_Fnn a = numtype_Fnn b \<Longrightarrow> a = b"
+  by (cases a; cases b) (simp_all add: numtype_size_simps)
+
 lemma fun_binop_underscore_total:
   assumes "wf_val (val_CONST nt c1)" "wf_val (val_CONST nt c2)" "wf_binop_underscore nt op"
   shows "\<exists> res. fun_binop_underscore nt op c1 c2 (Some res)"
 proof -
-  have nt_simps[simp]:
-    "numtype_Inn Inn_I32 = I32" "numtype_Inn Inn_I64 = I64"
-    "numtype_Fnn Fnn_F32 = F32" "numtype_Fnn Fnn_F64 = F64"
-    "valtype_Inn Inn_I32 = valtype_I32" "valtype_Inn Inn_I64 = valtype_I64"
-    "size valtype_I32 = Some 32" "size valtype_I64 = Some 64"
-    "sizenn I32 = 32" "sizenn I64 = 64" "sizenn F32 = 32" "sizenn F64 = 64"
-    by (simp_all add: numtype_Inn.psimps numtype_Inn.domintros numtype_Fnn.psimps
-        numtype_Fnn.domintros valtype_Inn.psimps valtype_Inn.domintros size.psimps size.domintros
-        sizenn.psimps sizenn.domintros valtype_numtype.psimps valtype_numtype.domintros)
-  have Inn_inj: "\<And>a b. numtype_Inn a = numtype_Inn b \<Longrightarrow> a = b"
-    by (case_tac a; case_tac b) simp_all
-  have Fnn_inj: "\<And>a b. numtype_Fnn a = numtype_Fnn b \<Longrightarrow> a = b"
-    by (case_tac a; case_tac b) simp_all
+  note numtype_size_simps[simp]
   have wf1: "wf_num_underscore nt c1" and wf2: "wf_num_underscore nt c2"
     using assms(1,2) wf_val.simps by auto
   from assms(3) show ?thesis
@@ -1138,6 +1148,55 @@ next
   qed
 qed
 
+lemma fun_cvtop_underscore_total:
+  assumes "wf_val (val_CONST nt_1 c)" "wf_cvtop__underscore nt_1 nt_2 op"
+  shows "\<exists> res. fun_cvtop__underscore nt_1 nt_2 op c (Some res)"
+proof -
+  note numtype_size_simps[simp]
+  have wf: "wf_num_underscore nt_1 c" using assms(1) wf_val.simps by auto
+  have inn_c: "\<exists>v. c = mk_num__0 inn v" if "nt_1 = numtype_Inn inn" for inn
+    using wf
+  proof cases
+    case (num__case_0 inn' v)
+    then show ?thesis using that Inn_inj by metis
+  next
+    case (num__case_1 fnn v)
+    then show ?thesis using that Inn_Fnn_diff by metis
+  qed
+  have fnn_c: "\<exists>v. c = mk_num__1 fnn v" if "nt_1 = numtype_Fnn fnn" for fnn
+    using wf
+  proof cases
+    case (num__case_0 inn v)
+    then show ?thesis using that Inn_Fnn_diff by metis
+  next
+    case (num__case_1 fnn' v)
+    then show ?thesis using that Fnn_inj by metis
+  qed
+  from assms(2) show ?thesis
+  proof cases
+    case (cvtop___case_0 inn_1 inn_2 x)
+    then obtain v where "c = mk_num__0 inn_1 v" using inn_c by blast
+    then show ?thesis using cvtop___case_0
+      by (cases inn_1; cases inn_2; cases x) (auto intro!: exI fun_cvtop__underscore.intros)
+  next
+    case (cvtop___case_1 inn_1 fnn_2 x)
+    then obtain v where "c = mk_num__0 inn_1 v" using inn_c by blast
+    then show ?thesis using cvtop___case_1
+      by (cases inn_1; cases fnn_2; cases x)
+        (auto elim!: wf_cvtop__Inn_1_Fnn_2.cases intro!: exI fun_cvtop__underscore.intros)
+  next
+    case (cvtop___case_2 fnn_1 inn_2 x)
+    then obtain v where "c = mk_num__1 fnn_1 v" using fnn_c by blast
+    then show ?thesis using cvtop___case_2
+      by (cases fnn_1; cases inn_2; cases x)
+        (auto elim!: wf_cvtop__Fnn_1_Inn_2.cases intro!: exI fun_cvtop__underscore.intros)
+  next
+    case (cvtop___case_3 fnn_1 fnn_2 x)
+    then obtain v where "c = mk_num__1 fnn_1 v" using fnn_c by blast
+    then show ?thesis using cvtop___case_3
+      by (cases fnn_1; cases fnn_2; cases x) (auto intro!: exI fun_cvtop__underscore.intros)
+  qed
+qed
 
 theorem progress:
   assumes "Config_ok (mk_config s es) ts"
@@ -1856,7 +1915,42 @@ theorem progress:
       qed
     next
       case (cvtop C nt_1 nt_2 cvtop)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          note outer = Nil
+          then obtain c where c: "a = val_CONST nt_2 c" using typeofval_is_nt
+            by fastforce
+          then have wfv: "wf_val (val_CONST nt_2 c)" using outer(7) by simp
+          have wfop: "wf_cvtop__underscore nt_2 nt_1 cvtop" using outer(10)
+          proof(induction "mk_config (mk_state s' f) [admininstr_instr (instr_sc1 (CVTOP nt_1 nt_2 cvtop))]")
+            case config_case_0
+            then have "wf_instr (instr_sc1 (CVTOP nt_1 nt_2 cvtop))" using wf_admininstr_instr_inv by simp
+            then show ?case proof(induction "instr_sc1 (CVTOP nt_1 nt_2 cvtop)")
+            qed(auto)
+          qed
+          obtain res where res: "fun_cvtop__underscore nt_2 nt_1 cvtop c (Some res)"
+            using fun_cvtop_underscore_total[OF wfv wfop] by blast
+          show ?case proof(cases res)
+            case Nil
+            then show ?thesis using cvtop_trap[OF res] outer(12) Step.intros(1) c
+              admininstr_val.domintros(1) admininstr_val.psimps(1)
+              by auto
+          next
+            case (Cons a list)
+            then show ?thesis using cvtop_val[OF res] outer(12) Step.intros(1) c
+              admininstr_val.domintros(1) admininstr_val.psimps(1)
+              by fastforce
+          qed
+        next
+          case (Cons a vs)
+          then show ?case by simp
+        qed
+      qed
     next
       case (ref_null C rt)
       then show ?case using admininstr_val.domintros(3) admininstr_val.psimps(3)[of rt]
