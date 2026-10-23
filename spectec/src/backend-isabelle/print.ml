@@ -1,18 +1,11 @@
 open Il.Ast
 open Util.Source
-(* open Il.Walk *)
 
-
-(* NOTES FOR CONRAD MEETING *)
-(* List of reserved ids in Isabelle? *)
-(* coercion *)
-(* :> operation *)
-(* Struct extension *)
-(* axiomatization *)
 
 
 
 module StringSet = Set.Make(String)
+module StringMap = Map.Make(String)
 
 (* Isabelle ASCII representations of unicode symbols *)
 let ra = "\\<Rightarrow>"
@@ -42,14 +35,14 @@ let sanitise_id s =
 
 type isabelle_env = (* Il.Env.t ref *)
   { mutable il_env : Il.Env.t;
-    mutable wf_lemma_set : StringSet.t
+    mutable wf_lemma_map : bool StringMap.t
     (* mutable partial_funs : StringSet.t *)
   }
 
 
 let new_env () = (* Il.Env.empty *)
   { il_env = Il.Env.empty;
-    wf_lemma_set = StringSet.empty
+    wf_lemma_map = StringMap.empty
     (*    partial_funs = StringSet.empty *)
   }
 
@@ -206,6 +199,13 @@ let check_trivial_append env typ =
   | _ -> NotAppend
 
 
+let is_wf_lemma d =
+  match d.it with
+  | RelD (id, _, _, _, _) when StringMap.mem id.it !env_ref.wf_lemma_map ->
+    true
+  | _ -> false
+
+
 let comment_desc_def d =
   match d.it with
   | TypD (_, _, [inst]) when is_alias_typ inst -> "Type Alias Definition"
@@ -215,6 +215,7 @@ let comment_desc_def d =
   | RecD _ -> "Mutual Recursion"
   | DecD (_, _, _, []) -> "Axiom Definition"
   | DecD _ -> "Auxiliary Definition"
+  | RelD _ when is_wf_lemma d -> "Well-Formedness Lemma Definition"
   | RelD _ -> "Inductive Relations Definition"
   | HintD _ -> "Hint Definition"
   | GramD _ -> "Grammar Production Definition"
@@ -749,15 +750,15 @@ let render_function_def id params r_typ clauses =
                        quotes (id ^ render_match_args typids args ^ " = " ^ string_of_let ^ render_exp RHS typids exp ^ close_lets let_prems)) clauses
   )
 
-let render_wfness_func_lemma id rule =
+let render_wfness_func_lemma id rule is_axiom =
   let RuleD (_, quants, _, _, prems) = rule.it in
   let typids, _l = render_param_types_list RHS StringSet.empty quants in
   (*  let forall_quantifiers = string_of_list "\\<forall> " ".\n\t" " " snd l in *)
   let letprems, others = List.partition is_let prems in
   let string_lets = string_of_list "" "" "\n\t " (render_prem typids) letprems in
   let string_prems = string_of_list "" "" (" " ^ lra ^ "\n\t ") (render_prem typids) others in
-  id ^ " :\n\t" ^ quotes ((* forall_quantifiers ^ *) string_lets ^ string_prems ^ close_lets letprems) ^ "\n" ^
-  "sorry"
+  id ^ " :\n\t" ^ quotes ((* forall_quantifiers ^ *) string_lets ^ string_prems ^ close_lets letprems) ^
+    if is_axiom then "" else "\nsorry"
 
 let render_relation id typ rules =
   let resl = string_of_relation_args typ in
@@ -806,6 +807,7 @@ type isabelle_header =
   Ifun
 | Idef
 | Iax
+| Iaxwf
 | Irec
 | Iind
 | Idat
@@ -822,11 +824,6 @@ let is_typ_arg x =
   | TypA _ -> true
   | _ -> false
 
-let is_wf_lemma d =
-  match d.it with
-  | RelD (id, _, _, _, _) when StringSet.mem id.it !env_ref.wf_lemma_set ->
-    true
-  | _ -> false
 
 
 (* TODO - revise mutual recursion with other defs such as records and axioms *)
@@ -848,15 +845,18 @@ let rec components_of_def def =
   | DecD (id, params, typ, clauses) when List.exists has_prems clauses ->
     start , [Iax], [render_axiom (render_id id.it) params typ], []
   | DecD (id, params, typ, clauses) ->
-     let header, clauses = render_function_def (render_id id.it) params typ (clauses) in
+     let header, clauses = render_function_def (render_id id.it) params typ clauses in
      start, [Ifun], [header], clauses
   | RelD (id, _, _, typ, []) ->
      start , [Iax], [render_rel_axiom (render_id id.it) typ], []
   | RelD (id, _, _, _, [rule]) when is_wf_lemma def ->
-    start , [Iwf], [render_wfness_func_lemma id.it rule], []
+     let is_axiom = StringMap.find id.it !env_ref.wf_lemma_map in
+    start , [if is_axiom then Iaxwf else Iwf], [render_wfness_func_lemma id.it rule is_axiom], []
   | RelD (id, _, _, typ, rules) ->
      let header, clauses = render_relation (render_id id.it) typ rules in
      start, [Iind], [header], clauses
+(*  | RecD [def] ->
+     components_of_def def *)
   (* Mutual recursion - special handling for isabelle *)
   | RecD defs ->
      let l = List.map components_of_def defs in
@@ -888,6 +888,10 @@ let string_of_def def =
      if List.for_all (function Iax -> true | _ -> false) kwds
      then start ^ "axiomatization " ^ String.concat "\nand " hdrs ^ "\n\n"
      else error def.at "axiomatization defined mutually recursively with something that is not an axiomatization"
+  | Iaxwf :: kwds, _ ->
+     if List.for_all (function Iax -> true | _ -> false) kwds
+     then start ^ "axiomatization where " ^ String.concat "\nand " hdrs ^ "\n\n"
+     else error def.at "axiomatized well-formedness property defined mutually recursively with something that is not an axiomatization"
   | Ifun :: kwds, _ ->
      if List.for_all (function Ifun -> true | _ -> false) kwds
                      (*     then start ^ "fun " ^ String.concat "\nand " hdrs ^ " where\n\t\t  " ^ String.concat "\n\t\t| " clauses ^ "\n\n" *)
@@ -980,12 +984,21 @@ let rec filter_def def =
 let is_wf_func_hint h = h.hintid.it = Middlend.Undep.wf_func_id
 let is_wf_rel_hint h = h.hintid.it = Middlend.Undep.wf_rel_id
 
-let register_hints env def =
+let rec register_hints env def =
   match def.it with
   | HintD { it = RelH (id, hints); _} when List.exists is_wf_func_hint hints ->
-    env.wf_lemma_set <- StringSet.add id.it env.wf_lemma_set
+     begin match (List.find_opt is_wf_func_hint hints) with
+     | Some {hintexp = { it = El.Ast.BoolE is_axiom; _} ; _} ->
+        env.wf_lemma_map <- StringMap.add id.it is_axiom env.wf_lemma_map
+     | _ -> ()
+     end
   | HintD { it = RelH (id, hints); _} when List.exists is_wf_rel_hint hints ->
-    env.wf_lemma_set <- StringSet.add id.it env.wf_lemma_set
+     begin match (List.find_opt is_wf_rel_hint hints) with
+     | Some {hintexp = { it = El.Ast.BoolE is_axiom; _ } ; _} ->
+        env.wf_lemma_map <- StringMap.add id.it is_axiom env.wf_lemma_map
+     | _ -> ()
+     end
+  | RecD defs -> List.iter (register_hints env) defs
 (*  | HintD {it = DecH (id, hints); _} when List.exists is_partial_hint hints ->
     register_partial id *)
   | _ -> ()

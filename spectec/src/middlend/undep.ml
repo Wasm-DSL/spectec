@@ -241,8 +241,8 @@ let get_exp_typ q =
   | _ -> None
 
 let generate_well_formed_rel_hint id at: hint = { hintid = wf_hint_id $ at; hintexp = El.Ast.VarE (id, []) $ at} 
-let generate_well_formed_func_hint at: hint = { hintid = wf_func_id $ at; hintexp = El.Ast.SeqE [] $ at} 
-let generate_well_formed_rel_lemma_hint at: hint = { hintid = wf_rel_id $ at; hintexp = El.Ast.SeqE [] $ at} 
+let generate_well_formed_func_hint at is_axiom: hint = { hintid = wf_func_id $ at; hintexp = El.Ast.BoolE is_axiom $ at} 
+let generate_well_formed_rel_lemma_hint at is_axiom: hint = { hintid = wf_rel_id $ at; hintexp = El.Ast.BoolE is_axiom $ at} 
 
 let create_well_formed_predicate env id inst = 
   let tf = { base_transformer with transform_exp = t_exp env; transform_typ = t_typ} in
@@ -570,7 +570,7 @@ let rec return_type_needs_wfness env (rt : typ) : bool =
   | _ -> false
 
 (* HACK: Lemma is actually represented as a relation *)
-let generate_wf_lemma_func env tf id params rtyp = 
+let generate_wf_lemma_func env tf id params rtyp clauses = 
   let lemma_name = id.it ^ wf_lemma_suffix in 
   let params' = Utils.improve_ids_params params in 
   let wf_prems = List.concat_map (fun p -> match p.it with
@@ -609,14 +609,14 @@ let generate_wf_lemma_func env tf id params rtyp =
     wf_prems @ [fcall_prem] @ wf_conclusion
   ) $ id.at
   in
-  let hint = HintD (RelH (lemma_name $ id.at, [generate_well_formed_func_hint id.at]) $ id.at) $ id.at in 
+  let hint = HintD (RelH (lemma_name $ id.at, [generate_well_formed_func_hint id.at (clauses = [])]) $ id.at) $ id.at in 
   let relation = RelD (lemma_name $ id.at, 
     List.map (transform_param tf) fixed, new_mixop, 
     transform_typ tf tupt, 
     [transform_rule tf rule]) $ id.at in
   [hint; relation]
 
-let generate_wf_lemma_rel env mop tf id params typ modemap = 
+let generate_wf_lemma_rel env mop tf id params typ modemap rules = 
   let typs = match typ.it with
     | TupT typs' -> List.mapi (fun i (tid, t) -> 
       let new_id = "var_" ^ Int.to_string i in 
@@ -644,7 +644,7 @@ let generate_wf_lemma_rel env mop tf id params typ modemap =
   let new_mixop = Xl.Mixop.(Seq (List.init (List.length quants) (fun _ -> Arg ()))) in
   if outs = [] || wf_outputs = [] then [] else (* No need to generate lemma for bool outputs *)
   let rule = RuleD (lemma_name ^ "_0" $ id.at, params @ quants, new_mixop, tupe, wf_inputs @ [rel_pr] @ wf_outputs) $ id.at in
-  let hint = HintD (RelH (lemma_name $ id.at, [generate_well_formed_rel_lemma_hint id.at]) $ id.at) $ id.at in 
+  let hint = HintD (RelH (lemma_name $ id.at, [generate_well_formed_rel_lemma_hint id.at (rules = [])]) $ id.at) $ id.at in 
   let relation = 
     RelD (lemma_name $ id.at, 
     params, 
@@ -666,7 +666,7 @@ let rec t_def env def =
   | RelD (id, params, m, typ, rules) -> 
     let modemap, wf_lemma = 
       match (Hints.find_opt id.it env.il_hintenv.modes) with
-      | Some modemap -> modemap, generate_wf_lemma_rel env m tf id params typ modemap
+      | Some modemap -> modemap, generate_wf_lemma_rel env m tf id params typ modemap rules
       | _ -> Hints.IntMap.empty, []
     in
     (RelD (id, List.map (transform_param tf) params |> List.filter is_type_param, m, transform_typ tf typ, List.map (t_rule modemap id env) rules) $ def.at, wf_lemma)
@@ -680,7 +680,7 @@ let rec t_def env def =
     let is_proj_func = StringSet.mem id.it env.proj_set in
     let t_d = if StringSet.mem id.it env.proj_set then remove_unused_params d else d in
     let wf_lemma = if !wf_state = WfMinimal && can_optimize id env && return_type_needs_wfness env typ && not is_proj_func 
-      then generate_wf_lemma_func env tf id params typ 
+      then generate_wf_lemma_func env tf id params typ clauses
       else [] 
     in
     (t_d, wf_lemma)
