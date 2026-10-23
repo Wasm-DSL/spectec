@@ -360,12 +360,9 @@ qed
 
 
 lemma numtype_size_simps:
-  "numtype_Inn Inn_I32 = I32" "numtype_Inn Inn_I64 = I64"
   "numtype_Fnn Fnn_F32 = F32" "numtype_Fnn Fnn_F64 = F64"
   "valtype_Inn Inn_I32 = valtype_I32" "valtype_Inn Inn_I64 = valtype_I64"
   "valtype_Fnn Fnn_F32 = valtype_F32" "valtype_Fnn Fnn_F64 = valtype_F64"
-  "size valtype_I32 = Some 32" "size valtype_I64 = Some 64"
-  "size valtype_F32 = Some 32" "size valtype_F64 = Some 64"
   "sizenn I32 = 32" "sizenn I64 = 64" "sizenn F32 = 32" "sizenn F64 = 64"
   "sizenn1 I32 = 32" "sizenn1 I64 = 64" "sizenn1 F32 = 32" "sizenn1 F64 = 64"
   "sizenn2 I32 = 32" "sizenn2 I64 = 64" "sizenn2 F32 = 32" "sizenn2 F64 = 64"
@@ -1197,6 +1194,2828 @@ proof -
       by (cases fnn_1; cases fnn_2; cases x) (auto intro!: exI fun_cvtop__underscore.intros)
   qed
 qed
+
+
+(* Totality of the SIMD (V128) semantic relations on well-formed inputs, used by the
+   vector cases of the progress theorem.  The generated relations are partial functions
+   with a fall-through `None` case; the lemmas here show that well-formed shapes,
+   operators and vectors always hit one of the `Some` cases. *)
+
+section \<open>Simplification facts\<close>
+
+lemma vt_simps:
+  "lanetype_Jnn Jnn_I32 = lanetype_I32" "lanetype_Jnn Jnn_I64 = lanetype_I64"
+  "lanetype_Jnn Jnn_I8 = lanetype_I8" "lanetype_Jnn Jnn_I16 = lanetype_I16"
+  "lanetype_Fnn Fnn_F32 = lanetype_F32" "lanetype_Fnn Fnn_F64 = lanetype_F64"
+  "lanetype_Inn Inn_I32 = lanetype_I32" "lanetype_Inn Inn_I64 = lanetype_I64"
+  "lanetype_packtype I8 = lanetype_I8" "lanetype_packtype I16 = lanetype_I16"
+  "lanetype_numtype I32 = lanetype_I32" "lanetype_numtype I64 = lanetype_I64"
+  "lanetype_numtype F32 = lanetype_F32" "lanetype_numtype F64 = lanetype_F64"
+  "Jnn_packtype I8 = Jnn_I8" "Jnn_packtype I16 = Jnn_I16"
+  "Jnn_Inn Inn_I32 = Jnn_I32" "Jnn_Inn Inn_I64 = Jnn_I64"
+  "numtype_Fnn Fnn_F32 = F32" "numtype_Fnn Fnn_F64 = F64"
+  "valtype_Inn Inn_I32 = valtype_I32" "valtype_Inn Inn_I64 = valtype_I64"
+  "valtype_Fnn Fnn_F32 = valtype_F32" "valtype_Fnn Fnn_F64 = valtype_F64"
+  "valtype_vectype V128 = valtype_V128"
+  "sizenn I32 = 32" "sizenn I64 = 64" "sizenn F32 = 32" "sizenn F64 = 64"
+  "sizenn1 I32 = 32" "sizenn1 I64 = 64" "sizenn1 F32 = 32" "sizenn1 F64 = 64"
+  "sizenn2 I32 = 32" "sizenn2 I64 = 64" "sizenn2 F32 = 32" "sizenn2 F64 = 64"
+  "lsize lanetype_I32 = 32" "lsize lanetype_I64 = 64" "lsize lanetype_F32 = 32"
+  "lsize lanetype_F64 = 64" "lsize lanetype_I8 = 8" "lsize lanetype_I16 = 16"
+  "psize I8 = 8" "psize I16 = 16"
+  "isize Inn_I32 = 32" "isize Inn_I64 = 64"
+  "unpack lanetype_I32 = I32" "unpack lanetype_I64 = I64" "unpack lanetype_F32 = F32"
+  "unpack lanetype_F64 = F64" "unpack lanetype_I8 = I32" "unpack lanetype_I16 = I32"
+  by (simp_all add: lanetype_Jnn.psimps lanetype_Jnn.domintros lanetype_Fnn.psimps
+      lanetype_Fnn.domintros lanetype_Inn.psimps lanetype_Inn.domintros
+      lanetype_packtype.psimps lanetype_packtype.domintros lanetype_numtype.psimps
+      lanetype_numtype.domintros Jnn_packtype.psimps Jnn_packtype.domintros
+      Jnn_Inn.psimps Jnn_Inn.domintros numtype_Inn.psimps numtype_Inn.domintros
+      numtype_Fnn.psimps numtype_Fnn.domintros valtype_Inn.psimps valtype_Inn.domintros
+      valtype_Fnn.psimps valtype_Fnn.domintros valtype_vectype.psimps valtype_vectype.domintros
+      size.psimps size.domintros sizenn.psimps sizenn.domintros sizenn1.psimps
+      sizenn1.domintros sizenn2.psimps sizenn2.domintros valtype_numtype.psimps
+      valtype_numtype.domintros lsize.psimps lsize.domintros psize.psimps psize.domintros
+      isize.psimps isize.domintros unpack.psimps unpack.domintros)
+
+lemma vt_generic_simps:
+  "lsizenn lt = lsize lt" "lsizenn1 lt = lsize lt" "lsizenn2 lt = lsize lt"
+  "fun_lanetype (X lt (mk_dim n)) = lt" "fun_dim (X lt (mk_dim n)) = mk_dim n"
+  "proj_dim_0 (mk_dim n) = n" "proj_ishape_0 (mk_ishape sh) = sh"
+  "shunpack (X lt (mk_dim n)) = unpack lt"
+  "proj_lane__0 (mk_lane__0 j x) = Some x" "proj_lane__0 (mk_lane__1 f y) = None"
+  "proj_lane__1 (mk_lane__1 f y) = Some y" "proj_lane__1 (mk_lane__0 j x) = None"
+  "proj_num__0 (mk_num__0 inn u) = Some u"
+  "res_bool True = 1" "res_bool False = 0"
+  "list_underscore None = []" "list_underscore (Some w) = [w]"
+  by (simp_all add: lsizenn.psimps lsizenn.domintros lsizenn1.psimps lsizenn1.domintros
+      lsizenn2.psimps lsizenn2.domintros fun_lanetype.psimps fun_lanetype.domintros
+      fun_dim.psimps fun_dim.domintros proj_dim_0.psimps proj_dim_0.domintros
+      proj_ishape_0.psimps proj_ishape_0.domintros shunpack.psimps shunpack.domintros
+      proj_uN_0.psimps proj_uN_0.domintros proj_lane__0.psimps proj_lane__0.domintros
+      proj_lane__1.psimps proj_lane__1.domintros proj_num__0.psimps proj_num__0.domintros
+      res_bool.psimps res_bool.domintros list_underscore.psimps list_underscore.domintros)
+
+lemmas vt_all_simps = vt_simps vt_generic_simps
+
+lemma lanetype_Jnn_inj: "lanetype_Jnn a = lanetype_Jnn b \<Longrightarrow> a = b"
+  by (cases a; cases b) (simp_all add: vt_simps)
+
+lemma lanetype_Fnn_inj: "lanetype_Fnn a = lanetype_Fnn b \<Longrightarrow> a = b"
+  by (cases a; cases b) (simp_all add: vt_simps)
+
+lemma lanetype_Jnn_Fnn_diff: "lanetype_Jnn a \<noteq> lanetype_Fnn b"
+  by (cases a; cases b) (simp_all add: vt_simps)
+
+lemma wf_V128_val: "wf_val (val_VCONST V128 c) \<Longrightarrow> wf_uN 128 c"
+  by (auto elim: wf_val.cases simp: vt_simps)
+
+section \<open>Lanes of a well-formed vector\<close>
+
+lemma map_decomp:
+  assumes "\<forall>l\<in>set L. \<exists>x. l = f x \<and> P x"
+  shows "\<exists>xs. L = map f xs \<and> (\<forall>x\<in>set xs. P x)"
+  using assms
+proof (induction L)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons a L)
+  then obtain x xs where "a = f x" "P x" "L = map f xs" "\<forall>x\<in>set xs. P x" by auto
+  then show ?case by (intro exI[of _ "x # xs"]) simp
+qed
+
+lemma lanes_Jnn:
+  assumes "wf_shape (X (lanetype_Jnn J) (mk_dim M))" "wf_uN 128 v"
+  shows "\<exists>xs. lanes_underscore (X (lanetype_Jnn J) (mk_dim M)) v = map (mk_lane__0 J) xs
+    \<and> (\<forall>x\<in>set xs. wf_uN (lsize (lanetype_Jnn J)) x) \<and> length xs = M"
+proof -
+  let ?L = "lanes_underscore (X (lanetype_Jnn J) (mk_dim M)) v"
+  have wf: "\<forall>l\<in>set ?L. wf_lane_underscore (lanetype_Jnn J) l"
+    using lanes__is_wf[OF assms HOL.refl] by (simp add: list_all_iff vt_generic_simps)
+  have "\<forall>l\<in>set ?L. \<exists>x. l = mk_lane__0 J x \<and> wf_uN (lsize (lanetype_Jnn J)) x"
+  proof
+    fix l assume "l \<in> set ?L"
+    then have "wf_lane_underscore (lanetype_Jnn J) l" using wf by blast
+    then show "\<exists>x. l = mk_lane__0 J x \<and> wf_uN (lsize (lanetype_Jnn J)) x"
+    proof cases
+      case (lane__case_0 J' x)
+      then show ?thesis using lanetype_Jnn_inj by metis
+    next
+      case (lane__case_1 F y)
+      then show ?thesis using lanetype_Jnn_Fnn_diff by metis
+    qed
+  qed
+  then obtain xs where xs: "?L = map (mk_lane__0 J) xs" "\<forall>x\<in>set xs. wf_uN (lsize (lanetype_Jnn J)) x"
+    using map_decomp[where f = "mk_lane__0 J"] by blast
+  moreover have "length xs = M"
+    using xs(1) length_lanes[of "lanetype_Jnn J" M v] by simp
+  ultimately show ?thesis by blast
+qed
+
+lemma lanes_Fnn:
+  assumes "wf_shape (X (lanetype_Fnn F) (mk_dim M))" "wf_uN 128 v"
+  shows "\<exists>xs. lanes_underscore (X (lanetype_Fnn F) (mk_dim M)) v = map (mk_lane__1 F) xs
+    \<and> (\<forall>x\<in>set xs. wf_fN (sizenn (numtype_Fnn F)) x) \<and> length xs = M"
+proof -
+  let ?L = "lanes_underscore (X (lanetype_Fnn F) (mk_dim M)) v"
+  have wf: "\<forall>l\<in>set ?L. wf_lane_underscore (lanetype_Fnn F) l"
+    using lanes__is_wf[OF assms HOL.refl] by (simp add: list_all_iff vt_generic_simps)
+  have "\<forall>l\<in>set ?L. \<exists>x. l = mk_lane__1 F x \<and> wf_fN (sizenn (numtype_Fnn F)) x"
+  proof
+    fix l assume "l \<in> set ?L"
+    then have "wf_lane_underscore (lanetype_Fnn F) l" using wf by blast
+    then show "\<exists>x. l = mk_lane__1 F x \<and> wf_fN (sizenn (numtype_Fnn F)) x"
+    proof cases
+      case (lane__case_0 J x)
+      then show ?thesis using lanetype_Jnn_Fnn_diff by metis
+    next
+      case (lane__case_1 F' y)
+      then show ?thesis using lanetype_Fnn_inj by metis
+    qed
+  qed
+  then obtain xs where xs: "?L = map (mk_lane__1 F) xs" "\<forall>x\<in>set xs. wf_fN (sizenn (numtype_Fnn F)) x"
+    using map_decomp[where f = "mk_lane__1 F"] by blast
+  moreover have "length xs = M"
+    using xs(1) length_lanes[of "lanetype_Fnn F" M v] by simp
+  ultimately show ?thesis by blast
+qed
+
+section \<open>List construction lemmas\<close>
+
+lemma length_list_zipWith: "length (list_zipWith f A B) = Orderings.min (length A) (length B)"
+  by (simp add: list_zipWith_def)
+
+lemma list_all2_mapI:
+  assumes "\<And>a. a \<in> set A \<Longrightarrow> P (f a) a"
+  shows "list_all2 P (map f A) A"
+  using assms by (induction A) auto
+
+lemma list_all_mapI:
+  assumes "\<And>a. a \<in> set A \<Longrightarrow> P (f a)"
+  shows "list_all P (map f A)"
+  using assms by (induction A) auto
+
+lemma vt_list_allI:
+  assumes "\<And>a. a \<in> set A \<Longrightarrow> P a"
+  shows "list_all P A"
+  using assms by (simp add: list_all_iff)
+
+lemma list_all2_setI:
+  assumes "length A = length B" "\<And>a b. a \<in> set A \<Longrightarrow> b \<in> set B \<Longrightarrow> P a b"
+  shows "list_all2 P A B"
+  using assms
+proof (induction A arbitrary: B)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons a A)
+  then show ?case by (cases B) auto
+qed
+
+lemma list_all3_zipWithI:
+  assumes "length A = length B" "\<And>a b. a \<in> set A \<Longrightarrow> b \<in> set B \<Longrightarrow> P (f a b) a b"
+  shows "list_all3 P (list_zipWith f A B) A B"
+  using assms
+proof (induction A arbitrary: B)
+  case Nil
+  then show ?case by (simp add: list_zipWith_def list_all3.intros(1))
+next
+  case (Cons a A)
+  then obtain b B' where "B = b # B'" by (cases B) auto
+  then show ?case using Cons
+    by (auto simp: list_zipWith_def intro!: list_all3.intros(2))
+qed
+
+lemma set_list_zipWithD: "a \<in> set (list_zipWith f A B) \<Longrightarrow> \<exists>x\<in>set A. \<exists>y\<in>set B. a = f x y"
+  by (auto simp: list_zipWith_def dest: set_zip_leftD set_zip_rightD)
+
+lemma list_all_zipWithI:
+  assumes "\<And>a b. a \<in> set A \<Longrightarrow> b \<in> set B \<Longrightarrow> P (f a b)"
+  shows "list_all P (list_zipWith f A B)"
+  using assms by (auto simp: list_zipWith_def list_all_iff dest: set_zip_leftD set_zip_rightD)
+
+section \<open>Integer lane operations\<close>
+
+lemma wf_uN_bound: "wf_uN n x \<Longrightarrow> 0 \<le> proj_uN_0 x \<and> proj_uN_0 x \<le> 2 ^ n - 1"
+  by (auto elim: wf_uN.cases simp: vt_generic_simps)
+
+lemma vt_signed_ex: "wf_uN n x \<Longrightarrow> \<exists>r. fun_signed_underscore n (proj_uN_0 x) r"
+  using fun_signed_underscore_total wf_uN_bound by blast
+
+lemma vt_inv_signed_ex: "c \<le> 2 ^ (n - 1) - 1 \<Longrightarrow> \<exists>r. fun_inv_signed_underscore n c r"
+  using fun_inv_signed_underscore_total by fastforce
+
+lemma sat_s_bound: "sat_s_underscore n i \<le> 2 ^ (n - 1) - 1"
+  by (simp add: sat_s_underscore.psimps sat_s_underscore.domintros)
+
+lemma res_bool_le1: "res_bool b \<le> Suc 0"
+  by (cases b) (simp_all add: vt_generic_simps)
+
+lemma iabs_ex: "wf_uN n x \<Longrightarrow> \<exists>r. fun_iabs_underscore n x r"
+  using vt_signed_ex fun_iabs_underscore.intros by blast
+
+lemma iminmax_ex:
+  assumes "wf_uN n x" "wf_uN n y"
+  shows "\<exists>r. fun_imin_underscore n sx x y r" "\<exists>r. fun_imax_underscore n sx x y r"
+proof -
+  obtain a b where "fun_signed_underscore n (proj_uN_0 y) b" "fun_signed_underscore n (proj_uN_0 x) a"
+    using vt_signed_ex assms by blast
+  then show "\<exists>r. fun_imin_underscore n sx x y r" "\<exists>r. fun_imax_underscore n sx x y r"
+    by (cases sx; metis not_le fun_imin_underscore.intros fun_imax_underscore.intros)+
+qed
+
+lemma isat_ex:
+  assumes "wf_uN n x" "wf_uN n y"
+  shows "\<exists>r. fun_iadd_sat_underscore n sx x y r" "\<exists>r. fun_isub_sat_underscore n sx x y r"
+proof -
+  obtain a b where ab: "fun_signed_underscore n (proj_uN_0 y) b" "fun_signed_underscore n (proj_uN_0 x) a"
+    using vt_signed_ex assms by blast
+  obtain r1 r2 where "fun_inv_signed_underscore n (sat_s_underscore n (a + b)) r1"
+      "fun_inv_signed_underscore n (sat_s_underscore n (a - b)) r2"
+    using vt_inv_signed_ex[OF sat_s_bound] by blast
+  then show "\<exists>r. fun_iadd_sat_underscore n sx x y r" "\<exists>r. fun_isub_sat_underscore n sx x y r"
+    using ab by (cases sx; blast intro: fun_iadd_sat_underscore.intros fun_isub_sat_underscore.intros)+
+qed
+
+lemmas imin_ex = iminmax_ex(1) and imax_ex = iminmax_ex(2)
+  and iadd_sat_ex = isat_ex(1) and isub_sat_ex = isat_ex(2)
+
+lemma icmp_ex:
+  assumes "wf_uN n x" "wf_uN n y"
+  shows "\<exists>r. fun_ilt_underscore n sx x y r" "\<exists>r. fun_igt_underscore n sx x y r"
+    "\<exists>r. fun_ile_underscore n sx x y r" "\<exists>r. fun_ige_underscore n sx x y r"
+proof -
+  obtain a b where "fun_signed_underscore n (proj_uN_0 y) b" "fun_signed_underscore n (proj_uN_0 x) a"
+    using vt_signed_ex assms by blast
+  then show "\<exists>r. fun_ilt_underscore n sx x y r" "\<exists>r. fun_igt_underscore n sx x y r"
+    "\<exists>r. fun_ile_underscore n sx x y r" "\<exists>r. fun_ige_underscore n sx x y r"
+    by (cases sx; blast intro: fun_ilt_underscore.intros fun_igt_underscore.intros
+        fun_ile_underscore.intros fun_ige_underscore.intros)+
+qed
+
+lemmas ilt_ex = icmp_ex(1) and igt_ex = icmp_ex(2) and ile_ex = icmp_ex(3) and ige_ex = icmp_ex(4)
+
+(* "SOME" forms: the chosen result is related to the inputs and is well-formed.  They have
+   specific conclusions so they can be used as intro rules in the case proofs below. *)
+
+lemmas iabs_some = someI_ex[OF iabs_ex]
+lemma iabs_some_wf: "wf_uN n x \<Longrightarrow> wf_uN n (SOME r. fun_iabs_underscore n x r)"
+  using iabs__is_wf[OF iabs_some _ HOL.refl] by blast
+
+lemmas imin_some = someI_ex[OF imin_ex]
+lemma imin_some_wf: "wf_uN n x \<Longrightarrow> wf_uN n y \<Longrightarrow> wf_uN n (SOME r. fun_imin_underscore n sx x y r)"
+  using imin__is_wf[OF imin_some _ _ HOL.refl] by blast
+
+lemmas imax_some = someI_ex[OF imax_ex]
+lemma imax_some_wf: "wf_uN n x \<Longrightarrow> wf_uN n y \<Longrightarrow> wf_uN n (SOME r. fun_imax_underscore n sx x y r)"
+  using imax__is_wf[OF imax_some _ _ HOL.refl] by blast
+
+lemmas iadd_sat_some = someI_ex[OF iadd_sat_ex]
+lemma iadd_sat_some_wf: "wf_uN n x \<Longrightarrow> wf_uN n y \<Longrightarrow> wf_uN n (SOME r. fun_iadd_sat_underscore n sx x y r)"
+  using iadd_sat__is_wf[OF iadd_sat_some _ _ HOL.refl] by blast
+
+lemmas isub_sat_some = someI_ex[OF isub_sat_ex]
+lemma isub_sat_some_wf: "wf_uN n x \<Longrightarrow> wf_uN n y \<Longrightarrow> wf_uN n (SOME r. fun_isub_sat_underscore n sx x y r)"
+  using isub_sat__is_wf[OF isub_sat_some _ _ HOL.refl] by blast
+
+lemmas ilt_some = someI_ex[OF ilt_ex]
+lemmas igt_some = someI_ex[OF igt_ex]
+lemmas ile_some = someI_ex[OF ile_ex]
+lemmas ige_some = someI_ex[OF ige_ex]
+
+(* Comparison results are booleans, so they fit in a single bit.  In this context `1` is
+   simplified to `Suc 0`, so the bit lemmas are stated with `Suc 0`; `mk_uN (proj_uN_0 u)`
+   simplifies to `u` (mk_uN_proj), so they are stated on `u` directly. *)
+lemma mk_uN_proj: "mk_uN (proj_uN_0 u) = u"
+  by (cases u) (simp add: vt_generic_simps)
+
+lemma wf_uN_1I: "proj_uN_0 u \<le> 1 \<Longrightarrow> wf_uN (Suc 0) u"
+  by (cases u) (auto simp: vt_generic_simps intro!: wf_uN.intros)
+
+lemma icmp_bit:
+  "fun_ilt_underscore n sx x y r \<Longrightarrow> wf_uN (Suc 0) r"
+  "fun_igt_underscore n sx x y r \<Longrightarrow> wf_uN (Suc 0) r"
+  "fun_ile_underscore n sx x y r \<Longrightarrow> wf_uN (Suc 0) r"
+  "fun_ige_underscore n sx x y r \<Longrightarrow> wf_uN (Suc 0) r"
+  by (auto elim!: fun_ilt_underscore.cases fun_igt_underscore.cases fun_ile_underscore.cases
+      fun_ige_underscore.cases intro!: wf_uN_1I simp: vt_generic_simps res_bool_le1)
+
+lemma ieq_bit: "wf_uN (Suc 0) (ieq_underscore n x y)"
+  by (rule wf_uN_1I) (simp add: ieq_underscore.psimps ieq_underscore.domintros vt_generic_simps res_bool_le1)
+lemma ine_bit: "wf_uN (Suc 0) (ine_underscore n x y)"
+  by (rule wf_uN_1I) (simp add: ine_underscore.psimps ine_underscore.domintros vt_generic_simps res_bool_le1)
+
+lemmas icmp_some_bit = icmp_bit(1)[OF ilt_some] icmp_bit(2)[OF igt_some] icmp_bit(3)[OF ile_some]
+  icmp_bit(4)[OF ige_some]
+
+lemma frel_bits:
+  "wf_uN (Suc 0) (feq_underscore n x y)" "wf_uN (Suc 0) (fne_underscore n x y)"
+  "wf_uN (Suc 0) (flt_underscore n x y)" "wf_uN (Suc 0) (fgt_underscore n x y)"
+  "wf_uN (Suc 0) (fle_underscore n x y)" "wf_uN (Suc 0) (fge_underscore n x y)"
+  by (rule wf_uN_1I, rule frel_bool)+
+
+lemmas bit_lemmas = ieq_bit ine_bit icmp_some_bit frel_bits
+
+section \<open>Float lane operations\<close>
+
+lemma flane_wf32: "list_all (wf_fN 32) l \<Longrightarrow> list_all (\<lambda>it. wf_lane_underscore lanetype_F32 (mk_lane__1 Fnn_F32 it)) l"
+  by (auto simp: list_all_iff vt_simps intro!: lane__case_1)
+lemma flane_wf64: "list_all (wf_fN 64) l \<Longrightarrow> list_all (\<lambda>it. wf_lane_underscore lanetype_F64 (mk_lane__1 Fnn_F64 it)) l"
+  by (auto simp: list_all_iff vt_simps intro!: lane__case_1)
+
+lemmas flane_unop =
+  flane_wf32[OF fabs__is_wf[OF _ HOL.refl]] flane_wf64[OF fabs__is_wf[OF _ HOL.refl]]
+  flane_wf32[OF fneg__is_wf[OF _ HOL.refl]] flane_wf64[OF fneg__is_wf[OF _ HOL.refl]]
+  flane_wf32[OF fsqrt__is_wf[OF _ HOL.refl]] flane_wf64[OF fsqrt__is_wf[OF _ HOL.refl]]
+  flane_wf32[OF fceil__is_wf[OF _ HOL.refl]] flane_wf64[OF fceil__is_wf[OF _ HOL.refl]]
+  flane_wf32[OF ffloor__is_wf[OF _ HOL.refl]] flane_wf64[OF ffloor__is_wf[OF _ HOL.refl]]
+  flane_wf32[OF ftrunc__is_wf[OF _ HOL.refl]] flane_wf64[OF ftrunc__is_wf[OF _ HOL.refl]]
+  flane_wf32[OF fnearest__is_wf[OF _ HOL.refl]] flane_wf64[OF fnearest__is_wf[OF _ HOL.refl]]
+
+lemmas flane_binop =
+  flane_wf32[OF fadd__is_wf[OF _ _ HOL.refl]] flane_wf64[OF fadd__is_wf[OF _ _ HOL.refl]]
+  flane_wf32[OF fsub__is_wf[OF _ _ HOL.refl]] flane_wf64[OF fsub__is_wf[OF _ _ HOL.refl]]
+  flane_wf32[OF fmul__is_wf[OF _ _ HOL.refl]] flane_wf64[OF fmul__is_wf[OF _ _ HOL.refl]]
+  flane_wf32[OF fdiv__is_wf[OF _ _ HOL.refl]] flane_wf64[OF fdiv__is_wf[OF _ _ HOL.refl]]
+  flane_wf32[OF fmin__is_wf[OF _ _ HOL.refl]] flane_wf64[OF fmin__is_wf[OF _ _ HOL.refl]]
+  flane_wf32[OF fmax__is_wf[OF _ _ HOL.refl]] flane_wf64[OF fmax__is_wf[OF _ _ HOL.refl]]
+  flane_wf32[OF fpmin__is_wf[OF _ _ HOL.refl]] flane_wf64[OF fpmin__is_wf[OF _ _ HOL.refl]]
+  flane_wf32[OF fpmax__is_wf[OF _ _ HOL.refl]] flane_wf64[OF fpmax__is_wf[OF _ _ HOL.refl]]
+
+(* Float comparisons produce integer lanes of the same width. *)
+lemma wf_shape_F32_I32: "wf_shape (X lanetype_F32 d) \<Longrightarrow> wf_shape (X lanetype_I32 d)"
+  by (auto elim!: wf_shape.cases intro!: wf_shape.intros simp: vt_simps)
+lemma wf_shape_F64_I64: "wf_shape (X lanetype_F64 d) \<Longrightarrow> wf_shape (X lanetype_I64 d)"
+  by (auto elim!: wf_shape.cases intro!: wf_shape.intros simp: vt_simps)
+
+section \<open>Rule sets for the case lemmas\<close>
+
+lemmas vt_list_intros = list_all2_mapI list_all3_zipWithI list_all_mapI list_all_zipWithI
+  list_all2_setI vt_list_allI
+
+lemmas vt_case_simps = vt_all_simps mk_uN_proj length_list_zipWith
+
+lemmas vt_case_intros = lane__case_0 lane__case_1
+  iabs_some iabs_some_wf imin_some imin_some_wf imax_some imax_some_wf
+  iadd_sat_some iadd_sat_some_wf isub_sat_some isub_sat_some_wf
+  ilt_some igt_some ile_some ige_some bit_lemmas
+  iadd__is_wf[OF _ _ HOL.refl] isub__is_wf[OF _ _ HOL.refl] imul__is_wf[OF _ _ HOL.refl]
+  ineg__is_wf[OF _ HOL.refl] ipopcnt__is_wf[OF _ HOL.refl]
+  iavgr__is_wf[OF _ _ HOL.refl] iq15mulr_sat__is_wf[OF _ _ HOL.refl]
+  ishl__is_wf[OF _ _ HOL.refl] ishr__is_wf[OF _ _ HOL.refl]
+  extend___is_wf[OF _ HOL.refl]
+  flane_unop flane_binop wf_shape_F32_I32 wf_shape_F64_I64
+
+section \<open>Case lemmas: one per `Some` rule of fun_vunop, fun_vbinop and fun_vrelop\<close>
+
+lemma fun_vunop_underscore_case_0:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 v_M vunop_Jnn_N_ABS) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(1)[where var_1_lst = "map (\<lambda> lane_1_3. SOME var_1. (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__0 lane_1_3))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1))" and var_0_lst = "map (\<lambda> lane_1_2. SOME var_0. (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__0 lane_1_2))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I32 var_0)) (map (\<lambda> lane_1_2. SOME var_0. (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__0 lane_1_2))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_1:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 v_M vunop_Jnn_N_ABS) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(2)[where var_1_lst = "map (\<lambda> lane_1_6. SOME var_1. (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__0 lane_1_6))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1))" and var_0_lst = "map (\<lambda> lane_1_5. SOME var_0. (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__0 lane_1_5))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I64 var_0)) (map (\<lambda> lane_1_5. SOME var_0. (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__0 lane_1_5))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_2:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 v_M vunop_Jnn_N_ABS) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(3)[where var_1_lst = "map (\<lambda> lane_1_9. SOME var_1. (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__0 lane_1_9))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1))" and var_0_lst = "map (\<lambda> lane_1_8. SOME var_0. (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__0 lane_1_8))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I8 var_0)) (map (\<lambda> lane_1_8. SOME var_0. (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__0 lane_1_8))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_3:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 v_M vunop_Jnn_N_ABS) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(4)[where var_1_lst = "map (\<lambda> lane_1_12. SOME var_1. (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__0 lane_1_12))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1))" and var_0_lst = "map (\<lambda> lane_1_11. SOME var_0. (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__0 lane_1_11))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I16 var_0)) (map (\<lambda> lane_1_11. SOME var_0. (fun_iabs_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__0 lane_1_11))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_4:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 v_M vunop_Jnn_N_NEG) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(5)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_1_14 :: lane_underscore). (mk_lane__0 Jnn_I32 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__0 lane_1_14)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_5:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 v_M vunop_Jnn_N_NEG) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(6)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_1_17 :: lane_underscore). (mk_lane__0 Jnn_I64 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__0 lane_1_17)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_6:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 v_M vunop_Jnn_N_NEG) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(7)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_1_20 :: lane_underscore). (mk_lane__0 Jnn_I8 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__0 lane_1_20)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_7:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 v_M vunop_Jnn_N_NEG) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(8)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_1_23 :: lane_underscore). (mk_lane__0 Jnn_I16 (ineg_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__0 lane_1_23)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_8:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vunop__0 Jnn_I32 v_M vunop_Jnn_N_POPCNT) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(9)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_1_26 :: lane_underscore). (mk_lane__0 Jnn_I32 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__0 lane_1_26)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_9:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vunop__0 Jnn_I64 v_M vunop_Jnn_N_POPCNT) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(10)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_1_29 :: lane_underscore). (mk_lane__0 Jnn_I64 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__0 lane_1_29)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_10:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vunop__0 Jnn_I8 v_M vunop_Jnn_N_POPCNT) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(11)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_1_32 :: lane_underscore). (mk_lane__0 Jnn_I8 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__0 lane_1_32)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_11:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vunop__0 Jnn_I16 v_M vunop_Jnn_N_POPCNT) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(12)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_1_35 :: lane_underscore). (mk_lane__0 Jnn_I16 (ipopcnt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__0 lane_1_35)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_12:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 v_M vunop_Fnn_N_ABS) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(13)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_lst_lst = "(setproduct_underscore  (map (\<lambda> (lane_1_38 :: lane_underscore). (map (\<lambda> (iter_0_71 :: fN). (mk_lane__1 Fnn_F32 iter_0_71)) (fabs_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_38)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1))))" and v128_lst = "(map (\<lambda> (lane_lst_2 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_2)) ((setproduct_underscore  (map (\<lambda> (lane_1_38 :: lane_underscore). (map (\<lambda> (iter_0_71 :: fN). (mk_lane__1 Fnn_F32 iter_0_71)) (fabs_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_38)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_13:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 v_M vunop_Fnn_N_ABS) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(14)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_lst_lst = "(setproduct_underscore  (map (\<lambda> (lane_1_41 :: lane_underscore). (map (\<lambda> (iter_0_73 :: fN). (mk_lane__1 Fnn_F64 iter_0_73)) (fabs_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_41)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1))))" and v128_lst = "(map (\<lambda> (lane_lst_4 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_4)) ((setproduct_underscore  (map (\<lambda> (lane_1_41 :: lane_underscore). (map (\<lambda> (iter_0_73 :: fN). (mk_lane__1 Fnn_F64 iter_0_73)) (fabs_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_41)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_14:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 v_M vunop_Fnn_N_NEG) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(15)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_lst_lst = "(setproduct_underscore  (map (\<lambda> (lane_1_44 :: lane_underscore). (map (\<lambda> (iter_0_75 :: fN). (mk_lane__1 Fnn_F32 iter_0_75)) (fneg_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_44)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1))))" and v128_lst = "(map (\<lambda> (lane_lst_6 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_6)) ((setproduct_underscore  (map (\<lambda> (lane_1_44 :: lane_underscore). (map (\<lambda> (iter_0_75 :: fN). (mk_lane__1 Fnn_F32 iter_0_75)) (fneg_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_44)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_15:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 v_M vunop_Fnn_N_NEG) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(16)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_lst_lst = "(setproduct_underscore  (map (\<lambda> (lane_1_47 :: lane_underscore). (map (\<lambda> (iter_0_77 :: fN). (mk_lane__1 Fnn_F64 iter_0_77)) (fneg_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_47)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1))))" and v128_lst = "(map (\<lambda> (lane_lst_8 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_8)) ((setproduct_underscore  (map (\<lambda> (lane_1_47 :: lane_underscore). (map (\<lambda> (iter_0_77 :: fN). (mk_lane__1 Fnn_F64 iter_0_77)) (fneg_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_47)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_16:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 v_M vunop_Fnn_N_SQRT) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(17)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_lst_lst = "(setproduct_underscore  (map (\<lambda> (lane_1_50 :: lane_underscore). (map (\<lambda> (iter_0_79 :: fN). (mk_lane__1 Fnn_F32 iter_0_79)) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_50)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1))))" and v128_lst = "(map (\<lambda> (lane_lst_10 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_10)) ((setproduct_underscore  (map (\<lambda> (lane_1_50 :: lane_underscore). (map (\<lambda> (iter_0_79 :: fN). (mk_lane__1 Fnn_F32 iter_0_79)) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_50)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_17:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 v_M vunop_Fnn_N_SQRT) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(18)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_lst_lst = "(setproduct_underscore  (map (\<lambda> (lane_1_53 :: lane_underscore). (map (\<lambda> (iter_0_81 :: fN). (mk_lane__1 Fnn_F64 iter_0_81)) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_53)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1))))" and v128_lst = "(map (\<lambda> (lane_lst_12 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_12)) ((setproduct_underscore  (map (\<lambda> (lane_1_53 :: lane_underscore). (map (\<lambda> (iter_0_81 :: fN). (mk_lane__1 Fnn_F64 iter_0_81)) (fsqrt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_53)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_18:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 v_M vunop_Fnn_N_CEIL) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(19)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_lst_lst = "(setproduct_underscore  (map (\<lambda> (lane_1_56 :: lane_underscore). (map (\<lambda> (iter_0_83 :: fN). (mk_lane__1 Fnn_F32 iter_0_83)) (fceil_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_56)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1))))" and v128_lst = "(map (\<lambda> (lane_lst_14 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_14)) ((setproduct_underscore  (map (\<lambda> (lane_1_56 :: lane_underscore). (map (\<lambda> (iter_0_83 :: fN). (mk_lane__1 Fnn_F32 iter_0_83)) (fceil_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_56)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_19:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 v_M vunop_Fnn_N_CEIL) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(20)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_lst_lst = "(setproduct_underscore  (map (\<lambda> (lane_1_59 :: lane_underscore). (map (\<lambda> (iter_0_85 :: fN). (mk_lane__1 Fnn_F64 iter_0_85)) (fceil_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_59)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1))))" and v128_lst = "(map (\<lambda> (lane_lst_16 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_16)) ((setproduct_underscore  (map (\<lambda> (lane_1_59 :: lane_underscore). (map (\<lambda> (iter_0_85 :: fN). (mk_lane__1 Fnn_F64 iter_0_85)) (fceil_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_59)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_20:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 v_M vunop_Fnn_N_FLOOR) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(21)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_lst_lst = "(setproduct_underscore  (map (\<lambda> (lane_1_62 :: lane_underscore). (map (\<lambda> (iter_0_87 :: fN). (mk_lane__1 Fnn_F32 iter_0_87)) (ffloor_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_62)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1))))" and v128_lst = "(map (\<lambda> (lane_lst_18 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_18)) ((setproduct_underscore  (map (\<lambda> (lane_1_62 :: lane_underscore). (map (\<lambda> (iter_0_87 :: fN). (mk_lane__1 Fnn_F32 iter_0_87)) (ffloor_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_62)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_21:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 v_M vunop_Fnn_N_FLOOR) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(22)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_lst_lst = "(setproduct_underscore  (map (\<lambda> (lane_1_65 :: lane_underscore). (map (\<lambda> (iter_0_89 :: fN). (mk_lane__1 Fnn_F64 iter_0_89)) (ffloor_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_65)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1))))" and v128_lst = "(map (\<lambda> (lane_lst_20 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_20)) ((setproduct_underscore  (map (\<lambda> (lane_1_65 :: lane_underscore). (map (\<lambda> (iter_0_89 :: fN). (mk_lane__1 Fnn_F64 iter_0_89)) (ffloor_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_65)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_22:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 v_M vunop_Fnn_N_TRUNC) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(23)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_lst_lst = "(setproduct_underscore  (map (\<lambda> (lane_1_68 :: lane_underscore). (map (\<lambda> (iter_0_91 :: fN). (mk_lane__1 Fnn_F32 iter_0_91)) (ftrunc_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_68)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1))))" and v128_lst = "(map (\<lambda> (lane_lst_22 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_22)) ((setproduct_underscore  (map (\<lambda> (lane_1_68 :: lane_underscore). (map (\<lambda> (iter_0_91 :: fN). (mk_lane__1 Fnn_F32 iter_0_91)) (ftrunc_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_68)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_23:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 v_M vunop_Fnn_N_TRUNC) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(24)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_lst_lst = "(setproduct_underscore  (map (\<lambda> (lane_1_71 :: lane_underscore). (map (\<lambda> (iter_0_93 :: fN). (mk_lane__1 Fnn_F64 iter_0_93)) (ftrunc_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_71)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1))))" and v128_lst = "(map (\<lambda> (lane_lst_24 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_24)) ((setproduct_underscore  (map (\<lambda> (lane_1_71 :: lane_underscore). (map (\<lambda> (iter_0_93 :: fN). (mk_lane__1 Fnn_F64 iter_0_93)) (ftrunc_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_71)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_24:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vunop__1 Fnn_F32 v_M vunop_Fnn_N_NEAREST) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(25)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_lst_lst = "(setproduct_underscore  (map (\<lambda> (lane_1_74 :: lane_underscore). (map (\<lambda> (iter_0_95 :: fN). (mk_lane__1 Fnn_F32 iter_0_95)) (fnearest_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_74)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1))))" and v128_lst = "(map (\<lambda> (lane_lst_26 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_26)) ((setproduct_underscore  (map (\<lambda> (lane_1_74 :: lane_underscore). (map (\<lambda> (iter_0_95 :: fN). (mk_lane__1 Fnn_F32 iter_0_95)) (fnearest_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_74)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vunop_underscore_case_25:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1"
+  shows "\<exists>r. fun_vunop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vunop__1 Fnn_F64 v_M vunop_Fnn_N_NEAREST) v128_1 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vunop_underscore.intros(26)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_lst_lst = "(setproduct_underscore  (map (\<lambda> (lane_1_77 :: lane_underscore). (map (\<lambda> (iter_0_97 :: fN). (mk_lane__1 Fnn_F64 iter_0_97)) (fnearest_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_77)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1))))" and v128_lst = "(map (\<lambda> (lane_lst_28 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_28)) ((setproduct_underscore  (map (\<lambda> (lane_1_77 :: lane_underscore). (map (\<lambda> (iter_0_97 :: fN). (mk_lane__1 Fnn_F64 iter_0_97)) (fnearest_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_77)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+
+lemma fun_vbinop_underscore_case_0:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 v_M vbinop_Jnn_N_ADD) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I32) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(1)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_80 :: lane_underscore) (lane_2_2 :: lane_underscore). (mk_lane__0 Jnn_I32 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__0 lane_1_80))) (the ((proj_lane__0 lane_2_2)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_1:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 v_M vbinop_Jnn_N_ADD) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I64) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(2)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_83 :: lane_underscore) (lane_2_5 :: lane_underscore). (mk_lane__0 Jnn_I64 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__0 lane_1_83))) (the ((proj_lane__0 lane_2_5)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_2:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 v_M vbinop_Jnn_N_ADD) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I8) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(3)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_86 :: lane_underscore) (lane_2_8 :: lane_underscore). (mk_lane__0 Jnn_I8 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__0 lane_1_86))) (the ((proj_lane__0 lane_2_8)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_3:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 v_M vbinop_Jnn_N_ADD) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I16) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(4)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_89 :: lane_underscore) (lane_2_11 :: lane_underscore). (mk_lane__0 Jnn_I16 (iadd_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__0 lane_1_89))) (the ((proj_lane__0 lane_2_11)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_4:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 v_M vbinop_Jnn_N_SUB) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I32) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(5)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_92 :: lane_underscore) (lane_2_14 :: lane_underscore). (mk_lane__0 Jnn_I32 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__0 lane_1_92))) (the ((proj_lane__0 lane_2_14)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_5:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 v_M vbinop_Jnn_N_SUB) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I64) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(6)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_95 :: lane_underscore) (lane_2_17 :: lane_underscore). (mk_lane__0 Jnn_I64 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__0 lane_1_95))) (the ((proj_lane__0 lane_2_17)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_6:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 v_M vbinop_Jnn_N_SUB) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I8) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(7)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_98 :: lane_underscore) (lane_2_20 :: lane_underscore). (mk_lane__0 Jnn_I8 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__0 lane_1_98))) (the ((proj_lane__0 lane_2_20)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_7:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 v_M vbinop_Jnn_N_SUB) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I16) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(8)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_101 :: lane_underscore) (lane_2_23 :: lane_underscore). (mk_lane__0 Jnn_I16 (isub_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__0 lane_1_101))) (the ((proj_lane__0 lane_2_23)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_8:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 v_M (vbinop_Jnn_N_MIN v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I32) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(9)[where var_1_lst = "list_zipWith (\<lambda> lane_1_105 lane_2_27. SOME var_1. (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_105))) (the ((proj_lane__0 lane_2_27))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_104 lane_2_26. SOME var_0. (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_104))) (the ((proj_lane__0 lane_2_26))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I32 var_0)) (list_zipWith (\<lambda> lane_1_104 lane_2_26. SOME var_0. (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_104))) (the ((proj_lane__0 lane_2_26))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_9:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 v_M (vbinop_Jnn_N_MIN v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I64) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(10)[where var_1_lst = "list_zipWith (\<lambda> lane_1_108 lane_2_30. SOME var_1. (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_108))) (the ((proj_lane__0 lane_2_30))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_107 lane_2_29. SOME var_0. (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_107))) (the ((proj_lane__0 lane_2_29))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I64 var_0)) (list_zipWith (\<lambda> lane_1_107 lane_2_29. SOME var_0. (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_107))) (the ((proj_lane__0 lane_2_29))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_10:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 v_M (vbinop_Jnn_N_MIN v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I8) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(11)[where var_1_lst = "list_zipWith (\<lambda> lane_1_111 lane_2_33. SOME var_1. (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_111))) (the ((proj_lane__0 lane_2_33))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_110 lane_2_32. SOME var_0. (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_110))) (the ((proj_lane__0 lane_2_32))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I8 var_0)) (list_zipWith (\<lambda> lane_1_110 lane_2_32. SOME var_0. (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_110))) (the ((proj_lane__0 lane_2_32))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_11:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 v_M (vbinop_Jnn_N_MIN v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I16) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(12)[where var_1_lst = "list_zipWith (\<lambda> lane_1_114 lane_2_36. SOME var_1. (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_114))) (the ((proj_lane__0 lane_2_36))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_113 lane_2_35. SOME var_0. (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_113))) (the ((proj_lane__0 lane_2_35))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I16 var_0)) (list_zipWith (\<lambda> lane_1_113 lane_2_35. SOME var_0. (fun_imin_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_113))) (the ((proj_lane__0 lane_2_35))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_12:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 v_M (vbinop_Jnn_N_MAX v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I32) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(13)[where var_1_lst = "list_zipWith (\<lambda> lane_1_117 lane_2_39. SOME var_1. (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_117))) (the ((proj_lane__0 lane_2_39))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_116 lane_2_38. SOME var_0. (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_116))) (the ((proj_lane__0 lane_2_38))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I32 var_0)) (list_zipWith (\<lambda> lane_1_116 lane_2_38. SOME var_0. (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_116))) (the ((proj_lane__0 lane_2_38))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_13:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 v_M (vbinop_Jnn_N_MAX v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I64) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(14)[where var_1_lst = "list_zipWith (\<lambda> lane_1_120 lane_2_42. SOME var_1. (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_120))) (the ((proj_lane__0 lane_2_42))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_119 lane_2_41. SOME var_0. (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_119))) (the ((proj_lane__0 lane_2_41))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I64 var_0)) (list_zipWith (\<lambda> lane_1_119 lane_2_41. SOME var_0. (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_119))) (the ((proj_lane__0 lane_2_41))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_14:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 v_M (vbinop_Jnn_N_MAX v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I8) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(15)[where var_1_lst = "list_zipWith (\<lambda> lane_1_123 lane_2_45. SOME var_1. (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_123))) (the ((proj_lane__0 lane_2_45))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_122 lane_2_44. SOME var_0. (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_122))) (the ((proj_lane__0 lane_2_44))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I8 var_0)) (list_zipWith (\<lambda> lane_1_122 lane_2_44. SOME var_0. (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_122))) (the ((proj_lane__0 lane_2_44))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_15:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 v_M (vbinop_Jnn_N_MAX v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I16) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(16)[where var_1_lst = "list_zipWith (\<lambda> lane_1_126 lane_2_48. SOME var_1. (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_126))) (the ((proj_lane__0 lane_2_48))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_125 lane_2_47. SOME var_0. (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_125))) (the ((proj_lane__0 lane_2_47))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I16 var_0)) (list_zipWith (\<lambda> lane_1_125 lane_2_47. SOME var_0. (fun_imax_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_125))) (the ((proj_lane__0 lane_2_47))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_16:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 v_M (ADD_SAT v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I32) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(17)[where var_1_lst = "list_zipWith (\<lambda> lane_1_129 lane_2_51. SOME var_1. (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_129))) (the ((proj_lane__0 lane_2_51))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_128 lane_2_50. SOME var_0. (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_128))) (the ((proj_lane__0 lane_2_50))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I32 var_0)) (list_zipWith (\<lambda> lane_1_128 lane_2_50. SOME var_0. (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_128))) (the ((proj_lane__0 lane_2_50))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_17:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 v_M (ADD_SAT v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I64) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(18)[where var_1_lst = "list_zipWith (\<lambda> lane_1_132 lane_2_54. SOME var_1. (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_132))) (the ((proj_lane__0 lane_2_54))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_131 lane_2_53. SOME var_0. (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_131))) (the ((proj_lane__0 lane_2_53))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I64 var_0)) (list_zipWith (\<lambda> lane_1_131 lane_2_53. SOME var_0. (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_131))) (the ((proj_lane__0 lane_2_53))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_18:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 v_M (ADD_SAT v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I8) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(19)[where var_1_lst = "list_zipWith (\<lambda> lane_1_135 lane_2_57. SOME var_1. (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_135))) (the ((proj_lane__0 lane_2_57))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_134 lane_2_56. SOME var_0. (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_134))) (the ((proj_lane__0 lane_2_56))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I8 var_0)) (list_zipWith (\<lambda> lane_1_134 lane_2_56. SOME var_0. (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_134))) (the ((proj_lane__0 lane_2_56))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_19:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 v_M (ADD_SAT v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I16) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(20)[where var_1_lst = "list_zipWith (\<lambda> lane_1_138 lane_2_60. SOME var_1. (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_138))) (the ((proj_lane__0 lane_2_60))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_137 lane_2_59. SOME var_0. (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_137))) (the ((proj_lane__0 lane_2_59))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I16 var_0)) (list_zipWith (\<lambda> lane_1_137 lane_2_59. SOME var_0. (fun_iadd_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_137))) (the ((proj_lane__0 lane_2_59))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_20:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 v_M (SUB_SAT v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I32) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(21)[where var_1_lst = "list_zipWith (\<lambda> lane_1_141 lane_2_63. SOME var_1. (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_141))) (the ((proj_lane__0 lane_2_63))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_140 lane_2_62. SOME var_0. (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_140))) (the ((proj_lane__0 lane_2_62))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I32 var_0)) (list_zipWith (\<lambda> lane_1_140 lane_2_62. SOME var_0. (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_140))) (the ((proj_lane__0 lane_2_62))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_21:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 v_M (SUB_SAT v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I64) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(22)[where var_1_lst = "list_zipWith (\<lambda> lane_1_144 lane_2_66. SOME var_1. (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_144))) (the ((proj_lane__0 lane_2_66))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_143 lane_2_65. SOME var_0. (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_143))) (the ((proj_lane__0 lane_2_65))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I64 var_0)) (list_zipWith (\<lambda> lane_1_143 lane_2_65. SOME var_0. (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_143))) (the ((proj_lane__0 lane_2_65))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_22:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 v_M (SUB_SAT v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I8) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(23)[where var_1_lst = "list_zipWith (\<lambda> lane_1_147 lane_2_69. SOME var_1. (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_147))) (the ((proj_lane__0 lane_2_69))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_146 lane_2_68. SOME var_0. (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_146))) (the ((proj_lane__0 lane_2_68))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I8 var_0)) (list_zipWith (\<lambda> lane_1_146 lane_2_68. SOME var_0. (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_146))) (the ((proj_lane__0 lane_2_68))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_23:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 v_M (SUB_SAT v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I16) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(24)[where var_1_lst = "list_zipWith (\<lambda> lane_1_150 lane_2_72. SOME var_1. (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_150))) (the ((proj_lane__0 lane_2_72))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_149 lane_2_71. SOME var_0. (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_149))) (the ((proj_lane__0 lane_2_71))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (var_0 :: uN). (mk_lane__0 Jnn_I16 var_0)) (list_zipWith (\<lambda> lane_1_149 lane_2_71. SOME var_0. (fun_isub_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_149))) (the ((proj_lane__0 lane_2_71))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_24:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 v_M vbinop_Jnn_N_MUL) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I32) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(25)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_152 :: lane_underscore) (lane_2_74 :: lane_underscore). (mk_lane__0 Jnn_I32 (imul_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__0 lane_1_152))) (the ((proj_lane__0 lane_2_74)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_25:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 v_M vbinop_Jnn_N_MUL) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I64) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(26)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_155 :: lane_underscore) (lane_2_77 :: lane_underscore). (mk_lane__0 Jnn_I64 (imul_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__0 lane_1_155))) (the ((proj_lane__0 lane_2_77)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_26:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 v_M vbinop_Jnn_N_MUL) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I8) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(27)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_158 :: lane_underscore) (lane_2_80 :: lane_underscore). (mk_lane__0 Jnn_I8 (imul_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__0 lane_1_158))) (the ((proj_lane__0 lane_2_80)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_27:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 v_M vbinop_Jnn_N_MUL) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I16) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(28)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_161 :: lane_underscore) (lane_2_83 :: lane_underscore). (mk_lane__0 Jnn_I16 (imul_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__0 lane_1_161))) (the ((proj_lane__0 lane_2_83)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_28:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 v_M AVGRU) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I32) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(29)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_164 :: lane_underscore) (lane_2_86 :: lane_underscore). (mk_lane__0 Jnn_I32 (iavgr_underscore (lsizenn (lanetype_Jnn Jnn_I32)) U (the ((proj_lane__0 lane_1_164))) (the ((proj_lane__0 lane_2_86)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_29:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 v_M AVGRU) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I64) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(30)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_167 :: lane_underscore) (lane_2_89 :: lane_underscore). (mk_lane__0 Jnn_I64 (iavgr_underscore (lsizenn (lanetype_Jnn Jnn_I64)) U (the ((proj_lane__0 lane_1_167))) (the ((proj_lane__0 lane_2_89)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_30:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 v_M AVGRU) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I8) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(31)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_170 :: lane_underscore) (lane_2_92 :: lane_underscore). (mk_lane__0 Jnn_I8 (iavgr_underscore (lsizenn (lanetype_Jnn Jnn_I8)) U (the ((proj_lane__0 lane_1_170))) (the ((proj_lane__0 lane_2_92)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_31:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 v_M AVGRU) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I16) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(32)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_173 :: lane_underscore) (lane_2_95 :: lane_underscore). (mk_lane__0 Jnn_I16 (iavgr_underscore (lsizenn (lanetype_Jnn Jnn_I16)) U (the ((proj_lane__0 lane_1_173))) (the ((proj_lane__0 lane_2_95)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_32:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vbinop__0 Jnn_I32 v_M Q15MULR_SATS) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I32) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(33)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_176 :: lane_underscore) (lane_2_98 :: lane_underscore). (mk_lane__0 Jnn_I32 (iq15mulr_sat_underscore (lsizenn (lanetype_Jnn Jnn_I32)) S (the ((proj_lane__0 lane_1_176))) (the ((proj_lane__0 lane_2_98)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_33:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vbinop__0 Jnn_I64 v_M Q15MULR_SATS) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I64) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(34)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_179 :: lane_underscore) (lane_2_101 :: lane_underscore). (mk_lane__0 Jnn_I64 (iq15mulr_sat_underscore (lsizenn (lanetype_Jnn Jnn_I64)) S (the ((proj_lane__0 lane_1_179))) (the ((proj_lane__0 lane_2_101)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_34:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vbinop__0 Jnn_I8 v_M Q15MULR_SATS) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I8) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(35)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_182 :: lane_underscore) (lane_2_104 :: lane_underscore). (mk_lane__0 Jnn_I8 (iq15mulr_sat_underscore (lsizenn (lanetype_Jnn Jnn_I8)) S (the ((proj_lane__0 lane_1_182))) (the ((proj_lane__0 lane_2_104)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_35:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vbinop__0 Jnn_I16 v_M Q15MULR_SATS) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I16) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(36)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (list_zipWith (\<lambda> (lane_1_185 :: lane_underscore) (lane_2_107 :: lane_underscore). (mk_lane__0 Jnn_I16 (iq15mulr_sat_underscore (lsizenn (lanetype_Jnn Jnn_I16)) S (the ((proj_lane__0 lane_1_185))) (the ((proj_lane__0 lane_2_107)))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_36:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 v_M vbinop_Fnn_N_ADD) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F32) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(37)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)" and lane_lst_lst = "(setproduct_underscore  (list_zipWith (\<lambda> (lane_1_188 :: lane_underscore) (lane_2_110 :: lane_underscore). (map (\<lambda> (iter_0_99 :: fN). (mk_lane__1 Fnn_F32 iter_0_99)) (fadd_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_188))) (the ((proj_lane__1 lane_2_110)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))" and v128_lst = "(map (\<lambda> (lane_lst_30 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_30)) ((setproduct_underscore  (list_zipWith (\<lambda> (lane_1_188 :: lane_underscore) (lane_2_110 :: lane_underscore). (map (\<lambda> (iter_0_99 :: fN). (mk_lane__1 Fnn_F32 iter_0_99)) (fadd_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_188))) (the ((proj_lane__1 lane_2_110)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_37:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 v_M vbinop_Fnn_N_ADD) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F64) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(38)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)" and lane_lst_lst = "(setproduct_underscore  (list_zipWith (\<lambda> (lane_1_191 :: lane_underscore) (lane_2_113 :: lane_underscore). (map (\<lambda> (iter_0_101 :: fN). (mk_lane__1 Fnn_F64 iter_0_101)) (fadd_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_191))) (the ((proj_lane__1 lane_2_113)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))" and v128_lst = "(map (\<lambda> (lane_lst_32 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_32)) ((setproduct_underscore  (list_zipWith (\<lambda> (lane_1_191 :: lane_underscore) (lane_2_113 :: lane_underscore). (map (\<lambda> (iter_0_101 :: fN). (mk_lane__1 Fnn_F64 iter_0_101)) (fadd_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_191))) (the ((proj_lane__1 lane_2_113)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_38:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 v_M vbinop_Fnn_N_SUB) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F32) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(39)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)" and lane_lst_lst = "(setproduct_underscore  (list_zipWith (\<lambda> (lane_1_194 :: lane_underscore) (lane_2_116 :: lane_underscore). (map (\<lambda> (iter_0_103 :: fN). (mk_lane__1 Fnn_F32 iter_0_103)) (fsub_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_194))) (the ((proj_lane__1 lane_2_116)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))" and v128_lst = "(map (\<lambda> (lane_lst_34 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_34)) ((setproduct_underscore  (list_zipWith (\<lambda> (lane_1_194 :: lane_underscore) (lane_2_116 :: lane_underscore). (map (\<lambda> (iter_0_103 :: fN). (mk_lane__1 Fnn_F32 iter_0_103)) (fsub_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_194))) (the ((proj_lane__1 lane_2_116)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_39:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 v_M vbinop_Fnn_N_SUB) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F64) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(40)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)" and lane_lst_lst = "(setproduct_underscore  (list_zipWith (\<lambda> (lane_1_197 :: lane_underscore) (lane_2_119 :: lane_underscore). (map (\<lambda> (iter_0_105 :: fN). (mk_lane__1 Fnn_F64 iter_0_105)) (fsub_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_197))) (the ((proj_lane__1 lane_2_119)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))" and v128_lst = "(map (\<lambda> (lane_lst_36 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_36)) ((setproduct_underscore  (list_zipWith (\<lambda> (lane_1_197 :: lane_underscore) (lane_2_119 :: lane_underscore). (map (\<lambda> (iter_0_105 :: fN). (mk_lane__1 Fnn_F64 iter_0_105)) (fsub_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_197))) (the ((proj_lane__1 lane_2_119)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_40:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 v_M vbinop_Fnn_N_MUL) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F32) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(41)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)" and lane_lst_lst = "(setproduct_underscore  (list_zipWith (\<lambda> (lane_1_200 :: lane_underscore) (lane_2_122 :: lane_underscore). (map (\<lambda> (iter_0_107 :: fN). (mk_lane__1 Fnn_F32 iter_0_107)) (fmul_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_200))) (the ((proj_lane__1 lane_2_122)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))" and v128_lst = "(map (\<lambda> (lane_lst_38 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_38)) ((setproduct_underscore  (list_zipWith (\<lambda> (lane_1_200 :: lane_underscore) (lane_2_122 :: lane_underscore). (map (\<lambda> (iter_0_107 :: fN). (mk_lane__1 Fnn_F32 iter_0_107)) (fmul_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_200))) (the ((proj_lane__1 lane_2_122)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_41:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 v_M vbinop_Fnn_N_MUL) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F64) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(42)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)" and lane_lst_lst = "(setproduct_underscore  (list_zipWith (\<lambda> (lane_1_203 :: lane_underscore) (lane_2_125 :: lane_underscore). (map (\<lambda> (iter_0_109 :: fN). (mk_lane__1 Fnn_F64 iter_0_109)) (fmul_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_203))) (the ((proj_lane__1 lane_2_125)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))" and v128_lst = "(map (\<lambda> (lane_lst_40 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_40)) ((setproduct_underscore  (list_zipWith (\<lambda> (lane_1_203 :: lane_underscore) (lane_2_125 :: lane_underscore). (map (\<lambda> (iter_0_109 :: fN). (mk_lane__1 Fnn_F64 iter_0_109)) (fmul_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_203))) (the ((proj_lane__1 lane_2_125)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_42:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 v_M vbinop_Fnn_N_DIV) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F32) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(43)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)" and lane_lst_lst = "(setproduct_underscore  (list_zipWith (\<lambda> (lane_1_206 :: lane_underscore) (lane_2_128 :: lane_underscore). (map (\<lambda> (iter_0_111 :: fN). (mk_lane__1 Fnn_F32 iter_0_111)) (fdiv_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_206))) (the ((proj_lane__1 lane_2_128)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))" and v128_lst = "(map (\<lambda> (lane_lst_42 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_42)) ((setproduct_underscore  (list_zipWith (\<lambda> (lane_1_206 :: lane_underscore) (lane_2_128 :: lane_underscore). (map (\<lambda> (iter_0_111 :: fN). (mk_lane__1 Fnn_F32 iter_0_111)) (fdiv_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_206))) (the ((proj_lane__1 lane_2_128)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_43:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 v_M vbinop_Fnn_N_DIV) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F64) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(44)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)" and lane_lst_lst = "(setproduct_underscore  (list_zipWith (\<lambda> (lane_1_209 :: lane_underscore) (lane_2_131 :: lane_underscore). (map (\<lambda> (iter_0_113 :: fN). (mk_lane__1 Fnn_F64 iter_0_113)) (fdiv_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_209))) (the ((proj_lane__1 lane_2_131)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))" and v128_lst = "(map (\<lambda> (lane_lst_44 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_44)) ((setproduct_underscore  (list_zipWith (\<lambda> (lane_1_209 :: lane_underscore) (lane_2_131 :: lane_underscore). (map (\<lambda> (iter_0_113 :: fN). (mk_lane__1 Fnn_F64 iter_0_113)) (fdiv_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_209))) (the ((proj_lane__1 lane_2_131)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_44:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 v_M vbinop_Fnn_N_MIN) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F32) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(45)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)" and lane_lst_lst = "(setproduct_underscore  (list_zipWith (\<lambda> (lane_1_212 :: lane_underscore) (lane_2_134 :: lane_underscore). (map (\<lambda> (iter_0_115 :: fN). (mk_lane__1 Fnn_F32 iter_0_115)) (fmin_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_212))) (the ((proj_lane__1 lane_2_134)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))" and v128_lst = "(map (\<lambda> (lane_lst_46 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_46)) ((setproduct_underscore  (list_zipWith (\<lambda> (lane_1_212 :: lane_underscore) (lane_2_134 :: lane_underscore). (map (\<lambda> (iter_0_115 :: fN). (mk_lane__1 Fnn_F32 iter_0_115)) (fmin_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_212))) (the ((proj_lane__1 lane_2_134)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_45:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 v_M vbinop_Fnn_N_MIN) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F64) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(46)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)" and lane_lst_lst = "(setproduct_underscore  (list_zipWith (\<lambda> (lane_1_215 :: lane_underscore) (lane_2_137 :: lane_underscore). (map (\<lambda> (iter_0_117 :: fN). (mk_lane__1 Fnn_F64 iter_0_117)) (fmin_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_215))) (the ((proj_lane__1 lane_2_137)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))" and v128_lst = "(map (\<lambda> (lane_lst_48 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_48)) ((setproduct_underscore  (list_zipWith (\<lambda> (lane_1_215 :: lane_underscore) (lane_2_137 :: lane_underscore). (map (\<lambda> (iter_0_117 :: fN). (mk_lane__1 Fnn_F64 iter_0_117)) (fmin_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_215))) (the ((proj_lane__1 lane_2_137)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_46:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 v_M vbinop_Fnn_N_MAX) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F32) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(47)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)" and lane_lst_lst = "(setproduct_underscore  (list_zipWith (\<lambda> (lane_1_218 :: lane_underscore) (lane_2_140 :: lane_underscore). (map (\<lambda> (iter_0_119 :: fN). (mk_lane__1 Fnn_F32 iter_0_119)) (fmax_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_218))) (the ((proj_lane__1 lane_2_140)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))" and v128_lst = "(map (\<lambda> (lane_lst_50 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_50)) ((setproduct_underscore  (list_zipWith (\<lambda> (lane_1_218 :: lane_underscore) (lane_2_140 :: lane_underscore). (map (\<lambda> (iter_0_119 :: fN). (mk_lane__1 Fnn_F32 iter_0_119)) (fmax_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_218))) (the ((proj_lane__1 lane_2_140)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_47:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 v_M vbinop_Fnn_N_MAX) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F64) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(48)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)" and lane_lst_lst = "(setproduct_underscore  (list_zipWith (\<lambda> (lane_1_221 :: lane_underscore) (lane_2_143 :: lane_underscore). (map (\<lambda> (iter_0_121 :: fN). (mk_lane__1 Fnn_F64 iter_0_121)) (fmax_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_221))) (the ((proj_lane__1 lane_2_143)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))" and v128_lst = "(map (\<lambda> (lane_lst_52 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_52)) ((setproduct_underscore  (list_zipWith (\<lambda> (lane_1_221 :: lane_underscore) (lane_2_143 :: lane_underscore). (map (\<lambda> (iter_0_121 :: fN). (mk_lane__1 Fnn_F64 iter_0_121)) (fmax_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_221))) (the ((proj_lane__1 lane_2_143)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_48:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 v_M PMIN) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F32) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(49)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)" and lane_lst_lst = "(setproduct_underscore  (list_zipWith (\<lambda> (lane_1_224 :: lane_underscore) (lane_2_146 :: lane_underscore). (map (\<lambda> (iter_0_123 :: fN). (mk_lane__1 Fnn_F32 iter_0_123)) (fpmin_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_224))) (the ((proj_lane__1 lane_2_146)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))" and v128_lst = "(map (\<lambda> (lane_lst_54 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_54)) ((setproduct_underscore  (list_zipWith (\<lambda> (lane_1_224 :: lane_underscore) (lane_2_146 :: lane_underscore). (map (\<lambda> (iter_0_123 :: fN). (mk_lane__1 Fnn_F32 iter_0_123)) (fpmin_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_224))) (the ((proj_lane__1 lane_2_146)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_49:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 v_M PMIN) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F64) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(50)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)" and lane_lst_lst = "(setproduct_underscore  (list_zipWith (\<lambda> (lane_1_227 :: lane_underscore) (lane_2_149 :: lane_underscore). (map (\<lambda> (iter_0_125 :: fN). (mk_lane__1 Fnn_F64 iter_0_125)) (fpmin_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_227))) (the ((proj_lane__1 lane_2_149)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))" and v128_lst = "(map (\<lambda> (lane_lst_56 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_56)) ((setproduct_underscore  (list_zipWith (\<lambda> (lane_1_227 :: lane_underscore) (lane_2_149 :: lane_underscore). (map (\<lambda> (iter_0_125 :: fN). (mk_lane__1 Fnn_F64 iter_0_125)) (fpmin_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_227))) (the ((proj_lane__1 lane_2_149)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_50:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vbinop__1 Fnn_F32 v_M PMAX) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F32) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(51)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)" and lane_lst_lst = "(setproduct_underscore  (list_zipWith (\<lambda> (lane_1_230 :: lane_underscore) (lane_2_152 :: lane_underscore). (map (\<lambda> (iter_0_127 :: fN). (mk_lane__1 Fnn_F32 iter_0_127)) (fpmax_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_230))) (the ((proj_lane__1 lane_2_152)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))" and v128_lst = "(map (\<lambda> (lane_lst_58 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) lane_lst_58)) ((setproduct_underscore  (list_zipWith (\<lambda> (lane_1_230 :: lane_underscore) (lane_2_152 :: lane_underscore). (map (\<lambda> (iter_0_127 :: fN). (mk_lane__1 Fnn_F32 iter_0_127)) (fpmax_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_230))) (the ((proj_lane__1 lane_2_152)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vbinop_underscore_case_51:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vbinop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vbinop__1 Fnn_F64 v_M PMAX) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F64) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vbinop_underscore.intros(52)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)" and lane_lst_lst = "(setproduct_underscore  (list_zipWith (\<lambda> (lane_1_233 :: lane_underscore) (lane_2_155 :: lane_underscore). (map (\<lambda> (iter_0_129 :: fN). (mk_lane__1 Fnn_F64 iter_0_129)) (fpmax_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_233))) (the ((proj_lane__1 lane_2_155)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))" and v128_lst = "(map (\<lambda> (lane_lst_60 :: (lane_underscore list)). (inv_lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) lane_lst_60)) ((setproduct_underscore  (list_zipWith (\<lambda> (lane_1_233 :: lane_underscore) (lane_2_155 :: lane_underscore). (map (\<lambda> (iter_0_129 :: fN). (mk_lane__1 Fnn_F64 iter_0_129)) (fpmax_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_233))) (the ((proj_lane__1 lane_2_155)))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+
+lemma fun_vrelop_underscore_case_0:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 v_M vrelop_Jnn_N_EQ) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I32) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(1)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_236 :: lane_underscore) (lane_2_158 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__0 lane_1_236))) (the ((proj_lane__0 lane_2_158)))))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_2 :: iN). (mk_lane__0 Jnn_I32 lane_3_2)) ((list_zipWith (\<lambda> (lane_1_236 :: lane_underscore) (lane_2_158 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__0 lane_1_236))) (the ((proj_lane__0 lane_2_158)))))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_1:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 v_M vrelop_Jnn_N_EQ) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I64) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(2)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_239 :: lane_underscore) (lane_2_161 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__0 lane_1_239))) (the ((proj_lane__0 lane_2_161)))))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_5 :: iN). (mk_lane__0 Jnn_I64 lane_3_5)) ((list_zipWith (\<lambda> (lane_1_239 :: lane_underscore) (lane_2_161 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__0 lane_1_239))) (the ((proj_lane__0 lane_2_161)))))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_2:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 v_M vrelop_Jnn_N_EQ) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I8) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(3)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_242 :: lane_underscore) (lane_2_164 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__0 lane_1_242))) (the ((proj_lane__0 lane_2_164)))))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_8 :: iN). (mk_lane__0 Jnn_I8 lane_3_8)) ((list_zipWith (\<lambda> (lane_1_242 :: lane_underscore) (lane_2_164 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__0 lane_1_242))) (the ((proj_lane__0 lane_2_164)))))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_3:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 v_M vrelop_Jnn_N_EQ) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I16) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(4)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_245 :: lane_underscore) (lane_2_167 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__0 lane_1_245))) (the ((proj_lane__0 lane_2_167)))))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_11 :: iN). (mk_lane__0 Jnn_I16 lane_3_11)) ((list_zipWith (\<lambda> (lane_1_245 :: lane_underscore) (lane_2_167 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 (ieq_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__0 lane_1_245))) (the ((proj_lane__0 lane_2_167)))))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_4:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 v_M vrelop_Jnn_N_NE) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I32) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(5)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_248 :: lane_underscore) (lane_2_170 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__0 lane_1_248))) (the ((proj_lane__0 lane_2_170)))))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_14 :: iN). (mk_lane__0 Jnn_I32 lane_3_14)) ((list_zipWith (\<lambda> (lane_1_248 :: lane_underscore) (lane_2_170 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I32)) (the ((proj_lane__0 lane_1_248))) (the ((proj_lane__0 lane_2_170)))))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_5:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 v_M vrelop_Jnn_N_NE) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I64) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(6)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_251 :: lane_underscore) (lane_2_173 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__0 lane_1_251))) (the ((proj_lane__0 lane_2_173)))))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_17 :: iN). (mk_lane__0 Jnn_I64 lane_3_17)) ((list_zipWith (\<lambda> (lane_1_251 :: lane_underscore) (lane_2_173 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I64)) (the ((proj_lane__0 lane_1_251))) (the ((proj_lane__0 lane_2_173)))))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_6:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 v_M vrelop_Jnn_N_NE) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I8) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(7)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_254 :: lane_underscore) (lane_2_176 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__0 lane_1_254))) (the ((proj_lane__0 lane_2_176)))))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_20 :: iN). (mk_lane__0 Jnn_I8 lane_3_20)) ((list_zipWith (\<lambda> (lane_1_254 :: lane_underscore) (lane_2_176 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I8)) (the ((proj_lane__0 lane_1_254))) (the ((proj_lane__0 lane_2_176)))))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_7:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 v_M vrelop_Jnn_N_NE) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I16) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(8)[where lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_257 :: lane_underscore) (lane_2_179 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__0 lane_1_257))) (the ((proj_lane__0 lane_2_179)))))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_23 :: iN). (mk_lane__0 Jnn_I16 lane_3_23)) ((list_zipWith (\<lambda> (lane_1_257 :: lane_underscore) (lane_2_179 :: lane_underscore). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 (ine_underscore (lsizenn (lanetype_Jnn Jnn_I16)) (the ((proj_lane__0 lane_1_257))) (the ((proj_lane__0 lane_2_179)))))))) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_8:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 v_M (vrelop_Jnn_N_LT v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I32) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(9)[where var_1_lst = "list_zipWith (\<lambda> lane_1_261 lane_2_183. SOME var_1. (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_261))) (the ((proj_lane__0 lane_2_183))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_260 lane_2_182. SOME var_0. (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_260))) (the ((proj_lane__0 lane_2_182))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)" and lane_3_lst = "(map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_260 lane_2_182. SOME var_0. (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_260))) (the ((proj_lane__0 lane_2_182))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_26 :: iN). (mk_lane__0 Jnn_I32 lane_3_26)) ((map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_260 lane_2_182. SOME var_0. (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_260))) (the ((proj_lane__0 lane_2_182))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_9:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 v_M (vrelop_Jnn_N_LT v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I64) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(10)[where var_1_lst = "list_zipWith (\<lambda> lane_1_264 lane_2_186. SOME var_1. (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_264))) (the ((proj_lane__0 lane_2_186))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_263 lane_2_185. SOME var_0. (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_263))) (the ((proj_lane__0 lane_2_185))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)" and lane_3_lst = "(map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_263 lane_2_185. SOME var_0. (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_263))) (the ((proj_lane__0 lane_2_185))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_29 :: iN). (mk_lane__0 Jnn_I64 lane_3_29)) ((map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_263 lane_2_185. SOME var_0. (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_263))) (the ((proj_lane__0 lane_2_185))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_10:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 v_M (vrelop_Jnn_N_LT v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I8) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(11)[where var_1_lst = "list_zipWith (\<lambda> lane_1_267 lane_2_189. SOME var_1. (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_267))) (the ((proj_lane__0 lane_2_189))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_266 lane_2_188. SOME var_0. (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_266))) (the ((proj_lane__0 lane_2_188))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)" and lane_3_lst = "(map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_266 lane_2_188. SOME var_0. (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_266))) (the ((proj_lane__0 lane_2_188))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_32 :: iN). (mk_lane__0 Jnn_I8 lane_3_32)) ((map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_266 lane_2_188. SOME var_0. (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_266))) (the ((proj_lane__0 lane_2_188))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_11:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 v_M (vrelop_Jnn_N_LT v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I16) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(12)[where var_1_lst = "list_zipWith (\<lambda> lane_1_270 lane_2_192. SOME var_1. (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_270))) (the ((proj_lane__0 lane_2_192))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_269 lane_2_191. SOME var_0. (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_269))) (the ((proj_lane__0 lane_2_191))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)" and lane_3_lst = "(map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_269 lane_2_191. SOME var_0. (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_269))) (the ((proj_lane__0 lane_2_191))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_35 :: iN). (mk_lane__0 Jnn_I16 lane_3_35)) ((map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_269 lane_2_191. SOME var_0. (fun_ilt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_269))) (the ((proj_lane__0 lane_2_191))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_12:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 v_M (vrelop_Jnn_N_GT v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I32) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(13)[where var_1_lst = "list_zipWith (\<lambda> lane_1_273 lane_2_195. SOME var_1. (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_273))) (the ((proj_lane__0 lane_2_195))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_272 lane_2_194. SOME var_0. (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_272))) (the ((proj_lane__0 lane_2_194))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)" and lane_3_lst = "(map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_272 lane_2_194. SOME var_0. (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_272))) (the ((proj_lane__0 lane_2_194))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_38 :: iN). (mk_lane__0 Jnn_I32 lane_3_38)) ((map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_272 lane_2_194. SOME var_0. (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_272))) (the ((proj_lane__0 lane_2_194))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_13:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 v_M (vrelop_Jnn_N_GT v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I64) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(14)[where var_1_lst = "list_zipWith (\<lambda> lane_1_276 lane_2_198. SOME var_1. (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_276))) (the ((proj_lane__0 lane_2_198))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_275 lane_2_197. SOME var_0. (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_275))) (the ((proj_lane__0 lane_2_197))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)" and lane_3_lst = "(map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_275 lane_2_197. SOME var_0. (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_275))) (the ((proj_lane__0 lane_2_197))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_41 :: iN). (mk_lane__0 Jnn_I64 lane_3_41)) ((map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_275 lane_2_197. SOME var_0. (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_275))) (the ((proj_lane__0 lane_2_197))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_14:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 v_M (vrelop_Jnn_N_GT v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I8) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(15)[where var_1_lst = "list_zipWith (\<lambda> lane_1_279 lane_2_201. SOME var_1. (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_279))) (the ((proj_lane__0 lane_2_201))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_278 lane_2_200. SOME var_0. (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_278))) (the ((proj_lane__0 lane_2_200))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)" and lane_3_lst = "(map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_278 lane_2_200. SOME var_0. (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_278))) (the ((proj_lane__0 lane_2_200))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_44 :: iN). (mk_lane__0 Jnn_I8 lane_3_44)) ((map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_278 lane_2_200. SOME var_0. (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_278))) (the ((proj_lane__0 lane_2_200))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_15:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 v_M (vrelop_Jnn_N_GT v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I16) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(16)[where var_1_lst = "list_zipWith (\<lambda> lane_1_282 lane_2_204. SOME var_1. (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_282))) (the ((proj_lane__0 lane_2_204))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_281 lane_2_203. SOME var_0. (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_281))) (the ((proj_lane__0 lane_2_203))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)" and lane_3_lst = "(map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_281 lane_2_203. SOME var_0. (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_281))) (the ((proj_lane__0 lane_2_203))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_47 :: iN). (mk_lane__0 Jnn_I16 lane_3_47)) ((map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_281 lane_2_203. SOME var_0. (fun_igt_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_281))) (the ((proj_lane__0 lane_2_203))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_16:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 v_M (vrelop_Jnn_N_LE v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I32) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(17)[where var_1_lst = "list_zipWith (\<lambda> lane_1_285 lane_2_207. SOME var_1. (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_285))) (the ((proj_lane__0 lane_2_207))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_284 lane_2_206. SOME var_0. (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_284))) (the ((proj_lane__0 lane_2_206))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)" and lane_3_lst = "(map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_284 lane_2_206. SOME var_0. (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_284))) (the ((proj_lane__0 lane_2_206))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_50 :: iN). (mk_lane__0 Jnn_I32 lane_3_50)) ((map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_284 lane_2_206. SOME var_0. (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_284))) (the ((proj_lane__0 lane_2_206))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_17:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 v_M (vrelop_Jnn_N_LE v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I64) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(18)[where var_1_lst = "list_zipWith (\<lambda> lane_1_288 lane_2_210. SOME var_1. (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_288))) (the ((proj_lane__0 lane_2_210))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_287 lane_2_209. SOME var_0. (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_287))) (the ((proj_lane__0 lane_2_209))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)" and lane_3_lst = "(map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_287 lane_2_209. SOME var_0. (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_287))) (the ((proj_lane__0 lane_2_209))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_53 :: iN). (mk_lane__0 Jnn_I64 lane_3_53)) ((map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_287 lane_2_209. SOME var_0. (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_287))) (the ((proj_lane__0 lane_2_209))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_18:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 v_M (vrelop_Jnn_N_LE v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I8) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(19)[where var_1_lst = "list_zipWith (\<lambda> lane_1_291 lane_2_213. SOME var_1. (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_291))) (the ((proj_lane__0 lane_2_213))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_290 lane_2_212. SOME var_0. (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_290))) (the ((proj_lane__0 lane_2_212))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)" and lane_3_lst = "(map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_290 lane_2_212. SOME var_0. (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_290))) (the ((proj_lane__0 lane_2_212))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_56 :: iN). (mk_lane__0 Jnn_I8 lane_3_56)) ((map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_290 lane_2_212. SOME var_0. (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_290))) (the ((proj_lane__0 lane_2_212))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_19:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 v_M (vrelop_Jnn_N_LE v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I16) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(20)[where var_1_lst = "list_zipWith (\<lambda> lane_1_294 lane_2_216. SOME var_1. (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_294))) (the ((proj_lane__0 lane_2_216))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_293 lane_2_215. SOME var_0. (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_293))) (the ((proj_lane__0 lane_2_215))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)" and lane_3_lst = "(map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_293 lane_2_215. SOME var_0. (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_293))) (the ((proj_lane__0 lane_2_215))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_59 :: iN). (mk_lane__0 Jnn_I16 lane_3_59)) ((map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_293 lane_2_215. SOME var_0. (fun_ile_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_293))) (the ((proj_lane__0 lane_2_215))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_20:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I32 (mk_dim v_M)) (mk_vrelop__0 Jnn_I32 v_M (vrelop_Jnn_N_GE v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I32) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I32) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I32)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(21)[where var_1_lst = "list_zipWith (\<lambda> lane_1_297 lane_2_219. SOME var_1. (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_297))) (the ((proj_lane__0 lane_2_219))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_296 lane_2_218. SOME var_0. (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_296))) (the ((proj_lane__0 lane_2_218))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)" and lane_3_lst = "(map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_296 lane_2_218. SOME var_0. (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_296))) (the ((proj_lane__0 lane_2_218))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2))))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_62 :: iN). (mk_lane__0 Jnn_I32 lane_3_62)) ((map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I32)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_296 lane_2_218. SOME var_0. (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I32)) v_sx (the ((proj_lane__0 lane_1_296))) (the ((proj_lane__0 lane_2_218))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim v_M)) v128_2)))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_21:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I64 (mk_dim v_M)) (mk_vrelop__0 Jnn_I64 v_M (vrelop_Jnn_N_GE v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I64) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I64) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I64)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(22)[where var_1_lst = "list_zipWith (\<lambda> lane_1_300 lane_2_222. SOME var_1. (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_300))) (the ((proj_lane__0 lane_2_222))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_299 lane_2_221. SOME var_0. (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_299))) (the ((proj_lane__0 lane_2_221))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)" and lane_3_lst = "(map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_299 lane_2_221. SOME var_0. (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_299))) (the ((proj_lane__0 lane_2_221))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2))))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_65 :: iN). (mk_lane__0 Jnn_I64 lane_3_65)) ((map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I64)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_299 lane_2_221. SOME var_0. (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I64)) v_sx (the ((proj_lane__0 lane_1_299))) (the ((proj_lane__0 lane_2_221))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim v_M)) v128_2)))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_22:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I8 (mk_dim v_M)) (mk_vrelop__0 Jnn_I8 v_M (vrelop_Jnn_N_GE v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I8) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I8) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I8 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(23)[where var_1_lst = "list_zipWith (\<lambda> lane_1_303 lane_2_225. SOME var_1. (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_303))) (the ((proj_lane__0 lane_2_225))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_302 lane_2_224. SOME var_0. (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_302))) (the ((proj_lane__0 lane_2_224))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)" and lane_3_lst = "(map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_302 lane_2_224. SOME var_0. (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_302))) (the ((proj_lane__0 lane_2_224))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2))))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) (map (\<lambda> (lane_3_68 :: iN). (mk_lane__0 Jnn_I8 lane_3_68)) ((map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I8)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_302 lane_2_224. SOME var_0. (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I8)) v_sx (the ((proj_lane__0 lane_1_302))) (the ((proj_lane__0 lane_2_224))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim v_M)) v128_2)))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_23:
+  assumes "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_I16 (mk_dim v_M)) (mk_vrelop__0 Jnn_I16 v_M (vrelop_Jnn_N_GE v_sx)) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1 = map (mk_lane__0 Jnn_I16) xs0"
+      "\<forall>x\<in>set xs0. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs0 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2 = map (mk_lane__0 Jnn_I16) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I16)) x" "length xs1 = v_M"
+    using lanes_Jnn[of Jnn_I16 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(24)[where var_1_lst = "list_zipWith (\<lambda> lane_1_306 lane_2_228. SOME var_1. (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_306))) (the ((proj_lane__0 lane_2_228))) var_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))" and var_0_lst = "list_zipWith (\<lambda> lane_1_305 lane_2_227. SOME var_0. (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_305))) (the ((proj_lane__0 lane_2_227))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))" and lane_1_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)" and lane_3_lst = "(map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_305 lane_2_227. SOME var_0. (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_305))) (the ((proj_lane__0 lane_2_227))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2))))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) (map (\<lambda> (lane_3_71 :: iN). (mk_lane__0 Jnn_I16 lane_3_71)) ((map (\<lambda> (var_0 :: uN). (extend__underscore (Suc 0) (lsizenn (lanetype_Jnn Jnn_I16)) S (mk_uN (proj_uN_0 var_0)))) (list_zipWith (\<lambda> lane_1_305 lane_2_227. SOME var_0. (fun_ige_underscore (lsizenn (lanetype_Jnn Jnn_I16)) v_sx (the ((proj_lane__0 lane_1_305))) (the ((proj_lane__0 lane_2_227))) var_0)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim v_M)) v128_2)))))))"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_24:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 v_M vrelop_Fnn_N_EQ) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F32) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(25)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_308 :: lane_underscore) (lane_2_230 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (feq_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_308))) (the ((proj_lane__1 lane_2_230)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_74 :: iN). (mk_lane__0 (Jnn_Inn Inn_I32) (mk_uN (proj_uN_0 lane_3_74)))) ((list_zipWith (\<lambda> (lane_1_308 :: lane_underscore) (lane_2_230 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (feq_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_308))) (the ((proj_lane__1 lane_2_230)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))))" and v_Inn = "Inn_I32"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_25:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 v_M vrelop_Fnn_N_EQ) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F64) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(26)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_311 :: lane_underscore) (lane_2_233 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (feq_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_311))) (the ((proj_lane__1 lane_2_233)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_77 :: iN). (mk_lane__0 (Jnn_Inn Inn_I64) (mk_uN (proj_uN_0 lane_3_77)))) ((list_zipWith (\<lambda> (lane_1_311 :: lane_underscore) (lane_2_233 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (feq_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_311))) (the ((proj_lane__1 lane_2_233)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))))" and v_Inn = "Inn_I64"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_26:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 v_M vrelop_Fnn_N_NE) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F32) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(27)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_314 :: lane_underscore) (lane_2_236 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fne_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_314))) (the ((proj_lane__1 lane_2_236)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_80 :: iN). (mk_lane__0 (Jnn_Inn Inn_I32) (mk_uN (proj_uN_0 lane_3_80)))) ((list_zipWith (\<lambda> (lane_1_314 :: lane_underscore) (lane_2_236 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fne_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_314))) (the ((proj_lane__1 lane_2_236)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))))" and v_Inn = "Inn_I32"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_27:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 v_M vrelop_Fnn_N_NE) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F64) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(28)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_317 :: lane_underscore) (lane_2_239 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fne_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_317))) (the ((proj_lane__1 lane_2_239)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_83 :: iN). (mk_lane__0 (Jnn_Inn Inn_I64) (mk_uN (proj_uN_0 lane_3_83)))) ((list_zipWith (\<lambda> (lane_1_317 :: lane_underscore) (lane_2_239 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fne_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_317))) (the ((proj_lane__1 lane_2_239)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))))" and v_Inn = "Inn_I64"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_28:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 v_M vrelop_Fnn_N_LT) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F32) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(29)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_320 :: lane_underscore) (lane_2_242 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (flt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_320))) (the ((proj_lane__1 lane_2_242)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_86 :: iN). (mk_lane__0 (Jnn_Inn Inn_I32) (mk_uN (proj_uN_0 lane_3_86)))) ((list_zipWith (\<lambda> (lane_1_320 :: lane_underscore) (lane_2_242 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (flt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_320))) (the ((proj_lane__1 lane_2_242)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))))" and v_Inn = "Inn_I32"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_29:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 v_M vrelop_Fnn_N_LT) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F64) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(30)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_323 :: lane_underscore) (lane_2_245 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (flt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_323))) (the ((proj_lane__1 lane_2_245)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_89 :: iN). (mk_lane__0 (Jnn_Inn Inn_I64) (mk_uN (proj_uN_0 lane_3_89)))) ((list_zipWith (\<lambda> (lane_1_323 :: lane_underscore) (lane_2_245 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (flt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_323))) (the ((proj_lane__1 lane_2_245)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))))" and v_Inn = "Inn_I64"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_30:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 v_M vrelop_Fnn_N_GT) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F32) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(31)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_326 :: lane_underscore) (lane_2_248 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fgt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_326))) (the ((proj_lane__1 lane_2_248)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_92 :: iN). (mk_lane__0 (Jnn_Inn Inn_I32) (mk_uN (proj_uN_0 lane_3_92)))) ((list_zipWith (\<lambda> (lane_1_326 :: lane_underscore) (lane_2_248 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fgt_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_326))) (the ((proj_lane__1 lane_2_248)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))))" and v_Inn = "Inn_I32"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_31:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 v_M vrelop_Fnn_N_GT) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F64) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(32)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_329 :: lane_underscore) (lane_2_251 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fgt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_329))) (the ((proj_lane__1 lane_2_251)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_95 :: iN). (mk_lane__0 (Jnn_Inn Inn_I64) (mk_uN (proj_uN_0 lane_3_95)))) ((list_zipWith (\<lambda> (lane_1_329 :: lane_underscore) (lane_2_251 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fgt_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_329))) (the ((proj_lane__1 lane_2_251)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))))" and v_Inn = "Inn_I64"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_32:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 v_M vrelop_Fnn_N_LE) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F32) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(33)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_332 :: lane_underscore) (lane_2_254 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fle_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_332))) (the ((proj_lane__1 lane_2_254)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_98 :: iN). (mk_lane__0 (Jnn_Inn Inn_I32) (mk_uN (proj_uN_0 lane_3_98)))) ((list_zipWith (\<lambda> (lane_1_332 :: lane_underscore) (lane_2_254 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fle_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_332))) (the ((proj_lane__1 lane_2_254)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))))" and v_Inn = "Inn_I32"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_33:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 v_M vrelop_Fnn_N_LE) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F64) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(34)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_335 :: lane_underscore) (lane_2_257 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fle_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_335))) (the ((proj_lane__1 lane_2_257)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_101 :: iN). (mk_lane__0 (Jnn_Inn Inn_I64) (mk_uN (proj_uN_0 lane_3_101)))) ((list_zipWith (\<lambda> (lane_1_335 :: lane_underscore) (lane_2_257 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fle_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_335))) (the ((proj_lane__1 lane_2_257)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))))" and v_Inn = "Inn_I64"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_34:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F32) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_F32 (mk_dim v_M)) (mk_vrelop__1 Fnn_F32 v_M vrelop_Fnn_N_GE) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F32) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F32) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F32)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F32 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(35)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_338 :: lane_underscore) (lane_2_260 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fge_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_338))) (the ((proj_lane__1 lane_2_260)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Inn Inn_I32) (mk_dim v_M)) (map (\<lambda> (lane_3_104 :: iN). (mk_lane__0 (Jnn_Inn Inn_I32) (mk_uN (proj_uN_0 lane_3_104)))) ((list_zipWith (\<lambda> (lane_1_338 :: lane_underscore) (lane_2_260 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F32)) S (mk_uN (proj_uN_0 (fge_underscore (sizenn (numtype_Fnn Fnn_F32)) (the ((proj_lane__1 lane_1_338))) (the ((proj_lane__1 lane_2_260)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F32) (mk_dim v_M)) v128_2))))))" and v_Inn = "Inn_I32"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+lemma fun_vrelop_underscore_case_35:
+  assumes "wf_shape (X (lanetype_Fnn Fnn_F64) (mk_dim v_M))" "wf_uN 128 v128_1" "wf_uN 128 v128_2"
+  shows "\<exists>r. fun_vrelop_underscore (X lanetype_F64 (mk_dim v_M)) (mk_vrelop__1 Fnn_F64 v_M vrelop_Fnn_N_GE) v128_1 v128_2 (Some r)"
+proof -
+  obtain xs0 where xs0: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1 = map (mk_lane__1 Fnn_F64) xs0"
+      "\<forall>x\<in>set xs0. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs0 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_1] assms by blast
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2 = map (mk_lane__1 Fnn_F64) xs1"
+      "\<forall>x\<in>set xs1. wf_fN (sizenn (numtype_Fnn Fnn_F64)) x" "length xs1 = v_M"
+    using lanes_Fnn[of Fnn_F64 v_M v128_2] assms by blast
+  show ?thesis
+    apply (rule exI)
+    apply (rule fun_vrelop_underscore.intros(36)[where lane_1_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)" and lane_2_lst = "(lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)" and lane_3_lst = "(list_zipWith (\<lambda> (lane_1_341 :: lane_underscore) (lane_2_263 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fge_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_341))) (the ((proj_lane__1 lane_2_263)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2)))" and ?v128.0 = "(inv_lanes_underscore (X (lanetype_Inn Inn_I64) (mk_dim v_M)) (map (\<lambda> (lane_3_107 :: iN). (mk_lane__0 (Jnn_Inn Inn_I64) (mk_uN (proj_uN_0 lane_3_107)))) ((list_zipWith (\<lambda> (lane_1_341 :: lane_underscore) (lane_2_263 :: lane_underscore). (extend__underscore (Suc 0) (sizenn (numtype_Fnn Fnn_F64)) S (mk_uN (proj_uN_0 (fge_underscore (sizenn (numtype_Fnn Fnn_F64)) (the ((proj_lane__1 lane_1_341))) (the ((proj_lane__1 lane_2_263)))))))) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_1)) ((lanes_underscore (X (lanetype_Fnn Fnn_F64) (mk_dim v_M)) v128_2))))))" and v_Inn = "Inn_I64"];
+        (rule vt_list_intros)?)
+    using assms xs0 xs1 by (auto simp: vt_case_simps intro!: vt_case_intros dest!: set_list_zipWithD)
+qed
+
+
+
+section \<open>Totality of the vector relations\<close>
+
+lemmas vunop_cases = fun_vunop_underscore_case_0 fun_vunop_underscore_case_1 
+  fun_vunop_underscore_case_2 fun_vunop_underscore_case_3 fun_vunop_underscore_case_4 
+  fun_vunop_underscore_case_5 fun_vunop_underscore_case_6 fun_vunop_underscore_case_7 
+  fun_vunop_underscore_case_8 fun_vunop_underscore_case_9 fun_vunop_underscore_case_10 
+  fun_vunop_underscore_case_11 fun_vunop_underscore_case_12 fun_vunop_underscore_case_13 
+  fun_vunop_underscore_case_14 fun_vunop_underscore_case_15 fun_vunop_underscore_case_16 
+  fun_vunop_underscore_case_17 fun_vunop_underscore_case_18 fun_vunop_underscore_case_19 
+  fun_vunop_underscore_case_20 fun_vunop_underscore_case_21 fun_vunop_underscore_case_22 
+  fun_vunop_underscore_case_23 fun_vunop_underscore_case_24 fun_vunop_underscore_case_25 
+  lemmas vbinop_cases = fun_vbinop_underscore_case_0 fun_vbinop_underscore_case_1 
+  fun_vbinop_underscore_case_2 fun_vbinop_underscore_case_3 fun_vbinop_underscore_case_4 
+  fun_vbinop_underscore_case_5 fun_vbinop_underscore_case_6 fun_vbinop_underscore_case_7 
+  fun_vbinop_underscore_case_8 fun_vbinop_underscore_case_9 fun_vbinop_underscore_case_10 
+  fun_vbinop_underscore_case_11 fun_vbinop_underscore_case_12 fun_vbinop_underscore_case_13 
+  fun_vbinop_underscore_case_14 fun_vbinop_underscore_case_15 fun_vbinop_underscore_case_16 
+  fun_vbinop_underscore_case_17 fun_vbinop_underscore_case_18 fun_vbinop_underscore_case_19 
+  fun_vbinop_underscore_case_20 fun_vbinop_underscore_case_21 fun_vbinop_underscore_case_22 
+  fun_vbinop_underscore_case_23 fun_vbinop_underscore_case_24 fun_vbinop_underscore_case_25 
+  fun_vbinop_underscore_case_26 fun_vbinop_underscore_case_27 fun_vbinop_underscore_case_28 
+  fun_vbinop_underscore_case_29 fun_vbinop_underscore_case_30 fun_vbinop_underscore_case_31 
+  fun_vbinop_underscore_case_32 fun_vbinop_underscore_case_33 fun_vbinop_underscore_case_34 
+  fun_vbinop_underscore_case_35 fun_vbinop_underscore_case_36 fun_vbinop_underscore_case_37 
+  fun_vbinop_underscore_case_38 fun_vbinop_underscore_case_39 fun_vbinop_underscore_case_40 
+  fun_vbinop_underscore_case_41 fun_vbinop_underscore_case_42 fun_vbinop_underscore_case_43 
+  fun_vbinop_underscore_case_44 fun_vbinop_underscore_case_45 fun_vbinop_underscore_case_46 
+  fun_vbinop_underscore_case_47 fun_vbinop_underscore_case_48 fun_vbinop_underscore_case_49 
+  fun_vbinop_underscore_case_50 fun_vbinop_underscore_case_51 
+  lemmas vrelop_cases = fun_vrelop_underscore_case_0 fun_vrelop_underscore_case_1 
+  fun_vrelop_underscore_case_2 fun_vrelop_underscore_case_3 fun_vrelop_underscore_case_4 
+  fun_vrelop_underscore_case_5 fun_vrelop_underscore_case_6 fun_vrelop_underscore_case_7 
+  fun_vrelop_underscore_case_8 fun_vrelop_underscore_case_9 fun_vrelop_underscore_case_10 
+  fun_vrelop_underscore_case_11 fun_vrelop_underscore_case_12 fun_vrelop_underscore_case_13 
+  fun_vrelop_underscore_case_14 fun_vrelop_underscore_case_15 fun_vrelop_underscore_case_16 
+  fun_vrelop_underscore_case_17 fun_vrelop_underscore_case_18 fun_vrelop_underscore_case_19 
+  fun_vrelop_underscore_case_20 fun_vrelop_underscore_case_21 fun_vrelop_underscore_case_22 
+  fun_vrelop_underscore_case_23 fun_vrelop_underscore_case_24 fun_vrelop_underscore_case_25 
+  fun_vrelop_underscore_case_26 fun_vrelop_underscore_case_27 fun_vrelop_underscore_case_28 
+  fun_vrelop_underscore_case_29 fun_vrelop_underscore_case_30 fun_vrelop_underscore_case_31 
+  fun_vrelop_underscore_case_32 fun_vrelop_underscore_case_33 fun_vrelop_underscore_case_34 
+  fun_vrelop_underscore_case_35 
+
+(* For a fixed lane type, every operator has exactly one `Some` rule; dispatch to its case
+   lemma.  `simp only:` substitutes the equations produced by `cases`, and `(no_asm)`
+   rewrites the shape in the conclusion only, so it matches the case lemmas. *)
+lemma vunop_Jnn_total:
+  assumes "wf_shape (X (lanetype_Jnn J) (mk_dim M))" "wf_uN 128 v"
+  shows "\<exists>r. fun_vunop_underscore (X (lanetype_Jnn J) (mk_dim M)) (mk_vunop__0 J M x) v (Some r)"
+  using assms
+  apply (cases J; cases x)
+    apply (simp_all only:)
+   apply (simp_all (no_asm) only: vt_simps)
+  apply (rule vunop_cases; assumption)+
+  done
+
+lemma vunop_Fnn_total:
+  assumes "wf_shape (X (lanetype_Fnn F) (mk_dim M))" "wf_uN 128 v"
+  shows "\<exists>r. fun_vunop_underscore (X (lanetype_Fnn F) (mk_dim M)) (mk_vunop__1 F M x) v (Some r)"
+  using assms
+  apply (cases F; cases x)
+    apply (simp_all only:)
+   apply (simp_all (no_asm) only: vt_simps)
+  apply (rule vunop_cases; assumption)+
+  done
+
+lemma vbinop_Jnn_total:
+  assumes "wf_shape (X (lanetype_Jnn J) (mk_dim M))" "wf_uN 128 v1" "wf_uN 128 v2"
+  shows "\<exists>r. fun_vbinop_underscore (X (lanetype_Jnn J) (mk_dim M)) (mk_vbinop__0 J M x) v1 v2 (Some r)"
+  using assms
+  apply (cases J; cases x)
+    apply (simp_all only:)
+   apply (simp_all (no_asm) only: vt_simps)
+  apply (rule vbinop_cases; assumption)+
+  done
+
+lemma vbinop_Fnn_total:
+  assumes "wf_shape (X (lanetype_Fnn F) (mk_dim M))" "wf_uN 128 v1" "wf_uN 128 v2"
+  shows "\<exists>r. fun_vbinop_underscore (X (lanetype_Fnn F) (mk_dim M)) (mk_vbinop__1 F M x) v1 v2 (Some r)"
+  using assms
+  apply (cases F; cases x)
+    apply (simp_all only:)
+   apply (simp_all (no_asm) only: vt_simps)
+  apply (rule vbinop_cases; assumption)+
+  done
+
+lemma vrelop_Jnn_total:
+  assumes "wf_shape (X (lanetype_Jnn J) (mk_dim M))" "wf_uN 128 v1" "wf_uN 128 v2"
+  shows "\<exists>r. fun_vrelop_underscore (X (lanetype_Jnn J) (mk_dim M)) (mk_vrelop__0 J M x) v1 v2 (Some r)"
+  using assms
+  apply (cases J; cases x)
+    apply (simp_all only:)
+   apply (simp_all (no_asm) only: vt_simps)
+  apply (rule vrelop_cases; assumption)+
+  done
+
+lemma vrelop_Fnn_total:
+  assumes "wf_shape (X (lanetype_Fnn F) (mk_dim M))" "wf_uN 128 v1" "wf_uN 128 v2"
+  shows "\<exists>r. fun_vrelop_underscore (X (lanetype_Fnn F) (mk_dim M)) (mk_vrelop__1 F M x) v1 v2 (Some r)"
+  using assms
+  apply (cases F; cases x)
+    apply (simp_all only:)
+   apply (simp_all (no_asm) only: vt_simps)
+  apply (rule vrelop_cases; assumption)+
+  done
+
+lemma vunop_total:
+  assumes "wf_shape sh" "wf_vunop_underscore sh op" "wf_uN 128 v"
+  shows "\<exists>r. fun_vunop_underscore sh op v (Some r)"
+  using assms(2) by cases (use assms(1,3) vunop_Jnn_total vunop_Fnn_total in blast)+
+
+lemma vbinop_total:
+  assumes "wf_shape sh" "wf_vbinop_underscore sh op" "wf_uN 128 v1" "wf_uN 128 v2"
+  shows "\<exists>r. fun_vbinop_underscore sh op v1 v2 (Some r)"
+  using assms(2) by cases (use assms(1,3,4) vbinop_Jnn_total vbinop_Fnn_total in blast)+
+
+lemma vrelop_total:
+  assumes "wf_shape sh" "wf_vrelop_underscore sh op" "wf_uN 128 v1" "wf_uN 128 v2"
+  shows "\<exists>r. fun_vrelop_underscore sh op v1 v2 (Some r)"
+  using assms(2) by cases (use assms(1,3,4) vrelop_Jnn_total vrelop_Fnn_total in blast)+
+
+lemma vshiftop_lane_ex:
+  "\<exists>r. fun_vshiftop_underscore (mk_ishape (X (lanetype_Jnn J) (mk_dim M))) (mk_vshiftop__0 J M x)
+     (mk_lane__0 J l) (mk_uN n) (Some r)"
+  by (cases J; cases x; simp only:; simp (no_asm) only: vt_simps; blast intro: fun_vshiftop_underscore.intros)
+
+lemma vshiftop_lane_some:
+  "fun_vshiftop_underscore (mk_ishape (X (lanetype_Jnn J) (mk_dim M))) (mk_vshiftop__0 J M x)
+     (mk_lane__0 J l) (mk_uN n) (Some (SOME r. fun_vshiftop_underscore
+       (mk_ishape (X (lanetype_Jnn J) (mk_dim M))) (mk_vshiftop__0 J M x) (mk_lane__0 J l) (mk_uN n) (Some r)))"
+  using vshiftop_lane_ex[of J M x l n] by (rule someI_ex)
+
+lemma wf_ishape_form:
+  assumes "wf_ishape sh"
+  shows "\<exists>J N. sh = mk_ishape (X (lanetype_Jnn J) (mk_dim N)) \<and> wf_shape (X (lanetype_Jnn J) (mk_dim N))"
+  using assms
+proof cases
+  case (ishape_case_0 s J)
+  obtain lt d where s: "s = X lt d" by (cases s)
+  obtain N where d: "d = mk_dim N" by (cases d)
+  have "lt = lanetype_Jnn J" using ishape_case_0 s d by (simp add: vt_generic_simps)
+  then show ?thesis using ishape_case_0 s d by blast
+qed
+
+lemma i32_num_form:
+  assumes "wf_num_underscore I32 c"
+  shows "\<exists>n. c = mk_num__0 Inn_I32 (mk_uN n) \<and> wf_uN 32 (mk_uN n)"
+  using assms
+proof cases
+  case (num__case_0 inn x)
+  then have "inn = Inn_I32" by (cases inn) (simp_all add: vt_simps)
+  then show ?thesis using num__case_0 by (cases x) (auto simp: vt_simps)
+next
+  case (num__case_1 fnn x)
+  then show ?thesis by (cases fnn) (simp_all add: vt_simps)
+qed
+
+section \<open>Lane extraction\<close>
+
+lemma unpack_lane_some:
+  assumes "wf_shape (X (lanetype_numtype nt) (mk_dim N))" "wf_uN 128 v" "k < N"
+  shows "unpacknum_underscore (lanetype_numtype nt) (lanes_underscore (X (lanetype_numtype nt) (mk_dim N)) v ! k) \<noteq> None"
+proof (cases nt)
+  case I32
+  then show ?thesis using lanes_Jnn[of Jnn_I32 N v] assms
+    by (auto simp: vt_simps unpacknum_underscore.psimps unpacknum_underscore.domintros)
+next
+  case I64
+  then show ?thesis using lanes_Jnn[of Jnn_I64 N v] assms
+    by (auto simp: vt_simps unpacknum_underscore.psimps unpacknum_underscore.domintros)
+next
+  case F32
+  then show ?thesis using lanes_Fnn[of Fnn_F32 N v] assms
+    by (auto simp: vt_simps unpacknum_underscore.psimps unpacknum_underscore.domintros)
+next
+  case F64
+  then show ?thesis using lanes_Fnn[of Fnn_F64 N v] assms
+    by (auto simp: vt_simps unpacknum_underscore.psimps unpacknum_underscore.domintros)
+qed
+
+lemma pack_lane:
+  assumes s: "wf_shape (X (lanetype_packtype pt) (mk_dim N))" and v: "wf_uN 128 v" and k: "k < N"
+  shows "\<exists>x. lanes_underscore (X (lanetype_packtype pt) (mk_dim N)) v ! k = mk_lane__0 (Jnn_packtype pt) x
+    \<and> wf_uN (psize pt) x"
+proof -
+  obtain J where J: "lanetype_packtype pt = lanetype_Jnn J" "Jnn_packtype pt = J"
+      "lsize (lanetype_Jnn J) = psize pt"
+    by (cases pt) (auto simp: vt_simps)
+  obtain xs where xs: "lanes_underscore (X (lanetype_Jnn J) (mk_dim N)) v = map (mk_lane__0 J) xs"
+      "\<forall>x\<in>set xs. wf_uN (lsize (lanetype_Jnn J)) x" "length xs = N"
+    using lanes_Jnn[of J N v] s v J(1) by auto
+  show ?thesis using xs J k bspec[OF xs(2) nth_mem[of k xs]] by auto
+qed
+
+section \<open>Lane-rearranging vector operations\<close>
+
+lemma wf_shape_size: "wf_shape (X lt (mk_dim n)) \<Longrightarrow> lsize lt * n = 128"
+  by (auto elim: wf_shape.cases simp: vt_generic_simps)
+
+lemma wf_ishape_shape: "wf_ishape (mk_ishape s) \<Longrightarrow> wf_shape s"
+  by (auto elim: wf_ishape.cases)
+
+lemma concat_underscore_dom: "concat_underscore_dom ws"
+  by (induction ws) (auto intro: concat_underscore.domintros)
+
+lemma concat_underscore_eq: "concat_underscore ws = concat ws"
+  by (induction ws) (simp_all add: concat_underscore.psimps[OF concat_underscore_dom])
+
+(* An even-length list is the interleaving of two equally long lists. *)
+lemma pair_split:
+  assumes "even (length xs)"
+  shows "\<exists>a b. length a = length b \<and> concat_underscore (list_zipWith (\<lambda>x y. [x, y]) a b) = xs
+    \<and> set a \<subseteq> set xs \<and> set b \<subseteq> set xs"
+  using assms
+proof (induction xs rule: induct_list012)
+  case 1
+  then show ?case by (auto simp: list_zipWith_def concat_underscore_eq)
+next
+  case (2 x)
+  then show ?case by simp
+next
+  case (3 x y zs)
+  then obtain a b where "length a = length b" "concat_underscore (list_zipWith (\<lambda>x y. [x, y]) a b) = zs"
+      "set a \<subseteq> set zs" "set b \<subseteq> set zs"
+    by auto
+  then show ?case
+    by (intro exI[of _ "x # a"] exI[of _ "y # b"]) (auto simp: list_zipWith_def concat_underscore_eq)
+qed
+
+(* The generated vbitmask rule spells the bit width 32 as a Suc chain. *)
+lemma thirty_two: "Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0))))))))))))))))))))))))))))))) = (32::nat)"
+  by simp
+
+lemma set_repeat: "set (repeat n x) \<subseteq> {x}"
+  by (induction n) auto
+
+lemma nth_repeat: "i < n \<Longrightarrow> repeat n x ! i = x"
+  by (induction n arbitrary: i) (auto simp: nth_Cons split: nat.split)
+
+lemma set_list_slice: "set (list_slice xs n m) \<subseteq> set xs"
+  by (induction xs n m rule: list_slice.induct) auto
+
+lemma length_list_slice_min: "length (list_slice xs n m) = Orderings.min m (length xs - n)"
+  by (induction xs n m rule: list_slice.induct) auto
+
+lemma lanes_proj_some:
+  "lanes_underscore sh v = map (mk_lane__0 J) xs \<Longrightarrow>
+   list_all (\<lambda>ci. proj_lane__0 ci \<noteq> None) (lanes_underscore sh v)"
+  by (simp add: list_all_iff vt_generic_simps)
+
+(* After fixing the lane types, exactly one generated rule applies; its equational premises
+   are closed by `refl` and the remaining ones are the facts passed in. *)
+lemma vextunop_total:
+  assumes op: "wf_vextunop__underscore ish1 ish2 op" and s: "wf_ishape ish1" "wf_ishape ish2"
+    and v: "wf_uN 128 v"
+  shows "\<exists>r. fun_vextunop__underscore ish1 ish2 op v (Some r)"
+proof -
+  from op obtain J1 M1 J2 M2 sx where e: "ish1 = mk_ishape (X (lanetype_Jnn J1) (mk_dim M1))"
+      "ish2 = mk_ishape (X (lanetype_Jnn J2) (mk_dim M2))" "op = mk_vextunop___0 J1 M1 J2 M2 (EXTADD_PAIRWISE sx)"
+    and sz: "2 * lsize (lanetype_Jnn J1) = lsize (lanetype_Jnn J2)"
+    by (auto elim!: wf_vextunop__underscore.cases wf_vextunop__Jnn_1_M_1_Jnn_2_M_2.cases
+        simp: vt_generic_simps)
+  have s1: "wf_shape (X (lanetype_Jnn J1) (mk_dim M1))" and s2: "wf_shape (X (lanetype_Jnn J2) (mk_dim M2))"
+    using s e by (auto intro: wf_ishape_shape)
+  have M: "M1 = 2 * M2"
+    using sz wf_shape_size[OF s1] wf_shape_size[OF s2] by (cases J1; cases J2) (auto simp: vt_simps)
+  obtain xs where xs: "lanes_underscore (X (lanetype_Jnn J1) (mk_dim M1)) v = map (mk_lane__0 J1) xs"
+      "\<forall>x\<in>set xs. wf_uN (lsize (lanetype_Jnn J1)) x" "length xs = M1"
+    using lanes_Jnn[OF s1 v] by blast
+  define ext where "ext = map (\<lambda>ci. extend__underscore (lsizenn1 (lanetype_Jnn J1))
+    (lsizenn2 (lanetype_Jnn J2)) sx (the (proj_lane__0 ci))) (lanes_underscore (X (lanetype_Jnn J1) (mk_dim M1)) v)"
+  have ext_wf: "\<forall>y\<in>set ext. wf_uN (lsize (lanetype_Jnn J2)) y"
+    using xs(1,2) by (auto simp: ext_def vt_generic_simps intro: extend___is_wf[OF _ HOL.refl])
+  obtain a b where ab: "length a = length b" "concat_underscore (list_zipWith (\<lambda>x y. [x, y]) a b) = ext"
+      "set a \<subseteq> set ext" "set b \<subseteq> set ext"
+    using pair_split[of ext] xs(1,3) M by (auto simp: ext_def)
+  have wfab: "list_all2 (\<lambda>cj_1 cj_2. wf_lane_underscore (fun_lanetype (X (lanetype_Jnn J2) (mk_dim M2)))
+      (mk_lane__0 J2 (iadd_underscore (lsizenn2 (lanetype_Jnn J2)) cj_1 cj_2))) a b"
+    using ab(1,3,4) ext_wf
+    by (auto intro!: list_all2_setI lane__case_0 iadd__is_wf[OF _ _ HOL.refl] simp: vt_generic_simps)
+  show ?thesis unfolding e
+    using lanes_proj_some[OF xs(1)] ab(2)[unfolded ext_def] s1 s2 ab(1) wfab
+    apply (cases J1; cases J2)
+    apply (simp_all only:)
+    apply (simp_all (no_asm) only: vt_simps)
+    apply (rule exI, rule fun_vextunop__underscore.intros, (rule HOL.refl | assumption)+)+
+    done
+qed
+
+lemma vextbinop_total:
+  assumes op: "wf_vextbinop__underscore ish1 ish2 op" and s: "wf_ishape ish1" "wf_ishape ish2"
+    and v: "wf_uN 128 v1" "wf_uN 128 v2"
+  shows "\<exists>r. fun_vextbinop__underscore ish1 ish2 op v1 v2 (Some r)"
+proof -
+  from op obtain J1 M1 J2 M2 x where e: "ish1 = mk_ishape (X (lanetype_Jnn J1) (mk_dim M1))"
+      "ish2 = mk_ishape (X (lanetype_Jnn J2) (mk_dim M2))" "op = mk_vextbinop___0 J1 M1 J2 M2 x"
+    and sz: "2 * lsize (lanetype_Jnn J1) = lsize (lanetype_Jnn J2)"
+    by (auto elim!: wf_vextbinop__underscore.cases wf_vextbinop__Jnn_1_M_1_Jnn_2_M_2.cases
+        simp: vt_generic_simps)
+  have s1: "wf_shape (X (lanetype_Jnn J1) (mk_dim M1))" and s2: "wf_shape (X (lanetype_Jnn J2) (mk_dim M2))"
+    using s e by (auto intro: wf_ishape_shape)
+  have M: "M1 = 2 * M2"
+    using sz wf_shape_size[OF s1] wf_shape_size[OF s2] by (cases J1; cases J2) (auto simp: vt_simps)
+  obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn J1) (mk_dim M1)) v1 = map (mk_lane__0 J1) xs1"
+      "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn J1)) x" "length xs1 = M1"
+    using lanes_Jnn[OF s1 v(1)] by blast
+  obtain xs2 where xs2: "lanes_underscore (X (lanetype_Jnn J1) (mk_dim M1)) v2 = map (mk_lane__0 J1) xs2"
+      "\<forall>x\<in>set xs2. wf_uN (lsize (lanetype_Jnn J1)) x" "length xs2 = M1"
+    using lanes_Jnn[OF s1 v(2)] by blast
+  let ?L1 = "lanes_underscore (X (lanetype_Jnn J1) (mk_dim M1)) v1"
+  let ?L2 = "lanes_underscore (X (lanetype_Jnn J1) (mk_dim M1)) v2"
+  (* the extended product of two lanes is well-formed at the wider lane size *)
+  have prod_wf: "wf_uN (lsize (lanetype_Jnn J2)) (imul_underscore (lsize (lanetype_Jnn J2))
+      (extend__underscore (lsize (lanetype_Jnn J1)) (lsize (lanetype_Jnn J2)) s (the (proj_lane__0 a)))
+      (extend__underscore (lsize (lanetype_Jnn J1)) (lsize (lanetype_Jnn J2)) s (the (proj_lane__0 b))))"
+    if "a \<in> set ?L1" "b \<in> set ?L2" for a b s
+    using that xs1(1,2) xs2(1,2)
+    by (auto simp: vt_generic_simps intro!: imul__is_wf[OF _ _ HOL.refl] extend___is_wf[OF _ HOL.refl])
+  show ?thesis
+  proof (cases x)
+    case (EXTMUL h sx)
+    let ?S1 = "list_slice ?L1 (fun_half h 0 M2) M2"
+    let ?S2 = "list_slice ?L2 (fun_half h 0 M2) M2"
+    have nn: "list_all (\<lambda>ci. proj_lane__0 ci \<noteq> None) ?S1" "list_all (\<lambda>ci. proj_lane__0 ci \<noteq> None) ?S2"
+      using set_list_slice lanes_proj_some[OF xs1(1)] lanes_proj_some[OF xs2(1)]
+      by (fastforce simp: list_all_iff)+
+    have len: "length ?S1 = length ?S2" using xs1(1,3) xs2(1,3) by (simp add: length_list_slice_min)
+    have wf: "list_all2 (\<lambda>ci_1 ci_2. wf_lane_underscore (fun_lanetype (X (lanetype_Jnn J2) (mk_dim M2)))
+        (mk_lane__0 J2 (imul_underscore (lsizenn2 (lanetype_Jnn J2))
+          (extend__underscore (lsizenn1 (lanetype_Jnn J1)) (lsizenn2 (lanetype_Jnn J2)) sx (the (proj_lane__0 ci_1)))
+          (extend__underscore (lsizenn1 (lanetype_Jnn J1)) (lsizenn2 (lanetype_Jnn J2)) sx (the (proj_lane__0 ci_2))))))
+        ?S1 ?S2"
+      using len by (auto intro!: list_all2_setI lane__case_0 prod_wf dest!: set_list_slice[THEN subsetD]
+          simp: vt_generic_simps)
+    show ?thesis unfolding e EXTMUL
+      using nn s1 s2 len wf
+      apply (cases J1; cases J2)
+      apply (simp_all only:)
+      apply (simp_all (no_asm) only: vt_simps)
+      apply (rule exI, rule fun_vextbinop__underscore.intros, (rule HOL.refl | assumption)+)+
+      done
+  next
+    case DOTS
+    define prods where "prods = list_zipWith (\<lambda>ci_1 ci_2. imul_underscore (lsizenn2 (lanetype_Jnn J2))
+      (extend__underscore (lsizenn1 (lanetype_Jnn J1)) (lsizenn2 (lanetype_Jnn J2)) S (the (proj_lane__0 ci_1)))
+      (extend__underscore (lsizenn1 (lanetype_Jnn J1)) (lsizenn2 (lanetype_Jnn J2)) S (the (proj_lane__0 ci_2))))
+      ?L1 ?L2"
+    have prods_wf: "\<forall>y\<in>set prods. wf_uN (lsize (lanetype_Jnn J2)) y"
+      by (auto simp: prods_def vt_generic_simps intro!: prod_wf dest!: set_list_zipWithD)
+    obtain a b where ab: "length a = length b" "concat_underscore (list_zipWith (\<lambda>x y. [x, y]) a b) = prods"
+        "set a \<subseteq> set prods" "set b \<subseteq> set prods"
+      using pair_split[of prods] xs1(1,3) xs2(1,3) M by (auto simp: prods_def length_list_zipWith)
+    have wfab: "list_all2 (\<lambda>cj_1 cj_2. wf_lane_underscore (fun_lanetype (X (lanetype_Jnn J2) (mk_dim M2)))
+        (mk_lane__0 J2 (iadd_underscore (lsizenn2 (lanetype_Jnn J2)) cj_1 cj_2))) a b"
+      using ab(1,3,4) prods_wf
+      by (auto intro!: list_all2_setI lane__case_0 iadd__is_wf[OF _ _ HOL.refl] simp: vt_generic_simps)
+    show ?thesis unfolding e DOTS
+      using lanes_proj_some[OF xs1(1)] lanes_proj_some[OF xs2(1)] ab(2)[unfolded prods_def] s1 s2 ab(1) wfab
+      apply (cases J1; cases J2)
+      apply (simp_all only:)
+      apply (simp_all (no_asm) only: vt_simps)
+      apply (rule exI, rule fun_vextbinop__underscore.intros, (rule HOL.refl | assumption)+)+
+      done
+  qed
+qed
+
+section \<open>Vector conversions\<close>
+
+lemma setproduct2_dom: "setproduct2_underscore_dom (w, yss)"
+  by (induction yss) (auto intro: setproduct2_underscore.domintros)
+
+lemma setproduct1_dom: "setproduct1_underscore_dom (ws, yss)"
+  by (induction ws) (auto intro: setproduct1_underscore.domintros)
+
+lemma setproduct_dom: "setproduct_underscore_dom xss"
+  by (induction xss) (auto intro: setproduct_underscore.domintros)
+
+lemma setproduct2_nonempty: "yss \<noteq> [] \<Longrightarrow> setproduct2_underscore w yss \<noteq> []"
+  by (cases yss) (simp_all add: setproduct2_underscore.psimps[OF setproduct2_dom])
+
+lemma setproduct1_nonempty: "ws \<noteq> [] \<Longrightarrow> yss \<noteq> [] \<Longrightarrow> setproduct1_underscore ws yss \<noteq> []"
+  by (cases ws) (simp_all add: setproduct1_underscore.psimps[OF setproduct1_dom] setproduct2_nonempty)
+
+lemma setproduct_nonempty: "\<forall>xs\<in>set xss. xs \<noteq> [] \<Longrightarrow> setproduct_underscore xss \<noteq> []"
+  by (induction xss) (simp_all add: setproduct_underscore.psimps[OF setproduct_dom] setproduct1_nonempty)
+
+lemma list_underscore_nonempty: "x \<noteq> None \<Longrightarrow> list_underscore (map_option f x) \<noteq> []"
+  by (cases x) (simp_all add: vt_generic_simps)
+
+lemma zero_eq: "(z :: zero) = ZERO"
+  by (cases z) simp
+
+(* Every lane of a well-formed input converts to a non-empty list of output lanes. *)
+lemma lcvtop_ex:
+  assumes op: "wf_vcvtop__underscore sh1 sh2 op" and s: "wf_shape sh1" and v: "wf_uN 128 v"
+    and l: "l \<in> set (lanes_underscore sh1 v)"
+  shows "\<exists>ys. fun_lcvtop__underscore sh1 sh2 op l (Some ys) \<and> ys \<noteq> []"
+  using op
+proof cases
+  case (vcvtop___case_0 J1 M1 J2 M2 x)
+  then obtain i where "l = mk_lane__0 J1 i" using lanes_Jnn[of J1 M1 v] s v l by auto
+  then show ?thesis using vcvtop___case_0
+    apply (cases J1; cases J2; cases x)
+                   apply (simp_all only:)
+    apply (simp_all (no_asm) only: vt_simps)
+    apply (rule exI, rule conjI, rule fun_lcvtop__underscore.intros, (rule HOL.refl)+, simp)+
+    done
+next
+  case (vcvtop___case_1 J M1 F M2 x)
+  then obtain i where "l = mk_lane__0 J i" using lanes_Jnn[of J M1 v] s v l by auto
+  then show ?thesis using vcvtop___case_1
+    apply (cases J; cases F; cases x)
+           apply (simp_all only:)
+    apply (simp_all (no_asm) only: vt_simps)
+    apply (rule exI, rule conjI, rule fun_lcvtop__underscore.intros, (rule HOL.refl)+, simp)+
+    done
+next
+  case (vcvtop___case_2 F M1 I M2 x)
+  then obtain i where "l = mk_lane__1 F i" using lanes_Fnn[of F M1 v] s v l by auto
+  then show ?thesis using vcvtop___case_2
+    apply (cases F; cases I; cases x)
+       apply (simp_all only:)
+    apply (simp_all (no_asm) only: vt_simps)
+    apply (rule exI, rule conjI, rule fun_lcvtop__underscore.intros, (rule HOL.refl)+,
+        simp add: list_underscore_nonempty float_cvt_nonempty)+
+    done
+next
+  case (vcvtop___case_3 F1 M1 F2 M2 x)
+  then obtain i where "l = mk_lane__1 F1 i" using lanes_Fnn[of F1 M1 v] s v l by auto
+  moreover have "x = vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE ZERO \<or> x = PROMOTELOW"
+    by (cases x) (simp_all add: zero_eq)
+  ultimately show ?thesis using vcvtop___case_3
+    apply (cases F1; cases F2; elim disjE)
+           apply (simp_all only:)
+    apply (simp_all (no_asm) only: vt_simps)
+    apply (rule exI, rule conjI, rule fun_lcvtop__underscore.intros, (rule HOL.refl)+,
+        simp add: float_cvt_nonempty)+
+    done
+qed
+
+(* The half/zero selectors are never both set, and when neither is, the shapes have the same
+   number of lanes (the conversion is lane-by-lane). *)
+lemma vcvtop_halfop_zeroop:
+  assumes op: "wf_vcvtop__underscore sh1 sh2 op" and s: "wf_shape sh1" "wf_shape sh2"
+  shows "\<exists>h z. fun_halfop sh1 sh2 op (Some h) \<and> fun_zeroop sh1 sh2 op (Some z) \<and> (h = None \<or> z = None)
+    \<and> (h = None \<and> z = None \<longrightarrow> (\<exists>lt1 lt2 M. sh1 = X lt1 (mk_dim M) \<and> sh2 = X lt2 (mk_dim M)))"
+  using op
+proof cases
+  case (vcvtop___case_0 J1 M1 J2 M2 x)
+  then show ?thesis
+    apply (cases J1; cases J2; cases x)
+                   apply (simp_all only:)
+    apply (simp_all (no_asm) only: vt_simps)
+    apply (rule exI, rule exI, intro conjI,
+        (rule fun_halfop.intros fun_zeroop.intros, (rule HOL.refl)+)+, simp, simp)+
+    done
+next
+  case (vcvtop___case_1 J M1 F M2 x)
+  (* converting without a half needs equal lane sizes, hence equal lane counts *)
+  obtain ho sx where x: "x = vcvtop__Jnn_1_M_1_Fnn_2_M_2_CONVERT ho sx" by (cases x)
+  have dim: "M1 = M2" if "ho = None"
+    using that vcvtop___case_1 x s wf_shape_size[of "lanetype_Jnn J" M1] wf_shape_size[of "lanetype_Fnn F" M2]
+    by (cases J; cases F) (auto elim!: wf_vcvtop__Jnn_1_M_1_Fnn_2_M_2.cases simp: vt_all_simps)
+  show ?thesis using vcvtop___case_1 x dim
+    apply (cases J; cases F)
+           apply (simp_all only:)
+    apply (simp_all (no_asm) only: vt_simps)
+    apply (rule exI, rule exI, intro conjI,
+        (rule fun_halfop.intros fun_zeroop.intros, (rule HOL.refl)+)+, simp, simp)+
+    done
+next
+  case (vcvtop___case_2 F M1 I M2 x)
+  obtain sx zo where x: "x = vcvtop__Fnn_1_M_1_Inn_2_M_2_TRUNC_SAT sx zo" by (cases x)
+  have dim: "M1 = M2" if "zo = None"
+    using that vcvtop___case_2 x s wf_shape_size[of "lanetype_Fnn F" M1] wf_shape_size[of "lanetype_Inn I" M2]
+    by (cases F; cases I) (auto elim!: wf_vcvtop__Fnn_1_M_1_Inn_2_M_2.cases simp: vt_all_simps)
+  show ?thesis using vcvtop___case_2 x dim
+    apply (cases F; cases I)
+       apply (simp_all only:)
+    apply (simp_all (no_asm) only: vt_simps)
+    apply (rule exI, rule exI, intro conjI,
+        (rule fun_halfop.intros fun_zeroop.intros, (rule HOL.refl)+)+, simp, simp)+
+    done
+next
+  case (vcvtop___case_3 F1 M1 F2 M2 x)
+  moreover have "x = vcvtop__Fnn_1_M_1_Fnn_2_M_2_DEMOTE ZERO \<or> x = PROMOTELOW"
+    by (cases x) (simp_all add: zero_eq)
+  ultimately show ?thesis
+    apply (cases F1; cases F2; elim disjE)
+           apply (simp_all only:)
+    apply (simp_all (no_asm) only: vt_simps)
+    apply (rule exI, rule exI, intro conjI,
+        (rule fun_halfop.intros fun_zeroop.intros, (rule HOL.refl)+)+, simp, simp)+
+    done
+qed
+
+lemma vcvtop_total:
+  assumes op: "wf_vcvtop__underscore sh1 sh2 op" and s: "wf_shape sh1" "wf_shape sh2"
+    and v: "wf_uN 128 v"
+  shows "\<exists>r. fun_vcvtop__underscore sh1 sh2 op v (Some r)"
+proof -
+  define f where "f = (\<lambda>l. SOME ys. fun_lcvtop__underscore sh1 sh2 op l (Some ys) \<and> ys \<noteq> [])"
+  have f: "fun_lcvtop__underscore sh1 sh2 op l (Some (f l)) \<and> f l \<noteq> []"
+    if "l \<in> set (lanes_underscore sh1 v)" for l
+    unfolding f_def using lcvtop_ex[OF op s(1) v that] by (rule someI_ex)
+  obtain h z where H: "fun_halfop sh1 sh2 op (Some h)" and Z: "fun_zeroop sh1 sh2 op (Some z)"
+      and hz: "h = None \<or> z = None"
+      and dim: "h = None \<Longrightarrow> z = None \<Longrightarrow> \<exists>lt1 lt2 M. sh1 = X lt1 (mk_dim M) \<and> sh2 = X lt2 (mk_dim M)"
+    using vcvtop_halfop_zeroop[OF op s] by blast
+  obtain lt1 M1 where sh1: "sh1 = X lt1 (mk_dim M1)" by (metis shape.exhaust dim.exhaust)
+  obtain lt2 M2 where sh2: "sh2 = X lt2 (mk_dim M2)" by (metis shape.exhaust dim.exhaust)
+  (* for any selection C of input lanes, convert each lane and take one combination *)
+  have conv: "length (map (\<lambda>l. Some (f l)) C) = length C"
+      "list_all2 (\<lambda>var c. fun_lcvtop__underscore sh1 sh2 op c var) (map (\<lambda>l. Some (f l)) C) C"
+      "list_all (\<lambda>var. var \<noteq> None) (map (\<lambda>l. Some (f l)) C)"
+      "\<forall>ys\<in>set (map the (map (\<lambda>l. Some (f l)) C)). ys \<noteq> []"
+    if "set C \<subseteq> set (lanes_underscore sh1 v)" for C
+    using that f by (auto intro!: list_all2_mapI simp: list_all_iff)
+  show ?thesis
+  proof (cases h)
+    case (Some hv)
+    let ?C = "list_slice (lanes_underscore (X lt1 (mk_dim M1)) v) (fun_half hv 0 M2) M2"
+    let ?P = "setproduct_underscore (map the (map (\<lambda>l. Some (f l)) ?C))"
+    have C: "set ?C \<subseteq> set (lanes_underscore sh1 v)" using set_list_slice sh1 by simp
+    have "?P \<noteq> []" using setproduct_nonempty conv(4)[OF C] by blast
+    then have P: "0 < length (map (inv_lanes_underscore (X lt2 (mk_dim M2))) ?P)"
+        "hd (map (inv_lanes_underscore (X lt2 (mk_dim M2))) ?P) \<in> set (map (inv_lanes_underscore (X lt2 (mk_dim M2))) ?P)"
+      using hd_in_set[of "map (inv_lanes_underscore (X lt2 (mk_dim M2))) ?P"] by simp_all
+    have opt: "Some (Some hv) \<noteq> None" "the (Some (Some hv)) = Some hv" by simp_all
+    from conv[OF C] H[unfolded Some] opt P s
+    show ?thesis unfolding sh1 sh2
+      apply -
+      apply (rule exI, rule fun_vcvtop__underscore.intros(2))
+                apply (rule HOL.refl | assumption)+
+      done
+  next
+    case None
+    then have z: "z = None \<or> z = Some ZERO" using zero_eq by (cases z) auto
+    then show ?thesis
+    proof
+      assume z0: "z = Some ZERO"
+      let ?C = "lanes_underscore (X lt1 (mk_dim M1)) v"
+      let ?p = "the (packnum_underscore lt2 (fun_zero (unpack lt2)))"
+      let ?P = "setproduct_underscore (map the (map (\<lambda>l. Some (f l)) ?C) @ repeat M1 [?p])"
+      have C: "set ?C \<subseteq> set (lanes_underscore sh1 v)" using sh1 by simp
+      have pk: "packnum_underscore lt2 (fun_zero (unpack lt2)) \<noteq> None"
+        using packnum_not_None zero_is_wf[OF HOL.refl] by blast
+      have "\<forall>ys\<in>set (map the (map (\<lambda>l. Some (f l)) ?C) @ repeat M1 [?p]). ys \<noteq> []"
+        using conv(4)[OF C] set_repeat[of M1 "[?p]"] by auto
+      then have "?P \<noteq> []" by (rule setproduct_nonempty)
+      then have P: "0 < length (map (inv_lanes_underscore (X lt2 (mk_dim M2))) ?P)"
+          "hd (map (inv_lanes_underscore (X lt2 (mk_dim M2))) ?P) \<in> set (map (inv_lanes_underscore (X lt2 (mk_dim M2))) ?P)"
+        using hd_in_set[of "map (inv_lanes_underscore (X lt2 (mk_dim M2))) ?P"] by simp_all
+      have opt: "Some (Some ZERO) \<noteq> None" "the (Some (Some ZERO)) = Some ZERO" by simp_all
+      from conv[OF C] Z[unfolded z0] opt pk P s
+      show ?thesis unfolding sh1 sh2
+        apply -
+        apply (rule exI, rule fun_vcvtop__underscore.intros(3))
+                    apply (rule HOL.refl | assumption)+
+        done
+    next
+      assume z0: "z = None"
+      then obtain lt1' lt2' M where e: "sh1 = X lt1' (mk_dim M)" "sh2 = X lt2' (mk_dim M)"
+        using dim None by blast
+      let ?C = "lanes_underscore (X lt1' (mk_dim M)) v"
+      let ?P = "setproduct_underscore (map the (map (\<lambda>l. Some (f l)) ?C))"
+      have C: "set ?C \<subseteq> set (lanes_underscore sh1 v)" using e by simp
+      have "?P \<noteq> []" using setproduct_nonempty conv(4)[OF C] by blast
+      then have P: "0 < length (map (inv_lanes_underscore (X lt2' (mk_dim M))) ?P)"
+          "hd (map (inv_lanes_underscore (X lt2' (mk_dim M))) ?P) \<in> set (map (inv_lanes_underscore (X lt2' (mk_dim M))) ?P)"
+        using hd_in_set[of "map (inv_lanes_underscore (X lt2' (mk_dim M))) ?P"] by simp_all
+      have opt: "Some (None :: half option) \<noteq> None" "Some (None :: zero option) \<noteq> None"
+          "the (Some (None :: half option)) = None \<and> the (Some (None :: zero option)) = None" by simp_all
+      from conv[OF C] H[unfolded None] Z[unfolded z0] opt P s
+      show ?thesis unfolding e
+        apply -
+        apply (rule exI, rule fun_vcvtop__underscore.intros(1))
+                      apply (rule HOL.refl | assumption)+
+        done
+    qed
+  qed
+qed
+
 
 theorem progress:
   assumes "Config_ok (mk_config s es) ts"
@@ -2147,33 +4966,6 @@ theorem progress:
       qed
     next
       case (vunop C sh vunop_sh)
-      then show ?case sorry
-    next
-      case (vbinop C sh vbinop_sh)
-      then show ?case sorry
-    next
-      case (vtestop C sh vtestop_sh)
-      then show ?case sorry
-    next
-      case (vrelop C sh vrelop_sh)
-      then show ?case sorry
-    next
-      case (vshiftop C sh vshiftop_sh)
-      then show ?case sorry
-    next
-      case (vbitmask C sh)
-      then show ?case sorry
-    next
-      case (vswizzle C sh)
-      then show ?case sorry
-    next
-      case (vshuffle sh i_lst C)
-      then show ?case sorry
-    next
-      case (vsplat C sh)
-      then show ?case sorry
-    next
-      case (vextract_lane j sh C sx_opt) 
       then show ?case proof(induction vs)
         case Nil
         then show ?case by simp
@@ -2181,68 +4973,469 @@ theorem progress:
         case (Cons a vs)
         show ?case using Cons(2-) proof(induction vs)
           case Nil
+          note outer = Nil
           then obtain vec where vec: "a = val_VCONST V128 vec" using typeofval_is_v128 by fastforce
-          have wfsh: "wf_shape sh" 
-            "(fun_lanetype sh) \<in> set [lanetype_I32, lanetype_I64, lanetype_F32, lanetype_F64] \<longleftrightarrow> (sx_opt = None)" 
-            using Nil(7) proof(induction "instr_sc3 (VEXTRACT_LANE sh sx_opt j)") qed(auto)
-          then show ?case using Nil proof(induction sh)
-            case (shape_case_0 v_dim v_lanetype)
-            then show ?case proof(induction v_dim)
-              case (dim_case_0 i)
-              then show ?case proof(induction sx_opt)
-              case None
-              have "fun_lanetype (X v_lanetype (mk_dim i)) \<in> set [lanetype_I32, lanetype_I64, lanetype_F32, lanetype_F64]"
-                using None(3) by simp
-              then obtain nt where nt: "v_lanetype = lanetype_numtype nt" 
-                apply(auto)
-                subgoal 
-                proof - 
-                  assume assms: "(\<And>nt. v_lanetype = lanetype_numtype nt \<Longrightarrow> thesis)"
-                    "fun_lanetype (X v_lanetype (mk_dim i)) = lanetype_I32"
-                  show "thesis" using assms(1)[of I32] assms(2)
-                      fun_lanetype.domintros fun_lanetype.psimps lanetype_numtype.domintros
-                      lanetype_numtype.psimps
-                    by metis
-                qed
-                subgoal 
-                proof - 
-                  assume assms: "(\<And>nt. v_lanetype = lanetype_numtype nt \<Longrightarrow> thesis)"
-                    "fun_lanetype (X v_lanetype (mk_dim i)) = lanetype_I64"
-                  show "thesis" using assms(1)[of I64] assms(2)
-                      fun_lanetype.domintros fun_lanetype.psimps lanetype_numtype.domintros
-                      lanetype_numtype.psimps
-                    by metis
-                qed
-                subgoal 
-                proof - 
-                  assume assms: "(\<And>nt. v_lanetype = lanetype_numtype nt \<Longrightarrow> thesis)"
-                    "fun_lanetype (X v_lanetype (mk_dim i)) = lanetype_F32"
-                  show "thesis" using assms(1)[of F32] assms(2)
-                      fun_lanetype.domintros fun_lanetype.psimps lanetype_numtype.domintros
-                      lanetype_numtype.psimps
-                    by metis
-                qed
-                subgoal 
-                proof - 
-                  assume assms: "(\<And>nt. v_lanetype = lanetype_numtype nt \<Longrightarrow> thesis)"
-                    "fun_lanetype (X v_lanetype (mk_dim i)) = lanetype_F64"
-                  show "thesis" using assms(1)[of F64] assms(2)
-                      fun_lanetype.domintros fun_lanetype.psimps lanetype_numtype.domintros
-                      lanetype_numtype.psimps
-                    by metis
-                qed
-                done
-              have 1: "unpacknum_underscore (lanetype_numtype nt)
-   (lanes_underscore (X (lanetype_numtype nt) (mk_dim i)) vec ! proj_uN_0 j) \<noteq>
-  None" using packnum_not_None sorry
-              thm vextract_lane_num[of nt i vec j] None(1,17) 
-              then show ?thesis sorry
-            next
-              case (Some a)
-              then show ?thesis sorry
-            qed
-          qed 
+          have wfv: "wf_uN 128 vec" using outer(7) vec by (auto intro: wf_V128_val)
+          have wfi: "wf_shape sh \<and> wf_vunop_underscore sh vunop_sh" using outer(5)
+            proof(induction "instr_sc2 (VUNOP sh vunop_sh)") qed(auto)
+          obtain r where r: "fun_vunop_underscore sh vunop_sh vec (Some r)"
+            using vunop_total wfi wfv by blast
+          show ?case proof(cases r)
+            case Nil
+            then show ?thesis using vunop_trap[OF r] outer(12) Step.intros(1) vec
+                admininstr_val.domintros(2) admininstr_val.psimps(2)
+              by auto
+          next
+            case (Cons c0 l)
+            then show ?thesis using Step_pure__vunop[OF r, where c = c0] outer(12) Step.intros(1) vec
+                admininstr_val.domintros(2) admininstr_val.psimps(2)
+              by fastforce
+          qed
+        next
+          case (Cons a vs)
+          then show ?case by simp
         qed
+      qed
+    next
+      case (vbinop C sh vbinop_sh)
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons(2-) proof(induction vs)
+            case Nil
+            note outer = Nil
+            then obtain vec1 where vec1: "a1 = val_VCONST V128 vec1" using typeofval_is_v128 by fastforce
+            obtain vec2 where vec2: "a2 = val_VCONST V128 vec2" using typeofval_is_v128 Nil by fastforce
+            have wfv: "wf_uN 128 vec1" "wf_uN 128 vec2" using outer(7) vec1 vec2 by (auto intro: wf_V128_val)
+            have wfi: "wf_shape sh \<and> wf_vbinop_underscore sh vbinop_sh" using outer(5)
+              proof(induction "instr_sc2 (VBINOP sh vbinop_sh)") qed(auto)
+            obtain r where r: "fun_vbinop_underscore sh vbinop_sh vec1 vec2 (Some r)"
+              using vbinop_total wfi wfv by blast
+            show ?case proof(cases r)
+              case Nil
+              then show ?thesis using vbinop_trap[OF r] outer(12) Step.intros(1) vec1 vec2
+                  admininstr_val.domintros(2) admininstr_val.psimps(2)
+                by auto
+            next
+              case (Cons c0 l)
+              then show ?thesis using vbinop_val[OF r, where c = c0] outer(12) Step.intros(1) vec1 vec2
+                  admininstr_val.domintros(2) admininstr_val.psimps(2)
+                by fastforce
+            qed
+          next
+            case (Cons a vs)
+            then show ?case by simp
+          qed
+        qed
+      qed
+    next
+      case (vtestop C sh vtestop_sh)
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          note outer = Nil
+          then obtain vec where vec: "a = val_VCONST V128 vec" using typeofval_is_v128 by fastforce
+          have wfi: "wf_shape sh \<and> wf_vtestop_underscore sh vtestop_sh" using outer(5)
+            proof(induction "instr_sc2 (VTESTOP sh vtestop_sh)") qed(auto)
+          then obtain J M x where e: "sh = X (lanetype_Jnn J) (mk_dim M)" "vtestop_sh = mk_vtestop__0 J M x"
+            by (auto elim: wf_vtestop_underscore.cases)
+          have x: "x = ALL_TRUE" by (cases x) simp
+          (* ALL_TRUE either finds all lanes non-zero, or the side condition of vtestop_false holds. *)
+          have step: "\<exists>es. Step_pure [admininstr_sc2 (admininstr_st2_VCONST V128 vec),
+              admininstr_sc3 (admininstr_st3_VTESTOP sh vtestop_sh)] es"
+          proof(cases "Step_pure_before_vtestop_false [admininstr_sc2 (admininstr_st2_VCONST V128 vec),
+              admininstr_sc3 (admininstr_st3_VTESTOP sh vtestop_sh)]")
+            case True
+            then show ?thesis
+              by (cases rule: Step_pure_before_vtestop_false.cases)
+                (clarsimp, rule exI, rule vtestop_true[OF HOL.refl], auto)
+          next
+            case False
+            then show ?thesis using vtestop_false[where c = vec and v_Jnn = J and v_N = M] e x by auto
+          qed
+          then show ?case using outer(12) Step.intros(1) vec
+              admininstr_val.domintros(2) admininstr_val.psimps(2)
+            by fastforce
+        next
+          case (Cons a vs)
+          then show ?case by simp
+        qed
+      qed
+    next
+      case (vrelop C sh vrelop_sh)
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons(2-) proof(induction vs)
+            case Nil
+            note outer = Nil
+            then obtain vec1 where vec1: "a1 = val_VCONST V128 vec1" using typeofval_is_v128 by fastforce
+            obtain vec2 where vec2: "a2 = val_VCONST V128 vec2" using typeofval_is_v128 Nil by fastforce
+            have wfv: "wf_uN 128 vec1" "wf_uN 128 vec2" using outer(7) vec1 vec2 by (auto intro: wf_V128_val)
+            have wfi: "wf_shape sh \<and> wf_vrelop_underscore sh vrelop_sh" using outer(5)
+              proof(induction "instr_sc2 (VRELOP sh vrelop_sh)") qed(auto)
+            obtain r where r: "fun_vrelop_underscore sh vrelop_sh vec1 vec2 (Some r)"
+              using vrelop_total wfi wfv by blast
+            show ?case using Step_pure__vrelop[OF r] outer(12) Step.intros(1) vec1 vec2
+                admininstr_val.domintros(2) admininstr_val.psimps(2)
+              by fastforce
+          next
+            case (Cons a vs)
+            then show ?case by simp
+          qed
+        qed
+      qed
+    next
+      case (vshiftop C sh vshiftop_sh)
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons(2-) proof(induction vs)
+            case Nil
+            note outer = Nil
+            then obtain vec where vec: "a1 = val_VCONST V128 vec" using typeofval_is_v128 by fastforce
+            obtain c2 where c2: "a2 = val_CONST I32 c2" using typeofval_is_i32 Nil by fastforce
+            have wfv: "wf_uN 128 vec" using outer(7) vec by (auto intro: wf_V128_val)
+            have "wf_num_underscore I32 c2" using outer(7) c2 by (auto elim: wf_val.cases)
+            then obtain n where n: "c2 = mk_num__0 Inn_I32 (mk_uN n)" "wf_uN 32 (mk_uN n)"
+              using i32_num_form by blast
+            have wfi: "wf_ishape sh \<and> wf_vshiftop_underscore sh vshiftop_sh" using outer(5)
+              proof(induction "instr_sc2 (VSHIFTOP sh vshiftop_sh)") qed(auto)
+            then obtain J M x where e: "sh = mk_ishape (X (lanetype_Jnn J) (mk_dim M))"
+                "vshiftop_sh = mk_vshiftop__0 J M x"
+              by (auto elim: wf_vshiftop_underscore.cases)
+            have shp: "wf_shape (X (lanetype_Jnn J) (mk_dim M))"
+              using wfi e by (auto elim: wf_ishape.cases simp: vt_generic_simps)
+            obtain xs where xs: "lanes_underscore (X (lanetype_Jnn J) (mk_dim M)) vec = map (mk_lane__0 J) xs"
+                "\<forall>x\<in>set xs. wf_uN (lsize (lanetype_Jnn J)) x" "length xs = M"
+              using lanes_Jnn[OF shp wfv] by blast
+            (* every lane is shifted, so pick the shifted lane for each input lane *)
+            have step: "\<exists>es. Step_pure [admininstr_sc2 (admininstr_st2_VCONST V128 vec),
+                admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN n))),
+                admininstr_sc3 (admininstr_st3_VSHIFTOP sh vshiftop_sh)] es"
+              unfolding e
+              apply (rule exI)
+              apply (rule Step_pure__vshiftop[where v_Jnn = J and v_N = M and v_n = n and ?c_1.0 = vec
+                  and vshiftop = "mk_vshiftop__0 J M x"
+                  and c'_lst = "lanes_underscore (X (lanetype_Jnn J) (mk_dim M)) vec"
+                  and var_0_lst = "map (\<lambda>c'. Some (SOME r. fun_vshiftop_underscore
+                    (mk_ishape (X (lanetype_Jnn J) (mk_dim M))) (mk_vshiftop__0 J M x) c' (mk_uN n) (Some r)))
+                    (lanes_underscore (X (lanetype_Jnn J) (mk_dim M)) vec)"
+                  and c = "inv_lanes_underscore (X (lanetype_Jnn J) (mk_dim M)) (map the (map (\<lambda>c'. Some
+                    (SOME r. fun_vshiftop_underscore (mk_ishape (X (lanetype_Jnn J) (mk_dim M)))
+                    (mk_vshiftop__0 J M x) c' (mk_uN n) (Some r))) (lanes_underscore (X (lanetype_Jnn J) (mk_dim M)) vec)))"];
+                  (rule list_all2_mapI vt_list_allI)?)
+              using shp xs wfi e n by (auto simp: vt_generic_simps intro!: vshiftop_lane_some lane__case_0)
+            show ?case using step outer(12) Step.intros(1) vec c2 n
+                admininstr_val.domintros(1,2) admininstr_val.psimps(1,2)
+              by fastforce
+          next
+            case (Cons a vs)
+            then show ?case by simp
+          qed
+        qed
+      qed
+    next
+      case (vbitmask C sh)
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          note outer = Nil
+          then obtain vec where vec: "a = val_VCONST V128 vec" using typeofval_is_v128 by fastforce
+          have wfv: "wf_uN 128 vec" using outer(7) vec by (auto intro: wf_V128_val)
+          have "wf_ishape sh" using outer(5)
+            proof(induction "instr_sc3 (VBITMASK sh)") qed(auto)
+          then obtain J N where e: "sh = mk_ishape (X (lanetype_Jnn J) (mk_dim N))"
+              and s: "wf_shape (X (lanetype_Jnn J) (mk_dim N))"
+            using wf_ishape_form by blast
+          obtain xs where xs: "lanes_underscore (X (lanetype_Jnn J) (mk_dim N)) vec = map (mk_lane__0 J) xs"
+              "\<forall>x\<in>set xs. wf_uN (lsize (lanetype_Jnn J)) x" "length xs = N"
+            using lanes_Jnn[OF s wfv] by blast
+          (* the sign bit of each lane, i.e. whether it is negative as a signed number *)
+          define var where "var = map (\<lambda>ci. SOME v. fun_ilt_underscore (lsize (lanetype_Jnn J)) S
+            (the (proj_lane__0 ci)) (mk_uN 0) v) (lanes_underscore (X (lanetype_Jnn J) (mk_dim N)) vec)"
+          have zero: "wf_uN (lsize (lanetype_Jnn J)) (mk_uN 0)" by (auto intro: wf_uN.intros)
+          have rel: "list_all2 (\<lambda>v ci. fun_ilt_underscore (lsize (lanetype_Jnn J)) S (the (proj_lane__0 ci))
+              (mk_uN 0) v) var (lanes_underscore (X (lanetype_Jnn J) (mk_dim N)) vec)"
+            unfolding var_def
+            apply (rule list_all2_mapI)
+            using xs(1,2) zero by (auto intro!: ilt_some simp: vt_generic_simps)
+          have bit: "\<forall>v\<in>set var. wf_uN (Suc 0) v"
+            unfolding var_def using xs(1,2) zero by (auto intro!: icmp_some_bit(1) simp: vt_generic_simps)
+          have bits_wf: "list_all (\<lambda>v. wf_bit (mk_bit (proj_uN_0 v))) var"
+            using bit by (fastforce simp: list_all_iff intro!: wf_bit.intros dest!: wf_uN_bound)
+          have bit0: "wf_bit (mk_bit 0)" by (auto intro: wf_bit.intros)
+          define bits where "bits = map (\<lambda>v. mk_bit (proj_uN_0 v)) var @ repeat (32 - N) (mk_bit 0)"
+          have "N \<le> 32" using wf_shape_size[OF s] by (cases J) (auto simp: vt_simps)
+          then have "length bits = 32" using xs(1,3) by (simp add: bits_def var_def length_repeat)
+          moreover have "list_all wf_bit bits"
+            using bits_wf bit0 set_repeat by (fastforce simp: bits_def list_all_iff)
+          ultimately obtain ci where ci: "wf_uN 32 ci" "ibits_underscore 32 ci = bits"
+            using ibits_surj by blast
+          have step: "\<exists>es. Step_pure [admininstr_sc2 (admininstr_st2_VCONST V128 vec),
+              admininstr_sc3 (admininstr_st3_VBITMASK sh)] es"
+            unfolding e
+            apply (rule exI)
+            apply (rule Step_pure__vbitmask[unfolded thirty_two, where v_Jnn = J and v_N = N and c = vec
+                and ci = ci and var_0_lst = var
+                and ci_1_lst = "lanes_underscore (X (lanetype_Jnn J) (mk_dim N)) vec"])
+            using rel ci s bits_wf bit0 lanes_proj_some[OF xs(1)] list_all2_lengthD[OF rel]
+            by (auto simp: bits_def)
+          then show ?case using outer(12) Step.intros(1) vec
+              admininstr_val.domintros(2) admininstr_val.psimps(2)
+            by fastforce
+        next
+          case (Cons a vs)
+          then show ?case by simp
+        qed
+      qed
+    next
+      case (vswizzle C sh)
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons(2-) proof(induction vs)
+            case Nil
+            note outer = Nil
+            then obtain vec1 where vec1: "a1 = val_VCONST V128 vec1" using typeofval_is_v128 by fastforce
+            obtain vec2 where vec2: "a2 = val_VCONST V128 vec2" using typeofval_is_v128 Nil by fastforce
+            have wfv: "wf_uN 128 vec1" "wf_uN 128 vec2" using outer(7) vec1 vec2 by (auto intro: wf_V128_val)
+            have "sh = mk_ishape (X lanetype_I8 (mk_dim 16))" using outer(5)
+              proof(induction "instr_sc3 (VSWIZZLE sh)") qed(auto)
+            then have e: "sh = mk_ishape (X (lanetype_packtype I8) (mk_dim 16))" by (simp add: vt_simps)
+            have s: "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim 16))"
+              by (auto intro!: wf_shape.intros wf_dim.intros simp: vt_all_simps)
+            obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim 16)) vec1 = map (mk_lane__0 Jnn_I8) xs1"
+                "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = 16"
+              using lanes_Jnn[OF s wfv(1)] by blast
+            obtain xs2 where xs2: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim 16)) vec2 = map (mk_lane__0 Jnn_I8) xs2"
+                "\<forall>x\<in>set xs2. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs2 = 16"
+              using lanes_Jnn[OF s wfv(2)] by blast
+            have w1: "\<forall>x\<in>set xs1. wf_uN 8 x" and w2: "\<forall>x\<in>set xs2. wf_uN 8 x"
+              using xs1(2) xs2(2) by (simp_all add: vt_simps)
+            (* the selector lanes index into the 16 lanes padded with zeros up to 256 *)
+            have idx: "proj_uN_0 (xs2 ! k) < 256" if "k < 16" for k
+              using wf_uN_bound[OF bspec[OF w2 nth_mem[of k xs2]]] that xs2(3) by simp
+            have sel: "wf_uN 8 ((xs1 @ repeat 240 (mk_uN 0)) ! j)" if "j < 256" for j
+            proof (cases "j < 16")
+              case True
+              then show ?thesis using bspec[OF w1 nth_mem[of j xs1]] xs1(3) by (simp add: nth_append)
+            next
+              case False
+              then show ?thesis using that xs1(3) by (simp add: nth_append nth_repeat wf_uN.intros)
+            qed
+            have step: "\<exists>es. Step_pure [admininstr_sc2 (admininstr_st2_VCONST V128 vec1),
+                admininstr_sc2 (admininstr_st2_VCONST V128 vec2),
+                admininstr_sc3 (admininstr_st3_VSWIZZLE sh)] es"
+              unfolding e
+              apply (rule exI)
+              apply (rule Step_pure__vswizzle[where v_Pnn = I8 and v_M = 16 and ?c_1.0 = vec1 and ?c_2.0 = vec2];
+                  (rule HOL.refl)?)
+              using xs1(1,3) xs2(1,3) idx sel s
+              by (auto simp: holds_upto_def vt_all_simps length_repeat o_def list_all_iff intro!: lane__case_0 wf_uN.intros)
+            then show ?case using outer(12) Step.intros(1) vec1 vec2
+                admininstr_val.domintros(2) admininstr_val.psimps(2)
+              by fastforce
+          next
+            case (Cons a vs)
+            then show ?case by simp
+          qed
+        qed
+      qed
+    next
+      case (vshuffle sh i_lst C)
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons(2-) proof(induction vs)
+            case Nil
+            (* this Instr_ok rule has 4 premises, so the stack facts are at 9 and 14 *)
+            note outer = Nil
+            then obtain vec1 where vec1: "a1 = val_VCONST V128 vec1" using typeofval_is_v128 by fastforce
+            obtain vec2 where vec2: "a2 = val_VCONST V128 vec2" using typeofval_is_v128 Nil by fastforce
+            have wfv: "wf_uN 128 vec1" "wf_uN 128 vec2" using outer(9) vec1 vec2 by (auto intro: wf_V128_val)
+            have wfi: "sh = mk_ishape (X lanetype_I8 (mk_dim 16)) \<and> length i_lst = 16" using outer(7)
+              proof(induction "instr_sc3 (VSHUFFLE sh i_lst)") qed(auto)
+            then have e: "sh = mk_ishape (X (lanetype_packtype I8) (mk_dim 16))" by (simp add: vt_simps)
+            (* the typing rule bounds every lane index by 2 * 16 *)
+            have idx: "proj_uN_0 (i_lst ! k) < 32" if "k < 16" for k
+              using outer(1) wfi that by (auto simp: list_all_length vt_generic_simps)
+            have s: "wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim 16))"
+              by (auto intro!: wf_shape.intros wf_dim.intros simp: vt_all_simps)
+            obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim 16)) vec1 = map (mk_lane__0 Jnn_I8) xs1"
+                "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs1 = 16"
+              using lanes_Jnn[OF s wfv(1)] by blast
+            obtain xs2 where xs2: "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim 16)) vec2 = map (mk_lane__0 Jnn_I8) xs2"
+                "\<forall>x\<in>set xs2. wf_uN (lsize (lanetype_Jnn Jnn_I8)) x" "length xs2 = 16"
+              using lanes_Jnn[OF s wfv(2)] by blast
+            have w1: "\<forall>x\<in>set xs1. wf_uN 8 x" and w2: "\<forall>x\<in>set xs2. wf_uN 8 x"
+              using xs1(2) xs2(2) by (simp_all add: vt_simps)
+            have sel: "wf_uN 8 ((xs1 @ xs2) ! j)" if "j < 32" for j
+            proof (cases "j < 16")
+              case True
+              then show ?thesis using bspec[OF w1 nth_mem[of j xs1]] xs1(3) by (simp add: nth_append)
+            next
+              case False
+              then show ?thesis using bspec[OF w2 nth_mem[of "j - 16" xs2]] that xs1(3) xs2(3)
+                by (simp add: nth_append)
+            qed
+            have step: "\<exists>es. Step_pure [admininstr_sc2 (admininstr_st2_VCONST V128 vec1),
+                admininstr_sc2 (admininstr_st2_VCONST V128 vec2),
+                admininstr_sc3 (admininstr_st3_VSHUFFLE sh i_lst)] es"
+              unfolding e
+              apply (rule exI)
+              apply (rule Step_pure__vshuffle[where v_Pnn = I8 and v_N = 16 and ?c_1.0 = vec1 and ?c_2.0 = vec2
+                  and c'_lst = "xs1 @ xs2"]; (rule HOL.refl)?)
+              using xs1(1,3) xs2(1,3) wfi idx sel s w1 w2
+              by (auto simp: holds_upto_def vt_all_simps list_all_iff intro!: lane__case_0)
+            then show ?case using outer(14) Step.intros(1) vec1 vec2
+                admininstr_val.domintros(2) admininstr_val.psimps(2)
+              by fastforce
+          next
+            case (Cons a vs)
+            then show ?case by simp
+          qed
+        qed
+      qed
+    next
+      case (vsplat C sh)
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          note outer = Nil
+          then obtain c1 where c1: "a = val_CONST (shunpack sh) c1" using typeofval_is_nt by fastforce
+          have wfc: "wf_num_underscore (shunpack sh) c1" using outer(7) c1 by (auto elim: wf_val.cases)
+          have wfs: "wf_shape sh" using outer(5)
+            proof(induction "instr_sc3 (VSPLAT sh)") qed(auto)
+          obtain lt N where e: "sh = X lt (mk_dim N)" by (metis dim.exhaust shape.exhaust)
+          have wfc': "wf_num_underscore (unpack lt) c1" using wfc e by (simp add: vt_generic_simps)
+          have step: "\<exists>es. Step_pure [admininstr_sc1 (admininstr_st1_CONST (shunpack sh) c1),
+              admininstr_sc3 (admininstr_st3_VSPLAT sh)] es"
+            using Step_pure__vsplat[where v_Lnn = lt and v_N = N and ?c_1.0 = c1,
+                OF packnum_not_None[OF wfc'] HOL.refl] wfs e
+            by (auto simp: vt_generic_simps)
+          show ?case using step outer(12) Step.intros(1) c1
+              admininstr_val.domintros(1) admininstr_val.psimps(1)
+            by fastforce
+        next
+          case (Cons a vs)
+          then show ?case by simp
+        qed
+      qed
+    next
+      case (vextract_lane j sh C sx_opt)
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          (* this Instr_ok rule has 4 premises, so the stack facts are at 7, 9 and 14 *)
+          note outer = Nil
+          then obtain vec where vec: "a = val_VCONST V128 vec" using typeofval_is_v128 by fastforce
+          have wfv: "wf_uN 128 vec" using outer(9) vec by (auto intro: wf_V128_val)
+          have wfi: "wf_shape sh"
+              "fun_lanetype sh \<in> set [lanetype_I32, lanetype_I64, lanetype_F32, lanetype_F64] \<longleftrightarrow> sx_opt = None"
+            using outer(7) proof(induction "instr_sc3 (VEXTRACT_LANE sh sx_opt j)") qed(auto)
+          obtain lt N where e: "sh = X lt (mk_dim N)" by (metis dim.exhaust shape.exhaust)
+          have jN: "proj_uN_0 j < N" using outer(1) e by (simp add: vt_generic_simps)
+          have len: "proj_uN_0 j < length (lanes_underscore (X lt (mk_dim N)) vec)"
+            using jN length_lanes by simp
+          have step: "\<exists>es. Step_pure [admininstr_sc2 (admininstr_st2_VCONST V128 vec),
+              admininstr_sc3 (admininstr_st3_VEXTRACT_LANE sh sx_opt j)] es"
+          proof (cases sx_opt)
+            case None
+            (* a numeric lane type: unpack the selected lane *)
+            obtain nt where nt: "lt = lanetype_numtype nt"
+            proof (cases lt)
+              case lanetype_I32 then show ?thesis using that[of I32] by (simp add: vt_simps)
+            next
+              case lanetype_I64 then show ?thesis using that[of I64] by (simp add: vt_simps)
+            next
+              case lanetype_F32 then show ?thesis using that[of F32] by (simp add: vt_simps)
+            next
+              case lanetype_F64 then show ?thesis using that[of F64] by (simp add: vt_simps)
+            next
+              case lanetype_I8 then show ?thesis using wfi(2) e None by (simp add: vt_generic_simps)
+            next
+              case lanetype_I16 then show ?thesis using wfi(2) e None by (simp add: vt_generic_simps)
+            qed
+            have s: "wf_shape (X (lanetype_numtype nt) (mk_dim N))" using wfi(1) e nt by simp
+            show ?thesis unfolding e nt None
+              using vextract_lane_num[OF unpack_lane_some[OF s wfv jN] len[unfolded nt] HOL.refl s] by blast
+          next
+            case (Some sx)
+            (* a packed lane type: sign- or zero-extend the selected lane to 32 bits *)
+            obtain pt where pt: "lt = lanetype_packtype pt"
+            proof (cases lt)
+              case lanetype_I8 then show ?thesis using that[of I8] by (simp add: vt_simps)
+            next
+              case lanetype_I16 then show ?thesis using that[of I16] by (simp add: vt_simps)
+            qed (use wfi(2) e Some in \<open>simp_all add: vt_generic_simps\<close>)
+            have s: "wf_shape (X (lanetype_packtype pt) (mk_dim N))" using wfi(1) e pt by simp
+            obtain x where x: "lanes_underscore (X (lanetype_packtype pt) (mk_dim N)) vec ! proj_uN_0 j
+                = mk_lane__0 (Jnn_packtype pt) x" "wf_uN (psize pt) x"
+              using pack_lane[OF s wfv jN] by blast
+            define c2 where "c2 = mk_num__0 Inn_I32 (extend__underscore (psize pt) 32 sx x)"
+            have wfc2: "wf_num_underscore I32 c2"
+              using x(2) by (auto simp: c2_def vt_simps intro!: num__case_0 extend___is_wf[OF _ HOL.refl])
+            show ?thesis unfolding e pt Some
+              apply (rule exI)
+              apply (rule vextract_lane_pack[unfolded thirty_two, where pt = pt and v_N = N and ?c_1.0 = vec
+                  and ?c_2.0 = c2 and i = j and v_sx = sx])
+              using x wfc2 s len pt by (auto simp: c2_def vt_generic_simps)
+          qed
+          show ?case using step outer(14) Step.intros(1) vec
+              admininstr_val.domintros(2) admininstr_val.psimps(2)
+            by fastforce
         next
           case (Cons a vs)
           then show ?case by simp
@@ -2250,19 +5443,196 @@ theorem progress:
       qed
     next
       case (vreplace_lane i sh C)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons(2-) proof(induction vs)
+            case Nil
+            (* this Instr_ok rule has 4 premises, so the stack facts are at 7, 9 and 14 *)
+            note outer = Nil
+            then obtain vec where vec: "a1 = val_VCONST V128 vec" using typeofval_is_v128 by fastforce
+            obtain c2 where c2: "a2 = val_CONST (shunpack sh) c2" using typeofval_is_nt Nil by fastforce
+            have wfc: "wf_num_underscore (shunpack sh) c2" using outer(9) c2 by (auto elim: wf_val.cases)
+            have wfs: "wf_shape sh" using outer(7)
+              proof(induction "instr_sc3 (VREPLACE_LANE sh i)") qed(auto)
+            obtain lt N where e: "sh = X lt (mk_dim N)" by (metis dim.exhaust shape.exhaust)
+            have wfc': "wf_num_underscore (unpack lt) c2" using wfc e by (simp add: vt_generic_simps)
+            have step: "\<exists>es. Step_pure [admininstr_sc2 (admininstr_st2_VCONST V128 vec),
+                admininstr_sc1 (admininstr_st1_CONST (shunpack sh) c2),
+                admininstr_sc3 (admininstr_st3_VREPLACE_LANE sh i)] es"
+              using Step_pure__vreplace_lane[where v_Lnn = lt and v_N = N and ?c_1.0 = vec and ?c_2.0 = c2 and i = i,
+                  OF packnum_not_None[OF wfc'] HOL.refl] wfs e
+              by (auto simp: vt_generic_simps)
+            show ?case using step outer(14) Step.intros(1) vec c2
+                admininstr_val.domintros(1,2) admininstr_val.psimps(1,2)
+              by fastforce
+          next
+            case (Cons a vs)
+            then show ?case by simp
+          qed
+        qed
+      qed
     next
       case (vextunop C sh_1 sh_2 vextunop)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          note outer = Nil
+          then obtain vec where vec: "a = val_VCONST V128 vec" using typeofval_is_v128 by fastforce
+          have wfv: "wf_uN 128 vec" using outer(7) vec by (auto intro: wf_V128_val)
+          have wfi: "wf_ishape sh_1 \<and> wf_ishape sh_2 \<and> wf_vextunop__underscore sh_2 sh_1 vextunop"
+            using outer(5) proof(induction "instr_sc3 (VEXTUNOP sh_1 sh_2 vextunop)") qed(auto)
+          obtain r where r: "fun_vextunop__underscore sh_2 sh_1 vextunop vec (Some r)"
+            using vextunop_total wfi wfv by blast
+          have step: "\<exists>es. Step_pure [admininstr_sc2 (admininstr_st2_VCONST V128 vec),
+              admininstr_sc4 (admininstr_st4_VEXTUNOP sh_1 sh_2 vextunop)] es"
+            using Step_pure__vextunop[OF r _ HOL.refl] by auto
+          then show ?case using outer(12) Step.intros(1) vec
+              admininstr_val.domintros(2) admininstr_val.psimps(2)
+            by fastforce
+        next
+          case (Cons a vs)
+          then show ?case by simp
+        qed
+      qed
     next
       case (vextbinop C sh_1 sh_2 vextbinop)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons(2-) proof(induction vs)
+            case Nil
+            note outer = Nil
+            then obtain vec1 where vec1: "a1 = val_VCONST V128 vec1" using typeofval_is_v128 by fastforce
+            obtain vec2 where vec2: "a2 = val_VCONST V128 vec2" using typeofval_is_v128 Nil by fastforce
+            have wfv: "wf_uN 128 vec1" "wf_uN 128 vec2" using outer(7) vec1 vec2 by (auto intro: wf_V128_val)
+            have wfi: "wf_ishape sh_1 \<and> wf_ishape sh_2 \<and> wf_vextbinop__underscore sh_2 sh_1 vextbinop"
+              using outer(5) proof(induction "instr_sc3 (VEXTBINOP sh_1 sh_2 vextbinop)") qed(auto)
+            obtain r where r: "fun_vextbinop__underscore sh_2 sh_1 vextbinop vec1 vec2 (Some r)"
+              using vextbinop_total wfi wfv by blast
+            have step: "\<exists>es. Step_pure [admininstr_sc2 (admininstr_st2_VCONST V128 vec1),
+                admininstr_sc2 (admininstr_st2_VCONST V128 vec2),
+                admininstr_sc4 (admininstr_st4_VEXTBINOP sh_1 sh_2 vextbinop)] es"
+              using Step_pure__vextbinop[OF r _ HOL.refl] by auto
+            then show ?case using outer(12) Step.intros(1) vec1 vec2
+                admininstr_val.domintros(2) admininstr_val.psimps(2)
+              by fastforce
+          next
+            case (Cons a vs)
+            then show ?case by simp
+          qed
+        qed
+      qed
     next
       case (vnarrow C sh_1 sh_2 v_sx)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a1 vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons a2 vs)
+          show ?case using Cons(2-) proof(induction vs)
+            case Nil
+            note outer = Nil
+            then obtain vec1 where vec1: "a1 = val_VCONST V128 vec1" using typeofval_is_v128 by fastforce
+            obtain vec2 where vec2: "a2 = val_VCONST V128 vec2" using typeofval_is_v128 Nil by fastforce
+            have wfv: "wf_uN 128 vec1" "wf_uN 128 vec2" using outer(7) vec1 vec2 by (auto intro: wf_V128_val)
+            have wfi: "wf_ishape sh_1 \<and> wf_ishape sh_2" using outer(5)
+              proof(induction "instr_sc3 (VNARROW sh_1 sh_2 v_sx)") qed(auto)
+            obtain J2 N2 where e1: "sh_1 = mk_ishape (X (lanetype_Jnn J2) (mk_dim N2))"
+                and s1: "wf_shape (X (lanetype_Jnn J2) (mk_dim N2))"
+              using wf_ishape_form wfi by blast
+            obtain J1 N1 where e2: "sh_2 = mk_ishape (X (lanetype_Jnn J1) (mk_dim N1))"
+                and s2: "wf_shape (X (lanetype_Jnn J1) (mk_dim N1))"
+              using wf_ishape_form wfi by blast
+            obtain xs1 where xs1: "lanes_underscore (X (lanetype_Jnn J1) (mk_dim N1)) vec1 = map (mk_lane__0 J1) xs1"
+                "\<forall>x\<in>set xs1. wf_uN (lsize (lanetype_Jnn J1)) x" "length xs1 = N1"
+              using lanes_Jnn[OF s2 wfv(1)] by blast
+            obtain xs2 where xs2: "lanes_underscore (X (lanetype_Jnn J1) (mk_dim N1)) vec2 = map (mk_lane__0 J1) xs2"
+                "\<forall>x\<in>set xs2. wf_uN (lsize (lanetype_Jnn J1)) x" "length xs2 = N1"
+              using lanes_Jnn[OF s2 wfv(2)] by blast
+            (* each input lane is narrowed; the result lanes are well-formed by narrow___is_wf *)
+            have step: "\<exists>es. Step_pure [admininstr_sc2 (admininstr_st2_VCONST V128 vec1),
+                admininstr_sc2 (admininstr_st2_VCONST V128 vec2),
+                admininstr_sc4 (admininstr_st4_VNARROW sh_1 sh_2 v_sx)] es"
+              unfolding e1 e2
+              apply (rule exI)
+              apply (rule Step_pure__vnarrow[where ?Jnn_1.0 = J1 and ?N_1.0 = N1 and ?Jnn_2.0 = J2 and ?N_2.0 = N2
+                  and ?c_1.0 = vec1 and ?c_2.0 = vec2 and v_sx = v_sx
+                  and ci_1_lst = "lanes_underscore (X (lanetype_Jnn J1) (mk_dim N1)) vec1"
+                  and ci_2_lst = "lanes_underscore (X (lanetype_Jnn J1) (mk_dim N1)) vec2"
+                  and cj_1_lst = "map (\<lambda>ci. narrow__underscore (lsize (lanetype_Jnn J1)) (lsize (lanetype_Jnn J2))
+                    v_sx (the (proj_lane__0 ci))) (lanes_underscore (X (lanetype_Jnn J1) (mk_dim N1)) vec1)"
+                  and cj_2_lst = "map (\<lambda>ci. narrow__underscore (lsize (lanetype_Jnn J1)) (lsize (lanetype_Jnn J2))
+                    v_sx (the (proj_lane__0 ci))) (lanes_underscore (X (lanetype_Jnn J1) (mk_dim N1)) vec2)"
+                  and c = "inv_lanes_underscore (X (lanetype_Jnn J2) (mk_dim N2))
+                    (map (mk_lane__0 J2) (map (\<lambda>ci. narrow__underscore (lsize (lanetype_Jnn J1))
+                      (lsize (lanetype_Jnn J2)) v_sx (the (proj_lane__0 ci)))
+                      (lanes_underscore (X (lanetype_Jnn J1) (mk_dim N1)) vec1)) @
+                     map (mk_lane__0 J2) (map (\<lambda>ci. narrow__underscore (lsize (lanetype_Jnn J1))
+                      (lsize (lanetype_Jnn J2)) v_sx (the (proj_lane__0 ci)))
+                      (lanes_underscore (X (lanetype_Jnn J1) (mk_dim N1)) vec2)))"];
+                  (rule list_all_mapI vt_list_allI)?)
+              using s1 s2 xs1 xs2
+              by (auto simp: vt_generic_simps intro!: lane__case_0 narrow___is_wf[OF _ HOL.refl])
+            show ?case using step outer(12) Step.intros(1) vec1 vec2
+                admininstr_val.domintros(2) admininstr_val.psimps(2)
+              by fastforce
+          next
+            case (Cons a vs)
+            then show ?case by simp
+          qed
+        qed
+      qed
     next
       case (vcvtop C sh_1 sh_2 vcvtop)
-      then show ?case sorry
+      then show ?case proof(induction vs)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a vs)
+        show ?case using Cons(2-) proof(induction vs)
+          case Nil
+          note outer = Nil
+          then obtain vec where vec: "a = val_VCONST V128 vec" using typeofval_is_v128 by fastforce
+          have wfv: "wf_uN 128 vec" using outer(7) vec by (auto intro: wf_V128_val)
+          have wfi: "wf_shape sh_1 \<and> wf_shape sh_2 \<and> wf_vcvtop__underscore sh_2 sh_1 vcvtop"
+            using outer(5) proof(induction "instr_sc4 (VCVTOP sh_1 sh_2 vcvtop)") qed(auto)
+          obtain r where r: "fun_vcvtop__underscore sh_2 sh_1 vcvtop vec (Some r)"
+            using vcvtop_total wfi wfv by blast
+          have step: "\<exists>es. Step_pure [admininstr_sc2 (admininstr_st2_VCONST V128 vec),
+              admininstr_sc4 (admininstr_st4_VCVTOP sh_1 sh_2 vcvtop)] es"
+            using Step_pure__vcvtop[OF r _ HOL.refl] by auto
+          then show ?case using outer(12) Step.intros(1) vec
+              admininstr_val.domintros(2) admininstr_val.psimps(2)
+            by fastforce
+        next
+          case (Cons a vs)
+          then show ?case by simp
+        qed
+      qed
     next
       case (local_get x C t)
       then show ?case proof(induction vs)

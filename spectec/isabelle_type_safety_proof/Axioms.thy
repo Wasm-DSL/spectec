@@ -33,4 +33,22 @@ axiomatization where length_lanes:
   "length (lanes_underscore (X a (mk_dim d)) b) = d"
   
 
+(* Float comparisons are uninterpreted, so nothing says their result is a boolean. *)
+lemma frel_bool:
+  "proj_uN_0 (feq_underscore n x y) \<le> 1" "proj_uN_0 (fne_underscore n x y) \<le> 1"
+  "proj_uN_0 (flt_underscore n x y) \<le> 1" "proj_uN_0 (fgt_underscore n x y) \<le> 1"
+  "proj_uN_0 (fle_underscore n x y) \<le> 1" "proj_uN_0 (fge_underscore n x y) \<le> 1"
+  sorry
+
+(* ibits is uninterpreted, so nothing says every bit sequence is the bit pattern of a number. *)
+lemma ibits_surj: "length bs = n \<Longrightarrow> list_all wf_bit bs \<Longrightarrow> \<exists>c. wf_uN n c \<and> ibits_underscore n c = bs"
+  sorry
+
+(* The lane conversions are uninterpreted; saturating truncation always has a result and
+   demotion/promotion always have at least one (possibly non-deterministic NaN) result. *)
+lemma float_cvt_nonempty:
+  "trunc_sat__underscore m n sx x \<noteq> None"
+  "demote__underscore m n y \<noteq> []" "promote__underscore m n y \<noteq> []"
+  sorry
+
 end
