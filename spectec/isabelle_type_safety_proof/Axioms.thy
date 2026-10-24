@@ -12,27 +12,25 @@ axiomatization where
   ibytes_length: "length (ibytes_underscore v_N x) = v_N div 8" and
   vbytes_length: "length (vbytes_underscore vt v) = the (size (valtype_vectype vt)) div 8"
 
-lemma truncz_spec:
-  shows "truncz x = x"
-  sorry
+axiomatization where truncz_spec:
+  "truncz x = x"
 
-lemma nbytes_inv:
-  assumes "length bs = the (size (valtype_numtype nt)) div 8"
-  shows "nbytes_underscore nt (inv_nbytes_underscore nt bs) = bs" 
-  sorry
+axiomatization where nbytes_inv:
+  "length bs = the (size (valtype_numtype nt)) div 8 \<Longrightarrow>
+   nbytes_underscore nt (inv_nbytes_underscore nt bs) = bs" 
 
-lemma ibytes_inv:
-  assumes "length bs = v_n div 8"
-  shows "ibytes_underscore v_n (inv_ibytes_underscore v_n bs) = bs"
-  sorry
+axiomatization where ibytes_inv:
+  "length bs = v_n div 8 \<Longrightarrow>
+   ibytes_underscore v_n (inv_ibytes_underscore v_n bs) = bs"
+  
 
-lemma vbytes_inv:
-  assumes "length bs = the (size (valtype_vectype nt)) div 8"
-  shows "vbytes_underscore nt (inv_vbytes_underscore nt bs) = bs" 
-  sorry
+axiomatization where vbytes_inv:
+  "length bs = the (size (valtype_vectype nt)) div 8 \<Longrightarrow>
+   vbytes_underscore nt (inv_vbytes_underscore nt bs) = bs" 
+  
 
-lemma length_lanes:
-  shows "length (lanes_underscore (X a (mk_dim d)) b) = d"
-  sorry
+axiomatization where length_lanes:
+  "length (lanes_underscore (X a (mk_dim d)) b) = d"
+  
 
 end

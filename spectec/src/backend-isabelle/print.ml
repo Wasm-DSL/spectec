@@ -868,40 +868,44 @@ let rec components_of_def def =
   | _ -> error def.at ("Unsupported def: " ^ Il.Print.string_of_def def)
 
 
+type def_string =
+  | Main of string
+  | Wf_lemmas of string
+
 
 let string_of_def def =
   let start, kwds, hdrs, clauses = components_of_def def in
   match kwds, hdrs with
-  | [Itsyn], [hdr] -> start ^ "type_synonym " ^ hdr ^ "\n\n"
+  | [Itsyn], [hdr] -> Main (start ^ "type_synonym " ^ hdr ^ "\n\n")
   | Itsyn :: _, _ -> error def.at "Several type aliases defined mutually recursively"
-  | [Irec], [hdr] -> start ^ "record " ^ hdr ^ "\n\n"
+  | [Irec], [hdr] -> Main (start ^ "record " ^ hdr ^ "\n\n")
   | Irec :: _, _ -> error def.at "Several records defined mutually recursively"
-  | [Idef], [hdr] -> start ^ "definition " ^ hdr ^ "\n\n"
+  | [Idef], [hdr] -> Main (start ^ "definition " ^ hdr ^ "\n\n")
   | Idef :: _, _ -> error def.at "Several global variables defined mutually recursively"
-  | [Iwf], [hdr] -> start ^ "lemma " ^ hdr ^ "\n\n"
+  | [Iwf], [hdr] -> Wf_lemmas (start ^ "lemma " ^ hdr ^ "\n\n")
   | Iwf :: _,_ -> error def.at "Several well-formedness lemmas defined mutually recursively"
   | Idat :: kwds, _ ->
      if List.for_all (function Idat -> true | _ -> false) kwds
-     then start ^ "datatype " ^ String.concat "\n\nand\n\n" hdrs ^ "\n\n"
+     then Main (start ^ "datatype " ^ String.concat "\n\nand\n\n" hdrs ^ "\n\n")
      else error def.at "datatype defined mutually recursively with something that is not a datatype"
   | Iax :: kwds, _ ->
      if List.for_all (function Iax -> true | _ -> false) kwds
-     then start ^ "axiomatization " ^ String.concat "\nand " hdrs ^ "\n\n"
+     then Main (start ^ "axiomatization " ^ String.concat "\nand " hdrs ^ "\n\n")
      else error def.at "axiomatization defined mutually recursively with something that is not an axiomatization"
   | Iaxwf :: kwds, _ ->
      if List.for_all (function Iax -> true | _ -> false) kwds
-     then start ^ "axiomatization where " ^ String.concat "\nand " hdrs ^ "\n\n"
+     then Main (start ^ "axiomatization where " ^ String.concat "\nand " hdrs ^ "\n\n")
      else error def.at "axiomatized well-formedness property defined mutually recursively with something that is not an axiomatization"
   | Ifun :: kwds, _ ->
      if List.for_all (function Ifun -> true | _ -> false) kwds
                      (*     then start ^ "fun " ^ String.concat "\nand " hdrs ^ " where\n\t\t  " ^ String.concat "\n\t\t| " clauses ^ "\n\n" *)
-     then start ^ "function (sequential, domintros) " ^ String.concat "\nand " hdrs ^ " where\n\t\t  " ^ String.concat "\n\t\t| " clauses ^ "\n\tby pat_completeness auto\n\n"
+     then Main (start ^ "function (sequential, domintros) " ^ String.concat "\nand " hdrs ^ " where\n\t\t  " ^ String.concat "\n\t\t| " clauses ^ "\n\tby pat_completeness auto\n\n")
      else error def.at "function defined mutually recursively with something that is not a function"
   | Iind :: kwds, _ ->
      if List.for_all (function Iind -> true | _ -> false) kwds
-     then start ^ "inductive " ^ String.concat "\nand " hdrs ^ " where\n\t  " ^ String.concat "\n\t| " clauses ^ "\n\n"
+     then Main (start ^ "inductive " ^ String.concat "\nand " hdrs ^ " where\n\t  " ^ String.concat "\n\t| " clauses ^ "\n\n")
      else error def.at "inductive defined mutually recursively with something that is not an inductive"
-  | [], _ -> ""
+  | [], _ -> Main ""
 
 
 let exported_string =
@@ -1003,12 +1007,20 @@ let rec register_hints env def =
     register_partial id *)
   | _ -> ()
 
+let rec separate_wf = function
+  | [] -> "", ""
+  | Main s :: q -> let m, w = separate_wf q in s ^ m, w
+  | Wf_lemmas s :: q -> let m, w = separate_wf q in m, s ^ w
+
+
 let string_of_script theoryname (il : script) =
   !env_ref.il_env <- Il.Env.env_of_script il;
   List.iter (register_hints !env_ref) il;
   let il' = Disamb.transform il in
   "theory " ^ theoryname ^ "\n" ^
   exported_string ^
-  "(* Generated Code *)\n" ^
-    String.concat "" (List.filter_map filter_def il' |> List.map (string_of_def (* true false *))) ^
+    "(* Generated Code *)\n" ^
+      let m, w = separate_wf 
+                   (List.filter_map filter_def il' |> List.map (string_of_def (* true false *)))
+                 in m ^ w ^
       "end\n"

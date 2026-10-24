@@ -1,7 +1,7 @@
 theory Preservation
 (* Imported Code *)
 	imports isabelle_reference_output_wasm2 store_extension_typing Properties 
-	        Type_Inversion Subtyping_Theorem Context_Store_Agreement
+	        Type_Inversion Subtyping_Theorem Context_Store_Agreement Wf_preservation
 begin
 
 

@@ -3,7 +3,6 @@ theory isabelle_reference_output_wasm2
 	imports Main
 begin
 
-
 inductive list_all3 :: "('a \<Rightarrow> 'b \<Rightarrow> 'c \<Rightarrow> bool) \<Rightarrow> 'a list \<Rightarrow> 'b list \<Rightarrow> 'c list \<Rightarrow> bool" where
 	list_all3_nil : "list_all3 R [] [] []" |
 	list_all3_cons: "R a b c \<Longrightarrow> list_all3 R as bs cs \<Longrightarrow> list_all3 R (a # as) (b # bs) (c # cs)"
@@ -337,12 +336,6 @@ type_synonym f64 = "fN"
 function (sequential, domintros) fzero :: "N \<Rightarrow> fN" where
 		  "fzero v_N = (POS (SUBNORM 0))"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:68.6-68.12 *)
-lemma fzero_is_wf :
-	"(ret_val = (fzero v_N)) \<Longrightarrow>
-	 (wf_fN v_N ret_val)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:71.6-71.11 *)
 inductive fun_fone :: "N \<Rightarrow> fN \<Rightarrow> bool" where
@@ -907,12 +900,6 @@ function (sequential, domintros) fun_zero :: "numtype \<Rightarrow> num_undersco
 		| "fun_zero F64 = (mk_num__1 Fnn_F64 (fzero (the ((size (valtype_Fnn Fnn_F64))))))"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:281.6-281.11 *)
-lemma zero_is_wf :
-	"(ret_val = (fun_zero v_numtype)) \<Longrightarrow>
-	 (wf_num_underscore v_numtype ret_val)"
-sorry
-
 (* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:288.1-288.42 *)
 datatype sx =
 	  U
@@ -1249,13 +1236,6 @@ inductive wf_pshape :: "pshape \<Rightarrow> bool" where
 function (sequential, domintros) fun_dim :: "shape \<Rightarrow> dim" where
 		  "fun_dim (X v_Lnn (mk_dim v_N)) = (mk_dim v_N)"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.6-342.10 *)
-lemma dim_is_wf :
-	"(wf_shape v_shape) \<Longrightarrow>
-	 (ret_val = (fun_dim v_shape)) \<Longrightarrow>
-	 (wf_dim ret_val)"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.1-343.41 *)
 function (sequential, domintros) shsize :: "shape \<Rightarrow> nat" where
@@ -2307,15 +2287,6 @@ inductive fun_concat_bytes :: "((byte list) list) \<Rightarrow> (byte list) \<Ri
 		"(fun_concat_bytes b'_lst_lst var_0) \<Longrightarrow>
 		 fun_concat_bytes ([b_lst] @ b'_lst_lst) (b_lst @ var_0)"
 
-(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:7.1-7.59 *)
-inductive concat_bytes_is_wf :: "((byte list) list) \<Rightarrow> (byte list) \<Rightarrow> bool" where
-	  concat_bytes_is_wf_0 :
-		"(fun_concat_bytes var_0_lst_lst var_0) \<Longrightarrow>
-		 list_all (\<lambda> (var_0_lst :: (byte list)). list_all (\<lambda> (var_0 :: byte). (wf_byte var_0)) var_0_lst) var_0_lst_lst \<Longrightarrow>
-		 (ret_val_lst = var_0) \<Longrightarrow>
-		 list_all (\<lambda> (ret_val :: byte). (wf_byte ret_val)) ret_val_lst \<Longrightarrow>
-		 concat_bytes_is_wf var_0_lst_lst ret_val_lst"
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:28.1-28.32 *)
 function (sequential, domintros) unpack :: "lanetype \<Rightarrow> numtype" where
 		  "unpack lanetype_I32 = I32"
@@ -2364,15 +2335,6 @@ inductive fun_tablesxt :: "(externtype list) \<Rightarrow> (tabletype list) \<Ri
 		"(fun_tablesxt xt_lst var_0) \<Longrightarrow>
 		 fun_tablesxt ([v_externtype] @ xt_lst) var_0"
 
-(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:53.1-53.65 *)
-inductive tablesxt_is_wf :: "(externtype list) \<Rightarrow> (tabletype list) \<Rightarrow> bool" where
-	  tablesxt_is_wf_0 :
-		"(fun_tablesxt var_0_lst var_0) \<Longrightarrow>
-		 list_all (\<lambda> (var_0 :: externtype). (wf_externtype var_0)) var_0_lst \<Longrightarrow>
-		 (ret_val_lst = var_0) \<Longrightarrow>
-		 list_all (\<lambda> (ret_val :: tabletype). (wf_tabletype ret_val)) ret_val_lst \<Longrightarrow>
-		 tablesxt_is_wf var_0_lst ret_val_lst"
-
 (* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:54.1-54.63 *)
 inductive fun_memsxt :: "(externtype list) \<Rightarrow> (memtype list) \<Rightarrow> bool" where
 	  fun_memsxt_case_0 :
@@ -2384,28 +2346,12 @@ inductive fun_memsxt :: "(externtype list) \<Rightarrow> (memtype list) \<Righta
 		"(fun_memsxt xt_lst var_0) \<Longrightarrow>
 		 fun_memsxt ([v_externtype] @ xt_lst) var_0"
 
-(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:54.1-54.63 *)
-inductive memsxt_is_wf :: "(externtype list) \<Rightarrow> (memtype list) \<Rightarrow> bool" where
-	  memsxt_is_wf_0 :
-		"(fun_memsxt var_0_lst var_0) \<Longrightarrow>
-		 list_all (\<lambda> (var_0 :: externtype). (wf_externtype var_0)) var_0_lst \<Longrightarrow>
-		 (ret_val_lst = var_0) \<Longrightarrow>
-		 list_all (\<lambda> (ret_val :: memtype). (wf_memtype ret_val)) ret_val_lst \<Longrightarrow>
-		 memsxt_is_wf var_0_lst ret_val_lst"
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:80.1-80.61 *)
 function (sequential, domintros) dataidx_instr :: "instr \<Rightarrow> (dataidx list)" where
 		  "dataidx_instr (instr_sc7 (MEMORY_INIT x)) = [x]"
 		| "dataidx_instr (instr_sc7 (DATA_DROP x)) = [x]"
 		| "dataidx_instr res_in = []"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:80.6-80.20 *)
-lemma dataidx_instr_is_wf :
-	"(wf_instr v_instr) \<Longrightarrow>
-	 (ret_val_lst = (dataidx_instr v_instr)) \<Longrightarrow>
-	 list_all (\<lambda> (ret_val :: dataidx). (wf_uN 32 ret_val)) ret_val_lst"
-sorry
 
 (* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:85.1-85.63 *)
 inductive fun_dataidx_instrs :: "(instr list) \<Rightarrow> (dataidx list) \<Rightarrow> bool" where
@@ -2415,42 +2361,17 @@ inductive fun_dataidx_instrs :: "(instr list) \<Rightarrow> (dataidx list) \<Rig
 		"(fun_dataidx_instrs instr'_lst var_0) \<Longrightarrow>
 		 fun_dataidx_instrs ([v_instr] @ instr'_lst) ((dataidx_instr v_instr) @ var_0)"
 
-(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:85.1-85.63 *)
-inductive dataidx_instrs_is_wf :: "(instr list) \<Rightarrow> (dataidx list) \<Rightarrow> bool" where
-	  dataidx_instrs_is_wf_0 :
-		"(fun_dataidx_instrs var_0_lst var_0) \<Longrightarrow>
-		 list_all (\<lambda> (var_0 :: instr). (wf_instr var_0)) var_0_lst \<Longrightarrow>
-		 (ret_val_lst = var_0) \<Longrightarrow>
-		 list_all (\<lambda> (ret_val :: dataidx). (wf_uN 32 ret_val)) ret_val_lst \<Longrightarrow>
-		 dataidx_instrs_is_wf var_0_lst ret_val_lst"
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:89.6-89.19 *)
 inductive fun_dataidx_expr :: "expr \<Rightarrow> (dataidx list) \<Rightarrow> bool" where
 	  fun_dataidx_expr_case_0 :
 		"(fun_dataidx_instrs in_lst var_0) \<Longrightarrow>
 		 fun_dataidx_expr in_lst var_0"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:89.6-89.19 *)
-lemma dataidx_expr_is_wf :
-	"(fun_dataidx_expr v_expr var_0) \<Longrightarrow>
-	 list_all (\<lambda> (v_expr :: instr). (wf_instr v_expr)) v_expr \<Longrightarrow>
-	 (ret_val_lst = var_0) \<Longrightarrow>
-	 list_all (\<lambda> (ret_val :: dataidx). (wf_uN 32 ret_val)) ret_val_lst"
-sorry
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:92.6-92.19 *)
 inductive fun_dataidx_func :: "func \<Rightarrow> (dataidx list) \<Rightarrow> bool" where
 	  fun_dataidx_func_case_0 :
 		"(fun_dataidx_expr e var_0) \<Longrightarrow>
 		 fun_dataidx_func (func_FUNC x loc_lst e) var_0"
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:92.6-92.19 *)
-lemma dataidx_func_is_wf :
-	"(fun_dataidx_func v_func var_0) \<Longrightarrow>
-	 (wf_func v_func) \<Longrightarrow>
-	 (ret_val_lst = var_0) \<Longrightarrow>
-	 list_all (\<lambda> (ret_val :: dataidx). (wf_uN 32 ret_val)) ret_val_lst"
-sorry
 
 (* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:95.1-95.61 *)
 inductive fun_dataidx_funcs :: "(func list) \<Rightarrow> (dataidx list) \<Rightarrow> bool" where
@@ -2461,34 +2382,18 @@ inductive fun_dataidx_funcs :: "(func list) \<Rightarrow> (dataidx list) \<Right
 		 (fun_dataidx_func v_func var_0) \<Longrightarrow>
 		 fun_dataidx_funcs ([v_func] @ func'_lst) (var_0 @ var_1)"
 
-(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:95.1-95.61 *)
-inductive dataidx_funcs_is_wf :: "(func list) \<Rightarrow> (dataidx list) \<Rightarrow> bool" where
-	  dataidx_funcs_is_wf_0 :
-		"(fun_dataidx_funcs var_0_lst var_0) \<Longrightarrow>
-		 list_all (\<lambda> (var_0 :: func). (wf_func var_0)) var_0_lst \<Longrightarrow>
-		 (ret_val_lst = var_0) \<Longrightarrow>
-		 list_all (\<lambda> (ret_val :: dataidx). (wf_uN 32 ret_val)) ret_val_lst \<Longrightarrow>
-		 dataidx_funcs_is_wf var_0_lst ret_val_lst"
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:106.1-106.35 *)
 definition memarg0 :: "memarg" where
 	"memarg0 = \<lparr> ALIGN = (mk_uN 0), OFFSET = (mk_uN 0) \<rparr>"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:106.6-106.13 *)
-lemma memarg0_is_wf :
-	"(ret_val = (memarg0 )) \<Longrightarrow>
-	 (wf_memarg ret_val)"
-sorry
-
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:7.1-7.41 *)
 axiomatization s33_to_u32 :: "s33 \<Rightarrow> u32"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:7.6-7.17 *)
-lemma s33_to_u32_is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:7.6-7.17 *)
+axiomatization where s33_to_u32_is_wf :
 	"(wf_sN 33 v_s33) \<Longrightarrow>
 	 (ret_val = (s33_to_u32 v_s33)) \<Longrightarrow>
 	 (wf_uN 32 ret_val)"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:9.1-9.22 *)
 function (sequential, domintros) res_bool :: "bool \<Rightarrow> nat" where
@@ -2530,122 +2435,110 @@ function (sequential, domintros) sat_s_underscore :: "N \<Rightarrow> nat \<Righ
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:56.1-56.89 *)
 axiomatization extend__underscore :: "M \<Rightarrow> N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:56.6-56.15 *)
-lemma extend___is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:56.6-56.15 *)
+axiomatization where extend___is_wf :
 	"(wf_uN v_M v_iN) \<Longrightarrow>
 	 (ret_val = (extend__underscore v_M v_N v_sx v_iN)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:224.1-224.30 *)
 axiomatization fabs_underscore :: "N \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:224.6-224.12 *)
-lemma fabs__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:224.6-224.12 *)
+axiomatization where fabs__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (ret_val_lst = (fabs_underscore v_N v_fN)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:227.1-227.31 *)
 axiomatization fceil_underscore :: "N \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:227.6-227.13 *)
-lemma fceil__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:227.6-227.13 *)
+axiomatization where fceil__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (ret_val_lst = (fceil_underscore v_N v_fN)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:228.1-228.32 *)
 axiomatization ffloor_underscore :: "N \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:228.6-228.14 *)
-lemma ffloor__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:228.6-228.14 *)
+axiomatization where ffloor__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (ret_val_lst = (ffloor_underscore v_N v_fN)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:230.1-230.34 *)
 axiomatization fnearest_underscore :: "N \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:230.6-230.16 *)
-lemma fnearest__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:230.6-230.16 *)
+axiomatization where fnearest__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (ret_val_lst = (fnearest_underscore v_N v_fN)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:225.1-225.30 *)
 axiomatization fneg_underscore :: "N \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:225.6-225.12 *)
-lemma fneg__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:225.6-225.12 *)
+axiomatization where fneg__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (ret_val_lst = (fneg_underscore v_N v_fN)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:226.1-226.31 *)
 axiomatization fsqrt_underscore :: "N \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:226.6-226.13 *)
-lemma fsqrt__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:226.6-226.13 *)
+axiomatization where fsqrt__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (ret_val_lst = (fsqrt_underscore v_N v_fN)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:229.1-229.32 *)
 axiomatization ftrunc_underscore :: "N \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:229.6-229.14 *)
-lemma ftrunc__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:229.6-229.14 *)
+axiomatization where ftrunc__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (ret_val_lst = (ftrunc_underscore v_N v_fN)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:120.1-120.29 *)
 axiomatization iclz_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:120.6-120.12 *)
-lemma iclz__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:120.6-120.12 *)
+axiomatization where iclz__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (ret_val = (iclz_underscore v_N v_iN)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:121.1-121.29 *)
 axiomatization ictz_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:121.6-121.12 *)
-lemma ictz__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:121.6-121.12 *)
+axiomatization where ictz__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (ret_val = (ictz_underscore v_N v_iN)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:122.1-122.32 *)
 axiomatization ipopcnt_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:122.6-122.15 *)
-lemma ipopcnt__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:122.6-122.15 *)
+axiomatization where ipopcnt__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (ret_val = (ipopcnt_underscore v_N v_iN)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:55.1-55.33 *)
 axiomatization wrap__underscore :: "M \<Rightarrow> N \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:55.6-55.13 *)
-lemma wrap___is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:55.6-55.13 *)
+axiomatization where wrap___is_wf :
 	"(wf_uN v_M v_iN) \<Longrightarrow>
 	 (ret_val = (wrap__underscore v_M v_N v_iN)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.1-45.32 *)
 function (sequential, domintros) fun_unop__I64 :: "unop_underscore \<Rightarrow> num_underscore \<Rightarrow> ((num_underscore list) option)" where
@@ -2697,115 +2590,90 @@ function (sequential, domintros) fun_unop_underscore :: "numtype \<Rightarrow> u
 		| "fun_unop_underscore F32 v_unop_underscore v_num_underscore = (fun_unop__F32 v_unop_underscore v_num_underscore)"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.6-44.12 *)
-lemma unop__is_wf :
-	"(wf_unop_underscore v_numtype v_unop_underscore) \<Longrightarrow>
-	 (wf_num_underscore v_numtype v_num_underscore) \<Longrightarrow>
-	 ((fun_unop_underscore v_numtype v_unop_underscore v_num_underscore) \<noteq> None) \<Longrightarrow>
-	 (ret_val_lst = (the ((fun_unop_underscore v_numtype v_unop_underscore v_num_underscore)))) \<Longrightarrow>
-	 list_all (\<lambda> (ret_val :: num_underscore). (wf_num_underscore v_numtype ret_val)) ret_val_lst"
-sorry
-
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:215.1-215.37 *)
 axiomatization fadd_underscore :: "N \<Rightarrow> fN \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:215.6-215.12 *)
-lemma fadd__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:215.6-215.12 *)
+axiomatization where fadd__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (wf_fN v_N fN_0) \<Longrightarrow>
 	 (ret_val_lst = (fadd_underscore v_N v_fN fN_0)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:223.1-223.42 *)
 axiomatization fcopysign_underscore :: "N \<Rightarrow> fN \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:223.6-223.17 *)
-lemma fcopysign__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:223.6-223.17 *)
+axiomatization where fcopysign__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (wf_fN v_N fN_0) \<Longrightarrow>
 	 (ret_val_lst = (fcopysign_underscore v_N v_fN fN_0)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:218.1-218.37 *)
 axiomatization fdiv_underscore :: "N \<Rightarrow> fN \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:218.6-218.12 *)
-lemma fdiv__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:218.6-218.12 *)
+axiomatization where fdiv__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (wf_fN v_N fN_0) \<Longrightarrow>
 	 (ret_val_lst = (fdiv_underscore v_N v_fN fN_0)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:220.1-220.37 *)
 axiomatization fmax_underscore :: "N \<Rightarrow> fN \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:220.6-220.12 *)
-lemma fmax__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:220.6-220.12 *)
+axiomatization where fmax__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (wf_fN v_N fN_0) \<Longrightarrow>
 	 (ret_val_lst = (fmax_underscore v_N v_fN fN_0)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:219.1-219.37 *)
 axiomatization fmin_underscore :: "N \<Rightarrow> fN \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:219.6-219.12 *)
-lemma fmin__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:219.6-219.12 *)
+axiomatization where fmin__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (wf_fN v_N fN_0) \<Longrightarrow>
 	 (ret_val_lst = (fmin_underscore v_N v_fN fN_0)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:217.1-217.37 *)
 axiomatization fmul_underscore :: "N \<Rightarrow> fN \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:217.6-217.12 *)
-lemma fmul__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:217.6-217.12 *)
+axiomatization where fmul__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (wf_fN v_N fN_0) \<Longrightarrow>
 	 (ret_val_lst = (fmul_underscore v_N v_fN fN_0)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:216.1-216.37 *)
 axiomatization fsub_underscore :: "N \<Rightarrow> fN \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:216.6-216.12 *)
-lemma fsub__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:216.6-216.12 *)
+axiomatization where fsub__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (wf_fN v_N fN_0) \<Longrightarrow>
 	 (ret_val_lst = (fsub_underscore v_N v_fN fN_0)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:105.1-105.36 *)
 function (sequential, domintros) iadd_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN" where
 		  "iadd_underscore v_N i_1 i_2 = (mk_uN (((proj_uN_0 i_1) + (proj_uN_0 i_2)) mod (2 ^ v_N)))"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:105.6-105.12 *)
-lemma iadd__is_wf :
-	"(wf_uN v_N v_iN) \<Longrightarrow>
-	 (wf_uN v_N iN_0) \<Longrightarrow>
-	 (ret_val = (iadd_underscore v_N v_iN iN_0)) \<Longrightarrow>
-	 (wf_uN v_N ret_val)"
-sorry
-
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:112.1-112.36 *)
 axiomatization iand_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:112.6-112.12 *)
-lemma iand__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:112.6-112.12 *)
+axiomatization where iand__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (wf_uN v_N iN_0) \<Longrightarrow>
 	 (ret_val = (iand_underscore v_N v_iN iN_0)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:108.6-108.12 *)
 inductive fun_idiv_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> (iN option) \<Rightarrow> bool" where
@@ -2833,24 +2701,15 @@ function (sequential, domintros) imul_underscore :: "N \<Rightarrow> iN \<Righta
 		  "imul_underscore v_N i_1 i_2 = (mk_uN (((proj_uN_0 i_1) * (proj_uN_0 i_2)) mod (2 ^ v_N)))"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:107.6-107.12 *)
-lemma imul__is_wf :
-	"(wf_uN v_N v_iN) \<Longrightarrow>
-	 (wf_uN v_N iN_0) \<Longrightarrow>
-	 (ret_val = (imul_underscore v_N v_iN iN_0)) \<Longrightarrow>
-	 (wf_uN v_N ret_val)"
-sorry
-
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:114.1-114.35 *)
 axiomatization ior_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:114.6-114.11 *)
-lemma ior__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:114.6-114.11 *)
+axiomatization where ior__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (wf_uN v_N iN_0) \<Longrightarrow>
 	 (ret_val = (ior_underscore v_N v_iN iN_0)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:109.6-109.12 *)
 inductive fun_irem_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> (iN option) \<Rightarrow> bool" where
@@ -2867,82 +2726,60 @@ inductive fun_irem_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarr
 		 ((j_1 = var_1) \<and> (j_2 = var_2)) \<Longrightarrow>
 		 fun_irem_underscore v_N S i_1 i_2 (Some (mk_uN var_0))"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:109.6-109.12 *)
-lemma irem__is_wf :
-	"(fun_irem_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
-	 (wf_uN v_N v_iN) \<Longrightarrow>
-	 (wf_uN v_N iN_0) \<Longrightarrow>
-	 (ret_val_opt = var_0) \<Longrightarrow>
-	 list_all (\<lambda> (ret_val :: iN). (wf_uN v_N ret_val)) (option_to_list ret_val_opt)"
-sorry
-
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:118.1-118.37 *)
 axiomatization irotl_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:118.6-118.13 *)
-lemma irotl__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:118.6-118.13 *)
+axiomatization where irotl__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (wf_uN v_N iN_0) \<Longrightarrow>
 	 (ret_val = (irotl_underscore v_N v_iN iN_0)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:119.1-119.37 *)
 axiomatization irotr_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:119.6-119.13 *)
-lemma irotr__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:119.6-119.13 *)
+axiomatization where irotr__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (wf_uN v_N iN_0) \<Longrightarrow>
 	 (ret_val = (irotr_underscore v_N v_iN iN_0)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:116.1-116.36 *)
 axiomatization ishl_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:116.6-116.12 *)
-lemma ishl__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:116.6-116.12 *)
+axiomatization where ishl__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (wf_uN v_N iN_0) \<Longrightarrow>
 	 (ret_val = (ishl_underscore v_N v_iN iN_0)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:117.1-117.76 *)
 axiomatization ishr_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:117.6-117.12 *)
-lemma ishr__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:117.6-117.12 *)
+axiomatization where ishr__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (wf_uN v_N iN_0) \<Longrightarrow>
 	 (ret_val = (ishr_underscore v_N v_sx v_iN iN_0)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:106.1-106.36 *)
 function (sequential, domintros) isub_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN" where
 		  "isub_underscore v_N i_1 i_2 = (mk_uN ((((((2 ^ v_N) + (proj_uN_0 i_1)) :: nat) - ((proj_uN_0 i_2) :: nat)) mod ((2 ^ v_N) :: nat)) :: nat))"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:106.6-106.12 *)
-lemma isub__is_wf :
-	"(wf_uN v_N v_iN) \<Longrightarrow>
-	 (wf_uN v_N iN_0) \<Longrightarrow>
-	 (ret_val = (isub_underscore v_N v_iN iN_0)) \<Longrightarrow>
-	 (wf_uN v_N ret_val)"
-sorry
-
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:115.1-115.36 *)
 axiomatization ixor_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:115.6-115.12 *)
-lemma ixor__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:115.6-115.12 *)
+axiomatization where ixor__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (wf_uN v_N iN_0) \<Longrightarrow>
 	 (ret_val = (ixor_underscore v_N v_iN iN_0)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:46.6-46.13 *)
 inductive fun_binop__before_fun_binop__case_38 :: "numtype \<Rightarrow> binop_underscore \<Rightarrow> num_underscore \<Rightarrow> num_underscore \<Rightarrow> bool" where
@@ -3246,13 +3083,6 @@ function (sequential, domintros) ieqz_underscore :: "N \<Rightarrow> iN \<Righta
 		  "ieqz_underscore v_N i_1 = (mk_uN (res_bool ((proj_uN_0 i_1) = 0)))"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:123.6-123.12 *)
-lemma ieqz__is_wf :
-	"(wf_uN v_N v_iN) \<Longrightarrow>
-	 (ret_val = (ieqz_underscore v_N v_iN)) \<Longrightarrow>
-	 (wf_uN 32 ret_val)"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:48.1-49.32 *)
 function (sequential, domintros) fun_testop_underscore :: "numtype \<Rightarrow> testop_underscore \<Rightarrow> num_underscore \<Rightarrow> (num_underscore option)" where
 		  "fun_testop_underscore I32 (mk_testop__0 Inn_I32 EQZ) (mk_num__0 Inn_I32 v_iN) = (Some (mk_num__0 Inn_I32 (ieqz_underscore (sizenn (numtype_Inn Inn_I32)) v_iN)))"
@@ -3260,93 +3090,70 @@ function (sequential, domintros) fun_testop_underscore :: "numtype \<Rightarrow>
 		| "fun_testop_underscore x0 x1 x2 = None"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:48.6-48.14 *)
-lemma testop__is_wf :
-	"(wf_testop_underscore v_numtype v_testop_underscore) \<Longrightarrow>
-	 (wf_num_underscore v_numtype v_num_underscore) \<Longrightarrow>
-	 ((fun_testop_underscore v_numtype v_testop_underscore v_num_underscore) \<noteq> None) \<Longrightarrow>
-	 (ret_val = (the ((fun_testop_underscore v_numtype v_testop_underscore v_num_underscore)))) \<Longrightarrow>
-	 (wf_num_underscore I32 ret_val)"
-sorry
-
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:231.1-231.33 *)
 axiomatization feq_underscore :: "N \<Rightarrow> fN \<Rightarrow> fN \<Rightarrow> u32"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:231.6-231.11 *)
-lemma feq__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:231.6-231.11 *)
+axiomatization where feq__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (wf_fN v_N fN_0) \<Longrightarrow>
 	 (ret_val = (feq_underscore v_N v_fN fN_0)) \<Longrightarrow>
 	 (wf_uN 32 ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:236.1-236.33 *)
 axiomatization fge_underscore :: "N \<Rightarrow> fN \<Rightarrow> fN \<Rightarrow> u32"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:236.6-236.11 *)
-lemma fge__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:236.6-236.11 *)
+axiomatization where fge__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (wf_fN v_N fN_0) \<Longrightarrow>
 	 (ret_val = (fge_underscore v_N v_fN fN_0)) \<Longrightarrow>
 	 (wf_uN 32 ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:234.1-234.33 *)
 axiomatization fgt_underscore :: "N \<Rightarrow> fN \<Rightarrow> fN \<Rightarrow> u32"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:234.6-234.11 *)
-lemma fgt__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:234.6-234.11 *)
+axiomatization where fgt__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (wf_fN v_N fN_0) \<Longrightarrow>
 	 (ret_val = (fgt_underscore v_N v_fN fN_0)) \<Longrightarrow>
 	 (wf_uN 32 ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:235.1-235.33 *)
 axiomatization fle_underscore :: "N \<Rightarrow> fN \<Rightarrow> fN \<Rightarrow> u32"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:235.6-235.11 *)
-lemma fle__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:235.6-235.11 *)
+axiomatization where fle__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (wf_fN v_N fN_0) \<Longrightarrow>
 	 (ret_val = (fle_underscore v_N v_fN fN_0)) \<Longrightarrow>
 	 (wf_uN 32 ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:233.1-233.33 *)
 axiomatization flt_underscore :: "N \<Rightarrow> fN \<Rightarrow> fN \<Rightarrow> u32"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:233.6-233.11 *)
-lemma flt__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:233.6-233.11 *)
+axiomatization where flt__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (wf_fN v_N fN_0) \<Longrightarrow>
 	 (ret_val = (flt_underscore v_N v_fN fN_0)) \<Longrightarrow>
 	 (wf_uN 32 ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:232.1-232.33 *)
 axiomatization fne_underscore :: "N \<Rightarrow> fN \<Rightarrow> fN \<Rightarrow> u32"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:232.6-232.11 *)
-lemma fne__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:232.6-232.11 *)
+axiomatization where fne__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (wf_fN v_N fN_0) \<Longrightarrow>
 	 (ret_val = (fne_underscore v_N v_fN fN_0)) \<Longrightarrow>
 	 (wf_uN 32 ret_val)"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:125.1-125.33 *)
 function (sequential, domintros) ieq_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> u32" where
 		  "ieq_underscore v_N i_1 i_2 = (mk_uN (res_bool (i_1 = i_2)))"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:125.6-125.11 *)
-lemma ieq__is_wf :
-	"(wf_uN v_N v_iN) \<Longrightarrow>
-	 (wf_uN v_N iN_0) \<Longrightarrow>
-	 (ret_val = (ieq_underscore v_N v_iN iN_0)) \<Longrightarrow>
-	 (wf_uN 32 ret_val)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:130.6-130.11 *)
 inductive fun_ige_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> u32 \<Rightarrow> bool" where
@@ -3357,15 +3164,6 @@ inductive fun_ige_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarro
 		 (fun_signed_underscore v_N (proj_uN_0 i_1) var_0) \<Longrightarrow>
 		 fun_ige_underscore v_N S i_1 i_2 (mk_uN (res_bool (var_0 \<ge> var_1)))"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:130.6-130.11 *)
-lemma ige__is_wf :
-	"(fun_ige_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
-	 (wf_uN v_N v_iN) \<Longrightarrow>
-	 (wf_uN v_N iN_0) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_uN 32 ret_val)"
-sorry
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:128.6-128.11 *)
 inductive fun_igt_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> u32 \<Rightarrow> bool" where
 	  fun_igt__case_0 :
@@ -3374,15 +3172,6 @@ inductive fun_igt_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarro
 		"(fun_signed_underscore v_N (proj_uN_0 i_2) var_1) \<Longrightarrow>
 		 (fun_signed_underscore v_N (proj_uN_0 i_1) var_0) \<Longrightarrow>
 		 fun_igt_underscore v_N S i_1 i_2 (mk_uN (res_bool (var_0 > var_1)))"
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:128.6-128.11 *)
-lemma igt__is_wf :
-	"(fun_igt_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
-	 (wf_uN v_N v_iN) \<Longrightarrow>
-	 (wf_uN v_N iN_0) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_uN 32 ret_val)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:129.6-129.11 *)
 inductive fun_ile_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> u32 \<Rightarrow> bool" where
@@ -3393,15 +3182,6 @@ inductive fun_ile_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarro
 		 (fun_signed_underscore v_N (proj_uN_0 i_1) var_0) \<Longrightarrow>
 		 fun_ile_underscore v_N S i_1 i_2 (mk_uN (res_bool (var_0 \<le> var_1)))"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:129.6-129.11 *)
-lemma ile__is_wf :
-	"(fun_ile_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
-	 (wf_uN v_N v_iN) \<Longrightarrow>
-	 (wf_uN v_N iN_0) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_uN 32 ret_val)"
-sorry
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:127.6-127.11 *)
 inductive fun_ilt_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> u32 \<Rightarrow> bool" where
 	  fun_ilt__case_0 :
@@ -3411,27 +3191,10 @@ inductive fun_ilt_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarro
 		 (fun_signed_underscore v_N (proj_uN_0 i_1) var_0) \<Longrightarrow>
 		 fun_ilt_underscore v_N S i_1 i_2 (mk_uN (res_bool (var_0 < var_1)))"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:127.6-127.11 *)
-lemma ilt__is_wf :
-	"(fun_ilt_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
-	 (wf_uN v_N v_iN) \<Longrightarrow>
-	 (wf_uN v_N iN_0) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_uN 32 ret_val)"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:126.1-126.33 *)
 function (sequential, domintros) ine_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> u32" where
 		  "ine_underscore v_N i_1 i_2 = (mk_uN (res_bool (i_1 \<noteq> i_2)))"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:126.6-126.11 *)
-lemma ine__is_wf :
-	"(wf_uN v_N v_iN) \<Longrightarrow>
-	 (wf_uN v_N iN_0) \<Longrightarrow>
-	 (ret_val = (ine_underscore v_N v_iN iN_0)) \<Longrightarrow>
-	 (wf_uN 32 ret_val)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:50.6-50.13 *)
 inductive fun_relop__before_fun_relop__case_24 :: "numtype \<Rightarrow> relop_underscore \<Rightarrow> num_underscore \<Rightarrow> num_underscore \<Rightarrow> bool" where
@@ -3546,76 +3309,59 @@ inductive fun_relop_underscore :: "numtype \<Rightarrow> relop_underscore \<Righ
 		"(~(fun_relop__before_fun_relop__case_24 x0 x1 x2 x3)) \<Longrightarrow>
 		 fun_relop_underscore x0 x1 x2 x3 None"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:50.6-50.13 *)
-lemma relop__is_wf :
-	"(fun_relop_underscore v_numtype v_relop_underscore v_num_underscore num__0 var_0) \<Longrightarrow>
-	 (wf_relop_underscore v_numtype v_relop_underscore) \<Longrightarrow>
-	 (wf_num_underscore v_numtype v_num_underscore) \<Longrightarrow>
-	 (wf_num_underscore v_numtype num__0) \<Longrightarrow>
-	 (var_0 \<noteq> None) \<Longrightarrow>
-	 (ret_val = (the (var_0))) \<Longrightarrow>
-	 (wf_num_underscore I32 ret_val)"
-sorry
-
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:61.1-61.90 *)
 axiomatization convert__underscore :: "M \<Rightarrow> N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> fN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:61.6-61.16 *)
-lemma convert___is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:61.6-61.16 *)
+axiomatization where convert___is_wf :
 	"(wf_uN v_M v_iN) \<Longrightarrow>
 	 (ret_val = (convert__underscore v_M v_N v_sx v_iN)) \<Longrightarrow>
 	 (wf_fN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:59.1-59.36 *)
 axiomatization demote__underscore :: "M \<Rightarrow> N \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:59.6-59.15 *)
-lemma demote___is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:59.6-59.15 *)
+axiomatization where demote___is_wf :
 	"(wf_fN v_M v_fN) \<Longrightarrow>
 	 (ret_val_lst = (demote__underscore v_M v_N v_fN)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:60.1-60.37 *)
 axiomatization promote__underscore :: "M \<Rightarrow> N \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:60.6-60.16 *)
-lemma promote___is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:60.6-60.16 *)
+axiomatization where promote___is_wf :
 	"(wf_fN v_M v_fN) \<Longrightarrow>
 	 (ret_val_lst = (promote__underscore v_M v_N v_fN)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:63.1-63.76 *)
 axiomatization reinterpret__underscore :: "numtype \<Rightarrow> numtype \<Rightarrow> num_underscore \<Rightarrow> num_underscore"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:63.6-63.20 *)
-lemma reinterpret___is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:63.6-63.20 *)
+axiomatization where reinterpret___is_wf :
 	"(wf_num_underscore numtype_1 v_num_underscore) \<Longrightarrow>
 	 (ret_val = (reinterpret__underscore numtype_1 numtype_2 v_num_underscore)) \<Longrightarrow>
 	 (wf_num_underscore numtype_2 ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:57.1-57.88 *)
 axiomatization trunc__underscore :: "M \<Rightarrow> N \<Rightarrow> sx \<Rightarrow> fN \<Rightarrow> (iN option)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:57.6-57.14 *)
-lemma trunc___is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:57.6-57.14 *)
+axiomatization where trunc___is_wf :
 	"(wf_fN v_M v_fN) \<Longrightarrow>
 	 (ret_val_opt = (trunc__underscore v_M v_N v_sx v_fN)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: iN). (wf_uN v_N ret_val)) (option_to_list ret_val_opt)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:58.1-58.93 *)
 axiomatization trunc_sat__underscore :: "M \<Rightarrow> N \<Rightarrow> sx \<Rightarrow> fN \<Rightarrow> (iN option)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:58.6-58.18 *)
-lemma trunc_sat___is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:58.6-58.18 *)
+axiomatization where trunc_sat___is_wf :
 	"(wf_fN v_M v_fN) \<Longrightarrow>
 	 (ret_val_opt = (trunc_sat__underscore v_M v_N v_sx v_fN)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: iN). (wf_uN v_N ret_val)) (option_to_list ret_val_opt)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:52.6-52.14 *)
 inductive fun_cvtop___before_fun_cvtop___case_36 :: "numtype \<Rightarrow> numtype \<Rightarrow> cvtop__underscore \<Rightarrow> num_underscore \<Rightarrow> bool" where
@@ -3818,228 +3564,179 @@ inductive fun_cvtop__underscore :: "numtype \<Rightarrow> numtype \<Rightarrow> 
 		"(~(fun_cvtop___before_fun_cvtop___case_36 x0 x1 x2 x3)) \<Longrightarrow>
 		 fun_cvtop__underscore x0 x1 x2 x3 None"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:52.6-52.14 *)
-lemma cvtop___is_wf :
-	"(fun_cvtop__underscore numtype_1 numtype_2 v_cvtop__underscore v_num_underscore var_0) \<Longrightarrow>
-	 (wf_cvtop__underscore numtype_1 numtype_2 v_cvtop__underscore) \<Longrightarrow>
-	 (wf_num_underscore numtype_1 v_num_underscore) \<Longrightarrow>
-	 (var_0 \<noteq> None) \<Longrightarrow>
-	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
-	 list_all (\<lambda> (ret_val :: num_underscore). (wf_num_underscore numtype_2 ret_val)) ret_val_lst"
-sorry
-
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:62.1-62.87 *)
 axiomatization narrow__underscore :: "M \<Rightarrow> N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:62.6-62.15 *)
-lemma narrow___is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:62.6-62.15 *)
+axiomatization where narrow___is_wf :
 	"(wf_uN v_M v_iN) \<Longrightarrow>
 	 (ret_val = (narrow__underscore v_M v_N v_sx v_iN)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:76.1-76.102 *)
 axiomatization ibits_underscore :: "N \<Rightarrow> iN \<Rightarrow> (bit list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:76.6-76.13 *)
-lemma ibits__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:76.6-76.13 *)
+axiomatization where ibits__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (ret_val_lst = (ibits_underscore v_N v_iN)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: bit). (wf_bit ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:77.1-77.102 *)
 axiomatization fbits_underscore :: "N \<Rightarrow> fN \<Rightarrow> (bit list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:77.6-77.13 *)
-lemma fbits__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:77.6-77.13 *)
+axiomatization where fbits__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (ret_val_lst = (fbits_underscore v_N v_fN)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: bit). (wf_bit ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:78.1-78.103 *)
 axiomatization ibytes_underscore :: "N \<Rightarrow> iN \<Rightarrow> (byte list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:78.6-78.14 *)
-lemma ibytes__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:78.6-78.14 *)
+axiomatization where ibytes__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (ret_val_lst = (ibytes_underscore v_N v_iN)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: byte). (wf_byte ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:79.1-79.103 *)
 axiomatization fbytes_underscore :: "N \<Rightarrow> fN \<Rightarrow> (byte list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:79.6-79.14 *)
-lemma fbytes__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:79.6-79.14 *)
+axiomatization where fbytes__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (ret_val_lst = (fbytes_underscore v_N v_fN)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: byte). (wf_byte ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:80.1-80.103 *)
 axiomatization nbytes_underscore :: "numtype \<Rightarrow> num_underscore \<Rightarrow> (byte list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:80.6-80.14 *)
-lemma nbytes__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:80.6-80.14 *)
+axiomatization where nbytes__is_wf :
 	"(wf_num_underscore v_numtype v_num_underscore) \<Longrightarrow>
 	 (ret_val_lst = (nbytes_underscore v_numtype v_num_underscore)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: byte). (wf_byte ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:81.1-81.103 *)
 axiomatization vbytes_underscore :: "vectype \<Rightarrow> vec_underscore \<Rightarrow> (byte list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:81.6-81.14 *)
-lemma vbytes__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:81.6-81.14 *)
+axiomatization where vbytes__is_wf :
 	"((size (valtype_vectype v_vectype)) \<noteq> None) \<Longrightarrow>
 	 (wf_uN (the ((size (valtype_vectype v_vectype)))) v_vec_underscore) \<Longrightarrow>
 	 (ret_val_lst = (vbytes_underscore v_vectype v_vec_underscore)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: byte). (wf_byte ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:83.1-83.85 *)
 axiomatization inv_ibits_underscore :: "N \<Rightarrow> (bit list) \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:83.6-83.17 *)
-lemma inv_ibits__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:83.6-83.17 *)
+axiomatization where inv_ibits__is_wf :
 	"list_all (\<lambda> (var_0 :: bit). (wf_bit var_0)) var_0_lst \<Longrightarrow>
 	 (ret_val = (inv_ibits_underscore v_N var_0_lst)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:84.1-84.85 *)
 axiomatization inv_fbits_underscore :: "N \<Rightarrow> (bit list) \<Rightarrow> fN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:84.6-84.17 *)
-lemma inv_fbits__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:84.6-84.17 *)
+axiomatization where inv_fbits__is_wf :
 	"list_all (\<lambda> (var_0 :: bit). (wf_bit var_0)) var_0_lst \<Longrightarrow>
 	 (ret_val = (inv_fbits_underscore v_N var_0_lst)) \<Longrightarrow>
 	 (wf_fN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:85.1-85.86 *)
 axiomatization inv_ibytes_underscore :: "N \<Rightarrow> (byte list) \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:85.6-85.18 *)
-lemma inv_ibytes__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:85.6-85.18 *)
+axiomatization where inv_ibytes__is_wf :
 	"list_all (\<lambda> (var_0 :: byte). (wf_byte var_0)) var_0_lst \<Longrightarrow>
 	 (ret_val = (inv_ibytes_underscore v_N var_0_lst)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:86.1-86.86 *)
 axiomatization inv_fbytes_underscore :: "N \<Rightarrow> (byte list) \<Rightarrow> fN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:86.6-86.18 *)
-lemma inv_fbytes__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:86.6-86.18 *)
+axiomatization where inv_fbytes__is_wf :
 	"list_all (\<lambda> (var_0 :: byte). (wf_byte var_0)) var_0_lst \<Longrightarrow>
 	 (ret_val = (inv_fbytes_underscore v_N var_0_lst)) \<Longrightarrow>
 	 (wf_fN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:87.1-87.84 *)
 axiomatization inv_nbytes_underscore :: "numtype \<Rightarrow> (byte list) \<Rightarrow> num_underscore"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:87.6-87.18 *)
-lemma inv_nbytes__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:87.6-87.18 *)
+axiomatization where inv_nbytes__is_wf :
 	"list_all (\<lambda> (var_0 :: byte). (wf_byte var_0)) var_0_lst \<Longrightarrow>
 	 (ret_val = (inv_nbytes_underscore v_numtype var_0_lst)) \<Longrightarrow>
 	 (wf_num_underscore v_numtype ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:88.1-88.84 *)
 axiomatization inv_vbytes_underscore :: "vectype \<Rightarrow> (byte list) \<Rightarrow> vec_underscore"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:88.6-88.18 *)
-lemma inv_vbytes__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:88.6-88.18 *)
+axiomatization where inv_vbytes__is_wf :
 	"list_all (\<lambda> (var_0 :: byte). (wf_byte var_0)) var_0_lst \<Longrightarrow>
 	 (ret_val = (inv_vbytes_underscore v_vectype var_0_lst)) \<Longrightarrow>
 	 ((size (valtype_vectype v_vectype)) \<noteq> None) \<Longrightarrow>
 	 (wf_uN (the ((size (valtype_vectype v_vectype)))) ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:110.1-110.29 *)
 axiomatization inot_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:110.6-110.12 *)
-lemma inot__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:110.6-110.12 *)
+axiomatization where inot__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (ret_val = (inot_underscore v_N v_iN)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:111.1-111.29 *)
 axiomatization irev_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:111.6-111.12 *)
-lemma irev__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:111.6-111.12 *)
+axiomatization where irev__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (ret_val = (irev_underscore v_N v_iN)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:113.1-113.39 *)
 axiomatization iandnot_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:113.6-113.15 *)
-lemma iandnot__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:113.6-113.15 *)
+axiomatization where iandnot__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (wf_uN v_N iN_0) \<Longrightarrow>
 	 (ret_val = (iandnot_underscore v_N v_iN iN_0)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:124.1-124.27 *)
 function (sequential, domintros) inez_underscore :: "N \<Rightarrow> iN \<Rightarrow> u32" where
 		  "inez_underscore v_N i_1 = (mk_uN (res_bool ((proj_uN_0 i_1) \<noteq> 0)))"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:124.6-124.12 *)
-lemma inez__is_wf :
-	"(wf_uN v_N v_iN) \<Longrightarrow>
-	 (ret_val = (inez_underscore v_N v_iN)) \<Longrightarrow>
-	 (wf_uN 32 ret_val)"
-sorry
-
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:131.1-131.49 *)
 axiomatization ibitselect_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:131.6-131.18 *)
-lemma ibitselect__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:131.6-131.18 *)
+axiomatization where ibitselect__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (wf_uN v_N iN_0) \<Longrightarrow>
 	 (wf_uN v_N iN_1) \<Longrightarrow>
 	 (ret_val = (ibitselect_underscore v_N v_iN iN_0 iN_1)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:133.1-133.29 *)
 function (sequential, domintros) ineg_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN" where
 		  "ineg_underscore v_N i_1 = (mk_uN (((((2 ^ v_N) :: nat) - ((proj_uN_0 i_1) :: nat)) mod ((2 ^ v_N) :: nat)) :: nat))"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:133.6-133.12 *)
-lemma ineg__is_wf :
-	"(wf_uN v_N v_iN) \<Longrightarrow>
-	 (ret_val = (ineg_underscore v_N v_iN)) \<Longrightarrow>
-	 (wf_uN v_N ret_val)"
-sorry
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:132.6-132.12 *)
 inductive fun_iabs_underscore :: "N \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> bool" where
 	  fun_iabs__case_0 :
 		"(fun_signed_underscore v_N (proj_uN_0 i_1) var_0) \<Longrightarrow>
 		 fun_iabs_underscore v_N i_1 (if (var_0 \<ge> (0 :: nat)) then i_1 else (ineg_underscore v_N i_1))"
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:132.6-132.12 *)
-lemma iabs__is_wf :
-	"(fun_iabs_underscore v_N v_iN var_0) \<Longrightarrow>
-	 (wf_uN v_N v_iN) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_uN v_N ret_val)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:134.6-134.12 *)
 inductive fun_imin_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> bool" where
@@ -4054,15 +3751,6 @@ inductive fun_imin_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarr
 		 (fun_signed_underscore v_N (proj_uN_0 i_1) var_0) \<Longrightarrow>
 		 fun_imin_underscore v_N S i_1 i_2 (if (var_0 \<le> var_1) then i_1 else i_2)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:134.6-134.12 *)
-lemma imin__is_wf :
-	"(fun_imin_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
-	 (wf_uN v_N v_iN) \<Longrightarrow>
-	 (wf_uN v_N iN_0) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_uN v_N ret_val)"
-sorry
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:135.6-135.12 *)
 inductive fun_imax_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> bool" where
 	  fun_imax__case_0 :
@@ -4076,15 +3764,6 @@ inductive fun_imax_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarr
 		 (fun_signed_underscore v_N (proj_uN_0 i_1) var_0) \<Longrightarrow>
 		 fun_imax_underscore v_N S i_1 i_2 (if (var_0 \<ge> var_1) then i_1 else i_2)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:135.6-135.12 *)
-lemma imax__is_wf :
-	"(fun_imax_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
-	 (wf_uN v_N v_iN) \<Longrightarrow>
-	 (wf_uN v_N iN_0) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_uN v_N ret_val)"
-sorry
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:136.6-136.16 *)
 inductive fun_iadd_sat_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> bool" where
 	  fun_iadd_sat__case_0 :
@@ -4094,15 +3773,6 @@ inductive fun_iadd_sat_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Righ
 		 (fun_signed_underscore v_N (proj_uN_0 i_1) var_1) \<Longrightarrow>
 		 (fun_inv_signed_underscore v_N (sat_s_underscore v_N (var_1 + var_2)) var_0) \<Longrightarrow>
 		 fun_iadd_sat_underscore v_N S i_1 i_2 (mk_uN var_0)"
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:136.6-136.16 *)
-lemma iadd_sat__is_wf :
-	"(fun_iadd_sat_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
-	 (wf_uN v_N v_iN) \<Longrightarrow>
-	 (wf_uN v_N iN_0) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_uN v_N ret_val)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:137.6-137.16 *)
 inductive fun_isub_sat_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> bool" where
@@ -4114,58 +3784,45 @@ inductive fun_isub_sat_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Righ
 		 (fun_inv_signed_underscore v_N (sat_s_underscore v_N (var_1 - var_2)) var_0) \<Longrightarrow>
 		 fun_isub_sat_underscore v_N S i_1 i_2 (mk_uN var_0)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:137.6-137.16 *)
-lemma isub_sat__is_wf :
-	"(fun_isub_sat_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
-	 (wf_uN v_N v_iN) \<Longrightarrow>
-	 (wf_uN v_N iN_0) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_uN v_N ret_val)"
-sorry
-
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:138.1-138.82 *)
 axiomatization iavgr_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:138.6-138.13 *)
-lemma iavgr__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:138.6-138.13 *)
+axiomatization where iavgr__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (wf_uN v_N iN_0) \<Longrightarrow>
 	 (ret_val = (iavgr_underscore v_N v_sx v_iN iN_0)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:139.1-139.90 *)
 axiomatization iq15mulr_sat_underscore :: "N \<Rightarrow> sx \<Rightarrow> iN \<Rightarrow> iN \<Rightarrow> iN"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:139.6-139.20 *)
-lemma iq15mulr_sat__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:139.6-139.20 *)
+axiomatization where iq15mulr_sat__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (wf_uN v_N iN_0) \<Longrightarrow>
 	 (ret_val = (iq15mulr_sat_underscore v_N v_sx v_iN iN_0)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:221.1-221.38 *)
 axiomatization fpmin_underscore :: "N \<Rightarrow> fN \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:221.6-221.13 *)
-lemma fpmin__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:221.6-221.13 *)
+axiomatization where fpmin__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (wf_fN v_N fN_0) \<Longrightarrow>
 	 (ret_val_lst = (fpmin_underscore v_N v_fN fN_0)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:222.1-222.38 *)
 axiomatization fpmax_underscore :: "N \<Rightarrow> fN \<Rightarrow> fN \<Rightarrow> (fN list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:222.6-222.13 *)
-lemma fpmax__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:222.6-222.13 *)
+axiomatization where fpmax__is_wf :
 	"(wf_fN v_N v_fN) \<Longrightarrow>
 	 (wf_fN v_N fN_0) \<Longrightarrow>
 	 (ret_val_lst = (fpmax_underscore v_N v_fN fN_0)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: fN). (wf_fN v_N ret_val)) ret_val_lst"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:323.1-324.27 *)
 function (sequential, domintros) packnum_underscore :: "lanetype \<Rightarrow> num_underscore \<Rightarrow> (lane_underscore option)" where
@@ -4178,14 +3835,6 @@ function (sequential, domintros) packnum_underscore :: "lanetype \<Rightarrow> n
 		| "packnum_underscore x0 x1 = None"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:323.6-323.15 *)
-lemma packnum__is_wf :
-	"(wf_num_underscore (unpack v_lanetype) v_num_underscore) \<Longrightarrow>
-	 ((packnum_underscore v_lanetype v_num_underscore) \<noteq> None) \<Longrightarrow>
-	 (ret_val = (the ((packnum_underscore v_lanetype v_num_underscore)))) \<Longrightarrow>
-	 (wf_lane_underscore v_lanetype ret_val)"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:329.1-330.29 *)
 function (sequential, domintros) unpacknum_underscore :: "lanetype \<Rightarrow> lane_underscore \<Rightarrow> (num_underscore option)" where
 		  "unpacknum_underscore lanetype_I32 (mk_lane__0 Jnn_I32 c) = (Some (mk_num__0 Inn_I32 c))"
@@ -4197,35 +3846,25 @@ function (sequential, domintros) unpacknum_underscore :: "lanetype \<Rightarrow>
 		| "unpacknum_underscore x0 x1 = None"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:329.6-329.17 *)
-lemma unpacknum__is_wf :
-	"(wf_lane_underscore v_lanetype v_lane_underscore) \<Longrightarrow>
-	 ((unpacknum_underscore v_lanetype v_lane_underscore) \<noteq> None) \<Longrightarrow>
-	 (ret_val = (the ((unpacknum_underscore v_lanetype v_lane_underscore)))) \<Longrightarrow>
-	 (wf_num_underscore (unpack v_lanetype) ret_val)"
-sorry
-
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:338.1-338.84 *)
 axiomatization lanes_underscore :: "shape \<Rightarrow> vec_underscore \<Rightarrow> (lane_underscore list)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:338.6-338.13 *)
-lemma lanes__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:338.6-338.13 *)
+axiomatization where lanes__is_wf :
 	"(wf_shape v_shape) \<Longrightarrow>
 	 (wf_uN 128 v_vec_underscore) \<Longrightarrow>
 	 (ret_val_lst = (lanes_underscore v_shape v_vec_underscore)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: lane_underscore). (wf_lane_underscore (fun_lanetype v_shape) ret_val)) ret_val_lst"
-sorry
 
 (* Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:341.1-342.36 *)
 axiomatization inv_lanes_underscore :: "shape \<Rightarrow> (lane_underscore list) \<Rightarrow> vec_underscore"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:341.6-341.17 *)
-lemma inv_lanes__is_wf :
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:341.6-341.17 *)
+axiomatization where inv_lanes__is_wf :
 	"(wf_shape v_shape) \<Longrightarrow>
 	 list_all (\<lambda> (var_0 :: lane_underscore). (wf_lane_underscore (fun_lanetype v_shape) var_0)) var_0_lst \<Longrightarrow>
 	 (ret_val = (inv_lanes_underscore v_shape var_0_lst)) \<Longrightarrow>
 	 (wf_uN 128 ret_val)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:345.6-345.13 *)
 inductive fun_zeroop_before_fun_zeroop_case_36 :: "shape \<Rightarrow> shape \<Rightarrow> vcvtop__underscore \<Rightarrow> bool" where
@@ -4832,14 +4471,6 @@ function (sequential, domintros) vvunop_underscore :: "vectype \<Rightarrow> vvu
 		  "vvunop_underscore V128 NOT v128 = (inot_underscore (the ((size valtype_V128))) v128)"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:364.6-364.14 *)
-lemma vvunop__is_wf :
-	"((size (valtype_vectype v_vectype)) \<noteq> None) \<Longrightarrow>
-	 (wf_uN (the ((size (valtype_vectype v_vectype)))) v_vec_underscore) \<Longrightarrow>
-	 (ret_val = (vvunop_underscore v_vectype v_vvunop v_vec_underscore)) \<Longrightarrow>
-	 (wf_uN (the ((size (valtype_vectype v_vectype)))) ret_val)"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:366.1-367.31 *)
 function (sequential, domintros) vvbinop_underscore :: "vectype \<Rightarrow> vvbinop \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore" where
 		  "vvbinop_underscore V128 vvbinop_AND v128_1 v128_2 = (iand_underscore (the ((size valtype_V128))) v128_1 v128_2)"
@@ -4848,29 +4479,10 @@ function (sequential, domintros) vvbinop_underscore :: "vectype \<Rightarrow> vv
 		| "vvbinop_underscore V128 vvbinop_XOR v128_1 v128_2 = (ixor_underscore (the ((size valtype_V128))) v128_1 v128_2)"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:366.6-366.15 *)
-lemma vvbinop__is_wf :
-	"((size (valtype_vectype v_vectype)) \<noteq> None) \<Longrightarrow>
-	 (wf_uN (the ((size (valtype_vectype v_vectype)))) v_vec_underscore) \<Longrightarrow>
-	 (wf_uN (the ((size (valtype_vectype v_vectype)))) vec__0) \<Longrightarrow>
-	 (ret_val = (vvbinop_underscore v_vectype v_vvbinop v_vec_underscore vec__0)) \<Longrightarrow>
-	 (wf_uN (the ((size (valtype_vectype v_vectype)))) ret_val)"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:368.1-369.34 *)
 function (sequential, domintros) vvternop_underscore :: "vectype \<Rightarrow> vvternop \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore" where
 		  "vvternop_underscore V128 BITSELECT v128_1 v128_2 v128_3 = (ibitselect_underscore (the ((size valtype_V128))) v128_1 v128_2 v128_3)"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:368.6-368.16 *)
-lemma vvternop__is_wf :
-	"((size (valtype_vectype v_vectype)) \<noteq> None) \<Longrightarrow>
-	 (wf_uN (the ((size (valtype_vectype v_vectype)))) v_vec_underscore) \<Longrightarrow>
-	 (wf_uN (the ((size (valtype_vectype v_vectype)))) vec__0) \<Longrightarrow>
-	 (wf_uN (the ((size (valtype_vectype v_vectype)))) vec__1) \<Longrightarrow>
-	 (ret_val = (vvternop_underscore v_vectype v_vvternop v_vec_underscore vec__0 vec__1)) \<Longrightarrow>
-	 (wf_uN (the ((size (valtype_vectype v_vectype)))) ret_val)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.13 *)
 inductive fun_vunop__before_fun_vunop__case_26 :: "shape \<Rightarrow> vunop_underscore \<Rightarrow> vec_underscore \<Rightarrow> bool" where
@@ -5352,17 +4964,6 @@ inductive fun_vunop_underscore :: "shape \<Rightarrow> vunop_underscore \<Righta
 	| fun_vunop__case_26 :
 		"(~(fun_vunop__before_fun_vunop__case_26 x0 x1 x2)) \<Longrightarrow>
 		 fun_vunop_underscore x0 x1 x2 None"
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.13 *)
-lemma vunop__is_wf :
-	"(fun_vunop_underscore v_shape v_vunop_underscore v_vec_underscore var_0) \<Longrightarrow>
-	 (wf_shape v_shape) \<Longrightarrow>
-	 (wf_vunop_underscore v_shape v_vunop_underscore) \<Longrightarrow>
-	 (wf_uN 128 v_vec_underscore) \<Longrightarrow>
-	 (var_0 \<noteq> None) \<Longrightarrow>
-	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
-	 list_all (\<lambda> (ret_val :: vec_underscore). (wf_uN 128 ret_val)) ret_val_lst"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:381.6-381.14 *)
 inductive fun_vbinop__before_fun_vbinop__case_52 :: "shape \<Rightarrow> vbinop_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> bool" where
@@ -6789,18 +6390,6 @@ inductive fun_vbinop_underscore :: "shape \<Rightarrow> vbinop_underscore \<Righ
 		"(~(fun_vbinop__before_fun_vbinop__case_52 x0 x1 x2 x3)) \<Longrightarrow>
 		 fun_vbinop_underscore x0 x1 x2 x3 None"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:381.6-381.14 *)
-lemma vbinop__is_wf :
-	"(fun_vbinop_underscore v_shape v_vbinop_underscore v_vec_underscore vec__0 var_0) \<Longrightarrow>
-	 (wf_shape v_shape) \<Longrightarrow>
-	 (wf_vbinop_underscore v_shape v_vbinop_underscore) \<Longrightarrow>
-	 (wf_uN 128 v_vec_underscore) \<Longrightarrow>
-	 (wf_uN 128 vec__0) \<Longrightarrow>
-	 (var_0 \<noteq> None) \<Longrightarrow>
-	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
-	 list_all (\<lambda> (ret_val :: vec_underscore). (wf_uN 128 ret_val)) ret_val_lst"
-sorry
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.6-383.14 *)
 inductive fun_vrelop__before_fun_vrelop__case_36 :: "shape \<Rightarrow> vrelop_underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> bool" where
 	  fun_vrelop__case_35 :
@@ -8122,18 +7711,6 @@ inductive fun_vrelop_underscore :: "shape \<Rightarrow> vrelop_underscore \<Righ
 		"(~(fun_vrelop__before_fun_vrelop__case_36 x0 x1 x2 x3)) \<Longrightarrow>
 		 fun_vrelop_underscore x0 x1 x2 x3 None"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.6-383.14 *)
-lemma vrelop__is_wf :
-	"(fun_vrelop_underscore v_shape v_vrelop_underscore v_vec_underscore vec__0 var_0) \<Longrightarrow>
-	 (wf_shape v_shape) \<Longrightarrow>
-	 (wf_vrelop_underscore v_shape v_vrelop_underscore) \<Longrightarrow>
-	 (wf_uN 128 v_vec_underscore) \<Longrightarrow>
-	 (wf_uN 128 vec__0) \<Longrightarrow>
-	 (var_0 \<noteq> None) \<Longrightarrow>
-	 (ret_val = (the (var_0))) \<Longrightarrow>
-	 (wf_uN 128 ret_val)"
-sorry
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:385.6-385.15 *)
 inductive fun_lcvtop___before_fun_lcvtop___case_36 :: "shape \<Rightarrow> shape \<Rightarrow> vcvtop__underscore \<Rightarrow> lane_underscore \<Rightarrow> bool" where
 	  fun_lcvtop___case_35 :
@@ -8503,18 +8080,6 @@ inductive fun_lcvtop__underscore :: "shape \<Rightarrow> shape \<Rightarrow> vcv
 		"(~(fun_lcvtop___before_fun_lcvtop___case_36 x0 x1 x2 x3)) \<Longrightarrow>
 		 fun_lcvtop__underscore x0 x1 x2 x3 None"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:385.6-385.15 *)
-lemma lcvtop___is_wf :
-	"(fun_lcvtop__underscore shape_1 shape_2 v_vcvtop__underscore v_lane_underscore var_0) \<Longrightarrow>
-	 (wf_shape shape_1) \<Longrightarrow>
-	 (wf_shape shape_2) \<Longrightarrow>
-	 (wf_vcvtop__underscore shape_1 shape_2 v_vcvtop__underscore) \<Longrightarrow>
-	 (wf_lane_underscore (fun_lanetype shape_1) v_lane_underscore) \<Longrightarrow>
-	 (var_0 \<noteq> None) \<Longrightarrow>
-	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
-	 list_all (\<lambda> (ret_val :: lane_underscore). (wf_lane_underscore (fun_lanetype shape_2) ret_val)) ret_val_lst"
-sorry
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:387.6-387.15 *)
 inductive fun_vcvtop___before_fun_vcvtop___case_3 :: "shape \<Rightarrow> shape \<Rightarrow> vcvtop__underscore \<Rightarrow> vec_underscore \<Rightarrow> bool" where
 	  fun_vcvtop___case_2 :
@@ -8615,18 +8180,6 @@ inductive fun_vcvtop__underscore :: "shape \<Rightarrow> shape \<Rightarrow> vcv
 	| fun_vcvtop___case_3 :
 		"(~(fun_vcvtop___before_fun_vcvtop___case_3 x0 x1 x2 x3)) \<Longrightarrow>
 		 fun_vcvtop__underscore x0 x1 x2 x3 None"
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:387.6-387.15 *)
-lemma vcvtop___is_wf :
-	"(fun_vcvtop__underscore shape_1 shape_2 v_vcvtop__underscore v_vec_underscore var_0) \<Longrightarrow>
-	 (wf_shape shape_1) \<Longrightarrow>
-	 (wf_shape shape_2) \<Longrightarrow>
-	 (wf_vcvtop__underscore shape_1 shape_2 v_vcvtop__underscore) \<Longrightarrow>
-	 (wf_uN 128 v_vec_underscore) \<Longrightarrow>
-	 (var_0 \<noteq> None) \<Longrightarrow>
-	 (ret_val = (the (var_0))) \<Longrightarrow>
-	 (wf_uN 128 ret_val)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:603.6-603.17 *)
 inductive fun_vextunop___before_fun_vextunop___case_16 :: "ishape \<Rightarrow> ishape \<Rightarrow> vextunop__underscore \<Rightarrow> vec_underscore \<Rightarrow> bool" where
@@ -9020,18 +8573,6 @@ inductive fun_vextunop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow>
 	| fun_vextunop___case_16 :
 		"(~(fun_vextunop___before_fun_vextunop___case_16 x0 x1 x2 x3)) \<Longrightarrow>
 		 fun_vextunop__underscore x0 x1 x2 x3 None"
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:603.6-603.17 *)
-lemma vextunop___is_wf :
-	"(fun_vextunop__underscore ishape_1 ishape_2 v_vextunop__underscore v_vec_underscore var_0) \<Longrightarrow>
-	 (wf_ishape ishape_1) \<Longrightarrow>
-	 (wf_ishape ishape_2) \<Longrightarrow>
-	 (wf_vextunop__underscore ishape_1 ishape_2 v_vextunop__underscore) \<Longrightarrow>
-	 (wf_uN 128 v_vec_underscore) \<Longrightarrow>
-	 (var_0 \<noteq> None) \<Longrightarrow>
-	 (ret_val = (the (var_0))) \<Longrightarrow>
-	 (wf_uN 128 ret_val)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:605.6-605.18 *)
 inductive fun_vextbinop___before_fun_vextbinop___case_32 :: "ishape \<Rightarrow> ishape \<Rightarrow> vextbinop__underscore \<Rightarrow> vec_underscore \<Rightarrow> vec_underscore \<Rightarrow> bool" where
@@ -9970,19 +9511,6 @@ inductive fun_vextbinop__underscore :: "ishape \<Rightarrow> ishape \<Rightarrow
 		"(~(fun_vextbinop___before_fun_vextbinop___case_32 x0 x1 x2 x3 x4)) \<Longrightarrow>
 		 fun_vextbinop__underscore x0 x1 x2 x3 x4 None"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:605.6-605.18 *)
-lemma vextbinop___is_wf :
-	"(fun_vextbinop__underscore ishape_1 ishape_2 v_vextbinop__underscore v_vec_underscore vec__0 var_0) \<Longrightarrow>
-	 (wf_ishape ishape_1) \<Longrightarrow>
-	 (wf_ishape ishape_2) \<Longrightarrow>
-	 (wf_vextbinop__underscore ishape_1 ishape_2 v_vextbinop__underscore) \<Longrightarrow>
-	 (wf_uN 128 v_vec_underscore) \<Longrightarrow>
-	 (wf_uN 128 vec__0) \<Longrightarrow>
-	 (var_0 \<noteq> None) \<Longrightarrow>
-	 (ret_val = (the (var_0))) \<Longrightarrow>
-	 (wf_uN 128 ret_val)"
-sorry
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:628.6-628.16 *)
 inductive fun_vshiftop__before_fun_vshiftop__case_8 :: "ishape \<Rightarrow> vshiftop_underscore \<Rightarrow> lane_underscore \<Rightarrow> u32 \<Rightarrow> bool" where
 	  fun_vshiftop__case_7 :
@@ -10039,18 +9567,6 @@ inductive fun_vshiftop_underscore :: "ishape \<Rightarrow> vshiftop_underscore \
 	| fun_vshiftop__case_8 :
 		"(~(fun_vshiftop__before_fun_vshiftop__case_8 x0 x1 x2 x3)) \<Longrightarrow>
 		 fun_vshiftop_underscore x0 x1 x2 x3 None"
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:628.6-628.16 *)
-lemma vshiftop__is_wf :
-	"(fun_vshiftop_underscore v_ishape v_vshiftop_underscore v_lane_underscore v_u32 var_0) \<Longrightarrow>
-	 (wf_ishape v_ishape) \<Longrightarrow>
-	 (wf_vshiftop_underscore v_ishape v_vshiftop_underscore) \<Longrightarrow>
-	 (wf_lane_underscore (fun_lanetype (proj_ishape_0 v_ishape)) v_lane_underscore) \<Longrightarrow>
-	 (wf_uN 32 v_u32) \<Longrightarrow>
-	 (var_0 \<noteq> None) \<Longrightarrow>
-	 (ret_val = (the (var_0))) \<Longrightarrow>
-	 (wf_lane_underscore (fun_lanetype (proj_ishape_0 v_ishape)) ret_val)"
-sorry
 
 (* Type Alias Definition at: ../specification/wasm-2.0/4-runtime.spectec:5.1-5.39 *)
 type_synonym addr = "nat"
@@ -10851,13 +10367,6 @@ function (sequential, domintros) default_underscore :: "valtype \<Rightarrow> (v
 		| "default_underscore x0 = None"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 *)
-lemma default__is_wf :
-	"((default_underscore v_valtype) \<noteq> None) \<Longrightarrow>
-	 (ret_val = (the ((default_underscore v_valtype)))) \<Longrightarrow>
-	 (wf_val ret_val)"
-sorry
-
 (* Mutual Recursion at: ../specification/wasm-2.0/5-runtime-aux.spectec:20.1-20.63 *)
 inductive fun_funcsxa :: "(externaddr list) \<Rightarrow> (funcaddr list) \<Rightarrow> bool" where
 	  fun_funcsxa_case_0 :
@@ -10907,24 +10416,10 @@ function (sequential, domintros) fun_store :: "state \<Rightarrow> store" where
 		  "fun_store (mk_state s f) = s"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:48.6-48.12 *)
-lemma store_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (ret_val = (fun_store v_state)) \<Longrightarrow>
-	 (wf_store ret_val)"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:49.1-49.57 *)
 function (sequential, domintros) fun_frame :: "state \<Rightarrow> frame" where
 		  "fun_frame (mk_state s f) = f"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:49.6-49.12 *)
-lemma frame_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (ret_val = (fun_frame v_state)) \<Longrightarrow>
-	 (wf_frame ret_val)"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:55.1-55.64 *)
 function (sequential, domintros) fun_funcaddr :: "state \<Rightarrow> (funcaddr list)" where
@@ -10936,48 +10431,20 @@ function (sequential, domintros) fun_funcinst :: "state \<Rightarrow> (funcinst 
 		  "fun_funcinst (mk_state s f) = (store_FUNCS s)"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:58.6-58.15 *)
-lemma funcinst_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (ret_val_lst = (fun_funcinst v_state)) \<Longrightarrow>
-	 list_all (\<lambda> (ret_val :: funcinst). (wf_funcinst ret_val)) ret_val_lst"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:59.1-59.59 *)
 function (sequential, domintros) fun_globalinst :: "state \<Rightarrow> (globalinst list)" where
 		  "fun_globalinst (mk_state s f) = (store_GLOBALS s)"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:59.6-59.17 *)
-lemma globalinst_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (ret_val_lst = (fun_globalinst v_state)) \<Longrightarrow>
-	 list_all (\<lambda> (ret_val :: globalinst). (wf_globalinst ret_val)) ret_val_lst"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:60.1-60.58 *)
 function (sequential, domintros) fun_tableinst :: "state \<Rightarrow> (tableinst list)" where
 		  "fun_tableinst (mk_state s f) = (store_TABLES s)"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:60.6-60.16 *)
-lemma tableinst_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (ret_val_lst = (fun_tableinst v_state)) \<Longrightarrow>
-	 list_all (\<lambda> (ret_val :: tableinst). (wf_tableinst ret_val)) ret_val_lst"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:61.1-61.56 *)
 function (sequential, domintros) fun_meminst :: "state \<Rightarrow> (meminst list)" where
 		  "fun_meminst (mk_state s f) = (store_MEMS s)"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:61.6-61.14 *)
-lemma meminst_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (ret_val_lst = (fun_meminst v_state)) \<Longrightarrow>
-	 list_all (\<lambda> (ret_val :: meminst). (wf_meminst ret_val)) ret_val_lst"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:62.1-62.57 *)
 function (sequential, domintros) fun_eleminst :: "state \<Rightarrow> (eleminst list)" where
@@ -10989,24 +10456,10 @@ function (sequential, domintros) fun_datainst :: "state \<Rightarrow> (datainst 
 		  "fun_datainst (mk_state s f) = (store_DATAS s)"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:63.6-63.15 *)
-lemma datainst_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (ret_val_lst = (fun_datainst v_state)) \<Longrightarrow>
-	 list_all (\<lambda> (ret_val :: datainst). (wf_datainst ret_val)) ret_val_lst"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:64.1-64.58 *)
 function (sequential, domintros) fun_moduleinst :: "state \<Rightarrow> moduleinst" where
 		  "fun_moduleinst (mk_state s f) = (frame_MODULE f)"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:64.6-64.17 *)
-lemma moduleinst_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (ret_val = (fun_moduleinst v_state)) \<Longrightarrow>
-	 (wf_moduleinst ret_val)"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:74.1-74.66 *)
 function (sequential, domintros) fun_type :: "state \<Rightarrow> typeidx \<Rightarrow> functype" where
@@ -11018,52 +10471,20 @@ function (sequential, domintros) fun_func :: "state \<Rightarrow> funcidx \<Righ
 		  "fun_func (mk_state s f) x = ((store_FUNCS s) ! ((FUNCS (frame_MODULE f)) ! (proj_uN_0 x)))"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:75.6-75.11 *)
-lemma func_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (wf_uN 32 v_funcidx) \<Longrightarrow>
-	 (ret_val = (fun_func v_state v_funcidx)) \<Longrightarrow>
-	 (wf_funcinst ret_val)"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:76.1-76.68 *)
 function (sequential, domintros) fun_global :: "state \<Rightarrow> globalidx \<Rightarrow> globalinst" where
 		  "fun_global (mk_state s f) x = ((store_GLOBALS s) ! ((GLOBALS (frame_MODULE f)) ! (proj_uN_0 x)))"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:76.6-76.13 *)
-lemma global_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (wf_uN 32 v_globalidx) \<Longrightarrow>
-	 (ret_val = (fun_global v_state v_globalidx)) \<Longrightarrow>
-	 (wf_globalinst ret_val)"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:77.1-77.67 *)
 function (sequential, domintros) fun_table :: "state \<Rightarrow> tableidx \<Rightarrow> tableinst" where
 		  "fun_table (mk_state s f) x = ((store_TABLES s) ! ((TABLES (frame_MODULE f)) ! (proj_uN_0 x)))"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:77.6-77.12 *)
-lemma table_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (wf_uN 32 v_tableidx) \<Longrightarrow>
-	 (ret_val = (fun_table v_state v_tableidx)) \<Longrightarrow>
-	 (wf_tableinst ret_val)"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:78.1-78.65 *)
 function (sequential, domintros) fun_mem :: "state \<Rightarrow> memidx \<Rightarrow> meminst" where
 		  "fun_mem (mk_state s f) x = ((store_MEMS s) ! ((MEMS (frame_MODULE f)) ! (proj_uN_0 x)))"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:78.6-78.10 *)
-lemma mem_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (wf_uN 32 v_memidx) \<Longrightarrow>
-	 (ret_val = (fun_mem v_state v_memidx)) \<Longrightarrow>
-	 (wf_meminst ret_val)"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:79.1-79.66 *)
 function (sequential, domintros) fun_elem :: "state \<Rightarrow> tableidx \<Rightarrow> eleminst" where
@@ -11075,136 +10496,50 @@ function (sequential, domintros) fun_data :: "state \<Rightarrow> dataidx \<Righ
 		  "fun_data (mk_state s f) x = ((store_DATAS s) ! ((DATAS (frame_MODULE f)) ! (proj_uN_0 x)))"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:80.6-80.11 *)
-lemma data_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (wf_uN 32 v_dataidx) \<Longrightarrow>
-	 (ret_val = (fun_data v_state v_dataidx)) \<Longrightarrow>
-	 (wf_datainst ret_val)"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:81.1-81.67 *)
 function (sequential, domintros) fun_local :: "state \<Rightarrow> localidx \<Rightarrow> val" where
 		  "fun_local (mk_state s f) x = ((LOCALS f) ! (proj_uN_0 x))"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:81.6-81.12 *)
-lemma local_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (wf_uN 32 v_localidx) \<Longrightarrow>
-	 (ret_val = (fun_local v_state v_localidx)) \<Longrightarrow>
-	 (wf_val ret_val)"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:95.1-95.89 *)
 function (sequential, domintros) with_local :: "state \<Rightarrow> localidx \<Rightarrow> val \<Rightarrow> state" where
 		  "with_local (mk_state s f) x v = (mk_state s (f \<lparr> LOCALS := (list_update_func (LOCALS f) (proj_uN_0 x) (\<lambda> (underscore_underscore :: val). v))  \<rparr>))"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:95.6-95.17 *)
-lemma with_local_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (wf_uN 32 v_localidx) \<Longrightarrow>
-	 (wf_val v_val) \<Longrightarrow>
-	 (ret_val = (with_local v_state v_localidx v_val)) \<Longrightarrow>
-	 (wf_state ret_val)"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:96.1-96.96 *)
 function (sequential, domintros) with_global :: "state \<Rightarrow> globalidx \<Rightarrow> val \<Rightarrow> state" where
 		  "with_global (mk_state s f) x v = (mk_state (s \<lparr> store_GLOBALS := (list_update_func (store_GLOBALS s) ((GLOBALS (frame_MODULE f)) ! (proj_uN_0 x)) (\<lambda> (var_1 :: globalinst). (var_1 \<lparr> VALUE := v  \<rparr>)))  \<rparr>) f)"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:96.6-96.18 *)
-lemma with_global_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (wf_uN 32 v_globalidx) \<Longrightarrow>
-	 (wf_val v_val) \<Longrightarrow>
-	 (ret_val = (with_global v_state v_globalidx v_val)) \<Longrightarrow>
-	 (wf_state ret_val)"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:97.1-97.97 *)
 function (sequential, domintros) with_table :: "state \<Rightarrow> tableidx \<Rightarrow> nat \<Rightarrow> ref \<Rightarrow> state" where
 		  "with_table (mk_state s f) x i r = (mk_state (s \<lparr> store_TABLES := (list_update_func (store_TABLES s) ((TABLES (frame_MODULE f)) ! (proj_uN_0 x)) (\<lambda> (var_1 :: tableinst). (var_1 \<lparr> REFS := (list_update_func (REFS var_1) i (\<lambda> (underscore_underscore :: ref). r))  \<rparr>)))  \<rparr>) f)"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:97.6-97.17 *)
-lemma with_table_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (wf_uN 32 v_tableidx) \<Longrightarrow>
-	 (ret_val = (with_table v_state v_tableidx res_nat v_ref)) \<Longrightarrow>
-	 (wf_state ret_val)"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:98.1-98.89 *)
 function (sequential, domintros) with_tableinst :: "state \<Rightarrow> tableidx \<Rightarrow> tableinst \<Rightarrow> state" where
 		  "with_tableinst (mk_state s f) x ti = (mk_state (s \<lparr> store_TABLES := (list_update_func (store_TABLES s) ((TABLES (frame_MODULE f)) ! (proj_uN_0 x)) (\<lambda> (underscore_underscore :: tableinst). ti))  \<rparr>) f)"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:98.6-98.21 *)
-lemma with_tableinst_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (wf_uN 32 v_tableidx) \<Longrightarrow>
-	 (wf_tableinst v_tableinst) \<Longrightarrow>
-	 (ret_val = (with_tableinst v_state v_tableidx v_tableinst)) \<Longrightarrow>
-	 (wf_state ret_val)"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:99.1-99.100 *)
 function (sequential, domintros) with_mem :: "state \<Rightarrow> memidx \<Rightarrow> nat \<Rightarrow> nat \<Rightarrow> (byte list) \<Rightarrow> state" where
 		  "with_mem (mk_state s f) x i j b_lst = (mk_state (s \<lparr> store_MEMS := (list_update_func (store_MEMS s) ((MEMS (frame_MODULE f)) ! (proj_uN_0 x)) (\<lambda> (var_1 :: meminst). (var_1 \<lparr> BYTES := (list_slice_update (BYTES var_1) i j b_lst)  \<rparr>)))  \<rparr>) f)"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:99.6-99.15 *)
-lemma with_mem_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (wf_uN 32 v_memidx) \<Longrightarrow>
-	 list_all (\<lambda> (var_0 :: byte). (wf_byte var_0)) var_0_lst \<Longrightarrow>
-	 (ret_val = (with_mem v_state v_memidx res_nat nat_0 var_0_lst)) \<Longrightarrow>
-	 (wf_state ret_val)"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:100.1-100.87 *)
 function (sequential, domintros) with_meminst :: "state \<Rightarrow> memidx \<Rightarrow> meminst \<Rightarrow> state" where
 		  "with_meminst (mk_state s f) x mi = (mk_state (s \<lparr> store_MEMS := (list_update_func (store_MEMS s) ((MEMS (frame_MODULE f)) ! (proj_uN_0 x)) (\<lambda> (underscore_underscore :: meminst). mi))  \<rparr>) f)"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:100.6-100.19 *)
-lemma with_meminst_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (wf_uN 32 v_memidx) \<Longrightarrow>
-	 (wf_meminst v_meminst) \<Longrightarrow>
-	 (ret_val = (with_meminst v_state v_memidx v_meminst)) \<Longrightarrow>
-	 (wf_state ret_val)"
-sorry
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:101.1-101.93 *)
 function (sequential, domintros) with_elem :: "state \<Rightarrow> elemidx \<Rightarrow> (ref list) \<Rightarrow> state" where
 		  "with_elem (mk_state s f) x r_lst = (mk_state (s \<lparr> store_ELEMS := (list_update_func (store_ELEMS s) ((ELEMS (frame_MODULE f)) ! (proj_uN_0 x)) (\<lambda> (var_1 :: eleminst). (var_1 \<lparr> eleminst_REFS := r_lst  \<rparr>)))  \<rparr>) f)"
 	by pat_completeness auto
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:101.6-101.16 *)
-lemma with_elem_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (wf_uN 32 v_elemidx) \<Longrightarrow>
-	 (ret_val = (with_elem v_state v_elemidx var_0_lst)) \<Longrightarrow>
-	 (wf_state ret_val)"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:102.1-102.94 *)
 function (sequential, domintros) with_data :: "state \<Rightarrow> dataidx \<Rightarrow> (byte list) \<Rightarrow> state" where
 		  "with_data (mk_state s f) x b_lst = (mk_state (s \<lparr> store_DATAS := (list_update_func (store_DATAS s) ((DATAS (frame_MODULE f)) ! (proj_uN_0 x)) (\<lambda> (var_1 :: datainst). (var_1 \<lparr> datainst_BYTES := b_lst  \<rparr>)))  \<rparr>) f)"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:102.6-102.16 *)
-lemma with_data_is_wf :
-	"(wf_state v_state) \<Longrightarrow>
-	 (wf_uN 32 v_dataidx) \<Longrightarrow>
-	 list_all (\<lambda> (var_0 :: byte). (wf_byte var_0)) var_0_lst \<Longrightarrow>
-	 (ret_val = (with_data v_state v_dataidx var_0_lst)) \<Longrightarrow>
-	 (wf_state ret_val)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 *)
 inductive fun_growtable_before_fun_growtable_case_1 :: "tableinst \<Rightarrow> nat \<Rightarrow> ref \<Rightarrow> bool" where
@@ -11230,15 +10565,6 @@ inductive fun_growtable :: "tableinst \<Rightarrow> nat \<Rightarrow> ref \<Righ
 	| fun_growtable_case_1 :
 		"(~(fun_growtable_before_fun_growtable_case_1 x0 x1 x2)) \<Longrightarrow>
 		 fun_growtable x0 x1 x2 None"
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 *)
-lemma growtable_is_wf :
-	"(fun_growtable v_tableinst res_nat v_ref var_0) \<Longrightarrow>
-	 (wf_tableinst v_tableinst) \<Longrightarrow>
-	 (var_0 \<noteq> None) \<Longrightarrow>
-	 (ret_val = (the (var_0))) \<Longrightarrow>
-	 (wf_tableinst ret_val)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 *)
 inductive fun_growmemory_before_fun_growmemory_case_1 :: "meminst \<Rightarrow> nat \<Rightarrow> bool" where
@@ -11266,15 +10592,6 @@ inductive fun_growmemory :: "meminst \<Rightarrow> nat \<Rightarrow> (meminst op
 	| fun_growmemory_case_1 :
 		"(~(fun_growmemory_before_fun_growmemory_case_1 x0 x1)) \<Longrightarrow>
 		 fun_growmemory x0 x1 None"
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 *)
-lemma growmemory_is_wf :
-	"(fun_growmemory v_meminst res_nat var_0) \<Longrightarrow>
-	 (wf_meminst v_meminst) \<Longrightarrow>
-	 (var_0 \<noteq> None) \<Longrightarrow>
-	 (ret_val = (the (var_0))) \<Longrightarrow>
-	 (wf_meminst ret_val)"
-sorry
 
 (* Record Creation Definition at: ../specification/wasm-2.0/6-typing.spectec:5.1-9.62 *)
 record res_context =
@@ -12445,13 +11762,6 @@ inductive Step_pure :: "(admininstr list) \<Rightarrow> (admininstr list) \<Righ
 	| Step_pure__local_tee :
 		"Step_pure [(admininstr_val v_val), (admininstr_sc5 (admininstr_st5_LOCAL_TEE x))] [(admininstr_val v_val), (admininstr_val v_val), (admininstr_sc4 (admininstr_st4_LOCAL_SET x))]"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:6.10-6.19 *)
-lemma Step_pure_is_wf :
-	"list_all (\<lambda> (var_0 :: admininstr). (wf_admininstr var_0)) var_0 \<Longrightarrow>
-	 (Step_pure var_0 var_1) \<Longrightarrow>
-	 list_all (\<lambda> (var_1 :: admininstr). (wf_admininstr var_1)) var_1"
-sorry
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/8-reduction.spectec:63.1-63.73 *)
 function (sequential, domintros) fun_blocktype :: "state \<Rightarrow> blocktype \<Rightarrow> functype" where
 		  "fun_blocktype z (underscore_RESULT None) = (mk_functype (mk_list []) (mk_list []))"
@@ -12818,13 +12128,6 @@ inductive Step_read :: "config \<Rightarrow> (admininstr list) \<Rightarrow> boo
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) \<le> (length (datainst_BYTES (fun_data z x)))) \<and> (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) \<le> (length (BYTES (fun_mem z (mk_uN 0)))))) \<Longrightarrow>
 		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 (admininstr_st7_MEMORY_INIT x))]) [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (proj_byte_0 ((datainst_BYTES (fun_data z x)) ! (proj_uN_0 (the ((proj_num__0 i)))))))))), (admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) (memarg0 ))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (iadd_underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) (the ((proj_num__0 j))) (mk_uN 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (iadd_underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) (the ((proj_num__0 i))) (mk_uN 1))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (((v_n :: nat) - (1 :: nat)) :: nat))))), (admininstr_sc7 (admininstr_st7_MEMORY_INIT x))]"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:7.10-7.19 *)
-lemma Step_read_is_wf :
-	"(wf_config var_0) \<Longrightarrow>
-	 (Step_read var_0 var_1) \<Longrightarrow>
-	 list_all (\<lambda> (var_1 :: admininstr). (wf_admininstr var_1)) var_1"
-sorry
-
 (* Mutual Recursion at: ../specification/wasm-2.0/8-reduction.spectec:5.1-5.109 *)
 inductive Step :: "config \<Rightarrow> config \<Rightarrow> bool" where
 	  pure :
@@ -12930,14 +12233,6 @@ inductive Step :: "config \<Rightarrow> config \<Rightarrow> bool" where
 	| Step__data_drop :
 		"Step (mk_config z [(admininstr_sc7 (admininstr_st7_DATA_DROP x))]) (mk_config (with_data z x []) [])"
 
-(* Mutual Recursion at: ../specification/wasm-2.0/8-reduction.spectec:5.1-5.109 *)
-inductive Step_is_wf :: "config \<Rightarrow> config \<Rightarrow> bool" where
-	  Step_is_wf_0 :
-		"(wf_config var_0) \<Longrightarrow>
-		 (Step var_0 var_1) \<Longrightarrow>
-		 (wf_config var_1) \<Longrightarrow>
-		 Step_is_wf var_0 var_1"
-
 (* Mutual Recursion at: ../specification/wasm-2.0/8-reduction.spectec:8.1-8.77 *)
 inductive Steps :: "config \<Rightarrow> config \<Rightarrow> bool" where
 	  Steps__refl :
@@ -13013,16 +12308,6 @@ inductive fun_allocfunc :: "store \<Rightarrow> moduleinst \<Rightarrow> func \<
 		 (wf_func (func_FUNC x local_lst v_expr)) \<Longrightarrow>
 		 fun_allocfunc s v_moduleinst v_func ((s \<lparr> store_FUNCS := ((store_FUNCS s) @ [fi])  \<rparr>), (length (store_FUNCS s)))"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:36.6-36.16 *)
-lemma allocfunc_is_wf :
-	"(fun_allocfunc v_store v_moduleinst v_func var_0) \<Longrightarrow>
-	 (wf_store v_store) \<Longrightarrow>
-	 (wf_moduleinst v_moduleinst) \<Longrightarrow>
-	 (wf_func v_func) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_store (fst ret_val))"
-sorry
-
 (* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:41.1-41.63 *)
 inductive fun_allocfuncs :: "store \<Rightarrow> moduleinst \<Rightarrow> (func list) \<Rightarrow> (store * (funcaddr list)) \<Rightarrow> bool" where
 	  fun_allocfuncs_case_0 :
@@ -13034,32 +12319,12 @@ inductive fun_allocfuncs :: "store \<Rightarrow> moduleinst \<Rightarrow> (func 
 		 ((s_2, fa'_lst) = var_1) \<Longrightarrow>
 		 fun_allocfuncs s v_moduleinst ([v_func] @ func'_lst) (s_2, ([fa] @ fa'_lst))"
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:41.1-41.63 *)
-inductive allocfuncs_is_wf :: "store \<Rightarrow> moduleinst \<Rightarrow> (func list) \<Rightarrow> (store * (funcaddr list)) \<Rightarrow> bool" where
-	  allocfuncs_is_wf_0 :
-		"(fun_allocfuncs v_store v_moduleinst var_0_lst var_0) \<Longrightarrow>
-		 (wf_store v_store) \<Longrightarrow>
-		 (wf_moduleinst v_moduleinst) \<Longrightarrow>
-		 list_all (\<lambda> (var_0 :: func). (wf_func var_0)) var_0_lst \<Longrightarrow>
-		 (ret_val = var_0) \<Longrightarrow>
-		 (wf_store (fst ret_val)) \<Longrightarrow>
-		 allocfuncs_is_wf v_store v_moduleinst var_0_lst ret_val"
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:47.6-47.18 *)
 inductive fun_allocglobal :: "store \<Rightarrow> globaltype \<Rightarrow> val \<Rightarrow> (store * globaladdr) \<Rightarrow> bool" where
 	  fun_allocglobal_case_0 :
 		"(gi = \<lparr> globalinst_TYPE = v_globaltype, VALUE = v_val \<rparr>) \<Longrightarrow>
 		 (wf_globalinst \<lparr> globalinst_TYPE = v_globaltype, VALUE = v_val \<rparr>) \<Longrightarrow>
 		 fun_allocglobal s v_globaltype v_val ((s \<lparr> store_GLOBALS := ((store_GLOBALS s) @ [gi])  \<rparr>), (length (store_GLOBALS s)))"
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:47.6-47.18 *)
-lemma allocglobal_is_wf :
-	"(fun_allocglobal v_store v_globaltype v_val var_0) \<Longrightarrow>
-	 (wf_store v_store) \<Longrightarrow>
-	 (wf_val v_val) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_store (fst ret_val))"
-sorry
 
 (* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:51.1-51.67 *)
 inductive fun_allocglobals :: "store \<Rightarrow> (globaltype list) \<Rightarrow> (val list) \<Rightarrow> (store * (globaladdr list)) \<Rightarrow> bool" where
@@ -13072,31 +12337,12 @@ inductive fun_allocglobals :: "store \<Rightarrow> (globaltype list) \<Rightarro
 		 ((s_2, ga'_lst) = var_1) \<Longrightarrow>
 		 fun_allocglobals s ([v_globaltype] @ globaltype'_lst) ([v_val] @ val'_lst) (s_2, ([ga] @ ga'_lst))"
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:51.1-51.67 *)
-inductive allocglobals_is_wf :: "store \<Rightarrow> (globaltype list) \<Rightarrow> (val list) \<Rightarrow> (store * (globaladdr list)) \<Rightarrow> bool" where
-	  allocglobals_is_wf_0 :
-		"(fun_allocglobals v_store var_0_lst var_1_lst var_0) \<Longrightarrow>
-		 (wf_store v_store) \<Longrightarrow>
-		 list_all (\<lambda> (var_1 :: val). (wf_val var_1)) var_1_lst \<Longrightarrow>
-		 (ret_val = var_0) \<Longrightarrow>
-		 (wf_store (fst ret_val)) \<Longrightarrow>
-		 allocglobals_is_wf v_store var_0_lst var_1_lst ret_val"
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:57.6-57.17 *)
 inductive fun_alloctable :: "store \<Rightarrow> tabletype \<Rightarrow> (store * tableaddr) \<Rightarrow> bool" where
 	  fun_alloctable_case_0 :
 		"(ti = \<lparr> tableinst_TYPE = (mk_tabletype (mk_limits i j_opt) rt), REFS = (repeat (proj_uN_0 i) (ref_REF_NULL rt)) \<rparr>) \<Longrightarrow>
 		 (wf_tableinst \<lparr> tableinst_TYPE = (mk_tabletype (mk_limits i j_opt) rt), REFS = (repeat (proj_uN_0 i) (ref_REF_NULL rt)) \<rparr>) \<Longrightarrow>
 		 fun_alloctable s (mk_tabletype (mk_limits i j_opt) rt) ((s \<lparr> store_TABLES := ((store_TABLES s) @ [ti])  \<rparr>), (length (store_TABLES s)))"
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:57.6-57.17 *)
-lemma alloctable_is_wf :
-	"(fun_alloctable v_store v_tabletype var_0) \<Longrightarrow>
-	 (wf_store v_store) \<Longrightarrow>
-	 (wf_tabletype v_tabletype) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_store (fst ret_val))"
-sorry
 
 (* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:61.1-61.58 *)
 inductive fun_alloctables :: "store \<Rightarrow> (tabletype list) \<Rightarrow> (store * (tableaddr list)) \<Rightarrow> bool" where
@@ -13109,31 +12355,12 @@ inductive fun_alloctables :: "store \<Rightarrow> (tabletype list) \<Rightarrow>
 		 ((s_2, ta'_lst) = var_1) \<Longrightarrow>
 		 fun_alloctables s ([v_tabletype] @ tabletype'_lst) (s_2, ([ta] @ ta'_lst))"
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:61.1-61.58 *)
-inductive alloctables_is_wf :: "store \<Rightarrow> (tabletype list) \<Rightarrow> (store * (tableaddr list)) \<Rightarrow> bool" where
-	  alloctables_is_wf_0 :
-		"(fun_alloctables v_store var_0_lst var_0) \<Longrightarrow>
-		 (wf_store v_store) \<Longrightarrow>
-		 list_all (\<lambda> (var_0 :: tabletype). (wf_tabletype var_0)) var_0_lst \<Longrightarrow>
-		 (ret_val = var_0) \<Longrightarrow>
-		 (wf_store (fst ret_val)) \<Longrightarrow>
-		 alloctables_is_wf v_store var_0_lst ret_val"
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:67.6-67.15 *)
 inductive fun_allocmem :: "store \<Rightarrow> memtype \<Rightarrow> (store * memaddr) \<Rightarrow> bool" where
 	  fun_allocmem_case_0 :
 		"(mi = \<lparr> meminst_TYPE = (PAGE (mk_limits i j_opt)), BYTES = (repeat ((proj_uN_0 i) * (64 * (Ki ))) (mk_byte 0)) \<rparr>) \<Longrightarrow>
 		 (wf_meminst \<lparr> meminst_TYPE = (PAGE (mk_limits i j_opt)), BYTES = (repeat ((proj_uN_0 i) * (64 * (Ki ))) (mk_byte 0)) \<rparr>) \<Longrightarrow>
 		 fun_allocmem s (PAGE (mk_limits i j_opt)) ((s \<lparr> store_MEMS := ((store_MEMS s) @ [mi])  \<rparr>), (length (store_MEMS s)))"
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:67.6-67.15 *)
-lemma allocmem_is_wf :
-	"(fun_allocmem v_store v_memtype var_0) \<Longrightarrow>
-	 (wf_store v_store) \<Longrightarrow>
-	 (wf_memtype v_memtype) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_store (fst ret_val))"
-sorry
 
 (* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:71.1-71.52 *)
 inductive fun_allocmems :: "store \<Rightarrow> (memtype list) \<Rightarrow> (store * (memaddr list)) \<Rightarrow> bool" where
@@ -13146,29 +12373,11 @@ inductive fun_allocmems :: "store \<Rightarrow> (memtype list) \<Rightarrow> (st
 		 ((s_2, ma'_lst) = var_1) \<Longrightarrow>
 		 fun_allocmems s ([v_memtype] @ memtype'_lst) (s_2, ([ma] @ ma'_lst))"
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:71.1-71.52 *)
-inductive allocmems_is_wf :: "store \<Rightarrow> (memtype list) \<Rightarrow> (store * (memaddr list)) \<Rightarrow> bool" where
-	  allocmems_is_wf_0 :
-		"(fun_allocmems v_store var_0_lst var_0) \<Longrightarrow>
-		 (wf_store v_store) \<Longrightarrow>
-		 list_all (\<lambda> (var_0 :: memtype). (wf_memtype var_0)) var_0_lst \<Longrightarrow>
-		 (ret_val = var_0) \<Longrightarrow>
-		 (wf_store (fst ret_val)) \<Longrightarrow>
-		 allocmems_is_wf v_store var_0_lst ret_val"
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:77.6-77.16 *)
 inductive fun_allocelem :: "store \<Rightarrow> reftype \<Rightarrow> (ref list) \<Rightarrow> (store * elemaddr) \<Rightarrow> bool" where
 	  fun_allocelem_case_0 :
 		"(ei = \<lparr> eleminst_TYPE = rt, eleminst_REFS = ref_lst \<rparr>) \<Longrightarrow>
 		 fun_allocelem s rt ref_lst ((s \<lparr> store_ELEMS := ((store_ELEMS s) @ [ei])  \<rparr>), (length (store_ELEMS s)))"
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:77.6-77.16 *)
-lemma allocelem_is_wf :
-	"(fun_allocelem v_store v_reftype var_0_lst var_0) \<Longrightarrow>
-	 (wf_store v_store) \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_store (fst ret_val))"
-sorry
 
 (* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:81.1-81.63 *)
 inductive fun_allocelems :: "store \<Rightarrow> (reftype list) \<Rightarrow> ((ref list) list) \<Rightarrow> (store * (elemaddr list)) \<Rightarrow> bool" where
@@ -13181,30 +12390,12 @@ inductive fun_allocelems :: "store \<Rightarrow> (reftype list) \<Rightarrow> ((
 		 ((s_2, ea'_lst) = var_1) \<Longrightarrow>
 		 fun_allocelems s ([rt] @ rt'_lst) ([ref_lst] @ ref'_lst_lst) (s_2, ([ea] @ ea'_lst))"
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:81.1-81.63 *)
-inductive allocelems_is_wf :: "store \<Rightarrow> (reftype list) \<Rightarrow> ((ref list) list) \<Rightarrow> (store * (elemaddr list)) \<Rightarrow> bool" where
-	  allocelems_is_wf_0 :
-		"(fun_allocelems v_store var_0_lst var_1_lst_lst var_0) \<Longrightarrow>
-		 (wf_store v_store) \<Longrightarrow>
-		 (ret_val = var_0) \<Longrightarrow>
-		 (wf_store (fst ret_val)) \<Longrightarrow>
-		 allocelems_is_wf v_store var_0_lst var_1_lst_lst ret_val"
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:87.6-87.16 *)
 inductive fun_allocdata :: "store \<Rightarrow> (byte list) \<Rightarrow> (store * dataaddr) \<Rightarrow> bool" where
 	  fun_allocdata_case_0 :
 		"(di = \<lparr> datainst_BYTES = byte_lst \<rparr>) \<Longrightarrow>
 		 (wf_datainst \<lparr> datainst_BYTES = byte_lst \<rparr>) \<Longrightarrow>
 		 fun_allocdata s byte_lst ((s \<lparr> store_DATAS := ((store_DATAS s) @ [di])  \<rparr>), (length (store_DATAS s)))"
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:87.6-87.16 *)
-lemma allocdata_is_wf :
-	"(fun_allocdata v_store var_0_lst var_0) \<Longrightarrow>
-	 (wf_store v_store) \<Longrightarrow>
-	 list_all (\<lambda> (var_0 :: byte). (wf_byte var_0)) var_0_lst \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_store (fst ret_val))"
-sorry
 
 (* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:91.1-91.54 *)
 inductive fun_allocdatas :: "store \<Rightarrow> ((byte list) list) \<Rightarrow> (store * (dataaddr list)) \<Rightarrow> bool" where
@@ -13217,16 +12408,6 @@ inductive fun_allocdatas :: "store \<Rightarrow> ((byte list) list) \<Rightarrow
 		 ((s_2, da'_lst) = var_1) \<Longrightarrow>
 		 fun_allocdatas s ([byte_lst] @ byte'_lst_lst) (s_2, ([da] @ da'_lst))"
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:91.1-91.54 *)
-inductive allocdatas_is_wf :: "store \<Rightarrow> ((byte list) list) \<Rightarrow> (store * (dataaddr list)) \<Rightarrow> bool" where
-	  allocdatas_is_wf_0 :
-		"(fun_allocdatas v_store var_0_lst_lst var_0) \<Longrightarrow>
-		 (wf_store v_store) \<Longrightarrow>
-		 list_all (\<lambda> (var_0_lst :: (byte list)). list_all (\<lambda> (var_0 :: byte). (wf_byte var_0)) var_0_lst) var_0_lst_lst \<Longrightarrow>
-		 (ret_val = var_0) \<Longrightarrow>
-		 (wf_store (fst ret_val)) \<Longrightarrow>
-		 allocdatas_is_wf v_store var_0_lst_lst ret_val"
-
 (* Auxiliary Definition at: ../specification/wasm-2.0/9-module.spectec:100.1-100.83 *)
 function (sequential, domintros) instexport :: "(funcaddr list) \<Rightarrow> (globaladdr list) \<Rightarrow> (tableaddr list) \<Rightarrow> (memaddr list) \<Rightarrow> export \<Rightarrow> exportinst" where
 		  "instexport fa_lst ga_lst ta_lst ma_lst (EXPORT v_name (externidx_FUNC x)) = \<lparr> NAME = v_name, ADDR = (externaddr_FUNC (fa_lst ! (proj_uN_0 x))) \<rparr>"
@@ -13234,13 +12415,6 @@ function (sequential, domintros) instexport :: "(funcaddr list) \<Rightarrow> (g
 		| "instexport fa_lst ga_lst ta_lst ma_lst (EXPORT v_name (externidx_TABLE x)) = \<lparr> NAME = v_name, ADDR = (externaddr_TABLE (ta_lst ! (proj_uN_0 x))) \<rparr>"
 		| "instexport fa_lst ga_lst ta_lst ma_lst (EXPORT v_name (externidx_MEM x)) = \<lparr> NAME = v_name, ADDR = (externaddr_MEM (ma_lst ! (proj_uN_0 x))) \<rparr>"
 	by pat_completeness auto
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:100.6-100.17 *)
-lemma instexport_is_wf :
-	"(wf_export v_export) \<Longrightarrow>
-	 (ret_val = (instexport var_0_lst var_1_lst var_2_lst var_3_lst v_export)) \<Longrightarrow>
-	 (wf_exportinst ret_val)"
-sorry
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:107.6-107.18 *)
 inductive fun_allocmodule :: "store \<Rightarrow> module \<Rightarrow> (externaddr list) \<Rightarrow> (val list) \<Rightarrow> ((ref list) list) \<Rightarrow> (store * moduleinst) \<Rightarrow> bool" where
@@ -13283,17 +12457,6 @@ inductive fun_allocmodule :: "store \<Rightarrow> module \<Rightarrow> (externad
 		 (wf_moduleinst \<lparr> TYPES = ft_lst, FUNCS = (fa_ex_lst @ fa_lst), GLOBALS = (ga_ex_lst @ ga_lst), TABLES = (ta_ex_lst @ ta_lst), MEMS = (ma_ex_lst @ ma_lst), ELEMS = ea_lst, DATAS = da_lst, EXPORTS = xi_lst \<rparr>) \<Longrightarrow>
 		 fun_allocmodule s v_module externaddr_lst val_lst ref_lst_lst (s_6, v_moduleinst)"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:107.6-107.18 *)
-lemma allocmodule_is_wf :
-	"(fun_allocmodule v_store v_module var_0_lst var_1_lst var_2_lst_lst var_0) \<Longrightarrow>
-	 (wf_store v_store) \<Longrightarrow>
-	 (wf_module v_module) \<Longrightarrow>
-	 list_all (\<lambda> (var_1 :: val). (wf_val var_1)) var_1_lst \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_store (fst ret_val)) \<Longrightarrow>
-	 (wf_moduleinst (snd ret_val))"
-sorry
-
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:154.6-154.14 *)
 inductive fun_runelem :: "elem \<Rightarrow> idx \<Rightarrow> (instr list) \<Rightarrow> bool" where
 	  fun_runelem_case_0 :
@@ -13335,7 +12498,6 @@ inductive fun_rundata :: "data \<Rightarrow> idx \<Rightarrow> ((instr list) opt
 	| fun_rundata_case_2 :
 		"(~(fun_rundata_before_fun_rundata_case_2 x0 x1)) \<Longrightarrow>
 		 fun_rundata x0 x1 None"
-
 (*
 (* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:167.6-167.18 *)
 inductive fun_instantiate :: "store \<Rightarrow> module \<Rightarrow> (externaddr list) \<Rightarrow> config \<Rightarrow> bool" where
@@ -13414,15 +12576,6 @@ inductive fun_invoke :: "store \<Rightarrow> funcaddr \<Rightarrow> (val list) \
 		 (wf_state (mk_state s f)) \<Longrightarrow>
 		 (v_n = (length val_lst)) \<Longrightarrow>
 		 fun_invoke s fa val_lst (mk_config (mk_state s f) ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc7 (CALL_ADDR fa))]))"
-
-(* Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:196.6-196.13 *)
-lemma invoke_is_wf :
-	"(fun_invoke v_store v_funcaddr var_0_lst var_0) \<Longrightarrow>
-	 (wf_store v_store) \<Longrightarrow>
-	 list_all (\<lambda> (var_0 :: val). (wf_val var_0)) var_0_lst \<Longrightarrow>
-	 (ret_val = var_0) \<Longrightarrow>
-	 (wf_config ret_val)"
-sorry
 
 (* Type Alias Definition at: ../specification/wasm-2.0/A-binary.spectec:849.1-849.43 *)
 type_synonym startopt = "(start list)"
