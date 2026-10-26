@@ -818,40 +818,42 @@ lemma valtype_sub_reftype:
 qed(auto)
 
 lemma reducible_left_v:
-  assumes "Ex (Step (mk_config s es))" "wf_config (mk_config s es)" (* "wf_config c'"  *)  
-  shows "Ex (Step (mk_config s (map admininstr_val vs @ 
+  assumes "Ex (Step (mk_config (mk_state s f) es))" 
+    "wf_config (mk_config (mk_state s f) es)" "Store_ok s"  
+  shows "Ex (Step (mk_config (mk_state s f) (map admininstr_val vs @ 
               es)))"
 proof (cases vs)
   case Nil
   then show ?thesis using assms by auto
 next
   case (Cons a list)
-  then obtain c' where step: "Step (mk_config s es) c'" using assms
+  then obtain c' where step: "Step (mk_config (mk_state s f) es) c'" using assms
     by auto
   then show ?thesis proof(cases c')
     case (mk_config x1 x2)
-    then have "wf_config c'" using assms step_wf step (* annonying to need to use step_wf but cannot work around it *)
+    then have "wf_config c'" using assms Step_is_wf step 
       by fast
     then show ?thesis 
-    using assms ctxt_instrs[of s es x1 x2 vs "[]"] mk_config step Cons
+    using assms ctxt_instrs[of "mk_state s f" es x1 x2 vs "[]"] mk_config step Cons
     by fastforce 
 qed qed
 
 lemma reducible_right: 
-  assumes "Ex (Step (mk_config s es1))" "wf_config (mk_config s es1)" "list_all wf_admininstr es2"  
-  shows "Ex (Step (mk_config s (es1 @ es2)))" 
+  assumes "Ex (Step (mk_config (mk_state s f) es1))" 
+    "wf_config (mk_config (mk_state s f) es1)" "list_all wf_admininstr es2" "Store_ok s"  
+  shows "Ex (Step (mk_config (mk_state s f) (es1 @ es2)))" 
 proof(cases es2)
   case Nil
   then show ?thesis using assms by simp
 next
   case (Cons a list)
-  obtain c' where step: "Step (mk_config s es1) c'" using assms by blast
+  obtain c' where step: "Step (mk_config (mk_state s f) es1) c'" using assms by blast
   then show ?thesis proof(cases c')
     case (mk_config x1 x2)
-    then have "wf_config (mk_config x1 x2)" using step_wf step assms (* I hate using step_wf here 
-        but there is no way around it! ! ! *)
+    then have "wf_config (mk_config x1 x2)" using Step_is_wf step assms 
       by blast
-    then show ?thesis using step_wf assms step mk_config Cons ctxt_instrs[of s es1 x1 x2 "[]" es2]
+    then show ?thesis using Step_is_wf assms step mk_config Cons 
+        ctxt_instrs[of "mk_state s f" es1 x1 x2 "[]" es2]
       by auto
   qed
 qed
@@ -4084,9 +4086,11 @@ theorem progress:
         by fastforce
     next 
       case (unreachable C')
-      then show ?case using reducible_left_v[of "mk_state s' f" "[admininstr_instr (instr_sc0 UNREACHABLE)]" vs]  
+      have "Store_ok s'" using unreachable(8) proof(induction "mk_state s' f" "strip C'") qed(auto)
+      then show ?case using 
+          reducible_left_v[of s' f "[admininstr_instr (instr_sc0 UNREACHABLE)]" vs]  
           Step.intros(1)[OF Step_pure.intros(1)]
-        admininstr_case_73 config_case_0
+        admininstr_case_73 config_case_0 unreachable
         admininstr_case_1 by auto
     next
       case (drop C t)
@@ -4279,6 +4283,7 @@ theorem progress:
         by fastforce
     next
       case (res_if C' bt t_1_lst t_2_lst instr_1_lst instr_2_lst)
+      have stok: "Store_ok s'" using res_if(14) proof(induction "mk_state s' f" "strip C'") qed(auto)
       obtain ts1 ts2 where ts: "map typeofval vs = ts1 @ ts2" "list_all2 Valtype_sub ts1 t_1_lst" 
         "list_all2 Valtype_sub ts2 [valtype_I32]" 
         using list_all2_append2 res_if(12)
@@ -4333,12 +4338,12 @@ theorem progress:
                show ?case proof(cases "proj_uN_0 (the (proj_num__0 c))")
                  case 0
                  show ?thesis using if_false[OF projc 0] res_if(18)
-                     Step.intros(1) reducible_left_v[OF _ wfc] vs
+                     Step.intros(1) reducible_left_v[OF _ wfc] vs stok
                    by fastforce
                next
                  case (Suc nat)
                  then show ?thesis using if_true[OF projc] res_if(18)
-                     Step.intros(1) reducible_left_v[OF _ wfc] vs
+                     Step.intros(1) reducible_left_v[OF _ wfc] vs stok
                    by fastforce
                qed
     next
@@ -4347,6 +4352,7 @@ theorem progress:
         by force
     next
       case (br_if l C t_lst)
+      have stok: "Store_ok s'" using br_if(10) proof(induction "mk_state s' f" "strip C") qed(auto)
       obtain ts1 ts2 where ts: "map typeofval vs = ts1 @ ts2" "list_all2 Valtype_sub ts1 t_lst" 
         "list_all2 Valtype_sub ts2 [valtype_I32]" 
         using list_all2_append2 br_if(8)
@@ -4401,16 +4407,17 @@ theorem progress:
                show ?case proof(cases "proj_uN_0 (the (proj_num__0 c))")
                  case 0
                  show ?thesis using br_if_false[OF projc 0] br_if(14)
-                     Step.intros(1) reducible_left_v[OF _ wfc] vs
+                     Step.intros(1) reducible_left_v[OF _ wfc] vs stok
                    by fastforce
                next
                  case (Suc nat)
                  then show ?thesis using br_if_true[OF projc] br_if(14)
-                     Step.intros(1) reducible_left_v[OF _ wfc] vs
+                     Step.intros(1) reducible_left_v[OF _ wfc] vs stok
                    by fastforce
                qed
     next
       case (br_table C l_lst t_lst l' t_1_lst)
+      have stok: "Store_ok s'" using br_table(12) proof(induction "mk_state s' f" "strip C") qed(auto)
       obtain ts1 ts2 where ts: "map typeofval vs = ts1 @ ts2" "list_all2 Valtype_sub ts1 (t_1_lst @ t_lst)" 
         "list_all2 Valtype_sub ts2 [valtype_I32]" 
         using list_all2_append2 br_table(10) append_assoc
@@ -4465,18 +4472,19 @@ theorem progress:
                show ?case proof(cases "proj_uN_0 (the (proj_num__0 c)) < length l_lst")
                  case True
                  show ?thesis using br_table_lt[OF True projc] br_table(16)
-                     Step.intros(1) reducible_left_v[OF _ wfc] vs
+                     Step.intros(1) reducible_left_v[OF _ wfc] vs stok
                    by fastforce
                next
                  case False
                  then have "length l_lst \<le> proj_uN_0 (the (proj_num__0 c))"
                    by simp
                  then show ?thesis using br_table_ge[OF projc] br_table(16)
-                     Step.intros(1) reducible_left_v[OF _ wfc] vs
+                     Step.intros(1) reducible_left_v[OF _ wfc] vs stok
                    by fastforce
                qed
     next
       case (call x C' t_1_lst t_2_lst)
+      have stok: "Store_ok s'" using call(10) proof(induction "mk_state s' f" "strip C'") qed(auto)
       have "length (context_FUNCS C') = length (fun_funcaddr (mk_state s' f))"
         using call(10) proof(induction "mk_state s' f" "strip C'")
         case mk_State_ok
@@ -4493,7 +4501,7 @@ theorem progress:
         qed
       qed
       then show ?case using Step_read__call call(1,14) Step.intros(2) 
-          reducible_left_v[OF _ call(12)]
+          reducible_left_v[OF _ call(12)] stok
         by fastforce
     next
       case (call_indirect x C lim y t_1_lst)
@@ -4557,15 +4565,17 @@ theorem progress:
           (mk_state s' f)
        [admininstr_sc1 (admininstr_st1_CONST I32 c), admininstr_sc1 (admininstr_st1_CALL_INDIRECT x y)]")
           case (call_indirect_call_0 a)
-          show ?case using Step.intros(2)[OF call_indirect_call[OF call_indirect_call_0(1-5)]] 
-              reducible_left_v[of "mk_state s' f" "[_,_]" vs1] wfc
+         have "Store_ok s'" using call_indirect(13) proof(induction "mk_state s' f" "strip C") qed(auto)
+        then show ?case using Step.intros(2)[OF call_indirect_call[OF call_indirect_call_0(1-5)]] 
+              reducible_left_v[of s' f "[_,_]" vs1] wfc
             call_indirect(17) vs
             by auto
         qed
       next
         case False
-        show ?thesis using Step.intros(2)[OF call_indirect_trap[OF False]] call_indirect(17)  
-          vs reducible_left_v[of "mk_state s' f" "[_,_]" vs1] wfc
+        have "Store_ok s'" using call_indirect(13) proof(induction "mk_state s' f" "strip C") qed(auto)
+        then show ?thesis using Step.intros(2)[OF call_indirect_trap[OF False]] call_indirect(17)  
+          vs reducible_left_v[of s' f "[_,_]" vs1] wfc
           by auto
       qed
     next
@@ -4776,6 +4786,7 @@ theorem progress:
         by (metis admininstr_instr.simps(41))
     next
       case (ref_func x C' ft)
+      have stok: "Store_ok s'" using ref_func(10) proof(induction "mk_state s' f" "strip C'") qed(auto) 
       have "length (context_FUNCS C') = length (fun_funcaddr (mk_state s' f))"
         using ref_func(10) proof(induction "mk_state s' f" "strip C'")
         case mk_State_ok
@@ -4792,7 +4803,7 @@ theorem progress:
         qed
       qed
       then show ?case using Step_read__ref_func ref_func(1,14) Step.intros(2) 
-          reducible_left_v[OF _ ref_func(12)]
+          reducible_left_v[OF _ ref_func(12)] stok
         by fastforce
     next
       case (ref_is_null C rt)
@@ -8215,6 +8226,8 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
               (map admininstr_val vs @
                map admininstr_instr instr_1_lst @ map admininstr_instr instr_2_lst))
             x"
+              have stok: "Store_ok s'" using assms'(4) proof(induction "mk_state s' f" "strip C'") 
+              qed(auto)
               show "\<exists>vs. map admininstr_instr instr_1_lst @ map admininstr_instr instr_2_lst = map admininstr_val vs "
               proof (cases "(Ex (Step (mk_config (mk_state s' f) 
       (map admininstr_val vs @ map admininstr_instr instr_1_lst))))")
@@ -8231,7 +8244,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
       (map admininstr_val vs @ map admininstr_instr instr_1_lst @ map admininstr_instr instr_2_lst))))"
                   using True reducible_right assms(7) 
                   list_all_map_impl[of wf_instr instr_2_lst wf_admininstr admininstr_instr]
-                  wf_admininstr_instr
+                  wf_admininstr_instr stok
                   by fastforce
                 then show ?thesis using assms'(8)
                   by blast
@@ -8370,12 +8383,14 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
           proof (cases "Ex (Step (mk_config (mk_state s' f) 
               (map admininstr_val vs2 @ map admininstr_instr instr_lst)))")
             case True
+            have stok: "Store_ok s'" using assms(8) proof(induction "mk_state s' f" "strip C'")
+            qed(auto)
             have "wf_config (mk_config (mk_state s' f) 
                 (map admininstr_val vs2 @ map admininstr_instr instr_lst))"
               using assms split2
               by (metis config.inject config_case_0 list_all_append list_all_map_impl wf_admininstr_val
                   wf_config.cases)
-            then show ?thesis using assms split2 reducible_left_v[OF True, of vs1]
+            then show ?thesis using stok assms split2 reducible_left_v[OF True, of vs1]
               by auto
           next
             case False
@@ -8493,13 +8508,14 @@ assms(6) proof(induction "C")
               have wf: "wf_config (mk_config (mk_state s f) admininstr_lst)"
                 using assms assms'
                 by (simp add: Instrs_ok2_wf_instr config_case_0)
-              
+              have stok: "Store_ok s" using assms' proof(induction "mk_state s f" "strip C")
+              qed(auto)
               show "Ex (Step
          (mk_config (mk_state s f)
            [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))" 
               proof (cases c)
                 case (mk_config x1 x2)
-                then show ?thesis using ctxt_label assms assms' step_wf step wf
+                then show ?thesis using stok ctxt_label assms assms' Step_is_wf step wf
                   by metis
               qed
                   
@@ -8746,11 +8762,13 @@ assms(6) proof(induction "C")
           assume " \<exists>cfg'. Step (mk_config (mk_state s' f') admininstr_lst) cfg'"
           then obtain cfg' where step: "Step (mk_config (mk_state s' f') admininstr_lst) cfg'" 
             by blast
+          have stok: "Store_ok s'" using assms(10) proof(induction "mk_state s' f" "strip C")
+          qed(auto)
           show "Ex (Step
          (mk_config (mk_state s' f) [admininstr_sc8 (FRAME_underscore (length t_lst') f' admininstr_lst)]))"
           proof(cases cfg')
             case (mk_config x1 x2)
-            then show ?thesis using ctxt_frame 3 step_wf step
+            then show ?thesis using ctxt_frame 3 Step_is_wf step stok
               by (metis wf_config.simps wf_state.cases)
           qed
             next
@@ -9173,6 +9191,8 @@ assms(6) proof(induction "C")
       "wf_state (mk_state s' f)"
        " \<forall>x. \<not> Step (mk_config (mk_state s' f) (map admininstr_val vs @ instr_1_lst @ instr_2_lst)) x"
    " \<forall>vs. instr_1_lst @ instr_2_lst \<noteq> map admininstr_val vs"
+          have stok: "Store_ok s'" using assms(11) proof(induction "mk_state s' f" "strip C'")
+          qed(auto)
           show " instr_1_lst @ instr_2_lst = [admininstr_sc7 admininstr_st7_TRAP]"
        proof (cases "(Ex (Step (mk_config (mk_state s' f) 
       (map admininstr_val vs @ instr_1_lst))))")
@@ -9186,7 +9206,7 @@ assms(6) proof(induction "C")
                   by force
                 then have "(Ex (Step (mk_config (mk_state s' f) 
       (map admininstr_val vs @ instr_1_lst @ instr_2_lst))))"
-                  using True reducible_right assms 
+                  using True reducible_right stok assms 
                   by fastforce
                 then show ?thesis using assms
                   by blast
@@ -9350,11 +9370,13 @@ assms(6) proof(induction "C")
           proof (cases "Ex (Step (mk_config (mk_state s' f) 
               (map admininstr_val vs2 @ instr_lst)))")
             case True
+            have stok: "Store_ok s'" using assms(8) proof(induction "mk_state s' f" "strip C'")
+            qed(auto)
             have "wf_config (mk_config (mk_state s' f) 
                 (map admininstr_val vs2 @  instr_lst))"
               using assms split2
               by (metis config_case_0 list_all_append list_all_map_impl wf_admininstr_val)
-            then show ?thesis using assms split2 reducible_left_v[OF True, of vs1]
+            then show ?thesis using assms split2 reducible_left_v[OF True, of vs1] stok
               by auto
           next
             case False

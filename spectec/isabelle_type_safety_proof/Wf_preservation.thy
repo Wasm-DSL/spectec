@@ -628,15 +628,17 @@ sorry
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/8-reduction.spectec:7.10-7.19 *)
 lemma Step_read_is_wf :
-	"(wf_config var_0) \<Longrightarrow>
-	 (Step_read var_0 var_1) \<Longrightarrow>
+	"(wf_config (mk_config (mk_state s f) es)) \<Longrightarrow>
+   Store_ok s \<Longrightarrow>
+	 (Step_read (mk_config (mk_state s f) es) var_1) \<Longrightarrow>
 	 list_all (\<lambda> (var_1 :: admininstr). (wf_admininstr var_1)) var_1"
 sorry
 
 (* Mutual Recursion at: ../specification/wasm-2.0/8-reduction.spectec:5.1-5.109 *)
 lemma Step_is_wf :
-	"(wf_config var_0) \<Longrightarrow>
-	 (Step var_0 var_1) \<Longrightarrow>
+	"(wf_config (mk_config (mk_state s f) es)) \<Longrightarrow>
+    Store_ok s \<Longrightarrow>
+	 (Step (mk_config (mk_state s f) es) var_1) \<Longrightarrow>
 	 (wf_config var_1)"
 sorry
 

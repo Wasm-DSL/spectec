@@ -5,11 +5,6 @@ theory Preservation
 begin
 
 
-lemma step_wf: "(wf_config var_0) \<Longrightarrow>
-		 (Step var_0 var_1) \<Longrightarrow>
-		 (wf_config var_1)"
-  sorry
-
 
 lemma list_update_func_length: 
   assumes "list_update_func l k f = l'"
@@ -5015,7 +5010,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
          admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1)))),
          admininstr_sc7 admininstr_st7_MEMORY_FILL]" 
     using 
-      Step_read_is_wf[OF _
+      Step_read_is_wf[OF _ _
       isabelle_reference_output_wasm2.memory_fill_succ[OF memory_fill_succ(1,2,3)]]
       wf_config.intros wf_state.intros Instrs_ok2_wf Instrs_ok2_wf_instr
        memory_fill_succ
@@ -5821,7 +5816,7 @@ proof -
       by simp_all
 
 		have bc:"(wf_state (mk_state s' f'))"
-  by (metis "5" cfg_is(6) config.inject step_wf wf_config.cases)
+  by (metis "5" cfg_is(6) config.inject Step_is_wf 7 wf_config.cases)
 		  
 
     have c:"wf_store s'"
@@ -5868,7 +5863,7 @@ proof -
       using Config_ok.simps assms(1) c Instrs_ok2_wf_instr by auto
 
     show ?thesis
-      using "5" Config_ok.simps assms(1) b bc cfg_is(1,2,5) d step_wf by auto
+      using "5" Config_ok.simps assms(1) b bc cfg_is(1,2,5) d Step_is_wf 7 by auto
 qed
 
 
