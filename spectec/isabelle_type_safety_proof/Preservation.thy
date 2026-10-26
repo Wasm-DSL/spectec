@@ -5001,33 +5001,38 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
   then have 2: "Instrs_ok2 s C'  [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_val v_val,
          admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0) ] (mk_functype (mk_list []) (mk_list []))"
     using instrs_ok2_seq 1 by fastforce
-  have "wf_frame f" sorry
+  define i' where "i' = mk_num__0 Inn_I32 (iadd_underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) (the (proj_num__0 i)) (mk_uN 1))"
+  have wfl: "list_all wf_val (LOCALS f)"
+    using memory_fill_succ val_ok_wf list_all2_conv_all_nth list_all_length by metis
+  have wfm: "wf_moduleinst (frame_MODULE f)"
+    using memory_fill_succ by (auto elim: Moduleinst_ok.cases)
+  have "wf_frame f" using wfl wfm wf_frame.intros by (cases f) auto
+  then have "wf_config (mk_config (mk_state s f) [admininstr_sc1 (admininstr_st1_CONST I32 i),
+      admininstr_val v_val, admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))),
+      admininstr_sc7 admininstr_st7_MEMORY_FILL])"
+    using wf_config.intros wf_state.intros Instrs_ok2_wf(2)[OF splitv(1)]
+      Instrs_ok2_wf_instr[OF splitv(1)] Instrs_ok2_wf_instr[OF splitv(2)]
+    by simp
   then have "list_all wf_admininstr  [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_val v_val,
          admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0),
-         admininstr_sc1
-          (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (proj_uN_0 (the (proj_num__0 i)) + 1)))),
+         admininstr_sc1 (admininstr_st1_CONST I32 i'),
          admininstr_val v_val,
          admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1)))),
          admininstr_sc7 admininstr_st7_MEMORY_FILL]" 
-    using 
-      Step_read_is_wf[OF _ _
-      isabelle_reference_output_wasm2.memory_fill_succ[OF memory_fill_succ(1,2,3)]]
-      wf_config.intros wf_state.intros Instrs_ok2_wf Instrs_ok2_wf_instr
-       memory_fill_succ
-    sorry
-  then have "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN 
-            (proj_uN_0 (the (proj_num__0 i)) + 1)))))" 
+    using Step_read_is_wf
+      isabelle_reference_output_wasm2.memory_fill_succ[OF memory_fill_succ(1,2,3)]
+    unfolding i'_def using read.prems(1) by blast
+  then have "wf_instr (instr_sc1 (res_CONST I32 i'))" 
     using wf_admininstr_instr_inv by simp
-    then have "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 
-              (mk_num__0 Inn_I32 (mk_uN 
-            (proj_uN_0 (the (proj_num__0 i)) + 1))))] (mk_functype (mk_list []) (mk_list [valtype_I32]))"
+    then have "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i')]
+              (mk_functype (mk_list []) (mk_list [valtype_I32]))"
       using const Instrs_ok2_wf[OF splitv(1)] instr_ok_instr_ok2 instr_ok2_instrs_ok2
           valtype_numtype.domintros valtype_numtype.psimps admininstr_instr.domintros
           admininstr_instr.psimps by metis
     then have 3: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_val v_val,
          admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0),
          admininstr_sc1
-          (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (proj_uN_0 (the (proj_num__0 i)) + 1))))] (mk_functype (mk_list []) (mk_list [valtype_I32]))"
+          (admininstr_st1_CONST I32 i')] (mk_functype (mk_list []) (mk_list [valtype_I32]))"
       using instrs_ok2_seq 2 by fastforce
     obtain t1m' where
        "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)]
@@ -5049,7 +5054,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
      then have 4: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_val v_val,
          admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0),
          admininstr_sc1
-          (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (proj_uN_0 (the (proj_num__0 i)) + 1)))), admininstr_val v_val]
+          (admininstr_st1_CONST I32 i'), admininstr_val v_val]
         (mk_functype (mk_list []) (mk_list [valtype_I32, valtype_I32]))"
        using instrs_ok2_seq 3 by fastforce
     have "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1)))))"
@@ -5071,7 +5076,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
      then have 5: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_val v_val,
          admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0),
          admininstr_sc1
-          (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (proj_uN_0 (the (proj_num__0 i)) + 1)))), admininstr_val v_val, 
+          (admininstr_st1_CONST I32 i'), admininstr_val v_val, 
           admininstr_sc1 (admininstr_st1_CONST I32 
               (mk_num__0 Inn_I32 (mk_uN (v_n - 1))))] 
               (mk_functype (mk_list []) 
@@ -5080,7 +5085,14 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
      have "Instrs_ok2 s C' [admininstr_sc7 admininstr_st7_MEMORY_FILL] (mk_functype 
              (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
        using okfill instr_ok2_instrs_ok2 hyps by simp
-    then show ?case using 5 instrs_ok2_seq Instrs_ok2_subtyping memory_fill_succ subt sorry
+    then have "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_val v_val,
+         admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0),
+         admininstr_sc1 (admininstr_st1_CONST I32 i'), admininstr_val v_val,
+         admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1)))),
+         admininstr_sc7 admininstr_st7_MEMORY_FILL] (mk_functype t1 t3)"
+      using instrs_ok2_seq[OF 5] subt Instrs_ok2_subtyping by fastforce
+    then show ?case unfolding i'_def
+      by (metis read.prems(9))
   next
     case (memory_copy_trap i j v_n)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
