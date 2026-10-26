@@ -970,6 +970,73 @@ shows "length (REFS (fun_table (mk_state s f) (mk_uN n))) \<le> (2 ^ 32 - 1 :: n
 
 
 
+lemma Instrs_ok2_frame_list:
+  assumes "Instrs_ok2 s C es (mk_functype (mk_list t1) (mk_list t2))"
+  shows "Instrs_ok2 s C es (mk_functype (mk_list (ts @ t1)) (mk_list (ts @ t2)))"
+  using Instrs_ok2__frame assms Instrs_ok2_wf Instrs_ok2_wf_instr by blast
+
+lemma const_i32_ok:
+  assumes "wf_admininstr (admininstr_sc1 (admininstr_st1_CONST I32 c))" "wf_store s" "wf_context C"
+  shows "Instrs_ok2 s C [admininstr_sc1 (admininstr_st1_CONST I32 c)]
+           (mk_functype (mk_list []) (mk_list [valtype_I32]))"
+proof -
+  have "wf_instr (instr_sc1 (res_CONST I32 c))"
+    using assms(1) wf_admininstr_instr_inv[of "instr_sc1 (res_CONST I32 c)"]
+    by (simp add: admininstr_instr.domintros admininstr_instr.psimps)
+  then show ?thesis
+    using const assms(2,3) instr_ok_instr_ok2 instr_ok2_instrs_ok2
+      valtype_numtype.domintros valtype_numtype.psimps admininstr_instr.domintros
+      admininstr_instr.psimps by metis
+qed
+
+lemma memarg0_align: "2 ^ proj_uN_0 (ALIGN memarg0) \<le> (8 div 8 :: nat)"
+proof -
+  have "proj_uN_0 (ALIGN memarg0) = 0"
+    by (metis memarg0_def proj_uN_0.psimps proj_uN_0.domintros memarg.select_convs(1))
+  then show ?thesis by simp
+qed
+
+lemma load_i32_8_ok:
+  assumes "0 < length (context_MEMS C)" "context_MEMS C ! 0 = mt" "wf_memtype mt"
+          "wf_context C" "wf_store s"
+          "wf_admininstr (admininstr_sc6 (admininstr_st6_LOAD I32
+              (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) memarg0))"
+  shows "Instrs_ok2 s C [admininstr_sc6 (admininstr_st6_LOAD I32
+              (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) memarg0)]
+           (mk_functype (mk_list [valtype_I32]) (mk_list [valtype_I32]))"
+proof -
+  have "wf_instr (instr_sc5 (LOAD I32 (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) memarg0))"
+    using assms(6) wf_admininstr_instr_inv[of "instr_sc5 (LOAD I32
+              (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) memarg0)"]
+    by (simp add: admininstr_instr.domintros admininstr_instr.psimps)
+  then have "Instr_ok C (instr_sc5 (LOAD I32 (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) memarg0))
+      (mk_functype (mk_list [valtype_I32]) (mk_list [valtype_I32]))"
+    using load_pack[where v_Inn = Inn_I32 and v_sx = U and v_M = 8 and v_memarg = memarg0,
+        OF assms(1,2) _ assms(4,3)] memarg0_align
+    by (simp add: numtype_Inn.domintros numtype_Inn.psimps valtype_Inn.domintros valtype_Inn.psimps)
+  then show ?thesis using instr_ok2_instrs_ok2[OF instr_ok_instr_ok2[OF _ assms(5)]]
+    admininstr_instr.domintros admininstr_instr.psimps by metis
+qed
+
+lemma store_i32_8_ok:
+  assumes "0 < length (context_MEMS C)" "context_MEMS C ! 0 = mt" "wf_memtype mt"
+          "wf_context C" "wf_store s"
+          "wf_admininstr (admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0))"
+  shows "Instrs_ok2 s C [admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0)]
+           (mk_functype (mk_list [valtype_I32, valtype_I32]) (mk_list []))"
+proof -
+  have "wf_instr (instr_sc6 (STORE I32 (Some (mk_sz 8)) memarg0))"
+    using assms(6) wf_admininstr_instr_inv[of "instr_sc6 (STORE I32 (Some (mk_sz 8)) memarg0)"]
+    by (simp add: admininstr_instr.domintros admininstr_instr.psimps)
+  then have "Instr_ok C (instr_sc6 (STORE I32 (Some (mk_sz 8)) memarg0))
+      (mk_functype (mk_list [valtype_I32, valtype_I32]) (mk_list []))"
+    using store_pack[where v_Inn = Inn_I32 and v_M = 8 and v_memarg = memarg0,
+        OF assms(1,2) _ assms(4,3)] memarg0_align
+    by (simp add: numtype_Inn.domintros numtype_Inn.psimps valtype_Inn.domintros valtype_Inn.psimps)
+  then show ?thesis using instr_ok2_instrs_ok2[OF instr_ok_instr_ok2[OF _ assms(5)]]
+    admininstr_instr.domintros admininstr_instr.psimps by metis
+qed
+
 lemma e_preservation:
   assumes "Step (mk_config (mk_state s f) es) (mk_config (mk_state s' f') es')"
           "Store_ok s"
@@ -5099,13 +5166,239 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       res_list.exhaust by metis
   next
     case (memory_copy_zero i j v_n)
-    then show ?case sorry (* see memory_fill cases *)
+    then obtain t2 where splitv:
+      "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j), admininstr_sc1 (admininstr_st1_CONST I32 i),
+     admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))]
+        (mk_functype t1 t2)"
+      "Instrs_ok2 s C' [admininstr_sc7 (admininstr_st7_MEMORY_COPY)] (mk_functype t2 t3)"
+      using inv_seq[of s C' "[_,_,_,_]" t1 t3 "[_,_,_]" "[_]"] by fastforce
+    then have subv:
+      "mk_instrtype (mk_list []) (mk_list [valtype_I32, valtype_I32, valtype_I32]) <ti:
+        mk_instrtype t1 t2"
+      using inv_const_list[of s C' "[_,_,_]" t1 t2 "[val_CONST I32 j, val_CONST I32 i, val_CONST I32 _]"]
+        admininstr_val.domintros admininstr_val.psimps valtype_numtype.domintros valtype_numtype.psimps
+      typeofval.domintros typeofval.psimps
+      by auto
+    obtain t2' t3' where
+      okcopy: "Instr_ok2 s C' (admininstr_sc7 (admininstr_st7_MEMORY_COPY)) (mk_functype t2' t3')"
+      and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+      using inv_one_admininstr splitv by blast
+    then have "Instr_ok C' (instr_sc6 MEMORY_COPY) (mk_functype t2' t3')"
+      using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+    then obtain mt where hyps:
+        "0 < length (context_MEMS C')"
+        "context_MEMS C' ! 0 = mt"
+        "wf_memtype mt"
+        "mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []) =
+        mk_functype t2' t3'"
+      using inv_memory_copy by blast
+    then have subt: "(mk_instrtype (mk_list []) (mk_list []) <ti: mk_instrtype t1 t3)"
+      using produce_consume subt subv
+      by auto
+    then show ?case using Instrs_ok2__empty Instrs_ok2_wf memory_copy_zero subt Instrs_ok2_subtyping
+      by fast
   next
     case (memory_copy_le j i v_n)
-    then show ?case sorry (* see memory_fill cases *)
+    then obtain t2 where splitv:
+      "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j), admininstr_sc1 (admininstr_st1_CONST I32 i),
+     admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))]
+        (mk_functype t1 t2)"
+      "Instrs_ok2 s C' [admininstr_sc7 (admininstr_st7_MEMORY_COPY)] (mk_functype t2 t3)"
+      using inv_seq[of s C' "[_,_,_,_]" t1 t3 "[_,_,_]" "[_]"] by fastforce
+    then have subv:
+      "mk_instrtype (mk_list []) (mk_list [valtype_I32, valtype_I32, valtype_I32]) <ti:
+        mk_instrtype t1 t2"
+      using inv_const_list[of s C' "[_,_,_]" t1 t2 "[val_CONST I32 j, val_CONST I32 i, val_CONST I32 _]"]
+        admininstr_val.domintros admininstr_val.psimps valtype_numtype.domintros valtype_numtype.psimps
+      typeofval.domintros typeofval.psimps
+      by auto
+    obtain t2' t3' where
+      okcopy: "Instr_ok2 s C' (admininstr_sc7 (admininstr_st7_MEMORY_COPY)) (mk_functype t2' t3')"
+      and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+      using inv_one_admininstr splitv by blast
+    then have "Instr_ok C' (instr_sc6 MEMORY_COPY) (mk_functype t2' t3')"
+      using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+    then obtain mt where hyps:
+        "0 < length (context_MEMS C')"
+        "context_MEMS C' ! 0 = mt"
+        "wf_memtype mt"
+        "mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []) =
+        mk_functype t2' t3'"
+      using inv_memory_copy by blast
+    then have subt: "(mk_instrtype (mk_list []) (mk_list []) <ti: mk_instrtype t1 t3)"
+      using produce_consume subt subv
+      by auto
+    define j' where "j' = mk_num__0 Inn_I32 (iadd_underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) (the (proj_num__0 j)) (mk_uN 1))"
+    define i' where "i' = mk_num__0 Inn_I32 (iadd_underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) (the (proj_num__0 i)) (mk_uN 1))"
+    have wfs: "wf_store s" and wfC: "wf_context C'" using Instrs_ok2_wf[OF splitv(1)] by auto
+    have wfl: "list_all wf_val (LOCALS f)"
+      using memory_copy_le val_ok_wf list_all2_conv_all_nth list_all_length by metis
+    have wfm: "wf_moduleinst (frame_MODULE f)"
+      using memory_copy_le by (auto elim: Moduleinst_ok.cases)
+    have "wf_frame f" using wfl wfm wf_frame.intros by (cases f) auto
+    then have "wf_config (mk_config (mk_state s f) [admininstr_sc1 (admininstr_st1_CONST I32 j),
+        admininstr_sc1 (admininstr_st1_CONST I32 i),
+        admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))),
+        admininstr_sc7 admininstr_st7_MEMORY_COPY])"
+      using wf_config.intros wf_state.intros wfs
+        Instrs_ok2_wf_instr[OF splitv(1)] Instrs_ok2_wf_instr[OF splitv(2)]
+      by simp
+    then have wfout: "list_all wf_admininstr [admininstr_sc1 (admininstr_st1_CONST I32 j),
+        admininstr_sc1 (admininstr_st1_CONST I32 i),
+        admininstr_sc6 (admininstr_st6_LOAD I32
+          (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) memarg0),
+        admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0),
+        admininstr_sc1 (admininstr_st1_CONST I32 j'),
+        admininstr_sc1 (admininstr_st1_CONST I32 i'),
+        admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1)))),
+        admininstr_sc7 admininstr_st7_MEMORY_COPY]"
+      using Step_read_is_wf
+        isabelle_reference_output_wasm2.memory_copy_le[OF memory_copy_le(1,2,3,4,5)]
+      unfolding j'_def i'_def
+      using read.prems(1) by blast
+    have c1: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j)]
+        (mk_functype (mk_list []) (mk_list [valtype_I32]))"
+      using wfout const_i32_ok[OF _ wfs wfC] by simp
+    have c2: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)]
+        (mk_functype (mk_list [valtype_I32]) (mk_list [valtype_I32, valtype_I32]))"
+      using wfout Instrs_ok2_frame_list[OF const_i32_ok[OF _ wfs wfC], of _ "[valtype_I32]"] by simp
+    have ld: "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_LOAD I32
+          (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) memarg0)]
+        (mk_functype (mk_list [valtype_I32, valtype_I32]) (mk_list [valtype_I32, valtype_I32]))"
+      using wfout Instrs_ok2_frame_list[OF load_i32_8_ok[OF hyps(1,2,3) wfC wfs], of "[valtype_I32]"]
+      by simp
+    have st: "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0)]
+        (mk_functype (mk_list [valtype_I32, valtype_I32]) (mk_list []))"
+      using wfout store_i32_8_ok[OF hyps(1,2,3) wfC wfs] by simp
+    have c3: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j')]
+        (mk_functype (mk_list []) (mk_list [valtype_I32]))"
+      using wfout const_i32_ok[OF _ wfs wfC] by simp
+    have c4: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i')]
+        (mk_functype (mk_list [valtype_I32]) (mk_list [valtype_I32, valtype_I32]))"
+      using wfout Instrs_ok2_frame_list[OF const_i32_ok[OF _ wfs wfC], of _ "[valtype_I32]"] by simp
+    have cn: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1))))]
+        (mk_functype (mk_list [valtype_I32, valtype_I32]) (mk_list [valtype_I32, valtype_I32, valtype_I32]))"
+      using wfout Instrs_ok2_frame_list[OF const_i32_ok[OF _ wfs wfC], of _ "[valtype_I32, valtype_I32]"]
+      by simp
+    have cp: "Instrs_ok2 s C' [admininstr_sc7 admininstr_st7_MEMORY_COPY]
+        (mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
+      using okcopy instr_ok2_instrs_ok2 hyps by simp
+    have "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j),
+        admininstr_sc1 (admininstr_st1_CONST I32 i),
+        admininstr_sc6 (admininstr_st6_LOAD I32
+          (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) memarg0),
+        admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0),
+        admininstr_sc1 (admininstr_st1_CONST I32 j'),
+        admininstr_sc1 (admininstr_st1_CONST I32 i'),
+        admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1)))),
+        admininstr_sc7 admininstr_st7_MEMORY_COPY] (mk_functype t1 t3)"
+      using Instrs_ok2_subtyping[OF subt instrs_ok2_seq[OF c1 instrs_ok2_seq[OF c2
+          instrs_ok2_seq[OF ld instrs_ok2_seq[OF st instrs_ok2_seq[OF c3 instrs_ok2_seq[OF c4
+          instrs_ok2_seq[OF cn cp]]]]]]]]
+      by simp
+    then show ?case unfolding j'_def i'_def
+      by (metis read.prems(9))
   next
     case (memory_copy_gt j i v_n)
-    then show ?case sorry (* see memory_fill cases *)
+    then obtain t2 where splitv:
+      "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j), admininstr_sc1 (admininstr_st1_CONST I32 i),
+     admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))]
+        (mk_functype t1 t2)"
+      "Instrs_ok2 s C' [admininstr_sc7 (admininstr_st7_MEMORY_COPY)] (mk_functype t2 t3)"
+      using inv_seq[of s C' "[_,_,_,_]" t1 t3 "[_,_,_]" "[_]"] by fastforce
+    then have subv:
+      "mk_instrtype (mk_list []) (mk_list [valtype_I32, valtype_I32, valtype_I32]) <ti:
+        mk_instrtype t1 t2"
+      using inv_const_list[of s C' "[_,_,_]" t1 t2 "[val_CONST I32 j, val_CONST I32 i, val_CONST I32 _]"]
+        admininstr_val.domintros admininstr_val.psimps valtype_numtype.domintros valtype_numtype.psimps
+      typeofval.domintros typeofval.psimps
+      by auto
+    obtain t2' t3' where
+      okcopy: "Instr_ok2 s C' (admininstr_sc7 (admininstr_st7_MEMORY_COPY)) (mk_functype t2' t3')"
+      and subt: "mk_instrtype t2' t3' <ti: mk_instrtype t2 t3"
+      using inv_one_admininstr splitv by blast
+    then have "Instr_ok C' (instr_sc6 MEMORY_COPY) (mk_functype t2' t3')"
+      using inv_plain admininstr_instr.domintros admininstr_instr.psimps by fastforce
+    then obtain mt where hyps:
+        "0 < length (context_MEMS C')"
+        "context_MEMS C' ! 0 = mt"
+        "wf_memtype mt"
+        "mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []) =
+        mk_functype t2' t3'"
+      using inv_memory_copy by blast
+    then have subt: "(mk_instrtype (mk_list []) (mk_list []) <ti: mk_instrtype t1 t3)"
+      using produce_consume subt subv
+      by auto
+    define j' where "j' = mk_num__0 Inn_I32 (mk_uN (proj_uN_0 (the (proj_num__0 j)) + v_n - 1))"
+    define i' where "i' = mk_num__0 Inn_I32 (mk_uN (proj_uN_0 (the (proj_num__0 i)) + v_n - 1))"
+    have wfs: "wf_store s" and wfC: "wf_context C'" using Instrs_ok2_wf[OF splitv(1)] by auto
+    have wfl: "list_all wf_val (LOCALS f)"
+      using memory_copy_gt val_ok_wf list_all2_conv_all_nth list_all_length by metis
+    have wfm: "wf_moduleinst (frame_MODULE f)"
+      using memory_copy_gt by (auto elim: Moduleinst_ok.cases)
+    have "wf_frame f" using wfl wfm wf_frame.intros by (cases f) auto
+    then have "wf_config (mk_config (mk_state s f) [admininstr_sc1 (admininstr_st1_CONST I32 j),
+        admininstr_sc1 (admininstr_st1_CONST I32 i),
+        admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))),
+        admininstr_sc7 admininstr_st7_MEMORY_COPY])"
+      using wf_config.intros wf_state.intros wfs
+        Instrs_ok2_wf_instr[OF splitv(1)] Instrs_ok2_wf_instr[OF splitv(2)]
+      by simp
+    then have wfout: "list_all wf_admininstr [admininstr_sc1 (admininstr_st1_CONST I32 j'),
+        admininstr_sc1 (admininstr_st1_CONST I32 i'),
+        admininstr_sc6 (admininstr_st6_LOAD I32
+          (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) memarg0),
+        admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0),
+        admininstr_sc1 (admininstr_st1_CONST I32 j),
+        admininstr_sc1 (admininstr_st1_CONST I32 i),
+        admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1)))),
+        admininstr_sc7 admininstr_st7_MEMORY_COPY]"
+      using Step_read_is_wf
+        isabelle_reference_output_wasm2.memory_copy_gt[OF memory_copy_gt(1,2,3,4,5)]
+      unfolding j'_def i'_def
+      using read.prems(1) by blast
+    have c1: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j')]
+        (mk_functype (mk_list []) (mk_list [valtype_I32]))"
+      using wfout const_i32_ok[OF _ wfs wfC] by simp
+    have c2: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i')]
+        (mk_functype (mk_list [valtype_I32]) (mk_list [valtype_I32, valtype_I32]))"
+      using wfout Instrs_ok2_frame_list[OF const_i32_ok[OF _ wfs wfC], of _ "[valtype_I32]"] by simp
+    have ld: "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_LOAD I32
+          (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) memarg0)]
+        (mk_functype (mk_list [valtype_I32, valtype_I32]) (mk_list [valtype_I32, valtype_I32]))"
+      using wfout Instrs_ok2_frame_list[OF load_i32_8_ok[OF hyps(1,2,3) wfC wfs], of "[valtype_I32]"]
+      by simp
+    have st: "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0)]
+        (mk_functype (mk_list [valtype_I32, valtype_I32]) (mk_list []))"
+      using wfout store_i32_8_ok[OF hyps(1,2,3) wfC wfs] by simp
+    have c3: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j)]
+        (mk_functype (mk_list []) (mk_list [valtype_I32]))"
+      using wfout const_i32_ok[OF _ wfs wfC] by simp
+    have c4: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)]
+        (mk_functype (mk_list [valtype_I32]) (mk_list [valtype_I32, valtype_I32]))"
+      using wfout Instrs_ok2_frame_list[OF const_i32_ok[OF _ wfs wfC], of _ "[valtype_I32]"] by simp
+    have cn: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1))))]
+        (mk_functype (mk_list [valtype_I32, valtype_I32]) (mk_list [valtype_I32, valtype_I32, valtype_I32]))"
+      using wfout Instrs_ok2_frame_list[OF const_i32_ok[OF _ wfs wfC], of _ "[valtype_I32, valtype_I32]"]
+      by simp
+    have cp: "Instrs_ok2 s C' [admininstr_sc7 admininstr_st7_MEMORY_COPY]
+        (mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
+      using okcopy instr_ok2_instrs_ok2 hyps by simp
+    have "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j'),
+        admininstr_sc1 (admininstr_st1_CONST I32 i'),
+        admininstr_sc6 (admininstr_st6_LOAD I32
+          (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) memarg0),
+        admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0),
+        admininstr_sc1 (admininstr_st1_CONST I32 j),
+        admininstr_sc1 (admininstr_st1_CONST I32 i),
+        admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1)))),
+        admininstr_sc7 admininstr_st7_MEMORY_COPY] (mk_functype t1 t3)"
+      using Instrs_ok2_subtyping[OF subt instrs_ok2_seq[OF c1 instrs_ok2_seq[OF c2
+          instrs_ok2_seq[OF ld instrs_ok2_seq[OF st instrs_ok2_seq[OF c3 instrs_ok2_seq[OF c4
+          instrs_ok2_seq[OF cn cp]]]]]]]]
+      by simp
+    then show ?case unfolding j'_def i'_def
+      by (metis read.prems(9))
   next
     case (memory_init_trap i j v_n x)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
