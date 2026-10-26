@@ -6207,8 +6207,18 @@ proof -
   have 0:"Store_ok s'"
          "Extend_store s s'"
          "Moduleinst_ok s' (frame_MODULE f) C'"
-    sorry
-    (* should come from A's proof *)
+  proof -
+    have "Instrs_ok2 s C es (mk_functype (mk_list []) ts)"
+      by (metis Expr_ok2.cases cfg_is(4))
+    moreover have "t_inst_match C C'"
+      using C'_is(2)
+      unfolding append_res_context_def t_inst_match_def
+      by simp
+    ultimately have "Extend_store s s' \<and> Store_ok s'"
+      using reduce_store_extension_gen[OF assms(2) cfg_is(1,2) 7 C'_is(1)] by blast
+    then show "Store_ok s'" "Extend_store s s'" "Moduleinst_ok s' (frame_MODULE f) C'"
+      using store_extension_Moduleinst_ok[OF C'_is(1)] by auto
+  qed
 
   have 2:"context_LOCALS C = t_lst"
     using C'_is(1,2)
