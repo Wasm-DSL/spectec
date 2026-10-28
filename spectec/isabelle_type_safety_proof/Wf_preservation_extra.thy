@@ -152,18 +152,6 @@ lemma inez__is_wf :
 	 (wf_uN 32 ret_val)"
 sorry
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:385.6-385.15 *)
-lemma lcvtop___is_wf :
-	"(fun_lcvtop__underscore shape_1 shape_2 v_vcvtop__underscore v_lane_underscore var_0) \<Longrightarrow>
-	 (wf_shape shape_1) \<Longrightarrow>
-	 (wf_shape shape_2) \<Longrightarrow>
-	 (wf_vcvtop__underscore shape_1 shape_2 v_vcvtop__underscore) \<Longrightarrow>
-	 (wf_lane_underscore (fun_lanetype shape_1) v_lane_underscore) \<Longrightarrow>
-	 (var_0 \<noteq> None) \<Longrightarrow>
-	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
-	 list_all (\<lambda> (ret_val :: lane_underscore). (wf_lane_underscore (fun_lanetype shape_2) ret_val)) ret_val_lst"
-sorry
-
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:48.6-48.12 *)
 lemma store_is_wf :
 	"(wf_state v_state) \<Longrightarrow>

@@ -79,6 +79,250 @@ lemma wf_admininstr_val_iff: "wf_admininstr (admininstr_val v) \<longleftrightar
 lemma wf_admininstr_instr_iff: "wf_admininstr (admininstr_instr e) \<longleftrightarrow> wf_instr e"
   using wf_admininstr_instr wf_admininstr_instr_inv by blast
 
+(* Evaluation lemmas for the small total functions on types and sizes *)
+lemma type_fun_simps:
+  "lanetype_Jnn Jnn_I32 = lanetype_I32" "lanetype_Jnn Jnn_I64 = lanetype_I64"
+  "lanetype_Jnn Jnn_I8 = lanetype_I8" "lanetype_Jnn Jnn_I16 = lanetype_I16"
+  "Jnn_Inn Inn_I32 = Jnn_I32" "Jnn_Inn Inn_I64 = Jnn_I64"
+  "Jnn_packtype I8 = Jnn_I8" "Jnn_packtype I16 = Jnn_I16"
+  "lanetype_packtype I8 = lanetype_I8" "lanetype_packtype I16 = lanetype_I16"
+  "lanetype_numtype I32 = lanetype_I32" "lanetype_numtype I64 = lanetype_I64"
+  "lanetype_numtype F32 = lanetype_F32" "lanetype_numtype F64 = lanetype_F64"
+  "lanetype_Fnn Fnn_F32 = lanetype_F32" "lanetype_Fnn Fnn_F64 = lanetype_F64"
+  "lanetype_Inn Inn_I32 = lanetype_I32" "lanetype_Inn Inn_I64 = lanetype_I64"
+  "valtype_numtype I32 = valtype_I32" "valtype_numtype I64 = valtype_I64"
+  "valtype_numtype F32 = valtype_F32" "valtype_numtype F64 = valtype_F64"
+  "valtype_Fnn Fnn_F32 = valtype_F32" "valtype_Fnn Fnn_F64 = valtype_F64"
+  "psize I8 = 8" "psize I16 = 16"
+  "lsize lanetype_I32 = 32" "lsize lanetype_I64 = 64" "lsize lanetype_F32 = 32"
+  "lsize lanetype_F64 = 64" "lsize lanetype_I8 = 8" "lsize lanetype_I16 = 16"
+  "lsizenn lt = lsize lt"
+  "unpack lanetype_I32 = I32" "unpack lanetype_I64 = I64" "unpack lanetype_F32 = F32"
+  "unpack lanetype_F64 = F64" "unpack lanetype_I8 = I32" "unpack lanetype_I16 = I32"
+  by (simp_all add: lanetype_Jnn.psimps lanetype_Jnn.domintros Jnn_Inn.psimps Jnn_Inn.domintros
+      Jnn_packtype.psimps Jnn_packtype.domintros lanetype_packtype.psimps
+      lanetype_packtype.domintros lanetype_numtype.psimps lanetype_numtype.domintros
+      lanetype_Fnn.psimps lanetype_Fnn.domintros lanetype_Inn.psimps lanetype_Inn.domintros
+      valtype_numtype.psimps valtype_numtype.domintros valtype_Fnn.psimps valtype_Fnn.domintros
+      psize.psimps psize.domintros lsize.psimps lsize.domintros lsizenn.psimps lsizenn.domintros
+      unpack.psimps unpack.domintros wf_proj_simps)
+
+lemma shape_fun_simps:
+  "fun_lanetype (X lt d) = lt" "proj_ishape_0 (mk_ishape sh) = sh"
+  by (cases d, simp add: fun_lanetype.psimps fun_lanetype.domintros)
+     (simp add: proj_ishape_0.psimps proj_ishape_0.domintros)
+
+inductive_simps wf_num_ctor_simps:
+  "wf_num_underscore nt (mk_num__0 inn x)" "wf_num_underscore nt (mk_num__1 fnn x)"
+
+inductive_simps wf_lane_ctor_simps:
+  "wf_lane_underscore lt (mk_lane__0 j x)" "wf_lane_underscore lt (mk_lane__1 f x)"
+
+lemma wf_num_Inn_iff:
+  "wf_num_underscore (numtype_Inn inn) (mk_num__0 inn x) \<longleftrightarrow> wf_uN (sizenn (numtype_Inn inn)) x"
+  by (cases inn) (auto simp: wf_num_ctor_simps wf_proj_simps)
+
+lemma wf_num_Fnn_iff:
+  "wf_num_underscore (numtype_Fnn fnn) (mk_num__1 fnn x) \<longleftrightarrow> wf_fN (sizenn (numtype_Fnn fnn)) x"
+  by (cases fnn) (auto simp: wf_num_ctor_simps)
+
+lemma wf_uN_mod_lt: "0 < N \<Longrightarrow> wf_uN N (mk_uN (n mod N))"
+  by (rule wf_uN_lt) (meson less_exp mod_less_divisor order.strict_trans)
+
+lemma unop_I32_wf:
+  "wf_num_underscore I32 n \<Longrightarrow> fun_unop__I32 op n \<noteq> None \<Longrightarrow>
+   list_all (wf_num_underscore I32) (the (fun_unop__I32 op n))"
+  by (cases "(op, n)" rule: fun_unop__I32.cases)
+     (auto simp: fun_unop__I32.psimps fun_unop__I32.domintros wf_num_ctor_simps
+       wf_proj_simps
+       intro!: iclz__is_wf[OF _ HOL.refl] ictz__is_wf[OF _ HOL.refl] ipopcnt__is_wf[OF _ HOL.refl]
+         extend___is_wf[OF _ HOL.refl] wrap___is_wf[OF _ HOL.refl])
+
+lemma unop_I64_wf:
+  "wf_num_underscore I64 n \<Longrightarrow> fun_unop__I64 op n \<noteq> None \<Longrightarrow>
+   list_all (wf_num_underscore I64) (the (fun_unop__I64 op n))"
+  by (cases "(op, n)" rule: fun_unop__I64.cases)
+     (auto simp: fun_unop__I64.psimps fun_unop__I64.domintros wf_num_ctor_simps
+       wf_proj_simps
+       intro!: iclz__is_wf[OF _ HOL.refl] ictz__is_wf[OF _ HOL.refl] ipopcnt__is_wf[OF _ HOL.refl]
+         extend___is_wf[OF _ HOL.refl] wrap___is_wf[OF _ HOL.refl])
+
+lemma unop_F32_wf:
+  "wf_num_underscore F32 n \<Longrightarrow> fun_unop__F32 op n \<noteq> None \<Longrightarrow>
+   list_all (wf_num_underscore F32) (the (fun_unop__F32 op n))"
+  by (cases "(op, n)" rule: fun_unop__F32.cases)
+     (auto simp: fun_unop__F32.psimps fun_unop__F32.domintros wf_num_ctor_simps list.pred_map o_def
+       intro!: fabs__is_wf[OF _ HOL.refl] fneg__is_wf[OF _ HOL.refl] fsqrt__is_wf[OF _ HOL.refl]
+         fceil__is_wf[OF _ HOL.refl] ffloor__is_wf[OF _ HOL.refl] ftrunc__is_wf[OF _ HOL.refl]
+         fnearest__is_wf[OF _ HOL.refl])
+
+lemma unop_F64_wf:
+  "wf_num_underscore F64 n \<Longrightarrow> fun_unop__F64 op n \<noteq> None \<Longrightarrow>
+   list_all (wf_num_underscore F64) (the (fun_unop__F64 op n))"
+  by (cases "(op, n)" rule: fun_unop__F64.cases)
+     (auto simp: fun_unop__F64.psimps fun_unop__F64.domintros wf_num_ctor_simps list.pred_map o_def
+       intro!: fabs__is_wf[OF _ HOL.refl] fneg__is_wf[OF _ HOL.refl] fsqrt__is_wf[OF _ HOL.refl]
+         fceil__is_wf[OF _ HOL.refl] ffloor__is_wf[OF _ HOL.refl] ftrunc__is_wf[OF _ HOL.refl]
+         fnearest__is_wf[OF _ HOL.refl])
+
+lemma size_variant_simps:
+  "sizenn1 nt = sizenn nt" "sizenn2 nt = sizenn nt"
+  "lsizenn1 lt = lsize lt" "lsizenn2 lt = lsize lt"
+  by (simp_all add: sizenn1.psimps sizenn1.domintros sizenn2.psimps sizenn2.domintros
+      sizenn.psimps sizenn.domintros lsizenn1.psimps lsizenn1.domintros
+      lsizenn2.psimps lsizenn2.domintros)
+
+lemma list_underscore_map_option:
+  "list_underscore (map_option f x) = map f (option_to_list x)"
+  by (cases x) (simp_all add: list_underscore.psimps list_underscore.domintros)
+
+(* setproduct: termination and membership *)
+lemma setproduct2_dom: "setproduct2_underscore_dom (w, lss)"
+  by (induction lss) (auto intro: setproduct2_underscore.domintros)
+
+lemma setproduct1_dom: "setproduct1_underscore_dom (ws, lss)"
+  by (induction ws) (auto intro: setproduct1_underscore.domintros)
+
+lemma setproduct_dom: "setproduct_underscore_dom xss"
+  by (induction xss) (auto intro: setproduct_underscore.domintros)
+
+lemmas setproduct_simps =
+  setproduct2_underscore.psimps[OF setproduct2_dom] setproduct1_underscore.psimps[OF setproduct1_dom]
+  setproduct_underscore.psimps[OF setproduct_dom]
+
+lemma setproduct2_mem: "ys \<in> set (setproduct2_underscore w lss) \<Longrightarrow> \<exists>l\<in>set lss. ys = w # l"
+  by (induction lss) (auto simp: setproduct_simps)
+
+lemma setproduct1_mem:
+  "ys \<in> set (setproduct1_underscore ws lss) \<Longrightarrow> \<exists>w\<in>set ws. \<exists>l\<in>set lss. ys = w # l"
+  by (induction ws) (auto simp: setproduct_simps dest: setproduct2_mem)
+
+lemma setproduct_mem: "ys \<in> set (setproduct_underscore xss) \<Longrightarrow> list_all2 (\<lambda>y xs. y \<in> set xs) ys xss"
+  by (induction xss arbitrary: ys) (auto simp: setproduct_simps dest!: setproduct1_mem)
+
+lemma setproduct_list_all:
+  assumes "ys \<in> set (setproduct_underscore xss)" "list_all (list_all P) xss"
+  shows "list_all P ys"
+proof -
+  have "list_all2 (\<lambda>y xs. y \<in> set xs) ys xss" by (rule setproduct_mem[OF assms(1)])
+  then show ?thesis using assms(2) by (induction rule: list_all2_induct) (auto simp: list_all_iff)
+qed
+
+lemma inv_lanes_setproduct_wf:
+  "wf_shape sh \<Longrightarrow> list_all (list_all (wf_lane_underscore (fun_lanetype sh))) xss \<Longrightarrow>
+   list_all (wf_uN 128) (map (inv_lanes_underscore sh) (setproduct_underscore xss))"
+  by (auto simp: list_all_iff[of "wf_uN 128"] intro!: inv_lanes__is_wf[OF _ _ HOL.refl]
+      dest: setproduct_list_all)
+
+(* determinism of the signed-integer helper relations *)
+lemma signed_det: "fun_signed_underscore N i a \<Longrightarrow> fun_signed_underscore N i b \<Longrightarrow> a = b"
+  by (auto elim!: fun_signed_underscore.cases)
+
+lemma iabs_det: "fun_iabs_underscore N i a \<Longrightarrow> fun_iabs_underscore N i b \<Longrightarrow> a = b"
+  by (auto elim!: fun_iabs_underscore.cases dest: signed_det)
+
+lemma list_all2_det:
+  assumes "list_all2 R xs ls" "list_all2 R ys ls" "\<And>x y l. R x l \<Longrightarrow> R y l \<Longrightarrow> x = y"
+  shows "xs = ys"
+  using assms
+proof (induction xs ls arbitrary: ys rule: list_all2_induct)
+  case (Cons x xs l ls)
+  from Cons.prems(1) obtain y ys' where ys: "ys = y # ys'" "R y l" "list_all2 R ys' ls"
+    by (cases ys) simp_all
+  have "x = y" using Cons.prems(2)[OF Cons.hyps(1) ys(2)] .
+  moreover have "xs = ys'" using Cons.IH[OF ys(3) Cons.prems(2)] .
+  ultimately show ?case using ys(1) by simp
+qed simp
+
+lemma iabs_lanes_eq:
+  "list_all2 (\<lambda>v l. fun_iabs_underscore N (the (proj_lane__0 l)) v) xs ls \<Longrightarrow>
+   list_all2 (\<lambda>v l. fun_iabs_underscore N (the (proj_lane__0 l)) v) ys ls \<Longrightarrow> xs = ys"
+  by (erule list_all2_det, assumption, erule (1) iabs_det)
+
+lemma inv_lanes_setproduct_wf':
+  "wf_shape sh \<Longrightarrow> list_all (list_all (wf_lane_underscore (fun_lanetype sh))) xss \<Longrightarrow>
+   list_all (\<lambda>x. wf_uN 128 (inv_lanes_underscore sh x)) (setproduct_underscore xss)"
+  using inv_lanes_setproduct_wf[of sh xss] by (simp add: list.pred_map o_def)
+
+lemma iabs_wf_transfer:
+  "list_all2 (\<lambda>v l. fun_iabs_underscore N (the (proj_lane__0 l)) v) xs ls \<Longrightarrow>
+   list_all2 (\<lambda>v l. fun_iabs_underscore N (the (proj_lane__0 l)) v) ys ls \<Longrightarrow>
+   list_all P xs \<Longrightarrow> list_all P ys"
+  by (drule (1) iabs_lanes_eq) simp
+
+lemma inv_signed_det:
+  "fun_inv_signed_underscore N i a \<Longrightarrow> fun_inv_signed_underscore N i b \<Longrightarrow> a = b"
+  by (auto elim!: fun_inv_signed_underscore.cases)
+
+lemma imin_det: "fun_imin_underscore N sx i j a \<Longrightarrow> fun_imin_underscore N sx i j b \<Longrightarrow> a = b"
+  by (auto elim!: fun_imin_underscore.cases dest: signed_det)
+
+lemma imax_det: "fun_imax_underscore N sx i j a \<Longrightarrow> fun_imax_underscore N sx i j b \<Longrightarrow> a = b"
+  by (auto elim!: fun_imax_underscore.cases dest: signed_det)
+
+lemma iadd_sat_det:
+  "fun_iadd_sat_underscore N sx i j a \<Longrightarrow> fun_iadd_sat_underscore N sx i j b \<Longrightarrow> a = b"
+  by (auto elim!: fun_iadd_sat_underscore.cases dest: signed_det inv_signed_det)
+
+lemma isub_sat_det:
+  "fun_isub_sat_underscore N sx i j a \<Longrightarrow> fun_isub_sat_underscore N sx i j b \<Longrightarrow> a = b"
+  by (auto elim!: fun_isub_sat_underscore.cases dest: signed_det inv_signed_det)
+
+lemma ilt_det: "fun_ilt_underscore N sx i j a \<Longrightarrow> fun_ilt_underscore N sx i j b \<Longrightarrow> a = b"
+  by (auto elim!: fun_ilt_underscore.cases dest: signed_det)
+
+lemma igt_det: "fun_igt_underscore N sx i j a \<Longrightarrow> fun_igt_underscore N sx i j b \<Longrightarrow> a = b"
+  by (auto elim!: fun_igt_underscore.cases dest: signed_det)
+
+lemma ile_det: "fun_ile_underscore N sx i j a \<Longrightarrow> fun_ile_underscore N sx i j b \<Longrightarrow> a = b"
+  by (auto elim!: fun_ile_underscore.cases dest: signed_det)
+
+lemma ige_det: "fun_ige_underscore N sx i j a \<Longrightarrow> fun_ige_underscore N sx i j b \<Longrightarrow> a = b"
+  by (auto elim!: fun_ige_underscore.cases dest: signed_det)
+
+lemma list_all3_det:
+  assumes "list_all3 R xs as bs" "list_all3 R ys as bs"
+          "\<And>x y a b. R x a b \<Longrightarrow> R y a b \<Longrightarrow> x = y"
+  shows "xs = ys"
+  using assms(1,2)
+proof (induction xs arbitrary: ys as bs)
+  case Nil
+  then show ?case by (auto elim: list_all3.cases)
+next
+  case (Cons x xs)
+  from Cons.prems(1) obtain a as' b bs' where xs: "as = a # as'" "bs = b # bs'" "R x a b"
+      "list_all3 R xs as' bs'"
+    by (auto elim: list_all3.cases)
+  from Cons.prems(2) xs(1,2) obtain y ys' where ys: "ys = y # ys'" "R y a b" "list_all3 R ys' as' bs'"
+    by (auto elim: list_all3.cases)
+  have "x = y" using assms(3)[OF xs(3) ys(2)] .
+  moreover have "xs = ys'" using Cons.IH[OF xs(4) ys(3)] .
+  ultimately show ?case using ys(1) by simp
+qed
+
+(* Two result lists related to the same inputs by a deterministic relation are equal, so a
+   property of one transfers to the other. *)
+lemma list_all3_transfer:
+  "list_all3 R xs as bs \<Longrightarrow> list_all3 R ys as bs \<Longrightarrow>
+   (\<And>x y a b. R x a b \<Longrightarrow> R y a b \<Longrightarrow> x = y) \<Longrightarrow> list_all P xs \<Longrightarrow> list_all P ys"
+  using list_all3_det by metis
+
+lemma list_all_zipWith:
+  "list_all2 (\<lambda>a b. P (f a b)) xs ys \<Longrightarrow> list_all P (list_zipWith f xs ys)"
+  by (induction rule: list_all2_induct) (simp_all add: list_zipWith_def)
+
+lemma list_all_list_slice: "list_all P l \<Longrightarrow> list_all P (list_slice l n m)"
+  by (induction l n m rule: list_slice.induct) auto
+
+lemma inv_lanes_setproduct_mem:
+  "v \<in> set (map (inv_lanes_underscore sh) (setproduct_underscore xss)) \<Longrightarrow> wf_shape sh \<Longrightarrow>
+   list_all (list_all (wf_lane_underscore (fun_lanetype sh))) xss \<Longrightarrow> wf_uN 128 v"
+  using inv_lanes_setproduct_wf[of sh xss] by (auto simp: list_all_iff)
+
+lemma lanes_wf:
+  "wf_shape (X lt d) \<Longrightarrow> wf_uN 128 c \<Longrightarrow> list_all (wf_lane_underscore lt) (lanes_underscore (X lt d) c)"
+  using lanes__is_wf[of "X lt d" c] by (simp add: shape_fun_simps)
+
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/1-syntax.spectec:281.6-281.11 *)
 lemma zero_is_wf :
 	"(ret_val = (fun_zero v_numtype)) \<Longrightarrow>
@@ -94,7 +338,9 @@ lemma unop__is_wf :
 	 ((fun_unop_underscore v_numtype v_unop_underscore v_num_underscore) \<noteq> None) \<Longrightarrow>
 	 (ret_val_lst = (the ((fun_unop_underscore v_numtype v_unop_underscore v_num_underscore)))) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: num_underscore). (wf_num_underscore v_numtype ret_val)) ret_val_lst"
-sorry
+  by (cases v_numtype)
+     (auto simp: fun_unop_underscore.psimps fun_unop_underscore.domintros
+       intro: unop_I32_wf unop_I64_wf unop_F32_wf unop_F64_wf)
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:105.6-105.12 *)
 lemma iadd__is_wf :
@@ -165,7 +411,12 @@ lemma cvtop___is_wf :
 	 (var_0 \<noteq> None) \<Longrightarrow>
 	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: num_underscore). (wf_num_underscore numtype_2 ret_val)) ret_val_lst"
-sorry
+  by (auto elim!: fun_cvtop__underscore.cases simp: wf_num_ctor_simps list.pred_map o_def
+      wf_proj_simps size_variant_simps list_underscore_map_option
+      intro!: extend___is_wf[OF _ HOL.refl] wrap___is_wf[OF _ HOL.refl]
+        convert___is_wf[OF _ HOL.refl] promote___is_wf[OF _ HOL.refl]
+        demote___is_wf[OF _ HOL.refl] trunc___is_wf[OF _ HOL.refl]
+        trunc_sat___is_wf[OF _ HOL.refl] reinterpret___is_wf[OF _ HOL.refl])
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:133.6-133.12 *)
 lemma ineg__is_wf :
@@ -226,7 +477,9 @@ lemma packnum__is_wf :
 	 ((packnum_underscore v_lanetype v_num_underscore) \<noteq> None) \<Longrightarrow>
 	 (ret_val = (the ((packnum_underscore v_lanetype v_num_underscore)))) \<Longrightarrow>
 	 (wf_lane_underscore v_lanetype ret_val)"
-sorry
+  by (cases "(v_lanetype, v_num_underscore)" rule: packnum_underscore.cases)
+     (auto simp: packnum_underscore.psimps packnum_underscore.domintros wf_num_ctor_simps
+       wf_lane_ctor_simps wf_proj_simps type_fun_simps intro: wrap___is_wf[OF _ HOL.refl])
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:329.6-329.17 *)
 lemma unpacknum__is_wf :
@@ -234,7 +487,9 @@ lemma unpacknum__is_wf :
 	 ((unpacknum_underscore v_lanetype v_lane_underscore) \<noteq> None) \<Longrightarrow>
 	 (ret_val = (the ((unpacknum_underscore v_lanetype v_lane_underscore)))) \<Longrightarrow>
 	 (wf_num_underscore (unpack v_lanetype) ret_val)"
-sorry
+  by (cases "(v_lanetype, v_lane_underscore)" rule: unpacknum_underscore.cases)
+     (auto simp: unpacknum_underscore.psimps unpacknum_underscore.domintros wf_num_ctor_simps
+       wf_lane_ctor_simps wf_proj_simps type_fun_simps intro: extend___is_wf[OF _ HOL.refl])
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:364.6-364.14 *)
 lemma vvunop__is_wf :
@@ -242,7 +497,10 @@ lemma vvunop__is_wf :
 	 (wf_uN (the ((size (valtype_vectype v_vectype)))) v_vec_underscore) \<Longrightarrow>
 	 (ret_val = (vvunop_underscore v_vectype v_vvunop v_vec_underscore)) \<Longrightarrow>
 	 (wf_uN (the ((size (valtype_vectype v_vectype)))) ret_val)"
-sorry
+  by (cases v_vectype; cases v_vvunop)
+     (auto simp: vvunop_underscore.psimps vvunop_underscore.domintros
+       wf_proj_simps
+       intro: inot__is_wf[OF _ HOL.refl])
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:366.6-366.15 *)
 lemma vvbinop__is_wf :
@@ -251,7 +509,11 @@ lemma vvbinop__is_wf :
 	 (wf_uN (the ((size (valtype_vectype v_vectype)))) vec__0) \<Longrightarrow>
 	 (ret_val = (vvbinop_underscore v_vectype v_vvbinop v_vec_underscore vec__0)) \<Longrightarrow>
 	 (wf_uN (the ((size (valtype_vectype v_vectype)))) ret_val)"
-sorry
+  by (cases v_vectype; cases v_vvbinop)
+     (auto simp: vvbinop_underscore.psimps vvbinop_underscore.domintros
+       wf_proj_simps
+       intro: iand__is_wf[OF _ _ HOL.refl] iandnot__is_wf[OF _ _ HOL.refl]
+         ior__is_wf[OF _ _ HOL.refl] ixor__is_wf[OF _ _ HOL.refl])
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:368.6-368.16 *)
 lemma vvternop__is_wf :
@@ -261,7 +523,10 @@ lemma vvternop__is_wf :
 	 (wf_uN (the ((size (valtype_vectype v_vectype)))) vec__1) \<Longrightarrow>
 	 (ret_val = (vvternop_underscore v_vectype v_vvternop v_vec_underscore vec__0 vec__1)) \<Longrightarrow>
 	 (wf_uN (the ((size (valtype_vectype v_vectype)))) ret_val)"
-sorry
+  by (cases v_vectype; cases v_vvternop)
+     (auto simp: vvternop_underscore.psimps vvternop_underscore.domintros
+       wf_proj_simps
+       intro: ibitselect__is_wf[OF _ _ _ HOL.refl])
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.13 *)
 lemma vunop__is_wf :
@@ -272,7 +537,11 @@ lemma vunop__is_wf :
 	 (var_0 \<noteq> None) \<Longrightarrow>
 	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: vec_underscore). (wf_uN 128 ret_val)) ret_val_lst"
-sorry
+  apply (erule fun_vunop_underscore.cases)
+  apply (auto simp: list.pred_map o_def shape_fun_simps
+      intro!: inv_lanes__is_wf[OF _ _ HOL.refl] inv_lanes_setproduct_wf')
+  apply (blast intro: iabs_wf_transfer)+
+  done
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:381.6-381.14 *)
 lemma vbinop__is_wf :
@@ -284,7 +553,11 @@ lemma vbinop__is_wf :
 	 (var_0 \<noteq> None) \<Longrightarrow>
 	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: vec_underscore). (wf_uN 128 ret_val)) ret_val_lst"
-sorry
+  apply (erule fun_vbinop_underscore.cases)
+  apply (auto simp: list.pred_map o_def shape_fun_simps
+      intro!: inv_lanes__is_wf[OF _ _ HOL.refl] inv_lanes_setproduct_wf' list_all_zipWith)
+  apply (blast intro: list_all3_transfer imin_det imax_det iadd_sat_det isub_sat_det ilt_det igt_det ile_det ige_det)+
+  done
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.6-383.14 *)
 lemma vrelop__is_wf :
@@ -296,7 +569,41 @@ lemma vrelop__is_wf :
 	 (var_0 \<noteq> None) \<Longrightarrow>
 	 (ret_val = (the (var_0))) \<Longrightarrow>
 	 (wf_uN 128 ret_val)"
-sorry
+  apply (erule fun_vrelop_underscore.cases)
+  apply (auto simp: list.pred_map o_def
+      intro!: inv_lanes__is_wf[OF _ _ HOL.refl] list_all_zipWith)
+  done
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:385.6-385.15 *)
+lemma lcvtop___is_wf :
+	"(fun_lcvtop__underscore shape_1 shape_2 v_vcvtop__underscore v_lane_underscore var_0) \<Longrightarrow>
+	 (wf_shape shape_1) \<Longrightarrow>
+	 (wf_shape shape_2) \<Longrightarrow>
+	 (wf_vcvtop__underscore shape_1 shape_2 v_vcvtop__underscore) \<Longrightarrow>
+	 (wf_lane_underscore (fun_lanetype shape_1) v_lane_underscore) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: lane_underscore). (wf_lane_underscore (fun_lanetype shape_2) ret_val)) ret_val_lst"
+  apply (erule fun_lcvtop__underscore.cases)
+  apply (auto simp: list.pred_map o_def wf_lane_ctor_simps wf_proj_simps type_fun_simps
+      shape_fun_simps size_variant_simps list_underscore_map_option
+      intro!: extend___is_wf[OF _ HOL.refl] wrap___is_wf[OF _ HOL.refl]
+        convert___is_wf[OF _ HOL.refl] promote___is_wf[OF _ HOL.refl]
+        demote___is_wf[OF _ HOL.refl] trunc___is_wf[OF _ HOL.refl]
+        trunc_sat___is_wf[OF _ HOL.refl])
+  done
+
+lemma lcvtop_lanes_wf:
+  "list_all2 (\<lambda>v c. fun_lcvtop__underscore (X lt1 d1) (X lt2 d2) op c v) vs cs \<Longrightarrow>
+   list_all (\<lambda>v. \<exists>y. v = Some y) vs \<Longrightarrow> list_all (wf_lane_underscore lt1) cs \<Longrightarrow>
+   wf_shape (X lt1 d1) \<Longrightarrow> wf_shape (X lt2 d2) \<Longrightarrow>
+   wf_vcvtop__underscore (X lt1 d1) (X lt2 d2) op \<Longrightarrow>
+   list_all (list_all (wf_lane_underscore lt2)) (map the vs)"
+proof (induction rule: list_all2_induct)
+  case (Cons v vs c cs)
+  then show ?case using lcvtop___is_wf[of "X lt1 d1" "X lt2 d2" op c v "the v"]
+    by (auto simp: shape_fun_simps)
+qed simp
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:387.6-387.15 *)
 lemma vcvtop___is_wf :
@@ -308,7 +615,15 @@ lemma vcvtop___is_wf :
 	 (var_0 \<noteq> None) \<Longrightarrow>
 	 (ret_val = (the (var_0))) \<Longrightarrow>
 	 (wf_uN 128 ret_val)"
-sorry
+  apply (erule fun_vcvtop__underscore.cases)
+  apply (auto simp: shape_fun_simps intro!: inv_lanes_setproduct_mem)
+  subgoal by (rule lcvtop_lanes_wf) (auto intro: lanes_wf)
+  subgoal by (rule lcvtop_lanes_wf) (auto intro: lanes_wf list_all_list_slice)
+  subgoal by (rule lcvtop_lanes_wf) (auto intro: lanes_wf)
+  subgoal
+    by (rule list_all_repeat)
+       (simp, metis option.distinct(1) option.sel packnum__is_wf zero_is_wf)
+  done
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:603.6-603.17 *)
 lemma vextunop___is_wf :
@@ -320,7 +635,10 @@ lemma vextunop___is_wf :
 	 (var_0 \<noteq> None) \<Longrightarrow>
 	 (ret_val = (the (var_0))) \<Longrightarrow>
 	 (wf_uN 128 ret_val)"
-sorry
+  apply (erule fun_vextunop__underscore.cases)
+  apply (auto simp: list.pred_map o_def
+      intro!: inv_lanes__is_wf[OF _ _ HOL.refl] list_all_zipWith)
+  done
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:605.6-605.18 *)
 lemma vextbinop___is_wf :
@@ -333,7 +651,10 @@ lemma vextbinop___is_wf :
 	 (var_0 \<noteq> None) \<Longrightarrow>
 	 (ret_val = (the (var_0))) \<Longrightarrow>
 	 (wf_uN 128 ret_val)"
-sorry
+  apply (erule fun_vextbinop__underscore.cases)
+  apply (auto simp: list.pred_map o_def
+      intro!: inv_lanes__is_wf[OF _ _ HOL.refl] list_all_zipWith)
+  done
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:628.6-628.16 *)
 lemma vshiftop__is_wf :
@@ -345,7 +666,8 @@ lemma vshiftop__is_wf :
 	 (var_0 \<noteq> None) \<Longrightarrow>
 	 (ret_val = (the (var_0))) \<Longrightarrow>
 	 (wf_lane_underscore (fun_lanetype (proj_ishape_0 v_ishape)) ret_val)"
-sorry
+  by (auto elim!: fun_vshiftop_underscore.cases simp: wf_lane_ctor_simps type_fun_simps
+      intro!: ishl__is_wf[OF _ _ HOL.refl] ishr__is_wf[OF _ _ HOL.refl] wf_uN_mod_lt)
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 *)
 lemma default__is_wf :
@@ -451,7 +773,7 @@ lemma vrelop_wf:
 lemma lanes_nth_wf:
   "wf_shape (X lt d) \<Longrightarrow> wf_uN 128 c \<Longrightarrow> k < length (lanes_underscore (X lt d) c) \<Longrightarrow>
    wf_lane_underscore lt (lanes_underscore (X lt d) c ! k)"
-  by (metis lanes__is_wf list_all_length wf_lane_simps(1))
+  by (metis lanes__is_wf list_all_length shape_fun_simps(1))
 
 lemma Step_pure_is_wf_aux:
   assumes "Step_pure es es'" "list_all wf_admininstr es"
@@ -501,7 +823,7 @@ lemma Step_pure_is_wf_aux:
   subgoal
     apply (rule inv_lanes__is_wf[OF _ _ HOL.refl], assumption, (simp add: wf_lane_simps),
         rule list_all_list_update_func_gen)
-    subgoal by (metis lanes__is_wf wf_lane_simps(1))
+    subgoal by (metis lanes__is_wf shape_fun_simps(1))
     subgoal by (metis option.distinct(1) option.sel packnum__is_wf)
     done
   (* vextunop, vextbinop *)
