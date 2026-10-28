@@ -1,6 +1,6 @@
 theory Wf_preservation
 (* Imported Lemma Formulation, Proofs Added Manually *)
-	imports isabelle_reference_output_wasm2 Typing_Simplified
+	imports isabelle_reference_output_wasm2 Typing_Simplified helper_lemmas
 begin
 
 (* Helper lemmas for the well-formedness proofs below *)
@@ -730,13 +730,6 @@ lemma wf_lane_simps:
 lemma list_all_mkseq: "list_all P (mkseq f n) \<longleftrightarrow> (\<forall>k<n. P (f k))"
   by (induction n) (auto simp: less_Suc_eq)
 
-lemma list_all_repeat: "P x \<Longrightarrow> list_all P (repeat n x)"
-  by (induction n) auto
-
-lemma list_all_list_update_func:
-  "list_all P l \<Longrightarrow> P y \<Longrightarrow> list_all P (list_update_func l i (\<lambda>_. y))"
-  by (induction l arbitrary: i) (simp, case_tac i, auto)
-
 lemma binop_wf_mem:
   "fun_binop_underscore nt op c1 c2 (Some y) \<Longrightarrow> c \<in> set y \<Longrightarrow> wf_num_underscore nt c"
   by (auto elim!: fun_binop_underscore.cases simp: list_all_iff wf_proj_simps)
@@ -853,7 +846,7 @@ lemma Step_pure_is_wf_aux:
   (* replace_lane *)
   subgoal
     apply (rule inv_lanes__is_wf[OF _ _ HOL.refl], assumption, (simp add: wf_lane_simps),
-        rule list_all_list_update_func)
+        rule list_all_list_update_func_gen)
     subgoal by (metis lanes__is_wf wf_lane_simps(1))
     subgoal by (metis option.distinct(1) option.sel packnum__is_wf)
     done
