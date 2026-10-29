@@ -141,4 +141,21 @@ lemma list_all_list_update_func_gen:
 lemma list_all_repeat: "P x \<Longrightarrow> list_all P (repeat n x)"
   by (induction n) auto
 
+
+lemma list_all_list_slice:
+  assumes "list_all P l"
+  shows "list_all P (list_slice l i j)"
+  using assms proof(induction l arbitrary: i j)
+  case Nil
+  then show ?case by auto
+next
+  case (Cons a l)
+  then show ?case proof(induction i arbitrary:j)
+    case 0
+    then show ?case proof(induction j) qed(auto)
+  next
+    case (Suc i)
+    then show ?case proof(induction j) qed(auto)
+  qed
+qed
 end

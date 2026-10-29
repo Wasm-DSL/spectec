@@ -311,9 +311,6 @@ lemma list_all_zipWith:
   "list_all2 (\<lambda>a b. P (f a b)) xs ys \<Longrightarrow> list_all P (list_zipWith f xs ys)"
   by (induction rule: list_all2_induct) (simp_all add: list_zipWith_def)
 
-lemma list_all_list_slice: "list_all P l \<Longrightarrow> list_all P (list_slice l n m)"
-  by (induction l n m rule: list_slice.induct) auto
-
 lemma inv_lanes_setproduct_mem:
   "v \<in> set (map (inv_lanes_underscore sh) (setproduct_underscore xss)) \<Longrightarrow> wf_shape sh \<Longrightarrow>
    list_all (list_all (wf_lane_underscore (fun_lanetype sh))) xss \<Longrightarrow> wf_uN 128 v"
