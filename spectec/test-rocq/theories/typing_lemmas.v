@@ -142,7 +142,6 @@ match ai with
   | ((admininstr_TESTOP v_0 v_1)) => Some((TESTOP v_0 v_1))
   | ((admininstr_RELOP v_0 v_1)) => Some((RELOP v_0 v_1))
   | ((admininstr_CVTOP v_0 v_1 v_2)) => Some((CVTOP v_0 v_1 v_2))
-  | ((admininstr_EXTEND v_0 v_1)) => Some((instr_EXTEND v_0 v_1))
   | ((admininstr_VCONST v_0 v_1)) => Some((VCONST v_0 v_1))
   | ((admininstr_VVUNOP v_0 v_1)) => Some((VVUNOP v_0 v_1))
   | ((admininstr_VVBINOP v_0 v_1)) => Some((VVBINOP v_0 v_1))
@@ -618,7 +617,6 @@ match v_ai with
 	    (Expr_ok2 v_S (prepend_return v_C' t) v_ais (mk_list _ t)) /\
 		(v_n = (|t|))
 	| admininstr_TRAP => True
-	| (admininstr_EXTEND v_0 v_1) => False
 	| _ => True
 end.
 
@@ -682,7 +680,7 @@ Proof.
 		destruct v_instr.
 		all: unfold ai_principal_typing;
 		unfold admininstr_instr; eq_to_prop.
-		57: { (* LOAD *)
+		56: { (* LOAD *)
 			inversion H; subst. eq_to_prop.
 			{
 				eexists [valtype_I32], [valtype_numtype v_numtype]; split.
