@@ -163,37 +163,6 @@ termination isabelle_reference_output_wasm2.size
 termination isabelle_reference_output_wasm2.valtype_numtype
   by lexicographic_order
 
-(*
-lemma inv_cvtop_reinterpret:
-  assumes "Instr_ok C e tf"
-          "e = (instr_sc1 (CVTOP nt_1 nt_2 REINTERPRET))"
-  shows "
-      ((size (valtype_numtype nt_1)) \<noteq> None) \<and>
-      ((size (valtype_numtype nt_2)) \<noteq> None) \<and>
-      ((the ((size (valtype_numtype nt_1)))) = (the ((size (valtype_numtype nt_2))))) \<and>
-      ((mk_functype (mk_list [(valtype_numtype nt_2)]) (mk_list [(valtype_numtype nt_1)])) =
-         tf)"
-proof -
-have 
-  a: "Instr_ok C (instr_sc1 (CVTOP nt_1 nt_2 REINTERPRET)) tf" using assms by simp
-  show ?thesis using a 
-    apply (induction "C" "(instr_sc1 (CVTOP nt_1 nt_2 REINTERPRET))" 
-          tf arbitrary: nt_1 nt_2 rule: Instr_ok_Instrs_ok.inducts(1))
-  apply auto+
-  subgoal for C nt_1 nt_2
-    apply (induction nt_1) by simp+
-  subgoal for C nt_1 nt_2
-    apply (induction nt_2) by simp+
-  subgoal for C nt_1 nt_2
-    proof -
-      have "nt_1 = nt_2" sorry
-      then show ?thesis
-        by simp
-    qed
-  sorry
-qed
-*)
-
 lemma Instr_ok_inversion:
   assumes "Instr_ok C e tf"
   shows 
@@ -1018,29 +987,6 @@ next
   case (mk_Expr_ok2 s C admininstr_lst t_lst)
   then show ?case by simp
 qed 
-
-(*
-lemma Instr_ok2_const_ok: 
-  assumes "Instr_ok2 s C (admininstr_val v) (mk_functype (mk_list []) (mk_list [t]))" 
-  shows "Val_ok s v t"
-proof(cases v)
-  case (val_CONST nt val)
-  then have "Instr_ok C (instr_sc0 (res_CONST nt val)) (mk_functype (mk_list []) (mk_list [t]))"
-  then show ?thesis using Instrs_ok2_wf Instrs_ok2_wf_instr assms 
-next
-  case (val_VCONST x21 x22)
-  then show ?thesis sorry
-next
-  case (val_REF_NULL x3)
-  then show ?thesis sorry
-next
-  case (val_REF_FUNC_ADDR x4)
-  then show ?thesis sorry
-next
-  case (val_REF_HOST_ADDR x5)
-  then show ?thesis sorry
-qed
-*)
 
 lemma app_app:
   assumes "l1 @ l2 = m1 @ m2"

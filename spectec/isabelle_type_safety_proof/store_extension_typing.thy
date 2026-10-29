@@ -13,61 +13,6 @@ proof cases
   then show ?thesis by simp
 qed
 
-
-
-
-(* A few attempts at proving this lemma, MEM is the annoying case *)
-(* For now I was able to get away with using just the FUNC case, see stricter lemma below *)
-(*
-lemma store_extension_externaddrok:
-  assumes "Externaddr_ok s r rt"
-         (* "wf_store s'" *) 
-          "Extend_store s s'"
-        shows "Externaddr_ok s' r rt"
-  using assms
-proof cases
-  case (Externaddr_ok__global a v_globalinst)
-  show ?thesis using assms(2)
-  proof cases
-    case mk_Extend_store
-    then have ext: "Extend_globalinst (store_GLOBALS s ! a) (store_GLOBALS s' ! a)" by (meson holds_upto_def local.Externaddr_ok__global(3))
-    have alen: "a < length (store_GLOBALS s')" using mk_Extend_store by (meson holds_upto_def local.Externaddr_ok__global(3))
-    show ?thesis using ext
-    proof cases
-      case (mk_Extend_globalinst v_mut v_val val' t)
-      then show ?thesis using 
-          alen mk_Extend_store(20) Externaddr_ok.Externaddr_ok__global 
-          local.Externaddr_ok__global(1,2,4,6) by fastforce
-    qed
-  qed
-next
-  case (Externaddr_ok__mem a v_meminst)
-  show ?thesis using assms(2)
-  proof cases
-    case mk_Extend_store
-    then have ext: "Extend_meminst (store_MEMS s ! a) (store_MEMS s' ! a)" by (meson holds_upto_def local.Externaddr_ok__mem(3))
-    have alen: "a < length (store_MEMS s')" using mk_Extend_store by (meson holds_upto_def local.Externaddr_ok__mem(3))
-    show ?thesis using ext
-    proof cases
-      case (mk_Extend_meminst v_n n' b_lst b'_lst m_opt)
-      then show ?thesis using 
-          alen mk_Extend_store(20) Externaddr_ok.Externaddr_ok__mem local.Externaddr_ok__mem(1,2,4,6)
-        
-        
-    qed
-  qed
-    
-next
-  case (Externaddr_ok__table a v_tableinst)
-  then show ?thesis sorry
-next
-  case (Externaddr_ok__func a v_funcinst)
-  then show ?thesis sorry
-next
-  case (Externaddr_ok__sub xt')
-  then show ?thesis sorry
-qed
- *)
 (*
 
 lemma store_extension_externaddrok:
