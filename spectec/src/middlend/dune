@@ -21,5 +21,6 @@
     letintromech
     datatypediet
     singlepatternmatch
+    inductive_premises_diet
   )
 )

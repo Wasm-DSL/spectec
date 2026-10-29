@@ -34,6 +34,7 @@ type pass =
   | LetIntroMech
   | DatatypeDiet
   | SinglePatternMatch
+  | InductivePremisesDiet
 
 (* This list declares the intended order of passes.
 
@@ -59,7 +60,8 @@ let all_passes = [
   AliasDemut;
   ImproveIds;
   DatatypeDiet;
-  SinglePatternMatch
+  SinglePatternMatch;
+  InductivePremisesDiet
 ]
 
 type file_kind =
@@ -132,6 +134,7 @@ let pass_flag = function
   | LetIntroMech -> "let-intro-mech"
   | DatatypeDiet -> "datatype-diet"
   | SinglePatternMatch -> "single-pattern-match"
+  | InductivePremisesDiet -> "inductive-premises-diet"
 
 
 let pass_desc = function
@@ -151,8 +154,9 @@ let pass_desc = function
   | DefToRel -> "Transform specific function definitions into relations"
   | ElseSimp -> "Simplifies generated otherwise relations (after else pass)"
   | LetIntroMech -> "Let Premise introduction for mechanization backends"
-  | DatatypeDiet -> "Remove datatypes with over 50 constructors"
-  | SinglePatternMatch -> "Remove functions that pattern-match on several arguments"
+  | DatatypeDiet -> "Break down datatypes with over 50 constructors"
+  | SinglePatternMatch -> "Break down functions that pattern-match on several arguments"
+  | InductivePremisesDiet -> "Break down rules with over 50 premises in inductive definitions"
 
 
 let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
@@ -174,6 +178,7 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | ElseSimp -> Middlend.Elsesimp.transform
   | DatatypeDiet -> Middlend.Datatypediet.transform
   | SinglePatternMatch -> Middlend.Singlepatternmatch.transform
+  | InductivePremisesDiet -> Middlend.Inductive_premises_diet.transform
 
 
 (* Argument parsing - Specific for undep pass *)
@@ -288,7 +293,7 @@ let () =
     if !print_elab_il || !print_all_il then print_il il;
     print_il_to !last_pass !pass_count il;
     log "IL Validation...";
-    Il.Valid.valid il;
+    Il.Valid.valid il; 
 
     (match !target with
     | Prose _ | Splice _ | Interpreter _ ->
@@ -311,7 +316,8 @@ let () =
       enable_pass PatSimp;
       enable_pass LetIntroMech ; 
       enable_pass DatatypeDiet ;
-      enable_pass SinglePatternMatch
+      enable_pass SinglePatternMatch;
+      enable_pass InductivePremisesDiet
     | _ when !print_al || !print_al_o <> "" ->
       enable_pass Sideconditions;
     | _ -> ()
@@ -328,7 +334,7 @@ let () =
           if !print_all_il then print_il il;
           print_il_to !last_pass !pass_count il;
           log ("IL Validation after pass " ^ pass_flag pass ^ "...");
-          Il.Valid.valid il; 
+          Il.Valid.valid il;   
           il
         )
       ) il all_passes

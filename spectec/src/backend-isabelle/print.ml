@@ -766,7 +766,6 @@ let render_relation id typ rules =
   (List.map (fun rule ->
        match rule.it with
        | RuleD (rule_id, quants, _, exp, prems) ->
-
           let letprems, others = List.partition is_let prems in
           let quantl, _quantr = render_quants quants in
           let quantl = StringSet.of_list quantl in
