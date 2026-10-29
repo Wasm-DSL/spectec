@@ -213,10 +213,13 @@ let transform_rule a b typ rule =
                                $ rule.at])
                              $ rule_id.at)
                            prems_packeted in
-          let newprems = List.mapi (fun i _ -> IfPr (
-                                                   CallE (partial_name rule_id i,
-                                                          List.map (fun exp -> ExpA exp $ exp.at) (flatten_tuple_exp exp @ newexps))
-                                                   $$ (rule.at, BoolT $ rule.at)) $ no_region) prems_packeted in
+          let newprems = List.mapi (fun i _ -> RulePr (
+                                                   partial_name rule_id i,
+                                                   [],
+                                                   newb,
+                                                   expand_tuple_exp exp newexps newtype
+                                                 )
+                                                   $ rule.at) prems_packeted in
           RuleD (rule_id, quants, mixop, exp, newprems) $ rule.at , newdecls
 
 let rec collectr = function
