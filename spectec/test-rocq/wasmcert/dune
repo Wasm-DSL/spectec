@@ -1,0 +1,12 @@
+; Bridge between the SpecTec-generated Wasm 2.0 semantics (WasmSpectec) and
+; WasmCert-Coq (theory Wasm). Kept out of the test-rocq package so that
+; `opam install .` does not require WasmCert; build with `dune build ./wasmcert`.
+(coq.theory
+  (name WasmCertBridge)
+  (theories Stdlib mathcomp HB RecordUpdate elpi elpi_elpi Ltac2 Flocq
+            compcert ExtLib parseque Wasm WasmSpectec)
+  (flags -w -notation-overridden -w -abstract-large-number -w -ambiguous-paths
+         -w -unused-pattern-matching-variable -w -non-recursive
+         -w -deprecated-from-Coq -w -deprecated-missing-stdlib
+         -w -notation-incompatible-prefix -w -overwriting-delimiting-key
+         -w -hiding-delimiting-key))
