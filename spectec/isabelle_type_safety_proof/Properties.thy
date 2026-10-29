@@ -779,25 +779,6 @@ proof -
 qed
 
 (*Generic lemmas: updating a single store slot*)
-lemma list_update_func_out_of_range:
-  assumes "length xs \<le> i"
-  shows "list_update_func xs i g = xs"
-  using assms
-proof (induction xs arbitrary: i)
-  case Nil
-  then show ?case by simp
-next
-  case (Cons a xs)
-  then show ?case by (cases i) auto
-qed
-
-lemma list_all_list_update_func_gen:
-  assumes "list_all P xs"
-          "i < length xs \<Longrightarrow> P (g (xs ! i))"
-  shows "list_all P (list_update_func xs i g)"
-  using assms list_all_list_update_func list_update_func_out_of_range
-  by (metis not_le)
-
 lemma list_all2_list_update_func_gen:
   assumes "list_all2 P xs ys"
           "\<And>x y. P x y \<Longrightarrow> Q x y"
@@ -1183,9 +1164,6 @@ proof -
 qed
 
 lemma length_repeat: "length (repeat n x) = n"
-  by (induction n) auto
-
-lemma list_all_repeat: "P x \<Longrightarrow> list_all P (repeat n x)"
   by (induction n) auto
 
 lemma map_option_mk_uN_inj: "map_option mk_uN x = map_option mk_uN y \<Longrightarrow> x = y"

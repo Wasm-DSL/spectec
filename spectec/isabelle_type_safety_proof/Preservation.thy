@@ -64,12 +64,6 @@ next
 qed
 
 
-lemma list_all_repeat:
-  assumes "P x"
-  shows "list_all P (repeat n x)"
-  using assms proof(induction n)
-qed(simp)+
-
 lemma list_all_update:
   assumes "list_all P l" "P x" 
   shows "list_all P (list_update_func l k (\<lambda> _. x))"

@@ -118,4 +118,44 @@ proof -
     by simp
 qed
 
+
+lemma list_update_func_out_of_range:
+  assumes "length xs \<le> i"
+  shows "list_update_func xs i g = xs"
+  using assms
+proof (induction xs arbitrary: i)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons a xs)
+  then show ?case by (cases i) auto
+qed
+
+lemma list_all_list_update_func_gen:
+  assumes "list_all P xs"
+          "i < length xs \<Longrightarrow> P (g (xs ! i))"
+  shows "list_all P (list_update_func xs i g)"
+  using assms list_all_list_update_func list_update_func_out_of_range
+  by (metis not_le)
+
+lemma list_all_repeat: "P x \<Longrightarrow> list_all P (repeat n x)"
+  by (induction n) auto
+
+
+lemma list_all_list_slice:
+  assumes "list_all P l"
+  shows "list_all P (list_slice l i j)"
+  using assms proof(induction l arbitrary: i j)
+  case Nil
+  then show ?case by auto
+next
+  case (Cons a l)
+  then show ?case proof(induction i arbitrary:j)
+    case 0
+    then show ?case proof(induction j) qed(auto)
+  next
+    case (Suc i)
+    then show ?case proof(induction j) qed(auto)
+  qed
+qed
 end
