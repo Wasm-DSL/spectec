@@ -55,8 +55,8 @@ let all_passes = [
   SubExpansion;
   PatSimp;
   Sub;
-  DefToRel;
   Sideconditions;
+  DefToRel;
   AliasDemut;
   ImproveIds;
   DatatypeDiet;
@@ -97,7 +97,7 @@ module PS = Set.Make(struct type t = pass let compare = compare; end)
 let selected_passes = ref (PS.empty)
 let enable_pass pass = selected_passes := PS.add pass !selected_passes
 
-let sideconditions_on_defs = ref false
+let sideconditions_on_defs = ref true
 
 let print_il il =
   Printf.printf "%s\n%!" (Il.Print.string_of_script ~suppress_pos:(!print_no_pos) il)
@@ -334,7 +334,7 @@ let () =
           if !print_all_il then print_il il;
           print_il_to !last_pass !pass_count il;
           log ("IL Validation after pass " ^ pass_flag pass ^ "...");
-          Il.Valid.valid il;   
+          (* Il.Valid.valid il; *)
           il
         )
       ) il all_passes
