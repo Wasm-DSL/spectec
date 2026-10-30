@@ -81,6 +81,7 @@ let odsts = ref []   (* output file arguments *)
 
 let ast_width = ref Backend_ast.Config.default.width
 let latex_macros = ref false
+let rocq_namespace = ref ""
 
 let print_el = ref false
 let print_elab_il = ref false
@@ -238,7 +239,8 @@ let argspec = Arg.align (
   "--prose-rst", Arg.Unit (fun () -> target := Prose false), " Generate prose";
   "--interpreter", Arg.Rest_all (fun args -> target := Interpreter args),
     " Generate interpreter";
-  "--rocq", Arg.Unit (fun () -> target := Rocq), " Generate Rocq Inductive Definitions";
+  "--rocq", Arg.Unit (fun () -> target := Rocq), " Generate Rocq Inductive Definitions (-o main.v [wf.v]: well-formedness lemmas go to wf.v, default main_wf.v)";
+  "--rocq-namespace", Arg.Set_string rocq_namespace, " Logical path used by the Rocq well-formedness lemma file to import the main file";
   "--debug", Arg.Unit (fun () -> Backend_interpreter.Debugger.debug := true),
     " Debug interpreter";
   "--unified-vars", Arg.Unit (fun () -> Il2al.Unify.rename := false),
@@ -449,11 +451,20 @@ let () =
       log "Rocq Generation...";
       (match !odsts with
       | [] -> print_endline (Backend_rocq.Print.string_of_script il)
-      | [odst] -> 
-        let coq_code = Backend_rocq.Print.string_of_script il in
-        let oc = Out_channel.open_text odst in
-        Fun.protect (fun () -> Out_channel.output_string oc coq_code)
-          ~finally:(fun () -> Out_channel.close oc)
+      | [odst] | [odst; _] ->
+        let wf_odst = match !odsts with
+          | [_; wf_odst] -> wf_odst
+          | _ -> Filename.remove_extension odst ^ "_wf.v"
+        in
+        let main_module = Filename.(remove_extension (basename odst)) in
+        let coq_code, wf_code = Backend_rocq.Print.string_of_split_script !rocq_namespace main_module il in
+        let write_file file code =
+          let oc = Out_channel.open_text file in
+          Fun.protect (fun () -> Out_channel.output_string oc code)
+            ~finally:(fun () -> Out_channel.close oc)
+        in
+        write_file odst coq_code;
+        write_file wf_odst wf_code
       | _ ->
         prerr_endline "too many output file names";
         exit 2

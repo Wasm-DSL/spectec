@@ -908,12 +908,20 @@ let rec string_of_def has_endline recursive def =
     )
   | _ -> error def.at ("Unsupported def: " ^ Il.Print.string_of_def def)
 
-let exported_string = 
-  "(* Imported Code *)\n" ^
+let library_imports_string =
   "From Stdlib Require Import String List Unicode.Utf8 NArith QArith QArith.Qround.\n" ^
   "From mathcomp Require Import ssreflect eqtype ssrbool ssrfun seq.\n" ^
   "From HB Require Import structures.\n" ^
-  "From RecordUpdate Require Import RecordSet.\n" ^
+  "From RecordUpdate Require Import RecordSet.\n"
+
+let open_scopes_string =
+  "Open Scope wasm_scope.\n" ^
+  "Import ListNotations.\n" ^
+  "Import RecordSetNotations.\n\n"
+
+let exported_string =
+  "(* Imported Code *)\n" ^
+  library_imports_string ^
   "Declare Scope wasm_scope.\n\n" ^
   "Class Inhabited (T: Type) := { default_val : T }.\n\n" ^
   "Definition lookup_total {T: Type} {_: Inhabited T} (l: seq T) (n: N) : T :=\n" ^
@@ -1133,9 +1141,7 @@ let exported_string =
   "\tx == y -> x = y.\n" ^
   "Proof. by move/eqP. Qed.\n\n" ^
   "Hint Resolve eqb_eq : core.\n" ^
-  "Open Scope wasm_scope.\n" ^
-  "Import ListNotations.\n" ^
-  "Import RecordSetNotations.\n\n"
+  open_scopes_string
 
 let rec filter_def def = 
   match def.it with
@@ -1176,10 +1182,41 @@ let rec register_hints env def =
   | RecD defs -> List.iter (register_hints env) defs
   | _ -> ()
      
-let string_of_script (il : script) =
+let rec split_wf_lemmas defs =
+  List.fold_right (fun def (defs', wf_defs) ->
+    match def.it with
+    | RecD ds ->
+      let ds', wf_ds = split_wf_lemmas ds in
+      let wrap ds'' = if ds'' = [] then [] else [{def with it = RecD ds''}] in
+      (wrap ds' @ defs', wrap wf_ds @ wf_defs)
+    | _ when is_wf_lemma def -> (defs', def :: wf_defs)
+    | _ -> (def :: defs', wf_defs)
+  ) defs ([], [])
+
+let prepare_script (il : script) =
   !env_ref.il_env <- Il.Env.env_of_script il;
-  List.iter (register_hints !env_ref) il; 
-  let il' = Disamb.transform il in 
+  List.iter (register_hints !env_ref) il;
+  let il' = Disamb.transform il in
+  List.filter_map filter_def il'
+
+let render_defs defs = String.concat "" (List.map (string_of_def true false) defs)
+
+let string_of_script (il : script) =
   exported_string ^
   "(* Generated Code *)\n" ^
-  String.concat "" (List.filter_map filter_def il' |> List.map (string_of_def true false))
+  render_defs (prepare_script il)
+
+(* Renders the definitions and the well-formedness lemmas separately.
+   The latter imports the former through main_module (qualified by namespace, if non-empty) *)
+let string_of_split_script namespace main_module (il : script) =
+  let defs, wf_defs = split_wf_lemmas (prepare_script il) in
+  let from_namespace = if namespace = "" then "" else "From " ^ namespace ^ " " in
+  (exported_string ^
+  "(* Generated Code *)\n" ^
+  render_defs defs,
+  "(* Imported Code *)\n" ^
+  library_imports_string ^
+  from_namespace ^ "Require Import " ^ main_module ^ ".\n\n" ^
+  open_scopes_string ^
+  "(* Generated Well-Formedness Lemmas *)\n" ^
+  render_defs wf_defs)
