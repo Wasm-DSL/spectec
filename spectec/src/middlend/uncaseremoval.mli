@@ -46,3 +46,4 @@ Names were specifically chosen here for simplicity.
 *)
 
 val transform : Il.Ast.script -> Il.Ast.script
+val uncase_proj_hint_id : string

@@ -13,6 +13,7 @@ type target =
  | Prose of bool
  | Splice of Backend_splice.Config.t
  | Interpreter of string list
+ | Rocq
 
 type pass =
   | Sub
@@ -22,13 +23,17 @@ type pass =
   | TypeFamilyRemoval
   | Else
   | Undep
+  | DefToRel
   | SubExpansion
   | Uncaseremoval
   | AliasDemut
   | ImproveIds
   | Ite
+  | PatSimp
   | ElseSimp
   | LetIntroMech
+  | DatatypeDiet
+  | SinglePatternMatch
 
 (* This list declares the intended order of passes.
 
@@ -46,11 +51,15 @@ let all_passes = [
   Else;
   ElseSimp;
   Uncaseremoval;
-  Sideconditions;
   SubExpansion;
+  PatSimp;
   Sub;
+  DefToRel;
+  Sideconditions;
   AliasDemut;
-  ImproveIds
+  ImproveIds;
+  DatatypeDiet;
+  SinglePatternMatch
 ]
 
 type file_kind =
@@ -72,6 +81,7 @@ let odsts = ref []   (* output file arguments *)
 
 let ast_width = ref Backend_ast.Config.default.width
 let latex_macros = ref false
+let rocq_namespace = ref ""
 
 let print_el = ref false
 let print_elab_il = ref false
@@ -86,6 +96,7 @@ module PS = Set.Make(struct type t = pass let compare = compare; end)
 let selected_passes = ref (PS.empty)
 let enable_pass pass = selected_passes := PS.add pass !selected_passes
 
+let sideconditions_on_defs = ref false
 
 let print_il il =
   Printf.printf "%s\n%!" (Il.Print.string_of_script ~suppress_pos:(!print_no_pos) il)
@@ -112,12 +123,17 @@ let pass_flag = function
   | AliasDemut -> "alias-demut"
   | Else -> "else"
   | Undep -> "remove-indexed-types"
+  | DefToRel -> "definition-to-relation"
   | SubExpansion -> "sub-expansion"
   | Uncaseremoval -> "uncase-removal"
   | ImproveIds -> "improve-ids"
   | Ite -> "ite"
+  | PatSimp -> "pattern-simp"
   | ElseSimp -> "else-simplification"
   | LetIntroMech -> "let-intro-mech"
+  | DatatypeDiet -> "datatype-diet"
+  | SinglePatternMatch -> "single-pattern-match"
+
 
 let pass_desc = function
   | Sub -> "Synthesize explicit subtype coercions"
@@ -127,30 +143,49 @@ let pass_desc = function
   | TypeFamilyRemoval -> "Transform Type families into sum types"
   | Else -> "Eliminate the otherwise premise in relations"
   | Undep -> "Transform indexed types into types with well-formedness predicates"
+  | DefToRel -> "Transform specific function definitions into relations"
   | SubExpansion -> "Expands subtype matching"
   | Uncaseremoval -> "Eliminate the uncase expression"
   | AliasDemut -> "Lifts type aliases out of mutual groups"
   | ImproveIds -> "Disambiguates ids used from each other"
   | Ite -> "If-then-else introduction"
+  | PatSimp -> "Simplifies non-linear and definite iteration patterns"
   | ElseSimp -> "Simplifies generated otherwise relations (after else pass)"
   | LetIntroMech -> "Let Premise introduction for mechanization backends"
+  | DatatypeDiet -> "Remove datatypes with over 50 constructors"
+  | SinglePatternMatch -> "Remove functions that pattern-match on several arguments"
 
 
 let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | Sub -> Middlend.Sub.transform
   | Totalize -> Middlend.Totalize.transform
   | Unthe -> Middlend.Unthe.transform
-  | Sideconditions -> Middlend.Sideconditions.transform
+  | Sideconditions -> Middlend.Sideconditions.transform ~on_defs:!sideconditions_on_defs
   | TypeFamilyRemoval -> Middlend.Typefamilyremoval.transform
   | Else -> Middlend.Else.transform
   | Undep -> Middlend.Undep.transform
+  | DefToRel -> Middlend.Deftorel.transform
   | SubExpansion -> Middlend.Subexpansion.transform
   | Uncaseremoval -> Middlend.Uncaseremoval.transform
   | AliasDemut -> Middlend.AliasDemut.transform
   | ImproveIds -> Middlend.Improveids.transform
   | Ite -> Middlend.Ite.transform
+  | PatSimp -> Middlend.PatSimp.transform
   | LetIntroMech -> Middlend.Letintromech.transform
   | ElseSimp -> Middlend.Elsesimp.transform
+  | DatatypeDiet -> Middlend.Datatypediet.transform
+  | SinglePatternMatch -> Middlend.Singlepatternmatch.transform
+
+
+(* Argument parsing - Specific for undep pass *)
+let set_wf_state s =
+  Middlend.Undep.wf_state :=
+    match s with
+    | "minimal" -> Middlend.Undep.WfMinimal
+    | "all" -> Middlend.Undep.WfAll
+    | "none" -> Middlend.Undep.WfNone
+    | _ ->
+        raise (Arg.Bad "wf-state must be minimal, all, or none")
 
 (* Argument parsing *)
 
@@ -204,6 +239,8 @@ let argspec = Arg.align (
   "--prose-rst", Arg.Unit (fun () -> target := Prose false), " Generate prose";
   "--interpreter", Arg.Rest_all (fun args -> target := Interpreter args),
     " Generate interpreter";
+  "--rocq", Arg.Unit (fun () -> target := Rocq), " Generate Rocq Inductive Definitions (-o main.v [wf.v]: well-formedness lemmas go to wf.v, default main_wf.v)";
+  "--rocq-namespace", Arg.Set_string rocq_namespace, " Logical path used by the Rocq well-formedness lemma file to import the main file";
   "--debug", Arg.Unit (fun () -> Backend_interpreter.Debugger.debug := true),
     " Debug interpreter";
   "--unified-vars", Arg.Unit (fun () -> Il2al.Unify.rename := false),
@@ -224,7 +261,11 @@ let argspec = Arg.align (
   "--all-passes", Arg.Unit (fun () -> List.iter enable_pass all_passes)," Run all passes";
 
   "--test-version", Arg.Int (fun i -> Backend_interpreter.Construct.version := i; Il2al.Translate.version := i), " Wasm version to assume for tests (default: 3)";
-
+  "--wf-state", Arg.String set_wf_state, " Denotes the placement of wfness relations for the remove-indexed-types pass 
+    (default: minimal):
+    minimal: Places wfness premises for terms that do not appear in the conclusion
+    all: Places wfness premises whenever it encounters a term that needs it
+    none: Does not place any wfness premises";
   "-help", Arg.Unit ignore, "";
   "--help", Arg.Unit ignore, "";
 ] )
@@ -254,6 +295,22 @@ let () =
     (match !target with
     | Prose _ | Splice _ | Interpreter _ ->
       enable_pass Sideconditions;
+    | Rocq -> 
+      enable_pass Sideconditions;
+      enable_pass Totalize;
+      enable_pass Else;
+      enable_pass TypeFamilyRemoval;
+      enable_pass Undep;
+      enable_pass Uncaseremoval;
+      enable_pass Sub;
+      enable_pass SubExpansion;
+      enable_pass ImproveIds;
+      enable_pass AliasDemut;
+      enable_pass DefToRel;
+      enable_pass Ite;
+      enable_pass ElseSimp;
+      enable_pass PatSimp;
+      enable_pass LetIntroMech
     | _ when !print_al || !print_al_o <> "" ->
       enable_pass Sideconditions;
     | _ -> ()
@@ -280,7 +337,7 @@ let () =
     if !print_final_il && not !print_all_il then print_il il;
 
     let al =
-      if not !print_al && !print_al_o = "" && (!target = Check || !target = Ast || !target = Latex) then []
+      if not !print_al && !print_al_o = "" && (!target = Check || !target = Ast || !target = Latex || !target = Rocq) then []
       else (
         log "Translating to AL...";
         let interp = match !target with
@@ -390,6 +447,28 @@ let () =
       Backend_interpreter.Ds.init al;
       log "Interpreting...";
       Backend_interpreter.Runner.run args
+    | Rocq ->
+      log "Rocq Generation...";
+      (match !odsts with
+      | [] -> print_endline (Backend_rocq.Print.string_of_script il)
+      | [odst] | [odst; _] ->
+        let wf_odst = match !odsts with
+          | [_; wf_odst] -> wf_odst
+          | _ -> Filename.remove_extension odst ^ "_wf.v"
+        in
+        let main_module = Filename.(remove_extension (basename odst)) in
+        let coq_code, wf_code = Backend_rocq.Print.string_of_split_script !rocq_namespace main_module il in
+        let write_file file code =
+          let oc = Out_channel.open_text file in
+          Fun.protect (fun () -> Out_channel.output_string oc code)
+            ~finally:(fun () -> Out_channel.close oc)
+        in
+        write_file odst coq_code;
+        write_file wf_odst wf_code
+      | _ ->
+        prerr_endline "too many output file names";
+        exit 2
+      )
     );
     log "Complete."
   with
