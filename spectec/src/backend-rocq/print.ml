@@ -546,10 +546,58 @@ let render_params params =
 let render_match_args args =
   string_of_list_prefix " " ", " (render_arg LHS) args
 
-let string_of_eqtype_proof recursive (cant_do_equality: bool) id (quants : quant list) =
-  let quanters = render_quants quants in 
+(* Type parameters take a decider argument, so that nested occurrences inside
+   mutually recursive types can be decided by the recursive call *)
+let render_eq_dec_quant q = 
+  match q.it with
+  | TypP id -> 
+    let id' = render_id id.it in 
+    parens (id' ^ " : Type") ^ " " ^ parens (id' ^ "_eq_dec : forall (x y : " ^ id' ^ "), {x = y} + {x <> y}")
+  | _ -> render_quant RHS q
+
+(* The eqType instance of a type parameter provides its decider *)
+let render_eq_dec_arg q = 
+  match q.it with
+  | TypP id -> render_id id.it ^ " " ^ parens ("@eq_comparable " ^ render_id id.it)
+  | _ -> get_param_id q
+
+let string_of_eq_dec_header id quants = 
+  let id' = render_id id in 
+  id' ^ "_eq_dec" ^ string_of_list_prefix " " " " render_eq_dec_quant quants ^ 
+  " (v1 v2 : " ^ id' ^ render_quants_ids quants ^ ")"
+
+let string_of_eq_dec_proof (cant_do_equality : bool) tactic =
+  let proof = if cant_do_equality then "Admitted" else tactic ^ ". Defined" in
+  "Proof. " ^ proof ^ ".\n\n"
+
+let string_of_eqtype_instance id (quants : quant list) = 
+  (* Type parameters are quantified as eqTypes *)
+  let quanters = render_params quants in 
   let quanter_ids = render_quants_ids quants in
   let id' = render_id id in 
+  let eq_dec_app = id' ^ "_eq_dec" ^ string_of_list_prefix " " " " render_eq_dec_arg quants in
+  "Definition " ^ id' ^ "_eqb" ^ quanters ^ " (v1 v2 : " ^ id' ^ quanter_ids ^ ") : bool :=\n" ^
+  "\tis_left" ^ parens (eq_dec_app ^ " v1 v2") ^ ".\n" ^  
+  "Definition eq" ^ id' ^ "P" ^ quanters ^ " : Equality.axiom " ^ parens (id' ^ "_eqb" ^ quanter_ids) ^ " :=\n" ^
+  "\teq_dec_Equality_axiom " ^ parens (id' ^ quanter_ids) ^ " " ^ parens eq_dec_app ^ ".\n\n" ^
+  "HB.instance Definition _" ^ quanters ^ " := hasDecEq.Build " ^ parens (id' ^ quanter_ids) ^ " " ^ parens ("eq" ^ id' ^ "P" ^ quanter_ids) ^ ".\n" ^
+  "Hint Resolve " ^ id' ^ "_eq_dec : eq_dec_db" 
+
+let fixme_eq_dec cant_do_equality = 
+  if cant_do_equality then comment_parens "FIXME - No clear way to do decidable equality" ^ "\n" else ""
+
+(* Decidable equality proof for a group of mutually recursive types, 
+   proven together so that nested occurrences can use the recursive calls *)
+let string_of_mutual_eqtype_proof (cant_do_equality: bool) (typs : (string * quant list) list) =
+  let tactic = (if List.length typs > 1 then "all: " else "") ^ "decide equality; do ? decidable_equality_step" in
+  fixme_eq_dec cant_do_equality ^ 
+  "Fixpoint " ^ String.concat "\n\nwith " (List.map (fun (id, quants) -> 
+    string_of_eq_dec_header id quants ^ " {struct v1} :\n" ^
+    "  {v1 = v2} + {v1 <> v2}") typs) ^ ".\n" ^ 
+  string_of_eq_dec_proof cant_do_equality tactic ^
+  String.concat ".\n\n" (List.map (fun (id, quants) -> string_of_eqtype_instance id quants) typs)
+
+let string_of_eqtype_proof recursive (cant_do_equality: bool) id (quants : quant list) =
   (* Decidable equality proof *)
   (* e.g.
     Definition functype_eq_dec : forall (tf1 tf2 : functype),
@@ -561,27 +609,13 @@ let string_of_eqtype_proof recursive (cant_do_equality: bool) id (quants : quant
 
     HB.instance Definition _ := hasDecEq.Build (functype) (eqfunctypeP).
     *)
-  (if cant_do_equality then comment_parens "FIXME - No clear way to do decidable equality" ^ "\n" else "") ^
-  (match recursive with
-  | true -> 
-    
-    "Fixpoint " ^ id' ^ "_eq_dec" ^ quanters ^ " (v1 v2 : " ^ id' ^ quanter_ids ^ ") {struct v1} :\n" ^
-    "  {v1 = v2} + {v1 <> v2}.\n" ^
-    let proof = if cant_do_equality then "Admitted" else "decide equality; do ? decidable_equality_step. Defined" in
-    "Proof. " ^ proof ^ ".\n\n"
-  | false -> 
-    "Definition " ^ id' ^ "_eq_dec : forall" ^ quanters ^ " (v1 v2 : " ^ id' ^ quanter_ids ^ "),\n" ^
-    "  {v1 = v2} + {v1 <> v2}.\n" ^
-    
-    let proof = if cant_do_equality then "Admitted" else "do ? decidable_equality_step. Defined" in
-    "Proof. " ^ proof ^ ".\n\n") ^ 
-
-  "Definition " ^ id' ^ "_eqb" ^ quanters ^ " (v1 v2 : " ^ id' ^ quanter_ids ^ ") : bool :=\n" ^
-  "\tis_left" ^ parens (id' ^ "_eq_dec" ^ quanter_ids ^ " v1 v2") ^ ".\n" ^  
-  "Definition eq" ^ id' ^ "P" ^ quanters ^ " : Equality.axiom " ^ parens (id' ^ "_eqb" ^ quanter_ids) ^ " :=\n" ^
-  "\teq_dec_Equality_axiom " ^ parens (id' ^ quanter_ids) ^ " " ^ parens (id' ^ "_eq_dec" ^ quanter_ids) ^ ".\n\n" ^
-  "HB.instance Definition _" ^ quanters ^ " := hasDecEq.Build " ^ parens (id' ^ quanter_ids) ^ " " ^ parens ("eq" ^ id' ^ "P" ^ quanter_ids) ^ ".\n" ^
-  "Hint Resolve " ^ id' ^ "_eq_dec : eq_dec_db" 
+  if recursive then string_of_mutual_eqtype_proof cant_do_equality [(id, quants)] else
+  fixme_eq_dec cant_do_equality ^ 
+  "Definition " ^ render_id id ^ "_eq_dec : forall" ^ string_of_list_prefix " " " " render_eq_dec_quant quants ^ 
+  " (v1 v2 : " ^ render_id id ^ render_quants_ids quants ^ "),\n" ^
+  "  {v1 = v2} + {v1 <> v2}.\n" ^
+  string_of_eq_dec_proof cant_do_equality "do ? decidable_equality_step" ^ 
+  string_of_eqtype_instance id quants
 
 let string_of_relation_args typ = 
   string_of_list "" " -> " " -> " (render_type REL) (transform_case_typ typ)
@@ -684,8 +718,7 @@ let render_coercion (base_typ_id, typ_params) coerc_typ_id proj_func_id =
   "Global Instance " ^ proj_func_id ^ "_coercion" ^ render_params typ_params ^ " : Coercion " ^ base_typ_id ^ " " ^ coerc_typ_id ^ " := { coerce := " ^ proj_func_id ^ 
   string_of_list_prefix " " " " get_param_id typ_params ^ " }" 
 
-let cant_do_equality quants cases = 
-  (List.exists is_typ_quant quants) ||
+let cant_do_equality cases = 
   (List.exists (fun (_, (_, quants', _), _) -> List.exists is_typ_quant quants') cases)
   
 let render_case_typs t = 
@@ -702,7 +735,7 @@ let render_variant_typ is_recursive prefix id quants cases =
   (* Inhabitance proof *)
   ".\n\n" ^ inhabitance_proof id quants cases ^
   (* Eq proof *)
-  ".\n\n" ^ string_of_eqtype_proof is_recursive (cant_do_equality quants cases) id quants
+  ".\n\n" ^ string_of_eqtype_proof is_recursive (cant_do_equality cases) id quants
 
 let render_extra_clause params = 
   "|" ^ string_of_list_prefix " " ", " (fun _ -> "_") params ^ " => default_val"
@@ -779,12 +812,20 @@ let render_rel_axiom prefix id typ =
 let render_global_declaration id typ exp = 
   "Definition " ^ id ^ " : " ^ render_type RHS typ ^ " := " ^ render_exp RHS exp
 
-let render_extra_info def = 
+let get_variant_typ def = 
   match def.it with
-  | TypD (id, _, [{it = InstD (quants, _, {it = VariantT typcases; _}); _}]) -> 
-    Some (inhabitance_proof id.it quants typcases ^ ".\n\n" ^
-    string_of_eqtype_proof true (cant_do_equality quants typcases) id.it quants)
+  | TypD (id, _, [{it = InstD (quants, _, {it = VariantT typcases; _}); _}]) -> Some (id.it, quants, typcases)
   | _ -> None
+
+(* Inhabitance proofs and a single mutual decidable equality proof for all variant types *)
+let render_extra_info defs = 
+  match List.filter_map get_variant_typ defs with
+  | [] -> None
+  | typs -> 
+    Some (String.concat ".\n\n" (List.map (fun (id, quants, typcases) -> inhabitance_proof id quants typcases) typs) ^ ".\n\n" ^
+    string_of_mutual_eqtype_proof 
+      (List.exists (fun (_, _, typcases) -> cant_do_equality typcases) typs) 
+      (List.map (fun (id, quants, _) -> (id, quants)) typs))
 
 let has_prems c = 
   let only_otherwise_or_let prems =
@@ -846,7 +887,7 @@ let rec string_of_def has_endline recursive def =
         List.map (string_of_def true true) defs
       )
     | [d] -> 
-      let extra_info = render_extra_info d in
+      let extra_info = render_extra_info [d] in
       start_prefix d ^ 
       string_of_def false true d ^
       begin match extra_info with
@@ -855,12 +896,15 @@ let rec string_of_def has_endline recursive def =
       end
     | (d :: _) -> 
       let prefix = "\n\nwith\n\n" in
-      let extra_info = String.concat ".\n\n" (List.filter_map render_extra_info defs) in
+      let extra_info = render_extra_info defs in
       start_prefix d ^ 
       String.concat prefix (
         List.map (string_of_def false true) defs
       ) ^ ".\n\n" ^ 
-      extra_info ^ if extra_info = "" then "" else end_newline
+      begin match extra_info with
+      | None -> ""
+      | Some s -> s ^ end_newline
+      end
     )
   | _ -> error def.at ("Unsupported def: " ^ Il.Print.string_of_def def)
 
