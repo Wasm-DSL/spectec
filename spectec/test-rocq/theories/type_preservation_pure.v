@@ -6,7 +6,7 @@ Require Import Stdlib.Program.Equality.
 Declare Scope wasm_scope.
 Open Scope wasm_scope.
 Import RecordSetNotations.
-From WasmSpectec Require Import wasm helper_lemmas helper_tactics typing_lemmas subtyping.
+From WasmSpectec Require Import wasm wasm_wf helper_lemmas helper_tactics typing_lemmas subtyping.
 From mathcomp Require Import ssreflect ssrfun ssrbool seq eqtype ssrnat.
 Import ListNotations.
 Require Import Lia.

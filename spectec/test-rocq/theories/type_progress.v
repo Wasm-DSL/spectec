@@ -7,7 +7,7 @@ Import ListNotations.
 Import RecordSetNotations.
 (* TODO: Is Notation global? *)
 (* TODO: Is Coercion global? *)
-From WasmSpectec Require Import wasm.
+From WasmSpectec Require Import wasm wasm_wf.
 
 From WasmSpectec Require Import helper_lemmas helper_tactics typing_lemmas extension_lemmas subtyping axioms.
 From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype.

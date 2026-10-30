@@ -6,7 +6,7 @@ Require Import Stdlib.Program.Equality.
 Declare Scope wasm_scope.
 Open Scope wasm_scope.
 Import RecordSetNotations.
-From WasmSpectec Require Import wasm helper_lemmas helper_tactics typing_lemmas subtyping type_preservation_pure extension_lemmas axioms.
+From WasmSpectec Require Import wasm wasm_wf helper_lemmas helper_tactics typing_lemmas subtyping type_preservation_pure extension_lemmas axioms.
 From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype.
 Import ListNotations.
 
