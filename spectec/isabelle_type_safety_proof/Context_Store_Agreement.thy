@@ -29,37 +29,35 @@ lemma t_inst_match_is:
 
 
 
+lemma Moduleinst_ok_types:
+  assumes "Moduleinst_ok s i C"
+  shows "TYPES i = context_TYPES C"
+  using assms by (induction rule:Moduleinst_ok.induct) simp
+
+lemma context_types_agree:
+  assumes "Moduleinst_ok s (frame_MODULE f) C"
+          "t_inst_match C C'"
+          "proj_uN_0 x < length (context_TYPES C')"
+        shows "fun_type (mk_state s f) x (context_TYPES C' ! proj_uN_0 x)"
+proof -
+  have "TYPES (frame_MODULE f) = context_TYPES C'"
+    using assms(1,2) Moduleinst_ok_types t_inst_match_def by metis
+  then show ?thesis using assms(3) fun_type_case_0[of x f s] by simp
+qed
+
 lemma blocktype_ok_agree:
   assumes "Blocktype_ok C' bt tf"
     "Moduleinst_ok s (frame_MODULE f) C"
     "t_inst_match C C'"
-  shows "fun_blocktype (mk_state s f) bt = tf"
+  shows "fun_blocktype (mk_state s f) bt tf"
   using assms
 proof(induction C' bt tf rule:Blocktype_ok.induct)
   case (Blocktype_ok__valtype C valtype_opt)
-  then show ?case 
-  proof (cases valtype_opt)
-    case None
-    then show ?thesis using Blocktype_ok__valtype fun_blocktype.domintros 
-       fun_blocktype.psimps by auto
-  next
-    case (Some a)
-    then show ?thesis using Blocktype_ok__valtype fun_blocktype.domintros
-fun_blocktype.psimps by auto
-  qed
+  then show ?case
+    by (cases valtype_opt) (auto intro: fun_blocktype.intros)
 next
   case (Blocktype_ok__typeidx v_typeidx C' t_1_lst t_2_lst)
-  then have sametypes: "context_TYPES C' = context_TYPES C" using t_inst_match_def by simp
-  show ?case using Blocktype_ok__typeidx(5,1,2,3,4,6) fun_blocktype.domintros(3) fun_blocktype.psimps(3)
-      fun_type.domintros fun_type.psimps sametypes
-  proof (induction s "frame_MODULE f" C rule:Moduleinst_ok.induct)
-    case (mk_Moduleinst_ok functype_lst globaladdr_lst globaltype_lst s funcaddr_lst 
-          functype_F_lst memaddr_lst memtype_lst tableaddr_lst tabletype_lst exportinst_lst 
-          dataaddr_lst datatype_lst elemaddr_lst elemtype_lst)
-    then have "TYPES (frame_MODULE f) ! proj_uN_0 v_typeidx = context_TYPES C' ! proj_uN_0 v_typeidx"
-      by (metis moduleinst.select_convs(1) res_context.select_convs(1))
-    then show ?case using mk_Moduleinst_ok by metis
-  qed
+  then show ?case using context_types_agree fun_blocktype_case_2 by metis
 qed
 
 
@@ -134,18 +132,6 @@ next
   qed
 qed
 
-
-lemma context_types_agree:
-  assumes "Moduleinst_ok s (frame_MODULE f) C" 
-          "t_inst_match C C'"
-        shows "context_TYPES C' ! proj_uN_0 x = fun_type (mk_state s f) x"
-  using assms proof(induction s "frame_MODULE f" C rule:Moduleinst_ok.induct)
-  case (mk_Moduleinst_ok functype_lst globaladdr_lst globaltype_lst s funcaddr_lst 
-          functype_F_lst memaddr_lst memtype_lst tableaddr_lst tabletype_lst exportinst_lst 
-          dataaddr_lst datatype_lst elemaddr_lst elemtype_lst)
-  then show ?case using t_inst_match_def fun_type.psimps fun_type.domintros 
-    by (metis moduleinst.select_convs(1) res_context.select_convs(1))
-qed
 
 lemma context_funcs_agree:
   assumes "context_FUNCS C' ! x = tf" 
