@@ -75,6 +75,7 @@ lemma inv_signed_bound: "fun_inv_signed_underscore N i j \<Longrightarrow> wf_uN
 lemma wf_num_I32: "wf_uN 32 x \<Longrightarrow> wf_num_underscore I32 (mk_num__0 Inn_I32 x)"
   using num__case_0[of Inn_I32 x I32] by (simp add: wf_proj_simps)
 
+(*
 (* wf_fN N requires fun_E N and fun_M N, which are only defined for N = 32 and N = 64 *)
 lemma wf_fN_fzero:
   assumes "N = 32 \<or> N = 64"
@@ -86,6 +87,7 @@ proof -
   then show ?thesis
     by (auto simp: fzero.psimps fzero.domintros intro!: fN_case_0 fNmag_case_1)
 qed
+*)
 
 lemma testop_wf_I32:
   "fun_testop_underscore nt op n (Some r) \<Longrightarrow> wf_num_underscore I32 r"
@@ -425,14 +427,6 @@ inductive_cases wf_instr_DATA_DROP_E: "wf_instr (instr_sc7 (DATA_DROP x))"
 (* ===== END hand-written helpers ===== *)
 
 (* ===== BEGIN copy of generated well-formedness lemmas ===== *)
-
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/1-syntax.spectec:68.6-68.12 *)
-lemma fzero_is_wf :
-	"(ret_val = (fzero v_N)) \<Longrightarrow>
-	 (wf_fN v_N ret_val)"
-  (* Not provable as generated: wf_fN v_N needs fun_E v_N and fun_M v_N, which only hold for
-     v_N = 32 and v_N = 64 (see wf_fN_fzero) *)
-sorry
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/1-syntax.spectec:281.6-281.11 *)
 lemma zero_is_wf :

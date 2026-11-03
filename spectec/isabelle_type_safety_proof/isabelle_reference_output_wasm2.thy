@@ -336,10 +336,11 @@ type_synonym f32 = "fN"
 (* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:66.1-66.20 *)
 type_synonym f64 = "fN"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:68.1-68.39 *)
-function (sequential, domintros) fzero :: "N \<Rightarrow> fN" where
-		  "fzero v_N = (POS (SUBNORM 0))"
-	by pat_completeness auto
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:68.6-68.12 *)
+inductive fun_fzero :: "N \<Rightarrow> fN \<Rightarrow> bool" where
+	  fun_fzero_case_0 :
+		"(wf_fN v_N (POS (SUBNORM 0))) \<Longrightarrow>
+		 fun_fzero v_N (POS (SUBNORM 0))"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:71.6-71.11 *)
 inductive fun_fone :: "N \<Rightarrow> fN \<Rightarrow> bool" where
@@ -923,11 +924,13 @@ inductive fun_zero :: "numtype \<Rightarrow> num_underscore \<Rightarrow> bool" 
 	| fun_zero_case_1 :
 		"fun_zero I64 (mk_num__0 Inn_I64 (mk_uN 0))"
 	| fun_zero_case_2 :
-		"((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
-		 fun_zero F32 (mk_num__1 Fnn_F32 (fzero (the ((size (valtype_Fnn Fnn_F32))))))"
+		"(fun_fzero (the ((size (valtype_Fnn Fnn_F32)))) var_0) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F32)) \<noteq> None) \<Longrightarrow>
+		 fun_zero F32 (mk_num__1 Fnn_F32 var_0)"
 	| fun_zero_case_3 :
-		"((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
-		 fun_zero F64 (mk_num__1 Fnn_F64 (fzero (the ((size (valtype_Fnn Fnn_F64))))))"
+		"(fun_fzero (the ((size (valtype_Fnn Fnn_F64)))) var_0) \<Longrightarrow>
+		 ((size (valtype_Fnn Fnn_F64)) \<noteq> None) \<Longrightarrow>
+		 fun_zero F64 (mk_num__1 Fnn_F64 var_0)"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:288.1-288.42 *)
 datatype sx =
@@ -11069,17 +11072,44 @@ inductive wf_config :: "config \<Rightarrow> bool" where
 		 list_all (\<lambda> (v_admininstr :: admininstr). (wf_admininstr v_admininstr)) admininstr_lst \<Longrightarrow>
 		 wf_config (mk_config v_state admininstr_lst)"
 
-(* Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:7.1-7.43 *)
-function (sequential, domintros) default_underscore :: "valtype \<Rightarrow> (val option)" where
-		  "default_underscore valtype_I32 = (Some (val_CONST I32 (mk_num__0 Inn_I32 (mk_uN 0))))"
-		| "default_underscore valtype_I64 = (Some (val_CONST I64 (mk_num__0 Inn_I64 (mk_uN 0))))"
-		| "default_underscore valtype_F32 = (Some (val_CONST F32 (mk_num__1 Fnn_F32 (fzero (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0))))))))))))))))))))))))))))))))))))"
-		| "default_underscore valtype_F64 = (Some (val_CONST F64 (mk_num__1 Fnn_F64 (fzero (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))"
-		| "default_underscore valtype_V128 = (Some (val_VCONST V128 (mk_uN 0)))"
-		| "default_underscore valtype_FUNCREF = (Some (val_REF_NULL FUNCREF))"
-		| "default_underscore valtype_EXTERNREF = (Some (val_REF_NULL EXTERNREF))"
-		| "default_underscore x0 = None"
-	by pat_completeness auto
+(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 *)
+inductive fun_default__before_fun_default__case_7 :: "valtype \<Rightarrow> bool" where
+	  fun_default__case_6 :
+		"fun_default__before_fun_default__case_7 valtype_EXTERNREF"
+	| fun_default__case_5 :
+		"fun_default__before_fun_default__case_7 valtype_FUNCREF"
+	| fun_default__case_4 :
+		"fun_default__before_fun_default__case_7 valtype_V128"
+	| fun_default__case_3 :
+		"fun_default__before_fun_default__case_7 valtype_F64"
+	| fun_default__case_2 :
+		"fun_default__before_fun_default__case_7 valtype_F32"
+	| fun_default__case_1 :
+		"fun_default__before_fun_default__case_7 valtype_I64"
+	| fun_default__case_0 :
+		"fun_default__before_fun_default__case_7 valtype_I32"
+
+(* Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 *)
+inductive fun_default_underscore :: "valtype \<Rightarrow> (val option) \<Rightarrow> bool" where
+	  fun_default___fun_default__case_0 :
+		"fun_default_underscore valtype_I32 (Some (val_CONST I32 (mk_num__0 Inn_I32 (mk_uN 0))))"
+	| fun_default___fun_default__case_1 :
+		"fun_default_underscore valtype_I64 (Some (val_CONST I64 (mk_num__0 Inn_I64 (mk_uN 0))))"
+	| fun_default___fun_default__case_2 :
+		"(fun_fzero 32 var_0) \<Longrightarrow>
+		 fun_default_underscore valtype_F32 (Some (val_CONST F32 (mk_num__1 Fnn_F32 var_0)))"
+	| fun_default___fun_default__case_3 :
+		"(fun_fzero 64 var_0) \<Longrightarrow>
+		 fun_default_underscore valtype_F64 (Some (val_CONST F64 (mk_num__1 Fnn_F64 var_0)))"
+	| fun_default___fun_default__case_4 :
+		"fun_default_underscore valtype_V128 (Some (val_VCONST V128 (mk_uN 0)))"
+	| fun_default___fun_default__case_5 :
+		"fun_default_underscore valtype_FUNCREF (Some (val_REF_NULL FUNCREF))"
+	| fun_default___fun_default__case_6 :
+		"fun_default_underscore valtype_EXTERNREF (Some (val_REF_NULL EXTERNREF))"
+	| fun_default__case_7 :
+		"(~(fun_default__before_fun_default__case_7 x0)) \<Longrightarrow>
+		 fun_default_underscore x0 None"
 
 (* Mutual Recursion at: ../specification/wasm-2.0/5-runtime-aux.spectec:20.1-20.63 *)
 inductive fun_funcsxa :: "(externaddr list) \<Rightarrow> (funcaddr list) \<Rightarrow> bool" where
@@ -12644,14 +12674,15 @@ inductive Step_read :: "config \<Rightarrow> (admininstr list) \<Rightarrow> boo
 		"(~(Step_read_before_call_indirect_trap (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CALL_INDIRECT x y))]))) \<Longrightarrow>
 		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CALL_INDIRECT x y))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| call_addr :
-		"(a < (length (fun_funcinst z))) \<Longrightarrow>
+		"list_all2 (\<lambda> (var_0 :: (val option)) (t :: valtype). (fun_default_underscore t var_0)) var_0_lst t_lst \<Longrightarrow>
+		 (a < (length (fun_funcinst z))) \<Longrightarrow>
 		 (((fun_funcinst z) ! a) = \<lparr> funcinst_TYPE = (mk_functype (mk_list t_1_lst) (mk_list t_2_lst)), funcinst_MODULE = mm, CODE = v_func \<rparr>) \<Longrightarrow>
 		 (v_func = (func_FUNC x (map (\<lambda> (t :: valtype). (LOCAL t)) t_lst) instr_lst)) \<Longrightarrow>
-		 list_all (\<lambda> (t :: valtype). ((default_underscore t) \<noteq> None)) t_lst \<Longrightarrow>
-		 (f = \<lparr> LOCALS = (val_lst @ (map (\<lambda> (t :: valtype). (the ((default_underscore t)))) t_lst)), frame_MODULE = mm \<rparr>) \<Longrightarrow>
+		 list_all (\<lambda> (var_0 :: (val option)). (var_0 \<noteq> None)) var_0_lst \<Longrightarrow>
+		 (f = \<lparr> LOCALS = (val_lst @ (map (\<lambda> (var_0 :: (val option)). (the (var_0))) var_0_lst)), frame_MODULE = mm \<rparr>) \<Longrightarrow>
 		 (wf_funcinst \<lparr> funcinst_TYPE = (mk_functype (mk_list t_1_lst) (mk_list t_2_lst)), funcinst_MODULE = mm, CODE = v_func \<rparr>) \<Longrightarrow>
 		 (wf_func (func_FUNC x (map (\<lambda> (t :: valtype). (LOCAL t)) t_lst) instr_lst)) \<Longrightarrow>
-		 (wf_frame \<lparr> LOCALS = (val_lst @ (map (\<lambda> (t :: valtype). (the ((default_underscore t)))) t_lst)), frame_MODULE = mm \<rparr>) \<Longrightarrow>
+		 (wf_frame \<lparr> LOCALS = (val_lst @ (map (\<lambda> (var_0 :: (val option)). (the (var_0))) var_0_lst)), frame_MODULE = mm \<rparr>) \<Longrightarrow>
 		 (k = (length val_lst)) \<Longrightarrow>
 		 (k = (length t_1_lst)) \<Longrightarrow>
 		 (v_n = (length t_2_lst)) \<Longrightarrow>
@@ -14062,6 +14093,5 @@ inductive fun_typesofvals :: "(val list) \<Rightarrow> (valtype list) \<Rightarr
 		"((length val_lst) = (length valtype_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (val_10 :: val) (valtype_215 :: valtype). ((typeofval val_10) = valtype_215)) val_lst valtype_lst \<Longrightarrow>
 		 fun_typesofvals val_lst valtype_lst"
-
 
 end
