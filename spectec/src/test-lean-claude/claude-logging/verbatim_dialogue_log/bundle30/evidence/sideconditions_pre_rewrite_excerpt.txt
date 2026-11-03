@@ -1,0 +1,47 @@
+# Sideconditions before the January 2026 walker rewrite (git show 41dd386e9^:spectec/src/middlend/sideconditions.ml), iteration handling
+  | CallE (_, args)
+  -> List.concat_map (t_arg env) args
+  | StrE fields
+  -> List.concat_map (fun (_, e) -> t_exp env e) fields
+  | TupE es | ListE es
+  -> List.concat_map (t_exp env) es
+  | IterE (e1, iterexp)
+  ->
+    t_iterexp env iterexp @
+    let env' = env_under_iter env iterexp in
+    List.map (fun pr -> iterPr (pr, iterexp) $ e.at) (t_exp env' e1)
+  | IfE (e1, e2, e3)
+  -> t_exp env e1 @ t_exp env e2 @ t_exp env e3
+     (* One could make the side-conditions from e2 and e3 have e1 or its negation as a premise *)
+
+and t_iterexp env (iter, _) = t_iter env iter
+
+and t_iter env = function
+  | ListN (e, _) -> t_exp env e
+  | _ -> []
+
+and t_path env path = match path.it with
+  | RootP -> []
+  | IdxP (path, e) -> t_path env path @ t_exp env e
+  | SliceP (path, e1, e2) -> t_path env path @ t_exp env e1 @ t_exp env e2
+  | DotP (path, _) -> t_path env path
+
+and t_arg env arg = match arg.it with
+  | ExpA exp -> t_exp env exp
+  | TypA _ -> []
+  | DefA _ -> []
+  | GramA _ -> []
+
+
+let rec t_prem env prem =
+  (match prem.it with
+  | RulePr (_, _, exp) -> t_exp env exp
+  | IfPr e -> t_exp env e
+  | LetPr (e1, e2, _) -> t_exp env e1 @ t_exp env e2
+  | ElsePr -> []
+  | IterPr (prem, iterexp)
+  -> iter_side_conditions env iterexp @
+     t_iterexp env iterexp @
+     let env' = env_under_iter env iterexp in
+     List.map (fun pr -> iterPr (pr, iterexp) $ prem.at) (t_prem env' prem)
+  | NegPr _prem' -> 

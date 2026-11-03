@@ -1,0 +1,3 @@
+'vunop__is_wf_v' depends on axioms: [inv_lanes__is_wf, lanes__is_wf, propext, Quot.sound]
+'vbinop__is_wf_v' depends on axioms: [inv_lanes__is_wf, lanes__is_wf, propext, Quot.sound]
+WALL 1.19 s  MAXRSS 1667588 KB

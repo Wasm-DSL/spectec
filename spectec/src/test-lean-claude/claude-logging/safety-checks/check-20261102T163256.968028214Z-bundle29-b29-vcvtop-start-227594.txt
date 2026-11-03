@@ -1,0 +1,21 @@
+=== bundle29 safety check [b29-vcvtop-start] at 20261102T163256.968028214Z (pid 227594); baseline marker 2026-11-02T16:21:51Z
+Allowed to change this turn: spectec/src/test-lean-claude/wasm2.0.lean and spectec/src/test-lean-claude/claude-logging/**
+--- 1. git status (porcelain, lock-free) vs bundle29 baseline (lines: < baseline, > now)
+68a69,71
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261102T162151.480714566Z-bundle29-start-225864.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261102T163252.641448348Z-bundle29-b29-vunop-vbinop-start-227467.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261102T163254.647102350Z-bundle29-b29-stepread-start-227523.txt
+75a79
+> ?? spectec/src/test-lean-claude/claude-logging/verbatim_dialogue_log/bundle29/
+--- 2. HEAD
+HEAD unchanged (810776a7e392b0a3a648ca98eeea79884d937fea)
+--- 3. paths in the repo (outside .git) modified or created after the marker, excluding claude-logging
+(0 paths; expected at most ./spectec/src/test-lean-claude/wasm2.0.lean and ./spectec/src/test-lean-claude)
+--- 4. .git entries (depth <= 2) modified after the marker
+(0 paths)
+--- 5. content checksums under spectec/src/test-lean-claude (except .lake/packages and claude-logging) vs baseline
+(files at baseline excl. logging: 122, now: 122)
+--- 6. .lake/packages entries (depth <= 2): mtimes vs baseline
+IDENTICAL
+--- 7. verdict
+OK: nothing outside wasm2.0.lean and claude-logging changed since the baseline

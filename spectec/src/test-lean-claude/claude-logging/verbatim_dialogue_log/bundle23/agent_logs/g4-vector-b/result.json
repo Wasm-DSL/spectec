@@ -1,0 +1,129 @@
+{
+ "theorems": [
+  {
+   "name": "vrelop__is_wf",
+   "status": "proved",
+   "proof": ":= by\n  intro h _ _ _ _ hne heq; subst heq\n  cases h <;> first\n    | exact absurd rfl hne\n    | (subst_vars; exact iswf_inv_lanes_of_Forall_Map (by assumption) (by assumption))",
+   "uses_default": false,
+   "notes": "Every non-none case (0-35) ends in v128 = inv_lanes_ sh (Map f lane_3_lst) and has the premises wf_shape sh and Forall (fun e => wf_lane_ (fun_lanetype sh) (f e)) lane_3_lst. After subst_vars, iswf_inv_lanes_of_Forall_Map closes it by assumption. case_36 (result none) contradicts var_0 ≠ none. Option.get! is only ever applied to `some v128`. Axioms: inv_lanes__is_wf (generated), propext, Quot.sound."
+  },
+  {
+   "name": "lcvtop___is_wf",
+   "status": "proved",
+   "proof": ":= by\n  intro h _ _ _ hl hne heq; subst heq\n  cases h <;> (try exact absurd rfl hne) <;> subst_vars <;> first\n    | exact iswf_Forall_cons (wf_lane_.lane__case_0 _ _ _ _ (iswf_fun_lsizenn2_lsize ‹_›)\n        (extend___is_wf _ _ _ _ _ (iswf_lane0_payload hl (iswf_fun_lsizenn1_lsize ‹_›)) rfl) rfl) (iswf_Forall_nil _)\n    | exact iswf_Forall_cons (iswf_lane1_mk (iswf_fun_lsizenn2_lsize ‹_›)\n        (convert___is_wf _ _ _ _ _ (iswf_lane0_payload hl (iswf_fun_lsizenn1_lsize ‹_›)) rfl) rfl) (iswf_Forall_nil _)\n    | exact iswf_Forall_list_OMap_lane0 (iswf_fun_lsizenn2_lsize ‹_›) rfl\n        (trunc_sat___is_wf _ _ _ _ _ (iswf_lane1_payload hl (iswf_fun_lsizenn1_lsize ‹_›)) rfl)\n    | exact iswf_Forall_Map_lane1 (iswf_fun_lsizenn2_lsize ‹_›) rfl\n        (demote___is_wf _ _ _ _ (iswf_lane1_payload hl (iswf_fun_lsizenn1_lsize ‹_›)) rfl)\n    | exact iswf_Forall_Map_lane1 (iswf_fun_lsizenn2_lsize ‹_›) rfl\n        (promote___is_wf _ _ _ _ (iswf_lane1_payload hl (iswf_fun_lsizenn1_lsize ‹_›)) rfl)",
+   "uses_default": false,
+   "notes": "Uniform dispatch over 5 kinds of case: EXTEND 0-15, CONVERT 16-23, TRUNC_SAT 24-27, DEMOTE 28-31, PROMOTE 32-35. Every case has exactly one fun_lsizenn1 premise (input size M) and one fun_lsizenn2 premise (output size N), which ‹_› picks up. The input lane's own size is matched to M by determinism (iswf_lane0_payload / iswf_lane1_payload), with no default involved. Axioms: generated extend___is_wf, convert___is_wf, trunc_sat___is_wf, demote___is_wf, promote___is_wf, plus propext, Quot.sound. The proof needs no iswf_Forall_map (it sits after this theorem in the probe module)."
+  },
+  {
+   "name": "vcvtop___is_wf",
+   "status": "not_proved",
+   "proof": "",
+   "uses_default": false,
+   "notes": "Unprovable as generated. Regenerated fun_vcvtop__ cases 0, 1 and 2 lost the premise (List.length var_2_lst) = (List.length c_1_lst) (resp. var_1_lst) that the old model had; the old proof used it (h0). Forall₂ is defined over zip, so elements of var_k_lst beyond |c_1_lst| are constrained only by ≠ none. Their Option.get! lists still enter setproduct_ and then the opaque inv_lanes_, whose only axiom, inv_lanes__is_wf, needs every lane to be well formed. Machine-checked, sorry-free (E1.lean): the generated statement implies wf_uN 128 (inv_lanes_ f32x4 (Map conv (lanes_ i32x4 v) ++ [bad])) for EVERY lane `bad`, i.e. that the opaque inv_lanes_ never returns 2^128 on such a list. No axiom of the model determines that. The derivation is a case_0 instance (i32x4→f32x4 CONVERT) with one extra element some [bad] in var_2_lst. Conversely (E2.lean), on a local copy of fun_vcvtop__ with the length premise restored, the generated statement is proved: ev_vcvtop___is_wf_with_lengths, using lcvtop___is_wf, packnum__is_wf and zero_is_wf. So the missing side condition is the only obstacle; no Inhabited default is involved either way."
+  },
+  {
+   "name": "vextunop___is_wf",
+   "status": "proved",
+   "proof": ":= by\n  intro h _ _ _ _ hne heq; subst heq\n  cases h <;> first\n    | exact absurd rfl hne\n    | (subst_vars; exact iswf_inv_lanes_of_Forall₂_Map₂ (by assumption) (by assumption))",
+   "uses_default": false,
+   "notes": "All 16 non-none cases: c = inv_lanes_ sh2 (Map₂ f cj_1_lst cj_2_lst) with wf_shape sh2 and Forall₂ (fun a b => wf_lane_ (fun_lanetype sh2) (f a b)) cj_1_lst cj_2_lst; closed by iswf_inv_lanes_of_Forall₂_Map₂. No length premise needed, because Map₂ and Forall₂ both truncate to the zip. case_16 (none) contradicts var_0 ≠ none. Axioms: inv_lanes__is_wf, propext."
+  },
+  {
+   "name": "vextbinop___is_wf",
+   "status": "proved",
+   "proof": ":= by\n  intro h _ _ _ _ _ hne heq; subst heq\n  cases h <;> first\n    | exact absurd rfl hne\n    | (subst_vars; exact iswf_inv_lanes_of_Forall₂_Map₂ (by assumption) (by assumption))",
+   "uses_default": false,
+   "notes": "Same shape as vextunop: all 32 non-none cases (EXTMUL and DOT) end in inv_lanes_ sh2 (Map₂ f l1 l2) with wf_shape sh2 and a matching Forall₂ premise. case_32 (none) contradicts var_0 ≠ none. Axioms: inv_lanes__is_wf, propext."
+  },
+  {
+   "name": "vshiftop__is_wf",
+   "status": "proved",
+   "proof": ":= by\n  intro h _ _ hl _ hne heq; subst heq\n  cases h <;> (try exact absurd rfl hne) <;> subst_vars <;>\n    have hs := iswf_fun_lsizenn_lsize ‹_› <;> first\n    | exact wf_lane_.lane__case_0 _ _ _ _ hs\n        (ishl__is_wf _ _ _ _ (iswf_lane0_payload hl hs) (iswf_uN_mod _ (iswf_fun_lsize_pos hs)) rfl) rfl\n    | exact wf_lane_.lane__case_0 _ _ _ _ hs\n        (ishr__is_wf _ _ _ _ _ (iswf_lane0_payload hl hs) (iswf_uN_mod _ (iswf_fun_lsize_pos hs)) rfl) rfl",
+   "uses_default": false,
+   "notes": "The lane size comes from the case's single fun_lsizenn premise (iswf_fun_lsizenn_lsize). The input payload is in range by iswf_lane0_payload, and the shift count v_n % size is in range by iswf_uN_mod plus iswf_fun_lsize_pos. Then ishl__is_wf / ishr__is_wf apply, and the lanetype equation is rfl. Axioms: ishl__is_wf, ishr__is_wf, propext, Quot.sound."
+  }
+ ],
+ "helpers": [
+  {
+   "name": "iswf_inv_lanes_of_Forall_Map",
+   "text": "theorem iswf_inv_lanes_of_Forall_Map {α : Type} {sh : shape} {f : α → lane_} {l : List α}\n    (hsh : wf_shape sh) (h : Forall (fun x => wf_lane_ (fun_lanetype sh) (f x)) l) :\n    wf_uN 128 (inv_lanes_ sh (Map f l)) :=\n  inv_lanes__is_wf sh _ _ hsh (fun y hy => by\n    obtain ⟨x, hx, rfl⟩ := List.mem_map.mp hy\n    exact h x hx) rfl",
+   "notes": "Used by vrelop__is_wf (place above it). A vector built by inv_lanes_ from a Map whose image lanes are all well formed is well formed. Depends only on the generated axiom inv_lanes__is_wf, deliberately not on iswf_Forall_map."
+  },
+  {
+   "name": "iswf_fun_lsizenn1_lsize",
+   "text": "theorem iswf_fun_lsizenn1_lsize {lt : lanetype} {n : Nat} (h : fun_lsizenn1 lt n) : fun_lsize lt n := by\n  cases h; assumption",
+   "notes": "Used by lcvtop___is_wf. fun_lsizenn1 is a one-constructor alias of fun_lsize. No dependencies."
+  },
+  {
+   "name": "iswf_fun_lsizenn2_lsize",
+   "text": "theorem iswf_fun_lsizenn2_lsize {lt : lanetype} {n : Nat} (h : fun_lsizenn2 lt n) : fun_lsize lt n := by\n  cases h; assumption",
+   "notes": "Used by lcvtop___is_wf. fun_lsizenn2 is a one-constructor alias of fun_lsize. No dependencies."
+  },
+  {
+   "name": "iswf_fun_sizenn_of_lsize_Fnn",
+   "text": "theorem iswf_fun_sizenn_of_lsize_Fnn {F : Fnn} {n : Nat} (h : fun_lsize (lanetype_Fnn F) n) :\n    fun_sizenn (numtype_Fnn F) n := by\n  cases F <;> cases h <;> exact iswf_fun_sizenn_val _",
+   "notes": "Used by iswf_lane1_payload and iswf_lane1_mk (needed for lcvtop___is_wf). Bridges lane size and number size at float lane types; Option.get! is only applied to `some`. Depends on the shared helper iswf_fun_sizenn_val, so that one must be placed above it."
+  },
+  {
+   "name": "iswf_lane0_payload",
+   "text": "theorem iswf_lane0_payload {lt : lanetype} {J : Jnn} {x : iN} {n : Nat}\n    (hl : wf_lane_ lt (lane_.mk_lane__0 J x)) (hn : fun_lsize (lanetype_Jnn J) n) : wf_uN n x := by\n  cases hl with\n  | lane__case_0 _ _ m hm hx _ => rw [iswf_fun_lsize_det hn hm]; exact hx",
+   "notes": "Used by lcvtop___is_wf and vshiftop__is_wf. The payload of a well-formed integer lane is in range for any size its lane type has under fun_lsize. Depends on the shared helper iswf_fun_lsize_det."
+  },
+  {
+   "name": "iswf_lane1_payload",
+   "text": "theorem iswf_lane1_payload {lt : lanetype} {F : Fnn} {x : fN} {n : Nat}\n    (hl : wf_lane_ lt (lane_.mk_lane__1 F x)) (hn : fun_lsize (lanetype_Fnn F) n) : wf_fN n x := by\n  cases hl with\n  | lane__case_1 _ _ m hm hx _ => rw [iswf_fun_sizenn_det (iswf_fun_sizenn_of_lsize_Fnn hn) hm]; exact hx",
+   "notes": "Used by lcvtop___is_wf. The payload of a well-formed float lane is well formed at its lane size. Depends on the shared helper iswf_fun_sizenn_det and on iswf_fun_sizenn_of_lsize_Fnn."
+  },
+  {
+   "name": "iswf_lane1_mk",
+   "text": "theorem iswf_lane1_mk {lt : lanetype} {F : Fnn} {x : fN} {n : Nat}\n    (hn : fun_lsize (lanetype_Fnn F) n) (hx : wf_fN n x) (hlt : lt = lanetype_Fnn F) :\n    wf_lane_ lt (lane_.mk_lane__1 F x) :=\n  wf_lane_.lane__case_1 _ _ _ _ (iswf_fun_sizenn_of_lsize_Fnn hn) hx hlt",
+   "notes": "Used by lcvtop___is_wf (CONVERT) and iswf_Forall_Map_lane1. A float-lane constructor stated with the lane size, mirroring wf_lane_.lane__case_0. Depends on iswf_fun_sizenn_of_lsize_Fnn."
+  },
+  {
+   "name": "iswf_Forall_list_OMap_lane0",
+   "text": "theorem iswf_Forall_list_OMap_lane0 {J : Jnn} {lt : lanetype} {n : Nat} {o : Option iN}\n    (hn : fun_lsize (lanetype_Jnn J) n) (hlt : lt = lanetype_Jnn J)\n    (ho : Forall (fun x => wf_uN n x) (Option.toList o)) :\n    Forall (fun x => wf_lane_ lt x) (list_ lane_ (OMap (fun y => lane_.mk_lane__0 J y) o)) := by\n  cases o with\n  | none => exact iswf_Forall_nil _\n  | some v => exact iswf_Forall_cons (wf_lane_.lane__case_0 _ _ _ _ hn (ho v (by simp)) hlt) (iswf_Forall_nil _)",
+   "notes": "Used by lcvtop___is_wf (TRUNC_SAT cases). It replaces the old iswf_list_OMap_lane0, which used the removed function lsize, and takes a fun_lsize premise instead. The name differs from the old one so it cannot clash with a g3 port. Depends on iswf_Forall_nil and iswf_Forall_cons (both early in the file)."
+  },
+  {
+   "name": "iswf_Forall_Map_lane1",
+   "text": "theorem iswf_Forall_Map_lane1 {F : Fnn} {lt : lanetype} {n : Nat} {l : List fN}\n    (hn : fun_lsize (lanetype_Fnn F) n) (hlt : lt = lanetype_Fnn F)\n    (hl : Forall (fun x => wf_fN n x) l) :\n    Forall (fun x => wf_lane_ lt x) (Map (fun y => lane_.mk_lane__1 F y) l) := by\n  intro y hy\n  obtain ⟨x, hx, rfl⟩ := List.mem_map.mp hy\n  exact iswf_lane1_mk hn (hl x hx) hlt",
+   "notes": "Used by lcvtop___is_wf (DEMOTE/PROMOTE cases). Float-lane counterpart of iswf_Forall_list_OMap_lane0. Depends on iswf_lane1_mk."
+  },
+  {
+   "name": "iswf_Forall_Map₂",
+   "text": "theorem iswf_Forall_Map₂ {α β γ : Type} {P : γ → Prop} (f : α → β → γ) :\n    ∀ (l1 : List α) (l2 : List β), Forall₂ (fun a b => P (f a b)) l1 l2 → Forall P (Map₂ f l1 l2) := by\n  intro l1\n  induction l1 with\n  | nil => intro l2 _; simp only [Map₂, List.ap, List.map_nil, List.zipWith_nil_left]; exact iswf_Forall_nil _\n  | cons a t ih =>\n    intro l2 h\n    cases l2 with\n    | nil => simp only [Map₂, List.ap, List.map_cons, List.zipWith_nil_right]; exact iswf_Forall_nil _\n    | cons b u =>\n      have hab : P (f a b) := h (a, b) (by simp)\n      have hrest : Forall₂ (fun a b => P (f a b)) t u := fun p hp => h p (by simp [hp])\n      have := ih u hrest\n      simp only [Map₂, List.ap, List.map_cons, List.zipWith_cons_cons] at this ⊢\n      exact iswf_Forall_cons hab this",
+   "notes": "Used by iswf_inv_lanes_of_Forall₂_Map₂. Verbatim port of the old helper. The g3-vector-a agent ports a helper with the IDENTICAL statement and a different proof; keep either one, since my callers only use the statement. Depends on iswf_Forall_nil and iswf_Forall_cons."
+  },
+  {
+   "name": "iswf_inv_lanes_of_Forall₂_Map₂",
+   "text": "theorem iswf_inv_lanes_of_Forall₂_Map₂ {α β : Type} {sh : shape} {f : α → β → lane_} {l1 : List α} {l2 : List β}\n    (hsh : wf_shape sh) (h : Forall₂ (fun a b => wf_lane_ (fun_lanetype sh) (f a b)) l1 l2) :\n    wf_uN 128 (inv_lanes_ sh (Map₂ f l1 l2)) :=\n  inv_lanes__is_wf sh _ _ hsh (iswf_Forall_Map₂ f l1 l2 h) rfl",
+   "notes": "Used by vextunop___is_wf and vextbinop___is_wf. Map₂ counterpart of iswf_inv_lanes_of_Forall_Map. Depends on iswf_Forall_Map₂ and inv_lanes__is_wf."
+  },
+  {
+   "name": "iswf_fun_lsizenn_lsize",
+   "text": "theorem iswf_fun_lsizenn_lsize {lt : lanetype} {n : Nat} (h : fun_lsizenn lt n) : fun_lsize lt n := by\n  cases h; assumption",
+   "notes": "Used by vshiftop__is_wf. fun_lsizenn is a one-constructor alias of fun_lsize. No dependencies."
+  },
+  {
+   "name": "iswf_fun_lsize_pos",
+   "text": "theorem iswf_fun_lsize_pos {lt : lanetype} {n : Nat} (h : fun_lsize lt n) : 0 < n := by\n  cases h <;> decide",
+   "notes": "Used by vshiftop__is_wf. Every lane size (8/16/32/64) is positive, by decide on Option.get! of `some` and on psize. No dependencies."
+  },
+  {
+   "name": "iswf_uN_mod",
+   "text": "theorem iswf_uN_mod {n : Nat} (k : Nat) (hn : 0 < n) : wf_uN n (uN.mk_uN (k % n)) :=\n  iswf_uN_of_lt (Nat.lt_of_lt_of_le (Nat.mod_lt k hn) (Nat.le_of_lt Nat.lt_two_pow_self))",
+   "notes": "Used by vshiftop__is_wf. A shift count reduced modulo a positive size n is a well-formed uN n. Depends on the existing helper iswf_uN_of_lt (early in the file)."
+  }
+ ],
+ "final_file": "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/agents/g4-vector-b/Final.lean",
+ "validation": "lrun.sh exit=0, no errors, no warnings (log: /tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/agents/g4-vector-b/Final.log):\n'vrelop__is_wf_probe' depends on axioms: [inv_lanes__is_wf, propext, Quot.sound]\n'lcvtop___is_wf_probe' depends on axioms: [convert___is_wf,\n demote___is_wf,\n extend___is_wf,\n promote___is_wf,\n propext,\n trunc_sat___is_wf,\n Quot.sound]\n'vextunop___is_wf_probe' depends on axioms: [inv_lanes__is_wf, propext]\n'vextbinop___is_wf_probe' depends on axioms: [inv_lanes__is_wf, propext]\n'vshiftop__is_wf_probe' depends on axioms: [ishl__is_wf, ishr__is_wf, propext, Quot.sound]\nWALL 1.02 s  MAXRSS 1699400 KB",
+ "safety_start": "VERIFIED: identical to session baseline",
+ "safety_end": "VERIFIED: identical to session baseline",
+ "issues": [
+  "vcvtop___is_wf is UNPROVABLE as generated, and it is left out of Final.lean. Regenerated fun_vcvtop__ cases 0/1/2 lost the side condition (List.length var_2_lst) = (List.length c_1_lst) (var_1_lst in cases 1/2). Forall₂ is defined over zip, so trailing var_k_lst elements are unconstrained (only ≠ none) yet flow through setproduct_ into the opaque inv_lanes_. Evidence, sorry-free: /tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/agents/g4-vector-b/E1.lean shows the generated statement implies inv_lanes_ f32x4 (converted lanes ++ [bad]) ≠ uN.mk_uN (2^128) for every lane `bad`. The only axiom on the opaque inv_lanes_ (inv_lanes__is_wf) does not determine this; it is the only declaration outside theorems and relations that mentions inv_lanes_. Positive check: /tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/agents/g4-vector-b/E2.lean takes a local copy of fun_vcvtop__ with the length premise re-inserted and proves the generated statement for it (ev_vcvtop___is_wf_with_lengths, using lcvtop___is_wf, packnum__is_wf, zero_is_wf). It also contains ready ports of iswf_setproduct*, a ≤-length Forall₂_left_mem and a candidate-lanes lemma for when the generator is fixed. No Inhabited default is involved.",
+  "Systemic generator regression, likely from running Sideconditions before DefToRel: the regenerated wasm2.0.lean contains 0 premises of the form (List.length var_k_lst) = (List.length …), against 283 in the old model. So the var_k_lst iterations that DefToRel introduces no longer get length side conditions. Besides fun_vcvtop__, relations with Forall₂ over such var_k_lst lists are fun_vunop_ (8 premises, g3's group), fun_utf8 (3), fun_allocmodule (1), Step_pure (2), wf_admininstr (1), wf_instr (1), plus the matching *_before_* relations. Their wf theorems may hit the same wall if they need the lengths to agree.",
+  "Merge ordering: my helpers depend on the SHARED helpers iswf_fun_lsize_det, iswf_fun_sizenn_det and iswf_fun_sizenn_val, which are currently at the very end of the probe module. They must sit above iswf_fun_sizenn_of_lsize_Fnn / iswf_lane0_payload, i.e. above lcvtop___is_wf at the latest (vrelop__is_wf, the first of my theorems, does not need them). The other dependencies are iswf_Forall_nil, iswf_Forall_cons, iswf_uN_of_lt and inv_lanes__is_wf, all earlier in the file. I deliberately avoided iswf_Forall_map, which sits at probe-module line 15107, after my theorems.",
+  "iswf_Forall_Map₂: the g3-vector-a agent's Final.lean contains a helper with the identical statement (different proof). Keep either one; my uses only depend on the statement.",
+  "Model detail useful for others: in `cases … with`, the lanetype of wf_lane_ and the size of wf_uN are auto-promoted parameters. So the lane__case_0/1 alternatives take 6 names, not 7, and uN_case_0 takes 2. The constructors themselves still take them as explicit arguments (wf_lane_.lane__case_0 _ _ _ _ h1 h2 h3)."
+ ]
+}

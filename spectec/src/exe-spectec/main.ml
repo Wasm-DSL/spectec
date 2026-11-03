@@ -55,6 +55,7 @@ let all_passes = [
   SubExpansion;
   PatSimp;
   Sub;
+  Sideconditions;
   DefToRel;
   Sideconditions;
   AliasDemut;
@@ -97,7 +98,7 @@ module PS = Set.Make(struct type t = pass let compare = compare; end)
 let selected_passes = ref (PS.empty)
 let enable_pass pass = selected_passes := PS.add pass !selected_passes
 
-let sideconditions_on_defs = ref false
+let sideconditions_on_defs = ref true
 
 let print_il il =
   if not !print_il_as_ast then

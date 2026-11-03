@@ -1,0 +1,85 @@
+# The 17 'elsewhere, UNGUARDED' hits of the matcher, checked by hand: each constructor's get! line and its guard lines
+=== get! at line 10048 (constructor starts at 10038)
+10038:   | fun_vcvtop___case_2 (Lnn_1 : lanetype) (M_1 : Nat) (Lnn_2 : lanetype) (M_2 : Nat) (vcvtop : vcvtop__) (v128_1 : uN) (v128 : uN) (c_1_lst : List lane_) (c_lst_lst : List (List lane_)) (var_2 : num_) (var_1_lst : List (Option (List lane_))) (var_0 : Option (Option zero)) :
+10043:     var_0 ≠ none →
+10046:     Forall (fun (var_1_elem : Option (List lane_)) => var_1_elem ≠ none) var_1_lst →
+10047:     (packnum_ Lnn_2 var_2) ≠ none →
+10048:     c_lst_lst = (setproduct_ lane_ ((Map (fun (var_1_elem : Option (List lane_)) => Option.get! var_1_elem) var_1_lst) ++ (List.replicate M_1 [Option.get! (packnum_ Lnn_2 var_2)]))) →
+=== get! at line 10062 (constructor starts at 10054)
+10054:   | fun_vcvtop___case_1 (Lnn_1 : lanetype) (M_1 : Nat) (Lnn_2 : lanetype) (M_2 : Nat) (vcvtop : vcvtop__) (v128_1 : uN) (v128 : uN) (v_half : half) (c_1_lst : List lane_) (c_lst_lst : List (List lane_)) (var_1_lst : List (Option (List lane_))) (var_0 : Option (Option half)) :
+10058:     var_0 ≠ none →
+10061:     Forall (fun (var_1_elem : Option (List lane_)) => var_1_elem ≠ none) var_1_lst →
+10062:     c_lst_lst = (setproduct_ lane_ (Map (fun (var_1_elem : Option (List lane_)) => Option.get! var_1_elem) var_1_lst)) →
+=== get! at line 10078 (constructor starts at 10068)
+10068:   | fun_vcvtop___case_0 (Lnn_1 : lanetype) (v_M : Nat) (Lnn_2 : lanetype) (vcvtop : vcvtop__) (v128_1 : uN) (v128 : uN) (M_0 : Nat) (c_1_lst : List lane_) (c_lst_lst : List (List lane_)) (var_2_lst : List (Option (List lane_))) (var_1 : Option (Option zero)) (var_0 : Option (Option half)) :
+10073:     var_0 ≠ none →
+10074:     var_1 ≠ none →
+10077:     Forall (fun (var_2_elem : Option (List lane_)) => var_2_elem ≠ none) var_2_lst →
+10078:     c_lst_lst = (setproduct_ lane_ (Map (fun (var_2_elem : Option (List lane_)) => Option.get! var_2_elem) var_2_lst)) →
+=== get! at line 10099 (constructor starts at 10089)
+10089:   | fun_vcvtop___case_0 (Lnn_1 : lanetype) (v_M : Nat) (Lnn_2 : lanetype) (vcvtop : vcvtop__) (v128_1 : uN) (v128 : uN) (M_0 : Nat) (c_1_lst : List lane_) (c_lst_lst : List (List lane_)) (var_2_lst : List (Option (List lane_))) (var_1 : Option (Option zero)) (var_0 : Option (Option half)) :
+10094:     var_0 ≠ none →
+10095:     var_1 ≠ none →
+10098:     Forall (fun (var_2_elem : Option (List lane_)) => var_2_elem ≠ none) var_2_lst →
+10099:     c_lst_lst = (setproduct_ lane_ (Map (fun (var_2_elem : Option (List lane_)) => Option.get! var_2_elem) var_2_lst)) →
+=== get! at line 10114 (constructor starts at 10106)
+10106:   | fun_vcvtop___case_1 (Lnn_1 : lanetype) (M_1 : Nat) (Lnn_2 : lanetype) (M_2 : Nat) (vcvtop : vcvtop__) (v128_1 : uN) (v128 : uN) (v_half : half) (c_1_lst : List lane_) (c_lst_lst : List (List lane_)) (var_1_lst : List (Option (List lane_))) (var_0 : Option (Option half)) :
+10110:     var_0 ≠ none →
+10113:     Forall (fun (var_1_elem : Option (List lane_)) => var_1_elem ≠ none) var_1_lst →
+10114:     c_lst_lst = (setproduct_ lane_ (Map (fun (var_1_elem : Option (List lane_)) => Option.get! var_1_elem) var_1_lst)) →
+=== get! at line 10130 (constructor starts at 10120)
+10120:   | fun_vcvtop___case_2 (Lnn_1 : lanetype) (M_1 : Nat) (Lnn_2 : lanetype) (M_2 : Nat) (vcvtop : vcvtop__) (v128_1 : uN) (v128 : uN) (c_1_lst : List lane_) (c_lst_lst : List (List lane_)) (var_2 : num_) (var_1_lst : List (Option (List lane_))) (var_0 : Option (Option zero)) :
+10125:     var_0 ≠ none →
+10128:     Forall (fun (var_1_elem : Option (List lane_)) => var_1_elem ≠ none) var_1_lst →
+10129:     (packnum_ Lnn_2 var_2) ≠ none →
+10130:     c_lst_lst = (setproduct_ lane_ ((Map (fun (var_1_elem : Option (List lane_)) => Option.get! var_1_elem) var_1_lst) ++ (List.replicate M_1 [Option.get! (packnum_ Lnn_2 var_2)]))) →
+=== get! at line 14581 (constructor starts at 14576)
+14576:   | vshiftop (c_1 : vec_) (v_n : n) (v_Jnn : Jnn) (v_N : N) (vshiftop : vshiftop_) (c : vec_) (c'_lst : List lane_) (var_0_lst : List (Option lane_)) :
+14580:     Forall (fun (var_0_elem : Option lane_) => var_0_elem ≠ none) var_0_lst →
+14581:     c = (inv_lanes_ (shape.X (lanetype_Jnn v_Jnn) (dim.mk_dim v_N)) (Map (fun (var_0_elem : Option lane_) => Option.get! var_0_elem) var_0_lst)) →
+=== get! at line 14605 (constructor starts at 14599)
+14599:   | vswizzle (c_1 : vec_) (c_2 : vec_) (v_Pnn : Pnn) (v_M : M) (c : vec_) (ci_lst : List lane_) (c'_lst : List iN) (k : Nat) :
+14601:     Forall (fun (iter_0_elem : lane_) => (proj_lane__0 iter_0_elem) ≠ none) (lanes_ (shape.X (lanetype_packtype v_Pnn) (dim.mk_dim v_M)) c_1) →
+14603:     Forall (fun (k : Nat) => (proj_lane__0 ((ci_lst)[k]!)) ≠ none) (List.range v_M) →
+14605:     Forall (fun (k : Nat) => (proj_uN_0 (Option.get! (proj_lane__0 ((ci_lst)[k]!)))) < (List.length c'_lst)) (List.range v_M) →
+=== get! at line 14606 (constructor starts at 14599)
+14599:   | vswizzle (c_1 : vec_) (c_2 : vec_) (v_Pnn : Pnn) (v_M : M) (c : vec_) (ci_lst : List lane_) (c'_lst : List iN) (k : Nat) :
+14601:     Forall (fun (iter_0_elem : lane_) => (proj_lane__0 iter_0_elem) ≠ none) (lanes_ (shape.X (lanetype_packtype v_Pnn) (dim.mk_dim v_M)) c_1) →
+14603:     Forall (fun (k : Nat) => (proj_lane__0 ((ci_lst)[k]!)) ≠ none) (List.range v_M) →
+14606:     c = (inv_lanes_ (shape.X (lanetype_packtype v_Pnn) (dim.mk_dim v_M)) (List.range v_M |>.map (fun (k : Nat) => lane_.mk_lane__0 (Jnn_packtype v_Pnn) ((c'_lst)[proj_uN_0 (Option.get! (proj_lane__0 ((ci_lst)[k]!)))]!)))) →
+=== get! at line 14609 (constructor starts at 14599)
+14599:   | vswizzle (c_1 : vec_) (c_2 : vec_) (v_Pnn : Pnn) (v_M : M) (c : vec_) (ci_lst : List lane_) (c'_lst : List iN) (k : Nat) :
+14601:     Forall (fun (iter_0_elem : lane_) => (proj_lane__0 iter_0_elem) ≠ none) (lanes_ (shape.X (lanetype_packtype v_Pnn) (dim.mk_dim v_M)) c_1) →
+14603:     Forall (fun (k : Nat) => (proj_lane__0 ((ci_lst)[k]!)) ≠ none) (List.range v_M) →
+14609:     Forall (fun (k : Nat) => wf_lane_ (fun_lanetype (shape.X (lanetype_packtype v_Pnn) (dim.mk_dim v_M))) (lane_.mk_lane__0 (Jnn_packtype v_Pnn) ((c'_lst)[proj_uN_0 (Option.get! (proj_lane__0 ((ci_lst)[k]!)))]!))) (List.range v_M) →
+=== get! at line 14628 (constructor starts at 14625)
+14625:   | vextract_lane_num (c_1 : vec_) (nt : numtype) (v_N : N) (i : laneidx) (c_2 : num_) :
+14627:     (unpacknum_ (lanetype_numtype nt) ((lanes_ (shape.X (lanetype_numtype nt) (dim.mk_dim v_N)) c_1)[proj_uN_0 i]!)) ≠ none →
+14628:     c_2 = (Option.get! (unpacknum_ (lanetype_numtype nt) ((lanes_ (shape.X (lanetype_numtype nt) (dim.mk_dim v_N)) c_1)[proj_uN_0 i]!))) →
+=== get! at line 14635 (constructor starts at 14631)
+14631:   | vextract_lane_pack (c_1 : vec_) (pt : packtype) (v_N : N) (v_sx : sx) (i : laneidx) (c_2 : num_) :
+14632:     (proj_num__0 c_2) ≠ none →
+14634:     (proj_lane__0 ((lanes_ (shape.X (lanetype_packtype pt) (dim.mk_dim v_N)) c_1)[proj_uN_0 i]!)) ≠ none →
+14635:     (Option.get! (proj_num__0 c_2)) = (extend__ (psize pt) 32 v_sx (Option.get! (proj_lane__0 ((lanes_ (shape.X (lanetype_packtype pt) (dim.mk_dim v_N)) c_1)[proj_uN_0 i]!)))) →
+=== get! at line 15124 (constructor starts at 15112)
+15112:   | call_addr (z : state) (k : Nat) (val_lst : List val) (a : addr) (v_n : n) (f : frame) (instr_lst : List instr) (t_1_lst : List valtype) (t_2_lst : List valtype) (mm : moduleinst) (v_func : func) (x : idx) (t_lst : List valtype) (var_0_lst : List (Option val)) :
+15122:     Forall (fun (var_0_elem : Option val) => var_0_elem ≠ none) var_0_lst →
+15124:       LOCALS := val_lst ++ (Map (fun (var_0_elem : Option val) => Option.get! var_0_elem) var_0_lst)
+=== get! at line 15134 (constructor starts at 15112)
+15112:   | call_addr (z : state) (k : Nat) (val_lst : List val) (a : addr) (v_n : n) (f : frame) (instr_lst : List instr) (t_1_lst : List valtype) (t_2_lst : List valtype) (mm : moduleinst) (v_func : func) (x : idx) (t_lst : List valtype) (var_0_lst : List (Option val)) :
+15122:     Forall (fun (var_0_elem : Option val) => var_0_elem ≠ none) var_0_lst →
+15134:       LOCALS := val_lst ++ (Map (fun (var_0_elem : Option val) => Option.get! var_0_elem) var_0_lst)
+=== get! at line 15544 (constructor starts at 15536)
+15536:   | vstore_lane_val (z : state) (i : num_) (c : vec_) (v_N : N) (ao : memarg) (j : laneidx) (b_lst : List byte) (v_Jnn : Jnn) (v_M : M) (var_1 : Nat) (var_0 : state) :
+15538:     (proj_num__0 i) ≠ none →
+15543:     (proj_lane__0 ((lanes_ (shape.X (lanetype_Jnn v_Jnn) (dim.mk_dim v_M)) c)[proj_uN_0 j]!)) ≠ none →
+15544:     b_lst = (ibytes_ v_N (uN.mk_uN (proj_uN_0 (Option.get! (proj_lane__0 ((lanes_ (shape.X (lanetype_Jnn v_Jnn) (dim.mk_dim v_M)) c)[proj_uN_0 j]!)))))) →
+=== get! at line 15545 (constructor starts at 15536)
+15536:   | vstore_lane_val (z : state) (i : num_) (c : vec_) (v_N : N) (ao : memarg) (j : laneidx) (b_lst : List byte) (v_Jnn : Jnn) (v_M : M) (var_1 : Nat) (var_0 : state) :
+15538:     (proj_num__0 i) ≠ none →
+15543:     (proj_lane__0 ((lanes_ (shape.X (lanetype_Jnn v_Jnn) (dim.mk_dim v_M)) c)[proj_uN_0 j]!)) ≠ none →
+15545:     wf_uN v_N (uN.mk_uN (proj_uN_0 (Option.get! (proj_lane__0 ((lanes_ (shape.X (lanetype_Jnn v_Jnn) (dim.mk_dim v_M)) c)[proj_uN_0 j]!))))) →
+=== get! at line 16190 (constructor starts at 16135)
+16135:   | fun_instantiate_case_0 (s : store) (v_module : module) (externaddr_lst : List externaddr) (f : frame) (x_opt : Option idx) (functype_lst : List functype) (expr_G_lst : List expr) (globaltype_lst : List globaltype) (elemmode_lst : List elemmode) (expr_E_lst_lst : List (List expr)) (reftype
+16189:     Forall₂ (fun (j_17 : Nat) (var_4_elem : Option (List instr)) => var_4_elem ≠ none) (List.range n_D) var_4_lst →
+16190:     instr_D_lst = (concat_ instr (List.range n_D |>.map (fun (j_17 : Nat) (var_4_elem : Option (List instr)) => Option.get! var_4_elem) |>.ap var_4_lst)) →

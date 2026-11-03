@@ -1,0 +1,303 @@
+'iswf_uN_zero' does not depend on any axioms
+'iswf_fun_sizenn_val' depends on axioms: [propext]
+'iswf_num_Inn_of_sizenn' depends on axioms: [propext]
+'iswf_num_Fnn_of_sizenn' depends on axioms: [propext]
+'zero_is_wf' depends on axioms: [propext]
+'dim_is_wf' depends on axioms: [propext]
+'iswf_Forall_nil' does not depend on any axioms
+'iswf_Forall_append' depends on axioms: [propext]
+'concat_bytes_is_wf' depends on axioms: [propext]
+'iswf_Forall_cons' does not depend on any axioms
+'tablesxt_is_wf' depends on axioms: [propext]
+'memsxt_is_wf' depends on axioms: [propext]
+'dataidx_instr_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'dataidx_instrs_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'dataidx_expr_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'dataidx_func_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'dataidx_funcs_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'memarg0_is_wf' does not depend on any axioms
+'iswf_Forall_map' depends on axioms: [propext, Quot.sound]
+'iswf_fun_sizenn_det' depends on axioms: [propext]
+'iswf_uN_of_num_Inn' depends on axioms: [propext]
+'iswf_fN_of_num_Fnn' depends on axioms: [propext]
+'unop__is_wf' depends on axioms: [extend___is_wf,
+ fabs__is_wf,
+ fceil__is_wf,
+ ffloor__is_wf,
+ fnearest__is_wf,
+ fneg__is_wf,
+ fsqrt__is_wf,
+ ftrunc__is_wf,
+ iclz__is_wf,
+ ictz__is_wf,
+ ipopcnt__is_wf,
+ propext,
+ wrap___is_wf,
+ Quot.sound]
+'iswf_two_pow_cast' does not depend on any axioms
+'iswf_uN_of_lt' depends on axioms: [propext, Quot.sound]
+'iadd__is_wf' depends on axioms: [propext, Quot.sound]
+'imul__is_wf' depends on axioms: [propext, Quot.sound]
+'iswf_uN_lt' depends on axioms: [propext, Quot.sound]
+'iswf_uN_proj_lt' depends on axioms: [propext, Quot.sound]
+'iswf_inv_signed' depends on axioms: [propext, Quot.sound]
+'iswf_toNat_sub_le' depends on axioms: [propext, Quot.sound]
+'irem__is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_uN_toNat_emod' depends on axioms: [propext, Quot.sound]
+'isub__is_wf' depends on axioms: [propext, Quot.sound]
+'iswf_uN_bool' depends on axioms: [propext, Quot.sound]
+'ieqz__is_wf' depends on axioms: [propext, Quot.sound]
+'iswf_num_I32' depends on axioms: [propext]
+'testop__is_wf' depends on axioms: [propext, Quot.sound]
+'ieq__is_wf' depends on axioms: [propext, Quot.sound]
+'ige__is_wf' depends on axioms: [propext, Quot.sound]
+'igt__is_wf' depends on axioms: [propext, Quot.sound]
+'ile__is_wf' depends on axioms: [propext, Quot.sound]
+'ilt__is_wf' depends on axioms: [propext, Quot.sound]
+'ine__is_wf' depends on axioms: [propext, Quot.sound]
+'relop__is_wf' depends on axioms: [feq__is_wf,
+ fge__is_wf,
+ fgt__is_wf,
+ fle__is_wf,
+ flt__is_wf,
+ fne__is_wf,
+ propext,
+ Quot.sound]
+'iswf_fun_sizenn_of_sizenn1' depends on axioms: [propext]
+'iswf_fun_sizenn_of_sizenn2' depends on axioms: [propext]
+'iswf_Forall_list_OMap_imp' does not depend on any axioms
+'cvtop___is_wf' depends on axioms: [convert___is_wf,
+ demote___is_wf,
+ extend___is_wf,
+ promote___is_wf,
+ propext,
+ reinterpret___is_wf,
+ trunc___is_wf,
+ trunc_sat___is_wf,
+ wrap___is_wf,
+ Quot.sound]
+'inez__is_wf' depends on axioms: [propext, Quot.sound]
+'ineg__is_wf' depends on axioms: [propext, Quot.sound]
+'iabs__is_wf' depends on axioms: [propext, Quot.sound]
+'imin__is_wf' does not depend on any axioms
+'imax__is_wf' does not depend on any axioms
+'iswf_sat_u' depends on axioms: [propext, Quot.sound]
+'iadd_sat__is_wf' depends on axioms: [propext, Quot.sound]
+'isub_sat__is_wf' depends on axioms: [propext, Quot.sound]
+'packnum__is_wf' depends on axioms: [propext, wrap___is_wf]
+'iswf_fun_lsize_det' depends on axioms: [propext]
+'iswf_uN_of_lane_Jnn' depends on axioms: [propext]
+'iswf_fN_of_lane_Fnn' depends on axioms: [propext]
+'unpacknum__is_wf' depends on axioms: [extend___is_wf, propext]
+'vvunop__is_wf' depends on axioms: [inot__is_wf, propext]
+'vvbinop__is_wf' depends on axioms: [iand__is_wf, iandnot__is_wf, ior__is_wf, ixor__is_wf, propext]
+'vvternop__is_wf' depends on axioms: [ibitselect__is_wf, propext]
+'iswf_inv_lanes_of_Forall_Map' depends on axioms: [inv_lanes__is_wf, propext, Quot.sound]
+'iswf_fun_lsizenn_lsize' depends on axioms: [propext]
+'iswf_Forall_singleton' does not depend on any axioms
+'iswf_Forall₂_exists_of_mem_left' depends on axioms: [propext]
+'iswf_lane_proj0_payload_wf' depends on axioms: [propext]
+'iswf_vunop_Jnn_inv_lanes' depends on axioms: [inv_lanes__is_wf, lanes__is_wf, propext, Quot.sound]
+'iswf_setproduct_Forall_Forall' depends on axioms: [propext]
+'iswf_vunop_setproduct_inv_lanes' depends on axioms: [inv_lanes__is_wf, propext, Quot.sound]
+'vunop__is_wf' depends on axioms: [inv_lanes__is_wf, lanes__is_wf, propext, Quot.sound]
+'iswf_Forall_Map₂' depends on axioms: [propext]
+'iswf_inv_lanes_of_Forall₂_Map₂' depends on axioms: [inv_lanes__is_wf, propext]
+'iswf_Forall₃_exists_of_mem_left' depends on axioms: [propext, Quot.sound]
+'iswf_vbinop_Jnn_inv_lanes' depends on axioms: [inv_lanes__is_wf, lanes__is_wf, propext, Quot.sound]
+'iswf_vbinop_setproduct_inv_lanes' depends on axioms: [inv_lanes__is_wf, propext, Quot.sound]
+'vbinop__is_wf' depends on axioms: [inv_lanes__is_wf, lanes__is_wf, propext, Quot.sound]
+'vrelop__is_wf' depends on axioms: [inv_lanes__is_wf, propext, Quot.sound]
+'iswf_fun_lsizenn1_lsize' depends on axioms: [propext]
+'iswf_fun_lsizenn2_lsize' depends on axioms: [propext]
+'iswf_fun_sizenn_of_lsize_Fnn' depends on axioms: [propext]
+'iswf_lane0_payload' depends on axioms: [propext]
+'iswf_lane1_payload' depends on axioms: [propext]
+'iswf_lane1_mk' depends on axioms: [propext]
+'iswf_Forall_list_OMap_lane0' depends on axioms: [propext]
+'iswf_Forall_Map_lane1' depends on axioms: [propext, Quot.sound]
+'lcvtop___is_wf' depends on axioms: [convert___is_wf,
+ demote___is_wf,
+ extend___is_wf,
+ promote___is_wf,
+ propext,
+ trunc_sat___is_wf,
+ Quot.sound]
+'iswf_Forall_setproduct2' depends on axioms: [propext]
+'iswf_Forall_setproduct1' depends on axioms: [propext]
+'iswf_Forall_setproduct' depends on axioms: [propext]
+'iswf_vcvtop_lcvtop_results' depends on axioms: [convert___is_wf,
+ demote___is_wf,
+ extend___is_wf,
+ promote___is_wf,
+ propext,
+ trunc_sat___is_wf,
+ Quot.sound]
+'iswf_vcvtop_wf_of_contains_inv_lanes' depends on axioms: [inv_lanes__is_wf, propext, Classical.choice, Quot.sound]
+'vcvtop___is_wf' depends on axioms: [convert___is_wf,
+ demote___is_wf,
+ extend___is_wf,
+ inv_lanes__is_wf,
+ lanes__is_wf,
+ promote___is_wf,
+ propext,
+ trunc_sat___is_wf,
+ wrap___is_wf,
+ Classical.choice,
+ Quot.sound]
+'vextunop___is_wf' depends on axioms: [inv_lanes__is_wf, propext]
+'vextbinop___is_wf' depends on axioms: [inv_lanes__is_wf, propext]
+'iswf_fun_lsize_pos' depends on axioms: [propext]
+'iswf_uN_mod' depends on axioms: [propext, Quot.sound]
+'vshiftop__is_wf' depends on axioms: [ishl__is_wf, ishr__is_wf, propext, Quot.sound]
+'default__is_wf' depends on axioms: [propext]
+'store_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'frame_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'funcinst_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'globalinst_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'tableinst_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'meminst_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'datainst_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'moduleinst_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_Forall_getElem!_of_lt' depends on axioms: [propext]
+'func_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'global_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'table_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'mem_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'data_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'local_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_Forall_modify' depends on axioms: [propext]
+'with_local_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'with_global_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'with_table_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'with_tableinst_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_Forall_splice' depends on axioms: [propext]
+'with_mem_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'with_meminst_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'with_elem_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'with_data_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'growtable_is_wf' does not depend on any axioms
+'growmemory_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_Forall_cons_iff' depends on axioms: [propext]
+'iswf_Forall_replicate' depends on axioms: [propext]
+'iswf_admininstr_instr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_uN_of_succ' depends on axioms: [propext, Quot.sound]
+'iswf_num_I32_of_lt' depends on axioms: [propext, Quot.sound]
+'iswf_unpack_lanetype_numtype' does not depend on any axioms
+'iswf_fun_binop_' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_admininstr_VCONST' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_admininstr_VCONST_inv' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Step_pure_is_wf' depends on axioms: [convert___is_wf,
+ demote___is_wf,
+ extend___is_wf,
+ fabs__is_wf,
+ fceil__is_wf,
+ ffloor__is_wf,
+ fnearest__is_wf,
+ fneg__is_wf,
+ fsqrt__is_wf,
+ ftrunc__is_wf,
+ iand__is_wf,
+ iandnot__is_wf,
+ ibitselect__is_wf,
+ iclz__is_wf,
+ ictz__is_wf,
+ inot__is_wf,
+ inv_lanes__is_wf,
+ ior__is_wf,
+ ipopcnt__is_wf,
+ irev__is_wf,
+ ishl__is_wf,
+ ishr__is_wf,
+ ixor__is_wf,
+ lanes__is_wf,
+ promote___is_wf,
+ propext,
+ reinterpret___is_wf,
+ trunc___is_wf,
+ trunc_sat___is_wf,
+ wrap___is_wf,
+ Classical.choice,
+ Quot.sound]
+'allocfunc_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'allocfuncs_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'allocglobal_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'allocglobals_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'alloctable_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'alloctables_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'allocmem_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'allocmems_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'allocelem_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'allocelems_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'allocdata_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'allocdatas_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'instexport_is_wf' depends on axioms: [propext]
+'allocmodule_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_admininstr_val' depends on axioms: [propext, Classical.choice, Quot.sound]
+'invoke_is_wf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_globalinst_value' depends on axioms: [propext]
+'iswf_admininstr_ref' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_I32_const' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_I32_const_lt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_Forall₂_left_mem' depends on axioms: [propext]
+'iswf_Forall_of_Forall₂' depends on axioms: [propext]
+'iswf_Limits_ok_le' does not depend on any axioms
+'iswf_Store_ok_table_len' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_Store_ok_mem_len' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_Store_ok_elem_len' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_fun_table_len_lt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_fun_mem_len_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_fun_elem_len_lt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_byte_proj_le' does not depend on any axioms
+'iswf_fun_data_byte_lt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_store_I32_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_load_I32_8_U' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_num_Inn_proj' depends on axioms: [propext]
+'iswf_I32_iadd1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Step_read_is_wf' depends on axioms: [extend___is_wf,
+ inv_lanes__is_wf,
+ lanes__is_wf,
+ propext,
+ Classical.choice,
+ Quot.sound]
+'iswf_val_of_admininstr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_rat_to_nat_floor' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_rat_to_nat_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_grow_pages' depends on axioms: [propext, Classical.choice, Quot.sound]
+'iswf_fun_growmemory_pages_lt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Step_is_wf' depends on axioms: [convert___is_wf,
+ demote___is_wf,
+ extend___is_wf,
+ fabs__is_wf,
+ fceil__is_wf,
+ ffloor__is_wf,
+ fnearest__is_wf,
+ fneg__is_wf,
+ fsqrt__is_wf,
+ ftrunc__is_wf,
+ iand__is_wf,
+ iandnot__is_wf,
+ ibitselect__is_wf,
+ ibytes__is_wf,
+ iclz__is_wf,
+ ictz__is_wf,
+ inot__is_wf,
+ inv_lanes__is_wf,
+ ior__is_wf,
+ ipopcnt__is_wf,
+ irev__is_wf,
+ ishl__is_wf,
+ ishr__is_wf,
+ ixor__is_wf,
+ lanes__is_wf,
+ nbytes__is_wf,
+ promote___is_wf,
+ propext,
+ reinterpret___is_wf,
+ trunc___is_wf,
+ trunc_sat___is_wf,
+ vbytes__is_wf,
+ wrap___is_wf,
+ Classical.choice,
+ Quot.sound]
+WALL 0.58 s  MAXRSS 1584620 KB

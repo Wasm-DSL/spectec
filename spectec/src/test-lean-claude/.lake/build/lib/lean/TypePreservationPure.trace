@@ -158,11 +158,11 @@
       ["imports",
        [["«wasm2.0» transitive imports (legacy)", "042b7ef8e4b09de0"],
         ["«wasm2.0»:importAllArts", "b81c239dd4533cb1"],
-        ["HelperLemmas transitive imports (legacy)", "254346003f9a41a9"],
+        ["HelperLemmas transitive imports (legacy)", "a6e6cf1595761b59"],
         ["HelperLemmas:importAllArts", "992b5bc918f85aa4"],
-        ["Subtyping transitive imports (legacy)", "e4185c761490f2a0"],
+        ["Subtyping transitive imports (legacy)", "20850f824076a616"],
         ["Subtyping:importAllArts", "ec6651c1ffc9d656"],
-        ["TypingLemmas transitive imports (legacy)", "f19d24f3e5d88fcc"],
+        ["TypingLemmas transitive imports (legacy)", "bcf106bc84207fea"],
         ["TypingLemmas:importAllArts", "d2d2e010742550a2"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
@@ -178,4 +178,4 @@
   ["Module.name: TypePreservationPure", "0d58925b5b521533"],
   ["Package.id?: (some test-lean-claude)", "d9ff6ba00dbabfb9"],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "63e8d2aa5dd97849"}
+ "depHash": "60117e6d077d1dca"}
