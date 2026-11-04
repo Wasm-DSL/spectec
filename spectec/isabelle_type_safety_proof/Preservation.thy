@@ -5088,10 +5088,11 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
        by (metis memarg0_def proj_uN_0.psimps proj_uN_0.domintros memarg.select_convs(1))
      then have arith: "2 ^ proj_uN_0 (ALIGN memarg0) \<le> (8 div 8 :: nat)" by simp
      have "wf_instr (instr_sc6 (STORE I32 (Some (mk_sz 8)) memarg0))"
-       using instr_case_57 [of "Some (mk_sz 8)" memarg0 "Some Inn_I32" "I32"]
-         wf_sz.intros wf_memarg.intros fun_sizenn.intros memarg0_def
-          wf_uN.intros numtype_Inn.domintros numtype_Inn.psimps proj_sz_0.domintros proj_sz_0.psimps
-       by fastforce
+       by (rule instr_case_57[where var_0_opt="Some 32" and Inn_opt="Some Inn_I32"])
+         (auto simp: size_rel_simps memarg0_def numtype_Inn.domintros numtype_Inn.psimps
+            valtype_numtype.domintros valtype_numtype.psimps size.domintros size.psimps
+            proj_sz_0.domintros proj_sz_0.psimps
+          intro!: list_all3.intros wf_sz.intros wf_memarg.intros wf_uN.intros)
      then have "Instrs_ok2 s C' [ admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0) ] 
           (mk_functype 
         (mk_list [valtype_I32, valtype_I32]) (mk_list []))"
@@ -5391,10 +5392,10 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
         admininstr_sc1 (admininstr_st1_CONST I32 i),
         admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1)))),
         admininstr_sc7 admininstr_st7_MEMORY_COPY]"
-      using Step_read_is_wf
-        isabelle_reference_output_wasm2.memory_copy_gt[OF memory_copy_gt(2,3,4,5,5)]
       unfolding j'_def i'_def
-      using read.prems(1) by blast
+      using Step_read_is_wf[OF _ \<open>Store_ok s\<close>
+          isabelle_reference_output_wasm2.memory_copy_gt[OF memory_copy_gt(1-6)]]
+      by blast
     have c1: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j')]
         (mk_functype (mk_list []) (mk_list [valtype_I32]))"
       using wfout const_i32_ok[OF _ wfs wfC] by simp
@@ -5528,10 +5529,11 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
         admininstr_sc1 (admininstr_st1_CONST I32 i'),
         admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1)))),
         admininstr_sc7 (admininstr_st7_MEMORY_INIT x)]"
-      using Step_read_is_wf
-        isabelle_reference_output_wasm2.memory_init_succ[OF memory_init_succ(1,4,5,6,5)]
       unfolding b_def j'_def i'_def
-      using read.prems(1) by blast
+      using Step_read_is_wf[OF _ \<open>Store_ok s\<close>
+          isabelle_reference_output_wasm2.memory_init_succ[OF memory_init_succ(1-7),
+            unfolded fun_data_of[OF memory_init_succ(2)]]]
+      by blast
     have c1: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j)]
         (mk_functype (mk_list []) (mk_list [valtype_I32]))"
       using wfout const_i32_ok[OF _ wfs wfC] by simp
@@ -5566,7 +5568,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
           instrs_ok2_seq[OF cn ci]]]]]]]
       by simp
     then show ?case unfolding b_def j'_def i'_def
-      by (metis read.prems(9))
+      using fun_data_of memory_init_succ.hyps(2) read.prems(9) by blast
   qed
 next
   case (ctxt_label admininstr_lst admininstr'_lst v_n instr_0_lst)
