@@ -4,12 +4,15 @@ begin
 
 (* The well-formedness lemma STATEMENTS in this file are a DIRECT COPY of the block of
    "*_is_wf" lemmas at the end of the generated theory isabelle_reference_output_wasm2.thy
-   (from "lemma fzero_is_wf" up to the final "end"), in the same order and with the same
-   comments. Do not edit the statements: on regeneration, re-copy them.
+   (up to the final "end"), in the same order and with the same comments. Do not edit the
+   statements: on regeneration, re-copy them.
    The only hand-written parts are
-     - proofs replacing the generated "sorry"s, and
+     - proofs replacing the generated "sorry"s,
      - helper lemmas, which are confined to sections delimited by
-       "(* ===== BEGIN hand-written helpers ===== *)" / "(* ===== END hand-written helpers ===== *)". *)
+       "(* ===== BEGIN hand-written helpers ===== *)" / "(* ===== END hand-written helpers ===== *)", and
+     - the statements of Step_read_is_wf and Step_is_wf, which carry an extra Store_ok premise
+       (marked "MANUALLY MODIFIED"; the generated statements are false without store typing).
+       Re-apply this change when re-copying. *)
 
 (* ===== BEGIN hand-written helpers ===== *)
 (* Helper lemmas for the well-formedness proofs below *)
@@ -1181,6 +1184,153 @@ lemma vrelop_wf:
   shows "wf_uN 128 y"
   using vrelop__is_wf[OF assms _ HOL.refl] by simp
 
+lemma Store_ok_table_len:
+  assumes "Store_ok s" "a < length (store_TABLES s)"
+  shows "length (REFS (store_TABLES s ! a)) \<le> 2 ^ 32 - 1"
+proof -
+  obtain tts where "list_all2 (Tableinst_ok s) (store_TABLES s) tts"
+    using assms(1) by (auto elim!: Store_ok.cases)
+  then obtain tt where "Tableinst_ok s (store_TABLES s ! a) tt"
+    using assms(2) list_all2_nthD by blast
+  then show ?thesis
+    by (auto elim!: Tableinst_ok.cases Tabletype_ok.cases Limits_ok.cases)
+qed
+
+lemma Store_ok_mem_len:
+  assumes "Store_ok s" "a < length (store_MEMS s)"
+  shows "length (BYTES (store_MEMS s ! a)) \<le> 2 ^ 16 * (64 * Ki)"
+proof -
+  obtain mts where "list_all2 (Meminst_ok s) (store_MEMS s) mts"
+    using assms(1) by (auto elim!: Store_ok.cases)
+  then obtain mt where "Meminst_ok s (store_MEMS s ! a) mt"
+    using assms(2) list_all2_nthD by blast
+  then show ?thesis
+    by (auto elim!: Meminst_ok.cases Memtype_ok.cases Limits_ok.cases)
+qed
+
+lemma fun_table_len:
+  "Store_ok s \<Longrightarrow> fun_table (mk_state s f) x t \<Longrightarrow> length (REFS t) \<le> 2 ^ 32 - 1"
+  using Store_ok_table_len[of s] by (auto elim!: fun_table.cases)
+
+lemma fun_mem_len:
+  "Store_ok s \<Longrightarrow> fun_mem (mk_state s f) x m \<Longrightarrow> length (BYTES m) \<le> 2 ^ 16 * (64 * Ki)"
+  using Store_ok_mem_len[of s] by (auto elim!: fun_mem.cases)
+
+(* dest rules turning store lookups into the facts Step_read_is_wf needs *)
+lemma fun_table_lenD:
+  "fun_table (mk_state s f) x t \<Longrightarrow> Store_ok s \<Longrightarrow> length (REFS t) \<le> 4294967295"
+  using fun_table_len by fastforce
+
+lemma fun_mem_lenD:
+  "fun_mem (mk_state s f) x m \<Longrightarrow> Store_ok s \<Longrightarrow> length (BYTES m) \<le> 4294967296"
+  using fun_mem_len[of s f x m] by (simp add: Ki_def)
+
+lemma Store_ok_elem_len:
+  assumes "Store_ok s" "a < length (store_ELEMS s)"
+  shows "length (eleminst_REFS (store_ELEMS s ! a)) < 2 ^ 32"
+proof -
+  obtain ets where "list_all2 (Eleminst_ok s) (store_ELEMS s) ets"
+    using assms(1) by (auto elim!: Store_ok.cases)
+  then obtain et where "Eleminst_ok s (store_ELEMS s ! a) et"
+    using assms(2) list_all2_nthD by blast
+  then show ?thesis by (auto elim!: Eleminst_ok.cases)
+qed
+
+lemma fun_elem_lenD:
+  "fun_elem (mk_state s f) x e \<Longrightarrow> Store_ok s \<Longrightarrow> length (eleminst_REFS e) \<le> 4294967295"
+  using Store_ok_elem_len[of s] by (fastforce elim!: fun_elem.cases)
+
+lemma wf_load_extend:
+  "size (valtype_Inn inn) = Some y \<Longrightarrow> wf_uN n c \<Longrightarrow>
+   wf_num_underscore (numtype_Inn inn) (mk_num__0 inn (extend__underscore n y sx c))"
+  by (simp add: wf_num_Inn_iff extend___is_wf[OF _ HOL.refl])
+
+(* well-formedness of the fixed byte-wise LOAD/STORE instructions used by memory.fill/copy/init *)
+lemma wf_store8_ex:
+  "\<exists>var_0_opt Inn_opt.
+     list_all2 (\<lambda>var_0 v_Inn. var_0 = the (size (valtype_numtype (numtype_Inn v_Inn))))
+       (option_to_list var_0_opt) (option_to_list Inn_opt) \<and>
+     wf_sz (mk_sz 8) \<and> wf_memarg memarg0 \<and> (\<exists>y. Inn_opt = Some y) \<and>
+     list_all3 (\<lambda>var_0 v_Inn v_sz. I32 = numtype_Inn v_Inn \<and> proj_sz_0 v_sz < var_0)
+       (option_to_list var_0_opt) (option_to_list Inn_opt) [mk_sz 8]"
+  by (rule exI[of _ "Some 32"], rule exI[of _ "Some Inn_I32"])
+     (simp add: list_all3_nil list_all3_cons wf_proj_simps type_fun_simps wf_sz.simps memarg0_is_wf[OF HOL.refl]
+       proj_sz_0.psimps proj_sz_0.domintros)
+
+lemma wf_load8: "wf_loadop_underscore I32 (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))"
+  by (auto intro!: loadop__case_0 loadop_Inn_case_0 simp: wf_proj_simps type_fun_simps wf_sz.simps
+      proj_sz_0.psimps proj_sz_0.domintros)
+
+lemma fun_data_wfD:
+  "fun_data (mk_state s f) x d \<Longrightarrow> wf_store s \<Longrightarrow> list_all wf_byte (datainst_BYTES d)"
+  by (auto elim!: fun_data.cases simp: wf_store_iff wf_inst_iffs list_all_length)
+
+lemma fun_table_wfD: "fun_table (mk_state s f) x t \<Longrightarrow> wf_store s \<Longrightarrow> wf_tableinst t"
+  by (auto elim!: fun_table.cases simp: wf_store_iff list_all_length)
+
+lemma fun_mem_wfD: "fun_mem (mk_state s f) x m \<Longrightarrow> wf_store s \<Longrightarrow> wf_meminst m"
+  by (auto elim!: fun_mem.cases simp: wf_store_iff list_all_length)
+
+lemma fun_local_wfD: "fun_local (mk_state s f) x v \<Longrightarrow> wf_frame f \<Longrightarrow> wf_val v"
+  by (auto elim!: fun_local.cases wf_frame.cases simp: list_all_length)
+
+lemma fun_global_wfD: "fun_global (mk_state s f) x g \<Longrightarrow> wf_store s \<Longrightarrow> wf_val (VALUE g)"
+  by (auto elim!: fun_global.cases simp: wf_store_iff wf_inst_iffs list_all_length)
+
+lemma wf_admininstr_ref: "wf_admininstr (admininstr_ref r)"
+  by (cases r) (auto simp: admininstr_ref.psimps admininstr_ref.domintros intro: wf_admininstr.intros)
+
+lemma wf_num_I32_iff: "wf_num_underscore I32 (mk_num__0 Inn_I32 x) \<longleftrightarrow> wf_uN 32 x"
+  by (auto simp: wf_num_ctor_simps wf_proj_simps type_fun_simps)
+
+lemma wf_byte_proj: "wf_byte b \<Longrightarrow> proj_byte_0 b \<le> 255"
+  by (auto elim: wf_byte.cases simp: proj_byte_0.psimps proj_byte_0.domintros)
+
+lemma wf_bytes_nth: "list_all wf_byte bs \<Longrightarrow> k < length bs \<Longrightarrow> proj_byte_0 (bs ! k) \<le> 255"
+  by (simp add: list_all_length wf_byte_proj)
+
+lemma wf_bytes_nth_u32:
+  "list_all wf_byte bs \<Longrightarrow> k < length bs \<Longrightarrow> proj_byte_0 (bs ! k) \<le> 4294967295"
+  using wf_bytes_nth[of bs k] by simp
+
+lemma wf_func_instrs: "wf_func (func_FUNC x ls es) \<Longrightarrow> list_all wf_instr es"
+  by (auto elim: wf_func.cases)
+
+(* store updates performed by Step preserve wf_state *)
+lemma table_grow_wf_state:
+  assumes "fun_table (mk_state s f) x t" "fun_growtable t n r (Some t')"
+          "fun_with_tableinst (mk_state s f) x t' z" "wf_store s" "wf_frame f" "wf_uN 32 x"
+  shows "wf_state z"
+proof -
+  have "wf_tableinst t'" using growtable_is_wf[OF assms(2) fun_table_wfD[OF assms(1,4)]] by simp
+  then show ?thesis using with_tableinst_is_wf[OF assms(3) state_case_0[OF assms(4,5)] assms(6)] by simp
+qed
+
+lemma memory_grow_wf_state:
+  assumes "fun_mem (mk_state s f) (mk_uN 0) m" "fun_growmemory m n (Some m')"
+          "fun_with_meminst (mk_state s f) (mk_uN 0) m' z" "wf_store s" "wf_frame f"
+  shows "wf_state z"
+proof -
+  have "wf_meminst m'" using growmemory_is_wf[OF assms(2) fun_mem_wfD[OF assms(1,4)]] by simp
+  then show ?thesis using with_meminst_is_wf[OF assms(3) state_case_0[OF assms(4,5)]]
+    by (simp add: wf_uN_iff)
+qed
+
+lemma memory_write_wf_state:
+  assumes "fun_with_mem (mk_state s f) (mk_uN 0) a b bs z" "wf_store s" "wf_frame f"
+          "list_all wf_byte bs"
+  shows "wf_state z"
+  using with_mem_is_wf[OF assms(1) state_case_0[OF assms(2,3)] _ assms(4) HOL.refl]
+  by (simp add: wf_uN_iff)
+
+lemma numtype_Inn_inj: "numtype_Inn a = numtype_Inn b \<longleftrightarrow> a = b"
+  by (cases a; cases b) (simp_all add: wf_proj_simps)
+
+lemma wf_num_Inn_proj:
+  "wf_num_underscore (numtype_Inn inn) c \<Longrightarrow> proj_num__0 c = Some x \<Longrightarrow>
+   size (valtype_Inn inn) = Some n \<Longrightarrow> wf_uN n x"
+  by (cases c) (auto simp: wf_num_ctor_simps proj_num__0.psimps proj_num__0.domintros numtype_Inn_inj)
+
 lemma Step_pure_is_wf_aux:
   assumes "Step_pure es es'" "list_all wf_admininstr es"
   shows "list_all wf_admininstr es'"
@@ -1251,18 +1401,46 @@ lemma Step_pure_is_wf :
   using Step_pure_is_wf_aux by blast
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/8-reduction.spectec:7.10-7.19 *)
+(* MANUALLY MODIFIED: Store_ok premise added (the generated statement is false without store typing,
+   since wf_store does not bound the lengths of table and memory instances) *)
 lemma Step_read_is_wf :
-	"(wf_config var_0) \<Longrightarrow>
-	 (Step_read var_0 var_1) \<Longrightarrow>
+	"(wf_config (mk_config (mk_state s f) es)) \<Longrightarrow>
+	 Store_ok s \<Longrightarrow>
+	 (Step_read (mk_config (mk_state s f) es) var_1) \<Longrightarrow>
 	 list_all (\<lambda> (var_1 :: admininstr). (wf_admininstr var_1)) var_1"
-sorry
+  apply (erule Step_read.cases)
+  apply (auto elim!: wf_config.cases wf_state.cases
+      dest!: fun_table_lenD fun_mem_lenD fun_elem_lenD fun_data_wfD fun_local_wfD fun_global_wfD
+      simp: Ki_def wf_admininstr_sc_simps wf_instr_sc_simps wf_val_simps list.pred_map o_def
+      wf_num_I32_iff wf_uN_iff wf_proj_simps type_fun_simps wf_admininstr_val_iff
+      wf_admininstr_instr_iff wf_admininstr_ref iadd_underscore.psimps iadd_underscore.domintros suc32
+      intro: wf_func_instrs memarg0_is_wf[OF HOL.refl] wf_store8_ex wf_load8)
+  apply (auto intro!: inv_lanes__is_wf[OF _ _ HOL.refl] list_all_repeat
+      list_all_list_update_func_pres lanes__is_wf[OF _ _ HOL.refl] extend___is_wf[OF _ HOL.refl]
+      wf_load_extend wf_bytes_nth_u32 simp: list.pred_map o_def wf_lane_simps)
+  done
 
 (* Mutual Recursion at: ../specification/wasm-2.0/8-reduction.spectec:5.1-5.109 *)
+(* MANUALLY MODIFIED: Store_ok premise added (needed for the Step_read cases) *)
 lemma Step_is_wf :
-	"(wf_config var_0) \<Longrightarrow>
-	 (Step var_0 var_1) \<Longrightarrow>
+	"(wf_config (mk_config (mk_state s f) es)) \<Longrightarrow>
+	 Store_ok s \<Longrightarrow>
+	 (Step (mk_config (mk_state s f) es) var_1) \<Longrightarrow>
 	 (wf_config var_1)"
-sorry
+  apply (erule Step.cases)
+  apply (auto elim!: wf_config.cases wf_state.cases intro!: config_case_0
+      dest: Step_pure_is_wf Step_read_is_wf[OF config_case_0[OF state_case_0], rotated 4]
+        fun_table_lenD fun_mem_lenD fun_table_wfD fun_mem_wfD inv_signed_bound
+      simp: Ki_def wf_admininstr_sc_simps wf_instr_sc_simps wf_val_simps list.pred_map o_def
+      wf_num_I32_iff wf_uN_iff wf_proj_simps type_fun_simps wf_admininstr_val_iff
+      wf_admininstr_instr_iff)
+  apply (auto intro!: state_case_0 intro: with_local_is_wf with_global_is_wf with_table_is_wf
+      with_tableinst_is_wf with_mem_is_wf with_meminst_is_wf with_elem_is_wf with_data_is_wf
+      table_grow_wf_state memory_grow_wf_state simp: wf_proj_simps)
+  apply (auto intro!: memory_write_wf_state nbytes__is_wf[OF _ HOL.refl] ibytes__is_wf[OF _ HOL.refl]
+      vbytes__is_wf[OF _ _ HOL.refl] wrap___is_wf[OF _ HOL.refl]
+      intro: wf_num_Inn_proj simp: wf_proj_simps wf_uN_iff)
+  done
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:36.6-36.16 *)
 lemma allocfunc_is_wf :
