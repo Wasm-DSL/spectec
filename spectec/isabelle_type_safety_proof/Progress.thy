@@ -3865,6 +3865,42 @@ proof -
   qed
 qed
 
+lemma fun_jsize_jsize: "fun_jsize j (jsize j)"
+  by simp
+
+lemma fun_lsize_lsize: "fun_lsize lt (lsize lt)"
+  by simp
+
+lemma wf_lane_Jnn_proj:
+  assumes "wf_lane_underscore lt l" "lt = lanetype_Jnn J"
+  shows "wf_uN (lsize (lanetype_Jnn J)) (mk_uN (proj_uN_0 (the (proj_lane__0 l))))"
+  using assms(1)
+proof cases
+  case (lane__case_0 J' sz x)
+  then have "J' = J" using assms(2) lanetype_Jnn_inj by metis
+  then show ?thesis using lane__case_0 by (simp add: vt_generic_simps mk_uN_proj)
+next
+  case (lane__case_1 F sz y)
+  then show ?thesis using assms(2) lanetype_Jnn_Fnn_diff by metis
+qed
+
+lemma default_list_wf:
+  assumes "list_all2 (\<lambda>d t. fun_default_underscore t d) ds ts" "list_all (\<lambda>d. d \<noteq> None) ds"
+  shows "list_all wf_val (map the ds)"
+  using assms
+proof (induction ds ts rule: list_all2_induct)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons d ds t ts)
+  then show ?case using default__is_wf[OF _ _ HOL.refl] by auto
+qed
+
+lemma wf_shape_Jnn_intro:
+  assumes "lsize (lanetype_Jnn J) * n = 128" "n = 1 \<or> n = 2 \<or> n = 4 \<or> n = 8 \<or> n = 16"
+  shows "wf_shape (X (lanetype_Jnn J) (mk_dim n))"
+  by (rule shape_case_0[OF fun_lsize_lsize]) (use assms in \<open>auto intro: dim_case_0 simp: vt_generic_simps\<close>)
+
 lemma vvunop_ex: "\<exists>r. fun_vvunop_underscore V128 op c1 r"
   by (cases op) (auto intro!: exI fun_vvunop_underscore.intros simp: size.psimps size.domintros)
 
@@ -7091,6 +7127,7 @@ proj_uN_0.domintros proj_uN_0.psimps
               using inv_ibytes__is_wf bs by auto
              have wfz: "wf_uN 32 (mk_uN 0)"
                using uN_case_0 by blast
+             have pc: "proj_num__0 c \<noteq> None" using n by (simp add: vt_generic_simps)
              have "wf_vloadop_underscore V128 (SPLAT (mk_sz v_n))" using Nil(6)
              proof(induction "instr_sc6 (VLOAD V128 (Some (SPLAT (mk_sz v_n))) v_memarg)")
              qed(auto)
@@ -7118,10 +7155,10 @@ proj_uN_0.domintros proj_uN_0.psimps
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
                            mk_uN_proj_uN_0 1 jsize_def by simp
-                       then show ?thesis using vload_splat_val[OF _ mb, where i = c and v_N = v_n and ao = v_memarg] Nil(16) c n admininstr_val.domintros admininstr_val.psimps
-admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
-              proj_num__0.psimps wfbs wfz 1 2 3
-              by fastforce
+                       then show ?thesis using vload_splat_val[OF fun_jsize_jsize mb pc bs 1 HOL.refl HOL.refl wfz 2 3]
+                         Step.intros(2) Nil(16) c admininstr_val.domintros admininstr_val.psimps
+                         admininstr_instr.domintros admininstr_instr.psimps
+                         by fastforce
                      next
                        assume vn: "v_n = 16" 
                        have 1: "v_n = jsize Jnn_I16" using jsize_def
@@ -7138,10 +7175,10 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
                            mk_uN_proj_uN_0 1 jsize_def by simp
-                       then show ?thesis using vload_splat_val[OF _ mb, where i = c and v_N = v_n and ao = v_memarg] Nil(16) c n admininstr_val.domintros admininstr_val.psimps
-admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
-              proj_num__0.psimps wfbs wfz 1 2 3
-              by fastforce
+                       then show ?thesis using vload_splat_val[OF fun_jsize_jsize mb pc bs 1 HOL.refl HOL.refl wfz 2 3]
+                         Step.intros(2) Nil(16) c admininstr_val.domintros admininstr_val.psimps
+                         admininstr_instr.domintros admininstr_instr.psimps
+                         by fastforce
                      qed
                    next 
                      assume vn: "v_n = 32" 
@@ -7159,10 +7196,10 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
                            mk_uN_proj_uN_0 1 jsize_def by simp
-                       then show ?thesis using vload_splat_val[OF _ mb, where i = c and v_N = v_n and ao = v_memarg] Nil(16) c n admininstr_val.domintros admininstr_val.psimps
-admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
-              proj_num__0.psimps wfbs wfz 1 2 3
-              by fastforce
+                       then show ?thesis using vload_splat_val[OF fun_jsize_jsize mb pc bs 1 HOL.refl HOL.refl wfz 2 3]
+                         Step.intros(2) Nil(16) c admininstr_val.domintros admininstr_val.psimps
+                         admininstr_instr.domintros admininstr_instr.psimps
+                         by fastforce
                    qed
                  next 
                    assume vn: "v_n = 64"
@@ -7180,10 +7217,10 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
                            mk_uN_proj_uN_0 1 jsize_def by simp
-                       then show ?thesis using vload_splat_val[OF _ mb, where i = c and v_N = v_n and ao = v_memarg] Nil(16) c n admininstr_val.domintros admininstr_val.psimps
-admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
-              proj_num__0.psimps wfbs wfz 1 2 3
-              by fastforce
+                       then show ?thesis using vload_splat_val[OF fun_jsize_jsize mb pc bs 1 HOL.refl HOL.refl wfz 2 3]
+                         Step.intros(2) Nil(16) c admininstr_val.domintros admininstr_val.psimps
+                         admininstr_instr.domintros admininstr_instr.psimps
+                         by fastforce
                  qed
                qed
              qed
@@ -7361,6 +7398,7 @@ proj_uN_0.domintros proj_uN_0.psimps
               using inv_ibytes__is_wf bs by auto
              have wfz: "wf_uN 32 (mk_uN 0)"
                using uN_case_0 by blast
+             have pc: "proj_num__0 c \<noteq> None" using n by (simp add: vt_generic_simps)
              have "wf_sz (mk_sz v_n)" using Nil(7)
              proof(induction "instr_sc6 (VLOAD_LANE V128 (mk_sz v_n) v_memarg v_laneidx)")
              qed(auto)
@@ -7386,10 +7424,10 @@ proj_uN_0.domintros proj_uN_0.psimps
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
                            mk_uN_proj_uN_0 1 jsize_def by simp
-                       then show ?thesis using vload_lane_val[OF _ mb, where i = c and v_N = v_n and ao = v_memarg] Nil(17) c n vec admininstr_val.domintros admininstr_val.psimps
-admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
-              proj_num__0.psimps wfbs wfz 1 2 3
-              by fastforce
+                       then show ?thesis using vload_lane_val[OF fun_jsize_jsize mb pc bs 1 HOL.refl HOL.refl wfz 2 3]
+                         Step.intros(2) Nil(17) c vec admininstr_val.domintros admininstr_val.psimps
+                         admininstr_instr.domintros admininstr_instr.psimps
+                         by fastforce
                      next
                        assume vn: "v_n = 16" 
                        have 1: "v_n = jsize Jnn_I16" using jsize_def
@@ -7406,10 +7444,10 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
                            mk_uN_proj_uN_0 1 jsize_def by simp
-                       then show ?thesis using vload_lane_val[OF _ mb, where i = c and v_N = v_n and ao = v_memarg] Nil(17) c n vec admininstr_val.domintros admininstr_val.psimps
-admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
-              proj_num__0.psimps wfbs wfz 1 2 3
-              by fastforce
+                       then show ?thesis using vload_lane_val[OF fun_jsize_jsize mb pc bs 1 HOL.refl HOL.refl wfz 2 3]
+                         Step.intros(2) Nil(17) c vec admininstr_val.domintros admininstr_val.psimps
+                         admininstr_instr.domintros admininstr_instr.psimps
+                         by fastforce
                      qed
                    next 
                      assume vn: "v_n = 32" 
@@ -7427,10 +7465,10 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
                            mk_uN_proj_uN_0 1 jsize_def by simp
-                       then show ?thesis using vload_lane_val[OF _ mb, where i = c and v_N = v_n and ao = v_memarg] Nil(17) vec c n admininstr_val.domintros admininstr_val.psimps
-admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
-              proj_num__0.psimps wfbs wfz 1 2 3
-              by fastforce
+                       then show ?thesis using vload_lane_val[OF fun_jsize_jsize mb pc bs 1 HOL.refl HOL.refl wfz 2 3]
+                         Step.intros(2) Nil(17) c vec admininstr_val.domintros admininstr_val.psimps
+                         admininstr_instr.domintros admininstr_instr.psimps
+                         by fastforce
                    qed
                  next 
                    assume vn: "v_n = 64"
@@ -7448,10 +7486,10 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
                            mk_uN_proj_uN_0 1 jsize_def by simp
-                       then show ?thesis using vload_lane_val[OF _ mb, where i = c and v_N = v_n and ao = v_memarg] Nil(17) c n vec admininstr_val.domintros admininstr_val.psimps
-admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
-              proj_num__0.psimps wfbs wfz 1 2 3
-              by fastforce
+                       then show ?thesis using vload_lane_val[OF fun_jsize_jsize mb pc bs 1 HOL.refl HOL.refl wfz 2 3]
+                         Step.intros(2) Nil(17) c vec admininstr_val.domintros admininstr_val.psimps
+                         admininstr_instr.domintros admininstr_instr.psimps
+                         by fastforce
                  qed
                qed
              qed
@@ -7559,13 +7597,8 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                    qed(auto)
                    have wfl: "list_all (wf_lane_underscore lanetype_I8)
         (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim (128 div v_n))) c2)"
-                     using lanes__is_wf shape_case_0 dim_case_0 fun_lanetype.domintros fun_lanetype.psimps
-                       wfc2 lanetype_Jnn.domintros lanetype_Jnn.psimps lsize.simps
-                       psize.domintros psize.psimps valtype_numtype.domintros valtype_numtype.psimps
-                       size.domintros size.psimps
-                     by (metis div_mult2_eq double_half_numeral_Bit_0_eq(2) mult.assoc
-                         numeral_Bit0_div_2 proj_dim_0.domintros proj_dim_0.psimps
-                         vn)
+                     using lanes__is_wf[OF wf_shape_Jnn_intro wfc2 HOL.refl, of Jnn_I8 "128 div v_n"] vn
+                     by (simp add: vt_generic_simps lanetype_Jnn.psimps lanetype_Jnn.domintros)
                    have lenl: 
                      "length (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim (128 div v_n))) c2)
                       = 128 div v_n" using length_lanes by simp
@@ -7594,20 +7627,8 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
          (the (proj_lane__0
                 (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim (128 div v_n))) c2 !
                  proj_uN_0 v_laneidx)))))" 
-                     using wfl
-                   proof(induction lanetype_I8 "lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim (128 div v_n))) c2 ! proj_uN_0 v_laneidx")
-                     case (lane__case_0 v_Jnn var_x)
-                     then have "v_Jnn = Jnn_I8" using lanetype_Jnn.domintros lanetype_Jnn.psimps
-                     proof (induction v_Jnn) qed(auto)
-                     then show ?case
-                       using lane__case_0 1 jsize_def 
-                         proj_lane__0.domintros proj_lane__0.psimps mk_uN_proj_uN_0
-                       by (metis option.sel)
-                   next
-                     case (lane__case_1 v_Fnn var_x)
-                     then show ?case using lanetype_Fnn.domintros lanetype_Fnn.psimps 
-                     proof(induction v_Fnn) qed(auto)
-                   qed
+                     using 1 wf_lane_Jnn_proj[OF wfl, of Jnn_I8]
+                     by (simp add: lanetype_Jnn.psimps lanetype_Jnn.domintros)
                     show ?case using 
                         vstore_lane_val[OF _ wm c1 1 _ 2 3 _ 4] 
                         a1 a2 Nil(17) 
@@ -7629,13 +7650,8 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                    qed(auto)
                    have wfl: "list_all (wf_lane_underscore lanetype_I16)
         (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim (128 div v_n))) c2)"
-                     using lanes__is_wf shape_case_0 dim_case_0 fun_lanetype.domintros fun_lanetype.psimps
-                       wfc2 lanetype_Jnn.domintros lanetype_Jnn.psimps lsize.simps
-                       psize.domintros psize.psimps valtype_numtype.domintros valtype_numtype.psimps
-                       size.domintros size.psimps
-                     by (metis div_mult2_eq double_half_numeral_Bit_0_eq(2) mult.assoc
-                         numeral_Bit0_div_2 proj_dim_0.domintros proj_dim_0.psimps
-                         vn)
+                     using lanes__is_wf[OF wf_shape_Jnn_intro wfc2 HOL.refl, of Jnn_I16 "128 div v_n"] vn
+                     by (simp add: vt_generic_simps lanetype_Jnn.psimps lanetype_Jnn.domintros)
                    have lenl: 
                      "length (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim (128 div v_n))) c2)
                       = 128 div v_n" using length_lanes by simp
@@ -7664,20 +7680,8 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
          (the (proj_lane__0
                 (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim (128 div v_n))) c2 !
                  proj_uN_0 v_laneidx)))))" 
-                     using wfl
-                   proof(induction lanetype_I16 "lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim (128 div v_n))) c2 ! proj_uN_0 v_laneidx")
-                     case (lane__case_0 v_Jnn var_x)
-                     then have "v_Jnn = Jnn_I16" using lanetype_Jnn.domintros lanetype_Jnn.psimps
-                     proof (induction v_Jnn) qed(auto)
-                     then show ?case
-                       using lane__case_0 1 jsize_def 
-                         proj_lane__0.domintros proj_lane__0.psimps mk_uN_proj_uN_0
-                       by (metis option.sel)
-                   next
-                     case (lane__case_1 v_Fnn var_x)
-                     then show ?case using lanetype_Fnn.domintros lanetype_Fnn.psimps 
-                     proof(induction v_Fnn) qed(auto)
-                   qed
+                     using 1 wf_lane_Jnn_proj[OF wfl, of Jnn_I16]
+                     by (simp add: lanetype_Jnn.psimps lanetype_Jnn.domintros)
                     show ?case using 
                         vstore_lane_val[OF _ wm c1 1 _ 2 3 _ 4] 
                         a1 a2 Nil(17) 
@@ -7700,12 +7704,8 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                    qed(auto)
                    have wfl: "list_all (wf_lane_underscore lanetype_I32)
         (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim (128 div v_n))) c2)"
-                     using lanes__is_wf shape_case_0 dim_case_0 fun_lanetype.domintros fun_lanetype.psimps
-                       wfc2 lanetype_Jnn.domintros lanetype_Jnn.psimps lsize.simps
-                       psize.domintros psize.psimps valtype_numtype.domintros valtype_numtype.psimps
-                       size.domintros size.psimps
-                     by (metis div_mult2_eq double_half_numeral_Bit_0_eq(1) mult.assoc numeral_Bit0_div_2 option.sel
-                         proj_dim_0.domintros proj_dim_0.psimps vn)
+                     using lanes__is_wf[OF wf_shape_Jnn_intro wfc2 HOL.refl, of Jnn_I32 "128 div v_n"] vn
+                     by (simp add: vt_generic_simps lanetype_Jnn.psimps lanetype_Jnn.domintros)
                      
                    have lenl: 
                      "length (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim (128 div v_n))) c2)
@@ -7735,20 +7735,8 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
          (the (proj_lane__0
                 (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim (128 div v_n))) c2 !
                  proj_uN_0 v_laneidx)))))" 
-                     using wfl
-                   proof(induction lanetype_I32 "lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim (128 div v_n))) c2 ! proj_uN_0 v_laneidx")
-                     case (lane__case_0 v_Jnn var_x)
-                     then have "v_Jnn = Jnn_I32" using lanetype_Jnn.domintros lanetype_Jnn.psimps
-                     proof (induction v_Jnn) qed(auto)
-                     then show ?case
-                       using lane__case_0 1 jsize_def 
-                         proj_lane__0.domintros proj_lane__0.psimps mk_uN_proj_uN_0
-                       by (metis option.sel)
-                   next
-                     case (lane__case_1 v_Fnn var_x)
-                     then show ?case using lanetype_Fnn.domintros lanetype_Fnn.psimps 
-                     proof(induction v_Fnn) qed(auto)
-                   qed
+                     using 1 wf_lane_Jnn_proj[OF wfl, of Jnn_I32]
+                     by (simp add: lanetype_Jnn.psimps lanetype_Jnn.domintros)
                     show ?case using 
                         vstore_lane_val[OF _ wm c1 1 _ 2 3 _ 4] 
                         a1 a2 Nil(17) 
@@ -7771,12 +7759,8 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                    qed(auto)
                    have wfl: "list_all (wf_lane_underscore lanetype_I64)
         (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim (128 div v_n))) c2)"
-                     using lanes__is_wf shape_case_0 dim_case_0 fun_lanetype.domintros fun_lanetype.psimps
-                       wfc2 lanetype_Jnn.domintros lanetype_Jnn.psimps lsize.simps
-                       psize.domintros psize.psimps valtype_numtype.domintros valtype_numtype.psimps
-                       size.domintros size.psimps
-                     by (metis double_half_numeral_Bit_0_eq(2) nonzero_mult_div_cancel_left numeral_Bit0_div_2 option.sel
-                         proj_dim_0.domintros proj_dim_0.psimps vn zero_neq_numeral)
+                     using lanes__is_wf[OF wf_shape_Jnn_intro wfc2 HOL.refl, of Jnn_I64 "128 div v_n"] vn
+                     by (simp add: vt_generic_simps lanetype_Jnn.psimps lanetype_Jnn.domintros)
                    have lenl: 
                      "length (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim (128 div v_n))) c2)
                       = 128 div v_n" using length_lanes by simp
@@ -7805,20 +7789,8 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
          (the (proj_lane__0
                 (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim (128 div v_n))) c2 !
                  proj_uN_0 v_laneidx)))))" 
-                     using wfl
-                   proof(induction lanetype_I64 "lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim (128 div v_n))) c2 ! proj_uN_0 v_laneidx")
-                     case (lane__case_0 v_Jnn var_x)
-                     then have "v_Jnn = Jnn_I64" using lanetype_Jnn.domintros lanetype_Jnn.psimps
-                     proof (induction v_Jnn) qed(auto)
-                     then show ?case
-                       using lane__case_0 1 jsize_def 
-                         proj_lane__0.domintros proj_lane__0.psimps mk_uN_proj_uN_0
-                       by (metis option.sel)
-                   next
-                     case (lane__case_1 v_Fnn var_x)
-                     then show ?case using lanetype_Fnn.domintros lanetype_Fnn.psimps 
-                     proof(induction v_Fnn) qed(auto)
-                   qed
+                     using 1 wf_lane_Jnn_proj[OF wfl, of Jnn_I64]
+                     by (simp add: lanetype_Jnn.psimps lanetype_Jnn.domintros)
                     show ?case using 
                         vstore_lane_val[OF _ wm c1 1 _ 2 3 _ 4] 
                         a1 a2 Nil(17) 
@@ -8795,11 +8767,7 @@ assms(6) proof(induction "C")
                qed
                have dl2: "list_all (\<lambda>d. d \<noteq> None) dl" by (simp add: dl_def list_all_iff)
                have wfdl: "list_all wf_val (map the dl)"
-               proof -
-                 have "\<forall>d\<in>set dl. \<exists>t. fun_default_underscore t d"
-                   using dl by (auto simp: list_all2_conv_all_nth in_set_conv_nth)
-                 then show ?thesis using dl2 default__is_wf[OF _ _ HOL.refl] by (fastforce simp: list_all_iff)
-               qed
+                 by (rule default_list_wf[OF dl dl2])
                  have 7: "wf_frame \<lparr>LOCALS = vs @ map the dl,
                     frame_MODULE = mm\<rparr>" using Externaddr_ok__func(11) 5 wfdl
                    by (metis (mono_tags, lifting) frame_case_underscore funcinst.ext_inject
