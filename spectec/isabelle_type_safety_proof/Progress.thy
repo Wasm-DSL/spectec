@@ -3934,6 +3934,33 @@ proof -
     unfolding global_of.simps using a x' by (rule fun_global_case_0)
 qed
 
+lemma Externaddr_ok_mem_bound:
+  "Externaddr_ok s v xt \<Longrightarrow> v = externaddr_MEM a \<Longrightarrow> a < length (store_MEMS s)"
+  by (induction rule: Externaddr_ok.induct) auto
+
+lemma State_ok_fun_mem:
+  assumes "State_ok (mk_state s f) C" "proj_uN_0 x < length (context_MEMS C)"
+  shows "fun_mem (mk_state s f) x (mem_of (mk_state s f) x)"
+proof -
+  have "\<exists>C'. Moduleinst_ok s (frame_MODULE f) C' \<and> context_MEMS C = context_MEMS C'"
+    using assms(1) by (fastforce elim!: State_ok.cases Frame_ok.cases simp: append_res_context_def)
+  then obtain C' where m: "Moduleinst_ok s (frame_MODULE f) C'"
+      and c: "context_MEMS C = context_MEMS C'" by blast
+  from m have l: "list_all2 (\<lambda>a t. Externaddr_ok s (externaddr_MEM a) (MEM t))
+      (MEMS (frame_MODULE f)) (context_MEMS C')"
+    by (auto elim!: Moduleinst_ok.cases)
+  have x: "proj_uN_0 x < length (context_MEMS C')" using assms(2) c by simp
+  then have x': "proj_uN_0 x < length (MEMS (frame_MODULE f))"
+    using list_all2_lengthD[OF l] by simp
+  have "Externaddr_ok s (externaddr_MEM (MEMS (frame_MODULE f) ! proj_uN_0 x))
+      (MEM (context_MEMS C' ! proj_uN_0 x))"
+    using list_all2_nthD2[OF l x] by simp
+  then have a: "MEMS (frame_MODULE f) ! proj_uN_0 x < length (store_MEMS s)"
+    using Externaddr_ok_mem_bound by blast
+  show ?thesis
+    unfolding mem_of.simps using a x' by (rule fun_mem_case_0)
+qed
+
 lemma State_ok_fun_elem:
   assumes "State_ok (mk_state s f) C" "proj_uN_0 x < length (context_ELEMS C)"
   shows "fun_elem (mk_state s f) x (elem_of (mk_state s f) x)"
@@ -3951,6 +3978,25 @@ proof -
     using l(2) by (simp add: list_all_length)
   show "fun_elem (mk_state s f) x (elem_of (mk_state s f) x)"
     unfolding elem_of.simps using a x' by (rule fun_elem_case_0)
+qed
+
+lemma State_ok_fun_data:
+  assumes "State_ok (mk_state s f) C" "proj_uN_0 x < length (context_DATAS C)"
+  shows "fun_data (mk_state s f) x (data_of (mk_state s f) x)"
+    and "proj_uN_0 x < length (DATAS (frame_MODULE f))"
+proof -
+  have "\<exists>C'. Moduleinst_ok s (frame_MODULE f) C' \<and> context_DATAS C = context_DATAS C'"
+    using assms(1) by (fastforce elim!: State_ok.cases Frame_ok.cases simp: append_res_context_def)
+  then obtain C' where m: "Moduleinst_ok s (frame_MODULE f) C'"
+      and c: "context_DATAS C = context_DATAS C'" by blast
+  from m have l: "length (DATAS (frame_MODULE f)) = length (context_DATAS C')"
+      "list_all (\<lambda>a. a < length (store_DATAS s)) (DATAS (frame_MODULE f))"
+    by (auto elim!: Moduleinst_ok.cases)
+  show x': "proj_uN_0 x < length (DATAS (frame_MODULE f))" using assms(2) c l(1) by simp
+  then have a: "DATAS (frame_MODULE f) ! proj_uN_0 x < length (store_DATAS s)"
+    using l(2) by (simp add: list_all_length)
+  show "fun_data (mk_state s f) x (data_of (mk_state s f) x)"
+    unfolding data_of.simps using a x' by (rule fun_data_case_0)
 qed
 
 lemma fun_with_table_ex:
@@ -5985,9 +6031,12 @@ theorem progress:
       qed
       have wfz: "wf_uN 32 (mk_uN 0)"
         using uN_case_0 by blast
+      have mb: "fun_mem (mk_state s' f) (mk_uN 0) (mem_of (mk_state s' f) (mk_uN 0))"
+        using State_ok_fun_mem[OF \<open>State_ok (mk_state s' f) (strip C)\<close>, where x = "mk_uN 0"] memory_size(1)
+        by (simp add: strip_def proj_uN_0.psimps proj_uN_0.domintros)
       show ?case using memory_size proof(induction vs)
         case Nil
-        then show ?case using Step_read__memory_size[OF vn wfz] Step.intros(2) by fastforce
+        then show ?case using Step_read__memory_size[OF mb vn wfz] Step.intros(2) by fastforce
       next
         case (Cons a vs)
         then show ?case by simp
@@ -6054,6 +6103,9 @@ theorem progress:
               obtain i where a1: "a1 = val_CONST I32 i" using Nil(9) typeofval_is_i32 by fastforce
               have "wf_val a1" using Nil(10) by simp
               then have proji: "proj_num__0 i \<noteq> None" using a1 by (metis wf_val_i32_proj)
+              have mb: "fun_mem (mk_state s' f) (mk_uN 0) (mem_of (mk_state s' f) (mk_uN 0))"
+                using State_ok_fun_mem[OF \<open>State_ok (mk_state s' f) (strip C)\<close>, where x = "mk_uN 0"] memory_fill(1)
+                by (simp add: strip_def proj_uN_0.psimps proj_uN_0.domintros)
               obtain c where a3: "a3 = val_CONST I32 c" using Nil(9) typeofval_is_i32 by fastforce
               have "wf_val a3" using Nil(10) by simp
               then obtain n where c: "c = mk_num__0 Inn_I32 (mk_uN n)" using a3 proof(induction a3)
@@ -6074,19 +6126,19 @@ theorem progress:
               qed(auto)
               then show ?case proof(cases "length (BYTES (mem_of (mk_state s' f) (mk_uN 0))) < proj_uN_0 (the (proj_num__0 i)) + n")
                 case True
-                then show ?thesis using memory_fill_trap[of i "mk_state s' f" n a2] proji Nil(15)
+                then show ?thesis using memory_fill_trap[OF mb proji, where v_n = n and v_val = a2] Nil(15)
                   admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros 
                   admininstr_instr.psimps Step.intros(2) a1 a3 c wfz by fastforce
               next
                 case False
                 then show ?thesis proof(cases n)
                   case 0
-                  then show ?thesis using memory_fill_zero[of i n "mk_state s' f" a2] wfz proji Nil(15)
+                  then show ?thesis using memory_fill_zero[OF mb proji, where v_n = n and v_val = a2] wfz Nil(15)
                   admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros False
                   admininstr_instr.psimps Step.intros(2) a1 a3 c by fastforce
                 next
                   case (Suc nat)
-                  then show ?thesis using memory_fill_succ[of i n "mk_state s' f" a2] wfz proji Nil(15)
+                  then show ?thesis using memory_fill_succ[OF mb proji, where v_n = n and v_val = a2] wfz Nil(15)
                   admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros False
                   admininstr_instr.psimps Step.intros(2) a1 a3 c by fastforce
                 qed
@@ -6125,6 +6177,9 @@ theorem progress:
               obtain i where a2: "a2 = val_CONST I32 i" using Nil(9) typeofval_is_i32 by fastforce
               have "wf_val a2" using Nil(10) by simp
               then have proji: "proj_num__0 i \<noteq> None" using a2 by (metis wf_val_i32_proj)
+              have mb: "fun_mem (mk_state s' f) (mk_uN 0) (mem_of (mk_state s' f) (mk_uN 0))"
+                using State_ok_fun_mem[OF \<open>State_ok (mk_state s' f) (strip C)\<close>, where x = "mk_uN 0"] memory_copy(1)
+                by (simp add: strip_def proj_uN_0.psimps proj_uN_0.domintros)
               obtain c where a3: "a3 = val_CONST I32 c" using Nil(9) typeofval_is_i32 by fastforce
               have "wf_val a3" using Nil(10) by simp
               then obtain n where c: "c = mk_num__0 Inn_I32 (mk_uN n)" using a3 proof(induction a3)
@@ -6147,7 +6202,7 @@ theorem progress:
                   "length (BYTES (mem_of (mk_state s' f) (mk_uN 0))) < proj_uN_0 (the (proj_num__0 i)) + n \<or>
                   length (BYTES (mem_of (mk_state s' f) (mk_uN 0))) < proj_uN_0 (the (proj_num__0 j)) + n")
                 case True
-                then show ?thesis using memory_copy_trap[of i j "mk_state s' f" n] proji 
+                then show ?thesis using memory_copy_trap[OF mb, where i = i and j = j and v_n = n] proji 
                   projj Nil(15)
                   admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros 
                   admininstr_instr.psimps Step.intros(2) a1 a2 a3 c wfz by fastforce
@@ -6156,7 +6211,7 @@ theorem progress:
                 note outer = False
                 then show ?thesis proof(cases n)
                   case 0
-                  then show ?thesis using memory_copy_zero[of i j n "mk_state s' f"] proji 
+                  then show ?thesis using memory_copy_zero[OF mb, where i = i and j = j and v_n = n] proji 
                       projj Nil(15) wfz
                   admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros False
                   admininstr_instr.psimps Step.intros(2) a1 a2 a3 c by fastforce
@@ -6164,13 +6219,13 @@ theorem progress:
                   case (Suc nat) 
                   then show ?thesis proof(cases "proj_uN_0 (the (proj_num__0 j)) \<le> proj_uN_0 (the (proj_num__0 i))")
                     case True
-                    then show ?thesis using memory_copy_le[of j i n "mk_state s' f"] proji 
+                    then show ?thesis using memory_copy_le[OF mb, where i = i and j = j and v_n = n] proji 
                       projj Nil(15) wfz Suc
                   admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros outer
                   admininstr_instr.psimps Step.intros(2) a1 a2 a3 c by fastforce
                   next
                     case False
-                    then show ?thesis using memory_copy_gt[of j i n "mk_state s' f"] proji 
+                    then show ?thesis using memory_copy_gt[OF mb, where i = i and j = j and v_n = n] proji 
                       projj Nil(15) wfz Suc
                   admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros outer
                   admininstr_instr.psimps Step.intros(2) a1 a2 a3 c by fastforce
@@ -6209,6 +6264,12 @@ theorem progress:
               obtain i where a2: "a2 = val_CONST I32 i" using Nil(11) typeofval_is_i32 by fastforce
               have "wf_val a2" using Nil(12) by simp
               then have proji: "proj_num__0 i \<noteq> None" using a2 by (metis wf_val_i32_proj)
+              have mb: "fun_mem (mk_state s' f) (mk_uN 0) (mem_of (mk_state s' f) (mk_uN 0))"
+                using State_ok_fun_mem[OF \<open>State_ok (mk_state s' f) (strip C)\<close>, where x = "mk_uN 0"] memory_init(1)
+                by (simp add: strip_def proj_uN_0.psimps proj_uN_0.domintros)
+              have db: "fun_data (mk_state s' f) x (data_of (mk_state s' f) x)"
+                using State_ok_fun_data(1)[OF \<open>State_ok (mk_state s' f) (strip C)\<close>] memory_init(3)
+                by (simp add: strip_def)
                have wfz: "wf_uN 32 (mk_uN 0)"
         using uN_case_0 by blast
               obtain c where a3: "a3 = val_CONST I32 c" using Nil(11) typeofval_is_i32 by fastforce
@@ -6233,19 +6294,19 @@ theorem progress:
               proof(cases "length (datainst_BYTES (data_of (mk_state s' f) x)) < proj_uN_0 (the (proj_num__0 i)) + n \<or>
     length (BYTES (mem_of (mk_state s' f) (mk_uN 0))) < proj_uN_0 (the (proj_num__0 j)) + n")
                 case True
-                then show ?thesis using memory_init_trap[of i j "mk_state s' f" x n] proji projj Nil(17)
+                then show ?thesis using memory_init_trap[OF mb db, where i = i and j = j and v_n = n] proji projj Nil(17)
                   admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros 
                   admininstr_instr.psimps Step.intros(2) wfz a1 a2 a3 c by fastforce
               next
                 case False
                 then show ?thesis proof(cases n)
                   case 0
-                  then show ?thesis using memory_init_zero[of i j n "mk_state s' f" x] wfz proji projj Nil(17)
+                  then show ?thesis using memory_init_zero[OF mb db, where i = i and j = j and v_n = n] wfz proji projj Nil(17)
                   admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros False
                   admininstr_instr.psimps Step.intros(2) a1 a2 a3 c by fastforce
                 next
                   case (Suc nat)
-                  then show ?thesis using memory_init_succ[of i "mk_state s' f" x j n] proji projj Nil(17)
+                  then show ?thesis using memory_init_succ[OF mb db, where i = i and j = j and v_n = n] proji projj Nil(17)
                   admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros False
                   admininstr_instr.psimps Step.intros(2) a1 a2 a3 c wfz by fastforce
                 qed
@@ -6259,9 +6320,13 @@ theorem progress:
       qed
     next
       case (data_drop x C)
-      then show ?case proof(induction vs)
+      have xb: "proj_uN_0 x < length (DATAS (frame_MODULE f))"
+        using State_ok_fun_data(2)[OF \<open>State_ok (mk_state s' f) (strip C)\<close>] data_drop(1)
+        by (simp add: strip_def)
+      from data_drop show ?case proof(induction vs)
         case Nil
-        then show ?case using Step__data_drop admininstr_instr.domintros admininstr_instr.psimps
+        then show ?case using Step__data_drop[OF fun_with_data_case_0[OF xb]]
+            admininstr_instr.domintros admininstr_instr.psimps
           by fastforce
       next
         case (Cons a vs)
@@ -6269,7 +6334,10 @@ theorem progress:
       qed
     next
       case (load_val C mt nt v_memarg)
-      then show ?case proof(induction vs)
+      have mb: "fun_mem (mk_state s' f) (mk_uN 0) (mem_of (mk_state s' f) (mk_uN 0))"
+        using State_ok_fun_mem[OF \<open>State_ok (mk_state s' f) (strip C)\<close>, where x = "mk_uN 0"] load_val(1)
+        by (simp add: strip_def proj_uN_0.psimps proj_uN_0.domintros)
+      from load_val show ?case proof(induction vs)
         case Nil
         then show ?case by simp
       next
@@ -6299,7 +6367,7 @@ theorem progress:
             have "wf_uN 32 (mk_uN 0)"
               using uN_case_0 by blast
             then show ?thesis
-              using load_num_trap[of c nt "mk_state s' f" v_memarg] n c proj_num__0.domintros 
+              using load_num_trap[OF mb, where i = c and nt = nt and ao = v_memarg] n c proj_num__0.domintros
 proj_uN_0.domintros proj_uN_0.psimps
                 proj_num__0.psimps Nil(3,17) Step.intros(2) admininstr_val.domintros 
               admininstr_val.psimps admininstr_instr.domintros admininstr_instr.psimps True
@@ -6357,8 +6425,7 @@ proj_uN_0.domintros proj_uN_0.psimps
               using inv_nbytes__is_wf bs by auto
              have "wf_uN 32 (mk_uN 0)"
               using uN_case_0 by blast
-            then show ?thesis using load_num_val[of c nt "inv_nbytes_underscore nt _" 
-                  "mk_state s' f" v_memarg] Nil(3,17) c n admininstr_val.domintros admininstr_val.psimps
+            then show ?thesis using load_num_val[OF mb, where i = c and nt = nt and ao = v_memarg] Nil(3,17) c n admininstr_val.domintros admininstr_val.psimps
 admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
               proj_num__0.psimps wfbs
               by fastforce
@@ -6370,7 +6437,10 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
       qed
     next
       case (load_pack C mt v_memarg v_M v_Inn v_sx)
-      then show ?case proof(induction vs)
+      have mb: "fun_mem (mk_state s' f) (mk_uN 0) (mem_of (mk_state s' f) (mk_uN 0))"
+        using State_ok_fun_mem[OF \<open>State_ok (mk_state s' f) (strip C)\<close>, where x = "mk_uN 0"] load_pack(1)
+        by (simp add: strip_def proj_uN_0.psimps proj_uN_0.domintros)
+      from load_pack show ?case proof(induction vs)
         case Nil
         then show ?case by simp
       next
@@ -6400,7 +6470,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
             have "wf_uN 32 (mk_uN 0)"
               using uN_case_0 by blast
             then show ?thesis
-              using load_pack_trap[of c "mk_state s' f" v_memarg v_M] n c proj_num__0.domintros 
+              using load_pack_trap[OF mb, where i = c and ao = v_memarg and v_n = v_M] n c proj_num__0.domintros
 proj_uN_0.domintros proj_uN_0.psimps
                 proj_num__0.psimps Nil(16) Step.intros(2) admininstr_val.domintros 
               admininstr_val.psimps admininstr_instr.domintros admininstr_instr.psimps True
@@ -6461,8 +6531,8 @@ proj_uN_0.domintros proj_uN_0.psimps
              have " isabelle_reference_output_wasm2.size (valtype_Inn v_Inn) \<noteq> None"
                using valtype_Inn.domintros valtype_Inn.psimps size.domintros size.psimps proof(induction v_Inn) 
              qed(auto)
-            then show ?thesis using load_pack_val[of v_Inn c v_M "inv_ibytes_underscore v_M _" 
-                  "mk_state s' f" v_memarg] Nil(16) c n admininstr_val.domintros admininstr_val.psimps
+            then show ?thesis using load_pack_val[OF mb, where v_Inn = v_Inn and i = c and v_n = v_M
+                  and ao = v_memarg] Nil(16) c n admininstr_val.domintros admininstr_val.psimps
 admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
               proj_num__0.psimps wfbs wfz
               by fastforce
