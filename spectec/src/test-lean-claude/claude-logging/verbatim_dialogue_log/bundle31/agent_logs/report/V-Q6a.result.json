@@ -1,0 +1,78 @@
+{
+ "label": "V-Q6a",
+ "verified_file": "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/V-Q6a/section.verified.md",
+ "corrections": [
+  {
+   "construct": "t_progress_be_memory_size (Statement)",
+   "wrong": "The side-condition list (which the other 8 entries reuse via 'same side conditions ... as t_progress_be_memory_size') left out two hypotheses of t_progress_be_P: `Forall wf_val vcs`, which the operand inversions (invert_typeof_I32) in the other cases depend on, and `not_lf_br` / `not_lf_return`.",
+   "fixed": "The operands item now says 'well-formed operands `vcs` (`Forall wf_val vcs`)'. Added an item for `not_lf_br` / `not_lf_return` on `[memory.size]`, noting they hold trivially and are not used."
+  },
+  {
+   "construct": "t_progress_be_memory_size (What broke)",
+   "wrong": "'So the two old holes were used up by the new argument and premise, and there is no longer a function `fun_mem` to unfold' reads as if the 'No goals to be solved' error at the next bullet (orig line 6139:4) came from `fun_mem` no longer unfolding. It does not. That error follows from the failed `refine`: the mismatched argument (orig line 6138:22) was replaced by an error term, so the `?_` holes never became goals.",
+   "fixed": "The causal chain is now explicit: the holes were consumed, error recovery left `refine` with no goals, and the bullet found none. The fact that `fun_mem` is no longer unfoldable is kept as a separate remark explaining why the final proof's simp set drops it."
+  },
+  {
+   "construct": "t_progress_be_memory_fill (What broke)",
+   "wrong": "'The zero/succ applications are out of step in the same way.' In memory_fill_succ the `fun_mem` premise is the second premise, after `proj_num__0 i \u2260 none`, so the arguments are misaligned differently there.",
+   "fixed": "Changed to 'out of step as well (in `-succ` the `fun_mem` premise comes second, after `proj_num__0 i \u2260 none`)'."
+  },
+  {
+   "construct": "t_progress_be_memory_fill (Original proof sketch)",
+   "wrong": "'The model encodes the spec's `otherwise` as explicit `\u2264` premises'. Incomplete: memory_fill_succ also encodes 'otherwise' with an explicit `v_n \u2260 0` premise.",
+   "fixed": "Now reads 'as explicit `\u2264` premises (plus `n \u2260 0` for `-succ`)'."
+  },
+  {
+   "construct": "t_progress_be_memory_init (What broke)",
+   "wrong": "'The bounds and the byte `data.data[i]` read by `-succ` are now on `var_0.BYTES`.' Not all of them: in the new rules the memory bounds (`j + n` vs memory) are on `var_1.BYTES`, the meminst. Only the data bounds, -succ's `i < |data|` premise and the byte read are on `var_0.BYTES`, the datainst.",
+   "fixed": "Now says: data bounds, `-succ`'s premise `i < |data.data|` and the byte it reads are on `var_0.BYTES`; memory bounds are on `var_1.BYTES`."
+  },
+  {
+   "construct": "t_progress_be_memory_init (Current proof sketch)",
+   "wrong": "'All three rules receive `mi di Hm Hd`' suggests the four arguments are adjacent in every rule. In memory_init_succ, `Hm Hd` come after the `i < |di.BYTES|` premise and the two `\u2260 none` premises (final: `mi di (omega) (simp) (simp) Hm Hd ...`).",
+   "fixed": "Added a sentence giving the argument order for `-succ`."
+  },
+  {
+   "construct": "t_progress_be_store_val (What broke)",
+   "wrong": "'The rule gained the output state `var_0 : state` and that premise.' Grammatically 'that premise' is the constructor premise `0 < |F.module.memaddrs|`, but the rule Step.store_num_val actually gained the relation premise `fun_with_mem z 0 (i+offset) (|t|/8) b* var_0`. That is its third premise, after `size t \u2260 none`, and the rule now reduces to `config var_0 []`.",
+   "fixed": "Names the gained premise and its position explicitly, and adds the new target `config var_0 []`."
+  },
+  {
+   "construct": "t_progress_be_store_pack (Current proof sketch)",
+   "wrong": "'the `fun_with_mem` premise `0 < |F.module.memaddrs|`' is ambiguous: store_pack_val's fun_with_mem premise is the relation itself, not the bound.",
+   "fixed": "Changed to 'the only premise of `fun_with_mem_case_0`, `0 < |F.module.memaddrs|`, comes from `fun_mem_inv Hm`'."
+  }
+ ],
+ "flags": [
+  {
+   "construct": "t_progress_be_data_drop",
+   "line": "Final TypeProgress.lean 6585-6586: `-- Rocq: case Estate: (with_data (mk_state s f) x []) => [s' f']. exists s', f', []. rewrite -Estate. by eapply Step__data_drop.`",
+   "issue": "CONFIRMED (writer's flag). The Rocq quote is accurate (type_progress.v:4977-4980), but the Lean code under it (6587-6590) no longer destructs the state. It now builds `Step.data_drop _ x _ (fun_with_data.fun_with_data_case_0 s f x [] Hx)`, with Hx from `Moduleinst_ok_data_addr`. The comment is also inconsistent with the repaired t_progress_be_elem_drop, which shortened its comment at line 6340 to '-- Rocq: `exists s', f', []. ... by apply: Step__elem_drop.`'.",
+   "suggestion": "Shorten it as elem_drop does, e.g. '-- Rocq: `exists s', f', []. ... by eapply Step__data_drop.` (Rocq destructs `with_data (mk_state s f) x []` first; here `fun_with_data_case_0`, with its index bound from `Moduleinst_ok_data_addr`, fixes the target state, so no case split is needed.)'"
+  },
+  {
+   "construct": "t_progress_be_load_val",
+   "line": "Final TypeProgress.lean 6651: `--        by apply: (wf_config_mem_bytes _ _ _ _ HWfConfig).`",
+   "issue": "CONFIRMED (writer's flag, minor). This is an accurate quote of Rocq type_progress.v:5006, but the Lean call right below it (line 6653) is `wf_config_mem_bytes _ _ _ _ _ HWfConfig Hm`. The lemma was restated to take the meminst and its `fun_mem` witness.",
+   "suggestion": "Append '(Lean: the restated lemma also takes the meminst and its `fun_mem` witness `Hm`.)'"
+  },
+  {
+   "construct": "t_progress_be_load_pack",
+   "line": "Final TypeProgress.lean 6717: `--        by apply: (wf_config_mem_bytes _ _ _ _ HWfConfig).`",
+   "issue": "CONFIRMED (writer's flag, minor). Same as load_val: the Lean call at line 6719 is `wf_config_mem_bytes _ _ _ _ _ HWfConfig Hm` (the Rocq source is type_progress.v:5035).",
+   "suggestion": "Same parenthetical as for load_val."
+  },
+  {
+   "construct": "t_progress_be_memory_fill / memory_copy / memory_init / load_val / load_pack / store_val / store_pack",
+   "line": "Final TypeProgress.lean 6434-6436, 6482-6484, 6541-6544, 6621-6623, 6689-6691, 6753-6755, 6800-6802",
+   "issue": "NEW (verifier, low priority). Seven proofs repeat the same three-line block: `have HeqC : C.MEMS = C'.MEMS := by subst Hcontext; rfl`, `have Hm := fun_mem_typed s f C' (uN.mk_uN 0) Hmod (by rw [\u2190 HeqC]; exact Hlen)`, and `generalize s.MEMS[f.MODULE.MEMS[proj_uN_0 (uN.mk_uN 0)]!]! = mi at Hm`. memory_init has a variant that also builds the data witness.",
+   "suggestion": "Optional: add one helper next to fun_mem_typed that takes the `C = upd_local_label_return C' ...` equation, `Moduleinst_ok s f.MODULE C'` and `0 < C.MEMS.length`, and returns `\u2203 mi, fun_mem (state.mk_state s f) (uN.mk_uN 0) mi`. Each block then becomes a single `obtain \u27e8mi, Hm\u27e9 := ...`."
+  }
+ ],
+ "safety_checks": [
+  "START: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T022931.872949126Z-bundle31-V-Q6a-start-346415.txt -- OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline. The only changed file reported is the known external artifact .lake/build/lib/lean/wasm2.0.trace.nobuild, md5 unchanged since noted.",
+  "END (first run): spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T024500.549390068Z-bundle31-V-Q6a-end-359366.txt -- OK (same known external trace.nobuild item).",
+  "END (final run, after deleting my own scratch folder V-Q6a/ex so that only markdown remains in V-Q6a): spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T024531.669323867Z-bundle31-V-Q6a-end-359959.txt -- OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline (same known external trace.nobuild item, md5 unchanged)."
+ ],
+ "confidence": "High. The section was not at .../report/agents/Q6a/section.md (that folder does not exist); I verified the writer's file at /tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/W-Q6a/section.md, as the writer's note said.\n\nWhat I checked:\n- Errors: every recorded error position maps onto orig/TypeProgress.lean (offsets confirmed). The withshim errors equal the noshim errors after a constant 119-line shift, for all 9 constructs. Each argument mis-slot the writer describes (which old argument landed on var_0, fun_mem, fun_data or proj_num__0 j/i \u2260 none) agrees with the metavariable lists in the error messages and with the new constructors.\n- Rules and lookups: every Step_read/Step rule and every lookup (fun_mem, fun_data, fun_with_mem, fun_with_data) mentioned was compared between /tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/model/wasm2.0.lean and OLD_wasm2.0.lean. The Instr_ok memory rules are byte-identical in both models.\n- Step_read_before_memory_*: no Step_read rule uses these predicates, in either model.\n- Proof sketches: orig_text and final_text appear verbatim in the orig and final TypeProgress.lean, and the statements and doc comments are unchanged. I checked the helper lemmas against their definitions: Moduleinst_ok_mem_addr/data_addr, fun_mem_typed/fun_data_typed, fun_mem_inv, the restated wf_config_mem_bytes, the bounded mem_bytes_wf (confirmed by MAIN.json), Store_ok_parts, meminst_ok_raw, minst_invert_mems, nbytes_inv/ibytes_inv (axioms) and list_slice_size.\n- Spec text: the Wasm wording matches 8-reduction.spectec and 6-typing.spectec.\n- Rocq references: the bullet line numbers in the doc comments are right, and the '78 cases' count holds (73 Instr_ok + 5 Instrs_ok constructors).\n- No function view exists for fun_mem, fun_data, with_mem or with_data.\n\nResults:\n- One real factual error, fixed: memory_init said the memory bounds were on var_0. The other 7 corrections are precision fixes for misleading or ambiguous wording.\n- The writer's 3 code-quality flags are confirmed. I added one low-priority duplication flag.\n\nI did not run Lean; the new causal explanation of the 'No goals' error relies on Lean's standard error recovery and agrees with the recorded errors."
+}

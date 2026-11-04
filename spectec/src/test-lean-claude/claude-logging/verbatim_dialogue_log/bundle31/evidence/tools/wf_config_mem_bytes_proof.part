@@ -1,0 +1,10 @@
+  intro H hm
+  obtain ⟨_, hlt, he⟩ := fun_mem_inv hm
+  rw [he]
+  cases H with
+  | config_case_0 _ _ hs _ =>
+    cases hs with
+    | state_case_0 _ _ hst _ =>
+      cases hst with
+      | store_case_ _ _ _ _ _ _ _ _ _ h _ =>
+        exact mem_bytes_wf _ _ hlt h

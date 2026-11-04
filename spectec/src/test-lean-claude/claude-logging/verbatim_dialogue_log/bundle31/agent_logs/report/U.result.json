@@ -1,0 +1,94 @@
+{
+ "out_dir": "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/U",
+ "files": [
+  "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/U/P1.md",
+  "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/U/P23.md",
+  "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/U/Q1.md",
+  "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/U/Q2.md",
+  "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/U/Q3.md",
+  "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/U/Q4.md",
+  "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/U/Q5.md",
+  "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/U/Q6a.md",
+  "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/U/Q6b.md",
+  "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/U/MAIN.md",
+  "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/U/INFRA.md",
+  "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/U/CHANGES.md"
+ ],
+ "changes": [
+  {
+   "section": "P1",
+   "change": "t_read_preservation, last paragraph: the audit count changes from 5525 to 5517 theorems, and the build is now named: b31/final4, whose sources are byte-identical to the installed files. Source: b31/final4/audit/report.txt and b31/final4.out (0 theorems needing a default value, 0 depending on sorryAx)."
+  },
+  {
+   "section": "P23",
+   "change": "store_extension_reduce_aux: 'The doc comment was updated.' now gives the installed doc's content. The store-writing rules invert their fun_with_* premise, and the four memory stores hand fun_with_mem to with_mem_store_ok, which inverts it."
+  },
+  {
+   "section": "P23",
+   "change": "reduce_inst_unchanged_aux: the description of the doc comment gains the cleanup's corrected sentence: ctxt_frame needs no induction hypothesis either, since it changes only the store and the inner frame."
+  },
+  {
+   "section": "Q1",
+   "change": "t_progress_be_testop, Current proof sketch: ENone is renamed Etestop (3 occurrences), matching installed TypeProgress.lean:4640, 4644 and 4645. 'What broke and why' keeps `cases ENone : ...` because it quotes the original proof (orig/TypeProgress.lean:4451)."
+  },
+  {
+   "section": "Q2, Q3, Q4, Q5, Q6b",
+   "change": "No change. These sections cite no final3 line numbers, do not mention the deleted lemmas, ENone or Moduleinst_ok_data_addr, and do not quote the comments the cleanup changed. In their constructs the cleanup changed only comments."
+  },
+  {
+   "section": "Q6a",
+   "change": "t_progress_be_memory_init: Moduleinst_ok_data_addr is now described as combining |F.module.dataaddrs| = |C'.datas| (Moduleinst_ok_lengths) with minst_invert_datas, which reads off the Moduleinst_ok premise that every data address is < |S.datas|. This is the new proof."
+  },
+  {
+   "section": "MAIN",
+   "change": "num_default, Current proof sketch: 'The text is unchanged.' now reads 'The text of the definition is unchanged (the final cleanup rewrote only its doc comment).'"
+  },
+  {
+   "section": "INFRA",
+   "change": "Counts: 55 declarations become 47 (HelperLemmas 42 to 36, TypeProgress 13 to 11), and 45 theorems become 37 (still 10 definitions). Family table: A 8 defs + 13 lemmas; B 2 defs + 7; C 6 lemmas, with fun_func and fun_data dropped from 'Replaces'; D 5 + 6. Family headings: A 21, B 9, C 6, D 11. The audit paragraph names b31/final4."
+  },
+  {
+   "section": "INFRA",
+   "change": "Line-number note rewritten. It referred to b31/final3/src. It now says module names refer to the installed files (no line numbers are cited in them), and model line numbers refer to b31/model copies that are byte-identical to the installed wasm2.0.lean and OLD_wasm2.0.lean. Bare spec references ('line 264', 'lines 59-62', 'lines 427-429', 'line 131', ...) now name their spectec file."
+  },
+  {
+   "section": "INFRA",
+   "change": "Family A: 'three declarations each' becomes 'a definition and one or two bridging lemmas'. The text now says which views have both lemmas, and that isize and jsize have only fun_X_X and sizenn1 only fun_X_eq. fun_sizenn1_sizenn1 is removed from the Proofs bullet, and the derived-relation _eq proofs are narrowed to lsizenn*. The 'Three of the lemmas are unused ... kept' sentences are deleted."
+  },
+  {
+   "section": "INFRA",
+   "change": "Family B: the fun_fzero_wf sub-bullet is removed. 'keep their text unchanged' gains '(the final cleanup rewrote only num_default's doc comment)'."
+  },
+  {
+   "section": "INFRA",
+   "change": "Family C: the X set becomes {global, table, mem, elem}. 'Two lemmas are unused: fun_func_inv, fun_data_inv' becomes 'fun_func and fun_data have no inversion lemma, because no proof inverts them', with the same two reasons."
+  },
+  {
+   "section": "INFRA",
+   "change": "Family D: func is dropped from the X sets of Moduleinst_ok_X_addr and fun_X_typed. The data proof bullet now describes the new Moduleinst_ok_data_addr proof: minst_invert_datas's second component, applied at minst.DATAS[i]! (membership by getElem!_pos and List.getElem_mem), with no zip pair. 'So fun_func_typed is unused ...' becomes 'no progress case builds a fun_func witness, and the family has no lemma for function addresses'."
+  },
+  {
+   "section": "INFRA",
+   "change": "Per-construct table: the 8 rows of deleted lemmas are removed. The 47 remaining rows match the installed declarations one to one (checked by script). The fun_global_inv row now states both bounds itself, since its old reference row fun_func_inv is gone. The Moduleinst_ok_data_addr row's proof idea now names minst_invert_datas."
+  },
+  {
+   "section": "INFRA",
+   "change": "Observations: the 'Unused' bullet becomes one short 'Deleted as unused' paragraph naming the 8 lemmas written and then deleted in the final cleanup. The 'Comment precision' bullet and its 5 remarks are dropped, because the cleanup resolved all of them (checked against the installed headers and section docs)."
+  },
+  {
+   "section": "CHANGES.md",
+   "change": "Lists every change above per section, gives the reason each unchanged section stays unchanged, and records the problems found."
+  }
+ ],
+ "safety_checks": [
+  "U-start (run first): path spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T031215.337436158Z-bundle31-U-start-366141.txt; verdict 'OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline'. Also printed: the external Lake/IDE artifact .lake/build/lib/lean/wasm2.0.trace.nobuild has its md5 unchanged since noted; files with changed content: ExtensionLemmas.lean, HelperLemmas.lean, .lake/build/lib/lean/wasm2.0.trace.nobuild, TypePreservation.lean, TypeProgress.lean.",
+  "U-end (run last): path spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T033911.030427764Z-bundle31-U-end-371034.txt; verdict 'OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline'. The changed-files list and the external-artifact line are the same as at U-start.",
+  "All writes went to b31/report/agents/U/: the 11 section .md files and CHANGES.md. Two temporary .md name lists were created there during a table check and deleted. No repository file was created, edited or deleted. No git, lake or Lean was run.",
+  "Rule deviation (read-only): early in the run I read repository files with tools other than cat/sed/grep. I ran `cmp` to compare the four installed modules, wasm2.0.lean and OLD_wasm2.0.lean with their scratch copies, and `ls` on spectec/src/test-lean-claude, spectec/test-rocq/theories and specification/wasm-2.0. After that I used only cat/sed/grep (checksums via `cat file | md5sum`). Nothing was written."
+ ],
+ "problems": [
+  "The installed num_default doc comment (TypePreservation.lean:41-44) says 'Rocq uses it for the default locals of t_read_preservation's Call_addr case'. The Rocq sources do not support this. num_default occurs only at its definition (type_preservation.v:19) and in the commented-out num_default_is_well_formed (type_preservation.v:75-76). The Rocq Call_addr case (type_preservation.v:1838 ff.) types the default locals inline. MAIN correctly says nothing in Rocq uses num_default; it was left as is, so it now contradicts the installed doc. The repository was not changed.",
+  "Minor: the installed 'Function views' header says the section restores 'a function view of the size functions'. $fsize, $sizenn2 and $shsize have no view, as INFRA A says. The header is accurate only if read as 'the size functions the proofs use'.",
+  "No line-map conversion was needed. None of the 11 verified sections cites a final3 line number; the only final3 reference was INFRA's line-number note, which was rewritten. Model line references stay valid: b31/model/wasm2.0.lean and OLD_wasm2.0.lean are byte-identical to the installed files."
+ ]
+}

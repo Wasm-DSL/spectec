@@ -1,0 +1,28 @@
+{
+ "label": "P23",
+ "section_file": "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/W-P23/section.md",
+ "constructs_written": [
+  "t_preservation_type_aux",
+  "t_preservation_vs_type'_aux",
+  "store_extension_reduce_aux",
+  "table_grow_store_ok",
+  "with_mem_store_ok",
+  "memory_grow_store_ok",
+  "reduce_inst_unchanged_aux",
+  "num_default_is_well_formed"
+ ],
+ "flags": [
+  {
+   "construct": "store_extension_reduce_aux",
+   "line": "    carry the inner configuration's `wf_config` as a premise), the store-writing rules invert\n    their `fun_with_*` premise and go to the per-rule lemmas above, and every other rule leaves\n    the store unchanged. -/",
+   "issue": "Minor imprecision. The doc says every store-writing case inverts its `fun_with_*` premise before calling the per-rule lemma. That is true for global.set, table.set-val, table.grow-succeed, elem.drop, memory.grow-succeed and data.drop, which use `cases hw`. The four memory-store cases (store_num_val, store_pack_val, vstore_val, vstore_lane_val) pass `hw : fun_with_mem ...` to `with_mem_store_ok` without inverting it; the inversion happens inside that lemma.",
+   "suggestion": "    carry the inner configuration's `wf_config` as a premise), the store-writing rules invert\n    their `fun_with_*` premise (the four memory stores hand `fun_with_mem` to `with_mem_store_ok`,\n    which inverts it) and go to the per-rule lemmas above, and every other rule leaves the store\n    unchanged. -/"
+  }
+ ],
+ "safety_checks": [
+  "W-P23-start: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T021101.707989493Z-bundle31-W-P23-start-332692.txt -- verdict: OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline (only listed change: the known external Lake artifact .lake/build/lib/lean/wasm2.0.trace.nobuild, md5 unchanged since noted)",
+  "W-P23-end (first run): spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T022809.625377313Z-bundle31-W-P23-end-345513.txt -- verdict: OK (same known external artifact only)",
+  "W-P23-end (final, last action): spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T022822.127106479Z-bundle31-W-P23-end-345681.txt -- verdict: OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline (only the known external artifact wasm2.0.trace.nobuild, md5 unchanged)"
+ ],
+ "notes": "1. Output location. The task text said to write .../report/agents/P23/section.md, but the safety rules limit me to .../report/agents/W-P23/. The file is therefore at /tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/W-P23/section.md. All other writers also use agents/W-<label>/; no agents/P23 directory was created.\n\n2. Housekeeping. I briefly kept scratch extracts of the construct texts in W-P23/work/ (first as .lean copies, then renamed to .txt) and deleted them before the final check. W-P23 now contains only section.md. The end check was run twice; the last action was the second run, which was OK. No Lean was run and no repository file was read other than with cat/sed/grep; I did not use git.\n\n3. Facts checked against the code:\n   - All 8 data texts are byte-identical to final3/src/TypePreservation.lean (final_text) and orig/TypePreservation.lean (orig_text).\n   - t_preservation_type_aux: Lean's `case tag x1..xn` renames the LAST n inaccessible variables. The error messages confirm this (\"v : state\" and \"x : fun_with_global ...\" in global_set; \"i : state\" in table_set_val). The binder counts I give (global.set 3->5, table.set-val 6->10, table.grow-succeed 9->13, elem.drop and data.drop 2->4, store-num-val 9->11, store-pack-val 11->13) come from the Step constructors in model/wasm2.0.lean and OLD_wasm2.0.lean.\n   - t_preservation_vs_type'_aux: the old `try simp only [with_*]` failed silently under `try`, so the first visible error is the `injection` failure.\n\n4. Axiom lists (propext only; propext/Classical.choice/Quot.sound; the model's nbytes_/ibytes_/vbytes_/wrap__ is_wf axioms) are quoted from the repair notes; I did not re-run `#print axioms`. For t_preservation_type_aux, the repair note's sorryAx came from P1's then-sorried t_read_preservation. Per the task background the final build has no sorry dependency, and the section says so.\n\n5. Stale comments outside my 8 constructs (not flagged; for the MAIN/INFRA writers):\n   (a) HelperLemmas.lean, doc of splice_eq_list_slice_update (around line 430): \"... apply to the Lean `with_mem`.\" `with_mem` no longer exists. Suggest \"... apply to the relational `fun_with_mem` (`$with_mem`).\"\n   (b) TypePreservation.lean, doc of wf_store_mem_update (line 380): \"the Lean `with_mem` (`splice`) is bridged to it by ...\". Suggest \"the Lean `fun_with_mem` (`splice`) ...\".\n   (c) TypePreservation.lean, doc of num_default (lines 41-42) says it is \"used to build default locals in `t_read_preservation`'s Call_addr/frame-invocation case\". Neither num_default nor num_default_is_well_formed is referenced anywhere in the Lean modules, in orig or final; t_read_preservation uses default_/default_vals_ok. This predates the repair."
+}

@@ -1,0 +1,28 @@
+{
+ "label": "P1",
+ "status": "done",
+ "final_file": "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/agents/P1/TypePreservation.lean",
+ "final_compile": "lrun31.sh ctx2/build agents/P1 TypePreservation.lean: exit 0, 0 errors. 12 warnings in total. The only `declaration uses sorry` warnings are at lines 47 (num_default_is_well_formed), 97 (t_preservation_vs_type'_aux), 393 (reduce_inst_unchanged_aux), 1149 (store_extension_reduce_aux) and 1989 (t_preservation_type_aux), all owned by other clusters. My declarations (default_val_ok at line 1528, t_read_preservation at line 1576) produce no warnings. Last line: WALL 4.15 s  MAXRSS 3892840 KB",
+ "units_check": "replaced assigned units: default_val_ok, t_read_preservation\nassigned units NOT changed: -\nOK (no violations)",
+ "decls": [
+  {
+   "name": "default_val_ok",
+   "status": "proved",
+   "note": "Statement unchanged. The old proof works once the new default__is_wf gets the relation witness: `default__is_wf t _ _ (fun_default_default t) hd rfl`. The rest of the proof is unchanged."
+  },
+  {
+   "name": "t_read_preservation",
+   "status": "proved",
+   "note": "Statement and doc comment unchanged (the comment is still accurate: there are still 47 Step_read rules and Step_read_is_wf is still proved in wasm2.0.lean). Only the cases that touch changed premises were edited. block/loop: `subst` the new `var_0 = mk_functype ..` premise, then pass the fun_blocktype premise to the restated bt_inversion; the length premises shift by one. call_indirect_call: the TYPES equality comes from (fun_type_inv h0).2.symm.trans h6. call_addr: (1) from the length premise and the zip-based Forall\u2082 of fun_default_ (via to_mathlib_forall\u2082 plus induction with fun_default_eq) derive o_lst = Map default_ t_lst; (2) from that, get Forall (default_ t \u2260 none) t_lst and rewrite the locals to Map (Option.get! \u2218 default_) t_lst in the frame and wf_frame premises; (3) then use default_vals_ok as before. local_get/global_get: subst the output from fun_local_inv/fun_global_inv. table_get_val/table_init_succ: rewrite table_refs_ok/elem_refs_ok to the relation's output with fun_table_inv/fun_elem_inv, and index it with the rule's own bound. load_num_val: the wf_num_ premise moved from h3 to h4. No Inhabited.default reads: every `!` index is backed by a bound from the rule or from the relation. A transitive scan of the probe version found sorryAx reachable only through TLC.default_val_ok (the sorried context copy), which is now proved."
+  }
+ ],
+ "new_helpers": [],
+ "statement_changes": [],
+ "issues": [
+  "None. Both fixed statements hold in the new model. No new helpers or axioms were added, and nothing outside the two declarations was edited. Probe files (Probe1.lean, Probe2.lean) and the compile log final_compile.log are left in /tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/agents/P1."
+ ],
+ "safety_checks": [
+  "spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T014301.869032249Z-bundle31-P1-start-318920.txt -- verdict: OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline (changed allowed files: none)",
+  "spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T015315.751684597Z-bundle31-P1-end-325462.txt -- verdict: OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline (changed allowed files: none)"
+ ]
+}

@@ -1,0 +1,1366 @@
+TypePreservation.lean:42:32: error(lean.unknownIdentifier): Unknown identifier `fzero`
+TypePreservation.lean:43:32: error(lean.unknownIdentifier): Unknown identifier `fzero`
+TypePreservation.lean:60:52: error(lean.unknownIdentifier): Unknown identifier `fzero`
+TypePreservation.lean:65:52: error(lean.unknownIdentifier): Unknown identifier `fzero`
+TypePreservation.lean:209:4: error: Tactic `injection` failed: equality of constructor applications expected
+
+case global_set
+c1 c2 : config
+v_val✝ : val
+x✝ : idx
+var_0✝ : state
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+C C' : context
+t1s t2s : List valtype
+a✝⁴ : Store_ok s
+a✝³ : Moduleinst_ok s f.MODULE C
+hvals : Vals_ok s f.LOCALS C'.LOCALS
+a✝² : inst_match C C'
+a✝¹ : Instrs_ok2 s C' ais (mkFunctype t1s t2s)
+admininstr_lst_eq✝¹ : [admininstr_val v_val✝, admininstr.GLOBAL_SET x✝] = ais
+hz2 : var_0✝ = state.mk_state s' f'
+admininstr_lst_eq✝ : [] = ais'
+a✝ : fun_with_global (state.mk_state s f) x✝ v_val✝ var_0✝
+⊢ Vals_ok s f'.LOCALS C'.LOCALS
+TypePreservation.lean:209:4: error: Tactic `injection` failed: equality of constructor applications expected
+
+case table_set_val
+c1 c2 : config
+i✝ : num_
+v_ref✝ : ref
+x✝ : idx
+var_1✝ : tableinst
+var_0✝ : state
+a✝⁷ : proj_num__0 i✝ ≠ none
+a✝⁶ : proj_uN_0 (proj_num__0 i✝).get! < var_1✝.REFS.length
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+C C' : context
+t1s t2s : List valtype
+a✝⁵ : Store_ok s
+a✝⁴ : Moduleinst_ok s f.MODULE C
+hvals : Vals_ok s f.LOCALS C'.LOCALS
+a✝³ : inst_match C C'
+a✝² : Instrs_ok2 s C' ais (mkFunctype t1s t2s)
+admininstr_lst_eq✝¹ : [admininstr.CONST numtype.I32 i✝, admininstr_ref v_ref✝, admininstr.TABLE_SET x✝] = ais
+hz2 : var_0✝ = state.mk_state s' f'
+admininstr_lst_eq✝ : [] = ais'
+a✝¹ : fun_table (state.mk_state s f) x✝ var_1✝
+a✝ : fun_with_table (state.mk_state s f) x✝ (proj_uN_0 (proj_num__0 i✝).get!) v_ref✝ var_0✝
+⊢ Vals_ok s f'.LOCALS C'.LOCALS
+TypePreservation.lean:209:4: error: Tactic `injection` failed: equality of constructor applications expected
+
+case table_grow_succeed
+c1 c2 : config
+v_ref✝ : ref
+v_n✝ : n
+x✝ : idx
+ti✝ : tableinst
+var_2✝ : Option tableinst
+var_1✝ : tableinst
+var_0✝ : state
+a✝⁸ : fun_growtable var_1✝ v_n✝ v_ref✝ var_2✝
+a✝⁷ : var_2✝ ≠ none
+a✝⁶ : var_2✝.get! = ti✝
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+C C' : context
+t1s t2s : List valtype
+a✝⁵ : Store_ok s
+a✝⁴ : Moduleinst_ok s f.MODULE C
+hvals : Vals_ok s f.LOCALS C'.LOCALS
+a✝³ : inst_match C C'
+a✝² : Instrs_ok2 s C' ais (mkFunctype t1s t2s)
+admininstr_lst_eq✝¹ :
+  [admininstr_ref v_ref✝, admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n✝)),
+      admininstr.TABLE_GROW x✝] =
+    ais
+hz2 : var_0✝ = state.mk_state s' f'
+admininstr_lst_eq✝ : [admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN var_1✝.REFS.length))] = ais'
+a✝¹ : fun_table (state.mk_state s f) x✝ var_1✝
+a✝ : fun_with_tableinst (state.mk_state s f) x✝ ti✝ var_0✝
+⊢ Vals_ok s f'.LOCALS C'.LOCALS
+TypePreservation.lean:209:4: error: Tactic `injection` failed: equality of constructor applications expected
+
+case elem_drop
+c1 c2 : config
+x✝ : idx
+var_0✝ : state
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+C C' : context
+t1s t2s : List valtype
+a✝⁴ : Store_ok s
+a✝³ : Moduleinst_ok s f.MODULE C
+hvals : Vals_ok s f.LOCALS C'.LOCALS
+a✝² : inst_match C C'
+a✝¹ : Instrs_ok2 s C' ais (mkFunctype t1s t2s)
+admininstr_lst_eq✝¹ : [admininstr.ELEM_DROP x✝] = ais
+hz2 : var_0✝ = state.mk_state s' f'
+admininstr_lst_eq✝ : [] = ais'
+a✝ : fun_with_elem (state.mk_state s f) x✝ [] var_0✝
+⊢ Vals_ok s f'.LOCALS C'.LOCALS
+TypePreservation.lean:209:4: error: Tactic `injection` failed: equality of constructor applications expected
+
+case store_num_val
+c1 c2 : config
+i✝ : num_
+nt✝ : numtype
+c✝ : num_
+ao✝ : memarg
+b_lst✝ : List byte
+var_0✝ : state
+a✝⁷ : proj_num__0 i✝ ≠ none
+a✝⁶ : size (valtype_numtype nt✝) ≠ none
+a✝⁵ : b_lst✝ = nbytes_ nt✝ c✝
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+C C' : context
+t1s t2s : List valtype
+a✝⁴ : Store_ok s
+a✝³ : Moduleinst_ok s f.MODULE C
+hvals : Vals_ok s f.LOCALS C'.LOCALS
+a✝² : inst_match C C'
+a✝¹ : Instrs_ok2 s C' ais (mkFunctype t1s t2s)
+admininstr_lst_eq✝¹ : [admininstr.CONST numtype.I32 i✝, admininstr.CONST nt✝ c✝, admininstr.STORE nt✝ none ao✝] = ais
+hz2 : var_0✝ = state.mk_state s' f'
+admininstr_lst_eq✝ : [] = ais'
+a✝ :
+  fun_with_mem (state.mk_state s f) (uN.mk_uN 0) (proj_uN_0 (proj_num__0 i✝).get! + proj_uN_0 ao✝.OFFSET)
+    (rat_to_nat
+      ((do
+            let a ← size (valtype_numtype nt✝)
+            pure ↑a).get! /
+        8))
+    b_lst✝ var_0✝
+⊢ Vals_ok s f'.LOCALS C'.LOCALS
+TypePreservation.lean:209:4: error: Tactic `injection` failed: equality of constructor applications expected
+
+case store_pack_val
+c1 c2 : config
+i✝ : num_
+v_Inn✝ : Inn
+c✝ : num_
+v_n✝ : n
+ao✝ : memarg
+b_lst✝ : List byte
+var_0✝ : state
+a✝⁸ : proj_num__0 i✝ ≠ none
+a✝⁷ : size (valtype_Inn v_Inn✝) ≠ none
+a✝⁶ : proj_num__0 c✝ ≠ none
+a✝⁵ : b_lst✝ = ibytes_ v_n✝ (wrap__ (size (valtype_Inn v_Inn✝)).get! v_n✝ (proj_num__0 c✝).get!)
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+C C' : context
+t1s t2s : List valtype
+a✝⁴ : Store_ok s
+a✝³ : Moduleinst_ok s f.MODULE C
+hvals : Vals_ok s f.LOCALS C'.LOCALS
+a✝² : inst_match C C'
+a✝¹ : Instrs_ok2 s C' ais (mkFunctype t1s t2s)
+admininstr_lst_eq✝¹ :
+  [admininstr.CONST numtype.I32 i✝, admininstr.CONST (numtype_Inn v_Inn✝) c✝,
+      admininstr.STORE (numtype_Inn v_Inn✝) (some (sz.mk_sz v_n✝)) ao✝] =
+    ais
+hz2 : var_0✝ = state.mk_state s' f'
+admininstr_lst_eq✝ : [] = ais'
+a✝ :
+  fun_with_mem (state.mk_state s f) (uN.mk_uN 0) (proj_uN_0 (proj_num__0 i✝).get! + proj_uN_0 ao✝.OFFSET)
+    (rat_to_nat (↑v_n✝ / 8)) b_lst✝ var_0✝
+⊢ Vals_ok s f'.LOCALS C'.LOCALS
+TypePreservation.lean:209:4: error: Tactic `injection` failed: equality of constructor applications expected
+
+case vstore_val
+c1 c2 : config
+i✝ : num_
+c✝ : vec_
+ao✝ : memarg
+b_lst✝ : List byte
+var_0✝ : state
+a✝⁷ : proj_num__0 i✝ ≠ none
+a✝⁶ : size valtype.V128 ≠ none
+a✝⁵ : b_lst✝ = vbytes_ vectype.V128 c✝
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+C C' : context
+t1s t2s : List valtype
+a✝⁴ : Store_ok s
+a✝³ : Moduleinst_ok s f.MODULE C
+hvals : Vals_ok s f.LOCALS C'.LOCALS
+a✝² : inst_match C C'
+a✝¹ : Instrs_ok2 s C' ais (mkFunctype t1s t2s)
+admininstr_lst_eq✝¹ :
+  [admininstr.CONST numtype.I32 i✝, admininstr.VCONST vectype.V128 c✝, admininstr.VSTORE vectype.V128 ao✝] = ais
+hz2 : var_0✝ = state.mk_state s' f'
+admininstr_lst_eq✝ : [] = ais'
+a✝ :
+  fun_with_mem (state.mk_state s f) (uN.mk_uN 0) (proj_uN_0 (proj_num__0 i✝).get! + proj_uN_0 ao✝.OFFSET)
+    (rat_to_nat
+      ((do
+            let a ← size valtype.V128
+            pure ↑a).get! /
+        8))
+    b_lst✝ var_0✝
+⊢ Vals_ok s f'.LOCALS C'.LOCALS
+TypePreservation.lean:209:4: error: Tactic `injection` failed: equality of constructor applications expected
+
+case vstore_lane_val
+c1 c2 : config
+i✝ : num_
+c✝ : vec_
+v_N✝ : N
+ao✝ : memarg
+j✝ : laneidx
+b_lst✝ : List byte
+v_Jnn✝ : Jnn
+v_M✝ : M
+var_1✝ : ℕ
+var_0✝ : state
+a✝¹² : fun_jsize v_Jnn✝ var_1✝
+a✝¹¹ : proj_num__0 i✝ ≠ none
+a✝¹⁰ : v_N✝ = var_1✝
+a✝⁹ : ↑v_M✝ = 128 / ↑v_N✝
+a✝⁸ : proj_uN_0 j✝ < (lanes_ (shape.X (lanetype_Jnn v_Jnn✝) (dim.mk_dim v_M✝)) c✝).length
+a✝⁷ : proj_lane__0 (lanes_ (shape.X (lanetype_Jnn v_Jnn✝) (dim.mk_dim v_M✝)) c✝)[proj_uN_0 j✝]! ≠ none
+a✝⁶ :
+  b_lst✝ =
+    ibytes_ v_N✝
+      (uN.mk_uN
+        (proj_uN_0 (proj_lane__0 (lanes_ (shape.X (lanetype_Jnn v_Jnn✝) (dim.mk_dim v_M✝)) c✝)[proj_uN_0 j✝]!).get!))
+a✝⁵ :
+  wf_uN v_N✝
+    (uN.mk_uN
+      (proj_uN_0 (proj_lane__0 (lanes_ (shape.X (lanetype_Jnn v_Jnn✝) (dim.mk_dim v_M✝)) c✝)[proj_uN_0 j✝]!).get!))
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+C C' : context
+t1s t2s : List valtype
+a✝⁴ : Store_ok s
+a✝³ : Moduleinst_ok s f.MODULE C
+hvals : Vals_ok s f.LOCALS C'.LOCALS
+a✝² : inst_match C C'
+a✝¹ : Instrs_ok2 s C' ais (mkFunctype t1s t2s)
+admininstr_lst_eq✝¹ :
+  [admininstr.CONST numtype.I32 i✝, admininstr.VCONST vectype.V128 c✝,
+      admininstr.VSTORE_LANE vectype.V128 (sz.mk_sz v_N✝) ao✝ j✝] =
+    ais
+hz2 : var_0✝ = state.mk_state s' f'
+admininstr_lst_eq✝ : [] = ais'
+a✝ :
+  fun_with_mem (state.mk_state s f) (uN.mk_uN 0) (proj_uN_0 (proj_num__0 i✝).get! + proj_uN_0 ao✝.OFFSET)
+    (rat_to_nat (↑v_N✝ / 8)) b_lst✝ var_0✝
+⊢ Vals_ok s f'.LOCALS C'.LOCALS
+TypePreservation.lean:209:4: error: Tactic `injection` failed: equality of constructor applications expected
+
+case memory_grow_succeed
+c1 c2 : config
+v_n✝ : n
+mi✝ : meminst
+var_2✝ : Option meminst
+var_1✝ : meminst
+var_0✝ : state
+a✝⁹ : fun_growmemory var_1✝ v_n✝ var_2✝
+a✝⁸ : var_2✝ ≠ none
+a✝⁷ : var_2✝.get! = mi✝
+a✝⁶ : wf_uN 32 (uN.mk_uN 0)
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+C C' : context
+t1s t2s : List valtype
+a✝⁵ : Store_ok s
+a✝⁴ : Moduleinst_ok s f.MODULE C
+hvals : Vals_ok s f.LOCALS C'.LOCALS
+a✝³ : inst_match C C'
+a✝² : Instrs_ok2 s C' ais (mkFunctype t1s t2s)
+admininstr_lst_eq✝¹ :
+  [admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n✝)), admininstr.MEMORY_GROW] = ais
+hz2 : var_0✝ = state.mk_state s' f'
+admininstr_lst_eq✝ :
+  [admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN (rat_to_nat (↑var_1✝.BYTES.length / (64 * ↑Ki)))))] =
+    ais'
+a✝¹ : fun_mem (state.mk_state s f) (uN.mk_uN 0) var_1✝
+a✝ : fun_with_meminst (state.mk_state s f) (uN.mk_uN 0) mi✝ var_0✝
+⊢ Vals_ok s f'.LOCALS C'.LOCALS
+TypePreservation.lean:209:4: error: Tactic `injection` failed: equality of constructor applications expected
+
+case data_drop
+c1 c2 : config
+x✝ : idx
+var_0✝ : state
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+C C' : context
+t1s t2s : List valtype
+a✝⁴ : Store_ok s
+a✝³ : Moduleinst_ok s f.MODULE C
+hvals : Vals_ok s f.LOCALS C'.LOCALS
+a✝² : inst_match C C'
+a✝¹ : Instrs_ok2 s C' ais (mkFunctype t1s t2s)
+admininstr_lst_eq✝¹ : [admininstr.DATA_DROP x✝] = ais
+hz2 : var_0✝ = state.mk_state s' f'
+admininstr_lst_eq✝ : [] = ais'
+a✝ : fun_with_data (state.mk_state s f) x✝ [] var_0✝
+⊢ Vals_ok s f'.LOCALS C'.LOCALS
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:530:14: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:530:27: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:530:39: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:530:55: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:530:66: error(lean.unknownIdentifier): Unknown identifier `with_mem`
+TypePreservation.lean:531:6: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:531:20: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:505:82: error: unsolved goals
+case global_set
+c1 c2 : config
+z✝ : state
+v_val✝ : val
+x✝ : idx
+var_0✝ : state
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+a✝ : fun_with_global (state.mk_state s f) x✝ v_val✝ (state.mk_state s' f')
+h1 : z✝ = state.mk_state s f ∧ [admininstr_val v_val✝, admininstr.GLOBAL_SET x✝] = ais
+h2 : var_0✝ = state.mk_state s' f' ∧ ais' = []
+⊢ f.MODULE = f'.MODULE
+
+case table_set_val
+c1 c2 : config
+z✝ : state
+i✝ : num_
+v_ref✝ : ref
+x✝ : idx
+var_1✝ : tableinst
+var_0✝ : state
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+a✝³ : fun_table (state.mk_state s f) x✝ var_1✝
+a✝² : ¬proj_num__0 i✝ = none
+a✝¹ : fun_with_table (state.mk_state s f) x✝ (proj_uN_0 (proj_num__0 i✝).get!) v_ref✝ (state.mk_state s' f')
+a✝ : proj_uN_0 (proj_num__0 i✝).get! < var_1✝.REFS.length
+h1 : z✝ = state.mk_state s f ∧ [admininstr.CONST numtype.I32 i✝, admininstr_ref v_ref✝, admininstr.TABLE_SET x✝] = ais
+h2 : var_0✝ = state.mk_state s' f' ∧ ais' = []
+⊢ f.MODULE = f'.MODULE
+
+case table_grow_succeed
+c1 c2 : config
+z✝ : state
+v_ref✝ : ref
+v_n✝ : n
+x✝ : idx
+ti✝ : tableinst
+var_2✝ : Option tableinst
+var_1✝ : tableinst
+var_0✝ : state
+a✝⁴ : fun_growtable var_1✝ v_n✝ v_ref✝ var_2✝
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+a✝³ : fun_table (state.mk_state s f) x✝ var_1✝
+a✝² : fun_with_tableinst (state.mk_state s f) x✝ ti✝ (state.mk_state s' f')
+a✝¹ : ¬var_2✝ = none
+a✝ : var_2✝.get! = ti✝
+h1 :
+  z✝ = state.mk_state s f ∧
+    [admininstr_ref v_ref✝, admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n✝)),
+        admininstr.TABLE_GROW x✝] =
+      ais
+h2 :
+  var_0✝ = state.mk_state s' f' ∧
+    [admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN var_1✝.REFS.length))] = ais'
+⊢ f.MODULE = f'.MODULE
+
+case elem_drop
+c1 c2 : config
+z✝ : state
+x✝ : idx
+var_0✝ : state
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+a✝ : fun_with_elem (state.mk_state s f) x✝ [] (state.mk_state s' f')
+h1 : z✝ = state.mk_state s f ∧ [admininstr.ELEM_DROP x✝] = ais
+h2 : var_0✝ = state.mk_state s' f' ∧ ais' = []
+⊢ f.MODULE = f'.MODULE
+
+case store_num_val
+c1 c2 : config
+z✝ : state
+i✝ : num_
+nt✝ : numtype
+c✝ : num_
+ao✝ : memarg
+b_lst✝ : List byte
+var_0✝ : state
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+a✝³ : ¬proj_num__0 i✝ = none
+a✝² : ¬size (valtype_numtype nt✝) = none
+a✝¹ :
+  fun_with_mem (state.mk_state s f) (uN.mk_uN 0) (proj_uN_0 (proj_num__0 i✝).get! + proj_uN_0 ao✝.OFFSET)
+    (rat_to_nat (((size (valtype_numtype nt✝)).bind fun a => some ↑a).get! / 8)) (nbytes_ nt✝ c✝) (state.mk_state s' f')
+a✝ : b_lst✝ = nbytes_ nt✝ c✝
+h1 :
+  z✝ = state.mk_state s f ∧
+    [admininstr.CONST numtype.I32 i✝, admininstr.CONST nt✝ c✝, admininstr.STORE nt✝ none ao✝] = ais
+h2 : var_0✝ = state.mk_state s' f' ∧ ais' = []
+⊢ f.MODULE = f'.MODULE
+
+case store_pack_val
+c1 c2 : config
+z✝ : state
+i✝ : num_
+v_Inn✝ : Inn
+c✝ : num_
+v_n✝ : n
+ao✝ : memarg
+b_lst✝ : List byte
+var_0✝ : state
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+a✝⁴ : ¬proj_num__0 i✝ = none
+a✝³ :
+  fun_with_mem (state.mk_state s f) (uN.mk_uN 0) (proj_uN_0 (proj_num__0 i✝).get! + proj_uN_0 ao✝.OFFSET)
+    (rat_to_nat (↑v_n✝ / 8)) (ibytes_ v_n✝ (wrap__ (size (valtype_Inn v_Inn✝)).get! v_n✝ (proj_num__0 c✝).get!))
+    (state.mk_state s' f')
+a✝² : ¬size (valtype_Inn v_Inn✝) = none
+a✝¹ : ¬proj_num__0 c✝ = none
+a✝ : b_lst✝ = ibytes_ v_n✝ (wrap__ (size (valtype_Inn v_Inn✝)).get! v_n✝ (proj_num__0 c✝).get!)
+h1 :
+  z✝ = state.mk_state s f ∧
+    [admininstr.CONST numtype.I32 i✝, admininstr.CONST (numtype_Inn v_Inn✝) c✝,
+        admininstr.STORE (numtype_Inn v_Inn✝) (some (sz.mk_sz v_n✝)) ao✝] =
+      ais
+h2 : var_0✝ = state.mk_state s' f' ∧ ais' = []
+⊢ f.MODULE = f'.MODULE
+
+case vstore_val
+c1 c2 : config
+z✝ : state
+i✝ : num_
+c✝ : vec_
+ao✝ : memarg
+b_lst✝ : List byte
+var_0✝ : state
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+a✝³ : ¬proj_num__0 i✝ = none
+a✝² : ¬size valtype.V128 = none
+a✝¹ :
+  fun_with_mem (state.mk_state s f) (uN.mk_uN 0) (proj_uN_0 (proj_num__0 i✝).get! + proj_uN_0 ao✝.OFFSET)
+    (rat_to_nat (((size valtype.V128).bind fun a => some ↑a).get! / 8)) (vbytes_ vectype.V128 c✝) (state.mk_state s' f')
+a✝ : b_lst✝ = vbytes_ vectype.V128 c✝
+h1 :
+  z✝ = state.mk_state s f ∧
+    [admininstr.CONST numtype.I32 i✝, admininstr.VCONST vectype.V128 c✝, admininstr.VSTORE vectype.V128 ao✝] = ais
+h2 : var_0✝ = state.mk_state s' f' ∧ ais' = []
+⊢ f.MODULE = f'.MODULE
+
+case vstore_lane_val
+c1 c2 : config
+z✝ : state
+i✝ : num_
+c✝ : vec_
+v_N✝ : N
+ao✝ : memarg
+j✝ : laneidx
+b_lst✝ : List byte
+v_Jnn✝ : Jnn
+v_M✝ : M
+var_1✝ : ℕ
+var_0✝ : state
+a✝⁹ : fun_jsize v_Jnn✝ var_1✝
+a✝⁸ : proj_uN_0 j✝ < (lanes_ (shape.X (lanetype_Jnn v_Jnn✝) (dim.mk_dim v_M✝)) c✝).length
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+a✝⁷ : ¬proj_num__0 i✝ = none
+a✝⁶ :
+  fun_with_mem (state.mk_state s f) (uN.mk_uN 0) (proj_uN_0 (proj_num__0 i✝).get! + proj_uN_0 ao✝.OFFSET)
+    (rat_to_nat (↑var_1✝ / 8))
+    (ibytes_ var_1✝
+      (uN.mk_uN
+        (proj_uN_0 (proj_lane__0 (lanes_ (shape.X (lanetype_Jnn v_Jnn✝) (dim.mk_dim v_M✝)) c✝)[proj_uN_0 j✝]).get!)))
+    (state.mk_state s' f')
+a✝⁵ : v_N✝ = var_1✝
+a✝⁴ : ↑v_M✝ = 128 / ↑var_1✝
+a✝³ : proj_uN_0 j✝ < (lanes_ (shape.X (lanetype_Jnn v_Jnn✝) (dim.mk_dim v_M✝)) c✝).length
+a✝² : ¬proj_lane__0 (lanes_ (shape.X (lanetype_Jnn v_Jnn✝) (dim.mk_dim v_M✝)) c✝)[proj_uN_0 j✝] = none
+a✝¹ :
+  b_lst✝ =
+    ibytes_ var_1✝
+      (uN.mk_uN
+        (proj_uN_0 (proj_lane__0 (lanes_ (shape.X (lanetype_Jnn v_Jnn✝) (dim.mk_dim v_M✝)) c✝)[proj_uN_0 j✝]).get!))
+a✝ :
+  wf_uN var_1✝
+    (uN.mk_uN
+      (proj_uN_0 (proj_lane__0 (lanes_ (shape.X (lanetype_Jnn v_Jnn✝) (dim.mk_dim v_M✝)) c✝)[proj_uN_0 j✝]).get!))
+h1 :
+  z✝ = state.mk_state s f ∧
+    [admininstr.CONST numtype.I32 i✝, admininstr.VCONST vectype.V128 c✝,
+        admininstr.VSTORE_LANE vectype.V128 (sz.mk_sz var_1✝) ao✝ j✝] =
+      ais
+h2 : var_0✝ = state.mk_state s' f' ∧ ais' = []
+⊢ f.MODULE = f'.MODULE
+
+case memory_grow_succeed
+c1 c2 : config
+z✝ : state
+v_n✝ : n
+mi✝ : meminst
+var_2✝ : Option meminst
+var_1✝ : meminst
+var_0✝ : state
+a✝⁵ : fun_growmemory var_1✝ v_n✝ var_2✝
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+a✝⁴ : fun_mem (state.mk_state s f) (uN.mk_uN 0) var_1✝
+a✝³ : fun_with_meminst (state.mk_state s f) (uN.mk_uN 0) mi✝ (state.mk_state s' f')
+a✝² : ¬var_2✝ = none
+a✝¹ : var_2✝.get! = mi✝
+a✝ : wf_uN 32 (uN.mk_uN 0)
+h1 :
+  z✝ = state.mk_state s f ∧
+    [admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n✝)), admininstr.MEMORY_GROW] = ais
+h2 :
+  var_0✝ = state.mk_state s' f' ∧
+    [admininstr.CONST numtype.I32
+          (num_.mk_num__0 Inn.I32 (uN.mk_uN (rat_to_nat (↑var_1✝.BYTES.length / (64 * ↑Ki)))))] =
+      ais'
+⊢ f.MODULE = f'.MODULE
+
+case data_drop
+c1 c2 : config
+z✝ : state
+x✝ : idx
+var_0✝ : state
+s : store
+f : frame
+ais : List admininstr
+s' : store
+f' : frame
+ais' : List admininstr
+a✝ : fun_with_data (state.mk_state s f) x✝ [] (state.mk_state s' f')
+h1 : z✝ = state.mk_state s f ∧ [admininstr.DATA_DROP x✝] = ais
+h2 : var_0✝ = state.mk_state s' f' ∧ ais' = []
+⊢ f.MODULE = f'.MODULE
+TypePreservation.lean:561:12: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+TypePreservation.lean:570:12: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+TypePreservation.lean:580:12: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+TypePreservation.lean:583:8: warning: The declaration 'Step_read__vload_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservation.lean:596:8: warning: The declaration 'Step_read__vload_lane_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservation.lean:636:8: warning: The declaration 'Step__vstore_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservation.lean:648:8: warning: The declaration 'Step__vstore_lane_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservation.lean:1168:18: error: Application type mismatch: The argument
+  fun_table (state.mk_state s f) x
+has type
+  tableinst → Prop
+but is expected to have type
+  tableinst
+in the application
+  fun_growtable (fun_table (state.mk_state s f) x)
+TypePreservation.lean:1345:4: error: Function expected at
+  with_mem
+but this term has type
+  ?m.1
+
+Note: Expected a function because this term is being applied to the argument
+  (state.mk_state s f)
+
+Hint: The identifier `with_mem` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be a function, and a function is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.
+TypePreservation.lean:1349:13: error: Invalid argument: Variable `with_mem` is not a proposition or let-declaration
+TypePreservation.lean:1349:2: error: `simp` made no progress
+TypePreservation.lean:1361:19: error: Application type mismatch: The argument
+  fun_mem (state.mk_state s f) (uN.mk_uN 0)
+has type
+  meminst → Prop
+but is expected to have type
+  meminst
+in the application
+  fun_growmemory (fun_mem (state.mk_state s f) (uN.mk_uN 0))
+TypePreservation.lean:1516:15: error(lean.unknownIdentifier): Unknown identifier `with_global`
+TypePreservation.lean:1516:4: error: `simp` made no progress
+TypePreservation.lean:1525:15: error(lean.unknownIdentifier): Unknown identifier `with_table`
+TypePreservation.lean:1525:4: error: `simp` made no progress
+TypePreservation.lean:1534:15: error(lean.unknownIdentifier): Unknown identifier `with_tableinst`
+TypePreservation.lean:1534:4: error: `simp` made no progress
+TypePreservation.lean:1543:15: error(lean.unknownIdentifier): Unknown identifier `with_elem`
+TypePreservation.lean:1543:4: error: `simp` made no progress
+TypePreservation.lean:1552:24: error: Application type mismatch: The argument
+  nt
+has type
+  memarg
+but is expected to have type
+  numtype
+in the application
+  wf_num_ nt
+TypePreservation.lean:1552:68: error: unsolved goals
+c1 c2 : config
+i✝ : num_
+z : numtype
+i : num_
+nt : memarg
+c : List byte
+ao : state
+b_lst : proj_num__0 i✝ ≠ none
+a✝¹ : size (valtype_numtype z) ≠ none
+hb : c = nbytes_ z i
+s : store
+f : frame
+s' : store
+f' : frame
+ais0' : List admininstr
+C C' : context
+t1s t2s : List valtype
+hmi : Moduleinst_ok s f.MODULE C
+him : inst_match C C'
+hsok : Store_ok s
+hz2 : ao = state.mk_state s' f'
+admininstr_lst_eq✝ : [] = ais0'
+a✝ :
+  fun_with_mem (state.mk_state s f) (uN.mk_uN 0) (proj_uN_0 (proj_num__0 i✝).get! + proj_uN_0 nt.OFFSET)
+    (rat_to_nat
+      ((do
+            let a ← size (valtype_numtype z)
+            pure ↑a).get! /
+        8))
+    c ao
+hwfc :
+  wf_config
+    (config.mk_config (state.mk_state s f)
+      [admininstr.CONST numtype.I32 i✝, admininstr.CONST z i, admininstr.STORE z none nt])
+htype :
+  Instrs_ok2 s C' [admininstr.CONST numtype.I32 i✝, admininstr.CONST z i, admininstr.STORE z none nt]
+    (mkFunctype t1s t2s)
+⊢ sorry () = numtype.I32 ∧ sorry () = i✝ ∨ sorry () = z ∧ sorry () = i
+TypePreservation.lean:1553:47: error: Application type mismatch: The argument
+  b_lst
+has type
+  proj_num__0 i✝ ≠ none
+of sort `Prop` but is expected to have type
+  List byte
+of sort `Type` in the application
+  with_mem_store_ok s f s' f' C C' ?m.1224 ?m.1225 b_lst
+TypePreservation.lean:1554:70: error: Application type mismatch: The argument
+  nt
+has type
+  memarg
+but is expected to have type
+  numtype
+in the application
+  nbytes__is_wf nt
+TypePreservation.lean:1560:37: error: Application type mismatch: The argument
+  v_Inn
+has type
+  n
+but is expected to have type
+  Inn
+in the application
+  numtype_Inn v_Inn
+TypePreservation.lean:1560:85: error: unsolved goals
+c1 c2 : config
+i✝ : num_
+z : Inn
+i : num_
+v_Inn : n
+c : memarg
+k : List byte
+ao : state
+b_lst : proj_num__0 i✝ ≠ none
+a✝¹ : size (valtype_Inn z) ≠ none
+hc : proj_num__0 i ≠ none
+hb : k = ibytes_ v_Inn (wrap__ (size (valtype_Inn z)).get! v_Inn (proj_num__0 i).get!)
+s : store
+f : frame
+s' : store
+f' : frame
+ais0' : List admininstr
+C C' : context
+t1s t2s : List valtype
+hmi : Moduleinst_ok s f.MODULE C
+him : inst_match C C'
+hsok : Store_ok s
+hz2 : ao = state.mk_state s' f'
+admininstr_lst_eq✝ : [] = ais0'
+a✝ :
+  fun_with_mem (state.mk_state s f) (uN.mk_uN 0) (proj_uN_0 (proj_num__0 i✝).get! + proj_uN_0 c.OFFSET)
+    (rat_to_nat (↑v_Inn / 8)) k ao
+hwfc :
+  wf_config
+    (config.mk_config (state.mk_state s f)
+      [admininstr.CONST numtype.I32 i✝, admininstr.CONST (numtype_Inn z) i,
+        admininstr.STORE (numtype_Inn z) (some (sz.mk_sz v_Inn)) c])
+htype :
+  Instrs_ok2 s C'
+    [admininstr.CONST numtype.I32 i✝, admininstr.CONST (numtype_Inn z) i,
+      admininstr.STORE (numtype_Inn z) (some (sz.mk_sz v_Inn)) c]
+    (mkFunctype t1s t2s)
+⊢ numtype_Inn (sorry ()) = numtype.I32 ∧ sorry () = i✝ ∨ numtype_Inn (sorry ()) = numtype_Inn z ∧ sorry () = i
+TypePreservation.lean:1561:47: error: Application type mismatch: The argument
+  b_lst
+has type
+  proj_num__0 i✝ ≠ none
+of sort `Prop` but is expected to have type
+  List byte
+of sort `Type` in the application
+  with_mem_store_ok s f s' f' C C' ?m.1307 ?m.1308 b_lst
+TypePreservation.lean:1563:21: error: Application type mismatch: The argument
+  k
+has type
+  List byte
+but is expected to have type
+  N
+in the application
+  ibytes__is_wf k
+TypePreservation.lean:1563:47: error: Application type mismatch: The argument
+  k
+has type
+  List byte
+but is expected to have type
+  N
+in the application
+  wrap___is_wf ?m.1317 k
+TypePreservation.lean:1563:70: error: Application type mismatch: The argument
+  v_Inn
+has type
+  n
+but is expected to have type
+  Inn
+in the application
+  wf_num_Inn_proj v_Inn
+TypePreservation.lean:1570:62: error: Application type mismatch: The argument
+  c
+has type
+  List byte
+but is expected to have type
+  vec_
+in the application
+  admininstr.VCONST vectype.V128 c
+TypePreservation.lean:1570:90: error: unsolved goals
+c1 c2 : config
+i✝ : num_
+z : vec_
+i : memarg
+c : List byte
+ao : state
+b_lst : proj_num__0 i✝ ≠ none
+a✝¹ : size valtype.V128 ≠ none
+hb : c = vbytes_ vectype.V128 z
+s : store
+f : frame
+s' : store
+f' : frame
+ais0' : List admininstr
+C C' : context
+t1s t2s : List valtype
+hmi : Moduleinst_ok s f.MODULE C
+him : inst_match C C'
+hsok : Store_ok s
+hz2 : ao = state.mk_state s' f'
+admininstr_lst_eq✝ : [] = ais0'
+a✝ :
+  fun_with_mem (state.mk_state s f) (uN.mk_uN 0) (proj_uN_0 (proj_num__0 i✝).get! + proj_uN_0 i.OFFSET)
+    (rat_to_nat
+      ((do
+            let a ← size valtype.V128
+            pure ↑a).get! /
+        8))
+    c ao
+hwfc :
+  wf_config
+    (config.mk_config (state.mk_state s f)
+      [admininstr.CONST numtype.I32 i✝, admininstr.VCONST vectype.V128 z, admininstr.VSTORE vectype.V128 i])
+htype :
+  Instrs_ok2 s C' [admininstr.CONST numtype.I32 i✝, admininstr.VCONST vectype.V128 z, admininstr.VSTORE vectype.V128 i]
+    (mkFunctype t1s t2s)
+u1 u2 : List valtype
+hop : Instrs_ok2 s C' [admininstr.VSTORE vectype.V128 i] (mkFunctype u1 u2)
+⊢ sorry () = z
+TypePreservation.lean:1572:47: error: Application type mismatch: The argument
+  b_lst
+has type
+  proj_num__0 i✝ ≠ none
+of sort `Prop` but is expected to have type
+  List byte
+of sort `Type` in the application
+  with_mem_store_ok s f s' f' C C' ?m.1429 ?m.1430 b_lst
+TypePreservation.lean:1573:37: error: Application type mismatch: The argument
+  ao
+has type
+  state
+but is expected to have type
+  memarg
+in the application
+  ais_vstore_mems_inversion ?m.1431 C' ao
+TypePreservation.lean:1573:79: error: Application type mismatch: The argument
+  c
+has type
+  List byte
+but is expected to have type
+  vec_
+in the application
+  vbytes__is_wf vectype.V128 c
+TypePreservation.lean:1580:47: error: Application type mismatch: The argument
+  b_lst
+has type
+  state
+but is expected to have type
+  List byte
+in the application
+  with_mem_store_ok s f s' f' C C' ?m.1522 ?m.1523 b_lst
+TypePreservation.lean:1581:42: error: Application type mismatch: The argument
+  v_N
+has type
+  Jnn
+but is expected to have type
+  n
+in the application
+  ais_vstore_lane_mems_inversion ?m.1524 C' v_N
+TypePreservation.lean:1581:77: error: Application type mismatch: The argument
+  v_N
+has type
+  Jnn
+but is expected to have type
+  N
+in the application
+  ibytes__is_wf v_N
+TypePreservation.lean:1587:15: error(lean.unknownIdentifier): Unknown identifier `with_meminst`
+TypePreservation.lean:1587:4: error: `simp` made no progress
+TypePreservation.lean:1596:15: error(lean.unknownIdentifier): Unknown identifier `with_data`
+TypePreservation.lean:1596:4: error: `simp` made no progress
+TypePreservation.lean:1981:64: error: Function expected at
+  default_
+but this term has type
+  ?m.1
+
+Note: Expected a function because this term is being applied to the argument
+  t
+
+Hint: The identifier `default_` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be a function, and a function is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.
+TypePreservation.lean:1982:27: error: Function expected at
+  default_
+but this term has type
+  ?m.1
+
+Note: Expected a function because this term is being applied to the argument
+  t
+
+Hint: The identifier `default_` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be a function, and a function is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.
+TypePreservation.lean:1982:45: error: unsolved goals
+x✝ : Sort u_1
+default_ : x✝
+s : store
+t : valtype
+hS : wf_store s
+hd : sorry ≠ none
+⊢ Val_ok s sorry.get! t
+TypePreservation.lean:1996:21: error: Function expected at
+  default_
+but this term has type
+  ?m.1
+
+Note: Expected a function because this term is being applied to the argument
+  t
+
+Hint: The identifier `default_` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be a function, and a function is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.
+TypePreservation.lean:1997:72: error: Function expected at
+  default_
+but this term has type
+  ?m.1
+
+Note: Expected a function because this term is being applied to the argument
+  t
+
+Hint: The identifier `default_` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be a function, and a function is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.
+TypePreservation.lean:1999:88: error: Function expected at
+  default_
+but this term has type
+  x✝
+
+Note: Expected a function because this term is being applied to the argument
+  t
+TypePreservation.lean:2003:31: error(lean.unknownIdentifier): Unknown identifier `default_val_ok`
+TypePreservation.lean:2004:25: error: Type mismatch
+  hd x (List.mem_cons_of_mem t hx)
+has type
+  (fun t_1 => ?m.24 s (t :: ts) t_1 ≠ none) x
+but is expected to have type
+  (fun t => ?m.5 ≠ none) x
+TypePreservation.lean:2047:23: error(lean.unknownIdentifier): Unknown identifier `bt_inversion`
+TypePreservation.lean:2047:11: error: Tactic `rcases` failed: `x✝ : ?m.295` is not an inductive datatype
+TypePreservation.lean:2068:23: error(lean.unknownIdentifier): Unknown identifier `bt_inversion`
+TypePreservation.lean:2068:11: error: Tactic `rcases` failed: `x✝ : ?m.450` is not an inductive datatype
+TypePreservation.lean:2103:72: error: Type mismatch
+  h4
+has type
+  proj_num__0 i ≠ none
+but is expected to have type
+  v_f.MODULE.TYPES[proj_uN_0 y]! = v_s.FUNCS[a]!.TYPE
+TypePreservation.lean:2106:58: error: Application type mismatch: The argument
+  h3
+has type
+  fun_table (state.mk_state v_s v_f) x h1
+but is expected to have type
+  a < v_s.FUNCS.length
+in the application
+  Externaddr_ok.func v_s a v_s.FUNCS[a]! h3
+TypePreservation.lean:2122:122: error: Type mismatch
+  h1
+has type
+  h0.length = t_lst.length
+but is expected to have type
+  v_s.FUNCS[a]! =
+    { TYPE := functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_2_lst), MODULE := mm, CODE := v_func }
+TypePreservation.lean:2136:8: error: Invalid rewrite argument: Expected an equality or iff proof or definition name, but `h2 ?t ?a✝` is a proof of
+  (fun var_0_elem t_elem => fun_default_ t_elem var_0_elem) ?t.1 ?t.2
+TypePreservation.lean:2178:73: error: Application type mismatch: The argument
+  hv
+has type
+  Val_ok v_s v_f.LOCALS[proj_uN_0 x]! t
+but is expected to have type
+  Val_ok v_s var_0✝ t
+in the application
+  ais_val1 v_s v_C' var_0✝ t hv
+TypePreservation.lean:2183:73: error: Application type mismatch: The argument
+  hv
+has type
+  Val_ok v_s (lookup_total v_s.GLOBALS (lookup_total v_f.MODULE.GLOBALS (proj_uN_0 x))).VALUE t
+but is expected to have type
+  Val_ok v_s var_0✝.VALUE t
+in the application
+  ais_val1 v_s v_C' var_0✝.VALUE t hv
+TypePreservation.lean:2193:61: error(lean.invalidField): Invalid field `REFS`: The environment does not contain `Function.REFS`, so it is not possible to project the field `REFS` from an expression
+  fun_table (state.mk_state v_s v_f) x
+of type `tableinst → Prop`
+TypePreservation.lean:2194:66: error(lean.invalidField): Invalid field `REFS`: The environment does not contain `Function.REFS`, so it is not possible to project the field `REFS` from an expression
+  fun_table (state.mk_state v_s v_f) x
+of type `tableinst → Prop`
+TypePreservation.lean:2194:7: error: unsolved goals
+v_s : store
+v_f : frame
+v_C v_C' : context
+t1s t2s : List valtype
+hsok : Store_ok v_s
+hmi : Moduleinst_ok v_s v_f.MODULE v_C
+hvals : Vals_ok v_s v_f.LOCALS v_C'.LOCALS
+him : inst_match v_C v_C'
+hwfC' : wf_context v_C'
+hwfS : wf_store v_s
+i : num_
+x : idx
+h0 : tableinst
+h1 : proj_uN_0 (proj_num__0 i).get! < h0.REFS.length
+a✝¹ : proj_num__0 i ≠ none
+a✝ : fun_table (state.mk_state v_s v_f) x h0
+hwfc : wf_config (config.mk_config (state.mk_state v_s v_f) [admininstr.CONST numtype.I32 i, admininstr.TABLE_GET x])
+htype : Instrs_ok2 v_s v_C' [admininstr.CONST numtype.I32 i, admininstr.TABLE_GET x] (mkFunctype t1s t2s)
+right✝ : Forall wf_admininstr [admininstr.CONST numtype.I32 i, admininstr.TABLE_GET x]
+hwf' : Forall (fun var_1_elem => wf_admininstr var_1_elem) [admininstr_ref h0.REFS[proj_uN_0 (proj_num__0 i).get!]!]
+t3 : List valtype
+hop : Instrs_ok2 v_s v_C' [admininstr.TABLE_GET x] (mkFunctype t3 t2s)
+hc : Instrs_ok2 v_s v_C' [admininstr.CONST numtype.I32 i] (mkFunctype t1s t3)
+rt : reftype
+lim : limits
+hlk : v_C'.TABLES[proj_uN_0 x]? = some (tabletype.mk_tabletype lim rt)
+hs : instrtype_sub (mkFunctype [valtype.I32] [valtype_reftype rt]) (mkFunctype t3 t2s)
+s1 : instrtype_sub (mkFunctype [] [valtype_numtype numtype.I32]) (mkFunctype t1s t3)
+isub : instrtype_sub (mkFunctype [] [valtype_reftype rt]) (mkFunctype t1s t2s)
+hrefs : Forall (fun r => Ref_ok v_s r rt) v_s.TABLES[v_f.MODULE.TABLES[proj_uN_0 x]!]!.REFS
+⊢ sorry[proj_uN_0 (proj_num__0 i).get!]! ∈ v_s.TABLES[v_f.MODULE.TABLES[proj_uN_0 x]!]!.REFS
+TypePreservation.lean:2286:60: error(lean.invalidField): Invalid field `REFS`: The environment does not contain `Function.REFS`, so it is not possible to project the field `REFS` from an expression
+  fun_elem (state.mk_state v_s v_f) y
+of type `eleminst → Prop`
+TypePreservation.lean:2287:65: error(lean.invalidField): Invalid field `REFS`: The environment does not contain `Function.REFS`, so it is not possible to project the field `REFS` from an expression
+  fun_elem (state.mk_state v_s v_f) y
+of type `eleminst → Prop`
+TypePreservation.lean:2287:7: error: unsolved goals
+v_s : store
+v_f : frame
+v_C v_C' : context
+t1s t2s : List valtype
+hsok : Store_ok v_s
+hmi : Moduleinst_ok v_s v_f.MODULE v_C
+hvals : Vals_ok v_s v_f.LOCALS v_C'.LOCALS
+him : inst_match v_C v_C'
+hwfC' : wf_context v_C'
+hwfS : wf_store v_s
+j i : num_
+v_n : n
+x y : idx
+h0 : tableinst
+h1 : eleminst
+h2 : proj_uN_0 (proj_num__0 i).get! < h1.REFS.length
+h3 : proj_num__0 i ≠ none
+h4 : proj_num__0 j ≠ none
+a✝³ : v_n ≠ 0
+a✝² : proj_uN_0 (proj_num__0 i).get! + v_n ≤ h1.REFS.length ∧ proj_uN_0 (proj_num__0 j).get! + v_n ≤ h0.REFS.length
+a✝¹ : fun_table (state.mk_state v_s v_f) x h0
+a✝ : fun_elem (state.mk_state v_s v_f) y h1
+hwfc :
+  wf_config
+    (config.mk_config (state.mk_state v_s v_f)
+      [admininstr.CONST numtype.I32 j, admininstr.CONST numtype.I32 i,
+        admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n)), admininstr.TABLE_INIT x y])
+htype :
+  Instrs_ok2 v_s v_C'
+    [admininstr.CONST numtype.I32 j, admininstr.CONST numtype.I32 i,
+      admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n)), admininstr.TABLE_INIT x y]
+    (mkFunctype t1s t2s)
+right✝¹ :
+  Forall wf_admininstr
+    [admininstr.CONST numtype.I32 j, admininstr.CONST numtype.I32 i,
+      admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n)), admininstr.TABLE_INIT x y]
+hwf' :
+  Forall (fun var_1_elem => wf_admininstr var_1_elem)
+    [admininstr.CONST numtype.I32 j, admininstr_ref h1.REFS[proj_uN_0 (proj_num__0 i).get!]!, admininstr.TABLE_SET x,
+      admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN (proj_uN_0 (proj_num__0 j).get! + 1))),
+      admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN (proj_uN_0 (proj_num__0 i).get! + 1))),
+      admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN (↑v_n - 1).toNat)), admininstr.TABLE_INIT x y]
+w✝¹ w✝ : List valtype
+hop : Instrs_ok2 v_s v_C' [admininstr.TABLE_INIT x y] (mkFunctype w✝¹ w✝)
+rt : reftype
+lim : limits
+hlx : v_C'.TABLES[proj_uN_0 x]? = some (tabletype.mk_tabletype lim rt)
+hly : v_C'.ELEMS[proj_uN_0 y]? = some rt
+right✝ : instrtype_sub (mkFunctype [valtype.I32, valtype.I32, valtype.I32] []) (mkFunctype w✝¹ w✝)
+isub : instrtype_sub (mkFunctype [] []) (mkFunctype t1s t2s)
+hx : proj_uN_0 x < v_C'.TABLES.length
+hgetx : v_C'.TABLES[proj_uN_0 x]! = tabletype.mk_tabletype lim rt
+hy : proj_uN_0 y < v_C'.ELEMS.length
+hgety : v_C'.ELEMS[proj_uN_0 y]! = rt
+hwftt : wf_tabletype (tabletype.mk_tabletype lim rt)
+hrefs : Forall (fun r => Ref_ok v_s r rt) v_s.ELEMS[v_f.MODULE.ELEMS[proj_uN_0 y]!]!.REFS
+⊢ sorry[proj_uN_0 (proj_num__0 i).get!]! ∈ v_s.ELEMS[v_f.MODULE.ELEMS[proj_uN_0 y]!]!.REFS
+TypePreservation.lean:2302:74: error: Application type mismatch: The argument
+  h3
+has type
+  size (valtype_numtype nt) ≠ none
+but is expected to have type
+  wf_num_ nt c
+in the application
+  ais_const1 v_s v_C' nt c h3
+TypePreservation.lean:2552:88: error: Application type mismatch: The argument
+  v
+has type
+  state
+but is expected to have type
+  val
+in the application
+  inv_val_arg ?m.1442 ?m.1443 v
+TypePreservation.lean:2552:111: error: Application type mismatch: The argument
+  x
+has type
+  fun_with_global (state.mk_state s f) z v_val✝ v
+of sort `Prop` but is expected to have type
+  globalidx
+of sort `Type` in the application
+  inv_global_set ?m.1444 ?m.1445 x
+TypePreservation.lean:2567:104: error: Application type mismatch: The argument
+  i
+has type
+  state
+but is expected to have type
+  num_
+in the application
+  inv_const_arg ?m.1665 ?m.1666 numtype.I32 i
+TypePreservation.lean:2567:124: error: Application type mismatch: The argument
+  r
+has type
+  fun_table (state.mk_state s f) x✝ z
+of sort `Prop` but is expected to have type
+  ref
+of sort `Type` in the application
+  inv_ref_arg ?m.1667 ?m.1668 r
+TypePreservation.lean:2567:146: error: Application type mismatch: The argument
+  x
+has type
+  proj_num__0 i✝ ≠ none
+of sort `Prop` but is expected to have type
+  tableidx
+of sort `Type` in the application
+  inv_table_set ?m.1669 ?m.1670 x
+TypePreservation.lean:2575:107: error: Application type mismatch: The argument
+  r
+has type
+  Option tableinst
+but is expected to have type
+  ref
+in the application
+  inv_ref_arg ?m.1789 ?m.1790 r
+TypePreservation.lean:2575:164: error: Application type mismatch: The argument
+  x
+has type
+  state
+but is expected to have type
+  tableidx
+in the application
+  inv_table_grow ?m.1794 ?m.1795 x
+TypePreservation.lean:2591:53: error: Application type mismatch: The argument
+  x
+has type
+  fun_with_elem (state.mk_state s f) x✝ [] z
+of sort `Prop` but is expected to have type
+  elemidx
+of sort `Type` in the application
+  inv_elem_drop ?m.2030 ?m.2031 x
+TypePreservation.lean:2606:126: error: Application type mismatch: The argument
+  nt
+has type
+  memarg
+but is expected to have type
+  numtype
+in the application
+  inv_const_arg ?m.2253 ?m.2254 nt
+TypePreservation.lean:2606:152: error: Application type mismatch: The argument
+  nt
+has type
+  memarg
+but is expected to have type
+  numtype
+in the application
+  inv_store_none ?m.2255 ?m.2256 nt
+TypePreservation.lean:2621:128: error: Application type mismatch: The argument
+  c
+has type
+  memarg
+but is expected to have type
+  num_
+in the application
+  inv_const_arg ?m.2478 ?m.2479 ?m.2480 c
+TypePreservation.lean:2621:153: error: Application type mismatch: The argument
+  k
+has type
+  List byte
+but is expected to have type
+  ℕ
+in the application
+  inv_store_pack ?m.2481 ?m.2482 ?m.2483 k
+TypePreservation.lean:2671:53: error: Application type mismatch: The argument
+  x
+has type
+  fun_with_data (state.mk_state s f) x✝ [] z
+of sort `Prop` but is expected to have type
+  dataidx
+of sort `Type` in the application
+  inv_data_drop ?m.3214 ?m.3215 x
+Command exited with non-zero status 1
+WALL 4.27 s  MAXRSS 3897940 KB

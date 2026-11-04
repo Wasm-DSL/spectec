@@ -16,10 +16,15 @@ Status: upstream `type_preservation.v` has **no** `Admitted` lemmas: everything 
 upstream `6582b3a39` that includes the
 generated `Step_read_is_wf` in `wasm.v`, which used to be `Admitted` (and false in a
 memory.fill/copy/init `2^32` corner case, fixed by spec commit `4cf9f29c5`, which makes those
-rules push `$iadd_(32, i, 1)`). The only `sorry`s that `t_preservation` still depends on
-are generated `*_is_wf` theorems about functions that are `opaque` in `wasm2.0.lean` (`Axiom`s in
-Rocq, where the same theorems are `Admitted`); see `claude-logging/for-claude/is_wf_theorems.md`.
+rules push `$iadd_(32, i, 1)`). `t_preservation` depends on no `sorry`: besides Lean's standard
+axioms, `#print axioms` lists only the model's `*_is_wf` axioms for the functions that are
+`opaque` in `wasm2.0.lean` (`Axiom`s in Rocq too, where these theorems are `Admitted`).
 `num_default_is_well_formed` is proved (its Rocq statement is commented out upstream).
+
+Since the model was regenerated with `sideconditions_on_defs` (user commit `12b021fc9`), the state
+lookups and updates (`fun_table`, `fun_with_mem`, …) are relations whose premises carry the index
+bounds. The proofs here invert them, mostly through the inversion lemmas at the end of
+`HelperLemmas.lean`.
 
 Line numbers refer to `spectec/test-rocq/theories` at upstream `rocq-backend-proof` `6582b3a39`.
 -/
@@ -33,8 +38,10 @@ theorem zero_is_well_formed : wf_num_ numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk
   · simp only [size, valtype_Inn]
     exact wf_uN.uN_case_0 32 0 (by decide)
 
-/-- Rocq `type_preservation.v:19` `num_default`. Default/zero value per numtype; used to
-    build default locals in `t_read_preservation`'s Call_addr/frame-invocation case. -/
+/-- Rocq `type_preservation.v:19` `num_default`. Default/zero value per numtype (`fzero` is the
+    HelperLemmas function view of `fun_fzero`). Only `num_default_is_well_formed` uses it; the
+    default locals of `t_read_preservation`'s `call_addr` case come from `default_`
+    (`default_vals_ok`). -/
 def num_default (nt : numtype) : num_ :=
   match nt with
   | .I32 => .mk_num__0 Inn.I32 (uN.mk_uN 0)
@@ -57,15 +64,9 @@ theorem num_default_is_well_formed (nt : numtype) : wf_num_ nt (num_default nt) 
     · simp only [size, valtype_Inn]
       exact wf_uN.uN_case_0 64 0 (by decide)
   | F32 =>
-    refine wf_num_.num__case_1 numtype.F32 Fnn.F32 (fzero 32) ?_ rfl
-    simp only [fzero, sizenn, numtype_Fnn, sizenn1]
-    exact wf_fN.fN_case_0 32 (fNmag.SUBNORM 0)
-      (wf_fNmag.fNmag_case_1 32 (2 - 2 ^ (((E 32 : Int) - 1).toNat)) 0 ⟨by decide, rfl⟩)
+    exact wf_num_.num__case_1 numtype.F32 Fnn.F32 (fzero 32) 32 (fun_sizenn_sizenn _) wf_fzero_32 rfl
   | F64 =>
-    refine wf_num_.num__case_1 numtype.F64 Fnn.F64 (fzero 64) ?_ rfl
-    simp only [fzero, sizenn, numtype_Fnn, sizenn1]
-    exact wf_fN.fN_case_0 64 (fNmag.SUBNORM 0)
-      (wf_fNmag.fNmag_case_1 64 (2 - 2 ^ (((E 64 : Int) - 1).toNat)) 0 ⟨by decide, rfl⟩)
+    exact wf_num_.num__case_1 numtype.F64 Fnn.F64 (fzero 64) 64 (fun_sizenn_sizenn _) wf_fzero_64 rfl
 
 /-- Rocq `type_preservation.v:41` `wf_context_app`. -/
 theorem wf_context_app (C C' : context) : wf_context C → wf_context C' → wf_context (C ++ C') := by
@@ -113,6 +114,8 @@ theorem inst_t_context_labels_empty (s : store) (i : moduleinst) (C : context) :
     23 rules, 20 leave the frame alone outright — only `local_set` touches
     `LOCALS`, and only the two congruence rules (`ctxt_label`, `ctxt_instrs`)
     need the induction hypothesis; `ctxt_frame` changes only the *inner* frame.
+    The store-writing rules produce their state through a `fun_with_*`
+    premise, which is inverted to expose the unchanged frame.
     Rocq compresses the same case split into one `induction ...; try (...)`
     script backed by its `invert_ais_typing`/`resolve_all_pt` tactics. -/
 private theorem t_preservation_vs_type'_aux (c1 c2 : config) (h : Step c1 c2) :
@@ -204,8 +207,9 @@ private theorem t_preservation_vs_type'_aux (c1 c2 : config) (h : Step c1 c2) :
     injection h1 with hz1 _
     injection h2 with hz2 _
     subst hz1
-    try simp only [with_global, with_table, with_tableinst, with_elem, with_mem,
-      with_meminst, with_data] at hz2
+    try casesm fun_with_global _ _ _ _, fun_with_table _ _ _ _ _, fun_with_tableinst _ _ _ _,
+      fun_with_elem _ _ _ _, fun_with_mem _ _ _ _ _ _, fun_with_meminst _ _ _ _,
+      fun_with_data _ _ _ _
     injection hz2 with _ hf
     subst hf
     exact hvals)
@@ -375,7 +379,8 @@ theorem Extend_store_datainsts₂ (s s' : store) (ds : List datainst) (dts : Lis
   exact aux _ _ (h p hp)
 
 /-- Rocq `type_preservation.v:253` `wf_store_mem_update`. Stated, as in Rocq,
-    with `list_slice_update`; the Lean `with_mem` (`splice`) is bridged to it by
+    with `list_slice_update`; the model's `$with_mem` (the relation `fun_with_mem`, which writes
+    with `splice`) is bridged to it by
     `HelperLemmas.splice_eq_list_slice_update`. -/
 theorem wf_store_mem_update (s : store) (idx off len : Nat) (b_lst : List byte) :
     wf_store s → Forall wf_byte b_lst →
@@ -493,11 +498,11 @@ theorem ais_vstore_lane_mems_inversion (v_S : store) (v_C : context) (v_n : n) (
     dependent` before `induction HReduce`; Lean's `induction` needs the
     indices to be variables, so the two `config`s are generalized and the
     shapes recovered from equational premises instead. Every `Step`
-    constructor either leaves the state alone, rewrites it with one of the
-    `with_*` functions (all of which preserve `frame.MODULE` — `with_local`
-    touches only `LOCALS`, the rest only the store), or is one of the two
-    congruence rules that need the induction hypothesis; `ctxt_frame` is in
-    the first group, since it changes only the *inner* frame. -/
+    constructor either leaves the state alone, rewrites it with `with_local`
+    (which touches only `LOCALS`) or through one of the `fun_with_*` relations
+    (inverted here; they touch only the store), or is one of the two
+    congruence rules that need the induction hypothesis; `ctxt_frame` needs no
+    induction hypothesis either, since it changes only the store and the *inner* frame. -/
 private theorem reduce_inst_unchanged_aux (c1 c2 : config) (h : Step c1 c2) :
     ∀ (s : store) (f : frame) (ais : List admininstr) (s' : store) (f' : frame)
       (ais' : List admininstr),
@@ -527,8 +532,10 @@ private theorem reduce_inst_unchanged_aux (c1 c2 : config) (h : Step c1 c2) :
     rfl
   all_goals (
     intro s f ais s' f' ais' h1 h2
-    simp_all [with_global, with_table, with_tableinst, with_elem, with_mem,
-      with_meminst, with_data])
+    try casesm fun_with_global _ _ _ _, fun_with_table _ _ _ _ _, fun_with_tableinst _ _ _ _,
+      fun_with_elem _ _ _ _, fun_with_mem _ _ _ _ _ _, fun_with_meminst _ _ _ _,
+      fun_with_data _ _ _ _
+    simp_all)
 
 /-- Rocq `type_preservation.v:1504` `reduce_inst_unchanged`. The module-instance component
     of the frame is invariant under `Step`. -/
@@ -1160,17 +1167,21 @@ theorem table_set_store_ok (s : store) (f : frame) (C C' : context) (i : num_) (
     h7 (Extend_store_funcinsts _ _ _ _ hext h8) h9 (Extend_store_datainsts₂ _ _ _ _ hext h10)
     h11 (Extend_store_eleminsts _ _ _ _ hext h12) hwfS' hmt htt'⟩
 
-/-- Rocq `store_extension_reduce`, "Table Grow" case. -/
+/-- Rocq `store_extension_reduce`, "Table Grow" case. Takes the rule's `fun_table` premise for the
+    grown table (the relational `$table`; the old statement applied it as a function). -/
 theorem table_grow_store_ok (s : store) (f : frame) (C C' : context) (r : ref) (v_n : Nat) (k : num_)
-    (x : tableidx) (ti : tableinst) (var_0 : Option tableinst) (t1s t2s : List valtype) :
+    (x : tableidx) (ti : tableinst) (var_2 : Option tableinst) (var_1 : tableinst) (t1s t2s : List valtype) :
     Store_ok s → Moduleinst_ok s f.MODULE C → inst_match C C' →
     Instrs_ok2 s C' [admininstr_ref r, admininstr.CONST numtype.I32 k, admininstr.TABLE_GROW x] (mkFunctype t1s t2s) →
-    fun_growtable (fun_table (state.mk_state s f) x) v_n r var_0 → var_0 ≠ none → Option.get! var_0 = ti →
+    fun_growtable var_1 v_n r var_2 → fun_table (state.mk_state s f) x var_1 → var_2 ≠ none →
+    Option.get! var_2 = ti →
     Extend_store s { s with
       TABLES := list_update_func s.TABLES (f.MODULE.TABLES[proj_uN_0 x]!) (fun _ => ti) } ∧
     Store_ok { s with
       TABLES := list_update_func s.TABLES (f.MODULE.TABLES[proj_uN_0 x]!) (fun _ => ti) } := by
-  intro hsok hmi him htype hgrow hne hget
+  intro hsok hmi him htype hgrow htab hne hget
+  obtain ⟨_, _, htab⟩ := fun_table_inv htab
+  subst htab
   cases hgrow with
   | fun_growtable_case_1 _ => exact absurd rfl hne
   | fun_growtable_case_0 ti' i j_opt rt r'_lst i' hold hi' hj hti' _ hwfnew =>
@@ -1336,35 +1347,38 @@ theorem wf_vconst_parts {vt : vectype} {c : vec_} (h : wf_admininstr (admininstr
   cases h with | admininstr_case_20 _ _ h1 h2 => exact ⟨h1, h2⟩
 
 /-- Rocq `store_extension_reduce`, the four memory-store cases (`store_num_val`,
-    `store_pack_val`, `vstore_val`, `vstore_lane_val`). `with_mem` writes `b*` with `splice`,
-    which is `list_slice_update` with length `|b*|` (`splice_eq_list_slice_update`), so each case
-    is `mem_store_extension` (as in Rocq, which calls it for the two SIMD cases and inlines it
-    for the two scalar ones). The length argument `with_mem` receives is unused by `splice`. -/
+    `store_pack_val`, `vstore_val`, `vstore_lane_val`), stated over the rules' `fun_with_mem`
+    premise (the relational `$with_mem`). It writes `b*` with `splice`, which is
+    `list_slice_update` with length `|b*|` (`splice_eq_list_slice_update`), so each case is
+    `mem_store_extension` (as in Rocq, which calls it for the two SIMD cases and inlines it for
+    the two scalar ones). The length argument `fun_with_mem` receives is unused by `splice`. -/
 theorem with_mem_store_ok (s : store) (f : frame) (s' : store) (f' : frame) (C C' : context)
     (off len : Nat) (b_lst : List byte) :
-    with_mem (state.mk_state s f) (uN.mk_uN 0) off len b_lst = state.mk_state s' f' →
+    fun_with_mem (state.mk_state s f) (uN.mk_uN 0) off len b_lst (state.mk_state s' f') →
     Store_ok s → Moduleinst_ok s f.MODULE C → inst_match C C' → 0 < C'.MEMS.length →
     Forall wf_byte b_lst → Extend_store s s' ∧ Store_ok s' := by
-  intro heq hsok hmi him hmem hwfb
-  simp only [with_mem, splice_eq_list_slice_update] at heq
-  injection heq with hs _
-  subst hs
+  intro hw hsok hmi him hmem hwfb
+  cases hw
+  simp only [splice_eq_list_slice_update]
   exact mem_store_extension s f C C' off b_lst b_lst.length hsok (Store_ok_wf_store s hsok) hmi him hmem
     hwfb rfl
 
-/-- Rocq `store_extension_reduce`, "Memory Grow" case. Uses `rat_to_nat_natCast` above for the
-    new page count. -/
+/-- Rocq `store_extension_reduce`, "Memory Grow" case. Takes the rule's `fun_mem` premise for
+    the grown memory (the relational `$mem`; the old statement applied it as a function). Uses
+    `rat_to_nat_natCast` above for the new page count. -/
 theorem memory_grow_store_ok (s : store) (f : frame) (C C' : context) (a : admininstr) (v_n : Nat)
-    (mi : meminst) (var_0 : Option meminst) (t1s t2s : List valtype) :
+    (mi : meminst) (var_2 : Option meminst) (var_1 : meminst) (t1s t2s : List valtype) :
     Store_ok s → Moduleinst_ok s f.MODULE C → inst_match C C' →
     Instrs_ok2 s C' [a, admininstr.MEMORY_GROW] (mkFunctype t1s t2s) →
-    fun_growmemory (fun_mem (state.mk_state s f) (uN.mk_uN 0)) v_n var_0 → var_0 ≠ none →
-    Option.get! var_0 = mi →
+    fun_growmemory var_1 v_n var_2 → fun_mem (state.mk_state s f) (uN.mk_uN 0) var_1 → var_2 ≠ none →
+    Option.get! var_2 = mi →
     Extend_store s { s with
       MEMS := list_update_func s.MEMS (f.MODULE.MEMS[0]!) (fun _ => mi) } ∧
     Store_ok { s with
       MEMS := list_update_func s.MEMS (f.MODULE.MEMS[0]!) (fun _ => mi) } := by
-  intro hsok hmi him htype hgrow hne hget
+  intro hsok hmi him htype hgrow hmem hne hget
+  obtain ⟨_, _, hmem⟩ := fun_mem_inv hmem
+  subst hmem
   cases hgrow with
   | fun_growmemory_case_1 _ => exact absurd rfl hne
   | fun_growmemory_case_0 mi' i j_opt b_lst i' hold hi' hj h216 hmi' _ hwfnew =>
@@ -1435,8 +1449,10 @@ theorem memory_grow_store_ok (s : store) (f : frame) (C C' : context) (a : admin
 
 /-- Generalized form of `store_extension_reduce` (same `remember`/`generalize dependent`
     encoding as `reduce_inst_unchanged_aux`). The context rules recurse (the congruence rules
-    carry the inner configuration's `wf_config` as a premise), the store-writing rules go to the
-    per-rule lemmas above, and every other rule leaves the store unchanged. -/
+    carry the inner configuration's `wf_config` as a premise), the store-writing rules invert
+    their `fun_with_*` premise (the four memory stores hand `fun_with_mem` to `with_mem_store_ok`,
+    which inverts it) and go to the per-rule lemmas above, and every other rule leaves the store
+    unchanged. -/
 private theorem store_extension_reduce_aux (c1 c2 : config) (hstep : Step c1 c2) :
     ∀ (s : store) (f : frame) (ais : List admininstr) (s' : store) (f' : frame)
       (ais' : List admininstr) (C C' : context) (t1s t2s : List valtype),
@@ -1508,94 +1524,84 @@ private theorem store_extension_reduce_aux (c1 c2 : config) (hstep : Step c1 c2)
     injection hz2 with hs _
     subst hs
     exact ⟨Extend_store_refl (Store_ok_wf_store _ hsok), hsok⟩
-  case global_set z v x =>
+  case global_set z v x var_0 hw =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 _ hmi htype him hsok
     injection h1 with hz1 hais1
     injection h2 with hz2 _
-    subst hz1 hais1
-    simp only [with_global] at hz2
-    injection hz2 with hs _
-    subst hs
+    subst hz1 hais1 hz2
+    cases hw
     exact global_set_store_ok s f C C' v x t1s t2s hsok hmi him htype
-  case table_set_val z i r x _ _ =>
+  case table_set_val z i r x var_1 var_0 _ _ hw _ =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 _ hmi htype him hsok
     injection h1 with hz1 hais1
     injection h2 with hz2 _
-    subst hz1 hais1
-    simp only [with_table] at hz2
-    injection hz2 with hs _
-    subst hs
+    subst hz1 hais1 hz2
+    cases hw
     exact table_set_store_ok s f C C' i r x _ t1s t2s hsok hmi him htype
-  case table_grow_succeed z r k x ti var_0 hgrow hne hget =>
+  case table_grow_succeed z r k x ti var_2 var_1 var_0 hgrow htab hw hne hget =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 _ hmi htype him hsok
     injection h1 with hz1 hais1
     injection h2 with hz2 _
-    subst hz1 hais1
-    simp only [with_tableinst] at hz2
-    injection hz2 with hs _
-    subst hs
-    exact table_grow_store_ok s f C C' r k _ x ti var_0 t1s t2s hsok hmi him htype hgrow hne hget
-  case elem_drop z x =>
+    subst hz1 hais1 hz2
+    cases hw
+    exact table_grow_store_ok s f C C' r k _ x ti var_2 var_1 t1s t2s hsok hmi him htype hgrow htab hne
+      hget
+  case elem_drop z x var_0 hw =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 _ hmi htype him hsok
     injection h1 with hz1 hais1
     injection h2 with hz2 _
-    subst hz1 hais1
-    simp only [with_elem] at hz2
-    injection hz2 with hs _
-    subst hs
+    subst hz1 hais1 hz2
+    cases hw
     exact elem_drop_store_ok s f C C' x t1s t2s hsok hmi him htype
-  case store_num_val z i nt c ao b_lst _ _ hb =>
+  case store_num_val z i nt c ao b_lst var_0 _ _ hw hb =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 hwfc hmi htype him hsok
     injection h1 with hz1 hais1
     injection h2 with hz2 _
-    subst hz1 hais1
+    subst hz1 hais1 hz2
     have hwfn : wf_num_ nt c := wf_const_num (wf_config_ais hwfc _ (by simp))
-    exact with_mem_store_ok s f s' f' C C' _ _ b_lst hz2 hsok hmi him
+    exact with_mem_store_ok s f s' f' C C' _ _ b_lst hw hsok hmi him
       (ais_store_mems_inv _ _ _ _ _ _ _ t1s t2s htype) (nbytes__is_wf nt c b_lst hwfn hb)
-  case store_pack_val z i v_Inn c k ao b_lst _ _ hc hb =>
+  case store_pack_val z i v_Inn c k ao b_lst var_0 _ hw _ hc hb =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 hwfc hmi htype him hsok
     injection h1 with hz1 hais1
     injection h2 with hz2 _
-    subst hz1 hais1
+    subst hz1 hais1 hz2
     have hwfn : wf_num_ (numtype_Inn v_Inn) c := wf_const_num (wf_config_ais hwfc _ (by simp))
-    exact with_mem_store_ok s f s' f' C C' _ _ b_lst hz2 hsok hmi him
+    exact with_mem_store_ok s f s' f' C C' _ _ b_lst hw hsok hmi him
       (ais_store_mems_inv _ _ _ _ _ _ _ t1s t2s htype)
       (ibytes__is_wf k _ b_lst (wrap___is_wf _ k _ _ (wf_num_Inn_proj v_Inn c hwfn hc) rfl) hb)
-  case vstore_val z i c ao b_lst _ _ hb =>
+  case vstore_val z i c ao b_lst var_0 _ _ hw hb =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 hwfc hmi htype him hsok
     injection h1 with hz1 hais1
     injection h2 with hz2 _
-    subst hz1 hais1
+    subst hz1 hais1 hz2
     obtain ⟨u1, u2, hop⟩ := ais_seq3_last_typing _ _ _ _ _ _ htype
     have hwfv : wf_admininstr (admininstr.VCONST vectype.V128 c) := wf_config_ais hwfc _ (by simp)
     obtain ⟨hsz, hwfu⟩ := wf_vconst_parts hwfv
-    exact with_mem_store_ok s f s' f' C C' _ _ b_lst hz2 hsok hmi him
+    exact with_mem_store_ok s f s' f' C C' _ _ b_lst hw hsok hmi him
       (ais_vstore_mems_inversion _ _ ao u1 u2 hop) (vbytes__is_wf vectype.V128 c b_lst hsz hwfu hb)
-  case vstore_lane_val z i c v_N ao j b_lst v_Jnn v_M _ _ _ _ _ hb hwfl =>
+  case vstore_lane_val z i c v_N ao j b_lst v_Jnn v_M var_1 var_0 _ _ hw _ _ _ _ hb hwfl =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 _ hmi htype him hsok
     injection h1 with hz1 hais1
     injection h2 with hz2 _
-    subst hz1 hais1
+    subst hz1 hais1 hz2
     obtain ⟨u1, u2, hop⟩ := ais_seq3_last_typing _ _ _ _ _ _ htype
-    exact with_mem_store_ok s f s' f' C C' _ _ b_lst hz2 hsok hmi him
+    exact with_mem_store_ok s f s' f' C C' _ _ b_lst hw hsok hmi him
       (ais_vstore_lane_mems_inversion _ _ v_N ao j u1 u2 hop) (ibytes__is_wf v_N _ b_lst hwfl hb)
-  case memory_grow_succeed z v_n mi var_0 hgrow hne hget _ =>
+  case memory_grow_succeed z v_n mi var_2 var_1 var_0 hgrow hmem hw hne hget _ =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 _ hmi htype him hsok
     injection h1 with hz1 hais1
     injection h2 with hz2 _
-    subst hz1 hais1
-    simp only [with_meminst] at hz2
-    injection hz2 with hs _
-    subst hs
-    exact memory_grow_store_ok s f C C' _ v_n mi var_0 t1s t2s hsok hmi him htype hgrow hne hget
-  case data_drop z x =>
+    subst hz1 hais1 hz2
+    cases hw
+    exact memory_grow_store_ok s f C C' _ v_n mi var_2 var_1 t1s t2s hsok hmi him htype hgrow hmem hne
+      hget
+  case data_drop z x var_0 hw =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 _ hmi htype him hsok
     injection h1 with hz1 hais1
     injection h2 with hz2 _
-    subst hz1 hais1
-    simp only [with_data] at hz2
-    injection hz2 with hs _
-    subst hs
+    subst hz1 hais1 hz2
+    cases hw
     exact data_drop_store_ok s f C C' x t1s t2s hsok hmi him htype
   -- the remaining rules (traps and failed grows) leave the state unchanged
   all_goals
@@ -1981,7 +1987,7 @@ theorem func_ok_body (C : context) (x : idx) (t_lst : List valtype) (instrs : Li
 theorem default_val_ok (s : store) (t : valtype) : wf_store s → default_ t ≠ none →
     Val_ok s (Option.get! (default_ t)) t := by
   intro hS hd
-  have hwf := default__is_wf t _ hd rfl
+  have hwf := default__is_wf t _ _ (fun_default_default t) hd rfl
   cases t with
   | I32 => exact Val_ok.numtype s numtype.I32 _ hS hwf
   | I64 => exact Val_ok.numtype s numtype.I64 _ hS hwf
@@ -2023,8 +2029,10 @@ theorem Forall2_app_intro {α β : Type} {R : α → β → Prop} {l1 l2 : List 
     `Vals_ok v_s v_f.LOCALS v_C'.LOCALS`, i.e. Rocq's
     `Forall2 (fun v_t v_val => Val_ok v_s v_val v_t) (context_LOCALS v_C') (LOCALS v_f)` plus
     the length equation. Rocq's inductive `Forall2` implies equal lengths; Lean's generated
-    `Forall₂` is zip-based and does not, and the `local.get` case needs the length to index the
-    locals (the same kind of deviation as `funcinst_same`'s `hlen`). The only caller,
+    `Forall₂` is zip-based and does not, and the `local.get` case uses the length (with
+    `Forall2_nth_of_length`) to index the locals (the same kind of deviation as `funcinst_same`'s
+    `hlen`; since `sideconditions_on_defs` the rule's `fun_local` premise also bounds the index by
+    `F.LOCALS`, so there the length is convenient rather than necessary). The only caller,
     `t_preservation_type_aux`, already has the `Vals_ok`. -/
 theorem t_read_preservation (v_s : store) (v_f : frame) (v_ais : List admininstr)
     (v_ais' : List admininstr) (v_C v_C' : context) (t1s t2s : List valtype) :
@@ -2037,7 +2045,8 @@ theorem t_read_preservation (v_s : store) (v_f : frame) (v_ais : List admininstr
   have hwf' := Step_read_is_wf _ _ _ hwfc hsok hstep
   obtain ⟨hwfC', hwfS, _⟩ := ainstrs_ok_context_store_wf _ _ _ _ htype
   cases hstep with
-  | block z k val_lst bt instr_lst v_n t_1_lst t_2_lst h0 h1 h2 h3 =>
+  | block z k val_lst bt instr_lst v_n t_1_lst t_2_lst ft h0 h1 h2 h3 h4 =>
+    subst h1
     obtain ⟨t3s, hV, hB⟩ := ais_composition_typing _ _ _ _ t1s t2s htype
     obtain ⟨vts, hsubV, hvok⟩ := ais_vals_typing_inversion _ _ val_lst t1s t3s hV
     obtain ⟨_, _, hpt, hsubB⟩ := ais_single_typing_inversion _ _ _ t3s t2s hB
@@ -2057,8 +2066,9 @@ theorem t_read_preservation (v_s : store) (v_f : frame) (v_ais : List admininstr
             (construct_ais_vals _ _ val_lst [] t_1_lst vts hwfCL hwfS
               ((instrtype_sub_iff_resulttype_sub vts t_1_lst []).mp hrs) hvok)
             (construct_instrs_from_ais _ _ instr_lst t_1_lst t_2_lst hwfS hinstrs))
-          hwfS hwfC' (hwf' _ (List.mem_singleton_self _)) (wf_context_label_only _) h3)) hsub
-  | loop z k val_lst bt instr_lst t_1_lst v_n t_2_lst h0 h1 h2 h3 =>
+          hwfS hwfC' (hwf' _ (List.mem_singleton_self _)) (wf_context_label_only _) h4)) hsub
+  | loop z k val_lst bt instr_lst t_1_lst v_n t_2_lst ft h0 h1 h2 h3 h4 =>
+    subst h1
     obtain ⟨t3s, hV, hB⟩ := ais_composition_typing _ _ _ _ t1s t2s htype
     obtain ⟨vts, hsubV, hvok⟩ := ais_vals_typing_inversion _ _ val_lst t1s t3s hV
     obtain ⟨_, _, hpt, hsubB⟩ := ais_single_typing_inversion _ _ _ t3s t2s hB
@@ -2083,7 +2093,7 @@ theorem t_read_preservation (v_s : store) (v_f : frame) (v_ais : List admininstr
             (construct_ais_vals _ _ val_lst [] t_1_lst vts hwfCL hwfS
               ((instrtype_sub_iff_resulttype_sub vts t_1_lst []).mp hrs) hvok)
             (construct_instrs_from_ais _ _ instr_lst t_1_lst t_2_lst hwfS hinstrs))
-          hwfS hwfC' (hwf' _ (List.mem_singleton_self _)) (wf_context_label_only _) h2)) hsub
+          hwfS hwfC' (hwf' _ (List.mem_singleton_self _)) (wf_context_label_only _) h3)) hsub
   | call z x h0 =>
     obtain ⟨u1, u2, hlk, hs⟩ := pt_call _ _ x htype
     obtain ⟨hx, hget⟩ := getElem?_eq_some_bang hlk
@@ -2091,8 +2101,8 @@ theorem t_read_preservation (v_s : store) (v_f : frame) (v_ais : List admininstr
     rw [hget] at hea
     exact construct_ais_subtyping _ _ _ u1 u2 t1s t2s
       (construct_ais_typing_single _ _ _ u1 u2 (Instr_ok2.call_addr _ _ _ u1 u2 hea hwfS hwfC'
-        (hwf' _ (by simp)) (wf_externtype.externtype_case_0 _))) hs
-  | call_indirect_call z i x y a h0 h1 h2 h3 h4 =>
+        (hwf' _ (List.mem_singleton_self _)) (wf_externtype.externtype_case_0 _))) hs
+  | call_indirect_call z i x y a ft ti h0 h1 h2 h3 h4 h5 h6 =>
     obtain ⟨t3, hop, hc⟩ := ais_seq_typing_inversion _ _ [admininstr.CALL_INDIRECT x y] _ t1s t2s htype
     obtain ⟨u1, u2, lim, _, hty, hs⟩ := pt_call_indirect _ _ x y hop
     have s1 := ais_const_typing_inversion _ _ numtype.I32 i t1s t3 hc
@@ -2100,10 +2110,10 @@ theorem t_read_preservation (v_s : store) (v_f : frame) (v_ais : List admininstr
     simp only [List.append_nil] at isub
     obtain ⟨hy, hgety⟩ := getElem?_eq_some_bang hty
     have htypes := minst_invert_functypes _ _ _ _ hmi him
-    have h4' : v_f.MODULE.TYPES[proj_uN_0 y]! = (v_s.FUNCS[a]!).TYPE := h4
+    have h4' : v_f.MODULE.TYPES[proj_uN_0 y]! = (v_s.FUNCS[a]!).TYPE := (fun_type_inv h0).2.symm.trans h6
     have hfty : (v_s.FUNCS[a]!).TYPE = mkFunctype u1 u2 := by
       rw [← h4', ← htypes]; exact hgety
-    have hea0 := Externaddr_ok.func v_s a (v_s.FUNCS[a]!) h3 rfl hwfS
+    have hea0 := Externaddr_ok.func v_s a (v_s.FUNCS[a]!) h5 rfl hwfS
       (by rw [hfty]; exact wf_externtype.externtype_case_0 _)
     rw [hfty] at hea0
     exact construct_ais_subtyping _ _ _ u1 u2 t1s t2s
@@ -2111,7 +2121,7 @@ theorem t_read_preservation (v_s : store) (v_f : frame) (v_ais : List admininstr
         (hwf' _ (by simp)) (wf_externtype.externtype_case_0 _))) isub
   | call_indirect_trap z i x y h0 =>
     exact construct_ais_trap _ _ _ hwfC' hwfS
-  | call_addr z k val_lst a v_n f instr_lst t_1_lst t_2_lst mm v_func x t_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
+  | call_addr z k val_lst a v_n f instr_lst t_1_lst t_2_lst mm v_func x t_lst o_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
     obtain ⟨t3s, hV, hC⟩ := ais_composition_typing _ _ _ _ t1s t2s htype
     obtain ⟨vts, hsubV, hvok⟩ := ais_vals_typing_inversion _ _ val_lst t1s t3s hV
     obtain ⟨ts1, ts2, hext, hsubC⟩ := pt_call_addr _ _ a hC
@@ -2119,7 +2129,7 @@ theorem t_read_preservation (v_s : store) (v_f : frame) (v_ais : List admininstr
     subst hxt
     have hft := externtype_func_eq _ _ hxsub
     have h1' : v_s.FUNCS[a]! = ({
-        TYPE := functype.mk_functype (.mk_list t_1_lst) (.mk_list t_2_lst), MODULE := mm, CODE := v_func } : funcinst) := h1
+        TYPE := functype.mk_functype (.mk_list t_1_lst) (.mk_list t_2_lst), MODULE := mm, CODE := v_func } : funcinst) := h3
     have hfi' : fi = _ := hfi.symm.trans h1'
     rw [hfi'] at hft
     simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at hft
@@ -2133,9 +2143,22 @@ theorem t_read_preservation (v_s : store) (v_f : frame) (v_ais : List admininstr
     have hfiok : Funcinst_ok v_s (v_s.FUNCS[a]!) (ftl[a]!) := Forall2_nth_of_length _ _ hfok hflen a ha
     rw [h1'] at hfiok
     obtain ⟨C0, hmi0, hfo, hwfC0⟩ := funcinst_ok_parts _ _ _ _ _ hfiok
-    rw [h2] at hfo
+    rw [h4] at hfo
     have hIok := func_ok_body _ _ _ _ _ _ hfo
-    subst h4
+    have ho : o_lst = Map default_ t_lst := by
+      have key : ∀ (l1 : List (Option val)) (l2 : List valtype),
+          List.Forall₂ (fun o t => fun_default_ t o) l1 l2 → l1 = Map default_ l2 := by
+        intro l1 l2 hl
+        induction hl with
+        | nil => rfl
+        | cons hab _ ih => simp only [Map, List.map_cons] at ih ⊢; rw [fun_default_eq hab, ih]
+      exact key _ _ (to_mathlib_forall₂ h0 h1)
+    have hd : Forall (fun t => default_ t ≠ none) t_lst := fun t ht =>
+      h5 _ (by rw [ho]; exact List.mem_map.mpr ⟨t, ht, rfl⟩)
+    have hloc : Map (fun o => Option.get! o) o_lst = Map (fun t => Option.get! (default_ t)) t_lst := by
+      rw [ho]; simp [Map]
+    rw [hloc] at h6 h9
+    subst h6
     have hwfF := hwf' _ (List.mem_singleton_self _)
     have hwfL : wf_admininstr (admininstr.LABEL_ v_n [] (Map (fun (v_instr_elem : instr) => admininstr_instr v_instr_elem) instr_lst)) := by
       cases hwfF with | admininstr_case_72 _ _ _ _ hl => exact hl _ (List.mem_singleton_self _)
@@ -2150,18 +2173,18 @@ theorem t_read_preservation (v_s : store) (v_f : frame) (v_ais : List admininstr
         LOCALS := t_1_lst ++ t_lst, LABELS := [], RETURN := none } : context) ++ C0) :=
       Frame_ok.mk_Frame_ok v_s _ mm (t_1_lst ++ t_lst) C0 hmi0
         (by simp only [List.length_append, Map, List.length_map]; omega)
-        (Forall2_app_intro (by omega) hvok.2 (default_vals_ok _ _ hwfS h3)) hwfS hwfC0 h7 hwfCL
+        (Forall2_app_intro (by omega) hvok.2 (default_vals_ok _ _ hwfS hd)) hwfS hwfC0 h9 hwfCL
     refine construct_ais_subtyping _ _ _ [] t_2_lst t1s t2s
       (construct_ais_typing_single _ _ _ [] t_2_lst
         (Instr_ok2.Instr_ok2_frame _ v_C' v_n _ _ t_2_lst _ hframe ?_ hwfS hwfC' hwfC1 hwfF
-          (wf_context_return_only _) h10)) hsub
+          (wf_context_return_only _) h12)) hsub
     refine Expr_ok2.mk_Expr_ok2 _ _ _ t_2_lst ?_ hwfS hwfCR
       (fun e he => by rw [List.mem_singleton] at he; subst he; exact hwfL)
     exact construct_ais_typing_single _ _ _ [] t_2_lst
       (Instr_ok2.label _ _ v_n [] _ t_2_lst t_2_lst
         ((ais_empty_typing _ _ t_2_lst t_2_lst).mpr ⟨hwfCR, hwfS, resulttype_sub_refl _⟩)
         (construct_instrs_from_ais _ _ instr_lst [] t_2_lst hwfS hIok)
-        hwfS hwfCR hwfL (wf_context_label_only _) h10)
+        hwfS hwfCR hwfL (wf_context_label_only _) h12)
   | ref_func z x h0 =>
     obtain ⟨ft, hlk, hs⟩ := pt_ref_func _ _ x htype
     obtain ⟨hx, _⟩ := getElem?_eq_some_bang hlk
@@ -2169,29 +2192,32 @@ theorem t_read_preservation (v_s : store) (v_f : frame) (v_ais : List admininstr
     have hr : Ref_ok v_s (ref.REF_FUNC_ADDR (v_f.MODULE.FUNCS[proj_uN_0 x]!)) reftype.FUNCREF :=
       Ref_ok.func _ _ _ hea hwfS (wf_externtype.externtype_case_0 _)
     exact construct_ais_subtyping _ _ _ [] _ t1s t2s (ais_ref1 _ _ _ _ hr hwfC' hwfS) hs
-  | local_get z x =>
+  | local_get z x v h0 =>
+    obtain ⟨_, rfl⟩ := fun_local_inv h0
     obtain ⟨t, hlk, hs⟩ := pt_local_get _ _ x htype
     obtain ⟨hx, hget⟩ := getElem?_eq_some_bang hlk
     have hv : Val_ok v_s (v_f.LOCALS[proj_uN_0 x]!) t := by
       have h := Forall2_nth_of_length v_C'.LOCALS v_f.LOCALS hvals.2 hvals.1 (proj_uN_0 x) hx
       rw [hget] at h; exact h
     exact construct_ais_subtyping _ _ _ [] [t] t1s t2s (ais_val1 _ _ _ t hv hwfC' hwfS) hs
-  | global_get z x =>
+  | global_get z x gi h0 =>
+    obtain ⟨_, _, rfl⟩ := fun_global_inv h0
     obtain ⟨t, m, hlk, hs⟩ := pt_global_get _ _ x htype
     obtain ⟨hx, hget⟩ := getElem?_eq_some_bang hlk
     have hv := lookup_global (proj_uN_0 x) v_C v_C' m t v_s v_f.MODULE hx hget hmi him hsok
     exact construct_ais_subtyping _ _ _ [] [t] t1s t2s (ais_val1 _ _ _ t hv hwfC' hwfS) hs
   | table_get_trap z i x h0 h1 =>
     exact construct_ais_trap _ _ _ hwfC' hwfS
-  | table_get_val z i x h0 h1 =>
+  | table_get_val z i x ti h0 h1 h2 =>
     obtain ⟨t3, hop, hc⟩ := ais_seq_typing_inversion _ _ [admininstr.TABLE_GET x] _ t1s t2s htype
     obtain ⟨rt, lim, hlk, hs⟩ := pt_table_get _ _ x hop
     have s1 := ais_const_typing_inversion _ _ numtype.I32 i t1s t3 hc
     have isub := (instrtype_sub_compose_eq [] [valtype_numtype numtype.I32] [valtype.I32] [valtype_reftype rt]
       t1s t3 t2s s1 hs rfl).1
     have hrefs := table_refs_ok _ _ _ _ x rt lim hsok hmi him hlk
-    have hr := hrefs ((fun_table (state.mk_state v_s v_f) x).REFS[proj_uN_0 (Option.get! (proj_num__0 i))]!)
-      (by rw [getElem!_pos (fun_table (state.mk_state v_s v_f) x).REFS _ h0]; exact List.getElem_mem h0)
+    rw [← (fun_table_inv h2).2.2] at hrefs
+    have hr := hrefs (ti.REFS[proj_uN_0 (Option.get! (proj_num__0 i))]!)
+      (by rw [getElem!_pos ti.REFS _ h0]; exact List.getElem_mem h0)
     exact construct_ais_subtyping _ _ _ [] _ t1s t2s (ais_ref1 _ _ _ rt hr hwfC' hwfS) isub
   | table_size z x v_n h0 =>
     exact const_I32_result _ _ _ t1s t2s (wf_const_num (hwf' _ (by simp))) hwfC' hwfS (pt_table_size _ _ x htype)
@@ -2274,7 +2300,7 @@ theorem t_read_preservation (v_s : store) (v_f : frame) (v_ais : List admininstr
     exact (ais_empty_typing _ _ t1s t2s).mpr ⟨hwfC', hwfS, instrtype_sub_empty _ _
       (ais_args3_typing _ _ _ _ _ _ [] t1s t2s (inv_const_arg _ _ _ _) (inv_const_arg _ _ _ _) (inv_const_arg _ _ _ _)
         (fun u1 u2 h => let ⟨_, _, _, _, hs⟩ := pt_table_init _ _ x y h; ⟨_, _, _, hs⟩) htype)⟩
-  | table_init_succ z j i v_n x y h0 h1 h2 h3 h4 =>
+  | table_init_succ z j i v_n x y ti ei h0 h1 h2 h3 h4 h5 h6 =>
     obtain ⟨_, _, hop⟩ := ais_seq4_last _ _ _ _ _ _ t1s t2s htype
     obtain ⟨rt, lim, hlx, hly, _⟩ := pt_table_init _ _ x y hop
     have isub := ais_args3_typing _ _ _ _ _ _ [] t1s t2s (inv_const_arg _ _ _ _) (inv_const_arg _ _ _ _) (inv_const_arg _ _ _ _)
@@ -2283,8 +2309,9 @@ theorem t_read_preservation (v_s : store) (v_f : frame) (v_ais : List admininstr
     obtain ⟨hy, hgety⟩ := getElem?_eq_some_bang hly
     have hwftt : wf_tabletype (tabletype.mk_tabletype lim rt) := by rw [← hgetx]; exact wf_context_tab _ _ hx hwfC'
     have hrefs := elem_refs_ok _ _ _ _ y rt hmi him hly
-    have hr := hrefs ((fun_elem (state.mk_state v_s v_f) y).REFS[proj_uN_0 (Option.get! (proj_num__0 i))]!)
-      (by rw [getElem!_pos (fun_elem (state.mk_state v_s v_f) y).REFS _ h0]; exact List.getElem_mem h0)
+    rw [← (fun_elem_inv h4).2.2] at hrefs
+    have hr := hrefs (ei.REFS[proj_uN_0 (Option.get! (proj_num__0 i))]!)
+      (by rw [getElem!_pos ei.REFS _ h0]; exact List.getElem_mem h0)
     refine construct_ais_subtyping _ _ _ [] [] t1s t2s ?_ isub
     exact (ais_cons_pre _ _ _ _ [] [] [valtype.I32] [] (ais_const1 _ _ numtype.I32 _ (wf_const_num (hwf' _ (by simp))) hwfC' hwfS)
       (ais_cons_pre _ _ _ _ [valtype.I32] [] [valtype_reftype rt] [] (ais_ref1 _ _ _ rt hr hwfC' hwfS)
@@ -2296,10 +2323,10 @@ theorem t_read_preservation (v_s : store) (v_f : frame) (v_ais : List admininstr
       (ais_nil_refl _ _ [] hwfC' hwfS))))))))
   | load_num_trap z i nt ao h0 h1 h2 h3 =>
     exact construct_ais_trap _ _ _ hwfC' hwfS
-  | load_num_val z i nt ao c h0 h1 h2 h3 h4 =>
+  | load_num_val z i nt ao c mi h0 h1 h2 h3 h4 h5 =>
     have isub := ais_args1_typing _ _ _ _ [valtype_numtype nt] t1s t2s (inv_const_arg _ _ _ i)
       (fun u1 u2 h => ⟨_, pt_load_none _ _ nt ao h⟩) htype
-    exact construct_ais_subtyping _ _ _ [] _ t1s t2s (ais_const1 _ _ nt c h3 hwfC' hwfS) isub
+    exact construct_ais_subtyping _ _ _ [] _ t1s t2s (ais_const1 _ _ nt c h4 hwfC' hwfS) isub
   | load_pack_trap z i v_Inn v_n v_sx ao h0 h1 h2 =>
     exact construct_ais_trap _ _ _ hwfC' hwfS
   | load_pack_val z i v_Inn v_n v_sx ao c h0 h1 h2 h3 h4 =>
@@ -2542,7 +2569,7 @@ private theorem t_preservation_type_aux (c1 c2 : config) (hstep : Step c1 c2) :
     obtain ⟨hwfC', _, _⟩ := ainstrs_ok_context_store_wf _ _ _ _ htype
     exact (ais_empty_typing _ C' t1s t2s).mpr ⟨hwfC', Extend_store_wf_store' _ _ hext,
       instrtype_sub_empty t1s t2s (ais_args1_typing _ _ _ _ [] t1s t2s (inv_val_arg _ _ v) (inv_local_set _ _ x) htype)⟩
-  case global_set z v x =>
+  case global_set z v x _ _ =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 _ hwfc2 _ _ hext _ _ _ _ htype
     injection h1 with hz1 hais1
     injection h2 with _ hais2
@@ -2557,7 +2584,7 @@ private theorem t_preservation_type_aux (c1 c2 : config) (hstep : Step c1 c2) :
     subst hz1 hais1 hais2
     obtain ⟨hwfC', _, _⟩ := ainstrs_ok_context_store_wf _ _ _ _ htype
     exact construct_ais_trap _ C' _ hwfC' (Extend_store_wf_store' _ _ hext)
-  case table_set_val z i r x _ _ =>
+  case table_set_val z i r x _ _ _ _ _ _ =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 _ hwfc2 _ _ hext _ _ _ _ htype
     injection h1 with hz1 hais1
     injection h2 with _ hais2
@@ -2565,7 +2592,7 @@ private theorem t_preservation_type_aux (c1 c2 : config) (hstep : Step c1 c2) :
     obtain ⟨hwfC', _, _⟩ := ainstrs_ok_context_store_wf _ _ _ _ htype
     exact (ais_empty_typing _ C' t1s t2s).mpr ⟨hwfC', Extend_store_wf_store' _ _ hext,
       instrtype_sub_empty t1s t2s (ais_args2_typing _ _ _ _ _ [] t1s t2s (inv_const_arg _ _ numtype.I32 i) (inv_ref_arg _ _ r) (inv_table_set _ _ x) htype)⟩
-  case table_grow_succeed z r k x _ _ _ _ _ =>
+  case table_grow_succeed z r k x _ _ _ _ _ _ _ _ _ =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 _ hwfc2 _ _ hext _ _ _ _ htype
     injection h1 with hz1 hais1
     injection h2 with _ hais2
@@ -2581,7 +2608,7 @@ private theorem t_preservation_type_aux (c1 c2 : config) (hstep : Step c1 c2) :
     obtain ⟨hwfC', _, _⟩ := ainstrs_ok_context_store_wf _ _ _ _ htype
     exact const_I32_result _ C' _ t1s t2s (wf_const_num (wf_config_ais hwfc2 _ (by simp))) hwfC'
       (Extend_store_wf_store' _ _ hext) (ais_args2_typing _ _ _ _ _ [valtype.I32] t1s t2s (inv_ref_arg _ _ r) (inv_const_arg _ _ numtype.I32 _) (inv_table_grow _ _ x) htype)
-  case elem_drop z x =>
+  case elem_drop z x _ _ =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 _ hwfc2 _ _ hext _ _ _ _ htype
     injection h1 with hz1 hais1
     injection h2 with _ hais2
@@ -2596,7 +2623,7 @@ private theorem t_preservation_type_aux (c1 c2 : config) (hstep : Step c1 c2) :
     subst hz1 hais1 hais2
     obtain ⟨hwfC', _, _⟩ := ainstrs_ok_context_store_wf _ _ _ _ htype
     exact construct_ais_trap _ C' _ hwfC' (Extend_store_wf_store' _ _ hext)
-  case store_num_val z i nt c ao _ _ _ _ =>
+  case store_num_val z i nt c ao _ _ _ _ _ _ =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 _ hwfc2 _ _ hext _ _ _ _ htype
     injection h1 with hz1 hais1
     injection h2 with _ hais2
@@ -2611,7 +2638,7 @@ private theorem t_preservation_type_aux (c1 c2 : config) (hstep : Step c1 c2) :
     subst hz1 hais1 hais2
     obtain ⟨hwfC', _, _⟩ := ainstrs_ok_context_store_wf _ _ _ _ htype
     exact construct_ais_trap _ C' _ hwfC' (Extend_store_wf_store' _ _ hext)
-  case store_pack_val z i v_Inn c k ao _ _ _ _ _ =>
+  case store_pack_val z i v_Inn c k ao _ _ _ _ _ _ _ =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 _ hwfc2 _ _ hext _ _ _ _ htype
     injection h1 with hz1 hais1
     injection h2 with _ hais2
@@ -2661,7 +2688,7 @@ private theorem t_preservation_type_aux (c1 c2 : config) (hstep : Step c1 c2) :
     obtain ⟨hwfC', _, _⟩ := ainstrs_ok_context_store_wf _ _ _ _ htype
     exact const_I32_result _ C' _ t1s t2s (wf_const_num (wf_config_ais hwfc2 _ (by simp))) hwfC'
       (Extend_store_wf_store' _ _ hext) (ais_args1_typing _ _ _ _ [valtype.I32] t1s t2s (inv_const_arg _ _ numtype.I32 _) (inv_memory_grow _ _) htype)
-  case data_drop z x =>
+  case data_drop z x _ _ =>
     intro s f ais0 s' f' ais0' C C' t1s t2s h1 h2 _ hwfc2 _ _ hext _ _ _ _ htype
     injection h1 with hz1 hais1
     injection h2 with _ hais2

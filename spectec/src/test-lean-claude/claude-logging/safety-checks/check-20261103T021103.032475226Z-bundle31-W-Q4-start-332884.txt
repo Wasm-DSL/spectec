@@ -1,0 +1,97 @@
+=== bundle31 safety check [W-Q4-start] at 20261103T021103.032475226Z (pid 332884); baseline marker 2026-11-03T01:23:41.944506214Z
+Allowed to change this turn: spectec/src/test-lean-claude/{HelperLemmas,Subtyping,TypingLemmas,TypePreservationPure,ExtensionLemmas,TypePreservation,TypeProgress}.lean and spectec/src/test-lean-claude/claude-logging/**
+--- 1. git status (porcelain, lock-free) vs bundle31 baseline (lines: < baseline, > now)
+57a58,86
+> ?? spectec/src/test-lean-claude/.lake/build/lib/lean/wasm2.0.trace.nobuild
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T012419.016062625Z-bundle31-start-315439.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T014301.869032249Z-bundle31-P1-start-318920.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T014407.225525684Z-bundle31-Q1-start-319174.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T014408.145357823Z-bundle31-Q6b-start-319194.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T014408.606857577Z-bundle31-Q3-start-319255.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T014408.808329357Z-bundle31-Q5-start-319275.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T014408.937780086Z-bundle31-Q6a-start-319295.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T014409.243882521Z-bundle31-Q4-start-319327.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T014409.293609968Z-bundle31-Q2-start-319347.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T014410.722310766Z-bundle31-P23-start-319532.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T015154.680110876Z-bundle31-Q6a-end-324429.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T015221.802108098Z-bundle31-Q3-end-324781.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T015315.751684597Z-bundle31-P1-end-325462.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T015525.651496548Z-bundle31-Q5-end-326990.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T015552.505053121Z-bundle31-Q6b-end-327382.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T015603.740270996Z-bundle31-Q2-end-327581.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T015648.207306414Z-bundle31-note-git-lock-churn.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T015658.027541805Z-bundle31-P23-end-328270.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T015658.732366754Z-bundle31-main-after-note-328297.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T015855.445388889Z-bundle31-Q1-end-329418.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T015955.101281477Z-bundle31-note-external-nobuild.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T020028.835614638Z-bundle31-main-after-note2-329985.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T020039.094050385Z-bundle31-Q4-end-330096.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T021100.262117729Z-bundle31-W-P1-start-332519.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T021100.505500998Z-bundle31-W-Q5-start-332539.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T021101.707989493Z-bundle31-W-P23-start-332692.txt
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T021101.804603580Z-bundle31-W-INFRA-start-332712.txt
+> ?? spectec/src/test-lean-claude/claude-logging/verbatim_dialogue_log/bundle31/
+--- 2. HEAD
+HEAD unchanged (12b021fc99145234eded7efd8e5c1e895435646f)
+--- 3. paths in the repo (outside .git) modified or created after the marker, excluding claude-logging
+./spectec/src/test-lean-claude/.lake/packages/plausible/.git
+./spectec/src/test-lean-claude/.lake/packages/proofwidgets/.git
+./spectec/src/test-lean-claude/.lake/packages/mathlib/.git
+./spectec/src/test-lean-claude/.lake/packages/Cli/.git
+./spectec/src/test-lean-claude/.lake/packages/LeanSearchClient/.git
+./spectec/src/test-lean-claude/.lake/packages/aesop/.git
+./spectec/src/test-lean-claude/.lake/packages/Qq/.git
+./spectec/src/test-lean-claude/.lake/packages/importGraph/.git
+./spectec/src/test-lean-claude/.lake/packages/batteries/.git
+./spectec/src/test-lean-claude/.lake/build/lib/lean
+./spectec/src/test-lean-claude/.lake/build/lib/lean/wasm2.0.trace.nobuild
+(11 paths; expected at most ./spectec/src/test-lean-claude and the allowed .lean files)
+--- 4. .git entries (depth <= 2) modified after the marker
+.git
+(1 paths)
+--- 5. content checksums under spectec/src/test-lean-claude (except .lake/packages and claude-logging) vs baseline
+104a105
+> e67d36c3b539c135666e7ef93abf0438  spectec/src/test-lean-claude/.lake/build/lib/lean/wasm2.0.trace.nobuild
+(files at baseline excl. logging: 122, now: 123)
+--- 6. .lake/packages entries (depth <= 2): mtimes vs baseline
+6c6
+< 1793668364.6037190200 spectec/src/test-lean-claude/.lake/packages/aesop/.git
+---
+> 1793670812.5454958850 spectec/src/test-lean-claude/.lake/packages/aesop/.git
+23c23
+< 1793668364.6057190090 spectec/src/test-lean-claude/.lake/packages/batteries/.git
+---
+> 1793670812.5494957720 spectec/src/test-lean-claude/.lake/packages/batteries/.git
+39c39
+< 1793668364.5984499390 spectec/src/test-lean-claude/.lake/packages/Cli/.git
+---
+> 1793670812.5388357510 spectec/src/test-lean-claude/.lake/packages/Cli/.git
+48c48
+< 1793668364.6078924480 spectec/src/test-lean-claude/.lake/packages/importGraph/.git
+---
+> 1793670812.5528519970 spectec/src/test-lean-claude/.lake/packages/importGraph/.git
+66c66
+< 1793668364.6003446900 spectec/src/test-lean-claude/.lake/packages/LeanSearchClient/.git
+---
+> 1793670812.5404960260 spectec/src/test-lean-claude/.lake/packages/LeanSearchClient/.git
+93c93
+< 1793668364.6138769140 spectec/src/test-lean-claude/.lake/packages/mathlib/.git
+---
+> 1793670812.5924945600 spectec/src/test-lean-claude/.lake/packages/mathlib/.git
+112c112
+< 1793668364.6159009900 spectec/src/test-lean-claude/.lake/packages/plausible/.git
+---
+> 1793670812.5958850870 spectec/src/test-lean-claude/.lake/packages/plausible/.git
+127c127
+< 1793668364.6175902170 spectec/src/test-lean-claude/.lake/packages/proofwidgets/.git
+---
+> 1793670812.5987384210 spectec/src/test-lean-claude/.lake/packages/proofwidgets/.git
+143c143
+< 1793668364.6017190310 spectec/src/test-lean-claude/.lake/packages/Qq/.git
+---
+> 1793670812.5435258930 spectec/src/test-lean-claude/.lake/packages/Qq/.git
+--- 7. verdict
+benign lock churn (package .git directory mtime only, no newer file inside; see the bundle31 note-git-lock-churn report): 9 paths
+external Lake/IDE artifact (not created by this session; see the bundle31 note-external-nobuild report): ./spectec/src/test-lean-claude/.lake/build/lib/lean/wasm2.0.trace.nobuild, md5 unchanged since noted
+files with changed content (allowed or not): spectec/src/test-lean-claude/.lake/build/lib/lean/wasm2.0.trace.nobuild 
+OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline

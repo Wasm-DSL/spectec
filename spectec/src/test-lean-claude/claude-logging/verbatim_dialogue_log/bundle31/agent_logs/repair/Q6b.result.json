@@ -1,0 +1,67 @@
+{
+ "label": "Q6b",
+ "status": "done",
+ "final_file": "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/agents/Q6b/TypeProgress.lean",
+ "decls": [
+  {
+   "name": "t_progress_be_vload_val",
+   "status": "proved",
+   "note": "Statement unchanged. Memory 0 comes from fun_mem_typed (via Hmod plus Hlen after subst Hcontext) as `mi`/`Hmem`. Step_read.vload_oob/vload_val now take `mi Hmem`, and wf_config_mem_bytes takes `mi HWfConfig Hmem`."
+  },
+  {
+   "name": "t_progress_be_vload_pack",
+   "status": "proved",
+   "note": "Statement unchanged. Same memory handling. vload_shape_val is given `Jn (jsize Jn) mi (fun_jsize_jsize Jn) Hmem`. wf_shape/wf_lane_ constructors take an extra fun_lsize witness (fun_lsize_lsize). The SHAPE 64 X 1 refutation is unchanged."
+  },
+  {
+   "name": "t_progress_be_vload_splat",
+   "status": "proved",
+   "note": "Statement unchanged. vload_splat_val/oob take the fun_jsize and fun_mem witnesses; same wf_shape/wf_lane_ adjustments."
+  },
+  {
+   "name": "t_progress_be_vload_zero",
+   "status": "proved",
+   "note": "Statement unchanged. vload_zero_oob/val take `mi Hmem`."
+  },
+  {
+   "name": "t_progress_be_vload_lane",
+   "status": "proved",
+   "note": "Statement unchanged. vload_lane_oob/val take `mi Hmem` and the fun_jsize witness; same wf_shape/wf_lane_ adjustments."
+  },
+  {
+   "name": "t_progress_be_vstore",
+   "status": "proved",
+   "note": "Statement unchanged. Step.vstore_val gets fun_with_mem.fun_with_mem_case_0 with the bound `0 < f.MODULE.MEMS.length` from Moduleinst_ok_mem_addr."
+  },
+  {
+   "name": "t_progress_be_vstore_lane",
+   "status": "proved",
+   "note": "Statement unchanged. vstore_lane_oob takes `mi Hmem`; the in-bounds case calls the restated vstore_lane_progress with `Hx : 0 < f.MODULE.MEMS.length` (from fun_mem_inv Hmem)."
+  },
+  {
+   "name": "vstore_lane_progress",
+   "status": "restated_and_proved",
+   "note": "Added a first premise `0 < f.MODULE.MEMS.length`, which the fun_with_mem constructor needs. Proof uses the new Step.vstore_lane_val argument order, fun_jsize_jsize, and fun_with_mem_case_0. Doc comment updated."
+  }
+ ],
+ "final_compile": "lrun31.sh on TypeProgress.lean (working copy): exit 0, 0 error lines (no diagnostics at all inside the 8 assigned declarations; the remaining warnings are elsewhere: other clusters' sorries, linters). Last lines: \"Note: This linter can be disabled with `set_option linter.unusedTactic false`\" / \"WALL 5.49 s  MAXRSS 4144696 KB\"",
+ "units_check": "replaced assigned units: t_progress_be_vload_lane, t_progress_be_vload_pack, t_progress_be_vload_splat, t_progress_be_vload_val, t_progress_be_vload_zero, t_progress_be_vstore, t_progress_be_vstore_lane, vstore_lane_progress\nassigned units NOT changed: -\nOK (no violations)",
+ "new_helpers": [],
+ "statement_changes": [
+  {
+   "name": "vstore_lane_progress",
+   "old": "(s f n1 memarg laneidx c1 J M) : wf_uN 128 c1 \u2192 wf_shape (shape.X (lanetype_Jnn J) (dim.mk_dim M)) \u2192 proj_uN_0 laneidx < M \u2192 (M : Rat) = 128 / (jsize J : Rat) \u2192 \u2203 s' f' es', Step (config.mk_config (state.mk_state s f) [CONST I32 n1, VCONST V128 c1, VSTORE_LANE V128 (sz.mk_sz (jsize J)) memarg laneidx]) (config.mk_config (state.mk_state s' f') es')",
+   "new": "same, with a new first premise `0 < f.MODULE.MEMS.length \u2192` (before `wf_uN 128 c1 \u2192`)",
+   "why": "Step.vstore_lane_val now takes a `fun_with_mem z (uN.mk_uN 0) ... var_0` premise, and the relation's only constructor needs `proj_uN_0 x < f.MODULE.MEMS.length`. The old total `with_mem` needed nothing. Its only user, t_progress_be_vstore_lane, supplies the bound from fun_mem_inv. The doc comment now explains the Lean-only premise."
+  }
+ ],
+ "issues": [
+  "END SAFETY CHECK VERDICT IS ATTENTION. 9 unexpected newer paths: the mtimes of spectec/src/test-lean-claude/.lake/packages/{aesop,batteries,Cli,importGraph,LeanSearchClient,mathlib,plausible,proofwidgets,Qq}/.git all changed together at 2026-11-03T01:53:32Z; section 4 also lists the repository's top-level `.git` entry. Content checksums (section 5) are unchanged (122 files), 0 unexpected checksum lines, HEAD unchanged, changed allowed files: none. I did not cause this: I never ran git or lake and never wrote into the repository. My only repository accesses were cat/grep reads and the two check.sh runs. At 01:53:32Z I was only running scratch-local scripts (between my Probe3 compile and the splice). The pattern (all nested package .git dirs at the same second) looks like an external git scan, e.g. the user's IDE, or another agent. The main session should inspect the report: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T015552.505053121Z-bundle31-Q6b-end-327382.txt",
+  "The proofs depend on other clusters' fixed statements that are still sorried in the base: invert_typeof_I32 (all 7 cases) and wf_lane_Jnn_inv / wf_lane_Jnn_some (Q2, via vstore_lane_progress). `#print axioms` on the probe versions therefore shows sorryAx from those lemmas only. Besides that it shows only standard axioms, project axioms (vbytes_inv, ibytes_inv, lanes_len) and the model's *_is_wf axioms (inv_vbytes__is_wf, inv_ibytes__is_wf, extend___is_wf, lanes__is_wf).",
+  "No model issue found. Note (not a problem for progress): Step.vstore_lane_oob compares `i + OFFSET + N` (N in bits, not N/8 bytes) with the memory length. This comes from the spec text. Progress is unaffected because vstore_lane_val has no bounds premise."
+ ],
+ "safety_checks": [
+  "start: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T014408.145357823Z-bundle31-Q6b-start-319194.txt -- verdict: 'changed allowed files: none' / 'OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline'",
+  "end: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T015552.505053121Z-bundle31-Q6b-end-327382.txt -- verdict: 'changed allowed files: none' / 'ATTENTION: 9 unexpected newer paths, 0 unexpected checksum lines (see above; may be the user's own concurrent edits)'. The 9 paths are mtime-only changes of .lake/packages/*/.git at 01:53:32Z (see issues)"
+ ]
+}

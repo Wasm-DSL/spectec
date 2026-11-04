@@ -1,0 +1,68 @@
+{
+ "label": "V-P1",
+ "verified_file": "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/V-P1/section.verified.md",
+ "corrections": [
+  {
+   "construct": "t_read_preservation",
+   "wrong": "Original proof sketch, block/loop: 'This gives C' \u22a2 bt : bt1 \u2192 bt2 and {LABELS bt2} ++ C' \u22a2 instr* : bt1 \u2192 bt2' was stated for both block and loop. For loop the label is bt1: ai_principal_typing's LOOP case (TypingLemmas.lean:325-328) and the spec's Instr_ok/loop (6-typing.spectec:217-220) both use {LABELS (t_1*)} ++ C. The same sentence also left out the Blocktype_ok input of bt_inversion (the call is `bt_inversion _ _ _ _ _ bt1 bt2 t_1_lst t_2_lst hmi hbt h0 him`).",
+   "fixed": "Added '(for loop {LABELS bt1} ++ C', as in Instr_ok/loop)', and listed 'C' \u22a2 bt : bt1 \u2192 bt2' among bt_inversion's inputs."
+  },
+  {
+   "construct": "t_read_preservation",
+   "wrong": "Current proof sketch, call case: the text did not say who made the `by simp` -> `List.mem_singleton_self _` edit, and a reader would take it for part of the repair agent's work. The main session made it after the first final build. b31/final1/src/TypePreservation.lean:2098 still has `(hwf' _ (by simp))`, and b31/STATE.md says 'Fixes after the first final build: P1's t_read_preservation call case ...'. The agent's result.json is dated 09:53, the final1 audit 10:03, and the main session's edit of agents/P1/TypePreservation.lean 10:04.",
+   "fixed": "Added the sub-bullet: 'The main session made this edit, not the repair agent: the first final build (b31/final1), made from the agent's returned file, still has `by simp` (b31/STATE.md, \"Fixes after the first final build\")'."
+  },
+  {
+   "construct": "t_read_preservation",
+   "wrong": "What broke, table.get-val / table.init-succ: only `(fun_table (state.mk_state v_s v_f) x).REFS` was named as the term that no longer typechecks. table.init-succ's old proof used `(fun_elem (state.mk_state v_s v_f) y).REFS` (orig lines 272-273).",
+   "fixed": "Now names both terms: `(fun_table \u2026 x).REFS` and `(fun_elem \u2026 y).REFS` no longer typecheck."
+  },
+  {
+   "construct": "t_read_preservation",
+   "wrong": "Original proof sketch: the 'value results' bullet (table.size, memory.size, load, vload: `const_I32_result` / `ais_const1` / `Step_read__vload_preserves`) was nested under 'Unrolled reducts \u2026 are built as `ais_cons_pre` chains'. These cases are not unrolled and not `ais_cons_pre` chains.",
+   "fixed": "Moved it up to its own top-level bullet."
+  },
+  {
+   "construct": "t_read_preservation",
+   "wrong": "What broke, no-shim cascade: 'The cause is that `bt_inversion` \u2026 no longer elaborates' did not explain why the error is 'Unknown identifier'. MAIN.json records bt_inversion as noshim: deleted, because its statement fails with 'mkFunctype bt1 bt2 \u2026 expected to have type functype \u2192 Prop'.",
+   "fixed": "Changed to 'the statement of `bt_inversion` (ExtensionLemmas) no longer elaborates, so this cascade deleted it'."
+  },
+  {
+   "construct": "t_read_preservation",
+   "wrong": "Statement: Step_read rules were said to 'read the store but do not change it'. Several rules read the frame instead: local.get reads F.LOCALS, and call, block and ref.func read F.MODULE.",
+   "fixed": "Changed to 'read the state (store and frame) but do not change it'."
+  },
+  {
+   "construct": "default_val_ok",
+   "wrong": "Current proof sketch: 'it supplies `fun_fzero_32`/`fun_fzero_64`, i.e. the well-formedness of +0' treated the relation facts as if they were the well-formedness facts. In HelperLemmas.lean:962-964, `fun_fzero_32 : fun_fzero 32 (fzero 32) := fun_fzero.fun_fzero_case_0 32 wf_fzero_32`, so it is built from the well-formedness fact.",
+   "fixed": "Changed to 'supplies the `fun_fzero` premise as `fun_fzero_32`/`fun_fzero_64`, which are built from the well-formedness of +0 at widths 32/64 (`wf_fzero_32`/`wf_fzero_64`)'."
+  }
+ ],
+ "flags": [
+  {
+   "construct": "t_read_preservation",
+   "line": "final3/src/TypePreservation.lean:2028-2029 (doc comment: '\u2026and the `local.get` case needs the length to index the locals\u2026')",
+   "issue": "Confirmed (writer's flag 1). The new Step_read.local_get has the premise `fun_local z x v`. `fun_local_inv` gives `proj_uN_0 x < f.LOCALS.length` (HelperLemmas.lean:1052-1055), and `getElem?_eq_some_bang hlk` gives the C'.LOCALS bound. `mem_zip_getElem!` (HelperLemmas.lean:249) takes exactly these two bounds, so the zip-based `Forall\u2082` can be indexed without the length equation. `hvals` is used only at final line 178 (local_get), through `Forall2_nth_of_length \u2026 hvals.2 hvals.1`. So the length is used there but is no longer needed. The statement is unaffected.",
+   "suggestion": "Apply the writer's replacement text for lines 2028-2029. It ends with 'The only caller,' and so fits line 2030 ('`t_preservation_type_aux`, already has the `Vals_ok`. -/') unchanged."
+  },
+  {
+   "construct": "t_read_preservation",
+   "line": "final3/src/TypePreservation.lean:2203 `| table_get_trap z i x h0 h1 =>` (representative; 35 cases)",
+   "issue": "Confirmed (writer's flag 2, cosmetic). I checked every case: the 37 unchanged cases are exactly the 35 listed plus ref_func and call_indirect_trap, whose constructors did not change. All 35 new constructors put `var_0`/`var_1` (tableinst/meminst/eleminst/datainst, or the `fun_jsize` Nat) before the premises, so the trailing hN names bind other things (for example table_get_trap: h0 : tableinst, h1 : fun_table z x h0; load_num_trap: h0 : meminst, h1 : fun_mem z (uN.mk_uN 0) h0). A scan of each case body shows that none of these 35 cases uses any hN name, so the proofs are sound.",
+   "suggestion": "Optional, needs a rebuild: drop the unused trailing names (for example `| table_get_trap =>`, `| table_size z x =>`). The suggested shortened patterns keep every leading name each body uses. Leaving them as they are is also fine."
+  },
+  {
+   "construct": "num_default (TypePreservation.lean:41-42; outside P1's constructs, pre-existing)",
+   "line": "/-- Rocq `type_preservation.v:19` `num_default`. Default/zero value per numtype; used to build default locals in `t_read_preservation`'s Call_addr/frame-invocation case. -/",
+   "issue": "Not caused by this repair (orig/TypePreservation.lean:36-37 has the same text), and the writer saw it but did not flag it. The doc comment is stale. Neither the original nor the final t_read_preservation uses `num_default`; its call_addr case builds the default locals with `default_`/`default_vals_ok`. The only use of `num_default` is `num_default_is_well_formed`.",
+   "suggestion": "Optional, low priority: say it is the Rocq counterpart and is unused in the Lean proof. For example: '\u2026Default/zero value per numtype (Rocq uses it for the default locals in `t_read_preservation`'s Call_addr case; the Lean proof uses `default_`/`default_vals_ok` instead).'"
+  }
+ ],
+ "safety_checks": [
+  "START: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T022939.211939255Z-bundle31-V-P1-start-346547.txt -- verdict: OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline (the only changed file it lists is the known external IDE artifact .lake/build/lib/lean/wasm2.0.trace.nobuild, md5 unchanged since noted)",
+  "END: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T024436.111651406Z-bundle31-V-P1-end-359119.txt -- verdict: OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline (same known external artifact, md5 unchanged)",
+  "Wrote only under /tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/V-P1/ (section.verified.md plus work/ with the extracted texts and a case-scan script). No repository writes besides the check.sh reports. No git, no lake, no Lean runs, and no .lean files edited.",
+  "Input location: the task named report/agents/P1/section.md, which does not exist. As the writer's notes say, the section is at report/agents/W-P1/section.md. I verified that file and left it unchanged."
+ ],
+ "confidence": "High. I checked every claim against the code:\n- **Texts:** final_text matches final3/src/TypePreservation.lean exactly (lines 1982-1995 and 2017-2437), and orig_text matches orig/TypePreservation.lean.\n- **Model rules:** I compared the old and new Step_read constructors for all 10 edited cases and their premise positions h0..h12. 47 rules in both the spec and the model.\n- **Recorded errors:** checked against P1.json and MAIN.json (bt_inversion: noshim deleted).\n- **Lemma statements:** the helper and inversion lemmas (fun_*_inv, fun_default_eq/default, fun_fzero_32/64, the restated bt_inversion, to_mathlib_forall\u2082, mem_zip_getElem!, table_refs_ok, elem_refs_ok, func_ok_body, minst_*, pt_*) match how the section describes them.\n- **Wasm rules:** checked against 8-reduction.spectec, 6-typing.spectec (block/loop labels) and B-soundness.spectec (Val_ok/Ref_ok).\n- **Audits:** final1/audit/report.txt (t_read_preservation flagged via congrArg CALL_ADDR List.getElem!_eq_getElem?_getD \u2026 getD 0) and the final3 audits (0 default reads, 0 sorryAx, 5525 theorems).\n\nRemaining errors were minor: the loop label context, the call-edit attribution, the missing fun_elem term, the bullet structure, the store-vs-state wording, and the fun_fzero wording. All are fixed in the verified file. One phrase is right only up to unfolding: the call-case membership is written with F.module.funcs[x], while the term is literally `$funcaddr(z)[x]!`, which unfolds to F.module.funcs[x]. I left it."
+}

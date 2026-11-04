@@ -1,0 +1,15 @@
+/-- Rocq `type_progress.v:2451` `mem_bytes_wf`. The bytes of an entry `ms[k]!` of a list of
+    well-formed memory instances are well-formed bytes. **Deviation:** extra premise
+    `hk : k < ms.length`. Rocq's `ms [| k |]` is default-valued out of range, and Rocq proves that
+    case from the default `meminst` (empty `BYTES`); requiring the bound keeps this proof
+    independent of the `Inhabited meminst` instance. -/
+theorem mem_bytes_wf (ms : List meminst) (k : N) (hk : k < ms.length) :
+    Forall wf_meminst ms → Forall wf_byte ((ms[k]!).BYTES) := by
+  intro Hall
+  have H : wf_meminst (ms[k]!) := by
+    rw [getElem!_pos ms k hk]
+    exact Hall _ (List.getElem_mem hk)
+  generalize ms[k]! = m at H ⊢
+  cases H with
+  | meminst_case_ _ _ _ h => exact h
+

@@ -796,28 +796,33 @@ theorem lookup_global (v_a : Nat) (v_C v_C' : context) (v_mut : «mut») (v_vt :
   rw [hvt]
   exact hvok
 
-/-- Rocq `extension_lemmas.v:870` `bt_inversion`. The computable elaboration
-    function `fun_blocktype` agrees with the declarative `Blocktype_ok`
-    relation's chosen functype. -/
+/-- Rocq `extension_lemmas.v:870` `bt_inversion`. The block type elaboration `fun_blocktype`
+    agrees with the declarative `Blocktype_ok` relation's chosen functype.
+    **Note:** Rocq's premise is the equation `fun_blocktype (mk_state v_S r_v_f) b_lstt =
+    (bt1 :-> bt2)`; `fun_blocktype` is a relation here (`sideconditions_on_defs`), so the premise
+    is its witness `fun_blocktype (state.mk_state v_S r_v_f) b_lstt (mkFunctype bt1 bt2)`. -/
 theorem bt_inversion (v_S : store) (v_C v_C' : context) (r_v_f : frame) (b_lstt : blocktype)
     (ts1 ts2 bt1 bt2 : List valtype) :
     Moduleinst_ok v_S r_v_f.MODULE v_C → Blocktype_ok v_C' b_lstt (mkFunctype ts1 ts2) →
-    fun_blocktype (state.mk_state v_S r_v_f) b_lstt = mkFunctype bt1 bt2 → inst_match v_C v_C' →
+    fun_blocktype (state.mk_state v_S r_v_f) b_lstt (mkFunctype bt1 bt2) → inst_match v_C v_C' →
     ts1 = bt1 ∧ ts2 = bt2 := by
   intro hmi hb hf him
   cases hb with
   | valtype vopt _ _ =>
-    rcases vopt with _ | t <;> simp_all [fun_blocktype, mkFunctype]
+    rcases vopt with _ | t <;> cases hf <;> simp_all
   | typeidx x _ _ _ hlk _ _ =>
     have hty : v_C'.TYPES = r_v_f.MODULE.TYPES :=
       minst_invert_functypes v_S r_v_f.MODULE v_C v_C' hmi him
-    simp only [fun_blocktype, fun_type, mkFunctype] at hf
-    rw [hty] at hlk
-    have heq := hlk.symm.trans hf
-    injection heq with h1 h2
-    injection h1 with h1'
-    injection h2 with h2'
-    exact ⟨h1', h2'⟩
+    cases hf with
+    | fun_blocktype_case_2 _ _ ht =>
+      have hf := (fun_type_inv ht).2
+      simp only [mkFunctype] at hf
+      rw [hty] at hlk
+      have heq := hlk.symm.trans hf.symm
+      injection heq with h1 h2
+      injection h1 with h1'
+      injection h2 with h2'
+      exact ⟨h1', h2'⟩
 
 /-- Rocq `extension_lemmas.v:897` `tc_func_reference2`. -/
 theorem tc_func_reference2 (v_S : store) (v_C : context) (minst : moduleinst) (idx : Nat) (tf : functype) (v_type : funcinst) :

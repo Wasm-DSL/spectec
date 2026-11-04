@@ -1,0 +1,257 @@
+{
+ "TypePreservation": {
+  "decls": 135,
+  "sorried": [
+   "default_val_ok",
+   "num_default_is_well_formed",
+   "reduce_inst_unchanged_aux",
+   "store_extension_reduce_aux",
+   "t_preservation_type_aux",
+   "t_preservation_vs_type'_aux",
+   "t_read_preservation"
+  ],
+  "deleted": [
+   "memory_grow_store_ok",
+   "table_grow_store_ok",
+   "with_mem_store_ok"
+  ],
+  "rounds": [
+   {
+    "round": 0,
+    "errors": 40,
+    "error_decls": 9,
+    "sorried": [
+     "t_read_preservation",
+     "default_val_ok",
+     "store_extension_reduce_aux",
+     "memory_grow_store_ok",
+     "with_mem_store_ok",
+     "table_grow_store_ok",
+     "reduce_inst_unchanged_aux",
+     "t_preservation_vs_type'_aux",
+     "num_default_is_well_formed"
+    ],
+    "deleted": []
+   },
+   {
+    "round": 1,
+    "errors": 10,
+    "error_decls": 4,
+    "sorried": [
+     "t_preservation_type_aux"
+    ],
+    "deleted": [
+     "memory_grow_store_ok",
+     "with_mem_store_ok",
+     "table_grow_store_ok"
+    ]
+   },
+   {
+    "round": 2,
+    "errors": 0
+   }
+  ]
+ },
+ "TypeProgress": {
+  "decls": 312,
+  "sorried": [
+   "Forall_lane_fop_wf",
+   "Forall_lane_map_wf",
+   "binop_before",
+   "binop_total",
+   "call_indirect_progress",
+   "cvtop_before",
+   "cvtop_total",
+   "iabs_lane_total",
+   "invert_typeof_I32",
+   "invert_typeof_I32_wf",
+   "invert_typeof_I64",
+   "relop_before",
+   "relop_total",
+   "t_progress_be_block",
+   "t_progress_be_br_table",
+   "t_progress_be_data_drop",
+   "t_progress_be_elem_drop",
+   "t_progress_be_global_get",
+   "t_progress_be_global_set",
+   "t_progress_be_load_pack",
+   "t_progress_be_load_val",
+   "t_progress_be_local_get",
+   "t_progress_be_loop",
+   "t_progress_be_memory_copy",
+   "t_progress_be_memory_fill",
+   "t_progress_be_memory_init",
+   "t_progress_be_memory_size",
+   "t_progress_be_store_pack",
+   "t_progress_be_store_val",
+   "t_progress_be_table_copy",
+   "t_progress_be_table_fill",
+   "t_progress_be_table_get",
+   "t_progress_be_table_init",
+   "t_progress_be_table_set",
+   "t_progress_be_table_size",
+   "t_progress_be_testop",
+   "t_progress_be_unop",
+   "t_progress_be_vbitmask",
+   "t_progress_be_vcvtop",
+   "t_progress_be_vextbinop",
+   "t_progress_be_vextract_lane",
+   "t_progress_be_vextunop",
+   "t_progress_be_vload_lane",
+   "t_progress_be_vload_pack",
+   "t_progress_be_vload_splat",
+   "t_progress_be_vload_val",
+   "t_progress_be_vload_zero",
+   "t_progress_be_vnarrow",
+   "t_progress_be_vshiftop",
+   "t_progress_be_vshuffle",
+   "t_progress_be_vstore",
+   "t_progress_be_vstore_lane",
+   "t_progress_be_vswizzle",
+   "t_progress_be_vvbinop",
+   "t_progress_be_vvternop",
+   "t_progress_be_vvunop",
+   "t_progress_e_call_addr",
+   "vbinop_some",
+   "vcvtop_full_lsize",
+   "vcvtop_lane_total",
+   "vcvtop_step_zero",
+   "vcvtop_zero_numtype",
+   "vrelop_some",
+   "vstore_lane_progress",
+   "vunop_real",
+   "wf_fN_num_",
+   "wf_ishape_inv",
+   "wf_lane_Fnn_inv",
+   "wf_lane_Jnn_inv",
+   "wf_lane_Jnn_some",
+   "zip_flane_wf",
+   "zip_lane_wf",
+   "zip_lane_wf2"
+  ],
+  "deleted": [
+   "testop_not_none",
+   "unop_not_none",
+   "zero_lane_wf"
+  ],
+  "rounds": [
+   {
+    "round": 0,
+    "errors": 65,
+    "error_decls": 18,
+    "sorried": [
+     "vunop_real",
+     "iabs_lane_total",
+     "Forall_lane_fop_wf",
+     "Forall_lane_map_wf",
+     "wf_lane_Fnn_inv",
+     "wf_lane_Jnn_some",
+     "wf_lane_Jnn_inv",
+     "testop_not_none",
+     "cvtop_before",
+     "relop_before",
+     "binop_before",
+     "cvtop_total",
+     "relop_total",
+     "binop_total",
+     "wf_fN_num_",
+     "unop_not_none",
+     "invert_typeof_I64",
+     "invert_typeof_I32"
+    ],
+    "deleted": []
+   },
+   {
+    "round": 1,
+    "errors": 121,
+    "error_decls": 29,
+    "sorried": [
+     "t_progress_be_vextract_lane",
+     "t_progress_be_vshuffle",
+     "t_progress_be_vswizzle",
+     "t_progress_be_vbitmask",
+     "t_progress_be_vshiftop",
+     "t_progress_be_vvternop",
+     "t_progress_be_vvbinop",
+     "t_progress_be_vvunop",
+     "t_progress_be_testop",
+     "t_progress_be_unop",
+     "t_progress_be_br_table",
+     "t_progress_be_loop",
+     "t_progress_be_block",
+     "vcvtop_full_lsize",
+     "vcvtop_zero_numtype",
+     "vcvtop_step_zero",
+     "zero_lane_wf",
+     "vcvtop_lane_total",
+     "call_indirect_progress",
+     "zip_lane_wf2",
+     "wf_ishape_inv",
+     "invert_typeof_I32_wf",
+     "vstore_lane_progress",
+     "vrelop_some",
+     "vbinop_some",
+     "zip_flane_wf",
+     "zip_lane_wf"
+    ],
+    "deleted": [
+     "testop_not_none",
+     "unop_not_none"
+    ]
+   },
+   {
+    "round": 2,
+    "errors": 127,
+    "error_decls": 27,
+    "sorried": [
+     "t_progress_be_vload_splat",
+     "t_progress_be_vload_pack",
+     "t_progress_be_vload_val",
+     "t_progress_be_store_pack",
+     "t_progress_be_store_val",
+     "t_progress_be_load_pack",
+     "t_progress_be_load_val",
+     "t_progress_be_data_drop",
+     "t_progress_be_memory_init",
+     "t_progress_be_memory_copy",
+     "t_progress_be_memory_fill",
+     "t_progress_be_memory_size",
+     "t_progress_be_elem_drop",
+     "t_progress_be_table_init",
+     "t_progress_be_table_copy",
+     "t_progress_be_table_fill",
+     "t_progress_be_table_size",
+     "t_progress_be_table_set",
+     "t_progress_be_table_get",
+     "t_progress_be_global_set",
+     "t_progress_be_global_get",
+     "t_progress_be_local_get",
+     "t_progress_be_vcvtop",
+     "t_progress_be_vnarrow",
+     "t_progress_be_vextbinop",
+     "t_progress_be_vextunop"
+    ],
+    "deleted": [
+     "zero_lane_wf"
+    ]
+   },
+   {
+    "round": 3,
+    "errors": 37,
+    "error_decls": 5,
+    "sorried": [
+     "t_progress_e_call_addr",
+     "t_progress_be_vstore_lane",
+     "t_progress_be_vstore",
+     "t_progress_be_vload_lane",
+     "t_progress_be_vload_zero"
+    ],
+    "deleted": []
+   },
+   {
+    "round": 4,
+    "errors": 0
+   }
+  ]
+ }
+}

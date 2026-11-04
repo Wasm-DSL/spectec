@@ -1,0 +1,91 @@
+{
+ "label": "V-Q1",
+ "verified_file": "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/V-Q1/section.verified.md",
+ "corrections": [
+  {
+   "construct": "binop_total (Statement)",
+   "wrong": "Said `$binop_(t, binop, c_1, c_2)` \"is defined: `\u2203 lst, fun_binop_ ... lst`\". But `lst : Option (List num_)` may be `none` (catch-all case 38, \"undefined\"), so the statement does not say \"defined\". `binop_not_none` is what excludes `none`, and `t_progress_be_binop` uses both lemmas.",
+   "fixed": "Now says the relation has an output, `lst : Option (List num_)`. The statement alone allows `lst = none`, and `binop_not_none` rules it out. `t_progress_be_binop` uses the two lemmas."
+  },
+  {
+   "construct": "relop_total (Statement)",
+   "wrong": "Same overclaim: \"`$relop_(...)` is defined: `\u2203 c, fun_relop_ ... c`\", although `c = none` is allowed. `relop_not_none` excludes it.",
+   "fixed": "Now says the relation has an output. `c = none` is not excluded here; `relop_not_none` excludes it. `t_progress_be_relop` uses both."
+  },
+  {
+   "construct": "cvtop_total (Statement)",
+   "wrong": "Same overclaim: \"`$cvtop__(...)` is defined: `\u2203 c2, ...`\", although `c2 = none` is allowed. `cvtop_not_none` excludes it.",
+   "fixed": "Now says the relation has an output. `c2 = none` is not excluded here; `cvtop_not_none` excludes it. `t_progress_be_cvtop` uses both."
+  },
+  {
+   "construct": "t_progress_be_unop (Statement)",
+   "wrong": "Two errors. (1) \"`C` is `C'` extended with `F`'s locals, labels and return\": `upd_local_label_return C' (map typeof f.LOCALS) lab ret` overwrites three record fields. Locals become the types of F's locals; labels and return are arbitrary `lab`/`ret`, not F's. (2) \"Then the sequence is not all constants and steps\": the motive concludes `const_list [be] = true \u2228 steps`, and the proof takes the step disjunct.",
+   "fixed": "Rewritten. C is C' with its locals set to the types of F's locals and its labels/return set to arbitrary `lab`/`ret`. Added the `not_lf_br`/`not_lf_return` hypotheses. The motive concludes \"all constants, or steps\", and the proof shows it steps."
+  },
+  {
+   "construct": "binop_total (What broke, item 2)",
+   "wrong": "\"now every clause has an explicit size argument\": the catch-all case 38 has none.",
+   "fixed": "\"every clause except the catch-all case 38\"."
+  },
+  {
+   "construct": "relop_total (What broke, item 2)",
+   "wrong": "\"All `fun_relop_` clauses gained a size argument\": the catch-all case 24 did not.",
+   "fixed": "\"All `fun_relop_` clauses except the catch-all case 24\"."
+  },
+  {
+   "construct": "binop_total (What broke, item 3)",
+   "wrong": "Did not say that the float branch's old pattern `\u27e8F1, x1, hw1, h1\u27e9` also shifts: `hw1` binds `var_0` and `h1` the `fun_sizenn` premise, so `numF _ _ h1` is ill-typed. This is outside the first-error list.",
+   "fixed": "Added this as a further consequence, before the existing `constructor`/`fun_sizenn`-goal point."
+  },
+  {
+   "construct": "relop_total (item 3) / cvtop_total (item 1)",
+   "wrong": "Same omission: the float (or float-source) branches' `numF _ _ h1` also fails because of the pattern shift.",
+   "fixed": "Added a short note to each, marked as outside the first reported errors."
+  },
+  {
+   "construct": "binop_total (Original proof sketch)",
+   "wrong": "\"the model lemma `iadd__is_wf` \u2026 `ishr__is_wf`\": only iadd/isub/imul are model theorems; iand, ior, ixor, irotl, irotr, ishl, ishr are model axioms.",
+   "fixed": "\"the model's `iadd__is_wf` \u2026 `ishr__is_wf` (theorems for add, sub and mul; axioms for the other seven)\"."
+  },
+  {
+   "construct": "cvtop_total (Current proof sketch)",
+   "wrong": "Wrote `\u2026_case_1 _ _ hs2 hs1 hsz` for both REINTERPRET branches, but the float-to-int constructor is `cvtop__Fnn_1_Inn_2_case_2`. Also said the matching widths use \"the unchanged clauses 28-35\"; only 28/31 (int to float) and 32/35 (float to int) can apply, since 29/30/33/34 have false width premises.",
+   "fixed": "Named `cvtop__Inn_1_Fnn_2_case_1` and `cvtop__Fnn_1_Inn_2_case_2`, and said the proof uses clause 28 or 31, or 32 or 35."
+  },
+  {
+   "construct": "wf_fN_num_ (Statement)",
+   "wrong": "\"every payload `F.const x` (`mk_num__1 F x`)\" mixes up the instruction `F.const x` with the number `mk_num__1 F x`.",
+   "fixed": "\"every number `mk_num__1 F x` (the payload of `F.const x`)\"."
+  },
+  {
+   "construct": "invert_typeof_I32 (Statement)",
+   "wrong": "The list of users left out the vector loads and stores: vload_val, vload_pack, vload_splat, vload_zero, vload_lane, vstore and vstore_lane all use it for the address.",
+   "fixed": "Added \"(vector loads and stores included)\"."
+  }
+ ],
+ "flags": [
+  {
+   "construct": "testop_not_none",
+   "issue": "CONFIRMED (writer's flag). The doc comment still opens with the old function-valued wording (\"The function `fun_testop_` is defined (`\u2260 none`)\"), and the next sentence (\"Restated: ... relation ...\") contradicts it. The sibling `unop_not_none` dropped the equivalent parenthetical.",
+   "line": "final3/src/TypeProgress.lean:2031-2034",
+   "suggestion": "Use the writer's wording: \"A well-formed test operator applied to a well-formed number of the same type is defined. Restated: `fun_testop_` is now a relation with an `Option` output, so Rocq's `fun_testop_ nt t n1 <> None` becomes the existence of a `some c` output.\""
+  },
+  {
+   "construct": "t_progress_be_testop",
+   "issue": "CONFIRMED (writer's flag, cosmetic). `ENone` is a name left over from the old `cases ENone : fun_testop_ ...`. It now names the positive witness `fun_testop_ nt testop_nt n1 (some c')`, and there is no `none` case any more.",
+   "line": "final3/src/TypeProgress.lean:4653 (uses at 4657, 4658)",
+   "suggestion": "Rename to `Etestop`, matching `Eunop` in t_progress_be_unop, and update its two uses in `Step_pure.testop ...` and `testop__is_wf ...`."
+  },
+  {
+   "construct": "relop_total / relop_before / cvtop_total / cvtop_before",
+   "issue": "NEW (cosmetic, inherited from the original proofs). When the repair shifted the `wf_num_` patterns it kept names that are never used. These are `hw1`/`hw2` in relop_total's float branch and in both branches of relop_before, and `hw` in every branch of cvtop_total and cvtop_before. It is not checked whether the unused-variables linter warns on them (no Lean run).",
+   "line": "final3/src/TypeProgress.lean:1756,1759 (relop_total); 1932,1936,1943,1946 (relop_before); 1779,1786,1801,1817 (cvtop_total); 1980,1986,2000,2014 (cvtop_before)",
+   "suggestion": "Replace the unused names with `_`, e.g. `\u27e8F1, x1, _, _, _, h1\u27e9` / `\u27e8I1', y, _, _, h1\u27e9`."
+  }
+ ],
+ "safety_checks": [
+  "V-Q1-start: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T023030.077636574Z-bundle31-V-Q1-start-347159.txt. Verdict: OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline. The only changed file listed is the known external Lake/IDE artifact spectec/src/test-lean-claude/.lake/build/lib/lean/wasm2.0.trace.nobuild, whose md5 is unchanged since it was noted.",
+  "V-Q1-end: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T024528.609807068Z-bundle31-V-Q1-end-359776.txt. Verdict: OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline. The same known external artifact (.lake/build/lib/lean/wasm2.0.trace.nobuild) is listed, md5 unchanged."
+ ],
+ "confidence": "High.\n\n- **Source texts:** all 14 orig_text/final_text entries appear verbatim in orig/TypeProgress.lean and final3/src/TypeProgress.lean.\n- **Model and spec claims:** checked against both models with grep/sed. This covers `wf_num_`, `fun_sizenn`/`fun_sizenn1`/`fun_sizenn2`, `fun_binop_`/`fun_relop_`/`fun_cvtop__`, their before-predicates (including the clause numbers and which premises are kept), `fun_unop_`/`fun_testop_` (old defs and new relations), `wf_cvtop__Inn_1_Fnn_2`/`Fnn_1_Inn_2`, `Step_pure.unop_val`/`unop_trap`/`testop`, `testop__is_wf`, and the axiom/theorem status of the `*_is_wf` facts. The spec side covers 1-syntax, 3-numerics, 6-typing and 8-reduction.\n- **Errors:** checked against noshim/withshim_errors. The only noshim/withshim differences are line numbers.\n- **Lemma users:** checked by grep of final3.\n- **Writer's note 1:** the writer's explanation that the patterns shift because Lean promotes `v_numtype` to a parameter fits the field counts, the term-mode argument counts and the recorded error contexts (`h1 : fun_sizenn ...`). I did not confirm it by running Lean.\n- **Location:** the writer's section is at agents/W-Q1/section.md, not agents/Q1, as their note says. I read it from there.\n- **Remaining fixes are precision fixes:** apart from the overclaims in the three `*_total` statements and the wrong `t_progress_be_unop` statement paraphrase, every other text in the writer's section was accurate as written."
+}

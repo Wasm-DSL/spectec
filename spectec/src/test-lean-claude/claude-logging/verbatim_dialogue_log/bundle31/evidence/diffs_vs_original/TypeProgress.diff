@@ -1,0 +1,2860 @@
+--- /tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/orig/TypeProgress.lean	2026-11-03 09:25:14.522119685 +0800
++++ /home/zhengyew/spectec/spectec/src/test-lean-claude/TypeProgress.lean	2026-11-03 11:10:35.590060072 +0800
+@@ -48,11 +48,16 @@
+ `t_progress_be` is now `Qed`. The two subcases that were false under the old
+ spec are now impossible: `t_progress_be_vload_pack` refutes `SHAPE 64 X 1` with the new `M > 1`
+ side condition, and `t_progress_be_vcvtop` no longer has an `F32 → I16 TRUNC_SAT` case at all.
+-`#sorry_deps TLC.t_progress` lists only generated numeric `*_is_wf` theorems about functions that
+-are `opaque` in Lean (`Axiom`s in Rocq, whose `*_is_wf` are all `Admitted` there too); see
+-`claude-logging/for-claude/is_wf_theorems.md`. `#print axioms` adds the project axioms that mirror
+-Rocq's `axioms.v` (`ishl_wf`/`ishr_wf` were deleted with Rocq's, since `ishl_`/`ishr_` now take an
+-`iN(N)` shift amount and the generated `ishl__is_wf`/`ishr__is_wf` apply directly).
++`t_progress` depends on no `sorry`. Besides Lean's standard axioms, `#print axioms` lists the model's
++`*_is_wf` axioms for the functions that are `opaque` in Lean (`Axiom`s in Rocq too, whose `*_is_wf`
++are all `Admitted` there) and the project axioms that mirror Rocq's `axioms.v` (`ishl_wf`/`ishr_wf`
++were deleted with Rocq's, since `ishl_`/`ishr_` now take an `iN(N)` shift amount and the generated
++`ishl__is_wf`/`ishr__is_wf` apply directly).
++
++Since the model was regenerated with `sideconditions_on_defs` (user commit `12b021fc9`), the state
++lookups and updates are relations whose premises carry the index bounds, so progress has to supply
++those bounds; the section "Lean-only: index bounds for the state lookups" derives them from
++`Moduleinst_ok`.
+ -/
+ 
+ namespace TLC
+@@ -383,7 +388,7 @@
+             cases x with
+             | mk_uN i => exact ⟨i, rfl⟩
+           | I64 => cases hnt
+-        | num__case_1 vFnn x _ hnt =>
++        | num__case_1 vFnn x _ _ _ hnt =>
+           cases vFnn <;> cases hnt
+     | I64 => cases Ht
+     | F32 => cases Ht
+@@ -414,7 +419,7 @@
+           | I64 =>
+             cases x with
+             | mk_uN i => exact ⟨i, rfl⟩
+-        | num__case_1 vFnn x _ hnt =>
++        | num__case_1 vFnn x _ _ _ hnt =>
+           cases vFnn <;> cases hnt
+     | I32 => cases Ht
+     | F32 => cases Ht
+@@ -1254,29 +1259,33 @@
+   exact typeof_non_bot v
+ 
+ /-- Rocq `type_progress.v:1333` `unop_not_none`. A well-formed unary operator applied to a
+-    well-formed number of the same type is defined (`fun_unop_` does not return `none`). -/
++    well-formed number of the same type is defined. Restated: `fun_unop_` is now a relation with an
++    `Option` output, so Rocq's `fun_unop_ nt u n1 <> None` becomes the existence of a `some cs`
++    output. -/
+ theorem unop_not_none (nt : numtype) (u : unop_) (n1 : num_) :
+     wf_num_ nt n1 →
+     wf_unop_ nt u →
+-    fun_unop_ nt u n1 ≠ none := by
+-  intro hn hu hneq
++    ∃ cs, fun_unop_ nt u n1 (some cs) := by
++  intro hn hu
+   cases hn with
+   | num__case_0 vI vx h1 h2 h3 =>
+     cases hu with
+     | unop__case_0 vI0 vx0 h4 =>
+       subst h3
+-      cases vI <;> cases vI0 <;> cases vx0 <;> simp [numtype_Inn, fun_unop_] at h4 hneq
++      cases vI <;> cases vI0 <;> cases vx0 <;> simp [numtype_Inn] at h4 <;>
++        exact ⟨_, by constructor; exact fun_sizenn_sizenn _⟩
+     | unop__case_1 vF vx0 h4 =>
+       subst h3
+       cases vI <;> cases vF <;> simp [numtype_Inn, numtype_Fnn] at h4
+-  | num__case_1 vF vx h1 h3 =>
++  | num__case_1 vF vx _ _ _ h3 =>
+     cases hu with
+     | unop__case_0 vI0 vx0 h4 =>
+       subst h3
+       cases vF <;> cases vI0 <;> simp [numtype_Inn, numtype_Fnn] at h4
+     | unop__case_1 vF0 vx0 h4 =>
+       subst h3
+-      cases vF <;> cases vF0 <;> cases vx0 <;> simp [numtype_Fnn, fun_unop_] at h4 hneq
++      cases vF <;> cases vF0 <;> cases vx0 <;> simp [numtype_Fnn] at h4 <;>
++        exact ⟨_, by constructor; exact fun_sizenn_sizenn _⟩
+ 
+ /-- Rocq `type_progress.v:1348` `two_pow_pos`. `2 ^ v_N` is positive (Rocq: in binary `N`). -/
+ theorem two_pow_pos (v_N : Nat) : 0 < 2 ^ v_N := by
+@@ -1586,7 +1595,7 @@
+     Forall (fun x => wf_fN (sizenn (numtype_Fnn F)) x) l →
+     Forall (fun x => wf_num_ (numtype_Fnn F) (num_.mk_num__1 F x)) l := by
+   intro Hl x hx
+-  exact wf_num_.num__case_1 _ _ _ (Hl x hx) rfl
++  exact wf_num_.num__case_1 _ _ _ _ (fun_sizenn_sizenn _) (Hl x hx) rfl
+ 
+ /-- Rocq `type_progress.v:1629` `wf_opt_num_`. A well-formed optional `iN` result wraps to
+     well-formed `num_.mk_num__0 I x` numbers, both pointwise and through
+@@ -1628,11 +1637,11 @@
+   intro hn1 hn2 hb
+   rcases hb with ⟨I, bI, hI⟩ | ⟨F, bF, hF⟩
+   · subst hI
+-    rcases hn1 with ⟨I1, x1, _, hw1, h1⟩ | ⟨F1, x1, _, h1⟩
++    rcases hn1 with ⟨I1, x1, _, hw1, h1⟩ | ⟨F1, x1, _, _, _, h1⟩
+     swap
+     · exact (numIF _ _ h1).elim
+     obtain rfl := numI _ _ h1
+-    rcases hn2 with ⟨I2, x2, _, hw2, h2⟩ | ⟨F2, x2, _, h2⟩
++    rcases hn2 with ⟨I2, x2, _, hw2, h2⟩ | ⟨F2, x2, _, _, _, h2⟩
+     swap
+     · exact (numIF _ _ h2).elim
+     obtain rfl := numI _ _ h2
+@@ -1642,23 +1651,27 @@
+       · obtain ⟨r, Hr⟩ := idiv_total _ sx x1 x2 hw1 hw2
+         have Hw := idiv_wf _ _ _ _ _ Hr
+         obtain ⟨Ho1, Ho2⟩ := wf_opt_num_ Inn.I32 r Hw
+-        exact ⟨_, fun_binop_.fun_binop__case_6 sx x1 x2 r Hr Ho2 (by decide) Hw Ho1⟩
++        exact ⟨_, fun_binop_.fun_binop__case_6 sx x1 x2 _ r (fun_sizenn_sizenn _) Hr Ho2 (by decide)
++          Hw Ho1⟩
+       · obtain ⟨r, Hr⟩ := idiv_total _ sx x1 x2 hw1 hw2
+         have Hw := idiv_wf _ _ _ _ _ Hr
+         obtain ⟨Ho1, Ho2⟩ := wf_opt_num_ Inn.I64 r Hw
+-        exact ⟨_, fun_binop_.fun_binop__case_7 sx x1 x2 r Hr Ho2 (by decide) Hw Ho1⟩
++        exact ⟨_, fun_binop_.fun_binop__case_7 sx x1 x2 _ r (fun_sizenn_sizenn _) Hr Ho2 (by decide)
++          Hw Ho1⟩
+     | REM sx =>
+       cases I
+       · obtain ⟨r, Hr⟩ := irem_total _ sx x1 x2 hw1 hw2
+         have Hw := irem__is_wf _ _ _ _ _ _ Hr hw1 hw2 rfl
+         obtain ⟨Ho1, Ho2⟩ := wf_opt_num_ Inn.I32 r Hw
+-        exact ⟨_, fun_binop_.fun_binop__case_8 sx x1 x2 r Hr Ho2 (by decide) Hw Ho1⟩
++        exact ⟨_, fun_binop_.fun_binop__case_8 sx x1 x2 _ r (fun_sizenn_sizenn _) Hr Ho2 (by decide)
++          Hw Ho1⟩
+       · obtain ⟨r, Hr⟩ := irem_total _ sx x1 x2 hw1 hw2
+         have Hw := irem__is_wf _ _ _ _ _ _ Hr hw1 hw2 rfl
+         obtain ⟨Ho1, Ho2⟩ := wf_opt_num_ Inn.I64 r Hw
+-        exact ⟨_, fun_binop_.fun_binop__case_9 sx x1 x2 r Hr Ho2 (by decide) Hw Ho1⟩
++        exact ⟨_, fun_binop_.fun_binop__case_9 sx x1 x2 _ r (fun_sizenn_sizenn _) Hr Ho2 (by decide)
++          Hw Ho1⟩
+     | _ =>
+-      cases I <;> apply Exists.intro <;> constructor <;>
++      cases I <;> apply Exists.intro <;> constructor <;> (try exact fun_sizenn_sizenn _) <;>
+         refine wf_num_.num__case_0 _ _ _ (by decide) ?_ rfl <;>
+         first
+           | exact iadd__is_wf _ _ _ _ hw1 hw2 rfl
+@@ -1672,13 +1685,16 @@
+           | exact ishl__is_wf _ _ _ _ hw1 hw2 rfl
+           | exact ishr__is_wf _ _ _ _ _ hw1 hw2 rfl
+   · subst hF
+-    rcases hn1 with ⟨I1, x1, _, _, h1⟩ | ⟨F1, x1, hw1, h1⟩
++    rcases hn1 with ⟨I1, x1, _, _, h1⟩ | ⟨F1, x1, _, hs1, hw1, h1⟩
+     · exact (numIF _ _ h1.symm).elim
+     obtain rfl := numF _ _ h1
+-    rcases hn2 with ⟨I2, x2, _, _, h2⟩ | ⟨F2, x2, hw2, h2⟩
++    rcases hn2 with ⟨I2, x2, _, _, h2⟩ | ⟨F2, x2, _, hs2, hw2, h2⟩
+     · exact (numIF _ _ h2.symm).elim
+     obtain rfl := numF _ _ h2
+-    cases F <;> cases bF <;> apply Exists.intro <;> constructor <;> (try apply wf_fN_num_) <;>
++    rw [fun_sizenn_eq hs1] at hw1
++    rw [fun_sizenn_eq hs2] at hw2
++    cases F <;> cases bF <;> apply Exists.intro <;> constructor <;>
++      (try exact fun_sizenn_sizenn _) <;> (try apply wf_fN_num_) <;>
+       first
+         | exact fadd__is_wf _ _ _ _ hw1 hw2 rfl
+         | exact fsub__is_wf _ _ _ _ hw1 hw2 rfl
+@@ -1702,11 +1718,11 @@
+   intro hn1 hn2 hr
+   rcases hr with ⟨I, rI, hI⟩ | ⟨F, rF, hF⟩
+   · subst hI
+-    rcases hn1 with ⟨I1, x1, _, hw1, h1⟩ | ⟨F1, x1, _, h1⟩
++    rcases hn1 with ⟨I1, x1, _, hw1, h1⟩ | ⟨F1, x1, _, _, _, h1⟩
+     swap
+     · exact (numIF _ _ h1).elim
+     obtain rfl := numI _ _ h1
+-    rcases hn2 with ⟨I2, x2, _, hw2, h2⟩ | ⟨F2, x2, _, h2⟩
++    rcases hn2 with ⟨I2, x2, _, hw2, h2⟩ | ⟨F2, x2, _, _, _, h2⟩
+     swap
+     · exact (numIF _ _ h2).elim
+     obtain rfl := numI _ _ h2
+@@ -1714,36 +1730,36 @@
+     | LT sx =>
+       cases I
+       · obtain ⟨c, Hc⟩ := ilt_total _ sx x1 x2 hw1 hw2
+-        exact ⟨_, fun_relop_.fun_relop__case_4 sx x1 x2 c Hc⟩
++        exact ⟨_, fun_relop_.fun_relop__case_4 sx x1 x2 _ c (fun_sizenn_sizenn _) Hc⟩
+       · obtain ⟨c, Hc⟩ := ilt_total _ sx x1 x2 hw1 hw2
+-        exact ⟨_, fun_relop_.fun_relop__case_5 sx x1 x2 c Hc⟩
++        exact ⟨_, fun_relop_.fun_relop__case_5 sx x1 x2 _ c (fun_sizenn_sizenn _) Hc⟩
+     | GT sx =>
+       cases I
+       · obtain ⟨c, Hc⟩ := igt_total _ sx x1 x2 hw1 hw2
+-        exact ⟨_, fun_relop_.fun_relop__case_6 sx x1 x2 c Hc⟩
++        exact ⟨_, fun_relop_.fun_relop__case_6 sx x1 x2 _ c (fun_sizenn_sizenn _) Hc⟩
+       · obtain ⟨c, Hc⟩ := igt_total _ sx x1 x2 hw1 hw2
+-        exact ⟨_, fun_relop_.fun_relop__case_7 sx x1 x2 c Hc⟩
++        exact ⟨_, fun_relop_.fun_relop__case_7 sx x1 x2 _ c (fun_sizenn_sizenn _) Hc⟩
+     | LE sx =>
+       cases I
+       · obtain ⟨c, Hc⟩ := ile_total _ sx x1 x2 hw1 hw2
+-        exact ⟨_, fun_relop_.fun_relop__case_8 sx x1 x2 c Hc⟩
++        exact ⟨_, fun_relop_.fun_relop__case_8 sx x1 x2 _ c (fun_sizenn_sizenn _) Hc⟩
+       · obtain ⟨c, Hc⟩ := ile_total _ sx x1 x2 hw1 hw2
+-        exact ⟨_, fun_relop_.fun_relop__case_9 sx x1 x2 c Hc⟩
++        exact ⟨_, fun_relop_.fun_relop__case_9 sx x1 x2 _ c (fun_sizenn_sizenn _) Hc⟩
+     | GE sx =>
+       cases I
+       · obtain ⟨c, Hc⟩ := ige_total _ sx x1 x2 hw1 hw2
+-        exact ⟨_, fun_relop_.fun_relop__case_10 sx x1 x2 c Hc⟩
++        exact ⟨_, fun_relop_.fun_relop__case_10 sx x1 x2 _ c (fun_sizenn_sizenn _) Hc⟩
+       · obtain ⟨c, Hc⟩ := ige_total _ sx x1 x2 hw1 hw2
+-        exact ⟨_, fun_relop_.fun_relop__case_11 sx x1 x2 c Hc⟩
+-    | _ => cases I <;> apply Exists.intro <;> constructor
++        exact ⟨_, fun_relop_.fun_relop__case_11 sx x1 x2 _ c (fun_sizenn_sizenn _) Hc⟩
++    | _ => cases I <;> apply Exists.intro <;> constructor <;> exact fun_sizenn_sizenn _
+   · subst hF
+-    rcases hn1 with ⟨I1, x1, _, _, h1⟩ | ⟨F1, x1, hw1, h1⟩
++    rcases hn1 with ⟨I1, x1, _, _, h1⟩ | ⟨F1, x1, _, _, hw1, h1⟩
+     · exact (numIF _ _ h1.symm).elim
+     obtain rfl := numF _ _ h1
+-    rcases hn2 with ⟨I2, x2, _, _, h2⟩ | ⟨F2, x2, hw2, h2⟩
++    rcases hn2 with ⟨I2, x2, _, _, h2⟩ | ⟨F2, x2, _, _, hw2, h2⟩
+     · exact (numIF _ _ h2.symm).elim
+     obtain rfl := numF _ _ h2
+-    cases F <;> cases rF <;> apply Exists.intro <;> constructor
++    cases F <;> cases rF <;> apply Exists.intro <;> constructor <;> exact fun_sizenn_sizenn _
+ 
+ /-- Rocq `type_progress.v:1710` `cvtop_total`. `cvtop__` is total on a well-formed operand and a
+     well-formed conversion operator. -/
+@@ -1760,44 +1776,49 @@
+   rcases hcvt with ⟨I1, I2, x, hx, e1, e2⟩ | ⟨I1, F2, x, hx, e1, e2⟩ |
+       ⟨F1, I2, x, hx, e1, e2⟩ | ⟨F1, F2, x, hx, e1, e2⟩
+   · subst e1 e2
+-    rcases hc1 with ⟨I1', y, _, hw, h1⟩ | ⟨F1', y, _, h1⟩
++    rcases hc1 with ⟨I1', y, _, hw, h1⟩ | ⟨F1', y, _, _, _, h1⟩
+     swap
+     · exact (numIF _ _ h1).elim
+     obtain rfl := numI _ _ h1
+-    cases x <;> cases I1 <;> cases I2 <;> apply Exists.intro <;> constructor
++    cases x <;> cases I1 <;> cases I2 <;> apply Exists.intro <;> constructor <;> constructor <;>
++      decide
+   · subst e1 e2
+-    rcases hc1 with ⟨I1', y, _, hw, h1⟩ | ⟨F1', y, _, h1⟩
++    rcases hc1 with ⟨I1', y, _, hw, h1⟩ | ⟨F1', y, _, _, _, h1⟩
+     swap
+     · exact (numIF _ _ h1).elim
+     obtain rfl := numI _ _ h1
+     cases x with
+-    | CONVERT sx => cases I1 <;> cases F2 <;> apply Exists.intro <;> constructor
++    | CONVERT sx =>
++      cases I1 <;> cases F2 <;> apply Exists.intro <;> constructor <;> constructor <;> decide
+     | REINTERPRET =>
+       cases hx with
+-      | cvtop__Inn_1_Fnn_2_case_1 hsz =>
+-        cases I1 <;> cases F2 <;>
++      | cvtop__Inn_1_Fnn_2_case_1 _ _ hs2 hs1 hsz =>
++        cases I1 <;> cases F2 <;> cases hs1 <;> cases hs2 <;>
+           first
+             | (exfalso; revert hsz; decide)
+             | (apply Exists.intro; constructor <;> decide)
+   · subst e1 e2
+-    rcases hc1 with ⟨I1', y, _, _, h1⟩ | ⟨F1', y, hw, h1⟩
++    rcases hc1 with ⟨I1', y, _, _, h1⟩ | ⟨F1', y, _, _, hw, h1⟩
+     · exact (numIF _ _ h1.symm).elim
+     obtain rfl := numF _ _ h1
+     cases x with
+-    | TRUNC sx => cases F1 <;> cases I2 <;> apply Exists.intro <;> constructor
+-    | TRUNC_SAT sx => cases F1 <;> cases I2 <;> apply Exists.intro <;> constructor
++    | TRUNC sx =>
++      cases F1 <;> cases I2 <;> apply Exists.intro <;> constructor <;> constructor <;> decide
++    | TRUNC_SAT sx =>
++      cases F1 <;> cases I2 <;> apply Exists.intro <;> constructor <;> constructor <;> decide
+     | REINTERPRET =>
+       cases hx with
+-      | cvtop__Fnn_1_Inn_2_case_2 hsz =>
+-        cases F1 <;> cases I2 <;>
++      | cvtop__Fnn_1_Inn_2_case_2 _ _ hs2 hs1 hsz =>
++        cases F1 <;> cases I2 <;> cases hs1 <;> cases hs2 <;>
+           first
+             | (exfalso; revert hsz; decide)
+             | (apply Exists.intro; constructor <;> decide)
+   · subst e1 e2
+-    rcases hc1 with ⟨I1', y, _, _, h1⟩ | ⟨F1', y, hw, h1⟩
++    rcases hc1 with ⟨I1', y, _, _, h1⟩ | ⟨F1', y, _, _, hw, h1⟩
+     · exact (numIF _ _ h1.symm).elim
+     obtain rfl := numF _ _ h1
+-    cases x <;> cases F1 <;> cases F2 <;> apply Exists.intro <;> constructor
++    cases x <;> cases F1 <;> cases F2 <;> apply Exists.intro <;> constructor <;> constructor <;>
++      decide
+ 
+ /-- Rocq `type_progress.v:1730` `binop_before`. On well-formed operands and operator, the
+     generated "earlier clauses apply" predicate `fun_binop__before_fun_binop__case_38` holds (it
+@@ -1814,11 +1835,11 @@
+   intro hn1 hn2 hb
+   rcases hb with ⟨I, bI, hI⟩ | ⟨F, bF, hF⟩
+   · subst hI
+-    rcases hn1 with ⟨I1, x1, _, hw1, h1⟩ | ⟨F1, x1, _, h1⟩
++    rcases hn1 with ⟨I1, x1, _, hw1, h1⟩ | ⟨F1, x1, _, _, _, h1⟩
+     swap
+     · exact (numIF _ _ h1).elim
+     obtain rfl := numI _ _ h1
+-    rcases hn2 with ⟨I2, x2, _, hw2, h2⟩ | ⟨F2, x2, _, h2⟩
++    rcases hn2 with ⟨I2, x2, _, hw2, h2⟩ | ⟨F2, x2, _, _, _, h2⟩
+     swap
+     · exact (numIF _ _ h2).elim
+     obtain rfl := numI _ _ h2
+@@ -1828,23 +1849,27 @@
+       · obtain ⟨r, Hr⟩ := idiv_total _ sx x1 x2 hw1 hw2
+         have Hw := idiv_wf _ _ _ _ _ Hr
+         obtain ⟨Ho1, Ho2⟩ := wf_opt_num_ Inn.I32 r Hw
+-        exact fun_binop__before_fun_binop__case_38.fun_binop__case_6 sx x1 x2 r Hr Ho2 (by decide) Hw Ho1
++        exact fun_binop__before_fun_binop__case_38.fun_binop__case_6 sx x1 x2 _ r
++          (fun_sizenn_sizenn _) Hr Ho2 (by decide) Hw Ho1
+       · obtain ⟨r, Hr⟩ := idiv_total _ sx x1 x2 hw1 hw2
+         have Hw := idiv_wf _ _ _ _ _ Hr
+         obtain ⟨Ho1, Ho2⟩ := wf_opt_num_ Inn.I64 r Hw
+-        exact fun_binop__before_fun_binop__case_38.fun_binop__case_7 sx x1 x2 r Hr Ho2 (by decide) Hw Ho1
++        exact fun_binop__before_fun_binop__case_38.fun_binop__case_7 sx x1 x2 _ r
++          (fun_sizenn_sizenn _) Hr Ho2 (by decide) Hw Ho1
+     | REM sx =>
+       cases I
+       · obtain ⟨r, Hr⟩ := irem_total _ sx x1 x2 hw1 hw2
+         have Hw := irem__is_wf _ _ _ _ _ _ Hr hw1 hw2 rfl
+         obtain ⟨Ho1, Ho2⟩ := wf_opt_num_ Inn.I32 r Hw
+-        exact fun_binop__before_fun_binop__case_38.fun_binop__case_8 sx x1 x2 r Hr Ho2 (by decide) Hw Ho1
++        exact fun_binop__before_fun_binop__case_38.fun_binop__case_8 sx x1 x2 _ r
++          (fun_sizenn_sizenn _) Hr Ho2 (by decide) Hw Ho1
+       · obtain ⟨r, Hr⟩ := irem_total _ sx x1 x2 hw1 hw2
+         have Hw := irem__is_wf _ _ _ _ _ _ Hr hw1 hw2 rfl
+         obtain ⟨Ho1, Ho2⟩ := wf_opt_num_ Inn.I64 r Hw
+-        exact fun_binop__before_fun_binop__case_38.fun_binop__case_9 sx x1 x2 r Hr Ho2 (by decide) Hw Ho1
++        exact fun_binop__before_fun_binop__case_38.fun_binop__case_9 sx x1 x2 _ r
++          (fun_sizenn_sizenn _) Hr Ho2 (by decide) Hw Ho1
+     | _ =>
+-      cases I <;> constructor <;>
++      cases I <;> constructor <;> (try exact fun_sizenn_sizenn _) <;>
+         refine wf_num_.num__case_0 _ _ _ (by decide) ?_ rfl <;>
+         first
+           | exact iadd__is_wf _ _ _ _ hw1 hw2 rfl
+@@ -1858,13 +1883,16 @@
+           | exact ishl__is_wf _ _ _ _ hw1 hw2 rfl
+           | exact ishr__is_wf _ _ _ _ _ hw1 hw2 rfl
+   · subst hF
+-    rcases hn1 with ⟨I1, x1, _, _, h1⟩ | ⟨F1, x1, hw1, h1⟩
++    rcases hn1 with ⟨I1, x1, _, _, h1⟩ | ⟨F1, x1, _, hs1, hw1, h1⟩
+     · exact (numIF _ _ h1.symm).elim
+     obtain rfl := numF _ _ h1
+-    rcases hn2 with ⟨I2, x2, _, _, h2⟩ | ⟨F2, x2, hw2, h2⟩
++    rcases hn2 with ⟨I2, x2, _, _, h2⟩ | ⟨F2, x2, _, hs2, hw2, h2⟩
+     · exact (numIF _ _ h2.symm).elim
+     obtain rfl := numF _ _ h2
+-    cases F <;> cases bF <;> constructor <;> (try apply wf_fN_num_) <;>
++    rw [fun_sizenn_eq hs1] at hw1
++    rw [fun_sizenn_eq hs2] at hw2
++    cases F <;> cases bF <;> constructor <;> (try exact fun_sizenn_sizenn _) <;>
++      (try apply wf_fN_num_) <;>
+       first
+         | exact fadd__is_wf _ _ _ _ hw1 hw2 rfl
+         | exact fsub__is_wf _ _ _ _ hw1 hw2 rfl
+@@ -1901,23 +1929,24 @@
+   intro hn1 hn2 hr
+   rcases hr with ⟨I, rI, hI⟩ | ⟨F, rF, hF⟩
+   · subst hI
+-    rcases hn1 with ⟨I1, x1, _, hw1, h1⟩ | ⟨F1, x1, _, h1⟩
++    rcases hn1 with ⟨I1, x1, _, hw1, h1⟩ | ⟨F1, x1, _, _, _, h1⟩
+     swap
+     · exact (numIF _ _ h1).elim
+     obtain rfl := numI _ _ h1
+-    rcases hn2 with ⟨I2, x2, _, hw2, h2⟩ | ⟨F2, x2, _, h2⟩
++    rcases hn2 with ⟨I2, x2, _, hw2, h2⟩ | ⟨F2, x2, _, _, _, h2⟩
+     swap
+     · exact (numIF _ _ h2).elim
+     obtain rfl := numI _ _ h2
+-    cases rI <;> cases I <;> constructor <;> exact uN.mk_uN 0
++    cases rI <;> cases I <;> constructor <;>
++      first | exact fun_sizenn_sizenn _ | exact uN.mk_uN 0 | exact 0
+   · subst hF
+-    rcases hn1 with ⟨I1, x1, _, _, h1⟩ | ⟨F1, x1, hw1, h1⟩
++    rcases hn1 with ⟨I1, x1, _, _, h1⟩ | ⟨F1, x1, _, _, hw1, h1⟩
+     · exact (numIF _ _ h1.symm).elim
+     obtain rfl := numF _ _ h1
+-    rcases hn2 with ⟨I2, x2, _, _, h2⟩ | ⟨F2, x2, hw2, h2⟩
++    rcases hn2 with ⟨I2, x2, _, _, h2⟩ | ⟨F2, x2, _, _, hw2, h2⟩
+     · exact (numIF _ _ h2.symm).elim
+     obtain rfl := numF _ _ h2
+-    cases F <;> cases rF <;> constructor
++    cases F <;> cases rF <;> constructor <;> exact 0
+ 
+ /-- Rocq `type_progress.v:1780` `relop_not_none`. On well-formed operands and operator, any result
+     `c` that `fun_relop_` relates them to is not `none`. -/
+@@ -1948,44 +1977,44 @@
+   rcases hcvt with ⟨I1, I2, x, hx, e1, e2⟩ | ⟨I1, F2, x, hx, e1, e2⟩ |
+       ⟨F1, I2, x, hx, e1, e2⟩ | ⟨F1, F2, x, hx, e1, e2⟩
+   · subst e1 e2
+-    rcases hc1 with ⟨I1', y, _, hw, h1⟩ | ⟨F1', y, _, h1⟩
++    rcases hc1 with ⟨I1', y, _, hw, h1⟩ | ⟨F1', y, _, _, _, h1⟩
+     swap
+     · exact (numIF _ _ h1).elim
+     obtain rfl := numI _ _ h1
+-    cases x <;> cases I1 <;> cases I2 <;> constructor
++    cases x <;> cases I1 <;> cases I2 <;> constructor <;> exact 0
+   · subst e1 e2
+-    rcases hc1 with ⟨I1', y, _, hw, h1⟩ | ⟨F1', y, _, h1⟩
++    rcases hc1 with ⟨I1', y, _, hw, h1⟩ | ⟨F1', y, _, _, _, h1⟩
+     swap
+     · exact (numIF _ _ h1).elim
+     obtain rfl := numI _ _ h1
+     cases x with
+-    | CONVERT sx => cases I1 <;> cases F2 <;> constructor
++    | CONVERT sx => cases I1 <;> cases F2 <;> constructor <;> exact 0
+     | REINTERPRET =>
+       cases hx with
+-      | cvtop__Inn_1_Fnn_2_case_1 hsz =>
+-        cases I1 <;> cases F2 <;>
++      | cvtop__Inn_1_Fnn_2_case_1 _ _ hs2 hs1 hsz =>
++        cases I1 <;> cases F2 <;> cases hs1 <;> cases hs2 <;>
+           first
+             | (exfalso; revert hsz; decide)
+             | (constructor <;> decide)
+   · subst e1 e2
+-    rcases hc1 with ⟨I1', y, _, _, h1⟩ | ⟨F1', y, hw, h1⟩
++    rcases hc1 with ⟨I1', y, _, _, h1⟩ | ⟨F1', y, _, _, hw, h1⟩
+     · exact (numIF _ _ h1.symm).elim
+     obtain rfl := numF _ _ h1
+     cases x with
+-    | TRUNC sx => cases F1 <;> cases I2 <;> constructor
+-    | TRUNC_SAT sx => cases F1 <;> cases I2 <;> constructor
++    | TRUNC sx => cases F1 <;> cases I2 <;> constructor <;> exact 0
++    | TRUNC_SAT sx => cases F1 <;> cases I2 <;> constructor <;> exact 0
+     | REINTERPRET =>
+       cases hx with
+-      | cvtop__Fnn_1_Inn_2_case_2 hsz =>
+-        cases F1 <;> cases I2 <;>
++      | cvtop__Fnn_1_Inn_2_case_2 _ _ hs2 hs1 hsz =>
++        cases F1 <;> cases I2 <;> cases hs1 <;> cases hs2 <;>
+           first
+             | (exfalso; revert hsz; decide)
+             | (constructor <;> decide)
+   · subst e1 e2
+-    rcases hc1 with ⟨I1', y, _, _, h1⟩ | ⟨F1', y, hw, h1⟩
++    rcases hc1 with ⟨I1', y, _, _, h1⟩ | ⟨F1', y, _, _, hw, h1⟩
+     · exact (numIF _ _ h1.symm).elim
+     obtain rfl := numF _ _ h1
+-    cases x <;> cases F1 <;> cases F2 <;> constructor
++    cases x <;> cases F1 <;> cases F2 <;> constructor <;> exact 0
+ 
+ /-- Rocq `type_progress.v:1817` `cvtop_not_none`. On a well-formed operand and conversion
+     operator, any result `c2` that `fun_cvtop__` relates them to is not `none`. -/
+@@ -1999,12 +2028,14 @@
+   cases hf with
+   | fun_cvtop___case_36 _ _ _ _ hnb => exact hnb (cvtop_before _ _ _ _ hc1 hcvt)
+ 
+-/-- Rocq `type_progress.v:1829` `testop_not_none`. The function `fun_testop_` is defined
+-    (`≠ none`) on a well-formed operand and test operator. -/
++/-- Rocq `type_progress.v:1829` `testop_not_none`. A well-formed test operator applied to a
++    well-formed number of the same type is defined. Restated: `fun_testop_` is now a
++    relation with an `Option` output, so Rocq's `fun_testop_ nt t n1 <> None` becomes the existence
++    of a `some c` output. -/
+ theorem testop_not_none (nt : numtype) (t : testop_) (n1 : num_) :
+     wf_num_ nt n1 →
+     wf_testop_ nt t →
+-    fun_testop_ nt t n1 ≠ none := by
++    ∃ c, fun_testop_ nt t n1 (some c) := by
+   have numI : ∀ I I' : Inn, numtype_Inn I = numtype_Inn I' → I = I' := by
+     intro I I' h; cases I <;> cases I' <;> first | rfl | (exfalso; revert h; decide)
+   have numIF : ∀ (I : Inn) (F : Fnn), numtype_Inn I = numtype_Fnn F → False := by
+@@ -2012,12 +2043,12 @@
+   intro hn1 ht
+   rcases ht with ⟨I, tI, hI⟩
+   subst hI
+-  rcases hn1 with ⟨I1, x1, _, hw1, h1⟩ | ⟨F1, x1, _, h1⟩
++  rcases hn1 with ⟨I1, x1, _, hw1, h1⟩ | ⟨F1, x1, _, _, _, h1⟩
+   swap
+   · exact (numIF _ _ h1).elim
+   obtain rfl := numI _ _ h1
+   cases tI
+-  cases I <;> simp [fun_testop_, numtype_Inn]
++  cases I <;> exact ⟨_, by constructor; exact fun_sizenn_sizenn _⟩
+ 
+ /-- Rocq `type_progress.v:1847` `Forall_all`. If every element satisfies the boolean predicate `P`
+     (as a `Forall`), the list passes the boolean `all P`. mathcomp `all P l` ↦ `l.all P`; Rocq's
+@@ -2080,12 +2111,13 @@
+     ∃ x, l = lane_.mk_lane__0 J x ∧ wf_uN (lsize (lanetype_Jnn J)) x := by
+   intro Hw _
+   cases Hw with
+-  | lane__case_0 J' c Hc Heq =>
++  | lane__case_0 J' c n Hn Hc Heq =>
+     have HJ : J' = J := by
+       cases J <;> cases J' <;> first | rfl | (exfalso; simp [lanetype_Jnn] at Heq)
+     subst HJ
++    rw [fun_lsize_eq Hn] at Hc
+     exact ⟨c, rfl, Hc⟩
+-  | lane__case_1 F c Hc Heq =>
++  | lane__case_1 F c n Hn Hc Heq =>
+     exfalso
+     cases F <;> cases J <;> simp [lanetype_Jnn, lanetype_Fnn] at Heq
+ 
+@@ -2095,8 +2127,8 @@
+     wf_lane_ (lanetype_Jnn J) l → proj_lane__0 l ≠ none := by
+   intro Hw
+   cases Hw with
+-  | lane__case_0 J' c Hc Heq => simp [proj_lane__0]
+-  | lane__case_1 F c Hc Heq =>
++  | lane__case_0 J' c n Hn Hc Heq => simp [proj_lane__0]
++  | lane__case_1 F c n Hn Hc Heq =>
+     exfalso
+     cases F <;> cases J <;> simp [lanetype_Jnn, lanetype_Fnn] at Heq
+ 
+@@ -2107,13 +2139,14 @@
+     ∃ x, l = lane_.mk_lane__1 F x ∧ wf_fN (sizenn (numtype_Fnn F)) x := by
+   intro Hw
+   cases Hw with
+-  | lane__case_0 J c Hc Heq =>
++  | lane__case_0 J c n Hn Hc Heq =>
+     exfalso
+     cases F <;> cases J <;> simp [lanetype_Jnn, lanetype_Fnn] at Heq
+-  | lane__case_1 F' c Hc Heq =>
++  | lane__case_1 F' c n Hn Hc Heq =>
+     have HF : F' = F := by
+       cases F <;> cases F' <;> first | rfl | (exfalso; simp [lanetype_Fnn] at Heq)
+     subst HF
++    rw [fun_sizenn_eq Hn] at Hc
+     exact ⟨c, rfl, Hc⟩
+ 
+ /-- Rocq `type_progress.v:1909` `Forall_lane_Jnn`. List version of `wf_lane_Jnn_inv`. -/
+@@ -2133,7 +2166,7 @@
+   intro Hf H l hl
+   obtain ⟨x, hx, hwx⟩ := H l hl
+   subst hx
+-  exact wf_lane_.lane__case_0 _ _ _ (Hf x hwx) rfl
++  exact wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) (Hf x hwx) rfl
+ 
+ /-- Rocq `type_progress.v:1931` `Forall_lane_fop_wf`. Likewise for a (set-valued) float operation
+     `fop` over well-formed `Fnn` lanes: every result lane is well-formed. Rocq's `res_N`
+@@ -2149,7 +2182,7 @@
+   obtain ⟨x, hx, hwx⟩ := wf_lane_Fnn_inv F l (H l hl)
+   subst hx
+   intro r hr
+-  exact wf_lane_.lane__case_1 _ _ _ (Hf x hwx r hr) rfl
++  exact wf_lane_.lane__case_1 _ _ _ _ (fun_sizenn_sizenn _) (Hf x hwx r hr) rfl
+ 
+ /-- Rocq `type_progress.v:1946` `iabs_lane_total`. `fun_iabs_` is total on an in-range `Jnn` lane
+     value, and its result makes a well-formed lane. -/
+@@ -2162,7 +2195,7 @@
+   have Ha : fun_iabs_ (lsizenn (lanetype_Jnn J)) x
+       (if z ≥ (0 : Int) then x else ineg_ (lsizenn (lanetype_Jnn J)) x) :=
+     fun_iabs_.fun_iabs__case_0 _ _ _ Hz
+-  exact ⟨_, Ha, wf_lane_.lane__case_0 _ _ _ (iabs__is_wf _ _ _ _ Ha Hx rfl) rfl⟩
++  exact ⟨_, Ha, wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) (iabs__is_wf _ _ _ _ Ha Hx rfl) rfl⟩
+ 
+ /-- Rocq `type_progress.v:1961` `Forall_iabs_total`. Lane-wise `fun_iabs_` over in-range `Jnn` lanes
+     has results `vs` (`Forall2`-related to the lanes), all making well-formed lanes.
+@@ -2215,18 +2248,20 @@
+       (fun x hx => ineg__is_wf _ x _ hx rfl) Hlx
+     have Hpop := Forall_lane_map_wf J (fun x => ipopcnt_ (lsizenn (lanetype_Jnn J)) x) _
+       (fun x hx => ipopcnt__is_wf _ x _ hx rfl) Hlx
++    have Hsz := fun_lsizenn_lsizenn (lanetype_Jnn J)
+     -- Rocq `destruct J, o; inversion Ho`: only `POPCNT` at `J = I8` is well formed
+     cases J <;> cases o <;> (try (cases Ho; contradiction))
+     -- Rocq `split; [eexists | ]; econstructor; vunop_case ...`: `constructor` picks the matching
+     -- case of `fun_vunop_` (resp. its `before` predicate); each premise is then closed from the
+-    -- lane facts, with `rfl` last so that it only fills the remaining metavariables.
++    -- lane facts or the size witness `Hsz` (the new `fun_lsizenn` premise), with `rfl` last so
++    -- that it only fills the remaining metavariables.
+     all_goals
+       refine ⟨?_, ?_⟩
+       · apply Exists.intro
+         constructor
+-        all_goals first | exact H2b | exact H2a | exact Hsome | exact Hsh | exact Hvw | exact Hneg | exact Hpop | rfl
++        all_goals first | exact H2b | exact H2a | exact Hsome | exact Hsh | exact Hvw | exact Hneg | exact Hpop | exact Hsz | rfl
+       · constructor
+-        all_goals first | exact H2b | exact H2a | exact Hsome | exact Hsh | exact Hvw | exact Hneg | exact Hpop | rfl
++        all_goals first | exact H2b | exact H2a | exact Hsome | exact Hsh | exact Hvw | exact Hneg | exact Hpop | exact Hsz | rfl
+   | vunop__case_1 F M o Hs =>
+     -- float shape: one `Forall_lane_fop_wf` fact per operation (Rocq `vunop_case`, float branch)
+     subst Hs
+@@ -2239,14 +2274,15 @@
+     have Hfloor := Forall_lane_fop_wf F ffloor_ _ (fun x hx => ffloor__is_wf _ x _ hx rfl) Hl'
+     have Htrunc := Forall_lane_fop_wf F ftrunc_ _ (fun x hx => ftrunc__is_wf _ x _ hx rfl) Hl'
+     have Hnearest := Forall_lane_fop_wf F fnearest_ _ (fun x hx => fnearest__is_wf _ x _ hx rfl) Hl'
++    have Hsz := fun_sizenn_sizenn (numtype_Fnn F)
+     cases F <;> cases o
+     all_goals
+       refine ⟨?_, ?_⟩
+       · apply Exists.intro
+         constructor
+-        all_goals first | exact Hsh | exact Habs | exact Hneg | exact Hsqrt | exact Hceil | exact Hfloor | exact Htrunc | exact Hnearest | rfl
++        all_goals first | exact Hsh | exact Habs | exact Hneg | exact Hsqrt | exact Hceil | exact Hfloor | exact Htrunc | exact Hnearest | exact Hsz | rfl
+       · constructor
+-        all_goals first | exact Hsh | exact Habs | exact Hneg | exact Hsqrt | exact Hceil | exact Hfloor | exact Htrunc | exact Hnearest | rfl
++        all_goals first | exact Hsh | exact Habs | exact Hneg | exact Hsqrt | exact Hceil | exact Hfloor | exact Htrunc | exact Hnearest | exact Hsz | rfl
+ 
+ /-- Rocq `type_progress.v:2025` `vunop_total`. `fun_vunop_` relates well-formed arguments to some
+     result (a real case or the catch-all). -/
+@@ -2451,7 +2487,7 @@
+   obtain ⟨h1, h2⟩ := List.of_mem_zip ht
+   obtain ⟨x1, rfl, Hx1⟩ := H1 _ h1
+   obtain ⟨x2, rfl, Hx2⟩ := H2 _ h2
+-  exact wf_lane_.lane__case_0 _ _ _ (Hf _ _ Hx1 Hx2) rfl
++  exact wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) (Hf _ _ Hx1 Hx2) rfl
+ 
+ /-- Rocq `type_progress.v:2207` `zip_flane_wf`. A float-lane operation `fop` that preserves
+     `wf_fN` maps two equal-length lists of well-formed `F`-lanes, lane-wise, to well-formed
+@@ -2470,7 +2506,7 @@
+   obtain ⟨x1, rfl, Hx1⟩ := H1 _ h1
+   obtain ⟨x2, rfl, Hx2⟩ := H2 _ h2
+   intro r hr
+-  exact wf_lane_.lane__case_1 _ _ _ (Hf _ _ Hx1 Hx2 r hr) rfl
++  exact wf_lane_.lane__case_1 _ _ _ _ (fun_sizenn_sizenn _) (Hf _ _ Hx1 Hx2 r hr) rfl
+ 
+ /-- Rocq `type_progress.v:2223` `zip_lane_rel`. Lane-wise application of a total relation `R`
+     whose results satisfy `W`: on equal-length lists of well-formed `J`-lanes there are results
+@@ -2538,108 +2574,115 @@
+       have hz := zip_lane_wf J (lanetype_Jnn J) (fun a b => iadd_ (lsizenn (lanetype_Jnn J)) a b) _ _ rfl
+         (fun a b Ha Hb => iadd__is_wf _ _ _ _ Ha Hb rfl) HL1 HL2 Hsz
+       cases J
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_0 M c1 c2 M _ _ _ rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_1 M c1 c2 M _ _ _ rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_2 M c1 c2 M _ _ _ rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_3 M c1 c2 M _ _ _ rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_0 M c1 c2 M _ _ _ _ (fun_lsizenn_lsizenn _) rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_1 M c1 c2 M _ _ _ _ (fun_lsizenn_lsizenn _) rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_2 M c1 c2 M _ _ _ _ (fun_lsizenn_lsizenn _) rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_3 M c1 c2 M _ _ _ _ (fun_lsizenn_lsizenn _) rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
+     | SUB =>
+       have hz := zip_lane_wf J (lanetype_Jnn J) (fun a b => isub_ (lsizenn (lanetype_Jnn J)) a b) _ _ rfl
+         (fun a b Ha Hb => isub__is_wf _ _ _ _ Ha Hb rfl) HL1 HL2 Hsz
+       cases J
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_4 M c1 c2 M _ _ _ rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_5 M c1 c2 M _ _ _ rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_6 M c1 c2 M _ _ _ rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_7 M c1 c2 M _ _ _ rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_4 M c1 c2 M _ _ _ _ (fun_lsizenn_lsizenn _) rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_5 M c1 c2 M _ _ _ _ (fun_lsizenn_lsizenn _) rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_6 M c1 c2 M _ _ _ _ (fun_lsizenn_lsizenn _) rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_7 M c1 c2 M _ _ _ _ (fun_lsizenn_lsizenn _) rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
+     | ADD_SAT sx =>
+-      have Hle : lsizenn (lanetype_Jnn J) ≤ 16 := by cases Ho; assumption
+-      -- `zip_lane_rel` gives the lane results `vs` (used for both `var_1_lst` and `var_0_lst`)
++      have Hle : lsizenn (lanetype_Jnn J) ≤ 16 := by
++        cases Ho; rename_i hn hb; rwa [fun_lsizenn_eq hn] at hb
++      -- `zip_lane_rel` gives the lane results `vs` (used for both `var_2_lst` and `var_0_lst`)
+       obtain ⟨vs, H3, Hw, Hsv⟩ := zip_lane_rel J
+         (fun a b r => fun_iadd_sat_ (lsizenn (lanetype_Jnn J)) sx a b r)
+         (fun r => wf_uN (lsize (lanetype_Jnn J)) r) _ _
+         (fun a b Ha Hb => iadd_sat_total_wf _ sx a b Ha Hb) HL1 HL2 Hsz
+       have Hw' : Forall (fun v => wf_lane_ (lanetype_Jnn J) (lane_.mk_lane__0 J v)) vs :=
+-        fun v hv => wf_lane_.lane__case_0 _ _ _ (Hw v hv) rfl
++        fun v hv => wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) (Hw v hv) rfl
+       cases J
+       · exact absurd Hle (by decide)
+       · exact absurd Hle (by decide)
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_18 M sx c1 c2 M _ _ _ vs vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
+-          Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hw' rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_19 M sx c1 c2 M _ _ _ vs vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
+-          Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hw' rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_18 M sx c1 c2 M _ _ _ vs _ vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
++          (fun_lsizenn_lsizenn _) Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hsz Hw' rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_19 M sx c1 c2 M _ _ _ vs _ vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
++          (fun_lsizenn_lsizenn _) Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hsz Hw' rfl⟩
+     | SUB_SAT sx =>
+-      have Hle : lsizenn (lanetype_Jnn J) ≤ 16 := by cases Ho; assumption
++      have Hle : lsizenn (lanetype_Jnn J) ≤ 16 := by
++        cases Ho; rename_i hn hb; rwa [fun_lsizenn_eq hn] at hb
+       obtain ⟨vs, H3, Hw, Hsv⟩ := zip_lane_rel J
+         (fun a b r => fun_isub_sat_ (lsizenn (lanetype_Jnn J)) sx a b r)
+         (fun r => wf_uN (lsize (lanetype_Jnn J)) r) _ _
+         (fun a b Ha Hb => isub_sat_total_wf _ sx a b Ha Hb) HL1 HL2 Hsz
+       have Hw' : Forall (fun v => wf_lane_ (lanetype_Jnn J) (lane_.mk_lane__0 J v)) vs :=
+-        fun v hv => wf_lane_.lane__case_0 _ _ _ (Hw v hv) rfl
++        fun v hv => wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) (Hw v hv) rfl
+       cases J
+       · exact absurd Hle (by decide)
+       · exact absurd Hle (by decide)
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_22 M sx c1 c2 M _ _ _ vs vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
+-          Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hw' rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_23 M sx c1 c2 M _ _ _ vs vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
+-          Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hw' rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_22 M sx c1 c2 M _ _ _ vs _ vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
++          (fun_lsizenn_lsizenn _) Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hsz Hw' rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_23 M sx c1 c2 M _ _ _ vs _ vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
++          (fun_lsizenn_lsizenn _) Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hsz Hw' rfl⟩
+     | MUL =>
+-      have Hge : lsizenn (lanetype_Jnn J) ≥ 16 := by cases Ho; assumption
++      have Hge : lsizenn (lanetype_Jnn J) ≥ 16 := by
++        cases Ho; rename_i hn hb; rwa [fun_lsizenn_eq hn] at hb
+       have hz := zip_lane_wf J (lanetype_Jnn J) (fun a b => imul_ (lsizenn (lanetype_Jnn J)) a b) _ _ rfl
+         (fun a b Ha Hb => imul__is_wf _ _ _ _ Ha Hb rfl) HL1 HL2 Hsz
+       cases J
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_24 M c1 c2 M _ _ _ rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_25 M c1 c2 M _ _ _ rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_24 M c1 c2 M _ _ _ _ (fun_lsizenn_lsizenn _) rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_25 M c1 c2 M _ _ _ _ (fun_lsizenn_lsizenn _) rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
+       · exact absurd Hge (by decide)
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_27 M c1 c2 M _ _ _ rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_27 M c1 c2 M _ _ _ _ (fun_lsizenn_lsizenn _) rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
+     | AVGRU =>
+-      have Hle : lsizenn (lanetype_Jnn J) ≤ 16 := by cases Ho; assumption
++      have Hle : lsizenn (lanetype_Jnn J) ≤ 16 := by
++        cases Ho; rename_i hn hb; rwa [fun_lsizenn_eq hn] at hb
+       have hz := zip_lane_wf J (lanetype_Jnn J) (fun a b => iavgr_ (lsizenn (lanetype_Jnn J)) sx.U a b) _ _ rfl
+         (fun a b Ha Hb => iavgr__is_wf _ _ _ _ _ Ha Hb rfl) HL1 HL2 Hsz
+       cases J
+       · exact absurd Hle (by decide)
+       · exact absurd Hle (by decide)
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_30 M c1 c2 M _ _ _ rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_31 M c1 c2 M _ _ _ rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_30 M c1 c2 M _ _ _ _ (fun_lsizenn_lsizenn _) rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_31 M c1 c2 M _ _ _ _ (fun_lsizenn_lsizenn _) rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
+     | Q15MULR_SATS =>
+-      have Heq : lsizenn (lanetype_Jnn J) = 16 := by cases Ho; assumption
++      have Heq : lsizenn (lanetype_Jnn J) = 16 := by
++        cases Ho; rename_i hn hb; rwa [fun_lsizenn_eq hn] at hb
+       have hz := zip_lane_wf J (lanetype_Jnn J) (fun a b => iq15mulr_sat_ (lsizenn (lanetype_Jnn J)) sx.S a b) _ _ rfl
+         (fun a b Ha Hb => iq15mulr_sat__is_wf _ _ _ _ _ Ha Hb rfl) HL1 HL2 Hsz
+       cases J
+       · exact absurd Heq (by decide)
+       · exact absurd Heq (by decide)
+       · exact absurd Heq (by decide)
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_35 M c1 c2 M _ _ _ rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_35 M c1 c2 M _ _ _ _ (fun_lsizenn_lsizenn _) rfl rfl HS1 HS2 rfl Hsh Hsz HS1 HS2 hz rfl⟩
+     | MIN sx =>
+-      have Hle : lsizenn (lanetype_Jnn J) ≤ 32 := by cases Ho; assumption
++      have Hle : lsizenn (lanetype_Jnn J) ≤ 32 := by
++        cases Ho; rename_i hn hb; rwa [fun_lsizenn_eq hn] at hb
+       obtain ⟨vs, H3, Hw, Hsv⟩ := zip_lane_rel J
+         (fun a b r => fun_imin_ (lsizenn (lanetype_Jnn J)) sx a b r)
+         (fun r => wf_uN (lsize (lanetype_Jnn J)) r) _ _
+         (fun a b Ha Hb => imin_total_wf _ sx a b Ha Hb) HL1 HL2 Hsz
+       have Hw' : Forall (fun v => wf_lane_ (lanetype_Jnn J) (lane_.mk_lane__0 J v)) vs :=
+-        fun v hv => wf_lane_.lane__case_0 _ _ _ (Hw v hv) rfl
++        fun v hv => wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) (Hw v hv) rfl
+       cases J
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_8 M sx c1 c2 M _ _ _ vs vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
+-          Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hw' rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_8 M sx c1 c2 M _ _ _ vs _ vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
++          (fun_lsizenn_lsizenn _) Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hsz Hw' rfl⟩
+       · exact absurd Hle (by decide)
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_10 M sx c1 c2 M _ _ _ vs vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
+-          Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hw' rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_11 M sx c1 c2 M _ _ _ vs vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
+-          Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hw' rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_10 M sx c1 c2 M _ _ _ vs _ vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
++          (fun_lsizenn_lsizenn _) Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hsz Hw' rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_11 M sx c1 c2 M _ _ _ vs _ vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
++          (fun_lsizenn_lsizenn _) Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hsz Hw' rfl⟩
+     | MAX sx =>
+-      have Hle : lsizenn (lanetype_Jnn J) ≤ 32 := by cases Ho; assumption
++      have Hle : lsizenn (lanetype_Jnn J) ≤ 32 := by
++        cases Ho; rename_i hn hb; rwa [fun_lsizenn_eq hn] at hb
+       obtain ⟨vs, H3, Hw, Hsv⟩ := zip_lane_rel J
+         (fun a b r => fun_imax_ (lsizenn (lanetype_Jnn J)) sx a b r)
+         (fun r => wf_uN (lsize (lanetype_Jnn J)) r) _ _
+         (fun a b Ha Hb => imax_total_wf _ sx a b Ha Hb) HL1 HL2 Hsz
+       have Hw' : Forall (fun v => wf_lane_ (lanetype_Jnn J) (lane_.mk_lane__0 J v)) vs :=
+-        fun v hv => wf_lane_.lane__case_0 _ _ _ (Hw v hv) rfl
++        fun v hv => wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) (Hw v hv) rfl
+       cases J
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_12 M sx c1 c2 M _ _ _ vs vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
+-          Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hw' rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_12 M sx c1 c2 M _ _ _ vs _ vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
++          (fun_lsizenn_lsizenn _) Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hsz Hw' rfl⟩
+       · exact absurd Hle (by decide)
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_14 M sx c1 c2 M _ _ _ vs vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
+-          Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hw' rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_15 M sx c1 c2 M _ _ _ vs vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
+-          Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hw' rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_14 M sx c1 c2 M _ _ _ vs _ vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
++          (fun_lsizenn_lsizenn _) Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hsz Hw' rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_15 M sx c1 c2 M _ _ _ vs _ vs Hsv (Hsv.trans Hsz) HS1 HS2 H3
++          (fun_lsizenn_lsizenn _) Hsv (Hsv.trans Hsz) HS1 HS2 H3 rfl rfl rfl Hsh Hsz Hw' rfl⟩
+   · -- float shapes: the result list is `v128_lst`, built from `setproduct_` of the lane results
+     rename_i F M o Hs
+     subst Hs
+@@ -2650,43 +2693,43 @@
+     | ADD =>
+       have hz := zip_flane_wf F fadd_ _ _ (fun a b Ha Hb => fadd__is_wf _ _ _ _ Ha Hb rfl) HL1 HL2 Hsz
+       cases F
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_36 M c1 c2 M _ _ _ _ rfl rfl rfl rfl Hsh Hsz hz rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_37 M c1 c2 M _ _ _ _ rfl rfl rfl rfl Hsh Hsz hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_36 M c1 c2 M _ _ _ _ _ (fun_sizenn_sizenn _) rfl rfl rfl rfl Hsh Hsz hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_37 M c1 c2 M _ _ _ _ _ (fun_sizenn_sizenn _) rfl rfl rfl rfl Hsh Hsz hz rfl⟩
+     | SUB =>
+       have hz := zip_flane_wf F fsub_ _ _ (fun a b Ha Hb => fsub__is_wf _ _ _ _ Ha Hb rfl) HL1 HL2 Hsz
+       cases F
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_38 M c1 c2 M _ _ _ _ rfl rfl rfl rfl Hsh Hsz hz rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_39 M c1 c2 M _ _ _ _ rfl rfl rfl rfl Hsh Hsz hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_38 M c1 c2 M _ _ _ _ _ (fun_sizenn_sizenn _) rfl rfl rfl rfl Hsh Hsz hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_39 M c1 c2 M _ _ _ _ _ (fun_sizenn_sizenn _) rfl rfl rfl rfl Hsh Hsz hz rfl⟩
+     | MUL =>
+       have hz := zip_flane_wf F fmul_ _ _ (fun a b Ha Hb => fmul__is_wf _ _ _ _ Ha Hb rfl) HL1 HL2 Hsz
+       cases F
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_40 M c1 c2 M _ _ _ _ rfl rfl rfl rfl Hsh Hsz hz rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_41 M c1 c2 M _ _ _ _ rfl rfl rfl rfl Hsh Hsz hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_40 M c1 c2 M _ _ _ _ _ (fun_sizenn_sizenn _) rfl rfl rfl rfl Hsh Hsz hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_41 M c1 c2 M _ _ _ _ _ (fun_sizenn_sizenn _) rfl rfl rfl rfl Hsh Hsz hz rfl⟩
+     | DIV =>
+       have hz := zip_flane_wf F fdiv_ _ _ (fun a b Ha Hb => fdiv__is_wf _ _ _ _ Ha Hb rfl) HL1 HL2 Hsz
+       cases F
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_42 M c1 c2 M _ _ _ _ rfl rfl rfl rfl Hsh Hsz hz rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_43 M c1 c2 M _ _ _ _ rfl rfl rfl rfl Hsh Hsz hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_42 M c1 c2 M _ _ _ _ _ (fun_sizenn_sizenn _) rfl rfl rfl rfl Hsh Hsz hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_43 M c1 c2 M _ _ _ _ _ (fun_sizenn_sizenn _) rfl rfl rfl rfl Hsh Hsz hz rfl⟩
+     | MIN =>
+       have hz := zip_flane_wf F fmin_ _ _ (fun a b Ha Hb => fmin__is_wf _ _ _ _ Ha Hb rfl) HL1 HL2 Hsz
+       cases F
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_44 M c1 c2 M _ _ _ _ rfl rfl rfl rfl Hsh Hsz hz rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_45 M c1 c2 M _ _ _ _ rfl rfl rfl rfl Hsh Hsz hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_44 M c1 c2 M _ _ _ _ _ (fun_sizenn_sizenn _) rfl rfl rfl rfl Hsh Hsz hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_45 M c1 c2 M _ _ _ _ _ (fun_sizenn_sizenn _) rfl rfl rfl rfl Hsh Hsz hz rfl⟩
+     | MAX =>
+       have hz := zip_flane_wf F fmax_ _ _ (fun a b Ha Hb => fmax__is_wf _ _ _ _ Ha Hb rfl) HL1 HL2 Hsz
+       cases F
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_46 M c1 c2 M _ _ _ _ rfl rfl rfl rfl Hsh Hsz hz rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_47 M c1 c2 M _ _ _ _ rfl rfl rfl rfl Hsh Hsz hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_46 M c1 c2 M _ _ _ _ _ (fun_sizenn_sizenn _) rfl rfl rfl rfl Hsh Hsz hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_47 M c1 c2 M _ _ _ _ _ (fun_sizenn_sizenn _) rfl rfl rfl rfl Hsh Hsz hz rfl⟩
+     | PMIN =>
+       have hz := zip_flane_wf F fpmin_ _ _ (fun a b Ha Hb => fpmin__is_wf _ _ _ _ Ha Hb rfl) HL1 HL2 Hsz
+       cases F
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_48 M c1 c2 M _ _ _ _ rfl rfl rfl rfl Hsh Hsz hz rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_49 M c1 c2 M _ _ _ _ rfl rfl rfl rfl Hsh Hsz hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_48 M c1 c2 M _ _ _ _ _ (fun_sizenn_sizenn _) rfl rfl rfl rfl Hsh Hsz hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_49 M c1 c2 M _ _ _ _ _ (fun_sizenn_sizenn _) rfl rfl rfl rfl Hsh Hsz hz rfl⟩
+     | PMAX =>
+       have hz := zip_flane_wf F fpmax_ _ _ (fun a b Ha Hb => fpmax__is_wf _ _ _ _ Ha Hb rfl) HL1 HL2 Hsz
+       cases F
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_50 M c1 c2 M _ _ _ _ rfl rfl rfl rfl Hsh Hsz hz rfl⟩
+-      · exact ⟨_, fun_vbinop_.fun_vbinop__case_51 M c1 c2 M _ _ _ _ rfl rfl rfl rfl Hsh Hsz hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_50 M c1 c2 M _ _ _ _ _ (fun_sizenn_sizenn _) rfl rfl rfl rfl Hsh Hsz hz rfl⟩
++      · exact ⟨_, fun_vbinop_.fun_vbinop__case_51 M c1 c2 M _ _ _ _ _ (fun_sizenn_sizenn _) rfl rfl rfl rfl Hsh Hsz hz rfl⟩
+ 
+ /-- Rocq `type_progress.v:2320` `mk_uN_eta`. Eta law for `uN`; Rocq's coercion `(u :> N)` is
+     `proj_uN_0 u`. -/
+@@ -2809,6 +2852,8 @@
+     all_goals cases J
+     -- Rocq: `eexists; econstructor`
+     all_goals (apply Exists.intro; constructor)
++    -- Lean-only: the new `fun_lsizenn (lanetype_Jnn J) var_0` premise fixes the lane width
++    all_goals try exact fun_lsizenn_lsizenn _
+     -- the equations defining the lane lists / result (Rocq: `apply: eqxx`)
+     all_goals try (first
+       | exact (rfl : (_ : List lane_) = _)
+@@ -2822,10 +2867,10 @@
+       | exact Forall2_all _ _ _ _ _ (fun _ _ => ieq_bit _ _ _) Hsz
+       | exact Forall2_all _ _ _ _ _ (fun _ _ => ine_bit _ _ _) Hsz
+       | (rw [hMap2]; apply Forall_zipWith; intro a b
+-         exact wf_lane_.lane__case_0 _ _ _ (extend___is_wf _ _ _ _ _ (by first | exact ieq_bit _ _ _ | exact ine_bit _ _ _) rfl) rfl)
++         exact wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) (extend___is_wf _ _ _ _ _ (by first | exact ieq_bit _ _ _ | exact ine_bit _ _ _) rfl) rfl)
+       | (refine Forall_map_P _ _ _ _ _ _ ?_ Hw
+          intro a ha
+-         exact wf_lane_.lane__case_0 _ _ _ (extend___is_wf _ _ _ _ _ ha rfl) rfl))
++         exact wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) (extend___is_wf _ _ _ _ _ ha rfl) rfl))
+   | vrelop__case_1 F M o Hs =>
+     -- float lane shapes
+     subst Hs
+@@ -2837,15 +2882,20 @@
+     cases F
+     all_goals cases o
+     all_goals (apply Exists.intro; constructor)
+-    -- choose `v_Inn` with `isize v_Inn = size F` (Rocq: `exact: (eqxx (isize Inn_I32))`)
++    -- choose the result lane width: `var_1 := isize Inn.I32` (resp. `Inn.I64`) closes
++    -- `var_1 = size F`, then `fun_isize_isize` fixes `v_Inn` (Rocq: `exact: (eqxx (isize Inn_I32))`)
+     all_goals try (first | exact (rfl : isize Inn.I32 = _) | exact (rfl : isize Inn.I64 = _))
++    all_goals try (first | exact fun_isize_isize _ | exact fun_sizenn_sizenn _)
+     all_goals try (first
+       | exact (rfl : (_ : List lane_) = _)
+       | exact (rfl : (_ : List iN) = _)
+       | exact (rfl : (_ : vec_) = _))
+     all_goals try (first
+       | exact HS1 | exact HS2 | exact Hsz | exact Hsh
+-      | (cases Hsh with | shape_case_0 _ _ hd hm => exact wf_shape.shape_case_0 _ _ hd hm)
++      | (cases Hsh with
++         | shape_case_0 _ _ n hn hd hm =>
++           rw [fun_lsize_eq hn] at hm
++           exact wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) hd hm)
+       | exact rfl | decide
+       | exact Forall2_all _ _ _ _ _ (fun _ _ => feq_bit _ _ _) Hsz
+       | exact Forall2_all _ _ _ _ _ (fun _ _ => fne_bit _ _ _) Hsz
+@@ -2854,7 +2904,7 @@
+       | exact Forall2_all _ _ _ _ _ (fun _ _ => fle_bit _ _ _) Hsz
+       | exact Forall2_all _ _ _ _ _ (fun _ _ => fge_bit _ _ _) Hsz
+       | (rw [hMap2]; apply Forall_zipWith; intro a b
+-         exact wf_lane_.lane__case_0 _ _ _ (extend___is_wf _ _ _ _ _ (by first | exact feq_bit _ _ _ | exact fne_bit _ _ _ | exact flt_bit _ _ _ | exact fgt_bit _ _ _ | exact fle_bit _ _ _ | exact fge_bit _ _ _) rfl) rfl))
++         exact wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) (extend___is_wf _ _ _ _ _ (by first | exact feq_bit _ _ _ | exact fne_bit _ _ _ | exact flt_bit _ _ _ | exact fgt_bit _ _ _ | exact fle_bit _ _ _ | exact fge_bit _ _ _) rfl) rfl))
+ 
+ /-- Rocq `type_progress.v:2435` `invsigned_total_32m1`. `fun_inv_signed_ 32` is defined at
+     `-1` (Rocq's `(0 - 1)%Z`, kept literally as `(0 : Int) - 1`). -/
+@@ -2869,38 +2919,138 @@
+   intro H x hx
+   exact H x (List.mem_of_mem_drop (List.mem_of_mem_take hx))
+ 
+-/-- Rocq `type_progress.v:2451` `mem_bytes_wf`. The bytes of any entry `ms[k]!` (Rocq
+-    `ms [| k |]`, default-valued out of range) of a list of well-formed memory instances are
+-    well-formed bytes. -/
+-theorem mem_bytes_wf (ms : List meminst) (k : N) :
++/-- Rocq `type_progress.v:2451` `mem_bytes_wf`. The bytes of an entry `ms[k]!` of a list of
++    well-formed memory instances are well-formed bytes. **Deviation:** extra premise
++    `hk : k < ms.length`. Rocq's `ms [| k |]` is default-valued out of range, and Rocq proves that
++    case from the default `meminst` (empty `BYTES`); requiring the bound keeps this proof
++    independent of the `Inhabited meminst` instance. -/
++theorem mem_bytes_wf (ms : List meminst) (k : N) (hk : k < ms.length) :
+     Forall wf_meminst ms → Forall wf_byte ((ms[k]!).BYTES) := by
+   intro Hall
+-  by_cases E : k < ms.length
+-  · have H : wf_meminst (ms[k]!) := by
+-      rw [getElem!_pos ms k E]
+-      exact Hall _ (List.getElem_mem E)
+-    generalize ms[k]! = m at H ⊢
+-    cases H with
+-    | meminst_case_ _ _ _ h => exact h
+-  · rw [getElem!_neg ms k E]
+-    have hd : (default : meminst).BYTES = [] := rfl
+-    rw [hd]
+-    intro b hb
+-    simp at hb
++  have H : wf_meminst (ms[k]!) := by
++    rw [getElem!_pos ms k hk]
++    exact Hall _ (List.getElem_mem hk)
++  generalize ms[k]! = m at H ⊢
++  cases H with
++  | meminst_case_ _ _ _ h => exact h
++
++/-! ### Lean-only: index bounds for the state lookups
++
++With `sideconditions_on_defs`, the state lookups `fun_global`, `fun_table`, `fun_mem`, `fun_elem`,
++`fun_data` and `fun_type` are relations whose premises bound the index into the module instance
++and (except for `fun_type`) the address into the store; the updates `fun_with_*` need the first
++bound too. Progress has to supply those premises. `Moduleinst_ok` provides both: the instance's
++address lists have the context's lengths (`Moduleinst_ok_lengths`), and every address in them is
++in bounds for the store (`minst_invert_*`). The `*_addr` lemmas combine the two, and the
++`fun_*_typed` lemmas build the lookup from a typed index. -/
++
++/-- Lean-only. The `i`-th global address of a typed module instance exists and is in bounds. -/
++theorem Moduleinst_ok_global_addr (s : store) (minst : moduleinst) (C : context) (i : Nat)
++    (h : Moduleinst_ok s minst C) (hi : i < C.GLOBALS.length) :
++    i < minst.GLOBALS.length ∧ minst.GLOBALS[i]! < s.GLOBALS.length := by
++  have hi' : i < minst.GLOBALS.length := (Moduleinst_ok_lengths s minst C h).1 ▸ hi
++  obtain ⟨_, _, hb, _⟩ := minst_invert_globals s minst C C h ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩ _
++    (mem_zip_getElem! _ _ i hi' hi)
++  exact ⟨hi', hb⟩
++
++/-- Lean-only. The `i`-th memory address of a typed module instance exists and is in bounds. -/
++theorem Moduleinst_ok_mem_addr (s : store) (minst : moduleinst) (C : context) (i : Nat)
++    (h : Moduleinst_ok s minst C) (hi : i < C.MEMS.length) :
++    i < minst.MEMS.length ∧ minst.MEMS[i]! < s.MEMS.length := by
++  have hi' : i < minst.MEMS.length := (Moduleinst_ok_lengths s minst C h).2.2.1 ▸ hi
++  obtain ⟨_, _, hb, _⟩ := minst_invert_mems s minst C C h ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩ _
++    (mem_zip_getElem! _ _ i hi' hi)
++  exact ⟨hi', hb⟩
++
++/-- Lean-only. The `i`-th table address of a typed module instance exists and is in bounds. -/
++theorem Moduleinst_ok_table_addr (s : store) (minst : moduleinst) (C : context) (i : Nat)
++    (h : Moduleinst_ok s minst C) (hi : i < C.TABLES.length) :
++    i < minst.TABLES.length ∧ minst.TABLES[i]! < s.TABLES.length := by
++  have hi' : i < minst.TABLES.length := (Moduleinst_ok_lengths s minst C h).2.2.2.1 ▸ hi
++  obtain ⟨_, _, hb, _⟩ := minst_invert_tables s minst C C h ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩ _
++    (mem_zip_getElem! _ _ i hi' hi)
++  exact ⟨hi', hb⟩
++
++/-- Lean-only. The `i`-th data address of a typed module instance exists and is in bounds. -/
++theorem Moduleinst_ok_data_addr (s : store) (minst : moduleinst) (C : context) (i : Nat)
++    (h : Moduleinst_ok s minst C) (hi : i < C.DATAS.length) :
++    i < minst.DATAS.length ∧ minst.DATAS[i]! < s.DATAS.length := by
++  have hi' : i < minst.DATAS.length := (Moduleinst_ok_lengths s minst C h).2.2.2.2.1 ▸ hi
++  obtain ⟨_, hb, _⟩ := (minst_invert_datas s minst C C h ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩).2
++    minst.DATAS[i]! (by rw [getElem!_pos _ i hi']; exact List.getElem_mem hi')
++  exact ⟨hi', hb⟩
++
++/-- Lean-only. The `i`-th element-segment address of a typed module instance exists and is in
++    bounds. -/
++theorem Moduleinst_ok_elem_addr (s : store) (minst : moduleinst) (C : context) (i : Nat)
++    (h : Moduleinst_ok s minst C) (hi : i < C.ELEMS.length) :
++    i < minst.ELEMS.length ∧ minst.ELEMS[i]! < s.ELEMS.length := by
++  have hi' : i < minst.ELEMS.length := (Moduleinst_ok_lengths s minst C h).2.2.2.2.2 ▸ hi
++  obtain ⟨_, hb, _⟩ := minst_invert_elems s minst C C h ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩ _
++    (mem_zip_getElem! _ _ i hi' hi)
++  exact ⟨hi', hb⟩
++
++/-- Lean-only. `fun_global` at an index typed by the frame's module context. -/
++theorem fun_global_typed (s : store) (f : frame) (C : context) (x : uN)
++    (h : Moduleinst_ok s f.MODULE C) (hx : proj_uN_0 x < C.GLOBALS.length) :
++    fun_global (state.mk_state s f) x (s.GLOBALS[f.MODULE.GLOBALS[proj_uN_0 x]!]!) :=
++  fun_global.fun_global_case_0 s f x (Moduleinst_ok_global_addr s f.MODULE C _ h hx).2
++    (Moduleinst_ok_global_addr s f.MODULE C _ h hx).1
++
++/-- Lean-only. `fun_mem` at an index typed by the frame's module context. -/
++theorem fun_mem_typed (s : store) (f : frame) (C : context) (x : uN)
++    (h : Moduleinst_ok s f.MODULE C) (hx : proj_uN_0 x < C.MEMS.length) :
++    fun_mem (state.mk_state s f) x (s.MEMS[f.MODULE.MEMS[proj_uN_0 x]!]!) :=
++  fun_mem.fun_mem_case_0 s f x (Moduleinst_ok_mem_addr s f.MODULE C _ h hx).2
++    (Moduleinst_ok_mem_addr s f.MODULE C _ h hx).1
++
++/-- Lean-only. `fun_table` at an index typed by the frame's module context. -/
++theorem fun_table_typed (s : store) (f : frame) (C : context) (x : uN)
++    (h : Moduleinst_ok s f.MODULE C) (hx : proj_uN_0 x < C.TABLES.length) :
++    fun_table (state.mk_state s f) x (s.TABLES[f.MODULE.TABLES[proj_uN_0 x]!]!) :=
++  fun_table.fun_table_case_0 s f x (Moduleinst_ok_table_addr s f.MODULE C _ h hx).2
++    (Moduleinst_ok_table_addr s f.MODULE C _ h hx).1
++
++/-- Lean-only. `fun_data` at an index typed by the frame's module context. -/
++theorem fun_data_typed (s : store) (f : frame) (C : context) (x : uN)
++    (h : Moduleinst_ok s f.MODULE C) (hx : proj_uN_0 x < C.DATAS.length) :
++    fun_data (state.mk_state s f) x (s.DATAS[f.MODULE.DATAS[proj_uN_0 x]!]!) :=
++  fun_data.fun_data_case_0 s f x (Moduleinst_ok_data_addr s f.MODULE C _ h hx).2
++    (Moduleinst_ok_data_addr s f.MODULE C _ h hx).1
++
++/-- Lean-only. `fun_elem` at an index typed by the frame's module context. -/
++theorem fun_elem_typed (s : store) (f : frame) (C : context) (x : uN)
++    (h : Moduleinst_ok s f.MODULE C) (hx : proj_uN_0 x < C.ELEMS.length) :
++    fun_elem (state.mk_state s f) x (s.ELEMS[f.MODULE.ELEMS[proj_uN_0 x]!]!) :=
++  fun_elem.fun_elem_case_0 s f x (Moduleinst_ok_elem_addr s f.MODULE C _ h hx).2
++    (Moduleinst_ok_elem_addr s f.MODULE C _ h hx).1
++
++/-- Lean-only. `fun_type` at an index typed by the frame's module context. -/
++theorem fun_type_typed (s : store) (f : frame) (C : context) (x : uN)
++    (h : Moduleinst_ok s f.MODULE C) (hx : proj_uN_0 x < C.TYPES.length) :
++    fun_type (state.mk_state s f) x (f.MODULE.TYPES[proj_uN_0 x]!) := by
++  refine fun_type.fun_type_case_0 s f x ?_
++  exact minst_invert_functypes s f.MODULE C C h ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩ ▸ hx
+ 
+ /-- Rocq `type_progress.v:2464` `wf_config_mem_bytes`. In a well-formed configuration, the bytes
+-    of the memory `fun_mem (state.mk_state s f) x` are well-formed. -/
+-theorem wf_config_mem_bytes (s : store) (f : frame) (ais : List admininstr) (x : memidx) :
++    of a memory found by `fun_mem` are well-formed. **Deviation:** Rocq concludes about
++    `BYTES (fun_mem (mk_state s f) x)`; `fun_mem` is a relation here (`sideconditions_on_defs`),
++    so the lemma takes its witness `fun_mem (state.mk_state s f) x mi` and concludes for `mi`. -/
++theorem wf_config_mem_bytes (s : store) (f : frame) (ais : List admininstr) (x : memidx)
++    (mi : meminst) :
+     wf_config (config.mk_config (state.mk_state s f) ais) →
+-    Forall wf_byte ((fun_mem (state.mk_state s f) x).BYTES) := by
+-  intro H
++    fun_mem (state.mk_state s f) x mi →
++    Forall wf_byte mi.BYTES := by
++  intro H hm
++  obtain ⟨_, hlt, he⟩ := fun_mem_inv hm
++  rw [he]
+   cases H with
+   | config_case_0 _ _ hs _ =>
+     cases hs with
+     | state_case_0 _ _ hst _ =>
+       cases hst with
+       | store_case_ _ _ _ _ _ _ _ _ _ h _ =>
+-        exact mem_bytes_wf _ _ h
++        exact mem_bytes_wf _ _ hlt h
+ 
+ /-- Rocq `type_progress.v:2479` `all_and_Forall`. A boolean `all` over a conjunction splits into
+     two `Forall`s. Rocq's mathcomp `all` is `List.all`; bool-to-Prop coercions (`is_true`) are
+@@ -2956,9 +3106,13 @@
+     lanes, an in-range lane index and an `I32` address always steps. Rocq's premise
+     `Qeq_bool (M : Q) ((128%num : Q) / ((jsize J) : Q))%Q = true` (decidable `Qeq`) is stated as
+     `=` on Lean's normalized `Rat`, exactly as the generated `Step.vstore_lane_val` renders the same
+-    spectec premise; `(laneidx :> N)` is `proj_uN_0 laneidx`. -/
++    spectec premise; `(laneidx :> N)` is `proj_uN_0 laneidx`. The first premise (the frame's
++    module has a memory `0`) is Lean-only: since `sideconditions_on_defs` the memory update is
++    the relation `fun_with_mem`, whose constructor requires it (Rocq's `with_mem` is a
++    function). -/
+ theorem vstore_lane_progress (s : store) (f : frame) (n1 : N) (memarg : memarg) (laneidx : laneidx)
+     (c1 : vec_) (J : Jnn) (M : N) :
++    0 < f.MODULE.MEMS.length →
+     wf_uN 128 c1 →
+     wf_shape (shape.X (lanetype_Jnn J) (dim.mk_dim M)) →
+     proj_uN_0 laneidx < M →
+@@ -2969,13 +3123,14 @@
+          admininstr.VCONST vectype.V128 c1,
+          admininstr.VSTORE_LANE vectype.V128 (sz.mk_sz (jsize J)) memarg laneidx])
+       (config.mk_config (state.mk_state s' f') es') := by
+-  intro Hc Hsh Hk HM
++  intro Hmems Hc Hsh Hk HM
+   have Hl := lanes_nth_wf _ _ _ _ Hsh Hc Hk
+   obtain ⟨x, Hx, Hwx⟩ := wf_lane_Jnn_inv J _ Hl (wf_lane_Jnn_some J _ Hl)
+-  refine ⟨_, _, _, Step.vstore_lane_val (state.mk_state s f) _ c1 (jsize J) memarg laneidx _ J M ?_ rfl HM ?_ ?_ rfl ?_⟩
++  refine ⟨_, _, _, Step.vstore_lane_val (state.mk_state s f) _ c1 (jsize J) memarg laneidx _ J M _ _
++    (fun_jsize_jsize J) ?_ (fun_with_mem.fun_with_mem_case_0 s f _ _ _ _ Hmems) rfl HM ?_ ?_ rfl ?_⟩
+   · simp [proj_num__0]
+-  · rw [Hx]; simp [proj_lane__0]
+   · rw [lanes_len]; exact Hk
++  · rw [Hx]; simp [proj_lane__0]
+   · rw [Hx]; exact Hwx
+ 
+ /-- Rocq `type_progress.v:2544` `Forall2_map_l`. `Forall₂ R (map f l) l` from a pointwise fact.
+@@ -3008,7 +3163,7 @@
+       cases x with
+       | mk_uN k => exact ⟨k, Heqv, Hx⟩
+     | I64 => cases Hnt
+-  | num__case_1 F x Hx Hnt => cases F <;> cases Hnt
++  | num__case_1 F x _ _ _ Hnt => cases F <;> cases Hnt
+ 
+ /-- Rocq `type_progress.v:2561` `size_list_repeat`. `list_repeat x n` (Lean `List.replicate n x`)
+     has length `n`. In Lean this is core `List.length_replicate`; kept by name for the 1-1 port. -/
+@@ -3054,7 +3209,7 @@
+         subst Hlt
+         refine ⟨J, M, rfl, Hs, ?_⟩
+         cases Hs with
+-        | shape_case_0 _ _ Hd _ => exact wf_dim_le16 M Hd
++        | shape_case_0 _ _ _ _ Hd _ => exact wf_dim_le16 M Hd
+ 
+ /-- Rocq `type_progress.v:2597` `holds_upto_intro`. Introduction rule for `holds_upto`
+     (`TLC.holds_upto`, ExtensionLemmas.lean:56, = `Forall P (List.range n)`, Rocq
+@@ -3235,7 +3390,7 @@
+   have h := List.of_mem_zip ht
+   obtain ⟨x1, rfl, Hx1⟩ := H1 a h.1
+   obtain ⟨x2, rfl, Hx2⟩ := H2 b h.2
+-  exact wf_lane_.lane__case_0 lt Jo _ (Hf x1 x2 Hx1 Hx2) hlt
++  exact wf_lane_.lane__case_0 lt Jo _ _ (fun_lsize_lsize _) (Hf x1 x2 Hx1 Hx2) hlt
+ 
+ /-- Rocq `type_progress.v:2694` `zip_wf`. If `P (f a b)` holds for all well-formed `J` lanes `a`,
+     `b`, then `P` holds of every element of `List.zipWith f L1 L2` (Rocq `list_zipWith`, which
+@@ -3288,8 +3443,8 @@
+   intro HNone
+   by_cases h : Step_read_before_call_indirect_trap (config.mk_config (state.mk_state s f) [admininstr.CONST numtype.I32 v_i, admininstr.CALL_INDIRECT x y])
+   · cases h with
+-    | call_indirect_call_0 _ _ _ _ a h1 h2 h3 h4 h5 =>
+-      exact ⟨[admininstr.CALL_ADDR a], Step.read _ _ _ (Step_read.call_indirect_call _ _ _ _ _ h1 h2 h3 h4 h5)⟩
++    | call_indirect_call_0 _ _ _ _ a ft ti h1 h2 h3 h4 h5 h6 h7 =>
++      exact ⟨[admininstr.CALL_ADDR a], Step.read _ _ _ (Step_read.call_indirect_call _ _ _ _ a ft ti h1 h2 h3 h4 h5 h6 h7)⟩
+   · exact ⟨[admininstr.TRAP], Step.read _ _ _ (Step_read.call_indirect_trap _ _ _ _ h)⟩
+ 
+ -- Rocq's former `vcvtop_trunc_sat_i16` (`type_progress.v:2811` at revision `95c256c2c`), which
+@@ -3317,14 +3472,14 @@
+       ∃ c, c0 = lane_.mk_lane__0 J1 c := by
+     intro J1 c0 h
+     cases h with
+-    | lane__case_0 J c _ Heq => exact ⟨c, by rw [inj _ _ Heq]⟩
+-    | lane__case_1 F c _ Heq => exact absurd Heq (hJF _ _)
++    | lane__case_0 J c _ _ _ Heq => exact ⟨c, by rw [inj _ _ Heq]⟩
++    | lane__case_1 F c _ _ _ Heq => exact absurd Heq (hJF _ _)
+   have lF : ∀ (F1 : Fnn) (c0 : lane_), wf_lane_ (lanetype_Fnn F1) c0 →
+       ∃ c, c0 = lane_.mk_lane__1 F1 c := by
+     intro F1 c0 h
+     cases h with
+-    | lane__case_0 J c _ Heq => exact absurd Heq.symm (hJF _ _)
+-    | lane__case_1 F c _ Heq => exact ⟨c, by rw [injF _ _ Heq]⟩
++    | lane__case_0 J c _ _ _ Heq => exact absurd Heq.symm (hJF _ _)
++    | lane__case_1 F c _ _ _ Heq => exact ⟨c, by rw [injF _ _ Heq]⟩
+   have key : ∀ (f : iN → lane_) (o : Option iN), o ≠ none → list_ lane_ (OMap f o) ≠ [] := by
+     intro f o ho
+     cases o with
+@@ -3340,58 +3495,78 @@
+     cases o with
+     | EXTEND h sx =>
+       cases Ho with
+-      | vcvtop__Jnn_1_M_1_Jnn_2_M_2_case_0 _ _ hs =>
++      | vcvtop__Jnn_1_M_1_Jnn_2_M_2_case_0 _ _ n1 n0 hn1 hn0 hs =>
++        obtain rfl := fun_lsizenn1_eq hn1
++        obtain rfl := fun_lsizenn2_eq hn0
+         cases J1 <;> cases J2 <;>
+         first
+         | exact absurd hs (by decide)
+-        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_14 _ _ _ _ _ _ _ _ rfl rfl rfl, List.cons_ne_nil _ _⟩
+-        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_3 _ _ _ _ _ _ _ _ rfl rfl rfl, List.cons_ne_nil _ _⟩
+-        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_4 _ _ _ _ _ _ _ _ rfl rfl rfl, List.cons_ne_nil _ _⟩
++        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_14 _ _ _ _ _ _ _ _ _ _ (fun_lsizenn2_lsizenn2 _)
++            (fun_lsizenn1_lsizenn1 _) rfl rfl rfl, List.cons_ne_nil _ _⟩
++        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_3 _ _ _ _ _ _ _ _ _ _ (fun_lsizenn2_lsizenn2 _)
++            (fun_lsizenn1_lsizenn1 _) rfl rfl rfl, List.cons_ne_nil _ _⟩
++        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_4 _ _ _ _ _ _ _ _ _ _ (fun_lsizenn2_lsizenn2 _)
++            (fun_lsizenn1_lsizenn1 _) rfl rfl rfl, List.cons_ne_nil _ _⟩
+   | vcvtop___case_1 J1 M1 F2 M2 o Ho E1 E2 =>
+     subst E1 E2
+     obtain ⟨c, rfl⟩ := lJ J1 ci Hl
+     cases o with
+     | CONVERT ho sx =>
+       cases Ho with
+-      | vcvtop__Jnn_1_M_1_Fnn_2_M_2_case_0 _ _ hs =>
++      | vcvtop__Jnn_1_M_1_Fnn_2_M_2_case_0 _ _ n1 n0 hn1 hn0 hs =>
++        obtain rfl := fun_lsizenn1_eq hn1
++        cases hn0
+         rcases hs with ⟨⟨h1, h2⟩, _⟩ | ⟨h1, _⟩ <;> cases J1 <;> cases F2 <;>
+         first
+         | exact absurd h1 (by decide)
+         | exact absurd h2 (by decide)
+-        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_16 _ _ _ _ _ _ _ _ rfl rfl rfl, List.cons_ne_nil _ _⟩
+-        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_19 _ _ _ _ _ _ _ _ rfl rfl rfl, List.cons_ne_nil _ _⟩
+-        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_20 _ _ _ _ _ _ _ _ rfl rfl rfl, List.cons_ne_nil _ _⟩
++        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_16 _ _ _ _ _ _ _ _ _ _ (fun_lsizenn2_lsizenn2 _)
++            (fun_lsizenn1_lsizenn1 _) rfl rfl rfl, List.cons_ne_nil _ _⟩
++        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_19 _ _ _ _ _ _ _ _ _ _ (fun_lsizenn2_lsizenn2 _)
++            (fun_lsizenn1_lsizenn1 _) rfl rfl rfl, List.cons_ne_nil _ _⟩
++        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_20 _ _ _ _ _ _ _ _ _ _ (fun_lsizenn2_lsizenn2 _)
++            (fun_lsizenn1_lsizenn1 _) rfl rfl rfl, List.cons_ne_nil _ _⟩
+   | vcvtop___case_2 F1 M1 J2 M2 o Ho E1 E2 =>
+     subst E1 E2
+     obtain ⟨c, rfl⟩ := lF F1 ci Hl
+     cases o with
+     | TRUNC_SAT sx zo =>
+       cases Ho with
+-      | vcvtop__Fnn_1_M_1_Inn_2_M_2_case_0 _ _ hs =>
++      | vcvtop__Fnn_1_M_1_Inn_2_M_2_case_0 _ _ n1 n0 hn1 hn0 hs =>
++        obtain rfl := fun_lsizenn2_eq hn1
++        obtain rfl := fun_sizenn1_eq hn0
+         rcases hs with ⟨⟨h1, h2⟩, _⟩ | ⟨h1, _⟩ <;> cases F1 <;> cases J2 <;>
+         first
+         | exact absurd h1 (by decide)
+         | exact absurd h2 (by decide)
+-        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_24 _ _ _ _ _ _ _ _ rfl rfl rfl, key _ _ (trunc_sat_total _ _ _ _)⟩
+-        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_25 _ _ _ _ _ _ _ _ rfl rfl rfl, key _ _ (trunc_sat_total _ _ _ _)⟩
++        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_24 _ _ _ _ _ _ _ _ _ _ (fun_lsizenn2_lsizenn2 _)
++            (fun_lsizenn1_lsizenn1 _) rfl rfl rfl, key _ _ (trunc_sat_total _ _ _ _)⟩
++        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_25 _ _ _ _ _ _ _ _ _ _ (fun_lsizenn2_lsizenn2 _)
++            (fun_lsizenn1_lsizenn1 _) rfl rfl rfl, key _ _ (trunc_sat_total _ _ _ _)⟩
+   | vcvtop___case_3 F1 M1 F2 M2 o Ho E1 E2 =>
+     subst E1 E2
+     obtain ⟨c, rfl⟩ := lF F1 ci Hl
+     cases o with
+     | DEMOTE z =>
+       cases Ho with
+-      | vcvtop__Fnn_1_M_1_Fnn_2_M_2_case_0 _ hs =>
++      | vcvtop__Fnn_1_M_1_Fnn_2_M_2_case_0 _ n1 n0 hn1 hn0 hs =>
++        cases hn1
++        obtain rfl := fun_sizenn1_eq hn0
+         cases F1 <;> cases F2 <;>
+         first
+         | exact absurd hs (by decide)
+-        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_29 _ _ _ _ _ _ rfl rfl rfl, keyL _ _ (demote_nonempty _ _ _)⟩
++        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_29 _ _ _ _ _ _ _ _ (fun_lsizenn2_lsizenn2 _)
++            (fun_lsizenn1_lsizenn1 _) rfl rfl rfl, keyL _ _ (demote_nonempty _ _ _)⟩
+     | PROMOTELOW =>
+       cases Ho with
+-      | vcvtop__Fnn_1_M_1_Fnn_2_M_2_case_1 hs =>
++      | vcvtop__Fnn_1_M_1_Fnn_2_M_2_case_1 n1 n0 hn1 hn0 hs =>
++        cases hn1
++        obtain rfl := fun_sizenn1_eq hn0
+         cases F1 <;> cases F2 <;>
+         first
+         | exact absurd hs (by decide)
+-        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_34 _ _ _ _ _ _ rfl rfl rfl, keyL _ _ (promote_nonempty _ _ _)⟩
++        | exact ⟨_, fun_lcvtop__.fun_lcvtop___case_34 _ _ _ _ _ _ _ _ (fun_lsizenn2_lsizenn2 _)
++            (fun_lsizenn1_lsizenn1 _) rfl rfl rfl, keyL _ _ (promote_nonempty _ _ _)⟩
+ 
+ /-- Rocq `type_progress.v:2832` `vcvtop_lanes_total`. The lane-wise results of a conversion over
+     a list of well-formed lanes: all defined, non-empty, and
+@@ -3592,14 +3767,22 @@
+     cases Hx <;> (cases F1 <;> cases F2 <;> constructor <;> rfl)
+ 
+ /-- Rocq `type_progress.v:2941` `zero_lane_wf`. Packing the zero of a number type into a lane
+-    succeeds and gives a well-formed lane. Rocq's `!(x)` (`the x`) is `Option.get! x`. -/
++    succeeds and gives a well-formed lane. Rocq's `!(x)` (`the x`) is `Option.get! x`. (`fun_zero`
++    is a relation since `sideconditions_on_defs`, so the lemma now also provides the zero: some
++    `z` with `fun_zero nt z`; it used to be stated for the function application `fun_zero nt`.) -/
+ theorem zero_lane_wf (nt : numtype) :
+-    packnum_ (lanetype_numtype nt) (fun_zero nt) ≠ none ∧
+-    wf_lane_ (lanetype_numtype nt) (Option.get! (packnum_ (lanetype_numtype nt) (fun_zero nt))) := by
+-  have Hz : wf_num_ (unpack (lanetype_numtype nt)) (fun_zero nt) := by
+-    cases nt <;> exact zero_is_wf _ _ rfl
+-  have Hp := packnum_not_none _ _ Hz
+-  exact ⟨Hp, packnum__is_wf _ _ _ Hz Hp rfl⟩
++    ∃ z, fun_zero nt z ∧ packnum_ (lanetype_numtype nt) z ≠ none ∧
++      wf_lane_ (lanetype_numtype nt) (Option.get! (packnum_ (lanetype_numtype nt) z)) := by
++  obtain ⟨z, Hz⟩ : ∃ z, fun_zero nt z := by
++    cases nt
++    · exact ⟨_, fun_zero.fun_zero_case_0⟩
++    · exact ⟨_, fun_zero.fun_zero_case_1⟩
++    · exact ⟨_, fun_zero.fun_zero_case_2 _ (by decide) fun_fzero_32⟩
++    · exact ⟨_, fun_zero.fun_zero_case_3 _ (by decide) fun_fzero_64⟩
++  have Hw : wf_num_ (unpack (lanetype_numtype nt)) z := by
++    cases nt <;> exact zero_is_wf _ _ _ Hz rfl
++  have Hp := packnum_not_none _ _ Hw
++  exact ⟨z, Hz, Hp, packnum__is_wf _ _ _ Hw Hp rfl⟩
+ 
+ /-- Rocq `type_progress.v:2951` `vcvtop_step_full`. A well-formed `VCVTOP` with neither half nor
+     zero on a `V128` constant steps to a `V128` constant. -/
+@@ -3658,17 +3841,12 @@
+   intro Hc Hs1 Hs2 Hop Hz
+   have Hl := lanes__is_wf _ _ _ Hs1 Hc rfl
+   obtain ⟨vs, H2, Hn, Hne0, Hne, Hw⟩ := vcvtop_lanes_total _ _ _ _ Hs1 Hs2 Hop Hl
+-  obtain ⟨Hpz, Hwz⟩ := zero_lane_wf nt2
++  obtain ⟨z, Hfz, Hpz, Hwz⟩ := zero_lane_wf nt2
+   have Hu : ∀ nt : numtype, unpack (lanetype_numtype nt) = nt := by
+     intro nt; cases nt <;> rfl
+-  have Hpz' : packnum_ (lanetype_numtype nt2) (fun_zero (unpack (lanetype_numtype nt2))) ≠ none := by
+-    rw [Hu nt2]; exact Hpz
+-  have Hwz' : wf_lane_ (lanetype_numtype nt2)
+-      (Option.get! (packnum_ (lanetype_numtype nt2) (fun_zero (unpack (lanetype_numtype nt2))))) := by
+-    rw [Hu nt2]; exact Hwz
+   have Hne' : Forall (fun l => l ≠ [])
+       (List.map (fun v => Option.get! v) vs ++
+-        List.replicate M1 [Option.get! (packnum_ (lanetype_numtype nt2) (fun_zero (unpack (lanetype_numtype nt2))))]) := by
++        List.replicate M1 [Option.get! (packnum_ (lanetype_numtype nt2) z)]) := by
+     intro l hl
+     rcases List.mem_append.mp hl with hl | hl
+     · exact Hne l hl
+@@ -3676,7 +3854,7 @@
+       exact List.cons_ne_nil _ _
+   have Hw' : Forall (Forall (wf_lane_ (lanetype_numtype nt2)))
+       (List.map (fun v => Option.get! v) vs ++
+-        List.replicate M1 [Option.get! (packnum_ (lanetype_numtype nt2) (fun_zero (unpack (lanetype_numtype nt2))))]) := by
++        List.replicate M1 [Option.get! (packnum_ (lanetype_numtype nt2) z)]) := by
+     intro l hl
+     rcases List.mem_append.mp hl with hl | hl
+     · exact Hw l hl
+@@ -3684,13 +3862,14 @@
+       intro t ht
+       rw [List.mem_singleton] at ht
+       subst ht
+-      exact Hwz'
++      exact Hwz
+   obtain ⟨c, Hgt, Hin, Hsw⟩ := setproduct_pick (lanetype_numtype nt2) M2 _ Hne' Hw'
+   have Hzero := zeroop_total _ _ _ Hop
+   rw [Hz] at Hzero
+   refine ⟨c, Step_pure.vcvtop c1 _ _ op c (some c) ?_ (by simp) rfl⟩
+-  exact fun_vcvtop__.fun_vcvtop___case_2 (lanetype_numtype nt1) M1 (lanetype_numtype nt2) M2 op c1 c _ _ vs
+-    (some (some zero.ZERO)) Hn H2 Hzero (by simp) rfl rfl Hne0 Hpz' rfl Hgt (List.elem_eq_true_of_mem Hin) Hs1 Hs2
++  exact fun_vcvtop__.fun_vcvtop___case_2 (lanetype_numtype nt1) M1 (lanetype_numtype nt2) M2 op c1 c _ _ z vs
++    (some (some zero.ZERO)) (by rw [Hu]; exact Hfz) Hn H2 Hzero (by simp) rfl rfl Hne0 Hpz rfl Hgt
++    (List.elem_eq_true_of_mem Hin) Hs1 Hs2
+ 
+ -- Ltac `vcvtop_cases_full` (type_progress.v:3028) NOT PORTED: proof automation; the Lean proofs do
+ -- this inline.
+@@ -3714,7 +3893,9 @@
+     obtain ⟨rfl, rfl⟩ := E1
+     obtain ⟨rfl, rfl⟩ := E2
+     cases Hx with
+-    | vcvtop__Fnn_1_M_1_Inn_2_M_2_case_0 sx zo hcond =>
++    | vcvtop__Fnn_1_M_1_Inn_2_M_2_case_0 sx zo n1 n0 hn1 hn0 hcond =>
++      obtain rfl := fun_lsizenn2_eq hn1
++      obtain rfl := fun_sizenn1_eq hn0
+       simp only [zeroop_of] at Hz
+       subst Hz
+       cases z
+@@ -3726,11 +3907,13 @@
+     obtain ⟨rfl, rfl⟩ := E1
+     obtain ⟨rfl, rfl⟩ := E2
+     cases Hx with
+-    | vcvtop__Fnn_1_M_1_Fnn_2_M_2_case_0 z' hcond =>
++    | vcvtop__Fnn_1_M_1_Fnn_2_M_2_case_0 z' n1 n0 hn1 hn0 hcond =>
++      cases hn1
++      obtain rfl := fun_sizenn1_eq hn0
+       cases F1 <;> cases F2 <;> first
+         | (exfalso; revert hcond; decide)
+         | exact ⟨numtype.F64, numtype.F32, rfl, rfl⟩
+-    | vcvtop__Fnn_1_M_1_Fnn_2_M_2_case_1 hcond =>
++    | vcvtop__Fnn_1_M_1_Fnn_2_M_2_case_1 n1 n0 hn1 hn0 hcond =>
+       exact absurd Hz (by simp [zeroop_of])
+ 
+ /-- Rocq `type_progress.v:3057` `vcvtop_full_lsize`. Without half / zero, source and destination
+@@ -3747,7 +3930,9 @@
+     obtain ⟨rfl, rfl⟩ := E1
+     obtain ⟨rfl, rfl⟩ := E2
+     cases Hx with
+-    | vcvtop__Jnn_1_M_1_Fnn_2_M_2_case_0 ho sx hcond =>
++    | vcvtop__Jnn_1_M_1_Fnn_2_M_2_case_0 ho sx n1 n0 hn1 hn0 hcond =>
++      obtain rfl := fun_lsizenn1_eq hn1
++      cases hn0
+       simp only [halfop_of] at Hh
+       subst Hh
+       cases J1 <;> cases F2 <;> first
+@@ -3758,7 +3943,9 @@
+     obtain ⟨rfl, rfl⟩ := E1
+     obtain ⟨rfl, rfl⟩ := E2
+     cases Hx with
+-    | vcvtop__Fnn_1_M_1_Inn_2_M_2_case_0 sx zo hcond =>
++    | vcvtop__Fnn_1_M_1_Inn_2_M_2_case_0 sx zo n1 n0 hn1 hn0 hcond =>
++      obtain rfl := fun_lsizenn2_eq hn1
++      obtain rfl := fun_sizenn1_eq hn0
+       simp only [zeroop_of] at Hz
+       subst Hz
+       cases F1 <;> cases J2 <;> first
+@@ -3766,9 +3953,9 @@
+         | exact absurd hcond (by decide)
+   | vcvtop___case_3 F1 M1' F2 M2' x Hx E1 E2 =>
+     cases Hx with
+-    | vcvtop__Fnn_1_M_1_Fnn_2_M_2_case_0 z' hcond =>
++    | vcvtop__Fnn_1_M_1_Fnn_2_M_2_case_0 z' n1 n0 hn1 hn0 hcond =>
+       exact absurd Hz (by simp [zeroop_of])
+-    | vcvtop__Fnn_1_M_1_Fnn_2_M_2_case_1 hcond =>
++    | vcvtop__Fnn_1_M_1_Fnn_2_M_2_case_1 n1 n0 hn1 hn0 hcond =>
+       exact absurd Hh (by simp [halfop_of])
+ 
+ /-- Lean-only: Rocq's motive `P` (for `Instr_ok`) in the `Instrs_ok_ind'` application
+@@ -3973,16 +4160,20 @@
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨Htf1, _⟩ := Htf
+   rw [← Htf1] at Hts
+-  have Hfun : fun_blocktype (state.mk_state s f) bt = functype.mk_functype (list.mk_list vt1) (list.mk_list vt2) := by
++  have Hfun : fun_blocktype (state.mk_state s f) bt (functype.mk_functype (list.mk_list vt1) (list.mk_list vt2)) := by
+     cases HBok with
+-    | valtype valtype_opt _ _ => cases valtype_opt <;> rfl
+-    | typeidx x _ _ _ Hty _ _ =>
+-      show f.MODULE.TYPES[proj_uN_0 x]! = _
+-      rw [← lookup_types s f C' (List.map typeof f.LOCALS) lab ret _ Hmod, ← Hcontext]
+-      exact Hty
++    | valtype valtype_opt _ _ =>
++      cases valtype_opt with
++      | none => exact fun_blocktype.fun_blocktype_case_0 _
++      | some t => exact fun_blocktype.fun_blocktype_case_1 _ t
++    | typeidx x _ _ Hlt Hty _ _ =>
++      subst Hcontext
++      have Hft := fun_type_typed s f C' x Hmod Hlt
++      rw [← lookup_types s f C' (List.map typeof f.LOCALS) lab ret _ Hmod, Hty] at Hft
++      exact fun_blocktype.fun_blocktype_case_2 _ x _ Hft
+   have Hlen : vcs.length = vt1.length := by rw [← Hts, List.length_map]
+   exact Step.read _ _ _ (Step_read.block (state.mk_state s f) vcs.length vcs bt bes vt2.length
+-    vt1 vt2 Hfun rfl Hlen rfl)
++    vt1 vt2 _ Hfun rfl rfl Hlen rfl)
+ 
+ /-- Lean-only: the `Instr_ok.loop` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:3210`),
+     stated as exactly the minor premise of the mutual recursor `Instrs_ok.rec` for motives
+@@ -4013,16 +4204,20 @@
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨Htf1, _⟩ := Htf
+   rw [← Htf1] at Hts
+-  have Hfun : fun_blocktype (state.mk_state s f) bt = functype.mk_functype (list.mk_list vt1) (list.mk_list vt2) := by
++  have Hfun : fun_blocktype (state.mk_state s f) bt (functype.mk_functype (list.mk_list vt1) (list.mk_list vt2)) := by
+     cases HBok with
+-    | valtype valtype_opt _ _ => cases valtype_opt <;> rfl
+-    | typeidx x _ _ _ Hty _ _ =>
+-      show f.MODULE.TYPES[proj_uN_0 x]! = _
+-      rw [← lookup_types s f C' (List.map typeof f.LOCALS) lab ret _ Hmod, ← Hcontext]
+-      exact Hty
++    | valtype valtype_opt _ _ =>
++      cases valtype_opt with
++      | none => exact fun_blocktype.fun_blocktype_case_0 _
++      | some t => exact fun_blocktype.fun_blocktype_case_1 _ t
++    | typeidx x _ _ Hlt Hty _ _ =>
++      subst Hcontext
++      have Hft := fun_type_typed s f C' x Hmod Hlt
++      rw [← lookup_types s f C' (List.map typeof f.LOCALS) lab ret _ Hmod, Hty] at Hft
++      exact fun_blocktype.fun_blocktype_case_2 _ x _ Hft
+   have Hlen : vcs.length = vt1.length := by rw [← Hts, List.length_map]
+   exact Step.read _ _ _ (Step_read.loop (state.mk_state s f) vt1.length vcs bt bes vt1 vt2.length
+-    vt2 Hfun Hlen.symm rfl rfl)
++    vt2 _ Hfun rfl Hlen.symm rfl rfl)
+ 
+ /-- Lean-only: the `Instr_ok.if` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:3232`),
+     stated as exactly the minor premise of the mutual recursor `Instrs_ok.rec` for motives
+@@ -4223,7 +4418,7 @@
+   by_cases Hv1 : n < l_lst.length
+   · exact Hctxt _ _ (Step_pure.br_table_lt _ _ _ (by simpa [proj_num__0, proj_uN_0] using Hv1)
+       (by simp [proj_num__0]))
+-      (iswf_Forall_cons (wf_admininstr.admininstr_case_7 _ (iswf_Forall_getElem! _ Hls (iswf_uN_zero _)))
++      (iswf_Forall_cons (wf_admininstr.admininstr_case_7 _ (iswf_Forall_getElem!_of_lt Hls Hv1))
+         (iswf_Forall_nil _)) HWfConfig
+   · exact Hctxt _ [admininstr.BR l'] (Step_pure.br_table_ge _ _ _ (by simp [proj_num__0])
+       (by simp [proj_num__0, proj_uN_0]; omega))
+@@ -4363,29 +4558,23 @@
+   rcases vcs with _ | ⟨v1, _ | ⟨v2, vcs2⟩⟩
+   · simp at Hts
+   · simp only [List.map_cons, List.map_nil, List.cons.injEq, and_true] at Hts
+-    -- Rocq: `eapply invert_typeof_numtype in Ht1 as [n Heqv1]. rewrite Heqv1.`
+-    obtain ⟨n, Heqv1⟩ := invert_typeof_numtype v1 t Hts
++    -- Rocq: `eapply invert_typeof_numtype in Ht1 as [n Heqv1]. rewrite Heqv1.` (`_wf` variant:
++    -- `unop_not_none` needs `wf_num_ t n` up front)
++    have HP1 : wf_val v1 := HWfVals v1 (by simp)
++    obtain ⟨n, Heqv1, Hwf1⟩ := invert_typeof_numtype_wf v1 t Hts HP1
++    have Hwfu : wf_unop_ t unop := by cases HWfinstr; assumption
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append, Heqv1, admininstr_instr]
+-    -- Rocq: `case Eunop: (fun_unop_ t unop n) => [ c | ].`
+-    cases Eunop : fun_unop_ t unop n with
+-    | some c =>
+-      cases c with
+-      | nil =>
+-        exact ⟨s, f, [admininstr.TRAP], Step.pure _ _ _
+-          (Step_pure.unop_trap t n unop (by rw [Eunop]; simp) (by rw [Eunop]; rfl))⟩
+-      | cons c' l =>
+-        exact ⟨s, f, [admininstr.CONST t c'], Step.pure _ _ _
+-          (Step_pure.unop_val t n unop c' (by rw [Eunop]; simp) (by rw [Eunop]; simp) (by rw [Eunop]; simp))⟩
+-    | none =>
+-      exfalso
+-      have Hwf1 : wf_val v1 := HWfVals v1 (by simp)
+-      cases v1 <;> simp only [admininstr_val, admininstr.CONST.injEq, reduceCtorEq] at Heqv1
+-      obtain ⟨rfl, rfl⟩ := Heqv1
+-      cases Hwf1 with
+-      | val_case_0 _ _ Hn =>
+-        cases HWfinstr with
+-        | instr_case_14 _ _ Hu =>
+-          exact unop_not_none _ _ _ Hn Hu Eunop
++    -- Rocq: `case Eunop: (fun_unop_ t unop n) => [ c | ].` (no `None` branch: `unop_not_none`
++    -- gives the `some c` output)
++    obtain ⟨c, Eunop⟩ := unop_not_none t unop n Hwf1 Hwfu
++    -- Rocq: `case Ec: c => [ | c' l ]; subst.`
++    cases c with
++    | nil =>
++      exact ⟨s, f, [admininstr.TRAP], Step.pure _ _ _
++        (Step_pure.unop_trap t n unop _ Eunop (by simp) rfl)⟩
++    | cons c' l =>
++      exact ⟨s, f, [admininstr.CONST t c'], Step.pure _ _ _
++        (Step_pure.unop_val t n unop c' _ Eunop (by simp) (by simp) (by simp))⟩
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.binop` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:3532`),
+@@ -4448,14 +4637,12 @@
+     obtain ⟨n1, Heqv1, Hwf1⟩ := invert_typeof_numtype_wf v1 nt Ht1 HP1
+     have Hwft : wf_testop_ nt testop_nt := by cases Hwfinstr; assumption
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append, Heqv1]
+-    cases ENone : fun_testop_ nt testop_nt n1 with
+-    | some c' =>
+-      have Hne : fun_testop_ nt testop_nt n1 ≠ none := by rw [ENone]; simp
+-      have Hc : c' = Option.get! (fun_testop_ nt testop_nt n1) := by rw [ENone]; simp
+-      exact ⟨s, f, [admininstr.CONST numtype.I32 c'], Step.pure _ _ _
+-        (Step_pure.testop nt n1 testop_nt c' Hne Hc
+-          (testop__is_wf nt testop_nt n1 c' Hwft Hwf1 Hne Hc))⟩
+-    | none => exact absurd ENone (testop_not_none nt testop_nt n1 Hwf1 Hwft)
++    obtain ⟨c', Etestop⟩ := testop_not_none nt testop_nt n1 Hwf1 Hwft
++    have Hne : (some c' : Option num_) ≠ none := by simp
++    have Hc : c' = Option.get! (some c') := by simp
++    exact ⟨s, f, [admininstr.CONST numtype.I32 c'], Step.pure _ _ _
++      (Step_pure.testop nt n1 testop_nt c' (some c') Etestop Hne Hc
++        (testop__is_wf nt testop_nt n1 c' (some c') Etestop Hwft Hwf1 Hne Hc))⟩
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.relop` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:3581`),
+@@ -4644,10 +4831,13 @@
+     obtain ⟨Ht1, _⟩ := Hts
+     have HP : wf_val v1 := HWfVals v1 (by simp)
+     obtain ⟨c1, Heqv1, _⟩ := invert_typeof_V128 v1 Ht1 HP
+-    refine ⟨s, f, [admininstr.VCONST vectype.V128 (vvunop_ vectype.V128 v_vvunop c1)], ?_⟩
++    obtain ⟨c, Hc⟩ : ∃ c, fun_vvunop_ vectype.V128 v_vvunop c1 c := by
++      cases v_vvunop
++      exact ⟨_, fun_vvunop_.fun_vvunop__case_0 c1 (by simp [size])⟩
++    refine ⟨s, f, [admininstr.VCONST vectype.V128 c], ?_⟩
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append]
+     rw [Heqv1]
+-    exact Step.pure _ _ _ (Step_pure.vvunop c1 v_vvunop _ rfl)
++    exact Step.pure _ _ _ (Step_pure.vvunop c1 v_vvunop _ _ Hc rfl)
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.vvbinop` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:3714`),
+@@ -4675,10 +4865,16 @@
+     have HP0 : wf_val v2 := HWfVals v2 (by simp)
+     obtain ⟨c1, Heqv1, _⟩ := invert_typeof_V128 v1 Ht1 HP
+     obtain ⟨c2, Heqv2, _⟩ := invert_typeof_V128 v2 Ht2 HP0
+-    refine ⟨s, f, [admininstr.VCONST vectype.V128 (vvbinop_ vectype.V128 v_vvbinop c1 c2)], ?_⟩
++    obtain ⟨c, Hc⟩ : ∃ c, fun_vvbinop_ vectype.V128 v_vvbinop c1 c2 c := by
++      cases v_vvbinop
++      · exact ⟨_, fun_vvbinop_.fun_vvbinop__case_0 c1 c2 (by simp [size])⟩
++      · exact ⟨_, fun_vvbinop_.fun_vvbinop__case_1 c1 c2 (by simp [size])⟩
++      · exact ⟨_, fun_vvbinop_.fun_vvbinop__case_2 c1 c2 (by simp [size])⟩
++      · exact ⟨_, fun_vvbinop_.fun_vvbinop__case_3 c1 c2 (by simp [size])⟩
++    refine ⟨s, f, [admininstr.VCONST vectype.V128 c], ?_⟩
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append]
+     rw [Heqv1, Heqv2]
+-    exact Step.pure _ _ _ (Step_pure.vvbinop c1 c2 v_vvbinop _ rfl)
++    exact Step.pure _ _ _ (Step_pure.vvbinop c1 c2 v_vvbinop _ _ Hc rfl)
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.vvternop` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:3727`),
+@@ -4709,10 +4905,13 @@
+     obtain ⟨c1, Heqv1, _⟩ := invert_typeof_V128 v1 Ht1 HP
+     obtain ⟨c2, Heqv2, _⟩ := invert_typeof_V128 v2 Ht2 HP0
+     obtain ⟨c3, Heqv3, _⟩ := invert_typeof_V128 v3 Ht3 HP1
+-    refine ⟨s, f, [admininstr.VCONST vectype.V128 (vvternop_ vectype.V128 v_vvternop c1 c2 c3)], ?_⟩
++    obtain ⟨c, Hc⟩ : ∃ c, fun_vvternop_ vectype.V128 v_vvternop c1 c2 c3 c := by
++      cases v_vvternop
++      exact ⟨_, fun_vvternop_.fun_vvternop__case_0 c1 c2 c3 (by simp [size])⟩
++    refine ⟨s, f, [admininstr.VCONST vectype.V128 c], ?_⟩
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append]
+     rw [Heqv1, Heqv2, Heqv3]
+-    exact Step.pure _ _ _ (Step_pure.vvternop c1 c2 c3 v_vvternop _ rfl)
++    exact Step.pure _ _ _ (Step_pure.vvternop c1 c2 c3 v_vvternop _ _ Hc rfl)
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.vvtestop` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:3741`),
+@@ -4958,10 +5157,10 @@
+         intro l hl
+         obtain ⟨x, rfl, _⟩ := Hlx l hl
+         cases J
+-        · exact fun_vshiftop_.fun_vshiftop__case_0 M x k M rfl
+-        · exact fun_vshiftop_.fun_vshiftop__case_1 M x k M rfl
+-        · exact fun_vshiftop_.fun_vshiftop__case_2 M x k M rfl
+-        · exact fun_vshiftop_.fun_vshiftop__case_3 M x k M rfl
++        · exact fun_vshiftop_.fun_vshiftop__case_0 M x k M _ (fun_lsizenn_lsizenn _) rfl
++        · exact fun_vshiftop_.fun_vshiftop__case_1 M x k M _ (fun_lsizenn_lsizenn _) rfl
++        · exact fun_vshiftop_.fun_vshiftop__case_2 M x k M _ (fun_lsizenn_lsizenn _) rfl
++        · exact fun_vshiftop_.fun_vshiftop__case_3 M x k M _ (fun_lsizenn_lsizenn _) rfl
+       · intro o ho
+         simp only [List.mem_map] at ho
+         obtain ⟨l, _, rfl⟩ := ho
+@@ -4982,10 +5181,10 @@
+         intro l hl
+         obtain ⟨x, rfl, _⟩ := Hlx l hl
+         cases J
+-        · exact fun_vshiftop_.fun_vshiftop__case_4 M v_sx x k M rfl
+-        · exact fun_vshiftop_.fun_vshiftop__case_5 M v_sx x k M rfl
+-        · exact fun_vshiftop_.fun_vshiftop__case_6 M v_sx x k M rfl
+-        · exact fun_vshiftop_.fun_vshiftop__case_7 M v_sx x k M rfl
++        · exact fun_vshiftop_.fun_vshiftop__case_4 M v_sx x k M _ (fun_lsizenn_lsizenn _) rfl
++        · exact fun_vshiftop_.fun_vshiftop__case_5 M v_sx x k M _ (fun_lsizenn_lsizenn _) rfl
++        · exact fun_vshiftop_.fun_vshiftop__case_6 M v_sx x k M _ (fun_lsizenn_lsizenn _) rfl
++        · exact fun_vshiftop_.fun_vshiftop__case_7 M v_sx x k M _ (fun_lsizenn_lsizenn _) rfl
+       · intro o ho
+         simp only [List.mem_map] at ho
+         obtain ⟨l, _, rfl⟩ := ho
+@@ -5053,8 +5252,8 @@
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append]
+     rw [Heqv1]
+     exact Step.pure _ _ _ (Step_pure.vbitmask c1 J M (inv_ibits_ 32 bits)
+-      (lanes_ (shape.X (lanetype_Jnn J) (dim.mk_dim M)) c1) vs
+-      Hsvs (jlane_some J _ HL) H2 rfl ((ibits_inv 32 bits Hbl Hbw).trans Hbits)
++      (lanes_ (shape.X (lanetype_Jnn J) (dim.mk_dim M)) c1) (lsize (lanetype_Jnn J)) vs
++      (fun_lsize_lsize _) Hsvs (jlane_some J _ HL) H2 rfl ((ibits_inv 32 bits Hbl Hbw).trans Hbits)
+       (inv_ibits__is_wf 32 bits _ Hbw rfl) Hwsh Hb (wf_bit.bit_case_0 0 (Or.inl rfl)))
+   · simp at Hts
+ 
+@@ -5086,7 +5285,7 @@
+       cases HWfinstr; assumption
+     subst Hsh
+     have Hwsh : wf_shape (shape.X lanetype.I8 (dim.mk_dim 16)) :=
+-      wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (Or.inr rfl)) rfl
++      wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (Or.inr rfl)) rfl
+     have HL1 : Forall (jlane Jnn.I8) (lanes_ (shape.X lanetype.I8 (dim.mk_dim 16)) c1) :=
+       lanes_Jnn_form Jnn.I8 16 c1 Hwsh Hwf1
+     have HL2 : Forall (jlane Jnn.I8) (lanes_ (shape.X lanetype.I8 (dim.mk_dim 16)) c2) :=
+@@ -5124,23 +5323,23 @@
+     · exact Hcs
+     · intro k hk
+       rw [List.mem_range] at hk
+-      obtain ⟨x, Hx, Hwx⟩ := Hidx k hk
+-      rw [Hx, Hcsl]
+-      exact Hx256 x Hwx
+-    · intro k hk
+-      rw [List.mem_range] at hk
+       obtain ⟨x, Hx, _⟩ := Hidx k hk
+       rw [Hx]; simp [proj_lane__0]
+     · intro k hk
+       rw [List.mem_range] at hk
+       rw [lanes_len]; exact hk
++    · intro k hk
++      rw [List.mem_range] at hk
++      obtain ⟨x, Hx, Hwx⟩ := Hidx k hk
++      rw [Hx, Hcsl]
++      exact Hx256 x Hwx
+     · exact wf_uN.uN_case_0 _ _ ⟨Nat.zero_le _, Nat.zero_le _⟩
+     · intro k hk
+       rw [List.mem_range] at hk
+       obtain ⟨x, Hx, Hwx⟩ := Hidx k hk
+       rw [Hx]
+       have hj : proj_uN_0 x < cs.length := by rw [Hcsl]; exact Hx256 x Hwx
+-      refine wf_lane_.lane__case_0 _ _ _ ?_ ?_
++      refine wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) ?_ ?_
+       · show wf_uN 8 (cs[proj_uN_0 x]!)
+         rw [getElem!_pos cs _ hj]
+         exact Hcsw _ (List.getElem_mem hj)
+@@ -5178,7 +5377,7 @@
+     obtain ⟨Hsh, Hlen⟩ := Hshlen
+     subst Hsh
+     have Hwsh : wf_shape (shape.X lanetype.I8 (dim.mk_dim 16)) :=
+-      wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (Or.inr rfl)) rfl
++      wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (Or.inr rfl)) rfl
+     have HL1 : Forall (jlane Jnn.I8) (lanes_ (shape.X lanetype.I8 (dim.mk_dim 16)) c1) :=
+       lanes_Jnn_form Jnn.I8 16 c1 Hwsh Hwf1
+     have HL2 : Forall (jlane Jnn.I8) (lanes_ (shape.X lanetype.I8 (dim.mk_dim 16)) c2) :=
+@@ -5207,18 +5406,18 @@
+     · rw [Hcs]; exact jlane_map_proj Jnn.I8 _ HL
+     · intro k hk
+       rw [List.mem_range] at hk
+-      rw [Hcsl]; exact Hi32 k hk
++      rw [Hlen]; exact hk
+     · intro k hk
+       rw [List.mem_range] at hk
+-      rw [Hlen]; exact hk
++      rw [Hcsl]; exact Hi32 k hk
+     · intro x hx
+-      refine wf_lane_.lane__case_0 _ _ _ ?_ ?_
++      refine wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) ?_ ?_
+       · exact Hcsw x hx
+       · rfl
+     · intro k hk
+       rw [List.mem_range] at hk
+       have hj : proj_uN_0 (i_lst[k]!) < cs.length := by rw [Hcsl]; exact Hi32 k hk
+-      refine wf_lane_.lane__case_0 _ _ _ ?_ ?_
++      refine wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) ?_ ?_
+       · show wf_uN 8 (cs[proj_uN_0 (i_lst[k]!)]!)
+         rw [getElem!_pos cs _ hj]
+         exact Hcsw _ (List.getElem_mem hj)
+@@ -5294,36 +5493,36 @@
+     · obtain ⟨x, Hx, -⟩ := wf_lane_Jnn_inv Jnn.I32 _ Hl (wf_lane_Jnn_some Jnn.I32 _ Hl)
+       exact ⟨s, f, [admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 x)], Step.pure _ _ _
+         (Step_pure.vextract_lane_num c1 numtype.I32 M i _
++          Hlen
+           (show unpacknum_ lanetype.I32 ((lanes_ (shape.X lanetype.I32 (dim.mk_dim M)) c1)[proj_uN_0 i]!) ≠ none by
+             rw [Hx]; simp [unpacknum_])
+-          Hlen
+           (show num_.mk_num__0 Inn.I32 x = Option.get! (unpacknum_ lanetype.I32 ((lanes_ (shape.X lanetype.I32 (dim.mk_dim M)) c1)[proj_uN_0 i]!)) by
+             rw [Hx]; simp [unpacknum_])
+           Hwsh)⟩
+     · obtain ⟨x, Hx, -⟩ := wf_lane_Jnn_inv Jnn.I64 _ Hl (wf_lane_Jnn_some Jnn.I64 _ Hl)
+       exact ⟨s, f, [admininstr.CONST numtype.I64 (num_.mk_num__0 Inn.I64 x)], Step.pure _ _ _
+         (Step_pure.vextract_lane_num c1 numtype.I64 M i _
++          Hlen
+           (show unpacknum_ lanetype.I64 ((lanes_ (shape.X lanetype.I64 (dim.mk_dim M)) c1)[proj_uN_0 i]!) ≠ none by
+             rw [Hx]; simp [unpacknum_])
+-          Hlen
+           (show num_.mk_num__0 Inn.I64 x = Option.get! (unpacknum_ lanetype.I64 ((lanes_ (shape.X lanetype.I64 (dim.mk_dim M)) c1)[proj_uN_0 i]!)) by
+             rw [Hx]; simp [unpacknum_])
+           Hwsh)⟩
+     · obtain ⟨x, Hx, -⟩ := wf_lane_Fnn_inv Fnn.F32 _ Hl
+       exact ⟨s, f, [admininstr.CONST numtype.F32 (num_.mk_num__1 Fnn.F32 x)], Step.pure _ _ _
+         (Step_pure.vextract_lane_num c1 numtype.F32 M i _
++          Hlen
+           (show unpacknum_ lanetype.F32 ((lanes_ (shape.X lanetype.F32 (dim.mk_dim M)) c1)[proj_uN_0 i]!) ≠ none by
+             rw [Hx]; simp [unpacknum_])
+-          Hlen
+           (show num_.mk_num__1 Fnn.F32 x = Option.get! (unpacknum_ lanetype.F32 ((lanes_ (shape.X lanetype.F32 (dim.mk_dim M)) c1)[proj_uN_0 i]!)) by
+             rw [Hx]; simp [unpacknum_])
+           Hwsh)⟩
+     · obtain ⟨x, Hx, -⟩ := wf_lane_Fnn_inv Fnn.F64 _ Hl
+       exact ⟨s, f, [admininstr.CONST numtype.F64 (num_.mk_num__1 Fnn.F64 x)], Step.pure _ _ _
+         (Step_pure.vextract_lane_num c1 numtype.F64 M i _
++          Hlen
+           (show unpacknum_ lanetype.F64 ((lanes_ (shape.X lanetype.F64 (dim.mk_dim M)) c1)[proj_uN_0 i]!) ≠ none by
+             rw [Hx]; simp [unpacknum_])
+-          Hlen
+           (show num_.mk_num__1 Fnn.F64 x = Option.get! (unpacknum_ lanetype.F64 ((lanes_ (shape.X lanetype.F64 (dim.mk_dim M)) c1)[proj_uN_0 i]!)) by
+             rw [Hx]; simp [unpacknum_])
+           Hwsh)⟩
+@@ -5339,8 +5538,8 @@
+       exact ⟨s, f, [admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (extend__ 8 32 sx x))], Step.pure _ _ _
+         (Step_pure.vextract_lane_pack c1 packtype.I8 M sx i (num_.mk_num__0 Inn.I32 (extend__ 8 32 sx x))
+           (by simp [proj_num__0])
+-          (wf_lane_Jnn_some Jnn.I8 _ Hl)
+           Hlen
++          (wf_lane_Jnn_some Jnn.I8 _ Hl)
+           (show extend__ 8 32 sx x = extend__ 8 32 sx (Option.get! (proj_lane__0 ((lanes_ (shape.X lanetype.I8 (dim.mk_dim M)) c1)[proj_uN_0 i]!))) by
+             rw [Hx]; simp [proj_lane__0])
+           (wf_num_.num__case_0 _ _ _ (by simp [size, valtype_Inn]) (extend___is_wf 8 32 sx x _ Hwx rfl) rfl)
+@@ -5349,8 +5548,8 @@
+       exact ⟨s, f, [admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (extend__ 16 32 sx x))], Step.pure _ _ _
+         (Step_pure.vextract_lane_pack c1 packtype.I16 M sx i (num_.mk_num__0 Inn.I32 (extend__ 16 32 sx x))
+           (by simp [proj_num__0])
+-          (wf_lane_Jnn_some Jnn.I16 _ Hl)
+           Hlen
++          (wf_lane_Jnn_some Jnn.I16 _ Hl)
+           (show extend__ 16 32 sx x = extend__ 16 32 sx (Option.get! (proj_lane__0 ((lanes_ (shape.X lanetype.I16 (dim.mk_dim M)) c1)[proj_uN_0 i]!))) by
+             rw [Hx]; simp [proj_lane__0])
+           (wf_num_.num__case_0 _ _ _ (by simp [size, valtype_Inn]) (extend___is_wf 16 32 sx x _ Hwx rfl) rfl)
+@@ -5419,8 +5618,12 @@
+     subst E1 E2
+     have Hs1 : wf_shape (shape.X (lanetype_Jnn J1) (dim.mk_dim M1)) := by cases Hw2; assumption
+     have Hs2 : wf_shape (shape.X (lanetype_Jnn J2) (dim.mk_dim M2)) := by cases Hw1; assumption
+-    have H128 : lsize (lanetype_Jnn J1) * M1 = 128 := by cases Hs1; assumption
+-    obtain ⟨sx, Hsz⟩ := Ho
++    have H128 : lsize (lanetype_Jnn J1) * M1 = 128 := by
++      cases Hs1 with
++      | shape_case_0 _ _ n hn _ h => rw [← fun_lsize_eq hn]; exact h
++    obtain ⟨sx, n1, n0, hn1, hn0, Hsz⟩ := Ho
++    obtain rfl := fun_lsizenn2_eq hn1
++    obtain rfl := fun_lsizenn1_eq hn0
+     have Hwf1' : wf_uN 128 c1 := Hwf1
+     have HL := lanes_Jnn_form J1 M1 c1 Hs1 Hwf1'
+     obtain ⟨E, hE⟩ : ∃ E : List iN, E = List.map (fun l => extend__ (lsizenn1 (lanetype_Jnn J1))
+@@ -5437,7 +5640,7 @@
+     have HW2 : Forall₂ (fun a b => wf_lane_ (fun_lanetype (shape.X (lanetype_Jnn J2) (dim.mk_dim M2)))
+         (lane_.mk_lane__0 J2 (iadd_ (lsizenn2 (lanetype_Jnn J2)) a b))) (evens E) (odds E) :=
+       Forall2_of_Forall iN (fun x => wf_uN (lsize (lanetype_Jnn J2)) x) _ (evens E) (odds E)
+-        (fun a b Ha Hb => wf_lane_.lane__case_0 _ _ _
++        (fun a b Ha Hb => wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _)
+           (iadd__is_wf (lsizenn2 (lanetype_Jnn J2)) a b _ Ha Hb rfl) rfl)
+         (Forall_evens _ _ _ HEw) (Forall_odds _ _ _ HEw) HEs
+     have HS := jlane_some _ _ HL
+@@ -5456,10 +5659,10 @@
+           (Map₂ (fun a b => lane_.mk_lane__0 J2 (iadd_ (lsizenn2 (lanetype_Jnn J2)) a b)) (evens E) (odds E)))) := by
+       cases J1 <;> cases J2 <;> first
+         | exact absurd Hsz (by decide)
+-        | exact fun_vextunop__.fun_vextunop___case_14 M1 M2 sx c1 (evens E) (odds E) M1 M2 _ _
+-            rfl HS HEc rfl Hs1 Hs2 HEs HW2 rfl rfl
+-        | exact fun_vextunop__.fun_vextunop___case_3 M1 M2 sx c1 (evens E) (odds E) M1 M2 _ _
+-            rfl HS HEc rfl Hs1 Hs2 HEs HW2 rfl rfl
++        | exact fun_vextunop__.fun_vextunop___case_14 M1 M2 sx c1 (evens E) (odds E) M1 M2 _ _ _ _
++            (fun_lsizenn2_lsizenn2 _) (fun_lsizenn1_lsizenn1 _) rfl HS HEc rfl Hs1 Hs2 HEs HW2 rfl rfl
++        | exact fun_vextunop__.fun_vextunop___case_3 M1 M2 sx c1 (evens E) (odds E) M1 M2 _ _ _ _
++            (fun_lsizenn2_lsizenn2 _) (fun_lsizenn1_lsizenn1 _) rfl HS HEc rfl Hs1 Hs2 HEs HW2 rfl rfl
+     exact ⟨s, f, _, Step.pure _ _ _ (Step_pure.vextunop c1 _ _ _ _ _ Hfun (by simp) rfl)⟩
+   · simp at Hts
+ 
+@@ -5497,7 +5700,7 @@
+     have Hs2 : wf_shape (shape.X (lanetype_Jnn J2) (dim.mk_dim M2)) := by cases Hw1; assumption
+     have H128 : lsize (lanetype_Jnn J1) * M1 = 128 := by
+       cases Hs1 with
+-      | shape_case_0 _ _ _ h => exact h
++      | shape_case_0 _ _ n hn _ h => rw [← fun_lsize_eq hn]; exact h
+     have HL1 := lanes_Jnn_form J1 M1 c1 Hs1 Hwf1
+     have HL2 := lanes_Jnn_form J1 M1 c2 Hs1 Hwf2
+     have HLs := lanes_size_eq (lanetype_Jnn J1) M1 c1 c2
+@@ -5515,8 +5718,10 @@
+     have Hfun : ∃ c, fun_vextbinop__ (ishape.mk_ishape (shape.X (lanetype_Jnn J1) (dim.mk_dim M1)))
+         (ishape.mk_ishape (shape.X (lanetype_Jnn J2) (dim.mk_dim M2)))
+         (vextbinop__.mk_vextbinop___0 J1 M1 J2 M2 o) c1 c2 (some c) := by
+-      rcases Ho with ⟨hf, v_sx, Hsz⟩ | ⟨Hsz⟩
++      rcases Ho with ⟨hf, v_sx, n1, n0, hn1, hn0, Hsz⟩ | ⟨n1, n0, hn1, hn0, Hsz⟩
+       · -- EXTMUL: the extended lanes of one half of each operand are multiplied.
++        obtain rfl := fun_lsizenn2_eq hn1
++        obtain rfl := fun_lsizenn1_eq hn0
+         have HS1 := Forall_list_slice _ _ (fun_half hf 0 M2) M2 HL1
+         have HS2 := Forall_list_slice _ _ (fun_half hf 0 M2) M2 HL2
+         have HSs := list_slice_size_eq _ _ _ _ (fun_half hf 0 M2) M2 HLs
+@@ -5530,13 +5735,18 @@
+         have HSo2 := jlane_some _ _ HS2
+         cases J1 <;> cases J2 <;> (try exact absurd Hsz (by decide)) <;>
+         first
+-          | exact ⟨_, fun_vextbinop__.fun_vextbinop___case_3 M1 M2 hf v_sx c1 c2 M1 M2 _ _ _ rfl rfl
++          | exact ⟨_, fun_vextbinop__.fun_vextbinop___case_3 M1 M2 hf v_sx c1 c2 M1 M2 _ _ _ _ _
++              (fun_lsizenn1_lsizenn1 _) (fun_lsizenn2_lsizenn2 _) rfl rfl
+               HSo1 HSo2 rfl Hs1 Hs2 HSs HSo1 HSo2 HW rfl rfl⟩
+-          | exact ⟨_, fun_vextbinop__.fun_vextbinop___case_4 M1 M2 hf v_sx c1 c2 M1 M2 _ _ _ rfl rfl
++          | exact ⟨_, fun_vextbinop__.fun_vextbinop___case_4 M1 M2 hf v_sx c1 c2 M1 M2 _ _ _ _ _
++              (fun_lsizenn1_lsizenn1 _) (fun_lsizenn2_lsizenn2 _) rfl rfl
+               HSo1 HSo2 rfl Hs1 Hs2 HSs HSo1 HSo2 HW rfl rfl⟩
+-          | exact ⟨_, fun_vextbinop__.fun_vextbinop___case_14 M1 M2 hf v_sx c1 c2 M1 M2 _ _ _ rfl rfl
++          | exact ⟨_, fun_vextbinop__.fun_vextbinop___case_14 M1 M2 hf v_sx c1 c2 M1 M2 _ _ _ _ _
++              (fun_lsizenn1_lsizenn1 _) (fun_lsizenn2_lsizenn2 _) rfl rfl
+               HSo1 HSo2 rfl Hs1 Hs2 HSs HSo1 HSo2 HW rfl rfl⟩
+       · -- DOT: the products of the extended lanes are added pairwise.
++        obtain rfl := fun_lsizenn2_eq hn1
++        obtain rfl := fun_lsizenn1_eq hn0
+         obtain ⟨P, HPdef⟩ : ∃ P : List iN, P = List.zipWith (fun a b => imul_ (lsizenn2 (lanetype_Jnn J2))
+             (extend__ (lsizenn1 (lanetype_Jnn J1)) (lsizenn2 (lanetype_Jnn J2)) sx.S (Option.get! (proj_lane__0 a)))
+             (extend__ (lsizenn1 (lanetype_Jnn J1)) (lsizenn2 (lanetype_Jnn J2)) sx.S (Option.get! (proj_lane__0 b))))
+@@ -5553,12 +5763,14 @@
+         have HW2 : Forall₂ (fun a b => wf_lane_ (lanetype_Jnn J2)
+             (lane_.mk_lane__0 J2 (iadd_ (lsizenn2 (lanetype_Jnn J2)) a b))) (evens P) (odds P) :=
+           Forall2_of_Forall _ _ _ _ _
+-            (fun a b Ha Hb => wf_lane_.lane__case_0 _ J2 _ (iadd__is_wf _ _ _ _ Ha Hb rfl) rfl)
++            (fun a b Ha Hb => wf_lane_.lane__case_0 _ J2 _ _ (fun_lsize_lsize _)
++              (iadd__is_wf _ _ _ _ Ha Hb rfl) rfl)
+             (Forall_evens _ _ _ HPw) (Forall_odds _ _ _ HPw) HPs
+         have HSo1 := jlane_some _ _ HL1
+         have HSo2 := jlane_some _ _ HL2
+         cases J1 <;> cases J2 <;> (try exact absurd Hsz (by decide))
+-        exact ⟨_, fun_vextbinop__.fun_vextbinop___case_19 M1 M2 c1 c2 (evens P) (odds P) M1 M2 _ _ _ rfl rfl
++        exact ⟨_, fun_vextbinop__.fun_vextbinop___case_19 M1 M2 c1 c2 (evens P) (odds P) M1 M2 _ _ _ _ _
++          (fun_lsizenn1_lsizenn1 _) (fun_lsizenn2_lsizenn2 _) rfl rfl
+           HSo1 HSo2 (by simp only [hMap2]; exact HPc.trans HPdef) rfl Hs1 Hs2 HPs HW2 rfl rfl⟩
+     obtain ⟨c, Hc⟩ := Hfun
+     refine ⟨s, f, [admininstr.VCONST vectype.V128 c], ?_⟩
+@@ -5606,7 +5818,7 @@
+       refine Forall_map_P _ _ _ _ _ _ ?_ HL
+       intro l ⟨x, hx, Hx⟩
+       subst hx
+-      exact wf_lane_.lane__case_0 _ J2 _ (narrow___is_wf _ _ v_sx x _ Hx rfl) rfl
++      exact wf_lane_.lane__case_0 _ J2 _ _ (fun_lsize_lsize _) (narrow___is_wf _ _ v_sx x _ Hx rfl) rfl
+     refine ⟨s, f, [admininstr.VCONST vectype.V128 (inv_lanes_ (shape.X (lanetype_Jnn J2) (dim.mk_dim N2))
+       (Map (fun cj => lane_.mk_lane__0 J2 cj) (Map (fun l => narrow__ (lsize (lanetype_Jnn J1)) (lsize (lanetype_Jnn J2)) v_sx
+           (Option.get! (proj_lane__0 l))) (lanes_ (shape.X (lanetype_Jnn J1) (dim.mk_dim N1)) c1)) ++
+@@ -5616,7 +5828,7 @@
+     rw [Heqv1, Heqv2]
+     exact Step.pure _ _ _ (Step_pure.vnarrow c1 c2 J2 N2 J1 N1 v_sx _
+       (lanes_ (shape.X (lanetype_Jnn J1) (dim.mk_dim N1)) c1) (lanes_ (shape.X (lanetype_Jnn J1) (dim.mk_dim N1)) c2)
+-      _ _ rfl rfl (jlane_some _ _ HL1) rfl (jlane_some _ _ HL2) rfl rfl
++      _ _ _ _ (fun_lsize_lsize _) (fun_lsize_lsize _) rfl rfl (jlane_some _ _ HL1) rfl (jlane_some _ _ HL2) rfl rfl
+       (lanes__is_wf _ _ _ Hs1 Hwf1 rfl) (lanes__is_wf _ _ _ Hs1 Hwf2 rfl) Hs1 Hs2 (Hnar _ HL1) (Hnar _ HL2))
+   · simp at Hts
+ 
+@@ -5666,8 +5878,12 @@
+       | none =>
+         have HL := vcvtop_full_lsize L1 M1 L2 M2 op Hop Hh Hz
+         have HM : M1 = M2 := by
+-          have Hm1 : lsize L1 * M1 = 128 := by cases Hs2; assumption
+-          have Hm2 : lsize L2 * M2 = 128 := by cases Hs1; assumption
++          have Hm1 : lsize L1 * M1 = 128 := by
++            cases Hs2 with
++            | shape_case_0 _ _ n hn _ h => rw [← fun_lsize_eq hn]; exact h
++          have Hm2 : lsize L2 * M2 = 128 := by
++            cases Hs1 with
++            | shape_case_0 _ _ n hn _ h => rw [← fun_lsize_eq hn]; exact h
+           have Hp : 0 < lsize L2 := by cases L2 <;> decide
+           rw [HL] at Hm1
+           exact Nat.eq_of_mul_eq_mul_left Hp (Hm1.trans Hm2.symm)
+@@ -5691,9 +5907,13 @@
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨Htf1, _⟩ := Htf
+   rw [← Htf1] at Hts
++  have Hx : proj_uN_0 x < f.LOCALS.length := by
++    subst Hcontext
++    have h : proj_uN_0 x < (List.map typeof f.LOCALS).length := Hlen
++    rwa [List.length_map] at h
+   rcases vcs with _ | ⟨v1, vcs1⟩
+-  · exact ⟨s, f, List.map admininstr_val [fun_local (state.mk_state s f) x],
+-      Step.read _ _ _ (Step_read.local_get _ x)⟩
++  · exact ⟨s, f, List.map admininstr_val [f.LOCALS[proj_uN_0 x]!],
++      Step.read _ _ _ (Step_read.local_get _ x _ (fun_local.fun_local_case_0 s f x Hx))⟩
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.local_set` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:4326`),
+@@ -5757,9 +5977,10 @@
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨Htf1, _⟩ := Htf
+   rw [← Htf1] at Hts
++  rw [Hcontext] at Hlen
+   rcases vcs with _ | ⟨v1, vcs1⟩
+-  · exact ⟨s, f, List.map admininstr_val [(fun_global (state.mk_state s f) x).VALUE],
+-      Step.read _ _ _ (Step_read.global_get _ x)⟩
++  · exact ⟨s, f, List.map admininstr_val [(s.GLOBALS[f.MODULE.GLOBALS[proj_uN_0 x]!]!).VALUE],
++      Step.read _ _ _ (Step_read.global_get _ x _ (fun_global_typed s f C' x Hmod Hlen))⟩
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.global_set` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:4354`),
+@@ -5778,13 +5999,11 @@
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨Htf1, _⟩ := Htf
+   rw [← Htf1] at Hts
++  rw [Hcontext] at Hlen
+   rcases vcs with _ | ⟨v1, _ | ⟨v2, vcs2⟩⟩
+   · simp at Hts
+-  · cases Estate : with_global (state.mk_state s f) x v1 with
+-    | mk_state s' f' =>
+-      refine ⟨s', f', [], ?_⟩
+-      rw [← Estate]
+-      exact Step.global_set _ v1 x
++  · exact ⟨_, f, [], Step.global_set _ v1 x _ (fun_with_global.fun_with_global_case_0 s f x v1
++      (Moduleinst_ok_global_addr s f.MODULE C' _ Hmod Hlen).1)⟩
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.table_get` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:4365`),
+@@ -5804,6 +6023,8 @@
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨Htf1, _⟩ := Htf
+   rw [← Htf1] at Hts
++  rw [Hcontext] at Hlen
++  obtain ⟨ti, Hti⟩ : ∃ ti, fun_table (state.mk_state s f) x ti := ⟨_, fun_table_typed s f C' x Hmod Hlen⟩
+   rcases vcs with _ | ⟨v1, _ | ⟨v2, vcs2⟩⟩
+   · simp at Hts
+   · simp only [List.map_cons, List.map_nil, List.cons.injEq] at Hts
+@@ -5812,12 +6033,12 @@
+     obtain ⟨n, Heqv⟩ := invert_typeof_I32 v1 Ht1 HP1
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append]
+     rw [Heqv]
+-    by_cases Es : n < (fun_table (state.mk_state s f) x).REFS.length
+-    · exact ⟨s, f, [admininstr_ref ((fun_table (state.mk_state s f) x).REFS[n]!)],
+-        Step.read _ _ _ (Step_read.table_get_val _ _ x
+-          (by simpa [proj_num__0, proj_uN_0] using Es) (by simp [proj_num__0]))⟩
++    by_cases Es : n < ti.REFS.length
++    · exact ⟨s, f, [admininstr_ref (ti.REFS[n]!)],
++        Step.read _ _ _ (Step_read.table_get_val _ _ x ti
++          (by simpa [proj_num__0, proj_uN_0] using Es) (by simp [proj_num__0]) Hti)⟩
+     · exact ⟨s, f, [admininstr.TRAP],
+-        Step.read _ _ _ (Step_read.table_get_trap _ _ x (by simp [proj_num__0])
++        Step.read _ _ _ (Step_read.table_get_trap _ _ x ti Hti (by simp [proj_num__0])
+           (by simp [proj_num__0, proj_uN_0]; omega))⟩
+   · simp at Hts
+ 
+@@ -5838,6 +6059,8 @@
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨Htf1, _⟩ := Htf
+   rw [← Htf1] at Hts
++  rw [Hcontext] at Hlen
++  obtain ⟨ti, Hti⟩ : ∃ ti, fun_table (state.mk_state s f) x ti := ⟨_, fun_table_typed s f C' x Hmod Hlen⟩
+   rcases vcs with _ | ⟨v1, _ | ⟨v2, _ | ⟨v3, vcs3⟩⟩⟩
+   · simp at Hts
+   · simp at Hts
+@@ -5848,15 +6071,12 @@
+     obtain ⟨r2, Heqv2⟩ := invert_typeof_reftype' v2 rt Ht2
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append]
+     rw [Heqv1, Heqv2]
+-    by_cases Es : n1 < (fun_table (state.mk_state s f) x).REFS.length
+-    · cases Estate : with_table (state.mk_state s f) x n1 r2 with
+-      | mk_state s' f' =>
+-        refine ⟨s', f', [], ?_⟩
+-        rw [← Estate]
+-        exact Step.table_set_val _ _ r2 x (by simp [proj_num__0])
+-          (by simpa [proj_num__0, proj_uN_0] using Es)
++    by_cases Es : n1 < ti.REFS.length
++    · exact ⟨_, f, [], Step.table_set_val _ _ r2 x ti _ Hti (by simp [proj_num__0])
++          (fun_with_table.fun_with_table_case_0 s f x _ r2 (Moduleinst_ok_table_addr s f.MODULE C' _ Hmod Hlen).1)
++          (by simpa [proj_num__0, proj_uN_0] using Es)⟩
+     · exact ⟨s, f, [admininstr.TRAP],
+-        Step.table_set_trap _ _ r2 x (by simp [proj_num__0])
++        Step.table_set_trap _ _ r2 x ti Hti (by simp [proj_num__0])
+           (by simp [proj_num__0, proj_uN_0]; omega)⟩
+   · simp at Hts
+ 
+@@ -5876,10 +6096,11 @@
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨Htf1, _⟩ := Htf
+   rw [← Htf1] at Hts
++  rw [Hcontext] at Hlen
++  obtain ⟨ti, Hti⟩ : ∃ ti, fun_table (state.mk_state s f) x ti := ⟨_, fun_table_typed s f C' x Hmod Hlen⟩
+   rcases vcs with _ | ⟨v1, vcs1⟩
+-  · exact ⟨s, f, [admininstr.CONST numtype.I32
+-        (num_.mk_num__0 Inn.I32 (uN.mk_uN (fun_table (state.mk_state s f) x).REFS.length))],
+-      Step.read _ _ _ (Step_read.table_size _ x _ rfl)⟩
++  · exact ⟨s, f, [admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN ti.REFS.length))],
++      Step.read _ _ _ (Step_read.table_size _ x _ ti Hti rfl)⟩
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.table_grow` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:4425`),
+@@ -5931,6 +6152,8 @@
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨Htf1, _⟩ := Htf
+   rw [← Htf1] at Hts
++  rw [Hcontext] at Hlen
++  obtain ⟨ti, Hti⟩ : ∃ ti, fun_table (state.mk_state s f) x ti := ⟨_, fun_table_typed s f C' x Hmod Hlen⟩
+   rcases vcs with _ | ⟨v1, _ | ⟨v2, _ | ⟨v3, _ | ⟨v4, vcs4⟩⟩⟩⟩
+   · simp at Hts
+   · simp at Hts
+@@ -5943,14 +6166,14 @@
+     obtain ⟨n3, Heqv3⟩ := invert_typeof_I32 v3 Ht3 HP3
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append]
+     rw [Heqv1, Heqv3]
+-    by_cases Hs : n1 + n3 > (fun_table (state.mk_state s f) x).REFS.length
++    by_cases Hs : n1 + n3 > ti.REFS.length
+     · exact ⟨s, f, [admininstr.TRAP],
+-        Step.read _ _ _ (Step_read.table_fill_trap _ _ v2 n3 x (by simp [proj_num__0])
++        Step.read _ _ _ (Step_read.table_fill_trap _ _ v2 n3 x ti Hti (by simp [proj_num__0])
+           (by simpa [proj_num__0, proj_uN_0] using Hs))⟩
+     · cases n3 with
+       | zero =>
+-        exact ⟨s, f, [], Step.read _ _ _ (Step_read.table_fill_zero _ _ v2 0 x (by simp [proj_num__0])
+-          (by simp [proj_num__0, proj_uN_0]; omega) rfl)⟩
++        exact ⟨s, f, [], Step.read _ _ _ (Step_read.table_fill_zero _ _ v2 0 x ti Hti
++          (by simp [proj_num__0]) (by simp [proj_num__0, proj_uN_0]; omega) rfl)⟩
+       | succ n3 =>
+         have H : Int.toNat (((n3 + 1 : Nat) : Int) - 1) = n3 := by omega
+         refine ⟨s, f, [admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN n1)), admininstr_val v2,
+@@ -5958,7 +6181,7 @@
+           admininstr_val v2, admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN n3)),
+           admininstr.TABLE_FILL x], ?_⟩
+         have Hstep := Step_read.table_fill_succ (state.mk_state s f) (num_.mk_num__0 Inn.I32 (uN.mk_uN n1))
+-          v2 (n3 + 1) x (by simp [proj_num__0]) (by simp) (by simp [proj_num__0, proj_uN_0]; omega)
++          v2 (n3 + 1) x ti (by simp [proj_num__0]) Hti (by simp) (by simp [proj_num__0, proj_uN_0]; omega)
+         rw [H] at Hstep
+         exact Step.read _ _ _ Hstep
+   · simp at Hts
+@@ -5982,6 +6205,9 @@
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨Htf1, _⟩ := Htf
+   rw [← Htf1] at Hts
++  rw [Hcontext] at Hlenx1 Hlenx2
++  obtain ⟨ti1, Hti1⟩ : ∃ ti, fun_table (state.mk_state s f) x1 ti := ⟨_, fun_table_typed s f C' x1 Hmod Hlenx1⟩
++  obtain ⟨ti2, Hti2⟩ : ∃ ti, fun_table (state.mk_state s f) x2 ti := ⟨_, fun_table_typed s f C' x2 Hmod Hlenx2⟩
+   rcases vcs with _ | ⟨v1, _ | ⟨v2, _ | ⟨v3, _ | ⟨v4, vcs⟩⟩⟩⟩
+   · simp at Hts
+   · simp at Hts
+@@ -5995,28 +6221,28 @@
+     obtain ⟨n2, Heqv2⟩ := invert_typeof_I32 v2 Ht2 HP2
+     obtain ⟨n3, Heqv3⟩ := invert_typeof_I32 v3 Ht3 HP3
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append, Heqv1, Heqv2, Heqv3]
+-    by_cases Hs : n2 + n3 > (fun_table (state.mk_state s f) x2).REFS.length ∨
+-        n1 + n3 > (fun_table (state.mk_state s f) x1).REFS.length
++    by_cases Hs : n2 + n3 > ti2.REFS.length ∨ n1 + n3 > ti1.REFS.length
+     · exact ⟨s, f, [admininstr.TRAP], Step.read _ _ _
+         (Step_read.table_copy_trap (state.mk_state s f) (num_.mk_num__0 Inn.I32 (uN.mk_uN n1))
+-          (num_.mk_num__0 Inn.I32 (uN.mk_uN n2)) n3 x1 x2 (by simp [proj_num__0]) (by simp [proj_num__0])
+-          (by simpa [proj_num__0, proj_uN_0] using Hs))⟩
+-    · have Hb : n2 + n3 ≤ (fun_table (state.mk_state s f) x2).REFS.length ∧
+-          n1 + n3 ≤ (fun_table (state.mk_state s f) x1).REFS.length := by omega
++          (num_.mk_num__0 Inn.I32 (uN.mk_uN n2)) n3 x1 x2 ti1 ti2 Hti1 Hti2 (by simp [proj_num__0])
++          (by simp [proj_num__0]) (by simpa [proj_num__0, proj_uN_0] using Hs))⟩
++    · have Hb : n2 + n3 ≤ ti2.REFS.length ∧ n1 + n3 ≤ ti1.REFS.length := by omega
+       by_cases Hz : n3 = 0
+       · subst Hz
+         exact ⟨s, f, [], Step.read _ _ _
+           (Step_read.table_copy_zero (state.mk_state s f) (num_.mk_num__0 Inn.I32 (uN.mk_uN n1))
+-            (num_.mk_num__0 Inn.I32 (uN.mk_uN n2)) 0 x1 x2 (by simp [proj_num__0]) (by simp [proj_num__0])
+-            (by simpa [proj_num__0, proj_uN_0] using Hb) rfl)⟩
++            (num_.mk_num__0 Inn.I32 (uN.mk_uN n2)) 0 x1 x2 ti1 ti2 Hti1 Hti2 (by simp [proj_num__0])
++            (by simp [proj_num__0]) (by simpa [proj_num__0, proj_uN_0] using Hb) rfl)⟩
+       · by_cases Hle : n1 ≤ n2
+         · exact ⟨s, f, _, Step.read _ _ _
+             (Step_read.table_copy_le (state.mk_state s f) (num_.mk_num__0 Inn.I32 (uN.mk_uN n1))
+-              (num_.mk_num__0 Inn.I32 (uN.mk_uN n2)) n3 x1 x2 (by simp [proj_num__0]) (by simp [proj_num__0])
+-              Hz (by simpa [proj_num__0, proj_uN_0] using Hb) (by simpa [proj_num__0, proj_uN_0] using Hle))⟩
++              (num_.mk_num__0 Inn.I32 (uN.mk_uN n2)) n3 x1 x2 ti1 ti2 (by simp [proj_num__0])
++              (by simp [proj_num__0]) Hti1 Hti2 Hz (by simpa [proj_num__0, proj_uN_0] using Hb)
++              (by simpa [proj_num__0, proj_uN_0] using Hle))⟩
+         · exact ⟨s, f, _, Step.read _ _ _
+             (Step_read.table_copy_gt (state.mk_state s f) (num_.mk_num__0 Inn.I32 (uN.mk_uN n1))
+-              (num_.mk_num__0 Inn.I32 (uN.mk_uN n2)) n3 x1 x2 (by simp [proj_num__0]) (by simp [proj_num__0])
++              (num_.mk_num__0 Inn.I32 (uN.mk_uN n2)) n3 x1 x2 ti1 ti2 (by simp [proj_num__0])
++              (by simp [proj_num__0]) Hti1 Hti2
+               (by simp only [proj_num__0, proj_uN_0, Option.get!_some]; omega) Hz
+               (by simpa [proj_num__0, proj_uN_0] using Hb))⟩
+   · simp at Hts
+@@ -6040,6 +6266,11 @@
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨Htf1, _⟩ := Htf
+   rw [← Htf1] at Hts
++  -- Lean-only: the table and the element segment as witnesses of the relations `fun_table` and
++  -- `fun_elem` (`fun_table_typed`/`fun_elem_typed`, from `Moduleinst_ok` and the index bounds)
++  rw [Hcontext] at Hlenx1 Hlenx2
++  obtain ⟨ti, Hti⟩ : ∃ ti, fun_table (state.mk_state s f) x1 ti := ⟨_, fun_table_typed s f C' x1 Hmod Hlenx1⟩
++  obtain ⟨ei, Hei⟩ : ∃ ei, fun_elem (state.mk_state s f) x2 ei := ⟨_, fun_elem_typed s f C' x2 Hmod Hlenx2⟩
+   -- Rocq: `invert_typeof_vcs Hts HWfConfig HWfVals.` (vcs = [v1; v2; v3])
+   rcases vcs with _ | ⟨v1, _ | ⟨v2, _ | ⟨v3, _ | ⟨v4, vcs4⟩⟩⟩⟩
+   · simp at Hts
+@@ -6058,23 +6289,22 @@
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append, Heqv1, Heqv2, Heqv3,
+       admininstr_instr]
+     -- Rocq: `case Hs: ((n2 + n3 >? |elem.REFS|) || (n1 + n3 >? |table.REFS|)).`
+-    by_cases Hs : (n2 + n3 > (fun_elem (state.mk_state s f) x2).REFS.length) ∨
+-        (n1 + n3 > (fun_table (state.mk_state s f) x1).REFS.length)
++    by_cases Hs : (n2 + n3 > ei.REFS.length) ∨ (n1 + n3 > ti.REFS.length)
+     · -- Rocq: `exists s, f, [admininstr_TRAP]. eapply read. eapply table_init_trap; eauto.`
+       exact ⟨s, f, [admininstr.TRAP], Step.read _ _ _
+-        (Step_read.table_init_trap _ _ _ _ _ _ (by simp [proj_num__0]) (by simp [proj_num__0])
++        (Step_read.table_init_trap _ _ _ _ _ _ ti ei Hti Hei (by simp [proj_num__0]) (by simp [proj_num__0])
+           (by simpa [proj_num__0, proj_uN_0] using Hs))⟩
+     · -- Rocq: `destruct n3 using N.peano_ind.`
+       rcases n3 with _ | n3
+       · -- Rocq: `exists s, f, []. eapply read. eapply table_init_zero; eauto. ...`
+         exact ⟨s, f, [], Step.read _ _ _
+-          (Step_read.table_init_zero _ _ _ _ _ _ (by simp [proj_num__0]) (by simp [proj_num__0])
++          (Step_read.table_init_zero _ _ _ _ _ _ ti ei Hti Hei (by simp [proj_num__0]) (by simp [proj_num__0])
+             (by simp only [proj_num__0, Option.get!_some, proj_uN_0]; omega) rfl)⟩
+       · -- Rocq: `exists s, f, [...]. eapply read. eapply table_init_succ; eauto. ...`
+         exact ⟨s, f, _, Step.read _ _ _
+-          (Step_read.table_init_succ _ _ _ _ _ _
++          (Step_read.table_init_succ _ _ _ _ _ _ ti ei
+             (by simp only [proj_num__0, Option.get!_some, proj_uN_0]; omega)
+-            (by simp [proj_num__0]) (by simp [proj_num__0]) (Nat.succ_ne_zero _)
++            (by simp [proj_num__0]) (by simp [proj_num__0]) Hti Hei (Nat.succ_ne_zero _)
+             (by simp only [proj_num__0, Option.get!_some, proj_uN_0]; omega))⟩
+   · simp at Hts
+ 
+@@ -6094,14 +6324,14 @@
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨Htf1, _⟩ := Htf
+   rw [← Htf1] at Hts
++  -- Lean-only: the bound `x < |C'.ELEMS|` for the premise of `fun_with_elem`
++  rw [Hcontext] at Hlen
+   rcases vcs with _ | ⟨v1, vcs1⟩
+   · -- Rocq: `case Estate: (with_elem (mk_state s f) x []) => [s' f']. exists s', f', [].
+-    --        rewrite -Estate. by apply: Step__elem_drop.`
+-    cases Estate : with_elem (state.mk_state s f) x [] with
+-    | mk_state s' f' =>
+-      refine ⟨s', f', [], ?_⟩
+-      rw [← Estate]
+-      exact Step.elem_drop _ x
++    --        rewrite -Estate. by apply: Step__elem_drop.` (Lean: `fun_with_elem` is a relation;
++    --        its constructor gives the new state directly, so there is no case split.)
++    exact ⟨_, f, [], Step.elem_drop _ x _ (fun_with_elem.fun_with_elem_case_0 s f x []
++      (Moduleinst_ok_elem_addr s f.MODULE C' _ Hmod Hlen).1)⟩
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.memory_size` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:4670`),
+@@ -6122,21 +6352,19 @@
+   rcases vcs with _ | ⟨v1, vcs⟩
+   · -- Rocq: `addr := lookup_total (MEMS (frame_MODULE f)) 0` and `Haddr : addr < |meminst_lst|`
+     have HeqC : C.MEMS = C'.MEMS := by subst Hcontext; rfl
+-    obtain ⟨_, _, Hmlen, _, _, _⟩ := Moduleinst_ok_lengths s f.MODULE C' Hmod
+-    have Hlen' : 0 < f.MODULE.MEMS.length := by rw [Hmlen, ← HeqC]; exact Hlen
+-    have Hinv := minst_invert_mems s f.MODULE C' C' Hmod ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
+-    obtain ⟨_, _, Haddr, _, _⟩ :=
+-      Hinv _ (mem_zip_getElem! f.MODULE.MEMS C'.MEMS 0 Hlen' (by rw [← Hmlen]; exact Hlen'))
+-    have Haddr' : f.MODULE.MEMS[0]! < s.MEMS.length := Haddr
++    have Hlen' : proj_uN_0 (uN.mk_uN 0) < C'.MEMS.length := by rw [← HeqC]; exact Hlen
++    have Haddr : f.MODULE.MEMS[0]! < s.MEMS.length :=
++      (Moduleinst_ok_mem_addr s f.MODULE C' 0 Hmod Hlen').2
+     -- Rocq: `invert_storeok Hstore` and `Hmem : Meminst_ok s (lookup_total meminst_lst addr) ...`
+     obtain ⟨_, mtl, _, _, _, _, _, _, Hml, HMem, _⟩ := Store_ok_parts s Hstore
+     have Hmem : Meminst_ok s s.MEMS[f.MODULE.MEMS[0]!]! mtl[f.MODULE.MEMS[0]!]! :=
+-      HMem _ (mem_zip_getElem! s.MEMS mtl _ Haddr' (by rw [← Hml]; exact Haddr'))
++      HMem _ (mem_zip_getElem! s.MEMS mtl _ Haddr (by rw [← Hml]; exact Haddr))
+     -- Rocq: `inversion Hmem`
+     obtain ⟨v_n, _, bs, Hmi, _, Hbs, _, _⟩ := meminst_ok_raw s _ _ Hmem
+     refine ⟨s, f, [admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n))],
+-      Step.read _ _ _ (Step_read.memory_size (state.mk_state s f) v_n ?_ ?_)⟩
+-    · simp only [fun_mem, proj_uN_0]
++      Step.read _ _ _ (Step_read.memory_size (state.mk_state s f) v_n _
++        (fun_mem_typed s f C' (uN.mk_uN 0) Hmod Hlen') ?_ ?_)⟩
++    · simp only [proj_uN_0]
+       rw [Hmi, Hbs, Nat.mul_assoc]
+     · exact wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩
+   · simp at Hts
+@@ -6195,19 +6423,22 @@
+     obtain ⟨n1, Heqv1⟩ := invert_typeof_I32 v1 Ht1 HP1
+     obtain ⟨n3, Heqv3⟩ := invert_typeof_I32 v3 Ht3 HP3
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append, Heqv1, Heqv3]
+-    by_cases Hs : n1 + n3 > (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES.length
++    have HeqC : C.MEMS = C'.MEMS := by subst Hcontext; rfl
++    have Hm := fun_mem_typed s f C' (uN.mk_uN 0) Hmod (by rw [← HeqC]; exact Hlen)
++    generalize s.MEMS[f.MODULE.MEMS[proj_uN_0 (uN.mk_uN 0)]!]! = mi at Hm
++    by_cases Hs : n1 + n3 > mi.BYTES.length
+     · exact ⟨s, f, [admininstr.TRAP], Step.read _ _ _
+-        (Step_read.memory_fill_trap (state.mk_state s f) (num_.mk_num__0 Inn.I32 (uN.mk_uN n1)) v2 n3
+-          (by simp [proj_num__0]) (by simpa [proj_num__0, proj_uN_0] using Hs)
++        (Step_read.memory_fill_trap (state.mk_state s f) (num_.mk_num__0 Inn.I32 (uN.mk_uN n1)) v2 n3 mi
++          Hm (by simp [proj_num__0]) (by simpa [proj_num__0, proj_uN_0] using Hs)
+           (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩))⟩
+     · by_cases Hz : n3 = 0
+       · subst Hz
+         exact ⟨s, f, [], Step.read _ _ _
+-          (Step_read.memory_fill_zero (state.mk_state s f) (num_.mk_num__0 Inn.I32 (uN.mk_uN n1)) v2 0
+-            (by simp [proj_num__0]) (by simp only [proj_num__0, proj_uN_0, Option.get!_some]; omega) rfl)⟩
++          (Step_read.memory_fill_zero (state.mk_state s f) (num_.mk_num__0 Inn.I32 (uN.mk_uN n1)) v2 0 mi
++            Hm (by simp [proj_num__0]) (by simp only [proj_num__0, proj_uN_0, Option.get!_some]; omega) rfl)⟩
+       · exact ⟨s, f, _, Step.read _ _ _
+-          (Step_read.memory_fill_succ (state.mk_state s f) (num_.mk_num__0 Inn.I32 (uN.mk_uN n1)) v2 n3
+-            (by simp [proj_num__0]) Hz (by simp only [proj_num__0, proj_uN_0, Option.get!_some]; omega))⟩
++          (Step_read.memory_fill_succ (state.mk_state s f) (num_.mk_num__0 Inn.I32 (uN.mk_uN n1)) v2 n3 mi
++            (by simp [proj_num__0]) Hm Hz (by simp only [proj_num__0, proj_uN_0, Option.get!_some]; omega))⟩
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.memory_copy` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:4797`),
+@@ -6240,26 +6471,27 @@
+      admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN n2)),
+      admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN n3)),
+      admininstr.MEMORY_COPY]) (config.mk_config (state.mk_state s' f') es')
+-  by_cases Hs : n2 + n3 > (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES.length ∨
+-      n1 + n3 > (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES.length
++  have HeqC : C.MEMS = C'.MEMS := by subst Hcontext; rfl
++  have Hm := fun_mem_typed s f C' (uN.mk_uN 0) Hmod (by rw [← HeqC]; exact Hlen)
++  generalize s.MEMS[f.MODULE.MEMS[proj_uN_0 (uN.mk_uN 0)]!]! = mi at Hm
++  by_cases Hs : n2 + n3 > mi.BYTES.length ∨ n1 + n3 > mi.BYTES.length
+   · exact ⟨s, f, [admininstr.TRAP], Step.read _ _ _
+-      (Step_read.memory_copy_trap _ _ _ _ (by simp [proj_num__0]) (by simp [proj_num__0])
++      (Step_read.memory_copy_trap _ _ _ _ mi Hm (by simp [proj_num__0]) (by simp [proj_num__0])
+         (by simpa [proj_num__0, proj_uN_0] using Hs)
+         (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩))⟩
+-  · have HB : n2 + n3 ≤ (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES.length ∧
+-        n1 + n3 ≤ (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES.length := by
++  · have HB : n2 + n3 ≤ mi.BYTES.length ∧ n1 + n3 ≤ mi.BYTES.length := by
+       omega
+     by_cases H0 : n3 = 0
+     · exact ⟨s, f, [], Step.read _ _ _
+-        (Step_read.memory_copy_zero _ _ _ _ (by simp [proj_num__0]) (by simp [proj_num__0])
++        (Step_read.memory_copy_zero _ _ _ _ mi Hm (by simp [proj_num__0]) (by simp [proj_num__0])
+           (by simpa [proj_num__0, proj_uN_0] using HB) H0)⟩
+     · by_cases Hle : n1 ≤ n2
+       · exact ⟨s, f, _, Step.read _ _ _
+-          (Step_read.memory_copy_le _ _ _ _ (by simp [proj_num__0]) (by simp [proj_num__0]) H0
++          (Step_read.memory_copy_le _ _ _ _ mi (by simp [proj_num__0]) (by simp [proj_num__0]) Hm H0
+             (by simpa [proj_num__0, proj_uN_0] using HB)
+             (by simpa [proj_num__0, proj_uN_0] using Hle))⟩
+       · exact ⟨s, f, _, Step.read _ _ _
+-          (Step_read.memory_copy_gt _ _ _ _ (by simp [proj_num__0]) (by simp [proj_num__0])
++          (Step_read.memory_copy_gt _ _ _ _ mi (by simp [proj_num__0]) (by simp [proj_num__0]) Hm
+             (by simp only [proj_num__0, proj_uN_0, Option.get!_some]; omega) H0
+             (by simpa [proj_num__0, proj_uN_0] using HB))⟩
+ 
+@@ -6298,26 +6530,30 @@
+     obtain ⟨n3, Heqv3⟩ := invert_typeof_I32 v3 Ht3 Hwf3
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append, Heqv1, Heqv2, Heqv3,
+       admininstr_instr]
++    have HeqC : C.MEMS = C'.MEMS ∧ C.DATAS = C'.DATAS := by subst Hcontext; exact ⟨rfl, rfl⟩
++    have Hm := fun_mem_typed s f C' (uN.mk_uN 0) Hmod (by rw [← HeqC.1]; exact Hlen)
++    have Hd := fun_data_typed s f C' x Hmod (by rw [← HeqC.2]; exact HRange)
++    generalize s.MEMS[f.MODULE.MEMS[proj_uN_0 (uN.mk_uN 0)]!]! = mi at Hm
++    generalize s.DATAS[f.MODULE.DATAS[proj_uN_0 x]!]! = di at Hd
+     -- Rocq: `case Hs: ((n2 + n3 >? |data.BYTES|) || (n1 + n3 >? |mem.BYTES|)).`
+-    by_cases Hs : (n2 + n3 > (fun_data (state.mk_state s f) x).BYTES.length) ∨
+-        (n1 + n3 > (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES.length)
++    by_cases Hs : (n2 + n3 > di.BYTES.length) ∨ (n1 + n3 > mi.BYTES.length)
+     · -- Rocq: `exists s, f, [admininstr_TRAP]. eapply read. eapply memory_init_trap; eauto.
+       --        econstructor; eauto.`
+       exact ⟨s, f, [admininstr.TRAP], Step.read _ _ _
+-        (Step_read.memory_init_trap _ _ _ _ _ (by simp [proj_num__0]) (by simp [proj_num__0])
++        (Step_read.memory_init_trap _ _ _ _ _ mi di Hm Hd (by simp [proj_num__0]) (by simp [proj_num__0])
+           (by simpa [proj_num__0, proj_uN_0] using Hs)
+           (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩))⟩
+     · -- Rocq: `destruct n3 using N.peano_ind.`
+       rcases n3 with _ | n3
+       · -- Rocq: `exists s, f, []. eapply read. eapply memory_init_zero; eauto. ...`
+         exact ⟨s, f, [], Step.read _ _ _
+-          (Step_read.memory_init_zero _ _ _ _ _ (by simp [proj_num__0]) (by simp [proj_num__0])
++          (Step_read.memory_init_zero _ _ _ _ _ mi di Hm Hd (by simp [proj_num__0]) (by simp [proj_num__0])
+             (by simp only [proj_num__0, Option.get!_some, proj_uN_0]; omega) rfl)⟩
+       · -- Rocq: `exists s, f, [...]. eapply read. eapply memory_init_succ; eauto. ...`
+         exact ⟨s, f, _, Step.read _ _ _
+-          (Step_read.memory_init_succ _ _ _ _ _
++          (Step_read.memory_init_succ _ _ _ _ _ mi di
+             (by simp only [proj_num__0, Option.get!_some, proj_uN_0]; omega)
+-            (by simp [proj_num__0]) (by simp [proj_num__0]) (Nat.succ_ne_zero _)
++            (by simp [proj_num__0]) (by simp [proj_num__0]) Hm Hd (Nat.succ_ne_zero _)
+             (by simp only [proj_num__0, Option.get!_some, proj_uN_0]; omega))⟩
+   · simp at Hts
+ 
+@@ -6339,12 +6575,12 @@
+   rw [← Htf1] at Hts
+   rcases vcs with _ | ⟨v1, vcs1⟩
+   · -- Rocq: `case Estate: (with_data (mk_state s f) x []) => [s' f']. exists s', f', [].
+-    --        rewrite -Estate. by eapply Step__data_drop.`
+-    cases Estate : with_data (state.mk_state s f) x [] with
+-    | mk_state s' f' =>
+-      refine ⟨s', f', [], ?_⟩
+-      rw [← Estate]
+-      exact Step.data_drop _ x
++    --        rewrite -Estate. by eapply Step__data_drop.` (Lean: `fun_with_data` is a relation;
++    --        its constructor gives the new state directly, so there is no case split.)
++    have HeqC : C.DATAS = C'.DATAS := by subst Hcontext; rfl
++    have Hx : proj_uN_0 x < f.MODULE.DATAS.length :=
++      (Moduleinst_ok_data_addr s f.MODULE C' _ Hmod (HeqC ▸ HRange)).1
++    exact ⟨_, _, [], Step.data_drop _ x _ (fun_with_data.fun_with_data_case_0 s f x [] Hx)⟩
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.load_val` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:4982`),
+@@ -6375,14 +6611,17 @@
+     obtain ⟨n1, Heqv1⟩ := invert_typeof_I32 v1 Ht1 Hwf1
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append, Heqv1,
+       admininstr_instr]
++    have HeqC : C.MEMS = C'.MEMS := by subst Hcontext; rfl
++    have Hm := fun_mem_typed s f C' (uN.mk_uN 0) Hmod (by rw [← HeqC]; exact Hlen)
++    generalize s.MEMS[f.MODULE.MEMS[proj_uN_0 (uN.mk_uN 0)]!]! = mi at Hm
+     -- Rocq: `case Hs: ((n1 + OFFSET memarg + size/8) >? |mem.BYTES|).`
+     by_cases Hs : n1 + proj_uN_0 memarg.OFFSET
+         + rat_to_nat (((Option.get! (size (valtype_numtype nt))) : Rat) / (8 : Rat))
+-        > (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES.length
++        > mi.BYTES.length
+     · -- Rocq: `exists s, f, [admininstr_TRAP]. eapply read. eapply load_num_trap; eauto.
+       --        econstructor; eauto.`
+       exact ⟨s, f, [admininstr.TRAP], Step.read _ _ _
+-        (Step_read.load_num_trap _ _ _ _ (by simp [proj_num__0]) Hfunsize
++        (Step_read.load_num_trap _ _ _ _ mi Hm (by simp [proj_num__0]) Hfunsize
+           (by simpa [proj_num__0, proj_uN_0] using Hs)
+           (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩))⟩
+     · -- Rocq: in bounds, read the value back out of the byte slice (`load_num_val` with
+@@ -6393,9 +6632,8 @@
+         cases nt <;> decide +kernel
+       refine ⟨s, f, [admininstr.CONST nt (inv_nbytes_ nt
+           (List.take (rat_to_nat (((Option.get! (size (valtype_numtype nt))) : Rat) / (8 : Rat)))
+-            (List.drop (n1 + proj_uN_0 memarg.OFFSET)
+-              ((fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES))))],
+-        Step.read _ _ _ (Step_read.load_num_val _ _ _ _ _ (by simp [proj_num__0]) Hfunsize ?_ ?_
++            (List.drop (n1 + proj_uN_0 memarg.OFFSET) mi.BYTES)))],
++        Step.read _ _ _ (Step_read.load_num_val _ _ _ _ _ mi Hm (by simp [proj_num__0]) Hfunsize ?_ ?_
+           (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩))⟩
+       · -- Rocq: `apply/eqP; apply: nbytes_inv. apply: list_slice_size. ... by apply: Hs.`
+         simp only [proj_num__0, Option.get!_some, proj_uN_0]
+@@ -6403,9 +6641,10 @@
+         rw [list_slice_size _ _ _ (by simp only [proj_uN_0] at Hs ⊢; omega)]
+         exact Hsz
+       · -- Rocq: `eapply inv_nbytes__is_wf; last by apply: eqxx. apply: Forall_list_slice.
+-        --        by apply: (wf_config_mem_bytes _ _ _ _ HWfConfig).`
++        --        by apply: (wf_config_mem_bytes _ _ _ _ HWfConfig).` (the Lean lemma also
++        --        takes the memory instance and its `fun_mem` witness `Hm`)
+         exact inv_nbytes__is_wf nt _ _
+-          (Forall_list_slice _ _ _ _ (wf_config_mem_bytes _ _ _ _ HWfConfig)) rfl
++          (Forall_list_slice _ _ _ _ (wf_config_mem_bytes _ _ _ _ _ HWfConfig Hm)) rfl
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.load_pack` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:5011`),
+@@ -6441,13 +6680,16 @@
+     obtain ⟨n1, Heqv1⟩ := invert_typeof_I32 v1 Ht1 Hwf1
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append, Heqv1,
+       admininstr_instr]
++    have HeqC : C.MEMS = C'.MEMS := by subst Hcontext; rfl
++    have Hm := fun_mem_typed s f C' (uN.mk_uN 0) Hmod (by rw [← HeqC]; exact Hlen)
++    generalize s.MEMS[f.MODULE.MEMS[proj_uN_0 (uN.mk_uN 0)]!]! = mi at Hm
+     -- Rocq: `case Hs: ((n1 + OFFSET memarg + M/8) >? |mem.BYTES|).`
+     by_cases Hs : n1 + proj_uN_0 memarg.OFFSET + rat_to_nat ((v_M : Rat) / (8 : Rat))
+-        > (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES.length
++        > mi.BYTES.length
+     · -- Rocq: `exists s, f, [admininstr_TRAP]. eapply read. eapply load_pack_trap; eauto.
+       --        econstructor; eauto.`
+       exact ⟨s, f, [admininstr.TRAP], Step.read _ _ _
+-        (Step_read.load_pack_trap _ _ _ _ _ _ (by simp [proj_num__0])
++        (Step_read.load_pack_trap _ _ _ _ _ _ mi Hm (by simp [proj_num__0])
+           (by simpa [proj_num__0, proj_uN_0] using Hs)
+           (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩))⟩
+     · -- Rocq: in bounds, read the value back out of the byte slice (`load_pack_val` with
+@@ -6456,9 +6698,8 @@
+       refine ⟨s, f, [admininstr.CONST (numtype_Inn v_Inn) (num_.mk_num__0 v_Inn
+           (extend__ v_M (Option.get! (size (valtype_Inn v_Inn))) v_sx
+             (inv_ibytes_ v_M (List.take (rat_to_nat ((v_M : Rat) / (8 : Rat)))
+-              (List.drop (n1 + proj_uN_0 memarg.OFFSET)
+-                ((fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES))))))],
+-        Step.read _ _ _ (Step_read.load_pack_val _ _ _ _ _ _ _ ?_ (by simp [proj_num__0]) ?_ ?_
++              (List.drop (n1 + proj_uN_0 memarg.OFFSET) mi.BYTES)))))],
++        Step.read _ _ _ (Step_read.load_pack_val _ _ _ _ _ _ _ mi ?_ Hm (by simp [proj_num__0]) ?_ ?_
+           (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩))⟩
+       · -- Rocq: `1: by destruct v_Inn.`
+         cases v_Inn <;> simp [valtype_Inn, size]
+@@ -6467,9 +6708,10 @@
+         apply ibytes_inv
+         exact list_slice_size _ _ _ (by simp only [proj_uN_0] at Hs ⊢; omega)
+       · -- Rocq: `eapply inv_ibytes__is_wf; last by apply: eqxx. apply: Forall_list_slice.
+-        --        by apply: (wf_config_mem_bytes _ _ _ _ HWfConfig).`
++        --        by apply: (wf_config_mem_bytes _ _ _ _ HWfConfig).` (the Lean lemma also
++        --        takes the memory instance and its `fun_mem` witness `Hm`)
+         exact inv_ibytes__is_wf _ _ _
+-          (Forall_list_slice _ _ _ _ (wf_config_mem_bytes _ _ _ _ HWfConfig)) rfl
++          (Forall_list_slice _ _ _ _ (wf_config_mem_bytes _ _ _ _ _ HWfConfig Hm)) rfl
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.store_val` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:5038`),
+@@ -6503,18 +6745,22 @@
+     obtain ⟨n2, Heqv2⟩ := invert_typeof_numtype v2 nt Ht2
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append, Heqv1, Heqv2,
+       admininstr_instr]
++    have HeqC : C.MEMS = C'.MEMS := by subst Hcontext; rfl
++    have Hm := fun_mem_typed s f C' (uN.mk_uN 0) Hmod (by rw [← HeqC]; exact Hlen)
++    generalize s.MEMS[f.MODULE.MEMS[proj_uN_0 (uN.mk_uN 0)]!]! = mi at Hm
+     -- Rocq: `case Hs: ((n1 + OFFSET memarg + size/8) >? |mem.BYTES|).`
+     by_cases Hs : n1 + proj_uN_0 memarg.OFFSET
+         + rat_to_nat (((Option.get! (size (valtype_numtype nt))) : Rat) / (8 : Rat))
+-        > (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES.length
++        > mi.BYTES.length
+     · -- Rocq: `exists s, f, [admininstr_TRAP]. by eapply store_num_trap; eauto.`
+       exact ⟨s, f, [admininstr.TRAP],
+-        Step.store_num_trap _ _ _ _ _ (by simp [proj_num__0]) Hfunsize
++        Step.store_num_trap _ _ _ _ _ mi Hm (by simp [proj_num__0]) Hfunsize
+           (by simpa [proj_num__0, proj_uN_0] using Hs)
+           (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩)⟩
+     · -- Rocq: `do 3 eexists. eapply (store_num_val (mk_state s f)); eauto.`
+-      exact ⟨_, _, _, Step.store_num_val (state.mk_state s f) _ _ _ _ _
+-        (by simp [proj_num__0]) Hfunsize rfl⟩
++      exact ⟨_, _, _, Step.store_num_val (state.mk_state s f) _ _ _ _ _ _
++        (by simp [proj_num__0]) Hfunsize
++        (fun_with_mem.fun_with_mem_case_0 s f (uN.mk_uN 0) _ _ _ (fun_mem_inv Hm).1) rfl⟩
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.store_pack` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:5058`),
+@@ -6546,9 +6792,12 @@
+     obtain ⟨n1, Heqv1⟩ := invert_typeof_I32 v1 Ht1 Hwf1
+     simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append, Heqv1,
+       admininstr_instr]
++    have HeqC : C.MEMS = C'.MEMS := by subst Hcontext; rfl
++    have Hm := fun_mem_typed s f C' (uN.mk_uN 0) Hmod (by rw [← HeqC]; exact Hlen)
++    generalize s.MEMS[f.MODULE.MEMS[proj_uN_0 (uN.mk_uN 0)]!]! = mi at Hm
+     -- Rocq: `case Hs: ((n1 + OFFSET memarg + M/8) >? |mem.BYTES|).`
+     by_cases Hs : n1 + proj_uN_0 memarg.OFFSET + rat_to_nat ((v_M : Rat) / (8 : Rat))
+-        > (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES.length
++        > mi.BYTES.length
+     · -- Rocq: `exists s, f, [admininstr_TRAP]. destruct Inn.` then per `Inn`:
+       -- `eapply invert_typeof_I32/I64 in Ht2 as [n2 Heqv2]; eauto. rewrite H in Heqv2.
+       --  rewrite Heqv2. eapply store_pack_trap; eauto. econstructor; eauto.`
+@@ -6556,12 +6805,12 @@
+       cases v_Inn
+       · obtain ⟨n2, Heqv2⟩ := invert_typeof_I32 v2 Ht2 Hwf2
+         rw [Heqv2]
+-        exact Step.store_pack_trap _ _ Inn.I32 _ _ _ (by simp [proj_num__0])
++        exact Step.store_pack_trap _ _ Inn.I32 _ _ _ mi Hm (by simp [proj_num__0])
+           (by simpa [proj_num__0, proj_uN_0] using Hs)
+           (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩)
+       · obtain ⟨n2, Heqv2⟩ := invert_typeof_I64 v2 Ht2 Hwf2
+         rw [Heqv2]
+-        exact Step.store_pack_trap _ _ Inn.I64 _ _ _ (by simp [proj_num__0])
++        exact Step.store_pack_trap _ _ Inn.I64 _ _ _ mi Hm (by simp [proj_num__0])
+           (by simpa [proj_num__0, proj_uN_0] using Hs)
+           (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩)
+     -- Rocq: `destruct Inn.` then per `Inn`: invert `Ht2`, `do 3 eexists.
+@@ -6569,12 +6818,16 @@
+     cases v_Inn
+     · obtain ⟨n2, Heqv2⟩ := invert_typeof_I32 v2 Ht2 Hwf2
+       rw [Heqv2]
+-      exact ⟨_, _, _, Step.store_pack_val (state.mk_state s f) _ Inn.I32 _ _ _ _
+-        (by simp [proj_num__0]) (by simp [valtype_Inn, size]) (by simp [proj_num__0]) rfl⟩
++      exact ⟨_, _, _, Step.store_pack_val (state.mk_state s f) _ Inn.I32 _ _ _ _ _
++        (by simp [proj_num__0])
++        (fun_with_mem.fun_with_mem_case_0 s f (uN.mk_uN 0) _ _ _ (fun_mem_inv Hm).1)
++        (by simp [valtype_Inn, size]) (by simp [proj_num__0]) rfl⟩
+     · obtain ⟨n2, Heqv2⟩ := invert_typeof_I64 v2 Ht2 Hwf2
+       rw [Heqv2]
+-      exact ⟨_, _, _, Step.store_pack_val (state.mk_state s f) _ Inn.I64 _ _ _ _
+-        (by simp [proj_num__0]) (by simp [valtype_Inn, size]) (by simp [proj_num__0]) rfl⟩
++      exact ⟨_, _, _, Step.store_pack_val (state.mk_state s f) _ Inn.I64 _ _ _ _ _
++        (by simp [proj_num__0])
++        (fun_with_mem.fun_with_mem_case_0 s f (uN.mk_uN 0) _ _ _ (fun_mem_inv Hm).1)
++        (by simp [valtype_Inn, size]) (by simp [proj_num__0]) rfl⟩
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.vload_val` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:5109`),
+@@ -6592,6 +6845,10 @@
+   unfold t_progress_be_P
+   intro s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret
+   right
++  -- memory `0` exists (`C.MEMS = C'.MEMS`, typed by the frame's module)
++  subst Hcontext
++  obtain ⟨mi, Hmem⟩ : ∃ mi, fun_mem (state.mk_state s f) (uN.mk_uN 0) mi :=
++    ⟨_, fun_mem_typed s f C' (uN.mk_uN 0) Hmod Hlen⟩
+   -- Rocq: `case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfConfig HWfVals.`
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨Htf1, _⟩ := Htf
+@@ -6608,11 +6865,11 @@
+     -- Rocq: `case Hs: ((n1 + OFFSET memarg + size V128/8) >? |mem.BYTES|).`
+     by_cases Hs : n1 + proj_uN_0 memarg.OFFSET
+         + rat_to_nat (((Option.get! (size valtype.V128)) : Rat) / (8 : Rat))
+-        > (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES.length
++        > mi.BYTES.length
+     · -- Rocq: `exists s, f, [admininstr_TRAP]. eapply read. eapply vload_oob; eauto.
+       --        econstructor; eauto.`
+       exact ⟨s, f, [admininstr.TRAP], Step.read _ _ _
+-        (Step_read.vload_oob _ _ _ (by simp [proj_num__0]) Hfunsize
++        (Step_read.vload_oob _ _ _ _ Hmem (by simp [proj_num__0]) Hfunsize
+           (by simpa [proj_num__0, proj_uN_0] using Hs)
+           (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩))⟩
+     · -- Rocq: in bounds, read the value back out of the byte slice (`Step_read__vload_val` with
+@@ -6620,9 +6877,8 @@
+       -- `Forall_list_slice` + `wf_config_mem_bytes`).
+       refine ⟨s, f, [admininstr.VCONST vectype.V128 (inv_vbytes_ vectype.V128
+           (List.take (rat_to_nat (((Option.get! (size valtype.V128)) : Rat) / (8 : Rat)))
+-            (List.drop (n1 + proj_uN_0 memarg.OFFSET)
+-              ((fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES))))],
+-        Step.read _ _ _ (Step_read.vload_val _ _ _ _ (by simp [proj_num__0]) Hfunsize ?_ ?_
++            (List.drop (n1 + proj_uN_0 memarg.OFFSET) mi.BYTES)))],
++        Step.read _ _ _ (Step_read.vload_val _ _ _ _ _ Hmem (by simp [proj_num__0]) Hfunsize ?_ ?_
+           (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩))⟩
+       · -- Rocq: `apply/eqP; apply: vbytes_inv. apply: list_slice_size. ... by apply: Hs.`
+         simp only [proj_num__0, Option.get!_some, proj_uN_0]
+@@ -6632,7 +6888,7 @@
+       · -- Rocq: `eapply (inv_vbytes__is_wf V128); [ | by apply: eqxx | by [] ].
+         --        apply: Forall_list_slice. by apply: (wf_config_mem_bytes _ _ _ _ HWfConfig).`
+         exact inv_vbytes__is_wf vectype.V128 _ _
+-          (Forall_list_slice _ _ _ _ (wf_config_mem_bytes _ _ _ _ HWfConfig)) rfl Hfunsize
++          (Forall_list_slice _ _ _ _ (wf_config_mem_bytes _ _ _ _ _ HWfConfig Hmem)) rfl Hfunsize
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.vload_pack` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:5138`),
+@@ -6650,6 +6906,10 @@
+   unfold t_progress_be_P
+   intro s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret
+   right
++  -- memory `0` exists (`C.MEMS = C'.MEMS`, typed by the frame's module)
++  subst Hcontext
++  obtain ⟨mi, Hmem⟩ : ∃ mi, fun_mem (state.mk_state s f) (uN.mk_uN 0) mi :=
++    ⟨_, fun_mem_typed s f C' (uN.mk_uN 0) Hmod Hlen⟩
+   -- Rocq: `case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfConfig HWfVals.`
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨Htf1, _⟩ := Htf
+@@ -6665,16 +6925,16 @@
+       admininstr_instr]
+     -- Rocq: `case Hs: ((n1 + OFFSET memarg + (v_M * v_N) / 8) >? |mem.BYTES|).`
+     by_cases Hs : n1 + proj_uN_0 memarg.OFFSET + rat_to_nat (((v_M * v_N) : Rat) / (8 : Rat))
+-        > (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES.length
++        > mi.BYTES.length
+     · -- Rocq: `exists s, f, [admininstr_TRAP]. eapply read. eapply vload_shape_oob; eauto.
+       --        econstructor; eauto.`
+       exact ⟨s, f, [admininstr.TRAP], Step.read _ _ _
+-        (Step_read.vload_shape_oob _ _ _ _ _ _ (by simp [proj_num__0])
++        (Step_read.vload_shape_oob _ _ _ _ _ _ _ Hmem (by simp [proj_num__0])
+           (by simpa [proj_num__0, proj_uN_0] using Hs)
+           (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩))⟩
+     · -- Rocq: `have Hbnd : n1 + OFFSET + (v_M * v_N) / 8 <= |mem.BYTES|`.
+       have Hbnd : n1 + proj_uN_0 memarg.OFFSET + rat_to_nat (((v_M * v_N) : Rat) / (8 : Rat))
+-          ≤ (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES.length := Nat.le_of_not_gt Hs
++          ≤ mi.BYTES.length := Nat.le_of_not_gt Hs
+       -- Rocq: `have Hwv : wf_vloadop_ V128 (SHAPEX_ (mk_sz v_M) v_N v_sx)` (inversion HWfinstr).
+       have Hwv : wf_vloadop_ vectype.V128 (vloadop_.SHAPEX_ (sz.mk_sz v_M) v_N v_sx) := by
+         cases HWfinstr
+@@ -6699,8 +6959,9 @@
+       -- (v_M / 8))` and `HJ : forall k, wf_uN v_M (J k)`.
+       have HJ : ∀ k : Nat, wf_uN v_M (inv_ibytes_ v_M (List.take (rat_to_nat ((v_M : Rat) / (8 : Rat)))
+           (List.drop (n1 + proj_uN_0 memarg.OFFSET + rat_to_nat (((k * v_M) : Rat) / (8 : Rat)))
+-            (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES))) := fun k =>
+-        inv_ibytes__is_wf _ _ _ (Forall_list_slice _ _ _ _ (wf_config_mem_bytes _ _ _ _ HWfConfig)) rfl
++            mi.BYTES))) := fun k =>
++        inv_ibytes__is_wf _ _ _
++          (Forall_list_slice _ _ _ _ (wf_config_mem_bytes _ _ _ _ _ HWfConfig Hmem)) rfl
+       -- Rocq: `case: Hcases => [E | [E | [E | E]]]; subst v_M.` In the three possible cases
+       -- (`v_M` = 8/16/32, so `v_N` = 8/4/2) the lanes widen to `Jnn` = I16/I32/I64; they share
+       -- the `vload_shape_val` step below, parametrised by `q = v_M / 8` and that `Jnn`. The fourth
+@@ -6711,15 +6972,18 @@
+         · subst E
+           obtain rfl : @Eq Nat v_N 8 := by omega
+           exact Or.inr ⟨1, Jnn.I16, rfl, rfl,
+-            wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (by decide)) (by decide)⟩
++            wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (by decide))
++              (by decide)⟩
+         · subst E
+           obtain rfl : @Eq Nat v_N 4 := by omega
+           exact Or.inr ⟨2, Jnn.I32, rfl, rfl,
+-            wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (by decide)) (by decide)⟩
++            wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (by decide))
++              (by decide)⟩
+         · subst E
+           obtain rfl : @Eq Nat v_N 2 := by omega
+           exact Or.inr ⟨4, Jnn.I64, rfl, rfl,
+-            wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (by decide)) (by decide)⟩
++            wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (by decide))
++              (by decide)⟩
+         · exact Or.inl E
+       · -- Rocq: `4: { (* SHAPE 64 X 1 is excluded by the side condition M > 1 of
+         -- vloadop_. *) have EN : v_N = 1%num by lia. subst v_N. move: HM1. by vm_compute. }`
+@@ -6749,8 +7013,9 @@
+         refine ⟨s, f, _, Step.read _ _ _ (Step_read.vload_shape_val _ _ _ _ _ _ _
+           ((List.range v_N).map (fun (k : Nat) => inv_ibytes_ v_M (List.take (rat_to_nat ((v_M : Rat) / (8 : Rat)))
+             (List.drop (n1 + proj_uN_0 memarg.OFFSET + rat_to_nat (((k * v_M) : Rat) / (8 : Rat)))
+-              (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES))))
+-          Jn ?_ ?_ HJn rfl (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩) Hshape ?_ (by simp))⟩
++              mi.BYTES))))
++          Jn _ _ (fun_jsize_jsize Jn) Hmem ?_ ?_ HJn rfl
++          (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩) Hshape ?_ (by simp))⟩
+         · -- the address is an `i32` (one premise per lane)
+           intro k _
+           simp [proj_num__0]
+@@ -6771,7 +7036,8 @@
+         · -- Rocq: `eapply lane__case_0; [ (eapply extend___is_wf; last by apply: eqxx); apply: HJ | by [] ]`.
+           intro x hx
+           obtain ⟨k, _, rfl⟩ := List.mem_map.1 hx
+-          exact wf_lane_.lane__case_0 _ _ _ (extend___is_wf _ _ _ _ _ (HJ k) rfl) rfl
++          exact wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _)
++            (extend___is_wf _ _ _ _ _ (HJ k) rfl) rfl
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.vload_splat` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:5204`),
+@@ -6788,6 +7054,10 @@
+   unfold t_progress_be_P
+   intro s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret
+   right
++  -- memory `0` exists (`C.MEMS = C'.MEMS`, typed by the frame's module)
++  subst Hcontext
++  obtain ⟨mi, Hmem⟩ : ∃ mi, fun_mem (state.mk_state s f) (uN.mk_uN 0) mi :=
++    ⟨_, fun_mem_typed s f C' (uN.mk_uN 0) Hmod Hlen⟩
+   -- Rocq: `case: Htf => Htf1 _. rewrite -Htf1 in Hts. invert_typeof_vcs Hts HWfConfig HWfVals.`
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨Htf1, _⟩ := Htf
+@@ -6803,20 +7073,21 @@
+       admininstr_instr]
+     -- Rocq: `case Hs: ((n1 + OFFSET memarg + v_n / 8) >? |mem.BYTES|).`
+     by_cases Hs : n1 + proj_uN_0 memarg.OFFSET + rat_to_nat ((v_n : Rat) / (8 : Rat))
+-        > (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES.length
++        > mi.BYTES.length
+     · -- Rocq: `exists s, f, [admininstr_TRAP]. eapply read. eapply vload_splat_oob; eauto.
+       --        econstructor; eauto.`
+       exact ⟨s, f, [admininstr.TRAP], Step.read _ _ _
+-        (Step_read.vload_splat_oob _ _ _ _ (by simp [proj_num__0])
++        (Step_read.vload_splat_oob _ _ _ _ _ Hmem (by simp [proj_num__0])
+           (by simpa [proj_num__0, proj_uN_0] using Hs)
+           (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩))⟩
+     · -- Rocq: `have Hbnd : n1 + OFFSET + v_n / 8 <= |mem.BYTES|`.
+       have Hbnd : n1 + proj_uN_0 memarg.OFFSET + rat_to_nat ((v_n : Rat) / (8 : Rat))
+-          ≤ (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES.length := Nat.le_of_not_gt Hs
++          ≤ mi.BYTES.length := Nat.le_of_not_gt Hs
+       -- Rocq: `have Hwfk : wf_uN v_n (inv_ibytes_ v_n (list_slice BYTES (n1 + OFFSET) (v_n / 8)))`.
+       have Hwfk : wf_uN v_n (inv_ibytes_ v_n (List.take (rat_to_nat ((v_n : Rat) / (8 : Rat)))
+-          (List.drop (n1 + proj_uN_0 memarg.OFFSET) (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES))) :=
+-        inv_ibytes__is_wf _ _ _ (Forall_list_slice _ _ _ _ (wf_config_mem_bytes _ _ _ _ HWfConfig)) rfl
++          (List.drop (n1 + proj_uN_0 memarg.OFFSET) mi.BYTES))) :=
++        inv_ibytes__is_wf _ _ _
++          (Forall_list_slice _ _ _ _ (wf_config_mem_bytes _ _ _ _ _ HWfConfig Hmem)) rfl
+       -- Rocq: `have Hsz : wf_sz (mk_sz v_n)` (inversion HWfinstr, then of `wf_vloadop_`).
+       have Hsz : wf_sz (sz.mk_sz v_n) := by
+         cases HWfinstr
+@@ -6835,19 +7106,23 @@
+           (vM : Rat) = (128 : Rat) / (v_n : Rat) ∧ wf_shape (shape.X (lanetype_Jnn Jn) (dim.mk_dim vM)) := by
+         rcases Hcases with E | E | E | E <;> subst E
+         · exact ⟨Jnn.I8, 16, rfl, by norm_num,
+-            wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (by decide)) (by decide)⟩
++            wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (by decide))
++              (by decide)⟩
+         · exact ⟨Jnn.I16, 8, rfl, by norm_num,
+-            wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (by decide)) (by decide)⟩
++            wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (by decide))
++              (by decide)⟩
+         · exact ⟨Jnn.I32, 4, rfl, by norm_num,
+-            wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (by decide)) (by decide)⟩
++            wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (by decide))
++              (by decide)⟩
+         · exact ⟨Jnn.I64, 2, rfl, by norm_num,
+-            wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (by decide)) (by decide)⟩
++            wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (by decide))
++              (by decide)⟩
+       subst HJn
+       refine ⟨s, f, _, Step.read _ _ _ (Step_read.vload_splat_val _ _ _ _ _
+         (inv_ibytes_ (jsize Jn) (List.take (rat_to_nat (((jsize Jn) : Rat) / (8 : Rat)))
+-          (List.drop (n1 + proj_uN_0 memarg.OFFSET) (fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES)))
+-        Jn vM (by simp [proj_num__0]) ?_ rfl HvM rfl (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩)
+-        Hshape ?_)⟩
++          (List.drop (n1 + proj_uN_0 memarg.OFFSET) mi.BYTES)))
++        Jn vM _ _ (fun_jsize_jsize Jn) Hmem (by simp [proj_num__0]) ?_ rfl HvM rfl
++        (wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩) Hshape ?_)⟩
+       · -- Rocq: `apply/eqP; apply: ibytes_inv; apply: list_slice_size; by apply: Hbnd`.
+         simp only [proj_num__0, Option.get!_some]
+         rw [show proj_uN_0 (uN.mk_uN n1) = n1 from rfl]
+@@ -6856,7 +7131,7 @@
+       · -- Rocq: `eapply lane__case_0; [ by rewrite mk_uN_eta; apply: Hwfk | by [] ]`.
+         have mk_uN_eta : ∀ u : uN, uN.mk_uN (proj_uN_0 u) = u := fun u => by cases u; rfl
+         rw [mk_uN_eta]
+-        exact wf_lane_.lane__case_0 _ _ _ Hwfk rfl
++        exact wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) Hwfk rfl
+   · simp at Hts
+ 
+ /-- Lean-only: the `Instr_ok.vload_zero` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:5253`),
+@@ -6873,23 +7148,26 @@
+   unfold t_progress_be_P
+   intro s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret
+   right
++  -- memory `0` exists (`C.MEMS = C'.MEMS`, typed by the frame's module)
++  subst Hcontext
++  obtain ⟨mi, Hmem⟩ : ∃ mi, fun_mem (state.mk_state s f) (uN.mk_uN 0) mi :=
++    ⟨_, fun_mem_typed s f C' (uN.mk_uN 0) Hmod Hlen⟩
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨rfl, rfl⟩ := Htf
+   obtain ⟨v1, rfl, Ht1⟩ := List.map_eq_singleton_iff.mp Hts
+   obtain ⟨n1, Heqv1⟩ := invert_typeof_I32 v1 Ht1 (HWfVals v1 (by simp))
+   simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append, Heqv1]
+   have Hwf0 : wf_uN 32 (uN.mk_uN 0) := wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩
+-  by_cases Hs : n1 + proj_uN_0 v_memarg.OFFSET + rat_to_nat ((v_n : Rat) / 8)
+-      > ((fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES).length
++  by_cases Hs : n1 + proj_uN_0 v_memarg.OFFSET + rat_to_nat ((v_n : Rat) / 8) > mi.BYTES.length
+   · exact ⟨s, f, [admininstr.TRAP], Step.read _ _ _
+-      (Step_read.vload_zero_oob _ _ _ _ (by simp [proj_num__0]) Hs Hwf0)⟩
++      (Step_read.vload_zero_oob _ _ _ _ _ Hmem (by simp [proj_num__0]) Hs Hwf0)⟩
+   · have Hbnd : n1 + proj_uN_0 v_memarg.OFFSET + rat_to_nat ((v_n : Rat) / 8)
+-        ≤ ((fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES).length := Nat.le_of_not_lt Hs
++        ≤ mi.BYTES.length := Nat.le_of_not_lt Hs
+     exact ⟨s, f, _, Step.read _ _ _
+-      (Step_read.vload_zero_val _ _ _ _ _ _ (by simp [proj_num__0])
++      (Step_read.vload_zero_val _ _ _ _ _ _ _ Hmem (by simp [proj_num__0])
+         (ibytes_inv _ _ (list_slice_size _ _ _ Hbnd)) rfl
+         (inv_ibytes__is_wf _ _ _
+-          (Forall_list_slice _ _ _ _ (wf_config_mem_bytes s f _ (uN.mk_uN 0) HWfConfig)) rfl)
++          (Forall_list_slice _ _ _ _ (wf_config_mem_bytes s f _ (uN.mk_uN 0) mi HWfConfig Hmem)) rfl)
+         Hwf0)⟩
+ 
+ /-- Lean-only: the `Instr_ok.vload_lane` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:5280`),
+@@ -6907,6 +7185,10 @@
+   unfold t_progress_be_P
+   intro s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret
+   right
++  -- memory `0` exists (`C.MEMS = C'.MEMS`, typed by the frame's module)
++  subst Hcontext
++  obtain ⟨mi, Hmem⟩ : ∃ mi, fun_mem (state.mk_state s f) (uN.mk_uN 0) mi :=
++    ⟨_, fun_mem_typed s f C' (uN.mk_uN 0) Hmod Hlen⟩
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨rfl, rfl⟩ := Htf
+   obtain ⟨v1, l1, rfl, Ht1, Hts'⟩ := List.map_eq_cons_iff.mp Hts
+@@ -6915,17 +7197,15 @@
+   obtain ⟨c1, Heqv2, Hwf2⟩ := invert_typeof_V128 v2 Ht2 (HWfVals v2 (by simp))
+   simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append, Heqv1, Heqv2]
+   have Hwf0 : wf_uN 32 (uN.mk_uN 0) := wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩
+-  by_cases Hs : n1 + proj_uN_0 v_memarg.OFFSET + rat_to_nat ((v_n : Rat) / 8)
+-      > ((fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES).length
++  by_cases Hs : n1 + proj_uN_0 v_memarg.OFFSET + rat_to_nat ((v_n : Rat) / 8) > mi.BYTES.length
+   · exact ⟨s, f, [admininstr.TRAP], Step.read _ _ _
+-      (Step_read.vload_lane_oob _ _ _ _ _ _ (by simp [proj_num__0]) Hs Hwf0)⟩
++      (Step_read.vload_lane_oob _ _ _ _ _ _ _ Hmem (by simp [proj_num__0]) Hs Hwf0)⟩
+   · have Hbnd : n1 + proj_uN_0 v_memarg.OFFSET + rat_to_nat ((v_n : Rat) / 8)
+-        ≤ ((fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES).length := Nat.le_of_not_lt Hs
++        ≤ mi.BYTES.length := Nat.le_of_not_lt Hs
+     have Hwfk : wf_uN v_n (inv_ibytes_ v_n (List.take (rat_to_nat ((v_n : Rat) / 8))
+-        (List.drop (n1 + proj_uN_0 v_memarg.OFFSET)
+-          ((fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES)))) :=
++        (List.drop (n1 + proj_uN_0 v_memarg.OFFSET) mi.BYTES))) :=
+       inv_ibytes__is_wf _ _ _
+-        (Forall_list_slice _ _ _ _ (wf_config_mem_bytes s f _ (uN.mk_uN 0) HWfConfig)) rfl
++        (Forall_list_slice _ _ _ _ (wf_config_mem_bytes s f _ (uN.mk_uN 0) mi HWfConfig Hmem)) rfl
+     have Heta : ∀ x : uN, uN.mk_uN (proj_uN_0 x) = x := fun x => by cases x; rfl
+     have Hsz : wf_sz (sz.mk_sz v_n) := by cases HWfinstr; assumption
+     have Hcases : v_n = 8 ∨ v_n = 16 ∨ v_n = 32 ∨ v_n = 64 := by
+@@ -6938,25 +7218,29 @@
+         · exact Or.inr (Or.inr (Or.inr h))
+     rcases Hcases with E | E | E | E <;> subst E
+     · exact ⟨s, f, _, Step.read _ _ _
+-        (Step_read.vload_lane_val _ _ _ _ _ _ _ _ Jnn.I8 16 (by simp [proj_num__0])
+-          (ibytes_inv _ _ (list_slice_size _ _ _ Hbnd)) rfl (by norm_num) rfl Hwf0
+-          (wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (by decide)) rfl)
+-          (wf_lane_.lane__case_0 _ _ _ (by rw [Heta]; exact Hwfk) rfl))⟩
++        (Step_read.vload_lane_val _ _ _ _ _ _ _ _ Jnn.I8 16 _ _ (fun_jsize_jsize _) Hmem
++          (by simp [proj_num__0]) (ibytes_inv _ _ (list_slice_size _ _ _ Hbnd)) rfl (by norm_num)
++          rfl Hwf0
++          (wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (by decide)) rfl)
++          (wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) (by rw [Heta]; exact Hwfk) rfl))⟩
+     · exact ⟨s, f, _, Step.read _ _ _
+-        (Step_read.vload_lane_val _ _ _ _ _ _ _ _ Jnn.I16 8 (by simp [proj_num__0])
+-          (ibytes_inv _ _ (list_slice_size _ _ _ Hbnd)) rfl (by norm_num) rfl Hwf0
+-          (wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (by decide)) rfl)
+-          (wf_lane_.lane__case_0 _ _ _ (by rw [Heta]; exact Hwfk) rfl))⟩
++        (Step_read.vload_lane_val _ _ _ _ _ _ _ _ Jnn.I16 8 _ _ (fun_jsize_jsize _) Hmem
++          (by simp [proj_num__0]) (ibytes_inv _ _ (list_slice_size _ _ _ Hbnd)) rfl (by norm_num)
++          rfl Hwf0
++          (wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (by decide)) rfl)
++          (wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) (by rw [Heta]; exact Hwfk) rfl))⟩
+     · exact ⟨s, f, _, Step.read _ _ _
+-        (Step_read.vload_lane_val _ _ _ _ _ _ _ _ Jnn.I32 4 (by simp [proj_num__0])
+-          (ibytes_inv _ _ (list_slice_size _ _ _ Hbnd)) rfl (by norm_num) rfl Hwf0
+-          (wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (by decide)) rfl)
+-          (wf_lane_.lane__case_0 _ _ _ (by rw [Heta]; exact Hwfk) rfl))⟩
++        (Step_read.vload_lane_val _ _ _ _ _ _ _ _ Jnn.I32 4 _ _ (fun_jsize_jsize _) Hmem
++          (by simp [proj_num__0]) (ibytes_inv _ _ (list_slice_size _ _ _ Hbnd)) rfl (by norm_num)
++          rfl Hwf0
++          (wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (by decide)) rfl)
++          (wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) (by rw [Heta]; exact Hwfk) rfl))⟩
+     · exact ⟨s, f, _, Step.read _ _ _
+-        (Step_read.vload_lane_val _ _ _ _ _ _ _ _ Jnn.I64 2 (by simp [proj_num__0])
+-          (ibytes_inv _ _ (list_slice_size _ _ _ Hbnd)) rfl (by norm_num) rfl Hwf0
+-          (wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (by decide)) rfl)
+-          (wf_lane_.lane__case_0 _ _ _ (by rw [Heta]; exact Hwfk) rfl))⟩
++        (Step_read.vload_lane_val _ _ _ _ _ _ _ _ Jnn.I64 2 _ _ (fun_jsize_jsize _) Hmem
++          (by simp [proj_num__0]) (ibytes_inv _ _ (list_slice_size _ _ _ Hbnd)) rfl (by norm_num)
++          rfl Hwf0
++          (wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (by decide)) rfl)
++          (wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) (by rw [Heta]; exact Hwfk) rfl))⟩
+ 
+ /-- Lean-only: the `Instr_ok.vstore` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:5324`),
+     stated as exactly the minor premise of the mutual recursor `Instrs_ok.rec` for motives
+@@ -6973,6 +7257,9 @@
+   unfold t_progress_be_P
+   intro s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret
+   right
++  -- memory `0` exists (`C.MEMS = C'.MEMS`, typed by the frame's module)
++  subst Hcontext
++  have Hx : 0 < f.MODULE.MEMS.length := (Moduleinst_ok_mem_addr s f.MODULE C' 0 Hmod Hlen).1
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨rfl, rfl⟩ := Htf
+   obtain ⟨v1, l1, rfl, Ht1, Hts'⟩ := List.map_eq_cons_iff.mp Hts
+@@ -6980,7 +7267,8 @@
+   obtain ⟨n1, Heqv1⟩ := invert_typeof_I32 v1 Ht1 (HWfVals v1 (by simp))
+   obtain ⟨c2, Heqv2, Hwf2⟩ := invert_typeof_V128 v2 Ht2 (HWfVals v2 (by simp))
+   simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append, Heqv1, Heqv2]
+-  exact ⟨_, _, _, Step.vstore_val _ _ _ _ _ (by simp [proj_num__0]) Hfunsize rfl⟩
++  exact ⟨_, _, _, Step.vstore_val _ _ _ _ _ _ (by simp [proj_num__0]) Hfunsize
++    (fun_with_mem.fun_with_mem_case_0 s f _ _ _ _ Hx) rfl⟩
+ 
+ /-- Lean-only: the `Instr_ok.vstore_lane` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:5339`),
+     stated as exactly the minor premise of the mutual recursor `Instrs_ok.rec` for motives
+@@ -6997,6 +7285,11 @@
+   unfold t_progress_be_P
+   intro s f C' vcs ts1 ts2 lab ret HWfConfig HWfVals Htf Hcontext Hmod Hts Hstore Hnotbr Hnotret
+   right
++  -- memory `0` exists (`C.MEMS = C'.MEMS`, typed by the frame's module)
++  subst Hcontext
++  obtain ⟨mi, Hmem⟩ : ∃ mi, fun_mem (state.mk_state s f) (uN.mk_uN 0) mi :=
++    ⟨_, fun_mem_typed s f C' (uN.mk_uN 0) Hmod Hlen⟩
++  have Hx : 0 < f.MODULE.MEMS.length := (fun_mem_inv Hmem).1
+   simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at Htf
+   obtain ⟨rfl, rfl⟩ := Htf
+   obtain ⟨v1, l1, rfl, Ht1, Hts'⟩ := List.map_eq_cons_iff.mp Hts
+@@ -7005,10 +7298,9 @@
+   obtain ⟨c1, Heqv2, Hwf2⟩ := invert_typeof_V128 v2 Ht2 (HWfVals v2 (by simp))
+   simp only [List.map_cons, List.map_nil, List.cons_append, List.nil_append, Heqv1, Heqv2]
+   have Hwf0 : wf_uN 32 (uN.mk_uN 0) := wf_uN.uN_case_0 32 0 ⟨Nat.zero_le _, Nat.zero_le _⟩
+-  by_cases Hs : n1 + proj_uN_0 v_memarg.OFFSET + v_n
+-      > ((fun_mem (state.mk_state s f) (uN.mk_uN 0)).BYTES).length
++  by_cases Hs : n1 + proj_uN_0 v_memarg.OFFSET + v_n > mi.BYTES.length
+   · exact ⟨s, f, [admininstr.TRAP],
+-      Step.vstore_lane_oob _ _ _ _ _ _ (by simp [proj_num__0]) Hs Hwf0⟩
++      Step.vstore_lane_oob _ _ _ _ _ _ _ Hmem (by simp [proj_num__0]) Hs Hwf0⟩
+   · have Hsz : wf_sz (sz.mk_sz v_n) := by cases HWfinstr; assumption
+     have Hcases : v_n = 8 ∨ v_n = 16 ∨ v_n = 32 ∨ v_n = 64 := by
+       cases Hsz with
+@@ -7020,17 +7312,17 @@
+         · exact Or.inr (Or.inr (Or.inr h))
+     have Hwf128 : wf_uN 128 c1 := Hwf2
+     rcases Hcases with E | E | E | E <;> subst E
+-    · exact vstore_lane_progress s f n1 v_memarg v_laneidx c1 Jnn.I8 16 Hwf128
+-        (wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (by decide)) rfl)
++    · exact vstore_lane_progress s f n1 v_memarg v_laneidx c1 Jnn.I8 16 Hx Hwf128
++        (wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (by decide)) rfl)
+         (by have h := Hidx; norm_num at h; exact_mod_cast h) (show ((16 : ℕ) : Rat) = 128 / ((8 : ℕ) : Rat) by norm_num)
+-    · exact vstore_lane_progress s f n1 v_memarg v_laneidx c1 Jnn.I16 8 Hwf128
+-        (wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (by decide)) rfl)
++    · exact vstore_lane_progress s f n1 v_memarg v_laneidx c1 Jnn.I16 8 Hx Hwf128
++        (wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (by decide)) rfl)
+         (by have h := Hidx; norm_num at h; exact_mod_cast h) (show ((8 : ℕ) : Rat) = 128 / ((16 : ℕ) : Rat) by norm_num)
+-    · exact vstore_lane_progress s f n1 v_memarg v_laneidx c1 Jnn.I32 4 Hwf128
+-        (wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (by decide)) rfl)
++    · exact vstore_lane_progress s f n1 v_memarg v_laneidx c1 Jnn.I32 4 Hx Hwf128
++        (wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (by decide)) rfl)
+         (by have h := Hidx; norm_num at h; exact_mod_cast h) (show ((4 : ℕ) : Rat) = 128 / ((32 : ℕ) : Rat) by norm_num)
+-    · exact vstore_lane_progress s f n1 v_memarg v_laneidx c1 Jnn.I64 2 Hwf128
+-        (wf_shape.shape_case_0 _ _ (wf_dim.dim_case_0 _ (by decide)) rfl)
++    · exact vstore_lane_progress s f n1 v_memarg v_laneidx c1 Jnn.I64 2 Hx Hwf128
++        (wf_shape.shape_case_0 _ _ _ (fun_lsize_lsize _) (wf_dim.dim_case_0 _ (by decide)) rfl)
+         (by have h := Hidx; norm_num at h; omega) (show ((2 : ℕ) : Rat) = 128 / ((64 : ℕ) : Rat) by norm_num)
+ 
+ /-- Lean-only: the `Instrs_ok.empty` case of Rocq's `t_progress_be` proof (bullet at `type_progress.v:5370`),
+@@ -7557,20 +7849,25 @@
+     have hwfmi : wf_moduleinst minst := by
+       cases hwffi with
+       | funcinst_case_ _ _ _ h1 _ => exact h1
+-    have hwfvals : Forall (fun v => wf_val v) (vcs ++ Map (fun t => Option.get! (default_ t)) t_lst) := by
++    have hwfvals : Forall (fun v => wf_val v)
++        (vcs ++ Map (fun o => Option.get! o) (List.map default_ t_lst)) := by
+       intro v hv
+       rcases List.mem_append.1 hv with hv | hv
+       · exact HWfVals v hv
+-      · simp only [Map, List.mem_map] at hv
++      · simp only [Map, List.map_map, List.mem_map] at hv
+         obtain ⟨t, ht, rfl⟩ := hv
+-        exact default__is_wf t _ (HNotNone t ht) rfl
++        exact default__is_wf t _ _ (fun_default_default t) (HNotNone t ht) rfl
+     have hlen : vcs.length = ts1.length := by rw [← Hts, List.length_map]
+     refine ⟨s, f, [admininstr.FRAME_ ts2.length
+-      ({ LOCALS := vcs ++ Map (fun t => Option.get! (default_ t)) t_lst, MODULE := minst } : frame)
++      ({ LOCALS := vcs ++ Map (fun o => Option.get! o) (List.map default_ t_lst), MODULE := minst } : frame)
+       [admininstr.LABEL_ ts2.length [] (Map (fun i => admininstr_instr i) es)]], ?_⟩
+     apply Step.read
+     exact Step_read.call_addr (state.mk_state s f) vcs.length vcs addr ts2.length _ es ts1 ts2 minst _ x t_lst
+-      HBound HLookup rfl HNotNone rfl hwffi hwffunc (wf_frame.frame_case_ _ _ hwfvals hwfmi) rfl hlen rfl
++      (List.map default_ t_lst) (List.length_map _)
++      (Forall2_map_l _ _ (fun o t => fun_default_ t o) default_ t_lst (fun t _ => fun_default_default t))
++      HBound HLookup rfl
++      (fun o ho => by obtain ⟨t, ht, rfl⟩ := List.mem_map.1 ho; exact HNotNone t ht)
++      rfl hwffi hwffunc (wf_frame.frame_case_ _ _ hwfvals hwfmi) rfl hlen rfl
+ 
+ /-- Lean-only: the `ref` case of Rocq's `t_progress_e` proof (bullet at `type_progress.v:5817`),
+     stated as exactly the minor premise of the mutual recursor `Instrs_ok2.rec` (store `s` is a

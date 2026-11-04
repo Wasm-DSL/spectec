@@ -1,0 +1,163 @@
+{
+ "label": "V-INFRA",
+ "verified_file": "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/V-INFRA/section.verified.md",
+ "corrections": [
+  {
+   "construct": "Intro (audit sentence)",
+   "wrong": "'no theorem reads a default value. That includes these 55, even though the views use Option.get! and l[i]!'. 10 of the 55 are definitions, not theorems.",
+   "fixed": "Now says the 45 theorems among the 55 (the other 10 are definitions). It also names which views use Option.get! (lsize, isize, sizenn, sizenn1) and says the lookup lemmas mention l[i]!."
+  },
+  {
+   "construct": "Summary table, family A, 'Now in the model'",
+   "wrong": "'Each has the premise size \u2026 \u2260 none or fun_lsize \u2026'. The i8/i16 constructors of fun_lsize have no premise.",
+   "fixed": "'Their constructors have the premise size \u2026 \u2260 none (the i8/i16 cases of fun_lsize have none) or fun_lsize \u2026'."
+  },
+  {
+   "construct": "Summary table, family A, 'Used by'",
+   "wrong": "'43 declarations \u2026 (13 of them with unchanged text)'. Only 8 of the 43 direct users have unchanged text: jlane, flane, jlane_proj_wf, Forall_lane_Jnn, Forall_iabs_total, shape_lanes_even, wf_opt_num_ and zip_lane_rel. Five of the 13 unchanged declarations (jlane_some, flane_some, jlane_map_proj, lanes_Jnn_form, lanes_Fnn_form) never mention a view directly.",
+   "fixed": "Says 8 of the 43 have unchanged text, and that 5 more unchanged declarations use the views only through jlane, flane and wf_lane_*_inv. The same split is now spelled out in the A 'Unchanged text' paragraph."
+  },
+  {
+   "construct": "Summary table, family B, 'Used by'",
+   "wrong": "'progress and preservation for function calls, num_default* and zero_lane_wf' leaves 3 of the 8 users unnamed.",
+   "fixed": "Names all 8: t_progress_e_call_addr, t_read_preservation, the helpers default_not_none, default_val_ok and default_vals_ok, then num_default, num_default_is_well_formed and zero_lane_wf."
+  },
+  {
+   "construct": "Summary table, family D, 'Replaces'; D 'Original sketch'",
+   "wrong": "'Old progress needed no bounds; only memory.size derived one'. Old progress also proved the call rule's inline-indexing bound x < |F.module.funcaddrs|, through funcs_size.",
+   "fixed": "Table cell: 'The old lookups needed no bounds; only memory.size derived one (the store-side bound), inline'. The Original sketch gets a parenthetical about call/funcs_size."
+  },
+  {
+   "construct": "A, 'What the regeneration removed'",
+   "wrong": "(1) 'their numeric cases read Option.get! (size \u2026). Because the bodies use !, \u2026' \u2014 the bodies of jsize, lsizenn, lsizenn1 and lsizenn2 call lsize and contain no !. (2) 'one constructor per spec clause' \u2014 fun_lsize has 6 constructors, but $lsize has 2 spec clauses (numtype, packtype).",
+   "fixed": "lsize, isize, sizenn and sizenn1 read Option.get!; jsize and lsizenn* call lsize. All eight became relations, the first four because of the !, the others because they call lsize. Each relation has one constructor per case of the old function (six for fun_lsize, one for each of the others)."
+  },
+  {
+   "construct": "A, 'What broke downstream' item 1",
+   "wrong": "Says the text broke because it used lsize/sizenn as a function. jlane_some, flane_some and jlane_map_proj have no errors of their own; they broke through jlane and flane.",
+   "fixed": "'\u2026 used lsize, sizenn, \u2026 as a function, directly or through a definition such as jlane or flane, \u2026'."
+  },
+  {
+   "construct": "A, sentence on $size partiality",
+   "wrong": "'$size \u2026 is defined on every number type and lane type'. $size is never applied to the i8/i16 lanes.",
+   "fixed": "'defined on every number type (the i8 and i16 lanes use $psize)'."
+  },
+  {
+   "construct": "A, '*Proofs.*' (fun_X_X, fun_X_eq)",
+   "wrong": "'fun_X_X: cases on the argument, then the constructor' holds only for fun_lsize_lsize. fun_isize_isize, fun_sizenn_sizenn and fun_sizenn1_sizenn1 apply the single constructor and do the cases inside the premise proof (isize uses valtype_Inn). fun_lsize_eq is `cases h <;> rfl`.",
+   "fixed": "Describes both proof shapes exactly as in final3."
+  },
+  {
+   "construct": "A, Readers list",
+   "wrong": "'fun_sizenn1_eq and fun_lsizenn{1,2}_eq in vcvtop_lane_total, vcvtop_full_lsize, t_progress_be_vextunop and t_progress_be_vextbinop'. fun_sizenn1_eq is not used in the two vext lemmas.",
+   "fixed": "Split into two bullets. fun_sizenn1_eq is used in vcvtop_lane_total and vcvtop_full_lsize. fun_lsizenn1_eq and fun_lsizenn2_eq are used in those two and in t_progress_be_vextunop and t_progress_be_vextbinop."
+  },
+  {
+   "construct": "A, relations without a view",
+   "wrong": "'Two relations have no view (fun_fsize, fun_sizenn2)'. The size relation fun_shsize also has no view, and nothing downstream mentions shsize.",
+   "fixed": "'Three size relations \u2026 fun_fsize, fun_sizenn2 and fun_shsize ($shsize(Lnn X N) = $lsize(Lnn)\u00b7N, 2-syntax-aux.spectec:42)'."
+  },
+  {
+   "construct": "B, old fzero_is_wf explanation",
+   "wrong": "'provable only because \u2026 fun_M v_N = Option.get! (signif v_N). For N \u2209 {32,64} that term reads the default value 0, so 0 < 2^0 holds.' The old proof term \u27e8Nat.two_pow_pos _, rfl\u27e9 does not depend on that value: 0 < 2^k holds for every k, and the exponent is a free argument.",
+   "fixed": "The theorem held for every N because the old wf_fNmag had no definedness premise. Its side conditions used the total fun_M and E, which are default values for N \u2209 {32, 64}. The proof works whatever their value."
+  },
+  {
+   "construct": "B, 'What broke downstream'",
+   "wrong": "Says num_default_is_well_formed, default_val_ok, zero_lane_wf, t_progress_e_call_addr and the call case now produce or consume fun_fzero and fun_default_ witnesses. num_default_is_well_formed takes neither: it needs a fun_sizenn witness and a wf_fN proof with fun_E/fun_M witnesses. zero_lane_wf broke because fun_zero is a relation (recorded error: `fun_zero nt : num_ \u2192 Prop`).",
+   "fixed": "Three bullets that say exactly what each declaration now has to supply."
+  },
+  {
+   "construct": "B, 'Original sketch' (num_default_is_well_formed)",
+   "wrong": "'proved wf_fN 32 (SUBNORM 0) inline'. SUBNORM 0 is an fNmag; the orig text unfolds fzero and sizenn and proves wf_fN 32 (POS (SUBNORM 0)).",
+   "fixed": "'unfolded fzero and sizenn and proved wf_fN 32 (POS (SUBNORM 0)) inline \u2026 (likewise for 64)'."
+  },
+  {
+   "construct": "B, fun_default_eq proof",
+   "wrong": "Did not say how the remaining constructors (I32, I64, V128, FUNCREF, EXTERNREF) close (the `| _ => rfl` arm).",
+   "fixed": "Added 'the other value constructors close by rfl'."
+  },
+  {
+   "construct": "B, zero_lane_wf spec citation",
+   "wrong": "'3-numerics.spectec:595-599'. Line 595 belongs to the half case; the ZERO case with the $packnum_(\u2026, $zero(\u2026)) padding is at 596-600.",
+   "fixed": "'3-numerics.spectec:596-600'."
+  },
+  {
+   "construct": "D, what Moduleinst_ok provides",
+   "wrong": "'provides both store-side facts'. One of the two facts (equal lengths) is the instance-side bound.",
+   "fixed": "'provides both bounds that the lookup relations need'."
+  },
+  {
+   "construct": "D, Moduleinst_ok_X_addr naming",
+   "wrong": "'for X \u2208 {GLOBALS, FUNCS, MEMS, TABLES, DATAS, ELEMS}'. That would give names like Moduleinst_ok_GLOBALS_addr; the lemmas are Moduleinst_ok_global_addr and so on.",
+   "fixed": "'for X \u2208 {global, func, mem, table, data, elem}', matching the fun_X_typed line."
+  },
+  {
+   "construct": "D, *_addr proof (minst_invert_X)",
+   "wrong": "'gives an Externaddr_ok fact, including the store bound'. The minst_invert_* lemmas (ExtensionLemmas.lean:639-737) give \u2203 \u2026, a < |s.Xs| \u2227 lookup_total \u2026 \u2227 Externtype_sub \u2026. For elems they give the bound, Ref_ok of the refs and the lookup. None of them gives an Externaddr_ok fact.",
+   "fixed": "For every zip pair (a, t): the store bound, the store entry at a, and the subtyping of its type to t. For elems: the bound, the entry and the typing of its references."
+  },
+  {
+   "construct": "D, 'Updates'",
+   "wrong": "t_progress_be_memory_size was listed under the update relations, but memory.size performs no update.",
+   "fixed": "memory_size now has its own sentence (.2 picks the Meminst_ok entry from Store_ok). Added that store_val, store_pack and vstore_lane get the same instance bound through (fun_mem_inv Hm).1 (family C)."
+  },
+  {
+   "construct": "Observations, comment precision",
+   "wrong": "Two comment imprecisions were missing (see the new flags).",
+   "fixed": "Added bullets on the 'each total one they use' overclaim and on the stated scope of the inversion-lemma comment."
+  }
+ ],
+ "flags": [
+  {
+   "construct": "HelperLemmas module header (all 42 HelperLemmas INFRA constructs)",
+   "issue": "CONFIRMED (writer's flag). The header still says the 21 axioms of axioms.v are '(at the end of the file)', and it does not mention the new Lean-only sections (lines 841-1055). This was already inaccurate before the change, because the pre-existing Forall\u2082 bridge (line 804) also comes after the axioms.",
+   "line": "HelperLemmas.lean:9 (final3 copy)",
+   "suggestion": "As the writer proposed: '(after Section 9)', plus one sentence on the function views and the lookup inversions added for the sideconditions_on_defs model."
+  },
+  {
+   "construct": "Section header 'Function views of total relations (Lean-only)' (fzero exception, trigger)",
+   "issue": "CONFIRMED (writer's flag). The header promises a fun_<name>_<name> lemma for each view, but fzero has none: fun_fzero holds only at 32 and 64, so the lemmas are fun_fzero_32 and fun_fzero_64. The stated trigger ('body uses ! or indexing') does not describe $fzero, whose body is POS (SUBNORM 0). $jsize, $lsizenn* and $default_ became relations because they call relations.",
+   "line": "HelperLemmas.lean:841-849 (final3 copy)",
+   "suggestion": "Add the fzero exception, and qualify the trigger with 'directly or through another such function'."
+  },
+  {
+   "construct": "Section header 'Function views of total relations (Lean-only)' (scope)",
+   "issue": "NEW. 'restores a function view of each total one they use' overclaims. Several total relations that downstream proofs use have no view. For fun_zero, fun_unop_ and fun_testop_, the relation took the old function's name. For fun_vvunop_, fun_vvbinop_ and fun_vvternop_, the old functions vvunop_, vvbinop_ and vvternop_ were used as functions by the original t_progress_be_vv* and now get their witnesses built in place (TypeProgress.lean:4849, 4883-4886, 4923).",
+   "line": "HelperLemmas.lean:845-846 (final3 copy)",
+   "suggestion": "E.g. 'restores a function view of the size functions, fzero and default_ (old names that are now free); other relations, total or partial, are used through their constructors'."
+  },
+  {
+   "construct": "Subsection comment 'Inversion of the state lookups (Lean-only)'",
+   "issue": "NEW (minor). The comment gives a term output as the reason for the lemmas. Only bt_inversion inverts a lookup with a term output (fun_type \u2026 (mkFunctype bt1 bt2)). The other uses either invert lookups with variable outputs (local/global/table.get, table.init and call_indirect in t_read_preservation; the two grow lemmas; wf_config_mem_bytes) or only read the bound (the store progress cases). There the lemma is a convenience, not a necessity.",
+   "line": "HelperLemmas.lean:1004-1009 (final3 copy)",
+   "suggestion": "'These lemmas return its premises (the index bounds) and its output as an equation. They are needed when the output is a term (cases cannot unify it with the constructor's indexing expression, e.g. bt_inversion) and are convenient elsewhere.'"
+  },
+  {
+   "construct": "TypeProgress section header 'Lean-only: index bounds for the state lookups'",
+   "issue": "CONFIRMED (writer's flag). fun_type is listed among the lookups whose premises bound 'the address into the store', but it has only the instance bound. The header also does not mention that (Moduleinst_ok_*_addr \u2026).1 is used for the instance bound of fun_with_global/table/elem/data/mem. Minor addition: the data store bound comes from Moduleinst_ok's own premise, not from minst_invert_*.",
+   "line": "TypeProgress.lean:2933-2941 (final3 copy)",
+   "suggestion": "As the writer proposed: '(except for fun_type) the address into the store; the update relations fun_with_* need the first bound as well'."
+  },
+  {
+   "construct": "Moduleinst_ok_data_addr",
+   "issue": "NEW (code quality). It destructures Moduleinst_ok by position (`mk_Moduleinst_ok` followed by 25 `_` and then hdb). minst_invert_datas (ExtensionLemmas.lean:740) already gives the store bound for every data address, and the other five *_addr lemmas go through minst_invert_*. The positional pattern breaks silently if the generated premise order changes.",
+   "line": "TypeProgress.lean:2980-2988 (final3 copy)",
+   "suggestion": "Get the bound from (minst_invert_datas s minst C C h \u27e8rfl, \u2026\u27e9).2 at minst.DATAS[i]!, like the other *_addr lemmas."
+  },
+  {
+   "construct": "fun_isize_eq, fun_jsize_eq, fun_sizenn1_sizenn1, fun_fzero_wf, fun_func_inv, fun_data_inv, fun_func_typed (and Moduleinst_ok_func_addr)",
+   "issue": "CONFIRMED (writer's flag), by an independent comment-stripping scan of the 7 downstream final3 modules: none of these is referenced outside its own definition, and Moduleinst_ok_func_addr is used only by fun_func_typed. All the line numbers the writer cited are correct.",
+   "line": "HelperLemmas.lean:874, 884, 902, 950, 1016, 1046; TypeProgress.lean:2953, 3007 (final3 copy)",
+   "suggestion": "Keep them for uniformity with a one-line note, or delete them under the 'DELETED BECAUSE NOT USED' policy; the user decides."
+  }
+ ],
+ "safety_checks": [
+  "START: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T023802.718442287Z-bundle31-V-INFRA-start-354471.txt. Verdict: 'OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline'. The only listed change is the known external Lake artifact spectec/src/test-lean-claude/.lake/build/lib/lean/wasm2.0.trace.nobuild, whose md5 is unchanged since it was noted.",
+  "END: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T030225.023467218Z-bundle31-V-INFRA-end-363850.txt. Verdict: 'OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline'. Same single known external artifact, md5 unchanged.",
+  "I did not run lake, Lean or git. Repository files were only read (cat/sed/grep/head and python3 -I reads of the scratch copies). All my files are in .../b31/report/agents/V-INFRA/: section.verified.md, plus work/ with scan.py, uses_v.json, apply_fixes.py, rewrap.py, fix2.py, fix3.py and copies of tget.wat, tget_bad.wat and tget.wasm.",
+  "Disclosure: re-running the WAT example with wasmtime 49.0.1 updated wasmtime's own compile-cache usage file ~/.cache/wasmtime/modules/wasmtime-46c23a87dac1465986a8ad53ba6a7ae49372857b-1790351825447/gmLwG6Vt7THUohGSO8KSkx1Z8sD0LSVpSa65HzFjGyw.stats (37 bytes, mtime 10:50:40). This file is outside the repository and outside my directory. The cache entry itself was created by the writer's 10:27 run. I did not touch it further.",
+  "Input location: .../b31/report/agents/INFRA/ does not exist. The section was read from .../b31/report/agents/W-INFRA/section.md, as the writer's notes say, and was not edited."
+ ],
+ "confidence": "High. All 55 construct texts in INFRA.json match the final3 sources verbatim, and none exists in orig. My own comment-stripping scan reproduces the writer's consumer counts (A 43, B 8, C 8, D 27) and the 7 unused declarations. Every model citation was checked against the old and new models (line numbers included), as were the spec citations (1-syntax, 3-numerics, 5-runtime-aux, 6-typing, 8-reduction, B-soundness). The one wrong citation, 3-numerics 595-599, is fixed. I re-ran the WAT example: wat2wasm 1.0.34 rejects table.get 1 with 'table variable out of range: 1 (max 1)', and is_null(0)=0, is_null(1)=1, is_null(2) traps with 'undefined element: out of bounds table access'. Recorded errors (MAIN, P1, P23, Q2, Q4, Q5, Q6a) agree with the corrected 'what broke' text. Not independently verified: (1) that `cases` fails when the output is a term; I did not run Lean, but the claim agrees with the code's own comment. (2) The kernel-replay and sorryAx audit results, which come from the task background. The main substantive fixes are: the old fzero_is_wf rationale (the proof never depended on the default being 0), the '13 unchanged among the 43' count (really 8), the minst_invert_* description (no Externaddr_ok fact), and the num_default_is_well_formed and zero_lane_wf breakage descriptions."
+}
