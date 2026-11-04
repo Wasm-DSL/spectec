@@ -3852,6 +3852,58 @@ proof -
   qed
 qed
 
+lemma wf_val_i32_proj: assumes "wf_val (val_CONST I32 c)" shows "proj_num__0 c \<noteq> None"
+proof -
+  have "wf_num_underscore I32 c" using assms by (cases rule: wf_val.cases) auto
+  then show ?thesis
+  proof cases
+    case (num__case_0 v_Inn var_x)
+    then show ?thesis by (simp add: proj_num__0.psimps proj_num__0.domintros)
+  next
+    case (num__case_1 v_Fnn var_0 var_x)
+    then show ?thesis by (cases v_Fnn) (simp_all add: numtype_Fnn.psimps numtype_Fnn.domintros)
+  qed
+qed
+
+lemma vvunop_ex: "\<exists>r. fun_vvunop_underscore V128 op c1 r"
+  by (cases op) (auto intro!: exI fun_vvunop_underscore.intros simp: size.psimps size.domintros)
+
+lemma vvbinop_ex: "\<exists>r. fun_vvbinop_underscore V128 op c1 c2 r"
+  by (cases op) (auto intro!: exI fun_vvbinop_underscore.intros simp: size.psimps size.domintros)
+
+lemma vvternop_ex: "\<exists>r. fun_vvternop_underscore V128 op c1 c2 c3 r"
+  by (cases op) (auto intro!: exI fun_vvternop__case_0 simp: size.psimps size.domintros)
+
+(* A table index that is in range for the context is in range for the frame's module and the
+   store, so the table lookup relation holds *)
+lemma State_ok_fun_table:
+  assumes "State_ok (mk_state s f) C" "proj_uN_0 x < length (context_TABLES C)"
+  shows "fun_table (mk_state s f) x (table_of (mk_state s f) x)"
+    and "proj_uN_0 x < length (TABLES (frame_MODULE f))"
+proof -
+  have "\<exists>C'. Moduleinst_ok s (frame_MODULE f) C' \<and> context_TABLES C = context_TABLES C'"
+    using assms(1) by (fastforce elim!: State_ok.cases Frame_ok.cases simp: append_res_context_def)
+  then obtain C' where m: "Moduleinst_ok s (frame_MODULE f) C'"
+      and c: "context_TABLES C = context_TABLES C'" by blast
+  from m have l: "list_all2 (\<lambda>a t. Externaddr_ok s (externaddr_TABLE a) (TABLE t))
+      (TABLES (frame_MODULE f)) (context_TABLES C')"
+    by (auto elim!: Moduleinst_ok.cases)
+  have x: "proj_uN_0 x < length (context_TABLES C')" using assms(2) c by simp
+  then show x': "proj_uN_0 x < length (TABLES (frame_MODULE f))"
+    using list_all2_lengthD[OF l] by simp
+  have "Externaddr_ok s (externaddr_TABLE (TABLES (frame_MODULE f) ! proj_uN_0 x))
+      (TABLE (context_TABLES C' ! proj_uN_0 x))"
+    using list_all2_nthD2[OF l x] by simp
+  then have a: "TABLES (frame_MODULE f) ! proj_uN_0 x < length (store_TABLES s)"
+    using inv_Externaddr_ok_table by blast
+  show "fun_table (mk_state s f) x (table_of (mk_state s f) x)"
+    unfolding table_of.simps using a x' by (rule fun_table_case_0)
+qed
+
+lemma fun_with_table_ex:
+  "proj_uN_0 x < length (TABLES (frame_MODULE f)) \<Longrightarrow> \<exists>z'. fun_with_table (mk_state s f) x i r z'"
+  by (blast intro: fun_with_table_case_0)
+
 
 theorem progress:
   assumes "Config_ok (mk_config s es) ts"
@@ -4055,8 +4107,8 @@ theorem progress:
       qed
     next
       case (block C' bt t_1_lst t_2_lst instr_lst)
-      have bt: "fun_blocktype (mk_state s' f) bt = mk_functype
-                    (mk_list t_1_lst) (mk_list t_2_lst)"
+      have bt: "fun_blocktype (mk_state s' f) bt (mk_functype
+                    (mk_list t_1_lst) (mk_list t_2_lst))"
         using block(12) blocktype_ok_agree[OF block(1)]
       proof(induction "mk_state s' f" "strip C'")
         case (mk_State_ok)
@@ -4081,13 +4133,13 @@ theorem progress:
         qed
       qed
       show ?case using block(10) list_all2_lengthD 
-          Step_read__block[OF bt, of "length vs" vs "length t_2_lst" instr_lst] 
+          Step_read__block[OF bt HOL.refl, of "length vs" vs "length t_2_lst" instr_lst]
          Step.intros(2) block(16)
         by fastforce
     next
       case (loop C' bt t_1_lst t_2_lst instr_lst)
-      have bt: "fun_blocktype (mk_state s' f) bt = mk_functype
-                    (mk_list t_1_lst) (mk_list t_2_lst)"
+      have bt: "fun_blocktype (mk_state s' f) bt (mk_functype
+                    (mk_list t_1_lst) (mk_list t_2_lst))"
         using loop(12) blocktype_ok_agree[OF loop(1)]
       proof(induction "mk_state s' f" "strip C'")
         case (mk_State_ok)
@@ -4112,7 +4164,7 @@ theorem progress:
         qed
       qed
       show ?case using loop(10) list_all2_lengthD 
-          Step_read__loop[OF bt, of "length vs" vs "length t_2_lst" instr_lst] 
+          Step_read__loop[OF bt HOL.refl, of "length vs" vs "length t_2_lst" instr_lst]
          Step.intros(2) loop(16)
         by fastforce
     next
@@ -4129,27 +4181,7 @@ theorem progress:
       then obtain c where c: "vs2 = [val_CONST I32 c]" using ts(3) typeofval_is_i32 vs(3)
         by blast
       have "wf_val (val_CONST I32 c)" using res_if vs c by simp
-      then have projc: "proj_num__0 c \<noteq> None" using c proof(induction "val_CONST I32 c")
-                 case (val_case_0)
-                 then show ?case proof(induction I32 c)
-                   case (num__case_0 v_Inn var_x)
-                   then show ?case using proj_num__0.psimps proj_num__0.domintros
-                     by fast
-                 next
-                   case (num__case_1 v_Fnn var_x)
-                   then have "False"
-                   proof(cases v_Fnn)
-                     case Fnn_F32
-                     then show ?thesis using num__case_1(2)
-                        by (simp add: numtype_Fnn.domintros(1) numtype_Fnn.psimps(1)) 
-                   next
-                     case Fnn_F64
-                     then show ?thesis using num__case_1(2)
-                       by (simp add: numtype_Fnn.domintros(2) numtype_Fnn.psimps(2)) 
-                   qed
-                   then show ?case by simp
-                 qed
-               qed      
+      then have projc: "proj_num__0 c \<noteq> None" by (rule wf_val_i32_proj)
                have wfc: "wf_admininstr (admininstr_sc1 (admininstr_st1_CONST I32 c))"
                    using res_if(13) vs c wf_admininstr_val admininstr_val.domintros 
         admininstr_val.psimps
@@ -4198,27 +4230,7 @@ theorem progress:
       then obtain c where c: "vs2 = [val_CONST I32 c]" using ts(3) typeofval_is_i32 vs(3)
         by blast
       have "wf_val (val_CONST I32 c)" using br_if vs c by simp
-      then have projc: "proj_num__0 c \<noteq> None" using c proof(induction "val_CONST I32 c")
-                 case (val_case_0)
-                 then show ?case proof(induction I32 c)
-                   case (num__case_0 v_Inn var_x)
-                   then show ?case using proj_num__0.psimps proj_num__0.domintros
-                     by fast
-                 next
-                   case (num__case_1 v_Fnn var_x)
-                   then have "False"
-                   proof(cases v_Fnn)
-                     case Fnn_F32
-                     then show ?thesis using num__case_1(2)
-                        by (simp add: numtype_Fnn.domintros(1) numtype_Fnn.psimps(1)) 
-                   next
-                     case Fnn_F64
-                     then show ?thesis using num__case_1(2)
-                       by (simp add: numtype_Fnn.domintros(2) numtype_Fnn.psimps(2)) 
-                   qed
-                   then show ?case by simp
-                 qed
-               qed
+      then have projc: "proj_num__0 c \<noteq> None" by (rule wf_val_i32_proj)
       have wfc: "wf_admininstr (admininstr_sc1 (admininstr_st1_CONST I32 c))"
                    using br_if(9) vs c wf_admininstr_val admininstr_val.domintros 
         admininstr_val.psimps
@@ -4263,27 +4275,7 @@ theorem progress:
       then obtain c where c: "vs2 = [val_CONST I32 c]" using ts(3) typeofval_is_i32 vs(3)
         by blast
       have "wf_val (val_CONST I32 c)" using br_table vs c by simp
-      then have projc: "proj_num__0 c \<noteq> None" using c proof(induction "val_CONST I32 c")
-                 case (val_case_0)
-                 then show ?case proof(induction I32 c)
-                   case (num__case_0 v_Inn var_x)
-                   then show ?case using proj_num__0.psimps proj_num__0.domintros
-                     by fast
-                 next
-                   case (num__case_1 v_Fnn var_x)
-                   then have "False"
-                   proof(cases v_Fnn)
-                     case Fnn_F32
-                     then show ?thesis using num__case_1(2)
-                        by (simp add: numtype_Fnn.domintros(1) numtype_Fnn.psimps(1)) 
-                   next
-                     case Fnn_F64
-                     then show ?thesis using num__case_1(2)
-                       by (simp add: numtype_Fnn.domintros(2) numtype_Fnn.psimps(2)) 
-                   qed
-                   then show ?case by simp
-                 qed
-               qed
+      then have projc: "proj_num__0 c \<noteq> None" by (rule wf_val_i32_proj)
       have wfc: "wf_admininstr (admininstr_sc1 (admininstr_st1_CONST I32 c))"
                    using br_table(11) vs c wf_admininstr_val admininstr_val.domintros 
         admininstr_val.psimps
@@ -4350,27 +4342,7 @@ theorem progress:
       then obtain c where c: "vs2 = [val_CONST I32 c]" using ts(3) typeofval_is_i32 vs(3)
         by blast
       have "wf_val (val_CONST I32 c)" using call_indirect vs c by simp
-      then have projc: "proj_num__0 c \<noteq> None" using c proof(induction "val_CONST I32 c")
-                 case (val_case_0)
-                 then show ?case proof(induction I32 c)
-                   case (num__case_0 v_Inn var_x)
-                   then show ?case using proj_num__0.psimps proj_num__0.domintros
-                     by fast
-                 next
-                   case (num__case_1 v_Fnn var_x)
-                   then have "False"
-                   proof(cases v_Fnn)
-                     case Fnn_F32
-                     then show ?thesis using num__case_1(2)
-                        by (simp add: numtype_Fnn.domintros(1) numtype_Fnn.psimps(1)) 
-                   next
-                     case Fnn_F64
-                     then show ?thesis using num__case_1(2)
-                       by (simp add: numtype_Fnn.domintros(2) numtype_Fnn.psimps(2)) 
-                   qed
-                   then show ?case by simp
-                 qed
-               qed  
+      then have projc: "proj_num__0 c \<noteq> None" by (rule wf_val_i32_proj)
                have wfc: "wf_admininstr (admininstr_sc1 (admininstr_st1_CONST I32 c))"
                    using call_indirect(12) vs c wf_admininstr_val admininstr_val.domintros 
         admininstr_val.psimps
@@ -4403,7 +4375,7 @@ theorem progress:
         then show ?case using Step.intros(2)[OF call_indirect_call[OF call_indirect_call_0(1-5)]] 
               reducible_left_v[of s' f "[_,_]" vs1] wfc
             call_indirect(17) vs
-            by auto
+          using call_indirect_call_0.hyps(6,7) by auto
         qed
       next
         case False
@@ -4439,17 +4411,15 @@ theorem progress:
             then show ?case proof(induction "instr_sc1 (UNOP nt unop_nt)")
             qed(auto)
           qed
-          then have notnone: "fun_unop_underscore nt unop_nt c \<noteq> None" 
-            using wfv fun_unop_underscore_total by simp
-          then show ?case proof(cases "the (fun_unop_underscore nt unop_nt c)")
+          then obtain res where res: "fun_unop_underscore nt unop_nt c (Some res)"
+            using wfv fun_unop_underscore_total by blast
+          show ?case proof(cases res)
             case Nil
-            then show ?thesis using notnone unop_trap Step.intros(1) c outer(12) 
+            then show ?thesis using unop_trap[OF res] Step.intros(1) c outer(12)
                 admininstr_val.domintros admininstr_val.psimps by fastforce
           next
             case (Cons a' list)
-            then have 1: "a' \<in> set (the (fun_unop_underscore nt unop_nt c))" by simp
-            have 2: "0 < length (the (fun_unop_underscore nt unop_nt c))" using Cons by simp
-            show ?thesis using unop_val[OF 2 notnone 1] Step.intros(1) c outer(12)
+            then show ?thesis using unop_val[OF res] Step.intros(1) c outer(12)
                 admininstr_val.domintros admininstr_val.psimps by fastforce
           qed
         next
@@ -4523,11 +4493,11 @@ theorem progress:
             then show ?case proof(induction "instr_sc1 (TESTOP nt testop_nt)")
             qed(auto)
           qed
-          then have notnone: "fun_testop_underscore nt testop_nt c \<noteq> None" 
-            using wfv fun_testop_underscore_total by simp
-          then show ?case 
-          using Step_pure__testop Step.intros(1) c outer(12)
-                admininstr_val.domintros admininstr_val.psimps testop__is_wf[OF wfop wfc notnone]
+          then obtain res where res: "fun_testop_underscore nt testop_nt c (Some res)"
+            using wfv fun_testop_underscore_total by blast
+          show ?case
+          using Step_pure__testop[OF res] Step.intros(1) c outer(12)
+                admininstr_val.domintros admininstr_val.psimps testop__is_wf[OF res wfop wfc]
                 by fastforce
         next
           case (Cons a vs)
@@ -4716,7 +4686,8 @@ theorem progress:
         show ?case using Cons(2-) proof(induction vs)
           case Nil
           then obtain vec where vec: "a = val_VCONST V128 vec" using typeofval_is_v128 by fastforce
-          show ?case using Nil Step_pure__vvunop[OF HOL.refl] Step.intros(1) vec
+          obtain r where r: "fun_vvunop_underscore V128 v_vvunop vec r" using vvunop_ex by blast
+          show ?case using Nil Step_pure__vvunop[OF r HOL.refl] Step.intros(1) vec
               admininstr_val.domintros(2) admininstr_val.psimps(2)
             by fastforce
         next
@@ -4740,7 +4711,8 @@ theorem progress:
             case Nil
             then obtain vec1 where vec1: "a1 = val_VCONST V128 vec1" using typeofval_is_v128 by fastforce
             obtain vec2 where vec2: "a2 = val_VCONST V128 vec2" using typeofval_is_v128 Nil by fastforce
-            show ?case using Nil Step_pure__vvbinop[OF HOL.refl] Step.intros(1) vec1 vec2
+            obtain r where r: "fun_vvbinop_underscore V128 v_vvbinop vec1 vec2 r" using vvbinop_ex by blast
+            show ?case using Nil Step_pure__vvbinop[OF r HOL.refl] Step.intros(1) vec1 vec2
                 admininstr_val.domintros(2) admininstr_val.psimps(2)
               by fastforce
           next
@@ -4771,7 +4743,9 @@ theorem progress:
               then obtain vec1 where vec1: "a1 = val_VCONST V128 vec1" using typeofval_is_v128 by fastforce
               obtain vec2 where vec2: "a2 = val_VCONST V128 vec2" using typeofval_is_v128 Nil by fastforce
               obtain vec3 where vec3: "a3 = val_VCONST V128 vec3" using typeofval_is_v128 Nil by fastforce
-              show ?case using Nil Step_pure__vvternop[OF HOL.refl] Step.intros(1) vec1 vec2 vec3
+              obtain r where r: "fun_vvternop_underscore V128 v_vvternop vec1 vec2 vec3 r"
+                using vvternop_ex by blast
+              show ?case using Nil Step_pure__vvternop[OF r HOL.refl] Step.intros(1) vec1 vec2 vec3
                   admininstr_val.domintros(2) admininstr_val.psimps(2)
                 by fastforce
             next
@@ -5537,27 +5511,20 @@ theorem progress:
           then obtain c where c: "a = val_CONST I32 c" using typeofval_is_i32
             by fastforce
           have "wf_val a" using Nil(10) by simp
-          then have projc: "proj_num__0 c \<noteq> None" using c proof(induction a)
-            case (val_case_0 v_numtype var_0)
-            then show ?case proof(induction v_numtype var_0)
-              case (num__case_0 v_Inn var_x v_numtype)
-              then show ?case using proj_num__0.domintros proj_num__0.psimps by auto
-            next
-              case (num__case_1 v_Fnn var_x v_numtype)
-              then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps 
-              proof(induction v_Fnn) qed(auto)
-            qed 
-          qed(auto)
-          then show ?case proof(cases "proj_uN_0 (the (proj_num__0 c)) < 
-                  length (REFS (fun_table (mk_state s' f) x))")
+          then have projc: "proj_num__0 c \<noteq> None" using c by (auto intro: wf_val_i32_proj)
+          have tb: "fun_table (mk_state s' f) x (table_of (mk_state s' f) x)"
+            using State_ok_fun_table(1)[OF \<open>State_ok (mk_state s' f) (strip C)\<close>] table_get(1)
+            by (simp add: strip_def)
+          show ?case proof(cases "proj_uN_0 (the (proj_num__0 c)) <
+                  length (REFS (table_of (mk_state s' f) x))")
             case True
-            show ?thesis using table_get_val[OF True projc] Step.intros(2) Nil(15)
+            show ?thesis using table_get_val[OF tb True projc] Step.intros(2) Nil(15)
               c admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros
               admininstr_instr.psimps by fastforce
           next
             case False
-            then show ?thesis using table_get_trap[OF projc, of "mk_state s' f" x]
-               Step.intros(2) Nil(15) c admininstr_val.domintros admininstr_val.psimps 
+            then show ?thesis using table_get_trap[OF tb projc]
+               Step.intros(2) Nil(15) c admininstr_val.domintros admininstr_val.psimps
                admininstr_instr.domintros admininstr_instr.psimps by fastforce
           qed
         next
@@ -5583,27 +5550,23 @@ theorem progress:
               by fastforce
             obtain ref where ref: "a2 = val_ref ref" using typeofval_is_rt Nil by fastforce 
           have "wf_val a1" using Nil(10) by simp
-          then have projc: "proj_num__0 c \<noteq> None" using c proof(induction a1)
-            case (val_case_0 v_numtype var_0)
-            then show ?case proof(induction v_numtype var_0)
-              case (num__case_0 v_Inn var_x v_numtype)
-              then show ?case using proj_num__0.domintros proj_num__0.psimps by auto
-            next
-              case (num__case_1 v_Fnn var_x v_numtype)
-              then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps 
-              proof(induction v_Fnn) qed(auto)
-            qed 
-          qed(auto)
-          then show ?case proof(cases "proj_uN_0 (the (proj_num__0 c)) < 
-                  length (REFS (fun_table (mk_state s' f) x))")
+          then have projc: "proj_num__0 c \<noteq> None" using c by (auto intro: wf_val_i32_proj)
+          have tb: "fun_table (mk_state s' f) x (table_of (mk_state s' f) x)"
+            and xb: "proj_uN_0 x < length (TABLES (frame_MODULE f))"
+            using State_ok_fun_table[OF \<open>State_ok (mk_state s' f) (strip C)\<close>] table_set(1)
+            by (simp_all add: strip_def)
+          obtain z' where wt: "fun_with_table (mk_state s' f) x (proj_uN_0 (the (proj_num__0 c))) ref z'"
+            using fun_with_table_ex[OF xb] by blast
+          show ?case proof(cases "proj_uN_0 (the (proj_num__0 c)) <
+                  length (REFS (table_of (mk_state s' f) x))")
             case True
-            show ?thesis using table_set_val[OF projc True] Nil(15)
+            show ?thesis using table_set_val[OF tb wt projc True] Nil(15)
               c admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros
               admininstr_instr.psimps ref admininstr_val_ref by fastforce
           next
             case False
-            then show ?thesis using table_set_trap[OF projc, of "mk_state s' f" x]
-               Nil(15) c admininstr_val.domintros admininstr_val.psimps 
+            then show ?thesis using table_set_trap[OF tb projc]
+               Nil(15) c admininstr_val.domintros admininstr_val.psimps
                admininstr_instr.domintros admininstr_instr.psimps ref admininstr_val_ref by fastforce
           qed
           next
@@ -5716,7 +5679,7 @@ theorem progress:
                   proof(induction v_Fnn) qed(auto)
                 qed
               qed(auto)
-              then show ?case proof(cases "length (REFS (fun_table (mk_state s' f) x)) < proj_uN_0 (the (proj_num__0 i)) + n")
+              then show ?case proof(cases "length (REFS (table_of (mk_state s' f) x)) < proj_uN_0 (the (proj_num__0 i)) + n")
                 case True
                 then show ?thesis using table_fill_trap[of i "mk_state s' f" x n a2] proji Nil(15)
                   admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros 
@@ -5806,8 +5769,8 @@ theorem progress:
                 qed
               qed(auto)
               then show ?case proof(cases 
-                  "length (REFS (fun_table (mk_state s' f) x_2)) < proj_uN_0 (the (proj_num__0 i)) + n \<or>
-                  length (REFS (fun_table (mk_state s' f) x_1)) < proj_uN_0 (the (proj_num__0 j)) + n")
+                  "length (REFS (table_of (mk_state s' f) x_2)) < proj_uN_0 (the (proj_num__0 i)) + n \<or>
+                  length (REFS (table_of (mk_state s' f) x_1)) < proj_uN_0 (the (proj_num__0 j)) + n")
                 case True
                 then show ?thesis using table_copy_trap[of i j "mk_state s' f" x_2 n x_1] proji 
                   projj Nil(18)
@@ -5910,8 +5873,8 @@ theorem progress:
                 qed
               qed(auto)
               then show ?case 
-              proof(cases "length (eleminst_REFS (fun_elem (mk_state s' f) x_2)) < proj_uN_0 (the (proj_num__0 i)) + n \<or>
-    length (REFS (fun_table (mk_state s' f) x_1)) < proj_uN_0 (the (proj_num__0 j)) + n")
+              proof(cases "length (eleminst_REFS (elem_of (mk_state s' f) x_2)) < proj_uN_0 (the (proj_num__0 i)) + n \<or>
+    length (REFS (table_of (mk_state s' f) x_1)) < proj_uN_0 (the (proj_num__0 j)) + n")
                 case True
                 then show ?thesis using table_init_trap[of i j "mk_state s' f" x_2 n x_1] proji projj Nil(17)
                   admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros 
@@ -5949,7 +5912,7 @@ theorem progress:
       qed
     next
       case (memory_size C mt) 
-      obtain v_n where vn: "v_n * 64 * Ki = length (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))"
+      obtain v_n where vn: "v_n * 64 * Ki = length (BYTES (mem_of (mk_state s' f) (mk_uN 0)))"
         using memory_size(11,1) proof(induction "mk_state s' f" "strip C")
         case mk_State_ok
         then show ?case proof(induction s')
@@ -5974,11 +5937,11 @@ theorem progress:
                 by (simp add: proj_uN_0.domintros proj_uN_0.psimps)
             qed
           qed
-          then have "Meminst_ok s (fun_mem (mk_state s f) (mk_uN 0)) 
+          then have "Meminst_ok s (mem_of (mk_state s f) (mk_uN 0)) 
                   (memtype_lst ! (MEMS (frame_MODULE f) ! proj_uN_0 (mk_uN 0)))"
-            using list_all2_nth[OF mk_Store_ok(4)] fun_mem.domintros fun_mem.psimps
+            using list_all2_nth[OF mk_Store_ok(4)] mem_of.simps
             by (simp add: mk_Store_ok.hyps(13))
-          then show ?case using mk_Store_ok(13,21) proof(induction s "fun_mem (mk_state s f) (mk_uN 0)" 
+          then show ?case using mk_Store_ok(13,21) proof(induction s "mem_of (mk_state s f) (mk_uN 0)" 
               "memtype_lst ! (MEMS (frame_MODULE f) ! proj_uN_0 (mk_uN 0))")
             case (mk_Meminst_ok v_n m_opt b_lst s)
             then show ?case
@@ -6085,7 +6048,7 @@ theorem progress:
                   proof(induction v_Fnn) qed(auto)
                 qed
               qed(auto)
-              then show ?case proof(cases "length (BYTES (fun_mem (mk_state s' f) (mk_uN 0))) < proj_uN_0 (the (proj_num__0 i)) + n")
+              then show ?case proof(cases "length (BYTES (mem_of (mk_state s' f) (mk_uN 0))) < proj_uN_0 (the (proj_num__0 i)) + n")
                 case True
                 then show ?thesis using memory_fill_trap[of i "mk_state s' f" n a2] proji Nil(15)
                   admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros 
@@ -6177,8 +6140,8 @@ theorem progress:
                 qed
               qed(auto)
               then show ?case proof(cases 
-                  "length (BYTES (fun_mem (mk_state s' f) (mk_uN 0))) < proj_uN_0 (the (proj_num__0 i)) + n \<or>
-                  length (BYTES (fun_mem (mk_state s' f) (mk_uN 0))) < proj_uN_0 (the (proj_num__0 j)) + n")
+                  "length (BYTES (mem_of (mk_state s' f) (mk_uN 0))) < proj_uN_0 (the (proj_num__0 i)) + n \<or>
+                  length (BYTES (mem_of (mk_state s' f) (mk_uN 0))) < proj_uN_0 (the (proj_num__0 j)) + n")
                 case True
                 then show ?thesis using memory_copy_trap[of i j "mk_state s' f" n] proji 
                   projj Nil(15)
@@ -6283,8 +6246,8 @@ theorem progress:
                 qed
               qed(auto)
               then show ?case 
-              proof(cases "length (datainst_BYTES (fun_data (mk_state s' f) x)) < proj_uN_0 (the (proj_num__0 i)) + n \<or>
-    length (BYTES (fun_mem (mk_state s' f) (mk_uN 0))) < proj_uN_0 (the (proj_num__0 j)) + n")
+              proof(cases "length (datainst_BYTES (data_of (mk_state s' f) x)) < proj_uN_0 (the (proj_num__0 i)) + n \<or>
+    length (BYTES (mem_of (mk_state s' f) (mk_uN 0))) < proj_uN_0 (the (proj_num__0 j)) + n")
                 case True
                 then show ?thesis using memory_init_trap[of i j "mk_state s' f" x n] proji projj Nil(17)
                   admininstr_val.domintros admininstr_val.psimps admininstr_instr.domintros 
@@ -6347,7 +6310,7 @@ theorem progress:
           qed(auto)
           then show ?case proof(cases
               "(n + proj_uN_0 (OFFSET v_memarg) + (the (size (valtype_numtype nt))) div 8) >
-                (length (BYTES (fun_mem (mk_state s' f) (mk_uN 0))) :: nat)")
+                (length (BYTES (mem_of (mk_state s' f) (mk_uN 0))) :: nat)")
             case True
             have "wf_uN 32 (mk_uN 0)"
               using uN_case_0 by blast
@@ -6359,35 +6322,35 @@ proj_uN_0.domintros proj_uN_0.psimps
               by fastforce
           next
             case False
-            then have "length (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have "length (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (the (isabelle_reference_output_wasm2.size (valtype_numtype nt)) div 8)) = 
   the (size (valtype_numtype nt)) div 8" 
               using length_list_slice n proj_uN_0.domintros proj_uN_0.psimps
               proj_num__0.domintros proj_num__0.psimps
               by (metis linorder_not_less option.sel)
-            then have bs: "nbytes_underscore nt (inv_nbytes_underscore nt ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have bs: "nbytes_underscore nt (inv_nbytes_underscore nt ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (the (isabelle_reference_output_wasm2.size (valtype_numtype nt)) div 8))) =
-    list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+    list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (the (isabelle_reference_output_wasm2.size (valtype_numtype nt)) div 8)" 
               using nbytes_inv by fastforce
-            have "list_all wf_byte (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))"
+            have "list_all wf_byte (BYTES (mem_of (mk_state s' f) (mk_uN 0)))"
               using Nil(13,1) proof(induction "mk_state s' f" "strip C")
               case mk_State_ok
               then show ?case proof(induction s')
                 case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst elemtype_lst)
-                thm fun_mem.psimps
+                thm mem_of.simps
                 show ?case using mk_Store_ok(14,13) proof(induction s)
                   case (store_case_underscore var_0_lst var_1_lst var_2_lst var_3_lst var_5_lst var_4_lst)
-                  then have "wf_meminst (fun_mem (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
+                  then have "wf_meminst (mem_of (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
               store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr> f) (mk_uN 0))" 
                     using 
-                        fun_mem.domintros fun_mem.psimps proj_uN_0.domintros
+                        mem_of.simps proj_uN_0.domintros
                         proj_uN_0.psimps
                     by (metis bot_nat_0.extremum mem_is_wf mk_Store_ok.hyps(13) mk_Store_ok.prems(3) uN_case_0)
-                  then show ?case proof(induction "fun_mem
+                  then show ?case proof(induction "mem_of
      (mk_state
        \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
           store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr>
@@ -6400,11 +6363,11 @@ proj_uN_0.domintros proj_uN_0.psimps
                 qed
               qed
             qed
-            then have "list_all wf_byte ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have "list_all wf_byte ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (the (isabelle_reference_output_wasm2.size (valtype_numtype nt)) div 8))"
               using list_all_list_slice by auto
-            then have wfbs: "wf_num_underscore nt (inv_nbytes_underscore nt ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have wfbs: "wf_num_underscore nt (inv_nbytes_underscore nt ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (the (isabelle_reference_output_wasm2.size (valtype_numtype nt)) div 8)))"
               using inv_nbytes__is_wf bs by auto
@@ -6448,7 +6411,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
           qed(auto)
           then show ?case proof(cases
               "(n + proj_uN_0 (OFFSET v_memarg) + v_M div 8) >
-                (length (BYTES (fun_mem (mk_state s' f) (mk_uN 0))) :: nat)")
+                (length (BYTES (mem_of (mk_state s' f) (mk_uN 0))) :: nat)")
             case True
             have "wf_uN 32 (mk_uN 0)"
               using uN_case_0 by blast
@@ -6460,35 +6423,35 @@ proj_uN_0.domintros proj_uN_0.psimps
               by fastforce
           next
             case False
-            then have "length (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have "length (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_M div 8)) = 
   v_M div 8" 
               using length_list_slice n proj_uN_0.domintros proj_uN_0.psimps
               proj_num__0.domintros proj_num__0.psimps
               by (metis linorder_not_less option.sel)
-            then have bs: "ibytes_underscore v_M (inv_ibytes_underscore v_M ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have bs: "ibytes_underscore v_M (inv_ibytes_underscore v_M ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_M div 8))) =
-    list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+    list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_M div 8)" 
               using ibytes_inv by fastforce
-            have "list_all wf_byte (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))"
+            have "list_all wf_byte (BYTES (mem_of (mk_state s' f) (mk_uN 0)))"
               using Nil(12,1) proof(induction "mk_state s' f" "strip C")
               case mk_State_ok
               then show ?case proof(induction s')
                 case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst elemtype_lst)
-                thm fun_mem.psimps
+                thm mem_of.simps
                 show ?case using mk_Store_ok(14,13) proof(induction s)
                   case (store_case_underscore var_0_lst var_1_lst var_2_lst var_3_lst var_5_lst var_4_lst)
-                  then have "wf_meminst (fun_mem (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
+                  then have "wf_meminst (mem_of (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
               store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr> f) (mk_uN 0))" 
                     using 
-                        fun_mem.domintros fun_mem.psimps proj_uN_0.domintros
+                        mem_of.simps proj_uN_0.domintros
                         proj_uN_0.psimps
                     by (metis bot_nat_0.extremum mem_is_wf mk_Store_ok.hyps(13) mk_Store_ok.prems(3) uN_case_0)
-                  then show ?case proof(induction "fun_mem
+                  then show ?case proof(induction "mem_of
      (mk_state
        \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
           store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr>
@@ -6501,11 +6464,11 @@ proj_uN_0.domintros proj_uN_0.psimps
                 qed
               qed
             qed
-            then have "list_all wf_byte ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have "list_all wf_byte ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_M div 8))"
               using list_all_list_slice by auto
-            then have wfbs: "wf_uN v_M (inv_ibytes_underscore v_M ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have wfbs: "wf_uN v_M (inv_ibytes_underscore v_M ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_M div 8)))"
               using inv_ibytes__is_wf bs by auto
@@ -6644,7 +6607,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
           qed(auto)
           then show ?case proof(cases
               "(n + proj_uN_0 (OFFSET v_memarg) + (the (size (valtype_V128))) div 8) >
-                (length (BYTES (fun_mem (mk_state s' f) (mk_uN 0))) :: nat)")
+                (length (BYTES (mem_of (mk_state s' f) (mk_uN 0))) :: nat)")
             case True
             have "wf_uN 32 (mk_uN 0)"
               using uN_case_0 by blast
@@ -6656,35 +6619,35 @@ proj_uN_0.domintros proj_uN_0.psimps
               by fastforce
           next
             case False
-            then have "length (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have "length (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (the (isabelle_reference_output_wasm2.size valtype_V128) div 8)) = 
   the (size valtype_V128) div 8" 
               using length_list_slice n proj_uN_0.domintros proj_uN_0.psimps
               proj_num__0.domintros proj_num__0.psimps
               by (metis linorder_not_less option.sel)
-            then have bs: "vbytes_underscore V128 (inv_vbytes_underscore V128 ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have bs: "vbytes_underscore V128 (inv_vbytes_underscore V128 ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (the (isabelle_reference_output_wasm2.size valtype_V128) div 8))) =
-    list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+    list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (the (isabelle_reference_output_wasm2.size valtype_V128) div 8)" 
               using vbytes_inv valtype_vectype.domintros valtype_vectype.psimps by fastforce
-            have "list_all wf_byte (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))"
+            have "list_all wf_byte (BYTES (mem_of (mk_state s' f) (mk_uN 0)))"
               using Nil(13,1) proof(induction "mk_state s' f" "strip C")
               case mk_State_ok
               then show ?case proof(induction s')
                 case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst elemtype_lst)
-                thm fun_mem.psimps
+                thm mem_of.simps
                 show ?case using mk_Store_ok(14,13) proof(induction s)
                   case (store_case_underscore var_0_lst var_1_lst var_2_lst var_3_lst var_5_lst var_4_lst)
-                  then have "wf_meminst (fun_mem (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
+                  then have "wf_meminst (mem_of (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
               store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr> f) (mk_uN 0))" 
                     using 
-                        fun_mem.domintros fun_mem.psimps proj_uN_0.domintros
+                        mem_of.simps proj_uN_0.domintros
                         proj_uN_0.psimps
                     by (metis bot_nat_0.extremum mem_is_wf mk_Store_ok.hyps(13) mk_Store_ok.prems(3) uN_case_0)
-                  then show ?case proof(induction "fun_mem
+                  then show ?case proof(induction "mem_of
      (mk_state
        \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
           store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr>
@@ -6697,11 +6660,11 @@ proj_uN_0.domintros proj_uN_0.psimps
                 qed
               qed
             qed
-            then have "list_all wf_byte ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have "list_all wf_byte ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (the (isabelle_reference_output_wasm2.size (valtype_V128)) div 8))"
               using list_all_list_slice by auto
-            then have wfbs: "wf_uN 128 (inv_vbytes_underscore V128 ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have wfbs: "wf_uN 128 (inv_vbytes_underscore V128 ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (the (isabelle_reference_output_wasm2.size (valtype_V128)) div 8)))"
               using inv_vbytes__is_wf[of _ _ V128] bs size.domintros size.psimps valtype_vectype.domintros
@@ -6746,7 +6709,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
           qed(auto)
           then show ?case proof(cases
               "(n + proj_uN_0 (OFFSET v_memarg) + v_M * v_N div 8) >
-                (length (BYTES (fun_mem (mk_state s' f) (mk_uN 0))) :: nat)")
+                (length (BYTES (mem_of (mk_state s' f) (mk_uN 0))) :: nat)")
             case True
             have "wf_uN 32 (mk_uN 0)"
               using uN_case_0 by blast
@@ -6773,18 +6736,18 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                 have 7: "v_N =
                       length
                 (map (\<lambda>k. inv_ibytes_underscore v_M
-            (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
               (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8)))
    (map nat [0..int v_N - 1]))" using length_map length_upto
                   by simp
                 have "\<forall>k<length (map (\<lambda>k. inv_ibytes_underscore v_M
-            (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
               (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8)))
    (map nat [0..int v_N - 1])). (\<lambda>k j. ibytes_underscore v_M j =
-        list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+        list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
          (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8)) k ((map (\<lambda>k. inv_ibytes_underscore v_M
 
-            (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
               (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8)))
    (map nat [0..int v_N - 1])) ! k)"
                   apply(auto)
@@ -6809,20 +6772,20 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                       by (metis (no_types, lifting) Suc_leI add.commute add_cancel_left_left div_add1_eq div_le_mono le
                           mod_div_trivial mult.commute mult_Suc_right nat_mult_le_cancel_disj)
                     then have "proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8 +
-            v_M div 8 \<le> length (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))" 
+            v_M div 8 \<le> length (BYTES (mem_of (mk_state s' f) (mk_uN 0)))" 
                       using False proj_num__0.domintros proj_num__0.psimps
                         proj_uN_0.domintros proj_uN_0.psimps n
                       by simp
-                    then have "length ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+                    then have "length ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8)) =
 v_M div 8" 
                       using length_list_slice
                       by auto
                     then show "ibytes_underscore v_M
      (inv_ibytes_underscore v_M
-       (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+       (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
          (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8))) =
-    list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+    list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8)"
                       using ibytes_inv
                       by blast 
@@ -6830,10 +6793,10 @@ v_M div 8"
                   done
                 then have 2: "list_alli
  (\<lambda>k j. ibytes_underscore v_M j =
-        list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+        list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
          (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8))
  (map (\<lambda>k. inv_ibytes_underscore v_M
-            (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
               (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8)))
    (map nat [0..int v_N - 1]))" using list_alli_forall
                   by meson
@@ -6857,34 +6820,34 @@ v_M div 8"
                           valtype_numtype.psimps psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                           lanetype_Jnn.domintros lanetype_Jnn.psimps m by force
                       have "\<forall> k < length (map (\<lambda>k. inv_ibytes_underscore v_M
-            (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
               (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8)))
    (map nat [0..int v_N - 1])). 
 (\<lambda>j. wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_N)))
        (mk_lane__0 Jnn_I16 (extend__underscore v_M (jsize Jnn_I16) v_sx j)))
 ((map (\<lambda>k. inv_ibytes_underscore v_M
-            (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
               (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8)))
    (map nat [0..int v_N - 1])) ! k)"
                         apply(auto)
                         subgoal for k
                         proof - 
                           assume "k < v_N"
-                          have "list_all wf_byte (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))"
+                          have "list_all wf_byte (BYTES (mem_of (mk_state s' f) (mk_uN 0)))"
                             using Nil(12,1) proof(induction "mk_state s' f" "strip C")
                             case mk_State_ok
                             then show ?case proof(induction s')
                               case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst elemtype_lst)
-                              thm fun_mem.psimps
+                              thm mem_of.simps
                               show ?case using mk_Store_ok(14,13) proof(induction s)
                                 case (store_case_underscore var_0_lst var_1_lst var_2_lst var_3_lst var_5_lst var_4_lst)
-                                then have "wf_meminst (fun_mem (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
+                                then have "wf_meminst (mem_of (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
               store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr> f) (mk_uN 0))" 
                                   using 
-                                    fun_mem.domintros fun_mem.psimps proj_uN_0.domintros
+                                    mem_of.simps proj_uN_0.domintros
                                     proj_uN_0.psimps
                                   by (metis bot_nat_0.extremum mem_is_wf mk_Store_ok.hyps(13) mk_Store_ok.prems(3) uN_case_0)
-                                then show ?case proof(induction "fun_mem
+                                then show ?case proof(induction "mem_of
      (mk_state
        \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
           store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr>
@@ -6901,7 +6864,7 @@ v_M div 8"
      (mk_lane__0 Jnn_I16
        (extend__underscore v_M (jsize Jnn_I16) v_sx
          (inv_ibytes_underscore v_M
-           (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+           (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
              (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8)
              (v_M div 8)))))" 
                             using lane__case_0[of Jnn_I16]
@@ -6915,7 +6878,7 @@ v_M div 8"
  (\<lambda>j. wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim v_N)))
        (mk_lane__0 Jnn_I16 (extend__underscore v_M (jsize Jnn_I16) v_sx j)))
  (map (\<lambda>k. inv_ibytes_underscore v_M
-            (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
               (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8)))
    (map nat [0..int v_N - 1]))" 
                         using list_all_length
@@ -6938,34 +6901,34 @@ v_M div 8"
                           valtype_numtype.psimps psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                           lanetype_Jnn.domintros lanetype_Jnn.psimps m by force
                       have "\<forall> k < length (map (\<lambda>k. inv_ibytes_underscore v_M
-            (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
               (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8)))
    (map nat [0..int v_N - 1])). 
 (\<lambda>j. wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_N)))
        (mk_lane__0 Jnn_I32 (extend__underscore v_M (jsize Jnn_I32) v_sx j)))
 ((map (\<lambda>k. inv_ibytes_underscore v_M
-            (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
               (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8)))
    (map nat [0..int v_N - 1])) ! k)"
                         apply(auto)
                         subgoal for k
                         proof - 
                           assume "k < v_N"
-                          have "list_all wf_byte (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))"
+                          have "list_all wf_byte (BYTES (mem_of (mk_state s' f) (mk_uN 0)))"
                             using Nil(12,1) proof(induction "mk_state s' f" "strip C")
                             case mk_State_ok
                             then show ?case proof(induction s')
                               case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst elemtype_lst)
-                              thm fun_mem.psimps
+                              thm mem_of.simps
                               show ?case using mk_Store_ok(14,13) proof(induction s)
                                 case (store_case_underscore var_0_lst var_1_lst var_2_lst var_3_lst var_5_lst var_4_lst)
-                                then have "wf_meminst (fun_mem (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
+                                then have "wf_meminst (mem_of (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
               store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr> f) (mk_uN 0))" 
                                   using 
-                                    fun_mem.domintros fun_mem.psimps proj_uN_0.domintros
+                                    mem_of.simps proj_uN_0.domintros
                                     proj_uN_0.psimps
                                   by (metis bot_nat_0.extremum mem_is_wf mk_Store_ok.hyps(13) mk_Store_ok.prems(3) uN_case_0)
-                                then show ?case proof(induction "fun_mem
+                                then show ?case proof(induction "mem_of
      (mk_state
        \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
           store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr>
@@ -6982,7 +6945,7 @@ v_M div 8"
      (mk_lane__0 Jnn_I32
        (extend__underscore v_M (jsize Jnn_I32) v_sx
          (inv_ibytes_underscore v_M
-           (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+           (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
              (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8)
              (v_M div 8)))))" 
                             using lane__case_0[of Jnn_I32]
@@ -6997,7 +6960,7 @@ v_M div 8"
  (\<lambda>j. wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim v_N)))
        (mk_lane__0 Jnn_I32 (extend__underscore v_M (jsize Jnn_I32) v_sx j)))
  (map (\<lambda>k. inv_ibytes_underscore v_M
-            (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
               (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8)))
    (map nat [0..int v_N - 1]))" 
                         using list_all_length
@@ -7021,34 +6984,34 @@ v_M div 8"
                         valtype_numtype.psimps psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                         lanetype_Jnn.domintros lanetype_Jnn.psimps m by force
                     have "\<forall> k < length (map (\<lambda>k. inv_ibytes_underscore v_M
-            (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
               (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8)))
    (map nat [0..int v_N - 1])). 
 (\<lambda>j. wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_N)))
        (mk_lane__0 Jnn_I64 (extend__underscore v_M (jsize Jnn_I64) v_sx j)))
 ((map (\<lambda>k. inv_ibytes_underscore v_M
-            (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
               (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8)))
    (map nat [0..int v_N - 1])) ! k)"
                       apply(auto)
                       subgoal for k
                       proof - 
                         assume "k < v_N"
-                        have "list_all wf_byte (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))"
+                        have "list_all wf_byte (BYTES (mem_of (mk_state s' f) (mk_uN 0)))"
                           using Nil(12,1) proof(induction "mk_state s' f" "strip C")
                           case mk_State_ok
                           then show ?case proof(induction s')
                             case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst elemtype_lst)
-                            thm fun_mem.psimps
+                            thm mem_of.simps
                             show ?case using mk_Store_ok(14,13) proof(induction s)
                               case (store_case_underscore var_0_lst var_1_lst var_2_lst var_3_lst var_5_lst var_4_lst)
-                              then have "wf_meminst (fun_mem (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
+                              then have "wf_meminst (mem_of (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
               store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr> f) (mk_uN 0))" 
                                 using 
-                                  fun_mem.domintros fun_mem.psimps proj_uN_0.domintros
+                                  mem_of.simps proj_uN_0.domintros
                                   proj_uN_0.psimps
                                 by (metis bot_nat_0.extremum mem_is_wf mk_Store_ok.hyps(13) mk_Store_ok.prems(3) uN_case_0)
-                              then show ?case proof(induction "fun_mem
+                              then show ?case proof(induction "mem_of
      (mk_state
        \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
           store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr>
@@ -7065,7 +7028,7 @@ v_M div 8"
      (mk_lane__0 Jnn_I64
        (extend__underscore v_M (jsize Jnn_I64) v_sx
          (inv_ibytes_underscore v_M
-           (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+           (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
              (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8)
              (v_M div 8)))))" 
                           using lane__case_0[of Jnn_I64]
@@ -7080,7 +7043,7 @@ v_M div 8"
  (\<lambda>j. wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim v_N)))
        (mk_lane__0 Jnn_I64 (extend__underscore v_M (jsize Jnn_I64) v_sx j)))
  (map (\<lambda>k. inv_ibytes_underscore v_M
-            (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
               (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg) + k * v_M div 8) (v_M div 8)))
    (map nat [0..int v_N - 1]))" 
                       using list_all_length
@@ -7131,7 +7094,7 @@ v_M div 8"
           qed(auto) 
           then show ?case proof(cases 
               "(n + proj_uN_0 (OFFSET v_memarg) + v_n div 8) >
-                (length (BYTES (fun_mem (mk_state s' f) (mk_uN 0))) :: nat)")
+                (length (BYTES (mem_of (mk_state s' f) (mk_uN 0))) :: nat)")
             case True
             have "wf_uN 32 (mk_uN 0)"
               using uN_case_0 by blast
@@ -7143,35 +7106,35 @@ proj_uN_0.domintros proj_uN_0.psimps
               by fastforce
           next
             case False
-            then have "length (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have "length (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_n div 8)) = 
   v_n div 8" 
               using length_list_slice n proj_uN_0.domintros proj_uN_0.psimps
               proj_num__0.domintros proj_num__0.psimps
               by (metis linorder_not_less option.sel)
-            then have bs: "ibytes_underscore v_n (inv_ibytes_underscore v_n ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have bs: "ibytes_underscore v_n (inv_ibytes_underscore v_n ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_n div 8))) =
-    list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+    list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_n div 8)" 
               using ibytes_inv by fastforce
-            have "list_all wf_byte (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))"
+            have "list_all wf_byte (BYTES (mem_of (mk_state s' f) (mk_uN 0)))"
               using Nil(12,1) proof(induction "mk_state s' f" "strip C")
               case mk_State_ok
               then show ?case proof(induction s')
                 case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst elemtype_lst)
-                thm fun_mem.psimps
+                thm mem_of.simps
                 show ?case using mk_Store_ok(14,13) proof(induction s)
                   case (store_case_underscore var_0_lst var_1_lst var_2_lst var_3_lst var_5_lst var_4_lst)
-                  then have "wf_meminst (fun_mem (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
+                  then have "wf_meminst (mem_of (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
               store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr> f) (mk_uN 0))" 
                     using 
-                        fun_mem.domintros fun_mem.psimps proj_uN_0.domintros
+                        mem_of.simps proj_uN_0.domintros
                         proj_uN_0.psimps
                     by (metis bot_nat_0.extremum mem_is_wf mk_Store_ok.hyps(13) mk_Store_ok.prems(3) uN_case_0)
-                  then show ?case proof(induction "fun_mem
+                  then show ?case proof(induction "mem_of
      (mk_state
        \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
           store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr>
@@ -7184,11 +7147,11 @@ proj_uN_0.domintros proj_uN_0.psimps
                 qed
               qed
             qed
-            then have "list_all wf_byte ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have "list_all wf_byte ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_n div 8))"
               using list_all_list_slice by auto
-            then have wfbs: "wf_uN v_n (inv_ibytes_underscore v_n ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have wfbs: "wf_uN v_n (inv_ibytes_underscore v_n ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_n div 8)))"
               using inv_ibytes__is_wf bs by auto
@@ -7217,7 +7180,7 @@ proj_uN_0.domintros proj_uN_0.psimps
                            psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                          lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                        have 3: "wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim (128 div v_n))))
-     (mk_lane__0 Jnn_I8 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+     (mk_lane__0 Jnn_I8 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
                            mk_uN_proj_uN_0 1 jsize_def by simp
@@ -7238,7 +7201,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                            psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                          lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                        have 3: "wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim (128 div v_n))))
-     (mk_lane__0 Jnn_I16 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+     (mk_lane__0 Jnn_I16 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
                            mk_uN_proj_uN_0 1 jsize_def by simp
@@ -7260,7 +7223,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                            psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                          lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                        have 3: "wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim (128 div v_n))))
-     (mk_lane__0 Jnn_I32 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+     (mk_lane__0 Jnn_I32 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
                            mk_uN_proj_uN_0 1 jsize_def by simp
@@ -7282,7 +7245,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                            psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                          lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                        have 3: "wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim (128 div v_n))))
-     (mk_lane__0 Jnn_I64 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+     (mk_lane__0 Jnn_I64 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
                            mk_uN_proj_uN_0 1 jsize_def by simp
@@ -7327,7 +7290,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
           qed(auto)
           then show ?case proof(cases
               "(n + proj_uN_0 (OFFSET v_memarg) + v_n div 8) >
-                (length (BYTES (fun_mem (mk_state s' f) (mk_uN 0))) :: nat)")
+                (length (BYTES (mem_of (mk_state s' f) (mk_uN 0))) :: nat)")
             case True
             have "wf_uN 32 (mk_uN 0)"
               using uN_case_0 by blast
@@ -7339,35 +7302,35 @@ proj_uN_0.domintros proj_uN_0.psimps
               by fastforce
           next
             case False
-            then have "length (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have "length (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_n div 8)) = 
   v_n div 8" 
               using length_list_slice n proj_uN_0.domintros proj_uN_0.psimps
               proj_num__0.domintros proj_num__0.psimps
               by (metis linorder_not_less option.sel)
-            then have bs: "ibytes_underscore v_n (inv_ibytes_underscore v_n ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have bs: "ibytes_underscore v_n (inv_ibytes_underscore v_n ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_n div 8))) =
-    list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+    list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_n div 8)" 
               using ibytes_inv by fastforce
-            have "list_all wf_byte (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))"
+            have "list_all wf_byte (BYTES (mem_of (mk_state s' f) (mk_uN 0)))"
               using Nil(12,1) proof(induction "mk_state s' f" "strip C")
               case mk_State_ok
               then show ?case proof(induction s')
                 case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst elemtype_lst)
-                thm fun_mem.psimps
+                thm mem_of.simps
                 show ?case using mk_Store_ok(14,13) proof(induction s)
                   case (store_case_underscore var_0_lst var_1_lst var_2_lst var_3_lst var_5_lst var_4_lst)
-                  then have "wf_meminst (fun_mem (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
+                  then have "wf_meminst (mem_of (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
               store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr> f) (mk_uN 0))" 
                     using 
-                        fun_mem.domintros fun_mem.psimps proj_uN_0.domintros
+                        mem_of.simps proj_uN_0.domintros
                         proj_uN_0.psimps
                     by (metis bot_nat_0.extremum mem_is_wf mk_Store_ok.hyps(13) mk_Store_ok.prems(3) uN_case_0)
-                  then show ?case proof(induction "fun_mem
+                  then show ?case proof(induction "mem_of
      (mk_state
        \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
           store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr>
@@ -7380,11 +7343,11 @@ proj_uN_0.domintros proj_uN_0.psimps
                 qed
               qed
             qed
-            then have "list_all wf_byte ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have "list_all wf_byte ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_n div 8))"
               using list_all_list_slice by auto
-            then have wfbs: "wf_uN v_n (inv_ibytes_underscore v_n ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have wfbs: "wf_uN v_n (inv_ibytes_underscore v_n ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_n div 8)))"
               using inv_ibytes__is_wf bs by auto
@@ -7434,7 +7397,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
           obtain vec where vec: "b = val_VCONST V128 vec" using typeofval_is_v128 Nil by fastforce
           then show ?case proof(cases 
               "(n + proj_uN_0 (OFFSET v_memarg) + v_n div 8) >
-                (length (BYTES (fun_mem (mk_state s' f) (mk_uN 0))) :: nat)")
+                (length (BYTES (mem_of (mk_state s' f) (mk_uN 0))) :: nat)")
             case True
             have "wf_uN 32 (mk_uN 0)"
               using uN_case_0 by blast
@@ -7446,35 +7409,35 @@ proj_uN_0.domintros proj_uN_0.psimps
               by fastforce
           next
             case False
-            then have "length (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have "length (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_n div 8)) = 
   v_n div 8" 
               using length_list_slice n proj_uN_0.domintros proj_uN_0.psimps
               proj_num__0.domintros proj_num__0.psimps
               by (metis linorder_not_less option.sel)
-            then have bs: "ibytes_underscore v_n (inv_ibytes_underscore v_n ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have bs: "ibytes_underscore v_n (inv_ibytes_underscore v_n ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_n div 8))) =
-    list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+    list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_n div 8)" 
               using ibytes_inv by fastforce
-            have "list_all wf_byte (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))"
+            have "list_all wf_byte (BYTES (mem_of (mk_state s' f) (mk_uN 0)))"
               using Nil(13,1) proof(induction "mk_state s' f" "strip C")
               case mk_State_ok
               then show ?case proof(induction s')
                 case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst elemtype_lst)
-                thm fun_mem.psimps
+                thm mem_of.simps
                 show ?case using mk_Store_ok(14,13) proof(induction s)
                   case (store_case_underscore var_0_lst var_1_lst var_2_lst var_3_lst var_5_lst var_4_lst)
-                  then have "wf_meminst (fun_mem (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
+                  then have "wf_meminst (mem_of (mk_state \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
               store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr> f) (mk_uN 0))" 
                     using 
-                        fun_mem.domintros fun_mem.psimps proj_uN_0.domintros
+                        mem_of.simps proj_uN_0.domintros
                         proj_uN_0.psimps
                     by (metis bot_nat_0.extremum mem_is_wf mk_Store_ok.hyps(13) mk_Store_ok.prems(3) uN_case_0)
-                  then show ?case proof(induction "fun_mem
+                  then show ?case proof(induction "mem_of
      (mk_state
        \<lparr>store_FUNCS = var_0_lst, store_GLOBALS = var_1_lst, store_TABLES = var_2_lst,
           store_MEMS = var_3_lst, store_ELEMS = var_4_lst, store_DATAS = var_5_lst\<rparr>
@@ -7487,11 +7450,11 @@ proj_uN_0.domintros proj_uN_0.psimps
                 qed
               qed
             qed
-            then have "list_all wf_byte ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have "list_all wf_byte ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_n div 8))"
               using list_all_list_slice by auto
-            then have wfbs: "wf_uN v_n (inv_ibytes_underscore v_n ( list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+            then have wfbs: "wf_uN v_n (inv_ibytes_underscore v_n ( list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg))
      (v_n div 8)))"
               using inv_ibytes__is_wf bs by auto
@@ -7518,7 +7481,7 @@ proj_uN_0.domintros proj_uN_0.psimps
                            psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                          lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                        have 3: "wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I8) (mk_dim (128 div v_n))))
-     (mk_lane__0 Jnn_I8 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+     (mk_lane__0 Jnn_I8 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
                            mk_uN_proj_uN_0 1 jsize_def by simp
@@ -7539,7 +7502,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                            psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                          lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                        have 3: "wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I16) (mk_dim (128 div v_n))))
-     (mk_lane__0 Jnn_I16 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+     (mk_lane__0 Jnn_I16 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
                            mk_uN_proj_uN_0 1 jsize_def by simp
@@ -7561,7 +7524,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                            psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                          lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                        have 3: "wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I32) (mk_dim (128 div v_n))))
-     (mk_lane__0 Jnn_I32 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+     (mk_lane__0 Jnn_I32 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
                            mk_uN_proj_uN_0 1 jsize_def by simp
@@ -7583,7 +7546,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                            psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                          lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                        have 3: "wf_lane_underscore (fun_lanetype (X (lanetype_Jnn Jnn_I64) (mk_dim (128 div v_n))))
-     (mk_lane__0 Jnn_I64 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
+     (mk_lane__0 Jnn_I64 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (mem_of (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
                            mk_uN_proj_uN_0 1 jsize_def by simp
@@ -8876,7 +8839,7 @@ assms(6) proof(induction "C")
                  using fun_funcinst.domintros fun_funcinst.psimps by force
                obtain t_locs where 3: "v_func = func_FUNC x (map LOCAL t_locs) body"
                   using func_FUNC local_list_is_local_list by blast
-                have 4: "list_all (\<lambda>t. default_underscore t \<noteq> None) t_locs" 
+                have 4: "list_all (\<lambda>t. \<exists>v. fun_default_underscore t (Some v)) t_locs"
                   using Externaddr_ok__func(12,1,2) 3 fields
                 proof(induction "mk_state s f" "strip C")
                   case mk_State_ok
@@ -8898,7 +8861,7 @@ assms(6) proof(induction "C")
         then have "t_lst = t_locs"
           using map_LOCAL_inj by presburger
         then show ?case using default_not_bot
-          list_all_map_impl[OF mk_Func_ok(3), of "\<lambda> x. default_underscore x \<noteq> None" "\<lambda> x. x"]
+          list_all_map_impl[OF mk_Func_ok(3), of "\<lambda> x. \<exists>v. fun_default_underscore x (Some v)" "\<lambda> x. x"]
           by fastforce
       qed
     qed
@@ -8916,16 +8879,31 @@ assms(6) proof(induction "C")
         qed
                have 6: "wf_func (func_FUNC x (map LOCAL t_locs) body)" using 5 3
                  by (simp add: wf_funcinst.simps)
-                 have 7: "wf_frame \<lparr>LOCALS = vs @ map (\<lambda>t. the (default_underscore t)) t_locs, 
-                    frame_MODULE = mm\<rparr>" using Externaddr_ok__func(11) 5 default__is_wf
-                   by (metis (mono_tags, lifting) "4" frame_case_underscore funcinst.ext_inject 
-                       list_all_append
-                       list_all_map_impl wf_funcinst.simps)
+               define dl where "dl = map (\<lambda>t. Some (SOME v. fun_default_underscore t (Some v))) t_locs"
+               have dl: "list_all2 (\<lambda>d t. fun_default_underscore t d) dl t_locs"
+                 unfolding dl_def
+               proof (rule list_all2_mapI)
+                 fix t assume "t \<in> set t_locs"
+                 then have "\<exists>v. fun_default_underscore t (Some v)" using 4 by (simp add: list_all_iff)
+                 then show "fun_default_underscore t (Some (SOME v. fun_default_underscore t (Some v)))"
+                   by (rule someI_ex)
+               qed
+               have dl2: "list_all (\<lambda>d. d \<noteq> None) dl" by (simp add: dl_def list_all_iff)
+               have wfdl: "list_all wf_val (map the dl)"
+               proof -
+                 have "\<forall>d\<in>set dl. \<exists>t. fun_default_underscore t d"
+                   using dl by (auto simp: list_all2_conv_all_nth in_set_conv_nth)
+                 then show ?thesis using dl2 default__is_wf[OF _ _ HOL.refl] by (fastforce simp: list_all_iff)
+               qed
+                 have 7: "wf_frame \<lparr>LOCALS = vs @ map the dl,
+                    frame_MODULE = mm\<rparr>" using Externaddr_ok__func(11) 5 wfdl
+                   by (metis (mono_tags, lifting) frame_case_underscore funcinst.ext_inject
+                       list_all_append wf_funcinst.simps)
                    have 8: "length t_1_lst = length vs"
                      by (metis assms(6) length_map list_all2_lengthD)
-               then show ?thesis 
-                 using call_addr[where ?z = "mk_state s f" and ?val_lst = vs and ?a = v_funcaddr]  
-  1 2 3 4 5 6 7 8 Step.intros(2)
+               then show ?thesis
+                 using call_addr[where ?z = "mk_state s f" and ?val_lst = vs and ?a = v_funcaddr and ?var_0_lst = dl]
+  1 2 3 dl dl2 5 6 7 8 Step.intros(2)
                  by metis
            qed 
            qed
