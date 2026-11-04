@@ -4,6 +4,51 @@ theory Preservation
 	        Type_Inversion Subtyping_Theorem Context_Store_Agreement Generated_Wf_Lemmas
 begin
 
+(* Functional views of the store lookups (generated as relations), so that lemmas can talk
+   about the looked-up instance *)
+fun table_of :: "state \<Rightarrow> tableidx \<Rightarrow> tableinst" where
+  "table_of (mk_state s f) x = store_TABLES s ! (TABLES (frame_MODULE f) ! proj_uN_0 x)"
+
+fun mem_of :: "state \<Rightarrow> memidx \<Rightarrow> meminst" where
+  "mem_of (mk_state s f) x = store_MEMS s ! (MEMS (frame_MODULE f) ! proj_uN_0 x)"
+
+fun elem_of :: "state \<Rightarrow> elemidx \<Rightarrow> eleminst" where
+  "elem_of (mk_state s f) x = store_ELEMS s ! (ELEMS (frame_MODULE f) ! proj_uN_0 x)"
+
+fun data_of :: "state \<Rightarrow> dataidx \<Rightarrow> datainst" where
+  "data_of (mk_state s f) x = store_DATAS s ! (DATAS (frame_MODULE f) ! proj_uN_0 x)"
+
+fun global_of :: "state \<Rightarrow> globalidx \<Rightarrow> globalinst" where
+  "global_of (mk_state s f) x = store_GLOBALS s ! (GLOBALS (frame_MODULE f) ! proj_uN_0 x)"
+
+fun local_of :: "state \<Rightarrow> localidx \<Rightarrow> val" where
+  "local_of (mk_state s f) x = LOCALS f ! proj_uN_0 x"
+
+lemma fun_table_of: "fun_table z x ti \<Longrightarrow> ti = table_of z x"
+  by (auto elim: fun_table.cases)
+
+lemma fun_mem_of: "fun_mem z x mi \<Longrightarrow> mi = mem_of z x"
+  by (auto elim: fun_mem.cases)
+
+lemma fun_elem_of: "fun_elem z x ei \<Longrightarrow> ei = elem_of z x"
+  by (auto elim: fun_elem.cases)
+
+lemma fun_data_of: "fun_data z x di \<Longrightarrow> di = data_of z x"
+  by (auto elim: fun_data.cases)
+
+lemma fun_global_of: "fun_global z x gi \<Longrightarrow> gi = global_of z x"
+  by (auto elim: fun_global.cases)
+
+lemma fun_local_of: "fun_local z x v \<Longrightarrow> v = local_of z x"
+  by (auto elim: fun_local.cases)
+
+lemma fun_type_det: "fun_type z x t \<Longrightarrow> fun_type z x t' \<Longrightarrow> t = t'"
+  by (auto elim!: fun_type.cases)
+
+lemma fun_blocktype_det: "fun_blocktype z bt t \<Longrightarrow> fun_blocktype z bt t' \<Longrightarrow> t = t'"
+  by (auto elim!: fun_blocktype.cases dest: fun_type_det)
+
+
 
 
 lemma list_update_func_length: 
@@ -397,8 +442,8 @@ next
   qed
   }
 next
-  case (Step__global_set v_val x)
-  then have samef: "f = f'" by (simp add: with_global.domintros with_global.psimps)
+  case (Step__global_set x v_val)
+  then have samef: "f = f'" by (auto dest: fun_with_global_eq)
   {
     case 1
     then show ?case using samef by simp
@@ -411,7 +456,7 @@ next
       by (metis (mono_tags, lifting) Extend_store.simps) 
   }
 next
-  case (table_set_trap i x v_ref)
+  case (table_set_trap x var_0 i v_ref)
   {
     case 1
     then show ?case by simp
@@ -423,8 +468,8 @@ next
     then show ?case using table_set_trap by simp
   }
 next
-  case (table_set_val i x v_ref)
-  then have samef: "f = f'" by (simp add: with_table.domintros with_table.psimps)
+  case (table_set_val x var_1 i v_ref)
+  then have samef: "f = f'" by (auto dest: fun_with_table_eq)
   {
     case 1
     then show ?case using samef by simp
@@ -437,8 +482,8 @@ next
       by (metis (mono_tags, lifting) Extend_store.simps)
   }
 next
-  case (table_grow_succeed x v_n v_ref var_0 ti)
-  then have samef: "f = f'" by (simp add: with_tableinst.domintros with_tableinst.psimps)
+  case (table_grow_succeed var_1 v_n v_ref var_0 x ti)
+  then have samef: "f = f'" by (auto dest: fun_with_tableinst_eq)
   {
     case 1
     then show ?case using samef by simp
@@ -464,7 +509,7 @@ next
   }
 next
   case (Step__elem_drop x)
-  then have samef: "f = f'" using with_elem.domintros with_elem.psimps by force
+  then have samef: "f = f'" by (auto dest: fun_with_elem_eq)
   {
     case 1
     then show ?case using samef by simp
@@ -477,7 +522,7 @@ next
       by (metis (mono_tags, lifting) Extend_store.simps)
   }
 next
-  case (store_num_trap i nt ao c)
+  case (store_num_trap var_0 i nt ao c)
   {
     case 1
     then show ?case by simp
@@ -489,8 +534,8 @@ next
     then show ?case using store_num_trap by simp
   }
 next
-  case (store_num_val i nt b_lst c ao)
-  then have samef: "f = f'" by (simp add: with_mem.domintros with_mem.psimps)
+  case (store_num_val i ao nt b_lst var_0 c)
+  then have samef: "f = f'" by (auto dest: fun_with_mem_eq)
   {
     case 1
     then show ?case using samef by simp
@@ -503,7 +548,7 @@ next
       by (metis (mono_tags, lifting) Extend_store.simps)
   }
 next
-  case (store_pack_trap i ao v_n v_Inn c)
+  case (store_pack_trap var_0 i ao v_n v_Inn c)
   {
     case 1
     then show ?case by simp
@@ -515,8 +560,8 @@ next
     then show ?case using store_pack_trap by simp
   }
 next
-  case (store_pack_val i v_Inn c b_lst v_n ao)
-  then have samef: "f = f'" by (simp add: with_mem.domintros with_mem.psimps)
+  case (store_pack_val i ao v_n b_lst var_0 v_Inn c)
+  then have samef: "f = f'" by (auto dest: fun_with_mem_eq)
   {
     case 1
     then show ?case using samef by simp
@@ -529,7 +574,7 @@ next
       by (metis (mono_tags, lifting) Extend_store.simps)
   }
 next
-  case (vstore_oob i ao c)
+  case (vstore_oob var_0 i ao c)
   {
     case 1
     then show ?case by simp
@@ -541,8 +586,8 @@ next
     then show ?case using vstore_oob by simp
   }
 next
-  case (vstore_val i b_lst c ao)
-  then have samef: "f = f'" by (simp add: with_mem.domintros with_mem.psimps)
+  case (vstore_val i ao b_lst var_0 c)
+  then have samef: "f = f'" by (auto dest: fun_with_mem_eq)
   {
     case 1
     then show ?case using samef by simp
@@ -555,7 +600,7 @@ next
       by (metis (mono_tags, lifting) Extend_store.simps)
   }
 next
-  case (vstore_lane_oob i ao v_N c j)
+  case (vstore_lane_oob var_0 i ao v_N c j)
   {
     case 1
     then show ?case by simp
@@ -567,8 +612,8 @@ next
     then show ?case using vstore_lane_oob by simp
   }
 next
-  case (vstore_lane_val i v_N v_Jnn v_M c j b_lst ao)
-  then have samef: "f = f'" by (simp add: with_mem.domintros with_mem.psimps)
+  case (vstore_lane_val v_Jnn var_1 i ao v_N b_lst var_0 v_M c j)
+  then have samef: "f = f'" by (auto dest: fun_with_mem_eq)
   {
     case 1
     then show ?case using samef by simp
@@ -581,8 +626,8 @@ next
       by (metis (mono_tags, lifting) Extend_store.simps)
   }
 next
-  case (memory_grow_succeed v_n var_0 mi)
-  then have samef: "f = f'" by (simp add: with_meminst.domintros with_meminst.psimps)
+  case (memory_grow_succeed var_1 v_n var_0 mi)
+  then have samef: "f = f'" by (auto dest: fun_with_meminst_eq)
   {
     case 1
     then show ?case using samef by simp
@@ -608,7 +653,7 @@ next
   }
 next
   case (Step__data_drop x)
-  then have samef: "f = f'" by (simp add: with_data.domintros with_data.psimps)
+  then have samef: "f = f'" by (auto dest: fun_with_data_eq)
   {
     case 1
     then show ?case using samef by simp
@@ -668,62 +713,35 @@ lemma map_LOCAL_inj: assumes "map LOCAL ts = map LOCAL ts'" shows "ts = ts'"
   using assms proof(induction ts arbitrary:ts')
 qed(auto)
 
-lemma default_Val_ok: assumes "wf_store s" "t \<noteq> BOT" 
-  shows "Val_ok s (the (default_underscore t)) t" 
-proof(cases t)
-  case valtype_I32
-  then show ?thesis 
-     using Val_ok.intros assms default__is_wf default_underscore.domintros 
-           default_underscore.psimps option.distinct(1) option.sel valtype_numtype.simps
-     by metis
-next
-  case valtype_I64
-  then show ?thesis 
-     using Val_ok.intros assms default__is_wf default_underscore.domintros 
-           default_underscore.psimps option.distinct(1) option.sel valtype_numtype.simps
-     by metis
-next
-  case valtype_F32
-  then show ?thesis
-     using Val_ok.intros assms default__is_wf default_underscore.domintros 
-           default_underscore.psimps option.distinct(1) option.sel valtype_numtype.simps
-     by metis
-next
-  case valtype_F64
-  then show ?thesis 
-     using Val_ok.intros assms default__is_wf default_underscore.domintros 
-           default_underscore.psimps option.distinct(1) option.sel valtype_numtype.simps
-     by metis
-next
-  case valtype_V128
-  then show ?thesis 
-     using Val_ok.intros assms default__is_wf default_underscore.domintros 
-           default_underscore.psimps option.distinct(1) option.sel valtype_vectype.psimps
-            valtype_vectype.domintros
-     by metis
-next
-  case valtype_FUNCREF
-  then show ?thesis 
-     using Val_ok.intros(3) Ref_ok.intros(1) assms default_underscore.domintros 
-           default_underscore.psimps option.sel valtype_reftype.psimps
-           valtype_reftype.domintros val_ref.domintros val_ref.psimps
-     by metis
-next
-  case valtype_EXTERNREF
-  then show ?thesis 
-     using Val_ok.intros(3) Ref_ok.intros(1) assms default_underscore.domintros 
-           default_underscore.psimps option.sel valtype_reftype.psimps
-           valtype_reftype.domintros val_ref.domintros val_ref.psimps
-     by metis
-next
-  case BOT
-  then show ?thesis using assms by simp
+lemma default_Val_ok:
+  assumes "wf_store s" "fun_default_underscore t (Some v)"
+  shows "Val_ok s v t"
+proof -
+  have wf: "wf_val v" using default__is_wf[OF assms(2) _ HOL.refl] by simp
+  have tys: "valtype_numtype I32 = valtype_I32" "valtype_numtype I64 = valtype_I64"
+    "valtype_numtype F32 = valtype_F32" "valtype_numtype F64 = valtype_F64"
+    "valtype_vectype V128 = valtype_V128" "valtype_reftype FUNCREF = valtype_FUNCREF"
+    "valtype_reftype EXTERNREF = valtype_EXTERNREF" "val_ref (ref_REF_NULL rt) = val_REF_NULL rt"
+    by (simp_all add: valtype_numtype.psimps valtype_numtype.domintros valtype_vectype.psimps
+        valtype_vectype.domintros valtype_reftype.psimps valtype_reftype.domintros val_ref.psimps
+        val_ref.domintros)
+  have refnull: "Val_ok s (val_REF_NULL rt) (valtype_reftype rt)" for rt
+    using Val_ok__reftype[OF Ref_ok.intros(1)[OF assms(1)] assms(1), of rt]
+    using val_ref.domintros(1) val_ref.psimps(1) by auto
+  show ?thesis using assms(2) wf
+    by (cases rule: fun_default_underscore.cases) (metis tys refnull Val_ok.intros assms(1))+
 qed
 
 lemma defaults_Val_ok:
-  assumes "wf_store s" "list_all (\<lambda> x. x \<noteq> BOT) ts" 
-  shows "list_all2 (\<lambda> t v. Val_ok s v t) ts (map (\<lambda> x. the (default_underscore x)) ts)"
-  using assms proof(induction ts) qed(auto simp add:default_Val_ok)
+  assumes "wf_store s" "list_all2 (\<lambda> v t. fun_default_underscore t v) vs ts"
+          "list_all (\<lambda> v. v \<noteq> None) vs"
+  shows "list_all2 (\<lambda> t v. Val_ok s v t) ts (map the vs)"
+  using assms(2,3)
+proof (induction rule: list_all2_induct)
+  case (Cons v vs t ts)
+  then obtain y where "v = Some y" by auto
+  then show ?case using Cons default_Val_ok[OF assms(1)] by auto
+qed simp
 
 lemma Limits_sub_refl: assumes "wf_limits lim" shows "Limits_sub lim lim" 
   using assms assms proof(induction lim)
@@ -863,7 +881,7 @@ lemma Store_ok_length_mem:
     "Moduleinst_ok s (frame_MODULE f) C"
     "t_inst_match C C'"
     "n < length (context_MEMS C')"
-shows "length (BYTES (fun_mem (mk_state s f) (mk_uN n))) \<le> (2 ^ 32 :: nat)" 
+shows "length (BYTES (mem_of (mk_state s f) (mk_uN n))) \<le> (2 ^ 32 :: nat)" 
   using assms 
     proof (induction s)
       case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst 
@@ -882,16 +900,16 @@ shows "length (BYTES (fun_mem (mk_state s f) (mk_uN n))) \<le> (2 ^ 32 :: nat)"
           by (metis moduleinst.select_convs(5))
         then have "MEMS (frame_MODULE f) ! n < length (store_MEMS s)"
           using Externaddr_ok_mem by blast
-        then have "Meminst_ok s (fun_mem (mk_state s f) (mk_uN n)) 
+        then have "Meminst_ok s (mem_of (mk_state s f) (mk_uN n)) 
                 (memtype_lst ! ((MEMS (frame_MODULE f)) ! n))" 
           using list_all2_nth[OF mk_Moduleinst_ok(29), of "(MEMS (frame_MODULE f)) ! n"] 
-           fun_mem.psimps fun_mem.domintros
+           mem_of.simps fun_mem_of
            proj_uN_0.psimps proj_uN_0.domintros
            mk_Moduleinst_ok.prems(3) by fastforce 
         then show ?case (* using mk_Moduleinst_ok(31) *)
-          proof (induction s "fun_mem (mk_state s f) (mk_uN n)" "memtype_lst ! (MEMS (frame_MODULE f)! n)")
+          proof (induction s "mem_of (mk_state s f) (mk_uN n)" "memtype_lst ! (MEMS (frame_MODULE f)! n)")
             case (mk_Meminst_ok v_len m_opt b_lst s)
-            then have veq: "length (BYTES (fun_mem (mk_state s f) (mk_uN n))) = v_len * (64 * Ki)"
+            then have veq: "length (BYTES (mem_of (mk_state s f) (mk_uN n))) = v_len * (64 * Ki)"
               by (metis meminst.select_convs(2))
             show ?case using mk_Meminst_ok(1) veq 
             proof(induction "PAGE (mk_limits (mk_uN v_len) (map_option mk_uN m_opt))")
@@ -900,7 +918,7 @@ shows "length (BYTES (fun_mem (mk_state s f) (mk_uN n))) \<le> (2 ^ 32 :: nat)"
               proof(induction "mk_limits (mk_uN v_len) (map_option mk_uN m_opt)" 
                     "2 ^ 16 :: nat")
                 case (mk_Limits_ok m_opt')
-                have "length (BYTES (fun_mem (mk_state s f) (mk_uN n))) \<le> 2 ^ 16 * (64 * Ki)"
+                have "length (BYTES (mem_of (mk_state s f) (mk_uN n))) \<le> 2 ^ 16 * (64 * Ki)"
                   using mk_Limits_ok(1,5) by force
                 then show ?case using Ki_def
                   by fastforce
@@ -917,7 +935,7 @@ lemma Store_ok_length_table:
     "Moduleinst_ok s (frame_MODULE f) C"
     "t_inst_match C C'"
     "n < length (context_TABLES C')"
-shows "length (REFS (fun_table (mk_state s f) (mk_uN n))) \<le> (2 ^ 32 - 1 :: nat)" 
+shows "length (REFS (table_of (mk_state s f) (mk_uN n))) \<le> (2 ^ 32 - 1 :: nat)" 
   using assms 
     proof (induction s)
       case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst 
@@ -936,16 +954,16 @@ shows "length (REFS (fun_table (mk_state s f) (mk_uN n))) \<le> (2 ^ 32 - 1 :: n
           by (metis moduleinst.select_convs(4))
         then have "TABLES (frame_MODULE f) ! n < length (store_TABLES s)"
           using inv_Externaddr_ok_table by blast
-        then have "Tableinst_ok s (fun_table (mk_state s f) (mk_uN n)) 
+        then have "Tableinst_ok s (table_of (mk_state s f) (mk_uN n)) 
                 (tabletype_lst ! ((TABLES (frame_MODULE f)) ! n))" 
           using list_all2_nth[OF mk_Moduleinst_ok(29), of "(TABLES (frame_MODULE f)) ! n"] 
-           fun_table.psimps fun_table.domintros
+           table_of.simps fun_table_of
            proj_uN_0.psimps proj_uN_0.domintros
            mk_Moduleinst_ok.prems(3) by fastforce 
         then show ?case (* using mk_Moduleinst_ok(31) *)
-          proof (induction s "fun_table (mk_state s f) (mk_uN n)" "tabletype_lst ! (TABLES (frame_MODULE f)! n)")
+          proof (induction s "table_of (mk_state s f) (mk_uN n)" "tabletype_lst ! (TABLES (frame_MODULE f)! n)")
             case (mk_Tableinst_ok v_len m_opt rt s ref_lst)
-            then have veq: "length (REFS (fun_table (mk_state s f) (mk_uN n))) = v_len"
+            then have veq: "length (REFS (table_of (mk_state s f) (mk_uN n))) = v_len"
               by (metis tableinst.select_convs(2))
             show ?case using mk_Tableinst_ok(1) veq 
             proof(induction "mk_tabletype (mk_limits (mk_uN v_len) (map_option mk_uN m_opt)) rt")
@@ -2127,7 +2145,7 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (unop_val nt unop c_1 c)
+    case (unop_val nt unop c_1 var_0 c)
     then obtain t2 where splitunop:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST nt c_1)] (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_UNOP nt unop)] (mk_functype t2 t3)"
@@ -2147,10 +2165,10 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
     then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_numtype nt]) <ti: 
                 mk_instrtype t1 t3" using subv subt produce_consume by auto
     have "wf_instr (instr_sc1 (res_CONST nt c))" 
-       using unop_val(13) wf_admininstr_instr_inv
+       using unop_val(14) wf_admininstr_instr_inv
       admininstr_instr.domintros admininstr_instr.psimps by simp
-    then show ?case using unop_val(12) const instr_ok_instr_ok2 instr_ok2_instrs_ok2
-      Instrs_ok2_subtyping Instrs_ok2_wf[OF unop_val(11)] subt
+    then show ?case using unop_val(13) const instr_ok_instr_ok2 instr_ok2_instrs_ok2
+      Instrs_ok2_subtyping Instrs_ok2_wf[OF unop_val(12)] subt
       by (metis admininstr_instr.domintros(14) admininstr_instr.psimps(14))
   next
     case (unop_trap nt unop c_1)
@@ -2190,7 +2208,7 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (Step_pure__testop nt testop c_1 c)
+    case (Step_pure__testop nt testop c_1 var_0 c)
      then obtain t2 where splitunop:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST nt c_1)] (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_TESTOP nt testop)] (mk_functype t2 t3)"
@@ -2210,11 +2228,11 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
     then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_I32]) <ti: 
                 mk_instrtype t1 t3" using subv subt produce_consume by auto
     have "wf_instr (instr_sc1 (res_CONST I32 c))" 
-       using Step_pure__testop(12) wf_admininstr_instr_inv
+       using Step_pure__testop(13) wf_admininstr_instr_inv
       admininstr_instr.domintros admininstr_instr.psimps
-       by (meson Step_pure__testop.hyps(3) instr_case_13)
+       by (meson Step_pure__testop.hyps(4) instr_case_13)
     
-    then show ?case using Step_pure__testop(11) const instr_ok_instr_ok2 instr_ok2_instrs_ok2
+    then show ?case using Step_pure__testop(12) const instr_ok_instr_ok2 instr_ok2_instrs_ok2
       Instrs_ok2_subtyping Instrs_ok2_wf subt valtype_numtype.domintros
       valtype_numtype.psimps
       admininstr_instr.domintros(14) admininstr_instr.psimps(14)
@@ -2358,7 +2376,7 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
       admininstr_instr.domintros(14) admininstr_instr.psimps(14) valtype_numtype.domintros 
       valtype_numtype.psimps by metis
   next
-    case (Step_pure__vvunop c unop c_1)
+    case (Step_pure__vvunop unop c_1 var_0 c)
     then obtain t2 where splitunop:
       "Instrs_ok2 s C' [admininstr_sc2 (admininstr_st2_VCONST V128 c_1)] (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc2 (admininstr_st2_VVUNOP V128 unop)] (mk_functype t2 t3)"
@@ -2379,13 +2397,13 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
     then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_V128]) <ti: 
                 mk_instrtype t1 t3" using subv subt produce_consume by auto
     have "wf_instr (instr_sc1 (VCONST V128 c))" 
-       using Step_pure__vvunop(11) wf_admininstr_instr_inv
+       using Step_pure__vvunop(12) wf_admininstr_instr_inv
       admininstr_instr.domintros admininstr_instr.psimps by simp
-    then show ?case using Step_pure__vvunop(10) vconst instr_ok_instr_ok2 instr_ok2_instrs_ok2
-      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__vvunop(9)] subt
+    then show ?case using Step_pure__vvunop(11) vconst instr_ok_instr_ok2 instr_ok2_instrs_ok2
+      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__vvunop(10)] subt
       admininstr_instr.domintros admininstr_instr.psimps by metis
   next
-    case (Step_pure__vvbinop c unop c_1 c_2)
+    case (Step_pure__vvbinop unop c_1 c_2 var_0 c)
     then obtain t2 where splitunop:
       "Instrs_ok2 s C' [admininstr_sc2 (admininstr_st2_VCONST V128 c_1),
                         admininstr_sc2 (admininstr_st2_VCONST V128 c_2)] (mk_functype t1 t2)"
@@ -2407,13 +2425,13 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
     then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_V128]) <ti: 
                 mk_instrtype t1 t3" using subv subt produce_consume by auto
     have "wf_instr (instr_sc1 (VCONST V128 c))" 
-       using Step_pure__vvbinop(11) wf_admininstr_instr_inv
+       using Step_pure__vvbinop(12) wf_admininstr_instr_inv
       admininstr_instr.domintros admininstr_instr.psimps by simp
-    then show ?case using Step_pure__vvbinop(10) vconst instr_ok_instr_ok2 instr_ok2_instrs_ok2
-      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__vvbinop(9)] subt
+    then show ?case using Step_pure__vvbinop(11) vconst instr_ok_instr_ok2 instr_ok2_instrs_ok2
+      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__vvbinop(10)] subt
       admininstr_instr.domintros admininstr_instr.psimps by metis
   next
-    case (Step_pure__vvternop c unop c_1 c_2 c_3)
+    case (Step_pure__vvternop unop c_1 c_2 c_3 var_0 c)
     then obtain t2 where splitunop:
       "Instrs_ok2 s C' [admininstr_sc2 (admininstr_st2_VCONST V128 c_1),
                         admininstr_sc2 (admininstr_st2_VCONST V128 c_2),
@@ -2436,10 +2454,10 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
     then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_V128]) <ti: 
                 mk_instrtype t1 t3" using subv subt produce_consume by auto
     have "wf_instr (instr_sc1 (VCONST V128 c))"
-       using Step_pure__vvternop(11) wf_admininstr_instr_inv
+       using Step_pure__vvternop(12) wf_admininstr_instr_inv
       admininstr_instr.domintros admininstr_instr.psimps by simp
-    then show ?case using Step_pure__vvternop(10) vconst instr_ok_instr_ok2 instr_ok2_instrs_ok2
-      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__vvternop(9)] subt
+    then show ?case using Step_pure__vvternop(11) vconst instr_ok_instr_ok2 instr_ok2_instrs_ok2
+      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__vvternop(10)] subt
       admininstr_instr.domintros admininstr_instr.psimps by metis
   next
     case (Step_pure__vvtestop c c_1)
@@ -2625,7 +2643,7 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
       Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__vrelop(11)] subt
       admininstr_instr.domintros admininstr_instr.psimps by metis
   next
-    case (Step_pure__vshiftop var_0_lst c'_lst v_Jnn v_N unop v_n c_1 c)
+    case (Step_pure__vshiftop v_Jnn v_N unop v_n var_0_lst c'_lst c_1 c)
     then obtain t2 where splitunop:
       "Instrs_ok2 s C' [admininstr_sc2 (admininstr_st2_VCONST V128 c_1),
                         admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))] 
@@ -2648,13 +2666,13 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
     then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_V128]) <ti: 
                 mk_instrtype t1 t3" using subv subt produce_consume by auto
     have "wf_instr (instr_sc1 (VCONST V128 c))" 
-       using Step_pure__vshiftop(19) wf_admininstr_instr_inv
+       using Step_pure__vshiftop(18) wf_admininstr_instr_inv
       admininstr_instr.domintros admininstr_instr.psimps by simp
-    then show ?case using Step_pure__vshiftop(18) vconst instr_ok_instr_ok2 instr_ok2_instrs_ok2
-      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__vshiftop(17)] subt
+    then show ?case using Step_pure__vshiftop(17) vconst instr_ok_instr_ok2 instr_ok2_instrs_ok2
+      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__vshiftop(16)] subt
       admininstr_instr.domintros admininstr_instr.psimps by metis
   next
-    case (Step_pure__vbitmask var_0_lst ci_1_lst v_Jnn v_N c ci)
+    case (Step_pure__vbitmask v_Jnn var_1 var_0_lst ci_1_lst v_N c ci)
     then obtain t2 where splitunop:
       "Instrs_ok2 s C' [admininstr_sc2 (admininstr_st2_VCONST V128 c)] (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc3 (admininstr_st3_VBITMASK (mk_ishape (X (lanetype_Jnn v_Jnn) (mk_dim v_N))))] (mk_functype t2 t3)"
@@ -2919,7 +2937,7 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
       Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__vextbinop(11)] subt
       admininstr_instr.domintros admininstr_instr.psimps by metis
   next
-    case (Step_pure__vnarrow ci_1_lst Jnn_1 N_1 c_1 ci_2_lst c_2 cj_1_lst Jnn_2 v_sx cj_2_lst c N_2)
+    case (Step_pure__vnarrow Jnn_2 var_1 Jnn_1 var_0 ci_1_lst N_1 c_1 ci_2_lst c_2 cj_1_lst v_sx cj_2_lst c N_2)
     then obtain t2 where splitunop:
       "Instrs_ok2 s C' [admininstr_sc2 (admininstr_st2_VCONST V128 c_1),
                         admininstr_sc2 (admininstr_st2_VCONST V128 c_2)] (mk_functype t1 t2)"
@@ -2941,10 +2959,10 @@ using inv_plain admininstr_instr.domintros admininstr_instr.psimps by metis
     then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_V128]) <ti: 
                 mk_instrtype t1 t3" using subv subt produce_consume by auto
     have "wf_instr (instr_sc1 (VCONST V128 c))" 
-       using Step_pure__vnarrow(23) wf_admininstr_instr_inv
+       using Step_pure__vnarrow(25) wf_admininstr_instr_inv
       admininstr_instr.domintros admininstr_instr.psimps by simp
-    then show ?case using Step_pure__vnarrow(22) vconst instr_ok_instr_ok2 instr_ok2_instrs_ok2
-      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__vnarrow(21)] subt
+    then show ?case using Step_pure__vnarrow(24) vconst instr_ok_instr_ok2 instr_ok2_instrs_ok2
+      Instrs_ok2_subtyping Instrs_ok2_wf[OF Step_pure__vnarrow(23)] subt
       admininstr_instr.domintros admininstr_instr.psimps by metis
   next
     case (Step_pure__vcvtop sh_1 sh_2 vcvtop c_1 var_0 c)
@@ -3083,7 +3101,7 @@ next
   
   then show ?case
   proof (induction "mk_config (mk_state s f) es" es' rule:Step_read.induct)
-    case (Step_read__block bt t_1_lst t_2_lst k val_lst v_n instr_lst)
+    case (Step_read__block bt var_0 t_1_lst t_2_lst k val_lst v_n instr_lst)
     then obtain t2 where splitvs: 
       "Instrs_ok2 s C' (map admininstr_val val_lst) (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc0 (admininstr_st0_BLOCK bt instr_lst)] (mk_functype t2 t3)"
@@ -3112,8 +3130,8 @@ next
    "mk_functype (mk_list t1s) (mk_list t2s) = mk_functype t2' t3'"
       using inv_block by blast
     have eqt: "mk_functype (mk_list t1s) (mk_list t2s) = mk_functype (mk_list t_1_lst) 
-          (mk_list t_2_lst)" using blockhyps(2) Step_read__block(1,10,11)
-      using blocktype_ok_agree by auto
+          (mk_list t_2_lst)" using blockhyps(2) Step_read__block(1,2,11,12)
+      using blocktype_ok_agree fun_blocktype_det by metis
     then have subt: "mk_instrtype (mk_list []) (mk_list t2s) <ti: mk_instrtype t1 t3" 
         "Resulttype_sub (mk_list (map typeofval val_lst)) (mk_list t1s)"
       using blockhyps Step_read__block subv subt 
@@ -3154,10 +3172,10 @@ next
       using label[OF _ ok_inside Instrs_ok2_wf(2,1)[OF splitvs(1)] wffinal] 
         blockhyps Step_read__block eqt Instrs_ok2__empty[OF Instrs_ok2_wf(2,1)[OF splitvs(1)]]
       using Instrs_ok2_frame_sub Resulttype_sub_refl by fastforce
-    then show ?case using instr_ok2_instrs_ok2 Instrs_ok2_subtyping subt Step_read__block(14)
+    then show ?case using instr_ok2_instrs_ok2 Instrs_ok2_subtyping subt Step_read__block(15)
       by auto
   next
-    case (Step_read__loop bt t_1_lst t_2_lst k val_lst v_n instr_lst)
+    case (Step_read__loop bt var_0 t_1_lst t_2_lst k val_lst v_n instr_lst)
     then obtain t2 where splitvs: 
       "Instrs_ok2 s C' (map admininstr_val val_lst) (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc0 (admininstr_st0_LOOP bt instr_lst)] (mk_functype t2 t3)"
@@ -3186,8 +3204,8 @@ next
    "mk_functype (mk_list t1s) (mk_list t2s) = mk_functype t2' t3'"
       using inv_loop by blast
     have eqt: "mk_functype (mk_list t1s) (mk_list t2s) = mk_functype (mk_list t_1_lst) 
-          (mk_list t_2_lst)" using blockhyps(2) Step_read__loop(1)
-      using blocktype_ok_agree[OF blockhyps(2) Step_read__loop(10,11)] by auto
+          (mk_list t_2_lst)" using Step_read__loop(1,2)
+      using blocktype_ok_agree[OF blockhyps(2) Step_read__loop(11,12)] fun_blocktype_det by metis
     then have subt: "mk_instrtype (mk_list []) (mk_list t2s) <ti: mk_instrtype t1 t3" 
         "Resulttype_sub (mk_list (map typeofval val_lst)) (mk_list t1s)"
       using blockhyps Step_read__loop subv subt 
@@ -3234,8 +3252,8 @@ next
       using label[OF _ ok_inside Instrs_ok2_wf(2,1)[OF splitvs(1)] wffinal] 
         blockhyps Step_read__block eqt 
       using Instrs_ok2_frame_sub Resulttype_sub_refl
-      using Step_read__loop.hyps(3) by blast
-    then show ?case using instr_ok2_instrs_ok2 Instrs_ok2_subtyping subt Step_read__loop(14)
+      using Step_read__loop.hyps(4) by blast
+    then show ?case using instr_ok2_instrs_ok2 Instrs_ok2_subtyping subt Step_read__loop(15)
       by auto
   next
     case (Step_read__call x)
@@ -3258,7 +3276,7 @@ next
     then show ?case using 
         subt instr_ok2_instrs_ok2 Instrs_ok2_subtyping Step_read__call by fast
   next
-    case (call_indirect_call i x a y)
+    case (call_indirect_call y var_1 x var_0 i a)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)] (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CALL_INDIRECT x y)] (mk_functype t2 t3)" 
@@ -3286,7 +3304,8 @@ next
       using subv subt produce_consume by fastforce
     have typeeq: "funcinst_TYPE (fun_funcinst (mk_state s f) ! a) = 
                   mk_functype (mk_list t_1_lst) (mk_list t_2_lst)"
-      using callhyps(3,4) call_indirect_call context_types_agree by metis
+      using callhyps(3,4) call_indirect_call context_types_agree
+      by (metis fun_type_det)
     have "Externaddr_ok s (externaddr_FUNC a)
      (FUNC (mk_functype (mk_list t_1_lst) (mk_list t_2_lst)))"
       using Externaddr_ok__func[of a s "store_FUNCS s ! a"]
@@ -3296,7 +3315,7 @@ next
       by auto
     then have "Instr_ok2 s C' (admininstr_sc7 (CALL_ADDR 
           a)) (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))"
-      using Instr_ok2__call_addr[OF _ Instrs_ok2_wf(2,1)[OF call_indirect_call(14)]] 
+      using Instr_ok2__call_addr[OF _ Instrs_ok2_wf(2,1)[OF call_indirect_call(16)]] 
          externtype_case_0 admininstr_case_70 
       by auto
     then show ?case using 
@@ -3306,7 +3325,7 @@ next
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (call_addr a t_1_lst t_2_lst mm v_func x t_lst instr_lst f' val_lst k v_n)
+    case (call_addr var_0_lst t_lst a t_1_lst t_2_lst mm v_func x instr_lst f' val_lst k v_n)
     then obtain t2 where splitvs:
       "Instrs_ok2 s C' (map admininstr_val val_lst) (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc7 (CALL_ADDR a)] (mk_functype t2 t3)"
@@ -3322,7 +3341,7 @@ next
      (* "wf_externtype (FUNC (mk_functype t2' t3'))" *)
       using inv_call_addr by auto
     then have eqt: "mk_functype t2' t3' = mk_functype (mk_list t_1_lst) (mk_list t_2_lst)"
-      using call_addr(2)
+      using call_addr(3)
     proof(induction s "externaddr_FUNC a" "FUNC (mk_functype t2' t3')" rule:Externaddr_ok.induct)
       case (Externaddr_ok__func s v_funcinst)
       then show ?case using fun_funcinst.domintros fun_funcinst.psimps by force
@@ -3342,7 +3361,7 @@ next
       "Resulttype_sub (mk_list (map typeofval val_lst)) (mk_list t_1_lst)"
      using subv subt produce_consume[of _ _ _ "[]"] call_addr by auto
    show ?case 
-     using call_addr(14) call_addr subt subv eqt splitvs
+     using call_addr(15) call_addr subt subv eqt splitvs
    proof (induction s)
      case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst 
               tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst 
@@ -3363,7 +3382,8 @@ next
          then have eqexpr: "instr_lst = v_expr" by blast
          have eqt2 : "t_2_lst = t_2_lst'" using mk_Func_ok by fastforce
          have eqt1 : "t_1_lst = t_1_lst'" using mk_Func_ok by fastforce
-         have eqt: "t_lst = t_lst'" using mk_Func_ok(15,35) map_LOCAL_inj by fastforce
+         have eqt: "t_lst = t_lst'" using mk_Func_ok(15,35) map_LOCAL_inj
+           using mk_Funcinst_ok.prems(21) by simp
           have "Instrs_ok  (append_res_context
        \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [],
           context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = t_1_lst' @ t_lst',
@@ -3438,18 +3458,19 @@ next
             using instr_ok2_instrs_ok2 by blast
           have "Instrs_ok2 s C' (map admininstr_val val_lst) (mk_functype (mk_list []) (mk_list t_1_lst'))"
             using mk_Func_ok(58,55) eqt1 Instrs_ok2_const_replace Resulttype_sub_refl
-            by (meson Instrs_ok2_subtyping Instrs_ok2_wf(1) Instrtype_sub_sub_rule)
+            using Instrs_ok2__sub Instrs_ok2_wf(1) Instrs_ok2_wf_instr
+              mk_Funcinst_ok.prems(14,44) subt(2) by fastforce
           then have left: "list_all2 (\<lambda> t v_val. Val_ok s v_val t) t_1_lst' val_lst"
             using Instrs_ok2_const_Val_ok list_all2_swap by blast
           have "list_all2 (\<lambda> t v_val. Val_ok s v_val t) t_lst' 
-              (map (\<lambda> t. the (default_underscore t)) t_lst)"
-            using defaults_Val_ok eqt mk_Func_ok by blast
+              (map the var_0_lst)"
+            using defaults_Val_ok[OF _ call_addr(1) call_addr(5)] eqt mk_Func_ok by blast
     then have 2: "list_all2 (\<lambda>t v_val. Val_ok s v_val t) (t_1_lst' @ t_lst')
-     (val_lst @ map (\<lambda>t. the (default_underscore t)) t_lst)"
+     (val_lst @ map the var_0_lst)"
       using left 
       by (metis list_all2_lengthD list_all2_append)
  then have 1: "length (t_1_lst' @ t_lst') = 
-        length (val_lst @ map (\<lambda>t. the (default_underscore t)) t_lst)"
+        length (val_lst @ map the var_0_lst)"
             using list_all2_lengthD by blast 
     have frok: "Frame_ok s f'
      (append_res_context
@@ -3457,7 +3478,7 @@ next
           context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = t_1_lst' @ t_lst',
           LABELS = [], context_RETURN = None\<rparr> Cf)"
             using mk_Frame_ok[OF mk_Func_ok(10), of "t_1_lst' @ t_lst'" 
-                "val_lst @ map (\<lambda>t. the (default_underscore t)) t_lst"] mk_Func_ok
+                "val_lst @ map the var_0_lst"] mk_Func_ok
             wf_context_trivial 1 2 by fastforce
 
           have freq: " (append_res_context
@@ -3494,7 +3515,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
             by metis 
             
           then show ?case 
-            using subt instr_ok2_instrs_ok2 Instrs_ok2_subtyping call_addr(21) eqt2 by fastforce 
+            using subt instr_ok2_instrs_ok2 Instrs_ok2_subtyping call_addr(22) eqt2 by fastforce 
        qed
      qed
    qed
@@ -3533,7 +3554,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       "context_LOCALS C' ! proj_uN_0 x = t" 
       "mk_functype (mk_list []) (mk_list [t]) = mk_functype t1' t3'"
       using inv_local_get by auto
-    then show ?case using Step_read__local_get list_all2_nth fun_local.domintros fun_local.psimps
+    then show ?case using Step_read__local_get list_all2_nth fun_local_of local_of.simps
         Instrs_ok2_wf instr_ok2__val subt Instrs_ok2_subtyping instr_ok2_instrs_ok2
       by metis 
   next
@@ -3550,7 +3571,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       "mk_functype (mk_list []) (mk_list [t]) = mk_functype t1' t3'"
       using inv_global_get by blast
     show ?case
-      using Step_read__global_get(2) Step_read__global_get hyps 
+      using Step_read__global_get(3) Step_read__global_get hyps 
       proof (induction s)
         case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst 
             tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst 
@@ -3576,16 +3597,16 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
               by (simp add: Externaddr_ok__global.prems(40))
             then have "(GLOBALS (frame_MODULE f) ! proj_uN_0 x) < length globalinst_lst" 
               using gl1 Externaddr_ok__global by force
-        then have "Globalinst_ok s (fun_global (mk_state s f) x) 
+        then have "Globalinst_ok s (global_of (mk_state s f) x) 
                   (globaltype_lst ! (GLOBALS (frame_MODULE f) ! proj_uN_0 x))"
-          using list_all2_nth fun_global.psimps fun_global.domintros Externaddr_ok__global(34)
+          using list_all2_nth global_of.simps fun_global_of Externaddr_ok__global(34)
             gl2 by metis
         then show ?case using Externaddr_ok__global gl1 gl2
-        proof(induction s "fun_global (mk_state s f) x" 
+        proof(induction s "global_of (mk_state s f) x" 
                 "globaltype_lst ! (GLOBALS (frame_MODULE f) ! proj_uN_0 x)")
           case (mk_Globalinst_ok v_mutv tv s v_val)
           then have g: "v_globalinst = \<lparr>globalinst_TYPE = mk_globaltype v_mutv tv, VALUE = v_val\<rparr>" 
-            using fun_global.psimps fun_global.domintros by metis
+            using global_of.simps fun_global_of by metis
           have "globalinst_TYPE v_globalinst = mk_globaltype v_mut t" using mk_Globalinst_ok
             by metis
           then have "tv = t" using g by auto
@@ -3607,11 +3628,11 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
         qed
       qed
   next
-    case (table_get_trap i x)
+    case (table_get_trap x var_0 i)
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (table_get_val i x)
+    case (table_get_val x var_0 i)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)] (mk_functype t1 t2)" 
       "Instrs_ok2 s C' [admininstr_sc5 (admininstr_st5_TABLE_GET x)] (mk_functype t2 t3)" 
@@ -3636,7 +3657,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_reftype rt]) <ti: 
         mk_instrtype t1 t3" using produce_consume subt subv by fastforce
       show ?case
-      using table_get_val(4) table_get_val hyps 
+      using table_get_val(5) table_get_val hyps 
       proof (induction s)
         case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst 
             tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst 
@@ -3663,20 +3684,20 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
             have gl2: "tableinst_lst = store_TABLES s" using mk_Moduleinst_ok by simp
             then have "(TABLES (frame_MODULE f) ! proj_uN_0 x) < length tableinst_lst" 
               using gl1 mk_Moduleinst_ok exthyps by force
-        then have "Tableinst_ok s (fun_table (mk_state s f) x) 
+        then have "Tableinst_ok s (table_of (mk_state s f) x) 
                   (tabletype_lst ! (TABLES (frame_MODULE f) ! proj_uN_0 x))"
-          using list_all2_nth fun_table.psimps fun_table.domintros mk_Moduleinst_ok
+          using list_all2_nth table_of.simps fun_table_of mk_Moduleinst_ok
             gl2 by metis
         then show ?case using mk_Moduleinst_ok exthyps gl1 gl2
-        proof(induction s "fun_table (mk_state s f) x" 
+        proof(induction s "table_of (mk_state s f) x" 
                 "tabletype_lst ! (TABLES (frame_MODULE f) ! proj_uN_0 x)")
           case (mk_Tableinst_ok v_n m_opt rt' s ref_lst)
           then have g: "v =  
     \<lparr>tableinst_TYPE = mk_tabletype (mk_limits (mk_uN v_n) (map_option mk_uN m_opt)) rt', REFS = ref_lst\<rparr>" 
-            using fun_table.psimps fun_table.domintros by metis
+            using table_of.simps fun_table_of by metis
           then have "rt = rt'" using g 
             using gl3 mk_Tableinst_ok.prems(58,63,64) by fastforce
-          then have "Ref_ok s (REFS (fun_table (mk_state s f) x) ! proj_uN_0 (the (proj_num__0 i))) rt"
+          then have "Ref_ok s (REFS (table_of (mk_state s f) x) ! proj_uN_0 (the (proj_num__0 i))) rt"
             using mk_Tableinst_ok list_all_nth 
             by (metis tableinst.select_convs(2)) 
           then show ?case using instr_ok2__val mk_Tableinst_ok instr_ok2_instrs_ok2
@@ -3687,7 +3708,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
         qed
       qed
   next
-    case (Step_read__table_size x v_n)
+    case (Step_read__table_size x var_0 v_n)
     then obtain t1' t3' where 
       "Instr_ok2 s C' (admininstr_sc5 (admininstr_st5_TABLE_SIZE x)) (mk_functype t1' t3')" 
       and subt: "mk_instrtype t1' t3' <ti: mk_instrtype t1 t3" 
@@ -3711,11 +3732,11 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       subt hyps Instrs_ok2_subtyping Step_read__table_size admininstr_instr.domintros admininstr_instr.psimps
       by (metis valtype_numtype.simps(1))
   next
-    case (table_fill_trap i v_n x v_val)
+    case (table_fill_trap x var_0 i v_n v_val)
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (table_fill_zero i v_n x v_val)
+    case (table_fill_zero x var_0 i v_n v_val)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_val v_val,
      admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))] 
@@ -3742,9 +3763,9 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     then have "mk_instrtype (mk_list []) (mk_list []) <ti: mk_instrtype t1 t3" 
       using produce_consume subt subv by force
     then show ?case using Instrs_ok2__empty Instrs_ok2_wf splitv Instrs_ok2_subtyping
-      table_fill_zero(13) by fast
+      table_fill_zero(14) by fast
   next
-    case (table_fill_succ i v_n x v_val)
+    case (table_fill_succ x var_0 i v_n v_val)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_val v_val,
      admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))] 
@@ -3894,11 +3915,11 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
        using okfill instr_ok2_instrs_ok2 hyps by simp
     then show ?case using 5 instrs_ok2_seq Instrs_ok2_subtyping table_fill_succ subt by fastforce
   next
-    case (table_copy_trap i j v_n y x)
+    case (table_copy_trap x var_1 y var_0 i j v_n)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (table_copy_zero i j v_n y x)
+    case (table_copy_zero x var_1 y var_0 i j v_n)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j), admininstr_sc1 (admininstr_st1_CONST I32 i),
      admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))] 
@@ -3934,7 +3955,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     then show ?case using Instrs_ok2__empty Instrs_ok2_wf table_copy_zero subt Instrs_ok2_subtyping 
       by fast
   next
-    case (table_copy_le j i v_n y x)
+    case (table_copy_le x var_1 y var_0 j i v_n)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j), admininstr_sc1 (admininstr_st1_CONST I32 i),
      admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))] 
@@ -4112,7 +4133,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
        using okfill instr_ok2_instrs_ok2 hyps by simp
     then show ?case using 7 instrs_ok2_seq Instrs_ok2_subtyping table_copy_le subt by fastforce
   next
-    case (table_copy_gt j i v_n y x)
+    case (table_copy_gt x var_1 y var_0 j i v_n)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j), admininstr_sc1 (admininstr_st1_CONST I32 i),
      admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))] 
@@ -4314,11 +4335,11 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
        using okfill instr_ok2_instrs_ok2 hyps by simp
     then show ?case using 7 instrs_ok2_seq Instrs_ok2_subtyping table_copy_gt subt by fastforce
   next
-    case (table_init_trap i j v_n y x)
+    case (table_init_trap x var_1 y var_0 i j v_n)
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (table_init_zero i j v_n y x)
+    case (table_init_zero x var_1 y var_0 i j v_n)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j), admininstr_sc1 (admininstr_st1_CONST I32 i),
      admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))] 
@@ -4348,7 +4369,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     then show ?case using Instrs_ok2__empty Instrs_ok2_wf table_init_zero subt Instrs_ok2_subtyping 
       by fast
   next
-    case (table_init_succ i y j v_n x) 
+    case (table_init_succ x var_1 y var_0 i j v_n) 
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j), admininstr_sc1 (admininstr_st1_CONST I32 i),
      admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))] 
@@ -4389,8 +4410,8 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
           instr_ok_instr_ok2 instr_ok2_instrs_ok2 admininstr_instr.domintros admininstr_instr.psimps
           valtype_numtype.domintros valtype_numtype.psimps 
       by metis
-    have "Ref_ok s (eleminst_REFS (fun_elem (mk_state s f) y) ! proj_uN_0 (the (proj_num__0 i))) rt"
-      using table_init_succ(7) table_init_succ hyps 
+    have "Ref_ok s (eleminst_REFS (elem_of (mk_state s f) y) ! proj_uN_0 (the (proj_num__0 i))) rt"
+      using table_init_succ(9) table_init_succ hyps 
       proof (induction s)
         case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst 
             tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst 
@@ -4411,30 +4432,30 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
             then have cont: "elemtype_lst' = context_ELEMS C'" using t_inst_match_def by force
             have "elemaddr_lst = ELEMS (frame_MODULE f)" using mk_Eleminst_ok
               by (metis moduleinst.select_convs(6)) 
-            then have "ref_lst = eleminst_REFS (fun_elem (mk_state s f) y)" 
-              using mk_Eleminst_ok fun_elem.domintros fun_elem.psimps
+            then have "ref_lst = eleminst_REFS (elem_of (mk_state s f) y)" 
+              using mk_Eleminst_ok fun_elem_of elem_of.simps
               by (metis eleminst.select_convs(2))
             then show ?case
               using list_all_nth[OF mk_Eleminst_ok(1), of "proj_uN_0 (the (proj_num__0 i))"
                     "ref_lst ! proj_uN_0 (the (proj_num__0 i))" ] 
-                  fun_elem.domintros fun_elem.psimps mk_Eleminst_ok cont
+                  fun_elem_of elem_of.simps mk_Eleminst_ok cont
               by fastforce 
           qed
         qed 
       qed
-    then have "Instrs_ok2 s C' [admininstr_ref (eleminst_REFS (fun_elem (mk_state s f) y) ! 
+    then have "Instrs_ok2 s C' [admininstr_ref (eleminst_REFS (elem_of (mk_state s f) y) ! 
             proj_uN_0 (the (proj_num__0 i)))] (mk_functype 
               (mk_list []) (mk_list [valtype_reftype rt]))" 
       using instr_ok2__val Val_ok.intros(3) Instrs_ok2_wf[OF splitv(1)] 
           instr_ok2_instrs_ok2 admininstr_val_ref 
       by metis
-    then have "Instrs_ok2 s C' [admininstr_ref (eleminst_REFS (fun_elem (mk_state s f) y) ! 
+    then have "Instrs_ok2 s C' [admininstr_ref (eleminst_REFS (elem_of (mk_state s f) y) ! 
           proj_uN_0 (the (proj_num__0 i)))] (mk_functype 
               (mk_list [valtype_I32]) (mk_list [valtype_I32, valtype_reftype rt]))"
       using Instrs_ok2__frame[of _ _ _ "[]" "[_]" "[_]"] Instrs_ok2_wf Instrs_ok2_wf_instr 
       by simp
     then have 2: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j), 
-        admininstr_ref (eleminst_REFS (fun_elem (mk_state s f) y) ! proj_uN_0 (the (proj_num__0 i)))]
+        admininstr_ref (eleminst_REFS (elem_of (mk_state s f) y) ! proj_uN_0 (the (proj_num__0 i)))]
         (mk_functype (mk_list []) (mk_list [valtype_I32, valtype_reftype rt]))"
       using instrs_ok2_seq 1 by fastforce
      have okcopy: "wf_admininstr (admininstr_sc6 (admininstr_st6_TABLE_INIT x y))" 
@@ -4450,7 +4471,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
         by (metis (lifting) admininstr_instr.domintros(50) admininstr_instr.psimps(50)) 
   qed
   then have 4: "Instrs_ok2 s C'  [admininstr_sc1 (admininstr_st1_CONST I32 j),
-      admininstr_ref (eleminst_REFS (fun_elem (mk_state s f) y) ! proj_uN_0 (the (proj_num__0 i))),    
+      admininstr_ref (eleminst_REFS (elem_of (mk_state s f) y) ! proj_uN_0 (the (proj_num__0 i))),    
     admininstr_sc5 (admininstr_st5_TABLE_SET x) ] 
           (mk_functype (mk_list []) (mk_list []))"
     using instrs_ok2_seq 2 by fastforce
@@ -4472,14 +4493,14 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
           valtype_numtype.domintros valtype_numtype.psimps admininstr_instr.domintros
           admininstr_instr.psimps by metis
     then have 5: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j), admininstr_ref
-(eleminst_REFS (fun_elem (mk_state s f) y) ! proj_uN_0 (the (proj_num__0 i))), admininstr_sc5 (admininstr_st5_TABLE_SET x), 
+(eleminst_REFS (elem_of (mk_state s f) y) ! proj_uN_0 (the (proj_num__0 i))), admininstr_sc5 (admininstr_st5_TABLE_SET x), 
           admininstr_sc1 (admininstr_st1_CONST I32 
               (mk_num__0 Inn_I32 (mk_uN 
             (proj_uN_0 (the (proj_num__0 j)) + 1))))] (mk_functype (mk_list []) (mk_list [valtype_I32]))"
       using instrs_ok2_seq 4 by fastforce
   have "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN 
             (proj_uN_0 (the (proj_num__0 i)) + 1)))))"
-      using table_init_succ(7) table_init_succ hyps 
+      using table_init_succ(9) table_init_succ hyps 
       proof (induction s)
         case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst 
             tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst eleminst_lst 
@@ -4496,8 +4517,8 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
           then show ?case using mk_Moduleinst_ok(27,29-31)
           proof(induction s "store_ELEMS s ! (elemaddr_lst ! proj_uN_0 y)" "elemtype_lst' ! proj_uN_0 y")      
             case (mk_Eleminst_ok s ref_lst)
-            then have "length (eleminst_REFS (fun_elem (mk_state s f) y)) < 2 ^ 32"
-              using fun_elem.psimps[OF fun_elem.domintros] 
+            then have "length (eleminst_REFS (elem_of (mk_state s f) y)) < 2 ^ 32"
+              using elem_of.simps 
               by (metis eleminst.select_convs(2) moduleinst.select_convs(6))
             then have "proj_uN_0 (the (proj_num__0 i)) + 1 < 2 ^ 32" 
               using mk_Eleminst_ok(7,8)
@@ -4523,7 +4544,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
             (mk_list [valtype_I32, valtype_I32]))"
    using Instrs_ok2__frame[of _ _ _ "[]" "[_]" "[_]"] Instrs_ok2_wf Instrs_ok2_wf_instr by simp
     then have 6: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j),
-         admininstr_ref (eleminst_REFS (fun_elem (mk_state s f) y) ! proj_uN_0 (the (proj_num__0 i))),
+         admininstr_ref (eleminst_REFS (elem_of (mk_state s f) y) ! proj_uN_0 (the (proj_num__0 i))),
          admininstr_sc5 (admininstr_st5_TABLE_SET x),
           admininstr_sc1 (admininstr_st1_CONST I32 
               (mk_num__0 Inn_I32 (mk_uN 
@@ -4549,7 +4570,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
              Instrs_ok2_wf Instrs_ok2_wf_instr
        by force
      then have 7: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j),
-         admininstr_ref (eleminst_REFS (fun_elem (mk_state s f) y) ! proj_uN_0 (the (proj_num__0 i))),
+         admininstr_ref (eleminst_REFS (elem_of (mk_state s f) y) ! proj_uN_0 (the (proj_num__0 i))),
          admininstr_sc5 (admininstr_st5_TABLE_SET x),
           admininstr_sc1 (admininstr_st1_CONST I32 
               (mk_num__0 Inn_I32 (mk_uN 
@@ -4567,11 +4588,11 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
        using okfill instr_ok2_instrs_ok2 hyps by simp
     then show ?case using 7 instrs_ok2_seq Instrs_ok2_subtyping table_init_succ subt by fastforce
   next
-    case (load_num_trap i nt ao)
+    case (load_num_trap var_0 i nt ao)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (load_num_val i nt c ao)
+    case (load_num_val var_0 i nt c ao)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)] (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_LOAD nt None ao)] (mk_functype t2 t3)"
@@ -4601,11 +4622,11 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
         instr_ok2_instrs_ok2 Instrs_ok2_subtyping admininstr_instr.domintros admininstr_instr.psimps
         Instrs_ok2_wf by fastforce
   next
-    case (load_pack_trap i ao v_n v_Inn v_sx)
+    case (load_pack_trap var_0 i ao v_n v_Inn v_sx)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (load_pack_val v_Inn i v_n c ao v_sx)
+    case (load_pack_val var_0 v_Inn i v_n c ao v_sx)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)] (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_LOAD (numtype_Inn v_Inn) (Some (mk_loadop__0 v_Inn (mk_loadop_Inn (mk_sz v_n) v_sx))) ao)] (mk_functype t2 t3)"
@@ -4632,7 +4653,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       using subv subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] by fastforce
     have "wf_uN (the (isabelle_reference_output_wasm2.size (valtype_Inn v_Inn))) (extend__underscore v_n (the (isabelle_reference_output_wasm2.size (valtype_Inn v_Inn))) v_sx
              c)"
-      using extend___is_wf[OF load_pack_val(4)] by simp
+      using extend___is_wf[OF load_pack_val(5)] by simp
     then have wf: "wf_num_underscore (numtype_Inn v_Inn)
          (mk_num__0 v_Inn
            (extend__underscore v_n (the (isabelle_reference_output_wasm2.size (valtype_Inn v_Inn))) v_sx
@@ -4641,11 +4662,11 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
         instr_ok2_instrs_ok2 Instrs_ok2_subtyping admininstr_instr.domintros admininstr_instr.psimps
         Instrs_ok2_wf subt valtype_numtype_Inn by fastforce
   next
-    case (vload_oob i ao)
+    case (vload_oob var_0 i ao)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (Step_read__vload_val i c ao)
+    case (Step_read__vload_val var_0 i c ao)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)] (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_VLOAD V128 None ao)] (mk_functype t2 t3)"
@@ -4676,11 +4697,11 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
         Instrs_ok2_wf valtype_vectype.domintros valtype_vectype.psimps size.domintros size.psimps
       by (metis option.sel)
   next
-    case (vload_shape_oob i ao v_M v_N v_sx)
+    case (vload_shape_oob var_0 i ao v_M v_N v_sx)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (vload_shape_val i v_N v_M ao j_lst v_Jnn c v_sx)
+    case (vload_shape_val v_Jnn var_1 var_0 i v_N v_M ao j_lst c v_sx)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)] (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_VLOAD V128 (Some (SHAPEX_underscore (mk_sz v_M) v_N v_sx)) 
@@ -4715,20 +4736,20 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     qed(simp_all)
     then have "wf_instr (instr_sc1 (VCONST V128 c))" 
       using instr_case_20[of V128 c] 
-        inv_lanes__is_wf[OF vload_shape_val(6) _ vload_shape_val(4)]
+        inv_lanes__is_wf[OF vload_shape_val(8) _ vload_shape_val(4)]
         fun_lanetype.psimps fun_lanetype.domintros
         size.psimps size.domintros
         valtype_vectype.psimps valtype_vectype.domintros
       by auto
     then show ?case using vconst Instrs_ok2_wf[OF splitv(1)] instr_ok_instr_ok2 instr_ok2_instrs_ok2
-        vload_shape_val(18) Instrs_ok2_subtyping subt admininstr_instr.domintros admininstr_instr.psimps
+        vload_shape_val(20) Instrs_ok2_subtyping subt admininstr_instr.domintros admininstr_instr.psimps
         by metis
   next
-    case (vload_splat_oob i ao v_N)
+    case (vload_splat_oob var_0 i ao v_N)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (vload_splat_val i v_N j ao v_Jnn v_M c)
+    case (vload_splat_val v_Jnn var_1 var_0 i v_N j ao v_M c)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)] (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_VLOAD V128 (Some (SPLAT (mk_sz v_N))) 
@@ -4758,20 +4779,20 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       using subv subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] by fastforce
     then have "wf_instr (instr_sc1 (VCONST V128 c))" 
       using instr_case_20[of V128 c] 
-        inv_lanes__is_wf[OF vload_splat_val(7) _ vload_splat_val(5)]
-        vload_splat_val(8) list_all_repeat
+        inv_lanes__is_wf[OF vload_splat_val(9) _ vload_splat_val(7)]
+        vload_splat_val(10) list_all_repeat
         size.psimps size.domintros 
         valtype_vectype.psimps valtype_vectype.domintros
       by fastforce
     then show ?case using vconst Instrs_ok2_wf[OF splitv(1)] instr_ok_instr_ok2 instr_ok2_instrs_ok2
-        vload_splat_val(18) Instrs_ok2_subtyping subt admininstr_instr.domintros admininstr_instr.psimps
+        vload_splat_val(20) Instrs_ok2_subtyping subt admininstr_instr.domintros admininstr_instr.psimps
         by metis
   next
-    case (vload_zero_oob i ao v_N)
+    case (vload_zero_oob var_0 i ao v_N)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (vload_zero_val i v_N j ao c)
+    case (vload_zero_val var_0 i v_N j ao c)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i)] (mk_functype t1 t2)"
       "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_VLOAD V128 (Some (vloadop__ZERO (mk_sz v_N))) 
@@ -4814,19 +4835,19 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
  = 128" by simp
     then have "wf_instr (instr_sc1 (VCONST V128 c))" 
       using instr_case_20[of V128 c] 
-       extend___is_wf[OF vload_zero_val(4,3)] 
+       extend___is_wf[OF vload_zero_val(5,4)] 
         size.psimps size.domintros 
         valtype_vectype.psimps valtype_vectype.domintros
       by (metis option.distinct(1) option.sel)
     then show ?case using vconst Instrs_ok2_wf[OF splitv(1)] instr_ok_instr_ok2 instr_ok2_instrs_ok2
-        vload_zero_val(15) Instrs_ok2_subtyping subt admininstr_instr.domintros admininstr_instr.psimps
+        vload_zero_val(16) Instrs_ok2_subtyping subt admininstr_instr.domintros admininstr_instr.psimps
         by metis
   next
-    case (vload_lane_oob i ao v_N c_1 j)
+    case (vload_lane_oob var_0 i ao v_N c_1 j)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (vload_lane_val i v_N k ao v_Jnn v_M c c_1 j)
+    case (vload_lane_val v_Jnn var_1 var_0 i v_N k ao v_M c c_1 j)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i),
             admininstr_sc2 (admininstr_st2_VCONST V128 c_1)] (mk_functype t1 t2)"
@@ -4867,19 +4888,19 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     then have "list_all (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_M))))
      (list_update_func (lanes_underscore (X (lanetype_Jnn v_Jnn) (mk_dim v_M)) c_1) (proj_uN_0 j)
        (\<lambda>underscore_underscore. mk_lane__0 v_Jnn (mk_uN (proj_uN_0 k))))" 
-      using vload_lane_val(8) lanes__is_wf[OF vload_lane_val(7)] list_all_update
+      using vload_lane_val(10) lanes__is_wf[OF vload_lane_val(9)] list_all_update
       by metis 
     then have "wf_instr (instr_sc1 (VCONST V128 c))" 
       using instr_case_20[of V128 c] 
-        inv_lanes__is_wf[OF vload_lane_val(7) _ vload_lane_val(5)]       
+        inv_lanes__is_wf[OF vload_lane_val(9) _ vload_lane_val(7)]       
         size.psimps size.domintros 
         valtype_vectype.psimps valtype_vectype.domintros
       by fastforce
     then show ?case using vconst Instrs_ok2_wf[OF splitv(1)] instr_ok_instr_ok2 instr_ok2_instrs_ok2
-        vload_lane_val(18) Instrs_ok2_subtyping subt admininstr_instr.domintros admininstr_instr.psimps
+        vload_lane_val(20) Instrs_ok2_subtyping subt admininstr_instr.domintros admininstr_instr.psimps
         by metis
   next
-    case (Step_read__memory_size v_n)
+    case (Step_read__memory_size var_0 v_n)
     then obtain t1' t3' where 
       "Instr_ok2 s C' (admininstr_sc6 admininstr_st6_MEMORY_SIZE) (mk_functype t1' t3')"
       and subt: "mk_instrtype t1' t3' <ti: mk_instrtype t1 t3"
@@ -4892,7 +4913,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       "mk_functype (mk_list []) (mk_list [valtype_I32]) = mk_functype t1' t3'"
       using inv_memory_size by blast
     have "0 \<le> v_n \<and> v_n \<le> 2 ^ 32 - 1" 
-      using Step_read__memory_size(4,1,7,9) hyps(1)
+      using Step_read__memory_size(5,1,8,10) hyps(1)
     proof (induction s)
       case (mk_Store_ok globalinst_lst globaltype_lst s meminst_lst memtype_lst tableinst_lst 
               tabletype_lst funcinst_lst functype_lst datainst_lst datatype_lst 
@@ -4910,14 +4931,14 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
           by (metis moduleinst.select_convs(5))
         then have "MEMS (frame_MODULE f) ! 0 < length (store_MEMS s)"
           using Externaddr_ok_mem by blast
-        then have "Meminst_ok s (fun_mem (mk_state s f) (mk_uN 0)) 
+        then have "Meminst_ok s (mem_of (mk_state s f) (mk_uN 0)) 
                 (memtype_lst ! ((MEMS (frame_MODULE f)) ! 0))" 
           using list_all2_nth[OF mk_Moduleinst_ok(29), of "(MEMS (frame_MODULE f)) ! 0"] 
-           fun_mem.psimps fun_mem.domintros
+           mem_of.simps fun_mem_of
            proj_uN_0.psimps proj_uN_0.domintros
            mk_Moduleinst_ok.prems(3) by fastforce 
         then show ?case using mk_Moduleinst_ok(31)
-          proof (induction s "fun_mem (mk_state s f) (mk_uN 0)" "memtype_lst ! (MEMS (frame_MODULE f)! 0)")
+          proof (induction s "mem_of (mk_state s f) (mk_uN 0)" "memtype_lst ! (MEMS (frame_MODULE f)! 0)")
             case (mk_Meminst_ok v_len m_opt b_lst s)
             then have veq: "v_n = v_len"
               by (metis Ki_def meminst.select_convs(2) mult.assoc mult_cancel2 zero_neq_numeral)
@@ -4944,11 +4965,11 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
         by (metis Instrs_ok2_subtyping admininstr_instr.domintros(14) admininstr_instr.psimps(14)
             valtype_numtype.simps(1))
   next
-    case (memory_fill_trap i v_n v_val)
+    case (memory_fill_trap var_0 i v_n v_val)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (memory_fill_zero i v_n v_val)
+    case (memory_fill_zero var_0 i v_n v_val)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_val v_val,
      admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))] 
@@ -4981,7 +5002,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     then show ?case using Instrs_ok2__empty Instrs_ok2_wf memory_fill_zero subt Instrs_ok2_subtyping 
       by fast
   next
-    case (memory_fill_succ i v_n v_val)
+    case (memory_fill_succ var_0 i v_n v_val)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_val v_val,
      admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))] 
@@ -5046,7 +5067,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
      then have arith: "2 ^ proj_uN_0 (ALIGN memarg0) \<le> (8 div 8 :: nat)" by simp
      have "wf_instr (instr_sc6 (STORE I32 (Some (mk_sz 8)) memarg0))"
        using instr_case_57 [of "Some (mk_sz 8)" memarg0 "Some Inn_I32" "I32"]
-         wf_sz.intros wf_memarg.intros sizenn.domintros sizenn.psimps memarg0_def
+         wf_sz.intros wf_memarg.intros fun_sizenn.intros memarg0_def
           wf_uN.intros numtype_Inn.domintros numtype_Inn.psimps proj_sz_0.domintros proj_sz_0.psimps
        by fastforce
      then have "Instrs_ok2 s C' [ admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0) ] 
@@ -5081,7 +5102,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
          admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1)))),
          admininstr_sc7 admininstr_st7_MEMORY_FILL]" 
     using Step_read_is_wf
-      isabelle_reference_output_wasm2.memory_fill_succ[OF memory_fill_succ(1,2,3)]
+      isabelle_reference_output_wasm2.memory_fill_succ[OF memory_fill_succ(2,3,3)]
     unfolding i'_def using read.prems(1) by blast
   then have "wf_instr (instr_sc1 (res_CONST I32 i'))" 
     using wf_admininstr_instr_inv by simp
@@ -5155,11 +5176,11 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     then show ?case unfolding i'_def
       by (metis read.prems(9))
   next
-    case (memory_copy_trap i j v_n)
+    case (memory_copy_trap var_0 i j v_n)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (memory_copy_zero i j v_n)
+    case (memory_copy_zero var_0 i j v_n)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j), admininstr_sc1 (admininstr_st1_CONST I32 i),
      admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))]
@@ -5192,7 +5213,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     then show ?case using Instrs_ok2__empty Instrs_ok2_wf memory_copy_zero subt Instrs_ok2_subtyping
       by fast
   next
-    case (memory_copy_le j i v_n)
+    case (memory_copy_le var_0 j i v_n)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j), admininstr_sc1 (admininstr_st1_CONST I32 i),
      admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))]
@@ -5247,7 +5268,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
         admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1)))),
         admininstr_sc7 admininstr_st7_MEMORY_COPY]"
       using Step_read_is_wf
-        isabelle_reference_output_wasm2.memory_copy_le[OF memory_copy_le(1,2,3,4,5)]
+        isabelle_reference_output_wasm2.memory_copy_le[OF memory_copy_le(2,3,4,4,6)]
       unfolding j'_def i'_def
       using read.prems(1) by blast
     have c1: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j)]
@@ -5293,7 +5314,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     then show ?case unfolding j'_def i'_def
       by (metis read.prems(9))
   next
-    case (memory_copy_gt j i v_n)
+    case (memory_copy_gt var_0 j i v_n)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j), admininstr_sc1 (admininstr_st1_CONST I32 i),
      admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))]
@@ -5348,7 +5369,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
         admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1)))),
         admininstr_sc7 admininstr_st7_MEMORY_COPY]"
       using Step_read_is_wf
-        isabelle_reference_output_wasm2.memory_copy_gt[OF memory_copy_gt(1,2,3,4,5)]
+        isabelle_reference_output_wasm2.memory_copy_gt[OF memory_copy_gt(2,3,4,5,5)]
       unfolding j'_def i'_def
       using read.prems(1) by blast
     have c1: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j')]
@@ -5394,11 +5415,11 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     then show ?case unfolding j'_def i'_def
       by (metis read.prems(9))
   next
-    case (memory_init_trap i j v_n x)
+    case (memory_init_trap var_1 x var_0 i j v_n)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
   next
-    case (memory_init_zero i j v_n x)
+    case (memory_init_zero var_1 x var_0 i j v_n)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j), admininstr_sc1 (admininstr_st1_CONST I32 i),
      admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))]
@@ -5431,7 +5452,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     then show ?case using Instrs_ok2__empty Instrs_ok2_wf memory_init_zero subt Instrs_ok2_subtyping
       by fast
   next
-    case (memory_init_succ i x j v_n)
+    case (memory_init_succ var_1 x var_0 i j v_n)
     then obtain t2 where splitv:
       "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j), admininstr_sc1 (admininstr_st1_CONST I32 i),
      admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))]
@@ -5461,7 +5482,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     then have subt: "(mk_instrtype (mk_list []) (mk_list []) <ti: mk_instrtype t1 t3)"
       using produce_consume subt subv
       by auto
-    define b where "b = mk_num__0 Inn_I32 (mk_uN (proj_byte_0 ((datainst_BYTES (fun_data (mk_state s f) x)) ! (proj_uN_0 (the (proj_num__0 i))))))"
+    define b where "b = mk_num__0 Inn_I32 (mk_uN (proj_byte_0 ((datainst_BYTES (data_of (mk_state s f) x)) ! (proj_uN_0 (the (proj_num__0 i))))))"
     define j' where "j' = mk_num__0 Inn_I32 (iadd_underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) (the (proj_num__0 j)) (mk_uN 1))"
     define i' where "i' = mk_num__0 Inn_I32 (iadd_underscore (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc 0)))))))))))))))))))))))))))))))) (the (proj_num__0 i)) (mk_uN 1))"
     have wfs: "wf_store s" and wfC: "wf_context C'" using Instrs_ok2_wf[OF splitv(1)] by auto
@@ -5485,7 +5506,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
         admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1)))),
         admininstr_sc7 (admininstr_st7_MEMORY_INIT x)]"
       using Step_read_is_wf
-        isabelle_reference_output_wasm2.memory_init_succ[OF memory_init_succ(1,2,3,4,5)]
+        isabelle_reference_output_wasm2.memory_init_succ[OF memory_init_succ(1,4,5,6,5)]
       unfolding b_def j'_def i'_def
       using read.prems(1) by blast
     have c1: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j)]
@@ -5759,7 +5780,7 @@ next
   then show ?case using Instrs_ok2__empty Instrs_ok2_subtyping Step__local_set
     Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
-  case (Step__global_set v_val x)
+  case (Step__global_set x v_val)
   then obtain t2 where splitv:
     "Instrs_ok2 s C' [admininstr_val v_val] (mk_functype t1 t2)"
     "Instrs_ok2 s C' [admininstr_sc5 (admininstr_st5_GLOBAL_SET x)] (mk_functype t2 t3)" 
@@ -5782,11 +5803,11 @@ next
   then show ?case using Instrs_ok2__empty Instrs_ok2_subtyping Step__global_set
     Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
-  case (table_set_trap i x v_ref)
+  case (table_set_trap x var_0 i v_ref)
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
 next
-  case (table_set_val i x v_ref)
+  case (table_set_val x var_1 i v_ref)
   then obtain t2 where splitv:
     "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), admininstr_ref v_ref] (mk_functype t1 t2)"
     "Instrs_ok2 s C' [admininstr_sc5 (admininstr_st5_TABLE_SET x)] (mk_functype t2 t3)" 
@@ -5812,7 +5833,7 @@ next
   then show ?case using Instrs_ok2__empty Instrs_ok2_subtyping table_set_val
     Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
-  case (table_grow_succeed x v_n v_ref var_0 ti)
+  case (table_grow_succeed var_1 v_n v_ref var_0 x ti)
   then obtain t2 where splitv:
     "Instrs_ok2 s C' [admininstr_ref v_ref, admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 
         Inn_I32 (mk_uN v_n)))] (mk_functype t1 t2)" 
@@ -5847,21 +5868,21 @@ next
 
 
 
-  have "0 \<le> (length (REFS (fun_table (mk_state s f) x))) \<and> 
-    (length (REFS (fun_table (mk_state s f) x))) \<le> 2 ^ 32 - 1" 
+  have "0 \<le> (length (REFS (table_of (mk_state s f) x))) \<and> 
+    (length (REFS (table_of (mk_state s f) x))) \<le> 2 ^ 32 - 1" 
      using Store_ok_length_table table_grow_succeed mk_uN_proj_uN_0 hyps 
       by fastforce
 
   then have wf: "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 
-          (mk_uN (length (REFS (fun_table (mk_state s f) x)))))))"
+          (mk_uN (length (REFS (table_of (mk_state s f) x)))))))"
     using instr_case_13 num__case_0 uN_case_0
     by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
         valtype_Inn.psimps(1))
   show ?case using  
       instrs_ok_instrs_ok2[OF instr_ok_instrs_ok[OF 
-            const[OF Instrs_ok2_wf(1)[OF table_grow_succeed(12)] wf]]
-            store_extension_wf[OF table_grow_succeed(7)]]
-     subt(1) table_grow_succeed(13)
+            const[OF Instrs_ok2_wf(1)[OF table_grow_succeed(14)] wf]]
+            store_extension_wf[OF table_grow_succeed(9)]]
+     subt(1) table_grow_succeed(15)
     Instrs_ok2_subtyping admininstr_instr.domintros admininstr_instr.psimps
     valtype_numtype.domintros valtype_numtype.psimps 
     by force
@@ -5925,11 +5946,11 @@ next
   then show ?case using Instrs_ok2__empty Instrs_ok2_wf Instrs_ok2_subtyping Step__elem_drop
     subt store_extension_wf by blast
 next
-  case (store_num_trap i nt ao c)
+  case (store_num_trap var_0 i nt ao c)
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
 next
-  case (store_num_val i nt b_lst c ao)
+  case (store_num_val i ao nt b_lst var_0 c)
   then obtain t2 where splitv:
     "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), 
                       admininstr_sc1 (admininstr_st1_CONST nt c)] (mk_functype t1 t2)"
@@ -5956,11 +5977,11 @@ next
   then show ?case using Instrs_ok2__empty Instrs_ok2_subtyping store_num_val
     Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
-  case (store_pack_trap i ao v_n v_Inn c)
+  case (store_pack_trap var_0 i ao v_n v_Inn c)
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
 next
-  case (store_pack_val i v_Inn c b_lst v_n ao)
+  case (store_pack_val i ao v_n b_lst var_0 v_Inn c)
   then obtain t2 where splitv:
     "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), 
                       admininstr_sc1 (admininstr_st1_CONST (numtype_Inn v_Inn) c)] (mk_functype t1 t2)"
@@ -5989,11 +6010,11 @@ next
   then show ?case using Instrs_ok2__empty Instrs_ok2_subtyping store_pack_val
     Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
-  case (vstore_oob i ao c)
+  case (vstore_oob var_0 i ao c)
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
 next
-  case (vstore_val i b_lst c ao)
+  case (vstore_val i ao b_lst var_0 c)
   then obtain t2 where splitv:
     "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), 
                        admininstr_sc2 (admininstr_st2_VCONST V128 c)] (mk_functype t1 t2)"
@@ -6020,11 +6041,11 @@ next
   then show ?case using Instrs_ok2__empty Instrs_ok2_subtyping vstore_val
     Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
-  case (vstore_lane_oob i ao v_N c j)
+  case (vstore_lane_oob var_0 i ao v_N c j)
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
 next
-  case (vstore_lane_val i v_N v_Jnn v_M c j b_lst ao)
+  case (vstore_lane_val v_Jnn var_1 i ao v_N b_lst var_0 v_M c j)
   then obtain t2 where splitv:
     "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), 
                        admininstr_sc2 (admininstr_st2_VCONST V128 c)] (mk_functype t1 t2)"
@@ -6051,7 +6072,7 @@ next
   then show ?case using Instrs_ok2__empty Instrs_ok2_subtyping vstore_lane_val
     Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
-  case (memory_grow_succeed v_n var_0 mi)
+  case (memory_grow_succeed var_1 v_n var_0 mi)
   then obtain t2 where splitv:
     "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 
         Inn_I32 (mk_uN v_n)))] (mk_functype t1 t2)" 
@@ -6077,21 +6098,21 @@ next
     using inv_memory_grow by blast
   then have subt: "(mk_instrtype (mk_list []) (mk_list [valtype_I32]) <ti: mk_instrtype t1 t3)"
     using subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] subv by force 
-  have "0 \<le> (length (BYTES (fun_mem (mk_state s f) (mk_uN 0))) div (64 * Ki)) \<and> 
-    (length (BYTES (fun_mem (mk_state s f) (mk_uN 0))) div (64 * Ki)) \<le> 2 ^ 32 - 1" 
-    using Store_ok_length_mem[OF memory_grow_succeed(6,9,11) hyps(1)] 
+  have "0 \<le> (length (BYTES (mem_of (mk_state s f) (mk_uN 0))) div (64 * Ki)) \<and> 
+    (length (BYTES (mem_of (mk_state s f) (mk_uN 0))) div (64 * Ki)) \<le> 2 ^ 32 - 1" 
+    using Store_ok_length_mem[OF memory_grow_succeed(8,11,13) hyps(1)] 
     by (simp add: Ki_def)
 
   then have wf: "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 
-          (mk_uN (length (BYTES (fun_mem (mk_state s f) (mk_uN 0))) div (64 * Ki))))))"
+          (mk_uN (length (BYTES (mem_of (mk_state s f) (mk_uN 0))) div (64 * Ki))))))"
     using instr_case_13 num__case_0 uN_case_0
     by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
         valtype_Inn.psimps(1))
   show ?case using  
       instrs_ok_instrs_ok2[OF instr_ok_instrs_ok[OF 
-            const[OF Instrs_ok2_wf(1)[OF memory_grow_succeed(13)] wf]]
-            store_extension_wf[OF memory_grow_succeed(8)]]
-     subt(1) memory_grow_succeed(14)
+            const[OF Instrs_ok2_wf(1)[OF memory_grow_succeed(15)] wf]]
+            store_extension_wf[OF memory_grow_succeed(10)]]
+     subt(1) memory_grow_succeed(16)
     Instrs_ok2_subtyping admininstr_instr.domintros admininstr_instr.psimps
     valtype_numtype.domintros valtype_numtype.psimps 
     by force
