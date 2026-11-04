@@ -54,8 +54,8 @@ let all_passes = [
   SubExpansion;
   PatSimp;
   Sub;
-  DefToRel;
   Sideconditions;
+  DefToRel;
   AliasDemut;
   ImproveIds;
   DatatypeDiet;
