@@ -75,20 +75,6 @@ lemma inv_signed_bound: "fun_inv_signed_underscore N i j \<Longrightarrow> wf_uN
 lemma wf_num_I32: "wf_uN 32 x \<Longrightarrow> wf_num_underscore I32 (mk_num__0 Inn_I32 x)"
   using num__case_0[of Inn_I32 x I32] by (simp add: wf_proj_simps)
 
-(*
-(* wf_fN N requires fun_E N and fun_M N, which are only defined for N = 32 and N = 64 *)
-lemma wf_fN_fzero:
-  assumes "N = 32 \<or> N = 64"
-  shows "wf_fN N (fzero M)"
-proof -
-  have "fun_E N (the (expon N))" "fun_M N (the (signif N))"
-    using assms by (auto intro!: fun_E.intros fun_M.intros
-        simp: expon.psimps expon.domintros signif.psimps signif.domintros eval_nat_numeral)
-  then show ?thesis
-    by (auto simp: fzero.psimps fzero.domintros intro!: fN_case_0 fNmag_case_1)
-qed
-*)
-
 lemma testop_wf_I32:
   "fun_testop_underscore nt op n (Some r) \<Longrightarrow> wf_num_underscore I32 r"
   by (auto elim!: fun_testop_underscore.cases
@@ -433,8 +419,8 @@ lemma zero_is_wf :
 	"(fun_zero v_numtype var_0) \<Longrightarrow>
 	 (ret_val = var_0) \<Longrightarrow>
 	 (wf_num_underscore v_numtype ret_val)"
-  by (auto elim!: fun_zero.cases simp: wf_num_ctor_simps wf_proj_simps type_fun_simps wf_uN_iff
-      wf_fN_fzero)     
+  by (auto elim!: fun_zero.cases fun_fzero.cases simp: wf_num_ctor_simps wf_proj_simps type_fun_simps
+      wf_uN_iff)
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.6-342.10 *)
 lemma dim_is_wf :
@@ -921,12 +907,12 @@ lemma vshiftop__is_wf :
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 *)
 lemma default__is_wf :
-	"((default_underscore v_valtype) \<noteq> None) \<Longrightarrow>
-	 (ret_val = (the ((default_underscore v_valtype)))) \<Longrightarrow>
+	"(fun_default_underscore v_valtype var_0) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the (var_0))) \<Longrightarrow>
 	 (wf_val ret_val)"
-  by (cases v_valtype)
-     (auto simp: default_underscore.psimps default_underscore.domintros wf_val.simps
-       wf_num_underscore.simps wf_uN_iff wf_fN_fzero wf_proj_simps type_fun_simps)
+  by (auto elim!: fun_default_underscore.cases fun_fzero.cases simp: wf_val.simps
+      wf_num_underscore.simps wf_uN_iff wf_proj_simps type_fun_simps)
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:48.6-48.12 *)
 lemma store_is_wf :
