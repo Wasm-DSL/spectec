@@ -434,7 +434,7 @@ lemma zero_is_wf :
 	 (ret_val = var_0) \<Longrightarrow>
 	 (wf_num_underscore v_numtype ret_val)"
   by (auto elim!: fun_zero.cases simp: wf_num_ctor_simps wf_proj_simps type_fun_simps wf_uN_iff
-      wf_fN_fzero)
+      wf_fN_fzero)     
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.6-342.10 *)
 lemma dim_is_wf :
