@@ -4,6 +4,46 @@ theory Progress
 	        Type_Inversion Subtyping_Theorem Context_Store_Agreement Preservation Axioms
 begin
 
+(* Functional views of the size relations (generated as relations), so that statements can
+   keep talking about sizes as values *)
+definition sizenn :: "numtype \<Rightarrow> nat" where
+  "sizenn nt = the (size (valtype_numtype nt))"
+abbreviation (input) "sizenn1 \<equiv> sizenn"
+abbreviation (input) "sizenn2 \<equiv> sizenn"
+
+fun lsize :: "lanetype \<Rightarrow> nat" where
+  "lsize lanetype_I32 = 32" | "lsize lanetype_I64 = 64" | "lsize lanetype_F32 = 32"
+| "lsize lanetype_F64 = 64" | "lsize lanetype_I8 = 8" | "lsize lanetype_I16 = 16"
+abbreviation (input) "lsizenn \<equiv> lsize"
+abbreviation (input) "lsizenn1 \<equiv> lsize"
+abbreviation (input) "lsizenn2 \<equiv> lsize"
+
+definition isize :: "Inn \<Rightarrow> nat" where
+  "isize inn = the (size (valtype_Inn inn))"
+
+definition jsize :: "Jnn \<Rightarrow> nat" where
+  "jsize j = lsize (lanetype_Jnn j)"
+
+lemma fun_lsize_iff: "fun_lsize lt n \<longleftrightarrow> n = lsize lt"
+  by (cases lt) (simp_all add: lsize_rel_simps)
+
+lemma size_fun_rel_simps[simp]:
+  "fun_sizenn nt n \<longleftrightarrow> n = sizenn nt" "fun_sizenn1 nt n \<longleftrightarrow> n = sizenn nt"
+  "fun_sizenn2 nt n \<longleftrightarrow> n = sizenn nt" "fun_isize inn n \<longleftrightarrow> n = isize inn"
+  "fun_lsize lt n \<longleftrightarrow> n = lsize lt" "fun_lsizenn lt n \<longleftrightarrow> n = lsize lt"
+  "fun_lsizenn1 lt n \<longleftrightarrow> n = lsize lt" "fun_lsizenn2 lt n \<longleftrightarrow> n = lsize lt"
+  "fun_jsize j n \<longleftrightarrow> n = jsize j"
+  by (simp_all add: size_rel_simps sizenn_def isize_def jsize_def lsize_rel_simps(7-10) fun_lsize_iff)
+
+lemma size_vals[simp]:
+  "sizenn I32 = 32" "sizenn I64 = 64" "sizenn F32 = 32" "sizenn F64 = 64"
+  "isize Inn_I32 = 32" "isize Inn_I64 = 64"
+  "jsize Jnn_I32 = 32" "jsize Jnn_I64 = 64" "jsize Jnn_I8 = 8" "jsize Jnn_I16 = 16"
+  by (simp_all add: sizenn_def isize_def jsize_def size.psimps size.domintros
+      valtype_numtype.psimps valtype_numtype.domintros valtype_Inn.psimps valtype_Inn.domintros
+      lanetype_Jnn.psimps lanetype_Jnn.domintros)
+
+
 definition strip :: "res_context \<Rightarrow> res_context" where 
   "strip C = \<lparr> 
 context_TYPES = context_TYPES C,
@@ -148,111 +188,57 @@ lemma list_splitable: assumes "length l \<ge> n" shows "\<exists> l1 l2. l = l1 
   using assms 
   by (metis append_take_drop_id diff_diff_cancel length_drop)
 
-lemma default_not_bot: assumes "t \<noteq> BOT" shows "default_underscore t \<noteq> None" 
-proof(cases t) qed(auto simp add: assms default_underscore.domintros default_underscore.psimps)
-
-lemma Inn_Fnn_diff: "numtype_Inn x \<noteq> numtype_Fnn y" 
-proof(induction x)
-  case Inn_I32
-  then show ?case proof(induction y) qed(auto simp add: numtype_Inn.domintros numtype_Inn.psimps
-numtype_Fnn.domintros numtype_Fnn.psimps)
-next
-  case Inn_I64
-  then show ?case proof(induction y) qed(auto simp add: numtype_Inn.domintros numtype_Inn.psimps
-numtype_Fnn.domintros numtype_Fnn.psimps)
+lemma fzero_ex: "n = 32 \<or> n = 64 \<Longrightarrow> fun_fzero n (POS (SUBNORM 0))"
+proof -
+  assume n: "n = 32 \<or> n = 64"
+  have e: "fun_E n (the (expon n))" "fun_M n (the (signif n))"
+    using n by (auto intro!: fun_E.intros fun_M.intros
+        simp: expon.psimps expon.domintros signif.psimps signif.domintros eval_nat_numeral)
+  show ?thesis
+    by (rule fun_fzero.intros, rule wf_fN.intros, rule wf_fNmag.intros(2)[OF e]) auto
 qed
+
+lemma default_not_bot: assumes "t \<noteq> BOT" shows "\<exists>v. fun_default_underscore t (Some v)"
+  using assms
+  by (cases t) (auto intro!: exI fun_default_underscore.intros fzero_ex)
+
+lemma Inn_Fnn_diff: "numtype_Inn x \<noteq> numtype_Fnn y"
+  by (cases x; cases y) (auto simp: numtype_Inn.domintros numtype_Inn.psimps
+      numtype_Fnn.domintros numtype_Fnn.psimps)
 
 lemma fun_unop_underscore_total:
   assumes "wf_val (val_CONST nt c)" "wf_unop_underscore nt op"
-  shows "fun_unop_underscore nt op c \<noteq> None"
-  using assms proof(induction "val_CONST nt c")
-  case val_case_0
-  then show ?case proof(induction nt c)
-    case (num__case_0 v_Inn var_x v_numtype)
-    show ?case using num__case_0(4,1-3) proof(induction v_numtype op)
-      case (unop__case_0 v_numtype v_Inn' var_x')
-      then have eqv: "v_Inn = v_Inn'"
-        by (metis numtype.simps(2) numtype_Inn.elims)
-      then show ?case using unop__case_0 proof(induction v_Inn)
-        case Inn_I32
-        then show ?case using numtype_Inn.domintros numtype_Inn.psimps 
-fun_unop_underscore.domintros fun_unop_underscore.psimps fun_unop__I32.domintros
-fun_unop__I32.psimps proof(induction var_x') qed(auto)
-      next
-        case Inn_I64
-        then show ?case using numtype_Inn.domintros numtype_Inn.psimps 
-fun_unop_underscore.domintros fun_unop_underscore.psimps fun_unop__I64.domintros
-fun_unop__I64.psimps proof(induction var_x') qed(auto)
-      qed
-    next
-      case (unop__case_1 v_numtype v_Fnn var_x)
-      then show ?case using Inn_Fnn_diff by simp
-    qed
-  next
-    case (num__case_1 v_Fnn var_x v_numtype)
-    show ?case using num__case_1(3,1-2) proof(induction v_numtype op)
-      case (unop__case_0 v_numtype v_Inn var_x')
-      then show ?case using Inn_Fnn_diff
-        by blast
-    next
-      case (unop__case_1 v_numtype v_Fnn' var_x')
-      then have eqv: "v_Fnn = v_Fnn'"
-        by (metis Fnn.exhaust numtype.distinct(11) numtype_Fnn.domintros(1,2) numtype_Fnn.psimps(1,2))
-      then show ?case using unop__case_1 proof(induction v_Fnn)
-        case Fnn_F32
-        then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps 
-fun_unop_underscore.domintros fun_unop_underscore.psimps fun_unop__F32.domintros
-fun_unop__F32.psimps proof(induction var_x') qed(auto)
-      next
-        case Fnn_F64
-        then show ?case using numtype_Fnn.domintros numtype_Fnn.psimps 
-fun_unop_underscore.domintros fun_unop_underscore.psimps fun_unop__F64.domintros
-fun_unop__F64.psimps proof(induction var_x') qed(auto)
-      qed
-    qed
-  qed
+  shows "\<exists> res. fun_unop_underscore nt op c (Some res)"
+  using assms(2)
+proof cases
+  case (unop__case_0 inn x)
+  then obtain v where "c = mk_num__0 inn v" using assms(1)
+    by (auto elim!: wf_val.cases wf_num_underscore.cases dest: Inn_inj simp: Inn_Fnn_diff Inn_Fnn_diff[THEN not_sym])
+  then show ?thesis using unop__case_0
+    by (cases inn; cases x) (auto intro!: exI fun_unop_underscore.intros
+        simp: size_rel_simps numtype_Inn.domintros numtype_Inn.psimps)
+next
+  case (unop__case_1 fnn x)
+  then obtain v where "c = mk_num__1 fnn v" using assms(1)
+    by (auto elim!: wf_val.cases wf_num_underscore.cases dest: Fnn_inj simp: Inn_Fnn_diff Inn_Fnn_diff[THEN not_sym])
+  then show ?thesis using unop__case_1
+    by (cases fnn; cases x) (auto intro!: exI fun_unop_underscore.intros
+        simp: size_rel_simps numtype_Fnn.domintros numtype_Fnn.psimps)
 qed
-
 
 lemma fun_testop_underscore_total:
   assumes "wf_val (val_CONST nt c)" "wf_testop_underscore nt op"
-  shows "fun_testop_underscore nt op c \<noteq> None"
-  using assms proof(induction "val_CONST nt c")
-  case val_case_0
-  then show ?case proof(induction nt c)
-    case (num__case_0 v_Inn var_x v_numtype)
-    show ?case using num__case_0(4,1-3) proof(induction v_numtype op)
-      case (testop__case_0 v_numtype v_Inn' var_x')
-      then have eqv: "v_Inn = v_Inn'"
-        by (metis numtype.simps(2) numtype_Inn.elims)
-      then show ?case using unop__case_0 proof(induction v_Inn)
-        case Inn_I32
-        then show ?case using numtype_Inn.domintros numtype_Inn.psimps 
-fun_testop_underscore.domintros fun_testop_underscore.psimps proof(induction var_x')
-          case EQZ
-          then show ?case
-            by (metis option.distinct(1) testop__case_0.hyps)
-        qed
-      next
-        case Inn_I64
-        then show ?case using numtype_Inn.domintros numtype_Inn.psimps 
-fun_testop_underscore.domintros fun_testop_underscore.psimps 
-        proof(induction var_x')
-          case EQZ
-          then show ?case
-            by (simp add: testop__case_0.hyps)
-        qed 
-      qed
-    qed
-  next
-    case (num__case_1 v_Fnn var_x v_numtype)
-    show ?case using num__case_1(3,1-2) proof(induction v_numtype op)
-      case (testop__case_0 v_numtype v_Inn var_x')
-      then show ?case using Inn_Fnn_diff
-        by blast
-      qed
-    qed
-  qed
+  shows "\<exists> res. fun_testop_underscore nt op c (Some res)"
+  using assms(2)
+proof cases
+  case (testop__case_0 inn x)
+  then obtain v where "c = mk_num__0 inn v" using assms(1)
+    by (auto elim!: wf_val.cases wf_num_underscore.cases dest: Inn_inj simp: Inn_Fnn_diff Inn_Fnn_diff[THEN not_sym])
+  then show ?thesis using testop__case_0
+    by (cases inn; cases x) (auto intro!: exI fun_testop_underscore.intros
+        simp: size_rel_simps numtype_Inn.domintros numtype_Inn.psimps)
+qed
+
 
 lemma fun_signed_underscore_total:
   assumes "0 \<le> c \<and> c \<le> 2 ^ sz - 1" 
@@ -368,8 +354,8 @@ lemma numtype_size_simps:
   "sizenn2 I32 = 32" "sizenn2 I64 = 64" "sizenn2 F32 = 32" "sizenn2 F64 = 64"
   by (simp_all add: numtype_Inn.psimps numtype_Inn.domintros numtype_Fnn.psimps
       numtype_Fnn.domintros valtype_Inn.psimps valtype_Inn.domintros valtype_Fnn.psimps
-      valtype_Fnn.domintros size.psimps size.domintros sizenn.psimps sizenn.domintros
-      sizenn1.psimps sizenn1.domintros sizenn2.psimps sizenn2.domintros
+      valtype_Fnn.domintros size.psimps size.domintros sizenn_def
+      sizenn_def sizenn_def
       valtype_numtype.psimps valtype_numtype.domintros)
 
 lemma Inn_inj: "numtype_Inn a = numtype_Inn b \<Longrightarrow> a = b"
@@ -563,7 +549,7 @@ lemma fun_relop_underscore_total:
           obtain res where 
             res: "fun_ilt_underscore (sizenn (numtype_Inn Inn_I32)) x (mk_uN i) (mk_uN i') res"
             using fun_ilt_underscore_total[OF 2 1]
-            sizenn.domintros sizenn.psimps
+ sizenn_def
             by fastforce
           show ?case using LT(18)[OF res]
             using LT.prems(7,8,9) by auto
@@ -578,7 +564,7 @@ lemma fun_relop_underscore_total:
           obtain res where 
             res: "fun_igt_underscore (sizenn (numtype_Inn Inn_I32)) x (mk_uN i) (mk_uN i') res"
             using fun_igt_underscore_total[OF 2 1]
-            sizenn.domintros sizenn.psimps
+ sizenn_def
             by fastforce
           show ?case using GT(20)[OF res]
             using GT.prems(7,8,9) by auto
@@ -593,7 +579,7 @@ lemma fun_relop_underscore_total:
           obtain res where 
             res: "fun_ile_underscore (sizenn (numtype_Inn Inn_I32)) x (mk_uN i) (mk_uN i') res"
             using fun_ile_underscore_total[OF 2 1]
-            sizenn.domintros sizenn.psimps
+ sizenn_def
             by fastforce
           show ?case using LE(22)[OF res]
             using LE.prems(7,8,9) by auto
@@ -608,7 +594,7 @@ lemma fun_relop_underscore_total:
           obtain res where 
             res: "fun_ige_underscore (sizenn (numtype_Inn Inn_I32)) x (mk_uN i) (mk_uN i') res"
             using fun_ige_underscore_total[OF 2 1]
-            sizenn.domintros sizenn.psimps
+ sizenn_def
             by fastforce
           show ?case using GE(24)[OF res]
             using GE.prems(7,8,9) by auto
@@ -627,7 +613,7 @@ lemma fun_relop_underscore_total:
           obtain res where 
             res: "fun_ilt_underscore (sizenn (numtype_Inn Inn_I64)) x (mk_uN i) (mk_uN i') res"
             using fun_ilt_underscore_total[OF 2 1]
-            sizenn.domintros sizenn.psimps
+ sizenn_def
             by fastforce
           show ?case using LT(19)[OF res]
             using LT.prems(7,8,9) by auto
@@ -642,7 +628,7 @@ lemma fun_relop_underscore_total:
           obtain res where 
             res: "fun_igt_underscore (sizenn (numtype_Inn Inn_I64)) x (mk_uN i) (mk_uN i') res"
             using fun_igt_underscore_total[OF 2 1]
-            sizenn.domintros sizenn.psimps
+ sizenn_def
             by fastforce
           show ?case using GT(21)[OF res]
             using GT.prems(7,8,9) by auto
@@ -657,7 +643,7 @@ lemma fun_relop_underscore_total:
           obtain res where 
             res: "fun_ile_underscore (sizenn (numtype_Inn Inn_I64)) x (mk_uN i) (mk_uN i') res"
             using fun_ile_underscore_total[OF 2 1]
-            sizenn.domintros sizenn.psimps
+ sizenn_def
             by fastforce
           show ?case using LE(23)[OF res]
             using LE.prems(7,8,9) by auto
@@ -672,7 +658,7 @@ lemma fun_relop_underscore_total:
           obtain res where 
             res: "fun_ige_underscore (sizenn (numtype_Inn Inn_I64)) x (mk_uN i) (mk_uN i') res"
             using fun_ige_underscore_total[OF 2 1]
-            sizenn.domintros sizenn.psimps
+ sizenn_def
             by fastforce
           show ?case using GE(25)[OF res]
             using GE.prems(7,8,9) by auto
@@ -1218,10 +1204,10 @@ lemma vt_simps:
       Jnn_Inn.psimps Jnn_Inn.domintros numtype_Inn.psimps numtype_Inn.domintros
       numtype_Fnn.psimps numtype_Fnn.domintros valtype_Inn.psimps valtype_Inn.domintros
       valtype_Fnn.psimps valtype_Fnn.domintros valtype_vectype.psimps valtype_vectype.domintros
-      size.psimps size.domintros sizenn.psimps sizenn.domintros sizenn1.psimps
-      sizenn1.domintros sizenn2.psimps sizenn2.domintros valtype_numtype.psimps
-      valtype_numtype.domintros lsize.psimps lsize.domintros psize.psimps psize.domintros
-      isize.psimps isize.domintros unpack.psimps unpack.domintros)
+      size.psimps size.domintros sizenn_def sizenn_def
+ sizenn_def valtype_numtype.psimps
+      valtype_numtype.domintros lsize.simps psize.psimps psize.domintros
+      isize_def unpack.psimps unpack.domintros)
 
 lemma vt_generic_simps:
   "lsizenn lt = lsize lt" "lsizenn1 lt = lsize lt" "lsizenn2 lt = lsize lt"
@@ -1233,8 +1219,8 @@ lemma vt_generic_simps:
   "proj_num__0 (mk_num__0 inn u) = Some u"
   "res_bool True = 1" "res_bool False = 0"
   "list_underscore None = []" "list_underscore (Some w) = [w]"
-  by (simp_all add: lsizenn.psimps lsizenn.domintros lsizenn1.psimps lsizenn1.domintros
-      lsizenn2.psimps lsizenn2.domintros fun_lanetype.psimps fun_lanetype.domintros
+  by (simp_all add: lsize.simps lsize.simps
+      lsize.simps fun_lanetype.psimps fun_lanetype.domintros
       fun_dim.psimps fun_dim.domintros proj_dim_0.psimps proj_dim_0.domintros
       proj_ishape_0.psimps proj_ishape_0.domintros shunpack.psimps shunpack.domintros
       proj_uN_0.psimps proj_uN_0.domintros proj_lane__0.psimps proj_lane__0.domintros
@@ -6993,8 +6979,8 @@ v_M div 8"
                     assume "v_M = 8 \<or> v_M = 16" 
                     then show ?thesis proof 
                       assume m: "v_M = 8" 
-                      have 3: "jsize Jnn_I16 = v_M * 2" using jsize.domintros jsize.psimps m
-                          lsize.domintros lsize.psimps lanetype_Jnn.domintros lanetype_Jnn.psimps
+                      have 3: "jsize Jnn_I16 = v_M * 2" using jsize_def m
+ lsize.simps lanetype_Jnn.domintros lanetype_Jnn.psimps
                           size.domintros size.psimps valtype_numtype.domintros valtype_numtype.psimps psize.domintros
                           psize.psimps
                         by simp
@@ -7002,7 +6988,7 @@ v_M div 8"
                       have 5: "wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim v_N))" 
                         using sz_case_0(2) proj_sz_0.domintros proj_sz_0.psimps 
                           shape_case_0 vec128 vsize.domintros vsize.psimps dim_case_0
-                          lsize.domintros lsize.psimps size.domintros size.psimps valtype_numtype.domintros
+ lsize.simps size.domintros size.psimps valtype_numtype.domintros
                           valtype_numtype.psimps psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                           lanetype_Jnn.domintros lanetype_Jnn.psimps m by force
                       have "\<forall> k < length (map (\<lambda>k. inv_ibytes_underscore v_M
@@ -7056,7 +7042,7 @@ v_M div 8"
                             using lane__case_0[of Jnn_I16]
                               fun_lanetype.domintros fun_lanetype.psimps extend___is_wf
                               inv_ibytes__is_wf list_all_list_slice
-                            by (metis "3" lanetype_Jnn.domintros(4) lanetype_Jnn.psimps(4) lsize.domintros(6) lsize.psimps(6) m
+                            by (metis "3" lanetype_Jnn.domintros(4) lanetype_Jnn.psimps(4) lsize.simps(6) m
                                 mult.commute numeral_Bit0_eq_double psize.domintros(2) psize.psimps(2))
                         qed
                         done
@@ -7074,8 +7060,8 @@ v_M div 8"
                         by auto
                     next 
                       assume m: "v_M = 16"
-                      have 3: "jsize Jnn_I32 = v_M * 2" using jsize.domintros jsize.psimps m
-                          lsize.domintros lsize.psimps lanetype_Jnn.domintros lanetype_Jnn.psimps
+                      have 3: "jsize Jnn_I32 = v_M * 2" using jsize_def m
+ lsize.simps lanetype_Jnn.domintros lanetype_Jnn.psimps
                           size.domintros size.psimps valtype_numtype.domintros valtype_numtype.psimps psize.domintros
                           psize.psimps
                         by simp
@@ -7083,7 +7069,7 @@ v_M div 8"
                       have 5: "wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim v_N))" 
                         using sz_case_0(2) proj_sz_0.domintros proj_sz_0.psimps 
                           shape_case_0 vec128 vsize.domintros vsize.psimps dim_case_0
-                          lsize.domintros lsize.psimps size.domintros size.psimps valtype_numtype.domintros
+ lsize.simps size.domintros size.psimps valtype_numtype.domintros
                           valtype_numtype.psimps psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                           lanetype_Jnn.domintros lanetype_Jnn.psimps m by force
                       have "\<forall> k < length (map (\<lambda>k. inv_ibytes_underscore v_M
@@ -7137,7 +7123,7 @@ v_M div 8"
                             using lane__case_0[of Jnn_I32]
                               fun_lanetype.domintros fun_lanetype.psimps extend___is_wf
                               inv_ibytes__is_wf list_all_list_slice
-                            by (metis "3" lanetype_Jnn.domintros(1) lanetype_Jnn.psimps(1) lsize.domintros(1) lsize.psimps(1) m
+                            by (metis "3" lanetype_Jnn.domintros(1) lanetype_Jnn.psimps(1) lsize.simps(1) m
                                 mult.commute numeral_Bit0_eq_double option.sel size.domintros(1) size.psimps(1)
                                 valtype_numtype.simps(1))
                         qed
@@ -7157,8 +7143,8 @@ v_M div 8"
                     qed
                   next
                     assume m: "v_M = 32" 
-                    have 3: "jsize Jnn_I64 = v_M * 2" using jsize.domintros jsize.psimps m
-                        lsize.domintros lsize.psimps lanetype_Jnn.domintros lanetype_Jnn.psimps
+                    have 3: "jsize Jnn_I64 = v_M * 2" using jsize_def m
+ lsize.simps lanetype_Jnn.domintros lanetype_Jnn.psimps
                         size.domintros size.psimps valtype_numtype.domintros valtype_numtype.psimps psize.domintros
                         psize.psimps
                       by simp
@@ -7166,7 +7152,7 @@ v_M div 8"
                     have 5: "wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim v_N))" 
                       using sz_case_0(2) proj_sz_0.domintros proj_sz_0.psimps 
                         shape_case_0 vec128 vsize.domintros vsize.psimps dim_case_0
-                        lsize.domintros lsize.psimps size.domintros size.psimps valtype_numtype.domintros
+ lsize.simps size.domintros size.psimps valtype_numtype.domintros
                         valtype_numtype.psimps psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                         lanetype_Jnn.domintros lanetype_Jnn.psimps m by force
                     have "\<forall> k < length (map (\<lambda>k. inv_ibytes_underscore v_M
@@ -7220,7 +7206,7 @@ v_M div 8"
                           using lane__case_0[of Jnn_I64]
                             fun_lanetype.domintros fun_lanetype.psimps extend___is_wf
                             inv_ibytes__is_wf list_all_list_slice
-                          by (metis "3" lanetype_Jnn.domintros(2) lanetype_Jnn.psimps(2) lsize.domintros(2) lsize.psimps(2) m
+                          by (metis "3" lanetype_Jnn.domintros(2) lanetype_Jnn.psimps(2) lsize.simps(2) m
                               mult.commute numeral_Bit0_eq_double option.sel size.domintros(2) size.psimps(2)
                               valtype_numtype.domintros(2) valtype_numtype.psimps(2))
                       qed
@@ -7356,12 +7342,12 @@ proj_uN_0.domintros proj_uN_0.psimps
                      assume "v_n = 8 \<or> v_n = 16" 
                      then show ?thesis proof
                        assume vn: "v_n = 8" 
-                       have 1: "v_n = jsize Jnn_I8" using jsize.domintros jsize.psimps
-                           lsize.domintros lsize.psimps valtype_numtype.domintros valtype_numtype.psimps
+                       have 1: "v_n = jsize Jnn_I8" using jsize_def
+ lsize.simps valtype_numtype.domintros valtype_numtype.psimps
                            size.domintros size.psimps psize.domintros psize.psimps vn 
                            lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                        have 2: " wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim (128 div v_n)))"
-                         using shape_case_0 dim_case_0 vn lsize.domintros lsize.psimps
+                         using shape_case_0 dim_case_0 vn lsize.simps
                            valtype_numtype.domintros valtype_numtype.psimps size.domintros size.psimps
                            psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                          lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
@@ -7369,7 +7355,7 @@ proj_uN_0.domintros proj_uN_0.psimps
      (mk_lane__0 Jnn_I8 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
-                           mk_uN_proj_uN_0 1 jsize.domintros jsize.psimps by simp
+                           mk_uN_proj_uN_0 1 jsize_def by simp
                        then show ?thesis using vload_splat_val[of c v_n "inv_ibytes_underscore v_n _" 
                   "mk_state s' f" v_memarg] Nil(16) c n admininstr_val.domintros admininstr_val.psimps
 admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
@@ -7377,12 +7363,12 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
               by fastforce
                      next
                        assume vn: "v_n = 16" 
-                       have 1: "v_n = jsize Jnn_I16" using jsize.domintros jsize.psimps
-                           lsize.domintros lsize.psimps valtype_numtype.domintros valtype_numtype.psimps
+                       have 1: "v_n = jsize Jnn_I16" using jsize_def
+ lsize.simps valtype_numtype.domintros valtype_numtype.psimps
                            size.domintros size.psimps psize.domintros psize.psimps vn 
                            lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                        have 2: " wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim (128 div v_n)))"
-                         using shape_case_0 dim_case_0 vn lsize.domintros lsize.psimps
+                         using shape_case_0 dim_case_0 vn lsize.simps
                            valtype_numtype.domintros valtype_numtype.psimps size.domintros size.psimps
                            psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                          lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
@@ -7390,7 +7376,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
      (mk_lane__0 Jnn_I16 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
-                           mk_uN_proj_uN_0 1 jsize.domintros jsize.psimps by simp
+                           mk_uN_proj_uN_0 1 jsize_def by simp
                        then show ?thesis using vload_splat_val[of c v_n "inv_ibytes_underscore v_n _" 
                   "mk_state s' f" v_memarg] Nil(16) c n admininstr_val.domintros admininstr_val.psimps
 admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
@@ -7399,12 +7385,12 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                      qed
                    next 
                      assume vn: "v_n = 32" 
-                       have 1: "v_n = jsize Jnn_I32" using jsize.domintros jsize.psimps
-                           lsize.domintros lsize.psimps valtype_numtype.domintros valtype_numtype.psimps
+                       have 1: "v_n = jsize Jnn_I32" using jsize_def
+ lsize.simps valtype_numtype.domintros valtype_numtype.psimps
                            size.domintros size.psimps psize.domintros psize.psimps vn 
                            lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                        have 2: " wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim (128 div v_n)))"
-                         using shape_case_0 dim_case_0 vn lsize.domintros lsize.psimps
+                         using shape_case_0 dim_case_0 vn lsize.simps
                            valtype_numtype.domintros valtype_numtype.psimps size.domintros size.psimps
                            psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                          lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
@@ -7412,7 +7398,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
      (mk_lane__0 Jnn_I32 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
-                           mk_uN_proj_uN_0 1 jsize.domintros jsize.psimps by simp
+                           mk_uN_proj_uN_0 1 jsize_def by simp
                        then show ?thesis using vload_splat_val[of c v_n "inv_ibytes_underscore v_n _" 
                   "mk_state s' f" v_memarg] Nil(16) c n admininstr_val.domintros admininstr_val.psimps
 admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
@@ -7421,12 +7407,12 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                    qed
                  next 
                    assume vn: "v_n = 64"
-                       have 1: "v_n = jsize Jnn_I64" using jsize.domintros jsize.psimps
-                           lsize.domintros lsize.psimps valtype_numtype.domintros valtype_numtype.psimps
+                       have 1: "v_n = jsize Jnn_I64" using jsize_def
+ lsize.simps valtype_numtype.domintros valtype_numtype.psimps
                            size.domintros size.psimps psize.domintros psize.psimps vn 
                            lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                        have 2: " wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim (128 div v_n)))"
-                         using shape_case_0 dim_case_0 vn lsize.domintros lsize.psimps
+                         using shape_case_0 dim_case_0 vn lsize.simps
                            valtype_numtype.domintros valtype_numtype.psimps size.domintros size.psimps
                            psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                          lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
@@ -7434,7 +7420,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
      (mk_lane__0 Jnn_I64 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
-                           mk_uN_proj_uN_0 1 jsize.domintros jsize.psimps by simp
+                           mk_uN_proj_uN_0 1 jsize_def by simp
                        then show ?thesis using vload_splat_val[of c v_n "inv_ibytes_underscore v_n _" 
                   "mk_state s' f" v_memarg] Nil(16) c n admininstr_val.domintros admininstr_val.psimps
 admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
@@ -7657,12 +7643,12 @@ proj_uN_0.domintros proj_uN_0.psimps
                      assume "v_n = 8 \<or> v_n = 16" 
                      then show ?thesis proof
                        assume vn: "v_n = 8" 
-                       have 1: "v_n = jsize Jnn_I8" using jsize.domintros jsize.psimps
-                           lsize.domintros lsize.psimps valtype_numtype.domintros valtype_numtype.psimps
+                       have 1: "v_n = jsize Jnn_I8" using jsize_def
+ lsize.simps valtype_numtype.domintros valtype_numtype.psimps
                            size.domintros size.psimps psize.domintros psize.psimps vn 
                            lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                        have 2: " wf_shape (X (lanetype_Jnn Jnn_I8) (mk_dim (128 div v_n)))"
-                         using shape_case_0 dim_case_0 vn lsize.domintros lsize.psimps
+                         using shape_case_0 dim_case_0 vn lsize.simps
                            valtype_numtype.domintros valtype_numtype.psimps size.domintros size.psimps
                            psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                          lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
@@ -7670,7 +7656,7 @@ proj_uN_0.domintros proj_uN_0.psimps
      (mk_lane__0 Jnn_I8 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
-                           mk_uN_proj_uN_0 1 jsize.domintros jsize.psimps by simp
+                           mk_uN_proj_uN_0 1 jsize_def by simp
                        then show ?thesis using vload_lane_val[of c v_n "inv_ibytes_underscore v_n _" 
                   "mk_state s' f" v_memarg] Nil(17) c n vec admininstr_val.domintros admininstr_val.psimps
 admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
@@ -7678,12 +7664,12 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
               by fastforce
                      next
                        assume vn: "v_n = 16" 
-                       have 1: "v_n = jsize Jnn_I16" using jsize.domintros jsize.psimps
-                           lsize.domintros lsize.psimps valtype_numtype.domintros valtype_numtype.psimps
+                       have 1: "v_n = jsize Jnn_I16" using jsize_def
+ lsize.simps valtype_numtype.domintros valtype_numtype.psimps
                            size.domintros size.psimps psize.domintros psize.psimps vn 
                            lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                        have 2: " wf_shape (X (lanetype_Jnn Jnn_I16) (mk_dim (128 div v_n)))"
-                         using shape_case_0 dim_case_0 vn lsize.domintros lsize.psimps
+                         using shape_case_0 dim_case_0 vn lsize.simps
                            valtype_numtype.domintros valtype_numtype.psimps size.domintros size.psimps
                            psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                          lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
@@ -7691,7 +7677,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
      (mk_lane__0 Jnn_I16 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
-                           mk_uN_proj_uN_0 1 jsize.domintros jsize.psimps by simp
+                           mk_uN_proj_uN_0 1 jsize_def by simp
                        then show ?thesis using vload_lane_val[of c v_n "inv_ibytes_underscore v_n _" 
                   "mk_state s' f" v_memarg] Nil(17) c n vec admininstr_val.domintros admininstr_val.psimps
 admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
@@ -7700,12 +7686,12 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                      qed
                    next 
                      assume vn: "v_n = 32" 
-                       have 1: "v_n = jsize Jnn_I32" using jsize.domintros jsize.psimps
-                           lsize.domintros lsize.psimps valtype_numtype.domintros valtype_numtype.psimps
+                       have 1: "v_n = jsize Jnn_I32" using jsize_def
+ lsize.simps valtype_numtype.domintros valtype_numtype.psimps
                            size.domintros size.psimps psize.domintros psize.psimps vn 
                            lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                        have 2: " wf_shape (X (lanetype_Jnn Jnn_I32) (mk_dim (128 div v_n)))"
-                         using shape_case_0 dim_case_0 vn lsize.domintros lsize.psimps
+                         using shape_case_0 dim_case_0 vn lsize.simps
                            valtype_numtype.domintros valtype_numtype.psimps size.domintros size.psimps
                            psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                          lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
@@ -7713,7 +7699,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
      (mk_lane__0 Jnn_I32 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
-                           mk_uN_proj_uN_0 1 jsize.domintros jsize.psimps by simp
+                           mk_uN_proj_uN_0 1 jsize_def by simp
                        then show ?thesis using vload_lane_val[of c v_n "inv_ibytes_underscore v_n _" 
                   "mk_state s' f" v_memarg] Nil(17) vec c n admininstr_val.domintros admininstr_val.psimps
 admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
@@ -7722,12 +7708,12 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                    qed
                  next 
                    assume vn: "v_n = 64"
-                       have 1: "v_n = jsize Jnn_I64" using jsize.domintros jsize.psimps
-                           lsize.domintros lsize.psimps valtype_numtype.domintros valtype_numtype.psimps
+                       have 1: "v_n = jsize Jnn_I64" using jsize_def
+ lsize.simps valtype_numtype.domintros valtype_numtype.psimps
                            size.domintros size.psimps psize.domintros psize.psimps vn 
                            lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                        have 2: " wf_shape (X (lanetype_Jnn Jnn_I64) (mk_dim (128 div v_n)))"
-                         using shape_case_0 dim_case_0 vn lsize.domintros lsize.psimps
+                         using shape_case_0 dim_case_0 vn lsize.simps
                            valtype_numtype.domintros valtype_numtype.psimps size.domintros size.psimps
                            psize.domintros psize.psimps proj_dim_0.domintros proj_dim_0.psimps
                          lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
@@ -7735,7 +7721,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
      (mk_lane__0 Jnn_I64 (mk_uN (proj_uN_0 (inv_ibytes_underscore v_n (list_slice (BYTES (fun_mem (mk_state s' f) (mk_uN 0)))
      (proj_uN_0 (the (proj_num__0 c)) + proj_uN_0 (OFFSET v_memarg)) (v_n div 8))))))"
                          using lane__case_0 fun_lanetype.domintros fun_lanetype.psimps wfbs
-                           mk_uN_proj_uN_0 1 jsize.domintros jsize.psimps by simp
+                           mk_uN_proj_uN_0 1 jsize_def by simp
                        then show ?thesis using vload_lane_val[of c v_n "inv_ibytes_underscore v_n _" 
                   "mk_state s' f" v_memarg] Nil(17) c n vec admininstr_val.domintros admininstr_val.psimps
 admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0.domintros 
@@ -7828,8 +7814,8 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                   then show ?thesis proof
                     assume vn: "v_n = 8" 
                     have 1: "v_n = jsize Jnn_I8" 
-                     using jsize.domintros jsize.psimps
-                           lsize.domintros lsize.psimps valtype_numtype.domintros valtype_numtype.psimps
+                     using jsize_def
+ lsize.simps valtype_numtype.domintros valtype_numtype.psimps
                            size.domintros size.psimps psize.domintros psize.psimps vn 
                            lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                    have "wf_val a2" using Nil by simp
@@ -7841,7 +7827,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                    have wfl: "list_all (wf_lane_underscore lanetype_I8)
         (lanes_underscore (X (lanetype_Jnn Jnn_I8) (mk_dim (128 div v_n))) c2)"
                      using lanes__is_wf shape_case_0 dim_case_0 fun_lanetype.domintros fun_lanetype.psimps
-                       wfc2 lanetype_Jnn.domintros lanetype_Jnn.psimps lsize.domintros lsize.psimps
+                       wfc2 lanetype_Jnn.domintros lanetype_Jnn.psimps lsize.simps
                        psize.domintros psize.psimps valtype_numtype.domintros valtype_numtype.psimps
                        size.domintros size.psimps
                      by (metis div_mult2_eq double_half_numeral_Bit_0_eq(2) mult.assoc
@@ -7881,7 +7867,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                      then have "v_Jnn = Jnn_I8" using lanetype_Jnn.domintros lanetype_Jnn.psimps
                      proof (induction v_Jnn) qed(auto)
                      then show ?case
-                       using lane__case_0 1 jsize.domintros jsize.psimps 
+                       using lane__case_0 1 jsize_def 
                          proj_lane__0.domintros proj_lane__0.psimps mk_uN_proj_uN_0
                        by (metis option.sel)
                    next
@@ -7898,8 +7884,8 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                   next
                     assume vn: "v_n = 16"
                    have 1: "v_n = jsize Jnn_I16" 
-                     using jsize.domintros jsize.psimps
-                           lsize.domintros lsize.psimps valtype_numtype.domintros valtype_numtype.psimps
+                     using jsize_def
+ lsize.simps valtype_numtype.domintros valtype_numtype.psimps
                            size.domintros size.psimps psize.domintros psize.psimps vn 
                            lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                    have "wf_val a2" using Nil by simp
@@ -7911,7 +7897,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                    have wfl: "list_all (wf_lane_underscore lanetype_I16)
         (lanes_underscore (X (lanetype_Jnn Jnn_I16) (mk_dim (128 div v_n))) c2)"
                      using lanes__is_wf shape_case_0 dim_case_0 fun_lanetype.domintros fun_lanetype.psimps
-                       wfc2 lanetype_Jnn.domintros lanetype_Jnn.psimps lsize.domintros lsize.psimps
+                       wfc2 lanetype_Jnn.domintros lanetype_Jnn.psimps lsize.simps
                        psize.domintros psize.psimps valtype_numtype.domintros valtype_numtype.psimps
                        size.domintros size.psimps
                      by (metis div_mult2_eq double_half_numeral_Bit_0_eq(2) mult.assoc
@@ -7951,7 +7937,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                      then have "v_Jnn = Jnn_I16" using lanetype_Jnn.domintros lanetype_Jnn.psimps
                      proof (induction v_Jnn) qed(auto)
                      then show ?case
-                       using lane__case_0 1 jsize.domintros jsize.psimps 
+                       using lane__case_0 1 jsize_def 
                          proj_lane__0.domintros proj_lane__0.psimps mk_uN_proj_uN_0
                        by (metis option.sel)
                    next
@@ -7969,8 +7955,8 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                 next 
                   assume vn: "v_n = 32" 
                   have 1: "v_n = jsize Jnn_I32" 
-                     using jsize.domintros jsize.psimps
-                           lsize.domintros lsize.psimps valtype_numtype.domintros valtype_numtype.psimps
+                     using jsize_def
+ lsize.simps valtype_numtype.domintros valtype_numtype.psimps
                            size.domintros size.psimps psize.domintros psize.psimps vn 
                            lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                    have "wf_val a2" using Nil by simp
@@ -7982,7 +7968,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                    have wfl: "list_all (wf_lane_underscore lanetype_I32)
         (lanes_underscore (X (lanetype_Jnn Jnn_I32) (mk_dim (128 div v_n))) c2)"
                      using lanes__is_wf shape_case_0 dim_case_0 fun_lanetype.domintros fun_lanetype.psimps
-                       wfc2 lanetype_Jnn.domintros lanetype_Jnn.psimps lsize.domintros lsize.psimps
+                       wfc2 lanetype_Jnn.domintros lanetype_Jnn.psimps lsize.simps
                        psize.domintros psize.psimps valtype_numtype.domintros valtype_numtype.psimps
                        size.domintros size.psimps
                      by (metis div_mult2_eq double_half_numeral_Bit_0_eq(1) mult.assoc numeral_Bit0_div_2 option.sel
@@ -8022,7 +8008,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                      then have "v_Jnn = Jnn_I32" using lanetype_Jnn.domintros lanetype_Jnn.psimps
                      proof (induction v_Jnn) qed(auto)
                      then show ?case
-                       using lane__case_0 1 jsize.domintros jsize.psimps 
+                       using lane__case_0 1 jsize_def 
                          proj_lane__0.domintros proj_lane__0.psimps mk_uN_proj_uN_0
                        by (metis option.sel)
                    next
@@ -8040,8 +8026,8 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
               next
                 assume vn: "v_n = 64" 
                 have 1: "v_n = jsize Jnn_I64" 
-                     using jsize.domintros jsize.psimps
-                           lsize.domintros lsize.psimps valtype_numtype.domintros valtype_numtype.psimps
+                     using jsize_def
+ lsize.simps valtype_numtype.domintros valtype_numtype.psimps
                            size.domintros size.psimps psize.domintros psize.psimps vn 
                            lanetype_Jnn.domintros lanetype_Jnn.psimps by auto
                    have "wf_val a2" using Nil by simp
@@ -8053,7 +8039,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                    have wfl: "list_all (wf_lane_underscore lanetype_I64)
         (lanes_underscore (X (lanetype_Jnn Jnn_I64) (mk_dim (128 div v_n))) c2)"
                      using lanes__is_wf shape_case_0 dim_case_0 fun_lanetype.domintros fun_lanetype.psimps
-                       wfc2 lanetype_Jnn.domintros lanetype_Jnn.psimps lsize.domintros lsize.psimps
+                       wfc2 lanetype_Jnn.domintros lanetype_Jnn.psimps lsize.simps
                        psize.domintros psize.psimps valtype_numtype.domintros valtype_numtype.psimps
                        size.domintros size.psimps
                      by (metis double_half_numeral_Bit_0_eq(2) nonzero_mult_div_cancel_left numeral_Bit0_div_2 option.sel
@@ -8092,7 +8078,7 @@ admininstr_instr.domintros admininstr_instr.psimps Step.intros(2) bs proj_num__0
                      then have "v_Jnn = Jnn_I64" using lanetype_Jnn.domintros lanetype_Jnn.psimps
                      proof (induction v_Jnn) qed(auto)
                      then show ?case
-                       using lane__case_0 1 jsize.domintros jsize.psimps 
+                       using lane__case_0 1 jsize_def 
                          proj_lane__0.domintros proj_lane__0.psimps mk_uN_proj_uN_0
                        by (metis option.sel)
                    next
