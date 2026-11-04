@@ -5858,8 +5858,10 @@ next
   then show ?case using Instrs_ok2__empty Instrs_ok2_subtyping table_set_val
     Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
-  case (table_grow_succeed var_1 v_n v_ref var_0 x ti)
-  then obtain t2 where splitv:
+  case (table_grow_succeed var_1 v_n v_ref var_2 x ti)
+  have v1: "var_1 = table_of (mk_state s f) x"
+    using table_grow_succeed(2) fun_table_of by blast
+  from table_grow_succeed obtain t2 where splitv:
     "Instrs_ok2 s C' [admininstr_ref v_ref, admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 
         Inn_I32 (mk_uN v_n)))] (mk_functype t1 t2)" 
     "Instrs_ok2 s C' [admininstr_sc5 (admininstr_st5_TABLE_GROW x)] (mk_functype t2 t3)" 
@@ -5895,19 +5897,19 @@ next
 
   have "0 \<le> (length (REFS (table_of (mk_state s f) x))) \<and> 
     (length (REFS (table_of (mk_state s f) x))) \<le> 2 ^ 32 - 1" 
-     using Store_ok_length_table table_grow_succeed mk_uN_proj_uN_0 hyps 
-      by fastforce
+    using Store_ok_length_table[OF \<open>Store_ok s\<close> \<open>Moduleinst_ok s (frame_MODULE f) C\<close>
+        \<open>t_inst_match C C'\<close> hyps(1)] mk_uN_proj_uN_0 by simp
 
   then have wf: "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 
           (mk_uN (length (REFS (table_of (mk_state s f) x)))))))"
     using instr_case_13 num__case_0 uN_case_0
     by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
         valtype_Inn.psimps(1))
-  show ?case using  
+  show ?case unfolding v1 using  
       instrs_ok_instrs_ok2[OF instr_ok_instrs_ok[OF 
-            const[OF Instrs_ok2_wf(1)[OF table_grow_succeed(14)] wf]]
-            store_extension_wf[OF table_grow_succeed(9)]]
-     subt(1) table_grow_succeed(15)
+            const[OF Instrs_ok2_wf(1)[OF splitv(1)] wf]]
+            store_extension_wf[OF \<open>Extend_store s s'\<close>]]
+     subt(1) \<open>tf = mk_functype t1 t3\<close>
     Instrs_ok2_subtyping admininstr_instr.domintros admininstr_instr.psimps
     valtype_numtype.domintros valtype_numtype.psimps 
     by force
@@ -5975,7 +5977,7 @@ next
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
 next
-  case (store_num_val i ao nt b_lst var_0 c)
+  case (store_num_val i ao nt b_lst c)
   then obtain t2 where splitv:
     "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), 
                       admininstr_sc1 (admininstr_st1_CONST nt c)] (mk_functype t1 t2)"
@@ -6006,7 +6008,7 @@ next
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
 next
-  case (store_pack_val i ao v_n b_lst var_0 v_Inn c)
+  case (store_pack_val i ao v_n b_lst v_Inn c)
   then obtain t2 where splitv:
     "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), 
                       admininstr_sc1 (admininstr_st1_CONST (numtype_Inn v_Inn) c)] (mk_functype t1 t2)"
@@ -6039,7 +6041,7 @@ next
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
 next
-  case (vstore_val i ao b_lst var_0 c)
+  case (vstore_val i ao b_lst c)
   then obtain t2 where splitv:
     "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), 
                        admininstr_sc2 (admininstr_st2_VCONST V128 c)] (mk_functype t1 t2)"
@@ -6070,7 +6072,7 @@ next
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
       res_list.exhaust by metis
 next
-  case (vstore_lane_val v_Jnn var_1 i ao v_N b_lst var_0 v_M c j)
+  case (vstore_lane_val v_Jnn var_1 i ao v_N b_lst v_M c j)
   then obtain t2 where splitv:
     "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 i), 
                        admininstr_sc2 (admininstr_st2_VCONST V128 c)] (mk_functype t1 t2)"
@@ -6097,8 +6099,10 @@ next
   then show ?case using Instrs_ok2__empty Instrs_ok2_subtyping vstore_lane_val
     Instrs_ok2_wf[OF splitv(1)] store_extension_wf by auto
 next
-  case (memory_grow_succeed var_1 v_n var_0 mi)
-  then obtain t2 where splitv:
+  case (memory_grow_succeed var_1 v_n var_2 mi)
+  have v1: "var_1 = mem_of (mk_state s f) (mk_uN 0)"
+    using memory_grow_succeed(2) fun_mem_of by blast
+  from memory_grow_succeed obtain t2 where splitv:
     "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 
         Inn_I32 (mk_uN v_n)))] (mk_functype t1 t2)" 
     "Instrs_ok2 s C' [admininstr_sc7 (admininstr_st7_MEMORY_GROW)] (mk_functype t2 t3)" 
@@ -6125,7 +6129,8 @@ next
     using subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] subv by force 
   have "0 \<le> (length (BYTES (mem_of (mk_state s f) (mk_uN 0))) div (64 * Ki)) \<and> 
     (length (BYTES (mem_of (mk_state s f) (mk_uN 0))) div (64 * Ki)) \<le> 2 ^ 32 - 1" 
-    using Store_ok_length_mem[OF memory_grow_succeed(8,11,13) hyps(1)] 
+    using Store_ok_length_mem[OF \<open>Store_ok s\<close> \<open>Moduleinst_ok s (frame_MODULE f) C\<close>
+        \<open>t_inst_match C C'\<close> hyps(1)] 
     by (simp add: Ki_def)
 
   then have wf: "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 
@@ -6133,11 +6138,11 @@ next
     using instr_case_13 num__case_0 uN_case_0
     by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
         valtype_Inn.psimps(1))
-  show ?case using  
+  show ?case unfolding v1 using  
       instrs_ok_instrs_ok2[OF instr_ok_instrs_ok[OF 
-            const[OF Instrs_ok2_wf(1)[OF memory_grow_succeed(15)] wf]]
-            store_extension_wf[OF memory_grow_succeed(10)]]
-     subt(1) memory_grow_succeed(16)
+            const[OF Instrs_ok2_wf(1)[OF splitv(1)] wf]]
+            store_extension_wf[OF \<open>Extend_store s s'\<close>]]
+     subt(1) \<open>tf = mk_functype t1 t3\<close>
     Instrs_ok2_subtyping admininstr_instr.domintros admininstr_instr.psimps
     valtype_numtype.domintros valtype_numtype.psimps 
     by force
