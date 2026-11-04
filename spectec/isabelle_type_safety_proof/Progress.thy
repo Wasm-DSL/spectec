@@ -202,6 +202,14 @@ lemma default_not_bot: assumes "t \<noteq> BOT" shows "\<exists>v. fun_default_u
   using assms
   by (cases t) (auto intro!: exI fun_default_underscore.intros fzero_ex)
 
+lemma zero_ex: "\<exists>z. fun_zero nt z"
+proof -
+  have sz: "size (valtype_Fnn Fnn_F32) = Some 32" "size (valtype_Fnn Fnn_F64) = Some 64"
+    by (simp_all add: size.psimps size.domintros valtype_Fnn.psimps valtype_Fnn.domintros)
+  show ?thesis
+    using fun_zero.intros(1,2) fun_zero.intros(3,4)[OF fzero_ex] by (cases nt) (auto simp: sz)
+qed
+
 lemma Inn_Fnn_diff: "numtype_Inn x \<noteq> numtype_Fnn y"
   by (cases x; cases y) (auto simp: numtype_Inn.domintros numtype_Inn.psimps
       numtype_Fnn.domintros numtype_Fnn.psimps)
@@ -3384,7 +3392,7 @@ lemma vrelop_total:
 lemma vshiftop_lane_ex:
   "\<exists>r. fun_vshiftop_underscore (mk_ishape (X (lanetype_Jnn J) (mk_dim M))) (mk_vshiftop__0 J M x)
      (mk_lane__0 J l) (mk_uN n) (Some r)"
-  by (cases J; cases x; simp only:; simp (no_asm) only: vt_simps; blast intro: fun_vshiftop_underscore.intros)
+  by (cases J; cases x; simp only: vt_simps; rule exI, rule fun_vshiftop_underscore.intros; simp)
 
 lemma vshiftop_lane_some:
   "fun_vshiftop_underscore (mk_ishape (X (lanetype_Jnn J) (mk_dim M))) (mk_vshiftop__0 J M x)
@@ -3545,7 +3553,7 @@ proof -
     apply (cases J1; cases J2)
     apply (simp_all only:)
     apply (simp_all (no_asm) only: vt_simps)
-    apply (rule exI, rule fun_vextunop__underscore.intros, (rule HOL.refl | assumption)+)+
+    apply (rule exI, rule fun_vextunop__underscore.intros, (rule HOL.refl | assumption | simp only: size_fun_rel_simps)+)+
     done
 qed
 
@@ -3599,7 +3607,7 @@ proof -
       apply (cases J1; cases J2)
       apply (simp_all only:)
       apply (simp_all (no_asm) only: vt_simps)
-      apply (rule exI, rule fun_vextbinop__underscore.intros, (rule HOL.refl | assumption)+)+
+      apply (rule exI, rule fun_vextbinop__underscore.intros, (rule HOL.refl | assumption | simp only: size_fun_rel_simps)+)+
       done
   next
     case DOTS
@@ -3621,7 +3629,7 @@ proof -
       apply (cases J1; cases J2)
       apply (simp_all only:)
       apply (simp_all (no_asm) only: vt_simps)
-      apply (rule exI, rule fun_vextbinop__underscore.intros, (rule HOL.refl | assumption)+)+
+      apply (rule exI, rule fun_vextbinop__underscore.intros, (rule HOL.refl | assumption | simp only: size_fun_rel_simps)+)+
       done
   qed
 qed
@@ -3665,7 +3673,7 @@ proof cases
     apply (cases J1; cases J2; cases x)
                    apply (simp_all only:)
     apply (simp_all (no_asm) only: vt_simps)
-    apply (rule exI, rule conjI, rule fun_lcvtop__underscore.intros, (rule HOL.refl)+, simp)+
+    apply (rule exI, rule conjI, rule fun_lcvtop__underscore.intros, (rule HOL.refl | simp only: size_fun_rel_simps)+, simp)+
     done
 next
   case (vcvtop___case_1 J M1 F M2 x)
@@ -3674,7 +3682,7 @@ next
     apply (cases J; cases F; cases x)
            apply (simp_all only:)
     apply (simp_all (no_asm) only: vt_simps)
-    apply (rule exI, rule conjI, rule fun_lcvtop__underscore.intros, (rule HOL.refl)+, simp)+
+    apply (rule exI, rule conjI, rule fun_lcvtop__underscore.intros, (rule HOL.refl | simp only: size_fun_rel_simps)+, simp)+
     done
 next
   case (vcvtop___case_2 F M1 I M2 x)
@@ -3683,7 +3691,7 @@ next
     apply (cases F; cases I; cases x)
        apply (simp_all only:)
     apply (simp_all (no_asm) only: vt_simps)
-    apply (rule exI, rule conjI, rule fun_lcvtop__underscore.intros, (rule HOL.refl)+,
+    apply (rule exI, rule conjI, rule fun_lcvtop__underscore.intros, (rule HOL.refl | simp only: size_fun_rel_simps)+,
         simp add: list_underscore_nonempty float_cvt_nonempty)+
     done
 next
@@ -3695,7 +3703,7 @@ next
     apply (cases F1; cases F2; elim disjE)
            apply (simp_all only:)
     apply (simp_all (no_asm) only: vt_simps)
-    apply (rule exI, rule conjI, rule fun_lcvtop__underscore.intros, (rule HOL.refl)+,
+    apply (rule exI, rule conjI, rule fun_lcvtop__underscore.intros, (rule HOL.refl | simp only: size_fun_rel_simps)+,
         simp add: float_cvt_nonempty)+
     done
 qed
@@ -3801,12 +3809,13 @@ proof -
     then show ?thesis
     proof
       assume z0: "z = Some ZERO"
+      obtain zv where zv: "fun_zero (unpack lt2) zv" using zero_ex by blast
       let ?C = "lanes_underscore (X lt1 (mk_dim M1)) v"
-      let ?p = "the (packnum_underscore lt2 (fun_zero (unpack lt2)))"
+      let ?p = "the (packnum_underscore lt2 zv)"
       let ?P = "setproduct_underscore (map the (map (\<lambda>l. Some (f l)) ?C) @ repeat M1 [?p])"
       have C: "set ?C \<subseteq> set (lanes_underscore sh1 v)" using sh1 by simp
-      have pk: "packnum_underscore lt2 (fun_zero (unpack lt2)) \<noteq> None"
-        using packnum_not_None zero_is_wf[OF HOL.refl] by blast
+      have pk: "packnum_underscore lt2 zv \<noteq> None"
+        using packnum_not_None zero_is_wf[OF zv HOL.refl] by blast
       have "\<forall>ys\<in>set (map the (map (\<lambda>l. Some (f l)) ?C) @ repeat M1 [?p]). ys \<noteq> []"
         using conv(4)[OF C] set_repeat[of M1 "[?p]"] by auto
       then have "?P \<noteq> []" by (rule setproduct_nonempty)
@@ -3814,7 +3823,7 @@ proof -
           "hd (map (inv_lanes_underscore (X lt2 (mk_dim M2))) ?P) \<in> set (map (inv_lanes_underscore (X lt2 (mk_dim M2))) ?P)"
         using hd_in_set[of "map (inv_lanes_underscore (X lt2 (mk_dim M2))) ?P"] by simp_all
       have opt: "Some (Some ZERO) \<noteq> None" "the (Some (Some ZERO)) = Some ZERO" by simp_all
-      from conv[OF C] Z[unfolded z0] opt pk P s
+      from conv[OF C] Z[unfolded z0] opt pk P s zv
       show ?thesis unfolding sh1 sh2
         apply -
         apply (rule exI, rule fun_vcvtop__underscore.intros(3))
