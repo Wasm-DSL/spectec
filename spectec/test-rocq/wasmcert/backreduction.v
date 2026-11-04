@@ -38,17 +38,12 @@ Qed.
 
 Theorem Step_sim_back s f es c c' ts :
   of_config vec_instr s f es = Some c -> S.Step c c' -> S.Config_ok c ts ->
-  No_v128_locals c ->
-  ~ In_ctx Bad_extend c c' ->
-  ~ In_ctx Divzero_value c c' ->
-  ~ In_ctx Oob_store c c' ->
-  ~ In_ctx Vstore_disagree c c' ->
-  ~ In_ctx Spurious_grow_fail c c' ->
+  ~ In_ctx Disagreement c c' ->
   (forall hs, reduce_trans (hs, s, f, es) (tr_cfg hs c')) \/
   (exists c'', S.Steps c' c'' /\ forall hs, reduce_trans (hs, s, f, es) (tr_cfg hs c'')).
 Proof.
-  move=> Hc Hst Hok Hv H1 H2 H3 H4 H5.
-  case: (Step_sim_eventually Hst Hok Hv H1 H2 H3 H4 H5) => [Hsim | [c'' [Hs Hsim]]].
+  move=> Hc Hst Hok Hd.
+  case: (Step_sim_eventually Hst Hok Hd) => [Hsim | [c'' [Hs Hsim]]].
   - left => hs. rewrite -(tr_cfg_of_config hs Hc). exact: Hsim.
   - right. exists c''. split => // hs. rewrite -(tr_cfg_of_config hs Hc). exact: Hsim.
 Qed.

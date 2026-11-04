@@ -6,8 +6,8 @@
    The numeric and vector builtins are related by the axioms of builtins.v;
    the steps where the two semantics disagree are named predicates
    ([Bad_extend], [Divzero_value], [Oob_store], [Vstore_disagree],
-   [Spurious_grow_fail]) that the theorem excludes by hypothesis, along with
-   functions with v128 locals ([No_v128_locals]). *)
+   [Spurious_grow_fail], [Call_v128]), joined in [Disagreement], that the
+   theorem excludes by hypothesis. *)
 
 From Stdlib Require Import NArith ZArith Lia List Relations.
 From mathcomp Require Import ssreflect ssrfun ssrbool eqtype seq.
@@ -2628,9 +2628,8 @@ Inductive Step_exc : S.config -> S.config -> Prop :=
 
    The steps where SpecTec and WasmCert disagree, as named predicates on
    SpecTec steps (the vector ones are [Vstore_disagree], in builtins.v).  The
-   main theorem [Step_sim_eventually] assumes that the step is none of them in
-   any evaluation context ([In_ctx]), and that no function of the store has a
-   v128 local ([No_v128_locals]). *)
+   main theorem [Step_sim_eventually] assumes that the step is none of them
+   ([Disagreement]) in any evaluation context ([In_ctx]). *)
 
 (* [EXTEND n] for an [n] that is not a multiple of 8: SpecTec sign-extends
    from bit [n], WasmCert from byte [n/8] (see [ext_ok]). *)
@@ -2672,6 +2671,22 @@ Inductive Spurious_grow_fail : S.config -> S.config -> Prop :=
       mem_grow (tr_meminst (F.fun_mem_f (S.mk_state s f) (S.mk_uN 0))) n <> None ->
       Spurious_grow_fail (cfg s f [ :: i32c n; S.admininstr_MEMORY_GROW]) (cfg s f [ :: i32c m]).
 
+(* A call to a function with a v128 local: WasmCert initialises v128 locals
+   with an empty default ([v128_default = nil], see [has_v128_local]). *)
+Inductive Call_v128 : S.config -> S.config -> Prop :=
+  | call_v128 s f vs a c' :
+      has_v128_local s a ->
+      Call_v128 (cfg s f (map S.admininstr_val vs ++ [ :: S.CALL_ADDR a])) c'.
+
+(* Any of the named disagreements. *)
+Inductive Disagreement (c c' : S.config) : Prop :=
+  | dis_extend : Bad_extend c c' -> Disagreement c c'
+  | dis_divzero : Divzero_value c c' -> Disagreement c c'
+  | dis_oob_store : Oob_store c c' -> Disagreement c c'
+  | dis_vstore : Vstore_disagree c c' -> Disagreement c c'
+  | dis_grow : Spurious_grow_fail c c' -> Disagreement c c'
+  | dis_call_v128 : Call_v128 c c' -> Disagreement c c'.
+
 (* A step property, in SpecTec's evaluation contexts. *)
 Inductive In_ctx (P : S.config -> S.config -> Prop) : S.config -> S.config -> Prop :=
   | ctx_here c c' : P c c' -> In_ctx P c c'
@@ -2686,34 +2701,21 @@ Inductive In_ctx (P : S.config -> S.config -> Prop) : S.config -> S.config -> Pr
       In_ctx P (S.mk_config z (map S.admininstr_val vs ++ es ++ es1))
                (S.mk_config z' (map S.admininstr_val vs ++ es' ++ es1)).
 
-(* No function of the store has a v128 local: WasmCert initialises v128
-   locals with an empty default ([v128_default = nil]). *)
-Definition No_v128_locals (c : S.config) : Prop :=
-  let: S.mk_config (S.mk_state s _) _ := c in forall a, ~~ has_v128_local s a.
-
 Lemma Step_exc_named c c' :
-  Step_exc c c' -> No_v128_locals c ->
-  In_ctx Bad_extend c c' \/ In_ctx Divzero_value c c' \/ In_ctx Oob_store c c' \/
-  In_ctx Vstore_disagree c c' \/ In_ctx Spurious_grow_fail c c'.
+  Step_exc c c' -> In_ctx Disagreement c c'.
 Proof.
   elim=> {c c'}.
-  - move=> z es es' [nt c1 op es'' Hx | nt op c1 c2 c Hd] _.
-    + left. apply: ctx_here. exact: bad_extend.
-    + right; left. apply: ctx_here. exact: divzero_value.
-  - move=> s f i nt c so ao z' _ Hb _. do 2 right; left. apply: ctx_here. exact: oob_store.
-  - move=> c c' Hd _. do 3 right; left. exact: ctx_here.
-  - move=> s f vs a c' Hv _ /= Hn. by move: (Hn a); rewrite Hv.
-  - move=> s f r n x m Hm Hg _. do 4 right. apply: ctx_here. exact: spurious_table_grow.
-  - move=> s f n m Hm Hg _. do 4 right. apply: ctx_here. exact: spurious_memory_grow.
-  - move=> z n ins es z' es' _ IH Hn.
-    case: (IH Hn) => [H|[H|[H|[H|H]]]];
-      [left | right; left | do 2 right; left | do 3 right; left | do 4 right]; exact: ctx_label H.
-  - move=> s f n f' es s' f'' es' _ IH Hn.
-    case: (IH Hn) => [H|[H|[H|[H|H]]]];
-      [left | right; left | do 2 right; left | do 3 right; left | do 4 right]; exact: ctx_frame H.
-  - move=> z vs es es1 z' es' _ IH Hn.
-    case: (IH Hn) => [H|[H|[H|[H|H]]]];
-      [left | right; left | do 2 right; left | do 3 right; left | do 4 right]; exact: ctx_instrs H.
+  - move=> z es es' [nt c1 op es'' Hx | nt op c1 c2 c Hd]; apply: ctx_here.
+    + apply: dis_extend. exact: bad_extend.
+    + apply: dis_divzero. exact: divzero_value.
+  - move=> s f i nt c so ao z' _ Hb. apply: ctx_here; apply: dis_oob_store. exact: oob_store.
+  - move=> c c' Hd. apply: ctx_here; exact: dis_vstore.
+  - move=> s f vs a c' Hv _. apply: ctx_here; apply: dis_call_v128. exact: call_v128.
+  - move=> s f r n x m Hm Hg. apply: ctx_here; apply: dis_grow. exact: spurious_table_grow.
+  - move=> s f n m Hm Hg. apply: ctx_here; apply: dis_grow. exact: spurious_memory_grow.
+  - move=> z n ins es z' es' _ IH. exact: ctx_label IH.
+  - move=> s f n f' es s' f'' es' _ IH. exact: ctx_frame IH.
+  - move=> z vs es es1 z' es' _ IH. exact: ctx_instrs IH.
 Qed.
 
 (** * Side conditions guaranteed by typing
@@ -3918,10 +3920,9 @@ Proof.
 Qed.
 
 (** Every step of a well-typed configuration is simulated by WasmCert, either
-    directly or eventually, provided that no function of the store has a v128
-    local and that the step is none of the named disagreements, in any
-    evaluation context.  The numeric and vector builtins are related to
-    WasmCert's by the axioms of builtins.v.
+    directly or eventually, provided that the step is none of the named
+    disagreements ([Disagreement]), in any evaluation context.  The numeric and vector
+    builtins are related to WasmCert's by the axioms of builtins.v.
 
     This is the "eventually" forward simulation diagram of CompCert
     ([Smallstep.forward_simulation_eventually]: "a forward simulation diagram
@@ -3935,18 +3936,12 @@ Qed.
     preserve divergence. *)
 Theorem Step_sim_eventually c c' ts :
   S.Step c c' -> S.Config_ok c ts ->
-  No_v128_locals c ->
-  ~ In_ctx Bad_extend c c' ->
-  ~ In_ctx Divzero_value c c' ->
-  ~ In_ctx Oob_store c c' ->
-  ~ In_ctx Vstore_disagree c c' ->
-  ~ In_ctx Spurious_grow_fail c c' ->
+  ~ In_ctx Disagreement c c' ->
   sim c c' \/ exists c'', S.Steps c' c'' /\ sim c c''.
 Proof.
-  move=> Hst Hok Hv H1 H2 H3 H4 H5.
+  move=> Hst Hok Hd.
   case: (Step_sim_eventually_exc Hst Hok) => [H | [H | Hexc]]; [by left | by right | ].
-  by case: (Step_exc_named Hexc Hv) => [H|[H|[H|[H|H]]]];
-    [case: H1 | case: H2 | case: H3 | case: H4 | case: H5].
+  by case: Hd; exact: Step_exc_named.
 Qed.
 
 End Eventually.
