@@ -8,7 +8,9 @@ From Wasm Require Import datatypes operations typing subtyping typing_inversion.
 From WasmSpectec Require wasm.
 From WasmCertBridge Require Import translation.
 
+From WasmSpectec Require wasm_funs.
 Module S := WasmSpectec.wasm.
+Module F := WasmSpectec.wasm_funs.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -102,7 +104,7 @@ Qed.
 (** Well-formedness of operators fixes their WasmCert side conditions. *)
 
 Lemma wf_num_typeof nt c : S.wf_num_ nt c -> typeof_num (tr_num c) = tr_numtype nt.
-Proof. by case => [nt' t x _ _ /eqP -> | nt' t x _ /eqP ->]; case: t x => [] []. Qed.
+Proof. by case => [nt' t x _ _ /eqP -> | nt' t x ? _ _ /eqP ->]; case: t x => [] []. Qed.
 
 Lemma wf_unop_agree nt op : S.wf_unop_ nt op -> unop_type_agree (tr_numtype nt) (tr_unop op).
 Proof. by case => [nt' t x /eqP -> | nt' t x /eqP ->]; case: t; case: x. Qed.
@@ -127,6 +129,9 @@ Proof.
     | S.wf_cvtop__Inn_1_Fnn_2 _ _ _ => inversion Hx
     | S.wf_cvtop__Fnn_1_Inn_2 _ _ _ => inversion Hx
     | S.wf_cvtop__Fnn_1_Fnn_2 _ _ _ => inversion Hx end end; subst;
+  repeat match goal with
+    | H : S.fun_sizenn1 _ _ |- _ => move/F.fun_sizenn1_eq: H => H; subst
+    | H : S.fun_sizenn2 _ _ |- _ => move/F.fun_sizenn2_eq: H => H; subst end;
   repeat match goal with t : S.Inn |- _ => destruct t | t : S.Fnn |- _ => destruct t end;
   try (vm_compute; reflexivity);
   match goal with Hb : is_true ?b |- _ => vm_compute in Hb; discriminate end.
@@ -193,7 +198,7 @@ Proof. by case: sh => [[] []]. Qed.
 
 Lemma shape_dim_tr sh : S.wf_shape sh -> shape_dim (tr_shape sh) = S.proj_dim_0 (S.fun_dim sh).
 Proof.
-  case=> lt d Hd /eqP; case: d Hd => n Hd; inversion Hd; subst.
+  case=> lt d v /F.fun_lsize_eq -> Hd /eqP; case: d Hd => n Hd; inversion Hd; subst.
   move: H0 => /orP [/orP [/orP [/orP [/eqP -> | /eqP ->] | /eqP ->] | /eqP ->] | /eqP ->];
   by case: lt.
 Qed.
@@ -222,6 +227,8 @@ Ltac sz_cases :=
   | H : List.Forall _ (S.option_to_list (Some _)) |- _ => inversion H; subst; clear H
   | H : S.wf_sz (S.mk_sz _) |- _ =>
       let K := fresh in have K := wf_sz_cases H; clear H; case: K => [?|[?|[?|?]]]; subst
+  | H : S.fun_sizenn _ _ |- _ => move/F.fun_sizenn_eq: H => H; subst
+  | H : S.fun_lsize _ _ |- _ => move/F.fun_lsize_eq: H => H; subst
   end.
 
 Theorem Instr_ok_tr : forall C i ft,
@@ -359,7 +366,10 @@ Proof.
     apply Qle_N in i1 => //. inv_wf.
     match goal with io : option S.Inn |- _ => destruct io as [i'|] end;
       last by match goal with Hi : (_ <-> _) |- _ => case: Hi => /(_ (eqxx _)) end.
-    match goal with Hf : List.Forall2 _ _ _ |- _ => inversion Hf; subst end.
+    match goal with vo : option N |- _ => destruct vo as [v'|] end;
+      last by match goal with Hf : List.Forall2 _ _ _ |- _ => inversion Hf end.
+    match goal with Hf : List.Forall2 _ _ _ |- _ => inversion Hf; subst; clear Hf end.
+    match goal with Hf : S.List_Forall3 _ _ _ _ |- _ => inversion Hf; subst; clear Hf end.
     match goal with Hb : is_true ((_ == S.numtype_Inn _) && _) |- _ =>
       move/andP: Hb => [/eqP Heq Hlt] end.
     have Hi' : i' = v_Inn by destruct i', v_Inn; try discriminate. subst i'.

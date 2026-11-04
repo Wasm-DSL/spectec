@@ -680,7 +680,7 @@ Proof.
 		destruct v_instr.
 		all: unfold ai_principal_typing;
 		unfold admininstr_instr; eq_to_prop.
-		56: { (* LOAD *)
+		57: { (* LOAD *)
 			inversion H; subst. eq_to_prop.
 			{
 				eexists [valtype_I32], [valtype_numtype v_numtype]; split.

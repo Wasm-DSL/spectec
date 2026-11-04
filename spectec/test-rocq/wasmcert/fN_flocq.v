@@ -13,7 +13,7 @@
 
 From Stdlib Require Import ZArith NArith Lia Bool Eqdep_dec.
 From Flocq Require Import Core.Zaux Core.Digits IEEE754.Binary IEEE754.Bits.
-From WasmSpectec Require Import wasm.
+From WasmSpectec Require Import wasm wasm_funs.
 
 Open Scope Z_scope.
 
@@ -24,7 +24,7 @@ Arguments B754_finite {prec emax}.
 
 (** * Format parameters *)
 
-Definition fprec (N : res_N) : Z := Z.of_N (fun_M N) + 1.
+Definition fprec (N : res_N) : Z := Z.of_N (fun_M_f N) + 1.
 Definition femax (N : res_N) : Z := 2 ^ (Z.of_N (E N) - 1).
 
 Definition flocq_float (N : res_N) : Type := binary_float (fprec N) (femax N).
@@ -46,11 +46,11 @@ Definition mk_nan (N : res_N) (s : bool) (pl : positive) : option (flocq_float N
 Definition fNmag_to_flocq (N : res_N) (s : bool) (x : fNmag) : option (flocq_float N) :=
   match x with
   | NORM m e =>
-      mk_finite N s (Z.to_pos (2 ^ Z.of_N (fun_M N) + Z.of_N m)) (e - Z.of_N (fun_M N))
+      mk_finite N s (Z.to_pos (2 ^ Z.of_N (fun_M_f N) + Z.of_N m)) (e - Z.of_N (fun_M_f N))
   | SUBNORM m =>
       (* Flocq would also accept m = 2^M here (as the smallest normal), so check
          the bound explicitly to stay faithful to wf_fNmag. *)
-      if (m <? 2 ^ fun_M N)%N then
+      if (m <? 2 ^ fun_M_f N)%N then
         match m with
         | N0 => Some (B754_zero s)
         | Npos p => mk_finite N s p (SpecFloat.emin (fprec N) (femax N))
@@ -81,9 +81,9 @@ Definition flocq_to_fN (N : res_N) (b : flocq_float N) : fN :=
   | B754_infinity s => sign_fN s INF
   | B754_nan s pl _ => sign_fN s (NAN (Npos pl))
   | B754_finite s mx ex _ =>
-      if Zpos mx <? 2 ^ Z.of_N (fun_M N)
+      if Zpos mx <? 2 ^ Z.of_N (fun_M_f N)
       then sign_fN s (SUBNORM (Npos mx))
-      else sign_fN s (NORM (Z.to_N (Zpos mx - 2 ^ Z.of_N (fun_M N))) (ex + Z.of_N (fun_M N)))
+      else sign_fN s (NORM (Z.to_N (Zpos mx - 2 ^ Z.of_N (fun_M_f N))) (ex + Z.of_N (fun_M_f N)))
   end.
 
 (** * Concrete formats *)
@@ -143,17 +143,17 @@ Qed.
 Theorem fN_to_flocq_inv (N : res_N) (f : fN) (b : flocq_float N) :
   fN_to_flocq N f = Some b -> flocq_to_fN N b = f.
 Proof.
-  pose proof (pow2_pos (fun_M N)) as HP.
+  pose proof (pow2_pos (fun_M_f N)) as HP.
   assert (Hmag : forall s x, fNmag_to_flocq N s x = Some b -> flocq_to_fN N b = sign_fN s x).
   { intros s [m e | m | | m]; cbn [fNmag_to_flocq].
     - intro Hb. apply mk_finite_Some in Hb as [H ->]. cbn [flocq_to_fN].
       rewrite Z2Pos.id by lia.
-      replace (2 ^ Z.of_N (fun_M N) + Z.of_N m <? 2 ^ Z.of_N (fun_M N)) with false
+      replace (2 ^ Z.of_N (fun_M_f N) + Z.of_N m <? 2 ^ Z.of_N (fun_M_f N)) with false
         by (symmetry; apply Z.ltb_ge; lia).
       do 2 f_equal; [ |lia].
-      replace (2 ^ Z.of_N (fun_M N) + Z.of_N m - 2 ^ Z.of_N (fun_M N)) with (Z.of_N m) by lia.
+      replace (2 ^ Z.of_N (fun_M_f N) + Z.of_N m - 2 ^ Z.of_N (fun_M_f N)) with (Z.of_N m) by lia.
       apply N2Z.id.
-    - rewrite Nltb_pow2. destruct (Z.of_N m <? 2 ^ Z.of_N (fun_M N)) eqn:Hlt; [ |discriminate].
+    - rewrite Nltb_pow2. destruct (Z.of_N m <? 2 ^ Z.of_N (fun_M_f N)) eqn:Hlt; [ |discriminate].
       destruct m as [ |p].
       + intro Hb. injection Hb as <-. reflexivity.
       + intro Hb. apply mk_finite_Some in Hb as [H ->]. cbn [flocq_to_fN]. cbn [Z.of_N] in Hlt.
@@ -176,7 +176,7 @@ Qed.
 Theorem flocq_to_fN_inv (N : res_N) (b : flocq_float N) :
   fN_to_flocq N (flocq_to_fN N b) = Some b.
 Proof.
-  pose proof (pow2_pos (fun_M N)) as HP.
+  pose proof (pow2_pos (fun_M_f N)) as HP.
   assert (Hsign : forall s x, fN_to_flocq N (sign_fN s x) = fNmag_to_flocq N s x)
     by (now intros [] x).
   destruct b as [s | s | s pl H | s mx ex H]; cbn [flocq_to_fN];
@@ -184,7 +184,7 @@ Proof.
   - rewrite Nltb_pow2. cbn [Z.of_N]. now replace (0 <? _) with true by (symmetry; apply Z.ltb_lt; lia).
   - reflexivity.
   - apply mk_nan_eq.
-  - destruct (Zpos mx <? 2 ^ Z.of_N (fun_M N)) eqn:Hlt; rewrite Hsign; cbn [fNmag_to_flocq].
+  - destruct (Zpos mx <? 2 ^ Z.of_N (fun_M_f N)) eqn:Hlt; rewrite Hsign; cbn [fNmag_to_flocq].
     + rewrite Nltb_pow2. cbn [Z.of_N]. rewrite Hlt.
       (* A subnormal-sized significand forces the minimal exponent. *)
       assert (Hex : ex = SpecFloat.emin (fprec N) (femax N)).
@@ -194,9 +194,9 @@ Proof.
         unfold SpecFloat.fexp, SpecFloat.emin, fprec in *. lia. }
       subst ex. apply mk_finite_eq.
     + apply Z.ltb_ge in Hlt.
-      replace (Z.to_pos (2 ^ Z.of_N (fun_M N) + Z.of_N (Z.to_N (Zpos mx - 2 ^ Z.of_N (fun_M N)))))
+      replace (Z.to_pos (2 ^ Z.of_N (fun_M_f N) + Z.of_N (Z.to_N (Zpos mx - 2 ^ Z.of_N (fun_M_f N)))))
         with mx by (rewrite Z2N.id by lia; now replace (_ + _) with (Zpos mx) by lia).
-      replace (ex + Z.of_N (fun_M N) - Z.of_N (fun_M N)) with ex by lia.
+      replace (ex + Z.of_N (fun_M_f N) - Z.of_N (fun_M_f N)) with ex by lia.
       apply mk_finite_eq.
 Qed.
 
@@ -209,18 +209,32 @@ Proof.
   intro HE. unfold femax. rewrite N2Z.inj_pow, Z2N.id; simpl; lia.
 Qed.
 
+(* [E N] is positive only for the sizes with a significand and an exponent,
+   where the relations [fun_E] and [fun_M] hold of [E] and [fun_M_f]. *)
+Lemma E_defined (n : res_N) :
+  1 <= Z.of_N (E n) -> fun_E n (E n) /\ fun_M n (fun_M_f n).
+Proof.
+  unfold E. destruct n as [ |p]; simpl; [lia| ].
+  do 8 (destruct p as [p|p| ]; simpl; try lia;
+        try (intros _; split; [apply fun_E_intro | apply fun_M_intro]; reflexivity)).
+Qed.
+
 Lemma wf_fNmag_Z (N : res_N) (x : fNmag) :
   1 <= Z.of_N (E N) ->
   wf_fNmag N x <->
   match x with
-  | NORM m e => Z.of_N m < 2 ^ Z.of_N (fun_M N) /\ 2 - femax N <= e <= femax N - 1
-  | SUBNORM m => Z.of_N m < 2 ^ Z.of_N (fun_M N)
+  | NORM m e => Z.of_N m < 2 ^ Z.of_N (fun_M_f N) /\ 2 - femax N <= e <= femax N - 1
+  | SUBNORM m => Z.of_N m < 2 ^ Z.of_N (fun_M_f N)
   | INF => True
-  | NAN m => 1 <= Z.of_N m < 2 ^ Z.of_N (fun_M N)
+  | NAN m => 1 <= Z.of_N m < 2 ^ Z.of_N (fun_M_f N)
   end.
 Proof.
-  intro HE. split.
-  - intro Hwf. inversion Hwf as [N' m e Hc | N' e m Hc | N' | N' m Hc]; subst; clear Hwf; unfold is_true in *;
+  intro HE. destruct (E_defined N HE) as [HdE HdM]. split.
+  - intro Hwf. inversion Hwf; subst; clear Hwf;
+      repeat match goal with
+        | H : fun_M _ _ |- _ => apply fun_M_inv in H; destruct H as [? _]; subst
+        | H : fun_E _ _ |- _ => apply fun_E_inv in H; destruct H as [? _]; subst
+        end; unfold is_true in *;
       repeat match goal with H : _ && _ = true |- _ => apply andb_prop in H as [? ?] end;
       repeat match goal with
         | H : N.ltb _ _ = true |- _ => apply N.ltb_lt, N2Z.inj_lt in H; rewrite N2Z.inj_pow in H
@@ -229,13 +243,17 @@ Proof.
         end;
       rewrite ?pow2_E in * by exact HE; cbn [Z.of_N] in *; lia.
   - destruct x as [m e | m | | m]; intro Hx.
-    + constructor. rewrite Nltb_pow2, !pow2_E by exact HE.
+    + apply (fNmag_case_0 N m e (E N) (fun_M_f N));
+        [exact HdE | exact HdM | ].
+      rewrite Nltb_pow2, !pow2_E by exact HE.
       apply andb_true_intro; split; [now apply Z.ltb_lt| ].
       apply andb_true_intro; split; apply Z.leb_le; cbn [Z.of_N]; lia.
-    + apply (fNmag_case_1 N (2 - femax N)). rewrite Nltb_pow2, pow2_E by exact HE.
+    + apply (fNmag_case_1 N (2 - femax N) m (E N) (fun_M_f N));
+        [exact HdE | exact HdM | ].
+      rewrite Nltb_pow2, pow2_E by exact HE.
       apply andb_true_intro; split; [now apply Z.ltb_lt| ]. apply (ssrbool.introT eqtype.eqP); reflexivity.
     + constructor.
-    + constructor. rewrite Nltb_pow2.
+    + apply (fNmag_case_3 N m (fun_M_f N)); [exact HdM | ]. rewrite Nltb_pow2.
       apply andb_true_intro; split; [apply N.leb_le, N2Z.inj_le; cbn [Z.of_N]; lia|now apply Z.ltb_lt].
 Qed.
 
@@ -250,19 +268,19 @@ Theorem fNmag_to_flocq_wf (N : res_N) (s : bool) (x : fNmag) :
   wf_fNmag N x <-> fNmag_to_flocq N s x <> None.
 Proof.
   intro HE. pose proof (femax_ge_2 N HE) as Hemax.
-  pose proof (pow2_pos (fun_M N)) as HP.
+  pose proof (pow2_pos (fun_M_f N)) as HP.
   rewrite wf_fNmag_Z; [ |lia].
   destruct x as [m e | m | | m]; cbn [fNmag_to_flocq].
   - (* NORM: the significand 2^M + m has exactly prec digits iff m < 2^M *)
-    set (mx := Z.to_pos (2 ^ Z.of_N (fun_M N) + Z.of_N m)).
-    assert (Hmx : Zpos mx = 2 ^ Z.of_N (fun_M N) + Z.of_N m) by (apply Z2Pos.id; lia).
-    assert (Hge : Z.of_N (fun_M N) + 1 <= Zpos (SpecFloat.digits2_pos mx)).
+    set (mx := Z.to_pos (2 ^ Z.of_N (fun_M_f N) + Z.of_N m)).
+    assert (Hmx : Zpos mx = 2 ^ Z.of_N (fun_M_f N) + Z.of_N m) by (apply Z2Pos.id; lia).
+    assert (Hge : Z.of_N (fun_M_f N) + 1 <= Zpos (SpecFloat.digits2_pos mx)).
     { rewrite Zpos_digits2_pos.
-      assert (Z.of_N (fun_M N) < Zdigits radix2 (Zpos mx))
+      assert (Z.of_N (fun_M_f N) < Zdigits radix2 (Zpos mx))
         by (apply (Zdigits_gt_Zpower radix2); simpl; lia).
       lia. }
-    assert (Hdig : Zpos (SpecFloat.digits2_pos mx) = Z.of_N (fun_M N) + 1 <->
-                   Z.of_N m < 2 ^ Z.of_N (fun_M N)).
+    assert (Hdig : Zpos (SpecFloat.digits2_pos mx) = Z.of_N (fun_M_f N) + 1 <->
+                   Z.of_N m < 2 ^ Z.of_N (fun_M_f N)).
     { rewrite Zpos_digits2_pos. split.
       - intro Hd. pose proof (Zdigits_correct radix2 (Zpos mx)) as [_ Hc].
         rewrite Hd, Z.pow_add_r in Hc; simpl in *; lia.
@@ -279,7 +297,7 @@ Proof.
         unfold SpecFloat.fexp, SpecFloat.emin, fprec; lia.
   - (* SUBNORM *)
     rewrite Nltb_pow2.
-    destruct (Z.of_N m <? 2 ^ Z.of_N (fun_M N)) eqn:Hlt; split; try congruence.
+    destruct (Z.of_N m <? 2 ^ Z.of_N (fun_M_f N)) eqn:Hlt; split; try congruence.
     + intros _. destruct m as [ |p]; [congruence| ].
       unfold mk_finite. destruct bool_dec as [H|H]; [congruence| ].
       exfalso. apply H. simpl in Hlt. apply Z.ltb_lt, digits_lt_pow2 in Hlt; [ |lia].
@@ -292,9 +310,9 @@ Proof.
   - destruct m as [ |p]; cbn [Z.of_N]; [split; [intros [? ?]; lia|congruence]| ].
     unfold mk_nan, nan_pl, fprec. destruct bool_dec as [H|H]; split; try congruence.
     + intros _. apply Z.ltb_lt in H.
-      assert (Zpos p < 2 ^ Z.of_N (fun_M N)) by (apply digits_lt_pow2; lia). lia.
+      assert (Zpos p < 2 ^ Z.of_N (fun_M_f N)) by (apply digits_lt_pow2; lia). lia.
     + intros Hp _. apply H, Z.ltb_lt.
-      assert (Zpos (SpecFloat.digits2_pos p) <= Z.of_N (fun_M N))
+      assert (Zpos (SpecFloat.digits2_pos p) <= Z.of_N (fun_M_f N))
         by (apply digits_lt_pow2; lia). lia.
 Qed.
 

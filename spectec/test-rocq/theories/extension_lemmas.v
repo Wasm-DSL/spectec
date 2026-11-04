@@ -5,7 +5,7 @@ Require Import Stdlib.Program.Equality.
 Declare Scope wasm_scope.
 Open Scope wasm_scope.
 Import RecordSetNotations.
-From WasmSpectec Require Import wasm helper_lemmas helper_tactics typing_lemmas subtyping type_preservation_pure.
+From WasmSpectec Require Import wasm wasm_funs helper_lemmas helper_tactics typing_lemmas subtyping type_preservation_pure.
 From mathcomp Require Import ssreflect ssrfun ssrbool seq eqtype ssrnat.
 Import ListNotations.
 
@@ -870,7 +870,7 @@ Qed.
 Lemma bt_inversion : forall v_S v_C v_C' r_v_f (b_lstt: blocktype) ts1 ts2 bt1 bt2,
 	Moduleinst_ok v_S (frame_MODULE r_v_f) v_C ->
 	Blocktype_ok v_C' b_lstt (ts1 :-> ts2) ->
-	fun_blocktype (mk_state v_S r_v_f) b_lstt = (bt1 :-> bt2) ->
+	fun_blocktype_f (mk_state v_S r_v_f) b_lstt = (bt1 :-> bt2) ->
 	inst_match v_C v_C' ->
 	(ts1 = bt1 /\ ts2 = bt2).
 Proof.
@@ -878,14 +878,14 @@ Proof.
 	invert_moduleinstok HM.
 	unfold inst_match in Him.
 	simpl in *; subst.
-	unfold fun_blocktype in Hf;
+	unfold fun_blocktype_f in Hf;
 	destruct b_lstt.
 	{
 		destruct valtype_opt;
 		inversion Hf; subst;
 		inversion HB; subst; auto.
 	}
-	unfold fun_type in Hf.
+	unfold fun_type_f in Hf.
 	inversion HB; eq_to_prop; subst.
 	destruct r_v_f; simpl in *; subst.
 	decompH Him.

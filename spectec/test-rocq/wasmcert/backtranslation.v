@@ -25,7 +25,9 @@ From WasmSpectec Require wasm.
 From WasmCertBridge Require fN_flocq.
 From WasmCertBridge Require Import translation.
 
+From WasmSpectec Require wasm_funs.
 Module S := WasmSpectec.wasm.
+Module F := WasmSpectec.wasm_funs.
 Module FL := WasmCertBridge.fN_flocq.
 
 Set Implicit Arguments.
@@ -330,7 +332,7 @@ Definition of_packtype (tp : packed_type) : N :=
 (* A packed access must be narrower than its integer type. *)
 Definition of_pack (t : number_type) (tp : packed_type) : option S.Inn :=
   let? inn := of_Inn t in
-  guard (of_packtype tp <? S.sizenn (S.numtype_Inn inn))%num (Some inn).
+  guard (of_packtype tp <? F.sizenn (S.numtype_Inn inn))%num (Some inn).
 
 Definition of_loadop (t : number_type) (lo : option (packed_type * sx)) : option (option S.loadop_) :=
   match lo with

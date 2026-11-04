@@ -18,7 +18,9 @@ From WasmSpectec Require wasm.
 From WasmCertBridge Require Import translation.
 From WasmCertBridge Require typing.
 
+From WasmSpectec Require wasm_funs.
 Module S := WasmSpectec.wasm.
+Module F := WasmSpectec.wasm_funs.
 Module T := WasmCertBridge.typing.
 
 (* The eqType instances of SpecTec's types, without its names. *)

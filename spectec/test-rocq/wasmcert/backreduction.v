@@ -5,16 +5,18 @@
    ([backtranslation_props.of_config_sound]), so the simulation of
    [reduction.v] applies to it: every SpecTec step of [c] is matched by
    WasmCert reduction of the original configuration, directly or eventually
-   (after further SpecTec steps that restore the relation), outside the
-   exceptions of [Step_exc]. *)
+   (after further SpecTec steps that restore the relation), under the
+   antecedents of [Step_sim_eventually]. *)
 
 From Stdlib Require Import NArith List.
 From mathcomp Require Import ssreflect ssrfun ssrbool eqtype seq.
 From Wasm Require Import datatypes operations opsem.
 From WasmSpectec Require wasm.
-From WasmCertBridge Require Import translation backtranslation backtranslation_props reduction.
+From WasmCertBridge Require Import translation builtins backtranslation backtranslation_props reduction.
 
+From WasmSpectec Require wasm_funs.
 Module S := WasmSpectec.wasm.
+Module F := WasmSpectec.wasm_funs.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -36,14 +38,19 @@ Qed.
 
 Theorem Step_sim_back s f es c c' ts :
   of_config vec_instr s f es = Some c -> S.Step c c' -> S.Config_ok c ts ->
+  No_v128_locals c ->
+  ~ In_ctx Bad_extend c c' ->
+  ~ In_ctx Divzero_value c c' ->
+  ~ In_ctx Oob_store c c' ->
+  ~ In_ctx Vstore_disagree c c' ->
+  ~ In_ctx Spurious_grow_fail c c' ->
   (forall hs, reduce_trans (hs, s, f, es) (tr_cfg hs c')) \/
-  (exists c'', S.Steps c' c'' /\ forall hs, reduce_trans (hs, s, f, es) (tr_cfg hs c'')) \/
-  Step_exc c c'.
+  (exists c'', S.Steps c' c'' /\ forall hs, reduce_trans (hs, s, f, es) (tr_cfg hs c'')).
 Proof.
-  move=> Hc Hst Hok. case: (Step_sim_eventually Hst Hok) => [Hsim | [[c'' [Hs Hsim]] | Hexc]].
+  move=> Hc Hst Hok Hv H1 H2 H3 H4 H5.
+  case: (Step_sim_eventually Hst Hok Hv H1 H2 H3 H4 H5) => [Hsim | [c'' [Hs Hsim]]].
   - left => hs. rewrite -(tr_cfg_of_config hs Hc). exact: Hsim.
-  - right; left. exists c''. split => // hs. rewrite -(tr_cfg_of_config hs Hc). exact: Hsim.
-  - by right; right.
+  - right. exists c''. split => // hs. rewrite -(tr_cfg_of_config hs Hc). exact: Hsim.
 Qed.
 
 End BackReduction.

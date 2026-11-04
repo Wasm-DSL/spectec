@@ -6,7 +6,7 @@ Require Import Stdlib.Program.Equality.
 Declare Scope wasm_scope.
 Open Scope wasm_scope.
 Import RecordSetNotations.
-From WasmSpectec Require Import wasm wasm_wf helper_lemmas helper_tactics typing_lemmas subtyping type_preservation_pure extension_lemmas axioms.
+From WasmSpectec Require Import wasm wasm_funs wasm_wf helper_lemmas helper_tactics typing_lemmas subtyping type_preservation_pure extension_lemmas axioms.
 From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype.
 Import ListNotations.
 
@@ -149,6 +149,11 @@ Proof.
 		destruct f. simpl.
 		eapply Forall2_list_update_func2; eauto.
 	}
+	(* the store updates keep the frame *)
+	all: inv_state.
+	all: try (case: Heqc1 => <- *; subst).
+	all: try (case: Heqc2 => *; subst).
+	all: move: Heqc1 => /= [] _ <- _; by [].
 Qed.
 
 Lemma t_preservation_vs_type: forall s f ais s' f' ais' C C' t1s t2s,
@@ -472,6 +477,7 @@ Proof.
 	induction HReduce;
 	move => v_f' v_f ais' Heqc2 ais Heqc1 tf C' HType C HIT HMatch;
 	destruct tf as [[tf1] [tf2]].
+	all: inv_state; inv_sizes; inv_defaults.
 	all: eq_to_prop; try (destruct z; 
 	apply config_same in Heqc1; apply config_same in Heqc2; 
 	destruct Heqc1 as [? [? ?]]; destruct Heqc2 as [? [? ?]];
@@ -601,7 +607,8 @@ Proof.
 		}
 	}
 	{ (* Table Set *)
-		rewrite /fun_table in H0.
+		rename H1 into H; rename H2 into H0.
+		rewrite /fun_table_f in H0.
 		(* destruct_all; subst. *)
 		(* simpl in H0. *)
 		invert_ais_typing.
@@ -706,6 +713,7 @@ Proof.
 		}
 	}
 	{ (* Table Grow *)
+		rename H2 into H0; rename var_2 into var_0.
 		rename H0 into HNotNone.
 		rename H into HGrow.
 		invert_ais_typing.
@@ -725,7 +733,7 @@ Proof.
 			destruct extr, t; auto; discriminate.
 		}
 		subst. clear Hsub Hsubi Hnonbot Hsubv.
-		rewrite /fun_table in HGrow.
+		rewrite /fun_table_f in HGrow.
 		inversion HGrow as [????????? Heq Hadd Hlt HRes HWf1 HWf2| ]; eq_to_prop; subst.
 		2: 
 		{
@@ -955,6 +963,7 @@ Proof.
 		- eapply construct_eleminsts; subst; eauto.
 	}
 	{ (* Store None *)
+		rename H0 into H; rename H1 into H0.
 		(* destruct_all; subst. *)
 		invert_ais_typing.
 		resolve_all_pt.
@@ -1060,6 +1069,7 @@ Proof.
 		}
 	}
 	{ (* Store Some *)
+		rename H0 into H; rename H1 into H0; rename H2 into H1.
 		destruct_all; subst.
 		invert_ais_typing.
 		resolve_all_pt.
@@ -1184,6 +1194,7 @@ Proof.
 	}
 
 	{ (* VSTORE *)
+		rename H0 into H; rename H1 into H0.
 		match goal with
 		| [ H : Instrs_ok2 _ _ [_; _; _] _ |- _ ] => pose proof H as HT3
 		end.
@@ -1197,6 +1208,7 @@ Proof.
 		all: by eauto.
 	}
 	{ (* VSTORE_LANE *)
+		rename H1 into H; rename H3 into H1; rename H4 into H2; rename H5 into H3; rename H7 into H5.
 		match goal with
 		| [ H : Instrs_ok2 _ _ [_; _; _] _ |- _ ] => pose proof H as HT3
 		end.
@@ -1208,6 +1220,7 @@ Proof.
 		all: by eauto.
 	}
 	{ (* Memory Grow *)
+		rename H2 into H0; rename H4 into H2; rename var_2 into var_0.
 		rename H into HGrow.
 		(* rename H2 into Hwfconfig2. *)
 		rename H0 into HNotNone.
@@ -1252,7 +1265,7 @@ Proof.
 			inversion HLookup; clear HLookup; subst.
 			
 
-			rewrite /fun_mem in HGrow; inversion HGrow; eq_to_prop; subst; clear HGrow.
+			rewrite /fun_mem_f in HGrow; inversion HGrow; eq_to_prop; subst; clear HGrow.
 			2: by destruct HNotNone.
 			rename H4 into HB.
 			clear H6 H7.
@@ -1509,10 +1522,11 @@ Proof.
 	remember (mk_config (mk_state s f) ais) as c1.
 	remember (mk_config (mk_state s' f') ais') as c2.
 	generalize dependent ais. generalize dependent ais'.
-	induction HReduce; try intros; try (induction z); try induction z'; try (apply config_same in Heqc1;
+	induction HReduce; intros; inv_state; try (induction z); try induction z'; try (apply config_same in Heqc1;
 	apply config_same in Heqc2; destruct Heqc1 as [? [? ?]];
-	destruct Heqc2 as [? [? ?]]; subst => //);
-	eapply IHHReduce; eauto.
+	destruct Heqc2 as [? [? ?]]; subst => //).
+	all: try (eapply IHHReduce; eauto).
+	all: try (move: Heqc1 Heqc2 => /= [? ? ?] [? ? ?]; subst => //).
 Qed.
 
 (* ---------------------------------------------------------------------- *)
@@ -1676,12 +1690,14 @@ Proof.
 	move: v_C v_C' t1s t2s HIT1 HValOK Him HType HWfC.
 	remember (mk_config (mk_state v_s v_f) v_ais) as c1.
 	induction HReduce;
-	move => v_C v_C' tx ty HIT1 HValOK Him HType HWfC; decomp; destruct z; try eauto;
+	move => v_C v_C' tx ty HIT1 HValOK Him HType HWfC; inv_state; inv_sizes; inv_defaults;
+	decomp; destruct z; try eauto;
 	eq_to_prop;
 	inv_Forall HWfais';
 	try (apply config_same in Heqc1; destruct Heqc1 as [Hbefore1 [Hbefore2 Hbefore3]]; subst => //).
 	all: try by eapply construct_ais_trap.
 	{ (* Block *)
+		rename H0 into H; rename H1 into H0.
 		typing_inversion HType.
 		typing_inversion H2.
 		simpl in Hai;
@@ -1726,6 +1742,7 @@ Proof.
 		econstructor; eauto.
 	}
 	{ (* Loop *)
+		rename H0 into H; rename H1 into H0.
 		typing_inversion HType.
 		typing_inversion H2.
 		simpl in Hai;
@@ -1802,9 +1819,10 @@ Proof.
 		apply H2.
 	}
 	{ (* Call_indirect *)
-		rewrite /fun_table /= in H H1.
+		rename H1 into H; rename H2 into H0; rename H3 into H1; rename H4 into H2; rename H5 into H3.
+		rewrite /fun_table_f /= in H H1.
 		rewrite /fun_funcinst /= in H2.
-		rewrite /fun_type /fun_funcinst /= in H3.
+		rewrite /fun_type_f /fun_funcinst /= in H3.
 
 		invert_ais_typing.
 		resolve_all_pt.
@@ -1836,6 +1854,8 @@ Proof.
 		ineq_to_prop; eauto.
 	}
 	{ (* Call_addr *)
+		rename H0 into H; rename H1 into H0; rename H3 into H2; rename H5 into H4; rename H6 into H5; rename H7 into H6; rename H8 into H7.
+		rewrite ?map_the_default in H6 HP |- *.
 		typing_inversion HType.
 		vals_typing_inversion H1.
 		typing_inversion H3.
@@ -1900,8 +1920,10 @@ Proof.
 				destruct a; simpl; try econstructor; eauto.
 				- econstructor; econstructor; eq_to_prop; eauto; done.
 				- econstructor; econstructor; eq_to_prop; eauto; done.
-				- econstructor; econstructor; eq_to_prop; eauto; econstructor. econstructor. simpl. eauto.
-				- econstructor; econstructor; eq_to_prop; eauto; econstructor. econstructor. simpl. eauto.
+				- econstructor; econstructor; eq_to_prop; eauto; econstructor. econstructor. simpl.
+					by have Hz := wf_fzero 32%num isT isT; inversion Hz.
+				- econstructor; econstructor; eq_to_prop; eauto; econstructor. econstructor. simpl.
+					by have Hz := wf_fzero 64%num isT isT; inversion Hz.
 				-  econstructor; econstructor; eq_to_prop; eauto; econstructor.
 				- fold (val_ref (ref_REF_NULL FUNCREF)).
 					fold (valtype_reftype FUNCREF).
@@ -2025,7 +2047,7 @@ Proof.
 		}
 	}
 	{ (* Global_get *)
-		rewrite /fun_global.
+		rewrite /fun_global_f.
 		invert_ais_typing.
 		resolve_all_pt.
 
@@ -2054,8 +2076,9 @@ Proof.
 		by eapply construct_ai_val.
 	}
 	{ (* Table_get *)
-		rewrite /fun_table /=.
-		rewrite /fun_table in H.
+		rename H0 into H; rename H1 into H0.
+		rewrite /fun_table_f /=.
+		rewrite /fun_table_f in H.
 		invert_ais_typing.
 		resolve_all_pt.
 		join_subtyping_eq Hsub0 Hsub.
@@ -2098,12 +2121,13 @@ Proof.
 		2: eapply Hsub.
 		
 		eapply plain with (v_instr := (CONST I32 (mk_num__0 Inn_I32 (mk_uN
-		(|(REFS (fun_table (mk_state v_s v_f) x))|))))); eauto.
+		(|(REFS (fun_table_f (mk_state v_s v_f) x))|))))); eauto.
 		econstructor; eauto.
 		
 		all: inversion HP; econstructor; eauto.
 	}
 	{ (* Table_fill *)
+		rename H0 into H; rename H1 into H0.
 		repeat rewrite -(cat1s _ (_ :: _)) in HType.
 		typing_inversion HType.
 		rename Hai into Haifinal.
@@ -2135,6 +2159,7 @@ Proof.
 		by eapply instrtype_sub_empty.
 	}
 	{ (* Table_fill succ *)
+		rename H0 into H; rename H1 into H0; rename H2 into H1.
 		repeat rewrite -(cat1s _ (_ :: _)) in HType.
 		typing_inversion HType.
 		rename Hsub into Hsubfinal.
@@ -2288,6 +2313,7 @@ Proof.
 		by rewrite cats0.
 	}
 	{ (* Table_copy *)
+		rename H1 into H; rename H2 into H0; rename H3 into H1.
 		repeat rewrite -(cat1s _ (_ :: _)) in HType.
 		typing_inversion HType.
 		rename Hai into Haifinal.
@@ -2317,6 +2343,7 @@ Proof.
 		by eapply instrtype_sub_empty.
 	}
 	{ (* Table_copy le *)
+		rename H1 into H; rename H2 into H0; rename H3 into H1; rename H4 into H2; rename H5 into H3.
 		invert_ais_typing.
 		resolve_all_pt.
 
@@ -2404,6 +2431,7 @@ Proof.
 		}
 	}
 	{ (* Table_copy gt *)
+		rename H1 into H; rename H2 into H0; rename H3 into H1; rename H4 into H2; rename H5 into H3.
 		invert_ais_typing.
 		resolve_all_pt.
 
@@ -2488,6 +2516,7 @@ Proof.
 		}
 	}
 	{ (* Table_init zero *)
+		rename H1 into H; rename H2 into H0; rename H3 into H1.
 		repeat rewrite -(cat1s _ (_ :: _)) in HType.
 		typing_inversion HType.
 		simpl in Hai; extract_premise.
@@ -2516,6 +2545,7 @@ Proof.
 		by eapply instrtype_sub_empty.
 	}
 	{ (* Table_init succ *)
+		rename H1 into H; rename H2 into H0; rename H3 into H1; rename H4 into H2; rename H5 into H3.
 		invert_ais_typing.
 		resolve_all_pt.
 
@@ -2535,8 +2565,8 @@ Proof.
 		2: ineq_to_propH H3; apply H3.
 		destruct_all.
 
-		rewrite /fun_elem H14 /=.
-		rewrite /fun_elem H14 /= in H.
+		rewrite /fun_elem_f H14 /=.
+		rewrite /fun_elem_f H14 /= in H.
 
 		eapply Forall_size in H13; eauto.
 		2: ineq_to_propH H; apply H.
@@ -2626,6 +2656,7 @@ Proof.
 		}
 	}
 	{ (* Load None *)
+		rename H0 into H; rename H1 into H0; rename H2 into H1; rename H3 into H2; rename H4 into H3.
 		typing_inversion HType.
 		typing_inversion H4.
 		simpl in Hai; extract_premise.
@@ -2649,6 +2680,7 @@ Proof.
 			by inversion HP; econstructor.
 	}
 	{ (* Load Inn *)
+		rename H0 into H; rename H1 into H0; rename H2 into H1; rename H3 into H2; rename H4 into H3.
 		typing_inversion HType.
 		typing_inversion H4.
 		simpl in Hai; extract_premise.
@@ -2678,6 +2710,7 @@ Proof.
 	- eapply Step_read__vload_lane_preserves; eauto.
 
 	{ (* Memory_size *)
+		rename H0 into H; rename H1 into H0.
 		typing_inversion HType.
 		simpl in Hai; extract_premise.
 
@@ -2690,6 +2723,7 @@ Proof.
 		by inversion HP; econstructor.
 	}
 	{ (* Memory_fill *)
+		rename H0 into H; rename H1 into H0.
 		repeat rewrite -(cat1s _ (_ :: _)) in HType.
 		typing_inversion HType.
 		rename Hai into Haifinal.
@@ -2722,6 +2756,7 @@ Proof.
 		by eapply instrtype_sub_empty.
 	}
 	{ (* Memory_fill succ *)
+		rename H0 into H; rename H1 into H0; rename H2 into H1.
 		invert_ais_typing.
 		resolve_all_pt.
 
@@ -2797,6 +2832,7 @@ Proof.
 		}
 	}
 	{ (* Memory_copy *)
+		rename H0 into H; rename H1 into H0; rename H2 into H1.
 		repeat rewrite -(cat1s _ (_ :: _)) in HType.
 		typing_inversion HType.
 		rename Hai into Haifinal.
@@ -2828,6 +2864,7 @@ Proof.
 		by eapply instrtype_sub_empty.
 	}
 	{ (* Memory_copy le *)
+		rename H0 into H; rename H1 into H0; rename H2 into H1; rename H3 into H2; rename H4 into H3.
 		invert_ais_typing.
 		resolve_all_pt.
 
@@ -2919,6 +2956,7 @@ Proof.
 		}
 	}
 	{ (* Memory_copy gt *)
+		rename H0 into H; rename H1 into H0; rename H2 into H1; rename H3 into H2; rename H4 into H3.
 		invert_ais_typing.
 		resolve_all_pt.
 
@@ -3009,6 +3047,7 @@ Proof.
 		}
 	}
 	{ (* Memory_init 0 *)
+		rename H1 into H; rename H2 into H0; rename H3 into H1.
 		repeat rewrite -(cat1s _ (_ :: _)) in HType.	
 		typing_inversion HType.
 		rename Hai into Haifinal.
@@ -3040,6 +3079,7 @@ Proof.
 		by eapply instrtype_sub_empty.
 	}
 	{ (* Memory_init succ *)
+		rename H1 into H; rename H2 into H0; rename H3 into H1; rename H4 into H2; rename H5 into H3.
 		invert_ais_typing.
 		resolve_all_pt.
 
@@ -3161,6 +3201,7 @@ Proof.
 	generalize dependent v_f'.
 	dependent induction HReduce;
 	move => r_v_f' HWfF' r_v_f v_ais' Heqc2 HWfais' v_ais Heqc1 v_C v_C' HIT1 HIT2 HValOK Him tx ty HType;
+	inv_state; inv_sizes; inv_defaults;
 	apply ainstrs_ok_context_store_wf in HType as HWf'; destruct HWf' as [HWfC' [HWfS HWfais]];
 	try (destruct z; subst);
 	try (destruct z'; subst); try eauto;
@@ -3307,6 +3348,7 @@ Proof.
 		}
 	}
 	{ (* Table grow *)
+		rename H2 into H0; rename H3 into H1; rename var_2 into var_0.
 		invert_ais_typing.
 		resolve_all_pt.
 		eq_to_prop; subst.
@@ -3372,6 +3414,7 @@ Proof.
 	- eapply Step__vstore_lane_preserves; eauto.
 
 	{ (* Memory grow *)
+		rename H2 into H0; rename H3 into H1; rename H4 into H2; rename var_2 into var_0.
 		invert_ais_typing.
 		resolve_all_pt.
 		eapply (instrtype_sub_compose0 _ _ _ _ _ _ Hsub0) in Hsub.
@@ -3382,7 +3425,7 @@ Proof.
 
 		inversion HWfais'; subst.
 		inversion H8; subst.
-		rewrite /fun_mem.
+		rewrite /fun_mem_f.
 		apply H6.	
 	}
 	{ (* Memory Grow fail *)

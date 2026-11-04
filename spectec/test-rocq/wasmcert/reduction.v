@@ -2,20 +2,27 @@
    CompCert's "eventually" diagram ([forward_simulation_eventually]): every
    SpecTec step of a well-typed configuration is matched by WasmCert reduction
    steps of the translated configuration, possibly after further SpecTec steps
-   that restore the relation, except for the steps collected in [Step_exc]
-   ([Step_sim_eventually], at the end of the file). *)
+   that restore the relation ([Step_sim_eventually], at the end of the file).
+   The numeric and vector builtins are related by the axioms of builtins.v;
+   the steps where the two semantics disagree are named predicates
+   ([Bad_extend], [Divzero_value], [Oob_store], [Vstore_disagree],
+   [Spurious_grow_fail]) that the theorem excludes by hypothesis, along with
+   functions with v128 locals ([No_v128_locals]). *)
 
 From Stdlib Require Import NArith ZArith Lia List Relations.
 From mathcomp Require Import ssreflect ssrfun ssrbool eqtype seq.
 (* Imported (before WasmCert, which shadows it) for its eqType instances. *)
 From WasmSpectec Require Import wasm.
 From Wasm Require Import datatypes operations opsem properties.
-From WasmCertBridge Require Import translation.
+From WasmCertBridge Require Import translation builtins.
 From WasmCertBridge Require typing.
+From compcert Require Memdata Floats.
 
 Module T := WasmCertBridge.typing.
 
+From WasmSpectec Require wasm_funs.
 Module S := WasmSpectec.wasm.
+Module F := WasmSpectec.wasm_funs.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -23,23 +30,63 @@ Unset Printing Implicit Defensive.
 
 Delimit Scope N_scope with num.
 
+Lemma Forall_seq_map {A B : Type} {P : B -> Prop} {g : A -> B} {l : seq A} :
+  List.Forall P (map g l) -> List.Forall (fun x => P (g x)) l.
+Proof. elim: l => //= x l IH H; inversion H; subst; constructor; auto. Qed.
+
+(* Remove the relational premises of the reduction rules (state accessors and
+   updates, sizes, default values), which the rules list first: the remaining
+   premises are those of the rules before the side conditions were made
+   explicit, in the same order, with the total functions of wasm_funs.v in
+   place of the relations. *)
+Ltac strip_rel H :=
+  first
+  [ first [ case/F.fun_type_inv: H => H _ | case/F.fun_func_inv: H => H _
+          | case/F.fun_global_inv: H => H _ | case/F.fun_table_inv: H => H _
+          | case/F.fun_mem_inv: H => H _ | case/F.fun_elem_inv: H => H _
+          | case/F.fun_data_inv: H => H _ | case/F.fun_local_inv: H => H _
+          | move/F.fun_blocktype_inv: H => H
+          | case/F.fun_with_global_inv: H => H _ | case/F.fun_with_table_inv: H => H _
+          | case/F.fun_with_tableinst_inv: H => H _ | case/F.fun_with_mem_inv: H => H _
+          | case/F.fun_with_meminst_inv: H => H _ | case/F.fun_with_elem_inv: H => H _
+          | case/F.fun_with_data_inv: H => H _ ];
+    match type of H with ?v = _ => subst v end
+  | progress F.inv_size_rels ].
+
+(* [T] is the type of a relational premise. *)
+Ltac is_rel T := assert_succeeds (let H := fresh in assert (H : T) by admit; strip_rel H).
+
+(* Some relational premise occurs among the premises [G]. *)
+Ltac rel_later G :=
+  lazymatch G with
+  | ?T -> ?B => tryif is_rel T then idtac else rel_later B
+  end.
+
+Ltac strip_rels :=
+  let M := fresh "MARK" in pose proof I as M;
+  repeat lazymatch goal with
+  | |- List.Forall2 (fun _ _ => S.fun_default_ _ _) _ _ -> _ =>
+      let H := fresh "Hdef" in
+      intro H; move/F.Forall2_default_eq: H => H; match type of H with ?v = _ => subst v end
+  | |- forall _ : ?T, _ =>
+      tryif is_rel T then (let H := fresh "Hrel" in intro H; strip_rel H)
+      else lazymatch goal with
+        | |- is_true (size _ == size _) -> List.Forall2 (fun _ _ => S.fun_default_ _ _) _ _ -> _ =>
+            let Hl := fresh "Hlen" in let H := fresh "Hdef" in
+            intros Hl H; move/F.Forall2_default_eq: H => H;
+            match type of H with ?v = _ => subst v end; clear Hl
+        | |- _ -> ?B => tryif rel_later B then intro else fail
+        | |- _ => lazymatch type of T with Prop => fail | _ => intro end
+        end
+  end;
+  repeat (lazymatch goal with H : _ |- _ => tryif constr_eq H M then fail else revert H end);
+  clear M.
+
 Section Reduction.
 
 Context `{hfc : host_function_class} `{ho : @host hfc memory_tr}.
-
-(** * Numerics
-
-   Numeric results are compared, not assumed equal: a numeric step whose
-   result differs from WasmCert's (NaN nondeterminism, or a genuine
-   disagreement) is reported in [Exc_pure].  Showing those cases never arise
-   is the remaining numerics hole. *)
-
-Definition wc_testop (v : value_num) : value_num :=
-  match v with
-  | VAL_int32 x => VAL_int32 (wasm_bool (app_testop_i i32m TO_eqz x))
-  | VAL_int64 x => VAL_int32 (wasm_bool (app_testop_i i64m TO_eqz x))
-  | _ => v
-  end.
+(* Numeric results agree with WasmCert's through the agreement axioms and
+   lemmas of builtins.v, except for the disagreements in [Exc_pure]. *)
 
 
 
@@ -430,9 +477,17 @@ Definition is_vec_admin (a : S.admininstr) : bool :=
   | _ => false
   end.
 
+(* The WasmCert SIMD functions that do not touch memory. *)
+Definition simd_pure_kind (k : simd_fun) : bool :=
+  match k with
+  | SF_load | SF_load_lane | SF_store | SF_store_lane => false
+  | _ => true
+  end.
+
+(* A redex whose instruction is a vector instruction that does not touch memory. *)
 Definition vec_redex (es : seq S.admininstr) : bool :=
   match rev es with
-  | a :: _ => is_vec_admin a
+  | a :: _ => if simd_of a is Some k then simd_pure_kind k else false
   | [ ::] => false
   end.
 
@@ -450,45 +505,18 @@ Inductive Label_exit : seq S.admininstr -> seq S.admininstr -> Prop :=
                  (map S.admininstr_val vs ++ [ :: S.admininstr_RETURN]).
 
 (* Pure steps that are not simulated:
-   - numeric steps whose SpecTec result differs from WasmCert's (this covers
-     NaN nondeterminism as well as genuine disagreements);
-   - vector instructions: their WasmCert semantics is opaque. *)
+   - [EXTEND n] for an [n] that is not a multiple of 8 (see [ext_ok]);
+   - division and remainder by zero that produce a value (see [divzero]).
+   Vector steps are simulated through the axioms of builtins.v, which need
+   typing; [Step_pure_sim] only reports them. *)
 Inductive Exc_pure : seq S.admininstr -> seq S.admininstr -> Prop :=
-  | exc_unop nt op c1 c cs :
-      S.fun_unop_ nt op c1 = Some cs -> c \in cs ->
-      app_unop (tr_unop op) (tr_num c1) <> tr_num c ->
-      Exc_pure [ :: S.admininstr_CONST nt c1; S.admininstr_UNOP nt op] [ :: S.admininstr_CONST nt c]
-  | exc_unop_trap nt op c1 :
-      S.fun_unop_ nt op c1 = Some [ ::] ->
-      Exc_pure [ :: S.admininstr_CONST nt c1; S.admininstr_UNOP nt op] [ :: S.admininstr_TRAP]
-  | exc_binop nt op c1 c2 c cs :
-      S.fun_binop_ nt op c1 c2 (Some cs) -> c \in cs ->
-      app_binop (tr_binop op) (tr_num c1) (tr_num c2) <> Some (tr_num c) ->
+  | exc_extend nt c1 op es' :
+      ~~ ext_ok op ->
+      Exc_pure [ :: S.admininstr_CONST nt c1; S.admininstr_UNOP nt op] es'
+  | exc_divzero nt op c1 c2 c :
+      divzero op c2 ->
       Exc_pure [ :: S.admininstr_CONST nt c1; S.admininstr_CONST nt c2; S.admininstr_BINOP nt op]
-               [ :: S.admininstr_CONST nt c]
-  | exc_binop_trap nt op c1 c2 :
-      S.fun_binop_ nt op c1 c2 (Some [ ::]) ->
-      app_binop (tr_binop op) (tr_num c1) (tr_num c2) <> None ->
-      Exc_pure [ :: S.admininstr_CONST nt c1; S.admininstr_CONST nt c2; S.admininstr_BINOP nt op]
-               [ :: S.admininstr_TRAP]
-  | exc_testop nt op c1 c :
-      S.fun_testop_ nt op c1 = Some c -> tr_num c <> wc_testop (tr_num c1) ->
-      Exc_pure [ :: S.admininstr_CONST nt c1; S.admininstr_TESTOP nt op] [ :: S.admininstr_CONST S.I32 c]
-  | exc_relop nt op c1 c2 c :
-      S.fun_relop_ nt op c1 c2 (Some c) ->
-      tr_num c <> VAL_int32 (wasm_bool (app_relop (tr_relop op) (tr_num c1) (tr_num c2))) ->
-      Exc_pure [ :: S.admininstr_CONST nt c1; S.admininstr_CONST nt c2; S.admininstr_RELOP nt op]
-               [ :: S.admininstr_CONST S.I32 c]
-  | exc_cvtop nt1 nt2 op c1 c cs :
-      S.fun_cvtop__ nt1 nt2 op c1 (Some cs) -> c \in cs ->
-      eval_cvt (tr_numtype nt2) (tr_cvtop op).1 (tr_cvtop op).2 (tr_num c1) <> Some (tr_num c) ->
-      Exc_pure [ :: S.admininstr_CONST nt1 c1; S.admininstr_CVTOP nt2 nt1 op]
-               [ :: S.admininstr_CONST nt2 c]
-  | exc_cvtop_trap nt1 nt2 op c1 :
-      S.fun_cvtop__ nt1 nt2 op c1 (Some [ ::]) ->
-      eval_cvt (tr_numtype nt2) (tr_cvtop op).1 (tr_cvtop op).2 (tr_num c1) <> None ->
-      Exc_pure [ :: S.admininstr_CONST nt1 c1; S.admininstr_CVTOP nt2 nt1 op] [ :: S.admininstr_TRAP]
-  | exc_vec es es' : S.Step_pure es es' -> vec_redex es -> Exc_pure es es'.
+               [ :: S.admininstr_CONST nt c].
 
 Lemma singleton_in {A : eqType} (c c' : A) : c \in [ :: c'] -> c = c'.
 Proof. by rewrite mem_seq1 => /eqP. Qed.
@@ -511,9 +539,25 @@ Ltac i32_of c :=
       have [n [? Hn]] := wf_num_I32 H; subst c
   end.
 
+Definition is_val_admin (a : S.admininstr) : bool :=
+  match a with
+  | S.admininstr_CONST _ _ | S.admininstr_VCONST _ _ | S.admininstr_REF_NULL _
+  | S.admininstr_REF_FUNC_ADDR _ | S.admininstr_REF_HOST_ADDR _ => true
+  | _ => false
+  end.
+
+(* A plain redex: operand values followed by one non-value instruction. *)
+Definition redex_shape (es : seq S.admininstr) : bool :=
+  match rev es with
+  | a :: vs => all is_val_admin vs && ~~ is_val_admin a
+  | [ ::] => false
+  end.
+
+
 Lemma Step_pure_sim e1 e2 :
   S.Step_pure e1 e2 -> List.Forall S.wf_admininstr e1 ->
-  (forall s f, sim (cfg s f e1) (cfg s f e2)) \/ Exc_pure e1 e2 \/ Label_exit e1 e2.
+  (forall s f, sim (cfg s f e1) (cfg s f e2)) \/ Exc_pure e1 e2 \/ Label_exit e1 e2 \/
+  (vec_redex e1 /\ redex_shape e1).
 Proof.
   move=> H. move: (H). case: H.
   - (* unreachable *) move=> _ _. left => s f. exact: sim_unreachable.
@@ -537,7 +581,7 @@ Proof.
     exact/N.eqb_eq.
   - (* label_vals *) move=> n ins vs _ _. left => s f. exact: sim_label_vals.
   - (* br_zero *) move=> n ins vs' vs es /eqP Hn _ _. left => s f. exact: sim_br_zero.
-  - (* br_succ *) move=> n ins vs [x] es _ _. right; right. exact: lexit_br.
+  - (* br_succ *) move=> n ins vs [x] es _ _. right; right; left. exact: lexit_br.
   - (* br_if_true *)
     move=> c l _ H2 _ Hwf. left => s f. wf_get. i32_of c.
     move: H2 => /= /eqP H2. have := sim_br_if s f l Hn (b := false). apply.
@@ -556,55 +600,54 @@ Proof.
     apply/N.ltb_ge. move: H2 => /=. rewrite /S.N_geb. by move/N.leb_spec0.
   - (* frame_vals *) move=> n f' vs /eqP Hn _ _. left => s f. exact: sim_frame_vals.
   - (* return_frame *) move=> n f' vs' vs es /eqP Hn _ _. left => s f. exact: sim_return_frame.
-  - (* return_label *) move=> n ins vs es _ _. right; right. exact: lexit_return.
+  - (* return_label *) move=> n ins vs es _ _. right; right; left. exact: lexit_return.
   - (* trap_vals *) move=> vs es Hne _ _. left => s f. exact: sim_trap_vals.
   - (* trap_label *) move=> n ins _ _. left => s f. exact: sim_trap_label.
   - (* trap_frame *) move=> n f' _ _. left => s f. exact: sim_trap_frame.
   - (* unop_val *)
-    move=> nt c1 op c _ H2 H3 _ Hwf. wf_get.
-    case E: (S.fun_unop_ nt op c1) H2 H3 => [cs| ] //= _ Hin.
-    case: (app_unop (tr_unop op) (tr_num c1) =P tr_num c) => Heq.
-    + left => s f. exact: sim_unop Heq.
-    + right; left. exact: exc_unop E Hin Heq.
+    move=> nt c1 op c v Hu _ H3 Hin _ Hwf. wf_get.
+    case: v Hu H3 Hin => [cs| ] //= Hu _ Hin.
+    case: (boolP (ext_ok op)) => Hext; last by right; left; apply: exc_extend.
+    left => s f. apply: sim_unop => //. symmetry.
+    exact: (in_map_single (@unop_tr _ _ c1 _ ltac:(eassumption) Hu Hext) Hin).
   - (* unop_trap *)
-    move=> nt c1 op H1 H2 _ Hwf. right; left. apply: exc_unop_trap.
-    case: (S.fun_unop_ nt op c1) H1 H2 => [cs| ] //= _ /eqP -> //.
+    move=> nt c1 op v Hu H2 H3 _ Hwf. wf_get.
+    case: (boolP (ext_ok op)) => Hext; last by right; left; apply: exc_extend.
+    exfalso. case: v Hu H2 H3 => [cs| ] //= Hu _ /eqP Hcs. subst cs.
+    move: (@unop_tr _ _ c1 _ ltac:(eassumption) Hu Hext). discriminate.
   - (* binop_val *)
     move=> nt c1 c2 op c v Hb _ H3 Hin _ Hwf. wf_get.
     case: v Hb H3 Hin => [cs| ] //= Hb _ Hin.
-    case: (app_binop (tr_binop op) (tr_num c1) (tr_num c2) =P Some (tr_num c)) => Heq.
-    + left => s f. exact: sim_binop Heq.
-    + right; left. exact: exc_binop Hb Hin Heq.
+    case: (boolP (divzero op c2)) => Hdz; first by right; left; apply: exc_divzero.
+    left => s f. apply: sim_binop => //.
+    exact: (in_map_olist (@binop_tr _ _ c1 c2 _ ltac:(eassumption) ltac:(eassumption) Hb Hdz) Hin).
   - (* binop_trap *)
     move=> nt c1 c2 op v Hb H2 H3 _ Hwf. wf_get.
     case: v Hb H2 H3 => [cs| ] //= Hb _ /eqP Hcs. subst cs.
-    case: (app_binop (tr_binop op) (tr_num c1) (tr_num c2) =P None) => Heq.
-    + left => s f. exact: sim_binop_trap Heq.
-    + right; left. exact: exc_binop_trap Hb Heq.
+    left => s f. apply: sim_binop_trap => //.
+    case: (boolP (divzero op c2)) => Hdz; first exact: divzero_none.
+    move: (@binop_tr _ _ c1 c2 _ ltac:(eassumption) ltac:(eassumption) Hb Hdz).
+    by case: (app_binop _ _ _).
   - (* testop *)
-    move=> nt c1 op c H1 H2 _ _ Hwf. wf_get. move/eqP: H2 => H2.
-    have Hf : S.fun_testop_ nt op c1 = Some c by case: (S.fun_testop_ nt op c1) H1 H2 => //= ? _ ->.
-    case: (tr_num c =P wc_testop (tr_num c1)) => Heq.
-    + left => s f. exact: sim_testop Heq.
-    + right; left. exact: exc_testop Hf Heq.
+    move=> nt c1 op c v Ht H2 H3 _ _ Hwf. wf_get. move/eqP: H3 => H3.
+    case: v Ht H2 H3 => [c'| ] //= Ht _ Hc. subst c'.
+    left => s f. apply: sim_testop => //. exact: (@testop_tr _ _ c1 _ ltac:(eassumption) Ht).
   - (* relop *)
     move=> nt c1 c2 op c v Hr H2 H3 _ _ Hwf. wf_get. move/eqP: H3 => H3.
     case: v Hr H2 H3 => [c'| ] //= Hr _ Hc. subst c'.
-    case: (tr_num c =P VAL_int32 (wasm_bool (app_relop (tr_relop op) (tr_num c1) (tr_num c2)))) => Heq.
-    + left => s f. exact: sim_relop Heq.
-    + right; left. exact: exc_relop Hr Heq.
+    left => s f. apply: sim_relop => //.
+    exact: (@relop_tr _ _ c1 c2 _ ltac:(eassumption) ltac:(eassumption) Hr).
   - (* cvtop_val *)
     move=> nt1 c1 nt2 op c v Hc _ H3 Hin _ Hwf. wf_get.
     case: v Hc H3 Hin => [cs| ] //= Hc _ Hin.
-    case: (eval_cvt (tr_numtype nt2) (tr_cvtop op).1 (tr_cvtop op).2 (tr_num c1) =P Some (tr_num c)) => Heq.
-    + left => s f. exact: sim_cvtop Heq.
-    + right; left. exact: exc_cvtop Hc Hin Heq.
+    left => s f. apply: sim_cvtop => //.
+    exact: (in_map_olist (@cvtop_tr _ _ _ c1 _ ltac:(eassumption) ltac:(eassumption) Hc) Hin).
   - (* cvtop_trap *)
     move=> nt1 c1 nt2 op v Hc H2 H3 _ Hwf. wf_get.
     case: v Hc H2 H3 => [cs| ] //= Hc _ /eqP Hcs. subst cs.
-    case: (eval_cvt (tr_numtype nt2) (tr_cvtop op).1 (tr_cvtop op).2 (tr_num c1) =P None) => Heq.
-    + left => s f. exact: sim_cvtop_trap Heq.
-    + right; left. exact: exc_cvtop_trap Hc Heq.
+    left => s f. apply: sim_cvtop_trap => //.
+    move: (@cvtop_tr _ _ _ c1 _ ltac:(eassumption) ltac:(eassumption) Hc).
+    by case: (eval_cvt _ _ _ _).
   - (* ref_is_null_true *)
     move=> r rt /eqP -> _ _. left => s f. apply: (@sim_ref_is_null s f _ true).
     split => // _. by exists rt.
@@ -612,7 +655,8 @@ Proof.
     move=> r Hn _ _. left => s f. apply: (@sim_ref_is_null s f r false).
     split => // [[rt Hr]]. exfalso. apply: Hn. subst r.
     by apply: (@S.ref_is_null_true_0 (S.ref_REF_NULL rt) rt).
-  all: try (intros; right; left; apply: exc_vec; [eassumption | done]).
+  (* vector steps *)
+  all: try (intros; right; right; right; done).
   (* local_tee *)
   move=> v x _ _. left => s f. exact: sim_local_tee.
 Qed.
@@ -682,31 +726,31 @@ Lemma tr_frame_inst : f_inst (tr_frame f) = tr_moduleinst mi.
 Proof. by []. Qed.
 
 Lemma sglob_val_tr x :
-  glob_ok x -> sglob_val (tr_store s) (tr_moduleinst mi) (tr_u32 x) = Some (tr_val (S.VALUE (S.fun_global z x))).
+  glob_ok x -> sglob_val (tr_store s) (tr_moduleinst mi) (tr_u32 x) = Some (tr_val (S.VALUE (F.fun_global_f z x))).
 Proof.
   move=> [H1 H2]. rewrite /sglob_val /sglob /sglob_ind /=.
   by rewrite lookup_N_total // lookup_N_tr.
 Qed.
 
 Lemma stab_tr x :
-  tab_ok x -> stab (tr_store s) (tr_moduleinst mi) (tr_u32 x) = Some (tr_tableinst (S.fun_table z x)).
+  tab_ok x -> stab (tr_store s) (tr_moduleinst mi) (tr_u32 x) = Some (tr_tableinst (F.fun_table_f z x)).
 Proof. move=> [H1 H2]. by rewrite /stab /= lookup_N_total // lookup_N_tr. Qed.
 
 Lemma stab_elem_tr x i :
   tab_ok x ->
-  stab_elem (tr_store s) (tr_moduleinst mi) (tr_u32 x) i = lookup_N (map tr_ref (S.REFS (S.fun_table z x))) i.
+  stab_elem (tr_store s) (tr_moduleinst mi) (tr_u32 x) i = lookup_N (map tr_ref (S.REFS (F.fun_table_f z x))) i.
 Proof. move=> [H1 H2]. by rewrite /stab_elem /= lookup_N_total // lookup_N_tr. Qed.
 
 Lemma selem_tr x :
-  elem_ok x -> selem (tr_store s) (tr_moduleinst mi) (tr_u32 x) = Some (tr_eleminst (S.fun_elem z x)).
+  elem_ok x -> selem (tr_store s) (tr_moduleinst mi) (tr_u32 x) = Some (tr_eleminst (F.fun_elem_f z x)).
 Proof. move=> [H1 H2]. by rewrite /selem /= lookup_N_total // lookup_N_tr. Qed.
 
 Lemma sdata_tr x :
-  data_ok x -> sdata (tr_store s) (tr_moduleinst mi) (tr_u32 x) = Some (tr_datainst (S.fun_data z x)).
+  data_ok x -> sdata (tr_store s) (tr_moduleinst mi) (tr_u32 x) = Some (tr_datainst (F.fun_data_f z x)).
 Proof. move=> [H1 H2]. by rewrite /sdata /= lookup_N_total // lookup_N_tr. Qed.
 
 Lemma smem_tr :
-  mem_ok -> smem (tr_store s) (tr_moduleinst mi) = Some (tr_meminst (S.fun_mem z (S.mk_uN 0))).
+  mem_ok -> smem (tr_store s) (tr_moduleinst mi) = Some (tr_meminst (F.fun_mem_f z (S.mk_uN 0))).
 Proof. move=> [H1 H2]. by rewrite /smem /= lookup_N_total // lookup_N_tr. Qed.
 
 End Accessors.
@@ -751,7 +795,7 @@ Proof. move=> Hx. apply: read_sim => hs. apply: r_ref_func. by rewrite /= lookup
 Lemma sim_local_get (s : S.store) (f : S.frame) x :
   local_ok f x ->
   sim (cfg s f [ :: S.admininstr_LOCAL_GET x])
-      (cfg s f [ :: S.admininstr_val (S.fun_local (S.mk_state s f) x)]).
+      (cfg s f [ :: S.admininstr_val (F.fun_local_f (S.mk_state s f) x)]).
 Proof.
   move=> Hx. apply: read_sim => hs. rewrite /tr_admins /= tr_admin_val.
   apply: r_local_get. by rewrite /= lookup_N_tr.
@@ -760,7 +804,7 @@ Qed.
 Lemma sim_global_get (s : S.store) (f : S.frame) x :
   glob_ok s f x ->
   sim (cfg s f [ :: S.admininstr_GLOBAL_GET x])
-      (cfg s f [ :: S.admininstr_val (S.VALUE (S.fun_global (S.mk_state s f) x))]).
+      (cfg s f [ :: S.admininstr_val (S.VALUE (F.fun_global_f (S.mk_state s f) x))]).
 Proof.
   move=> Hx. apply: read_sim => hs. rewrite /tr_admins /= tr_admin_val.
   apply: r_global_get. exact: sglob_val_tr.
@@ -775,7 +819,7 @@ Definition bt_ok (f : S.frame) (bt : S.blocktype) : Prop :=
 Lemma expand_tr (s : S.store) (f : S.frame) bt :
   bt_ok f bt ->
   expand (tr_moduleinst (S.frame_MODULE f)) (tr_blocktype bt)
-  = Some (tr_functype (S.fun_blocktype (S.mk_state s f) bt)).
+  = Some (tr_functype (F.fun_blocktype_f (S.mk_state s f) bt)).
 Proof.
   case: bt => [[t| ] | x] //= Hx.
   by rewrite lookup_N_tr.
@@ -783,7 +827,7 @@ Qed.
 
 Lemma sim_block (s : S.store) (f : S.frame) (vs : seq S.val) bt ins t1 t2 :
   bt_ok f bt ->
-  S.fun_blocktype (S.mk_state s f) bt = S.mk_functype (S.mk_list _ t1) (S.mk_list _ t2) ->
+  F.fun_blocktype_f (S.mk_state s f) bt = S.mk_functype (S.mk_list _ t1) (S.mk_list _ t2) ->
   size vs = size t1 ->
   sim (cfg s f (map S.admininstr_val vs ++ [ :: S.admininstr_BLOCK bt ins]))
       (cfg s f [ :: S.LABEL_ (N.of_nat (size t2)) [ ::] (map S.admininstr_val vs ++ map S.admininstr_instr ins)]).
@@ -801,7 +845,7 @@ Qed.
 
 Lemma sim_loop (s : S.store) (f : S.frame) (vs : seq S.val) bt ins t1 t2 :
   bt_ok f bt ->
-  S.fun_blocktype (S.mk_state s f) bt = S.mk_functype (S.mk_list _ t1) (S.mk_list _ t2) ->
+  F.fun_blocktype_f (S.mk_state s f) bt = S.mk_functype (S.mk_list _ t1) (S.mk_list _ t2) ->
   size vs = size t1 ->
   sim (cfg s f (map S.admininstr_val vs ++ [ :: S.admininstr_LOOP bt ins]))
       (cfg s f [ :: S.LABEL_ (N.of_nat (size t1)) [ :: S.LOOP bt ins] (map S.admininstr_val vs ++ map S.admininstr_instr ins)]).
@@ -819,8 +863,8 @@ Qed.
 
 (** ** Tables *)
 
-Notation tabz s f x := (S.fun_table (S.mk_state s f) x).
-Notation refsz s f x := (S.REFS (S.fun_table (S.mk_state s f) x)).
+Notation tabz s f x := (F.fun_table_f (S.mk_state s f) x).
+Notation refsz s f x := (S.REFS (F.fun_table_f (S.mk_state s f) x)).
 
 Lemma tab_size_tr ti : tab_size (tr_tableinst ti) = size (S.REFS ti).
 Proof. by rewrite /tab_size /= length_size size_map. Qed.
@@ -891,6 +935,10 @@ Proof.
     + by rewrite Z_of_uint_i32c // tr_i32_succ.
 Qed.
 
+(* Neither bound check of a bulk instruction fails. *)
+Lemma nltb_or (a b c d : N) : ((a <? b)%num || (c <? d)%num) = false -> (b <= a)%num /\ (d <= c)%num.
+Proof. by move/negbT/norP => [/negbTE /N.ltb_ge ? /negbTE /N.ltb_ge ?]. Qed.
+
 Lemma sim_table_copy (s : S.store) (f : S.frame) x y j i n :
   tab_ok s f x -> tab_ok s f y ->
   (j < 4294967296)%num -> (i < 4294967296)%num -> (n < 4294967296)%num ->
@@ -914,18 +962,18 @@ Proof.
   - eapply r_table_copy_bound; [exact: stab_tr Hx | exact: stab_tr Hy | ].
     rewrite !Z_of_uint_i32c // Hsx Hsy.
     case/orP: Hb => /N.ltb_spec0 Hb; [left | right]; lia.
-  - move/norP: Hb => [/negbTE Hb1 /negbTE Hb2]. apply N.ltb_ge in Hb1. apply N.ltb_ge in Hb2.
+  - move/nltb_or: Hb => [Hb1 Hb2].
     move/N.eqb_spec: Hz => Hz.
     eapply r_table_copy_return; [exact: stab_tr Hx | exact: stab_tr Hy | | | ];
       rewrite !Z_of_uint_i32c // ?Hsx ?Hsy; lia.
-  - move/norP: Hb => [/negbTE Hb1 /negbTE Hb2]. apply N.ltb_ge in Hb1. apply N.ltb_ge in Hb2.
+  - move/nltb_or: Hb => [Hb1 Hb2].
     move/N.eqb_spec: Hz => Hz. move/N.leb_spec0: Hle => Hle.
     eapply r_table_copy_forward; [exact: stab_tr Hx | exact: stab_tr Hy | | | | | | | ];
       rewrite ?Z_of_uint_i32c // ?Hsx ?Hsy; try lia.
     + by rewrite tr_i32_pred //; lia.
     + by rewrite tr_i32_succ.
     + by rewrite tr_i32_succ.
-  - move/norP: Hb => [/negbTE Hb1 /negbTE Hb2]. apply N.ltb_ge in Hb1. apply N.ltb_ge in Hb2.
+  - move/nltb_or: Hb => [Hb1 Hb2].
     move/N.eqb_spec: Hz => Hz. move/N.leb_spec0: Hle => Hle.
     eapply r_table_copy_backward; [exact: stab_tr Hx | exact: stab_tr Hy | | | | | | | ];
       rewrite ?Z_of_uint_i32c // ?Hsx ?Hsy; try lia.
@@ -941,25 +989,25 @@ Lemma sim_table_init (s : S.store) (f : S.frame) x y j i n :
   tab_ok s f x -> elem_ok s f y ->
   (j < 4294967296)%num -> (i < 4294967296)%num -> (n < 4294967296)%num ->
   sim (cfg s f [ :: i32c j; i32c i; i32c n; S.admininstr_TABLE_INIT x y])
-      (cfg s f (if N.ltb (N.of_nat (size (S.eleminst_REFS (S.fun_elem (S.mk_state s f) y)))) (i + n)
+      (cfg s f (if N.ltb (N.of_nat (size (S.eleminst_REFS (F.fun_elem_f (S.mk_state s f) y)))) (i + n)
                    || N.ltb (N.of_nat (size (refsz s f x))) (j + n) then [ :: S.admininstr_TRAP]
                 else if N.eqb n 0 then [ ::]
                 else
-                  [ :: i32c j; S.admininstr_ref (S.lookup_total (S.eleminst_REFS (S.fun_elem (S.mk_state s f) y)) i);
+                  [ :: i32c j; S.admininstr_ref (S.lookup_total (S.eleminst_REFS (F.fun_elem_f (S.mk_state s f) y)) i);
                       S.admininstr_TABLE_SET x; i32c (j + 1); i32c (i + 1);
                       i32c (Z.to_N (Z.of_N n - Z.of_N 1)); S.admininstr_TABLE_INIT x y])).
 Proof.
   move=> Hx Hy Hj Hi Hn. apply: read_sim => hs.
-  have Hsx := tab_size_tr (tabz s f x). have Hse := elem_size_tr (S.fun_elem (S.mk_state s f) y).
+  have Hsx := tab_size_tr (tabz s f x). have Hse := elem_size_tr (F.fun_elem_f (S.mk_state s f) y).
   case: ifP => Hb; [ | case: ifP => Hz]; trsimpl.
   - eapply r_table_init_bound; [exact: stab_tr Hx | exact: selem_tr Hy | ].
     rewrite !Z_of_uint_i32c // Hsx Hse.
     case/orP: Hb => /N.ltb_spec0 Hb; [left | right]; lia.
-  - move/norP: Hb => [/negbTE Hb1 /negbTE Hb2]. apply N.ltb_ge in Hb1. apply N.ltb_ge in Hb2.
+  - move/nltb_or: Hb => [Hb1 Hb2].
     move/N.eqb_spec: Hz => Hz.
     eapply r_table_init_return; [exact: stab_tr Hx | exact: selem_tr Hy | | | ];
       rewrite !Z_of_uint_i32c // ?Hsx ?Hse; lia.
-  - move/norP: Hb => [/negbTE Hb1 /negbTE Hb2]. apply N.ltb_ge in Hb1. apply N.ltb_ge in Hb2.
+  - move/nltb_or: Hb => [Hb1 Hb2].
     move/N.eqb_spec: Hz => Hz.
     rewrite tr_admin_ref.
     eapply r_table_init_step; [exact: stab_tr Hx | exact: selem_tr Hy | | | | | | | ];
@@ -977,7 +1025,7 @@ Qed.
    semantics, so only the bounds checks and the unfolding are compared here;
    the byte accesses are loads and stores. *)
 
-Notation memz s f := (S.fun_mem (S.mk_state s f) (S.mk_uN 0)).
+Notation memz s f := (F.fun_mem_f (S.mk_state s f) (S.mk_uN 0)).
 Notation bytesz s f := (S.BYTES (memz s f)).
 
 Lemma mem_length_tr mi : mem_length (tr_meminst mi) = N.of_nat (size (S.BYTES mi)).
@@ -1052,11 +1100,11 @@ Proof.
   - eapply r_memory_copy_bound; first exact: smem_tr Hm.
     rewrite !Z_of_uint_i32c // Hsz.
     case/orP: Hb => /N.ltb_spec0 Hb; [left | right]; lia.
-  - move/norP: Hb => [/negbTE Hb1 /negbTE Hb2]. apply N.ltb_ge in Hb1. apply N.ltb_ge in Hb2.
+  - move/nltb_or: Hb => [Hb1 Hb2].
     move/N.eqb_spec: Hz => Hz.
     eapply r_memory_copy_return; first exact: smem_tr Hm.
     1-3: rewrite ?Z_of_uint_i32c // ?Hsz; lia.
-  - move/norP: Hb => [/negbTE Hb1 /negbTE Hb2]. apply N.ltb_ge in Hb1. apply N.ltb_ge in Hb2.
+  - move/nltb_or: Hb => [Hb1 Hb2].
     move/N.eqb_spec: Hz => Hz. move/N.leb_spec0: Hle => Hle.
     eapply r_memory_copy_forward; first exact: smem_tr Hm.
     1-7: rewrite ?Z_of_uint_i32c // ?Hsz.
@@ -1064,7 +1112,7 @@ Proof.
     + by rewrite tr_i32_pred //; lia.
     + by rewrite tr_i32_iadd1.
     + by rewrite tr_i32_iadd1.
-  - move/norP: Hb => [/negbTE Hb1 /negbTE Hb2]. apply N.ltb_ge in Hb1. apply N.ltb_ge in Hb2.
+  - move/nltb_or: Hb => [Hb1 Hb2].
     move/N.eqb_spec: Hz => Hz. move/N.leb_spec0: Hle => Hle.
     eapply r_memory_copy_backward; first exact: smem_tr Hm.
     1-7: rewrite ?Z_of_uint_i32c // ?Hsz.
@@ -1098,33 +1146,33 @@ Qed.
 
 Lemma sim_memory_init (s : S.store) (f : S.frame) x j i n :
   mem_ok s f -> data_ok s f x ->
-  List.Forall S.wf_byte (S.datainst_BYTES (S.fun_data (S.mk_state s f) x)) ->
+  List.Forall S.wf_byte (S.datainst_BYTES (F.fun_data_f (S.mk_state s f) x)) ->
   (j < 4294967296)%num -> (i < 4294967296)%num -> (n < 4294967296)%num ->
   sim (cfg s f [ :: i32c j; i32c i; i32c n; S.admininstr_MEMORY_INIT x])
-      (cfg s f (if N.ltb (N.of_nat (size (S.datainst_BYTES (S.fun_data (S.mk_state s f) x)))) (i + n)
+      (cfg s f (if N.ltb (N.of_nat (size (S.datainst_BYTES (F.fun_data_f (S.mk_state s f) x)))) (i + n)
                    || N.ltb (N.of_nat (size (bytesz s f))) (j + n) then [ :: S.admininstr_TRAP]
                 else if N.eqb n 0 then [ ::]
                 else
-                  [ :: i32c j; i32c (S.proj_byte_0 (S.lookup_total (S.datainst_BYTES (S.fun_data (S.mk_state s f) x)) i));
+                  [ :: i32c j; i32c (S.proj_byte_0 (S.lookup_total (S.datainst_BYTES (F.fun_data_f (S.mk_state s f) x)) i));
                       store8; i32add1 j; i32add1 i;
                       i32c (Z.to_N (Z.of_N n - Z.of_N 1)); S.admininstr_MEMORY_INIT x])).
 Proof.
   move=> Hm Hd Hbs Hj Hi Hn. apply: read_sim => hs.
   have Hsz := mem_length_tr (memz s f).
-  have Hds : data_size (tr_datainst (S.fun_data (S.mk_state s f) x))
-             = size (S.datainst_BYTES (S.fun_data (S.mk_state s f) x))
+  have Hds : data_size (tr_datainst (F.fun_data_f (S.mk_state s f) x))
+             = size (S.datainst_BYTES (F.fun_data_f (S.mk_state s f) x))
     by rewrite /data_size /= length_size size_map.
   case: ifP => Hb; [ | case: ifP => Hz]; trsimpl; cbn [tr_num].
   - eapply r_memory_init_bound; [exact: smem_tr Hm | exact: sdata_tr Hd | ].
     rewrite !Z_of_uint_i32c // Hsz Hds.
     case/orP: Hb => /N.ltb_spec0 Hb; [left | right]; lia.
-  - move/norP: Hb => [/negbTE Hb1 /negbTE Hb2]. apply N.ltb_ge in Hb1. apply N.ltb_ge in Hb2.
+  - move/nltb_or: Hb => [Hb1 Hb2].
     move/N.eqb_spec: Hz => Hz.
     eapply r_memory_init_return; [exact: smem_tr Hm | exact: sdata_tr Hd | | | ].
     1-3: rewrite ?Z_of_uint_i32c // ?Hsz ?Hds; lia.
-  - move/norP: Hb => [/negbTE Hb1 /negbTE Hb2]. apply N.ltb_ge in Hb1. apply N.ltb_ge in Hb2.
+  - move/nltb_or: Hb => [Hb1 Hb2].
     move/N.eqb_spec: Hz => Hz.
-    have Hlt : (i < N.of_nat (size (S.datainst_BYTES (S.fun_data (S.mk_state s f) x))))%num by lia.
+    have Hlt : (i < N.of_nat (size (S.datainst_BYTES (F.fun_data_f (S.mk_state s f) x))))%num by lia.
     rewrite -(deserialise_byte_tr (Forall_lookup_total Hbs Hlt)).
     eapply r_memory_init_step; [exact: smem_tr Hm | exact: sdata_tr Hd | | | | | | | ].
     1-7: rewrite ?Z_of_uint_i32c // ?Hsz ?Hds.
@@ -1137,6 +1185,482 @@ Qed.
 
 
 (** ** Calls *)
+
+(** * Loads and stores
+
+   Memories are byte lists in both semantics (WasmCert's memory_list); the
+   byte encodings of numbers are related through [nbytes_tr] / [ibytes_tr]
+   (builtins.v). *)
+
+Lemma to_nat_pred_N q : Pos.to_nat q = Nat.succ (N.to_nat (Pos.pred_N q)).
+Proof.
+  change (Pos.pred_N q) with (N.pred (N.pos q)).
+  rewrite N2Nat.inj_pred positive_N_nat. have := Pos2Nat.is_pos q.
+  move: (Pos.to_nat q) => m. case: m => [ |m] // H. by inversion H.
+Qed.
+
+Lemma list_slice_take_drop {A : Type} (l : seq A) k n :
+  (k + n <= N.of_nat (size l))%num ->
+  S.list_slice l k n = seq.take (N.to_nat n) (seq.drop (N.to_nat k) l).
+Proof.
+  elim: l k n => [ |x l IH] k n /= H; first done.
+  case: k H => [ |p] H; case: n H => [ |q] H //=.
+  - rewrite IH; last lia. by rewrite drop0 (to_nat_pred_N q).
+  - by rewrite take0.
+  - rewrite IH; last lia. by rewrite (to_nat_pred_N p).
+Qed.
+
+Lemma list_slice_update_cat {A : Type} (l u : seq A) k :
+  (k + N.of_nat (size u) <= N.of_nat (size l))%num ->
+  S.list_slice_update l k (N.of_nat (size u)) u =
+  seq.take (N.to_nat k) l ++ u ++ seq.drop (N.to_nat k + size u) l.
+Proof.
+  elim: l k u => [ |x l IH] k u H.
+  - case: u H => //= y u H. lia.
+  - case: u H => [ |y u] H.
+    + by rewrite /= Nat.add_0_r cat_take_drop; case: k H.
+    + move: H. rewrite [size (y :: u)]/= => H.
+      case: k H => [ |p] H /=.
+      * have -> : Pos.pred_N (Pos.of_succ_nat (size u)) = N.of_nat (size u).
+        { change (Pos.pred_N (Pos.of_succ_nat (size u)))
+            with (N.pred (N.pos (Pos.of_succ_nat (size u)))). lia. }
+        move: H; rewrite [size (x :: l)]/= => H.
+        rewrite IH; last lia. by rewrite [N.to_nat 0]/= take0.
+      * move: H; rewrite [size (x :: l)]/= => H.
+        have E := IH (Pos.pred_N p) (y :: u). rewrite [size (y :: u)]/= in E.
+        rewrite E; last lia. rewrite (to_nat_pred_N p) /=. do 3 f_equal.
+Qed.
+
+Lemma read_ml_gen (d : seq byte) a k len :
+  (k + N.of_nat a + N.of_nat len <= N.of_nat (size d))%num ->
+  those0 (map (fun off => memory_list.ml_lookup (k + N.of_nat off)%num
+                          {| memory_list.ml_init := Integers.Byte.zero; memory_list.ml_data := d |})
+              (iota a len)) =
+  Some (seq.take len (seq.drop (N.to_nat k + a) d)).
+Proof.
+  elim: len a => [ |len IH] a H.
+  - by rewrite /= take0.
+  - rewrite /= IH; last lia.
+    rewrite /memory_list.ml_lookup /memory_list.ml_length /=.
+    case: N.ltb_spec => H'; last lia. rewrite /=.
+    have Hlt : (N.to_nat k + a < size d) by lia.
+    rewrite (drop_nth Integers.Byte.zero (introT ssrnat.ltP Hlt)).
+    have -> : N.to_nat (k + N.of_nat a) = (N.to_nat k + a) by lia.
+    by have -> : (N.to_nat k + S a) = S (N.to_nat k + a) by lia.
+Qed.
+
+Lemma read_bytes_tr M k n : (k + n <= N.of_nat (size (S.BYTES M)))%num ->
+  read_bytes (tr_meminst M) k (N.to_nat n) = Some (map tr_byte (S.list_slice (S.BYTES M) k n)).
+Proof.
+  move=> H. rewrite /read_bytes -those_those0.
+  have := @read_ml_gen (map tr_byte (S.BYTES M)) 0 k (N.to_nat n).
+  rewrite size_map N2Nat.id Nat.add_0_r => E.
+  rewrite list_slice_take_drop // map_take map_drop -E; last lia.
+  by f_equal.
+Qed.
+
+Lemma set_nth_cat {A : Type} (x0 : A) d k b : k < size d ->
+  set_nth x0 d k b = seq.take k d ++ b :: seq.drop (S k) d.
+Proof.
+  elim: d k => [ |y d IH] [ |k] /= H; try lia.
+  - by rewrite drop0.
+  - rewrite IH //. lia.
+Qed.
+
+Lemma write_ml d k bs : (k + N.of_nat (size bs) <= N.of_nat (size d))%num ->
+  write_bytes {| memory_list.ml_init := Integers.Byte.zero; memory_list.ml_data := d |} k bs =
+  Some {| memory_list.ml_init := Integers.Byte.zero;
+          memory_list.ml_data := seq.take (N.to_nat k) d ++ bs ++ seq.drop (N.to_nat k + size bs) d |}.
+Proof.
+  elim: bs k d => [ |b bs IH] k d H /=.
+  - by rewrite Nat.add_0_r cat_take_drop.
+  - move: H. rewrite [size (b :: bs)]/= => H.
+    rewrite /memory_list.ml_update /memory_list.ml_length /=.
+    case: N.ltb_spec => H'; last lia.
+    have Hk : N.to_nat k < size d by lia.
+    rewrite (set_nth_cat _ b Hk).
+    set d1 := seq.take (N.to_nat k) d. set d2 := seq.drop (S (N.to_nat k)) d.
+    have Hs1 : size d1 = N.to_nat k by rewrite /d1 size_takel //; apply/ssrnat.leP; lia.
+    have Hs2 : size d2 = (size d - S (N.to_nat k)) by rewrite /d2 size_drop.
+    rewrite -cat_rcons IH; last by rewrite size_cat size_rcons Hs1 Hs2 ?ssrnat.plusE ?ssrnat.addnE; lia.
+    have Hr : size (rcons d1 b) = N.to_nat (k + 1) by rewrite size_rcons Hs1; lia.
+    rewrite -Hr take_size_cat //
+      (_ : (size (rcons d1 b) + size bs) = (size bs + size (rcons d1 b))); last by rewrite Nat.add_comm.
+    rewrite -drop_drop drop_size_cat // /d2 drop_drop cat_rcons.
+    do 3 f_equal. rewrite ?ssrnat.plusE ?ssrnat.addnE. do 3 f_equal. lia.
+Qed.
+
+
+Lemma deserialise_serialise v : wasm_deserialise (serialise_num v) (typeof_num v) = v.
+Proof.
+  case: v => x /=; f_equal.
+  - rewrite /serialise_i32 Memdata.decode_encode_int Z.mod_small;
+      first exact: Wasm_int.Int32.repr_unsigned.
+    have := Wasm_int.Int32.unsigned_range x. change Wasm_int.Int32.modulus with 4294967296%Z.
+    change (Zpower.two_p (Z.of_nat 4 * 8)) with 4294967296%Z. lia.
+  - rewrite /serialise_i64 Memdata.decode_encode_int Z.mod_small;
+      first exact: Wasm_int.Int64.repr_unsigned.
+    have := Wasm_int.Int64.unsigned_range x. change Wasm_int.Int64.modulus with 18446744073709551616%Z.
+    change (Zpower.two_p (Z.of_nat 8 * 8)) with 18446744073709551616%Z. lia.
+  - rewrite /serialise_f32 Memdata.decode_encode_int_4. exact: Floats.Float32.of_to_bits.
+  - rewrite /serialise_f64 Memdata.decode_encode_int_8. exact: Floats.Float.of_to_bits.
+Qed.
+
+Lemma size_len {A : Type} (l : seq A) : size l = length l.
+Proof. by elim: l => //= x l ->. Qed.
+
+Lemma size_serialise v : size (serialise_num v) = N.to_nat (tnum_length (typeof_num v)).
+Proof. by case: v => x; rewrite /= size_len Memdata.encode_int_length. Qed.
+
+Lemma int_of_bytes_zeros bs m :
+  Memdata.int_of_bytes (bs ++ List.repeat Integers.Byte.zero m) = Memdata.int_of_bytes bs.
+Proof.
+  elim: bs => [ |b bs IH] /=; last by rewrite IH.
+  by elim: m => //= m ->.
+Qed.
+
+Lemma packed_load32 n sx c : (n mod 8 = 0)%num -> (0 < n < 32)%num -> (c < 2 ^ n)%num ->
+  wasm_deserialise (sign_extend_bytes (tr_sx sx) 4 (Memdata.encode_int (N.to_nat (n / 8)) (Z.of_N c))) T_i32
+  = VAL_int32 (tr_i32 (S.extend__ n 32%num sx (S.mk_uN c))).
+Proof.
+  move=> H8 Hn Hc. have Ek : (8 * (n / 8) = n)%num by have := N.div_mod n 8; rewrite H8; lia.
+  set k := N.to_nat (n / 8).
+  have Hk : k < 4 by rewrite /k; lia.
+  have Hlen : List.length (Memdata.encode_int k (Z.of_N c)) = k by rewrite Memdata.encode_int_length.
+  have Hdec : Memdata.decode_int (Memdata.encode_int k (Z.of_N c)) = Z.of_N c.
+  { rewrite Memdata.decode_encode_int Z.mod_small //. split; first lia.
+    rewrite Zpower.two_p_correct. have -> : (Z.of_nat k * 8 = Z.of_N n)%Z by rewrite /k; lia.
+    move/N2Z.inj_lt: Hc. by rewrite N2Z.inj_pow. }
+  rewrite extend__def /tr_i32 /tr_u32. cbn [S.proj_uN_0].
+  case: sx => /=.
+  - rewrite /bytes_takefill Hlen. case: Nat.ltb_spec => H; last lia.
+    rewrite /Memdata.decode_int /Memdata.rev_if_be /= int_of_bytes_zeros.
+    move: Hdec. by rewrite /Memdata.decode_int /Memdata.rev_if_be /= => ->.
+  - rewrite Hdec Hlen N2Z.id /k N2Nat.id /sign_extend_n Memdata.decode_encode_int.
+    change (Zpower.two_p (Z.of_nat 4 * 8)) with 4294967296%Z.
+    have -> : (n / 8 * 8 - 1 = n - 1)%num by lia.
+    f_equal. apply: Wasm_int.Int32.eqm_samerepr.
+    apply: Wasm_int.Int32.eqm_trans; first exact: eqm32_mod.
+    have Hp : (2 ^ n <= 2 ^ 32)%num by apply: N.pow_le_mono_r; lia.
+    have Hp2 : (2 * 2 ^ (n - 1) = 2 ^ n)%num by rewrite -N.pow_succ_r'; f_equal; lia.
+    case: N.ltb_spec => H1; first exact: Wasm_int.Int32.eqm_refl.
+    exists (-1)%Z. change Wasm_int.Int32.modulus with 4294967296%Z.
+    rewrite N2Z.inj_sub; last (change (N.pos (2 ^ 32)) with (2 ^ 32)%num; lia).
+    rewrite N2Z.inj_add Hp2. change (Z.of_N (N.pos (2 ^ 32))) with 4294967296%Z. lia.
+Qed.
+
+Lemma packed_load64 n sx c : (n mod 8 = 0)%num -> (0 < n < 64)%num -> (c < 2 ^ n)%num ->
+  wasm_deserialise (sign_extend_bytes (tr_sx sx) 8 (Memdata.encode_int (N.to_nat (n / 8)) (Z.of_N c))) T_i64
+  = VAL_int64 (tr_i64 (S.extend__ n 64%num sx (S.mk_uN c))).
+Proof.
+  move=> H8 Hn Hc. have Ek : (8 * (n / 8) = n)%num by have := N.div_mod n 8; rewrite H8; lia.
+  set k := N.to_nat (n / 8).
+  have Hk : k < 8 by rewrite /k; lia.
+  have Hlen : List.length (Memdata.encode_int k (Z.of_N c)) = k by rewrite Memdata.encode_int_length.
+  have Hdec : Memdata.decode_int (Memdata.encode_int k (Z.of_N c)) = Z.of_N c.
+  { rewrite Memdata.decode_encode_int Z.mod_small //. split; first lia.
+    rewrite Zpower.two_p_correct. have -> : (Z.of_nat k * 8 = Z.of_N n)%Z by rewrite /k; lia.
+    move/N2Z.inj_lt: Hc. by rewrite N2Z.inj_pow. }
+  rewrite extend__def /tr_i64 /tr_u32. cbn [S.proj_uN_0].
+  case: sx => /=.
+  - rewrite /bytes_takefill Hlen. case: Nat.ltb_spec => H; last lia.
+    rewrite /Memdata.decode_int /Memdata.rev_if_be /= int_of_bytes_zeros.
+    move: Hdec. by rewrite /Memdata.decode_int /Memdata.rev_if_be /= => ->.
+  - rewrite Hdec Hlen N2Z.id /k N2Nat.id /sign_extend_n Memdata.decode_encode_int.
+    change (Zpower.two_p (Z.of_nat 8 * 8)) with 18446744073709551616%Z.
+    have -> : (n / 8 * 8 - 1 = n - 1)%num by lia.
+    f_equal. apply: Wasm_int.Int64.eqm_samerepr.
+    apply: Wasm_int.Int64.eqm_trans; first exact: eqm64_mod.
+    have Hp : (2 ^ n <= 2 ^ 64)%num by apply: N.pow_le_mono_r; lia.
+    have Hp2 : (2 * 2 ^ (n - 1) = 2 ^ n)%num by rewrite -N.pow_succ_r'; f_equal; lia.
+    case: N.ltb_spec => H1; first exact: Wasm_int.Int64.eqm_refl.
+    exists (-1)%Z. change Wasm_int.Int64.modulus with 18446744073709551616%Z.
+    rewrite N2Z.inj_sub; last (change (N.pos (2 ^ 64)) with (2 ^ 64)%num; lia).
+    rewrite N2Z.inj_add Hp2. change (Z.of_N (N.pos (2 ^ 64))) with 18446744073709551616%Z. lia.
+Qed.
+
+Lemma firstn_encode_int k l x : k <= l -> (0 <= x)%Z ->
+  List.firstn k (Memdata.encode_int l x) =
+  Memdata.encode_int k (x mod Zpower.two_p (Z.of_nat k * 8)).
+Proof.
+  move=> Hkl Hx. rewrite /Memdata.encode_int /Memdata.rev_if_be /=.
+  have -> : Archi.big_endian = false by [].
+  have Hp : (0 < two_p (Z.of_nat k * 8))%Z by rewrite two_p_correct; apply: Z.pow_pos_nonneg; lia.
+  have -> : l = (k + (l - k)) by lia.
+  have E : x = (x mod two_p (Z.of_nat k * 8) + x / two_p (Z.of_nat k * 8) * two_p (Z.of_nat k * 8))%Z.
+  { have := Z.div_mod x (two_p (Z.of_nat k * 8)). lia. }
+  rewrite {1}E Memdata.bytes_of_int_append; last first.
+  { have := Z.mod_pos_bound x _ Hp. lia. }
+  rewrite List.firstn_app Memdata.length_bytes_of_int Nat.sub_diag /= List.app_nil_r.
+  rewrite List.firstn_all2 //. by rewrite Memdata.length_bytes_of_int.
+Qed.
+
+Lemma wf_wrap W n c : (0 < n)%num -> S.wf_uN n (S.wrap__ W n c).
+Proof.
+  move=> Hn. rewrite wrap__def. constructor. apply/andP; split; first by rewrite /S.N_geb; apply/N.leb_spec0; apply: N.le_0_l.
+  apply/N.leb_spec0. have : (S.proj_uN_0 c mod 2 ^ n < 2 ^ n)%num
+    by apply: N.mod_lt; apply: N.pow_nonzero.
+  have : (2 ^ n <> 0)%num by apply: N.pow_nonzero.
+  lia.
+Qed.
+
+Lemma packed_store_tr32 n c : (n mod 8 = 0)%num -> (0 < n < 32)%num -> (c < 4294967296)%num ->
+  bytes_takefill Integers.Byte.zero (N.to_nat (n / 8)) (serialise_num (VAL_int32 (tr_i32 (S.mk_uN c)))) =
+  map tr_byte (S.ibytes_ n (S.wrap__ 32%num n (S.mk_uN c))).
+Proof.
+  move=> H8 Hn Hc. have Ek : (8 * (n / 8) = n)%num by have := N.div_mod n 8; rewrite H8; lia.
+  rewrite ibytes_tr; last by apply: wf_wrap; lia.
+  rewrite wrap__def. cbn [serialise_num S.proj_uN_0]. rewrite /serialise_i32 /tr_i32 /tr_u32. cbn [S.proj_uN_0].
+  rewrite Wasm_int.Int32.unsigned_repr; last by change Wasm_int.Int32.max_unsigned with 4294967295%Z; lia.
+  rewrite /bytes_takefill Memdata.encode_int_length. case: Nat.ltb_spec => H; first lia.
+  rewrite firstn_encode_int; [ |lia|lia].
+  rewrite N2Z.inj_mod two_p_correct. do 2 f_equal. rewrite N2Z.inj_pow. f_equal. lia.
+Qed.
+
+Lemma packed_store_tr64 n c : (n mod 8 = 0)%num -> (0 < n < 64)%num -> (c < 18446744073709551616)%num ->
+  bytes_takefill Integers.Byte.zero (N.to_nat (n / 8)) (serialise_num (VAL_int64 (tr_i64 (S.mk_uN c)))) =
+  map tr_byte (S.ibytes_ n (S.wrap__ 64%num n (S.mk_uN c))).
+Proof.
+  move=> H8 Hn Hc. have Ek : (8 * (n / 8) = n)%num by have := N.div_mod n 8; rewrite H8; lia.
+  rewrite ibytes_tr; last by apply: wf_wrap; lia.
+  rewrite wrap__def. cbn [serialise_num S.proj_uN_0]. rewrite /serialise_i64 /tr_i64 /tr_u32. cbn [S.proj_uN_0].
+  rewrite Wasm_int.Int64.unsigned_repr; last by change Wasm_int.Int64.max_unsigned with 18446744073709551615%Z; lia.
+  rewrite /bytes_takefill Memdata.encode_int_length. case: Nat.ltb_spec => H; first lia.
+  rewrite firstn_encode_int; [ |lia|lia].
+  rewrite N2Z.inj_mod two_p_correct. do 2 f_equal. rewrite N2Z.inj_pow. f_equal. lia.
+Qed.
+
+Lemma list_slice_size {A : Type} (l : seq A) k n :
+  (0 < n)%num -> size (S.list_slice l k n) = N.to_nat n -> (k + n <= N.of_nat (size l))%num.
+Proof.
+  elim: l k n => [ |x l IH] k n Hn /=; first lia.
+  case: k => [ |p]; case: n Hn => [ |q] Hn H //=.
+  - move: H => /= H.
+    case: (N.eq_dec (N.pred (N.pos q)) 0) => E; first lia.
+    have H2 : size (S.list_slice l 0 (N.pred (N.pos q))) = N.to_nat (N.pred (N.pos q)).
+    { change (N.pred (N.pos q)) with (Pos.pred_N q). rewrite (to_nat_pred_N q) in H. by case: H. }
+    have := IH 0%num (N.pred (N.pos q)) ltac:(lia) H2. lia.
+  - have := IH (N.pred (N.pos p)) (N.pos q) Hn H. lia.
+Qed.
+
+Lemma mem_store_tr M k bs : (k + N.of_nat (size bs) <= N.of_nat (size (S.BYTES M)))%num ->
+  write_bytes_meminst (tr_meminst M) k (map tr_byte bs) =
+  Some (tr_meminst {| S.meminst_TYPE := S.meminst_TYPE M;
+                      S.BYTES := S.list_slice_update (S.BYTES M) k (N.of_nat (size bs)) bs |}).
+Proof.
+  move=> H. rewrite /write_bytes_meminst /tr_meminst /tr_mem_data /=.
+  rewrite write_ml; last by rewrite !size_map.
+  rewrite list_slice_update_cat // !map_cat map_take map_drop size_map. done.
+Qed.
+
+Lemma sim_load_num (s : S.store) (f : S.frame) i nt ao c :
+  mem_ok s f -> (i < 4294967296)%num -> S.wf_num_ nt c ->
+  S.nbytes_ nt c = S.list_slice (bytesz s f) (i + tr_u32 (S.OFFSET ao)) (tnum_length (tr_numtype nt)) ->
+  sim (cfg s f [ :: i32c i; S.admininstr_LOAD nt None ao]) (cfg s f [ :: S.admininstr_CONST nt c]).
+Proof.
+  move=> Hm Hi Hc Hb hs. have Hty := T.wf_num_typeof Hc.
+  have Hlen : size (S.nbytes_ nt c) = N.to_nat (tnum_length (tr_numtype nt)).
+  { by rewrite -(size_map tr_byte) (nbytes_tr Hc) size_serialise Hty. }
+  have Hpos : (0 < tnum_length (tr_numtype nt))%num by case: nt {Hc Hb Hlen Hty}.
+  have Hin := list_slice_size Hpos (etrans (esym (f_equal size Hb)) Hlen).
+  rewrite [tr_cfg _ _]/= [tr_cfg _ (S.mk_config _ _)]/= /tr_admins;
+    cbn [seq.map tr_admin i32c tr_instr tr_num].
+  rewrite -(deserialise_serialise (tr_num c)) Hty -(nbytes_tr Hc) Hb.
+  apply: reduce_trans_step. apply: r_load_success; first exact: smem_tr Hm.
+  rewrite N_of_uint_tr // /load mem_length_tr.
+  change (memarg_offset (tr_memarg ao)) with (tr_u32 (S.OFFSET ao)).
+  case: N.leb_spec => H; last lia.
+  by rewrite nat_bin read_bytes_tr.
+Qed.
+
+Lemma sim_load_num_trap (s : S.store) (f : S.frame) i nt ao :
+  mem_ok s f -> (i < 4294967296)%num ->
+  (N.of_nat (size (bytesz s f)) < i + tr_u32 (S.OFFSET ao) + tnum_length (tr_numtype nt))%num ->
+  sim (cfg s f [ :: i32c i; S.admininstr_LOAD nt None ao]) (cfg s f [ :: S.admininstr_TRAP]).
+Proof.
+  move=> Hm Hi Hb hs.
+  rewrite [tr_cfg _ _]/= [tr_cfg _ (S.mk_config _ _)]/= /tr_admins;
+    cbn [seq.map tr_admin i32c tr_instr tr_num].
+  apply: reduce_trans_step. apply: r_load_failure; first exact: smem_tr Hm.
+  rewrite N_of_uint_tr // /load mem_length_tr.
+  change (memarg_offset (tr_memarg ao)) with (tr_u32 (S.OFFSET ao)).
+  by case: N.leb_spec => H; first lia.
+Qed.
+
+(* The packed widths: [n] is 8, 16 or 32 and below the width of the type. *)
+Lemma packed_width t n :
+  S.wf_sz (S.mk_sz n) -> (n < F.sizenn (S.numtype_Inn t))%num ->
+  (n mod 8 = 0)%num /\ (0 < n < F.sizenn (S.numtype_Inn t))%num /\
+  tp_length (tr_packtype (S.mk_sz n)) = (n / 8)%num.
+Proof.
+  move=> Hw Hn. inversion Hw as [? H]; subst.
+  move: H => /orP [/orP [/orP [/eqP E|/eqP E]|/eqP E]|/eqP E]; subst n; case: t Hn => Hn;
+    vm_compute in Hn; vm_compute; repeat split; try lia; discriminate.
+Qed.
+
+Lemma sim_load_pack (s : S.store) (f : S.frame) i t n sx ao c :
+  mem_ok s f -> (i < 4294967296)%num ->
+  S.wf_sz (S.mk_sz n) -> (n < F.sizenn (S.numtype_Inn t))%num -> S.wf_uN n c ->
+  S.ibytes_ n c = S.list_slice (bytesz s f) (i + tr_u32 (S.OFFSET ao)) (n / 8) ->
+  sim (cfg s f [ :: i32c i; S.admininstr_LOAD (S.numtype_Inn t)
+                     (Some (S.mk_loadop__0 t (S.mk_loadop_Inn (S.mk_sz n) sx))) ao])
+      (cfg s f [ :: S.admininstr_CONST (S.numtype_Inn t)
+                     (S.mk_num__0 t (S.extend__ n (S.the (S.res_size (S.valtype_Inn t))) sx c))]).
+Proof.
+  move=> Hm Hi Hw Hn Hc Hb hs.
+  have [H8 [Hn' Htp]] := packed_width Hw Hn.
+  case: c Hc Hb => c Hc Hb.
+  have Hc' : (c < 2 ^ n)%num.
+  { inversion Hc as [? ? Hr]; subst. move: Hr => /andP [_ /N.leb_spec0].
+    have : (2 ^ n <> 0)%num by apply: N.pow_nonzero. lia. }
+  have Henc := ibytes_tr Hc. rewrite /= in Henc.
+  have Hlen : size (S.ibytes_ n (S.mk_uN c)) = N.to_nat (n / 8).
+  { by rewrite -(size_map tr_byte) Henc size_len Memdata.encode_int_length. }
+  have Hpos : (0 < n / 8)%num by have := N.div_mod n 8 ltac:(lia); rewrite H8; lia.
+  have Hin := list_slice_size Hpos (etrans (esym (f_equal size Hb)) Hlen).
+  have Hload : load_packed (tr_sx sx) (tr_meminst (memz s f)) (Wasm_int.N_of_uint i32m (tr_i32 (S.mk_uN i)))
+                 (memarg_offset (tr_memarg ao)) (tp_length (tr_packtype (S.mk_sz n)))
+                 (tnum_length (tr_numtype (S.numtype_Inn t))) =
+               Some (sign_extend_bytes (tr_sx sx) (tnum_length (tr_numtype (S.numtype_Inn t)))
+                       (Memdata.encode_int (N.to_nat (n / 8)) (Z.of_N c))).
+  { rewrite N_of_uint_tr // /load_packed /load mem_length_tr Htp.
+    change (memarg_offset (tr_memarg ao)) with (tr_u32 (S.OFFSET ao)).
+    case: N.leb_spec => H; last lia.
+    by rewrite nat_bin read_bytes_tr // -Hb Henc. }
+  rewrite [tr_cfg _ _]/= [tr_cfg _ (S.mk_config _ _)]/= /tr_admins;
+    cbn [seq.map tr_admin i32c tr_instr tr_num tr_loadop].
+  apply: reduce_trans_step.
+  case: t Hn Hn' Hw Htp Hload => Hn Hn' Hw Htp Hload.
+  - change (F.sizenn (S.numtype_Inn S.Inn_I32)) with 32%num in Hn' |- *.
+    change (S.the (S.res_size (S.valtype_Inn S.Inn_I32))) with 32%num.
+    rewrite -(@packed_load32 n sx c H8 Hn' Hc').
+    by apply: r_load_packed_success; first exact: smem_tr Hm.
+  - change (F.sizenn (S.numtype_Inn S.Inn_I64)) with 64%num in Hn' |- *.
+    change (S.the (S.res_size (S.valtype_Inn S.Inn_I64))) with 64%num.
+    rewrite -(@packed_load64 n sx c H8 Hn' Hc').
+    by apply: r_load_packed_success; first exact: smem_tr Hm.
+Qed.
+
+Lemma sim_load_pack_trap (s : S.store) (f : S.frame) i t n sx ao :
+  mem_ok s f -> (i < 4294967296)%num ->
+  S.wf_sz (S.mk_sz n) -> (n < F.sizenn (S.numtype_Inn t))%num ->
+  (N.of_nat (size (bytesz s f)) < i + tr_u32 (S.OFFSET ao) + n / 8)%num ->
+  sim (cfg s f [ :: i32c i; S.admininstr_LOAD (S.numtype_Inn t)
+                     (Some (S.mk_loadop__0 t (S.mk_loadop_Inn (S.mk_sz n) sx))) ao])
+      (cfg s f [ :: S.admininstr_TRAP]).
+Proof.
+  move=> Hm Hi Hw Hn Hb hs.
+  have [_ [_ Htp]] := packed_width Hw Hn.
+  rewrite [tr_cfg _ _]/= [tr_cfg _ (S.mk_config _ _)]/= /tr_admins;
+    cbn [seq.map tr_admin i32c tr_instr tr_num tr_loadop].
+  apply: reduce_trans_step. apply: r_load_packed_failure; first exact: smem_tr Hm.
+  rewrite N_of_uint_tr // /load_packed /load mem_length_tr Htp.
+  change (memarg_offset (tr_memarg ao)) with (tr_u32 (S.OFFSET ao)).
+  by case: N.leb_spec => H; first lia.
+Qed.
+
+Lemma takefill_exact b n (bs : seq byte) : size bs = n -> bytes_takefill b n bs = bs.
+Proof.
+  move=> H. rewrite /bytes_takefill -size_len H. case: Nat.ltb_spec => ?; first lia.
+  by rewrite -H List.firstn_all2 // size_len.
+Qed.
+
+Lemma sim_store_num (s : S.store) (f : S.frame) i nt c ao :
+  mem_ok s f -> (i < 4294967296)%num -> S.wf_num_ nt c ->
+  (i + tr_u32 (S.OFFSET ao) + tnum_length (tr_numtype nt) <= N.of_nat (size (bytesz s f)))%num ->
+  sim (cfg s f [ :: i32c i; S.admininstr_CONST nt c; S.admininstr_STORE nt None ao])
+      (S.mk_config (F.with_mem (S.mk_state s f) (S.mk_uN 0) (i + tr_u32 (S.OFFSET ao))
+                      (tnum_length (tr_numtype nt)) (S.nbytes_ nt c)) [ ::]).
+Proof.
+  move=> [H1 H2] Hi Hc Hin hs. have Hty := T.wf_num_typeof Hc.
+  have Hlen : size (S.nbytes_ nt c) = N.to_nat (tnum_length (tr_numtype nt)).
+  { by rewrite -(size_map tr_byte) (nbytes_tr Hc) size_serialise Hty. }
+  rewrite [tr_cfg _ _]/= [tr_cfg _ (S.mk_config _ _)]/= /tr_admins;
+    cbn [seq.map tr_admin i32c tr_instr tr_num].
+  apply: reduce_trans_step. apply: r_store_success.
+  rewrite /smem_store N_of_uint_tr //.
+  rewrite /= lookup_N_total // lookup_N_tr // /store mem_length_tr.
+  change (memarg_offset (tr_memarg ao)) with (tr_u32 (S.OFFSET ao)).
+  rewrite nat_bin N2Nat.id.
+  case: N.leb_spec => H; last (exfalso; exact: (N.lt_irrefl _ (N.lt_le_trans _ _ _ H Hin))).
+  rewrite takefill_exact; last by rewrite size_serialise Hty.
+  rewrite -(nbytes_tr Hc) mem_store_tr; last by rewrite Hlen N2Nat.id.
+  rewrite Hlen N2Nat.id /upd_s_mem /tr_store /tr_u32 /=.
+  by erewrite (update_func_tr tr_meminst); last exact: H2.
+Qed.
+
+Lemma sim_store_num_trap (s : S.store) (f : S.frame) i nt c ao :
+  mem_ok s f -> (i < 4294967296)%num ->
+  (N.of_nat (size (bytesz s f)) < i + tr_u32 (S.OFFSET ao) + tnum_length (tr_numtype nt))%num ->
+  sim (cfg s f [ :: i32c i; S.admininstr_CONST nt c; S.admininstr_STORE nt None ao])
+      (cfg s f [ :: S.admininstr_TRAP]).
+Proof.
+  move=> [H1 H2] Hi Hb hs.
+  rewrite [tr_cfg _ _]/= [tr_cfg _ (S.mk_config _ _)]/= /tr_admins;
+    cbn [seq.map tr_admin i32c tr_instr tr_num].
+  apply: reduce_trans_step. apply: r_store_failure.
+  rewrite /smem_store N_of_uint_tr //.
+  rewrite /= lookup_N_total // lookup_N_tr // /store mem_length_tr.
+  change (memarg_offset (tr_memarg ao)) with (tr_u32 (S.OFFSET ao)).
+  rewrite nat_bin N2Nat.id.
+  by case: N.leb_spec => H //; exfalso; exact: (N.lt_irrefl _ (N.lt_le_trans _ _ _ Hb H)).
+Qed.
+
+Lemma sim_store_pack (s : S.store) (f : S.frame) i t a n ao :
+  mem_ok s f -> (i < 4294967296)%num -> S.wf_num_ (S.numtype_Inn t) (S.mk_num__0 t (S.mk_uN a)) ->
+  S.wf_sz (S.mk_sz n) -> (n < F.sizenn (S.numtype_Inn t))%num ->
+  (i + tr_u32 (S.OFFSET ao) + n / 8 <= N.of_nat (size (bytesz s f)))%num ->
+  sim (cfg s f [ :: i32c i; S.admininstr_CONST (S.numtype_Inn t) (S.mk_num__0 t (S.mk_uN a));
+                    S.admininstr_STORE (S.numtype_Inn t) (Some (S.mk_sz n)) ao])
+      (S.mk_config (F.with_mem (S.mk_state s f) (S.mk_uN 0) (i + tr_u32 (S.OFFSET ao)) (n / 8)
+                      (S.ibytes_ n (S.wrap__ (S.the (S.res_size (S.valtype_Inn t))) n (S.mk_uN a)))) [ ::]).
+Proof.
+  move=> [H1 H2] Hi Hc Hw Hn Hin hs. have Hty := T.wf_num_typeof Hc.
+  have [H8 [Hn' Htp]] := packed_width Hw Hn.
+  have Hbytes : bytes_takefill Integers.Byte.zero (N.to_nat (n / 8)) (serialise_num (tr_num (S.mk_num__0 t (S.mk_uN a)))) =
+                map tr_byte (S.ibytes_ n (S.wrap__ (S.the (S.res_size (S.valtype_Inn t))) n (S.mk_uN a))).
+  { case: t Hc Hn Hn' Hty {Hw Htp} => Hc Hn Hn' Hty.
+    - change (F.sizenn (S.numtype_Inn S.Inn_I32)) with 32%num in Hn' |- *.
+      change (S.the (S.res_size (S.valtype_Inn S.Inn_I32))) with 32%num.
+      apply: packed_store_tr32 => //. exact: (iok32 Hc).
+    - change (F.sizenn (S.numtype_Inn S.Inn_I64)) with 64%num in Hn' |- *.
+      change (S.the (S.res_size (S.valtype_Inn S.Inn_I64))) with 64%num.
+      apply: packed_store_tr64 => //. exact: (iok64 Hc). }
+  have Hlen : size (S.ibytes_ n (S.wrap__ (S.the (S.res_size (S.valtype_Inn t))) n (S.mk_uN a))) = N.to_nat (n / 8).
+  { rewrite -(size_map tr_byte) ibytes_tr; last by apply: wf_wrap; lia.
+    by rewrite size_len Memdata.encode_int_length. }
+  rewrite [tr_cfg _ _]/= [tr_cfg _ (S.mk_config _ _)]/= /tr_admins;
+    cbn [seq.map tr_admin i32c tr_instr].
+  apply: reduce_trans_step. apply: r_store_packed_success; last exact: Hty.
+  rewrite /smem_store_packed N_of_uint_tr //.
+  rewrite /= lookup_N_total // lookup_N_tr // /store_packed /store mem_length_tr.
+  change (memarg_offset (tr_memarg ao)) with (tr_u32 (S.OFFSET ao)).
+  rewrite nat_bin Htp N2Nat.id.
+  case: N.leb_spec => H; last (exfalso; exact: (N.lt_irrefl _ (N.lt_le_trans _ _ _ H Hin))).
+  rewrite Hbytes mem_store_tr; last by rewrite Hlen N2Nat.id.
+  rewrite Hlen N2Nat.id /upd_s_mem /tr_store /tr_u32 /=.
+  by erewrite (update_func_tr tr_meminst); last exact: H2.
+Qed.
+
+Lemma sim_store_pack_trap (s : S.store) (f : S.frame) i t c n ao :
+  mem_ok s f -> (i < 4294967296)%num -> S.wf_num_ (S.numtype_Inn t) c ->
+  S.wf_sz (S.mk_sz n) -> (n < F.sizenn (S.numtype_Inn t))%num ->
+  (N.of_nat (size (bytesz s f)) < i + tr_u32 (S.OFFSET ao) + n / 8)%num ->
+  sim (cfg s f [ :: i32c i; S.admininstr_CONST (S.numtype_Inn t) c;
+                    S.admininstr_STORE (S.numtype_Inn t) (Some (S.mk_sz n)) ao])
+      (cfg s f [ :: S.admininstr_TRAP]).
+Proof.
+  move=> [H1 H2] Hi Hc Hw Hn Hb hs. have Hty := T.wf_num_typeof Hc.
+  have [_ [_ Htp]] := packed_width Hw Hn.
+  rewrite [tr_cfg _ _]/= [tr_cfg _ (S.mk_config _ _)]/= /tr_admins;
+    cbn [seq.map tr_admin i32c tr_instr].
+  apply: reduce_trans_step. apply: r_store_packed_failure; last exact: Hty.
+  rewrite /smem_store_packed N_of_uint_tr //.
+  rewrite /= lookup_N_total // lookup_N_tr // /store_packed /store mem_length_tr.
+  change (memarg_offset (tr_memarg ao)) with (tr_u32 (S.OFFSET ao)).
+  rewrite nat_bin Htp N2Nat.id.
+  by case: N.leb_spec => H //; exfalso; exact: (N.lt_irrefl _ (N.lt_le_trans _ _ _ Hb H)).
+Qed.
 
 Lemma tr_valtype_inj : injective tr_valtype.
 Proof. by do 2 case. Qed.
@@ -1152,7 +1676,7 @@ Lemma sim_call_indirect (s : S.store) (f : S.frame) x y n a :
   (n < N.of_nat (size (refsz s f x)))%num ->
   S.lookup_total (refsz s f x) n = S.REF_FUNC_ADDR a ->
   (a < N.of_nat (size (S.store_FUNCS s)))%num ->
-  S.fun_type (S.mk_state s f) y = S.funcinst_TYPE (S.lookup_total (S.store_FUNCS s) a) ->
+  F.fun_type_f (S.mk_state s f) y = S.funcinst_TYPE (S.lookup_total (S.store_FUNCS s) a) ->
   sim (cfg s f [ :: i32c n; S.admininstr_CALL_INDIRECT x y]) (cfg s f [ :: S.CALL_ADDR a]).
 Proof.
   move=> Hx Hy Hn Hlt Hr Ha Ht. apply: read_sim => hs. trsimpl.
@@ -1176,7 +1700,7 @@ Lemma sim_call_indirect_trap (s : S.store) (f : S.frame) x y n :
   ~ (exists a, (n < N.of_nat (size (refsz s f x)))%num /\
                S.lookup_total (refsz s f x) n = S.REF_FUNC_ADDR a /\
                (a < N.of_nat (size (S.store_FUNCS s)))%num /\
-               S.fun_type (S.mk_state s f) y = S.funcinst_TYPE (S.lookup_total (S.store_FUNCS s) a)) ->
+               F.fun_type_f (S.mk_state s f) y = S.funcinst_TYPE (S.lookup_total (S.store_FUNCS s) a)) ->
   sim (cfg s f [ :: i32c n; S.admininstr_CALL_INDIRECT x y]) (cfg s f [ :: S.admininstr_TRAP]).
 Proof.
   move=> Hx Hy Hn Hok Hnot. apply: read_sim => hs. trsimpl.
@@ -1197,13 +1721,13 @@ Qed.
 Definition no_v128 (ts : seq S.valtype) : Prop := ~ List.In S.valtype_V128 ts.
 
 Lemma default_tr t :
-  t <> S.valtype_V128 -> S.default_ t <> None ->
-  default_val (tr_valtype t) = Some (tr_val (S.the (S.default_ t))).
+  t <> S.valtype_V128 -> F.default_ t <> None ->
+  default_val (tr_valtype t) = Some (tr_val (S.the (F.default_ t))).
 Proof. by case: t. Qed.
 
 Lemma default_vals_tr ts :
-  no_v128 ts -> List.Forall (fun t => S.default_ t <> None) ts ->
-  default_vals (map tr_valtype ts) = Some (map tr_val (map (fun t => S.the (S.default_ t)) ts)).
+  no_v128 ts -> List.Forall (fun t => F.default_ t <> None) ts ->
+  default_vals (map tr_valtype ts) = Some (map tr_val (map (fun t => S.the (F.default_ t)) ts)).
 Proof.
   rewrite /default_vals -list_extra.those_those0.
   elim: ts => [ |t ts IH] //= Hv Hd. inversion Hd; subst.
@@ -1217,18 +1741,18 @@ Lemma sim_call_addr (s : S.store) (f : S.frame) (vs : seq S.val) a t1 t2 mm x t_
     {| S.funcinst_TYPE := S.mk_functype (S.mk_list _ t1) (S.mk_list _ t2);
        S.funcinst_MODULE := mm;
        S.CODE := S.func_FUNC x (map S.LOCAL t_lst) ins |} ->
-  List.Forall (fun t => S.default_ t <> None) t_lst ->
+  List.Forall (fun t => F.default_ t <> None) t_lst ->
   no_v128 t_lst ->
   size vs = size t1 ->
   sim (cfg s f (map S.admininstr_val vs ++ [ :: S.CALL_ADDR a]))
       (cfg s f [ :: S.FRAME_ (N.of_nat (size t2))
-                     {| S.LOCALS := vs ++ map (fun t => S.the (S.default_ t)) t_lst; S.frame_MODULE := mm |}
+                     {| S.LOCALS := vs ++ map (fun t => S.the (F.default_ t)) t_lst; S.frame_MODULE := mm |}
                      [ :: S.LABEL_ (N.of_nat (size t2)) [ ::] (map S.admininstr_instr ins)]]).
 Proof.
   move=> Ha Hf Hd Hv Hsz. apply: read_sim => hs.
   rewrite tr_admins_cat tr_admins_vals /tr_admins /= -/(tr_admins _) tr_admins_instrs Nat2N.id.
-  have -> : tr_frame {| S.LOCALS := vs ++ map (fun t => S.the (S.default_ t)) t_lst; S.frame_MODULE := mm |}
-          = Build_frame (map tr_val vs ++ map tr_val (map (fun t => S.the (S.default_ t)) t_lst))
+  have -> : tr_frame {| S.LOCALS := vs ++ map (fun t => S.the (F.default_ t)) t_lst; S.frame_MODULE := mm |}
+          = Build_frame (map tr_val vs ++ map tr_val (map (fun t => S.the (F.default_ t)) t_lst))
                         (tr_moduleinst mm) by rewrite /tr_frame /= map_cat.
   eapply r_invoke_native with (ts1 := map tr_valtype t1) (ts2 := map tr_valtype t2)
                               (ts := map tr_valtype t_lst).
@@ -1260,7 +1784,7 @@ Qed.
 Lemma sim_global_set (s : S.store) (f : S.frame) (v : S.val) x :
   glob_ok s f x ->
   sim (cfg s f [ :: S.admininstr_val v; S.admininstr_GLOBAL_SET x])
-      (S.mk_config (S.with_global (S.mk_state s f) x v) [ ::]).
+      (S.mk_config (F.with_global (S.mk_state s f) x v) [ ::]).
 Proof.
   move=> [H1 H2] hs. rewrite /= /tr_admins /= tr_admin_val. apply: reduce_trans_step.
   apply: r_global_set.
@@ -1273,7 +1797,7 @@ Lemma sim_table_set (s : S.store) (f : S.frame) x n (r : S.ref) :
   tab_ok s f x -> (n < 4294967296)%num ->
   sim (cfg s f [ :: i32c n; S.admininstr_ref r; S.admininstr_TABLE_SET x])
       (if N.ltb n (N.of_nat (size (refsz s f x)))
-       then S.mk_config (S.with_table (S.mk_state s f) x n r) [ ::]
+       then S.mk_config (F.with_table (S.mk_state s f) x n r) [ ::]
        else cfg s f [ :: S.admininstr_TRAP]).
 Proof.
   move=> [H1 H2] Hn hs. have Ht : tab_ok s f x by [].
@@ -1295,7 +1819,7 @@ Qed.
 
 Lemma sim_elem_drop (s : S.store) (f : S.frame) x :
   elem_ok s f x ->
-  sim (cfg s f [ :: S.admininstr_ELEM_DROP x]) (S.mk_config (S.with_elem (S.mk_state s f) x [ ::]) [ ::]).
+  sim (cfg s f [ :: S.admininstr_ELEM_DROP x]) (S.mk_config (F.with_elem (S.mk_state s f) x [ ::]) [ ::]).
 Proof.
   move=> [H1 H2] hs. rewrite /= /tr_admins /=. apply: reduce_trans_step. apply: r_elem_drop.
   rewrite /selem_drop /= lookup_N_total // lookup_N_tr //=.
@@ -1305,7 +1829,7 @@ Qed.
 
 Lemma sim_data_drop (s : S.store) (f : S.frame) x :
   data_ok s f x ->
-  sim (cfg s f [ :: S.admininstr_DATA_DROP x]) (S.mk_config (S.with_data (S.mk_state s f) x [ ::]) [ ::]).
+  sim (cfg s f [ :: S.admininstr_DATA_DROP x]) (S.mk_config (F.with_data (S.mk_state s f) x [ ::]) [ ::]).
 Proof.
   move=> [H1 H2] hs. rewrite /= /tr_admins /=. apply: reduce_trans_step. apply: r_data_drop.
   rewrite /sdata_drop /= lookup_N_total // lookup_N_tr //=.
@@ -1355,7 +1879,7 @@ Qed.
 Lemma sim_table_grow (s : S.store) (f : S.frame) x (r : S.ref) n ti :
   tab_ok s f x -> (n < 4294967296)%num -> S.fun_growtable (tabz s f x) n r (Some ti) ->
   sim (cfg s f [ :: S.admininstr_ref r; i32c n; S.admininstr_TABLE_GROW x])
-      (S.mk_config (S.with_tableinst (S.mk_state s f) x ti) [ :: i32c (N.of_nat (size (refsz s f x)))]).
+      (S.mk_config (F.with_tableinst (S.mk_state s f) x ti) [ :: i32c (N.of_nat (size (refsz s f x)))]).
 Proof.
   move=> [H1 H2] Hn Hg hs.
   have E : tr_i32 (S.mk_uN (N.of_nat (size (refsz s f x))))
@@ -1435,7 +1959,7 @@ Lemma sim_memory_grow (s : S.store) (f : S.frame) n k mi' :
   mem_ok s f -> (n < 4294967296)%num -> N.of_nat (size (bytesz s f)) = (k * 65536)%num ->
   S.fun_growmemory (memz s f) n (Some mi') ->
   sim (cfg s f [ :: i32c n; S.admininstr_MEMORY_GROW])
-      (S.mk_config (S.with_meminst (S.mk_state s f) (S.mk_uN 0) mi') [ :: i32c k]).
+      (S.mk_config (F.with_meminst (S.mk_state s f) (S.mk_uN 0) mi') [ :: i32c k]).
 Proof.
   move=> [H1 H2] Hn Hk Hg hs.
   have E : tr_i32 (S.mk_uN k) = Wasm_int.int_of_Z i32m (Z.of_N (mem_size (tr_meminst (memz s f)))).
@@ -1533,6 +2057,14 @@ Proof.
   case: u => cv _. by exists cv.
 Qed.
 
+(* A packed load whose result type is not the loaded integer type: it has no
+   typing rule and no reduction rule. *)
+Definition load_consistent (nt : S.numtype) (lo : option S.loadop_) : bool :=
+  match lo with
+  | Some (S.mk_loadop__0 t _) => nt == S.numtype_Inn t
+  | None => true
+  end.
+
 Definition ok_redex (z : S.state) (es : seq S.admininstr) : bool :=
   match z with
   | S.mk_state s f =>
@@ -1544,14 +2076,14 @@ Definition ok_redex (z : S.state) (es : seq S.admininstr) : bool :=
     let typeb x := N.ltb (S.proj_uN_0 x) (N.of_nat (size (S.TYPES mi))) in
     let localb x := N.ltb (S.proj_uN_0 x) (N.of_nat (size (S.LOCALS f))) in
     let memb := addr_okb (S.MEMS mi) (size (S.store_MEMS s)) 0 in
-    let pagesb := N.eqb (N.modulo (N.of_nat (size (S.BYTES (S.fun_mem z (S.mk_uN 0))))) 65536) 0 in
+    let pagesb := N.eqb (N.modulo (N.of_nat (size (S.BYTES (F.fun_mem_f z (S.mk_uN 0))))) 65536) 0 in
     match rev es with
     | S.admininstr_BLOCK (S._IDX x) _ :: _ => typeb x
     | S.admininstr_LOOP (S._IDX x) _ :: _ => typeb x
     | S.admininstr_CALL_INDIRECT x y :: S.admininstr_CONST _ (S.mk_num__0 _ (S.mk_uN n)) :: _ =>
         tabb x && typeb y &&
-        (if N.ltb n (N.of_nat (size (S.REFS (S.fun_table z x))))
-         then funcref_okb s (S.lookup_total (S.REFS (S.fun_table z x)) n) else true)
+        (if N.ltb n (N.of_nat (size (S.REFS (F.fun_table_f z x))))
+         then funcref_okb s (S.lookup_total (S.REFS (F.fun_table_f z x)) n) else true)
     | S.CALL_ADDR a :: _ => callee_okb s a
     | S.admininstr_LOCAL_GET x :: _ => localb x
     | S.admininstr_LOCAL_SET x :: _ => localb x
@@ -1571,7 +2103,11 @@ Definition ok_redex (z : S.state) (es : seq S.admininstr) : bool :=
     | S.admininstr_MEMORY_FILL :: _ :: v :: _ => memb && is_i32_admin v
     | S.admininstr_MEMORY_COPY :: _ => memb
     | S.admininstr_MEMORY_INIT x :: _ => memb && datab x
-    | a :: _ => ~~ is_mem_admin a && ~~ is_vec_admin a
+    | S.admininstr_LOAD nt lo _ :: _ => memb || ~~ load_consistent nt lo
+    | S.admininstr_STORE _ _ _ :: _ => memb
+    | S.admininstr_VLOAD _ _ _ :: _ | S.admininstr_VLOAD_LANE _ _ _ _ :: _ => memb
+    | S.admininstr_VSTORE _ _ :: _ | S.admininstr_VSTORE_LANE _ _ _ _ :: _ => memb
+    | _ :: _ => true
     | [ ::] => true
     end
   end.
@@ -1648,22 +2184,134 @@ Proof. by move=> /eqP H; apply/N.eqb_neq. Qed.
 
 Lemma wf_cfg_data_bytes s f es :
   S.wf_config (cfg s f es) ->
-  forall x, data_ok s f x -> List.Forall S.wf_byte (S.datainst_BYTES (S.fun_data (S.mk_state s f) x)).
+  forall x, data_ok s f x -> List.Forall S.wf_byte (S.datainst_BYTES (F.fun_data_f (S.mk_state s f) x)).
 Proof.
   move=> Hwf x [_ Ha]. inversion Hwf as [z0 es0 Hz _]; subst.
   inversion Hz as [s0 f0 Hs _]; subst. clear Hwf Hz. case: s Hs Ha => fs gs ts ms es1 ds Hs Ha.
-  inversion Hs as [? ? ? ? ? ? _ _ _ _ Hds]; subst. rewrite /S.fun_data /=.
+  inversion Hs as [? ? ? ? ? ? _ _ _ _ Hds]; subst. rewrite /F.fun_data_f /=.
   have : S.wf_datainst (S.lookup_total ds (S.lookup_total (S.DATAS (S.frame_MODULE f)) (S.proj_uN_0 x)))
     by apply: Forall_lookup_total Hds Ha.
   by case.
 Qed.
 
+Lemma qlen nt :
+  Z.to_N (Qround.Qfloor (QArith_base.Qdiv (QArith_base.inject_Z (Z.of_N (S.the (S.res_size (S.valtype_numtype nt)))))
+                         (QArith_base.inject_Z (Z.of_N 8)))) = tnum_length (tr_numtype nt).
+Proof. by case: nt. Qed.
+
+Lemma qdiv8 n :
+  Z.to_N (Qround.Qfloor (QArith_base.Qdiv (QArith_base.inject_Z (Z.of_N n)) (QArith_base.inject_Z (Z.of_N 8)))) =
+  (n / 8)%num.
+Proof.
+  rewrite /Qround.Qfloor /= Z.mul_1_r. change 8%Z with (Z.of_N 8). by rewrite -N2Z.inj_div N2Z.id.
+Qed.
+
+Lemma wf_load_pack t n sx ao :
+  S.wf_admininstr (S.admininstr_LOAD (S.numtype_Inn t)
+                     (Some (S.mk_loadop__0 t (S.mk_loadop_Inn (S.mk_sz n) sx))) ao) ->
+  S.wf_sz (S.mk_sz n) /\ (n < F.sizenn (S.numtype_Inn t))%num.
+Proof.
+  move=> H. inversion H; subst.
+  match goal with H : ListDef.Forall _ _ |- _ => inversion H; subst end.
+  match goal with H : S.wf_loadop_ _ _ |- _ => inversion H; subst end.
+  match goal with H : S.wf_loadop_Inn _ _ |- _ => inversion H; subst end. F.inv_size_rels.
+  split => //. by apply/N.ltb_spec0.
+Qed.
+
+Lemma wf_store_pack nt n ao :
+  S.wf_admininstr (S.admininstr_STORE nt (Some (S.mk_sz n)) ao) ->
+  S.wf_sz (S.mk_sz n) /\ exists t, nt = S.numtype_Inn t /\ (n < F.sizenn (S.numtype_Inn t))%num.
+Proof.
+  move=> H. inversion H; subst.
+  match goal with H : ListDef.Forall _ _ |- _ => inversion H; subst end.
+  split => //.
+  match goal with H : _ <-> _ |- _ => clear H end.
+  match goal with Hf : S.List_Forall3 _ _ _ _ |- _ => move: Hf end.
+  match goal with Hf : List.Forall2 _ _ _ |- _ => move: Hf end.
+  case: Inn_opt => [t| ]; case: var_0_opt => [v| ] Hs Hf; inversion Hf; subst; inversion Hs; subst.
+  F.inv_size_rels.
+  exists t. match goal with H : is_true (_ && _) |- _ => case/andP: H => /eqP -> /N.ltb_spec0 Hn end.
+  by split.
+Qed.
+
+(* The instruction of a plain redex is well typed (vector steps need it). *)
+Definition simd_typed (es : seq S.admininstr) : Prop :=
+  forall vs i, es = map S.admininstr_val vs ++ [ :: S.admininstr_instr i] ->
+  exists C ft, S.Instr_ok C i ft.
+
+(* Vector loads, through [simd_load_tr] and [simd_load_lane_tr]. *)
+Lemma sim_vload (s : S.store) (f : S.frame) i vt lo ao es' :
+  simd_typed [ :: S.admininstr_CONST S.I32 i; S.admininstr_VLOAD vt lo ao] ->
+  List.Forall S.wf_admininstr [ :: S.admininstr_CONST S.I32 i; S.admininstr_VLOAD vt lo ao] ->
+  mem_ok s f ->
+  S.Step_read (cfg s f [ :: S.admininstr_CONST S.I32 i; S.admininstr_VLOAD vt lo ao]) es' ->
+  sim (cfg s f [ :: S.admininstr_CONST S.I32 i; S.admininstr_VLOAD vt lo ao]) (cfg s f es').
+Proof.
+  move=> Ht Hw Hm Hr hs. apply: reduce_trans_step.
+  apply: (@simd_load_tr _ _ hs s f [ :: S.val_CONST S.I32 i] (S.VLOAD vt lo ao) _ _ _ Hm Hr).
+  split; first by []. split; first by []. split; last by []. exact: (Ht [ :: S.val_CONST S.I32 i] (S.VLOAD vt lo ao) erefl).
+Qed.
+
+Lemma sim_vload_lane (s : S.store) (f : S.frame) i c sz ao j es' :
+  simd_typed [ :: S.admininstr_CONST S.I32 i; S.admininstr_VCONST S.V128 c;
+                  S.admininstr_VLOAD_LANE S.V128 sz ao j] ->
+  List.Forall S.wf_admininstr [ :: S.admininstr_CONST S.I32 i; S.admininstr_VCONST S.V128 c;
+                                    S.admininstr_VLOAD_LANE S.V128 sz ao j] ->
+  mem_ok s f ->
+  S.Step_read (cfg s f [ :: S.admininstr_CONST S.I32 i; S.admininstr_VCONST S.V128 c;
+                           S.admininstr_VLOAD_LANE S.V128 sz ao j]) es' ->
+  sim (cfg s f [ :: S.admininstr_CONST S.I32 i; S.admininstr_VCONST S.V128 c;
+                   S.admininstr_VLOAD_LANE S.V128 sz ao j]) (cfg s f es').
+Proof.
+  move=> Ht Hw Hm Hr hs. apply: reduce_trans_step.
+  apply: (@simd_load_lane_tr _ _ hs s f [ :: S.val_CONST S.I32 i; S.val_VCONST S.V128 c]
+            (S.VLOAD_LANE S.V128 sz ao j) _ _ _ Hm Hr).
+  split; first by []. split; first by []. split; last by []. exact: (Ht [ :: S.val_CONST S.I32 i; S.val_VCONST S.V128 c] (S.VLOAD_LANE S.V128 sz ao j) erefl).
+Qed.
+
+(* The memory relation of a rule, from the memory bounds of [ok_redex]. *)
+Ltac mem_rel Hm :=
+  apply: F.fun_mem_intro; case: Hm => ? ?; apply/N.ltb_spec0; assumption.
+
+(* A premise of a rule: a relation, or a hypothesis. *)
+Ltac rel_prem Hm :=
+  first [ mem_rel Hm | (apply/F.fun_jsize_eq; reflexivity) | (apply/F.fun_lsize_eq; reflexivity)
+        | (apply/F.fun_sizenn_eq; reflexivity) | eassumption ].
+
+Ltac vload_tac Htyp :=
+  intros;
+  match goal with Hc : S.mk_config _ _ = S.mk_config _ _ |- _ => case: Hc => ? ?; subst end;
+  match goal with z : S.state |- _ =>
+    let s := fresh "s" in let f := fresh "f" in destruct z as [s f] end;
+  let Hm := fresh "Hm" in
+  match goal with Hok : is_true (ok_redex _ _) |- _ =>
+    move: Hok; rewrite /ok_redex /= => /addr_okP Hm end;
+  let Hr := fresh "Hr" in
+  match goal with |- sim (S.mk_config ?z ?l) (S.mk_config _ ?l') =>
+    have Hr : S.Step_read (S.mk_config z l) l' by
+      first [ (eapply S.vload_oob; rel_prem Hm)
+            | (eapply S.Step_read__vload_val; rel_prem Hm)
+            | (eapply S.vload_shape_oob; rel_prem Hm)
+            | (eapply S.vload_shape_val; rel_prem Hm)
+            | (eapply S.vload_splat_oob; rel_prem Hm)
+            | (eapply S.vload_splat_val; rel_prem Hm)
+            | (eapply S.vload_zero_oob; rel_prem Hm)
+            | (eapply S.vload_zero_val; rel_prem Hm)
+            | (eapply S.vload_lane_oob; rel_prem Hm)
+            | (eapply S.vload_lane_val; rel_prem Hm) ]
+  end;
+  match goal with Hwf : S.wf_config _ |- _ => apply wf_cfg_instrs in Hwf end;
+  first [ apply: sim_vload | apply: sim_vload_lane ]; eassumption.
+
 Lemma Step_read_sim z es es' :
+  simd_typed es ->
   S.Step_read (S.mk_config z es) es' -> S.wf_config (S.mk_config z es) -> ok_redex z es ->
   sim (S.mk_config z es) (S.mk_config z es').
 Proof.
-  move=> H. remember (S.mk_config z es) as c eqn:Hc. case: H Hc.
+  move=> Htyp H. remember (S.mk_config z es) as c eqn:Hc. case: H Hc.
+  all: strip_rels.
   all: try (excl; fail).
+  all: try (vload_tac Htyp; fail).
   - (* block *)
     move=> z0 k vs bt ins n t1 t2 /eqP Hft /eqP Hk1 /eqP Hk2 /eqP Hn [<- <-] Hwf Hok.
     case: z0 Hft Hwf Hok => s f Hft Hwf Hok. subst n.
@@ -1693,15 +2341,20 @@ Proof.
     apply: sim_call_indirect_trap => //.
     + move=> /N.ltb_spec0 Hlt. move: Hr. rewrite Hlt. exact: funcref_okP.
     + move=> [a [Hlt [Ha [Hf Ht]]]]. apply: Hnot.
-      apply: (@S.call_indirect_call_0 _ _ _ _ a).
+      apply: (@S.call_indirect_call_0 _ _ _ _ a (F.fun_type_f (S.mk_state s f) y)
+                (F.fun_table_f (S.mk_state s f) x)).
+      * apply: F.fun_type_intro. exact/N.ltb_spec0.
+      * case: Hx => Hx1 Hx2. apply: F.fun_table_intro; exact/N.ltb_spec0.
       * exact/N.ltb_spec0.
       * by [].
       * by apply/eqP.
       * exact/N.ltb_spec0.
       * by apply/eqP.
   - (* call_addr *)
-    move=> z0 k vs a n f' ins t1 t2 mm fn x ts /N.ltb_spec0 Ha /eqP Hfi /eqP Hfn Hd /eqP Hf' _ _ _
+    move=> z0 k vs a n f' ins t1 t2 mm fn x ts /N.ltb_spec0 Ha /eqP Hfi /eqP Hfn
+           /Forall_seq_map Hd /eqP Hf' _ _ _
            /eqP Hk1 /eqP Hk2 /eqP Hn [<- <-] Hwf Hok.
+    rewrite F.map_the_default in Hf'.
     case: z0 Ha Hfi Hwf Hok => s f Ha Hfi Hwf Hok. subst fn f' n.
     move: Hok; rewrite /ok_redex rev_cat /= => Hok.
     apply: (@sim_call_addr s f vs a t1 t2 mm x ts ins) => //.
@@ -1790,6 +2443,28 @@ Proof.
     move: Hok; rewrite /ok_redex /= => /andP [/addr_okP Hx /addr_okP Hy].
     have := @sim_table_init s f x y nj ni n Hx Hy Hnj Hni Hn.
     by rewrite (leb_ltb_false H5) (leb_ltb_false H5') (neq_eqb_false H4).
+  - (* load_num_trap *)
+    move=> z0 i nt ao _ _ H3 _ [<- <-] Hwf Hok. case: z0 H3 Hwf Hok => s f H3 Hwf Hok.
+    wf_all. grab_i32 i ni Hni. norm.
+    move: Hok; rewrite /ok_redex /= orbF => /addr_okP Hm.
+    apply: sim_load_num_trap Hm Hni _. move: H3. rewrite qlen. by move/N.ltb_spec0.
+  - (* load_num_val *)
+    move=> z0 i nt ao c0 _ _ H3 H4 _ [<- <-] Hwf Hok. case: z0 H3 H4 Hwf Hok => s f H3 H4 Hwf Hok.
+    wf_all. grab_i32 i ni Hni. norm.
+    move: Hok; rewrite /ok_redex /= orbF => /addr_okP Hm.
+    apply: sim_load_num Hm Hni H4 _. move/eqP: H3. by rewrite qlen.
+  - (* load_pack_trap *)
+    move=> z0 i t n sx ao _ H2 _ [<- <-] Hwf Hok. case: z0 H2 Hwf Hok => s f H2 Hwf Hok.
+    wf_all. grab_i32 i ni Hni. norm.
+    have [Hsz Hn] := wf_load_pack ltac:(eassumption).
+    move: Hok; rewrite /ok_redex /= eqxx orbF => /addr_okP Hm.
+    apply: sim_load_pack_trap Hm Hni Hsz Hn _. move: H2. rewrite qdiv8. by move/N.ltb_spec0.
+  - (* load_pack_val *)
+    move=> z0 i t n sx ao c0 _ _ H3 H4 _ [<- <-] Hwf Hok. case: z0 H3 H4 Hwf Hok => s f H3 H4 Hwf Hok.
+    wf_all. grab_i32 i ni Hni. norm.
+    have [Hsz Hn] := wf_load_pack ltac:(eassumption).
+    move: Hok; rewrite /ok_redex /= eqxx orbF => /addr_okP Hm.
+    apply: sim_load_pack Hm Hni Hsz Hn H4 _. move/eqP: H3. by rewrite qdiv8.
   - (* memory_size *)
     move=> z0 n /eqP Hn _ [<- <-] Hwf Hok. case: z0 Hn Hwf Hok => s f Hn _ Hok.
     move: Hok; rewrite /ok_redex /= => /addr_okP Hm.
@@ -1864,20 +2539,6 @@ Qed.
 
 (** * Plain redexes and contexts *)
 
-Definition is_val_admin (a : S.admininstr) : bool :=
-  match a with
-  | S.admininstr_CONST _ _ | S.admininstr_VCONST _ _ | S.admininstr_REF_NULL _
-  | S.admininstr_REF_FUNC_ADDR _ | S.admininstr_REF_HOST_ADDR _ => true
-  | _ => false
-  end.
-
-(* A plain redex: operand values followed by one non-value instruction. *)
-Definition redex_shape (es : seq S.admininstr) : bool :=
-  match rev es with
-  | a :: vs => all is_val_admin vs && ~~ is_val_admin a
-  | [ ::] => false
-  end.
-
 Lemma val_admin_is_val v : is_val_admin (S.admininstr_val v).
 Proof. by case: v. Qed.
 
@@ -1918,23 +2579,24 @@ Notation cfg s f es := (S.mk_config (S.mk_state s f) es).
    byte list ([v128_default = nil]) instead of 16 zero bytes. *)
 Definition has_v128_local (s : S.store) (a : S.funcaddr) : bool := ~~ callee_okb s a.
 
+(* The number of bytes a store writes. *)
+Definition store_width (nt : S.numtype) (so : option S.sz) : N :=
+  match so with None => tnum_length (tr_numtype nt) | Some (S.mk_sz n) => (n / 8)%num end.
+
 Inductive Step_exc : S.config -> S.config -> Prop :=
   (* numeric disagreements and pure vector steps *)
   | exc_pure z es es' :
       Exc_pure es es' -> Step_exc (S.mk_config z es) (S.mk_config z es')
-  (* loads and stores: SpecTec's byte encodings [nbytes_]/[ibytes_] are axioms *)
-  | exc_load z vs nt lo ao c' :
-      S.Step (S.mk_config z (map S.admininstr_val vs ++ [ :: S.admininstr_LOAD nt lo ao])) c' ->
-      Step_exc (S.mk_config z (map S.admininstr_val vs ++ [ :: S.admininstr_LOAD nt lo ao])) c'
-  | exc_store z vs nt so ao c' :
-      S.Step (S.mk_config z (map S.admininstr_val vs ++ [ :: S.admininstr_STORE nt so ao])) c' ->
-      Step_exc (S.mk_config z (map S.admininstr_val vs ++ [ :: S.admininstr_STORE nt so ao])) c'
-  (* vector instructions, including vector loads and stores: WasmCert's SIMD
-     semantics is opaque *)
-  | exc_vector z vs a c' :
-      is_vec_admin a ->
-      S.Step (S.mk_config z (map S.admininstr_val vs ++ [ :: a])) c' ->
-      Step_exc (S.mk_config z (map S.admininstr_val vs ++ [ :: a])) c'
+  (* a store that succeeds although it is (partly) out of bounds: SpecTec's
+     store rules have no bounds premise, and [list_slice_update] ignores the
+     out-of-bounds bytes, whereas WasmCert traps *)
+  | exc_oob_store s f i nt c so ao z' :
+      S.Step (cfg s f [ :: i32c i; S.admininstr_CONST nt c; S.admininstr_STORE nt so ao]) (S.mk_config z' [ ::]) ->
+      (N.of_nat (size (S.BYTES (F.fun_mem_f (S.mk_state s f) (S.mk_uN 0)))) <
+         i + tr_u32 (S.OFFSET ao) + store_width nt so)%num ->
+      Step_exc (cfg s f [ :: i32c i; S.admininstr_CONST nt c; S.admininstr_STORE nt so ao]) (S.mk_config z' [ ::])
+  (* vector stores where the two semantics disagree *)
+  | exc_vstore c c' : Vstore_disagree c c' -> Step_exc c c'
   (* calls to a function with a v128 local *)
   | exc_call_v128 s f vs a c' :
       has_v128_local s a ->
@@ -1943,12 +2605,12 @@ Inductive Step_exc : S.config -> S.config -> Prop :=
   (* SpecTec may fail table.grow and memory.grow when WasmCert would grow *)
   | exc_table_grow_fail s f r n x m :
       S.fun_inv_signed_ 32%num (-1)%Z m ->
-      growtable (tr_tableinst (S.fun_table (S.mk_state s f) x)) n (tr_ref r) <> None ->
+      growtable (tr_tableinst (F.fun_table_f (S.mk_state s f) x)) n (tr_ref r) <> None ->
       Step_exc (cfg s f [ :: S.admininstr_ref r; i32c n; S.admininstr_TABLE_GROW x])
                (cfg s f [ :: i32c m])
   | exc_memory_grow_fail s f n m :
       S.fun_inv_signed_ 32%num (-1)%Z m ->
-      mem_grow (tr_meminst (S.fun_mem (S.mk_state s f) (S.mk_uN 0))) n <> None ->
+      mem_grow (tr_meminst (F.fun_mem_f (S.mk_state s f) (S.mk_uN 0))) n <> None ->
       Step_exc (cfg s f [ :: i32c n; S.admininstr_MEMORY_GROW]) (cfg s f [ :: i32c m])
   (* the above, in SpecTec's evaluation contexts *)
   | exc_label z n ins es z' es' :
@@ -1961,6 +2623,98 @@ Inductive Step_exc : S.config -> S.config -> Prop :=
       Step_exc (S.mk_config z es) (S.mk_config z' es') ->
       Step_exc (S.mk_config z (map S.admininstr_val vs ++ es ++ es1))
                (S.mk_config z' (map S.admininstr_val vs ++ es' ++ es1)).
+
+(** * Named disagreements
+
+   The steps where SpecTec and WasmCert disagree, as named predicates on
+   SpecTec steps (the vector ones are [Vstore_disagree], in builtins.v).  The
+   main theorem [Step_sim_eventually] assumes that the step is none of them in
+   any evaluation context ([In_ctx]), and that no function of the store has a
+   v128 local ([No_v128_locals]). *)
+
+(* [EXTEND n] for an [n] that is not a multiple of 8: SpecTec sign-extends
+   from bit [n], WasmCert from byte [n/8] (see [ext_ok]). *)
+Inductive Bad_extend : S.config -> S.config -> Prop :=
+  | bad_extend z nt c1 op es' :
+      ~~ ext_ok op ->
+      Bad_extend (S.mk_config z [ :: S.admininstr_CONST nt c1; S.admininstr_UNOP nt op])
+                 (S.mk_config z es').
+
+(* Division or remainder by zero that produces a value instead of trapping:
+   the general clauses of the spec's [div] / [rem] functions, signed and
+   unsigned, also apply to a zero divisor (see [divzero]). *)
+Inductive Divzero_value : S.config -> S.config -> Prop :=
+  | divzero_value z nt op c1 c2 c :
+      divzero op c2 ->
+      Divzero_value (S.mk_config z [ :: S.admininstr_CONST nt c1; S.admininstr_CONST nt c2;
+                                       S.admininstr_BINOP nt op])
+                    (S.mk_config z [ :: S.admininstr_CONST nt c]).
+
+(* A scalar store that succeeds although it is (partly) out of bounds:
+   SpecTec's store rules have no bounds premise, and [list_slice_update]
+   ignores the out-of-bounds bytes, whereas WasmCert traps. *)
+Inductive Oob_store : S.config -> S.config -> Prop :=
+  | oob_store s f i nt c so ao z' :
+      (N.of_nat (size (S.BYTES (F.fun_mem_f (S.mk_state s f) (S.mk_uN 0)))) <
+         i + tr_u32 (S.OFFSET ao) + store_width nt so)%num ->
+      Oob_store (cfg s f [ :: i32c i; S.admininstr_CONST nt c; S.admininstr_STORE nt so ao])
+                (S.mk_config z' [ ::]).
+
+(* table.grow and memory.grow may fail in SpecTec when WasmCert grows. *)
+Inductive Spurious_grow_fail : S.config -> S.config -> Prop :=
+  | spurious_table_grow s f r n x m :
+      S.fun_inv_signed_ 32%num (-1)%Z m ->
+      growtable (tr_tableinst (F.fun_table_f (S.mk_state s f) x)) n (tr_ref r) <> None ->
+      Spurious_grow_fail (cfg s f [ :: S.admininstr_ref r; i32c n; S.admininstr_TABLE_GROW x])
+                         (cfg s f [ :: i32c m])
+  | spurious_memory_grow s f n m :
+      S.fun_inv_signed_ 32%num (-1)%Z m ->
+      mem_grow (tr_meminst (F.fun_mem_f (S.mk_state s f) (S.mk_uN 0))) n <> None ->
+      Spurious_grow_fail (cfg s f [ :: i32c n; S.admininstr_MEMORY_GROW]) (cfg s f [ :: i32c m]).
+
+(* A step property, in SpecTec's evaluation contexts. *)
+Inductive In_ctx (P : S.config -> S.config -> Prop) : S.config -> S.config -> Prop :=
+  | ctx_here c c' : P c c' -> In_ctx P c c'
+  | ctx_label z n ins es z' es' :
+      In_ctx P (S.mk_config z es) (S.mk_config z' es') ->
+      In_ctx P (S.mk_config z [ :: S.LABEL_ n ins es]) (S.mk_config z' [ :: S.LABEL_ n ins es'])
+  | ctx_frame s f n f' es s' f'' es' :
+      In_ctx P (cfg s f' es) (cfg s' f'' es') ->
+      In_ctx P (cfg s f [ :: S.FRAME_ n f' es]) (cfg s' f [ :: S.FRAME_ n f'' es'])
+  | ctx_instrs z vs es es1 z' es' :
+      In_ctx P (S.mk_config z es) (S.mk_config z' es') ->
+      In_ctx P (S.mk_config z (map S.admininstr_val vs ++ es ++ es1))
+               (S.mk_config z' (map S.admininstr_val vs ++ es' ++ es1)).
+
+(* No function of the store has a v128 local: WasmCert initialises v128
+   locals with an empty default ([v128_default = nil]). *)
+Definition No_v128_locals (c : S.config) : Prop :=
+  let: S.mk_config (S.mk_state s _) _ := c in forall a, ~~ has_v128_local s a.
+
+Lemma Step_exc_named c c' :
+  Step_exc c c' -> No_v128_locals c ->
+  In_ctx Bad_extend c c' \/ In_ctx Divzero_value c c' \/ In_ctx Oob_store c c' \/
+  In_ctx Vstore_disagree c c' \/ In_ctx Spurious_grow_fail c c'.
+Proof.
+  elim=> {c c'}.
+  - move=> z es es' [nt c1 op es'' Hx | nt op c1 c2 c Hd] _.
+    + left. apply: ctx_here. exact: bad_extend.
+    + right; left. apply: ctx_here. exact: divzero_value.
+  - move=> s f i nt c so ao z' _ Hb _. do 2 right; left. apply: ctx_here. exact: oob_store.
+  - move=> c c' Hd _. do 3 right; left. exact: ctx_here.
+  - move=> s f vs a c' Hv _ /= Hn. by move: (Hn a); rewrite Hv.
+  - move=> s f r n x m Hm Hg _. do 4 right. apply: ctx_here. exact: spurious_table_grow.
+  - move=> s f n m Hm Hg _. do 4 right. apply: ctx_here. exact: spurious_memory_grow.
+  - move=> z n ins es z' es' _ IH Hn.
+    case: (IH Hn) => [H|[H|[H|[H|H]]]];
+      [left | right; left | do 2 right; left | do 3 right; left | do 4 right]; exact: ctx_label H.
+  - move=> s f n f' es s' f'' es' _ IH Hn.
+    case: (IH Hn) => [H|[H|[H|[H|H]]]];
+      [left | right; left | do 2 right; left | do 3 right; left | do 4 right]; exact: ctx_frame H.
+  - move=> z vs es es1 z' es' _ IH Hn.
+    case: (IH Hn) => [H|[H|[H|[H|H]]]];
+      [left | right; left | do 2 right; left | do 3 right; left | do 4 right]; exact: ctx_instrs H.
+Qed.
 
 (** * Side conditions guaranteed by typing
 
@@ -2106,8 +2860,8 @@ Qed.
 Lemma table_refs_typed x lim :
   (x <? |context_TABLES C'|)%N ->
   lookup_total (context_TABLES C') x = mk_tabletype lim FUNCREF ->
-  forall n, (n <? |REFS (fun_table (mk_state s f) (mk_uN x))|)%N ->
-  funcref_okb s (lookup_total (REFS (fun_table (mk_state s f) (mk_uN x))) n).
+  forall n, (n <? |REFS (F.fun_table_f (mk_state s f) (mk_uN x))|)%N ->
+  funcref_okb s (lookup_total (REFS (F.fun_table_f (mk_state s f) (mk_uN x))) n).
 Proof.
   move=> Hx Ht n Hn. apply: funcref_typed.
   case: (Forall2_lookup (minst_invert_tables _ _ _ _ Hmi Hm) Hx) => refs [tbt' [Ha [Etab Hsub]]].
@@ -2117,7 +2871,7 @@ Proof.
   case: (Forall2_lookup Htabs Ha'') => refs' [m [rt [Etb [Etbt [_ Hrefs]]]]].
   rewrite Etab in Etb. case: Etb => Etyp Erefs. rewrite Ht Etyp Etbt in Hsub.
   inversion Hsub as [ | | tt1 tt2 Hts | ]; subst. inversion Hts; subst.
-  move: Hn. rewrite /fun_table /= Etab /= => Hn. exact: Forall_lookup Hrefs Hn.
+  move: Hn. rewrite /F.fun_table_f /= Etab /= => Hn. exact: Forall_lookup Hrefs Hn.
 Qed.
 
 Lemma mem_typed :
@@ -2194,15 +2948,14 @@ Qed.
 
 (** * The typed side conditions *)
 
-(* What remains of [ok_redex] once typing is known: the redex is not a memory
-   or vector instruction, and a called function has no v128 locals. *)
+(* What remains of [ok_redex] once typing is known: a called function has no
+   v128 locals. *)
 Definition covered (z : state) (es : seq admininstr) : bool :=
   match z with
   | mk_state s _ =>
     match rev es with
     | CALL_ADDR a :: _ => callee_okb s a
-    | a :: _ => ~~ is_mem_admin a && ~~ is_vec_admin a
-    | [ ::] => true
+    | _ => true
     end
   end.
 
@@ -2242,6 +2995,21 @@ Proof.
   all: try (match goal with H : Blocktype_ok _ _ _ |- _ =>
               inversion H; subst; simpl; first [ done | rewrite (type_typed Hmi Hm); done ] end).
   all: try (rewrite (mem_typed Hmi Hm) ?(pages_typed Hs Hmi Hvals Hm) ?(data_typed Hmi Hm); done).
+  (* loads and stores *)
+  all: try (match goal with |- is_true (addr_okb _ _ _ || _) => idtac end;
+            match goal with o : option loadop_ |- _ =>
+              destruct v_numtype; destruct o as [[[ ] [[m] sx]]| ]; simpl in Hpt |- *; flatten;
+              by rewrite ?orbT // (mem_typed Hmi Hm) end).
+  all: try (match goal with sz_opt : option sz |- _ =>
+              destruct sz_opt as [[m]| ]; flatten; by rewrite (mem_typed Hmi Hm) end).
+  (* vector loads and stores: principal typing is trivial, go through Instr_ok *)
+  all: try (match goal with |- is_true (addr_okb (S.MEMS _) _ _) => idtac end;
+            case/ais_composition_typing: (Hty) => ? [_ Hl];
+            first [ move/(type_preservation_pure.ais_single_plain_typing_inversion _ _ (VLOAD _ _ _)): Hl => [? [? [Hi _]]]
+                  | move/(type_preservation_pure.ais_single_plain_typing_inversion _ _ (VLOAD_LANE _ _ _ _)): Hl => [? [? [Hi _]]]
+                  | move/(type_preservation_pure.ais_single_plain_typing_inversion _ _ (VSTORE _ _)): Hl => [? [? [Hi _]]]
+                  | move/(type_preservation_pure.ais_single_plain_typing_inversion _ _ (VSTORE_LANE _ _ _ _)): Hl => [? [? [Hi _]]] ];
+            inversion Hi; subst; by rewrite (mem_typed Hmi Hm)).
   - (* call_indirect: every entry of a funcref table is a valid reference *)
     case: rest Hvs {Ees Hty} => [ |b rest] //= _.
     case: b => //= nt [inn [n] | ? ?] //=.
@@ -2296,6 +3064,28 @@ Proof.
   exists (rev vs), a. by rewrite -[es]revK E Ers rev_cons -cats1 map_rev.
 Qed.
 
+Lemma simd_of_instr a k : simd_of a = Some k -> exists i, a = S.admininstr_instr i.
+Proof.
+  case: a => //= *.
+  all: first [ (eexists (S.VVUNOP _ _); reflexivity) | (eexists (S.VUNOP _ _); reflexivity) | (eexists (S.VEXTUNOP _ _ _); reflexivity)
+             | (eexists (S.VCVTOP _ _ _); reflexivity) | (eexists (S.VVBINOP _ _); reflexivity) | (eexists (S.VBINOP _ _); reflexivity)
+             | (eexists (S.VRELOP _ _); reflexivity) | (eexists (S.VSWIZZLE _); reflexivity) | (eexists (S.VSHUFFLE _ _); reflexivity)
+             | (eexists (S.VEXTBINOP _ _ _); reflexivity) | (eexists (S.VNARROW _ _ _); reflexivity) | (eexists (S.VVTERNOP _ _); reflexivity)
+             | (eexists (S.VVTESTOP _ _); reflexivity) | (eexists (S.VTESTOP _ _); reflexivity) | (eexists (S.VBITMASK _); reflexivity)
+             | (eexists (S.VSHIFTOP _ _); reflexivity) | (eexists (S.VSPLAT _); reflexivity) | (eexists (S.VEXTRACT_LANE _ _ _); reflexivity)
+             | (eexists (S.VREPLACE_LANE _ _); reflexivity) | (eexists (S.VLOAD _ _ _); reflexivity) | (eexists (S.VLOAD_LANE _ _ _ _); reflexivity)
+             | (eexists (S.VSTORE _ _); reflexivity) | (eexists (S.VSTORE_LANE _ _ _ _); reflexivity) ].
+Qed.
+
+(* Typed configurations give the typing premise of the SIMD axioms. *)
+Lemma Inv_simd_typed s f es : Inv s f es -> simd_typed es.
+Proof.
+  case=> C [C' [t1 [t2 [_ [_ [_ [_ Hty]]]]]]] vs i Ees. subst es.
+  case/ais_composition_typing: Hty => t3 [_ Hl].
+  case/(type_preservation_pure.ais_single_plain_typing_inversion _ _ i): Hl => ta [tb [Hi _]].
+  by exists C', (ta :-> tb).
+Qed.
+
 (* A step on a redex that is not covered is one of the named exceptions. *)
 Lemma uncovered_exc z es c' :
   Step (mk_config z es) c' -> redex_shape es -> covered z es = false ->
@@ -2303,8 +3093,7 @@ Lemma uncovered_exc z es c' :
 Proof.
   move=> Hst /redex_vals [vs [a Ees]]. subst es. case: z Hst => s f Hst.
   rewrite /covered rev_cat /=. case: a Hst => //= *.
-  all: first [ by apply: exc_load | by apply: exc_store | by apply: exc_vector
-             | apply: exc_call_v128 => //;
+  all: first [ apply: exc_call_v128 => //;
                match goal with H : callee_okb _ _ = false |- _ => by rewrite /has_v128_local H end ].
 Qed.
 
@@ -2585,6 +3374,29 @@ Section Eventually.
 
 Context `{hfc : host_function_class} `{ho : @host hfc memory_tr}.
 
+(* Pure vector steps, through the SIMD axioms of builtins.v. *)
+Lemma sim_vec_pure es es' :
+  S.Step_pure es es' -> List.Forall S.wf_admininstr es -> simd_typed es ->
+  vec_redex es -> redex_shape es -> forall s f, sim (cfg s f es) (cfg s f es').
+Proof.
+  move=> Hp Hw Ht Hv /redex_vals [vs [a Ees]] s f. subst es.
+  move: Hv; rewrite /vec_redex rev_cat /=.
+  case Hk: (simd_of a) => [k| ] // Hk'.
+  case: (simd_of_instr Hk) => i Ea. subst a.
+  have Hr : simd_redex k vs i (map S.admininstr_val vs ++ [ :: S.admininstr_instr i]).
+  { split => //. split => //. split => //. exact: Ht vs i erefl. }
+  apply: simple_sim.
+  case: k Hk Hk' Hr => // _ _ Hr.
+  - exact: simd_unop_tr Hr Hp.
+  - exact: simd_binop_tr Hr Hp.
+  - exact: simd_ternop_tr Hr Hp.
+  - exact: simd_testop_tr Hr Hp.
+  - exact: simd_shiftop_tr Hr Hp.
+  - exact: simd_splat_tr Hr Hp.
+  - exact: simd_extract_tr Hr Hp.
+  - exact: simd_replace_tr Hr Hp.
+Qed.
+
 Lemma label_pending_br s f C' n ins (t : S.resulttype) es es'' :
   br_pending (prepend_label C' t) es es'' -> n = N.of_nat (size t) ->
   wf_es es'' -> S.wf_state (S.mk_state s f) -> List.Forall S.wf_instr ins ->
@@ -2755,15 +3567,45 @@ Ltac excl_leaf :=
     right; right; apply: (uncovered_exc Hst);
     [ by rewrite /redex_shape /= | by rewrite /covered /= ] end.
 
+(* The premises of the SIMD store axioms, from the typing invariant. *)
+Lemma vstore_redex s f C C' vs i k :
+  InvXc (cfg s f (map S.admininstr_val vs ++ [ :: S.admininstr_instr i])) C C' ->
+  S.wf_config (cfg s f (map S.admininstr_val vs ++ [ :: S.admininstr_instr i])) ->
+  simd_of (S.admininstr_instr i) = Some k ->
+  simd_redex k vs i (map S.admininstr_val vs ++ [ :: S.admininstr_instr i]).
+Proof.
+  move=> Hinv Hwf Hk. split => //. split => //. split; last exact: wf_cfg_instrs Hwf.
+  exact: (Inv_simd_typed (InvX_Inv Hinv)) vs i erefl.
+Qed.
+
+(* Vector stores, through [simd_store_tr] and [simd_store_lane_tr]. *)
+Lemma sim_vstore s f vs i k es z' es' :
+  simd_redex k vs i es -> (k = SF_store \/ k = SF_store_lane) -> mem_exists s f ->
+  S.Step (cfg s f es) (S.mk_config z' es') ->
+  ~ Vstore_disagree (cfg s f es) (S.mk_config z' es') ->
+  sim (cfg s f es) (S.mk_config z' es').
+Proof.
+  case: z' => s' f' Hr Hk Hm Hst Hnd hs. apply: reduce_trans_step.
+  case: Hk => ?; subst k.
+  - exact: simd_store_tr Hr Hm Hst Hnd.
+  - exact: simd_store_lane_tr Hr Hm Hst Hnd.
+Qed.
+
+Lemma numtype_Inn_inj t t' : S.numtype_Inn t = S.numtype_Inn t' -> t' = t.
+Proof. by case: t; case: t'. Qed.
+
 Lemma step_eventually c c' :
   S.Step c c' -> S.wf_config c -> forall C C', InvXc c C C' ->
   sim c c' \/ eventually_sim C' c c' \/ Step_exc c c'.
 Proof.
   move=> H. move: (H). elim: H => {c c'}.
+  all: strip_rels.
   - (* pure *)
     move=> [s f] es es' Hp _ Hwf C C' Hinv.
-    case: (Step_pure_sim Hp (wf_cfg_instrs Hwf)) => [H | [H | H]].
+    case: (Step_pure_sim Hp (wf_cfg_instrs Hwf)) => [H | [H | [H | [Hv Hsh]]]].
     + left. exact: H.
+    3: { left. apply: (sim_vec_pure Hp (wf_cfg_instrs Hwf) _ Hv Hsh).
+         exact: Inv_simd_typed (InvX_Inv Hinv). }
     + right; right. exact: exc_pure.
     + (* a label exit starts a pending break or return *)
       right; left. case: H Hwf Hinv => [n ins vs x rest | n ins vs rest] Hwf Hinv.
@@ -2808,7 +3650,7 @@ Proof.
         done.
   - (* read *)
     move=> [s f] es es' Hr _ Hwf C C' Hinv. case Hok: (ok_redex (S.mk_state s f) es).
-    + left. exact: Step_read_sim.
+    + left. exact: (Step_read_sim (Inv_simd_typed (InvX_Inv Hinv)) Hr Hwf Hok).
     + right; right. have Hsh := Step_read_shape Hr.
       apply: (uncovered_exc (S.read _ _ _ Hr) Hsh). exact: covered_false (InvX_Inv Hinv) Hsh Hok.
   - (* ctxt_label *)
@@ -2912,7 +3754,7 @@ Proof.
     case Hok: (ok_redex (S.mk_state s f) [ :: S.admininstr_ref r; i32c n; S.admininstr_TABLE_GROW x]).
     + move: Hok; rewrite /ok_redex /= => /addr_okP Hx.
       have Hw := wf_cfg_instrs Hwf. wf_get. grab_lit n Hn.
-      case Hg: (growtable (tr_tableinst (S.fun_table (S.mk_state s f) x)) n (tr_ref r)) => [t| ].
+      case Hg: (growtable (tr_tableinst (F.fun_table_f (S.mk_state s f) x)) n (tr_ref r)) => [t| ].
       * right; right. apply: exc_table_grow_fail => //. by rewrite Hg.
       * left. exact: sim_table_grow_fail.
     + leaf_exc Hst Hinv.
@@ -2921,14 +3763,120 @@ Proof.
     case Hok: (ok_redex (S.mk_state s f) [ :: S.admininstr_ELEM_DROP x]).
     + left. move: Hok; rewrite /ok_redex /= => /addr_okP Hx. exact: sim_elem_drop.
     + leaf_exc Hst Hinv.
+  - (* store_num_trap *)
+    move=> [s f] i nt c ao _ _ H3 _ Hst Hwf C C' Hinv.
+    case Hok: (ok_redex (S.mk_state s f)
+                 [ :: S.admininstr_CONST S.I32 i; S.admininstr_CONST nt c; S.admininstr_STORE nt None ao]).
+    + left. move: Hok; rewrite /ok_redex /= => /addr_okP Hm.
+      have Hw := wf_cfg_instrs Hwf. wf_get. grab_i32 i ni Hni. norm.
+      apply: sim_store_num_trap Hm Hni _. move: H3. rewrite qlen. by move/N.ltb_spec0.
+    + leaf_exc Hst Hinv.
+  - (* store_num_val *)
+    move=> [s f] i nt c ao b _ _ /eqP Hb Hst Hwf C C' Hinv. subst b.
+    case Hok: (ok_redex (S.mk_state s f)
+                 [ :: S.admininstr_CONST S.I32 i; S.admininstr_CONST nt c; S.admininstr_STORE nt None ao]).
+    + move: Hok; rewrite /ok_redex /= => /addr_okP Hm.
+      have Hw := wf_cfg_instrs Hwf. wf_get. grab_i32 i ni Hni. norm. rewrite qlen in Hst *.
+      case: (N.leb_spec (ni + tr_u32 (S.OFFSET ao) + tnum_length (tr_numtype nt))
+                        (N.of_nat (size (S.BYTES (F.fun_mem_f (S.mk_state s f) (S.mk_uN 0)))))) => Hin.
+      * left. exact: sim_store_num.
+      * right; right. apply: (exc_oob_store Hst). by rewrite /store_width.
+    + leaf_exc Hst Hinv.
+  - (* store_pack_trap *)
+    move=> [s f] i t c n ao _ H2 _ Hst Hwf C C' Hinv.
+    case Hok: (ok_redex (S.mk_state s f)
+                 [ :: S.admininstr_CONST S.I32 i; S.admininstr_CONST (S.numtype_Inn t) c;
+                     S.admininstr_STORE (S.numtype_Inn t) (Some (S.mk_sz n)) ao]).
+    + left. move: Hok; rewrite /ok_redex /= => /addr_okP Hm.
+      have Hw := wf_cfg_instrs Hwf. wf_get. grab_i32 i ni Hni. norm.
+      have [Hsz [t' [Et Hn]]] := wf_store_pack ltac:(eassumption).
+      have Ett : t' = t by apply: numtype_Inn_inj.
+      subst t'.
+      apply: sim_store_pack_trap Hm Hni ltac:(eassumption) Hsz Hn _.
+      move: H2. rewrite qdiv8. by move/N.ltb_spec0.
+    + leaf_exc Hst Hinv.
+  - (* store_pack_val *)
+    move=> [s f] i t c n ao b _ _ Hc0 /eqP Hb Hst Hwf C C' Hinv. subst b.
+    case Hok: (ok_redex (S.mk_state s f)
+                 [ :: S.admininstr_CONST S.I32 i; S.admininstr_CONST (S.numtype_Inn t) c;
+                     S.admininstr_STORE (S.numtype_Inn t) (Some (S.mk_sz n)) ao]).
+    + move: Hok; rewrite /ok_redex /= => /addr_okP Hm.
+      have Hw := wf_cfg_instrs Hwf. wf_get. grab_i32 i ni Hni. norm.
+      have [Hsz [t' [Et Hn]]] := wf_store_pack ltac:(eassumption).
+      have Ett : t' = t by apply: numtype_Inn_inj.
+      subst t'.
+      have [a [Ec Hc]] : exists a, c = S.mk_num__0 t (S.mk_uN a) /\
+                                   S.wf_num_ (S.numtype_Inn t) (S.mk_num__0 t (S.mk_uN a)).
+      { have Hwc : S.wf_num_ (S.numtype_Inn t) c by assumption.
+        destruct c as [t0 [a]|t0 x]; last by rewrite /= in Hc0.
+        have Et0 : t0 = t.
+        { inversion Hwc; subst.
+          match goal with H : is_true (_ == _) |- _ => move/eqP: H => /numtype_Inn_inj -> end. done. }
+        subst t0. by exists a. }
+      subst c. rewrite qdiv8 in Hst *.
+      case: (N.leb_spec (ni + tr_u32 (S.OFFSET ao) + n / 8) (N.of_nat (size (S.BYTES (F.fun_mem_f (S.mk_state s f) (S.mk_uN 0)))))) => Hin.
+      * left. exact: sim_store_pack.
+      * right; right. apply: (exc_oob_store Hst). by rewrite /store_width.
+    + leaf_exc Hst Hinv.
   all: try (excl_leaf; fail).
+  - (* vstore_oob: both trap *)
+    move=> [s f] i c ao _ _ _ _ Hst Hwf C C' Hinv.
+    have Hr := @vstore_redex s f C C' [ :: S.val_CONST S.I32 i; S.val_VCONST S.V128 c]
+                 (S.VSTORE S.V128 ao) SF_store Hinv Hwf erefl.
+    case Hok: (ok_redex (S.mk_state s f)
+                 [ :: S.admininstr_CONST S.I32 i; S.admininstr_VCONST S.V128 c; S.admininstr_VSTORE S.V128 ao]).
+    + left. move: Hok; rewrite /ok_redex /= => /addr_okP Hm.
+      apply: (sim_vstore Hr _ Hm Hst); first by left.
+      by move=> Hd; inversion Hd.
+    + leaf_exc Hst Hinv.
+  - (* vstore_val *)
+    move=> [s f] i c ao b _ _ _ Hst Hwf C C' Hinv.
+    have Hr := @vstore_redex s f C C' [ :: S.val_CONST S.I32 i; S.val_VCONST S.V128 c]
+                 (S.VSTORE S.V128 ao) SF_store Hinv Hwf erefl.
+    case Hok: (ok_redex (S.mk_state s f)
+                 [ :: S.admininstr_CONST S.I32 i; S.admininstr_VCONST S.V128 c; S.admininstr_VSTORE S.V128 ao]).
+    + move: Hok; rewrite /ok_redex /= => /addr_okP Hm.
+      have Hw := wf_cfg_instrs Hwf. wf_get. grab_i32 i ni Hni.
+      case: (N.ltb_spec (vbytesz s f) (vaddr ni ao + 16)) => Hin.
+      * right; right. apply: exc_vstore. exact: vd_store_oob.
+      * left. apply: (sim_vstore Hr _ Hm Hst); first by left.
+        move=> Hd; inversion Hd; subst. lia.
+    + leaf_exc Hst Hinv.
+  - (* vstore_lane_oob *)
+    move=> [s f] i c n ao j _ _ _ Hst Hwf C C' Hinv.
+    have Hr := @vstore_redex s f C C' [ :: S.val_CONST S.I32 i; S.val_VCONST S.V128 c]
+                 (S.VSTORE_LANE S.V128 (S.mk_sz n) ao j) SF_store_lane Hinv Hwf erefl.
+    case Hok: (ok_redex (S.mk_state s f)
+                 [ :: S.admininstr_CONST S.I32 i; S.admininstr_VCONST S.V128 c;
+                     S.admininstr_VSTORE_LANE S.V128 (S.mk_sz n) ao j]).
+    + move: Hok; rewrite /ok_redex /= => /addr_okP Hm.
+      have Hw := wf_cfg_instrs Hwf. wf_get. grab_i32 i ni Hni.
+      case: (N.leb_spec (vaddr ni ao + n / 8) (vbytesz s f)) => Hin.
+      * right; right. apply: exc_vstore. exact: vd_store_lane_trap.
+      * left. apply: (sim_vstore Hr _ Hm Hst); first by right.
+        move=> Hd; inversion Hd; subst. lia.
+    + leaf_exc Hst Hinv.
+  - (* vstore_lane_val *)
+    move=> [s f] i c n ao j b v_Jnn v_M _ _ _ _ _ _ _ Hst Hwf C C' Hinv.
+    have Hr := @vstore_redex s f C C' [ :: S.val_CONST S.I32 i; S.val_VCONST S.V128 c]
+                 (S.VSTORE_LANE S.V128 (S.mk_sz n) ao j) SF_store_lane Hinv Hwf erefl.
+    case Hok: (ok_redex (S.mk_state s f)
+                 [ :: S.admininstr_CONST S.I32 i; S.admininstr_VCONST S.V128 c;
+                     S.admininstr_VSTORE_LANE S.V128 (S.mk_sz n) ao j]).
+    + move: Hok; rewrite /ok_redex /= => /addr_okP Hm.
+      have Hw := wf_cfg_instrs Hwf. wf_get. grab_i32 i ni Hni.
+      case: (N.ltb_spec (vbytesz s f) (vaddr ni ao + n / 8)) => Hin.
+      * right; right. apply: exc_vstore. exact: vd_store_lane_oob.
+      * left. apply: (sim_vstore Hr _ Hm Hst); first by right.
+        move=> Hd; inversion Hd; subst. lia.
+    + leaf_exc Hst Hinv.
   - (* memory_grow_succeed *)
     move=> [s f] n mi v Hg Hv /eqP Hmi _ Hst Hwf C C' Hinv.
     case: v Hg Hv Hmi Hst => [mi'| ] //= Hg _ Hmi Hst. subst mi'.
     case Hok: (ok_redex (S.mk_state s f) [ :: i32c n; S.admininstr_MEMORY_GROW]).
     + left. move: Hok; rewrite /ok_redex /= => /andP [/addr_okP Hm /N.eqb_spec Hp].
       have Hw := wf_cfg_instrs Hwf. wf_get. grab_lit n Hn.
-      set b := N.of_nat (size (S.BYTES (S.fun_mem (S.mk_state s f) (S.mk_uN 0)))).
+      set b := N.of_nat (size (S.BYTES (F.fun_mem_f (S.mk_state s f) (S.mk_uN 0)))).
       have Hk : b = (b / 65536 * 65536)%num.
       { rewrite {1}(N.div_mod b 65536) // Hp. lia. }
       rewrite (page_count Hk). exact: sim_memory_grow Hm Hn Hk Hg.
@@ -2938,7 +3886,7 @@ Proof.
     case Hok: (ok_redex (S.mk_state s f) [ :: i32c n; S.admininstr_MEMORY_GROW]).
     + move: Hok; rewrite /ok_redex /= => /andP [/addr_okP Hmo _].
       have Hw := wf_cfg_instrs Hwf. wf_get. grab_lit n Hn.
-      case Hg: (mem_grow (tr_meminst (S.fun_mem (S.mk_state s f) (S.mk_uN 0))) n) => [mm| ].
+      case Hg: (mem_grow (tr_meminst (F.fun_mem_f (S.mk_state s f) (S.mk_uN 0))) n) => [mm| ].
       * right; right. apply: exc_memory_grow_fail => //. by rewrite Hg.
       * left. exact: sim_memory_grow_fail.
     + leaf_exc Hst Hinv.
@@ -2949,20 +3897,9 @@ Proof.
   + leaf_exc Hst Hinv.
 Qed.
 
-(** Every step of a well-typed configuration is simulated by WasmCert, either
-    directly or eventually, except for the steps in [Step_exc].
-
-    This is the "eventually" forward simulation diagram of CompCert
-    ([Smallstep.forward_simulation_eventually]: "a forward simulation diagram
-    where the first semantics can take some extra steps before reaching a
-    state that restores the simulation relation"), with SpecTec as the first
-    semantics; it is a form of stuttering simulation (Browne, Clarke and
-    Grumberg, 1988), the extra SpecTec steps being matched by no WasmCert step.
-    It differs from CompCert's in two ways: the restoring SpecTec run is
-    existential ([S.Steps]) rather than over all silent runs of a given length,
-    and no measure bounds the stuttering, so the theorem alone does not
-    preserve divergence. *)
-Theorem Step_sim_eventually c c' ts :
+(* Every step of a well-typed configuration is simulated by WasmCert, either
+   directly or eventually, or is one of the exceptions of [Step_exc]. *)
+Lemma Step_sim_eventually_exc c c' ts :
   S.Step c c' -> S.Config_ok c ts ->
   sim c c' \/ (exists c'', S.Steps c' c'' /\ sim c c'') \/ Step_exc c c'.
 Proof.
@@ -2978,6 +3915,38 @@ Proof.
     case: Hbr => [k [lh [l [? [? [? [_ [_ [Hl _]]]]]]]]]. by rewrite HL /= in Hl; lia.
   - (* nor a frame *)
     case: Hret => [k [lh [? [? [? [t [_ [_ [Hr _]]]]]]]]]. by rewrite HR in Hr.
+Qed.
+
+(** Every step of a well-typed configuration is simulated by WasmCert, either
+    directly or eventually, provided that no function of the store has a v128
+    local and that the step is none of the named disagreements, in any
+    evaluation context.  The numeric and vector builtins are related to
+    WasmCert's by the axioms of builtins.v.
+
+    This is the "eventually" forward simulation diagram of CompCert
+    ([Smallstep.forward_simulation_eventually]: "a forward simulation diagram
+    where the first semantics can take some extra steps before reaching a
+    state that restores the simulation relation"), with SpecTec as the first
+    semantics; it is a form of stuttering simulation (Browne, Clarke and
+    Grumberg, 1988), the extra SpecTec steps being matched by no WasmCert step.
+    It differs from CompCert's in two ways: the restoring SpecTec run is
+    existential ([S.Steps]) rather than over all silent runs of a given length,
+    and no measure bounds the stuttering, so the theorem alone does not
+    preserve divergence. *)
+Theorem Step_sim_eventually c c' ts :
+  S.Step c c' -> S.Config_ok c ts ->
+  No_v128_locals c ->
+  ~ In_ctx Bad_extend c c' ->
+  ~ In_ctx Divzero_value c c' ->
+  ~ In_ctx Oob_store c c' ->
+  ~ In_ctx Vstore_disagree c c' ->
+  ~ In_ctx Spurious_grow_fail c c' ->
+  sim c c' \/ exists c'', S.Steps c' c'' /\ sim c c''.
+Proof.
+  move=> Hst Hok Hv H1 H2 H3 H4 H5.
+  case: (Step_sim_eventually_exc Hst Hok) => [H | [H | Hexc]]; [by left | by right | ].
+  by case: (Step_exc_named Hexc Hv) => [H|[H|[H|[H|H]]]];
+    [case: H1 | case: H2 | case: H3 | case: H4 | case: H5].
 Qed.
 
 End Eventually.
