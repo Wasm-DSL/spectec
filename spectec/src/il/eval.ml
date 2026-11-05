@@ -21,6 +21,10 @@ exception Irred
 
 let assume_coherent_matches = ref true
 
+(* when set, an undecidable match leaves the application stuck instead of
+   skipping the clause, needed for overlapping catch-alls on dependent IL *)
+let allow_stuck_applications = ref false
+
 let (let*) = Option.bind
 
 let ($>) it e = {e with it}
@@ -116,6 +120,7 @@ and reduce_typ_app' env id args at = function
     ) @@ fun _ ->
     match match_list match_arg env Subst.empty args args' with
     | exception Irred ->
+      if !allow_stuck_applications then None else
       if not !assume_coherent_matches then None else
       reduce_typ_app' env id args at (Some (ps, insts'))
     | None -> reduce_typ_app' env id args at (Some (ps, insts'))
@@ -521,6 +526,7 @@ and reduce_exp_call env id args at = function
     assert (List.for_all (fun a -> Eq.eq_arg a (reduce_arg env a)) args);
     match match_list match_arg env Subst.empty args args' with
     | exception Irred ->
+      if !allow_stuck_applications then None else
       if not !assume_coherent_matches then None else
       reduce_exp_call env id args at clauses'
     | None -> reduce_exp_call env id args at clauses'

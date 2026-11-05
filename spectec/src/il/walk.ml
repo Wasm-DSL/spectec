@@ -21,6 +21,9 @@ open Ast
 (* Base traversal *)
 
 type transformer = {
+  (* applied before traversal (top-down), on untransformed node *)
+  transform_exp_pre: exp -> exp;
+  transform_path_pre: path -> path;
   transform_exp: exp -> exp;
   transform_prem: prem -> prem;
   transform_iterexp: iterexp -> iterexp;
@@ -43,6 +46,8 @@ let id = Fun.id
 let op_id = fun x -> Some x
 
 let base_transformer = {
+  transform_exp_pre = id;
+  transform_path_pre = id;
   transform_exp = id;
   transform_prem = id;
   transform_iterexp = id;
@@ -72,6 +77,7 @@ let rec transform_typ t typ =
   f { typ with it } 
 
 and transform_exp t e =
+  let e = t.transform_exp_pre e in
   let f = t.transform_exp in
   let t_exp = transform_exp t in
   let it =
@@ -122,6 +128,7 @@ and transform_iterexp t (iter, ides) =
   f iterexp'
 
 and transform_path t p =
+  let p = t.transform_path_pre p in
   let f = t.transform_path in
   let it = (match p.it with
     | RootP -> RootP

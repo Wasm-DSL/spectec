@@ -11,6 +11,9 @@ open Il.Subst
 
 let error at msg = Error.error at "sub expression expansion" msg
 
+(* reduction after subst is cleanup, leave irreducible args to sub pass *)
+let reduce_arg_safe env a = try Il.Eval.reduce_arg env a with Il.Eval.Irred -> a
+
 (* Environment *)
 
 (* Global IL env *)
@@ -97,13 +100,10 @@ let rec collect_all_instances_typ ids at typ =
       List.concat quants, TupE exps $$ at % typ) product
   | _ -> []
 
-let generate_subst_list lhs quants =
-  let base_sube_collector : (id * typ * typ) list collector = base_collector [] (@) in
-  let collector = { base_sube_collector with collect_exp = collect_sube_exp } in
-  (* Collect all unique sub expressions for each argument *)
-  let subs = List.concat_map (fun a -> 
-    Lib.List.nub eq_sube (collect_arg collector a)
-  ) lhs in
+let base_sube_collector : (id * typ * typ) list collector = base_collector [] (@)
+let sube_collector = { base_sube_collector with collect_exp = collect_sube_exp }
+
+let subst_list_of_subs subs quants =
   let ids = List.map get_quant_id quants in
 
   (* Collect all cases for the specific subtype, generating any potential quantifiers in the process *)
@@ -126,10 +126,67 @@ Lib.List.nub (fun (quants', subst) (quants'', subst') ->
     Eq.eq_list Eq.eq_param quants' quants'' && Map.equal (fun exp exp' -> Eq.eq_exp exp exp') subst.varid subst'.varid
   ) subst_list
 
+(* sub exps in type args of family apps, expand use site to concrete instances *)
+let rec collect_sube_in_typ t =
+  match t.it with
+  | VarT (_, args) -> List.concat_map (collect_arg sube_collector) args
+  | TupT pairs -> List.concat_map (fun (_, t') -> collect_sube_in_typ t') pairs
+  | IterT (t', _) -> collect_sube_in_typ t'
+  | _ -> []
+
+(* collect sub exps in type positions, quant types and note types *)
+let collect_typ_subs quants args exps prems =
+  let note_collector =
+    { base_sube_collector with collect_exp = (fun e -> (collect_sube_in_typ e.note, true)) } in
+  let from_quants = List.concat_map (fun q ->
+    match q.it with
+    | ExpP (_, t) -> collect_sube_in_typ t
+    | _ -> []) quants in
+  let from_args = List.concat_map (collect_arg note_collector) args in
+  let from_exps = List.concat_map (collect_exp note_collector) exps in
+  let from_prems = List.concat_map (collect_prem note_collector) prems in
+  (* let-premise bound var types aren't expressions, walk separately *)
+  let rec letpr_quant_subs p = match p.it with
+    | LetPr (qs, _, _) -> List.concat_map (fun q ->
+        match q.it with
+        | ExpP (_, t) -> collect_sube_in_typ t
+        | _ -> []) qs
+    | IterPr (p', _) -> letpr_quant_subs p'
+    | NegPr p' -> letpr_quant_subs p'
+    | _ -> []
+  in
+  let from_letprs = List.concat_map letpr_quant_subs prems in
+  Lib.List.nub eq_sube (from_quants @ from_args @ from_exps @ from_prems @ from_letprs)
+
+let t_rule rule =
+  match rule.it with
+  | RuleD (id, quants, m, exp, prems) ->
+    let subs = collect_typ_subs quants [] [exp] prems in
+    if subs = [] then [rule] else
+    let subst_list = subst_list_of_subs subs quants in
+    List.mapi (fun i (quants', subst) ->
+      let new_exp = Il.Subst.subst_exp subst exp in
+      let new_prems = Il.Subst.subst_list Il.Subst.subst_prem subst prems in
+      let quants_filtered = Lib.List.filter_not (fun b -> match b.it with
+        | ExpP (id, _) -> Il.Subst.mem_varid subst id
+        | _ -> false
+      ) (quants' @ quants) in
+      let new_quants, _ = Il.Subst.subst_params subst quants_filtered in
+      let id' = if List.length subst_list = 1 then id
+        else (id.it ^ "-" ^ string_of_int i) $ id.at in
+      RuleD (id', new_quants, m, new_exp, new_prems) $ rule.at
+    ) subst_list
+
 let t_clause clause =
-  match clause.it with 
+  match clause.it with
   | DefD (quants, lhs, rhs, prems) ->
-    let subst_list = generate_subst_list lhs quants in
+    let lhs_subs = List.concat_map (fun a ->
+      Lib.List.nub eq_sube (collect_arg sube_collector a)) lhs in
+    let typ_subs = collect_typ_subs quants lhs [rhs] prems in
+    let subs = Lib.List.nub eq_sube (lhs_subs @ typ_subs) in
+    (* nothing to expand, leave clause untouched, don't re-reduce args (can diverge) *)
+    if subs = [] then [clause] else
+    let subst_list = subst_list_of_subs subs quants in
     List.map (fun (quants', subst) -> 
       (* Subst all occurrences of the subE id *)
       let new_lhs = Il.Subst.subst_args subst lhs in
@@ -143,13 +200,16 @@ let t_clause clause =
       ) (quants' @ quants) in 
       let new_quants, _ = Il.Subst.subst_params subst quants_filtered in
       (* Reduction is done here to remove subtyping expressions *)
-      DefD (new_quants, List.map (Il.Eval.reduce_arg !env_ref) new_lhs, new_rhs, new_prems) $ clause.at
+      DefD (new_quants, List.map (reduce_arg_safe !env_ref) new_lhs, new_rhs, new_prems) $ clause.at
     ) subst_list
 
 let t_inst inst =
   match inst.it with 
   | InstD (quants, lhs, deftyp) ->
-    let subst_list = generate_subst_list lhs quants in
+    let subs = List.concat_map (fun a ->
+      Lib.List.nub eq_sube (collect_arg sube_collector a)) lhs in
+    if subs = [] then [inst] else
+    let subst_list = subst_list_of_subs (Lib.List.nub eq_sube subs) quants in
     List.map (fun (quants', subst) -> 
       (* Subst all occurrences of the subE id *)
       let new_lhs = Il.Subst.subst_args subst lhs in
@@ -163,17 +223,19 @@ let t_inst inst =
 
       let new_quants, _ = Il.Subst.subst_params subst quants_filtered in
       (* Reduction is done here to remove subtyping expressions *)
-      InstD (new_quants, List.map (Il.Eval.reduce_arg !env_ref) new_lhs, new_rhs) $ inst.at
+      InstD (new_quants, List.map (reduce_arg_safe !env_ref) new_lhs, new_rhs) $ inst.at
     ) subst_list
 
 
-let rec t_def def = 
+let rec t_def def =
   match def.it with
   | RecD defs -> { def with it = RecD (List.map t_def defs) }
   | DecD (id, params, typ, clauses) ->
     { def with it = DecD (id, params, typ, List.concat_map t_clause clauses) }
   | TypD (id, params, insts) ->
     { def with it = TypD (id, params, List.concat_map t_inst insts)}
+  | RelD (id, params, m, typ, rules) ->
+    { def with it = RelD (id, params, m, typ, List.concat_map t_rule rules) }
   | _ -> def
 
 let transform (defs : script) =
