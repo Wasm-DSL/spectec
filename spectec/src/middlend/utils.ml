@@ -31,6 +31,13 @@ and reduce_inst_alias env args inst base_typ =
     ) 
   | _ -> base_typ
 
+let is_part_of_quant (free_set : Free.sets) b =
+  match b.it with
+  | ExpP (id, _) -> Free.Set.mem id.it free_set.varid 
+  | TypP id -> Free.Set.mem id.it free_set.typid
+  | DefP (id, _, _) -> Free.Set.mem id.it free_set.defid
+  | GramP (id, _, _) -> Free.Set.mem id.it free_set.gramid
+
 let generate_var ids id =
   let start = 0 in
   let fresh_prefix = "var" in
@@ -47,6 +54,16 @@ let generate_var ids id =
   | s when List.mem s ids -> go s start
   | _ -> id
 
+let rec annot_new_name name t =
+  match t.it with
+  | IterT (t', iter) -> 
+    assert (iter = List || iter = Opt);
+    annot_new_name name t' ^ Il.Print.string_of_iter iter
+  | _ -> name  
+
+let annot_name old_name name t =
+  if name = old_name then name else annot_new_name name t
+  
 let improve_ids_quants ids generate_all_quants at exp_typ_pairs =
   let rec improve_ids_helper ids qs = 
     match qs with
@@ -54,10 +71,10 @@ let improve_ids_quants ids generate_all_quants at exp_typ_pairs =
     | (q_id, t) :: qs' -> 
       let new_name = generate_var ids q_id.it in 
       let (quants, pairs) = improve_ids_helper (new_name :: ids) qs' in
-      let new_pairs = (new_name $ q_id.at, t) :: pairs in 
+      let new_pairs = (annot_name q_id.it new_name t $ q_id.at, t) :: pairs in 
       if not generate_all_quants && new_name = q_id.it
         then (quants, new_pairs)
-        else ((ExpP (new_name $ q_id.at, t) $ at) :: quants, new_pairs)
+        else ((ExpP (annot_name q_id.it new_name t $ q_id.at, t) $ at) :: quants, new_pairs)
   in
   improve_ids_helper ids exp_typ_pairs
 
@@ -68,7 +85,7 @@ let get_param_id p =
 let improve_ids_params params =
   let reconstruct_param id p = 
     (match p.it with
-    | ExpP (_, t) -> ExpP (id, t)
+    | ExpP (_, t) -> ExpP (annot_new_name id.it t $ id.at, t)
     | TypP _ -> TypP id
     | DefP (_, params, r_typ) -> DefP (id, params, r_typ)
     | GramP (_, params, r_typ) -> GramP (id, params, r_typ)
@@ -80,7 +97,9 @@ let improve_ids_params params =
     | p :: ps' -> 
       let p_id = get_param_id p in
       let new_name = generate_var ids p_id.it $ p_id.at in 
-      reconstruct_param new_name p :: improve_ids_helper (new_name.it :: ids) ps' 
+      if p_id.it = new_name.it 
+        then p :: improve_ids_helper (p_id.it :: ids) ps' 
+        else reconstruct_param new_name p :: improve_ids_helper (new_name.it :: ids) ps' 
   in
   improve_ids_helper [] params
 

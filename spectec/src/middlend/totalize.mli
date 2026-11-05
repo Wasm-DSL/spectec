@@ -21,4 +21,6 @@ All calls to such functions are wrapped in option projection `THE e`.
 
 *)
 
+val partial_hint_id : string
 val transform : Il.Ast.script -> Il.Ast.script
+
