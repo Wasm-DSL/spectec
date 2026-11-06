@@ -1265,7 +1265,7 @@ lemma frel_bits:
   "wf_uN (Suc 0) (feq_underscore n x y)" "wf_uN (Suc 0) (fne_underscore n x y)"
   "wf_uN (Suc 0) (flt_underscore n x y)" "wf_uN (Suc 0) (fgt_underscore n x y)"
   "wf_uN (Suc 0) (fle_underscore n x y)" "wf_uN (Suc 0) (fge_underscore n x y)"
-  by (rule wf_uN_1I, rule frel_bool)+
+  by (rule wf_uN_1I, rule frel_bool1 frel_bool2 frel_bool3 frel_bool4 frel_bool5 frel_bool6)+
 
 lemmas bit_lemmas = ieq_bit ine_bit icmp_some_bit frel_bits
 
@@ -3704,7 +3704,7 @@ next
            apply (simp_all only:)
     apply (simp_all (no_asm) only: vt_simps)
     apply (rule exI, rule conjI, rule fun_lcvtop__underscore.intros, (rule HOL.refl | simp only: size_fun_rel_simps)+,
-        simp add: float_cvt_nonempty)+
+        simp add: float_cvt_nonempty demote_nonempty promote_nonempty)+
     done
 qed
 

@@ -34,21 +34,26 @@ axiomatization where length_lanes:
   
 
 (* Float comparisons are uninterpreted, so nothing says their result is a boolean. *)
-lemma frel_bool:
-  "proj_uN_0 (feq_underscore n x y) \<le> 1" "proj_uN_0 (fne_underscore n x y) \<le> 1"
-  "proj_uN_0 (flt_underscore n x y) \<le> 1" "proj_uN_0 (fgt_underscore n x y) \<le> 1"
-  "proj_uN_0 (fle_underscore n x y) \<le> 1" "proj_uN_0 (fge_underscore n x y) \<le> 1"
-  sorry
+axiomatization where 
+frel_bool1: "proj_uN_0 (feq_underscore n x y) \<le> 1" and
+frel_bool2: "proj_uN_0 (fne_underscore n x y) \<le> 1" and
+frel_bool3:  "proj_uN_0 (flt_underscore n x y) \<le> 1" and 
+frel_bool4: "proj_uN_0 (fgt_underscore n x y) \<le> 1" and
+frel_bool5: "proj_uN_0 (fle_underscore n x y) \<le> 1" and 
+frel_bool6: "proj_uN_0 (fge_underscore n x y) \<le> 1"
 
 (* ibits is uninterpreted, so nothing says every bit sequence is the bit pattern of a number. *)
-lemma ibits_surj: "length bs = n \<Longrightarrow> list_all wf_bit bs \<Longrightarrow> \<exists>c. wf_uN n c \<and> ibits_underscore n c = bs"
-  sorry
-
+axiomatization where 
+ibits_surj: "length bs = n \<Longrightarrow> list_all wf_bit bs \<Longrightarrow> \<exists>c. wf_uN n c \<and> ibits_underscore n c = bs"
+  
 (* The lane conversions are uninterpreted; saturating truncation always has a result and
    demotion/promotion always have at least one (possibly non-deterministic NaN) result. *)
-lemma float_cvt_nonempty:
-  "trunc_sat__underscore m n sx x \<noteq> None"
-  "demote__underscore m n y \<noteq> []" "promote__underscore m n y \<noteq> []"
-  sorry
+axiomatization where
+float_cvt_nonempty:
+  "trunc_sat__underscore m n sx x \<noteq> None" and
+demote_nonempty:
+  "demote__underscore m n y \<noteq> []" and 
+promote_nonempty: 
+  "promote__underscore m n y \<noteq> []"
 
 end
