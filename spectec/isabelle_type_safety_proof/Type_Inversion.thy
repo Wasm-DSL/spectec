@@ -94,8 +94,6 @@ next
   case (Instrs_ok__frame C t_1_lst t_2_lst t_lst)
   then show ?case
     by (metis Instrtype_sub_frame_rule Instrtype_sub_trans)
-
-(* This next line used to take a while *)
 qed (fastforce intro: Instr_ok_Instrs_ok.intros Instrtype_sub_refl)+
 
 termination numtype_Inn
@@ -446,10 +444,6 @@ lemma Instr_ok_inversion:
   using assms
   apply auto
 (* This next line takes a full two minutes *)
-(* A problem with this line is that, if something is slightly off in the lemma, or if the
-   lemma changes, this line can potentially run forever without giving any feedback.   
- *)
-(* Agreed, that is awkward. This should be updated at some point *)
    apply (cases rule: Instr_ok.cases, auto)+  
   done
 

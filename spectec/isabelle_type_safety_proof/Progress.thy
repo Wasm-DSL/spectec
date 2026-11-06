@@ -1,5 +1,4 @@
 theory Progress
-(* Imported Code *)
 	imports isabelle_reference_output_wasm2 store_extension_typing Properties 
 	        Type_Inversion Subtyping_Theorem Context_Store_Agreement Preservation Axioms
 begin
@@ -642,7 +641,6 @@ lemma list_all_map_impl_inv:
   using assms proof(induction l) qed(auto)
 
 lemma list_all_app:
-(* SURELY THIS HAST TO EXIST ALREADY *)
   assumes "list_all P l1" "list_all P l2" shows "list_all P (l1 @ l2)"
   using assms proof(induction l1) qed(auto)
 
@@ -4085,7 +4083,7 @@ theorem progress:
           "wf_state (mk_state s' f)"
           "\<forall>x. \<not> Step (mk_config (mk_state s' f) (map admininstr_val vs @ [admininstr_instr v_instr])) x"
           "\<forall>v. admininstr_instr v_instr \<noteq> admininstr_val v" 
-        then have "False" (* show "admininstr_instr v_instr = admininstr_sc7 admininstr_st7_TRAP"  *)
+        then have "False" 
         proof(induction C v_instr "mk_functype (mk_list t_1_lst) (mk_list t_2_lst)" 
         arbitrary: t_1_lst t_2_lst vs f
         rule: Instr_ok_Instrs_ok.inducts(1)[where
@@ -8389,14 +8387,7 @@ assms(6) proof(induction "C")
             mk_state s' f = s \<Longrightarrow>
             (\<exists>cfg'. Step (mk_config s admininstr_lst) cfg') \<or>
             admininstr_lst = [admininstr_sc7 admininstr_st7_TRAP] \<or>
-            (\<exists>vs. admininstr_lst = map admininstr_val vs))" (* State_ok s (strip C) \<Longrightarrow>
-            wf_context C \<Longrightarrow>
-            wf_config (mk_config s admininstr_lst) \<Longrightarrow>
-            wf_state s \<Longrightarrow>
-            mk_state s' f = s \<Longrightarrow>
-            (\<exists>cfg'. Step (mk_config s admininstr_lst) cfg') \<or>
-            admininstr_lst = [admininstr_sc7 admininstr_st7_TRAP] \<or>
-            (\<exists>vs. admininstr_lst = map admininstr_val vs))" *)
+            (\<exists>vs. admininstr_lst = map admininstr_val vs))" 
      "wf_store s'"
      "wf_context C"
      "wf_context C'"

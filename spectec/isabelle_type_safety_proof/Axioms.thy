@@ -1,5 +1,4 @@
 theory Axioms
-(* Imported Code *)
 	imports isabelle_reference_output_wasm2 
 
 begin

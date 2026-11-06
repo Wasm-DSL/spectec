@@ -4,17 +4,16 @@ begin
 
 (* The well-formedness lemma STATEMENTS in this file are a DIRECT COPY of the block of
    "*_is_wf" lemmas at the end of the generated theory isabelle_reference_output_wasm2.thy
-   (up to the final "end"), in the same order and with the same comments. Do not edit the
-   statements: on regeneration, re-copy them.
-   The only hand-written parts are
-     - proofs replacing the generated "sorry"s,
+   (up to the final "end"), in the same order and with the same comments. 
+   The only non-generated parts are
+     - proofs replacing the generated "s o r r y" statement,
      - helper lemmas, which are confined to sections delimited by
-       "(* ===== BEGIN hand-written helpers ===== *)" / "(* ===== END hand-written helpers ===== *)", and
+       "(* ===== BEGIN non-generated helpers ===== *)" / "(* ===== END non-generated helpers ===== *)", and
      - the statements of Step_read_is_wf and Step_is_wf, which carry an extra Store_ok premise
-       (marked "MANUALLY MODIFIED"; the generated statements are false without store typing).
+       (marked "MANUALLY MODIFIED"; the generated statements are unproveable without store typing).
        Re-apply this change when re-copying. *)
 
-(* ===== BEGIN hand-written helpers ===== *)
+(* ===== BEGIN non-generated helpers ===== *)
 (* Helper lemmas for the well-formedness proofs below *)
 lemma wf_proj_simps0:
   "proj_uN_0 (mk_uN n) = n"
@@ -413,7 +412,7 @@ inductive_cases wf_instr_MEMORY_INIT_E: "wf_instr (instr_sc7 (MEMORY_INIT x))"
 
 inductive_cases wf_instr_DATA_DROP_E: "wf_instr (instr_sc7 (DATA_DROP x))"
 
-(* ===== END hand-written helpers ===== *)
+(* ===== END non-generated helpers ===== *)
 
 (* ===== BEGIN copy of generated well-formedness lemmas ===== *)
 
@@ -829,7 +828,7 @@ lemma lcvtop___is_wf :
         trunc_sat___is_wf[OF _ HOL.refl])
   done
 
-(* ===== BEGIN hand-written helpers ===== *)
+(* ===== BEGIN non-generated helpers ===== *)
 lemma lcvtop_lanes_wf:
   "list_all2 (\<lambda>v c. fun_lcvtop__underscore (X lt1 d1) (X lt2 d2) op c v) vs cs \<Longrightarrow>
    list_all (\<lambda>v. \<exists>y. v = Some y) vs \<Longrightarrow> list_all (wf_lane_underscore lt1) cs \<Longrightarrow>
@@ -842,7 +841,7 @@ proof (induction rule: list_all2_induct)
     by (auto simp: shape_fun_simps)
 qed simp
 
-(* ===== END hand-written helpers ===== *)
+(* ===== END non-generated helpers ===== *)
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:387.6-387.15 *)
 lemma vcvtop___is_wf :
@@ -1130,7 +1129,7 @@ lemma growmemory_is_wf :
 	 (wf_meminst ret_val)"
   by (auto elim!: fun_growmemory.cases)
 
-(* ===== BEGIN hand-written helpers ===== *)
+(* ===== BEGIN non-generated helpers ===== *)
 lemma unop_wf_mem:
   "fun_unop_underscore nt op c1 (Some y) \<Longrightarrow> wf_unop_underscore nt op \<Longrightarrow>
    wf_num_underscore nt c1 \<Longrightarrow> c \<in> set y \<Longrightarrow> wf_num_underscore nt c"
@@ -1391,7 +1390,7 @@ lemma Step_pure_is_wf_aux:
   subgoal by (metis option.distinct(1) option.sel vcvtop___is_wf)
   done
 
-(* ===== END hand-written helpers ===== *)
+(* ===== END non-generated helpers ===== *)
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/8-reduction.spectec:6.10-6.19 *)
 lemma Step_pure_is_wf :

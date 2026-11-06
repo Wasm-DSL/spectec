@@ -3,7 +3,7 @@ theory helper_lemmas
 begin
 
 (*Isabelle has an inbuilt equivalent to `list_update_func`.*)
-(*TODO Prove `list_update_func` equivalent; then these lemmas become trivial*)
+(*If we proved `list_update_func` equivalent, then these lemmas would become trivial*)
 lemma list_update_func_length:
   "length (list_update_func xs i f) = length xs"
 apply (induction xs arbitrary: i)

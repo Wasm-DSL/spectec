@@ -1,6 +1,5 @@
 
 theory store_extension_typing
-(* Imported Code *)
 	imports isabelle_reference_output_wasm2
 begin
 
@@ -13,82 +12,6 @@ proof cases
   then show ?thesis by simp
 qed
 
-(*
-
-lemma store_extension_externaddrok:
-  assumes "Externaddr_ok s a ext"
-          "wf_store s'"
-          "Extend_store s s'"
-        shows "Externaddr_ok s' a ext"
-  using assms
-proof (induction rule:Externaddr_ok.induct)
-  case (Externaddr_ok__global a s v_globalinst)
-  show ?case using assms(3)
-  proof cases
-    case mk_Extend_store
-    then have ext: "Extend_globalinst (store_GLOBALS s ! a) (store_GLOBALS s' ! a)" 
-      using mk_Extend_store Extend_store.simps
-      by (meson Externaddr_ok__global.hyps(1) Externaddr_ok__global.prems(2) holds_upto_def)
-    have alen: "a < length (store_GLOBALS s')" using mk_Extend_store 
-    by (metis Extend_store.simps Externaddr_ok__global.hyps(1) Externaddr_ok__global.prems(2)
-        holds_upto_def)
-    show ?thesis using ext
-    proof cases
-      case (mk_Extend_globalinst ft mm fc)
-      then show ?thesis using 
-          alen mk_Extend_store(20) Externaddr_ok.Externaddr_ok__global 
-          local.Externaddr_ok__global
-      by fastforce
-    qed
-  qed
-next
- case (Externaddr_ok__mem a s v_meminst)
-  show ?case using assms(3)
-  proof cases
-    case mk_Extend_store
-    then have ext: "Extend_meminst (store_MEMS s ! a) (store_MEMS s' ! a)" 
-      using mk_Extend_store Extend_store.simps
-      by (meson Externaddr_ok__mem.hyps(1) Externaddr_ok__mem.prems(2) holds_upto_def)
-    have alen: "a < length (store_MEMS s')" using mk_Extend_store 
-    by (metis Extend_store.simps Externaddr_ok__mem.hyps(1) Externaddr_ok__mem.prems(2)
-        holds_upto_def)
-    show ?thesis using ext
-    proof cases
-      case (mk_Extend_meminst ft mm fc)
-      then show ?thesis using 
-          alen mk_Extend_store(20) Externaddr_ok.Externaddr_ok__mem 
-          local.Externaddr_ok__mem
-      by fastforce
-    qed
-  qed
-next
-
-  case (Externaddr_ok__func s v_funcinst)
-  show ?case using assms(3)
-  proof cases
-    case mk_Extend_store
-    then have ext: "Extend_funcinst (store_FUNCS s ! a) (store_FUNCS s' ! a)" 
-      using mk_Extend_store Extend_store.simps
-      by (meson Externaddr_ok__func.hyps(1) Externaddr_ok__func.prems(2) holds_upto_def)
-    have alen: "a < length (store_FUNCS s')" using mk_Extend_store 
-    by (metis Extend_store.simps Externaddr_ok__func.hyps(1) Externaddr_ok__func.prems(2)
-        holds_upto_def)
-    show ?thesis using ext
-    proof cases
-      case (mk_Extend_funcinst ft mm fc)
-      then show ?thesis using 
-          alen mk_Extend_store(20) Externaddr_ok.Externaddr_ok__func 
-          local.Externaddr_ok__func 
-      by fastforce
-    qed
-  qed
-next
-  case (Externaddr_ok__sub xt')
-  then show ?thesis 
-  using Externtype_sub.cases Functype_sub.simps by fastforce
-qed
-
-*)
 
 lemma store_extension_externaddrok_func:
   assumes "Externaddr_ok s (externaddr_FUNC a) (FUNC ext)"

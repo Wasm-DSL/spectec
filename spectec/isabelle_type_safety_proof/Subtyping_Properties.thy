@@ -258,7 +258,7 @@ lemma produce_consume:
   assumes "mk_instrtype (mk_list []) (mk_list l) <ti: mk_instrtype t1 t2" 
           "mk_instrtype (mk_list (args @ l')) (mk_list res) <ti: mk_instrtype t2 t3" 
           "length l = length l'" 
-        shows (* "Resulttype_sub t1 t3" *)
+        shows 
  "(mk_instrtype (mk_list args) (mk_list res) <ti: mk_instrtype t1 t3) \<and> 
   Resulttype_sub (mk_list l) (mk_list l')"
   using assms
@@ -310,7 +310,6 @@ lemma produce_consume_waste:
           "mk_instrtype (mk_list (args @ l')) (mk_list res) <ti: mk_instrtype t2 t3" 
           "length l = length l'" 
         shows 
-  (* "(mk_instrtype (mk_list args) (mk_list res) <ti: mk_instrtype t1 t3) \<and>  *)
   "Resulttype_sub (mk_list l) (mk_list l')"
   using assms
 proof(induction "mk_instrtype (mk_list []) (mk_list (junk @ l))" "mk_instrtype t1 t2"
