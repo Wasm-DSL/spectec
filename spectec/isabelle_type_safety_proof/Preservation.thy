@@ -19,7 +19,7 @@ fun data_of :: "state \<Rightarrow> dataidx \<Rightarrow> datainst" where
 
 fun global_of :: "state \<Rightarrow> globalidx \<Rightarrow> globalinst" where
   "global_of (mk_state s f) x = store_GLOBALS s ! (GLOBALS (frame_MODULE f) ! proj_uN_0 x)"
-
+ 
 fun local_of :: "state \<Rightarrow> localidx \<Rightarrow> val" where
   "local_of (mk_state s f) x = LOCALS f ! proj_uN_0 x"
 

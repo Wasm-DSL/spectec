@@ -12,7 +12,7 @@ axiomatization where
   vbytes_length: "length (vbytes_underscore vt v) = the (size (valtype_vectype vt)) div 8"
 
 axiomatization where truncz_spec:
-  "truncz x = x"
+  "truncz (of_int a / of_int b :: rat) = a / b"
 
 axiomatization where nbytes_inv:
   "length bs = the (size (valtype_numtype nt)) div 8 \<Longrightarrow>

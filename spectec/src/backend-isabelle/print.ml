@@ -123,7 +123,7 @@ let reserved_ids =
    "not"; "and"; "or"; "ALL"; "EX"; "INF"; "SUP";
    "CONST"; "TYPE"; "MIN"; "MAX";
    "id"; "map"; "fold"; "set"; "fst"; "snd";
-   "length"; "hd"; "tl"; "Suc" ]
+   "length"; "hd"; "tl"; "Suc"; "lim" ]
   |> StringSet.of_list
 
 let remove_iter_from_type t =
@@ -286,9 +286,9 @@ let get_param_id b =
 let render_numtyp nt =
   match nt with
   | `NatT -> "nat"
-  | `IntT -> "nat"
-  | `RatT -> "nat"
-  | `RealT -> "nat"
+  | `IntT -> "int"
+  | `RatT -> "rat"
+  | `RealT -> "real"
 
 let transform_case_tup e =
   match e.it with
@@ -378,10 +378,10 @@ and render_exp exp_type typids exp =
   match exp.it with
   | VarE id -> render_id id.it
   | BoolE b -> if b then "True" else "False"
-  | NumE (`Nat n) -> Z.to_string n (* TODO fix nums *)
-  | NumE (`Int n) -> Z.to_string n (* TODO fix nums *)
-  | NumE (`Rat n) -> Q.to_string n (* TODO fix nums *)
-  | NumE (`Real n) -> string_of_float n (* TODO fix nums *)
+  | NumE (`Nat n) -> parens (Z.to_string n ^ " :: nat")
+  | NumE (`Int n) -> parens (Z.to_string n ^ " :: int")
+  | NumE (`Rat n) -> parens (Q.to_string n ^ " :: rat")
+  | NumE (`Real n) -> parens (string_of_float n ^ " :: real")
   | TextE s -> "\"" ^ String.escaped s ^ "\""
   | UnE (unop, _, e1) -> parens (render_unop unop ^ r_func e1)
   | BinE (binop, _, e1, e2) -> parens (r_func e1 ^ render_binop binop ^ r_func e2)
@@ -449,7 +449,21 @@ and render_exp exp_type typids exp =
     in
     parens (pred_name ^ " " ^ render_lambda quants (r_func e) ^ " " ^
     String.concat " " (List.map r_func iter_exps))
-  | CvtE (e1, _nt1, nt2) -> parens (r_func e1 ^ " :: " ^ render_numtyp nt2)
+  | CvtE (e1, nt1, nt2) ->
+     begin
+       match nt1, nt2 with
+       | `NatT, `NatT | `IntT, `IntT | `RatT, `RatT | `RealT, `RealT -> r_func e1
+       | `NatT, `IntT -> parens ("int " ^ r_func e1)
+       | `NatT, `RatT -> parens ("of_nat " ^ r_func e1 ^ " :: rat")
+       | `NatT, `RealT -> parens ("real " ^ r_func e1)
+       | `IntT, `NatT -> parens ("nat " ^ r_func e1)
+       | `IntT, `RatT -> parens ("of_int " ^ r_func e1 ^ " :: rat")
+       | `IntT, `RealT -> parens ("real_of_int " ^ r_func e1)
+       | `RatT, `RealT -> parens ("of_rat " ^ r_func e1 ^ " :: real")
+       | `RatT, `NatT | `RealT, `NatT -> parens ("nat " ^ parens ("floor " ^ r_func e1))
+       | `RatT, `IntT | `RealT, `IntT -> parens ("floor " ^ r_func e1)
+       | `RealT, `RatT -> error exp.at "Forbidden numtype conversion"
+     end 
   | SubE _ -> error exp.at "Encountered subtype expression. Please run sub pass"
   | IfE (e1, e2, e3) -> parens ("if " ^ r_func e1 ^ " then " ^ r_func e2 ^ " else " ^ r_func e3)
 
@@ -909,7 +923,7 @@ let string_of_def def =
 
 let exported_string =
   "(* Imported Code *)\n" ^
-  "\timports Main\n" ^
+  "\timports Complex_Main\n" ^
   "begin\n\n" ^
   "inductive list_all3 :: \"('a " ^ ra ^ " 'b " ^ ra ^ " 'c " ^ ra ^ " bool) " ^ ra ^ " 'a list " ^ ra ^ " 'b list " ^ ra ^ " 'c list " ^ ra ^ " bool\" where\n" ^
   "\tlist_all3_nil : \"list_all3 R [] [] []\" |\n" ^
