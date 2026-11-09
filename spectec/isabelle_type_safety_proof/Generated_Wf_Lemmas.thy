@@ -50,9 +50,8 @@ lemma size_rel_simps:
 
 lemmas wf_proj_simps = wf_proj_simps0 size_rel_simps
 
-lemma wf_uN_iff: "wf_uN N (mk_uN i) \<longleftrightarrow> i \<le> 2 ^ N - 1" (* may need to be updated *)
-  using wf_uN.simps wf_proj_simps
-  sorry
+lemma wf_uN_iff: "wf_uN N (mk_uN i) \<longleftrightarrow> i \<le> 2 ^ N - 1"
+  by (simp add: wf_uN.simps wf_proj_simps nat_bridge)
 
 lemma wf_uN_proj_le: "wf_uN N x \<Longrightarrow> proj_uN_0 x \<le> 2 ^ N - 1"
   using wf_uN.cases wf_proj_simps
@@ -73,10 +72,24 @@ lemma wf_uN_le_proj: "wf_uN N x \<Longrightarrow> i \<le> proj_uN_0 x \<Longrigh
 lemma pow_pred_lt: "i < 2 ^ (N - 1) \<Longrightarrow> i < (2::nat) ^ N"
   by (metis diff_le_self less_le_trans one_le_numeral power_increasing)
 
+lemma wf_uN_nat_lt: "(x :: int) < 2 ^ N \<Longrightarrow> wf_uN N (mk_uN (nat x))"
+  by (rule wf_uN_lt) (simp add: nat_less_iff)
+
+lemma wf_uN_nat_mod: "wf_uN N (mk_uN (nat ((x :: int) mod 2 ^ N)))"
+  by (rule wf_uN_nat_lt) (simp add: pos_mod_bound)
+
+lemma wf_uN_nat_sub: "wf_uN N x \<Longrightarrow> 0 \<le> (y :: int) \<Longrightarrow> wf_uN N (mk_uN (nat (int (proj_uN_0 x) - y)))"
+  using wf_uN_le_proj nat_sub_le by blast
+
+lemma wf_uN_proj_self: "wf_uN N x \<Longrightarrow> wf_uN N (mk_uN (proj_uN_0 x))"
+  using wf_uN_le_proj by blast
+
+lemma sat_u_lt: "sat_u_underscore N i < 2 ^ N"
+  by (simp add: sat_u_underscore.psimps sat_u_underscore.domintros nat_less_iff)
+
 lemma inv_signed_bound: "fun_inv_signed_underscore N i j \<Longrightarrow> wf_uN N (mk_uN j)"
-  sorry
-(*  by (auto elim!: fun_inv_signed_underscore.cases intro: wf_uN_lt[OF pow_pred_lt] simp: wf_proj_simps)
-*)
+  by (auto elim!: fun_inv_signed_underscore.cases intro!: wf_uN_nat_lt dest: pow_pred_lt_int
+      simp: nat_bridge)
 lemma wf_num_I32: "wf_uN 32 x \<Longrightarrow> wf_num_underscore I32 (mk_num__0 Inn_I32 x)"
   using num__case_0[of Inn_I32 x I32] by (simp add: wf_proj_simps)
 
@@ -549,10 +562,8 @@ lemma irem__is_wf :
 	 (wf_uN v_N iN_0) \<Longrightarrow>
 	 (ret_val_opt = var_0) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: iN). (wf_uN v_N ret_val)) (option_to_list ret_val_opt)"
-	sorry (*
-  by (auto elim!: fun_irem_underscore.cases intro: wf_uN_le_proj[OF _ diff_le_self] inv_signed_bound
-      simp: wf_proj_simps)
-*)
+  by (auto elim!: fun_irem_underscore.cases intro!: wf_uN_nat_sub wf_uN_proj_self
+      intro: inv_signed_bound simp: wf_proj_simps zero_le_mult_iff)
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:106.6-106.12 *)
 lemma isub__is_wf :
@@ -560,8 +571,7 @@ lemma isub__is_wf :
 	 (wf_uN v_N iN_0) \<Longrightarrow>
 	 (ret_val = (isub_underscore v_N v_iN iN_0)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-	using isub_underscore.psimps isub_underscore.domintros wf_uN_mod wf_proj_simps 
-	sorry
+  by (simp add: isub_underscore.psimps isub_underscore.domintros wf_uN_nat_mod)
 
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:123.6-123.12 *)
@@ -682,9 +692,7 @@ lemma ineg__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (ret_val = (ineg_underscore v_N v_iN)) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-	sorry (*
-  by (simp add: ineg_underscore.psimps ineg_underscore.domintros wf_uN_mod wf_proj_simps)
-*)
+  by (simp add: ineg_underscore.psimps ineg_underscore.domintros wf_uN_nat_mod)
 
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:132.6-132.12 *)
@@ -693,9 +701,7 @@ lemma iabs__is_wf :
 	 (wf_uN v_N v_iN) \<Longrightarrow>
 	 (ret_val = var_0) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-	sorry (*
-  by (auto elim!: fun_iabs_underscore.cases simp: wf_proj_simps)
-*)
+  by (auto elim!: fun_iabs_underscore.cases intro: ineg__is_wf)
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:134.6-134.12 *)
 lemma imin__is_wf :
 	"(fun_imin_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
@@ -721,10 +727,7 @@ lemma iadd_sat__is_wf :
 	 (wf_uN v_N iN_0) \<Longrightarrow>
 	 (ret_val = var_0) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-	sorry
-(*  by (auto elim!: fun_iadd_sat_underscore.cases intro: inv_signed_bound
-      simp: sat_u_underscore.psimps sat_u_underscore.domintros wf_uN_iff wf_proj_simps)
-*)
+  by (auto elim!: fun_iadd_sat_underscore.cases intro: inv_signed_bound wf_uN_lt sat_u_lt)
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:137.6-137.16 *)
 lemma isub_sat__is_wf :
 	"(fun_isub_sat_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
@@ -732,9 +735,7 @@ lemma isub_sat__is_wf :
 	 (wf_uN v_N iN_0) \<Longrightarrow>
 	 (ret_val = var_0) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
-	sorry (*  by (auto elim!: fun_isub_sat_underscore.cases intro: inv_signed_bound
-      simp: sat_u_underscore.psimps sat_u_underscore.domintros wf_uN_iff wf_proj_simps)
-*)
+  by (auto elim!: fun_isub_sat_underscore.cases intro: inv_signed_bound wf_uN_lt sat_u_lt)
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:323.6-323.15 *)
 lemma packnum__is_wf :
 	"(wf_num_underscore (unpack v_lanetype) v_num_underscore) \<Longrightarrow>
@@ -1475,8 +1476,8 @@ lemma Step_is_wf :
   apply (auto intro!: memory_write_wf_state nbytes__is_wf[OF _ HOL.refl] ibytes__is_wf[OF _ HOL.refl]
       vbytes__is_wf[OF _ _ HOL.refl] wrap___is_wf[OF _ HOL.refl]
       intro: wf_num_Inn_proj simp: wf_proj_simps wf_uN_iff)
-  sorry
-(*   done *)
+  apply (auto dest!: fun_mem_lenD intro!: mem_pages_le)
+  done
 
 (* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:36.6-36.16 *)
 lemma allocfunc_is_wf :

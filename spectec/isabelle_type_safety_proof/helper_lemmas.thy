@@ -2,6 +2,35 @@ theory helper_lemmas
     imports Main isabelle_reference_output_wasm2
 begin
 
+(* Numeric bridge lemmas.
+   For subtraction of naturals, the generated theory now writes
+   a - b as nat (int a - int b) (SpecTec subtraction always yields an int). simp first pushes
+   int inwards (of_nat_power, of_nat_1, ...), leaving terms such as nat (2 ^ N - 1); nat_bridge
+   distributes nat back over them, so goals return to the old nat-only shape. *)
+lemmas nat_bridge = nat_diff_distrib' nat_power_eq
+
+lemma nat_int_diff: "nat (int a - int b) = a - b"
+  by simp
+
+lemma pow_pred_le_int: "(2::int) ^ (N - Suc 0) \<le> 2 ^ N"
+  by (simp add: power_increasing)
+
+lemma pow_pred_lt_int: "(i :: int) < 2 ^ (N - Suc 0) \<Longrightarrow> i < 2 ^ N"
+  using pow_pred_le_int[of N] by linarith
+
+lemma nat_sub_le: "0 \<le> (y :: int) \<Longrightarrow> nat (int a - y) \<le> a"
+  by (simp add: nat_le_iff)
+
+(* SpecTec's rat division followed by a conversion to nat is generated as nat (floor (m / n));
+   for naturals this is ordinary nat division. *)
+lemma nat_floor_div_numeral: "nat \<lfloor>(of_nat m :: rat) / numeral k\<rfloor> = m div numeral k"
+  using floor_divide_of_nat_eq[where 'a = rat, of m "numeral k"] by simp
+
+(* Page count of a memory of at most 2^32 bytes fits in 32 bits (used for memory.grow) *)
+lemma mem_pages_le: "(L :: nat) \<le> 4294967296 \<Longrightarrow> nat \<lfloor>(of_nat L :: rat) / 65536\<rfloor> \<le> 4294967295"
+  unfolding nat_floor_div_numeral
+  by (rule order_trans[OF div_le_mono[of L 4294967296 65536]]) simp_all
+
 (*Isabelle has an inbuilt equivalent to `list_update_func`.*)
 (*If we proved `list_update_func` equivalent, then these lemmas would become trivial*)
 lemma list_update_func_length:
