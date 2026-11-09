@@ -1,6 +1,5 @@
 theory Axioms
-	imports isabelle_reference_output_wasm2 
-
+	imports isabelle_reference_output_wasm2 "HOL-Library.Signed_Division"
 begin
 
 (*The byte encoders are uninterpreted in the generated theory, so nothing fixes the
@@ -12,7 +11,7 @@ axiomatization where
   vbytes_length: "length (vbytes_underscore vt v) = the (size (valtype_vectype vt)) div 8"
 
 axiomatization where truncz_spec:
-  "truncz (of_int a / of_int b :: rat) = (a div b :: int)"
+  "truncz (of_int a / of_int b :: rat) = (a sdiv b :: int)"
 
 axiomatization where nbytes_inv:
   "length bs = the (size (valtype_numtype nt)) div 8 \<Longrightarrow>
