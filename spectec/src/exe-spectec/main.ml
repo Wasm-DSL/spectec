@@ -43,7 +43,10 @@ passers (--all-passes, some targets), we do _not_ want to use the order of
 flags on the command line.
 *)
 let _skip_passes = [ Unthe ]  (* Not clear how to extend them to indexed types *)
-let all_passes = [
+module PassSet = Set.Make(struct type t = pass let compare = compare end)
+(* This is a set purely to emphasize that the order of these should not be
+relied upon *)
+let available_passes : PassSet.t = PassSet.of_list [
   Ite;
   LetIntroMech;
   TypeFamilyRemoval;
@@ -57,12 +60,53 @@ let all_passes = [
   Sub;
   Sideconditions;
   DefToRel;
-  Sideconditions;
   AliasDemut;
   ImproveIds;
   DatatypeDiet;
   SinglePatternMatch
 ]
+
+let pass_list (backend : target) : pass list =
+  match backend with
+  | Lean -> [
+      Ite;
+      LetIntroMech;
+      TypeFamilyRemoval;
+      Undep;
+      Totalize;
+      Else;
+      ElseSimp;
+      Uncaseremoval;
+      SubExpansion;
+      PatSimp;
+      Sub;
+      Sideconditions;
+      DefToRel;
+      Sideconditions;
+      AliasDemut;
+      ImproveIds;
+      DatatypeDiet;
+      SinglePatternMatch
+    ]
+  | _ -> [
+    Ite;
+    LetIntroMech;
+    TypeFamilyRemoval;
+    Undep;
+    Totalize;
+    Else;
+    ElseSimp;
+    Uncaseremoval;
+    SubExpansion;
+    PatSimp;
+    Sub;
+    Sideconditions;
+    DefToRel;
+    AliasDemut;
+    ImproveIds;
+    DatatypeDiet;
+    SinglePatternMatch
+  ]
 
 type file_kind =
   | Spec
@@ -272,8 +316,8 @@ let argspec = Arg.align (
   "--print-al-o", Arg.Set_string print_al_o, " Print al with given name";
   "--print-il-notes", Arg.Set Il.Print.print_notes, " Print IL with type annotations";
   "--print-no-pos", Arg.Set print_no_pos, " Suppress position info in output";
-] @ List.map pass_argspec all_passes @ [
-  "--all-passes", Arg.Unit (fun () -> List.iter enable_pass all_passes)," Run all passes";
+] @ List.map pass_argspec (PassSet.to_list available_passes) @ [
+  "--all-passes", Arg.Unit (fun () -> List.iter enable_pass (PassSet.to_list available_passes) )," Run all passes";
 
   "--test-version", Arg.Int (fun i -> Backend_interpreter.Construct.version := i; Il2al.Translate.version := i), " Wasm version to assume for tests (default: 3)";
   "--wf-state", Arg.String set_wf_state, " Denotes the placement of wfness relations for the remove-indexed-types pass 
@@ -345,7 +389,7 @@ let () =
           Il.Valid.valid il;
           il
         )
-      ) il all_passes
+      ) il (pass_list !target)
     in
     last_pass := "";
 
