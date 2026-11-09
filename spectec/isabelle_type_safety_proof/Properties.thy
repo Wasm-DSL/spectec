@@ -1219,6 +1219,49 @@ lemma map_option_mk_uN_inj: "map_option mk_uN x = map_option mk_uN y \<Longright
 lemma proj_uN_0_mk_uN[simp]: "proj_uN_0 (mk_uN n) = n"
   by (simp add: proj_uN_0.psimps proj_uN_0.domintros)
 
+lemma nat_floor_div_add:
+  "nat \<lfloor>(of_nat L :: rat) / of_nat K + of_nat v\<rfloor> = L div K + v"
+proof -
+  have "\<lfloor>(of_nat L :: rat) / of_nat K + of_int (int v)\<rfloor> = \<lfloor>(of_nat L :: rat) / of_nat K\<rfloor> + int v"
+    by (rule floor_add_int[symmetric])
+  then show ?thesis by (simp add: floor_divide_of_nat_eq nat_add_distrib)
+qed
+
+lemma of_nat_div_add_le:
+  "rat_of_nat (L div K + v) \<le> of_nat L / of_nat K + of_nat v"
+proof -
+  have "of_int \<lfloor>(of_nat L :: rat) / of_nat K\<rfloor> \<le> (of_nat L :: rat) / of_nat K" by (rule of_int_floor_le)
+  then have "rat_of_nat (L div K) \<le> of_nat L / of_nat K" by (simp add: floor_divide_of_nat_eq)
+  then show ?thesis by simp
+qed
+
+lemma fun_growmemory_SomeD:
+  assumes "fun_growmemory mi v_n (Some mi')"
+  obtains i j_opt b_lst where
+    "mi = \<lparr>meminst_TYPE = PAGE (mk_limits i j_opt), BYTES = b_lst\<rparr>"
+    "list_all (\<lambda>j. length b_lst div (64 * Ki) + v_n \<le> proj_uN_0 j) (option_to_list j_opt)"
+    "length b_lst div (64 * Ki) + v_n \<le> 2 ^ 16"
+    "mi' = \<lparr>meminst_TYPE = PAGE (mk_limits (mk_uN (length b_lst div (64 * Ki) + v_n)) j_opt),
+            BYTES = b_lst @ repeat (v_n * (64 * Ki)) (mk_byte 0)\<rparr>"
+    "wf_meminst mi" "wf_meminst mi'"
+  using assms
+proof (cases rule: fun_growmemory.cases)
+  case (fun_growmemory__fun_growmemory_case_0 i j_opt b_lst i')
+  let ?n = "length b_lst div (64 * Ki) + v_n"
+  have i'_eq: "i' = rat_of_nat (length b_lst) / rat_of_nat (64 * Ki) + rat_of_nat v_n"
+    using fun_growmemory__fun_growmemory_case_0(2) by (simp only:)
+  have fl: "nat \<lfloor>i'\<rfloor> = ?n" unfolding i'_eq by (rule nat_floor_div_add)
+  have le: "rat_of_nat ?n \<le> i'" unfolding i'_eq by (rule of_nat_div_add_le)
+  have j: "list_all (\<lambda>j. ?n \<le> proj_uN_0 j) (option_to_list j_opt)"
+    using fun_growmemory__fun_growmemory_case_0(3) le
+    by (auto simp: list_all_iff simp flip: of_nat_le_iff intro: order_trans)
+  have b: "?n \<le> 2 ^ 16"
+    using fun_growmemory__fun_growmemory_case_0(4) le
+    by (simp flip: of_nat_le_iff add: order_trans[OF le])
+  show ?thesis
+    using that[of i j_opt b_lst] fun_growmemory__fun_growmemory_case_0 fl j b by simp
+qed
+
 (*memory_grow*)
 lemma memory_grow_store_extension:
   assumes "fun_growmemory mem v_n (Some mi)"
@@ -1240,9 +1283,8 @@ proof -
     new: "mi = \<lparr>meminst_TYPE = PAGE (mk_limits (mk_uN i') j_opt), BYTES = b_lst @ repeat (v_n * (64 * Ki)) (mk_byte 0)\<rparr>" and
     wf_old: "wf_meminst (store_MEMS s ! ?a)" and
     wf_new: "wf_meminst mi"
-    using assms(1) mem_eq sorry (*
-    by (cases rule: fun_growmemory.cases) (rule that[OF sym], auto)
-*)
+    using assms(1) mem_eq
+    by (elim fun_growmemory_SomeD) (rule that[OF sym], auto)
   have old_ok: "\<exists>n m_opt. i = mk_uN n \<and> j_opt = map_option mk_uN m_opt \<and> length b_lst = n * (64 * Ki) \<and>
                   Memtype_ok (PAGE (mk_limits (mk_uN n) (map_option mk_uN m_opt)))"
     if "Meminst_ok s (store_MEMS s ! ?a) mt" for mt
@@ -1464,7 +1506,7 @@ proof -
     then have lim_ok: "Limits_ok (mk_limits (mk_uN i') (map_option mk_uN m_opt)) (2 ^ 32 - 1)"
       using mk_Limits_ok[OF i'_bound _ wf_lim] by blast
     have tt_ok: "Tabletype_ok (mk_tabletype (mk_limits (mk_uN i') (map_option mk_uN m_opt)) rt0)"
-      sorry (* by (rule mk_Tabletype_ok[OF lim_ok wf_tt]) *)
+      by (rule mk_Tabletype_ok[unfolded nat_int_diff, OF lim_ok wf_tt])
     have refs_ok': "list_all (\<lambda>r. Ref_ok s' r rt0) (r_lst @ repeat v_n v_ref)"
     proof -
       have "list_all (\<lambda>r. Ref_ok s' r rt0) r_lst"
@@ -1695,7 +1737,7 @@ next
     using store_num_val.prems(1) by simp
   have upd: "fun_with_mem (mk_state s f) (mk_uN 0) (proj_uN_0 (the (proj_num__0 i)) + proj_uN_0 (OFFSET ao))
                (the (size (valtype_numtype nt)) div 8) b_lst (mk_state s' f')"
-    using store_num_val sorry (* by auto *)
+    using store_num_val by (auto simp: nat_floor_div_numeral)
   have "wf_num_underscore nt c"
     using Instrs_ok2_wf_instr[OF store_num_val.prems(5)] es wf_admininstr_CONST_inv by simp
   then have "list_all wf_byte b_lst"
@@ -1710,7 +1752,7 @@ next
     using store_pack_val.prems(1) by simp
   have upd: "fun_with_mem (mk_state s f) (mk_uN 0) (proj_uN_0 (the (proj_num__0 i)) + proj_uN_0 (OFFSET ao))
                (v_n div 8) b_lst (mk_state s' f')"
-    using store_pack_val sorry (* by auto *)
+    using store_pack_val by (auto simp: nat_floor_div_numeral)
   have "wf_num_underscore (numtype_Inn v_Inn) c"
     using Instrs_ok2_wf_instr[OF store_pack_val.prems(5)] es wf_admininstr_CONST_inv by simp
   then have "wf_uN (the (size (valtype_Inn v_Inn))) (the (proj_num__0 c))"
@@ -1746,7 +1788,7 @@ next
   case (vstore_lane_val v_Jnn var_1 z i ao v_N b_lst var_0 v_M c j)
   have upd: "fun_with_mem (mk_state s f) (mk_uN 0) (proj_uN_0 (the (proj_num__0 i)) + proj_uN_0 (OFFSET ao))
                (v_N div 8) b_lst (mk_state s' f')"
-    using vstore_lane_val sorry (* by auto *)
+    using vstore_lane_val by (auto simp: nat_floor_div_numeral)
   have "list_all wf_byte b_lst"
     using ibytes__is_wf vstore_lane_val.hyps(8,9) by blast
   moreover have "length b_lst \<le> v_N div 8"

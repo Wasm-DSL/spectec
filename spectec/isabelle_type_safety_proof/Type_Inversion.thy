@@ -99,6 +99,14 @@ qed (fastforce intro: Instr_ok_Instrs_ok.intros Instrtype_sub_refl)+
 termination numtype_Inn
   by lexicographic_order
 
+lemma rat_le_div_nat_iff:
+  "0 < d \<Longrightarrow> ((of_nat x :: rat) \<le> of_nat m / of_nat d) = (x \<le> m div d)"
+  by (simp add: le_divide_eq less_eq_div_iff_mult_less_eq flip: of_nat_mult)
+
+lemma align_bridge:
+  "((of_nat x :: rat) \<le> of_nat m / of_nat (8::nat)) = (x \<le> m div 8)"
+  by (rule rat_le_div_nat_iff) simp
+
 lemma inv_store_pack:
   assumes "Instr_ok C e tf"
           "e = (instr_sc6 (STORE (numtype_Inn v_Inn) (Some (mk_sz v_M)) v_memarg))"
@@ -122,8 +130,8 @@ lemma inv_store_pack:
       have "v_Inn = v_Innsa"
         by (metis(full_types) store_pack.hyps(7) numtype_Inn.elims numtype.distinct(1))
       then show ?case
-        using store_pack.hyps
-        sorry 
+        using store_pack.hyps[simplified align_bridge]
+        by presburger
       qed
 qed
 
@@ -151,7 +159,8 @@ lemma inv_vload_val:
 		    ((mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128])) = tf)"
 	using assms proof(induction C "instr_sc6 (VLOAD vt None v_memarg)" tf)
 	case (vload_val C mt)
-  then show ?case using valtype_vectype.psimps valtype_vectype.domintros sorry
+  then show ?case using valtype_vectype.psimps valtype_vectype.domintros
+    by (simp only: align_bridge) simp
 qed(auto)
 
 
@@ -398,7 +407,7 @@ lemma Instr_ok_inversion:
       (\<exists> mt. vt = V128 \<and> 
       (0 < (length (context_MEMS C))) \<and>
 		  (((context_MEMS C) ! 0) = mt) \<and>
-		  (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> ((v_M :: nat) div (8 :: nat)) * (v_N :: nat)) \<and>
+		  ((of_nat ((2 :: nat) ^ (proj_uN_0 (ALIGN v_memarg))) :: rat) \<le> (((of_nat v_M :: rat) / (of_nat (8 :: nat) :: rat)) * (of_nat v_N :: rat))) \<and>
 		  (wf_memtype mt) \<and>
 		  ((mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128])) = tf))" and
     inv_vload_splat: "e = (instr_sc6 (VLOAD vt (Some (SPLAT (mk_sz v_n))) v_memarg)) \<Longrightarrow>
@@ -420,7 +429,7 @@ lemma Instr_ok_inversion:
       (0 < (length (context_MEMS C))) \<and>
 		  (((context_MEMS C) ! 0) = mt) \<and>
 		  (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> ((v_n :: nat) div (8 :: nat))) \<and>
-      (((proj_uN_0 v_laneidx) :: nat) < ((128 :: nat) div (v_n :: nat))) \<and>
+      ((of_nat (proj_uN_0 v_laneidx) :: rat) < ((of_nat (128 :: nat) :: rat) / (of_nat v_n :: rat))) \<and>
 		  (wf_memtype mt) \<and>
 		  ((mk_functype (mk_list [valtype_I32, valtype_V128]) (mk_list [valtype_V128])) = tf))" and
     inv_vstore: "e = (instr_sc6 (VSTORE vt v_memarg)) \<Longrightarrow>
@@ -436,7 +445,7 @@ lemma Instr_ok_inversion:
       (0 < (length (context_MEMS C))) \<and>
 		  (((context_MEMS C) ! 0) = mt) \<and>
 		  (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> ((v_n :: nat) div (8 :: nat))) \<and>
-      (((proj_uN_0 v_laneidx) :: nat) < ((128 :: nat) div (v_n :: nat))) \<and>
+      ((of_nat (proj_uN_0 v_laneidx) :: rat) < ((of_nat (128 :: nat) :: rat) / (of_nat v_n :: rat))) \<and>
 		  (wf_memtype mt) \<and>
 		  ((mk_functype (mk_list [valtype_I32, valtype_V128]) (mk_list [])) = tf))"
 
@@ -444,11 +453,8 @@ lemma Instr_ok_inversion:
   using assms
   apply auto
 (* This next line takes a full two minutes *)
-  sorry
-(*
-   apply (cases rule: Instr_ok.cases, auto)+  
+   apply (cases rule: Instr_ok.cases[simplified align_bridge], auto)+
   done
-*)
 
 (*Instrs_ok2*)
 lemma inv_empty_admininstr:
