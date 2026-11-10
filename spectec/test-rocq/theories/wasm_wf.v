@@ -3146,7 +3146,7 @@ Proof.
 	   whose well-formedness is a premise (or, for vload_lane, follows from
 	   lanes__is_wf on the input vector). *)
 	all: try (apply: List.Forall_cons; last (by apply: List.Forall_nil);
-		apply: admininstr_case_20; first (by []);
+		apply: admininstr_case_19; first (by []);
 		match goal with | [ Hc : is_true (?c == inv_lanes_ ?sh ?l) |- _ ] =>
 			apply: (inv_lanes__is_wf sh l); [ assumption | | exact Hc ] end;
 		first [ assumption
@@ -3155,7 +3155,7 @@ Proof.
 				| (move => _ _; apply: Hl2; eassumption) ]) ]).
 	(* vload zero: the result is (extend__ N 128 U j) with (wf_uN N j) a premise. *)
 	all: try (apply: List.Forall_cons; last (by apply: List.Forall_nil);
-		apply: admininstr_case_20; first (by []);
+		apply: admininstr_case_19; first (by []);
 		match goal with | [ Hc : is_true (?c == extend__ ?m ?n ?sx ?j) |- _ ] =>
 			apply: (extend___is_wf m n sx j); [ assumption | exact Hc ] end).
 	(* With Store_ok: Tabletype_ok bounds every table by 2^32 - 1 entries,
@@ -3197,7 +3197,7 @@ Proof.
 	all: try (first [ assumption | apply: Har | (apply: Hav; eassumption)
 		| (by constructor) | (by constructor; eassumption)
 		| (solve [ constructor; try exact: (memarg0_is_wf memarg0 (eqxx _)); repeat constructor ])
-		| (solve [ apply: (admininstr_case_57' (Some Inn_I32));
+		| (solve [ apply: (admininstr_case_56' (Some Inn_I32));
 			[ by repeat constructor | exact: (memarg0_is_wf memarg0 (eqxx _)) | by split
 			| by repeat constructor ] ]) ]).
 	all: try (solve [ constructor; try exact: (memarg0_is_wf memarg0 (eqxx _));
@@ -3917,7 +3917,7 @@ Proof.
 	case: H Hall => s fa v_n vl f t_1_lst t_2_lst _ _ _ _ Hst _ Hall.
 	apply: config_case_0 => //.
 	apply/List.Forall_app; split; last first.
-	- by apply: List.Forall_cons; [ apply: admininstr_case_70 | apply: List.Forall_nil ].
+	- by apply: List.Forall_cons; [ apply: admininstr_case_69 | apply: List.Forall_nil ].
 	- elim: vl Hall => [ |v vl IH] //= /List.Forall_cons_iff [Hv Hvl].
 		by apply: List.Forall_cons; [ apply: Hav | apply: IH ].
 Qed.

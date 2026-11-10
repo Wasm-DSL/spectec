@@ -581,24 +581,6 @@ End Typing.
 
 (** * Agreement of the two type systems *)
 
-(* SpecTec-typed code never contains the dead [EXTEND nt n] instruction, which
-   has no typing rule. *)
-Lemma Instr_ok_ext_free C i ft : S.Instr_ok C i ft -> ext_free i.
-Proof.
-  move=> H.
-  induction H using T.Instr_ok_mut with (P0 := fun C ins ft _ => all ext_free ins).
-  all: rewrite /= ?all_cat ?andbT //.
-  all: by apply/andP.
-Qed.
-
-Lemma Instrs_ok_ext_free C ins ft : S.Instrs_ok C ins ft -> all ext_free ins.
-Proof.
-  move=> H.
-  induction H using T.Instrs_ok_mut with (P := fun C i ft _ => ext_free i).
-  all: rewrite /= ?all_cat ?andbT //.
-  all: by apply/andP.
-Qed.
-
 Section Agreement.
 
 Context `{hfc : host_function_class}.
@@ -611,17 +593,14 @@ Hypothesis vec_instr_complete :
 Hypothesis vec_code_shuffle : forall sh ls, vec_code (S.VSHUFFLE sh ls) = 13%num.
 
 (* On well-formed SpecTec instruction sequences and contexts, SpecTec's typing
-   and WasmCert's typing of the translation coincide.  The sequence must not
-   contain the dead [EXTEND nt n] instruction ([ext_free]): it is untypable in
-   SpecTec, but its translation (a sign extension) is typable in WasmCert.  By
-   [Instrs_ok_ext_free], SpecTec-typed sequences satisfy this condition. *)
+   and WasmCert's typing of the translation coincide. *)
 Theorem Instrs_ok_iff C ins ft :
-  S.wf_context C -> List.Forall S.wf_instr ins -> all ext_free ins ->
+  S.wf_context C -> List.Forall S.wf_instr ins ->
   S.Instrs_ok C ins ft <-> be_typing (tr_context C) (tr_instrs ins) (tr_functype ft).
 Proof.
-  move=> HC Hw He. split; first exact: T.Instrs_ok_tr.
+  move=> HC Hw. split; first exact: T.Instrs_ok_tr.
   move=> Hb. have := be_typing_back vec_instr_sound vec_code_shuffle Hb.
-  move/(_ C ins (of_context_complete HC) (of_instrs_complete vec_instr_complete Hw He)).
+  move/(_ C ins (of_context_complete HC) (of_instrs_complete vec_instr_complete Hw)).
   by rewrite of_tr_functype.
 Qed.
 

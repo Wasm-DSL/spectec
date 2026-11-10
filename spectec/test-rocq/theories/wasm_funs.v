@@ -631,7 +631,7 @@ Proof.
 	all: constructor.
 Qed.
 
-Lemma instr_case_57' Inn_opt nt sz_opt ma :
+Lemma instr_case_56' Inn_opt nt sz_opt ma :
 	List.Forall (fun v => wf_sz v) (option_to_list sz_opt) -> wf_memarg ma ->
 	((Inn_opt == None) <-> (sz_opt == None)) ->
 	List.Forall2 (fun (I : Inn) (v : sz) => (nt == numtype_Inn I) && ((v :> N) <? sizenn (numtype_Inn I))%BN)
@@ -639,10 +639,10 @@ Lemma instr_case_57' Inn_opt nt sz_opt ma :
 	wf_instr (STORE nt sz_opt ma).
 Proof.
 	move=> H1 H2 H3 /store_wf_args [H4 H5].
-	exact: (instr_case_57 Inn_opt nt sz_opt ma _ H4 H1 H2 H3 H5).
+	exact: (instr_case_56 Inn_opt nt sz_opt ma _ H4 H1 H2 H3 H5).
 Qed.
 
-Lemma admininstr_case_57' Inn_opt nt sz_opt ma :
+Lemma admininstr_case_56' Inn_opt nt sz_opt ma :
 	List.Forall (fun v => wf_sz v) (option_to_list sz_opt) -> wf_memarg ma ->
 	((Inn_opt == None) <-> (sz_opt == None)) ->
 	List.Forall2 (fun (I : Inn) (v : sz) => (nt == numtype_Inn I) && ((v :> N) <? sizenn (numtype_Inn I))%BN)
@@ -650,20 +650,20 @@ Lemma admininstr_case_57' Inn_opt nt sz_opt ma :
 	wf_admininstr (admininstr_STORE nt sz_opt ma).
 Proof.
 	move=> H1 H2 H3 /store_wf_args [H4 H5].
-	exact: (admininstr_case_57 Inn_opt nt sz_opt ma _ H4 H1 H2 H3 H5).
+	exact: (admininstr_case_56 Inn_opt nt sz_opt ma _ H4 H1 H2 H3 H5).
 Qed.
 
-Lemma instr_case_38' sh1 sh2 sx :
+Lemma instr_case_37' sh1 sh2 sx :
 	wf_ishape sh1 -> wf_ishape sh2 ->
 	((lsize (fun_lanetype (sh2 :> shape))) == (2%N * (lsize (fun_lanetype (sh1 :> shape))))%BN) &&
 		((2%N * (lsize (fun_lanetype (sh1 :> shape))))%BN <=? 32%N)%BN ->
 	wf_instr (VNARROW sh1 sh2 sx).
-Proof. move=> H1 H2 H3. apply: (instr_case_38 _ _ _ _ _ _ _ H1 H2 H3); exact/fun_lsize_eq. Qed.
+Proof. move=> H1 H2 H3. apply: (instr_case_37 _ _ _ _ _ _ _ H1 H2 H3); exact/fun_lsize_eq. Qed.
 
-Lemma admininstr_case_38' sh1 sh2 sx :
+Lemma admininstr_case_37' sh1 sh2 sx :
 	wf_ishape sh1 -> wf_ishape sh2 ->
 	((lsize (fun_lanetype (sh2 :> shape))) == (2%N * (lsize (fun_lanetype (sh1 :> shape))))%BN) &&
 		((2%N * (lsize (fun_lanetype (sh1 :> shape))))%BN <=? 32%N)%BN ->
 	wf_admininstr (admininstr_VNARROW sh1 sh2 sx).
-Proof. move=> H1 H2 H3. apply: (admininstr_case_38 _ _ _ _ _ _ _ H1 H2 H3); exact/fun_lsize_eq. Qed.
+Proof. move=> H1 H2 H3. apply: (admininstr_case_37 _ _ _ _ _ _ _ H1 H2 H3); exact/fun_lsize_eq. Qed.
 

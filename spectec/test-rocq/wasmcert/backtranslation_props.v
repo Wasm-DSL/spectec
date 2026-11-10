@@ -3,8 +3,7 @@
    - Soundness: whatever the back-translation produces is well-formed in SpecTec
      and is mapped back to its input by the forward translation [translation.v]
      ([of_instr_sound], [of_admin_sound], [of_config_sound], ...).
-   - Completeness: on well-formed SpecTec inputs without the (dead, untypable)
-     [EXTEND nt n] instruction ([ext_free]), back-translating the forward
+   - Completeness: on well-formed SpecTec inputs, back-translating the forward
      translation gives the input back ([of_instr_complete], ...).
 
    Together, the two translations are inverse bijections between well-formed
@@ -602,10 +601,10 @@ Lemma of_storeop_sound t so so' :
 Proof.
   case: so => [tp|] /= H; odestr H => /=.
   - case/of_pack_sound: E => Et [Hlt Hsz]. rewrite tr_of_packtype. split => // m Hm.
-    apply: (@F.instr_case_57' (Some i)) => //=.
+    apply: (@F.instr_case_56' (Some i)) => //=.
     + by constructor.
     + constructor => //. rewrite Et eqxx /=. exact/N.ltb_spec0.
-  - split => // m Hm. by apply: (@F.instr_case_57' None).
+  - split => // m Hm. by apply: (@F.instr_case_56' None).
 Qed.
 
 (** * Instructions *)
@@ -651,44 +650,6 @@ Definition is_vec_op (i : S.instr) : bool :=
   | S.VEXTUNOP _ _ _ | S.VEXTBINOP _ _ _ | S.VNARROW _ _ _ | S.VCVTOP _ _ _ => true
   | _ => false
   end.
-
-(* [EXTEND nt n] has no typing or reduction rule in SpecTec, and the forward
-   translation sends it to the same WasmCert instruction as [UNOP nt (EXTEND n)],
-   so completeness only holds for code without it.  Typed code never contains it
-   ([Instr_ok_ext_free] in backtyping.v). *)
-Fixpoint ext_free (i : S.instr) : bool :=
-  match i with
-  | S.instr_EXTEND _ _ => false
-  | S.BLOCK _ ins | S.LOOP _ ins => all ext_free ins
-  | S.IFELSE _ ins1 ins2 => all ext_free ins1 && all ext_free ins2
-  | _ => true
-  end.
-
-Fixpoint ext_free_admin (a : S.admininstr) : bool :=
-  match a with
-  | S.admininstr_EXTEND _ _ => false
-  | S.admininstr_BLOCK _ ins | S.admininstr_LOOP _ ins => all ext_free ins
-  | S.admininstr_IFELSE _ ins1 ins2 => all ext_free ins1 && all ext_free ins2
-  | S.LABEL_ _ ins es => all ext_free ins && all ext_free_admin es
-  | S.FRAME_ _ _ es => all ext_free_admin es
-  | _ => true
-  end.
-
-Definition ext_free_func (f : S.func) : bool :=
-  let: S.func_FUNC _ _ body := f in all ext_free body.
-
-Definition ext_free_store (s : S.store) : bool :=
-  all (fun fi => ext_free_func (S.CODE fi)) (S.store_FUNCS s).
-
-Lemma ext_free_admin_instr i : ext_free_admin (S.admininstr_instr i) = ext_free i.
-Proof. by case: i. Qed.
-
-Lemma Forall_all_impl {A : Type} (P Q : A -> Prop) (p : pred A) l :
-  List.Forall P l -> all p l -> (forall x, P x -> p x -> Q x) -> List.Forall Q l.
-Proof.
-  move=> H; elim: H => //= x l' Hx _ IH /andP [Hp Hl] HPQ.
-  constructor; [exact: HPQ | exact: IH].
-Qed.
 
 Section Instructions.
 
@@ -768,33 +729,32 @@ Proof.
   all: try (constructor; first [exact: of_num_wf | exact: of_shape_wf]).
   all: try (constructor; [exact: of_shape_wf | done]).
   - (* extract_lane: packed lanes and only them have a signedness *)
-    apply: S.instr_case_34; [exact: of_shape_wf | done | closed | by case: v o E => [[]|[]] [s|]].
+    apply: S.instr_case_33; [exact: of_shape_wf | done | closed | by case: v o E => [[]|[]] [s|]].
   - (* store *) by eauto.
 Qed.
 
 Definition instr_complete_at (i : S.instr) : Prop :=
-  S.wf_instr i -> ext_free i -> of_instr vec_instr (tr_instr i) = Some i.
+  S.wf_instr i -> of_instr vec_instr (tr_instr i) = Some i.
 
 Lemma instrs_complete_in ins :
   (forall y, List.In y ins -> instr_complete_at y) ->
-  List.Forall S.wf_instr ins -> all ext_free ins ->
-  olist (of_instr vec_instr) (map tr_instr ins) = Some ins.
+  List.Forall S.wf_instr ins -> olist (of_instr vec_instr) (map tr_instr ins) = Some ins.
 Proof.
-  elim: ins => [|i ins IH] //= H /List.Forall_cons_iff [Hi Hins] /andP [Hei Heins].
-  rewrite (H i (or_introl erefl) Hi Hei) IH //. by move=> y Hy; apply: H; right.
+  elim: ins => [|i ins IH] //= H /List.Forall_cons_iff [Hi Hins].
+  rewrite (H i (or_introl erefl) Hi) IH //. by move=> y Hy; apply: H; right.
 Qed.
 
 Lemma block_complete bt ins :
   (forall y, List.In y ins -> instr_complete_at y) -> instr_complete_at (S.BLOCK bt ins).
 Proof.
-  move=> H Hwf /= Hef. inversion Hwf; subst.
+  move=> H Hwf /=. inversion Hwf; subst.
   by rewrite of_blocktype_complete // instrs_complete_in.
 Qed.
 
 Lemma loop_complete bt ins :
   (forall y, List.In y ins -> instr_complete_at y) -> instr_complete_at (S.LOOP bt ins).
 Proof.
-  move=> H Hwf /= Hef. inversion Hwf; subst.
+  move=> H Hwf /=. inversion Hwf; subst.
   by rewrite of_blocktype_complete // instrs_complete_in.
 Qed.
 
@@ -802,7 +762,7 @@ Lemma if_complete bt ins1 ins2 :
   (forall y, List.In y ins1 -> instr_complete_at y) ->
   (forall y, List.In y ins2 -> instr_complete_at y) -> instr_complete_at (S.IFELSE bt ins1 ins2).
 Proof.
-  move=> H1 H2 Hwf /= /andP [He1 He2]. inversion Hwf; subst.
+  move=> H1 H2 Hwf /=. inversion Hwf; subst.
   by rewrite of_blocktype_complete // !instrs_complete_in.
 Qed.
 
@@ -815,9 +775,6 @@ Proof.
   all: clear IH; rewrite /instr_complete_at; intros until 1;
        match goal with H : S.wf_instr _ |- _ => rename H into Hwf end;
        inversion Hwf; subst.
-  (* EXTEND is excluded by [ext_free] *)
-  all: let Hef := fresh "Hef" in move=> Hef; cbn [ext_free] in Hef;
-       try discriminate Hef; clear Hef.
   all: try (match goal with |- of_instr _ (tr_instr ?i) = _ => by apply: (vec_instr_complete (i := i)) end).
   all: repeat match goal with t : S.vectype |- _ => destruct t end.
   all: rewrite /= ?of_u32_complete ?of_u8_complete ?olist_u32_complete ?of_memarg_complete
@@ -857,7 +814,7 @@ Proof.
 Qed.
 
 Lemma of_instrs_complete ins :
-  List.Forall S.wf_instr ins -> all ext_free ins -> of_instrs vec_instr (tr_instrs ins) = Some ins.
+  List.Forall S.wf_instr ins -> of_instrs vec_instr (tr_instrs ins) = Some ins.
 Proof. apply: instrs_complete_in => y _. exact: of_instr_complete. Qed.
 
 Lemma of_instrs_sound es ins :
@@ -1063,7 +1020,6 @@ Definition instr_of_admin (a : S.admininstr) : option S.instr :=
   | S.admininstr_TESTOP x0 x1 => Some (S.TESTOP x0 x1)
   | S.admininstr_RELOP x0 x1 => Some (S.RELOP x0 x1)
   | S.admininstr_CVTOP x0 x1 x2 => Some (S.CVTOP x0 x1 x2)
-  | S.admininstr_EXTEND x0 x1 => Some (S.instr_EXTEND x0 x1)
   | S.admininstr_VCONST x0 x1 => Some (S.VCONST x0 x1)
   | S.admininstr_VVUNOP x0 x1 => Some (S.VVUNOP x0 x1)
   | S.admininstr_VVBINOP x0 x1 => Some (S.VVBINOP x0 x1)
@@ -1178,10 +1134,9 @@ Proof.
   f_equal. by elim: ls => //= t ls ->; rewrite tr_of_valtype.
 Qed.
 
-Lemma of_func_complete f :
-  S.wf_func f -> ext_free_func f -> of_func vec_instr (tr_func f) = Some f.
+Lemma of_func_complete f : S.wf_func f -> of_func vec_instr (tr_func f) = Some f.
 Proof.
-  case=> x ls body Hx Hb /= Hef. rewrite /of_func /= of_u32_complete // of_instrs_complete //.
+  case=> x ls body Hx Hb /=. rewrite /of_func /= of_u32_complete // of_instrs_complete //.
   f_equal. f_equal. rewrite -map_comp. by elim: ls => //= [[t]] ls ->; rewrite /of_local of_tr_valtype.
 Qed.
 
@@ -1194,9 +1149,9 @@ Proof.
 Qed.
 
 Lemma of_funcinst_complete fi :
-  S.wf_funcinst fi -> ext_free_func (S.CODE fi) -> of_funcinst vec_instr (tr_funcinst fi) = Some fi.
+  S.wf_funcinst fi -> of_funcinst vec_instr (tr_funcinst fi) = Some fi.
 Proof.
-  case=> ft mi f Hmi Hf /= Hef.
+  case=> ft mi f Hmi Hf /=.
   by rewrite /tr_funcinst /= of_moduleinst_complete // of_func_complete // of_tr_functype.
 Qed.
 
@@ -1305,16 +1260,16 @@ Proof.
 Qed.
 
 Lemma of_store_complete s :
-  S.wf_store s -> ext_free_store s -> of_store vec_instr (tr_store s) = Some s.
+  S.wf_store s -> of_store vec_instr (tr_store s) = Some s.
 Proof.
-  case=> fs gs ts ms es ds Hfs Hgs Hts Hms Hds /= Hef.
+  case=> fs gs ts ms es ds Hfs Hgs Hts Hms Hds.
   rewrite /of_store /= !olist_map.
   - rewrite -map_comp (eq_map of_tr_eleminst) map_id. do 2 f_equal.
     elim: Hds => // d l Hd _ IH. by rewrite map_cons map_cons of_tr_datainst // IH.
   - apply: List.Forall_impl Hms. exact: of_meminst_complete.
   - apply: List.Forall_impl Hts. exact: of_tableinst_complete.
   - apply: List.Forall_impl Hgs. exact: of_globalinst_complete.
-  - apply: (Forall_all_impl Hfs Hef) => x. exact: of_funcinst_complete.
+  - apply: List.Forall_impl Hfs. exact: of_funcinst_complete.
 Qed.
 
 Lemma of_frame_sound f f' : of_frame f = Some f' -> tr_frame f' = f /\ S.wf_frame f'.
@@ -1382,24 +1337,23 @@ Lemma of_admins_sound es as' :
 Proof. apply: olist_in_sound => y _. exact: of_admin_sound. Qed.
 
 Definition admin_complete_at (a : S.admininstr) : Prop :=
-  S.wf_admininstr a -> ext_free_admin a -> of_admin vec_instr (tr_admin a) = Some a.
+  S.wf_admininstr a -> of_admin vec_instr (tr_admin a) = Some a.
 
 Lemma admin_instr_complete a i : instr_of_admin a = Some i -> admin_complete_at a.
 Proof.
-  move/instr_of_admin_inv => -> /wf_instr_of_admin Hw. rewrite ext_free_admin_instr => Hef.
+  move/instr_of_admin_inv => -> /wf_instr_of_admin Hw.
   by rewrite tr_admin_instr /= of_instr_complete.
 Qed.
 
 Lemma label_complete n ins es :
   (forall y, List.In y es -> admin_complete_at y) -> admin_complete_at (S.LABEL_ n ins es).
 Proof.
-  move=> Hes Hw /= /andP [Hei Hee]. inversion Hw; subst.
+  move=> Hes Hw /=. inversion Hw; subst.
   match goal with H : List.Forall _ ins |- _ => rename H into Hwi end.
   match goal with H : List.Forall _ es |- _ => rename H into Hwe end.
   rewrite N2Nat.id /to_e_list /tr_instrs -map_comp olist_map; last first.
-  { apply: (Forall_all_impl Hwi Hei) => x. exact: of_instr_complete. }
-  rewrite olist_map //. elim: es Hes Hwe Hee {Hw} => // e l IHl Hes /List.Forall_cons_iff [He Hl]
-    /= /andP [Hee Hel].
+  { apply: List.Forall_impl Hwi. exact: of_instr_complete. }
+  rewrite olist_map //. elim: es Hes Hwe {Hw} => // e l IHl Hes /List.Forall_cons_iff [He Hl].
   constructor; first by apply: Hes => //; left.
   apply: IHl => // y Hy. apply: Hes. by right.
 Qed.
@@ -1407,11 +1361,11 @@ Qed.
 Lemma frame_complete n f es :
   (forall y, List.In y es -> admin_complete_at y) -> admin_complete_at (S.FRAME_ n f es).
 Proof.
-  move=> Hes Hw /= Hee. inversion Hw; subst.
+  move=> Hes Hw /=. inversion Hw; subst.
   match goal with H : S.wf_frame _ |- _ => rename H into Hf end.
   match goal with H : List.Forall _ es |- _ => rename H into Hwe end.
   rewrite N2Nat.id of_frame_complete // olist_map //.
-  elim: es Hes Hwe Hee {Hw} => // e l IHl Hes /List.Forall_cons_iff [He Hl] /= /andP [Hee Hel].
+  elim: es Hes Hwe {Hw} => // e l IHl Hes /List.Forall_cons_iff [He Hl].
   constructor; first by apply: Hes => //; left.
   apply: IHl => // y Hy. apply: Hes. by right.
 Qed.
@@ -1422,15 +1376,14 @@ Proof.
   all: try (by move=> n ins es; apply: label_complete; in_ih IH).
   all: try (by move=> n f es; apply: frame_complete; in_ih IH).
   all: try (by intros; apply: admin_instr_complete; reflexivity).
-  all: intros; rewrite /admin_complete_at => _ _; reflexivity.
+  all: intros; rewrite /admin_complete_at => _; reflexivity.
 Qed.
 
 Lemma of_admins_complete as' :
-  List.Forall S.wf_admininstr as' -> all ext_free_admin as' ->
-  of_admins vec_instr (tr_admins as') = Some as'.
+  List.Forall S.wf_admininstr as' -> of_admins vec_instr (tr_admins as') = Some as'.
 Proof.
-  elim=> // a l Ha _ IH /= /andP [Hea Hel].
-  by rewrite (of_admin_complete Ha Hea) IH.
+  elim=> // a l Ha _ IH /=.
+  by rewrite (of_admin_complete Ha) IH.
 Qed.
 
 (** * Configurations *)
@@ -1447,10 +1400,10 @@ Proof.
 Qed.
 
 Lemma of_config_complete s f es :
-  S.wf_config (S.mk_config (S.mk_state s f) es) -> ext_free_store s -> all ext_free_admin es ->
+  S.wf_config (S.mk_config (S.mk_state s f) es) ->
   of_config vec_instr (tr_store s) (tr_frame f) (tr_admins es) = Some (S.mk_config (S.mk_state s f) es).
 Proof.
-  move=> Hw Hes Hea. inversion Hw as [z es' Hz Hwes]; subst. inversion Hz; subst.
+  move=> Hw. inversion Hw as [z es' Hz Hwes]; subst. inversion Hz; subst.
   by rewrite /of_config of_store_complete // of_frame_complete // of_admins_complete.
 Qed.
 

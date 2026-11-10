@@ -323,9 +323,6 @@ Fixpoint tr_instr (i : S.instr) : basic_instruction :=
   | S.TESTOP nt op => BI_testop (tr_numtype nt) (tr_testop op)
   | S.RELOP nt op => BI_relop (tr_numtype nt) (tr_relop op)
   | S.CVTOP nt1 nt2 op => BI_cvtop (tr_numtype nt1) (tr_cvtop op).1 (tr_numtype nt2) (tr_cvtop op).2
-  (* [EXTEND nt n] has no typing or reduction rule in SpecTec (it is dead); it is
-     sent to the WasmCert sign-extension operator it denotes. *)
-  | S.instr_EXTEND nt n => BI_unop (tr_numtype nt) (Unop_extend n)
   (* Vector instructions: the instruction class is fixed, the opcode is a hole. *)
   | S.VCONST _ c => BI_const_vec (tr_vec c)
   | S.VVUNOP _ _ => BI_vunop (vec_code i)
@@ -500,7 +497,6 @@ Fixpoint tr_admin (a : S.admininstr) : administrative_instruction :=
   | S.admininstr_TESTOP x0 x1 => AI_basic (tr_instr (S.TESTOP x0 x1))
   | S.admininstr_RELOP x0 x1 => AI_basic (tr_instr (S.RELOP x0 x1))
   | S.admininstr_CVTOP x0 x1 x2 => AI_basic (tr_instr (S.CVTOP x0 x1 x2))
-  | S.admininstr_EXTEND x0 x1 => AI_basic (tr_instr (S.instr_EXTEND x0 x1))
   | S.admininstr_VCONST x0 x1 => AI_basic (tr_instr (S.VCONST x0 x1))
   | S.admininstr_VVUNOP x0 x1 => AI_basic (tr_instr (S.VVUNOP x0 x1))
   | S.admininstr_VVBINOP x0 x1 => AI_basic (tr_instr (S.VVBINOP x0 x1))
