@@ -123,7 +123,8 @@ let rec t_def env d =
       DecD (id, params', typ', clauses') $ d.at
   | _ -> transform_def t d
 
-let is_partial_hint hint = hint.hintid.it = "partial"
+let partial_hint_id = "partial"
+let is_partial_hint hint = hint.hintid.it = partial_hint_id
 
 let register_hints env def =
   match def.it with

@@ -5,6 +5,7 @@ open Source
 open Il.Ast
 open Il
 open Il.Walk
+open Il.Subst
 
 (* Errors *)
 
@@ -118,9 +119,12 @@ let generate_subst_list lhs quants =
 
   (* Compute cartesian product for all cases and generate a subst *)
   let cases' = product_of_lists cases in
-  List.map (List.fold_left (fun (quants, subst) (id, (quants', exp)) -> 
+  let subst_list = List.map (List.fold_left (fun (quants, subst) (id, (quants', exp)) -> 
     (quants' @ quants, Il.Subst.add_varid subst id exp)) ([], Il.Subst.empty)
-  ) cases' 
+  ) cases' in
+Lib.List.nub (fun (quants', subst) (quants'', subst') ->
+    Eq.eq_list Eq.eq_param quants' quants'' && Map.equal (fun exp exp' -> Eq.eq_exp exp exp') subst.varid subst'.varid
+  ) subst_list
 
 let t_clause clause =
   match clause.it with 
