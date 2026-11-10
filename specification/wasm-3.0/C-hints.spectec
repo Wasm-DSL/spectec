@@ -53,7 +53,7 @@ def $subst_memtype hint(wfopt)
 def $subst_tabletype hint(wfopt)
 def $subst_externtype hint(wfopt)
 def $subst_moduletype hint(wfopt)
-def $minus_recs hint(wfopt)
+def $minus_recs hint(wfopt) hint(axiom)  ;; non-strictly positive as a relation
 def $subst_all_valtype hint(wfopt)
 def $subst_all_reftype hint(wfopt)
 def $subst_all_tagtype hint(wfopt)
@@ -303,6 +303,7 @@ def $exportsd hint(wfopt)
 
 ;; X.3-notation.execution.spectec
 def $allocXs hint(wfopt)
+def $allocXs hint(partial)  ;; not exhaustive on lists of different lengths
 
 
 ;; Builtins
