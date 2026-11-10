@@ -3,6 +3,16 @@ theory Preservation
 	        Type_Inversion Subtyping_Theorem Context_Store_Agreement Generated_Wf_Lemmas
 begin
 
+lemma nat_floor_div_nat: "nat \<lfloor>(of_nat m :: rat) / of_nat n\<rfloor> = m div n"
+  using floor_divide_of_nat_eq[where 'a = rat, of m n] by simp
+
+(* An i32 constant is well-formed when its value fits in 32 bits *)
+lemma wf_const_I32: "wf_uN 32 (mk_uN v) \<Longrightarrow> wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN v))))"
+  by (intro instr_case_13 wf_num_I32)
+
+lemma wf_const_I32_le: "v \<le> 2 ^ 32 - 1 \<Longrightarrow> wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN v))))"
+  by (intro wf_const_I32) (simp add: wf_uN_iff)
+
 (* Functional views of the store lookups (generated as relations), so that lemmas can talk
    about the looked-up instance *)
 fun table_of :: "state \<Rightarrow> tableidx \<Rightarrow> tableinst" where
@@ -96,16 +106,7 @@ qed
 lemma fun_inv_signed_wf:
   assumes "fun_inv_signed_underscore N val res" 
   shows "wf_uN N (mk_uN res)"
-  using assms proof(induction N val res)
-  case (fun_inv_signed__case_0 i v_N)
-  then show ?case using uN_case_0[of i v_N]
-    by (metis One_nat_def Suc_leI Suc_pred add.right_neutral add_Suc_right diff_le_self le_trans lessI
-        linorder_not_less one_add_one power_increasing_iff) 
-next
-  case (fun_inv_signed__case_1 v_N i)
-  then show ?case using uN_case_0[of i v_N]
-    by blast
-qed
+  using assms by (rule inv_signed_bound)
 
 
 lemma list_all_update:
@@ -742,8 +743,9 @@ proof (induction rule: list_all2_induct)
   then show ?case using Cons default_Val_ok[OF assms(1)] by auto
 qed simp
 
-lemma Limits_sub_refl: assumes "wf_limits lim" shows "Limits_sub lim lim" 
-  using assms assms proof(induction lim)
+(* "lim" is a constant of Complex_Main (limit of a sequence), so the variable is named lims *)
+lemma Limits_sub_refl: assumes "wf_limits lims" shows "Limits_sub lims lims"
+  using assms assms proof(induction lims)
   case (limits_case_0 v_u32 u32_opt)
     then show ?case proof(induction u32_opt)
       case None
@@ -835,7 +837,8 @@ lemma wf_const_minus_one:
     show ?case using num__case_0(2,1,3-5) isabelle_reference_output_wasm2.num__case_0
     proof (induction "the (isabelle_reference_output_wasm2.size (valtype_Inn Inn_I32))" "mk_uN v_n")
       case uN_case_0
-      then show ?case using isabelle_reference_output_wasm2.uN_case_0 
+      note hyps = uN_case_0[unfolded nat_int_diff]
+      show ?case using hyps isabelle_reference_output_wasm2.uN_case_0[unfolded nat_int_diff]
         by (metis diff_is_0_eq' diff_le_self le_trans)
     qed
   qed
@@ -947,7 +950,7 @@ shows "length (REFS (table_of (mk_state s f) (mk_uN n))) \<le> (2 ^ 32 - 1 :: na
             show ?case using mk_Tableinst_ok(1) veq 
             proof(induction "mk_tabletype (mk_limits (mk_uN v_len) (map_option mk_uN m_opt)) rt")
               case mk_Tabletype_ok
-              show ?case using mk_Tabletype_ok(1,3)
+              show ?case using mk_Tabletype_ok(1,3)[unfolded nat_int_diff]
               proof(induction "mk_limits (mk_uN v_len) (map_option mk_uN m_opt)" 
                     "2 ^ 32 - 1 :: nat")
                 case (mk_Limits_ok m_opt')
@@ -1002,7 +1005,7 @@ proof -
     by (simp add: admininstr_instr.domintros admininstr_instr.psimps)
   then have "Instr_ok C (instr_sc5 (LOAD I32 (Some (mk_loadop__0 Inn_I32 (mk_loadop_Inn (mk_sz 8) U))) memarg0))
       (mk_functype (mk_list [valtype_I32]) (mk_list [valtype_I32]))"
-    using load_pack[where v_Inn = Inn_I32 and v_sx = U and v_M = 8 and v_memarg = memarg0,
+    using load_pack[simplified align_bridge, where v_Inn = Inn_I32 and v_sx = U and v_M = 8 and v_memarg = memarg0,
         OF assms(1,2) _ assms(4,3)] memarg0_align
     by (simp add: numtype_Inn.domintros numtype_Inn.psimps valtype_Inn.domintros valtype_Inn.psimps)
   then show ?thesis using instr_ok2_instrs_ok2[OF instr_ok_instr_ok2[OF _ assms(5)]]
@@ -1021,7 +1024,7 @@ proof -
     by (simp add: admininstr_instr.domintros admininstr_instr.psimps)
   then have "Instr_ok C (instr_sc6 (STORE I32 (Some (mk_sz 8)) memarg0))
       (mk_functype (mk_list [valtype_I32, valtype_I32]) (mk_list []))"
-    using store_pack[where v_Inn = Inn_I32 and v_M = 8 and v_memarg = memarg0,
+    using store_pack[simplified align_bridge, where v_Inn = Inn_I32 and v_M = 8 and v_memarg = memarg0,
         OF assms(1,2) _ assms(4,3)] memarg0_align
     by (simp add: numtype_Inn.domintros numtype_Inn.psimps valtype_Inn.domintros valtype_Inn.psimps)
   then show ?thesis using instr_ok2_instrs_ok2[OF instr_ok_instr_ok2[OF _ assms(5)]]
@@ -3650,9 +3653,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       using Store_ok_length_table Step_read__table_size mk_uN_proj_uN_0
       using fun_table_len by blast
     then have "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))))" 
-      using instr_case_13 num__case_0 uN_case_0
-      by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
-          valtype_Inn.psimps(1))
+      by (simp add: wf_const_I32_le)
     then show ?case using const Instrs_ok2_wf instr_ok_instr_ok2 instr_ok2_instrs_ok2 
       subt hyps Instrs_ok2_subtyping Step_read__table_size admininstr_instr.domintros admininstr_instr.psimps
       by (metis valtype_numtype.simps(1))
@@ -3769,9 +3770,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     using Store_ok_length_table table_fill_succ mk_uN_proj_uN_0 hyps 
     using fun_table_of by fastforce
     then have "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN (proj_uN_0 (the (proj_num__0 i)) + 1)))))" 
-      using instr_case_13 num__case_0 uN_case_0
-      by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
-          valtype_Inn.psimps(1))
+      by (simp add: wf_const_I32_le)
  
     then have "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 
               (mk_num__0 Inn_I32 (mk_uN 
@@ -3838,7 +3837,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
      have "Instrs_ok2 s C' [admininstr_sc5 (admininstr_st5_TABLE_FILL x)] (mk_functype 
              (mk_list [valtype_I32, valtype_reftype rt, valtype_I32]) (mk_list []))"
        using okfill instr_ok2_instrs_ok2 hyps by simp
-    then show ?case using 5 instrs_ok2_seq Instrs_ok2_subtyping table_fill_succ subt by fastforce
+    then show ?case unfolding nat_int_diff using 5 instrs_ok2_seq Instrs_ok2_subtyping table_fill_succ subt by fastforce
   next
     case (table_copy_trap x var_1 y var_0 i j v_n)
     then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
@@ -3978,9 +3977,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     using Store_ok_length_table table_copy_le mk_uN_proj_uN_0 hyps 
     using fun_table_len by fastforce
     then have "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN (proj_uN_0 (the (proj_num__0 j)) + 1)))))" 
-      using instr_case_13 num__case_0 uN_case_0
-      by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
-          valtype_Inn.psimps(1))
+      by (simp add: wf_const_I32_le)
 
 
     then have "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 
@@ -4005,9 +4002,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     then show ?thesis using table_copy_le(5,6) by auto
   qed
     then have "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN (proj_uN_0 (the (proj_num__0 i)) + 1)))))" 
-      using instr_case_13 num__case_0 uN_case_0
-      by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
-          valtype_Inn.psimps(1))
+      by (simp add: wf_const_I32_le)
 
     then have "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 
               (mk_num__0 Inn_I32 (mk_uN 
@@ -4061,7 +4056,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
      have "Instrs_ok2 s C' [admininstr_sc5 (admininstr_st5_TABLE_COPY x y)] (mk_functype 
              (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
        using okfill instr_ok2_instrs_ok2 hyps by simp
-    then show ?case using 7 instrs_ok2_seq Instrs_ok2_subtyping table_copy_le subt by fastforce
+    then show ?case unfolding nat_int_diff using 7 instrs_ok2_seq Instrs_ok2_subtyping table_copy_le subt by fastforce
   next
     case (table_copy_gt x var_1 y var_0 j i v_n)
     then obtain t2 where splitv:
@@ -4103,9 +4098,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     by (meson fun_table_len le0 le_diff_conv le_trans trans_le_add1)
     then have "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN 
         (proj_uN_0 (the (proj_num__0 j)) + v_n - 1)))))" 
-      using instr_case_13 num__case_0 uN_case_0
-      by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
-          valtype_Inn.psimps(1))
+      by (simp add: wf_const_I32_le)
 
     then have 1: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 
               (mk_num__0 Inn_I32 (mk_uN 
@@ -4121,9 +4114,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
                   proj_uN_0 (the (proj_num__0 j)) + v_n - 1 \<le> 2 ^ 32 - 1\<close> by simp
     then have "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN 
       (proj_uN_0 (the (proj_num__0 i)) + v_n - 1)))))" 
-      using instr_case_13 num__case_0 uN_case_0
-      by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
-          valtype_Inn.psimps(1))
+      by (simp add: wf_const_I32_le)
 
     then have "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 
               (mk_num__0 Inn_I32 (mk_uN 
@@ -4264,7 +4255,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
      have "Instrs_ok2 s C' [admininstr_sc5 (admininstr_st5_TABLE_COPY x y)] (mk_functype 
              (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
        using okfill instr_ok2_instrs_ok2 hyps by simp
-    then show ?case using 7 instrs_ok2_seq Instrs_ok2_subtyping table_copy_gt subt by fastforce
+    then show ?case unfolding nat_int_diff using 7 instrs_ok2_seq Instrs_ok2_subtyping table_copy_gt subt by fastforce
   next
     case (table_init_trap x var_1 y var_0 i j v_n)
   then show ?case using Instr_ok2__trap Instrs_ok2_wf admininstr_case_73 instr_ok2_instrs_ok2
@@ -4422,9 +4413,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
   qed
     then have "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN (proj_uN_0 
         (the (proj_num__0 j)) + 1)))))" 
-      using instr_case_13 num__case_0 uN_case_0
-      by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
-          valtype_Inn.psimps(1))
+      by (simp add: wf_const_I32_le)
 
     then have "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 
               (mk_num__0 Inn_I32 (mk_uN 
@@ -4463,7 +4452,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
             then have "proj_uN_0 (the (proj_num__0 i)) + 1 < 2 ^ 32"
               using fun_elem_of mk_Eleminst_ok.prems(2) mk_Moduleinst_ok.prems(2,7) table_init_succ.hyps(3) by force
             then show ?case using wf_instr.intros(14) wf_num_underscore.intros(1)
-              wf_uN.intros 
+              wf_uN.intros[unfolded nat_int_diff] 
               valtype_Inn.domintros valtype_Inn.psimps numtype_Inn.domintros numtype_Inn.psimps
               by (metis interval_class.less_imp_less_eq_dec le_add2 le_add_same_cancel2 
                   option.distinct(1) option.sel
@@ -4525,7 +4514,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
      have "Instrs_ok2 s C' [admininstr_sc6 (admininstr_st6_TABLE_INIT x y)] (mk_functype 
              (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
        using okfill instr_ok2_instrs_ok2 hyps by simp
-    then show ?case unfolding v0
+    then show ?case unfolding v0 nat_int_diff
       using 7 instrs_ok2_seq Instrs_ok2_subtyping table_init_succ subt by fastforce
   next
     case (load_num_trap var_0 i nt ao)
@@ -4558,7 +4547,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       using inv_load_val by blast
     then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_numtype nt]) <ti: mk_instrtype t1 t3"
       using subv subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] by fastforce
-    then show ?case using hyps load_num_val const wf_instr.intros(14) instr_ok_instr_ok2 
+    then show ?case using hyps load_num_val[unfolded nat_floor_div_nat] const wf_instr.intros(14) instr_ok_instr_ok2 
         instr_ok2_instrs_ok2 Instrs_ok2_subtyping admininstr_instr.domintros admininstr_instr.psimps
         Instrs_ok2_wf by fastforce
   next
@@ -4597,8 +4586,8 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     then have wf: "wf_num_underscore (numtype_Inn v_Inn)
          (mk_num__0 v_Inn
            (extend__underscore v_n (the (isabelle_reference_output_wasm2.size (valtype_Inn v_Inn))) v_sx
-             c))" using wf_num_underscore.intros(1) load_pack_val by simp
-    show ?case using hyps load_pack_val const[OF _ wf_instr.intros(14)[OF wf]] instr_ok_instr_ok2 
+             c))" using wf_num_underscore.intros(1) load_pack_val[unfolded nat_floor_div_nat] by simp
+    show ?case using hyps load_pack_val[unfolded nat_floor_div_nat] const[OF _ wf_instr.intros(14)[OF wf]] instr_ok_instr_ok2 
         instr_ok2_instrs_ok2 Instrs_ok2_subtyping admininstr_instr.domintros admininstr_instr.psimps
         Instrs_ok2_wf subt valtype_numtype_Inn by metis
   next
@@ -4662,10 +4651,9 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
     then obtain mt where hyps:
       "0 < length (context_MEMS C')"
       "context_MEMS C' ! 0 = mt"
-      "2 ^ proj_uN_0 (ALIGN ao)
-        \<le> v_M div 8 * v_N"
-      "wf_memtype mt" 
-      "mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128]) = mk_functype t2' t3'" 
+      "(of_nat (2 ^ proj_uN_0 (ALIGN ao)) :: rat) \<le> of_nat v_M / of_nat 8 * of_nat v_N"
+      "wf_memtype mt"
+      "mk_functype (mk_list [valtype_I32]) (mk_list [valtype_V128]) = mk_functype t2' t3'"
       using inv_vload_pack by blast
     then have subt: "mk_instrtype (mk_list []) (mk_list [valtype_V128]) <ti: mk_instrtype t1 t3"
       using subv subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] by fastforce
@@ -4899,9 +4887,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       qed
     qed
     then have "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))))" 
-      using instr_case_13 num__case_0 uN_case_0
-      by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
-          valtype_Inn.psimps(1))
+      by (simp add: wf_const_I32_le)
     then show ?case using const Instrs_ok2_wf hyps(3) subt instr_ok_instr_ok2 instr_ok2_instrs_ok2
         Step_read__memory_size
         by (metis Instrs_ok2_subtyping admininstr_instr.domintros(14) admininstr_instr.psimps(14)
@@ -5012,11 +4998,11 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
          (auto simp: size_rel_simps memarg0_def numtype_Inn.domintros numtype_Inn.psimps
             valtype_numtype.domintros valtype_numtype.psimps size.domintros size.psimps
             proj_sz_0.domintros proj_sz_0.psimps
-          intro!: list_all3.intros wf_sz.intros wf_memarg.intros wf_uN.intros)
+          intro!: list_all3.intros wf_sz.intros wf_memarg.intros wf_uN.intros[unfolded nat_int_diff])
      then have "Instrs_ok2 s C' [ admininstr_sc6 (admininstr_st6_STORE I32 (Some (mk_sz 8)) memarg0) ] 
           (mk_functype 
         (mk_list [valtype_I32, valtype_I32]) (mk_list []))"
-       using store_pack[of C' mt memarg0 8 Inn_I32, OF hyps(1,2) arith]
+       using store_pack[of C' mt memarg0 8 Inn_I32, simplified align_bridge, OF hyps(1,2) arith]
           hyps instr_ok_instr_ok2 instr_ok2_instrs_ok2 Instrs_ok2_wf[OF splitv(1)]
           admininstr_instr.domintros admininstr_instr.psimps
           valtype_numtype.domintros valtype_numtype.psimps size.domintros size.psimps 
@@ -5046,7 +5032,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
          admininstr_sc7 admininstr_st7_MEMORY_FILL]" 
     unfolding i'_def
     using Step_read_is_wf[OF _ \<open>Store_ok s\<close>
-        isabelle_reference_output_wasm2.memory_fill_succ[OF memory_fill_succ(1-4)]]
+        isabelle_reference_output_wasm2.memory_fill_succ[OF memory_fill_succ(1-4), unfolded nat_int_diff]]
     by blast
   then have "wf_instr (instr_sc1 (res_CONST I32 i'))" 
     using wf_admininstr_instr_inv by simp
@@ -5117,7 +5103,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
          admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (v_n - 1)))),
          admininstr_sc7 admininstr_st7_MEMORY_FILL] (mk_functype t1 t3)"
       using instrs_ok2_seq[OF 5] subt Instrs_ok2_subtyping by fastforce
-    then show ?case unfolding i'_def
+    then show ?case unfolding i'_def nat_int_diff
       by (metis read.prems(9))
   next
     case (memory_copy_trap var_0 i j v_n)
@@ -5213,7 +5199,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
         admininstr_sc7 admininstr_st7_MEMORY_COPY]"
       unfolding j'_def i'_def
       using Step_read_is_wf[OF _ \<open>Store_ok s\<close>
-          isabelle_reference_output_wasm2.memory_copy_le[OF memory_copy_le(1-6)]]
+          isabelle_reference_output_wasm2.memory_copy_le[OF memory_copy_le(1-6), unfolded nat_int_diff]]
       by blast
     have c1: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j)]
         (mk_functype (mk_list []) (mk_list [valtype_I32]))"
@@ -5255,7 +5241,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
           instrs_ok2_seq[OF ld instrs_ok2_seq[OF st instrs_ok2_seq[OF c3 instrs_ok2_seq[OF c4
           instrs_ok2_seq[OF cn cp]]]]]]]]
       by simp
-    then show ?case unfolding j'_def i'_def
+    then show ?case unfolding j'_def i'_def nat_int_diff
       by (metis read.prems(9))
   next
     case (memory_copy_gt var_0 j i v_n)
@@ -5314,7 +5300,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
         admininstr_sc7 admininstr_st7_MEMORY_COPY]"
       unfolding j'_def i'_def
       using Step_read_is_wf[OF _ \<open>Store_ok s\<close>
-          isabelle_reference_output_wasm2.memory_copy_gt[OF memory_copy_gt(1-6)]]
+          isabelle_reference_output_wasm2.memory_copy_gt[OF memory_copy_gt(1-6), unfolded nat_int_diff]]
       by blast
     have c1: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j')]
         (mk_functype (mk_list []) (mk_list [valtype_I32]))"
@@ -5356,7 +5342,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
           instrs_ok2_seq[OF ld instrs_ok2_seq[OF st instrs_ok2_seq[OF c3 instrs_ok2_seq[OF c4
           instrs_ok2_seq[OF cn cp]]]]]]]]
       by simp
-    then show ?case unfolding j'_def i'_def
+    then show ?case unfolding j'_def i'_def nat_int_diff
       by (metis read.prems(9))
   next
     case (memory_init_trap var_1 x var_0 i j v_n)
@@ -5452,7 +5438,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
       unfolding b_def j'_def i'_def
       using Step_read_is_wf[OF _ \<open>Store_ok s\<close>
           isabelle_reference_output_wasm2.memory_init_succ[OF memory_init_succ(1-7),
-            unfolded fun_data_of[OF memory_init_succ(2)]]]
+            unfolded fun_data_of[OF memory_init_succ(2)] nat_int_diff]]
       by blast
     have c1: "Instrs_ok2 s C' [admininstr_sc1 (admininstr_st1_CONST I32 j)]
         (mk_functype (mk_list []) (mk_list [valtype_I32]))"
@@ -5487,7 +5473,7 @@ append_res_context_wf context_case_underscore list.pred_inject(1) append_res_con
           instrs_ok2_seq[OF st instrs_ok2_seq[OF c3 instrs_ok2_seq[OF c4
           instrs_ok2_seq[OF cn ci]]]]]]]
       by simp
-    then show ?case unfolding b_def j'_def i'_def
+    then show ?case unfolding b_def j'_def i'_def nat_int_diff
       using fun_data_of memory_init_succ.hyps(2) read.prems(9) by blast
   qed
 next
@@ -5822,9 +5808,7 @@ next
 
   then have wf: "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 
           (mk_uN (length (REFS (table_of (mk_state s f) x)))))))"
-    using instr_case_13 num__case_0 uN_case_0
-    by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
-        valtype_Inn.psimps(1))
+    by (simp add: wf_const_I32_le)
   show ?case unfolding v1 using  
       instrs_ok_instrs_ok2[OF instr_ok_instrs_ok[OF 
             const[OF Instrs_ok2_wf(1)[OF splitv(1)] wf]]
@@ -5868,9 +5852,8 @@ next
       (mk_list [valtype_reftype rt, valtype_I32])" by auto
   have wf: "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 
           (mk_uN var_0))))" using table_grow_fail fun_inv_signed_wf 
-      instr_case_13 num__case_0 uN_case_0
-    by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
-        valtype_Inn.psimps(1))
+      wf_const_I32
+    by metis
   show ?case using  
       instrs_ok_instrs_ok2[OF instr_ok_instrs_ok[OF 
             const[OF Instrs_ok2_wf(1)[OF table_grow_fail(9)] wf]]
@@ -6055,10 +6038,8 @@ next
 
   then have wf: "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 
           (mk_uN (length (BYTES (mem_of (mk_state s f) (mk_uN 0))) div (64 * Ki))))))"
-    using instr_case_13 num__case_0 uN_case_0
-    by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
-        valtype_Inn.psimps(1))
-  show ?case unfolding v1 using  
+    by (simp add: wf_const_I32_le)
+  show ?case unfolding v1 nat_floor_div_nat using  
       instrs_ok_instrs_ok2[OF instr_ok_instrs_ok[OF 
             const[OF Instrs_ok2_wf(1)[OF splitv(1)] wf]]
             store_extension_wf[OF \<open>Extend_store s s'\<close>]]
@@ -6095,9 +6076,7 @@ next
     using subt produce_consume[of "[_]" t1 t2 "[]" "[_]" "[_]" t3] subv by force 
  have wf: "wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 
           (mk_uN var_0))))"
-    using instr_case_13 num__case_0 memory_grow_fail(1) fun_inv_signed_wf 
-    by (metis numtype_Inn.simps(1) option.distinct(1) option.sel size.simps(1) valtype_Inn.domintros(1)
-        valtype_Inn.psimps(1))
+    using memory_grow_fail(1) fun_inv_signed_wf wf_const_I32 by metis
   show ?case using  
       instrs_ok_instrs_ok2[OF instr_ok_instrs_ok[OF 
             const[OF Instrs_ok2_wf(1)[OF memory_grow_fail(9)] wf]]
