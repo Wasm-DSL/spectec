@@ -17,14 +17,16 @@ type env = {
   mutable il_env : Il.Env.t;
   mutable rel_set : StringSet.t;
   mutable def_arg_set : StringSet.t;
-  mutable rec_funcs : StringSet.t
+  mutable rec_funcs : StringSet.t;
+  mutable axiom_funcs : StringSet.t
 }
 
 let empty_env = {
   il_env = Il.Env.empty;
   rel_set = StringSet.empty;
   def_arg_set = StringSet.empty;
-  rec_funcs = StringSet.empty
+  rec_funcs = StringSet.empty;
+  axiom_funcs = StringSet.empty
 }
 
 let fun_prefix = "fun_"
@@ -32,6 +34,12 @@ let fun_prefix = "fun_"
 let force_func_hint_id = "recfunc"
 
 let has_rec_hint  hint = hint.hintid.it = force_func_hint_id
+
+let axiom_hint_id = "axiom"
+
+let has_axiom_hint hint = hint.hintid.it = axiom_hint_id
+
+let is_axiom_func env id = StringSet.mem id.it env.axiom_funcs
 
 let apply_iter_to_var id iter =
   match iter with
@@ -482,6 +490,8 @@ let must_be_relation env id params clauses =
   (* Current limitation of relations - can only have standard types. 
      No type parameters or higher order functions *)
   List.for_all is_exp_param params && 
+  (* Axioms stay as functions *)
+  not (is_axiom_func env id) &&
   (* Limitation - functions used as def ids cannot be relations *)
   not (StringSet.mem id.it env.def_arg_set) && 
   List.exists (fun c -> match c.it with 
@@ -644,13 +654,13 @@ let rec transform_def (env : env) def =
   | DecD (id, params, typ, clauses) -> 
     [{ def with it = DecD (id, params, typ, List.map (transform_clause env) clauses) }]
   | RecD [{it = DecD (id, params, typ, clauses); at; _}] when 
-    StringSet.mem id.it env.rec_funcs && not (must_be_relation env id params clauses) ->
+    (StringSet.mem id.it env.rec_funcs || is_axiom_func env id) && not (must_be_relation env id params clauses) ->
     let def' = DecD (id, params, typ, List.map (transform_clause env) clauses) $ at in
     [{ def with it = RecD [def'] }]
   | RecD defs when List.for_all has_exp_params defs -> 
     let ids_ref = ref StringSet.empty in
     List.iter (fun d -> match d.it with
-    | DecD (id, _, _, _) -> 
+    | DecD (id, _, _, _) when not (is_axiom_func env id) -> 
       ids_ref := StringSet.add (fun_prefix ^ id.it) !ids_ref;
       env.rel_set <- StringSet.add id.it env.rel_set
     | _ -> () 
@@ -681,6 +691,8 @@ let create_rec_func_set env (d : def) =
   match d.it with
   | HintD {it = DecH (id, hints); _} when List.exists has_rec_hint hints  ->
     env.rec_funcs <- StringSet.add id.it env.rec_funcs
+  | HintD {it = DecH (id, hints); _} when List.exists has_axiom_hint hints  ->
+    env.axiom_funcs <- StringSet.add id.it env.axiom_funcs
   | _ -> ()
 
 

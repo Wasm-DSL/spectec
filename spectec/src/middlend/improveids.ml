@@ -28,7 +28,7 @@ type id_type =
 let empty_info typ_id: region * Xl.Atom.info = (no_region, {def = typ_id; case = ""})
 
 (* Id transformation *)
-let transform_id' (env : env) (id_type : id_type) (s : text) = 
+let transform_id' ?(typ_vars = StringSet.empty) (env : env) (id_type : id_type) (s : text) = 
   let change_id s' = 
     String.map (function
      | '.' -> '_'
@@ -47,7 +47,8 @@ let transform_id' (env : env) (id_type : id_type) (s : text) =
   | Var when Il.Env.mem_typ env.il_env (s' $ no_region) 
     || Il.Env.mem_rel env.il_env (s' $ no_region) 
     || Il.Env.mem_def env.il_env (s' $ no_region) 
-    || StringSet.mem s' env.atom_str_set -> (var_prefix ^ s')
+    || StringSet.mem s' env.atom_str_set
+    || StringSet.mem s' typ_vars -> (var_prefix ^ s')
   | Funcdef when Il.Env.mem_typ env.il_env (s' $ no_region) 
     || Il.Env.mem_rel env.il_env (s' $ no_region) 
     || StringSet.mem s' env.atom_str_set -> (fun_prefix ^ s')
@@ -56,7 +57,7 @@ let transform_id' (env : env) (id_type : id_type) (s : text) =
   | _ when Option.is_some (int_of_string_opt s') -> (res_prefix ^ s')
   | _ -> s'
 
-let t_var_id env id = transform_id' env Var id.it $ id.at
+let t_var_id ?typ_vars env id = transform_id' ?typ_vars env Var id.it $ id.at
 let t_def_id env id = transform_id' env Funcdef id.it $ id.at
 let t_user_def_id env id = transform_id' env Userdef id.it $ id.at
 let t_atom_id env id = transform_id' env Atoms id.it $ id.at
@@ -193,11 +194,34 @@ let transform_hintdef env hintdef =
   in
   { hintdef with it = h }
 
+let typ_param_ids (params : param list) : StringSet.t =
+  List.fold_left (fun acc p ->
+    match p.it with
+    | TypP id -> StringSet.add id.it acc
+    | _ -> acc
+  ) StringSet.empty params
+
+let def_typ_vars def =
+  let union_map f l = List.fold_left (fun acc x -> StringSet.union acc (f x)) StringSet.empty l in
+  match def.it with
+  | TypD (_, params, insts) ->
+    StringSet.union (typ_param_ids params)
+      (union_map (fun inst -> match inst.it with InstD (quants, _, _) -> typ_param_ids quants) insts)
+  | RelD (_, params, _, _, rules) ->
+    StringSet.union (typ_param_ids params)
+      (union_map (fun rule -> match rule.it with RuleD (_, quants, _, _, _) -> typ_param_ids quants) rules)
+  | DecD (_, params, _, clauses) ->
+    StringSet.union (typ_param_ids params)
+      (union_map (fun clause -> match clause.it with DefD (quants, _, _, _) -> typ_param_ids quants) clauses)
+  | GramD (_, params, _, _) -> typ_param_ids params
+  | RecD _ | HintD _ -> StringSet.empty
+
 let rec t_def env def = 
+  let typ_vars = def_typ_vars def in
   let tf = { base_transformer with 
     transform_exp = t_exp env;
     transform_path = t_path env;
-    transform_var_id = t_var_id env;
+    transform_var_id = t_var_id ~typ_vars env;
     transform_typ_id = t_user_def_id env;
     transform_rel_id = t_user_def_id env;
     transform_def_id = t_def_id env;

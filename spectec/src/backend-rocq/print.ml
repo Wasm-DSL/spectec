@@ -9,7 +9,8 @@ type rocq_env = {
   mutable il_env : Il.Env.t;
   mutable proj_set : StringSet.t;
   mutable wf_lemma_map : bool StringMap.t;
-  mutable typ_to_wf_map : text StringMap.t
+  mutable typ_to_wf_map : text StringMap.t;
+  mutable axiom_set : StringSet.t
 }
 
 let new_env () = {
@@ -17,7 +18,8 @@ let new_env () = {
   il_env = Il.Env.empty;
   proj_set = StringSet.empty;
   wf_lemma_map = StringMap.empty;
-  typ_to_wf_map = StringMap.empty
+  typ_to_wf_map = StringMap.empty;
+  axiom_set = StringSet.empty
 }
 
 let iter_prem_rels_list = ["List.Forall"; "List.Forall2"; "List_Forall3"]
@@ -1154,6 +1156,31 @@ let is_proj_hint h = h.hintid.it = Middlend.Uncaseremoval.uncase_proj_hint_id
 let is_wf_hint h = h.hintid.it = Middlend.Undep.wf_hint_id
 let is_wf_func_hint h = h.hintid.it = Middlend.Undep.wf_func_id
 let is_wf_rel_hint h = h.hintid.it = Middlend.Undep.wf_rel_id
+let axiom_hint_ids = ["builtin"; Middlend.Deftorel.axiom_hint_id]
+let is_axiom_hint h = List.mem h.hintid.it axiom_hint_ids
+
+let rec register_axioms env def =
+  match def.it with
+  | HintD { it = DecH (id, hints); _} when List.exists is_axiom_hint hints ->
+    env.axiom_set <- StringSet.add id.it env.axiom_set
+  | RecD defs -> List.iter (register_axioms env) defs
+  | _ -> ()
+
+let is_axiomatized def =
+  match def.it with
+  | DecD (id, _, _, _) -> StringSet.mem id.it !env_ref.axiom_set
+  | _ -> false
+
+  let rec axiomatize_def def =
+  match def.it with
+  | DecD (id, params, typ, _) when is_axiomatized def -> [{ def with it = DecD (id, params, typ, []) }]
+  | RecD defs ->
+    let axioms, rest = List.partition is_axiomatized defs in
+    List.concat_map axiomatize_def axioms @
+    (match List.concat_map axiomatize_def rest with
+    | [] -> []
+    | rest' -> [{ def with it = RecD rest' }])
+  | _ -> [def]
 
 let rec register_hints env def =
   match def.it with
@@ -1196,6 +1223,8 @@ let rec split_wf_lemmas defs =
 let prepare_script (il : script) =
   !env_ref.il_env <- Il.Env.env_of_script il;
   List.iter (register_hints !env_ref) il;
+  List.iter (register_axioms !env_ref) il;
+  let il = List.concat_map axiomatize_def il in
   let il' = Disamb.transform il in
   List.filter_map filter_def il'
 
