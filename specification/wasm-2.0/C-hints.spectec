@@ -1,5 +1,4 @@
 ;; 1-syntax.spectec
-def $fzero hint(wfopt)
 def $zero hint(wfopt)
 def $dim hint(wfopt)
 
