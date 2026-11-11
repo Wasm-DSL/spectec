@@ -1828,9 +1828,10 @@ inductive wf_blocktype :: "blocktype \<Rightarrow> bool" where
 		"(wf_uN (32 :: nat) v_typeidx) \<Longrightarrow>
 		 wf_blocktype (underscore_IDX v_typeidx)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.1-552.22 *)
 datatype instr_st6 =
-	  MEMORY_COPY
+	  MEMORY_INIT "dataidx"
+	| MEMORY_COPY
 	| MEMORY_FILL
 	| MEMORY_GROW
 	| MEMORY_SIZE
@@ -1838,11 +1839,11 @@ datatype instr_st6 =
 	| VSTORE "vectype" "memarg"
 	| VLOAD_LANE "vectype" "sz" "memarg" "laneidx"
 	| VLOAD "vectype" "(vloadop_underscore option)" "memarg"
-	| STORE "numtype" "(sz option)" "memarg"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.1-552.22 *)
 datatype instr_st5 =
-	  LOAD "numtype" "(loadop_underscore option)" "memarg"
+	  STORE "numtype" "(sz option)" "memarg"
+	| LOAD "numtype" "(loadop_underscore option)" "memarg"
 	| ELEM_DROP "elemidx"
 	| TABLE_INIT "tableidx" "elemidx"
 	| TABLE_COPY "tableidx" "tableidx"
@@ -1850,11 +1851,11 @@ datatype instr_st5 =
 	| TABLE_GROW "tableidx"
 	| TABLE_SIZE "tableidx"
 	| TABLE_SET "tableidx"
-	| TABLE_GET "tableidx"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.1-552.22 *)
 datatype instr_st4 =
-	  GLOBAL_SET "globalidx"
+	  TABLE_GET "tableidx"
+	| GLOBAL_SET "globalidx"
 	| GLOBAL_GET "globalidx"
 	| LOCAL_TEE "localidx"
 	| LOCAL_SET "localidx"
@@ -1862,11 +1863,11 @@ datatype instr_st4 =
 	| REF_IS_NULL
 	| REF_FUNC "funcidx"
 	| REF_NULL "reftype"
-	| VCVTOP "shape" "shape" "vcvtop__underscore"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.1-552.22 *)
 datatype instr_st3 =
-	  VNARROW "ishape" "ishape" "sx"
+	  VCVTOP "shape" "shape" "vcvtop__underscore"
+	| VNARROW "ishape" "ishape" "sx"
 	| VEXTBINOP "ishape" "ishape" "vextbinop__underscore"
 	| VEXTUNOP "ishape" "ishape" "vextunop__underscore"
 	| VREPLACE_LANE "shape" "laneidx"
@@ -1874,11 +1875,11 @@ datatype instr_st3 =
 	| VSPLAT "shape"
 	| VSHUFFLE "ishape" "(laneidx list)"
 	| VSWIZZLE "ishape"
-	| VBITMASK "ishape"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.1-552.22 *)
 datatype instr_st2 =
-	  VSHIFTOP "ishape" "vshiftop_underscore"
+	  VBITMASK "ishape"
+	| VSHIFTOP "ishape" "vshiftop_underscore"
 	| VRELOP "shape" "vrelop_underscore"
 	| VTESTOP "shape" "vtestop_underscore"
 	| VBINOP "shape" "vbinop_underscore"
@@ -1886,12 +1887,11 @@ datatype instr_st2 =
 	| VVTESTOP "vectype" "vvtestop"
 	| VVTERNOP "vectype" "vvternop"
 	| VVBINOP "vectype" "vvbinop"
-	| VVUNOP "vectype" "vvunop"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.1-552.22 *)
 datatype instr_st1 =
-	  VCONST "vectype" "vec_underscore"
-	| instr_st1_EXTEND "numtype" "n"
+	  VVUNOP "vectype" "vvunop"
+	| VCONST "vectype" "vec_underscore"
 	| CVTOP "numtype" "numtype" "cvtop__underscore"
 	| RELOP "numtype" "relop_underscore"
 	| TESTOP "numtype" "testop_underscore"
@@ -1900,7 +1900,7 @@ datatype instr_st1 =
 	| res_CONST "numtype" "num_underscore"
 	| RETURN
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.1-552.22 *)
 datatype instr_st0 =
 	  CALL_INDIRECT "tableidx" "typeidx"
 	| CALL "funcidx"
@@ -1912,7 +1912,7 @@ datatype instr_st0 =
 	| UNREACHABLE
 	| NOP
 
-(* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
+(* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:551.1-552.22 *)
 datatype instr =
 	  instr_sc0 "instr_st0"
 	| instr_sc1 "instr_st1"
@@ -1930,9 +1930,8 @@ instr_st7 =
 	| LOOP "blocktype" "(instr list)"
 	| BLOCK "blocktype" "(instr list)"
 	| DATA_DROP "dataidx"
-	| MEMORY_INIT "dataidx"
 
-(* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 *)
+(* Mutual Recursion at: ../specification/wasm-2.0/1-syntax.spectec:551.1-552.22 *)
 inductive wf_instr :: "instr \<Rightarrow> bool" where
 	  instr_case_0 :
 		"wf_instr (instr_sc0 NOP)"
@@ -1994,187 +1993,185 @@ inductive wf_instr :: "instr \<Rightarrow> bool" where
 		 (numtype_1 \<noteq> numtype_2) \<Longrightarrow>
 		 wf_instr (instr_sc1 (CVTOP numtype_1 numtype_2 var_0))"
 	| instr_case_19 :
-		"wf_instr (instr_sc1 (instr_st1_EXTEND v_numtype v_n))"
-	| instr_case_20 :
 		"((size (valtype_vectype v_vectype)) \<noteq> None) \<Longrightarrow>
 		 (wf_uN (the ((size (valtype_vectype v_vectype)))) var_0) \<Longrightarrow>
 		 wf_instr (instr_sc1 (VCONST v_vectype var_0))"
+	| instr_case_20 :
+		"wf_instr (instr_sc1 (VVUNOP v_vectype v_vvunop))"
 	| instr_case_21 :
-		"wf_instr (instr_sc2 (VVUNOP v_vectype v_vvunop))"
-	| instr_case_22 :
 		"wf_instr (instr_sc2 (VVBINOP v_vectype v_vvbinop))"
-	| instr_case_23 :
+	| instr_case_22 :
 		"wf_instr (instr_sc2 (VVTERNOP v_vectype v_vvternop))"
-	| instr_case_24 :
+	| instr_case_23 :
 		"wf_instr (instr_sc2 (VVTESTOP v_vectype v_vvtestop))"
-	| instr_case_25 :
+	| instr_case_24 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 (wf_vunop_underscore v_shape var_0) \<Longrightarrow>
 		 wf_instr (instr_sc2 (VUNOP v_shape var_0))"
-	| instr_case_26 :
+	| instr_case_25 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 (wf_vbinop_underscore v_shape var_0) \<Longrightarrow>
 		 wf_instr (instr_sc2 (VBINOP v_shape var_0))"
-	| instr_case_27 :
+	| instr_case_26 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 (wf_vtestop_underscore v_shape var_0) \<Longrightarrow>
 		 wf_instr (instr_sc2 (VTESTOP v_shape var_0))"
-	| instr_case_28 :
+	| instr_case_27 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 (wf_vrelop_underscore v_shape var_0) \<Longrightarrow>
 		 wf_instr (instr_sc2 (VRELOP v_shape var_0))"
-	| instr_case_29 :
+	| instr_case_28 :
 		"(wf_ishape v_ishape) \<Longrightarrow>
 		 (wf_vshiftop_underscore v_ishape var_0) \<Longrightarrow>
 		 wf_instr (instr_sc2 (VSHIFTOP v_ishape var_0))"
-	| instr_case_30 :
+	| instr_case_29 :
 		"(wf_ishape v_ishape) \<Longrightarrow>
-		 wf_instr (instr_sc3 (VBITMASK v_ishape))"
-	| instr_case_31 :
+		 wf_instr (instr_sc2 (VBITMASK v_ishape))"
+	| instr_case_30 :
 		"(wf_ishape v_ishape) \<Longrightarrow>
 		 (v_ishape = (mk_ishape (X lanetype_I8 (mk_dim (16 :: nat))))) \<Longrightarrow>
 		 wf_instr (instr_sc3 (VSWIZZLE v_ishape))"
-	| instr_case_32 :
+	| instr_case_31 :
 		"(wf_ishape v_ishape) \<Longrightarrow>
 		 list_all (\<lambda> (v_laneidx :: laneidx). (wf_uN (8 :: nat) v_laneidx)) laneidx_lst \<Longrightarrow>
 		 ((v_ishape = (mk_ishape (X lanetype_I8 (mk_dim (16 :: nat))))) \<and> ((length laneidx_lst) = (16 :: nat))) \<Longrightarrow>
 		 wf_instr (instr_sc3 (VSHUFFLE v_ishape laneidx_lst))"
-	| instr_case_33 :
+	| instr_case_32 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 wf_instr (instr_sc3 (VSPLAT v_shape))"
-	| instr_case_34 :
+	| instr_case_33 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 (wf_uN (8 :: nat) v_laneidx) \<Longrightarrow>
 		 ((length [lanetype_I32, lanetype_I64, lanetype_F32, lanetype_F64]) > (0 :: nat)) \<Longrightarrow>
 		 (((fun_lanetype v_shape) \<in> set [lanetype_I32, lanetype_I64, lanetype_F32, lanetype_F64]) \<longleftrightarrow> (sx_opt = None)) \<Longrightarrow>
 		 wf_instr (instr_sc3 (VEXTRACT_LANE v_shape sx_opt v_laneidx))"
-	| instr_case_35 :
+	| instr_case_34 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 (wf_uN (8 :: nat) v_laneidx) \<Longrightarrow>
 		 wf_instr (instr_sc3 (VREPLACE_LANE v_shape v_laneidx))"
-	| instr_case_36 :
+	| instr_case_35 :
 		"(wf_ishape ishape_1) \<Longrightarrow>
 		 (wf_ishape ishape_2) \<Longrightarrow>
 		 (wf_vextunop__underscore ishape_2 ishape_1 var_0) \<Longrightarrow>
 		 wf_instr (instr_sc3 (VEXTUNOP ishape_1 ishape_2 var_0))"
-	| instr_case_37 :
+	| instr_case_36 :
 		"(wf_ishape ishape_1) \<Longrightarrow>
 		 (wf_ishape ishape_2) \<Longrightarrow>
 		 (wf_vextbinop__underscore ishape_2 ishape_1 var_0) \<Longrightarrow>
 		 wf_instr (instr_sc3 (VEXTBINOP ishape_1 ishape_2 var_0))"
-	| instr_case_38 :
+	| instr_case_37 :
 		"(fun_lsize (fun_lanetype (proj_ishape_0 ishape_1)) var_1) \<Longrightarrow>
 		 (fun_lsize (fun_lanetype (proj_ishape_0 ishape_2)) var_0) \<Longrightarrow>
 		 (wf_ishape ishape_1) \<Longrightarrow>
 		 (wf_ishape ishape_2) \<Longrightarrow>
 		 ((var_0 = ((2 :: nat) * var_1)) \<and> (((2 :: nat) * var_1) \<le> (32 :: nat))) \<Longrightarrow>
 		 wf_instr (instr_sc3 (VNARROW ishape_1 ishape_2 v_sx))"
-	| instr_case_39 :
+	| instr_case_38 :
 		"(wf_shape shape_1) \<Longrightarrow>
 		 (wf_shape shape_2) \<Longrightarrow>
 		 (wf_vcvtop__underscore shape_2 shape_1 var_0) \<Longrightarrow>
-		 wf_instr (instr_sc4 (VCVTOP shape_1 shape_2 var_0))"
-	| instr_case_40 :
+		 wf_instr (instr_sc3 (VCVTOP shape_1 shape_2 var_0))"
+	| instr_case_39 :
 		"wf_instr (instr_sc4 (REF_NULL v_reftype))"
-	| instr_case_41 :
+	| instr_case_40 :
 		"(wf_uN (32 :: nat) v_funcidx) \<Longrightarrow>
 		 wf_instr (instr_sc4 (REF_FUNC v_funcidx))"
-	| instr_case_42 :
+	| instr_case_41 :
 		"wf_instr (instr_sc4 REF_IS_NULL)"
-	| instr_case_43 :
+	| instr_case_42 :
 		"(wf_uN (32 :: nat) v_localidx) \<Longrightarrow>
 		 wf_instr (instr_sc4 (LOCAL_GET v_localidx))"
-	| instr_case_44 :
+	| instr_case_43 :
 		"(wf_uN (32 :: nat) v_localidx) \<Longrightarrow>
 		 wf_instr (instr_sc4 (LOCAL_SET v_localidx))"
-	| instr_case_45 :
+	| instr_case_44 :
 		"(wf_uN (32 :: nat) v_localidx) \<Longrightarrow>
 		 wf_instr (instr_sc4 (LOCAL_TEE v_localidx))"
-	| instr_case_46 :
+	| instr_case_45 :
 		"(wf_uN (32 :: nat) v_globalidx) \<Longrightarrow>
 		 wf_instr (instr_sc4 (GLOBAL_GET v_globalidx))"
-	| instr_case_47 :
+	| instr_case_46 :
 		"(wf_uN (32 :: nat) v_globalidx) \<Longrightarrow>
 		 wf_instr (instr_sc4 (GLOBAL_SET v_globalidx))"
+	| instr_case_47 :
+		"(wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
+		 wf_instr (instr_sc4 (TABLE_GET v_tableidx))"
 	| instr_case_48 :
 		"(wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
-		 wf_instr (instr_sc5 (TABLE_GET v_tableidx))"
+		 wf_instr (instr_sc5 (TABLE_SET v_tableidx))"
 	| instr_case_49 :
 		"(wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
-		 wf_instr (instr_sc5 (TABLE_SET v_tableidx))"
+		 wf_instr (instr_sc5 (TABLE_SIZE v_tableidx))"
 	| instr_case_50 :
 		"(wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
-		 wf_instr (instr_sc5 (TABLE_SIZE v_tableidx))"
+		 wf_instr (instr_sc5 (TABLE_GROW v_tableidx))"
 	| instr_case_51 :
 		"(wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
-		 wf_instr (instr_sc5 (TABLE_GROW v_tableidx))"
-	| instr_case_52 :
-		"(wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
 		 wf_instr (instr_sc5 (TABLE_FILL v_tableidx))"
-	| instr_case_53 :
+	| instr_case_52 :
 		"(wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
 		 (wf_uN (32 :: nat) tableidx_0) \<Longrightarrow>
 		 wf_instr (instr_sc5 (TABLE_COPY v_tableidx tableidx_0))"
-	| instr_case_54 :
+	| instr_case_53 :
 		"(wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
 		 (wf_uN (32 :: nat) v_elemidx) \<Longrightarrow>
 		 wf_instr (instr_sc5 (TABLE_INIT v_tableidx v_elemidx))"
-	| instr_case_55 :
+	| instr_case_54 :
 		"(wf_uN (32 :: nat) v_elemidx) \<Longrightarrow>
 		 wf_instr (instr_sc5 (ELEM_DROP v_elemidx))"
-	| instr_case_56 :
+	| instr_case_55 :
 		"list_all (\<lambda> (var_0 :: loadop_underscore). (wf_loadop_underscore v_numtype var_0)) (option_to_list var_0_opt) \<Longrightarrow>
 		 (wf_memarg v_memarg) \<Longrightarrow>
 		 wf_instr (instr_sc5 (LOAD v_numtype var_0_opt v_memarg))"
-	| instr_case_57 :
+	| instr_case_56 :
 		"list_all2 (\<lambda> (var_0 :: nat) (v_Inn :: Inn). (fun_sizenn (numtype_Inn v_Inn) var_0)) (option_to_list var_0_opt) (option_to_list Inn_opt) \<Longrightarrow>
 		 list_all (\<lambda> (v_sz :: sz). (wf_sz v_sz)) (option_to_list sz_opt) \<Longrightarrow>
 		 (wf_memarg v_memarg) \<Longrightarrow>
 		 ((Inn_opt = None) \<longleftrightarrow> (sz_opt = None)) \<Longrightarrow>
 		 list_all3 (\<lambda> (var_0 :: nat) (v_Inn :: Inn) (v_sz :: sz). ((v_numtype = (numtype_Inn v_Inn)) \<and> ((proj_sz_0 v_sz) < var_0))) (option_to_list var_0_opt) (option_to_list Inn_opt) (option_to_list sz_opt) \<Longrightarrow>
-		 wf_instr (instr_sc6 (STORE v_numtype sz_opt v_memarg))"
-	| instr_case_58 :
+		 wf_instr (instr_sc5 (STORE v_numtype sz_opt v_memarg))"
+	| instr_case_57 :
 		"list_all (\<lambda> (var_0 :: vloadop_underscore). (wf_vloadop_underscore v_vectype var_0)) (option_to_list var_0_opt) \<Longrightarrow>
 		 (wf_memarg v_memarg) \<Longrightarrow>
 		 wf_instr (instr_sc6 (VLOAD v_vectype var_0_opt v_memarg))"
-	| instr_case_59 :
+	| instr_case_58 :
 		"(wf_sz v_sz) \<Longrightarrow>
 		 (wf_memarg v_memarg) \<Longrightarrow>
 		 (wf_uN (8 :: nat) v_laneidx) \<Longrightarrow>
 		 wf_instr (instr_sc6 (VLOAD_LANE v_vectype v_sz v_memarg v_laneidx))"
-	| instr_case_60 :
+	| instr_case_59 :
 		"(wf_memarg v_memarg) \<Longrightarrow>
 		 wf_instr (instr_sc6 (VSTORE v_vectype v_memarg))"
-	| instr_case_61 :
+	| instr_case_60 :
 		"(wf_sz v_sz) \<Longrightarrow>
 		 (wf_memarg v_memarg) \<Longrightarrow>
 		 (wf_uN (8 :: nat) v_laneidx) \<Longrightarrow>
 		 wf_instr (instr_sc6 (VSTORE_LANE v_vectype v_sz v_memarg v_laneidx))"
-	| instr_case_62 :
+	| instr_case_61 :
 		"wf_instr (instr_sc6 MEMORY_SIZE)"
-	| instr_case_63 :
+	| instr_case_62 :
 		"wf_instr (instr_sc6 MEMORY_GROW)"
-	| instr_case_64 :
+	| instr_case_63 :
 		"wf_instr (instr_sc6 MEMORY_FILL)"
-	| instr_case_65 :
+	| instr_case_64 :
 		"wf_instr (instr_sc6 MEMORY_COPY)"
-	| instr_case_66 :
+	| instr_case_65 :
 		"(wf_uN (32 :: nat) v_dataidx) \<Longrightarrow>
-		 wf_instr (instr_sc7 (MEMORY_INIT v_dataidx))"
-	| instr_case_67 :
+		 wf_instr (instr_sc6 (MEMORY_INIT v_dataidx))"
+	| instr_case_66 :
 		"(wf_uN (32 :: nat) v_dataidx) \<Longrightarrow>
 		 wf_instr (instr_sc7 (DATA_DROP v_dataidx))"
 
-(* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:556.1-557.9 *)
+(* Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:555.1-556.9 *)
 type_synonym expr = "(instr list)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.1-569.59 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:568.1-568.59 *)
 datatype elemmode =
 	  ACTIVE "tableidx" "expr"
 	| PASSIVE
 	| DECLARE
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.8-569.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:568.8-568.16 *)
 inductive wf_elemmode :: "elemmode \<Rightarrow> bool" where
 	  elemmode_case_0 :
 		"(wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
@@ -2185,12 +2182,12 @@ inductive wf_elemmode :: "elemmode \<Rightarrow> bool" where
 	| elemmode_case_2 :
 		"wf_elemmode DECLARE"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:570.1-570.47 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.1-569.47 *)
 datatype datamode =
 	  datamode_ACTIVE "memidx" "expr"
 	| datamode_PASSIVE
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:570.8-570.16 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.8-569.16 *)
 inductive wf_datamode :: "datamode \<Rightarrow> bool" where
 	  datamode_case_0 :
 		"(wf_uN (32 :: nat) v_memidx) \<Longrightarrow>
@@ -2199,104 +2196,104 @@ inductive wf_datamode :: "datamode \<Rightarrow> bool" where
 	| datamode_case_1 :
 		"wf_datamode datamode_PASSIVE"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:572.1-573.16 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:571.1-572.16 *)
 datatype type =
 	  res_TYPE "functype"
 	
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:574.1-575.16 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:573.1-574.16 *)
 datatype local =
 	  LOCAL "valtype"
 	
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:576.1-577.27 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:575.1-576.27 *)
 datatype func =
 	  func_FUNC "typeidx" "(local list)" "expr"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:576.8-576.12 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:575.8-575.12 *)
 inductive wf_func :: "func \<Rightarrow> bool" where
 	  func_case_0 :
 		"(wf_uN (32 :: nat) v_typeidx) \<Longrightarrow>
 		 list_all (\<lambda> (v_expr :: instr). (wf_instr v_expr)) v_expr \<Longrightarrow>
 		 wf_func (func_FUNC v_typeidx local_lst v_expr)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:578.1-579.25 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:577.1-578.25 *)
 datatype global =
 	  global_GLOBAL "globaltype" "expr"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:578.8-578.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:577.8-577.14 *)
 inductive wf_global :: "global \<Rightarrow> bool" where
 	  global_case_0 :
 		"list_all (\<lambda> (v_expr :: instr). (wf_instr v_expr)) v_expr \<Longrightarrow>
 		 wf_global (global_GLOBAL v_globaltype v_expr)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:580.1-581.18 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:579.1-580.18 *)
 datatype table =
 	  table_TABLE "tabletype"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:580.8-580.13 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:579.8-579.13 *)
 inductive wf_table :: "table \<Rightarrow> bool" where
 	  table_case_0 :
 		"(wf_tabletype v_tabletype) \<Longrightarrow>
 		 wf_table (table_TABLE v_tabletype)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:582.1-583.17 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:581.1-582.17 *)
 datatype mem =
 	  MEMORY "memtype"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:582.8-582.11 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:581.8-581.11 *)
 inductive wf_mem :: "mem \<Rightarrow> bool" where
 	  mem_case_0 :
 		"(wf_memtype v_memtype) \<Longrightarrow>
 		 wf_mem (MEMORY v_memtype)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:584.1-585.30 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:583.1-584.30 *)
 datatype elem =
 	  ELEM "reftype" "(expr list)" "elemmode"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:584.8-584.12 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:583.8-583.12 *)
 inductive wf_elem :: "elem \<Rightarrow> bool" where
 	  elem_case_0 :
 		"list_all (\<lambda> (v_expr :: expr). list_all (\<lambda> (v_expr :: instr). (wf_instr v_expr)) v_expr) expr_lst \<Longrightarrow>
 		 (wf_elemmode v_elemmode) \<Longrightarrow>
 		 wf_elem (ELEM v_reftype expr_lst v_elemmode)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:586.1-587.22 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:585.1-586.22 *)
 datatype data =
 	  DATA "(byte list)" "datamode"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:586.8-586.12 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:585.8-585.12 *)
 inductive wf_data :: "data \<Rightarrow> bool" where
 	  data_case_0 :
 		"list_all (\<lambda> (v_byte :: byte). (wf_byte v_byte)) byte_lst \<Longrightarrow>
 		 (wf_datamode v_datamode) \<Longrightarrow>
 		 wf_data (DATA byte_lst v_datamode)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:588.1-589.16 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:587.1-588.16 *)
 datatype start =
 	  START "funcidx"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:588.8-588.13 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:587.8-587.13 *)
 inductive wf_start :: "start \<Rightarrow> bool" where
 	  start_case_0 :
 		"(wf_uN (32 :: nat) v_funcidx) \<Longrightarrow>
 		 wf_start (START v_funcidx)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:591.1-592.66 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:590.1-591.66 *)
 datatype externidx =
 	  externidx_FUNC "funcidx"
 	| externidx_GLOBAL "globalidx"
 	| externidx_TABLE "tableidx"
 	| externidx_MEM "memidx"
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:591.8-591.17 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:590.8-590.17 *)
 inductive wf_externidx :: "externidx \<Rightarrow> bool" where
 	  externidx_case_0 :
 		"(wf_uN (32 :: nat) v_funcidx) \<Longrightarrow>
@@ -2311,24 +2308,24 @@ inductive wf_externidx :: "externidx \<Rightarrow> bool" where
 		"(wf_uN (32 :: nat) v_memidx) \<Longrightarrow>
 		 wf_externidx (externidx_MEM v_memidx)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:593.1-594.24 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:592.1-593.24 *)
 datatype export =
 	  EXPORT "name" "externidx"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:593.8-593.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:592.8-592.14 *)
 inductive wf_export :: "export \<Rightarrow> bool" where
 	  export_case_0 :
 		"(wf_name v_name) \<Longrightarrow>
 		 (wf_externidx v_externidx) \<Longrightarrow>
 		 wf_export (EXPORT v_name v_externidx)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:595.1-596.30 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:594.1-595.30 *)
 datatype import =
 	  IMPORT "name" "name" "externtype"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:595.8-595.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:594.8-594.14 *)
 inductive wf_import :: "import \<Rightarrow> bool" where
 	  import_case_0 :
 		"(wf_name v_name) \<Longrightarrow>
@@ -2336,12 +2333,12 @@ inductive wf_import :: "import \<Rightarrow> bool" where
 		 (wf_externtype v_externtype) \<Longrightarrow>
 		 wf_import (IMPORT v_name name_0 v_externtype)"
 
-(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:598.1-599.76 *)
+(* Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:597.1-598.76 *)
 datatype module =
 	  MODULE "(type list)" "(import list)" "(func list)" "(global list)" "(table list)" "(mem list)" "(elem list)" "(data list)" "(start option)" "(export list)"
 	
 
-(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:598.8-598.14 *)
+(* Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:597.8-597.14 *)
 inductive wf_module :: "module \<Rightarrow> bool" where
 	  module_case_0 :
 		"list_all (\<lambda> (v_import :: import). (wf_import v_import)) import_lst \<Longrightarrow>
@@ -2424,7 +2421,7 @@ inductive fun_memsxt :: "(externtype list) \<Rightarrow> (memtype list) \<Righta
 
 (* Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:80.1-80.61 *)
 function (sequential, domintros) dataidx_instr :: "instr \<Rightarrow> (dataidx list)" where
-		  "dataidx_instr (instr_sc7 (MEMORY_INIT x)) = [x]"
+		  "dataidx_instr (instr_sc6 (MEMORY_INIT x)) = [x]"
 		| "dataidx_instr (instr_sc7 (DATA_DROP x)) = [x]"
 		| "dataidx_instr res_in = []"
 	by pat_completeness auto
@@ -10610,20 +10607,9 @@ inductive wf_state :: "state \<Rightarrow> bool" where
 		 wf_state (mk_state v_store v_frame)"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
-datatype admininstr_st7 =
-	  admininstr_st7_TRAP
-	| CALL_ADDR "funcaddr"
-	| admininstr_st7_REF_HOST_ADDR "hostaddr"
-	| admininstr_st7_REF_FUNC_ADDR "funcaddr"
-	| admininstr_st7_DATA_DROP "dataidx"
-	| admininstr_st7_MEMORY_INIT "dataidx"
-	| admininstr_st7_MEMORY_COPY
-	| admininstr_st7_MEMORY_FILL
-	| admininstr_st7_MEMORY_GROW
-
-(* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
 datatype admininstr_st6 =
-	  admininstr_st6_MEMORY_SIZE
+	  admininstr_st6_MEMORY_GROW
+	| admininstr_st6_MEMORY_SIZE
 	| admininstr_st6_VSTORE_LANE "vectype" "sz" "memarg" "laneidx"
 	| admininstr_st6_VSTORE "vectype" "memarg"
 	| admininstr_st6_VLOAD_LANE "vectype" "sz" "memarg" "laneidx"
@@ -10631,11 +10617,11 @@ datatype admininstr_st6 =
 	| admininstr_st6_STORE "numtype" "(sz option)" "memarg"
 	| admininstr_st6_LOAD "numtype" "(loadop_underscore option)" "memarg"
 	| admininstr_st6_ELEM_DROP "elemidx"
-	| admininstr_st6_TABLE_INIT "tableidx" "elemidx"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
 datatype admininstr_st5 =
-	  admininstr_st5_TABLE_COPY "tableidx" "tableidx"
+	  admininstr_st5_TABLE_INIT "tableidx" "elemidx"
+	| admininstr_st5_TABLE_COPY "tableidx" "tableidx"
 	| admininstr_st5_TABLE_FILL "tableidx"
 	| admininstr_st5_TABLE_GROW "tableidx"
 	| admininstr_st5_TABLE_SIZE "tableidx"
@@ -10643,11 +10629,11 @@ datatype admininstr_st5 =
 	| admininstr_st5_TABLE_GET "tableidx"
 	| admininstr_st5_GLOBAL_SET "globalidx"
 	| admininstr_st5_GLOBAL_GET "globalidx"
-	| admininstr_st5_LOCAL_TEE "localidx"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
 datatype admininstr_st4 =
-	  admininstr_st4_LOCAL_SET "localidx"
+	  admininstr_st4_LOCAL_TEE "localidx"
+	| admininstr_st4_LOCAL_SET "localidx"
 	| admininstr_st4_LOCAL_GET "localidx"
 	| admininstr_st4_REF_IS_NULL
 	| admininstr_st4_REF_FUNC "funcidx"
@@ -10655,11 +10641,11 @@ datatype admininstr_st4 =
 	| admininstr_st4_VCVTOP "shape" "shape" "vcvtop__underscore"
 	| admininstr_st4_VNARROW "ishape" "ishape" "sx"
 	| admininstr_st4_VEXTBINOP "ishape" "ishape" "vextbinop__underscore"
-	| admininstr_st4_VEXTUNOP "ishape" "ishape" "vextunop__underscore"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
 datatype admininstr_st3 =
-	  admininstr_st3_VREPLACE_LANE "shape" "laneidx"
+	  admininstr_st3_VEXTUNOP "ishape" "ishape" "vextunop__underscore"
+	| admininstr_st3_VREPLACE_LANE "shape" "laneidx"
 	| admininstr_st3_VEXTRACT_LANE "shape" "(sx option)" "laneidx"
 	| admininstr_st3_VSPLAT "shape"
 	| admininstr_st3_VSHUFFLE "ishape" "(laneidx list)"
@@ -10667,18 +10653,17 @@ datatype admininstr_st3 =
 	| admininstr_st3_VBITMASK "ishape"
 	| admininstr_st3_VSHIFTOP "ishape" "vshiftop_underscore"
 	| admininstr_st3_VRELOP "shape" "vrelop_underscore"
-	| admininstr_st3_VTESTOP "shape" "vtestop_underscore"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
 datatype admininstr_st2 =
-	  admininstr_st2_VBINOP "shape" "vbinop_underscore"
+	  admininstr_st2_VTESTOP "shape" "vtestop_underscore"
+	| admininstr_st2_VBINOP "shape" "vbinop_underscore"
 	| admininstr_st2_VUNOP "shape" "vunop_underscore"
 	| admininstr_st2_VVTESTOP "vectype" "vvtestop"
 	| admininstr_st2_VVTERNOP "vectype" "vvternop"
 	| admininstr_st2_VVBINOP "vectype" "vvbinop"
 	| admininstr_st2_VVUNOP "vectype" "vvunop"
 	| admininstr_st2_VCONST "vectype" "vec_underscore"
-	| admininstr_st2_EXTEND "numtype" "n"
 	| admininstr_st2_CVTOP "numtype" "numtype" "cvtop__underscore"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 *)
@@ -10719,9 +10704,22 @@ datatype admininstr =
 
 and
 
+admininstr_st7 =
+	  LABEL_underscore "n" "(instr list)" "(admininstr list)"
+	| admininstr_st7_TRAP
+	| CALL_ADDR "funcaddr"
+	| admininstr_st7_REF_HOST_ADDR "hostaddr"
+	| admininstr_st7_REF_FUNC_ADDR "funcaddr"
+	| admininstr_st7_DATA_DROP "dataidx"
+	| admininstr_st7_MEMORY_INIT "dataidx"
+	| admininstr_st7_MEMORY_COPY
+	| admininstr_st7_MEMORY_FILL
+
+and
+
 admininstr_st8 =
 	  FRAME_underscore "n" "frame" "(admininstr list)"
-	| LABEL_underscore "n" "(instr list)" "(admininstr list)"
+	
 
 (* Auxiliary Definition at:  *)
 function (sequential, domintros) admininstr_instr :: "instr \<Rightarrow> admininstr" where
@@ -10744,54 +10742,53 @@ function (sequential, domintros) admininstr_instr :: "instr \<Rightarrow> admini
 		| "admininstr_instr (instr_sc1 (TESTOP x0 x1)) = (admininstr_sc1 (admininstr_st1_TESTOP x0 x1))"
 		| "admininstr_instr (instr_sc1 (RELOP x0 x1)) = (admininstr_sc1 (admininstr_st1_RELOP x0 x1))"
 		| "admininstr_instr (instr_sc1 (CVTOP x0 x1 x2)) = (admininstr_sc2 (admininstr_st2_CVTOP x0 x1 x2))"
-		| "admininstr_instr (instr_sc1 (instr_st1_EXTEND x0 x1)) = (admininstr_sc2 (admininstr_st2_EXTEND x0 x1))"
 		| "admininstr_instr (instr_sc1 (VCONST x0 x1)) = (admininstr_sc2 (admininstr_st2_VCONST x0 x1))"
-		| "admininstr_instr (instr_sc2 (VVUNOP x0 x1)) = (admininstr_sc2 (admininstr_st2_VVUNOP x0 x1))"
+		| "admininstr_instr (instr_sc1 (VVUNOP x0 x1)) = (admininstr_sc2 (admininstr_st2_VVUNOP x0 x1))"
 		| "admininstr_instr (instr_sc2 (VVBINOP x0 x1)) = (admininstr_sc2 (admininstr_st2_VVBINOP x0 x1))"
 		| "admininstr_instr (instr_sc2 (VVTERNOP x0 x1)) = (admininstr_sc2 (admininstr_st2_VVTERNOP x0 x1))"
 		| "admininstr_instr (instr_sc2 (VVTESTOP x0 x1)) = (admininstr_sc2 (admininstr_st2_VVTESTOP x0 x1))"
 		| "admininstr_instr (instr_sc2 (VUNOP x0 x1)) = (admininstr_sc2 (admininstr_st2_VUNOP x0 x1))"
 		| "admininstr_instr (instr_sc2 (VBINOP x0 x1)) = (admininstr_sc2 (admininstr_st2_VBINOP x0 x1))"
-		| "admininstr_instr (instr_sc2 (VTESTOP x0 x1)) = (admininstr_sc3 (admininstr_st3_VTESTOP x0 x1))"
+		| "admininstr_instr (instr_sc2 (VTESTOP x0 x1)) = (admininstr_sc2 (admininstr_st2_VTESTOP x0 x1))"
 		| "admininstr_instr (instr_sc2 (VRELOP x0 x1)) = (admininstr_sc3 (admininstr_st3_VRELOP x0 x1))"
 		| "admininstr_instr (instr_sc2 (VSHIFTOP x0 x1)) = (admininstr_sc3 (admininstr_st3_VSHIFTOP x0 x1))"
-		| "admininstr_instr (instr_sc3 (VBITMASK x0)) = (admininstr_sc3 (admininstr_st3_VBITMASK x0))"
+		| "admininstr_instr (instr_sc2 (VBITMASK x0)) = (admininstr_sc3 (admininstr_st3_VBITMASK x0))"
 		| "admininstr_instr (instr_sc3 (VSWIZZLE x0)) = (admininstr_sc3 (admininstr_st3_VSWIZZLE x0))"
 		| "admininstr_instr (instr_sc3 (VSHUFFLE x0 x1)) = (admininstr_sc3 (admininstr_st3_VSHUFFLE x0 x1))"
 		| "admininstr_instr (instr_sc3 (VSPLAT x0)) = (admininstr_sc3 (admininstr_st3_VSPLAT x0))"
 		| "admininstr_instr (instr_sc3 (VEXTRACT_LANE x0 x1 x2)) = (admininstr_sc3 (admininstr_st3_VEXTRACT_LANE x0 x1 x2))"
 		| "admininstr_instr (instr_sc3 (VREPLACE_LANE x0 x1)) = (admininstr_sc3 (admininstr_st3_VREPLACE_LANE x0 x1))"
-		| "admininstr_instr (instr_sc3 (VEXTUNOP x0 x1 x2)) = (admininstr_sc4 (admininstr_st4_VEXTUNOP x0 x1 x2))"
+		| "admininstr_instr (instr_sc3 (VEXTUNOP x0 x1 x2)) = (admininstr_sc3 (admininstr_st3_VEXTUNOP x0 x1 x2))"
 		| "admininstr_instr (instr_sc3 (VEXTBINOP x0 x1 x2)) = (admininstr_sc4 (admininstr_st4_VEXTBINOP x0 x1 x2))"
 		| "admininstr_instr (instr_sc3 (VNARROW x0 x1 x2)) = (admininstr_sc4 (admininstr_st4_VNARROW x0 x1 x2))"
-		| "admininstr_instr (instr_sc4 (VCVTOP x0 x1 x2)) = (admininstr_sc4 (admininstr_st4_VCVTOP x0 x1 x2))"
+		| "admininstr_instr (instr_sc3 (VCVTOP x0 x1 x2)) = (admininstr_sc4 (admininstr_st4_VCVTOP x0 x1 x2))"
 		| "admininstr_instr (instr_sc4 (REF_NULL x0)) = (admininstr_sc4 (admininstr_st4_REF_NULL x0))"
 		| "admininstr_instr (instr_sc4 (REF_FUNC x0)) = (admininstr_sc4 (admininstr_st4_REF_FUNC x0))"
 		| "admininstr_instr (instr_sc4 REF_IS_NULL) = (admininstr_sc4 admininstr_st4_REF_IS_NULL)"
 		| "admininstr_instr (instr_sc4 (LOCAL_GET x0)) = (admininstr_sc4 (admininstr_st4_LOCAL_GET x0))"
 		| "admininstr_instr (instr_sc4 (LOCAL_SET x0)) = (admininstr_sc4 (admininstr_st4_LOCAL_SET x0))"
-		| "admininstr_instr (instr_sc4 (LOCAL_TEE x0)) = (admininstr_sc5 (admininstr_st5_LOCAL_TEE x0))"
+		| "admininstr_instr (instr_sc4 (LOCAL_TEE x0)) = (admininstr_sc4 (admininstr_st4_LOCAL_TEE x0))"
 		| "admininstr_instr (instr_sc4 (GLOBAL_GET x0)) = (admininstr_sc5 (admininstr_st5_GLOBAL_GET x0))"
 		| "admininstr_instr (instr_sc4 (GLOBAL_SET x0)) = (admininstr_sc5 (admininstr_st5_GLOBAL_SET x0))"
-		| "admininstr_instr (instr_sc5 (TABLE_GET x0)) = (admininstr_sc5 (admininstr_st5_TABLE_GET x0))"
+		| "admininstr_instr (instr_sc4 (TABLE_GET x0)) = (admininstr_sc5 (admininstr_st5_TABLE_GET x0))"
 		| "admininstr_instr (instr_sc5 (TABLE_SET x0)) = (admininstr_sc5 (admininstr_st5_TABLE_SET x0))"
 		| "admininstr_instr (instr_sc5 (TABLE_SIZE x0)) = (admininstr_sc5 (admininstr_st5_TABLE_SIZE x0))"
 		| "admininstr_instr (instr_sc5 (TABLE_GROW x0)) = (admininstr_sc5 (admininstr_st5_TABLE_GROW x0))"
 		| "admininstr_instr (instr_sc5 (TABLE_FILL x0)) = (admininstr_sc5 (admininstr_st5_TABLE_FILL x0))"
 		| "admininstr_instr (instr_sc5 (TABLE_COPY x0 x1)) = (admininstr_sc5 (admininstr_st5_TABLE_COPY x0 x1))"
-		| "admininstr_instr (instr_sc5 (TABLE_INIT x0 x1)) = (admininstr_sc6 (admininstr_st6_TABLE_INIT x0 x1))"
+		| "admininstr_instr (instr_sc5 (TABLE_INIT x0 x1)) = (admininstr_sc5 (admininstr_st5_TABLE_INIT x0 x1))"
 		| "admininstr_instr (instr_sc5 (ELEM_DROP x0)) = (admininstr_sc6 (admininstr_st6_ELEM_DROP x0))"
 		| "admininstr_instr (instr_sc5 (LOAD x0 x1 x2)) = (admininstr_sc6 (admininstr_st6_LOAD x0 x1 x2))"
-		| "admininstr_instr (instr_sc6 (STORE x0 x1 x2)) = (admininstr_sc6 (admininstr_st6_STORE x0 x1 x2))"
+		| "admininstr_instr (instr_sc5 (STORE x0 x1 x2)) = (admininstr_sc6 (admininstr_st6_STORE x0 x1 x2))"
 		| "admininstr_instr (instr_sc6 (VLOAD x0 x1 x2)) = (admininstr_sc6 (admininstr_st6_VLOAD x0 x1 x2))"
 		| "admininstr_instr (instr_sc6 (VLOAD_LANE x0 x1 x2 x3)) = (admininstr_sc6 (admininstr_st6_VLOAD_LANE x0 x1 x2 x3))"
 		| "admininstr_instr (instr_sc6 (VSTORE x0 x1)) = (admininstr_sc6 (admininstr_st6_VSTORE x0 x1))"
 		| "admininstr_instr (instr_sc6 (VSTORE_LANE x0 x1 x2 x3)) = (admininstr_sc6 (admininstr_st6_VSTORE_LANE x0 x1 x2 x3))"
 		| "admininstr_instr (instr_sc6 MEMORY_SIZE) = (admininstr_sc6 admininstr_st6_MEMORY_SIZE)"
-		| "admininstr_instr (instr_sc6 MEMORY_GROW) = (admininstr_sc7 admininstr_st7_MEMORY_GROW)"
+		| "admininstr_instr (instr_sc6 MEMORY_GROW) = (admininstr_sc6 admininstr_st6_MEMORY_GROW)"
 		| "admininstr_instr (instr_sc6 MEMORY_FILL) = (admininstr_sc7 admininstr_st7_MEMORY_FILL)"
 		| "admininstr_instr (instr_sc6 MEMORY_COPY) = (admininstr_sc7 admininstr_st7_MEMORY_COPY)"
-		| "admininstr_instr (instr_sc7 (MEMORY_INIT x0)) = (admininstr_sc7 (admininstr_st7_MEMORY_INIT x0))"
+		| "admininstr_instr (instr_sc6 (MEMORY_INIT x0)) = (admininstr_sc7 (admininstr_st7_MEMORY_INIT x0))"
 		| "admininstr_instr (instr_sc7 (DATA_DROP x0)) = (admininstr_sc7 (admininstr_st7_DATA_DROP x0))"
 	by pat_completeness auto
 
@@ -10873,191 +10870,189 @@ inductive wf_admininstr :: "admininstr \<Rightarrow> bool" where
 		 (numtype_1 \<noteq> numtype_2) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc2 (admininstr_st2_CVTOP numtype_1 numtype_2 var_0))"
 	| admininstr_case_19 :
-		"wf_admininstr (admininstr_sc2 (admininstr_st2_EXTEND v_numtype v_n))"
-	| admininstr_case_20 :
 		"((size (valtype_vectype v_vectype)) \<noteq> None) \<Longrightarrow>
 		 (wf_uN (the ((size (valtype_vectype v_vectype)))) var_0) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc2 (admininstr_st2_VCONST v_vectype var_0))"
-	| admininstr_case_21 :
+	| admininstr_case_20 :
 		"wf_admininstr (admininstr_sc2 (admininstr_st2_VVUNOP v_vectype v_vvunop))"
-	| admininstr_case_22 :
+	| admininstr_case_21 :
 		"wf_admininstr (admininstr_sc2 (admininstr_st2_VVBINOP v_vectype v_vvbinop))"
-	| admininstr_case_23 :
+	| admininstr_case_22 :
 		"wf_admininstr (admininstr_sc2 (admininstr_st2_VVTERNOP v_vectype v_vvternop))"
-	| admininstr_case_24 :
+	| admininstr_case_23 :
 		"wf_admininstr (admininstr_sc2 (admininstr_st2_VVTESTOP v_vectype v_vvtestop))"
-	| admininstr_case_25 :
+	| admininstr_case_24 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 (wf_vunop_underscore v_shape var_0) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc2 (admininstr_st2_VUNOP v_shape var_0))"
-	| admininstr_case_26 :
+	| admininstr_case_25 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 (wf_vbinop_underscore v_shape var_0) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc2 (admininstr_st2_VBINOP v_shape var_0))"
-	| admininstr_case_27 :
+	| admininstr_case_26 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 (wf_vtestop_underscore v_shape var_0) \<Longrightarrow>
-		 wf_admininstr (admininstr_sc3 (admininstr_st3_VTESTOP v_shape var_0))"
-	| admininstr_case_28 :
+		 wf_admininstr (admininstr_sc2 (admininstr_st2_VTESTOP v_shape var_0))"
+	| admininstr_case_27 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 (wf_vrelop_underscore v_shape var_0) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc3 (admininstr_st3_VRELOP v_shape var_0))"
-	| admininstr_case_29 :
+	| admininstr_case_28 :
 		"(wf_ishape v_ishape) \<Longrightarrow>
 		 (wf_vshiftop_underscore v_ishape var_0) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc3 (admininstr_st3_VSHIFTOP v_ishape var_0))"
-	| admininstr_case_30 :
+	| admininstr_case_29 :
 		"(wf_ishape v_ishape) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc3 (admininstr_st3_VBITMASK v_ishape))"
-	| admininstr_case_31 :
+	| admininstr_case_30 :
 		"(wf_ishape v_ishape) \<Longrightarrow>
 		 (v_ishape = (mk_ishape (X lanetype_I8 (mk_dim (16 :: nat))))) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc3 (admininstr_st3_VSWIZZLE v_ishape))"
-	| admininstr_case_32 :
+	| admininstr_case_31 :
 		"(wf_ishape v_ishape) \<Longrightarrow>
 		 list_all (\<lambda> (v_laneidx :: laneidx). (wf_uN (8 :: nat) v_laneidx)) laneidx_lst \<Longrightarrow>
 		 ((v_ishape = (mk_ishape (X lanetype_I8 (mk_dim (16 :: nat))))) \<and> ((length laneidx_lst) = (16 :: nat))) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc3 (admininstr_st3_VSHUFFLE v_ishape laneidx_lst))"
-	| admininstr_case_33 :
+	| admininstr_case_32 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc3 (admininstr_st3_VSPLAT v_shape))"
-	| admininstr_case_34 :
+	| admininstr_case_33 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 (wf_uN (8 :: nat) v_laneidx) \<Longrightarrow>
 		 ((length [lanetype_I32, lanetype_I64, lanetype_F32, lanetype_F64]) > (0 :: nat)) \<Longrightarrow>
 		 (((fun_lanetype v_shape) \<in> set [lanetype_I32, lanetype_I64, lanetype_F32, lanetype_F64]) \<longleftrightarrow> (sx_opt = None)) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc3 (admininstr_st3_VEXTRACT_LANE v_shape sx_opt v_laneidx))"
-	| admininstr_case_35 :
+	| admininstr_case_34 :
 		"(wf_shape v_shape) \<Longrightarrow>
 		 (wf_uN (8 :: nat) v_laneidx) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc3 (admininstr_st3_VREPLACE_LANE v_shape v_laneidx))"
-	| admininstr_case_36 :
+	| admininstr_case_35 :
 		"(wf_ishape ishape_1) \<Longrightarrow>
 		 (wf_ishape ishape_2) \<Longrightarrow>
 		 (wf_vextunop__underscore ishape_2 ishape_1 var_0) \<Longrightarrow>
-		 wf_admininstr (admininstr_sc4 (admininstr_st4_VEXTUNOP ishape_1 ishape_2 var_0))"
-	| admininstr_case_37 :
+		 wf_admininstr (admininstr_sc3 (admininstr_st3_VEXTUNOP ishape_1 ishape_2 var_0))"
+	| admininstr_case_36 :
 		"(wf_ishape ishape_1) \<Longrightarrow>
 		 (wf_ishape ishape_2) \<Longrightarrow>
 		 (wf_vextbinop__underscore ishape_2 ishape_1 var_0) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc4 (admininstr_st4_VEXTBINOP ishape_1 ishape_2 var_0))"
-	| admininstr_case_38 :
+	| admininstr_case_37 :
 		"(fun_lsize (fun_lanetype (proj_ishape_0 ishape_1)) var_1) \<Longrightarrow>
 		 (fun_lsize (fun_lanetype (proj_ishape_0 ishape_2)) var_0) \<Longrightarrow>
 		 (wf_ishape ishape_1) \<Longrightarrow>
 		 (wf_ishape ishape_2) \<Longrightarrow>
 		 ((var_0 = ((2 :: nat) * var_1)) \<and> (((2 :: nat) * var_1) \<le> (32 :: nat))) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc4 (admininstr_st4_VNARROW ishape_1 ishape_2 v_sx))"
-	| admininstr_case_39 :
+	| admininstr_case_38 :
 		"(wf_shape shape_1) \<Longrightarrow>
 		 (wf_shape shape_2) \<Longrightarrow>
 		 (wf_vcvtop__underscore shape_2 shape_1 var_0) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc4 (admininstr_st4_VCVTOP shape_1 shape_2 var_0))"
-	| admininstr_case_40 :
+	| admininstr_case_39 :
 		"wf_admininstr (admininstr_sc4 (admininstr_st4_REF_NULL v_reftype))"
-	| admininstr_case_41 :
+	| admininstr_case_40 :
 		"(wf_uN (32 :: nat) v_funcidx) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc4 (admininstr_st4_REF_FUNC v_funcidx))"
-	| admininstr_case_42 :
+	| admininstr_case_41 :
 		"wf_admininstr (admininstr_sc4 admininstr_st4_REF_IS_NULL)"
-	| admininstr_case_43 :
+	| admininstr_case_42 :
 		"(wf_uN (32 :: nat) v_localidx) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc4 (admininstr_st4_LOCAL_GET v_localidx))"
-	| admininstr_case_44 :
+	| admininstr_case_43 :
 		"(wf_uN (32 :: nat) v_localidx) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc4 (admininstr_st4_LOCAL_SET v_localidx))"
-	| admininstr_case_45 :
+	| admininstr_case_44 :
 		"(wf_uN (32 :: nat) v_localidx) \<Longrightarrow>
-		 wf_admininstr (admininstr_sc5 (admininstr_st5_LOCAL_TEE v_localidx))"
-	| admininstr_case_46 :
+		 wf_admininstr (admininstr_sc4 (admininstr_st4_LOCAL_TEE v_localidx))"
+	| admininstr_case_45 :
 		"(wf_uN (32 :: nat) v_globalidx) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc5 (admininstr_st5_GLOBAL_GET v_globalidx))"
-	| admininstr_case_47 :
+	| admininstr_case_46 :
 		"(wf_uN (32 :: nat) v_globalidx) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc5 (admininstr_st5_GLOBAL_SET v_globalidx))"
-	| admininstr_case_48 :
+	| admininstr_case_47 :
 		"(wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc5 (admininstr_st5_TABLE_GET v_tableidx))"
-	| admininstr_case_49 :
+	| admininstr_case_48 :
 		"(wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc5 (admininstr_st5_TABLE_SET v_tableidx))"
-	| admininstr_case_50 :
+	| admininstr_case_49 :
 		"(wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc5 (admininstr_st5_TABLE_SIZE v_tableidx))"
-	| admininstr_case_51 :
+	| admininstr_case_50 :
 		"(wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc5 (admininstr_st5_TABLE_GROW v_tableidx))"
-	| admininstr_case_52 :
+	| admininstr_case_51 :
 		"(wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc5 (admininstr_st5_TABLE_FILL v_tableidx))"
-	| admininstr_case_53 :
+	| admininstr_case_52 :
 		"(wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
 		 (wf_uN (32 :: nat) tableidx_0) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc5 (admininstr_st5_TABLE_COPY v_tableidx tableidx_0))"
-	| admininstr_case_54 :
+	| admininstr_case_53 :
 		"(wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
 		 (wf_uN (32 :: nat) v_elemidx) \<Longrightarrow>
-		 wf_admininstr (admininstr_sc6 (admininstr_st6_TABLE_INIT v_tableidx v_elemidx))"
-	| admininstr_case_55 :
+		 wf_admininstr (admininstr_sc5 (admininstr_st5_TABLE_INIT v_tableidx v_elemidx))"
+	| admininstr_case_54 :
 		"(wf_uN (32 :: nat) v_elemidx) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc6 (admininstr_st6_ELEM_DROP v_elemidx))"
-	| admininstr_case_56 :
+	| admininstr_case_55 :
 		"list_all (\<lambda> (var_0 :: loadop_underscore). (wf_loadop_underscore v_numtype var_0)) (option_to_list var_0_opt) \<Longrightarrow>
 		 (wf_memarg v_memarg) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc6 (admininstr_st6_LOAD v_numtype var_0_opt v_memarg))"
-	| admininstr_case_57 :
+	| admininstr_case_56 :
 		"list_all2 (\<lambda> (var_0 :: nat) (v_Inn :: Inn). (fun_sizenn (numtype_Inn v_Inn) var_0)) (option_to_list var_0_opt) (option_to_list Inn_opt) \<Longrightarrow>
 		 list_all (\<lambda> (v_sz :: sz). (wf_sz v_sz)) (option_to_list sz_opt) \<Longrightarrow>
 		 (wf_memarg v_memarg) \<Longrightarrow>
 		 ((Inn_opt = None) \<longleftrightarrow> (sz_opt = None)) \<Longrightarrow>
 		 list_all3 (\<lambda> (var_0 :: nat) (v_Inn :: Inn) (v_sz :: sz). ((v_numtype = (numtype_Inn v_Inn)) \<and> ((proj_sz_0 v_sz) < var_0))) (option_to_list var_0_opt) (option_to_list Inn_opt) (option_to_list sz_opt) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc6 (admininstr_st6_STORE v_numtype sz_opt v_memarg))"
-	| admininstr_case_58 :
+	| admininstr_case_57 :
 		"list_all (\<lambda> (var_0 :: vloadop_underscore). (wf_vloadop_underscore v_vectype var_0)) (option_to_list var_0_opt) \<Longrightarrow>
 		 (wf_memarg v_memarg) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc6 (admininstr_st6_VLOAD v_vectype var_0_opt v_memarg))"
-	| admininstr_case_59 :
+	| admininstr_case_58 :
 		"(wf_sz v_sz) \<Longrightarrow>
 		 (wf_memarg v_memarg) \<Longrightarrow>
 		 (wf_uN (8 :: nat) v_laneidx) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc6 (admininstr_st6_VLOAD_LANE v_vectype v_sz v_memarg v_laneidx))"
-	| admininstr_case_60 :
+	| admininstr_case_59 :
 		"(wf_memarg v_memarg) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc6 (admininstr_st6_VSTORE v_vectype v_memarg))"
-	| admininstr_case_61 :
+	| admininstr_case_60 :
 		"(wf_sz v_sz) \<Longrightarrow>
 		 (wf_memarg v_memarg) \<Longrightarrow>
 		 (wf_uN (8 :: nat) v_laneidx) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc6 (admininstr_st6_VSTORE_LANE v_vectype v_sz v_memarg v_laneidx))"
-	| admininstr_case_62 :
+	| admininstr_case_61 :
 		"wf_admininstr (admininstr_sc6 admininstr_st6_MEMORY_SIZE)"
+	| admininstr_case_62 :
+		"wf_admininstr (admininstr_sc6 admininstr_st6_MEMORY_GROW)"
 	| admininstr_case_63 :
-		"wf_admininstr (admininstr_sc7 admininstr_st7_MEMORY_GROW)"
-	| admininstr_case_64 :
 		"wf_admininstr (admininstr_sc7 admininstr_st7_MEMORY_FILL)"
-	| admininstr_case_65 :
+	| admininstr_case_64 :
 		"wf_admininstr (admininstr_sc7 admininstr_st7_MEMORY_COPY)"
-	| admininstr_case_66 :
+	| admininstr_case_65 :
 		"(wf_uN (32 :: nat) v_dataidx) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc7 (admininstr_st7_MEMORY_INIT v_dataidx))"
-	| admininstr_case_67 :
+	| admininstr_case_66 :
 		"(wf_uN (32 :: nat) v_dataidx) \<Longrightarrow>
 		 wf_admininstr (admininstr_sc7 (admininstr_st7_DATA_DROP v_dataidx))"
-	| admininstr_case_68 :
+	| admininstr_case_67 :
 		"wf_admininstr (admininstr_sc7 (admininstr_st7_REF_FUNC_ADDR v_funcaddr))"
-	| admininstr_case_69 :
+	| admininstr_case_68 :
 		"wf_admininstr (admininstr_sc7 (admininstr_st7_REF_HOST_ADDR v_hostaddr))"
-	| admininstr_case_70 :
+	| admininstr_case_69 :
 		"wf_admininstr (admininstr_sc7 (CALL_ADDR v_funcaddr))"
-	| admininstr_case_71 :
+	| admininstr_case_70 :
 		"list_all (\<lambda> (v_instr :: instr). (wf_instr v_instr)) instr_lst \<Longrightarrow>
 		 list_all (\<lambda> (v_admininstr :: admininstr). (wf_admininstr v_admininstr)) admininstr_lst \<Longrightarrow>
-		 wf_admininstr (admininstr_sc8 (LABEL_underscore v_n instr_lst admininstr_lst))"
-	| admininstr_case_72 :
+		 wf_admininstr (admininstr_sc7 (LABEL_underscore v_n instr_lst admininstr_lst))"
+	| admininstr_case_71 :
 		"(wf_frame v_frame) \<Longrightarrow>
 		 list_all (\<lambda> (v_admininstr :: admininstr). (wf_admininstr v_admininstr)) admininstr_lst \<Longrightarrow>
 		 wf_admininstr (admininstr_sc8 (FRAME_underscore v_n v_frame admininstr_lst))"
-	| admininstr_case_73 :
+	| admininstr_case_72 :
 		"wf_admininstr (admininstr_sc7 admininstr_st7_TRAP)"
 
 (* Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:117.1-117.62 *)
@@ -11666,8 +11661,8 @@ and Instrs_ok :: "res_context \<Rightarrow> (instr list) \<Rightarrow> functype 
 		 Instr_ok C (instr_sc1 (VCONST V128 c)) (mk_functype (mk_list []) (mk_list [valtype_V128]))"
 	| Instr_ok__vvunop :
 		"(wf_context C) \<Longrightarrow>
-		 (wf_instr (instr_sc2 (VVUNOP V128 v_vvunop))) \<Longrightarrow>
-		 Instr_ok C (instr_sc2 (VVUNOP V128 v_vvunop)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc1 (VVUNOP V128 v_vvunop))) \<Longrightarrow>
+		 Instr_ok C (instr_sc1 (VVUNOP V128 v_vvunop)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128]))"
 	| Instr_ok__vvbinop :
 		"(wf_context C) \<Longrightarrow>
 		 (wf_instr (instr_sc2 (VVBINOP V128 v_vvbinop))) \<Longrightarrow>
@@ -11702,8 +11697,8 @@ and Instrs_ok :: "res_context \<Rightarrow> (instr list) \<Rightarrow> functype 
 		 Instr_ok C (instr_sc2 (VSHIFTOP sh vshiftop_sh)) (mk_functype (mk_list [valtype_V128, valtype_I32]) (mk_list [valtype_V128]))"
 	| vbitmask :
 		"(wf_context C) \<Longrightarrow>
-		 (wf_instr (instr_sc3 (VBITMASK sh))) \<Longrightarrow>
-		 Instr_ok C (instr_sc3 (VBITMASK sh)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_I32]))"
+		 (wf_instr (instr_sc2 (VBITMASK sh))) \<Longrightarrow>
+		 Instr_ok C (instr_sc2 (VBITMASK sh)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_I32]))"
 	| vswizzle :
 		"(wf_context C) \<Longrightarrow>
 		 (wf_instr (instr_sc3 (VSWIZZLE sh))) \<Longrightarrow>
@@ -11744,8 +11739,8 @@ and Instrs_ok :: "res_context \<Rightarrow> (instr list) \<Rightarrow> functype 
 		 Instr_ok C (instr_sc3 (VNARROW sh_1 sh_2 v_sx)) (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]))"
 	| vcvtop :
 		"(wf_context C) \<Longrightarrow>
-		 (wf_instr (instr_sc4 (VCVTOP sh_1 sh_2 vcvtop))) \<Longrightarrow>
-		 Instr_ok C (instr_sc4 (VCVTOP sh_1 sh_2 vcvtop)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128]))"
+		 (wf_instr (instr_sc3 (VCVTOP sh_1 sh_2 vcvtop))) \<Longrightarrow>
+		 Instr_ok C (instr_sc3 (VCVTOP sh_1 sh_2 vcvtop)) (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128]))"
 	| local_get :
 		"((proj_uN_0 x) < (length (context_LOCALS C))) \<Longrightarrow>
 		 (((context_LOCALS C) ! (proj_uN_0 x)) = t) \<Longrightarrow>
@@ -11780,9 +11775,9 @@ and Instrs_ok :: "res_context \<Rightarrow> (instr list) \<Rightarrow> functype 
 		"((proj_uN_0 x) < (length (context_TABLES C))) \<Longrightarrow>
 		 (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype res_lim rt)) \<Longrightarrow>
 		 (wf_context C) \<Longrightarrow>
-		 (wf_instr (instr_sc5 (TABLE_GET x))) \<Longrightarrow>
+		 (wf_instr (instr_sc4 (TABLE_GET x))) \<Longrightarrow>
 		 (wf_tabletype (mk_tabletype res_lim rt)) \<Longrightarrow>
-		 Instr_ok C (instr_sc5 (TABLE_GET x)) (mk_functype (mk_list [valtype_I32]) (mk_list [(valtype_reftype rt)]))"
+		 Instr_ok C (instr_sc4 (TABLE_GET x)) (mk_functype (mk_list [valtype_I32]) (mk_list [(valtype_reftype rt)]))"
 	| table_set :
 		"((proj_uN_0 x) < (length (context_TABLES C))) \<Longrightarrow>
 		 (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype res_lim rt)) \<Longrightarrow>
@@ -11871,8 +11866,8 @@ and Instrs_ok :: "res_context \<Rightarrow> (instr list) \<Rightarrow> functype 
 		 (((context_DATAS C) ! (proj_uN_0 x)) = OK) \<Longrightarrow>
 		 (wf_context C) \<Longrightarrow>
 		 (wf_memtype mt) \<Longrightarrow>
-		 (wf_instr (instr_sc7 (MEMORY_INIT x))) \<Longrightarrow>
-		 Instr_ok C (instr_sc7 (MEMORY_INIT x)) (mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
+		 (wf_instr (instr_sc6 (MEMORY_INIT x))) \<Longrightarrow>
+		 Instr_ok C (instr_sc6 (MEMORY_INIT x)) (mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list []))"
 	| data_drop :
 		"((proj_uN_0 x) < (length (context_DATAS C))) \<Longrightarrow>
 		 (((context_DATAS C) ! (proj_uN_0 x)) = OK) \<Longrightarrow>
@@ -11903,16 +11898,16 @@ and Instrs_ok :: "res_context \<Rightarrow> (instr list) \<Rightarrow> functype 
 		 ((of_nat ((2 :: nat) ^ (proj_uN_0 (ALIGN v_memarg))) :: rat) \<le> ((of_nat (the ((size (valtype_numtype nt)))) :: rat) div (of_nat (8 :: nat) :: rat))) \<Longrightarrow>
 		 (wf_context C) \<Longrightarrow>
 		 (wf_memtype mt) \<Longrightarrow>
-		 (wf_instr (instr_sc6 (STORE nt None v_memarg))) \<Longrightarrow>
-		 Instr_ok C (instr_sc6 (STORE nt None v_memarg)) (mk_functype (mk_list [valtype_I32, (valtype_numtype nt)]) (mk_list []))"
+		 (wf_instr (instr_sc5 (STORE nt None v_memarg))) \<Longrightarrow>
+		 Instr_ok C (instr_sc5 (STORE nt None v_memarg)) (mk_functype (mk_list [valtype_I32, (valtype_numtype nt)]) (mk_list []))"
 	| store_pack :
 		"((0 :: nat) < (length (context_MEMS C))) \<Longrightarrow>
 		 (((context_MEMS C) ! (0 :: nat)) = mt) \<Longrightarrow>
 		 ((of_nat ((2 :: nat) ^ (proj_uN_0 (ALIGN v_memarg))) :: rat) \<le> ((of_nat v_M :: rat) div (of_nat (8 :: nat) :: rat))) \<Longrightarrow>
 		 (wf_context C) \<Longrightarrow>
 		 (wf_memtype mt) \<Longrightarrow>
-		 (wf_instr (instr_sc6 (STORE (numtype_Inn v_Inn) (Some (mk_sz v_M)) v_memarg))) \<Longrightarrow>
-		 Instr_ok C (instr_sc6 (STORE (numtype_Inn v_Inn) (Some (mk_sz v_M)) v_memarg)) (mk_functype (mk_list [valtype_I32, (valtype_Inn v_Inn)]) (mk_list []))"
+		 (wf_instr (instr_sc5 (STORE (numtype_Inn v_Inn) (Some (mk_sz v_M)) v_memarg))) \<Longrightarrow>
+		 Instr_ok C (instr_sc5 (STORE (numtype_Inn v_Inn) (Some (mk_sz v_M)) v_memarg)) (mk_functype (mk_list [valtype_I32, (valtype_Inn v_Inn)]) (mk_list []))"
 	| vload_val :
 		"((0 :: nat) < (length (context_MEMS C))) \<Longrightarrow>
 		 (((context_MEMS C) ! (0 :: nat)) = mt) \<Longrightarrow>
@@ -12262,7 +12257,7 @@ inductive Step_pure_before_vtestop_false :: "(admininstr list) \<Rightarrow> boo
 		 list_all (\<lambda> (ci_1 :: lane_underscore). ((proj_uN_0 (the ((proj_lane__0 ci_1)))) \<noteq> (0 :: nat))) ci_1_lst \<Longrightarrow>
 		 list_all (\<lambda> (ci_1 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) ci_1)) ci_1_lst \<Longrightarrow>
 		 (wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) \<Longrightarrow>
-		 Step_pure_before_vtestop_false [(admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc3 (admininstr_st3_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))]"
+		 Step_pure_before_vtestop_false [(admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc2 (admininstr_st2_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))]"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:6.1-6.109 *)
 inductive Step_pure :: "(admininstr list) \<Rightarrow> (admininstr list) \<Rightarrow> bool" where
@@ -12289,12 +12284,12 @@ inductive Step_pure :: "(admininstr list) \<Rightarrow> (admininstr list) \<Righ
 		 ((proj_uN_0 (the ((proj_num__0 c)))) = (0 :: nat)) \<Longrightarrow>
 		 Step_pure [(admininstr_sc1 (admininstr_st1_CONST I32 c)), (admininstr_sc0 (admininstr_st0_IFELSE bt instr_1_lst instr_2_lst))] [(admininstr_sc0 (admininstr_st0_BLOCK bt instr_2_lst))]"
 	| label_vals :
-		"Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr_lst (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)))] (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)"
+		"Step_pure [(admininstr_sc7 (LABEL_underscore v_n instr_lst (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)))] (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)"
 	| br_zero :
 		"(v_n = (length val_lst)) \<Longrightarrow>
-		 Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr'_lst ((((map (\<lambda> (val' :: val). (admininstr_val val')) val'_lst) @ (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)) @ [(admininstr_sc0 (admininstr_st0_BR (mk_uN (0 :: nat))))]) @ admininstr_lst)))] ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ (map (\<lambda> (instr' :: instr). (admininstr_instr instr')) instr'_lst))"
+		 Step_pure [(admininstr_sc7 (LABEL_underscore v_n instr'_lst ((((map (\<lambda> (val' :: val). (admininstr_val val')) val'_lst) @ (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)) @ [(admininstr_sc0 (admininstr_st0_BR (mk_uN (0 :: nat))))]) @ admininstr_lst)))] ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ (map (\<lambda> (instr' :: instr). (admininstr_instr instr')) instr'_lst))"
 	| br_succ :
-		"Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr'_lst (((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc0 (admininstr_st0_BR (mk_uN ((proj_uN_0 l) + (1 :: nat)))))]) @ admininstr_lst)))] ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc0 (admininstr_st0_BR l))])"
+		"Step_pure [(admininstr_sc7 (LABEL_underscore v_n instr'_lst (((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc0 (admininstr_st0_BR (mk_uN ((proj_uN_0 l) + (1 :: nat)))))]) @ admininstr_lst)))] ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc0 (admininstr_st0_BR l))])"
 	| br_if_true :
 		"((proj_num__0 c) \<noteq> None) \<Longrightarrow>
 		 ((proj_uN_0 (the ((proj_num__0 c)))) \<noteq> (0 :: nat)) \<Longrightarrow>
@@ -12318,12 +12313,12 @@ inductive Step_pure :: "(admininstr list) \<Rightarrow> (admininstr list) \<Righ
 		"(v_n = (length val_lst)) \<Longrightarrow>
 		 Step_pure [(admininstr_sc8 (FRAME_underscore v_n f ((((map (\<lambda> (val' :: val). (admininstr_val val')) val'_lst) @ (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)) @ [(admininstr_sc1 admininstr_st1_RETURN)]) @ admininstr_lst)))] (map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst)"
 	| return_label :
-		"Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr'_lst (((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc1 admininstr_st1_RETURN)]) @ admininstr_lst)))] ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc1 admininstr_st1_RETURN)])"
+		"Step_pure [(admininstr_sc7 (LABEL_underscore v_n instr'_lst (((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc1 admininstr_st1_RETURN)]) @ admininstr_lst)))] ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc1 admininstr_st1_RETURN)])"
 	| trap_vals :
 		"((val_lst \<noteq> []) \<or> (admininstr_lst \<noteq> [])) \<Longrightarrow>
 		 Step_pure ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ ([(admininstr_sc7 admininstr_st7_TRAP)] @ admininstr_lst)) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| trap_label :
-		"Step_pure [(admininstr_sc8 (LABEL_underscore v_n instr'_lst [(admininstr_sc7 admininstr_st7_TRAP)]))] [(admininstr_sc7 admininstr_st7_TRAP)]"
+		"Step_pure [(admininstr_sc7 (LABEL_underscore v_n instr'_lst [(admininstr_sc7 admininstr_st7_TRAP)]))] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| trap_frame :
 		"Step_pure [(admininstr_sc8 (FRAME_underscore v_n f [(admininstr_sc7 admininstr_st7_TRAP)]))] [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| unop_val :
@@ -12424,10 +12419,10 @@ inductive Step_pure :: "(admininstr list) \<Rightarrow> (admininstr list) \<Righ
 		 list_all (\<lambda> (ci_1 :: lane_underscore). ((proj_uN_0 (the ((proj_lane__0 ci_1)))) \<noteq> (0 :: nat))) ci_1_lst \<Longrightarrow>
 		 list_all (\<lambda> (ci_1 :: lane_underscore). (wf_lane_underscore (fun_lanetype (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) ci_1)) ci_1_lst \<Longrightarrow>
 		 (wf_shape (X (lanetype_Jnn v_Jnn) (mk_dim v_N))) \<Longrightarrow>
-		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc3 (admininstr_st3_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))] [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (1 :: nat)))))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc2 (admininstr_st2_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))] [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (1 :: nat)))))]"
 	| vtestop_false :
-		"(~(Step_pure_before_vtestop_false [(admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc3 (admininstr_st3_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))])) \<Longrightarrow>
-		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc3 (admininstr_st3_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))] [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (0 :: nat)))))]"
+		"(~(Step_pure_before_vtestop_false [(admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc2 (admininstr_st2_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))])) \<Longrightarrow>
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c)), (admininstr_sc2 (admininstr_st2_VTESTOP (X (lanetype_Jnn v_Jnn) (mk_dim v_N)) (mk_vtestop__0 v_Jnn v_N ALL_TRUE)))] [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (0 :: nat)))))]"
 	| Step_pure__vrelop :
 		"(fun_vrelop_underscore sh vrelop c_1 c_2 var_0) \<Longrightarrow>
 		 (var_0 \<noteq> None) \<Longrightarrow>
@@ -12503,7 +12498,7 @@ inductive Step_pure :: "(admininstr list) \<Rightarrow> (admininstr list) \<Righ
 		"(fun_vextunop__underscore sh_1 sh_2 vextunop c_1 var_0) \<Longrightarrow>
 		 (var_0 \<noteq> None) \<Longrightarrow>
 		 ((the (var_0)) = c) \<Longrightarrow>
-		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc4 (admininstr_st4_VEXTUNOP sh_2 sh_1 vextunop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
+		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc3 (admininstr_st3_VEXTUNOP sh_2 sh_1 vextunop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__vextbinop :
 		"(fun_vextbinop__underscore sh_1 sh_2 vextbinop c_1 c_2 var_0) \<Longrightarrow>
 		 (var_0 \<noteq> None) \<Longrightarrow>
@@ -12532,7 +12527,7 @@ inductive Step_pure :: "(admininstr list) \<Rightarrow> (admininstr list) \<Righ
 		 (c = (the (var_0))) \<Longrightarrow>
 		 Step_pure [(admininstr_sc2 (admininstr_st2_VCONST V128 c_1)), (admininstr_sc4 (admininstr_st4_VCVTOP sh_2 sh_1 vcvtop))] [(admininstr_sc2 (admininstr_st2_VCONST V128 c))]"
 	| Step_pure__local_tee :
-		"Step_pure [(admininstr_val v_val), (admininstr_sc5 (admininstr_st5_LOCAL_TEE x))] [(admininstr_val v_val), (admininstr_val v_val), (admininstr_sc4 (admininstr_st4_LOCAL_SET x))]"
+		"Step_pure [(admininstr_val v_val), (admininstr_sc4 (admininstr_st4_LOCAL_TEE x))] [(admininstr_val v_val), (admininstr_val v_val), (admininstr_sc4 (admininstr_st4_LOCAL_SET x))]"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:63.6-63.16 *)
 inductive fun_blocktype :: "state \<Rightarrow> blocktype \<Rightarrow> functype \<Rightarrow> bool" where
@@ -12596,7 +12591,7 @@ inductive Step_read_before_table_init_zero :: "config \<Rightarrow> bool" where
 		 ((proj_num__0 i) \<noteq> None) \<Longrightarrow>
 		 ((proj_num__0 j) \<noteq> None) \<Longrightarrow>
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (eleminst_REFS var_0))) \<or> (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (REFS var_1)))) \<Longrightarrow>
-		 Step_read_before_table_init_zero (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc6 (admininstr_st6_TABLE_INIT x y))])"
+		 Step_read_before_table_init_zero (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_INIT x y))])"
 
 (* Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:599.1-602.14 *)
 inductive Step_read_before_memory_fill_zero :: "config \<Rightarrow> bool" where
@@ -12650,14 +12645,14 @@ inductive Step_read :: "config \<Rightarrow> (admininstr list) \<Rightarrow> boo
 		 (k = (length val_lst)) \<Longrightarrow>
 		 (k = (length t_1_lst)) \<Longrightarrow>
 		 (v_n = (length t_2_lst)) \<Longrightarrow>
-		 Step_read (mk_config z ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc0 (admininstr_st0_BLOCK bt instr_lst))])) [(admininstr_sc8 (LABEL_underscore v_n [] ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ (map (\<lambda> (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))]"
+		 Step_read (mk_config z ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc0 (admininstr_st0_BLOCK bt instr_lst))])) [(admininstr_sc7 (LABEL_underscore v_n [] ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ (map (\<lambda> (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))]"
 	| Step_read__loop :
 		"(fun_blocktype z bt var_0) \<Longrightarrow>
 		 (var_0 = (mk_functype (mk_list t_1_lst) (mk_list t_2_lst))) \<Longrightarrow>
 		 (k = (length val_lst)) \<Longrightarrow>
 		 (k = (length t_1_lst)) \<Longrightarrow>
 		 (v_n = (length t_2_lst)) \<Longrightarrow>
-		 Step_read (mk_config z ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc0 (admininstr_st0_LOOP bt instr_lst))])) [(admininstr_sc8 (LABEL_underscore k [(instr_sc7 (LOOP bt instr_lst))] ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ (map (\<lambda> (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))]"
+		 Step_read (mk_config z ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc0 (admininstr_st0_LOOP bt instr_lst))])) [(admininstr_sc7 (LABEL_underscore k [(instr_sc7 (LOOP bt instr_lst))] ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ (map (\<lambda> (v_instr :: instr). (admininstr_instr v_instr)) instr_lst))))]"
 	| Step_read__call :
 		"((proj_uN_0 x) < (length (fun_funcaddr z))) \<Longrightarrow>
 		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CALL x))]) [(admininstr_sc7 (CALL_ADDR ((fun_funcaddr z) ! (proj_uN_0 x))))]"
@@ -12686,7 +12681,7 @@ inductive Step_read :: "config \<Rightarrow> (admininstr list) \<Rightarrow> boo
 		 (k = (length val_lst)) \<Longrightarrow>
 		 (k = (length t_1_lst)) \<Longrightarrow>
 		 (v_n = (length t_2_lst)) \<Longrightarrow>
-		 Step_read (mk_config z ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc7 (CALL_ADDR a))])) [(admininstr_sc8 (FRAME_underscore v_n f [(admininstr_sc8 (LABEL_underscore v_n [] (map (\<lambda> (v_instr :: instr). (admininstr_instr v_instr)) instr_lst)))]))]"
+		 Step_read (mk_config z ((map (\<lambda> (v_val :: val). (admininstr_val v_val)) val_lst) @ [(admininstr_sc7 (CALL_ADDR a))])) [(admininstr_sc8 (FRAME_underscore v_n f [(admininstr_sc7 (LABEL_underscore v_n [] (map (\<lambda> (v_instr :: instr). (admininstr_instr v_instr)) instr_lst)))]))]"
 	| Step_read__ref_func :
 		"((proj_uN_0 x) < (length (fun_funcaddr z))) \<Longrightarrow>
 		 Step_read (mk_config z [(admininstr_sc4 (admininstr_st4_REF_FUNC x))]) [(admininstr_sc7 (admininstr_st7_REF_FUNC_ADDR ((fun_funcaddr z) ! (proj_uN_0 x))))]"
@@ -12766,7 +12761,7 @@ inductive Step_read :: "config \<Rightarrow> (admininstr list) \<Rightarrow> boo
 		 ((proj_num__0 i) \<noteq> None) \<Longrightarrow>
 		 ((proj_num__0 j) \<noteq> None) \<Longrightarrow>
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) > (length (eleminst_REFS var_0))) \<or> (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) > (length (REFS var_1)))) \<Longrightarrow>
-		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc6 (admininstr_st6_TABLE_INIT x y))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_INIT x y))]) [(admininstr_sc7 admininstr_st7_TRAP)]"
 	| table_init_zero :
 		"(fun_table z x var_1) \<Longrightarrow>
 		 (fun_elem z y var_0) \<Longrightarrow>
@@ -12774,7 +12769,7 @@ inductive Step_read :: "config \<Rightarrow> (admininstr list) \<Rightarrow> boo
 		 ((proj_num__0 j) \<noteq> None) \<Longrightarrow>
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) \<le> (length (eleminst_REFS var_0))) \<and> (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) \<le> (length (REFS var_1)))) \<Longrightarrow>
 		 (v_n = (0 :: nat)) \<Longrightarrow>
-		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc6 (admininstr_st6_TABLE_INIT x y))]) []"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_INIT x y))]) []"
 	| table_init_succ :
 		"(fun_table z x var_1) \<Longrightarrow>
 		 (fun_elem z y var_0) \<Longrightarrow>
@@ -12783,7 +12778,7 @@ inductive Step_read :: "config \<Rightarrow> (admininstr list) \<Rightarrow> boo
 		 ((proj_num__0 j) \<noteq> None) \<Longrightarrow>
 		 (v_n \<noteq> (0 :: nat)) \<Longrightarrow>
 		 ((((proj_uN_0 (the ((proj_num__0 i)))) + v_n) \<le> (length (eleminst_REFS var_0))) \<and> (((proj_uN_0 (the ((proj_num__0 j)))) + v_n) \<le> (length (REFS var_1)))) \<Longrightarrow>
-		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc6 (admininstr_st6_TABLE_INIT x y))]) [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_ref ((eleminst_REFS var_0) ! (proj_uN_0 (the ((proj_num__0 i)))))), (admininstr_sc5 (admininstr_st5_TABLE_SET x)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + (1 :: nat)))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + (1 :: nat)))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (nat ((int v_n) - (int (1 :: nat)))))))), (admininstr_sc6 (admininstr_st6_TABLE_INIT x y))]"
+		 Step_read (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_sc1 (admininstr_st1_CONST I32 i)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc5 (admininstr_st5_TABLE_INIT x y))]) [(admininstr_sc1 (admininstr_st1_CONST I32 j)), (admininstr_ref ((eleminst_REFS var_0) ! (proj_uN_0 (the ((proj_num__0 i)))))), (admininstr_sc5 (admininstr_st5_TABLE_SET x)), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 j)))) + (1 :: nat)))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN ((proj_uN_0 (the ((proj_num__0 i)))) + (1 :: nat)))))), (admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (nat ((int v_n) - (int (1 :: nat)))))))), (admininstr_sc5 (admininstr_st5_TABLE_INIT x y))]"
 	| load_num_trap :
 		"(fun_mem z (mk_uN (0 :: nat)) var_0) \<Longrightarrow>
 		 ((proj_num__0 i) \<noteq> None) \<Longrightarrow>
@@ -12987,7 +12982,7 @@ inductive Step :: "config \<Rightarrow> config \<Rightarrow> bool" where
 		"(Step (mk_config z admininstr_lst) (mk_config z' admininstr'_lst)) \<Longrightarrow>
 		 (wf_config (mk_config z admininstr_lst)) \<Longrightarrow>
 		 (wf_config (mk_config z' admininstr'_lst)) \<Longrightarrow>
-		 Step (mk_config z [(admininstr_sc8 (LABEL_underscore v_n instr_0_lst admininstr_lst))]) (mk_config z' [(admininstr_sc8 (LABEL_underscore v_n instr_0_lst admininstr'_lst))])"
+		 Step (mk_config z [(admininstr_sc7 (LABEL_underscore v_n instr_0_lst admininstr_lst))]) (mk_config z' [(admininstr_sc7 (LABEL_underscore v_n instr_0_lst admininstr'_lst))])"
 	| ctxt_frame :
 		"(Step (mk_config (mk_state s f') admininstr_lst) (mk_config (mk_state s' f'') admininstr'_lst)) \<Longrightarrow>
 		 (wf_config (mk_config (mk_state s f') admininstr_lst)) \<Longrightarrow>
@@ -13091,10 +13086,10 @@ inductive Step :: "config \<Rightarrow> config \<Rightarrow> bool" where
 		 (var_2 \<noteq> None) \<Longrightarrow>
 		 ((the (var_2)) = mi) \<Longrightarrow>
 		 (wf_uN (32 :: nat) (mk_uN (0 :: nat))) \<Longrightarrow>
-		 Step (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_GROW)]) (mk_config var_0 [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (nat (floor ((of_nat (length (BYTES var_1)) :: rat) div (of_nat ((64 :: nat) * (Ki )) :: rat))))))))])"
+		 Step (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc6 admininstr_st6_MEMORY_GROW)]) (mk_config var_0 [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN (nat (floor ((of_nat (length (BYTES var_1)) :: rat) div (of_nat ((64 :: nat) * (Ki )) :: rat))))))))])"
 	| memory_grow_fail :
 		"(fun_inv_signed_underscore (32 :: nat) (0 - (int (1 :: nat))) var_0) \<Longrightarrow>
-		 Step (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc7 admininstr_st7_MEMORY_GROW)]) (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN var_0))))])"
+		 Step (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (admininstr_sc6 admininstr_st6_MEMORY_GROW)]) (mk_config z [(admininstr_sc1 (admininstr_st1_CONST I32 (mk_num__0 Inn_I32 (mk_uN var_0))))])"
 	| Step__data_drop :
 		"(fun_with_data z x [] var_0) \<Longrightarrow>
 		 Step (mk_config z [(admininstr_sc7 (admininstr_st7_DATA_DROP x))]) (mk_config var_0 [])"
@@ -13352,7 +13347,7 @@ inductive fun_rundata_before_fun_rundata_case_2 :: "data \<Rightarrow> idx \<Rig
 		"(v_n = (length byte_lst)) \<Longrightarrow>
 		 (wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN (0 :: nat)))))) \<Longrightarrow>
 		 (wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))))) \<Longrightarrow>
-		 (wf_instr (instr_sc7 (MEMORY_INIT i))) \<Longrightarrow>
+		 (wf_instr (instr_sc6 (MEMORY_INIT i))) \<Longrightarrow>
 		 (wf_instr (instr_sc7 (DATA_DROP i))) \<Longrightarrow>
 		 fun_rundata_before_fun_rundata_case_2 (DATA byte_lst (datamode_ACTIVE (mk_uN (0 :: nat)) instr_lst)) i"
 	| fun_rundata_case_0 :
@@ -13366,9 +13361,9 @@ inductive fun_rundata :: "data \<Rightarrow> idx \<Rightarrow> ((instr list) opt
 		"(v_n = (length byte_lst)) \<Longrightarrow>
 		 (wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN (0 :: nat)))))) \<Longrightarrow>
 		 (wf_instr (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n))))) \<Longrightarrow>
-		 (wf_instr (instr_sc7 (MEMORY_INIT i))) \<Longrightarrow>
+		 (wf_instr (instr_sc6 (MEMORY_INIT i))) \<Longrightarrow>
 		 (wf_instr (instr_sc7 (DATA_DROP i))) \<Longrightarrow>
-		 fun_rundata (DATA byte_lst (datamode_ACTIVE (mk_uN (0 :: nat)) instr_lst)) i (Some (instr_lst @ [(instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN (0 :: nat))))), (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (instr_sc7 (MEMORY_INIT i)), (instr_sc7 (DATA_DROP i))]))"
+		 fun_rundata (DATA byte_lst (datamode_ACTIVE (mk_uN (0 :: nat)) instr_lst)) i (Some (instr_lst @ [(instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN (0 :: nat))))), (instr_sc1 (res_CONST I32 (mk_num__0 Inn_I32 (mk_uN v_n)))), (instr_sc6 (MEMORY_INIT i)), (instr_sc7 (DATA_DROP i))]))"
 	| fun_rundata_case_2 :
 		"(~(fun_rundata_before_fun_rundata_case_2 x0 x1)) \<Longrightarrow>
 		 fun_rundata x0 x1 None"
@@ -13684,10 +13679,10 @@ and Expr_ok2 :: "store \<Rightarrow> res_context \<Rightarrow> adminexpr \<Right
 		 (Instrs_ok2 s (append_res_context \<lparr> context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [(mk_list t'_lst)], context_RETURN = None \<rparr> C) admininstr_lst (mk_functype (mk_list []) (mk_list t_lst))) \<Longrightarrow>
 		 (wf_store s) \<Longrightarrow>
 		 (wf_context C) \<Longrightarrow>
-		 (wf_admininstr (admininstr_sc8 (LABEL_underscore v_n instr'_lst admininstr_lst))) \<Longrightarrow>
+		 (wf_admininstr (admininstr_sc7 (LABEL_underscore v_n instr'_lst admininstr_lst))) \<Longrightarrow>
 		 (wf_context \<lparr> context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [(mk_list t'_lst)], context_RETURN = None \<rparr>) \<Longrightarrow>
 		 (v_n = (length t'_lst)) \<Longrightarrow>
-		 Instr_ok2 s C (admininstr_sc8 (LABEL_underscore v_n instr'_lst admininstr_lst)) (mk_functype (mk_list []) (mk_list t_lst))"
+		 Instr_ok2 s C (admininstr_sc7 (LABEL_underscore v_n instr'_lst admininstr_lst)) (mk_functype (mk_list []) (mk_list t_lst))"
 	| Instr_ok2__frame :
 		"(Frame_ok s f C') \<Longrightarrow>
 		 (Expr_ok2 s (append_res_context \<lparr> context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [], context_RETURN = (Some (mk_list t_lst)) \<rparr> C') admininstr_lst (mk_list t_lst)) \<Longrightarrow>
@@ -13923,16 +13918,16 @@ function (sequential, domintros) is_instr :: "admininstr \<Rightarrow> bool" whe
 		| "is_instr (admininstr_sc7 (admininstr_st7_MEMORY_INIT v_dataidx)) = True"
 		| "is_instr (admininstr_sc7 admininstr_st7_MEMORY_COPY) = True"
 		| "is_instr (admininstr_sc7 admininstr_st7_MEMORY_FILL) = True"
-		| "is_instr (admininstr_sc7 admininstr_st7_MEMORY_GROW) = True"
+		| "is_instr (admininstr_sc6 admininstr_st6_MEMORY_GROW) = True"
 		| "is_instr (admininstr_sc6 admininstr_st6_MEMORY_SIZE) = True"
 		| "is_instr (admininstr_sc6 (admininstr_st6_VSTORE_LANE vectype_7 sz_0 memarg_4 laneidx_2)) = True"
 		| "is_instr (admininstr_sc6 (admininstr_st6_VSTORE vectype_6 memarg_3)) = True"
 		| "is_instr (admininstr_sc6 (admininstr_st6_VLOAD_LANE vectype_5 v_sz memarg_2 laneidx_1)) = True"
 		| "is_instr (admininstr_sc6 (admininstr_st6_VLOAD vectype_4 var_15_opt memarg_1)) = True"
-		| "is_instr (admininstr_sc6 (admininstr_st6_STORE numtype_6 sz_opt memarg_0)) = True"
-		| "is_instr (admininstr_sc6 (admininstr_st6_LOAD numtype_5 var_15_opt v_memarg)) = True"
+		| "is_instr (admininstr_sc6 (admininstr_st6_STORE numtype_5 sz_opt memarg_0)) = True"
+		| "is_instr (admininstr_sc6 (admininstr_st6_LOAD numtype_4 var_15_opt v_memarg)) = True"
 		| "is_instr (admininstr_sc6 (admininstr_st6_ELEM_DROP elemidx_0)) = True"
-		| "is_instr (admininstr_sc6 (admininstr_st6_TABLE_INIT tableidx_7 v_elemidx)) = True"
+		| "is_instr (admininstr_sc5 (admininstr_st5_TABLE_INIT tableidx_7 v_elemidx)) = True"
 		| "is_instr (admininstr_sc5 (admininstr_st5_TABLE_COPY tableidx_5 tableidx_6)) = True"
 		| "is_instr (admininstr_sc5 (admininstr_st5_TABLE_FILL tableidx_4)) = True"
 		| "is_instr (admininstr_sc5 (admininstr_st5_TABLE_GROW tableidx_3)) = True"
@@ -13941,7 +13936,7 @@ function (sequential, domintros) is_instr :: "admininstr \<Rightarrow> bool" whe
 		| "is_instr (admininstr_sc5 (admininstr_st5_TABLE_GET tableidx_0)) = True"
 		| "is_instr (admininstr_sc5 (admininstr_st5_GLOBAL_SET globalidx_0)) = True"
 		| "is_instr (admininstr_sc5 (admininstr_st5_GLOBAL_GET v_globalidx)) = True"
-		| "is_instr (admininstr_sc5 (admininstr_st5_LOCAL_TEE localidx_1)) = True"
+		| "is_instr (admininstr_sc4 (admininstr_st4_LOCAL_TEE localidx_1)) = True"
 		| "is_instr (admininstr_sc4 (admininstr_st4_LOCAL_SET localidx_0)) = True"
 		| "is_instr (admininstr_sc4 (admininstr_st4_LOCAL_GET v_localidx)) = True"
 		| "is_instr (admininstr_sc4 admininstr_st4_REF_IS_NULL) = True"
@@ -13950,7 +13945,7 @@ function (sequential, domintros) is_instr :: "admininstr \<Rightarrow> bool" whe
 		| "is_instr (admininstr_sc4 (admininstr_st4_VCVTOP shape_1_0 shape_2_0 var_14)) = True"
 		| "is_instr (admininstr_sc4 (admininstr_st4_VNARROW ishape_1_2 ishape_2_2 v_sx)) = True"
 		| "is_instr (admininstr_sc4 (admininstr_st4_VEXTBINOP ishape_1_1 ishape_2_1 var_13)) = True"
-		| "is_instr (admininstr_sc4 (admininstr_st4_VEXTUNOP ishape_1_0 ishape_2_0 var_12)) = True"
+		| "is_instr (admininstr_sc3 (admininstr_st3_VEXTUNOP ishape_1_0 ishape_2_0 var_12)) = True"
 		| "is_instr (admininstr_sc3 (admininstr_st3_VREPLACE_LANE shape_5 laneidx_0)) = True"
 		| "is_instr (admininstr_sc3 (admininstr_st3_VEXTRACT_LANE shape_4 sx_opt v_laneidx)) = True"
 		| "is_instr (admininstr_sc3 (admininstr_st3_VSPLAT shape_3)) = True"
@@ -13959,7 +13954,7 @@ function (sequential, domintros) is_instr :: "admininstr \<Rightarrow> bool" whe
 		| "is_instr (admininstr_sc3 (admininstr_st3_VBITMASK ishape_0)) = True"
 		| "is_instr (admininstr_sc3 (admininstr_st3_VSHIFTOP v_ishape var_11)) = True"
 		| "is_instr (admininstr_sc3 (admininstr_st3_VRELOP shape_2 var_10)) = True"
-		| "is_instr (admininstr_sc3 (admininstr_st3_VTESTOP shape_1 var_9)) = True"
+		| "is_instr (admininstr_sc2 (admininstr_st2_VTESTOP shape_1 var_9)) = True"
 		| "is_instr (admininstr_sc2 (admininstr_st2_VBINOP shape_0 var_8)) = True"
 		| "is_instr (admininstr_sc2 (admininstr_st2_VUNOP v_shape var_7)) = True"
 		| "is_instr (admininstr_sc2 (admininstr_st2_VVTESTOP vectype_3 v_vvtestop)) = True"
@@ -13967,7 +13962,6 @@ function (sequential, domintros) is_instr :: "admininstr \<Rightarrow> bool" whe
 		| "is_instr (admininstr_sc2 (admininstr_st2_VVBINOP vectype_1 v_vvbinop)) = True"
 		| "is_instr (admininstr_sc2 (admininstr_st2_VVUNOP vectype_0 v_vvunop)) = True"
 		| "is_instr (admininstr_sc2 (admininstr_st2_VCONST v_vectype var_6)) = True"
-		| "is_instr (admininstr_sc2 (admininstr_st2_EXTEND numtype_4 v_n)) = True"
 		| "is_instr (admininstr_sc2 (admininstr_st2_CVTOP numtype_1_0 numtype_2_0 var_5)) = True"
 		| "is_instr (admininstr_sc1 (admininstr_st1_RELOP numtype_3 var_4)) = True"
 		| "is_instr (admininstr_sc1 (admininstr_st1_TESTOP numtype_2 var_3)) = True"
@@ -13996,16 +13990,16 @@ function (sequential, domintros) is_admininstr :: "admininstr \<Rightarrow> bool
 		| "is_admininstr (admininstr_sc7 (admininstr_st7_MEMORY_INIT v_dataidx)) = False"
 		| "is_admininstr (admininstr_sc7 admininstr_st7_MEMORY_COPY) = False"
 		| "is_admininstr (admininstr_sc7 admininstr_st7_MEMORY_FILL) = False"
-		| "is_admininstr (admininstr_sc7 admininstr_st7_MEMORY_GROW) = False"
+		| "is_admininstr (admininstr_sc6 admininstr_st6_MEMORY_GROW) = False"
 		| "is_admininstr (admininstr_sc6 admininstr_st6_MEMORY_SIZE) = False"
 		| "is_admininstr (admininstr_sc6 (admininstr_st6_VSTORE_LANE vectype_7 sz_0 memarg_4 laneidx_2)) = False"
 		| "is_admininstr (admininstr_sc6 (admininstr_st6_VSTORE vectype_6 memarg_3)) = False"
 		| "is_admininstr (admininstr_sc6 (admininstr_st6_VLOAD_LANE vectype_5 v_sz memarg_2 laneidx_1)) = False"
 		| "is_admininstr (admininstr_sc6 (admininstr_st6_VLOAD vectype_4 var_15_opt memarg_1)) = False"
-		| "is_admininstr (admininstr_sc6 (admininstr_st6_STORE numtype_6 sz_opt memarg_0)) = False"
-		| "is_admininstr (admininstr_sc6 (admininstr_st6_LOAD numtype_5 var_15_opt v_memarg)) = False"
+		| "is_admininstr (admininstr_sc6 (admininstr_st6_STORE numtype_5 sz_opt memarg_0)) = False"
+		| "is_admininstr (admininstr_sc6 (admininstr_st6_LOAD numtype_4 var_15_opt v_memarg)) = False"
 		| "is_admininstr (admininstr_sc6 (admininstr_st6_ELEM_DROP elemidx_0)) = False"
-		| "is_admininstr (admininstr_sc6 (admininstr_st6_TABLE_INIT tableidx_7 v_elemidx)) = False"
+		| "is_admininstr (admininstr_sc5 (admininstr_st5_TABLE_INIT tableidx_7 v_elemidx)) = False"
 		| "is_admininstr (admininstr_sc5 (admininstr_st5_TABLE_COPY tableidx_5 tableidx_6)) = False"
 		| "is_admininstr (admininstr_sc5 (admininstr_st5_TABLE_FILL tableidx_4)) = False"
 		| "is_admininstr (admininstr_sc5 (admininstr_st5_TABLE_GROW tableidx_3)) = False"
@@ -14014,7 +14008,7 @@ function (sequential, domintros) is_admininstr :: "admininstr \<Rightarrow> bool
 		| "is_admininstr (admininstr_sc5 (admininstr_st5_TABLE_GET tableidx_0)) = False"
 		| "is_admininstr (admininstr_sc5 (admininstr_st5_GLOBAL_SET globalidx_0)) = False"
 		| "is_admininstr (admininstr_sc5 (admininstr_st5_GLOBAL_GET v_globalidx)) = False"
-		| "is_admininstr (admininstr_sc5 (admininstr_st5_LOCAL_TEE localidx_1)) = False"
+		| "is_admininstr (admininstr_sc4 (admininstr_st4_LOCAL_TEE localidx_1)) = False"
 		| "is_admininstr (admininstr_sc4 (admininstr_st4_LOCAL_SET localidx_0)) = False"
 		| "is_admininstr (admininstr_sc4 (admininstr_st4_LOCAL_GET v_localidx)) = False"
 		| "is_admininstr (admininstr_sc4 admininstr_st4_REF_IS_NULL) = False"
@@ -14023,7 +14017,7 @@ function (sequential, domintros) is_admininstr :: "admininstr \<Rightarrow> bool
 		| "is_admininstr (admininstr_sc4 (admininstr_st4_VCVTOP shape_1_0 shape_2_0 var_14)) = False"
 		| "is_admininstr (admininstr_sc4 (admininstr_st4_VNARROW ishape_1_2 ishape_2_2 v_sx)) = False"
 		| "is_admininstr (admininstr_sc4 (admininstr_st4_VEXTBINOP ishape_1_1 ishape_2_1 var_13)) = False"
-		| "is_admininstr (admininstr_sc4 (admininstr_st4_VEXTUNOP ishape_1_0 ishape_2_0 var_12)) = False"
+		| "is_admininstr (admininstr_sc3 (admininstr_st3_VEXTUNOP ishape_1_0 ishape_2_0 var_12)) = False"
 		| "is_admininstr (admininstr_sc3 (admininstr_st3_VREPLACE_LANE shape_5 laneidx_0)) = False"
 		| "is_admininstr (admininstr_sc3 (admininstr_st3_VEXTRACT_LANE shape_4 sx_opt v_laneidx)) = False"
 		| "is_admininstr (admininstr_sc3 (admininstr_st3_VSPLAT shape_3)) = False"
@@ -14032,7 +14026,7 @@ function (sequential, domintros) is_admininstr :: "admininstr \<Rightarrow> bool
 		| "is_admininstr (admininstr_sc3 (admininstr_st3_VBITMASK ishape_0)) = False"
 		| "is_admininstr (admininstr_sc3 (admininstr_st3_VSHIFTOP v_ishape var_11)) = False"
 		| "is_admininstr (admininstr_sc3 (admininstr_st3_VRELOP shape_2 var_10)) = False"
-		| "is_admininstr (admininstr_sc3 (admininstr_st3_VTESTOP shape_1 var_9)) = False"
+		| "is_admininstr (admininstr_sc2 (admininstr_st2_VTESTOP shape_1 var_9)) = False"
 		| "is_admininstr (admininstr_sc2 (admininstr_st2_VBINOP shape_0 var_8)) = False"
 		| "is_admininstr (admininstr_sc2 (admininstr_st2_VUNOP v_shape var_7)) = False"
 		| "is_admininstr (admininstr_sc2 (admininstr_st2_VVTESTOP vectype_3 v_vvtestop)) = False"
@@ -14040,7 +14034,6 @@ function (sequential, domintros) is_admininstr :: "admininstr \<Rightarrow> bool
 		| "is_admininstr (admininstr_sc2 (admininstr_st2_VVBINOP vectype_1 v_vvbinop)) = False"
 		| "is_admininstr (admininstr_sc2 (admininstr_st2_VVUNOP vectype_0 v_vvunop)) = False"
 		| "is_admininstr (admininstr_sc2 (admininstr_st2_VCONST v_vectype var_6)) = False"
-		| "is_admininstr (admininstr_sc2 (admininstr_st2_EXTEND numtype_4 v_n)) = False"
 		| "is_admininstr (admininstr_sc2 (admininstr_st2_CVTOP numtype_1_0 numtype_2_0 var_5)) = False"
 		| "is_admininstr (admininstr_sc1 (admininstr_st1_RELOP numtype_3 var_4)) = False"
 		| "is_admininstr (admininstr_sc1 (admininstr_st1_TESTOP numtype_2 var_3)) = False"
@@ -14093,5 +14086,791 @@ inductive fun_typesofvals :: "(val list) \<Rightarrow> (valtype list) \<Rightarr
 		"((length val_lst) = (length valtype_lst)) \<Longrightarrow>
 		 list_all2 (\<lambda> (val_10 :: val) (valtype_215 :: valtype). ((typeofval val_10) = valtype_215)) val_lst valtype_lst \<Longrightarrow>
 		 fun_typesofvals val_lst valtype_lst"
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/1-syntax.spectec:281.6-281.11 *)
+lemma zero_is_wf :
+	"(fun_zero v_numtype var_0) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_num_underscore v_numtype ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.6-342.10 *)
+lemma dim_is_wf :
+	"(wf_shape v_shape) \<Longrightarrow>
+	 (ret_val = (fun_dim v_shape)) \<Longrightarrow>
+	 (wf_dim ret_val)"
+sorry
+
+(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:7.1-7.59 *)
+lemma concat_bytes_is_wf :
+	"(fun_concat_bytes var_0_lst_lst var_0) \<Longrightarrow>
+	 list_all (\<lambda> (var_0_lst :: (byte list)). list_all (\<lambda> (var_0 :: byte). (wf_byte var_0)) var_0_lst) var_0_lst_lst \<Longrightarrow>
+	 (ret_val_lst = var_0) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: byte). (wf_byte ret_val)) ret_val_lst"
+sorry
+
+(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:53.1-53.65 *)
+lemma tablesxt_is_wf :
+	"(fun_tablesxt var_0_lst var_0) \<Longrightarrow>
+	 list_all (\<lambda> (var_0 :: externtype). (wf_externtype var_0)) var_0_lst \<Longrightarrow>
+	 (ret_val_lst = var_0) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: tabletype). (wf_tabletype ret_val)) ret_val_lst"
+sorry
+
+(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:54.1-54.63 *)
+lemma memsxt_is_wf :
+	"(fun_memsxt var_0_lst var_0) \<Longrightarrow>
+	 list_all (\<lambda> (var_0 :: externtype). (wf_externtype var_0)) var_0_lst \<Longrightarrow>
+	 (ret_val_lst = var_0) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: memtype). (wf_memtype ret_val)) ret_val_lst"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:80.6-80.20 *)
+lemma dataidx_instr_is_wf :
+	"(wf_instr v_instr) \<Longrightarrow>
+	 (ret_val_lst = (dataidx_instr v_instr)) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: dataidx). (wf_uN (32 :: nat) ret_val)) ret_val_lst"
+sorry
+
+(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:85.1-85.63 *)
+lemma dataidx_instrs_is_wf :
+	"(fun_dataidx_instrs var_0_lst var_0) \<Longrightarrow>
+	 list_all (\<lambda> (var_0 :: instr). (wf_instr var_0)) var_0_lst \<Longrightarrow>
+	 (ret_val_lst = var_0) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: dataidx). (wf_uN (32 :: nat) ret_val)) ret_val_lst"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:89.6-89.19 *)
+lemma dataidx_expr_is_wf :
+	"(fun_dataidx_expr v_expr var_0) \<Longrightarrow>
+	 list_all (\<lambda> (v_expr :: instr). (wf_instr v_expr)) v_expr \<Longrightarrow>
+	 (ret_val_lst = var_0) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: dataidx). (wf_uN (32 :: nat) ret_val)) ret_val_lst"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:92.6-92.19 *)
+lemma dataidx_func_is_wf :
+	"(fun_dataidx_func v_func var_0) \<Longrightarrow>
+	 (wf_func v_func) \<Longrightarrow>
+	 (ret_val_lst = var_0) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: dataidx). (wf_uN (32 :: nat) ret_val)) ret_val_lst"
+sorry
+
+(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:95.1-95.61 *)
+lemma dataidx_funcs_is_wf :
+	"(fun_dataidx_funcs var_0_lst var_0) \<Longrightarrow>
+	 list_all (\<lambda> (var_0 :: func). (wf_func var_0)) var_0_lst \<Longrightarrow>
+	 (ret_val_lst = var_0) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: dataidx). (wf_uN (32 :: nat) ret_val)) ret_val_lst"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:106.6-106.13 *)
+lemma memarg0_is_wf :
+	"(ret_val = (memarg0 )) \<Longrightarrow>
+	 (wf_memarg ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.6-44.12 *)
+lemma unop__is_wf :
+	"(fun_unop_underscore v_numtype v_unop_underscore v_num_underscore var_0) \<Longrightarrow>
+	 (wf_unop_underscore v_numtype v_unop_underscore) \<Longrightarrow>
+	 (wf_num_underscore v_numtype v_num_underscore) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: num_underscore). (wf_num_underscore v_numtype ret_val)) ret_val_lst"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:105.6-105.12 *)
+lemma iadd__is_wf :
+	"(wf_uN v_N v_iN) \<Longrightarrow>
+	 (wf_uN v_N iN_0) \<Longrightarrow>
+	 (ret_val = (iadd_underscore v_N v_iN iN_0)) \<Longrightarrow>
+	 (wf_uN v_N ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:107.6-107.12 *)
+lemma imul__is_wf :
+	"(wf_uN v_N v_iN) \<Longrightarrow>
+	 (wf_uN v_N iN_0) \<Longrightarrow>
+	 (ret_val = (imul_underscore v_N v_iN iN_0)) \<Longrightarrow>
+	 (wf_uN v_N ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:109.6-109.12 *)
+lemma irem__is_wf :
+	"(fun_irem_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
+	 (wf_uN v_N v_iN) \<Longrightarrow>
+	 (wf_uN v_N iN_0) \<Longrightarrow>
+	 (ret_val_opt = var_0) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: iN). (wf_uN v_N ret_val)) (option_to_list ret_val_opt)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:106.6-106.12 *)
+lemma isub__is_wf :
+	"(wf_uN v_N v_iN) \<Longrightarrow>
+	 (wf_uN v_N iN_0) \<Longrightarrow>
+	 (ret_val = (isub_underscore v_N v_iN iN_0)) \<Longrightarrow>
+	 (wf_uN v_N ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:123.6-123.12 *)
+lemma ieqz__is_wf :
+	"(wf_uN v_N v_iN) \<Longrightarrow>
+	 (ret_val = (ieqz_underscore v_N v_iN)) \<Longrightarrow>
+	 (wf_uN (32 :: nat) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:48.6-48.14 *)
+lemma testop__is_wf :
+	"(fun_testop_underscore v_numtype v_testop_underscore v_num_underscore var_0) \<Longrightarrow>
+	 (wf_testop_underscore v_numtype v_testop_underscore) \<Longrightarrow>
+	 (wf_num_underscore v_numtype v_num_underscore) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the (var_0))) \<Longrightarrow>
+	 (wf_num_underscore I32 ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:125.6-125.11 *)
+lemma ieq__is_wf :
+	"(wf_uN v_N v_iN) \<Longrightarrow>
+	 (wf_uN v_N iN_0) \<Longrightarrow>
+	 (ret_val = (ieq_underscore v_N v_iN iN_0)) \<Longrightarrow>
+	 (wf_uN (32 :: nat) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:130.6-130.11 *)
+lemma ige__is_wf :
+	"(fun_ige_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
+	 (wf_uN v_N v_iN) \<Longrightarrow>
+	 (wf_uN v_N iN_0) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_uN (32 :: nat) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:128.6-128.11 *)
+lemma igt__is_wf :
+	"(fun_igt_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
+	 (wf_uN v_N v_iN) \<Longrightarrow>
+	 (wf_uN v_N iN_0) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_uN (32 :: nat) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:129.6-129.11 *)
+lemma ile__is_wf :
+	"(fun_ile_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
+	 (wf_uN v_N v_iN) \<Longrightarrow>
+	 (wf_uN v_N iN_0) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_uN (32 :: nat) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:127.6-127.11 *)
+lemma ilt__is_wf :
+	"(fun_ilt_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
+	 (wf_uN v_N v_iN) \<Longrightarrow>
+	 (wf_uN v_N iN_0) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_uN (32 :: nat) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:126.6-126.11 *)
+lemma ine__is_wf :
+	"(wf_uN v_N v_iN) \<Longrightarrow>
+	 (wf_uN v_N iN_0) \<Longrightarrow>
+	 (ret_val = (ine_underscore v_N v_iN iN_0)) \<Longrightarrow>
+	 (wf_uN (32 :: nat) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:50.6-50.13 *)
+lemma relop__is_wf :
+	"(fun_relop_underscore v_numtype v_relop_underscore v_num_underscore num__0 var_0) \<Longrightarrow>
+	 (wf_relop_underscore v_numtype v_relop_underscore) \<Longrightarrow>
+	 (wf_num_underscore v_numtype v_num_underscore) \<Longrightarrow>
+	 (wf_num_underscore v_numtype num__0) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the (var_0))) \<Longrightarrow>
+	 (wf_num_underscore I32 ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:52.6-52.14 *)
+lemma cvtop___is_wf :
+	"(fun_cvtop__underscore numtype_1 numtype_2 v_cvtop__underscore v_num_underscore var_0) \<Longrightarrow>
+	 (wf_cvtop__underscore numtype_1 numtype_2 v_cvtop__underscore) \<Longrightarrow>
+	 (wf_num_underscore numtype_1 v_num_underscore) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: num_underscore). (wf_num_underscore numtype_2 ret_val)) ret_val_lst"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:124.6-124.12 *)
+lemma inez__is_wf :
+	"(wf_uN v_N v_iN) \<Longrightarrow>
+	 (ret_val = (inez_underscore v_N v_iN)) \<Longrightarrow>
+	 (wf_uN (32 :: nat) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:133.6-133.12 *)
+lemma ineg__is_wf :
+	"(wf_uN v_N v_iN) \<Longrightarrow>
+	 (ret_val = (ineg_underscore v_N v_iN)) \<Longrightarrow>
+	 (wf_uN v_N ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:132.6-132.12 *)
+lemma iabs__is_wf :
+	"(fun_iabs_underscore v_N v_iN var_0) \<Longrightarrow>
+	 (wf_uN v_N v_iN) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_uN v_N ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:134.6-134.12 *)
+lemma imin__is_wf :
+	"(fun_imin_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
+	 (wf_uN v_N v_iN) \<Longrightarrow>
+	 (wf_uN v_N iN_0) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_uN v_N ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:135.6-135.12 *)
+lemma imax__is_wf :
+	"(fun_imax_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
+	 (wf_uN v_N v_iN) \<Longrightarrow>
+	 (wf_uN v_N iN_0) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_uN v_N ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:136.6-136.16 *)
+lemma iadd_sat__is_wf :
+	"(fun_iadd_sat_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
+	 (wf_uN v_N v_iN) \<Longrightarrow>
+	 (wf_uN v_N iN_0) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_uN v_N ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:137.6-137.16 *)
+lemma isub_sat__is_wf :
+	"(fun_isub_sat_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
+	 (wf_uN v_N v_iN) \<Longrightarrow>
+	 (wf_uN v_N iN_0) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_uN v_N ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:323.6-323.15 *)
+lemma packnum__is_wf :
+	"(wf_num_underscore (unpack v_lanetype) v_num_underscore) \<Longrightarrow>
+	 ((packnum_underscore v_lanetype v_num_underscore) \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the ((packnum_underscore v_lanetype v_num_underscore)))) \<Longrightarrow>
+	 (wf_lane_underscore v_lanetype ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:329.6-329.17 *)
+lemma unpacknum__is_wf :
+	"(wf_lane_underscore v_lanetype v_lane_underscore) \<Longrightarrow>
+	 ((unpacknum_underscore v_lanetype v_lane_underscore) \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the ((unpacknum_underscore v_lanetype v_lane_underscore)))) \<Longrightarrow>
+	 (wf_num_underscore (unpack v_lanetype) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:364.6-364.14 *)
+lemma vvunop__is_wf :
+	"(fun_vvunop_underscore v_vectype v_vvunop v_vec_underscore var_0) \<Longrightarrow>
+	 ((size (valtype_vectype v_vectype)) \<noteq> None) \<Longrightarrow>
+	 (wf_uN (the ((size (valtype_vectype v_vectype)))) v_vec_underscore) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_uN (the ((size (valtype_vectype v_vectype)))) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:366.6-366.15 *)
+lemma vvbinop__is_wf :
+	"(fun_vvbinop_underscore v_vectype v_vvbinop v_vec_underscore vec__0 var_0) \<Longrightarrow>
+	 ((size (valtype_vectype v_vectype)) \<noteq> None) \<Longrightarrow>
+	 (wf_uN (the ((size (valtype_vectype v_vectype)))) v_vec_underscore) \<Longrightarrow>
+	 (wf_uN (the ((size (valtype_vectype v_vectype)))) vec__0) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_uN (the ((size (valtype_vectype v_vectype)))) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:368.6-368.16 *)
+lemma vvternop__is_wf :
+	"(fun_vvternop_underscore v_vectype v_vvternop v_vec_underscore vec__0 vec__1 var_0) \<Longrightarrow>
+	 ((size (valtype_vectype v_vectype)) \<noteq> None) \<Longrightarrow>
+	 (wf_uN (the ((size (valtype_vectype v_vectype)))) v_vec_underscore) \<Longrightarrow>
+	 (wf_uN (the ((size (valtype_vectype v_vectype)))) vec__0) \<Longrightarrow>
+	 (wf_uN (the ((size (valtype_vectype v_vectype)))) vec__1) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_uN (the ((size (valtype_vectype v_vectype)))) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.13 *)
+lemma vunop__is_wf :
+	"(fun_vunop_underscore v_shape v_vunop_underscore v_vec_underscore var_0) \<Longrightarrow>
+	 (wf_shape v_shape) \<Longrightarrow>
+	 (wf_vunop_underscore v_shape v_vunop_underscore) \<Longrightarrow>
+	 (wf_uN (128 :: nat) v_vec_underscore) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: vec_underscore). (wf_uN (128 :: nat) ret_val)) ret_val_lst"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:381.6-381.14 *)
+lemma vbinop__is_wf :
+	"(fun_vbinop_underscore v_shape v_vbinop_underscore v_vec_underscore vec__0 var_0) \<Longrightarrow>
+	 (wf_shape v_shape) \<Longrightarrow>
+	 (wf_vbinop_underscore v_shape v_vbinop_underscore) \<Longrightarrow>
+	 (wf_uN (128 :: nat) v_vec_underscore) \<Longrightarrow>
+	 (wf_uN (128 :: nat) vec__0) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: vec_underscore). (wf_uN (128 :: nat) ret_val)) ret_val_lst"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.6-383.14 *)
+lemma vrelop__is_wf :
+	"(fun_vrelop_underscore v_shape v_vrelop_underscore v_vec_underscore vec__0 var_0) \<Longrightarrow>
+	 (wf_shape v_shape) \<Longrightarrow>
+	 (wf_vrelop_underscore v_shape v_vrelop_underscore) \<Longrightarrow>
+	 (wf_uN (128 :: nat) v_vec_underscore) \<Longrightarrow>
+	 (wf_uN (128 :: nat) vec__0) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the (var_0))) \<Longrightarrow>
+	 (wf_uN (128 :: nat) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:385.6-385.15 *)
+lemma lcvtop___is_wf :
+	"(fun_lcvtop__underscore shape_1 shape_2 v_vcvtop__underscore v_lane_underscore var_0) \<Longrightarrow>
+	 (wf_shape shape_1) \<Longrightarrow>
+	 (wf_shape shape_2) \<Longrightarrow>
+	 (wf_vcvtop__underscore shape_1 shape_2 v_vcvtop__underscore) \<Longrightarrow>
+	 (wf_lane_underscore (fun_lanetype shape_1) v_lane_underscore) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val_lst = (the (var_0))) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: lane_underscore). (wf_lane_underscore (fun_lanetype shape_2) ret_val)) ret_val_lst"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:387.6-387.15 *)
+lemma vcvtop___is_wf :
+	"(fun_vcvtop__underscore shape_1 shape_2 v_vcvtop__underscore v_vec_underscore var_0) \<Longrightarrow>
+	 (wf_shape shape_1) \<Longrightarrow>
+	 (wf_shape shape_2) \<Longrightarrow>
+	 (wf_vcvtop__underscore shape_1 shape_2 v_vcvtop__underscore) \<Longrightarrow>
+	 (wf_uN (128 :: nat) v_vec_underscore) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the (var_0))) \<Longrightarrow>
+	 (wf_uN (128 :: nat) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:603.6-603.17 *)
+lemma vextunop___is_wf :
+	"(fun_vextunop__underscore ishape_1 ishape_2 v_vextunop__underscore v_vec_underscore var_0) \<Longrightarrow>
+	 (wf_ishape ishape_1) \<Longrightarrow>
+	 (wf_ishape ishape_2) \<Longrightarrow>
+	 (wf_vextunop__underscore ishape_1 ishape_2 v_vextunop__underscore) \<Longrightarrow>
+	 (wf_uN (128 :: nat) v_vec_underscore) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the (var_0))) \<Longrightarrow>
+	 (wf_uN (128 :: nat) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:605.6-605.18 *)
+lemma vextbinop___is_wf :
+	"(fun_vextbinop__underscore ishape_1 ishape_2 v_vextbinop__underscore v_vec_underscore vec__0 var_0) \<Longrightarrow>
+	 (wf_ishape ishape_1) \<Longrightarrow>
+	 (wf_ishape ishape_2) \<Longrightarrow>
+	 (wf_vextbinop__underscore ishape_1 ishape_2 v_vextbinop__underscore) \<Longrightarrow>
+	 (wf_uN (128 :: nat) v_vec_underscore) \<Longrightarrow>
+	 (wf_uN (128 :: nat) vec__0) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the (var_0))) \<Longrightarrow>
+	 (wf_uN (128 :: nat) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:628.6-628.16 *)
+lemma vshiftop__is_wf :
+	"(fun_vshiftop_underscore v_ishape v_vshiftop_underscore v_lane_underscore v_u32 var_0) \<Longrightarrow>
+	 (wf_ishape v_ishape) \<Longrightarrow>
+	 (wf_vshiftop_underscore v_ishape v_vshiftop_underscore) \<Longrightarrow>
+	 (wf_lane_underscore (fun_lanetype (proj_ishape_0 v_ishape)) v_lane_underscore) \<Longrightarrow>
+	 (wf_uN (32 :: nat) v_u32) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the (var_0))) \<Longrightarrow>
+	 (wf_lane_underscore (fun_lanetype (proj_ishape_0 v_ishape)) ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 *)
+lemma default__is_wf :
+	"(fun_default_underscore v_valtype var_0) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the (var_0))) \<Longrightarrow>
+	 (wf_val ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:48.6-48.12 *)
+lemma store_is_wf :
+	"(wf_state v_state) \<Longrightarrow>
+	 (ret_val = (fun_store v_state)) \<Longrightarrow>
+	 (wf_store ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:49.6-49.12 *)
+lemma frame_is_wf :
+	"(wf_state v_state) \<Longrightarrow>
+	 (ret_val = (fun_frame v_state)) \<Longrightarrow>
+	 (wf_frame ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:58.6-58.15 *)
+lemma funcinst_is_wf :
+	"(wf_state v_state) \<Longrightarrow>
+	 (ret_val_lst = (fun_funcinst v_state)) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: funcinst). (wf_funcinst ret_val)) ret_val_lst"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:59.6-59.17 *)
+lemma globalinst_is_wf :
+	"(wf_state v_state) \<Longrightarrow>
+	 (ret_val_lst = (fun_globalinst v_state)) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: globalinst). (wf_globalinst ret_val)) ret_val_lst"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:60.6-60.16 *)
+lemma tableinst_is_wf :
+	"(wf_state v_state) \<Longrightarrow>
+	 (ret_val_lst = (fun_tableinst v_state)) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: tableinst). (wf_tableinst ret_val)) ret_val_lst"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:61.6-61.14 *)
+lemma meminst_is_wf :
+	"(wf_state v_state) \<Longrightarrow>
+	 (ret_val_lst = (fun_meminst v_state)) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: meminst). (wf_meminst ret_val)) ret_val_lst"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:63.6-63.15 *)
+lemma datainst_is_wf :
+	"(wf_state v_state) \<Longrightarrow>
+	 (ret_val_lst = (fun_datainst v_state)) \<Longrightarrow>
+	 list_all (\<lambda> (ret_val :: datainst). (wf_datainst ret_val)) ret_val_lst"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:64.6-64.17 *)
+lemma moduleinst_is_wf :
+	"(wf_state v_state) \<Longrightarrow>
+	 (ret_val = (fun_moduleinst v_state)) \<Longrightarrow>
+	 (wf_moduleinst ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:75.6-75.11 *)
+lemma func_is_wf :
+	"(fun_func v_state v_funcidx var_0) \<Longrightarrow>
+	 (wf_state v_state) \<Longrightarrow>
+	 (wf_uN (32 :: nat) v_funcidx) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_funcinst ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:76.6-76.13 *)
+lemma global_is_wf :
+	"(fun_global v_state v_globalidx var_0) \<Longrightarrow>
+	 (wf_state v_state) \<Longrightarrow>
+	 (wf_uN (32 :: nat) v_globalidx) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_globalinst ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:77.6-77.12 *)
+lemma table_is_wf :
+	"(fun_table v_state v_tableidx var_0) \<Longrightarrow>
+	 (wf_state v_state) \<Longrightarrow>
+	 (wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_tableinst ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:78.6-78.10 *)
+lemma mem_is_wf :
+	"(fun_mem v_state v_memidx var_0) \<Longrightarrow>
+	 (wf_state v_state) \<Longrightarrow>
+	 (wf_uN (32 :: nat) v_memidx) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_meminst ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:80.6-80.11 *)
+lemma data_is_wf :
+	"(fun_data v_state v_dataidx var_0) \<Longrightarrow>
+	 (wf_state v_state) \<Longrightarrow>
+	 (wf_uN (32 :: nat) v_dataidx) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_datainst ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:81.6-81.12 *)
+lemma local_is_wf :
+	"(fun_local v_state v_localidx var_0) \<Longrightarrow>
+	 (wf_state v_state) \<Longrightarrow>
+	 (wf_uN (32 :: nat) v_localidx) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_val ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:95.6-95.17 *)
+lemma with_local_is_wf :
+	"(wf_state v_state) \<Longrightarrow>
+	 (wf_uN (32 :: nat) v_localidx) \<Longrightarrow>
+	 (wf_val v_val) \<Longrightarrow>
+	 (ret_val = (with_local v_state v_localidx v_val)) \<Longrightarrow>
+	 (wf_state ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:96.6-96.18 *)
+lemma with_global_is_wf :
+	"(fun_with_global v_state v_globalidx v_val var_0) \<Longrightarrow>
+	 (wf_state v_state) \<Longrightarrow>
+	 (wf_uN (32 :: nat) v_globalidx) \<Longrightarrow>
+	 (wf_val v_val) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_state ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:97.6-97.17 *)
+lemma with_table_is_wf :
+	"(fun_with_table v_state v_tableidx res_nat v_ref var_0) \<Longrightarrow>
+	 (wf_state v_state) \<Longrightarrow>
+	 (wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_state ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:98.6-98.21 *)
+lemma with_tableinst_is_wf :
+	"(fun_with_tableinst v_state v_tableidx v_tableinst var_0) \<Longrightarrow>
+	 (wf_state v_state) \<Longrightarrow>
+	 (wf_uN (32 :: nat) v_tableidx) \<Longrightarrow>
+	 (wf_tableinst v_tableinst) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_state ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:99.6-99.15 *)
+lemma with_mem_is_wf :
+	"(fun_with_mem v_state v_memidx res_nat nat_0 var_0_lst var_0) \<Longrightarrow>
+	 (wf_state v_state) \<Longrightarrow>
+	 (wf_uN (32 :: nat) v_memidx) \<Longrightarrow>
+	 list_all (\<lambda> (var_0 :: byte). (wf_byte var_0)) var_0_lst \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_state ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:100.6-100.19 *)
+lemma with_meminst_is_wf :
+	"(fun_with_meminst v_state v_memidx v_meminst var_0) \<Longrightarrow>
+	 (wf_state v_state) \<Longrightarrow>
+	 (wf_uN (32 :: nat) v_memidx) \<Longrightarrow>
+	 (wf_meminst v_meminst) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_state ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:101.6-101.16 *)
+lemma with_elem_is_wf :
+	"(fun_with_elem v_state v_elemidx var_0_lst var_0) \<Longrightarrow>
+	 (wf_state v_state) \<Longrightarrow>
+	 (wf_uN (32 :: nat) v_elemidx) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_state ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:102.6-102.16 *)
+lemma with_data_is_wf :
+	"(fun_with_data v_state v_dataidx var_0_lst var_0) \<Longrightarrow>
+	 (wf_state v_state) \<Longrightarrow>
+	 (wf_uN (32 :: nat) v_dataidx) \<Longrightarrow>
+	 list_all (\<lambda> (var_0 :: byte). (wf_byte var_0)) var_0_lst \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_state ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 *)
+lemma growtable_is_wf :
+	"(fun_growtable v_tableinst res_nat v_ref var_0) \<Longrightarrow>
+	 (wf_tableinst v_tableinst) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the (var_0))) \<Longrightarrow>
+	 (wf_tableinst ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 *)
+lemma growmemory_is_wf :
+	"(fun_growmemory v_meminst res_nat var_0) \<Longrightarrow>
+	 (wf_meminst v_meminst) \<Longrightarrow>
+	 (var_0 \<noteq> None) \<Longrightarrow>
+	 (ret_val = (the (var_0))) \<Longrightarrow>
+	 (wf_meminst ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/8-reduction.spectec:6.10-6.19 *)
+lemma Step_pure_is_wf :
+	"list_all (\<lambda> (var_0 :: admininstr). (wf_admininstr var_0)) var_0 \<Longrightarrow>
+	 (Step_pure var_0 var_1) \<Longrightarrow>
+	 list_all (\<lambda> (var_1 :: admininstr). (wf_admininstr var_1)) var_1"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/8-reduction.spectec:7.10-7.19 *)
+lemma Step_read_is_wf :
+	"(wf_config var_0) \<Longrightarrow>
+	 (Step_read var_0 var_1) \<Longrightarrow>
+	 list_all (\<lambda> (var_1 :: admininstr). (wf_admininstr var_1)) var_1"
+sorry
+
+(* Mutual Recursion at: ../specification/wasm-2.0/8-reduction.spectec:5.1-5.109 *)
+lemma Step_is_wf :
+	"(wf_config var_0) \<Longrightarrow>
+	 (Step var_0 var_1) \<Longrightarrow>
+	 (wf_config var_1)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:36.6-36.16 *)
+lemma allocfunc_is_wf :
+	"(fun_allocfunc v_store v_moduleinst v_func var_0) \<Longrightarrow>
+	 (wf_store v_store) \<Longrightarrow>
+	 (wf_moduleinst v_moduleinst) \<Longrightarrow>
+	 (wf_func v_func) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_store (fst ret_val))"
+sorry
+
+(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:41.1-41.63 *)
+lemma allocfuncs_is_wf :
+	"(fun_allocfuncs v_store v_moduleinst var_0_lst var_0) \<Longrightarrow>
+	 (wf_store v_store) \<Longrightarrow>
+	 (wf_moduleinst v_moduleinst) \<Longrightarrow>
+	 list_all (\<lambda> (var_0 :: func). (wf_func var_0)) var_0_lst \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_store (fst ret_val))"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:47.6-47.18 *)
+lemma allocglobal_is_wf :
+	"(fun_allocglobal v_store v_globaltype v_val var_0) \<Longrightarrow>
+	 (wf_store v_store) \<Longrightarrow>
+	 (wf_val v_val) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_store (fst ret_val))"
+sorry
+
+(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:51.1-51.67 *)
+lemma allocglobals_is_wf :
+	"(fun_allocglobals v_store var_0_lst var_1_lst var_0) \<Longrightarrow>
+	 (wf_store v_store) \<Longrightarrow>
+	 list_all (\<lambda> (var_1 :: val). (wf_val var_1)) var_1_lst \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_store (fst ret_val))"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:57.6-57.17 *)
+lemma alloctable_is_wf :
+	"(fun_alloctable v_store v_tabletype var_0) \<Longrightarrow>
+	 (wf_store v_store) \<Longrightarrow>
+	 (wf_tabletype v_tabletype) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_store (fst ret_val))"
+sorry
+
+(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:61.1-61.58 *)
+lemma alloctables_is_wf :
+	"(fun_alloctables v_store var_0_lst var_0) \<Longrightarrow>
+	 (wf_store v_store) \<Longrightarrow>
+	 list_all (\<lambda> (var_0 :: tabletype). (wf_tabletype var_0)) var_0_lst \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_store (fst ret_val))"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:67.6-67.15 *)
+lemma allocmem_is_wf :
+	"(fun_allocmem v_store v_memtype var_0) \<Longrightarrow>
+	 (wf_store v_store) \<Longrightarrow>
+	 (wf_memtype v_memtype) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_store (fst ret_val))"
+sorry
+
+(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:71.1-71.52 *)
+lemma allocmems_is_wf :
+	"(fun_allocmems v_store var_0_lst var_0) \<Longrightarrow>
+	 (wf_store v_store) \<Longrightarrow>
+	 list_all (\<lambda> (var_0 :: memtype). (wf_memtype var_0)) var_0_lst \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_store (fst ret_val))"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:77.6-77.16 *)
+lemma allocelem_is_wf :
+	"(fun_allocelem v_store v_reftype var_0_lst var_0) \<Longrightarrow>
+	 (wf_store v_store) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_store (fst ret_val))"
+sorry
+
+(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:81.1-81.63 *)
+lemma allocelems_is_wf :
+	"(fun_allocelems v_store var_0_lst var_1_lst_lst var_0) \<Longrightarrow>
+	 (wf_store v_store) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_store (fst ret_val))"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:87.6-87.16 *)
+lemma allocdata_is_wf :
+	"(fun_allocdata v_store var_0_lst var_0) \<Longrightarrow>
+	 (wf_store v_store) \<Longrightarrow>
+	 list_all (\<lambda> (var_0 :: byte). (wf_byte var_0)) var_0_lst \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_store (fst ret_val))"
+sorry
+
+(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:91.1-91.54 *)
+lemma allocdatas_is_wf :
+	"(fun_allocdatas v_store var_0_lst_lst var_0) \<Longrightarrow>
+	 (wf_store v_store) \<Longrightarrow>
+	 list_all (\<lambda> (var_0_lst :: (byte list)). list_all (\<lambda> (var_0 :: byte). (wf_byte var_0)) var_0_lst) var_0_lst_lst \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_store (fst ret_val))"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:100.6-100.17 *)
+lemma instexport_is_wf :
+	"(fun_instexport var_0_lst var_1_lst var_2_lst var_3_lst v_export var_0) \<Longrightarrow>
+	 (wf_export v_export) \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_exportinst ret_val)"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:107.6-107.18 *)
+lemma allocmodule_is_wf :
+	"(fun_allocmodule v_store v_module var_0_lst var_1_lst var_2_lst_lst var_0) \<Longrightarrow>
+	 (wf_store v_store) \<Longrightarrow>
+	 (wf_module v_module) \<Longrightarrow>
+	 list_all (\<lambda> (var_1 :: val). (wf_val var_1)) var_1_lst \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_store (fst ret_val)) \<Longrightarrow>
+	 (wf_moduleinst (snd ret_val))"
+sorry
+
+(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:196.6-196.13 *)
+lemma invoke_is_wf :
+	"(fun_invoke v_store v_funcaddr var_0_lst var_0) \<Longrightarrow>
+	 (wf_store v_store) \<Longrightarrow>
+	 list_all (\<lambda> (var_0 :: val). (wf_val var_0)) var_0_lst \<Longrightarrow>
+	 (ret_val = var_0) \<Longrightarrow>
+	 (wf_config ret_val)"
+sorry
 
 end
