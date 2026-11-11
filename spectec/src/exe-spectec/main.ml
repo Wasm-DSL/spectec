@@ -487,6 +487,10 @@ let () =
         let oc = Out_channel.open_text odst in
         Fun.protect (fun () -> Out_channel.output_string oc coq_code)
           ~finally:(fun () -> Out_channel.close oc)
+      | _ ->
+        prerr_endline "too many output file names";
+        exit 2
+      )
     | Rocq ->
       log "Rocq Generation...";
       (match !odsts with
