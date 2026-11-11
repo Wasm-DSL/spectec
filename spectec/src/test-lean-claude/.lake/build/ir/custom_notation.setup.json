@@ -1,9 +1,0 @@
-{"plugins": [],
- "package": "test-lean",
- "options": {},
- "name": "custom_notation",
- "isModule": false,
- "importArts":
- {"«wasm2.0»":
-  ["/home/zhengyew/spectec/spectec/test-lean/.lake/build/lib/lean/wasm2.0.olean"]},
- "dynlibs": []}

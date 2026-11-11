@@ -1,9 +1,0 @@
-{"plugins": [],
- "package": "test-lean",
- "options": {},
- "name": "sandbox_5",
- "isModule": false,
- "importArts":
- {"ExtendedDeriveDecEq":
-  ["/home/zhengyew/spectec/spectec/test-lean/.lake/build/lib/lean/ExtendedDeriveDecEq.olean"]},
- "dynlibs": []}

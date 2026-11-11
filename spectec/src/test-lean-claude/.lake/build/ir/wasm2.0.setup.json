@@ -1,9 +1,0 @@
-{"plugins": [],
- "package": "test-lean-claude",
- "options": {},
- "name": "«wasm2.0»",
- "isModule": false,
- "importArts":
- {"ExtendedDeriveDecEq":
-  ["/home/zhengyew/spectec/spectec/src/test-lean-claude/.lake/build/lib/lean/ExtendedDeriveDecEq.olean"]},
- "dynlibs": []}
