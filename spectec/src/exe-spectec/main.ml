@@ -14,6 +14,7 @@ type target =
  | Splice of Backend_splice.Config.t
  | Interpreter of string list
  | Isabelle
+ | Rocq
 
 type pass =
   | Sub
@@ -23,13 +24,13 @@ type pass =
   | TypeFamilyRemoval
   | Else
   | Undep
+  | DefToRel
   | SubExpansion
   | Uncaseremoval
   | AliasDemut
   | ImproveIds
   | Ite
   | PatSimp
-  | DefToRel
   | ElseSimp
   | LetIntroMech
   | DatatypeDiet
@@ -83,6 +84,7 @@ let odsts = ref []   (* output file arguments *)
 
 let ast_width = ref Backend_ast.Config.default.width
 let latex_macros = ref false
+let rocq_namespace = ref ""
 
 let print_el = ref false
 let print_elab_il = ref false
@@ -124,12 +126,12 @@ let pass_flag = function
   | AliasDemut -> "alias-demut"
   | Else -> "else"
   | Undep -> "remove-indexed-types"
+  | DefToRel -> "definition-to-relation"
   | SubExpansion -> "sub-expansion"
   | Uncaseremoval -> "uncase-removal"
   | ImproveIds -> "improve-ids"
   | Ite -> "ite"
   | PatSimp -> "pattern-simp"
-  | DefToRel -> "definition-to-relation"
   | ElseSimp -> "else-simplification"
   | LetIntroMech -> "let-intro-mech"
   | DatatypeDiet -> "datatype-diet"
@@ -145,13 +147,13 @@ let pass_desc = function
   | TypeFamilyRemoval -> "Transform Type families into sum types"
   | Else -> "Eliminate the otherwise premise in relations"
   | Undep -> "Transform indexed types into types with well-formedness predicates"
+  | DefToRel -> "Transform specific function definitions into relations"
   | SubExpansion -> "Expands subtype matching"
   | Uncaseremoval -> "Eliminate the uncase expression"
   | AliasDemut -> "Lifts type aliases out of mutual groups"
   | ImproveIds -> "Disambiguates ids used from each other"
   | Ite -> "If-then-else introduction"
   | PatSimp -> "Simplifies non-linear and definite iteration patterns"
-  | DefToRel -> "Transform specific function definitions into relations"
   | ElseSimp -> "Simplifies generated otherwise relations (after else pass)"
   | LetIntroMech -> "Let Premise introduction for mechanization backends"
   | DatatypeDiet -> "Break down datatypes with over 50 constructors"
@@ -167,13 +169,13 @@ let run_pass : pass -> Il.Ast.script -> Il.Ast.script = function
   | TypeFamilyRemoval -> Middlend.Typefamilyremoval.transform
   | Else -> Middlend.Else.transform
   | Undep -> Middlend.Undep.transform
+  | DefToRel -> Middlend.Deftorel.transform
   | SubExpansion -> Middlend.Subexpansion.transform
   | Uncaseremoval -> Middlend.Uncaseremoval.transform
   | AliasDemut -> Middlend.AliasDemut.transform
   | ImproveIds -> Middlend.Improveids.transform
   | Ite -> Middlend.Ite.transform
   | PatSimp -> Middlend.PatSimp.transform
-  | DefToRel -> Middlend.Deftorel.transform
   | LetIntroMech -> Middlend.Letintromech.transform
   | ElseSimp -> Middlend.Elsesimp.transform
   | DatatypeDiet -> Middlend.Datatypediet.transform
@@ -244,6 +246,8 @@ let argspec = Arg.align (
   "--interpreter", Arg.Rest_all (fun args -> target := Interpreter args),
   " Generate interpreter";
   "--isabelle", Arg.Unit (fun () -> target := Isabelle), " Generate Isabelle Definitions";
+  "--rocq", Arg.Unit (fun () -> target := Rocq), " Generate Rocq Inductive Definitions (-o main.v [wf.v]: well-formedness lemmas go to wf.v, default main_wf.v)";
+  "--rocq-namespace", Arg.Set_string rocq_namespace, " Logical path used by the Rocq well-formedness lemma file to import the main file";
   "--debug", Arg.Unit (fun () -> Backend_interpreter.Debugger.debug := true),
     " Debug interpreter";
   "--unified-vars", Arg.Unit (fun () -> Il2al.Unify.rename := false),
@@ -299,7 +303,6 @@ let () =
     | Prose _ | Splice _ | Interpreter _ ->
        enable_pass Sideconditions;
     | Isabelle -> 
-      (* sideconditions_on_defs := true; *)
       enable_pass Sideconditions;
       enable_pass Totalize;  
       enable_pass Else;
@@ -318,6 +321,23 @@ let () =
       enable_pass DatatypeDiet ;
       enable_pass SinglePatternMatch;
       enable_pass InductivePremisesDiet
+    | Rocq -> 
+      enable_pass Sideconditions;
+      enable_pass Totalize;
+      enable_pass Else;
+      enable_pass TypeFamilyRemoval;
+      enable_pass Undep;
+      enable_pass Uncaseremoval;
+      enable_pass Sub;
+      enable_pass SubExpansion;
+      enable_pass ImproveIds;
+      enable_pass AliasDemut;
+      enable_pass DefToRel;
+      enable_pass Ite;
+      enable_pass ElseSimp;
+      enable_pass PatSimp;
+      enable_pass LetIntroMech;
+      sideconditions_on_defs := true;
     | _ when !print_al || !print_al_o <> "" ->
       enable_pass Sideconditions;
     | _ -> ()
@@ -344,7 +364,7 @@ let () =
     if !print_final_il && not !print_all_il then print_il il;
 
     let al =
-      if not !print_al && !print_al_o = "" && (!target = Check || !target = Ast || !target = Latex || !target = Isabelle) then []
+      if not !print_al && !print_al_o = "" && (!target = Check || !target = Ast || !target = Latex || !target = Isabelle || !target = Rocq) then []
       else (
         log "Translating to AL...";
         let interp = match !target with
@@ -467,11 +487,28 @@ let () =
         let oc = Out_channel.open_text odst in
         Fun.protect (fun () -> Out_channel.output_string oc coq_code)
           ~finally:(fun () -> Out_channel.close oc)
+    | Rocq ->
+      log "Rocq Generation...";
+      (match !odsts with
+      | [] -> print_endline (Backend_rocq.Print.string_of_script il)
+      | [odst] | [odst; _] ->
+        let wf_odst = match !odsts with
+          | [_; wf_odst] -> wf_odst
+          | _ -> Filename.remove_extension odst ^ "_wf.v"
+        in
+        let main_module = Filename.(remove_extension (basename odst)) in
+        let coq_code, wf_code = Backend_rocq.Print.string_of_split_script !rocq_namespace main_module il in
+        let write_file file code =
+          let oc = Out_channel.open_text file in
+          Fun.protect (fun () -> Out_channel.output_string oc code)
+            ~finally:(fun () -> Out_channel.close oc)
+        in
+        write_file odst coq_code;
+        write_file wf_odst wf_code
       | _ ->
         prerr_endline "too many output file names";
         exit 2
       )
-     
     );
     log "Complete."
   with

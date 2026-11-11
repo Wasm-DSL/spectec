@@ -13,6 +13,7 @@
     (re_export backend_splice)
     (re_export backend_interpreter)
     (re_export backend_isabelle)
+    (re_export backend_rocq)
     (re_export il2al)
   )
 )
