@@ -895,8 +895,12 @@ let string_of_def def =
   | Irec :: _, _ -> error def.at "Several records defined mutually recursively"
   | [Idef], [hdr] -> Main (start ^ "definition " ^ hdr ^ "\n\n")
   | Idef :: _, _ -> error def.at "Several global variables defined mutually recursively"
-  | [Iwf], [hdr] -> Wf_lemmas (start ^ "lemma " ^ hdr ^ "\n\n")
-  | Iwf :: _,_ -> error def.at "Several well-formedness lemmas defined mutually recursively"
+  | Iwf :: kwds, _ ->
+     if List.for_all (function Iwf -> true | _ -> false) kwds
+     then Wf_lemmas (start ^ "lemma " ^ String.concat "\n\nlemma " hdrs ^ "\n\n")
+     else error def.at "well-formedness lemma defined recursively with something that is not a well-formedness lemma"
+(*  | [Iwf], [hdr] -> Wf_lemmas (start ^ "lemma " ^ hdr ^ "\n\n")
+  | Iwf :: _,_ -> error def.at ("Several well-formedness lemmas defined mutually recursively:" ^ String.concat "\n\nand\n\n" hdrs) *)
   | Idat :: kwds, _ ->
      if List.for_all (function Idat -> true | _ -> false) kwds
      then Main (start ^ "datatype " ^ String.concat "\n\nand\n\n" hdrs ^ "\n\n")
