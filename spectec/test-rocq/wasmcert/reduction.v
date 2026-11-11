@@ -3944,4 +3944,5 @@ Proof.
   by case: Hd; exact: Step_exc_named.
 Qed.
 
+Print Assumptions Step_sim_eventually.
 End Eventually.

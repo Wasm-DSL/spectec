@@ -23,9 +23,10 @@ From WasmSpectec Require Import wasm.
 From Wasm Require Import numerics datatypes operations.
 From WasmCertBridge Require Import translation.
 
-From WasmSpectec Require wasm_funs.
+From WasmSpectec Require wasm_funs axioms.
 Module S := WasmSpectec.wasm.
 Module F := WasmSpectec.wasm_funs.
+Module A := WasmSpectec.axioms.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -65,8 +66,13 @@ Axiom extend__def : forall M N sx i,
                else (S.proj_uN_0 i + 2 ^ N - 2 ^ M)%num
            end).
 
-(* Truncation of a rational towards zero. *)
-Axiom truncz_def : forall q, S.truncz q = Z.quot (Qnum q) (Zpos (Qden q)).
+(* Truncation of a rational towards zero, from [truncz_quot] of axioms.v
+   (truncation of a quotient of integers): every rational is one. *)
+Lemma truncz_def q : S.truncz q = Z.quot (Qnum q) (Zpos (Qden q)).
+Proof.
+  rewrite -A.truncz_quot //. f_equal. case: q => n d.
+  rewrite /inject_Z /Qdiv /Qmult /Qinv /=. by rewrite ?Z.mul_1_r ?Pos.mul_1_l.
+Qed.
 
 (** * Integer builtins *)
 
@@ -151,12 +157,16 @@ Axiom trunc__tr : forall t1 t2 sx x, fok t1 x ->
 Axiom trunc_sat__tr : forall t1 t2 sx x, fok t1 x ->
   option_map (ival t2) (S.trunc_sat__ (F.sizenn1 (S.numtype_Fnn t1)) (F.sizenn2 (S.numtype_Inn t2)) sx x) =
   eval_cvt (tr_numtype (S.numtype_Inn t2)) CVO_trunc_sat (Some (tr_sx sx)) (fval t1 x).
-Axiom promote__tr : forall t1 t2 x, fok t1 x ->
-  map (fval t2) (S.promote__ (F.sizenn1 (S.numtype_Fnn t1)) (F.sizenn2 (S.numtype_Fnn t2)) x) =
-  olist (eval_cvt (tr_numtype (S.numtype_Fnn t2)) CVO_promote None (fval t1 x)).
-Axiom demote__tr : forall t1 t2 x, fok t1 x ->
-  map (fval t2) (S.demote__ (F.sizenn1 (S.numtype_Fnn t1)) (F.sizenn2 (S.numtype_Fnn t2)) x) =
-  olist (eval_cvt (tr_numtype (S.numtype_Fnn t2)) CVO_demote None (fval t1 x)).
+(* promote and demote only at the type pair they exist for (f32 -> f64,
+   f64 -> f32): at the others WasmCert has no result. *)
+Axiom promote__tr : forall x, fok S.Fnn_F32 x ->
+  map (fval S.Fnn_F64)
+    (S.promote__ (F.sizenn1 (S.numtype_Fnn S.Fnn_F32)) (F.sizenn2 (S.numtype_Fnn S.Fnn_F64)) x) =
+  olist (eval_cvt (tr_numtype (S.numtype_Fnn S.Fnn_F64)) CVO_promote None (fval S.Fnn_F32 x)).
+Axiom demote__tr : forall x, fok S.Fnn_F64 x ->
+  map (fval S.Fnn_F32)
+    (S.demote__ (F.sizenn1 (S.numtype_Fnn S.Fnn_F64)) (F.sizenn2 (S.numtype_Fnn S.Fnn_F32)) x) =
+  olist (eval_cvt (tr_numtype (S.numtype_Fnn S.Fnn_F32)) CVO_demote None (fval S.Fnn_F64 x)).
 Axiom reinterpret__tr : forall nt1 nt2 c, S.wf_num_ nt1 c ->
   tr_num (S.reinterpret__ nt1 nt2 c) = wasm_deserialise (serialise_num (tr_num c)) (tr_numtype nt2).
 
@@ -835,6 +845,10 @@ Proof.
   all: try (inversion Hop; subst;
             match goal with H : S.wf_cvtop__Inn_1_Inn_2 _ _ _ |- _ => inversion H; subst end; F.inv_size_rels;
             match goal with H : is_true _ |- _ => exfalso; move: H; cbn; discriminate end).
+  (* promote and demote between other float types are not well-formed *)
+  all: try (inversion Hop; subst;
+            match goal with H : S.wf_cvtop__Fnn_1_Fnn_2 _ _ _ |- _ => inversion H; subst end; F.inv_size_rels;
+            match goal with H : is_true _ |- _ => exfalso; move: H; cbn; discriminate end).
   all: try rewrite map_list_.
   all: try rewrite -map_comp.
   all: lazymatch goal with
@@ -850,10 +864,8 @@ Proof.
        | Hc : S.wf_num_ _ (S.mk_num__0 ?t1 _) |- context[S.convert__] =>
            first [exact: (f_equal olist (@convert__tr t1 S.Fnn_F32 _ _ Hc))
                  | exact: (f_equal olist (@convert__tr t1 S.Fnn_F64 _ _ Hc))]
-       | Hc : S.wf_num_ _ (S.mk_num__1 ?t1 _) |- context[S.promote__] =>
-           first [exact: (@promote__tr t1 S.Fnn_F32 _ Hc) | exact: (@promote__tr t1 S.Fnn_F64 _ Hc)]
-       | Hc : S.wf_num_ _ (S.mk_num__1 ?t1 _) |- context[S.demote__] =>
-           first [exact: (@demote__tr t1 S.Fnn_F32 _ Hc) | exact: (@demote__tr t1 S.Fnn_F64 _ Hc)]
+       | Hc : S.wf_num_ _ (S.mk_num__1 ?t1 _) |- context[S.promote__] => exact: (promote__tr Hc)
+       | Hc : S.wf_num_ _ (S.mk_num__1 ?t1 _) |- context[S.demote__] => exact: (demote__tr Hc)
        | |- context[S.reinterpret__] => by rewrite /= reinterpret__tr
        end.
 Qed.

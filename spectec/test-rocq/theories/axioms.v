@@ -71,10 +71,13 @@ Axiom fge_bit : forall (v_N : res_N) (a b : fN), wf_uN 1 (fge_ v_N a b).
    the admissible NaNs).  So each always produces a result - which the vcvtop
    rules need, since they pick one lane from each set of results.  (These are
    consistent with the admitted _is_wf lemmas: INF is a well-formed fN of every
-   size.) *)
+   size.)  Demote / promote only exist in one direction each (f64 -> f32,
+   f32 -> f64) *)
 Axiom trunc_sat_total : forall (v_M : M) (v_N : res_N) (v_sx : sx) (x : fN),
   trunc_sat__ v_M v_N v_sx x != None.
 Axiom demote_nonempty : forall (v_M : M) (v_N : res_N) (x : fN),
+  (v_M == 64%num) && (v_N == 32%num) -> wf_fN v_M x ->
   demote__ v_M v_N x != [::].
 Axiom promote_nonempty : forall (v_M : M) (v_N : res_N) (x : fN),
+  (v_M == 32%num) && (v_N == 64%num) -> wf_fN v_M x ->
   promote__ v_M v_N x != [::].

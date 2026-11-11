@@ -2913,13 +2913,17 @@ Proof.
   all: try solve_size.
   all: try (apply/eqP; reflexivity).
   all: try by [].
+  (* the operand and result sizes rule out the other type pairs *)
+  all: inv_sizes.
+  all: try (match goal with H : is_true ?b |- _ =>
+        let b' := eval vm_compute in b in change (is_true b') in H; discriminate H end).
   all: match goal with
   | [ |- context [trunc_sat__ ?a ?b ?c ?d] ] =>
       move: (trunc_sat_total a b c d); by case: (trunc_sat__ a b c d)
   | [ |- context [demote__ ?a ?b ?d] ] =>
-      move: (demote_nonempty a b d); by case: (demote__ a b d)
+      move: (demote_nonempty a b d isT Hc); by case: (demote__ a b d)
   | [ |- context [promote__ ?a ?b ?d] ] =>
-      move: (promote_nonempty a b d); by case: (promote__ a b d)
+      move: (promote_nonempty a b d isT Hc); by case: (promote__ a b d)
   end.
 Qed.
 
