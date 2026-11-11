@@ -120,10 +120,34 @@ let rec flatten_empty_iter prem =
     | _ -> IterPr (prem'', iterexp) $ prem.at)
   | _ -> prem
 
+(* TODO: change this solution for a simpler one - i.e. just reordering let premises to be first. *)
+let order_by_let_binders prems =
+  let let_bound = List.fold_left (fun acc prem ->
+    Set.union acc (bound_prem prem).varid
+  ) Set.empty prems in
+  if Set.is_empty let_bound then prems else
+  let ready bound prem =
+    Set.subset (Set.inter (free_prem prem).varid let_bound) bound in
+  let emit bound prem = Set.union bound (bound_prem prem).varid in
+  let rec flush bound pending acc =
+    match List.partition (ready bound) pending with
+    | [], _ -> bound, pending, acc
+    | now, later ->
+      let bound' = List.fold_left emit bound now in
+      flush bound' later (List.rev_append now acc)
+  in
+  let _, pending, acc = List.fold_left (fun (bound, pending, acc) prem ->
+    if ready bound prem
+    then flush (emit bound prem) pending (prem :: acc)
+    else (bound, pending @ [prem], acc)
+  ) (Set.empty, [], []) prems in
+  List.rev acc @ pending
+
 let reduce_prems prems = prems
   |> List.map flatten_empty_iter
   |> Util.Lib.List.filter_not is_true
   |> Util.Lib.List.nub implies
+  |> order_by_let_binders
 
 let t_params env =
   List.fold_left (fun env param ->

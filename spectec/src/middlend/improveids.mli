@@ -7,8 +7,10 @@
 
   It makes sure that variables don't have the same name as any other
   namespace, as this could cause shadowing in some cases for ITPs. 
-  If it does have the same name, then it adds the prefix 
-  "v_".
+  If it does have the same name, then it adds the prefix
+  "v_". Variables also must not have the same name as a type parameter
+  bound by the enclosing definition (e.g. `Y : Y` in a definition with
+  parameter `syntax Y`), as the variable would shadow the type parameter.
 
   For functions, we ensure that they don't have the same name as
   user-defined types and relations. If it does, then it adds the prefix
