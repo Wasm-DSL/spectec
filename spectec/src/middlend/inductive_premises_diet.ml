@@ -197,10 +197,12 @@ let transform_rule a b typ rule =
           let fvars = remove to_remove fvars in
           let newmixop = match mixop with
             | Seq l -> Seq (l @ List.map (fun _ -> Arg ()) fvars)
-            | _ -> failwith "should be a seq mixop" in
+            | _ -> Seq (mixop :: List.map (fun _ -> Arg ()) fvars)
+          in
           let newb = match b with
             | Seq l -> Seq (l @ List.map (fun _ -> Arg ()) fvars)
-            | _ -> failwith "should be a seq mixop" in
+            | _ -> Seq (b :: List.map (fun _ -> Arg ()) fvars)
+          in
           let newexps = List.map (fun (x,t) ->
                             VarE x $$ (rule_id.at, t)
                          ) fvars in

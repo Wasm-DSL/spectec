@@ -123,7 +123,7 @@ let reserved_ids =
    "not"; "and"; "or"; "ALL"; "EX"; "INF"; "SUP";
    "CONST"; "TYPE"; "MIN"; "MAX";
    "id"; "map"; "fold"; "set"; "fst"; "snd";
-   "length"; "hd"; "tl"; "Suc"; "lim" ]
+   "length"; "hd"; "tl"; "Suc"; "lim"; "at" ]
   |> StringSet.of_list
 
 let remove_iter_from_type t =
