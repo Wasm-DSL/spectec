@@ -115,7 +115,7 @@ next
     using admininstr_val.domintros admininstr_val.psimps assms by simp
   then show ?thesis proof (induction "admininstr_sc2 (admininstr_st2_VCONST vt val)" 
   rule: wf_admininstr.induct)
-    case admininstr_case_20
+    case admininstr_case_19
     then show ?case 
       using val_VCONST val_case_1 by presburger
   qed
@@ -125,7 +125,7 @@ next
     using admininstr_val.domintros admininstr_val.psimps assms by simp
   then show ?thesis proof (induction "admininstr_sc4 (admininstr_st4_REF_NULL rt)" 
   rule: wf_admininstr.induct)
-    case admininstr_case_40
+    case admininstr_case_39
     then show ?case 
       by (simp add: val_REF_NULL val_case_2)
   qed
@@ -135,7 +135,7 @@ next
     using admininstr_val.domintros admininstr_val.psimps assms by simp
   then show ?thesis proof (induction "admininstr_sc7 (admininstr_st7_REF_FUNC_ADDR addr)" 
   rule: wf_admininstr.induct)
-    case admininstr_case_68
+    case admininstr_case_67
     then show ?case 
       by (simp add: val_REF_FUNC_ADDR val_case_3)
   qed
@@ -145,7 +145,7 @@ next
     using admininstr_val.domintros admininstr_val.psimps assms by simp
   then show ?thesis proof (induction "admininstr_sc7 (admininstr_st7_REF_HOST_ADDR addr)" 
   rule: wf_admininstr.induct)
-    case admininstr_case_69
+    case admininstr_case_68
     then show ?case 
       by (simp add: val_REF_HOST_ADDR val_case_4)
   qed
@@ -170,15 +170,15 @@ next
   proof (induction rule:Ref_ok.induct)
     case (null s rt)
     then show ?case
-      by (simp add: admininstr_case_40 admininstr_ref.domintros(1) admininstr_ref.psimps(1))
+      by (simp add: admininstr_case_39 admininstr_ref.domintros(1) admininstr_ref.psimps(1))
   next
     case (Ref_ok__func s a ext)
     then show ?case 
-      using admininstr_case_68 admininstr_ref.domintros(2) admininstr_ref.psimps(2) by presburger
+      using admininstr_case_67 admininstr_ref.domintros(2) admininstr_ref.psimps(2) by presburger
   next
     case (extern s a)
     then show ?case
-      using admininstr_case_69 admininstr_ref.domintros(3) admininstr_ref.psimps(3) by presburger
+      using admininstr_case_68 admininstr_ref.domintros(3) admininstr_ref.psimps(3) by presburger
   qed
 qed(simp)+
 
@@ -197,15 +197,15 @@ next
   proof (induction rule:Ref_ok.induct)
     case (null s rt)
     then show ?case
-      by (simp add: admininstr_case_40 admininstr_ref.domintros(1) admininstr_ref.psimps(1))
+      by (simp add: admininstr_case_39 admininstr_ref.domintros(1) admininstr_ref.psimps(1))
   next
     case (Ref_ok__func s a ext)
     then show ?case 
-      using admininstr_case_68 admininstr_ref.domintros(2) admininstr_ref.psimps(2) by presburger
+      using admininstr_case_67 admininstr_ref.domintros(2) admininstr_ref.psimps(2) by presburger
   next
     case (extern s a)
     then show ?case
-      using admininstr_case_69 admininstr_ref.domintros(3) admininstr_ref.psimps(3) by presburger
+      using admininstr_case_68 admininstr_ref.domintros(3) admininstr_ref.psimps(3) by presburger
   qed
 qed(simp)+
 

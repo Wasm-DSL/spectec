@@ -420,11 +420,11 @@ lemma dataidx_instr_dom: "dataidx_instr_dom e"
   by (rule accpI) (erule dataidx_instr_rel.cases)
 
 lemma dataidx_instr_set:
-  "x \<in> set (dataidx_instr e) \<Longrightarrow> e = instr_sc7 (MEMORY_INIT x) \<or> e = instr_sc7 (DATA_DROP x)"
+  "x \<in> set (dataidx_instr e) \<Longrightarrow> e = instr_sc6 (MEMORY_INIT x) \<or> e = instr_sc7 (DATA_DROP x)"
   by (induction e rule: dataidx_instr.pinduct[OF dataidx_instr_dom])
      (auto simp: dataidx_instr.psimps dataidx_instr_dom)
 
-inductive_cases wf_instr_MEMORY_INIT_E: "wf_instr (instr_sc7 (MEMORY_INIT x))"
+inductive_cases wf_instr_MEMORY_INIT_E: "wf_instr (instr_sc6 (MEMORY_INIT x))"
 
 inductive_cases wf_instr_DATA_DROP_E: "wf_instr (instr_sc7 (DATA_DROP x))"
 

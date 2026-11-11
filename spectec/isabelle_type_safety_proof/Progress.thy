@@ -4184,7 +4184,7 @@ theorem progress:
       then show ?case using 
           reducible_left_v[of s' f "[admininstr_instr (instr_sc0 UNREACHABLE)]" vs]  
           Step.intros(1)[OF Step_pure.intros(1)]
-        admininstr_case_73 config_case_0 unreachable
+        admininstr_case_72 config_case_0 unreachable
         admininstr_case_1 by auto
     next
       case (drop C t)
@@ -4795,7 +4795,7 @@ theorem progress:
     next
       case (ref_null C rt)
       then show ?case using admininstr_val.domintros(3) admininstr_val.psimps(3)[of rt]
-        by (metis admininstr_instr.simps(41))
+        by (metis admininstr_instr.simps(40))
     next
       case (ref_func x C' ft)
       have stok: "Store_ok s'" using ref_func(10) proof(induction "mk_state s' f" "strip C'") qed(auto) 
@@ -4883,7 +4883,7 @@ theorem progress:
     next
       case (vconst C c)
       then show ?case using admininstr_val.domintros(2) admininstr_val.psimps(2)[of V128 c]
-        by (metis admininstr_instr.simps(21))
+        by (metis admininstr_instr.simps(20))
     next
       case (Instr_ok__vvunop C v_vvunop)
       then show ?case proof(induction vs)
@@ -5080,9 +5080,9 @@ theorem progress:
           have x: "x = ALL_TRUE" by (cases x) simp
           (* ALL_TRUE either finds all lanes non-zero, or the side condition of vtestop_false holds. *)
           have step: "\<exists>es. Step_pure [admininstr_sc2 (admininstr_st2_VCONST V128 vec),
-              admininstr_sc3 (admininstr_st3_VTESTOP sh vtestop_sh)] es"
+              admininstr_sc2 (admininstr_st2_VTESTOP sh vtestop_sh)] es"
           proof(cases "Step_pure_before_vtestop_false [admininstr_sc2 (admininstr_st2_VCONST V128 vec),
-              admininstr_sc3 (admininstr_st3_VTESTOP sh vtestop_sh)]")
+              admininstr_sc2 (admininstr_st2_VTESTOP sh vtestop_sh)]")
             case True
             then show ?thesis
               by (cases rule: Step_pure_before_vtestop_false.cases)
@@ -5200,7 +5200,7 @@ theorem progress:
           then obtain vec where vec: "a = val_VCONST V128 vec" using typeofval_is_v128 by fastforce
           have wfv: "wf_uN 128 vec" using outer(7) vec by (auto intro: wf_V128_val)
           have "wf_ishape sh" using outer(5)
-            proof(induction "instr_sc3 (VBITMASK sh)") qed(auto)
+            proof(induction "instr_sc2 (VBITMASK sh)") qed(auto)
           then obtain J N where e: "sh = mk_ishape (X (lanetype_Jnn J) (mk_dim N))"
               and s: "wf_shape (X (lanetype_Jnn J) (mk_dim N))"
             using wf_ishape_form by blast
@@ -5523,7 +5523,7 @@ theorem progress:
           obtain r where r: "fun_vextunop__underscore sh_2 sh_1 vextunop vec (Some r)"
             using vextunop_total wfi wfv by blast
           have step: "\<exists>es. Step_pure [admininstr_sc2 (admininstr_st2_VCONST V128 vec),
-              admininstr_sc4 (admininstr_st4_VEXTUNOP sh_1 sh_2 vextunop)] es"
+              admininstr_sc3 (admininstr_st3_VEXTUNOP sh_1 sh_2 vextunop)] es"
             using Step_pure__vextunop[OF r _ HOL.refl] by auto
           then show ?case using outer(12) Step.intros(1) vec
               admininstr_val.domintros(2) admininstr_val.psimps(2)
@@ -5646,7 +5646,7 @@ theorem progress:
           then obtain vec where vec: "a = val_VCONST V128 vec" using typeofval_is_v128 by fastforce
           have wfv: "wf_uN 128 vec" using outer(7) vec by (auto intro: wf_V128_val)
           have wfi: "wf_shape sh_1 \<and> wf_shape sh_2 \<and> wf_vcvtop__underscore sh_2 sh_1 vcvtop"
-            using outer(5) proof(induction "instr_sc4 (VCVTOP sh_1 sh_2 vcvtop)") qed(auto)
+            using outer(5) proof(induction "instr_sc3 (VCVTOP sh_1 sh_2 vcvtop)") qed(auto)
           obtain r where r: "fun_vcvtop__underscore sh_2 sh_1 vcvtop vec (Some r)"
             using vcvtop_total wfi wfv by blast
           have step: "\<exists>es. Step_pure [admininstr_sc2 (admininstr_st2_VCONST V128 vec),
@@ -8224,33 +8224,33 @@ proj_uN_0.domintros proj_uN_0.psimps
     (\<exists>vs. admininstr_lst = map admininstr_val vs)"
         "wf_store s"
         "wf_context C"
-        "wf_admininstr (admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst))"
+        "wf_admininstr (admininstr_sc7 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst))"
         "wf_context
      \<lparr>context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [],
         context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [mk_list t'_lst],
         context_RETURN = None\<rparr>"
         "v_n = length t'_lst"
         show "\<forall> f. State_ok (mk_state s f) (strip C) \<longrightarrow>
-      not_br_return [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)] \<longrightarrow> 
+      not_br_return [admininstr_sc7 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)] \<longrightarrow> 
     wf_config
      (mk_config (mk_state s f)
-       [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]) \<longrightarrow>
+       [admininstr_sc7 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]) \<longrightarrow>
     wf_state (mk_state s f) \<longrightarrow>
     Ex (Step
          (mk_config (mk_state s f)
-           [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)])) \<or>
-    (\<exists>v. admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst) = admininstr_val v)" 
+           [admininstr_sc7 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)])) \<or>
+    (\<exists>v. admininstr_sc7 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst) = admininstr_val v)" 
           apply(auto)
           subgoal for f
           proof -
             assume assms':
   "State_ok (mk_state s f) (strip C)"
-    "not_br_return [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]"
+    "not_br_return [admininstr_sc7 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]"
       "wf_config
      (mk_config (mk_state s f)
-       [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)])"
+       [admininstr_sc7 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)])"
       "wf_state (mk_state s f)"
-             "\<forall>v. admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst) \<noteq> admininstr_val v"
+             "\<forall>v. admininstr_sc7 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst) \<noteq> admininstr_val v"
             have 2: "
     wf_context
      (append_res_context
@@ -8272,7 +8272,7 @@ assms(6) proof(induction "C")
        C) = strip C" proof(cases C) qed(auto simp add: append_res_context_def strip_def)
             then show "Ex (Step
          (mk_config (mk_state s f)
-           [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))"
+           [admininstr_sc7 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))"
             proof (cases "not_br_return admininstr_lst")
               case True
             then have "Ex (Step (mk_config (mk_state s f) admininstr_lst)) \<or>
@@ -8290,7 +8290,7 @@ assms(6) proof(induction "C")
               qed(auto)
               show "Ex (Step
          (mk_config (mk_state s f)
-           [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))" 
+           [admininstr_sc7 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))" 
               proof (cases c)
                 case (mk_config x1 x2)
                 then show ?thesis using stok ctxt_label assms assms' Step_is_wf step wf
@@ -8302,19 +8302,19 @@ assms(6) proof(induction "C")
     (\<exists>vs. admininstr_lst = map admininstr_val vs)"
                   then show "Ex (Step
          (mk_config (mk_state s f)
-           [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))" 
+           [admininstr_sc7 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))" 
                   proof
                     assume "admininstr_lst = [admininstr_sc7 admininstr_st7_TRAP]"
                       then show "Ex (Step
          (mk_config (mk_state s f)
-           [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))"
+           [admininstr_sc7 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))"
                         using trap_label Step.intros(1)
                         by blast 
                     next 
                       assume " \<exists>vs. admininstr_lst = map admininstr_val vs"
                         then show "Ex (Step
          (mk_config (mk_state s f)
-           [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))" 
+           [admininstr_sc7 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))" 
                           using label_vals Step.intros(1)
                           by fast
                       qed qed
@@ -8330,7 +8330,7 @@ assms(6) proof(induction "C")
                           by blast 
                         then show "Ex (Step
          (mk_config (mk_state s f)
-           [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))" 
+           [admininstr_sc7 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))" 
                         proof(cases l)
                           case (mk_uN x)
                           then show ?thesis proof(cases x)
@@ -8452,7 +8452,7 @@ assms(6) proof(induction "C")
                             by blast
                           then show "Ex (Step
          (mk_config (mk_state s f)
-           [admininstr_sc8 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))" 
+           [admininstr_sc7 (LABEL_underscore (length t'_lst) instr'_lst admininstr_lst)]))" 
                             using return_label[of "length t'_lst" instr'_lst vs] Step.intros(1)
                             by fastforce
                           qed

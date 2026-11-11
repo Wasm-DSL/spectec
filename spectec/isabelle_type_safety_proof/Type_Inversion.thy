@@ -109,7 +109,7 @@ lemma align_bridge:
 
 lemma inv_store_pack:
   assumes "Instr_ok C e tf"
-          "e = (instr_sc6 (STORE (numtype_Inn v_Inn) (Some (mk_sz v_M)) v_memarg))"
+          "e = (instr_sc5 (STORE (numtype_Inn v_Inn) (Some (mk_sz v_M)) v_memarg))"
   shows
        "(\<exists> mt.
         (0 < (length (context_MEMS C))) \<and>
@@ -120,10 +120,10 @@ lemma inv_store_pack:
         tf))"
  proof -
  have 
-     "Instr_ok C (instr_sc6 (STORE (numtype_Inn v_Inn)
+     "Instr_ok C (instr_sc5 (STORE (numtype_Inn v_Inn)
       (Some (mk_sz v_M)) v_memarg)) tf" using assms by simp
   then show ?thesis using assms(1) 
-  proof (induction "C" "(instr_sc6 (STORE (numtype_Inn v_Inn) (Some (mk_sz v_M)) v_memarg))"
+  proof (induction "C" "(instr_sc5 (STORE (numtype_Inn v_Inn) (Some (mk_sz v_M)) v_memarg))"
         tf
         arbitrary: v_Inn rule: Instr_ok_Instrs_ok.inducts(1))
       case (store_pack C mt v_Innsa)
@@ -239,7 +239,7 @@ lemma Instr_ok_inversion:
     inv_ref_null: "e = (instr_sc4 (REF_NULL rt)) \<Longrightarrow> (mk_functype (mk_list []) (mk_list [(valtype_reftype rt)])) = tf" and
     inv_ref_is_null: "e = (instr_sc4 REF_IS_NULL) \<Longrightarrow> (\<exists> rt. ((mk_functype (mk_list [(valtype_reftype rt)]) (mk_list [valtype_I32])) = tf))" and
     inv_vconst: "e = (instr_sc1 (VCONST vt c)) \<Longrightarrow> vt = V128 \<and> (mk_functype (mk_list []) (mk_list [valtype_V128])) = tf" and
-    inv_vvunop: "e = (instr_sc2 (VVUNOP vt v_vvunop)) \<Longrightarrow> vt = V128 \<and> (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128])) = tf" and
+    inv_vvunop: "e = (instr_sc1 (VVUNOP vt v_vvunop)) \<Longrightarrow> vt = V128 \<and> (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128])) = tf" and
     inv_vvbinop: "e = (instr_sc2 (VVBINOP vt v_vvbinop)) \<Longrightarrow> vt = V128 \<and> (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128])) = tf" and
     inv_vvternop: "e = (instr_sc2 (VVTERNOP vt v_vvternop)) \<Longrightarrow> vt = V128 \<and> (mk_functype (mk_list [valtype_V128, valtype_V128, valtype_V128]) (mk_list [valtype_V128])) = tf" and
     inv_vvtestop: "e = (instr_sc2 (VVTESTOP vt v_vvtestop)) \<Longrightarrow> vt = V128 \<and> (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_I32])) = tf" and
@@ -248,7 +248,7 @@ lemma Instr_ok_inversion:
     inv_vtestop: "e = (instr_sc2 (VTESTOP sh vtestop_sh)) \<Longrightarrow> (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_I32])) = tf" and
     inv_vrelop: "e = (instr_sc2 (VRELOP sh vrelop_sh)) \<Longrightarrow> (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128])) = tf" and
     inv_vshiftop: "e = (instr_sc2 (VSHIFTOP ish vshiftop_sh)) \<Longrightarrow> (mk_functype (mk_list [valtype_V128, valtype_I32]) (mk_list [valtype_V128])) = tf" and
-    inv_vbitmask: "e = (instr_sc3 (VBITMASK ish)) \<Longrightarrow> (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_I32])) = tf" and
+    inv_vbitmask: "e = (instr_sc2 (VBITMASK ish)) \<Longrightarrow> (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_I32])) = tf" and
     inv_vswizzle: "e = (instr_sc3 (VSWIZZLE ish)) \<Longrightarrow> (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128])) = tf" and
     inv_vshuffle: "e = (instr_sc3 (VSHUFFLE ish i_lst)) \<Longrightarrow>
       (
@@ -267,7 +267,7 @@ lemma Instr_ok_inversion:
     inv_vextunop: "e = (instr_sc3 (VEXTUNOP sh_1 sh_2 vextunop)) \<Longrightarrow> (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128]) = tf)" and
     inv_vextbinop: "e = (instr_sc3 (VEXTBINOP sh_1 sh_2 vextbinop)) \<Longrightarrow> (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128]) = tf)" and
     inv_vnarrow: "e = (instr_sc3 (VNARROW sh_1 sh_2 v_sx)) \<Longrightarrow> (mk_functype (mk_list [valtype_V128, valtype_V128]) (mk_list [valtype_V128])) = tf" and
-    inv_vcvtop: "e = (instr_sc4 (VCVTOP sh sh2 v_vcvtop)) \<Longrightarrow> (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128])) = tf" and
+    inv_vcvtop: "e = (instr_sc3 (VCVTOP sh sh2 v_vcvtop)) \<Longrightarrow> (mk_functype (mk_list [valtype_V128]) (mk_list [valtype_V128])) = tf" and
     inv_local_get: "e = (instr_sc4 (LOCAL_GET x)) \<Longrightarrow>
       (\<exists> t.
       ((proj_uN_0 x) < (length (context_LOCALS C))) \<and>
@@ -293,7 +293,7 @@ lemma Instr_ok_inversion:
       ((proj_uN_0 x) < (length (context_GLOBALS C))) \<and>
 		  (((context_GLOBALS C) ! (proj_uN_0 x)) = (mk_globaltype (Some MUT) t)) \<and>
       ((mk_functype (mk_list [t]) (mk_list [])) = tf))" and
-    inv_table_get: "e = (instr_sc5 (TABLE_GET x)) \<Longrightarrow>
+    inv_table_get: "e = (instr_sc4 (TABLE_GET x)) \<Longrightarrow>
       (\<exists> lim rt.
       ((proj_uN_0 x) < (length (context_TABLES C))) \<and>
 		  (((context_TABLES C) ! (proj_uN_0 x)) = (mk_tabletype lim rt)) \<and>
@@ -368,7 +368,7 @@ lemma Instr_ok_inversion:
       (((context_MEMS C) ! 0) = mt) \<and>
       (wf_memtype mt) \<and>
       ((mk_functype (mk_list [valtype_I32, valtype_I32, valtype_I32]) (mk_list [])) = tf))" and
-    inv_memory_init: "e = (instr_sc7 (MEMORY_INIT x)) \<Longrightarrow>
+    inv_memory_init: "e = (instr_sc6 (MEMORY_INIT x)) \<Longrightarrow>
       (\<exists> mt.
       (0 < (length (context_MEMS C))) \<and>
       (((context_MEMS C) ! 0) = mt) \<and>
@@ -395,7 +395,7 @@ lemma Instr_ok_inversion:
 		  (((2 ^ (proj_uN_0 (ALIGN v_memarg))) :: nat) \<le> ((v_M :: nat) div (8 :: nat)))  \<and>
 		  (wf_memtype mt) \<and>
 		  ((mk_functype (mk_list [valtype_I32]) (mk_list [(valtype_Inn v_Inn)])) = tf))" and
-    inv_store_val: "e = (instr_sc6 (STORE nt None v_memarg)) \<Longrightarrow>
+    inv_store_val: "e = (instr_sc5 (STORE nt None v_memarg)) \<Longrightarrow>
       (\<exists> mt.
       (0 < (length (context_MEMS C))) \<and>
 		  (((context_MEMS C) ! 0) = mt) \<and>
@@ -503,7 +503,7 @@ next
     by fastforce
 next
   case (Instr_ok2__trap s C t_1_lst t_2_lst)
-  show ?case using admininstr_case_73 Instr_ok2__trap.hyps(1,2) Instr_ok2_Instrs_ok2_Expr_ok2.Instr_ok2__trap Instrtype_sub_refl
+  show ?case using admininstr_case_72 Instr_ok2__trap.hyps(1,2) Instr_ok2_Instrs_ok2_Expr_ok2.Instr_ok2__trap Instrtype_sub_refl
     by fastforce
 next
   case Instrs_ok2__empty
@@ -575,7 +575,7 @@ using assms
 proof (induction "s" "C" "(admininstr_sc4 (admininstr_st4_REF_NULL x0))" "(mk_functype (mk_list []) (mk_list [valtype_reftype rt]))" rule: Instr_ok2_Instrs_ok2_Expr_ok2.inducts(1))
   case (plain C v_instr s)
   then have "v_instr = instr_sc4 (REF_NULL x0)"
-    by (simp add: admininstr_instr.domintros(41) admininstr_instr.psimps(41) plain.hyps(5) admininstr_instr_inj)
+    by (simp add: admininstr_instr.domintros(40) admininstr_instr.psimps(40) plain.hyps(5) admininstr_instr_inj)
   then show ?case using assms plain
     by blast
 next
@@ -583,11 +583,11 @@ next
   have "v_ref = ref_REF_NULL x0"
     by (metis Instr_ok2__ref.hyps(4) admininstr.distinct(57) admininstr.inject(5)
       admininstr_ref.cases admininstr_ref.domintros(1,2,3)
-      admininstr_ref.psimps(1,2,3) admininstr_st4.inject(4))
+      admininstr_ref.psimps(1,2,3) admininstr_st4.inject(5))
   then have "rt = x0"
     by (metis \<open>v_ref = ref_REF_NULL x0\<close> Instr_ok2__ref.hyps(1) Ref_ok_ref_NULL_unique)
   then show ?case
-    by (metis Instr_ok2__ref.hyps(3,5) Instr_ok2__ref.prems instr_case_40 ref_null)
+    by (metis Instr_ok2__ref.hyps(3,5) Instr_ok2__ref.prems instr_case_39 ref_null)
 qed (auto)+
 
 lemma inv_plain_ref:
@@ -630,7 +630,7 @@ done
 
 lemma inv_label:
   assumes "Instr_ok2 s C a_e tf"
-  shows "a_e = (admininstr_sc8 (LABEL_underscore v_n instr'_lst admininstr_lst)) \<Longrightarrow>
+  shows "a_e = (admininstr_sc7 (LABEL_underscore v_n instr'_lst admininstr_lst)) \<Longrightarrow>
       (\<exists> t'_lst t_lst.
       (Instrs_ok2 s C (map (\<lambda> (instr' :: instr). (admininstr_instr instr')) instr'_lst) (mk_functype (mk_list t'_lst) (mk_list t_lst))) \<and>
       (Instrs_ok2 s (append_res_context \<lparr> context_TYPES = [], context_FUNCS = [], context_GLOBALS = [], context_TABLES = [], context_MEMS = [], context_ELEMS = [], context_DATAS = [], context_LOCALS = [], LABELS = [(mk_list t'_lst)], context_RETURN = None \<rparr> C) admininstr_lst (mk_functype (mk_list []) (mk_list t_lst))) \<and>
@@ -832,7 +832,7 @@ proof (induction s C e "mk_functype t1 t2" arbitrary: vs t1 t2
       proof (cases v) 
         case (val_VCONST tval vval)
         then show ?thesis using vconst admininstr_val.domintros(2) admininstr_val.psimps(2)
-          admininstr_instr.domintros(21) admininstr_instr.psimps(21) typeofval.domintros(2)
+          admininstr_instr.domintros(20) admininstr_instr.psimps(20) typeofval.domintros(2)
           typeofval.psimps(2) Instrtype_sub_refl valtype_vectype.domintros valtype_vectype.psimps
           newassms(4)
           by simp
@@ -845,7 +845,7 @@ proof (induction s C e "mk_functype t1 t2" arbitrary: vs t1 t2
         case (val_REF_NULL rt')
         then show ?thesis using ref_null admininstr_val.domintros admininstr_val.psimps
           admininstr_instr.domintros admininstr_instr.psimps newassms(4) 
-          by (metis Instrtype_sub_refl admininstr.inject(5) admininstr_st4.inject(4) 
+          by (metis Instrtype_sub_refl admininstr.inject(5) admininstr_st4.inject(5) 
               typeofval.domintros(3)
               typeofval.psimps(3))
        qed(simp add:admininstr_val.domintros admininstr_val.psimps
@@ -1109,7 +1109,7 @@ next
 
 
 lemma inv_label_const_list_br:
-  assumes "Instr_ok2 s C (admininstr_sc8 (LABEL_underscore n es 
+  assumes "Instr_ok2 s C (admininstr_sc7 (LABEL_underscore n es 
             ((map admininstr_val vs @ [admininstr_sc0 (admininstr_st0_BR (mk_uN (Suc l)))]) @ es'))) 
         (mk_functype t1 t2)" 
         "LABELS C ! l = tsb" 
@@ -1221,7 +1221,7 @@ qed
 
 
 lemma inv_label_const_list_return:
-  assumes "Instr_ok2 s C (admininstr_sc8 (LABEL_underscore n es 
+  assumes "Instr_ok2 s C (admininstr_sc7 (LABEL_underscore n es 
             ((map admininstr_val vs @ [admininstr_sc1 (admininstr_st1_RETURN)]) @ es'))) 
         (mk_functype t1 t2)" 
         "context_RETURN C = Some tsb" 
@@ -1366,12 +1366,12 @@ next
     case V128
     then have "wf_instr (instr_sc1 (VCONST V128 x22))" using 
         val_VCONST Instr_ok2_wf_instr wf_admininstr_instr_inv
-      using admininstr_instr.domintros(21) admininstr_instr.psimps(21) admininstr_val.domintros(2)
+      using admininstr_instr.domintros(20) admininstr_instr.psimps(20) admininstr_val.domintros(2)
         admininstr_val.psimps(2) assms by auto
       then show ?thesis using val_VCONST Instr_ok2_wf assms 
           instr_ok_instr_ok2 V128 Instr_ok2_wf_instr 
           vconst
-          admininstr_instr.domintros(21) admininstr_instr.psimps(21)
+          admininstr_instr.domintros(20) admininstr_instr.psimps(20)
           admininstr_val.domintros(2) admininstr_val.psimps(2) typeofval.domintros(2) 
           typeofval.psimps(2) wf_admininstr_val_inv Val_ok__vectype
           valtype_vectype.domintros valtype_vectype.psimps
@@ -1381,7 +1381,7 @@ next
   case (val_REF_NULL x3)
   then have "wf_instr (instr_sc4 (REF_NULL x3))" using 
     Instr_ok2_wf_instr assms wf_admininstr_instr_inv
-    using instr_case_40 by presburger
+    using instr_case_39 by presburger
   then show ?thesis using Instr_ok2_wf assms 
     instr_ok_instr_ok2 ref_null Instr_ok2_wf_instr wf_admininstr_val_inv Val_ok__reftype null
     admininstr_instr.domintros admininstr_instr.psimps admininstr_val.domintros admininstr_val.psimps

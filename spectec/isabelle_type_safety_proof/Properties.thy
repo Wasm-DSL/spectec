@@ -1651,10 +1651,10 @@ next
 next
   case (ctxt_label z ais z' ais' v_n instr_0_lst)
   have z: "z = mk_state s f" "z' = mk_state s' f'"
-    and es: "admininstr_lst = [admininstr_sc8 (LABEL_underscore v_n instr_0_lst ais)]"
+    and es: "admininstr_lst = [admininstr_sc7 (LABEL_underscore v_n instr_0_lst ais)]"
     using ctxt_label.prems(1,2) by auto
   obtain t1 t2 where tf: "tf = mk_functype t1 t2" by (cases tf)
-  obtain tp1 tp2 where lab_ok: "Instr_ok2 s C (admininstr_sc8 (LABEL_underscore v_n instr_0_lst ais)) (mk_functype tp1 tp2)"
+  obtain tp1 tp2 where lab_ok: "Instr_ok2 s C (admininstr_sc7 (LABEL_underscore v_n instr_0_lst ais)) (mk_functype tp1 tp2)"
     using inv_one_admininstr ctxt_label.prems(5) es tf by blast
   obtain C_in tf_in where inner: "Instrs_ok2 s C_in ais tf_in" and match_in: "t_inst_match C_in C"
     using inv_label[OF lab_ok HOL.refl] by (fastforce simp: t_inst_match_def append_res_context_def)
