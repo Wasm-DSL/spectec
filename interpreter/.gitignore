@@ -1,6 +1,0 @@
-_build
-wasm
-*.install
-*.js
-*.zip
-opam

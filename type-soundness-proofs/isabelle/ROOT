@@ -1,0 +1,4 @@
+session Wasm2_Spec = Main +
+  options [quick_and_dirty] 
+  theories
+    isabelle_reference_output_wasm2

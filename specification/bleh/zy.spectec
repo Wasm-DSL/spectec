@@ -1,2 +1,0 @@
-def $Ki : nat hint(partial)
-def $Ki = 1024 -- if false
