@@ -1,12 +1,34 @@
-(lang dune 3.23)
+(lang dune 3.21)
 (using rocq 0.11)
+(using mdx 0.2)
+(name rocq-proof)
+(version 2.0)
+
 (generate_opam_files true)
+(license MIT)
+(source (github Wasm-DSL/spectec))
 
 (package
-  (name test-rocq)
+  (name rocq-proof)
   (synopsis "Spectec Wasm formalisation in Rocq")
+  (description "Proof of Type Soundness for the SpecTec-Generated Wasm 2.0 Rocq Definitions")
   (depends
-    (rocq (>= 9.0))
-    (rocq-mathcomp-ssreflect (and (>= 2.0.0) (<= 2.4.0)))
+   (rocq-core (>= 9.3.0))
+   (rocq-mathcomp-ssreflect (>= 2.6.0))
+   (rocq-stdlib (>= 9.2.0))
+   (coq-record-update (>= 0.3.6))
+   (coq-flocq (>= 4.2.2))
+   (coq-compcert (>= 3.18))
+   (coq-ext-lib (>= 0.13.2))
+   (rocq-parseque (>= 0.3.1))
+   (coq-wasm (>= 2.2.1))
+       )	 
+  (maintainers
+  anonymous
+    )
+  (authors
+  anonymous
   )
-)
+  )
+
+

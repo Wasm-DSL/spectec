@@ -1,5 +1,7 @@
 default:
-	opam install rocq-runtime
+	rm -f *.opam
+	dune build @opam
+	opam repo add rocq-released https://rocq-prover.org/opam/released
 	opam install .
 
 clean:
