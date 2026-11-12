@@ -6,11 +6,13 @@ their associated type soundness proofs.
 
 # Overview
 
-This repository contains three folders: `spectec/` contains the codebase for building
+This repository contains fours folders: `spectec/` contains the codebase for building
 the SpecTec compiler. `wasm-definitions/` contains the SpecTec DSL code for the Wasm
 1.0, Wasm 2.0 and Wasm 3.0. This can be used to test the executable generated when
 building `spectec/` (see instructions below). `type-soundness-proof/` contains the
-mechanised type soundness proofs in all three proof assistants (Rocq, Isabelle and Lean)
+mechanised type soundness proofs in all three proof assistants (Rocq, Isabelle and Lean).
+The `interpreter/` folder can be ignored, it is only present as a technical dependency
+for the `spectec/` folder.
 
 # Building Spectec
 
