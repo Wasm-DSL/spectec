@@ -42,6 +42,21 @@ spectec/spectec --isabelle wasm-definitions/wasm-2.0/* -o wasm2_in_isabelle.thy
 Note that the output code will contain proof obligations corresponding to well-formedness
 lemmas. These must be proved manually, and we show one solution in `type-soundness-proof/`.
 
+# Browsing the Code for the Backends
+
+The code that builds the SpecTec exucutable is in `spectec/src/`. Some documentation
+is available in `spectec/doc/` to understand the intermediate representations.
+
+The contents of `spectec/src/` are divided into folders that should make navigation intuitive.
+We only mention the most important files:
+
+- The point of entry is in `spectec/src/exe-spectec/main.ml`
+- The AST for the intermediate language (IL) is in `spectec/src/il/ast.ml`
+- The numerous IL-to-IL passes are in `spectec/src/middlend/`
+- The Rocq backend is in `spectec/src/backend-rocq/print.ml`
+- The Isabelle backend is in `spectec/src/backend-isabelle/print.ml`
+- The Lean backend is in `spectec/src/backend-lean/backend.ml`
+
 # Browsing the Type Soundness Proofs
 
 Repository `type-soundness-proof/` contains three folders: `type-soundness-proof/rocq/`,
