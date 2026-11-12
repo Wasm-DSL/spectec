@@ -1,0 +1,20 @@
+--- OLD/TypePreservation.lean
++++ NEW/TypePreservation.lean
+@@ -1344,7 +1344,7 @@
+ 
+ theorem wf_vconst_parts {vt : vectype} {c : vec_} (h : wf_admininstr (admininstr.VCONST vt c)) :
+     size (valtype_vectype vt) ≠ none ∧ wf_uN (Option.get! (size (valtype_vectype vt))) c := by
+-  cases h with | admininstr_case_20 _ _ h1 h2 => exact ⟨h1, h2⟩
++  cases h with | admininstr_case_19 _ _ h1 h2 => exact ⟨h1, h2⟩
+ 
+ /-- Rocq `store_extension_reduce`, the four memory-store cases (`store_num_val`,
+     `store_pack_val`, `vstore_val`, `vstore_lane_val`), stated over the rules' `fun_with_mem`
+@@ -2161,7 +2161,7 @@
+     subst h6
+     have hwfF := hwf' _ (List.mem_singleton_self _)
+     have hwfL : wf_admininstr (admininstr.LABEL_ v_n [] (Map (fun (v_instr_elem : instr) => admininstr_instr v_instr_elem) instr_lst)) := by
+-      cases hwfF with | admininstr_case_72 _ _ _ _ hl => exact hl _ (List.mem_singleton_self _)
++      cases hwfF with | admininstr_case_71 _ _ _ _ hl => exact hl _ (List.mem_singleton_self _)
+     have hwfCL : wf_context ({
+         TYPES := [], FUNCS := [], GLOBALS := [], TABLES := [], MEMS := [], ELEMS := [], DATAS := [],
+         LOCALS := t_1_lst ++ t_lst, LABELS := [], RETURN := none } : context) :=

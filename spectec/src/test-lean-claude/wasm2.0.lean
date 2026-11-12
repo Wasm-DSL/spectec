@@ -1929,7 +1929,7 @@ inductive wf_blocktype : blocktype → Prop where
     wf_blocktype (blocktype._IDX v_typeidx)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 -/
+/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.1-552.22 -/
 inductive instr : Type where
   | NOP : instr
   | UNREACHABLE : instr
@@ -1950,7 +1950,6 @@ inductive instr : Type where
   | TESTOP (v_numtype : numtype) (_ : testop_) : instr
   | RELOP (v_numtype : numtype) (_ : relop_) : instr
   | CVTOP (numtype_1 : numtype) (numtype_2 : numtype) (_ : cvtop__) : instr
-  | EXTEND (v_numtype : numtype) (v_n : n) : instr
   | VCONST (v_vectype : vectype) (_ : vec_) : instr
   | VVUNOP (v_vectype : vectype) (v_vvunop : vvunop) : instr
   | VVBINOP (v_vectype : vectype) (v_vvbinop : vvbinop) : instr
@@ -2003,7 +2002,7 @@ deriving Inhabited, BEq
 
 derive_deceq instr
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.8-552.13 -/
+/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.8-551.13 -/
 inductive wf_instr : instr → Prop where
   | instr_case_0 : wf_instr instr.NOP
   | instr_case_1 : wf_instr instr.UNREACHABLE
@@ -2059,133 +2058,132 @@ inductive wf_instr : instr → Prop where
     wf_cvtop__ numtype_2 numtype_1 var_0 →
     numtype_1 ≠ numtype_2 →
     wf_instr (instr.CVTOP numtype_1 numtype_2 var_0)
-  | instr_case_19 (v_numtype : numtype) (v_n : n) : wf_instr (instr.EXTEND v_numtype v_n)
-  | instr_case_20 (v_vectype : vectype) (var_0 : vec_) :
+  | instr_case_19 (v_vectype : vectype) (var_0 : vec_) :
     (size (valtype_vectype v_vectype)) ≠ none →
     wf_uN (Option.get! (size (valtype_vectype v_vectype))) var_0 →
     wf_instr (instr.VCONST v_vectype var_0)
-  | instr_case_21 (v_vectype : vectype) (v_vvunop : vvunop) : wf_instr (instr.VVUNOP v_vectype v_vvunop)
-  | instr_case_22 (v_vectype : vectype) (v_vvbinop : vvbinop) : wf_instr (instr.VVBINOP v_vectype v_vvbinop)
-  | instr_case_23 (v_vectype : vectype) (v_vvternop : vvternop) : wf_instr (instr.VVTERNOP v_vectype v_vvternop)
-  | instr_case_24 (v_vectype : vectype) (v_vvtestop : vvtestop) : wf_instr (instr.VVTESTOP v_vectype v_vvtestop)
-  | instr_case_25 (v_shape : shape) (var_0 : vunop_) :
+  | instr_case_20 (v_vectype : vectype) (v_vvunop : vvunop) : wf_instr (instr.VVUNOP v_vectype v_vvunop)
+  | instr_case_21 (v_vectype : vectype) (v_vvbinop : vvbinop) : wf_instr (instr.VVBINOP v_vectype v_vvbinop)
+  | instr_case_22 (v_vectype : vectype) (v_vvternop : vvternop) : wf_instr (instr.VVTERNOP v_vectype v_vvternop)
+  | instr_case_23 (v_vectype : vectype) (v_vvtestop : vvtestop) : wf_instr (instr.VVTESTOP v_vectype v_vvtestop)
+  | instr_case_24 (v_shape : shape) (var_0 : vunop_) :
     wf_shape v_shape →
     wf_vunop_ v_shape var_0 →
     wf_instr (instr.VUNOP v_shape var_0)
-  | instr_case_26 (v_shape : shape) (var_0 : vbinop_) :
+  | instr_case_25 (v_shape : shape) (var_0 : vbinop_) :
     wf_shape v_shape →
     wf_vbinop_ v_shape var_0 →
     wf_instr (instr.VBINOP v_shape var_0)
-  | instr_case_27 (v_shape : shape) (var_0 : vtestop_) :
+  | instr_case_26 (v_shape : shape) (var_0 : vtestop_) :
     wf_shape v_shape →
     wf_vtestop_ v_shape var_0 →
     wf_instr (instr.VTESTOP v_shape var_0)
-  | instr_case_28 (v_shape : shape) (var_0 : vrelop_) :
+  | instr_case_27 (v_shape : shape) (var_0 : vrelop_) :
     wf_shape v_shape →
     wf_vrelop_ v_shape var_0 →
     wf_instr (instr.VRELOP v_shape var_0)
-  | instr_case_29 (v_ishape : ishape) (var_0 : vshiftop_) :
+  | instr_case_28 (v_ishape : ishape) (var_0 : vshiftop_) :
     wf_ishape v_ishape →
     wf_vshiftop_ v_ishape var_0 →
     wf_instr (instr.VSHIFTOP v_ishape var_0)
-  | instr_case_30 (v_ishape : ishape) :
+  | instr_case_29 (v_ishape : ishape) :
     wf_ishape v_ishape →
     wf_instr (instr.VBITMASK v_ishape)
-  | instr_case_31 (v_ishape : ishape) :
+  | instr_case_30 (v_ishape : ishape) :
     wf_ishape v_ishape →
     v_ishape = (ishape.mk_ishape (shape.X lanetype.I8 (dim.mk_dim 16))) →
     wf_instr (instr.VSWIZZLE v_ishape)
-  | instr_case_32 (v_ishape : ishape) (laneidx_lst : List laneidx) :
+  | instr_case_31 (v_ishape : ishape) (laneidx_lst : List laneidx) :
     wf_ishape v_ishape →
     Forall (fun (v_laneidx_elem : laneidx) => wf_uN 8 v_laneidx_elem) laneidx_lst →
     (v_ishape = (ishape.mk_ishape (shape.X lanetype.I8 (dim.mk_dim 16)))) ∧ ((List.length laneidx_lst) = 16) →
     wf_instr (instr.VSHUFFLE v_ishape laneidx_lst)
-  | instr_case_33 (v_shape : shape) :
+  | instr_case_32 (v_shape : shape) :
     wf_shape v_shape →
     wf_instr (instr.VSPLAT v_shape)
-  | instr_case_34 (v_shape : shape) (sx_opt : Option sx) (v_laneidx : laneidx) :
+  | instr_case_33 (v_shape : shape) (sx_opt : Option sx) (v_laneidx : laneidx) :
     wf_shape v_shape →
     wf_uN 8 v_laneidx →
     (List.length [lanetype.I32, lanetype.I64, lanetype.F32, lanetype.F64]) > 0 →
     ((List.contains [lanetype.I32, lanetype.I64, lanetype.F32, lanetype.F64] (fun_lanetype v_shape)) ↔ (sx_opt = none)) →
     wf_instr (instr.VEXTRACT_LANE v_shape sx_opt v_laneidx)
-  | instr_case_35 (v_shape : shape) (v_laneidx : laneidx) :
+  | instr_case_34 (v_shape : shape) (v_laneidx : laneidx) :
     wf_shape v_shape →
     wf_uN 8 v_laneidx →
     wf_instr (instr.VREPLACE_LANE v_shape v_laneidx)
-  | instr_case_36 (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextunop__) :
+  | instr_case_35 (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextunop__) :
     wf_ishape ishape_1 →
     wf_ishape ishape_2 →
     wf_vextunop__ ishape_2 ishape_1 var_0 →
     wf_instr (instr.VEXTUNOP ishape_1 ishape_2 var_0)
-  | instr_case_37 (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextbinop__) :
+  | instr_case_36 (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextbinop__) :
     wf_ishape ishape_1 →
     wf_ishape ishape_2 →
     wf_vextbinop__ ishape_2 ishape_1 var_0 →
     wf_instr (instr.VEXTBINOP ishape_1 ishape_2 var_0)
-  | instr_case_38 (ishape_1 : ishape) (ishape_2 : ishape) (v_sx : sx) (var_1 : Nat) (var_0 : Nat) :
+  | instr_case_37 (ishape_1 : ishape) (ishape_2 : ishape) (v_sx : sx) (var_1 : Nat) (var_0 : Nat) :
     fun_lsize (fun_lanetype (proj_ishape_0 ishape_1)) var_1 →
     fun_lsize (fun_lanetype (proj_ishape_0 ishape_2)) var_0 →
     wf_ishape ishape_1 →
     wf_ishape ishape_2 →
     (var_0 = (2 * var_1)) ∧ ((2 * var_1) ≤ 32) →
     wf_instr (instr.VNARROW ishape_1 ishape_2 v_sx)
-  | instr_case_39 (shape_1 : shape) (shape_2 : shape) (var_0 : vcvtop__) :
+  | instr_case_38 (shape_1 : shape) (shape_2 : shape) (var_0 : vcvtop__) :
     wf_shape shape_1 →
     wf_shape shape_2 →
     wf_vcvtop__ shape_2 shape_1 var_0 →
     wf_instr (instr.VCVTOP shape_1 shape_2 var_0)
-  | instr_case_40 (v_reftype : reftype) : wf_instr (instr.REF_NULL v_reftype)
-  | instr_case_41 (v_funcidx : funcidx) :
+  | instr_case_39 (v_reftype : reftype) : wf_instr (instr.REF_NULL v_reftype)
+  | instr_case_40 (v_funcidx : funcidx) :
     wf_uN 32 v_funcidx →
     wf_instr (instr.REF_FUNC v_funcidx)
-  | instr_case_42 : wf_instr instr.REF_IS_NULL
-  | instr_case_43 (v_localidx : localidx) :
+  | instr_case_41 : wf_instr instr.REF_IS_NULL
+  | instr_case_42 (v_localidx : localidx) :
     wf_uN 32 v_localidx →
     wf_instr (instr.LOCAL_GET v_localidx)
-  | instr_case_44 (v_localidx : localidx) :
+  | instr_case_43 (v_localidx : localidx) :
     wf_uN 32 v_localidx →
     wf_instr (instr.LOCAL_SET v_localidx)
-  | instr_case_45 (v_localidx : localidx) :
+  | instr_case_44 (v_localidx : localidx) :
     wf_uN 32 v_localidx →
     wf_instr (instr.LOCAL_TEE v_localidx)
-  | instr_case_46 (v_globalidx : globalidx) :
+  | instr_case_45 (v_globalidx : globalidx) :
     wf_uN 32 v_globalidx →
     wf_instr (instr.GLOBAL_GET v_globalidx)
-  | instr_case_47 (v_globalidx : globalidx) :
+  | instr_case_46 (v_globalidx : globalidx) :
     wf_uN 32 v_globalidx →
     wf_instr (instr.GLOBAL_SET v_globalidx)
-  | instr_case_48 (v_tableidx : tableidx) :
+  | instr_case_47 (v_tableidx : tableidx) :
     wf_uN 32 v_tableidx →
     wf_instr (instr.TABLE_GET v_tableidx)
-  | instr_case_49 (v_tableidx : tableidx) :
+  | instr_case_48 (v_tableidx : tableidx) :
     wf_uN 32 v_tableidx →
     wf_instr (instr.TABLE_SET v_tableidx)
-  | instr_case_50 (v_tableidx : tableidx) :
+  | instr_case_49 (v_tableidx : tableidx) :
     wf_uN 32 v_tableidx →
     wf_instr (instr.TABLE_SIZE v_tableidx)
-  | instr_case_51 (v_tableidx : tableidx) :
+  | instr_case_50 (v_tableidx : tableidx) :
     wf_uN 32 v_tableidx →
     wf_instr (instr.TABLE_GROW v_tableidx)
-  | instr_case_52 (v_tableidx : tableidx) :
+  | instr_case_51 (v_tableidx : tableidx) :
     wf_uN 32 v_tableidx →
     wf_instr (instr.TABLE_FILL v_tableidx)
-  | instr_case_53 (v_tableidx : tableidx) (tableidx_0 : tableidx) :
+  | instr_case_52 (v_tableidx : tableidx) (tableidx_0 : tableidx) :
     wf_uN 32 v_tableidx →
     wf_uN 32 tableidx_0 →
     wf_instr (instr.TABLE_COPY v_tableidx tableidx_0)
-  | instr_case_54 (v_tableidx : tableidx) (v_elemidx : elemidx) :
+  | instr_case_53 (v_tableidx : tableidx) (v_elemidx : elemidx) :
     wf_uN 32 v_tableidx →
     wf_uN 32 v_elemidx →
     wf_instr (instr.TABLE_INIT v_tableidx v_elemidx)
-  | instr_case_55 (v_elemidx : elemidx) :
+  | instr_case_54 (v_elemidx : elemidx) :
     wf_uN 32 v_elemidx →
     wf_instr (instr.ELEM_DROP v_elemidx)
-  | instr_case_56 (v_numtype : numtype) (var_0_opt : Option loadop_) (v_memarg : memarg) :
+  | instr_case_55 (v_numtype : numtype) (var_0_opt : Option loadop_) (v_memarg : memarg) :
     Forall (fun (var_0_elem : loadop_) => wf_loadop_ v_numtype var_0_elem) (Option.toList var_0_opt) →
     wf_memarg v_memarg →
     wf_instr (instr.LOAD v_numtype var_0_opt v_memarg)
-  | instr_case_57 (Inn_opt : Option Inn) (v_numtype : numtype) (sz_opt : Option sz) (v_memarg : memarg) (var_0_opt : Option Nat) :
+  | instr_case_56 (Inn_opt : Option Inn) (v_numtype : numtype) (sz_opt : Option sz) (v_memarg : memarg) (var_0_opt : Option Nat) :
     ((var_0_opt = none) ↔ (Inn_opt = none)) →
     Forall₂ (fun (var_0_elem : Nat) (v_Inn_elem : Inn) => fun_sizenn (numtype_Inn v_Inn_elem) var_0_elem) (Option.toList var_0_opt) (Option.toList Inn_opt) →
     Forall (fun (v_sz_elem : sz) => wf_sz v_sz_elem) (Option.toList sz_opt) →
@@ -2194,39 +2192,39 @@ inductive wf_instr : instr → Prop where
     ((var_0_opt = none) ↔ (sz_opt = none)) →
     Forall₃ (fun (var_0_elem : Nat) (v_Inn_elem : Inn) (v_sz_elem : sz) => (v_numtype = (numtype_Inn v_Inn_elem)) ∧ ((proj_sz_0 v_sz_elem) < var_0_elem)) (Option.toList var_0_opt) (Option.toList Inn_opt) (Option.toList sz_opt) →
     wf_instr (instr.STORE v_numtype sz_opt v_memarg)
-  | instr_case_58 (v_vectype : vectype) (var_0_opt : Option vloadop_) (v_memarg : memarg) :
+  | instr_case_57 (v_vectype : vectype) (var_0_opt : Option vloadop_) (v_memarg : memarg) :
     Forall (fun (var_0_elem : vloadop_) => wf_vloadop_ v_vectype var_0_elem) (Option.toList var_0_opt) →
     wf_memarg v_memarg →
     wf_instr (instr.VLOAD v_vectype var_0_opt v_memarg)
-  | instr_case_59 (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) :
+  | instr_case_58 (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) :
     wf_sz v_sz →
     wf_memarg v_memarg →
     wf_uN 8 v_laneidx →
     wf_instr (instr.VLOAD_LANE v_vectype v_sz v_memarg v_laneidx)
-  | instr_case_60 (v_vectype : vectype) (v_memarg : memarg) :
+  | instr_case_59 (v_vectype : vectype) (v_memarg : memarg) :
     wf_memarg v_memarg →
     wf_instr (instr.VSTORE v_vectype v_memarg)
-  | instr_case_61 (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) :
+  | instr_case_60 (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) :
     wf_sz v_sz →
     wf_memarg v_memarg →
     wf_uN 8 v_laneidx →
     wf_instr (instr.VSTORE_LANE v_vectype v_sz v_memarg v_laneidx)
-  | instr_case_62 : wf_instr instr.MEMORY_SIZE
-  | instr_case_63 : wf_instr instr.MEMORY_GROW
-  | instr_case_64 : wf_instr instr.MEMORY_FILL
-  | instr_case_65 : wf_instr instr.MEMORY_COPY
-  | instr_case_66 (v_dataidx : dataidx) :
+  | instr_case_61 : wf_instr instr.MEMORY_SIZE
+  | instr_case_62 : wf_instr instr.MEMORY_GROW
+  | instr_case_63 : wf_instr instr.MEMORY_FILL
+  | instr_case_64 : wf_instr instr.MEMORY_COPY
+  | instr_case_65 (v_dataidx : dataidx) :
     wf_uN 32 v_dataidx →
     wf_instr (instr.MEMORY_INIT v_dataidx)
-  | instr_case_67 (v_dataidx : dataidx) :
+  | instr_case_66 (v_dataidx : dataidx) :
     wf_uN 32 v_dataidx →
     wf_instr (instr.DATA_DROP v_dataidx)
 
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:556.1-557.9 -/
+/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:555.1-556.9 -/
 abbrev expr : Type := List instr
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.1-569.59 -/
+/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:568.1-568.59 -/
 inductive elemmode : Type where
   | ACTIVE (v_tableidx : tableidx) (v_expr : expr) : elemmode
   | PASSIVE : elemmode
@@ -2235,7 +2233,7 @@ deriving Inhabited, BEq
 
 derive_deceq elemmode
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.8-569.16 -/
+/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:568.8-568.16 -/
 inductive wf_elemmode : elemmode → Prop where
   | elemmode_case_0 (v_tableidx : tableidx) (v_expr : expr) :
     wf_uN 32 v_tableidx →
@@ -2245,7 +2243,7 @@ inductive wf_elemmode : elemmode → Prop where
   | elemmode_case_2 : wf_elemmode elemmode.DECLARE
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:570.1-570.47 -/
+/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.1-569.47 -/
 inductive datamode : Type where
   | ACTIVE (v_memidx : memidx) (v_expr : expr) : datamode
   | PASSIVE : datamode
@@ -2253,7 +2251,7 @@ deriving Inhabited, BEq
 
 derive_deceq datamode
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:570.8-570.16 -/
+/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.8-569.16 -/
 inductive wf_datamode : datamode → Prop where
   | datamode_case_0 (v_memidx : memidx) (v_expr : expr) :
     wf_uN 32 v_memidx →
@@ -2262,24 +2260,24 @@ inductive wf_datamode : datamode → Prop where
   | datamode_case_1 : wf_datamode datamode.PASSIVE
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:572.1-573.16 -/
+/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:571.1-572.16 -/
 inductive type : Type where
   | TYPE (v_functype : functype) : type
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:574.1-575.16 -/
+/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:573.1-574.16 -/
 inductive «local» : Type where
   | LOCAL (v_valtype : valtype) : «local»
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:576.1-577.27 -/
+/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:575.1-576.27 -/
 inductive func : Type where
   | FUNC (v_typeidx : typeidx) (local_lst : List «local») (v_expr : expr) : func
 deriving Inhabited, BEq
 
 derive_deceq func
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:576.8-576.12 -/
+/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:575.8-575.12 -/
 inductive wf_func : func → Prop where
   | func_case_0 (v_typeidx : typeidx) (local_lst : List «local») (v_expr : expr) :
     wf_uN 32 v_typeidx →
@@ -2287,52 +2285,52 @@ inductive wf_func : func → Prop where
     wf_func (func.FUNC v_typeidx local_lst v_expr)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:578.1-579.25 -/
+/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:577.1-578.25 -/
 inductive global : Type where
   | GLOBAL (v_globaltype : globaltype) (v_expr : expr) : global
 deriving Inhabited, BEq
 
 derive_deceq global
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:578.8-578.14 -/
+/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:577.8-577.14 -/
 inductive wf_global : global → Prop where
   | global_case_0 (v_globaltype : globaltype) (v_expr : expr) :
     Forall (fun (v_expr_elem : instr) => wf_instr v_expr_elem) v_expr →
     wf_global (global.GLOBAL v_globaltype v_expr)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:580.1-581.18 -/
+/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:579.1-580.18 -/
 inductive table : Type where
   | TABLE (v_tabletype : tabletype) : table
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:580.8-580.13 -/
+/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:579.8-579.13 -/
 inductive wf_table : table → Prop where
   | table_case_0 (v_tabletype : tabletype) :
     wf_tabletype v_tabletype →
     wf_table (table.TABLE v_tabletype)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:582.1-583.17 -/
+/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:581.1-582.17 -/
 inductive mem : Type where
   | MEMORY (v_memtype : memtype) : mem
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:582.8-582.11 -/
+/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:581.8-581.11 -/
 inductive wf_mem : mem → Prop where
   | mem_case_0 (v_memtype : memtype) :
     wf_memtype v_memtype →
     wf_mem (mem.MEMORY v_memtype)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:584.1-585.30 -/
+/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:583.1-584.30 -/
 inductive elem : Type where
   | ELEM (v_reftype : reftype) (expr_lst : List expr) (v_elemmode : elemmode) : elem
 deriving Inhabited, BEq
 
 derive_deceq elem
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:584.8-584.12 -/
+/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:583.8-583.12 -/
 inductive wf_elem : elem → Prop where
   | elem_case_0 (v_reftype : reftype) (expr_lst : List expr) (v_elemmode : elemmode) :
     Forall (fun (v_expr_elem : expr) => Forall (fun (v_expr_elem : instr) => wf_instr v_expr_elem) v_expr_elem) expr_lst →
@@ -2340,14 +2338,14 @@ inductive wf_elem : elem → Prop where
     wf_elem (elem.ELEM v_reftype expr_lst v_elemmode)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:586.1-587.22 -/
+/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:585.1-586.22 -/
 inductive data : Type where
   | DATA (byte_lst : List byte) (v_datamode : datamode) : data
 deriving Inhabited, BEq
 
 derive_deceq data
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:586.8-586.12 -/
+/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:585.8-585.12 -/
 inductive wf_data : data → Prop where
   | data_case_0 (byte_lst : List byte) (v_datamode : datamode) :
     Forall (fun (v_byte_elem : byte) => wf_byte v_byte_elem) byte_lst →
@@ -2355,19 +2353,19 @@ inductive wf_data : data → Prop where
     wf_data (data.DATA byte_lst v_datamode)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:588.1-589.16 -/
+/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:587.1-588.16 -/
 inductive start : Type where
   | START (v_funcidx : funcidx) : start
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:588.8-588.13 -/
+/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:587.8-587.13 -/
 inductive wf_start : start → Prop where
   | start_case_0 (v_funcidx : funcidx) :
     wf_uN 32 v_funcidx →
     wf_start (start.START v_funcidx)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:591.1-592.66 -/
+/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:590.1-591.66 -/
 inductive externidx : Type where
   | FUNC (v_funcidx : funcidx) : externidx
   | GLOBAL (v_globalidx : globalidx) : externidx
@@ -2375,7 +2373,7 @@ inductive externidx : Type where
   | MEM (v_memidx : memidx) : externidx
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:591.8-591.17 -/
+/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:590.8-590.17 -/
 inductive wf_externidx : externidx → Prop where
   | externidx_case_0 (v_funcidx : funcidx) :
     wf_uN 32 v_funcidx →
@@ -2391,12 +2389,12 @@ inductive wf_externidx : externidx → Prop where
     wf_externidx (externidx.MEM v_memidx)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:593.1-594.24 -/
+/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:592.1-593.24 -/
 inductive «export» : Type where
   | EXPORT (v_name : name) (v_externidx : externidx) : «export»
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:593.8-593.14 -/
+/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:592.8-592.14 -/
 inductive wf_export : «export» → Prop where
   | export_case_0 (v_name : name) (v_externidx : externidx) :
     wf_name v_name →
@@ -2404,12 +2402,12 @@ inductive wf_export : «export» → Prop where
     wf_export (export.EXPORT v_name v_externidx)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:595.1-596.30 -/
+/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:594.1-595.30 -/
 inductive «import» : Type where
   | IMPORT (v_name_0 : name) (v_name_1 : name) (v_externtype : externtype) : «import»
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:595.8-595.14 -/
+/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:594.8-594.14 -/
 inductive wf_import : «import» → Prop where
   | import_case_0 (v_name : name) (name_0 : name) (v_externtype : externtype) :
     wf_name v_name →
@@ -2418,14 +2416,14 @@ inductive wf_import : «import» → Prop where
     wf_import (import.IMPORT v_name name_0 v_externtype)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:598.1-599.76 -/
+/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:597.1-598.76 -/
 inductive module : Type where
   | MODULE (type_lst : List type) (import_lst : List «import») (func_lst : List func) (global_lst : List global) (table_lst : List table) (mem_lst : List mem) (elem_lst : List elem) (data_lst : List data) (start_opt : Option start) (export_lst : List «export») : module
 deriving Inhabited, BEq
 
 derive_deceq module
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:598.8-598.14 -/
+/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:597.8-597.14 -/
 inductive wf_module : module → Prop where
   | module_case_0 (type_lst : List type) (import_lst : List «import») (func_lst : List func) (global_lst : List global) (table_lst : List table) (mem_lst : List mem) (elem_lst : List elem) (data_lst : List data) (start_opt : Option start) (export_lst : List «export») :
     Forall (fun (v_import_elem : «import») => wf_import v_import_elem) import_lst →
@@ -12203,7 +12201,6 @@ inductive admininstr : Type where
   | TESTOP (v_numtype : numtype) (_ : testop_) : admininstr
   | RELOP (v_numtype : numtype) (_ : relop_) : admininstr
   | CVTOP (numtype_1 : numtype) (numtype_2 : numtype) (_ : cvtop__) : admininstr
-  | EXTEND (v_numtype : numtype) (v_n : n) : admininstr
   | VCONST (v_vectype : vectype) (_ : vec_) : admininstr
   | VVUNOP (v_vectype : vectype) (v_vvunop : vvunop) : admininstr
   | VVBINOP (v_vectype : vectype) (v_vvbinop : vvbinop) : admininstr
@@ -12284,7 +12281,6 @@ def admininstr_instr (var_0 : instr) : admininstr :=
   | instr.TESTOP x0 x1 => admininstr.TESTOP x0 x1
   | instr.RELOP x0 x1 => admininstr.RELOP x0 x1
   | instr.CVTOP x0 x1 x2 => admininstr.CVTOP x0 x1 x2
-  | instr.EXTEND x0 x1 => admininstr.EXTEND x0 x1
   | instr.VCONST x0 x1 => admininstr.VCONST x0 x1
   | instr.VVUNOP x0 x1 => admininstr.VVUNOP x0 x1
   | instr.VVBINOP x0 x1 => admininstr.VVBINOP x0 x1
@@ -12406,133 +12402,132 @@ inductive wf_admininstr : admininstr → Prop where
     wf_cvtop__ numtype_2 numtype_1 var_0 →
     numtype_1 ≠ numtype_2 →
     wf_admininstr (admininstr.CVTOP numtype_1 numtype_2 var_0)
-  | admininstr_case_19 (v_numtype : numtype) (v_n : n) : wf_admininstr (admininstr.EXTEND v_numtype v_n)
-  | admininstr_case_20 (v_vectype : vectype) (var_0 : vec_) :
+  | admininstr_case_19 (v_vectype : vectype) (var_0 : vec_) :
     (size (valtype_vectype v_vectype)) ≠ none →
     wf_uN (Option.get! (size (valtype_vectype v_vectype))) var_0 →
     wf_admininstr (admininstr.VCONST v_vectype var_0)
-  | admininstr_case_21 (v_vectype : vectype) (v_vvunop : vvunop) : wf_admininstr (admininstr.VVUNOP v_vectype v_vvunop)
-  | admininstr_case_22 (v_vectype : vectype) (v_vvbinop : vvbinop) : wf_admininstr (admininstr.VVBINOP v_vectype v_vvbinop)
-  | admininstr_case_23 (v_vectype : vectype) (v_vvternop : vvternop) : wf_admininstr (admininstr.VVTERNOP v_vectype v_vvternop)
-  | admininstr_case_24 (v_vectype : vectype) (v_vvtestop : vvtestop) : wf_admininstr (admininstr.VVTESTOP v_vectype v_vvtestop)
-  | admininstr_case_25 (v_shape : shape) (var_0 : vunop_) :
+  | admininstr_case_20 (v_vectype : vectype) (v_vvunop : vvunop) : wf_admininstr (admininstr.VVUNOP v_vectype v_vvunop)
+  | admininstr_case_21 (v_vectype : vectype) (v_vvbinop : vvbinop) : wf_admininstr (admininstr.VVBINOP v_vectype v_vvbinop)
+  | admininstr_case_22 (v_vectype : vectype) (v_vvternop : vvternop) : wf_admininstr (admininstr.VVTERNOP v_vectype v_vvternop)
+  | admininstr_case_23 (v_vectype : vectype) (v_vvtestop : vvtestop) : wf_admininstr (admininstr.VVTESTOP v_vectype v_vvtestop)
+  | admininstr_case_24 (v_shape : shape) (var_0 : vunop_) :
     wf_shape v_shape →
     wf_vunop_ v_shape var_0 →
     wf_admininstr (admininstr.VUNOP v_shape var_0)
-  | admininstr_case_26 (v_shape : shape) (var_0 : vbinop_) :
+  | admininstr_case_25 (v_shape : shape) (var_0 : vbinop_) :
     wf_shape v_shape →
     wf_vbinop_ v_shape var_0 →
     wf_admininstr (admininstr.VBINOP v_shape var_0)
-  | admininstr_case_27 (v_shape : shape) (var_0 : vtestop_) :
+  | admininstr_case_26 (v_shape : shape) (var_0 : vtestop_) :
     wf_shape v_shape →
     wf_vtestop_ v_shape var_0 →
     wf_admininstr (admininstr.VTESTOP v_shape var_0)
-  | admininstr_case_28 (v_shape : shape) (var_0 : vrelop_) :
+  | admininstr_case_27 (v_shape : shape) (var_0 : vrelop_) :
     wf_shape v_shape →
     wf_vrelop_ v_shape var_0 →
     wf_admininstr (admininstr.VRELOP v_shape var_0)
-  | admininstr_case_29 (v_ishape : ishape) (var_0 : vshiftop_) :
+  | admininstr_case_28 (v_ishape : ishape) (var_0 : vshiftop_) :
     wf_ishape v_ishape →
     wf_vshiftop_ v_ishape var_0 →
     wf_admininstr (admininstr.VSHIFTOP v_ishape var_0)
-  | admininstr_case_30 (v_ishape : ishape) :
+  | admininstr_case_29 (v_ishape : ishape) :
     wf_ishape v_ishape →
     wf_admininstr (admininstr.VBITMASK v_ishape)
-  | admininstr_case_31 (v_ishape : ishape) :
+  | admininstr_case_30 (v_ishape : ishape) :
     wf_ishape v_ishape →
     v_ishape = (ishape.mk_ishape (shape.X lanetype.I8 (dim.mk_dim 16))) →
     wf_admininstr (admininstr.VSWIZZLE v_ishape)
-  | admininstr_case_32 (v_ishape : ishape) (laneidx_lst : List laneidx) :
+  | admininstr_case_31 (v_ishape : ishape) (laneidx_lst : List laneidx) :
     wf_ishape v_ishape →
     Forall (fun (v_laneidx_elem : laneidx) => wf_uN 8 v_laneidx_elem) laneidx_lst →
     (v_ishape = (ishape.mk_ishape (shape.X lanetype.I8 (dim.mk_dim 16)))) ∧ ((List.length laneidx_lst) = 16) →
     wf_admininstr (admininstr.VSHUFFLE v_ishape laneidx_lst)
-  | admininstr_case_33 (v_shape : shape) :
+  | admininstr_case_32 (v_shape : shape) :
     wf_shape v_shape →
     wf_admininstr (admininstr.VSPLAT v_shape)
-  | admininstr_case_34 (v_shape : shape) (sx_opt : Option sx) (v_laneidx : laneidx) :
+  | admininstr_case_33 (v_shape : shape) (sx_opt : Option sx) (v_laneidx : laneidx) :
     wf_shape v_shape →
     wf_uN 8 v_laneidx →
     (List.length [lanetype.I32, lanetype.I64, lanetype.F32, lanetype.F64]) > 0 →
     ((List.contains [lanetype.I32, lanetype.I64, lanetype.F32, lanetype.F64] (fun_lanetype v_shape)) ↔ (sx_opt = none)) →
     wf_admininstr (admininstr.VEXTRACT_LANE v_shape sx_opt v_laneidx)
-  | admininstr_case_35 (v_shape : shape) (v_laneidx : laneidx) :
+  | admininstr_case_34 (v_shape : shape) (v_laneidx : laneidx) :
     wf_shape v_shape →
     wf_uN 8 v_laneidx →
     wf_admininstr (admininstr.VREPLACE_LANE v_shape v_laneidx)
-  | admininstr_case_36 (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextunop__) :
+  | admininstr_case_35 (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextunop__) :
     wf_ishape ishape_1 →
     wf_ishape ishape_2 →
     wf_vextunop__ ishape_2 ishape_1 var_0 →
     wf_admininstr (admininstr.VEXTUNOP ishape_1 ishape_2 var_0)
-  | admininstr_case_37 (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextbinop__) :
+  | admininstr_case_36 (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextbinop__) :
     wf_ishape ishape_1 →
     wf_ishape ishape_2 →
     wf_vextbinop__ ishape_2 ishape_1 var_0 →
     wf_admininstr (admininstr.VEXTBINOP ishape_1 ishape_2 var_0)
-  | admininstr_case_38 (ishape_1 : ishape) (ishape_2 : ishape) (v_sx : sx) (var_1 : Nat) (var_0 : Nat) :
+  | admininstr_case_37 (ishape_1 : ishape) (ishape_2 : ishape) (v_sx : sx) (var_1 : Nat) (var_0 : Nat) :
     fun_lsize (fun_lanetype (proj_ishape_0 ishape_1)) var_1 →
     fun_lsize (fun_lanetype (proj_ishape_0 ishape_2)) var_0 →
     wf_ishape ishape_1 →
     wf_ishape ishape_2 →
     (var_0 = (2 * var_1)) ∧ ((2 * var_1) ≤ 32) →
     wf_admininstr (admininstr.VNARROW ishape_1 ishape_2 v_sx)
-  | admininstr_case_39 (shape_1 : shape) (shape_2 : shape) (var_0 : vcvtop__) :
+  | admininstr_case_38 (shape_1 : shape) (shape_2 : shape) (var_0 : vcvtop__) :
     wf_shape shape_1 →
     wf_shape shape_2 →
     wf_vcvtop__ shape_2 shape_1 var_0 →
     wf_admininstr (admininstr.VCVTOP shape_1 shape_2 var_0)
-  | admininstr_case_40 (v_reftype : reftype) : wf_admininstr (admininstr.REF_NULL v_reftype)
-  | admininstr_case_41 (v_funcidx : funcidx) :
+  | admininstr_case_39 (v_reftype : reftype) : wf_admininstr (admininstr.REF_NULL v_reftype)
+  | admininstr_case_40 (v_funcidx : funcidx) :
     wf_uN 32 v_funcidx →
     wf_admininstr (admininstr.REF_FUNC v_funcidx)
-  | admininstr_case_42 : wf_admininstr admininstr.REF_IS_NULL
-  | admininstr_case_43 (v_localidx : localidx) :
+  | admininstr_case_41 : wf_admininstr admininstr.REF_IS_NULL
+  | admininstr_case_42 (v_localidx : localidx) :
     wf_uN 32 v_localidx →
     wf_admininstr (admininstr.LOCAL_GET v_localidx)
-  | admininstr_case_44 (v_localidx : localidx) :
+  | admininstr_case_43 (v_localidx : localidx) :
     wf_uN 32 v_localidx →
     wf_admininstr (admininstr.LOCAL_SET v_localidx)
-  | admininstr_case_45 (v_localidx : localidx) :
+  | admininstr_case_44 (v_localidx : localidx) :
     wf_uN 32 v_localidx →
     wf_admininstr (admininstr.LOCAL_TEE v_localidx)
-  | admininstr_case_46 (v_globalidx : globalidx) :
+  | admininstr_case_45 (v_globalidx : globalidx) :
     wf_uN 32 v_globalidx →
     wf_admininstr (admininstr.GLOBAL_GET v_globalidx)
-  | admininstr_case_47 (v_globalidx : globalidx) :
+  | admininstr_case_46 (v_globalidx : globalidx) :
     wf_uN 32 v_globalidx →
     wf_admininstr (admininstr.GLOBAL_SET v_globalidx)
-  | admininstr_case_48 (v_tableidx : tableidx) :
+  | admininstr_case_47 (v_tableidx : tableidx) :
     wf_uN 32 v_tableidx →
     wf_admininstr (admininstr.TABLE_GET v_tableidx)
-  | admininstr_case_49 (v_tableidx : tableidx) :
+  | admininstr_case_48 (v_tableidx : tableidx) :
     wf_uN 32 v_tableidx →
     wf_admininstr (admininstr.TABLE_SET v_tableidx)
-  | admininstr_case_50 (v_tableidx : tableidx) :
+  | admininstr_case_49 (v_tableidx : tableidx) :
     wf_uN 32 v_tableidx →
     wf_admininstr (admininstr.TABLE_SIZE v_tableidx)
-  | admininstr_case_51 (v_tableidx : tableidx) :
+  | admininstr_case_50 (v_tableidx : tableidx) :
     wf_uN 32 v_tableidx →
     wf_admininstr (admininstr.TABLE_GROW v_tableidx)
-  | admininstr_case_52 (v_tableidx : tableidx) :
+  | admininstr_case_51 (v_tableidx : tableidx) :
     wf_uN 32 v_tableidx →
     wf_admininstr (admininstr.TABLE_FILL v_tableidx)
-  | admininstr_case_53 (v_tableidx : tableidx) (tableidx_0 : tableidx) :
+  | admininstr_case_52 (v_tableidx : tableidx) (tableidx_0 : tableidx) :
     wf_uN 32 v_tableidx →
     wf_uN 32 tableidx_0 →
     wf_admininstr (admininstr.TABLE_COPY v_tableidx tableidx_0)
-  | admininstr_case_54 (v_tableidx : tableidx) (v_elemidx : elemidx) :
+  | admininstr_case_53 (v_tableidx : tableidx) (v_elemidx : elemidx) :
     wf_uN 32 v_tableidx →
     wf_uN 32 v_elemidx →
     wf_admininstr (admininstr.TABLE_INIT v_tableidx v_elemidx)
-  | admininstr_case_55 (v_elemidx : elemidx) :
+  | admininstr_case_54 (v_elemidx : elemidx) :
     wf_uN 32 v_elemidx →
     wf_admininstr (admininstr.ELEM_DROP v_elemidx)
-  | admininstr_case_56 (v_numtype : numtype) (var_0_opt : Option loadop_) (v_memarg : memarg) :
+  | admininstr_case_55 (v_numtype : numtype) (var_0_opt : Option loadop_) (v_memarg : memarg) :
     Forall (fun (var_0_elem : loadop_) => wf_loadop_ v_numtype var_0_elem) (Option.toList var_0_opt) →
     wf_memarg v_memarg →
     wf_admininstr (admininstr.LOAD v_numtype var_0_opt v_memarg)
-  | admininstr_case_57 (Inn_opt : Option Inn) (v_numtype : numtype) (sz_opt : Option sz) (v_memarg : memarg) (var_0_opt : Option Nat) :
+  | admininstr_case_56 (Inn_opt : Option Inn) (v_numtype : numtype) (sz_opt : Option sz) (v_memarg : memarg) (var_0_opt : Option Nat) :
     ((var_0_opt = none) ↔ (Inn_opt = none)) →
     Forall₂ (fun (var_0_elem : Nat) (v_Inn_elem : Inn) => fun_sizenn (numtype_Inn v_Inn_elem) var_0_elem) (Option.toList var_0_opt) (Option.toList Inn_opt) →
     Forall (fun (v_sz_elem : sz) => wf_sz v_sz_elem) (Option.toList sz_opt) →
@@ -12541,45 +12536,45 @@ inductive wf_admininstr : admininstr → Prop where
     ((var_0_opt = none) ↔ (sz_opt = none)) →
     Forall₃ (fun (var_0_elem : Nat) (v_Inn_elem : Inn) (v_sz_elem : sz) => (v_numtype = (numtype_Inn v_Inn_elem)) ∧ ((proj_sz_0 v_sz_elem) < var_0_elem)) (Option.toList var_0_opt) (Option.toList Inn_opt) (Option.toList sz_opt) →
     wf_admininstr (admininstr.STORE v_numtype sz_opt v_memarg)
-  | admininstr_case_58 (v_vectype : vectype) (var_0_opt : Option vloadop_) (v_memarg : memarg) :
+  | admininstr_case_57 (v_vectype : vectype) (var_0_opt : Option vloadop_) (v_memarg : memarg) :
     Forall (fun (var_0_elem : vloadop_) => wf_vloadop_ v_vectype var_0_elem) (Option.toList var_0_opt) →
     wf_memarg v_memarg →
     wf_admininstr (admininstr.VLOAD v_vectype var_0_opt v_memarg)
-  | admininstr_case_59 (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) :
+  | admininstr_case_58 (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) :
     wf_sz v_sz →
     wf_memarg v_memarg →
     wf_uN 8 v_laneidx →
     wf_admininstr (admininstr.VLOAD_LANE v_vectype v_sz v_memarg v_laneidx)
-  | admininstr_case_60 (v_vectype : vectype) (v_memarg : memarg) :
+  | admininstr_case_59 (v_vectype : vectype) (v_memarg : memarg) :
     wf_memarg v_memarg →
     wf_admininstr (admininstr.VSTORE v_vectype v_memarg)
-  | admininstr_case_61 (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) :
+  | admininstr_case_60 (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) :
     wf_sz v_sz →
     wf_memarg v_memarg →
     wf_uN 8 v_laneidx →
     wf_admininstr (admininstr.VSTORE_LANE v_vectype v_sz v_memarg v_laneidx)
-  | admininstr_case_62 : wf_admininstr admininstr.MEMORY_SIZE
-  | admininstr_case_63 : wf_admininstr admininstr.MEMORY_GROW
-  | admininstr_case_64 : wf_admininstr admininstr.MEMORY_FILL
-  | admininstr_case_65 : wf_admininstr admininstr.MEMORY_COPY
-  | admininstr_case_66 (v_dataidx : dataidx) :
+  | admininstr_case_61 : wf_admininstr admininstr.MEMORY_SIZE
+  | admininstr_case_62 : wf_admininstr admininstr.MEMORY_GROW
+  | admininstr_case_63 : wf_admininstr admininstr.MEMORY_FILL
+  | admininstr_case_64 : wf_admininstr admininstr.MEMORY_COPY
+  | admininstr_case_65 (v_dataidx : dataidx) :
     wf_uN 32 v_dataidx →
     wf_admininstr (admininstr.MEMORY_INIT v_dataidx)
-  | admininstr_case_67 (v_dataidx : dataidx) :
+  | admininstr_case_66 (v_dataidx : dataidx) :
     wf_uN 32 v_dataidx →
     wf_admininstr (admininstr.DATA_DROP v_dataidx)
-  | admininstr_case_68 (v_funcaddr : funcaddr) : wf_admininstr (admininstr.REF_FUNC_ADDR v_funcaddr)
-  | admininstr_case_69 (v_hostaddr : hostaddr) : wf_admininstr (admininstr.REF_HOST_ADDR v_hostaddr)
-  | admininstr_case_70 (v_funcaddr : funcaddr) : wf_admininstr (admininstr.CALL_ADDR v_funcaddr)
-  | admininstr_case_71 (v_n : n) (instr_lst : List instr) (admininstr_lst : List admininstr) :
+  | admininstr_case_67 (v_funcaddr : funcaddr) : wf_admininstr (admininstr.REF_FUNC_ADDR v_funcaddr)
+  | admininstr_case_68 (v_hostaddr : hostaddr) : wf_admininstr (admininstr.REF_HOST_ADDR v_hostaddr)
+  | admininstr_case_69 (v_funcaddr : funcaddr) : wf_admininstr (admininstr.CALL_ADDR v_funcaddr)
+  | admininstr_case_70 (v_n : n) (instr_lst : List instr) (admininstr_lst : List admininstr) :
     Forall (fun (v_instr_elem : instr) => wf_instr v_instr_elem) instr_lst →
     Forall (fun (v_admininstr_elem : admininstr) => wf_admininstr v_admininstr_elem) admininstr_lst →
     wf_admininstr (admininstr.LABEL_ v_n instr_lst admininstr_lst)
-  | admininstr_case_72 (v_n : n) (v_frame : frame) (admininstr_lst : List admininstr) :
+  | admininstr_case_71 (v_n : n) (v_frame : frame) (admininstr_lst : List admininstr) :
     wf_frame v_frame →
     Forall (fun (v_admininstr_elem : admininstr) => wf_admininstr v_admininstr_elem) admininstr_lst →
     wf_admininstr (admininstr.FRAME_ v_n v_frame admininstr_lst)
-  | admininstr_case_73 : wf_admininstr admininstr.TRAP
+  | admininstr_case_72 : wf_admininstr admininstr.TRAP
 
 
 /- Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:117.1-117.62 -/
@@ -14709,11 +14704,11 @@ theorem iswf_fun_binop_ {nt : numtype} {op : binop_} {a b : num_} {l : List num_
 /- HELPER LEMMA CREATED BY CLAUDE -/
 theorem iswf_admininstr_VCONST {c : vec_} (h : wf_uN 128 c) :
     wf_admininstr (admininstr.VCONST vectype.V128 c) :=
-  wf_admininstr.admininstr_case_20 _ _ (by decide) h
+  wf_admininstr.admininstr_case_19 _ _ (by decide) h
 /- HELPER LEMMA CREATED BY CLAUDE -/
 theorem iswf_admininstr_VCONST_inv {c : vec_} (h : wf_admininstr (admininstr.VCONST vectype.V128 c)) :
     wf_uN 128 c := by
-  cases h with | admininstr_case_20 _ _ _ hw => exact hw
+  cases h with | admininstr_case_19 _ _ _ hw => exact hw
 
 /- Well-Formedness Theorem at: ../specification/wasm-2.0/8-reduction.spectec:6.10-6.19 -/
 theorem Step_pure_is_wf (var_0 : List admininstr) (var_1 : List admininstr) :
@@ -14724,7 +14719,7 @@ theorem Step_pure_is_wf (var_0 : List admininstr) (var_1 : List admininstr) :
   -- Each case names only the rule's variables; the premises it needs are taken by their type
   -- (`‹…›`), so the proof does not depend on the order in which the premises are generated.
   cases h with
-  | unreachable => exact iswf_Forall_singleton .admininstr_case_73
+  | unreachable => exact iswf_Forall_singleton .admininstr_case_72
   | nop => exact iswf_Forall_nil _
   | drop => exact iswf_Forall_nil _
   | select_true =>
@@ -14750,14 +14745,14 @@ theorem Step_pure_is_wf (var_0 : List admininstr) (var_1 : List admininstr) :
   | br_zero v_n instr'_lst val'_lst val_lst admininstr_lst =>
     simp only [iswf_Forall_cons_iff] at hall
     cases hall.1 with
-    | admininstr_case_71 _ _ _ hinstrs hbody =>
+    | admininstr_case_70 _ _ _ hinstrs hbody =>
       exact iswf_Forall_append
         (fun x hx => hbody x (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ hx))))
         (iswf_Forall_map _ _ hinstrs (fun _ h => iswf_admininstr_instr h))
   | br_succ v_n instr'_lst val_lst l admininstr_lst =>
     simp only [iswf_Forall_cons_iff] at hall
     cases hall.1 with
-    | admininstr_case_71 _ _ _ _ hbody =>
+    | admininstr_case_70 _ _ _ _ hbody =>
       cases hbody (.BR (uN.mk_uN (proj_uN_0 l + 1)))
           (List.mem_append_left _ (List.mem_append_right _ (List.mem_singleton_self _))) with
       | admininstr_case_7 _ hl =>
@@ -14785,28 +14780,28 @@ theorem Step_pure_is_wf (var_0 : List admininstr) (var_1 : List admininstr) :
   | return_frame v_n f val'_lst val_lst admininstr_lst =>
     simp only [iswf_Forall_cons_iff] at hall
     cases hall.1 with
-    | admininstr_case_72 _ _ _ _ hbody =>
+    | admininstr_case_71 _ _ _ _ hbody =>
       exact fun x hx => hbody x (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ hx)))
   | return_label v_n instr'_lst val_lst admininstr_lst =>
     simp only [iswf_Forall_cons_iff] at hall
     cases hall.1 with
-    | admininstr_case_71 _ _ _ _ hbody => exact fun x hx => hbody x (List.mem_append_left _ hx)
-  | trap_vals => exact iswf_Forall_singleton .admininstr_case_73
-  | trap_label => exact iswf_Forall_singleton .admininstr_case_73
-  | trap_frame => exact iswf_Forall_singleton .admininstr_case_73
+    | admininstr_case_70 _ _ _ _ hbody => exact fun x hx => hbody x (List.mem_append_left _ hx)
+  | trap_vals => exact iswf_Forall_singleton .admininstr_case_72
+  | trap_label => exact iswf_Forall_singleton .admininstr_case_72
+  | trap_frame => exact iswf_Forall_singleton .admininstr_case_72
   | unop_val nt c_1 unop c var_0 =>
     simp only [iswf_Forall_cons_iff] at hall
     obtain ⟨⟨⟩, ⟨⟩, -⟩ := hall
     exact iswf_Forall_singleton (.admininstr_case_13 _ _
       (unop__is_wf _ _ _ _ _ ‹fun_unop_ nt unop c_1 var_0› ‹wf_unop_ nt unop› ‹wf_num_ nt c_1›
         ‹var_0 ≠ none› rfl c (List.contains_iff_mem.mp ‹(Option.get! var_0).contains c›)))
-  | unop_trap => exact iswf_Forall_singleton .admininstr_case_73
+  | unop_trap => exact iswf_Forall_singleton .admininstr_case_72
   | binop_val nt c_1 c_2 binop c var_0 =>
     obtain ⟨l, rfl⟩ := Option.ne_none_iff_exists'.mp ‹var_0 ≠ none›
     exact iswf_Forall_singleton (.admininstr_case_13 _ _
       (iswf_fun_binop_ ‹fun_binop_ nt binop c_1 c_2 (some l)› c
         (List.contains_iff_mem.mp ‹(Option.get! (some l)).contains c›)))
-  | binop_trap => exact iswf_Forall_singleton .admininstr_case_73
+  | binop_trap => exact iswf_Forall_singleton .admininstr_case_72
   | testop nt c_1 testop c var_0 =>
     exact iswf_Forall_singleton (.admininstr_case_13 _ _ ‹wf_num_ numtype.I32 c›)
   | relop nt c_1 c_2 relop c var_0 =>
@@ -14817,7 +14812,7 @@ theorem Step_pure_is_wf (var_0 : List admininstr) (var_1 : List admininstr) :
     exact iswf_Forall_singleton (.admininstr_case_13 _ _
       (cvtop___is_wf _ _ _ _ _ _ ‹fun_cvtop__ nt_1 nt_2 cvtop c_1 var_0› ‹wf_cvtop__ nt_1 nt_2 cvtop›
         ‹wf_num_ nt_1 c_1› ‹var_0 ≠ none› rfl c (List.contains_iff_mem.mp ‹(Option.get! var_0).contains c›)))
-  | cvtop_trap => exact iswf_Forall_singleton .admininstr_case_73
+  | cvtop_trap => exact iswf_Forall_singleton .admininstr_case_72
   | ref_is_null_true =>
     exact iswf_Forall_singleton (.admininstr_case_13 _ _ (iswf_num_I32_of_lt (by decide)))
   | ref_is_null_false =>
@@ -14850,7 +14845,7 @@ theorem Step_pure_is_wf (var_0 : List admininstr) (var_1 : List admininstr) :
       (vunop__is_wf _ _ _ _ _ ‹fun_vunop_ sh vunop c_1 var_0› ‹wf_shape sh› ‹wf_vunop_ sh vunop›
         (iswf_admininstr_VCONST_inv h1) ‹var_0 ≠ none› rfl c
         (List.contains_iff_mem.mp ‹(Option.get! var_0).contains c›)))
-  | vunop_trap => exact iswf_Forall_singleton .admininstr_case_73
+  | vunop_trap => exact iswf_Forall_singleton .admininstr_case_72
   | vbinop_val c_1 c_2 sh vbinop c var_0 =>
     simp only [iswf_Forall_cons_iff] at hall
     obtain ⟨h1, h2, ⟨⟩, -⟩ := hall
@@ -14858,7 +14853,7 @@ theorem Step_pure_is_wf (var_0 : List admininstr) (var_1 : List admininstr) :
       (vbinop__is_wf _ _ _ _ _ _ ‹fun_vbinop_ sh vbinop c_1 c_2 var_0› ‹wf_shape sh› ‹wf_vbinop_ sh vbinop›
         (iswf_admininstr_VCONST_inv h1) (iswf_admininstr_VCONST_inv h2) ‹var_0 ≠ none› rfl c
         (List.contains_iff_mem.mp ‹(Option.get! var_0).contains c›)))
-  | vbinop_trap => exact iswf_Forall_singleton .admininstr_case_73
+  | vbinop_trap => exact iswf_Forall_singleton .admininstr_case_72
   | vtestop_true =>
     exact iswf_Forall_singleton (.admininstr_case_13 _ _ (iswf_num_I32_of_lt (by decide)))
   | vtestop_false =>
@@ -14960,7 +14955,7 @@ theorem Step_pure_is_wf (var_0 : List admininstr) (var_1 : List admininstr) :
   | local_tee v_val x =>
     simp only [iswf_Forall_cons_iff] at hall
     obtain ⟨hv, ⟨⟩, -⟩ := hall
-    exact iswf_Forall_cons hv (iswf_Forall_cons hv (iswf_Forall_singleton (.admininstr_case_44 _ ‹wf_uN 32 x›)))
+    exact iswf_Forall_cons hv (iswf_Forall_cons hv (iswf_Forall_singleton (.admininstr_case_43 _ ‹wf_uN 32 x›)))
 
 /- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:63.6-63.16 -/
 inductive fun_blocktype : state → blocktype → functype → Prop where
@@ -16923,7 +16918,7 @@ theorem iswf_fun_data_byte_lt {z : state} {x : uN} {d : datainst} {k : Nat}
     omega
 /- HELPER LEMMA CREATED BY CLAUDE -/
 theorem iswf_store_I32_8 : wf_admininstr (admininstr.STORE numtype.I32 (some (sz.mk_sz 8)) memarg0) :=
-  wf_admininstr.admininstr_case_57 (some Inn.I32) _ _ _ (some 32)
+  wf_admininstr.admininstr_case_56 (some Inn.I32) _ _ _ (some 32)
     ⟨(fun h => nomatch h), (fun h => nomatch h)⟩
     (by intro t ht; simp at ht; subst ht; exact fun_sizenn.fun_sizenn_case_0 _ (by decide))
     (iswf_Forall_cons (wf_sz.sz_case_0 8 (by decide)) (iswf_Forall_nil _))
@@ -16935,7 +16930,7 @@ theorem iswf_store_I32_8 : wf_admininstr (admininstr.STORE numtype.I32 (some (sz
 theorem iswf_load_I32_8_U :
     wf_admininstr (admininstr.LOAD numtype.I32
       (some (loadop_.mk_loadop__0 Inn.I32 (loadop_Inn.mk_loadop_Inn (sz.mk_sz 8) sx.U))) memarg0) :=
-  wf_admininstr.admininstr_case_56 _ _ _
+  wf_admininstr.admininstr_case_55 _ _ _
     (iswf_Forall_cons (wf_loadop_.loadop__case_0 _ _ _
       (wf_loadop_Inn.loadop_Inn_case_0 _ _ _ 32 (fun_sizenn.fun_sizenn_case_0 _ (by decide))
         (wf_sz.sz_case_0 8 (by decide)) (by decide)) rfl)
@@ -16980,14 +16975,14 @@ theorem Step_read_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : 
     have hb := hais (admininstr.BLOCK bt instr_lst) (by simp)
     cases hb with
     | admininstr_case_4 _ _ _ hinstrs =>
-      exact iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ (iswf_Forall_nil _)
+      exact iswf_Forall_cons (wf_admininstr.admininstr_case_70 _ _ _ (iswf_Forall_nil _)
         (iswf_Forall_append (fun x hx => hais x (by simp [hx]))
           (iswf_Forall_map _ _ hinstrs (fun _ h => iswf_admininstr_instr h)))) (iswf_Forall_nil _)
   | loop z k val_lst bt instr_lst =>
     have hb := hais (admininstr.LOOP bt instr_lst) (by simp)
     cases hb with
     | admininstr_case_5 _ _ hbt hinstrs =>
-      exact iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _
+      exact iswf_Forall_cons (wf_admininstr.admininstr_case_70 _ _ _
         (iswf_Forall_cons (wf_instr.instr_case_5 _ _ hbt hinstrs) (iswf_Forall_nil _))
         (iswf_Forall_append (fun x hx => hais x (by simp [hx]))
           (iswf_Forall_map _ _ hinstrs (fun _ h => iswf_admininstr_instr h)))) (iswf_Forall_nil _)
@@ -16998,21 +16993,21 @@ theorem Step_read_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : 
     subst f
     cases ‹wf_func (func.FUNC x (Map (fun t_elem => «local».LOCAL t_elem) t_lst) instr_lst)› with
     | func_case_0 _ _ _ _ hinstrs =>
-      exact iswf_Forall_cons (wf_admininstr.admininstr_case_72 _ _ _ ‹wf_frame _›
-        (iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ (iswf_Forall_nil _)
+      exact iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ ‹wf_frame _›
+        (iswf_Forall_cons (wf_admininstr.admininstr_case_70 _ _ _ (iswf_Forall_nil _)
           (iswf_Forall_map _ _ hinstrs (fun _ h => iswf_admininstr_instr h))) (iswf_Forall_nil _)))
         (iswf_Forall_nil _)
   | ref_func => exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
   | local_get z x var_0 =>
     have hx := hais (admininstr.LOCAL_GET x) (by simp)
     cases hx with
-    | admininstr_case_43 _ hx =>
+    | admininstr_case_42 _ hx =>
       exact iswf_Forall_cons (iswf_admininstr_val (local_is_wf z x _ _ ‹fun_local z x var_0› hst hx rfl))
         (iswf_Forall_nil _)
   | global_get z x var_0 =>
     have hx := hais (admininstr.GLOBAL_GET x) (by simp)
     cases hx with
-    | admininstr_case_46 _ hx =>
+    | admininstr_case_45 _ hx =>
       exact iswf_Forall_cons
         (iswf_admininstr_val (iswf_globalinst_value (global_is_wf z x _ _ ‹fun_global z x var_0› hst hx rfl)))
         (iswf_Forall_nil _)
@@ -17031,14 +17026,14 @@ theorem Step_read_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : 
       (hais (admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n))) (by simp))
     have hx := hais (admininstr.TABLE_FILL x) (by simp)
     cases hx with
-    | admininstr_case_52 _ hx =>
+    | admininstr_case_51 _ hx =>
       have hL := iswf_fun_table_len_lt hsok ‹fun_table z x var_0›
       have hn0 : @Ne Nat v_n 0 := ‹v_n ≠ 0›
       exact iswf_Forall_cons hi <| iswf_Forall_cons hv <|
-        iswf_Forall_cons (wf_admininstr.admininstr_case_49 _ hx) <|
+        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hx) <|
         iswf_Forall_cons (iswf_I32_const _ (by omega)) <| iswf_Forall_cons hv <|
         iswf_Forall_cons (iswf_I32_const _ (by omega)) <|
-        iswf_Forall_cons (wf_admininstr.admininstr_case_52 _ hx) (iswf_Forall_nil _)
+        iswf_Forall_cons (wf_admininstr.admininstr_case_51 _ hx) (iswf_Forall_nil _)
   | table_copy_trap => exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
   | table_copy_zero => exact iswf_Forall_nil _
   | table_copy_le z j i v_n x y var_1 var_0 =>
@@ -17048,16 +17043,16 @@ theorem Step_read_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : 
       (hais (admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n))) (by simp))
     have hxy := hais (admininstr.TABLE_COPY x y) (by simp)
     cases hxy with
-    | admininstr_case_53 _ _ hx hy =>
+    | admininstr_case_52 _ _ hx hy =>
       have hLx := iswf_fun_table_len_lt hsok ‹fun_table z x var_1›
       have hLy := iswf_fun_table_len_lt hsok ‹fun_table z y var_0›
       have hn0 : @Ne Nat v_n 0 := ‹v_n ≠ 0›
       exact iswf_Forall_cons hj <| iswf_Forall_cons hi <|
-        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hy) <|
-        iswf_Forall_cons (wf_admininstr.admininstr_case_49 _ hx) <|
+        iswf_Forall_cons (wf_admininstr.admininstr_case_47 _ hy) <|
+        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hx) <|
         iswf_Forall_cons (iswf_I32_const _ (by omega)) <| iswf_Forall_cons (iswf_I32_const _ (by omega)) <|
         iswf_Forall_cons (iswf_I32_const _ (by omega)) <|
-        iswf_Forall_cons (wf_admininstr.admininstr_case_53 _ _ hx hy) (iswf_Forall_nil _)
+        iswf_Forall_cons (wf_admininstr.admininstr_case_52 _ _ hx hy) (iswf_Forall_nil _)
   | table_copy_gt z j i v_n x y var_1 var_0 =>
     have hj := hais (admininstr.CONST numtype.I32 j) (by simp)
     have hi := hais (admininstr.CONST numtype.I32 i) (by simp)
@@ -17065,14 +17060,14 @@ theorem Step_read_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : 
       (hais (admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n))) (by simp))
     have hxy := hais (admininstr.TABLE_COPY x y) (by simp)
     cases hxy with
-    | admininstr_case_53 _ _ hx hy =>
+    | admininstr_case_52 _ _ hx hy =>
       have hLx := iswf_fun_table_len_lt hsok ‹fun_table z x var_1›
       have hLy := iswf_fun_table_len_lt hsok ‹fun_table z y var_0›
       exact iswf_Forall_cons (iswf_I32_const _ (by omega)) <| iswf_Forall_cons (iswf_I32_const _ (by omega)) <|
-        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hy) <|
-        iswf_Forall_cons (wf_admininstr.admininstr_case_49 _ hx) <| iswf_Forall_cons hj <| iswf_Forall_cons hi <|
+        iswf_Forall_cons (wf_admininstr.admininstr_case_47 _ hy) <|
+        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hx) <| iswf_Forall_cons hj <| iswf_Forall_cons hi <|
         iswf_Forall_cons (iswf_I32_const _ (by omega)) <|
-        iswf_Forall_cons (wf_admininstr.admininstr_case_53 _ _ hx hy) (iswf_Forall_nil _)
+        iswf_Forall_cons (wf_admininstr.admininstr_case_52 _ _ hx hy) (iswf_Forall_nil _)
   | table_init_trap => exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
   | table_init_zero => exact iswf_Forall_nil _
   | table_init_succ z j i v_n x y var_1 var_0 =>
@@ -17081,15 +17076,15 @@ theorem Step_read_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : 
       (hais (admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n))) (by simp))
     have hxy := hais (admininstr.TABLE_INIT x y) (by simp)
     cases hxy with
-    | admininstr_case_54 _ _ hx hy =>
+    | admininstr_case_53 _ _ hx hy =>
       have hLx := iswf_fun_table_len_lt hsok ‹fun_table z x var_1›
       have hLy := iswf_fun_elem_len_lt hsok ‹fun_elem z y var_0›
       have hn0 : @Ne Nat v_n 0 := ‹v_n ≠ 0›
       exact iswf_Forall_cons hj <| iswf_Forall_cons (iswf_admininstr_ref _) <|
-        iswf_Forall_cons (wf_admininstr.admininstr_case_49 _ hx) <|
+        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hx) <|
         iswf_Forall_cons (iswf_I32_const _ (by omega)) <| iswf_Forall_cons (iswf_I32_const _ (by omega)) <|
         iswf_Forall_cons (iswf_I32_const _ (by omega)) <|
-        iswf_Forall_cons (wf_admininstr.admininstr_case_54 _ _ hx hy) (iswf_Forall_nil _)
+        iswf_Forall_cons (wf_admininstr.admininstr_case_53 _ _ hx hy) (iswf_Forall_nil _)
   | load_num_trap => exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
   | load_num_val z i nt ao c var_0 =>
     exact iswf_Forall_cons (wf_admininstr.admininstr_case_13 _ _ ‹wf_num_ nt c›) (iswf_Forall_nil _)
@@ -17100,36 +17095,36 @@ theorem Step_read_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : 
         (extend___is_wf _ _ _ _ _ ‹wf_uN v_n c› rfl) rfl)) (iswf_Forall_nil _)
   | vload_oob => exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
   | vload_val z i ao c var_0 =>
-    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide) ‹wf_uN 128 c›) (iswf_Forall_nil _)
+    exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide) ‹wf_uN 128 c›) (iswf_Forall_nil _)
   | vload_shape_oob => exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
   | vload_shape_val z i v_M v_N v_sx ao c j_lst v_Jnn var_1 var_0 =>
     subst c
-    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
+    exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide)
       (inv_lanes__is_wf _ _ _ ‹wf_shape _› (iswf_Forall_map _ _ ‹Forall _ j_lst› (fun _ h => h)) rfl))
       (iswf_Forall_nil _)
   | vload_splat_oob => exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
   | vload_splat_val z i v_N ao c j v_Jnn v_M var_1 var_0 =>
     subst c
     have hlane := ‹wf_lane_ _ _›
-    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
+    exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide)
       (inv_lanes__is_wf _ _ _ ‹wf_shape _›
         (fun x hx => by rw [List.eq_of_mem_replicate hx]; exact hlane) rfl))
       (iswf_Forall_nil _)
   | vload_zero_oob => exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
   | vload_zero_val z i v_N ao c j var_0 =>
     subst c
-    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
+    exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide)
       (extend___is_wf _ _ _ _ _ ‹wf_uN v_N j› rfl)) (iswf_Forall_nil _)
   | vload_lane_oob => exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
   | vload_lane_val z i c_1 v_N ao j c k v_Jnn v_M var_1 var_0 =>
     have hc := hais (admininstr.VCONST vectype.V128 c_1) (by simp)
     cases hc with
-    | admininstr_case_20 _ _ _ hw1 =>
+    | admininstr_case_19 _ _ _ hw1 =>
       subst c
       have hsh := ‹wf_shape _›
       have hlane := ‹wf_lane_ _ _›
       have hls := lanes__is_wf _ _ _ hsh hw1 rfl
-      exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
+      exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide)
         (inv_lanes__is_wf _ _ _ hsh (iswf_Forall_modify _ (fun _ _ => hlane) _ _ hls) rfl))
         (iswf_Forall_nil _)
   | memory_size z v_n var_0 =>
@@ -17176,13 +17171,13 @@ theorem Step_read_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : 
       (hais (admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n))) (by simp))
     have hx := hais (admininstr.MEMORY_INIT x) (by simp)
     cases hx with
-    | admininstr_case_66 _ hx =>
+    | admininstr_case_65 _ hx =>
       exact iswf_Forall_cons hj <|
         iswf_Forall_cons (iswf_I32_const _
           (iswf_fun_data_byte_lt hst hx ‹fun_data z x var_0› ‹_ < var_0.BYTES.length›)) <|
         iswf_Forall_cons iswf_store_I32_8 <| iswf_Forall_cons (iswf_I32_iadd1 hj ‹proj_num__0 j ≠ none›) <|
         iswf_Forall_cons (iswf_I32_iadd1 hi ‹proj_num__0 i ≠ none›) <| iswf_Forall_cons (iswf_I32_const _ (by omega)) <|
-        iswf_Forall_cons (wf_admininstr.admininstr_case_66 _ hx) (iswf_Forall_nil _)
+        iswf_Forall_cons (wf_admininstr.admininstr_case_65 _ hx) (iswf_Forall_nil _)
 
 /- HELPER LEMMA CREATED BY CLAUDE -/
 theorem iswf_val_of_admininstr {v : val} (h : wf_admininstr (admininstr_val v)) : wf_val v := by
@@ -17241,11 +17236,11 @@ theorem Step_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : confi
   | ctxt_label z v_n instr_0_lst admininstr_lst z' admininstr'_lst =>
     have hl := hais _ (List.mem_singleton_self _)
     cases hl with
-    | admininstr_case_71 _ _ _ hi _ =>
+    | admininstr_case_70 _ _ _ hi _ =>
       cases ‹wf_config (config.mk_config z' admininstr'_lst)› with
       | config_case_0 _ _ hst' hais' =>
         exact wf_config.config_case_0 _ _ hst'
-          (iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ hi hais') (iswf_Forall_nil _))
+          (iswf_Forall_cons (wf_admininstr.admininstr_case_70 _ _ _ hi hais') (iswf_Forall_nil _))
   | ctxt_frame s f v_n f' admininstr_lst s' f'' admininstr'_lst =>
     cases hst with
     | state_case_0 _ _ _ hf =>
@@ -17254,7 +17249,7 @@ theorem Step_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : confi
         cases hst' with
         | state_case_0 _ _ hs' hf'' =>
           exact wf_config.config_case_0 _ _ (wf_state.state_case_0 _ _ hs' hf)
-            (iswf_Forall_cons (wf_admininstr.admininstr_case_72 _ _ _ hf'' hais') (iswf_Forall_nil _))
+            (iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ hf'' hais') (iswf_Forall_nil _))
   | ctxt_instrs z val_lst admininstr_lst admininstr_1_lst z' admininstr'_lst =>
     cases ‹wf_config (config.mk_config z' admininstr'_lst)› with
     | config_case_0 _ _ hst' hais' =>
@@ -17264,14 +17259,14 @@ theorem Step_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : confi
     have hv := hais (admininstr_val v_val) (by simp)
     have hx := hais (admininstr.LOCAL_SET x) (by simp)
     cases hx with
-    | admininstr_case_44 _ hx =>
+    | admininstr_case_43 _ hx =>
       exact wf_config.config_case_0 _ _ (with_local_is_wf _ _ _ _ hst hx (iswf_val_of_admininstr hv) rfl)
         (iswf_Forall_nil _)
   | global_set z v_val x var_0 =>
     have hv := hais (admininstr_val v_val) (by simp)
     have hx := hais (admininstr.GLOBAL_SET x) (by simp)
     cases hx with
-    | admininstr_case_47 _ hx =>
+    | admininstr_case_46 _ hx =>
       exact wf_config.config_case_0 _ _
         (with_global_is_wf _ _ _ _ _ ‹fun_with_global z x v_val var_0› hst hx (iswf_val_of_admininstr hv) rfl)
         (iswf_Forall_nil _)
@@ -17280,13 +17275,13 @@ theorem Step_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : confi
   | table_set_val z i v_ref x var_1 var_0 =>
     have hx := hais (admininstr.TABLE_SET x) (by simp)
     cases hx with
-    | admininstr_case_49 _ hx =>
+    | admininstr_case_48 _ hx =>
       exact wf_config.config_case_0 _ _
         (with_table_is_wf _ _ _ _ _ _ ‹fun_with_table z x _ v_ref var_0› hst hx rfl) (iswf_Forall_nil _)
   | table_grow_succeed z v_ref v_n x ti var_2 var_1 var_0 =>
     have hx := hais (admininstr.TABLE_GROW x) (by simp)
     cases hx with
-    | admininstr_case_51 _ hx =>
+    | admininstr_case_50 _ hx =>
       have htab := ‹fun_table z x var_1›
       have hti := growtable_is_wf _ _ _ _ _ ‹fun_growtable var_1 v_n v_ref var_2›
         (table_is_wf _ _ _ _ htab hst hx rfl) ‹var_2 ≠ none› (‹Option.get! var_2 = ti›).symm
@@ -17300,7 +17295,7 @@ theorem Step_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : confi
   | elem_drop z x var_0 =>
     have hx := hais (admininstr.ELEM_DROP x) (by simp)
     cases hx with
-    | admininstr_case_55 _ hx =>
+    | admininstr_case_54 _ hx =>
       exact wf_config.config_case_0 _ _ (with_elem_is_wf _ _ _ _ _ ‹fun_with_elem z x [] var_0› hst hx rfl)
         (iswf_Forall_nil _)
   | store_num_trap =>
@@ -17331,7 +17326,7 @@ theorem Step_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : confi
   | vstore_val z i c ao b_lst var_0 =>
     have hc := hais (admininstr.VCONST vectype.V128 c) (by simp)
     cases hc with
-    | admininstr_case_20 _ _ hsz hwfc =>
+    | admininstr_case_19 _ _ hsz hwfc =>
       subst b_lst
       exact wf_config.config_case_0 _ _
         (with_mem_is_wf _ _ _ _ _ _ _ ‹fun_with_mem _ _ _ _ _ var_0› hst (iswf_uN_zero _)
@@ -17361,7 +17356,7 @@ theorem Step_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : confi
   | data_drop z x var_0 =>
     have hx := hais (admininstr.DATA_DROP x) (by simp)
     cases hx with
-    | admininstr_case_67 _ hx =>
+    | admininstr_case_66 _ hx =>
       exact wf_config.config_case_0 _ _
         (with_data_is_wf _ _ _ _ _ ‹fun_with_data z x [] var_0› hst hx (iswf_Forall_nil _) rfl)
         (iswf_Forall_nil _)

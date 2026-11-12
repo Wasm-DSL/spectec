@@ -1,0 +1,82 @@
+=== per-kind counts
+kind             G_old     OLD   G_new   cand1
+abbrev              50      50      50      50
+axiom               62      62      62      62
+def                117     117     117     117
+derive_deceq        13      13      13      13
+end                  2       2       2       2
+import               1       1       1       1
+inductive          392     392     392     392
+instance             1       1       1       1
+mutual               2       2       2       2
+opaque              64      64      64      64
+structure           12      12      12      12
+theorem             89     181      89     181
+total              805     897     805     897
+helpers              0      92       0      92
+deriving           121     121     121     121
+helper thm           0      92       0      92
+non-thm helper       0       0       0       0
+multi-marker         0       0       0       0
+
+=== duplicates (kind,name) within each file (mutual/end excluded)
+  G_old: dup (kind,name)={}  dup name across kinds={'instr': 2, 'elemmode': 2, 'datamode': 2, 'func': 2, 'global': 2, 'elem': 2, 'data': 2, 'module': 2, 'funcinst': 2, 'store': 2, 'state': 2, 'admininstr': 2, 'config': 2}
+  OLD: dup (kind,name)={}  dup name across kinds={'instr': 2, 'elemmode': 2, 'datamode': 2, 'func': 2, 'global': 2, 'elem': 2, 'data': 2, 'module': 2, 'funcinst': 2, 'store': 2, 'state': 2, 'admininstr': 2, 'config': 2}
+  G_new: dup (kind,name)={}  dup name across kinds={'instr': 2, 'elemmode': 2, 'datamode': 2, 'func': 2, 'global': 2, 'elem': 2, 'data': 2, 'module': 2, 'funcinst': 2, 'store': 2, 'state': 2, 'admininstr': 2, 'config': 2}
+  cand1: dup (kind,name)={}  dup name across kinds={'instr': 2, 'elemmode': 2, 'datamode': 2, 'func': 2, 'global': 2, 'elem': 2, 'data': 2, 'module': 2, 'funcinst': 2, 'store': 2, 'state': 2, 'admininstr': 2, 'config': 2}
+
+=== exact sequence comparisons
+[OK] cand1 vs OLD: (kind,name) full sequence: len cand1=897 len OLD=897
+[OK] cand1 vs OLD: set of (kind,name): len cand1=895 len OLD=895
+[OK] G_new vs G_old: (kind,name) full sequence: len G_new=805 len G_old=805
+[OK] cand1 vs OLD: (kind,name,helper-flag,deriving): len cand1=897 len OLD=897
+[OK] G_new vs G_old: (kind,name,helper-flag,deriving): len G_new=805 len G_old=805
+[OK] cand1 minus helpers minus moved theorems vs G_new minus the 2 theorems: len cand1=803 len G_new=803
+[OK] OLD minus helpers minus moved theorems vs G_old minus the 2 theorems (method sanity): len OLD=803 len G_old=803
+
+=== positions of the two theorems in each file
+  G_old: idx 729 line 14391 Step_read_is_wf | prev=inductive Step_read (helper=False) | next=inductive Step | prev non-helper=inductive Step_read | next non-helper=inductive Step
+  G_old: idx 731 line 14522 Step_is_wf | prev=inductive Step (helper=False) | next=inductive Steps | prev non-helper=inductive Step | next non-helper=inductive Steps
+  OLD: idx 881 line 16970 Step_read_is_wf | prev=theorem iswf_I32_iadd1 (helper=True) | next=theorem iswf_val_of_admininstr | prev non-helper=inductive Store_ok | next non-helper=theorem Step_is_wf
+  OLD: idx 887 line 17228 Step_is_wf | prev=theorem iswf_fun_growmemory_pages_lt (helper=True) | next=inductive Extend_globalinst | prev non-helper=theorem Step_read_is_wf | next non-helper=inductive Extend_globalinst
+  G_new: idx 729 line 14386 Step_read_is_wf | prev=inductive Step_read (helper=False) | next=inductive Step | prev non-helper=inductive Step_read | next non-helper=inductive Step
+  G_new: idx 731 line 14517 Step_is_wf | prev=inductive Step (helper=False) | next=inductive Steps | prev non-helper=inductive Step | next non-helper=inductive Steps
+  cand1: idx 881 line 16965 Step_read_is_wf | prev=theorem iswf_I32_iadd1 (helper=True) | next=theorem iswf_val_of_admininstr | prev non-helper=inductive Store_ok | next non-helper=theorem Step_is_wf
+  cand1: idx 887 line 17223 Step_is_wf | prev=theorem iswf_fun_growmemory_pages_lt (helper=True) | next=inductive Extend_globalinst | prev non-helper=theorem Step_read_is_wf | next non-helper=inductive Extend_globalinst
+
+=== helper neighbours (nearest preceding / following non-helper construct), cand1 vs OLD
+  helpers: cand1=92 OLD=92; helper blocks: cand1=24 OLD=24
+  block sizes cand1=[4, 2, 1, 4, 2, 4, 1, 1, 1, 3, 1, 3, 8, 5, 8, 5, 2, 1, 1, 1, 9, 1, 19, 5]
+  block sizes OLD  =[4, 2, 1, 4, 2, 4, 1, 1, 1, 3, 1, 3, 8, 5, 8, 5, 2, 1, 1, 1, 9, 1, 19, 5]
+  blocks identical (names, order): True
+  neighbour mismatches: 0
+
+=== helper insertion points vs G_new adjacency
+  helper block starting ('theorem', 'iswf_globalinst_value') borders a moved theorem: prev=('inductive', 'Store_ok') next=('theorem', 'Step_read_is_wf')
+  helper block starting ('theorem', 'iswf_val_of_admininstr') borders a moved theorem: prev=('theorem', 'Step_read_is_wf') next=('theorem', 'Step_is_wf')
+  non-adjacent insertion points (excluding moved-theorem borders): 0
+
+=== header comment comparison cand1 vs OLD (per construct, by index)
+  cand1 L1933 inductive instr: ['/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.1-552.22 -/']  | OLD L1933: ['/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 -/']
+  cand1 L2006 inductive wf_instr: ['/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.8-551.13 -/']  | OLD L2007: ['/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.8-552.13 -/']
+  cand1 L2225 abbrev expr: ['/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:555.1-556.9 -/']  | OLD L2227: ['/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:556.1-557.9 -/']
+  cand1 L2228 inductive elemmode: ['/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:568.1-568.59 -/']  | OLD L2230: ['/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.1-569.59 -/']
+  cand1 L2237 inductive wf_elemmode: ['/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:568.8-568.16 -/']  | OLD L2239: ['/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.8-569.16 -/']
+  cand1 L2247 inductive datamode: ['/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.1-569.47 -/']  | OLD L2249: ['/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:570.1-570.47 -/']
+  cand1 L2255 inductive wf_datamode: ['/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.8-569.16 -/']  | OLD L2257: ['/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:570.8-570.16 -/']
+  cand1 L2264 inductive type: ['/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:571.1-572.16 -/']  | OLD L2266: ['/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:572.1-573.16 -/']
+  cand1 L2269 inductive «local»: ['/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:573.1-574.16 -/']  | OLD L2271: ['/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:574.1-575.16 -/']
+  cand1 L2274 inductive func: ['/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:575.1-576.27 -/']  | OLD L2276: ['/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:576.1-577.27 -/']
+  cand1 L2281 inductive wf_func: ['/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:575.8-575.12 -/']  | OLD L2283: ['/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:576.8-576.12 -/']
+  cand1 L2289 inductive global: ['/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:577.1-578.25 -/']  | OLD L2291: ['/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:578.1-579.25 -/']
+  cand1 L2296 inductive wf_global: ['/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:577.8-577.14 -/']  | OLD L2298: ['/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:578.8-578.14 -/']
+  cand1 L2303 inductive table: ['/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:579.1-580.18 -/']  | OLD L2305: ['/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:580.1-581.18 -/']
+  cand1 L2308 inductive wf_table: ['/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:579.8-579.13 -/']  | OLD L2310: ['/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:580.8-580.13 -/']
+  header differences: 31
+
+=== header comment comparison cand1 vs G_new (non-helper, non-moved, aligned)
+  cand1 L15435 inductive Step: ['-- /- Well-Formedness Theorem at: ../specification/wasm-2.0/8-reduction.spectec:7.10-7.19 -/', '-- theorem Step_read_is_wf (var_0 : config) (var_1 : List admininstr) :', '--   wf_config var_0 →', '--   Step_read var_0 var_1 →', '--   Forall (fun (var_1_elem : admininstr) => wf_admininstr var_1_elem) var_1 :=', '--   sorry', '/- AUTOGENERATED Step_read_is_wf MOVED BELOW BECAUSE IT NEEDS Store_ok, WHICH IS BELOW -/', '/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:5.1-5.109 -/']  | G_new L14393: ['/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:5.1-5.109 -/']
+  cand1 L15566 inductive Steps: ['-- /- Well-Formedness Theorem at: ../specification/wasm-2.0/8-reduction.spectec:5.10-5.14 -/', '-- theorem Step_is_wf (var_0 : config) (var_1 : config) :', '--   wf_config var_0 →', '--   Step var_0 var_1 →', '--   wf_config var_1 :=', '--   sorry', '/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:8.1-8.77 -/']  | G_new L14524: ['/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:8.1-8.77 -/']
+  header differences: 2
+
+=== RESULT: failures = []

@@ -1,0 +1,20 @@
+/- a /- nested -/ still comment
+theorem hidden1 : True := trivial
+-/
+theorem visible1 : True := trivial
+-- theorem hidden2 /- not opened
+theorem visible2 : True := trivial
+/-- doc
+theorem hidden3 -/
+def visible3 := 1
+deriving Repr
+/- -- -/ theorem visible4_noncol0 : True := trivial
+/-! mod /- deep /- deeper -/ -/
+theorem hidden4
+-/
+stray_line_here
+--/
+mutual
+inductive A where
+end
+instance  : Foo Bar where

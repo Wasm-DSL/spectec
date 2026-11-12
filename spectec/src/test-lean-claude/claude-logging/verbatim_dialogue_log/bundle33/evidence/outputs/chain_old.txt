@@ -1,0 +1,9 @@
+old ExtendedDeriveDecEq rc=0 errors=0 warnings=0 sorry-warnings=0 olean=yes WALL 2.46 s  MAXRSS 1668672 KB
+old wasm2.0 rc=0 errors=0 warnings=89 sorry-warnings=0 olean=yes WALL 27.43 s  MAXRSS 2945908 KB
+old HelperLemmas rc=0 errors=0 warnings=4 sorry-warnings=0 olean=yes WALL 3.84 s  MAXRSS 3801944 KB
+old Subtyping rc=0 errors=0 warnings=0 sorry-warnings=0 olean=yes WALL 2.06 s  MAXRSS 3771540 KB
+old TypingLemmas rc=0 errors=0 warnings=9 sorry-warnings=0 olean=yes WALL 22.38 s  MAXRSS 4545308 KB
+old TypePreservationPure rc=0 errors=0 warnings=47 sorry-warnings=0 olean=yes WALL 5.02 s  MAXRSS 4027876 KB
+old ExtensionLemmas rc=0 errors=0 warnings=14 sorry-warnings=0 olean=yes WALL 2.62 s  MAXRSS 3850212 KB
+old TypePreservation rc=0 errors=0 warnings=7 sorry-warnings=0 olean=yes WALL 6.26 s  MAXRSS 4026748 KB
+old TypeProgress rc=0 errors=0 warnings=1 sorry-warnings=0 olean=yes WALL 15.35 s  MAXRSS 4760044 KB

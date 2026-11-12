@@ -1,0 +1,2 @@
+module constants: 10608; replayed groups: 7836; theorems checked: 3613; module Inhabited instances made opaque: 121; external instances made opaque: [Int.instInhabited, instInhabitedBool, instInhabitedNat, instInhabitedOption, instInhabitedRat, instInhabitedList, Inhabited.mk]
+theorems needing a default value: 0

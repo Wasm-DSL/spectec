@@ -1,0 +1,1467 @@
+TypingLemmas.lean:131:4: error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr instr.NOP)
+is not definitionally equal to the right-hand side
+  some instr.NOP
+
+case NOP
+⊢ instr_of (admininstr_instr instr.NOP) = some instr.NOP
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr instr.UNREACHABLE)
+is not definitionally equal to the right-hand side
+  some instr.UNREACHABLE
+
+case UNREACHABLE
+⊢ instr_of (admininstr_instr instr.UNREACHABLE) = some instr.UNREACHABLE
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr instr.DROP)
+is not definitionally equal to the right-hand side
+  some instr.DROP
+
+case DROP
+⊢ instr_of (admininstr_instr instr.DROP) = some instr.DROP
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.SELECT valtype_lst_opt✝))
+is not definitionally equal to the right-hand side
+  some (instr.SELECT valtype_lst_opt✝)
+
+case SELECT
+valtype_lst_opt✝ : Option (List valtype)
+⊢ instr_of (admininstr_instr (instr.SELECT valtype_lst_opt✝)) = some (instr.SELECT valtype_lst_opt✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.BLOCK v_blocktype✝ instr_lst✝))
+is not definitionally equal to the right-hand side
+  some (instr.BLOCK v_blocktype✝ instr_lst✝)
+
+case BLOCK
+v_blocktype✝ : blocktype
+instr_lst✝ : List instr
+⊢ instr_of (admininstr_instr (instr.BLOCK v_blocktype✝ instr_lst✝)) = some (instr.BLOCK v_blocktype✝ instr_lst✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.LOOP v_blocktype✝ instr_lst✝))
+is not definitionally equal to the right-hand side
+  some (instr.LOOP v_blocktype✝ instr_lst✝)
+
+case LOOP
+v_blocktype✝ : blocktype
+instr_lst✝ : List instr
+⊢ instr_of (admininstr_instr (instr.LOOP v_blocktype✝ instr_lst✝)) = some (instr.LOOP v_blocktype✝ instr_lst✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.IFELSE v_blocktype✝ instr_lst_0✝ instr_lst_1✝))
+is not definitionally equal to the right-hand side
+  some (instr.IFELSE v_blocktype✝ instr_lst_0✝ instr_lst_1✝)
+
+case IFELSE
+v_blocktype✝ : blocktype
+instr_lst_0✝ instr_lst_1✝ : List instr
+⊢ instr_of (admininstr_instr (instr.IFELSE v_blocktype✝ instr_lst_0✝ instr_lst_1✝)) =
+    some (instr.IFELSE v_blocktype✝ instr_lst_0✝ instr_lst_1✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.BR v_labelidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.BR v_labelidx✝)
+
+case BR
+v_labelidx✝ : labelidx
+⊢ instr_of (admininstr_instr (instr.BR v_labelidx✝)) = some (instr.BR v_labelidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.BR_IF v_labelidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.BR_IF v_labelidx✝)
+
+case BR_IF
+v_labelidx✝ : labelidx
+⊢ instr_of (admininstr_instr (instr.BR_IF v_labelidx✝)) = some (instr.BR_IF v_labelidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.BR_TABLE labelidx_lst✝ v_labelidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.BR_TABLE labelidx_lst✝ v_labelidx✝)
+
+case BR_TABLE
+labelidx_lst✝ : List labelidx
+v_labelidx✝ : labelidx
+⊢ instr_of (admininstr_instr (instr.BR_TABLE labelidx_lst✝ v_labelidx✝)) =
+    some (instr.BR_TABLE labelidx_lst✝ v_labelidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.CALL v_funcidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.CALL v_funcidx✝)
+
+case CALL
+v_funcidx✝ : funcidx
+⊢ instr_of (admininstr_instr (instr.CALL v_funcidx✝)) = some (instr.CALL v_funcidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.CALL_INDIRECT v_tableidx✝ v_typeidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.CALL_INDIRECT v_tableidx✝ v_typeidx✝)
+
+case CALL_INDIRECT
+v_tableidx✝ : tableidx
+v_typeidx✝ : typeidx
+⊢ instr_of (admininstr_instr (instr.CALL_INDIRECT v_tableidx✝ v_typeidx✝)) =
+    some (instr.CALL_INDIRECT v_tableidx✝ v_typeidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr instr.RETURN)
+is not definitionally equal to the right-hand side
+  some instr.RETURN
+
+case RETURN
+⊢ instr_of (admininstr_instr instr.RETURN) = some instr.RETURN
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.CONST v_numtype✝ x✝))
+is not definitionally equal to the right-hand side
+  some (instr.CONST v_numtype✝ x✝)
+
+case CONST
+v_numtype✝ : numtype
+x✝ : num_
+⊢ instr_of (admininstr_instr (instr.CONST v_numtype✝ x✝)) = some (instr.CONST v_numtype✝ x✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.UNOP v_numtype✝ x✝))
+is not definitionally equal to the right-hand side
+  some (instr.UNOP v_numtype✝ x✝)
+
+case UNOP
+v_numtype✝ : numtype
+x✝ : unop_
+⊢ instr_of (admininstr_instr (instr.UNOP v_numtype✝ x✝)) = some (instr.UNOP v_numtype✝ x✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.BINOP v_numtype✝ x✝))
+is not definitionally equal to the right-hand side
+  some (instr.BINOP v_numtype✝ x✝)
+
+case BINOP
+v_numtype✝ : numtype
+x✝ : binop_
+⊢ instr_of (admininstr_instr (instr.BINOP v_numtype✝ x✝)) = some (instr.BINOP v_numtype✝ x✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.TESTOP v_numtype✝ x✝))
+is not definitionally equal to the right-hand side
+  some (instr.TESTOP v_numtype✝ x✝)
+
+case TESTOP
+v_numtype✝ : numtype
+x✝ : testop_
+⊢ instr_of (admininstr_instr (instr.TESTOP v_numtype✝ x✝)) = some (instr.TESTOP v_numtype✝ x✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.RELOP v_numtype✝ x✝))
+is not definitionally equal to the right-hand side
+  some (instr.RELOP v_numtype✝ x✝)
+
+case RELOP
+v_numtype✝ : numtype
+x✝ : relop_
+⊢ instr_of (admininstr_instr (instr.RELOP v_numtype✝ x✝)) = some (instr.RELOP v_numtype✝ x✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.CVTOP numtype_1✝ numtype_2✝ x✝))
+is not definitionally equal to the right-hand side
+  some (instr.CVTOP numtype_1✝ numtype_2✝ x✝)
+
+case CVTOP
+numtype_1✝ numtype_2✝ : numtype
+x✝ : cvtop__
+⊢ instr_of (admininstr_instr (instr.CVTOP numtype_1✝ numtype_2✝ x✝)) = some (instr.CVTOP numtype_1✝ numtype_2✝ x✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VCONST v_vectype✝ x✝))
+is not definitionally equal to the right-hand side
+  some (instr.VCONST v_vectype✝ x✝)
+
+case VCONST
+v_vectype✝ : vectype
+x✝ : vec_
+⊢ instr_of (admininstr_instr (instr.VCONST v_vectype✝ x✝)) = some (instr.VCONST v_vectype✝ x✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VVUNOP v_vectype✝ v_vvunop✝))
+is not definitionally equal to the right-hand side
+  some (instr.VVUNOP v_vectype✝ v_vvunop✝)
+
+case VVUNOP
+v_vectype✝ : vectype
+v_vvunop✝ : vvunop
+⊢ instr_of (admininstr_instr (instr.VVUNOP v_vectype✝ v_vvunop✝)) = some (instr.VVUNOP v_vectype✝ v_vvunop✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VVBINOP v_vectype✝ v_vvbinop✝))
+is not definitionally equal to the right-hand side
+  some (instr.VVBINOP v_vectype✝ v_vvbinop✝)
+
+case VVBINOP
+v_vectype✝ : vectype
+v_vvbinop✝ : vvbinop
+⊢ instr_of (admininstr_instr (instr.VVBINOP v_vectype✝ v_vvbinop✝)) = some (instr.VVBINOP v_vectype✝ v_vvbinop✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VVTERNOP v_vectype✝ v_vvternop✝))
+is not definitionally equal to the right-hand side
+  some (instr.VVTERNOP v_vectype✝ v_vvternop✝)
+
+case VVTERNOP
+v_vectype✝ : vectype
+v_vvternop✝ : vvternop
+⊢ instr_of (admininstr_instr (instr.VVTERNOP v_vectype✝ v_vvternop✝)) = some (instr.VVTERNOP v_vectype✝ v_vvternop✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VVTESTOP v_vectype✝ v_vvtestop✝))
+is not definitionally equal to the right-hand side
+  some (instr.VVTESTOP v_vectype✝ v_vvtestop✝)
+
+case VVTESTOP
+v_vectype✝ : vectype
+v_vvtestop✝ : vvtestop
+⊢ instr_of (admininstr_instr (instr.VVTESTOP v_vectype✝ v_vvtestop✝)) = some (instr.VVTESTOP v_vectype✝ v_vvtestop✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VUNOP v_shape✝ x✝))
+is not definitionally equal to the right-hand side
+  some (instr.VUNOP v_shape✝ x✝)
+
+case VUNOP
+v_shape✝ : shape
+x✝ : vunop_
+⊢ instr_of (admininstr_instr (instr.VUNOP v_shape✝ x✝)) = some (instr.VUNOP v_shape✝ x✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VBINOP v_shape✝ x✝))
+is not definitionally equal to the right-hand side
+  some (instr.VBINOP v_shape✝ x✝)
+
+case VBINOP
+v_shape✝ : shape
+x✝ : vbinop_
+⊢ instr_of (admininstr_instr (instr.VBINOP v_shape✝ x✝)) = some (instr.VBINOP v_shape✝ x✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VTESTOP v_shape✝ x✝))
+is not definitionally equal to the right-hand side
+  some (instr.VTESTOP v_shape✝ x✝)
+
+case VTESTOP
+v_shape✝ : shape
+x✝ : vtestop_
+⊢ instr_of (admininstr_instr (instr.VTESTOP v_shape✝ x✝)) = some (instr.VTESTOP v_shape✝ x✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VRELOP v_shape✝ x✝))
+is not definitionally equal to the right-hand side
+  some (instr.VRELOP v_shape✝ x✝)
+
+case VRELOP
+v_shape✝ : shape
+x✝ : vrelop_
+⊢ instr_of (admininstr_instr (instr.VRELOP v_shape✝ x✝)) = some (instr.VRELOP v_shape✝ x✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VSHIFTOP v_ishape✝ x✝))
+is not definitionally equal to the right-hand side
+  some (instr.VSHIFTOP v_ishape✝ x✝)
+
+case VSHIFTOP
+v_ishape✝ : ishape
+x✝ : vshiftop_
+⊢ instr_of (admininstr_instr (instr.VSHIFTOP v_ishape✝ x✝)) = some (instr.VSHIFTOP v_ishape✝ x✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VBITMASK v_ishape✝))
+is not definitionally equal to the right-hand side
+  some (instr.VBITMASK v_ishape✝)
+
+case VBITMASK
+v_ishape✝ : ishape
+⊢ instr_of (admininstr_instr (instr.VBITMASK v_ishape✝)) = some (instr.VBITMASK v_ishape✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VSWIZZLE v_ishape✝))
+is not definitionally equal to the right-hand side
+  some (instr.VSWIZZLE v_ishape✝)
+
+case VSWIZZLE
+v_ishape✝ : ishape
+⊢ instr_of (admininstr_instr (instr.VSWIZZLE v_ishape✝)) = some (instr.VSWIZZLE v_ishape✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VSHUFFLE v_ishape✝ laneidx_lst✝))
+is not definitionally equal to the right-hand side
+  some (instr.VSHUFFLE v_ishape✝ laneidx_lst✝)
+
+case VSHUFFLE
+v_ishape✝ : ishape
+laneidx_lst✝ : List laneidx
+⊢ instr_of (admininstr_instr (instr.VSHUFFLE v_ishape✝ laneidx_lst✝)) = some (instr.VSHUFFLE v_ishape✝ laneidx_lst✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VSPLAT v_shape✝))
+is not definitionally equal to the right-hand side
+  some (instr.VSPLAT v_shape✝)
+
+case VSPLAT
+v_shape✝ : shape
+⊢ instr_of (admininstr_instr (instr.VSPLAT v_shape✝)) = some (instr.VSPLAT v_shape✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VEXTRACT_LANE v_shape✝ sx_opt✝ v_laneidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.VEXTRACT_LANE v_shape✝ sx_opt✝ v_laneidx✝)
+
+case VEXTRACT_LANE
+v_shape✝ : shape
+sx_opt✝ : Option sx
+v_laneidx✝ : laneidx
+⊢ instr_of (admininstr_instr (instr.VEXTRACT_LANE v_shape✝ sx_opt✝ v_laneidx✝)) =
+    some (instr.VEXTRACT_LANE v_shape✝ sx_opt✝ v_laneidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VREPLACE_LANE v_shape✝ v_laneidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.VREPLACE_LANE v_shape✝ v_laneidx✝)
+
+case VREPLACE_LANE
+v_shape✝ : shape
+v_laneidx✝ : laneidx
+⊢ instr_of (admininstr_instr (instr.VREPLACE_LANE v_shape✝ v_laneidx✝)) = some (instr.VREPLACE_LANE v_shape✝ v_laneidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VEXTUNOP ishape_1✝ ishape_2✝ x✝))
+is not definitionally equal to the right-hand side
+  some (instr.VEXTUNOP ishape_1✝ ishape_2✝ x✝)
+
+case VEXTUNOP
+ishape_1✝ ishape_2✝ : ishape
+x✝ : vextunop__
+⊢ instr_of (admininstr_instr (instr.VEXTUNOP ishape_1✝ ishape_2✝ x✝)) = some (instr.VEXTUNOP ishape_1✝ ishape_2✝ x✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VEXTBINOP ishape_1✝ ishape_2✝ x✝))
+is not definitionally equal to the right-hand side
+  some (instr.VEXTBINOP ishape_1✝ ishape_2✝ x✝)
+
+case VEXTBINOP
+ishape_1✝ ishape_2✝ : ishape
+x✝ : vextbinop__
+⊢ instr_of (admininstr_instr (instr.VEXTBINOP ishape_1✝ ishape_2✝ x✝)) = some (instr.VEXTBINOP ishape_1✝ ishape_2✝ x✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VNARROW ishape_1✝ ishape_2✝ v_sx✝))
+is not definitionally equal to the right-hand side
+  some (instr.VNARROW ishape_1✝ ishape_2✝ v_sx✝)
+
+case VNARROW
+ishape_1✝ ishape_2✝ : ishape
+v_sx✝ : sx
+⊢ instr_of (admininstr_instr (instr.VNARROW ishape_1✝ ishape_2✝ v_sx✝)) = some (instr.VNARROW ishape_1✝ ishape_2✝ v_sx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VCVTOP shape_1✝ shape_2✝ x✝))
+is not definitionally equal to the right-hand side
+  some (instr.VCVTOP shape_1✝ shape_2✝ x✝)
+
+case VCVTOP
+shape_1✝ shape_2✝ : shape
+x✝ : vcvtop__
+⊢ instr_of (admininstr_instr (instr.VCVTOP shape_1✝ shape_2✝ x✝)) = some (instr.VCVTOP shape_1✝ shape_2✝ x✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.REF_NULL v_reftype✝))
+is not definitionally equal to the right-hand side
+  some (instr.REF_NULL v_reftype✝)
+
+case REF_NULL
+v_reftype✝ : reftype
+⊢ instr_of (admininstr_instr (instr.REF_NULL v_reftype✝)) = some (instr.REF_NULL v_reftype✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.REF_FUNC v_funcidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.REF_FUNC v_funcidx✝)
+
+case REF_FUNC
+v_funcidx✝ : funcidx
+⊢ instr_of (admininstr_instr (instr.REF_FUNC v_funcidx✝)) = some (instr.REF_FUNC v_funcidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr instr.REF_IS_NULL)
+is not definitionally equal to the right-hand side
+  some instr.REF_IS_NULL
+
+case REF_IS_NULL
+⊢ instr_of (admininstr_instr instr.REF_IS_NULL) = some instr.REF_IS_NULL
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.LOCAL_GET v_localidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.LOCAL_GET v_localidx✝)
+
+case LOCAL_GET
+v_localidx✝ : localidx
+⊢ instr_of (admininstr_instr (instr.LOCAL_GET v_localidx✝)) = some (instr.LOCAL_GET v_localidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.LOCAL_SET v_localidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.LOCAL_SET v_localidx✝)
+
+case LOCAL_SET
+v_localidx✝ : localidx
+⊢ instr_of (admininstr_instr (instr.LOCAL_SET v_localidx✝)) = some (instr.LOCAL_SET v_localidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.LOCAL_TEE v_localidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.LOCAL_TEE v_localidx✝)
+
+case LOCAL_TEE
+v_localidx✝ : localidx
+⊢ instr_of (admininstr_instr (instr.LOCAL_TEE v_localidx✝)) = some (instr.LOCAL_TEE v_localidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.GLOBAL_GET v_globalidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.GLOBAL_GET v_globalidx✝)
+
+case GLOBAL_GET
+v_globalidx✝ : globalidx
+⊢ instr_of (admininstr_instr (instr.GLOBAL_GET v_globalidx✝)) = some (instr.GLOBAL_GET v_globalidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.GLOBAL_SET v_globalidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.GLOBAL_SET v_globalidx✝)
+
+case GLOBAL_SET
+v_globalidx✝ : globalidx
+⊢ instr_of (admininstr_instr (instr.GLOBAL_SET v_globalidx✝)) = some (instr.GLOBAL_SET v_globalidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.TABLE_GET v_tableidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.TABLE_GET v_tableidx✝)
+
+case TABLE_GET
+v_tableidx✝ : tableidx
+⊢ instr_of (admininstr_instr (instr.TABLE_GET v_tableidx✝)) = some (instr.TABLE_GET v_tableidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.TABLE_SET v_tableidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.TABLE_SET v_tableidx✝)
+
+case TABLE_SET
+v_tableidx✝ : tableidx
+⊢ instr_of (admininstr_instr (instr.TABLE_SET v_tableidx✝)) = some (instr.TABLE_SET v_tableidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.TABLE_SIZE v_tableidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.TABLE_SIZE v_tableidx✝)
+
+case TABLE_SIZE
+v_tableidx✝ : tableidx
+⊢ instr_of (admininstr_instr (instr.TABLE_SIZE v_tableidx✝)) = some (instr.TABLE_SIZE v_tableidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.TABLE_GROW v_tableidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.TABLE_GROW v_tableidx✝)
+
+case TABLE_GROW
+v_tableidx✝ : tableidx
+⊢ instr_of (admininstr_instr (instr.TABLE_GROW v_tableidx✝)) = some (instr.TABLE_GROW v_tableidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.TABLE_FILL v_tableidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.TABLE_FILL v_tableidx✝)
+
+case TABLE_FILL
+v_tableidx✝ : tableidx
+⊢ instr_of (admininstr_instr (instr.TABLE_FILL v_tableidx✝)) = some (instr.TABLE_FILL v_tableidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.TABLE_COPY v_tableidx_0✝ v_tableidx_1✝))
+is not definitionally equal to the right-hand side
+  some (instr.TABLE_COPY v_tableidx_0✝ v_tableidx_1✝)
+
+case TABLE_COPY
+v_tableidx_0✝ v_tableidx_1✝ : tableidx
+⊢ instr_of (admininstr_instr (instr.TABLE_COPY v_tableidx_0✝ v_tableidx_1✝)) =
+    some (instr.TABLE_COPY v_tableidx_0✝ v_tableidx_1✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.TABLE_INIT v_tableidx✝ v_elemidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.TABLE_INIT v_tableidx✝ v_elemidx✝)
+
+case TABLE_INIT
+v_tableidx✝ : tableidx
+v_elemidx✝ : elemidx
+⊢ instr_of (admininstr_instr (instr.TABLE_INIT v_tableidx✝ v_elemidx✝)) = some (instr.TABLE_INIT v_tableidx✝ v_elemidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.ELEM_DROP v_elemidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.ELEM_DROP v_elemidx✝)
+
+case ELEM_DROP
+v_elemidx✝ : elemidx
+⊢ instr_of (admininstr_instr (instr.ELEM_DROP v_elemidx✝)) = some (instr.ELEM_DROP v_elemidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.LOAD v_numtype✝ x✝ v_memarg✝))
+is not definitionally equal to the right-hand side
+  some (instr.LOAD v_numtype✝ x✝ v_memarg✝)
+
+case LOAD
+v_numtype✝ : numtype
+x✝ : Option loadop_
+v_memarg✝ : memarg
+⊢ instr_of (admininstr_instr (instr.LOAD v_numtype✝ x✝ v_memarg✝)) = some (instr.LOAD v_numtype✝ x✝ v_memarg✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.STORE v_numtype✝ sz_opt✝ v_memarg✝))
+is not definitionally equal to the right-hand side
+  some (instr.STORE v_numtype✝ sz_opt✝ v_memarg✝)
+
+case STORE
+v_numtype✝ : numtype
+sz_opt✝ : Option sz
+v_memarg✝ : memarg
+⊢ instr_of (admininstr_instr (instr.STORE v_numtype✝ sz_opt✝ v_memarg✝)) =
+    some (instr.STORE v_numtype✝ sz_opt✝ v_memarg✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VLOAD v_vectype✝ x✝ v_memarg✝))
+is not definitionally equal to the right-hand side
+  some (instr.VLOAD v_vectype✝ x✝ v_memarg✝)
+
+case VLOAD
+v_vectype✝ : vectype
+x✝ : Option vloadop_
+v_memarg✝ : memarg
+⊢ instr_of (admininstr_instr (instr.VLOAD v_vectype✝ x✝ v_memarg✝)) = some (instr.VLOAD v_vectype✝ x✝ v_memarg✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VLOAD_LANE v_vectype✝ v_sz✝ v_memarg✝ v_laneidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.VLOAD_LANE v_vectype✝ v_sz✝ v_memarg✝ v_laneidx✝)
+
+case VLOAD_LANE
+v_vectype✝ : vectype
+v_sz✝ : sz
+v_memarg✝ : memarg
+v_laneidx✝ : laneidx
+⊢ instr_of (admininstr_instr (instr.VLOAD_LANE v_vectype✝ v_sz✝ v_memarg✝ v_laneidx✝)) =
+    some (instr.VLOAD_LANE v_vectype✝ v_sz✝ v_memarg✝ v_laneidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VSTORE v_vectype✝ v_memarg✝))
+is not definitionally equal to the right-hand side
+  some (instr.VSTORE v_vectype✝ v_memarg✝)
+
+case VSTORE
+v_vectype✝ : vectype
+v_memarg✝ : memarg
+⊢ instr_of (admininstr_instr (instr.VSTORE v_vectype✝ v_memarg✝)) = some (instr.VSTORE v_vectype✝ v_memarg✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.VSTORE_LANE v_vectype✝ v_sz✝ v_memarg✝ v_laneidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.VSTORE_LANE v_vectype✝ v_sz✝ v_memarg✝ v_laneidx✝)
+
+case VSTORE_LANE
+v_vectype✝ : vectype
+v_sz✝ : sz
+v_memarg✝ : memarg
+v_laneidx✝ : laneidx
+⊢ instr_of (admininstr_instr (instr.VSTORE_LANE v_vectype✝ v_sz✝ v_memarg✝ v_laneidx✝)) =
+    some (instr.VSTORE_LANE v_vectype✝ v_sz✝ v_memarg✝ v_laneidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr instr.MEMORY_SIZE)
+is not definitionally equal to the right-hand side
+  some instr.MEMORY_SIZE
+
+case MEMORY_SIZE
+⊢ instr_of (admininstr_instr instr.MEMORY_SIZE) = some instr.MEMORY_SIZE
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr instr.MEMORY_GROW)
+is not definitionally equal to the right-hand side
+  some instr.MEMORY_GROW
+
+case MEMORY_GROW
+⊢ instr_of (admininstr_instr instr.MEMORY_GROW) = some instr.MEMORY_GROW
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr instr.MEMORY_FILL)
+is not definitionally equal to the right-hand side
+  some instr.MEMORY_FILL
+
+case MEMORY_FILL
+⊢ instr_of (admininstr_instr instr.MEMORY_FILL) = some instr.MEMORY_FILL
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr instr.MEMORY_COPY)
+is not definitionally equal to the right-hand side
+  some instr.MEMORY_COPY
+
+case MEMORY_COPY
+⊢ instr_of (admininstr_instr instr.MEMORY_COPY) = some instr.MEMORY_COPY
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.MEMORY_INIT v_dataidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.MEMORY_INIT v_dataidx✝)
+
+case MEMORY_INIT
+v_dataidx✝ : dataidx
+⊢ instr_of (admininstr_instr (instr.MEMORY_INIT v_dataidx✝)) = some (instr.MEMORY_INIT v_dataidx✝)
+TypingLemmas.lean:192:14: error: Tactic `rfl` failed: The left-hand side
+  instr_of (admininstr_instr (instr.DATA_DROP v_dataidx✝))
+is not definitionally equal to the right-hand side
+  some (instr.DATA_DROP v_dataidx✝)
+
+case DATA_DROP
+v_dataidx✝ : dataidx
+⊢ instr_of (admininstr_instr (instr.DATA_DROP v_dataidx✝)) = some (instr.DATA_DROP v_dataidx✝)
+TypingLemmas.lean:454:4: error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
+TypingLemmas.lean:466:8: warning: declaration uses `sorry`
+TypingLemmas.lean:480:4: warning: 'simp only [admininstr_instr]' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:481:4: warning: 'refine ⟨t1_lst, t_lst, t2s, by simp [List.append_assoc], ?_, ?_⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:482:4: warning: '·
+  intro l hl
+  exact ⟨v_C.LABELS[proj_uN_0 l]!, by simp [h_ls_bound l hl], h_ls_sub l hl⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:484:4: warning: '· exact ⟨v_C.LABELS[proj_uN_0 l']!, by simp [h_l'_bound], h_l'_sub⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:488:8: warning: 'simp only [admininstr_instr]' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:489:8: warning: 'try simp_all' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:491:2: warning: 'case drop t wf_drop wf_c => exists t' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:494:2: warning: 'case select_impl t t' nt vt subt t'_constraints wf_select
+  wf_c =>
+  refine ⟨t, rfl, t', subt, ?_⟩
+  rcases t'_constraints with t'_constraint | t'_constraint
+  · exact Or.inl ⟨nt, t'_constraint⟩
+  · exact Or.inr ⟨vt, t'_constraint⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:502:2: warning: 'case block bt instrs wf_block wf_c wf_c' bt_ok
+  instrs_ok =>
+  exists t1s
+  exists t2s' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:507:2: warning: 'case loop bt instrs wf_loop wf_c wf_c' bt_ok
+  instrs_ok =>
+  exists t1s
+  exists t2s' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:512:2: warning: 'case «if» bt instrs1 instrs2 t wf_if wf_c wf_c' bt_ok instrs1_ok
+  instrs2_ok =>
+  exists t
+  exists t2s' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:517:2: warning: 'case br lidx t1s' ts wf_br lidx_within_LABELS LABELS_gives_ts
+  wf_c =>
+  exists t1s'
+  exists ts
+  apply And.intro
+  · exists t2s
+  · unfold proj_list_0 at LABELS_gives_ts
+    have hlab : v_C.LABELS[proj_uN_0 lidx] = list.mk_list ts :=
+      Eq.subst (motive := fun z => v_C.LABELS[proj_uN_0 lidx] = list.mk_list z) LABELS_gives_ts rfl
+    simp only [hlab]' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:528:2: warning: 'case br_if lidx wf_br_if lidx_within_LABELS wf_c
+  LABELS_gives_t2s =>
+  exists t2s
+  apply And.intro
+  · rfl
+  · unfold proj_list_0 at LABELS_gives_t2s
+    have h : v_C.LABELS[(proj_uN_0 lidx)] = (list.mk_list t2s) :=
+      Eq.subst (motive := fun x => v_C.LABELS[(proj_uN_0 lidx)] = list.mk_list x) LABELS_gives_t2s rfl
+    simp only [h]' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:538:2: warning: 'case call idx wf_call idx_within_FUNCS wf_c
+  FUNCS_gives_ft =>
+  exists t1s
+  exists t2s' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:543:2: warning: 'case call_indirect idx1 idx2 t1s' lim wf_call_indirect wf_tt idx1_within_TABLES idx2_within_TYPES TABLES_gives_tt
+  idx2_within_TYPES2 wf_c TYPES_gives_ft => exists t1s', t2s' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:548:2: warning: 'case «return» t1s' ts wf_return RETURN_gives_ts
+  wf_c =>
+  exists t1s', t2s
+  exact ⟨rfl, Instr_ok.return v_C t1s' ts t2s RETURN_gives_ts wf_c wf_return⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:553:2: warning: 'case const nt n wf_const wf_c =>
+  cases wf_const with
+  | instr_case_13 nt n h => exact h' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:559:2: warning: 'case ref_func idx ft wf_ref_func idx_in_FUNCS FUNCS_gives_ft wf_c => rfl' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:563:2: warning: 'case ref_is_null rt wr_ref_is_null wf_c => exists rt' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:567:2: warning: 'case vconst vec wf_vconst wf_c =>
+  cases wf_vconst with
+  | instr_case_20 vt v not_none_size
+    wf_vec =>
+    refine ⟨(size (valtype_vectype vectype.V128)).get!, ?_, ?_, ?_⟩
+    · obtain ⟨x, hx⟩ := Option.ne_none_iff_exists.mp not_none_size
+      rfl
+    · exact wf_vec
+    · rfl' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:577:2: warning: 'case load_val nt marg mt MEMS_length_nonzero nt_size_not_none size_constraint wf_mt wf_load MEMS_length_nonzero2
+  mt_at_MEMS_0_idx wf_c =>
+  refine ⟨(size (valtype_numtype nt)).get!, ?_, ?_⟩
+  · cases nt <;> simp [size, valtype_numtype]
+  ·
+    cases nt <;> simp [size, valtype_numtype] at size_constraint ⊢ <;> norm_num at size_constraint <;>
+      exact_mod_cast size_constraint' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:589:2: warning: 'case load_pack inn m is_signed marg mt size_constraint wf_inn wf_load MEMS_not_empty MEMS_0_is_marg
+  wf_c =>
+  cases m
+  · norm_num at size_constraint ⊢
+    have h_false : False :=
+      by
+      have h_pos : (2 ^ (proj_uN_0 marg.ALIGN)) > (0 : Rat) := by positivity
+      linarith only [size_constraint, h_pos]
+    exact h_false
+  · rename_i n
+    have bridge : ∀ (n0 n1 n2 : Nat), n0 ≤ ((n1 : Rat) / n2) → n0 ≤ (n1 / n2) :=
+      by
+      intros n0 n1 n2 h
+      rcases Nat.eq_zero_or_pos n2 with hz | hpos
+      · subst hz
+        simp at h ⊢
+        exact_mod_cast h
+      · rcases lt_or_ge ((n1 : Rat) / n2) (n0 + 1 : Rat) with hlt | hge
+        · have heq : n1 / n2 = n0 :=
+            by
+            have hmul_le : n0 * n2 ≤ n1 :=
+              by
+              rw [le_div_iff₀ (by exact_mod_cast hpos : (0 : Rat) < n2)] at h
+              exact_mod_cast h
+            have hmul_lt : n1 < (n0 + 1) * n2 :=
+              by
+              rw [div_lt_iff₀ (by exact_mod_cast hpos : (0 : Rat) < n2)] at hlt
+              exact_mod_cast hlt
+            have h1 : n0 ≤ (n1 / n2) := (Nat.le_div_iff_mul_le hpos).mpr hmul_le
+            have h2 : (n1 / n2) < (n0 + 1) := (Nat.div_lt_iff_lt_mul hpos).mpr hmul_lt
+            omega
+          omega
+        · have : n0 + 1 ≤ n1 / n2 := by
+            rw [Nat.le_div_iff_mul_le hpos]
+            rw [le_div_iff₀ (by exact_mod_cast hpos)] at hge
+            exact_mod_cast hge
+          omega
+    exact_mod_cast bridge (2 ^ (proj_uN_0 marg.ALIGN)) n.succ 8 (by exact_mod_cast size_constraint)' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:627:2: warning: 'case store_val nt marg mt MEMS_length_nonzero nt_size_not_none size_constraint wf_mt wf_store MEMS_length_nonzero2
+  mt_at_MEMS_0_idx wf_c =>
+  refine ⟨(size (valtype_numtype nt)).get!, ?_, ?_⟩
+  · cases nt <;> simp [size, valtype_numtype]
+  ·
+    cases nt <;> simp [size, valtype_numtype, Option.bind, Option.get] at size_constraint ⊢ <;>
+        norm_num at size_constraint <;>
+      exact_mod_cast size_constraint' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:638:2: warning: 'case store_pack inn m marg mt size_constraint wf_mt wf_store MEMS_not_empty MEMS_0_is_mt
+  wf_c =>
+  apply And.intro
+  · cases inn <;> simp [valtype_Inn, valtype_numtype] <;> rfl
+  · have bridge : ∀ (n0 n1 n2 : Nat), n0 ≤ ((n1 : Rat) / n2) → n0 ≤ (n1 / n2) :=
+      by
+      intros n0 n1 n2 h
+      rcases Nat.eq_zero_or_pos n2 with h_zero | h_pos
+      · subst h_zero
+        simp [*] at h ⊢
+        exact h
+      · rcases lt_or_ge (n1 / n2) (n0 + 1) with h2_near | h_far
+        · have lower_limit : n1 / n2 = n0 := by
+            let upper := h2_near
+            have lower : n0 ≤ n1 / n2 :=
+              by
+              have h_throwaway : n0 * n2 ≤ n1 :=
+                by
+                rw [le_div_iff₀ (by exact_mod_cast h_pos)] at h
+                exact_mod_cast h
+              exact (Nat.le_div_iff_mul_le h_pos).mpr h_throwaway
+            omega
+          omega
+        · omega
+    have applied_bridge := bridge ((2 : ℕ) ^ (proj_uN_0 marg.ALIGN)) m 8 (by exact_mod_cast size_constraint)
+    exact applied_bridge' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:481:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:482:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:484:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:489:8: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:491:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:494:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:502:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:507:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:512:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:517:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:528:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:538:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:543:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:548:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:553:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:559:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:563:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:567:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:577:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:589:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:627:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:638:2: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:487:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+TypingLemmas.lean:488:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+TypingLemmas.lean:684:2: error: Case tag `SELECT` not found.
+
+Note: There are no cases to select.
+TypingLemmas.lean:764:21: error: Tactic `assumption` failed
+
+v_S : store
+v_C : context
+t1s t2s ta tb : List valtype
+hwfS : wf_store v_S
+hwfai : wf_admininstr admininstr.TRAP
+hwfC : wf_context v_C
+gen_ft : mkFunctype t1s t2s = functype.mk_functype (list.mk_list ta) (list.mk_list tb)
+⊢ ai_principal_typing v_S v_C admininstr.TRAP (mkFunctype ta tb)
+TypingLemmas.lean:794:6: error: Tactic `injection` failed: equality of constructor applications expected
+
+case ref.REF_NULL
+v_S : store
+v_C : context
+v_instr : instr
+t1s t2s : List valtype
+rt : reftype
+a✝ : wf_store v_S
+hwfC : wf_context v_C
+hft : mkFunctype t1s t2s = functype.mk_functype (list.mk_list []) (list.mk_list [valtype_reftype rt])
+rt' : reftype
+href : Ref_ok v_S (ref.REF_NULL rt') rt
+hai : admininstr_instr v_instr = admininstr_ref (ref.REF_NULL rt')
+hof : sorry = some v_instr
+⊢ Instr_ok v_C v_instr (functype.mk_functype (list.mk_list []) (list.mk_list [valtype_reftype rt]))
+TypingLemmas.lean:801:22: error: unsolved goals
+case ref.REF_FUNC_ADDR
+v_S : store
+v_C : context
+v_instr : instr
+t1s t2s : List valtype
+rt : reftype
+a✝ : wf_store v_S
+hwfC : wf_context v_C
+hft : mkFunctype t1s t2s = functype.mk_functype (list.mk_list []) (list.mk_list [valtype_reftype rt])
+a : funcaddr
+href : Ref_ok v_S (ref.REF_FUNC_ADDR a) rt
+hai : admininstr_instr v_instr = admininstr_ref (ref.REF_FUNC_ADDR a)
+hof : sorry () = some v_instr
+⊢ Instr_ok v_C v_instr (functype.mk_functype (list.mk_list []) (list.mk_list [valtype_reftype rt]))
+TypingLemmas.lean:802:22: error: unsolved goals
+case ref.REF_HOST_ADDR
+v_S : store
+v_C : context
+v_instr : instr
+t1s t2s : List valtype
+rt : reftype
+a✝ : wf_store v_S
+hwfC : wf_context v_C
+hft : mkFunctype t1s t2s = functype.mk_functype (list.mk_list []) (list.mk_list [valtype_reftype rt])
+a : hostaddr
+href : Ref_ok v_S (ref.REF_HOST_ADDR a) rt
+hai : admininstr_instr v_instr = admininstr_ref (ref.REF_HOST_ADDR a)
+hof : sorry () = some v_instr
+⊢ Instr_ok v_C v_instr (functype.mk_functype (list.mk_list []) (list.mk_list [valtype_reftype rt]))
+TypingLemmas.lean:803:10: error: unsolved goals
+case label
+v_S : store
+v_C : context
+v_instr : instr
+t1s t2s : List valtype
+v_n✝ : n
+instr'_lst✝ : List instr
+admininstr_lst✝ : List admininstr
+t_lst✝ t'_lst✝ : List valtype
+a✝⁶ : wf_store v_S
+a✝⁵ : wf_admininstr (admininstr.LABEL_ v_n✝ instr'_lst✝ admininstr_lst✝)
+a✝⁴ :
+  wf_context
+    { TYPES := [], FUNCS := [], GLOBALS := [], TABLES := [], MEMS := [], ELEMS := [], DATAS := [], LOCALS := [],
+      LABELS := [list.mk_list t'_lst✝], RETURN := none }
+a✝³ : v_n✝ = t'_lst✝.length
+a✝² :
+  Instrs_ok2 v_S v_C (Map (fun instr'_elem => admininstr_instr instr'_elem) instr'_lst✝)
+    (functype.mk_functype (list.mk_list t'_lst✝) (list.mk_list t_lst✝))
+a✝¹ :
+  Instrs_ok2 v_S
+    ({ TYPES := [], FUNCS := [], GLOBALS := [], TABLES := [], MEMS := [], ELEMS := [], DATAS := [], LOCALS := [],
+        LABELS := [list.mk_list t'_lst✝], RETURN := none } ++
+      v_C)
+    admininstr_lst✝ (functype.mk_functype (list.mk_list []) (list.mk_list t_lst✝))
+a✝ : wf_context v_C
+hai : admininstr_instr v_instr = admininstr.LABEL_ v_n✝ instr'_lst✝ admininstr_lst✝
+hof : sorry () = some v_instr
+hft : mkFunctype t1s t2s = functype.mk_functype (list.mk_list []) (list.mk_list t_lst✝)
+⊢ Instr_ok v_C v_instr (functype.mk_functype (list.mk_list []) (list.mk_list t_lst✝))
+TypingLemmas.lean:804:20: error: unsolved goals
+case Instr_ok2_frame
+v_S : store
+v_C : context
+v_instr : instr
+t1s t2s : List valtype
+v_n✝ : n
+f✝ : frame
+admininstr_lst✝ : List admininstr
+t_lst✝ : List valtype
+C'✝ : context
+a✝⁷ : Frame_ok v_S f✝ C'✝
+a✝⁶ :
+  Expr_ok2 v_S
+    ({ TYPES := [], FUNCS := [], GLOBALS := [], TABLES := [], MEMS := [], ELEMS := [], DATAS := [], LOCALS := [],
+        LABELS := [], RETURN := some (list.mk_list t_lst✝) } ++
+      C'✝)
+    admininstr_lst✝ (list.mk_list t_lst✝)
+a✝⁵ : wf_store v_S
+a✝⁴ : wf_context C'✝
+a✝³ : wf_admininstr (admininstr.FRAME_ v_n✝ f✝ admininstr_lst✝)
+a✝² :
+  wf_context
+    { TYPES := [], FUNCS := [], GLOBALS := [], TABLES := [], MEMS := [], ELEMS := [], DATAS := [], LOCALS := [],
+      LABELS := [], RETURN := some (list.mk_list t_lst✝) }
+a✝¹ : v_n✝ = t_lst✝.length
+a✝ : wf_context v_C
+hai : admininstr_instr v_instr = admininstr.FRAME_ v_n✝ f✝ admininstr_lst✝
+hof : sorry () = some v_instr
+hft : mkFunctype t1s t2s = functype.mk_functype (list.mk_list []) (list.mk_list t_lst✝)
+⊢ Instr_ok v_C v_instr (functype.mk_functype (list.mk_list []) (list.mk_list t_lst✝))
+TypingLemmas.lean:805:14: error: unsolved goals
+case call_addr
+v_S : store
+v_C : context
+v_instr : instr
+t1s t2s : List valtype
+v_funcaddr✝ : funcaddr
+t_1_lst✝ t_2_lst✝ : List valtype
+a✝⁴ :
+  Externaddr_ok v_S (externaddr.FUNC v_funcaddr✝)
+    (externtype.FUNC (functype.mk_functype (list.mk_list t_1_lst✝) (list.mk_list t_2_lst✝)))
+a✝³ : wf_store v_S
+a✝² : wf_admininstr (admininstr.CALL_ADDR v_funcaddr✝)
+a✝¹ : wf_externtype (externtype.FUNC (functype.mk_functype (list.mk_list t_1_lst✝) (list.mk_list t_2_lst✝)))
+a✝ : wf_context v_C
+hai : admininstr_instr v_instr = admininstr.CALL_ADDR v_funcaddr✝
+hof : sorry () = some v_instr
+hft : mkFunctype t1s t2s = functype.mk_functype (list.mk_list t_1_lst✝) (list.mk_list t_2_lst✝)
+⊢ Instr_ok v_C v_instr (functype.mk_functype (list.mk_list t_1_lst✝) (list.mk_list t_2_lst✝))
+TypingLemmas.lean:806:9: error: unsolved goals
+case trap
+v_S : store
+v_C : context
+v_instr : instr
+t1s t2s t_1_lst✝ t_2_lst✝ : List valtype
+a✝² : wf_store v_S
+a✝¹ : wf_admininstr admininstr.TRAP
+a✝ : wf_context v_C
+hai : admininstr_instr v_instr = admininstr.TRAP
+hof : sorry () = some v_instr
+hft : mkFunctype t1s t2s = functype.mk_functype (list.mk_list t_1_lst✝) (list.mk_list t_2_lst✝)
+⊢ Instr_ok v_C v_instr (functype.mk_functype (list.mk_list t_1_lst✝) (list.mk_list t_2_lst✝))
+TypingLemmas.lean:793:33: warning: declaration uses `sorry`
+TypingLemmas.lean:793:17: warning: This simp argument is unused:
+  admininstr_ref
+
+Hint: Omit it from the simp argument list.
+  simp only [̵a̵d̵m̵i̵n̵i̵n̵s̵t̵r̵_̵r̵e̵f̵,̵ ̵i̵n̵s̵t̵r̵_̵o̵f̵]̵[̲i̲n̲s̲t̲r̲_̲o̲f̲]̲ at hof
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+TypingLemmas.lean:801:31: warning: This simp argument is unused:
+  admininstr_ref
+
+Hint: Omit it from the simp argument list.
+  simp [̵a̵d̵m̵i̵n̵i̵n̵s̵t̵r̵_̵r̵e̵f̵,̵ ̵i̵n̵s̵t̵r̵_̵o̵f̵]̵[̲i̲n̲s̲t̲r̲_̲o̲f̲]̲ at hof
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+TypingLemmas.lean:802:31: warning: This simp argument is unused:
+  admininstr_ref
+
+Hint: Omit it from the simp argument list.
+  simp [̵a̵d̵m̵i̵n̵i̵n̵s̵t̵r̵_̵r̵e̵f̵,̵ ̵i̵n̵s̵t̵r̵_̵o̵f̵]̵[̲i̲n̲s̲t̲r̲_̲o̲f̲]̲ at hof
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+TypingLemmas.lean:894:9: warning: 'intros' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:995:9: warning: 'intros' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1067:9: warning: 'intros' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1119:9: warning: 'intros' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1238:9: warning: 'intros' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1354:8: warning: declaration uses `sorry`
+TypingLemmas.lean:1363:4: warning: 'unfold mkFunctype at hai' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1364:4: warning: 'simp only [functype.mk_functype.injEq, list.mk_list.injEq] at hai' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1365:4: warning: 'obtain ⟨e1, e2⟩ := hai' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1366:4: warning: 'subst e1' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1366:14: warning: 'subst e2' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1367:4: warning: 'exact ⟨rt, hsub, Ref_ok.null v_S rt hwfS⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1371:4: warning: 'unfold mkFunctype at heq' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1372:4: warning: 'simp only [functype.mk_functype.injEq, list.mk_list.injEq] at heq' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1373:4: warning: 'obtain ⟨e1, e2⟩ := heq' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1374:4: warning: 'subst e1' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1374:14: warning: 'subst e2' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1375:4: warning: 'have hwf_externtype : wf_externtype (externtype.FUNC ft) := by cases hext <;> assumption' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1376:4: warning: 'exact ⟨reftype.FUNCREF, hsub, Ref_ok.func v_S faddr ft hext hwfS hwf_externtype⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1379:4: warning: 'unfold mkFunctype at hai' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1380:4: warning: 'simp only [functype.mk_functype.injEq, list.mk_list.injEq] at hai' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1381:4: warning: 'obtain ⟨e1, e2⟩ := hai' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1382:4: warning: 'subst e1' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1382:14: warning: 'subst e2' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1383:4: warning: 'exact ⟨reftype.EXTERNREF, hsub, Ref_ok.extern v_S haddr hwfS⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1364:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1365:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1366:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1366:14: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1367:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1371:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1372:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1373:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1374:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1374:14: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1375:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1376:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1380:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1381:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1382:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1382:14: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1383:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1386:8: warning: declaration uses `sorry`
+TypingLemmas.lean:1396:4: warning: 'unfold mkFunctype at heq' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1397:4: warning: 'simp only [functype.mk_functype.injEq, list.mk_list.injEq] at heq' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1398:4: warning: 'obtain ⟨e1, e2⟩ := heq' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1399:4: warning: 'subst e1' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1399:14: warning: 'subst e2' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1400:4: warning: 'exact ⟨valtype_numtype nt, hsub, Val_ok.numtype v_S nt c hwfS (wf_val.val_case_0 nt c hwn)⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1404:4: warning: 'unfold mkFunctype at heq' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1405:4: warning: 'simp only [functype.mk_functype.injEq, list.mk_list.injEq] at heq' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1406:4: warning: 'obtain ⟨e1, e2⟩ := heq' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1407:4: warning: 'subst e1' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1407:14: warning: 'subst e2' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1408:4: warning: 'have hne : size (valtype_vectype vt) ≠ none := by rw [hsize]; simp' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1409:4: warning: 'have hwu' : wf_uN (Option.get! (size (valtype_vectype vt))) c := by rw [hsize]; exact hwu' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1410:4: warning: 'exact ⟨valtype_vectype vt, hsub, Val_ok.vectype v_S vt c hwfS (wf_val.val_case_1 vt c hne hwu')⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1413:4: warning: 'unfold mkFunctype at hai' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1414:4: warning: 'simp only [functype.mk_functype.injEq, list.mk_list.injEq] at hai' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1415:4: warning: 'obtain ⟨e1, e2⟩ := hai' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1416:4: warning: 'subst e1' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1416:14: warning: 'subst e2' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1417:4: warning: 'refine ⟨valtype_reftype rt, hsub, ?_⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1418:4: warning: 'rw [val_ref_null_is_ref]' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1419:4: warning: 'exact Val_ok.reftype v_S (ref.REF_NULL rt) rt (Ref_ok.null v_S rt hwfS) hwfS' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1423:4: warning: 'unfold mkFunctype at heq' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1424:4: warning: 'simp only [functype.mk_functype.injEq, list.mk_list.injEq] at heq' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1425:4: warning: 'obtain ⟨e1, e2⟩ := heq' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1426:4: warning: 'subst e1' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1426:14: warning: 'subst e2' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1427:4: warning: 'have hwf_externtype : wf_externtype (externtype.FUNC ft) := by cases hext <;> assumption' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1428:4: warning: 'exact
+  ⟨valtype_reftype reftype.FUNCREF, hsub,
+    Val_ok.reftype v_S (ref.REF_FUNC_ADDR faddr) reftype.FUNCREF (Ref_ok.func v_S faddr ft hext hwfS hwf_externtype)
+      hwfS⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1433:4: warning: 'unfold mkFunctype at hai' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1434:4: warning: 'simp only [functype.mk_functype.injEq, list.mk_list.injEq] at hai' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1435:4: warning: 'obtain ⟨e1, e2⟩ := hai' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1436:4: warning: 'subst e1' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1436:14: warning: 'subst e2' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1437:4: warning: 'exact
+  ⟨valtype_reftype reftype.EXTERNREF, hsub,
+    Val_ok.reftype v_S (ref.REF_HOST_ADDR haddr) reftype.EXTERNREF (Ref_ok.extern v_S haddr hwfS)
+      hwfS⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1396:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1397:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1398:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1399:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1399:14: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1400:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1404:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1405:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1406:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1407:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1407:14: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1408:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1409:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1410:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1414:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1415:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1416:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1416:14: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1417:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1418:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1419:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1423:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1424:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1425:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1426:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1426:14: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1427:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1428:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1434:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1435:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1436:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1436:14: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1437:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1448:8: warning: declaration uses `sorry`
+TypingLemmas.lean:1455:4: warning: 'unfold admininstr_val at h' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1456:4: warning: 'simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at h' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1457:4: warning: 'exact ⟨valtype_numtype nt, h.1.1.symm, h.1.2.symm⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1459:4: warning: 'unfold admininstr_val at h' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1460:4: warning: 'obtain ⟨_, _, _, heq⟩ := h' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1461:4: warning: 'simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at heq' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1462:4: warning: 'exact ⟨valtype_vectype vt, heq.1.symm, heq.2.symm⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1464:4: warning: 'unfold admininstr_val at h' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1465:4: warning: 'simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at h' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1466:4: warning: 'exact ⟨valtype_reftype rt, h.1.symm, h.2.symm⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1468:4: warning: 'unfold admininstr_val at h' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1469:4: warning: 'obtain ⟨_, heq, _⟩ := h' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1470:4: warning: 'simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at heq' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1471:4: warning: 'exact ⟨valtype_reftype reftype.FUNCREF, heq.1.symm, heq.2.symm⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1473:4: warning: 'unfold admininstr_val at h' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1474:4: warning: 'simp only [mkFunctype, functype.mk_functype.injEq, list.mk_list.injEq] at h' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1475:4: warning: 'exact ⟨valtype_reftype reftype.EXTERNREF, h.1.symm, h.2.symm⟩' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1456:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1457:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1460:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1461:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1462:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1465:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1466:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1469:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1470:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1471:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1474:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1475:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+TypingLemmas.lean:1681:102: error: Application type mismatch: The argument
+  c_t
+has type
+  vec_
+but is expected to have type
+  vvunop
+in the application
+  wf_instr.instr_case_20 vectype.V128 c_t
+TypingLemmas.lean:1700:25: warning: declaration uses `sorry`
+TypingLemmas.lean:1695:8: warning: declaration uses `sorry`
+TypingLemmas.lean:1701:4: warning: 'exact Instr_ok2.plain v_S v_C _ _ _ hinstr hwfS hwfC hwfi' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1747:46: error(lean.unknownIdentifier): Unknown constant `wf_admininstr.admininstr_case_73`
+TypingLemmas.lean:1783:33: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+Command exited with non-zero status 1
+WALL 22.41 s  MAXRSS 4448408 KB

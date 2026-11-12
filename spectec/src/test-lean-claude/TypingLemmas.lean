@@ -128,7 +128,6 @@ def instr_of (ai : admininstr) : Option instr :=
   | admininstr.TESTOP x0 x1 => some (instr.TESTOP x0 x1)
   | admininstr.RELOP x0 x1 => some (instr.RELOP x0 x1)
   | admininstr.CVTOP x0 x1 x2 => some (instr.CVTOP x0 x1 x2)
-  | admininstr.EXTEND x0 x1 => some (instr.EXTEND x0 x1)
   | admininstr.VCONST x0 x1 => some (instr.VCONST x0 x1)
   | admininstr.VVUNOP x0 x1 => some (instr.VVUNOP x0 x1)
   | admininstr.VVBINOP x0 x1 => some (instr.VVBINOP x0 x1)
@@ -451,7 +450,6 @@ def ai_principal_typing (v_S : store) (v_C : context) (v_ai : admininstr) (v_ft 
       Expr_ok2 v_S { c' with RETURN := some (list.mk_list ts) } admininstrs (list.mk_list ts) ∧
       ts.length = v_n
   | admininstr.TRAP => True
-  | admininstr.EXTEND _ _ => False
   | _ => True
 
 /-- Rocq `typing_lemmas.v:626` `instr_principal_typing`. Store is irrelevant for the
@@ -567,7 +565,7 @@ theorem instr_typing_inversion (v_C : context) (v_instr : instr) (t1s t2s : List
   case vconst
       vec wf_vconst wf_c =>
     cases wf_vconst with
-    | instr_case_20 vt v not_none_size wf_vec =>
+    | instr_case_19 vt v not_none_size wf_vec =>
         refine ⟨(size (valtype_vectype vectype.V128)).get!, ?_, ?_, ?_⟩
         · obtain ⟨x, hx⟩ := Option.ne_none_iff_exists.mp not_none_size
           rfl
@@ -1678,7 +1676,7 @@ theorem construct_ai_val (v_S : store) (v_C : context) (v_val : val) (t : valtyp
     cases vt
     cases hwfval with
     | val_case_1 _ _ hsize hwfuN =>
-      have hwfinstr : wf_instr (instr.VCONST vectype.V128 c_t) := wf_instr.instr_case_20 vectype.V128 c_t hsize hwfuN
+      have hwfinstr : wf_instr (instr.VCONST vectype.V128 c_t) := wf_instr.instr_case_19 vectype.V128 c_t hsize hwfuN
       exact Instr_ok2.plain v_S v_C (instr.VCONST vectype.V128 c_t) [] [valtype.V128]
         (Instr_ok.vconst v_C c_t hwfC hwfinstr) hs hwfC hwfinstr
   | reftype r rt href hs =>
@@ -1744,7 +1742,7 @@ theorem construct_ais_trap (v_S : store) (v_C : context) (v_ft : functype) :
   obtain ⟨t1s⟩ := t1
   obtain ⟨t2s⟩ := t2
   exact construct_ais_typing_single v_S v_C admininstr.TRAP t1s t2s
-    (Instr_ok2.trap v_S v_C t1s t2s hwfS hwfC wf_admininstr.admininstr_case_73)
+    (Instr_ok2.trap v_S v_C t1s t2s hwfS hwfC wf_admininstr.admininstr_case_72)
 
 /-! ## Val_ok / Vals_ok infrastructure (typing_lemmas.v:1731-1948) -/
 

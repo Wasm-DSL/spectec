@@ -1,0 +1,142 @@
+TypePreservationPure.lean:35:8: warning: The declaration 'Step_pure__nop_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:56:8: warning: The declaration 'Step_pure__drop_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:83:8: warning: The declaration 'Step_pure__select_preserves_helper' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:173:8: warning: The declaration 'Step_pure__select_true_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:183:8: warning: The declaration 'Step_pure__select_false_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:199:8: warning: The declaration 'Step_pure__if_preserves_helper' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:262:8: warning: The declaration 'Step_pure__if_true_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:271:8: warning: The declaration 'Step_pure__if_false_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:286:8: warning: The declaration 'Step_pure__label_vals_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:353:8: warning: The declaration 'Step_pure__br_zero_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:400:8: warning: The declaration 'Step_pure__br_succ_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:456:8: warning: The declaration 'Step_pure__br_if_true_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:506:8: warning: The declaration 'Step_pure__br_if_false_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:554:8: warning: The declaration 'Step_pure__br_table_lt_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:600:8: warning: The declaration 'Step_pure__br_table_ge_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:646:8: warning: The declaration 'Step_pure__frame_vals_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:674:8: warning: The declaration 'Step_pure__return_frame_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:724:8: warning: The declaration 'Step_pure__return_label_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:769:8: warning: The declaration 'Step_pure__unop_val_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:815:8: warning: The declaration 'Step_pure__binop_val_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:879:8: warning: The declaration 'Step_pure__testop_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:925:8: warning: The declaration 'Step_pure__relop_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:989:8: warning: The declaration 'Step_pure__cvtop_val_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1072:2: error: Alternative `admininstr_case_45` is not needed
+TypePreservationPure.lean:1071:2: error: Alternative `admininstr_case_44` has not been provided
+TypePreservationPure.lean:1105:8: warning: The declaration 'Step_pure__ref_is_null_helper' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1161:8: warning: The declaration 'Step_pure__ref_is_null_true_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1197:8: warning: The declaration 'Step_pure__ref_is_null_false_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1578:8: warning: The declaration 'Step_pure__vvunop_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1591:8: warning: The declaration 'Step_pure__vvbinop_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1605:8: warning: The declaration 'Step_pure__vvternop_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1620:8: warning: The declaration 'Step_pure__vvtestop_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1633:8: warning: The declaration 'Step_pure__vunop_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1646:8: warning: The declaration 'Step_pure__vbinop_val_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1660:8: warning: The declaration 'Step_pure__vtestop_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1673:8: warning: The declaration 'Step_pure__vrelop_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1687:8: warning: The declaration 'Step_pure__vshiftop_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1701:8: warning: The declaration 'Step_pure__vbitmask_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1714:8: warning: The declaration 'Step_pure__vswizzle_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1728:8: warning: The declaration 'Step_pure__vshuffle_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1742:8: warning: The declaration 'Step_pure__vsplat_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1755:8: warning: The declaration 'Step_pure__vreplace_lane_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1769:8: warning: The declaration 'Step_pure__vextunop_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1782:8: warning: The declaration 'Step_pure__vextbinop_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1796:8: warning: The declaration 'Step_pure__vnarrow_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1810:8: warning: The declaration 'Step_pure__vcvtop_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1823:8: warning: The declaration 'Step_pure__vextract_lane_num_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+TypePreservationPure.lean:1838:8: warning: The declaration 'Step_pure__vextract_lane_pack_preserves' contains '__', which does not follow the mathlib naming conventions. Consider using single underscores instead.
+
+Note: This linter can be disabled with `set_option linter.style.nameCheck false`
+Command exited with non-zero status 1
+WALL 7.68 s  MAXRSS 3967120 KB

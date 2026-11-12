@@ -1,0 +1,279 @@
+{
+ "HelperLemmas": {
+  "code_renames": [],
+  "code_extend": [],
+  "code_unmapped": [],
+  "comment_hits": [
+   [
+    155,
+    "list_slice_update",
+    "/-- Rocq `wasm.v:66-74`: `Fixpoint list_slice_update {A} (l : seq A) (i j : N) (update_l : seq A) :"
+   ],
+   [
+    221,
+    "length_app_nil",
+    "/-- Rocq `helper_lemmas.v:68` `length_app_nil`. -/"
+   ],
+   [
+    777,
+    "fne_bit",
+    "/-- Rocq `axioms.v:73` `fne_bit`. -/"
+   ],
+   [
+    780,
+    "flt_bit",
+    "/-- Rocq `axioms.v:74` `flt_bit`. -/"
+   ]
+  ]
+ },
+ "Subtyping": {
+  "code_renames": [],
+  "code_extend": [],
+  "code_unmapped": [],
+  "comment_hits": [
+   [
+    324,
+    "instrtype_sub_trans",
+    "(~73 lines in Rocq, an explicit \"sandwich\" `take`/`drop` alignment argument). Proof"
+   ]
+  ]
+ },
+ "TypingLemmas": {
+  "code_renames": [
+   [
+    570,
+    "instr_case_20",
+    "instr_case_19",
+    "VCONST",
+    "instr_typing_inversion",
+    "| instr_case_20 vt v not_none_size wf_vec =>"
+   ],
+   [
+    1681,
+    "instr_case_20",
+    "instr_case_19",
+    "VCONST",
+    "construct_ai_val",
+    "have hwfinstr : wf_instr (instr.VCONST vectype.V128 c_t) := wf_instr.instr_case_20 vectype.V128 c_t hsize hwfuN"
+   ],
+   [
+    1747,
+    "admininstr_case_73",
+    "admininstr_case_72",
+    "TRAP",
+    "construct_ais_trap",
+    "(Instr_ok2.trap v_S v_C t1s t2s hwfS hwfC wf_admininstr.admininstr_case_73)"
+   ]
+  ],
+  "code_extend": [
+   [
+    131,
+    "admininstr.EXTEND",
+    "instr_of",
+    "| admininstr.EXTEND x0 x1 => some (instr.EXTEND x0 x1)"
+   ],
+   [
+    131,
+    "instr.EXTEND",
+    "instr_of",
+    "| admininstr.EXTEND x0 x1 => some (instr.EXTEND x0 x1)"
+   ],
+   [
+    454,
+    "admininstr.EXTEND",
+    "ai_principal_typing",
+    "| admininstr.EXTEND _ _ => False"
+   ]
+  ],
+  "code_unmapped": [],
+  "comment_hits": [
+   [
+    72,
+    "upd_local_is_same_as_append",
+    "/-- Rocq `typing_lemmas.v:68` `upd_local_is_same_as_append`. -/"
+   ],
+   [
+    188,
+    "instr_of_admininstr_instr",
+    "Used by `ai_typing_inversion'`, and a cheap correctness check on the 68-case"
+   ],
+   [
+    197,
+    "instr_ok_context_wf",
+    "`wf_context`/`wf_instr` directly (confirmed by reading all 73 cases in `wasm2.0.lean`), so"
+   ],
+   [
+    774,
+    "ai_typing_inversion'",
+    "-- Rocq destructs both instructions (68\u00d768); here the generalized index equation is pushed"
+   ],
+   [
+    1479,
+    "injective_admininstr_instr",
+    "try discriminate; auto` \u2014 same shape here (`admininstr_instr` maps each of `instr`'s 68"
+   ],
+   [
+    1482,
+    "injective_admininstr_instr",
+    "`simp`'s built-in constructor-injectivity/no-confusion). 68\u00d768 cases, mechanical."
+   ],
+   [
+    1484,
+    "injective_admininstr_instr",
+    "see above) enlarges `simp_all`'s default simp-set enough that the 68\u00d768 case bash no"
+   ],
+   [
+    1690,
+    "construct_ai_maybe",
+    "~74 cases uniformly; mirrored here the same way via `cases ai <;> simp_all [instr_of]`"
+   ],
+   [
+    1692,
+    "construct_ai_maybe",
+    "`Option.get! (instr_of ai)` to the corresponding `instr` literal in the other 68) then a"
+   ]
+  ]
+ },
+ "TypePreservationPure": {
+  "code_renames": [
+   [
+    1072,
+    "admininstr_case_45",
+    "admininstr_case_44",
+    "LOCAL_TEE",
+    "Step_pure__local_tee_preserves",
+    "| admininstr_case_45 _ hwfl =>"
+   ],
+   [
+    1085,
+    "instr_case_44",
+    "instr_case_43",
+    "LOCAL_SET",
+    "Step_pure__local_tee_preserves",
+    "have hwfinstr_set : wf_instr (instr.LOCAL_SET v_x) := wf_instr.instr_case_44 v_x hwfl"
+   ]
+  ],
+  "code_extend": [],
+  "code_unmapped": [],
+  "comment_hits": []
+ },
+ "ExtensionLemmas": {
+  "code_renames": [],
+  "code_extend": [],
+  "code_unmapped": [],
+  "comment_hits": [
+   [
+    193,
+    "s_invert_globals",
+    "/-- Rocq `extension_lemmas.v:74` `s_invert_globals`."
+   ]
+  ]
+ },
+ "TypePreservation": {
+  "code_renames": [
+   [
+    1347,
+    "admininstr_case_20",
+    "admininstr_case_19",
+    "VCONST",
+    "wf_vconst_parts",
+    "cases h with | admininstr_case_20 _ _ h1 h2 => exact \u27e8h1, h2\u27e9"
+   ],
+   [
+    2164,
+    "admininstr_case_72",
+    "admininstr_case_71",
+    "FRAME_",
+    "t_read_preservation",
+    "cases hwfF with | admininstr_case_72 _ _ _ _ hl => exact hl _ (List.mem_singleton_self _)"
+   ]
+  ],
+  "code_extend": [],
+  "code_unmapped": [],
+  "comment_hits": []
+ },
+ "TypeProgress": {
+  "code_renames": [
+   [
+    800,
+    "admininstr_case_20",
+    "admininstr_case_19",
+    "VCONST",
+    "wf_forall_admin_val",
+    "| val_case_1 vt c hsz hwfc => exact wf_admininstr.admininstr_case_20 vt c hsz hwfc"
+   ],
+   [
+    801,
+    "admininstr_case_40",
+    "admininstr_case_39",
+    "REF_NULL",
+    "wf_forall_admin_val",
+    "| val_case_2 rt => exact wf_admininstr.admininstr_case_40 rt"
+   ],
+   [
+    802,
+    "admininstr_case_68",
+    "admininstr_case_67",
+    "REF_FUNC_ADDR",
+    "wf_forall_admin_val",
+    "| val_case_3 a => exact wf_admininstr.admininstr_case_68 a"
+   ],
+   [
+    803,
+    "admininstr_case_69",
+    "admininstr_case_68",
+    "REF_HOST_ADDR",
+    "wf_forall_admin_val",
+    "| val_case_4 a => exact wf_admininstr.admininstr_case_69 a"
+   ],
+   [
+    814,
+    "admininstr_case_20",
+    "admininstr_case_19",
+    "VCONST",
+    "wf_forall_admin_val",
+    "| admininstr_case_20 _ _ hsz hwfc => exact wf_val.val_case_1 vt c hsz hwfc"
+   ],
+   [
+    839,
+    "admininstr_case_71",
+    "admininstr_case_70",
+    "LABEL_",
+    "wf_config_label",
+    "| admininstr_case_71 _ _ _ hbes hes =>"
+   ],
+   [
+    856,
+    "admininstr_case_72",
+    "admininstr_case_71",
+    "FRAME_",
+    "wf_config_frame",
+    "| admininstr_case_72 _ _ _ hwff hes =>"
+   ],
+   [
+    7784,
+    "admininstr_case_72",
+    "admininstr_case_71",
+    "FRAME_",
+    "t_progress_e_Instr_ok2_frame",
+    "| admininstr_case_72 _ _ _ hf hes =>"
+   ]
+  ],
+  "code_extend": [
+   [
+    3496,
+    "EXTEND",
+    "vcvtop_lane_total",
+    "| EXTEND h sx =>"
+   ],
+   [
+    3705,
+    ".EXTEND",
+    "halfop_of",
+    "| .mk_vcvtop___0 _ _ _ _ (.EXTEND hf _) => some hf"
+   ]
+  ],
+  "code_unmapped": [],
+  "comment_hits": []
+ }
+}

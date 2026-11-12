@@ -1,0 +1,18 @@
+HelperLemmas.lean:422:6: warning: '(
+  intro z hz
+  simp only [list_slice_update, List.mem_cons] at hz
+  rcases hz with rfl | hz'
+  · simp_all [Forall, List.mem_cons]
+  · simp_all [Forall, List.mem_cons])' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+HelperLemmas.lean:422:6: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+HelperLemmas.lean:620:20: warning: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+HelperLemmas.lean:626:20: warning: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+WALL 7.33 s  MAXRSS 3800372 KB

@@ -1,0 +1,24 @@
+PASS 1a no unrecognised column-0 code lines - []
+PASS 1b top-level (kind,name) sequence CAND == OLD (set and order) - OLD 897 constructs, CAND 897
+PASS 1c set of names equal 
+   (duplicate (kind,name) pairs in OLD, excluding mutual/end: [])
+   construct kinds in CAND: {'import': 1, 'def': 117, 'inductive': 392, 'abbrev': 50, 'opaque': 64, 'theorem': 181, 'structure': 12, 'derive_deceq': 13, 'axiom': 62, 'instance': 1, 'mutual': 2, 'end': 2}
+PASS 1d CAND minus helpers minus moved theorems == G_new minus moved theorems (order) - G_new 805 constructs
+PASS 2a helper marker count OLD == CAND - OLD 92, CAND 92
+PASS 2b helper names, same order 
+PASS 2c every marker immediately followed by a theorem line 
+PASS 2d helper names unique 
+PASS 2e each helper has the same preceding and following non-helper construct in OLD and CAND 
+PASS 3a generated theorems in G_new all present in CAND - 89 generated theorems
+PASS 3b statements of the 87 non-hand-edited generated theorems byte-identical to G_new - []
+PASS 3c hand-edited Step_read_is_wf / Step_is_wf statements identical to OLD 
+PASS 3d theorem count CAND == OLD - OLD 181, CAND 181
+PASS 3e non-helper theorems in CAND == generated theorems - 89
+PASS 4 G_new lines not kept verbatim in CAND are only the sorry/:= tails and the 2 commented-out originals - 186 G_new lines replaced: {'statement line ending in :=': 89, '  sorry': 89, 'other: /- Well-Formedness Theorem at: ../specification/wasm-2.0/8-reduction.spectec:7.10-7.19 -/': 1, 'other: theorem Step_read_is_wf (var_0 : config) (var_1 : List admininstr) :': 1, 'other:   wf_config var_0 →': 2, 'other:   Step_read var_0 var_1 →': 1, 'other: /- Well-Formedness Theorem at: ../specification/wasm-2.0/8-reduction.spectec:5.10-5.14 -/': 1, 'other: theorem Step_is_wf (var_0 : config) (var_1 : config) :': 1, 'other:   Step var_0 var_1 →': 1}
+PASS 5a hand-written line count OLD == CAND - OLD 1865, CAND 1865
+PASS 5b differing hand-written lines are exactly the logged deviations - 56 differing, 56 logged
+PASS 5c every deviation is exactly a constructor rename by meaning (ctor map) 
+PASS 6a no `sorry` in code (outside comments) 
+PASS 6b `sorry` occurs only in the 2 commented-out originals - [15430, 15563]
+PASS 7 helper placement: each helper is in the block directly above its first user - []
+ALL PASS

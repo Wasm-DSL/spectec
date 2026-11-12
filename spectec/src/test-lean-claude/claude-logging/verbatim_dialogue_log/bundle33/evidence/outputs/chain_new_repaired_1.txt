@@ -1,0 +1,5 @@
+new TypingLemmas rc=0 errors=0 warnings=9 sorry-warnings=0 olean=yes WALL 36.01 s  MAXRSS 4500172 KB
+new TypePreservationPure rc=0 errors=0 warnings=47 sorry-warnings=0 olean=yes WALL 8.70 s  MAXRSS 4006740 KB
+new ExtensionLemmas rc=0 errors=0 warnings=14 sorry-warnings=0 olean=yes WALL 4.64 s  MAXRSS 3845312 KB
+new TypePreservation rc=0 errors=0 warnings=7 sorry-warnings=0 olean=yes WALL 10.72 s  MAXRSS 4019948 KB
+new TypeProgress rc=0 errors=0 warnings=1 sorry-warnings=0 olean=yes WALL 21.24 s  MAXRSS 4750688 KB

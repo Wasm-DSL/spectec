@@ -1069,7 +1069,7 @@ theorem Step_pure__local_tee_preserves (v_S : store) (v_C : context) (v_val : va
   obtain ⟨hlt, hidxeq⟩ := List.getElem?_eq_some_iff.mp hget
   have hidxeq' : v_C.LOCALS[proj_uN_0 v_x]! = t := by rw [getElem!_pos v_C.LOCALS (proj_uN_0 v_x) hlt]; exact hidxeq
   cases hwftee with
-  | admininstr_case_45 _ hwfl =>
+  | admininstr_case_44 _ hwfl =>
     have hwidenwitness : instrtype_sub (mkFunctype [] [ta]) (mkFunctype [] [t]) :=
       ⟨[], [], [], [t], rfl, rfl, resulttype_sub_refl [], resulttype_sub_refl [], hResulttypeSub_ta_t⟩
     have hval1 : Instrs_ok2 v_S v_C [admininstr_val v_val] (mkFunctype [] [t]) :=
@@ -1082,7 +1082,7 @@ theorem Step_pure__local_tee_preserves (v_S : store) (v_C : context) (v_val : va
     have hvals : Instrs_ok2 v_S v_C [admininstr_val v_val, admininstr_val v_val] (mkFunctype [] [t, t]) := by
       have := construct_ais_compose v_S v_C [admininstr_val v_val] [admininstr_val v_val] [] [t] [t, t] hval1 hval2
       simpa using this
-    have hwfinstr_set : wf_instr (instr.LOCAL_SET v_x) := wf_instr.instr_case_44 v_x hwfl
+    have hwfinstr_set : wf_instr (instr.LOCAL_SET v_x) := wf_instr.instr_case_43 v_x hwfl
     have hlocalset_instrok : Instr_ok v_C (instr.LOCAL_SET v_x) (mkFunctype [t] []) :=
       Instr_ok.local_set v_C v_x t hlt hidxeq' hwfC hwfinstr_set
     have hlocalset2 : Instr_ok2 v_S v_C (admininstr.LOCAL_SET v_x) (mkFunctype [t] []) :=

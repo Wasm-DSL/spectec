@@ -1,0 +1,6 @@
+new ExtendedDeriveDecEq rc=0 errors=0 warnings=0 sorry-warnings=0 olean=yes WALL 2.43 s  MAXRSS 1668488 KB
+new wasm2.0 rc=0 errors=0 warnings=89 sorry-warnings=0 olean=yes WALL 28.26 s  MAXRSS 2970036 KB
+new HelperLemmas rc=0 errors=0 warnings=4 sorry-warnings=0 olean=yes WALL 4.11 s  MAXRSS 3798844 KB
+new Subtyping rc=0 errors=0 warnings=0 sorry-warnings=0 olean=yes WALL 2.37 s  MAXRSS 3773948 KB
+new TypingLemmas rc=1 errors=80 warnings=198 sorry-warnings=0 olean=NO WALL 22.41 s  MAXRSS 4448408 KB
+STOP at TypingLemmas

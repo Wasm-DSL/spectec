@@ -1,0 +1,427 @@
+{
+ "fix": {
+  "verdict": "problems_found",
+  "findings": [
+   {
+    "section": "Header, 'Computed, not typed' bullet (revised report line 21; generator report33.py:201)",
+    "claim": "Every count, line number and listed name below is computed by report33.py (§9) from the files, the build logs and the Lean outputs. The explanatory prose is mine, and an independent reader checked it against the files.",
+    "finding": "Still overstated, and now worded more strongly than in v1 (this is V-REPORT-1 point 6 left unfixed). report33.py writes about 30 counts, line numbers and names as hand-typed string literals. Every value I checked is correct, but none of them is computed. Also, '67 of 67 and 73 of 73' in §2 is printed from the NEW constructor counts (rc) and never reads the matching result in ctor_map33.json. Finally, 'an independent reader checked it' covers only v1's prose: the passages new in v2 (the ai_principal_typing note, first-compile paragraph, positive control, re-stated theorems, documentation, cross-check, known-defect) were unchecked when this sentence was written.",
+    "evidence": "Hand-typed literals in report33.py:\n- the four repaired / other two: 203-204\n- K ≥ 20: 211, 349\n- two match arms: 252, 305\n- constructor 19: 260\n- K ≤ 67 and 68–73: 262\n- five lines: 266\n- 19 cases: 279\n- typing_lemmas.v:124: 307\n- type_progress.v:857/870: 323-324\n- lines 1085/1072: 337\n- line 570: 338, 340\n- lines 3496 and 3705: 342\n- User-visible (4): 356\n- 12 GB, v4.32.0: 407-408\n- in `TypeProgress`: 419\n- would now be 73: 425\n- 73 edits, 56 + 15, 43 removed and 12 added, _case_67/_case_73, (35)/(74)/(35)/(6), five stale: 444-447\n- the 17 edits: 457\n- 7 warnings: 474\n\nSeparately, report33.py:263 prints rc[\"wf_instr\"][1]; ctor_map33.json gives unmatched_old 1, ambiguous 0, unmatched_new 0 for each predicate.",
+    "severity": "imprecise"
+   },
+   {
+    "section": "§5 Statements (line 269) and §5 Definitions whose elaborated value changed (line 276)",
+    "claim": "definitions: ... 4 derived-instance helpers with hygienic names (counter shifted)",
+    "finding": "These 4 definitions exist under the same name, ending in `_hyg.3`, in both builds, so no counter shifted. They are the 4 `match_on_same_ctor` helpers for `admininstr` and `instr`, each in a plain and a `.het` variant. Their type and value changed because they case on an inductive that lost a constructor. The label comes from a rule that matches on the name only (envcat33.py:14), and it is right only for the 8 removed and 8 added hygienic names. Line 269 is new in v2: it was added to fix point 4, which named exactly these 4 definitions. Line 276 already carried the label in v1.",
+    "evidence": "envdiff33.json type_changed_def and value_changed_def both contain exactly:\n- admininstr.match_on_same_ctor._@.wasm2.0.2749490885._hygCtx._hyg.3\n- admininstr.match_on_same_ctor.het._@.wasm2.0.2749490885._hygCtx._hyg.3\n- instr.match_on_same_ctor._@.wasm2.0.3401859148._hygCtx._hyg.3\n- instr.match_on_same_ctor.het._@.wasm2.0.3401859148._hygCtx._hyg.3\n\nThese are common names (type_changed_* is computed over set(O) & set(N) in envdiff33.py). envcat33.py:14 maps `match_on_same_ctor.*_hyg` to 'derived-instance helpers with hygienic names (counter shifted)'.",
+    "severity": "imprecise"
+   },
+   {
+    "section": "§5 Removed, 'The ends of numbered families' bullet (lines 256-258)",
+    "claim": "Lean numbers many auxiliary declarations by position: ... `_simp_N`, ... and hygienic names `_hyg.N`. When a family shrinks, its highest numbers disappear and the members after the removed one are renumbered.",
+    "finding": "This is what is left of V-REPORT-1 point 5. The bullet covers 27 of the 43 removals, but 12 of them are renumbered members of families that did not shrink, and some are not 'ends' at all. The bullet names `_simp_N` and `_hyg.N` as shrinking families. In fact `_hyg.N` is a single declaration whose hygiene counter moved by 2 or by 9. `instr_typing_inversion._proof_1_72` sits in the middle of its family. These 12 are exactly the counterparts of the 12 additions. Only 15 removals are true ends of shrinking families: br_reduce_decidable 141→139, return_reduce_decidable 75→74, decEq 184→181 and 170→167, and the eq_N and match_1.eq_N lemmas.",
+    "evidence": "Family members in dump_old.tsv vs dump_new.tsv:\n- TLC.instr_typing_inversion._proof_1_*: {70,71,72,76,77} → {69,70,71,75,76}\n- TLC.Step_pure__select_preserves_helper._simp_1_*: {58,59} → {57,58}\n- …ai_principal_typing.match_1.splitter._sparseCasesOn_*: 3 → 3 members, max 60 → 59\n- `_hyg.N` names: 40 → 40; OLD-only {150,163,571,618}, NEW-only {148,161,562,609}",
+    "severity": "imprecise"
+   },
+   {
+    "section": "§9 verification/ (line 427; report33.py:472)",
+    "claim": "`V-REPORT-1` checked the first version of this report; its 17 points are fixed in this one.",
+    "finding": "Overstated. Points 5 and 6 are only partly fixed (findings 1 and 3). The fix for point 4 brought in a mislabel of the very 4 definitions that point 4 named (finding 2).",
+    "evidence": "See findings 1-3 and point statuses 4, 5 and 6.",
+    "severity": "imprecise"
+   },
+   {
+    "section": "§4.2, 'The first compile hid line 570' paragraph (line 237; report33.py:341)",
+    "claim": "The table above therefore comes from a second compile, in which only the two arms of §4.1 were deleted. Its line numbers are the NEW ones.",
+    "finding": "Only the 3 TypingLemmas rows come from that second TypingLemmas compile. The other 12 rows come from the TypePreservationPure compiles (two of them), the TypePreservation compile and the TypeProgress compile. v1 had this right: 'In the TypingLemmas run behind this table …'.",
+    "evidence": "report33.py:133-140 builds the error column from unrep/logs/{TypingLemmas,TypePreservationPure,TypePreservation,TypeProgress}.log plus TypePreservationPure_only1072fixed.log (evidence/outputs/unrepaired_errors/).",
+    "severity": "cosmetic"
+   },
+   {
+    "section": "§8 Documentation (lines 388-389)",
+    "claim": "The living docs (...) mention no renumbered case and no `EXTEND` constructor (0 matching lines). Historical logs in earlier bundles and in `safety-checks/` do mention old case numbers (41 files).",
+    "finding": "Two problems.\n- The living docs do mention an EXTEND constructor and the old case range: for-claude/digest_wasm_v.md:153 has `instr_EXTEND`, and :156 has `instr_case_0`..`_67`. Both describe Rocq's wasm.v, which still has them, so they are not stale. But the literal claim is false, because the regex (report33.py:173) only matches `instr.EXTEND`/`admininstr.EXTEND` and the case numbers 19-79.\n- None of the 41 historical files is in safety-checks/. All 41 are in verbatim_dialogue_log, bundles 12-32.",
+    "evidence": "My scan with docs_check.py found 2 broad hits, both in digest_wasm_v.md (153, 156). spectec/test-rocq/theories/wasm.v:3282 has `| instr_EXTEND`, and :3402 has `instr_case_19 … instr_EXTEND`.\n\nCounting files that mention case numbers 19-79:\n- safety-checks/: 0 files (grep -rlE)\n- verbatim_dialogue_log, excluding bundle33: 41 files. By bundle: bundle32 20, bundle21 7, bundle20 6, bundle23 2, bundle29 2, and 1 each in bundle12, bundle19, bundle22 and bundle31.",
+    "severity": "cosmetic"
+   },
+   {
+    "section": "§5 Inhabited positive control (line 299) and §9 outputs/ list (line 424)",
+    "claim": "The control module was never in the repo. / outputs/: … the audit outputs, including the positive control (`audit_ctl.txt`, `AuditCtl33.lean`)",
+    "finding": "A copy of the control module is now in the repo, at evidence/tools/AuditCtl33.lean (untracked, under claude-logging). So 'never in the repo' needs to read 'never among the project's modules'. §9 also lists the file under outputs/, but it is in tools/. Its runner, RunAuditCtl33.lean, is not listed anywhere.",
+    "evidence": "`ls evidence/outputs` contains audit_ctl.txt, audit_ctl.log and AuditCtl33_compile.log. `ls evidence/tools` contains AuditCtl33.lean and RunAuditCtl33.lean.",
+    "severity": "cosmetic"
+   },
+   {
+    "section": "§2, renaming paragraph (line 98; report33.py:263)",
+    "claim": "Each OLD case was matched to the NEW case with identical text ... All matched uniquely (67 of 67 and 73 of 73); none was ambiguous or unmatched.",
+    "finding": "In each predicate one OLD case, case 19 (EXTEND), has no match. '67 of 67' and '73 of 73' count NEW cases, while the sentence is about OLD cases.",
+    "evidence": "ctor_map33.json, for both wf_instr and wf_admininstr: unmatched_old 1, ambiguous 0, unmatched_new 0.",
+    "severity": "cosmetic"
+   }
+  ],
+  "checks_passed": [
+   "Convenience copies are byte-identical to their sources:\n- b33/old/src = HEAD for all 9 modules.\n- b33/final/src = working tree = b33/new/src = temp_port_reference/trial_port for all 9.\n- OLD_wasm2.0.lean = HEAD wasm2.0.lean (4207ecaa).\n- Header md5 prefixes and line counts are right.",
+   "Evidence copies equal the scratch work files: all JSON, TSV and diff outputs, both dumps (gz vs tsv), the audit, envdump and chain files, all 33 build logs and the 5 unrepaired_errors logs. b33/work/report_v2.md is the user document, and report_draft.md is v1.",
+   "report33.py computations re-traced:\n- chain() group indices: errors 3, WALL 7, MAXRSS 8.\n- §7 times round correctly.\n- Peak 4,760,044 KiB (OLD TypeProgress) = 4.54 GiB.\n- SW regex matches both quote styles.\n- shift() gives the §4.2 NEW lines; the nl−1 'has not been provided' merge is correct.\n- edited/same gives 17 and 5; axsplit is correct; the EDD assertion holds.",
+   "Dumps recounted:\n- OLD 12,818 / 5,526; NEW 12,787 / 5,505; 12,775 common; 43 only in OLD, 12 only in NEW.\n- Theorems: 24 removed, 3 added.\n- ExtendedDeriveDecEq: 100 constants and 9 theorems in both.\n- Only-NEW kinds: 9 def + 3 thm; 83 axiom declarations in both; union of theorem axioms 74 in both, equal sets.",
+   "Category sums:\n- type-changed theorems 724 = 262+197+161+103+1; definitions 124 = 102+10+8+4; recursors 8.\n- value-changed definitions 168 = 5+102+28+14+11+4+4.\n- equation-lemma families 48 / 54 / 1.\n- Exactly 4 common declarations differ in axioms. NEW br_reduce_decidable._proof_k matches OLD _proof_(k+2) by type hash (104 of 139), consistent with 'numbers shifted'.",
+   "Equation lemmas: OLD admininstr_instr, instr_of and ai_principal_typing have 68, 74 and 56 arms, with EXTEND at arm 20, 20 and 55. NEW has 67, 73 and 55 arms. NEW eq_k has the type of OLD eq_(k+1) for all 48 + 54 renumbered lemmas.",
+   "Of the 17 edited theorems, exactly 5 have unchanged proof terms (checked against all of value_changed_thm): construct_ai_val, construct_ais_trap, iswf_admininstr_VCONST, iswf_load_I32_8_U, iswf_store_I32_8.",
+   "Scanning code only (comments and strings stripped) in the 7 OLD proof modules finds exactly the 17 edited lines plus TypeProgress 3496/3705 (the vcvtop EXTEND). NEW has only the 15 renamed lines plus 3496/3705.",
+   "Error texts:\n- §4.1/§4.2 error cells match unrepaired_errors/*.log.\n- 'has not been provided' is reported at the `cases … with` line: TPP 1071, TL 567, TProg 813/838/855/7783; on the same line for TP 1347/2164.\n- First compile: 80 errors, including 67 rfl failures at line 192 (instr_of_admininstr_instr).\n- 7 sorry warnings come from 6 declarations (OLD lines 466, 793, 1354, 1386, 1448, 1695); this is the only log with such warnings, and no final log mentions sorry.",
+   "Spec commit 28073cddd deletes 1-syntax.spectec line 474, which is inside `syntax instr/num hint(desc \"numeric instruction\") = ...`.",
+   "§8 TypingLemmas quotes at NEW lines 187, 196, 772, 1477, 1480, 1482, 1688 and 1690 are exact. The 7 sorry comment lines and their labels are right (including TP 2024 as a docstring). OLD model lines 15435/15568 are right.",
+   "Re-stated theorems:\n- todaywasm2.0.lean (md5 d480dbf1, the bundle32 fresh generator output) has 89 sorry bodies.\n- 87 of those statements are identical in both the OLD and NEW models; only Step_read_is_wf and Step_is_wf differ.\n- Their commented-out originals are at 15430 and 15563.\n- The re-stated versions (NEW 16965/17223, below Store_ok at 16770) add `Store_ok (fun_store z)` and are identical in OLD and NEW.",
+   "Repository state:\n- `git status` of the directory matches the header list.\n- OLD_wasm2.0.lean and wasm2.0_prevattempt.lean were already modified/deleted at the bundle32 baseline; the bundle32 prompt records this as the user's own change.\n- lakefile.lean, lake-manifest.json and lean-toolchain are unmodified, and the lakefile globs exactly these 9 modules.",
+   "Trial-port cross-check:\n- Files: 9 of 9 identical.\n- edits_73.log: 71 renames (56 in wasm2.0, 8 TypeProgress, 3 TypingLemmas, 2 TypePreservationPure, 2 TypePreservation) and 2 deletes.\n- constants_diff: 43 removed / 12 added, using the `_case_67`/`_case_73` names.\n- axcheck: 35 / 74 / 35 / 6.\n- Audit: 0 of 5,496.\n- INSTRUCTIONS.md:147 flags lines 187, 1477, 1480, 1482 and 1690, and keeps 772.",
+   "Inhabited audit:\n- Positive control: 5,499 theorems checked, 2 flagged (audit_ctl_nat, audit_ctl_model); AuditCtl33.lean contains 3 theorems.\n- RunAuditCtl33.lean differs from RunAudit33.lean only by adding the control module to `mods`.\n- RunAudit33.lean's `mods` excludes ExtendedDeriveDecEq.",
+   "Documentation counts recomputed: 0 regex hits in the living docs, 41 historical files.",
+   "Tables carried over from v1 are numerically unchanged: §3.1, §3.2, §3.3, §3.4 and Appendix A, all verified by V-REPORT-1. §6 construct counts recomputed with a scratch copy of toplevel32.py: 24/897/118/52/97/85/135/143/318, total 1,869, OLD = NEW.",
+   "Builds and tools:\n- .lake/build oleans date from 00:31:21, before wasm2.0.lean (03:49) and the 4 repaired modules (09:30). All 7 downstream modules import «wasm2.0» directly.\n- lrun33.sh runs under MemoryMax=12G with toolchain v4.32.0.\n- The evidence copies of chain33.sh (fixed) and check33.sh equal the scratch copies, and toplevel32.py and ctor_map32.py equal the bundle32 copies."
+  ],
+  "safety_checks": [
+   {
+    "label": "V2-FIX-start",
+    "path": "/home/zhengyew/spectec/spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261111T181044.621018891Z-bundle33-V2-FIX-start-419228.txt",
+    "verdict": "ATTENTION: 1 unexpected newer paths, 0 unexpected checksum lines, 0 pre-existing logging files changed, 0 unexpected git status lines (see above; may be the user's own concurrent edits or the IDE).\n\nThe one path is ./spectec/temp-wasm-3/scrap.md, flagged 'WHITELISTED PATH CHANGED AGAIN (md5 differs from the note)'. That is the user's own notes file, which I never read or touched; I reported it and did not act on it. wasm2.0.lean (fdfafb39) and OLD_wasm2.0.lean (4207ecaa) are unchanged. Content changes are limited to the 4 allowed repaired modules."
+   },
+   {
+    "label": "V2-FIX-end",
+    "path": "/home/zhengyew/spectec/spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261111T182858.889744291Z-bundle33-V2-FIX-end-429738.txt",
+    "verdict": "ATTENTION: 1 unexpected newer paths, 0 unexpected checksum lines, 0 pre-existing logging files changed, 0 unexpected git status lines (see above; may be the user's own concurrent edits or the IDE).\n\nAgain the only path is spectec/temp-wasm-3/scrap.md. The user edited it again during this run: mtime 2026-11-11 10:22:10 -0800, md5 now 0f40a93b against 30bffeff in the whitelist. Not acted on. Everything else matches the baseline. My only writes were scratch files under /tmp/claude-1002/-home-zhengyew-spectec/0793c03a-21df-4d2d-9729-4ba22978b528/scratchpad/b33/agents/V2-FIX/ (plus the two reports the check script wrote itself)."
+   }
+  ],
+  "points": [
+   {
+    "n": 1,
+    "status": "resolved",
+    "note": "§5 lines 256-258 now say eq_68, eq_56 and eq_74 are the last lemmas, which disappear when the families shrink. The lemmas from each deleted arm onward changed type: admininstr_instr 48, ai_principal_typing 1, instr_of 54.\n\nChecked: the EXTEND arm is arm 20 of 68, 20 of 74 and 55 of 56. The type-changed sets are exactly admininstr_instr.eq_20-67, instr_of.eq_20-73 and ai_principal_typing.eq_55. NEW eq_k has the type hash of OLD eq_(k+1) for all 48 + 54."
+   },
+   {
+    "n": 2,
+    "status": "resolved",
+    "note": "§0 line 45 and §5 lines 286-288 now say 'user-level' and list the 4 exceptions with their {}↔{propext} changes.\n\nChecked: these 4 br_reduce_decidable._proof_N are the only common declarations whose axioms differ. 'Numbers shifted' holds: NEW _proof_k matches OLD _proof_(k+2) by type hash, and NEW 81/82/120/124 carry the axioms of OLD 83/84/122/126."
+   },
+   {
+    "n": 3,
+    "status": "resolved",
+    "note": "§0 line 40 now says 'No user-level …'. Line 42 limits the 'generated automatically' claim to type changes, and line 43 adds the value changes (5 definitions, 115 proof terms).\n\nChecked against envcat33.json: user-level count 0 for type-changed theorems, definitions and recursors; 5 and 115 for value changes."
+   },
+   {
+    "n": 4,
+    "status": "partially_resolved",
+    "note": "The list is now complete and adds up: theorems 262+197+161+103+1 = 724, definitions 102+10+8+4 = 124, recursors 8. It includes the 161 `_proof_N` and `_simp_1_58`.\n\nBut the 4 `match_on_same_ctor…_hyg.3` definitions that V-REPORT-1 named are labelled '(counter shifted)'. They keep the name `_hyg.3` in both builds, so the label is false for them (new finding 2)."
+   },
+   {
+    "n": 5,
+    "status": "partially_resolved",
+    "note": "The phrase 'shrink by one' is gone. 'Its highest numbers disappear' now fits the families that lost 2 or 3 members (br_reduce_decidable._proof_, decEq._proof_).\n\nBut line 256 still files 12 renumbered members of non-shrinking families under 'The ends of numbered families … When a family shrinks', and names `_simp_N` and `_hyg.N` as such families. Neither specific item V-REPORT-1 raised is addressed: instr_typing_inversion._proof_1_{72,77} (72 is a middle member) and the hygienic counter shifts of 2 and 9 (new finding 3)."
+   },
+   {
+    "n": 6,
+    "status": "partially_resolved",
+    "note": "Every literal V-REPORT-1 listed is now computed in report33.py: 1,869; 53/24/29; 12,775; 35/74; 5,517/5,496; 171; the dump totals; 73/54/47/23; 94/51/26; the construct counts; the §8 line numbers.\n\nBut the header (line 21) now claims 'Every count, line number and listed name below is computed'. That is still false: about 30 hand-typed literals remain, all correct (new finding 1)."
+   },
+   {
+    "n": 7,
+    "status": "resolved",
+    "note": "The §7 `sorry` column is now recounted from the logs, matching both quote styles (report33.py:116). §9 lines 429-431 disclose the defect, and chain33.sh:18 is fixed.\n\nChecked: the only log with such warnings is new_unrepaired/TypingLemmas.log (7 warnings from 6 declarations), and no final log contains 'sorry'."
+   },
+   {
+    "n": 8,
+    "status": "resolved",
+    "note": "§6 line 303 now labels each count, and the header table adds a construct column.\n\nRecounted with a scratch copy of toplevel32.py: ExtendedDeriveDecEq 24, wasm2.0 897, HelperLemmas 118, Subtyping 52, TypingLemmas 97, TypePreservationPure 85, ExtensionLemmas 135, TypePreservation 143, TypeProgress 318; total 1,869; OLD = NEW."
+   },
+   {
+    "n": 9,
+    "status": "resolved",
+    "note": "§8 line 368 now says 'Line 196', computed by find(). NEW TypingLemmas:196 contains 'confirmed by reading all 73 cases' (Instr_ok rules)."
+   },
+   {
+    "n": 10,
+    "status": "resolved",
+    "note": "§8 line 366 now covers TypingLemmas:1688, '~74 cases uniformly'. It explains that the comment describes Rocq's tactic script and gives the Lean reading, which would be 73. This fits the repo's Rocq wasm.v, which still has instr_EXTEND and admininstr_EXTEND."
+   },
+   {
+    "n": 11,
+    "status": "resolved",
+    "note": "§0 line 30 now says 'Each falls into one of three kinds': 7 deleted, 173 renumbered, 31 position comments."
+   },
+   {
+    "n": 12,
+    "status": "resolved",
+    "note": "No 'Command exited' or WALL text is left in the report. parse_log (report33.py:99) strips it, and the TypePreservation 2164 cell ends with Lean's own messages."
+   },
+   {
+    "n": 13,
+    "status": "resolved",
+    "note": "The wrong footnote is replaced by lines 230-232, and every row now includes its 'has not been provided' error.\n\nChecked against the logs: those errors sit at the `cases … with` line (TypePreservationPure 1071, TypingLemmas 567, TypeProgress 813/838/855/7783), or on the edit line for TypePreservation 1347/2164."
+   },
+   {
+    "n": 14,
+    "status": "resolved",
+    "note": "Line 375 now reads 'docstring: `Step_read_is_wf` used to be `sorry`', matching NEW TypePreservation:2024. The other four lines are correctly labelled as 'no sorry' status notes: TypePreservationPure:18, TypePreservation:19, TypeProgress:47 and TypeProgress:51."
+   },
+   {
+    "n": 15,
+    "status": "resolved",
+    "note": "Appendix B now gives the full names `_private.TypePreservation.0.TLC.store_extension_reduce_aux` and the two others, with the note '(a leading `TLC.` is omitted)'."
+   },
+   {
+    "n": 16,
+    "status": "resolved",
+    "note": "Line 400 now says 'rebuilds at least `wasm2.0` and the seven modules that import it'.\n\nChecked: all 7 modules import «wasm2.0» directly. The .lake/build oleans (00:31) predate the changed sources (03:49 and 09:30). The trial port's INSTRUCTIONS.md:110 expects a 9-module rebuild, which 'at least' covers."
+   },
+   {
+    "n": 17,
+    "status": "resolved",
+    "note": "Line 295 now names `ExtendedDeriveDecEq` as the excluded module. report33.py:93 asserts the OLD differences (100 constants, 9 theorems).\n\nI checked NEW as well: 12,787 − 12,687 = 100 and 5,505 − 5,496 = 9. RunAudit33.lean's `mods` list omits ExtendedDeriveDecEq."
+   }
+  ]
+ },
+ "fresh": {
+  "verdict": "problems_found",
+  "findings": [
+   {
+    "section": "§8 Documentation",
+    "claim": "The living docs (claude-logging/README.md, for-claude/*.md, for-humans/*.md) mention no renumbered case and no EXTEND constructor (0 matching lines).",
+    "finding": "False. One living doc names both. claude-logging/for-claude/digest_wasm_v.md:153 has `RELOP/CVTOP/instr_EXTEND, VCONST+SIMD family`. Line 156 has \"(`instr_case_0`..`_67`)\", and line 151 says \"68 constructors\". `instr_case_67` no longer exists in the NEW Lean model, whose cases run 0..66. These lines describe Rocq's test-rocq/theories/wasm.v, which still has these names, so they are accurate about Rocq and not stale. But '0 matching lines' is wrong. The same digest also calls that Rocq file 'the Rocq analogue of wasm2.0.lean', which no longer holds for instr's constructor count.",
+    "evidence": "grep -nE 'EXTEND|_case_[0-9]+' over README.md, for-claude/*.md and for-humans/*.md finds digest_wasm_v.md:153 and :156. In test-rocq/theories/wasm.v, `instr_EXTEND` is at line 3282 and `instr_case_67` at line 3556. Root cause: report33.py:173 searches with `\\b(admin)?instr_case_(19|[2-7][0-9])\\b|\\binstr\\.EXTEND\\b|\\badmininstr\\.EXTEND\\b`, which misses `instr_EXTEND` and the abbreviated `_67`.",
+    "severity": "wrong"
+   },
+   {
+    "section": "§0 One cause / §2 The cause",
+    "claim": "The mech-backend merge deleted one line of the Wasm 2.0 spec: the dead instruction `EXTEND numtype n`. (§2 then lists the merge's other generator changes as ImproveIds, Sideconditions and DefToRel.)",
+    "finding": "Incomplete. The same merge also deleted `def $fzero hint(wfopt)` from specification/wasm-2.0/C-hints.spectec. That file is part of the generator input `../specification/wasm-2.0/*.spectec`. The deletion does not affect the OLD→NEW diff, because the OLD base was already generated without that hint, so 'every difference follows from EXTEND' still holds. But the report omits the change, although both of its own sources state it.",
+    "evidence": "`git diff --stat d7accbb85^1 d7accbb85` lists both specification/wasm-2.0/1-syntax.spectec (1 −) and specification/wasm-2.0/C-hints.spectec (1 −). The C-hints deletion is commit 5d6980fef, 'Reorder sideconditions and deftorel. Remove fzero wfopt hint.' bundle32/evidence/outputs/generator_check.txt lines 18-19 name the C-hints removal. temp_port_reference/INSTRUCTIONS.md §3 says: 'The pre-merge generator's output is generator a09b2d3d3 run on the spec without def $fzero hint(wfopt)' (also §7).",
+    "severity": "missing"
+   },
+   {
+    "section": "§8 Documentation (historical logs)",
+    "claim": "Historical logs in earlier bundles and in `safety-checks/` do mention old case numbers (41 files).",
+    "finding": "The count of 41 reproduces, but none of the 41 files is in safety-checks/. All of them are under verbatim_dialogue_log: bundle12 1, bundle19 1, bundle20 6, bundle21 7, bundle22 1, bundle23 2, bundle29 2, bundle31 1, bundle32 20. No safety-checks file mentions any `case_N` at all.",
+    "evidence": "`grep -rlE '\\b(instr|admininstr)_case_(19|[2-6][0-9]|7[0-3])\\b' verbatim_dialogue_log safety-checks`, excluding bundle33, gives 41 files, every one under verbatim_dialogue_log. `grep -rlE 'case_[0-9]+' safety-checks` gives 0 of the 352 files.",
+    "severity": "imprecise"
+   },
+   {
+    "section": "§8 Pre-existing: two re-stated theorems / Cross-check with the trial port",
+    "claim": "They are re-stated below `Store_ok` with an extra `Store_ok (fun_store z)` premise, as done in bundle29 ... except these two, which hold only in that weaker form. Also: the trial port's records agree with mine everywhere.",
+    "finding": "(a) The re-statement also replaces `(var_0 : config)` by `(z : state) (admininstr_lst : List admininstr)`, with `config.mk_config z admininstr_lst` in the hypotheses. That makes three changes in all. (b) 'Hold only in that weaker form' is true: bundle29 has a Lean witness that the unedited statements are false. It was made against the OLD model, but the generated statements are byte-identical in NEW. The report does not cite the witness. The trial port it says 'agrees with mine everywhere' states the opposite: the falsity 'has not been confirmed with a Lean witness'. That divergence goes unmentioned, and on it the report, not the trial port, is right.",
+    "evidence": "NEW wasm2.0.lean:16965 and :17223 declare `theorem Step_read_is_wf (z : state) (admininstr_lst : List admininstr) ...` and the same for `Step_is_wf`. bundle32/user_requested_documents/deviations_in_copying.md:15 lists 'three changes'. INSTRUCTIONS.md §3 mentions 'the config split', and §6 says 'This has not been confirmed with a Lean witness'. bundle29/evidence/unedited_Step_read_is_wf_false.log shows `Step_read_is_wf_unedited_false` and `Step_is_wf_unedited_false` depending only on propext, Classical.choice and Quot.sound. The commented-out originals in OLD and NEW are identical to the todaywasm2.0.lean statements (md5 76917db6…, bbff41a4…).",
+    "severity": "imprecise"
+   },
+   {
+    "section": "§5 Inhabited defaults / §9 Method and evidence",
+    "claim": "The control module was never in the repo. Also §9 outputs/: 'the audit outputs, including the positive control (audit_ctl.txt, AuditCtl33.lean)'.",
+    "finding": "A copy of the control module is now in the repo, at claude-logging/verbatim_dialogue_log/bundle33/evidence/tools/AuditCtl33.lean. It is in tools/, not outputs/. §9's tools/ list leaves out AuditCtl33.lean, RunAuditCtl33.lean and report33_v1.py, which are all present there.",
+    "evidence": "`ls evidence/tools` shows AuditCtl33.lean, RunAuditCtl33.lean and report33_v1.py. `ls evidence/outputs | grep -i ctl` shows only AuditCtl33_compile.log, audit_ctl.log and audit_ctl.txt.",
+    "severity": "cosmetic"
+   },
+   {
+    "section": "Header 'Computed, not typed' (and §9 'its 17 points are fixed')",
+    "claim": "Every count, line number and listed name below is computed by report33.py (§9) from the files, the build logs and the Lean outputs.",
+    "finding": "Overstated. Several numbers are written as string literals in report33.py, not computed. Examples: §4 'lines 3496 and 3705'; §2 'K ≤ 67' and 'cases 68–73'; §8 trial port '73 edits ... 56 + 15', '(35), (74), (35), (6)' and 'five stale \"68\" comments'; §7 '12 GB' and 'v4.32.0'; §9 '17 edits' and '17 points'. Every such literal I checked is correct. V-REPORT-1 point 6 raised this same issue, so §9's claim that all 17 points are fixed holds only partly.",
+    "evidence": "report33.py lines 262, 342, 407-408, 444-447, 457 and 472 write these numbers inside plain `w('...')` strings.",
+    "severity": "cosmetic"
+   },
+   {
+    "section": "§7 Memory",
+    "claim": "Peak resident memory was 4.54 GiB (4,760,044 KiB), in `TypeProgress`.",
+    "finding": "This is the peak over the compiles only, from OLD TypeProgress. The audit positive-control run in the same evidence peaked higher, at 5,764,540 KiB (5.50 GiB).",
+    "evidence": "outputs/audit_ctl.log: 'WALL 24.91 s  MAXRSS 5764540 KB'. report33.py:119 takes the maximum over the chain summaries only.",
+    "severity": "cosmetic"
+   },
+   {
+    "section": "Header table / §0 Structure / §6",
+    "claim": "top-level constructs: ExtendedDeriveDecEq 24 … TypingLemmas 97 …, 1,869 in all.",
+    "finding": "The count depends on the definition. 1,869 counts every column-0 code line except `deriving`. So the attribute line `@[command_elab deriveDecEqCmd]` (EDDE:727) counts separately from its `def` (728), `initialize registerTraceClass …` (EDDE:723) counts as a construct, and the prefix `set_option maxHeartbeats 1000000 in` (TypingLemmas:1475) counts separately from its theorem. A declaration-based count gives EDDE 22 and TypingLemmas 96, 1,866 in all. The one-for-one match and the 53 changed constructs (24 code, 29 comment-only) hold under either count.",
+    "evidence": "My block-comment-aware scanner gives 22/897/118/52/96/85/135/143/318. Counting attribute, initialize and set_option-in lines separately gives exactly 24/897/118/52/97/85/135/143/318 = 1,869.",
+    "severity": "cosmetic"
+   },
+   {
+    "section": "§8 Cross-check (edits)",
+    "claim": "its `patches/edits_73.log` lists the same 73 edits, matched one for one by file, kind and text",
+    "finding": "The match holds only by text prefix. edits_73.log truncates long lines, for example '…List.mem_append_left _ hx' without the closing parenthesis. The report's own trial_port_crosscheck.txt says so ('their texts are truncated prefixes'), but §8 does not.",
+    "evidence": "Matching on (file, line, prefix of text) gives 73/73. An exact-text comparison fails for 3 of the 71 renames.",
+    "severity": "cosmetic"
+   },
+   {
+    "section": "§2 Why so many names moved",
+    "claim": "Each OLD case was matched to the NEW case with identical text ... none was ambiguous or unmatched.",
+    "finding": "OLD case 19 (EXTEND) is necessarily unmatched. The parenthetical '(67 of 67 and 73 of 73)' limits the claim to the surviving cases, but read literally, 'each OLD case' and 'none ... unmatched' are false for case 19.",
+    "evidence": "outputs/ctor_map33.json has `unmatched_old: [\"instr_case_19\"]` and `[\"admininstr_case_19\"]`. My own text match gives 67/67 and 73/73 unique, 0 ambiguous, with OLD case_19 unmatched.",
+    "severity": "cosmetic"
+   }
+  ],
+  "checks_passed": [
+   "All checks below were independent: my own scripts, which did not re-run the report's tools, in /tmp/claude-1002/-home-zhengyew-spectec/0793c03a-21df-4d2d-9729-4ba22978b528/scratchpad/b33/agents/V2-FRESH/ (classify.py, toplevel_mine.py, constructs_changed.py, wfcases.py, sorrythms.py). OLD came from `git show HEAD:`, NEW from the working tree.",
+   "Header table: all 9 md5 prefixes and line counts are correct. HEAD wasm2.0.lean equals OLD_wasm2.0.lean (4207ecaa…). The convenience copies b33/old/src, b33/final/src and b33/new/src are byte-identical to HEAD and the tree.",
+   "Line accounting (§0, §1): I normalised OLD (case K≥20→K−1, 1-syntax L>474→L−1) and ran difflib against NEW. Result: 211 differing OLD lines, 194 in the model and 17 in the proof modules. Of these, 7 are deleted (5+2), 173 renumbered (102+56+15) and 31 position comments, with 0 unexplained. Per-file counts match the §1 table. Plain GNU diff also gives 194/5/2/2/8 OLD lines. The evidence TSV (211 rows) equals my rows exactly. The four unchanged modules are byte-identical.",
+   "§3.1 (5 lines: 1953, 2062, 12206, 12287, 12409) and §4.1 (TypingLemmas 131 and 454) are exact.",
+   "Case meaning (§2, §3.2), from parsing the inductives. instr has 68→67 constructors and admininstr 74→73, with EXTEND at index 19 of both. wf_instr has 68→67 cases and wf_admininstr 74→73. Case K concludes on constructor K in both versions. Numbering is alike for K≤67, and OLD cases 68–73 are REF_FUNC_ADDR, REF_HOST_ADDR, CALL_ADDR, LABEL_, FRAME_, TRAP. Matching by text gives unique 67/67 and 73/73 matches following K→K−1. All 54 rows of the §3.2 table (instruction and both line pairs) are exact, and 48+54 = 102. todaywasm2.0.lean references cases ≥19 only on those 102 declaration lines.",
+   "§3.3: all 31 constructs and their OLD→NEW comment lines, and the example, are exact. All 31 1-syntax positions above 474 shift by −1, none spans 474, and the 238 positions at or below 474 are unchanged.",
+   "§3.4 and Appendix A: all 56 rows are exact (lines, construct, full OLD/NEW text), and the per-construct instruction×lines summary regenerates identically. All 56 are admininstr references, one per line. bundle32 deviations_in_copying.md §4 lists the same 56 line pairs.",
+   "§4.2: all 15 rows are exact (lines, construct, change, instruction). Every 'role of the line' entry was checked against the source and is accurate. This includes the call_addr reduct `FRAME_ v_n f [LABEL_ v_n [] instrs]`, local.tee → local.set, wf_forall_admin_val, and the Rocq citations type_progress.v:829/857/870 and typing_lemmas.v:124, which I checked in test-rocq. The error column matches unrepaired_errors/*.log and is consistent with the NEW constructor arities (VVUNOP 2 fields, TRAP 0, case_40 REF_FUNC, case_68 REF_HOST_ADDR, case_69 CALL_ADDR, no case_73). The line on which the 'has not been provided' message appears is as stated.",
+   "First unrepaired TypingLemmas compile: 80 errors, of which 67 are rfl failures at line 192 (instr_of_admininstr_instr). There are 7 'declaration uses `sorry`' warnings on exactly the 6 named declarations (construct_ai_maybe twice), and no error at line 570.",
+   "All 71 renamed proof lines sit after their theorem's `:=`. No other line in the 8 proof modules mentions a case ≥19. No OLD case_19 reference survives into NEW, and NEW references no nonexistent case. instr.EXTEND/admininstr.EXTEND appear only on the 5+2 OLD lines. TypeProgress 3496 and 3705 are the vcvtop EXTEND, and unop_Inn, cvtop__Inn_1_Inn_2 and vcvtop EXTEND still exist.",
+   "§2: commit 28073cddd deleted exactly line 474 with the quoted text in `syntax instr/num`, and it is on the mech-backend side of merge d7accbb85. generator_check.txt says what §2 says. Rule counts are Instr_ok 73, Step_pure 54, Step_read 47 and Step 23 in both versions.",
+   "§6: construct names and order are identical OLD/NEW. 53 constructs changed (24 code, 29 comment-only), and every per-construct count matches.",
+   "§5, recomputed from the dumps: 12,818/5,526 and 12,787/5,505 declarations/theorems; 12,775 common, 43 only in OLD, 12 only in NEW, both lists equal to Appendix B. The category counts are 10/8/6/5/4/4/3/2/1 and 8/2/1/1. 24 theorems removed and 3 added give the difference of 21. Type changes: 724 theorems (262/197/161/103/1), 124 definitions (102/10/8/4) and 8 recursors, all Lean-generated. Value changes: 168 definitions (5/102/28/14/11/4/4) and 115 user-level theorems, equal to Appendix B per module (9/11/22/38/35). Of the 17 edited theorems, exactly the 5 named ones are unchanged. The eq-lemma shifts are 48/1/54. Only 4 axiom sets differ (br_reduce_decidable._proof_81/82/120/124). t_preservation has 35 axioms (3+32 *_is_wf) and t_progress 74 (3+56 model axioms+15 HelperLemmas axioms from axioms.v), identical OLD/NEW. 0 declarations depend on sorryAx. EnvDump33 renames constructors inside types and values.",
+   "Audit: 0 of 5,517 and 0 of 5,496. The positive control checked 5,499 and reported exactly audit_ctl_nat and audit_ctl_model. EDDE accounts for 9 theorems and 100 constants of the difference.",
+   "§7: 0 errors. Warnings per module total 171, with identical messages OLD/NEW; positions shift only by lines deleted above them. The split is 94 unused variables, 51 naming lints and 26 others. All 27 times match the chain summaries. The peak over compiles is 4,760,044 KiB (OLD TypeProgress). The build ran under a 12 GB cap with bare lean v4.32.0 and no lake.",
+   "§8: the 5 stale '68' comments are at NEW 187/1477/1480/1482/1690, and lines 1688, 772 and 196 are as described; no other proof-module comment has a stale count. The 7 sorry lines are at the stated lines and all are comments; OLD has them at 15435 and 15568. todaywasm2.0.lean has 89 sorry. 87 statements are identical and proved in both NEW (vs todaywasm2.0.lean) and OLD (vs todaywasm2.0_shouldwork). The commented-out originals equal the generator output; the re-stated theorems are below Store_ok (16770) with the extra premise, and only renames changed in them.",
+   "§8 trial port: all 9 NEW files are byte-identical to trial_port/. The 73 edits match (71 renames and 2 deletions). The constants diff has 43/12 entries, equal after the 4 case-name translations. Warnings match, the 4 axiom sets equal my dumps in OLD and NEW, the audit gives 0/5,496, and it flags the same five comments.",
+   "Other §8 and header claims: the .lake/build oleans (00:31) predate the changed sources, and all 7 downstream modules import «wasm2.0». The untouched files predate the bundle33 marker. git status for the directory matches the header, and lakefile/manifest/toolchain are unchanged. lakefile builds exactly the 9 modules.",
+   "§9: only the first unrepaired TypingLemmas log has sorry warnings (7), and no final log contains 'sorry'. chain33.sh now matches both quote styles. edits33.json has 17 edits (15 renames and 2 deletions).",
+   "Numbers are consistent across §0, §1, §3, §4, §5, §6, §7, §8 and Appendices A/B (211, 194/17, 7/173/31, 102/56/15, 53=24+29, 1,869, 12,775, 43/12, 24−3=21, 115, 168, 171)."
+  ],
+  "safety_checks": [
+   {
+    "label": "V2-FRESH-start",
+    "path": "/home/zhengyew/spectec/spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261111T181045.264900843Z-bundle33-V2-FRESH-start-419250.txt",
+    "verdict": "ATTENTION: 1 unexpected newer paths, 0 unexpected checksum lines, 0 pre-existing logging files changed, 0 unexpected git status lines. The path is 'WHITELISTED PATH CHANGED AGAIN (md5 differs from the note): ./spectec/temp-wasm-3/scrap.md', most likely the user's own concurrent note edit; I did not act on it. wasm2.0.lean (fdfafb39…) and OLD_wasm2.0.lean (4207ecaa…) equal the baseline. Only the 4 allowed proof modules have changed content."
+   },
+   {
+    "label": "V2-FRESH-end",
+    "path": "/home/zhengyew/spectec/spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261111T183416.350485498Z-bundle33-V2-FRESH-end-431702.txt",
+    "verdict": "ATTENTION: 1 unexpected newer paths, 0 unexpected checksum lines, 0 pre-existing logging files changed, 0 unexpected git status lines. It is the same single path as at the start, ./spectec/temp-wasm-3/scrap.md (user's notes), and I did not act on it. The model md5s equal the baseline, and the 4 proof modules still have the report's NEW md5s (21429230, ff4fd477, 4c4bb6a6, 5e00f3b5). This verifier wrote nothing in the repo; all scratch files are under …/scratchpad/b33/agents/V2-FRESH/."
+   }
+  ]
+ },
+ "critic": {
+  "verdict": "problems_found",
+  "findings": [
+   {
+    "section": "§4.2 Renumbered constructor references (15 lines)",
+    "claim": "The 15-row table gives only the token change (e.g. `admininstr_case_20` → `admininstr_case_19`), the instruction, a role sentence and the Lean error.",
+    "finding": "The report never shows the 15 renamed proof-module lines as text (OLD line → NEW line). Appendix A does this for the 56 model lines. These 15 lines plus the 2 deleted arms are the whole of this turn's repair, so without the text a reviewer has to open the files or diff33_all_changed_lines.tsv to see what was edited. The role column is also one generic sentence repeated for TypeProgress 800–803 and 814. Line 814 works in the converse direction: it destructs the VCONST well-formedness to build wf_val.",
+    "evidence": "Lines from the HEAD vs working-tree diff that the report does not show: TypeProgress 800–803 `| val_case_1 vt c hsz hwfc => exact wf_admininstr.admininstr_case_20 vt c hsz hwfc` (→_19), `| val_case_2 rt => exact wf_admininstr.admininstr_case_40 rt` (→_39), `| val_case_3 a => exact wf_admininstr.admininstr_case_68 a` (→_67), `| val_case_4 a => exact wf_admininstr.admininstr_case_69 a` (→_68); 814 `| admininstr_case_20 _ _ hsz hwfc => exact wf_val.val_case_1 vt c hsz hwfc`; 839/856/7784 `| admininstr_case_71 _ _ _ hbes hes =>`, `| admininstr_case_72 _ _ _ hwff hes =>`, `| admininstr_case_72 _ _ _ hf hes =>`; TypePreservation 1347 `cases h with | admininstr_case_20 _ _ h1 h2 => exact ⟨h1, h2⟩`, 2164 `cases hwfF with | admininstr_case_72 _ _ _ _ hl => exact hl _ (List.mem_singleton_self _)`; TPP 1072 `| admininstr_case_45 _ hwfl =>`, 1085 `have hwfinstr_set : wf_instr (instr.LOCAL_SET v_x) := wf_instr.instr_case_44 v_x hwfl`; TypingLemmas 570 `| instr_case_20 vt v not_none_size wf_vec =>`, 1681 `... := wf_instr.instr_case_20 vectype.V128 c_t hsize hwfuN`, 1747 `(Instr_ok2.trap v_S v_C t1s t2s hwfS hwfC wf_admininstr.admininstr_case_73)`.",
+    "severity": "missing"
+   },
+   {
+    "section": "§0 Statements / §5 Statements",
+    "claim": "\"No user-level theorem, definition, inductive type or constructor changed its statement. This is checked in Lean, over the 12,775 declarations common to both builds\"",
+    "finding": "This check works at the level of names. A type hash refers to `instr`, `admininstr`, `wf_instr`, `wf_admininstr`, `config`, `Instr_ok` and `Step*` by name only. It therefore cannot see that every statement mentioning them now quantifies over types with one constructor fewer; for example, t_preservation and t_progress range over configurations that in OLD could contain EXTEND. The dump also stores no value for inductive types, so `instr` and `admininstr` look identical in OLD and NEW even though each lost a constructor. The report never says this. It also never links the §2 facts (no Instr_ok or Step_pure/Step_read/Step rule mentions EXTEND, so no well-typed configuration contained it) to its claim that the theorems still mean the same.",
+    "evidence": "dump_old/new.tsv: `«wasm2.0» induct instr 3931117990 - -` and `«wasm2.0» induct admininstr 3931117990 - -` are identical in both dumps; only `instr.rec` changes (1570567856 → 2104716578). Recounted: instr 68→67, admininstr 74→73, wf_instr 68→67, wf_admininstr 74→73 constructors; Instr_ok 73, Step_pure 54, Step_read 47, Step 23 in both.",
+    "severity": "imprecise"
+   },
+   {
+    "section": "§5 Lean-level comparison: totals",
+    "claim": "\"Values changed in 5 user-level definitions and 115 user-level proof terms\"; §5 breaks down the 724/124/8 type changes and the 168 definition value changes",
+    "finding": "The report never states that 846 theorems changed value in total, and it does not break down the 731 generated ones. It also gives no per-module or per-kind distribution. So it never says that the four byte-identical modules are also identical at the elaborated level, or that no axiom or opaque changed its type or value. Three generated theorems changed value without changing type, and this is not explained.",
+    "evidence": "Recomputed from dump_*.tsv.gz and envcat33.json. value_changed thm 846 = 115 user + 262 decEq auxiliaries + 199 matcher/splitter auxiliaries + 161 _proof_N + 104 eq_N + 4 rec-family + 1 _simp. Changed declarations per module: wasm2.0 438, TypingLemmas 263, TypeProgress 203, TypePreservationPure 82, TypePreservation 38; ExtendedDeriveDecEq, HelperLemmas, Subtyping and ExtensionLemmas 0, with declaration counts 100/179/65/132 the same in OLD and NEW. Per kind OLD→NEW: thm 5,526→5,505, def 3,925→3,921, ctor 2,336→2,330, induct 440, rec 442, axiom 83, opaque 66 (unchanged). Type or value changes occur only for thm, def and rec. Value changed with type unchanged: TLC.ai_principal_typing.eq_6, _private.TypeProgress.0.TLC.is_const.match_1.eq_6, _private.TypeProgress.0.TLC.split_vals.match_1.eq_6.",
+    "severity": "missing"
+   },
+   {
+    "section": "§5 Method",
+    "claim": "\"a hash of its type; a hash of its value (both hashes ignore binder names)\"",
+    "finding": "The method description is incomplete:\n- The hashes are 32-bit, not 64-bit: every dumped value is below 2^32.\n- Expr.hash ignores binder annotations (implicit, explicit, instance) and metadata as well as binder names.\n- Equal hashes are therefore strong evidence of equal terms, not proof.\n- The dump records no inductive, constructor or recursor metadata (constructor lists, constructor indices, numFields, recursor rules) and no environment extensions (attributes, simp sets, instances, reducibility, docstrings).\n\nIn particular the report never states that the 48 `instr` and 54 `admininstr` constructors after EXTEND each moved down one constructor index. That shift is the root cause of the 102 `X.CTOR.elim` type changes, the ctorIdx/noConfusionType value changes and the 262 decEq sub-proof changes.",
+    "evidence": "The maximum hash in both dumps is 4,294,933,060, below 2^32. EnvDump33.lean writes only `{m}\\t{kind}\\t{nm}\\t{th}\\t{vh}\\t{axs}`, and renameName maps only wf_instr/wf_admininstr constants and their .below versions. In envdiff33.json, type_changed_def contains exactly 102 `.elim` entries (admininstr 54, instr 48). The report contains no mention of binder info, constructor indices, ctorIdx or attributes.",
+    "severity": "imprecise"
+   },
+   {
+    "section": "§0 Statements / §5 Proof terms that changed",
+    "claim": "\"Almost all are unchanged source that now case-splits over one constructor fewer.\" … \"these 5 have the same proof term as before … Their edits were pure renamings.\"",
+    "finding": "For the 103 theorems and 2 definitions whose source is unchanged, the cause is asserted, not checked theorem by theorem. Hashes cannot show why a term changed, and other causes are possible: references to renumbered auxiliaries whose statements shifted, such as instr_of.eq_N, admininstr_instr.eq_N, ai_principal_typing.match_1.eq_N, is_const._sparseCasesOn_1 and *_proof_N. \"Almost all\" means 105 of the 120 user-level value changes. The sentence \"Their edits were pure renamings\" suggests the other 12 edits were not, but all 17 were pure renamings. The actual difference is that each of the 12 changed proof terms does a `cases` on wf_instr/wf_admininstr, while the 5 unchanged ones only apply a constructor.",
+    "evidence": "The 5 unchanged: iswf_admininstr_VCONST `wf_admininstr.admininstr_case_19 _ _ (by decide) h`, iswf_store_I32_8 `wf_admininstr.admininstr_case_56 …`, iswf_load_I32_8_U `wf_admininstr.admininstr_case_55 _ _ _`, construct_ai_val `wf_instr.instr_case_19 …`, construct_ais_trap `wf_admininstr.admininstr_case_72`. The 12 changed all contain `cases … with | …_case_K` (e.g. iswf_admininstr_VCONST_inv, wf_vconst_parts, t_read_preservation, Step_*_is_wf). envdiff33.json type_changed_def includes TLC.is_const._sparseCasesOn_1.",
+    "severity": "imprecise"
+   },
+   {
+    "section": "§8 Pre-existing: two re-stated theorems",
+    "claim": "\"So 'zero sorry' covers the generated statements, except these two, which hold only in that weaker form.\"",
+    "finding": "The report gives no source for its claim that the generated forms are false. Bundle29 did confirm this with a Lean witness, but that witness was built on the bundle29 model and was not re-run on NEW, and the report mentions neither the witness nor this. The re-statements also split the config into `z`/`admininstr_lst`, in addition to adding the Store_ok premise. The report does not name the \"fresh generator output\" in which it counts 89 sorrys. temp_port_reference raises the same missing-witness point.",
+    "evidence": "bundle29/user_requested_documents/wasm2.0_additions_and_impact.md:26–32 (StepReadFalse.lean: a configuration whose store holds a table of 2^32 references steps by table.size to CONST I32 2^32). NEW wasm2.0.lean:16965–16969 `theorem Step_read_is_wf (z : state) (admininstr_lst : List admininstr) … wf_config (config.mk_config z admininstr_lst) → Store_ok (fun_store z) → …`. report33.py:169 reads spectec/test-lean/todaywasm2.0.lean (md5 d480dbf1…, 89 `sorry` lines). temp_port_reference/INSTRUCTIONS.md §6: \"This has not been confirmed with a Lean witness.\"",
+    "severity": "missing"
+   },
+   {
+    "section": "§8 Documentation",
+    "claim": "\"The living docs (claude-logging/README.md, for-claude/*.md, for-humans/*.md) mention no renumbered case and no EXTEND constructor (0 matching lines).\"",
+    "finding": "This is literally false. for-claude/digest_wasm_v.md lists EXTEND among the instr constructors, gives the full old wf_instr case range, and counts the constructors. It describes Rocq's wasm.v, so it may be correct as written, but the report neither mentions nor discusses it. The regex used only matches the Lean spellings. The trial port's own critique flagged this file, so §8's \"its records agree with mine everywhere\" is also too strong.",
+    "evidence": "digest_wasm_v.md:151 \"68 constructors (NOP, …\", :153 \"RELOP/CVTOP/instr_EXTEND, VCONST+SIMD family …\", :156 \"(`instr_case_0`..`_67`)\", :237 \"`wf_admininstr` (73 cases)\". report33.py:173 pat_old = `\\b(admin)?instr_case_(19|[2-7][0-9])\\b|\\binstr\\.EXTEND\\b|\\badmininstr\\.EXTEND\\b`. temp_port_reference/verification/workflow_findings.json critic: \"digest_wasm_v.md has 1 case reference and 1 '68'\".",
+    "severity": "imprecise"
+   },
+   {
+    "section": "Byte level (header table, §1)",
+    "claim": "The header table gives md5 prefixes and line counts only.",
+    "finding": "The report makes no byte-level statement about sizes, encoding, line endings, BOM, final newline or whitespace, and it does not give full md5s. I checked all 18 files (OLD and NEW): all are UTF-8 with LF line endings, no BOM, exactly one trailing newline, and no trailing whitespace or tabs, in both states. Sizes change only where lines were deleted. TypePreservationPure, TypePreservation and TypeProgress keep their exact byte size, because every rename (K ≥ 20 → K−1) and every position change (L > 474 → L−1) keeps the same number of digits.",
+    "evidence": "wasm2.0 1,332,852 → 1,332,500 bytes (−352 = the sum of len+1 over OLD lines 1953, 2062, 12206, 12287, 12409). TypingLemmas 105,699 → 105,607 (−92 = OLD lines 131 and 454). The other 7 files have equal sizes. Python scan in the V2-CRITIC scratch directory: crlf=0, bom=False, endsNL=True, endsBlank=False, trailingWS_lines=0, tab_lines=0, utf8-ok for every file.",
+    "severity": "missing"
+   },
+   {
+    "section": "§8 Left unchanged, and other notes",
+    "claim": "Only the comments that count instructions (\"68\") are inventoried.",
+    "finding": "The report does not list the proof-module comments that cite wasm2.0.lean by line number. Six citations point past the first deleted line (1953). All six were already wrong in OLD and are still wrong, but the declarations they refer to moved by −2 or −5 lines between OLD and NEW. The trial port's critic flagged two of them.",
+    "evidence": "HelperLemmas:678 `wasm2.0.lean:4203` (nbytes_ is at OLD 4555 → NEW 4553); HelperLemmas:726 \"line 2652\" (truncz 2701 → 2699); HelperLemmas:734 \"line 4644\" (lanes_ 5003 → 5001); TypingLemmas:838 `wasm2.0.lean:11261` (val_ref 11945 → 11943); Subtyping:15 \"lines 12669, 12675\" (Valtype_sub 13401 → 13396, Resulttype_sub 13407 → 13402). Citations of lines 9, 12, 20 and 798 are unaffected.",
+    "severity": "missing"
+   },
+   {
+    "section": "§8 lake build / §7 Builds",
+    "claim": "\"[.lake/build] predates these changes, so the next lake build … rebuilds at least wasm2.0 and the seven modules that import it\"",
+    "finding": "The repo's .lake/build matches neither state, not only NEW. Its Lake traces record warning counts that differ from a fresh OLD build, and it holds oleans for modules this lakefile does not build. So there is no Lake-built artifact of OLD either, and both states are evidenced only by the bare-lean scratch builds. The trial port's critic reported the same staleness against the originals.",
+    "evidence": "Read-only listing of spectec/src/test-lean-claude/.lake/build/lib/lean (every file dated 2026-11-11 00:31). Trace logs record wasm2.0 93 warnings (fresh OLD build: 89), TypePreservation 9 (fresh: 7) and TypeProgress 0 (fresh: 1). The directory also contains custom_notation.olean, sandbox_5.olean, sandbox_10.olean and typing_lemmas.trace. temp_port_reference workflow_findings.json critic: \"The repo's own .lake/build is stale against the current sources\".",
+    "severity": "imprecise"
+   },
+   {
+    "section": "Header \"Computed, not typed\" and §9",
+    "claim": "\"Every count, line number and listed name below is computed by report33.py\" … \"its 17 points are fixed in this one\"",
+    "finding": "Several numbers are still typed as literals in report33.py's prose. All the ones I checked are correct, but the claim is overstated. V-REPORT-1 point 6 objected to exactly this claim, and the sentence was made stronger instead of being fixed. Point 5 is only partly fixed: the instr_typing_inversion._proof_1 family shifts down by one ({70,71,72,76,77} → {69,70,71,75,76}) rather than losing its highest numbers, and the hygienic counters shift by 2 and by 9. Prose added in this version was not re-checked by an independent reader.",
+    "evidence": "report33.py literals: line 260 \"constructor 19\"; 262 \"K ≤ 67\", \"68–73\"; 337–342 \"1085\", \"1072\", \"570\", \"3496\", \"3705\"; 444–447 \"73 edits\", \"56 + 15\", \"43 removed and 12 added\", \"(35)\", \"(74)\", \"(35)\", \"(6)\", \"five\"; 457 \"17 edits\"; 472–474 \"17 points\", \"7 warnings\". See V-REPORT-1_final_report.md items 5 and 6.",
+    "severity": "imprecise"
+   },
+   {
+    "section": "Header: The whole directory",
+    "claim": "\"OLD_wasm2.0.lean was replaced by HEAD's model, and wasm2.0_prevattempt.lean was deleted\"",
+    "finding": "The directory-level diff names these two files but does not say what HEAD held. HEAD's OLD_wasm2.0.lean was a different, older model, which was replaced by the HEAD model; HEAD's wasm2.0_prevattempt.lean was deleted. Neither file is in the lakefile globs, so neither affects the builds, but an exhaustive directory diff should identify both by size and md5.",
+    "evidence": "`GIT_OPTIONAL_LOCKS=0 git show HEAD:spectec/src/test-lean-claude/OLD_wasm2.0.lean` gives 16,508 lines, md5 059c0051d4fce393ef63a7b47b4b6e19; it is now 17,527 lines, md5 4207ecaa…. HEAD's wasm2.0_prevattempt.lean has 15,537 lines, md5 72748a07fba4740bc54ece908c937ea2. The lakefile globs list only the nine modules.",
+    "severity": "missing"
+   },
+   {
+    "section": "§3.4 / Appendix A",
+    "claim": "The 56 model-proof renames are listed with their OLD/NEW text.",
+    "finding": "Appendix A rows do not say which instruction each rename refers to, and nothing shows that each rename was needed. §4.2 gives both of these for the proof-module lines. A reviewer has to cross-reference §3.2 row by row. Bundle32's compile of the verbatim copy, which had 72 errors, is not cited.",
+    "evidence": "Appendix A columns: line, construct, text only. bundle32/evidence/outputs/compile_verbatim_copy_72_errors.log has 72 `: error` lines on 65 distinct lines.",
+    "severity": "missing"
+   },
+   {
+    "section": "§7 Warnings / Memory; §5 Inhabited defaults",
+    "claim": "\"26 other linter suggestions: tactics that do nothing, unused simp arguments, and Try this hints\"; \"Peak resident memory was 4.54 GiB … in TypeProgress\"; \"with every Inhabited instance opaque\"",
+    "finding": "Several small inaccuracies and omissions:\n- **Warnings.** The 26 \"other\" warnings also include the largest subgroup, 6 × \"Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\", plus 2 × \"try 'simp' instead of 'simpa'\" and 1 × \"this tactic is never executed\".\n- **Info output.** Both logs contain the 118-line info output of `#check Instrs_ok2.rec` (TypeProgress:8151), which the report does not mention.\n- **Stronger fact not stated.** Every OLD and NEW build log is identical once positions and timings are stripped, which is stronger than \"the 171 warnings are the same messages\".\n- **Memory.** The 4.54 GiB peak is from OLD's TypeProgress (NEW repo: 4,746,004 KiB). The audit control run peaked higher.\n- **Audit wording.** The audit makes opaque the 121 instances defined in the modules and the 7 external instances they reference, not every Inhabited instance.",
+    "evidence": "Recount over build_logs/new_from_repo: 94 unused-variable + 51 naming + 26 other = 171. After stripping `file:L:C:` and WALL lines, diffing old/ against new_from_repo/ gives 0 differing lines for all 9 modules. audit_ctl.log: \"MAXRSS 5764540 KB\". audit_*.txt: \"module Inhabited instances made opaque: 121; external instances made opaque: [Int.instInhabited, instInhabitedBool, instInhabitedNat, instInhabitedOption, instInhabitedRat, instInhabitedList, Inhabited.mk]\".",
+    "severity": "cosmetic"
+   }
+  ],
+  "checks_passed": [
+   "md5 and line counts of all 9 modules in OLD (HEAD afb06bf8d) and NEW (working tree) match the header table. HEAD's wasm2.0.lean equals the working-tree OLD_wasm2.0.lean (4207ecaa…). The convenience copies b33/old/src and b33/final/src are byte-identical to HEAD and to the working tree. temp_port_reference/trial_port/*.lean is identical to NEW, 9 of 9.",
+   "Line accounting reproduced with my own alignment: 211 = 7 deleted (5 model + 2 TypingLemmas) + 173 renumbered (102 generated + 56 model proofs + 15 proof modules) + 31 position comments, 0 unexplained. Per-file counts match §1, and ExtendedDeriveDecEq, HelperLemmas, Subtyping and ExtensionLemmas are byte-identical. No unchanged aligned line in any NEW file references *_case_K with K ≥ 19.",
+   "§3.1 (5 deleted lines and their positions). §3.2: all 54 rows (OLD/NEW line numbers and instructions) verified; case bodies are identical after the K→K−1 map, and cases 0–18 are unchanged. §3.3: 31 comments; every 1-syntax.spectec citation with L > 474 shifts by −1, none cites or spans 474, and citation counts per spec file are the same in OLD and NEW.",
+   "Appendix A: all 56 rows match the files exactly (text and line numbers), and the §3.4 per-construct tallies are correct.",
+   "§4.1/§4.2 line numbers, constructs and error texts match unrepaired_errors/*.log and build_logs/new_unrepaired/TypingLemmas.log: 80 errors, 67 rfl failures at 192, invalid-pattern errors at 131 and 454, and 7 'declaration uses sorry' warnings in 6 declarations. TypeProgress 3496 and 3705 are vcvtop EXTEND.",
+   "Top-level constructs: the (kind, name) sequences are identical in OLD and NEW; counts 24/897/118/52/97/85/135/143/318 = 1,869.",
+   "§2: commit 28073cddd deletes exactly line 474 (`| EXTEND numtype n …`) and nothing else. bundle32 generator_check.txt says what §2 claims. Instr_ok 73, Step_pure 54, Step_read 47, Step 23 in both states. instr 68→67, admininstr 74→73, admininstr_instr arms 68→67, instr_of arms 74→73, ai_principal_typing arms 56→55.",
+   "Dumps recomputed: 12,818/12,787 declarations, 12,775 common, 43 only in OLD and 12 only in NEW; 5,526/5,505 theorems (24 removed, 3 added). Type changes 724/124/8; value changes 846 theorems and 168 definitions. 0 user-level type changes; the user-level value changes are exactly the 5 definitions and 115 theorems of Appendix B. Every one of those 120 is a source-declared name, and no source-declared name appears in any generated category. The 102 .elim are 48 instr + 54 admininstr.",
+   "Axioms differ only for 4 br_reduce_decidable._proof_N. The t_preservation (35 = 3 + 32 *_is_wf) and t_progress (74 = 3 + 56 *_is_wf + 15 TLC) lists are identical in envdump_old.log and envdump_new.log. 0 sorryAx. ExtendedDeriveDecEq has 100 constants and 9 theorems in both, which accounts for 5,517/5,496.",
+   "Inhabited audit: 0 of 5,517 and 0 of 5,496. The control run checked 5,499 theorems and reported exactly audit_ctl_model and audit_ctl_nat.",
+   "Build logs: 0 errors and no `sorry` in any final log. Warnings 89/4/0/9/47/14/7/1 = 171 = 94 + 51 + 26, the same messages in OLD and NEW. The times and the 4,760,044 KiB peak in §7 match the chain_*.txt summaries.",
+   "Directory: HEAD vs working tree (excluding claude-logging and .lake) differs exactly as the report lists. lakefile.lean, lake-manifest.json and lean-toolchain (v4.32.0) are unchanged, and the lakefile globs are the 9 modules.",
+   "No sorry, admit or native_decide in code in either state. The 7 comment lines containing 'sorry' are at the stated NEW lines, and OLD has the commented-out pair at 15435/15568. The generated base todaywasm2.0.lean (md5 d480dbf1…) has 89 `sorry` lines.",
+   "§8 count comments are at NEW TypingLemmas 187, 1477, 1480, 1482 and 1690, with 1688, 772 and 196 as described. The report's own logic gives 41 historical logging files with old case numbers."
+  ],
+  "safety_checks": [
+   {
+    "label": "V2-CRITIC-start",
+    "path": "/home/zhengyew/spectec/spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261111T181046.431177097Z-bundle33-V2-CRITIC-start-419271.txt",
+    "verdict": "ATTENTION: 1 unexpected newer paths, 0 unexpected checksum lines, 0 pre-existing logging files changed, 0 unexpected git status lines (see above; may be the user's own concurrent edits or the IDE). The single path is ./spectec/temp-wasm-3/scrap.md, flagged as 'WHITELISTED PATH CHANGED AGAIN (md5 differs from the note)'. These are the user's own notes; I reported this and did not act on it. HEAD is unchanged, wasm2.0.lean fdfafb39… and OLD_wasm2.0.lean 4207ecaa… match the baseline, only the 4 allowed proof modules differ from the baseline, and .lake/packages is identical."
+   },
+   {
+    "label": "V2-CRITIC-end",
+    "path": "/home/zhengyew/spectec/spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261111T183004.496872587Z-bundle33-V2-CRITIC-end-430318.txt",
+    "verdict": "ATTENTION: 1 unexpected newer paths, 0 unexpected checksum lines, 0 pre-existing logging files changed, 0 unexpected git status lines. The single cause is the same as at the start: ./spectec/temp-wasm-3/scrap.md (the user's notes), not acted on. The repaired modules' md5s equal the report's NEW md5s: TypingLemmas 21429230…, TypePreservationPure ff4fd477…, TypePreservation 4c4bb6a6…, TypeProgress 5e00f3b5…."
+   },
+   {
+    "label": "scratch and tool discipline",
+    "path": "/tmp/claude-1002/-home-zhengyew-spectec/0793c03a-21df-4d2d-9729-4ba22978b528/scratchpad/b33/agents/V2-CRITIC/",
+    "verdict": "This directory is the only place I wrote: copies old/ and new/ of the 9 modules, decompressed dumps, and the linecls2.py and envcmp.py scripts. Apart from the two check reports, nothing in the repo was written. No lean, lake, elan, dune, spectec or other build was run. git was used read-only with GIT_OPTIONAL_LOCKS=0. .lean files were read only through Bash, and .lake/build was inspected read-only. No network was used."
+   }
+  ]
+ }
+}

@@ -1,0 +1,3 @@
+old generated base: 805 top-level constructs; new generated model: 805
+identical (kind, name) sequence: True
+unrecognised column-0 lines: []
